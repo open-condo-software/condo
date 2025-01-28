@@ -11,7 +11,7 @@ const { makeLoggedInAdminClient, makeClient, UUID_RE, expectToThrowAccessDeniedE
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 const { sendB2BAppPushMessageByTestClient, createTestAppMessageSetting, createTestB2BApp, createTestB2BAppContext, createTestB2BAppAccessRightSet, createTestB2BAppAccessRight } = require('@condo/domains/miniapp/utils/testSchema')
-const { MESSAGE_SENT_STATUS, B2B_APP_MESSAGE_PUSH_TYPE, DEVICE_PLATFORM_ANDROID, APP_MASTER_ID_ANDROID, TICKET_CREATED_TYPE } = require('@condo/domains/notification/constants/constants')
+const { MESSAGE_SENT_STATUS, B2B_APP_MESSAGE_PUSH_TYPE, DEVICE_PLATFORM_ANDROID, APP_MASTER_ID_ANDROID, PASS_TICKET_CREATED_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { Message, syncRemoteClientWithPushTokenByTestClient } = require('@condo/domains/notification/utils/testSchema')
 const { DEFAULT_ROLES } = require('@condo/domains/organization/constants/common')
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
@@ -57,35 +57,35 @@ describe('SendB2BAppPushMessageService', () => {
 
     describe('Access', () => {
         describe('Service user', () => {
-            test('can execute', async () => {
+            it('can execute', async () => {
                 const [result] = await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user)
 
                 expect(result.id).toMatch(UUID_RE)
             })
         })
         describe('Admin', () => {
-            test('can not execute', async () => {
+            it('can not execute', async () => {
                 await expectToThrowAccessDeniedErrorToResult(async () => {
                     await sendB2BAppPushMessageByTestClient(admin, b2bApp, organization, staffClient.user)
                 })
             })
         })
         describe('Support', () => {
-            test('can not execute', async () => {
+            it('can not execute', async () => {
                 await expectToThrowAccessDeniedErrorToResult(async () => {
                     await sendB2BAppPushMessageByTestClient(support, b2bApp, organization, staffClient.user)
                 })
             })
         })
         describe('User', () => {
-            test('can not execute', async () => {
+            it('can not execute', async () => {
                 await expectToThrowAccessDeniedErrorToResult(async () => {
                     await sendB2BAppPushMessageByTestClient(staffClient, b2bApp, organization, staffClient.user)
                 })
             })
         })
         describe('Anonymous', () => {
-            test('can not execute', async () => {
+            it('can not execute', async () => {
                 await expectToThrowAuthenticationErrorToResult(async () => {
                     await sendB2BAppPushMessageByTestClient(anonymous, b2bApp, organization, staffClient.user)
                 })
@@ -94,7 +94,7 @@ describe('SendB2BAppPushMessageService', () => {
     })
 
     describe('Logic', () => {
-        test('Successfully sends a message from a service user with B2B app access rights', async () => {
+        it('Successfully sends a message from a service user with B2B app access rights', async () => {
             const body = faker.random.alphaNumeric(8)
             const [result] = await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
                 type: B2B_APP_MESSAGE_PUSH_TYPE,
@@ -116,7 +116,7 @@ describe('SendB2BAppPushMessageService', () => {
             })
         })
 
-        test('Throws an error if no finished B2BContext exists for the specified organization and B2BApp', async () => {
+        it('Throws an error if no finished B2BContext exists for the specified organization and B2BApp', async () => {
             const [testOrganization] = await createTestOrganization(admin)
             const [role] = await createTestOrganizationEmployeeRole(admin, testOrganization, omit(DEFAULT_ROLES['Administrator'], ['isDefault', 'isEditable']))
             await createTestOrganizationEmployee(admin, testOrganization, staffClient.user, role)
@@ -126,7 +126,7 @@ describe('SendB2BAppPushMessageService', () => {
             }, ERRORS.NO_B2B_CONTEXT)
         })
 
-        test('Throws an error if no B2BAppAccessRight exists with canExecuteSendB2BAppPushMessage', async () => {
+        it('Throws an error if no B2BAppAccessRight exists with canExecuteSendB2BAppPushMessage', async () => {
             const [app] = await createTestB2BApp(admin)
             await createTestB2BAppContext(admin, app, organization, { status: CONTEXT_FINISHED_STATUS })
             const [accessRightSet] = await createTestB2BAppAccessRightSet(admin, app)
@@ -137,7 +137,7 @@ describe('SendB2BAppPushMessageService', () => {
             }, ERRORS.NO_B2B_APP_ACCESS_RIGHT)
         })
 
-        test('Throws an error if no organization employee exists for the specified user and organization', async () => {
+        it('Throws an error if no organization employee exists for the specified user and organization', async () => {
             const user = await makeClientWithNewRegisteredAndLoggedInUser()
 
             await expectToThrowGQLErrorToResult(async () => {
@@ -179,7 +179,7 @@ describe('SendB2BAppPushMessageService', () => {
         it('Throws an error if message type is blacklisted for app', async () => {
             await createTestAppMessageSetting(admin, {
                 b2bApp,
-                type: TICKET_CREATED_TYPE,
+                type: PASS_TICKET_CREATED_MESSAGE_TYPE,
                 isBlacklisted: true,
             })
 
@@ -190,9 +190,21 @@ describe('SendB2BAppPushMessageService', () => {
 
             await expectToThrowGQLErrorToResult(async () => {
                 await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
-                    type: TICKET_CREATED_TYPE,
+                    type: PASS_TICKET_CREATED_MESSAGE_TYPE,
                 })
             }, ERRORS.APP_IN_BLACK_LIST)
+        })
+
+        it('Throws an error if employee role has not B2BAppRole', async () => {
+            const staffWithoutB2BAppRole = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [role] = await createTestOrganizationEmployeeRole(admin, organization)
+            await createTestOrganizationEmployee(admin, organization, staffWithoutB2BAppRole.user, role)
+
+            await expectToThrowGQLErrorToResult(async () => {
+                await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffWithoutB2BAppRole.user, {
+                    type: PASS_TICKET_CREATED_MESSAGE_TYPE,
+                })
+            }, ERRORS.NO_B2B_APP_ROLE_FOR_EMPLOYEE_ROLE_AND_B2B_APP)
         })
     })
 })

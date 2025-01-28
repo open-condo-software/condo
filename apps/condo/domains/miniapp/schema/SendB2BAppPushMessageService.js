@@ -3,6 +3,7 @@
  */
 
 const { get } = require('lodash')
+const pick = require('lodash/pick')
 
 const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { FORBIDDEN } } = require('@open-condo/keystone/errors')
@@ -12,12 +13,11 @@ const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/miniapp/access/SendB2BAppPushMessageService')
 const {
     CONTEXT_FINISHED_STATUS,
-    DEFAULT_NOTIFICATION_WINDOW_DURATION,
+    DEFAULT_NOTIFICATION_WINDOW_DURATION_IN_SECONDS,
     DEFAULT_NOTIFICATIONS_IN_WINDOW_COUNT,
     APP_BLACK_LIST_ERROR,
 } = require('@condo/domains/miniapp/constants')
-const { AppMessageSetting } = require('@condo/domains/miniapp/utils/serverSchema')
-const { B2B_APP_MESSAGE_TYPES } = require('@condo/domains/notification/constants/constants')
+const { B2B_APP_MESSAGE_TYPES, MESSAGE_META } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
@@ -56,6 +56,12 @@ const ERRORS = {
         type: NOT_FOUND,
         message: 'The provided user is not an employee of the specified organization.',
     },
+    NO_B2B_APP_ROLE_FOR_EMPLOYEE_ROLE_AND_B2B_APP: {
+        mutation: 'sendB2BAppPushMessage',
+        code: FORBIDDEN,
+        type: NOT_FOUND,
+        message: 'No B2BAppRole found for the provided user, organization and B2BApp',
+    },
 }
 
 const SendB2BAppPushMessageService = new GQLCustomSchema('SendB2BAppPushMessageService', {
@@ -66,7 +72,7 @@ const SendB2BAppPushMessageService = new GQLCustomSchema('SendB2BAppPushMessageS
         },
         {
             access: true,
-            type: 'input SendB2BAppPushMessageInput { dv: Int!, sender: SenderFieldInput!, user: UserWhereUniqueInput!, organization: OrganizationWhereUniqueInput!, app: B2BAppWhereUniqueInput!, type: MessageType!, meta: JSON!, }',
+            type: 'input SendB2BAppPushMessageInput { dv: Int!, sender: SenderFieldInput!, user: UserWhereUniqueInput!, organization: OrganizationWhereUniqueInput!, app: B2BAppWhereUniqueInput!, type: B2BAppMessageType!, meta: JSON!, }',
         },
         {
             access: true,
@@ -78,6 +84,16 @@ const SendB2BAppPushMessageService = new GQLCustomSchema('SendB2BAppPushMessageS
         {
             access: access.canSendB2BAppPushMessage,
             schema: 'sendB2BAppPushMessage(data: SendB2BAppPushMessageInput!): SendB2BAppPushMessageOutput',
+            doc: {
+                summary: 'Sends message of specified type from B2BApp (service user connected to B2BApp) to specified employee (user in organization)',
+                description: `
+                    B2BApp must has finished context with organization and B2BAccessRight with B2BAccessRightSet with canExecuteSendB2BAppPushMessage right 
+                    between service user (who make request) and B2BApp. Employee must has a B2BAppRole with B2BApp. 
+                    Settings for each type of message contains in AppMessageSetting schema.
+                    Each message type has specific set of required fields which are defined in the meta field: \n\n\`${JSON.stringify(pick(MESSAGE_META, B2B_APP_MESSAGE_TYPES), null, '\t')}\`
+                `,
+                errors: ERRORS,
+            },
             resolver: async (parent, args, context) => {
                 const {
                     data: {
@@ -90,16 +106,26 @@ const SendB2BAppPushMessageService = new GQLCustomSchema('SendB2BAppPushMessageS
                         meta,
                     },
                 } = args
-                const authedItemId = get(context, 'authedItem.id')
+                const authedItemId = get(context, 'authedItem.id', null)
 
-                const appSettings = await AppMessageSetting.getOne(
-                    context,
-                    { b2bApp: { ...b2bAppFilter, deletedAt: null }, type, deletedAt: null },
-                    'isBlacklisted notificationWindowSize numberOfNotificationInWindow'
-                )
+                const [appSettings] = await itemsQuery('AppMessageSetting', {
+                    where: {
+                        b2bApp: { ...b2bAppFilter, deletedAt: null },
+                        type,
+                        deletedAt: null,
+                    },
+                    first: 1,
+                })
                 if (appSettings && appSettings.isBlacklisted) {
                     throw new GQLError(ERRORS.APP_IN_BLACK_LIST, context)
                 }
+
+                await redisGuard.checkCustomLimitCounters(
+                    `sendB2BAppPushMessage:${type}:app:${b2bAppFilter.id}:org:${organizationFilter.id}:user:${userFilter.id}`,
+                    get(appSettings, 'notificationWindowSize') || DEFAULT_NOTIFICATION_WINDOW_DURATION_IN_SECONDS,
+                    get(appSettings, 'numberOfNotificationInWindow') || DEFAULT_NOTIFICATIONS_IN_WINDOW_COUNT,
+                    context,
+                )
 
                 const [b2bAppContext] = await itemsQuery('B2BAppContext', {
                     where: {
@@ -119,9 +145,9 @@ const SendB2BAppPushMessageService = new GQLCustomSchema('SendB2BAppPushMessageS
                         accessRightSet: {
                             app: { ...b2bAppFilter, deletedAt: null },
                             canExecuteSendB2BAppPushMessage: true,
+                            deletedAt: null,
                         },
                         user: { id: authedItemId, deletedAt: null },
-                        app: { ...b2bAppFilter, deletedAt: null },
                         deletedAt: null,
                     },
                     first: 1,
@@ -129,13 +155,6 @@ const SendB2BAppPushMessageService = new GQLCustomSchema('SendB2BAppPushMessageS
                 if (!b2bAppAccessRight) {
                     throw new GQLError(ERRORS.NO_B2B_APP_ACCESS_RIGHT, context)
                 }
-
-                await redisGuard.checkCustomLimitCounters(
-                    `sendB2CAppPushMessage-${type}-${b2bAppFilter.id}-${userFilter.id}`,
-                    get(appSettings, 'notificationWindowSize') || DEFAULT_NOTIFICATION_WINDOW_DURATION,
-                    get(appSettings, 'numberOfNotificationInWindow') || DEFAULT_NOTIFICATIONS_IN_WINDOW_COUNT,
-                    context,
-                )
 
                 const [organization] = await itemsQuery('Organization', {
                     where: {
@@ -158,6 +177,19 @@ const SendB2BAppPushMessageService = new GQLCustomSchema('SendB2BAppPushMessageS
                 })
                 if (!employee) {
                     throw new GQLError(ERRORS.NO_EMPLOYEE_FOR_USER, context)
+                }
+
+                const roleId = get(employee, 'role', null)
+                const [b2bAppRole] = await itemsQuery('B2BAppRole', {
+                    where: {
+                        deletedAt: null,
+                        app: { ...b2bAppFilter, deletedAt: null },
+                        role: { id: roleId, deletedAt: null },
+                    },
+                    first: 1,
+                })
+                if (!roleId || !b2bAppRole) {
+                    throw new GQLError(ERRORS.NO_B2B_APP_ROLE_FOR_EMPLOYEE_ROLE_AND_B2B_APP, context)
                 }
 
                 const { id, status } = await sendMessage(context, {

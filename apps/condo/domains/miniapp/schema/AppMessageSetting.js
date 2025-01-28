@@ -46,7 +46,7 @@ const AppMessageSetting = new GQLListSchema('AppMessageSetting', {
         },
 
         isBlacklisted: {
-            schemaDoc: 'Is message type in black list for this B2CApp',
+            schemaDoc: 'Is message type in black list for this miniapp',
             type: 'Checkbox',
             isRequired: true,
             defaultValue: false,
@@ -58,12 +58,12 @@ const AppMessageSetting = new GQLListSchema('AppMessageSetting', {
         }),
 
         notificationWindowSize: {
-            schemaDoc: 'Time window for sending push notifications in sec',
+            schemaDoc: 'Time window for sending push notifications in seconds',
             type: 'Integer',
         },
 
         numberOfNotificationInWindow: {
-            schemaDoc: 'The number of notifications that can be sent in one time window in sec',
+            schemaDoc: 'The number of notifications that can be sent in one time window in seconds',
             type: 'Integer',
         },
 
