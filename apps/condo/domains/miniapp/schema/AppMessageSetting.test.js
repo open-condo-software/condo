@@ -82,15 +82,13 @@ describe('AppMessageSetting', () => {
                         b2cApp,
                     })
 
-                    const objs = await AppMessageSetting.getAll(admin, {}, { sortBy: ['updatedAt_DESC'] })
+                    const appSetting = await AppMessageSetting.getOne(admin, {
+                        id: obj.id,
+                    })
 
-                    expect(objs.length).toBeGreaterThanOrEqual(1)
-                    expect(objs).toEqual(expect.arrayContaining([
-                        expect.objectContaining({
-                            id: obj.id,
-                            type: B2C_APP_MESSAGE_PUSH_TYPE,
-                        }),
-                    ]))
+                    expect(appSetting).toBeDefined()
+                    expect(appSetting.id).toEqual(obj.id)
+                    expect(appSetting.type).toEqual(B2C_APP_MESSAGE_PUSH_TYPE)
                 })
             })
 
@@ -136,15 +134,13 @@ describe('AppMessageSetting', () => {
                         b2cApp,
                     })
 
-                    const objs = await AppMessageSetting.getAll(support, {}, { sortBy: ['updatedAt_DESC'] })
+                    const appSetting = await AppMessageSetting.getOne(support, {
+                        id: obj.id,
+                    })
 
-                    expect(objs.length).toBeGreaterThanOrEqual(1)
-                    expect(objs).toEqual(expect.arrayContaining([
-                        expect.objectContaining({
-                            id: obj.id,
-                            type: B2C_APP_MESSAGE_PUSH_TYPE,
-                        }),
-                    ]))
+                    expect(appSetting).toBeDefined()
+                    expect(appSetting.id).toEqual(obj.id)
+                    expect(appSetting.type).toEqual(B2C_APP_MESSAGE_PUSH_TYPE)
                 })
             })
 
@@ -176,9 +172,15 @@ describe('AppMessageSetting', () => {
                 })
 
                 test('can\'t read', async () => {
-                    const objs = await AppMessageSetting.getAll(user, {})
+                    const [appMessageSetting] = await createTestAppMessageSetting(admin, {
+                        b2cApp,
+                    })
 
-                    expect(objs).toHaveLength(0)
+                    const readAppMessageSetting = await AppMessageSetting.getOne(user, {
+                        id: appMessageSetting.id,
+                    })
+
+                    expect(readAppMessageSetting).toBeUndefined()
                 })
 
                 test('user with employee with b2bAppRole in organization with b2b app from setting can read', async () => {

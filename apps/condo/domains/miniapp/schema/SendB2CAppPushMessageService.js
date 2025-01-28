@@ -13,7 +13,7 @@ const {
     USER_NOT_FOUND_ERROR, RESIDENT_NOT_FOUND_ERROR,
     APP_NOT_FOUND_ERROR, APP_BLACK_LIST_ERROR, DEBUG_APP_ID,
     DEFAULT_NOTIFICATIONS_IN_WINDOW_COUNT,
-    DEFAULT_NOTIFICATION_WINDOW_DURATION,
+    DEFAULT_NOTIFICATION_WINDOW_DURATION_IN_SECONDS,
 } = require('@condo/domains/miniapp/constants')
 const { AppMessageSetting } = require('@condo/domains/miniapp/utils/serverSchema')
 const { B2CApp } = require('@condo/domains/miniapp/utils/serverSchema')
@@ -28,7 +28,7 @@ const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
 
 const CACHE_TTL = {
-    DEFAULT: DEFAULT_NOTIFICATION_WINDOW_DURATION,
+    DEFAULT: DEFAULT_NOTIFICATION_WINDOW_DURATION_IN_SECONDS,
     VOIP_INCOMING_CALL_MESSAGE: 2,
     B2C_APP_MESSAGE_PUSH: 3600,
 }
