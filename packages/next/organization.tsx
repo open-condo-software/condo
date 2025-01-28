@@ -399,10 +399,10 @@ const OrganizationProvider: React.FC<OrganizationProviderProps> = ({
                 selectLink: handleSelectLink,
                 selectEmployee: handleSelectEmployee,
                 isLoading: (!user || !activeEmployeeId) ? false : isLoading,
-                link: (activeEmployee && activeEmployee.id) ? activeEmployee : null,
+                link: (user && activeEmployee && activeEmployee.id) ? activeEmployee : null,
                 organization: (user && activeEmployee && activeEmployee.organization) ? activeEmployee.organization : null,
-                employee: (activeEmployee && activeEmployee.id) ? activeEmployee : null,
-                role: (activeEmployee && activeEmployee.role) ? activeEmployee.role : null,
+                employee: (user && activeEmployee && activeEmployee.id) ? activeEmployee : null,
+                role: (user && activeEmployee && activeEmployee.role) ? activeEmployee.role : null,
             }}
             children={children}
         />
