@@ -7,7 +7,6 @@ const Big = require('big.js')
 const dayjs = require('dayjs')
 const iconv = require('iconv-lite')
 
-const { getById } = require('@open-condo/keystone/schema')
 const { catchErrorFrom, setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
@@ -201,7 +200,11 @@ describe('receiptQRCodeUtils', () => {
                     toPay: Big(qrCodeObj.Sum).div(100),
                 })
 
-                billingReceiptForComparison = await getById('BillingReceipt', billingReceipt.id)
+                billingReceiptForComparison = {
+                    id: billingReceipt.id,
+                    period: billingReceipt.period,
+                    toPay: billingReceipt.toPay,
+                }
             })
 
             test('last billing receipt period equals qr-code period', async () => {

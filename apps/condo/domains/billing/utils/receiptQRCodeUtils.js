@@ -1,9 +1,10 @@
 const dayjs = require('dayjs')
-const { get, isNil, map, set } = require('lodash')
+const { get, isNil, set } = require('lodash')
 
-const { find } = require('@open-condo/keystone/schema')
+const { find, getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } = require('@condo/domains/acquiring/constants/payment')
+const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
 
 const REQUIRED_QR_CODE_FIELDS = ['BIC', 'Sum', 'PersAcc', 'PayeeINN', 'PersonalAcc']
 
@@ -135,14 +136,19 @@ async function isReceiptPaid (context, accountNumber, period, organizationIds, r
 async function compareQRCodeWithLastReceipt (qrCodeFields, resolvers) {
     const period = formatPeriodFromQRCode(getQRCodeField(qrCodeFields, 'PaymPeriod'))
 
-    const [lastBillingReceipt] = await find('BillingReceipt', {
-        account: { number: getQRCodeField(qrCodeFields, 'PersAcc'), deletedAt: null },
-        receiver: { bankAccount: getQRCodeField(qrCodeFields, 'PersonalAcc'), deletedAt: null },
-        deletedAt: null,
-    }, {
-        sortBy: ['period_DESC'],
-        first: 1,
-    })
+    const { keystone } = getSchemaCtx('BillingReceipt')
+    const context = await keystone.createContext({ skipAccessControl: true })
+
+    const [lastBillingReceipt] = await BillingReceipt.getAll(
+        context,
+        {
+            account: { number: getQRCodeField(qrCodeFields, 'PersAcc'), deletedAt: null },
+            receiver: { bankAccount: getQRCodeField(qrCodeFields, 'PersonalAcc'), deletedAt: null },
+            deletedAt: null,
+        },
+        'id period toPay',
+        { sortBy: ['period_DESC'], first: 1 },
+    )
 
     if (isNil(lastBillingReceipt)) {
         // No receipts found at our side
