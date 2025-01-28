@@ -149,7 +149,8 @@ const MenuItems: React.FC = () => {
     const isSPPOrg = useFlag(SERVICE_PROVIDER_PROFILE)
     const isMarketplaceEnabled = useFlag(MARKETPLACE)
 
-    const { link, organization, isLoading: isOrganizationLoading } = useOrganization()
+    const { isAuthenticated, isLoading } = useAuth()
+    const { link, organization } = useOrganization()
     const { isExpired } = useServiceSubscriptionContext()
     const hasSubscriptionFeature = hasFeature('subscription')
     const disabled = !link || (hasSubscriptionFeature && isExpired)
@@ -159,7 +160,7 @@ const MenuItems: React.FC = () => {
     const orgId = get(organization, 'id', null)
     const orgFeatures = get(organization, 'features', [])
     const sppBillingId = get(sppConfig, 'BillingIntegrationId', null)
-    const { obj: billingCtx } = BillingContext.useObject({ where: { integration: { id: sppBillingId }, organization: { id: orgId } } }, { skip: isOrganizationLoading })
+    const { obj: billingCtx } = BillingContext.useObject({ where: { integration: { id: sppBillingId }, organization: { id: orgId } } }, { skip: !isAuthenticated || isLoading })
     const anyReceiptsLoaded = Boolean(get(billingCtx, 'lastReport', null))
     const hasAccessToBilling = get(role, 'canReadPayments', false) || get(role, 'canReadBillingReceipts', false)
     const isManagingCompany = get(organization, 'type', MANAGING_COMPANY_TYPE) === MANAGING_COMPANY_TYPE
