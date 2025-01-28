@@ -317,7 +317,7 @@ const OrganizationProvider: React.FC<OrganizationProviderProps> = ({
     children,
     useInitialEmployeeId,
 }) => {
-    const auth = useAuth()
+    const { user, isLoading: userLoading } = useAuth()
     const { employeeId } = useInitialEmployeeId()
     const [activeEmployeeId, setActiveEmployeeId] = useState<string | null>(employeeId)
 
@@ -335,14 +335,14 @@ const OrganizationProvider: React.FC<OrganizationProviderProps> = ({
 
     const { loading: employeeLoading, refetch, data } = useQuery(GET_ORGANIZATION_EMPLOYEE_QUERY, {
         variables: {
-            userId: auth?.user?.id || null,
+            userId: user?.id || null,
             employeeId: activeEmployeeId,
         },
-        skip: auth.isLoading || !auth.user || !auth.user.id || !activeEmployeeId,
+        skip: userLoading || !user || !user.id || !activeEmployeeId,
         onError,
     })
 
-    const isLoading = auth.isLoading || employeeLoading
+    const isLoading = userLoading || employeeLoading
 
     const [activeEmployee, setActiveEmployee] = useState(get(data, ['employees', 0]) || null)
 
@@ -384,23 +384,23 @@ const OrganizationProvider: React.FC<OrganizationProviderProps> = ({
     }, [data, activeEmployee])
 
     useEffect(() => {
-        if (auth.isLoading) return
-        if (!auth.user && activeEmployee !== null) {
+        if (userLoading) return
+        if (!user && activeEmployee !== null) {
             setActiveEmployee(null)
             setActiveEmployeeId(null)
         }
-    }, [auth.user])
+    }, [user])
 
-    if (DEBUG_RERENDERS) console.log('OrganizationProvider()', activeEmployee, 'loading', employeeLoading, 'skip', (auth.isLoading || !auth.user || !activeEmployeeId))
+    if (DEBUG_RERENDERS) console.log('OrganizationProvider()', activeEmployee, 'loading', employeeLoading, 'skip', (userLoading || !user || !activeEmployeeId))
 
     return (
         <OrganizationContext.Provider
             value={{
                 selectLink: handleSelectLink,
                 selectEmployee: handleSelectEmployee,
-                isLoading: (!auth.user || !activeEmployeeId) ? false : isLoading,
+                isLoading: (!user || !activeEmployeeId) ? false : isLoading,
                 link: (activeEmployee && activeEmployee.id) ? activeEmployee : null,
-                organization: (activeEmployee && activeEmployee.organization) ? activeEmployee.organization : null,
+                organization: (user && activeEmployee && activeEmployee.organization) ? activeEmployee.organization : null,
                 employee: (activeEmployee && activeEmployee.id) ? activeEmployee : null,
                 role: (activeEmployee && activeEmployee.role) ? activeEmployee.role : null,
             }}

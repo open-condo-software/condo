@@ -3,7 +3,6 @@ import get from 'lodash/get'
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
 
 import { useLazyQuery } from '@open-condo/next/apollo'
-import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
 
 import { ALL_MENU_CATEGORIES, DEFAULT_MENU_CATEGORY } from '@condo/domains/common/constants/menuCategories'
@@ -29,8 +28,7 @@ export const ConnectedWithIconsContext = createContext<IConnectedAppsWithIconsCo
 })
 
 export const ConnectedAppsWithIconsContextProvider: React.FC = ({ children }) => {
-    const { isAuthenticated, isLoading } = useAuth()
-    const { organization } = useOrganization()
+    const { organization, isLoading } = useOrganization()
     const orgId = get(organization, 'id', null)
     const [appsByCategories, setAppsByCategories] = useState<AppsByCategories>({})
     const [connectedApps, setConnectedApps] = useState<Array<string>>([])
@@ -53,7 +51,7 @@ export const ConnectedAppsWithIconsContextProvider: React.FC = ({ children }) =>
     })
 
     const fetchMiniApps = useCallback(() => {
-        if (orgId && !isLoading && isAuthenticated) {
+        if (orgId && !isLoading) {
             fetchMiniAppsQuery({
                 variables: {
                     data: {
@@ -73,11 +71,11 @@ export const ConnectedAppsWithIconsContextProvider: React.FC = ({ children }) =>
             setConnectedApps([])
             setAppsByCategories(Object.assign({}, ...ALL_MENU_CATEGORIES.map(category =>({ [category]: [] }))))
         }
-    }, [orgId, isLoading, isAuthenticated, fetchMiniAppsQuery])
+    }, [orgId, isLoading, fetchMiniAppsQuery])
 
     useEffect(() => {
         fetchMiniApps()
-    }, [orgId, isLoading, isAuthenticated, fetchMiniApps])
+    }, [orgId, fetchMiniApps])
 
     return (
         <ConnectedWithIconsContext.Provider value={{ appsByCategories: appsByCategories, refetch: fetchMiniApps, connectedAppsIds: connectedApps }}>
