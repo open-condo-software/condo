@@ -1,3 +1,8 @@
+
+const fs = require('fs')
+const path = require('path')
+const { fileURLToPath } = require('url')
+
 const IORedis = require('ioredis')
 const { get } = require('lodash')
 
@@ -8,10 +13,39 @@ const { getLogger } = require('./logging')
 const READONLY_COMMANDS = ['bitcount', 'bitfield_ro', 'bitpos', 'dbsize', 'dump', 'eval_ro', 'evalsha_ro', 'exists', 'expiretime', 'fcall_ro', 'geodist', 'geohash', 'geopos', 'georadius_ro', 'georadiusbymember_ro', 'geosearch', 'get', 'getbit', 'getrange', 'hexists', 'hget', 'hgetall', 'hkeys', 'hlen', 'hmget', 'hrandfield', 'hscan', 'hstrlen', 'hvals', 'keys', 'lcs', 'lindex', 'llen', 'lolwut', 'lpos', 'lrange', 'mget', 'pexpiretime', 'pfcount', 'pttl', 'randomkey', 'scan', 'scard', 'sdiff', 'sinter', 'sintercard', 'sismember', 'smembers', 'smismember', 'sort_ro', 'srandmember', 'sscan', 'strlen', 'substr', 'sunion', 'touch', 'ttl', 'type', 'xlen', 'xpending', 'xrange', 'xread', 'xrevrange', 'zcard', 'zcount', 'zdiff', 'zinter', 'zintercard', 'zlexcount', 'zmscore', 'zrandmember', 'zrange', 'zrangebylex', 'zrangebyscore', 'zrank', 'zrevrange', 'zrevrangebylex', 'zrevrangebyscore', 'zrevrank', 'zscan', 'zscore', 'zunion']
 
 
-const PREFIX = process.cwd().split('/').pop() + ':'
 const REDIS_CLIENTS = {}
 
+const getRedisPrefix = () => {
+    const toPath = urlOrPath => urlOrPath instanceof URL ? fileURLToPath(urlOrPath) : urlOrPath
+
+    function findUpSync (name, {
+        cwd = process.cwd(),
+        type = 'file',
+        stopAt,
+    } = {}) {
+        let directory = path.resolve(toPath(cwd) ?? '')
+        const { root } = path.parse(directory)
+        stopAt = path.resolve(directory, toPath(stopAt) ?? root)
+
+        while (directory && directory !== stopAt && directory !== root) {
+            const filePath = path.isAbsolute(name) ? name : path.join(directory, name)
+
+            try {
+                const stats = fs.statSync(filePath, { throwIfNoEntry: false })
+                if ((type === 'file' && stats?.isFile()) || (type === 'directory' && stats?.isDirectory())) {
+                    return filePath
+                }
+            } catch (e) { console.error(e) }
+
+            directory = path.dirname(directory)
+        }
+    }
+
+    return require(findUpSync('package.json')).name.split('/').pop() + ':'
+}
+
 const logger = getLogger('redis')
+const PREFIX = getRedisPrefix()
 
 if (get(conf, 'REDIS_FALLBACK_ENABLED', 'false') === 'true') {
     const originalSendCommand = IORedis.prototype.sendCommand
@@ -22,7 +56,7 @@ if (get(conf, 'REDIS_FALLBACK_ENABLED', 'false') === 'true') {
             return originalSendCommand.apply(this, args)
         }
 
-        const prefixedKey = command.args[0]
+        const [prefixedKey, ...restArgs] = command.args
 
         return new Promise((resolve, reject) => {
             originalSendCommand.apply(this, args).then((value) => {
@@ -31,7 +65,7 @@ if (get(conf, 'REDIS_FALLBACK_ENABLED', 'false') === 'true') {
                 } else {
                     const nonPrefixedKey = prefixedKey.substring(PREFIX.length)
 
-                    const otherCommand = new IORedis.Command(command.name, [nonPrefixedKey], 'utf-8')
+                    const otherCommand = new IORedis.Command(command.name, [nonPrefixedKey, ...restArgs], 'utf-8')
 
                     originalSendCommand.apply(this, [otherCommand]).then((result) => {
                         if (result instanceof Buffer) {
@@ -82,4 +116,5 @@ function getRedisClient (name = 'default', purpose = 'regular', opts = {}) {
 
 module.exports = {
     getRedisClient,
+    getRedisPrefix,
 }
