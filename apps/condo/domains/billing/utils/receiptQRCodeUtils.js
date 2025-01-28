@@ -133,11 +133,8 @@ async function isReceiptPaid (context, accountNumber, period, organizationIds, r
  * @param {TCompareQRResolvers} resolvers
  * @return {Promise<void>}
  */
-async function compareQRCodeWithLastReceipt (qrCodeFields, resolvers) {
+async function compareQRCodeWithLastReceipt (context, qrCodeFields, resolvers) {
     const period = formatPeriodFromQRCode(getQRCodeField(qrCodeFields, 'PaymPeriod'))
-
-    const { keystone } = getSchemaCtx('BillingReceipt')
-    const context = await keystone.createContext({ skipAccessControl: true })
 
     const [lastBillingReceipt] = await BillingReceipt.getAll(
         context,
