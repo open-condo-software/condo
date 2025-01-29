@@ -30,6 +30,9 @@ const AppMessageSetting = new GQLListSchema('AppMessageSetting', {
             ref: 'B2BApp',
             isRequired: false,
             kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
+            access: {
+                update: false,
+            },
         },
 
         b2cApp: {
@@ -38,6 +41,9 @@ const AppMessageSetting = new GQLListSchema('AppMessageSetting', {
             ref: 'B2CApp',
             isRequired: false,
             kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
+            access: {
+                update: false,
+            },
         },
 
         blockReason: {

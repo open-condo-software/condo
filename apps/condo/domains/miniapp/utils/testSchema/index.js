@@ -42,12 +42,11 @@ const { SEND_B2B_APP_PUSH_MESSAGE_MUTATION } = require('@condo/domains/miniapp/g
 /* AUTOGENERATE MARKER <IMPORT> */
 
 function randomChoice (options) {
-    const index = Math.floor(Math.random() * options.length)
-    return options[index]
+    return faker.helpers.arrayElement(options)
 }
 
 function randomHex () {
-    return `#${Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0')}`
+    return faker.color.rgb({ format: 'hex', casing: 'lower' })
 }
 
 function generatePermissionKey () {
