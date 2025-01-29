@@ -9,6 +9,10 @@ const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 const { generateSimulatedToken } = require('@condo/domains/user/utils/tokens')
 
 
+const ERROR_TYPES = {
+    NOT_ENOUGH_AUTH_FACTORS: 'NOT_ENOUGH_AUTH_FACTORS',
+}
+
 const GUARD_DEFAULT_WINDOW_SIZE_IN_SEC = 60 * 60 // 1 hour in sec
 const GUARD_DEFAULT_WINDOW_LIMIT = 10
 
@@ -54,14 +58,14 @@ try {
 
 const redisGuard = new RedisGuard()
 
+
 /**
  *
  * @param {{ phone?: string, email?: string, userType: 'staff' | 'resident' | 'service' }} userIdentity
- * @param {{ confirmPhoneToken?: string, confirmEmailToken?: string, password?: string }} authFactors
  * @param context
- * @return {Promise<{success: boolean}|{confirmPhoneAction?: {id: string, phone: string, isPhoneVerified: boolean}, success: boolean, user: Object}>}
+ * @return {Promise<void>}
  */
-async function validateUserCredentialsWithRequestLimit (userIdentity, authFactors, context) {
+async function authGuards (userIdentity, context ) {
     if (!context) throw new Error('context cannot be empty')
 
     const userId = get(context, 'authedItem.id', null)
@@ -72,7 +76,7 @@ async function validateUserCredentialsWithRequestLimit (userIdentity, authFactor
     const userType = userIdentity.userType
 
     await redisGuard.checkCustomLimitCounters(
-        ['validate-user-credentials', 'ip', ip].join(':'),
+        ['auth', 'ip', ip].join(':'),
         customQuotas?.ip?.[ip]?.windowSizeInSec || customQuotas?.default?.windowSizeInSec || GUARD_DEFAULT_WINDOW_SIZE_IN_SEC,
         customQuotas?.ip?.[ip]?.windowLimit || customQuotas?.default?.windowLimit || GUARD_DEFAULT_WINDOW_LIMIT,
         context,
@@ -80,7 +84,7 @@ async function validateUserCredentialsWithRequestLimit (userIdentity, authFactor
 
     if (userId) {
         await redisGuard.checkCustomLimitCounters(
-            ['validate-user-credentials', 'user', userId].join(':'),
+            ['auth', 'user', userId].join(':'),
             customQuotas?.user?.[userId]?.windowSizeInSec || customQuotas?.default?.windowSizeInSec || GUARD_DEFAULT_WINDOW_SIZE_IN_SEC,
             customQuotas?.user?.[userId]?.windowLimit || customQuotas?.default?.windowLimit || GUARD_DEFAULT_WINDOW_LIMIT,
             context,
@@ -89,7 +93,7 @@ async function validateUserCredentialsWithRequestLimit (userIdentity, authFactor
 
     if (phone) {
         await redisGuard.checkCustomLimitCounters(
-            ['validate-user-credentials', 'phone-and-user-type', userType, phone].join(':'),
+            ['auth', 'phone-and-user-type', userType, phone].join(':'),
             customQuotas?.phone?.[phone]?.windowSizeInSec || customQuotas?.default?.windowSizeInSec || GUARD_DEFAULT_WINDOW_SIZE_IN_SEC,
             customQuotas?.phone?.[phone]?.windowLimit || customQuotas?.default?.windowLimit || GUARD_DEFAULT_WINDOW_LIMIT,
             context,
@@ -98,39 +102,35 @@ async function validateUserCredentialsWithRequestLimit (userIdentity, authFactor
 
     if (email) {
         await redisGuard.checkCustomLimitCounters(
-            ['validate-user-credentials', 'email-and-user-type', userType, email].join(':'),
+            ['auth', 'email-and-user-type', userType, email].join(':'),
             customQuotas?.email?.[email]?.windowSizeInSec || customQuotas?.default?.windowSizeInSec || GUARD_DEFAULT_WINDOW_SIZE_IN_SEC,
             customQuotas?.email?.[email]?.windowLimit || customQuotas?.default?.windowLimit || GUARD_DEFAULT_WINDOW_LIMIT,
             context,
         )
     }
-
-    return await _validateUserCredentials(userIdentity, authFactors)
 }
 
 /**
- * @deprecated in real cases you should use validateUserCredentialsWithRequestLimit
  *
  * @param {{ phone?: string, email?: string, userType: 'staff' | 'resident' | 'service' }} userIdentity
  * @param {{ confirmPhoneToken?: string, confirmEmailToken?: string, password?: string }} authFactors
- * @return {Promise<{success: boolean}|{confirmPhoneAction?: {id: string, phone: string, isPhoneVerified: boolean}, success: boolean, user: Object}>}
+ * @return {Promise<{success: boolean}|{confirmPhoneAction: {id: string, phone: string, isPhoneVerified: boolean}, success: boolean, user: *}|{success: boolean, _error: {is2FAEnabled: boolean, errorType: string, authChecks: {confirmEmailToken: ("skip"|"fail"|"success"), password: ("skip"|"fail"|"success"), confirmPhoneToken: ("skip"|"fail"|"success")}}}>}
+ * @private
  */
-async function _validateUserCredentials (userIdentity, authFactors) {
+async function auth (userIdentity, authFactors) {
     if (!userIdentity || typeof userIdentity !== 'object') throw new Error('You must provide userIdentity')
     if (!authFactors || typeof authFactors !== 'object') throw new Error('You must provide authFactors')
 
     // TODO(DOMA-9890): remove this error when added ConfirmEmailToken
     if (authFactors.confirmEmailToken !== undefined) throw new Error('confirmEmailToken is not supported yet')
 
-    const phone = userIdentity.phone
-    const email = userIdentity.email
     const userType = userIdentity.userType
 
-    if (!phone && !email) throw new Error('You must provide a phone number or email')
+    // if (!phone && !email) throw new Error('You must provide a phone number or email')
     if (!userType) throw new Error('You must provide a user type')
 
     // Get user
-    const { user, success } = await _getUser(userIdentity)
+    const { success, user } = await _getUser(userIdentity, authFactors)
     if (!success) {
         await _preventTimeBasedAttack(authFactors)
         return { success: false }
@@ -139,27 +139,58 @@ async function _validateUserCredentials (userIdentity, authFactors) {
     // Verify the secret matches
     const match = await _matchUser(user, authFactors)
     if (!match.success) {
-        return { success: false }
+        return {
+            success: false,
+            _error: match._error,
+        }
     }
 
-    return { success: true, user, confirmPhoneAction: match.confirmPhoneAction }
+    return {
+        success: true,
+        user,
+        confirmPhoneAction: match.confirmPhoneAction,
+    }
 }
 
 /**
  *
  * @param {{ phone?: string, email?: string, userType: 'staff' | 'resident' | 'service' }} userIdentity
- * @return {Promise<{success: boolean, user: Object}|{success: boolean}>}
+ * @param {{ confirmPhoneToken?: string, confirmEmailToken?: string, password?: string }} authFactors
+ * @return {Promise<{success: boolean}|{success: boolean, user: *}>}
  * @private
  */
-async function _getUser (userIdentity) {
+async function _getUser (userIdentity, authFactors) {
     if (!userIdentity || typeof userIdentity !== 'object') throw new Error('You must provide userIdentity')
 
-    const phone = userIdentity.phone
-    const email = userIdentity.email
+    let phone = userIdentity.phone
+    let email = userIdentity.email
     const userType = userIdentity.userType
 
-    if (!phone && !email) throw new Error('You must provide a phone number or email')
     if (!userType) throw new Error('You must provide a user type')
+
+    // NOTE: If password and phone/email were not transferred, but confirm token was,
+    // then we try to get phone/email from confirm token to understand who we are trying to verify
+    if (!authFactors?.password) {
+        const { keystone } = getSchemaCtx('User')
+
+        if (phone === undefined && authFactors?.confirmPhoneToken) {
+            const action = await ConfirmPhoneAction.getOne(keystone,
+                {
+                    token: authFactors.confirmPhoneToken,
+                },
+                'id phone'
+            )
+
+            if (action) {
+                phone = action.phone
+            }
+        }
+
+        // TODO(DOMA-9890): implement when added ConfirmEmailToken
+        // if (email === undefined && authFactors?.confirmEmailToken) {
+        //
+        // }
+    }
 
     const where = { type: userType, deletedAt: null }
     if (phone) {
@@ -177,6 +208,10 @@ async function _getUser (userIdentity) {
         where,
         first: 2,
     })
+
+    if (!phone && !email)  {
+        return { success: false }
+    }
 
     if (users.length !== 1) {
         return { success: false }
@@ -196,7 +231,7 @@ const AUTH_CHECK_STATUSES = {
  *
  * @param {Object} user
  * @param {{ confirmPhoneToken?: string, confirmEmailToken?: string, password?: string }} authFactors
- * @return {Promise<{confirmPhoneAction: {id: string, phone: string, isPhoneVerified: boolean}, success: boolean}|{success: boolean}>}
+ * @return {Promise<{confirmPhoneAction: {id: string, phone: string, isPhoneVerified: boolean}, success: boolean}|{success: boolean, _error: {is2FAEnabled: boolean, errorType: string, authChecks: {confirmEmailToken: ("skip"|"fail"|"success"), password: ("skip"|"fail"|"success"), confirmPhoneToken: ("skip"|"fail"|"success")}}}|{success: boolean}>}
  * @private
  */
 async function _matchUser (user, authFactors) {
@@ -240,13 +275,25 @@ async function _matchUser (user, authFactors) {
     const failedChecks = Object.entries(authChecks).filter(([key, value]) => value === AUTH_CHECK_STATUSES.FAIL).map(([key]) => key)
     /** @type {string[]} */
     const successfulChecks = Object.entries(authChecks).filter(([key, value]) => value === AUTH_CHECK_STATUSES.SUCCESS).map(([key]) => key)
+    /** @type {string[]} */
+    const nonSkippedChecks = Object.entries(authChecks).filter(([key, value]) => value !== AUTH_CHECK_STATUSES.SKIP).map(([key]) => key)
 
-    if (failedChecks.length === 0 && successfulChecks.length >= numberOfChecksRequiredForAuth) {
+    if (failedChecks.length === 0 && successfulChecks.length >= numberOfChecksRequiredForAuth && nonSkippedChecks.length >= numberOfChecksRequiredForAuth) {
         return {
-            success: true, confirmPhoneAction,
+            success: true,
+            confirmPhoneAction,
 
             // TODO(DOMA-9890): uncomment when added ConfirmEmailToken
             // confirmEmailAction,
+        }
+    }
+
+    if (nonSkippedChecks.length < numberOfChecksRequiredForAuth) {
+        return {
+            success: false,
+            // NOtE: In general we don't return any detailed errors
+            // But we should know that we don't have enough data for validation
+            _error: { errorType: ERROR_TYPES.NOT_ENOUGH_AUTH_FACTORS, authChecks, is2FAEnabled },
         }
     }
 
@@ -352,6 +399,6 @@ async function _preventTimeBasedAttack (authFactors) {
 }
 
 module.exports = {
-    _validateUserCredentials,
-    validateUserCredentialsWithRequestLimit,
+    validateUserCredentials: auth,
+    authGuards,
 }

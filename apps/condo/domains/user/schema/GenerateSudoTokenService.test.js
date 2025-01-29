@@ -125,8 +125,9 @@ describe('GenerateSudoTokenService', () => {
             }, {
                 mutation: 'generateSudoToken',
                 code: 'BAD_USER_INPUT',
-                type: 'USER_IDENTITY_INVALID',
-                message: 'Email or phone cannot be empty',
+                type: 'CREDENTIAL_VALIDATION_FAILED',
+                message: 'User credentials validation failed',
+                messageForUser: 'api.user.CREDENTIAL_VALIDATION_FAILED',
             }, 'result')
         })
 
