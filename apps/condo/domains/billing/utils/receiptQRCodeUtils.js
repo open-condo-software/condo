@@ -1,7 +1,7 @@
 const dayjs = require('dayjs')
 const { get, isNil, set } = require('lodash')
 
-const { find, getSchemaCtx } = require('@open-condo/keystone/schema')
+const { find } = require('@open-condo/keystone/schema')
 
 const { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } = require('@condo/domains/acquiring/constants/payment')
 const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
