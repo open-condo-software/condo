@@ -18,29 +18,27 @@ const REDIS_CLIENTS = {}
 const getRedisPrefix = () => {
     const toPath = urlOrPath => urlOrPath instanceof URL ? fileURLToPath(urlOrPath) : urlOrPath
 
-    function findUpSync (name) {
-        const cwd = process.cwd()
-        const type = 'file'
-        let stopAt = 'apps'
-        let directory = path.resolve(toPath(cwd) ?? '')
-        const { root } = path.parse(directory)
-        stopAt = path.resolve(directory, toPath(stopAt) ?? root)
+    const cwd = process.cwd()
+    let stopAt = 'apps'
+    let directory = path.resolve(toPath(cwd) ?? '')
+    const { root } = path.parse(directory)
+    stopAt = path.resolve(directory, toPath(stopAt) ?? root)
+    let packageJsonPath
 
-        while (directory && directory !== stopAt && directory !== root) {
-            const filePath = path.isAbsolute(name) ? name : path.join(directory, name)
+    while (directory && directory !== stopAt && directory !== root) {
+        packageJsonPath = path.isAbsolute('package.json') ? 'package.json' : path.join(directory, 'package.json')
 
-            try {
-                const stats = fs.statSync(filePath, { throwIfNoEntry: false })
-                if ((type === 'file' && stats?.isFile()) || (type === 'directory' && stats?.isDirectory())) {
-                    return filePath
-                }
-            } catch (e) { console.error(e) }
+        try {
+            const stats = fs.statSync(packageJsonPath, { throwIfNoEntry: false })
+            if (stats?.isFile()) {
+                break
+            }
+        } catch (e) { console.error(e) }
 
-            directory = path.dirname(directory)
-        }
+        directory = path.dirname(directory)
     }
 
-    return require(findUpSync('package.json')).name.split('/').pop() + ':'
+    return require(packageJsonPath).name.split('/').pop() + ':'
 }
 
 const logger = getLogger('redis')
