@@ -12,6 +12,8 @@ const { USER_FIELDS } = require('@condo/domains/user/gql')
 const { User } = require('@condo/domains/user/utils/serverSchema')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
+const { authGuards, validateUserCredentials } = require('../utils/serverSchema/auth')
+
 const redisGuard = new RedisGuard()
 
 const GUARD_DEFAULT_WINDOW_SIZE_IN_SEC = 60 * 60 // seconds
@@ -82,33 +84,24 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
             access: true,
             schema: 'authenticateUserWithPhoneAndPassword(data: AuthenticateUserWithPhoneAndPasswordInput!): AuthenticateUserWithPhoneAndPasswordOutput',
             resolver: async (parent, args, context) => {
-
-                const ip = context.req.ip
-
-                await redisGuard.checkCustomLimitCounters(
-                    `${AUTH_COUNTER_LIMIT_TYPE}:${ip}`,
-                    customQuotas[ip]?.windowSizeInSec || GUARD_DEFAULT_WINDOW_SIZE_IN_SEC,
-                    customQuotas[ip]?.windowLimit || GUARD_DEFAULT_WINDOW_LIMIT,
-                    context,
-                )
-
                 const { data: { phone: inputPhone, password } } = args
                 const phone = normalizePhone(inputPhone)
+
+                await authGuards({ phone, userType: 'staff' }, context)
+
                 if (!phone) {
                     throw new GQLError(ERRORS.WRONG_PHONE_FORMAT, context)
                 }
-                const users = await User.getAll(context, { phone, type: STAFF, deletedAt: null }, USER_FIELDS)
-                if (users.length !== 1) {
-                    throw new GQLError(ERRORS.WRONG_CREDENTIALS, context)
-                }
-                const user = await getById('User', users[0].id)
-                const { keystone } = getSchemaCtx('User')
-                const { auth: { User: { password: PasswordStrategy } } } = keystone
-                const list = PasswordStrategy.getList()
-                const { success } = await PasswordStrategy._matchItem(user, { password }, list.fieldsByPath['password'])
+
+                const { success } = await validateUserCredentials(
+                    { phone, userType: 'staff' },
+                    { password }
+                )
+
                 if (!success) {
                     throw new GQLError(ERRORS.WRONG_CREDENTIALS, context)
                 }
+
                 const token = await context.startAuthedSession({ item: users[0], list: keystone.lists['User'] })
                 return {
                     item: user,
