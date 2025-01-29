@@ -1,4 +1,3 @@
-
 const fs = require('fs')
 const path = require('path')
 const { fileURLToPath } = require('url')
@@ -16,6 +15,10 @@ const READONLY_COMMANDS = ['bitcount', 'bitfield_ro', 'bitpos', 'dbsize', 'dump'
 const REDIS_CLIENTS = {}
 
 const getRedisPrefix = () => {
+    if (conf['REDIS_PREFIX']) {
+        return conf['REDIS_PREFIX'].replace(/:/g, '') + ':'
+    }
+
     const toPath = urlOrPath => urlOrPath instanceof URL ? fileURLToPath(urlOrPath) : urlOrPath
 
     const cwd = process.cwd()
