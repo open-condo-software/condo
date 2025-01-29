@@ -430,7 +430,7 @@ describe('ResetUserLimitAction', () => {
 
             test('resets counters by ip', async () => {
                 const ip = faker.internet.ipv4()
-                const totalKey = `validate-user-credentials:ip:${ip}`
+                const totalKey = `${AUTH_COUNTER_LIMIT_TYPE}:ip:${ip}`
 
                 for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
                     await redisGuard.incrementDayCounter(totalKey)
@@ -447,7 +447,7 @@ describe('ResetUserLimitAction', () => {
 
             test('resets counters by user id', async () => {
                 const userId = faker.datatype.uuid()
-                const totalKey = `validate-user-credentials:user:${userId}`
+                const totalKey = `${AUTH_COUNTER_LIMIT_TYPE}:user:${userId}`
 
                 for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
                     await redisGuard.incrementDayCounter(totalKey)
@@ -466,7 +466,7 @@ describe('ResetUserLimitAction', () => {
 
             test.each(USER_TYPES)('resets counters by phone', async (userType) => {
                 const phone = createTestPhone()
-                const totalKey = `validate-user-credentials:phone-and-user-type:${userType}:${phone}`
+                const totalKey = `${AUTH_COUNTER_LIMIT_TYPE}:phone-and-user-type:${userType}:${phone}`
 
                 for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
                     await redisGuard.incrementDayCounter(totalKey)
@@ -483,7 +483,7 @@ describe('ResetUserLimitAction', () => {
 
             test.each(USER_TYPES)('resets counters by email', async (userType) => {
                 const email = createTestEmail()
-                const totalKey = `validate-user-credentials:email-and-user-type:${userType}:${email}`
+                const totalKey = `${AUTH_COUNTER_LIMIT_TYPE}:email-and-user-type:${userType}:${email}`
 
                 for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
                     await redisGuard.incrementDayCounter(totalKey)
