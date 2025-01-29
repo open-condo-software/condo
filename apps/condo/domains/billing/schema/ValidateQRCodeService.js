@@ -233,7 +233,7 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
                     },
                 }
 
-                await compareQRCodeWithLastReceipt(qrCodeFields, resolvers)
+                await compareQRCodeWithLastReceipt(context, qrCodeFields, resolvers)
 
                 // Calculate fees
                 const acquiringIntegration = await getById('AcquiringIntegration', acquiringContext.integration)

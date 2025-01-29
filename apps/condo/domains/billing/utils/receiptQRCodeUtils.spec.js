@@ -7,7 +7,6 @@ const Big = require('big.js')
 const dayjs = require('dayjs')
 const iconv = require('iconv-lite')
 
-const { getById } = require('@open-condo/keystone/schema')
 const { catchErrorFrom, setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
@@ -40,16 +39,21 @@ const {
     createTestRecipient,
 } = require('./testSchema')
 
+const { keystone } = index
+
 const TEST_STRING = 'ST00011|Name=ООО «УК ЭкоГрад»|PersonalAcc=40902830202010056769|BankName=ПАО СБЕРБАНК|BIC=048073601|CorrespAcc=30102110300320000206|PayeeINN=0524967340|persAcc=5018435412|payerAddress=ул.Ивана Спатара, д.14, кв.32|lastName=Иванов|firstName=Иван|middleName=Иванович|Sum=12351'
 
 describe('receiptQRCodeUtils', () => {
 
     const parseRUReceiptQRCode = getCountrySpecificQRCodeParser(RUSSIA_COUNTRY)
+
+    let context
     let adminClient
 
     setFakeClientMode(index, { excludeApps: ['NextApp', 'AdminUIApp', 'OIDCMiddleware'] })
 
     beforeAll(async () => {
+        context = await keystone.createContext({ skipAccessControl: true })
         adminClient = await makeLoggedInAdminClient()
     })
 
@@ -178,7 +182,7 @@ describe('receiptQRCodeUtils', () => {
                     onReceiptPeriodNewerThanQrCodePeriod: jest.fn(),
                     onReceiptPeriodOlderThanQrCodePeriod: jest.fn(),
                 }
-                await compareQRCodeWithLastReceipt(qrCodeObj, resolvers)
+                await compareQRCodeWithLastReceipt(context, qrCodeObj, resolvers)
 
                 expect(resolvers.onNoReceipt).toBeCalledTimes(1)
                 expect(resolvers.onReceiptPeriodEqualsQrCodePeriod).toBeCalledTimes(0)
@@ -201,7 +205,11 @@ describe('receiptQRCodeUtils', () => {
                     toPay: Big(qrCodeObj.Sum).div(100),
                 })
 
-                billingReceiptForComparison = await getById('BillingReceipt', billingReceipt.id)
+                billingReceiptForComparison = {
+                    id: billingReceipt.id,
+                    period: billingReceipt.period,
+                    toPay: billingReceipt.toPay,
+                }
             })
 
             test('last billing receipt period equals qr-code period', async () => {
@@ -211,7 +219,7 @@ describe('receiptQRCodeUtils', () => {
                     onReceiptPeriodNewerThanQrCodePeriod: jest.fn(),
                     onReceiptPeriodOlderThanQrCodePeriod: jest.fn(),
                 }
-                await compareQRCodeWithLastReceipt(qrCodeObj, resolvers)
+                await compareQRCodeWithLastReceipt(context, qrCodeObj, resolvers)
 
                 expect(resolvers.onNoReceipt).toBeCalledTimes(0)
                 expect(resolvers.onReceiptPeriodEqualsQrCodePeriod).toBeCalledTimes(1)
@@ -228,7 +236,7 @@ describe('receiptQRCodeUtils', () => {
                     onReceiptPeriodNewerThanQrCodePeriod: jest.fn(),
                     onReceiptPeriodOlderThanQrCodePeriod: jest.fn(),
                 }
-                await compareQRCodeWithLastReceipt({ ...qrCodeObj, PaymPeriod: '05.2024' }, resolvers)
+                await compareQRCodeWithLastReceipt(context, { ...qrCodeObj, PaymPeriod: '05.2024' }, resolvers)
 
                 expect(resolvers.onNoReceipt).toBeCalledTimes(0)
                 expect(resolvers.onReceiptPeriodEqualsQrCodePeriod).toBeCalledTimes(0)
@@ -245,7 +253,7 @@ describe('receiptQRCodeUtils', () => {
                     onReceiptPeriodNewerThanQrCodePeriod: jest.fn(),
                     onReceiptPeriodOlderThanQrCodePeriod: jest.fn(),
                 }
-                await compareQRCodeWithLastReceipt({ ...qrCodeObj, PaymPeriod: '07.2024' }, resolvers)
+                await compareQRCodeWithLastReceipt(context, { ...qrCodeObj, PaymPeriod: '07.2024' }, resolvers)
 
                 expect(resolvers.onNoReceipt).toBeCalledTimes(0)
                 expect(resolvers.onReceiptPeriodEqualsQrCodePeriod).toBeCalledTimes(0)

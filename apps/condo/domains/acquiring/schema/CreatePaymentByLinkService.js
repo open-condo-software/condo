@@ -151,7 +151,7 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                     onReceiptPeriodOlderThanQrCodePeriod: payForQR,
                 }
 
-                await compareQRCodeWithLastReceipt(qrCodeFields, resolvers)
+                await compareQRCodeWithLastReceipt(context, qrCodeFields, resolvers)
 
                 const multiPayment = await MultiPayment.getOne(context, { id: multiPaymentId },
                     'id amountWithoutExplicitFee explicitServiceCharge amount currencyCode',

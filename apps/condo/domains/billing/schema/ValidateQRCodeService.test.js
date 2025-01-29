@@ -99,7 +99,15 @@ async function createBillingReceiptAndAllDependencies (admin, organization, prop
         toPay: String(sum),
     })
 
-    return { billingReceipt, bankAccount, acquiringIntegrationContext, billingIntegrationContext }
+    return {
+        billingReceipt,
+        bankAccount,
+        acquiringIntegrationContext,
+        billingIntegrationContext,
+        billingProperty,
+        billingAccount,
+        billingRecipient,
+    }
 }
 
 function generateQrCodeObj (extraAttrs = {}) {
@@ -372,7 +380,7 @@ describe('ValidateQRCodeService', () => {
                             type: 'TOO_MANY_REQUESTS',
                             message: 'You have to wait {secondsRemaining} seconds to be able to send request again',
                         },
-                        'result'
+                        'result',
                     )
                 } else {
                     await validateQRCodeByTestClient(anonymousClient, { qrCode: qrCodeString })
@@ -503,10 +511,6 @@ describe('ValidateQRCodeService', () => {
         test('scanned receipt period equals the last billing receipt in out database', async () => {
             const [o10n] = await createTestOrganization(adminClient)
             const [property] = await createTestProperty(adminClient, o10n)
-            const recipient = createTestRecipient({
-                name: o10n.name,
-                tin: o10n.tin,
-            })
 
             const PaymPeriod = '05.2024' // for QR code
             const period = '2024-05-01' // for receipt
@@ -519,29 +523,42 @@ describe('ValidateQRCodeService', () => {
                 Sum: String(sum * 100),
                 PersAcc: faker.random.numeric(20),
             }
-            const qrStr = stringifyQrCode(qrObj)
 
             // create the receipt
             const {
                 billingIntegrationContext,
-                billingReceipt,
                 acquiringIntegrationContext,
+                billingProperty,
+                billingAccount,
+                billingRecipient,
             } = await createBillingReceiptAndAllDependencies(adminClient, o10n, property, qrObj, period, sum, '0.5', '1')
+
+            const [billingReceiptLast] = await createTestBillingReceipt(adminClient, billingIntegrationContext, billingProperty, billingAccount, {
+                period: '2024-06-01',
+                receiver: { connect: { id: billingRecipient.id } },
+                recipient: createTestRecipient({
+                    bic: billingRecipient.bic,
+                }),
+                toPay: '2000',
+            })
+
+            const qrObjLast = { ...qrObj, PaymPeriod: '06.2024', sum: '200000' }
+            const qrStr = stringifyQrCode(qrObjLast)
 
             const [result] = await validateQRCodeByTestClient(adminClient, { qrCode: qrStr })
 
             expect(result).toEqual({
-                qrCodeFields: qrObj,
+                qrCodeFields: qrObjLast,
                 lastReceiptData: {
-                    id: billingReceipt.id,
-                    period,
-                    toPay: `${sum}.00000000`,
+                    id: billingReceiptLast.id,
+                    period: '2024-06-01',
+                    toPay: '2000.00000000',
                 },
                 explicitFees: {
-                    explicitServiceCharge: '15',
+                    explicitServiceCharge: '30',
                     explicitFee: '0',
                 },
-                amount: '1000.00000000',
+                amount: '2000.00000000',
                 acquiringIntegrationHostUrl: acquiringIntegrationContext.integration.hostUrl,
                 currencyCode: billingIntegrationContext.integration.currencyCode,
             })
