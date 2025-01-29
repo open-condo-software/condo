@@ -1,49 +1,12 @@
-const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { getSchemaCtx, getById } = require('@open-condo/keystone/schema')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const { WRONG_PHONE_FORMAT } = require('@condo/domains/common/constants/errors')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
-const { STAFF } = require('@condo/domains/user/constants/common')
 const { WRONG_CREDENTIALS } = require('@condo/domains/user/constants/errors')
-const { AUTH_COUNTER_LIMIT_TYPE } = require('@condo/domains/user/constants/limits')
-const { USER_FIELDS } = require('@condo/domains/user/gql')
-const { User } = require('@condo/domains/user/utils/serverSchema')
-const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
+const { authGuards, validateUserCredentials } = require('@condo/domains/user/utils/serverSchema/auth')
 
-const { authGuards, validateUserCredentials } = require('../utils/serverSchema/auth')
-
-const redisGuard = new RedisGuard()
-
-const GUARD_DEFAULT_WINDOW_SIZE_IN_SEC = 60 * 60 // seconds
-const GUARD_DEFAULT_WINDOW_LIMIT = 10
-
-/**
- * @typedef {Object} TAuthGuardQuota
- * @property {number} windowSizeInSec The window size in seconds
- * @property {number} windowLimit Attempts limit during the window
- */
-
-/**
- * @type {Record<string, TAuthGuardQuota>}
- *
- * Possible values:
- * 1. Change all
- * { "*.*.*.*": { windowSizeInSec: 3600, windowLimit: 60 } }
- *
- * 2. Change only window size
- * { "i.p.v.4": { windowSizeInSec: 3600 } }
- *
- * 3. Change only limit
- * { "i.p.v.4": { windowLimit: 60 } }
- */
-let customQuotas
-try {
-    customQuotas = JSON.parse(conf.AUTH_GUARD_CUSTOM_QUOTAS)
-} catch (e) {
-    customQuotas = {}
-}
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -93,7 +56,7 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
                     throw new GQLError(ERRORS.WRONG_PHONE_FORMAT, context)
                 }
 
-                const { success } = await validateUserCredentials(
+                const { success, user } = await validateUserCredentials(
                     { phone, userType: 'staff' },
                     { password }
                 )
@@ -102,7 +65,9 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
                     throw new GQLError(ERRORS.WRONG_CREDENTIALS, context)
                 }
 
-                const token = await context.startAuthedSession({ item: users[0], list: keystone.lists['User'] })
+                const { keystone } = getSchemaCtx('User')
+                const token = await context.startAuthedSession({ item: user, list: keystone.lists['User'] })
+
                 return {
                     item: user,
                     token,
