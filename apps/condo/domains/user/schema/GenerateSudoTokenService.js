@@ -19,7 +19,7 @@ const {
 } = require('@condo/domains/user/constants/errors')
 const { captchaCheck } = require('@condo/domains/user/utils/hCaptcha')
 const { UserSudoToken, ConfirmPhoneAction } = require('@condo/domains/user/utils/serverSchema')
-const { validateUserCredentialsWithRequestLimit } = require('@condo/domains/user/utils/serverSchema/validateUserCredentials')
+const { authGuards, validateUserCredentials } = require('@condo/domains/user/utils/serverSchema/auth')
 const { generateTokenSafely, TOKEN_TYPES } = require('@condo/domains/user/utils/tokens')
 
 
@@ -103,6 +103,8 @@ const GenerateSudoTokenService = new GQLCustomSchema('GenerateSudoTokenService',
 
                 const authedItemId = get(context, 'authedItem.id', null)
 
+                await authGuards({ email: user.email, phone: user.phone, userType: user.userType }, context)
+
                 const { error: captchaError } = await captchaCheck(context, captcha)
                 if (captchaError) {
                     throw new GQLError({ ...ERRORS.CAPTCHA_CHECK_FAILED, data: { error: captchaError } }, context)
@@ -110,14 +112,9 @@ const GenerateSudoTokenService = new GQLCustomSchema('GenerateSudoTokenService',
 
                 checkDvAndSender(data, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
 
-                if (!user.phone && !user.email) {
-                    throw new GQLError(ERRORS.USER_IDENTITY_INVALID, context)
-                }
-
-                const validation = await validateUserCredentialsWithRequestLimit(
+                const validation = await validateUserCredentials(
                     { email: user.email, phone: user.phone, userType: user.userType },
                     { password: authFactors.password, confirmPhoneToken: authFactors.confirmPhoneToken },
-                    context,
                 )
 
                 if (!validation.success) {
