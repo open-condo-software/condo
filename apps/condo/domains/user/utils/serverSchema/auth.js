@@ -117,7 +117,7 @@ async function authGuards (userIdentity, context ) {
  * @return {Promise<{success: boolean}|{confirmPhoneAction: {id: string, phone: string, isPhoneVerified: boolean}, success: boolean, user: *}|{success: boolean, _error: {is2FAEnabled: boolean, errorType: string, authChecks: {confirmEmailToken: ("skip"|"fail"|"success"), password: ("skip"|"fail"|"success"), confirmPhoneToken: ("skip"|"fail"|"success")}}}>}
  * @private
  */
-async function auth (userIdentity, authFactors) {
+async function validateUserCredentials (userIdentity, authFactors) {
     if (!userIdentity || typeof userIdentity !== 'object') throw new Error('You must provide userIdentity')
     if (!authFactors || typeof authFactors !== 'object') throw new Error('You must provide authFactors')
 
@@ -399,6 +399,6 @@ async function _preventTimeBasedAttack (authFactors) {
 }
 
 module.exports = {
-    validateUserCredentials: auth,
+    validateUserCredentials,
     authGuards,
 }
