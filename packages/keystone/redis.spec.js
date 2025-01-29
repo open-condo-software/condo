@@ -5,7 +5,7 @@ const conf = require('@open-condo/config')
 const { getRedisPrefix } = require('./redis')
 
 describe('Redis adapter', () => {
-    const OLD_ENV = process.env
+    const OLD_ENV = JSON.parse(JSON.stringify(process.env))
     let redisClient
     let nonPrefixedClient
     let moduleName
