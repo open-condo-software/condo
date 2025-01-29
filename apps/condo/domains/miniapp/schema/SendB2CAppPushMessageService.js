@@ -12,7 +12,7 @@ const access = require('@condo/domains/miniapp/access/SendB2CAppPushMessageServi
 const {
     USER_NOT_FOUND_ERROR, RESIDENT_NOT_FOUND_ERROR,
     APP_NOT_FOUND_ERROR, APP_BLACK_LIST_ERROR, DEBUG_APP_ID,
-    DEFAULT_NOTIFICATIONS_IN_WINDOW_COUNT,
+    DEFAULT_NOTIFICATION_WINDOW_MAX_COUNT,
     DEFAULT_NOTIFICATION_WINDOW_DURATION_IN_SECONDS,
 } = require('@condo/domains/miniapp/constants')
 const { AppMessageSetting } = require('@condo/domains/miniapp/utils/serverSchema')
@@ -162,7 +162,7 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
                 await redisGuard.checkCustomLimitCounters(
                     `${SERVICE_NAME}-${searchKey}`,
                     get(appSettings, 'notificationWindowSize') || ttl,
-                    get(appSettings, 'numberOfNotificationInWindow') || DEFAULT_NOTIFICATIONS_IN_WINDOW_COUNT,
+                    get(appSettings, 'numberOfNotificationInWindow') || DEFAULT_NOTIFICATION_WINDOW_MAX_COUNT,
                     context,
                 )
 

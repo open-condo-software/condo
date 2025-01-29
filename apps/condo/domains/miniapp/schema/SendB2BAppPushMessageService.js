@@ -14,7 +14,7 @@ const access = require('@condo/domains/miniapp/access/SendB2BAppPushMessageServi
 const {
     CONTEXT_FINISHED_STATUS,
     DEFAULT_NOTIFICATION_WINDOW_DURATION_IN_SECONDS,
-    DEFAULT_NOTIFICATIONS_IN_WINDOW_COUNT,
+    DEFAULT_NOTIFICATION_WINDOW_MAX_COUNT,
     APP_BLACK_LIST_ERROR,
 } = require('@condo/domains/miniapp/constants')
 const { B2B_APP_MESSAGE_TYPES, MESSAGE_META } = require('@condo/domains/notification/constants/constants')
@@ -123,7 +123,7 @@ const SendB2BAppPushMessageService = new GQLCustomSchema('SendB2BAppPushMessageS
                 await redisGuard.checkCustomLimitCounters(
                     `sendB2BAppPushMessage:${type}:app:${b2bAppFilter.id}:org:${organizationFilter.id}:user:${userFilter.id}`,
                     get(appSettings, 'notificationWindowSize') || DEFAULT_NOTIFICATION_WINDOW_DURATION_IN_SECONDS,
-                    get(appSettings, 'numberOfNotificationInWindow') || DEFAULT_NOTIFICATIONS_IN_WINDOW_COUNT,
+                    get(appSettings, 'numberOfNotificationInWindow') || DEFAULT_NOTIFICATION_WINDOW_MAX_COUNT,
                     context,
                 )
 
