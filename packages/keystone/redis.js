@@ -16,7 +16,9 @@ const REDIS_CLIENTS = {}
 
 const getRedisPrefix = () => {
     if (conf['REDIS_PREFIX']) {
-        return conf['REDIS_PREFIX'].replace(/:/g, '') + ':'
+        return conf['REDIS_PREFIX']
+            .replace(/:/g, '')
+            .replace(/-/g, '_') + ':'
     }
 
     const toPath = urlOrPath => urlOrPath instanceof URL ? fileURLToPath(urlOrPath) : urlOrPath
@@ -41,7 +43,10 @@ const getRedisPrefix = () => {
         directory = path.dirname(directory)
     }
 
-    return require(packageJsonPath).name.split('/').pop() + ':'
+    return require(packageJsonPath).name.split('/')
+        .pop()
+        .replace(/:/g, '')
+        .replace(/-/g, '_') + ':'
 }
 
 const logger = getLogger('redis')

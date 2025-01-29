@@ -38,14 +38,14 @@ describe('Redis adapter', () => {
         expect(getRedisPrefix()).toEqual(moduleName)
     })
 
-    test('prefix might be overrided via REDIS_PREFIX env variable', () => {
+    test('prefix might be redefined via REDIS_PREFIX env variable', () => {
         jest.resetModules()
         process.env.REDIS_URL = conf['REDIS_URL'] || 'redis://127.0.0.1:6379'
         process.env.REDIS_FALLBACK_ENABLED = conf['REDIS_FALLBACK_ENABLED'] || 'true'
-        process.env.REDIS_PREFIX = 'someNewPrefix:'
+        process.env.REDIS_PREFIX = ':some-New-Prefix:'
 
         const { getRedisPrefix } = require('./redis')
-        expect(getRedisPrefix()).toEqual('someNewPrefix:')
+        expect(getRedisPrefix()).toEqual('some_New_Prefix:')
 
         jest.resetModules()
         process.env.REDIS_URL = conf['REDIS_URL'] || 'redis://127.0.0.1:6379'
