@@ -18,11 +18,10 @@ const REDIS_CLIENTS = {}
 const getRedisPrefix = () => {
     const toPath = urlOrPath => urlOrPath instanceof URL ? fileURLToPath(urlOrPath) : urlOrPath
 
-    function findUpSync (name, {
-        cwd = process.cwd(),
-        type = 'file',
-        stopAt,
-    } = {}) {
+    function findUpSync (name) {
+        const cwd = process.cwd()
+        const type = 'file'
+        let stopAt = 'apps'
         let directory = path.resolve(toPath(cwd) ?? '')
         const { root } = path.parse(directory)
         stopAt = path.resolve(directory, toPath(stopAt) ?? root)
