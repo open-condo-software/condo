@@ -63,7 +63,7 @@ import { NewsItem, NewsItemScope } from '@condo/domains/news/utils/clientSchema'
 import { PARKING_SECTION_TYPE } from '@condo/domains/property/constants/common'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
-import { InputStep } from './InputStep'
+import { InputStep, SharingAppValuesType } from './InputStep/index'
 
 
 type FormWithActionChildrenProps = ComponentProps<ComponentProps<typeof FormWithAction>['children']>
@@ -92,7 +92,7 @@ type StepData = {
 
 export type SendPeriodType = 'now' | 'later'
 
-export type TInitialValues =  Partial<INewsItem> & Partial<{
+export type InitialValuesType =  Partial<INewsItem> & Partial<{
     newsItemScopes: INewsItemScope[]
     hasAllProperties: boolean
     sendPeriod: SendPeriodType
@@ -104,7 +104,7 @@ export type BaseNewsFormProps = {
     ActionBar: React.FC<ActionBarProps>
     newsItemAction: (values: INewsItemCreateInput | INewsItemUpdateInput) => ReturnType<ReturnType<NewsItemClientUtilsType['useCreate' | 'useUpdate']>>
     newsItemSharingAction: (values: INewsItemSharingCreateInput | INewsItemSharingUpdateInput) => ReturnType<ReturnType<NewsItemSharingClientUtilsType['useCreate']>>
-    initialValues?: TInitialValues
+    initialValues?: InitialValuesType
     templates: { [key: string]: { title: string, body: string, type: string | null, id?: string, label?: string, category?: string } }
     afterAction?: () => void
     newsItem?: INewsItem
@@ -132,16 +132,7 @@ type SelectAppsFormValues = {
     validBefore: string
 }
 
-export type SharingAppValues = {
-    formValues: Record<string, unknown>
-    preview: {
-        renderedTitle: string
-        renderedBody: string
-    }
-    isValid: boolean
-}
-
-export type TScope = {
+export type ScopeType = {
     selectedUnitNameKeys: string[] | null
     selectedPropertiesId: string[] | null
     isAllPropertiesChecked: boolean | null
@@ -153,25 +144,23 @@ export const HiddenBlock = styled.div<{ hide?: boolean }>`
 `
 
 //TODO(DOMA-6846) wrap form label with 0 margin and use default spacing (details in 6613 pr)
-export const NO_RESIZE_STYLE: React.CSSProperties = { resize: 'none' }
-export const FLEX_START_STYLE: React.CSSProperties = { alignItems: 'flex-start' }
-export const BIG_MARGIN_BOTTOM_STYLE: React.CSSProperties = { marginBottom: '60px' }
-export const MARGIN_BOTTOM_32_STYLE: React.CSSProperties = { marginBottom: '32px' }
-export const MARGIN_BOTTOM_38_STYLE: React.CSSProperties = { marginBottom: '38px' }
-export const MARGIN_BOTTOM_10_STYLE: React.CSSProperties = { marginBottom: '10px' }
-export const MARGIN_BOTTOM_24_STYLE: React.CSSProperties = { marginBottom: '24px' }
-export const MARGIN_TOP_8_STYLE: React.CSSProperties = { marginTop: '8px' }
-export const MARGIN_TOP_44_STYLE: React.CSSProperties = { marginTop: '44px' }
-export const FORM_FILED_COL_PROPS = { style: { width: '100%', padding: 0, height: '44px' } }
-export const SCROLL_TO_FIRST_ERROR_CONFIG: ScrollOptions = { behavior: 'smooth', block: 'center' }
-export const SHOW_TIME_CONFIG = { defaultValue: dayjs('00:00:00:000', 'HH:mm:ss:SSS') }
-export const FULL_WIDTH_STYLE: React.CSSProperties = { width: '100%' }
-export const SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]
-export const EXTRA_SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 10]
-export const BIG_HORIZONTAL_GUTTER: [Gutter, Gutter] = [50, 0]
-export const ALL_SQUARE_BRACKETS_OCCURRENCES_REGEX = /\[[^\]]*?\]/g
-export const ADDITIONAL_DISABLED_MINUTES_COUNT = 5
-export const DATE_FORMAT = 'DD MMMM YYYY HH:mm'
+const FLEX_START_STYLE: React.CSSProperties = { alignItems: 'flex-start' }
+const BIG_MARGIN_BOTTOM_STYLE: React.CSSProperties = { marginBottom: '60px' }
+const MARGIN_BOTTOM_38_STYLE: React.CSSProperties = { marginBottom: '38px' }
+const MARGIN_BOTTOM_10_STYLE: React.CSSProperties = { marginBottom: '10px' }
+const MARGIN_BOTTOM_24_STYLE: React.CSSProperties = { marginBottom: '24px' }
+const MARGIN_TOP_8_STYLE: React.CSSProperties = { marginTop: '8px' }
+const MARGIN_TOP_44_STYLE: React.CSSProperties = { marginTop: '44px' }
+const FORM_FILED_COL_PROPS = { style: { width: '100%', padding: 0, height: '44px' } }
+const SCROLL_TO_FIRST_ERROR_CONFIG: ScrollOptions = { behavior: 'smooth', block: 'center' }
+const SHOW_TIME_CONFIG = { defaultValue: dayjs('00:00:00:000', 'HH:mm:ss:SSS') }
+const FULL_WIDTH_STYLE: React.CSSProperties = { width: '100%' }
+const SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]
+const EXTRA_SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 10]
+const BIG_HORIZONTAL_GUTTER: [Gutter, Gutter] = [50, 0]
+const ALL_SQUARE_BRACKETS_OCCURRENCES_REGEX = /\[[^\]]*?\]/g
+const ADDITIONAL_DISABLED_MINUTES_COUNT = 5
+const DATE_FORMAT = 'DD MMMM YYYY HH:mm'
 
 const DOMA_APP_ICON_URL = '/homeWithSun.svg'
 const SHARING_APP_FALLBACK_ICON = '/news/sharingAppIconPlaceholder.svg'
@@ -444,7 +433,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const [isValidBeforeAfterSendAt, setIsValidBeforeAfterSendAt] = useState<boolean>(true)
     const [newsItemCountAtSameDay, setNewsItemCountAtSameDay] = useState(getNewsItemCountAtSameDay(null, allNews))
 
-    const [scope, setScope] = useState<TScope>({
+    const [scope, setScope] = useState<ScopeType>({
         selectedUnitNameKeys: initialUnitKeys,
         selectedPropertiesId: initialPropertyIds,
         isAllPropertiesChecked: initialHasAllProperties,
@@ -460,7 +449,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const [condoFormValues, setCondoFormValues] = useState<CondoFormValues | null>(null)
 
     // SharingApp form values:
-    const [sharingAppsFormValues, setSharingAppsFormValues] = useState<Record<string, SharingAppValues>>({})
+    const [sharingAppsFormValues, setSharingAppsFormValues] = useState<Record<string, SharingAppValuesType>>({})
 
     const { loading: selectedPropertiesLoading, objs: selectedProperties } = Property.useAllObjects({
         where: { id_in: scope.selectedPropertiesId },
@@ -804,7 +793,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
 
         if (currentStep === 1) {
             fieldsToValidate = ['templates', 'title', 'body', 'property', 'properties', 'hasAllProperties', 'unitNames', 'sectionIds']
-            const res = { ...form.getFieldsValue(true) }
+            const res = form.getFieldsValue(true)
 
             setSelectedTitle(res.title)
             setSelectedBody(res.body)
