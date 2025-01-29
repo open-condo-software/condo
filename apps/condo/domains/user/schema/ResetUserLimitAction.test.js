@@ -16,7 +16,6 @@ const {
     RATE_LIMIT_TYPE,
     FIND_ORGANIZATION_BY_TIN_TYPE,
     AUTH_COUNTER_LIMIT_TYPE,
-    VALIDATE_USER_CREDENTIALS,
 } = require('@condo/domains/user/constants/limits')
 const { ERRORS } = require('@condo/domains/user/schema/ResetUserLimitAction')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
@@ -404,28 +403,28 @@ describe('ResetUserLimitAction', () => {
             })
         })
 
-        describe(`${VALIDATE_USER_CREDENTIALS} type`, () => {
+        describe(`${AUTH_COUNTER_LIMIT_TYPE} type`, () => {
             test('throws error if key is not exists', async () => {
                 await expectToThrowGQLError(async () => {
-                    await createTestResetUserLimitAction(admin, VALIDATE_USER_CREDENTIALS, faker.internet.ip())
+                    await createTestResetUserLimitAction(admin, AUTH_COUNTER_LIMIT_TYPE, faker.internet.ip())
                 }, ERRORS.KEY_NOT_FOUND)
 
                 await expectToThrowGQLError(async () => {
-                    await createTestResetUserLimitAction(admin, VALIDATE_USER_CREDENTIALS, faker.datatype.uuid())
+                    await createTestResetUserLimitAction(admin, AUTH_COUNTER_LIMIT_TYPE, faker.datatype.uuid())
                 }, ERRORS.KEY_NOT_FOUND)
 
                 await expectToThrowGQLError(async () => {
-                    await createTestResetUserLimitAction(admin, VALIDATE_USER_CREDENTIALS, createTestPhone())
+                    await createTestResetUserLimitAction(admin, AUTH_COUNTER_LIMIT_TYPE, createTestPhone())
                 }, ERRORS.KEY_NOT_FOUND)
 
                 await expectToThrowGQLError(async () => {
-                    await createTestResetUserLimitAction(admin, VALIDATE_USER_CREDENTIALS, createTestEmail())
+                    await createTestResetUserLimitAction(admin, AUTH_COUNTER_LIMIT_TYPE, createTestEmail())
                 }, ERRORS.KEY_NOT_FOUND)
             })
 
             test('throws error if key is not valid uuid, ip, email or phone', async () => {
                 await expectToThrowGQLError(async () => {
-                    await createTestResetUserLimitAction(userWithDirectAccess, VALIDATE_USER_CREDENTIALS, faker.random.alphaNumeric(10))
+                    await createTestResetUserLimitAction(userWithDirectAccess, AUTH_COUNTER_LIMIT_TYPE, faker.random.alphaNumeric(10))
                 }, ERRORS.INVALID_IDENTIFIER)
             })
 
@@ -440,7 +439,7 @@ describe('ResetUserLimitAction', () => {
 
                 expect(Number(beforeResetTotal)).toEqual(COUNTER_VALUE_TO_UPDATE)
 
-                await createTestResetUserLimitAction(userWithDirectAccess, VALIDATE_USER_CREDENTIALS, ip)
+                await createTestResetUserLimitAction(userWithDirectAccess, AUTH_COUNTER_LIMIT_TYPE, ip)
                 const afterResetTotal = await redisGuard.getCounterValue(totalKey)
 
                 expect(afterResetTotal).toBeNull()
@@ -457,7 +456,7 @@ describe('ResetUserLimitAction', () => {
 
                 expect(Number(beforeResetTotal)).toEqual(COUNTER_VALUE_TO_UPDATE)
 
-                await createTestResetUserLimitAction(userWithDirectAccess, VALIDATE_USER_CREDENTIALS, userId)
+                await createTestResetUserLimitAction(userWithDirectAccess, AUTH_COUNTER_LIMIT_TYPE, userId)
                 const afterResetTotal = await redisGuard.getCounterValue(totalKey)
 
                 expect(afterResetTotal).toBeNull()
@@ -476,7 +475,7 @@ describe('ResetUserLimitAction', () => {
 
                 expect(Number(beforeResetTotal)).toEqual(COUNTER_VALUE_TO_UPDATE)
 
-                await createTestResetUserLimitAction(userWithDirectAccess, VALIDATE_USER_CREDENTIALS, phone)
+                await createTestResetUserLimitAction(userWithDirectAccess, AUTH_COUNTER_LIMIT_TYPE, phone)
                 const afterResetTotal = await redisGuard.getCounterValue(totalKey)
 
                 expect(afterResetTotal).toBeNull()
@@ -493,51 +492,10 @@ describe('ResetUserLimitAction', () => {
 
                 expect(Number(beforeResetTotal)).toEqual(COUNTER_VALUE_TO_UPDATE)
 
-                await createTestResetUserLimitAction(userWithDirectAccess, VALIDATE_USER_CREDENTIALS, email)
+                await createTestResetUserLimitAction(userWithDirectAccess, AUTH_COUNTER_LIMIT_TYPE, email)
                 const afterResetTotal = await redisGuard.getCounterValue(totalKey)
 
                 expect(afterResetTotal).toBeNull()
-            })
-        })
-
-        describe(`${AUTH_COUNTER_LIMIT_TYPE} type`, () => {
-            test('throws error if key is not exists', async () => {
-                const ipv4 = faker.internet.ipv4()
-
-                await expectToThrowGQLError(async () => {
-                    await createTestResetUserLimitAction(admin, AUTH_COUNTER_LIMIT_TYPE, ipv4)
-                }, ERRORS.KEY_NOT_FOUND)
-            })
-
-            test('throws error if key is not valid ip', async () => {
-                const key = faker.random.alphaNumeric(8)
-                for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
-                    await redisGuard.incrementDayCounter(key)
-                }
-                const beforeReset = await redisGuard.getCounterValue(key)
-
-                expect(Number(beforeReset)).toEqual(COUNTER_VALUE_TO_UPDATE)
-
-                await expectToThrowGQLError(async () => {
-                    await createTestResetUserLimitAction(userWithDirectAccess, AUTH_COUNTER_LIMIT_TYPE, key)
-                }, ERRORS.INVALID_IDENTIFIER)
-            })
-
-            test('resets counter by ipv4', async () => {
-                const ip = faker.internet.ipv4()
-                const key = `${AUTH_COUNTER_LIMIT_TYPE}:${ip}`
-
-                for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
-                    await redisGuard.incrementDayCounter(key)
-                }
-                const beforeReset = await redisGuard.getCounterValue(key)
-
-                expect(Number(beforeReset)).toEqual(COUNTER_VALUE_TO_UPDATE)
-
-                await createTestResetUserLimitAction(userWithDirectAccess, AUTH_COUNTER_LIMIT_TYPE, ip)
-                const afterReset = await redisGuard.getCounterValue(key)
-
-                expect(afterReset).toBeNull()
             })
         })
     })

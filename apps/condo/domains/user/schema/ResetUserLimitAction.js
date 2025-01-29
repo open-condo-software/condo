@@ -13,7 +13,6 @@ const {
     FIND_ORGANIZATION_BY_TIN_TYPE,
     RATE_LIMIT_TYPE,
     AUTH_COUNTER_LIMIT_TYPE,
-    VALIDATE_USER_CREDENTIALS,
 } = require('@condo/domains/user/constants/limits')
 const { getIdentifierType } = require('@condo/domains/user/utils/identifiers')
 const {
@@ -29,7 +28,6 @@ const resetters = {
     [RATE_LIMIT_TYPE]: new RateLimitResetter(),
     [FIND_ORGANIZATION_BY_TIN_TYPE]: new FindOrganizationByTinGuardResetter(),
     [AUTH_COUNTER_LIMIT_TYPE]: new AuthGuardResetter(),
-    [VALIDATE_USER_CREDENTIALS]: new ValidateUserCredentialsGuardResetter(),
 }
 
 const ERRORS = {

@@ -4,6 +4,7 @@ const conf = require('@open-condo/config')
 const { itemsQuery, getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
+const { AUTH_COUNTER_LIMIT_TYPE } = require('@condo/domains/user/constants/limits')
 const { ConfirmPhoneAction } = require('@condo/domains/user/utils/serverSchema')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 const { generateSimulatedToken } = require('@condo/domains/user/utils/tokens')
@@ -50,7 +51,7 @@ const GUARD_DEFAULT_WINDOW_LIMIT = 10
  */
 let customQuotas
 try {
-    customQuotas = JSON.parse(conf.VALIDATE_USER_CREDENTIALS_GUARD_CUSTOM_QUOTAS)
+    customQuotas = JSON.parse(conf.AUTH_GUARD_CUSTOM_QUOTAS)
 } catch (e) {
     customQuotas = {}
 }
@@ -60,6 +61,11 @@ const redisGuard = new RedisGuard()
 
 
 /**
+ * The following guards are activated:
+ * 1. Guard by ip (each request)
+ * 2. Guard by authed user id (if user authed)
+ * 3. Guard by phone (if phone passed)
+ * 4. Guard by email (if email passed)
  *
  * @param {{ phone?: string, email?: string, userType: 'staff' | 'resident' | 'service' }} userIdentity
  * @param context
@@ -76,7 +82,7 @@ async function authGuards (userIdentity, context ) {
     const userType = userIdentity.userType
 
     await redisGuard.checkCustomLimitCounters(
-        ['auth', 'ip', ip].join(':'),
+        [AUTH_COUNTER_LIMIT_TYPE, 'ip', ip].join(':'),
         customQuotas?.ip?.[ip]?.windowSizeInSec || customQuotas?.default?.windowSizeInSec || GUARD_DEFAULT_WINDOW_SIZE_IN_SEC,
         customQuotas?.ip?.[ip]?.windowLimit || customQuotas?.default?.windowLimit || GUARD_DEFAULT_WINDOW_LIMIT,
         context,
@@ -84,7 +90,7 @@ async function authGuards (userIdentity, context ) {
 
     if (userId) {
         await redisGuard.checkCustomLimitCounters(
-            ['auth', 'user', userId].join(':'),
+            [AUTH_COUNTER_LIMIT_TYPE, 'user', userId].join(':'),
             customQuotas?.user?.[userId]?.windowSizeInSec || customQuotas?.default?.windowSizeInSec || GUARD_DEFAULT_WINDOW_SIZE_IN_SEC,
             customQuotas?.user?.[userId]?.windowLimit || customQuotas?.default?.windowLimit || GUARD_DEFAULT_WINDOW_LIMIT,
             context,
@@ -93,7 +99,7 @@ async function authGuards (userIdentity, context ) {
 
     if (phone) {
         await redisGuard.checkCustomLimitCounters(
-            ['auth', 'phone-and-user-type', userType, phone].join(':'),
+            [AUTH_COUNTER_LIMIT_TYPE, 'phone-and-user-type', userType, phone].join(':'),
             customQuotas?.phone?.[phone]?.windowSizeInSec || customQuotas?.default?.windowSizeInSec || GUARD_DEFAULT_WINDOW_SIZE_IN_SEC,
             customQuotas?.phone?.[phone]?.windowLimit || customQuotas?.default?.windowLimit || GUARD_DEFAULT_WINDOW_LIMIT,
             context,
@@ -102,7 +108,7 @@ async function authGuards (userIdentity, context ) {
 
     if (email) {
         await redisGuard.checkCustomLimitCounters(
-            ['auth', 'email-and-user-type', userType, email].join(':'),
+            [AUTH_COUNTER_LIMIT_TYPE, 'email-and-user-type', userType, email].join(':'),
             customQuotas?.email?.[email]?.windowSizeInSec || customQuotas?.default?.windowSizeInSec || GUARD_DEFAULT_WINDOW_SIZE_IN_SEC,
             customQuotas?.email?.[email]?.windowLimit || customQuotas?.default?.windowLimit || GUARD_DEFAULT_WINDOW_LIMIT,
             context,
