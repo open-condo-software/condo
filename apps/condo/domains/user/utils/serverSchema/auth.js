@@ -130,7 +130,6 @@ async function validateUserCredentials (userIdentity, authFactors) {
 
     const userType = userIdentity.userType
 
-    // if (!phone && !email) throw new Error('You must provide a phone number or email')
     if (!userType) throw new Error('You must provide a user type')
 
     // Get user
