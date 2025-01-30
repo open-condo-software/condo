@@ -38,13 +38,13 @@ export function useBroadcastChannel<T> (
         }
     }, [channelName, onMessageReceived, sendInCurrentTab])
 
-    const sendMessage = useCallback((message: T) => {
+    const sendMessageToBroadcastChannel = useCallback((message: T) => {
         if (messageSender.current) {
             messageSender.current.postMessage(message)
         }
     }, [messageSender])
 
     return {
-        sendMessage,
+        sendMessageToBroadcastChannel,
     }
 }

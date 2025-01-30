@@ -1,4 +1,6 @@
+import { GetUserMessagesQueryResult } from '@app/condo/gql'
 import { MessageType } from '@app/condo/schema'
+
 
 /**
  * Message types available for filtering in the UserMessagesList component
@@ -31,3 +33,9 @@ export const EXCLUDED_USER_MESSAGE_TYPES_LOCAL_STORAGE_KEY = 'excludedUserMessag
  * }
  */
 export const READ_USER_MESSAGES_AT_LOCAL_STORAGE_KEY = 'readUserMessagesAt'
+
+export type UserMessageType = Omit<GetUserMessagesQueryResult['data']['messages'][number], 'type'> & {
+    type: typeof USER_MESSAGE_TYPES_FILTER_ON_CLIENT[number]
+}
+
+export const USER_MESSAGE_LIST_POLL_INTERVAL_IN_MS = 5 * 1000
