@@ -8,7 +8,8 @@ import { NEWS_SHARING_PUSH_NOTIFICATION_SETTINGS } from '@condo/domains/miniapp/
 import { NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
 
 import { MemoizedCondoNewsPreview, MemoizedSharingNewsPreview } from '../../NewsPreview'
-import { SharingAppValuesType } from '../InputStep'
+
+import { SharingAppValuesType } from './index'
 
 
 interface InputStepPreviewProps {

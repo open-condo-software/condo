@@ -229,7 +229,7 @@ export const InputStep: React.FC<TInputStepProps> = ({
 
     const handleSharingAppIFrameFormMessage = useCallback((event) => {
         const { handler, ctxId: eventCtxId, formValues, preview, isValid } = event.data
-        if (handler === 'handleSharingAppIFrameFormMessage' && id === eventCtxId) {
+        if (handler === 'handleSharingAppIFrameFormMessage' && ctxId === eventCtxId) {
             setSharingAppFormValues({ formValues, preview, isValid })
         }
     }, [id])
