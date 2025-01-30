@@ -12,7 +12,16 @@ export const MessagesCounter = ({ count }) => {
     const [isAnimating, setIsAnimating] = useState(false)
 
     useEffect(() => {
-        if (count && count !== currentCount) {
+        if (count === currentCount) {
+            return
+        }
+
+        // reset counter without animation
+        if (count === 0) {
+            setCurrentCount(count)
+        }
+
+        if (count > 0) {
             setIsAnimating(true)
 
             setTimeout(() => {
@@ -24,8 +33,7 @@ export const MessagesCounter = ({ count }) => {
 
     return (
         <Badge
-            count={currentCount > 9 ? '∞' : currentCount}
-            // overflowCount={9}
+            count={ currentCount > 9 ? '∞' : currentCount}
             className={`messages-counter${isAnimating ? ' animating' : ''}`}
             color={colors.pink[5]}
             showZero
