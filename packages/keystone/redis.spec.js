@@ -28,6 +28,7 @@ describe('Redis adapter', () => {
         await nonPrefixedClient.del(`${moduleName}test1`)
         await nonPrefixedClient.del(`${moduleName}incrTest`)
         await nonPrefixedClient.del(`${moduleName}testList`)
+        await nonPrefixedClient.del('someNewFallbackPrefix:test')
         await nonPrefixedClient.disconnect()
         await redisClient.disconnect()
 
@@ -53,6 +54,33 @@ describe('Redis adapter', () => {
         process.env.REDIS_PREFIX = ''
     })
 
+    test('adapter should fallback to REDIS_FALLBACK_CONFIG[\'prefix\'] ', async () => {
+        jest.resetModules()
+        process.env.REDIS_URL = conf['REDIS_URL'] || 'redis://127.0.0.1:6379'
+        process.env.REDIS_FALLBACK_CONFIG = '{"enabled": true, "prefix": "someNewFallbackPrefix"}'
+        process.env.REDIS_PREFIX = 'another_prefix_migrate_to'
+
+        const { getRedisClient, getRedisPrefix } = require('@open-condo/keystone/redis')
+
+        expect(getRedisPrefix()).toEqual('another_prefix_migrate_to:')
+        const newPrefixedRedisClient = getRedisClient('newPrefixedRedisClient')
+
+        await nonPrefixedClient.set('someNewFallbackPrefix:test', 1)
+        const operationResult = await nonPrefixedClient.get('someNewFallbackPrefix:test')
+
+        expect(operationResult).toEqual('1')
+
+        const fallbackResult = await newPrefixedRedisClient.get('test')
+
+        expect(fallbackResult).toEqual(operationResult)
+
+        await newPrefixedRedisClient.disconnect()
+        jest.resetModules()
+        process.env.REDIS_URL = conf['REDIS_URL'] || 'redis://127.0.0.1:6379'
+        process.env.REDIS_FALLBACK_CONFIG = conf['REDIS_FALLBACK_CONFIG'] || '{"enabled": true}'
+        process.env.REDIS_PREFIX = ''
+    })
+
 
     test('redis keyPrefix should be module specific', async () => {
         expect(redisClient.options.keyPrefix).toMatch(moduleName)
@@ -63,7 +91,6 @@ describe('Redis adapter', () => {
         const res = await nonPrefixedClient.get('test')
         expect(res).toMatch('result')
 
-        console.log(process.env)
         const key = await redisClient.get('test')
         expect(key).toMatch(res)
     })
