@@ -1,0 +1,13 @@
+.message-card-viewed {
+  opacity: 0.5;
+}
+
+.message-card .message-card-title {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.message-card .message-card-footer {
+  float: right;
+}

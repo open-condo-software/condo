@@ -20,5 +20,14 @@ export function useExecuteWithLock (
         })
     }, [lockName])
 
+    // NOTE: release lock when tab closes
+    useEffect(() => {
+        return () => {
+            if (releaseLockRef.current) {
+                return releaseLockRef.current()
+            }
+        }
+    }, [])
+
     return { releaseLock: releaseLockRef.current }
 }
