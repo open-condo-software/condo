@@ -11,10 +11,10 @@ if (conf['REDIS_URL'] === undefined) {
 const client = new Redis(conf['REDIS_URL'])
 let REDIS_KEY_PREFIX = getRedisPrefix()
 
-const renameRedisKeys = async ({ direction, stepSize = 1000 }) => {
+const renameRedisKeys = async ({ stepSize = 1000, fromPrefix = '', toPrefix = REDIS_KEY_PREFIX }) => {
     const size = await client.dbsize()
     console.log('database size -> ', size)
-    console.log('key prefix -> ', REDIS_KEY_PREFIX)
+    console.log('rename from -> ', fromPrefix, ' to key prefix -> ', toPrefix)
     let cursor = '0'
     const iters = Math.ceil(size / stepSize)
 
@@ -24,16 +24,12 @@ const renameRedisKeys = async ({ direction, stepSize = 1000 }) => {
 
         if (keys.length) {
             const multi = client.multi()
+            const filterQuery = fromPrefix.length === 0
+                ? (key) => !key.startsWith(toPrefix)
+                : () => true
 
-            const filterQuery = direction === 'forward'
-                ? (key) => !key.startsWith(REDIS_KEY_PREFIX)
-                : (key) => key.startsWith(REDIS_KEY_PREFIX)
             keys.filter(filterQuery).forEach((key) => {
-                if (direction === 'forward') {
-                    multi.renamenx(key, REDIS_KEY_PREFIX + key)
-                } else {
-                    multi.renamenx(key, key.substring(REDIS_KEY_PREFIX.length))
-                }
+                multi.renamenx(key, toPrefix + key.substring(fromPrefix.length))
             })
 
             const result = await multi.exec()
