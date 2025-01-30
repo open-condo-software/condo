@@ -9,7 +9,7 @@ const {
     makeLoggedInAdminClient,
     makeClient,
     expectToThrowAccessDeniedErrorToResult,
-    expectToThrowGQLError,
+    expectToThrowGQLErrorToResult,
 } = require('@open-condo/keystone/test.utils')
 
 const { STAFF, RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
@@ -85,7 +85,7 @@ describe('GenerateSudoTokenService', () => {
     describe('Basic logic', () => {
         test('should throw error if dv and sender not valid', async () => {
             const staffClient = await makeClientWithStaffUser()
-            await expectToThrowGQLError(async () => {
+            await expectToThrowGQLErrorToResult(async () => {
                 await generateSudoTokenByTestClient(staffClient, {
                     captcha: getCaptcha(),
                     user: { phone: staffClient.userAttrs.phone, userType: STAFF },
@@ -98,8 +98,8 @@ describe('GenerateSudoTokenService', () => {
                 code: 'BAD_USER_INPUT',
                 type: 'DV_VERSION_MISMATCH',
                 message: 'Wrong value for data version number',
-            }, 'result')
-            await expectToThrowGQLError(async () => {
+            })
+            await expectToThrowGQLErrorToResult(async () => {
                 await generateSudoTokenByTestClient(staffClient, {
                     captcha: getCaptcha(),
                     user: { phone: staffClient.userAttrs.phone, userType: STAFF },
@@ -113,11 +113,11 @@ describe('GenerateSudoTokenService', () => {
                 type: 'WRONG_FORMAT',
                 message: 'Invalid format of "sender" field value. Please, check the example for details',
                 correctExample: '{ "dv": 1, "fingerprint": "uniq-device-or-container-id" }',
-            }, 'result')
+            })
         })
 
         test('should throw error if phone and email empty', async () => {
-            await expectToThrowGQLError(async () => {
+            await expectToThrowGQLErrorToResult(async () => {
                 await generateSudoTokenByTestClient(await makeClient(), {
                     captcha: getCaptcha(),
                     user: { userType: STAFF },
@@ -129,13 +129,13 @@ describe('GenerateSudoTokenService', () => {
                 type: 'CREDENTIAL_VALIDATION_FAILED',
                 message: 'User credentials validation failed',
                 messageForUser: 'api.user.CREDENTIAL_VALIDATION_FAILED',
-            }, 'result')
+            })
         })
 
         test('should throw error if validation failed', async () => {
             const staffClient = await makeClientWithStaffUser()
 
-            await expectToThrowGQLError(async () => {
+            await expectToThrowGQLErrorToResult(async () => {
                 await generateSudoTokenByTestClient(staffClient, {
                     captcha: getCaptcha(),
                     user: { phone: staffClient.userAttrs.phone, userType: STAFF },
@@ -147,14 +147,14 @@ describe('GenerateSudoTokenService', () => {
                 type: 'CREDENTIAL_VALIDATION_FAILED',
                 message: 'User credentials validation failed',
                 messageForUser: 'api.user.CREDENTIAL_VALIDATION_FAILED',
-            }, 'result')
+            })
         })
 
         test('should throw error if validation successful, but authed user not equal validation user', async () => {
             const staffClient = await makeClientWithStaffUser()
             const staffClient2 = await makeClientWithStaffUser()
 
-            await expectToThrowGQLError(async () => {
+            await expectToThrowGQLErrorToResult(async () => {
                 await generateSudoTokenByTestClient(staffClient, {
                     captcha: getCaptcha(),
                     user: { phone: staffClient2.userAttrs.phone, userType: STAFF },
@@ -166,7 +166,7 @@ describe('GenerateSudoTokenService', () => {
                 type: 'CREDENTIAL_VALIDATION_FAILED',
                 message: 'User credentials validation failed',
                 messageForUser: 'api.user.CREDENTIAL_VALIDATION_FAILED',
-            }, 'result')
+            })
         })
 
         // NOTE: All possible cases with validation are checked in tests for the function "validateUserCredentials"
@@ -257,7 +257,7 @@ describe('GenerateSudoTokenService', () => {
 
     describe('Request limit', () => {
         async function expectToThrowErrorCredentialValidationFailed (cb) {
-            await expectToThrowGQLError(async () => {
+            await expectToThrowGQLErrorToResult(async () => {
                 await cb()
             }, {
                 mutation: 'generateSudoToken',
@@ -265,7 +265,7 @@ describe('GenerateSudoTokenService', () => {
                 type: 'CREDENTIAL_VALIDATION_FAILED',
                 message: 'User credentials validation failed',
                 messageForUser: 'api.user.CREDENTIAL_VALIDATION_FAILED',
-            }, 'result')
+            })
         }
 
         test(`should throw error if more than ${REQUESTS_LIMIT} requests are sent by ip per hours`, async () => {
@@ -281,7 +281,7 @@ describe('GenerateSudoTokenService', () => {
                 })
             }
 
-            await expectToThrowGQLError(async () => {
+            await expectToThrowGQLErrorToResult(async () => {
                 await generateSudoTokenByTestClient(anonymous, {
                     captcha: getCaptcha(),
                     user: { phone: faker.phone.number(), userType: STAFF },
@@ -291,7 +291,7 @@ describe('GenerateSudoTokenService', () => {
                 code: 'BAD_USER_INPUT',
                 type: 'TOO_MANY_REQUESTS',
                 message: 'You have to wait {secondsRemaining} seconds to be able to send request again',
-            }, 'result')
+            })
         })
 
         test(`should throw error if more than ${REQUESTS_LIMIT} requests are sent by authed user per hours`, async () => {
@@ -312,7 +312,7 @@ describe('GenerateSudoTokenService', () => {
                 })
             }
 
-            await expectToThrowGQLError(async () => {
+            await expectToThrowGQLErrorToResult(async () => {
                 await generateSudoTokenByTestClient(staffClient, {
                     captcha: getCaptcha(),
                     user: { phone: faker.phone.number(), userType: STAFF },
@@ -322,7 +322,7 @@ describe('GenerateSudoTokenService', () => {
                 code: 'BAD_USER_INPUT',
                 type: 'TOO_MANY_REQUESTS',
                 message: 'You have to wait {secondsRemaining} seconds to be able to send request again',
-            }, 'result')
+            })
         })
 
         test(`should throw error if more than ${REQUESTS_LIMIT} requests are sent by phone + userType per hours`, async () => {
@@ -365,7 +365,7 @@ describe('GenerateSudoTokenService', () => {
             }
 
             const anonymous = await makeClient()
-            await expectToThrowGQLError(async () => {
+            await expectToThrowGQLErrorToResult(async () => {
                 await generateSudoTokenByTestClient(anonymous, {
                     captcha: getCaptcha(),
                     user: { phone, userType: STAFF },
@@ -375,9 +375,9 @@ describe('GenerateSudoTokenService', () => {
                 code: 'BAD_USER_INPUT',
                 type: 'TOO_MANY_REQUESTS',
                 message: 'You have to wait {secondsRemaining} seconds to be able to send request again',
-            }, 'result')
+            })
 
-            await expectToThrowGQLError(async () => {
+            await expectToThrowGQLErrorToResult(async () => {
                 await generateSudoTokenByTestClient(anonymous, {
                     captcha: getCaptcha(),
                     user: { phone, userType: RESIDENT },
@@ -387,9 +387,9 @@ describe('GenerateSudoTokenService', () => {
                 code: 'BAD_USER_INPUT',
                 type: 'TOO_MANY_REQUESTS',
                 message: 'You have to wait {secondsRemaining} seconds to be able to send request again',
-            }, 'result')
+            })
 
-            await expectToThrowGQLError(async () => {
+            await expectToThrowGQLErrorToResult(async () => {
                 await generateSudoTokenByTestClient(anonymous, {
                     captcha: getCaptcha(),
                     user: { phone, userType: SERVICE },
@@ -399,7 +399,7 @@ describe('GenerateSudoTokenService', () => {
                 code: 'BAD_USER_INPUT',
                 type: 'TOO_MANY_REQUESTS',
                 message: 'You have to wait {secondsRemaining} seconds to be able to send request again',
-            }, 'result')
+            })
         })
 
         test(`should throw error if more than ${REQUESTS_LIMIT} requests are sent by email + userType per hours`, async () => {
@@ -442,7 +442,7 @@ describe('GenerateSudoTokenService', () => {
             }
 
             const anonymous = await makeClient()
-            await expectToThrowGQLError(async () => {
+            await expectToThrowGQLErrorToResult(async () => {
                 await generateSudoTokenByTestClient(anonymous, {
                     captcha: getCaptcha(),
                     user: { email, userType: STAFF },
@@ -452,9 +452,9 @@ describe('GenerateSudoTokenService', () => {
                 code: 'BAD_USER_INPUT',
                 type: 'TOO_MANY_REQUESTS',
                 message: 'You have to wait {secondsRemaining} seconds to be able to send request again',
-            }, 'result')
+            })
 
-            await expectToThrowGQLError(async () => {
+            await expectToThrowGQLErrorToResult(async () => {
                 await generateSudoTokenByTestClient(anonymous, {
                     captcha: getCaptcha(),
                     user: { email, userType: RESIDENT },
@@ -464,9 +464,9 @@ describe('GenerateSudoTokenService', () => {
                 code: 'BAD_USER_INPUT',
                 type: 'TOO_MANY_REQUESTS',
                 message: 'You have to wait {secondsRemaining} seconds to be able to send request again',
-            }, 'result')
+            })
 
-            await expectToThrowGQLError(async () => {
+            await expectToThrowGQLErrorToResult(async () => {
                 await generateSudoTokenByTestClient(anonymous, {
                     captcha: getCaptcha(),
                     user: { email, userType: SERVICE },
@@ -476,7 +476,7 @@ describe('GenerateSudoTokenService', () => {
                 code: 'BAD_USER_INPUT',
                 type: 'TOO_MANY_REQUESTS',
                 message: 'You have to wait {secondsRemaining} seconds to be able to send request again',
-            }, 'result')
+            })
         })
     })
 })
