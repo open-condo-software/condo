@@ -52,7 +52,18 @@ const getRedisPrefix = () => {
 const logger = getLogger('redis')
 const PREFIX = getRedisPrefix()
 
-if (get(conf, 'REDIS_FALLBACK_ENABLED', 'false') === 'true') {
+let REDIS_FALLBACK_CONFIG
+try {
+    REDIS_FALLBACK_CONFIG = JSON.parse(conf['REDIS_FALLBACK_CONFIG'])
+} catch (err) {
+    console.error('Unable to parse json from REDIS_FALLBACK -> feature will be disabled', err)
+}
+
+if (get(REDIS_FALLBACK_CONFIG, 'enabled', false)) {
+    let oldPrefix = get(REDIS_FALLBACK_CONFIG, 'prefix', '')
+    if (oldPrefix) {
+        oldPrefix = oldPrefix.replace(/:/g, '').replace(/-/g, '_') + ':'
+    }
     const originalSendCommand = IORedis.prototype.sendCommand
     IORedis.prototype.sendCommand = function (...args) {
         const [command] = args
