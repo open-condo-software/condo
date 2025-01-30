@@ -4,6 +4,7 @@ const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const { WRONG_PHONE_FORMAT } = require('@condo/domains/common/constants/errors')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
+const { STAFF } = require('@condo/domains/user/constants/common')
 const { WRONG_CREDENTIALS } = require('@condo/domains/user/constants/errors')
 const { authGuards, validateUserCredentials } = require('@condo/domains/user/utils/serverSchema/auth')
 
@@ -50,14 +51,14 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
                 const { data: { phone: inputPhone, password } } = args
                 const phone = normalizePhone(inputPhone)
 
-                await authGuards({ phone, userType: 'staff' }, context)
+                await authGuards({ phone, userType: STAFF }, context)
 
                 if (!phone) {
                     throw new GQLError(ERRORS.WRONG_PHONE_FORMAT, context)
                 }
 
                 const { success, user } = await validateUserCredentials(
-                    { phone, userType: 'staff' },
+                    { phone, userType: STAFF },
                     { password }
                 )
 
