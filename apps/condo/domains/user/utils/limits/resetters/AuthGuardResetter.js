@@ -11,15 +11,15 @@ class AuthGuardResetter extends RedisGuardResetter {
 
     #getKeys (identifierType, identifier) {
         const keys = []
-        if (identifierType === 'ip') {
+        if (identifierType === IPv4_TYPE) {
             keys.push([AUTH_COUNTER_LIMIT_TYPE, 'ip', identifier].join(':'))
-        } else if (identifierType === 'uuid') {
+        } else if (identifierType === UUID_TYPE) {
             keys.push([AUTH_COUNTER_LIMIT_TYPE, 'user', identifier].join(':'))
-        } else if (identifierType === 'phone') {
+        } else if (identifierType === PHONE_TYPE) {
             keys.push([AUTH_COUNTER_LIMIT_TYPE, 'phone-and-user-type', 'staff', identifier].join(':'))
             keys.push([AUTH_COUNTER_LIMIT_TYPE, 'phone-and-user-type', 'resident', identifier].join(':'))
             keys.push([AUTH_COUNTER_LIMIT_TYPE, 'phone-and-user-type', 'service', identifier].join(':'))
-        } else if (identifierType === 'email') {
+        } else if (identifierType === EMAIL_TYPE) {
             keys.push([AUTH_COUNTER_LIMIT_TYPE, 'email-and-user-type', 'staff', identifier].join(':'))
             keys.push([AUTH_COUNTER_LIMIT_TYPE, 'email-and-user-type', 'resident', identifier].join(':'))
             keys.push([AUTH_COUNTER_LIMIT_TYPE, 'email-and-user-type', 'service', identifier].join(':'))
