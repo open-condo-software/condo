@@ -79,7 +79,7 @@ if (get(REDIS_FALLBACK_CONFIG, 'enabled', false)) {
                 if (value !== null || !prefixedKey.startsWith(PREFIX)) {
                     resolve(value)
                 } else {
-                    const nonPrefixedKey = prefixedKey.substring(PREFIX.length)
+                    const nonPrefixedKey = oldPrefix + prefixedKey.substring(PREFIX.length)
 
                     const otherCommand = new IORedis.Command(command.name, [nonPrefixedKey, ...restArgs], 'utf-8')
 
