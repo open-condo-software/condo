@@ -36,12 +36,12 @@ class AuthGuardResetter extends RedisGuardResetter {
         // NOTE: identifierKey = userId | phone | email | ip
         const keys = this.#getKeys(identifierType, identifier)
 
-        const listOfLimits = []
+        const existedCounters = []
         for (const key of keys) {
-            listOfLimits.push(await this.guard.checkCounterExistence(key))
+            existedCounters.push(await this.guard.checkCounterExistence(key))
         }
 
-        return listOfLimits.length > 0 && listOfLimits.some((hasLimit) => hasLimit)
+        return existedCounters.length > 0 && existedCounters.some((exists) => exists)
     }
 
     async reset (identifier) {
