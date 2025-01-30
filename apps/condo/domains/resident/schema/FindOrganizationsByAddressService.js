@@ -41,7 +41,7 @@ const FindOrganizationsByAddressService = new GQLCustomSchema('FindOrganizations
         },
         {
             access: true,
-            type: 'type FindOrganizationByAddressMeterType { resource: ID!, number: String, accountNumber: String, value: String }',
+            type: 'type FindOrganizationByAddressMeterType { resource: ID!, number: String, accountNumber: String, value: String, address: String }',
         },
         {
             access: true,
@@ -87,11 +87,11 @@ const FindOrganizationsByAddressService = new GQLCustomSchema('FindOrganizations
 
                 const fetchOrganizationData = async (organization) => {
                     if (tin && accountNumber) {
-                        const org = await findOrganizationByAddressKeyTinAccountNumber(organization, data)
+                        const org = await findOrganizationByAddressKeyTinAccountNumber(organization, data, properties)
 
                         return org.meters || org.receipts ? org : null
                     } else if (unitName && unitType) {
-                        return findOrganizationByAddressKeyUnitNameUnitType(organization, context, data)
+                        return findOrganizationByAddressKeyUnitNameUnitType(organization, data, context, properties)
                     } else {
                         return findOrganizationByAddressKey(organization, data)
                     }

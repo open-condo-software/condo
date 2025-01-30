@@ -45,6 +45,7 @@ function getOnlyResourceMeterTest (resource) {
         accountNumber: null,
         number: null,
         value: null,
+        address: null,
     }
 }
 
@@ -203,8 +204,35 @@ describe('FindOrganizationsByAddress', () => {
                     balance: expect.stringMatching(Big(toPay).toFixed(8)),
                     routingNumber: expect.any(String),
                     bankAccount: expect.any(String),
-                    address: expect.any(String),
+                    address: expect.stringMatching(utils.property.address),
                 })
+            })
+
+            test('Should return meter if unitName and unitType matches', async () => {
+                const accountNumber = utils.randomNumber(10).toString()
+                const unitName = utils.randomNumber(10).toString()
+                const unitType = 'flat'
+                const [source] = await MeterReadingSource.getAll(utils.clients.admin, { id: CALL_METER_READING_SOURCE_ID })
+                const [ meter ] = await utils.createMeter({ unitName, accountNumber })
+                const [meterReading] = await createTestMeterReading(utils.clients.admin, meter, source)
+                const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
+                    addressKey: utils.property.addressKey,
+                    unitName,
+                    unitType,
+                })
+                const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
+                expect(found.receipts).toBeNull()
+                expect(found.meters[0]).toMatchObject({
+                    resource: expect.any(String),
+                    accountNumber: expect.stringMatching(accountNumber),
+                    number: expect.any(String),
+                    value: expect.stringMatching(Big(meterReading.value1).toFixed(4)),
+                    address: expect.stringMatching(utils.property.address),
+                })
+                expect(found.id).toEqual(utils.organization.id)
+                expect(found.name).toEqual(utils.organization.name)
+                expect(found.tin).toEqual(utils.organization.tin)
+                expect(found.type).toEqual(utils.organization.type)
             })
 
             test('Should return receipt category if receipts have duplicates', async () => {
@@ -250,7 +278,7 @@ describe('FindOrganizationsByAddress', () => {
                     balance: Big(toPay).toFixed(8),
                     routingNumber: expect.any(String),
                     bankAccount: expect.any(String),
-                    address: expect.any(String),
+                    address: expect.stringMatching(utils.property.address),
                 })
             })
 
@@ -381,7 +409,7 @@ describe('FindOrganizationsByAddress', () => {
                     accountNumber: expect.stringMatching(accountNumber),
                     routingNumber: expect.any(String),
                     bankAccount: expect.any(String),
-                    address: expect.any(String),
+                    address: expect.stringMatching(utils.property.address),
                 })
                 expect(found.id).toEqual(utils.organization.id)
                 expect(found.name).toEqual(utils.organization.name)
@@ -441,6 +469,7 @@ describe('FindOrganizationsByAddress', () => {
                     accountNumber: expect.stringMatching(accountNumber),
                     number: expect.any(String),
                     value: expect.stringMatching(Big(meterReading.value1).toFixed(4)),
+                    address: expect.stringMatching(utils.property.address),
                 })
                 expect(found.id).toEqual(utils.organization.id)
                 expect(found.name).toEqual(utils.organization.name)

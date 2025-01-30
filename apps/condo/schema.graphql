@@ -80196,18 +80196,20 @@ input FindOrganizationsByAddressInput {
 }
 
 type FindOrganizationByAddressReceiptType {
-  number: String
+  accountNumber: String
   category: ID!
   balance: String
   routingNumber: String
   bankAccount: String
+  address: String
 }
 
 type FindOrganizationByAddressMeterType {
   resource: ID!
   number: String
-  account: String
+  accountNumber: String
   value: String
+  address: String
 }
 
 type FindOrganizationByAddressOutput {

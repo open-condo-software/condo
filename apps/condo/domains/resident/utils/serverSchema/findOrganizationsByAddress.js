@@ -35,7 +35,7 @@ async function findOrganizationByAddressKey (organization, { addressKey }) {
     }
 }
 
-async function findOrganizationByAddressKeyUnitNameUnitType (organization, context, { addressKey, unitName, unitType }) {
+async function findOrganizationByAddressKeyUnitNameUnitType (organization, { addressKey, unitName, unitType }, context, properties) {
     const isInBlackList = await featureToggleManager.isFeatureEnabled(
         context,
         DISABLE_DISCOVER_SERVICE_CONSUMERS,
@@ -60,7 +60,7 @@ async function findOrganizationByAddressKeyUnitNameUnitType (organization, conte
         receipts = null
     }
 
-    const meters = await getOrganizationMeters(organization, addressKey, { unitName, unitType })
+    const meters = await getOrganizationMeters(organization, addressKey, { unitName, unitType }, properties)
 
     return {
         id: organization.id,
@@ -72,7 +72,7 @@ async function findOrganizationByAddressKeyUnitNameUnitType (organization, conte
     }
 }
 
-async function findOrganizationByAddressKeyTinAccountNumber (organization, { addressKey, tin, accountNumber }) {
+async function findOrganizationByAddressKeyTinAccountNumber (organization, { addressKey, tin, accountNumber }, properties) {
     const billingContext = await getOrganizationBillingContext(organization)
     const [billingIntegration] = await find('BillingIntegration', {
         id: get(billingContext, 'integration'),
@@ -96,7 +96,7 @@ async function findOrganizationByAddressKeyTinAccountNumber (organization, { add
 
     if (!receipts.length) receipts = null
 
-    const meters = await getOrganizationMeters(organization, addressKey, { accountNumber })
+    const meters = await getOrganizationMeters(organization, addressKey, { accountNumber }, properties)
 
     return {
         id: organization.id,
@@ -143,13 +143,16 @@ async function getOrganizationReceipts (billingContext, addressKey, query = {}) 
     return receipts
 }
 
-async function getOrganizationMeters (organization, addressKey, query = {}) {
+async function getOrganizationMeters (organization, addressKey, query = {}, properties) {
     let meters = await find('Meter', {
         organization: { id: organization.id },
         deletedAt: null,
         property: { addressKey, deletedAt: null },
         ...query,
     })
+
+    const property = properties.find(p => p.addressKey === addressKey)
+    const address = property ? property.address : null
 
     if (meters.length){
         const meterReadings = await find('MeterReading', {
@@ -165,7 +168,7 @@ async function getOrganizationMeters (organization, addressKey, query = {}) {
             accountNumber: meter.accountNumber,
             number: meter.number,
             value: meterReadingIndex[meter.id] || null,
-            address: meter.address,
+            address,
         }))
     } else {
         meters = null
