@@ -1,3 +1,4 @@
+import { B2BAppNewsSharingConfig } from '@app/condo/schema'
 import { Col, Form, Row } from 'antd'
 import isNull from 'lodash/isNull'
 import transform from 'lodash/transform'
@@ -7,15 +8,13 @@ import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
-import { B2BAppNewsSharingConfig } from '../../../../../schema'
-import Input from '../../../../common/components/antd/Input'
-import { useLayoutContext } from '../../../../common/components/LayoutContext'
-import { useInputWithCounter } from '../../../../common/hooks/useInputWithCounter'
-import { IFrame } from '../../../../miniapp/components/IFrame'
-import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '../../../constants/newsTypes'
+import { useLayoutContext } from '@app/condo/domains/common/components/LayoutContext'
+import { IFrame } from '@app/condo/domains/miniapp/components/IFrame'
+import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@app/condo/domains/news/constants/newsTypes'
+
 import { TemplatesSelect } from '../../TemplatesSelect'
 import { getBodyTemplateChangedRule, getTitleTemplateChangedRule } from '../BaseNewsForm'
-import { TemplatesType } from '../InputStep'
+import { TemplatesType } from '../BaseNewsForm'
 
 const NO_RESIZE_STYLE: React.CSSProperties = { resize: 'none' }
 const BIG_MARGIN_BOTTOM_STYLE: React.CSSProperties = { marginBottom: '60px' }

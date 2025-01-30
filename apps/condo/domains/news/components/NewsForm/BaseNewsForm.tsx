@@ -99,13 +99,24 @@ export type InitialValuesType =  Partial<INewsItem> & Partial<{
     properties?: IProperty[]
 }>
 
+export type TemplatesType = {
+    [key: string]: {
+        title: string
+        body: string
+        type: string | null
+        id?: string
+        label?: string
+        category?: string
+    }
+}
+
 export type BaseNewsFormProps = {
     organizationId: string
     ActionBar: React.FC<ActionBarProps>
     newsItemAction: (values: INewsItemCreateInput | INewsItemUpdateInput) => ReturnType<ReturnType<NewsItemClientUtilsType['useCreate' | 'useUpdate']>>
     newsItemSharingAction: (values: INewsItemSharingCreateInput | INewsItemSharingUpdateInput) => ReturnType<ReturnType<NewsItemSharingClientUtilsType['useCreate']>>
     initialValues?: InitialValuesType
-    templates: { [key: string]: { title: string, body: string, type: string | null, id?: string, label?: string, category?: string } }
+    templates: TemplatesType
     afterAction?: () => void
     newsItem?: INewsItem
     OnCompletedMsg: (INewsItem) => ArgsProps | null
