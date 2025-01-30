@@ -283,6 +283,12 @@ describe('UserSudoToken', () => {
             })
         })
 
+        test('Should update token if "remainingUses" decrease', async () => {
+            const [sudoToken] = await createTestUserSudoToken(adminClient, user, { remainingUses: 1 })
+            const [updatedSudoToken] = await updateTestUserSudoToken(adminClient, sudoToken.id, { remainingUses: 0 })
+            expect(updatedSudoToken.remainingUses).toBe(0)
+        })
+
         test('Should throw error if pass empty "user" field', async () => {
             // TODO(pahaz): DOMA-10368 use expectToThrow??
             await catchErrorFrom(async () => {
