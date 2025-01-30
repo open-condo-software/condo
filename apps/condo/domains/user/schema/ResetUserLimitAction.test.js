@@ -431,70 +431,122 @@ describe('ResetUserLimitAction', () => {
 
             test('resets counters by ip', async () => {
                 const ip = faker.internet.ipv4()
-                const totalKey = `${AUTH_COUNTER_LIMIT_TYPE}:ip:${ip}`
+                const key = `${AUTH_COUNTER_LIMIT_TYPE}:ip:${ip}`
 
                 for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
-                    await redisGuard.incrementDayCounter(totalKey)
+                    await redisGuard.incrementDayCounter(key)
                 }
-                const beforeResetTotal = await redisGuard.getCounterValue(totalKey)
+                const beforeReset = await redisGuard.getCounterValue(key)
 
-                expect(Number(beforeResetTotal)).toEqual(COUNTER_VALUE_TO_UPDATE)
+                expect(Number(beforeReset)).toEqual(COUNTER_VALUE_TO_UPDATE)
 
                 await createTestResetUserLimitAction(userWithDirectAccess, AUTH_COUNTER_LIMIT_TYPE, ip)
-                const afterResetTotal = await redisGuard.getCounterValue(totalKey)
+                const afterReset = await redisGuard.getCounterValue(key)
 
-                expect(afterResetTotal).toBeNull()
+                expect(afterReset).toBeNull()
             })
 
             test('resets counters by user id', async () => {
                 const userId = faker.datatype.uuid()
-                const totalKey = `${AUTH_COUNTER_LIMIT_TYPE}:user:${userId}`
+                const key = `${AUTH_COUNTER_LIMIT_TYPE}:user:${userId}`
 
                 for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
-                    await redisGuard.incrementDayCounter(totalKey)
+                    await redisGuard.incrementDayCounter(key)
                 }
-                const beforeResetTotal = await redisGuard.getCounterValue(totalKey)
+                const beforeReset = await redisGuard.getCounterValue(key)
 
-                expect(Number(beforeResetTotal)).toEqual(COUNTER_VALUE_TO_UPDATE)
+                expect(Number(beforeReset)).toEqual(COUNTER_VALUE_TO_UPDATE)
 
                 await createTestResetUserLimitAction(userWithDirectAccess, AUTH_COUNTER_LIMIT_TYPE, userId)
-                const afterResetTotal = await redisGuard.getCounterValue(totalKey)
+                const afterReset = await redisGuard.getCounterValue(key)
 
-                expect(afterResetTotal).toBeNull()
+                expect(afterReset).toBeNull()
             })
 
-            test.each(USER_TYPES)('resets counters by phone', async (userType) => {
+            test.each(USER_TYPES)('resets counter by phone for %p', async (userType) => {
                 const phone = createTestPhone()
-                const totalKey = `${AUTH_COUNTER_LIMIT_TYPE}:phone-and-user-type:${userType}:${phone}`
+                const key = `${AUTH_COUNTER_LIMIT_TYPE}:phone-and-user-type:${userType}:${phone}`
 
                 for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
-                    await redisGuard.incrementDayCounter(totalKey)
+                    await redisGuard.incrementDayCounter(key)
                 }
-                const beforeResetTotal = await redisGuard.getCounterValue(totalKey)
+                const beforeReset = await redisGuard.getCounterValue(key)
 
-                expect(Number(beforeResetTotal)).toEqual(COUNTER_VALUE_TO_UPDATE)
+                expect(Number(beforeReset)).toEqual(COUNTER_VALUE_TO_UPDATE)
 
                 await createTestResetUserLimitAction(userWithDirectAccess, AUTH_COUNTER_LIMIT_TYPE, phone)
-                const afterResetTotal = await redisGuard.getCounterValue(totalKey)
+                const afterReset = await redisGuard.getCounterValue(key)
 
-                expect(afterResetTotal).toBeNull()
+                expect(afterReset).toBeNull()
             })
 
-            test.each(USER_TYPES)('resets counters by email', async (userType) => {
-                const email = createTestEmail()
-                const totalKey = `${AUTH_COUNTER_LIMIT_TYPE}:email-and-user-type:${userType}:${email}`
+            test('resets all counters by phone', async () => {
+                const phone = createTestPhone()
+                const keys = USER_TYPES.map(userType => `${AUTH_COUNTER_LIMIT_TYPE}:phone-and-user-type:${userType}:${phone}`)
 
                 for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
-                    await redisGuard.incrementDayCounter(totalKey)
+                    for (const key of keys) {
+                        await redisGuard.incrementDayCounter(key)
+                    }
                 }
-                const beforeResetTotal = await redisGuard.getCounterValue(totalKey)
 
-                expect(Number(beforeResetTotal)).toEqual(COUNTER_VALUE_TO_UPDATE)
+                const beforeResets = await Promise.all(
+                    keys.map(key => redisGuard.getCounterValue(key))
+                )
+
+                expect(beforeResets).toHaveLength(3)
+                expect(beforeResets.every(counterValue => Number(counterValue) === COUNTER_VALUE_TO_UPDATE)).toBeTruthy()
+
+                await createTestResetUserLimitAction(userWithDirectAccess, AUTH_COUNTER_LIMIT_TYPE, phone)
+                const afterReset = await Promise.all(
+                    keys.map(key => redisGuard.getCounterValue(key))
+                )
+
+                expect(afterReset).toHaveLength(3)
+                expect(afterReset.every(counterValue => counterValue === null)).toBeTruthy()
+            })
+
+            test.each(USER_TYPES)('resets counter by email for %p', async (userType) => {
+                const email = createTestEmail()
+                const key = `${AUTH_COUNTER_LIMIT_TYPE}:email-and-user-type:${userType}:${email}`
+
+                for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
+                    await redisGuard.incrementDayCounter(key)
+                }
+                const beforeReset = await redisGuard.getCounterValue(key)
+
+                expect(Number(beforeReset)).toEqual(COUNTER_VALUE_TO_UPDATE)
 
                 await createTestResetUserLimitAction(userWithDirectAccess, AUTH_COUNTER_LIMIT_TYPE, email)
-                const afterResetTotal = await redisGuard.getCounterValue(totalKey)
+                const afterReset = await redisGuard.getCounterValue(key)
 
-                expect(afterResetTotal).toBeNull()
+                expect(afterReset).toBeNull()
+            })
+
+            test('resets all counters by email', async () => {
+                const email = createTestEmail()
+                const keys = USER_TYPES.map(userType => `${AUTH_COUNTER_LIMIT_TYPE}:email-and-user-type:${userType}:${email}`)
+
+                for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
+                    for (const key of keys) {
+                        await redisGuard.incrementDayCounter(key)
+                    }
+                }
+
+                const beforeResets = await Promise.all(
+                    keys.map(key => redisGuard.getCounterValue(key))
+                )
+
+                expect(beforeResets).toHaveLength(3)
+                expect(beforeResets.every(counterValue => Number(counterValue) === COUNTER_VALUE_TO_UPDATE)).toBeTruthy()
+
+                await createTestResetUserLimitAction(userWithDirectAccess, AUTH_COUNTER_LIMIT_TYPE, email)
+                const afterReset = await Promise.all(
+                    keys.map(key => redisGuard.getCounterValue(key))
+                )
+
+                expect(afterReset).toHaveLength(3)
+                expect(afterReset.every(counterValue => counterValue === null)).toBeTruthy()
             })
         })
     })
