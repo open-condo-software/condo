@@ -13,9 +13,10 @@ const { getAccountsWithOnlineInteractionUrl } = require('@condo/domains/billing/
 const { DISABLE_DISCOVER_SERVICE_CONSUMERS } = require('@condo/domains/common/constants/featureflags')
 const { CONTEXT_FINISHED_STATUS: BILLING_CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 
-async function findOrganizationByAddressKey (organization) {
+async function findOrganizationByAddressKey (organization, { addressKey }) {
     const meterResourceOwner = await find('MeterResourceOwner', {
         organization: { id: organization.id },
+        addressKey,
         deletedAt: null,
     })
     const billingContext = await getOrganizationBillingContext(organization)
@@ -42,11 +43,11 @@ async function findOrganizationByAddressKeyUnitNameUnitType (organization, conte
     )
     
     if (isInBlackList) {
-        return findOrganizationByAddressKey(organization)
+        return findOrganizationByAddressKey(organization, { addressKey })
     }
 
     const billingContext = await getOrganizationBillingContext(organization)
-    let receipts = await getOrganizationReceipts(billingContext, { unitName, unitType })
+    let receipts = await getOrganizationReceipts(billingContext, addressKey, { unitName, unitType })
 
     if (receipts.length) {
         receipts = Object.values(
@@ -79,7 +80,7 @@ async function findOrganizationByAddressKeyTinAccountNumber (organization, { add
     })
     const checkAccountNumberUrl = get(billingIntegration, 'checkAccountNumberUrl')
 
-    let receipts = await getOrganizationReceipts(billingContext, { number: accountNumber })
+    let receipts = await getOrganizationReceipts(billingContext, addressKey, { number: accountNumber })
     
     if (!receipts.length && checkAccountNumberUrl) {
         const { status, services } = await getAccountsWithOnlineInteractionUrl(checkAccountNumberUrl, tin, accountNumber)
@@ -107,10 +108,11 @@ async function findOrganizationByAddressKeyTinAccountNumber (organization, { add
     }
 }
 
-async function getOrganizationReceipts (billingContext, query = {}) {
+async function getOrganizationReceipts (billingContext, addressKey, query = {}) {
     if (!billingContext) return []
     const billingAccounts = await find('BillingAccount', {
         context: { id: billingContext.id },
+        property: { addressKey, deletedAt: null },
         deletedAt: null,
         ...query,
     })
@@ -119,19 +121,22 @@ async function getOrganizationReceipts (billingContext, query = {}) {
     if (billingAccounts.length && get(billingContext, 'lastReport.period')) {
         receipts = await find('BillingReceipt', {
             context: { id: billingContext.id },
+            property: { addressKey, deletedAt: null },
             deletedAt: null,
             period: billingContext.lastReport.period,
             account: { id_in: billingAccounts.map(({ id }) => id) },
         })
+
         const billingAccountsNumbersIndex = Object.fromEntries(
             billingAccounts.map(account => [account.id, account.number])
         )
         receipts = receipts.map(receipt => ({
             category: receipt.category,
             balance: receipt.toPay,
-            number: billingAccountsNumbersIndex[receipt.account],
+            accountNumber: billingAccountsNumbersIndex[receipt.account],
             routingNumber: receipt.recipient.bic,
             bankAccount: receipt.recipient.bankAccount,
+            address: get(receipt, 'raw.address', null),
         }))
     }
 
@@ -157,9 +162,10 @@ async function getOrganizationMeters (organization, addressKey, query = {}) {
         }, {})
         meters = meters.map((meter) => ({
             resource: meter.resource,
-            account: meter.accountNumber,
+            accountNumber: meter.accountNumber,
             number: meter.number,
             value: meterReadingIndex[meter.id] || null,
+            address: meter.address,
         }))
     } else {
         meters = null

@@ -3,7 +3,6 @@
  */
 const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 
-const { CONTEXT_FINISHED_STATUS: BILLING_CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 const access = require('@condo/domains/resident/access/FindOrganizationsByAddressService')
 const {
     MAX_RESIDENT_FIND_ORGANIZATIONS_BY_WINDOW_SEC,
@@ -38,11 +37,11 @@ const FindOrganizationsByAddressService = new GQLCustomSchema('FindOrganizations
         },
         {
             access: true,
-            type: 'type FindOrganizationByAddressReceiptType { number: String, category: ID!, balance: String, routingNumber: String, bankAccount: String }',
+            type: 'type FindOrganizationByAddressReceiptType { accountNumber: String, category: ID!, balance: String, routingNumber: String, bankAccount: String, address: String }',
         },
         {
             access: true,
-            type: 'type FindOrganizationByAddressMeterType { resource: ID!, number: String, account: String, value: String }',
+            type: 'type FindOrganizationByAddressMeterType { resource: ID!, number: String, accountNumber: String, value: String }',
         },
         {
             access: true,
@@ -61,15 +60,20 @@ const FindOrganizationsByAddressService = new GQLCustomSchema('FindOrganizations
                     await checkLimits(context.authedItem.id, context)
                 }
 
-                const properties = await find('Property', { addressKey, deletedAt: null })
+                const properties = await find('Property', {
+                    organization: { deletedAt: null },
+                    addressKey,
+                    deletedAt: null,
+                })
+
                 if (!properties.length) return []
 
                 let organizations = await find('Organization', {
                     id_in: [...new Set(properties.map(({ organization }) => organization))],
-                    ...(tin && { tin }),
+                    ...(tin ? { tin } : {}),
                     deletedAt: null,
                 })
-                // can exist property without org?
+
                 if (!organizations.length) return []
 
                 const [withAcquiring, withMeters] = await Promise.all([
@@ -78,6 +82,7 @@ const FindOrganizationsByAddressService = new GQLCustomSchema('FindOrganizations
                 ])
 
                 organizations = organizations.filter(({ id }) => withAcquiring.has(id) || withMeters.has(id))
+
                 if (!organizations.length) return []
 
                 const fetchOrganizationData = async (organization) => {
@@ -88,7 +93,7 @@ const FindOrganizationsByAddressService = new GQLCustomSchema('FindOrganizations
                     } else if (unitName && unitType) {
                         return findOrganizationByAddressKeyUnitNameUnitType(organization, context, data)
                     } else {
-                        return findOrganizationByAddressKey(organization)
+                        return findOrganizationByAddressKey(organization, data)
                     }
                 }
 

@@ -42,7 +42,7 @@ const { findOrganizationsByAddressByTestClient } = require('@condo/domains/resid
 function getOnlyResourceMeterTest (resource) {
     return {
         resource: resource,
-        account: null,
+        accountNumber: null,
         number: null,
         value: null,
     }
@@ -50,11 +50,12 @@ function getOnlyResourceMeterTest (resource) {
 
 function getOnlyCategoryReceiptTest (category){
     return {
-        number: null,
+        accountNumber: null,
         category: category,
         balance: null,
         routingNumber: null,
         bankAccount: null,
+        address: null,
     }
 }
 
@@ -129,7 +130,6 @@ describe('FindOrganizationsByAddress', () => {
                 const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
                     addressKey: utils.property.addressKey,
                 })
-                console.log(foundOrganizations)
                 const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
                 expect(found.meters).toBeNull()
                 expect(found.receipts).toContainEqual(getOnlyCategoryReceiptTest(HOUSING_CATEGORY_ID))
@@ -197,13 +197,13 @@ describe('FindOrganizationsByAddress', () => {
                     unitType,
                 })
                 const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
-                console.log(foundOrganizations)
                 expect(found.receipts[0]).toMatchObject({
-                    number: expect.stringMatching(accountNumber),
+                    accountNumber: expect.stringMatching(accountNumber),
                     category: expect.any(String),
                     balance: expect.stringMatching(Big(toPay).toFixed(8)),
                     routingNumber: expect.any(String),
                     bankAccount: expect.any(String),
+                    address: expect.any(String),
                 })
             })
 
@@ -245,11 +245,12 @@ describe('FindOrganizationsByAddress', () => {
                 expect(found.receipts).toHaveLength(2)
                 expect(found.receipts).toContainEqual(getOnlyCategoryReceiptTest(HOUSING_CATEGORY_ID))
                 expect(found.receipts).toContainEqual({
-                    number: accountNumber1,
+                    accountNumber: accountNumber1,
                     category: REPAIR_CATEGORY_ID,
                     balance: Big(toPay).toFixed(8),
                     routingNumber: expect.any(String),
                     bankAccount: expect.any(String),
+                    address: expect.any(String),
                 })
             })
 
@@ -271,7 +272,6 @@ describe('FindOrganizationsByAddress', () => {
                     unitType,
                 })
                 const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
-                console.log(found)
                 expect(found.meters[0]).toMatchObject({ resource: expect.any(String) })
                 expect(found.receipts[0]).toMatchObject({ category: expect.any(String) })
                 expect(found.id).toEqual(utils.organization.id)
@@ -335,7 +335,6 @@ describe('FindOrganizationsByAddress', () => {
                         accountNumber: existingAccountNumber,
                         tin: utils.organization.tin,
                     })
-                    console.log(foundOrganizations)
                     const foundResult = foundOrganizations.find(({ id }) => id === utils.organization.id)
                     expect(foundResult.receipts).toBeDefined()
                     //TODO: change this line when eps has balance field
@@ -358,9 +357,12 @@ describe('FindOrganizationsByAddress', () => {
             test('Should return organization and receipt', async () => {
                 const accountNumber = utils.randomNumber(10).toString()
                 const toPay = utils.randomNumber(5).toString()
+                const unitName = utils.randomNumber(10).toString()
+                const unitType = 'flat'
                 await utils.createReceipts([
                     utils.createJSONReceipt({
                         address: utils.property.address,
+                        addressMeta: { unitName, unitType },
                         category: { id: HOUSING_CATEGORY_ID },
                         accountNumber,
                         toPay,
@@ -372,14 +374,14 @@ describe('FindOrganizationsByAddress', () => {
                     tin: utils.organization.tin,
                 })
                 const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
-                console.log(found)
                 expect(found.meters).toBeNull()
                 expect(found.receipts[0]).toMatchObject({
                     category: expect.stringMatching(HOUSING_CATEGORY_ID),
                     balance: expect.stringMatching(Big(toPay).toFixed(8)),
-                    number: expect.stringMatching(accountNumber),
+                    accountNumber: expect.stringMatching(accountNumber),
                     routingNumber: expect.any(String),
                     bankAccount: expect.any(String),
+                    address: expect.any(String),
                 })
                 expect(found.id).toEqual(utils.organization.id)
                 expect(found.name).toEqual(utils.organization.name)
@@ -391,9 +393,12 @@ describe('FindOrganizationsByAddress', () => {
                 const accountNumber = utils.randomNumber(10).toString()
                 const toPay1 = utils.randomNumber(5).toString()
                 const toPay2 = utils.randomNumber(5).toString()
+                const unitName = utils.randomNumber(10).toString()
+                const unitType = 'flat'
                 await utils.createReceipts([
                     utils.createJSONReceipt({
                         address: utils.property.address,
+                        addressMeta: { unitName, unitType },
                         category: { id: HOUSING_CATEGORY_ID },
                         accountNumber,
                         toPay: toPay1,
@@ -411,7 +416,6 @@ describe('FindOrganizationsByAddress', () => {
                     tin: utils.organization.tin,
                 })
                 const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
-                console.log(found)
                 expect(found.meters).toBeNull()
                 expect(found.receipts).toHaveLength(2)
                 expect(found.id).toEqual(utils.organization.id)
@@ -434,7 +438,7 @@ describe('FindOrganizationsByAddress', () => {
                 expect(found.receipts).toBeNull()
                 expect(found.meters[0]).toMatchObject({
                     resource: expect.any(String),
-                    account: expect.stringMatching(accountNumber),
+                    accountNumber: expect.stringMatching(accountNumber),
                     number: expect.any(String),
                     value: expect.stringMatching(Big(meterReading.value1).toFixed(4)),
                 })
