@@ -12,6 +12,7 @@ const {
     expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 
+const { STAFF, RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 const {
     registerNewUser,
     generateSudoTokenByTestClient,
@@ -46,7 +47,7 @@ describe('GenerateSudoTokenService', () => {
             const staffClient = await makeClientWithStaffUser()
             const [sudoToken] = await generateSudoTokenByTestClient(staffClient, {
                 captcha: getCaptcha(),
-                user: { phone: staffClient.userAttrs.phone, userType: 'staff' },
+                user: { phone: staffClient.userAttrs.phone, userType: STAFF },
                 authFactors: { password: staffClient.userAttrs.password },
             })
             expect(sudoToken).toBeDefined()
@@ -61,7 +62,7 @@ describe('GenerateSudoTokenService', () => {
             await expectToThrowAccessDeniedErrorToResult(async () => {
                 await generateSudoTokenByTestClient(staffClient, {
                     captcha: getCaptcha(),
-                    user: { phone: staffClient.userAttrs.phone, userType: 'staff' },
+                    user: { phone: staffClient.userAttrs.phone, userType: STAFF },
                     authFactors: { password: staffClient.userAttrs.password },
                 })
             })
@@ -72,7 +73,7 @@ describe('GenerateSudoTokenService', () => {
             const [registeredUser, userAttrs] = await registerNewUser(await makeClient())
             const [sudoToken] = await generateSudoTokenByTestClient(anonymous, {
                 captcha: getCaptcha(),
-                user: { phone: userAttrs.phone, userType: 'staff' },
+                user: { phone: userAttrs.phone, userType: STAFF },
                 authFactors: { password: userAttrs.password },
             })
             expect(sudoToken).toBeDefined()
@@ -87,7 +88,7 @@ describe('GenerateSudoTokenService', () => {
             await expectToThrowGQLError(async () => {
                 await generateSudoTokenByTestClient(staffClient, {
                     captcha: getCaptcha(),
-                    user: { phone: staffClient.userAttrs.phone, userType: 'staff' },
+                    user: { phone: staffClient.userAttrs.phone, userType: STAFF },
                     authFactors: { password: staffClient.userAttrs.password },
                     dv: 123,
                 })
@@ -101,7 +102,7 @@ describe('GenerateSudoTokenService', () => {
             await expectToThrowGQLError(async () => {
                 await generateSudoTokenByTestClient(staffClient, {
                     captcha: getCaptcha(),
-                    user: { phone: staffClient.userAttrs.phone, userType: 'staff' },
+                    user: { phone: staffClient.userAttrs.phone, userType: STAFF },
                     authFactors: { password: staffClient.userAttrs.password },
                     sender: { dv: 1, fingerprint: '-' },
                 })
@@ -119,7 +120,7 @@ describe('GenerateSudoTokenService', () => {
             await expectToThrowGQLError(async () => {
                 await generateSudoTokenByTestClient(await makeClient(), {
                     captcha: getCaptcha(),
-                    user: { userType: 'staff' },
+                    user: { userType: STAFF },
                     authFactors: { password: faker.random.alphaNumeric(12) },
                 })
             }, {
@@ -137,7 +138,7 @@ describe('GenerateSudoTokenService', () => {
             await expectToThrowGQLError(async () => {
                 await generateSudoTokenByTestClient(staffClient, {
                     captcha: getCaptcha(),
-                    user: { phone: staffClient.userAttrs.phone, userType: 'staff' },
+                    user: { phone: staffClient.userAttrs.phone, userType: STAFF },
                     authFactors: { password: staffClient.userAttrs.password + faker.random.alphaNumeric(4) },
                 })
             }, {
@@ -156,7 +157,7 @@ describe('GenerateSudoTokenService', () => {
             await expectToThrowGQLError(async () => {
                 await generateSudoTokenByTestClient(staffClient, {
                     captcha: getCaptcha(),
-                    user: { phone: staffClient2.userAttrs.phone, userType: 'staff' },
+                    user: { phone: staffClient2.userAttrs.phone, userType: STAFF },
                     authFactors: { password: staffClient2.userAttrs.password },
                 })
             }, {
@@ -174,7 +175,7 @@ describe('GenerateSudoTokenService', () => {
                 const staffClient = await makeClientWithStaffUser()
                 const [sudoToken] = await generateSudoTokenByTestClient(staffClient, {
                     captcha: getCaptcha(),
-                    user: { phone: staffClient.userAttrs.phone, userType: 'staff' },
+                    user: { phone: staffClient.userAttrs.phone, userType: STAFF },
                     authFactors: { password: staffClient.userAttrs.password },
                 })
                 expect(sudoToken).toBeDefined()
@@ -197,7 +198,7 @@ describe('GenerateSudoTokenService', () => {
 
                 const [sudoToken] = await generateSudoTokenByTestClient(staffClient, {
                     captcha: getCaptcha(),
-                    user: { phone: staffClient.userAttrs.phone, userType: 'staff' },
+                    user: { phone: staffClient.userAttrs.phone, userType: STAFF },
                     authFactors: { confirmPhoneToken: confirmPhoneAction.token },
                 })
                 expect(sudoToken).toBeDefined()
@@ -217,7 +218,7 @@ describe('GenerateSudoTokenService', () => {
 
                 const [sudoToken] = await generateSudoTokenByTestClient(anonymous, {
                     captcha: getCaptcha(),
-                    user: { phone: userAttrs.phone, userType: 'staff' },
+                    user: { phone: userAttrs.phone, userType: STAFF },
                     authFactors: { password: userAttrs.password },
                 })
                 expect(sudoToken).toBeDefined()
@@ -241,7 +242,7 @@ describe('GenerateSudoTokenService', () => {
 
             const [sudoToken] = await generateSudoTokenByTestClient(staffClient, {
                 captcha: getCaptcha(),
-                user: { phone: staffClient.userAttrs.phone, userType: 'staff' },
+                user: { phone: staffClient.userAttrs.phone, userType: STAFF },
                 authFactors: { confirmPhoneToken: confirmPhoneAction.token },
             })
             expect(sudoToken).toBeDefined()
@@ -274,7 +275,7 @@ describe('GenerateSudoTokenService', () => {
                 await expectToThrowErrorCredentialValidationFailed(async () => {
                     await generateSudoTokenByTestClient(anonymous, {
                         captcha: getCaptcha(),
-                        user: { phone: faker.phone.number(), userType: 'staff' },
+                        user: { phone: faker.phone.number(), userType: STAFF },
                         authFactors: { password: faker.random.alphaNumeric(12) },
                     })
                 })
@@ -283,7 +284,7 @@ describe('GenerateSudoTokenService', () => {
             await expectToThrowGQLError(async () => {
                 await generateSudoTokenByTestClient(anonymous, {
                     captcha: getCaptcha(),
-                    user: { phone: faker.phone.number(), userType: 'staff' },
+                    user: { phone: faker.phone.number(), userType: STAFF },
                     authFactors: { password: faker.random.alphaNumeric(12) },
                 })
             }, {
@@ -305,7 +306,7 @@ describe('GenerateSudoTokenService', () => {
                 await expectToThrowErrorCredentialValidationFailed(async () => {
                     await generateSudoTokenByTestClient(client, {
                         captcha: getCaptcha(),
-                        user: { phone: faker.phone.number(), userType: 'staff' },
+                        user: { phone: faker.phone.number(), userType: STAFF },
                         authFactors: { password: faker.random.alphaNumeric(12) },
                     })
                 })
@@ -314,7 +315,7 @@ describe('GenerateSudoTokenService', () => {
             await expectToThrowGQLError(async () => {
                 await generateSudoTokenByTestClient(staffClient, {
                     captcha: getCaptcha(),
-                    user: { phone: faker.phone.number(), userType: 'staff' },
+                    user: { phone: faker.phone.number(), userType: STAFF },
                     authFactors: { password: faker.random.alphaNumeric(12) },
                 })
             }, {
@@ -326,13 +327,13 @@ describe('GenerateSudoTokenService', () => {
 
         test(`should throw error if more than ${REQUESTS_LIMIT} requests are sent by phone + userType per hours`, async () => {
             const [registeredResidentUser, residentUserAttrs] = await registerNewUser(await makeClient())
-            await updateTestUser(adminClient, registeredResidentUser.id, { type: 'resident' })
+            await updateTestUser(adminClient, registeredResidentUser.id, { type: RESIDENT })
             const phone = residentUserAttrs.phone
             const [registeredServiceUser, serviceUserAttrs] = await registerNewUser(await makeClient(), {
                 phone,
                 email: residentUserAttrs.email,
             })
-            await updateTestUser(adminClient, registeredServiceUser.id, { type: 'service' })
+            await updateTestUser(adminClient, registeredServiceUser.id, { type: SERVICE })
             const [registeredStaffUser, staffUserAttrs] = await registerNewUser(await makeClient(), {
                 phone,
                 email: residentUserAttrs.email,
@@ -343,21 +344,21 @@ describe('GenerateSudoTokenService', () => {
                 await expectToThrowErrorCredentialValidationFailed(async () => {
                     await generateSudoTokenByTestClient(anonymous, {
                         captcha: getCaptcha(),
-                        user: { phone, userType: 'staff' },
+                        user: { phone, userType: STAFF },
                         authFactors: { password: faker.random.alphaNumeric(12) },
                     })
                 })
                 await expectToThrowErrorCredentialValidationFailed(async () => {
                     await generateSudoTokenByTestClient(anonymous, {
                         captcha: getCaptcha(),
-                        user: { phone, userType: 'resident' },
+                        user: { phone, userType: RESIDENT },
                         authFactors: { password: faker.random.alphaNumeric(12) },
                     })
                 })
                 await expectToThrowErrorCredentialValidationFailed(async () => {
                     await generateSudoTokenByTestClient(anonymous, {
                         captcha: getCaptcha(),
-                        user: { phone, userType: 'service' },
+                        user: { phone, userType: SERVICE },
                         authFactors: { password: faker.random.alphaNumeric(12) },
                     })
                 })
@@ -367,7 +368,7 @@ describe('GenerateSudoTokenService', () => {
             await expectToThrowGQLError(async () => {
                 await generateSudoTokenByTestClient(anonymous, {
                     captcha: getCaptcha(),
-                    user: { phone, userType: 'staff' },
+                    user: { phone, userType: STAFF },
                     authFactors: { password: faker.random.alphaNumeric(12) },
                 })
             }, {
@@ -379,7 +380,7 @@ describe('GenerateSudoTokenService', () => {
             await expectToThrowGQLError(async () => {
                 await generateSudoTokenByTestClient(anonymous, {
                     captcha: getCaptcha(),
-                    user: { phone, userType: 'resident' },
+                    user: { phone, userType: RESIDENT },
                     authFactors: { password: faker.random.alphaNumeric(12) },
                 })
             }, {
@@ -391,7 +392,7 @@ describe('GenerateSudoTokenService', () => {
             await expectToThrowGQLError(async () => {
                 await generateSudoTokenByTestClient(anonymous, {
                     captcha: getCaptcha(),
-                    user: { phone, userType: 'service' },
+                    user: { phone, userType: SERVICE },
                     authFactors: { password: faker.random.alphaNumeric(12) },
                 })
             }, {
@@ -403,13 +404,13 @@ describe('GenerateSudoTokenService', () => {
 
         test(`should throw error if more than ${REQUESTS_LIMIT} requests are sent by email + userType per hours`, async () => {
             const [registeredResidentUser, residentUserAttrs] = await registerNewUser(await makeClient())
-            await updateTestUser(adminClient, registeredResidentUser.id, { type: 'resident' })
+            await updateTestUser(adminClient, registeredResidentUser.id, { type: RESIDENT })
             const email = residentUserAttrs.email
             const [registeredServiceUser, serviceUserAttrs] = await registerNewUser(await makeClient(), {
                 phone: residentUserAttrs.phone,
                 email,
             })
-            await updateTestUser(adminClient, registeredServiceUser.id, { type: 'service' })
+            await updateTestUser(adminClient, registeredServiceUser.id, { type: SERVICE })
             const [registeredStaffUser, staffUserAttrs] = await registerNewUser(await makeClient(), {
                 phone: residentUserAttrs.phone,
                 email,
@@ -420,21 +421,21 @@ describe('GenerateSudoTokenService', () => {
                 await expectToThrowErrorCredentialValidationFailed(async () => {
                     await generateSudoTokenByTestClient(anonymous, {
                         captcha: getCaptcha(),
-                        user: { email, userType: 'staff' },
+                        user: { email, userType: STAFF },
                         authFactors: { password: faker.random.alphaNumeric(12) },
                     })
                 })
                 await expectToThrowErrorCredentialValidationFailed(async () => {
                     await generateSudoTokenByTestClient(anonymous, {
                         captcha: getCaptcha(),
-                        user: { email, userType: 'resident' },
+                        user: { email, userType: RESIDENT },
                         authFactors: { password: faker.random.alphaNumeric(12) },
                     })
                 })
                 await expectToThrowErrorCredentialValidationFailed(async () => {
                     await generateSudoTokenByTestClient(anonymous, {
                         captcha: getCaptcha(),
-                        user: { email, userType: 'service' },
+                        user: { email, userType: SERVICE },
                         authFactors: { password: faker.random.alphaNumeric(12) },
                     })
                 })
@@ -444,7 +445,7 @@ describe('GenerateSudoTokenService', () => {
             await expectToThrowGQLError(async () => {
                 await generateSudoTokenByTestClient(anonymous, {
                     captcha: getCaptcha(),
-                    user: { email, userType: 'staff' },
+                    user: { email, userType: STAFF },
                     authFactors: { password: faker.random.alphaNumeric(12) },
                 })
             }, {
@@ -456,7 +457,7 @@ describe('GenerateSudoTokenService', () => {
             await expectToThrowGQLError(async () => {
                 await generateSudoTokenByTestClient(anonymous, {
                     captcha: getCaptcha(),
-                    user: { email, userType: 'resident' },
+                    user: { email, userType: RESIDENT },
                     authFactors: { password: faker.random.alphaNumeric(12) },
                 })
             }, {
@@ -468,7 +469,7 @@ describe('GenerateSudoTokenService', () => {
             await expectToThrowGQLError(async () => {
                 await generateSudoTokenByTestClient(anonymous, {
                     captcha: getCaptcha(),
-                    user: { email, userType: 'service' },
+                    user: { email, userType: SERVICE },
                     authFactors: { password: faker.random.alphaNumeric(12) },
                 })
             }, {
