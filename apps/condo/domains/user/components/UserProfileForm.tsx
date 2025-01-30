@@ -1,5 +1,4 @@
-import { jsx } from '@emotion/react/dist/emotion-react.cjs'
-import { Col, Form, Row, Space, Typography } from 'antd'
+import { Col, Form, Row, Typography } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
@@ -51,8 +50,11 @@ export const UserProfileForm = () => {
     const PromptHelpMessage = intl.formatMessage({ id: 'form.prompt.message' })
     const CancelLabel = intl.formatMessage({ id: 'Cancel' })
 
-    const { user } = useAuth()
-    const updateUserAction = User.useUpdate({}, () => router.push('/user/'))
+    const { user, refetch } = useAuth()
+    const updateUserAction = User.useUpdate({}, async () => {
+        await refetch()
+        await router.push('/user/')
+    })
     const formAction = (formValues) => updateUserAction(formValues, user)
     const { breakpoints } = useLayoutContext()
 
