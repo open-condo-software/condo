@@ -421,13 +421,21 @@ describe('CreatePaymentByLinkService', () => {
         expect(payments[0].receipt).toBeNull()
     })
 
-    test('should throw if no bank account found', async () => {
+    test('should throw an error if no bank account found', async () => {
         const [organization] = await createTestOrganization(admin)
         const [property] = await createTestProperty(admin, organization)
-        const [qrCode] = generateQRCode({ PayeeINN: organization.tin, PayerAddress: `${property.address}, кв. 1` })
 
-        await addBillingIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
+        const { billingIntegrationContext } = await addBillingIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
         await addAcquiringIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
+
+        const [billingProperty] = await createTestBillingProperty(admin, billingIntegrationContext, { address: property.address })
+        const [billingAccount] = await createTestBillingAccount(admin, billingIntegrationContext, billingProperty)
+
+        const [qrCode] = generateQRCode({
+            PayeeINN: organization.tin,
+            PayerAddress: `${property.address}, кв. 1`,
+            PersAcc: billingAccount.number,
+        })
 
         const payload = { qrCode }
 
@@ -439,7 +447,30 @@ describe('CreatePaymentByLinkService', () => {
             type: 'WRONG_FORMAT',
             message: 'Provided bank account is not in the system',
         })
+    })
 
+    test('should throw an error by ValidateQRCodeService if no billing account found', async () => {
+        const [organization] = await createTestOrganization(admin)
+        const [property] = await createTestProperty(admin, organization)
+
+        await addBillingIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
+        await addAcquiringIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
+
+        const [qrCode] = generateQRCode({
+            PayeeINN: organization.tin,
+            PayerAddress: `${property.address}, кв. 1`,
+        })
+
+        const payload = { qrCode }
+
+        await expectToThrowGQLErrorToResult(async () => {
+            await createPaymentByLinkByTestClient(user, payload)
+        }, {
+            mutation: 'validateQRCode',
+            code: 'INTERNAL_ERROR',
+            type: 'NOT_FOUND',
+            message: 'No billing account was found',
+        })
     })
 
     test('anonymous: can\'t execute', async () => {

@@ -50,6 +50,8 @@ const { CHECK_USER_EXISTENCE_MUTATION } = require('@condo/domains/user/gql')
 const { ResetUserLimitAction: ResetUserLimitActionGQL } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
+const OIDC_REDIRECT_URI = 'https://httpbin.org/anything'
+
 function createTestEmail () {
     return ('test.' + getRandomString() + '@example.com').toLowerCase()
 }
@@ -423,7 +425,7 @@ async function createTestOidcClient (client, extraAttrs = {}) {
             client_id: clientId,
             grant_types: ['implicit', 'authorization_code', 'refresh_token'],
             client_secret: faker.random.alphaNumeric(12),
-            redirect_uris: ['https://jwt.io/'],
+            redirect_uris: [OIDC_REDIRECT_URI],
             response_types: ['code id_token', 'code', 'id_token'],
             token_endpoint_auth_method: 'client_secret_basic',
         },
@@ -605,5 +607,6 @@ module.exports = {
     checkUserExistenceByTestClient,
     authenticateUserWithPhoneAndPasswordByTestClient,
     ResetUserLimitAction, createTestResetUserLimitAction, updateTestResetUserLimitAction,
+    OIDC_REDIRECT_URI,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -377,7 +377,7 @@ image: redisreview
 from: redis:6.2
 ---
 image: preparepostgresreview
-from: postgres:13.8
+from: postgres:16.6
 shell:
   install:
   - "apt update -qq"

@@ -263,7 +263,9 @@ const _withAuthLegacy: WithAuthLegacyType = ({ ssr = false, ...opts } = {}) => P
 const AuthProvider: React.FC = ({ children }) => {
     const apolloClient = useApolloClient()
 
-    const { data, loading: userLoading, refetch } = useQuery(USER_QUERY)
+    const { data, loading: userLoading, refetch } = useQuery(USER_QUERY, {
+        notifyOnNetworkStatusChange: true,
+    })
 
     const user = useMemo(() => get(data, 'authenticatedUser') || null, [data])
 
@@ -287,6 +289,7 @@ const AuthProvider: React.FC = ({ children }) => {
     })
 
     const [signOutMutation, { loading: signOutLoading }] = useMutation(SIGNOUT_MUTATION, {
+        refetchQueries: [USER_QUERY],
         onCompleted: async () => {
             removeCookieEmployeeId()
             await apolloClient.cache.reset()
