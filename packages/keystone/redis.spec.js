@@ -39,30 +39,13 @@ describe('Redis adapter', () => {
         expect(getRedisPrefix()).toEqual(moduleName)
     })
 
-    test('prefix might be redefined via REDIS_PREFIX env variable', () => {
-        jest.resetModules()
-        process.env.REDIS_URL = conf['REDIS_URL'] || 'redis://127.0.0.1:6379'
-        process.env.REDIS_FALLBACK_CONFIG = conf['REDIS_FALLBACK_CONFIG'] || '{"enabled": true}'
-        process.env.REDIS_PREFIX = ':some-New-Prefix:'
-
-        const { getRedisPrefix } = require('./redis')
-        expect(getRedisPrefix()).toEqual('some_New_Prefix:')
-
-        jest.resetModules()
-        process.env.REDIS_URL = conf['REDIS_URL'] || 'redis://127.0.0.1:6379'
-        process.env.REDIS_FALLBACK_CONFIG = conf['REDIS_FALLBACK_CONFIG'] || '{"enabled": true}'
-        process.env.REDIS_PREFIX = ''
-    })
-
     test('adapter should fallback to REDIS_FALLBACK_CONFIG[\'prefix\'] ', async () => {
         jest.resetModules()
         process.env.REDIS_URL = conf['REDIS_URL'] || 'redis://127.0.0.1:6379'
         process.env.REDIS_FALLBACK_CONFIG = '{"enabled": true, "prefix": "someNewFallbackPrefix"}'
-        process.env.REDIS_PREFIX = 'another_prefix_migrate_to'
 
-        const { getRedisClient, getRedisPrefix } = require('@open-condo/keystone/redis')
+        const { getRedisClient } = require('@open-condo/keystone/redis')
 
-        expect(getRedisPrefix()).toEqual('another_prefix_migrate_to:')
         const newPrefixedRedisClient = getRedisClient('newPrefixedRedisClient')
 
         await nonPrefixedClient.set('someNewFallbackPrefix:test', 1)
@@ -78,7 +61,6 @@ describe('Redis adapter', () => {
         jest.resetModules()
         process.env.REDIS_URL = conf['REDIS_URL'] || 'redis://127.0.0.1:6379'
         process.env.REDIS_FALLBACK_CONFIG = conf['REDIS_FALLBACK_CONFIG'] || '{"enabled": true}'
-        process.env.REDIS_PREFIX = ''
     })
 
 
