@@ -579,7 +579,7 @@ async function createTestUserSudoToken (client, user, extraAttrs = {}) {
         dv: 1,
         sender,
         user: { connect: { id: user.id } },
-        token: generateToken('SUDO'),
+        token: generateToken(TOKEN_TYPES.SUDO),
         expiresAt: dayjs().add(5, 'minutes').toISOString(),
         remainingUses: 1,
         ...extraAttrs,
