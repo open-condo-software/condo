@@ -11,6 +11,7 @@ const {
     expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects,
 } = require('@open-condo/keystone/test.utils')
 
+const { USER_TYPES } = require('@condo/domains/user/constants/common')
 const {
     SMS_COUNTER_LIMIT_TYPE,
     RATE_LIMIT_TYPE,
@@ -461,8 +462,6 @@ describe('ResetUserLimitAction', () => {
 
                 expect(afterResetTotal).toBeNull()
             })
-
-            const USER_TYPES = ['staff', 'resident', 'service']
 
             test.each(USER_TYPES)('resets counters by phone', async (userType) => {
                 const phone = createTestPhone()
