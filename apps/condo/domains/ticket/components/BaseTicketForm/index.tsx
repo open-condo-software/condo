@@ -804,6 +804,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allTicketChanges' })
         client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allContacts' })
         client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allInvoices' })
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allTicketComments' })
         client.cache.gc()
 
         if (afterActionCompleted) {
