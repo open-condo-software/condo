@@ -2,21 +2,93 @@
 // KMIGRATOR:0446_auto_20250124_1123:IyBHZW5lcmF0ZWQgYnkgRGphbmdvIDQuMCBvbiAyMDI1LTAxLTI0IDExOjIzCgpmcm9tIGRqYW5nby5kYiBpbXBvcnQgbWlncmF0aW9ucwoKCmNsYXNzIE1pZ3JhdGlvbihtaWdyYXRpb25zLk1pZ3JhdGlvbik6CgogICAgZGVwZW5kZW5jaWVzID0gWwogICAgICAgICgnX2RqYW5nb19zY2hlbWEnLCAnMDQ0NV9vcmdhbml6YXRpb25lbXBsb3llZXJlcXVlc3RoaXN0b3J5cmVjb3JkX2FuZF9tb3JlJyksCiAgICBdCgogICAgb3BlcmF0aW9ucyA9IFsKICAgIF0K
 
 exports.up = async () => {
-    const { renameRedisKeys } = require('../../../bin/rename-redis-keys')
-    try {
-        await renameRedisKeys({ direction: 'forward' })
-    } catch (err) {
-        console.error(err)
-        throw err
+    const Redis = require('ioredis')
+    const conf = require('@open-condo/config')
+
+    if (conf['REDIS_URL'] === undefined) {
+        throw new Error('Redis URL missing. You should specify a REDIS_URL env variable for establishing connection')
+    }
+
+    const client = new Redis(conf['REDIS_URL'])
+
+    const stepSize = 1000
+    const fromPrefix = ''
+    const toPrefix = 'condo:'
+
+    const size = await client.dbsize()
+    console.log('database size -> ', size)
+    console.log('rename from -> ', fromPrefix, ' to key prefix -> ', toPrefix)
+    let cursor = '0'
+    const iters = Math.ceil(size / stepSize)
+
+    for (const i of Array.from({ length: iters })) {
+        const [newCursor, keys] = await client.scan(cursor, 'MATCH', '*', 'COUNT', stepSize)
+        cursor = newCursor
+
+        if (keys.length) {
+            const multi = client.multi()
+            const filterQuery = fromPrefix.length === 0
+                ? (key) => !key.startsWith(toPrefix)
+                : () => true
+
+            keys.filter(filterQuery).forEach((key) => {
+                multi.renamenx(key, toPrefix + key.substring(fromPrefix.length))
+            })
+
+            const result = await multi.exec()
+
+            console.log('renamed batch length -> ', result.length)
+        }
+
+        if (newCursor === 0 || newCursor === '0') {
+            console.log('No more keys found -> stopping execution')
+            break
+        }
     }
 }
 
 exports.down = async () => {
-    const { renameRedisKeys } = require('../../../bin/rename-redis-keys')
-    try {
-        await renameRedisKeys({ direction: 'backward' })
-    } catch (err) {
-        console.error(err)
-        throw err
+    const Redis = require('ioredis')
+    const conf = require('@open-condo/config')
+
+    if (conf['REDIS_URL'] === undefined) {
+        throw new Error('Redis URL missing. You should specify a REDIS_URL env variable for establishing connection')
+    }
+
+    const client = new Redis(conf['REDIS_URL'])
+
+    const stepSize = 1000
+    const fromPrefix = 'condo:'
+    const toPrefix = ''
+
+    const size = await client.dbsize()
+    console.log('database size -> ', size)
+    console.log('rename from -> ', fromPrefix, ' to key prefix -> ', toPrefix)
+    let cursor = '0'
+    const iters = Math.ceil(size / stepSize)
+
+    for (const i of Array.from({ length: iters })) {
+        const [newCursor, keys] = await client.scan(cursor, 'MATCH', '*', 'COUNT', stepSize)
+        cursor = newCursor
+
+        if (keys.length) {
+            const multi = client.multi()
+            const filterQuery = fromPrefix.length === 0
+                ? (key) => !key.startsWith(toPrefix)
+                : () => true
+
+            keys.filter(filterQuery).forEach((key) => {
+                multi.renamenx(key, toPrefix + key.substring(fromPrefix.length))
+            })
+
+            const result = await multi.exec()
+
+            console.log('renamed batch length -> ', result.length)
+        }
+
+        if (newCursor === 0 || newCursor === '0') {
+            console.log('No more keys found -> stopping execution')
+            break
+        }
     }
 }

@@ -14,7 +14,7 @@ describe('Redis adapter', () => {
 
         jest.resetModules()
         process.env.REDIS_URL = conf['REDIS_URL'] || 'redis://127.0.0.1:6379'
-        process.env.REDIS_FALLBACK_ENABLED = conf['REDIS_FALLBACK_ENABLED'] || 'true'
+        process.env.REDIS_FALLBACK_CONFIG = conf['REDIS_FALLBACK_CONFIG'] || '{"enabled": true}'
 
         moduleName = require(process.cwd() + '/package.json').name.split('/').pop() + ':'
 
@@ -41,7 +41,7 @@ describe('Redis adapter', () => {
     test('prefix might be redefined via REDIS_PREFIX env variable', () => {
         jest.resetModules()
         process.env.REDIS_URL = conf['REDIS_URL'] || 'redis://127.0.0.1:6379'
-        process.env.REDIS_FALLBACK_ENABLED = conf['REDIS_FALLBACK_ENABLED'] || 'true'
+        process.env.REDIS_FALLBACK_CONFIG = conf['REDIS_FALLBACK_CONFIG'] || '{"enabled": true}'
         process.env.REDIS_PREFIX = ':some-New-Prefix:'
 
         const { getRedisPrefix } = require('./redis')
@@ -49,7 +49,7 @@ describe('Redis adapter', () => {
 
         jest.resetModules()
         process.env.REDIS_URL = conf['REDIS_URL'] || 'redis://127.0.0.1:6379'
-        process.env.REDIS_FALLBACK_ENABLED = conf['REDIS_FALLBACK_ENABLED'] || 'true'
+        process.env.REDIS_FALLBACK_CONFIG = conf['REDIS_FALLBACK_CONFIG'] || '{"enabled": true}'
         process.env.REDIS_PREFIX = ''
     })
 
@@ -63,6 +63,7 @@ describe('Redis adapter', () => {
         const res = await nonPrefixedClient.get('test')
         expect(res).toMatch('result')
 
+        console.log(process.env)
         const key = await redisClient.get('test')
         expect(key).toMatch(res)
     })
