@@ -365,6 +365,12 @@ async function _matchUserConfirmPhoneToken (user, confirmPhoneToken) {
 
 /**
  *
+ * This function performs a fake password comparison or a fake search for confirmToken to prevent time-based attacks.
+ *
+ * For example, if the user is not found, then we do not check the password or confirmToken.
+ * This means that such a request will complete earlier than a request with an existing user, whose password/confirmToken will be checked.
+ * To prevent this, we make fake password/confirmToken checks.
+ *
  * @param {{ confirmPhoneToken?: string, confirmEmailToken?: string, password?: string }} authFactors
  * @return {Promise<void>}
  * @private
