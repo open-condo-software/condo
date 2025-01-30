@@ -1,6 +1,6 @@
 # CONDO
 
-Condo is an Open Source property management SaaS 
+[Condo](https://github.com/open-condo-software/condo) is an Open Source property management SaaS 
 that allows users to manage tickets, resident contacts, properties, 
 payment tracking, create invoices, and oversee a service marketplace, 
 all while offering an extension system for mini-apps, 
@@ -12,7 +12,7 @@ making it an ideal platform for property management companies and those servicin
 
 ### 1. Databases setup
 
-We use [postgres 16.4](https://www.postgresql.org) to store most of the information, 
+We use [Postgres 16.4](https://www.postgresql.org) to store most of the information, 
 and [Redis 6.2](https://redis.io) to store session information, asynchronous tasks, and various caches. 
 In addition to them, we use s3 to store files, but it is optional to get started.
 
