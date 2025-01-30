@@ -157,6 +157,9 @@ async function validateUserCredentials (userIdentity, authFactors) {
 
 /**
  *
+ * The function tries to find a user by user type and phone/email.
+ * If the phone/email number was not transferred, but the confirmToken was, then we extract the data from it.
+ *
  * @param {{ phone?: string, email?: string, userType: 'staff' | 'resident' | 'service' }} userIdentity
  * @param {{ confirmPhoneToken?: string, confirmEmailToken?: string, password?: string }} authFactors
  * @return {Promise<{success: boolean}|{success: boolean, user: *}>}
@@ -231,6 +234,8 @@ const AUTH_CHECK_STATUSES = {
 }
 
 /**
+ *
+ * Function check that the correct password/confirmToken was specified during authorization
  *
  * @param {Object} user
  * @param {{ confirmPhoneToken?: string, confirmEmailToken?: string, password?: string }} authFactors
