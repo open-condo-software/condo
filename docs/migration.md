@@ -30,10 +30,14 @@ Enough of the lyrics, let's get down to action!
 
 This option is suitable if you have serious traffic on the application and you cannot afford the application to be down for a few minutes.
 
-1) Add ```REDIS_FALLBACK_ENABLED=true``` to your application environment via .env file or something similar
+1) Add ```REDIS_FALLBACK_CONFIG='{"enabled": true}'``` to your application environment via .env file or something similar
 2) Restart app -> now app automatically prefix all write operations, but read operations will be retried without prefix if that key wasn't found.
 3) Run migration, that contains script ```rename-redis-keys.js``` via command ```yarn workspace @app/condo migrate``` (for condo application it'll be  ```20250124162345-0446_auto_20250124_1123.js```)
 4) After migration succeeded -> remove ```REDIS_FALLBACK_ENABLED=true``` env and restart application again 
+
+If you already use your own prefix for keys - you can also configure the adapter for migration using the following configuration:
+```REDIS_FALLBACK_CONFIG='{"enabled": true, "prefix": ""}'```
+
 
 ### Migration with downtime
 
