@@ -15,6 +15,7 @@ const {
     expectToThrowAccessDeniedErrorToObjects,
 } = require('@open-condo/keystone/test.utils')
 
+const { MAX_NUMBER_OF_TOKEN_USES } = require('@condo/domains/user/constants/sudoToken')
 const { 
     UserSudoToken,
     createTestUserSudoToken,
@@ -245,7 +246,7 @@ describe('UserSudoToken', () => {
                 variable: ['data', 'remainingUses'],
                 code: 'INTERNAL_ERROR',
                 type: 'REMAINING_USES_INVALID',
-                message: '"remainingUses" field should not be less than 0',
+                message: `"remainingUses" field should not be less than 0 and not be more then ${MAX_NUMBER_OF_TOKEN_USES}`,
             })
 
             const [sudoToken] = await createTestUserSudoToken(adminClient, user, { remainingUses: 0 })
@@ -255,7 +256,30 @@ describe('UserSudoToken', () => {
                 variable: ['data', 'remainingUses'],
                 code: 'INTERNAL_ERROR',
                 type: 'REMAINING_USES_INVALID',
-                message: '"remainingUses" field should not be less than 0',
+                message: `"remainingUses" field should not be less than 0 and not be more then ${MAX_NUMBER_OF_TOKEN_USES}`,
+            })
+        })
+
+        test(`Should throw error if "remainingUses" more then ${MAX_NUMBER_OF_TOKEN_USES}`, async () => {
+            await expectToThrowGQLError(async () => {
+                await createTestUserSudoToken(adminClient, user, { remainingUses: MAX_NUMBER_OF_TOKEN_USES + 1 })
+            }, {
+                variable: ['data', 'remainingUses'],
+                code: 'INTERNAL_ERROR',
+                type: 'REMAINING_USES_INVALID',
+                message: `"remainingUses" field should not be less than 0 and not be more then ${MAX_NUMBER_OF_TOKEN_USES}`,
+            })
+        })
+
+        test('Should throw error if "remainingUses" increase', async () => {
+            const [sudoToken] = await createTestUserSudoToken(adminClient, user, { remainingUses: 0 })
+            await expectToThrowGQLError(async () => {
+                await updateTestUserSudoToken(adminClient, sudoToken.id, { remainingUses: 1 })
+            }, {
+                variable: ['data', 'remainingUses'],
+                code: 'BAD_USER_INPUT',
+                type: 'INCREASE_REMAINING_USES_IS_NOT_AVAILABLE',
+                message: 'Value of "remainingUses" field can only decrease',
             })
         })
 

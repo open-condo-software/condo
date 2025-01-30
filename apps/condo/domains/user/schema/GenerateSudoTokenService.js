@@ -17,14 +17,12 @@ const {
     GENERATE_TOKEN_FAILED,
     USER_IDENTITY_INVALID,
 } = require('@condo/domains/user/constants/errors')
+const { MAX_NUMBER_OF_TOKEN_USES, TOKEN_LIFETIME_IN_MIN } = require('@condo/domains/user/constants/sudoToken')
 const { captchaCheck } = require('@condo/domains/user/utils/hCaptcha')
 const { UserSudoToken, ConfirmPhoneAction } = require('@condo/domains/user/utils/serverSchema')
 const { authGuards, validateUserCredentials } = require('@condo/domains/user/utils/serverSchema/auth')
 const { generateTokenSafely, TOKEN_TYPES } = require('@condo/domains/user/utils/tokens')
 
-
-const TOKEN_LIFETIME_IN_MIN = 15
-const MAX_NUMBER_OF_TOKEN_USES = 1
 
 /**
  * List of possible errors, that this custom schema can throw
