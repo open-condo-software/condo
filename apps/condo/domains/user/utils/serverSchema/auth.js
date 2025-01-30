@@ -1,5 +1,3 @@
-const { get } = require('lodash')
-
 const conf = require('@open-condo/config')
 const { itemsQuery, getSchemaCtx } = require('@open-condo/keystone/schema')
 
@@ -74,7 +72,7 @@ const redisGuard = new RedisGuard()
 async function authGuards (userIdentity, context ) {
     if (!context) throw new Error('context cannot be empty')
 
-    const userId = get(context, 'authedItem.id', null)
+    const userId = context?.authedItem?.id || null
     const ip = context.req.ip
 
     const phone = userIdentity?.phone
