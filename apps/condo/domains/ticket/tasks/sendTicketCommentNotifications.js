@@ -62,6 +62,7 @@ const sendTicketCommentNotifications = async ({ operation, ticketId, createdById
         id: organizationId,
         deletedAt: null,
     })
+    // TODO(DOMA-11040): get locale for sendMessage from user
     const lang = get(COUNTRIES, [organization.country, 'locale'], conf.DEFAULT_LOCALE)
 
     const resident = await Resident.getOne(context, {
