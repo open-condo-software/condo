@@ -94,6 +94,10 @@ export const UserInfoPageContent: React.FC<UserInfoPageContentProps> = ({ useAll
     }, [updateGlobalHints])
 
     useEffect(() => {
+        refetch()
+    }, [])
+
+    useEffect(() => {
         if (isBoolean(initialShowGlobalHints)) {
             setShowGlobalHints(initialShowGlobalHints)
         }

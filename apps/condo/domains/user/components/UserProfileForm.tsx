@@ -50,11 +50,8 @@ export const UserProfileForm = () => {
     const PromptHelpMessage = intl.formatMessage({ id: 'form.prompt.message' })
     const CancelLabel = intl.formatMessage({ id: 'Cancel' })
 
-    const { user, refetch } = useAuth()
-    const updateUserAction = User.useUpdate({}, async () => {
-        await refetch()
-        await router.push('/user/')
-    })
+    const { user } = useAuth()
+    const updateUserAction = User.useUpdate({}, async () => router.push('/user/'))
     const formAction = (formValues) => updateUserAction(formValues, user)
     const { breakpoints } = useLayoutContext()
 
