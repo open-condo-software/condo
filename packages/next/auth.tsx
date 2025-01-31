@@ -263,8 +263,14 @@ const _withAuthLegacy: WithAuthLegacyType = ({ ssr = false, ...opts } = {}) => P
 const AuthProvider: React.FC = ({ children }) => {
     const apolloClient = useApolloClient()
 
+    const [isAuthLoading, setIsAuthLoading] = useState<boolean>(false)
+
     const { data, loading: userLoading, refetch } = useQuery(USER_QUERY, {
-        notifyOnNetworkStatusChange: true,
+        onCompleted: () => setIsAuthLoading(false),
+        onError: (error) => {
+            console.error(error)
+            setIsAuthLoading(false)
+        },
     })
 
     const user = useMemo(() => get(data, 'authenticatedUser') || null, [data])
@@ -282,15 +288,17 @@ const AuthProvider: React.FC = ({ children }) => {
             if (item) {
                 await apolloClient.clearStore()
             }
+            setIsAuthLoading(false)
         },
         onError: (error) => {
             console.error(error)
+            setIsAuthLoading(false)
         },
     })
 
     const [signOutMutation, { loading: signOutLoading }] = useMutation(SIGNOUT_MUTATION, {
-        refetchQueries: [USER_QUERY],
         onCompleted: async () => {
+            await refetch()
             removeCookieEmployeeId()
             await apolloClient.cache.reset()
             apolloClient.cache.writeQuery({
@@ -299,16 +307,24 @@ const AuthProvider: React.FC = ({ children }) => {
                     authenticatedUser: null,
                 },
             })
+            setIsAuthLoading(false)
         },
         onError: (error) => {
             console.error(error)
+            setIsAuthLoading(false)
         },
     })
+
+    useEffect(() => {
+        if (userLoading || signOutLoading || signInLoading) {
+            setIsAuthLoading(true)
+        }
+    }, [userLoading, signOutLoading, signInLoading])
 
     return (
         <AuthContext.Provider
             value={{
-                isLoading: userLoading || signOutLoading || signInLoading,
+                isLoading: isAuthLoading,
                 isAuthenticated: !!user,
                 user,
                 refetch: refetchAuth,
