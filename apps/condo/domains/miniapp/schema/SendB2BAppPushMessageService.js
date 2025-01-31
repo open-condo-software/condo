@@ -49,7 +49,7 @@ const ERRORS = {
         type: NOT_FOUND,
         message: 'No B2BAppAccessRight found for the provided user and B2BApp.',
     },
-    NO_EMPLOYEE_FOR_USER: {
+    USER_IS_NOT_AN_EMPLOYEE: {
         mutation: 'sendB2BAppPushMessage',
         variable: ['data', 'user'],
         code: FORBIDDEN,
@@ -128,6 +128,10 @@ const SendB2BAppPushMessageService = new GQLCustomSchema('SendB2BAppPushMessageS
                     ...userFilter,
                     deletedAt: null,
                 })
+                if (!user) {
+                    throw new GQLError(ERRORS.USER_IS_NOT_AN_EMPLOYEE, context)
+                }
+                const messageLocale = get(user, 'locale', conf.DEFAULT_LOCALE)
 
                 const [b2bAppContext] = await itemsQuery('B2BAppContext', {
                     where: {
@@ -167,7 +171,7 @@ const SendB2BAppPushMessageService = new GQLCustomSchema('SendB2BAppPushMessageS
                     deletedAt: null,
                 })
                 if (!employee) {
-                    throw new GQLError(ERRORS.NO_EMPLOYEE_FOR_USER, context)
+                    throw new GQLError(ERRORS.USER_IS_NOT_AN_EMPLOYEE, context)
                 }
 
                 const roleId = get(employee, 'role', null)
@@ -184,7 +188,7 @@ const SendB2BAppPushMessageService = new GQLCustomSchema('SendB2BAppPushMessageS
                     to: { user: userFilter },
                     organization: organizationFilter,
                     type,
-                    lang: get(user, 'locale', conf.DEFAULT_LOCALE),
+                    lang: messageLocale,
                     meta,
                     dv,
                     sender,
