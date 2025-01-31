@@ -10,6 +10,7 @@ import { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinity
 import { useApolloClient, useMutation, useQuery } from './apollo'
 import { removeCookieEmployeeId } from './organization'
 import { Either } from './types'
+import {use} from "dd-trace";
 
 
 // NOTE: OpenCondoNext is defined as a global namespace so the library user can override the default types
@@ -263,17 +264,17 @@ const _withAuthLegacy: WithAuthLegacyType = ({ ssr = false, ...opts } = {}) => P
 const AuthProvider: React.FC = ({ children }) => {
     const apolloClient = useApolloClient()
 
-    const [isAuthLoading, setAuthLoading] = useState<boolean>(false)
+    const [isAuthLoading, setIsAuthLoading] = useState<boolean>(false)
 
     const { data, loading: userLoading, refetch } = useQuery(USER_QUERY)
 
-    const user = useMemo(() => {
-        if (!userLoading) {
-            setAuthLoading(false)
-            return get(data, 'authenticatedUser') || null
-        }
-    }, [data, userLoading])
+    const user = useMemo(() => get(data, 'authenticatedUser') || null, [data])
 
+    useEffect(() => {
+        if (!userLoading) {
+            setIsAuthLoading(false)
+        }
+    }, [userLoading])
 
     const refetchAuth = useCallback(async () => {
         await refetch()
@@ -288,11 +289,11 @@ const AuthProvider: React.FC = ({ children }) => {
             if (item) {
                 await apolloClient.clearStore()
             }
-            setAuthLoading(false)
+            setIsAuthLoading(false)
         },
         onError: (error) => {
             console.error(error)
-            setAuthLoading(false)
+            setIsAuthLoading(false)
         },
     })
 
@@ -307,24 +308,24 @@ const AuthProvider: React.FC = ({ children }) => {
                     authenticatedUser: null,
                 },
             })
-            setAuthLoading(false)
+            setIsAuthLoading(false)
         },
         onError: (error) => {
             console.error(error)
-            setAuthLoading(false)
+            setIsAuthLoading(false)
         },
     })
 
     useEffect(() => {
         if (userLoading || signOutLoading || signInLoading) {
-            setAuthLoading(true)
+            setIsAuthLoading(true)
         }
     }, [userLoading, signOutLoading, signInLoading])
 
     return (
         <AuthContext.Provider
             value={{
-                isLoading: userLoading || signOutLoading || signInLoading || isAuthLoading,
+                isLoading: isAuthLoading,
                 isAuthenticated: !!user,
                 user,
                 refetch: refetchAuth,
