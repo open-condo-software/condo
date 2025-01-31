@@ -59,13 +59,13 @@ const AppMessageSetting = new GQLListSchema('AppMessageSetting', {
         }),
 
         notificationWindowSize: {
-            schemaDoc: 'Time window for sending push notifications in seconds',
+            schemaDoc: 'Time interval in seconds to which the settings apply',
             type: 'Integer',
         },
 
         numberOfNotificationInWindow: {
             schemaDoc:
-                'The number of notifications that can be sent in one time window in seconds. ' +
+                'The number of notifications that can be sent in single time window in seconds to a specific user. ' +
                 'If the value is 0, then the miniapp cannot send this type of message',
             type: 'Integer',
         },

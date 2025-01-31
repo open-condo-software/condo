@@ -3,7 +3,6 @@
  */
 
 const { faker } = require('@faker-js/faker')
-const omit = require('lodash/omit')
 
 const { makeLoggedInAdminClient, makeClient, UUID_RE, expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult, waitFor, expectToThrowGQLErrorToResult } = require('@open-condo/keystone/test.utils')
 
@@ -12,8 +11,7 @@ const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 const { sendB2BAppPushMessageByTestClient, createTestAppMessageSetting, createTestB2BApp, createTestB2BAppContext, createTestB2BAppAccessRightSet, createTestB2BAppAccessRight } = require('@condo/domains/miniapp/utils/testSchema')
 const { MESSAGE_SENT_STATUS, B2B_APP_MESSAGE_PUSH_TYPE, DEVICE_PLATFORM_ANDROID, APP_MASTER_ID_ANDROID, PASS_TICKET_CREATED_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { Message, syncRemoteClientWithPushTokenByTestClient } = require('@condo/domains/notification/utils/testSchema')
-const { DEFAULT_ROLES } = require('@condo/domains/organization/constants/common')
-const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const { createTestOrganizationEmployeeRole, registerNewOrganization, inviteNewOrganizationEmployee, acceptOrRejectOrganizationInviteById } = require('@condo/domains/organization/utils/testSchema')
 const { User, updateTestUser, makeClientWithServiceUser, makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 const { ERRORS } = require('./SendB2BAppPushMessageService')
@@ -40,17 +38,14 @@ describe('SendB2BAppPushMessageService', () => {
         })
         serviceUser = await makeClientWithServiceUser()
 
-        const [testOrganization] = await createTestOrganization(admin)
-        const [role] = await createTestOrganizationEmployeeRole(admin, testOrganization, omit(DEFAULT_ROLES['Administrator'], ['isDefault', 'isEditable']))
-        await createTestOrganizationEmployee(admin, testOrganization, staffClient.user, role)
+        const [testOrganization] = await registerNewOrganization(staffClient)
+        const [app] = await createTestB2BApp(support)
+        await createTestB2BAppContext(staffClient, app, testOrganization, { status: CONTEXT_FINISHED_STATUS })
 
-        const [app] = await createTestB2BApp(admin)
-        await createTestB2BAppContext(admin, app, testOrganization, { status: CONTEXT_FINISHED_STATUS })
-
-        const [accessRightSet] = await createTestB2BAppAccessRightSet(admin, app, {
+        const [accessRightSet] = await createTestB2BAppAccessRightSet(support, app, {
             canExecuteSendB2BAppPushMessage: true,
         })
-        await createTestB2BAppAccessRight(admin, serviceUser.user, app, accessRightSet)
+        await createTestB2BAppAccessRight(support, serviceUser.user, app, accessRightSet)
 
         await syncRemoteClientWithPushTokenByTestClient(staffClient, { devicePlatform: DEVICE_PLATFORM_ANDROID, appId: APP_MASTER_ID_ANDROID })
 
@@ -106,7 +101,7 @@ describe('SendB2BAppPushMessageService', () => {
                     body,
                 },
             })
-            const user = await User.getOne(support, { id: staffClient.user.id })
+            const user = await User.getOne(staffClient, { id: staffClient.user.id })
 
             await waitFor(async () => {
                 const message = await Message.getOne(staffClient, { id: result.id })
@@ -121,9 +116,7 @@ describe('SendB2BAppPushMessageService', () => {
         })
 
         it('Throws an error if no finished B2BContext exists for the specified organization and B2BApp', async () => {
-            const [testOrganization] = await createTestOrganization(admin)
-            const [role] = await createTestOrganizationEmployeeRole(admin, testOrganization, omit(DEFAULT_ROLES['Administrator'], ['isDefault', 'isEditable']))
-            await createTestOrganizationEmployee(admin, testOrganization, staffClient.user, role)
+            const [testOrganization] = await registerNewOrganization(staffClient)
 
             await expectToThrowGQLErrorToResult(async () => {
                 await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, testOrganization, staffClient.user)
@@ -131,10 +124,10 @@ describe('SendB2BAppPushMessageService', () => {
         })
 
         it('Throws an error if no B2BAppAccessRight exists with canExecuteSendB2BAppPushMessage', async () => {
-            const [app] = await createTestB2BApp(admin)
-            await createTestB2BAppContext(admin, app, organization, { status: CONTEXT_FINISHED_STATUS })
-            const [accessRightSet] = await createTestB2BAppAccessRightSet(admin, app)
-            await createTestB2BAppAccessRight(admin, serviceUser.user, app, accessRightSet)
+            const [app] = await createTestB2BApp(support)
+            await createTestB2BAppContext(staffClient, app, organization, { status: CONTEXT_FINISHED_STATUS })
+            const [accessRightSet] = await createTestB2BAppAccessRightSet(support, app)
+            await createTestB2BAppAccessRight(support, serviceUser.user, app, accessRightSet)
 
             await expectToThrowGQLErrorToResult(async () => {
                 await sendB2BAppPushMessageByTestClient(serviceUser, app, organization, staffClient.user)
@@ -152,7 +145,7 @@ describe('SendB2BAppPushMessageService', () => {
         it('Throws an error if notifications are sent more often than specified in AppMessageSetting', async () => {
             const notificationWindowSize = 3600
             const numberOfNotificationInWindow = 2
-            await createTestAppMessageSetting(admin, {
+            await createTestAppMessageSetting(support, {
                 b2bApp,
                 notificationWindowSize,
                 numberOfNotificationInWindow,
@@ -181,7 +174,7 @@ describe('SendB2BAppPushMessageService', () => {
 
         it('Throws an error if AppMessageSetting has numberOfNotificationInWindow: 0', async () => {
             const numberOfNotificationInWindow = 0
-            await createTestAppMessageSetting(admin, {
+            await createTestAppMessageSetting(support, {
                 b2bApp,
                 numberOfNotificationInWindow,
                 type: PASS_TICKET_CREATED_MESSAGE_TYPE,
@@ -205,8 +198,9 @@ describe('SendB2BAppPushMessageService', () => {
 
         it('Throws an error if employee role has not B2BAppRole', async () => {
             const staffWithoutB2BAppRole = await makeClientWithNewRegisteredAndLoggedInUser()
-            const [role] = await createTestOrganizationEmployeeRole(admin, organization)
-            await createTestOrganizationEmployee(admin, organization, staffWithoutB2BAppRole.user, role)
+            const [role] = await createTestOrganizationEmployeeRole(staffClient, organization)
+            const [invitedEmployee] = await inviteNewOrganizationEmployee(staffClient, organization, staffWithoutB2BAppRole.userAttrs, role)
+            await acceptOrRejectOrganizationInviteById(staffWithoutB2BAppRole, invitedEmployee)
 
             await expectToThrowGQLErrorToResult(async () => {
                 await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffWithoutB2BAppRole.user, {
@@ -216,8 +210,8 @@ describe('SendB2BAppPushMessageService', () => {
         })
 
         it('Throws an error if user is deleted', async () => {
-            await updateTestUser(admin, staffClient.user.id, {
-                deletedAt: new Date(),
+            await updateTestUser(support, staffClient.user.id, {
+                deletedAt: new Date().toISOString(),
             })
 
             await expectToThrowGQLErrorToResult(async () => {
