@@ -113,14 +113,11 @@ const SendB2BAppPushMessageService = new GQLCustomSchema('SendB2BAppPushMessageS
                     type,
                     deletedAt: null,
                 })
-                if (appSettings && appSettings.isBlacklisted) {
-                    throw new GQLError(ERRORS.APP_IN_BLACK_LIST, context)
-                }
 
                 await redisGuard.checkCustomLimitCounters(
                     `sendB2BAppPushMessage:${type}:app:${b2bAppFilter.id}:org:${organizationFilter.id}:user:${userFilter.id}`,
-                    get(appSettings, 'notificationWindowSize') || DEFAULT_NOTIFICATION_WINDOW_DURATION_IN_SECONDS,
-                    get(appSettings, 'numberOfNotificationInWindow') || DEFAULT_NOTIFICATION_WINDOW_MAX_COUNT,
+                    get(appSettings, 'notificationWindowSize') ?? DEFAULT_NOTIFICATION_WINDOW_DURATION_IN_SECONDS,
+                    get(appSettings, 'numberOfNotificationInWindow') ?? DEFAULT_NOTIFICATION_WINDOW_MAX_COUNT,
                     context,
                 )
 

@@ -150,9 +150,8 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
                     if (!appExisted) throw new GQLError(ERRORS.APP_NOT_FOUND, context)
 
                     const where = { b2cApp: { id: app.id }, type, deletedAt: null }
-                    appSettings = await AppMessageSetting.getOne(context, where, 'isBlacklisted notificationWindowSize numberOfNotificationInWindow')
+                    appSettings = await AppMessageSetting.getOne(context, where, 'notificationWindowSize numberOfNotificationInWindow')
 
-                    if (get(appSettings, 'isBlacklisted') === true) throw new GQLError(ERRORS.APP_IN_BLACK_LIST, context)
                     B2CAppName = appExisted.name
                 }
 
@@ -161,8 +160,8 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
 
                 await redisGuard.checkCustomLimitCounters(
                     `${SERVICE_NAME}-${searchKey}`,
-                    get(appSettings, 'notificationWindowSize') || ttl,
-                    get(appSettings, 'numberOfNotificationInWindow') || DEFAULT_NOTIFICATION_WINDOW_MAX_COUNT,
+                    get(appSettings, 'notificationWindowSize') ?? ttl,
+                    get(appSettings, 'numberOfNotificationInWindow') ?? DEFAULT_NOTIFICATION_WINDOW_MAX_COUNT,
                     context,
                 )
 

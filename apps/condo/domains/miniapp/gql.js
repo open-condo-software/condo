@@ -76,7 +76,7 @@ const MessageAppBlackList = generateGqlQueries('MessageAppBlackList', MESSAGE_AP
 const B2B_APP_ACCESS_RIGHT_SET_FIELDS = `{ app { id } type name ${B2B_ACCESSES_LISTS_FIELDS} ${B2B_ACCESSES_SERVICES_FIELDS} ${COMMON_FIELDS} }`
 const B2BAppAccessRightSet = generateGqlQueries('B2BAppAccessRightSet', B2B_APP_ACCESS_RIGHT_SET_FIELDS)
 
-const APP_MESSAGE_SETTINGS_FIELDS = `{ b2cApp { id } b2bApp { id } isBlacklisted blockReason type notificationWindowSize numberOfNotificationInWindow ${COMMON_FIELDS} }`
+const APP_MESSAGE_SETTINGS_FIELDS = `{ b2cApp { id } b2bApp { id } reason type notificationWindowSize numberOfNotificationInWindow ${COMMON_FIELDS} }`
 const AppMessageSetting = generateGqlQueries('AppMessageSetting', APP_MESSAGE_SETTINGS_FIELDS)
 
 const B2B_ACCESS_TOKEN_FIELDS = `{ token user { id } context { id app { id name } organization { id name } } rightSet { id name } expiresAt ${COMMON_FIELDS} }`

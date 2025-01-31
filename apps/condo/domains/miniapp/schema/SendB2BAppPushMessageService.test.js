@@ -14,7 +14,6 @@ const { MESSAGE_SENT_STATUS, B2B_APP_MESSAGE_PUSH_TYPE, DEVICE_PLATFORM_ANDROID,
 const { Message, syncRemoteClientWithPushTokenByTestClient } = require('@condo/domains/notification/utils/testSchema')
 const { DEFAULT_ROLES } = require('@condo/domains/organization/constants/common')
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
-const { GQL_ERRORS } = require('@condo/domains/user/constants/errors')
 const { User, updateTestUser, makeClientWithServiceUser, makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 const { ERRORS } = require('./SendB2BAppPushMessageService')
@@ -169,35 +168,39 @@ describe('SendB2BAppPushMessageService', () => {
             })
             expect(message2.id).toMatch(UUID_RE)
 
-            const expectedError = GQL_ERRORS.TOO_MANY_REQUESTS
             await expectToThrowGQLErrorToResult(async () => {
                 await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
                     type: B2B_APP_MESSAGE_PUSH_TYPE,
                 })
             }, {
-                code: expectedError.code,
-                type: expectedError.type,
-                message: expectedError.message,
+                code: 'BAD_USER_INPUT',
+                type: 'TOO_MANY_REQUESTS',
+                message: 'You have to wait {secondsRemaining} seconds to be able to send request again',
             })
         })
 
-        it('Throws an error if message type is blacklisted for app', async () => {
+        it('Throws an error if AppMessageSetting has numberOfNotificationInWindow: 0', async () => {
+            const numberOfNotificationInWindow = 0
             await createTestAppMessageSetting(admin, {
                 b2bApp,
+                numberOfNotificationInWindow,
                 type: PASS_TICKET_CREATED_MESSAGE_TYPE,
-                isBlacklisted: true,
             })
 
-            const [message1] = await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
+            const [message] = await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
                 type: B2B_APP_MESSAGE_PUSH_TYPE,
             })
-            expect(message1.id).toMatch(UUID_RE)
+            expect(message.id).toMatch(UUID_RE)
 
             await expectToThrowGQLErrorToResult(async () => {
                 await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
                     type: PASS_TICKET_CREATED_MESSAGE_TYPE,
                 })
-            }, ERRORS.APP_IN_BLACK_LIST)
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'TOO_MANY_REQUESTS',
+                message: 'You have to wait {secondsRemaining} seconds to be able to send request again',
+            })
         })
 
         it('Throws an error if employee role has not B2BAppRole', async () => {
