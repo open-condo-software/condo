@@ -15,7 +15,7 @@ const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 const { AppMessageSetting, createTestAppMessageSetting, updateTestAppMessageSetting,
     createTestB2CApp, createTestB2BApp, createTestB2BAppContext } = require('@condo/domains/miniapp/utils/testSchema')
 const { B2C_APP_MESSAGE_PUSH_TYPE, B2B_APP_MESSAGE_PUSH_TYPE, VOIP_INCOMING_CALL_MESSAGE_TYPE, TICKET_CREATED_TYPE } = require('@condo/domains/notification/constants/constants')
-const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const { registerNewOrganization, createTestOrganizationEmployeeRole, inviteNewOrganizationEmployee, acceptOrRejectOrganizationInviteById } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 const { ERRORS } = require('./AppMessageSetting')
@@ -32,9 +32,9 @@ describe('AppMessageSetting', () => {
     })
 
     beforeEach(async () => {
-        const [testB2cApp] = await createTestB2CApp(admin)
+        const [testB2cApp] = await createTestB2CApp(support)
         b2cApp = testB2cApp
-        const [testB2bApp] = await createTestB2BApp(admin)
+        const [testB2bApp] = await createTestB2BApp(support)
         b2bApp = testB2bApp
     })
 
@@ -151,7 +151,7 @@ describe('AppMessageSetting', () => {
                 })
 
                 test('can\'t update', async () => {
-                    const [appMessageSetting] = await createTestAppMessageSetting(admin, {
+                    const [appMessageSetting] = await createTestAppMessageSetting(support, {
                         b2cApp,
                     })
 
@@ -161,7 +161,7 @@ describe('AppMessageSetting', () => {
                 })
 
                 test('can\'t delete', async () => {
-                    const [appMessageSetting] = await createTestAppMessageSetting(admin, {
+                    const [appMessageSetting] = await createTestAppMessageSetting(support, {
                         b2cApp,
                     })
 
@@ -171,7 +171,7 @@ describe('AppMessageSetting', () => {
                 })
 
                 test('can\'t read', async () => {
-                    const [appMessageSetting] = await createTestAppMessageSetting(admin, {
+                    const [appMessageSetting] = await createTestAppMessageSetting(support, {
                         b2cApp,
                     })
 
@@ -182,18 +182,16 @@ describe('AppMessageSetting', () => {
                     expect(readAppMessageSetting).toBeUndefined()
                 })
 
-                test('user with employee with b2bAppRole in organization with b2b app from setting can read', async () => {
+                test('Staff user can read settings for connected B2BApps if he has "B2BAppRole" connected to his "OrganizationEmployeeRole"', async () => {
                     const staffUser = await makeClientWithNewRegisteredAndLoggedInUser()
 
-                    const [organization] = await createTestOrganization(admin)
-                    const [app] = await createTestB2BApp(admin)
-                    const [role] = await createTestOrganizationEmployeeRole(admin, organization, { canManageB2BApps: true })
-                    await createTestOrganizationEmployee(admin, organization, staffUser.user, role)
+                    const [organization] = await registerNewOrganization(staffUser)
+                    const [app] = await createTestB2BApp(support)
 
-                    await createTestB2BAppContext(admin, app, organization, {
+                    await createTestB2BAppContext(staffUser, app, organization, {
                         status: CONTEXT_FINISHED_STATUS,
                     })
-                    const [setting] = await createTestAppMessageSetting(admin, {
+                    const [setting] = await createTestAppMessageSetting(support, {
                         b2bApp: app,
                     })
 
@@ -208,20 +206,21 @@ describe('AppMessageSetting', () => {
 
                 test('user with employee without b2bAppRole can not read', async () => {
                     const staffUser = await makeClientWithNewRegisteredAndLoggedInUser()
-
-                    const [organization] = await createTestOrganization(admin)
-                    const [app] = await createTestB2BApp(admin)
-                    const [role] = await createTestOrganizationEmployeeRole(admin, organization)
-                    await createTestOrganizationEmployee(admin, organization, staffUser.user, role)
-
-                    await createTestB2BAppContext(admin, app, organization, {
+                    const [organization] = await registerNewOrganization(staffUser)
+                    const [app] = await createTestB2BApp(support)
+                    await createTestB2BAppContext(staffUser, app, organization, {
                         status: CONTEXT_FINISHED_STATUS,
                     })
-                    const [setting] = await createTestAppMessageSetting(admin, {
+                    const [setting] = await createTestAppMessageSetting(support, {
                         b2bApp: app,
                     })
 
-                    const readSetting = await AppMessageSetting.getOne(staffUser, { id: setting.id })
+                    const staffWithoutB2BAppRole = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const [role] = await createTestOrganizationEmployeeRole(staffUser, organization)
+                    const [invitedEmployee] = await inviteNewOrganizationEmployee(staffUser, organization, staffWithoutB2BAppRole.userAttrs, role)
+                    await acceptOrRejectOrganizationInviteById(staffWithoutB2BAppRole, invitedEmployee)
+
+                    const readSetting = await AppMessageSetting.getOne(staffWithoutB2BAppRole, { id: setting.id })
 
                     expect(readSetting).toBeUndefined()
                 })
@@ -235,7 +234,7 @@ describe('AppMessageSetting', () => {
                 })
 
                 test('can\'t update', async () => {
-                    const [appMessageSetting] = await createTestAppMessageSetting(admin, {
+                    const [appMessageSetting] = await createTestAppMessageSetting(support, {
                         b2cApp,
                     })
 
@@ -245,7 +244,7 @@ describe('AppMessageSetting', () => {
                 })
 
                 test('can\'t delete', async () => {
-                    const [appMessageSetting] = await createTestAppMessageSetting(admin, {
+                    const [appMessageSetting] = await createTestAppMessageSetting(support, {
                         b2cApp,
                     })
 
@@ -266,7 +265,7 @@ describe('AppMessageSetting', () => {
     describe('Validations', () => {
         test('can not create AppMessageSetting with b2bApp and b2cApp together', async () => {
             await expectToThrowGQLError(async () => {
-                await createTestAppMessageSetting(admin, {
+                await createTestAppMessageSetting(support, {
                     b2cApp,
                     b2bApp,
                 })
@@ -275,25 +274,25 @@ describe('AppMessageSetting', () => {
 
         test('can not create AppMessageSetting without b2bApp or b2cApp', async () => {
             await expectToThrowGQLError(async () => {
-                await createTestAppMessageSetting(admin, {
+                await createTestAppMessageSetting(support, {
                     type: TICKET_CREATED_TYPE,
                 })
             }, ERRORS.APP_MESSAGE_SETTING_MUST_HAVE_ONLY_B2B_OR_B2C_APP_FIELD)
         })
 
         test('can not update b2bApp and b2cApp fields', async () => {
-            const [settingWithB2CApp] = await createTestAppMessageSetting(admin, {
+            const [settingWithB2CApp] = await createTestAppMessageSetting(support, {
                 b2cApp,
             })
-            const [settingWithB2BApp] = await createTestAppMessageSetting(admin, {
+            const [settingWithB2BApp] = await createTestAppMessageSetting(support, {
                 b2bApp,
             })
 
-            const [otherB2cApp] = await createTestB2CApp(admin)
-            const [otherB2bApp] = await createTestB2BApp(admin)
+            const [otherB2cApp] = await createTestB2CApp(support)
+            const [otherB2bApp] = await createTestB2BApp(support)
 
             await catchErrorFrom(async () => {
-                await updateTestAppMessageSetting(admin, settingWithB2CApp.id, {
+                await updateTestAppMessageSetting(support, settingWithB2CApp.id, {
                     b2cApp: { connect: { id: otherB2cApp.id } },
                 })
             }, (e) => {
@@ -301,7 +300,7 @@ describe('AppMessageSetting', () => {
             })
 
             await catchErrorFrom(async () => {
-                await updateTestAppMessageSetting(admin, settingWithB2BApp.id, {
+                await updateTestAppMessageSetting(support, settingWithB2BApp.id, {
                     b2bApp: { connect: { id: otherB2bApp.id } },
                 })
             }, (e) => {
@@ -309,7 +308,7 @@ describe('AppMessageSetting', () => {
             })
 
             await catchErrorFrom(async () => {
-                await updateTestAppMessageSetting(admin, settingWithB2BApp.id, {
+                await updateTestAppMessageSetting(support, settingWithB2BApp.id, {
                     b2cApp: { connect: { id: otherB2cApp.id } },
                 })
             }, (e) => {
@@ -317,7 +316,7 @@ describe('AppMessageSetting', () => {
             })
 
             await catchErrorFrom(async () => {
-                await updateTestAppMessageSetting(admin, settingWithB2CApp.id, {
+                await updateTestAppMessageSetting(support, settingWithB2CApp.id, {
                     b2bApp: { connect: { id: otherB2bApp.id } },
                 })
             }, (e) => {
@@ -326,12 +325,11 @@ describe('AppMessageSetting', () => {
         })
 
         test('can update AppMessageSetting fields', async () => {
-            const [setting] = await createTestAppMessageSetting(admin, {
+            const [setting] = await createTestAppMessageSetting(support, {
                 b2bApp,
             })
 
-
-            const [updatedSetting] = await updateTestAppMessageSetting(admin, setting.id, {
+            const [updatedSetting] = await updateTestAppMessageSetting(support, setting.id, {
                 numberOfNotificationInWindow: 0,
             })
 
@@ -339,49 +337,50 @@ describe('AppMessageSetting', () => {
         })
 
         test('can not create two records with same message type and B2CApp', async () => {
-            await createTestAppMessageSetting(admin, {
+            await createTestAppMessageSetting(support, {
                 b2cApp,
             })
 
             await expectToThrowUniqueConstraintViolationError(async () => {
-                await createTestAppMessageSetting(admin, {
+                await createTestAppMessageSetting(support, {
                     b2cApp,
                 })
             }, 'app_message_setting_unique_b2c_app_and_type')
         })
 
         test('can not create two records with same message type and B2BApp', async () => {
-            await createTestAppMessageSetting(admin, {
+            await createTestAppMessageSetting(support, {
                 b2bApp,
             })
 
             await expectToThrowUniqueConstraintViolationError(async () => {
-                await createTestAppMessageSetting(admin, {
+                await createTestAppMessageSetting(support, {
                     b2bApp,
                 })
             }, 'app_message_setting_unique_b2b_app_and_type')
         })
 
         test('can create two records with different message types and same B2CApp', async () => {
-            const [obj1] = await createTestAppMessageSetting(admin, {
+            const [obj1] = await createTestAppMessageSetting(support, {
                 b2cApp,
             })
 
-            const [obj2] = await createTestAppMessageSetting(admin, {
+            const [obj2] = await createTestAppMessageSetting(support, {
                 b2cApp,
                 type: VOIP_INCOMING_CALL_MESSAGE_TYPE,
             })
+
             expect(obj1.type).toEqual(B2C_APP_MESSAGE_PUSH_TYPE)
             expect(obj2.type).toEqual(VOIP_INCOMING_CALL_MESSAGE_TYPE)
             expect(obj1.b2cApp.id).toEqual(obj2.b2cApp.id)
         })
 
         test('can create two records with different message types and same B2BApp', async () => {
-            const [obj1] = await createTestAppMessageSetting(admin, {
+            const [obj1] = await createTestAppMessageSetting(support, {
                 b2bApp,
             })
 
-            const [obj2] = await createTestAppMessageSetting(admin, {
+            const [obj2] = await createTestAppMessageSetting(support, {
                 b2bApp,
                 type: TICKET_CREATED_TYPE,
             })
@@ -392,11 +391,11 @@ describe('AppMessageSetting', () => {
         })
 
         test('can create two records with same message type and different app types', async () => {
-            const [obj1] = await createTestAppMessageSetting(admin, {
+            const [obj1] = await createTestAppMessageSetting(support, {
                 b2cApp,
                 type: TICKET_CREATED_TYPE,
             })
-            const [obj2] = await createTestAppMessageSetting(admin, {
+            const [obj2] = await createTestAppMessageSetting(support, {
                 b2bApp,
                 type: TICKET_CREATED_TYPE,
             })
@@ -408,15 +407,16 @@ describe('AppMessageSetting', () => {
         })
 
         test('can create two records with same message type and different B2CApp', async () => {
-            const [b2cApp1] = await createTestB2CApp(admin)
-            const [b2cApp2] = await createTestB2CApp(admin)
-            const [obj1] = await createTestAppMessageSetting(admin, {
+            const [b2cApp1] = await createTestB2CApp(support)
+            const [b2cApp2] = await createTestB2CApp(support)
+            const [obj1] = await createTestAppMessageSetting(support, {
                 b2cApp: b2cApp1,
             })
 
-            const [obj2] = await createTestAppMessageSetting(admin, {
+            const [obj2] = await createTestAppMessageSetting(support, {
                 b2cApp: b2cApp2,
             })
+
             expect(obj1.b2cApp.id).toEqual(b2cApp1.id)
             expect(obj2.b2cApp.id).toEqual(b2cApp2.id)
             expect(obj1.type).toEqual(obj2.type)
