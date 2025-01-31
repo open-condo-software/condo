@@ -263,11 +263,17 @@ const _withAuthLegacy: WithAuthLegacyType = ({ ssr = false, ...opts } = {}) => P
 const AuthProvider: React.FC = ({ children }) => {
     const apolloClient = useApolloClient()
 
-    const { data, loading: userLoading, refetch } = useQuery(USER_QUERY, {
-        notifyOnNetworkStatusChange: true,
-    })
+    const [isAuthLoading, setAuthLoading] = useState<boolean>(false)
 
-    const user = useMemo(() => get(data, 'authenticatedUser') || null, [data])
+    const { data, loading: userLoading, refetch } = useQuery(USER_QUERY)
+
+    const user = useMemo(() => {
+        if (!userLoading) {
+            setAuthLoading(false)
+            return get(data, 'authenticatedUser') || null
+        }
+    }, [data, userLoading])
+
 
     const refetchAuth = useCallback(async () => {
         await refetch()
@@ -282,15 +288,17 @@ const AuthProvider: React.FC = ({ children }) => {
             if (item) {
                 await apolloClient.clearStore()
             }
+            setAuthLoading(false)
         },
         onError: (error) => {
             console.error(error)
+            setAuthLoading(false)
         },
     })
 
     const [signOutMutation, { loading: signOutLoading }] = useMutation(SIGNOUT_MUTATION, {
-        refetchQueries: [USER_QUERY],
         onCompleted: async () => {
+            await refetch()
             removeCookieEmployeeId()
             await apolloClient.cache.reset()
             apolloClient.cache.writeQuery({
@@ -299,16 +307,24 @@ const AuthProvider: React.FC = ({ children }) => {
                     authenticatedUser: null,
                 },
             })
+            setAuthLoading(false)
         },
         onError: (error) => {
             console.error(error)
+            setAuthLoading(false)
         },
     })
+
+    useEffect(() => {
+        if (userLoading || signOutLoading || signInLoading) {
+            setAuthLoading(true)
+        }
+    }, [userLoading, signOutLoading, signInLoading])
 
     return (
         <AuthContext.Provider
             value={{
-                isLoading: userLoading || signOutLoading || signInLoading,
+                isLoading: userLoading || signOutLoading || signInLoading || isAuthLoading,
                 isAuthenticated: !!user,
                 user,
                 refetch: refetchAuth,

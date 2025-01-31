@@ -120,11 +120,11 @@ export const GlobalAppsContainer: React.FC = () => {
     }, [organizationId])
 
     useEffect(() => {
-        if (!isGlobalAppsFetched.current && !loading && !isNull(user)) {
+        if (!isGlobalAppsFetched.current && !loading && !isNull(user) && !isLoading) {
             refetch()
             isGlobalAppsFetched.current = true
         }
-    }, [user, loading])
+    }, [user, loading, isLoading])
 
     // Global miniapps allowed only for authenticated employees
     if (!user || !organizationId) {
