@@ -7,6 +7,7 @@ const uniq = require('lodash/uniq')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { find } = require('@open-condo/keystone/schema')
 
+const { getUserEmployeesRoles } = require('@condo/domains/organization/utils/accessSchema')
 const { STAFF } = require('@condo/domains/user/constants/common')
 
 
@@ -16,15 +17,7 @@ async function canReadAppMessageSetting ({ authentication: { item: user }, conte
     if (user.isAdmin || user.isSupport) return {}
 
     if (user.type === STAFF) {
-        const userEmployees = await find('OrganizationEmployee', {
-            deletedAt: null,
-            organization: { deletedAt: null },
-            role: { deletedAt: null },
-            user: { id: user.id },
-            isBlocked: false,
-            isRejected: false,
-        })
-        const employeeRoleIds = userEmployees.map(employee => employee.role)
+        const employeeRoleIds = await getUserEmployeesRoles(context, user)
         const b2bAppRoles = await find('B2BAppRole', {
             deletedAt: null,
             role: { id_in: employeeRoleIds },
