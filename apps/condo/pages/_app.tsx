@@ -149,6 +149,7 @@ const MenuItems: React.FC = () => {
     const isSPPOrg = useFlag(SERVICE_PROVIDER_PROFILE)
     const isMarketplaceEnabled = useFlag(MARKETPLACE)
 
+    const { isAuthenticated, isLoading } = useAuth()
     const { link, organization } = useOrganization()
     const { isExpired } = useServiceSubscriptionContext()
     const hasSubscriptionFeature = hasFeature('subscription')
@@ -159,7 +160,7 @@ const MenuItems: React.FC = () => {
     const orgId = get(organization, 'id', null)
     const orgFeatures = get(organization, 'features', [])
     const sppBillingId = get(sppConfig, 'BillingIntegrationId', null)
-    const { obj: billingCtx } = BillingContext.useObject({ where: { integration: { id: sppBillingId }, organization: { id: orgId } } })
+    const { obj: billingCtx } = BillingContext.useObject({ where: { integration: { id: sppBillingId }, organization: { id: orgId } } }, { skip: !isAuthenticated || isLoading })
     const anyReceiptsLoaded = Boolean(get(billingCtx, 'lastReport', null))
     const hasAccessToBilling = get(role, 'canReadPayments', false) || get(role, 'canReadBillingReceipts', false)
     const isManagingCompany = get(organization, 'type', MANAGING_COMPANY_TYPE) === MANAGING_COMPANY_TYPE
@@ -388,7 +389,7 @@ const MenuItems: React.FC = () => {
 }
 
 const TasksProvider = ({ children }) => {
-    const { user } = useAuth()
+    const { user, isLoading } = useAuth()
     // Use UI interfaces for all tasks, that are supposed to be tracked
     const { TicketDocumentGenerationTask: TicketDocumentGenerationTaskUIInterface } = useTicketDocumentGenerationTaskUIInterface()
     const { TicketExportTask: TicketExportTaskUIInterface } = useTicketExportTaskUIInterface()
@@ -405,7 +406,7 @@ const TasksProvider = ({ children }) => {
     // Load all tasks with 'processing' status
     const { data, loading: isProcessingTasksLoading } = useGetProcessingTasksQuery({
         variables: { userId: user?.id || null, createdAtGte: dayjs().startOf('day').toISOString() },
-        skip: !user?.id,
+        skip: !user?.id || isLoading,
     })
 
     const { records: miniAppTasks, loading: isMiniAppTasksLoading } = MiniAppTaskUIInterface.storage.useTasks(

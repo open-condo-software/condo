@@ -54,7 +54,7 @@ class FakeAddressServiceClient {
         const addressKey = faker.datatype.uuid()
 
         const fiasId = faker.datatype.uuid()
-        const addressSources = [address, `fiasId:${fiasId}`]
+        const addressSources = [address, `fiasId:${fiasId}`, `key:${addressKey}`]
         const searchResult = {
             addressSources,
             address,

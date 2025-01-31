@@ -1,14 +1,12 @@
 const dayjs = require('dayjs')
-const { get, isNil, map, set } = require('lodash')
+const { get, isNil, set } = require('lodash')
 
-const { createInstance } = require('@open-condo/clients/address-service-client')
 const { find } = require('@open-condo/keystone/schema')
 
-const { CONTEXT_FINISHED_STATUS: ACQUIRING_CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } = require('@condo/domains/acquiring/constants/payment')
-const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
+const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
 
-const REQUIRED_QR_CODE_FIELDS = ['BIC', 'PayerAddress', 'Sum', 'PersAcc', 'PayeeINN', 'PersonalAcc']
+const REQUIRED_QR_CODE_FIELDS = ['BIC', 'Sum', 'PersAcc', 'PayeeINN', 'PersonalAcc']
 
 /**
  * Default day of month for detection of period. Before this date we use previous month, after - the next one
@@ -135,17 +133,19 @@ async function isReceiptPaid (context, accountNumber, period, organizationIds, r
  * @param {TCompareQRResolvers} resolvers
  * @return {Promise<void>}
  */
-async function compareQRCodeWithLastReceipt (qrCodeFields, resolvers) {
+async function compareQRCodeWithLastReceipt (context, qrCodeFields, resolvers) {
     const period = formatPeriodFromQRCode(getQRCodeField(qrCodeFields, 'PaymPeriod'))
 
-    const [lastBillingReceipt] = await find('BillingReceipt', {
-        account: { number: getQRCodeField(qrCodeFields, 'PersAcc'), deletedAt: null },
-        receiver: { bankAccount: getQRCodeField(qrCodeFields, 'PersonalAcc'), deletedAt: null },
-        deletedAt: null,
-    }, {
-        sortBy: ['period_DESC'],
-        first: 1,
-    })
+    const [lastBillingReceipt] = await BillingReceipt.getAll(
+        context,
+        {
+            account: { number: getQRCodeField(qrCodeFields, 'PersAcc'), deletedAt: null },
+            receiver: { bankAccount: getQRCodeField(qrCodeFields, 'PersonalAcc'), deletedAt: null },
+            deletedAt: null,
+        },
+        'id period toPay',
+        { sortBy: ['period_DESC'], first: 1 },
+    )
 
     if (isNil(lastBillingReceipt)) {
         // No receipts found at our side
@@ -171,69 +171,6 @@ function formatPeriodFromQRCode (period) {
     return `${parts[1]}-${parts[0]}-01`
 }
 
-/**
- * @typedef {Object} TQRAuxiliaryDataContexts
- * @property {BillingIntegrationOrganizationContext} billingContext
- * @property {AcquiringIntegrationContext} acquiringContext
- */
-
-/**
- * @typedef {Object} TQRAuxiliaryData
- * @property normalizedAddress
- * @property {Record<organizationId: string, TQRAuxiliaryDataContexts>} contexts
- */
-
-/**
- * Returns contexts nested by organization id
- * @param {TRUQRCodeFields} qrCodeFields
- * @param {{address: GQLError}} errors
- * @return {Promise<TQRAuxiliaryData>}
- */
-async function findAuxiliaryData (qrCodeFields, errors) {
-    const addressServiceClient = createInstance()
-    const searchParams = { extractUnit: true }
-    const tin = getQRCodeField(qrCodeFields, 'PayeeINN')
-    if (tin) {
-        searchParams.helpers = JSON.stringify({ tin })
-    }
-    const normalizedAddress = await addressServiceClient.search(getQRCodeField(qrCodeFields, 'PayerAddress'), searchParams)
-
-    if (!normalizedAddress.addressKey || !normalizedAddress.unitType || !normalizedAddress.unitName) throw errors.address
-
-    const properties = await find('Property', {
-        organization: { tin, deletedAt: null },
-        addressKey: normalizedAddress.addressKey,
-        deletedAt: null,
-    })
-
-    const organizationsIds = map(properties, 'organization')
-
-    const billingContexts = await find('BillingIntegrationOrganizationContext', {
-        organization: { id_in: organizationsIds, deletedAt: null },
-        status: CONTEXT_FINISHED_STATUS,
-        deletedAt: null,
-    })
-
-    const acquiringContexts = await find('AcquiringIntegrationContext', {
-        organization: { id_in: organizationsIds, deletedAt: null },
-        status: ACQUIRING_CONTEXT_FINISHED_STATUS,
-        deletedAt: null,
-    })
-
-    /** @type {Record<string, TQRAuxiliaryDataContexts>} */
-    const contexts = {}
-
-    for (const billingContext of billingContexts) {
-        set(contexts, [get(billingContext, 'organization'), 'billingContext'], billingContext)
-    }
-
-    for (const acquiringContext of acquiringContexts) {
-        set(contexts, [get(acquiringContext, 'organization'), 'acquiringContext'], acquiringContext)
-    }
-
-    return { normalizedAddress, contexts }
-}
-
 module.exports = {
     DEFAULT_PERIODS_EDGE_DATE,
     getQRCodeField,
@@ -243,5 +180,4 @@ module.exports = {
     isReceiptPaid,
     compareQRCodeWithLastReceipt,
     formatPeriodFromQRCode,
-    findAuxiliaryData,
 }

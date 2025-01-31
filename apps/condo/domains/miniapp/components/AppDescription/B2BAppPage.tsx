@@ -53,7 +53,9 @@ export const B2BAppPage: React.FC<B2BPageProps> = ({ id }) => {
         setModalOpen(true)
     })
     const createContextAction = useCallback(() => {
-        initialAction({ organization: { connect: { id: organizationId } }, app: { connect: { id: appId } } })
+        if (!userOrganization.isLoading) {
+            initialAction({ organization: { connect: { id: organizationId } }, app: { connect: { id: appId } } })
+        }
     }, [initialAction, organizationId, appId])
 
     const handleCloseModal = useCallback(() => {

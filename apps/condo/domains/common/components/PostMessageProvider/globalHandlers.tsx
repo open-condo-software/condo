@@ -88,6 +88,7 @@ export const useModalHandler: () => [
                     reloadScope='organization'
                     withLoader
                     withResize
+                    allowFullscreen
                 />
             ),
             onCancel: handleClose,

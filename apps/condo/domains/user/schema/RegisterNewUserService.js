@@ -1,7 +1,7 @@
 const { isEmpty } = require('lodash')
 
 const { GQLError } = require('@open-condo/keystone/errors')
-const { GQLCustomSchema, getById } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema, getById, getByCondition } = require('@open-condo/keystone/schema')
 
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
@@ -52,14 +52,17 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
 
                 let action = null
                 if (confirmPhoneActionToken) {
-                    action = await ConfirmPhoneAction.getOne(context, {
+                    action = await getByCondition('ConfirmPhoneAction', {
                         token: confirmPhoneActionToken,
                         expiresAt_gte: new Date().toISOString(),
                         completedAt: null,
                         isPhoneVerified: true,
-                    }, 'id phone isPhoneVerified', {
-                        doesNotExistError: ERRORS.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION,
                     })
+
+                    if (!action) {
+                        throw new GQLError(ERRORS.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION, context)
+                    }
+
                     userData.phone = action.phone
                     userData.isPhoneVerified = action.isPhoneVerified
                 } else {

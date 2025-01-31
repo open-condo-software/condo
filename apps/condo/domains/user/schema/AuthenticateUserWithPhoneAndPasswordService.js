@@ -1,3 +1,4 @@
+const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { getSchemaCtx, getById } = require('@open-condo/keystone/schema')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
@@ -13,8 +14,34 @@ const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
 const redisGuard = new RedisGuard()
 
-const GUARD_WINDOW_SIZE_SEC = 60 * 60 // seconds
-const GUARD_WINDOW_LIMIT = 10
+const GUARD_DEFAULT_WINDOW_SIZE_IN_SEC = 60 * 60 // seconds
+const GUARD_DEFAULT_WINDOW_LIMIT = 10
+
+/**
+ * @typedef {Object} TAuthGuardQuota
+ * @property {number} windowSizeInSec The window size in seconds
+ * @property {number} windowLimit Attempts limit during the window
+ */
+
+/**
+ * @type {Record<string, TAuthGuardQuota>}
+ *
+ * Possible values:
+ * 1. Change all
+ * { "*.*.*.*": { windowSizeInSec: 3600, windowLimit: 60 } }
+ *
+ * 2. Change only window size
+ * { "i.p.v.4": { windowSizeInSec: 3600 } }
+ *
+ * 3. Change only limit
+ * { "i.p.v.4": { windowLimit: 60 } }
+ */
+let customQuotas
+try {
+    customQuotas = JSON.parse(conf.AUTH_GUARD_CUSTOM_QUOTAS)
+} catch (e) {
+    customQuotas = {}
+}
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -57,10 +84,11 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
             resolver: async (parent, args, context) => {
 
                 const ip = context.req.ip
+
                 await redisGuard.checkCustomLimitCounters(
                     `${AUTH_COUNTER_LIMIT_TYPE}:${ip}`,
-                    GUARD_WINDOW_SIZE_SEC,
-                    GUARD_WINDOW_LIMIT,
+                    customQuotas[ip]?.windowSizeInSec || GUARD_DEFAULT_WINDOW_SIZE_IN_SEC,
+                    customQuotas[ip]?.windowLimit || GUARD_DEFAULT_WINDOW_LIMIT,
                     context,
                 )
 
@@ -77,7 +105,7 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
                 const { keystone } = getSchemaCtx('User')
                 const { auth: { User: { password: PasswordStrategy } } } = keystone
                 const list = PasswordStrategy.getList()
-                const { success } = await PasswordStrategy._matchItem(user, { password }, list.fieldsByPath['password'] )
+                const { success } = await PasswordStrategy._matchItem(user, { password }, list.fieldsByPath['password'])
                 if (!success) {
                     throw new GQLError(ERRORS.WRONG_CREDENTIALS, context)
                 }

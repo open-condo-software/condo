@@ -123,6 +123,7 @@ export const B2BAppPage: React.FC<B2BAppPageProps> = ({ id }) => {
                             withLoader
                             withPrefetch
                             withResize
+                            allowFullscreen
                         />
                     )}
                 </PageContent>
