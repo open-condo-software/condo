@@ -15,7 +15,7 @@ const { Message, syncRemoteClientWithPushTokenByTestClient } = require('@condo/d
 const { DEFAULT_ROLES } = require('@condo/domains/organization/constants/common')
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { GQL_ERRORS } = require('@condo/domains/user/constants/errors')
-const { User, makeClientWithServiceUser, makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { User, updateTestUser, makeClientWithServiceUser, makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 const { ERRORS } = require('./SendB2BAppPushMessageService')
 
@@ -29,10 +29,13 @@ describe('SendB2BAppPushMessageService', () => {
         organization,
         b2bApp
 
-    beforeEach(async () => {
+    beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
         support = await makeClientWithSupportUser()
         anonymous = await makeClient()
+    })
+
+    beforeEach(async () => {
         staffClient = await makeClientWithNewRegisteredAndLoggedInUser({
             locale: faker.helpers.arrayElement(Object.keys(LOCALES)),
         })
@@ -144,7 +147,7 @@ describe('SendB2BAppPushMessageService', () => {
 
             await expectToThrowGQLErrorToResult(async () => {
                 await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, user.user)
-            }, ERRORS.NO_EMPLOYEE_FOR_USER)
+            }, ERRORS.USER_IS_NOT_AN_EMPLOYEE)
         })
 
         it('Throws an error if notifications are sent more often than specified in AppMessageSetting', async () => {
@@ -207,6 +210,18 @@ describe('SendB2BAppPushMessageService', () => {
                     type: PASS_TICKET_CREATED_MESSAGE_TYPE,
                 })
             }, ERRORS.NO_B2B_APP_ROLE_FOR_EMPLOYEE_ROLE_AND_B2B_APP)
+        })
+
+        it('Throws an error if user is deleted', async () => {
+            await updateTestUser(admin, staffClient.user.id, {
+                deletedAt: new Date(),
+            })
+
+            await expectToThrowGQLErrorToResult(async () => {
+                await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
+                    type: PASS_TICKET_CREATED_MESSAGE_TYPE,
+                })
+            }, ERRORS.USER_IS_NOT_AN_EMPLOYEE)
         })
     })
 })
