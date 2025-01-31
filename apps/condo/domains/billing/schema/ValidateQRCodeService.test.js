@@ -12,6 +12,7 @@ const {
     catchErrorFrom,
     expectToThrowAccessDeniedErrorToResult,
     expectToThrowGQLError,
+    expectToThrowGQLErrorToResult,
 } = require('@open-condo/keystone/test.utils')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
@@ -43,6 +44,7 @@ const {
     createTestBillingRecipient,
     createTestBillingReceipt,
     createTestRecipient,
+    updateTestBillingReceipt,
 } = require('@condo/domains/billing/utils/testSchema')
 const { ALREADY_EXISTS_ERROR } = require('@condo/domains/common/constants/errors')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
@@ -112,6 +114,11 @@ async function createBillingReceiptAndAllDependencies (admin, organization, prop
 
 function generateQrCodeObj (extraAttrs = {}) {
     const bic = createValidRuRoutingNumber()
+    let periodM = String(faker.datatype.number({ min: 1, max: 12 }))
+    if (periodM.length === 1) {
+        periodM = `0${periodM}`
+    }
+    const periodY = faker.datatype.number({ min: 2024, max: 2099 })
 
     return {
         PersonalAcc: createValidRuNumber(bic),
@@ -119,10 +126,7 @@ function generateQrCodeObj (extraAttrs = {}) {
         PayerAddress: faker.address.streetAddress(true),
         Sum: faker.random.numeric(6),
         LastName: faker.random.alpha(10),
-        PaymPeriod: `${faker.datatype.number({ min: 1, max: 12 })}.${faker.datatype.number({
-            min: 2024,
-            max: 2099,
-        })}`,
+        PaymPeriod: `${periodM}.${periodY}`,
         BIC: bic,
         PersAcc: faker.random.numeric(20),
         ...extraAttrs,
@@ -166,6 +170,12 @@ describe('ValidateQRCodeService', () => {
     })
 
     test('should parse fields correctly', async () => {
+        const [organization] = await createTestOrganization(adminClient)
+        const [property] = await createTestProperty(adminClient, organization)
+        const [periodM, periodY] = qrCodeObj.PaymPeriod.split('.')
+
+        await createBillingReceiptAndAllDependencies(adminClient, organization, property, qrCodeObj, `${periodY}-${periodM}-01`, qrCodeObj.Sum, '0.5', '1')
+
         const [{ qrCodeFields }] = await validateQRCodeByTestClient(adminClient, { qrCode: qrCodeString })
 
         expect(qrCodeFields.PersonalAcc).toBe(qrCodeObj.PersonalAcc)
@@ -180,37 +190,39 @@ describe('ValidateQRCodeService', () => {
         const [organization] = await createTestOrganization(adminClient)
         const [property] = await createTestProperty(adminClient, organization)
         const bic = createValidRuRoutingNumber()
+        let periodM = String(faker.datatype.number({ min: 1, max: 12 }))
+        if (periodM.length === 1) {
+            periodM = `0${periodM}`
+        }
+        const periodY = faker.datatype.number({ min: 2024, max: 2099 })
+        const sum = faker.random.numeric(6)
         const qrCodeObj = {
-            personalAcc: createValidRuNumber(bic),
-            PayeeInn: organization.tin,
-            payeraddress: `${property.address}, кв. 1`,
-            sUM: faker.random.numeric(6),
-            LastnamE: faker.random.alpha(10),
-            paymPeriod: `${faker.datatype.number({ min: 1, max: 12 })}.${faker.datatype.number({
-                min: 2024,
-                max: 2099,
-            })}`,
+            PersonalAcc: createValidRuNumber(bic),
+            PayeeINN: organization.tin,
+            PayerAddress: `${property.address}, кв. 1`,
+            Sum: sum,
+            Lastname: faker.random.alpha(10),
+            PaymPeriod: `${periodM}.${periodY}`,
             BIC: bic,
             PersAcc: faker.random.numeric(20),
         }
-        const { billingIntegrationContext } = await addBillingIntegrationAndContext(adminClient, organization, {}, { status: CONTEXT_FINISHED_STATUS })
-        const recipient = createTestRecipient({
-            name: organization.name,
-            tin: organization.tin,
-            bankAccount: qrCodeObj.personalAcc,
-        })
-        await addAcquiringIntegrationAndContext(adminClient, organization, {}, {
-            status: CONTEXT_FINISHED_STATUS,
-            recipient,
-        })
+        const qrCodeObjWithWrongCase = {
+            personalAcc: qrCodeObj.PersonalAcc,
+            PayeeInn: qrCodeObj.PayeeINN,
+            payeraddress: qrCodeObj.PayerAddress,
+            sUM: qrCodeObj.Sum,
+            LastnamE: qrCodeObj.Lastname,
+            paymPeriod: qrCodeObj.PaymPeriod,
+            BIC: qrCodeObj.BIC,
+            PersAcc: qrCodeObj.PersAcc,
+        }
 
-        const [billingProperty] = await createTestBillingProperty(adminClient, billingIntegrationContext, { address: property.address })
-        await createTestBillingAccount(adminClient, billingIntegrationContext, billingProperty, { number: qrCodeObj.PersAcc })
+        await createBillingReceiptAndAllDependencies(adminClient, organization, property, qrCodeObj, `${periodY}-${periodM}-01`, sum, '0.5', '1')
 
-        const qrCodeString = stringifyQrCode(qrCodeObj)
+        const qrCodeString = stringifyQrCode(qrCodeObjWithWrongCase)
         const [{ amount }] = await validateQRCodeByTestClient(adminClient, { qrCode: qrCodeString })
 
-        expect(amount).toBe(Big(qrCodeObj.sUM).div(100).toString())
+        expect(amount).toBe(Big(qrCodeObj.Sum).toFixed(8))
     })
 
     describe('Field validations', () => {
@@ -417,25 +429,16 @@ describe('ValidateQRCodeService', () => {
     test('anonymous: can execute', async () => {
         const [organization] = await createTestOrganization(adminClient)
         const [property] = await createTestProperty(adminClient, organization)
-        const { billingIntegrationContext } = await addBillingIntegrationAndContext(adminClient, organization, {}, { status: CONTEXT_FINISHED_STATUS })
-        const recipient = createTestRecipient({
-            name: organization.name,
-            tin: organization.tin,
-        })
-        await addAcquiringIntegrationAndContext(adminClient, organization, {}, {
-            status: CONTEXT_FINISHED_STATUS,
-            recipient,
-        })
-        const qr = {
+
+        const qr = generateQrCodeObj({
             ...qrCodeObj,
             PayeeINN: organization.tin,
             PayerAddress: `${property.address}, кв 1`,
-            PersonalAcc: recipient.bankAccount,
-            BIC: recipient.bic,
-        }
+        })
 
-        const [billingProperty] = await createTestBillingProperty(adminClient, billingIntegrationContext, { address: property.address })
-        await createTestBillingAccount(adminClient, billingIntegrationContext, billingProperty, { number: qr.PersAcc })
+        const [periodM, periodY] = qr.PaymPeriod.split('.')
+
+        await createBillingReceiptAndAllDependencies(adminClient, organization, property, qr, `${periodY}-${periodM}-01`, qr.Sum, '0.5', '1')
 
         const qrStr = stringifyQrCode(qr)
         const [result] = await validateQRCodeByTestClient(anonymous, { qrCode: qrStr })
@@ -446,25 +449,16 @@ describe('ValidateQRCodeService', () => {
     test('support: can execute', async () => {
         const [organization] = await createTestOrganization(adminClient)
         const [property] = await createTestProperty(adminClient, organization)
-        const { billingIntegrationContext } = await addBillingIntegrationAndContext(adminClient, organization, {}, { status: CONTEXT_FINISHED_STATUS })
-        const recipient = createTestRecipient({
-            name: organization.name,
-            tin: organization.tin,
-        })
-        await addAcquiringIntegrationAndContext(adminClient, organization, {}, {
-            status: CONTEXT_FINISHED_STATUS,
-            recipient,
-        })
-        const qr = {
+
+        const qr = generateQrCodeObj({
             ...qrCodeObj,
             PayeeINN: organization.tin,
             PayerAddress: `${property.address}, кв 1`,
-            PersonalAcc: recipient.bankAccount,
-            BIC: recipient.bic,
-        }
+        })
 
-        const [billingProperty] = await createTestBillingProperty(adminClient, billingIntegrationContext, { address: property.address })
-        await createTestBillingAccount(adminClient, billingIntegrationContext, billingProperty, { number: qr.PersAcc })
+        const [periodM, periodY] = qr.PaymPeriod.split('.')
+
+        await createBillingReceiptAndAllDependencies(adminClient, organization, property, qr, `${periodY}-${periodM}-01`, qr.Sum, '0.5', '1')
 
         const qrStr = stringifyQrCode(qr)
         const [result] = await validateQRCodeByTestClient(supportClient, { qrCode: qrStr })
@@ -475,25 +469,16 @@ describe('ValidateQRCodeService', () => {
     test('staff: can execute', async () => {
         const [organization] = await createTestOrganization(adminClient)
         const [property] = await createTestProperty(adminClient, organization)
-        const { billingIntegrationContext } = await addBillingIntegrationAndContext(adminClient, organization, {}, { status: CONTEXT_FINISHED_STATUS })
-        const recipient = createTestRecipient({
-            name: organization.name,
-            tin: organization.tin,
-        })
-        await addAcquiringIntegrationAndContext(adminClient, organization, {}, {
-            status: CONTEXT_FINISHED_STATUS,
-            recipient,
-        })
-        const qr = {
+
+        const qr = generateQrCodeObj({
             ...qrCodeObj,
             PayeeINN: organization.tin,
             PayerAddress: `${property.address}, кв 1`,
-            PersonalAcc: recipient.bankAccount,
-            BIC: recipient.bic,
-        }
+        })
 
-        const [billingProperty] = await createTestBillingProperty(adminClient, billingIntegrationContext, { address: property.address })
-        await createTestBillingAccount(adminClient, billingIntegrationContext, billingProperty, { number: qr.PersAcc })
+        const [periodM, periodY] = qr.PaymPeriod.split('.')
+
+        await createBillingReceiptAndAllDependencies(adminClient, organization, property, qr, `${periodY}-${periodM}-01`, qr.Sum, '0.5', '1')
 
         const qrStr = stringifyQrCode(qr)
         const [result] = await validateQRCodeByTestClient(staffClient, { qrCode: qrStr })
@@ -667,39 +652,19 @@ describe('ValidateQRCodeService', () => {
             }
             const qrStr = stringifyQrCode(qrObj)
 
-            const { billingIntegrationContext } = await addBillingIntegrationAndContext(adminClient, o10n, {}, { status: CONTEXT_FINISHED_STATUS })
-            const recipient = createTestRecipient({
-                name: organization.name,
-                tin: organization.tin,
-                bic: qrObj.BIC,
-                bankAccount: qrObj.PersonalAcc,
-            })
+            const [periodM, periodY] = qrObj.PaymPeriod.split('.')
 
-            const [billingProperty] = await createTestBillingProperty(adminClient, billingIntegrationContext, { address: property.address })
-            await createTestBillingAccount(adminClient, billingIntegrationContext, billingProperty, { number: qrObj.PersAcc })
+            const { billingReceipt } = await createBillingReceiptAndAllDependencies(adminClient, o10n, property, qrObj, `${periodY}-${periodM}-01`, qrObj.Sum, '1', '2')
 
-            const { acquiringIntegration } = await addAcquiringIntegrationAndContext(adminClient, o10n, {
-                explicitFeeDistributionSchema: [{
-                    recipient: 'acquiring',
-                    percent: '1',
-                }, {
-                    recipient: 'service',
-                    percent: '2',
-                }],
-            }, { status: CONTEXT_FINISHED_STATUS, recipient })
+            await updateTestBillingReceipt(adminClient, billingReceipt.id, { deletedAt: faker.date.past() })
 
-            const [result] = await validateQRCodeByTestClient(adminClient, { qrCode: qrStr })
-
-            expect(result).toEqual({
-                qrCodeFields: qrObj,
-                lastReceiptData: null,
-                explicitFees: {
-                    explicitServiceCharge: '60',
-                    explicitFee: '0',
-                },
-                amount: '2000',
-                acquiringIntegrationHostUrl: acquiringIntegration.hostUrl,
-                currencyCode: billingIntegrationContext.integration.currencyCode,
+            await expectToThrowGQLErrorToResult(async () => {
+                await validateQRCodeByTestClient(adminClient, { qrCode: qrStr })
+            }, {
+                mutation: 'validateQRCode',
+                code: 'INTERNAL_ERROR',
+                type: 'NOT_FOUND',
+                message: 'No previous receipt was found',
             })
         })
     })
@@ -711,13 +676,12 @@ describe('ValidateQRCodeService', () => {
         const PaymPeriod = '04.2024' // for QR code
         const period = '2024-04-01' // for receipt
         const sum = 1000
-        const qrObj = {
-            ...qrCodeObj,
+        const qrObj = generateQrCodeObj({
             PayeeINN: organization.tin,
             PayerAddress: `${property.address}, кв 1`,
             PaymPeriod,
             Sum: String(sum * 100),
-        }
+        })
         const qrStr = stringifyQrCode(qrObj)
 
         // create the receipt

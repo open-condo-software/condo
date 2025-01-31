@@ -84,6 +84,12 @@ const ERRORS = {
         type: WRONG_FORMAT,
         message: 'Provided bank account is not in the system',
     },
+    NO_PREV_RECEIPT: {
+        mutation: 'validateQRCode',
+        code: INTERNAL_ERROR,
+        type: NOT_FOUND,
+        message: 'No previous receipt was found',
+    },
 }
 
 /**
@@ -217,10 +223,7 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
                 /** @type {TCompareQRResolvers} */
                 const resolvers = {
                     onNoReceipt: async () => {
-                        if (await isReceiptPaid(context, persAcc, period, [organizationId], personalAcc)) {
-                            throw new GQLError(ERRORS.RECEIPT_ALREADY_PAID, context)
-                        }
-                        amount = qrCodeAmount
+                        throw new GQLError(ERRORS.NO_PREV_RECEIPT, context)
                     },
                     onReceiptPeriodEqualsQrCodePeriod: setDataFromReceipt,
                     onReceiptPeriodNewerThanQrCodePeriod: setDataFromReceipt,
