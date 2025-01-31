@@ -51,7 +51,7 @@ export const UserProfileForm = () => {
     const CancelLabel = intl.formatMessage({ id: 'Cancel' })
 
     const { user } = useAuth()
-    const updateUserAction = User.useUpdate({}, async () => router.push('/user/'))
+    const updateUserAction = User.useUpdate({}, () => router.push('/user/'))
     const formAction = (formValues) => updateUserAction(formValues, user)
     const { breakpoints } = useLayoutContext()
 
