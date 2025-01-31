@@ -7,7 +7,7 @@ const pick = require('lodash/pick')
 
 const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { FORBIDDEN } } = require('@open-condo/keystone/errors')
-const { GQLCustomSchema, itemsQuery } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema, itemsQuery, getByCondition, getById } = require('@open-condo/keystone/schema')
 
 const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/miniapp/access/SendB2BAppPushMessageService')
@@ -108,13 +108,10 @@ const SendB2BAppPushMessageService = new GQLCustomSchema('SendB2BAppPushMessageS
                 } = args
                 const authedItemId = get(context, 'authedItem.id', null)
 
-                const [appSettings] = await itemsQuery('AppMessageSetting', {
-                    where: {
-                        b2bApp: { ...b2bAppFilter, deletedAt: null },
-                        type,
-                        deletedAt: null,
-                    },
-                    first: 1,
+                const appSettings = await getByCondition('AppMessageSetting', {
+                    b2bApp: { ...b2bAppFilter, deletedAt: null },
+                    type,
+                    deletedAt: null,
                 })
                 if (appSettings && appSettings.isBlacklisted) {
                     throw new GQLError(ERRORS.APP_IN_BLACK_LIST, context)
@@ -126,6 +123,11 @@ const SendB2BAppPushMessageService = new GQLCustomSchema('SendB2BAppPushMessageS
                     get(appSettings, 'numberOfNotificationInWindow') || DEFAULT_NOTIFICATION_WINDOW_MAX_COUNT,
                     context,
                 )
+
+                const user = await getByCondition('User', {
+                    ...userFilter,
+                    deletedAt: null,
+                })
 
                 const [b2bAppContext] = await itemsQuery('B2BAppContext', {
                     where: {
@@ -156,37 +158,23 @@ const SendB2BAppPushMessageService = new GQLCustomSchema('SendB2BAppPushMessageS
                     throw new GQLError(ERRORS.NO_B2B_APP_ACCESS_RIGHT, context)
                 }
 
-                const [organization] = await itemsQuery('Organization', {
-                    where: {
-                        ...organizationFilter,
-                        deletedAt: null,
-                    },
-                    first: 1,
-                })
-
-                const [employee] = await itemsQuery('OrganizationEmployee', {
-                    where: {
-                        organization: { ...organizationFilter, deletedAt: null },
-                        user: { ...userFilter, deletedAt: null },
-                        isAccepted: true,
-                        isRejected: false,
-                        isBlocked: false,
-                        deletedAt: null,
-                    },
-                    first: 1,
+                const employee = await getByCondition('OrganizationEmployee', {
+                    organization: { ...organizationFilter, deletedAt: null },
+                    user: { ...userFilter, deletedAt: null },
+                    isAccepted: true,
+                    isRejected: false,
+                    isBlocked: false,
+                    deletedAt: null,
                 })
                 if (!employee) {
                     throw new GQLError(ERRORS.NO_EMPLOYEE_FOR_USER, context)
                 }
 
                 const roleId = get(employee, 'role', null)
-                const [b2bAppRole] = await itemsQuery('B2BAppRole', {
-                    where: {
-                        deletedAt: null,
-                        app: { ...b2bAppFilter, deletedAt: null },
-                        role: { id: roleId, deletedAt: null },
-                    },
-                    first: 1,
+                const b2bAppRole = await getByCondition('B2BAppRole', {
+                    deletedAt: null,
+                    app: { ...b2bAppFilter, deletedAt: null },
+                    role: { id: roleId, deletedAt: null },
                 })
                 if (!roleId || !b2bAppRole) {
                     throw new GQLError(ERRORS.NO_B2B_APP_ROLE_FOR_EMPLOYEE_ROLE_AND_B2B_APP, context)
@@ -196,7 +184,7 @@ const SendB2BAppPushMessageService = new GQLCustomSchema('SendB2BAppPushMessageS
                     to: { user: userFilter },
                     organization: organizationFilter,
                     type,
-                    lang: get(organization, ['country', 'locale'], conf.DEFAULT_LOCALE),
+                    lang: get(user, 'locale', conf.DEFAULT_LOCALE),
                     meta,
                     dv,
                     sender,

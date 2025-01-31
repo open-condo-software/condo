@@ -153,6 +153,7 @@ async function createUserAndSendLoginData ({ context, userData }) {
         },
     })
 
+    // TODO(DOMA-11040): get locale for sendMessage from user
     await sendMessage(context, {
         to: { user: { id: user.id } },
         type: REGISTER_NEW_USER_MESSAGE_TYPE,

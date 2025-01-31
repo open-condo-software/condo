@@ -59,6 +59,7 @@ const sendTicketCommentCreatedNotifications = async (commentId, ticketId) => {
             deletedAt: null,
         })
         const organizationCountry = get(organization, 'country', conf.DEFAULT_LOCALE)
+        // TODO(DOMA-11040): get locale for sendMessage from user
         const lang = get(COUNTRIES, [organizationCountry, 'locale'], conf.DEFAULT_LOCALE)
 
         setLocaleForKeystoneContext(context, lang)

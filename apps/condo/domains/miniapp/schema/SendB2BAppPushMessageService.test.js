@@ -3,12 +3,11 @@
  */
 
 const { faker } = require('@faker-js/faker')
-const { get } = require('lodash')
 const omit = require('lodash/omit')
 
-const conf = require('@open-condo/config')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult, waitFor, expectToThrowGQLErrorToResult } = require('@open-condo/keystone/test.utils')
 
+const { LOCALES } = require('@condo/domains/common/constants/locale')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 const { sendB2BAppPushMessageByTestClient, createTestAppMessageSetting, createTestB2BApp, createTestB2BAppContext, createTestB2BAppAccessRightSet, createTestB2BAppAccessRight } = require('@condo/domains/miniapp/utils/testSchema')
 const { MESSAGE_SENT_STATUS, B2B_APP_MESSAGE_PUSH_TYPE, DEVICE_PLATFORM_ANDROID, APP_MASTER_ID_ANDROID, PASS_TICKET_CREATED_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
@@ -16,7 +15,7 @@ const { Message, syncRemoteClientWithPushTokenByTestClient } = require('@condo/d
 const { DEFAULT_ROLES } = require('@condo/domains/organization/constants/common')
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { GQL_ERRORS } = require('@condo/domains/user/constants/errors')
-const { makeClientWithServiceUser, makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { User, makeClientWithServiceUser, makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 const { ERRORS } = require('./SendB2BAppPushMessageService')
 
@@ -34,7 +33,9 @@ describe('SendB2BAppPushMessageService', () => {
         admin = await makeLoggedInAdminClient()
         support = await makeClientWithSupportUser()
         anonymous = await makeClient()
-        staffClient = await makeClientWithNewRegisteredAndLoggedInUser()
+        staffClient = await makeClientWithNewRegisteredAndLoggedInUser({
+            locale: faker.helpers.arrayElement(Object.keys(LOCALES)),
+        })
         serviceUser = await makeClientWithServiceUser()
 
         const [testOrganization] = await createTestOrganization(admin)
@@ -103,16 +104,17 @@ describe('SendB2BAppPushMessageService', () => {
                     body,
                 },
             })
+            const user = await User.getOne(support, { id: staffClient.user.id })
 
             await waitFor(async () => {
-                const message = await Message.getOne(admin, { id: result.id })
+                const message = await Message.getOne(staffClient, { id: result.id })
 
                 expect(message.status).toBe(MESSAGE_SENT_STATUS)
                 expect(message.organization.id).toBe(organization.id)
-                expect(message.user.id).toBe(staffClient.user.id)
+                expect(message.user.id).toBe(user.id)
                 expect(message.type).toBe(B2B_APP_MESSAGE_PUSH_TYPE)
                 expect(message.meta.body).toBe(body)
-                expect(message.lang).toBe(get(organization, ['country', 'locale'], conf.DEFAULT_LOCALE))
+                expect(message.lang).toBe(user.locale)
             })
         })
 

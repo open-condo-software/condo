@@ -454,6 +454,7 @@ async function sendResultMessageSafely (context, recurrentPayment, success, erro
             'serviceConsumer { id resident { id user { id } } }',
         )
 
+        // TODO(DOMA-11040): get locale for sendMessage from user
         await sendMessage(context, {
             ...dvAndSender,
             to: { user: { id: userId } },
@@ -497,6 +498,7 @@ async function sendTomorrowPaymentNotificationSafely (context, recurrentPaymentC
 
         // create unique key and send message
         const uniqKey = `rp_tp_${recurrentPaymentContext.id}_${triggerIdentifier}`
+        // TODO(DOMA-11040): get locale for sendMessage from user
         await sendMessage(context, {
             ...dvAndSender,
             to: { user: { id: userId } },
@@ -533,6 +535,7 @@ async function sendTomorrowPaymentNoReceiptsNotificationSafely (context, recurre
 
         // create unique key and send message
         const uniqKey = `rp_tpnr_${recurrentPaymentContext.id}_${dayjs().format('YYYY-MM-DD')}`
+        // TODO(DOMA-11040): get locale for sendMessage from user
         await sendMessage(context, {
             ...dvAndSender,
             to: { user: { id: userId } },
@@ -570,6 +573,7 @@ async function sendTomorrowPaymentLimitExceedNotificationSafely (context, recurr
 
         // create unique key and send message
         const uniqKey = `rp_tple_${recurrentPaymentContext.id}_${dayjs().format('YYYY-MM-DD')}`
+        // TODO(DOMA-11040): get locale for sendMessage from user
         await sendMessage(context, {
             ...dvAndSender,
             to: { user: { id: userId } },
@@ -607,6 +611,7 @@ async function sendNoReceiptsToProceedNotificationSafely (context, recurrentPaym
 
         // create unique key and send message
         const uniqKey = `rp_nrtp_${recurrentPaymentContext.id}_${dayjs().format('YYYY-MM-DD')}`
+        // TODO(DOMA-11040): get locale for sendMessage from user
         await sendMessage(context, {
             ...dvAndSender,
             to: { user: { id: userId } },
