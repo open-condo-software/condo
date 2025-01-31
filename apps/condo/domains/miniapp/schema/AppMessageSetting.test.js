@@ -53,7 +53,6 @@ describe('AppMessageSetting', () => {
 
                     expectValuesOfCommonFields(obj, attrs, admin)
                     expect(obj.type).toEqual(B2C_APP_MESSAGE_PUSH_TYPE)
-                    expect(obj.isBlacklisted).toBeFalsy()
                     expect(obj.notificationWindowSize).toEqual(notificationWindowSize)
                     expect(obj.numberOfNotificationInWindow).toEqual(numberOfNotificationInWindow)
                 })
@@ -104,7 +103,6 @@ describe('AppMessageSetting', () => {
 
                     expectValuesOfCommonFields(obj, attrs, support)
                     expect(obj.type).toEqual(B2C_APP_MESSAGE_PUSH_TYPE)
-                    expect(obj.isBlacklisted).toBeFalsy()
                 })
 
                 test('can update', async () => {
@@ -330,16 +328,14 @@ describe('AppMessageSetting', () => {
         test('can update AppMessageSetting fields', async () => {
             const [setting] = await createTestAppMessageSetting(admin, {
                 b2bApp,
-                isBlacklisted: false,
             })
 
-            expect(setting.isBlacklisted).toEqual(false)
 
             const [updatedSetting] = await updateTestAppMessageSetting(admin, setting.id, {
-                isBlacklisted: true,
+                numberOfNotificationInWindow: 0,
             })
 
-            expect(updatedSetting.isBlacklisted).toEqual(true)
+            expect(updatedSetting.numberOfNotificationInWindow).toEqual(0)
         })
 
         test('can not create two records with same message type and B2CApp', async () => {

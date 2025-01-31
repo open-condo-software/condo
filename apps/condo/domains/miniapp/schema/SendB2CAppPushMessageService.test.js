@@ -245,14 +245,14 @@ describe('SendB2CAppPushMessageService', () => {
         })
     })
 
-    describe('Black list checks', () => {
-        it('Don\'t send message if app added to MessageAppBlackList', async () => {
+    describe('Notification throttling checks', () => {
+        it('Don\'t send message if AppMessageSetting has numberOfNotificationInWindow: 0', async () => {
             const [b2cApp] = await createTestB2CApp(admin)
 
             await createTestAppMessageSetting(admin, {
                 b2cApp,
                 type: B2C_APP_MESSAGE_PUSH_TYPE,
-                isBlacklisted: true,
+                numberOfNotificationInWindow: 0,
             })
 
             await expectToThrowGQLErrorToResult(async () => {
@@ -260,11 +260,13 @@ describe('SendB2CAppPushMessageService', () => {
                     ...appAttrs,
                     app: { id: b2cApp.id },
                 })
-            }, ERRORS.APP_IN_BLACK_LIST)
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'TOO_MANY_REQUESTS',
+                message: 'You have to wait {secondsRemaining} seconds to be able to send request again',
+            })
         })
-    })
 
-    describe('Notification throttling checks', () => {
         it('Don\'t send a notification if there was already a notification in the default time window', async () => {
             const [b2cApp] = await createTestB2CApp(admin)
 

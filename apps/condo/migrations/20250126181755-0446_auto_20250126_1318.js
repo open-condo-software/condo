@@ -7,11 +7,11 @@ exports.up = async (knex) => {
 --
 -- Create model appmessagesetting
 --
-CREATE TABLE IF NOT EXISTS "AppMessageSetting" ("blockReason" text NULL, "isBlacklisted" boolean NOT NULL, "type" text NOT NULL, "notificationWindowSize" integer NULL, "numberOfNotificationInWindow" integer NULL, "id" uuid NOT NULL PRIMARY KEY, "v" integer NOT NULL, "createdAt" timestamp with time zone NULL, "updatedAt" timestamp with time zone NULL, "deletedAt" timestamp with time zone NULL, "newId" uuid NULL, "dv" integer NOT NULL, "sender" jsonb NOT NULL, "b2bApp" uuid NULL, "b2cApp" uuid NULL, "createdBy" uuid NULL, "updatedBy" uuid NULL);
+CREATE TABLE IF NOT EXISTS "AppMessageSetting" ("reason" text NULL, "type" text NOT NULL, "notificationWindowSize" integer NULL, "numberOfNotificationInWindow" integer NULL, "id" uuid NOT NULL PRIMARY KEY, "v" integer NOT NULL, "createdAt" timestamp with time zone NULL, "updatedAt" timestamp with time zone NULL, "deletedAt" timestamp with time zone NULL, "newId" uuid NULL, "dv" integer NOT NULL, "sender" jsonb NOT NULL, "b2bApp" uuid NULL, "b2cApp" uuid NULL, "createdBy" uuid NULL, "updatedBy" uuid NULL);
 --
 -- Create model appmessagesettinghistoryrecord
 --
-CREATE TABLE IF NOT EXISTS "AppMessageSettingHistoryRecord" ("b2bApp" uuid NULL, "b2cApp" uuid NULL, "blockReason" text NULL, "isBlacklisted" boolean NULL, "type" text NULL, "notificationWindowSize" integer NULL, "numberOfNotificationInWindow" integer NULL, "id" uuid NOT NULL PRIMARY KEY, "v" integer NULL, "createdAt" timestamp with time zone NULL, "updatedAt" timestamp with time zone NULL, "createdBy" uuid NULL, "updatedBy" uuid NULL, "deletedAt" timestamp with time zone NULL, "newId" jsonb NULL, "dv" integer NULL, "sender" jsonb NULL, "history_date" timestamp with time zone NOT NULL, "history_action" varchar(50) NOT NULL, "history_id" uuid NOT NULL);
+CREATE TABLE IF NOT EXISTS "AppMessageSettingHistoryRecord" ("b2bApp" uuid NULL, "b2cApp" uuid NULL, "reason" text NULL, "type" text NULL, "notificationWindowSize" integer NULL, "numberOfNotificationInWindow" integer NULL, "id" uuid NOT NULL PRIMARY KEY, "v" integer NULL, "createdAt" timestamp with time zone NULL, "updatedAt" timestamp with time zone NULL, "createdBy" uuid NULL, "updatedBy" uuid NULL, "deletedAt" timestamp with time zone NULL, "newId" jsonb NULL, "dv" integer NULL, "sender" jsonb NULL, "history_date" timestamp with time zone NOT NULL, "history_action" varchar(50) NOT NULL, "history_id" uuid NOT NULL);
 --
 -- Create constraint app_message_setting_unique_b2c_app_and_type on model appmessagesetting
 --
@@ -45,8 +45,8 @@ CREATE INDEX "AppMessageSettingHistoryRecord_history_id_66d9c757" ON "AppMessage
 --
 -- Migrate data from B2CAppMessageSetting to AppMessageSetting
 --
-INSERT INTO "AppMessageSetting" ("blockReason", "isBlacklisted", "type", "notificationWindowSize", "numberOfNotificationInWindow", "id", "v", "createdAt", "updatedAt", "deletedAt", "newId", "dv", "sender", "b2cApp", "createdBy", "updatedBy")
-SELECT "blockReason", "isBlacklisted", "type", "notificationWindowSize", "numberOfNotificationInWindow", "id", "v", "createdAt", "updatedAt", "deletedAt", "newId", "dv", "sender", "app", "createdBy", "updatedBy"
+INSERT INTO "AppMessageSetting" ("reason", "type", "notificationWindowSize", "numberOfNotificationInWindow", "id", "v", "createdAt", "updatedAt", "deletedAt", "newId", "dv", "sender", "b2cApp", "createdBy", "updatedBy")
+SELECT "blockReason", "type", "notificationWindowSize", "numberOfNotificationInWindow", "id", "v", "createdAt", "updatedAt", "deletedAt", "newId", "dv", "sender", "app", "createdBy", "updatedBy"
 FROM "B2CAppMessageSetting";
 
 --

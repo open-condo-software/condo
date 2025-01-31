@@ -65462,6 +65462,7 @@ enum B2BAppIconType {
   ArrowRight
   BarChartHorizontal
   BarChartVertical
+  Bell
   Bill
   Briefcase
   Building
@@ -72389,8 +72390,7 @@ type AppMessageSettingHistoryRecord {
   _label_: String
   b2bApp: String
   b2cApp: String
-  blockReason: String
-  isBlacklisted: Boolean
+  reason: String
   type: String
   notificationWindowSize: Int
   numberOfNotificationInWindow: Int
@@ -72420,26 +72420,24 @@ input AppMessageSettingHistoryRecordWhereInput {
   b2cApp_not: String
   b2cApp_in: [String]
   b2cApp_not_in: [String]
-  blockReason: String
-  blockReason_not: String
-  blockReason_contains: String
-  blockReason_not_contains: String
-  blockReason_starts_with: String
-  blockReason_not_starts_with: String
-  blockReason_ends_with: String
-  blockReason_not_ends_with: String
-  blockReason_i: String
-  blockReason_not_i: String
-  blockReason_contains_i: String
-  blockReason_not_contains_i: String
-  blockReason_starts_with_i: String
-  blockReason_not_starts_with_i: String
-  blockReason_ends_with_i: String
-  blockReason_not_ends_with_i: String
-  blockReason_in: [String]
-  blockReason_not_in: [String]
-  isBlacklisted: Boolean
-  isBlacklisted_not: Boolean
+  reason: String
+  reason_not: String
+  reason_contains: String
+  reason_not_contains: String
+  reason_starts_with: String
+  reason_not_starts_with: String
+  reason_ends_with: String
+  reason_not_ends_with: String
+  reason_i: String
+  reason_not_i: String
+  reason_contains_i: String
+  reason_not_contains_i: String
+  reason_starts_with_i: String
+  reason_not_starts_with_i: String
+  reason_ends_with_i: String
+  reason_not_ends_with_i: String
+  reason_in: [String]
+  reason_not_in: [String]
   type: String
   type_not: String
   type_contains: String
@@ -72557,10 +72555,8 @@ input AppMessageSettingHistoryRecordWhereUniqueInput {
 }
 
 enum SortAppMessageSettingHistoryRecordsBy {
-  blockReason_ASC
-  blockReason_DESC
-  isBlacklisted_ASC
-  isBlacklisted_DESC
+  reason_ASC
+  reason_DESC
   type_ASC
   type_DESC
   notificationWindowSize_ASC
@@ -72588,8 +72584,7 @@ enum SortAppMessageSettingHistoryRecordsBy {
 input AppMessageSettingHistoryRecordUpdateInput {
   b2bApp: String
   b2cApp: String
-  blockReason: String
-  isBlacklisted: Boolean
+  reason: String
   type: String
   notificationWindowSize: Int
   numberOfNotificationInWindow: Int
@@ -72615,8 +72610,7 @@ input AppMessageSettingHistoryRecordsUpdateInput {
 input AppMessageSettingHistoryRecordCreateInput {
   b2bApp: String
   b2cApp: String
-  blockReason: String
-  isBlacklisted: Boolean
+  reason: String
   type: String
   notificationWindowSize: Int
   numberOfNotificationInWindow: Int
@@ -72638,7 +72632,7 @@ input AppMessageSettingHistoryRecordsCreateInput {
   data: AppMessageSettingHistoryRecordCreateInput
 }
 
-""" Configuration of sending push notifications for specific miniapps.Used to block certain types of push notifications and control throttling of notifications of a certain miniapp 
+""" Configuration of sending push notifications for specific miniapp. Used to block certain types of push notifications and control throttling of notifications of a certain miniapp.Each setting contains either a B2BApp or a B2CApp, but not both at once. 
 """
 type AppMessageSetting {
   """
@@ -72650,17 +72644,14 @@ type AppMessageSetting {
   """
   _label_: String
 
-  """ Link to B2BApp to which this config applies """
+  """ Link to B2BApp to which this setting applies """
   b2bApp: B2BApp
 
   """ Link to B2CApp to which this config applies """
   b2cApp: B2CApp
 
-  """ Reason for blocking messages with types from type """
-  blockReason: String
-
-  """ Is message type in black list for this miniapp """
-  isBlacklisted: Boolean
+  """ Reason why specific message type limits changed for miniapp """
+  reason: String
 
   """ The type of message we want to configure """
   type: MessageType
@@ -72668,7 +72659,7 @@ type AppMessageSetting {
   """ Time window for sending push notifications in seconds """
   notificationWindowSize: Int
 
-  """ The number of notifications that can be sent in one time window in seconds 
+  """ The number of notifications that can be sent in one time window in seconds. If the value is 0, then the miniapp cannot send this type of message 
   """
   numberOfNotificationInWindow: Int
   id: ID!
@@ -72701,26 +72692,24 @@ input AppMessageSettingWhereInput {
   b2bApp_is_null: Boolean
   b2cApp: B2CAppWhereInput
   b2cApp_is_null: Boolean
-  blockReason: String
-  blockReason_not: String
-  blockReason_contains: String
-  blockReason_not_contains: String
-  blockReason_starts_with: String
-  blockReason_not_starts_with: String
-  blockReason_ends_with: String
-  blockReason_not_ends_with: String
-  blockReason_i: String
-  blockReason_not_i: String
-  blockReason_contains_i: String
-  blockReason_not_contains_i: String
-  blockReason_starts_with_i: String
-  blockReason_not_starts_with_i: String
-  blockReason_ends_with_i: String
-  blockReason_not_ends_with_i: String
-  blockReason_in: [String]
-  blockReason_not_in: [String]
-  isBlacklisted: Boolean
-  isBlacklisted_not: Boolean
+  reason: String
+  reason_not: String
+  reason_contains: String
+  reason_not_contains: String
+  reason_starts_with: String
+  reason_not_starts_with: String
+  reason_ends_with: String
+  reason_not_ends_with: String
+  reason_i: String
+  reason_not_i: String
+  reason_contains_i: String
+  reason_not_contains_i: String
+  reason_starts_with_i: String
+  reason_not_starts_with_i: String
+  reason_ends_with_i: String
+  reason_not_ends_with_i: String
+  reason_in: [String]
+  reason_not_in: [String]
   type: MessageType
   type_not: MessageType
   type_in: [MessageType]
@@ -72808,10 +72797,8 @@ enum SortAppMessageSettingsBy {
   b2bApp_DESC
   b2cApp_ASC
   b2cApp_DESC
-  blockReason_ASC
-  blockReason_DESC
-  isBlacklisted_ASC
-  isBlacklisted_DESC
+  reason_ASC
+  reason_DESC
   type_ASC
   type_DESC
   notificationWindowSize_ASC
@@ -72839,8 +72826,7 @@ enum SortAppMessageSettingsBy {
 input AppMessageSettingUpdateInput {
   b2bApp: B2BAppRelateToOneInput
   b2cApp: B2CAppRelateToOneInput
-  blockReason: String
-  isBlacklisted: Boolean
+  reason: String
   type: MessageType
   notificationWindowSize: Int
   numberOfNotificationInWindow: Int
@@ -72863,8 +72849,7 @@ input AppMessageSettingsUpdateInput {
 input AppMessageSettingCreateInput {
   b2bApp: B2BAppRelateToOneInput
   b2cApp: B2CAppRelateToOneInput
-  blockReason: String
-  isBlacklisted: Boolean
+  reason: String
   type: MessageType
   notificationWindowSize: Int
   numberOfNotificationInWindow: Int

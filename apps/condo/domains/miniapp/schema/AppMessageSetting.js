@@ -20,12 +20,14 @@ const ERRORS = {
 }
 
 const AppMessageSetting = new GQLListSchema('AppMessageSetting', {
-    schemaDoc: 'Configuration of sending push notifications for specific miniapps.' +
-        'Used to block certain types of push notifications and control throttling of notifications of a certain miniapp',
+    schemaDoc:
+        'Configuration of sending push notifications for specific miniapp. ' +
+        'Used to block certain types of push notifications and control throttling of notifications of a certain miniapp.' +
+        'Each setting contains either a B2BApp or a B2CApp, but not both at once.',
     fields: {
 
         b2bApp: {
-            schemaDoc: 'Link to B2BApp to which this config applies',
+            schemaDoc: 'Link to B2BApp to which this setting applies',
             type: 'Relationship',
             ref: 'B2BApp',
             isRequired: false,
@@ -46,16 +48,9 @@ const AppMessageSetting = new GQLListSchema('AppMessageSetting', {
             },
         },
 
-        blockReason: {
-            schemaDoc: 'Reason for blocking messages with types from type',
+        reason: {
+            schemaDoc: 'Reason why specific message type limits changed for miniapp',
             type: 'Text',
-        },
-
-        isBlacklisted: {
-            schemaDoc: 'Is message type in black list for this miniapp',
-            type: 'Checkbox',
-            isRequired: true,
-            defaultValue: false,
         },
 
         type: getMessageTypeField({
@@ -69,7 +64,9 @@ const AppMessageSetting = new GQLListSchema('AppMessageSetting', {
         },
 
         numberOfNotificationInWindow: {
-            schemaDoc: 'The number of notifications that can be sent in one time window in seconds',
+            schemaDoc:
+                'The number of notifications that can be sent in one time window in seconds. ' +
+                'If the value is 0, then the miniapp cannot send this type of message',
             type: 'Integer',
         },
 
