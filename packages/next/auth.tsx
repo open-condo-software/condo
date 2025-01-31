@@ -10,7 +10,6 @@ import { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinity
 import { useApolloClient, useMutation, useQuery } from './apollo'
 import { removeCookieEmployeeId } from './organization'
 import { Either } from './types'
-import {use} from "dd-trace";
 
 
 // NOTE: OpenCondoNext is defined as a global namespace so the library user can override the default types
@@ -266,15 +265,15 @@ const AuthProvider: React.FC = ({ children }) => {
 
     const [isAuthLoading, setIsAuthLoading] = useState<boolean>(false)
 
-    const { data, loading: userLoading, refetch } = useQuery(USER_QUERY)
+    const { data, loading: userLoading, refetch } = useQuery(USER_QUERY, {
+        onCompleted: () => setIsAuthLoading(false),
+        onError: (error) => {
+            console.error(error)
+            setIsAuthLoading(false)
+        },
+    })
 
     const user = useMemo(() => get(data, 'authenticatedUser') || null, [data])
-
-    useEffect(() => {
-        if (!userLoading) {
-            setIsAuthLoading(false)
-        }
-    }, [userLoading])
 
     const refetchAuth = useCallback(async () => {
         await refetch()
