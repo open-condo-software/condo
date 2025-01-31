@@ -49,7 +49,7 @@ class LocalFilesMiddleware {
 }
 
 class FileAdapter {
-    constructor (folder, isPublic = false, saveFileName = false) {
+    constructor (folder, isPublic = false, saveFileName = false, customConfig = {}) {
         const type = conf.FILE_FIELD_ADAPTER || DEFAULT_FILE_ADAPTER
         this.folder = folder
         this.type = type
@@ -61,7 +61,7 @@ class FileAdapter {
                 Adapter = this.createLocalFileApapter()
                 break
             case 'sbercloud':
-                Adapter = this.createSbercloudFileApapter()
+                Adapter = this.createSbercloudFileApapter(customConfig)
                 break
         }
         if (!Adapter) {
@@ -110,17 +110,35 @@ class FileAdapter {
         return true
     }
 
-    createSbercloudFileApapter () {
-        const config = this.getEnvConfig('SBERCLOUD_OBS_CONFIG', [
+    createSbercloudFileApapter (customConfig) {
+        let config = this.getEnvConfig('SBERCLOUD_OBS_CONFIG', [
             'bucket',
             's3Options.server',
             's3Options.access_key_id',
             's3Options.secret_access_key',
         ])
+
         if (!config) {
             return null
         }
-        return new SberCloudFileAdapter({ ...config, folder: this.folder, isPublic: this.isPublic, saveFileName: this.saveFileName })
+
+        config = { ...config, ...customConfig }
+
+        if (!this.isConfigValid(config, [
+            'bucket',
+            's3Options.server',
+            's3Options.access_key_id',
+            's3Options.secret_access_key',
+        ])) {
+            return null
+        }
+
+        return new SberCloudFileAdapter({
+            ...config,
+            folder: this.folder,
+            isPublic: this.isPublic,
+            saveFileName: this.saveFileName,
+        })
     }
 
     // TODO(pahaz): DOMA-1569 it's better to create just a function. But we already use FileAdapter in many places. I just want to save a backward compatibility
