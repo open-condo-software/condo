@@ -548,6 +548,7 @@ async function createTestAppMessageSetting (client, extraAttrs = {}) {
     const attrs = {
         dv: 1,
         sender,
+        reason: faker.lorem.sentence()
     }
     if (extraAttrs.b2cApp) {
         attrs['b2cApp'] = { connect: { id: b2cApp.id } }

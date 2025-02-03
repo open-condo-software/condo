@@ -8,6 +8,7 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const { OPERATION_FORBIDDEN } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/miniapp/access/AppMessageSetting')
+const { DEFAULT_NOTIFICATION_WINDOW_DURATION_IN_SECONDS, DEFAULT_NOTIFICATION_WINDOW_MAX_COUNT } = require('@condo/domains/miniapp/constants')
 const { getMessageTypeField } = require('@condo/domains/notification/schema/fields/MessageType')
 
 
@@ -51,6 +52,7 @@ const AppMessageSetting = new GQLListSchema('AppMessageSetting', {
         reason: {
             schemaDoc: 'Reason why specific message type limits changed for miniapp',
             type: 'Text',
+            isRequired: true,
         },
 
         type: getMessageTypeField({
@@ -61,6 +63,8 @@ const AppMessageSetting = new GQLListSchema('AppMessageSetting', {
         notificationWindowSize: {
             schemaDoc: 'Time interval in seconds to which the settings apply',
             type: 'Integer',
+            isRequired: true,
+            defaultValue: DEFAULT_NOTIFICATION_WINDOW_DURATION_IN_SECONDS,
         },
 
         numberOfNotificationInWindow: {
@@ -68,6 +72,8 @@ const AppMessageSetting = new GQLListSchema('AppMessageSetting', {
                 'The number of notifications that can be sent in single time window in seconds to a specific user. ' +
                 'If the value is 0, then the miniapp cannot send this type of message',
             type: 'Integer',
+            isRequired: true,
+            defaultValue: DEFAULT_NOTIFICATION_WINDOW_MAX_COUNT,
         },
 
     },

@@ -20,6 +20,8 @@ const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } 
 
 const { ERRORS } = require('./AppMessageSetting')
 
+const { DEFAULT_NOTIFICATION_WINDOW_MAX_COUNT, DEFAULT_NOTIFICATION_WINDOW_DURATION_IN_SECONDS } = require('../constants')
+
 
 describe('AppMessageSetting', () => {
     let admin, support, anonymous, user, b2cApp, b2bApp
@@ -39,224 +41,222 @@ describe('AppMessageSetting', () => {
     })
 
 
-    describe('B2CApp', () => {
-        describe('Access', () => {
-            describe('Admin', () => {
-                test('can create', async () => {
-                    const notificationWindowSize = 30000
-                    const numberOfNotificationInWindow = 5
-                    const [obj, attrs] = await createTestAppMessageSetting(admin, {
-                        notificationWindowSize,
-                        numberOfNotificationInWindow,
-                        b2cApp,
-                    })
-
-                    expectValuesOfCommonFields(obj, attrs, admin)
-                    expect(obj.type).toEqual(B2C_APP_MESSAGE_PUSH_TYPE)
-                    expect(obj.notificationWindowSize).toEqual(notificationWindowSize)
-                    expect(obj.numberOfNotificationInWindow).toEqual(numberOfNotificationInWindow)
+    describe('Access', () => {
+        describe('Admin', () => {
+            test('can create', async () => {
+                const notificationWindowSize = 30000
+                const numberOfNotificationInWindow = 5
+                const [obj, attrs] = await createTestAppMessageSetting(admin, {
+                    notificationWindowSize,
+                    numberOfNotificationInWindow,
+                    b2cApp,
                 })
 
-                test('can update', async () => {
-                    const [objCreated] = await createTestAppMessageSetting(admin, {
-                        b2cApp,
-                    })
+                expectValuesOfCommonFields(obj, attrs, admin)
+                expect(obj.type).toEqual(B2C_APP_MESSAGE_PUSH_TYPE)
+                expect(obj.notificationWindowSize).toEqual(notificationWindowSize)
+                expect(obj.numberOfNotificationInWindow).toEqual(numberOfNotificationInWindow)
+            })
 
-                    const [obj, attrs] = await updateTestAppMessageSetting(admin, objCreated.id)
-
-                    expect(obj.dv).toEqual(1)
-                    expect(obj.sender).toEqual(attrs.sender)
-                    expect(obj.v).toEqual(2)
-                    expect(obj.updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
+            test('can update', async () => {
+                const [objCreated] = await createTestAppMessageSetting(admin, {
+                    b2cApp,
                 })
 
-                test('can\'t delete', async () => {
-                    const [appMessageSetting] = await createTestAppMessageSetting(admin, {
-                        b2cApp,
-                    })
+                const [obj, attrs] = await updateTestAppMessageSetting(admin, objCreated.id)
 
-                    await expectToThrowAccessDeniedErrorToObj(async () => {
-                        await AppMessageSetting.delete(admin, appMessageSetting.id)
-                    })
+                expect(obj.dv).toEqual(1)
+                expect(obj.sender).toEqual(attrs.sender)
+                expect(obj.v).toEqual(2)
+                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
+            })
+
+            test('can\'t delete', async () => {
+                const [appMessageSetting] = await createTestAppMessageSetting(admin, {
+                    b2cApp,
                 })
 
-                test('can read', async () => {
-                    const [obj] = await createTestAppMessageSetting(admin, {
-                        b2cApp,
-                    })
-
-                    const appSetting = await AppMessageSetting.getOne(admin, {
-                        id: obj.id,
-                    })
-
-                    expect(appSetting).toBeDefined()
-                    expect(appSetting.id).toEqual(obj.id)
-                    expect(appSetting.type).toEqual(B2C_APP_MESSAGE_PUSH_TYPE)
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await AppMessageSetting.delete(admin, appMessageSetting.id)
                 })
             })
 
-            describe('Support', () => {
-                test('can create', async () => {
-                    const [obj, attrs] = await createTestAppMessageSetting(support, {
-                        b2cApp,
-                    })
-
-                    expectValuesOfCommonFields(obj, attrs, support)
-                    expect(obj.type).toEqual(B2C_APP_MESSAGE_PUSH_TYPE)
+            test('can read', async () => {
+                const [obj] = await createTestAppMessageSetting(admin, {
+                    b2cApp,
                 })
 
-                test('can update', async () => {
-                    const [objCreated] = await createTestAppMessageSetting(support, {
-                        b2cApp,
-                    })
-
-                    const [obj, attrs] = await updateTestAppMessageSetting(support, objCreated.id)
-
-                    expect(obj.dv).toEqual(1)
-                    expect(obj.sender).toEqual(attrs.sender)
-                    expect(obj.v).toEqual(2)
-                    expect(obj.updatedBy).toEqual(expect.objectContaining({ id: support.user.id }))
+                const appSetting = await AppMessageSetting.getOne(admin, {
+                    id: obj.id,
                 })
 
-                test('can\'t delete', async () => {
-                    const [appMessageSetting] = await createTestAppMessageSetting(admin, {
-                        b2cApp,
-                    })
+                expect(appSetting).toBeDefined()
+                expect(appSetting.id).toEqual(obj.id)
+                expect(appSetting.type).toEqual(B2C_APP_MESSAGE_PUSH_TYPE)
+            })
+        })
 
-                    await expectToThrowAccessDeniedErrorToObj(async () => {
-                        await AppMessageSetting.delete(support, appMessageSetting.id)
-                    })
+        describe('Support', () => {
+            test('can create', async () => {
+                const [obj, attrs] = await createTestAppMessageSetting(support, {
+                    b2cApp,
                 })
 
-                test('can read', async () => {
-                    const [obj] = await createTestAppMessageSetting(support, {
-                        b2cApp,
-                    })
+                expectValuesOfCommonFields(obj, attrs, support)
+                expect(obj.type).toEqual(B2C_APP_MESSAGE_PUSH_TYPE)
+            })
 
-                    const appSetting = await AppMessageSetting.getOne(support, {
-                        id: obj.id,
-                    })
+            test('can update', async () => {
+                const [objCreated] = await createTestAppMessageSetting(support, {
+                    b2cApp,
+                })
 
-                    expect(appSetting).toBeDefined()
-                    expect(appSetting.id).toEqual(obj.id)
-                    expect(appSetting.type).toEqual(B2C_APP_MESSAGE_PUSH_TYPE)
+                const [obj, attrs] = await updateTestAppMessageSetting(support, objCreated.id)
+
+                expect(obj.dv).toEqual(1)
+                expect(obj.sender).toEqual(attrs.sender)
+                expect(obj.v).toEqual(2)
+                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: support.user.id }))
+            })
+
+            test('can\'t delete', async () => {
+                const [appMessageSetting] = await createTestAppMessageSetting(admin, {
+                    b2cApp,
+                })
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await AppMessageSetting.delete(support, appMessageSetting.id)
                 })
             })
 
-            describe('User', () => {
-                test('can\'t create', async () => {
-                    await expectToThrowAccessDeniedErrorToObj(async () => {
-                        await createTestAppMessageSetting(user, { b2cApp })
-                    })
+            test('can read', async () => {
+                const [obj] = await createTestAppMessageSetting(support, {
+                    b2cApp,
                 })
 
-                test('can\'t update', async () => {
-                    const [appMessageSetting] = await createTestAppMessageSetting(support, {
-                        b2cApp,
-                    })
-
-                    await expectToThrowAccessDeniedErrorToObj(async () => {
-                        await updateTestAppMessageSetting(user, appMessageSetting.id)
-                    })
+                const appSetting = await AppMessageSetting.getOne(support, {
+                    id: obj.id,
                 })
 
-                test('can\'t delete', async () => {
-                    const [appMessageSetting] = await createTestAppMessageSetting(support, {
-                        b2cApp,
-                    })
+                expect(appSetting).toBeDefined()
+                expect(appSetting.id).toEqual(obj.id)
+                expect(appSetting.type).toEqual(B2C_APP_MESSAGE_PUSH_TYPE)
+            })
+        })
 
-                    await expectToThrowAccessDeniedErrorToObj(async () => {
-                        await AppMessageSetting.delete(user, appMessageSetting.id)
-                    })
-                })
-
-                test('can\'t read', async () => {
-                    const [appMessageSetting] = await createTestAppMessageSetting(support, {
-                        b2cApp,
-                    })
-
-                    const readAppMessageSetting = await AppMessageSetting.getOne(user, {
-                        id: appMessageSetting.id,
-                    })
-
-                    expect(readAppMessageSetting).toBeUndefined()
-                })
-
-                test('Staff user can read settings for connected B2BApps if he has "B2BAppRole" connected to his "OrganizationEmployeeRole"', async () => {
-                    const staffUser = await makeClientWithNewRegisteredAndLoggedInUser()
-
-                    const [organization] = await registerNewOrganization(staffUser)
-                    const [app] = await createTestB2BApp(support)
-
-                    await createTestB2BAppContext(staffUser, app, organization, {
-                        status: CONTEXT_FINISHED_STATUS,
-                    })
-                    const [setting] = await createTestAppMessageSetting(support, {
-                        b2bApp: app,
-                    })
-
-                    const readSetting = await AppMessageSetting.getOne(staffUser, { id: setting.id })
-
-                    expect(readSetting).toBeDefined()
-                    expect(readSetting.id).toEqual(setting.id)
-                    expect(readSetting.type).toBeDefined()
-                    expect(readSetting.type).toEqual(setting.type)
-                    expect(readSetting.b2bApp.id).toEqual(setting.b2bApp.id)
-                })
-
-                test('user with employee without b2bAppRole can not read', async () => {
-                    const staffUser = await makeClientWithNewRegisteredAndLoggedInUser()
-                    const [organization] = await registerNewOrganization(staffUser)
-                    const [app] = await createTestB2BApp(support)
-                    await createTestB2BAppContext(staffUser, app, organization, {
-                        status: CONTEXT_FINISHED_STATUS,
-                    })
-                    const [setting] = await createTestAppMessageSetting(support, {
-                        b2bApp: app,
-                    })
-
-                    const staffWithoutB2BAppRole = await makeClientWithNewRegisteredAndLoggedInUser()
-                    const [role] = await createTestOrganizationEmployeeRole(staffUser, organization)
-                    const [invitedEmployee] = await inviteNewOrganizationEmployee(staffUser, organization, staffWithoutB2BAppRole.userAttrs, role)
-                    await acceptOrRejectOrganizationInviteById(staffWithoutB2BAppRole, invitedEmployee)
-
-                    const readSetting = await AppMessageSetting.getOne(staffWithoutB2BAppRole, { id: setting.id })
-
-                    expect(readSetting).toBeUndefined()
+        describe('User', () => {
+            test('can\'t create', async () => {
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestAppMessageSetting(user, { b2cApp })
                 })
             })
 
-            describe('Anonymous', () => {
-                test('can\'t create', async () => {
-                    await expectToThrowAuthenticationErrorToObj(async () => {
-                        await createTestAppMessageSetting(anonymous, { b2cApp })
-                    })
+            test('can\'t update', async () => {
+                const [appMessageSetting] = await createTestAppMessageSetting(support, {
+                    b2cApp,
                 })
 
-                test('can\'t update', async () => {
-                    const [appMessageSetting] = await createTestAppMessageSetting(support, {
-                        b2cApp,
-                    })
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestAppMessageSetting(user, appMessageSetting.id)
+                })
+            })
 
-                    await expectToThrowAuthenticationErrorToObj(async () => {
-                        await updateTestAppMessageSetting(anonymous, appMessageSetting.id)
-                    })
+            test('can\'t delete', async () => {
+                const [appMessageSetting] = await createTestAppMessageSetting(support, {
+                    b2cApp,
                 })
 
-                test('can\'t delete', async () => {
-                    const [appMessageSetting] = await createTestAppMessageSetting(support, {
-                        b2cApp,
-                    })
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await AppMessageSetting.delete(user, appMessageSetting.id)
+                })
+            })
 
-                    await expectToThrowAccessDeniedErrorToObj(async () => {
-                        await AppMessageSetting.delete(anonymous, appMessageSetting.id)
-                    })
+            test('can\'t read', async () => {
+                const [appMessageSetting] = await createTestAppMessageSetting(support, {
+                    b2cApp,
                 })
 
-                test('can\'t read', async () => {
-                    await expectToThrowAuthenticationErrorToObjects(async () => {
-                        await AppMessageSetting.getAll(anonymous, {})
-                    })
+                const readAppMessageSetting = await AppMessageSetting.getOne(user, {
+                    id: appMessageSetting.id,
+                })
+
+                expect(readAppMessageSetting).toBeUndefined()
+            })
+
+            test('Staff user can read settings for connected B2BApps if he has "B2BAppRole" connected to his "OrganizationEmployeeRole"', async () => {
+                const staffUser = await makeClientWithNewRegisteredAndLoggedInUser()
+
+                const [organization] = await registerNewOrganization(staffUser)
+                const [app] = await createTestB2BApp(support)
+
+                await createTestB2BAppContext(staffUser, app, organization, {
+                    status: CONTEXT_FINISHED_STATUS,
+                })
+                const [setting] = await createTestAppMessageSetting(support, {
+                    b2bApp: app,
+                })
+
+                const readSetting = await AppMessageSetting.getOne(staffUser, { id: setting.id })
+
+                expect(readSetting).toBeDefined()
+                expect(readSetting.id).toEqual(setting.id)
+                expect(readSetting.type).toBeDefined()
+                expect(readSetting.type).toEqual(setting.type)
+                expect(readSetting.b2bApp.id).toEqual(setting.b2bApp.id)
+            })
+
+            test('user with employee without b2bAppRole can not read', async () => {
+                const staffUser = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [organization] = await registerNewOrganization(staffUser)
+                const [app] = await createTestB2BApp(support)
+                await createTestB2BAppContext(staffUser, app, organization, {
+                    status: CONTEXT_FINISHED_STATUS,
+                })
+                const [setting] = await createTestAppMessageSetting(support, {
+                    b2bApp: app,
+                })
+
+                const staffWithoutB2BAppRole = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [role] = await createTestOrganizationEmployeeRole(staffUser, organization)
+                const [invitedEmployee] = await inviteNewOrganizationEmployee(staffUser, organization, staffWithoutB2BAppRole.userAttrs, role)
+                await acceptOrRejectOrganizationInviteById(staffWithoutB2BAppRole, invitedEmployee)
+
+                const readSetting = await AppMessageSetting.getOne(staffWithoutB2BAppRole, { id: setting.id })
+
+                expect(readSetting).toBeUndefined()
+            })
+        })
+
+        describe('Anonymous', () => {
+            test('can\'t create', async () => {
+                await expectToThrowAuthenticationErrorToObj(async () => {
+                    await createTestAppMessageSetting(anonymous, { b2cApp })
+                })
+            })
+
+            test('can\'t update', async () => {
+                const [appMessageSetting] = await createTestAppMessageSetting(support, {
+                    b2cApp,
+                })
+
+                await expectToThrowAuthenticationErrorToObj(async () => {
+                    await updateTestAppMessageSetting(anonymous, appMessageSetting.id)
+                })
+            })
+
+            test('can\'t delete', async () => {
+                const [appMessageSetting] = await createTestAppMessageSetting(support, {
+                    b2cApp,
+                })
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await AppMessageSetting.delete(anonymous, appMessageSetting.id)
+                })
+            })
+
+            test('can\'t read', async () => {
+                await expectToThrowAuthenticationErrorToObjects(async () => {
+                    await AppMessageSetting.getAll(anonymous, {})
                 })
             })
         })
@@ -420,6 +420,27 @@ describe('AppMessageSetting', () => {
             expect(obj1.b2cApp.id).toEqual(b2cApp1.id)
             expect(obj2.b2cApp.id).toEqual(b2cApp2.id)
             expect(obj1.type).toEqual(obj2.type)
+        })
+
+        test('Sets default value if notificationWindowSize or numberOfNotificationInWindow is not passed', async () => {
+            const notificationWindowSize = 30000
+            const numberOfNotificationInWindow = 5
+
+            const [b2cAppMessageSetting] = await createTestAppMessageSetting(support, {
+                b2cApp,
+                type: B2C_APP_MESSAGE_PUSH_TYPE,
+                notificationWindowSize,
+            })
+            const [b2bAppMessageSetting] = await createTestAppMessageSetting(support, {
+                b2bApp,
+                type: B2B_APP_MESSAGE_PUSH_TYPE,
+                numberOfNotificationInWindow,
+            })
+
+            expect(b2cAppMessageSetting.numberOfNotificationInWindow).toEqual(DEFAULT_NOTIFICATION_WINDOW_MAX_COUNT)
+            expect(b2cAppMessageSetting.notificationWindowSize).toEqual(notificationWindowSize)
+            expect(b2bAppMessageSetting.notificationWindowSize).toEqual(DEFAULT_NOTIFICATION_WINDOW_DURATION_IN_SECONDS)
+            expect(b2bAppMessageSetting.numberOfNotificationInWindow).toEqual(numberOfNotificationInWindow)
         })
     })
 })
