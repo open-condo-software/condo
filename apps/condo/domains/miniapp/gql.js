@@ -85,6 +85,12 @@ const B2BAccessTokenAdmin = generateGqlQueries('B2BAccessToken', `{ sessionId to
 const B2BAccessTokenReadonly = generateGqlQueries('B2BAccessToken', `{ context { id app { id name } organization { id name } } expiresAt ${COMMON_FIELDS}  }`)
 const B2BAccessTokenReadonlyAdmin = generateGqlQueries('B2BAccessToken', `{ sessionId context { id app { id name } organization { id name } } expiresAt ${COMMON_FIELDS}  }`)
 
+const CUSTOM_FIELD_FIELDS = `{ locale name priority schemaName type validationRules isVisible ${COMMON_FIELDS} }`
+const CustomField = generateGqlQueries('CustomField', CUSTOM_FIELD_FIELDS)
+
+const CUSTOM_VALUE_FIELDS = `{ objectId data customField { id name priority schemaName type validationRules isVisible } sourceType sourceId organization { id } ${COMMON_FIELDS} }`
+const CustomValue = generateGqlQueries('CustomValue', CUSTOM_VALUE_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -104,6 +110,8 @@ module.exports = {
     MessageAppBlackList,
     B2BAppNewsSharingConfig,
     B2CAppMessageSetting,
+    CustomField,
+    CustomValue,
     B2BAccessToken,
     B2BAccessTokenAdmin,
     B2BAccessTokenReadonly,
