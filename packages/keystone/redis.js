@@ -1,11 +1,94 @@
+const fs = require('fs')
+const path = require('path')
+const { fileURLToPath } = require('url')
+
 const IORedis = require('ioredis')
+const { get } = require('lodash')
 
 const conf = require('@open-condo/config')
 
 const { getLogger } = require('./logging')
 
+const READONLY_COMMANDS = ['bitcount', 'bitfield_ro', 'bitpos', 'dbsize', 'dump', 'eval_ro', 'evalsha_ro', 'exists', 'expiretime', 'fcall_ro', 'geodist', 'geohash', 'geopos', 'georadius_ro', 'georadiusbymember_ro', 'geosearch', 'get', 'getbit', 'getrange', 'hexists', 'hget', 'hgetall', 'hkeys', 'hlen', 'hmget', 'hrandfield', 'hscan', 'hstrlen', 'hvals', 'keys', 'lcs', 'lindex', 'llen', 'lolwut', 'lpos', 'lrange', 'mget', 'pexpiretime', 'pfcount', 'pttl', 'randomkey', 'scan', 'scard', 'sdiff', 'sinter', 'sintercard', 'sismember', 'smembers', 'smismember', 'sort_ro', 'srandmember', 'sscan', 'strlen', 'substr', 'sunion', 'touch', 'ttl', 'type', 'xlen', 'xpending', 'xrange', 'xread', 'xrevrange', 'zcard', 'zcount', 'zdiff', 'zinter', 'zintercard', 'zlexcount', 'zmscore', 'zrandmember', 'zrange', 'zrangebylex', 'zrangebyscore', 'zrank', 'zrevrange', 'zrevrangebylex', 'zrevrangebyscore', 'zrevrank', 'zscan', 'zscore', 'zunion']
+
+
 const REDIS_CLIENTS = {}
+
+const getRedisPrefix = () => {
+    const toPath = urlOrPath => urlOrPath instanceof URL ? fileURLToPath(urlOrPath) : urlOrPath
+
+    const cwd = process.cwd()
+    let stopAt = 'apps'
+    let directory = path.resolve(toPath(cwd) ?? '')
+    const { root } = path.parse(directory)
+    stopAt = path.resolve(directory, toPath(stopAt) ?? root)
+    let packageJsonPath
+
+    while (directory && directory !== stopAt && directory !== root) {
+        packageJsonPath = path.isAbsolute('package.json') ? 'package.json' : path.join(directory, 'package.json')
+
+        try {
+            const stats = fs.statSync(packageJsonPath, { throwIfNoEntry: false })
+            if (stats?.isFile()) {
+                break
+            }
+        } catch (e) { console.error(e) }
+
+        directory = path.dirname(directory)
+    }
+
+    return require(packageJsonPath).name.split('/')
+        .pop()
+        .replace(/:/g, '')
+        .replace(/-/g, '_') + ':'
+}
+
 const logger = getLogger('redis')
+const PREFIX = getRedisPrefix()
+
+let REDIS_FALLBACK_CONFIG
+try {
+    REDIS_FALLBACK_CONFIG = JSON.parse(conf['REDIS_FALLBACK_CONFIG'])
+} catch (err) {
+    console.error('Unable to parse json from REDIS_FALLBACK -> feature will be disabled', err)
+}
+
+if (get(REDIS_FALLBACK_CONFIG, 'enabled', false)) {
+    let oldPrefix = get(REDIS_FALLBACK_CONFIG, 'prefix', '')
+    if (oldPrefix) {
+        oldPrefix = oldPrefix.replace(/:/g, '').replace(/-/g, '_') + ':'
+    }
+    const originalSendCommand = IORedis.prototype.sendCommand
+    IORedis.prototype.sendCommand = function (...args) {
+        const [command] = args
+
+        if (!READONLY_COMMANDS.includes(command.name)) {
+            return originalSendCommand.apply(this, args)
+        }
+
+        const [prefixedKey, ...restArgs] = command.args
+
+        return new Promise((resolve, reject) => {
+            originalSendCommand.apply(this, args).then((value) => {
+                if (value !== null || !prefixedKey.startsWith(PREFIX)) {
+                    resolve(value)
+                } else {
+                    const nonPrefixedKey = oldPrefix + prefixedKey.substring(PREFIX.length)
+
+                    const otherCommand = new IORedis.Command(command.name, [nonPrefixedKey, ...restArgs], 'utf-8')
+
+                    originalSendCommand.apply(this, [otherCommand]).then((result) => {
+                        if (result instanceof Buffer) {
+                            resolve(result.toString('utf8'))
+                        }
+                        resolve(result)
+
+                    }).catch(reject)
+                }
+            }).catch(reject)
+        })
+    }
+}
 
 /**
  * If you really need to use Redis then you should use this function!
@@ -29,7 +112,7 @@ function getRedisClient (name = 'default', purpose = 'regular', opts = {}) {
         if (!redisUrl) throw new Error(`No REDIS_URL env! You need to set ${redisEnvName} / REDIS_URL env`)
         // BUILD STEP! OR SOME CASE WITH REDIS_URL=undefined
         if (redisUrl === 'undefined') return undefined
-        const client = new IORedis(redisUrl, { connectionName: clientKey, ...opts })
+        const client = new IORedis(redisUrl, { connectionName: clientKey, keyPrefix: PREFIX, ...opts })
         client.on('connect', () => logger.info({ msg: 'connect', clientKey }))
         client.on('close', () => logger.info({ msg: 'close', clientKey }))
         client.on('reconnecting', (waitTime) => logger.info({ msg: 'reconnecting', clientKey, waitTime }))
@@ -43,4 +126,5 @@ function getRedisClient (name = 'default', purpose = 'regular', opts = {}) {
 
 module.exports = {
     getRedisClient,
+    getRedisPrefix,
 }
