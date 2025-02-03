@@ -20,6 +20,7 @@ const {
     RateLimitResetter,
     FindOrganizationByTinGuardResetter,
     AuthGuardResetter,
+    ValidateUserCredentialsGuardResetter,
 } = require('@condo/domains/user/utils/limits/resetters')
 
 const resetters = {

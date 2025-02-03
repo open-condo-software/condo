@@ -16,7 +16,7 @@ class FindOrganizationByTinGuardResetter extends RedisGuardResetter {
         }
 
         // NOTE: identifierKey = userId | phone | email
-        const identifierKey = identifierType === 'uuid' ? 'userId' : identifierType
+        const identifierKey = identifierType === UUID_TYPE ? 'userId' : identifierType
 
         const hasDailyLimit = await this.guard.checkCounterExistence(`${this.guard_prefix}:${identifierKey}:${identifier}`)
         const hasTotalLimit = await this.guard.checkCounterExistence(`${this.guard_prefix}:total:${identifierKey}:${identifier}`)
@@ -30,7 +30,7 @@ class FindOrganizationByTinGuardResetter extends RedisGuardResetter {
         }
 
         // NOTE: typeKey = userId | phone | email
-        const typeKey = identifierType === 'uuid' ? 'userId' : identifierType
+        const typeKey = identifierType === UUID_TYPE ? 'userId' : identifierType
 
         await this.guard.deleteCounter(`${this.guard_prefix}:${typeKey}:${identifier}`)
         await this.guard.deleteCounter(`${this.guard_prefix}:total:${typeKey}:${identifier}`)

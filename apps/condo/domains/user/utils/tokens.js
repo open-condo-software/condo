@@ -3,23 +3,20 @@ const { v4: uuid } = require('uuid')
 
 const TOKEN_TYPES = {
     CONFIRM_PHONE: 'CONFIRM_PHONE',
-
     // CONFIRM_EMAIL: 'CONFIRM_EMAIL',
-    // SUDO: 'SUDO',
+    SUDO: 'SUDO',
 }
 
 const TOKEN_TYPE_BY_ABBREVIATION = {
     'cp': TOKEN_TYPES.CONFIRM_PHONE,
-
     // 'ce': TOKEN_TYPES.CONFIRM_EMAIL,
-    // 's': TOKEN_TYPES.SUDO,
+    's': TOKEN_TYPES.SUDO,
 }
 
 const ABBREVIATION_BY_TOKEN_TYPE = {
     'CONFIRM_PHONE': 'cp',
-
     // 'CONFIRM_EMAIL': 'ce',
-    // 'SUDO': 's',
+    'SUDO': 's',
 }
 
 const TOKEN_SEPARATOR = ':'
@@ -59,7 +56,7 @@ function detectTokenTypeSafely (token) {
 }
 
 /**
- * @param tokenType {string}
+ * @param tokenType {'CONFIRM_PHONE' | 'SUDO'}
  * @return {string}
  */
 function generateToken (tokenType) {
@@ -72,6 +69,14 @@ function generateToken (tokenType) {
     }
 
     return [ABBREVIATION_BY_TOKEN_TYPE[tokenType], uuid()].join(TOKEN_SEPARATOR)
+}
+
+/**
+ * Generates a random fake token for time-based attack prevention logic
+ * @return {string}
+ */
+function generateSimulatedToken () {
+    return ['simulated', uuid()].join(TOKEN_SEPARATOR)
 }
 
 /**
@@ -96,4 +101,5 @@ module.exports = {
     detectTokenTypeSafely,
     generateToken,
     generateTokenSafely,
+    generateSimulatedToken,
 }
