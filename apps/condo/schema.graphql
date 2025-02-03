@@ -72656,10 +72656,10 @@ type AppMessageSetting {
   """ The type of message we want to configure """
   type: MessageType
 
-  """ Time window for sending push notifications in seconds """
+  """ Time interval in seconds to which the settings apply """
   notificationWindowSize: Int
 
-  """ The number of notifications that can be sent in one time window in seconds. If the value is 0, then the miniapp cannot send this type of message 
+  """ The number of notifications that can be sent in single time window in seconds to a specific user. If the value is 0, then the miniapp cannot send this type of message 
   """
   numberOfNotificationInWindow: Int
   id: ID!
