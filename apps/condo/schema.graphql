@@ -80420,6 +80420,7 @@ input RegisterMultiPaymentVirtualReceiptInput {
   amount: String!
   period: String!
   recipient: RegisterMultiPaymentVirtualReceiptRecipientInput!
+  category: BillingCategoryWhereUniqueInput
 }
 
 input RegisterMultiPaymentForVirtualReceiptInput {

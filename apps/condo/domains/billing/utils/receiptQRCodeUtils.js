@@ -129,6 +129,7 @@ async function isReceiptPaid (context, accountNumber, period, organizationIds, r
  */
 
 /**
+ * @param context
  * @param {TRUQRCodeFields} qrCodeFields
  * @param {TCompareQRResolvers} resolvers
  * @return {Promise<void>}
@@ -140,10 +141,15 @@ async function compareQRCodeWithLastReceipt (context, qrCodeFields, resolvers) {
         context,
         {
             account: { number: getQRCodeField(qrCodeFields, 'PersAcc'), deletedAt: null },
-            receiver: { bankAccount: getQRCodeField(qrCodeFields, 'PersonalAcc'), deletedAt: null },
+            receiver: {
+                tin: getQRCodeField(qrCodeFields, 'PayeeINN'),
+                bic: getQRCodeField(qrCodeFields, 'BIC'),
+                bankAccount: getQRCodeField(qrCodeFields, 'PersonalAcc'),
+                deletedAt: null,
+            },
             deletedAt: null,
         },
-        'id period toPay',
+        'id period toPay category { id }',
         { sortBy: ['period_DESC'], first: 1 },
     )
 

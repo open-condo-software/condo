@@ -25,7 +25,7 @@ const {
 const {
     validateQRCode,
 } = require('@condo/domains/billing/utils/serverSchema')
-const { ALREADY_EXISTS_ERROR } = require('@condo/domains/common/constants/errors')
+const { ALREADY_EXISTS_ERROR, NOT_FOUND } = require('@condo/domains/common/constants/errors')
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -38,6 +38,12 @@ const ERRORS = {
         type: ALREADY_EXISTS_ERROR,
         message: 'Provided receipt already paid',
         messageForUser: 'api.billing.billingReceipt.RECEIPT_ALREADY_PAID_ERROR',
+    },
+    NO_PREV_RECEIPT: {
+        mutation: 'createPaymentByLink',
+        code: BAD_USER_INPUT,
+        type: NOT_FOUND,
+        message: 'No previous receipt was found',
     },
 }
 
@@ -69,7 +75,8 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                     sum,
                     persAcc, // resident's account within organization
                     payeeINN,
-                } = getQRCodeFields(qrCodeFields, ['personalAcc', 'paymPeriod', 'sum', 'persAcc', 'payeeINN'])
+                    bic,
+                } = getQRCodeFields(qrCodeFields, ['personalAcc', 'paymPeriod', 'sum', 'persAcc', 'payeeINN', 'bic'])
                 const period = formatPeriodFromQRCode(paymPeriod)
                 const amount = String(Big(sum).div(100))
 
@@ -103,8 +110,6 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                     deletedAt: null,
                 })
 
-                const acquiringContextRecipient = get(acquiringContext, 'recipient')
-
                 let multiPaymentId
 
                 const payForLastBillingReceipt = async (lastBillingReceipt) => {
@@ -120,9 +125,13 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                 }
 
                 const payForQR = async (lastBillingReceipt) => {
+                    if (!lastBillingReceipt) {
+                        throw new GQLError(ERRORS.NO_PREV_RECEIPT, context)
+                    }
                     if (await isReceiptPaid(context, persAcc, period, [organizationId], personalAcc)) {
                         throw new GQLError(ERRORS.RECEIPT_ALREADY_PAID, context)
                     }
+                    const categoryId = get(lastBillingReceipt, ['category', 'id'])
                     const { multiPaymentId: id } = await registerMultiPaymentForVirtualReceipt(context, {
                         dv, sender,
                         receipt: {
@@ -130,10 +139,11 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                             amount,
                             period,
                             recipient: {
-                                routingNumber: acquiringContextRecipient.bic, // get bank account from acquiring context
-                                bankAccount: acquiringContextRecipient.bankAccount,
+                                routingNumber: bic,
+                                bankAccount: personalAcc,
                                 accountNumber: persAcc, // resident's account number
                             },
+                            ...categoryId ? { category: { id: categoryId } } : {},
                         },
                         acquiringIntegrationContext: {
                             id: acquiringContext.id,
