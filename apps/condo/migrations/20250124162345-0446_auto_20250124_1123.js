@@ -14,34 +14,24 @@ exports.up = async () => {
     const stepSize = 1000
     const fromPrefix = ''
     const toPrefix = 'condo:'
-
-    const size = await client.dbsize()
-    console.log('database size -> ', size)
-    console.log('rename from -> ', fromPrefix, ' to key prefix -> ', toPrefix)
     let cursor = '0'
-    const iters = Math.ceil(size / stepSize)
 
-    for (const i of Array.from({ length: iters })) {
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
         const [newCursor, keys] = await client.scan(cursor, 'MATCH', '*', 'COUNT', stepSize)
         cursor = newCursor
+        const transaction = client.multi()
 
-        if (keys.length) {
-            const multi = client.multi()
-            const filterQuery = fromPrefix.length === 0
-                ? (key) => !key.startsWith(toPrefix)
-                : () => true
+        for (const key of keys) {
+            if (fromPrefix.length && !key.startsWith(fromPrefix)) continue
+            if (toPrefix.length && key.startsWith(toPrefix)) continue
 
-            keys.filter(filterQuery).forEach((key) => {
-                multi.renamenx(key, toPrefix + key.substring(fromPrefix.length))
-            })
-
-            const result = await multi.exec()
-
-            console.log('renamed batch length -> ', result.length)
+            transaction.renamenx(key, toPrefix + key.substring(fromPrefix.length))
         }
+        await transaction.exec()
 
-        if (newCursor === 0 || newCursor === '0') {
-            console.log('No more keys found -> stopping execution')
+        if (cursor === '0') {
+            console.log('All keys successfully renamed')
             break
         }
     }
@@ -60,34 +50,24 @@ exports.down = async () => {
     const stepSize = 1000
     const fromPrefix = 'condo:'
     const toPrefix = ''
-
-    const size = await client.dbsize()
-    console.log('database size -> ', size)
-    console.log('rename from -> ', fromPrefix, ' to key prefix -> ', toPrefix)
     let cursor = '0'
-    const iters = Math.ceil(size / stepSize)
 
-    for (const i of Array.from({ length: iters })) {
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
         const [newCursor, keys] = await client.scan(cursor, 'MATCH', '*', 'COUNT', stepSize)
         cursor = newCursor
+        const transaction = client.multi()
 
-        if (keys.length) {
-            const multi = client.multi()
-            const filterQuery = fromPrefix.length === 0
-                ? (key) => !key.startsWith(toPrefix)
-                : () => true
+        for (const key of keys) {
+            if (fromPrefix.length && !key.startsWith(fromPrefix)) continue
+            if (toPrefix.length && key.startsWith(toPrefix)) continue
 
-            keys.filter(filterQuery).forEach((key) => {
-                multi.renamenx(key, toPrefix + key.substring(fromPrefix.length))
-            })
-
-            const result = await multi.exec()
-
-            console.log('renamed batch length -> ', result.length)
+            transaction.renamenx(key, toPrefix + key.substring(fromPrefix.length))
         }
+        await transaction.exec()
 
-        if (newCursor === 0 || newCursor === '0') {
-            console.log('No more keys found -> stopping execution')
+        if (cursor === '0') {
+            console.log('All keys successfully renamed')
             break
         }
     }
