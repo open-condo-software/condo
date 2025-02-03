@@ -86,7 +86,7 @@ const ERRORS = {
     },
     NO_PREV_RECEIPT: {
         mutation: 'validateQRCode',
-        code: INTERNAL_ERROR,
+        code: BAD_USER_INPUT,
         type: NOT_FOUND,
         message: 'No previous receipt was found',
     },

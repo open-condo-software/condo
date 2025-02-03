@@ -170,6 +170,7 @@ describe('receiptQRCodeUtils', () => {
             ;[billingProperty] = await createTestBillingProperty(adminClient, billingIntegrationContext)
             ;[billingAccount] = await createTestBillingAccount(adminClient, billingIntegrationContext, billingProperty, { number: qrCodeObj.PersAcc })
             ;[billingRecipient] = await createTestBillingRecipient(adminClient, billingIntegrationContext, {
+                tin: qrCodeObj.PayeeINN,
                 bankAccount: qrCodeObj.PersonalAcc,
                 bic: qrCodeObj.BIC,
             })
@@ -201,7 +202,9 @@ describe('receiptQRCodeUtils', () => {
                     period: '2024-06-01',
                     receiver: { connect: { id: billingRecipient.id } },
                     recipient: createTestRecipient({
+                        tin: billingRecipient.tin,
                         bic: billingRecipient.bic,
+                        bankAccount: billingRecipient.bankAccount,
                     }),
                     toPay: Big(qrCodeObj.Sum).div(100),
                 })

@@ -5,7 +5,7 @@
 const Big = require('big.js')
 const { get } = require('lodash')
 
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR  } } = require('@open-condo/keystone/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/acquiring/access/CreatePaymentByLinkService')
@@ -41,7 +41,7 @@ const ERRORS = {
     },
     NO_PREV_RECEIPT: {
         mutation: 'createPaymentByLink',
-        code: INTERNAL_ERROR,
+        code: BAD_USER_INPUT,
         type: NOT_FOUND,
         message: 'No previous receipt was found',
     },
@@ -109,8 +109,6 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                     status: ACQUIRING_CONTEXT_FINISHED_STATUS,
                     deletedAt: null,
                 })
-
-                const acquiringContextRecipient = get(acquiringContext, 'recipient')
 
                 let multiPaymentId
 

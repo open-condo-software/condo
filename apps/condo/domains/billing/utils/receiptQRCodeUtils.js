@@ -141,7 +141,12 @@ async function compareQRCodeWithLastReceipt (context, qrCodeFields, resolvers) {
         context,
         {
             account: { number: getQRCodeField(qrCodeFields, 'PersAcc'), deletedAt: null },
-            receiver: { bankAccount: getQRCodeField(qrCodeFields, 'PersonalAcc'), deletedAt: null },
+            receiver: {
+                tin: getQRCodeField(qrCodeFields, 'PayeeINN'),
+                bic: getQRCodeField(qrCodeFields, 'BIC'),
+                bankAccount: getQRCodeField(qrCodeFields, 'PersonalAcc'),
+                deletedAt: null,
+            },
             deletedAt: null,
         },
         'id period toPay category { id }',

@@ -107,6 +107,7 @@ async function createBillingReceiptAndAllDependencies (admin, organization, qrCo
     const [billingRecipient] = await createTestBillingRecipient(admin, billingIntegrationContext, {
         bankAccount: qrCodeAttrs.PersonalAcc,
         bic: qrCodeAttrs.BIC,
+        tin: qrCodeAttrs.PayeeINN,
     })
     const [billingReceipt] = await createTestBillingReceipt(admin, billingIntegrationContext, billingProperty, billingAccount, {
         period: `2024-${month}-01`,
@@ -181,6 +182,7 @@ describe('CreatePaymentByLinkService', () => {
         const [billingRecipient] = await createTestBillingRecipient(admin, billingIntegrationContext, {
             bankAccount: qrCodeAttrs.PersonalAcc,
             bic: qrCodeAttrs.BIC,
+            tin: qrCodeAttrs.PayeeINN,
         })
         const [billingReceipt] = await createTestBillingReceipt(admin, billingIntegrationContext, billingProperty, billingAccount, {
             period: '2023-07-01',
@@ -241,6 +243,7 @@ describe('CreatePaymentByLinkService', () => {
         const [billingRecipient] = await createTestBillingRecipient(admin, billingIntegrationContext, {
             bankAccount: qrCodeAttrs.PersonalAcc,
             bic: qrCodeAttrs.BIC,
+            tin: qrCodeAttrs.PayeeINN,
         })
         await createTestBillingReceipt(admin, billingIntegrationContext, billingProperty, billingAccount, {
             period: '2023-07-01',
@@ -298,6 +301,7 @@ describe('CreatePaymentByLinkService', () => {
         const [billingRecipient] = await createTestBillingRecipient(admin, billingIntegrationContext, {
             bankAccount: qrCodeAttrs.PersonalAcc,
             bic: qrCodeAttrs.BIC,
+            tin: qrCodeAttrs.PayeeINN,
         })
         await createTestBillingReceipt(admin, billingIntegrationContext, billingProperty, billingAccount, {
             period: '2023-06-01',
@@ -355,7 +359,7 @@ describe('CreatePaymentByLinkService', () => {
             await createPaymentByLinkByTestClient(user, { qrCode })
         }, {
             mutation: 'validateQRCode',
-            code: 'INTERNAL_ERROR',
+            code: 'BAD_USER_INPUT',
             type: 'NOT_FOUND',
             message: 'No previous receipt was found',
         })
@@ -393,7 +397,7 @@ describe('CreatePaymentByLinkService', () => {
             await createPaymentByLinkByTestClient(user, { qrCode })
         }, {
             mutation: 'validateQRCode',
-            code: 'INTERNAL_ERROR',
+            code: 'BAD_USER_INPUT',
             type: 'NOT_FOUND',
             message: 'No previous receipt was found',
         })
@@ -691,7 +695,7 @@ describe('CreatePaymentByLinkService', () => {
                 await createPaymentByLinkByTestClient(user, { qrCode })
             }, {
                 mutation: 'validateQRCode',
-                code: 'INTERNAL_ERROR',
+                code: 'BAD_USER_INPUT',
                 type: 'NOT_FOUND',
                 message: 'No previous receipt was found',
             })

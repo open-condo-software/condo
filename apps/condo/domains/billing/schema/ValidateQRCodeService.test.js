@@ -91,6 +91,7 @@ async function createBillingReceiptAndAllDependencies (admin, organization, prop
     const [billingRecipient] = await createTestBillingRecipient(admin, billingIntegrationContext, {
         bankAccount: qrCodeAttrs.PersonalAcc,
         bic: qrCodeAttrs.BIC,
+        tin: qrCodeAttrs.PayeeINN,
     })
     const [billingReceipt] = await createTestBillingReceipt(admin, billingIntegrationContext, billingProperty, billingAccount, {
         period,
@@ -662,7 +663,7 @@ describe('ValidateQRCodeService', () => {
                 await validateQRCodeByTestClient(adminClient, { qrCode: qrStr })
             }, {
                 mutation: 'validateQRCode',
-                code: 'INTERNAL_ERROR',
+                code: 'BAD_USER_INPUT',
                 type: 'NOT_FOUND',
                 message: 'No previous receipt was found',
             })
