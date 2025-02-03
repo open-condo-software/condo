@@ -7,7 +7,7 @@ const Big = require('big.js')
 const dayjs = require('dayjs')
 
 const {
-    makeLoggedInAdminClient, makeClient, expectToThrowAuthenticationErrorToResult, catchErrorFrom,
+    makeLoggedInAdminClient, makeClient, expectToThrowAuthenticationErrorToResult,
     expectToThrowAccessDeniedErrorToResult, expectToThrowGQLErrorToResult,
 } = require('@open-condo/keystone/test.utils')
 
@@ -527,7 +527,7 @@ describe('CreatePaymentByLinkService', () => {
                 message: 'Provided receipt already paid',
             })
         })
-        test('scanned receipt period less the last billing receipt in out database', async () => {
+        test('scanned receipt period less than the last billing receipt in out database', async () => {
             const {
                 organization,
                 qrCode,
@@ -563,7 +563,7 @@ describe('CreatePaymentByLinkService', () => {
             expect(payments).toBeDefined()
             expect(payments).toHaveLength(1)
 
-            // mark payment as payed
+            // mark payment as paid
             await updateTestPayment(admin, payments[0].id, {
                 status: PAYMENT_DONE_STATUS,
                 advancedAt: dayjs().toISOString(),
@@ -578,7 +578,7 @@ describe('CreatePaymentByLinkService', () => {
                 message: 'Provided receipt already paid',
             })
         })
-        test('scanned receipt period great the last billing receipt in out database', async () => {
+        test('scanned receipt period great than the last billing receipt in out database', async () => {
             const {
                 organization,
                 qrCode,
@@ -614,7 +614,7 @@ describe('CreatePaymentByLinkService', () => {
             expect(payments).toBeDefined()
             expect(payments).toHaveLength(1)
 
-            // mark payment as payed
+            // mark payment as paid
             await updateTestPayment(admin, payments[0].id, {
                 status: PAYMENT_DONE_STATUS,
                 advancedAt: dayjs().toISOString(),
