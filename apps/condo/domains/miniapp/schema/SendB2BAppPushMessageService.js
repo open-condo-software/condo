@@ -28,13 +28,6 @@ const redisGuard = new RedisGuard()
  * They will be rendered in documentation section in GraphiQL for this custom schema
  */
 const ERRORS = {
-    APP_IN_BLACK_LIST: {
-        mutation: 'sendB2BAppPushMessage',
-        variable: ['data', 'app'],
-        code: FORBIDDEN,
-        type: APP_BLACK_LIST_ERROR,
-        message: 'The notification type is blocked for this app',
-    },
     NO_B2B_CONTEXT: {
         mutation: 'sendB2BAppPushMessage',
         variable: ['data', 'app'],
@@ -115,7 +108,7 @@ const SendB2BAppPushMessageService = new GQLCustomSchema('SendB2BAppPushMessageS
                 })
 
                 await redisGuard.checkCustomLimitCounters(
-                    `sendB2BAppPushMessage:${type}:app:${b2bAppFilter.id}:org:${organizationFilter.id}:user:${userFilter.id}`,
+                    `sendB2BAppPushMessage:app:${b2bAppFilter.id}:${type}:org:${organizationFilter.id}:user:${userFilter.id}`,
                     get(appSettings, 'notificationWindowSize') ?? DEFAULT_NOTIFICATION_WINDOW_DURATION_IN_SECONDS,
                     get(appSettings, 'numberOfNotificationInWindow') ?? DEFAULT_NOTIFICATION_WINDOW_MAX_COUNT,
                     context,
@@ -130,30 +123,24 @@ const SendB2BAppPushMessageService = new GQLCustomSchema('SendB2BAppPushMessageS
                 }
                 const messageLocale = get(user, 'locale', conf.DEFAULT_LOCALE)
 
-                const [b2bAppContext] = await itemsQuery('B2BAppContext', {
-                    where: {
-                        organization: { ...organizationFilter, deletedAt: null },
-                        app: { ...b2bAppFilter, deletedAt: null },
-                        status: CONTEXT_FINISHED_STATUS,
-                        deletedAt: null,
-                    },
-                    first: 1,
+                const b2bAppContext = await getByCondition('B2BAppContext', {
+                    organization: { ...organizationFilter, deletedAt: null },
+                    app: { ...b2bAppFilter, deletedAt: null },
+                    status: CONTEXT_FINISHED_STATUS,
+                    deletedAt: null,
                 })
                 if (!b2bAppContext) {
                     throw new GQLError(ERRORS.NO_B2B_CONTEXT, context)
                 }
 
-                const [b2bAppAccessRight] = await itemsQuery('B2BAppAccessRight', {
-                    where: {
-                        accessRightSet: {
-                            app: { ...b2bAppFilter, deletedAt: null },
-                            canExecuteSendB2BAppPushMessage: true,
-                            deletedAt: null,
-                        },
-                        user: { id: authedItemId, deletedAt: null },
+                const b2bAppAccessRight = await getByCondition('B2BAppAccessRight', {
+                    accessRightSet: {
+                        app: { ...b2bAppFilter, deletedAt: null },
+                        canExecuteSendB2BAppPushMessage: true,
                         deletedAt: null,
                     },
-                    first: 1,
+                    user: { id: authedItemId, deletedAt: null },
+                    deletedAt: null,
                 })
                 if (!b2bAppAccessRight) {
                     throw new GQLError(ERRORS.NO_B2B_APP_ACCESS_RIGHT, context)

@@ -92792,12 +92792,6 @@ type Mutation {
   
   `{
     "code": "FORBIDDEN",
-    "type": "APP_BLACK_LIST_ERROR",
-    "message": "The notification type is blocked for this app"
-  }`
-  
-  `{
-    "code": "FORBIDDEN",
     "type": "NOT_FOUND",
     "message": "No completed B2BContext in \"Finished\" status found for the provided organization and B2BApp."
   }`
