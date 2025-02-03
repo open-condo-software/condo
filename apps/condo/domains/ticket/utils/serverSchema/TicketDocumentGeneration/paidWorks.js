@@ -8,8 +8,6 @@ const { getByCondition } = require('@open-condo/keystone/schema')
 
 const { RU_LOCALE } = require('@condo/domains/common/constants/locale')
 const { buildExportFile, DOCX_FILE_META } = require('@condo/domains/common/utils/createExportFile')
-const { renderMoney } = require('@condo/domains/common/utils/money')
-const { moneyToWords } = require('@condo/domains/common/utils/moneyToWords/moneyToWords')
 const { buildUploadInputFrom } = require('@condo/domains/common/utils/serverSchema/export')
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
 const { DEFAULT_INVOICE_CURRENCY_CODE, INVOICE_STATUS_CANCELED } = require('@condo/domains/marketplace/constants')
@@ -19,8 +17,12 @@ const { TICKET_DOCUMENT_GENERATION_TASK_FORMAT } = require('@condo/domains/ticke
 
 const logger = getLogger('generateDocumentOfPaidWorksCompletion')
 
+// N2Words provides only ESM syntax. Dynamic import is required to use this library in a CommonJS module.
+const n2wordsImport = import('n2words').then(module => module.default)
+
 const LONG_BLANK = '____________________________________'
 const SHORT_BLANK = '__________________'
+const CURRENCY_CODE_REGEXP = /[A-Z]{3}/
 
 const financeInfoClient = new FinanceInfoClient()
 
@@ -70,6 +72,7 @@ const buildExportWordFile = async ({ task, documentData, locale, timeZone }) => 
 }
 
 const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, locale, ticket, organization }) => {
+    const n2words = await n2wordsImport
     const { iec, psrn, organizationAddress } = await getFinanceInfoDataByLocale(organization, { locale })
 
     const { format, timeZone: timeZoneFromUser } = task
@@ -83,11 +86,10 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
 
     const employee = organization.id && ticket.executor
         ? await getByCondition('OrganizationEmployee', {
-            organization: { id: organization.id },
-            user: { id: ticket.executor },
+            organization: { id: organization.id, deletedAt: null },
+            user: { id: ticket.executor, deletedAt: null },
             deletedAt: null,
-        })
-        : null
+        }) : null
 
     const invoices = await Invoice.getAll(context, {
         ticket: { id: ticket.id },
@@ -98,6 +100,12 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
     })
 
     const currencyCode = get(invoices, '0.currencyCode') || DEFAULT_INVOICE_CURRENCY_CODE
+    const numberFormatByLocale = Intl.NumberFormat(locale, {
+        style: 'currency',
+        currency: currencyCode,
+        currencyDisplay: 'code',
+    })
+
     let totalSum = Big(0), totalVAT = Big(0)
 
     const listOfWorks = invoices.reduce((acc, invoice) => {
@@ -118,12 +126,17 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
                     number: index + 1,
                     name: row.name,
                     count: String(count),
-                    price: renderMoney(price, currencyCode, locale),
+                    price: !Number.isNaN(parseFloat(price)) ? numberFormatByLocale.format(price).replace(CURRENCY_CODE_REGEXP, '').trim() : null,
                     vat: String(vatPercent),
-                    sum: renderMoney(sum, currencyCode, locale),
+                    sum: !Number.isNaN(parseFloat(sum)) ? numberFormatByLocale.format(sum).replace(CURRENCY_CODE_REGEXP, '').trim() : null,
                 }
             } catch (err) {
-                logger.info({ msg: 'listOfWorks generation error in document of paid completion works', err: err, taskId: task.id, ticketId: ticket.id })
+                logger.info({
+                    msg: 'listOfWorks generation error in document of paid completion works',
+                    err: err,
+                    taskId: task.id,
+                    ticketId: ticket.id,
+                })
                 return {}
             }
         }))
@@ -137,7 +150,7 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
 
     const documentTextData = {
         header: {
-            generalDate: dayjs().tz(timeZone).format('DD.MM.YYYY'),
+            generalDate: dayjs().tz(timeZone).format(dayjs().localeData().longDateFormat('L')),
         },
         company: {
             name: get(organization, 'name'),
@@ -154,23 +167,36 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
             bic: get(invoices, '0.recipient.bic'),
         },
         totalInWords: {
-            // TODO: DOMA-10594 paidWorks with multi-currency support for moneyToWords
-            totalSum: moneyToWords(totalSum.toFixed(2), { locale, currencyCode }),
-            totalVAT: moneyToWords(totalVAT.toFixed(2), { locale, currencyCode }),
+            totalSumWholePart: n2words(numberFormatByLocale
+                .formatToParts(totalSum)
+                .map(p => p.type === 'integer' ? p.value : '')
+                .join(''), { lang: locale }),
+            totalSumDecimalPart: n2words(numberFormatByLocale
+                .formatToParts(totalSum)
+                .map(p => p.type === 'fraction' ? p.value : '')
+                .join(''), { lang: locale, feminine: locale === RU_LOCALE }),
+            totalVATWholePart: n2words(numberFormatByLocale
+                .formatToParts(totalVAT)
+                .map(p => p.type === 'integer' ? p.value : '')
+                .join(''), { lang: locale }),
+            totalVATDecimalPart: n2words(numberFormatByLocale
+                .formatToParts(totalVAT)
+                .map(p => p.type === 'fraction' ? p.value : '')
+                .join(''), { lang: locale, feminine: locale === RU_LOCALE }),
         },
     }
 
     const documentDataInTable = {
         client: {
-            name: get(contact, 'name'),
+            name: get(contact, ['0', 'name']),
         },
         listOfWorks,
         totalInNumbers: {
-            totalSum: renderMoney(totalSum, currencyCode, locale),
-            totalVAT: renderMoney(totalVAT, currencyCode, locale),
+            totalSum: !Number.isNaN(parseFloat(totalSum)) ? numberFormatByLocale.format(totalSum).replace(CURRENCY_CODE_REGEXP, '').trim() : null,
+            totalVAT: !Number.isNaN(parseFloat(totalVAT)) ? numberFormatByLocale.format(totalVAT).replace(CURRENCY_CODE_REGEXP, '').trim() : null,
         },
         executor: {
-            name: get(employee, 'name'),
+            name: get(employee, ['0', 'name']),
         },
     }
 
@@ -183,7 +209,12 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
 
     switch (format) {
         case TICKET_DOCUMENT_GENERATION_TASK_FORMAT.DOCX: {
-            fileUploadInput = buildUploadInputFrom(await buildExportWordFile({ task, documentData, locale, timeZone }))
+            fileUploadInput = buildUploadInputFrom(await buildExportWordFile({
+                task,
+                documentData,
+                locale,
+                timeZone,
+            }))
             break
         }
 
@@ -192,7 +223,11 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
         }
     }
 
-    logger.info({ msg: 'finished genereating a document of paid completion works ', taskId: task.id, ticketId: ticket.id })
+    logger.info({
+        msg: 'finished genereating a document of paid completion works ',
+        taskId: task.id,
+        ticketId: ticket.id,
+    })
 
     return fileUploadInput
 }

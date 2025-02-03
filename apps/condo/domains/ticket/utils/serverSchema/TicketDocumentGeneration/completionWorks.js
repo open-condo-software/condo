@@ -5,7 +5,6 @@ const { getByCondition } = require('@open-condo/keystone/schema')
 const { i18n } = require('@open-condo/locales/loader')
 
 const { buildExportFile, DOCX_FILE_META } = require('@condo/domains/common/utils/createExportFile')
-const { renderMoney } = require('@condo/domains/common/utils/money')
 const { buildUploadInputFrom } = require('@condo/domains/common/utils/serverSchema/export')
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
 const { DEFAULT_INVOICE_CURRENCY_CODE, INVOICE_STATUS_CANCELED } = require('@condo/domains/marketplace/constants')
@@ -39,6 +38,7 @@ const generateTicketDocumentOfCompletionWorks = async ({ task, baseAttrs, contex
 
     const timeZone = normalizeTimeZone(timeZoneFromUser) || DEFAULT_ORGANIZATION_TIMEZONE
     const printDate = dayjs().tz(timeZone).locale(locale)
+    const CURRENCY_CODE_REGEXP = /[A-Z]{3}/
 
     const property = await getByCondition('Property', {
         id: ticket.property,
@@ -80,8 +80,16 @@ const generateTicketDocumentOfCompletionWorks = async ({ task, baseAttrs, contex
             return {
                 name: row.name || '',
                 count: String(row.count) || '',
-                price: !Number.isNaN(price) ? renderMoney(price, currencyCode, locale) : '',
-                sum: !Number.isNaN(price) ? renderMoney(price * row.count, currencyCode, locale) : '',
+                price: !Number.isNaN(price) ? new Intl.NumberFormat(locale, {
+                    style: 'currency',
+                    currency: currencyCode,
+                    currencyDisplay: 'code',
+                }).format(price).replace(CURRENCY_CODE_REGEXP, '').trim() : '',
+                sum: !Number.isNaN(price * row.count) ? new Intl.NumberFormat(locale, {
+                    style: 'currency',
+                    currency: currencyCode,
+                    currencyDisplay: 'code',
+                }).format(price * row.count).replace(CURRENCY_CODE_REGEXP, '').trim() : '',
             }
         }))
 
