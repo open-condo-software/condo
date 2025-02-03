@@ -16,6 +16,7 @@ const {
     createValidRuRoutingNumber,
     createValidRuNumber,
 } = require('@condo/domains/banking/utils/testSchema/bankAccount')
+const { HOUSING_CATEGORY_ID } = require('@condo/domains/billing/constants/constants')
 const { getCountrySpecificQRCodeParser } = require('@condo/domains/billing/utils/countrySpecificQRCodeParsers')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
@@ -209,6 +210,7 @@ describe('receiptQRCodeUtils', () => {
                     id: billingReceipt.id,
                     period: billingReceipt.period,
                     toPay: billingReceipt.toPay,
+                    category: { id: HOUSING_CATEGORY_ID },
                 }
             })
 
