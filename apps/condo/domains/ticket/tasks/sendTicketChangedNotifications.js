@@ -72,6 +72,7 @@ const sendTicketChangedNotifications = async ({ ticketId, existingItem, operatio
          * (not defined within @condo/domains/common/constants/countries)
          */
         const organizationCountry = get(organization, 'country', conf.DEFAULT_LOCALE)
+        // TODO(DOMA-11040): get locale for sendMessage from user
         const lang = get(COUNTRIES, [organizationCountry, 'locale'], conf.DEFAULT_LOCALE)
 
         if (eventTypes[TICKET_CREATED]) {

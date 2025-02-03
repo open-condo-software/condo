@@ -50,6 +50,7 @@ const RegisterNewServiceUserService = new GQLCustomSchema('RegisterNewServiceUse
 
                 const user = await User.create(context, userData, 'id email')
 
+                // TODO(DOMA-11040): get locale for sendMessage from user
                 await sendMessage(context, {
                     to: { email: user.email },
                     type: SERVICE_USER_CREATED_MESSAGE_TYPE,

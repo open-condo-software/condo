@@ -216,6 +216,13 @@ COMMIT;
 --
 DROP TABLE "ExternalReport" CASCADE;
 DROP TABLE "ExternalReportHistoryRecord" CASCADE;
+
+--
+-- 20250126181755-0446_auto_20250126_1318.js Rename B2CAppMessageSetting to AppMessageSetting 
+--
+DROP TABLE "B2CAppMessageSetting" CASCADE;
+DROP TABLE "B2CAppMessageSettingHistoryRecord" CASCADE;
+
 COMMIT;
     `))
 }

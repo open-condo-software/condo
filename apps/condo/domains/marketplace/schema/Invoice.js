@@ -74,6 +74,7 @@ const sendPush = async ({ originalInput, userId, propertyId, unitName, unitType,
         if (!resident) return
 
         if (updatedItem.paymentType === INVOICE_PAYMENT_TYPE_ONLINE) {
+            // TODO(DOMA-11040): get locale for sendMessage from user
             if (isNil(updatedItem.ticket)) {
                 await sendMessage(context, {
                     dv: 1,
@@ -95,6 +96,7 @@ const sendPush = async ({ originalInput, userId, propertyId, unitName, unitType,
                 const ticket = await getById('Ticket', updatedItem.ticket)
                 const ticketSource = await getById('TicketSource', ticket.source)
                 if (ticketSource.type !== TICKET_SOURCE_TYPES.MOBILE_APP ) {
+                    // TODO(DOMA-11040): get locale for sendMessage from user
                     await sendMessage(context, {
                         dv: 1,
                         sender,
@@ -118,6 +120,7 @@ const sendPush = async ({ originalInput, userId, propertyId, unitName, unitType,
 
         } else if (updatedItem.paymentType === INVOICE_PAYMENT_TYPE_CASH) {
             if (isNil(updatedItem.ticket)) {
+                // TODO(DOMA-11040): get locale for sendMessage from user
                 await sendMessage(context, {
                     dv: 1,
                     sender,
@@ -138,6 +141,7 @@ const sendPush = async ({ originalInput, userId, propertyId, unitName, unitType,
                 const ticket = await getById('Ticket', updatedItem.ticket)
                 const ticketSource = await getById('TicketSource', ticket.source)
                 if (ticketSource.type !== TICKET_SOURCE_TYPES.MOBILE_APP ) {
+                    // TODO(DOMA-11040): get locale for sendMessage from user
                     await sendMessage(context, {
                         dv: 1,
                         sender,
