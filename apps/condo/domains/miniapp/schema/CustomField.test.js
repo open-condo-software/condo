@@ -4,10 +4,8 @@
 
 const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInAdminClient, makeClient, expectValuesOfCommonFields, expectToThrowGQLError,
+const { makeLoggedInAdminClient, makeClient, expectValuesOfCommonFields,
     expectToThrowGraphQLRequestError, expectToThrowValidationFailureError,
-} = require('@open-condo/keystone/test.utils')
-const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
@@ -21,12 +19,8 @@ const {
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 
-const { ERRORS } = require('./CustomField')
-
 const { CONTEXT_FINISHED_STATUS } = require('../constants')
 const { createTestB2BApp, createTestB2BAppContext, createTestB2BAppAccessRight } = require('../utils/testSchema')
-const {updateTestTicketExportTask} = require("../../ticket/utils/testSchema");
-const {CANCELLED} = require("../../common/constants/export");
 
 
 describe('CustomField', () => {
