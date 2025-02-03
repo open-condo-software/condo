@@ -22,28 +22,6 @@ async function canReadCustomValues (args) {
         return canReadObjsAsB2BAppServiceUser
     }
 
-    // Resident user
-    // if (user.type === RESIDENT) {
-    //     const userResidents = await find('Resident', {
-    //         user: { id: user.id, deletedAt: null },
-    //         deletedAt: null,
-    //     })
-    //     const addressKeys = userResidents.map(resident => resident.addressKey).filter(Boolean)
-    //
-    //     const unitName = residentUser.unitName
-    //     const unitType = residentUser.unitType
-    //     const addressKey = residentUser.address
-    //
-    //     return {
-    //         AND: [
-    //             {
-    //                 customField: { residentCanRead: true, deletedAt: false },
-    //                 unitName: {},
-    //             },
-    //         ],
-    //     }
-    // }
-
     if (user.type === STAFF) {
         const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, [])
 
@@ -67,6 +45,7 @@ async function canManageCustomValues (args) {
     if (user.isAdmin || user.isSupport) return true
 
     const isBulkRequest = Array.isArray(originalInput)
+    // Bulk requests are not supported in canManageObjectsAsB2BAppServiceUser
     if (isBulkRequest) { return false }
 
     if (user.type === SERVICE) {
