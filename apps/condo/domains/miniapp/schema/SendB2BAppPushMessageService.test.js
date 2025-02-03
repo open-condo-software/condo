@@ -16,7 +16,6 @@ const { User, updateTestUser, makeClientWithServiceUser, makeClientWithSupportUs
 
 const { ERRORS } = require('./SendB2BAppPushMessageService')
 
-
 describe('SendB2BAppPushMessageService', () => {
     let serviceUser,
         admin,
@@ -60,7 +59,36 @@ describe('SendB2BAppPushMessageService', () => {
 
                 expect(result.id).toMatch(UUID_RE)
             })
+
+            it('can not execute if organization has not B2BAppContext with b2bApp', async () => {
+                const otherServiceUser = await makeClientWithServiceUser()
+
+                const [organization] = await registerNewOrganization(staffClient)
+                const [b2bApp] = await createTestB2BApp(support)
+
+                await expectToThrowAccessDeniedErrorToResult(async () => {
+                    await sendB2BAppPushMessageByTestClient(otherServiceUser, b2bApp, organization, staffClient.user)
+                })
+            })
+
+            it('can not execute if service user has not B2BAppAccessRightSet with canExecuteSendB2BAppPushMessage', async () => {
+                const otherServiceUser = await makeClientWithServiceUser()
+
+                const [organization] = await registerNewOrganization(staffClient)
+                const [b2bApp] = await createTestB2BApp(support)
+                await createTestB2BAppContext(staffClient, b2bApp, organization, { status: CONTEXT_FINISHED_STATUS })
+
+                const [accessRightSet] = await createTestB2BAppAccessRightSet(support, b2bApp, {
+                    canExecuteSendB2BAppPushMessage: false,
+                })
+                await createTestB2BAppAccessRight(support, serviceUser.user, b2bApp, accessRightSet)
+
+                await expectToThrowAccessDeniedErrorToResult(async () => {
+                    await sendB2BAppPushMessageByTestClient(otherServiceUser, b2bApp, organization, staffClient.user)
+                })
+            })
         })
+
         describe('Admin', () => {
             it('can not execute', async () => {
                 await expectToThrowAccessDeniedErrorToResult(async () => {
@@ -68,6 +96,7 @@ describe('SendB2BAppPushMessageService', () => {
                 })
             })
         })
+
         describe('Support', () => {
             it('can not execute', async () => {
                 await expectToThrowAccessDeniedErrorToResult(async () => {
@@ -75,6 +104,7 @@ describe('SendB2BAppPushMessageService', () => {
                 })
             })
         })
+
         describe('User', () => {
             it('can not execute', async () => {
                 await expectToThrowAccessDeniedErrorToResult(async () => {
@@ -82,6 +112,7 @@ describe('SendB2BAppPushMessageService', () => {
                 })
             })
         })
+
         describe('Anonymous', () => {
             it('can not execute', async () => {
                 await expectToThrowAuthenticationErrorToResult(async () => {
@@ -101,7 +132,7 @@ describe('SendB2BAppPushMessageService', () => {
                     body,
                 },
             })
-            const user = await User.getOne(staffClient, { id: staffClient.user.id })
+            const user = await User.getOne(support, { id: staffClient.user.id })
 
             await waitFor(async () => {
                 const message = await Message.getOne(staffClient, { id: result.id })
@@ -117,6 +148,14 @@ describe('SendB2BAppPushMessageService', () => {
 
         it('Throws an error if no finished B2BContext exists for the specified organization and B2BApp', async () => {
             const [testOrganization] = await registerNewOrganization(staffClient)
+
+            const [otherApp] = await createTestB2BApp(support)
+            await createTestB2BAppContext(staffClient, otherApp, testOrganization, { status: CONTEXT_FINISHED_STATUS })
+
+            const [accessRightSet] = await createTestB2BAppAccessRightSet(support, otherApp, {
+                canExecuteSendB2BAppPushMessage: true,
+            })
+            await createTestB2BAppAccessRight(support, serviceUser.user, otherApp, accessRightSet)
 
             await expectToThrowGQLErrorToResult(async () => {
                 await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, testOrganization, staffClient.user)

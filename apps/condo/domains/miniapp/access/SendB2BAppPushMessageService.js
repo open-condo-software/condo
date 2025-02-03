@@ -3,7 +3,9 @@
  */
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
+const { canExecuteServiceAsB2BAppServiceUser } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
 const { SERVICE } = require('@condo/domains/user/constants/common')
+
 
 async function canSendB2BAppPushMessage (args) {
     const { authentication: { item: user } } = args
@@ -11,7 +13,11 @@ async function canSendB2BAppPushMessage (args) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
-    return user.type === SERVICE
+    if (user.type === SERVICE) {
+        return await canExecuteServiceAsB2BAppServiceUser(args)
+    }
+
+    return false
 }
 
 /*
