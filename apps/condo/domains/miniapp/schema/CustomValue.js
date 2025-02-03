@@ -17,6 +17,7 @@ const access = require('@condo/domains/miniapp/access/CustomValue')
 
 const { ALLOWED_TYPES, ALLOWED_SCHEMAS } = require('./CustomField')
 
+const { ORGANIZATION_OWNED_FIELD } = require('../../organization/schema/fields')
 const { generateGqlQueryToOrganizationId } = require('../utils/b2bAppServiceUserAccess/helpers.utils')
 
 
@@ -31,7 +32,7 @@ const ALLOWED_SOURCE_TYPES_CONFIG = {
 
             const userId = context?.authedItem?.id
             if (!userId || context.authedListKey !== 'User') {
-                throw new Error('Cannot check source id for non user authed entity')
+                return false
             }
 
             try {
@@ -52,7 +53,7 @@ const ALLOWED_SOURCE_TYPES_CONFIG = {
                     deletedAt: null,
                 })
                 if (!accessRightForUserAndApp) {
-                    throw new Error('This user cannot set this source id')
+                    throw new Error('This user is not allowed to set this source id')
                 }
                 return true
             } catch (err) {
@@ -62,55 +63,55 @@ const ALLOWED_SOURCE_TYPES_CONFIG = {
     },
 }
 
-const BAD_OBJECT_ID = 'BAD_OBJECT_ID'
-const BAD_SOURCE = 'BAD_SOURCE'
-const BAD_DATA = 'BAD_DATA'
-const BAD_UNIT = 'BAD_UNIT'
-const BAD_ADDRESS_KEY = 'BAD_ADDRESS_KEY'
+const INVALID_OBJECT_ID = 'INVALID_OBJECT_ID'
+const INVALID_SOURCE = 'INVALID_SOURCE'
+const INVALID_DATA = 'INVALID_DATA'
+const INVALID_CUSTOM_FIELD = 'INVALID_CUSTOM_FIELD'
+const INVALID_UNIT = 'INVALID_UNIT'
+const INVALID_ADDRESS_KEY = 'INVALID_ADDRESS_KEY'
 const ALREADY_EXISTS_UNIQ_KEY = 'ALREADY_EXISTS_UNIQ_KEY'
-const ALREADY_EXISTS_CONSTRAINT = 'ALREADY_EXISTS_CONSTRAINT'
-const ALREADY_EXISTS_MANY = 'ALREADY_EXISTS_CONSTRAINT'
+const ALREADY_EXISTS_OBJECT_ID = 'ALREADY_EXISTS_OBJECT_ID'
 
 const ERRORS = {
-    BAD_DATA: {
+    INVALID_DATA: {
         code: BAD_USER_INPUT,
-        type: BAD_DATA,
-        message: 'Provided data is wrong',
+        type: INVALID_DATA,
+        message: 'Provided data is invalid. Check type and validation rules for provided customField',
     },
-    BAD_OBJECT_ID: {
+    INVALID_OBJECT_ID: {
         code: BAD_USER_INPUT,
-        type: BAD_OBJECT_ID,
-        message: 'Provided object id is wrong, or you do not have access to this object',
+        type: INVALID_OBJECT_ID,
+        message: 'Provided object id does not exist, was deleted, or you do not have access to this object',
     },
-    BAD_SOURCE: {
+    INVALID_SOURCE: {
         code: BAD_USER_INPUT,
-        type: BAD_SOURCE,
-        message: 'Provided combination of sourceType and sourceId is wrong, or you do not have rights to set this source',
+        type: INVALID_SOURCE,
+        message: 'Provided combination of sourceType and sourceId is invalid, or you do not have rights to set this source',
     },
-    BAD_UNIT: {
+    INVALID_UNIT: {
         code: BAD_USER_INPUT,
-        type: BAD_UNIT,
-        message: 'Provided combination of unitName and unitType is wrong, check that provided unit belongs to the provided objectId',
+        type: INVALID_UNIT,
+        message: 'Provided combination of unitName and unitType is invalid, check that provided unit belongs to the provided objectId',
     },
-    BAD_ADDRESS_KEY: {
+    INVALID_ADDRESS_KEY: {
         code: BAD_USER_INPUT,
-        type: BAD_ADDRESS_KEY,
+        type: INVALID_ADDRESS_KEY,
         message: 'Provided addressKey is wrong, check that provided addressKey belongs to the provided objectId',
+    },
+    INVALID_CUSTOM_FIELD: {
+        code: BAD_USER_INPUT,
+        type: INVALID_CUSTOM_FIELD,
+        message: 'Custom field for this value does not exist',
     },
     ALREADY_EXISTS_UNIQ_KEY: {
         code: BAD_USER_INPUT,
         type: ALREADY_EXISTS_UNIQ_KEY,
-        message: 'Provided combination of sourceType and sourceId is wrong, or you do not have rights to set this source',
+        message: 'Another object with this uniqKey already exists in this organization',
     },
-    ALREADY_EXISTS_CONSTRAINT: {
+    ALREADY_EXISTS_OBJECT_ID: {
         code: BAD_USER_INPUT,
-        type: ALREADY_EXISTS_CONSTRAINT,
-        message: 'Provided combination of sourceType and sourceId is wrong, or you do not have rights to set this source',
-    },
-    ALREADY_EXISTS_MANY: {
-        code: BAD_USER_INPUT,
-        type: ALREADY_EXISTS_MANY,
-        message: 'Provided combination of sourceType and sourceId is wrong, or you do not have rights to set this source',
+        type: ALREADY_EXISTS_OBJECT_ID,
+        message: 'Another object linked to provided customField already exists with this objectId. Get this object and update it, instead of creating a new one',
     },
 }
 
@@ -159,31 +160,11 @@ const CustomValue = new GQLListSchema('CustomValue', {
             schemaDoc: 'ID of entity, responsible for the last update of this customField',
             type: 'Text',
             isRequired: true,
-            hooks: {
-                validateInput: async ({ addFieldValidationError, resolvedData, existingItem, operation, context, originalInput }) => {
-                    const resultObject = { ...resolvedData, ...existingItem }
-
-                    const sourceType = resultObject.sourceType
-                    const sourceId = resultObject.sourceId
-
-                    const sourceIdValidator = ALLOWED_SOURCE_TYPES_CONFIG[sourceType]?.validateSourceId
-                    if (typeof sourceIdValidator !== 'function') { addFieldValidationError('Source id cannot be validated') }
-
-                    const sourceIdIsValid = await sourceIdValidator({ context, sourceId })
-                    if (!sourceIdIsValid) {
-                        addFieldValidationError('Source id is bad')
-                    }
-                },
-            },
         },
 
         organization: {
-            schemaDoc: 'Organization that owns data inside this CustomValue',
-            type: 'Relationship',
-            ref: 'Organization',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
+            ...ORGANIZATION_OWNED_FIELD,
+            schemaDoc: `Organization that owns data inside this CustomValue. ${ORGANIZATION_OWNED_FIELD.schemaDoc}`,
         },
 
         unitName: {
@@ -204,14 +185,10 @@ const CustomValue = new GQLListSchema('CustomValue', {
             isRequired: false,
         },
 
-        uniqueConstraintKey: {
-            schemaDoc: 'System defined constraint',
-            type: 'Text',
-            isRequired: false,
-            access: {
-                create: false,
-                update: false,
-            },
+        isUniquePerObject: {
+            schemaDoc: 'System field, equals to CustomField.isUniquePerObject, used in constraints logic',
+            type: 'Checkbox',
+            isRequired: true,
         },
 
         uniqKey: {
@@ -223,11 +200,12 @@ const CustomValue = new GQLListSchema('CustomValue', {
     hooks: {
         resolveInput: async ({ resolvedData, existingItem, operation, context, originalInput }) => {
             const resultObject = { ...resolvedData, ...existingItem }
-
             const customField = await getById('CustomField', resultObject.customField)
             if (!customField || customField.deletedAt) {
-                throw new Error('Custom field is bad')
+                throw new GQLError(ERRORS.INVALID_CUSTOM_FIELD, context)
             }
+
+            resolvedData.isUniquePerObject = customField.isUniquePerObject
 
             return resolvedData
         },
@@ -235,9 +213,6 @@ const CustomValue = new GQLListSchema('CustomValue', {
             const resultObject = { ...resolvedData, ...existingItem }
 
             const customField = await getById('CustomField', resultObject.customField)
-            if (!customField || customField.deletedAt) {
-                throw new Error('Custom field is bad')
-            }
 
             const customFieldValidationRules = customField.validationRules
 
@@ -246,18 +221,37 @@ const CustomValue = new GQLListSchema('CustomValue', {
 
             const customFieldType = customField.type
             const customFieldTypeConfig = ALLOWED_TYPES[customFieldType]
+            const customFieldIsUniquePerObject = customField.isUniquePerObject
 
+            if (customFieldIsUniquePerObject) {
+                // todo @toplenboren full table scan is bad
+                const existingCustomValues = await find('CustomValue', {
+                    objectId: { id: resultObject.objectId },
+                    organization: { id: resultObject.organization },
+                    customField: { id: resultObject.customField },
+                    deletedAt: null,
+                })
+
+                if (existingCustomValues.length > 0) {
+                    throw new GQLError(ERRORS.ALREADY_EXISTS_OBJECT_ID, context)
+                }
+            }
+
+            // Data
             if (resolvedData.data) {
                 // 1. Validate data on field rules
                 if (!customFieldTypeConfig.valueIsValid(resolvedData.data)) {
-                    throw new GQLError(ERRORS.BAD_DATA, context)
+                    throw new GQLError(ERRORS.INVALID_DATA, context)
                 }
 
                 // 2. Validate data on custom field rules
-                const validator = getGQLErrorValidator(ajv.compile(customFieldValidationRules), BAD_DATA)
-                validator( { resolvedData, fieldPath: 'data', context } )
+                if (customFieldValidationRules) {
+                    const validator = getGQLErrorValidator(ajv.compile(customFieldValidationRules), ERRORS.INVALID_DATA)
+                    validator( { resolvedData, fieldPath: 'data', context } )
+                }
             }
 
+            // Object ID
             if (resolvedData.objectId || resolvedData.organization) {
                 const objectId = resultObject.objectId
                 const organizationId = resultObject.organization
@@ -266,7 +260,7 @@ const CustomValue = new GQLListSchema('CustomValue', {
                 const pathToOrganizationId = get(customFieldSchemaConfig, 'pathToOrganizationId', ['organization', 'id'])
 
                 if (!UUID_REGEXP.test(objectId)) {
-                    throw new GQLError(ERRORS.BAD_OBJECT_ID, context)
+                    throw new GQLError(ERRORS.INVALID_OBJECT_ID, context)
                 }
 
                 try {
@@ -277,17 +271,17 @@ const CustomValue = new GQLListSchema('CustomValue', {
 
                     let objectOrganizationId = null
 
-                    // [id] / [orgId]
+                    // Example: [id] / [orgId]
                     if (pathToOrganizationId.length === 1) {
                         objectOrganizationId = objectId
                     }
 
-                    // ['organization', 'id'] / ['userOrg', 'id']
+                    // Example: ['organization', 'id'] / ['residentOrganization', 'id']
                     else if (pathToOrganizationId.length === 2 && pathToOrganizationId[1] === 'id') {
                         objectOrganizationId = object[pathToOrganizationId[0]]
                     }
 
-                    // ['ticket', 'organization', 'id']
+                    // Example: ['ticket', 'organization', 'id']
                     else {
                         const [objectOrganization] = await execGqlWithoutAccess(context, {
                             query: generateGqlQueryToOrganizationId(customFieldSchemaName, pathToOrganizationId.slice(1)),
@@ -304,10 +298,58 @@ const CustomValue = new GQLListSchema('CustomValue', {
                         throw new Error('ObjectId is not valid: organizations do not match')
                     }
                 } catch (err) {
-                    throw new GQLError(ERRORS.BAD_OBJECT_ID, context)
+                    throw new GQLError(ERRORS.INVALID_OBJECT_ID, context)
+                }
+            }
+
+            // Source ID
+            // todo @toplenboren, should I always check source id?
+            const sourceType = resultObject.sourceType
+            const sourceId = resultObject.sourceId
+
+            const sourceIdValidator = ALLOWED_SOURCE_TYPES_CONFIG[sourceType]?.validateSourceId
+            if (typeof sourceIdValidator !== 'function') {
+                throw new GQLError(ERRORS.INVALID_SOURCE, context)
+            }
+
+            const sourceIdIsValid = await sourceIdValidator({ context, sourceId })
+            if (!sourceIdIsValid) {
+                throw new GQLError(ERRORS.INVALID_SOURCE, context)
+            }
+
+            // Uniq Key
+            if (resolvedData.uniqKey) {
+                const objsWithSameUniqKey = await find('CustomValue',
+                    {
+                        organization: { id: resultObject.organization },
+                        customField: { id: resultObject.customField },
+                        uniqKey: { id: resultObject.uniqKey },
+                        deletedAt: null,
+                    })
+
+                if (objsWithSameUniqKey.length > 0) {
+                    throw new GQLError(ERRORS.ALREADY_EXISTS_UNIQ_KEY, context)
                 }
             }
         },
+    },
+    kmigratorOptions: {
+        constraints: [
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['organization', 'customField', 'uniqKey'],
+                name: 'unique_organization_customField_uniqKey',
+                condition: 'Q(deletedAt__isnull=True)',
+            },
+
+            // todo: @toplenboren is it better to have multiple constraints or single constraint controlled by js code?
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['organization', 'customField', 'objectId'],
+                name: 'unique_organization_customField_objectId',
+                condition: 'Q(deletedAt__isnull=True) & Q(isUniquePerObject=True)',
+            },
+        ],
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
