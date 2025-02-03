@@ -7,13 +7,14 @@ const conf = require('@open-condo/config')
 const { faker } = require('@faker-js/faker')
 
 const {
-    generateGQLTestUtils,
+    generateGQLTestUtils, throwIfError,
 } = require('@open-condo/codegen/generate.test.utils')
 
 const { Address: AddressGQL } = require('@address-service/domains/address/gql')
 const { AddressInjection: AddressInjectionGQL } = require('@address-service/domains/address/gql')
 const { InjectionsSeeker } = require('@address-service/domains/common/utils/services/InjectionsSeeker')
 const { AddressSource: AddressSourceGQL } = require('@address-service/domains/address/gql')
+const { LINK_ADDRESS_AND_SOURCE_MUTATION } = require('@address-service/domains/address/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 if (conf.DEFAULT_LOCALE) {
@@ -171,6 +172,20 @@ async function updateTestAddressSource (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+
+async function linkAddressAndSourceByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(LINK_ADDRESS_AND_SOURCE_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -183,5 +198,6 @@ module.exports = {
     getTestInjections,
     createTestAddressPartWithType,
     AddressSource, createTestAddressSource, updateTestAddressSource,
-    /* AUTOGENERATE MARKER <EXPORTS> */
+    linkAddressAndSourceByTestClient,
+/* AUTOGENERATE MARKER <EXPORTS> */
 }

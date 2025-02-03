@@ -6,11 +6,13 @@
 const { Address } = require('./Address')
 const { AddressInjection } = require('./AddressInjection')
 const { AddressSource } = require('./AddressSource')
+const { LinkAddressAndSourceService } = require('./LinkAddressAndSourceService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
     Address,
     AddressInjection,
     AddressSource,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    LinkAddressAndSourceService,
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

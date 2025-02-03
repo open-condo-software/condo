@@ -4,18 +4,33 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
+const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 
+const { LINK_ADDRESS_AND_SOURCE_MUTATION } = require('@address-service/domains/address/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Address = generateServerUtils('Address')
 const AddressInjection = generateServerUtils('AddressInjection')
 const AddressSource = generateServerUtils('AddressSource')
+async function linkAddressAndSource (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: LINK_ADDRESS_AND_SOURCE_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to linkAddressAndSource',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     Address,
     AddressInjection,
     AddressSource,
+    linkAddressAndSource,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

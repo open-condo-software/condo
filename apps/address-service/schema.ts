@@ -1265,6 +1265,24 @@ export enum CacheControlScope {
 }
 
 
+export type LinkAddressAndSourceHelpersInput = {
+  tin?: Maybe<Scalars['String']>;
+};
+
+export type LinkAddressAndSourceInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  source: Scalars['String'];
+  helpers?: Maybe<LinkAddressAndSourceHelpersInput>;
+  address: AddressWhereUniqueInput;
+  parseUnit?: Maybe<Scalars['Boolean']>;
+};
+
+export type LinkAddressAndSourceOutput = {
+  __typename?: 'LinkAddressAndSourceOutput';
+  addressSourceId: Scalars['ID'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   /**  Create a single UserHistoryRecord item.  */
@@ -1363,6 +1381,7 @@ export type Mutation = {
   deleteAddressSource?: Maybe<AddressSource>;
   /**  Delete multiple AddressSource items by ID.  */
   deleteAddressSources?: Maybe<Array<Maybe<AddressSource>>>;
+  linkAddressAndSource?: Maybe<LinkAddressAndSourceOutput>;
   /**  Authenticate and generate a token for a User with the Password Authentication Strategy.  */
   authenticateUserWithPassword?: Maybe<AuthenticateUserOutput>;
   unauthenticateUser?: Maybe<UnauthenticateUserOutput>;
@@ -1615,6 +1634,11 @@ export type MutationDeleteAddressSourceArgs = {
 
 export type MutationDeleteAddressSourcesArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationLinkAddressAndSourceArgs = {
+  data: LinkAddressAndSourceInput;
 };
 
 
