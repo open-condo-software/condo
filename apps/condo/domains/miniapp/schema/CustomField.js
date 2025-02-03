@@ -158,13 +158,6 @@ const CustomField = new GQLListSchema('CustomField', {
             isRequired: true,
             defaultValue: true,
         },
-
-        staffCanManage: {
-            schemaDoc: 'If true, staff type account can create and update values of this custom field',
-            type: 'Checkbox',
-            isRequired: true,
-            defaultValue: false,
-        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
