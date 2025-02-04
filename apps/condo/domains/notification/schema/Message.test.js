@@ -3,7 +3,7 @@
  */
 const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, setFeatureFlag } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObj,
@@ -12,7 +12,9 @@ const {
     expectToThrowAuthenticationErrorToObjects, catchErrorFrom,
 } = require('@open-condo/keystone/test.utils')
 
-const { INVITE_NEW_EMPLOYEE_MESSAGE_TYPE, VOIP_INCOMING_CALL_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
+const { PLATFORM_NOTIFICATIONS } = require('@condo/domains/common/constants/featureflags')
+const { INVITE_NEW_EMPLOYEE_MESSAGE_TYPE, VOIP_INCOMING_CALL_MESSAGE_TYPE, TICKET_CREATED_TYPE, SHARE_TICKET_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
+const { renderDefaultTemplate } = require('@condo/domains/notification/templates')
 const { Message, createTestMessage, updateTestMessage } = require('@condo/domains/notification/utils/testSchema')
 const { makeClientWithRegisteredOrganization, createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const {
@@ -20,6 +22,7 @@ const {
     createTestUserRightsSet,
     updateTestUser,
 } = require('@condo/domains/user/utils/testSchema')
+
 
 describe('Message', () => {
     let admin
@@ -254,6 +257,32 @@ describe('Message', () => {
             expect(obj1.user).toBeNull()
             expect(obj1.type).toEqual(obj.type)
 
+        })
+    })
+
+    describe('defaultContent', () => {
+        setFeatureFlag(PLATFORM_NOTIFICATIONS, true)
+
+        it('Message with default template has defaultContent value', async () => {
+            const [message] = await createTestMessage(admin, {
+                type: TICKET_CREATED_TYPE,
+            })
+
+            expect(message.defaultContent).toBeDefined()
+            expect(message.defaultContent.content).toBeDefined()
+
+            const expectedContent = renderDefaultTemplate(message, message.lang)
+
+            expect(message.defaultContent.content).toEqual(expectedContent)
+        })
+
+        it('Message without default template has not defaultContent value', async () => {
+            const [message] = await createTestMessage(admin, {
+                type: SHARE_TICKET_MESSAGE_TYPE,
+            })
+
+            expect(message.defaultContent).toBeDefined()
+            expect(message.defaultContent.content).toBeNull()
         })
     })
 })

@@ -39753,6 +39753,10 @@ enum MessageStatusType {
   throttled
 }
 
+type MessageDefaultContentField {
+  content: String
+}
+
 """ Notification message """
 type Message {
   """
@@ -39798,6 +39802,9 @@ type Message {
   """ Task processing metadata. Just for debug purpose. You can see exactly what and where the message was sent 
   """
   processingMeta: JSON
+
+  """ Specifies the default message content if it exists """
+  defaultContent: MessageDefaultContentField
 
   """ Delivered (received) at time """
   deliveredAt: String
@@ -80413,6 +80420,7 @@ input RegisterMultiPaymentVirtualReceiptInput {
   amount: String!
   period: String!
   recipient: RegisterMultiPaymentVirtualReceiptRecipientInput!
+  category: BillingCategoryWhereUniqueInput
 }
 
 input RegisterMultiPaymentForVirtualReceiptInput {

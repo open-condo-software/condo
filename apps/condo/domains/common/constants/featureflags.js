@@ -31,6 +31,7 @@ const POLL_TICKET_COMMENTS = 'poll-ticket-comments'
 const REASSIGN_EMPLOYEE_TICKETS = 'reassign-employee-tickets'
 const SNOWFLAKES_SETTINGS = 'snowflakes-settings'
 const USER_WHITE_LIST_FOR_FIND_ORGANIZATIONS_BY_TIN = 'user-white-list-for-find-organizations-by-tin'
+const PLATFORM_NOTIFICATIONS = 'platform-notifications'
 
 module.exports = {
     SMS_AFTER_TICKET_CREATION,
@@ -65,4 +66,5 @@ module.exports = {
     REASSIGN_EMPLOYEE_TICKETS,
     SNOWFLAKES_SETTINGS,
     USER_WHITE_LIST_FOR_FIND_ORGANIZATIONS_BY_TIN,
+    PLATFORM_NOTIFICATIONS,
 }

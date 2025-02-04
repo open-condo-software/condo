@@ -105,6 +105,31 @@ function getEmailTemplate (locale, messageType) {
     throw new Error(`There is no "${locale}" template for "${messageType}" to send by "${EMAIL_TRANSPORT}"`)
 }
 
+function getDefaultTemplate (locale, messageType) {
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+    const defaultTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${locale}/messages/${messageType}/${DEFAULT_TEMPLATE_FILE_NAME}`)
+
+    let templatePath = null
+    if (fs.existsSync(defaultTemplatePath)) {
+        templatePath = defaultTemplatePath
+    }
+
+    return { templatePath }
+}
+
+function renderDefaultTemplate (message, locale) {
+    const env = {
+        serverUrl: SERVER_URL,
+    }
+    const { type } = message
+    const { templatePath } = getDefaultTemplate(locale, type)
+
+    if (templatePath) {
+        const messageTranslated = substituteTranslations(message, locale)
+        return nunjucks.render(templatePath, { message: messageTranslated, env })
+    }
+}
+
 function getTelegramTemplate (locale, messageType) {
     // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
     const defaultTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${locale}/messages/${messageType}/${DEFAULT_TEMPLATE_FILE_NAME}`)
@@ -322,6 +347,7 @@ async function renderTemplate (transport, message) {
 }
 
 module.exports = {
+    renderDefaultTemplate,
     renderTemplate,
     translationStringKeyForEmailSubject,
     translationStringKeyForPushTitle,
