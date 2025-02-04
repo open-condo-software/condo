@@ -13,9 +13,7 @@ import { CreateNewsActionBar, getCompletedNotification } from '@condo/domains/ne
 import { NewsItem, NewsItemScope, NewsItemSharing, NewsItemTemplate } from '@condo/domains/news/utils/clientSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
-import { BaseNewsFormProps, SendPeriodType } from './BaseNewsForm'
-import { BaseNewsFormByFeatureFlag } from './BaseNewsFormByFeatureFlag'
-
+import { BaseNewsForm, BaseNewsFormProps, SendPeriodType } from './BaseNewsForm'
 
 export interface IResendNewsForm {
     id: string
@@ -127,15 +125,17 @@ export const ResendNewsForm: React.FC<IResendNewsForm> = ({ id }) => {
         },
     })
 
-    const templates = isNewsItemTemplatesFetching ? null : newsItemTemplates
+    const templates = isNewsItemTemplatesFetching || !newsItemTemplates?.length ? null : newsItemTemplates
         .reduce((acc, template) => {
             acc[template.id] = {
                 title: template.title,
                 body: template.body,
                 type: template.type,
+                label: template.name,
+                category: template.category,
             }
             return acc
-        }, { emptyTemplate: { title: EmptyTemplateTitle, body: '', type: null } })
+        }, { emptyTemplate: { title: EmptyTemplateTitle, body: '', type: null, category: '' } })
 
     const softDeleteNewsItem = NewsItem.useSoftDelete()
     const OnCompletedMsg = useCallback((newsItem) => {
@@ -159,7 +159,7 @@ export const ResendNewsForm: React.FC<IResendNewsForm> = ({ id }) => {
     }
 
     return (
-        <BaseNewsFormByFeatureFlag
+        <BaseNewsForm
             organizationId={organizationId}
             newsItemAction={action}
             ActionBar={CreateNewsActionBar}
