@@ -19,7 +19,7 @@ const ImageContainer = styled.div`
   width: 100%;
   border-radius: 12px;
   padding: 16px;
-  background-color: ${colors.gray[3]};
+  background-color: ${colors.gray[1]};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -101,7 +101,6 @@ const BaseImportWrapper: React.FC<TBaseImportWrapperProps> = (props) => {
     const intl = useIntl()
     const ImportPluralMessage = intl.formatMessage({ id: `import.${domainName}.plural` as FormatjsIntl.Message['ids'] })
     const ImportGenitiveMessage = intl.formatMessage({ id: `import.${domainName}.genitive` as FormatjsIntl.Message['ids'] })
-    const ImportPrepositionalMessage = intl.formatMessage({ id: `import.${domainName}.prepositional` as FormatjsIntl.Message['ids'] })
     const ImportRequiredFieldsMessage = intl.formatMessage({ id: `import.${domainName}.requiredFields` as FormatjsIntl.Message['ids'] })
     const ImportSuccessMessage = intl.formatMessage({ id: 'import.successModal.title' })
     const ImportDefaultErrorMessage = intl.formatMessage({ id: 'ImportError' })
@@ -109,7 +108,7 @@ const BaseImportWrapper: React.FC<TBaseImportWrapperProps> = (props) => {
     const UploadButtonLabel = uploadButtonLabel || intl.formatMessage({ id: 'import.uploadButtonLabel' })
     const UploadModalTitle = intl.formatMessage({ id: 'import.uploadModal.title' }, { plural: ImportPluralMessage.toLowerCase() })
     const RequiredFieldsTitle = intl.formatMessage({ id: 'import.uploadModal.requiredFields.title' })
-    const UploadModalMessage = intl.formatMessage({ id: 'import.uploadModal.message' }, { prepositional: ImportPrepositionalMessage.toLowerCase() })
+    const UploadModalMessage = intl.formatMessage({ id: 'import.uploadModal.message' })
     const ExampleLinkMessage = intl.formatMessage({ id: 'import.uploadModal.exampleLinkMessage' }, { genitive: ImportGenitiveMessage.toLowerCase() })
     const ProgressModalTitle = intl.formatMessage({ id: 'import.progressModal.title' })
     const ProgressModalMessage = intl.formatMessage({ id: 'import.progressModal.message' })
@@ -182,7 +181,6 @@ const BaseImportWrapper: React.FC<TBaseImportWrapperProps> = (props) => {
                         message={RequiredFieldsTitle}
                         description={ImportRequiredFieldsMessage}
                     />
-                    {get(extraModalContent, 'example')}
                     <LinkWithIcon
                         title={ExampleLinkMessage}
                         size='medium'
@@ -190,6 +188,7 @@ const BaseImportWrapper: React.FC<TBaseImportWrapperProps> = (props) => {
                         href={exampleTemplateLink}
                         target='_blank'
                     />
+                    {get(extraModalContent, 'example')}
                 </Space>
             </Modal>
             <Modal

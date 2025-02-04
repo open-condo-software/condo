@@ -8,7 +8,7 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { AlertCircle, PlusCircle, Search } from '@open-condo/icons'
+import { QuestionCircle, PlusCircle, Search } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -76,7 +76,7 @@ const useContactImportIsVerifiedCheckbox = () => {
                 <Typography.Text>{CheckboxTitle}</Typography.Text>
                 <Tooltip title={TooltipTitle}>
                     <Space size={8}>
-                        <AlertCircle size='small' />
+                        <QuestionCircle size='small' />
                     </Space>
                 </Tooltip>
             </Space>
