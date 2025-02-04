@@ -69,7 +69,7 @@ export const TemplatesSelect: React.FC<INewsFormProps> = ({ items, onChange, has
             const result = []
             for (const category of (Object.keys(templatesByCategory).reverse())) {
                 result.push({
-                    label: intl.formatMessage( { id: `news.template.category.${CATEGORIES[category]}` }),
+                    label: category ? intl.formatMessage( { id: `news.template.category.${CATEGORIES[category]}` }) : '',
                     options: templatesByCategory[category],
                 })
             }
