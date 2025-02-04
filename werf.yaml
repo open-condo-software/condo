@@ -898,7 +898,7 @@ shell:
     - "yarn workspace @app/resident-app build"
     - "rm -rf /app/.config"
 ---
-image: announcement
+image: announcements
 fromImage: base
 fromCacheVersion: "1"
 git:
@@ -935,9 +935,9 @@ shell:
     - "echo 'REDIS_URL=undefined' >> /app/.env"
     - "echo 'NODE_ENV=production' >> /app/.env"
     - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
-    - "yarn workspace @app/announcement-generator next telemetry disable"
-    - "yarn workspace @app/announcement-generator build:deps"
-    - "yarn workspace @app/announcement-generator build"
+    - "yarn workspace @app/announcements next telemetry disable"
+    - "yarn workspace @app/announcements build:deps"
+    - "yarn workspace @app/announcements build"
     - "rm -rf /app/.env"
     - "rm -rf /app/.config"
 ---
