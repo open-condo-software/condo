@@ -191,8 +191,8 @@ export const CreateNewsForm: React.FC = () => {
     const templates = isNewsItemTemplatesFetching || !newsItemTemplates?.length ? null : newsItemTemplates
         .reduce((acc, template) => {
             acc[template.id] = {
-                title: template.title,
-                body: template.body,
+                title: template.title.replace(/&nbsp;/g, '\n'),
+                body: template.body.replace(/&nbsp;/g, '\n'),
                 type: template.type,
                 label: template.name,
                 category: template.category,
