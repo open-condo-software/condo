@@ -16,6 +16,7 @@ const {
     createValidRuRoutingNumber,
     createValidRuNumber,
 } = require('@condo/domains/banking/utils/testSchema/bankAccount')
+const { HOUSING_CATEGORY_ID } = require('@condo/domains/billing/constants/constants')
 const { getCountrySpecificQRCodeParser } = require('@condo/domains/billing/utils/countrySpecificQRCodeParsers')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
@@ -169,6 +170,7 @@ describe('receiptQRCodeUtils', () => {
             ;[billingProperty] = await createTestBillingProperty(adminClient, billingIntegrationContext)
             ;[billingAccount] = await createTestBillingAccount(adminClient, billingIntegrationContext, billingProperty, { number: qrCodeObj.PersAcc })
             ;[billingRecipient] = await createTestBillingRecipient(adminClient, billingIntegrationContext, {
+                tin: qrCodeObj.PayeeINN,
                 bankAccount: qrCodeObj.PersonalAcc,
                 bic: qrCodeObj.BIC,
             })
@@ -200,7 +202,9 @@ describe('receiptQRCodeUtils', () => {
                     period: '2024-06-01',
                     receiver: { connect: { id: billingRecipient.id } },
                     recipient: createTestRecipient({
+                        tin: billingRecipient.tin,
                         bic: billingRecipient.bic,
+                        bankAccount: billingRecipient.bankAccount,
                     }),
                     toPay: Big(qrCodeObj.Sum).div(100),
                 })
@@ -209,6 +213,7 @@ describe('receiptQRCodeUtils', () => {
                     id: billingReceipt.id,
                     period: billingReceipt.period,
                     toPay: billingReceipt.toPay,
+                    category: { id: HOUSING_CATEGORY_ID },
                 }
             })
 
