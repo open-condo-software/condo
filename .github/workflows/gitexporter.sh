@@ -83,7 +83,7 @@ cat > ${SOURCE_FOLDER}.config.json <<EOF
     "apps/_compability_app/*",
     "apps/_pomodoro_app/*",
     "apps/amocrm/*",
-    "apps/asterix_bot/*",
+    "apps/asterisk-bot/*",
     "apps/callcenter/*",
     "apps/condorb/*",
     "apps/eps/*",

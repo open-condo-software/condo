@@ -1,6 +1,6 @@
-[submodule "apps/asterix_bot"]
-	path = apps/asterix_bot
-	url = ../asterix_bot.git
+[submodule "apps/asterisk-bot"]
+	path = apps/asterisk-bot
+	url = git@github.com:open-condo-software/condo-asterisk-bot.git
 [submodule "apps/callcenter"]
 	path = apps/callcenter
 	url = ../condo_call_center.git
