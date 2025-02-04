@@ -28,9 +28,9 @@
 [submodule "apps/telephony"]
 	path = apps/telephony
 	url = git@github.com:open-condo-software/condo-telephony.git
-[submodule "apps/telephony-integration"]
-    path = apps/telephony-integration
-    url = git@github.com:open-condo-software/condo-telephony-integration.git
+[submodule "apps/telephony-ws-api"]
+	path = apps/telephony-ws-api
+	url = git@github.com:open-condo-software/condo-telephony-ws-api.git
 [submodule "apps/pass"]
 	path = apps/pass
 	url = git@github.com:open-condo-software/condo-pass.git

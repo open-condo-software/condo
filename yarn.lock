@@ -2087,9 +2087,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@app/telephony-integration@workspace:apps/telephony-integration":
+"@app/telephony-ws-api@workspace:apps/telephony-ws-api":
   version: 0.0.0-use.local
-  resolution: "@app/telephony-integration@workspace:apps/telephony-integration"
+  resolution: "@app/telephony-ws-api@workspace:apps/telephony-ws-api"
   dependencies:
     concurrently: ^7.6.0
     dotenv: ^16.0.3
