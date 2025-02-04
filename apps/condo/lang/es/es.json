@@ -1130,7 +1130,7 @@
   "import.helpModal.readInstruction.title": "Consultar instrucciones",
   "import.helpModal.title": "Le ayudamos ahora mismo",
   "import.meter.genitive": "lectura",
-  "import.meter.plural": "Lectura",
+  "import.meter.plural": "Contadores y lecturas",
   "import.meter.requiredFields": "Introduzca la dirección, la propiedad y su tipo, el número de cuenta personal, el tipo de contador, el número de tarifas y la fecha de transmisión de las lecturas",
   "import.meterReading.plural": "lectura",
   "import.partlyDataLoadedModal.alert.description": "Los datos no cargados se puede añadir manualmente o generar una tabla de ellos e intentar cargarla de nuevo",
