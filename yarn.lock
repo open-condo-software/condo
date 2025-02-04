@@ -618,9 +618,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@app/announcement-generator@workspace:apps/announcement-generator":
+"@app/announcements@workspace:apps/announcements":
   version: 0.0.0-use.local
-  resolution: "@app/announcement-generator@workspace:apps/announcement-generator"
+  resolution: "@app/announcements@workspace:apps/announcements"
   dependencies:
     "@babel/core": ^7.23.0
     "@babel/preset-env": ^7.22.20
