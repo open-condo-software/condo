@@ -543,6 +543,7 @@ __metadata:
   resolution: "@app/address-service@workspace:apps/address-service"
   dependencies:
     "@address-service/domains": "link:./domains"
+    "@arch-ui/card": ^0.0.18
     "@emotion/babel-plugin": ^11.10.0
     "@emotion/core": ^10.1.1
     "@emotion/react": ^11.9.3
@@ -610,6 +611,7 @@ __metadata:
     react-markdown: ^4.3.1
     react-responsive: ^8.1.0
     react-test-renderer: ^16.13.1
+    react-toast-notifications: ^2.4.4
     typescript: ^5.5.4
     use-immer: ^0.4.1
     uuid: ^8.3.0
