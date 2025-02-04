@@ -18,6 +18,7 @@ shell:
       make
       nodejs
       python3-pip"
+  - "apt autoremove -y && apt autoclean -y"
   - "pip3 install django>=3.0.6 psycopg2-binary>=2.8.5"
   - "npm install --global yarn"
 
