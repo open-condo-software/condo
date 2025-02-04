@@ -119,7 +119,7 @@ jobs:
     runs-on: ubuntu-22.04
     outputs:
       address-service: ${{ steps.detect-changes.outputs.address-service }}
-      condorb: ${{ steps.detect-changes.outputs.condorb }}
+      rb: ${{ steps.detect-changes.outputs.rb }}
       dev-api: ${{ steps.detect-changes.outputs.dev-api }}
       open-condo: ${{ steps.detect-changes.outputs.open-condo }}
       registry-importer: ${{ steps.detect-changes.outputs.registry-importer }}
@@ -140,8 +140,8 @@ jobs:
             address-service:
               - 'apps/address-service/**'
               - 'packages/**'
-            condorb:
-              - 'apps/condorb'
+            rb:
+              - 'apps/rb'
               - 'packages/**'
             dev-api:
               - 'apps/dev-api/**'
@@ -345,14 +345,14 @@ jobs:
       image_name: ${{ needs.build-image.outputs.DOCKER_IMAGE }}
     secrets: inherit
 
-  run-condorb-tests:
-    name: CondoRB Tests
+  run-rb-tests:
+    name: rb Tests
     runs-on: ubuntu-22.04
     needs:
       - authorize
       - build-image
       - detect-changes
-    if: ${{ needs.detect-changes.outputs.condorb == 'true' }}
+    if: ${{ needs.detect-changes.outputs.rb == 'true' }}
     steps:
       - name: Login to cloud registry
         uses: docker/login-action@v3
@@ -375,17 +375,17 @@ jobs:
           docker run --network="host" --name condo-container -dit ${{ env.DOCKER_IMAGE_FULL }} sh
       - name: Prepare apps
         run: |
-          docker exec condo-container node bin/prepare.js -f condo condorb
+          docker exec condo-container node bin/prepare.js -f condo rb
       - name: Check migrations state
         run: |
-          docker exec condo-container yarn workspace @app/condorb makemigrations --check
+          docker exec condo-container yarn workspace @app/rb makemigrations --check
       - name: Run apps and tests
         run: |
           docker exec condo-container sh -c "(\
           yarn workspace @app/condo start & \
-          yarn workspace @app/condorb start & \
-          node bin/wait-apps-apis.js -f condo condorb) && \
-          yarn workspace @app/condorb test"
+          yarn workspace @app/rb start & \
+          node bin/wait-apps-apis.js -f condo rb) && \
+          yarn workspace @app/rb test"
 
   run-dev-api-tests:
     name: DEV-API Tests

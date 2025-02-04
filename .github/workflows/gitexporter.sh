@@ -85,7 +85,7 @@ cat > ${SOURCE_FOLDER}.config.json <<EOF
     "apps/amocrm/*",
     "apps/asterisk-bot/*",
     "apps/callcenter/*",
-    "apps/condorb/*",
+    "apps/rb/*",
     "apps/eps/*",
     "apps/notification_bot/*",
     "apps/condo/public/20210804225402-0034_classifiers_import_20210803_1654.js",
