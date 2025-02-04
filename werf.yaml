@@ -753,7 +753,7 @@ docker:
   ENV:
     LANG: C.UTF-8
 ---
-image: telegramemployeebot
+image: employee_bot
 fromImage: base
 fromCacheVersion: "1"
 git:
