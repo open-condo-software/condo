@@ -837,7 +837,7 @@ shell:
     - "rm -rf /app/.env"
     - "rm -rf /app/.config"
 ---
-image: condorestapi
+image: external_api
 fromImage: base
 fromCacheVersion: "1"
 git:
