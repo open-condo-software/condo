@@ -721,33 +721,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@app/condo-restapi@workspace:apps/condo-restapi":
-  version: 0.0.0-use.local
-  resolution: "@app/condo-restapi@workspace:apps/condo-restapi"
-  dependencies:
-    "@condo/domains": "link:../condo/domains"
-    "@faker-js/faker": ^8.3.1
-    "@open-condo/keystone": "workspace:^"
-    apollo-boost: ^0.4.9
-    apollo-client: ^2.6.10
-    apollo-link-error: ^1.1.13
-    apollo-upload-client: 17.0.0
-    body-parser: ^1.20.2
-    cross-fetch: ^4.0.0
-    dayjs: ^1.10.6
-    dotenv: ^16.3.2
-    express: ^4.18.2
-    express-pino-logger: ^6.0.0
-    graphql: ^16.8.1
-    graphql-tag: ^2.12.6
-    lodash: ^4.17.21
-    node-fetch: 2.6.7
-    pluralize: ^8.0.0
-    react-apollo: ^3.1.5
-    uuid: ^9.0.1
-  languageName: unknown
-  linkType: soft
-
 "@app/condo@workspace:^, @app/condo@workspace:apps/condo":
   version: 0.0.0-use.local
   resolution: "@app/condo@workspace:apps/condo"
@@ -1399,6 +1372,33 @@ __metadata:
     xml-c14n: ^0.0.6
     xml-crypto: ^2.1.3
     xml-js: ^1.6.11
+  languageName: unknown
+  linkType: soft
+
+"@app/external-api@workspace:apps/external-api":
+  version: 0.0.0-use.local
+  resolution: "@app/external-api@workspace:apps/external-api"
+  dependencies:
+    "@condo/domains": "link:../condo/domains"
+    "@faker-js/faker": ^8.3.1
+    "@open-condo/keystone": "workspace:^"
+    apollo-boost: ^0.4.9
+    apollo-client: ^2.6.10
+    apollo-link-error: ^1.1.13
+    apollo-upload-client: 17.0.0
+    body-parser: ^1.20.2
+    cross-fetch: ^4.0.0
+    dayjs: ^1.10.6
+    dotenv: ^16.3.2
+    express: ^4.18.2
+    express-pino-logger: ^6.0.0
+    graphql: ^16.8.1
+    graphql-tag: ^2.12.6
+    lodash: ^4.17.21
+    node-fetch: 2.6.7
+    pluralize: ^8.0.0
+    react-apollo: ^3.1.5
+    uuid: ^9.0.1
   languageName: unknown
   linkType: soft
 
@@ -8058,12 +8058,6 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@condo/domains@link:../condo/domains::locator=%40app%2Fcondo-restapi%40workspace%3Aapps%2Fcondo-restapi":
-  version: 0.0.0-use.local
-  resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Fcondo-restapi%40workspace%3Aapps%2Fcondo-restapi"
-  languageName: node
-  linkType: soft
-
 "@condo/domains@link:../condo/domains::locator=%40app%2Fcondorb%40workspace%3Aapps%2Fcondorb":
   version: 0.0.0-use.local
   resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Fcondorb%40workspace%3Aapps%2Fcondorb"
@@ -8073,6 +8067,12 @@ __metadata:
 "@condo/domains@link:../condo/domains::locator=%40app%2Feps%40workspace%3Aapps%2Feps":
   version: 0.0.0-use.local
   resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Feps%40workspace%3Aapps%2Feps"
+  languageName: node
+  linkType: soft
+
+"@condo/domains@link:../condo/domains::locator=%40app%2Fexternal-api%40workspace%3Aapps%2Fexternal-api":
+  version: 0.0.0-use.local
+  resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Fexternal-api%40workspace%3Aapps%2Fexternal-api"
   languageName: node
   linkType: soft
 
