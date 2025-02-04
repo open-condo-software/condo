@@ -43,18 +43,18 @@
 [submodule "apps/eds-mosreg-integration"]
 	path = apps/eds-mosreg-integration
 	url = git@github.com:open-condo-software/condo-eds-mosreg-integration.git
-[submodule "apps/condo-restapi"]
-	path = apps/condo-restapi
-	url = git@github.com:open-condo-software/condo-restapi.git
+[submodule "apps/external-api"]
+	path = apps/external-api
+	url = git@github.com:open-condo-software/condo-external-api.git
 [submodule "apps/resident-app"]
 	path = apps/resident-app
 	url = git@github.com:open-condo-software/condo-resident-app.git
 [submodule "apps/meters-billing-integration"]
 	path = apps/meters-billing-integration
 	url = git@github.com:open-condo-software/condo-meters-billing-integration.git
-[submodule "apps/condo-news-sharing-greendom"]
-	path = apps/condo-news-sharing-greendom
-	url = git@github.com:open-condo-software/condo-news-sharing-greendom.git
+[submodule "apps/news-greenhouse"]
+	path = apps/news-greenhouse
+	url = git@github.com:open-condo-software/condo-news-greenhouse.git
 [submodule "apps/announcements"]
     path = apps/announcements
 	url = git@github.com:open-condo-software/condo-announcements.git
