@@ -643,9 +643,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@app/asterix_bot@workspace:apps/asterix_bot":
+"@app/asterisk-bot@workspace:apps/asterisk-bot":
   version: 0.0.0-use.local
-  resolution: "@app/asterix_bot@workspace:apps/asterix_bot"
+  resolution: "@app/asterisk-bot@workspace:apps/asterisk-bot"
   dependencies:
     "@types/node": ^16.3.2
     dotenv: ^10.0.0
