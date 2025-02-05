@@ -12,7 +12,7 @@
 	url = ../infrastructure-condo.git
 [submodule "apps/rb"]
 	path = apps/rb
-	url = ../condorb.git
+	url = git@github.com:open-condo-software/condo-rb.git
 [submodule "apps/registry-importer"]
 	path = apps/registry-importer
 	url = git@github.com:open-condo-software/condo-registry-importer.git
