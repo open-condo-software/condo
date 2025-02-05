@@ -6,6 +6,7 @@ from: ubuntu:20.04
 shell:
   beforeInstall:
   - "export DEBIAN_FRONTEND=noninteractive"
+  - "export BASE_IMAGE_VERSION=1"
   - "groupadd -r app --gid=999"
   - "useradd --system --create-home --home /app --gid 999 --uid=999 --shell /bin/bash app"
   - "apt update -qq"
