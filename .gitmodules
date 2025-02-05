@@ -49,9 +49,9 @@
 [submodule "apps/resident-app"]
 	path = apps/resident-app
 	url = git@github.com:open-condo-software/condo-resident-app.git
-[submodule "apps/meters-billing-integration"]
-	path = apps/meters-billing-integration
-	url = git@github.com:open-condo-software/condo-meters-billing-integration.git
+[submodule "apps/meter-importer"]
+	path = apps/meter-importer
+	url = git@github.com:open-condo-software/condo-meter-importer.git
 [submodule "apps/news-greenhouse"]
 	path = apps/news-greenhouse
 	url = git@github.com:open-condo-software/condo-news-greenhouse.git

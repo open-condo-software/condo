@@ -451,7 +451,7 @@ docker:
   ENV:
     LANG: C.UTF-8
 ---
-image: classifier
+image: classifiers-api
 fromImage: python-base
 fromCacheVersion: "1"
 git:
@@ -474,7 +474,7 @@ docker:
   ENV:
     LANG: C.UTF-8
 ---
-image: addressservice
+image: address_service
 fromImage: base
 fromCacheVersion: "1"
 git:
@@ -1022,7 +1022,7 @@ shell:
     - "echo 'REDIS_URL=undefined' >> /app/.env"
     - "echo 'NODE_ENV=production' >> /app/.env"
     - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
-    - "yarn workspace @app/meters-billing-integration next telemetry disable"
+    - "yarn workspace @app/meter-importer next telemetry disable"
     - "yarn workspace @app/meters-billing-integration build:deps"
     - "yarn workspace @app/meters-billing-integration build"
     - "rm -rf /app/.env"
