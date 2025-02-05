@@ -7,15 +7,14 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Dropdown, Typography } from '@open-condo/ui'
 
-import {
-    EXCLUDED_USER_MESSAGE_TYPES_LOCAL_STORAGE_KEY,
-    READ_USER_MESSAGES_AT_LOCAL_STORAGE_KEY, USER_MESSAGE_TYPES_FILTER_ON_CLIENT,
-} from '@condo/domains/notification/components/constants'
-import { usePollUserMessages } from '@condo/domains/notification/hooks/UserMessagesList/usePollUserMessages'
+import { usePollUserMessages } from '@condo/domains/notification/hooks/usePollUserMessages'
+import { useUserMessagesListSettingsStorage } from '@condo/domains/notification/hooks/useUserMessagesListSettingsStorage'
+import { USER_MESSAGE_TYPES_FILTER_ON_CLIENT } from '@condo/domains/notification/utils/client/constants'
 
 import { MessageCard } from './MessageCard'
 import { MessagesCounter } from './MessagesCounter'
 import { UserMessagesSettingsModal } from './UserMessagesSettingsModal'
+
 
 import './UserMessagesList.css'
 
@@ -35,7 +34,13 @@ export const UserMessagesList = () => {
 
     const userId = useMemo(() => user?.id, [user?.id])
     const organizationId = useMemo(() => organization?.id, [organization?.id])
-    const messageTypesToFilter = USER_MESSAGE_TYPES_FILTER_ON_CLIENT.filter(type => !excludedMessageTypes?.includes(type))
+    const messageTypesToFilter = useMemo(
+        () => USER_MESSAGE_TYPES_FILTER_ON_CLIENT.filter(type => !excludedMessageTypes?.includes(type)),
+        [excludedMessageTypes])
+
+    const {
+        userMessagesSettingsStorage,
+    } = useUserMessagesListSettingsStorage()
 
     const { userMessages } = usePollUserMessages({
         queryMessagesVariables: {
@@ -46,24 +51,22 @@ export const UserMessagesList = () => {
         skipQueryMessagesCondition:
             !userId || !organizationId || !readUserMessagesAt || messageTypesToFilter.length === 0,
     })
-    const newMessages = userMessages.filter(message => message.createdAt > readUserMessagesAt)
-    const viewedMessages = userMessages.filter(message => message.createdAt <= readUserMessagesAt)
+    const newMessages = useMemo(() => userMessages.filter(message => message.createdAt > readUserMessagesAt), [readUserMessagesAt, userMessages])
+    const viewedMessages = useMemo(() => userMessages.filter(message => message.createdAt <= readUserMessagesAt), [readUserMessagesAt, userMessages])
 
     useEffect(() => {
         if (isSSR()) return
 
-        const readMessagesAtFromStorage = JSON.parse(localStorage.getItem(READ_USER_MESSAGES_AT_LOCAL_STORAGE_KEY)) || {}
-        const readMessagesAtForCurrentOrganization = readMessagesAtFromStorage[organizationId] ?
-            readMessagesAtFromStorage[organizationId] :
-            new Date().toISOString()
-        setReadUserMessagesAt(readMessagesAtForCurrentOrganization)
+        let lastReadUserMessagesAt = userMessagesSettingsStorage.getReadUserMessagesAt()
+        if (!lastReadUserMessagesAt) {
+            lastReadUserMessagesAt = new Date().toISOString()
+            userMessagesSettingsStorage.setReadUserMessagesAt(lastReadUserMessagesAt)
+        }
+        setReadUserMessagesAt(lastReadUserMessagesAt)
 
-        const excludedMessageTypesToFilter = JSON.parse(localStorage.getItem(EXCLUDED_USER_MESSAGE_TYPES_LOCAL_STORAGE_KEY)) || {}
-        const excludedMessageTypesForCurrentOrganization = excludedMessageTypesToFilter ?
-            excludedMessageTypesToFilter[organizationId] :
-            []
-        setExcludedMessageTypes(excludedMessageTypesForCurrentOrganization)
-    }, [organizationId])
+        const excludedMessageTypesToFilter = userMessagesSettingsStorage.getExcludedUserMessagesTypes()
+        setExcludedMessageTypes(excludedMessageTypesToFilter)
+    }, [organizationId, userId, userMessagesSettingsStorage])
 
     const handleModalOpen = useCallback(() => {
         setIsDropdownOpen(false)
@@ -74,16 +77,12 @@ export const UserMessagesList = () => {
         setIsDropdownOpen(isOpen)
         if (isOpen) return
 
-        //NOTE: when dropdown closes - update last read time
+        // NOTE: when dropdown closes - update last read time
         const currentDate = new Date().toISOString()
         setReadUserMessagesAt(currentDate)
 
-        const storedReadMessagesAtData = JSON.parse(localStorage.getItem(READ_USER_MESSAGES_AT_LOCAL_STORAGE_KEY)) || {}
-        localStorage.setItem(READ_USER_MESSAGES_AT_LOCAL_STORAGE_KEY, JSON.stringify({
-            ...storedReadMessagesAtData,
-            [organizationId]: currentDate,
-        }))
-    }, [organizationId])
+        userMessagesSettingsStorage.setReadUserMessagesAt(currentDate)
+    }, [userMessagesSettingsStorage])
 
     return (
         <>

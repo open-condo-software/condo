@@ -16,7 +16,7 @@ export const MessagesCounter = ({ count }) => {
             return
         }
 
-        // reset counter without animation
+        // NOTE: reset counter without animation
         if (count === 0) {
             setCurrentCount(count)
         }
