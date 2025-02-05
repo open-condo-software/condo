@@ -797,7 +797,7 @@ docker:
   ENV:
     LANG: C.UTF-8
 ---
-image: edsintegration
+image: ticket_importer
 fromImage: base
 fromCacheVersion: "1"
 git:
@@ -833,7 +833,7 @@ shell:
     - "echo 'REDIS_URL=undefined' >> /app/.env"
     - "echo 'NODE_ENV=production' >> /app/.env"
     - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
-    - "yarn workspace @app/eds-mosreg-integration build"
+    - "yarn workspace @app/ticket-importer build"
     - "rm -rf /app/.env"
     - "rm -rf /app/.config"
 ---
