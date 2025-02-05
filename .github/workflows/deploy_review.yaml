@@ -57,7 +57,7 @@ jobs:
           WERF_SET_CI_TELEPHONY_URL: "global.ci_telephony_url=review-${{ env.REVIEW_URL_PREFIX }}-telephony.r.doma.ai"
           WERF_SET_CI_DEVPORTAL_URL: "global.ci_devportal_url=review-${{ env.REVIEW_URL_PREFIX }}-developers.r.doma.ai"
           WERF_SET_CI_PASSAPP_URL: "global.ci_passapp_url=review-${{ env.REVIEW_URL_PREFIX }}-miniapp-pass.r.doma.ai"
-          WERF_SET_CI_NEWS_SHARING_GREENDOM_APP_URL: "global.ci_news_sharing_greendom_app_url=news-sharing-greendom.r.doma.ai"
+          WERF_SET_CI_NEWS_GREENHOUSE_URL: "global.ci_news_greenhouse_url=news-sharing-greendom.r.doma.ai"
           WERF_SET_CI_METERS_BILLING_INTEGRATION_URL: "global.ci_meters_billing_integration_url=meters-billing-integration.r.doma.ai"
           WERF_SET_CI_NAMESPACE: "global.ci_namespace=${{ env.REVIEW_NAMESPACE }}"
           WERF_SET_CI_URL_PREFIX: "global.ci_url_prefix=${{ env.REVIEW_URL_PREFIX }}"
