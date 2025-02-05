@@ -155,7 +155,7 @@ jobs:
               - '*'
               - '!.helm/**'
             registry:
-              - 'apps/registry/**'
+              - 'apps/registry-importer/**'
               - 'packages/**'
             webhooks:
               - 'packages/webhooks/**'
