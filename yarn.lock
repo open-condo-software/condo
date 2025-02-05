@@ -975,9 +975,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@app/dev-portal@workspace:apps/dev-portal":
+"@app/dev-portal-web@workspace:apps/dev-portal-web":
   version: 0.0.0-use.local
-  resolution: "@app/dev-portal@workspace:apps/dev-portal"
+  resolution: "@app/dev-portal-web@workspace:apps/dev-portal-web"
   dependencies:
     "@ant-design/cssinjs": ^1.18.5
     "@apollo/client": ^3.11.8
@@ -985,7 +985,6 @@ __metadata:
     "@babel/core": 7.20.12
     "@babel/preset-env": 7.20.2
     "@babel/preset-typescript": 7.18.6
-    "@dev-portal/domains": "link:./domains"
     "@graphql-codegen/cli": ^5.0.2
     "@graphql-codegen/client-preset": 4.1.0
     "@graphql-codegen/typescript": ^4.0.1
@@ -1913,9 +1912,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@app/registry@workspace:apps/registry":
+"@app/registry-importer@workspace:apps/registry-importer":
   version: 0.0.0-use.local
-  resolution: "@app/registry@workspace:apps/registry"
+  resolution: "@app/registry-importer@workspace:apps/registry-importer"
   dependencies:
     "@apollo/client": ^3.11.8
     "@app/condo": "workspace:^"
@@ -1955,7 +1954,7 @@ __metadata:
     "@open-condo/keystone": "workspace:^"
     "@open-condo/next": "workspace:^"
     "@open-condo/ui": "workspace:^"
-    "@registry/domains": "link:./domains"
+    "@registry-importer/domains": "link:./domains"
     "@testing-library/react": ^11.2.5
     "@types/jest": ^29.4.0
     "@types/node": ^16
@@ -8106,9 +8105,9 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@condo/domains@link:../condo/domains::locator=%40app%2Fregistry%40workspace%3Aapps%2Fregistry":
+"@condo/domains@link:../condo/domains::locator=%40app%2Fregistry-importer%40workspace%3Aapps%2Fregistry-importer":
   version: 0.0.0-use.local
-  resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Fregistry%40workspace%3Aapps%2Fregistry"
+  resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Fregistry-importer%40workspace%3Aapps%2Fregistry-importer"
   languageName: node
   linkType: soft
 
@@ -8419,12 +8418,6 @@ __metadata:
 "@dev-api/domains@link:./domains::locator=%40app%2Fdev-api%40workspace%3Aapps%2Fdev-api":
   version: 0.0.0-use.local
   resolution: "@dev-api/domains@link:./domains::locator=%40app%2Fdev-api%40workspace%3Aapps%2Fdev-api"
-  languageName: node
-  linkType: soft
-
-"@dev-portal/domains@link:./domains::locator=%40app%2Fdev-portal%40workspace%3Aapps%2Fdev-portal":
-  version: 0.0.0-use.local
-  resolution: "@dev-portal/domains@link:./domains::locator=%40app%2Fdev-portal%40workspace%3Aapps%2Fdev-portal"
   languageName: node
   linkType: soft
 
@@ -16092,9 +16085,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@registry/domains@link:./domains::locator=%40app%2Fregistry%40workspace%3Aapps%2Fregistry":
+"@registry-importer/domains@link:./domains::locator=%40app%2Fregistry-importer%40workspace%3Aapps%2Fregistry-importer":
   version: 0.0.0-use.local
-  resolution: "@registry/domains@link:./domains::locator=%40app%2Fregistry%40workspace%3Aapps%2Fregistry"
+  resolution: "@registry-importer/domains@link:./domains::locator=%40app%2Fregistry-importer%40workspace%3Aapps%2Fregistry-importer"
   languageName: node
   linkType: soft
 

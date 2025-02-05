@@ -1,11 +1,11 @@
 {
-  "name": "@app/dev-portal",
+  "name": "@app/dev-portal-web",
   "version": "0.0.0-development",
   "installConfig": {
     "hoistingLimits": "workspaces"
   },
   "scripts": {
-    "build:deps": "turbo build --filter=@app/dev-portal^... --filter=!@app/dev-api --filter=!@app/condo",
+    "build:deps": "turbo build --filter=@app/dev-portal-web^... --filter=!@app/dev-api --filter=!@app/condo",
     "dev": "yarn build:deps && next dev & yarn types:watch",
     "build": "next build",
     "start": "next start",
@@ -19,7 +19,6 @@
     "@babel/core": "7.20.12",
     "@babel/preset-env": "7.20.2",
     "@babel/preset-typescript": "7.18.6",
-    "@dev-portal/domains": "link:./domains",
     "@open-condo/cli": "workspace:^",
     "@open-condo/config": "workspace:^",
     "@open-condo/icons": "workspace:^",
