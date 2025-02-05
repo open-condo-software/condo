@@ -149,6 +149,38 @@ const CustomValue = new GQLListSchema('CustomValue', {
             },
         },
 
+        // todo: toplenboren, do we need this fields?
+        // filterDataInt: {
+        //     schemaDoc: 'Int representation of data. Controlled by type field in customValue. Use it for filtering',
+        //     type: 'Integer',
+        //     isRequired: false,
+        //     access: {
+        //         create: false,
+        //         update: false,
+        //     },
+        // },
+
+        // filterDataFloat: {
+        //     schemaDoc: 'Float representation of data. Controlled by type field in customValue. Use it for filtering',
+        //     type: 'Float',
+        //     isRequired: false,
+        //     access: {
+        //         create: false,
+        //         update: false,
+        //     },
+        // },
+
+        // filterDataNonNegativeDecimal: {
+        //     schemaDoc: 'Signed decimal representation of data. Controlled by type field in customValue. Use it for filtering',
+        //     type: 'SignedDecimal',
+        //     template: 'non-negative',
+        //     isRequired: false,
+        //     access: {
+        //         create: false,
+        //         update: false,
+        //     },
+        // },
+
         sourceType: {
             schemaDoc: 'Type of entity, responsible for the last update of this customField',
             type: 'Select',
@@ -191,6 +223,9 @@ const CustomValue = new GQLListSchema('CustomValue', {
             isRequired: true,
         },
 
+        // Todo: (DOMA-11052) add more constraints to CustomValue:
+        // isUniquePerUnit, isUniquePerAddress
+
         uniqKey: {
             schemaDoc: 'User defined custom ID. If set, guaranteed to be unique among single source (sourceType + sourceId)',
             type: 'Text',
@@ -204,6 +239,17 @@ const CustomValue = new GQLListSchema('CustomValue', {
             if (!customField || customField.deletedAt) {
                 throw new GQLError(ERRORS.INVALID_CUSTOM_FIELD, context)
             }
+
+            const customFieldType = customField.type
+            const customFieldTypeConfig = ALLOWED_TYPES[customFieldType]
+            //
+            // if (customFieldTypeConfig.toStringFilterData) {
+            //     try {
+            //         resolvedData.stringFilterData = customFieldTypeConfig.toStringFilterData(resultObject.value)
+            //     } catch (err) {
+            //         resolvedData.stringFilterData = null
+            //     }
+            // }
 
             resolvedData.isUniquePerObject = customField.isUniquePerObject
 
@@ -226,7 +272,7 @@ const CustomValue = new GQLListSchema('CustomValue', {
             if (customFieldIsUniquePerObject) {
                 // todo @toplenboren full table scan is bad
                 const existingCustomValues = await find('CustomValue', {
-                    objectId: { id: resultObject.objectId },
+                    objectId: resultObject.objectId,
                     organization: { id: resultObject.organization },
                     customField: { id: resultObject.customField },
                     deletedAt: null,
@@ -266,7 +312,7 @@ const CustomValue = new GQLListSchema('CustomValue', {
                 try {
                     const object = await getById(customFieldSchemaName, objectId)
                     if (!object || object.deletedAt) {
-                        throw new Error('ObjectId is not valid')
+                        throw new Error('ObjectId is not valid: It may have been deleted')
                     }
 
                     let objectOrganizationId = null
@@ -323,7 +369,7 @@ const CustomValue = new GQLListSchema('CustomValue', {
                     {
                         organization: { id: resultObject.organization },
                         customField: { id: resultObject.customField },
-                        uniqKey: { id: resultObject.uniqKey },
+                        uniqKey: resolvedData.uniqKey,
                         deletedAt: null,
                     })
 
@@ -341,8 +387,6 @@ const CustomValue = new GQLListSchema('CustomValue', {
                 name: 'unique_organization_customField_uniqKey',
                 condition: 'Q(deletedAt__isnull=True)',
             },
-
-            // todo: @toplenboren is it better to have multiple constraints or single constraint controlled by js code?
             {
                 type: 'models.UniqueConstraint',
                 fields: ['organization', 'customField', 'objectId'],

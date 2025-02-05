@@ -38,14 +38,14 @@ async function canReadCustomValues (args) {
 }
 
 async function canManageCustomValues (args) {
-    const { authentication: { item: user }, originalInput, operation, itemId } = args
+    const { authentication: { item: user }, originalInput } = args
 
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
 
     const isBulkRequest = Array.isArray(originalInput)
-    // Bulk requests are not supported in canManageObjectsAsB2BAppServiceUser
+    // Todo: (DOMA-11051) Bulk requests are not supported in canManageObjectsAsB2BAppServiceUser
     if (isBulkRequest) { return false }
 
     if (user.type === SERVICE) {

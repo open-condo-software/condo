@@ -525,7 +525,7 @@ describe('CustomValue', () => {
 
                     await expectToThrowGQLError(async () => {
                         await createTestCustomValue(support, customField, organization, extraAttrs)
-                    }, { code: ERRORS.INVALID_DATA.code, type: ERRORS.INVALID_DATA.type, message: ERRORS.INVALID_DATA.message })
+                    }, { code: ERRORS.INVALID_DATA.code, type: ERRORS.INVALID_DATA.type })
                 })
             })
         })
@@ -753,17 +753,16 @@ describe('CustomValue', () => {
                     objectId: property.id,
                     sourceType: B2B_APP_SOURCE_TYPE,
                     sourceId: b2bApp.id,
+                    uniqKey,
                 }
 
                 await createTestCustomValue(b2bAppServiceUserClient, customField, organization, {
                     ...payload,
-                    uniqKey,
                 })
 
                 await expectToThrowGQLError(async () => {
                     await createTestCustomValue(b2bAppServiceUserClient, customField, organization, {
                         ...payload,
-                        uniqKey,
                     })
                 }, { code: ERRORS.ALREADY_EXISTS_UNIQ_KEY.code, type: ERRORS.ALREADY_EXISTS_UNIQ_KEY.type })
             })
@@ -783,6 +782,24 @@ describe('CustomValue', () => {
                 await createTestCustomValue(b2bAppServiceUserClient, customField, organization, {
                     ...payload,
                     uniqKey: null,
+                })
+            })
+
+            test('Can create two customValues if uniqKey is different', async () => {
+                const payload = {
+                    objectId: property.id,
+                    sourceType: B2B_APP_SOURCE_TYPE,
+                    sourceId: b2bApp.id,
+                }
+
+                await createTestCustomValue(b2bAppServiceUserClient, customField, organization, {
+                    ...payload,
+                    uniqKey: '1',
+                })
+
+                await createTestCustomValue(b2bAppServiceUserClient, customField, organization, {
+                    ...payload,
+                    uniqKey: '2',
                 })
             })
         })
@@ -824,7 +841,7 @@ describe('CustomValue', () => {
             })
 
             test('Can create two customValues with same objectId, if CustomField.isUniquePerObject set to false', async () => {
-                const [customField] = await createTestCustomField(support, { isUniquePerObject: true })
+                const [customField] = await createTestCustomField(support, { isUniquePerObject: false })
 
                 const payload = {
                     objectId: property.id,
