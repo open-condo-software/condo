@@ -115,7 +115,7 @@ const RegisterResidentInvoiceService = new GQLCustomSchema('RegisterResidentInvo
                 const priceScopes = await MarketPriceScope.getAll(
                     context,
                     { deletedAt: null, id_in: priceScopesIds },
-                    'id marketItemPrice { price { vatPercent salesTaxPercent price isMin } ' +
+                    'id marketItemPrice { price { vatPercent measure salesTaxPercent price isMin } ' +
                     'marketItem { name sku organization { id } } }'
                 )
 
@@ -134,6 +134,7 @@ const RegisterResidentInvoiceService = new GQLCustomSchema('RegisterResidentInvo
                     name: get(priceScope, ['marketItemPrice', 'marketItem', 'name']),
                     toPay: get(priceScope, ['marketItemPrice', 'price', 0, 'price']),
                     isMin: get(priceScope, ['marketItemPrice', 'price', 0, 'isMin']),
+                    measure: get(priceScope, ['marketItemPrice', 'price', 0, 'measure']),
                     count: get(priceScopesCounts, get(priceScope, 'id'), 0),
                     currencyCode: DEFAULT_INVOICE_CURRENCY_CODE,
                     vatPercent: get(priceScope, ['marketItemPrice', 'price', 0, 'vatPercent'], get(acquiringContext, 'invoiceVatPercent')) || '',

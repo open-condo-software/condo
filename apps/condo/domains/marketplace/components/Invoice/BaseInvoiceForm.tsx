@@ -421,7 +421,7 @@ type MarketItemOptionType = {
     measure?: string
 }
 
-const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabled, setStatus, isModalForm }) => {
+const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabled, setStatus, isModalForm, initialValues }) => {
     const intl = useIntl()
     const ServiceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.name' })
     const QuantityLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.count' })
@@ -580,6 +580,10 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
     const gutter: RowProps['gutter'] = useMemo(() => isModalForm ? [46, 24] : [50, 24], [isModalForm])
 
     const updateRowFields = useCallback((formName, newFields = {}) => {
+        console.log('Updating row fields:', { formName, newFields })
+        const currentValue = form.getFieldValue(['rows', formName])
+        console.log('Current row value:', currentValue)
+        
         form.setFieldsValue({
             rows: {
                 ...form.getFieldValue('rows'),
@@ -589,7 +593,14 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                 },
             },
         })
+        
+        console.log('Updated form value:', form.getFieldValue(['rows', formName]))
     }, [form])
+
+    useEffect(() => {
+        console.log('Initial form values:', initialValues)
+        console.log('Initial rows:', initialValues?.rows)
+    }, [initialValues])
 
     return (
         <Form.List name='rows'>
@@ -661,8 +672,9 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                         labelCol={{ span: 24 }}
                                     >
                                         <Select
-                                            defaultValue={PriceMeasuresType.PerItem}
+                                            value={form.getFieldValue(['rows', marketItemForm.name, 'measure'])}
                                             onSelect={newPriceMeasure => {
+                                                console.log('Measure selected:', newPriceMeasure)
                                                 updateRowFields(marketItemForm.name, {
                                                     measure: newPriceMeasure,
                                                     ...(newPriceMeasure === null && { count: 1 }),
@@ -1125,6 +1137,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                                                         disabled={disabled}
                                                         setStatus={setStatus}
                                                         isModalForm={isModalForm}
+                                                        initialValues={initialValues}
                                                     />
                                                 )
                                             }

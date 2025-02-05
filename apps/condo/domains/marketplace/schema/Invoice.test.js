@@ -67,6 +67,7 @@ const {
     makeClientWithResidentUser,
     makeClientWithStaffUser, createTestPhone,
 } = require('@condo/domains/user/utils/testSchema')
+const {PRICE_MEASURES} = require("./fields/price");
 
 
 dayjs.extend(isSameOrAfter)
@@ -885,6 +886,58 @@ describe('Invoice', () => {
                         expect(updatedInvoice).toHaveProperty('unitType', COMMERCIAL_UNIT_TYPE)
                         expect(updatedInvoice).toHaveProperty('unitName', attrs.unitName)
                     })
+                })
+            })
+
+            describe('rows.*.measure', () => {
+                test('invoice.rows.*.measure is inferred from MarketItemPrice when set as resident', async () => {
+                    const [o10n] = await createTestOrganization(adminClient)
+
+                    await createTestAcquiringIntegrationContext(adminClient, o10n, dummyAcquiringIntegration, {
+                        invoiceStatus: CONTEXT_FINISHED_STATUS,
+                        invoiceRecipient: createTestRecipient(),
+                    })
+
+                    const [property] = await createTestProperty(adminClient, o10n)
+
+                    const residentClient = await makeClientWithResidentUser()
+                    const unitType = FLAT_UNIT_TYPE
+                    const unitName = faker.lorem.word()
+                    const [resident] = await registerResidentByTestClient(
+                        residentClient,
+                        {
+                            address: property.address,
+                            addressMeta: property.addressMeta,
+                            unitType,
+                            unitName,
+                        })
+
+                    const [parentCategory] = await createTestMarketCategory(adminClient)
+                    const [marketCategory] = await createTestMarketCategory(adminClient, {
+                        parentCategory: { connect: { id: parentCategory.id } },
+                    })
+                    const [marketItem] = await createTestMarketItem(adminClient, marketCategory, o10n)
+                    const [itemPrice] = await createTestMarketItemPrice(adminClient, marketItem, { price: { type: 'variant', name: 'Installation of AC unit', price: '80', isMin: false, vatPercent: '11', currencyCode: 'USD', measure: PRICE_MEASURES.PER_ITEM }})
+                    const [priceScope] = await createTestMarketPriceScope(adminClient, itemPrice, property)
+
+                    await registerResidentInvoiceByTestClient(
+                        residentClient,
+                        pick(resident, 'id'),
+                        [{
+                            priceScope: pick(priceScope, 'id'),
+                            count: 3,
+                        }],
+                    )
+
+                    const invoices = await Invoice.getAll(residentClient, {})
+                    expect(invoices).toHaveLength(1)
+
+                    const [invoice] = invoices
+                    expect(invoice.rows).toEqual([
+                        expect.objectContaining({
+                            measure: PRICE_MEASURES.PER_ITEM,
+                        }),
+                    ])
                 })
             })
         })

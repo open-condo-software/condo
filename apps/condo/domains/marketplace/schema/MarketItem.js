@@ -14,7 +14,6 @@ const { MarketItemPrice } = require('@condo/domains/marketplace/utils/serverSche
 const MarketItem = new GQLListSchema('MarketItem', {
     schemaDoc: 'Information about the market product',
     fields: {
-
         name: {
             schemaDoc: 'Name of market item',
             type: 'Text',
@@ -48,7 +47,6 @@ const MarketItem = new GQLListSchema('MarketItem', {
             knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
-
     },
     hooks: {
         afterChange: async ({ context, operation, originalInput, existingItem }) => {
