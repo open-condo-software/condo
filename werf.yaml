@@ -1,12 +1,11 @@
 project: condo
-configVersion: 2
+configVersion: 1
 ---
 image: base
 from: ubuntu:20.04
 shell:
   beforeInstall:
   - "export DEBIAN_FRONTEND=noninteractive"
-  - "export BASE_IMAGE_VERSION=1"
   - "groupadd -r app --gid=999"
   - "useradd --system --create-home --home /app --gid 999 --uid=999 --shell /bin/bash app"
   - "apt update -qq"
@@ -28,7 +27,7 @@ docker:
 ---
 image: condo
 fromImage: base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
 - add: /
   to: /app
@@ -82,7 +81,7 @@ docker:
 ---
 image: callcenter
 fromImage: base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
   - add: /
     to: /app
@@ -130,7 +129,7 @@ docker:
 ---
 image: eps
 fromImage: base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
   - add: /
     to: /app
@@ -177,7 +176,7 @@ docker:
 ---
 image: rb
 fromImage: base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
   - add: /
     to: /app
@@ -224,7 +223,7 @@ docker:
 ---
 image: insurance
 fromImage: base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
   - add: /
     to: /app
@@ -271,7 +270,7 @@ docker:
 ---
 image: registry_importer
 fromImage: base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
   - add: /
     to: /app
@@ -320,7 +319,7 @@ docker:
 ---
 image: miniapp
 fromImage: base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
   - add: /
     to: /app
@@ -394,7 +393,7 @@ docker:
 ---
 image: property_importer
 fromImage: base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
   - add: /
     to: /app
@@ -454,7 +453,7 @@ docker:
 ---
 image: classifiers_api
 fromImage: python-base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
   - add: /
     to: /app
@@ -477,7 +476,7 @@ docker:
 ---
 image: address_service
 fromImage: base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
   - add: /
     to: /app
@@ -524,7 +523,7 @@ docker:
 ---
 image: telephony
 fromImage: base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
   - add: /
     to: /app
@@ -571,7 +570,7 @@ docker:
 ---
 image: dev_portal_web
 fromImage: base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
   - add: /
     to: /app
@@ -616,7 +615,7 @@ docker:
 ---
 image: passapp
 fromImage: base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
   - add: /
     to: /app
@@ -663,7 +662,7 @@ docker:
 ---
 image: documents
 fromImage: base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
   - add: /
     to: /app
@@ -710,7 +709,7 @@ docker:
 ---
 image: dev_portal_api
 fromImage: base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
   - add: /
     to: /app
@@ -756,7 +755,7 @@ docker:
 ---
 image: employee_bot
 fromImage: base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
   - add: /
     to: /app
@@ -800,7 +799,7 @@ docker:
 ---
 image: ticket_importer
 fromImage: base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
   - add: /
     to: /app
@@ -840,7 +839,7 @@ shell:
 ---
 image: external_api
 fromImage: base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
   - add: /
     to: /app
@@ -865,7 +864,7 @@ shell:
 ---
 image: resident_app
 fromImage: base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
   - add: /
     to: /app
@@ -901,7 +900,7 @@ shell:
 ---
 image: announcements
 fromImage: base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
   - add: /
     to: /app
@@ -944,7 +943,7 @@ shell:
 ---
 image: news_greenhouse
 fromImage: base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
   - add: /
     to: /app
@@ -988,7 +987,7 @@ shell:
 ---
 image: meters_billing_integration
 fromImage: base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
   - add: /
     to: /app
