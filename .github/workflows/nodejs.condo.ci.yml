@@ -425,10 +425,10 @@ jobs:
           docker exec condo-container yarn workspace @app/dev-portal-api makemigrations --check
       - name: Run apps and tests
         run: |
-          docker exec condo-container sh -c "yarn workspace @app/condo start" 2>&1 > ./test_logs/devapi.condo.dev.log &
-          docker exec condo-container sh -c "yarn workspace @app/dev-portal-api start" 2>&1 > ./test_logs/devapi.dev-portal-api.dev.log &
+          docker exec condo-container sh -c "yarn workspace @app/condo start" 2>&1 > ./test_logs/dev_portal_api.condo.dev.log &
+          docker exec condo-container sh -c "yarn workspace @app/dev-portal-api start" 2>&1 > ./test_logs/dev_portal_api.dev-portal-api.dev.log &
           docker exec condo-container sh -c "node bin/wait-apps-apis.js -f condo dev-portal-api"
-          docker exec condo-container sh -c "yarn workspace @app/dev-portal-api test" 2>&1 > ./test_logs/devapi.tests.log
+          docker exec condo-container sh -c "yarn workspace @app/dev-portal-api test" 2>&1 > ./test_logs/dev_portal_api.tests.log
       - name: Collect docker logs on failure
         if: failure()
         uses: jwalton/gh-docker-logs@v1

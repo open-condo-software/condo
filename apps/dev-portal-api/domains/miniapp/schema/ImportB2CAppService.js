@@ -166,14 +166,14 @@ async function _importBuildFromClient ({ serverClient, remoteAppId, versionSuffi
         }, 'version')
         const existingSuffixedVersions = new Set(existingSuffixedBuilds.map(build => build.version))
 
-        const devApiCreatePayload = []
+        const devPortalCreatePayload = []
 
         for (const build of builds) {
             if (!IMPORTABLE_VERSION.test(build.version) || existingSuffixedVersions.has(`${build.version}-${versionSuffix}`)) {
                 skip += 1
                 continue
             }
-            devApiCreatePayload.push({
+            devPortalCreatePayload.push({
                 data: {
                     dv,
                     sender,
@@ -191,7 +191,7 @@ async function _importBuildFromClient ({ serverClient, remoteAppId, versionSuffi
                 },
             })
         }
-        const createdBuilds = await B2CAppBuild.createMany(context, devApiCreatePayload, `id version ${exportField}`)
+        const createdBuilds = await B2CAppBuild.createMany(context, devPortalCreatePayload, `id version ${exportField}`)
         const condoUpdatePayload = createdBuilds.map(build => ({
             id: build[exportField],
             data: {

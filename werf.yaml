@@ -707,7 +707,7 @@ docker:
   ENV:
     LANG: C.UTF-8
 ---
-image: devportalapi
+image: dev_portal_api
 fromImage: base
 fromCacheVersion: "1"
 git:
