@@ -697,9 +697,9 @@ shell:
   - "echo 'REDIS_URL=undefined' >> /app/.env"
   - "echo 'NODE_ENV=production' >> /app/.env"
   - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
-  - "yarn workspace @app/documents-next next telemetry disable"
-  - "yarn workspace @app/documents-next build:deps"
-  - "yarn workspace @app/documents-next build"
+  - "yarn workspace @app/documents next telemetry disable"
+  - "yarn workspace @app/documents build:deps"
+  - "yarn workspace @app/documents build"
   - "rm -rf /app/.env"
   - "rm -rf /app/.config"
 

@@ -1034,9 +1034,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@app/documents-next@workspace:apps/documents-next":
+"@app/documents@workspace:apps/documents":
   version: 0.0.0-use.local
-  resolution: "@app/documents-next@workspace:apps/documents-next"
+  resolution: "@app/documents@workspace:apps/documents"
   dependencies:
     "@babel/core": ^7.23.0
     "@babel/preset-env": ^7.22.20
