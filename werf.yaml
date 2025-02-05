@@ -568,7 +568,7 @@ docker:
   ENV:
     LANG: C.UTF-8
 ---
-image: devportal
+image: dev_portal_web
 fromImage: base
 fromCacheVersion: "1"
 git:
@@ -600,12 +600,12 @@ shell:
   setup:
     - "cd /app"
     #NOTE: Next.js is picking .env only from package-level envs during build time
-    - "echo '# Build time .env config!' >> /app/apps/dev-portal/.env"
-    - "echo 'NODE_ENV=production' >> /app/apps/dev-portal/.env"
-    - "yarn workspace @app/dev-portal next telemetry disable"
-    - "yarn workspace @app/dev-portal build:deps"
-    - "yarn workspace @app/dev-portal build"
-    - "rm -rf /app/apps/dev-portal/.env"
+    - "echo '# Build time .env config!' >> /app/apps/dev-portal-web/.env"
+    - "echo 'NODE_ENV=production' >> /app/apps/dev-portal-web/.env"
+    - "yarn workspace @app/dev-portal-web next telemetry disable"
+    - "yarn workspace @app/dev-portal-web build:deps"
+    - "yarn workspace @app/dev-portal-web build"
+    - "rm -rf /app/apps/dev-portal-web/.env"
     - "rm -rf /app/.config"
 
 
