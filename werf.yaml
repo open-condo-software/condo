@@ -452,7 +452,7 @@ docker:
   ENV:
     LANG: C.UTF-8
 ---
-image: classifiers-api
+image: classifiers_api
 fromImage: python-base
 fromCacheVersion: "1"
 git:
