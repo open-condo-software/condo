@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react'
 import { useCountdown } from 'usehooks-ts'
 
-import { CONFIRM_PHONE_ACTION_TTL_IN_SEC } from '@dev-api/domains/user/constants'
+import { CONFIRM_PHONE_ACTION_TTL_IN_SEC } from '@dev-portal-api/domains/user/constants'
 
 import { CodeInputStep } from './CodeInputStep'
 import { IdentityInputStep } from './IdentityInputStep'

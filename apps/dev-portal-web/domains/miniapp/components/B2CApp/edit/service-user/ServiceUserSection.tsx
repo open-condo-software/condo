@@ -11,7 +11,7 @@ import { Section, SubSection } from '@/domains/miniapp/components/AppSettings'
 import { EditUserForm } from '@/domains/miniapp/components/User/edit/EditUserForm'
 import { RegisterUserForm } from '@/domains/miniapp/components/User/edit/RegisterUserForm'
 import { getEnvironment } from '@/domains/miniapp/utils/query'
-import { DEV_ENVIRONMENT, PROD_ENVIRONMENT } from '@dev-api/domains/miniapp/constants/publishing'
+import { DEV_ENVIRONMENT, PROD_ENVIRONMENT } from '@dev-portal-api/domains/miniapp/constants/publishing'
 
 import type { RowProps } from 'antd'
 

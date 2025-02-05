@@ -120,7 +120,7 @@ jobs:
     outputs:
       address-service: ${{ steps.detect-changes.outputs.address-service }}
       rb: ${{ steps.detect-changes.outputs.rb }}
-      dev-api: ${{ steps.detect-changes.outputs.dev-api }}
+      dev-portal-api: ${{ steps.detect-changes.outputs.dev-portal-api }}
       open-condo: ${{ steps.detect-changes.outputs.open-condo }}
       registry-importer: ${{ steps.detect-changes.outputs.registry-importer }}
       webhooks: ${{ steps.detect-changes.outputs.webhooks }}
@@ -143,8 +143,8 @@ jobs:
             rb:
               - 'apps/rb'
               - 'packages/**'
-            dev-api:
-              - 'apps/dev-api/**'
+            dev-portal-api:
+              - 'apps/dev-portal-api/**'
               - 'apps/condo/domains/miniapp/**'
               - 'apps/condo/domains/user/**'
               - 'packages/**'
@@ -346,7 +346,7 @@ jobs:
     secrets: inherit
 
   run-rb-tests:
-    name: rb Tests
+    name: RB Tests
     runs-on: ubuntu-22.04
     needs:
       - authorize
@@ -387,14 +387,14 @@ jobs:
           node bin/wait-apps-apis.js -f condo rb) && \
           yarn workspace @app/rb test"
 
-  run-dev-api-tests:
-    name: DEV-API Tests
+  run-dev-portal-api-tests:
+    name: Dev Portal API Tests
     runs-on: ubuntu-22.04
     needs:
       - authorize
       - build-image
       - detect-changes
-    if: ${{ needs.detect-changes.outputs.dev-api == 'true' }}
+    if: ${{ needs.detect-changes.outputs.dev-portal-api == 'true' }}
     steps:
       - name: Login to cloud registry
         uses: docker/login-action@v3
@@ -419,16 +419,16 @@ jobs:
           docker run -v ./test_logs:/app/test_logs --network="host" --name condo-container -dit ${{ env.DOCKER_IMAGE_FULL }} sh
       - name: Prepare apps
         run: |
-          docker exec condo-container node bin/prepare.js -f condo dev-api
+          docker exec condo-container node bin/prepare.js -f condo dev-portal-api
       - name: Check migrations state
         run: |
-          docker exec condo-container yarn workspace @app/dev-api makemigrations --check
+          docker exec condo-container yarn workspace @app/dev-portal-api makemigrations --check
       - name: Run apps and tests
         run: |
           docker exec condo-container sh -c "yarn workspace @app/condo start" 2>&1 > ./test_logs/devapi.condo.dev.log &
-          docker exec condo-container sh -c "yarn workspace @app/dev-api start" 2>&1 > ./test_logs/devapi.dev-api.dev.log &
-          docker exec condo-container sh -c "node bin/wait-apps-apis.js -f condo dev-api"
-          docker exec condo-container sh -c "yarn workspace @app/dev-api test" 2>&1 > ./test_logs/devapi.tests.log
+          docker exec condo-container sh -c "yarn workspace @app/dev-portal-api start" 2>&1 > ./test_logs/devapi.dev-portal-api.dev.log &
+          docker exec condo-container sh -c "node bin/wait-apps-apis.js -f condo dev-portal-api"
+          docker exec condo-container sh -c "yarn workspace @app/dev-portal-api test" 2>&1 > ./test_logs/devapi.tests.log
       - name: Collect docker logs on failure
         if: failure()
         uses: jwalton/gh-docker-logs@v1
@@ -438,7 +438,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: dev-api
+          name: dev-portal-api
           path: |
             ./test_logs/*
             *.log

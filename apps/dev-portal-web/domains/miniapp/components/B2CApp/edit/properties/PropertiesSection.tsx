@@ -10,7 +10,7 @@ import { Select } from '@open-condo/ui'
 import { Section, SubSection } from '@/domains/miniapp/components/AppSettings'
 import { EmptySubSectionView } from '@/domains/miniapp/components/EmptySubSectionView'
 import { getEnvironment } from '@/domains/miniapp/utils/query'
-import { DEV_ENVIRONMENT, PROD_ENVIRONMENT } from '@dev-api/domains/miniapp/constants/publishing'
+import { DEV_ENVIRONMENT, PROD_ENVIRONMENT } from '@dev-portal-api/domains/miniapp/constants/publishing'
 
 import { PropertiesTable } from './PropertiesTable'
 

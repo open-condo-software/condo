@@ -13,7 +13,7 @@ import {
     DEV_ENVIRONMENT,
     PROD_ENVIRONMENT,
     PUBLISH_REQUEST_APPROVED_STATUS,
-} from '@dev-api/domains/miniapp/constants/publishing'
+} from '@dev-portal-api/domains/miniapp/constants/publishing'
 
 import { PublishForm } from './PublishForm'
 import { RequestStatusInfo } from './RequestStatusInfo'

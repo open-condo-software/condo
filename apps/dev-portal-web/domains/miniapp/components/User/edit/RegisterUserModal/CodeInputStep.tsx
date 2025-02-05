@@ -4,7 +4,7 @@ import { FormattedMessage, useIntl } from 'react-intl'
 
 import { Typography, Input } from '@open-condo/ui'
 
-import { CONFIRM_EMAIL_ACTION_CODE_LENGTH } from '@dev-api/domains/user/constants'
+import { CONFIRM_EMAIL_ACTION_CODE_LENGTH } from '@dev-portal-api/domains/user/constants'
 
 import styles from './CodeInputStep.module.css'
 

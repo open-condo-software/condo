@@ -7,7 +7,7 @@ import { Button, Input } from '@open-condo/ui'
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@/domains/common/hooks/useValidations'
 import { getClientSideSenderInfo } from '@/domains/common/utils/userid.utils'
-import { USER_ALREADY_EXISTS, PASSWORD_TOO_SIMPLE } from '@dev-api/domains/user/constants/errors'
+import { USER_ALREADY_EXISTS, PASSWORD_TOO_SIMPLE } from '@dev-portal-api/domains/user/constants/errors'
 
 import styles from './IdentityInputStep.module.css'
 

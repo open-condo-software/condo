@@ -858,7 +858,7 @@ const MESSAGE_DELIVERY_OPTIONS = {
         defaultTransports: [PUSH_TRANSPORT],
     },
     [DEV_PORTAL_MESSAGE_TYPE]: {
-        // NOTE: Email and phone codes from dev-api are sent via this type
+        // NOTE: Email and phone codes from dev-portal are sent via this type
         priority: MESSAGE_DELIVERY_FAST_PRIORITY,
         allowedTransports: [SMS_TRANSPORT, EMAIL_TRANSPORT],
         defaultTransports: [SMS_TRANSPORT, EMAIL_TRANSPORT],

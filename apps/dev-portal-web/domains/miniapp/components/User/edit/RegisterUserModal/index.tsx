@@ -8,8 +8,8 @@ import type { ModalProps } from '@open-condo/ui'
 
 import { useMutationErrorHandler, ErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { getClientSideSenderInfo } from '@/domains/common/utils/userid.utils'
-import { CONFIRM_EMAIL_ACTION_TTL_IN_SEC } from '@dev-api/domains/user/constants'
-import { INVALID_EMAIL, ACTION_NOT_FOUND, INVALID_CODE, CONDO_USER_ALREADY_EXISTS } from '@dev-api/domains/user/constants/errors'
+import { CONFIRM_EMAIL_ACTION_TTL_IN_SEC } from '@dev-portal-api/domains/user/constants'
+import { INVALID_EMAIL, ACTION_NOT_FOUND, INVALID_CODE, CONDO_USER_ALREADY_EXISTS } from '@dev-portal-api/domains/user/constants/errors'
 
 import { CodeInputStep } from './CodeInputStep'
 import { EmailInputStep } from './EmailInputStep'

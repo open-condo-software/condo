@@ -744,8 +744,8 @@ shell:
   - "echo 'REDIS_URL=undefined' >> /app/.env"
   - "echo 'NODE_ENV=production' >> /app/.env"
   - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
-  - "yarn workspace @app/dev-api build:deps"
-  - "yarn workspace @app/dev-api build"
+  - "yarn workspace @app/dev-portal-api build:deps"
+  - "yarn workspace @app/dev-portal-api build"
   - "rm -rf /app/.env"
   - "rm -rf /app/.config"
 

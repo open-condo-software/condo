@@ -7,8 +7,8 @@ import { Typography, Input } from '@open-condo/ui'
 
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { getClientSideSenderInfo } from '@/domains/common/utils/userid.utils'
-import { CONFIRM_PHONE_ACTION_CODE_LENGTH } from '@dev-api/domains/user/constants'
-import { INVALID_CODE, ACTION_NOT_FOUND } from '@dev-api/domains/user/constants/errors'
+import { CONFIRM_PHONE_ACTION_CODE_LENGTH } from '@dev-portal-api/domains/user/constants'
+import { INVALID_CODE, ACTION_NOT_FOUND } from '@dev-portal-api/domains/user/constants/errors'
 
 import styles from './CodeInputStep.module.css'
 

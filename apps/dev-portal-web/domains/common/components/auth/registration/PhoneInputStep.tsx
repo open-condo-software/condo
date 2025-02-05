@@ -9,7 +9,7 @@ import type { PhoneInputProps } from '@open-condo/ui'
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@/domains/common/hooks/useValidations'
 import { getClientSideSenderInfo } from '@/domains/common/utils/userid.utils'
-import { INVALID_PHONE } from '@dev-api/domains/user/constants/errors'
+import { INVALID_PHONE } from '@dev-portal-api/domains/user/constants/errors'
 
 import styles from './PhoneInputStep.module.css'
 
