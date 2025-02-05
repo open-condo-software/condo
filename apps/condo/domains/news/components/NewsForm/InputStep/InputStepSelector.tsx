@@ -9,30 +9,29 @@ import React, { useCallback, useMemo, useRef } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { Alert, Typography } from '@open-condo/ui'
 
-import { GraphQlSearchInput } from '@app/condo/domains/common/components/GraphQlSearchInput'
+import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import {
     GraphQlSearchInputWithCheckAll,
     InputWithCheckAllProps,
-} from '@app/condo/domains/common/components/GraphQlSearchInputWithCheckAll'
-import { LabelWithInfo } from '@app/condo/domains/common/components/LabelWithInfo'
-import { useValidations } from '@app/condo/domains/common/hooks/useValidations'
-import { SectionNameInput } from '@app/condo/domains/user/components/SectionNameInput'
-import { UnitNameInput, UnitNameInputOption } from '@app/condo/domains/user/components/UnitNameInput'
-
-import { HiddenBlock, ScopeType } from '../BaseNewsForm'
+} from '@condo/domains/common/components/GraphQlSearchInputWithCheckAll'
+import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'
+import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { HiddenBlock, ScopeType } from '@condo/domains/news/components/NewsForm/BaseNewsForm'
+import { SectionNameInput } from '@condo/domains/user/components/SectionNameInput'
+import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/components/UnitNameInput'
 
 const SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]
 const FORM_FILED_COL_PROPS = { style: { width: '100%', padding: 0, height: '44px' } }
 
 interface InputStepSelectorProps {
     newsSharingConfig: B2BAppNewsSharingConfig
-    isSharing: boolean
-    form: any
+    isSharingStep: boolean
+    form: FormInstance
 
     scope: ScopeType
     setScope:  React.Dispatch<React.SetStateAction<ScopeType>>
 
-    propertySelectProps: (form) => any
+    propertySelectProps: (form: FormInstance) => any
     selectedProperty: {
         loading: boolean
         objs:  IProperty[]
@@ -44,7 +43,7 @@ interface InputStepSelectorProps {
 
 export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
     newsSharingConfig,
-    isSharing,
+    isSharingStep,
     scope,
     propertySelectProps,
     form,
@@ -79,7 +78,7 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
     }), [PropertiesLabel])
 
     const isCustomSelector = newsSharingConfig?.getRecipientsUrl
-    const viewSelector = !isSharing || isCustomSelector
+    const viewSelector = !isSharingStep || isCustomSelector
 
     const isOnlyOnePropertySelected: boolean = useMemo(() => (scope.selectedPropertiesId.length === 1), [scope.selectedPropertiesId.length])
 

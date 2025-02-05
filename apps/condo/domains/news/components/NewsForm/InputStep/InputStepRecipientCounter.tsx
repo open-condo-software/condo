@@ -3,27 +3,25 @@ import { Col, Row } from 'antd'
 import React, { useMemo } from 'react'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-
-import { MemoizedNewsSharingRecipientCounter, MemoizedRecipientCounter } from '../../RecipientCounter'
-import { NewsItemScopeNoInstanceType } from '../../types'
-import { HiddenBlock } from '../BaseNewsForm'
-
+import { HiddenBlock } from '@condo/domains/news/components/NewsForm/BaseNewsForm'
+import { MemoizedNewsSharingRecipientCounter, MemoizedRecipientCounter } from '@condo/domains/news/components/RecipientCounter'
+import { NewsItemScopeNoInstanceType } from '@condo/domains/news/components/types'
 
 interface InputStepRecipientCounterProps {
     newsSharingConfig: B2BAppNewsSharingConfig
-    isSharing: boolean
-    ctxId: string
+    isSharingStep: boolean
+    sharingAppId: string
     newsItemScopesNoInstance: NewsItemScopeNoInstanceType[]
 }
 
 export const InputStepRecipientCounter: React.FC<InputStepRecipientCounterProps> = ({
     newsSharingConfig,
-    isSharing,
-    ctxId,
+    isSharingStep,
+    sharingAppId,
     newsItemScopesNoInstance,
 }) => {
     const { breakpoints } = useLayoutContext()
-    const isCustomRecipientCounter = !!newsSharingConfig?.getRecipientsCountersUrl && isSharing
+    const isCustomRecipientCounter = !!newsSharingConfig?.getRecipientsCountersUrl && isSharingStep
 
     const isMediumWindow = !breakpoints.DESKTOP_SMALL
     const formFieldsColSpan = isMediumWindow ? 24 : 14
@@ -31,7 +29,7 @@ export const InputStepRecipientCounter: React.FC<InputStepRecipientCounterProps>
 
     const newsSharingRecipientCounter = useMemo(() => <>{newsSharingConfig?.getRecipientsCountersUrl && (
         <MemoizedNewsSharingRecipientCounter
-            contextId={ctxId}
+            contextId={sharingAppId}
             newsItemScopes={newsItemScopesNoInstance}
         />
     )}</>, [newsSharingConfig])

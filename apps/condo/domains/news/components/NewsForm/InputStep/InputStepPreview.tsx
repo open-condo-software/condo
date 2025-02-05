@@ -3,18 +3,18 @@ import { Col } from 'antd'
 import get from 'lodash/get'
 import React, { useMemo } from 'react'
 
-import { useLayoutContext } from '@app/condo/domains/common/components/LayoutContext'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { NEWS_SHARING_PUSH_NOTIFICATION_SETTINGS } from '@condo/domains/miniapp/constants'
+import { MemoizedCondoNewsPreview, MemoizedSharingNewsPreview } from '@condo/domains/news/components/NewsPreview'
 import { NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
 
-import { MemoizedCondoNewsPreview, MemoizedSharingNewsPreview } from '../../NewsPreview'
 
 import { SharingAppValuesType } from './index'
 
 
 interface InputStepPreviewProps {
     newsSharingConfig: B2BAppNewsSharingConfig
-    isSharing: boolean
+    isSharingStep: boolean
     sharingAppFormValues: SharingAppValuesType
     newsItemData: {
         type: string
@@ -27,7 +27,7 @@ interface InputStepPreviewProps {
 
 export const InputStepPreview: React.FC<InputStepPreviewProps> = ({
     newsSharingConfig,
-    isSharing,
+    isSharingStep,
     sharingAppFormValues,
     newsItemData,
     iFramePreviewRef,
@@ -36,7 +36,7 @@ export const InputStepPreview: React.FC<InputStepPreviewProps> = ({
 }) => {
     const { type: selectedType, validBefore: selectedValidBeforeText } = newsItemData
 
-    const isCustomPreview = !!newsSharingConfig?.previewUrl && isSharing
+    const isCustomPreview = !!newsSharingConfig?.previewUrl && isSharingStep
 
     const { breakpoints } = useLayoutContext()
 

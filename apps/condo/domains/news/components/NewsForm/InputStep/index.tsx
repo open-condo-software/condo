@@ -3,7 +3,7 @@ import {
     NewsItemScope as INewsItemScope,
     Property as IProperty,
 } from '@app/condo/schema'
-import { Col, Input, Row } from 'antd'
+import { Col, FormInstance, Input, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
 import isArray from 'lodash/isArray'
@@ -13,24 +13,22 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, ActionBar as UIActionBar } from '@open-condo/ui'
 
-import { useLayoutContext } from '@app/condo/domains/common/components/LayoutContext'
-import { TrackingEventType, useTracking } from '@app/condo/domains/common/components/TrackingContext'
-import { useInputWithCounter } from '@app/condo/domains/common/hooks/useInputWithCounter'
-import { searchOrganizationProperty } from '@app/condo/domains/scope/utils/clientSchema/search'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { TrackingEventType, useTracking } from '@condo/domains/common/components/TrackingContext'
+import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCounter'
+import {
+    getTypeAndNameByKey,
+    getUnitNamesAndUnitTypes,
+    SendPeriodType,
+    ScopeType, TemplatesType,
+} from '@condo/domains/news/components/NewsForm/BaseNewsForm'
+import { NewsItemScopeNoInstanceType } from '@condo/domains/news/components/types'
+import { searchOrganizationProperty } from '@condo/domains/scope/utils/clientSchema/search'
 
 import { InputStepForm } from './InputStepForm'
 import { InputStepPreview } from './InputStepPreview'
 import { InputStepRecipientCounter } from './InputStepRecipientCounter'
 import { InputStepSelector } from './InputStepSelector'
-
-
-import { NewsItemScopeNoInstanceType } from '../../types'
-import {
-    getTypeAndNameByKey,
-    getUnitNamesAndUnitTypes,
-    SendPeriodType,
-    ScopeType,
-} from '../BaseNewsForm'
 
 const BIG_MARGIN_BOTTOM_STYLE: React.CSSProperties = { marginBottom: '60px' }
 const BIG_HORIZONTAL_GUTTER: [Gutter, Gutter] = [50, 0]
@@ -44,6 +42,13 @@ export type SharingAppValuesType = {
     isValid: boolean
 }
 
+export type NewsItemDataType = {
+    type: string
+    validBefore?: string
+    title: string
+    body: string
+}
+
 interface INewsItemSharingForm {
     sharingAppData?: {
         app: B2BApp
@@ -55,12 +60,7 @@ interface INewsItemSharingForm {
 
     initialValues: SharingAppValuesType | undefined
 
-    newsItemData: {
-        type: string
-        validBefore?: string
-        title: string
-        body: string
-    }
+    newsItemData: NewsItemDataType
 }
 
 export type BaseNewsFormProps = {
@@ -72,23 +72,16 @@ export type BaseNewsFormProps = {
         sendPeriod: SendPeriodType
         properties?: IProperty[]
     }>
-    templates: { [key: string]: {
-        title: string
-        body: string
-        type: string | null
-        id?: string
-        label?: string
-        category?: string
-    } }
+    templates: TemplatesType
     totalProperties: number
     autoFocusBody?: boolean
 }
 
 type TInputStepProps = INewsItemSharingForm & BaseNewsFormProps & {
-    form: any
+    form: FormInstance
     scope: ScopeType
     setScope:  React.Dispatch<React.SetStateAction<ScopeType>>
-    isSharing: boolean
+    isSharingStep: boolean
     selectedProperty: {
         loading: boolean
         objs:  IProperty[]
@@ -114,7 +107,7 @@ export const InputStep: React.FC<TInputStepProps> = ({
     onSubmit,
     setScope,
     templates,
-    isSharing,
+    isSharingStep,
     newsItemData,
     initialValues,
     autoFocusBody,
@@ -127,7 +120,7 @@ export const InputStep: React.FC<TInputStepProps> = ({
 }
 ) => {
     const intl = useIntl()
-    const { app: sharingApp, id: ctxId } = sharingAppData ?? { ctxId: null, sharingApp: null }
+    const { app: sharingApp, id: sharingAppId } = sharingAppData ?? { sharingAppId: null, sharingApp: null }
     const { id, newsSharingConfig } = sharingApp ?? { id: null, newsSharingConfig: null }
     const { title: title, body: body } = newsItemData
     const { loading: selectedPropertiesLoading, objs: selectedProperties } = selectedProperty
@@ -211,9 +204,9 @@ export const InputStep: React.FC<TInputStepProps> = ({
 
     const iFramePreviewRef = useRef(null)
 
-    const isCustomForm = !!newsSharingConfig?.customFormUrl && isSharing
+    const isCustomForm = !!newsSharingConfig?.customFormUrl && isSharingStep
 
-    const viewNewsSharingSubmit = isSharing
+    const viewNewsSharingSubmit = isSharingStep
 
     const processedInitialValues = useMemo(()=> (initialValues && initialValues.formValues && initialValues.preview) ? initialValues : {
         formValues: {},
@@ -228,14 +221,14 @@ export const InputStep: React.FC<TInputStepProps> = ({
     }, [processedInitialValues])
 
     const handleSharingAppIFrameFormMessage = useCallback((event) => {
-        const { handler, ctxId: eventCtxId, formValues, preview, isValid } = event.data
-        if (handler === 'handleSharingAppIFrameFormMessage' && ctxId === eventCtxId) {
+        const { handler, sharingAppId: eventsharingAppId, formValues, preview, isValid } = event.data
+        if (handler === 'handleSharingAppIFrameFormMessage' && sharingAppId === eventsharingAppId) {
             setSharingAppFormValues({ formValues, preview, isValid })
         }
     }, [id])
 
     const handleFormTitleChange = useCallback((value) => {
-        if (isSharing){
+        if (isSharingStep){
             setSharingAppFormValues(prev=>({ ...prev,
                 formValues: { body: prev.formValues.body, title: value },
                 preview: { renderedBody: prev.preview.renderedBody, renderedTitle: value },
@@ -243,10 +236,10 @@ export const InputStep: React.FC<TInputStepProps> = ({
             }))
         }
         else handleTitleChange(value)
-    }, [isSharing, sharingAppFormValues])
+    }, [isSharingStep, sharingAppFormValues])
 
     const handleFormBodyChange = useCallback((value) => {
-        if (isSharing){
+        if (isSharingStep){
             setSharingAppFormValues(prev=>({ ...prev,
                 formValues: { title: prev.formValues.title, body: value },
                 preview: { renderedTitle: prev.preview.renderedTitle, renderedBody: value },
@@ -254,7 +247,7 @@ export const InputStep: React.FC<TInputStepProps> = ({
             }))
         }
         else handleBodyChange(value)
-    }, [isSharing, sharingAppFormValues])
+    }, [isSharingStep, sharingAppFormValues])
 
     const [selectedTitle, setSelectedTitle] = useState<string>(title)
     const [selectedBody, setSelectedBody] = useState<string>(body)
@@ -276,7 +269,7 @@ export const InputStep: React.FC<TInputStepProps> = ({
         if (!title.length) return
 
         const renderedTitle = get(sharingAppFormValues, ['preview', 'renderedTitle'])
-        const finalTitle = isSharing && (isCustomForm || (!isCustomForm && renderedTitle)) ? renderedTitle : title
+        const finalTitle = isSharingStep && (isCustomForm || (!isCustomForm && renderedTitle)) ? renderedTitle : title
 
         handleFormTitleChange(finalTitle)
         form.setFieldsValue({ title: finalTitle })
@@ -285,12 +278,12 @@ export const InputStep: React.FC<TInputStepProps> = ({
         if (!body.length) return
 
         const renderedBody = get(sharingAppFormValues, ['preview', 'renderedBody'])
-        const finalBody = isSharing && (isCustomForm || (!isCustomForm && renderedBody)) ? renderedBody : body
+        const finalBody = isSharingStep && (isCustomForm || (!isCustomForm && renderedBody)) ? renderedBody : body
 
         handleFormBodyChange(finalBody)
         form.setFieldsValue({ body: finalBody })
         Body.setTextLength(finalBody.length)
-    }, [title, body, form, isSharing, isCustomForm])
+    }, [title, body, form, isSharingStep, isCustomForm])
 
 
     const handleTitleChange = useCallback((value) => {
@@ -308,7 +301,7 @@ export const InputStep: React.FC<TInputStepProps> = ({
         }
     }, [handleSharingAppIFrameFormMessage, isCustomForm])
 
-    const handleTemplateChange = useCallback((form) => (value) => {
+    const handleTemplateChange = useCallback((form) => (value: string) => {
         const templateId = value
         const title = templateId !== 'emptyTemplate' ? templates[templateId].title : ''
         const body = templateId !== 'emptyTemplate' ? templates[templateId].body : ''
@@ -334,9 +327,9 @@ export const InputStep: React.FC<TInputStepProps> = ({
                 <InputStepForm
                     TitleInput={Title}
                     BodyInput={Body}
-                    ctxId={ctxId}
+                    sharingAppId={sharingAppId}
                     newsSharingConfig={newsSharingConfig}
-                    isSharing={isSharing}
+                    isSharingStep={isSharingStep}
                     selectedTitle={selectedTitle}
                     selectedBody={selectedBody}
                     newsItemData={newsItemData}
@@ -351,7 +344,7 @@ export const InputStep: React.FC<TInputStepProps> = ({
 
                 <InputStepPreview
                     newsSharingConfig={newsSharingConfig}
-                    isSharing={isSharing}
+                    isSharingStep={isSharingStep}
                     sharingAppFormValues={sharingAppFormValues}
                     newsItemData={newsItemData}
                     iFramePreviewRef={iFramePreviewRef}
@@ -363,7 +356,7 @@ export const InputStep: React.FC<TInputStepProps> = ({
             <FormContainerContainer>
                 <InputStepSelector
                     newsSharingConfig={newsSharingConfig}
-                    isSharing={isSharing}
+                    isSharingStep={isSharingStep}
                     scope={scope}
                     propertySelectProps={propertySelectProps}
                     form={form}
@@ -375,9 +368,9 @@ export const InputStep: React.FC<TInputStepProps> = ({
                 />
 
                 <InputStepRecipientCounter
-                    ctxId={ctxId}
+                    sharingAppId={sharingAppId}
                     newsSharingConfig={newsSharingConfig}
-                    isSharing={isSharing}
+                    isSharingStep={isSharingStep}
                     newsItemScopesNoInstance={newsItemScopesNoInstance}
                 />
             </FormContainerContainer>

@@ -63,7 +63,7 @@ import { NewsItem, NewsItemScope } from '@condo/domains/news/utils/clientSchema'
 import { PARKING_SECTION_TYPE } from '@condo/domains/property/constants/common'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
-import { InputStep, SharingAppValuesType } from './InputStep/index'
+import { InputStep, SharingAppValuesType } from './InputStep'
 
 
 type FormWithActionChildrenProps = ComponentProps<ComponentProps<typeof FormWithAction>['children']>
@@ -103,7 +103,7 @@ export type TemplatesType = {
     [key: string]: {
         title: string
         body: string
-        type: string | null
+        type?: string
         id?: string
         label?: string
         category?: string
@@ -1050,7 +1050,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                         scope={scope}
                                         setScope={setScope}
                                         templates={templates}
-                                        isSharing={isSharingAppStep}
+                                        isSharingStep={isSharingAppStep}
                                         autoFocusBody={autoFocusBody}
                                         organizationId={organizationId}
                                         totalProperties={totalProperties}

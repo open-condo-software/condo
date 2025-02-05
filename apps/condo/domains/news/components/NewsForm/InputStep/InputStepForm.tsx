@@ -1,5 +1,5 @@
 import { B2BAppNewsSharingConfig } from '@app/condo/schema'
-import { Col, Form, Row } from 'antd'
+import { Col, Form, FormInstance, Row } from 'antd'
 import isNull from 'lodash/isNull'
 import transform from 'lodash/transform'
 import React, { useMemo } from 'react'
@@ -8,13 +8,14 @@ import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
-import { useLayoutContext } from '@app/condo/domains/common/components/LayoutContext'
-import { IFrame } from '@app/condo/domains/miniapp/components/IFrame'
-import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@app/condo/domains/news/constants/newsTypes'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCounter'
+import { IFrame } from '@condo/domains/miniapp/components/IFrame'
+import { getBodyTemplateChangedRule, getTitleTemplateChangedRule, type TemplatesType } from '@condo/domains/news/components/NewsForm/BaseNewsForm'
+import { TemplatesSelect } from '@condo/domains/news/components/TemplatesSelect'
+import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
 
-import { TemplatesSelect } from '../../TemplatesSelect'
-import { getBodyTemplateChangedRule, getTitleTemplateChangedRule } from '../BaseNewsForm'
-import { TemplatesType } from '../BaseNewsForm'
+import { NewsItemDataType } from './index'
 
 const NO_RESIZE_STYLE: React.CSSProperties = { resize: 'none' }
 const BIG_MARGIN_BOTTOM_STYLE: React.CSSProperties = { marginBottom: '60px' }
@@ -47,25 +48,20 @@ const buildCounterStyle = (textLength: number, type: 'Body' | 'Title'): React.CS
 }
 
 interface InputStepFormProps {
-    TitleInput: any
-    BodyInput: any
+    TitleInput: ReturnType<typeof useInputWithCounter>
+    BodyInput: ReturnType<typeof useInputWithCounter>
     newsSharingConfig: B2BAppNewsSharingConfig
-    isSharing: boolean
-    newsItemData: {
-        type: string
-        validBefore?: string
-        title: string
-        body: string
-    }
+    isSharingStep: boolean
+    newsItemData: NewsItemDataType
     selectedBody: string
     selectedTitle: string
-    form: any
-    ctxId: string
+    form: FormInstance
+    sharingAppId: string
     autoFocusBody: boolean
     templates: TemplatesType
 
     processedInitialValues: {
-        formValues: Record<string, any>
+        formValues: Record<string, unknown>
         preview: {
             renderedTitle: string
             renderedBody: string
@@ -73,16 +69,16 @@ interface InputStepFormProps {
         isValid: boolean
     }
 
-    handleTemplateChange: (form: any) => (value: any) => void
+    handleTemplateChange: (form: FormInstance) => (value: string) => void
     handleFormTitleChange: (value: string) => void
     handleFormBodyChange: (value: string) => void
 }
 
 
 export const InputStepForm: React.FC<InputStepFormProps> = ({
-    ctxId,
+    sharingAppId,
     newsSharingConfig,
-    isSharing,
+    isSharingStep,
     selectedTitle,
     selectedBody,
     newsItemData,
@@ -110,7 +106,7 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
     const BodyErrorMessage = intl.formatMessage({ id: 'news.fields.body.error.length' })
     const TemplateBlanksNotFilledErrorMessage = intl.formatMessage({ id: 'news.fields.template.blanksNotFilledError' })
 
-    const isCustomForm = !!newsSharingConfig?.customFormUrl && isSharing
+    const isCustomForm = !!newsSharingConfig?.customFormUrl && isSharingStep
 
     const { breakpoints } = useLayoutContext()
 
@@ -165,7 +161,7 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
                     <Col style={{ marginLeft: '-10px', minHeight: '500px' }} span={formFieldsColSpan}>
                         <IFrame
                             src={
-                                `${newsSharingConfig.customFormUrl}?ctxId=${ctxId}&title=${selectedTitle}&body=${selectedBody}&type=${newsItemData.type}&initialValues=${JSON.stringify(processedInitialValues)}`
+                                `${newsSharingConfig.customFormUrl}?ctxId=${sharingAppId}&title=${selectedTitle}&body=${selectedBody}&type=${newsItemData.type}&initialValues=${JSON.stringify(processedInitialValues)}`
                             }
                             reloadScope='organization'
                             withLoader
