@@ -9,6 +9,8 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/miniapp/access/CustomField')
+const { LOCALES } = require('@condo/domains/user/constants/common')
+
 const ajv = new Ajv()
 
 const CONTACT_SCHEMA = 'Contact'
@@ -18,6 +20,8 @@ const ORGANIZATION_SCHEMA = 'Organization'
 
 const STRING_TYPE = 'String'
 const JSON_TYPE = 'Json'
+const DATETIME_TYPE = 'Datetime'
+const BOOLEAN_TYPE = 'Boolean'
 
 const ALLOWED_SCHEMAS = {
     [CONTACT_SCHEMA]: {
@@ -46,6 +50,12 @@ const ALLOWED_SCHEMAS = {
 const ALLOWED_TYPES = {
     [STRING_TYPE]: {
         valueIsValid: (value) => typeof value === 'string',
+
+        toStringFilterData: (value) => value,
+        toIntFilterData: () => null,
+        toFloatFilterData: () => null,
+        toNonNegativeDecimalFilterData: () => null,
+        toBooleanFilterData: (value) => value,
     },
     [JSON_TYPE]: {
         valueIsValid: (value) => {
@@ -56,7 +66,31 @@ const ALLOWED_TYPES = {
                 return false
             }
         },
+
+        toStringFilterData: (value) => JSON.stringify(value),
+        toIntFilterData: () => null,
+        toFloatFilterData: () => null,
+        toNonNegativeDecimalFilterData: () => null,
+        toBooleanFilterData: (value) => value,
     },
+    // [DATETIME_TYPE]: {
+    //     valueIsValid: (value) => typeof value === 'string',
+    //
+    //     toStringFilterData: (value) => value,
+    //     toIntFilterData: () => null,
+    //     toFloatFilterData: () => null,
+    //     toNonNegativeDecimalFilterData: () => null,
+    //     toBooleanFilterData: (value) => value,
+    // },
+    // [BOOLEAN_TYPE]: {
+    //     valueIsValid: (value) => typeof value === 'boolean',
+    //
+    //     toStringFilterData: () => null,
+    //     toIntFilterData: () => null,
+    //     toFloatFilterData: () => null,
+    //     toNonNegativeDecimalFilterData: () => null,
+    //     toBooleanFilterData: (value) => value,
+    // },
 }
 
 
@@ -66,6 +100,7 @@ const CustomField = new GQLListSchema('CustomField', {
         locale: {
             schemaDoc: 'Locale of this field, For example, if you create SSN field (social security number) you should use en-US locale. If not set, then it is considered that this CustomField is global and not region specific',
             type: 'Text',
+            options: LOCALES,
             isRequired: false,
         },
 
