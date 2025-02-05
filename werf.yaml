@@ -269,7 +269,7 @@ docker:
   ENV:
     LANG: C.UTF-8
 ---
-image: registryma
+image: registry_importer
 fromImage: base
 fromCacheVersion: "1"
 git:
@@ -308,9 +308,9 @@ shell:
   - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
   - >
     echo 'OIDC_CONDO_CLIENT_CONFIG={"serverUrl":"https://test.doma.ai","clientId":"test","clientSecret":"test"}' >> /app/.env
-  - "yarn workspace @app/registry next telemetry disable"
-  - "yarn workspace @app/registry build:deps"
-  - "yarn workspace @app/registry build"
+  - "yarn workspace @app/registry-importer next telemetry disable"
+  - "yarn workspace @app/registry-importer build:deps"
+  - "yarn workspace @app/registry-importer build"
   - "rm -rf /app/.env"
   - "rm -rf /app/.config"
 

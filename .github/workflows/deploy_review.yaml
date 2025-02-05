@@ -49,7 +49,7 @@ jobs:
           WERF_SET_CI_EPS_URL: "global.ci_eps_url=review-${{ env.REVIEW_URL_PREFIX }}-eps.r.doma.ai"
           WERF_SET_CI_RB_URL: "global.ci_rb_url=review-${{ env.REVIEW_URL_PREFIX }}-rb.r.doma.ai"
           WERF_SET_CI_INSURANCE_URL: "global.ci_insurance_url=review-${{ env.REVIEW_URL_PREFIX }}-insurance.r.doma.ai"
-          WERF_SET_CI_REGISTRY_MA_URL: "global.ci_registry_ma_url=review-${{ env.REVIEW_URL_PREFIX }}-registry.r.doma.ai"
+          WERF_SET_CI_REGISTRY_IMPORTER_URL: "global.ci_registry_importer_url=review-${{ env.REVIEW_URL_PREFIX }}-registry.r.doma.ai"
           WERF_SET_CI_MINIAPP_URL: "global.ci_miniapp_url=review-${{ env.REVIEW_URL_PREFIX }}-miniapp.r.doma.ai"
           WERF_SET_CI_PROPERTY_IMPORTER_URL: "global.ci_property_importer_url=review-${{ env.REVIEW_URL_PREFIX }}-property-importer.r.doma.ai"
           WERF_SET_CI_CLASSIFIER_URL: "global.ci_classifier_url=review-${{ env.REVIEW_URL_PREFIX }}-ml.r.doma.ai"
