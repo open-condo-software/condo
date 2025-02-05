@@ -695,7 +695,7 @@ describe('UserRightsSet', () => {
 
                     const [b2cApp] = await createTestB2CApp(portalClient, {
                         importId: faker.datatype.uuid(),
-                        importRemoteSystem: 'dev-api',
+                        importRemoteSystem: 'dev-portal',
                     })
                     expect(b2cApp).toHaveProperty('id')
 
@@ -713,7 +713,7 @@ describe('UserRightsSet', () => {
 
                     const [build] = await createTestB2CAppBuild(portalClient, b2cApp, {
                         importId: faker.datatype.uuid(),
-                        importRemoteSystem: 'dev-api',
+                        importRemoteSystem: 'dev-portal',
                     })
                     expect(build).toHaveProperty('id')
 

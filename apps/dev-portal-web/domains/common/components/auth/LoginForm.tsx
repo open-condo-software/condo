@@ -6,7 +6,7 @@ import { Input, Button } from '@open-condo/ui'
 
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@/domains/common/hooks/useValidations'
-import { INCORRECT_PHONE_OR_PASSWORD } from '@app/dev-api/domains/user/constants/errors'
+import { INCORRECT_PHONE_OR_PASSWORD } from '@app/dev-portal-api/domains/user/constants/errors'
 
 import styles from './LoginForm.module.css'
 

@@ -56,7 +56,7 @@ const canAccessToEmailField = {
 
         const { existingItem, authentication: { item: user }, listKey, fieldKey } = args
 
-        // Service users with right set (dev-api) can read only emails of service users
+        // Service users with right set (dev-portal) can read only emails of service users
         if (user.type === SERVICE && existingItem.type === SERVICE) {
             return await canDirectlyReadSchemaField(user, listKey, fieldKey)
         }

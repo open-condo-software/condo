@@ -8,7 +8,7 @@ import type { SelectProps } from '@open-condo/ui'
 
 import { Section, SubSection } from '@/domains/miniapp/components/AppSettings'
 import { getEnvironment } from '@/domains/miniapp/utils/query'
-import { DEV_ENVIRONMENT, PROD_ENVIRONMENT } from '@dev-api/domains/miniapp/constants/publishing'
+import { DEV_ENVIRONMENT, PROD_ENVIRONMENT } from '@dev-portal-api/domains/miniapp/constants/publishing'
 
 import { ClientSettingsSubsection } from './ClientSettingsSubsection'
 

@@ -23,9 +23,9 @@ import { useFileSizeFormatter } from '@/domains/miniapp/hooks/useFileSizeFormatt
 import { useFileValidator } from '@/domains/miniapp/hooks/useFileValidator'
 import { useMutationCompletedHandler } from '@/domains/miniapp/hooks/useMutationCompletedHandler'
 import { getCurrentPage } from '@/domains/miniapp/utils/query'
-import { INVALID_MIMETYPE } from '@dev-api/domains/common/constants/errors'
-import { B2C_APP_BUILD_UNIQUE_VERSION_CONSTRAINT } from '@dev-api/domains/miniapp/constants/constraints'
-import { INVALID_BUILD_VERSION } from '@dev-api/domains/miniapp/constants/errors'
+import { INVALID_MIMETYPE } from '@dev-portal-api/domains/common/constants/errors'
+import { B2C_APP_BUILD_UNIQUE_VERSION_CONSTRAINT } from '@dev-portal-api/domains/miniapp/constants/constraints'
+import { INVALID_BUILD_VERSION } from '@dev-portal-api/domains/miniapp/constants/errors'
 
 import styles from './BuildsSection.module.css'
 

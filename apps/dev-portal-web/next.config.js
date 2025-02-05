@@ -11,7 +11,7 @@ const { LOCALES, DEFAULT_LOCALE } = requireTs(localesPath)
 
 const DOCS_ENTRY_ENDPOINT = conf['DOCS_ENTRY_ENDPOINT'] || '/docs/index'
 // NOTE: Url of API server
-const SERVER_URL = conf['DEV_API_DOMAIN'] || 'http://localhost:4006'
+const SERVER_URL = conf['DEV_PORTAL_API_DOMAIN'] || 'http://localhost:4006'
 // NOTE: Url of current service
 const SERVICE_URL = conf['DEV_PORTAL_WEB_DOMAIN'] || 'http://localhost:3000'
 const ADDRESS_SERVICE_URL = conf['ADDRESS_SERVICE_DOMAIN'] || 'http://localhost:4001'

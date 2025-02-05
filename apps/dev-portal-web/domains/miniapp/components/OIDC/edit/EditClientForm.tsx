@@ -10,8 +10,8 @@ import { useValidations } from '@/domains/common/hooks/useValidations'
 import { getClientSideSenderInfo } from '@/domains/common/utils/userid.utils'
 import { useSecretContext } from '@/domains/miniapp/components/OIDC/edit/SecretProvider'
 import  { PROD_REDIRECT_URI_EXAMPLE, DEV_REDIRECT_URI_EXAMPLE } from '@/domains/miniapp/constants/common'
-import { INVALID_URL, HTTPS_ONLY } from '@dev-api/domains/miniapp/constants/errors'
-import { OIDC_SECRET_LENGTH } from '@dev-api/domains/miniapp/constants/oidc'
+import { INVALID_URL, HTTPS_ONLY } from '@dev-portal-api/domains/miniapp/constants/errors'
+import { OIDC_SECRET_LENGTH } from '@dev-portal-api/domains/miniapp/constants/oidc'
 
 import styles from './EditClientForm.module.css'
 

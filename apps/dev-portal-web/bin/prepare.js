@@ -4,13 +4,13 @@ const { getAppServerUrl, updateAppEnvFile } = require('@open-condo/cli')
 
 const APP_NAME = path.basename(path.resolve(__dirname, '..')) 
 
-async function syncWithLocalDevApi () {
-    const apiServerUrl = await getAppServerUrl('dev-api')
+async function syncWithLocalDevPortalApi () {
+    const apiServerUrl = await getAppServerUrl('dev-portal-api')
     await updateAppEnvFile(APP_NAME, 'SERVER_URL', apiServerUrl)
 }
 
 async function main () {
-    await syncWithLocalDevApi()
+    await syncWithLocalDevPortalApi()
 }
 
 main().then(() => {
