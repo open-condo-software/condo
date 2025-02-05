@@ -446,30 +446,8 @@ jobs:
             ./docker-logs
           retention-days: 2
 
-  run-webhooks-tests:
-    name: Webhooks Tests
-    runs-on: ubuntu-22.04
-    needs:
-      - authorize
-      - detect-changes
-    if: ${{ needs.detect-changes.outputs.webhooks == 'true' }}
-    steps:
-      - name: Checkout code with submodules
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          submodules: recursive
-          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
-          ref: ${{ env.REF }}
-      - name: Install packages
-        run: |
-          npm i -g turbo
-          yarn install --immutable
-      - name: Test webhooks utils
-        run: yarn workspace @open-condo/webhooks jest
-
   run-registry-tests:
-    name: Registry Tests
+    name: Registry-importer Tests
     runs-on: ubuntu-22.04
     needs:
       - authorize
@@ -509,3 +487,25 @@ jobs:
           yarn workspace @app/registry-importer start & \
           node bin/wait-apps-apis.js -f condo registry) && \
           yarn workspace @app/registry-importer test"
+
+  run-webhooks-tests:
+    name: Webhooks Tests
+    runs-on: ubuntu-22.04
+    needs:
+      - authorize
+      - detect-changes
+    if: ${{ needs.detect-changes.outputs.webhooks == 'true' }}
+    steps:
+      - name: Checkout code with submodules
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+          ref: ${{ env.REF }}
+      - name: Install packages
+        run: |
+          npm i -g turbo
+          yarn install --immutable
+      - name: Test webhooks utils
+        run: yarn workspace @open-condo/webhooks jest
