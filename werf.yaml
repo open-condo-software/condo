@@ -6,6 +6,7 @@ from: ubuntu:20.04
 shell:
   beforeInstall:
   - "export DEBIAN_FRONTEND=noninteractive"
+  - "export BASE_IMAGE_VERSION=1"
   - "groupadd -r app --gid=999"
   - "useradd --system --create-home --home /app --gid 999 --uid=999 --shell /bin/bash app"
   - "apt update -qq"
@@ -451,7 +452,7 @@ docker:
   ENV:
     LANG: C.UTF-8
 ---
-image: classifier
+image: classifiers_api
 fromImage: python-base
 fromCacheVersion: "1"
 git:
@@ -474,7 +475,7 @@ docker:
   ENV:
     LANG: C.UTF-8
 ---
-image: addressservice
+image: address_service
 fromImage: base
 fromCacheVersion: "1"
 git:
@@ -1022,7 +1023,7 @@ shell:
     - "echo 'REDIS_URL=undefined' >> /app/.env"
     - "echo 'NODE_ENV=production' >> /app/.env"
     - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
-    - "yarn workspace @app/meters-billing-integration next telemetry disable"
+    - "yarn workspace @app/meter-importer next telemetry disable"
     - "yarn workspace @app/meters-billing-integration build:deps"
     - "yarn workspace @app/meters-billing-integration build"
     - "rm -rf /app/.env"
