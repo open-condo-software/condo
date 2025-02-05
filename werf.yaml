@@ -18,7 +18,6 @@ shell:
       make
       nodejs
       python3-pip"
-  - "apt autoremove -y && apt autoclean -y"
   - "pip3 install django>=3.0.6 psycopg2-binary>=2.8.5"
   - "npm install --global yarn"
 
@@ -212,9 +211,9 @@ shell:
   - "echo 'REDIS_URL=undefined' >> /app/.env"
   - "echo 'NODE_ENV=production' >> /app/.env"
   - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
-  - "yarn workspace @app/condorb next telemetry disable"
-  - "yarn workspace @app/condorb build:deps"
-  - "yarn workspace @app/condorb build"
+  - "yarn workspace @app/rb next telemetry disable"
+  - "yarn workspace @app/rb build:deps"
+  - "yarn workspace @app/rb build"
   - "rm -rf /app/.env"
   - "rm -rf /app/.config"
 

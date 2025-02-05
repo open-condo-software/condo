@@ -10,9 +10,9 @@
 [submodule "infrastructure/helm"]
 	path = .helm
 	url = ../infrastructure-condo.git
-[submodule "apps/condorb"]
-	path = apps/condorb
-	url = ../condorb.git
+[submodule "apps/rb"]
+	path = apps/rb
+	url = git@github.com:open-condo-software/condo-rb.git
 [submodule "apps/registry-importer"]
 	path = apps/registry-importer
 	url = git@github.com:open-condo-software/condo-registry-importer.git

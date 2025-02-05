@@ -63417,6 +63417,7 @@ enum NewsItemTemplateCategoryType {
   INTERCOM
   SNOW
   OTHER
+  FIRE_PROTECTION
 }
 
 """ The news item template for quick composing a news item """
