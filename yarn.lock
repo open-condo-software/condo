@@ -1912,9 +1912,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@app/registry@workspace:apps/registry":
+"@app/registry-importer@workspace:apps/registry-importer":
   version: 0.0.0-use.local
-  resolution: "@app/registry@workspace:apps/registry"
+  resolution: "@app/registry-importer@workspace:apps/registry-importer"
   dependencies:
     "@apollo/client": ^3.11.8
     "@app/condo": "workspace:^"
@@ -1954,7 +1954,7 @@ __metadata:
     "@open-condo/keystone": "workspace:^"
     "@open-condo/next": "workspace:^"
     "@open-condo/ui": "workspace:^"
-    "@registry/domains": "link:./domains"
+    "@registry-importer/domains": "link:./domains"
     "@testing-library/react": ^11.2.5
     "@types/jest": ^29.4.0
     "@types/node": ^16
@@ -8105,9 +8105,9 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@condo/domains@link:../condo/domains::locator=%40app%2Fregistry%40workspace%3Aapps%2Fregistry":
+"@condo/domains@link:../condo/domains::locator=%40app%2Fregistry-importer%40workspace%3Aapps%2Fregistry-importer":
   version: 0.0.0-use.local
-  resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Fregistry%40workspace%3Aapps%2Fregistry"
+  resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Fregistry-importer%40workspace%3Aapps%2Fregistry-importer"
   languageName: node
   linkType: soft
 
@@ -16085,9 +16085,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@registry/domains@link:./domains::locator=%40app%2Fregistry%40workspace%3Aapps%2Fregistry":
+"@registry-importer/domains@link:./domains::locator=%40app%2Fregistry-importer%40workspace%3Aapps%2Fregistry-importer":
   version: 0.0.0-use.local
-  resolution: "@registry/domains@link:./domains::locator=%40app%2Fregistry%40workspace%3Aapps%2Fregistry"
+  resolution: "@registry-importer/domains@link:./domains::locator=%40app%2Fregistry-importer%40workspace%3Aapps%2Fregistry-importer"
   languageName: node
   linkType: soft
 
