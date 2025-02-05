@@ -1,10 +1,10 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Card, Typography } from '@open-condo/ui'
 
 import './MessageCard.css'
-import { USER_MESSAGE_TYPES_FILTER_ON_CLIENT, UserMessageType } from '@condo/domains/notification/components/constants'
+import { USER_MESSAGE_TYPES_FILTER_ON_CLIENT, UserMessageType } from '@condo/domains/notification/utils/client/constants'
 
 
 type MessageCardProps = {
@@ -22,7 +22,7 @@ export const MessageCard: React.FC<MessageCardProps> = ({ message, viewed }) => 
     const intl = useIntl()
     const MessageTitle = intl.formatMessage({ id: `notification.UserMessagesList.message.${message.type}.label` })
 
-    const messageContent = message?.defaultContent?.content
+    const messageContent = useMemo(() => message?.defaultContent?.content, [message?.defaultContent?.content])
 
     return (
         <Card
