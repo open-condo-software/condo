@@ -613,7 +613,7 @@ docker:
   ENV:
     LANG: C.UTF-8
 ---
-image: passapp
+image: pass
 fromImage: base
 fromCacheVersion: "2"
 git:
