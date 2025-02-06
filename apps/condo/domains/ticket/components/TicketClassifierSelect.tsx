@@ -1,3 +1,4 @@
+import { usePredictTicketClassificationLazyQuery } from '@app/condo/gql'
 import { Col, Form, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { uniqBy, isEmpty, find, pick, get } from 'lodash'
@@ -11,7 +12,7 @@ import Input from '@condo/domains/common/components/antd/Input'
 import Select from '@condo/domains/common/components/antd/Select'
 import { useTicketValidations } from '@condo/domains/ticket/components/BaseTicketForm/useTicketValidations'
 import { MIN_DESCRIPTION_LENGTH } from '@condo/domains/ticket/constants/restrictions'
-import { PREDICT_TICKET_CLASSIFICATION_QUERY } from '@condo/domains/ticket/gql.js'
+// import { PREDICT_TICKET_CLASSIFICATION_QUERY } from '@condo/domains/ticket/gql.js'
 import { ClassifiersQueryLocal, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 
 import { TicketFormItem } from './BaseTicketForm'
@@ -162,6 +163,9 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
     const validations = useTicketValidations()
     const ticketForm = useRef(null)
     const hasUserSetClassifier = useRef<boolean>(false)
+    const [predictTicketClassificationQuery, { variables, data: previousPrediction }] = usePredictTicketClassificationLazyQuery({
+        nextFetchPolicy: 'network-only',
+    })
 
     const stopPredict = useCallback(() => {
         if (!ruleRef.current.category && !ruleRef.current.place) {
@@ -179,19 +183,23 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
             return
         }
         let prediction
-        try {
-            prediction = await client.query({
-                query: PREDICT_TICKET_CLASSIFICATION_QUERY,
+        if (variables?.data?.details === details) {
+            prediction = previousPrediction
+        } else {
+            const { error, data } = await predictTicketClassificationQuery({
                 variables: { data: { details } },
             })
-        } catch (error) {
-            console.error(error)
+            if (error) {
+                console.error(error)
+            } else {
+                prediction = data
+            }
         }
 
-        if (!prediction || get(prediction, 'data.obj') === null) {
+        if (!prediction || prediction?.obj === null) {
             return
         }
-        const { data: { obj: { id, category, place } } } = prediction
+        const { obj: { id, category, place } } = prediction
         await ClassifierLoader.init()
         await updateLevels({ id: id, category: category.id, place: place.id, problem: null }).then(() => {
             placeSet.one(ruleRef.current.place)
