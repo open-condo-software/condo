@@ -96,9 +96,10 @@ if (get(REDIS_FALLBACK_CONFIG, 'enabled', false)) {
  * @param {string} name -- name of redis client or the task purpose (we can use a different REDIS_URL for each name)
  * @param {string} purpose -- regular / subscriber redis client mode (read details: https://github.com/luin/ioredis#pubsub); you can also use it if you need a two redis client with different settings; For example, the Bull is required three different redis clients
  * @param {string} opts -- RedisConfig to customize some client options; But please don't use it!
+ * @param {boolean} ignorePrefix - this should be used when you need to specify your own keyPrefix (for example in bull.js)
  * @return {import('ioredis')}
  */
-function getRedisClient (name = 'default', purpose = 'regular', opts = {}) {
+function getRedisClient (name = 'default', purpose = 'regular', opts = {}, ignorePrefix = false) {
     const clientKey = name + ':' + purpose
 
     logger.info({ msg: 'getRedisClient', clientKey, opts })
@@ -112,7 +113,9 @@ function getRedisClient (name = 'default', purpose = 'regular', opts = {}) {
         if (!redisUrl) throw new Error(`No REDIS_URL env! You need to set ${redisEnvName} / REDIS_URL env`)
         // BUILD STEP! OR SOME CASE WITH REDIS_URL=undefined
         if (redisUrl === 'undefined') return undefined
-        const client = new IORedis(redisUrl, { connectionName: clientKey, keyPrefix: PREFIX, ...opts })
+        const clientOptions = { connectionName: clientKey, ...opts }
+        if (!ignorePrefix) clientOptions['keyPrefix'] = PREFIX
+        const client = new IORedis(redisUrl, clientOptions)
         client.on('connect', () => logger.info({ msg: 'connect', clientKey }))
         client.on('close', () => logger.info({ msg: 'close', clientKey }))
         client.on('reconnecting', (waitTime) => logger.info({ msg: 'reconnecting', clientKey, waitTime }))
