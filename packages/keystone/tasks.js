@@ -4,7 +4,7 @@ const { get } = require('lodash')
 const conf = require('@open-condo/config')
 
 const { _internalGetExecutionContextAsyncLocalStorage } = require('./executionContext')
-const { getKVClient } = require('./kv')
+const { getKVClient, getRedisPrefix } = require('./kv')
 const { getLogger } = require('./logging')
 const { gauge } = require('./metrics')
 const { prepareKeystoneExpressApp } = require('./prepareKeystoneApp')
@@ -40,7 +40,11 @@ let isWorkerCreated = false
 function createTaskQueue (name) {
     if (IS_BUILD) return
 
+    const prefix = getRedisPrefix()
+
     QUEUES.set(name, new Queue(name, {
+        prefix: `${prefix}bull`,
+
         /**
          * @param {'client' | 'subscriber' | 'bclient'} type
          * @return {import('ioredis')}
@@ -51,7 +55,7 @@ function createTaskQueue (name) {
             if (['bclient', 'subscriber'].includes(type)) {
                 opts.maxRetriesPerRequest = null
             }
-            return getKVClient(`worker:${name}`, type, opts)
+            return getKVClient(`worker:${name}`, type, opts, true)
         },
     }))
 }
