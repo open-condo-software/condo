@@ -73,31 +73,31 @@ const PLUS_BUTTON_STYLE: CSSProperties = {
 }
 
 const ServiceFormItem = styled(Form.Item)`
-    & .ant-form-item-label {
-      padding-bottom: 8px;
-      
-      & > .ant-form-item-no-colon {
-        height: 22px;
-      }
+  & .ant-form-item-label {
+    padding-bottom: 8px;
+
+    & > .ant-form-item-no-colon {
+      height: 22px;
     }
+  }
 `
 const FormItemWithCustomWarningColor = styled(ServiceFormItem)`
-    .ant-input-status-warning {
-      &:focus {
-        box-shadow: 0 0 0 1px ${colors.red[5]} !important;
-      }
-      
-      border-color: ${colors.red[5]} !important;;
+  .ant-input-status-warning {
+    &:focus {
+      box-shadow: 0 0 0 1px ${colors.red[5]} !important;
     }
 
-    .ant-input-group-wrapper-status-warning .ant-input-group-addon {
-      color: ${colors.red[5]};
-      border-color: ${colors.red[5]};
-    }
-  
-    .ant-form-item-explain-warning {
-      color: ${colors.red[5]};
-    }
+    border-color: ${colors.red[5]} !important;;
+  }
+
+  .ant-input-group-wrapper-status-warning .ant-input-group-addon {
+    color: ${colors.red[5]};
+    border-color: ${colors.red[5]};
+  }
+
+  .ant-form-item-explain-warning {
+    color: ${colors.red[5]};
+  }
 `
 
 const SubTotalInfo = ({ label, total, large = false, totalTextType }) => {
@@ -663,6 +663,12 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                         >
                                             <Select
                                                 defaultValue={PriceMeasuresType.PerItem}
+                                                onSelect={newPriceMeasure => {
+                                                    updateRowFields(marketItemForm.name, {
+                                                        measure: newPriceMeasure,
+                                                        ...(newPriceMeasure === null && { count: 1 }),
+                                                    })
+                                                }}
                                             >
                                                 <Select.Option
                                                     key={PriceMeasuresType.PerItem}
@@ -683,8 +689,8 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                                     { PerMeterPriceMeasureLabel }
                                                 </Select.Option>
                                                 <Select.Option
-                                                    key={undefined}
-                                                    value={undefined}
+                                                    key='NoValue'
+                                                    value={null}
                                                 >
                                                     { NoPriceMeasureLabel }
                                                 </Select.Option>
@@ -707,7 +713,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                                     validator: (_, value) => {
                                                         if (
                                                             new RegExp(`^${FromMessage} (\\d+|\\d+(,|.)\\d+)$`).test(value) ||
-                                                                value === ContractPriceMessage
+                                                            value === ContractPriceMessage
                                                         ) {
                                                             form.setFieldsValue({
                                                                 hasIsMinPrice: true,
@@ -732,7 +738,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                                     validator: (_, value) => {
                                                         if (
                                                             new RegExp(`^(${FromMessage} |)(\\d+|\\d+(,|.)\\d+)$`).test(value) ||
-                                                                value === ContractPriceMessage
+                                                            value === ContractPriceMessage
                                                         ) {
                                                             return Promise.resolve()
                                                         }
@@ -764,7 +770,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
 
                                                     const splittedValue = value.split(' ')
                                                     const isMin = (splittedValue.length === 2 && splittedValue[0] === FromMessage) ||
-                                                            (splittedValue.length === 1 && splittedValue[0] === ContractPriceMessage)
+                                                        (splittedValue.length === 1 && splittedValue[0] === ContractPriceMessage)
 
                                                     updateRowFields(marketItemForm.name, {
                                                         isMin,
@@ -782,9 +788,10 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                             labelCol={{ span: 24 }}
                                             rules={[requiredValidator]}
                                             initialValue={1}
+                                            shouldUpdate
                                         >
                                             <Select
-                                                disabled={disabled}
+                                                disabled={disabled || form.getFieldValue(['rows', marketItemForm.name, 'measure']) === null}
                                                 options={[...Array(50).keys() ].map( i => ({
                                                     label: `${i + 1}`,
                                                     key: i + 1,
