@@ -50,7 +50,7 @@ let REDIS_FALLBACK_CONFIG
 try {
     REDIS_FALLBACK_CONFIG = JSON.parse(conf['REDIS_FALLBACK_CONFIG'])
 } catch (err) {
-    console.error('Unable to parse json from REDIS_FALLBACK -> feature will be disabled', err)
+    REDIS_FALLBACK_CONFIG = {}
 }
 
 if (get(REDIS_FALLBACK_CONFIG, 'enabled', false)) {
