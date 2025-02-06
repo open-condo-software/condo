@@ -67,7 +67,8 @@ const {
     makeClientWithResidentUser,
     makeClientWithStaffUser, createTestPhone,
 } = require('@condo/domains/user/utils/testSchema')
-const {PRICE_MEASURES} = require("./fields/price");
+
+const { PRICE_MEASURES } = require('./fields/price')
 
 
 dayjs.extend(isSameOrAfter)
@@ -917,7 +918,7 @@ describe('Invoice', () => {
                         parentCategory: { connect: { id: parentCategory.id } },
                     })
                     const [marketItem] = await createTestMarketItem(adminClient, marketCategory, o10n)
-                    const [itemPrice] = await createTestMarketItemPrice(adminClient, marketItem, { price: { type: 'variant', name: 'Installation of AC unit', price: '80', isMin: false, vatPercent: '11', currencyCode: 'USD', measure: PRICE_MEASURES.PER_ITEM }})
+                    const [itemPrice] = await createTestMarketItemPrice(adminClient, marketItem, { price: { type: 'variant', name: 'Installation of AC unit', price: '80', isMin: false, vatPercent: '11', currencyCode: 'USD', measure: PRICE_MEASURES.PER_ITEM } })
                     const [priceScope] = await createTestMarketPriceScope(adminClient, itemPrice, property)
 
                     await registerResidentInvoiceByTestClient(

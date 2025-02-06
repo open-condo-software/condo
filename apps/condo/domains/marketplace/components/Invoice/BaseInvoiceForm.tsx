@@ -688,7 +688,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                                 { PerMeterPriceMeasureLabel }
                                             </Select.Option>
                                             <Select.Option
-                                                key={'NoValue'}
+                                                key='NoValue'
                                                 value={null}
                                             >
                                                 { NoPriceMeasureLabel }
@@ -840,13 +840,13 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                 </Col>
                                 <Col xs={24} lg={2}>
                                     { index !== 0 && <Typography.Text disabled={disabled} onClick={() => {
-                                            if (disabled) return
-                                            operation.remove(marketItemForm.name)
-                                        }}>
-                                            <div style={{ paddingTop: `${breakpoints.DESKTOP_SMALL ? '42px' : '12px'}` }}>
-                                                <Trash size='large' />
-                                            </div>
-                                        </Typography.Text>}
+                                        if (disabled) return
+                                        operation.remove(marketItemForm.name)
+                                    }}>
+                                        <div style={{ paddingTop: `${breakpoints.DESKTOP_SMALL ? '42px' : '12px'}` }}>
+                                            <Trash size='large' />
+                                        </div>
+                                    </Typography.Text>}
                                 </Col>
                             </Row>
                         </Card>)
