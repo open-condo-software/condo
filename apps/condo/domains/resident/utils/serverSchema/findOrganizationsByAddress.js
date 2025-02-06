@@ -1,4 +1,4 @@
-const get = require('lodash/get')
+const { get, pick } = require('lodash')
 
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { find } = require('@open-condo/keystone/schema')
@@ -12,6 +12,14 @@ const {
 const { getAccountsWithOnlineInteractionUrl } = require('@condo/domains/billing/utils/serverSchema/checkAccountNumberWithOnlineInteractionUrl')
 const { DISABLE_DISCOVER_SERVICE_CONSUMERS } = require('@condo/domains/common/constants/featureflags')
 const { CONTEXT_FINISHED_STATUS: BILLING_CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
+
+/*
+    TODO: (DOMA-11059) Eliminate unnecessary subqueries like MeterResourceOwner and BillingContext.
+    Currently, each organization is processed separately, leading to excessive subqueries.
+    All necessary data can be fetched in the previous step before processing, reducing the number of database queries.
+    MeterResourceOwner is fetched when checking organizations with meters.
+    BillingContext can be unified across all organizations.
+*/
 
 async function findOrganizationByAddressKey (organization, { addressKey }) {
     const meterResourceOwner = await find('MeterResourceOwner', {
@@ -45,7 +53,6 @@ async function findOrganizationByAddressKeyUnitNameUnitType (organization, { add
     if (isInBlackList) {
         return findOrganizationByAddressKey(organization, { addressKey })
     }
-
     const billingContext = await getOrganizationBillingContext(organization)
     let receipts = await getOrganizationReceipts(billingContext, addressKey, { unitName, unitType })
 
@@ -60,7 +67,7 @@ async function findOrganizationByAddressKeyUnitNameUnitType (organization, { add
         receipts = null
     }
 
-    const meters = await getOrganizationMeters(organization, addressKey, { unitName, unitType }, properties)
+    const meters = await getOrganizationMeters(organization, addressKey, properties, { unitName, unitType })
 
     return {
         id: organization.id,
@@ -96,7 +103,7 @@ async function findOrganizationByAddressKeyTinAccountNumber (organization, { add
 
     if (!receipts.length) receipts = null
 
-    const meters = await getOrganizationMeters(organization, addressKey, { accountNumber }, properties)
+    const meters = await getOrganizationMeters(organization, addressKey, properties, { accountNumber })
 
     return {
         id: organization.id,
@@ -143,10 +150,17 @@ async function getOrganizationReceipts (billingContext, addressKey, query = {}) 
     return receipts
 }
 
-async function getOrganizationMeters (organization, addressKey, query = {}, properties) {
+async function getOrganizationMeters (organization, addressKey, properties, query = {}) {
+    const meterResourceOwners = await find('MeterResourceOwner', {
+        organization: { id: organization.id },
+        addressKey,
+        deletedAt: null,
+    })
+
     let meters = await find('Meter', {
         organization: { id: organization.id },
         deletedAt: null,
+        resource: { id_in: meterResourceOwners.map(owner => owner.resource) },
         property: { addressKey, deletedAt: null },
         ...query,
     })
@@ -159,10 +173,13 @@ async function getOrganizationMeters (organization, addressKey, query = {}, prop
             meter: { id_in: meters.map(({ id }) => id) },
             deletedAt: null,
         })
-        const meterReadingIndex = meterReadings.reduce((acc, { meter, value1, value2, value3, value4 }) => {
-            acc[meter] = [value1, value2, value3, value4].filter(Boolean).join(',')
+        
+        const meterReadingIndex = meterReadings.reduce((acc, reading) => {
+            const values = pick(reading, ['value1', 'value2', 'value3', 'value4'])
+            acc[reading.meter] = Object.keys(values).length ? values : null
             return acc
         }, {})
+
         meters = meters.map((meter) => ({
             resource: meter.resource,
             accountNumber: meter.accountNumber,
@@ -187,8 +204,9 @@ async function getOrganizationBillingContext (organization) {
     return context
 }
 
-async function getOrganizationIdsWithMeters (organizations) {
+async function getOrganizationIdsWithMeters (organizations, addressKey) {
     const meterResourceOwners = await find('MeterResourceOwner', {
+        addressKey,
         organization: { id_in: organizations.map(({ id }) => id) },
         deletedAt: null,
     })

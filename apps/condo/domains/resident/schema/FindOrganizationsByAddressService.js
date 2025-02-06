@@ -41,7 +41,11 @@ const FindOrganizationsByAddressService = new GQLCustomSchema('FindOrganizations
         },
         {
             access: true,
-            type: 'type FindOrganizationByAddressMeterType { resource: ID!, number: String, accountNumber: String, value: String, address: String }',
+            type: 'type FindOrganizationByAddressMeterValuesType { value1: String!, value2: String, value3: String, value4: String }',
+        },
+        {
+            access: true,
+            type: 'type FindOrganizationByAddressMeterType { resource: ID!, number: String, accountNumber: String, value: FindOrganizationByAddressMeterValuesType, address: String }',
         },
         {
             access: true,
@@ -78,12 +82,17 @@ const FindOrganizationsByAddressService = new GQLCustomSchema('FindOrganizations
 
                 const [withAcquiring, withMeters] = await Promise.all([
                     getOrganizationIdsWithAcquiring(organizations),
-                    getOrganizationIdsWithMeters(organizations),
+                    getOrganizationIdsWithMeters(organizations, addressKey),
                 ])
 
                 organizations = organizations.filter(({ id }) => withAcquiring.has(id) || withMeters.has(id))
 
                 if (!organizations.length) return []
+
+                /*
+                    TODO: (DOMA-11059) Optimize by eliminating subqueries. All data will be retrieved as a flat array and then processed.
+                    Here, we should have all the necessary data.
+                 */
 
                 const fetchOrganizationData = async (organization) => {
                     if (tin && accountNumber) {

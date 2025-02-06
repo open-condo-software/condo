@@ -32,11 +32,12 @@ const { DISABLE_DISCOVER_SERVICE_CONSUMERS } = require('@condo/domains/common/co
 const {
     CALL_METER_READING_SOURCE_ID,
 } = require('@condo/domains/meter/constants/constants')
-const { COLD_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
-const { createTestMeterReading, MeterReadingSource } = require('@condo/domains/meter/utils/testSchema')
+const { COLD_WATER_METER_RESOURCE_ID, ELECTRICITY_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
+const { createTestMeterReading, MeterReadingSource, MeterResourceOwner } = require('@condo/domains/meter/utils/testSchema')
 const { createTestMeterResourceOwner } = require('@condo/domains/meter/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { updateTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { findOrganizationsByAddressByTestClient } = require('@condo/domains/resident/utils/testSchema')
 
 function getOnlyResourceMeterTest (resource) {
@@ -179,6 +180,76 @@ describe('FindOrganizationsByAddress', () => {
         describe('addressKey unitName unitType', () => {
             setFeatureFlag(DISABLE_DISCOVER_SERVICE_CONSUMERS, false)
 
+            test('Should return meter only if org is resource owner', async () => {
+                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                await utils.init()
+                const anotherUtils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                await anotherUtils.init()
+                await updateTestProperty(anotherUtils.clients.admin, anotherUtils.property.id, {
+                    address: utils.property.address,
+                    addressMeta: utils.property.addressMeta,
+                })
+                const accountNumber = utils.randomNumber(10).toString()
+                const unitName = utils.randomNumber(10).toString()
+                const unitType = 'flat'
+                const [source] = await MeterReadingSource.getAll(utils.clients.admin, { id: CALL_METER_READING_SOURCE_ID })
+                const [ meter1 ] = await utils.createMeter({ unitName, accountNumber, resourceId: COLD_WATER_METER_RESOURCE_ID })
+                await utils.createMeter({ unitName, accountNumber, resourceId: ELECTRICITY_METER_RESOURCE_ID })
+                const meterResourceOwner = await MeterResourceOwner.getOne(utils.clients.admin, { organization: { id: utils.organization.id }, resource: { id: ELECTRICITY_METER_RESOURCE_ID } })
+                await MeterResourceOwner.softDelete(utils.clients.admin, meterResourceOwner.id)
+                const [ anotherMeter1 ] = await anotherUtils.createMeter({ unitName, accountNumber, resourceId: ELECTRICITY_METER_RESOURCE_ID })
+
+                const [meterReading] = await createTestMeterReading(utils.clients.admin, meter1, source)
+                const [anotherMeterReading] = await createTestMeterReading(anotherUtils.clients.admin, anotherMeter1, source)
+
+                const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
+                    addressKey: utils.property.addressKey,
+                    unitName,
+                    unitType,
+                })
+
+                expect(foundOrganizations).toHaveLength(2)
+                const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
+                const antoherFound = foundOrganizations.find(({ id }) => id === anotherUtils.organization.id)
+                expect(found.receipts).toBeNull()
+                expect(found.meters).toHaveLength(1)
+                expect(found.meters[0]).toMatchObject({
+                    resource: COLD_WATER_METER_RESOURCE_ID,
+                    accountNumber: accountNumber,
+                    number: expect.any(String),
+                    value: {
+                        value1: Big(meterReading.value1).toFixed(4),
+                        value2: null,
+                        value3: null,
+                        value4: null,
+                    },
+                    address: utils.property.address,
+                })
+                expect(found.id).toEqual(utils.organization.id)
+                expect(found.name).toEqual(utils.organization.name)
+                expect(found.tin).toEqual(utils.organization.tin)
+                expect(found.type).toEqual(utils.organization.type)
+
+                expect(antoherFound.receipts).toBeNull()
+                expect(antoherFound.meters).toHaveLength(1)
+                expect(antoherFound.meters[0]).toMatchObject({
+                    resource: ELECTRICITY_METER_RESOURCE_ID,
+                    accountNumber: accountNumber,
+                    number: expect.any(String),
+                    value: {
+                        value1: Big(anotherMeterReading.value1).toFixed(4),
+                        value2: null,
+                        value3: null,
+                        value4: null,
+                    },
+                    address: utils.property.address,
+                })
+                expect(antoherFound.id).toEqual(anotherUtils.organization.id)
+                expect(antoherFound.name).toEqual(anotherUtils.organization.name)
+                expect(antoherFound.tin).toEqual(anotherUtils.organization.tin)
+                expect(antoherFound.type).toEqual(anotherUtils.organization.type)
+            })
+
             test('Should return receipt if unitName and unitType matches', async () => {
                 const unitName = utils.randomNumber(10).toString()
                 const unitType = 'flat'
@@ -204,7 +275,7 @@ describe('FindOrganizationsByAddress', () => {
                     balance: expect.stringMatching(Big(toPay).toFixed(8)),
                     routingNumber: expect.any(String),
                     bankAccount: expect.any(String),
-                    address: expect.stringMatching(utils.property.address),
+                    address: utils.property.address,
                 })
             })
 
@@ -226,8 +297,13 @@ describe('FindOrganizationsByAddress', () => {
                     resource: expect.any(String),
                     accountNumber: expect.stringMatching(accountNumber),
                     number: expect.any(String),
-                    value: expect.stringMatching(Big(meterReading.value1).toFixed(4)),
-                    address: expect.stringMatching(utils.property.address),
+                    value: {
+                        value1: Big(meterReading.value1).toFixed(4),
+                        value2: null,
+                        value3: null,
+                        value4: null,
+                    },
+                    address: utils.property.address,
                 })
                 expect(found.id).toEqual(utils.organization.id)
                 expect(found.name).toEqual(utils.organization.name)
@@ -278,7 +354,7 @@ describe('FindOrganizationsByAddress', () => {
                     balance: Big(toPay).toFixed(8),
                     routingNumber: expect.any(String),
                     bankAccount: expect.any(String),
-                    address: expect.stringMatching(utils.property.address),
+                    address: utils.property.address,
                 })
             })
 
@@ -409,7 +485,7 @@ describe('FindOrganizationsByAddress', () => {
                     accountNumber: expect.stringMatching(accountNumber),
                     routingNumber: expect.any(String),
                     bankAccount: expect.any(String),
-                    address: expect.stringMatching(utils.property.address),
+                    address: utils.property.address,
                 })
                 expect(found.id).toEqual(utils.organization.id)
                 expect(found.name).toEqual(utils.organization.name)
@@ -463,13 +539,19 @@ describe('FindOrganizationsByAddress', () => {
                     tin: utils.organization.tin,
                 })
                 const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
+                console.log(found)
                 expect(found.receipts).toBeNull()
                 expect(found.meters[0]).toMatchObject({
                     resource: expect.any(String),
                     accountNumber: expect.stringMatching(accountNumber),
                     number: expect.any(String),
-                    value: expect.stringMatching(Big(meterReading.value1).toFixed(4)),
-                    address: expect.stringMatching(utils.property.address),
+                    value: {
+                        value1: Big(meterReading.value1).toFixed(4),
+                        value2: null,
+                        value3: null,
+                        value4: null,
+                    },
+                    address: utils.property.address,
                 })
                 expect(found.id).toEqual(utils.organization.id)
                 expect(found.name).toEqual(utils.organization.name)
