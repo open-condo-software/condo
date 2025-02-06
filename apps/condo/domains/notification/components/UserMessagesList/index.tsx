@@ -7,14 +7,14 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Dropdown, Typography } from '@open-condo/ui'
 
-import { usePollUserMessages } from '@condo/domains/notification/hooks/usePollUserMessages'
+import { Loader } from '@condo/domains/common/components/Loader'
+import { useUserMessages } from '@condo/domains/notification/hooks/useUserMessages'
 import { useUserMessagesListSettingsStorage } from '@condo/domains/notification/hooks/useUserMessagesListSettingsStorage'
 import { USER_MESSAGE_TYPES_FILTER_ON_CLIENT } from '@condo/domains/notification/utils/client/constants'
 
 import { MessageCard } from './MessageCard'
 import { MessagesCounter } from './MessagesCounter'
 import { UserMessagesSettingsModal } from './UserMessagesSettingsModal'
-
 
 import './UserMessagesList.css'
 
@@ -42,7 +42,12 @@ export const UserMessagesList = () => {
         userMessagesSettingsStorage,
     } = useUserMessagesListSettingsStorage()
 
-    const { userMessages } = usePollUserMessages({
+    const {
+        userMessages,
+        messagesListRef,
+        moreMessagesLoading,
+    } = useUserMessages({
+        isDropdownOpen,
         queryMessagesVariables: {
             userId,
             organizationId,
@@ -51,10 +56,15 @@ export const UserMessagesList = () => {
         skipQueryMessagesCondition:
             !userId || !organizationId || !readUserMessagesAt || messageTypesToFilter.length === 0,
     })
-    const newMessages = useMemo(() => userMessages.filter(message => message.createdAt > readUserMessagesAt), [readUserMessagesAt, userMessages])
-    const viewedMessages = useMemo(() => userMessages.filter(message => message.createdAt <= readUserMessagesAt), [readUserMessagesAt, userMessages])
+    const unreadMessages = useMemo(
+        () => userMessages.filter(message => message.createdAt > readUserMessagesAt),
+        [readUserMessagesAt, userMessages])
+    const readMessages = useMemo(
+        () => userMessages.filter(message => message.createdAt <= readUserMessagesAt),
+        [readUserMessagesAt, userMessages])
 
     useEffect(() => {
+        // Set initial settings to state
         if (isSSR()) return
 
         let lastReadUserMessagesAt = userMessagesSettingsStorage.getReadUserMessagesAt()
@@ -75,21 +85,29 @@ export const UserMessagesList = () => {
 
     const handleDropdownOpenChange = useCallback(async (isOpen) => {
         setIsDropdownOpen(isOpen)
-        if (isOpen) return
 
-        // NOTE: when dropdown closes - update last read time
-        const currentDate = new Date().toISOString()
-        setReadUserMessagesAt(currentDate)
+        if (isOpen) {
+            if (messagesListRef.current) {
+                messagesListRef.current.scroll({ top: 0 })
+            }
 
-        userMessagesSettingsStorage.setReadUserMessagesAt(currentDate)
-    }, [userMessagesSettingsStorage])
+            return
+        }
+
+        // When dropdown closes - update last read time to createdAt of newest Message
+        const newestMessageCreatedAt = userMessages?.[0]?.createdAt
+        if (newestMessageCreatedAt) {
+            setReadUserMessagesAt(newestMessageCreatedAt)
+            userMessagesSettingsStorage.setReadUserMessagesAt(newestMessageCreatedAt)
+        }
+    }, [messagesListRef, userMessages, userMessagesSettingsStorage])
 
     return (
         <>
             <Dropdown
                 open={isDropdownOpen}
                 dropdownRender={() => (
-                    <div className='user-messages-list'>
+                    <div className='user-messages-list' ref={messagesListRef}>
                         <div className='user-messages-list-header'>
                             <Typography.Title level={5}>
                                 {UserMessagesListTitle}
@@ -98,17 +116,18 @@ export const UserMessagesList = () => {
                                 <Settings onClick={handleModalOpen} />
                             </div>
                         </div>
-                        {newMessages.map(message => <MessageCard key={message.id} message={message} />)}
+                        {unreadMessages.map(message => <MessageCard key={message.id} message={message} />)}
                         {
-                            viewedMessages.length > 0 && (
+                            readMessages.length > 0 && (
                                 <>
                                     <Typography.Title level={6} type='secondary'>
                                         {ViewedMessage}
                                     </Typography.Title>
-                                    {viewedMessages.map(message => <MessageCard key={message.id} message={message} viewed />)}
+                                    {readMessages.map(message => <MessageCard key={message.id} message={message} viewed />)}
                                 </>
                             )
                         }
+                        {moreMessagesLoading && <Loader fill size='small' />}
                     </div>
                 )}
                 trigger={['hover']}
@@ -116,7 +135,7 @@ export const UserMessagesList = () => {
                 placement='bottomCenter'
             >
                 <div>
-                    <MessagesCounter count={newMessages.length}/>
+                    <MessagesCounter count={unreadMessages.length}/>
                 </div>
             </Dropdown>
             <UserMessagesSettingsModal
