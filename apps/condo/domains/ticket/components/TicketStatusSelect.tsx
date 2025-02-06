@@ -1,20 +1,23 @@
 import { useApolloClient } from '@apollo/client'
+import { useUpdateTicketMutation } from '@app/condo/gql'
 import { TicketStatusTypeType } from '@app/condo/schema'
+import { notification } from 'antd'
 import { Dayjs } from 'dayjs'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isFunction from 'lodash/isFunction'
 import React, { useCallback, useMemo, useState } from 'react'
 
+import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useIntl } from '@open-condo/next/intl'
 
 import Select from '@condo/domains/common/components/antd/Select'
 import { StatusSelect } from '@condo/domains/common/components/StatusSelect'
 import { useNotificationMessages } from '@condo/domains/common/hooks/useNotificationMessages'
-import { runMutation } from '@condo/domains/common/utils/mutations.utils'
+// import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { useTicketCancelModal } from '@condo/domains/ticket/hooks/useTicketCancelModal'
 import { useTicketDeferModal } from '@condo/domains/ticket/hooks/useTicketDeferModal'
-import { Ticket, TicketStatus } from '@condo/domains/ticket/utils/clientSchema'
+// import { Ticket, TicketStatus } from '@condo/domains/ticket/utils/clientSchema'
 import { getTicketLabel, sortStatusesByType } from '@condo/domains/ticket/utils/helpers'
 
 import { useStatusTransitions } from '../hooks/useStatusTransitions'
@@ -33,25 +36,53 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
         if (isFunction(onUpdate)) onUpdate()
         setUpdating(false)
     }, [onUpdate, setUpdating])
-    const update = Ticket.useUpdate({}, handleUpdate)
+    // const update = Ticket.useUpdate({}, handleUpdate)
+    const [updateTicketMutation] = useUpdateTicketMutation({
+        variables: {
+            id: ticket?.id,
+            data: {
+                sender: getClientSideSenderInfo(),
+                dv: 1,
+            },
+        },
+        onCompleted: () => {
+            handleUpdate()
+            notification.success(getSuccessfulChangeNotification())
+        },
+    })
 
-    const updateTicketStatus = useCallback((variables) => runMutation({
-        action:() => update(variables, ticket),
-        intl,
-        OnCompletedMsg: getSuccessfulChangeNotification,
-    }), [getSuccessfulChangeNotification, ticket])
+    const updateTicketStatus = useCallback(async (variables) => {
+        // runMutation({
+        //     action: () => update(variables, ticket),
+        //     intl,
+        //     OnCompletedMsg: getSuccessfulChangeNotification,
+        // })
+        await updateTicketMutation(variables)
+    }, [updateTicketMutation])
 
     const updateTicket = useCallback((value) => {
         setUpdating(true)
-        updateTicketStatus({ status: { connect: { id: value } }, statusUpdatedAt: new Date() })
+        updateTicketStatus({
+            variables: {
+                data: {
+                    status: { connect: { id: value } },
+                    statusUpdatedAt: new Date(),
+                },
+            },
+        })
     }, [updateTicketStatus])
 
     const updateDeferredTicket = useCallback((statusDeferredId: string, deferredDate: Dayjs) => {
         setUpdating(true)
         updateTicketStatus({
-            status: { connect: { id: statusDeferredId } },
-            statusUpdatedAt: new Date(),
-            deferredUntil: deferredDate.toISOString(),
+            variables: {
+                data: {
+                    status: { connect: { id: statusDeferredId } },
+                    deferredUntil: deferredDate.toISOString(),
+                    statusUpdatedAt: new Date(),
+                },
+            },
+
         })
     }, [updateTicketStatus])
 
@@ -60,7 +91,9 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
     const { deferTicketModal, openModal: openTicketDeferModal } = useTicketDeferModal(updateDeferredTicket)
 
     const options = useMemo(() => sortStatusesByType(statuses).map((status) => {
-        const { value, label } = TicketStatus.convertGQLItemToFormSelectState(status)
+        console.log('status', status)
+        const { name: label, id: value } = status
+        // const { value, label } = TicketStatus.convertGQLItemToFormSelectState(status)
         const { primary: color } = status.colors
 
         return (
