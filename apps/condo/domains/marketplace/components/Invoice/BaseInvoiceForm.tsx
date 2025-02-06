@@ -472,21 +472,21 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
     }).filter(Boolean), [marketCategories])
 
     const filteredPriceScopes = useMemo(() => marketPriceScopes
-            .filter(scope => {
-                if (!scope.marketItemPrice) return false
+        .filter(scope => {
+            if (!scope.marketItemPrice) return false
 
-                if (!scope.property) {
-                    const marketItemId = get(scope, 'marketItemPrice.marketItem.id')
-                    const scopeWithSameMarketItemWithProperty = marketPriceScopes.find(
-                        scope => get(scope, 'marketItemPrice.marketItem.id') === marketItemId && scope.property
-                    )
+            if (!scope.property) {
+                const marketItemId = get(scope, 'marketItemPrice.marketItem.id')
+                const scopeWithSameMarketItemWithProperty = marketPriceScopes.find(
+                    scope => get(scope, 'marketItemPrice.marketItem.id') === marketItemId && scope.property
+                )
 
-                    return !scopeWithSameMarketItemWithProperty
-                }
+                return !scopeWithSameMarketItemWithProperty
+            }
 
-                return true
-            })
-        , [marketPriceScopes])
+            return true
+        })
+    , [marketPriceScopes])
 
     const marketItemGroups = useMemo(() => {
         const marketItemGroups = []
@@ -871,16 +871,16 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
 }
 
 const StatusRadioGroup = ({
-                              isNoPayerData,
-                              isAllFieldsDisabled,
-                              onlyStatusTransitionsActive,
-                              isNotDraftStatusesDisabled,
-                              paymentType,
-                              isCreateForm,
-                              form,
-                              status,
-                              setStatus,
-                          }) => {
+    isNoPayerData,
+    isAllFieldsDisabled,
+    onlyStatusTransitionsActive,
+    isNotDraftStatusesDisabled,
+    paymentType,
+    isCreateForm,
+    form,
+    status,
+    setStatus,
+}) => {
     const intl = useIntl()
     const InvoiceStatusLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.invoiceStatus' })
     const InvoiceStatusDraftLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.invoiceStatus.draft' }).toLowerCase()
