@@ -17,5 +17,3 @@ export type MessageTypesAllowedToFilterType = MessageTypeAllowedToFilterType[]
 export type UserMessageType = Omit<GetUserMessagesQueryResult['data']['messages'][number], 'type'> & {
     type: MessageTypeAllowedToFilterType
 }
-
-export const USER_MESSAGE_LIST_POLL_INTERVAL_IN_MS = 5 * 1000

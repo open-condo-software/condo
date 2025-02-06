@@ -65909,6 +65909,7 @@ enum B2BAppIconType {
   ArrowRight
   BarChartHorizontal
   BarChartVertical
+  Bell
   Bill
   Briefcase
   Building
