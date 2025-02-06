@@ -1468,7 +1468,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                         <NewsItemSharingForm
                                             template={{ id: templateId, ...templates[templateId] }}
                                             ctxId={getStepDataByStep(currentStep).sharingAppData.id}
-                                            onSkip={()  => handleStepSkip({ skip: true, step: currentStep })}
+                                            onSkip={() => handleStepSkip({ skip: true, step: currentStep })}
                                             onSubmit={(values) => handleSharingAppFormSubmit({ values: values, ctxId: getStepDataByStep(currentStep).sharingAppData.id })}
                                             sharingApp={getStepDataByStep(currentStep).sharingAppData.app}
                                             initialValues={get(sharingAppsFormValues, [getStepDataByStep(currentStep).sharingAppData.id], undefined)}
