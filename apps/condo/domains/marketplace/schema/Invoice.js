@@ -200,12 +200,13 @@ const ERRORS = {
         message: 'The organization has no AcquiringIntegrationContext in finished status for invoices',
         messageForUser: 'api.marketplace.invoice.NO_FINISHED_ACQUIRING_CONTEXT',
     },
-    FORBID_EDIT_PUBLISHED: {
+    FORBID_EDIT_PUBLISHED: (changedFields) => ({
         code: BAD_USER_INPUT,
         type: ERROR_FORBID_EDIT_PUBLISHED,
         message: `Only the status ${INVOICE_STATUS_CANCELED} and ${INVOICE_STATUS_PAID} can be updated by the published invoice`,
         messageForUser: 'api.marketplace.invoice.FORBID_EDIT_PUBLISHED',
-    },
+        changedFields,
+    }),
     CLIENT_DATA_DOES_NOT_MATCH_TICKET: {
         code: BAD_USER_INPUT,
         type: ERROR_CLIENT_DATA_DOES_NOT_MATCH_TICKET,
@@ -452,7 +453,7 @@ const Invoice = new GQLListSchema('Invoice', {
                     [INVOICE_STATUS_CANCELED, INVOICE_STATUS_PAID, INVOICE_STATUS_PUBLISHED].includes(resolvedStatus) : true
 
                 if (!isEmpty(changedFieldsWithoutStatus) || !hasAccessToUpdateStatus) {
-                    throw new GQLError(ERRORS.FORBID_EDIT_PUBLISHED, context)
+                    throw new GQLError(ERRORS.FORBID_EDIT_PUBLISHED(changedFieldsWithoutStatus), context)
                 }
             }
 
