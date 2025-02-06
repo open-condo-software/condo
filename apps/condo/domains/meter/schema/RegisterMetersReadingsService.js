@@ -4,149 +4,36 @@
 const dayjs = require('dayjs')
 const customParseFormat = require('dayjs/plugin/customParseFormat')
 const utc = require('dayjs/plugin/utc')
-const { get, isEmpty, isNil, set, uniq } = require('lodash')
+const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
+const isNil = require('lodash/isNil')
+const uniq = require('lodash/uniq')
 
 const conf = require('@open-condo/config')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+const { GQLError } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema, find, getById } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
-const { i18n } = require('@open-condo/locales/loader')
 
 const { PropertyResolver } = require('@condo/domains/billing/schema/resolvers')
-const { isDateStrValid: isDateStrValidUtils, tryToISO: tryToISOUtils } = require('@condo/domains/common/utils/import/date')
 const access = require('@condo/domains/meter/access/RegisterMetersReadingsService')
 const { OTHER_METER_READING_SOURCE_ID } = require('@condo/domains/meter/constants/constants')
-const {
-    TOO_MUCH_READINGS,
-    ORGANIZATION_NOT_FOUND,
-    PROPERTY_NOT_FOUND,
-    INVALID_METER_VALUES,
-    MULTIPLE_METERS_FOUND,
-    INVALID_ACCOUNT_NUMBER,
-    INVALID_METER_NUMBER,
-    INVALID_DATE,
-} = require('@condo/domains/meter/constants/errors')
-const { READINGS_LIMIT, DATE_FIELD_PATH_TO_TRANSLATION, DATE_FIELD_PATHS } = require('@condo/domains/meter/constants/registerMetersReadingsService')
-const { validateMeterValue, shouldUpdateMeter, meterReadingAsResult, normalizeMeterValue } = require('@condo/domains/meter/utils/meter.utils')
+const { READINGS_LIMIT } = require('@condo/domains/meter/constants/registerMetersReadingsService')
+const { shouldUpdateMeter, meterReadingAsResult } = require('@condo/domains/meter/utils/meter.utils')
 const { Meter, MeterReading } = require('@condo/domains/meter/utils/serverSchema')
-
-const DATE_FORMAT = 'YYYY-MM-DD'
-const UTC_DATE_FORMAT = 'YYYY-MM-DDTHH:mm:ss.SSS[Z]'
-
-
+const {
+    ERRORS,
+    getValues, getMeterDates, getMeterFields, getReadingFields,
+    getFieldsToUpdate,
+    getValuesList,
+    getMeterReadingByDate,
+    tryToISO,
+    getDateStrValidationError,
+    transformToPlainObject,
+    getAddressesKeys, getResolvedAddresses,
+} = require('@condo/domains/meter/utils/serverSchema/registerHelpers')
 dayjs.extend(customParseFormat)
 dayjs.extend(utc)
 
-const ERRORS = {
-    TOO_MUCH_READINGS: {
-        code: BAD_USER_INPUT,
-        type: TOO_MUCH_READINGS,
-        message: 'Too much readings. {sentCount} sent, limit is {limit}.',
-        messageForUser: 'api.meter.registerMetersReadings.TOO_MUCH_READINGS',
-        messageInterpolation: {
-            limit: READINGS_LIMIT,
-            sentCount: '??',  // runtime value
-        },
-    },
-    ORGANIZATION_NOT_FOUND: {
-        code: BAD_USER_INPUT,
-        type: ORGANIZATION_NOT_FOUND,
-        message: 'Organization not found',
-        messageForUser: 'api.meter.registerMetersReadings.ORGANIZATION_NOT_FOUND',
-    },
-    PROPERTY_NOT_FOUND: {
-        code: BAD_USER_INPUT,
-        type: PROPERTY_NOT_FOUND,
-        message: 'Property not found',
-        messageForUser: 'api.meter.registerMetersReadings.PROPERTY_NOT_FOUND',
-    },
-    INVALID_METER_VALUES: {
-        code: BAD_USER_INPUT,
-        type: INVALID_METER_VALUES,
-        message: 'Invalid meter values',
-        messageForUser: 'api.meter.registerMetersReadings.INVALID_METER_VALUES',
-        messageInterpolation: { valuesList: '"{column}"="{errorValue}"' },
-    },
-    MULTIPLE_METERS_FOUND: {
-        code: BAD_USER_INPUT,
-        type: MULTIPLE_METERS_FOUND,
-        message: 'Multiple meters found',
-        messageForUser: 'api.meter.registerMetersReadings.MULTIPLE_METERS_FOUND',
-        messageInterpolation: { count: '??' },
-    },
-    INVALID_ACCOUNT_NUMBER: {
-        code: BAD_USER_INPUT,
-        type: INVALID_ACCOUNT_NUMBER,
-        message: 'Invalid account number',
-        messageForUser: 'api.meter.registerMetersReadings.INVALID_ACCOUNT_NUMBER',
-    },
-    INVALID_METER_NUMBER: {
-        code: BAD_USER_INPUT,
-        type: INVALID_METER_NUMBER,
-        message: 'Invalid meter number',
-        messageForUser: 'api.meter.registerMetersReadings.INVALID_METER_NUMBER',
-    },
-    INVALID_DATE: {
-        code: BAD_USER_INPUT,
-        type: INVALID_DATE,
-        message: 'Invalid date',
-        messageForUser: 'api.meter.registerMetersReadings.INVALID_DATE',
-        messageInterpolation: { columnName: 'columnName', format: [UTC_DATE_FORMAT, DATE_FORMAT].join('", "') },
-    },
-}
-
-function transformToPlainObject (input) {
-    let result = {}
-
-    for (let key in input) {
-        if (typeof input[key] === 'object' && input[key] !== null && input[key].id) {
-            result[key] = input[key].id
-        } else {
-            result[key] = input[key]
-        }
-    }
-
-    return result
-}
-
-function isDateStrValid (dateStr) {
-    return isDateStrValidUtils(dateStr, [DATE_FORMAT, UTC_DATE_FORMAT])
-}
-
-function tryToISO (dateStr) {
-    return tryToISOUtils(dateStr, [DATE_FORMAT, UTC_DATE_FORMAT])
-}
-
-function getDateStrValidationError (context, locale, reading) {
-    const isoDateFormatMessage = i18n('iso.date.format', { locale })
-    const getError = (datePath) => new GQLError({
-        ...ERRORS.INVALID_DATE,
-        messageInterpolation: {
-            columnName: i18n(DATE_FIELD_PATH_TO_TRANSLATION[datePath], { locale }),
-            format: [
-                UTC_DATE_FORMAT,
-                isoDateFormatMessage,
-            ].join('", "'),
-        },
-    }, context)
-
-    for (const { path, nullable } of DATE_FIELD_PATHS) {
-        const dateStr = get(reading, path)
-
-        if (!nullable && isNil(dateStr)) {
-            return getError(path)
-        }
-
-        if (nullable && isNil(dateStr)) {
-            continue
-        }
-
-        if (!isDateStrValid(dateStr)) {
-            return getError(path)
-        }
-    }
-    return null
-}
 
 const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReadingsService', {
     types: [
@@ -239,19 +126,8 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                 propertyResolver.tin = organizationData.tin
                 propertyResolver.organizationId = organization.id
 
-                const resolvedAddresses = await propertyResolver.normalizeAddresses(readings.reduce((res, reading) => ({
-                    ...res,
-                    [reading.address]: {
-                        address: reading.address,
-                        addressMeta: reading.addressInfo,
-                    },
-                }), {}))
-
-                const addressesKeys = uniq(
-                    readings
-                        .map((reading) => get(resolvedAddresses, [reading.address, 'addressResolve', 'propertyAddress', 'addressKey']))
-                        .filter(Boolean)
-                )
+                const resolvedAddresses = await getResolvedAddresses(propertyResolver, readings)
+                const addressesKeys = getAddressesKeys(readings, resolvedAddresses)
 
                 /** @type Property[] */
                 const properties = await find('Property', {
@@ -269,32 +145,7 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                     deletedAt: null,
                 })
 
-                const readingsWithValidDates = readings.filter(reading => isDateStrValid(reading.date))
-                const plainMeterReadings = await find('MeterReading', {
-                    meter: { id_in: meters.map(meter => meter.id) },
-                    date_in: uniq(readingsWithValidDates.map(reading => tryToISO(reading.date))),
-                    deletedAt: null,
-                })
-                const propertyByIdMap = properties.reduce((acc, property) => {
-                    acc[property.id] = property
-                    return acc
-                }, {})
-                const metersWithPropertyByIdMap = meters.reduce((acc, meter) => {
-                    acc[meter.id] = {
-                        ...meter,
-                        property: propertyByIdMap[meter.property],
-                    }
-                    return acc
-                }, {})
-                const meterReadings = plainMeterReadings.map(reading => ({
-                    ...reading,
-                    meter: metersWithPropertyByIdMap[reading.meter],
-                }))
-                const meterReadingByDate = meterReadings.reduce((acc, reading) => {
-                    const key = `${reading.meter.id}-${reading.date.toISOString()}`
-                    acc[key] = reading
-                    return acc
-                }, {})
+                const meterReadingByDate = await getMeterReadingByDate(readings, meters, properties, 'MeterReading')
 
                 for (const reading of readings) {
                     const meterNumber = reading.meterNumber.trim()
@@ -303,8 +154,6 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                     const unitName = get(reading, ['addressInfo', 'unitName'], get(resolvedAddresses, [reading.address, 'addressResolve', 'unitName'], '')).trim() || null
                     const addressKey = get(resolvedAddresses, [reading.address, 'addressResolve', 'propertyAddress', 'addressKey'])
                     let readingSource = get(reading, 'readingSource')
-                    const billingStatus = get(reading, 'billingStatus', null)
-                    const billingStatusText = get(reading, 'billingStatusText', null)
 
                     if (isNil(readingSource)) {
                         readingSource = { id: OTHER_METER_READING_SOURCE_ID }
@@ -355,27 +204,11 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                     const foundMeter = foundMeters[0]
 
                     const errorValues = {}
-                    const values = ['value1', 'value2', 'value3', 'value4'].reduce((result, currentValue) => {
-                        const value = reading[currentValue]
-                        const normalizedValue = normalizeMeterValue(value)
-
-                        if (!validateMeterValue(normalizedValue)) {
-                            set(errorValues, currentValue, value)
-                            return result
-                        }
-
-                        return {
-                            ...result,
-                            [currentValue]: normalizedValue,
-                        }
-                    }, {})
+                    const values = getValues(reading, errorValues)
 
                     if (Object.keys(errorValues).length > 0) {
                         const errorValuesKeys = Object.keys(errorValues)
-                        const valuesList = errorValuesKeys.map((errKey) => {
-                            const column = i18n(`meter.import.column.${errKey}`, { locale })
-                            return `"${column}"="${errorValues[errKey]}"`
-                        }).join(', ')
+                        const valuesList = getValuesList(errorValuesKeys, errorValues, locale)
                         resultRows.push(new GQLError(
                             { ...ERRORS.INVALID_METER_VALUES, messageInterpolation: { valuesList } },
                             context,
@@ -386,18 +219,7 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                     try {
                         if (foundMeter) {
                             meterId = foundMeter.id
-                            const fieldsToUpdate = {
-                                accountNumber,
-                                numberOfTariffs: get(reading, ['meterMeta', 'numberOfTariffs']),
-                                place: get(reading, ['meterMeta', 'place']),
-                                verificationDate: tryToISO(get(reading, ['meterMeta', 'verificationDate'])),
-                                nextVerificationDate: tryToISO(get(reading, ['meterMeta', 'nextVerificationDate'])),
-                                installationDate: tryToISO(get(reading, ['meterMeta', 'installationDate'])),
-                                commissioningDate: tryToISO(get(reading, ['meterMeta', 'commissioningDate'])),
-                                sealingDate: tryToISO(get(reading, ['meterMeta', 'sealingDate'])),
-                                controlReadingsDate: tryToISO(get(reading, ['meterMeta', 'controlReadingsDate'])),
-                                isAutomatic: get(reading, ['meterMeta', 'isAutomatic']),
-                            }
+                            const fieldsToUpdate = getFieldsToUpdate(reading, false)
                             if (shouldUpdateMeter(foundMeter, fieldsToUpdate)) {
                                 const updatedMeter = await Meter.update(
                                     context,
@@ -409,26 +231,12 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                                 meters[meterIndex] = transformToPlainObject(updatedMeter)
                             }
                         } else {
+                            const meterFieldsGetter = getMeterFields()
                             const createdMeter = await Meter.create(context, {
                                 dv,
                                 sender,
-                                organization: { connect: organization },
-                                property: { connect: { id: property.id } },
-                                unitType,
-                                unitName,
-                                accountNumber,
-                                number: meterNumber,
-                                resource: { connect: reading.meterResource },
-                                numberOfTariffs: get(reading, ['meterMeta', 'numberOfTariffs'], Object.values(values).filter(Boolean).length),
-                                place: get(reading, ['meterMeta', 'place']),
-                                verificationDate: tryToISO(get(reading, ['meterMeta', 'verificationDate'])),
-                                nextVerificationDate: tryToISO(get(reading, ['meterMeta', 'nextVerificationDate'])),
-                                installationDate: tryToISO(get(reading, ['meterMeta', 'installationDate'])),
-                                commissioningDate: tryToISO(get(reading, ['meterMeta', 'commissioningDate'])),
-                                sealingDate: tryToISO(get(reading, ['meterMeta', 'sealingDate'])),
-                                controlReadingsDate: tryToISO(get(reading, ['meterMeta', 'controlReadingsDate'])),
-                                isAutomatic: get(reading, ['meterMeta', 'isAutomatic']),
-                                archiveDate: tryToISO(get(reading, ['meterMeta', 'archiveDate'])),
+                                ...getMeterDates(reading),
+                                ...meterFieldsGetter(organization, property, reading, values, resolvedAddresses),
                             }, 'id property { id } unitName unitType accountNumber number resource { id }')
                             meterId = createdMeter.id
                             meters.push(transformToPlainObject(createdMeter))
@@ -443,15 +251,11 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                         const duplicateReading = meterReadingByDate[key]
 
                         if (!duplicateReading) {
+                            const meterReadingFieldsGetter = getReadingFields()
                             const createdMeterReading = await MeterReading.create(context, {
                                 dv,
                                 sender,
-                                meter: { connect: { id: meterId } },
-                                source: { connect: readingSource },
-                                date: tryToISO(reading.date),
-                                ...values,
-                                billingStatus,
-                                billingStatusText,
+                                ...meterReadingFieldsGetter(meterId, readingSource, reading, values),
                             }, 'id meter { id unitType unitName accountNumber number property { id address addressKey } }')
 
                             meterReadingByDate[key] = createdMeterReading

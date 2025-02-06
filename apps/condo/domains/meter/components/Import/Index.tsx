@@ -18,7 +18,7 @@ import { TOnMetersUpload } from '@condo/domains/meter/components/MetersDataImpor
 import { useMeterReadingsImportTask } from '@condo/domains/meter/hooks/useMeterReadingsImportTaskUIInterface'
 
 
-export type IMetersImportWrapperProps = Pick<IImportWrapperProps, 'accessCheck' | 'onFinish' | 'uploadButtonLabel' | 'importCardButton'>
+export type IMetersImportWrapperProps = Pick<IImportWrapperProps, 'accessCheck' | 'onFinish' | 'uploadButtonLabel' | 'importCardButton' | 'extraProps'>
 
 const MetersImportWrapper: React.FC<IMetersImportWrapperProps> = (props) => {
     const {
@@ -26,10 +26,11 @@ const MetersImportWrapper: React.FC<IMetersImportWrapperProps> = (props) => {
         onFinish: handleFinish,
         uploadButtonLabel,
         importCardButton,
+        extraProps,
     } = props
 
     const intl = useIntl()
-    const domain = 'meter'
+    const domain = extraProps?.isPropertyMeters ? 'propertyMeter' : 'meter'
     const { organization } = useOrganization()
     const { user } = useAuth()
 
@@ -64,6 +65,7 @@ const MetersImportWrapper: React.FC<IMetersImportWrapperProps> = (props) => {
         file: fileRef,
         userId: user?.id || null,
         organizationId: organization?.id || null,
+        isPropertyMeters: extraProps?.isPropertyMeters ? extraProps.isPropertyMeters : false,
     })
 
     useEffect(() => {
