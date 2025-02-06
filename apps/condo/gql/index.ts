@@ -1128,6 +1128,39 @@ export type GetInvoicesByIdsQueryHookResult = ReturnType<typeof useGetInvoicesBy
 export type GetInvoicesByIdsLazyQueryHookResult = ReturnType<typeof useGetInvoicesByIdsLazyQuery>;
 export type GetInvoicesByIdsSuspenseQueryHookResult = ReturnType<typeof useGetInvoicesByIdsSuspenseQuery>;
 export type GetInvoicesByIdsQueryResult = Apollo.QueryResult<Types.GetInvoicesByIdsQuery, Types.GetInvoicesByIdsQueryVariables>;
+export const CreateInvoiceDocument = gql`
+    mutation createInvoice($data: InvoiceCreateInput!) {
+  invoice: createInvoice(data: $data) {
+    id
+  }
+}
+    `;
+export type CreateInvoiceMutationFn = Apollo.MutationFunction<Types.CreateInvoiceMutation, Types.CreateInvoiceMutationVariables>;
+
+/**
+ * __useCreateInvoiceMutation__
+ *
+ * To run a mutation, you first call `useCreateInvoiceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateInvoiceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createInvoiceMutation, { data, loading, error }] = useCreateInvoiceMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCreateInvoiceMutation(baseOptions?: Apollo.MutationHookOptions<Types.CreateInvoiceMutation, Types.CreateInvoiceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.CreateInvoiceMutation, Types.CreateInvoiceMutationVariables>(CreateInvoiceDocument, options);
+      }
+export type CreateInvoiceMutationHookResult = ReturnType<typeof useCreateInvoiceMutation>;
+export type CreateInvoiceMutationResult = Apollo.MutationResult<Types.CreateInvoiceMutation>;
+export type CreateInvoiceMutationOptions = Apollo.BaseMutationOptions<Types.CreateInvoiceMutation, Types.CreateInvoiceMutationVariables>;
 export const GetMeterReadingExportTasksDocument = gql`
     query getMeterReadingExportTasks($where: MeterReadingExportTaskWhereInput!) {
   tasks: allMeterReadingExportTasks(where: $where) {
@@ -2330,6 +2363,113 @@ export type GetIncidentsQueryHookResult = ReturnType<typeof useGetIncidentsQuery
 export type GetIncidentsLazyQueryHookResult = ReturnType<typeof useGetIncidentsLazyQuery>;
 export type GetIncidentsSuspenseQueryHookResult = ReturnType<typeof useGetIncidentsSuspenseQuery>;
 export type GetIncidentsQueryResult = Apollo.QueryResult<Types.GetIncidentsQuery, Types.GetIncidentsQueryVariables>;
+export const GetIncidentByIdDocument = gql`
+    query getIncidentById($id: ID!) {
+  incident: allIncidents(where: {id: $id}, first: 1) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useGetIncidentByIdQuery__
+ *
+ * To run a query within a React component, call `useGetIncidentByIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetIncidentByIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetIncidentByIdQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetIncidentByIdQuery(baseOptions: Apollo.QueryHookOptions<Types.GetIncidentByIdQuery, Types.GetIncidentByIdQueryVariables> & ({ variables: Types.GetIncidentByIdQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetIncidentByIdQuery, Types.GetIncidentByIdQueryVariables>(GetIncidentByIdDocument, options);
+      }
+export function useGetIncidentByIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetIncidentByIdQuery, Types.GetIncidentByIdQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetIncidentByIdQuery, Types.GetIncidentByIdQueryVariables>(GetIncidentByIdDocument, options);
+        }
+export function useGetIncidentByIdSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetIncidentByIdQuery, Types.GetIncidentByIdQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetIncidentByIdQuery, Types.GetIncidentByIdQueryVariables>(GetIncidentByIdDocument, options);
+        }
+export type GetIncidentByIdQueryHookResult = ReturnType<typeof useGetIncidentByIdQuery>;
+export type GetIncidentByIdLazyQueryHookResult = ReturnType<typeof useGetIncidentByIdLazyQuery>;
+export type GetIncidentByIdSuspenseQueryHookResult = ReturnType<typeof useGetIncidentByIdSuspenseQuery>;
+export type GetIncidentByIdQueryResult = Apollo.QueryResult<Types.GetIncidentByIdQuery, Types.GetIncidentByIdQueryVariables>;
+export const CreateIncidentDocument = gql`
+    mutation createIncident($data: IncidentCreateInput!) {
+  incident: createIncident(data: $data) {
+    id
+  }
+}
+    `;
+export type CreateIncidentMutationFn = Apollo.MutationFunction<Types.CreateIncidentMutation, Types.CreateIncidentMutationVariables>;
+
+/**
+ * __useCreateIncidentMutation__
+ *
+ * To run a mutation, you first call `useCreateIncidentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateIncidentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createIncidentMutation, { data, loading, error }] = useCreateIncidentMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCreateIncidentMutation(baseOptions?: Apollo.MutationHookOptions<Types.CreateIncidentMutation, Types.CreateIncidentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.CreateIncidentMutation, Types.CreateIncidentMutationVariables>(CreateIncidentDocument, options);
+      }
+export type CreateIncidentMutationHookResult = ReturnType<typeof useCreateIncidentMutation>;
+export type CreateIncidentMutationResult = Apollo.MutationResult<Types.CreateIncidentMutation>;
+export type CreateIncidentMutationOptions = Apollo.BaseMutationOptions<Types.CreateIncidentMutation, Types.CreateIncidentMutationVariables>;
+export const UpdateIncidentDocument = gql`
+    mutation updateIncident($id: ID!, $data: IncidentUpdateInput!) {
+  incident: updateIncident(id: $id, data: $data) {
+    id
+  }
+}
+    `;
+export type UpdateIncidentMutationFn = Apollo.MutationFunction<Types.UpdateIncidentMutation, Types.UpdateIncidentMutationVariables>;
+
+/**
+ * __useUpdateIncidentMutation__
+ *
+ * To run a mutation, you first call `useUpdateIncidentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateIncidentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateIncidentMutation, { data, loading, error }] = useUpdateIncidentMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateIncidentMutation(baseOptions?: Apollo.MutationHookOptions<Types.UpdateIncidentMutation, Types.UpdateIncidentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.UpdateIncidentMutation, Types.UpdateIncidentMutationVariables>(UpdateIncidentDocument, options);
+      }
+export type UpdateIncidentMutationHookResult = ReturnType<typeof useUpdateIncidentMutation>;
+export type UpdateIncidentMutationResult = Apollo.MutationResult<Types.UpdateIncidentMutation>;
+export type UpdateIncidentMutationOptions = Apollo.BaseMutationOptions<Types.UpdateIncidentMutation, Types.UpdateIncidentMutationVariables>;
 export const GetIncidentClassifierIncidentDocument = gql`
     query getIncidentClassifierIncident($where: IncidentClassifierIncidentWhereInput) {
   incidentClassifierIncident: allIncidentClassifierIncidents(where: $where) {
@@ -2373,6 +2513,76 @@ export type GetIncidentClassifierIncidentQueryHookResult = ReturnType<typeof use
 export type GetIncidentClassifierIncidentLazyQueryHookResult = ReturnType<typeof useGetIncidentClassifierIncidentLazyQuery>;
 export type GetIncidentClassifierIncidentSuspenseQueryHookResult = ReturnType<typeof useGetIncidentClassifierIncidentSuspenseQuery>;
 export type GetIncidentClassifierIncidentQueryResult = Apollo.QueryResult<Types.GetIncidentClassifierIncidentQuery, Types.GetIncidentClassifierIncidentQueryVariables>;
+export const CreateIncidentClassifierIncidentDocument = gql`
+    mutation createIncidentClassifierIncident($data: IncidentClassifierIncidentCreateInput!) {
+  IncidentClassifierIncident: createIncidentClassifierIncident(data: $data) {
+    id
+  }
+}
+    `;
+export type CreateIncidentClassifierIncidentMutationFn = Apollo.MutationFunction<Types.CreateIncidentClassifierIncidentMutation, Types.CreateIncidentClassifierIncidentMutationVariables>;
+
+/**
+ * __useCreateIncidentClassifierIncidentMutation__
+ *
+ * To run a mutation, you first call `useCreateIncidentClassifierIncidentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateIncidentClassifierIncidentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createIncidentClassifierIncidentMutation, { data, loading, error }] = useCreateIncidentClassifierIncidentMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCreateIncidentClassifierIncidentMutation(baseOptions?: Apollo.MutationHookOptions<Types.CreateIncidentClassifierIncidentMutation, Types.CreateIncidentClassifierIncidentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.CreateIncidentClassifierIncidentMutation, Types.CreateIncidentClassifierIncidentMutationVariables>(CreateIncidentClassifierIncidentDocument, options);
+      }
+export type CreateIncidentClassifierIncidentMutationHookResult = ReturnType<typeof useCreateIncidentClassifierIncidentMutation>;
+export type CreateIncidentClassifierIncidentMutationResult = Apollo.MutationResult<Types.CreateIncidentClassifierIncidentMutation>;
+export type CreateIncidentClassifierIncidentMutationOptions = Apollo.BaseMutationOptions<Types.CreateIncidentClassifierIncidentMutation, Types.CreateIncidentClassifierIncidentMutationVariables>;
+export const UpdateIncidentClassifierIncidentDocument = gql`
+    mutation updateIncidentClassifierIncident($id: ID!, $data: IncidentClassifierIncidentUpdateInput!) {
+  IncidentClassifierIncident: updateIncidentClassifierIncident(
+    id: $id
+    data: $data
+  ) {
+    id
+  }
+}
+    `;
+export type UpdateIncidentClassifierIncidentMutationFn = Apollo.MutationFunction<Types.UpdateIncidentClassifierIncidentMutation, Types.UpdateIncidentClassifierIncidentMutationVariables>;
+
+/**
+ * __useUpdateIncidentClassifierIncidentMutation__
+ *
+ * To run a mutation, you first call `useUpdateIncidentClassifierIncidentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateIncidentClassifierIncidentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateIncidentClassifierIncidentMutation, { data, loading, error }] = useUpdateIncidentClassifierIncidentMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateIncidentClassifierIncidentMutation(baseOptions?: Apollo.MutationHookOptions<Types.UpdateIncidentClassifierIncidentMutation, Types.UpdateIncidentClassifierIncidentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.UpdateIncidentClassifierIncidentMutation, Types.UpdateIncidentClassifierIncidentMutationVariables>(UpdateIncidentClassifierIncidentDocument, options);
+      }
+export type UpdateIncidentClassifierIncidentMutationHookResult = ReturnType<typeof useUpdateIncidentClassifierIncidentMutation>;
+export type UpdateIncidentClassifierIncidentMutationResult = Apollo.MutationResult<Types.UpdateIncidentClassifierIncidentMutation>;
+export type UpdateIncidentClassifierIncidentMutationOptions = Apollo.BaseMutationOptions<Types.UpdateIncidentClassifierIncidentMutation, Types.UpdateIncidentClassifierIncidentMutationVariables>;
 export const GetIncidentExportTasksDocument = gql`
     query getIncidentExportTasks($where: IncidentExportTaskWhereInput!) {
   tasks: allIncidentExportTasks(where: $where) {
@@ -2547,6 +2757,73 @@ export type GetIncidentPropertiesQueryHookResult = ReturnType<typeof useGetIncid
 export type GetIncidentPropertiesLazyQueryHookResult = ReturnType<typeof useGetIncidentPropertiesLazyQuery>;
 export type GetIncidentPropertiesSuspenseQueryHookResult = ReturnType<typeof useGetIncidentPropertiesSuspenseQuery>;
 export type GetIncidentPropertiesQueryResult = Apollo.QueryResult<Types.GetIncidentPropertiesQuery, Types.GetIncidentPropertiesQueryVariables>;
+export const CreateIncidentPropertyDocument = gql`
+    mutation createIncidentProperty($data: IncidentPropertyCreateInput!) {
+  IncidentProperty: createIncidentProperty(data: $data) {
+    id
+  }
+}
+    `;
+export type CreateIncidentPropertyMutationFn = Apollo.MutationFunction<Types.CreateIncidentPropertyMutation, Types.CreateIncidentPropertyMutationVariables>;
+
+/**
+ * __useCreateIncidentPropertyMutation__
+ *
+ * To run a mutation, you first call `useCreateIncidentPropertyMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateIncidentPropertyMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createIncidentPropertyMutation, { data, loading, error }] = useCreateIncidentPropertyMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCreateIncidentPropertyMutation(baseOptions?: Apollo.MutationHookOptions<Types.CreateIncidentPropertyMutation, Types.CreateIncidentPropertyMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.CreateIncidentPropertyMutation, Types.CreateIncidentPropertyMutationVariables>(CreateIncidentPropertyDocument, options);
+      }
+export type CreateIncidentPropertyMutationHookResult = ReturnType<typeof useCreateIncidentPropertyMutation>;
+export type CreateIncidentPropertyMutationResult = Apollo.MutationResult<Types.CreateIncidentPropertyMutation>;
+export type CreateIncidentPropertyMutationOptions = Apollo.BaseMutationOptions<Types.CreateIncidentPropertyMutation, Types.CreateIncidentPropertyMutationVariables>;
+export const UpdateIncidentPropertyDocument = gql`
+    mutation updateIncidentProperty($id: ID!, $data: IncidentPropertyUpdateInput!) {
+  IncidentProperty: updateIncidentProperty(id: $id, data: $data) {
+    id
+  }
+}
+    `;
+export type UpdateIncidentPropertyMutationFn = Apollo.MutationFunction<Types.UpdateIncidentPropertyMutation, Types.UpdateIncidentPropertyMutationVariables>;
+
+/**
+ * __useUpdateIncidentPropertyMutation__
+ *
+ * To run a mutation, you first call `useUpdateIncidentPropertyMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateIncidentPropertyMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateIncidentPropertyMutation, { data, loading, error }] = useUpdateIncidentPropertyMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateIncidentPropertyMutation(baseOptions?: Apollo.MutationHookOptions<Types.UpdateIncidentPropertyMutation, Types.UpdateIncidentPropertyMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.UpdateIncidentPropertyMutation, Types.UpdateIncidentPropertyMutationVariables>(UpdateIncidentPropertyDocument, options);
+      }
+export type UpdateIncidentPropertyMutationHookResult = ReturnType<typeof useUpdateIncidentPropertyMutation>;
+export type UpdateIncidentPropertyMutationResult = Apollo.MutationResult<Types.UpdateIncidentPropertyMutation>;
+export type UpdateIncidentPropertyMutationOptions = Apollo.BaseMutationOptions<Types.UpdateIncidentPropertyMutation, Types.UpdateIncidentPropertyMutationVariables>;
 export const GetTicketsDocument = gql`
     query getTickets($where: TicketWhereInput!, $sortBy: [SortTicketsBy!], $first: Int, $skip: Int) {
   tickets: allTickets(where: $where, sortBy: $sortBy, first: $first, skip: $skip) {
@@ -3179,10 +3456,46 @@ export type GetOrganizationEmployeeTicketsForReassignmentQueryHookResult = Retur
 export type GetOrganizationEmployeeTicketsForReassignmentLazyQueryHookResult = ReturnType<typeof useGetOrganizationEmployeeTicketsForReassignmentLazyQuery>;
 export type GetOrganizationEmployeeTicketsForReassignmentSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationEmployeeTicketsForReassignmentSuspenseQuery>;
 export type GetOrganizationEmployeeTicketsForReassignmentQueryResult = Apollo.QueryResult<Types.GetOrganizationEmployeeTicketsForReassignmentQuery, Types.GetOrganizationEmployeeTicketsForReassignmentQueryVariables>;
+export const CreateTicketDocument = gql`
+    mutation createTicket($data: TicketCreateInput!) {
+  ticket: createTicket(data: $data) {
+    id
+  }
+}
+    `;
+export type CreateTicketMutationFn = Apollo.MutationFunction<Types.CreateTicketMutation, Types.CreateTicketMutationVariables>;
+
+/**
+ * __useCreateTicketMutation__
+ *
+ * To run a mutation, you first call `useCreateTicketMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateTicketMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createTicketMutation, { data, loading, error }] = useCreateTicketMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCreateTicketMutation(baseOptions?: Apollo.MutationHookOptions<Types.CreateTicketMutation, Types.CreateTicketMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.CreateTicketMutation, Types.CreateTicketMutationVariables>(CreateTicketDocument, options);
+      }
+export type CreateTicketMutationHookResult = ReturnType<typeof useCreateTicketMutation>;
+export type CreateTicketMutationResult = Apollo.MutationResult<Types.CreateTicketMutation>;
+export type CreateTicketMutationOptions = Apollo.BaseMutationOptions<Types.CreateTicketMutation, Types.CreateTicketMutationVariables>;
 export const UpdateTicketDocument = gql`
     mutation updateTicket($id: ID!, $data: TicketUpdateInput!) {
   ticket: updateTicket(id: $id, data: $data) {
     id
+    clientPhone
+    unitName
+    unitType
   }
 }
     `;
@@ -3246,6 +3559,39 @@ export function useUpdateOrganizationEmployeeTicketsForReassignmentMutation(base
 export type UpdateOrganizationEmployeeTicketsForReassignmentMutationHookResult = ReturnType<typeof useUpdateOrganizationEmployeeTicketsForReassignmentMutation>;
 export type UpdateOrganizationEmployeeTicketsForReassignmentMutationResult = Apollo.MutationResult<Types.UpdateOrganizationEmployeeTicketsForReassignmentMutation>;
 export type UpdateOrganizationEmployeeTicketsForReassignmentMutationOptions = Apollo.BaseMutationOptions<Types.UpdateOrganizationEmployeeTicketsForReassignmentMutation, Types.UpdateOrganizationEmployeeTicketsForReassignmentMutationVariables>;
+export const ShareTicketDocument = gql`
+    mutation shareTicket($data: ShareTicketInput!) {
+  ticket: shareTicket(data: $data) {
+    status
+  }
+}
+    `;
+export type ShareTicketMutationFn = Apollo.MutationFunction<Types.ShareTicketMutation, Types.ShareTicketMutationVariables>;
+
+/**
+ * __useShareTicketMutation__
+ *
+ * To run a mutation, you first call `useShareTicketMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useShareTicketMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [shareTicketMutation, { data, loading, error }] = useShareTicketMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useShareTicketMutation(baseOptions?: Apollo.MutationHookOptions<Types.ShareTicketMutation, Types.ShareTicketMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.ShareTicketMutation, Types.ShareTicketMutationVariables>(ShareTicketDocument, options);
+      }
+export type ShareTicketMutationHookResult = ReturnType<typeof useShareTicketMutation>;
+export type ShareTicketMutationResult = Apollo.MutationResult<Types.ShareTicketMutation>;
+export type ShareTicketMutationOptions = Apollo.BaseMutationOptions<Types.ShareTicketMutation, Types.ShareTicketMutationVariables>;
 export const GetTicketChangesDocument = gql`
     query getTicketChanges($ticketId: ID!) {
   ticketChanges: allTicketChanges(
@@ -3388,6 +3734,54 @@ export type GetTicketChangesQueryHookResult = ReturnType<typeof useGetTicketChan
 export type GetTicketChangesLazyQueryHookResult = ReturnType<typeof useGetTicketChangesLazyQuery>;
 export type GetTicketChangesSuspenseQueryHookResult = ReturnType<typeof useGetTicketChangesSuspenseQuery>;
 export type GetTicketChangesQueryResult = Apollo.QueryResult<Types.GetTicketChangesQuery, Types.GetTicketChangesQueryVariables>;
+export const PredictTicketClassificationDocument = gql`
+    query predictTicketClassification($data: PredictTicketClassificationInput!) {
+  obj: predictTicketClassification(data: $data) {
+    id
+    place {
+      id
+      name
+    }
+    category {
+      id
+      name
+    }
+  }
+}
+    `;
+
+/**
+ * __usePredictTicketClassificationQuery__
+ *
+ * To run a query within a React component, call `usePredictTicketClassificationQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePredictTicketClassificationQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePredictTicketClassificationQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function usePredictTicketClassificationQuery(baseOptions: Apollo.QueryHookOptions<Types.PredictTicketClassificationQuery, Types.PredictTicketClassificationQueryVariables> & ({ variables: Types.PredictTicketClassificationQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.PredictTicketClassificationQuery, Types.PredictTicketClassificationQueryVariables>(PredictTicketClassificationDocument, options);
+      }
+export function usePredictTicketClassificationLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.PredictTicketClassificationQuery, Types.PredictTicketClassificationQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.PredictTicketClassificationQuery, Types.PredictTicketClassificationQueryVariables>(PredictTicketClassificationDocument, options);
+        }
+export function usePredictTicketClassificationSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.PredictTicketClassificationQuery, Types.PredictTicketClassificationQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.PredictTicketClassificationQuery, Types.PredictTicketClassificationQueryVariables>(PredictTicketClassificationDocument, options);
+        }
+export type PredictTicketClassificationQueryHookResult = ReturnType<typeof usePredictTicketClassificationQuery>;
+export type PredictTicketClassificationLazyQueryHookResult = ReturnType<typeof usePredictTicketClassificationLazyQuery>;
+export type PredictTicketClassificationSuspenseQueryHookResult = ReturnType<typeof usePredictTicketClassificationSuspenseQuery>;
+export type PredictTicketClassificationQueryResult = Apollo.QueryResult<Types.PredictTicketClassificationQuery, Types.PredictTicketClassificationQueryVariables>;
 export const GetTicketCommentsDocument = gql`
     query getTicketComments($ticketId: ID!) {
   ticketComments: allTicketComments(

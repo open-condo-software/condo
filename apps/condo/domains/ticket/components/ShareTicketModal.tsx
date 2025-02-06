@@ -11,7 +11,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { useCallback, useState } from 'react'
 
-import { useMutation } from '@open-condo/next/apollo'
+// import { useMutation } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Modal, Typography } from '@open-condo/ui'
 
@@ -20,9 +20,10 @@ import { EN_LOCALE } from '@condo/domains/common/constants/locale'
 import { colors } from '@condo/domains/common/constants/style'
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
-import { SHARE_TICKET_MUTATION } from '@condo/domains/ticket/gql'
+// import { SHARE_TICKET_MUTATION } from '@condo/domains/ticket/gql'
 import { getEmployeeWithEmail } from '@condo/domains/ticket/utils/clientSchema/search'
 import { packShareData } from '@condo/domains/ticket/utils/shareDataPacker'
+import { useShareTicketMutation } from '@app/condo/gql'
 
 
 const collapse = css`
@@ -181,8 +182,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
     const encryptedText = packShareData(shareParams)
 
     const { query } = useRouter()
-    const [shareTicket] = useMutation(SHARE_TICKET_MUTATION)
-
+    const [shareTicket] = useShareTicketMutation()
     const {
         publicRuntimeConfig: { serverUrl: origin },
     } = getConfig()
@@ -215,7 +215,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
                 data: {
                     sender,
                     employees: parseSelectValue(chosenEmployees).filter(employee => get(employee, 'value.hasEmail')).map(employee => employee.id),
-                    ticketId: query.id,
+                    ticketId: Array.isArray(query?.id) ? null : query?.id,
                 },
             },
         })

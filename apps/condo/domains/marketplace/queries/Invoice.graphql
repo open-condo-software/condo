@@ -63,3 +63,9 @@ query getInvoicesByIds ($ids: [ID!]!) {
         }
     }
 }
+
+mutation createInvoice ($data: InvoiceCreateInput!) {
+    invoice: createInvoice (data: $data) {
+        id
+    }
+}

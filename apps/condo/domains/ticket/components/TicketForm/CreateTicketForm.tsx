@@ -1,4 +1,4 @@
-import { useGetTicketByCreatedByQuery } from '@app/condo/gql'
+import { useCreateTicketMutation, useGetTicketByCreatedByQuery, useCreateInvoiceMutation } from '@app/condo/gql'
 import { B2BAppGlobalFeature } from '@app/condo/schema'
 import { Form, notification } from 'antd'
 import dayjs from 'dayjs'
@@ -21,14 +21,16 @@ import { CopyButton } from '@condo/domains/marketplace/components/Invoice/CopyBu
 import { INVOICE_STATUS_PUBLISHED } from '@condo/domains/marketplace/constants'
 import { Invoice as InvoiceGQL } from '@condo/domains/marketplace/gql'
 import { useInvoicePaymentLink } from '@condo/domains/marketplace/hooks/useInvoicePaymentLink'
-import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
+// import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
+import { formValuesProcessor as formValuesProcessorInvoice } from '@condo/domains/marketplace/utils/clientSchema/NewInvoice'
 import { useGlobalAppsFeaturesContext } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsFeaturesContext'
 import { BaseTicketForm } from '@condo/domains/ticket/components/BaseTicketForm'
 import { TicketSubmitButton } from '@condo/domains/ticket/components/BaseTicketForm/TicketSubmitButton'
 import { useTicketFormContext } from '@condo/domains/ticket/components/TicketForm/TicketFormContext'
 import { REQUIRED_TICKET_FIELDS } from '@condo/domains/ticket/constants/common'
 import { useCacheUtils } from '@condo/domains/ticket/hooks/useCacheUtils'
-import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
+// import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
+import { formValuesProcessor as formValuesProcessorTicket } from '@condo/domains/ticket/utils/clientSchema/NewTicket'
 import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
 
 
@@ -141,15 +143,41 @@ export const CreateTicketForm: React.FC = () => {
     const initialValuesFromQuery = useMemo(() => getObjectValueFromQuery(router, ['initialValues']), [router])
     const redirectToClientCard = useMemo(() => !!get(router, ['query', 'redirectToClientCard']), [router])
 
-    const createInvoiceAction = Invoice.useCreate({})
-    const action = Ticket.useCreate(
-        {
-            status: { connect: { id: OPEN_STATUS } },
+    // const createInvoiceAction = Invoice.useCreate({})
+    const [createInvoiceAction] = useCreateInvoiceMutation()
+    // const action = Ticket.useCreate(
+    //     {
+    //         status: { connect: { id: OPEN_STATUS } },
+    //     },
+    //     async (ticket) => {
+    //         addTicketToQueryCacheForTicketCardList(ticket)
+    //         if (redirectToClientCard) {
+    //             const clientPhone = ticket.clientPhone
+    //             const ticketPropertyId = get(ticket, 'property.id')
+    //             const isResidentTicket = !!get(ticket, 'contact')
+    //
+    //             if (clientPhone && ticketPropertyId) {
+    //                 const clientCardTabType = isResidentTicket ? ClientType.Resident : ClientType.NotResident
+    //                 await router.push(
+    //                     `/phone/${clientPhone}?tab=${
+    //                         getClientCardTabKey(ticketPropertyId, clientCardTabType, ticket.unitName, ticket.unitType)
+    //                     }`
+    //                 )
+    //             }
+    //         } else {
+    //             await router.push('/ticket')
+    //         }
+    //     }
+    // )
+
+    const [createTicketAction] = useCreateTicketMutation({
+        variables: {
+            data: { status: { connect: { id: OPEN_STATUS } } },
         },
-        async (ticket) => {
+        onCompleted: async (ticket) => {
             addTicketToQueryCacheForTicketCardList(ticket)
             if (redirectToClientCard) {
-                const clientPhone = ticket.clientPhone
+                const clientPhone = ticket?.clientPhone
                 const ticketPropertyId = get(ticket, 'property.id')
                 const isResidentTicket = !!get(ticket, 'contact')
 
@@ -157,14 +185,16 @@ export const CreateTicketForm: React.FC = () => {
                     const clientCardTabType = isResidentTicket ? ClientType.Resident : ClientType.NotResident
                     await router.push(
                         `/phone/${clientPhone}?tab=${
-                            getClientCardTabKey(ticketPropertyId, clientCardTabType, ticket.unitName, ticket.unitType)
+                            getClientCardTabKey(ticketPropertyId, clientCardTabType, ticket?.unitName, ticket?.unitType)
                         }`
                     )
                 }
             } else {
                 await router.push('/ticket')
             }
-        })
+        },
+    })
+
 
     const getCompletedNotification = useCallback(({ ticketId, ticketNumber, paymentUrl }) => ({
         message: (
@@ -194,27 +224,37 @@ export const CreateTicketForm: React.FC = () => {
         }
         const { invoices, existedInvoices, newInvoices, ...ticketValues } = variables
 
-        const ticket = await action({
-            ...Ticket.formValuesProcessor({ ...ticketValues, deadline }),
-            organization: { connect: { id: organization.id } },
+        const ticket = await createTicketAction({
+            variables: {
+                data: {
+                    organization: { connect: { id: organization.id } },
+                    ...formValuesProcessorTicket({ ...ticketValues, deadline }),
+                },
+            },
         })
 
         let paymentUrl
         if (!isEmpty(newInvoices)) {
             for (const invoiceFromForm of newInvoices) {
-                const payload = Invoice.formValuesProcessor({
+                const payload = formValuesProcessorInvoice({
                     ...invoiceFromForm,
-                    ticket: ticket.id,
+                    ticket: ticket?.id,
                 }, intl, true)
 
-                await createInvoiceAction(payload)
+                await createInvoiceAction({
+                    variables: {
+                        data: {
+                            payload,
+                        },
+                    },
+                })
             }
 
             const data = await client.query({
                 query: InvoiceGQL.GET_ALL_OBJS_QUERY,
                 variables: {
                     where: {
-                        ticket: { id: ticket.id },
+                        ticket: { id: ticket?.id },
                         status: INVOICE_STATUS_PUBLISHED,
                     },
                 },
@@ -246,7 +286,7 @@ export const CreateTicketForm: React.FC = () => {
         }
 
         return ticket
-    }, [action, organization.id, getCompletedNotification, client, getPaymentLink, intl, createInvoiceAction, requestFeature])
+    }, [createTicketAction, organization.id, getCompletedNotification, client, getPaymentLink, intl, createInvoiceAction, requestFeature])
 
     const initialValues = useMemo(() => ({
         ...initialValuesFromQuery,

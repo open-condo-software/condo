@@ -1,0 +1,3 @@
+query predictTicketClassification ($data: PredictTicketClassificationInput!) {
+    obj: predictTicketClassification(data: $data) { id place { id name } category { id name }  }
+}

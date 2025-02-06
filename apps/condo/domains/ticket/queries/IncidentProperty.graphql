@@ -6,3 +6,15 @@ query getIncidentProperties ($where: IncidentPropertyWhereInput) {
         }
     }
 }
+
+mutation createIncidentProperty ($data: IncidentPropertyCreateInput!) {
+    IncidentProperty: createIncidentProperty(data: $data) {
+        id
+    }
+}
+
+mutation updateIncidentProperty ($id: ID!, $data: IncidentPropertyUpdateInput!) {
+    IncidentProperty: updateIncidentProperty(id: $id, data: $data) {
+        id
+    }
+}
