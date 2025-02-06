@@ -1600,13 +1600,23 @@ describe('Invoice', () => {
         test('can\'t edit published invoice', async () => {
             const [invoice] = await createTestInvoice(adminClient, dummyOrganization, { status: INVOICE_STATUS_PUBLISHED })
 
+            const newRows = generateInvoiceRows()
+            const newToPay = newRows.reduce((sum, {
+                toPay,
+                count,
+            }) => sum.plus(Big(toPay).mul(count)), Big(0)).toString()
+
             await expectToThrowGQLError(async () => {
-                await updateTestInvoice(adminClient, invoice.id, { rows: generateInvoiceRows() })
+                await updateTestInvoice(adminClient, invoice.id, { rows: newRows })
             }, {
                 code: 'BAD_USER_INPUT',
                 type: 'FORBID_EDIT_PUBLISHED',
                 message: `Only the status ${INVOICE_STATUS_CANCELED} and ${INVOICE_STATUS_PAID} can be updated by the published invoice`,
                 messageForUser: 'api.marketplace.invoice.FORBID_EDIT_PUBLISHED',
+                changedFields: expect.objectContaining({
+                    rows: expect.arrayContaining(newRows.map((r) => expect.objectContaining(r))),
+                    toPay: newToPay,
+                }),
             })
         })
 
