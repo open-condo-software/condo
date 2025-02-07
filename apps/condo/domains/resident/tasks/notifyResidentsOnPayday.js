@@ -48,6 +48,7 @@ async function sendNotification (context, receipt, consumer) {
     }
 
     const uniqKey = `${userId}_notification_on_payday_${receipt.period}`
+    // TODO(DOMA-11040): get locale for sendMessage from user
     await sendMessage(context, {
         ...DV_SENDER,
         to: { user: { id: userId } },

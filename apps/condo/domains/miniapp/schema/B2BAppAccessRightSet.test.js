@@ -528,6 +528,8 @@ describe('B2BApp permissions for service user', () => {
         expect(foundRight).toHaveProperty('accessRightSet.canManageMeterReadings', false)
         expect(foundRight).toHaveProperty('accessRightSet.canReadOrganizations', false)
         expect(foundRight).toHaveProperty('accessRightSet.canManageOrganizations', false)
+        expect(foundRight).toHaveProperty('accessRightSet.canReadOrganizationEmployees', false)
+        expect(foundRight).toHaveProperty('accessRightSet.canManageOrganizationEmployees', false)
         expect(foundRight).toHaveProperty('accessRightSet.canReadProperties', false)
         expect(foundRight).toHaveProperty('accessRightSet.canManageProperties', false)
         expect(foundRight).toHaveProperty('accessRightSet.canManageTickets', false)
@@ -538,6 +540,8 @@ describe('B2BApp permissions for service user', () => {
         expect(foundRight).toHaveProperty('accessRightSet.canReadTicketComments', false)
         expect(foundRight).toHaveProperty('accessRightSet.canManageTicketCommentFiles', false)
         expect(foundRight).toHaveProperty('accessRightSet.canReadTicketCommentFiles', false)
+        expect(foundRight).toHaveProperty('accessRightSet.canReadTicketCommentFiles', false)
+        expect(foundRight).toHaveProperty('accessRightSet.canExecuteSendB2BAppPushMessage', false)
     })
 
     describe('Bulk-operations', () => {

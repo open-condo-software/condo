@@ -72,6 +72,7 @@ async function resetUserEmployeesCache (userId) {
 /**
  * Information about single organization, in which user is employed, and its child organizations
  * @typedef {Object} UserOgranizationInfo
+ * @property {string} roleId - user employee role id in organization
  * @property {Record<string, boolean>} permissions - user permissions in organization
  * @property {Array<string>} childOrganizations - list of child organizations to which user share permissions via OrganizationLink
  */
@@ -142,6 +143,7 @@ async function _getUserOrganizations (ctx, user) {
 
     for (const role of userRoles) {
         newCacheEntry.organizations[role.organization] = {
+            roleId: role.id,
             permissions: _extractRolePermissions(role),
             childOrganizations: [],
         }
@@ -255,6 +257,20 @@ async function getInvitedOrganizations (ctx, user) {
 }
 
 /**
+ * Gets the IDs of user employees roles
+ * @param {{ req: import('express').Request }} ctx - keystone context object
+ * @param {{ id: string }} user - user object
+ * @returns {Promise<Array<string>>}
+ */
+async function getUserEmployeesRoles (ctx, user) {
+    const userOrganizationsInfo = await _getUserOrganizations(ctx, user)
+
+    return Object.values(userOrganizationsInfo.organizations || [])
+        .map(organizationInfo => organizationInfo.roleId)
+        .filter(Boolean)
+}
+
+/**
  * Checks if user is employed in all listed organizations and has all correct permissions in it.
  * Both organizations and permissions can be single elements if passed as strings instead of arrays
  * This utils is faster than filtering organization ids from corresponding get<> function,
@@ -352,6 +368,7 @@ module.exports = {
     getRelatedOrganizationsByPermissions,
     getEmployedOrRelatedOrganizationsByPermissions,
     getInvitedOrganizations,
+    getUserEmployeesRoles,
     checkPermissionsInEmployedOrganizations,
     checkPermissionsInRelatedOrganizations,
     checkPermissionsInEmployedOrRelatedOrganizations,

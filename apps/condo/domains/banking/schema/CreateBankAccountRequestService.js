@@ -67,6 +67,7 @@ const CreateBankAccountRequestService = new GQLCustomSchema('CreateBankAccountRe
                     throw new GQLError(ERRORS.INCORRECT_PROPERTY_ID, context)
                 }
 
+                // TODO(DOMA-11040): get locale for sendMessage from user
                 const { status, id } = await sendMessage(context, {
                     to: {
                         email: emailTo,

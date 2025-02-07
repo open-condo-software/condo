@@ -4,6 +4,7 @@
  */
 
 const { AllMiniAppsService } = require('./AllMiniAppsService')
+const { AppMessageSetting } = require('./AppMessageSetting')
 const { B2BAccessToken } = require('./B2BAccessToken')
 const { B2BApp } = require('./B2BApp')
 const { B2BAppAccessRight } = require('./B2BAppAccessRight')
@@ -16,9 +17,9 @@ const { B2BAppRole } = require('./B2BAppRole')
 const { B2CApp } = require('./B2CApp')
 const { B2CAppAccessRight } = require('./B2CAppAccessRight')
 const { B2CAppBuild } = require('./B2CAppBuild')
-const { B2CAppMessageSetting } = require('./B2CAppMessageSetting')
 const { B2CAppProperty } = require('./B2CAppProperty')
 const { MessageAppBlackList } = require('./MessageAppBlackList')
+const { SendB2BAppPushMessageService } = require('./SendB2BAppPushMessageService')
 const { SendB2CAppPushMessageService } = require('./SendB2CAppPushMessageService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
@@ -38,7 +39,8 @@ module.exports = {
     B2BAppRole,
     B2BAppAccessRightSet,
     B2BAppNewsSharingConfig,
-    B2CAppMessageSetting,
+    AppMessageSetting,
+    SendB2BAppPushMessageService,
     B2BAccessToken,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
