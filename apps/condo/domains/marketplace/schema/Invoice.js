@@ -584,7 +584,9 @@ const Invoice = new GQLListSchema('Invoice', {
                             deletedAt: null,
                         })
 
-                        set(resolvedData, 'client', get(resident, 'user', null))
+                        if (resident) {
+                            set(resolvedData, 'client', get(resident, 'user'))
+                        }
                     }
                 }
             }

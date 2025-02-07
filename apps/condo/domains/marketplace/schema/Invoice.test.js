@@ -58,7 +58,7 @@ const {
 } = require('@condo/domains/organization/utils/testSchema')
 const { FLAT_UNIT_TYPE, COMMERCIAL_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { makeClientWithProperty, createTestProperty } = require('@condo/domains/property/utils/testSchema')
-const { registerResidentByTestClient, registerResidentInvoiceByTestClient } = require('@condo/domains/resident/utils/testSchema')
+const { registerResidentByTestClient, registerResidentInvoiceByTestClient, updateTestResident } = require('@condo/domains/resident/utils/testSchema')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { createTestTicket, updateTestTicket, TicketStatus } = require('@condo/domains/ticket/utils/testSchema')
 const {
@@ -941,6 +941,66 @@ describe('Invoice', () => {
                     ])
                 })
             })
+        })
+
+        test('client keep as is during update if no resident was deleted', async () => {
+            const [o10n] = await createTestOrganization(adminClient)
+
+            await createTestAcquiringIntegrationContext(adminClient, o10n, dummyAcquiringIntegration, {
+                invoiceStatus: CONTEXT_FINISHED_STATUS,
+                invoiceRecipient: createTestRecipient(),
+            })
+
+            const [property] = await createTestProperty(adminClient, o10n)
+
+            const residentClient = await makeClientWithResidentUser()
+            const unitType = FLAT_UNIT_TYPE
+            const unitName = faker.lorem.word()
+
+            const [resident] = await registerResidentByTestClient(
+                residentClient,
+                {
+                    address: property.address,
+                    addressMeta: property.addressMeta,
+                    unitType,
+                    unitName,
+                })
+
+            const staffClient = await makeClientWithStaffUser()
+            const [role] = await createTestOrganizationEmployeeRole(adminClient, o10n, {
+                canManageInvoices: true,
+                canManageContacts: true,
+            })
+            await createTestOrganizationEmployee(adminClient, o10n, staffClient.user, role)
+
+            const [contact] = await createTestContact(staffClient, o10n, property, {
+                phone: residentClient.userAttrs.phone,
+                unitType,
+                unitName,
+            })
+
+            const [invoice] = await createTestInvoice(staffClient, o10n, {
+                property: { connect: { id: property.id } },
+                unitType,
+                unitName,
+                contact: { connect: { id: contact.id } },
+                status: INVOICE_STATUS_PUBLISHED,
+            })
+
+            const invoices = await Invoice.getAll(residentClient, {}, { sortBy: ['updatedAt_DESC'] })
+
+            expect(invoices).toEqual([
+                expect.objectContaining({
+                    id: invoice.id,
+                    client: expect.objectContaining({ id: resident.user.id, name: resident.user.name }),
+                }),
+            ])
+
+            await updateTestResident(adminClient, resident.id, { deletedAt: faker.date.recent() })
+            const [updatedInvoice] = await updateTestInvoice(staffClient, invoice.id, { status: INVOICE_STATUS_CANCELED })
+
+            expect(updatedInvoice.client.id).toBe(resident.user.id)
+            expect(updatedInvoice.status).toBe(INVOICE_STATUS_CANCELED)
         })
     })
 
