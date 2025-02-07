@@ -134,7 +134,7 @@
     "@types/react": "^16.14.61",
     "babel-core": "^6.26.3",
     "babel-loader": "^9.1.3",
-    "graphql": "^16.8.1",
+    "graphql": "^16.10.0",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "rimraf": "^6.0.1",

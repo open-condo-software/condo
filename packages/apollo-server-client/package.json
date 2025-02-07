@@ -9,7 +9,7 @@
     "@apollo/client": "^3.11.8",
     "apollo-link-error": "^1.1.13",
     "apollo-upload-client": "^17.0.0",
-    "graphql": "^16.6.0",
+    "graphql": "^16.10.0",
     "graphql-tag": "^2.12.6"
   }
 }
