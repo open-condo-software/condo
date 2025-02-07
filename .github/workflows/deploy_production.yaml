@@ -36,8 +36,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
+          ref: ${{ github.ref }}
           fetch-depth: 0
-          submodules: recursive
+          submodules: true
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2
