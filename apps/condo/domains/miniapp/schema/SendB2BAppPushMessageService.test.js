@@ -54,13 +54,13 @@ describe('SendB2BAppPushMessageService', () => {
 
     describe('Access', () => {
         describe('Service user', () => {
-            it('can execute', async () => {
+            test('can execute', async () => {
                 const [result] = await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user)
 
                 expect(result.id).toMatch(UUID_RE)
             })
 
-            it('can not execute if organization has not B2BAppContext with b2bApp', async () => {
+            test('can not execute if organization has not B2BAppContext with b2bApp', async () => {
                 const otherServiceUser = await makeClientWithServiceUser()
 
                 const [organization] = await registerNewOrganization(staffClient)
@@ -71,7 +71,7 @@ describe('SendB2BAppPushMessageService', () => {
                 })
             })
 
-            it('can not execute if service user has not B2BAppAccessRightSet with canExecuteSendB2BAppPushMessage', async () => {
+            test('can not execute if service user has not B2BAppAccessRightSet with canExecuteSendB2BAppPushMessage', async () => {
                 const otherServiceUser = await makeClientWithServiceUser()
 
                 const [organization] = await registerNewOrganization(staffClient)
@@ -90,7 +90,7 @@ describe('SendB2BAppPushMessageService', () => {
         })
 
         describe('Admin', () => {
-            it('can not execute', async () => {
+            test('can not execute', async () => {
                 await expectToThrowAccessDeniedErrorToResult(async () => {
                     await sendB2BAppPushMessageByTestClient(admin, b2bApp, organization, staffClient.user)
                 })
@@ -98,7 +98,7 @@ describe('SendB2BAppPushMessageService', () => {
         })
 
         describe('Support', () => {
-            it('can not execute', async () => {
+            test('can not execute', async () => {
                 await expectToThrowAccessDeniedErrorToResult(async () => {
                     await sendB2BAppPushMessageByTestClient(support, b2bApp, organization, staffClient.user)
                 })
@@ -106,7 +106,7 @@ describe('SendB2BAppPushMessageService', () => {
         })
 
         describe('User', () => {
-            it('can not execute', async () => {
+            test('can not execute', async () => {
                 await expectToThrowAccessDeniedErrorToResult(async () => {
                     await sendB2BAppPushMessageByTestClient(staffClient, b2bApp, organization, staffClient.user)
                 })
@@ -114,7 +114,7 @@ describe('SendB2BAppPushMessageService', () => {
         })
 
         describe('Anonymous', () => {
-            it('can not execute', async () => {
+            test('can not execute', async () => {
                 await expectToThrowAuthenticationErrorToResult(async () => {
                     await sendB2BAppPushMessageByTestClient(anonymous, b2bApp, organization, staffClient.user)
                 })
@@ -123,7 +123,7 @@ describe('SendB2BAppPushMessageService', () => {
     })
 
     describe('Logic', () => {
-        it('Successfully sends a message from a service user with B2B app access rights', async () => {
+        test('Successfully sends a message from a service user with B2B app access rights', async () => {
             const body = faker.random.alphaNumeric(8)
             const [result] = await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
                 type: B2B_APP_MESSAGE_PUSH_TYPE,
@@ -146,7 +146,7 @@ describe('SendB2BAppPushMessageService', () => {
             })
         })
 
-        it('Throws an error if no finished B2BContext exists for the specified organization and B2BApp', async () => {
+        test('Throws an error if no finished B2BContext exists for the specified organization and B2BApp', async () => {
             const [testOrganization] = await registerNewOrganization(staffClient)
 
             const [otherApp] = await createTestB2BApp(support)
@@ -162,7 +162,7 @@ describe('SendB2BAppPushMessageService', () => {
             }, ERRORS.NO_B2B_CONTEXT)
         })
 
-        it('Throws an error if no B2BAppAccessRight exists with canExecuteSendB2BAppPushMessage', async () => {
+        test('Throws an error if no B2BAppAccessRight exists with canExecuteSendB2BAppPushMessage', async () => {
             const [app] = await createTestB2BApp(support)
             await createTestB2BAppContext(staffClient, app, organization, { status: CONTEXT_FINISHED_STATUS })
             const [accessRightSet] = await createTestB2BAppAccessRightSet(support, app)
@@ -173,7 +173,7 @@ describe('SendB2BAppPushMessageService', () => {
             }, ERRORS.NO_B2B_APP_ACCESS_RIGHT)
         })
 
-        it('Throws an error if no organization employee exists for the specified user and organization', async () => {
+        test('Throws an error if no organization employee exists for the specified user and organization', async () => {
             const user = await makeClientWithNewRegisteredAndLoggedInUser()
 
             await expectToThrowGQLErrorToResult(async () => {
@@ -181,7 +181,7 @@ describe('SendB2BAppPushMessageService', () => {
             }, ERRORS.USER_IS_NOT_AN_EMPLOYEE)
         })
 
-        it('Throws an error if notifications are sent more often than specified in AppMessageSetting', async () => {
+        test('Throws an error if notifications are sent more often than specified in AppMessageSetting', async () => {
             const notificationWindowSize = 3600
             const numberOfNotificationInWindow = 2
             await createTestAppMessageSetting(support, {
@@ -211,7 +211,7 @@ describe('SendB2BAppPushMessageService', () => {
             })
         })
 
-        it('Throws an error if AppMessageSetting has numberOfNotificationInWindow: 0', async () => {
+        test('Throws an error if AppMessageSetting has numberOfNotificationInWindow: 0', async () => {
             const numberOfNotificationInWindow = 0
             await createTestAppMessageSetting(support, {
                 b2bApp,
@@ -235,7 +235,7 @@ describe('SendB2BAppPushMessageService', () => {
             })
         })
 
-        it('Throws an error if employee role has not B2BAppRole', async () => {
+        test('Throws an error if employee role has not B2BAppRole', async () => {
             const staffWithoutB2BAppRole = await makeClientWithNewRegisteredAndLoggedInUser()
             const [role] = await createTestOrganizationEmployeeRole(staffClient, organization)
             const [invitedEmployee] = await inviteNewOrganizationEmployee(staffClient, organization, staffWithoutB2BAppRole.userAttrs, role)
@@ -248,7 +248,7 @@ describe('SendB2BAppPushMessageService', () => {
             }, ERRORS.NO_B2B_APP_ROLE_FOR_EMPLOYEE_ROLE_AND_B2B_APP)
         })
 
-        it('Throws an error if user is deleted', async () => {
+        test('Throws an error if user is deleted', async () => {
             await updateTestUser(support, staffClient.user.id, {
                 deletedAt: new Date().toISOString(),
             })

@@ -72,6 +72,7 @@ async function resetUserEmployeesCache (userId) {
 /**
  * Information about single organization, in which user is employed, and its child organizations
  * @typedef {Object} UserOgranizationInfo
+ * @property {string} roleId - user employee role id in organization
  * @property {Record<string, boolean>} permissions - user permissions in organization
  * @property {Array<string>} childOrganizations - list of child organizations to which user share permissions via OrganizationLink
  */
