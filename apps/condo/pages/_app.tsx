@@ -107,6 +107,7 @@ import { useTicketExportTaskUIInterface } from '@condo/domains/ticket/hooks/useT
 import { CookieAgreement } from '@condo/domains/user/components/CookieAgreement'
 
 import Error404Page from './404'
+import Error429Page from './429'
 import Error500Page from './500'
 
 import '@condo/domains/common/components/wdyr'
@@ -612,7 +613,16 @@ if (!isDisabledSsr || !isSSR()) {
 
             return { pageProps }
         } catch (error) {
-            console.error('Error while running `MyApp.getInitialProps', error)
+            const tooManyRequests = error?.cause?.result?.errors
+                ?.some((error) => error?.message?.toLowerCase().includes('many requests recently'))
+                && error?.cause?.statusCode === 400
+
+            console.error('Error while running `MyApp.getInitialProps', { error, tooManyRequests })
+
+            if (tooManyRequests) {
+                return { pageProps: { statusCode: 429 } }
+            }
+
             return { pageProps: { statusCode: 500 } }
         }
     }
@@ -651,6 +661,9 @@ const withError = () => (PageComponent: NextPage): NextPage => {
         const statusCode = props?.pageProps?.statusCode
         if (statusCode && statusCode === 404) return (
             <PageComponent {...props} Component={Error404Page} statusCode={statusCode} />
+        )
+        if (statusCode && statusCode === 429) return (
+            <PageComponent {...props} Component={Error429Page} statusCode={statusCode} />
         )
         if (statusCode && statusCode >= 400) return (
             <PageComponent {...props} Component={Error500Page} statusCode={statusCode} />
