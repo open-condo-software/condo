@@ -23,6 +23,7 @@ export const MessageCard: React.FC<MessageCardProps> = ({ message, viewed }) => 
     const MessageTitle = intl.formatMessage({ id: `notification.UserMessagesList.message.${message.type}.label` })
 
     const messageContent = useMemo(() => message?.defaultContent?.content, [message?.defaultContent?.content])
+    const titleLink = useMemo(() => message?.meta?.data?.url, [message?.meta])
 
     return (
         <Card
@@ -31,7 +32,7 @@ export const MessageCard: React.FC<MessageCardProps> = ({ message, viewed }) => 
             className={`message-card${viewed ? ' message-card-viewed' : ''}`}
         >
             <div className='message-card-title'>
-                <Typography.Link>{MessageTitle}</Typography.Link>
+                <Typography.Link href={titleLink}>{MessageTitle}</Typography.Link>
                 {MESSAGE_ICON[message.type]}
             </div>
             <Typography.Paragraph type='secondary' size='medium'>
