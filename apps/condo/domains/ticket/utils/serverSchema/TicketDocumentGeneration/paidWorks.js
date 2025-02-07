@@ -1,6 +1,8 @@
 const Big = require('big.js')
 const dayjs = require('dayjs')
+const localizedFormat = require('dayjs/plugin/localizedFormat')
 const { get } = require('lodash')
+dayjs.extend(localizedFormat)
 
 const { FinanceInfoClient } = require('@open-condo/clients/finance-info-client/FinanceInfoClient')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -150,7 +152,7 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
 
     const documentTextData = {
         header: {
-            generalDate: dayjs().tz(timeZone).format(dayjs().localeData().longDateFormat('L')),
+            generalDate: dayjs().tz(timeZone).format(dayjs().format('L')),
         },
         company: {
             name: get(organization, 'name'),
