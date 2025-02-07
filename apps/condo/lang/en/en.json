@@ -1769,6 +1769,8 @@
   "pages.condo.error.NotFoundDescription": "Page removed or never existed",
   "pages.condo.error.NotFoundTitle": "Page not found",
   "pages.condo.error.PageTitle": "Improving service",
+  "pages.condo.error.TooManyRequestsTitle": "Too many requests",
+  "pages.condo.error.TooManyRequestsDescription": "You have sent too many requests in short period. Please wait — access will be restored automatically soon. If you need assistance, contact our support team",
   "pages.condo.error.paymentLinkHandler.NotFoundDescription": "Can't detect payment link type. Maybe link was corrupted or copied partially.",
   "pages.condo.error.paymentLinkHandler.NotFoundTitle": "Unknown payment link",
   "pages.condo.marketplace.bankAccountErrorMessage": "Bank account validation failed",
