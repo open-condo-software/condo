@@ -120,6 +120,13 @@ const MeterReportingPeriod = new GQLListSchema('MeterReportingPeriod', {
                 },
             },
         },
+
+        isStrict: {
+            schemaDoc: 'If set to true readings can be passed only during the reporting period. Otherwise anytime.',
+            type: 'Checkbox',
+            defaultValue: false,
+            kmigratorOptions: { default: false },
+        },
     },
     kmigratorOptions: {
         constraints: [
