@@ -47,7 +47,7 @@ const PropertyMeter = generateGqlQueries('PropertyMeter', PROPERTY_METER_FIELDS)
 const PROPERTY_METER_READING_FIELDS = `{ organization { id name } date meter ${PROPERTY_METER_FIELDS} value1 value2 value3 value4 source { id name type } ${COMMON_FIELDS} }`
 const PropertyMeterReading = generateGqlQueries('PropertyMeterReading', PROPERTY_METER_READING_FIELDS)
 
-const METER_REPORTING_PERIOD_FIELDS = `{ organization { id } property { id address addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } } notifyStartDay notifyEndDay ${COMMON_FIELDS} }`
+const METER_REPORTING_PERIOD_FIELDS = `{ organization { id } property { id address addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } } notifyStartDay notifyEndDay isStrict ${COMMON_FIELDS} }`
 const MeterReportingPeriod = generateGqlQueries('MeterReportingPeriod', METER_REPORTING_PERIOD_FIELDS)
 
 const DELETE_METER_AND_METER_READINGS_MUTATION = gql`
