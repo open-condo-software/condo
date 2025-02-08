@@ -26,6 +26,7 @@ const { Contact, createTestContact } = require('@condo/domains/contact/utils/tes
 const {
     CALL_METER_READING_SOURCE_ID,
     COLD_WATER_METER_RESOURCE_ID,
+    MOBILE_APP_SOURCE_ID,
     METER_READING_SOURCE_INTERNAL_IMPORT_TYPE,
     METER_READING_SOURCE_EXTERNAL_IMPORT_TYPE,
     HOT_WATER_METER_RESOURCE_ID,
@@ -41,6 +42,7 @@ const {
     updateTestMeter,
     MeterResourceOwner,
     updateTestMeterResourceOwner,
+    createTestMeterReportingPeriod, updateTestMeterReportingPeriod,
 } = require('@condo/domains/meter/utils/testSchema')
 const {
     createTestB2BApp,
@@ -1983,5 +1985,117 @@ describe('MeterReading', () => {
                 {},
             )
         })
+    })
+
+    describe('Manipulating readings taking into account MeterReportingPeriod for corresponding property/organization', () => {
+        let organization, source, meter, property, reportingPeriod
+
+        beforeAll(async () => {
+            [organization] = await createTestOrganization(admin);
+            [property] = await createTestProperty(admin, organization);
+            [source] = await MeterReadingSource.getAll(admin, { id: MOBILE_APP_SOURCE_ID })
+            const [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID });
+            [meter] = await createTestMeter(admin, organization, property, resource);
+            [reportingPeriod] = await createTestMeterReportingPeriod(admin, organization, {
+                notifyStartDay: 20,
+                notifyEndDay: 25,
+                isStrict: true,
+            })
+        })
+
+        test('rejects reading from mobile app if date is after notifyEndDay in strict period (notifyStartDay < notifyEndDay)', async () => {
+            const readingDate = dayjs().subtract(2, 'month').date(26).format('YYYY-MM-DD')
+            await expectToThrowGQLError(
+                async () => await createTestMeterReading(admin, meter, source, { date: readingDate }),
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'METER_READING_DATE_AFTER_NOTIFY_END',
+                    message: 'Meter reading date cannot be after the end of the MeterReportingPeriod\'s notifyEndDay',
+                }
+            )
+        })
+  
+        test('allows reading if date is within allowed period in strict period (notifyStartDay < notifyEndDay)', async () => {
+            const readingDate = dayjs().subtract(2, 'month').date(24).format('YYYY-MM-DD')
+            const [meterReading] = await createTestMeterReading(admin, meter, source, { date: readingDate })
+  
+            expect(meterReading.id).toMatch(UUID_RE)
+            expect(meterReading.date).toMatch(DATETIME_RE)
+        })
+  
+        test('allows reading if strict period has notifyStartDay > notifyEndDay (open window)', async () => {
+            await updateTestMeterReportingPeriod(admin, reportingPeriod.id, {
+                notifyStartDay: 25,
+                notifyEndDay: 5,
+                isStrict: true,
+            })
+  
+            const readingDate = dayjs().subtract(2, 'month').date(28).format('YYYY-MM-DD')
+            const [meterReading] = await createTestMeterReading(admin, meter, source, { date: readingDate })
+  
+            expect(meterReading.id).toMatch(UUID_RE)
+            expect(meterReading.date).toMatch(DATETIME_RE)
+        })
+  
+        test('allows reading for non-strict period even if date is after notifyEndDay', async () => {
+            await updateTestMeterReportingPeriod(admin, reportingPeriod.id, {
+                notifyStartDay: 20,
+                notifyEndDay: 25,
+                isStrict: false,
+            })
+  
+            const readingDate = dayjs().subtract(2, 'month').date(28).format('YYYY-MM-DD')
+            const [meterReading] = await createTestMeterReading(admin, meter, source, { date: readingDate })
+  
+            expect(meterReading.id).toMatch(UUID_RE)
+            expect(meterReading.date).toMatch(DATETIME_RE)
+        })
+  
+        test('skips MeterReportingPeriod validation if source is not mobile resident app', async () => {
+            await updateTestMeterReportingPeriod(admin, reportingPeriod.id, {
+                notifyStartDay: 20,
+                notifyEndDay: 25,
+                isStrict: true,
+            })
+            const [nonMobileSource] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
+            const readingDate = dayjs().subtract(2, 'month').date(26).format('YYYY-MM-DD')
+            const [meterReading] = await createTestMeterReading(admin, meter, nonMobileSource, { date: readingDate })
+  
+            expect(meterReading.id).toMatch(UUID_RE)
+            expect(meterReading.date).toMatch(DATETIME_RE)
+        })
+  
+        test('prioritizes property reporting period over organization reporting period', async () => {
+            [property] = await createTestProperty(admin, organization);
+            [source] = await MeterReadingSource.getAll(admin, { id: MOBILE_APP_SOURCE_ID })
+            const [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID });
+            [meter] = await createTestMeter(admin, organization, property, resource)
+
+            await updateTestMeterReportingPeriod(admin, reportingPeriod.id, {
+                notifyStartDay: 20,
+                notifyEndDay: 25,
+                isStrict: false,
+            })
+
+            await createTestMeterReportingPeriod(admin, organization, {
+                notifyStartDay: 20,
+                notifyEndDay: 25,
+                isStrict: true,
+                property: { connect: { id: property.id } },
+            })
+
+            const readingDate = dayjs().subtract(2, 'month').date(26).format('YYYY-MM-DD')
+
+            await expectToThrowGQLError(
+                async () => await createTestMeterReading(admin, meter, source, { date: readingDate }),
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'METER_READING_DATE_AFTER_NOTIFY_END',
+                    message: 'Meter reading date cannot be after the end of the MeterReportingPeriod\'s notifyEndDay',
+                }
+            )
+        })
+
+       
     })
 })
