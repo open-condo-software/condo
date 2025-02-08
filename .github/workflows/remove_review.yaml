@@ -18,8 +18,8 @@ jobs:
       - name: Set env for namespace
         run: |
           REF_NAME=${{ github.event.ref }}
-          echo "REVIEW_NAMESPACE=$(echo review-${REF_NAME##*/} | sed 's/\_/-/g')" >> $GITHUB_ENV
-          echo "REVIEW_URL_PREFIX=$(echo ${GITHUB_REF##*/} | sed 's/\_/-/g' | cut -c -30)" >> $GITHUB_ENV
+          echo "REVIEW_NAMESPACE=$(echo review-${REF_NAME##*/} | sed 's/[^a-zA-Z0-9_-]//g; s/_/-/g')" >> $GITHUB_ENV
+          echo "REVIEW_URL_PREFIX=$(echo ${GITHUB_REF##*/} | sed 's/[^a-zA-Z0-9_-]//g; s/_/-/g' | cut -c -30)" >> $GITHUB_ENV
 
       - name: "Drop review namespace"
         run: |
