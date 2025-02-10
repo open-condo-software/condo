@@ -621,7 +621,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         Body.setTextLength(initialBody.length)
     }, [])
 
-    const [templateId, setTemplateId] = useState('')
+    const [templateId, setTemplateId] = useState<string | null>(null)
 
     const handleTemplateChange = useCallback((form) => (value) => {
         setTemplateId(value)

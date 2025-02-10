@@ -1,4 +1,4 @@
-import { B2BApp, NewsItemTemplateTypeType } from '@app/condo/schema'
+import { B2BApp } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
@@ -35,7 +35,7 @@ interface INewsItemSharingForm {
     template: {
         title: string
         body: string
-        type: string | null
+        type?: string
         id?: string
         label?: string
         category?: string
