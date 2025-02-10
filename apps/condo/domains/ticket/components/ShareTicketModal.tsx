@@ -1,6 +1,7 @@
 /** @jsx jsx */
 import { green } from '@ant-design/colors'
 import { CloseCircleFilled, RightOutlined } from '@ant-design/icons'
+import { useShareTicketMutation } from '@app/condo/gql'
 import { Organization as IOrganization } from '@app/condo/schema'
 import { css, jsx } from '@emotion/react'
 import styled from '@emotion/styled'
@@ -23,7 +24,6 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 // import { SHARE_TICKET_MUTATION } from '@condo/domains/ticket/gql'
 import { getEmployeeWithEmail } from '@condo/domains/ticket/utils/clientSchema/search'
 import { packShareData } from '@condo/domains/ticket/utils/shareDataPacker'
-import { useShareTicketMutation } from '@app/condo/gql'
 
 
 const collapse = css`
@@ -219,7 +219,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
                 },
             },
         })
-        if (data && data.obj) {
+        if (data && data?.ticket) {
             setChosenEmployees([])
             setShareVisible(false)
             setOkVisible(true)
