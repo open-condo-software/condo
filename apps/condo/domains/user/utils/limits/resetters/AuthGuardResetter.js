@@ -43,7 +43,7 @@ class AuthGuardResetter extends RedisGuardResetter {
             existedCounters.push(await this.guard.checkCounterExistence(key))
         }
 
-        return existedCounters.length > 0 && existedCounters.some((exists) => exists)
+        return existedCounters.length > 0 && existedCounters.filter(Boolean).length > 0
     }
 
     async reset (identifier) {
