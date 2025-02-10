@@ -1,3 +1,4 @@
+import isEqual from 'lodash/isEqual'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Settings } from '@open-condo/icons'
@@ -63,6 +64,29 @@ export const UserMessagesList = () => {
         () => userMessages.filter(message => message.createdAt <= readUserMessagesAt),
         [readUserMessagesAt, userMessages])
 
+    const handleStorageChange = useCallback((event) => {
+        if (event.key === userMessagesSettingsStorage.getStorageKey()) {
+            const lastReadUserMessagesAt = userMessagesSettingsStorage.getReadUserMessagesAt()
+            if (!isEqual(lastReadUserMessagesAt, readUserMessagesAt)) {
+                setReadUserMessagesAt(lastReadUserMessagesAt)
+            }
+
+            const excludedMessageTypesToFilter = userMessagesSettingsStorage.getExcludedUserMessagesTypes()
+            if (!isEqual(excludedMessageTypesToFilter, excludedMessageTypes)) {
+                setExcludedMessageTypes(excludedMessageTypesToFilter)
+            }
+        }
+    }, [excludedMessageTypes, readUserMessagesAt, userMessagesSettingsStorage])
+
+    useEffect(() => {
+        if (isSSR()) return
+        window.addEventListener('storage', handleStorageChange)
+
+        return () => {
+            window.removeEventListener('storage', handleStorageChange)
+        }
+    }, [handleStorageChange])
+
     useEffect(() => {
         // Set initial settings to state
         if (isSSR()) return
@@ -96,11 +120,11 @@ export const UserMessagesList = () => {
 
         // When dropdown closes - update last read time to createdAt of newest Message
         const newestMessageCreatedAt = userMessages?.[0]?.createdAt
-        if (newestMessageCreatedAt) {
+        if (new Date(newestMessageCreatedAt) > new Date(readUserMessagesAt)) {
             setReadUserMessagesAt(newestMessageCreatedAt)
             userMessagesSettingsStorage.setReadUserMessagesAt(newestMessageCreatedAt)
         }
-    }, [messagesListRef, userMessages, userMessagesSettingsStorage])
+    }, [messagesListRef, readUserMessagesAt, userMessages, userMessagesSettingsStorage])
 
     return (
         <>
@@ -141,7 +165,8 @@ export const UserMessagesList = () => {
             <UserMessagesSettingsModal
                 open={settingsModalOpen}
                 setOpen={setSettingsModalOpen}
-                setMessageTypesToFilter={setExcludedMessageTypes}
+                excludedMessageTypes={excludedMessageTypes}
+                setExcludedMessageTypes={setExcludedMessageTypes}
             />
         </>
     )

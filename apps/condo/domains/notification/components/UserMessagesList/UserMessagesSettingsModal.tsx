@@ -1,50 +1,46 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 
+import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { Button, Checkbox, Modal, Space } from '@open-condo/ui'
 
 import { useUserMessagesListSettingsStorage } from '@condo/domains/notification/hooks/useUserMessagesListSettingsStorage'
 import { USER_MESSAGE_TYPES_FILTER_ON_CLIENT } from '@condo/domains/notification/utils/client/constants'
 
 
-export const UserMessagesSettingsModal = ({ open, setOpen, setMessageTypesToFilter }) => {
+export const UserMessagesSettingsModal = ({ open, setOpen, excludedMessageTypes, setExcludedMessageTypes }) => {
     const intl = useIntl()
     const ModalTitleMessage = intl.formatMessage({ id: 'notification.UserMessagesSettingModal.title' })
     const ApplyChanges = intl.formatMessage({ id: 'ApplyChanges' })
 
-    const [selectedMessageTypes, setSelectedMessageTypes] = useState([])
+    const [selectedMessageTypes, setSelectedMessageTypes] = useState(
+        USER_MESSAGE_TYPES_FILTER_ON_CLIENT.filter(type => !excludedMessageTypes.includes(type))
+    )
 
-    const { organization } = useOrganization()
-    const organizationId = useMemo(() => organization?.id, [organization?.id])
-    const { userMessagesSettingsStorage } = useUserMessagesListSettingsStorage()
+    useDeepCompareEffect(() => {
+        setSelectedMessageTypes(USER_MESSAGE_TYPES_FILTER_ON_CLIENT.filter(type => !excludedMessageTypes.includes(type)))
+    }, [excludedMessageTypes])
 
-    useEffect(() => {
-        const excludedTypesForOrg = userMessagesSettingsStorage.getExcludedUserMessagesTypes()
-        const initialSelectedTypes = USER_MESSAGE_TYPES_FILTER_ON_CLIENT.filter(
-            type => !excludedTypesForOrg.includes(type)
-        )
-        setSelectedMessageTypes(initialSelectedTypes)
-    }, [organizationId, userMessagesSettingsStorage])
-
-    const handleCheckboxChange = useCallback((type) => {
-        setSelectedMessageTypes((prev) =>
-            prev.includes(type)
-                ? prev.filter((t) => t !== type)
-                : [...prev, type]
+    const handleCheckboxChange = useCallback((checkedType) => {
+        setSelectedMessageTypes((oldSelectedTypesState) =>
+            oldSelectedTypesState.includes(checkedType)
+                ? oldSelectedTypesState.filter(type => type !== checkedType)
+                : [...oldSelectedTypesState, checkedType]
         )
     }, [])
 
+    const { userMessagesSettingsStorage } = useUserMessagesListSettingsStorage()
+
     const handleSubmit = useCallback(() => {
-        const excludedTypes = USER_MESSAGE_TYPES_FILTER_ON_CLIENT.filter(
+        const newExcludedTypes = USER_MESSAGE_TYPES_FILTER_ON_CLIENT.filter(
             type => !selectedMessageTypes.includes(type)
         )
 
-        userMessagesSettingsStorage.setExcludedUserMessagesTypes(excludedTypes)
-        setMessageTypesToFilter(excludedTypes)
+        userMessagesSettingsStorage.setExcludedUserMessagesTypes(newExcludedTypes)
+        setExcludedMessageTypes(newExcludedTypes)
 
         setOpen(false)
-    }, [userMessagesSettingsStorage, setMessageTypesToFilter, setOpen, selectedMessageTypes])
+    }, [userMessagesSettingsStorage, setExcludedMessageTypes, setOpen, selectedMessageTypes])
 
     return (
         <Modal

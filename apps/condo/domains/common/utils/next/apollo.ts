@@ -53,6 +53,9 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
                 _QueryMeta: {
                     timeToLive: 60 * 1000, // 1 minute in milliseconds
                 },
+                Message: {
+                    timeToLive: 60 * 1000, // 1 minute in milliseconds
+                },
                 Ticket: {
                     timeToLive: 60 * 1000, // 1 minute in milliseconds
                 },

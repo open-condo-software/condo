@@ -5,10 +5,14 @@ import uniqBy from 'lodash/uniqBy'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
+import { useAuth } from '@open-condo/next/auth'
+import { useOrganization } from '@open-condo/next/organization'
 
 import { useBroadcastChannel } from '@condo/domains/common/hooks/useBroadcastChannel'
 import { useExecuteWithLock } from '@condo/domains/common/hooks/useExecuteWithLock'
 import { UserMessageType } from '@condo/domains/notification/utils/client/constants'
+
+import { MessageTypesAllowedToFilterType } from '../utils/client/constants'
 
 
 type UserPollUserMessagesArgsType = {
@@ -24,13 +28,14 @@ type UserPollUserMessagesReturnType = {
 type UsePollUserMessagesType = (args: UserPollUserMessagesArgsType) => UserPollUserMessagesReturnType
 type UserMessagesBroadcastMessageType = {
     error?: ApolloError
-    messages: UserMessageType[]
+    messages?: UserMessageType[]
     allMessagesLoaded?: boolean
+    clear?: boolean
 }
 
 const USER_MESSAGES_LIST_POLL_LOCK_NAME = 'user-messages-list'
 const USER_MESSAGES_LIST_POLL_CHANNEL_NAME = 'user-messages-list'
-const USER_MESSAGES_LIST_POLL_INTERVAL_IN_MS = 5 * 1000
+const USER_MESSAGES_LIST_POLL_INTERVAL_IN_MS = 60 * 1000
 
 
 export const useUserMessages: UsePollUserMessagesType = ({ isDropdownOpen, queryMessagesVariables, skipQueryMessagesCondition }) => {
@@ -52,10 +57,18 @@ export const useUserMessages: UsePollUserMessagesType = ({ isDropdownOpen, query
     })
 
     // New messages polling in one tab logic
-
     useExecuteWithLock(USER_MESSAGES_LIST_POLL_LOCK_NAME, () => setIsPollingTab(true))
 
-    const handleBroadcastMessage = useCallback(({ error, messages, allMessagesLoaded }) => {
+    const handleBroadcastMessage = useCallback(({ error, messages, allMessagesLoaded, clear }) => {
+        console.log('handleBroadcastMessage', { error, messages, allMessagesLoaded, clear })
+
+        if (clear) {
+            setUserMessages([])
+            setIsAllMessagesLoaded(false)
+
+            return
+        }
+
         if (error) {
             console.error(error)
             return
@@ -86,14 +99,22 @@ export const useUserMessages: UsePollUserMessagesType = ({ isDropdownOpen, query
         }
     }, [isPollingTab, startPolling, stopPolling])
 
+    console.log('isPollingTab, newMessagesData', isPollingTab, newMessagesData)
+
+    // Clear loaded messages when change query filter
+    useDeepCompareEffect(() => {
+        if (isPollingTab) {
+            sendMessageToBroadcastChannel({ clear: true })
+        }
+    }, [queryMessagesVariables])
+
     useDeepCompareEffect(() => {
         const messages = (newMessagesData?.messages || []) as UserMessageType[]
         sendMessageToBroadcastChannel({ error, messages })
-    }, [newMessagesData?.messages, isPollingTab, error])
+    }, [newMessagesData?.messages, error])
 
 
-    // Inifinity scroll logic
-
+    // Infinity scroll logic
     const [fetchMoreUserMessages] = useGetUserMessagesLazyQuery({
         variables: queryMessagesVariables,
     })
