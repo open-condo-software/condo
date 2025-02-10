@@ -62,6 +62,7 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
 
     const updateTicket = useCallback((value) => {
         setUpdating(true)
+        // Добавить dv, sender
         updateTicketStatus({
             variables: {
                 data: {
@@ -74,6 +75,7 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
 
     const updateDeferredTicket = useCallback((statusDeferredId: string, deferredDate: Dayjs) => {
         setUpdating(true)
+        // Добавить dv, sender
         updateTicketStatus({
             variables: {
                 data: {
