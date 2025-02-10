@@ -61,7 +61,6 @@ async function prepare () {
             return {
                 ...app,
                 pgName: `${DEFAULT_DB_NAME_PREFIX}-${app.name}`,
-                redisIndex: appOrder,
                 port,
                 sport,
                 serviceUrl: https
@@ -112,7 +111,7 @@ async function prepare () {
             logWithIndent('Writing assigned urls / ports / dbs to app\'s .env', 2)
             const env = {
                 DATABASE_URL: `${LOCAL_PG_DB_PREFIX}/${app.pgName}`,
-                REDIS_URL: `${LOCAL_REDIS_DB_PREFIX}/${app.redisIndex}`,
+                REDIS_URL: `${LOCAL_REDIS_DB_PREFIX}`,
                 PORT: String(app.port),
                 SPORT: String(app.sport),
                 SERVER_URL: app.serviceUrl,
