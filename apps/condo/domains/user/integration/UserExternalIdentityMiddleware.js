@@ -1,4 +1,3 @@
-const bodyParser = require('body-parser')
 const express = require('express')
 
 const { expressErrorHandler } = require('@open-condo/keystone/logging/expressErrorHandler')
@@ -6,6 +5,7 @@ const { expressErrorHandler } = require('@open-condo/keystone/logging/expressErr
 const { SbbolRoutes } = require('@condo/domains/organization/integrations/sbbol/routes')
 const { AppleIdRoutes } = require('@condo/domains/user/integration/appleid/routes')
 const { SberIdRoutes } = require('@condo/domains/user/integration/sberid/routes')
+const { TelegramAuthRoutes } = require('@condo/domains/user/integration/telegram/routes')
 
 class UserExternalIdentityMiddleware {
     async prepareMiddleware ({ keystone }) {
@@ -29,6 +29,10 @@ class UserExternalIdentityMiddleware {
         const sberIdRoutes = new SberIdRoutes()
         app.get('/api/sber_id/auth', sberIdRoutes.startAuth.bind(sberIdRoutes))
         app.get('/api/sber_id/auth/callback', sberIdRoutes.completeAuth.bind(sberIdRoutes))
+
+        const telegramAuthRoutes = new TelegramAuthRoutes()
+        app.get('/api/telegram/auth', telegramAuthRoutes.startAuth.bind(telegramAuthRoutes))
+        app.post('/api/telegram/auth/status', telegramAuthRoutes.getAuthStatus.bind(telegramAuthRoutes))
 
         // error handler
         app.use(expressErrorHandler)
