@@ -3,6 +3,7 @@
  */
 const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 
+const { METER_READING_MAX_VALUES_COUNT } = require('@condo/domains/meter/constants/constants')
 const access = require('@condo/domains/resident/access/FindOrganizationsByAddressService')
 const {
     MAX_RESIDENT_FIND_ORGANIZATIONS_BY_WINDOW_SEC,
@@ -41,11 +42,7 @@ const FindOrganizationsByAddressService = new GQLCustomSchema('FindOrganizations
         },
         {
             access: true,
-            type: 'type FindOrganizationByAddressMeterValuesType { value1: String!, value2: String, value3: String, value4: String }',
-        },
-        {
-            access: true,
-            type: 'type FindOrganizationByAddressMeterType { resource: ID!, number: String, accountNumber: String, value: FindOrganizationByAddressMeterValuesType, address: String }',
+            type: `type FindOrganizationByAddressMeterType { resource: ID!, number: String, accountNumber: String, ${Array.from({ length: METER_READING_MAX_VALUES_COUNT }, (_, i) => `value${i + 1}: String`).join(' ')}, address: String }`,
         },
         {
             access: true,
@@ -98,7 +95,7 @@ const FindOrganizationsByAddressService = new GQLCustomSchema('FindOrganizations
                     if (tin && accountNumber) {
                         const org = await findOrganizationByAddressKeyTinAccountNumber(organization, data, properties)
 
-                        return org.meters || org.receipts ? org : null
+                        return org.meters.length || org.receipts.length ? org : null
                     } else if (unitName && unitType) {
                         return findOrganizationByAddressKeyUnitNameUnitType(organization, data, context, properties)
                     } else {

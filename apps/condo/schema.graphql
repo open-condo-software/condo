@@ -80204,18 +80204,14 @@ type FindOrganizationByAddressReceiptType {
   address: String
 }
 
-type FindOrganizationByAddressMeterValuesType {
-  value1: String!
-  value2: String
-  value3: String
-  value4: String
-}
-
 type FindOrganizationByAddressMeterType {
   resource: ID!
   number: String
   accountNumber: String
-  value: FindOrganizationByAddressMeterValuesType
+  value1: String
+  value2: String
+  value3: String
+  value4: String
   address: String
 }
 

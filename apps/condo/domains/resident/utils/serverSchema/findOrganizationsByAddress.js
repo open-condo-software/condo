@@ -1,7 +1,7 @@
 const { get, pick } = require('lodash')
 
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
-const { find } = require('@open-condo/keystone/schema')
+const { find, itemsQuery } = require('@open-condo/keystone/schema')
 
 const {
     CONTEXT_FINISHED_STATUS: ACQUIRING_CONTEXT_FINISHED_STATUS,
@@ -11,6 +11,7 @@ const {
 } = require('@condo/domains/billing/constants/onlineInteraction')
 const { getAccountsWithOnlineInteractionUrl } = require('@condo/domains/billing/utils/serverSchema/checkAccountNumberWithOnlineInteractionUrl')
 const { DISABLE_DISCOVER_SERVICE_CONSUMERS } = require('@condo/domains/common/constants/featureflags')
+const { METER_READING_MAX_VALUES_COUNT } = require('@condo/domains/meter/constants/constants')
 const { CONTEXT_FINISHED_STATUS: BILLING_CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 
 /*
@@ -34,12 +35,8 @@ async function findOrganizationByAddressKey (organization, { addressKey }) {
         name: organization.name,
         tin: organization.tin,
         type: organization.type,
-        receipts: get(billingContext, 'lastReport.categories')
-            ? get(billingContext, 'lastReport.categories').map(category => ({ category }))
-            : null,
-        meters: meterResourceOwner.length
-            ? meterResourceOwner.map(({ resource }) => ({ resource }))
-            : null,
+        receipts: get(billingContext, 'lastReport.categories', []).map(category => ({ category })),
+        meters: meterResourceOwner.map(({ resource }) => ({ resource })),
     }
 }
 
@@ -64,7 +61,7 @@ async function findOrganizationByAddressKeyUnitNameUnitType (organization, { add
             }, {})
         )
     } else {
-        receipts = null
+        receipts = []
     }
 
     const meters = await getOrganizationMeters(organization, addressKey, properties, { unitName, unitType })
@@ -101,7 +98,7 @@ async function findOrganizationByAddressKeyTinAccountNumber (organization, { add
         }
     }
 
-    if (!receipts.length) receipts = null
+    if (!receipts.length) receipts = []
 
     const meters = await getOrganizationMeters(organization, addressKey, properties, { accountNumber })
 
@@ -169,14 +166,20 @@ async function getOrganizationMeters (organization, addressKey, properties, quer
     const address = property ? property.address : null
 
     if (meters.length){
-        const meterReadings = await find('MeterReading', {
-            meter: { id_in: meters.map(({ id }) => id) },
-            deletedAt: null,
-        })
+        const meterReadings = await Promise.all(meters.map(({ id }) =>
+            itemsQuery('MeterReading', {
+                where: {
+                    meter: { id },
+                    deletedAt: null,
+                },
+                first: 1,
+                sortBy: ['date_DESC'],
+            })
+        ))
         
-        const meterReadingIndex = meterReadings.reduce((acc, reading) => {
-            const values = pick(reading, ['value1', 'value2', 'value3', 'value4'])
-            acc[reading.meter] = Object.keys(values).length ? values : null
+        const meterReadingIndex = meterReadings.flat().reduce((acc, reading) => {
+            acc[reading.meter] = pick(reading, Array.from({ length: METER_READING_MAX_VALUES_COUNT }, (_, i) => `value${i + 1}`))
+
             return acc
         }, {})
 
@@ -184,11 +187,11 @@ async function getOrganizationMeters (organization, addressKey, properties, quer
             resource: meter.resource,
             accountNumber: meter.accountNumber,
             number: meter.number,
-            value: meterReadingIndex[meter.id] || null,
+            ...meterReadingIndex[meter.id],
             address,
         }))
     } else {
-        meters = null
+        meters = []
     }
 
     return meters

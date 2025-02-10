@@ -7,6 +7,7 @@
 
 const { faker } = require('@faker-js/faker')
 const Big = require('big.js')
+const dayjs = require('dayjs')
 const express = require('express')
 
 const { initTestExpressApp, getTestExpressApp, setFeatureFlag } = require('@open-condo/keystone/test.utils')
@@ -25,6 +26,8 @@ const {
 const { createTestBillingIntegrationOrganizationContext, createTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
 const {
     TestUtils,
+    BillingTestMixin,
+    AcquiringTestMixin,
     ResidentTestMixin,
     MeterTestMixin,
 } = require('@condo/domains/billing/utils/testSchema/testUtils')
@@ -45,7 +48,10 @@ function getOnlyResourceMeterTest (resource) {
         resource: resource,
         accountNumber: null,
         number: null,
-        value: null,
+        value1: null,
+        value2: null,
+        value3: null,
+        value4: null,
         address: null,
     }
 }
@@ -66,14 +72,14 @@ describe('FindOrganizationsByAddress', () => {
     let utils
 
     beforeAll(async () => {
-        utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+        utils = new TestUtils([BillingTestMixin, AcquiringTestMixin, ResidentTestMixin, MeterTestMixin])
         await utils.init()
     })
 
     describe('Unified flow', () => {
         describe('General behaviour', () => {
             test('Should not return organization if acquiring context is not in finished status', async () => {
-                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                const utils = new TestUtils([BillingTestMixin, AcquiringTestMixin, ResidentTestMixin, MeterTestMixin])
                 await utils.init()
                 const [foundOrganizationsOnFinishedContext] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
                     addressKey: utils.property.addressKey,
@@ -112,8 +118,8 @@ describe('FindOrganizationsByAddress', () => {
                     addressKey: utils.property.addressKey,
                 })
                 const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
-                expect(found.meters).toBeNull()
-                expect(found.receipts).toBeNull()
+                expect(found.meters).toHaveLength(0)
+                expect(found.receipts).toHaveLength(0)
                 expect(found.id).toEqual(utils.organization.id)
                 expect(found.name).toEqual(utils.organization.name)
                 expect(found.tin).toEqual(utils.organization.tin)
@@ -121,7 +127,7 @@ describe('FindOrganizationsByAddress', () => {
             })
 
             test('Should return organization and receipt category', async () => {
-                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                const utils = new TestUtils([BillingTestMixin, AcquiringTestMixin, ResidentTestMixin, MeterTestMixin])
                 await utils.init()
                 await utils.createReceipts([
                     utils.createJSONReceipt({
@@ -133,7 +139,7 @@ describe('FindOrganizationsByAddress', () => {
                     addressKey: utils.property.addressKey,
                 })
                 const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
-                expect(found.meters).toBeNull()
+                expect(found.meters).toHaveLength(0)
                 expect(found.receipts).toContainEqual(getOnlyCategoryReceiptTest(HOUSING_CATEGORY_ID))
                 expect(found.id).toEqual(utils.organization.id)
                 expect(found.name).toEqual(utils.organization.name)
@@ -152,7 +158,7 @@ describe('FindOrganizationsByAddress', () => {
                     addressKey: property.addressKey,
                 })
                 const found = foundOrganizations.find(({ id }) => id === organization.id)
-                expect(found.receipts).toBeNull()
+                expect(found.receipts).toHaveLength(0)
                 expect(found.meters).toContainEqual(getOnlyResourceMeterTest(COLD_WATER_METER_RESOURCE_ID))
                 expect(found.id).toEqual(organization.id)
                 expect(found.name).toEqual(organization.name)
@@ -181,9 +187,9 @@ describe('FindOrganizationsByAddress', () => {
             setFeatureFlag(DISABLE_DISCOVER_SERVICE_CONSUMERS, false)
 
             test('Should return meter only if org is resource owner', async () => {
-                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                const utils = new TestUtils([BillingTestMixin, AcquiringTestMixin, ResidentTestMixin, MeterTestMixin])
                 await utils.init()
-                const anotherUtils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                const anotherUtils = new TestUtils([BillingTestMixin, AcquiringTestMixin, ResidentTestMixin, MeterTestMixin])
                 await anotherUtils.init()
                 await updateTestProperty(anotherUtils.clients.admin, anotherUtils.property.id, {
                     address: utils.property.address,
@@ -211,18 +217,16 @@ describe('FindOrganizationsByAddress', () => {
                 expect(foundOrganizations).toHaveLength(2)
                 const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
                 const antoherFound = foundOrganizations.find(({ id }) => id === anotherUtils.organization.id)
-                expect(found.receipts).toBeNull()
+                expect(found.receipts).toHaveLength(0)
                 expect(found.meters).toHaveLength(1)
                 expect(found.meters[0]).toMatchObject({
                     resource: COLD_WATER_METER_RESOURCE_ID,
                     accountNumber: accountNumber,
                     number: expect.any(String),
-                    value: {
-                        value1: Big(meterReading.value1).toFixed(4),
-                        value2: null,
-                        value3: null,
-                        value4: null,
-                    },
+                    value1: Big(meterReading.value1).toFixed(4),
+                    value2: null,
+                    value3: null,
+                    value4: null,
                     address: utils.property.address,
                 })
                 expect(found.id).toEqual(utils.organization.id)
@@ -230,18 +234,16 @@ describe('FindOrganizationsByAddress', () => {
                 expect(found.tin).toEqual(utils.organization.tin)
                 expect(found.type).toEqual(utils.organization.type)
 
-                expect(antoherFound.receipts).toBeNull()
+                expect(antoherFound.receipts).toHaveLength(0)
                 expect(antoherFound.meters).toHaveLength(1)
                 expect(antoherFound.meters[0]).toMatchObject({
                     resource: ELECTRICITY_METER_RESOURCE_ID,
                     accountNumber: accountNumber,
                     number: expect.any(String),
-                    value: {
-                        value1: Big(anotherMeterReading.value1).toFixed(4),
-                        value2: null,
-                        value3: null,
-                        value4: null,
-                    },
+                    value1: Big(anotherMeterReading.value1).toFixed(4),
+                    value2: null,
+                    value3: null,
+                    value4: null,
                     address: utils.property.address,
                 })
                 expect(antoherFound.id).toEqual(anotherUtils.organization.id)
@@ -292,17 +294,15 @@ describe('FindOrganizationsByAddress', () => {
                     unitType,
                 })
                 const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
-                expect(found.receipts).toBeNull()
+                expect(found.receipts).toHaveLength(0)
                 expect(found.meters[0]).toMatchObject({
                     resource: expect.any(String),
                     accountNumber: expect.stringMatching(accountNumber),
                     number: expect.any(String),
-                    value: {
-                        value1: Big(meterReading.value1).toFixed(4),
-                        value2: null,
-                        value3: null,
-                        value4: null,
-                    },
+                    value1: Big(meterReading.value1).toFixed(4),
+                    value2: null,
+                    value3: null,
+                    value4: null,
                     address: utils.property.address,
                 })
                 expect(found.id).toEqual(utils.organization.id)
@@ -478,7 +478,7 @@ describe('FindOrganizationsByAddress', () => {
                     tin: utils.organization.tin,
                 })
                 const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
-                expect(found.meters).toBeNull()
+                expect(found.meters).toHaveLength(0)
                 expect(found.receipts[0]).toMatchObject({
                     category: expect.stringMatching(HOUSING_CATEGORY_ID),
                     balance: expect.stringMatching(Big(toPay).toFixed(8)),
@@ -520,7 +520,7 @@ describe('FindOrganizationsByAddress', () => {
                     tin: utils.organization.tin,
                 })
                 const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
-                expect(found.meters).toBeNull()
+                expect(found.meters).toHaveLength(0)
                 expect(found.receipts).toHaveLength(2)
                 expect(found.id).toEqual(utils.organization.id)
                 expect(found.name).toEqual(utils.organization.name)
@@ -540,17 +540,45 @@ describe('FindOrganizationsByAddress', () => {
                 })
                 const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
                 console.log(found)
-                expect(found.receipts).toBeNull()
+                expect(found.receipts).toHaveLength(0)
                 expect(found.meters[0]).toMatchObject({
                     resource: expect.any(String),
                     accountNumber: expect.stringMatching(accountNumber),
                     number: expect.any(String),
-                    value: {
-                        value1: Big(meterReading.value1).toFixed(4),
-                        value2: null,
-                        value3: null,
-                        value4: null,
-                    },
+                    value1: Big(meterReading.value1).toFixed(4),
+                    value2: null,
+                    value3: null,
+                    value4: null,
+                    address: utils.property.address,
+                })
+                expect(found.id).toEqual(utils.organization.id)
+                expect(found.name).toEqual(utils.organization.name)
+                expect(found.tin).toEqual(utils.organization.tin)
+                expect(found.type).toEqual(utils.organization.type)
+            })
+
+            test('Should return last reading for meter', async () => {
+                const accountNumber = utils.randomNumber(10).toString()
+                const [source] = await MeterReadingSource.getAll(utils.clients.admin, { id: CALL_METER_READING_SOURCE_ID })
+                const [ meter ] = await utils.createMeter({ accountNumber })
+                await createTestMeterReading(utils.clients.admin, meter, source, { date: dayjs().subtract(2, 'd').toISOString() })
+                const [meterReading] = await createTestMeterReading(utils.clients.admin, meter, source, { date: dayjs().subtract(1, 'd').toISOString() })
+                const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
+                    addressKey: utils.property.addressKey,
+                    accountNumber,
+                    tin: utils.organization.tin,
+                })
+                const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
+
+                expect(found.receipts).toHaveLength(0)
+                expect(found.meters[0]).toMatchObject({
+                    resource: expect.any(String),
+                    accountNumber: expect.stringMatching(accountNumber),
+                    number: expect.any(String),
+                    value1: Big(meterReading.value1).toFixed(4),
+                    value2: null,
+                    value3: null,
+                    value4: null,
                     address: utils.property.address,
                 })
                 expect(found.id).toEqual(utils.organization.id)
