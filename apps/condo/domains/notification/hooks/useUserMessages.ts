@@ -1,5 +1,5 @@
 import { ApolloError } from '@apollo/client'
-import { GetUserMessagesQueryVariables, useGetUserMessagesLazyQuery, useGetUserMessagesQuery } from '@app/condo/gql'
+import { useGetUserMessagesLazyQuery, useGetUserMessagesQuery } from '@app/condo/gql'
 import throttle from 'lodash/throttle'
 import uniqBy from 'lodash/uniqBy'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -17,34 +17,50 @@ import { MessageTypesAllowedToFilterType } from '../utils/client/constants'
 
 type UserPollUserMessagesArgsType = {
     isDropdownOpen: boolean
-    queryMessagesVariables: GetUserMessagesQueryVariables
+    messageTypesToFilter: MessageTypesAllowedToFilterType
     skipQueryMessagesCondition?: boolean
 }
 type UserPollUserMessagesReturnType = {
     userMessages: UserMessageType[]
     messagesListRef: ReturnType<typeof useRef<HTMLDivElement>>
     moreMessagesLoading: boolean
+    handleDropdownClose: () => void
 }
 type UsePollUserMessagesType = (args: UserPollUserMessagesArgsType) => UserPollUserMessagesReturnType
 type UserMessagesBroadcastMessageType = {
     error?: ApolloError
     messages?: UserMessageType[]
-    allMessagesLoaded?: boolean
     clear?: boolean
 }
 
 const USER_MESSAGES_LIST_POLL_LOCK_NAME = 'user-messages-list'
 const USER_MESSAGES_LIST_POLL_CHANNEL_NAME = 'user-messages-list'
-const USER_MESSAGES_LIST_POLL_INTERVAL_IN_MS = 60 * 1000
+const USER_MESSAGES_LIST_POLL_INTERVAL_IN_MS = 15 * 1000
 
 
-export const useUserMessages: UsePollUserMessagesType = ({ isDropdownOpen, queryMessagesVariables, skipQueryMessagesCondition }) => {
+export const useUserMessages: UsePollUserMessagesType = ({ isDropdownOpen, messageTypesToFilter, skipQueryMessagesCondition }) => {
+    const { user } = useAuth()
+    const { organization } = useOrganization()
+
+    const messagesListRef = useRef<HTMLDivElement>()
+    const userId = useMemo(() => user?.id, [user?.id])
+    const organizationId = useMemo(() => organization?.id, [organization?.id])
+    const queryVariables = useMemo(() => ({
+        userId,
+        organizationId,
+        types: messageTypesToFilter,
+    }), [messageTypesToFilter, organizationId, userId])
+
     const [isPollingTab, setIsPollingTab] = useState<boolean>(false)
     const [userMessages, setUserMessages] = useState<UserMessageType[]>([])
     const [isAllMessagesLoaded, setIsAllMessagesLoaded] = useState<boolean>(false)
     const [moreMessagesLoading, setMoreMessagesLoading] = useState<boolean>(false)
 
-    const messagesListRef = useRef<HTMLDivElement>()
+    useEffect(() => {
+        setUserMessages([])
+        setIsAllMessagesLoaded(false)
+        setMoreMessagesLoading(false)
+    }, [userId, organizationId])
 
     const {
         data: newMessagesData,
@@ -52,23 +68,14 @@ export const useUserMessages: UsePollUserMessagesType = ({ isDropdownOpen, query
         startPolling,
         stopPolling,
     } = useGetUserMessagesQuery({
-        variables: queryMessagesVariables,
+        variables: queryVariables,
         skip: skipQueryMessagesCondition,
     })
 
     // New messages polling in one tab logic
     useExecuteWithLock(USER_MESSAGES_LIST_POLL_LOCK_NAME, () => setIsPollingTab(true))
 
-    const handleBroadcastMessage = useCallback(({ error, messages, allMessagesLoaded, clear }) => {
-        console.log('handleBroadcastMessage', { error, messages, allMessagesLoaded, clear })
-
-        if (clear) {
-            setUserMessages([])
-            setIsAllMessagesLoaded(false)
-
-            return
-        }
-
+    const handleBroadcastMessage = useCallback(({ error, messages }) => {
         if (error) {
             console.error(error)
             return
@@ -80,10 +87,6 @@ export const useUserMessages: UsePollUserMessagesType = ({ isDropdownOpen, query
                     return new Date(secondMessage.createdAt).getTime() - new Date(firstMessage.createdAt).getTime()
                 })
         })
-
-        if (allMessagesLoaded) {
-            setIsAllMessagesLoaded(true)
-        }
     }, [])
 
     const { sendMessageToBroadcastChannel } = useBroadcastChannel<UserMessagesBroadcastMessageType>(
@@ -99,15 +102,7 @@ export const useUserMessages: UsePollUserMessagesType = ({ isDropdownOpen, query
         }
     }, [isPollingTab, startPolling, stopPolling])
 
-    console.log('isPollingTab, newMessagesData', isPollingTab, newMessagesData)
-
-    // Clear loaded messages when change query filter
-    useDeepCompareEffect(() => {
-        if (isPollingTab) {
-            sendMessageToBroadcastChannel({ clear: true })
-        }
-    }, [queryMessagesVariables])
-
+    // Send new messages to all tabs
     useDeepCompareEffect(() => {
         const messages = (newMessagesData?.messages || []) as UserMessageType[]
         sendMessageToBroadcastChannel({ error, messages })
@@ -116,7 +111,7 @@ export const useUserMessages: UsePollUserMessagesType = ({ isDropdownOpen, query
 
     // Infinity scroll logic
     const [fetchMoreUserMessages] = useGetUserMessagesLazyQuery({
-        variables: queryMessagesVariables,
+        variables: queryVariables,
     })
 
     const fetchMoreMessages = useCallback(async () => {
@@ -128,11 +123,19 @@ export const useUserMessages: UsePollUserMessagesType = ({ isDropdownOpen, query
         })
 
         const messages = (fetchMoreResult?.data?.messages || []) as UserMessageType[]
-        const error = fetchMoreResult?.error
         const allMessagesLoaded = messages.length === 0
 
-        sendMessageToBroadcastChannel({ error, messages, allMessagesLoaded })
-    }, [fetchMoreUserMessages, sendMessageToBroadcastChannel, userMessages.length])
+        setUserMessages(previousMessagesState => {
+            return uniqBy([...previousMessagesState, ...messages], 'id')
+                .sort((firstMessage, secondMessage) => {
+                    return new Date(secondMessage.createdAt).getTime() - new Date(firstMessage.createdAt).getTime()
+                })
+        })
+
+        if (allMessagesLoaded) {
+            setIsAllMessagesLoaded(true)
+        }
+    }, [fetchMoreUserMessages, userMessages.length])
 
     const throttledFetchMore = useMemo( () => throttle(fetchMoreMessages, 500), [fetchMoreMessages])
 
@@ -158,5 +161,13 @@ export const useUserMessages: UsePollUserMessagesType = ({ isDropdownOpen, query
         }
     }, [handleScroll, isDropdownOpen])
 
-    return { userMessages, messagesListRef, moreMessagesLoading }
+    // Clear all scrolled messages after close dropdown
+    const handleDropdownClose = useCallback(() => {
+        const messages = (newMessagesData?.messages || []) as UserMessageType[]
+
+        setUserMessages(messages)
+        setIsAllMessagesLoaded(false)
+    }, [newMessagesData?.messages])
+
+    return { userMessages, messagesListRef, moreMessagesLoading, handleDropdownClose }
 }

@@ -47,13 +47,10 @@ export const UserMessagesList = () => {
         userMessages,
         messagesListRef,
         moreMessagesLoading,
+        handleDropdownClose,
     } = useUserMessages({
         isDropdownOpen,
-        queryMessagesVariables: {
-            userId,
-            organizationId,
-            types: messageTypesToFilter,
-        },
+        messageTypesToFilter,
         skipQueryMessagesCondition:
             !userId || !organizationId || !readUserMessagesAt || messageTypesToFilter.length === 0,
     })
@@ -124,7 +121,9 @@ export const UserMessagesList = () => {
             setReadUserMessagesAt(newestMessageCreatedAt)
             userMessagesSettingsStorage.setReadUserMessagesAt(newestMessageCreatedAt)
         }
-    }, [messagesListRef, readUserMessagesAt, userMessages, userMessagesSettingsStorage])
+
+        handleDropdownClose()
+    }, [handleDropdownClose, messagesListRef, readUserMessagesAt, userMessages, userMessagesSettingsStorage])
 
     return (
         <>

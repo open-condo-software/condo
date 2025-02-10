@@ -54,7 +54,7 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
                     timeToLive: 60 * 1000, // 1 minute in milliseconds
                 },
                 Message: {
-                    timeToLive: 60 * 1000, // 1 minute in milliseconds
+                    timeToLive: 15 * 1000, // 1 minute in milliseconds
                 },
                 Ticket: {
                     timeToLive: 60 * 1000, // 1 minute in milliseconds
