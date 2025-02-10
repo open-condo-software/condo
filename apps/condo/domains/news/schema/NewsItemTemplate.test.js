@@ -93,7 +93,7 @@ describe('NewsItemTemplate', () => {
                 expect(obj.type).toEqual(attrs.type)
             })
             
-            test('create with special symbols', async () => {
+            test('can be created with special symbols', async () => {
                 const testText = 'test \\n'
                 const expectText = 'test \n'
 
