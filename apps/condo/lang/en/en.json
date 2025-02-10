@@ -3218,5 +3218,10 @@
   "tour.viewGuide": "View Guide",
   "trial.startPeriod": "Start trial period",
   "trial.subTitle": "And then...",
-  "trial.title": "Free period of 14 days"
+  "trial.title": "Free period of 14 days",
+  "telegram.auth.start.shareButton": "Send contact",
+  "telegram.auth.start.response": "Please send your contact",
+  "telegram.auth.contact.wrongContact": "Please send *your* contact",
+  "telegram.auth.contact.notFoundStartkey": "Error: authorization key not found. Please start the authorization process from the beginning",
+  "telegram.auth.contact.complete": "✅ Authorization completed successfully! Return to the app"
 }
