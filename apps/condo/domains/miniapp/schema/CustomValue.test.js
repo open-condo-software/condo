@@ -472,7 +472,7 @@ describe('CustomValue', () => {
                 const [stringWithValidationsCustomFieldObj] = await createTestCustomField(support, {
                     schemaName: 'Property',
                     type: 'String',
-                    validationRules: { minLength: 2, maxLength: 5, pattern: '^[a-zA-Z]+$' },
+                    validationRules: { minLength: 2, maxLength: 5, pattern: '^[a-zA-Z]+$' }, // todo @toplenboren ajv only format?
                 })
                 CUSTOM_FIELDS.stringWithValidations = stringWithValidationsCustomFieldObj
 
@@ -525,7 +525,11 @@ describe('CustomValue', () => {
 
                     await expectToThrowGQLError(async () => {
                         await createTestCustomValue(support, customField, organization, extraAttrs)
-                    }, { code: ERRORS.INVALID_DATA.code, type: ERRORS.INVALID_DATA.type })
+                    }, {
+                        code: 'BAD_USER_INPUT',
+                        type: 'INVALID_DATA',
+                        message: 'Provided data is invalid. Check type and validation rules for provided customField',
+                    })
                 })
             })
         })

@@ -21,7 +21,7 @@ const ORGANIZATION_SCHEMA = 'Organization'
 const STRING_TYPE = 'String'
 const JSON_TYPE = 'Json'
 const DATETIME_TYPE = 'Datetime'
-const BOOLEAN_TYPE = 'Boolean'
+const BOOLEAN_TYPE = 'Boolean' // todo: @toplenboren create infering
 
 const ALLOWED_SCHEMAS = {
     [CONTACT_SCHEMA]: {
