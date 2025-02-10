@@ -286,22 +286,22 @@ async function _matchUser (user, authFactors) {
     /** @type {string[]} */
     const nonSkippedChecks = Object.entries(authChecks).filter(([key, value]) => value !== AUTH_CHECK_STATUSES.SKIP).map(([key]) => key)
 
-    if (failedChecks.length === 0 && successfulChecks.length >= numberOfChecksRequiredForAuth && nonSkippedChecks.length >= numberOfChecksRequiredForAuth) {
-        return {
-            success: true,
-            confirmPhoneAction,
-
-            // TODO(DOMA-9890): uncomment when added ConfirmEmailToken
-            // confirmEmailAction,
-        }
-    }
-
     if (nonSkippedChecks.length < numberOfChecksRequiredForAuth) {
         return {
             success: false,
             // NOtE: In general we don't return any detailed errors
             // But we should know that we don't have enough data for validation
             _error: { errorType: ERROR_TYPES.NOT_ENOUGH_AUTH_FACTORS, authChecks, is2FAEnabled },
+        }
+    }
+
+    if (failedChecks.length === 0 && successfulChecks.length >= numberOfChecksRequiredForAuth) {
+        return {
+            success: true,
+            confirmPhoneAction,
+
+            // TODO(DOMA-9890): uncomment when added ConfirmEmailToken
+            // confirmEmailAction,
         }
     }
 
