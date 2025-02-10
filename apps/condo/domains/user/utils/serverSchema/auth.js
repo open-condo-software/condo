@@ -51,6 +51,8 @@ let customQuotas
 try {
     customQuotas = JSON.parse(conf.AUTH_GUARD_CUSTOM_QUOTAS)
 } catch (e) {
+    console.error('AUTH_GUARD_CUSTOM_QUOTAS could not be parsed!')
+    console.error(e)
     customQuotas = {}
 }
 
