@@ -259,13 +259,13 @@ async function _matchUser (user, authFactors) {
 
     const numberOfChecksRequiredForAuth = is2FAEnabled ? 2 : 1
 
-    if (authChecks.password !== 'skip') {
+    if (authChecks.password !== AUTH_CHECK_STATUSES.SKIP) {
         const { success } = await _matchUserPassword(user, authFactors.password)
         authChecks.password = success === true ? AUTH_CHECK_STATUSES.SUCCESS : AUTH_CHECK_STATUSES.FAIL
     }
 
     let confirmPhoneAction
-    if (authChecks.confirmPhoneToken !== 'skip') {
+    if (authChecks.confirmPhoneToken !== AUTH_CHECK_STATUSES.SKIP) {
         const { success, confirmPhoneAction: action } = await _matchUserConfirmPhoneToken(user, authFactors.confirmPhoneToken)
         authChecks.confirmPhoneToken = success === true ? AUTH_CHECK_STATUSES.SUCCESS : AUTH_CHECK_STATUSES.FAIL
         confirmPhoneAction = action
@@ -273,7 +273,7 @@ async function _matchUser (user, authFactors) {
 
     // TODO(DOMA-9890): uncomment when added ConfirmEmailToken
     // let confirmEmailAction
-    // if (authChecks.confirmEmailToken !== 'skip') {
+    // if (authChecks.confirmEmailToken !== AUTH_CHECK_STATUSES.SKIP') {
     //     const { success, confirmEmailAction: action } = await matchUserConfirmEmailToken(user, authFactors.confirmEmailToken)
     //     authChecks.confirmEmailToken = success === true ? 'success' : 'fail'
     //     confirmEmailAction = action
