@@ -80220,8 +80220,8 @@ type FindOrganizationByAddressOutput {
   name: String!
   tin: String!
   type: OrganizationTypeType!
-  receipts: [FindOrganizationByAddressReceiptType]
-  meters: [FindOrganizationByAddressMeterType]
+  receipts: [FindOrganizationByAddressReceiptType]!
+  meters: [FindOrganizationByAddressMeterType]!
 }
 
 input SuggestServiceProviderInput {

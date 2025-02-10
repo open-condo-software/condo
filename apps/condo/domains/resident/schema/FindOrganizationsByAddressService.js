@@ -46,7 +46,7 @@ const FindOrganizationsByAddressService = new GQLCustomSchema('FindOrganizations
         },
         {
             access: true,
-            type: 'type FindOrganizationByAddressOutput { id: ID!, name: String!, tin: String!, type:OrganizationTypeType!, receipts: [FindOrganizationByAddressReceiptType], meters: [FindOrganizationByAddressMeterType] }',
+            type: 'type FindOrganizationByAddressOutput { id: ID!, name: String!, tin: String!, type:OrganizationTypeType!, receipts: [FindOrganizationByAddressReceiptType]!, meters: [FindOrganizationByAddressMeterType]! }',
         },
     ],
     queries: [
