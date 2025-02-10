@@ -59,6 +59,26 @@ try {
 
 const redisGuard = new RedisGuard()
 
+/**
+ *
+ * @param {'ip' | 'user'} identityPrefix
+ * @param {string} identity
+ * @return {string}
+ */
+function buildQuotaKey (identityPrefix, identity) {
+    return [AUTH_COUNTER_LIMIT_TYPE, identityPrefix, identity].join(':')
+}
+
+/**
+ *
+ * @param {'phone' | 'email'} identityPrefix
+ * @param {string} identity
+ * @param {'staff' | 'resident' | 'service'} userType
+ * @return {string}
+ */
+function buildQuotaKeyByUserType (identityPrefix, identity, userType) {
+    return [AUTH_COUNTER_LIMIT_TYPE, 'user_type', userType, identityPrefix, identity].join(':')
+}
 
 /**
  * The following guards are activated:
@@ -82,7 +102,7 @@ async function authGuards (userIdentity, context ) {
     const userType = userIdentity.userType
 
     await redisGuard.checkCustomLimitCounters(
-        [AUTH_COUNTER_LIMIT_TYPE, 'ip', ip].join(':'),
+        buildQuotaKey('ip', ip),
         customQuotas?.ip?.[ip]?.windowSizeInSec || customQuotas?.default?.windowSizeInSec || GUARD_DEFAULT_WINDOW_SIZE_IN_SEC,
         customQuotas?.ip?.[ip]?.windowLimit || customQuotas?.default?.windowLimit || GUARD_DEFAULT_WINDOW_LIMIT,
         context,
@@ -90,7 +110,7 @@ async function authGuards (userIdentity, context ) {
 
     if (userId) {
         await redisGuard.checkCustomLimitCounters(
-            [AUTH_COUNTER_LIMIT_TYPE, 'user', userId].join(':'),
+            buildQuotaKey('user', userId),
             customQuotas?.user?.[userId]?.windowSizeInSec || customQuotas?.default?.windowSizeInSec || GUARD_DEFAULT_WINDOW_SIZE_IN_SEC,
             customQuotas?.user?.[userId]?.windowLimit || customQuotas?.default?.windowLimit || GUARD_DEFAULT_WINDOW_LIMIT,
             context,
@@ -99,7 +119,7 @@ async function authGuards (userIdentity, context ) {
 
     if (phone) {
         await redisGuard.checkCustomLimitCounters(
-            [AUTH_COUNTER_LIMIT_TYPE, 'phone-and-user-type', userType, phone].join(':'),
+            buildQuotaKeyByUserType('phone', phone, userType),
             customQuotas?.phone?.[phone]?.windowSizeInSec || customQuotas?.default?.windowSizeInSec || GUARD_DEFAULT_WINDOW_SIZE_IN_SEC,
             customQuotas?.phone?.[phone]?.windowLimit || customQuotas?.default?.windowLimit || GUARD_DEFAULT_WINDOW_LIMIT,
             context,
@@ -108,7 +128,7 @@ async function authGuards (userIdentity, context ) {
 
     if (email) {
         await redisGuard.checkCustomLimitCounters(
-            [AUTH_COUNTER_LIMIT_TYPE, 'email-and-user-type', userType, email].join(':'),
+            buildQuotaKeyByUserType('email', email, userType),
             customQuotas?.email?.[email]?.windowSizeInSec || customQuotas?.default?.windowSizeInSec || GUARD_DEFAULT_WINDOW_SIZE_IN_SEC,
             customQuotas?.email?.[email]?.windowLimit || customQuotas?.default?.windowLimit || GUARD_DEFAULT_WINDOW_LIMIT,
             context,
@@ -417,4 +437,6 @@ async function _preventTimeBasedAttack (authFactors) {
 module.exports = {
     validateUserCredentials,
     authGuards,
+    buildQuotaKey,
+    buildQuotaKeyByUserType,
 }
