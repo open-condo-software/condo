@@ -33,6 +33,10 @@ class UserMessagesListSettingsStorage {
         this.organizationId = organizationId
     }
 
+    getStorageKey (): string {
+        return this.storageKey
+    }
+
     getExcludedUserMessagesTypes (): MessageTypesAllowedToFilterType {
         if (!this.userId || !this.organizationId) return []
 
