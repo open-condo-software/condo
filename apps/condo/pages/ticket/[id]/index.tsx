@@ -798,15 +798,15 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
 }
 
 const TicketIdPage: PageComponentType = () => {
+    console.log('Render TicketIdPage start')
     const intl = useIntl()
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
+    const { persistor } = useCachePersistor()
 
     const { user } = useAuth()
     const { link, organization, selectEmployee } = useOrganization()
     const { query } = useRouter()
-    const { id } = query as { id: string }
-
-    const { persistor } = useCachePersistor()
+    const { id: ticketId } = query as { id: string }
 
     const {
         data: ticketByIdData,
@@ -814,13 +814,13 @@ const TicketIdPage: PageComponentType = () => {
         refetch: refetchTicket,
         error,
     } = useGetTicketByIdQuery({
-        variables: { id },
+        variables: { id: ticketId },
         skip: !persistor,
     })
     const ticket = useMemo(() => ticketByIdData?.tickets?.filter(Boolean)[0], [ticketByIdData?.tickets])
 
-    const userId = get(user, 'id', null)
-    const ticketOrganizationId = get(ticket, 'organization.id', null)
+    const userId = useMemo(() => user?.id || null, [user])
+    const ticketOrganizationId = useMemo(() => ticket?.organization?.id || null, [ticket])
 
     const {
         data,
@@ -833,7 +833,7 @@ const TicketIdPage: PageComponentType = () => {
     })
     const ticketOrganizationEmployee = useMemo(() => data?.employees?.filter(Boolean)[0], [data?.employees])
 
-    const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [ticket])
+    const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [intl, ticket])
 
     const currentEmployeeOrganizationId = useMemo(() => organization?.id, [organization?.id])
 
@@ -850,6 +850,7 @@ const TicketIdPage: PageComponentType = () => {
 
     const pollCommentsQuery = useMemo(() => ({ ticket: { organization: { id: get(organization, 'id', null) } } }),
         [organization])
+    console.log('Render TicketIdPage end')
 
     if (!ticket || ticketFilterQueryLoading) {
         return (
@@ -874,7 +875,7 @@ const TicketIdPage: PageComponentType = () => {
             <PageWrapper>
                 <PageContent>
                     <FavoriteTicketsContextProvider
-                        extraTicketsQuery={{ id }}
+                        extraTicketsQuery={{ ticketId }}
                     >
                         <TicketPageContent
                             pollCommentsQuery={pollCommentsQuery}

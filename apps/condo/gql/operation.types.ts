@@ -288,6 +288,14 @@ export type GetOrganizationEmployeeWithTicketOrganizationQueryVariables = Types.
 
 export type GetOrganizationEmployeeWithTicketOrganizationQuery = { __typename?: 'Query', employees?: Array<{ __typename?: 'OrganizationEmployee', id: string } | null> | null };
 
+export type GetOrganizationEmployeeByUserAndOrganizationIdsQueryVariables = Types.Exact<{
+  userId: Types.Scalars['ID']['input'];
+  organizationId: Types.Scalars['ID']['input'];
+}>;
+
+
+export type GetOrganizationEmployeeByUserAndOrganizationIdsQuery = { __typename?: 'Query', employee?: Array<{ __typename?: 'OrganizationEmployee', id: string, name?: string | null, phone?: string | null, email?: string | null } | null> | null };
+
 export type FloorInfoFragment = { __typename?: 'BuildingFloor', id: string, type: Types.BuildingFloorType, index: number, name: string, units: Array<{ __typename?: 'BuildingUnit', id: string, type: Types.BuildingUnitType, unitType?: Types.BuildingUnitSubType | null, name?: string | null, label: string, preview?: boolean | null } | null> };
 
 export type SectionOrParkingInfoFragment = { __typename?: 'BuildingSection', id: string, type: Types.BuildingSectionType, index: number, name: string, preview?: boolean | null, floors: Array<{ __typename?: 'BuildingFloor', id: string, type: Types.BuildingFloorType, index: number, name: string, units: Array<{ __typename?: 'BuildingUnit', id: string, type: Types.BuildingUnitType, unitType?: Types.BuildingUnitSubType | null, name?: string | null, label: string, preview?: boolean | null } | null> } | null> };
