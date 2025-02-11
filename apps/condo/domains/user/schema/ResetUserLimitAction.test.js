@@ -19,6 +19,7 @@ const {
     AUTH_COUNTER_LIMIT_TYPE,
 } = require('@condo/domains/user/constants/limits')
 const { ERRORS } = require('@condo/domains/user/schema/ResetUserLimitAction')
+const { buildQuotaKey: buildAuthQuotaKey, buildQuotaKeyByUserType: buildAuthQuotaKeyByUserType } = require('@condo/domains/user/utils/serverSchema/auth')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 const {
     ResetUserLimitAction,
@@ -431,7 +432,7 @@ describe('ResetUserLimitAction', () => {
 
             test('resets counters by ip', async () => {
                 const ip = faker.internet.ipv4()
-                const key = `${AUTH_COUNTER_LIMIT_TYPE}:ip:${ip}`
+                const key = buildAuthQuotaKey('ip', ip)
 
                 for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
                     await redisGuard.incrementDayCounter(key)
@@ -448,7 +449,7 @@ describe('ResetUserLimitAction', () => {
 
             test('resets counters by user id', async () => {
                 const userId = faker.datatype.uuid()
-                const key = `${AUTH_COUNTER_LIMIT_TYPE}:user:${userId}`
+                const key = buildAuthQuotaKey('user', userId)
 
                 for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
                     await redisGuard.incrementDayCounter(key)
@@ -465,7 +466,7 @@ describe('ResetUserLimitAction', () => {
 
             test.each(USER_TYPES)('resets counter by phone for %p', async (userType) => {
                 const phone = createTestPhone()
-                const key = `${AUTH_COUNTER_LIMIT_TYPE}:phone-and-user-type:${userType}:${phone}`
+                const key = buildAuthQuotaKeyByUserType('phone', phone, userType)
 
                 for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
                     await redisGuard.incrementDayCounter(key)
@@ -482,7 +483,7 @@ describe('ResetUserLimitAction', () => {
 
             test('resets all counters by phone', async () => {
                 const phone = createTestPhone()
-                const keys = USER_TYPES.map(userType => `${AUTH_COUNTER_LIMIT_TYPE}:phone-and-user-type:${userType}:${phone}`)
+                const keys = USER_TYPES.map(userType => buildAuthQuotaKeyByUserType('phone', phone, userType))
 
                 for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
                     for (const key of keys) {
@@ -508,7 +509,7 @@ describe('ResetUserLimitAction', () => {
 
             test.each(USER_TYPES)('resets counter by email for %p', async (userType) => {
                 const email = createTestEmail()
-                const key = `${AUTH_COUNTER_LIMIT_TYPE}:email-and-user-type:${userType}:${email}`
+                const key = buildAuthQuotaKeyByUserType('email', email, userType)
 
                 for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
                     await redisGuard.incrementDayCounter(key)
@@ -525,7 +526,7 @@ describe('ResetUserLimitAction', () => {
 
             test('resets all counters by email', async () => {
                 const email = createTestEmail()
-                const keys = USER_TYPES.map(userType => `${AUTH_COUNTER_LIMIT_TYPE}:email-and-user-type:${userType}:${email}`)
+                const keys = USER_TYPES.map(userType => buildAuthQuotaKeyByUserType('email', email, userType))
 
                 for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
                     for (const key of keys) {

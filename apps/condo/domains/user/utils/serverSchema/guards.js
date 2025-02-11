@@ -87,9 +87,19 @@ class RedisGuard {
         return await this.redis.exists(key)
     }
 
+    async checkCountersExistence (...variables) {
+        const keys = variables.map((variable) => `${this.counterPrefix}${variable}`)
+        return await this.redis.exists(...keys)
+    }
+
     async deleteCounter (variable) {
         const key = `${this.counterPrefix}${variable}`
         await this.redis.del(key)
+    }
+
+    async deleteCounters (...variables) {
+        const keys = variables.map((variable) => `${this.counterPrefix}${variable}`)
+        await this.redis.del(...keys)
     }
 
     // Counter

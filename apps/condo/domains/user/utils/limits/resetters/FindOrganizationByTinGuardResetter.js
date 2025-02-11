@@ -18,9 +18,10 @@ class FindOrganizationByTinGuardResetter extends RedisGuardResetter {
         // NOTE: identifierKey = userId | phone | email
         const identifierKey = identifierType === UUID_TYPE ? 'userId' : identifierType
 
-        const hasDailyLimit = await this.guard.checkCounterExistence(`${this.guard_prefix}:${identifierKey}:${identifier}`)
-        const hasTotalLimit = await this.guard.checkCounterExistence(`${this.guard_prefix}:total:${identifierKey}:${identifier}`)
-        return hasDailyLimit || hasTotalLimit
+        return this.guard.checkCountersExistence(
+            `${this.guard_prefix}:${identifierKey}:${identifier}`,
+            `${this.guard_prefix}:total:${identifierKey}:${identifier}`
+        )
     }
 
     async reset (identifier) {
@@ -32,8 +33,10 @@ class FindOrganizationByTinGuardResetter extends RedisGuardResetter {
         // NOTE: typeKey = userId | phone | email
         const typeKey = identifierType === UUID_TYPE ? 'userId' : identifierType
 
-        await this.guard.deleteCounter(`${this.guard_prefix}:${typeKey}:${identifier}`)
-        await this.guard.deleteCounter(`${this.guard_prefix}:total:${typeKey}:${identifier}`)
+        return await this.guard.deleteCounters(
+            `${this.guard_prefix}:${typeKey}:${identifier}`,
+            `${this.guard_prefix}:total:${typeKey}:${identifier}`
+        )
     }
 }
 
