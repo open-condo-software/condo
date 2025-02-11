@@ -42,8 +42,8 @@ function createTaskQueue (name) {
 
     const prefix = getRedisPrefix()
 
-    QUEUES.set(name, new Queue(name, {
-        prefix: `${prefix}bull`,
+    QUEUES.set(name, new Queue(`${name}}`, {
+        prefix: `{${prefix}bull`,
 
         /**
          * @param {'client' | 'subscriber' | 'bclient'} type

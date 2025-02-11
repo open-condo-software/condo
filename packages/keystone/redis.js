@@ -109,13 +109,18 @@ function getRedisClient (name = 'default', purpose = 'regular', opts = {}, ignor
     if (typeof purpose !== 'string') throw new Error('getRedisClient() purpose is not a string')
     if (!REDIS_CLIENTS[clientKey]) {
         const redisEnvName = `${name.toUpperCase()}_REDIS_URL`
-        const redisUrl = conf[redisEnvName] || conf.REDIS_URL
+        let redisUrl = conf[redisEnvName] || conf.REDIS_URL
+        try {
+            redisUrl = JSON.parse(redisUrl)
+        } catch (err) {
+            // skip that error
+        }
         if (!redisUrl) throw new Error(`No REDIS_URL env! You need to set ${redisEnvName} / REDIS_URL env`)
         // BUILD STEP! OR SOME CASE WITH REDIS_URL=undefined
         if (redisUrl === 'undefined') return undefined
         const clientOptions = { connectionName: clientKey, ...opts }
         if (!ignorePrefix) clientOptions['keyPrefix'] = PREFIX
-        const client = new IORedis(redisUrl, clientOptions)
+        const client = typeof redisUrl === 'string' ? new IORedis(redisUrl, clientOptions) : new IORedis.Cluster(redisUrl, clientOptions)
         client.on('connect', () => logger.info({ msg: 'connect', clientKey }))
         client.on('close', () => logger.info({ msg: 'close', clientKey }))
         client.on('reconnecting', (waitTime) => logger.info({ msg: 'reconnecting', clientKey, waitTime }))
