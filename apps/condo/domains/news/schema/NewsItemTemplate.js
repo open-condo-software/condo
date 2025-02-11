@@ -5,6 +5,7 @@
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
+const { normalizeText } = require('@condo/domains/common/utils/text')
 const access = require('@condo/domains/news/access/NewsItemTemplate')
 const { ALL_NEWS_CATEGORIES } = require('@condo/domains/news/constants/newsCategory')
 const { NEWS_TYPES } = require('@condo/domains/news/constants/newsTypes')
@@ -45,12 +46,22 @@ const NewsItemTemplate = new GQLListSchema('NewsItemTemplate', {
             schemaDoc: 'The title of a future news item',
             type: 'Text',
             isRequired: true,
+            hooks: {
+                resolveInput: async ({ resolvedData }) => {
+                    return normalizeText(resolvedData['title'])
+                },
+            },
         },
 
         body: {
             schemaDoc: 'A future news item\'s body',
             type: 'Text',
             isRequired: true,
+            hooks: {
+                resolveInput: async ({ resolvedData }) => {
+                    return normalizeText(resolvedData['body'])
+                },
+            },
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],

@@ -621,7 +621,11 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         Body.setTextLength(initialBody.length)
     }, [])
 
+    const [templateId, setTemplateId] = useState<string | null>(null)
+
     const handleTemplateChange = useCallback((form) => (value) => {
+        setTemplateId(value)
+
         const templateId = value
         const title = templateId !== 'emptyTemplate' ? templates[templateId].title : ''
         const body = templateId !== 'emptyTemplate' ? templates[templateId].body : ''
@@ -1462,6 +1466,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                     (getStepTypeByStep(currentStep) === 'sharingApp') && (
                                         // TODO (DOMA-9328) Move onSkip to BaseNewsForm component, since steps are handled here!
                                         <NewsItemSharingForm
+                                            template={{ id: templateId, ...templates[templateId] }}
                                             ctxId={getStepDataByStep(currentStep).sharingAppData.id}
                                             onSkip={() => handleStepSkip({ skip: true, step: currentStep })}
                                             onSubmit={(values) => handleSharingAppFormSubmit({ values: values, ctxId: getStepDataByStep(currentStep).sharingAppData.id })}
