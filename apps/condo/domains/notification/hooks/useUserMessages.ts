@@ -11,8 +11,7 @@ import { useOrganization } from '@open-condo/next/organization'
 import { useBroadcastChannel } from '@condo/domains/common/hooks/useBroadcastChannel'
 import { useExecuteWithLock } from '@condo/domains/common/hooks/useExecuteWithLock'
 import { UserMessageType } from '@condo/domains/notification/utils/client/constants'
-
-import { MessageTypesAllowedToFilterType } from '../utils/client/constants'
+import { MessageTypesAllowedToFilterType } from '@condo/domains/notification/utils/client/constants'
 
 
 type UserPollUserMessagesArgsType = {
@@ -25,7 +24,7 @@ type UserPollUserMessagesReturnType = {
     messagesListRef: ReturnType<typeof useRef<HTMLDivElement>>
     newMessagesLoading: boolean
     moreMessagesLoading: boolean
-    handleDropdownClose: () => void
+    clearLoadedMessages: () => void
 }
 type UsePollUserMessagesType = (args: UserPollUserMessagesArgsType) => UserPollUserMessagesReturnType
 type UserMessagesBroadcastMessageType = {
@@ -164,12 +163,12 @@ export const useUserMessages: UsePollUserMessagesType = ({ isDropdownOpen, messa
     }, [handleScroll, isDropdownOpen])
 
     // Clear all scrolled messages after close dropdown
-    const handleDropdownClose = useCallback(() => {
+    const clearLoadedMessages = useCallback(() => {
         const messages = (newMessagesData?.messages || []) as UserMessageType[]
 
         setUserMessages(messages)
         setIsAllMessagesLoaded(false)
     }, [newMessagesData?.messages])
 
-    return { userMessages, messagesListRef, moreMessagesLoading, newMessagesLoading, handleDropdownClose }
+    return { userMessages, messagesListRef, moreMessagesLoading, newMessagesLoading, clearLoadedMessages }
 }
