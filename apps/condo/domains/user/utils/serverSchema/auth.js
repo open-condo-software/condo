@@ -91,7 +91,7 @@ function buildQuotaKeyByUserType (identityPrefix, identity, userType) {
  * @param context
  * @return {Promise<void>}
  */
-async function authGuards (userIdentity, context ) {
+async function authGuards (userIdentity, context) {
     if (!context) throw new Error('context cannot be empty')
 
     const userId = context?.authedItem?.id || null
@@ -101,39 +101,42 @@ async function authGuards (userIdentity, context ) {
     const email = userIdentity?.email
     const userType = userIdentity.userType
 
-    await redisGuard.checkCustomLimitCounters(
-        buildQuotaKey('ip', ip),
-        customQuotas?.ip?.[ip]?.windowSizeInSec || customQuotas?.default?.windowSizeInSec || GUARD_DEFAULT_WINDOW_SIZE_IN_SEC,
-        customQuotas?.ip?.[ip]?.windowLimit || customQuotas?.default?.windowLimit || GUARD_DEFAULT_WINDOW_LIMIT,
-        context,
-    )
+    /**
+     * @type {{key: string, windowSizeInSec: number, windowLimit: number}[]}
+     */
+    const guards = []
+
+    guards.push({
+        key: buildQuotaKey('ip', ip),
+        windowSizeInSec: customQuotas?.ip?.[ip]?.windowSizeInSec || customQuotas?.default?.windowSizeInSec || GUARD_DEFAULT_WINDOW_SIZE_IN_SEC,
+        windowLimit: customQuotas?.ip?.[ip]?.windowLimit || customQuotas?.default?.windowLimit || GUARD_DEFAULT_WINDOW_LIMIT,
+    })
 
     if (userId) {
-        await redisGuard.checkCustomLimitCounters(
-            buildQuotaKey('user', userId),
-            customQuotas?.user?.[userId]?.windowSizeInSec || customQuotas?.default?.windowSizeInSec || GUARD_DEFAULT_WINDOW_SIZE_IN_SEC,
-            customQuotas?.user?.[userId]?.windowLimit || customQuotas?.default?.windowLimit || GUARD_DEFAULT_WINDOW_LIMIT,
-            context,
-        )
+        guards.push({
+            key: buildQuotaKey('user', userId),
+            windowSizeInSec: customQuotas?.user?.[userId]?.windowSizeInSec || customQuotas?.default?.windowSizeInSec || GUARD_DEFAULT_WINDOW_SIZE_IN_SEC,
+            windowLimit: customQuotas?.user?.[userId]?.windowLimit || customQuotas?.default?.windowLimit || GUARD_DEFAULT_WINDOW_LIMIT,
+        })
     }
 
     if (phone) {
-        await redisGuard.checkCustomLimitCounters(
-            buildQuotaKeyByUserType('phone', phone, userType),
-            customQuotas?.phone?.[phone]?.windowSizeInSec || customQuotas?.default?.windowSizeInSec || GUARD_DEFAULT_WINDOW_SIZE_IN_SEC,
-            customQuotas?.phone?.[phone]?.windowLimit || customQuotas?.default?.windowLimit || GUARD_DEFAULT_WINDOW_LIMIT,
-            context,
-        )
+        guards.push({
+            key: buildQuotaKeyByUserType('phone', phone, userType),
+            windowSizeInSec: customQuotas?.phone?.[phone]?.windowSizeInSec || customQuotas?.default?.windowSizeInSec || GUARD_DEFAULT_WINDOW_SIZE_IN_SEC,
+            windowLimit: customQuotas?.phone?.[phone]?.windowLimit || customQuotas?.default?.windowLimit || GUARD_DEFAULT_WINDOW_LIMIT,
+        })
     }
 
     if (email) {
-        await redisGuard.checkCustomLimitCounters(
-            buildQuotaKeyByUserType('email', email, userType),
-            customQuotas?.email?.[email]?.windowSizeInSec || customQuotas?.default?.windowSizeInSec || GUARD_DEFAULT_WINDOW_SIZE_IN_SEC,
-            customQuotas?.email?.[email]?.windowLimit || customQuotas?.default?.windowLimit || GUARD_DEFAULT_WINDOW_LIMIT,
-            context,
-        )
+        guards.push({
+            key: buildQuotaKeyByUserType('email', email, userType),
+            windowSizeInSec: customQuotas?.email?.[email]?.windowSizeInSec || customQuotas?.default?.windowSizeInSec || GUARD_DEFAULT_WINDOW_SIZE_IN_SEC,
+            windowLimit: customQuotas?.email?.[email]?.windowLimit || customQuotas?.default?.windowLimit || GUARD_DEFAULT_WINDOW_LIMIT,
+        })
     }
+
+    await redisGuard.checkMultipleCustomLimitCounters(guards, context)
 }
 
 /**

@@ -1,5 +1,6 @@
 const dayjs = require('dayjs')
 const utc = require('dayjs/plugin/utc')
+const cloneDeep = require('lodash/cloneDeep')
 
 const { GQLError } = require('@open-condo/keystone/errors')
 const { getRedisClient } = require('@open-condo/keystone/redis')
@@ -56,6 +57,64 @@ class RedisGuard {
                 ...GQL_ERRORS.TOO_MANY_REQUESTS,
                 messageInterpolation: {
                     secondsRemaining,
+                },
+            }, context)
+        }
+    }
+
+    /**
+     * Increments all counters and then checks the limits
+     *
+     * @param {{key: string, windowSizeInSec: number, windowLimit: number}[]} countersData
+     * @param {Object | undefined} context - Keystone context
+     * @return {Promise<void>}
+     */
+    async checkMultipleCustomLimitCounters (countersData, context) {
+        /**
+         * @type {{key: string, windowSizeInSec: number, windowLimit: number, isBlocked?: boolean, secondsRemaining?: number}[]}
+         * @private
+         */
+        const _countersData = cloneDeep(countersData)
+
+        const multiIncr = this.redis.multi()
+        for (const { key } of _countersData) {
+            multiIncr.incr(`${this.counterPrefix}${key}`)
+        }
+        /**
+         * @type {Array<[error: *, result: *]>}
+         */
+        const counters = await multiIncr.exec()
+
+        const multiExpireat = this.redis.multi()
+        for (let i = 0; i < _countersData.length; i++) {
+            const error = counters[i][0]
+            if (error) throw new Error(error)
+
+            const guard = _countersData[i]
+            const counter = counters[i][1]
+
+            // if variable not exists - it will be set to 1
+            if (counter === 1) {
+                const expiryAnchorDate = dayjs().add(guard.windowSizeInSec, 'second')
+                multiExpireat.expireat(`${this.counterPrefix}${guard.key}`, parseInt(`${expiryAnchorDate / 1000}`))
+            }
+
+            guard.isBlocked = counter > guard.windowLimit
+            if (guard.isBlocked) {
+                guard.secondsRemaining = await this.counterTimeRemain(guard.key)
+            }
+        }
+        await multiExpireat.exec()
+
+        const isBlocked = _countersData.some(guard => guard.isBlocked)
+
+        const maxSecondsRemaining = Math.max(..._countersData.map(guard => guard?.secondsRemaining ?? 0))
+
+        if (isBlocked) {
+            throw new GQLError({
+                ...GQL_ERRORS.TOO_MANY_REQUESTS,
+                messageInterpolation: {
+                    secondsRemaining: maxSecondsRemaining,
                 },
             }, context)
         }

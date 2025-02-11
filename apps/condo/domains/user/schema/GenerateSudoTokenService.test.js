@@ -4,6 +4,7 @@
 
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
+const { gql } = require('graphql-tag')
 
 const {
     makeLoggedInAdminClient,
@@ -70,7 +71,7 @@ describe('GenerateSudoTokenService', () => {
 
         test('Can execute anonymous', async () => {
             const anonymous = await makeClient()
-            const [registeredUser, userAttrs] = await registerNewUser(await makeClient())
+            const [, userAttrs] = await registerNewUser(await makeClient())
             const [sudoToken] = await generateSudoTokenByTestClient(anonymous, {
                 captcha: getCaptcha(),
                 user: { phone: userAttrs.phone, userType: STAFF },
@@ -256,9 +257,9 @@ describe('GenerateSudoTokenService', () => {
     })
 
     describe('Request limit', () => {
-        async function expectToThrowErrorCredentialValidationFailed (cb) {
+        async function expectToThrowErrorCredentialValidationFailed (callback) {
             await expectToThrowGQLErrorToResult(async () => {
-                await cb()
+                await callback()
             }, {
                 mutation: 'generateSudoToken',
                 code: 'BAD_USER_INPUT',
@@ -329,12 +330,12 @@ describe('GenerateSudoTokenService', () => {
             const [registeredResidentUser, residentUserAttrs] = await registerNewUser(await makeClient())
             await updateTestUser(adminClient, registeredResidentUser.id, { type: RESIDENT })
             const phone = residentUserAttrs.phone
-            const [registeredServiceUser, serviceUserAttrs] = await registerNewUser(await makeClient(), {
+            const [registeredServiceUser] = await registerNewUser(await makeClient(), {
                 phone,
                 email: residentUserAttrs.email,
             })
             await updateTestUser(adminClient, registeredServiceUser.id, { type: SERVICE })
-            const [registeredStaffUser, staffUserAttrs] = await registerNewUser(await makeClient(), {
+            await registerNewUser(await makeClient(), {
                 phone,
                 email: residentUserAttrs.email,
             })
@@ -406,12 +407,12 @@ describe('GenerateSudoTokenService', () => {
             const [registeredResidentUser, residentUserAttrs] = await registerNewUser(await makeClient())
             await updateTestUser(adminClient, registeredResidentUser.id, { type: RESIDENT })
             const email = residentUserAttrs.email
-            const [registeredServiceUser, serviceUserAttrs] = await registerNewUser(await makeClient(), {
+            const [registeredServiceUser] = await registerNewUser(await makeClient(), {
                 phone: residentUserAttrs.phone,
                 email,
             })
             await updateTestUser(adminClient, registeredServiceUser.id, { type: SERVICE })
-            const [registeredStaffUser, staffUserAttrs] = await registerNewUser(await makeClient(), {
+            await registerNewUser(await makeClient(), {
                 phone: residentUserAttrs.phone,
                 email,
             })
@@ -476,6 +477,83 @@ describe('GenerateSudoTokenService', () => {
                 code: 'BAD_USER_INPUT',
                 type: 'TOO_MANY_REQUESTS',
                 message: 'You have to wait {secondsRemaining} seconds to be able to send request again',
+            })
+        })
+
+        // NOTE: should increase all guards in request
+        test(`should block ip, (phone + userType), (email + userType) and user if more then ${REQUESTS_LIMIT} requests are sent by ip, (phone + userType) and (email + userType) by authed user per hours`, async () => {
+            const staffClient = await makeClientWithStaffUser()
+            const phone = faker.phone.number()
+            const email = faker.internet.email()
+
+            for (let i = 0; i < REQUESTS_LIMIT; i++) {
+                await expectToThrowErrorCredentialValidationFailed(async () => {
+                    await generateSudoTokenByTestClient(staffClient, {
+                        captcha: getCaptcha(),
+                        user: { phone, email, userType: STAFF },
+                        authFactors: { password: faker.random.alphaNumeric(12) },
+                    })
+                })
+            }
+
+            // throw by email
+            await expectToThrowGQLErrorToResult(async () => {
+                await generateSudoTokenByTestClient(await makeClient(), {
+                    captcha: getCaptcha(),
+                    user: { email, userType: STAFF },
+                    authFactors: { password: faker.random.alphaNumeric(12) },
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'TOO_MANY_REQUESTS',
+            })
+
+            // throw by phone
+            await expectToThrowGQLErrorToResult(async () => {
+                await generateSudoTokenByTestClient(await makeClient(), {
+                    captcha: getCaptcha(),
+                    user: { phone, userType: STAFF },
+                    authFactors: { password: faker.random.alphaNumeric(12) },
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'TOO_MANY_REQUESTS',
+            })
+
+            // throw by user
+            const staffClient2 = await makeClient()
+            await authenticateUserWithPhoneAndPasswordByTestClient(staffClient2, {
+                phone: staffClient.userAttrs.phone,
+                password: staffClient.userAttrs.password,
+            })
+            await expectToThrowGQLErrorToResult(async () => {
+                await generateSudoTokenByTestClient(staffClient2, {
+                    captcha: getCaptcha(),
+                    user: { phone: faker.phone.number(), userType: STAFF },
+                    authFactors: { password: faker.random.alphaNumeric(12) },
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'TOO_MANY_REQUESTS',
+            })
+
+            // throw by ip
+            await staffClient.mutate(gql`
+                mutation unauthenticateUser {
+                    obj: unauthenticateUser {
+                        success
+                    }
+                }
+            `)
+            await expectToThrowGQLErrorToResult(async () => {
+                await generateSudoTokenByTestClient(staffClient, {
+                    captcha: getCaptcha(),
+                    user: { phone: faker.phone.number(), userType: STAFF },
+                    authFactors: { password: faker.random.alphaNumeric(12) },
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'TOO_MANY_REQUESTS',
             })
         })
     })
