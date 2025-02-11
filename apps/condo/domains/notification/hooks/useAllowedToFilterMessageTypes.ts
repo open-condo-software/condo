@@ -1,0 +1,56 @@
+import { useGetB2BAppsWithMessageSettingsQuery, useGetUserB2BAppRolesQuery } from '@app/condo/gql'
+import { useMemo } from 'react'
+
+import { useOrganization } from '@open-condo/next/organization'
+
+import {
+    B2B_APP_MESSAGE_TYPES,
+    CONDO_MESSAGE_TYPES,
+    MessageTypesAllowedToFilterType,
+} from '@condo/domains/notification/utils/client/constants'
+
+
+export const useAllowedToFilterMessageTypes = () => {
+    const { role } = useOrganization()
+    const roleId = useMemo(() => role?.id, [role?.id])
+
+    const {
+        data: appMessageSettingsData,
+        loading: appMessageSettingsLoading,
+    } = useGetB2BAppsWithMessageSettingsQuery({
+        variables: {
+            messageTypes: [...B2B_APP_MESSAGE_TYPES],
+        },
+    })
+    const b2bAppToMessageType = useMemo(
+        () => appMessageSettingsData?.settings?.reduce((result, setting) => {
+            result[setting.b2bApp.id] = setting.type
+            return result
+        }, {}) || {},
+        [appMessageSettingsData?.settings])
+
+    const b2bAppIds = useMemo(() => Object.keys(b2bAppToMessageType) || [],
+        [b2bAppToMessageType])
+    const {
+        data: userB2bRolesData,
+        loading: userB2BRolesLoading,
+    } = useGetUserB2BAppRolesQuery({
+        variables: {
+            employeeRoleId: roleId,
+            b2bAppIds,
+        },
+        skip: appMessageSettingsLoading || !roleId || b2bAppIds.length === 0,
+    })
+    const b2bAppsWithEmployeeRoles = useMemo(() => userB2bRolesData?.b2bRoles?.map(role => role?.app?.id) || [],
+        [userB2bRolesData?.b2bRoles])
+    const availableB2BAppMessageTypes = useMemo(
+        () => b2bAppsWithEmployeeRoles.map(b2bAppId => b2bAppToMessageType[b2bAppId]).filter(Boolean) || [],
+        [b2bAppToMessageType, b2bAppsWithEmployeeRoles])
+    const b2bAppMessageTypesToFilter = useMemo(() => B2B_APP_MESSAGE_TYPES.filter(type => availableB2BAppMessageTypes.includes(type)),
+        [availableB2BAppMessageTypes])
+
+    return useMemo(() => ({
+        loading: appMessageSettingsLoading || userB2BRolesLoading,
+        messageTypes: [...CONDO_MESSAGE_TYPES, ...b2bAppMessageTypesToFilter] as MessageTypesAllowedToFilterType,
+    }), [appMessageSettingsLoading, b2bAppMessageTypesToFilter, userB2BRolesLoading])
+}

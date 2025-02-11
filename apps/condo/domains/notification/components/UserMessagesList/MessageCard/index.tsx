@@ -3,8 +3,9 @@ import React, { useMemo } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { Card, Typography } from '@open-condo/ui'
 
+import { MessageTypeAllowedToFilterType, UserMessageType } from '@condo/domains/notification/utils/client/constants'
+
 import './MessageCard.css'
-import { USER_MESSAGE_TYPES_FILTER_ON_CLIENT, UserMessageType } from '@condo/domains/notification/utils/client/constants'
 
 
 type MessageCardProps = {
@@ -12,7 +13,7 @@ type MessageCardProps = {
     viewed?: boolean
 }
 
-const MESSAGE_ICON: Record<typeof USER_MESSAGE_TYPES_FILTER_ON_CLIENT[number], string> = {
+const MESSAGE_ICON: Record<MessageTypeAllowedToFilterType, string> = {
     PASS_TICKET_CREATED: '🔑',
     TICKET_COMMENT_CREATED: '✏️',
     TICKET_CREATED: '📬',

@@ -1,0 +1,13 @@
+query getUserB2BAppRoles ($employeeRoleId: ID, $b2bAppIds: [ID]) {
+    b2bRoles: allB2BAppRoles (
+        where: {
+            role: { id: $employeeRoleId }
+            app: { id_in: $b2bAppIds }
+        }
+    ) {
+        id
+        app {
+            id
+        }
+    }
+}

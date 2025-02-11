@@ -18,9 +18,10 @@ import { useUserMessages } from '@condo/domains/notification/hooks/useUserMessag
 import { useUserMessagesListSettingsStorage } from '@condo/domains/notification/hooks/useUserMessagesListSettingsStorage'
 import {
     MessageTypesAllowedToFilterType,
-    USER_MESSAGE_TYPES_FILTER_ON_CLIENT,
     UserMessageType,
 } from '@condo/domains/notification/utils/client/constants'
+
+import { useAllowedToFilterMessageTypes } from '../hooks/useAllowedToFilterMessageTypes'
 
 
 type UserMessagesListContextType = {
@@ -62,9 +63,11 @@ export const UserMessagesListContextProvider = ({ children }) => {
 
     const userId = useMemo(() => user?.id, [user?.id])
     const organizationId = useMemo(() => organization?.id, [organization?.id])
+
+    const { messageTypes, loading: allowedMessageTypesLoading } = useAllowedToFilterMessageTypes()
     const messageTypesToFilter = useMemo(
-        () => USER_MESSAGE_TYPES_FILTER_ON_CLIENT.filter(type => !excludedMessageTypes?.includes(type)),
-        [excludedMessageTypes])
+        () => messageTypes.filter(type => !excludedMessageTypes?.includes(type)),
+        [excludedMessageTypes, messageTypes])
 
     const {
         userMessagesSettingsStorage,
@@ -80,7 +83,7 @@ export const UserMessagesListContextProvider = ({ children }) => {
         isDropdownOpen,
         messageTypesToFilter,
         skipQueryMessagesCondition:
-            !userId || !organizationId || !readUserMessagesAt || messageTypesToFilter.length === 0,
+            !userId || !organizationId || allowedMessageTypesLoading || !readUserMessagesAt || messageTypesToFilter.length === 0,
     })
 
     const handleStorageChange = useCallback((event) => {
