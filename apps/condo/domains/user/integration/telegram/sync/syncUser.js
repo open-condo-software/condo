@@ -15,7 +15,7 @@ const linkUser = async (context, user, userInfo) => {
         dv,
         sender,
         user: { connect: { id: user.id } },
-        identityId: userInfo.sub,
+        identityId: String(userInfo.userId),
         identityType: TELEGRAM_IDP_TYPE,
         meta: userInfo,
     })
@@ -45,7 +45,7 @@ const registerUser = async (context, userInfo, userType) => {
 const syncUser = async ({ context, userInfo, userType }) => {
     const userIdentities = await UserExternalIdentity.getAll(context, {
         identityType: TELEGRAM_IDP_TYPE,
-        identityId: userInfo.sub,
+        identityId: String(userInfo.userId),
         deletedAt: null,
     }, 'id user { id }')
 
