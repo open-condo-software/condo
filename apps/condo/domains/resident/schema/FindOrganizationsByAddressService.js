@@ -3,7 +3,6 @@
  */
 const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 
-const { METER_READING_MAX_VALUES_COUNT } = require('@condo/domains/meter/constants/constants')
 const access = require('@condo/domains/resident/access/FindOrganizationsByAddressService')
 const {
     MAX_RESIDENT_FIND_ORGANIZATIONS_BY_WINDOW_SEC,
@@ -42,7 +41,7 @@ const FindOrganizationsByAddressService = new GQLCustomSchema('FindOrganizations
         },
         {
             access: true,
-            type: `type FindOrganizationByAddressMeterType { resource: ID!, number: String, accountNumber: String, ${Array.from({ length: METER_READING_MAX_VALUES_COUNT }, (_, i) => `value${i + 1}: String`).join(' ')}, address: String }`,
+            type: 'type FindOrganizationByAddressMeterType { resource: ID!, number: String, accountNumber: String, address: String }',
         },
         {
             access: true,

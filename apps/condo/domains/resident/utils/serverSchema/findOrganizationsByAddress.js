@@ -166,28 +166,10 @@ async function getOrganizationMeters (organization, addressKey, properties, quer
     const address = property ? property.address : null
 
     if (meters.length){
-        const meterReadings = await Promise.all(meters.map(({ id }) =>
-            itemsQuery('MeterReading', {
-                where: {
-                    meter: { id },
-                    deletedAt: null,
-                },
-                first: 1,
-                sortBy: ['date_DESC'],
-            })
-        ))
-        
-        const meterReadingIndex = meterReadings.flat().reduce((acc, reading) => {
-            acc[reading.meter] = pick(reading, Array.from({ length: METER_READING_MAX_VALUES_COUNT }, (_, i) => `value${i + 1}`))
-
-            return acc
-        }, {})
-
         meters = meters.map((meter) => ({
             resource: meter.resource,
             accountNumber: meter.accountNumber,
             number: meter.number,
-            ...meterReadingIndex[meter.id],
             address,
         }))
     } else {

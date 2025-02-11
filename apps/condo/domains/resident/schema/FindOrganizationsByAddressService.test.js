@@ -7,7 +7,6 @@
 
 const { faker } = require('@faker-js/faker')
 const Big = require('big.js')
-const dayjs = require('dayjs')
 const express = require('express')
 
 const { initTestExpressApp, getTestExpressApp, setFeatureFlag } = require('@open-condo/keystone/test.utils')
@@ -36,7 +35,7 @@ const {
     CALL_METER_READING_SOURCE_ID,
 } = require('@condo/domains/meter/constants/constants')
 const { COLD_WATER_METER_RESOURCE_ID, ELECTRICITY_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
-const { createTestMeterReading, MeterReadingSource, MeterResourceOwner } = require('@condo/domains/meter/utils/testSchema')
+const { MeterReadingSource, MeterResourceOwner } = require('@condo/domains/meter/utils/testSchema')
 const { createTestMeterResourceOwner } = require('@condo/domains/meter/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
@@ -48,10 +47,6 @@ function getOnlyResourceMeterTest (resource) {
         resource: resource,
         accountNumber: null,
         number: null,
-        value1: null,
-        value2: null,
-        value3: null,
-        value4: null,
         address: null,
     }
 }
@@ -198,15 +193,11 @@ describe('FindOrganizationsByAddress', () => {
                 const accountNumber = utils.randomNumber(10).toString()
                 const unitName = utils.randomNumber(10).toString()
                 const unitType = 'flat'
-                const [source] = await MeterReadingSource.getAll(utils.clients.admin, { id: CALL_METER_READING_SOURCE_ID })
-                const [ meter1 ] = await utils.createMeter({ unitName, accountNumber, resourceId: COLD_WATER_METER_RESOURCE_ID })
+                await utils.createMeter({ unitName, accountNumber, resourceId: COLD_WATER_METER_RESOURCE_ID })
                 await utils.createMeter({ unitName, accountNumber, resourceId: ELECTRICITY_METER_RESOURCE_ID })
                 const meterResourceOwner = await MeterResourceOwner.getOne(utils.clients.admin, { organization: { id: utils.organization.id }, resource: { id: ELECTRICITY_METER_RESOURCE_ID } })
                 await MeterResourceOwner.softDelete(utils.clients.admin, meterResourceOwner.id)
-                const [ anotherMeter1 ] = await anotherUtils.createMeter({ unitName, accountNumber, resourceId: ELECTRICITY_METER_RESOURCE_ID })
-
-                const [meterReading] = await createTestMeterReading(utils.clients.admin, meter1, source)
-                const [anotherMeterReading] = await createTestMeterReading(anotherUtils.clients.admin, anotherMeter1, source)
+                await anotherUtils.createMeter({ unitName, accountNumber, resourceId: ELECTRICITY_METER_RESOURCE_ID })
 
                 const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
                     addressKey: utils.property.addressKey,
@@ -223,10 +214,6 @@ describe('FindOrganizationsByAddress', () => {
                     resource: COLD_WATER_METER_RESOURCE_ID,
                     accountNumber: accountNumber,
                     number: expect.any(String),
-                    value1: Big(meterReading.value1).toFixed(4),
-                    value2: null,
-                    value3: null,
-                    value4: null,
                     address: utils.property.address,
                 })
                 expect(found.id).toEqual(utils.organization.id)
@@ -240,10 +227,6 @@ describe('FindOrganizationsByAddress', () => {
                     resource: ELECTRICITY_METER_RESOURCE_ID,
                     accountNumber: accountNumber,
                     number: expect.any(String),
-                    value1: Big(anotherMeterReading.value1).toFixed(4),
-                    value2: null,
-                    value3: null,
-                    value4: null,
                     address: utils.property.address,
                 })
                 expect(antoherFound.id).toEqual(anotherUtils.organization.id)
@@ -285,9 +268,8 @@ describe('FindOrganizationsByAddress', () => {
                 const accountNumber = utils.randomNumber(10).toString()
                 const unitName = utils.randomNumber(10).toString()
                 const unitType = 'flat'
-                const [source] = await MeterReadingSource.getAll(utils.clients.admin, { id: CALL_METER_READING_SOURCE_ID })
+                await MeterReadingSource.getAll(utils.clients.admin, { id: CALL_METER_READING_SOURCE_ID })
                 const [ meter ] = await utils.createMeter({ unitName, accountNumber })
-                const [meterReading] = await createTestMeterReading(utils.clients.admin, meter, source)
                 const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
                     addressKey: utils.property.addressKey,
                     unitName,
@@ -296,13 +278,9 @@ describe('FindOrganizationsByAddress', () => {
                 const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
                 expect(found.receipts).toHaveLength(0)
                 expect(found.meters[0]).toMatchObject({
-                    resource: expect.any(String),
-                    accountNumber: expect.stringMatching(accountNumber),
-                    number: expect.any(String),
-                    value1: Big(meterReading.value1).toFixed(4),
-                    value2: null,
-                    value3: null,
-                    value4: null,
+                    resource: meter.resource.id,
+                    accountNumber: accountNumber,
+                    number: meter.number,
                     address: utils.property.address,
                 })
                 expect(found.id).toEqual(utils.organization.id)
@@ -530,55 +508,18 @@ describe('FindOrganizationsByAddress', () => {
 
             test('Should return organization and meter', async () => {
                 const accountNumber = utils.randomNumber(10).toString()
-                const [source] = await MeterReadingSource.getAll(utils.clients.admin, { id: CALL_METER_READING_SOURCE_ID })
-                const [ meter ] = await utils.createMeter({ accountNumber })
-                const [meterReading] = await createTestMeterReading(utils.clients.admin, meter, source)
+                await utils.createMeter({ accountNumber })
                 const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
                     addressKey: utils.property.addressKey,
                     accountNumber,
                     tin: utils.organization.tin,
                 })
                 const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
-                console.log(found)
                 expect(found.receipts).toHaveLength(0)
                 expect(found.meters[0]).toMatchObject({
                     resource: expect.any(String),
-                    accountNumber: expect.stringMatching(accountNumber),
+                    accountNumber: accountNumber,
                     number: expect.any(String),
-                    value1: Big(meterReading.value1).toFixed(4),
-                    value2: null,
-                    value3: null,
-                    value4: null,
-                    address: utils.property.address,
-                })
-                expect(found.id).toEqual(utils.organization.id)
-                expect(found.name).toEqual(utils.organization.name)
-                expect(found.tin).toEqual(utils.organization.tin)
-                expect(found.type).toEqual(utils.organization.type)
-            })
-
-            test('Should return last reading for meter', async () => {
-                const accountNumber = utils.randomNumber(10).toString()
-                const [source] = await MeterReadingSource.getAll(utils.clients.admin, { id: CALL_METER_READING_SOURCE_ID })
-                const [ meter ] = await utils.createMeter({ accountNumber })
-                await createTestMeterReading(utils.clients.admin, meter, source, { date: dayjs().subtract(2, 'd').toISOString() })
-                const [meterReading] = await createTestMeterReading(utils.clients.admin, meter, source, { date: dayjs().subtract(1, 'd').toISOString() })
-                const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
-                    addressKey: utils.property.addressKey,
-                    accountNumber,
-                    tin: utils.organization.tin,
-                })
-                const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
-
-                expect(found.receipts).toHaveLength(0)
-                expect(found.meters[0]).toMatchObject({
-                    resource: expect.any(String),
-                    accountNumber: expect.stringMatching(accountNumber),
-                    number: expect.any(String),
-                    value1: Big(meterReading.value1).toFixed(4),
-                    value2: null,
-                    value3: null,
-                    value4: null,
                     address: utils.property.address,
                 })
                 expect(found.id).toEqual(utils.organization.id)
