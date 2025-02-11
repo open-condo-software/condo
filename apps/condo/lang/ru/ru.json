@@ -3223,7 +3223,7 @@
   "trial.title": "Бесплатный период 14 дней",
   "telegram.auth.start.shareButton": "Отправить контакт",
   "telegram.auth.start.response": "Пожалуйста, отправьте свой контакт",
-  "telegram.auth.contact.wrongContact": "Пожалуйста, отправьте *ваш* контакт",
-  "telegram.auth.contact.notFoundStartkey": "Ошибка: ключ авторизации не найден. Начните авторизацию с самого начала",
-  "telegram.auth.contact.complete": "✅ Авторизация успешно завершена! Возвращайтесь в приложение"
+  "telegram.auth.contact.wrongContact": "Пожалуйста, отправьте ваш контакт",
+  "telegram.auth.contact.complete": "✅ Авторизация успешно завершена! Возвращайтесь в приложение",
+  "telegram.auth.contact.error": "❌ Произошла ошибка при авторизации. Начните авторизацию с самого начала"
 }
