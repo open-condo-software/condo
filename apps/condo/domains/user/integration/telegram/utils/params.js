@@ -1,5 +1,3 @@
-const crypto = require('crypto')
-
 const cookieSignature = require('cookie-signature')
 const { get, isNil } = require('lodash')
 const uidSafe = require('uid-safe').sync
@@ -23,11 +21,6 @@ function getUserType (req) {
     return userType
 }
 
-function getUniqueKey (){
-    const randomPart = crypto.randomBytes(32).toString('hex')
-    return crypto.createHmac('sha256', 'secret').update(randomPart).digest('hex')
-}
-
 async function startAuthedSession (userId, sessionStore) {
     const id = uidSafe(24)
     const payload = {
@@ -40,7 +33,6 @@ async function startAuthedSession (userId, sessionStore) {
 }
 
 module.exports = {
-    getUniqueKey,
     startAuthedSession,
     getUserType,
 }
