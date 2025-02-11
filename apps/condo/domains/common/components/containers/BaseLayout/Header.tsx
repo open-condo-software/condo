@@ -22,9 +22,11 @@ import { ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION } from '@condo/doma
 import { useOrganizationInvites } from '@condo/domains/organization/hooks/useOrganizationInvites'
 import { UserMenu } from '@condo/domains/user/components/UserMenu'
 
+
 import { ITopMenuItemsProps, TopMenuItems } from './components/TopMenuItems'
 
 import { UserMessagesList } from '../../../../notification/components/UserMessagesList'
+import { UserMessagesListContextProvider } from '../../../../notification/contexts/UserMessagesListContext'
 
 
 
@@ -72,35 +74,39 @@ export const Header: React.FC<IHeaderProps> = (props) => {
     }, [isAuthenticated, router])
 
     return (
-        !breakpoints.TABLET_LARGE
-            ? (
-                <>
-                    <div id='tasks-container' className='tasks-container' />
-                    <Layout.Header className='header mobile-header'>
-                        <div className='context-bar'>
-                            <UserMessagesList />
-                            <Space direction='horizontal' size={4}>
-                                <SBBOLIndicator organization={organization} />
-                                <InlineOrganizationSelect/>
-                            </Space>
-                            <UserMenu/>
-                        </div>
-                        <div className='appeals-bar'>
-                            <Menu size='large' onClick={toggleCollapsed}/>
-                            <Logo onClick={handleLogoClick} minified/>
-                            <div>
-                                {hasAccessToAppeals && (
-                                    <ResidentActions minified/>
-                                )}
-                            </div>
-                        </div>
-                    </Layout.Header>
-                </>
-            )
-            : (
-                <Layout.Header className='header desktop-header'>
-                    <TopMenuItems headerAction={props.headerAction}/>
-                </Layout.Header>
-            )
+        <UserMessagesListContextProvider>
+            {
+                !breakpoints.TABLET_LARGE
+                    ? (
+                        <>
+                            <div id='tasks-container' className='tasks-container' />
+                            <Layout.Header className='header mobile-header'>
+                                <div className='context-bar'>
+                                    <UserMessagesList />
+                                    <Space direction='horizontal' size={4}>
+                                        <SBBOLIndicator organization={organization} />
+                                        <InlineOrganizationSelect/>
+                                    </Space>
+                                    <UserMenu/>
+                                </div>
+                                <div className='appeals-bar'>
+                                    <Menu size='large' onClick={toggleCollapsed}/>
+                                    <Logo onClick={handleLogoClick} minified/>
+                                    <div>
+                                        {hasAccessToAppeals && (
+                                            <ResidentActions minified/>
+                                        )}
+                                    </div>
+                                </div>
+                            </Layout.Header>
+                        </>
+                    )
+                    : (
+                        <Layout.Header className='header desktop-header'>
+                            <TopMenuItems headerAction={props.headerAction}/>
+                        </Layout.Header>
+                    )
+            }
+        </UserMessagesListContextProvider>
     )
 }

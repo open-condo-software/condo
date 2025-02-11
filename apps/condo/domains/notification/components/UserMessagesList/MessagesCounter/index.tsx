@@ -4,8 +4,9 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { Bell } from '@open-condo/icons'
 import { colors } from '@open-condo/ui/dist/colors'
 
-import './MessagesCounter.css'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+
+import './MessagesCounter.css'
 
 
 export const MessagesCounter = ({ count }) => {
@@ -13,6 +14,7 @@ export const MessagesCounter = ({ count }) => {
     const [isAnimating, setIsAnimating] = useState(false)
 
     const { breakpoints } = useLayoutContext()
+    const isSmallScreen = useMemo(() => !breakpoints.TABLET_LARGE, [breakpoints.TABLET_LARGE])
 
     useEffect(() => {
         if (count === currentCount) {
@@ -36,12 +38,12 @@ export const MessagesCounter = ({ count }) => {
 
     const badgeProps = useMemo(() => ({
         count: currentCount > 9 ? '∞' : currentCount,
-        className: `messages-counter${isAnimating ? ' animating' : ''}`,
+        className: `messages-counter${!isSmallScreen && isAnimating ? ' animating' : ''}`,
         color: colors.pink[5],
         showZero: true,
-    }), [currentCount, isAnimating])
+    }), [currentCount, isAnimating, isSmallScreen])
 
-    return !breakpoints.TABLET_LARGE ? (
+    return isSmallScreen ? (
         <div style={{ display: 'flex' }}>
             <Bell
                 className='messages-counter-icon'
