@@ -23,6 +23,7 @@ type UserPollUserMessagesArgsType = {
 type UserPollUserMessagesReturnType = {
     userMessages: UserMessageType[]
     messagesListRef: ReturnType<typeof useRef<HTMLDivElement>>
+    newMessagesLoading: boolean
     moreMessagesLoading: boolean
     handleDropdownClose: () => void
 }
@@ -67,6 +68,7 @@ export const useUserMessages: UsePollUserMessagesType = ({ isDropdownOpen, messa
         error,
         startPolling,
         stopPolling,
+        loading: newMessagesLoading,
     } = useGetUserMessagesQuery({
         variables: queryVariables,
         skip: skipQueryMessagesCondition,
@@ -169,5 +171,5 @@ export const useUserMessages: UsePollUserMessagesType = ({ isDropdownOpen, messa
         setIsAllMessagesLoaded(false)
     }, [newMessagesData?.messages])
 
-    return { userMessages, messagesListRef, moreMessagesLoading, handleDropdownClose }
+    return { userMessages, messagesListRef, moreMessagesLoading, newMessagesLoading, handleDropdownClose }
 }
