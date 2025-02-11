@@ -1,3 +1,5 @@
+const crypto = require('crypto')
+
 const { v4: uuid } = require('uuid')
 
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -11,7 +13,7 @@ const {
     TELEGRAM_AUTH_REDIS_START,
     TELEGRAM_AUTH_REDIS_TOKEN,
 } = require('@condo/domains/user/integration/telegram/constants')
-const { getUniqueKey, getUserType } = require('@condo/domains/user/integration/telegram/utils')
+const { getUserType } = require('@condo/domains/user/integration/telegram/utils')
 
 const TELEGRAM_AUTH_BOT_URL = process.env.TELEGRAM_AUTH_BOT_URL
 
@@ -29,7 +31,7 @@ class TelegramAuthRoutes {
         try {
             const userType = getUserType(req)
             const startKey = uuid()
-            const uniqueKey = getUniqueKey()
+            const uniqueKey = crypto.randomBytes(32).toString('hex')
             const startLink = `${TELEGRAM_AUTH_BOT_URL}?start=${startKey}`
 
             await Promise.all([
