@@ -76,27 +76,20 @@ class RedisGuard {
          */
         const _countersData = cloneDeep(countersData)
 
-        const multiIncr = this.redis.multi()
-        for (const { key } of _countersData) {
-            multiIncr.incr(`${this.counterPrefix}${key}`)
-        }
         /**
-         * @type {Array<[error: *, result: *]>}
+         * @type {Array<number>}
          */
-        const counters = await multiIncr.exec()
+        const counters = await Promise.all(_countersData.map(({ key }) => this.redis.incr(`${this.counterPrefix}${key}`)))
 
-        const multiExpireat = this.redis.multi()
+        const expireatPromises = []
         for (let i = 0; i < _countersData.length; i++) {
-            const error = counters[i][0]
-            if (error) throw new Error(error)
-
             const guard = _countersData[i]
-            const counter = counters[i][1]
+            const counter = counters[i]
 
             // if variable not exists - it will be set to 1
             if (counter === 1) {
                 const expiryAnchorDate = dayjs().add(guard.windowSizeInSec, 'second')
-                multiExpireat.expireat(`${this.counterPrefix}${guard.key}`, parseInt(`${expiryAnchorDate / 1000}`))
+                expireatPromises.push(this.redis.expireat(`${this.counterPrefix}${guard.key}`, parseInt(`${expiryAnchorDate / 1000}`)))
             }
 
             guard.isBlocked = counter > guard.windowLimit
@@ -104,7 +97,7 @@ class RedisGuard {
                 guard.secondsRemaining = await this.counterTimeRemain(guard.key)
             }
         }
-        await multiExpireat.exec()
+        await Promise.all(expireatPromises)
 
         const isBlocked = _countersData.some(guard => guard.isBlocked)
 
@@ -148,7 +141,8 @@ class RedisGuard {
 
     async checkCountersExistence (...variables) {
         const keys = variables.map((variable) => `${this.counterPrefix}${variable}`)
-        return await this.redis.exists(...keys)
+        const counters = await Promise.all(keys.map(key => this.redis.del(key)))
+        return counters.reduce((acc, currentValue) => acc + currentValue, 0)
     }
 
     async deleteCounter (variable) {
@@ -158,7 +152,7 @@ class RedisGuard {
 
     async deleteCounters (...variables) {
         const keys = variables.map((variable) => `${this.counterPrefix}${variable}`)
-        await this.redis.del(...keys)
+        await Promise.all(keys.map(key => this.redis.del(key)))
     }
 
     // Counter
