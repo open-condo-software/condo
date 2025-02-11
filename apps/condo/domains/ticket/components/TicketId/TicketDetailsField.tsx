@@ -16,7 +16,7 @@ export const TicketDetailsField: React.FC<TicketDetailsFieldProps> = ({ ticket }
 
     return (
         <PageFieldRow title={TicketDetailsMessage} ellipsis lineWrapping='break-spaces'>
-            {ticket.details}
+            {ticket?.details}
         </PageFieldRow>
     )
 }
