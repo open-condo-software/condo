@@ -2,13 +2,21 @@ import { GetUserMessagesQueryResult } from '@app/condo/gql'
 import { MessageType } from '@app/condo/schema'
 
 
+export const CONDO_MESSAGE_TYPES = [
+    MessageType.TicketCreated,
+    MessageType.TicketCommentCreated,
+] as const
+
+export const B2B_APP_MESSAGE_TYPES = [
+    MessageType.PassTicketCreated,
+] as const
+
 /**
  * Message types available for filtering in the UserMessagesList component
  */
-export const USER_MESSAGE_TYPES_FILTER_ON_CLIENT = [
-    MessageType.TicketCreated,
-    MessageType.TicketCommentCreated,
-    MessageType.PassTicketCreated,
+const USER_MESSAGE_TYPES_FILTER_ON_CLIENT = [
+    ...CONDO_MESSAGE_TYPES,
+    ...B2B_APP_MESSAGE_TYPES,
 ] as const
 
 type MessageTypeAllowedToFilterType = typeof USER_MESSAGE_TYPES_FILTER_ON_CLIENT[number]
