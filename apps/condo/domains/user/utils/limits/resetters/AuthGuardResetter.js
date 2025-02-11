@@ -35,10 +35,8 @@ class AuthGuardResetter extends RedisGuardResetter {
             return false
         }
 
-        // NOTE: identifierKey = userId | phone | email | ip
-        const keys = this.#getKeys(identifierType, identifier)
-
-        return await this.guard.checkCountersExistence(...keys)
+        // NOTE: identifierType = userId | phone | email | ip
+        return await this.guard.checkCountersExistence(...this.#getKeys(identifierType, identifier))
     }
 
     async reset (identifier) {
@@ -47,10 +45,8 @@ class AuthGuardResetter extends RedisGuardResetter {
             return 0
         }
 
-        // NOTE: identifierKey = userId | phone | email | ip
-        const keys = this.#getKeys(identifierType, identifier)
-
-        return await this.guard.deleteCounters(...keys)
+        // NOTE: identifierType = userId | phone | email | ip
+        return await this.guard.deleteCounters(...this.#getKeys(identifierType, identifier))
     }
 }
 
