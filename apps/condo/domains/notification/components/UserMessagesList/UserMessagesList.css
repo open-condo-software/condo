@@ -27,3 +27,14 @@
 .user-messages-list-settings-icon:active {
   color: var(--condo-global-color-black);
 }
+
+.user-messages-list-mobile-overlay.condo-dropdown {
+  width: 100%;
+}
+
+.user-messages-list-mobile-overlay .user-messages-list {
+  width: calc(100vw - 32px);
+  height: calc(100vh - 40px - 32px);
+  max-height: unset;
+  margin: 16px auto auto;
+}

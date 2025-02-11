@@ -24,6 +24,9 @@ import { UserMenu } from '@condo/domains/user/components/UserMenu'
 
 import { ITopMenuItemsProps, TopMenuItems } from './components/TopMenuItems'
 
+import { UserMessagesList } from '../../../../notification/components/UserMessagesList'
+
+
 
 const ORGANIZATION_TYPES: Array<OrganizationTypeType> = [OrganizationTypeType.ManagingCompany, OrganizationTypeType.ServiceProvider]
 
@@ -75,6 +78,7 @@ export const Header: React.FC<IHeaderProps> = (props) => {
                     <div id='tasks-container' className='tasks-container' />
                     <Layout.Header className='header mobile-header'>
                         <div className='context-bar'>
+                            <UserMessagesList />
                             <Space direction='horizontal' size={4}>
                                 <SBBOLIndicator organization={organization} />
                                 <InlineOrganizationSelect/>

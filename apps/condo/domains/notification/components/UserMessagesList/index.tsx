@@ -8,14 +8,18 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Dropdown, Typography } from '@open-condo/ui'
 
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { useUserMessages } from '@condo/domains/notification/hooks/useUserMessages'
 import { useUserMessagesListSettingsStorage } from '@condo/domains/notification/hooks/useUserMessagesListSettingsStorage'
 import { USER_MESSAGE_TYPES_FILTER_ON_CLIENT } from '@condo/domains/notification/utils/client/constants'
 
+
 import { MessageCard } from './MessageCard'
 import { MessagesCounter } from './MessagesCounter'
 import { UserMessagesSettingsModal } from './UserMessagesSettingsModal'
+
+import { BasicEmptyListView } from '../../../common/components/EmptyListView'
 
 import './UserMessagesList.css'
 
@@ -32,6 +36,7 @@ export const UserMessagesList = () => {
 
     const { user } = useAuth()
     const { organization } = useOrganization()
+    const { breakpoints } = useLayoutContext()
 
     const userId = useMemo(() => user?.id, [user?.id])
     const organizationId = useMemo(() => organization?.id, [organization?.id])
@@ -48,6 +53,7 @@ export const UserMessagesList = () => {
         messagesListRef,
         moreMessagesLoading,
         handleDropdownClose,
+        newMessagesLoading,
     } = useUserMessages({
         isDropdownOpen,
         messageTypesToFilter,
@@ -125,10 +131,45 @@ export const UserMessagesList = () => {
         handleDropdownClose()
     }, [handleDropdownClose, messagesListRef, readUserMessagesAt, userMessages, userMessagesSettingsStorage])
 
+    const emptyPlaceholder = useMemo(() => (
+        <BasicEmptyListView image='/dino/searching@2x.png'>
+            <Typography.Title level={5}>Пока уведомлений нет</Typography.Title>
+        </BasicEmptyListView>
+    ), [])
+
+    const messagesListContent = useMemo(() => {
+        if (!newMessagesLoading && userMessages.length === 0) {
+            return emptyPlaceholder
+        }
+
+        return (
+            <>
+                {
+                    userMessages.length === 0 && !newMessagesLoading && (
+                        <BasicEmptyListView />
+                    )
+                }
+                {unreadMessages.map(message => <MessageCard key={message.id} message={message} />)}
+                {
+                    readMessages.length > 0 && (
+                        <>
+                            <Typography.Title level={6} type='secondary'>
+                                {ViewedMessage}
+                            </Typography.Title>
+                            {readMessages.map(message => <MessageCard key={message.id} message={message} viewed />)}
+                        </>
+                    )
+                }
+                {moreMessagesLoading && <Loader fill size='small' />}
+            </>
+        )
+    }, [ViewedMessage, emptyPlaceholder, moreMessagesLoading, newMessagesLoading, readMessages, unreadMessages, userMessages.length])
+
     return (
         <>
             <Dropdown
                 open={isDropdownOpen}
+                // open={true}
                 dropdownRender={() => (
                     <div className='user-messages-list' ref={messagesListRef}>
                         <div className='user-messages-list-header'>
@@ -139,20 +180,10 @@ export const UserMessagesList = () => {
                                 <Settings onClick={handleModalOpen} />
                             </div>
                         </div>
-                        {unreadMessages.map(message => <MessageCard key={message.id} message={message} />)}
-                        {
-                            readMessages.length > 0 && (
-                                <>
-                                    <Typography.Title level={6} type='secondary'>
-                                        {ViewedMessage}
-                                    </Typography.Title>
-                                    {readMessages.map(message => <MessageCard key={message.id} message={message} viewed />)}
-                                </>
-                            )
-                        }
-                        {moreMessagesLoading && <Loader fill size='small' />}
+                        {messagesListContent}
                     </div>
                 )}
+                overlayClassName={!breakpoints.TABLET_LARGE && 'user-messages-list-mobile-overlay'}
                 trigger={['hover']}
                 onOpenChange={handleDropdownOpenChange}
                 placement='bottomCenter'
