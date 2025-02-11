@@ -9,6 +9,7 @@ import isEmpty from 'lodash/isEmpty'
 import React, { useMemo, useCallback, useState } from 'react'
 
 import { IUseSoftDeleteActionType } from '@open-condo/codegen/generate.hooks'
+import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { ArrowDownUp } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Alert, Button, Modal, Space, Typography } from '@open-condo/ui'
@@ -64,7 +65,10 @@ export const DeleteEmployeeButtonWithReassignmentModel: React.FC<IDeleteEmployee
     const employeeOrganizationId = employee?.organization?.id || null
 
     const getTicketReassignData = (ticket: GetOrganizationEmployeeTicketsForReassignmentQuery['tickets'][number]) => {
-        const resultObj = {}
+        const resultObj = {
+            dv: 1,
+            sender: getClientSideSenderInfo(),
+        }
         if (ticket?.executor?.id === employeeUserId) resultObj['executor'] = { connect: { id: newEmployeeUserId } }
         if (ticket?.assignee?.id === employeeUserId) resultObj['assignee'] = { connect: { id: newEmployeeUserId } }
         return resultObj
