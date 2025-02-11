@@ -1350,6 +1350,97 @@ export function useUpdateMeterReadingsImportTaskMutation(baseOptions?: Apollo.Mu
 export type UpdateMeterReadingsImportTaskMutationHookResult = ReturnType<typeof useUpdateMeterReadingsImportTaskMutation>;
 export type UpdateMeterReadingsImportTaskMutationResult = Apollo.MutationResult<Types.UpdateMeterReadingsImportTaskMutation>;
 export type UpdateMeterReadingsImportTaskMutationOptions = Apollo.BaseMutationOptions<Types.UpdateMeterReadingsImportTaskMutation, Types.UpdateMeterReadingsImportTaskMutationVariables>;
+export const GetB2BAppsWithMessageSettingsDocument = gql`
+    query getB2BAppsWithMessageSettings($messageTypes: [MessageType]) {
+  settings: allAppMessageSettings(
+    where: {type_in: $messageTypes, b2bApp_is_null: false}
+  ) {
+    b2bApp {
+      id
+    }
+    type
+  }
+}
+    `;
+
+/**
+ * __useGetB2BAppsWithMessageSettingsQuery__
+ *
+ * To run a query within a React component, call `useGetB2BAppsWithMessageSettingsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetB2BAppsWithMessageSettingsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetB2BAppsWithMessageSettingsQuery({
+ *   variables: {
+ *      messageTypes: // value for 'messageTypes'
+ *   },
+ * });
+ */
+export function useGetB2BAppsWithMessageSettingsQuery(baseOptions?: Apollo.QueryHookOptions<Types.GetB2BAppsWithMessageSettingsQuery, Types.GetB2BAppsWithMessageSettingsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetB2BAppsWithMessageSettingsQuery, Types.GetB2BAppsWithMessageSettingsQueryVariables>(GetB2BAppsWithMessageSettingsDocument, options);
+      }
+export function useGetB2BAppsWithMessageSettingsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetB2BAppsWithMessageSettingsQuery, Types.GetB2BAppsWithMessageSettingsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetB2BAppsWithMessageSettingsQuery, Types.GetB2BAppsWithMessageSettingsQueryVariables>(GetB2BAppsWithMessageSettingsDocument, options);
+        }
+export function useGetB2BAppsWithMessageSettingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetB2BAppsWithMessageSettingsQuery, Types.GetB2BAppsWithMessageSettingsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetB2BAppsWithMessageSettingsQuery, Types.GetB2BAppsWithMessageSettingsQueryVariables>(GetB2BAppsWithMessageSettingsDocument, options);
+        }
+export type GetB2BAppsWithMessageSettingsQueryHookResult = ReturnType<typeof useGetB2BAppsWithMessageSettingsQuery>;
+export type GetB2BAppsWithMessageSettingsLazyQueryHookResult = ReturnType<typeof useGetB2BAppsWithMessageSettingsLazyQuery>;
+export type GetB2BAppsWithMessageSettingsSuspenseQueryHookResult = ReturnType<typeof useGetB2BAppsWithMessageSettingsSuspenseQuery>;
+export type GetB2BAppsWithMessageSettingsQueryResult = Apollo.QueryResult<Types.GetB2BAppsWithMessageSettingsQuery, Types.GetB2BAppsWithMessageSettingsQueryVariables>;
+export const GetUserB2BAppRolesDocument = gql`
+    query getUserB2BAppRoles($employeeRoleId: ID, $b2bAppIds: [ID]) {
+  b2bRoles: allB2BAppRoles(
+    where: {role: {id: $employeeRoleId}, app: {id_in: $b2bAppIds}}
+  ) {
+    id
+    app {
+      id
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetUserB2BAppRolesQuery__
+ *
+ * To run a query within a React component, call `useGetUserB2BAppRolesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetUserB2BAppRolesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetUserB2BAppRolesQuery({
+ *   variables: {
+ *      employeeRoleId: // value for 'employeeRoleId'
+ *      b2bAppIds: // value for 'b2bAppIds'
+ *   },
+ * });
+ */
+export function useGetUserB2BAppRolesQuery(baseOptions?: Apollo.QueryHookOptions<Types.GetUserB2BAppRolesQuery, Types.GetUserB2BAppRolesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetUserB2BAppRolesQuery, Types.GetUserB2BAppRolesQueryVariables>(GetUserB2BAppRolesDocument, options);
+      }
+export function useGetUserB2BAppRolesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetUserB2BAppRolesQuery, Types.GetUserB2BAppRolesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetUserB2BAppRolesQuery, Types.GetUserB2BAppRolesQueryVariables>(GetUserB2BAppRolesDocument, options);
+        }
+export function useGetUserB2BAppRolesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetUserB2BAppRolesQuery, Types.GetUserB2BAppRolesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetUserB2BAppRolesQuery, Types.GetUserB2BAppRolesQueryVariables>(GetUserB2BAppRolesDocument, options);
+        }
+export type GetUserB2BAppRolesQueryHookResult = ReturnType<typeof useGetUserB2BAppRolesQuery>;
+export type GetUserB2BAppRolesLazyQueryHookResult = ReturnType<typeof useGetUserB2BAppRolesLazyQuery>;
+export type GetUserB2BAppRolesSuspenseQueryHookResult = ReturnType<typeof useGetUserB2BAppRolesSuspenseQuery>;
+export type GetUserB2BAppRolesQueryResult = Apollo.QueryResult<Types.GetUserB2BAppRolesQuery, Types.GetUserB2BAppRolesQueryVariables>;
 export const GetNewsItemRecipientsExportTasksDocument = gql`
     query getNewsItemRecipientsExportTasks($where: NewsItemRecipientsExportTaskWhereInput!) {
   tasks: allNewsItemRecipientsExportTasks(where: $where) {
