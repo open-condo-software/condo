@@ -1,3 +1,4 @@
+import { useGetTourStepsLazyQuery } from '@app/condo/gql'
 import { TourStepStatusType, TourStepTypeType } from '@app/condo/schema'
 import get from 'lodash/get'
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
@@ -43,9 +44,14 @@ const getActiveTourStepFromStorage = (): ActiveTourStepType => {
 
 export const TourProvider = ({ children }) => {
     const { organization } = useOrganization()
-    const { refetch: refetchSteps } = TourStep.useObjects({
-        where: { organization: { id: get(organization, 'id', null) } },
-    }, { skip: true })
+    const [getTourSteps, { refetch: refetchSteps }] = useGetTourStepsLazyQuery({
+        variables: {
+            where: { organization: { id: get(organization, 'id', null) } },
+        },
+    })
+    // const { refetch: refetchSteps } = TourStep.useObjects({
+    //     where: { organization: { id: get(organization, 'id', null) } },
+    // }, { skip: true })
     const updateTourStep = TourStep.useUpdate({})
 
     const organizationId = useMemo(() => get(organization, 'id'), [organization])
@@ -82,13 +88,15 @@ export const TourProvider = ({ children }) => {
     const updateStepIfNotCompleted = useCallback(async (type: TourStepTypeType, nextRoute?: string) => {
         if (organizationType !== MANAGING_COMPANY_TYPE) return
 
-        const fetchResult = await refetchSteps({
-            where: {
-                organization: { id: organizationId },
-                type,
+        const fetchResult = await getTourSteps({
+            variables: {
+                where: {
+                    organization: { id: organizationId },
+                    type,
+                },
             },
         })
-        const tourStep = get(fetchResult, 'data.objs.0')
+        const tourStep = get(fetchResult, 'data.tourSteps.0')
 
         if (!tourStep) return
 
@@ -104,7 +112,7 @@ export const TourProvider = ({ children }) => {
         } else {
             updateCompletedStepModalData(type, nextRoute)
         }
-    }, [organizationId, organizationType, refetchSteps, updateCompletedStepModalData, updateTourStep])
+    }, [organizationId, organizationType, getTourSteps, updateCompletedStepModalData, updateTourStep])
 
     useEffect(() => {
         const mutationHandler = async ({ data, name }) => {
