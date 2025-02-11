@@ -325,6 +325,54 @@ export function useUpdateBankSyncTaskMutation(baseOptions?: Apollo.MutationHookO
 export type UpdateBankSyncTaskMutationHookResult = ReturnType<typeof useUpdateBankSyncTaskMutation>;
 export type UpdateBankSyncTaskMutationResult = Apollo.MutationResult<Types.UpdateBankSyncTaskMutation>;
 export type UpdateBankSyncTaskMutationOptions = Apollo.BaseMutationOptions<Types.UpdateBankSyncTaskMutation, Types.UpdateBankSyncTaskMutationVariables>;
+export const GetBillingReceiptsCountDocument = gql`
+    query getBillingReceiptsCount($where: BillingReceiptWhereInput!, $sortBy: [SortBillingReceiptsBy!], $first: Int, $skip: Int) {
+  count: _allBillingReceiptsMeta(
+    where: $where
+    sortBy: $sortBy
+    first: $first
+    skip: $skip
+  ) {
+    count
+  }
+}
+    `;
+
+/**
+ * __useGetBillingReceiptsCountQuery__
+ *
+ * To run a query within a React component, call `useGetBillingReceiptsCountQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetBillingReceiptsCountQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetBillingReceiptsCountQuery({
+ *   variables: {
+ *      where: // value for 'where'
+ *      sortBy: // value for 'sortBy'
+ *      first: // value for 'first'
+ *      skip: // value for 'skip'
+ *   },
+ * });
+ */
+export function useGetBillingReceiptsCountQuery(baseOptions: Apollo.QueryHookOptions<Types.GetBillingReceiptsCountQuery, Types.GetBillingReceiptsCountQueryVariables> & ({ variables: Types.GetBillingReceiptsCountQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetBillingReceiptsCountQuery, Types.GetBillingReceiptsCountQueryVariables>(GetBillingReceiptsCountDocument, options);
+      }
+export function useGetBillingReceiptsCountLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetBillingReceiptsCountQuery, Types.GetBillingReceiptsCountQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetBillingReceiptsCountQuery, Types.GetBillingReceiptsCountQueryVariables>(GetBillingReceiptsCountDocument, options);
+        }
+export function useGetBillingReceiptsCountSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetBillingReceiptsCountQuery, Types.GetBillingReceiptsCountQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetBillingReceiptsCountQuery, Types.GetBillingReceiptsCountQueryVariables>(GetBillingReceiptsCountDocument, options);
+        }
+export type GetBillingReceiptsCountQueryHookResult = ReturnType<typeof useGetBillingReceiptsCountQuery>;
+export type GetBillingReceiptsCountLazyQueryHookResult = ReturnType<typeof useGetBillingReceiptsCountLazyQuery>;
+export type GetBillingReceiptsCountSuspenseQueryHookResult = ReturnType<typeof useGetBillingReceiptsCountSuspenseQuery>;
+export type GetBillingReceiptsCountQueryResult = Apollo.QueryResult<Types.GetBillingReceiptsCountQuery, Types.GetBillingReceiptsCountQueryVariables>;
 export const GetProcessingTasksDocument = gql`
     query getProcessingTasks($userId: ID!, $createdAtGte: String!) {
   allTicketDocumentGenerationTasks(
@@ -1383,6 +1431,55 @@ export function useUpdateMeterReadingsImportTaskMutation(baseOptions?: Apollo.Mu
 export type UpdateMeterReadingsImportTaskMutationHookResult = ReturnType<typeof useUpdateMeterReadingsImportTaskMutation>;
 export type UpdateMeterReadingsImportTaskMutationResult = Apollo.MutationResult<Types.UpdateMeterReadingsImportTaskMutation>;
 export type UpdateMeterReadingsImportTaskMutationOptions = Apollo.BaseMutationOptions<Types.UpdateMeterReadingsImportTaskMutation, Types.UpdateMeterReadingsImportTaskMutationVariables>;
+export const GetAllMiniAppsDocument = gql`
+    query getAllMiniApps($data: AllMiniAppsInput!) {
+  allMiniApps: allMiniApps(data: $data) {
+    id
+    name
+    shortDescription
+    connected
+    accessible
+    category
+    logo
+    label
+    icon
+    menuCategory
+  }
+}
+    `;
+
+/**
+ * __useGetAllMiniAppsQuery__
+ *
+ * To run a query within a React component, call `useGetAllMiniAppsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAllMiniAppsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAllMiniAppsQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useGetAllMiniAppsQuery(baseOptions: Apollo.QueryHookOptions<Types.GetAllMiniAppsQuery, Types.GetAllMiniAppsQueryVariables> & ({ variables: Types.GetAllMiniAppsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetAllMiniAppsQuery, Types.GetAllMiniAppsQueryVariables>(GetAllMiniAppsDocument, options);
+      }
+export function useGetAllMiniAppsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetAllMiniAppsQuery, Types.GetAllMiniAppsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetAllMiniAppsQuery, Types.GetAllMiniAppsQueryVariables>(GetAllMiniAppsDocument, options);
+        }
+export function useGetAllMiniAppsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetAllMiniAppsQuery, Types.GetAllMiniAppsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetAllMiniAppsQuery, Types.GetAllMiniAppsQueryVariables>(GetAllMiniAppsDocument, options);
+        }
+export type GetAllMiniAppsQueryHookResult = ReturnType<typeof useGetAllMiniAppsQuery>;
+export type GetAllMiniAppsLazyQueryHookResult = ReturnType<typeof useGetAllMiniAppsLazyQuery>;
+export type GetAllMiniAppsSuspenseQueryHookResult = ReturnType<typeof useGetAllMiniAppsSuspenseQuery>;
+export type GetAllMiniAppsQueryResult = Apollo.QueryResult<Types.GetAllMiniAppsQuery, Types.GetAllMiniAppsQueryVariables>;
 export const GetNewsItemRecipientsExportTasksDocument = gql`
     query getNewsItemRecipientsExportTasks($where: NewsItemRecipientsExportTaskWhereInput!) {
   tasks: allNewsItemRecipientsExportTasks(where: $where) {
@@ -1508,6 +1605,54 @@ export function useUpdateNewsItemRecipientsExportTaskMutation(baseOptions?: Apol
 export type UpdateNewsItemRecipientsExportTaskMutationHookResult = ReturnType<typeof useUpdateNewsItemRecipientsExportTaskMutation>;
 export type UpdateNewsItemRecipientsExportTaskMutationResult = Apollo.MutationResult<Types.UpdateNewsItemRecipientsExportTaskMutation>;
 export type UpdateNewsItemRecipientsExportTaskMutationOptions = Apollo.BaseMutationOptions<Types.UpdateNewsItemRecipientsExportTaskMutation, Types.UpdateNewsItemRecipientsExportTaskMutationVariables>;
+export const GetTourStepsDocument = gql`
+    query getTourSteps($where: TourStepWhereInput!, $sortBy: [SortTourStepsBy!], $first: Int, $skip: Int) {
+  tourSteps: allTourSteps(
+    where: $where
+    sortBy: $sortBy
+    first: $first
+    skip: $skip
+  ) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useGetTourStepsQuery__
+ *
+ * To run a query within a React component, call `useGetTourStepsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetTourStepsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetTourStepsQuery({
+ *   variables: {
+ *      where: // value for 'where'
+ *      sortBy: // value for 'sortBy'
+ *      first: // value for 'first'
+ *      skip: // value for 'skip'
+ *   },
+ * });
+ */
+export function useGetTourStepsQuery(baseOptions: Apollo.QueryHookOptions<Types.GetTourStepsQuery, Types.GetTourStepsQueryVariables> & ({ variables: Types.GetTourStepsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetTourStepsQuery, Types.GetTourStepsQueryVariables>(GetTourStepsDocument, options);
+      }
+export function useGetTourStepsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetTourStepsQuery, Types.GetTourStepsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetTourStepsQuery, Types.GetTourStepsQueryVariables>(GetTourStepsDocument, options);
+        }
+export function useGetTourStepsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetTourStepsQuery, Types.GetTourStepsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetTourStepsQuery, Types.GetTourStepsQueryVariables>(GetTourStepsDocument, options);
+        }
+export type GetTourStepsQueryHookResult = ReturnType<typeof useGetTourStepsQuery>;
+export type GetTourStepsLazyQueryHookResult = ReturnType<typeof useGetTourStepsLazyQuery>;
+export type GetTourStepsSuspenseQueryHookResult = ReturnType<typeof useGetTourStepsSuspenseQuery>;
+export type GetTourStepsQueryResult = Apollo.QueryResult<Types.GetTourStepsQuery, Types.GetTourStepsQueryVariables>;
 export const GetActiveOrganizationEmployeeDocument = gql`
     query getActiveOrganizationEmployee($userId: ID!, $employeeId: ID) {
   employees: allOrganizationEmployees(
@@ -4113,6 +4258,62 @@ export function useUpdateTicketExportTaskMutation(baseOptions?: Apollo.MutationH
 export type UpdateTicketExportTaskMutationHookResult = ReturnType<typeof useUpdateTicketExportTaskMutation>;
 export type UpdateTicketExportTaskMutationResult = Apollo.MutationResult<Types.UpdateTicketExportTaskMutation>;
 export type UpdateTicketExportTaskMutationOptions = Apollo.BaseMutationOptions<Types.UpdateTicketExportTaskMutation, Types.UpdateTicketExportTaskMutationVariables>;
+export const GetTicketFilesDocument = gql`
+    query getTicketFiles($where: TicketFileWhereInput!, $sortBy: [SortTicketFilesBy!], $first: Int, $skip: Int) {
+  ticketFiles: allTicketFiles(
+    where: $where
+    sortBy: $sortBy
+    first: $first
+    skip: $skip
+  ) {
+    id
+    ticket {
+      id
+    }
+    file {
+      id
+      originalFilename
+      publicUrl
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetTicketFilesQuery__
+ *
+ * To run a query within a React component, call `useGetTicketFilesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetTicketFilesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetTicketFilesQuery({
+ *   variables: {
+ *      where: // value for 'where'
+ *      sortBy: // value for 'sortBy'
+ *      first: // value for 'first'
+ *      skip: // value for 'skip'
+ *   },
+ * });
+ */
+export function useGetTicketFilesQuery(baseOptions: Apollo.QueryHookOptions<Types.GetTicketFilesQuery, Types.GetTicketFilesQueryVariables> & ({ variables: Types.GetTicketFilesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetTicketFilesQuery, Types.GetTicketFilesQueryVariables>(GetTicketFilesDocument, options);
+      }
+export function useGetTicketFilesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetTicketFilesQuery, Types.GetTicketFilesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetTicketFilesQuery, Types.GetTicketFilesQueryVariables>(GetTicketFilesDocument, options);
+        }
+export function useGetTicketFilesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetTicketFilesQuery, Types.GetTicketFilesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetTicketFilesQuery, Types.GetTicketFilesQueryVariables>(GetTicketFilesDocument, options);
+        }
+export type GetTicketFilesQueryHookResult = ReturnType<typeof useGetTicketFilesQuery>;
+export type GetTicketFilesLazyQueryHookResult = ReturnType<typeof useGetTicketFilesLazyQuery>;
+export type GetTicketFilesSuspenseQueryHookResult = ReturnType<typeof useGetTicketFilesSuspenseQuery>;
+export type GetTicketFilesQueryResult = Apollo.QueryResult<Types.GetTicketFilesQuery, Types.GetTicketFilesQueryVariables>;
 export const GetTicketPropertyHintByIdDocument = gql`
     query getTicketPropertyHintById($id: ID!) {
   ticketPropertyHints: allTicketPropertyHints(where: {id: $id}, first: 1) {

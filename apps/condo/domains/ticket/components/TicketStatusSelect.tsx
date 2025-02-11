@@ -68,6 +68,8 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
                 data: {
                     status: { connect: { id: value } },
                     statusUpdatedAt: new Date(),
+                    sender: getClientSideSenderInfo(),
+                    dv: 1,
                 },
             },
         })
@@ -82,6 +84,8 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
                     status: { connect: { id: statusDeferredId } },
                     deferredUntil: deferredDate.toISOString(),
                     statusUpdatedAt: new Date(),
+                    sender: getClientSideSenderInfo(),
+                    dv: 1,
                 },
             },
 
