@@ -522,11 +522,11 @@ __metadata:
   linkType: hard
 
 "@apollographql/graphql-upload-8-fork@npm:^8.1.3":
-  version: 8.1.3
-  resolution: "@apollographql/graphql-upload-8-fork@npm:8.1.3"
+  version: 8.1.4
+  resolution: "@apollographql/graphql-upload-8-fork@npm:8.1.4"
   dependencies:
     "@types/express": "*"
-    "@types/fs-capacitor": "*"
+    "@types/fs-capacitor": ^2.0.0
     "@types/koa": "*"
     busboy: ^0.3.1
     fs-capacitor: ^2.0.4
@@ -534,7 +534,7 @@ __metadata:
     object-path: ^0.11.4
   peerDependencies:
     graphql: 0.13.1 - 15
-  checksum: cb30ef22304ce0f7d209ef0976e8d93d7ed920bb856d36585a56b2c8d99675a45989e22fab35a43d2e06ecad78fcc29ca57640cf1d8e6eed414580899876f3cc
+  checksum: 0d8db5afe8a26befb20b1cc6f2a43f0f6224ccd394606710bb00a45f0a45002635cbd6d2958362e9df8f1371b177fad1f2070739e79eae2c0df5d5d9039947bf
   languageName: node
   linkType: hard
 
@@ -585,7 +585,7 @@ __metadata:
     express: ^4.17.1
     facepaint: ^1.2.1
     get-contrast: ^2.0.0
-    graphql: ^15.6.1
+    graphql: ^16.10.0
     graphql-tag: ^2.12.6
     identity-obj-proxy: ^3.0.0
     immer: 9.0.13
@@ -702,7 +702,7 @@ __metadata:
     emotion-server: ^10.0.27
     encoding: ^0.1.0
     extracted-loader: ^1.0.7
-    graphql: ^15.6.1
+    graphql: ^16.10.0
     graphql-tag: ^2.12.6
     ignore-loader: 0.1.2
     less: ^3.12.2
@@ -838,7 +838,7 @@ __metadata:
     form-data: ^4.0.0
     generate-password: ^1.6.0
     get-contrast: ^2.0.0
-    graphql: ^15.6.1
+    graphql: ^16.10.0
     graphql-tag: ^2.12.6
     graphql-upload: ^15.0.2
     graphql-voyager: ^1.0.0-rc.31
@@ -1009,7 +1009,7 @@ __metadata:
     dayjs: ^1.11.10
     deepmerge: ^4.3.1
     glob: 8.1.0
-    graphql: ^16.8.1
+    graphql: ^16.10.0
     graphql-tag: ^2.12.6
     gray-matter: 4.0.3
     http-proxy: ^1.18.1
@@ -1171,7 +1171,7 @@ __metadata:
     extracted-loader: ^1.0.7
     facepaint: ^1.2.1
     get-contrast: ^2.0.0
-    graphql: ^15.6.1
+    graphql: ^16.10.0
     graphql-request: ^3.5.0
     graphql-tag: ^2.12.6
     identity-obj-proxy: ^3.0.0
@@ -1233,7 +1233,7 @@ __metadata:
     dotenv: ^16.3.2
     express: ^4.18.2
     express-pino-logger: ^6.0.0
-    graphql: ^16.8.1
+    graphql: ^16.10.0
     graphql-tag: ^2.12.6
     lodash: ^4.17.21
     node-fetch: 2.6.7
@@ -1302,7 +1302,7 @@ __metadata:
     facepaint: ^1.2.1
     falsey: ^1.0.0
     get-contrast: ^2.0.0
-    graphql: ^15.6.1
+    graphql: ^16.10.0
     graphql-request: ^4.2.0
     graphql-tag: ^2.12.6
     identity-obj-proxy: ^3.0.0
@@ -1717,7 +1717,7 @@ __metadata:
     extracted-loader: ^1.0.7
     facepaint: ^1.2.1
     get-contrast: ^2.0.0
-    graphql: ^15.6.1
+    graphql: ^16.10.0
     graphql-tag: ^2.12.6
     identity-obj-proxy: ^3.0.0
     ignore-loader: 0.1.2
@@ -1826,7 +1826,7 @@ __metadata:
     falsey: ^1.0.0
     form-data: ^4.0.0
     get-contrast: ^2.0.0
-    graphql: ^15.6.1
+    graphql: ^16.10.0
     graphql-request: ^3.5.0
     graphql-tag: ^2.12.6
     graphql-upload: ^15.0.1
@@ -1945,7 +1945,7 @@ __metadata:
     facepaint: ^1.2.1
     form-data: ^4.0.0
     get-contrast: ^2.0.0
-    graphql: ^15.6.1
+    graphql: ^16.10.0
     graphql-tag: ^2.12.6
     graphql-upload: ^15.0.1
     he: ^1.2.0
@@ -2028,7 +2028,7 @@ __metadata:
     cross-fetch: 4.0.0
     dayjs: ^1.11.13
     deepmerge: ^4.3.1
-    graphql: ^16.8.1
+    graphql: ^16.10.0
     http-proxy: ^1.18.1
     lodash: ^4.17.21
     next: 13.3.0
@@ -13114,7 +13114,7 @@ __metadata:
 
 "@keystonejs/keystone@patch:@keystonejs/keystone@npm:19.3.4#.yarn/patches/@keystonejs-keystone-npm-19.3.4-2a53e53061.patch::locator=root%40workspace%3A.":
   version: 19.3.4
-  resolution: "@keystonejs/keystone@patch:@keystonejs/keystone@npm%3A19.3.4#.yarn/patches/@keystonejs-keystone-npm-19.3.4-2a53e53061.patch::version=19.3.4&hash=3c7fde&locator=root%40workspace%3A."
+  resolution: "@keystonejs/keystone@patch:@keystonejs/keystone@npm%3A19.3.4#.yarn/patches/@keystonejs-keystone-npm-19.3.4-2a53e53061.patch::version=19.3.4&hash=61ea09&locator=root%40workspace%3A."
   dependencies:
     "@keystonejs/access-control": ^7.1.2
     "@keystonejs/app-version": ^2.1.2
@@ -13148,7 +13148,7 @@ __metadata:
     terminal-link: ^2.1.1
   bin:
     keystone: bin/cli.js
-  checksum: c2f09eb2ef7437ae28e6cb77decd8c353bfba3d12e45a9ff7b12665e88b1013d90a052c5515cf5c67ecc6564d58f23bd64be46d0638069059ca5c62b9e91fcef
+  checksum: 9436f0e3b331e0e6a409bcae71d007125719bebc52f4a0c042b6522a5531fc8f4ee6f6a35f97cec14e32f02c966c1492e9be45659900a1820c9b00bdbff0bb14
   languageName: node
   linkType: hard
 
@@ -13860,7 +13860,7 @@ __metadata:
     "@apollo/client": ^3.11.8
     apollo-link-error: ^1.1.13
     apollo-upload-client: ^17.0.0
-    graphql: ^16.6.0
+    graphql: ^16.10.0
     graphql-tag: ^2.12.6
   languageName: unknown
   linkType: soft
@@ -13951,7 +13951,7 @@ __metadata:
     boxen: ^4.2.0
     chalk: 4.1.2
     dayjs: ^1.10.6
-    graphql: ^15.6.1
+    graphql: ^16.10.0
     graphql-tag: ^2.12.6
     js-cookie: ^2.2.1
     lodash: ^4.17.21
@@ -14084,7 +14084,7 @@ __metadata:
     express-session: ^1.17.2
     falsey: ^1.0.0
     form-data: ^4.0.0
-    graphql: ^15.6.1
+    graphql: ^16.10.0
     graphql-disable-introspection: ^1.2.0
     graphql-tag: ^2.12.6
     graphql-upload: ^15.0.2
@@ -14139,7 +14139,7 @@ __metadata:
     babel-loader: ^9.1.3
     cookie: ^0.6.0
     cookies-next: ^4.2.1
-    graphql: ^16.8.1
+    graphql: ^16.10.0
     react: ^16.14.0
     react-dom: ^16.14.0
     rimraf: ^6.0.1
@@ -14164,7 +14164,7 @@ __metadata:
     "@open-condo/tsconfig": "workspace:^"
     apollo-upload-client: ^14.1.3
     eventemitter3: ^4.0.0
-    graphql: ^15.6.1
+    graphql: ^16.10.0
     graphql-tag: ^2.12.6
     isomorphic-unfetch: ^3.0.0
     js-cookie: ^2.2.1
@@ -14259,7 +14259,7 @@ __metadata:
     ajv: ^8.11.0
     dayjs: ^1.11.6
     falsey: ^1.0.0
-    graphql: ^15.6.1
+    graphql: ^16.10.0
     graphql-2-json-schema: ^0.9.1
     graphql-tag: ^2.12.6
     jest: ^29.7.0
@@ -18773,7 +18773,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/fs-capacitor@npm:*":
+"@types/fs-capacitor@npm:^2.0.0":
   version: 2.0.0
   resolution: "@types/fs-capacitor@npm:2.0.0"
   dependencies:
@@ -21397,7 +21397,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"apollo-server-core@npm:^2.26.0":
+"apollo-server-core@npm:2.26.0":
   version: 2.26.0
   resolution: "apollo-server-core@npm:2.26.0"
   dependencies:
@@ -21429,6 +21429,41 @@ __metadata:
   peerDependencies:
     graphql: ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0
   checksum: 89d6e18efa53878bf8f7b4f4a592bdf6816e208667418ff567bb4e462f034b5982d48d701976491ce8beeb9cca5c1f9a1d39cc92671fca0972eb094c4a48a69e
+  languageName: node
+  linkType: hard
+
+"apollo-server-core@patch:apollo-server-core@npm:2.26.0#.yarn/patches/apollo-server-core-npm-2.26.0-6396d881cb.patch::locator=root%40workspace%3A.":
+  version: 2.26.0
+  resolution: "apollo-server-core@patch:apollo-server-core@npm%3A2.26.0#.yarn/patches/apollo-server-core-npm-2.26.0-6396d881cb.patch::version=2.26.0&hash=1f8982&locator=root%40workspace%3A."
+  dependencies:
+    "@apollographql/apollo-tools": ^0.5.0
+    "@apollographql/graphql-playground-html": 1.6.27
+    "@apollographql/graphql-upload-8-fork": ^8.1.3
+    "@josephg/resolvable": ^1.0.0
+    "@types/ws": ^7.0.0
+    apollo-cache-control: ^0.15.0
+    apollo-datasource: ^0.10.0
+    apollo-graphql: ^0.9.0
+    apollo-reporting-protobuf: ^0.8.0
+    apollo-server-caching: ^0.7.0
+    apollo-server-env: ^3.2.0
+    apollo-server-errors: ^2.5.0
+    apollo-server-plugin-base: ^0.14.0
+    apollo-server-types: ^0.10.0
+    apollo-tracing: ^0.16.0
+    async-retry: ^1.2.1
+    fast-json-stable-stringify: ^2.0.0
+    graphql-extensions: ^0.16.0
+    graphql-tag: ^2.11.0
+    graphql-tools: ^4.0.8
+    loglevel: ^1.6.7
+    lru-cache: ^6.0.0
+    sha.js: ^2.4.11
+    subscriptions-transport-ws: ^0.9.19
+    uuid: ^8.0.0
+  peerDependencies:
+    graphql: ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0
+  checksum: 25e84db5ab2de376d77dad049eb40e5c2609ab3c751282879dba23ed1efa5557c219a9e39b802fd8c94c3f7aa083672e5b7bf60552f96e664b678e9cdf31c56f
   languageName: node
   linkType: hard
 
@@ -32409,24 +32444,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"graphql@npm:14 - 16, graphql@npm:^16.6.0":
-  version: 16.9.0
-  resolution: "graphql@npm:16.9.0"
-  checksum: 8cb3d54100e9227310383ce7f791ca48d12f15ed9f2021f23f8735f1121aafe4e5e611a853081dd935ce221724ea1ae4638faef5d2921fb1ad7c26b5f46611e9
-  languageName: node
-  linkType: hard
-
-"graphql@npm:^15.5.0, graphql@npm:^15.6.1":
-  version: 15.8.0
-  resolution: "graphql@npm:15.8.0"
-  checksum: 423325271db8858428641b9aca01699283d1fe5b40ef6d4ac622569ecca927019fce8196208b91dd1d8eb8114f00263fe661d241d0eb40c10e5bfd650f86ec5e
-  languageName: node
-  linkType: hard
-
-"graphql@npm:^16.8.1":
-  version: 16.8.1
-  resolution: "graphql@npm:16.8.1"
-  checksum: 8d304b7b6f708c8c5cc164b06e92467dfe36aff6d4f2cf31dd19c4c2905a0e7b89edac4b7e225871131fd24e21460836b369de0c06532644d15b461d55b1ccc0
+"graphql@npm:^16.10.0":
+  version: 16.10.0
+  resolution: "graphql@npm:16.10.0"
+  checksum: 969c2d1061d69ad6fe08a7fe642428212b0b8485a2f9b5d8650203eb6c3221479e81ec6a757708f849d84b85afcb3ebc5a8ff2f71778bb66c5e4850f051c170e
   languageName: node
   linkType: hard
 
