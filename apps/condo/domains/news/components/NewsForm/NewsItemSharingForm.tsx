@@ -32,6 +32,15 @@ export type SharingAppValues = {
 }
 
 interface INewsItemSharingForm {
+    template: {
+        title: string
+        body: string
+        type?: string
+        id?: string
+        label?: string
+        category?: string
+    }
+
     sharingApp: B2BApp
 
     ctxId: string
@@ -50,7 +59,7 @@ interface INewsItemSharingForm {
     }
 }
 
-export const NewsItemSharingForm: React.FC<INewsItemSharingForm> = ({ newsItemData, initialValues, onSkip, ctxId, onSubmit, sharingApp: { id, newsSharingConfig } }) => {
+export const NewsItemSharingForm: React.FC<INewsItemSharingForm> = ({ newsItemData, initialValues, onSkip, ctxId, onSubmit, sharingApp: { id, newsSharingConfig }, template }) => {
 
     const intl = useIntl()
     const NextStepShortMessage = intl.formatMessage({ id: 'pages.condo.news.steps.skipLabelShort' })
@@ -122,7 +131,7 @@ export const NewsItemSharingForm: React.FC<INewsItemSharingForm> = ({ newsItemDa
                             <Col style={{ marginLeft: '-10px', minHeight: '500px' }} span={formFieldsColSpan}>
                                 <IFrame
                                     src={
-                                        `${newsSharingConfig.customFormUrl}?ctxId=${id}&title=${newsItemData.title}&body=${newsItemData.body}&type=${newsItemData.type}&initialValues=${JSON.stringify(processedInitialValues)}`
+                                        `${newsSharingConfig.customFormUrl}?ctxId=${id}&title=${newsItemData.title}&body=${newsItemData.body}&type=${newsItemData.type}&initialValues=${JSON.stringify(processedInitialValues)}&template=${JSON.stringify(template)}`
                                     }
                                     reloadScope='organization'
                                     withLoader
