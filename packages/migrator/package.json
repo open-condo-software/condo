@@ -1,0 +1,45 @@
+{
+  "name": "@open-condo/migrator",
+  "version": "0.0.0-development",
+  "description": "CLI util to run code and infrastructure migrations for condo-based applications",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/open-condo-software/condo.git",
+    "directory": "packages/migrator"
+  },
+  "keywords": [
+    "condo",
+    "open-condo-software",
+    "open-condo",
+    "migrations",
+    "upgrade",
+    "utils"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "build": "tsup"
+  },
+  "bin": {
+    "condo-migrator": "dist/cli.js",
+    "migrator": "dist/cli.js"
+  },
+  "bugs": {
+    "url": "https://github.com/open-condo-software/condo/issues"
+  },
+  "homepage": "https://github.com/open-condo-software/condo/blob/main/packages/migrator/README.md",
+  "author": {
+    "name": "Matthew Savelev",
+    "email": "matthew@doma.ai",
+    "url": "https://github.com/SavelevMatthew"
+  },
+  "files": [
+    "bin"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@open-condo/tsconfig": "workspace:^",
+    "tsup": "^8.3.6"
+  }
+}
