@@ -2,10 +2,12 @@ import React, { useCallback, useState } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useIntl } from '@open-condo/next/intl'
-import { Button, Checkbox, Modal, Space } from '@open-condo/ui'
+import { Button, Switch, Modal, Space, Typography } from '@open-condo/ui'
 
 import { useAllowedToFilterMessageTypes } from '@condo/domains/notification/hooks/useAllowedToFilterMessageTypes'
-import { useUserMessagesListSettingsStorage } from '@condo/domains/notification/hooks/useUserMessagesListSettingsStorage'
+import {
+    useUserMessagesListSettingsStorage,
+} from '@condo/domains/notification/hooks/useUserMessagesListSettingsStorage'
 
 
 export const UserMessagesSettingsModal = ({ open, setOpen, excludedMessageTypes, setExcludedMessageTypes }) => {
@@ -56,16 +58,22 @@ export const UserMessagesSettingsModal = ({ open, setOpen, excludedMessageTypes,
         >
             <Space size={12} direction='vertical'>
                 {messageTypes.map((type) => (
-                    <Checkbox
-                        key={type}
-                        label={
-                            intl.formatMessage(
-                                { id: `notification.UserMessagesSettingModal.messageType.${type}.label` }
-                            )
-                        }
-                        checked={selectedMessageTypes.includes(type)}
-                        onChange={() => handleCheckboxChange(type)}
-                    />
+                    <label key={type}>
+                        <Space size={8}>
+                            <Switch
+                                checked={selectedMessageTypes.includes(type)}
+                                onChange={() => handleCheckboxChange(type)}
+                                size='small'
+                            />
+                            <Typography.Text>
+                                {
+                                    intl.formatMessage(
+                                        { id: `notification.UserMessagesSettingModal.messageType.${type}.label` }
+                                    )
+                                }
+                            </Typography.Text>
+                        </Space>
+                    </label>
                 ))}
             </Space>
         </Modal>

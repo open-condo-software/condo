@@ -56,12 +56,6 @@ export const useUserMessages: UsePollUserMessagesType = ({ isDropdownOpen, messa
     const [isAllMessagesLoaded, setIsAllMessagesLoaded] = useState<boolean>(false)
     const [moreMessagesLoading, setMoreMessagesLoading] = useState<boolean>(false)
 
-    useEffect(() => {
-        setUserMessages([])
-        setIsAllMessagesLoaded(false)
-        setMoreMessagesLoading(false)
-    }, [userId, organizationId])
-
     const {
         data: newMessagesData,
         error,
@@ -72,6 +66,18 @@ export const useUserMessages: UsePollUserMessagesType = ({ isDropdownOpen, messa
         variables: queryVariables,
         skip: skipQueryMessagesCondition,
     })
+
+    const clearLoadedMessages = useCallback(() => {
+        const messages = (newMessagesData?.messages || []) as UserMessageType[]
+
+        setUserMessages(messages)
+        setIsAllMessagesLoaded(false)
+        setMoreMessagesLoading(false)
+    }, [newMessagesData?.messages])
+
+    useEffect(() => {
+        clearLoadedMessages()
+    }, [clearLoadedMessages])
 
     // New messages polling in one tab logic
     useExecuteWithLock(USER_MESSAGES_LIST_POLL_LOCK_NAME, () => setIsPollingTab(true))
@@ -142,7 +148,7 @@ export const useUserMessages: UsePollUserMessagesType = ({ isDropdownOpen, messa
 
     const handleScroll = useCallback(async () => {
         const list = messagesListRef.current
-        const isScrolledToBottom = list.scrollTop + list.clientHeight >= list.scrollHeight - 50
+        const isScrolledToBottom = list.scrollTop + list.clientHeight >= list.scrollHeight - 100
 
         if (list && isScrolledToBottom && !isAllMessagesLoaded && !moreMessagesLoading) {
             setMoreMessagesLoading(true)
@@ -161,14 +167,6 @@ export const useUserMessages: UsePollUserMessagesType = ({ isDropdownOpen, messa
             }
         }
     }, [handleScroll, isDropdownOpen])
-
-    // Clear all scrolled messages after close dropdown
-    const clearLoadedMessages = useCallback(() => {
-        const messages = (newMessagesData?.messages || []) as UserMessageType[]
-
-        setUserMessages(messages)
-        setIsAllMessagesLoaded(false)
-    }, [newMessagesData?.messages])
 
     return { userMessages, messagesListRef, moreMessagesLoading, newMessagesLoading, clearLoadedMessages }
 }
