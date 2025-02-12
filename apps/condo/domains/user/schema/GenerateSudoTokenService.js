@@ -10,6 +10,8 @@ const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const { COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
+const { normalizeEmail } = require('@condo/domains/common/utils/mail')
+const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const access = require('@condo/domains/user/access/GenerateSudoTokenService')
 const {
     CAPTCHA_CHECK_FAILED,
@@ -101,7 +103,10 @@ const GenerateSudoTokenService = new GQLCustomSchema('GenerateSudoTokenService',
 
                 const authedItemId = get(context, 'authedItem.id', null)
 
-                await authGuards({ email: user.email, phone: user.phone, userType: user.userType }, context)
+                const normalizedEmail = normalizeEmail(user.email)
+                const normalizedPhone = normalizePhone(user.phone)
+
+                await authGuards({ email: normalizedEmail, phone: normalizedPhone, userType: user.userType }, context)
 
                 const { error: captchaError } = await captchaCheck(context, captcha)
                 if (captchaError) {
@@ -111,7 +116,7 @@ const GenerateSudoTokenService = new GQLCustomSchema('GenerateSudoTokenService',
                 checkDvAndSender(data, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
 
                 const validation = await validateUserCredentials(
-                    { email: user.email, phone: user.phone, userType: user.userType },
+                    { email: normalizedEmail, phone: normalizedPhone, userType: user.userType },
                     { password: authFactors.password, confirmPhoneToken: authFactors.confirmPhoneToken },
                 )
 
