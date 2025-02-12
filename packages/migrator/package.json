@@ -40,6 +40,7 @@
   },
   "devDependencies": {
     "@open-condo/tsconfig": "workspace:^",
+    "commander": "^11.0.0",
     "tsup": "^8.3.6"
   }
 }

@@ -14304,6 +14304,7 @@ __metadata:
   resolution: "@open-condo/migrator@workspace:packages/migrator"
   dependencies:
     "@open-condo/tsconfig": "workspace:^"
+    commander: ^11.0.0
     tsup: ^8.3.6
   bin:
     condo-migrator: dist/cli.js
@@ -14402,7 +14403,7 @@ __metadata:
     babel-loader: ^8.2.5
     chromatic: ^6.9.0
     classnames: ^2.3.2
-    commander: ^9.4.0
+    commander: ^11.0.0
     copy-webpack-plugin: ^11.0.0
     css-loader: ^6.7.1
     css-minimizer-webpack-plugin: ^4.0.0
@@ -25653,13 +25654,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"commander@npm:^13.1.0":
-  version: 13.1.0
-  resolution: "commander@npm:13.1.0"
-  checksum: 8ca2fcb33caf2aa06fba3722d7a9440921331d54019dabf906f3603313e7bf334b009b862257b44083ff65d5a3ab19e83ad73af282bd5319f01dc228bdf87ef0
-  languageName: node
-  linkType: hard
-
 "commander@npm:^2.19.0, commander@npm:^2.20.0, commander@npm:^2.20.3, commander@npm:^2.8.1":
   version: 2.20.3
   resolution: "commander@npm:2.20.3"
@@ -25706,13 +25700,6 @@ __metadata:
   version: 9.5.0
   resolution: "commander@npm:9.5.0"
   checksum: c7a3e27aa59e913b54a1bafd366b88650bc41d6651f0cbe258d4ff09d43d6a7394232a4dadd0bf518b3e696fdf595db1028a0d82c785b88bd61f8a440cecfade
-  languageName: node
-  linkType: hard
-
-"commander@npm:^9.4.0":
-  version: 9.4.0
-  resolution: "commander@npm:9.4.0"
-  checksum: a322de584a6ccd1ea83c24f6a660e52d16ffbe2613fcfbb8d2cc68bc9dec637492456d754fe8bb5b039ad843ed8e04fb0b107e581a75f62cde9e1a0ab1546e09
   languageName: node
   linkType: hard
 
@@ -49808,7 +49795,7 @@ __metadata:
     babel-eslint: ^10.1.0
     bull: ^4.8.4
     bull-repl: ^0.27.2
-    commander: ^13.1.0
+    commander: ^11.0.0
     commitlint-plugin-function-rules: ^1.3.2
     dd-trace: 4.46.0
     eslint: ^7.13.0
