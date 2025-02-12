@@ -395,8 +395,25 @@ const Payment = new GQLListSchema('Payment', {
                         return addValidationError(PAYMENT_OVERRIDING_EXPLICIT_FEES_MUST_BE_EXPLICIT)
                     }
                 }
+                const existingReceipt = get(existingItem, 'receipt', null)
+                const existingFrozenReceipt = get(existingItem, 'frozenReceipt', null)
+                const existingInvoice = get(existingItem, 'invoice', null)
+                const existingFrozenInvoice = get(existingItem, 'frozenInvoice', null)
+
                 const frozenFields = PAYMENT_FROZEN_FIELDS[oldStatus]
+
                 for (const field of frozenFields) {
+                    if (
+                        (
+                            existingReceipt === null &&
+                            existingFrozenReceipt === null &&
+                            existingInvoice === null &&
+                            existingFrozenInvoice === null) &&
+                        (field === 'receipt' || field === 'frozenReceipt')
+                    ) {
+                        continue
+                    }
+
                     if (resolvedData.hasOwnProperty(field)) {
                         addValidationError(`${PAYMENT_FROZEN_FIELD_INCLUDED} (${field})`)
                     }
