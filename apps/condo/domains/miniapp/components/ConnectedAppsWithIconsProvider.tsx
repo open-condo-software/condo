@@ -3,6 +3,7 @@ import { SortAllMiniAppsBy } from '@app/condo/schema'
 import get from 'lodash/get'
 import React, { createContext, useCallback, useContext, useState } from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { useQuery } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
@@ -35,6 +36,7 @@ export const ConnectedAppsWithIconsContextProvider: React.FC = ({ children }) =>
     const orgId = get(organization, 'id', null)
     const [appsByCategories, setAppsByCategories] = useState<AppsByCategories>({})
     const [connectedApps, setConnectedApps] = useState<Array<string>>([])
+    const { persistor } = useCachePersistor()
 
     const { refetch } = useGetAllMiniAppsQuery({
         variables: {
@@ -50,7 +52,7 @@ export const ConnectedAppsWithIconsContextProvider: React.FC = ({ children }) =>
                 sortBy: SortAllMiniAppsBy.ConnectedAtAsc,
             },
         },
-        skip: isUserLoading || !isAuthenticated || !orgId,
+        skip: isUserLoading || !isAuthenticated || !orgId || !persistor,
         onCompleted: (data) => {
             const apps = get(data, 'objs', [])
             const appsByCategories: AppsByCategories = Object.assign({}, ...ALL_MENU_CATEGORIES.map(category =>({ [category]: [] })))
