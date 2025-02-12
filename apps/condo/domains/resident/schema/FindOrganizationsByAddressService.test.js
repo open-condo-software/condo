@@ -64,17 +64,16 @@ function getOnlyCategoryReceiptTest (category){
 
 describe('FindOrganizationsByAddress', () => {
 
-    let utils
+    const utils = new TestUtils([BillingTestMixin])
 
     beforeAll(async () => {
-        utils = new TestUtils([BillingTestMixin, AcquiringTestMixin, ResidentTestMixin, MeterTestMixin])
         await utils.init()
     })
 
     describe('Unified flow', () => {
         describe('General behaviour', () => {
             test('Should not return organization if acquiring context is not in finished status', async () => {
-                const utils = new TestUtils([BillingTestMixin, AcquiringTestMixin, ResidentTestMixin, MeterTestMixin])
+                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
                 await utils.init()
                 const [foundOrganizationsOnFinishedContext] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
                     addressKey: utils.property.addressKey,
@@ -90,6 +89,8 @@ describe('FindOrganizationsByAddress', () => {
             })
         
             test('Should return empty array if no properties', async () => {
+                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                await utils.init()
                 const wrongAddressKey = faker.datatype.uuid()
                 const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
                     addressKey: wrongAddressKey,
@@ -98,6 +99,8 @@ describe('FindOrganizationsByAddress', () => {
             })
 
             test('Should return empty array if no meters and acquiring', async () => {
+                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                await utils.init()
                 const [organization] = await createTestOrganization(utils.clients.admin)
                 const [property] = await createTestProperty(utils.clients.admin, organization)
                 const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
@@ -109,6 +112,8 @@ describe('FindOrganizationsByAddress', () => {
 
         describe('addressKey', () => {
             test('Should return organization', async () => {
+                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                await utils.init()
                 const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
                     addressKey: utils.property.addressKey,
                 })
@@ -143,6 +148,8 @@ describe('FindOrganizationsByAddress', () => {
             })
 
             test('Should return organization and meter resource', async () => {
+                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                await utils.init()
                 const [organization] = await createTestOrganization(utils.clients.admin)
                 const [property] = await createTestProperty(utils.clients.admin, organization)
                 const [meter] = await utils.createMeter({ resource: COLD_WATER_METER_RESOURCE_ID })
@@ -162,6 +169,8 @@ describe('FindOrganizationsByAddress', () => {
             })
 
             test('Should return several organizations', async () => {
+                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                await utils.init()
                 const [organization] = await createTestOrganization(utils.clients.admin)
                 const [billingIntegration] = await createTestBillingIntegration(utils.clients.admin)
                 const [acquiringIntegration] = await createTestAcquiringIntegration(utils.clients.admin)
@@ -236,6 +245,8 @@ describe('FindOrganizationsByAddress', () => {
             })
 
             test('Should return receipt if unitName and unitType matches', async () => {
+                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                await utils.init()
                 const unitName = utils.randomNumber(10).toString()
                 const unitType = 'flat'
                 const accountNumber = utils.randomNumber(10).toString()
@@ -265,6 +276,8 @@ describe('FindOrganizationsByAddress', () => {
             })
 
             test('Should return meter if unitName and unitType matches', async () => {
+                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                await utils.init()
                 const accountNumber = utils.randomNumber(10).toString()
                 const unitName = utils.randomNumber(10).toString()
                 const unitType = 'flat'
@@ -290,6 +303,8 @@ describe('FindOrganizationsByAddress', () => {
             })
 
             test('Should return receipt category if receipts have duplicates', async () => {
+                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                await utils.init()
                 const unitName = utils.randomNumber(10).toString()
                 const unitType = 'flat'
                 const accountNumber1 = utils.randomNumber(10).toString()
@@ -337,6 +352,8 @@ describe('FindOrganizationsByAddress', () => {
             })
 
             test('Should return meter resource and receipt category if organization in black list', async () => {
+                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                await utils.init()
                 setFeatureFlag(DISABLE_DISCOVER_SERVICE_CONSUMERS, true)
                 const unitName = utils.randomNumber(10).toString()
                 const unitType = 'flat'
@@ -370,7 +387,7 @@ describe('FindOrganizationsByAddress', () => {
                 const app = express()
                 const apiHandler = jest.fn()
                 const CHECK_URL_PATH = '/check-account-number'
-
+                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
                 app.get(CHECK_URL_PATH, async (req, res) => {
                     return res.json(await apiHandler())
                 })
@@ -378,6 +395,7 @@ describe('FindOrganizationsByAddress', () => {
                 initTestExpressApp('OnlineInteraction', app)
 
                 beforeAll(async () => {
+                    await utils.init()
                     const baseUrl = getTestExpressApp('OnlineInteraction').baseUrl + CHECK_URL_PATH
                     await utils.updateBillingIntegration({ checkAccountNumberUrl: baseUrl })
                 })
@@ -417,6 +435,8 @@ describe('FindOrganizationsByAddress', () => {
                         accountNumber: existingAccountNumber,
                         tin: utils.organization.tin,
                     })
+
+                    console.log(foundOrganizations)
                     const foundResult = foundOrganizations.find(({ id }) => id === utils.organization.id)
                     expect(foundResult.receipts).toBeDefined()
                     //TODO: change this line when eps has balance field
@@ -427,6 +447,8 @@ describe('FindOrganizationsByAddress', () => {
             })
 
             test('Should not return organization without receipts and meters', async () => {
+                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                await utils.init()
                 const accountNumber = utils.randomNumber(10).toString()
                 const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
                     addressKey: utils.property.addressKey,
@@ -437,6 +459,8 @@ describe('FindOrganizationsByAddress', () => {
             })
 
             test('Should return organization and receipt', async () => {
+                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                await utils.init()
                 const accountNumber = utils.randomNumber(10).toString()
                 const toPay = utils.randomNumber(5).toString()
                 const unitName = utils.randomNumber(10).toString()
@@ -472,6 +496,8 @@ describe('FindOrganizationsByAddress', () => {
             })
 
             test('Should return organization and two receipts', async () => {
+                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                await utils.init()
                 const accountNumber = utils.randomNumber(10).toString()
                 const toPay1 = utils.randomNumber(5).toString()
                 const toPay2 = utils.randomNumber(5).toString()
@@ -507,6 +533,8 @@ describe('FindOrganizationsByAddress', () => {
             })
 
             test('Should return organization and meter', async () => {
+                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                await utils.init()
                 const accountNumber = utils.randomNumber(10).toString()
                 await utils.createMeter({ accountNumber })
                 const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
@@ -531,6 +559,12 @@ describe('FindOrganizationsByAddress', () => {
     })
 
     describe('Permission check', () => {
+        const utils = new TestUtils([ResidentTestMixin])
+
+        beforeAll(async () => {
+            await utils.init()
+        })
+
         test('anonymous: can not execute', async () => {
             await expectToThrowAuthenticationErrorToResult(async () => {
                 await findOrganizationsByAddressByTestClient(utils.clients.anonymous, {
