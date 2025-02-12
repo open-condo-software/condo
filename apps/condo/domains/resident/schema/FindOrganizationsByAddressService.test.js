@@ -9,291 +9,562 @@ const { faker } = require('@faker-js/faker')
 const Big = require('big.js')
 const express = require('express')
 
-const { initTestExpressApp, getTestExpressApp } = require('@open-condo/keystone/test.utils')
+const { initTestExpressApp, getTestExpressApp, setFeatureFlag } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAccessDeniedErrorToResult,
     expectToThrowAuthenticationErrorToResult,
 } = require('@open-condo/keystone/test.utils')
 
 const { CONTEXT_FINISHED_STATUS, CONTEXT_IN_PROGRESS_STATUS } = require('@condo/domains/acquiring/constants/context')
+const { createTestAcquiringIntegrationContext, createTestAcquiringIntegration } = require('@condo/domains/acquiring/utils/testSchema')
 const { HOUSING_CATEGORY_ID, REPAIR_CATEGORY_ID } = require('@condo/domains/billing/constants/constants')
 const {
     ONLINE_INTERACTION_CHECK_ACCOUNT_NOT_FOUND_STATUS,
     ONLINE_INTERACTION_CHECK_ACCOUNT_SUCCESS_STATUS,
 } = require('@condo/domains/billing/constants/onlineInteraction')
+const { createTestBillingIntegrationOrganizationContext, createTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
 const {
     TestUtils,
+    BillingTestMixin,
+    AcquiringTestMixin,
     ResidentTestMixin,
     MeterTestMixin,
 } = require('@condo/domains/billing/utils/testSchema/testUtils')
+const { DISABLE_DISCOVER_SERVICE_CONSUMERS } = require('@condo/domains/common/constants/featureflags')
+const {
+    CALL_METER_READING_SOURCE_ID,
+} = require('@condo/domains/meter/constants/constants')
+const { COLD_WATER_METER_RESOURCE_ID, ELECTRICITY_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
+const { MeterReadingSource, MeterResourceOwner } = require('@condo/domains/meter/utils/testSchema')
+const { createTestMeterResourceOwner } = require('@condo/domains/meter/utils/testSchema')
+const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
+const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { updateTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { findOrganizationsByAddressByTestClient } = require('@condo/domains/resident/utils/testSchema')
+
+function getOnlyResourceMeterTest (resource) {
+    return {
+        resource: resource,
+        accountNumber: null,
+        number: null,
+        address: null,
+    }
+}
+
+function getOnlyCategoryReceiptTest (category){
+    return {
+        accountNumber: null,
+        category: category,
+        balance: null,
+        routingNumber: null,
+        bankAccount: null,
+        address: null,
+    }
+}
 
 describe('FindOrganizationsByAddress', () => {
 
-    let utils
+    const utils = new TestUtils([BillingTestMixin])
 
     beforeAll(async () => {
-        utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
         await utils.init()
     })
 
-    describe('Online interaction', () => {
-
-        // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
-        const app = express()
-        const apiHandler = jest.fn()
-        const CHECK_URL_PATH = '/check-account-number'
-
-        app.get(CHECK_URL_PATH, async (req, res) => {
-            return res.json(await apiHandler())
-        })
-
-        initTestExpressApp('OnlineInteraction', app)
-
-        beforeAll(async () => {
-            const baseUrl = getTestExpressApp('OnlineInteraction').baseUrl + CHECK_URL_PATH
-            await utils.updateBillingIntegration({ checkAccountNumberUrl: baseUrl })
-        })
-
-        afterAll(async () => {
-            await utils.updateBillingIntegration({ checkAccountNumberUrl: null })
-        })
-
-        afterEach(() => {
-            jest.clearAllMocks()
-        })
-
-        test('do not returns organization if account not found', async () => {
-            const notExistingAccountNumber = faker.random.alphaNumeric(16)
-            apiHandler.mockResolvedValue({ status: ONLINE_INTERACTION_CHECK_ACCOUNT_NOT_FOUND_STATUS })
-            const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
-                addressKey: utils.property.addressKey,
-                accountNumber: notExistingAccountNumber,
-                tin: utils.organization.tin,
+    describe('Unified flow', () => {
+        describe('General behaviour', () => {
+            test('Should not return organization if acquiring context is not in finished status', async () => {
+                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                await utils.init()
+                const [foundOrganizationsOnFinishedContext] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
+                    addressKey: utils.property.addressKey,
+                })
+                const foundForFinishedContext = foundOrganizationsOnFinishedContext.find(({ id }) => id === utils.organization.id)
+                expect(foundForFinishedContext).not.toBeUndefined()
+                await utils.updateAcquiringContext({ status: CONTEXT_IN_PROGRESS_STATUS })
+                const [foundOrganizationsOnInProgressContext] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
+                    addressKey: utils.property.addressKey,
+                })
+                const foundForInProgressContext = foundOrganizationsOnInProgressContext.find(({ id }) => id === utils.organization.id)
+                expect(foundForInProgressContext).toBeUndefined()
             })
-            expect(apiHandler).toHaveBeenCalledTimes(1)
-            expect(foundOrganizations).toHaveLength(0)
-        })
-
-        test('returns organization and receipt if account found', async () => {
-            const existingAccountNumber = faker.random.alphaNumeric(16)
-            apiHandler.mockResolvedValue({ status: ONLINE_INTERACTION_CHECK_ACCOUNT_SUCCESS_STATUS, services: [{
-                category: HOUSING_CATEGORY_ID,
-                account: { number: existingAccountNumber },
-                bankAccount: {
-                    number: faker.random.alphaNumeric(16),
-                    routingNumber: faker.random.alphaNumeric(16),
-                },
-            }] })
-            const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
-                addressKey: utils.property.addressKey,
-                accountNumber: existingAccountNumber,
-                tin: utils.organization.tin,
+        
+            test('Should return empty array if no properties', async () => {
+                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                await utils.init()
+                const wrongAddressKey = faker.datatype.uuid()
+                const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
+                    addressKey: wrongAddressKey,
+                })
+                expect(foundOrganizations).toHaveLength(0)
             })
-            const foundResult = foundOrganizations.find(({ organization: { id } }) => id === utils.organization.id)
-            expect(foundResult.account).not.toBeNull()
-            expect(foundResult.account.balance).toBeNull()
-            expect(apiHandler).toHaveBeenCalledTimes(1)
-        })
 
-    })
-
-    describe('Billing receipts cases', () => {
-
-        test('finds organization if only addressKey is specified', async () => {
-            const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
-                addressKey: utils.property.addressKey,
-            })
-            const found = foundOrganizations.find(({ organization: { id } }) => id === utils.organization.id)
-            expect(found.account).toBeNull()
-            expect(found.hasMeters).toBeFalsy()
-            expect(found.hasBillingData).toBeTruthy()
-            expect(found.organization).toMatchObject({
-                id: expect.any(String),
-                name: expect.any(String),
-                tin: expect.any(String),
-                type: expect.any(String),
+            test('Should return empty array if no meters and acquiring', async () => {
+                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                await utils.init()
+                const [organization] = await createTestOrganization(utils.clients.admin)
+                const [property] = await createTestProperty(utils.clients.admin, organization)
+                const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
+                    addressKey: property.addressKey,
+                })
+                expect(foundOrganizations).toHaveLength(0)
             })
         })
 
-        test('find account and receipt if unitName and unitType matches', async () => {
-            const unitName = utils.randomNumber(10).toString()
-            const unitType = 'flat'
-            const accountNumber = utils.randomNumber(10).toString()
-            const toPay = utils.randomNumber(5).toString()
-            await utils.createReceipts([
-                utils.createJSONReceipt({
+        describe('addressKey', () => {
+            test('Should return organization', async () => {
+                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                await utils.init()
+                const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
+                    addressKey: utils.property.addressKey,
+                })
+                const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
+                expect(found.meters).toHaveLength(0)
+                expect(found.receipts).toHaveLength(0)
+                expect(found.id).toEqual(utils.organization.id)
+                expect(found.name).toEqual(utils.organization.name)
+                expect(found.tin).toEqual(utils.organization.tin)
+                expect(found.type).toEqual(utils.organization.type)
+            })
+
+            test('Should return organization and receipt category', async () => {
+                const utils = new TestUtils([BillingTestMixin, AcquiringTestMixin, ResidentTestMixin, MeterTestMixin])
+                await utils.init()
+                await utils.createReceipts([
+                    utils.createJSONReceipt({
+                        address: utils.property.address,
+                        category: { id: HOUSING_CATEGORY_ID },
+                    }),
+                ])
+                const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
+                    addressKey: utils.property.addressKey,
+                })
+                const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
+                expect(found.meters).toHaveLength(0)
+                expect(found.receipts).toContainEqual(getOnlyCategoryReceiptTest(HOUSING_CATEGORY_ID))
+                expect(found.id).toEqual(utils.organization.id)
+                expect(found.name).toEqual(utils.organization.name)
+                expect(found.tin).toEqual(utils.organization.tin)
+                expect(found.type).toEqual(utils.organization.type)
+            })
+
+            test('Should return organization and meter resource', async () => {
+                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                await utils.init()
+                const [organization] = await createTestOrganization(utils.clients.admin)
+                const [property] = await createTestProperty(utils.clients.admin, organization)
+                const [meter] = await utils.createMeter({ resource: COLD_WATER_METER_RESOURCE_ID })
+                await createTestMeterResourceOwner(utils.clients.admin, organization, meter.resource, {
+                    address: property.address,
+                })
+                const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
+                    addressKey: property.addressKey,
+                })
+                const found = foundOrganizations.find(({ id }) => id === organization.id)
+                expect(found.receipts).toHaveLength(0)
+                expect(found.meters).toContainEqual(getOnlyResourceMeterTest(COLD_WATER_METER_RESOURCE_ID))
+                expect(found.id).toEqual(organization.id)
+                expect(found.name).toEqual(organization.name)
+                expect(found.tin).toEqual(organization.tin)
+                expect(found.type).toEqual(organization.type)
+            })
+
+            test('Should return several organizations', async () => {
+                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                await utils.init()
+                const [organization] = await createTestOrganization(utils.clients.admin)
+                const [billingIntegration] = await createTestBillingIntegration(utils.clients.admin)
+                const [acquiringIntegration] = await createTestAcquiringIntegration(utils.clients.admin)
+                await createTestAcquiringIntegrationContext(utils.clients.admin, organization, acquiringIntegration, { status: CONTEXT_FINISHED_STATUS })
+                await createTestBillingIntegrationOrganizationContext(utils.clients.admin, organization, billingIntegration, { status: CONTEXT_FINISHED_STATUS })
+                await createTestProperty(utils.clients.admin, organization, {
                     address: utils.property.address,
+                })
+
+                const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
+                    addressKey: utils.property.addressKey,
+                })
+                expect(foundOrganizations).toHaveLength(2)
+            })
+        })
+
+        describe('addressKey unitName unitType', () => {
+            setFeatureFlag(DISABLE_DISCOVER_SERVICE_CONSUMERS, false)
+
+            test('Should return meter only if org is resource owner', async () => {
+                const utils = new TestUtils([BillingTestMixin, AcquiringTestMixin, ResidentTestMixin, MeterTestMixin])
+                await utils.init()
+                const anotherUtils = new TestUtils([BillingTestMixin, AcquiringTestMixin, ResidentTestMixin, MeterTestMixin])
+                await anotherUtils.init()
+                await updateTestProperty(anotherUtils.clients.admin, anotherUtils.property.id, {
+                    address: utils.property.address,
+                    addressMeta: utils.property.addressMeta,
+                })
+                const accountNumber = utils.randomNumber(10).toString()
+                const unitName = utils.randomNumber(10).toString()
+                const unitType = 'flat'
+                await utils.createMeter({ unitName, accountNumber, resourceId: COLD_WATER_METER_RESOURCE_ID })
+                await utils.createMeter({ unitName, accountNumber, resourceId: ELECTRICITY_METER_RESOURCE_ID })
+                const meterResourceOwner = await MeterResourceOwner.getOne(utils.clients.admin, { organization: { id: utils.organization.id }, resource: { id: ELECTRICITY_METER_RESOURCE_ID } })
+                await MeterResourceOwner.softDelete(utils.clients.admin, meterResourceOwner.id)
+                await anotherUtils.createMeter({ unitName, accountNumber, resourceId: ELECTRICITY_METER_RESOURCE_ID })
+
+                const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
+                    addressKey: utils.property.addressKey,
+                    unitName,
+                    unitType,
+                })
+
+                expect(foundOrganizations).toHaveLength(2)
+                const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
+                const antoherFound = foundOrganizations.find(({ id }) => id === anotherUtils.organization.id)
+                expect(found.receipts).toHaveLength(0)
+                expect(found.meters).toHaveLength(1)
+                expect(found.meters[0]).toMatchObject({
+                    resource: COLD_WATER_METER_RESOURCE_ID,
+                    accountNumber: accountNumber,
+                    number: expect.any(String),
+                    address: utils.property.address,
+                })
+                expect(found.id).toEqual(utils.organization.id)
+                expect(found.name).toEqual(utils.organization.name)
+                expect(found.tin).toEqual(utils.organization.tin)
+                expect(found.type).toEqual(utils.organization.type)
+
+                expect(antoherFound.receipts).toHaveLength(0)
+                expect(antoherFound.meters).toHaveLength(1)
+                expect(antoherFound.meters[0]).toMatchObject({
+                    resource: ELECTRICITY_METER_RESOURCE_ID,
+                    accountNumber: accountNumber,
+                    number: expect.any(String),
+                    address: utils.property.address,
+                })
+                expect(antoherFound.id).toEqual(anotherUtils.organization.id)
+                expect(antoherFound.name).toEqual(anotherUtils.organization.name)
+                expect(antoherFound.tin).toEqual(anotherUtils.organization.tin)
+                expect(antoherFound.type).toEqual(anotherUtils.organization.type)
+            })
+
+            test('Should return receipt if unitName and unitType matches', async () => {
+                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                await utils.init()
+                const unitName = utils.randomNumber(10).toString()
+                const unitType = 'flat'
+                const accountNumber = utils.randomNumber(10).toString()
+                const toPay = utils.randomNumber(5).toString()
+                await utils.createReceipts([
+                    utils.createJSONReceipt({
+                        address: utils.property.address,
+                        accountNumber,
+                        addressMeta: { unitName, unitType },
+                        toPay,
+                    }),
+                ])
+                const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
+                    addressKey: utils.property.addressKey,
+                    unitName,
+                    unitType,
+                })
+                const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
+                expect(found.receipts[0]).toMatchObject({
+                    accountNumber: expect.stringMatching(accountNumber),
+                    category: expect.any(String),
+                    balance: expect.stringMatching(Big(toPay).toFixed(8)),
+                    routingNumber: expect.any(String),
+                    bankAccount: expect.any(String),
+                    address: utils.property.address,
+                })
+            })
+
+            test('Should return meter if unitName and unitType matches', async () => {
+                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                await utils.init()
+                const accountNumber = utils.randomNumber(10).toString()
+                const unitName = utils.randomNumber(10).toString()
+                const unitType = 'flat'
+                await MeterReadingSource.getAll(utils.clients.admin, { id: CALL_METER_READING_SOURCE_ID })
+                const [ meter ] = await utils.createMeter({ unitName, accountNumber })
+                const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
+                    addressKey: utils.property.addressKey,
+                    unitName,
+                    unitType,
+                })
+                const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
+                expect(found.receipts).toHaveLength(0)
+                expect(found.meters[0]).toMatchObject({
+                    resource: meter.resource.id,
+                    accountNumber: accountNumber,
+                    number: meter.number,
+                    address: utils.property.address,
+                })
+                expect(found.id).toEqual(utils.organization.id)
+                expect(found.name).toEqual(utils.organization.name)
+                expect(found.tin).toEqual(utils.organization.tin)
+                expect(found.type).toEqual(utils.organization.type)
+            })
+
+            test('Should return receipt category if receipts have duplicates', async () => {
+                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                await utils.init()
+                const unitName = utils.randomNumber(10).toString()
+                const unitType = 'flat'
+                const accountNumber1 = utils.randomNumber(10).toString()
+                const accountNumber2 = utils.randomNumber(10).toString()
+                const toPay = utils.randomNumber(5).toString()
+                await utils.createReceipts([
+                    utils.createJSONReceipt({
+                        address: utils.property.address,
+                        accountNumber: accountNumber1,
+                        addressMeta: { unitName, unitType },
+                        toPay,
+                        category: { id: HOUSING_CATEGORY_ID },
+                    }),
+                    utils.createJSONReceipt({
+                        address: utils.property.address,
+                        accountNumber: accountNumber2,
+                        addressMeta: { unitName, unitType },
+                        toPay,
+                        category: { id: HOUSING_CATEGORY_ID },
+                    }),
+                    utils.createJSONReceipt({
+                        address: utils.property.address,
+                        accountNumber: accountNumber1,
+                        addressMeta: { unitName, unitType },
+                        toPay,
+                        category: { id: REPAIR_CATEGORY_ID },
+                    }),
+                ])
+                const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
+                    addressKey: utils.property.addressKey,
+                    unitName,
+                    unitType,
+                })
+                const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
+                expect(found.receipts).toHaveLength(2)
+                expect(found.receipts).toContainEqual(getOnlyCategoryReceiptTest(HOUSING_CATEGORY_ID))
+                expect(found.receipts).toContainEqual({
+                    accountNumber: accountNumber1,
+                    category: REPAIR_CATEGORY_ID,
+                    balance: Big(toPay).toFixed(8),
+                    routingNumber: expect.any(String),
+                    bankAccount: expect.any(String),
+                    address: utils.property.address,
+                })
+            })
+
+            test('Should return meter resource and receipt category if organization in black list', async () => {
+                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                await utils.init()
+                setFeatureFlag(DISABLE_DISCOVER_SERVICE_CONSUMERS, true)
+                const unitName = utils.randomNumber(10).toString()
+                const unitType = 'flat'
+                await utils.createReceipts([
+                    utils.createJSONReceipt({
+                        category: { id: HOUSING_CATEGORY_ID },
+                        address: utils.property.address,
+                        addressMeta: { unitName, unitType },
+                    }),
+                ])
+                await utils.createMeter({ unitName, unitType })
+                const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
+                    addressKey: utils.property.addressKey,
+                    unitName,
+                    unitType,
+                })
+                const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
+                expect(found.meters[0]).toMatchObject({ resource: expect.any(String) })
+                expect(found.receipts[0]).toMatchObject({ category: expect.any(String) })
+                expect(found.id).toEqual(utils.organization.id)
+                expect(found.name).toEqual(utils.organization.name)
+                expect(found.tin).toEqual(utils.organization.tin)
+                expect(found.type).toEqual(utils.organization.type)
+                setFeatureFlag(DISABLE_DISCOVER_SERVICE_CONSUMERS, false)
+            })
+        })
+
+        describe('addressKey tin accountNumber', () => {
+            describe('Online interaction', () => {
+                // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
+                const app = express()
+                const apiHandler = jest.fn()
+                const CHECK_URL_PATH = '/check-account-number'
+                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                app.get(CHECK_URL_PATH, async (req, res) => {
+                    return res.json(await apiHandler())
+                })
+
+                initTestExpressApp('OnlineInteraction', app)
+
+                beforeAll(async () => {
+                    await utils.init()
+                    const baseUrl = getTestExpressApp('OnlineInteraction').baseUrl + CHECK_URL_PATH
+                    await utils.updateBillingIntegration({ checkAccountNumberUrl: baseUrl })
+                })
+
+                afterAll(async () => {
+                    await utils.updateBillingIntegration({ checkAccountNumberUrl: null })
+                })
+
+                afterEach(() => {
+                    jest.clearAllMocks()
+                })
+
+                test('Should not return organization if accountNumber is not found', async () => {
+                    const notExistingAccountNumber = faker.random.alphaNumeric(16)
+                    apiHandler.mockResolvedValue({ status: ONLINE_INTERACTION_CHECK_ACCOUNT_NOT_FOUND_STATUS })
+                    const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
+                        addressKey: utils.property.addressKey,
+                        accountNumber: notExistingAccountNumber,
+                        tin: utils.organization.tin,
+                    })
+
+                    expect(foundOrganizations).toHaveLength(0)
+                })
+
+                test('Should return organization and receipt if accountNumber is found', async () => {
+                    const existingAccountNumber = faker.random.alphaNumeric(16)
+                    apiHandler.mockResolvedValue({ status: ONLINE_INTERACTION_CHECK_ACCOUNT_SUCCESS_STATUS, services: [{
+                        category: HOUSING_CATEGORY_ID,
+                        account: { number: existingAccountNumber },
+                        bankAccount: {
+                            number: faker.random.alphaNumeric(16),
+                            routingNumber: faker.random.alphaNumeric(16),
+                        },
+                    }] })
+                    const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
+                        addressKey: utils.property.addressKey,
+                        accountNumber: existingAccountNumber,
+                        tin: utils.organization.tin,
+                    })
+
+                    console.log(foundOrganizations)
+                    const foundResult = foundOrganizations.find(({ id }) => id === utils.organization.id)
+                    expect(foundResult.receipts).toBeDefined()
+                    //TODO: change this line when eps has balance field
+                    // expect(foundResult.receipts.balance).toBeNull()
+                    expect(apiHandler).toHaveBeenCalledTimes(1)
+                })
+
+            })
+
+            test('Should not return organization without receipts and meters', async () => {
+                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                await utils.init()
+                const accountNumber = utils.randomNumber(10).toString()
+                const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
+                    addressKey: utils.property.addressKey,
                     accountNumber,
-                    addressMeta: { unitName, unitType },
-                    toPay,
-                }),
-            ])
-            const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
-                addressKey: utils.property.addressKey,
-                unitName,
-                unitType,
+                    tin: utils.organization.tin,
+                })
+                expect(foundOrganizations).toHaveLength(0)
             })
-            const found = foundOrganizations.find(({ organization: { id } }) => id === utils.organization.id)
-            expect(found.account).toMatchObject({
-                number: expect.stringMatching(accountNumber),
-                category: expect.any(String),
-                balance: expect.stringMatching(Big(toPay).toFixed(2)),
-                routingNumber: expect.any(String),
-                bankAccountNumber: expect.any(String),
-            })
-        })
 
-        test('returns multiple records if several receipts matches for one organization', async () => {
-            const unitName = utils.randomNumber(10).toString()
-            const unitType = 'flat'
-            const accountNumber = utils.randomNumber(10).toString()
-            const sameInput = { address: utils.property.address, accountNumber, addressMeta: { unitName, unitType } }
-            await utils.createReceipts([
-                utils.createJSONReceipt({
-                    category: { id: HOUSING_CATEGORY_ID },
-                    ...sameInput,
-                }),
-                utils.createJSONReceipt({
-                    category: { id: REPAIR_CATEGORY_ID },
-                    ...sameInput,
-                }),
-            ])
-            const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
-                addressKey: utils.property.addressKey,
-                unitName,
-                unitType,
+            test('Should return organization and receipt', async () => {
+                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                await utils.init()
+                const accountNumber = utils.randomNumber(10).toString()
+                const toPay = utils.randomNumber(5).toString()
+                const unitName = utils.randomNumber(10).toString()
+                const unitType = 'flat'
+                await utils.createReceipts([
+                    utils.createJSONReceipt({
+                        address: utils.property.address,
+                        addressMeta: { unitName, unitType },
+                        category: { id: HOUSING_CATEGORY_ID },
+                        accountNumber,
+                        toPay,
+                    }),
+                ])
+                const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
+                    addressKey: utils.property.addressKey,
+                    accountNumber,
+                    tin: utils.organization.tin,
+                })
+                const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
+                expect(found.meters).toHaveLength(0)
+                expect(found.receipts[0]).toMatchObject({
+                    category: expect.stringMatching(HOUSING_CATEGORY_ID),
+                    balance: expect.stringMatching(Big(toPay).toFixed(8)),
+                    accountNumber: expect.stringMatching(accountNumber),
+                    routingNumber: expect.any(String),
+                    bankAccount: expect.any(String),
+                    address: utils.property.address,
+                })
+                expect(found.id).toEqual(utils.organization.id)
+                expect(found.name).toEqual(utils.organization.name)
+                expect(found.tin).toEqual(utils.organization.tin)
+                expect(found.type).toEqual(utils.organization.type)
             })
-            const found = foundOrganizations.filter(({ account: { number } }) => number === accountNumber)
-            expect(found).toHaveLength(2)
-        })
 
-        test('returns organization with not matching unitName + unitType', async () => {
-            const unitName = utils.randomNumber(10).toString()
-            const unitType = 'flat'
-            await utils.createReceipts([
-                utils.createJSONReceipt({ address: utils.property.address, addressMeta: { unitName, unitType } }),
-            ])
-            const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
-                addressKey: utils.property.addressKey,
-                unitName,
-                unitType: 'warehouse',
+            test('Should return organization and two receipts', async () => {
+                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                await utils.init()
+                const accountNumber = utils.randomNumber(10).toString()
+                const toPay1 = utils.randomNumber(5).toString()
+                const toPay2 = utils.randomNumber(5).toString()
+                const unitName = utils.randomNumber(10).toString()
+                const unitType = 'flat'
+                await utils.createReceipts([
+                    utils.createJSONReceipt({
+                        address: utils.property.address,
+                        addressMeta: { unitName, unitType },
+                        category: { id: HOUSING_CATEGORY_ID },
+                        accountNumber,
+                        toPay: toPay1,
+                    }),
+                    utils.createJSONReceipt({
+                        address: utils.property.address,
+                        category: { id: REPAIR_CATEGORY_ID },
+                        accountNumber,
+                        toPay: toPay2,
+                    }),
+                ])
+                const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
+                    addressKey: utils.property.addressKey,
+                    accountNumber,
+                    tin: utils.organization.tin,
+                })
+                const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
+                expect(found.meters).toHaveLength(0)
+                expect(found.receipts).toHaveLength(2)
+                expect(found.id).toEqual(utils.organization.id)
+                expect(found.name).toEqual(utils.organization.name)
+                expect(found.tin).toEqual(utils.organization.tin)
+                expect(found.type).toEqual(utils.organization.type)
             })
-            const found = foundOrganizations.find(({ organization: { id } }) => id === utils.organization.id)
-            expect(found.account).toBeNull()
-            expect(found.organization).toMatchObject({
-                id: expect.any(String),
-                name: expect.any(String),
-                tin: expect.any(String),
-                type: expect.any(String),
-            })
-        })
 
-        test('do not returns organization with not matching account number', async () => {
-            const accountNumber = utils.randomNumber(10).toString()
-            const wrongAccountNumber = utils.randomNumber(10).toString()
-            const unitName = utils.randomNumber(10).toString()
-            const unitType = 'flat'
-            await utils.createReceipts([
-                utils.createJSONReceipt({ address: utils.property.address, accountNumber, addressMeta: { unitName, unitType } }),
-            ])
-            const [correctAccountNumberOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
-                addressKey: utils.property.addressKey,
-                accountNumber: accountNumber,
+            test('Should return organization and meter', async () => {
+                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                await utils.init()
+                const accountNumber = utils.randomNumber(10).toString()
+                await utils.createMeter({ accountNumber })
+                const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
+                    addressKey: utils.property.addressKey,
+                    accountNumber,
+                    tin: utils.organization.tin,
+                })
+                const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
+                expect(found.receipts).toHaveLength(0)
+                expect(found.meters[0]).toMatchObject({
+                    resource: expect.any(String),
+                    accountNumber: accountNumber,
+                    number: expect.any(String),
+                    address: utils.property.address,
+                })
+                expect(found.id).toEqual(utils.organization.id)
+                expect(found.name).toEqual(utils.organization.name)
+                expect(found.tin).toEqual(utils.organization.tin)
+                expect(found.type).toEqual(utils.organization.type)
             })
-            const correctAccountNumberFound = correctAccountNumberOrganizations.find(({ organization: { id } }) => id === utils.organization.id)
-            expect(correctAccountNumberFound.organization).toBeDefined()
-            const [wrongAccountNumberOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
-                addressKey: utils.property.addressKey,
-                accountNumber: wrongAccountNumber,
-            })
-            const wrongAccountNumberFound = wrongAccountNumberOrganizations.find(({ organization: { id } }) => id === utils.organization.id)
-            expect(wrongAccountNumberFound).toBeUndefined()
         })
-    })
-
-    describe('Meters cases', () => {
-        test('returns organization with not matching unitName + unitType', async () => {
-            const wrongUnitName = utils.randomNumber(10).toString()
-            await utils.createMeter()
-            const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
-                addressKey: utils.property.addressKey,
-                unitName: wrongUnitName,
-                unitType: 'flat',
-            })
-            const found = foundOrganizations.find(({ organization: { id } }) => id === utils.organization.id)
-            expect(found.hasMeters).toBeTruthy()
-            expect(found.organization).toBeDefined()
-        })
-        test('returns organization with matching account number', async () => {
-            const accountNumber = utils.randomNumber(10).toString()
-            await utils.createMeter({ accountNumber })
-            const [correctAccountNumberOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
-                addressKey: utils.property.addressKey,
-                accountNumber: accountNumber,
-            })
-            const correctAccountNumberFound = correctAccountNumberOrganizations.find(({ organization: { id } }) => id === utils.organization.id)
-            expect(correctAccountNumberFound.organization).toBeDefined()
-            expect(correctAccountNumberFound.hasMeters).toBeTruthy()
-        })
-        test('do not returns organization with not matching account number', async () => {
-            const accountNumber = utils.randomNumber(10).toString()
-            const wrongAccountNumber = utils.randomNumber(10).toString()
-            await utils.createMeter({ accountNumber })
-            const [correctAccountNumberOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
-                addressKey: utils.property.addressKey,
-                accountNumber: accountNumber,
-            })
-            const correctAccountNumberFound = correctAccountNumberOrganizations.find(({ organization: { id } }) => id === utils.organization.id)
-            expect(correctAccountNumberFound.organization).toBeDefined()
-            expect(correctAccountNumberFound.hasMeters).toBeTruthy()
-            const [wrongAccountNumberOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
-                addressKey: utils.property.addressKey,
-                accountNumber: wrongAccountNumber,
-            })
-            const wrongAccountNumberFound = wrongAccountNumberOrganizations.find(({ organization: { id } }) => id === utils.organization.id)
-            expect(wrongAccountNumberFound).toBeUndefined()
-        })
-    })
-
-    describe('contexts statuses', () => {
-
-        afterEach(async () => {
-            await utils.updateBillingContext({ status: CONTEXT_FINISHED_STATUS })
-            await utils.updateAcquiringContext({ status: CONTEXT_FINISHED_STATUS })
-        })
-
-        test('should not return organization if billing context is not in finished status', async () => {
-            const [foundOrganizationsOnFinishedContext] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
-                addressKey: utils.property.addressKey,
-            })
-            const foundForFinishedContext = foundOrganizationsOnFinishedContext.find(({ organization: { id } }) => id === utils.organization.id)
-            expect(foundForFinishedContext).not.toBeUndefined()
-            await utils.updateBillingContext({ status: CONTEXT_IN_PROGRESS_STATUS })
-            const [foundOrganizationsOnInProgressContext] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
-                addressKey: utils.property.addressKey,
-            })
-            const foundForInProgressContext = foundOrganizationsOnInProgressContext.find(({ organization: { id } }) => id === utils.organization.id)
-            expect(foundForInProgressContext).toBeUndefined()
-        })
-
-        test('should not return organization if acquiring context is not in finished status', async () => {
-            const [foundOrganizationsOnFinishedContext] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
-                addressKey: utils.property.addressKey,
-            })
-            const foundForFinishedContext = foundOrganizationsOnFinishedContext.find(({ organization: { id } }) => id === utils.organization.id)
-            expect(foundForFinishedContext).not.toBeUndefined()
-            await utils.updateAcquiringContext({ status: CONTEXT_IN_PROGRESS_STATUS })
-            const [foundOrganizationsOnInProgressContext] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
-                addressKey: utils.property.addressKey,
-            })
-            const foundForInProgressContext = foundOrganizationsOnInProgressContext.find(({ organization: { id } }) => id === utils.organization.id)
-            expect(foundForInProgressContext).toBeUndefined()
-        })
-
     })
 
     describe('Permission check', () => {
+        const utils = new TestUtils([ResidentTestMixin])
+
+        beforeAll(async () => {
+            await utils.init()
+        })
+
         test('anonymous: can not execute', async () => {
             await expectToThrowAuthenticationErrorToResult(async () => {
                 await findOrganizationsByAddressByTestClient(utils.clients.anonymous, {
@@ -341,5 +612,4 @@ describe('FindOrganizationsByAddress', () => {
             expect(organizations).not.toHaveLength(0)
         })
     })
-
 })

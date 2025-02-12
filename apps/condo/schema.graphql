@@ -80250,26 +80250,29 @@ input FindOrganizationsByAddressInput {
   accountNumber: String
 }
 
-type FindOrganizationByAddressOrganizationType {
+type FindOrganizationByAddressReceiptType {
+  accountNumber: String
+  category: ID!
+  balance: String
+  routingNumber: String
+  bankAccount: String
+  address: String
+}
+
+type FindOrganizationByAddressMeterType {
+  resource: ID!
+  number: String
+  accountNumber: String
+  address: String
+}
+
+type FindOrganizationByAddressOutput {
   id: ID!
   name: String!
   tin: String!
   type: OrganizationTypeType!
-}
-
-type FindOrganizationByAddressAccountType {
-  number: String!
-  category: ID!
-  balance: String
-  routingNumber: String!
-  bankAccountNumber: String!
-}
-
-type FindOrganizationByAddressOutput {
-  organization: FindOrganizationByAddressOrganizationType!
-  account: FindOrganizationByAddressAccountType
-  hasMeters: Boolean!
-  hasBillingData: Boolean!
+  receipts: [FindOrganizationByAddressReceiptType]!
+  meters: [FindOrganizationByAddressMeterType]!
 }
 
 input SuggestServiceProviderInput {
