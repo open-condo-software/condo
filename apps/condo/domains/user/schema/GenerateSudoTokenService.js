@@ -13,6 +13,7 @@ const { COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const access = require('@condo/domains/user/access/GenerateSudoTokenService')
+const { SERVICE } = require('@condo/domains/user/constants/common')
 const {
     CAPTCHA_CHECK_FAILED,
     CREDENTIAL_VALIDATION_FAILED,
@@ -97,7 +98,7 @@ const GenerateSudoTokenService = new GQLCustomSchema('GenerateSudoTokenService',
                     ' The user\'s submitted credentials are checked and if they are valid, a sudo token is returned to the user.',
                 errors: ERRORS,
             },
-            resolver: async (parent, args, context, info, extra = {}) => {
+            resolver: async (parent, args, context) => {
                 const { data } = args
                 const { captcha, user, authFactors, dv, sender } = data
 
@@ -108,9 +109,11 @@ const GenerateSudoTokenService = new GQLCustomSchema('GenerateSudoTokenService',
 
                 await authGuards({ email: normalizedEmail, phone: normalizedPhone, userType: user.userType }, context)
 
-                const { error: captchaError } = await captchaCheck(context, captcha)
-                if (captchaError) {
-                    throw new GQLError({ ...ERRORS.CAPTCHA_CHECK_FAILED, data: { error: captchaError } }, context)
+                if (user.userType !== SERVICE) {
+                    const { error: captchaError } = await captchaCheck(context, captcha)
+                    if (captchaError) {
+                        throw new GQLError({ ...ERRORS.CAPTCHA_CHECK_FAILED, data: { error: captchaError } }, context)
+                    }
                 }
 
                 checkDvAndSender(data, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
