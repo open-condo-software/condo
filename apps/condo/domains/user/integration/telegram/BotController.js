@@ -16,13 +16,13 @@ const { syncUser } = require('@condo/domains/user/integration/telegram/sync/sync
 const { startAuthedSession } = require('@condo/domains/user/integration/telegram/utils')
 
 
-const TELEGRAM_AUTH_BOT_TOKEN = process.env.TELEGRAM_AUTH_BOT_TOKEN
+const TELEGRAM_AUTH_BOT_TOKEN = conf.TELEGRAM_AUTH_BOT_TOKEN
 const redisClient = getRedisClient()
 
 class TelegramAuthBotController {
     #bot
-
     constructor () {
+        if (!TELEGRAM_AUTH_BOT_TOKEN) throw new Error('No telegram bot token!')
         this.#bot = new TelegramBot(TELEGRAM_AUTH_BOT_TOKEN, { polling: true })
     }
 
@@ -37,7 +37,7 @@ class TelegramAuthBotController {
         const startKey = match[1]
 
         if (!chatId || !startKey) return
-        
+
         const startData = await redisClient.get(`${TELEGRAM_AUTH_REDIS_START}${startKey}`)
         await  redisClient.del(`${TELEGRAM_AUTH_REDIS_START}${startKey}`)
 

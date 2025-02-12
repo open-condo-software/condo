@@ -39,7 +39,7 @@ class TelegramAuthRoutes {
                 redisClient.set(`${TELEGRAM_AUTH_REDIS_TOKEN}${uniqueKey}`, TELEGRAM_AUTH_STATUS_PENDING, 'EX', 300),
             ])
 
-            res.send({ startLink, uniqueKey })
+            res.json({ startLink, uniqueKey })
         } catch (error) {
             logger.error({ msg: 'Telegram auth start error', reqId: req.id, error })
             next(error)
