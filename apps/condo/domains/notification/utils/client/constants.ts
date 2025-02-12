@@ -19,7 +19,7 @@ const USER_MESSAGE_TYPES_FILTER_ON_CLIENT = [
     ...B2B_APP_MESSAGE_TYPES,
 ] as const
 
-type MessageTypeAllowedToFilterType = typeof USER_MESSAGE_TYPES_FILTER_ON_CLIENT[number]
+export type MessageTypeAllowedToFilterType = typeof USER_MESSAGE_TYPES_FILTER_ON_CLIENT[number]
 export type MessageTypesAllowedToFilterType = MessageTypeAllowedToFilterType[]
 
 export type UserMessageType = Omit<GetUserMessagesQueryResult['data']['messages'][number], 'type'> & {

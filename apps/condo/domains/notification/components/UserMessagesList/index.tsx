@@ -28,6 +28,7 @@ export const UserMessagesList = () => {
         messagesListRef,
         userMessages,
         readUserMessagesAt,
+        clearLoadedMessages,
 
         newMessagesLoading,
         moreMessagesLoading,
