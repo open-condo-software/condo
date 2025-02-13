@@ -14,14 +14,13 @@ import { isSSR } from '@open-condo/miniapp-utils'
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
 
+import { useAllowedToFilterMessageTypes } from '@condo/domains/notification/hooks/useAllowedToFilterMessageTypes'
 import { useUserMessages } from '@condo/domains/notification/hooks/useUserMessages'
 import { useUserMessagesListSettingsStorage } from '@condo/domains/notification/hooks/useUserMessagesListSettingsStorage'
 import {
     MessageTypesAllowedToFilterType,
     UserMessageType,
 } from '@condo/domains/notification/utils/client/constants'
-
-import { useAllowedToFilterMessageTypes } from '../hooks/useAllowedToFilterMessageTypes'
 
 
 type UserMessagesListContextType = {

@@ -23,6 +23,7 @@ export const UserMessagesList = () => {
     const UserMessagesListTitle = intl.formatMessage({ id: 'notification.UserMessagesList.title' })
     const ViewedMessage = intl.formatMessage({ id: 'notification.UserMessagesList.viewed' })
     const NewMessagePageTitle = intl.formatMessage({ id: 'notification.UserMessagesList.newMessagePageTitle' })
+    const EmptyListMessage = intl.formatMessage({ id: 'notification.UserMessagesList.emptyList' })
 
     const { breakpoints } = useLayoutContext()
 
@@ -57,7 +58,6 @@ export const UserMessagesList = () => {
         () => userMessages.filter(message => message.createdAt <= readUserMessagesAt),
         [readUserMessagesAt, userMessages])
 
-
     const audio = useAudio()
     const { setTitleConfig } = useWindowTitleContext()
     // Play audio and update favicon when new notification received
@@ -84,9 +84,9 @@ export const UserMessagesList = () => {
 
     const emptyPlaceholder = useMemo(() => (
         <BasicEmptyListView image='/dino/searching@2x.png'>
-            <Typography.Title level={5}>Пока уведомлений нет</Typography.Title>
+            <Typography.Title level={5}>{EmptyListMessage}</Typography.Title>
         </BasicEmptyListView>
-    ), [])
+    ), [EmptyListMessage])
 
     const messagesListContent = useMemo(() => {
         if (!newMessagesLoading && userMessages.length === 0) {
