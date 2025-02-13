@@ -20,7 +20,7 @@ export function useExecuteWithLock (
         })
     }, [lockName])
 
-    // NOTE: release lock when tab closes
+    // Release lock when tab closes
     useEffect(() => {
         return () => {
             if (releaseLockRef.current) {
