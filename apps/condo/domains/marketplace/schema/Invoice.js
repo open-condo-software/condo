@@ -20,6 +20,7 @@ const { GQLListSchema, getById, getByCondition, find } = require('@open-condo/ke
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { RECIPIENT_FIELD } = require('@condo/domains/acquiring/schema/fields/Recipient')
+const { AMOUNT_DISTRIBUTION_FIELD } = require('@condo/domains/billing/schema/fields/AmountDistribution')
 const { MONEY_AMOUNT_FIELD, UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
 const { CLIENT_NAME_FIELD, CLIENT_PHONE_LANDLINE_FIELD } = require('@condo/domains/common/schema/fields')
 const { getUnitTypeFieldResolveInput } = require('@condo/domains/common/utils/serverSchema/resolveHelpers')
@@ -416,6 +417,7 @@ const Invoice = new GQLListSchema('Invoice', {
             access: { create: false, read: true, update: false },
         },
 
+        amountDistribution: AMOUNT_DISTRIBUTION_FIELD,
     },
     hooks: {
         validateInput: async ({ resolvedData, operation, existingItem, context, originalInput }) => {

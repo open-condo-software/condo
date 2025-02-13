@@ -39,7 +39,8 @@ const {
 } = require('@condo/domains/acquiring/constants/payment')
 const { RECIPIENT_FIELD } = require('@condo/domains/acquiring/schema/fields/Recipient')
 const { ACQUIRING_CONTEXT_FIELD } = require('@condo/domains/acquiring/schema/fields/relations')
-const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
+const { split } = require('@condo/domains/acquiring/utils/billingCentrifuge')
+const { AcquiringIntegrationContext, Payment: PaymentGQL } = require('@condo/domains/acquiring/utils/serverSchema')
 const { PERIOD_FIELD } = require('@condo/domains/billing/schema/fields/common')
 const {
     CURRENCY_CODE_FIELD,
@@ -296,6 +297,40 @@ const Payment = new GQLListSchema('Payment', {
         },
 
         importId: IMPORT_ID_FIELD,
+
+        frozenDistribution: {
+            schemaDoc: 'Distribution obtained from a paid model (receipt or invoice)',
+            type: 'Json',
+            isRequired: false,
+            access: { read: access.canReadPaymentsSensitiveData },
+            hooks: {
+                resolveInput: async ({ operation, resolvedData, fieldPath }) => {
+                    if (operation === 'create') {
+                        const invoiceId = get(resolvedData, 'invoice')
+                        const receiptId = get(resolvedData, 'receipt')
+
+                        let frozenDistribution
+
+                        if (invoiceId) {
+                            frozenDistribution = get(resolvedData, ['frozenInvoice', 'data', 'amountDistribution'])
+                        } else if (receiptId) {
+                            frozenDistribution = get(resolvedData, ['frozenReceipt', 'data', 'amountDistribution'])
+                        }
+
+                        return frozenDistribution || resolvedData[fieldPath]
+                    }
+
+                    return resolvedData[fieldPath]
+                },
+            },
+        },
+
+        frozenSplits: {
+            schemaDoc: 'Splits created from distribution. Contains data applicable in external acquiring integration',
+            type: 'Json',
+            isRequired: false,
+            access: { read: access.canReadPaymentsSensitiveData },
+        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
@@ -306,16 +341,52 @@ const Payment = new GQLListSchema('Payment', {
         auth: true,
     },
     hooks: {
-        resolveInput: async ({ operation, resolvedData }) => {
+        resolveInput: async ({ operation, context, resolvedData }) => {
+            const isCreate = operation === 'create'
+
             if (resolvedData['explicitFee'] && !resolvedData['explicitServiceCharge']) {
                 resolvedData['explicitServiceCharge'] = '0'
             }
             if (resolvedData['explicitServiceCharge'] && !resolvedData['explicitFee']) {
                 resolvedData['explicitFee'] = '0'
             }
-            if (operation === 'create') {
+            if (isCreate) {
                 resolvedData['rawAddress'] = get(resolvedData, ['frozenReceipt', 'data', 'raw', 'address'])
             }
+
+            // Calculate splits if distribution was set
+            const frozenDistribution = get(resolvedData, ['frozenDistribution'])
+            if (isCreate && !!frozenDistribution) {
+                const invoiceId = get(resolvedData, 'invoice')
+                const receiptId = get(resolvedData, 'receipt')
+
+                const wherePart = {
+                    invoice_is_null: true,
+                    receipt_is_null: true,
+                }
+                if (invoiceId) {
+                    wherePart.invoice = { id: invoiceId }
+                    wherePart.invoice_is_null = undefined
+                } else if (receiptId) {
+                    wherePart.receipt = { id: receiptId }
+                    wherePart.receipt_is_null = undefined
+                }
+
+                const relatedPayments = await PaymentGQL.getAll(context, {
+                    ...wherePart,
+                    frozenDistribution_not: null,
+                    frozenSplits_not: null,
+                    deletedAt: null,
+                }, 'id frozenSplits')
+
+                const appliedSplits = relatedPayments.reduce((acc, payment) => [...acc, ...payment.frozenSplits], [])
+
+                resolvedData['frozenSplits'] = split(resolvedData['amount'], frozenDistribution, {
+                    feeAmount: get(resolvedData, 'implicitFee'),
+                    appliedSplits,
+                })
+            }
+
             return resolvedData
         },
         validateInput: async ({
@@ -362,12 +433,7 @@ const Payment = new GQLListSchema('Payment', {
                     ...existingItem,
                     ...resolvedData,
                 }
-                let requiredFields = PAYMENT_REQUIRED_FIELDS[newStatus]
-
-                // In the case or invoice, there is no context needed, because the invoice context included in the invoice
-                if (newItem.invoice) {
-                    requiredFields = requiredFields.filter((field) => field !== 'context')
-                }
+                const requiredFields = PAYMENT_REQUIRED_FIELDS[newStatus]
                 let requiredMissing = false
                 for (const field of requiredFields) {
                     if (!newItem.hasOwnProperty(field) || newItem[field] === null) {

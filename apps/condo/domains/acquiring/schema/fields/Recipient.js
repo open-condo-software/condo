@@ -56,4 +56,7 @@ const RECIPIENT_FIELD = {
 module.exports = {
     RECIPIENT_FIELD,
     RECIPIENT_FIELDS_DEFINITION,
+    RECIPIENT_FIELD_NAME,
+    RECIPIENT_INPUT_NAME,
+    RecipientSchema,
 }
