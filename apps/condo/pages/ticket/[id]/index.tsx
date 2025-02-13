@@ -876,7 +876,7 @@ const TicketIdPage: PageComponentType = () => {
             <PageWrapper>
                 <PageContent>
                     <FavoriteTicketsContextProvider
-                        extraTicketsQuery={{ ticketId }}
+                        extraTicketsQuery={{ id: ticketId }}
                     >
                         <TicketPageContent
                             pollCommentsQuery={pollCommentsQuery}

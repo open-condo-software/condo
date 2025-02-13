@@ -1,0 +1,11 @@
+query getOrganizationEmployeeSpecializations ($where: OrganizationEmployeeSpecializationWhereInput!, $sortBy: [SortOrganizationEmployeeSpecializationsBy!], $first: Int, $skip: Int) {
+    organizationEmployeeSpecializations: allOrganizationEmployeeSpecializations (where: $where, sortBy: $sortBy, first: $first, skip: $skip) {
+        id
+        employee {
+            id
+        }
+        specialization {
+            id
+        }
+    }
+}

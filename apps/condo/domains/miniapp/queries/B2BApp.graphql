@@ -1,0 +1,7 @@
+query getB2BApps ($where: B2BAppWhereInput!, $sortBy: [SortB2BAppsBy!]) {
+    b2bApps: allB2BApps(where: $where, sortBy: $sortBy) {
+        id
+        appUrl
+        features
+    }
+}
