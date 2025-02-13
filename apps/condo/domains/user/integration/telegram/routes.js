@@ -29,6 +29,7 @@ class TelegramAuthRoutes {
 
     async startAuth (req, res, next) {
         try {
+            if (!TELEGRAM_AUTH_BOT_URL) throw new Error('TELEGRAM_AUTH_BOT_URL is not configured')
             const userType = getUserType(req)
             const startKey = uuid()
             const uniqueKey = crypto.randomBytes(32).toString('hex')
