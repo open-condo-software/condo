@@ -2118,6 +2118,7 @@ input UserExternalIdentityHistoryRecordsCreateInput {
 }
 
 enum UserExternalIdentityIdentityTypeType {
+  telegram_auth
   apple_id
   sber_id
   sbbol
