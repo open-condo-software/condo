@@ -1,15 +1,18 @@
 /**
  * @jest-environment node
  */
-import { setFakeClientMode } from '@open-condo/keystone/test.utils'
-
-import { linkVirtualPaymentsToReceipts } from './linkVirtualPaymentsToReceipts'
-
-import { createTestBillingAccount, createTestBillingProperty } from '../../billing/utils/testSchema'
-import { AcquiringTestMixin, BillingTestMixin, TestUtils } from '../../billing/utils/testSchema/testUtils'
-import { registerMultiPaymentForVirtualReceiptByTestClient } from '../utils/testSchema'
-
 const index = require('@app/condo/index')
+
+const { find } = require('@open-condo/keystone/schema')
+const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
+
+const { linkVirtualPaymentsToReceipts } = require('./linkVirtualPaymentsToReceipts')
+
+const { createTestBillingAccount, createTestBillingProperty } = require('../../billing/utils/testSchema')
+const { AcquiringTestMixin, BillingTestMixin, TestUtils } = require('../../billing/utils/testSchema/testUtils')
+const { registerMultiPaymentForVirtualReceiptByTestClient } = require('../utils/testSchema')
+
+
 
 describe('linkReceiptsToPayment', () => {
     setFakeClientMode(index)
@@ -34,11 +37,21 @@ describe('linkReceiptsToPayment', () => {
             period: '2022-09-01',
             recipient,
         }
-        await registerMultiPaymentForVirtualReceiptByTestClient(utils.clients.admin, receipt, { id: utils.acquiringContext.id })
-        await utils.createReceipts([
+        const [multipayment] = await registerMultiPaymentForVirtualReceiptByTestClient(utils.clients.admin, receipt, { id: utils.acquiringContext.id })
+
+        const [[createdReceipt]] = await utils.createReceipts([
             utils.createJSONReceipt({ accountNumber: billingAccount.number, ...recipient, month: 9, year: 2022 }),
         ])
+
+        console.log(multipayment, createdReceipt)
         
         await linkVirtualPaymentsToReceipts()
+
+        const [payment] = await find('Payment', {
+            multiPayment: { id: multipayment.multiPaymentId },
+        })
+
+        expect(payment.receipt).toBe(createdReceipt.id)
+        expect(payment.frozenReceipt).toMatchObject(createdReceipt)
     })
 })

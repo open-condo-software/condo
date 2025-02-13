@@ -28,30 +28,22 @@ async function linkVirtualPaymentsToReceipts () {
             return
         }
 
-        const [billingContexts, billingAccounts] = await Promise.all([
-            find('BillingIntegrationOrganizationContext', {
-                organization: { id_in: payments.map(({ organization }) => organization) },
-                deletedAt: null,
-            }),
-            find('BillingAccount', {
-                number_in: payments.map(({ accountNumber }) => accountNumber),
-                deletedAt: null,
-            }),
-        ])
+        const billingAccounts = await find('BillingAccount', {
+            number_in: payments.map(({ accountNumber }) => accountNumber),
+            deletedAt: null,
+        })
 
-        const contextMap = new Map(billingContexts.map(ctx => [ctx.organization, ctx]))
         const accountMap = new Map(billingAccounts.map(acc => [acc.number, acc]))
 
         let linkedCount = 0
         let skippedCount = 0
 
         await Promise.all(payments.map(async (payment) => {
-            const billingContext = contextMap.get(payment.organization)
             const billingAccount = accountMap.get(payment.accountNumber)
 
-            if (!get(billingContext, 'id', null) || !get(billingAccount, 'id', null)) {
+            if (!get(billingAccount, 'id', null)) {
                 logger.warn({
-                    msg: 'Skipping payment due to missing billing context or account',
+                    msg: 'Skipping payment due to missing billing account',
                     data: { paymentId: payment.id },
                 })
                 skippedCount++
@@ -61,7 +53,7 @@ async function linkVirtualPaymentsToReceipts () {
             const receipts = await find('BillingReceipt', {
                 deletedAt: null,
                 period: payment.period,
-                context: { id: billingContext.id },
+                context: { id: payment.context },
                 account: { id: billingAccount.id },
                 recipient: {
                     bankAccount: payment.recipientBankAccount,
