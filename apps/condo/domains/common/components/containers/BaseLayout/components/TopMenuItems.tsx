@@ -4,6 +4,7 @@ import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
 import { Space } from '@open-condo/ui'
 
+import { UserMessagesList } from '@condo/domains/notification/components/UserMessagesList'
 import { InlineOrganizationSelect } from '@condo/domains/organization/components/OrganizationSelect'
 import { SBBOLIndicator } from '@condo/domains/organization/components/SBBOLIndicator'
 import { ServiceSubscriptionIndicator } from '@condo/domains/subscription/components/ServiceSubscriptionIndicator'
@@ -23,13 +24,14 @@ export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
     return (
         <>
             {props.headerAction ? props.headerAction : null}
-            <Space direction='horizontal' size={12} className='top-menu-items'>
-                <SBBOLIndicator organization={organization} />
-                <ServiceSubscriptionIndicator />
-                <Space size={40}>
+            <Space direction='horizontal' size={40} className='top-menu-items'>
+                <UserMessagesList />
+                <Space size={12}>
+                    <SBBOLIndicator organization={organization} />
+                    <ServiceSubscriptionIndicator />
                     <InlineOrganizationSelect />
-                    <UserMenu />
                 </Space>
+                <UserMenu />
             </Space>
         </>
     )
