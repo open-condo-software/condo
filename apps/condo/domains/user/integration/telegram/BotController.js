@@ -7,14 +7,17 @@ const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { i18n } = require('@open-condo/locales/loader')
 
 const {
-    TELEGRAM_AUTH_REDIS_START,
-    TELEGRAM_AUTH_REDIS_PENDING,
-    TELEGRAM_AUTH_REDIS_TOKEN,
+    TELEGRAM_AUTH_STATUS_PENDING,
+    TELEGRAM_AUTH_STATUS_SUCCESS,
 } = require('@condo/domains/user/integration/telegram/constants')
-const { TELEGRAM_AUTH_STATUS_PENDING } = require('@condo/domains/user/integration/telegram/constants')
 const { syncUser } = require('@condo/domains/user/integration/telegram/sync/syncUser')
-const { startAuthedSession } = require('@condo/domains/user/integration/telegram/utils')
-
+const {
+    startAuthedSession,
+    getRedisBotStateKey,
+    getRedisStartKey,
+    getRedisTokenKey,
+    getRedisStatusKey,
+} = require('@condo/domains/user/integration/telegram/utils')
 
 const TELEGRAM_AUTH_BOT_TOKEN = conf.TELEGRAM_AUTH_BOT_TOKEN
 const redisClient = getRedisClient()
@@ -41,14 +44,14 @@ class TelegramAuthBotController {
 
         if (!chatId || !startKey) return
 
-        const startData = await redisClient.get(`${TELEGRAM_AUTH_REDIS_START}${startKey}`)
-        await  redisClient.del(`${TELEGRAM_AUTH_REDIS_START}${startKey}`)
+        const startData = await redisClient.get(getRedisStartKey(startKey))
+        await  redisClient.del(getRedisStartKey(startKey))
 
         if (!startData) {
             return this.#sendMessage(chatId, 'telegram.auth.error', locale)
         }
 
-        await redisClient.set(`${TELEGRAM_AUTH_REDIS_PENDING}${chatId}`, startData, 'EX', 300)
+        await redisClient.set(getRedisBotStateKey(chatId), startData, 'EX', 300)
 
         this.#sendMessage(chatId, 'telegram.auth.start.response', locale, {
             reply_markup: {
@@ -67,30 +70,34 @@ class TelegramAuthBotController {
 
         if (!chatId || !contact) return
 
-        const { phone_number: phoneNumber, first_name: firstName, user_id: userId } = contact
+        const {
+            phone_number: phoneNumber,
+            first_name: firstName,
+            last_name: lastName,
+            user_id: userId,
+        } = contact
 
         if (fromId !== userId) {
             return this.#sendMessage(chatId, 'telegram.auth.contact.wrongContact', locale)
         }
 
-        const startData = await redisClient.get(`${TELEGRAM_AUTH_REDIS_PENDING}${chatId}`)
-        await redisClient.del(`${TELEGRAM_AUTH_REDIS_PENDING}${chatId}`)
+        const startData = await redisClient.get(getRedisBotStateKey(chatId))
+        await redisClient.del(getRedisBotStateKey(chatId))
 
         if (!startData) {
             return this.#sendMessage(chatId, 'telegram.auth.error', locale)
         }
 
-        await this.#authenticateUser(chatId, startData, { phoneNumber, firstName, userId }, locale)
+        await this.#authenticateUser(chatId, startData, { phoneNumber, firstName, lastName, userId }, locale)
     }
 
     async #authenticateUser (chatId, startData, userInfo, locale) {
         let uniqueKey, userType
         try {
             ({ uniqueKey, userType } = JSON.parse(startData))
-            await redisClient.del(`${TELEGRAM_AUTH_REDIS_START}${chatId}`)
-            const tokenPending = await redisClient.get(`${TELEGRAM_AUTH_REDIS_TOKEN}${uniqueKey}`)
-            
-            if (tokenPending !== TELEGRAM_AUTH_STATUS_PENDING) {
+
+            const status = await redisClient.get(getRedisStatusKey(uniqueKey))
+            if (status !== TELEGRAM_AUTH_STATUS_PENDING) {
                 return this.#sendMessage(chatId, 'telegram.auth.error', locale)
             }
 
@@ -98,7 +105,10 @@ class TelegramAuthBotController {
             const { id } = await syncUser({ context, userInfo, userType })
             const token = await startAuthedSession(id, context._sessionManager._sessionStore)
 
-            await redisClient.set(`${TELEGRAM_AUTH_REDIS_TOKEN}${uniqueKey}`, token, 'EX', 300)
+            await Promise.all([
+                redisClient.set(getRedisTokenKey(uniqueKey), token, 'EX', 300),
+                redisClient.set(getRedisStatusKey(uniqueKey), TELEGRAM_AUTH_STATUS_SUCCESS, 'EX', 300),
+            ])
 
             this.#sendMessage(chatId, 'telegram.auth.contact.complete', locale)
         } catch (error) {
