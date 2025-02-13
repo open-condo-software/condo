@@ -32,6 +32,16 @@ query getTicketInvoices ($ticketId: ID!) {
     }
 }
 
+query getTicketInvoiceCount ($ticketId: ID!) {
+    ticketInvoiceCount: _allInvoicesMeta (
+        where: {
+            ticket: { id: $ticketId }
+        }
+    ) {
+        count
+    }
+}
+
 query getInvoicesByIds ($ids: [ID!]!) {
     invoices: allInvoices (
         where: { id_in: $ids },
