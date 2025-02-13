@@ -1443,6 +1443,7 @@
   "news.type.common": "Planificado",
   "news.type.emergency": "Incidencia",
   "news.update.title": "Editar noticia",
+  "notification.UserMessagesList.emptyList": "Aún no hay notificaciones",
   "notification.UserMessagesList.message.PASS_TICKET_CREATED.label": "Nuevo pase de entrada",
   "notification.UserMessagesList.message.TICKET_COMMENT_CREATED.label": "Nuevo comentario de ticket",
   "notification.UserMessagesList.message.TICKET_CREATED.label": "Nuevo ticket",

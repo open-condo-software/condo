@@ -35,7 +35,7 @@ type UserMessagesBroadcastMessageType = {
 
 const USER_MESSAGES_LIST_POLL_LOCK_NAME = 'user-messages-list'
 const USER_MESSAGES_LIST_POLL_CHANNEL_NAME = 'user-messages-list'
-const USER_MESSAGES_LIST_POLL_INTERVAL_IN_MS = 15 * 1000
+const USER_MESSAGES_LIST_POLL_INTERVAL_IN_MS = 60 * 1000
 
 
 export const useUserMessages: UsePollUserMessagesType = ({ isDropdownOpen, messageTypesToFilter, skipQueryMessagesCondition }) => {

@@ -15,6 +15,8 @@ import { Space } from '@open-condo/ui'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Logo } from '@condo/domains/common/components/Logo'
 import { ResidentActions } from '@condo/domains/common/components/ResidentActions/ResidentActions'
+import { UserMessagesList } from '@condo/domains/notification/components/UserMessagesList'
+import { UserMessagesListContextProvider } from '@condo/domains/notification/contexts/UserMessagesListContext'
 import { InlineOrganizationSelect } from '@condo/domains/organization/components/OrganizationSelect'
 import { SBBOLIndicator } from '@condo/domains/organization/components/SBBOLIndicator'
 import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
@@ -22,12 +24,7 @@ import { ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION } from '@condo/doma
 import { useOrganizationInvites } from '@condo/domains/organization/hooks/useOrganizationInvites'
 import { UserMenu } from '@condo/domains/user/components/UserMenu'
 
-
 import { ITopMenuItemsProps, TopMenuItems } from './components/TopMenuItems'
-
-import { UserMessagesList } from '../../../../notification/components/UserMessagesList'
-import { UserMessagesListContextProvider } from '../../../../notification/contexts/UserMessagesListContext'
-
 
 
 const ORGANIZATION_TYPES: Array<OrganizationTypeType> = [OrganizationTypeType.ManagingCompany, OrganizationTypeType.ServiceProvider]
