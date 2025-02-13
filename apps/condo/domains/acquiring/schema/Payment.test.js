@@ -657,6 +657,17 @@ describe('Payment', () => {
             })
         })
         describe('Status-dependent model validations', () => {
+            test('Can update receipt if payment is virtual', async () => {
+                const { admin, organization, acquiringContext, billingReceipts } = await makePayer()
+                const [payment] = await createTestPayment(admin, organization, null, acquiringContext)
+                const [updatedPayment] = await updateTestPayment(admin, payment.id, {
+                    receipt: { connect: { id: billingReceipts[0].id } },
+                    frozenReceipt: billingReceipts[0],
+                })
+
+                expect(updatedPayment.receipt.id).toBe(billingReceipts[0].id)
+                expect(updatedPayment.frozenReceipt).toMatchObject(billingReceipts[0])
+            })
             test('Cannot change statuses if it\'s transition is not specified', async () => {
                 const { admin, organization, acquiringContext, billingReceipts } = await makePayer()
                 const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext, {
