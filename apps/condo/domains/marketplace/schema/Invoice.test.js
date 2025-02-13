@@ -21,7 +21,11 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
-const { createTestAcquiringIntegration, createTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
+const {
+    createTestAcquiringIntegration,
+    createTestAcquiringIntegrationContext,
+} = require('@condo/domains/acquiring/utils/testSchema')
+const { createTestBankAccount } = require('@condo/domains/banking/utils/testSchema')
 const { createTestBillingIntegration, createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 const {
@@ -44,6 +48,12 @@ const {
     createTestMarketPriceScope,
 } = require('@condo/domains/marketplace/utils/testSchema')
 const {
+    createTestB2BApp,
+    createTestB2BAppContext,
+    createTestB2BAppAccessRightSet,
+    createTestB2BAppAccessRight,
+} = require('@condo/domains/miniapp/utils/testSchema')
+const {
     MARKETPLACE_INVOICE_PUBLISHED_MESSAGE_TYPE,
     MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE_TYPE,
     MARKETPLACE_INVOICE_CASH_PUBLISHED_MESSAGE_TYPE,
@@ -58,7 +68,11 @@ const {
 } = require('@condo/domains/organization/utils/testSchema')
 const { FLAT_UNIT_TYPE, COMMERCIAL_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { makeClientWithProperty, createTestProperty } = require('@condo/domains/property/utils/testSchema')
-const { registerResidentByTestClient, registerResidentInvoiceByTestClient, updateTestResident } = require('@condo/domains/resident/utils/testSchema')
+const {
+    registerResidentByTestClient,
+    registerResidentInvoiceByTestClient,
+    updateTestResident,
+} = require('@condo/domains/resident/utils/testSchema')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { createTestTicket, updateTestTicket, TicketStatus } = require('@condo/domains/ticket/utils/testSchema')
 const {
@@ -66,10 +80,10 @@ const {
     makeClientWithSupportUser,
     makeClientWithResidentUser,
     makeClientWithStaffUser, createTestPhone,
+    makeClientWithServiceUser,
 } = require('@condo/domains/user/utils/testSchema')
 
 const { PRICE_MEASURES } = require('./fields/price')
-
 
 dayjs.extend(isSameOrAfter)
 
@@ -133,6 +147,46 @@ describe('Invoice', () => {
             test('anonymous can\'t', async () => {
                 await expectToThrowAuthenticationErrorToObj(async () => {
                     await createTestInvoice(anonymousClient, { id: 'does-not-matter' })
+                })
+            })
+
+            describe('service user', () => {
+                test('with access rights can', async () => {
+                    const serviceClient = await makeClientWithServiceUser()
+                    const [organization] = await createTestOrganization(adminClient)
+
+                    const [acquiringIntegration] = await createTestAcquiringIntegration(supportClient, { canGroupReceipts: true })
+                    await createTestAcquiringIntegrationContext(supportClient, organization, acquiringIntegration, {
+                        invoiceStatus: CONTEXT_FINISHED_STATUS,
+                        invoiceRecipient: createTestRecipient(),
+                    })
+
+                    const [app] = await createTestB2BApp(adminClient)
+                    await createTestB2BAppContext(supportClient, app, organization, { status: 'Finished' })
+                    const [accessRightSet] = await createTestB2BAppAccessRightSet(supportClient, app, {
+                        canReadOrganizations: true,
+                        canReadInvoices: true,
+                        canManageInvoices: true,
+                    })
+                    await createTestB2BAppAccessRight(supportClient, serviceClient.user, app, accessRightSet)
+
+                    const [invoice, attrs] = await createTestInvoice(serviceClient, organization)
+
+                    expectValuesOfCommonFields(invoice, attrs, serviceClient)
+                })
+
+                test('without access rights can\'t', async () => {
+                    const serviceClient = await makeClientWithServiceUser()
+                    const [organization] = await createTestOrganization(adminClient)
+
+                    const [app] = await createTestB2BApp(adminClient)
+                    await createTestB2BAppContext(adminClient, app, organization, { status: 'Finished' })
+                    const [accessRightSet] = await createTestB2BAppAccessRightSet(adminClient, app)
+                    await createTestB2BAppAccessRight(adminClient, serviceClient.user, app, accessRightSet)
+
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await createTestInvoice(serviceClient, organization)
+                    })
                 })
             })
         })
@@ -234,6 +288,58 @@ describe('Invoice', () => {
 
                 await expectToThrowAuthenticationErrorToObj(async () => {
                     await updateTestInvoice(anonymousClient, objCreated.id)
+                })
+            })
+
+            describe('service user', () => {
+                test('with access rights can', async () => {
+                    const serviceClient = await makeClientWithServiceUser()
+                    const [organization] = await createTestOrganization(adminClient)
+
+                    const [acquiringIntegration] = await createTestAcquiringIntegration(supportClient, { canGroupReceipts: true })
+                    await createTestAcquiringIntegrationContext(supportClient, organization, acquiringIntegration, {
+                        invoiceStatus: CONTEXT_FINISHED_STATUS,
+                        invoiceRecipient: createTestRecipient(),
+                    })
+
+                    const [app] = await createTestB2BApp(adminClient)
+                    await createTestB2BAppContext(supportClient, app, organization, { status: 'Finished' })
+                    const [accessRightSet] = await createTestB2BAppAccessRightSet(supportClient, app, {
+                        canReadOrganizations: true,
+                        canReadInvoices: true,
+                        canManageInvoices: true,
+                    })
+                    await createTestB2BAppAccessRight(supportClient, serviceClient.user, app, accessRightSet)
+
+                    const [invoice] = await createTestInvoice(serviceClient, organization)
+                    const [updatedInvoice] = await updateTestInvoice(serviceClient, invoice.id)
+
+                    expect(updatedInvoice).toEqual(expect.objectContaining({
+                        id: invoice.id,
+                        v: 2,
+                    }))
+                })
+
+                test('without access rights can\'t', async () => {
+                    const serviceClient = await makeClientWithServiceUser()
+                    const [organization] = await createTestOrganization(adminClient)
+
+                    const [acquiringIntegration] = await createTestAcquiringIntegration(supportClient, { canGroupReceipts: true })
+                    await createTestAcquiringIntegrationContext(supportClient, organization, acquiringIntegration, {
+                        invoiceStatus: CONTEXT_FINISHED_STATUS,
+                        invoiceRecipient: createTestRecipient(),
+                    })
+
+                    const [app] = await createTestB2BApp(adminClient)
+                    await createTestB2BAppContext(adminClient, app, organization, { status: 'Finished' })
+                    const [accessRightSet] = await createTestB2BAppAccessRightSet(adminClient, app)
+                    await createTestB2BAppAccessRight(adminClient, serviceClient.user, app, accessRightSet)
+
+                    const [invoice] = await createTestInvoice(adminClient, organization)
+
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await updateTestInvoice(serviceClient, invoice.id)
+                    })
                 })
             })
         })
@@ -358,6 +464,56 @@ describe('Invoice', () => {
                 const client = await makeClient()
                 await expectToThrowAuthenticationErrorToObjects(async () => {
                     await Invoice.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
+                })
+            })
+
+            describe('service user', () => {
+                test('with access rights can', async () => {
+                    const serviceClient = await makeClientWithServiceUser()
+                    const [organization] = await createTestOrganization(adminClient)
+
+                    const [acquiringIntegration] = await createTestAcquiringIntegration(supportClient, { canGroupReceipts: true })
+                    await createTestAcquiringIntegrationContext(supportClient, organization, acquiringIntegration, {
+                        invoiceStatus: CONTEXT_FINISHED_STATUS,
+                        invoiceRecipient: createTestRecipient(),
+                    })
+
+                    const [app] = await createTestB2BApp(adminClient)
+                    await createTestB2BAppContext(supportClient, app, organization, { status: 'Finished' })
+                    const [accessRightSet] = await createTestB2BAppAccessRightSet(supportClient, app, {
+                        canReadOrganizations: true,
+                        canReadInvoices: true,
+                        canManageInvoices: true,
+                    })
+                    await createTestB2BAppAccessRight(supportClient, serviceClient.user, app, accessRightSet)
+
+                    const [invoice, attrs] = await createTestInvoice(serviceClient, organization)
+                    const readInvoices = await Invoice.getAll(serviceClient, { id: invoice.id })
+
+                    expect(readInvoices).toHaveLength(1)
+                    expectValuesOfCommonFields(readInvoices[0], attrs, serviceClient)
+                })
+
+                test('without access rights can\'t', async () => {
+                    const serviceClient = await makeClientWithServiceUser()
+                    const [organization] = await createTestOrganization(adminClient)
+
+                    const [acquiringIntegration] = await createTestAcquiringIntegration(supportClient, { canGroupReceipts: true })
+                    await createTestAcquiringIntegrationContext(supportClient, organization, acquiringIntegration, {
+                        invoiceStatus: CONTEXT_FINISHED_STATUS,
+                        invoiceRecipient: createTestRecipient(),
+                    })
+
+                    const [app] = await createTestB2BApp(adminClient)
+                    await createTestB2BAppContext(adminClient, app, organization, { status: 'Finished' })
+                    const [accessRightSet] = await createTestB2BAppAccessRightSet(adminClient, app)
+                    await createTestB2BAppAccessRight(adminClient, serviceClient.user, app, accessRightSet)
+
+                    await createTestInvoice(adminClient, organization)
+
+                    const invoices = await Invoice.getAll(serviceClient, {})
+
+                    expect(invoices).toHaveLength(0)
                 })
             })
         })
@@ -2072,6 +2228,182 @@ describe('Invoice', () => {
                 type: 'canceled',
             })
             await updateTestTicket(client, ticket.id, { status: { connect: { id: status.id } } })
+        })
+
+        describe('validate distribution', () => {
+            describe('must throw an error if', () => {
+                let o10n
+                let bankAccount1, bankAccount2, bankAccount3
+                let recipient1, recipient2, recipient3
+                let rows
+                let serviceClient
+
+                beforeAll(async () => {
+                    [o10n] = await createTestOrganization(adminClient);
+                    [bankAccount1] = await createTestBankAccount(supportClient, o10n);
+                    [bankAccount2] = await createTestBankAccount(supportClient, o10n);
+                    [bankAccount3] = await createTestBankAccount(supportClient, o10n)
+
+                    recipient1 = createTestRecipient({
+                        tin: bankAccount1.tin,
+                        bic: bankAccount1.routingNumber,
+                        bankAccount: bankAccount1.number,
+                    })
+                    recipient2 = createTestRecipient({
+                        tin: bankAccount2.tin,
+                        bic: bankAccount2.routingNumber,
+                        bankAccount: bankAccount2.number,
+                    })
+                    recipient3 = createTestRecipient({
+                        tin: bankAccount3.tin,
+                        bic: bankAccount3.routingNumber,
+                        bankAccount: bankAccount3.number,
+                    })
+
+                    serviceClient = await makeClientWithServiceUser()
+                    const [app] = await createTestB2BApp(adminClient)
+                    await createTestB2BAppContext(supportClient, app, o10n, { status: 'Finished' })
+                    const [accessRightSet] = await createTestB2BAppAccessRightSet(supportClient, app, {
+                        canReadOrganizations: true,
+                        canReadInvoices: true,
+                        canManageInvoices: true,
+                    })
+                    await createTestB2BAppAccessRight(supportClient, serviceClient.user, app, accessRightSet)
+                    const [acquiringIntegration] = await createTestAcquiringIntegration(supportClient, { canGroupReceipts: true })
+                    await createTestAcquiringIntegrationContext(adminClient, o10n, acquiringIntegration, {
+                        invoiceStatus: CONTEXT_FINISHED_STATUS,
+                        invoiceRecipient: createTestRecipient(),
+                    })
+
+                    rows = [
+                        generateInvoiceRow({ toPay: '100', count: 2 }),
+                        generateInvoiceRow({ toPay: '300', count: 1 }),
+                    ]
+                })
+
+                test('no approved bank account for recipient', async () => {
+                    const unapprovedRecipient = createTestRecipient()
+                    await expectToThrowGQLError(async () => {
+                        await createTestInvoice(serviceClient, o10n, {
+                            rows,
+                            amountDistribution: [
+                                { recipient: unapprovedRecipient, amount: '200' },
+                                {
+                                    recipient: recipient2,
+                                    amount: '300',
+                                    vor: true,
+                                    overpaymentPart: 1,
+                                    isFeePayer: true,
+                                },
+                            ],
+                        })
+                    }, {
+                        code: 'BAD_USER_INPUT',
+                        type: 'NO_APPROVED_BANK_ACCOUNT',
+                        message: 'Some recipients not approved. Please connect to support.',
+                        messageInterpolation: { notApprovedRecipients: [unapprovedRecipient] },
+                    })
+                })
+
+                test('sums not match', async () => {
+                    await expectToThrowGQLError(async () => {
+                        await createTestInvoice(serviceClient, o10n, {
+                            rows,
+                            amountDistribution: [
+                                { recipient: recipient1, amount: '100' },
+                                {
+                                    recipient: recipient2,
+                                    amount: '300',
+                                    vor: true,
+                                    overpaymentPart: 1,
+                                    isFeePayer: true,
+                                },
+                            ],
+                        })
+                    }, {
+                        code: 'BAD_USER_INPUT',
+                        type: 'SUMS_NOT_MATCH',
+                        message: 'Total sum (toPay={toPay}) is not match to sum of distributions ({distributionsSum})',
+                        messageInterpolation: { toPay: '500', distributionsSum: '400' },
+                    })
+                })
+
+                describe('no single victim of rounding in each group', () => {
+                    test('when no such item', async () => {
+                        await expectToThrowGQLError(async () => {
+                            await createTestInvoice(serviceClient, o10n, {
+                                rows,
+                                amountDistribution: [
+                                    { recipient: recipient1, amount: '200' },
+                                    { recipient: recipient2, amount: '300', overpaymentPart: 1, isFeePayer: true },
+                                ],
+                            })
+                        }, {
+                            code: 'BAD_USER_INPUT',
+                            type: 'NO_VOR_IN_GROUP',
+                            message: 'Group {order} does not contains a SINGLE element with vor=true',
+                            messageInterpolation: { order: 0 },
+                        })
+                    })
+
+                    test('when 2 such items', async () => {
+                        await expectToThrowGQLError(async () => {
+                            await createTestInvoice(serviceClient, o10n, {
+                                rows,
+                                amountDistribution: [
+                                    { recipient: recipient1, amount: '100', order: 0, vor: true },
+                                    {
+                                        recipient: recipient2,
+                                        amount: '300',
+                                        order: 1,
+                                        vor: true,
+                                        overpaymentPart: 1,
+                                        isFeePayer: true,
+                                    },
+                                    { recipient: recipient3, amount: '100', order: 1, vor: true },
+                                ],
+                            })
+                        }, {
+                            code: 'BAD_USER_INPUT',
+                            type: 'NO_VOR_IN_GROUP',
+                            message: 'Group {order} does not contains a SINGLE element with vor=true',
+                            messageInterpolation: { order: 1 },
+                        })
+                    })
+                })
+
+                test('no fee payers', async () => {
+                    await expectToThrowGQLError(async () => {
+                        await createTestInvoice(serviceClient, o10n, {
+                            rows,
+                            amountDistribution: [
+                                { recipient: recipient1, amount: '200', vor: true },
+                                { recipient: recipient2, amount: '300', overpaymentPart: 1 },
+                            ],
+                        })
+                    }, {
+                        code: 'BAD_USER_INPUT',
+                        type: 'NO_FEE_PAYER',
+                        message: 'The distribution does not contains at least one fee payer (isFeePayer=true)',
+                    })
+                })
+
+                test('no overpayment receiver', async () => {
+                    await expectToThrowGQLError(async () => {
+                        await createTestInvoice(serviceClient, o10n, {
+                            rows,
+                            amountDistribution: [
+                                { recipient: recipient1, amount: '200', vor: true },
+                                { recipient: recipient2, amount: '300', isFeePayer: true },
+                            ],
+                        })
+                    }, {
+                        code: 'BAD_USER_INPUT',
+                        type: 'NO_OVERPAYMENT_RECEIVER',
+                        message: 'Distribution does not have at least one item with overpaymentPart value',
+                    })
+                })
+            })
         })
     })
 })

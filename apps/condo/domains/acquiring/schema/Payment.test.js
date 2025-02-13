@@ -56,17 +56,19 @@ const {
     updateTestAcquiringIntegrationContext,
     makePayerAndPayments, generatePaymentLinkByTestClient,
 } = require('@condo/domains/acquiring/utils/testSchema')
+const { createTestBankAccount } = require('@condo/domains/banking/utils/testSchema')
 const {
     createTestBillingIntegration, BillingProperty,
 } = require('@condo/domains/billing/utils/testSchema')
 const { createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
+const { createTestBillingReceipt } = require('@condo/domains/billing/utils/testSchema')
 const { TestUtils, ResidentTestMixin } = require('@condo/domains/billing/utils/testSchema/testUtils')
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 const {
     INVOICE_STATUS_PUBLISHED,
     INVOICE_STATUS_PAID,
 } = require('@condo/domains/marketplace/constants')
-const { Invoice, createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
+const { Invoice, createTestInvoice, generateInvoiceRow } = require('@condo/domains/marketplace/utils/testSchema')
 const {
     createTestOrganization,
     createTestOrganizationEmployee,
@@ -336,7 +338,7 @@ describe('Payment', () => {
                 })
             })
             describe('user', () => {
-                describe('acquiring integration can', () => {
+                describe('acquiring integration can update', () => {
                     test('payment with receipt', async () => {
                         const {
                             admin,
@@ -465,6 +467,200 @@ describe('Payment', () => {
                 expect(payment).toHaveProperty(missingField)
                 expect(Big(payment[specifiedField]).eq('50')).toBeTruthy()
                 expect(Big(payment[missingField]).eq('0')).toBeTruthy()
+            })
+        })
+
+        describe('distribution and splits', () => {
+            test('Should fill distribution field if paying for receipt', async () => {
+                const {
+                    admin,
+                    billingAccount,
+                    billingProperty,
+                    billingContext,
+                    acquiringContext,
+                    organization,
+                } = await makePayer()
+
+                const [bankAccount1] = await createTestBankAccount(admin, organization)
+                const [bankAccount2] = await createTestBankAccount(admin, organization)
+                const [bankAccount3] = await createTestBankAccount(admin, organization)
+
+                const recipient1 = createTestRecipient({
+                    tin: bankAccount1.tin,
+                    bic: bankAccount1.routingNumber,
+                    bankAccount: bankAccount1.number,
+                })
+                const recipient2 = createTestRecipient({
+                    tin: bankAccount2.tin,
+                    bic: bankAccount2.routingNumber,
+                    bankAccount: bankAccount2.number,
+                })
+                const recipient3 = createTestRecipient({
+                    tin: bankAccount3.tin,
+                    bic: bankAccount3.routingNumber,
+                    bankAccount: bankAccount3.number,
+                })
+
+                const [receipt] = await createTestBillingReceipt(admin, billingContext, billingProperty, billingAccount, {
+                    period: dayjs().format('YYYY-MM-01'),
+                    toPay: '500',
+                    amountDistribution: [
+                        { recipient: recipient1, amount: '100' },
+                        {
+                            recipient: recipient2,
+                            amount: '300',
+                            vor: true,
+                            overpaymentPart: 1,
+                            isFeePayer: true,
+                        },
+                        { recipient: recipient3, amount: '100' },
+                    ],
+                })
+
+                const [payment] = await createTestPayment(admin, organization, receipt, acquiringContext, {
+                    implicitFee: '25',
+                })
+
+                expect(payment.frozenDistribution).toEqual(expect.objectContaining(receipt.amountDistribution))
+                expect(payment.frozenSplits).toHaveLength(3)
+                expect(payment.frozenSplits).toEqual(expect.arrayContaining([
+                    { recipient: expect.objectContaining(recipient1), amount: '100' },
+                    { recipient: expect.objectContaining(recipient2), amount: '275', feeAmount: '25' },
+                    { recipient: expect.objectContaining(recipient3), amount: '100' },
+                ]))
+            })
+
+            test('Should fill distribution field if paying for invoice', async () => {
+                const adminClient = await makeLoggedInAdminClient()
+
+                const [acquiringIntegration] = await createTestAcquiringIntegration(adminClient, {
+                    canGroupReceipts: true,
+                })
+
+                const [organization] = await createTestOrganization(adminClient)
+
+                await createTestAcquiringIntegrationContext(adminClient, organization, acquiringIntegration, {
+                    invoiceStatus: CONTEXT_FINISHED_STATUS,
+                    invoiceImplicitFeeDistributionSchema: [{
+                        recipient: 'organization',
+                        percent: '5',
+                    }],
+                    invoiceRecipient: createTestRecipient(),
+                })
+
+                const [property] = await createTestProperty(adminClient, organization)
+
+                const residentClient = await makeClientWithResidentUser()
+                const unitType = FLAT_UNIT_TYPE
+                const unitName = faker.lorem.word()
+
+                await registerResidentByTestClient(
+                    residentClient,
+                    {
+                        address: property.address,
+                        addressMeta: property.addressMeta,
+                        unitType,
+                        unitName,
+                    })
+
+                const staffClient = await makeClientWithStaffUser()
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
+                    canManageInvoices: true,
+                    canManageContacts: true,
+                })
+                await createTestOrganizationEmployee(adminClient, organization, staffClient.user, role)
+
+                const [contact] = await createTestContact(staffClient, organization, property, {
+                    phone: residentClient.userAttrs.phone,
+                    unitType,
+                    unitName,
+                })
+
+                const [bankAccount1] = await createTestBankAccount(adminClient, organization)
+                const [bankAccount2] = await createTestBankAccount(adminClient, organization)
+                const [bankAccount3] = await createTestBankAccount(adminClient, organization)
+
+                const recipient1 = createTestRecipient({
+                    tin: bankAccount1.tin,
+                    bic: bankAccount1.routingNumber,
+                    bankAccount: bankAccount1.number,
+                })
+                const recipient2 = createTestRecipient({
+                    tin: bankAccount2.tin,
+                    bic: bankAccount2.routingNumber,
+                    bankAccount: bankAccount2.number,
+                })
+                const recipient3 = createTestRecipient({
+                    tin: bankAccount3.tin,
+                    bic: bankAccount3.routingNumber,
+                    bankAccount: bankAccount3.number,
+                })
+
+                const rows = [
+                    generateInvoiceRow({ toPay: '100', count: 2 }),
+                    generateInvoiceRow({ toPay: '300', count: 1 }),
+                ]
+
+                const [invoice, invoiceAttrs] = await createTestInvoice(staffClient, organization, {
+                    property: { connect: { id: property.id } },
+                    unitType,
+                    unitName,
+                    contact: { connect: { id: contact.id } },
+                    status: INVOICE_STATUS_PUBLISHED,
+                    rows,
+                    amountDistribution: [
+                        { recipient: recipient1, amount: '100' },
+                        {
+                            recipient: recipient2,
+                            amount: '300',
+                            vor: true,
+                            overpaymentPart: 1,
+                            isFeePayer: true,
+                        },
+                        { recipient: recipient3, amount: '100' },
+                    ],
+                })
+
+                const [{ paymentUrl }] = await generatePaymentLinkByTestClient(staffClient, null, null, null, {
+                    successUrl: 'https://success.ru',
+                    failureUrl: 'https://failure.ru',
+                }, { invoices: [pick(invoice, 'id')] })
+
+                const url = new URL(paymentUrl)
+                const testPaymentUrl = `${residentClient.serverUrl}${url.pathname}${url.search}`
+                const axios = axiosLib.default
+                const axiosClient = axios.create({
+                    adapter: require('axios/lib/adapters/http'),
+                    validateStatus: (status) => status >= 200 && status < 500,
+                    maxRedirects: 0,
+                    headers: { 'feature-flags': '[["payment-link",true]]' },
+                })
+                const res = await axiosClient.get(testPaymentUrl)
+
+                expect(res.status).toBe(302)
+                expect(res.headers).toEqual(expect.objectContaining({
+                    location: expect.stringMatching(`${acquiringIntegration.hostUrl}/api/anonymous/pay`),
+                }))
+
+                const multiPaymentRegexp = new RegExp(`\\b^${acquiringIntegration.hostUrl}/api/anonymous/pay/([^?/]+)\\b`)
+                const matches = multiPaymentRegexp.exec(res.headers.location)
+                expect(matches[1]).toMatch(UUID_RE)
+                const multiPaymentId = matches[1]
+
+                const multiPayment = await MultiPayment.getOne(adminClient, { id: multiPaymentId })
+                const payments = multiPayment.payments
+
+                expect(payments).toHaveLength(1)
+
+                const payment = await Payment.getOne(adminClient, { id: payments[0].id })
+
+                expect(payment.frozenDistribution).toEqual(invoiceAttrs.amountDistribution)
+                expect(payment.frozenSplits).toHaveLength(3)
+                expect(payment.frozenSplits).toEqual(expect.arrayContaining([
+                    { recipient: recipient1, amount: '100' },
+                    { recipient: recipient2, amount: '275', feeAmount: '25' },
+                    { recipient: recipient3, amount: '100' },
+                ]))
             })
         })
     })
@@ -886,13 +1082,16 @@ describe('Payment', () => {
             expect(updatedInvoice.client).toEqual(expect.objectContaining({ id: residentClient.user.id }))
         })
 
-
         test('Should fill rawAddress field if paying for receipt', async () => {
             const utils = new TestUtils([ResidentTestMixin])
             await utils.init()
             const accountNumber = faker.random.alphaNumeric(12)
             const notNormalizedAddress = utils.createAddressWithUnit() + ',,,,'
-            const jsonReceipt = utils.createJSONReceipt({ accountNumber, address: notNormalizedAddress, toPay: faker.finance.amount(100, 5000) })
+            const jsonReceipt = utils.createJSONReceipt({
+                accountNumber,
+                address: notNormalizedAddress,
+                toPay: faker.finance.amount(100, 5000),
+            })
             const [[{ id: receiptId, property: { id: propertyId } }]] = await utils.createReceipts([jsonReceipt])
 
             const property = await BillingProperty.getOne(utils.clients.admin, { id: propertyId })
