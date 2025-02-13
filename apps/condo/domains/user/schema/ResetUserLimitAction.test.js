@@ -11,6 +11,7 @@ const {
     expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects,
 } = require('@open-condo/keystone/test.utils')
 
+const { USER_TYPES } = require('@condo/domains/user/constants/common')
 const {
     SMS_COUNTER_LIMIT_TYPE,
     RATE_LIMIT_TYPE,
@@ -18,6 +19,7 @@ const {
     AUTH_COUNTER_LIMIT_TYPE,
 } = require('@condo/domains/user/constants/limits')
 const { ERRORS } = require('@condo/domains/user/schema/ResetUserLimitAction')
+const { buildQuotaKey: buildAuthQuotaKey, buildQuotaKeyByUserType: buildAuthQuotaKeyByUserType } = require('@condo/domains/user/utils/serverSchema/auth')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 const {
     ResetUserLimitAction,
@@ -405,30 +407,32 @@ describe('ResetUserLimitAction', () => {
 
         describe(`${AUTH_COUNTER_LIMIT_TYPE} type`, () => {
             test('throws error if key is not exists', async () => {
-                const ipv4 = faker.internet.ipv4()
+                await expectToThrowGQLError(async () => {
+                    await createTestResetUserLimitAction(admin, AUTH_COUNTER_LIMIT_TYPE, faker.internet.ip())
+                }, ERRORS.KEY_NOT_FOUND)
 
                 await expectToThrowGQLError(async () => {
-                    await createTestResetUserLimitAction(admin, AUTH_COUNTER_LIMIT_TYPE, ipv4)
+                    await createTestResetUserLimitAction(admin, AUTH_COUNTER_LIMIT_TYPE, faker.datatype.uuid())
+                }, ERRORS.KEY_NOT_FOUND)
+
+                await expectToThrowGQLError(async () => {
+                    await createTestResetUserLimitAction(admin, AUTH_COUNTER_LIMIT_TYPE, createTestPhone())
+                }, ERRORS.KEY_NOT_FOUND)
+
+                await expectToThrowGQLError(async () => {
+                    await createTestResetUserLimitAction(admin, AUTH_COUNTER_LIMIT_TYPE, createTestEmail())
                 }, ERRORS.KEY_NOT_FOUND)
             })
 
-            test('throws error if key is not valid ip', async () => {
-                const key = faker.random.alphaNumeric(8)
-                for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
-                    await redisGuard.incrementDayCounter(key)
-                }
-                const beforeReset = await redisGuard.getCounterValue(key)
-
-                expect(Number(beforeReset)).toEqual(COUNTER_VALUE_TO_UPDATE)
-
+            test('throws error if key is not valid uuid, ip, email or phone', async () => {
                 await expectToThrowGQLError(async () => {
-                    await createTestResetUserLimitAction(userWithDirectAccess, AUTH_COUNTER_LIMIT_TYPE, key)
+                    await createTestResetUserLimitAction(userWithDirectAccess, AUTH_COUNTER_LIMIT_TYPE, faker.random.alphaNumeric(10))
                 }, ERRORS.INVALID_IDENTIFIER)
             })
 
-            test('resets counter by ipv4', async () => {
+            test('resets counters by ip', async () => {
                 const ip = faker.internet.ipv4()
-                const key = `${AUTH_COUNTER_LIMIT_TYPE}:${ip}`
+                const key = buildAuthQuotaKey('ip', ip)
 
                 for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
                     await redisGuard.incrementDayCounter(key)
@@ -441,6 +445,109 @@ describe('ResetUserLimitAction', () => {
                 const afterReset = await redisGuard.getCounterValue(key)
 
                 expect(afterReset).toBeNull()
+            })
+
+            test('resets counters by user id', async () => {
+                const userId = faker.datatype.uuid()
+                const key = buildAuthQuotaKey('user', userId)
+
+                for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
+                    await redisGuard.incrementDayCounter(key)
+                }
+                const beforeReset = await redisGuard.getCounterValue(key)
+
+                expect(Number(beforeReset)).toEqual(COUNTER_VALUE_TO_UPDATE)
+
+                await createTestResetUserLimitAction(userWithDirectAccess, AUTH_COUNTER_LIMIT_TYPE, userId)
+                const afterReset = await redisGuard.getCounterValue(key)
+
+                expect(afterReset).toBeNull()
+            })
+
+            test.each(USER_TYPES)('resets counter by phone for %p', async (userType) => {
+                const phone = createTestPhone()
+                const key = buildAuthQuotaKeyByUserType('phone', phone, userType)
+
+                for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
+                    await redisGuard.incrementDayCounter(key)
+                }
+                const beforeReset = await redisGuard.getCounterValue(key)
+
+                expect(Number(beforeReset)).toEqual(COUNTER_VALUE_TO_UPDATE)
+
+                await createTestResetUserLimitAction(userWithDirectAccess, AUTH_COUNTER_LIMIT_TYPE, phone)
+                const afterReset = await redisGuard.getCounterValue(key)
+
+                expect(afterReset).toBeNull()
+            })
+
+            test('resets all counters by phone', async () => {
+                const phone = createTestPhone()
+                const keys = USER_TYPES.map(userType => buildAuthQuotaKeyByUserType('phone', phone, userType))
+
+                for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
+                    for (const key of keys) {
+                        await redisGuard.incrementDayCounter(key)
+                    }
+                }
+
+                const beforeResets = await Promise.all(
+                    keys.map(key => redisGuard.getCounterValue(key))
+                )
+
+                expect(beforeResets).toHaveLength(3)
+                expect(beforeResets.every(counterValue => Number(counterValue) === COUNTER_VALUE_TO_UPDATE)).toBeTruthy()
+
+                await createTestResetUserLimitAction(userWithDirectAccess, AUTH_COUNTER_LIMIT_TYPE, phone)
+                const afterReset = await Promise.all(
+                    keys.map(key => redisGuard.getCounterValue(key))
+                )
+
+                expect(afterReset).toHaveLength(3)
+                expect(afterReset.every(counterValue => counterValue === null)).toBeTruthy()
+            })
+
+            test.each(USER_TYPES)('resets counter by email for %p', async (userType) => {
+                const email = createTestEmail()
+                const key = buildAuthQuotaKeyByUserType('email', email, userType)
+
+                for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
+                    await redisGuard.incrementDayCounter(key)
+                }
+                const beforeReset = await redisGuard.getCounterValue(key)
+
+                expect(Number(beforeReset)).toEqual(COUNTER_VALUE_TO_UPDATE)
+
+                await createTestResetUserLimitAction(userWithDirectAccess, AUTH_COUNTER_LIMIT_TYPE, email)
+                const afterReset = await redisGuard.getCounterValue(key)
+
+                expect(afterReset).toBeNull()
+            })
+
+            test('resets all counters by email', async () => {
+                const email = createTestEmail()
+                const keys = USER_TYPES.map(userType => buildAuthQuotaKeyByUserType('email', email, userType))
+
+                for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
+                    for (const key of keys) {
+                        await redisGuard.incrementDayCounter(key)
+                    }
+                }
+
+                const beforeResets = await Promise.all(
+                    keys.map(key => redisGuard.getCounterValue(key))
+                )
+
+                expect(beforeResets).toHaveLength(3)
+                expect(beforeResets.every(counterValue => Number(counterValue) === COUNTER_VALUE_TO_UPDATE)).toBeTruthy()
+
+                await createTestResetUserLimitAction(userWithDirectAccess, AUTH_COUNTER_LIMIT_TYPE, email)
+                const afterReset = await Promise.all(
+                    keys.map(key => redisGuard.getCounterValue(key))
+                )
+
+                expect(afterReset).toHaveLength(3)
+                expect(afterReset.every(counterValue => counterValue === null)).toBeTruthy()
             })
         })
     })

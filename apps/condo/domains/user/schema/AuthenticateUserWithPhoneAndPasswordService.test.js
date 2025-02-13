@@ -127,82 +127,157 @@ describe('Auth by phone and password', () => {
         }])
     })
 
-    describe('ip guard', () => {
+    describe('guards', () => {
         const GUARD_WINDOW_LIMIT = 10
 
-        test('works fine', async () => {
-            const client = await makeClient()
+        describe('by ip', () => {
+            test('works fine', async () => {
+                const client = await makeClient()
 
-            for await (const i of Array.from(Array(GUARD_WINDOW_LIMIT).keys())) {
+                for await (const i of Array.from(Array(GUARD_WINDOW_LIMIT).keys())) {
+                    const phone = createTestPhone()
+                    const password = faker.datatype.string(42)
+
+                    const { errors } = await client.mutate(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, { phone, password })
+
+                    if (i === GUARD_WINDOW_LIMIT) {
+                        expect(errors).toHaveLength(1)
+                        expect(errors[0]).toMatchObject(expect.objectContaining({
+                            message: expect.stringMatching(/You have to wait \d{1,4} seconds to be able to send request again/),
+                            extensions: expect.objectContaining({
+                                type: 'TOO_MANY_REQUESTS',
+                                messageForUserTemplateKey: 'api.user.TOO_MANY_REQUESTS',
+                            }),
+                        }))
+                    } else {
+                        expect(errors).toHaveLength(1)
+                        expect(errors[0]).toMatchObject(expect.objectContaining({
+                            message: 'Wrong phone or password',
+                            extensions: expect.objectContaining({
+                                type: 'WRONG_CREDENTIALS',
+                                messageForUserTemplateKey: 'api.user.authenticateUserWithPhoneAndPassword.WRONG_CREDENTIALS',
+                            }),
+                        }))
+                    }
+                }
+            })
+
+            test('should be resettable', async () => {
+                const client = await makeClient()
+                const fakeIp = faker.internet.ip()
+                client.setHeaders({ 'x-forwarded-for': fakeIp })
+                const admin = await makeLoggedInAdminClient()
+
+                // Reach the lock
+                let lockErrors
+                for (let i = 0; i <= GUARD_WINDOW_LIMIT; i++) {
+                    const phone = createTestPhone()
+                    const password = faker.datatype.string(42)
+
+                    const { errors } = await client.mutate(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, { phone, password })
+                    lockErrors = errors
+                }
+
+                // Ensure that lock works fine
+                expect(lockErrors).toHaveLength(1)
+                expect(lockErrors[0]).toMatchObject(expect.objectContaining({
+                    message: expect.stringMatching(/You have to wait \d{1,4} seconds to be able to send request again/),
+                    extensions: expect.objectContaining({
+                        type: 'TOO_MANY_REQUESTS',
+                        messageForUserTemplateKey: 'api.user.TOO_MANY_REQUESTS',
+                    }),
+                }))
+
+                // Reset lock
+                await createTestResetUserLimitAction(admin, AUTH_COUNTER_LIMIT_TYPE, fakeIp)
+
+                // Ensure that no more lock
                 const phone = createTestPhone()
                 const password = faker.datatype.string(42)
-
                 const { errors } = await client.mutate(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, { phone, password })
-
-                if (i === GUARD_WINDOW_LIMIT) {
-                    expect(errors).toHaveLength(1)
-                    expect(errors[0]).toMatchObject(expect.objectContaining({
-                        message: expect.stringMatching(/You have to wait \d{1,4} seconds to be able to send request again/),
-                        extensions: expect.objectContaining({
-                            type: 'TOO_MANY_REQUESTS',
-                            messageForUserTemplateKey: 'api.user.TOO_MANY_REQUESTS',
-                        }),
-                    }))
-                } else {
-                    expect(errors).toHaveLength(1)
-                    expect(errors[0]).toMatchObject(expect.objectContaining({
-                        message: 'Wrong phone or password',
-                        extensions: expect.objectContaining({
-                            type: 'WRONG_CREDENTIALS',
-                            messageForUserTemplateKey: 'api.user.authenticateUserWithPhoneAndPassword.WRONG_CREDENTIALS',
-                        }),
-                    }))
-                }
-            }
+                expect(errors).toHaveLength(1)
+                expect(errors[0]).toMatchObject(expect.objectContaining({
+                    message: 'Wrong phone or password',
+                    extensions: expect.objectContaining({
+                        type: 'WRONG_CREDENTIALS',
+                        messageForUserTemplateKey: 'api.user.authenticateUserWithPhoneAndPassword.WRONG_CREDENTIALS',
+                    }),
+                }))
+            })
         })
 
-        test('should be resettable', async () => {
-            const client = await makeClient()
-            const fakeIp = faker.internet.ip()
-            client.setHeaders({ 'x-forwarded-for': fakeIp })
-            const admin = await makeLoggedInAdminClient()
-
-            // Reach the lock
-            let lockErrors
-            for (let i = 0; i <= GUARD_WINDOW_LIMIT; i++) {
+        describe('by phone', () => {
+            test('works fine', async () => {
                 const phone = createTestPhone()
+
+                for await (const i of Array.from(Array(GUARD_WINDOW_LIMIT).keys())) {
+                    const client = await makeClient()
+                    const password = faker.datatype.string(42)
+
+                    const { errors } = await client.mutate(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, { phone, password })
+
+                    if (i === GUARD_WINDOW_LIMIT) {
+                        expect(errors).toHaveLength(1)
+                        expect(errors[0]).toMatchObject(expect.objectContaining({
+                            message: expect.stringMatching(/You have to wait \d{1,4} seconds to be able to send request again/),
+                            extensions: expect.objectContaining({
+                                type: 'TOO_MANY_REQUESTS',
+                                messageForUserTemplateKey: 'api.user.TOO_MANY_REQUESTS',
+                            }),
+                        }))
+                    } else {
+                        expect(errors).toHaveLength(1)
+                        expect(errors[0]).toMatchObject(expect.objectContaining({
+                            message: 'Wrong phone or password',
+                            extensions: expect.objectContaining({
+                                type: 'WRONG_CREDENTIALS',
+                                messageForUserTemplateKey: 'api.user.authenticateUserWithPhoneAndPassword.WRONG_CREDENTIALS',
+                            }),
+                        }))
+                    }
+                }
+            })
+
+            test('should be resettable', async () => {
+                const phone = createTestPhone()
+                const admin = await makeLoggedInAdminClient()
+
+                // Reach the lock
+                let lockErrors
+                for (let i = 0; i <= GUARD_WINDOW_LIMIT; i++) {
+                    const client = await makeClient()
+                    const password = faker.datatype.string(42)
+
+                    const { errors } = await client.mutate(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, { phone, password })
+                    lockErrors = errors
+                }
+
+                // Ensure that lock works fine
+                expect(lockErrors).toHaveLength(1)
+                expect(lockErrors[0]).toMatchObject(expect.objectContaining({
+                    message: expect.stringMatching(/You have to wait \d{1,4} seconds to be able to send request again/),
+                    extensions: expect.objectContaining({
+                        type: 'TOO_MANY_REQUESTS',
+                        messageForUserTemplateKey: 'api.user.TOO_MANY_REQUESTS',
+                    }),
+                }))
+
+                // Reset lock
+                await createTestResetUserLimitAction(admin, AUTH_COUNTER_LIMIT_TYPE, phone)
+
+                // Ensure that no more lock
+                const client = await makeClient()
                 const password = faker.datatype.string(42)
-
                 const { errors } = await client.mutate(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, { phone, password })
-                lockErrors = errors
-            }
-
-            // Ensure that lock works fine
-            expect(lockErrors).toHaveLength(1)
-            expect(lockErrors[0]).toMatchObject(expect.objectContaining({
-                message: expect.stringMatching(/You have to wait \d{1,4} seconds to be able to send request again/),
-                extensions: expect.objectContaining({
-                    type: 'TOO_MANY_REQUESTS',
-                    messageForUserTemplateKey: 'api.user.TOO_MANY_REQUESTS',
-                }),
-            }))
-
-            // Reset lock
-            await createTestResetUserLimitAction(admin, AUTH_COUNTER_LIMIT_TYPE, fakeIp)
-
-            // Ensure that no more lock
-            const phone = createTestPhone()
-            const password = faker.datatype.string(42)
-            const { errors } = await client.mutate(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, { phone, password })
-            expect(errors).toHaveLength(1)
-            expect(errors[0]).toMatchObject(expect.objectContaining({
-                message: 'Wrong phone or password',
-                extensions: expect.objectContaining({
-                    type: 'WRONG_CREDENTIALS',
-                    messageForUserTemplateKey: 'api.user.authenticateUserWithPhoneAndPassword.WRONG_CREDENTIALS',
-                }),
-            }))
-
+                expect(errors).toHaveLength(1)
+                expect(errors[0]).toMatchObject(expect.objectContaining({
+                    message: 'Wrong phone or password',
+                    extensions: expect.objectContaining({
+                        type: 'WRONG_CREDENTIALS',
+                        messageForUserTemplateKey: 'api.user.authenticateUserWithPhoneAndPassword.WRONG_CREDENTIALS',
+                    }),
+                }))
+            })
         })
     })
 })

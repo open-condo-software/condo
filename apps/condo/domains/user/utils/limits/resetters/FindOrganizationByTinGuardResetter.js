@@ -9,6 +9,13 @@ class FindOrganizationByTinGuardResetter extends RedisGuardResetter {
         super(FIND_ORGANIZATION_BY_TIN_TYPE, [EMAIL_TYPE, PHONE_TYPE, UUID_TYPE])
     }
 
+    #getKeys (identifierKey, identifier) {
+        return [
+            `${this.guard_prefix}:${identifierKey}:${identifier}`,
+            `${this.guard_prefix}:total:${identifierKey}:${identifier}`,
+        ]
+    }
+
     async checkExistence (identifier) {
         const { isValid, identifierType } = this.isValidIdentifier(identifier)
         if (!isValid) {
@@ -16,11 +23,9 @@ class FindOrganizationByTinGuardResetter extends RedisGuardResetter {
         }
 
         // NOTE: identifierKey = userId | phone | email
-        const identifierKey = identifierType === 'uuid' ? 'userId' : identifierType
+        const identifierKey = identifierType === UUID_TYPE ? 'userId' : identifierType
 
-        const hasDailyLimit = await this.guard.checkCounterExistence(`${this.guard_prefix}:${identifierKey}:${identifier}`)
-        const hasTotalLimit = await this.guard.checkCounterExistence(`${this.guard_prefix}:total:${identifierKey}:${identifier}`)
-        return hasDailyLimit || hasTotalLimit
+        return this.guard.checkCountersExistence(...this.#getKeys(identifierKey, identifier))
     }
 
     async reset (identifier) {
@@ -29,11 +34,10 @@ class FindOrganizationByTinGuardResetter extends RedisGuardResetter {
             return 0
         }
 
-        // NOTE: typeKey = userId | phone | email
-        const typeKey = identifierType === 'uuid' ? 'userId' : identifierType
+        // NOTE: identifierKey = userId | phone | email
+        const identifierKey = identifierType === UUID_TYPE ? 'userId' : identifierType
 
-        await this.guard.deleteCounter(`${this.guard_prefix}:${typeKey}:${identifier}`)
-        await this.guard.deleteCounter(`${this.guard_prefix}:total:${typeKey}:${identifier}`)
+        return await this.guard.deleteCounters(...this.#getKeys(identifierKey, identifier))
     }
 }
 

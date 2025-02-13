@@ -4171,7 +4171,7 @@ type ResetUserLimitAction {
   sms: ["phone", "ip"], 
   rateLimit: ["uuid", "ip"], 
   findOrganizationsByTin: ["email", "phone", "uuid"], 
-  auth: ["ip"] 
+  auth: ["ip", "uuid", "phone", "email"] 
   """
   identifier: String
 
@@ -4367,6 +4367,452 @@ input ResetUserLimitActionCreateInput {
 
 input ResetUserLimitActionsCreateInput {
   data: ResetUserLimitActionCreateInput
+}
+
+enum UserSudoTokenHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type UserSudoTokenHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the UserSudoTokenHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the UserSudoTokenHistoryRecord List config, or
+   3. As an alias to a 'name' field on the UserSudoTokenHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the UserSudoTokenHistoryRecord List.
+  """
+  _label_: String
+  token: String
+  expiresAt: String
+  user: String
+  remainingUses: Int
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: UserSudoTokenHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input UserSudoTokenHistoryRecordWhereInput {
+  AND: [UserSudoTokenHistoryRecordWhereInput]
+  OR: [UserSudoTokenHistoryRecordWhereInput]
+  token: String
+  token_not: String
+  token_contains: String
+  token_not_contains: String
+  token_starts_with: String
+  token_not_starts_with: String
+  token_ends_with: String
+  token_not_ends_with: String
+  token_i: String
+  token_not_i: String
+  token_contains_i: String
+  token_not_contains_i: String
+  token_starts_with_i: String
+  token_not_starts_with_i: String
+  token_ends_with_i: String
+  token_not_ends_with_i: String
+  token_in: [String]
+  token_not_in: [String]
+  expiresAt: String
+  expiresAt_not: String
+  expiresAt_lt: String
+  expiresAt_lte: String
+  expiresAt_gt: String
+  expiresAt_gte: String
+  expiresAt_in: [String]
+  expiresAt_not_in: [String]
+  user: String
+  user_not: String
+  user_in: [String]
+  user_not_in: [String]
+  remainingUses: Int
+  remainingUses_not: Int
+  remainingUses_lt: Int
+  remainingUses_lte: Int
+  remainingUses_gt: Int
+  remainingUses_gte: Int
+  remainingUses_in: [Int]
+  remainingUses_not_in: [Int]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: UserSudoTokenHistoryRecordHistoryActionType
+  history_action_not: UserSudoTokenHistoryRecordHistoryActionType
+  history_action_in: [UserSudoTokenHistoryRecordHistoryActionType]
+  history_action_not_in: [UserSudoTokenHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input UserSudoTokenHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortUserSudoTokenHistoryRecordsBy {
+  token_ASC
+  token_DESC
+  expiresAt_ASC
+  expiresAt_DESC
+  remainingUses_ASC
+  remainingUses_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input UserSudoTokenHistoryRecordUpdateInput {
+  token: String
+  expiresAt: String
+  user: String
+  remainingUses: Int
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: UserSudoTokenHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input UserSudoTokenHistoryRecordsUpdateInput {
+  id: ID!
+  data: UserSudoTokenHistoryRecordUpdateInput
+}
+
+input UserSudoTokenHistoryRecordCreateInput {
+  token: String
+  expiresAt: String
+  user: String
+  remainingUses: Int
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: UserSudoTokenHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input UserSudoTokenHistoryRecordsCreateInput {
+  data: UserSudoTokenHistoryRecordCreateInput
+}
+
+""" A user's sudo token that is used to confirm any sensitive actions with the user. 
+"""
+type UserSudoToken {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the UserSudoToken List config, or
+   2. As an alias to the field set on 'labelField' in the UserSudoToken List config, or
+   3. As an alias to a 'name' field on the UserSudoToken List (if one exists), or
+   4. As an alias to the 'id' field on the UserSudoToken List.
+  """
+  _label_: String
+
+  """ Unique token """
+  token: String
+
+  """ Time when sudo token becomes not valid """
+  expiresAt: String
+
+  """ User to whom a sudo token is linked """
+  user: User
+
+  """ Number of remaining uses of the token. Once these are used up, the token will be not valid 
+  """
+  remainingUses: Int
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input UserSudoTokenWhereInput {
+  AND: [UserSudoTokenWhereInput]
+  OR: [UserSudoTokenWhereInput]
+  token: String
+  token_not: String
+  token_contains: String
+  token_not_contains: String
+  token_starts_with: String
+  token_not_starts_with: String
+  token_ends_with: String
+  token_not_ends_with: String
+  token_i: String
+  token_not_i: String
+  token_contains_i: String
+  token_not_contains_i: String
+  token_starts_with_i: String
+  token_not_starts_with_i: String
+  token_ends_with_i: String
+  token_not_ends_with_i: String
+  token_in: [String]
+  token_not_in: [String]
+  expiresAt: String
+  expiresAt_not: String
+  expiresAt_lt: String
+  expiresAt_lte: String
+  expiresAt_gt: String
+  expiresAt_gte: String
+  expiresAt_in: [String]
+  expiresAt_not_in: [String]
+  user: UserWhereInput
+  user_is_null: Boolean
+  remainingUses: Int
+  remainingUses_not: Int
+  remainingUses_lt: Int
+  remainingUses_lte: Int
+  remainingUses_gt: Int
+  remainingUses_gte: Int
+  remainingUses_in: [Int]
+  remainingUses_not_in: [Int]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input UserSudoTokenWhereUniqueInput {
+  id: ID!
+}
+
+enum SortUserSudoTokensBy {
+  token_ASC
+  token_DESC
+  expiresAt_ASC
+  expiresAt_DESC
+  user_ASC
+  user_DESC
+  remainingUses_ASC
+  remainingUses_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input UserSudoTokenUpdateInput {
+  token: String
+  expiresAt: String
+  user: UserRelateToOneInput
+  remainingUses: Int
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input UserSudoTokensUpdateInput {
+  id: ID!
+  data: UserSudoTokenUpdateInput
+}
+
+input UserSudoTokenCreateInput {
+  token: String
+  expiresAt: String
+  user: UserRelateToOneInput
+  remainingUses: Int
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input UserSudoTokensCreateInput {
+  data: UserSudoTokenCreateInput
 }
 
 enum OrganizationHistoryRecordHistoryActionType {
@@ -79449,6 +79895,29 @@ type CheckUserExistenceOutput {
   isPasswordSet: Boolean!
 }
 
+input GenerateSudoTokenUserIdentifierInput {
+  phone: String
+  email: String
+  userType: UserTypeType!
+}
+
+input GenerateSudoTokenAuthFactorsInput {
+  confirmPhoneToken: String
+  password: String
+}
+
+input GenerateSudoTokenInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  captcha: String!
+  user: GenerateSudoTokenUserIdentifierInput!
+  authFactors: GenerateSudoTokenAuthFactorsInput!
+}
+
+type GenerateSudoTokenOutput {
+  token: String!
+}
+
 enum OrganizationType {
   MANAGING_COMPANY
   HOLDING
@@ -81120,6 +81589,33 @@ type Query {
 
   """ Retrieve the meta-data for the ResetUserLimitAction list. """
   _ResetUserLimitActionsMeta: _ListMeta
+
+  """ Search for all UserSudoTokenHistoryRecord items which match the where clause. 
+  """
+  allUserSudoTokenHistoryRecords(where: UserSudoTokenHistoryRecordWhereInput, search: String, sortBy: [SortUserSudoTokenHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [UserSudoTokenHistoryRecord]
+
+  """ Search for the UserSudoTokenHistoryRecord item with the matching ID. """
+  UserSudoTokenHistoryRecord(where: UserSudoTokenHistoryRecordWhereUniqueInput!): UserSudoTokenHistoryRecord
+
+  """ Perform a meta-query on all UserSudoTokenHistoryRecord items which match the where clause. 
+  """
+  _allUserSudoTokenHistoryRecordsMeta(where: UserSudoTokenHistoryRecordWhereInput, search: String, sortBy: [SortUserSudoTokenHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the UserSudoTokenHistoryRecord list. """
+  _UserSudoTokenHistoryRecordsMeta: _ListMeta
+
+  """ Search for all UserSudoToken items which match the where clause. """
+  allUserSudoTokens(where: UserSudoTokenWhereInput, search: String, sortBy: [SortUserSudoTokensBy!], orderBy: String, first: Int, skip: Int): [UserSudoToken]
+
+  """ Search for the UserSudoToken item with the matching ID. """
+  UserSudoToken(where: UserSudoTokenWhereUniqueInput!): UserSudoToken
+
+  """ Perform a meta-query on all UserSudoToken items which match the where clause. 
+  """
+  _allUserSudoTokensMeta(where: UserSudoTokenWhereInput, search: String, sortBy: [SortUserSudoTokensBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the UserSudoToken list. """
+  _UserSudoTokensMeta: _ListMeta
 
   """ Search for all OrganizationHistoryRecord items which match the where clause. 
   """
@@ -85288,6 +85784,42 @@ type Mutation {
 
   """ Delete multiple ResetUserLimitAction items by ID. """
   deleteResetUserLimitActions(ids: [ID!]): [ResetUserLimitAction]
+
+  """ Create a single UserSudoTokenHistoryRecord item. """
+  createUserSudoTokenHistoryRecord(data: UserSudoTokenHistoryRecordCreateInput): UserSudoTokenHistoryRecord
+
+  """ Create multiple UserSudoTokenHistoryRecord items. """
+  createUserSudoTokenHistoryRecords(data: [UserSudoTokenHistoryRecordsCreateInput]): [UserSudoTokenHistoryRecord]
+
+  """ Update a single UserSudoTokenHistoryRecord item by ID. """
+  updateUserSudoTokenHistoryRecord(id: ID!, data: UserSudoTokenHistoryRecordUpdateInput): UserSudoTokenHistoryRecord
+
+  """ Update multiple UserSudoTokenHistoryRecord items by ID. """
+  updateUserSudoTokenHistoryRecords(data: [UserSudoTokenHistoryRecordsUpdateInput]): [UserSudoTokenHistoryRecord]
+
+  """ Delete a single UserSudoTokenHistoryRecord item by ID. """
+  deleteUserSudoTokenHistoryRecord(id: ID!): UserSudoTokenHistoryRecord
+
+  """ Delete multiple UserSudoTokenHistoryRecord items by ID. """
+  deleteUserSudoTokenHistoryRecords(ids: [ID!]): [UserSudoTokenHistoryRecord]
+
+  """ Create a single UserSudoToken item. """
+  createUserSudoToken(data: UserSudoTokenCreateInput): UserSudoToken
+
+  """ Create multiple UserSudoToken items. """
+  createUserSudoTokens(data: [UserSudoTokensCreateInput]): [UserSudoToken]
+
+  """ Update a single UserSudoToken item by ID. """
+  updateUserSudoToken(id: ID!, data: UserSudoTokenUpdateInput): UserSudoToken
+
+  """ Update multiple UserSudoToken items by ID. """
+  updateUserSudoTokens(data: [UserSudoTokensUpdateInput]): [UserSudoToken]
+
+  """ Delete a single UserSudoToken item by ID. """
+  deleteUserSudoToken(id: ID!): UserSudoToken
+
+  """ Delete multiple UserSudoToken items by ID. """
+  deleteUserSudoTokens(ids: [ID!]): [UserSudoToken]
 
   """ Create a single OrganizationHistoryRecord item. """
   createOrganizationHistoryRecord(data: OrganizationHistoryRecordCreateInput): OrganizationHistoryRecord
@@ -90403,6 +90935,54 @@ type Mutation {
   }`
   """
   resetUser(data: ResetUserInput!): ResetUserOutput
+
+  """
+  Generates a sudo token to confirm changes to sensitive data. The user's submitted credentials are checked and if they are valid, a sudo token is returned to the user.
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "CAPTCHA_CHECK_FAILED",
+    "message": "Failed to check CAPTCHA",
+    "messageForUser": "The operation could not be completed. Please update the application"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "DV_VERSION_MISMATCH",
+    "message": "Wrong value for data version number"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_FORMAT",
+    "message": "Invalid format of \"sender\" field value. Please, check the example for details",
+    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "CREDENTIAL_VALIDATION_FAILED",
+    "message": "User credentials validation failed",
+    "messageForUser": "Failed to authorize user"
+  }`
+  
+  `{
+    "code": "INTERNAL_ERROR",
+    "type": "GENERATE_TOKEN_FAILED",
+    "message": "Generate token failed"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "USER_IDENTITY_INVALID",
+    "message": "Email or phone cannot be empty"
+  }`
+  """
+  generateSudoToken(data: GenerateSudoTokenInput!): GenerateSudoTokenOutput
 
   """
   Registers new Organization for current user
