@@ -1,4 +1,4 @@
-import { useGetTourStepsLazyQuery } from '@app/condo/gql'
+import { useGetTourStepsLazyQuery, useSyncTourStepsMutation } from '@app/condo/gql'
 import { TourStepStatusType, TourStepTypeType } from '@app/condo/schema'
 import get from 'lodash/get'
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
@@ -9,9 +9,11 @@ import { useOrganization } from '@open-condo/next/organization'
 import { IMPORT_EVENT, ImportEmitter } from '@condo/domains/common/components/Import/Index'
 import { ACTIVE_STEPS_STORAGE_KEY, FIRST_LEVEL_STEPS, STEP_TYPES } from '@condo/domains/onboarding/constants/steps'
 import { useCompletedTourModals } from '@condo/domains/onboarding/hooks/TourContext/useCompletedTourModals'
-import { useSyncSteps } from '@condo/domains/onboarding/hooks/TourContext/useSyncSteps'
 import { TourStep } from '@condo/domains/onboarding/utils/clientSchema'
 import { MANAGING_COMPANY_TYPE } from '@condo/domains/organization/constants/common'
+
+import { getClientSideSenderInfo } from '../../common/utils/userid.utils'
+import {useCachePersistor} from "@open-condo/apollo";
 
 
 type ActiveTourStepType = typeof FIRST_LEVEL_STEPS[number] | null
@@ -56,7 +58,22 @@ export const TourProvider = ({ children }) => {
 
     const organizationId = useMemo(() => get(organization, 'id'), [organization])
     const organizationType = useMemo(() => get(organization, 'type'), [organization])
-    const syncLoading = useSyncSteps({ refetchSteps, organizationId })
+    const [syncTourStepMutation, { loading: syncLoading }] = useSyncTourStepsMutation({
+        onCompleted: async () => getTourSteps(),
+        variables: {
+            data: {
+                organization: { id: organizationId },
+                dv: 1,
+                sender: getClientSideSenderInfo(),
+            },
+        },
+    })
+
+    useEffect(() => {
+        if (!organizationId) return
+
+        syncTourStepMutation()
+    }, [organizationId])
 
     const [activeStep, setActiveStep] = useState<ActiveTourStepType>(getActiveTourStepFromStorage())
 
