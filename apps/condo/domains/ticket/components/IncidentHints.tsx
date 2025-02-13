@@ -1,7 +1,7 @@
 import {
-    useGetIncidentClassifierIncidentQuery,
-    useGetIncidentPropertiesQuery,
-    useGetIncidentsQuery,
+    useGetIncidentClassifierIncidentLazyQuery,
+    useGetIncidentPropertiesLazyQuery,
+    useGetIncidentsLazyQuery,
 } from '@app/condo/gql'
 import {
     Incident as IIncident,
@@ -141,35 +141,40 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
     const [allIncidents, setAllIncidents] = useState<IIncident[]>([])
     const [incidentsToShow, setIncidentsToShow] = useState<IIncident[]>([])
 
-    const { refetch: refetchIncidentProperties } = useGetIncidentPropertiesQuery({ skip: true })
-    const { refetch: refetchIncidents } = useGetIncidentsQuery({ skip: true })
-    const { refetch: refetchIncidentClassifierIncidents } = useGetIncidentClassifierIncidentQuery({ skip: true })
+    const [getIncidentProperties] = useGetIncidentPropertiesLazyQuery()
+    // const { refetch: refetchIncidentProperties } = useGetIncidentPropertiesQuery({ skip: true })
+    const [getIncidents] = useGetIncidentsLazyQuery()
+    // const { refetch: refetchIncidents } = useGetIncidentsQuery({ skip: true })
+    const [getIncidentClassifierIncidents] = useGetIncidentClassifierIncidentLazyQuery()
+    // const { refetch: refetchIncidentClassifierIncidents } = useGetIncidentClassifierIncidentQuery({ skip: true })
 
     const categoryId = useMemo(() => get(classifier, 'category.id', null), [classifier]) as string | null
     const problemId = useMemo(() => get(classifier, 'problem.id', null), [classifier]) as string | null
 
     const fetchIncidentProperties = useCallback(async (propertyId: string, organizationId: string) => {
-        const res = await refetchIncidentProperties({
-            where: {
-                property: {
-                    id: propertyId,
+        const res = await getIncidentProperties({
+            variables: {
+                where: {
+                    property: {
+                        id: propertyId,
+                        deletedAt: null,
+                    },
+                    incident: {
+                        organization: { id: organizationId },
+                        OR: [
+                            {
+                                AND: [{ status: IncidentStatusType.Actual }],
+                            },
+                            {
+                                AND: [{
+                                    status: IncidentStatusType.NotActual,
+                                    workFinish_gte: dayjs().subtract(WORK_FINISHED_IN_LAST_DAYS, 'days').toISOString(),
+                                }],
+                            },
+                        ],
+                    },
                     deletedAt: null,
                 },
-                incident: {
-                    organization: { id: organizationId },
-                    OR: [
-                        {
-                            AND: [{ status: IncidentStatusType.Actual }],
-                        },
-                        {
-                            AND: [{
-                                status: IncidentStatusType.NotActual,
-                                workFinish_gte: dayjs().subtract(WORK_FINISHED_IN_LAST_DAYS, 'days').toISOString(),
-                            }],
-                        },
-                    ],
-                },
-                deletedAt: null,
             },
         })
 
@@ -197,7 +202,12 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
             where.workFinish_gte = dayjs().subtract(workFinishedInLastDays, 'days').toISOString()
         }
 
-        const res = await refetchIncidents({ where, sortBy })
+        const res = await getIncidents({
+            variables: {
+                where,
+                sortBy,
+            },
+        })
 
         return res?.data?.incidents?.filter(Boolean) || []
     }, [])
@@ -232,8 +242,10 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
             }
         }
 
-        const res = await refetchIncidentClassifierIncidents({
-            where,
+        const res = await getIncidentClassifierIncidents({
+            variables: {
+                where,
+            },
         })
 
         return res?.data?.incidentClassifierIncident?.filter(Boolean) || []

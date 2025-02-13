@@ -406,6 +406,8 @@ const MenuItems: React.FC = () => {
 
 const TasksProvider = ({ children }) => {
     const { user, isLoading } = useAuth()
+    const { persistor } = useCachePersistor()
+
     // Use UI interfaces for all tasks, that are supposed to be tracked
     const { TicketDocumentGenerationTask: TicketDocumentGenerationTaskUIInterface } = useTicketDocumentGenerationTaskUIInterface()
     const { TicketExportTask: TicketExportTaskUIInterface } = useTicketExportTaskUIInterface()
@@ -422,7 +424,7 @@ const TasksProvider = ({ children }) => {
     // Load all tasks with 'processing' status
     const { data, loading: isProcessingTasksLoading } = useGetProcessingTasksQuery({
         variables: { userId: user?.id || null, createdAtGte: dayjs().startOf('day').toISOString() },
-        skip: !user?.id || isLoading,
+        skip: !user?.id || isLoading || !persistor,
     })
 
     const { records: miniAppTasks, loading: isMiniAppTasksLoading } = MiniAppTaskUIInterface.storage.useTasks(
