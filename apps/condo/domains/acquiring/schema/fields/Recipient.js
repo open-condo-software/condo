@@ -1,19 +1,7 @@
 const Ajv = require('ajv')
 
+const { RECIPIENT_FIELDS_DEFINITION } = require('@condo/domains/acquiring/constants/gql')
 const { render, getValidator } = require('@condo/domains/common/schema/json.utils')
-
-const RECIPIENT_FIELDS_DEFINITION = {
-    name: 'String',
-    bankName: 'String',
-    territoryCode: 'String',
-    offsettingAccount: 'String',
-    tin: 'String!',
-    iec: 'String',
-    // TODO(YEgorLu): DOMA-10442 rename to routingNumber
-    bic: 'String!',
-    bankAccount: 'String!',
-    classificationCode: 'String',
-}
 
 const RECIPIENT_FIELD_NAME = 'RecipientField'
 const RECIPIENT_INPUT_NAME = 'RecipientFieldInput'
