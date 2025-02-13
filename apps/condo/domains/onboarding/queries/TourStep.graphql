@@ -1,0 +1,11 @@
+query getTourSteps ($where: TourStepWhereInput!, $sortBy: [SortTourStepsBy!], $first: Int, $skip: Int) {
+    tourSteps: allTourSteps (where: $where, sortBy: $sortBy, first: $first, skip: $skip) {
+        id
+    }
+}
+
+mutation syncTourSteps ($data: SyncTourStepsInput!) {
+    result: syncTourSteps(data: $data) {
+        ok
+    }
+}
