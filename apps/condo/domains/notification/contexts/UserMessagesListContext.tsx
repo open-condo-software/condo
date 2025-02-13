@@ -28,7 +28,6 @@ type UserMessagesListContextType = {
     messagesListRef: ReturnType<typeof useRef<HTMLDivElement>>
     userMessages: UserMessageType[]
     readUserMessagesAt: string
-    clearLoadedMessages: () => void
 
     newMessagesLoading: boolean
     moreMessagesLoading: boolean
@@ -44,7 +43,6 @@ const UserMessageListContext = createContext<UserMessagesListContextType>({
     messagesListRef: null,
     userMessages: [],
     readUserMessagesAt: null,
-    clearLoadedMessages: null,
     newMessagesLoading: false,
     moreMessagesLoading: false,
     isDropdownOpen: false,
@@ -76,11 +74,8 @@ export const UserMessagesListContextProvider = ({ children }) => {
     } = useUserMessagesListSettingsStorage()
 
     const {
-        userMessages,
-        messagesListRef,
-        moreMessagesLoading,
-        clearLoadedMessages,
-        newMessagesLoading,
+        userMessages, messagesListRef, clearLoadedMessages,
+        moreMessagesLoading, newMessagesLoading,
     } = useUserMessages({
         isDropdownOpen,
         messageTypesToFilter,
@@ -153,7 +148,6 @@ export const UserMessagesListContextProvider = ({ children }) => {
                 messagesListRef,
                 userMessages,
                 readUserMessagesAt,
-                clearLoadedMessages,
                 newMessagesLoading,
                 moreMessagesLoading,
                 isDropdownOpen,

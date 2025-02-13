@@ -1,3 +1,4 @@
+import dayjs from 'dayjs'
 import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -19,12 +20,15 @@ const MESSAGE_ICON: Record<MessageTypeAllowedToFilterType, string> = {
     TICKET_CREATED: '📬',
 }
 
+const DATE_FORMAT = 'DD.MM.YYYY, HH:mm'
+
 export const MessageCard: React.FC<MessageCardProps> = ({ message, viewed }) => {
     const intl = useIntl()
     const MessageTitle = intl.formatMessage({ id: `notification.UserMessagesList.message.${message.type}.label` })
 
     const messageContent = useMemo(() => message?.defaultContent?.content, [message?.defaultContent?.content])
     const titleLink = useMemo(() => message?.meta?.data?.url, [message?.meta])
+    const createdAt = useMemo(() => dayjs(message?.createdAt).format(DATE_FORMAT), [message?.createdAt])
 
     return (
         <Card
@@ -45,7 +49,7 @@ export const MessageCard: React.FC<MessageCardProps> = ({ message, viewed }) => 
             </Typography.Paragraph>
             <div className='message-card-footer'>
                 <Typography.Paragraph type='secondary' size='small'>
-                    {message.createdAt}
+                    {createdAt}
                 </Typography.Paragraph>
             </div>
         </Card>
