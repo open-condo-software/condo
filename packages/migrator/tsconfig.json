@@ -12,6 +12,12 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "sourceMap": true,
-    "target": "ES6"
-  },
+    "target": "ES6",
+    "resolveJsonModule": true,
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    }
+  }
 }

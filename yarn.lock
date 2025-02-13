@@ -14304,8 +14304,12 @@ __metadata:
   resolution: "@open-condo/migrator@workspace:packages/migrator"
   dependencies:
     "@open-condo/tsconfig": "workspace:^"
+    "@types/node": ^16
     commander: ^11.0.0
+    glob: ^11.0.1
     tsup: ^8.3.6
+    typescript: ^5.5.4
+    zod: ^3.24.2
   bin:
     condo-migrator: dist/cli.js
     migrator: dist/cli.js
@@ -32165,6 +32169,22 @@ __metadata:
   bin:
     glob: dist/esm/bin.mjs
   checksum: 8a2dd914d5776987be5244624d9491bbcaf19f2387e06783737003ff696ebfd2264190c47014f8709c1c02d8bc892f17660cf986c587b107e194c0a3151ab333
+  languageName: node
+  linkType: hard
+
+"glob@npm:^11.0.1":
+  version: 11.0.1
+  resolution: "glob@npm:11.0.1"
+  dependencies:
+    foreground-child: ^3.1.0
+    jackspeak: ^4.0.1
+    minimatch: ^10.0.0
+    minipass: ^7.1.2
+    package-json-from-dist: ^1.0.0
+    path-scurry: ^2.0.0
+  bin:
+    glob: dist/esm/bin.mjs
+  checksum: ffbbafe1d2dae2fa68f190ac76df7254e840b27f59df34129fd658bd9da0c50b538d144eb0962dc7fa71cdaccf3fe108f045d4a15b3f5815e465749a6bf00965
   languageName: node
   linkType: hard
 
@@ -56957,6 +56977,13 @@ __metadata:
   version: 3.22.4
   resolution: "zod@npm:3.22.4"
   checksum: 80bfd7f8039b24fddeb0718a2ec7c02aa9856e4838d6aa4864335a047b6b37a3273b191ef335bf0b2002e5c514ef261ffcda5a589fb084a48c336ffc4cdbab7f
+  languageName: node
+  linkType: hard
+
+"zod@npm:^3.24.2":
+  version: 3.24.2
+  resolution: "zod@npm:3.24.2"
+  checksum: c02455c09678c5055c636d64f9fcda2424fea0aa46ac7d9681e7f41990bc55f488bcd84b9d7cfef0f6e906f51f55b245239d92a9f726248aa74c5b84edf00c2d
   languageName: node
   linkType: hard
 
