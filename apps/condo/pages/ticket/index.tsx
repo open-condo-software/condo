@@ -348,6 +348,7 @@ const TicketsTableContainer = ({
     useTableColumns,
     baseQueryLoading,
     TicketImportButton,
+    playSoundOnNewTickets,
 }) => {
     const intl = useIntl()
 
@@ -411,8 +412,11 @@ const TicketsTableContainer = ({
 
     const refetchTickets = useCallback(async () => {
         await refetch()
-        await loadNewTicketCount()
-    }, [loadNewTicketCount, refetch])
+
+        if (playSoundOnNewTickets) {
+            await loadNewTicketCount()
+        }
+    }, [loadNewTicketCount, playSoundOnNewTickets, refetch])
 
     const {
         columns,
@@ -420,8 +424,10 @@ const TicketsTableContainer = ({
     } = useTableColumns(filterMetas, tickets, refetchTickets, isRefetching, setIsRefetching)
 
     useEffect(() => {
-        loadNewTicketCount()
-    }, [loadNewTicketCount])
+        if (playSoundOnNewTickets) {
+            loadNewTicketCount()
+        }
+    }, [loadNewTicketCount, playSoundOnNewTickets])
 
     const loading = (isTicketsFetching || columnsLoading || baseQueryLoading) && !isRefetching
 
@@ -751,6 +757,7 @@ export const TicketsPageContent = ({
     showImport = false,
     loading = false,
     isTicketsExists,
+    playSoundOnNewTickets = false,
     error,
 }): JSX.Element => {
     const intl = useIntl()
@@ -848,6 +855,7 @@ export const TicketsPageContent = ({
                 searchTicketsQuery={searchTicketsQuery}
                 baseQueryLoading={loading}
                 TicketImportButton={TicketImportButton}
+                playSoundOnNewTickets={playSoundOnNewTickets}
             />
         </>
     )
