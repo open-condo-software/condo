@@ -4,7 +4,7 @@ import path from 'path'
 
 import { parse } from 'dotenv'
 
-import type { PackageInfoWithLocation } from './files'
+import type { PackageInfoWithLocation } from './packages'
 
 
 export async function extractEnvValue (pkg: PackageInfoWithLocation, key: string): Promise<string | undefined> {
