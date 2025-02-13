@@ -20,15 +20,18 @@ const TELEGRAM_AUTH_BOT_TOKEN = conf.TELEGRAM_AUTH_BOT_TOKEN
 const redisClient = getRedisClient()
 
 class TelegramAuthBotController {
-    #bot
+    #bot = null
     constructor () {
-        if (!TELEGRAM_AUTH_BOT_TOKEN) throw new Error('No telegram bot token!')
-        this.#bot = new TelegramBot(TELEGRAM_AUTH_BOT_TOKEN, { polling: true })
+        if (TELEGRAM_AUTH_BOT_TOKEN) {
+            this.#bot = new TelegramBot(TELEGRAM_AUTH_BOT_TOKEN, { polling: true })
+        }
     }
 
     init () {
-        this.#bot.onText(/\/start (.+)/, this.#handleStart.bind(this))
-        this.#bot.on('contact', this.#handleContact.bind(this))
+        if (this.#bot) {
+            this.#bot.onText(/\/start (.+)/, this.#handleStart.bind(this))
+            this.#bot.on('contact', this.#handleContact.bind(this))
+        }
     }
 
     async #handleStart (message, match) {
