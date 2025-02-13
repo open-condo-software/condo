@@ -1,8 +1,9 @@
+import { useGetOrganizationEmployeesByUserIdAndOrganizationTypeQuery } from '@app/condo/gql'
 import { OrganizationEmployee as OrganizationEmployeeType, OrganizationTypeType } from '@app/condo/schema'
 import { notification } from 'antd'
-import { get } from 'lodash'
-import React from 'react'
+import React, {useMemo} from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { FormattedMessage, useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -24,21 +25,37 @@ export const useOrganizationInvites = (organizationTypes: Array<OrganizationType
     const RejectMessage = intl.formatMessage({ id: 'Reject' })
     const DoneMessage = intl.formatMessage({ id: 'OperationCompleted' })
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
-
+    
     const { user, isAuthenticated } = useAuth()
-    const userId = get(user, 'id') || null
+    const userId = user?.id || null
     const { selectEmployee } = useOrganization()
-    const { objs: userInvites, refetch, loading } = OrganizationEmployee.useObjects({
-        where: {
-            user: { id: userId },
-            isAccepted: false,
-            isRejected: false,
-            isBlocked: false,
-            organization: { type_in: organizationTypes },
+    const { persistor } = useCachePersistor()
+    
+    const {
+        data,
+        refetch,
+        loading,
+    } = useGetOrganizationEmployeesByUserIdAndOrganizationTypeQuery({
+        variables: {
+            userId,
+            organizationType: organizationTypes,
         },
-    }, {
-        skip: !userId || !organizationTypes || organizationTypes.length < 1,
+        skip: !userId || !organizationTypes || organizationTypes.length < 1 || !persistor,
     })
+    const userInvites = useMemo(() => data?.employees?.filter(Boolean) || null, [data?.employees])
+
+    // const { objs: userInvites, refetch, loading } = OrganizationEmployee.useObjects({
+    //     where: {
+    //         user: { id: userId },
+    //         isAccepted: false,
+    //         isRejected: false,
+    //         isBlocked: false,
+    //         organization: { type_in: organizationTypes },
+    //     },
+    // }, {
+    //     skip: !userId || !organizationTypes || organizationTypes.length < 1,
+    // })
+
     const { addNotification } = useLayoutContext()
 
     const handleAcceptOrReject = async (item, action) => {

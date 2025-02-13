@@ -1,0 +1,17 @@
+query getPropertyScopeOrganizationEmployees ($employeeId: ID!) {
+    result: allPropertyScopeOrganizationEmployees (
+        where: {
+            employee: {
+                id: $employeeId
+            }
+        }
+    ) {
+        id
+        propertyScope {
+            id
+        }
+        employee {
+            id
+        }
+    }
+}

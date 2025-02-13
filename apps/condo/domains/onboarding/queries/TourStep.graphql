@@ -3,3 +3,9 @@ query getTourSteps ($where: TourStepWhereInput!, $sortBy: [SortTourStepsBy!], $f
         id
     }
 }
+
+mutation syncTourSteps ($data: SyncTourStepsInput!) {
+    result: syncTourSteps(data: $data) {
+        ok
+    }
+}
