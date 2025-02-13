@@ -1162,6 +1162,46 @@ export type GetTicketInvoicesQueryHookResult = ReturnType<typeof useGetTicketInv
 export type GetTicketInvoicesLazyQueryHookResult = ReturnType<typeof useGetTicketInvoicesLazyQuery>;
 export type GetTicketInvoicesSuspenseQueryHookResult = ReturnType<typeof useGetTicketInvoicesSuspenseQuery>;
 export type GetTicketInvoicesQueryResult = Apollo.QueryResult<Types.GetTicketInvoicesQuery, Types.GetTicketInvoicesQueryVariables>;
+export const GetTicketInvoiceCountDocument = gql`
+    query getTicketInvoiceCount($ticketId: ID!) {
+  ticketInvoiceCount: _allInvoicesMeta(where: {ticket: {id: $ticketId}}) {
+    count
+  }
+}
+    `;
+
+/**
+ * __useGetTicketInvoiceCountQuery__
+ *
+ * To run a query within a React component, call `useGetTicketInvoiceCountQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetTicketInvoiceCountQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetTicketInvoiceCountQuery({
+ *   variables: {
+ *      ticketId: // value for 'ticketId'
+ *   },
+ * });
+ */
+export function useGetTicketInvoiceCountQuery(baseOptions: Apollo.QueryHookOptions<Types.GetTicketInvoiceCountQuery, Types.GetTicketInvoiceCountQueryVariables> & ({ variables: Types.GetTicketInvoiceCountQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetTicketInvoiceCountQuery, Types.GetTicketInvoiceCountQueryVariables>(GetTicketInvoiceCountDocument, options);
+      }
+export function useGetTicketInvoiceCountLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetTicketInvoiceCountQuery, Types.GetTicketInvoiceCountQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetTicketInvoiceCountQuery, Types.GetTicketInvoiceCountQueryVariables>(GetTicketInvoiceCountDocument, options);
+        }
+export function useGetTicketInvoiceCountSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetTicketInvoiceCountQuery, Types.GetTicketInvoiceCountQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetTicketInvoiceCountQuery, Types.GetTicketInvoiceCountQueryVariables>(GetTicketInvoiceCountDocument, options);
+        }
+export type GetTicketInvoiceCountQueryHookResult = ReturnType<typeof useGetTicketInvoiceCountQuery>;
+export type GetTicketInvoiceCountLazyQueryHookResult = ReturnType<typeof useGetTicketInvoiceCountLazyQuery>;
+export type GetTicketInvoiceCountSuspenseQueryHookResult = ReturnType<typeof useGetTicketInvoiceCountSuspenseQuery>;
+export type GetTicketInvoiceCountQueryResult = Apollo.QueryResult<Types.GetTicketInvoiceCountQuery, Types.GetTicketInvoiceCountQueryVariables>;
 export const GetInvoicesByIdsDocument = gql`
     query getInvoicesByIds($ids: [ID!]!) {
   invoices: allInvoices(where: {id_in: $ids}, sortBy: [createdAt_DESC]) {

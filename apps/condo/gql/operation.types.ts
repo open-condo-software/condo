@@ -166,6 +166,13 @@ export type GetTicketInvoicesQueryVariables = Types.Exact<{
 
 export type GetTicketInvoicesQuery = { __typename?: 'Query', invoices?: Array<{ __typename?: 'Invoice', id: string, status?: Types.InvoiceStatusType | null, number?: number | null, paymentType?: Types.InvoicePaymentTypeType | null, currencyCode?: string | null, rows: Array<{ __typename?: 'InvoiceRowSchemaField', name: string, toPay: string, isMin: boolean, count: number, sku?: string | null }>, organization?: { __typename?: 'Organization', id: string } | null, createdBy?: { __typename?: 'User', id: string, name?: string | null, type?: Types.UserTypeType | null } | null, ticket?: { __typename?: 'Ticket', id: string } | null } | null> | null };
 
+export type GetTicketInvoiceCountQueryVariables = Types.Exact<{
+  ticketId: Types.Scalars['ID']['input'];
+}>;
+
+
+export type GetTicketInvoiceCountQuery = { __typename?: 'Query', ticketInvoiceCount?: { __typename?: '_QueryMeta', count?: number | null } | null };
+
 export type GetInvoicesByIdsQueryVariables = Types.Exact<{
   ids: Array<Types.Scalars['ID']['input']> | Types.Scalars['ID']['input'];
 }>;
