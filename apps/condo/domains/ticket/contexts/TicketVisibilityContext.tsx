@@ -1,9 +1,16 @@
-import { GetTicketByIdQueryResult } from '@app/condo/gql'
-import { Ticket, TicketWhereInput } from '@app/condo/schema'
+import {
+    GetTicketByIdQueryResult,
+    useGetOrganizationEmployeeSpecializationsQuery,
+    useGetPropertyScopeOrganizationEmployeesQuery,
+    useGetPropertyScopesQuery,
+    useGetPropertyScopePropertiesQuery,
+} from '@app/condo/gql'
+import { TicketWhereInput } from '@app/condo/schema'
 import get from 'lodash/get'
-import { createContext, useCallback, useContext } from 'react'
+import { createContext, useCallback, useContext, useMemo } from 'react'
 
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
 
@@ -13,12 +20,12 @@ import {
     PROPERTY_TICKET_VISIBILITY,
     ASSIGNED_TICKET_VISIBILITY,
 } from '@condo/domains/organization/constants/common'
-import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
-import {
-    PropertyScope,
-    PropertyScopeOrganizationEmployee,
-    PropertyScopeProperty,
-} from '@condo/domains/scope/utils/clientSchema'
+// import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
+// import {
+//     PropertyScope,
+//     PropertyScopeOrganizationEmployee,
+//     PropertyScopeProperty,
+// } from '@condo/domains/scope/utils/clientSchema'
 
 
 interface ITicketVisibilityContext {
@@ -207,34 +214,75 @@ const TicketVisibilityContextProvider: React.FC = ({ children }) => {
     const employee = get(userOrganization, 'link')
     const employeeId = get(employee, 'id', null)
     const ticketVisibilityType = get(employee, ['role', 'ticketVisibilityType'])
+    const { persistor } = useCachePersistor()
 
-    const { objs: propertyScopeEmployees, loading: employeesLoading } = PropertyScopeOrganizationEmployee.useAllObjects({
-        where: {
-            employee: { id: employeeId },
+    const { data: propertyScopeEmployeesResult, loading: employeesLoading } = useGetPropertyScopeOrganizationEmployeesQuery({
+        variables: {
+            employeeId,
         },
-    }, { skip: !employeeId })
+        skip: !employeeId || !persistor,
+    })
+    const propertyScopeEmployees = useMemo(() => propertyScopeEmployeesResult?.result.filter(Boolean) || [], [propertyScopeEmployeesResult?.result])
+
+    // const { objs: propertyScopeEmployees, loading: employeesLoading } = PropertyScopeOrganizationEmployee.useAllObjects({
+    //     where: {
+    //         employee: { id: employeeId },
+    //     },
+    // }, { skip: !employeeId })
+
     const propertyScopeIds = propertyScopeEmployees
         .filter(propertyScopeEmployee => propertyScopeEmployee.propertyScope && propertyScopeEmployee.employee)
         .map(propertyScopeEmployee => propertyScopeEmployee.propertyScope.id)
-    const { objs: propertyScopes, loading: propertyScopeLoading } = PropertyScope.useAllObjects({
-        where: {
-            organization: { id: organizationId },
-            OR: [
-                { id_in: propertyScopeIds },
-                { hasAllEmployees: true },
-            ],
+
+    const { data: propertyScopesResult, loading: propertyScopeLoading } = useGetPropertyScopesQuery({
+        variables: {
+            organizationId,
+            propertyScopeIds,
         },
-    }, { skip: !organizationId })
-    const { objs: propertyScopeProperties, loading: propertiesLoading } = PropertyScopeProperty.useAllObjects({
-        where: {
-            propertyScope: { id_in: propertyScopes.map(scope => scope.id) },
+        skip: !organizationId || !persistor,
+    })
+    const propertyScopes = useMemo(() => propertyScopesResult?.result.filter(Boolean) || [], [propertyScopesResult?.result])
+
+    // const { objs: propertyScopes, loading: propertyScopeLoading } = PropertyScope.useAllObjects({
+    //     where: {
+    //         organization: { id: organizationId },
+    //         OR: [
+    //             { id_in: propertyScopeIds },
+    //             { hasAllEmployees: true },
+    //         ],
+    //     },
+    // }, { skip: !organizationId })
+
+
+    const { data: propertyScopePropertiesResult, loading: propertiesLoading } = useGetPropertyScopePropertiesQuery({
+        variables: {
+            propertyScopeIds: propertyScopes.map(scope => scope.id),
         },
-    }, { skip: propertyScopes.length === 0 })
-    const { objs: employeeSpecializations, loading: specializationsLoading } = OrganizationEmployeeSpecialization.useAllObjects({
-        where: {
-            employee: { id: employeeId },
+        skip: propertyScopes.length === 0 || !persistor,
+    })
+    const propertyScopeProperties = useMemo(() => propertyScopePropertiesResult?.result.filter(Boolean) || [], [propertyScopePropertiesResult?.result])
+
+    // const { objs: propertyScopeProperties, loading: propertiesLoading } = PropertyScopeProperty.useAllObjects({
+    //     where: {
+    //         propertyScope: { id_in: propertyScopes.map(scope => scope.id) },
+    //     },
+    // }, { skip: propertyScopes.length === 0 })
+
+    const { data, loading: specializationsLoading } = useGetOrganizationEmployeeSpecializationsQuery({
+        variables: {
+            where: {
+                employee: { id: employeeId },
+            },
         },
-    }, { skip: !employeeId })
+        skip: !employeeId || !persistor,
+    })
+    const employeeSpecializations = useMemo(() => data?.organizationEmployeeSpecializations.filter(Boolean) || [], [data?.organizationEmployeeSpecializations])
+
+    // const { objs: employeeSpecializations, loading: specializationsLoading } = OrganizationEmployeeSpecialization.useAllObjects({
+    //     where: {
+    //         employee: { id: employeeId },
+    //     },
+    // }, { skip: !employeeId })
 
     const specializations = employeeSpecializations
         .filter(empSpec => empSpec.specialization && empSpec.employee)

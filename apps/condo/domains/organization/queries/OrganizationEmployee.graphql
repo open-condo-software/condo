@@ -166,7 +166,7 @@ query getOrganizationEmployeeWithTicketOrganization ($userId: ID!, $organization
 }
 
 query getOrganizationEmployeeByUserAndOrganizationIds ($userId: ID!, $organizationId: ID!) {
-    employee: allOrganizationEmployees(
+    employee: allOrganizationEmployees (
         where: {
             user: { id: $userId },
             organization: { id: $organizationId},
@@ -177,5 +177,22 @@ query getOrganizationEmployeeByUserAndOrganizationIds ($userId: ID!, $organizati
         name
         phone
         email
+    }
+}
+
+query getOrganizationEmployeesByUserIdAndOrganizationType ($userId: ID!, $organizationType: [OrganizationTypeType!]) {
+    employees: allOrganizationEmployees (
+        where: {
+            user: { id: $userId },
+            organization: { type_in: $organizationType },
+            isAccepted: false,
+            isRejected: false,
+            isBlocked: false,
+        },
+    ) {
+        id
+        organization {
+            name
+        }
     }
 }

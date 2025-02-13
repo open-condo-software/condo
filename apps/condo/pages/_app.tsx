@@ -1,7 +1,7 @@
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 import {
     AuthenticatedUserDocument,
-    GetActiveOrganizationEmployeeDocument,
+    GetActiveOrganizationEmployeeDocument, useGetBillingIntegrationOrganizationContextsQuery,
     useGetProcessingTasksQuery,
 } from '@app/condo/gql'
 import { CacheProvider } from '@emotion/core'
@@ -113,6 +113,7 @@ import '@condo/domains/common/components/wdyr'
 import '@open-condo/ui/dist/styles.min.css'
 import '@open-condo/ui/dist/style-vars/variables.css'
 import '@condo/domains/common/components/containers/global-styles.css'
+import {useCachePersistor} from "@open-condo/apollo";
 
 
 
@@ -149,6 +150,7 @@ const MenuItems: React.FC = () => {
     const { updateContext, useFlag } = useFeatureFlags()
     const isSPPOrg = useFlag(SERVICE_PROVIDER_PROFILE)
     const isMarketplaceEnabled = useFlag(MARKETPLACE)
+    const { persistor } = useCachePersistor()
 
     const { isAuthenticated, isLoading } = useAuth()
     const { link, organization } = useOrganization()
@@ -161,8 +163,20 @@ const MenuItems: React.FC = () => {
     const orgId = get(organization, 'id', null)
     const orgFeatures = get(organization, 'features', [])
     const sppBillingId = get(sppConfig, 'BillingIntegrationId', null)
-    const { obj: billingCtx } = BillingContext.useObject({ where: { integration: { id: sppBillingId }, organization: { id: orgId } } }, { skip: !isAuthenticated || isLoading })
-    const anyReceiptsLoaded = Boolean(get(billingCtx, 'lastReport', null))
+    // const { obj: billingCtx } = BillingContext.useObject({ where: { integration: { id: sppBillingId }, organization: { id: orgId } } }, { skip: !isAuthenticated || isLoading })
+    const {
+        data,
+    } = useGetBillingIntegrationOrganizationContextsQuery({
+        variables: {
+            where: {
+                integration: { id: sppBillingId },
+                organization: { id: orgId },
+            },
+        },
+        skip: !isAuthenticated || isLoading || !persistor,
+    })
+    const billingCtx = useMemo(() => data?.contexts?.filter(Boolean)[0] || null, [data?.contexts])
+    const anyReceiptsLoaded = Boolean(billingCtx?.lastReport || null)
     const hasAccessToBilling = get(role, 'canReadPayments', false) || get(role, 'canReadBillingReceipts', false)
     const isManagingCompany = get(organization, 'type', MANAGING_COMPANY_TYPE) === MANAGING_COMPANY_TYPE
     const isNoServiceProviderOrganization = get(organization, 'type', MANAGING_COMPANY_TYPE) !== SERVICE_PROVIDER_TYPE
