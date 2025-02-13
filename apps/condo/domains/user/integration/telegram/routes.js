@@ -1,7 +1,3 @@
-const crypto = require('crypto')
-
-const { v4: uuid } = require('uuid')
-
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getRedisClient } = require('@open-condo/keystone/redis')
 
@@ -10,12 +6,16 @@ const {
     TELEGRAM_AUTH_STATUS_PENDING,
     TELEGRAM_AUTH_STATUS_ERROR,
     TELEGRAM_AUTH_STATUS_SUCCESS,
-    TELEGRAM_AUTH_REDIS_START,
-    TELEGRAM_AUTH_REDIS_TOKEN,
+    TELEGRAM_AUTH_REDIS_TTL,
 } = require('@condo/domains/user/integration/telegram/constants')
-const { getUserType } = require('@condo/domains/user/integration/telegram/utils')
-
-const TELEGRAM_AUTH_BOT_URL = process.env.TELEGRAM_AUTH_BOT_URL
+const {
+    getUserType,
+    generateStartLinkAndKey,
+    generateUniqueKey,
+    getRedisStartKey,
+    getRedisTokenKey,
+    getRedisStatusKey,
+} = require('@condo/domains/user/integration/telegram/utils')
 
 const logger = getLogger('telegram-auth')
 const redisClient = getRedisClient()
@@ -29,42 +29,52 @@ class TelegramAuthRoutes {
 
     async startAuth (req, res, next) {
         try {
-            if (!TELEGRAM_AUTH_BOT_URL) throw new Error('TELEGRAM_AUTH_BOT_URL is not configured')
+            const { startLink, startKey } = generateStartLinkAndKey()
             const userType = getUserType(req)
-            const startKey = uuid()
-            const uniqueKey = crypto.randomBytes(32).toString('hex')
-            const startLink = `${TELEGRAM_AUTH_BOT_URL}?start=${startKey}`
+            const uniqueKey = generateUniqueKey()
 
             await Promise.all([
-                redisClient.set(`${TELEGRAM_AUTH_REDIS_START}${startKey}`, JSON.stringify({ uniqueKey, userType }), 'EX', 300),
-                redisClient.set(`${TELEGRAM_AUTH_REDIS_TOKEN}${uniqueKey}`, TELEGRAM_AUTH_STATUS_PENDING, 'EX', 300),
+                redisClient.set(getRedisStartKey(startKey), JSON.stringify({ uniqueKey, userType }), 'EX', TELEGRAM_AUTH_REDIS_TTL),
+                redisClient.set(getRedisStatusKey(uniqueKey), TELEGRAM_AUTH_STATUS_PENDING, 'EX', TELEGRAM_AUTH_REDIS_TTL),
             ])
 
-            res.json({ startLink, uniqueKey })
+            return res.json({ startLink, uniqueKey })
         } catch (error) {
             logger.error({ msg: 'Telegram auth start error', reqId: req.id, error })
             next(error)
         }
     }
 
-    async getAuthStatus (req, res, next) {
+    async getAuthToken (req, res, next) {
         try {
             const { uniqueKey } = req.body
+
             if (!uniqueKey) {
-                return res.status(400).json({ status: 'error', message: 'Missing uniqueKey' })
+                return res.status(400).json({ status: TELEGRAM_AUTH_STATUS_ERROR, message: 'Missing uniqueKey' })
             }
 
-            const token = await redisClient.get(`${TELEGRAM_AUTH_REDIS_TOKEN}${uniqueKey}`)
-            if (token === null) {
+            const [status, token] = await Promise.all([
+                redisClient.get(getRedisStatusKey(uniqueKey)),
+                redisClient.get(getRedisTokenKey(uniqueKey)),
+            ])
+
+            if (!status) {
                 return res.status(400).json({ status: TELEGRAM_AUTH_STATUS_ERROR, message: 'uniqueKey is expired' })
             }
 
-            if (token === TELEGRAM_AUTH_STATUS_PENDING) {
-                return res.json({ status: TELEGRAM_AUTH_STATUS_PENDING })
+            if (status === TELEGRAM_AUTH_STATUS_PENDING) {
+                return res.json({ status })
             }
 
-            await redisClient.del(`${TELEGRAM_AUTH_REDIS_TOKEN}${uniqueKey}`)
-            res.json({ token, status: TELEGRAM_AUTH_STATUS_SUCCESS })
+            if (status === TELEGRAM_AUTH_STATUS_SUCCESS && token) {
+                await Promise.all([
+                    redisClient.del(getRedisStatusKey(uniqueKey)),
+                    redisClient.del(getRedisTokenKey(uniqueKey)),
+                ])
+                return res.json({ status, token })
+            }
+
+            return res.json({ status: TELEGRAM_AUTH_STATUS_ERROR, message: 'Unexpected state' })
         } catch (error) {
             logger.error({ msg: 'Telegram auth status error', reqId: req.id, error })
             next(error)

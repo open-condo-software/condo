@@ -8,7 +8,7 @@ const {
 } = require('@condo/domains/user/utils/serverSchema')
 
 const dv = 1
-const sender = { dv, fingerprint: 'user-external-identity-router' }
+const sender = { dv, fingerprint: 'telegram-auth-user-external-identity-router' }
 
 const linkUser = async (context, user, userInfo) => {
     await UserExternalIdentity.create(context, {
