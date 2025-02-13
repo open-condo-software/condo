@@ -1,4 +1,4 @@
-import fs from 'fs/promises'
+import { readFile } from 'fs/promises'
 
 import { glob } from 'glob'
 import { z } from 'zod'
@@ -20,7 +20,7 @@ function isNonNull<T> (data: T): data is NonNullable<T> {
 }
 
 async function _getPackageJson (location: string): Promise<PackageInfoWithLocation | null> {
-    const buf = await fs.readFile(location)
+    const buf = await readFile(location)
     const rawData = JSON.parse(buf.toString())
     const { success, data } = packageSchema.safeParse(rawData)
 
@@ -41,4 +41,22 @@ export async function findApps (): Promise<Array<PackageInfoWithLocation>> {
     const allPackageJsons = await Promise.all(allPackagesPaths.map(location => _getPackageJson(location)))
 
     return allPackageJsons.filter(isNonNull).filter(isAppPackage)
+}
+
+export function isNameMatching (pkg: PackageInfoWithLocation, filter?: Array<string>): boolean {
+    if (!filter) {
+        return true
+    }
+
+    const fullName = pkg.name
+    const scopedName = fullName.split('/').pop()
+
+    return filter.some(filterName => {
+        // Full filter-> exact match
+        if (filterName.startsWith('@')) {
+            return fullName === filterName
+        }
+
+        return scopedName === filterName
+    })
 }

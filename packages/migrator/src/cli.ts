@@ -5,6 +5,7 @@ import { Command } from 'commander'
 import pkg from '../package.json'
 
 import { addAppsKVPrefixes } from '@/commands'
+import { YES_OPTION, FILTER_OPTION } from '@/utils/options'
 
 const program = new Command()
 
@@ -29,9 +30,9 @@ program
         'Example #2 (local monorepo migration):',
         'condo-migrator add-kv-prefixes',
     ].join('\n'))
-    .action(async () => {
-        await addAppsKVPrefixes()
-    })
+    .option(...YES_OPTION)
+    .option(...FILTER_OPTION)
+    .action(addAppsKVPrefixes)
 
 
 program.parse(process.argv)
