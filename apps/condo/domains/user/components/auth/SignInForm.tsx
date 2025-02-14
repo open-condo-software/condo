@@ -3,6 +3,7 @@ import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState } from 'react'
 
+import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useMutation } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { FormattedMessage } from '@open-condo/next/intl'
@@ -16,10 +17,12 @@ import { colors } from '@condo/domains/common/constants/style'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
+import { STAFF } from '@condo/domains/user/constants/common'
 import { WRONG_CREDENTIALS } from '@condo/domains/user/constants/errors'
 import { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } from '@condo/domains/user/gql'
 
 import { AgreementText } from './AgreementText'
+
 
 const ROW_STYLES: React.CSSProperties = {
     justifyContent: 'center',
@@ -68,9 +71,18 @@ export const SignInForm = (): React.ReactElement => {
     const onFormSubmit = useCallback((values) => {
         setIsLoading(true)
 
+        const sender = getClientSideSenderInfo()
         return runMutation({
             mutation: signinByPhoneAndPassword,
-            variables: values,
+            variables: {
+                data: {
+                    phone: values.phone,
+                    password: values.password,
+                    userType: STAFF,
+                    sender,
+                    dv: 1,
+                },
+            },
             onCompleted: () => {
                 refetch().then(() => {
                     return router.push(redirectUrl)
