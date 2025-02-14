@@ -19,7 +19,7 @@ const {
 const DEFAULT_DB_NAME_PREFIX = 'local'
 const DEFAULT_APP_HTTPS_SUBDOMAIN = 'app.localhost'
 const LOCAL_PG_DB_PREFIX = 'postgresql://postgres:postgres@127.0.0.1'
-const LOCAL_REDIS_DB_PREFIX = [{ 'port':7001, 'host':'127.0.0.1' }, { 'port':7002, 'host':'127.0.0.1' }, { 'port':7003, 'host':'127.0.0.1' }]
+const LOCAL_VALKEY_DB = 'redis://127.0.0.1'
 const KEY_FILE = path.join(__filename, '..', '.ssl', 'localhost.key')
 const CERT_FILE = path.join(__filename, '..', '.ssl', 'localhost.pem')
 
@@ -111,13 +111,14 @@ async function prepare () {
             logWithIndent('Writing assigned urls / ports / dbs to app\'s .env', 2)
             const env = {
                 DATABASE_URL: `${LOCAL_PG_DB_PREFIX}/${app.pgName}`,
-                REDIS_URL: `${LOCAL_REDIS_DB_PREFIX}`,
+                VALKEY_URL: `${LOCAL_VALKEY_DB}`,
                 PORT: String(app.port),
                 SPORT: String(app.sport),
                 SERVER_URL: app.serviceUrl,
             }
 
             if (replicate && replicate.includes(app.name)) {
+                env.VALKEY_URL = JSON.stringify([{ 'port':7001, 'host':'127.0.0.1' }, { 'port':7002, 'host':'127.0.0.1' }, { 'port':7003, 'host':'127.0.0.1' }])
                 env.DATABASE_URL = `custom:${JSON.stringify({
                     main: `${LOCAL_PG_DB_PREFIX}:5432/${app.pgName}`,
                     replica: `${LOCAL_PG_DB_PREFIX}:5433/${app.pgName}`,
