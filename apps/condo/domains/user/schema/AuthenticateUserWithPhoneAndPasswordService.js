@@ -1,11 +1,13 @@
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
-const { WRONG_PHONE_FORMAT } = require('@condo/domains/common/constants/errors')
+const { WRONG_PHONE_FORMAT, COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
-const { STAFF } = require('@condo/domains/user/constants/common')
-const { WRONG_CREDENTIALS } = require('@condo/domains/user/constants/errors')
+const { STAFF, SERVICE } = require('@condo/domains/user/constants/common')
+const { WRONG_CREDENTIALS, CAPTCHA_CHECK_FAILED } = require('@condo/domains/user/constants/errors')
+const { captchaCheck } = require('@condo/domains/user/utils/hCaptcha')
 const { authGuards, validateUserCredentials } = require('@condo/domains/user/utils/serverSchema/auth')
 
 
@@ -30,13 +32,29 @@ const ERRORS = {
         message: 'Wrong phone or password',
         messageForUser: 'api.user.authenticateUserWithPhoneAndPassword.WRONG_CREDENTIALS',
     },
+    CAPTCHA_CHECK_FAILED: {
+        query: 'authenticateUserWithPhoneAndPassword',
+        variable: ['data', 'captcha'],
+        code: BAD_USER_INPUT,
+        type: CAPTCHA_CHECK_FAILED,
+        message: 'Failed to check CAPTCHA',
+        messageForUser: 'api.user.CAPTCHA_CHECK_FAILED',
+    },
+    DV_VERSION_MISMATCH: {
+        ...COMMON_ERRORS.DV_VERSION_MISMATCH,
+        query: 'authenticateOrRegisterUserWithToken',
+    },
+    WRONG_SENDER_FORMAT: {
+        ...COMMON_ERRORS.WRONG_SENDER_FORMAT,
+        query: 'authenticateOrRegisterUserWithToken',
+    },
 }
 
 const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('AuthenticateUserWithPhoneAndPasswordService', {
     types: [
         {
             access: true,
-            type: 'input AuthenticateUserWithPhoneAndPasswordInput { phone: String! password: String! }',
+            type: 'input AuthenticateUserWithPhoneAndPasswordInput { dv: Int, sender: SenderFieldInput, captcha: String, userType: UserTypeType, phone: String! password: String! }',
         },
         {
             access: true,
@@ -48,17 +66,37 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
             access: true,
             schema: 'authenticateUserWithPhoneAndPassword(data: AuthenticateUserWithPhoneAndPasswordInput!): AuthenticateUserWithPhoneAndPasswordOutput',
             resolver: async (parent, args, context) => {
-                const { data: { phone: inputPhone, password } } = args
-                const phone = normalizePhone(inputPhone)
+                const { data } = args
+                const {
+                    password,
+                    captcha,
 
-                await authGuards({ phone, userType: STAFF }, context)
+                    // NOTE: Previously we did not allow specifying the userType, dv and sender.
+                    // And we do not want breaking changes, so we specify default values
+                    dv = 1,
+                    sender = { dv: 1, fingerprint: 'auth-by-phone-and-password' },
+                    userType = STAFF,
+                } = data
+
+                const phone = normalizePhone(data.phone)
+
+                await authGuards({ phone, userType }, context)
+
+                if (captcha && userType !== SERVICE) {
+                    const { error: captchaError } = await captchaCheck(context, captcha)
+                    if (captchaError) {
+                        throw new GQLError({ ...ERRORS.CAPTCHA_CHECK_FAILED, data: { error: captchaError } }, context)
+                    }
+                }
+
+                checkDvAndSender({ dv, sender }, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
 
                 if (!phone) {
                     throw new GQLError(ERRORS.WRONG_PHONE_FORMAT, context)
                 }
 
                 const { success, user } = await validateUserCredentials(
-                    { phone, userType: STAFF },
+                    { phone, userType },
                     { password }
                 )
 
