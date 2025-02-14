@@ -32,21 +32,16 @@ async function canReadBankAccounts ({ authentication: { item: user }, context })
         }
     } else if (user.type === SERVICE) {
         return {
-            OR: [
-                {
-                    integrationContext: {
+            integrationContext: {
+                deletedAt: null,
+                integration: {
+                    deletedAt: null,
+                    accessRights_some: {
+                        user: { id: user.id },
                         deletedAt: null,
-                        integration: {
-                            deletedAt: null,
-                            accessRights_some: {
-                                user: { id: user.id },
-                                deletedAt: null,
-                            },
-                        },
                     },
                 },
-                { integrationContext_is_null: true },
-            ],
+            },
         }
     } else if (user.type === RESIDENT) {
         const residents = await getUserResidents(context, user)

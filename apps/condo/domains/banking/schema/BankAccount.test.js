@@ -39,8 +39,6 @@ const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSc
 
 const { BANK_INTEGRATION_IDS } = require('../constants')
 
-const ISO_8601_FULL = /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d+)?(([+-]\d\d:\d\d)|Z)?$/i
-
 let adminClient
 let supportClient
 let serviceClient
@@ -192,22 +190,14 @@ describe('BankAccount', () => {
                 expect(createdObj.currencyCode).toEqual(readObj.currencyCode)
             })
 
-            test('service can if BankAccount has no connected integration', async () => {
-                // Billing uses BankAccount as an account directory.
-                // If you receive the same BankAccount from SBBOL, you must connect the SBBOL integration to this BankAccount, and not create a new one.
-                // Therefore, the service user must be able to read such BankAccount.
+            test('service can not if BankAccount has no connected integration', async () => {
                 const [organization] = await createTestOrganization(adminClient)
                 await createTestBankIntegrationOrganizationContext(adminClient, SBBOLBankIntegration, organization)
 
                 const [createdObj] = await createTestBankAccount(adminClient, organization)
-                const [readObj] = await BankAccount.getAll(serviceClient, { id: createdObj.id })
+                const readObjs = await BankAccount.getAll(serviceClient, { id: createdObj.id })
 
-                expect(createdObj.organization.id).toEqual(readObj.organization.id)
-                expect(createdObj.tin).toEqual(readObj.tin)
-                expect(createdObj.country).toEqual(readObj.country)
-                expect(createdObj.routingNumber).toEqual(readObj.routingNumber)
-                expect(createdObj.number).toEqual(readObj.number)
-                expect(createdObj.currencyCode).toEqual(readObj.currencyCode)
+                expect(readObjs).toHaveLength(0)
             })
 
             test('support can', async () => {
