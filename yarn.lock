@@ -682,6 +682,7 @@ __metadata:
     "@open-condo/bridge": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/icons": "workspace:^"
+    "@open-condo/keystone": "workspace:^"
     "@open-condo/locales": "workspace:^"
     "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/next": "workspace:^"
@@ -1080,7 +1081,6 @@ __metadata:
     "@keystonejs/server-side-graphql-client": ^2.1.0
     "@keystonejs/utils": ^6.1.0
     "@open-condo/codegen": "workspace:^"
-    "@open-condo/keystone": "workspace:^"
     "@types/jest": ^29.4.0
     "@types/node": ^16
     axios: ^1.5.1
@@ -2175,7 +2175,6 @@ __metadata:
     "@keystonejs/server-side-graphql-client": ^2.1.0
     "@keystonejs/utils": ^6.1.0
     "@open-condo/codegen": "workspace:^"
-    "@open-condo/keystone": "workspace:^"
     "@ticket-importer/domains": "link:./domains"
     "@types/jest": ^29.4.0
     "@types/node": ^16
@@ -14294,7 +14293,6 @@ __metadata:
     graphql-upload: ^15.0.2
     hot-shots: ^10.0.0
     inflection: ^1.13.1
-    ioredis: ^4.28.5
     iovalkey: ^0.3.1
     knex: ^0.95.6
     lodash: ^4.17.21
