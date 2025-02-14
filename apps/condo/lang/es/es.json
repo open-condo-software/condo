@@ -3213,6 +3213,11 @@
   "tour.title": "Guía",
   "tour.toTour": "A la guía",
   "tour.viewGuide": "Ver guía",
+  "telegram.auth.start.shareButton": "Enviar contacto",
+  "telegram.auth.start.response": "Por favor, envía tu contacto",
+  "telegram.auth.contact.wrongContact": "Por favor, envía tu contacto",
+  "telegram.auth.contact.complete": "¡Autorización completada con éxito! Regresa a la aplicación",
+  "telegram.auth.error": "Ocurrió un error durante la autenticación. Por favor, inicia el proceso de autenticación desde el principio",
   "trial.startPeriod": "Empezar período de prueba",
   "trial.subTitle": "Y después...",
   "trial.title": "Periodo gratuito de 14 días"
