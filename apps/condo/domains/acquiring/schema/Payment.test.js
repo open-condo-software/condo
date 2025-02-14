@@ -668,6 +668,17 @@ describe('Payment', () => {
                 expect(updatedPayment.receipt.id).toBe(billingReceipts[0].id)
                 expect(updatedPayment.frozenReceipt).toMatchObject(billingReceipts[0])
             })
+
+            test('Cannot update receipt if payment has receipt', async () => {
+                const { admin, organization, acquiringContext, billingReceipts } = await makePayer()
+                const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
+                await expectToThrowValidationFailureError(async () => {
+                    await updateTestPayment(admin, payment.id, {
+                        receipt: { connect: { id: billingReceipts[0].id } },
+                        frozenReceipt: billingReceipts[0],
+                    })
+                }, PAYMENT_FROZEN_FIELD_INCLUDED)
+            })
             test('Cannot change statuses if it\'s transition is not specified', async () => {
                 const { admin, organization, acquiringContext, billingReceipts } = await makePayer()
                 const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext, {

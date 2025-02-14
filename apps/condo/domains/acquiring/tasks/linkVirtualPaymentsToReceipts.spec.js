@@ -4,7 +4,7 @@
 const index = require('@app/condo/index')
 const dayjs = require('dayjs')
 
-const { find, getById } = require('@open-condo/keystone/schema')
+const { find } = require('@open-condo/keystone/schema')
 const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
 
 const { linkVirtualPaymentsToReceipts } = require('./linkVirtualPaymentsToReceipts')
@@ -94,24 +94,13 @@ describe('linkReceiptsToPayment', () => {
         })
         const [billingAccount] = await createTestBillingAccount(utils.clients.admin, utils.billingContext, billingProperty)
 
-        const recipient =  {
-            routingNumber: '044525256',
-            bankAccount: '40702810996180000019',
-            accountNumber: billingAccount.number,
-        }
+        const [recipient, receipt] = generateVirtualReceipt(billingAccount)
 
-        const receipt = {
-            currencyCode: 'RUB',
-            amount: '100.45',
-            period: dayjs().format('YYYY-MM-01'),
-            recipient,
-        }
         const [multipayment] = await registerMultiPaymentForVirtualReceiptByTestClient(utils.clients.admin, receipt, { id: utils.acquiringContext.id })
 
         const [[createdReceipt]] = await utils.createReceipts([
-            utils.createJSONReceipt({ accountNumber: billingAccount.number, ...recipient, month: 2, year: 2025 }),
+            utils.createJSONReceipt({ accountNumber: billingAccount.number, ...{ ...recipient, tin: utils.organization.tin }, month: 2, year: 2025 }),
         ])
-
         await linkVirtualPaymentsToReceipts()
 
         const [payment] = await find('Payment', {
