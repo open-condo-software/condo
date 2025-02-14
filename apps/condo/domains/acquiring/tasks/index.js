@@ -10,6 +10,9 @@ const {
     createRecurrentPaymentForReadyToPayRecurrentPaymentContexts,
 } = require('@condo/domains/acquiring/tasks/createRecurrentPaymentForReadyToPayRecurrentPaymentContexts')
 const {
+    linkVirtualPaymentsToReceipts,
+} = require('@condo/domains/acquiring/tasks/linkVirtualPaymentsToReceipts')
+const {
     notifyBeforeRecurrentPaymentDate,
 } = require('@condo/domains/acquiring/tasks/notifyBeforeRecurrentPaymentDate')
 const {
@@ -43,7 +46,7 @@ module.exports = {
     createRecurrentPaymentForNewBillingReceipt: createCronTask('createRecurrentPaymentForNewBillingReceipt', '0 9-13 * * *', createRecurrentPaymentForNewBillingReceipt),
     createRecurrentPaymentForReadyToPayRecurrentPaymentContexts: createCronTask('createRecurrentPaymentForReadyToPayRecurrentPaymentContexts', '0 11 * * *', createRecurrentPaymentForReadyToPayRecurrentPaymentContexts),
     chargeRecurrentPayments: createCronTask('chargeRecurrentPayments', '0 12 * * *', chargeRecurrentPayments),
-
+    linkVirtualPaymentsToReceipts: createCronTask('linkVirtualPaymentsToReceipts', '0 0 * * *', linkVirtualPaymentsToReceipts),
     removeOrphansRecurrentPaymentContexts: createTask('removeOrphansRecurrentPaymentContexts', removeOrphansRecurrentPaymentContexts),
     removeOutdatedRecurrentPayments: createTask('removeOutdatedRecurrentPayments', removeOutdatedRecurrentPayments),
 }

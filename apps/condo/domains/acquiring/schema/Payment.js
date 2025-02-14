@@ -36,6 +36,8 @@ const {
     PAYMENT_FROZEN_FIELDS,
     PAYMENT_DONE_STATUS,
     PAYMENT_WITHDRAWN_STATUS,
+    VIRTUAL_PAYMENT_FIELDS,
+    VIRTUAL_PAYMENT_CHANGEABLE_FIELDS,
 } = require('@condo/domains/acquiring/constants/payment')
 const { RECIPIENT_FIELD } = require('@condo/domains/acquiring/schema/fields/Recipient')
 const { ACQUIRING_CONTEXT_FIELD } = require('@condo/domains/acquiring/schema/fields/relations')
@@ -395,9 +397,13 @@ const Payment = new GQLListSchema('Payment', {
                         return addValidationError(PAYMENT_OVERRIDING_EXPLICIT_FEES_MUST_BE_EXPLICIT)
                     }
                 }
+
+                // Allow changing receipt and frozen receipt if payment is virtual
+                const isVirtual = VIRTUAL_PAYMENT_FIELDS.every(field => !get(existingItem, field))
                 const frozenFields = PAYMENT_FROZEN_FIELDS[oldStatus]
+
                 for (const field of frozenFields) {
-                    if (resolvedData.hasOwnProperty(field)) {
+                    if (!(isVirtual && VIRTUAL_PAYMENT_CHANGEABLE_FIELDS.includes(field)) && resolvedData.hasOwnProperty(field)) {
                         addValidationError(`${PAYMENT_FROZEN_FIELD_INCLUDED} (${field})`)
                     }
                 }
