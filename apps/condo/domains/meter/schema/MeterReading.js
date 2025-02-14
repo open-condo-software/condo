@@ -90,26 +90,24 @@ const MeterReading = new GQLListSchema('MeterReading', {
                             const meterReportingPeriod = meterReportingPeriods.find(period => period.property) ||
                             meterReportingPeriods.find(period => period.organization)
 
-
                             if (meterReportingPeriod) {
-                                const { notifyStartDay, notifyEndDay, isStrict } = meterReportingPeriod
+                                const { notifyStartDay, notifyEndDay, isStrict, readingsRestrictedUntilDay } = meterReportingPeriod
 
                                 if (isStrict) {
-                                    if (notifyStartDay < notifyEndDay) {
-                                        // NOTE: When notifyStartDay < notifyEndDay (e.g. 20 and 25),
-                                        // the allowed reading window ends on notifyEndDay of the current month.
-                                        const periodEnd = readingDate.startOf('month').date(notifyEndDay)
+                                    // NOTE: Consider two cases: period in the same month (20 - 25) and period spans into next month (25 - 5)
+                                    const startOfMonth = readingDate.startOf('month')
+                                    const nextMonthStart = startOfMonth.add(1, 'month').startOf('month')
+                                    const restrictionEnd = startOfMonth.date(readingsRestrictedUntilDay)
+                                        .add(readingsRestrictedUntilDay > notifyEndDay ? 0 : 1, 'month')
+                                    const periodEnd = (notifyStartDay < notifyEndDay ? startOfMonth : nextMonthStart).date(notifyEndDay)
 
-                                        if (readingDate.isAfter(periodEnd, 'day')) {
-                                            throw new GQLError({
-                                                ...ERRORS.METER_READING_DATE_AFTER_NOTIFY_END,
-                                                messageInterpolation: { notifyEndDay, givenDate: date },
-                                            }, context)
-                                        }
+                                    
+                                    if (readingDate.isAfter(periodEnd, 'day') && readingDate.isBefore(restrictionEnd, 'day')) {
+                                        throw new GQLError({
+                                            ...ERRORS.METER_READING_DATE_AFTER_NOTIFY_END,
+                                            messageInterpolation: { notifyEndDay, givenDate: date },
+                                        }, context)
                                     }
-                                    // NOTE: When notifyStartDay > notifyEndDay (e.g. 25 and 5),
-                                    // the allowed window spans from the beginning of the current period (1st) until notifyEndDay of the next month,
-                                    // so no restriction is applied
                                 }
                             }
                         }
