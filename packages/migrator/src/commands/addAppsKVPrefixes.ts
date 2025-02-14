@@ -85,7 +85,16 @@ export async function addAppsKVPrefixes (options: CommonOptions): Promise<void> 
         }
     }
 
+    const sleep = (t: number) => new Promise((res) => setTimeout(() => res(t), t))
+
     for (const task of appsToPrefix) {
-        console.log(task)
+        logger.info(`Staring migration ${task.appName} app`)
+
+        for (let i = 0; i < 10; i++) {
+            await sleep(1000)
+            logger.updateLine(`Progress: ${i + 1}/10`)
+        }
+
+        logger.info(`${task.appName} successfully migrated`)
     }
 }
