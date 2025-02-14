@@ -65,6 +65,9 @@ export { Typography } from './components/Typography'
 export { ProgressIndicator } from './components/ProgressIndicator'
 export type { ProgressIndicatorProps, ProgressIndicatorStep } from './components/ProgressIndicator'
 
+export { Switch } from './components/Switch'
+export type { SwitchProps } from './components/Switch'
+
 export type {
     TypographyType,
     TypographyTextProps,
