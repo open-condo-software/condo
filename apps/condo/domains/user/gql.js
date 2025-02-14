@@ -96,8 +96,8 @@ const CHANGE_PASSWORD_WITH_TOKEN_MUTATION = gql`
 `
 
 const SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION = gql`
-    mutation authenticateUserWithPhoneAndPassword ($phone: String!, $password: String!) {
-        obj: authenticateUserWithPhoneAndPassword(data: { phone: $phone, password: $password }) {
+    mutation authenticateUserWithPhoneAndPassword ($data: AuthenticateUserWithPhoneAndPasswordInput!) {
+        result: authenticateUserWithPhoneAndPassword(data: $data) {
             item {
                 id
             }
