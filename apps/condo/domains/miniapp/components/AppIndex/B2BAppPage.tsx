@@ -36,6 +36,7 @@ export const B2BAppPage: React.FC<B2BAppPageProps> = ({ id }) => {
     const organizationId = get(userOrganization, ['organization', 'id'], null)
     const employeeRoleId = get(userOrganization, ['link', 'role', 'id'], null)
 
+    // Рефактор!
     const {
         obj: context,
         loading: contextLoading,

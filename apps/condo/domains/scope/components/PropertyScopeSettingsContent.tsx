@@ -52,6 +52,7 @@ export const PropertyScopeSettingsContent = () => {
         organization: { id: userOrganizationId },
     }), [filters, filtersToWhere, userOrganizationId])
 
+    // Рефактор!
     const {
         count: total,
         objs: propertyScopes,

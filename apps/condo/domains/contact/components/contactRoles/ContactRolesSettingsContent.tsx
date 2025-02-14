@@ -55,6 +55,7 @@ export const ContactRolesSettingsContent = () => {
         ],
     }), [filters, userOrganizationId])
 
+    // Рефактор!
     const {
         loading: isRolesLoading,
         count: totalRoles,

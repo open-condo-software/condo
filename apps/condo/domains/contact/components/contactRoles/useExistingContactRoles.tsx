@@ -15,6 +15,7 @@ export const useExistingContactRoles: UseExistingContactRoles = () => {
     const { organization } = useOrganization()
     const organizationId = get(organization, 'id', null)
 
+    // Рефактор!
     const { objs: contactRoles, loading } = ContactRole.useObjects({
         where: {
             OR: [

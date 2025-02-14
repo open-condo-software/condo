@@ -5,6 +5,7 @@ import isNull from 'lodash/isNull'
 import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
@@ -17,7 +18,6 @@ import {
     useGlobalAppsFeaturesContext,
     IRequestFeatureHandler,
 } from './GlobalAppsFeaturesContext'
-import {useCachePersistor} from "@open-condo/apollo";
 
 
 const REQUEST_FEATURE_MESSAGE_NAME = 'CondoWebAppFeatureRequest'

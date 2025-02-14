@@ -1798,6 +1798,8 @@ export const GetTourStepsDocument = gql`
     skip: $skip
   ) {
     id
+    type
+    status
   }
 }
     `;
@@ -2439,6 +2441,51 @@ export type GetPropertyByIdQueryHookResult = ReturnType<typeof useGetPropertyByI
 export type GetPropertyByIdLazyQueryHookResult = ReturnType<typeof useGetPropertyByIdLazyQuery>;
 export type GetPropertyByIdSuspenseQueryHookResult = ReturnType<typeof useGetPropertyByIdSuspenseQuery>;
 export type GetPropertyByIdQueryResult = Apollo.QueryResult<Types.GetPropertyByIdQuery, Types.GetPropertyByIdQueryVariables>;
+export const GetPropertyByOrganizationIdDocument = gql`
+    query getPropertyByOrganizationId($organizationId: ID!, $sortBy: [SortPropertiesBy!]) {
+  properties: allProperties(
+    where: {organization: {id: $organizationId}}
+    sortBy: $sortBy
+    first: 1
+  ) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useGetPropertyByOrganizationIdQuery__
+ *
+ * To run a query within a React component, call `useGetPropertyByOrganizationIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPropertyByOrganizationIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPropertyByOrganizationIdQuery({
+ *   variables: {
+ *      organizationId: // value for 'organizationId'
+ *      sortBy: // value for 'sortBy'
+ *   },
+ * });
+ */
+export function useGetPropertyByOrganizationIdQuery(baseOptions: Apollo.QueryHookOptions<Types.GetPropertyByOrganizationIdQuery, Types.GetPropertyByOrganizationIdQueryVariables> & ({ variables: Types.GetPropertyByOrganizationIdQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetPropertyByOrganizationIdQuery, Types.GetPropertyByOrganizationIdQueryVariables>(GetPropertyByOrganizationIdDocument, options);
+      }
+export function useGetPropertyByOrganizationIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetPropertyByOrganizationIdQuery, Types.GetPropertyByOrganizationIdQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetPropertyByOrganizationIdQuery, Types.GetPropertyByOrganizationIdQueryVariables>(GetPropertyByOrganizationIdDocument, options);
+        }
+export function useGetPropertyByOrganizationIdSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetPropertyByOrganizationIdQuery, Types.GetPropertyByOrganizationIdQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetPropertyByOrganizationIdQuery, Types.GetPropertyByOrganizationIdQueryVariables>(GetPropertyByOrganizationIdDocument, options);
+        }
+export type GetPropertyByOrganizationIdQueryHookResult = ReturnType<typeof useGetPropertyByOrganizationIdQuery>;
+export type GetPropertyByOrganizationIdLazyQueryHookResult = ReturnType<typeof useGetPropertyByOrganizationIdLazyQuery>;
+export type GetPropertyByOrganizationIdSuspenseQueryHookResult = ReturnType<typeof useGetPropertyByOrganizationIdSuspenseQuery>;
+export type GetPropertyByOrganizationIdQueryResult = Apollo.QueryResult<Types.GetPropertyByOrganizationIdQuery, Types.GetPropertyByOrganizationIdQueryVariables>;
 export const GetPropertyScopePropertiesDocument = gql`
     query getPropertyScopeProperties($propertyScopeIds: [ID!]) {
   result: allPropertyScopeProperties(

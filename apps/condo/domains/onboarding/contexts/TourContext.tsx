@@ -104,7 +104,7 @@ export const TourProvider = ({ children }) => {
 
     const updateStepIfNotCompleted = useCallback(async (type: TourStepTypeType, nextRoute?: string) => {
         if (organizationType !== MANAGING_COMPANY_TYPE) return
-
+        // Нужна проверка на persistor
         const fetchResult = await getTourSteps({
             variables: {
                 where: {

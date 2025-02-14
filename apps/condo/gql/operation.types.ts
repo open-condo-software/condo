@@ -276,7 +276,7 @@ export type GetTourStepsQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetTourStepsQuery = { __typename?: 'Query', tourSteps?: Array<{ __typename?: 'TourStep', id: string } | null> | null };
+export type GetTourStepsQuery = { __typename?: 'Query', tourSteps?: Array<{ __typename?: 'TourStep', id: string, type?: Types.TourStepTypeType | null, status?: Types.TourStepStatusType | null } | null> | null };
 
 export type SyncTourStepsMutationVariables = Types.Exact<{
   data: Types.SyncTourStepsInput;
@@ -367,6 +367,14 @@ export type GetPropertyByIdQueryVariables = Types.Exact<{
 
 
 export type GetPropertyByIdQuery = { __typename?: 'Query', properties?: Array<{ __typename?: 'Property', id: string, address?: string | null, organization?: { __typename?: 'Organization', id: string } | null, map?: { __typename?: 'BuildingMap', sections?: Array<{ __typename?: 'BuildingSection', id: string, type: Types.BuildingSectionType, index: number, name: string, preview?: boolean | null, floors: Array<{ __typename?: 'BuildingFloor', id: string, type: Types.BuildingFloorType, index: number, name: string, units: Array<{ __typename?: 'BuildingUnit', id: string, type: Types.BuildingUnitType, unitType?: Types.BuildingUnitSubType | null, name?: string | null, label: string, preview?: boolean | null } | null> } | null> } | null> | null, parking?: Array<{ __typename?: 'BuildingSection', id: string, type: Types.BuildingSectionType, index: number, name: string, preview?: boolean | null, floors: Array<{ __typename?: 'BuildingFloor', id: string, type: Types.BuildingFloorType, index: number, name: string, units: Array<{ __typename?: 'BuildingUnit', id: string, type: Types.BuildingUnitType, unitType?: Types.BuildingUnitSubType | null, name?: string | null, label: string, preview?: boolean | null } | null> } | null> } | null> | null } | null } | null> | null };
+
+export type GetPropertyByOrganizationIdQueryVariables = Types.Exact<{
+  organizationId: Types.Scalars['ID']['input'];
+  sortBy?: Types.InputMaybe<Array<Types.SortPropertiesBy> | Types.SortPropertiesBy>;
+}>;
+
+
+export type GetPropertyByOrganizationIdQuery = { __typename?: 'Query', properties?: Array<{ __typename?: 'Property', id: string } | null> | null };
 
 export type GetPropertyScopePropertiesQueryVariables = Types.Exact<{
   propertyScopeIds?: Types.InputMaybe<Array<Types.Scalars['ID']['input']> | Types.Scalars['ID']['input']>;
