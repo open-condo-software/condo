@@ -96,4 +96,7 @@ export async function addAppsKVPrefixes (options: CommonOptions): Promise<void> 
 
         logger.info(`${task.appName} successfully migrated`)
     }
+
+    logger.info('All done!')
+    process.exit(0)
 }
