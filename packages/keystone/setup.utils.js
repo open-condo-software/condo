@@ -2,7 +2,7 @@ const { KnexAdapter } = require('@keystonejs/adapter-knex')
 const { MongooseAdapter } = require('@keystonejs/adapter-mongoose')
 const connectRedis = require('connect-redis')
 const session = require('express-session')
-const IORedis = require('ioredis')
+const Valkey = require('iovalkey')
 const { v5: uuidv5 } = require('uuid')
 
 const conf = require('@open-condo/config')
@@ -88,9 +88,9 @@ function prepareDefaultKeystoneConfig (conf) {
         },
     }
 
-    if (!IS_BUILD && conf.REDIS_URL) {
-        const redisClient = new IORedis(conf.REDIS_URL)
-        const sessionStore = new RedisStore({ client: redisClient })
+    if (!IS_BUILD && (conf.VALKEY_URL || conf.REDIS_URL)) {
+        const client = new Valkey(conf.VALKEY_URL || conf.REDIS_URL)
+        const sessionStore = new RedisStore({ client })
         config.sessionStore = sessionStore
     }
 
