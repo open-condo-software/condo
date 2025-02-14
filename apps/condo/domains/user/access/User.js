@@ -34,6 +34,15 @@ async function canManageUsers ({ authentication: { item: user }, operation, item
     return false
 }
 
+async function canManageUserType ({ authentication: { item: user } }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+
+    if (user.isAdmin) return true
+
+    return false
+}
+
 const readByAnyUpdateByAdminField = {
     read: true,
     create: access.userIsAdmin,
@@ -139,6 +148,7 @@ async function canReadUserNameField (args) {
 module.exports = {
     canReadUsers,
     canManageUsers,
+    canManageUserType,
     canAccessToEmailField,
     canAccessToPhoneField,
     canAccessToPasswordField,

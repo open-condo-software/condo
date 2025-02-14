@@ -34,6 +34,7 @@ const {
     RESIDENT,
     SERVICE,
 } = require('@condo/domains/user/constants/common')
+const { USER_TYPES } = require('@condo/domains/user/constants/common')
 const {
     WRONG_EMAIL_ERROR, WRONG_PASSWORD_ERROR, EMPTY_PASSWORD_ERROR, GQL_ERRORS: ERRORS,
 } = require('@condo/domains/user/constants/errors')
@@ -54,6 +55,7 @@ const {
     makeClientWithSupportUser,
     registerNewUser,
 } = require('@condo/domains/user/utils/testSchema')
+const { makeLoggedInSupportClient } = require('@dev-portal-api/domains/user/utils/testSchema')
 
 const USER_FIELDS = '_label_'
 const UserLabelGQL = generateGqlQueries('User', `{ ${USER_FIELDS} }`)
@@ -548,6 +550,39 @@ describe('User fields', () => {
                 })
             })
         })
+    })
+
+    describe('type', ()=> {
+
+        let admin
+        let support
+        let user
+        beforeAll(async () => {
+            admin = await makeLoggedInAdminClient()
+            support = await makeClientWithSupportUser()
+        })
+
+        beforeEach(async () => {
+            user = await registerNewUser(admin)
+        })
+
+        USER_TYPES.forEach(type => test('client cant\'t change field', async () => {
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestUser(support, user.id, { type: type })
+            })
+        }))
+
+        USER_TYPES.forEach(type => test('support cant\'t change field', async () => {
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestUser(support, user.id, { type: type })
+            })
+        }))
+
+        USER_TYPES.forEach(type => test('admin can change field', async () => {
+            User.update(admin.id, { name: user.name, type: type })
+
+            expect(user.type).toEqual(type)
+        }))
     })
 
     describe('_label_', () => {
