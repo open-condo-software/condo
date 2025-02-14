@@ -14305,10 +14305,12 @@ __metadata:
   dependencies:
     "@open-condo/tsconfig": "workspace:^"
     "@types/node": ^16
+    "@types/prompts": ^2.4.9
     cli-table3: ^0.6.5
     commander: ^11.0.0
     dotenv: ^16.4.7
     glob: ^11.0.1
+    prompts: ^2.4.2
     tsup: ^8.3.6
     typescript: ^5.5.4
     zod: ^3.24.2
@@ -19677,6 +19679,16 @@ __metadata:
   version: 1.26.0
   resolution: "@types/prismjs@npm:1.26.0"
   checksum: cd5e7a6214c1f4213ec512a5fcf6d8fe37a56b813fc57ac95b5ff5ee074742bfdbd2f2730d9fd985205bf4586728e09baa97023f739e5aa1c9735a7c1ecbd11a
+  languageName: node
+  linkType: hard
+
+"@types/prompts@npm:^2.4.9":
+  version: 2.4.9
+  resolution: "@types/prompts@npm:2.4.9"
+  dependencies:
+    "@types/node": "*"
+    kleur: ^3.0.3
+  checksum: 69b8372f4c790b45fea16a46ff8d1bcc71b14579481776b67bd6263637118a7ecb1f12e1311506c29fadc81bf618dc64f1a91f903cfd5be67a0455a227b3e462
   languageName: node
   linkType: hard
 
@@ -45237,7 +45249,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prompts@npm:^2.0.1, prompts@npm:^2.4.0":
+"prompts@npm:^2.0.1, prompts@npm:^2.4.0, prompts@npm:^2.4.2":
   version: 2.4.2
   resolution: "prompts@npm:2.4.2"
   dependencies:
