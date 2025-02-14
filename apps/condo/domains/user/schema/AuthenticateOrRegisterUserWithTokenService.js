@@ -6,7 +6,7 @@ const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keys
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
 const { GQLCustomSchema, getByCondition, getSchemaCtx } = require('@open-condo/keystone/schema')
 
-const { NOT_FOUND, COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
+const { COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const access = require('@condo/domains/user/access/AuthenticateOrRegisterUserWithTokenService')
