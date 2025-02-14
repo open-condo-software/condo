@@ -16,12 +16,13 @@ const {
     expectToThrowUniqueConstraintViolationError,
     expectToThrowValidationFailureError,
     expectToThrowGraphQLRequestError,
-    catchErrorFrom,
+    catchErrorFrom, expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 const { makeClient } = require('@open-condo/keystone/test.utils')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { createTestAcquiringIntegration, createTestAcquiringIntegrationContext, updateTestAcquiringIntegration, updateTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
+const { createTestBankAccount } = require('@condo/domains/banking/utils/testSchema')
 const {
     makeServiceUserForIntegration,
     makeOrganizationIntegrationManager,
@@ -42,8 +43,17 @@ const {
     PUBLIC_FILE,
     PRIVATE_FILE,
     generateServicesData,
+    createTestBillingIntegration,
+    createTestBillingIntegrationOrganizationContext,
 } = require('@condo/domains/billing/utils/testSchema')
 const { WRONG_TEXT_FORMAT, UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
+const {
+    createTestB2BApp,
+    createTestB2BAppContext,
+    createTestB2BAppAccessRightSet,
+    createTestB2BAppAccessRight,
+} = require('@condo/domains/miniapp/utils/testSchema')
+const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const {
     registerServiceConsumerByTestClient,
     updateTestServiceConsumer,
@@ -52,7 +62,7 @@ const {
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithSupportUser,
 } = require('@condo/domains/user/utils/testSchema')
-const { createTestUserRightsSet, updateTestUser } = require('@condo/domains/user/utils/testSchema')
+const { createTestUserRightsSet, updateTestUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('BillingReceipt', () => {
     let admin
@@ -910,6 +920,184 @@ describe('BillingReceipt', () => {
                     property: { connect: { id: anotherProperty.id } },
                 })
             }, `${UNEQUAL_CONTEXT_ERROR}:property:context] Context is not equal to property.context`)
+        })
+        describe('validate distribution', () => {
+            describe('must throw an error if', () => {
+                let o10n
+                let bankAccount1, bankAccount2, bankAccount3
+                let recipient1, recipient2, recipient3
+                let serviceClient
+                let context, property, account
+                let integrationUser
+
+                beforeAll(async () => {
+                    [o10n] = await createTestOrganization(admin);
+                    [bankAccount1] = await createTestBankAccount(support, o10n);
+                    [bankAccount2] = await createTestBankAccount(support, o10n);
+                    [bankAccount3] = await createTestBankAccount(support, o10n)
+
+                    const [integration] = await createTestBillingIntegration(admin);
+                    [context] = await createTestBillingIntegrationOrganizationContext(admin, o10n, integration, { status: CONTEXT_FINISHED_STATUS });
+                    [property] = await createTestBillingProperty(admin, context);
+                    [account] = await createTestBillingAccount(admin, context, property)
+
+                    integrationUser = await makeServiceUserForIntegration(integration)
+
+                    recipient1 = createTestRecipient({
+                        tin: bankAccount1.tin,
+                        bic: bankAccount1.routingNumber,
+                        bankAccount: bankAccount1.number,
+                    })
+                    recipient2 = createTestRecipient({
+                        tin: bankAccount2.tin,
+                        bic: bankAccount2.routingNumber,
+                        bankAccount: bankAccount2.number,
+                    })
+                    recipient3 = createTestRecipient({
+                        tin: bankAccount3.tin,
+                        bic: bankAccount3.routingNumber,
+                        bankAccount: bankAccount3.number,
+                    })
+
+                    serviceClient = await makeClientWithServiceUser()
+                    const [app] = await createTestB2BApp(admin)
+                    await createTestB2BAppContext(support, app, o10n, { status: 'Finished' })
+                    const [accessRightSet] = await createTestB2BAppAccessRightSet(support, app, {
+                        canReadOrganizations: true,
+                        canReadInvoices: true,
+                        canManageInvoices: true,
+                    })
+                    await createTestB2BAppAccessRight(support, serviceClient.user, app, accessRightSet)
+                    const [acquiringIntegration] = await createTestAcquiringIntegration(support, { canGroupReceipts: true })
+                    await createTestAcquiringIntegrationContext(admin, o10n, acquiringIntegration, {
+                        invoiceStatus: CONTEXT_FINISHED_STATUS,
+                        invoiceRecipient: createTestRecipient(),
+                    })
+                })
+
+                test('no approved bank account for recipient', async () => {
+                    const unapprovedRecipient = createTestRecipient()
+                    await expectToThrowGQLError(async () => {
+                        await createTestBillingReceipt(integrationUser, context, property, account, {
+                            toPay: '500',
+                            amountDistribution: [
+                                { recipient: unapprovedRecipient, amount: '200' },
+                                {
+                                    recipient: recipient2,
+                                    amount: '300',
+                                    vor: true,
+                                    overpaymentPart: 1,
+                                    isFeePayer: true,
+                                },
+                            ],
+                        })
+                    }, {
+                        code: 'BAD_USER_INPUT',
+                        type: 'NO_APPROVED_BANK_ACCOUNT',
+                        message: 'Some recipients not approved. Please connect to support.',
+                        messageInterpolation: { notApprovedRecipients: [unapprovedRecipient] },
+                    })
+                })
+
+                test('sums not match', async () => {
+                    await expectToThrowGQLError(async () => {
+                        await createTestBillingReceipt(integrationUser, context, property, account, {
+                            toPay: '500',
+                            amountDistribution: [
+                                { recipient: recipient1, amount: '100' },
+                                {
+                                    recipient: recipient2,
+                                    amount: '300',
+                                    vor: true,
+                                    overpaymentPart: 1,
+                                    isFeePayer: true,
+                                },
+                            ],
+                        })
+                    }, {
+                        code: 'BAD_USER_INPUT',
+                        type: 'SUMS_NOT_MATCH',
+                        message: 'Total sum (toPay={toPay}) is not match to sum of distributions ({distributionsSum})',
+                        messageInterpolation: { toPay: '500', distributionsSum: '400' },
+                    })
+                })
+
+                describe('no single victim of rounding in each group', () => {
+                    test('when no such item', async () => {
+                        await expectToThrowGQLError(async () => {
+                            await createTestBillingReceipt(integrationUser, context, property, account, {
+                                toPay: '500',
+                                amountDistribution: [
+                                    { recipient: recipient1, amount: '200' },
+                                    { recipient: recipient2, amount: '300', overpaymentPart: 1, isFeePayer: true },
+                                ],
+                            })
+                        }, {
+                            code: 'BAD_USER_INPUT',
+                            type: 'NO_VOR_IN_GROUP',
+                            message: 'Group {order} does not contains a SINGLE element with vor=true',
+                            messageInterpolation: { order: 0 },
+                        })
+                    })
+
+                    test('when 2 such items', async () => {
+                        await expectToThrowGQLError(async () => {
+                            await createTestBillingReceipt(integrationUser, context, property, account, {
+                                toPay: '500',
+                                amountDistribution: [
+                                    { recipient: recipient1, amount: '100', order: 0, vor: true },
+                                    {
+                                        recipient: recipient2,
+                                        amount: '300',
+                                        order: 1,
+                                        vor: true,
+                                        overpaymentPart: 1,
+                                        isFeePayer: true,
+                                    },
+                                    { recipient: recipient3, amount: '100', order: 1, vor: true },
+                                ],
+                            })
+                        }, {
+                            code: 'BAD_USER_INPUT',
+                            type: 'NO_VOR_IN_GROUP',
+                            message: 'Group {order} does not contains a SINGLE element with vor=true',
+                            messageInterpolation: { order: 1 },
+                        })
+                    })
+                })
+
+                test('no fee payers', async () => {
+                    await expectToThrowGQLError(async () => {
+                        await createTestBillingReceipt(integrationUser, context, property, account, {
+                            toPay: '500',
+                            amountDistribution: [
+                                { recipient: recipient1, amount: '200', vor: true },
+                                { recipient: recipient2, amount: '300', overpaymentPart: 1 },
+                            ],
+                        })
+                    }, {
+                        code: 'BAD_USER_INPUT',
+                        type: 'NO_FEE_PAYER',
+                        message: 'The distribution does not contains at least one fee payer (isFeePayer=true)',
+                    })
+                })
+
+                test('no overpayment receiver', async () => {
+                    await expectToThrowGQLError(async () => {
+                        await createTestBillingReceipt(integrationUser, context, property, account, {
+                            toPay: '500',
+                            amountDistribution: [
+                                { recipient: recipient1, amount: '200', vor: true },
+                                { recipient: recipient2, amount: '300', isFeePayer: true },
+                            ],
+                        })
+                    }, {
+                        code: 'BAD_USER_INPUT',
+                        type: 'NO_OVERPAYMENT_RECEIVER',
+                        message: 'Distribution does not have at least one item with overpaymentPart value',
+                    })
+                })
+            })
         })
     })
     describe('Integration user can perform all needed actions', () => {
