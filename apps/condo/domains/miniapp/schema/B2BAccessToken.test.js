@@ -5,10 +5,10 @@
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 const { gql } = require('graphql-tag')
-const IORedis = require('ioredis')
 const pick = require('lodash/pick')
 
 const conf = require('@open-condo/config')
+const { getRedisClient } = require('@open-condo/keystone/redis')
 const {
     makeLoggedInAdminClient, makeClient, expectValuesOfCommonFields,
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
@@ -411,7 +411,7 @@ describe('B2BAccessToken', () => {
     describe('Real-life cases', () => {
 
         test('Can not update deleted access token to store it in redis', async () => {
-            const redisClient = new IORedis(conf.REDIS_URL)
+            const redisClient = getRedisClient()
             const [createdToken] = await createTestB2BAccessTokenAdmin(admin, b2bAppContext, scopedRightSet)
             expect(createdToken).toBeDefined()
             expect(createdToken).toHaveProperty('sessionId')
@@ -465,9 +465,9 @@ describe('B2BAccessToken', () => {
             const [accessTokenByAdmin] = await B2BAccessTokenReadonlyAdmin.getAll(admin, { sessionId: accessToken.sessionId })
             expect(accessTokenByAdmin.id).toEqual(accessToken.id)
         })
-        
+
         test('SessionId is encrypted', async () => {
-            const redisClient = new IORedis(conf.REDIS_URL)
+            const redisClient = getRedisClient()
             const [createdToken] = await createTestB2BAccessTokenAdmin(admin, b2bAppContext, scopedRightSet)
             expect(createdToken).toHaveProperty('sessionId')
             const session = await redisClient.get(`sess:${createdToken.sessionId}`)
@@ -487,7 +487,7 @@ describe('B2BAccessToken', () => {
                 await B2BAccessToken.getOne(client, { id: createdToken.id })
             }, ['objs', 0, 'token'])
         })
-        
+
         describe('Token', () => {
 
             let scopedRightSet
@@ -512,7 +512,7 @@ describe('B2BAccessToken', () => {
                 await updateTestB2BAppAccessRightSet(support, globalRightSet.id, { deletedAt: null, canReadOrganizations: true })
                 await updateTestB2BAppAccessRightSet(support, scopedRightSet.id, { deletedAt: null, canReadOrganizations: true })
             })
-            
+
             describe('Authentication', () => {
 
                 test('Can\'t logout with token', async () => {
@@ -560,7 +560,7 @@ describe('B2BAccessToken', () => {
                 })
 
             })
-            
+
             test('Can access only connected organization', async () => {
                 const [accessToken] = await createTestB2BAccessToken(admin, b2bAppContext, scopedRightSet)
                 const anonymous = await makeClient()
@@ -596,7 +596,7 @@ describe('B2BAccessToken', () => {
                 const repeatOrganizations = await Organization.getAll(anonymous, {})
                 expect(repeatOrganizations).toHaveLength(0)
             })
-            
+
             describe('Deleting related objects', () => {
 
                 beforeEach(async () => {
@@ -619,7 +619,7 @@ describe('B2BAccessToken', () => {
                         await Organization.getAll(anonymous, {})
                     })
                 })
-            
+
                 test('Deleting B2BAppContext leads to session removal', async () => {
                     const [accessToken] = await createTestB2BAccessToken(admin, b2bAppContext, scopedRightSet)
                     const anonymous = await makeClient()

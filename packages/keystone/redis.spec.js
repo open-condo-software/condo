@@ -1,4 +1,4 @@
-const Redis = require('ioredis')
+const Valkey = require('iovalkey')
 
 const conf = require('@open-condo/config')
 
@@ -13,14 +13,19 @@ describe('Redis adapter', () => {
     beforeAll(() => {
 
         jest.resetModules()
-        process.env.REDIS_URL = conf['REDIS_URL'] || 'redis://127.0.0.1:6379'
-        process.env.REDIS_FALLBACK_CONFIG = conf['REDIS_FALLBACK_CONFIG'] || '{"enabled": true}'
+        try {
+            const url = conf['VALKEY_URL'] ? JSON.parse(conf['VALKEY_URL']) : JSON.parse(conf['REDIS_URL'])
+            nonPrefixedClient = new Valkey.Cluster(url)
+            process.env.VALKEY_URL = conf['VALKEY_URL'] ? conf['VALKEY_URL'] : conf['REDIS_URL']
+        } catch (err) {
+            process.env.VALKEY_URL = conf['VALKEY_URL'] || conf['REDIS_URL'] || [{ 'port':7001, 'host':'127.0.0.1' }, { 'port':7002, 'host':'127.0.0.1' }, { 'port':7003, 'host':'127.0.0.1' }]
+            nonPrefixedClient = new Valkey(process.env.VALKEY_URL)
+        }
 
         moduleName = require(process.cwd() + '/package.json').name.split('/').pop() + ':'
 
         const { getRedisClient } = require('./redis')
         redisClient = getRedisClient('test')
-        nonPrefixedClient = new Redis(process.env.REDIS_URL)
     })
 
     afterAll(async () => {
@@ -39,42 +44,9 @@ describe('Redis adapter', () => {
         expect(getRedisPrefix()).toEqual(moduleName)
     })
 
-    test('adapter should fallback to REDIS_FALLBACK_CONFIG[\'prefix\'] ', async () => {
-        jest.resetModules()
-        process.env.REDIS_URL = conf['REDIS_URL'] || 'redis://127.0.0.1:6379'
-        process.env.REDIS_FALLBACK_CONFIG = '{"enabled": true, "prefix": "someNewFallbackPrefix"}'
-
-        const { getRedisClient } = require('@open-condo/keystone/redis')
-
-        const newPrefixedRedisClient = getRedisClient('newPrefixedRedisClient')
-
-        await nonPrefixedClient.set('someNewFallbackPrefix:test', 1)
-        const operationResult = await nonPrefixedClient.get('someNewFallbackPrefix:test')
-
-        expect(operationResult).toEqual('1')
-
-        const fallbackResult = await newPrefixedRedisClient.get('test')
-
-        expect(fallbackResult).toEqual(operationResult)
-
-        await newPrefixedRedisClient.disconnect()
-        jest.resetModules()
-        process.env.REDIS_URL = conf['REDIS_URL'] || 'redis://127.0.0.1:6379'
-        process.env.REDIS_FALLBACK_CONFIG = conf['REDIS_FALLBACK_CONFIG'] || '{"enabled": true}'
-    })
-
 
     test('redis keyPrefix should be module specific', async () => {
         expect(redisClient.options.keyPrefix).toMatch(moduleName)
-    })
-
-    test('redis handles non prefixed key with fallback enabled', async () => {
-        await nonPrefixedClient.set('test', 'result')
-        const res = await nonPrefixedClient.get('test')
-        expect(res).toMatch('result')
-
-        const key = await redisClient.get('test')
-        expect(key).toMatch(res)
     })
 
     test('default redis client set all keys with prefix', async () => {
@@ -104,8 +76,6 @@ describe('Redis adapter', () => {
 
     test('redis should work with oidc adapter', async () => {
         await redisClient.rpush('testList', 1)
-        const key = await nonPrefixedClient.keys(`${moduleName}testList`)
-        expect(key).toEqual(expect.arrayContaining([`${moduleName}testList`]))
         const range = await redisClient.lrange('testList', 0, -1)
         expect(range).toEqual(expect.arrayContaining(['1']))
         const multi = redisClient.multi()

@@ -2,7 +2,7 @@ const { faker } = require('@faker-js/faker')
 const connectRedis = require('connect-redis')
 const dayjs = require('dayjs')
 const session = require('express-session')
-const IORedis = require('ioredis')
+const Valkey = require('iovalkey')
 
 const conf = require('@open-condo/config')
 const { setSession, destroySession } = require('@open-condo/keystone/session')
@@ -13,10 +13,16 @@ const RedisStore = connectRedis(session)
 describe('session', () => {
     /** @type {RedisStore}  */
     let sessionStore
-    let redisClient
+    let client
     beforeAll(async () => {
-        redisClient = new IORedis(conf.REDIS_URL)
-        sessionStore = new RedisStore({ client: redisClient })
+        try {
+            const url = conf['VALKEY_URL'] ? JSON.parse(conf['VALKEY_URL']) : JSON.parse(conf['REDIS_URL'])
+            client = new Valkey.Cluster(url)
+        } catch (err) {
+            client = new Valkey(conf.VALKEY_URL || conf.REDIS_URL)
+        }
+
+        sessionStore = new RedisStore({ client })
     })
 
     test('setSession', async () => {
@@ -26,7 +32,7 @@ describe('session', () => {
         const expiresAt = dayjs().add(ttl)
         const additionalFieldKey = faker.random.alphaNumeric(8)
         const additionalFieldValue = faker.random.alphaNumeric(8)
-        
+
         await setSession(sessionStore, {
             sessionId,
             keystoneItemId: userId,
@@ -36,7 +42,7 @@ describe('session', () => {
             },
         })
 
-        const storedValueJSON = await redisClient.get(`sess:${sessionId}`)
+        const storedValueJSON = await client.get(`sess:${sessionId}`)
         expect(storedValueJSON).toBeDefined()
         const storedValue = JSON.parse(storedValueJSON)
         const expiresAtISO = expiresAt.toISOString()
@@ -54,7 +60,7 @@ describe('session', () => {
             }),
         }))
 
-        const keyTtl = await redisClient.pttl(`sess:${sessionId}`)
+        const keyTtl = await client.pttl(`sess:${sessionId}`)
         expect(keyTtl).toBeGreaterThan(0)
         const resultInMinutes = keyTtl / 1000 / 60
         const ttlInMinutes = ttl / 1000 / 60
@@ -78,11 +84,11 @@ describe('session', () => {
             },
         })
 
-        const storedValueJSON = await redisClient.get(`sess:${sessionId}`)
+        const storedValueJSON = await client.get(`sess:${sessionId}`)
         expect(storedValueJSON).toBeDefined()
 
         await destroySession(sessionStore, sessionId)
-        const storedValueAfterDestroyJSON = await redisClient.get(`sess:${sessionId}`)
+        const storedValueAfterDestroyJSON = await client.get(`sess:${sessionId}`)
         expect(storedValueAfterDestroyJSON).toBeNull()
     })
 

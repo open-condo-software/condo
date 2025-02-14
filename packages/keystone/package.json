@@ -72,7 +72,7 @@
     "graphql-upload": "^15.0.2",
     "hot-shots": "^10.0.0",
     "inflection": "^1.13.1",
-    "ioredis": "^4.28.5",
+    "iovalkey": "^0.3.1",
     "knex": "^0.95.6",
     "lodash": "^4.17.21",
     "lru-cache": "^7.18.3",
