@@ -3,6 +3,7 @@
  * In most cases you should not change it by hands. And please don't remove `AUTOGENERATE MARKER`s
  */
 
+const { AuthenticateOrRegisterUserWithTokenService } = require('./AuthenticateOrRegisterUserWithTokenService')
 const { AuthenticateUserWithPhoneAndPasswordService } = require('./AuthenticateUserWithPhoneAndPasswordService')
 const { ChangePhoneNumberResidentUserService } = require('./ChangePhoneNumberResidentUserService')
 const { CheckUserExistenceService } = require('./CheckUserExistenceService')
@@ -48,5 +49,6 @@ module.exports = {
     ResetUserLimitAction,
     UserSudoToken,
     GenerateSudoTokenService,
+    AuthenticateOrRegisterUserWithTokenService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

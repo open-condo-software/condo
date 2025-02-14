@@ -199,6 +199,12 @@ const GENERATE_SUDO_TOKEN_MUTATION = gql`
     }
 `
 
+const AUTHENTICATE_OR_REGISTER_USER_WITH_TOKEN_MUTATION = gql`
+    mutation authenticateOrRegisterUserWithToken ($data: AuthenticateOrRegisterUserWithTokenInput!) {
+        result: authenticateOrRegisterUserWithToken(data: $data) { user: item { id } token }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -233,5 +239,6 @@ module.exports = {
     ResetUserLimitAction,
     UserSudoToken,
     GENERATE_SUDO_TOKEN_MUTATION,
+    AUTHENTICATE_OR_REGISTER_USER_WITH_TOKEN_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

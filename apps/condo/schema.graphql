@@ -79918,6 +79918,27 @@ type GenerateSudoTokenOutput {
   token: String!
 }
 
+input AuthenticateOrRegisterUserWithTokenUserDataInput {
+  phone: String
+  name: String
+  email: String
+  password: String
+}
+
+input AuthenticateOrRegisterUserWithTokenInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  token: String!
+  userType: UserTypeType!
+  captcha: String!
+  userData: AuthenticateOrRegisterUserWithTokenUserDataInput
+}
+
+type AuthenticateOrRegisterUserWithTokenOutput {
+  item: User
+  token: String!
+}
+
 enum OrganizationType {
   MANAGING_COMPANY
   HOLDING
@@ -85378,6 +85399,20 @@ type Query {
     "code": "BAD_USER_INPUT",
     "type": "UNSUPPORTED_TOKEN",
     "message": "Unsupported token"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "DAILY_REQUEST_LIMIT_FOR_IP_REACHED",
+    "message": "Too many requests from this ip address. Try again later",
+    "messageForUser": "Too many requests from this ip address. Try again later"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "DAILY_REQUEST_LIMIT_FOR_PHONE_REACHED",
+    "message": "Too many requests with this phone. Try again later",
+    "messageForUser": "Too many requests with this phone. Try again later"
   }`
   """
   checkUserExistence(data: CheckUserExistenceInput!): CheckUserExistenceOutput
@@ -90983,6 +91018,98 @@ type Mutation {
   }`
   """
   generateSudoToken(data: GenerateSudoTokenInput!): GenerateSudoTokenOutput
+
+  """
+  This mutation authorizes the user by token, after confirming the phone number.
+  
+  If the user is not registered, then he will be created with the data that is passed in the payload (user data).
+  
+  If the existing user is missing some fields, then these fields will be taken from the payload (user data) and updated.
+  
+  This mutation is not available for service users!
+  
+  
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "CAPTCHA_CHECK_FAILED",
+    "message": "Failed to check CAPTCHA",
+    "messageForUser": "The operation could not be completed. Please update the application"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "DV_VERSION_MISMATCH",
+    "message": "Wrong value for data version number"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_FORMAT",
+    "message": "Invalid format of \"sender\" field value. Please, check the example for details",
+    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVALID_TOKEN",
+    "message": "Invalid token",
+    "messageForUser": "Invalid token"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "UNSUPPORTED_TOKEN",
+    "message": "Unsupported token",
+    "messageForUser": "Invalid token"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "DIFFERENT_PHONES",
+    "message": "The verified phone and the phone from the payload cannot be different",
+    "messageForUser": "You cannot specify different phones"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "OPERATION_FAILED",
+    "message": "The operation failed",
+    "messageForUser": "Operation failed"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "REQUIRED_USER_DATA_IS_MISSING",
+    "message": "Some required user data was missing",
+    "messageForUser": "Please fill in the required fields"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "SHOULD_AUTHORIZE_WITH_EMAIL",
+    "message": "You should log in to your account using a verified email to be able to log in by phone",
+    "messageForUser": "To be able to log in with your phone number, you must log in to your account using a verified email"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "CREDENTIAL_VALIDATION_FAILED",
+    "message": "User credentials validation failed",
+    "messageForUser": "Failed to authorize user"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "UNAVAILABLE_TOKEN_FOR_REGISTRATION",
+    "message": "It is not possible to register a user with the type ? using ?"
+  }`
+  """
+  authenticateOrRegisterUserWithToken(data: AuthenticateOrRegisterUserWithTokenInput!): AuthenticateOrRegisterUserWithTokenOutput
 
   """
   Registers new Organization for current user
