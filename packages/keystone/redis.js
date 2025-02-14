@@ -8,7 +8,7 @@ const conf = require('@open-condo/config')
 
 const { getLogger } = require('./logging')
 
-const REDIS_CLIENTS = {}
+const VALKEY_CLIENTS = {}
 
 const getRedisPrefix = () => {
     const toPath = urlOrPath => urlOrPath instanceof URL ? fileURLToPath(urlOrPath) : urlOrPath
@@ -59,15 +59,16 @@ function getRedisClient (name = 'default', purpose = 'regular', opts = {}, ignor
     if (!name) throw new Error('getRedisClient() without client name')
     if (typeof name !== 'string') throw new Error('getRedisClient() name is not a string')
     if (typeof purpose !== 'string') throw new Error('getRedisClient() purpose is not a string')
-    if (!REDIS_CLIENTS[clientKey]) {
+    if (!VALKEY_CLIENTS[clientKey]) {
         const redisEnvName = `${name.toUpperCase()}_REDIS_URL`
-        let redisUrl = conf[redisEnvName] || conf.REDIS_URL
+        const valkeyEnvName = `${name.toUpperCase()}_VALKEY_URL`
+        let redisUrl = conf[valkeyEnvName] || conf[redisEnvName] || conf.VALKEY_URL || conf.REDIS_URL
         try {
             redisUrl = JSON.parse(redisUrl)
         } catch (err) {
             // skip that error
         }
-        if (!redisUrl) throw new Error(`No REDIS_URL env! You need to set ${redisEnvName} / REDIS_URL env`)
+        if (!redisUrl) throw new Error(`No REDIS_URL env! You need to set ${redisEnvName} / ${valkeyEnvName} / REDIS_URL / VALKEY_URL env`)
         // BUILD STEP! OR SOME CASE WITH REDIS_URL=undefined
         if (redisUrl === 'undefined') return undefined
         const clientOptions = { connectionName: clientKey, ...opts }
@@ -78,10 +79,10 @@ function getRedisClient (name = 'default', purpose = 'regular', opts = {}, ignor
         client.on('reconnecting', (waitTime) => logger.info({ msg: 'reconnecting', clientKey, waitTime }))
         client.on('error', (error) => logger.error({ msg: 'error', clientKey, error }))
         client.on('end', () => logger.error({ msg: 'end', clientKey }))
-        REDIS_CLIENTS[clientKey] = client
+        VALKEY_CLIENTS[clientKey] = client
     }
 
-    return REDIS_CLIENTS[clientKey]
+    return VALKEY_CLIENTS[clientKey]
 }
 
 module.exports = {
