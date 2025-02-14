@@ -44,7 +44,6 @@ describe('Redis adapter', () => {
         expect(getRedisPrefix()).toEqual(moduleName)
     })
 
-
     test('redis keyPrefix should be module specific', async () => {
         expect(redisClient.options.keyPrefix).toMatch(moduleName)
     })
