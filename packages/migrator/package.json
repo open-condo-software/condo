@@ -40,6 +40,7 @@
   },
   "devDependencies": {
     "@open-condo/tsconfig": "workspace:^",
+    "@types/ioredis": "^4.28.5",
     "@types/node": "^16",
     "@types/prompts": "^2.4.9",
     "commander": "^11.0.0",
@@ -50,6 +51,7 @@
     "cli-table3": "^0.6.5",
     "dotenv": "^16.4.7",
     "glob": "^11.0.1",
+    "ioredis": "^4.28.5",
     "prompts": "^2.4.2",
     "zod": "^3.24.2"
   }

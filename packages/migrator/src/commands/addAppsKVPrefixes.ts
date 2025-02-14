@@ -1,6 +1,7 @@
 import type { CommonOptions } from '@/utils/options'
 
 import { extractEnvValue } from '@/utils/envs'
+import { addAppPrefix } from '@/utils/kvdb/addAppPrefix'
 import { isAppUsingKV } from '@/utils/kvdb/filtering'
 import { getKeyPrefix } from '@/utils/kvdb/keyPrefix'
 import { getLogger } from '@/utils/logging'
@@ -10,7 +11,7 @@ import { findApps, isNameMatching } from '@/utils/packages'
 type TaskInfo = {
     appName: string
     dbConnection: string
-    prefixKey: string
+    keyPrefix: string
 }
 
 const logger = getLogger()
@@ -47,12 +48,12 @@ export async function addAppsKVPrefixes (options: CommonOptions): Promise<void> 
         .map(([appName, dbConnection]) => ({
             appName,
             dbConnection,
-            prefixKey: getKeyPrefix(appName),
+            keyPrefix: getKeyPrefix(appName),
         }))
 
     logger.table({
         head: ['App name', 'DB url', 'Keys prefix'],
-        data: appsToPrefix.map(task => [task.appName, task.dbConnection, task.prefixKey]),
+        data: appsToPrefix.map(task => [task.appName, task.dbConnection, task.keyPrefix]),
     })
 
     const connectionsCounter: Record<string, Array<string>> = {}
@@ -85,15 +86,13 @@ export async function addAppsKVPrefixes (options: CommonOptions): Promise<void> 
         }
     }
 
-    const sleep = (t: number) => new Promise((res) => setTimeout(() => res(t), t))
-
     for (const task of appsToPrefix) {
         logger.info(`Staring migration ${task.appName} app`)
 
-        for (let i = 0; i < 10; i++) {
-            await sleep(1000)
-            logger.updateLine(`Progress: ${i + 1}/10`)
-        }
+        await addAppPrefix({
+            connectionString: task.dbConnection,
+            keyPrefix: task.keyPrefix,
+        })
 
         logger.info(`${task.appName} successfully migrated`)
     }

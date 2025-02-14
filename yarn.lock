@@ -14304,12 +14304,14 @@ __metadata:
   resolution: "@open-condo/migrator@workspace:packages/migrator"
   dependencies:
     "@open-condo/tsconfig": "workspace:^"
+    "@types/ioredis": ^4.28.5
     "@types/node": ^16
     "@types/prompts": ^2.4.9
     cli-table3: ^0.6.5
     commander: ^11.0.0
     dotenv: ^16.4.7
     glob: ^11.0.1
+    ioredis: ^4.28.5
     prompts: ^2.4.2
     tsup: ^8.3.6
     typescript: ^5.5.4
@@ -19212,7 +19214,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/ioredis4@npm:@types/ioredis@^4.28.10":
+"@types/ioredis4@npm:@types/ioredis@^4.28.10, @types/ioredis@npm:^4.28.5":
   version: 4.28.10
   resolution: "@types/ioredis@npm:4.28.10"
   dependencies:
