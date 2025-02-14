@@ -79723,6 +79723,10 @@ input RegisterNewUserInput {
 }
 
 input AuthenticateUserWithPhoneAndPasswordInput {
+  dv: Int
+  sender: SenderFieldInput
+  captcha: String
+  userType: UserTypeType
   phone: String!
   password: String!
 }
@@ -90608,6 +90612,51 @@ type Mutation {
   }`
   """
   registerNewUser(data: RegisterNewUserInput!): User
+
+  """
+  This mutation authorizes the user by phone and password
+  
+  
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_PHONE_FORMAT",
+    "message": "Wrong format of provided phone number",
+    "messageForUser": "Wrong phone number format",
+    "correctExample": "+79991234567"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_CREDENTIALS",
+    "message": "Wrong phone or password",
+    "messageForUser": "Wrong phone or password"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "CAPTCHA_CHECK_FAILED",
+    "message": "Failed to check CAPTCHA",
+    "messageForUser": "The operation could not be completed. Please update the application"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "DV_VERSION_MISMATCH",
+    "message": "Wrong value for data version number"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_FORMAT",
+    "message": "Invalid format of \"sender\" field value. Please, check the example for details",
+    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
+  }`
+  """
   authenticateUserWithPhoneAndPassword(data: AuthenticateUserWithPhoneAndPasswordInput!): AuthenticateUserWithPhoneAndPasswordOutput
 
   """
