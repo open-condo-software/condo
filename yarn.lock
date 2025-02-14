@@ -12010,6 +12010,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@iovalkey/commands@npm:^0.1.0":
+  version: 0.1.0
+  resolution: "@iovalkey/commands@npm:0.1.0"
+  checksum: 0dc1cd4ea1626e4640978e449a0146b7d073fd2b07e113d177d59a8a67df3a56af84e28ac76279646878d17942f54b4f69aa42ce15ab2871335275af754f40fb
+  languageName: node
+  linkType: hard
+
 "@isaacs/cliui@npm:^8.0.2":
   version: 8.0.2
   resolution: "@isaacs/cliui@npm:8.0.2"
@@ -14099,6 +14106,7 @@ __metadata:
     hot-shots: ^10.0.0
     inflection: ^1.13.1
     ioredis: ^4.28.5
+    iovalkey: ^0.3.1
     knex: ^0.95.6
     lodash: ^4.17.21
     lru-cache: ^7.18.3
@@ -34168,6 +34176,23 @@ __metadata:
     redis-parser: ^3.0.0
     standard-as-callback: ^2.1.0
   checksum: 6c40ef071c5fb481f4911c69512371f0a435cc426f07b8905df415030fb9a92266d63e3a674fc3b5aa1e551cda12c00965f2618bda757f164c4a3aa696822427
+  languageName: node
+  linkType: hard
+
+"iovalkey@npm:^0.3.1":
+  version: 0.3.1
+  resolution: "iovalkey@npm:0.3.1"
+  dependencies:
+    "@iovalkey/commands": ^0.1.0
+    cluster-key-slot: ^1.1.0
+    debug: ^4.3.4
+    denque: ^2.1.0
+    lodash.defaults: ^4.2.0
+    lodash.isarguments: ^3.1.0
+    redis-errors: ^1.2.0
+    redis-parser: ^3.0.0
+    standard-as-callback: ^2.1.0
+  checksum: b61b15279a9f7f04ceb162cdb3c7929e6496653f1b6dbce536d30e1937c8e124ed1ac9ab9c6bacfc1310e30527945088e249581e47d8044fa7d74fe24258103c
   languageName: node
   linkType: hard
 
