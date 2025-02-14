@@ -1,3 +1,4 @@
+import { useGetPropertyByOrganizationIdQuery, useGetTourStepsQuery } from '@app/condo/gql'
 import { SortPropertiesBy, SortTourStepsBy, TourStepStatusType, TourStepTypeType } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Col, Row, RowProps } from 'antd'
@@ -10,6 +11,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useMemo } from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { ArrowLeft } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -37,10 +39,8 @@ import {
 } from '@condo/domains/onboarding/constants/steps'
 import { useTourContext } from '@condo/domains/onboarding/contexts/TourContext'
 import { useTourPageData } from '@condo/domains/onboarding/hooks/TourPage/useTourPageData'
-import { TourStep } from '@condo/domains/onboarding/utils/clientSchema'
 import { TODO_STEP_CLICK_ROUTE } from '@condo/domains/onboarding/utils/clientSchema/constants'
 import { SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
-import { Property } from '@condo/domains/property/utils/clientSchema'
 
 
 const {
@@ -108,24 +108,36 @@ const TourPageContent = () => {
     const router = useRouter()
     const { locale } = useIntl()
     const { organization, isLoading } = useOrganization()
-    const organizationId = get(organization, 'id')
+    const { persistor } = useCachePersistor()
+    const organizationId = organization?.id || null
     const { activeTourStep, setActiveTourStep, updateStepIfNotCompleted, syncLoading } = useTourContext()
     const handleBackClick = useCallback(() => setActiveTourStep(null), [setActiveTourStep])
 
-    const { objs: tourSteps, loading: stepsLoading, refetch: refetchSteps } = TourStep.useObjects({
-        where: {
-            organization: { id: organizationId },
+    const {
+        data: tourStepsResult,
+        loading: stepsLoading,
+        refetch: refetchSteps,
+    } = useGetTourStepsQuery({
+        variables: {
+            where: {
+                organization: { id: organizationId },
+            },
+            sortBy: [SortTourStepsBy.OrderAsc],
         },
-        sortBy: [SortTourStepsBy.OrderAsc],
-    }, { skip: isLoading || !organizationId || syncLoading })
-
-    const { objs: lastCreatedProperty } = Property.useObjects({
-        where: {
-            organization: { id: organizationId },
-        },
-        sortBy: [SortPropertiesBy.CreatedAtDesc],
-        first: 1,
+        skip: !organizationId || !persistor || isLoading || syncLoading,
     })
+    const tourSteps = useMemo(() => tourStepsResult?.tourSteps.filter(Boolean) || [], [tourStepsResult?.tourSteps])
+
+    const {
+        data: propertyResult,
+    } = useGetPropertyByOrganizationIdQuery({
+        variables: {
+            organizationId,
+            sortBy: [SortPropertiesBy.CreatedAtDesc],
+        },
+        skip: !organizationId || !persistor || isLoading || syncLoading,
+    })
+    const lastCreatedProperty = useMemo(() => propertyResult?.properties.filter(Boolean) || [], [propertyResult?.properties])
 
     const firstLevelSteps = useMemo(
         () => tourSteps.filter(step => FIRST_LEVEL_STEPS.includes(step.type)),
@@ -160,7 +172,7 @@ const TourPageContent = () => {
             let newRoute = TODO_STEP_CLICK_ROUTE[type]
 
             if (isFunction(newRoute)) {
-                newRoute = newRoute({ lastCreatedPropertyId: get(lastCreatedProperty, '0.id') })
+                newRoute = newRoute({ lastCreatedPropertyId: lastCreatedProperty[0]?.id })
             }
             if (typeof newRoute !== 'string') return
 
@@ -181,7 +193,7 @@ const TourPageContent = () => {
     const isDisabledStep = useCallback(step => {
         if (FIRST_LEVEL_STEPS.includes(step.type) || step.status === TourStepStatusType.Completed) return false
         const firstTodoStep = stepsToRender.find(step => step.status === TourStepStatusType.Todo)
-        if (get(firstTodoStep, 'id', null) !== step.id) return true
+        if (firstTodoStep?.id || null !== step.id) return true
     }, [stepsToRender])
 
     const activeStepWithDefault = useMemo(() => activeTourStep || 'default', [activeTourStep])
@@ -278,7 +290,7 @@ const TourPage: PageComponentType = () => {
 
     const { organization, isLoading } = useOrganization()
 
-    if (!isLoading && get(organization, 'type') === SERVICE_PROVIDER_TYPE) {
+    if (!isLoading && organization?.type === SERVICE_PROVIDER_TYPE) {
         return <AccessDeniedPage />
     }
 
