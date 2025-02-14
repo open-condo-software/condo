@@ -357,34 +357,43 @@ const Payment = new GQLListSchema('Payment', {
             // Calculate splits if distribution was set
             const frozenDistribution = get(resolvedData, ['frozenDistribution'])
             if (isCreate && !!frozenDistribution) {
+                // Try to find other payments related to same receipt/invoice
+                // It is important for partial payments
                 const invoiceId = get(resolvedData, 'invoice')
                 const receiptId = get(resolvedData, 'receipt')
 
-                const wherePart = {
-                    invoice_is_null: true,
-                    receipt_is_null: true,
+                if (invoiceId || receiptId) {
+                    const wherePart = {}
+                    if (invoiceId) {
+                        wherePart.invoice = { id: invoiceId }
+                        wherePart.receipt_is_null = true
+                    } else if (receiptId) {
+                        wherePart.receipt = { id: receiptId }
+                        wherePart.receipt_is_null = true
+                    }
+
+                    const relatedPayments = await PaymentGQL.getAll(context, {
+                        ...wherePart,
+                        frozenDistribution_not: null,
+                        frozenSplits_not: null,
+                        deletedAt: null,
+                    }, 'id frozenSplits')
+
+                    const appliedSplits = relatedPayments.reduce((acc, payment) => [...acc, ...payment.frozenSplits], [])
+
+                    const totalAmount = Big(resolvedData['amount'] || 0)
+                        .plus(resolvedData['explicitFee'] || 0)
+                        .plus(resolvedData['explicitServiceCharge'] || 0)
+
+                    const totalFeeAmount = Big(resolvedData['implicitFee'] || 0)
+                        .plus(resolvedData['explicitFee'] || 0)
+                        .plus(resolvedData['explicitServiceCharge'] || 0)
+
+                    resolvedData['frozenSplits'] = split(totalAmount.toString(), frozenDistribution, {
+                        feeAmount: totalFeeAmount.toString(),
+                        appliedSplits,
+                    })
                 }
-                if (invoiceId) {
-                    wherePart.invoice = { id: invoiceId }
-                    wherePart.invoice_is_null = undefined
-                } else if (receiptId) {
-                    wherePart.receipt = { id: receiptId }
-                    wherePart.receipt_is_null = undefined
-                }
-
-                const relatedPayments = await PaymentGQL.getAll(context, {
-                    ...wherePart,
-                    frozenDistribution_not: null,
-                    frozenSplits_not: null,
-                    deletedAt: null,
-                }, 'id frozenSplits')
-
-                const appliedSplits = relatedPayments.reduce((acc, payment) => [...acc, ...payment.frozenSplits], [])
-
-                resolvedData['frozenSplits'] = split(resolvedData['amount'], frozenDistribution, {
-                    feeAmount: get(resolvedData, 'implicitFee'),
-                    appliedSplits,
-                })
             }
 
             return resolvedData
