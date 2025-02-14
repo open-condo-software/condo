@@ -248,7 +248,7 @@ jobs:
       - name: Setup databases (Linux Runners)
         if: matrix.os != 'windows-latest'
         run: |
-          docker compose up -d postgresdb redis
+          docker compose up -d postgresdb valkey-cluster
       - name: Prepare Python environment
         uses: actions/setup-python@v5
         with:
