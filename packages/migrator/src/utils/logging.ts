@@ -33,7 +33,7 @@ class TimedLogger implements SimpleLogger {
         this.isUpdating = true
         process.stdout.clearLine(0)
         process.stdout.cursorTo(0)
-        process.stdout.write(this.formatMessage(msg))
+        process.stdout.write(this.formatMessage(msg) + '\r')
     }
 
     error (msg: string) {
