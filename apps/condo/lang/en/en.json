@@ -3216,11 +3216,6 @@
   "tour.title": "Tour",
   "tour.toTour": "Go to tour",
   "tour.viewGuide": "View Guide",
-  "telegram.auth.start.shareButton": "Send contact",
-  "telegram.auth.start.response": "Please send your contact",
-  "telegram.auth.contact.wrongContact": "Please send your contact",
-  "telegram.auth.contact.complete": "Authorization completed successfully! Return to the app",
-  "telegram.auth.error": "An error occurred during authentication. Please start the authentication process from the beginning",
   "trial.startPeriod": "Start trial period",
   "trial.subTitle": "And then...",
   "trial.title": "Free period of 14 days"
