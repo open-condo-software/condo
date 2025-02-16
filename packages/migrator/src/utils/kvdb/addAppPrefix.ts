@@ -27,6 +27,8 @@ export async function addAppPrefix ({
     let migrated = 0
     let lastLoggedAt = 0
 
+    // NOTE: cursor is updated and break condition is defined
+    // eslint-disable-next-line no-constant-condition
     while (true) {
         const [updatedCursor, keyBatch] = await client.scan(cursor, 'MATCH', '*', 'COUNT', scanSize)
         cursor = updatedCursor

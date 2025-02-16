@@ -12,6 +12,8 @@ export async function extractEnvValue (pkg: PackageInfoWithLocation, key: string
 
     let value = process.env[key]
 
+    // NOTE: Expected behaviour + controlled input
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
     const envFileLocation = path.join(pkgDirPath, '.env')
 
     if (existsSync(envFileLocation)) {
