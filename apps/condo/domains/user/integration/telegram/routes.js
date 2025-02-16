@@ -1,7 +1,10 @@
+const { generators } = require('openid-client')
+
+const { fetch } = require('@open-condo/keystone/fetch')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getRedisClient } = require('@open-condo/keystone/redis')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
-const TelegramAuthBotController = require('@condo/domains/user/integration/telegram/BotController')
 const {
     TELEGRAM_AUTH_STATUS_PENDING,
     TELEGRAM_AUTH_STATUS_ERROR,
@@ -10,38 +13,63 @@ const {
 } = require('@condo/domains/user/integration/telegram/constants')
 const {
     getUserType,
-    generateStartLinkAndKey,
     generateUniqueKey,
-    getRedisStartKey,
     getRedisTokenKey,
     getRedisStatusKey,
 } = require('@condo/domains/user/integration/telegram/utils')
+
+
+const { syncUser } = require('./sync/syncUser')
+const { startAuthedSession } = require('./utils')
+
 
 const logger = getLogger('telegram-auth')
 const redisClient = getRedisClient()
 
 class TelegramAuthRoutes {
-    #telegramAuthBot = new TelegramAuthBotController()
-
-    constructor () {
-        this.#telegramAuthBot.init()
-    }
-
     async startAuth (req, res, next) {
         try {
-            const { startLink, startKey } = generateStartLinkAndKey()
+            const checks = { nonce: generators.nonce(), state: generators.state() }
+
+            const response = await fetch(`https://auth-bot.app.localhost:8009/telegram/authorize?nonce=${checks.nonce}&state=${checks.state}`)
+            const { startLink, reqId } = await response.json()
+
             const userType = getUserType(req)
             const uniqueKey = generateUniqueKey()
 
-            await Promise.all([
-                redisClient.set(getRedisStartKey(startKey), JSON.stringify({ uniqueKey, userType }), 'EX', TELEGRAM_AUTH_REDIS_TTL),
-                redisClient.set(getRedisStatusKey(uniqueKey), TELEGRAM_AUTH_STATUS_PENDING, 'EX', TELEGRAM_AUTH_REDIS_TTL),
-            ])
+            redisClient.set(getRedisStatusKey(uniqueKey), TELEGRAM_AUTH_STATUS_PENDING, 'EX', TELEGRAM_AUTH_REDIS_TTL)
 
             return res.json({ startLink, uniqueKey })
         } catch (error) {
             logger.error({ msg: 'Telegram auth start error', reqId: req.id, error })
             next(error)
+        }
+    }
+
+    async completeAuth (req, res, next) {
+        const reqId = req.id
+        try {
+            const { authCode } = req.query
+            const response = await fetch(`https://auth-bot.app.localhost:8009/telegram/token?authCode=${authCode}`)
+            const data = await response.json()
+
+            const userinfoResponse = await fetch('https://auth-bot.app.localhost:8009/telegram/userinfo', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ accessToken: data.accessToken }),
+            })
+
+            const userinfo = await userinfoResponse.json()
+
+            // const { id } = await syncUser({ context, userInfo, userType })
+            //
+            // return await this.#authenticateUser(req, res, context, id)
+            res.end()
+        } catch (error) {
+            logger.error({ msg: 'Telegram auth callback error', err: error, reqId })
+            return next(error)
         }
     }
 
@@ -80,6 +108,25 @@ class TelegramAuthRoutes {
             next(error)
         }
     }
+
+    // async #authenticateUser (chatId, startData, userInfo, locale) {
+    //     try {
+    //         const { uniqueKey, userType } = JSON.parse(startData)
+    //
+    //         const status = await redisClient.get(getRedisStatusKey(uniqueKey))
+    //         if (status !== TELEGRAM_AUTH_STATUS_PENDING) {
+    //             return this.#sendMessage(chatId, 'telegram.auth.error', locale)
+    //         }
+    //
+    //         const { keystone: context } = getSchemaCtx('User')
+    //         const { id } = await syncUser({ context, userInfo, userType })
+    //         const token = await startAuthedSession(id, context._sessionManager._sessionStore)
+    //
+    //         this.#sendMessage(chatId, 'telegram.auth.contact.complete', locale)
+    //     } catch (error) {
+    //         this.#sendMessage(chatId, 'telegram.auth.error', locale)
+    //     }
+    // }
 }
 
 module.exports = { TelegramAuthRoutes }
