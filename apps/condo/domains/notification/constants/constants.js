@@ -155,6 +155,8 @@ const MESSAGE_META = {
             url: { defaultValue: '', required: true },
             organizationId: { defaultValue: '', required: true },
             organizationName: { defaultValue: '', required: true },
+            authorType: { defaultValue: '', required: true },
+            authorName: { defaultValue: '', required: true },
         },
         telegramMeta: { required: false },
     },
