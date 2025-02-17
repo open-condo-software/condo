@@ -3,7 +3,7 @@ import type { CommonOptions } from '@/utils/options'
 import { extractEnvValue } from '@/utils/envs'
 import { addAppPrefix } from '@/utils/kvdb/addAppPrefix'
 import { isAppUsingKV } from '@/utils/kvdb/filtering'
-import { getKeyPrefix } from '@/utils/kvdb/keyPrefix'
+import { getAppKeyPrefix } from '@/utils/kvdb/keyPrefix'
 import { getLogger } from '@/utils/logging'
 import { findApps, isNameMatching } from '@/utils/packages'
 
@@ -48,7 +48,7 @@ export async function addAppsKVPrefixes (options: CommonOptions): Promise<void> 
         .map(([appName, dbConnection]) => ({
             appName,
             dbConnection,
-            keyPrefix: getKeyPrefix(appName),
+            keyPrefix: getAppKeyPrefix(appName),
         }))
 
     logger.table({

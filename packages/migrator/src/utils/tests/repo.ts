@@ -4,29 +4,28 @@ import path from 'path'
 import { faker } from '@faker-js/faker'
 import tmp from 'tmp'
 
+import type { PackageInfoWithLocation } from '@/utils/packages'
+
 tmp.setGracefulCleanup()
 
 function randomInt (min: number, max: number): number {
     return Math.floor(Math.random() * (max - min)) + min
 }
 
-type MonorepoApp = {
-    name: string
-    location: string
-}
-
 type CreateAppOptions = {
     name?: string
     env?: Record<string, string>
+    devDependencies?: Record<string, string>
+    dependencies?: Record<string, string>
 }
 
 export class Monorepo {
     rootDir = tmp.dirSync({
         unsafeCleanup: true,
     })
-    apps: Array<MonorepoApp> = []
+    apps: Array<PackageInfoWithLocation> = []
 
-    destroy () {
+    destroy (): void {
         this.rootDir.removeCallback()
     }
 
@@ -40,12 +39,16 @@ export class Monorepo {
 
         fs.mkdirSync(path.dirname(location), { recursive: true })
 
+        const appData = Object.fromEntries([
+            ['name', name],
+            ['version', '0.0.0-development'],
+            ['devDependencies', options?.devDependencies],
+            ['dependencies', options?.dependencies],
+        ].filter(([_, value]) => Boolean(value)))
+
         fs.writeFileSync(
             location,
-            JSON.stringify({
-                name,
-                version: '0.0.0-development',
-            }),
+            JSON.stringify(appData),
         )
 
         if (options?.env) {
@@ -58,9 +61,14 @@ export class Monorepo {
                 envContent
             )
         }
+        
+        const omittedVersionData = 
+            Object.fromEntries(
+                Object.entries(appData).filter(([key]) => key !== 'version')
+            ) as Omit<PackageInfoWithLocation, 'location'> 
 
         this.apps.push({
-            name,
+            ...omittedVersionData,
             location,
         })
 

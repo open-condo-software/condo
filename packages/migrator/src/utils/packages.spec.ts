@@ -19,7 +19,7 @@ function createTestPackageInfo (name: string): PackageInfoWithLocation {
     }
 }
 
-describe('Utils for working packages', () => {
+describe('Utils for detecting packages', () => {
     describe('isNameMatching', () => {
         test('Must return true if filter is not specified', () => {
             expect(isNameMatching(createTestPackageInfo('@app/condo'))).toEqual(true)
@@ -63,6 +63,42 @@ describe('Utils for working packages', () => {
 
             const foundApps = await findApps({ cwd: repo.rootDir.name })
             expect(foundApps).toHaveLength(3)
+            expect(foundApps).toEqual(
+                expect.arrayContaining(
+                    repo.apps
+                        .filter(app => app.name.startsWith('@app/'))
+                        .map(app => expect.objectContaining(app))
+                )
+            )
+        })
+        test('Must extract info about dependencies and devDependencies', async () => {
+            const testDeps = { 'ioredis': '1.2.3', 'is-odd-ai': '^1.0.0' }
+            const testDevDeps = { 'typescript': '^5' }
+
+            repo = createTestMonoRepo()
+                .createApp()
+                .createApp({
+                    dependencies: testDeps,
+                })
+                .createApp({
+                    devDependencies: testDevDeps,
+                })
+                .createApp({
+                    dependencies: testDeps,
+                    devDependencies: testDevDeps,
+                })
+
+            expect(repo.apps[0]).not.toHaveProperty('dependencies')
+            expect(repo.apps[0]).not.toHaveProperty('devDependencies')
+            expect(repo.apps[1]).toHaveProperty('dependencies', testDeps)
+            expect(repo.apps[1]).not.toHaveProperty('devDependencies')
+            expect(repo.apps[2]).not.toHaveProperty('dependencies')
+            expect(repo.apps[2]).toHaveProperty('devDependencies', testDevDeps)
+            expect(repo.apps[3]).toHaveProperty('dependencies', testDeps)
+            expect(repo.apps[3]).toHaveProperty('devDependencies', testDevDeps)
+
+            const foundApps = await findApps({ cwd: repo.rootDir.name })
+            expect(foundApps).toHaveLength(4)
             expect(foundApps).toEqual(
                 expect.arrayContaining(
                     repo.apps
