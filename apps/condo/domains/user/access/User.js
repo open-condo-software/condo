@@ -34,15 +34,6 @@ async function canManageUsers ({ authentication: { item: user }, operation, item
     return false
 }
 
-async function canManageUserType ({ authentication: { item: user } }) {
-    if (!user) return throwAuthenticationError()
-    if (user.deletedAt) return false
-
-    if (user.isAdmin) return true
-
-    return false
-}
-
 const readByAnyUpdateByAdminField = {
     read: true,
     create: access.userIsAdmin,
@@ -106,6 +97,12 @@ const canAccessToIsAdminField = {
     read: access.userIsAdmin,
     create: access.userIsAdmin,
     update: access.userIsAdmin,
+}
+
+const canManageUserType = {
+    read: true,
+    create: canManageUsers,
+    update: false,
 }
 
 const canAccessToIsEmailVerifiedField = readByAnyUpdateByAdminField

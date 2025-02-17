@@ -553,35 +553,19 @@ describe('User fields', () => {
     })
 
     describe('type', ()=> {
-
         let admin
-        let support
         let user
+
         beforeAll(async () => {
-            admin = await makeLoggedInAdminClient()
-            support = await makeClientWithSupportUser()
+            admin = await makeLoggedInAdminClient();
+
+            [user] = await createTestUser(admin)
         })
 
-        beforeEach(async () => {
-            user = await registerNewUser(admin)
-        })
-
-        USER_TYPES.forEach(type => test('client cant\'t change field', async () => {
+        USER_TYPES.forEach(type => test('can\'t update field', async () => {
             await expectToThrowAccessDeniedErrorToObj(async () => {
-                await updateTestUser(support, user.id, { type: type })
+                await updateTestUser(admin, user.id, { type: type })
             })
-        }))
-
-        USER_TYPES.forEach(type => test('support cant\'t change field', async () => {
-            await expectToThrowAccessDeniedErrorToObj(async () => {
-                await updateTestUser(support, user.id, { type: type })
-            })
-        }))
-
-        USER_TYPES.forEach(type => test('admin can change field', async () => {
-            User.update(admin.id, { name: user.name, type: type })
-
-            expect(user.type).toEqual(type)
         }))
     })
 
