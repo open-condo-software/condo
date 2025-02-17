@@ -32,6 +32,8 @@ const {
 } = require('@condo/domains/billing/constants/errors')
 const { render, getGQLErrorValidator } = require('@condo/domains/common/schema/json.utils')
 
+const DEFAULT_TO_PAY_FIELD_NAME = 'toPay'
+
 const ERRORS = {
     NO_APPROVED_BANK_ACCOUNT: (notApprovedRecipients) => ({
         code: BAD_USER_INPUT,
@@ -124,7 +126,7 @@ const AMOUNT_DISTRIBUTION_FIELD = {
             const { context, resolvedData, existingItem, fieldPath } = attrs
             /** @type {TDistribution[]} */
             const distribution = get(resolvedData, fieldPath)
-            const nextToPay = get(resolvedData, 'toPay', get(existingItem, 'toPay'))
+            const nextToPay = get(resolvedData, DEFAULT_TO_PAY_FIELD_NAME, get(existingItem, DEFAULT_TO_PAY_FIELD_NAME))
 
             // Checking for every recipient has an approved mirrored BankAccount
             /** @type {BankAccount[]} */
