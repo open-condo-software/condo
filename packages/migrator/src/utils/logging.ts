@@ -30,10 +30,14 @@ class TimedLogger implements SimpleLogger {
     }
 
     updateLine (msg: string) {
-        this.isUpdating = true
-        process.stdout.clearLine(0)
-        process.stdout.cursorTo(0)
-        process.stdout.write(this.formatMessage(msg) + '\r')
+        if (Boolean(process.stdout.clearLine) && Boolean(process.stdout.cursorTo)) {
+            this.isUpdating = true
+            process.stdout.clearLine(0)
+            process.stdout.cursorTo(0)
+            process.stdout.write(this.formatMessage(msg) + '\r')
+        } else {
+            console.log(this.formatMessage(msg))
+        }
     }
 
     error (msg: string) {

@@ -59,4 +59,6 @@ export async function addAppPrefix ({
             break
         }
     }
+
+    await client.quit()
 }
