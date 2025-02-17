@@ -427,10 +427,8 @@ jobs:
         run: |
           npm i -g turbo
           yarn install --immutable
-      - name: Test webhooks utils
+      - name: Run @open-condo/migrator tests
         run: yarn workspace @open-condo/migrator test
-
-
 
   run-rb-tests:
     name: RB Tests
