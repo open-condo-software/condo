@@ -565,7 +565,7 @@ describe('User fields', () => {
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await updateTestUser(admin, user.id, { type: type })
             })
-        }))
+        })
     })
 
     describe('_label_', () => {
