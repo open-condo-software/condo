@@ -55,7 +55,6 @@ const {
     makeClientWithSupportUser,
     registerNewUser,
 } = require('@condo/domains/user/utils/testSchema')
-const { makeLoggedInSupportClient } = require('@dev-portal-api/domains/user/utils/testSchema')
 
 const USER_FIELDS = '_label_'
 const UserLabelGQL = generateGqlQueries('User', `{ ${USER_FIELDS} }`)
