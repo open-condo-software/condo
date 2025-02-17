@@ -22,9 +22,8 @@ const DEFAULT_SEED = {
 
 describe('getSbbolUserInfoErrors', () => {
     test('no userGuid and no sub', () => {
-        const { sub, userGuid, ...info } = {
+        const { sub, ...info } = {
             ...DEFAULT_SEED,
-            userGuid: '5a99ca6e22f321af3a',
             HashOrgId: 'awf2a99ca6e22faf3a',
         }
         const errors = getSbbolUserInfoErrors({ ...info, HashOrgId: 'awf2a99ca6e22faf3a' })
@@ -35,9 +34,8 @@ describe('getSbbolUserInfoErrors', () => {
         ])
     })
     test('no userGuid but has sub', () => {
-        const { userGuid, ...info } = {
+        const info = {
             ...DEFAULT_SEED,
-            userGuid: '5a99ca6e22f321af3a',
             HashOrgId: 'awf2a99ca6e22faf3a',
         }
         const errors = getSbbolUserInfoErrors(info)
