@@ -30,7 +30,11 @@ export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
         <>
             {props.headerAction ? props.headerAction : null}
             <Space direction='horizontal' size={40} className='top-menu-items'>
-                {isPlatformNotificationsFeatureEnabled && <UserMessagesList />}
+                {isPlatformNotificationsFeatureEnabled && (
+                    <div style={{ maxHeight: '24px' }}>
+                        <UserMessagesList />
+                    </div>
+                )}
                 <Space size={12}>
                     <SBBOLIndicator organization={organization} />
                     <ServiceSubscriptionIndicator />
