@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 
 import { Settings } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
@@ -7,9 +7,8 @@ import { Dropdown, Typography } from '@open-condo/ui'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Loader } from '@condo/domains/common/components/Loader'
-import { useWindowTitleContext } from '@condo/domains/common/components/WindowTitleContext'
-import { useAudio } from '@condo/domains/common/hooks/useAudio'
 import { useUserMessagesList } from '@condo/domains/notification/contexts/UserMessagesListContext'
+import { useNewMessageTitleNotification } from '@condo/domains/notification/hooks/useNewMessageTitleNotification'
 
 import { MessageCard } from './MessageCard'
 import { MessagesCounter } from './MessagesCounter'
@@ -22,12 +21,9 @@ export const UserMessagesList = () => {
     const intl = useIntl()
     const UserMessagesListTitle = intl.formatMessage({ id: 'notification.UserMessagesList.title' })
     const ViewedMessage = intl.formatMessage({ id: 'notification.UserMessagesList.viewed' })
-    const NewMessagePageTitle = intl.formatMessage({ id: 'notification.UserMessagesList.newMessagePageTitle' })
     const EmptyListMessage = intl.formatMessage({ id: 'notification.UserMessagesList.emptyList' })
 
     const { breakpoints } = useLayoutContext()
-
-    const newMessagesCountRef = useRef<number>()
 
     const [settingsModalOpen, setSettingsModalOpen] = useState<boolean>(false)
 
@@ -58,29 +54,7 @@ export const UserMessagesList = () => {
         () => userMessages.filter(message => message.createdAt <= readUserMessagesAt),
         [readUserMessagesAt, userMessages])
 
-    const audio = useAudio()
-    const { setTitleConfig } = useWindowTitleContext()
-    // Play audio and update favicon when new notification received
-    useEffect(() => {
-        const newMessagesCount = unreadMessages?.length
-        if (newMessagesCount === undefined) {
-            return
-        }
-
-        if (
-            newMessagesCountRef.current !== undefined &&
-            newMessagesCount > newMessagesCountRef.current
-        ) {
-            const iconPath = newMessagesCount > 9
-                ? '/favicons/infinity.svg'
-                : `/favicons/${newMessagesCount}.svg`
-            setTitleConfig({
-                label: NewMessagePageTitle, iconPath, count: newMessagesCount })
-            audio.playNewItemsFetchedSound()
-        }
-
-        newMessagesCountRef.current = newMessagesCount
-    }, [NewMessagePageTitle, audio, setTitleConfig, unreadMessages?.length])
+    useNewMessageTitleNotification(unreadMessages?.length)
 
     const emptyPlaceholder = useMemo(() => (
         <BasicEmptyListView image='/dino/searching@2x.png'>
