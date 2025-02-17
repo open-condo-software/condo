@@ -163,7 +163,7 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
                             </div>)
                         } else {
                             componentsToRender.push(<div key='priceForAllProperties'>
-                                {renderedPrice}{( shouldShowMeasure && `/${intl.formatMessage( { id: `pages.condo.marketplace.measure.${measure}.short` })}` )}
+                                {renderedPrice}{( shouldShowMeasure ? `/${intl.formatMessage( { id: `pages.condo.marketplace.measure.${measure}.short` })}` : '' )}
                                 <Typography.Text type='secondary' style={{ margin: '10px' }}>({AllPropertiesMessage})</Typography.Text>
                             </div>)
                         }
@@ -183,7 +183,7 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
                                     get(items[0], 'isMin') && (get(items[0], 'price') == 0) ?
                                         ContractPriceMessage :
                                         getMoneyRender(intl, get(items[0], 'currency', 'RUB'))(price, get(items[0], 'isMin'))
-                                        + (shouldShowMeasure && `/${intl.formatMessage( { id: `pages.condo.marketplace.measure.${measure}.short` })}`)
+                                        + (shouldShowMeasure ? `/${intl.formatMessage( { id: `pages.condo.marketplace.measure.${measure}.short` })}` : '')
                                 }
                                 <Typography.Text type='secondary' style={{ margin: '10px' }}>
                                 ({items.length > 1 ? `${address} ${AndMoreMessage} ${items.length - 1}` : address})
