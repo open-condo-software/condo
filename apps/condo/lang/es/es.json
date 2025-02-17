@@ -380,6 +380,7 @@
   "api.meter.meterReading.METER_READING_FEW_VALUES": "Meter {meterNumber} has {numberOfTariffs} tariff(s), please fill next fields: {fieldsNames}",
   "api.meter.meterReportingPeriod.INVALID_FINISH": "Fin de período sólo puede tener un valor entre 1 y 31",
   "api.meter.meterReportingPeriod.INVALID_START": "El inicio del período sólo puede tener un valor entre 1 y 31",
+  "api.meter.meterReportingPeriod.INVALID_RESTRICTION_END_DAY": "El final de la prohibición de testificar solo puede tener un valor de 1 a 31",
   "api.meter.meterReportingPeriod.ORGANIZATION_IS_REQUIRED": "Se requiere una organización para crear un periodo de envío de lecturas",
   "api.meter.meterReportingPeriod.PROPERTY_NOT_FOUND": "Esta comunidad no existe en la organizacion",
   "api.meter.registerMetersReadings.INVALID_ACCOUNT_NUMBER": "Se ha especificado una cuenta personal incorrecta",
