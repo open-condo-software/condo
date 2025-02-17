@@ -19,6 +19,7 @@ const { METER_READING_DATE_IN_FUTURE, METER_READING_FEW_VALUES, METER_READING_EX
 const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 const { connectContactToMeterReading } = require('@condo/domains/meter/utils/serverSchema/resolveHelpers')
 const { addClientInfoToResidentMeterReading } = require('@condo/domains/meter/utils/serverSchema/resolveHelpers')
+const { isReadingDateAllowed } = require('@condo/domains/meter/utils/serverSchema/resolveHelpers')
 const { addOrganizationFieldPlugin } = require('@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
@@ -88,26 +89,18 @@ const MeterReading = new GQLListSchema('MeterReading', {
                             })
 
                             const meterReportingPeriod = meterReportingPeriods.find(period => period.property) ||
-                            meterReportingPeriods.find(period => period.organization)
+                                meterReportingPeriods.find(period => period.organization)
 
                             if (meterReportingPeriod) {
-                                const { notifyStartDay, notifyEndDay, isStrict, readingsRestrictedUntilDay } = meterReportingPeriod
-
-                                if (isStrict) {
-                                    // NOTE: Consider two cases: period in the same month (20 - 25) and period spans into next month (25 - 5)
-                                    const startOfMonth = readingDate.startOf('month')
-                                    const nextMonthStart = startOfMonth.add(1, 'month').startOf('month')
-                                    const restrictionEnd = startOfMonth.date(readingsRestrictedUntilDay)
-                                        .add(readingsRestrictedUntilDay > notifyEndDay ? 0 : 1, 'month')
-                                    const periodEnd = (notifyStartDay < notifyEndDay ? startOfMonth : nextMonthStart).date(notifyEndDay)
-
-                                    
-                                    if (readingDate.isAfter(periodEnd, 'day') && readingDate.isBefore(restrictionEnd, 'day')) {
-                                        throw new GQLError({
-                                            ...ERRORS.METER_READING_DATE_AFTER_NOTIFY_END,
-                                            messageInterpolation: { notifyEndDay, givenDate: date },
-                                        }, context)
-                                    }
+                                const { notifyEndDay } = meterReportingPeriod
+                                if (!isReadingDateAllowed(date, meterReportingPeriod)) {
+                                    throw new GQLError({
+                                        code: BAD_USER_INPUT,
+                                        type: METER_READING_DATE_AFTER_NOTIFY_END,
+                                        message: 'Meter reading date cannot be after the end of the MeterReportingPeriod\'s notifyEndDay',
+                                        messageForUser: 'api.meter.meterReading.METER_READING_DATE_AFTER_NOTIFY_END',
+                                        messageInterpolation: { notifyEndDay, givenDate: date },
+                                    }, context)
                                 }
                             }
                         }
