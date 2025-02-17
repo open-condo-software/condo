@@ -14,6 +14,7 @@ import { isSSR } from '@open-condo/miniapp-utils'
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
 
+import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { useAllowedToFilterMessageTypes } from '@condo/domains/notification/hooks/useAllowedToFilterMessageTypes'
 import { useUserMessages } from '@condo/domains/notification/hooks/useUserMessages'
 import { useUserMessagesListSettingsStorage } from '@condo/domains/notification/hooks/useUserMessagesListSettingsStorage'
@@ -59,6 +60,7 @@ export const UserMessagesListContextProvider = ({ children }) => {
 
     const { user } = useAuth()
     const { organization } = useOrganization()
+    const { logEvent } = useTracking()
 
     const userId = useMemo(() => user?.id, [user?.id])
     const organizationId = useMemo(() => organization?.id, [organization?.id])
@@ -127,7 +129,7 @@ export const UserMessagesListContextProvider = ({ children }) => {
             if (messagesListRef.current) {
                 messagesListRef.current.scroll({ top: 0 })
             }
-
+            logEvent({ eventName: 'UserMessagesListOpen' })
             return
         }
 
@@ -139,7 +141,7 @@ export const UserMessagesListContextProvider = ({ children }) => {
         }
 
         clearLoadedMessages()
-    }, [clearLoadedMessages, messagesListRef, readUserMessagesAt, userMessages, userMessagesSettingsStorage])
+    }, [clearLoadedMessages, logEvent, messagesListRef, readUserMessagesAt, userMessages, userMessagesSettingsStorage])
 
     return (
         <UserMessageListContext.Provider
