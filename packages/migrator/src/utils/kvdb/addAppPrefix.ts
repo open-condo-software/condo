@@ -1,5 +1,6 @@
 import IORedis from 'ioredis'
 
+import { getAppPrefixedKey } from '@/utils/kvdb/keyPrefix'
 import { getLogger } from '@/utils/logging'
 
 type AddAppPrefixOptions = {
@@ -41,20 +42,9 @@ export async function addAppPrefix ({
                 continue
             }
 
-            // NOTE: bull key "bull:<queueName>:suffix..." must become "{<keyPrefix>:bull:<queueName>}:suffix..."
-            if (key.startsWith('bull:')) {
-                const [bull, queueName, ...rest] = key.split(':')
-                const cachedPart = [keyPrefix, bull, queueName].join(':')
-
-                // NOTE: Rejoin is necessary since rest can possibly be empty
-                const newKey = [`{${cachedPart}}`, ...rest].join(':')
-                tx = tx.renamenx(key, newKey)
-                migrated++
-            } else {
-                const newKey = [keyPrefix, key].join(':')
-                tx = tx.renamenx(key, newKey)
-                migrated++
-            }
+            const newKey = getAppPrefixedKey(key, keyPrefix)
+            tx = tx.renamenx(key, newKey)
+            migrated++
         }
 
         await tx.exec()
