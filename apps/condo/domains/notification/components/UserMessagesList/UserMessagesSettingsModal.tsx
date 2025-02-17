@@ -61,6 +61,7 @@ export const UserMessagesSettingsModal = ({ open, setOpen, excludedMessageTypes,
                     <label key={type}>
                         <Space size={8}>
                             <Switch
+                                id={type}
                                 checked={selectedMessageTypes.includes(type)}
                                 onChange={() => handleCheckboxChange(type)}
                                 size='small'
