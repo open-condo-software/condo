@@ -14,8 +14,8 @@ const Src429 = { poster: '/404Poster.webp', placeholder: '/404PosterPlaceholder.
 const Custom429: PageComponentType = ({ resetTime }) => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage( { id: 'pages.condo.error.TooManyRequestsTitle' })
-    const DescriptionMessage = intl.formatMessage({ id: 'pages.condo.error.TooManyRequestsDescription' })
-    const ResetTimeMessage = intl.formatMessage({ id: 'pages.condo.error.resetTime' }, { resetTime })
+    const DescriptionMessage = intl.formatMessage({ id: 'pages.condo.error.TooManyRequestsDescription' }, { resetTime })
+    const ResetTimeMessage = intl.formatMessage({ id: 'pages.condo.error.TooManyRequestsErrorCode' })
 
     return (
         <Row justify='space-between'>
@@ -28,9 +28,9 @@ const Custom429: PageComponentType = ({ resetTime }) => {
                         <Typography.Paragraph>
                             {DescriptionMessage}
                         </Typography.Paragraph>
-                        {!!resetTime && <Typography.Paragraph>
+                        <Typography.Paragraph>
                             {ResetTimeMessage}
-                        </Typography.Paragraph>}
+                        </Typography.Paragraph>
                     </Col>
                 </Row>
             </Col>

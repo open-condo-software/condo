@@ -545,7 +545,7 @@ type NextAppContext = (AppContext & NextPageContext) & {
 if (!isDisabledSsr || !isSSR()) {
     MyApp.getInitialProps = async (appContext: NextAppContext): Promise<{ pageProps: Record<string, any> }> => {
         try {
-            // throw new Error('Произошла внутренняя ошибка сервера')
+
             const pageContext = appContext?.ctx
             const apolloClient = appContext.apolloClient
 
@@ -614,21 +614,21 @@ if (!isDisabledSsr || !isSSR()) {
 
             return { pageProps }
         } catch (error) {
-            const tooManyRequests = error?.cause?.result?.errors
-                ?.some((error) => error?.message?.toLowerCase().includes('many requests recently'))
-                && error?.cause?.statusCode === 400
+            const errors = error?.cause?.result?.errors || []
+            const tooManyRequests = errors?.some((error) => error?.extensions?.code === 'TOO_MANY_REQUESTS') && error?.cause?.statusCode === 400
 
             console.error('Error while running `MyApp.getInitialProps', { error, tooManyRequests })
 
             if (tooManyRequests) {
-                let timestamp = 0
-                error?.cause?.result?.errors?.forEach((error) => {
-                    if (error?.extensions?.reset && timestamp < error?.extensions?.reset) {
-                        timestamp = error?.extensions?.reset
-                    }
-                })
+                const timestamp = errors.reduce((max, err) => {
+                    const resetTime =  err?.extensions?.messageInterpolation?.resetTime
+                    if (resetTime > max) return resetTime
+                    return max
+                }, 0)
 
-                return { pageProps: { statusCode: 429, resetTime: new Date(timestamp * 1000).toLocaleTimeString(dayjs.locale()) } }
+                const date = new Date(timestamp * 1000)
+
+                return { pageProps: { statusCode: 429, resetTime: `${date.getHours()}:${date.getMinutes()}` } }
             }
 
             return { pageProps: { statusCode: 500 } }
