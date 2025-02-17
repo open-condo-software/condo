@@ -668,10 +668,49 @@ describe('Payment', () => {
                 expect(updatedPayment.receipt.id).toBe(billingReceipts[0].id)
                 expect(updatedPayment.frozenReceipt).toMatchObject(billingReceipts[0])
             })
+            test('Cannot update other fields if payment is virtual', async () => {
+                const { admin, organization, acquiringContext } = await makePayer()
+                const [payment] = await createTestPayment(admin, organization, null, acquiringContext)
 
+                await expectToThrowValidationFailureError(async () => {
+                    await updateTestPayment(admin, payment.id, {
+                        amount: '100',
+                        period: '2025-02-01',
+                    })
+                }, PAYMENT_FROZEN_FIELD_INCLUDED)
+            })
             test('Cannot update receipt if payment has receipt', async () => {
                 const { admin, organization, acquiringContext, billingReceipts } = await makePayer()
                 const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
+                await expectToThrowValidationFailureError(async () => {
+                    await updateTestPayment(admin, payment.id, {
+                        receipt: { connect: { id: billingReceipts[0].id } },
+                        frozenReceipt: billingReceipts[0],
+                    })
+                }, PAYMENT_FROZEN_FIELD_INCLUDED)
+            })
+            test('Cannot update receipt if payment has invoice', async () => {
+                const { admin, billingReceipts } = await makePayer()
+
+                const [acquiringIntegration] = await createTestAcquiringIntegration(admin, {
+                    canGroupReceipts: true,
+                })
+
+                const [organization] = await createTestOrganization(admin)
+                const [acquiringContext] = await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration)
+
+                await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration, {
+                    invoiceStatus: CONTEXT_FINISHED_STATUS,
+                    invoiceImplicitFeeDistributionSchema: [{
+                        recipient: 'organization',
+                        percent: '5',
+                    }],
+                    invoiceRecipient: createTestRecipient(),
+                })
+
+                const [invoice] = await createTestInvoice(admin, organization)
+
+                const [payment] = await createTestPayment(admin, organization, null, acquiringContext, { invoice })
                 await expectToThrowValidationFailureError(async () => {
                     await updateTestPayment(admin, payment.id, {
                         receipt: { connect: { id: billingReceipts[0].id } },
