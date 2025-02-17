@@ -118,7 +118,7 @@ async function prepare () {
             }
 
             if (replicate && replicate.includes(app.name)) {
-                env.VALKEY_URL = JSON.stringify([{ 'port':7001, 'host':'127.0.0.1' }, { 'port':7002, 'host':'127.0.0.1' }, { 'port':7003, 'host':'127.0.0.1' }])
+                env.VALKEY_URL = [{ 'port':7001, 'host':'127.0.0.1' }, { 'port':7002, 'host':'127.0.0.1' }, { 'port':7003, 'host':'127.0.0.1' }]
                 env.DATABASE_URL = `custom:${JSON.stringify({
                     main: `${LOCAL_PG_DB_PREFIX}:5432/${app.pgName}`,
                     replica: `${LOCAL_PG_DB_PREFIX}:5433/${app.pgName}`,
