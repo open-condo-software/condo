@@ -59,6 +59,8 @@ export class Monorepo {
                 .join('\n')
 
             fs.writeFileSync(
+                // NOTE: controlled traversal
+                // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
                 path.join(path.dirname(location), '.env'),
                 envContent
             )
