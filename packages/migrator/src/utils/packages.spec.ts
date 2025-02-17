@@ -1,11 +1,16 @@
+import fs from 'fs'
 import { tmpdir } from 'os'
 import path from 'path'
 
 import { faker } from '@faker-js/faker'
 
-import { isNameMatching } from './packages'
+import { isNameMatching, findApps } from './packages'
 
 import type { PackageInfoWithLocation } from './packages'
+import type { Monorepo } from '@/utils/tests/repo'
+
+import { createTestMonoRepo } from '@/utils/tests/repo'
+
 
 function createTestPackageInfo (name: string): PackageInfoWithLocation {
     return {
@@ -42,6 +47,90 @@ describe('Utils for working packages', () => {
         })
         test('Multiple filters combined with OR', () => {
             expect(isNameMatching(createTestPackageInfo('@app/condo'), ['@app/other', 'condo', '@app/service'])).toEqual(true)
+        })
+    })
+    describe('Find apps', () => {
+        let repo: Monorepo | undefined
+        afterEach(() => {
+            repo?.destroy()
+        })
+        test('Must find all @app/* packages from specified cwd', async () => {
+            repo = createTestMonoRepo()
+                .createApp()
+                .createApp()
+                .createApp()
+                .createApp({ name: 'non-scoped-name' })
+
+            const foundApps = await findApps({ cwd: repo.rootDir.name })
+            expect(foundApps).toHaveLength(3)
+            expect(foundApps).toEqual(
+                expect.arrayContaining(
+                    repo.apps
+                        .filter(app => app.name.startsWith('@app/'))
+                        .map(app => expect.objectContaining(app))
+                )
+            )
+        })
+        test('Must find single package if executed from it\'s folder', async () => {
+            repo = createTestMonoRepo()
+                .createApp({ name: '@app/first-app' })
+                .createApp({ name: '@app/second-app' })
+
+            const foundApps = await findApps({ cwd: path.dirname(repo.apps[0].location) })
+            expect(foundApps).toHaveLength(1)
+            expect(foundApps[0]).toEqual(expect.objectContaining(repo.apps[0]))
+        })
+
+        test('Must filter out non-valid JSONs', async () => {
+            repo = createTestMonoRepo().createApp()
+            fs.writeFileSync(repo.apps[0].location, JSON.stringify({
+                noName: 'noName',
+            }))
+
+            const foundApps = await findApps({ cwd: repo.rootDir.name })
+            expect(foundApps).toHaveLength(0)
+        })
+        describe('Must use process.cwd() as default cwd', () => {
+            beforeEach(() => {
+                jest.restoreAllMocks()
+            })
+            afterAll(() => {
+                jest.restoreAllMocks()
+            })
+            test('Repo root case', async () => {
+                repo = createTestMonoRepo()
+                    .createApp()
+                    .createApp()
+                    .createApp()
+
+                jest.spyOn(process, 'cwd').mockReturnValue(repo.rootDir.name)
+
+                const foundApps = await findApps()
+
+                expect(foundApps).toHaveLength(3)
+                expect(foundApps).toEqual(
+                    expect.arrayContaining(
+                        repo.apps
+                            .map(app => expect.objectContaining(app))
+                    )
+                )
+            })
+            test('App dir case', async () => {
+                repo = createTestMonoRepo()
+                    .createApp()
+                    .createApp()
+                    .createApp()
+
+
+                jest.spyOn(process, 'cwd').mockReturnValue(path.dirname(repo.apps[1].location))
+
+                const foundApps = await findApps()
+
+                expect(foundApps).toHaveLength(1)
+                expect(foundApps[0]).toEqual(
+                    expect.objectContaining(repo.apps[1])
+                )
+            })
         })
     })
 })

@@ -3,7 +3,7 @@ import { readFile } from 'fs/promises'
 import { glob } from 'glob'
 import { z } from 'zod'
 
-const APP_NAME_REGEXP = /^@app\/[a-z-]+$/
+const APP_NAME_REGEXP = /^@app\/[a-z0-9-]+$/
 
 const packageSchema = z.object({
     name: z.string(),
@@ -31,9 +31,15 @@ function isAppPackage (pkg: PackageInfoWithLocation): boolean {
     return APP_NAME_REGEXP.test(pkg.name)
 }
 
-export async function findApps (): Promise<Array<PackageInfoWithLocation>> {
+type FindAppsOptions = {
+    cwd?: string
+}
+
+export async function findApps (options?: FindAppsOptions): Promise<Array<PackageInfoWithLocation>> {
+    const cwd = options?.cwd ?? process.cwd()
+
     const allPackagesPaths = await glob('**/package.json', {
-        cwd: process.cwd(),
+        cwd,
         ignore: ['**/node_modules/**'],
         absolute: true,
     })

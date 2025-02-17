@@ -16,6 +16,7 @@ type MonorepoApp = {
 }
 
 type CreateAppOptions = {
+    name?: string
     env?: Record<string, string>
 }
 
@@ -34,8 +35,8 @@ export class Monorepo {
             .from({ length: randomInt(1, 4) }, () => faker.random.alphaNumeric(randomInt(3, 7)))
             .join('-')
 
-        const name = `@app/${scopedName}`
-        const location = path.join(this.rootDir.name, 'apps', scopedName, 'package.json')
+        const name = options?.name ?? `@app/${scopedName}`
+        const location = path.join(this.rootDir.name, 'apps', options?.name ?? scopedName, 'package.json')
 
         fs.mkdirSync(path.dirname(location), { recursive: true })
 
