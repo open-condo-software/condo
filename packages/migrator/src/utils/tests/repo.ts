@@ -35,6 +35,8 @@ export class Monorepo {
             .join('-')
 
         const name = options?.name ?? `@app/${scopedName}`
+        // NOTE: controlled traversal
+        // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
         const location = path.join(this.rootDir.name, 'apps', options?.name ?? scopedName, 'package.json')
 
         fs.mkdirSync(path.dirname(location), { recursive: true })

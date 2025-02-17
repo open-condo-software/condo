@@ -37,7 +37,10 @@ function randomKeyPrefix (parts: number): string {
 
 function getMatchers (keyPrefix: string, queueNames: Array<string>): Array<RegExp> {
     return [
+        // NOTE: Test code
+        // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
         new RegExp(`^${keyPrefix}:.+$`),
+        // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
         ...queueNames.map(name => new RegExp(`^{${keyPrefix}:bull:${name}}:.+$`)),
     ]
 }
