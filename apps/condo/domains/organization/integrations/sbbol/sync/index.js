@@ -106,7 +106,7 @@ const sync = async ({ keystone, userInfo, tokenSet, features, useExtendedConfig 
         password: faker.internet.password(),
     }
 
-    const user = await syncUser({ context, userInfo: userData, identityId: userInfo.userGuid })
+    const user = await syncUser({ context, userInfo: userData, identityId: userInfo.userGuid || userInfo.sub })
     const { organization, employee } = await syncOrganization({ context, user, userData, organizationInfo, dvSenderFields })
     const sbbolSecretStorage = getSbbolSecretStorage(useExtendedConfig)
     await sbbolSecretStorage.setOrganization(organization.id)
