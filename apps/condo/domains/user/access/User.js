@@ -102,7 +102,8 @@ const canAccessToIsAdminField = {
 const canManageUserType = {
     read: true,
     create: canManageUsers,
-    update: false,
+    // TODO Change access.userIsAdmin to FALSE
+    update: access.userIsAdmin,
 }
 
 const canAccessToIsEmailVerifiedField = readByAnyUpdateByAdminField
