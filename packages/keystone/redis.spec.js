@@ -4,53 +4,70 @@ const conf = require('@open-condo/config')
 
 const { getRedisPrefix } = require('./redis')
 
-describe('Redis adapter', () => {
+describe('Key value adapter', () => {
     const OLD_ENV = JSON.parse(JSON.stringify(process.env))
-    let redisClient
+    let client
     let nonPrefixedClient
     let moduleName
 
-    beforeAll(() => {
-
+    beforeEach(() => {
         jest.resetModules()
         try {
             const url = conf['VALKEY_URL'] ? JSON.parse(conf['VALKEY_URL']) : JSON.parse(conf['REDIS_URL'])
             nonPrefixedClient = new Valkey.Cluster(url)
             process.env.VALKEY_URL = conf['VALKEY_URL'] ? conf['VALKEY_URL'] : conf['REDIS_URL']
         } catch (err) {
-            process.env.VALKEY_URL = conf['VALKEY_URL'] || conf['REDIS_URL'] || [{ 'port':7001, 'host':'127.0.0.1' }, { 'port':7002, 'host':'127.0.0.1' }, { 'port':7003, 'host':'127.0.0.1' }]
-            nonPrefixedClient = new Valkey(process.env.VALKEY_URL)
+            process.env.VALKEY_URL = '[{ "port":7001,"host":"127.0.0.1" }, { "port":7002, "host":"127.0.0.1" }, { "port":7003, "host":"127.0.0.1" }]'
+            nonPrefixedClient = new Valkey.Cluster(JSON.parse(process.env.VALKEY_URL))
         }
 
         moduleName = require(process.cwd() + '/package.json').name.split('/').pop() + ':'
 
+        jest.resetModules()
+
         const { getRedisClient } = require('./redis')
-        redisClient = getRedisClient('test')
+        client = getRedisClient('test')
+    })
+
+    afterEach(async () => {
+        await client.flushdb()
+        await client.disconnect()
+        await nonPrefixedClient.disconnect()
     })
 
     afterAll(async () => {
-        await nonPrefixedClient.del('test')
-        await nonPrefixedClient.del(`${moduleName}test1`)
-        await nonPrefixedClient.del(`${moduleName}incrTest`)
-        await nonPrefixedClient.del(`${moduleName}testList`)
-        await nonPrefixedClient.del('someNewFallbackPrefix:test')
-        await nonPrefixedClient.disconnect()
-        await redisClient.disconnect()
-
         process.env = { ...OLD_ENV }
+    })
+
+    test('Adapter should work with legacy environment', async () => {
+        delete process.env.REDIS_URL
+        delete process.env.VALKEY_URL
+        expect(process.env.VALKEY_URL).toBeUndefined()
+        expect(process.env.REDIS_URL).toBeUndefined()
+        process.env.REDIS_URL = 'redis://127.0.0.1:7001'
+        expect(process.env.REDIS_URL).toBe('redis://127.0.0.1:7001')
+        jest.resetModules()
+
+        const { getRedisClient } = require('./redis')
+
+        const client = getRedisClient('newEnv')
+
+        const ping = await client.ping()
+        expect(ping).toEqual('PONG')
+        expect(client).toHaveProperty('isCluster', false)
     })
 
     test('prefix should be the name of root package json', () => {
         expect(getRedisPrefix()).toEqual(moduleName)
     })
 
-    test('redis keyPrefix should be module specific', async () => {
-        expect(redisClient.options.keyPrefix).toMatch(moduleName)
+    test('key-value keyPrefix should be module specific', async () => {
+        expect(client.options.keyPrefix).toMatch(moduleName)
     })
 
-    test('default redis client set all keys with prefix', async () => {
-        await redisClient.set('test1', 'result1')
-        const result = await redisClient.get('test1')
+    test('default key-value client set all keys with prefix', async () => {
+        await client.set('test1', 'result1')
+        const result = await client.get('test1')
         expect(result).toMatch('result1')
 
         const result1 = await nonPrefixedClient.get('test1')
@@ -61,7 +78,7 @@ describe('Redis adapter', () => {
     })
 
     test('pipeline/multi operations should work as expected', async () => {
-        const [[incrError, incrValue], [ttlError, ttlValue]] = await redisClient
+        const [[incrError, incrValue], [ttlError, ttlValue]] = await client
             .multi()
             .incrby('incrTest', 1)
             .ttl('incrTest')
@@ -73,14 +90,14 @@ describe('Redis adapter', () => {
         expect(ttlValue).toEqual(-1)
     })
 
-    test('redis should work with oidc adapter', async () => {
-        await redisClient.rpush('testList', 1)
-        const range = await redisClient.lrange('testList', 0, -1)
+    test('should work with oidc adapter', async () => {
+        await client.rpush('testList', 1)
+        const range = await client.lrange('testList', 0, -1)
         expect(range).toEqual(expect.arrayContaining(['1']))
-        const multi = redisClient.multi()
+        const multi = client.multi()
         await multi.rpush('testList', 2).expire('testList', 0).exec()
 
-        const expiredKey = await redisClient.keys('testList')
+        const expiredKey = await client.keys('testList')
         expect(expiredKey).toHaveLength(0)
     })
 })
