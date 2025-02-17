@@ -11,10 +11,11 @@ import { ErrorLayoutFooter, ErrorLayoutHeader } from './500'
 
 const Src429 = { poster: '/404Poster.webp', placeholder: '/404PosterPlaceholder.jpg' }
 
-const Custom429: PageComponentType = () => {
+const Custom429: PageComponentType = ({ resetTime }) => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage( { id: 'pages.condo.error.TooManyRequestsTitle' })
     const DescriptionMessage = intl.formatMessage({ id: 'pages.condo.error.TooManyRequestsDescription' })
+    const ResetTimeMessage = intl.formatMessage({ id: 'pages.condo.error.resetTime' }, { resetTime })
 
     return (
         <Row justify='space-between'>
@@ -27,6 +28,9 @@ const Custom429: PageComponentType = () => {
                         <Typography.Paragraph>
                             {DescriptionMessage}
                         </Typography.Paragraph>
+                        {!!resetTime && <Typography.Paragraph>
+                            {ResetTimeMessage}
+                        </Typography.Paragraph>}
                     </Col>
                 </Row>
             </Col>

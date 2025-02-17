@@ -8,7 +8,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 
 import { Logo } from '@condo/domains/common/components/Logo'
-import { colors, fontSizes } from '@condo/domains/common/constants/style'
+import { colors } from '@condo/domains/common/constants/style'
 import { PageComponentType } from '@condo/domains/common/types'
 import { PosterLayout } from '@condo/domains/user/components/containers/PosterLayout'
 
@@ -21,7 +21,6 @@ const {
     publicRuntimeConfig: { HelpRequisites: { support_email: SUPPORT_EMAIL = null, support_phone: SUPPORT_PHONE = null } },
 } = getConfig()
 
-const DESCRIPTION_TEXT_STYLE = { fontSize: fontSizes.content }
 const Src500 = { poster: '/500Poster.webp', placeholder: '/500PosterPlaceholder.jpg' }
 
 const Custom500: PageComponentType = () => {

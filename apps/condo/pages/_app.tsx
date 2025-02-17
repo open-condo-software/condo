@@ -545,6 +545,7 @@ type NextAppContext = (AppContext & NextPageContext) & {
 if (!isDisabledSsr || !isSSR()) {
     MyApp.getInitialProps = async (appContext: NextAppContext): Promise<{ pageProps: Record<string, any> }> => {
         try {
+            // throw new Error('Произошла внутренняя ошибка сервера')
             const pageContext = appContext?.ctx
             const apolloClient = appContext.apolloClient
 
@@ -620,7 +621,14 @@ if (!isDisabledSsr || !isSSR()) {
             console.error('Error while running `MyApp.getInitialProps', { error, tooManyRequests })
 
             if (tooManyRequests) {
-                return { pageProps: { statusCode: 429 } }
+                let timestamp = 0
+                error?.cause?.result?.errors?.forEach((error) => {
+                    if (error?.extensions?.reset && timestamp < error?.extensions?.reset) {
+                        timestamp = error?.extensions?.reset
+                    }
+                })
+
+                return { pageProps: { statusCode: 429, resetTime: new Date(timestamp * 1000).toLocaleTimeString(dayjs.locale()) } }
             }
 
             return { pageProps: { statusCode: 500 } }
@@ -663,7 +671,7 @@ const withError = () => (PageComponent: NextPage): NextPage => {
             <PageComponent {...props} Component={Error404Page} statusCode={statusCode} />
         )
         if (statusCode && statusCode === 429) return (
-            <PageComponent {...props} Component={Error429Page} statusCode={statusCode} />
+            <PageComponent {...props} Component={Error429Page} statusCode={statusCode} resetTime={props?.pageProps?.resetTime}/>
         )
         if (statusCode && statusCode >= 400) return (
             <PageComponent {...props} Component={Error500Page} statusCode={statusCode} />

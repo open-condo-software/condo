@@ -1,4 +1,4 @@
-import { Col, Row, RowProps } from 'antd'
+import { Col, Row } from 'antd'
 import Router from 'next/router'
 import React from 'react'
 
