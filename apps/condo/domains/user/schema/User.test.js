@@ -561,7 +561,7 @@ describe('User fields', () => {
             [user] = await createTestUser(admin)
         })
 
-        USER_TYPES.forEach(type => test('can\'t update field', async () => {
+        test.each(USER_TYPES)('User type cannot be manually set to %p', async (type) => {
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await updateTestUser(admin, user.id, { type: type })
             })
