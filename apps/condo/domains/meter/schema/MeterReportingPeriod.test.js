@@ -592,6 +592,19 @@ describe('MeterReportingPeriod', () => {
                 }, ERRORS.INVALID_FINISH)
             })
 
+            test('restrictionEndDay field validation', async () => {
+                await expectToThrowGQLError(async () => {
+                    await createTestMeterReportingPeriod(admin, commonOrganization, {
+                        restrictionEndDay: 0,
+                    })
+                }, ERRORS.INVALID_RESTRICTION_END_DAY)
+                await expectToThrowGQLError(async () => {
+                    await createTestMeterReportingPeriod(admin, commonOrganization, {
+                        restrictionEndDay: 32,
+                    })
+                }, ERRORS.INVALID_RESTRICTION_END_DAY)
+            })
+
             test('The uniqueness of the period for property', async () => {
                 const [property] = await createTestProperty(admin, commonOrganization, { map: buildingMapJson })
 

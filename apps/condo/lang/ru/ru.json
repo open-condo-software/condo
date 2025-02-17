@@ -380,6 +380,7 @@
   "api.meter.meterReading.METER_READING_FEW_VALUES": "Количество тарифов в приборе учета {meterNumber}: {numberOfTariffs}, необходимо заполнить поля: {fieldsNames}",
   "api.meter.meterReportingPeriod.INVALID_FINISH": "Конец периода может принимать значение только от 1 до 31",
   "api.meter.meterReportingPeriod.INVALID_START": "Начало периода может принимать значение только от 1 до 31",
+  "api.meter.meterReportingPeriod.INVALID_RESTRICTION_END_DAY": "Конец запрета сдачи показаний может принимать значение только от 1 до 31",
   "api.meter.meterReportingPeriod.ORGANIZATION_IS_REQUIRED": "Необходима организация для создания периода сдачи показаний",
   "api.meter.meterReportingPeriod.PROPERTY_NOT_FOUND": "В организации такого дома нет",
   "api.meter.registerMetersReadings.INVALID_ACCOUNT_NUMBER": "Указан некорректный лицевой счет",
