@@ -74,6 +74,7 @@ describe('addAppPrefix', () => {
         await fillKVDB({
             connectionString,
             keys: uniqueKeys,
+            bullQueues: TASKS_QUEUES,
         })
 
         const size = await client.dbsize()
@@ -118,6 +119,7 @@ describe('addAppPrefix', () => {
         await fillKVDB({
             connectionString,
             keys: partialRenamedKeys,
+            bullQueues: TASKS_QUEUES,
         })
 
         const size = await client.dbsize()
@@ -170,6 +172,7 @@ describe('addAppPrefix', () => {
                 await fillKVDB({
                     connectionString,
                     keys: BIG_KEYS_SIZE,
+                    bullQueues: TASKS_QUEUES,
                 })
             }, STARTUP_TIMEOUT_IN_MS)
             test(`Keys: ${BIG_KEYS_SIZE}, timeout: ${BIG_KEYS_TIMEOUT_IN_MS}ms`, async () => {
