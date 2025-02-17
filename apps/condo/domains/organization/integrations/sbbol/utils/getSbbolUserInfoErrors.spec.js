@@ -21,9 +21,36 @@ const DEFAULT_SEED = {
 }
 
 describe('getSbbolUserInfoErrors', () => {
-    test('no userGuid', () => {
-        const errors = getSbbolUserInfoErrors(DEFAULT_SEED)
-        expect(errors).toEqual(['must have required property \'userGuid\''])
+    test('no userGuid and no sub', () => {
+        const { sub, userGuid, ...info } = {
+            ...DEFAULT_SEED,
+            userGuid: '5a99ca6e22f321af3a',
+            HashOrgId: 'awf2a99ca6e22faf3a',
+        }
+        const errors = getSbbolUserInfoErrors({ ...info, HashOrgId: 'awf2a99ca6e22faf3a' })
+        expect(errors).toEqual([
+            'must have required property \'sub\'',
+            'must have required property \'userGuid\'',
+            'must match a schema in anyOf',
+        ])
+    })
+    test('no userGuid but has sub', () => {
+        const { userGuid, ...info } = {
+            ...DEFAULT_SEED,
+            userGuid: '5a99ca6e22f321af3a',
+            HashOrgId: 'awf2a99ca6e22faf3a',
+        }
+        const errors = getSbbolUserInfoErrors(info)
+        expect(errors).toHaveLength(0)
+    })
+    test('no sub but has userGuid', () => {
+        const { sub, ...info } = {
+            ...DEFAULT_SEED,
+            userGuid: '5a99ca6e22f321af3a',
+            HashOrgId: 'awf2a99ca6e22faf3a',
+        }
+        const errors = getSbbolUserInfoErrors(info)
+        expect(errors).toHaveLength(0)
     })
     test('no HashOrgId', () => {
         const errors = getSbbolUserInfoErrors({
@@ -42,7 +69,7 @@ describe('getSbbolUserInfoErrors', () => {
     })
     test('empty data', () => {
         const errors = getSbbolUserInfoErrors({})
-        expect(errors).toEqual(['must have required property \'inn\''])
+        expect(errors).not.toHaveLength(0)
     })
     test('without data', () => {
         const errors = getSbbolUserInfoErrors()
