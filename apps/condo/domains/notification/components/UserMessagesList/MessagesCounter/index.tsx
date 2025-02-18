@@ -43,15 +43,23 @@ export const MessagesCounter = ({ count }) => {
         showZero: true,
     }), [currentCount, isAnimating, isSmallScreen])
 
-    return isSmallScreen ? (
-        <div style={{ display: 'flex' }}>
-            <Bell
-                className='messages-counter-icon'
-                size='medium'
-            />
-            <Badge {...badgeProps} />
-        </div>
-    ) : (
+    if (isSmallScreen) {
+        return (
+            <div style={{ display: 'flex' }}>
+                <Bell
+                    className='messages-counter-icon'
+                    size='medium'
+                />
+                {count > 0 && <Badge {...badgeProps} />}
+            </div>
+        )
+    }
+
+    if (count === 0) {
+        return  <Bell className='messages-counter-icon' />
+    }
+
+    return (
         <Badge {...badgeProps}>
             <Bell className='messages-counter-icon' />
         </Badge>

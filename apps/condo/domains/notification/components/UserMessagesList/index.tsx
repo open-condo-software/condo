@@ -93,6 +93,7 @@ export const UserMessagesList = () => {
     return (
         <>
             <Dropdown
+                mouseLeaveDelay={0.5}
                 open={isDropdownOpen}
                 dropdownRender={() => (
                     <div className='user-messages-list' ref={messagesListRef}>
