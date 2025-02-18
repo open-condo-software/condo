@@ -8,7 +8,7 @@ const {
 } = require('@condo/domains/user/utils/serverSchema')
 
 const dv = 1
-const sender = { dv, fingerprint: 'telegram-auth-user-external-identity-router' }
+const sender = { dv, fingerprint: 'telegram-auth-user-external-identity' }
 
 const linkUser = async (context, user, userInfo) => {
     await UserExternalIdentity.create(context, {
@@ -32,7 +32,7 @@ const registerUser = async (context, userInfo, userType) => {
         phone: normalizedPhone,
         isPhoneVerified: Boolean(normalizedPhone),
         type: userType,
-        name: userInfo.firstName,
+        name: userInfo.name,
         sender,
         dv,
     }
@@ -60,6 +60,7 @@ const syncUser = async ({ context, userInfo, userType }) => {
     })
 
     if (existed) {
+        await User.update(context, existed.id, { isPhoneVerified: true })
         return await linkUser(context, existed, userInfo)
     }
 
