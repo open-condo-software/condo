@@ -122,7 +122,7 @@ services:
         condition: service_healthy
       valkey-node-6:
         condition: service_healthy
-    image: valkey/valkey:8.0.2
+    image: ${REGISTRY}valkey/valkey:8.0.2
     network_mode: host
   valkey-node-1:
     command:
@@ -135,7 +135,7 @@ services:
       retries: 3
       test: [ "CMD", "valkey-cli", "-p", "7001", "-c", "ping" ]
       timeout: 5s
-    image: valkey/valkey:8.0.2
+    image: ${REGISTRY}valkey/valkey:8.0.2
     network_mode: host
     ports:
       - 7001:7000
@@ -153,7 +153,7 @@ services:
       retries: 3
       test: ["CMD", "valkey-cli", "-p", "7002", "-c", "ping"]
       timeout: 5s
-    image: valkey/valkey:8.0.2
+    image: ${REGISTRY}valkey/valkey:8.0.2
     network_mode: host
     ports:
       - 7002:7000
@@ -171,7 +171,7 @@ services:
       retries: 3
       test: ["CMD", "valkey-cli", "-p", "7003", "-c", "ping"]
       timeout: 5s
-    image: valkey/valkey:8.0.2
+    image: ${REGISTRY}valkey/valkey:8.0.2
     network_mode: host
     ports:
       - 7003:7000
@@ -189,7 +189,7 @@ services:
       retries: 3
       test: ["CMD", "valkey-cli", "-p", "7004", "-c", "ping"]
       timeout: 5s
-    image: valkey/valkey:8.0.2
+    image: ${REGISTRY}valkey/valkey:8.0.2
     network_mode: host
     ports:
       - 7004:7000
@@ -207,7 +207,7 @@ services:
       retries: 3
       test: ["CMD", "valkey-cli", "-p", "7005", "-c", "ping"]
       timeout: 5s
-    image: valkey/valkey:8.0.2
+    image: ${REGISTRY}valkey/valkey:8.0.2
     network_mode: host
     ports:
       - 7005:7000
@@ -225,7 +225,7 @@ services:
       retries: 3
       test: ["CMD", "valkey-cli", "-p", "7006", "-c", "ping"]
       timeout: 5s
-    image: valkey/valkey:8.0.2
+    image: ${REGISTRY}valkey/valkey:8.0.2
     network_mode: host
     ports:
       - 7006:7000
