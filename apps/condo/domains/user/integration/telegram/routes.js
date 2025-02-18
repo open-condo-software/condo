@@ -1,5 +1,6 @@
 const { generators } = require('openid-client')
 
+const conf = require('@open-condo/config')
 const { fetch } = require('@open-condo/keystone/fetch')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getRedisClient } = require('@open-condo/keystone/redis')
@@ -13,15 +14,15 @@ const {
 } = require('@condo/domains/user/integration/telegram/constants')
 const {
     getUserType,
-    generateUniqueKey,
-    getRedisTokenKey,
-    getRedisStatusKey,
+    getRedisStateKey,
+    decodeIdToken,
+    parseJson,
 } = require('@condo/domains/user/integration/telegram/utils')
-
 
 const { syncUser } = require('./sync/syncUser')
 const { startAuthedSession } = require('./utils')
 
+const TELEGRAM_AUTH_CONFIG = conf.TELEGRAM_AUTH_CONFIG ? JSON.parse(conf.TELEGRAM_AUTH_CONFIG) : {}
 
 const logger = getLogger('telegram-auth')
 const redisClient = getRedisClient()
@@ -29,15 +30,25 @@ const redisClient = getRedisClient()
 class TelegramAuthRoutes {
     async startAuth (req, res, next) {
         try {
-            const checks = { nonce: generators.nonce(), state: generators.state() }
-
-            const response = await fetch(`https://auth-bot.app.localhost:8009/telegram/authorize?nonce=${checks.nonce}&state=${checks.state}`)
-            const { startLink, reqId } = await response.json()
-
             const userType = getUserType(req)
-            const uniqueKey = generateUniqueKey()
+            const checks = { nonce: generators.nonce(), state: generators.state() }
+            const callbackUri = TELEGRAM_AUTH_CONFIG.callbackUrl
 
-            redisClient.set(getRedisStatusKey(uniqueKey), TELEGRAM_AUTH_STATUS_PENDING, 'EX', TELEGRAM_AUTH_REDIS_TTL)
+            const link = new URL(TELEGRAM_AUTH_CONFIG.authUrl)
+            link.searchParams.set('state', checks.state)
+            link.searchParams.set('clientId', TELEGRAM_AUTH_CONFIG.clientId)
+            link.searchParams.set('redirectUri', callbackUri)
+            link.searchParams.set('nonce', checks.nonce)
+
+            const response = await fetch(link.toString())
+            const { startLink, uniqueKey } = await response.json()
+
+            await redisClient.set(
+                getRedisStateKey(uniqueKey),
+                JSON.stringify({ status: TELEGRAM_AUTH_STATUS_PENDING, token: null, payload: { userType } }),
+                'EX',
+                TELEGRAM_AUTH_REDIS_TTL
+            )
 
             return res.json({ startLink, uniqueKey })
         } catch (error) {
@@ -49,24 +60,41 @@ class TelegramAuthRoutes {
     async completeAuth (req, res, next) {
         const reqId = req.id
         try {
-            const { authCode } = req.query
-            const response = await fetch(`https://auth-bot.app.localhost:8009/telegram/token?authCode=${authCode}`)
-            const data = await response.json()
-
-            const userinfoResponse = await fetch('https://auth-bot.app.localhost:8009/telegram/userinfo', {
+            const { authCode, uniqueKey } = req.query
+            const response = await fetch('https://auth-bot.app.localhost:8009/telegram/token', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ accessToken: data.accessToken }),
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ authCode, clientId: TELEGRAM_AUTH_CONFIG.clientId, clientSecret: TELEGRAM_AUTH_CONFIG.clientSecret }),
             })
 
-            const userinfo = await userinfoResponse.json()
+            const data = await response.json()
 
-            // const { id } = await syncUser({ context, userInfo, userType })
-            //
-            // return await this.#authenticateUser(req, res, context, id)
-            res.end()
+            if (!data.idToken) {
+                throw new Error('Missing idToken')
+            }
+
+            const idToken = data.idToken
+
+            const decodedToken = decodeIdToken(idToken)
+            const userInfo = {
+                userId: decodedToken.sub,
+                name: `${decodedToken.firstName} ${decodedToken.lastName ? decodedToken.lastName : ''}`,
+                phoneNumber: decodedToken.phoneNumber,
+            }
+
+            let state = parseJson(await redisClient.get(getRedisStateKey(uniqueKey)))
+            const { keystone: context } = getSchemaCtx('User')
+            const { id } = await syncUser({ context, userInfo, userType: state.payload.userType })
+            const token = await startAuthedSession(id, context._sessionManager._sessionStore)
+
+            await redisClient.set(
+                getRedisStateKey(uniqueKey),
+                JSON.stringify({ status: TELEGRAM_AUTH_STATUS_SUCCESS, token, payload: state.payload }),
+                'EX',
+                TELEGRAM_AUTH_REDIS_TTL
+            )
+
+            return res.end()
         } catch (error) {
             logger.error({ msg: 'Telegram auth callback error', err: error, reqId })
             return next(error)
@@ -76,57 +104,29 @@ class TelegramAuthRoutes {
     async getAuthToken (req, res, next) {
         try {
             const { uniqueKey } = req.body
-
             if (!uniqueKey) {
                 return res.status(400).json({ status: TELEGRAM_AUTH_STATUS_ERROR, message: 'Missing uniqueKey' })
             }
 
-            const [status, token] = await Promise.all([
-                redisClient.get(getRedisStatusKey(uniqueKey)),
-                redisClient.get(getRedisTokenKey(uniqueKey)),
-            ])
-
-            if (!status) {
+            const state = parseJson(await redisClient.get(getRedisStateKey(uniqueKey)))
+            if (!state.status) {
                 return res.status(400).json({ status: TELEGRAM_AUTH_STATUS_ERROR, message: 'uniqueKey is expired' })
             }
 
-            if (status === TELEGRAM_AUTH_STATUS_PENDING) {
-                return res.json({ status })
+            if (state.status === TELEGRAM_AUTH_STATUS_PENDING) {
+                return res.json({ status: state.status })
             }
 
-            if (status === TELEGRAM_AUTH_STATUS_SUCCESS && token) {
-                await Promise.all([
-                    redisClient.del(getRedisStatusKey(uniqueKey)),
-                    redisClient.del(getRedisTokenKey(uniqueKey)),
-                ])
-                return res.json({ status, token })
+            if (state.status === TELEGRAM_AUTH_STATUS_SUCCESS && state.token) {
+                return res.json({ status: state.status, token: state.token })
             }
 
-            return res.json({ status: TELEGRAM_AUTH_STATUS_ERROR, message: 'Unexpected state' })
+            return res.json({ status: TELEGRAM_AUTH_STATUS_ERROR })
         } catch (error) {
             logger.error({ msg: 'Telegram auth status error', reqId: req.id, error })
             next(error)
         }
     }
-
-    // async #authenticateUser (chatId, startData, userInfo, locale) {
-    //     try {
-    //         const { uniqueKey, userType } = JSON.parse(startData)
-    //
-    //         const status = await redisClient.get(getRedisStatusKey(uniqueKey))
-    //         if (status !== TELEGRAM_AUTH_STATUS_PENDING) {
-    //             return this.#sendMessage(chatId, 'telegram.auth.error', locale)
-    //         }
-    //
-    //         const { keystone: context } = getSchemaCtx('User')
-    //         const { id } = await syncUser({ context, userInfo, userType })
-    //         const token = await startAuthedSession(id, context._sessionManager._sessionStore)
-    //
-    //         this.#sendMessage(chatId, 'telegram.auth.contact.complete', locale)
-    //     } catch (error) {
-    //         this.#sendMessage(chatId, 'telegram.auth.error', locale)
-    //     }
-    // }
 }
 
 module.exports = { TelegramAuthRoutes }
