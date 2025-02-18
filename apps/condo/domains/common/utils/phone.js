@@ -1,8 +1,12 @@
 const { phone } = require('phone')
 
+
+const STRICT_PHONE_REGEX = /^\+[0-9\s()-]+$/
+
 function normalizePhone (data, allowLandLine = false) {
-    if (!data || !data.startsWith('+')) return
-    const result = phone(data, { validateMobilePrefix: !allowLandLine, strictDetection: true })
+    const trimmedData = typeof data === 'string' ? data.trim() : data
+    if (!trimmedData || !STRICT_PHONE_REGEX.test(trimmedData)) return
+    const result = phone(trimmedData, { validateMobilePrefix: !allowLandLine, strictDetection: true })
     if (result.isValid) return result.phoneNumber
 }
 

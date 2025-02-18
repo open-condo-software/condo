@@ -51,4 +51,25 @@ describe('normalizePhone()', () => {
         const phone = faker.phone.number('+' + country_code + code + repeat('#', length - code.length))
         expect(normalizePhone(phone)).toEqual(phone)
     })
+
+    test('with extra or invalid characters', () => {
+        expect(normalizePhone('blah-+7 (906) 808 88 88')).toBeUndefined()
+        expect(normalizePhone('1blah+7 (906) 808 88 88')).toBeUndefined()
+        expect(normalizePhone('1blah^&*+7 (906) 808 88 88')).toBeUndefined()
+        expect(normalizePhone('+7 (906) blah808 88 88')).toBeUndefined()
+        expect(normalizePhone('+7 (906) 808 88 88blah')).toBeUndefined()
+        expect(normalizePhone('+7 (906) 808 88 88blah1')).toBeUndefined()
+        expect(normalizePhone('+7 (906) 808 88 88blah1-')).toBeUndefined()
+        expect(normalizePhone('+7 (906) 808 88 88#$%^&*(')).toBeUndefined()
+        expect(normalizePhone('+7.906.808.88.88')).toBeUndefined()
+        expect(normalizePhone('+7 [906] 808 88 88')).toBeUndefined()
+    })
+
+    test('with spaces', () => {
+        expect(normalizePhone('+7 906 808 88 88')).toBe('+79068088888')
+        expect(normalizePhone('   +7 906 808 88 88')).toBe('+79068088888')
+        expect(normalizePhone('+7 906 808 88 88   ')).toBe('+79068088888')
+        expect(normalizePhone('    +7 906 808 88 88   ')).toBe('+79068088888')
+        expect(normalizePhone('    +   7 9   0   6     8   0 8    8 8 88    ')).toBe('+79068088888')
+    })
 })
