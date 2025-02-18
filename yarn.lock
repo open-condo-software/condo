@@ -14327,6 +14327,7 @@ __metadata:
     cli-table3: ^0.6.5
     commander: ^11.0.0
     dotenv: ^16.4.7
+    execa: ^5.0.0
     glob: ^11.0.1
     ioredis: ^4.28.5
     jest: ^29.7.0
@@ -14338,7 +14339,6 @@ __metadata:
     typescript: ^5.5.4
     zod: ^3.24.2
   bin:
-    condo-migrator: dist/cli.js
     migrator: dist/cli.js
   languageName: unknown
   linkType: soft

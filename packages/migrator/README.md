@@ -23,9 +23,14 @@
 
 ## Local usage
 
-You can use package in your [condo](https://github.com/open-condo-software/condo) monorepo fork by running:
+You can use package in your [condo](https://github.com/open-condo-software/condo) monorepo fork 
+by running the following command to build package:
 ```bash
-condo-migrator --help
+yarn workspace @open-condo/migrator build
+```
+And then the one to run it:
+```bash
+npx @open-condo/migrator --help
 ```
 
 ## Remote usage
@@ -46,7 +51,7 @@ yarn add -D @open-condo/migrator
 
 And then run with:
 ```bash
-condo-migrator --help
+npx @open-condo/migrator --help
 ```
 
 ## How to run migration commands
@@ -55,12 +60,12 @@ condo-migrator --help
 
 You can use the following command to explore list of all available commands:
 ```bash
-condo-migrator --help
+npx @open-condo/migrator --help
 ```
 
 Then you can explore command arguments / description by running the following:
 ```bash
-condo-migrator <command> --help
+npx @open-condo/migrator <command> --help
 ```
 
 ### Running command locally
@@ -68,13 +73,13 @@ condo-migrator <command> --help
 You can migrate whole monorepo by running command from monorepo root. For example:
 
 ```bash
-condo-migrator add-apps-kv-prefixes
+npx @open-condo/migrator add-apps-kv-prefixes
 ```
 
 Or you can more precisely run it for single / multiple apps:
 
 ```bash
-condo-migrator add-apps-kv-prefixes -f condo address-service
+npx @open-condo/migrator add-apps-kv-prefixes -f condo address-service
 ```
 
 ### Running command on remote environments
@@ -85,7 +90,7 @@ since environment variables are passed from external tools and apps are deployed
 For this scenarios you can migrate single app at a time by running commands like this:
 
 ```bash
-REDIS_URL=redis://remote_user:*******@127.0.0.1:6379/6 condo-migrator add-kv-prefixes -f condo
+REDIS_URL=redis://remote_user:*******@127.0.0.1:6379/6 npx @open-condo/migrator add-kv-prefixes -f condo
 ```
 
 > NOTE: You can remove REDIS_URL=** part if environment variables are already set (from `export` or other external tool)
@@ -94,7 +99,7 @@ You can also run migrator from specific app folder instead of using `--filter` a
 
 ```bash
 cd apps/condo
-condo-migrator add-kv-prefixes
+npx @open-condo/migrator add-kv-prefixes
 ```
 
 

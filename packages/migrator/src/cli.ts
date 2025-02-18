@@ -28,7 +28,7 @@ program
         'REDIS_URL=redis://remote_user:*******@127.0.0.1:6379/6 npx @open-condo/migrator add-kv-prefixes -f condo',
         '',
         'Example #2 (local monorepo migration):',
-        'condo-migrator add-kv-prefixes',
+        'npx @open-condo/migrator add-kv-prefixes',
     ].join('\n'))
     .option(...YES_OPTION)
     .option(...FILTER_OPTION)
