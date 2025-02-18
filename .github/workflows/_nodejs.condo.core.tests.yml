@@ -43,7 +43,7 @@ jobs:
         env:
           REGISTRY: ${{ secrets.DOCKER_REGISTRY }}/doma/utils/
         run: |
-          docker-compose up -d valkey-cluster postgresdb
+          docker-compose up -d redis postgresdb
 
       - name: run tests
         run: |
