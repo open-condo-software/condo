@@ -9,6 +9,7 @@
   background: #fff;
   border-radius: 8px;
   box-shadow: var(--condo-global-box-shadow-default);
+  scrollbar-width: none;
 }
 
 .user-messages-list .user-messages-list-header {

@@ -1,4 +1,6 @@
 .messages-counter .ant-badge-count {
+  top: 1px;
+  right: 1px;
   line-height: 18px;
   box-shadow: none;
 }
