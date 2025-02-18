@@ -34,6 +34,7 @@ const {
     RESIDENT,
     SERVICE,
 } = require('@condo/domains/user/constants/common')
+const { USER_TYPES } = require('@condo/domains/user/constants/common')
 const {
     WRONG_EMAIL_ERROR, WRONG_PASSWORD_ERROR, EMPTY_PASSWORD_ERROR, GQL_ERRORS: ERRORS,
 } = require('@condo/domains/user/constants/errors')
@@ -550,6 +551,39 @@ describe('User fields', () => {
         })
     })
 
+    describe('type', ()=> {
+        let user
+        let admin
+        let support
+        let client
+
+        beforeAll(async () => {
+            admin = await makeLoggedInAdminClient()
+            support = await makeClientWithSupportUser()
+            client = await makeClientWithServiceUser();
+
+            [user] = await createTestUser(admin)
+        })
+
+        test.each(USER_TYPES)('Client type cannot be manually set to %p', async (type) => {
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestUser(client, user.id, { type: type })
+            })
+        })
+
+        test.each(USER_TYPES)('Support type cannot be manually set to %p', async (type) => {
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestUser(support, user.id, { type: type })
+            })
+        })
+
+        test.each(USER_TYPES)('Admin can be manually set to %p', async (type) => {
+            const [updatedUser] = await updateTestUser(admin, user.id, { type: type })
+
+            expect(updatedUser.type).toEqual(type)
+        })
+    })
+
     describe('_label_', () => {
 
         let admin
@@ -736,6 +770,7 @@ describe('Custom access rights', () => {
                     { field: 'password', create: true },
                     { field: 'email', create: true, read: true },
                     { field: 'phone', create: true, read: true },
+                    { field: 'type', create: true, read: true },
                 ],
             }],
         }
