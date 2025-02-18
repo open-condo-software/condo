@@ -107,6 +107,7 @@ import { useTicketExportTaskUIInterface } from '@condo/domains/ticket/hooks/useT
 import { CookieAgreement } from '@condo/domains/user/components/CookieAgreement'
 
 import Error404Page from './404'
+import Error429Page from './429'
 import Error500Page from './500'
 
 import '@condo/domains/common/components/wdyr'
@@ -544,6 +545,7 @@ type NextAppContext = (AppContext & NextPageContext) & {
 if (!isDisabledSsr || !isSSR()) {
     MyApp.getInitialProps = async (appContext: NextAppContext): Promise<{ pageProps: Record<string, any> }> => {
         try {
+
             const pageContext = appContext?.ctx
             const apolloClient = appContext.apolloClient
 
@@ -612,7 +614,26 @@ if (!isDisabledSsr || !isSSR()) {
 
             return { pageProps }
         } catch (error) {
-            console.error('Error while running `MyApp.getInitialProps', error)
+            const errors = error?.cause?.result?.errors || []
+            const tooManyRequests = errors?.some((error) => error?.extensions?.code === 'TOO_MANY_REQUESTS') && error?.cause?.statusCode === 400
+
+            console.error('Error while running `MyApp.getInitialProps', { error, tooManyRequests })
+
+            if (tooManyRequests) {
+                const timestamp = errors.reduce((max, err) => {
+                    const resetTime =  err?.extensions?.messageInterpolation?.resetTime
+                    if (resetTime > max) return resetTime
+                    return max
+                }, 0)
+
+                return {
+                    pageProps: {
+                        statusCode: 429,
+                        resetTime: timestamp,
+                    },
+                }
+            }
+
             return { pageProps: { statusCode: 500 } }
         }
     }
@@ -651,6 +672,9 @@ const withError = () => (PageComponent: NextPage): NextPage => {
         const statusCode = props?.pageProps?.statusCode
         if (statusCode && statusCode === 404) return (
             <PageComponent {...props} Component={Error404Page} statusCode={statusCode} />
+        )
+        if (statusCode && statusCode === 429) return (
+            <PageComponent {...props} Component={Error429Page} statusCode={statusCode} resetTime={props?.pageProps?.resetTime}/>
         )
         if (statusCode && statusCode >= 400) return (
             <PageComponent {...props} Component={Error500Page} statusCode={statusCode} />

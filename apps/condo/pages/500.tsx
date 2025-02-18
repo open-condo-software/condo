@@ -1,13 +1,14 @@
-import { Col, Row, Typography } from 'antd'
+import { Col, Row } from 'antd'
 import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
+import { Typography } from '@open-condo/ui'
 
 import { Logo } from '@condo/domains/common/components/Logo'
-import { colors, fontSizes } from '@condo/domains/common/constants/style'
+import { colors } from '@condo/domains/common/constants/style'
 import { PageComponentType } from '@condo/domains/common/types'
 import { PosterLayout } from '@condo/domains/user/components/containers/PosterLayout'
 
@@ -20,7 +21,6 @@ const {
     publicRuntimeConfig: { HelpRequisites: { support_email: SUPPORT_EMAIL = null, support_phone: SUPPORT_PHONE = null } },
 } = getConfig()
 
-const DESCRIPTION_TEXT_STYLE = { fontSize: fontSizes.content }
 const Src500 = { poster: '/500Poster.webp', placeholder: '/500PosterPlaceholder.jpg' }
 
 const Custom500: PageComponentType = () => {
@@ -31,12 +31,12 @@ const Custom500: PageComponentType = () => {
     return (
         <Row justify='space-between'>
             <Col span={24}>
-                <Row gutter={[0, 14]} justify='center'>
-                    <Col span={18}>
+                <Row gutter={[0, 24]} justify='center'>
+                    <Col span={24}>
                         <Typography.Title>{PageTitle}</Typography.Title>
                     </Col>
-                    <Col span={18}>
-                        <Typography.Paragraph style={DESCRIPTION_TEXT_STYLE}>
+                    <Col span={24}>
+                        <Typography.Paragraph>
                             {DescriptionMessage}
                         </Typography.Paragraph>
                     </Col>

@@ -253,6 +253,9 @@ class ApolloRateLimitingPlugin {
                         type: ERROR_TYPE,
                         message: 'You\'ve made too many requests recently, try again later',
                         messageForUser: `api.global.rateLimit.${ERROR_TYPE}`,
+                        messageInterpolation: {
+                            resetTime: resetTimestampInSec,
+                        },
                     }, requestContext.context)
                 }
             },
