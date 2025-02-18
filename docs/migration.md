@@ -73,32 +73,67 @@ This is the easiest migration option and requires no extra effort. To perform it
 > The commands above use `@app/condo` as an example, 
 > but the same instruction must be applied to all other keystone applications you're running as well.
 
-### Zero downtime migration (advanced option)
+### Minimal downtime migration (advanced option)
 
 This option is a bit harder to execute, but is suitable for environments 
 that have strict SLAs and even short downtime is unacceptable.
 
-1) Deploy the latest 2.x version of the condo app as you usually do. But make sure to set the following environment variable: 
-`REDIS_FALLBACK_CONFIG='{"enabled": true}'` to all apps / workers.  
-By doing this, you will put the redis client into fallback mode, in which:
-    1) All write commands will use prefix:  
-    `await redis.set('key', 'value') // stored as "<prefix>:key"`
-    2) All read commands will try to get the value with the prefixed key first, and if they don't find it, 
-    they will try to get it without it.
-2) After that deploy 3.x version. This will rename all existing keys without prefix to prefixed version 
-during database migration (`yarn workspace @app/condo migrate`) step. 
-The difference is **you can keep running existing 2.x** pods while performing migration.
-3) Once migration is finished you can smoothly replace 2.x pods with 3.x, while disabling redis fallback.
+We are going to use [RedisShake](https://github.com/tair-opensource/RedisShake) for data migration and transformation during the main application operation.
 
-> Although the latest 2.x release with `REDIS_FALLBACK_CONFIG` is backward compatible, 
-> we **don't recommend staying on it for an extended period of time**, but rolling out 3.x right after it, 
-> since in fallback mode the **response latency from Redis can be doubled** due to fallback mode.
-
-> If you already use your own prefix for keys - you can also configure the adapter for migration using the following configuration:
-> ```dotenv
-> REDIS_FALLBACK_CONFIG='{"enabled": true, "prefix": "your_existing_prefix"}'
-> ```
+1) First of all you need to create another instance of key-value storage up and running. You can set up another instance of Redis create new instance with Valkey sources.
+2) Follow [instructions from original repo](https://github.com/tair-opensource/RedisShake) to setup RedisShake migration tool a proper way. I provide a config that will help with this:
+```toml
+# shake.toml
+[sync_reader]
+cluster = false            # Set to true if the source is a Redis cluster
+address = "127.0.0.1:6379" # For clusters, specify the address of any cluster node; use the master or slave address in master-slave mode
+username = ""              # Keep empty if ACL is not in use
+password = ""              # Keep empty if no authentication is required
+tls = false                # Set to true to enable TLS if needed
+sync_rdb = true            # Set to false if RDB synchronization is not required
+sync_aof = true            # Set to false if AOF synchronization is not required
+prefer_replica = false     # Set to true to sync from a replica node
+try_diskless = false       # Set to true for diskless sync if the source has repl-diskless-sync=yes
 
 
+[redis_writer]
+cluster = false            # set to true if target is a redis cluster
+address = "127.0.0.1:6380" # when cluster is true, set address to one of the cluster node
+username = ""              # keep empty if not using ACL
+password = ""              # keep empty if no authentication is required
+tls = false
 
+function = """
+local news_sharing_old = "news_sharing_greendom:"
+local bull_default_prefix = "bull:tasks"
+local bull_low_prefix = "bull:low"
+local bull_high_prefix = "bull:high"
 
+local db_hash = {
+  [0] = "condo:"
+}
+
+local SOURCE_DB = DB
+
+for i, index in ipairs(KEY_INDEXES) do
+  local key = ARGV[index]
+
+  if string.sub(key, 1, #bull_default_prefix) == bull_default_prefix then
+    ARGV[index] = "{" .. db_hash[SOURCE_DB] .. bull_default_prefix .. "}" .. string.sub(key, #bull_default_prefix + 1)
+  elseif string.sub(key, 1, #bull_low_prefix) == bull_low_prefix then
+    ARGV[index] = "{" .. db_hash[SOURCE_DB] .. bull_low_prefix .. "}" .. string.sub(key, #bull_low_prefix + 1)
+  elseif string.sub(key, 1, #bull_high_prefix) == bull_high_prefix then
+    ARGV[index] = "{" .. db_hash[SOURCE_DB] .. bull_high_prefix .. "}" .. string.sub(key, #bull_high_prefix + 1)
+  else
+    ARGV[index] = db_hash[SOURCE_DB] .. key
+  end
+end
+
+shake.call(SOURCE_DB, ARGV)
+"""
+```
+Also, you can change mapping inside `db_hash` variable to match your applications setup (For example, condo application has "0" db index inside Redis, address-service has "1" and so on).
+3) Edit target urls and run `./redis-shake shake.toml`. Wait for the full synchronization.
+4) Change target url for the key-value storage to a new instance for all of your running apps
+5) Perform a synchronous restart all of your apps
+6) Check everything working good. After that you can down your old Redis instance 
