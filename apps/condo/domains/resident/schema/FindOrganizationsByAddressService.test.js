@@ -22,7 +22,11 @@ const {
     ONLINE_INTERACTION_CHECK_ACCOUNT_NOT_FOUND_STATUS,
     ONLINE_INTERACTION_CHECK_ACCOUNT_SUCCESS_STATUS,
 } = require('@condo/domains/billing/constants/onlineInteraction')
-const { createTestBillingIntegrationOrganizationContext, createTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
+const {
+    createTestBillingIntegrationOrganizationContext,
+    createTestBillingIntegration,
+    updateTestBillingIntegrationOrganizationContext,
+} = require('@condo/domains/billing/utils/testSchema')
 const {
     TestUtils,
     BillingTestMixin,
@@ -41,6 +45,7 @@ const { createTestOrganization } = require('@condo/domains/organization/utils/te
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { updateTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { findOrganizationsByAddressByTestClient } = require('@condo/domains/resident/utils/testSchema')
+
 
 function getOnlyResourceMeterTest (resource) {
     return {
@@ -436,14 +441,39 @@ describe('FindOrganizationsByAddress', () => {
                         tin: utils.organization.tin,
                     })
 
-                    console.log(foundOrganizations)
                     const foundResult = foundOrganizations.find(({ id }) => id === utils.organization.id)
                     expect(foundResult.receipts).toBeDefined()
                     //TODO: change this line when eps has balance field
                     // expect(foundResult.receipts.balance).toBeNull()
                     expect(apiHandler).toHaveBeenCalledTimes(1)
                 })
+            })
 
+            test('Should not fall if no billing context and return empty receipts', async () => {
+                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                await utils.init()
+                const accountNumber = utils.randomNumber(10).toString()
+                await updateTestBillingIntegrationOrganizationContext(utils.clients.admin, utils.billingContext.id, {
+                    deletedAt: new Date().toISOString(),
+                })
+                await utils.createMeter({ accountNumber })
+                const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
+                    addressKey: utils.property.addressKey,
+                    accountNumber,
+                    tin: utils.organization.tin,
+                })
+                const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
+                expect(found.receipts).toHaveLength(0)
+                expect(found.meters[0]).toMatchObject({
+                    resource: expect.any(String),
+                    accountNumber: accountNumber,
+                    number: expect.any(String),
+                    address: utils.property.address,
+                })
+                expect(found.id).toEqual(utils.organization.id)
+                expect(found.name).toEqual(utils.organization.name)
+                expect(found.tin).toEqual(utils.organization.tin)
+                expect(found.type).toEqual(utils.organization.type)
             })
 
             test('Should not return organization without receipts and meters', async () => {
