@@ -8,6 +8,8 @@ const TELEGRAM_AUTH_REDIS_TOKEN_PREFIX = 'telegram:token:'
 
 const TELEGRAM_AUTH_REDIS_TTL = 300 // 5 mins
 
+const TELEGRAM_AUTH_CONFIG_REQUIRED_FIELDS = ['secretKey', 'clientId', 'clientSecret', 'authUrl', 'tokenUrl', 'callbackUrl']
+
 module.exports = {
     TELEGRAM_AUTH_STATUS_PENDING,
     TELEGRAM_AUTH_STATUS_SUCCESS,
@@ -16,4 +18,5 @@ module.exports = {
     TELEGRAM_AUTH_REDIS_STATUS_PREFIX,
     TELEGRAM_AUTH_REDIS_TOKEN_PREFIX,
     TELEGRAM_AUTH_REDIS_TTL,
+    TELEGRAM_AUTH_CONFIG_REQUIRED_FIELDS,
 }

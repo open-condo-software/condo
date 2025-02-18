@@ -4,6 +4,10 @@ const {
     decodeIdToken,
     startAuthedSession,
     getUserType,
+    validateTelegramAuthConfig,
+    getAuthLink,
+    signUniqueKey,
+    verifyUniqueKey,
 } = require('./params')
 
 module.exports = {
@@ -12,4 +16,8 @@ module.exports = {
     decodeIdToken,
     startAuthedSession,
     getUserType,
+    validateTelegramAuthConfig,
+    getAuthLink,
+    signUniqueKey,
+    verifyUniqueKey,
 }
