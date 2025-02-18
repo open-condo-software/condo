@@ -668,7 +668,7 @@ describe('Payment', () => {
                 expect(updatedPayment.receipt.id).toBe(billingReceipts[0].id)
                 expect(updatedPayment.frozenReceipt).toMatchObject(billingReceipts[0])
             })
-            test('Cannot update other fields if payment is virtual', async () => {
+            test('Cannot update other fields if payment is virtual but receipt and frozenReceipt', async () => {
                 const { admin, organization, acquiringContext } = await makePayer()
                 const [payment] = await createTestPayment(admin, organization, null, acquiringContext)
 

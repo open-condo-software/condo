@@ -4,14 +4,14 @@
 const index = require('@app/condo/index')
 const dayjs = require('dayjs')
 
-const { find } = require('@open-condo/keystone/schema')
+const { find, getSchemaCtx } = require('@open-condo/keystone/schema')
 const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
 
-const { linkVirtualPaymentsToReceipts } = require('./linkVirtualPaymentsToReceipts')
-
-const { createTestBillingAccount, createTestBillingProperty } = require('../../billing/utils/testSchema')
-const { AcquiringTestMixin, BillingTestMixin, TestUtils } = require('../../billing/utils/testSchema/testUtils')
-const { registerMultiPaymentForVirtualReceiptByTestClient } = require('../utils/testSchema')
+const { linkVirtualPaymentsToReceipts } = require('@condo/domains/acquiring/tasks/linkVirtualPaymentsToReceipts')
+const { freezeBillingReceipt } = require('@condo/domains/acquiring/utils/billingFridge')
+const { registerMultiPaymentForVirtualReceiptByTestClient } = require('@condo/domains/acquiring/utils/testSchema')
+const { createTestBillingAccount, createTestBillingProperty } = require('@condo/domains/billing/utils/testSchema')
+const { AcquiringTestMixin, BillingTestMixin, TestUtils } = require('@condo/domains/billing/utils/testSchema/testUtils')
 
 jest.mock('@condo/domains/acquiring/constants/constants', () => {
     const originalConstants = jest.requireActual('@condo/domains/acquiring/constants/constants')
@@ -137,4 +137,83 @@ describe('linkReceiptsToPayment', () => {
         expect(payment2.receipt).toBe(receipt2.id)
         expect(payment3.receipt).toBe(null)
     })
+
+    test('Should not link receipt if no matching payment exists', async () => {
+        const utils = new TestUtils([BillingTestMixin, AcquiringTestMixin])
+        await utils.init()
+        const date = dayjs()
+
+        const billingAccount = await setupTestBillingData(utils)
+        const [recipient] = generateVirtualReceipt(billingAccount, date.year(), date.month() + 1)
+
+        const [[createdReceipt]] = await utils.createReceipts([
+            utils.createJSONReceipt({ accountNumber: billingAccount.number, ...recipient, tin: utils.organization.tin, month: date.month() + 1, year: date.year() }),
+        ])
+
+        await linkVirtualPaymentsToReceipts()
+        const [payment] = await find('Payment', { receipt: { id: createdReceipt.id } })
+
+        expect(payment).toBeUndefined()
+    })
+
+    test('Should link receipt and frozenReceipt', async () => {
+        const utils = new TestUtils([BillingTestMixin, AcquiringTestMixin])
+        await utils.init()
+        const date = dayjs()
+
+        const billingAccount = await setupTestBillingData(utils)
+        const [recipient, receipt] = generateVirtualReceipt(billingAccount, date.year(), date.month() + 1)
+        const [multipayment] = await registerMultiPaymentForVirtualReceiptByTestClient(utils.clients.admin, receipt, { id: utils.acquiringContext.id })
+
+        const [[createdReceipt]] = await utils.createReceipts([
+            utils.createJSONReceipt({ accountNumber: billingAccount.number, ...recipient, tin: utils.organization.tin, month: date.month() + 1, year: date.year() }),
+        ])
+
+        await linkVirtualPaymentsToReceipts()
+        const [payment] = await find('Payment', { multiPayment: { id: multipayment.multiPaymentId } })
+        const [flatReceipt] = await find('BillingReceipt', { id: createdReceipt.id })
+        const { keystone } = getSchemaCtx('BillingReceipt')
+        expect(payment.receipt).toBe(createdReceipt.id)
+        expect(payment.frozenReceipt).toMatchObject(JSON.parse(JSON.stringify(await freezeBillingReceipt(keystone, flatReceipt))))
+    })
+
+    test('Should do nothing if there are no payments', async () => {
+        const utils = new TestUtils([BillingTestMixin, AcquiringTestMixin])
+        await utils.init()
+        const date = dayjs()
+
+        const billingAccount = await setupTestBillingData(utils)
+        const [recipient] = generateVirtualReceipt(billingAccount, date.year(), date.month() + 1)
+
+        const [[createdReceipt]] = await utils.createReceipts([
+            utils.createJSONReceipt({ accountNumber: billingAccount.number, ...recipient, tin: utils.organization.tin, month: date.month() + 1, year: date.year() }),
+        ])
+
+        await linkVirtualPaymentsToReceipts()
+        const payments = await find('Payment', { receipt: { id: createdReceipt.id } })
+
+        expect(payments).toHaveLength(0)
+    })
+
+    test('Should not link receipt with payments from different months', async () => {
+        const utils = new TestUtils([BillingTestMixin, AcquiringTestMixin])
+        await utils.init()
+        const currentDate = dayjs()
+        const pastDate = currentDate.subtract(1, 'month')
+
+        const billingAccount = await setupTestBillingData(utils)
+        const [recipient, pastReceipt] = generateVirtualReceipt(billingAccount, pastDate.year(), pastDate.month() + 1)
+
+        await registerMultiPaymentForVirtualReceiptByTestClient(utils.clients.admin, pastReceipt, { id: utils.acquiringContext.id })
+
+        const [[createdReceipt]] = await utils.createReceipts([
+            utils.createJSONReceipt({ accountNumber: billingAccount.number, ...recipient, tin: utils.organization.tin, month: currentDate.month() + 1, year: currentDate.year() }),
+        ])
+
+        await linkVirtualPaymentsToReceipts()
+        const [payment] = await find('Payment', { receipt: { id: createdReceipt.id } })
+
+        expect(payment).toBeUndefined()
+    })
+
 })
