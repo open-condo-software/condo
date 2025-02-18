@@ -15,6 +15,7 @@ const STARTUP_TIMEOUT_IN_MS = 5 * 60 * 1000 // 5 min
 const CLEANUP_TIMEOUT_IN_MS = 30 * 1000 // 30 sec
 // NOTE: It's expensive to keep all keys in memory, so first const is used for tests with equality, second - for scans
 const SAFE_KEYS_SIZE = 100_000
+const SAFE_KEYS_TIMEOUT_IN_MS = 30_000 // 30 sec is enough to fill db / run test / scan db on 100k keys scale
 const BIG_KEYS_SIZE = 3_000_000
 const BIG_KEYS_TIMEOUT_IN_MS = 60 * 1000 // 1 min
 
@@ -97,7 +98,7 @@ describe('addAppPrefix', () => {
         expect(allKeys.size).toEqual(expectedKeys.length)
         const nonExistingKeysCount = expectedKeys.filter(key => !allKeys.has(key)).length
         expect(nonExistingKeysCount).toEqual(0)
-    })
+    }, SAFE_KEYS_TIMEOUT_IN_MS)
     test('Must be failure-proof (executed multiple times)', async () => {
         const keyPrefix = randomKeyPrefix(2)
         const uniqueKeys = [...generateAppKeys(SAFE_KEYS_SIZE, TASKS_QUEUES)]
@@ -162,7 +163,7 @@ describe('addAppPrefix', () => {
         expect(allKeys.size).toEqual(expectedKeys.length)
         nonExistingKeysCount = expectedKeys.filter(key => !allKeys.has(key)).length
         expect(nonExistingKeysCount).toEqual(0)
-    })
+    }, SAFE_KEYS_TIMEOUT_IN_MS)
 
     describe('Must rename keys fast enough (stress test)', () => {
         describe('Standalone redis', () => {
