@@ -85,6 +85,7 @@ const User = new GQLListSchema('User', {
             options: USER_TYPES,
             defaultValue: STAFF,
             isRequired: true,
+            access: access.canManageUserType,
         },
 
         isAdmin: {

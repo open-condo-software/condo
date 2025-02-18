@@ -99,6 +99,13 @@ const canAccessToIsAdminField = {
     update: access.userIsAdmin,
 }
 
+const canManageUserType = {
+    read: true,
+    create: canManageUsers,
+    // TODO Change access.userIsAdmin to FALSE
+    update: access.userIsAdmin,
+}
+
 const canAccessToIsEmailVerifiedField = readByAnyUpdateByAdminField
 const canAccessToIsPhoneVerifiedField = readByAnyUpdateByAdminField
 const canAccessToImportField = readByAnyUpdateByAdminField
@@ -139,6 +146,7 @@ async function canReadUserNameField (args) {
 module.exports = {
     canReadUsers,
     canManageUsers,
+    canManageUserType,
     canAccessToEmailField,
     canAccessToPhoneField,
     canAccessToPasswordField,
