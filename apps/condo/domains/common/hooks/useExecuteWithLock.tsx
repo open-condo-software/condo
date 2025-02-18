@@ -22,7 +22,16 @@ export function useExecuteWithLock (
 
     // Release lock when tab closes
     useEffect(() => {
+        const handleBeforeUnload = () => {
+            if (releaseLockRef.current) {
+                releaseLockRef.current()
+            }
+        }
+
+        window.addEventListener('beforeunload', handleBeforeUnload)
+        
         return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload)
             if (releaseLockRef.current) {
                 return releaseLockRef.current()
             }

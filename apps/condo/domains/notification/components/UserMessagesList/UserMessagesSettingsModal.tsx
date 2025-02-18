@@ -1,6 +1,5 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback } from 'react'
 
-import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Switch, Modal, Space, Typography } from '@open-condo/ui'
 
@@ -16,34 +15,22 @@ export const UserMessagesSettingsModal = ({ open, setOpen, excludedMessageTypes,
     const ApplyChanges = intl.formatMessage({ id: 'ApplyChanges' })
 
     const { messageTypes } = useAllowedToFilterMessageTypes()
-    const [selectedMessageTypes, setSelectedMessageTypes] = useState(
-        messageTypes.filter(type => !excludedMessageTypes.includes(type))
-    )
-
-    useDeepCompareEffect(() => {
-        setSelectedMessageTypes(messageTypes.filter(type => !excludedMessageTypes.includes(type)))
-    }, [excludedMessageTypes, messageTypes])
-
-    const handleCheckboxChange = useCallback((checkedType) => {
-        setSelectedMessageTypes((oldSelectedTypesState) =>
-            oldSelectedTypesState.includes(checkedType)
-                ? oldSelectedTypesState.filter(type => type !== checkedType)
-                : [...oldSelectedTypesState, checkedType]
-        )
-    }, [])
-
     const { userMessagesSettingsStorage } = useUserMessagesListSettingsStorage()
 
+    const handleSwitchChange = useCallback((checked, checkedType) => {
+        setExcludedMessageTypes((prevExcludedTypes) => {
+            const newExcludedTypes = checked
+                ? prevExcludedTypes.filter(type => type !== checkedType)
+                : [...prevExcludedTypes, checkedType]
+
+            userMessagesSettingsStorage.setExcludedUserMessagesTypes(newExcludedTypes)
+            return newExcludedTypes
+        })
+    }, [setExcludedMessageTypes, userMessagesSettingsStorage])
+
     const handleSubmit = useCallback(() => {
-        const newExcludedTypes = messageTypes.filter(
-            type => !selectedMessageTypes.includes(type)
-        )
-
-        userMessagesSettingsStorage.setExcludedUserMessagesTypes(newExcludedTypes)
-        setExcludedMessageTypes(newExcludedTypes)
-
         setOpen(false)
-    }, [messageTypes, userMessagesSettingsStorage, setExcludedMessageTypes, setOpen, selectedMessageTypes])
+    }, [setOpen])
 
     return (
         <Modal
@@ -62,8 +49,8 @@ export const UserMessagesSettingsModal = ({ open, setOpen, excludedMessageTypes,
                         <Space size={8}>
                             <Switch
                                 id={type}
-                                checked={selectedMessageTypes.includes(type)}
-                                onChange={() => handleCheckboxChange(type)}
+                                checked={!excludedMessageTypes.includes(type)}
+                                onChange={(checked) => handleSwitchChange(checked, type)}
                                 size='small'
                             />
                             <Typography.Text>
