@@ -628,7 +628,12 @@ if (!isDisabledSsr || !isSSR()) {
 
                 const date = new Date(timestamp * 1000)
 
-                return { pageProps: { statusCode: 429, resetTime: `${date.getHours()}:${date.getMinutes()}` } }
+                return {
+                    pageProps: {
+                        statusCode: 429,
+                        resetTime: `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`,
+                    },
+                }
             }
 
             return { pageProps: { statusCode: 500 } }
