@@ -86,11 +86,13 @@ export const Header: React.FC<IHeaderProps> = (props) => {
                                 <Layout.Header className='header mobile-header'>
                                     <div className='context-bar'>
                                         <UserMessagesList />
-                                        <Space direction='horizontal' size={4}>
-                                            <SBBOLIndicator organization={organization} />
-                                            <InlineOrganizationSelect/>
-                                        </Space>
-                                        <UserMenu/>
+                                        <div className='organization-user-block'>
+                                            <Space direction='horizontal' size={4}>
+                                                <SBBOLIndicator organization={organization} />
+                                                <InlineOrganizationSelect/>
+                                            </Space>
+                                            <UserMenu/>
+                                        </div>
                                     </div>
                                     <div className='appeals-bar'>
                                         <Menu size='large' onClick={toggleCollapsed}/>

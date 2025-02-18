@@ -130,6 +130,7 @@
 .mobile-header .context-bar {
   display: flex;
   flex-direction: row;
+  gap: 60px;
   align-items: center;
   justify-content: space-between;
   height: 40px;
@@ -153,6 +154,15 @@
   white-space: nowrap;
   text-overflow: ellipsis;
   vertical-align: bottom;
+}
+
+.mobile-header .organization-user-block {
+  display: flex;
+  gap: 20px;
+}
+
+.mobile-header .organization-user-block .organization-selector .condo-typography {
+  max-width: 100px;
 }
 
 .user-dropdown {
