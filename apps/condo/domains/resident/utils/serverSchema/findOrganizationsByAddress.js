@@ -77,27 +77,29 @@ async function findOrganizationByAddressKeyUnitNameUnitType (organization, { add
 
 async function findOrganizationByAddressKeyTinAccountNumber (organization, { addressKey, tin, accountNumber }, properties) {
     const billingContext = await getOrganizationBillingContext(organization)
-    const [billingIntegration] = await find('BillingIntegration', {
-        id: get(billingContext, 'integration', null),
-        checkAccountNumberUrl_not: null,
-    })
-    const checkAccountNumberUrl = get(billingIntegration, 'checkAccountNumberUrl')
+    let receipts = []
 
-    let receipts = await getOrganizationReceipts(billingContext, addressKey, { number: accountNumber })
-    
-    if (!receipts.length && checkAccountNumberUrl) {
-        const { status, services } = await getAccountsWithOnlineInteractionUrl(checkAccountNumberUrl, tin, accountNumber)
-        if (status === ONLINE_INTERACTION_CHECK_ACCOUNT_SUCCESS_STATUS) {
-            receipts = services.map(service => ({
-                category: service.category,
-                number: service.account.number,
-                routingNumber: service.bankAccount.routingNumber,
-                bankAccount: service.bankAccount.number,
-            }))
+    if (billingContext) {
+        const [billingIntegration] = await find('BillingIntegration', {
+            id: billingContext.integration,
+            checkAccountNumberUrl_not: null,
+        })
+        const checkAccountNumberUrl = get(billingIntegration, 'checkAccountNumberUrl')
+
+        receipts = await getOrganizationReceipts(billingContext, addressKey, { number: accountNumber })
+
+        if (!receipts.length && checkAccountNumberUrl) {
+            const { status, services } = await getAccountsWithOnlineInteractionUrl(checkAccountNumberUrl, tin, accountNumber)
+            if (status === ONLINE_INTERACTION_CHECK_ACCOUNT_SUCCESS_STATUS) {
+                receipts = services.map(service => ({
+                    category: service.category,
+                    number: service.account.number,
+                    routingNumber: service.bankAccount.routingNumber,
+                    bankAccount: service.bankAccount.number,
+                }))
+            }
         }
     }
-
-    if (!receipts.length) receipts = []
 
     const meters = await getOrganizationMeters(organization, addressKey, properties, { accountNumber })
 
