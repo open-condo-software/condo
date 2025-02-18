@@ -83,6 +83,7 @@ async function findOrganizationByAddressKeyTinAccountNumber (organization, { add
         const [billingIntegration] = await find('BillingIntegration', {
             id: billingContext.integration,
             checkAccountNumberUrl_not: null,
+            deletedAt: null,
         })
         const checkAccountNumberUrl = get(billingIntegration, 'checkAccountNumberUrl')
 
