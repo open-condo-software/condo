@@ -25,7 +25,7 @@ program
         '"bull:queue_name:something" -> "{example_keystone:bull:queue_name}:something"',
         '',
         'Example #1 (remote server migration):',
-        'REDIS_URL=redis://127.0.0.1:6379/6 npx @open-condo/migrator add-kv-prefixes',
+        'REDIS_URL=redis://remote_user:*******@127.0.0.1:6379/6 npx @open-condo/migrator add-kv-prefixes -f condo',
         '',
         'Example #2 (local monorepo migration):',
         'condo-migrator add-kv-prefixes',
