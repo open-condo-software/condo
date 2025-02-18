@@ -22,8 +22,11 @@ const {
     ONLINE_INTERACTION_CHECK_ACCOUNT_NOT_FOUND_STATUS,
     ONLINE_INTERACTION_CHECK_ACCOUNT_SUCCESS_STATUS,
 } = require('@condo/domains/billing/constants/onlineInteraction')
-const { createTestBillingIntegrationOrganizationContext, createTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
-const { updateTestBillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
+const {
+    createTestBillingIntegrationOrganizationContext,
+    createTestBillingIntegration,
+    updateTestBillingIntegrationOrganizationContext,
+} = require('@condo/domains/billing/utils/testSchema')
 const {
     TestUtils,
     BillingTestMixin,
