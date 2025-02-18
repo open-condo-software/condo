@@ -69,7 +69,7 @@ jobs:
       - name: Pull & push valkey to registry
         run: |
           docker pull valkey/valkey:8.0.2
-          docker tag ${{ secrets.DOCKER_REGISTRY }}/doma/utils/valkey/valkey:8.0.2
+          docker tag valkey/valkey:8.0.2 ${{ secrets.DOCKER_REGISTRY }}/doma/utils/valkey/valkey:8.0.2
           docker push ${{ secrets.DOCKER_REGISTRY }}/doma/utils/valkey/valkey:8.0.2
       - name: Prune repo to filter out yarn.lock and package.json
         run: |
