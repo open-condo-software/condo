@@ -1,7 +1,7 @@
-const { get, pick } = require('lodash')
+const { get } = require('lodash')
 
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
-const { find, itemsQuery } = require('@open-condo/keystone/schema')
+const { find } = require('@open-condo/keystone/schema')
 
 const {
     CONTEXT_FINISHED_STATUS: ACQUIRING_CONTEXT_FINISHED_STATUS,
@@ -11,7 +11,6 @@ const {
 } = require('@condo/domains/billing/constants/onlineInteraction')
 const { getAccountsWithOnlineInteractionUrl } = require('@condo/domains/billing/utils/serverSchema/checkAccountNumberWithOnlineInteractionUrl')
 const { DISABLE_DISCOVER_SERVICE_CONSUMERS } = require('@condo/domains/common/constants/featureflags')
-const { METER_READING_MAX_VALUES_COUNT } = require('@condo/domains/meter/constants/constants')
 const { CONTEXT_FINISHED_STATUS: BILLING_CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 
 /*
@@ -79,7 +78,7 @@ async function findOrganizationByAddressKeyUnitNameUnitType (organization, { add
 async function findOrganizationByAddressKeyTinAccountNumber (organization, { addressKey, tin, accountNumber }, properties) {
     const billingContext = await getOrganizationBillingContext(organization)
     const [billingIntegration] = await find('BillingIntegration', {
-        id: get(billingContext, 'integration'),
+        id: get(billingContext, 'integration', null),
         checkAccountNumberUrl_not: null,
     })
     const checkAccountNumberUrl = get(billingIntegration, 'checkAccountNumberUrl')
