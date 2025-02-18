@@ -22,7 +22,8 @@ export async function addAppsKVPrefixes (options: CommonOptions): Promise<void> 
     const targetApps = allApps
         .filter(isAppUsingKV)
         .filter(pkg => isNameMatching(pkg, options.filter))
-        .toSorted((a, b) => a.name.localeCompare(b.name))
+
+    targetApps.sort((a, b) => a.name.localeCompare(b.name))
 
     if (options.filter) {
         logger.info(`Found ${targetApps.length} apps using KV databases and matched filter:`)
