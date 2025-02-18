@@ -770,6 +770,7 @@ describe('Custom access rights', () => {
                     { field: 'password', create: true },
                     { field: 'email', create: true, read: true },
                     { field: 'phone', create: true, read: true },
+                    { field: 'type', create: true, read: true },
                 ],
             }],
         }
