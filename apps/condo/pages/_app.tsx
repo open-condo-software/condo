@@ -626,12 +626,10 @@ if (!isDisabledSsr || !isSSR()) {
                     return max
                 }, 0)
 
-                const date = new Date(timestamp * 1000)
-
                 return {
                     pageProps: {
                         statusCode: 429,
-                        resetTime: `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`,
+                        timestamp,
                     },
                 }
             }
@@ -676,7 +674,7 @@ const withError = () => (PageComponent: NextPage): NextPage => {
             <PageComponent {...props} Component={Error404Page} statusCode={statusCode} />
         )
         if (statusCode && statusCode === 429) return (
-            <PageComponent {...props} Component={Error429Page} statusCode={statusCode} resetTime={props?.pageProps?.resetTime}/>
+            <PageComponent {...props} Component={Error429Page} statusCode={statusCode} timestamp={props?.pageProps?.timestamp}/>
         )
         if (statusCode && statusCode >= 400) return (
             <PageComponent {...props} Component={Error500Page} statusCode={statusCode} />
