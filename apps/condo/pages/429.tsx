@@ -11,10 +11,10 @@ import { ErrorLayoutFooter, ErrorLayoutHeader } from './500'
 
 const Src429 = { poster: '/404Poster.webp', placeholder: '/404PosterPlaceholder.jpg' }
 
-const Custom429: PageComponentType = ({ timestamp }) => {
+const Custom429: PageComponentType = ({ resetTime }) => {
     const intl = useIntl()
 
-    const date = new Date(timestamp * 1000)
+    const date = new Date(resetTime * 1000)
 
     const PageTitle = intl.formatMessage( { id: 'pages.condo.error.TooManyRequestsTitle' })
     const DescriptionMessage = intl.formatMessage({ id: 'pages.condo.error.TooManyRequestsDescription' }, {

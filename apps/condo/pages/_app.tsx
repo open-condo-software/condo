@@ -629,7 +629,7 @@ if (!isDisabledSsr || !isSSR()) {
                 return {
                     pageProps: {
                         statusCode: 429,
-                        timestamp,
+                        resetTime: timestamp,
                     },
                 }
             }
@@ -674,7 +674,7 @@ const withError = () => (PageComponent: NextPage): NextPage => {
             <PageComponent {...props} Component={Error404Page} statusCode={statusCode} />
         )
         if (statusCode && statusCode === 429) return (
-            <PageComponent {...props} Component={Error429Page} statusCode={statusCode} timestamp={props?.pageProps?.timestamp}/>
+            <PageComponent {...props} Component={Error429Page} statusCode={statusCode} resetTime={props?.pageProps?.resetTime}/>
         )
         if (statusCode && statusCode >= 400) return (
             <PageComponent {...props} Component={Error500Page} statusCode={statusCode} />
