@@ -54,14 +54,6 @@ const MeterReading = new GQLListSchema('MeterReading', {
             schemaDoc: 'Date when the readings were taken',
             type: 'DateTimeUtc',
             hooks: {
-                resolveInput: async ({ resolvedData, fieldPath }) => {
-                    const date = resolvedData[fieldPath]
-                    if (!date) {
-                        return dayjs().toISOString()
-                    }
-
-                    return date
-                },
                 validateInput: async ({ context, operation, existingItem, resolvedData, fieldPath }) => {
                     const date = resolvedData[fieldPath]
                     if (date) {
