@@ -2,9 +2,8 @@ const { faker } = require('@faker-js/faker')
 const connectRedis = require('connect-redis')
 const dayjs = require('dayjs')
 const session = require('express-session')
-const Valkey = require('iovalkey')
 
-const conf = require('@open-condo/config')
+const { getRedisClient } = require('@open-condo/keystone/redis')
 const { setSession, destroySession } = require('@open-condo/keystone/session')
 
 const RedisStore = connectRedis(session)
@@ -14,14 +13,8 @@ describe('session', () => {
     /** @type {RedisStore}  */
     let sessionStore
     let client
-    beforeAll(async () => {
-        try {
-            const url = conf['VALKEY_URL'] ? JSON.parse(conf['VALKEY_URL']) : JSON.parse(conf['REDIS_URL'])
-            client = new Valkey.Cluster(url)
-        } catch (err) {
-            client = new Valkey(conf.VALKEY_URL || conf.REDIS_URL)
-        }
-
+    beforeAll(() => {
+        client = getRedisClient()
         sessionStore = new RedisStore({ client })
     })
 
