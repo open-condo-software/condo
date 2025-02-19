@@ -3,7 +3,7 @@ const connectRedis = require('connect-redis')
 const dayjs = require('dayjs')
 const session = require('express-session')
 
-const { getRedisClient } = require('@open-condo/keystone/redis')
+const { getKVClient } = require('@open-condo/keystone/kv')
 const { setSession, destroySession } = require('@open-condo/keystone/session')
 
 const RedisStore = connectRedis(session)
@@ -14,7 +14,7 @@ describe('session', () => {
     let sessionStore
     let client
     beforeAll(() => {
-        client = getRedisClient()
+        client = getKVClient()
         sessionStore = new RedisStore({ client })
     })
 

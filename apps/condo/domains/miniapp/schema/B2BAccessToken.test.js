@@ -7,8 +7,7 @@ const dayjs = require('dayjs')
 const { gql } = require('graphql-tag')
 const pick = require('lodash/pick')
 
-const conf = require('@open-condo/config')
-const { getRedisClient } = require('@open-condo/keystone/redis')
+const { getKVClient } = require('@open-condo/keystone/kv')
 const {
     makeLoggedInAdminClient, makeClient, expectValuesOfCommonFields,
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
@@ -411,7 +410,7 @@ describe('B2BAccessToken', () => {
     describe('Real-life cases', () => {
 
         test('Can not update deleted access token to store it in redis', async () => {
-            const redisClient = getRedisClient()
+            const redisClient = getKVClient()
             const [createdToken] = await createTestB2BAccessTokenAdmin(admin, b2bAppContext, scopedRightSet)
             expect(createdToken).toBeDefined()
             expect(createdToken).toHaveProperty('sessionId')
@@ -467,7 +466,7 @@ describe('B2BAccessToken', () => {
         })
 
         test('SessionId is encrypted', async () => {
-            const redisClient = getRedisClient()
+            const redisClient = getKVClient()
             const [createdToken] = await createTestB2BAccessTokenAdmin(admin, b2bAppContext, scopedRightSet)
             expect(createdToken).toHaveProperty('sessionId')
             const session = await redisClient.get(`sess:${createdToken.sessionId}`)
