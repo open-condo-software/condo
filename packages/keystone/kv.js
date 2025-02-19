@@ -37,7 +37,7 @@ const getKVPrefix = () => {
     return require(packageJsonPath).name.split('/')
         .pop()
         .replace(/:/g, '')
-        .replace(/-/g, '_') + ':'
+        .replace(/-/g, '_').toLowerCase() + ':'
 }
 
 const PREFIX = getKVPrefix()
