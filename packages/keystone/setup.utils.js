@@ -2,10 +2,10 @@ const { KnexAdapter } = require('@keystonejs/adapter-knex')
 const { MongooseAdapter } = require('@keystonejs/adapter-mongoose')
 const connectRedis = require('connect-redis')
 const session = require('express-session')
-const IORedis = require('ioredis')
 const { v5: uuidv5 } = require('uuid')
 
 const conf = require('@open-condo/config')
+const { getKVClient } = require('@open-condo/keystone/kv')
 
 const { FakeDatabaseAdapter, BalancingReplicaKnexAdapter } = require('./databaseAdapters')
 
@@ -88,10 +88,9 @@ function prepareDefaultKeystoneConfig (conf) {
         },
     }
 
-    if (!IS_BUILD && conf.REDIS_URL) {
-        const redisClient = new IORedis(conf.REDIS_URL)
-        const sessionStore = new RedisStore({ client: redisClient })
-        config.sessionStore = sessionStore
+    if (!IS_BUILD && (conf.VALKEY_URL || conf.REDIS_URL)) {
+        const client = getKVClient()
+        config.sessionStore = new RedisStore({ client })
     }
 
     config.adapter = getAdapter(conf.DATABASE_URL || 'undefined')
