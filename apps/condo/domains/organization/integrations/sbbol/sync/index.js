@@ -103,7 +103,6 @@ const sync = async ({ keystone, userInfo, tokenSet, features, useExtendedConfig 
         phone: normalizePhone(userInfo.phone_number) || userInfo.phone_number,
         isPhoneVerified: true,
         isEmailVerified: true,
-        password: faker.internet.password(),
     }
 
     const user = await syncUser({ context, userInfo: userData, identityId: userInfo.userGuid || userInfo.sub })

@@ -6,7 +6,8 @@ import { useIntl } from '@open-condo/next/intl'
 import { Button } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
-import { useCheckTLSClientCert } from '../hooks/useCheckTLSClientCert'
+import { useCheckTLSClientCert } from '@condo/domains/common/hooks/useCheckTLSClientCert'
+
 
 export const LoginWithSBBOLButton: React.FC<{ label?: string, block?: boolean, redirect?: string, checkTlsCert: boolean }> = ({
     label,
@@ -42,6 +43,7 @@ export const LoginWithSBBOLButton: React.FC<{ label?: string, block?: boolean, r
             onClick={() => checkTlsCert ? checkSSLClientCert() : redirectToAuth()}
             loading={loading}
             block={block}
+            id='loginWithSBBOL'
         >
             {label || LoginLabel}
         </Button>

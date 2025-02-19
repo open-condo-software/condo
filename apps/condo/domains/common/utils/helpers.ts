@@ -22,7 +22,7 @@ const SPANISH_PHONE_FORMAT_REGEXP = /(\d{2})(\d{3})(\d{3})(\d{3})/
  */
 export const formatPhone = (phone?: string): string =>{
     if (phone.startsWith('+7')){
-        return phone.replace(RUSSIAN_PHONE_FORMAT_REGEXP, '$1 ($2) $3-$4-$5')
+        return phone.replace(RUSSIAN_PHONE_FORMAT_REGEXP, '$1 ($2) $3-$4-$5')
     }
     if (phone.startsWith('+34')){
         return phone.replace(SPANISH_PHONE_FORMAT_REGEXP, '$1-$2-$3-$4')

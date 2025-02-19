@@ -5591,6 +5591,294 @@ export function useUpdateUserTicketCommentReadTimeMutation(baseOptions?: Apollo.
 export type UpdateUserTicketCommentReadTimeMutationHookResult = ReturnType<typeof useUpdateUserTicketCommentReadTimeMutation>;
 export type UpdateUserTicketCommentReadTimeMutationResult = Apollo.MutationResult<Types.UpdateUserTicketCommentReadTimeMutation>;
 export type UpdateUserTicketCommentReadTimeMutationOptions = Apollo.BaseMutationOptions<Types.UpdateUserTicketCommentReadTimeMutation, Types.UpdateUserTicketCommentReadTimeMutationVariables>;
+export const AuthenticateOrRegisterUserWithTokenDocument = gql`
+    mutation authenticateOrRegisterUserWithToken($data: AuthenticateOrRegisterUserWithTokenInput!) {
+  result: authenticateOrRegisterUserWithToken(data: $data) {
+    user: item {
+      id
+    }
+  }
+}
+    `;
+export type AuthenticateOrRegisterUserWithTokenMutationFn = Apollo.MutationFunction<Types.AuthenticateOrRegisterUserWithTokenMutation, Types.AuthenticateOrRegisterUserWithTokenMutationVariables>;
+
+/**
+ * __useAuthenticateOrRegisterUserWithTokenMutation__
+ *
+ * To run a mutation, you first call `useAuthenticateOrRegisterUserWithTokenMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAuthenticateOrRegisterUserWithTokenMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [authenticateOrRegisterUserWithTokenMutation, { data, loading, error }] = useAuthenticateOrRegisterUserWithTokenMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useAuthenticateOrRegisterUserWithTokenMutation(baseOptions?: Apollo.MutationHookOptions<Types.AuthenticateOrRegisterUserWithTokenMutation, Types.AuthenticateOrRegisterUserWithTokenMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.AuthenticateOrRegisterUserWithTokenMutation, Types.AuthenticateOrRegisterUserWithTokenMutationVariables>(AuthenticateOrRegisterUserWithTokenDocument, options);
+      }
+export type AuthenticateOrRegisterUserWithTokenMutationHookResult = ReturnType<typeof useAuthenticateOrRegisterUserWithTokenMutation>;
+export type AuthenticateOrRegisterUserWithTokenMutationResult = Apollo.MutationResult<Types.AuthenticateOrRegisterUserWithTokenMutation>;
+export type AuthenticateOrRegisterUserWithTokenMutationOptions = Apollo.BaseMutationOptions<Types.AuthenticateOrRegisterUserWithTokenMutation, Types.AuthenticateOrRegisterUserWithTokenMutationVariables>;
+export const AuthenticateUserWithPhoneAndPasswordDocument = gql`
+    mutation authenticateUserWithPhoneAndPassword($data: AuthenticateUserWithPhoneAndPasswordInput!) {
+  result: authenticateUserWithPhoneAndPassword(data: $data) {
+    item {
+      id
+    }
+  }
+}
+    `;
+export type AuthenticateUserWithPhoneAndPasswordMutationFn = Apollo.MutationFunction<Types.AuthenticateUserWithPhoneAndPasswordMutation, Types.AuthenticateUserWithPhoneAndPasswordMutationVariables>;
+
+/**
+ * __useAuthenticateUserWithPhoneAndPasswordMutation__
+ *
+ * To run a mutation, you first call `useAuthenticateUserWithPhoneAndPasswordMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAuthenticateUserWithPhoneAndPasswordMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [authenticateUserWithPhoneAndPasswordMutation, { data, loading, error }] = useAuthenticateUserWithPhoneAndPasswordMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useAuthenticateUserWithPhoneAndPasswordMutation(baseOptions?: Apollo.MutationHookOptions<Types.AuthenticateUserWithPhoneAndPasswordMutation, Types.AuthenticateUserWithPhoneAndPasswordMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.AuthenticateUserWithPhoneAndPasswordMutation, Types.AuthenticateUserWithPhoneAndPasswordMutationVariables>(AuthenticateUserWithPhoneAndPasswordDocument, options);
+      }
+export type AuthenticateUserWithPhoneAndPasswordMutationHookResult = ReturnType<typeof useAuthenticateUserWithPhoneAndPasswordMutation>;
+export type AuthenticateUserWithPhoneAndPasswordMutationResult = Apollo.MutationResult<Types.AuthenticateUserWithPhoneAndPasswordMutation>;
+export type AuthenticateUserWithPhoneAndPasswordMutationOptions = Apollo.BaseMutationOptions<Types.AuthenticateUserWithPhoneAndPasswordMutation, Types.AuthenticateUserWithPhoneAndPasswordMutationVariables>;
+export const ChangePasswordWithTokenDocument = gql`
+    mutation changePasswordWithToken($data: ChangePasswordWithTokenInput!) {
+  result: changePasswordWithToken(data: $data) {
+    status
+    phone
+  }
+}
+    `;
+export type ChangePasswordWithTokenMutationFn = Apollo.MutationFunction<Types.ChangePasswordWithTokenMutation, Types.ChangePasswordWithTokenMutationVariables>;
+
+/**
+ * __useChangePasswordWithTokenMutation__
+ *
+ * To run a mutation, you first call `useChangePasswordWithTokenMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useChangePasswordWithTokenMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [changePasswordWithTokenMutation, { data, loading, error }] = useChangePasswordWithTokenMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useChangePasswordWithTokenMutation(baseOptions?: Apollo.MutationHookOptions<Types.ChangePasswordWithTokenMutation, Types.ChangePasswordWithTokenMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.ChangePasswordWithTokenMutation, Types.ChangePasswordWithTokenMutationVariables>(ChangePasswordWithTokenDocument, options);
+      }
+export type ChangePasswordWithTokenMutationHookResult = ReturnType<typeof useChangePasswordWithTokenMutation>;
+export type ChangePasswordWithTokenMutationResult = Apollo.MutationResult<Types.ChangePasswordWithTokenMutation>;
+export type ChangePasswordWithTokenMutationOptions = Apollo.BaseMutationOptions<Types.ChangePasswordWithTokenMutation, Types.ChangePasswordWithTokenMutationVariables>;
+export const CheckUserExistenceDocument = gql`
+    query checkUserExistence($data: CheckUserExistenceInput!) {
+  result: checkUserExistence(data: $data) {
+    isUserExists
+    isNameSet
+    isEmailSet
+    isPhoneSet
+    isPasswordSet
+  }
+}
+    `;
+
+/**
+ * __useCheckUserExistenceQuery__
+ *
+ * To run a query within a React component, call `useCheckUserExistenceQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCheckUserExistenceQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCheckUserExistenceQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCheckUserExistenceQuery(baseOptions: Apollo.QueryHookOptions<Types.CheckUserExistenceQuery, Types.CheckUserExistenceQueryVariables> & ({ variables: Types.CheckUserExistenceQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.CheckUserExistenceQuery, Types.CheckUserExistenceQueryVariables>(CheckUserExistenceDocument, options);
+      }
+export function useCheckUserExistenceLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.CheckUserExistenceQuery, Types.CheckUserExistenceQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.CheckUserExistenceQuery, Types.CheckUserExistenceQueryVariables>(CheckUserExistenceDocument, options);
+        }
+export function useCheckUserExistenceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.CheckUserExistenceQuery, Types.CheckUserExistenceQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.CheckUserExistenceQuery, Types.CheckUserExistenceQueryVariables>(CheckUserExistenceDocument, options);
+        }
+export type CheckUserExistenceQueryHookResult = ReturnType<typeof useCheckUserExistenceQuery>;
+export type CheckUserExistenceLazyQueryHookResult = ReturnType<typeof useCheckUserExistenceLazyQuery>;
+export type CheckUserExistenceSuspenseQueryHookResult = ReturnType<typeof useCheckUserExistenceSuspenseQuery>;
+export type CheckUserExistenceQueryResult = Apollo.QueryResult<Types.CheckUserExistenceQuery, Types.CheckUserExistenceQueryVariables>;
+export const CompleteConfirmPhoneActionDocument = gql`
+    mutation completeConfirmPhoneAction($data: CompleteConfirmPhoneActionInput!) {
+  result: completeConfirmPhoneAction(data: $data) {
+    status
+  }
+}
+    `;
+export type CompleteConfirmPhoneActionMutationFn = Apollo.MutationFunction<Types.CompleteConfirmPhoneActionMutation, Types.CompleteConfirmPhoneActionMutationVariables>;
+
+/**
+ * __useCompleteConfirmPhoneActionMutation__
+ *
+ * To run a mutation, you first call `useCompleteConfirmPhoneActionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCompleteConfirmPhoneActionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [completeConfirmPhoneActionMutation, { data, loading, error }] = useCompleteConfirmPhoneActionMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCompleteConfirmPhoneActionMutation(baseOptions?: Apollo.MutationHookOptions<Types.CompleteConfirmPhoneActionMutation, Types.CompleteConfirmPhoneActionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.CompleteConfirmPhoneActionMutation, Types.CompleteConfirmPhoneActionMutationVariables>(CompleteConfirmPhoneActionDocument, options);
+      }
+export type CompleteConfirmPhoneActionMutationHookResult = ReturnType<typeof useCompleteConfirmPhoneActionMutation>;
+export type CompleteConfirmPhoneActionMutationResult = Apollo.MutationResult<Types.CompleteConfirmPhoneActionMutation>;
+export type CompleteConfirmPhoneActionMutationOptions = Apollo.BaseMutationOptions<Types.CompleteConfirmPhoneActionMutation, Types.CompleteConfirmPhoneActionMutationVariables>;
+export const GetPhoneByConfirmPhoneActionTokenDocument = gql`
+    query getPhoneByConfirmPhoneActionToken($data: GetPhoneByConfirmPhoneActionTokenInput!) {
+  result: getPhoneByConfirmPhoneActionToken(data: $data) {
+    phone
+    isPhoneVerified
+  }
+}
+    `;
+
+/**
+ * __useGetPhoneByConfirmPhoneActionTokenQuery__
+ *
+ * To run a query within a React component, call `useGetPhoneByConfirmPhoneActionTokenQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPhoneByConfirmPhoneActionTokenQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPhoneByConfirmPhoneActionTokenQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useGetPhoneByConfirmPhoneActionTokenQuery(baseOptions: Apollo.QueryHookOptions<Types.GetPhoneByConfirmPhoneActionTokenQuery, Types.GetPhoneByConfirmPhoneActionTokenQueryVariables> & ({ variables: Types.GetPhoneByConfirmPhoneActionTokenQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetPhoneByConfirmPhoneActionTokenQuery, Types.GetPhoneByConfirmPhoneActionTokenQueryVariables>(GetPhoneByConfirmPhoneActionTokenDocument, options);
+      }
+export function useGetPhoneByConfirmPhoneActionTokenLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetPhoneByConfirmPhoneActionTokenQuery, Types.GetPhoneByConfirmPhoneActionTokenQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetPhoneByConfirmPhoneActionTokenQuery, Types.GetPhoneByConfirmPhoneActionTokenQueryVariables>(GetPhoneByConfirmPhoneActionTokenDocument, options);
+        }
+export function useGetPhoneByConfirmPhoneActionTokenSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetPhoneByConfirmPhoneActionTokenQuery, Types.GetPhoneByConfirmPhoneActionTokenQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetPhoneByConfirmPhoneActionTokenQuery, Types.GetPhoneByConfirmPhoneActionTokenQueryVariables>(GetPhoneByConfirmPhoneActionTokenDocument, options);
+        }
+export type GetPhoneByConfirmPhoneActionTokenQueryHookResult = ReturnType<typeof useGetPhoneByConfirmPhoneActionTokenQuery>;
+export type GetPhoneByConfirmPhoneActionTokenLazyQueryHookResult = ReturnType<typeof useGetPhoneByConfirmPhoneActionTokenLazyQuery>;
+export type GetPhoneByConfirmPhoneActionTokenSuspenseQueryHookResult = ReturnType<typeof useGetPhoneByConfirmPhoneActionTokenSuspenseQuery>;
+export type GetPhoneByConfirmPhoneActionTokenQueryResult = Apollo.QueryResult<Types.GetPhoneByConfirmPhoneActionTokenQuery, Types.GetPhoneByConfirmPhoneActionTokenQueryVariables>;
+export const ResendConfirmPhoneActionSmsDocument = gql`
+    mutation resendConfirmPhoneActionSms($data: ResendConfirmPhoneActionSmsInput!) {
+  result: resendConfirmPhoneActionSms(data: $data) {
+    status
+  }
+}
+    `;
+export type ResendConfirmPhoneActionSmsMutationFn = Apollo.MutationFunction<Types.ResendConfirmPhoneActionSmsMutation, Types.ResendConfirmPhoneActionSmsMutationVariables>;
+
+/**
+ * __useResendConfirmPhoneActionSmsMutation__
+ *
+ * To run a mutation, you first call `useResendConfirmPhoneActionSmsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useResendConfirmPhoneActionSmsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [resendConfirmPhoneActionSmsMutation, { data, loading, error }] = useResendConfirmPhoneActionSmsMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useResendConfirmPhoneActionSmsMutation(baseOptions?: Apollo.MutationHookOptions<Types.ResendConfirmPhoneActionSmsMutation, Types.ResendConfirmPhoneActionSmsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.ResendConfirmPhoneActionSmsMutation, Types.ResendConfirmPhoneActionSmsMutationVariables>(ResendConfirmPhoneActionSmsDocument, options);
+      }
+export type ResendConfirmPhoneActionSmsMutationHookResult = ReturnType<typeof useResendConfirmPhoneActionSmsMutation>;
+export type ResendConfirmPhoneActionSmsMutationResult = Apollo.MutationResult<Types.ResendConfirmPhoneActionSmsMutation>;
+export type ResendConfirmPhoneActionSmsMutationOptions = Apollo.BaseMutationOptions<Types.ResendConfirmPhoneActionSmsMutation, Types.ResendConfirmPhoneActionSmsMutationVariables>;
+export const StartConfirmPhoneActionDocument = gql`
+    mutation startConfirmPhoneAction($data: StartConfirmPhoneActionInput!) {
+  result: startConfirmPhoneAction(data: $data) {
+    token
+  }
+}
+    `;
+export type StartConfirmPhoneActionMutationFn = Apollo.MutationFunction<Types.StartConfirmPhoneActionMutation, Types.StartConfirmPhoneActionMutationVariables>;
+
+/**
+ * __useStartConfirmPhoneActionMutation__
+ *
+ * To run a mutation, you first call `useStartConfirmPhoneActionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useStartConfirmPhoneActionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [startConfirmPhoneActionMutation, { data, loading, error }] = useStartConfirmPhoneActionMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useStartConfirmPhoneActionMutation(baseOptions?: Apollo.MutationHookOptions<Types.StartConfirmPhoneActionMutation, Types.StartConfirmPhoneActionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.StartConfirmPhoneActionMutation, Types.StartConfirmPhoneActionMutationVariables>(StartConfirmPhoneActionDocument, options);
+      }
+export type StartConfirmPhoneActionMutationHookResult = ReturnType<typeof useStartConfirmPhoneActionMutation>;
+export type StartConfirmPhoneActionMutationResult = Apollo.MutationResult<Types.StartConfirmPhoneActionMutation>;
+export type StartConfirmPhoneActionMutationOptions = Apollo.BaseMutationOptions<Types.StartConfirmPhoneActionMutation, Types.StartConfirmPhoneActionMutationVariables>;
 export const AuthenticatedUserDocument = gql`
     query authenticatedUser {
   authenticatedUser {

@@ -786,7 +786,6 @@ describe('AuthenticateOrRegisterUserWithTokenService', () => {
         })
     })
 
-    // TODO(DOMA-9749): update test after migrate from addFieldValidationError to GQLError
     test('should throw error if an internal error occurs while creating or updating a user', async () => {
         const [staffWithSameEmail, staffWithSameEmailAttrs] = await createTestUser(adminClient, {
             email: faker.internet.email(),
@@ -809,10 +808,8 @@ describe('AuthenticateOrRegisterUserWithTokenService', () => {
                 },
             })
         }, {
-            'code': 'INTERNAL_ERROR',
-            'message': '[unique:email:multipleFound] user already exists',
-            'messageForDeveloper': expect.stringContaining('[error] Update User internal error'),
-            'type': 'SUB_GQL_ERROR',
+            code: 'BAD_USER_INPUT',
+            type: 'EMAIL_ALREADY_REGISTERED_ERROR',
         })
 
         // case with unregistered user
@@ -829,10 +826,8 @@ describe('AuthenticateOrRegisterUserWithTokenService', () => {
                 },
             })
         }, {
-            'code': 'INTERNAL_ERROR',
-            'message': '[unique:email:multipleFound] user already exists',
-            'messageForDeveloper': expect.stringContaining('[error] Create User internal error'),
-            'type': 'SUB_GQL_ERROR',
+            code: 'BAD_USER_INPUT',
+            type: 'EMAIL_ALREADY_REGISTERED_ERROR',
         })
 
         // case with invalid password

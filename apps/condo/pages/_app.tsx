@@ -10,6 +10,7 @@ import { ConfigProvider } from 'antd'
 import enUS from 'antd/lib/locale/en_US'
 import esES from 'antd/lib/locale/es_ES'
 import ruRU from 'antd/lib/locale/ru_RU'
+import { setCookie } from 'cookies-next'
 import dayjs from 'dayjs'
 import { cache } from 'emotion'
 import isEmpty from 'lodash/isEmpty'
@@ -18,7 +19,7 @@ import App, { AppContext } from 'next/app'
 import getConfig from 'next/config'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import React, { Fragment, useMemo } from 'react'
+import React, { Fragment, useMemo, useEffect } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
@@ -46,6 +47,7 @@ import { ServiceProblemsAlert } from '@condo/domains/common/components/ServicePr
 import { Snowfall } from '@condo/domains/common/components/Snowfall'
 import { TasksContextProvider } from '@condo/domains/common/components/tasks/TasksContextProvider'
 import UseDeskWidget from '@condo/domains/common/components/UseDeskWidget'
+import { COOKIE_MAX_AGE_IN_SEC } from '@condo/domains/common/constants/cookies'
 import { SERVICE_PROVIDER_PROFILE, MARKETPLACE, SUBSCRIPTION } from '@condo/domains/common/constants/featureflags'
 import {
     TOUR_CATEGORY,
@@ -104,6 +106,7 @@ import {
 } from '@condo/domains/ticket/hooks/useTicketDocumentGenerationTaskUIInterface'
 import { useTicketExportTaskUIInterface } from '@condo/domains/ticket/hooks/useTicketExportTaskUIInterface'
 import { CookieAgreement } from '@condo/domains/user/components/CookieAgreement'
+import { WAS_AUTHENTICATED_COOKIE_NAME } from '@condo/domains/user/constants/auth'
 
 import Error404Page from './404'
 import Error429Page from './429'
@@ -474,6 +477,7 @@ const MyApp = ({ Component, pageProps }) => {
     useHotCodeReload()
     dayjs.locale(intl.locale)
     const router = useRouter()
+    const { user, isAuthenticated, isLoading: isUserLoading } = useAuth()
     const { publicRuntimeConfig: { yandexMetrikaID, popupSmartConfig, UseDeskWidgetId, isSnowfallDisabled } } = getConfig()
 
     const LayoutComponent = Component.container || BaseLayout
@@ -490,7 +494,18 @@ const MyApp = ({ Component, pageProps }) => {
         isEndTrialSubscriptionReminderPopupVisible,
     } = useEndTrialSubscriptionReminderPopup()
 
-    const shouldDisplayCookieAgreement = router.pathname.match(/\/auth\/.*/)
+    const shouldDisplayCookieAgreement = router.pathname.match(/\/auth(\/.*)?/)
+
+    // NOTE: We remember that the client has already been authorized,
+    // so that instead of opening the "/auth" page, we redirect to "/auth/signin"
+    useEffect(() => {
+        if (isUserLoading) return
+        if (!isAuthenticated) return
+        if (user) {
+            setCookie(WAS_AUTHENTICATED_COOKIE_NAME, 'true', { maxAge: COOKIE_MAX_AGE_IN_SEC })
+        }
+
+    }, [isUserLoading, isAuthenticated, user])
 
     return (
         <>
