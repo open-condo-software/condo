@@ -418,14 +418,14 @@ const Invoice = new GQLListSchema('Invoice', {
 
     },
     hooks: {
-        validateInput: async ({ resolvedData, operation, existingItem, context }) => {
+        validateInput: async ({ resolvedData, operation, existingItem, context, originalInput }) => {
             const nextData = { ...existingItem, ...resolvedData }
             const isUpdate = operation === 'update'
             const isConnectClientDataOp = Object.keys(resolvedData).some(key => CLIENT_DATA_FIELDS.includes(key))
             const connectedTicketId = get(nextData, 'ticket')
             const existingTicketId = get(existingItem, 'ticket')
             const resolvedTicketId = get(resolvedData, 'ticket')
-            const changedFields = omitBy(resolvedData, (value, key) => {
+            const changedFields = omitBy(originalInput, (value, key) => {
                 if (key === 'toPay') {
                     return Number(value) === Number(get(existingItem, key))
                 }
@@ -588,9 +588,7 @@ const Invoice = new GQLListSchema('Invoice', {
                             deletedAt: null,
                         })
 
-                        if (resident) {
-                            set(resolvedData, 'client', get(resident, 'user'))
-                        }
+                        set(resolvedData, 'client', get(resident, 'user', null))
                     }
                 }
             }
