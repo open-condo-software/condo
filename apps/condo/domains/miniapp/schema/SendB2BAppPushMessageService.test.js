@@ -4,6 +4,7 @@
 
 const { faker } = require('@faker-js/faker')
 
+const conf = require('@open-condo/config')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult, waitFor, expectToThrowGQLErrorToResult } = require('@open-condo/keystone/test.utils')
 
 const { LOCALES } = require('@condo/domains/common/constants/locale')
@@ -258,6 +259,52 @@ describe('SendB2BAppPushMessageService', () => {
                     type: PASS_TICKET_CREATED_MESSAGE_TYPE,
                 })
             }, ERRORS.USER_IS_NOT_AN_EMPLOYEE)
+        })
+
+        test('Create message if meta.url is valid', async () => {
+            const url = `${conf.SERVER_URL}/${faker.random.word()}/${faker.random.word()}`
+
+            const [result] = await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
+                type: PASS_TICKET_CREATED_MESSAGE_TYPE,
+                meta: {
+                    dv: 1,
+                    data: {
+                        url,
+                        openAt: faker.random.word(),
+                    },
+                },
+            })
+
+            const message = await Message.getOne(staffClient, { id: result.id })
+
+            expect(message.meta.data.url).toEqual(url)
+        })
+
+        const invalidUrlCases = [
+            ['javascript:alert(1)'],
+            [faker.internet.url()],
+            [`${conf.SERVER_URL}.mysite.com`],
+            [`${conf.SERVER_URL}.mysite.com/${faker.random.word()}`],
+        ]
+        test.each(invalidUrlCases)('Throws an error if meta.url is invalid: %p', async (url) => {
+            await expectToThrowGQLErrorToResult(async () => {
+                await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
+                    type: PASS_TICKET_CREATED_MESSAGE_TYPE,
+                    meta: {
+                        dv: 1,
+                        data: {
+                            url,
+                            openAt: faker.random.word(),
+                        },
+                    },
+                })
+            }, {
+                mutation: 'sendB2BAppPushMessage',
+                variable: ['data', 'meta', 'data', 'url'],
+                code: 'BAD_USER_INPUT',
+                type: 'WRONG_VALUE',
+                message: `Invalid URL: must start with ${conf.SERVER_URL} and be safe`,
+            })
         })
     })
 })
