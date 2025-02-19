@@ -152,6 +152,10 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
 
     useEffect(() => {
         if (form.isFieldsTouched(['notifyStartDay', 'notifyEndDay'])) form.validateFields(['notifyStartDay', 'notifyEndDay', 'isStrict'])
+        if (startNumberRef.current > finishNumberRef.current) {
+            setIsStrictPeriod(false)
+            form.setFieldValue('isStrict', false)
+        }
     }, [startNumberRef.current, finishNumberRef.current])
 
     const {
