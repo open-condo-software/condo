@@ -19,13 +19,14 @@ const {
 const DEFAULT_DB_NAME_PREFIX = 'local'
 const DEFAULT_APP_HTTPS_SUBDOMAIN = 'app.localhost'
 const LOCAL_PG_DB_PREFIX = 'postgresql://postgres:postgres@127.0.0.1'
-const LOCAL_REDIS_DB_PREFIX = 'redis://127.0.0.1:6379'
+const LOCAL_VALKEY_DB = 'redis://127.0.0.1'
 const KEY_FILE = path.join(__filename, '..', '.ssl', 'localhost.key')
 const CERT_FILE = path.join(__filename, '..', '.ssl', 'localhost.pem')
 
 program.option('-f, --filter <names...>', 'Filters apps by name')
 program.option('--https', 'Uses https for local running')
 program.option('-r, --replicate <names...>', 'Enables replica adapter to interact with multiple databases')
+program.option('-c, --cluster <names...>', 'Enables cluster setup for key-value storage')
 program.description(`Prepares applications from the /apps directory for local running 
 by creating separate databases for them 
 and running their local bin/prepare.js scripts.
@@ -37,7 +38,7 @@ function logWithIndent (message, indent = 1) {
 
 async function prepare () {
     program.parse()
-    const { https, filter, replicate } = program.opts()
+    const { https, filter, replicate, cluster } = program.opts()
 
     // TODO(pahaz): DOMA-10616 we need to run packages build before migrations ... because our backend depends on icon package ...
 
@@ -61,7 +62,6 @@ async function prepare () {
             return {
                 ...app,
                 pgName: `${DEFAULT_DB_NAME_PREFIX}-${app.name}`,
-                redisIndex: appOrder,
                 port,
                 sport,
                 serviceUrl: https
@@ -112,7 +112,7 @@ async function prepare () {
             logWithIndent('Writing assigned urls / ports / dbs to app\'s .env', 2)
             const env = {
                 DATABASE_URL: `${LOCAL_PG_DB_PREFIX}/${app.pgName}`,
-                REDIS_URL: `${LOCAL_REDIS_DB_PREFIX}/${app.redisIndex}`,
+                VALKEY_URL: `${LOCAL_VALKEY_DB}`,
                 PORT: String(app.port),
                 SPORT: String(app.sport),
                 SERVER_URL: app.serviceUrl,
@@ -132,6 +132,14 @@ async function prepare () {
                     { target: 'replicas', sqlOperationName: 'select' },
                     { target: 'main' },
                 ])
+            }
+
+            if (cluster && cluster.includes(app.name)) {
+                env.VALKEY_URL = JSON.stringify([
+                    { 'port':7001, 'host':'127.0.0.1' },
+                    { 'port':7002, 'host':'127.0.0.1' },
+                    { 'port':7003, 'host':'127.0.0.1' }]
+                )
             }
 
             await prepareAppEnv(app.name, env)

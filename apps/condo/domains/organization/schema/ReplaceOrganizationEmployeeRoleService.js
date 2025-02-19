@@ -145,8 +145,8 @@ const ReplaceOrganizationEmployeeRoleService = new GQLCustomSchema('ReplaceOrgan
                 let lock
 
                 try {
-                    const oldRoleLockKey = `replaceOrganizationEmployeeRole:${oldRoleId}`
-                    const newRoleLockKey = `replaceOrganizationEmployeeRole:${newRoleId}`
+                    const oldRoleLockKey = `{replaceOrganizationEmployeeRole}:${oldRoleId}`
+                    const newRoleLockKey = `{replaceOrganizationEmployeeRole}:${newRoleId}`
                     lock = await rLock.acquire([oldRoleLockKey, newRoleLockKey], LOCK_DURATION_IN_SEC, {
                         retryCount: 0,
                     })
@@ -205,7 +205,7 @@ const ReplaceOrganizationEmployeeRoleService = new GQLCustomSchema('ReplaceOrgan
             },
         },
     ],
-    
+
 })
 
 module.exports = {

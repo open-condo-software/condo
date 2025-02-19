@@ -7,7 +7,7 @@ const { _internalGetExecutionContextAsyncLocalStorage } = require('./executionCo
 const { getLogger } = require('./logging')
 const { gauge } = require('./metrics')
 const { prepareKeystoneExpressApp } = require('./prepareKeystoneApp')
-const { getRedisClient } = require('./redis')
+const { getRedisClient, getRedisPrefix } = require('./redis')
 const { getRandomString } = require('./test.utils')
 
 const TASK_TYPE = 'TASK'
@@ -40,7 +40,11 @@ let isWorkerCreated = false
 function createTaskQueue (name) {
     if (IS_BUILD) return
 
-    QUEUES.set(name, new Queue(name, {
+    const prefix = getRedisPrefix()
+
+    QUEUES.set(name, new Queue(`${name}}`, {
+        prefix: `{${prefix}bull`,
+
         /**
          * @param {'client' | 'subscriber' | 'bclient'} type
          * @return {import('ioredis')}
@@ -51,7 +55,7 @@ function createTaskQueue (name) {
             if (['bclient', 'subscriber'].includes(type)) {
                 opts.maxRetriesPerRequest = null
             }
-            return getRedisClient(`worker:${name}`, type, opts)
+            return getRedisClient(`worker:${name}`, type, opts, true)
         },
     }))
 }
