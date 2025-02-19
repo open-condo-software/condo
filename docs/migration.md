@@ -184,7 +184,9 @@ Also, you can change mapping inside `db_hash` variable to match your application
 SET data_version 2
 ```
 5) Then RedisShake will replicate this to new database with prefix, so apps can be deployed
-4) Change target url for the key-value storage to a new instance for all of your running apps
-5) Perform a synchronous restart all of your apps. 
-**It's important to kill all existing application main and worker processes before staring new ones**, otherwise some tasks data might be corrupted.
-6) Check everything working good. After that you can down your old Redis instance 
+6) Deploy 3.0 apps as usually do, now `migrate` and `start` steps will be successful, but keep in mind 2 important notes:
+    1. Make sure to disable graceful shutdown. If old applications (2.x) and workers and new ones (3.0) 
+   will be running at the same time there's risk, that some information about tasks will be lost / corrupted. 
+   **So make sure to kill old apps first and start new ones right after**.
+   2. New apps (3.x) must point to new redis instance, so make sure to change `KV_URL` / `REDIS_URL` accordingly
+7) Check everything working good. After that you can down your old Redis instance 
