@@ -11,7 +11,6 @@ const { generateServerUtils } = require('@open-condo/codegen/generate.server.uti
 const conf = require('@open-condo/config')
 const { find } = require('@open-condo/keystone/schema')
 
-const { REGISTER_NEW_USER_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
 const { SMS_CODE_LENGTH } = require('@condo/domains/user/constants/common')
@@ -170,8 +169,8 @@ const updateEmployeesRelatedToUser = async (context, user) => {
     }
 }
 
-async function createUserAndSendLoginData ({ context, userData }) {
-    const user = await User.create(context, userData, 'id', {
+async function createUser ({ context, userData }) {
+    return await User.create(context, userData, 'id', {
         errorMapping: {
             '[password:minLength:User:password]': ERRORS.INVALID_PASSWORD_LENGTH,
             '[password:rejectCommon:User:password]': ERRORS.PASSWORD_IS_FREQUENTLY_USED,
@@ -181,24 +180,10 @@ async function createUserAndSendLoginData ({ context, userData }) {
             [ERRORS.PASSWORD_CONTAINS_PHONE.message]: ERRORS.PASSWORD_CONTAINS_PHONE,
         },
     })
-
-    // TODO(DOMA-11040): get locale for sendMessage from user
-    await sendMessage(context, {
-        to: { user: { id: user.id } },
-        type: REGISTER_NEW_USER_MESSAGE_TYPE,
-        meta: {
-            userPassword: userData.password,
-            userPhone: userData.phone,
-            dv: 1,
-        },
-        sender: userData.sender,
-    })
-
-    return user
 }
 
 module.exports = {
-    createUserAndSendLoginData,
+    createUser,
     User,
     UserExternalIdentity,
     ConfirmPhoneAction,

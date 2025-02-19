@@ -107,7 +107,7 @@ export const Header: React.FC = (): JSX.Element => {
         if (isAuthenticated) {
             push('/')
         } else {
-            push('/auth/signin')
+            push('/auth')
         }
     }, [isAuthenticated, push])
 

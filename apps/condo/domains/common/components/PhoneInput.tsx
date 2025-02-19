@@ -65,6 +65,9 @@ const getPhoneInputStyles = (style, size: SizeType, block?: boolean) => {
 
 const BUTTON_INPUT_PHONE_STYLE: React.CSSProperties = { margin: 5, backgroundColor: colors.backgroundWhiteSecondary, border: 0, borderRadius: 8 }
 
+/**
+ * @deprecated use Input.Phone from Condo UI Kit
+ */
 export const PhoneInput: React.FC<IPhoneInputProps> = forwardRef((props, ref) => {
     const { value, placeholder, style, disabled, block, showCountryPrefix = true, country, ...otherProps } = props
     const configSize = useContext<SizeType>(ConfigProvider.SizeContext)
