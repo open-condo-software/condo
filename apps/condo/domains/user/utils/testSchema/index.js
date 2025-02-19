@@ -406,19 +406,13 @@ async function authenticateUserWithPhoneAndPasswordByTestClient (client, extraAt
     const attrs = {
         dv: 1,
         sender,
+        captcha: captcha(),
         ...extraAttrs,
     }
-    const { data, errors } = await client.mutate(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, {
-        phone: attrs.phone,
-        password: attrs.password,
-    })
-    throwIfError(data, errors, {
-        query: SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, variables: {
-            phone: attrs.phone,
-            password: attrs.password,
-        }
-    })
-    return [data.obj, attrs]
+
+    const { data, errors } = await client.mutate(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
 }
 
 async function createTestOidcClient (client, extraAttrs = {}) {
