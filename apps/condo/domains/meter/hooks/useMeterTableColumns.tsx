@@ -67,7 +67,7 @@ const MeterReadingDatePicker = ({ record, newMeterReadings, setNewMeterReadings 
     const meterId = record?.meter?.id 
     const lastReadingDate = record?.lastMeterReadingDate || dayjs().toISOString()
     const nextVerificationDate = record?.meter?.nextVerificationDate || ''
-    const pickerValue = get(newMeterReadings, [meterId, 'date'], dayjs().toISOString())
+    const pickerValue = get(newMeterReadings, [meterId, 'date'])
     const isPickerDisabled = dayjs(nextVerificationDate).isBefore(dayjs(), 'day') && true
 
     const wrapperProps = useMemo(() => ({
