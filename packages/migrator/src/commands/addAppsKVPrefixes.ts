@@ -2,6 +2,7 @@ import type { CommonOptions } from '@/utils/options'
 
 import { extractEnvValue } from '@/utils/envs'
 import { addAppPrefix } from '@/utils/kvdb/addAppPrefix'
+import { updateDataVersion } from '@/utils/kvdb/dataVersion'
 import { isAppUsingKV } from '@/utils/kvdb/filtering'
 import { getAppKeyPrefix } from '@/utils/kvdb/keyPrefix'
 import { getLogger } from '@/utils/logging'
@@ -94,6 +95,16 @@ export async function addAppsKVPrefixes (options: CommonOptions): Promise<void> 
             connectionString: task.dbConnection,
             keyPrefix: task.keyPrefix,
         })
+
+        const currentVersion = await updateDataVersion({
+            connectionString: task.dbConnection,
+            keyPrefix: task.keyPrefix,
+            version: 2,
+        })
+
+        if (currentVersion === 2) {
+            logger.info(`Data version is set to ${currentVersion}`)
+        }
 
         logger.info(`${task.appName} successfully migrated`)
     }

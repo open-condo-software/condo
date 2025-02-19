@@ -9,6 +9,7 @@ import type { ExecaReturnValue, Options as ExecaOptions } from 'execa'
 import type { Redis } from 'ioredis'
 import type { StartedTestContainer } from 'testcontainers'
 
+import { DV_KEY } from '@/utils/kvdb/dataVersion'
 import { getAppKeyPrefix, getAppPrefixedKey } from '@/utils/kvdb/keyPrefix'
 import { generateAppKeys, fillKVDB, getAllKeys } from '@/utils/tests/kvdb'
 import { createTestMonoRepo } from '@/utils/tests/repo'
@@ -115,8 +116,8 @@ describe('End to end CLI tests', () => {
                 const firstAppConnection = getRedisVirtualDBConnection(host, port)
                 const secondAppConnection = getRedisVirtualDBConnection(host, port)
 
-                const firstAppKeys = [...generateAppKeys(DB_SIZE, BULL_QUEUES)]
-                const secondAppKeys = [...generateAppKeys(DB_SIZE, BULL_QUEUES)]
+                const firstAppKeys = [...generateAppKeys(DB_SIZE, BULL_QUEUES).add(DV_KEY)]
+                const secondAppKeys = [...generateAppKeys(DB_SIZE, BULL_QUEUES).add(DV_KEY)]
 
                 const firstAppKeyPrefix = getAppKeyPrefix(firstAppName)
                 const secondAppKeyPrefix = getAppKeyPrefix(secondAppName)
@@ -167,6 +168,16 @@ describe('End to end CLI tests', () => {
 
                 const missingSecondAppKeys = secondAppExpectedKeys.filter(key => !secondAppTransformedKeys.has(key))
                 expect(missingSecondAppKeys).toHaveLength(0)
+
+                const firstClient = new IORedis(firstAppConnection)
+                const firstAppDV = await firstClient.get(getAppPrefixedKey(DV_KEY, firstAppKeyPrefix))
+                expect(firstAppDV).toEqual('2')
+                await firstClient.quit()
+
+                const secondClient = new IORedis(secondAppConnection)
+                const secondAppDV = await secondClient.get(getAppPrefixedKey(DV_KEY, secondAppKeyPrefix))
+                expect(secondAppDV).toEqual('2')
+                await secondClient.quit()
             }, TEST_TIMEOUT_IN_MS)
 
             test('Must migrate single database when executed from app directory', async () => {
@@ -176,10 +187,11 @@ describe('End to end CLI tests', () => {
                 const firstAppConnection = getRedisVirtualDBConnection(host, port)
                 const secondAppConnection = getRedisVirtualDBConnection(host, port)
 
-                const firstAppKeys = [...generateAppKeys(DB_SIZE, BULL_QUEUES)]
+                const firstAppKeys = [...generateAppKeys(DB_SIZE, BULL_QUEUES).add(DV_KEY)]
                 const firstAppKeyPrefix = getAppKeyPrefix(firstAppName)
                 const firstAppExpectedKeys = firstAppKeys.map(key => getAppPrefixedKey(key, firstAppKeyPrefix))
 
+                const secondAppKeyPrefix = getAppKeyPrefix(secondAppName)
                 const secondAppExpectedKeys = [...generateAppKeys(DB_SIZE, BULL_QUEUES)]
 
                 await fillKVDB({
@@ -217,6 +229,16 @@ describe('End to end CLI tests', () => {
 
                 const missingSecondAppKeys = secondAppExpectedKeys.filter(key => !secondAppTransformedKeys.has(key))
                 expect(missingSecondAppKeys).toHaveLength(0)
+
+                const firstClient = new IORedis(firstAppConnection)
+                const firstAppDV = await firstClient.get(getAppPrefixedKey(DV_KEY, firstAppKeyPrefix))
+                expect(firstAppDV).toEqual('2')
+                await firstClient.quit()
+
+                const secondClient = new IORedis(secondAppConnection)
+                const secondAppDV = await secondClient.get(getAppPrefixedKey(DV_KEY, secondAppKeyPrefix))
+                expect(secondAppDV).toEqual(null)
+                await secondClient.quit()
             }, TEST_TIMEOUT_IN_MS)
             test('Must migrate single app when passing .env directly', async () => {
                 const firstAppName = '@app/first-app'
@@ -224,7 +246,7 @@ describe('End to end CLI tests', () => {
 
                 const firstAppConnection = getRedisVirtualDBConnection(host, port)
 
-                const firstAppKeys = [...generateAppKeys(DB_SIZE, BULL_QUEUES)]
+                const firstAppKeys = [...generateAppKeys(DB_SIZE, BULL_QUEUES).add(DV_KEY)]
                 const firstAppKeyPrefix = getAppKeyPrefix(firstAppName)
                 const firstAppExpectedKeys = firstAppKeys.map(key => getAppPrefixedKey(key, firstAppKeyPrefix))
 
@@ -265,6 +287,11 @@ describe('End to end CLI tests', () => {
 
                 const missingFirstAppKeys = firstAppExpectedKeys.filter(key => !firstAppTransformedKeys.has(key))
                 expect(missingFirstAppKeys).toHaveLength(0)
+
+                const firstClient = new IORedis(firstAppConnection)
+                const firstAppDV = await firstClient.get(getAppPrefixedKey(DV_KEY, firstAppKeyPrefix))
+                expect(firstAppDV).toEqual('2')
+                await firstClient.quit()
             }, TEST_TIMEOUT_IN_MS)
         })
     })
