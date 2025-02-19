@@ -2,7 +2,7 @@ import bindAll from 'lodash/bindAll'
 import get from 'lodash/get'
 
 import type { InitCacheOptions } from './cache'
-import type { FieldReadFunction, FieldFunctionOptions } from '@apollo/client'
+import type { FieldReadFunction, FieldFunctionOptions, Reference } from '@apollo/client'
 
 export type ListHelperOptions = {
     /** Name of the argument in GQL query, responsible for offset (skip / offset / etc.) */
@@ -86,7 +86,18 @@ export class ListHelper {
             return undefined
         }
 
-        return existing.slice(skip, skip + first)
+        const currentList = existing.slice(skip, skip + first)
+
+        const cache = options?.cache.extract()
+
+        const hasBrokenLinks = currentList.filter(Boolean).some((link) => {
+            const ref = (link as Reference)?.__ref
+            return ref && cache && !(ref in cache)
+        })
+
+        if (hasBrokenLinks) return undefined
+
+        return currentList.filter(Boolean)
     }
 
     /**
