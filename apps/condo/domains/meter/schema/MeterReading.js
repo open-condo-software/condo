@@ -7,17 +7,19 @@ const { get, isEmpty, isNil } = require('lodash')
 const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
-const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
+const { GQLListSchema, getById, find } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const { i18n } = require('@open-condo/locales/loader')
 
 const { CONTACT_FIELD, CLIENT_EMAIL_FIELD, CLIENT_NAME_FIELD, CLIENT_PHONE_LANDLINE_FIELD, CLIENT_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/meter/access/MeterReading')
 const { METER_READING_MAX_VALUES_COUNT, METER_READING_BILLING_STATUSES, METER_READING_BILLING_STATUS_APPROVED } = require('@condo/domains/meter/constants/constants')
-const { METER_READING_DATE_IN_FUTURE, METER_READING_FEW_VALUES, METER_READING_EXTRA_VALUES, BILLING_STATUS_MESSAGE_WITHOUT_BILLING_STATUS } = require('@condo/domains/meter/constants/errors')
+const { MOBILE_APP_SOURCE_ID } = require('@condo/domains/meter/constants/constants')
+const { METER_READING_DATE_IN_FUTURE, METER_READING_FEW_VALUES, METER_READING_EXTRA_VALUES, BILLING_STATUS_MESSAGE_WITHOUT_BILLING_STATUS, METER_READING_DATE_AFTER_NOTIFY_END } = require('@condo/domains/meter/constants/errors')
 const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 const { connectContactToMeterReading } = require('@condo/domains/meter/utils/serverSchema/resolveHelpers')
 const { addClientInfoToResidentMeterReading } = require('@condo/domains/meter/utils/serverSchema/resolveHelpers')
+const { isReadingDateAllowed } = require('@condo/domains/meter/utils/serverSchema/resolveHelpers')
 const { addOrganizationFieldPlugin } = require('@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
@@ -45,6 +47,12 @@ const ERRORS = {
         type: BILLING_STATUS_MESSAGE_WITHOUT_BILLING_STATUS,
         message: 'Can not set billingStatusText without billingStatus',
     },
+    METER_READING_DATE_AFTER_NOTIFY_END: {
+        code: BAD_USER_INPUT,
+        type: METER_READING_DATE_AFTER_NOTIFY_END,
+        message: 'Meter reading date cannot be after the end of the MeterReportingPeriod\'s notifyEndDay',
+        messageForUser: 'api.meter.meterReading.METER_READING_DATE_AFTER_NOTIFY_END',
+    },
 }
 
 const MeterReading = new GQLListSchema('MeterReading', {
@@ -56,6 +64,7 @@ const MeterReading = new GQLListSchema('MeterReading', {
             hooks: {
                 validateInput: async ({ context, operation, existingItem, resolvedData, fieldPath }) => {
                     const date = get(resolvedData, fieldPath)
+                    const source = get(resolvedData, 'source')
                     if (date) {
                         const now = dayjs()
                         const readingDate = dayjs(date)
@@ -64,6 +73,36 @@ const MeterReading = new GQLListSchema('MeterReading', {
                                 ...ERRORS.METER_READING_DATE_IN_FUTURE,
                                 messageInterpolation: { givenDate: date },
                             }, context)
+                        }
+
+                        // NOTE: check against MeterReportingPeriod only readings passed from mobile app
+                        if (source === MOBILE_APP_SOURCE_ID) {
+                            const meter = await Meter.getOne(context, {
+                                id: get(resolvedData, 'meter', null),
+                            }, 'organization { id } property { id }')
+
+                            const meterReportingPeriods = await find('MeterReportingPeriod', {
+                                OR: [
+                                    { property: { AND: [{ id: get(meter, 'property.id') }, { deletedAt: null } ] } },
+                                    { organization: { AND: [{ id: get(meter, 'organization.id') }, { deletedAt: null } ] } },
+                                ],
+                            })
+
+                            const meterReportingPeriod = meterReportingPeriods.find(period => period.property) ||
+                                meterReportingPeriods.find(period => period.organization)
+
+                            if (meterReportingPeriod) {
+                                const { notifyEndDay } = meterReportingPeriod
+                                if (!isReadingDateAllowed(date, meterReportingPeriod)) {
+                                    throw new GQLError({
+                                        code: BAD_USER_INPUT,
+                                        type: METER_READING_DATE_AFTER_NOTIFY_END,
+                                        message: 'Meter reading date cannot be after the end of the MeterReportingPeriod\'s notifyEndDay',
+                                        messageForUser: 'api.meter.meterReading.METER_READING_DATE_AFTER_NOTIFY_END',
+                                        messageInterpolation: { notifyEndDay, givenDate: date },
+                                    }, context)
+                                }
+                            }
                         }
                     }
                 },
