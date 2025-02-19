@@ -8,6 +8,20 @@ making it an ideal platform for property management companies and those servicin
 
 ![condo](./docs/images/condo-preview.png)
 
+## Table of contents
+- [Getting started](#getting-started)
+    1. [Databases setup](#1-databases-setup)
+    2. [Environment setup](#2-environment-setup)
+    3. [Installing dependencies](#3-installing-dependencies)
+    4. [Building `@open-condo` dependencies](#4-building-open-condo-dependencies) 
+    5. [Preparing the local app environment](#5-preparing-the-local-app-environment)
+    6. [Starting app in dev / prod mode](#6-start-app-locally-in-dev--prod-mode)
+    7. [Starting the worker](#7-start-the-worker)
+- [Developing](/docs/develop.md)
+- [Contributing](/docs/contributing.md)
+- [Migration guides](/docs/migration.md)
+- [Deploying](/docs/deploy.md)
+
 ## Getting started
 
 ### 1. Databases setup
@@ -149,10 +163,15 @@ yarn workspace @app/condo worker
 
 Check [developing.md](docs/develop.md)
 
-## Deploying
-
-Check [deploy.md](docs/deploy.md)
-
 ## Contributing
 
 Check [contributing.md](docs/contributing.md)
+
+## Major versions migration guide
+
+Check [migration.md](docs/migration.md)
+
+
+## Deploying
+
+Check [deploy.md](docs/deploy.md)
