@@ -6,11 +6,17 @@ import { useOrganization } from '@open-condo/next/organization'
 import {
     B2B_APP_MESSAGE_TYPES,
     CONDO_MESSAGE_TYPES,
-    MessageTypesAllowedToFilterType,
+    MessageTypeAllowedToFilterType,
 } from '@condo/domains/notification/utils/client/constants'
 
 
-export const useAllowedToFilterMessageTypes = () => {
+type UseAllowedToFilterMessageTypesResultType = {
+    loading: boolean
+    messageTypes: Array<MessageTypeAllowedToFilterType>
+}
+type UseAllowedToFilterMessageTypesType = () => UseAllowedToFilterMessageTypesResultType
+
+export const useAllowedToFilterMessageTypes: UseAllowedToFilterMessageTypesType = () => {
     const { role } = useOrganization()
     const roleId = useMemo(() => role?.id, [role?.id])
 
@@ -51,6 +57,6 @@ export const useAllowedToFilterMessageTypes = () => {
 
     return useMemo(() => ({
         loading: appMessageSettingsLoading || userB2BRolesLoading,
-        messageTypes: [...CONDO_MESSAGE_TYPES, ...b2bAppMessageTypesToFilter] as MessageTypesAllowedToFilterType,
+        messageTypes: [...CONDO_MESSAGE_TYPES, ...b2bAppMessageTypesToFilter] as Array<MessageTypeAllowedToFilterType>,
     }), [appMessageSettingsLoading, b2bAppMessageTypesToFilter, userB2BRolesLoading])
 }

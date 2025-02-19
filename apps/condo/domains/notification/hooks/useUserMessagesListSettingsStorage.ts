@@ -4,7 +4,7 @@ import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
 
 import { LocalStorageManager } from '@condo/domains/common/utils/localStorageManager'
-import { MessageTypesAllowedToFilterType } from '@condo/domains/notification/utils/client/constants'
+import { MessageTypeAllowedToFilterType } from '@condo/domains/notification/utils/client/constants'
 
 
 type StorageDataType = {
@@ -15,12 +15,12 @@ type StorageDataType = {
     }
     excludedMessages: {
         [userId: string]: {
-            [organizationId: string]: MessageTypesAllowedToFilterType
+            [organizationId: string]: Array<MessageTypeAllowedToFilterType>
         }
     }
 }
 
-const DEFAULT_VALUE = { readMessagesAt: {}, excludedMessages: {} }
+const DEFAULT_VALUE: StorageDataType = { readMessagesAt: {}, excludedMessages: {} }
 
 class UserMessagesListSettingsStorage {
     private readonly userId: string
@@ -37,14 +37,14 @@ class UserMessagesListSettingsStorage {
         return this.storageKey
     }
 
-    getExcludedUserMessagesTypes (): MessageTypesAllowedToFilterType {
+    getExcludedUserMessagesTypes (): Array<MessageTypeAllowedToFilterType> {
         if (!this.userId || !this.organizationId) return []
 
         const data = this.storage.getItem(this.storageKey)
         return data?.excludedMessages[this.userId]?.[this.organizationId] ?? []
     }
 
-    setExcludedUserMessagesTypes (messageTypes: MessageTypesAllowedToFilterType): void {
+    setExcludedUserMessagesTypes (messageTypes: Array<MessageTypeAllowedToFilterType>): void {
         if (!this.userId || !this.organizationId) return
 
         const data = this.storage.getItem(this.storageKey) ?? DEFAULT_VALUE

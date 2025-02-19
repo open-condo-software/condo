@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { Dispatch, SetStateAction, useCallback } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Switch, Modal, Space, Typography } from '@open-condo/ui'
@@ -7,9 +7,19 @@ import { useAllowedToFilterMessageTypes } from '@condo/domains/notification/hook
 import {
     useUserMessagesListSettingsStorage,
 } from '@condo/domains/notification/hooks/useUserMessagesListSettingsStorage'
+import {
+    MessageTypeAllowedToFilterType,
+} from '@condo/domains/notification/utils/client/constants'
 
 
-export const UserMessagesSettingsModal = ({ open, setOpen, excludedMessageTypes, setExcludedMessageTypes }) => {
+type UserMessagesSettingsModalProps = {
+    open: boolean
+    setOpen: Dispatch<SetStateAction<boolean>>
+    excludedMessageTypes: Array<MessageTypeAllowedToFilterType>
+    setExcludedMessageTypes: Dispatch<SetStateAction<Array<MessageTypeAllowedToFilterType>>>
+}
+
+export const UserMessagesSettingsModal: React.FC<UserMessagesSettingsModalProps> = ({ open, setOpen, excludedMessageTypes, setExcludedMessageTypes }) => {
     const intl = useIntl()
     const ModalTitleMessage = intl.formatMessage({ id: 'notification.UserMessagesSettingModal.title' })
     const ApplyChanges = intl.formatMessage({ id: 'ApplyChanges' })
@@ -17,9 +27,9 @@ export const UserMessagesSettingsModal = ({ open, setOpen, excludedMessageTypes,
     const { messageTypes } = useAllowedToFilterMessageTypes()
     const { userMessagesSettingsStorage } = useUserMessagesListSettingsStorage()
 
-    const handleSwitchChange = useCallback((checked, checkedType) => {
+    const handleSwitchChange = useCallback((checked: boolean, checkedType: MessageTypeAllowedToFilterType) => {
         setExcludedMessageTypes((prevExcludedTypes) => {
-            const newExcludedTypes = checked
+            const newExcludedTypes: Array<MessageTypeAllowedToFilterType> = checked
                 ? prevExcludedTypes.filter(type => type !== checkedType)
                 : [...prevExcludedTypes, checkedType]
 

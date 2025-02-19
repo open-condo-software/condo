@@ -27,7 +27,7 @@ export const useNewMessageTitleNotification = (unreadMessagesCount: number): voi
     const previousMessagesCount = useRef<number>()
     const originalPageTitle = useRef<string>()
     const originalIconHref = useRef<string>()
-    const changeTitleInterval = useRef(null)
+    const changeTitleInterval = useRef<ReturnType<typeof setInterval>>(null)
 
     useEffect(() => {
         unreadMessagesCountRef.current = unreadMessagesCount
