@@ -1,4 +1,4 @@
-const Valkey = require('iovalkey')
+const Redis = require('ioredis')
 
 const conf = require('@open-condo/config')
 
@@ -14,11 +14,11 @@ describe('Key value adapter', () => {
         jest.resetModules()
         try {
             const url = conf['VALKEY_URL'] ? JSON.parse(conf['VALKEY_URL']) : JSON.parse(conf['REDIS_URL'])
-            nonPrefixedClient = new Valkey.Cluster(url)
+            nonPrefixedClient = new Redis.Cluster(url)
             process.env.VALKEY_URL = conf['VALKEY_URL'] ? conf['VALKEY_URL'] : conf['REDIS_URL']
         } catch (err) {
             // process.env.VALKEY_URL = '[{ "port":7001,"host":"127.0.0.1" }, { "port":7002, "host":"127.0.0.1" }, { "port":7003, "host":"127.0.0.1" }]'
-            nonPrefixedClient = new Valkey(process.env.VALKEY_URL)
+            nonPrefixedClient = new Redis(process.env.VALKEY_URL)
         }
 
         moduleName = require(process.cwd() + '/package.json').name.split('/').pop() + ':'
