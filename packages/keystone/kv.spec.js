@@ -1,8 +1,6 @@
 const Redis = require('ioredis')
 
-const conf = require('@open-condo/config')
-
-const { getRedisPrefix } = require('./redis')
+const { getKVPrefix } = require('./kv')
 
 describe('Key value adapter', () => {
     const OLD_ENV = JSON.parse(JSON.stringify(process.env))
@@ -11,22 +9,13 @@ describe('Key value adapter', () => {
     let moduleName
 
     beforeEach(() => {
-        jest.resetModules()
-        try {
-            const url = conf['VALKEY_URL'] ? JSON.parse(conf['VALKEY_URL']) : JSON.parse(conf['REDIS_URL'])
-            nonPrefixedClient = new Redis.Cluster(url)
-            process.env.VALKEY_URL = conf['VALKEY_URL'] ? conf['VALKEY_URL'] : conf['REDIS_URL']
-        } catch (err) {
-            // process.env.VALKEY_URL = '[{ "port":7001,"host":"127.0.0.1" }, { "port":7002, "host":"127.0.0.1" }, { "port":7003, "host":"127.0.0.1" }]'
-            nonPrefixedClient = new Redis(process.env.VALKEY_URL)
-        }
-
+        nonPrefixedClient = new Redis(process.env.VALKEY_URL)
         moduleName = require(process.cwd() + '/package.json').name.split('/').pop() + ':'
 
         jest.resetModules()
 
-        const { getRedisClient } = require('./redis')
-        client = getRedisClient('test')
+        const { getKVClient } = require('./kv')
+        client = getKVClient('test')
     })
 
     afterEach(async () => {
@@ -39,26 +28,8 @@ describe('Key value adapter', () => {
         process.env = { ...OLD_ENV }
     })
 
-    test.skip('Adapter should work with legacy environment', async () => {
-        delete process.env.REDIS_URL
-        delete process.env.VALKEY_URL
-        expect(process.env.VALKEY_URL).toBeUndefined()
-        expect(process.env.REDIS_URL).toBeUndefined()
-        process.env.REDIS_URL = 'redis://127.0.0.1:7001'
-        expect(process.env.REDIS_URL).toBe('redis://127.0.0.1:7001')
-        jest.resetModules()
-
-        const { getRedisClient } = require('./redis')
-
-        const client = getRedisClient('newEnv')
-
-        const ping = await client.ping()
-        expect(ping).toEqual('PONG')
-        expect(client).toHaveProperty('isCluster', false)
-    })
-
     test('prefix should be the name of root package json', () => {
-        expect(getRedisPrefix()).toEqual(moduleName)
+        expect(getKVPrefix()).toEqual(moduleName)
     })
 
     test('key-value keyPrefix should be module specific', async () => {

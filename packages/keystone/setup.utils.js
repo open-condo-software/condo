@@ -5,7 +5,7 @@ const session = require('express-session')
 const { v5: uuidv5 } = require('uuid')
 
 const conf = require('@open-condo/config')
-const { getRedisClient } = require('@open-condo/keystone/redis')
+const { getKVClient } = require('@open-condo/keystone/kv')
 
 const { FakeDatabaseAdapter, BalancingReplicaKnexAdapter } = require('./databaseAdapters')
 
@@ -89,7 +89,7 @@ function prepareDefaultKeystoneConfig (conf) {
     }
 
     if (!IS_BUILD && (conf.VALKEY_URL || conf.REDIS_URL)) {
-        const client = getRedisClient()
+        const client = getKVClient()
         config.sessionStore = new RedisStore({ client })
     }
 
