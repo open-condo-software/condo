@@ -7,6 +7,8 @@ import React, { createContext, FC, useCallback, useContext, useMemo, useRef } fr
 import { useIntl } from '@open-condo/next/intl'
 import { Button } from '@open-condo/ui'
 
+import { makeId } from '@condo/domains/common/utils/makeid.utils'
+
 
 type IHCaptchaContext = {
     executeCaptcha: () => Promise<string>
@@ -30,7 +32,7 @@ const HCaptchaProvider: FC = ({ children }) => {
 
     const executeCaptcha: IHCaptchaContext['executeCaptcha'] = useCallback(async () => {
         // NOTE: We cannot not send anything when the captcha is turned off, since the captcha field is required
-        if (!hCaptchaConfig || !siteKey || disableCaptcha) return 'condo-captcha-disabled'
+        if (!hCaptchaConfig || !siteKey || disableCaptcha) return makeId(48)
         if (!ref.current) return
 
         ref.current.resetCaptcha()
