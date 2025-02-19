@@ -18,14 +18,17 @@ type UseAllowedToFilterMessageTypesType = () => UseAllowedToFilterMessageTypesRe
 
 export const useAllowedToFilterMessageTypes: UseAllowedToFilterMessageTypesType = () => {
     const { role } = useOrganization()
+
     const roleId = useMemo(() => role?.id, [role?.id])
+    // Spread B2B_APP_MESSAGE_TYPES to make array mutable (need for getB2BAppsWithMessageSettings query variable)
+    const messageTypesToFilter = useMemo(() => [...B2B_APP_MESSAGE_TYPES], [])
 
     const {
         data: appMessageSettingsData,
         loading: appMessageSettingsLoading,
     } = useGetB2BAppsWithMessageSettingsQuery({
         variables: {
-            messageTypes: [...B2B_APP_MESSAGE_TYPES],
+            messageTypes: messageTypesToFilter,
         },
     })
     const b2bAppToMessageType = useMemo(
