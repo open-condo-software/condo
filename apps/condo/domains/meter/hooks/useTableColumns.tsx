@@ -237,6 +237,13 @@ export function useTableColumns <T> (
         ] : meterTabType === METER_TAB_TYPES.meterReading ? compact([
             ...meterAndMeterReadingColumns,
             {
+                title: SourceMessage,
+                ellipsis: false,
+                key: 'source',
+                width: isPropertyMeter ? '25%' : '13%',
+                render: getSourceRender(intl, search),
+            },
+            {
                 title: MeterReadingDateMessage,
                 sortOrder: get(sorterMap, 'date'),
                 filteredValue: getFilteredValue(filters, 'date'),
@@ -277,5 +284,5 @@ export function useTableColumns <T> (
             },
             
         ])
-    }, [isReadingsForSingleMeter, readingsForSingleMeterColumns, meterTabType, AddressMessage, filters, renderAddress, filterMetas, PeriodMessage, sorterMap, search, intl, meterAndMeterReadingColumns, MeterReadingDateMessage, isPropertyMeter, MeterReadingMessage, MeterNextVerificationDateMessage, isMeter, StatusMessage])
+    }, [isReadingsForSingleMeter, readingsForSingleMeterColumns, meterTabType, AddressMessage, filters, renderAddress, filterMetas, PeriodMessage, sorterMap, search, intl, meterAndMeterReadingColumns, SourceMessage, isPropertyMeter, MeterReadingDateMessage, MeterReadingMessage, MeterNextVerificationDateMessage, isMeter, StatusMessage])
 }
