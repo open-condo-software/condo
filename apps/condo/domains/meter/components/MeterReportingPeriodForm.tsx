@@ -15,11 +15,12 @@ import { ButtonWithDisabledTooltip } from '@condo/domains/common/components/Butt
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
+import { GraphQlSearchInputWithCheckAll } from '@condo/domains/common/components/GraphQlSearchInputWithCheckAll'
 import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { DAY_SELECT_OPTIONS } from '@condo/domains/meter/constants/constants'
-import { MeterReportingPeriod } from '@condo/domains/meter/utils/clientSchema'
+import { METER_TAB_TYPES, METER_TYPES, MeterReportingPeriod } from '@condo/domains/meter/utils/clientSchema'
 import { usePropertyValidations } from '@condo/domains/property/components/BasePropertyForm/usePropertyValidations'
 import { searchOrganizationPropertyWithoutPropertyHint } from '@condo/domains/ticket/utils/clientSchema/search'
 
@@ -75,11 +76,11 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
     const PeriodTypeLabel = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.create.settings.periodType' })
     const ResitrictionsSetupTitle = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.create.settings.title' })
     const NotStrictPeriodTooltip = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.create.settings.notStrict.tooltip' })
-    const StrictPeriodTooltip = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.create.settings.strict.tooltip' })
+    const StrictPeriodNotAllowedTooltip = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.create.settings.strictPeriodRestricted.tooltip' })
     const ResitrictionsSetupAlert = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.create.settings.alert' })
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.update.ConfirmDeleteTitle' })
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.update.ConfirmDeleteMessage' })
-
+    
     const { organization } = useOrganization()
     const router = useRouter()
     const [form] = Form.useForm()
@@ -105,6 +106,7 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
     const [selectRerender, execSelectRerender] = useState()
     const selectedPropertyIdRef = useRef(selectedPropertyId)
     const isStrictPeriodRef = useRef(isStrictPeriod)
+    const StrictPeriodTooltip = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.create.settings.strict.tooltip' }, { notifyEndDay: finishNumberRef.current })
 
     useEffect(() => {
         selectedPropertyIdRef.current = selectedPropertyId
@@ -149,7 +151,7 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
     }, [])
 
     useEffect(() => {
-        if (form.isFieldsTouched(['notifyStartDay', 'notifyEndDay'])) form.validateFields(['notifyStartDay', 'notifyEndDay'])
+        if (form.isFieldsTouched(['notifyStartDay', 'notifyEndDay'])) form.validateFields(['notifyStartDay', 'notifyEndDay', 'isStrict'])
     }, [startNumberRef.current, finishNumberRef.current])
 
     const {
@@ -172,8 +174,21 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
     const periodsWithProperty = reportingPeriods.filter(period => !isNil(period.property))
 
     const search = useMemo(() => searchOrganizationPropertyWithoutPropertyHint(organizationId, periodsWithProperty.map(period => period.property.id)),
-        [organization, isPeriodsLoading])
+        [organizationId, periodsWithProperty])
 
+    const propertiesFormItemProps = useMemo(() => ({
+        name: 'properties',
+        label: AddressPlaceholderMessage,
+        ...ADDRESS_LAYOUT_PROPS,
+    }), [AddressPlaceholderMessage])
+
+    const propertiesSelectProps = useMemo(() => ({
+        initialValue: [],
+        search,
+        disabled: !organizationId,
+        eventName: 'PropertyScopeFormSelectProperty',
+    }), [organizationId, search])
+    
     const handelGQLInputChange = () => {
         setSelectedPropertyId(form.getFieldValue('property'))
     }
@@ -181,8 +196,8 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
     const deleteAction = MeterReportingPeriod.useSoftDelete()
     const handleDeleteButtonClick = useCallback(async () => {
         await deleteAction(reportingPeriodRecord)
-        await router.push('/meter')
-    }, [deleteAction, reportingPeriodRecord])
+        await router.push(`/meter?tab=${METER_TAB_TYPES.reportingPeriod}&type=${METER_TYPES.unit}`)
+    }, [deleteAction, reportingPeriodRecord, router])
 
     return (
         <FormWithAction
@@ -195,6 +210,7 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
             formValuesToMutationDataPreprocessor={(values) => {
                 if (values.isOrganizationPeriod) {
                     values.property = { disconnectAll: true }
+                    values.properties = undefined
                 } else {
                     values.property = { connect: { id: selectedPropertyIdRef.current } }
                 }
@@ -204,6 +220,9 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                 values.isStrict = isStrictPeriodRef.current
 
                 if (isCreateMode) {
+                    if (values.properties) {
+                        values.property = { disconnectAll: true }
+                    }
                     values.organization = { connect: { id: organizationId } }
                 } else {
                     values.organization = undefined
@@ -222,7 +241,16 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                                         {DescriptionMessage}
                                     </Typography.Text>
                                     <Col span={24}>
-                                        <Form.Item
+                                        {isCreateMode && !isPeriodsLoading && <GraphQlSearchInputWithCheckAll
+                                            checkAllFieldName='isOrganizationPeriod'
+                                            checkAllInitialValue={formInitialValues.isOrganizationPeriod}
+                                            selectFormItemProps={propertiesFormItemProps}
+                                            selectProps={propertiesSelectProps}
+                                            checkBoxOffset={breakpoints.TABLET_LARGE && 8}
+                                            CheckAllMessage={OrganizationLabel}
+                                            form={form}
+                                        />}
+                                        {!isCreateMode && <Form.Item
                                             name='property'
                                             label={AddressLabel}
                                             labelAlign='left'
@@ -243,14 +271,14 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                                                     searchMoreFirst={300}
                                                 />
                                             }
-                                        </Form.Item>
+                                        </Form.Item> }
                                     </Col>
-                                    <Col span={24}>
+                                    {!isCreateMode && <Col span={24}>
                                         <Form.Item
                                             {...INPUT_LAYOUT_PROPS}
                                             labelAlign='left'
                                             name='isOrganizationPeriod'
-                                            label={<LabelWithInfo title={OrganizationTooltipMessage} message={OrganizationLabel}/>}
+                                            label={<LabelWithInfo title={OrganizationTooltipMessage} message={OrganizationLabel} />}
                                             valuePropName='checked'
                                         >
                                             <Checkbox
@@ -259,7 +287,7 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                                                 onChange={handleCheckboxChange}
                                             />
                                         </Form.Item>
-                                    </Col>
+                                    </Col>}
                                     <Col span={24}>
                                         <Form.Item
                                             name='notifyStartDay'
@@ -326,12 +354,13 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                                                     <Radio
                                                         key='not-strict'
                                                         value={false}
-                                                        label={<LabelWithInfo title={NotStrictPeriodTooltip} message={NotStrictPeriodMessage}/>}
+                                                        label={<LabelWithInfo title={NotStrictPeriodTooltip} message={NotStrictPeriodMessage} />}
                                                     />
                                                     <Radio
                                                         key='strict'
                                                         value={true}
-                                                        label={<LabelWithInfo title={StrictPeriodTooltip} message={StrictPeriodMessage}/>}
+                                                        disabled={startNumberRef.current > finishNumberRef.current}
+                                                        label={<LabelWithInfo title={startNumberRef.current < finishNumberRef.current ? StrictPeriodTooltip : StrictPeriodNotAllowedTooltip} message={StrictPeriodMessage} />}
                                                     />
                                                 </Space>
                                             </RadioGroup>
@@ -351,7 +380,7 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                                             shouldUpdate>
                                             {
                                                 ({ getFieldsValue }) => {
-                                                    const { property, notifyStartDay, notifyEndDay, isOrganizationPeriod } = getFieldsValue(['property', 'notifyStartDay', 'notifyEndDay', 'isOrganizationPeriod'])
+                                                    const { property, properties, notifyStartDay, notifyEndDay, isOrganizationPeriod } = getFieldsValue(['property', 'notifyStartDay', 'notifyEndDay', 'isOrganizationPeriod', 'properties'])
 
                                                     const messageLabels = []
                                                     if (!property && !isOrganizationPeriod) messageLabels.push(`"${AddressLabel}" ${OrMessage} "${OrganizationLabel}"`)
@@ -361,7 +390,7 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                                                     const requiredErrorMessage = !isEmpty(messageLabels) && ErrorsContainerTitle.concat(' ', messageLabels.join(', '))
                                                     const errors = [requiredErrorMessage].filter(Boolean).join('')
 
-                                                    const isDisabled = (!property && !isOrganizationPeriod) || !notifyStartDay || !notifyEndDay
+                                                    const isDisabled = (!property && !isOrganizationPeriod && !properties) || !notifyStartDay || !notifyEndDay
 
                                                     return (
                                                         <ActionBar
