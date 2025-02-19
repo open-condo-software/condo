@@ -1,0 +1,7 @@
+const FILE_STORAGE_TEXT_MIMETYPE = 'text/plain'
+const FILE_STORAGE_TEXT_ENCODING = 'utf8'
+
+module.exports = {
+    FILE_STORAGE_TEXT_MIMETYPE,
+    FILE_STORAGE_TEXT_ENCODING,
+}
