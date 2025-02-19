@@ -17,13 +17,13 @@ const { parseCorsSettings } = require('@open-condo/keystone/cors.utils')
 const { _internalGetExecutionContextAsyncLocalStorage } = require('@open-condo/keystone/executionContext')
 const { IpBlackListMiddleware } = require('@open-condo/keystone/ipBlackList')
 const { registerSchemas } = require('@open-condo/keystone/KSv5v6/v5/registerSchema')
+const { getKVClient } = require('@open-condo/keystone/kv')
 const { getKeystonePinoOptions, GraphQLLoggerPlugin, getLogger } = require('@open-condo/keystone/logging')
 const { expressErrorHandler } = require('@open-condo/keystone/logging/expressErrorHandler')
 const metrics = require('@open-condo/keystone/metrics')
 const { composeNonResolveInputHook, composeResolveInputHook } = require('@open-condo/keystone/plugins/utils')
 const { schemaDocPreprocessor, adminDocPreprocessor, escapeSearchPreprocessor, customAccessPostProcessor } = require('@open-condo/keystone/preprocessors')
 const { ApolloRateLimitingPlugin } = require('@open-condo/keystone/rateLimiting')
-const { getRedisClient } = require('@open-condo/keystone/redis')
 const { ApolloSentryPlugin } = require('@open-condo/keystone/sentry')
 const { prepareDefaultKeystoneConfig } = require('@open-condo/keystone/setup.utils')
 const { registerTasks, registerTaskQueues, taskQueues } = require('@open-condo/keystone/tasks')
@@ -137,7 +137,7 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
             // Session token can be build like so "sess:{prefixBeforeDot}"
             const sessToken = token.split('.')[0]
             const sessKey = `sess:${sessToken}`
-            const redisClient = getRedisClient()
+            const redisClient = getKVClient()
             // NOTE: if key not found returns 0, else 1.
             await redisClient.expire(sessKey, SERVICE_USER_SESSION_TTL_IN_SEC)
         },

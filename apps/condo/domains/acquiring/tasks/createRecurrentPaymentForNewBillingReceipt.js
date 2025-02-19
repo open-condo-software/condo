@@ -1,8 +1,8 @@
 const dayjs = require('dayjs')
 const { v4: uuid } = require('uuid')
 
+const { getKVClient } = require('@open-condo/keystone/kv')
 const { getLogger } = require('@open-condo/keystone/logging')
-const { getRedisClient } = require('@open-condo/keystone/redis')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const {
@@ -24,7 +24,7 @@ const { processArrayOf } = require('@condo/domains/common/utils/parallel')
 const dvAndSender = { dv: 1, sender: { dv: 1, fingerprint: 'recurrent-payments-seeking-for-new-receipt' } }
 const logger = getLogger('recurrent-payments-seeking-for-new-receipt')
 const REDIS_LAST_DATE_KEY = 'LAST_RECURRENT_PAYMENT_SEEKING_RECEIPTS_CREATED_AT'
-const redisClient = getRedisClient()
+const redisClient = getKVClient()
 
 async function scanBillingReceiptsForRecurrentPaymentContext (context, recurrentPaymentContext, periods, lastDt) {
     // prepare vars

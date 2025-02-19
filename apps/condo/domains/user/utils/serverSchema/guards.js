@@ -3,7 +3,7 @@ const utc = require('dayjs/plugin/utc')
 const cloneDeep = require('lodash/cloneDeep')
 
 const { GQLError } = require('@open-condo/keystone/errors')
-const { getRedisClient } = require('@open-condo/keystone/redis')
+const { getKVClient } = require('@open-condo/keystone/kv')
 
 const { GQL_ERRORS } = require('@condo/domains/user/constants/errors')
 
@@ -11,7 +11,7 @@ dayjs.extend(utc)
 
 class RedisGuard {
     get redis () {
-        if (!this._redis) this._redis = getRedisClient('guards')
+        if (!this._redis) this._redis = getKVClient('guards')
         return this._redis
     }
 

@@ -1,7 +1,7 @@
 const dayjs = require('dayjs')
 
+const { getKVClient } = require('@open-condo/keystone/kv')
 const { getLogger } = require('@open-condo/keystone/logging')
-const { getRedisClient } = require('@open-condo/keystone/redis')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { createCronTask } = require('@open-condo/keystone/tasks')
 
@@ -10,7 +10,7 @@ const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { discoverServiceConsumers } = require('@condo/domains/resident/utils/serverSchema')
 
 const logger = getLogger('discoverServiceConsumersCronTask')
-const redisClient = getRedisClient('discoverServiceConsumersCronTask')
+const redisClient = getKVClient('discoverServiceConsumersCronTask')
 
 const REDIS_KEY = 'discoverServiceConsumersLastDate'
 const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'discoverServiceConsumersCronTask' } }

@@ -2,7 +2,7 @@
 
 const { isEmpty } = require('lodash')
 
-const { getRedisClient } = require('@open-condo/keystone/redis')
+const { getKVClient } = require('@open-condo/keystone/kv')
 
 const OIDC_REDIS_KEY_PREFIX = 'oidc'
 
@@ -35,7 +35,7 @@ function uidKeyFor (uid) {
 
 class RedisAdapter {
     get redis () {
-        if (!this._redis) this._redis = getRedisClient('oidc')
+        if (!this._redis) this._redis = getKVClient('oidc')
         return this._redis
     }
 

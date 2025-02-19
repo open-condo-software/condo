@@ -3,8 +3,8 @@
  */
 const { faker } = require('@faker-js/faker')
 
+const { getKVClient } = require('@open-condo/keystone/kv')
 const { ApolloRateLimitingPlugin } = require('@open-condo/keystone/rateLimiting')
-const { getRedisClient } = require('@open-condo/keystone/redis')
 const { makeLoggedInAdminClient, makeClient, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj,
@@ -306,7 +306,7 @@ describe('ResetUserLimitAction', () => {
             test.each(cases)('resets rate-limit by %p', async (_, prefix, identifier) => {
                 const key = ApolloRateLimitingPlugin.buildQuotaKey(prefix, identifier)
 
-                const redis = getRedisClient()
+                const redis = getKVClient()
                 const result = await redis.set(key, Math.floor(Math.random() * 10_000))
                 expect(result).toEqual('OK')
 
