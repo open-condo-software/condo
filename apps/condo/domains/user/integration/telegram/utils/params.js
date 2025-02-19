@@ -10,7 +10,7 @@ const { setSession } = require('@open-condo/keystone/session')
 const { RESIDENT, USER_TYPES } = require('@condo/domains/user/constants/common')
 const { TELEGRAM_AUTH_REDIS_STATE_PREFIX, TELEGRAM_AUTH_CONFIG_REQUIRED_FIELDS } = require('@condo/domains/user/integration/telegram/constants')
 
-const signUniqueKey = (uniqueKey, secretKey) => {
+function signUniqueKey (uniqueKey, secretKey){
     if (!uniqueKey || !secretKey) throw new Error('signUniqueKey wrong params')
 
     const signature = crypto.createHmac('sha256', secretKey)
@@ -20,7 +20,7 @@ const signUniqueKey = (uniqueKey, secretKey) => {
     return `${uniqueKey}:${signature}`
 }
 
-const verifyUniqueKey = (signedUniqueKey, secretKey) => {
+function verifyUniqueKey (signedUniqueKey, secretKey) {
     if (!secretKey) throw new Error('verifyUniqueKey wrong params')
 
     const [uniqueKey, signature] = signedUniqueKey.split(':')
@@ -33,7 +33,7 @@ const verifyUniqueKey = (signedUniqueKey, secretKey) => {
     return signature === expectedSignature ? uniqueKey : null
 }
 
-const getAuthLink = (config, checks) => {
+function getAuthLink  (config, checks)  {
     const link = new URL(config.authUrl)
     link.searchParams.set('state', checks.state)
     link.searchParams.set('clientId', config.clientId)
@@ -43,7 +43,7 @@ const getAuthLink = (config, checks) => {
     return link.toString()
 }
 
-const validateTelegramAuthConfig = (config) => {
+function validateTelegramAuthConfig (config) {
     const missingFields = TELEGRAM_AUTH_CONFIG_REQUIRED_FIELDS.filter(field => !(field in config))
 
     if (missingFields.length > 0) {
@@ -51,11 +51,11 @@ const validateTelegramAuthConfig = (config) => {
     }
 }
 
-const getRedisStateKey = (uniqueKey) => {
+function getRedisSessionKey (uniqueKey) {
     return `${TELEGRAM_AUTH_REDIS_STATE_PREFIX}${uniqueKey}`
 }
 
-const parseJson = (data) => {
+function parseJson (data) {
     try {
         return JSON.parse(data)
     } catch (e) {
@@ -63,12 +63,12 @@ const parseJson = (data) => {
     }
 }
 
-const decodeIdToken = (idToken) => {
+function decodeIdToken (idToken) {
     const decoded = atob(idToken.split('.')[1])
     return parseJson(decoded)
 }
 
-const getUserType = (req) => {
+function getUserType (req) {
     //Resident by default as in others auth integrations
     let userType = RESIDENT
     const userTypeFromQuery = get(req, 'query.userType')
@@ -82,7 +82,7 @@ const getUserType = (req) => {
     return userType
 }
 
-const startAuthedSession = async (userId, sessionStore) => {
+async function startAuthedSession  (userId, sessionStore){
     if (!userId) {
         throw new Error('userId is incorrect')    
     }
@@ -100,7 +100,7 @@ const startAuthedSession = async (userId, sessionStore) => {
 module.exports = {
     parseJson,
     decodeIdToken,
-    getRedisStateKey,
+    getRedisSessionKey,
     getUserType,
     startAuthedSession,
     validateTelegramAuthConfig,

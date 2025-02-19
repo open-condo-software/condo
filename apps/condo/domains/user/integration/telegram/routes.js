@@ -14,7 +14,7 @@ const {
 } = require('@condo/domains/user/integration/telegram/constants')
 const {
     getUserType,
-    getRedisStateKey,
+    getRedisSessionKey,
     decodeIdToken,
     parseJson,
     validateTelegramAuthConfig,
@@ -30,6 +30,8 @@ const TELEGRAM_AUTH_CONFIG = conf.TELEGRAM_AUTH_CONFIG ? JSON.parse(conf.TELEGRA
 const logger = getLogger('telegram-auth')
 const redisClient = getRedisClient()
 
+//Currently anyone can use this auth but we want to restrict access for random clients
+
 class TelegramAuthRoutes {
     constructor () {
         validateTelegramAuthConfig(TELEGRAM_AUTH_CONFIG)
@@ -39,6 +41,8 @@ class TelegramAuthRoutes {
         try {
             const userType = getUserType(req)
             const checks = { nonce: generators.nonce(), state: generators.state() }
+            //Start link is url to telegram bot within start auth key
+            //uniqueKey is helper to link responses from bot
             const { startLink, uniqueKey } = await fetch(getAuthLink(TELEGRAM_AUTH_CONFIG, checks)).then(res => res.json())
 
             if (!startLink || !uniqueKey) {
@@ -46,11 +50,16 @@ class TelegramAuthRoutes {
             }
 
             await redisClient.set(
-                getRedisStateKey(uniqueKey),
-                JSON.stringify({ status: TELEGRAM_AUTH_STATUS_PENDING, token: null, payload: { userType, checks } }),
+                getRedisSessionKey(uniqueKey),
+                JSON.stringify({
+                    status: TELEGRAM_AUTH_STATUS_PENDING,
+                    token: null,
+                    payload: { userType, checks },
+                }),
                 'EX', TELEGRAM_AUTH_REDIS_TTL
             )
             //client gets signed token that we can verify and pass in redis as key
+            //Probably just adding prefix for redis is enough but with sign we can be sure that noone can iterate over redis keys 
             return res.json({ startLink, uniqueKey: signUniqueKey(uniqueKey, TELEGRAM_AUTH_CONFIG.secretKey) })
         } catch (error) {
             logger.error({ msg: 'Telegram auth start error', reqId: req.id, error })
@@ -60,8 +69,9 @@ class TelegramAuthRoutes {
 
     async completeAuth (req, res, next) {
         try {
+            //This handler protected by state value that exists only between condo and tg bot
             const { authCode, state, uniqueKey } = req.query
-            const session = parseJson(await redisClient.get(getRedisStateKey(uniqueKey)))
+            const session = parseJson(await redisClient.get(getRedisSessionKey(uniqueKey)))
             if (!session || session.payload.checks.state !== state) return res.end()
 
             const tokenData = await fetch(TELEGRAM_AUTH_CONFIG.tokenUrl, {
@@ -75,8 +85,8 @@ class TelegramAuthRoutes {
                 }),
             }).then(res => res.json())
 
-            if (!tokenData.idToken) {
-                logger.error({ msg: 'Telegram auth no id token', reqId })
+            if (!tokenData || !tokenData.idToken) {
+                logger.error({ msg: 'Telegram auth no id token', reqId: req.id })
                 return res.end()
             }
 
@@ -94,7 +104,7 @@ class TelegramAuthRoutes {
             const token = await startAuthedSession(id, context._sessionManager._sessionStore)
 
             await redisClient.set(
-                getRedisStateKey(uniqueKey),
+                getRedisSessionKey(uniqueKey),
                 JSON.stringify({ status: TELEGRAM_AUTH_STATUS_SUCCESS, token, payload: session.payload }),
                 'EX', TELEGRAM_AUTH_REDIS_TTL
             )
@@ -115,12 +125,18 @@ class TelegramAuthRoutes {
 
             if (!verifiedUniqueKey) return res.status(400).json({ status: TELEGRAM_AUTH_STATUS_ERROR, message: 'uniqueKey is incorrect' })
             
-            const session = parseJson(await redisClient.get(getRedisStateKey(verifiedUniqueKey)))
+            const session = parseJson(await redisClient.get(getRedisSessionKey(verifiedUniqueKey)))
             if (!session) return res.status(400).json({ status: TELEGRAM_AUTH_STATUS_ERROR, message: 'uniqueKey is expired' })
 
-            return res.json(session.status === TELEGRAM_AUTH_STATUS_SUCCESS && session.token
-                ? { status: session.status, token: session.token }
-                : { status: session.status })
+            if (session.status === TELEGRAM_AUTH_STATUS_SUCCESS && session.token) {
+                //User got token and we can del all auth session data
+                await redisClient.del(getRedisSessionKey(verifiedUniqueKey))
+                return res.json({ status: session.status, token: session.token })
+            } else {
+                return res.json({ status: session.status })
+            }
+            
+
         } catch (error) {
             logger.error({ msg: 'Telegram auth status error', reqId: req.id, error })
             next(error)

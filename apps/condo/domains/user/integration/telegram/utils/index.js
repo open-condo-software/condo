@@ -1,5 +1,5 @@
 const {
-    getRedisStateKey,
+    getRedisSessionKey,
     parseJson,
     decodeIdToken,
     startAuthedSession,
@@ -11,7 +11,7 @@ const {
 } = require('./params')
 
 module.exports = {
-    getRedisStateKey,
+    getRedisSessionKey,
     parseJson,
     decodeIdToken,
     startAuthedSession,
