@@ -27,6 +27,7 @@ type UserMessagesListContextType = {
     messagesListRef: ReturnType<typeof useRef<HTMLDivElement>>
     userMessages: Array<UserMessageType>
     readUserMessagesAt: string
+    updateReadUserMessagesAt: () => void
 
     newMessagesLoading: boolean
     moreMessagesLoading: boolean
@@ -42,6 +43,7 @@ const UserMessageListContext = createContext<UserMessagesListContextType>({
     messagesListRef: null,
     userMessages: [],
     readUserMessagesAt: null,
+    updateReadUserMessagesAt: null,
     newMessagesLoading: false,
     moreMessagesLoading: false,
     isDropdownOpen: false,
@@ -102,8 +104,6 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
     }, [excludedMessageTypes, readUserMessagesAt, userMessagesSettingsStorage])
 
     useEffect(() => {
-        if (typeof window === 'undefined') return
-
         window.addEventListener('storage', handleStorageChange)
 
         return () => {
@@ -111,10 +111,8 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
         }
     }, [handleStorageChange])
 
+    // Set initial settings to state
     useEffect(() => {
-        // Set initial settings to state
-        if (typeof window === 'undefined') return
-
         let lastReadUserMessagesAt = userMessagesSettingsStorage.getReadUserMessagesAt()
         if (!lastReadUserMessagesAt) {
             lastReadUserMessagesAt = new Date().toISOString()
@@ -125,6 +123,15 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
         const excludedMessageTypesToFilter = userMessagesSettingsStorage.getExcludedUserMessagesTypes()
         setExcludedMessageTypes(excludedMessageTypesToFilter)
     }, [organizationId, userId, userMessagesSettingsStorage])
+
+    const updateReadUserMessagesAt = useCallback(() => {
+        const newestMessageCreatedAt = userMessages?.[0]?.createdAt
+
+        if (new Date(newestMessageCreatedAt) > new Date(readUserMessagesAt)) {
+            setReadUserMessagesAt(newestMessageCreatedAt)
+            userMessagesSettingsStorage.setReadUserMessagesAt(newestMessageCreatedAt)
+        }
+    }, [readUserMessagesAt, userMessages, userMessagesSettingsStorage])
 
     const handleDropdownOpenChange = useCallback((isOpen: boolean) => {
         setIsDropdownOpen(isOpen)
@@ -138,14 +145,10 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
         }
 
         // When dropdown closes - update last read time to createdAt of newest Message
-        const newestMessageCreatedAt = userMessages?.[0]?.createdAt
-        if (new Date(newestMessageCreatedAt) > new Date(readUserMessagesAt)) {
-            setReadUserMessagesAt(newestMessageCreatedAt)
-            userMessagesSettingsStorage.setReadUserMessagesAt(newestMessageCreatedAt)
-        }
-
+        updateReadUserMessagesAt()
         clearLoadedMessages()
-    }, [clearLoadedMessages, logEvent, messagesListRef, readUserMessagesAt, userMessages, userMessagesSettingsStorage])
+    }, [clearLoadedMessages, logEvent, messagesListRef, updateReadUserMessagesAt])
+
 
     return (
         <UserMessageListContext.Provider
@@ -153,6 +156,7 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
                 messagesListRef,
                 userMessages,
                 readUserMessagesAt,
+                updateReadUserMessagesAt,
                 newMessagesLoading,
                 moreMessagesLoading,
                 isDropdownOpen,
