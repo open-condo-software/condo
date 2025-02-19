@@ -35,8 +35,6 @@ export const useNewMessageTitleNotification = (unreadMessagesCount: number): voi
 
     // Remember page title for change it back after indicate about new messages
     useEffect(() => {
-        if (typeof window === 'undefined') return
-
         if (document.title !== NewMessagePageTitle) {
             originalPageTitle.current = document.title
         }
@@ -58,15 +56,13 @@ export const useNewMessageTitleNotification = (unreadMessagesCount: number): voi
 
     // Remember page favicon on first load
     useEffect(() => {
-        if (typeof window === 'undefined') return
-
         if (!originalIconHref.current) {
             originalIconHref.current = getCurrentFaviconHref()
         }
     }, [])
 
     useEffect(() => {
-        if (typeof window === 'undefined' || unreadMessagesCountRef.current === undefined) {
+        if (unreadMessagesCountRef.current === undefined) {
             return
         }
 
@@ -118,8 +114,6 @@ export const useNewMessageTitleNotification = (unreadMessagesCount: number): voi
 
     // Clear interval and return page title back on page focus
     useEffect(() => {
-        if (typeof window === 'undefined') return
-
         const onFocus = () => clearNewMessagesTitleFromAllTabs(true)
 
         window.addEventListener('focus', onFocus)
