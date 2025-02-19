@@ -30,7 +30,7 @@ if [ -z "$domain_name" ]; then
     usage
 fi
 
-node bin/prepare.js -f condo -r condo
+node bin/prepare.js -f condo -r condo -c condo
 
 export NEWS_ITEMS_SENDING_DELAY_SEC=2
 export NEWS_ITEM_SENDING_TTL_SEC=2
