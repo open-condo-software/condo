@@ -25,10 +25,10 @@ program
         '"bull:queue_name:something" -> "{example_keystone:bull:queue_name}:something"',
         '',
         'Example #1 (remote server migration):',
-        'REDIS_URL=redis://remote_user:*******@127.0.0.1:6379/6 npx @open-condo/migrator add-kv-prefixes -f condo',
+        'REDIS_URL=redis://remote_user:*******@127.0.0.1:6379/6 npx @open-condo/migrator add-apps-kv-prefixes -f condo',
         '',
         'Example #2 (local monorepo migration):',
-        'npx @open-condo/migrator add-kv-prefixes',
+        'npx @open-condo/migrator add-apps-kv-prefixes',
     ].join('\n'))
     .option(...YES_OPTION)
     .option(...FILTER_OPTION)

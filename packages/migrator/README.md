@@ -90,7 +90,7 @@ since environment variables are passed from external tools and apps are deployed
 For this scenarios you can migrate single app at a time by running commands like this:
 
 ```bash
-REDIS_URL=redis://remote_user:*******@127.0.0.1:6379/6 npx @open-condo/migrator add-kv-prefixes -f condo
+REDIS_URL=redis://remote_user:*******@127.0.0.1:6379/6 npx @open-condo/migrator add-apps-kv-prefixes -f condo
 ```
 
 > NOTE: You can remove REDIS_URL=** part if environment variables are already set (from `export` or other external tool)
@@ -99,7 +99,7 @@ You can also run migrator from specific app folder instead of using `--filter` a
 
 ```bash
 cd apps/condo
-npx @open-condo/migrator add-kv-prefixes
+npx @open-condo/migrator add-apps-kv-prefixes
 ```
 
 

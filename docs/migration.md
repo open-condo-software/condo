@@ -176,7 +176,8 @@ end
 shake.call(SOURCE_DB, ARGV)
 """
 ```
-Also, you can change mapping inside `db_hash` variable to match your applications setup (For example, condo application has "0" db index inside Redis, address-service has "1" and so on).
+Also, you can change mapping inside `db_hash` variable to match your applications setup (For example, condo application has "0" db index inside Redis, address-service has "1" and so on).  
+
 3) Edit target urls and run `./redis-shake shake.toml`. Wait for the full synchronization.
 4) Once RedisShake is running in realtime replication mode, go to the original databases and run the following command, to remove protection guards:
 ```
