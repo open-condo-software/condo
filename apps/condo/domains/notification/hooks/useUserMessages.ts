@@ -11,16 +11,16 @@ import { useOrganization } from '@open-condo/next/organization'
 import { useBroadcastChannel } from '@condo/domains/common/hooks/useBroadcastChannel'
 import { useExecuteWithLock } from '@condo/domains/common/hooks/useExecuteWithLock'
 import { UserMessageType } from '@condo/domains/notification/utils/client/constants'
-import { MessageTypesAllowedToFilterType } from '@condo/domains/notification/utils/client/constants'
+import { MessageTypeAllowedToFilterType } from '@condo/domains/notification/utils/client/constants'
 
 
 type UserPollUserMessagesArgsType = {
     isDropdownOpen: boolean
-    messageTypesToFilter: MessageTypesAllowedToFilterType
+    messageTypesToFilter: Array<MessageTypeAllowedToFilterType>
     skipQueryMessagesCondition?: boolean
 }
 type UserPollUserMessagesReturnType = {
-    userMessages: UserMessageType[]
+    userMessages: Array<UserMessageType>
     messagesListRef: ReturnType<typeof useRef<HTMLDivElement>>
     newMessagesLoading: boolean
     moreMessagesLoading: boolean
@@ -29,7 +29,7 @@ type UserPollUserMessagesReturnType = {
 type UsePollUserMessagesType = (args: UserPollUserMessagesArgsType) => UserPollUserMessagesReturnType
 type UserMessagesBroadcastMessageType = {
     error?: ApolloError
-    messages?: UserMessageType[]
+    messages?: Array<UserMessageType>
     clear?: boolean
 }
 
@@ -68,7 +68,7 @@ export const useUserMessages: UsePollUserMessagesType = ({ isDropdownOpen, messa
     })
 
     const clearLoadedMessages = useCallback(() => {
-        const messages = (newMessagesData?.messages || []) as UserMessageType[]
+        const messages = (newMessagesData?.messages || []) as Array<UserMessageType>
 
         setUserMessages(messages)
         setIsAllMessagesLoaded(false)

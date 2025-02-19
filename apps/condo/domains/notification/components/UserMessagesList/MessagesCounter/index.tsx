@@ -9,7 +9,11 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 import './MessagesCounter.css'
 
 
-export const MessagesCounter = ({ count }) => {
+type MessagesCounterProps = {
+    count: number
+}
+
+export const MessagesCounter: React.FC<MessagesCounterProps> = ({ count }) => {
     const [currentCount, setCurrentCount] = useState(0)
     const [isAnimating, setIsAnimating] = useState(false)
 
@@ -40,7 +44,6 @@ export const MessagesCounter = ({ count }) => {
         count: currentCount > 9 ? '∞' : currentCount,
         className: `messages-counter${!isSmallScreen && isAnimating ? ' animating' : ''}`,
         color: colors.pink[5],
-        showZero: true,
     }), [currentCount, isAnimating, isSmallScreen])
 
     if (isSmallScreen) {
@@ -50,13 +53,9 @@ export const MessagesCounter = ({ count }) => {
                     className='messages-counter-icon'
                     size='medium'
                 />
-                {count > 0 && <Badge {...badgeProps} />}
+                <Badge {...badgeProps} />
             </div>
         )
-    }
-
-    if (count === 0) {
-        return  <Bell className='messages-counter-icon' />
     }
 
     return (
