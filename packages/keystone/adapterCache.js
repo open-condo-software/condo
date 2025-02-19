@@ -55,10 +55,10 @@ const LRUCache = require('lru-cache')
 const { getListAdapters } = require('@open-condo/keystone/databaseAdapters/utils')
 
 const { getExecutionContext } = require('./executionContext')
+const { getKVClient } = require('./kv')
 const { getLogger } = require('./logging')
 const Metrics = require('./metrics')
 const { queryHasField } = require('./queryHasField')
-const { getRedisClient } = require('./redis')
 
 const STATE_REDIS_KEY_PREFIX = 'adapterCacheState'
 const METRIC_PREFIX = 'adapterCache'
@@ -489,7 +489,7 @@ function getQueryFunctionWithCache (listName, functionName, f, listAdapter, cach
 }
 
 function getStateRedisClient () {
-    return getRedisClient('cache')
+    return getKVClient('cache')
 }
 
 /**

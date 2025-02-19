@@ -1,7 +1,7 @@
 const dayjs = require('dayjs')
 const utc = require('dayjs/plugin/utc')
 
-const { getRedisClient } = require('@open-condo/keystone/redis')
+const { getKVClient } = require('@open-condo/keystone/kv')
 
 dayjs.extend(utc)
 
@@ -11,7 +11,7 @@ class RedisGuard {
     }
 
     get redis () {
-        if (!this._redis) this._redis = getRedisClient('guards')
+        if (!this._redis) this._redis = getKVClient('guards')
         return this._redis
     }
 

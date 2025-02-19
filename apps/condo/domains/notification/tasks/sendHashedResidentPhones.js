@@ -7,8 +7,8 @@ const { stringify } = require('csv-stringify')
 const dayjs = require('dayjs')
 
 const conf = require('@open-condo/config')
+const { getKVClient } = require('@open-condo/keystone/kv')
 const { getLogger } = require('@open-condo/keystone/logging')
-const { getRedisClient } = require('@open-condo/keystone/redis')
 const { createTask } = require('@open-condo/keystone/tasks')
 
 const { RESIDENT } = require('@condo/domains/user/constants/common')
@@ -24,7 +24,7 @@ const MARKETING_EMAIL = conf.MARKETING_EMAIL || null
 const REDIS_KEY = 'sendHashedResidentPhonesLastDate'
 
 const taskLogger = getLogger('sendHashedResidentPhones')
-const redisClient = getRedisClient('sendHashedResidentPhones')
+const redisClient = getKVClient('sendHashedResidentPhones')
 
 
 // TODO(DOMA-9341): extract staff users phones

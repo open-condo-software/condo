@@ -2,7 +2,7 @@ const get = require('lodash/get')
 
 const conf = require('@open-condo/config')
 const { fetch } = require('@open-condo/keystone/fetch')
-const { getRedisClient } = require('@open-condo/keystone/redis')
+const { getKVClient } = require('@open-condo/keystone/kv')
 
 const { BUILDING_ADDRESS_TYPE } = require('@address-service/domains/common/constants/addressTypes')
 const { VALID_DADATA_BUILDING_TYPES } = require('@address-service/domains/common/constants/common')
@@ -216,7 +216,7 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
      */
     async getOrganization (tin) {
         return await this.callToDadataCached({
-            cacheClient: getRedisClient('organization', 'tin'),
+            cacheClient: getKVClient('organization', 'tin'),
             searchKey: tin,
             apiUrl: 'findById/party',
             ttl: ORGANIZATION_TIN_CACHE_TTL,
@@ -229,7 +229,7 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
      */
     async getAddressByFiasId (fiasId) {
         return await this.callToDadataCached({
-            cacheClient: getRedisClient('address', 'fiasId'),
+            cacheClient: getKVClient('address', 'fiasId'),
             searchKey: fiasId,
             apiUrl: 'findById/address',
             ttl: ADDRESS_TIN_CACHE_TTL,

@@ -1,8 +1,8 @@
 const dayjs = require('dayjs')
 
 const conf = require('@open-condo/config')
+const { getKVClient } = require('@open-condo/keystone/kv')
 const { getLogger } = require('@open-condo/keystone/logging')
-const { getRedisClient } = require('@open-condo/keystone/redis')
 
 const SBBOL_AUTH_CONFIG = conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CONFIG) : {}
 
@@ -27,7 +27,7 @@ class SbbolSecretStorage {
     constructor (apiName, clientId) {
         if (!apiName) throw new Error('SbbolSecretStorage: no apiName')
         if (!clientId) throw new Error('SbbolSecretStorage: no clientId')
-        this.keyStorage = getRedisClient()
+        this.keyStorage = getKVClient()
         this.clientId = clientId
         this.apiName = apiName
     }

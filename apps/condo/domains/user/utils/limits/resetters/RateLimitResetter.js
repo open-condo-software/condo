@@ -1,5 +1,5 @@
+const { getKVClient } = require('@open-condo/keystone/kv')
 const { ApolloRateLimitingPlugin } = require('@open-condo/keystone/rateLimiting')
-const { getRedisClient } = require('@open-condo/keystone/redis')
 
 const { UUID_TYPE, IPv4_TYPE } = require('@condo/domains/user/constants/identifiers')
 
@@ -9,7 +9,7 @@ const { AbstractResetter } = require('./AbstractResetter')
 class RateLimitResetter extends AbstractResetter {
     constructor () {
         super([UUID_TYPE, IPv4_TYPE])
-        this.redis = getRedisClient()
+        this.redis = getKVClient()
     }
 
     #getKey (identifierType, identifier) {

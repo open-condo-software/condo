@@ -6,8 +6,8 @@ const get = require('lodash/get')
 
 const conf = require('@open-condo/config')
 const { safeFormatError } = require('@open-condo/keystone/apolloErrorFormatter')
+const { getKVClient } = require('@open-condo/keystone/kv')
 const { getLogger } = require('@open-condo/keystone/logging')
-const { getRedisClient } = require('@open-condo/keystone/redis')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { createTask } = require('@open-condo/keystone/tasks')
 
@@ -57,7 +57,7 @@ const MESSAGE_TASK_RETRY_STATUSES = [
     MESSAGE_RESENDING_STATUS,
 ]
 
-const throttlingCacheClient = getRedisClient('deliverMessage', 'throttleNotificationsForUser')
+const throttlingCacheClient = getKVClient('deliverMessage', 'throttleNotificationsForUser')
 
 /**
  * Sends message using corresponding adapter

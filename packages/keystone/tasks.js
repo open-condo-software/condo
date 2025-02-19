@@ -4,10 +4,10 @@ const { get } = require('lodash')
 const conf = require('@open-condo/config')
 
 const { _internalGetExecutionContextAsyncLocalStorage } = require('./executionContext')
+const { getKVClient } = require('./kv')
 const { getLogger } = require('./logging')
 const { gauge } = require('./metrics')
 const { prepareKeystoneExpressApp } = require('./prepareKeystoneApp')
-const { getRedisClient } = require('./redis')
 const { getRandomString } = require('./test.utils')
 
 const TASK_TYPE = 'TASK'
@@ -51,7 +51,7 @@ function createTaskQueue (name) {
             if (['bclient', 'subscriber'].includes(type)) {
                 opts.maxRetriesPerRequest = null
             }
-            return getRedisClient(`worker:${name}`, type, opts)
+            return getKVClient(`worker:${name}`, type, opts)
         },
     }))
 }

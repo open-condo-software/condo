@@ -5,7 +5,7 @@
 const index = require('@app/condo/index')
 const dayjs = require('dayjs')
 
-const { getRedisClient } = require('@open-condo/keystone/redis')
+const { getKVClient } = require('@open-condo/keystone/kv')
 const { setFakeClientMode, setAllFeatureFlags } = require('@open-condo/keystone/test.utils')
 
 const { LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE } = require('@condo/domains/resident/constants')
@@ -14,7 +14,7 @@ const { sendBillingReceiptNotifications, NO_REDIS_KEY, DISABLED, SKIP_NOTIFICATI
 
 describe('sendBillingReceiptNotifications', () => {
     setFakeClientMode(index)
-    const redisClient = getRedisClient()
+    const redisClient = getKVClient()
 
     describe('feature flag', () => {
         test('checks for proper result on disabled', async () => {

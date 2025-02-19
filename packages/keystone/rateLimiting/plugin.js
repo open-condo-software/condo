@@ -1,7 +1,7 @@
 const ms = require('ms')
 
 const { GQLError, GQLErrorCode: { TOO_MANY_REQUESTS } } = require('@open-condo/keystone/errors')
-const { getRedisClient } = require('@open-condo/keystone/redis')
+const { getKVClient } = require('@open-condo/keystone/kv')
 
 const { validatePluginOptions } = require('./config.utils')
 const {
@@ -38,7 +38,7 @@ class ApolloRateLimitingPlugin {
     #nonAuthedQuota = DEFAULT_NON_AUTHED_QUOTA
     #quotaWindowInMS = ms(DEFAULT_QUOTA_WINDOW)
     #whereScalingFactor = DEFAULT_WHERE_COMPLEXITY_FACTOR
-    #redisClient = getRedisClient()
+    #redisClient = getKVClient()
     #pageLimit = DEFAULT_PAGE_LIMIT
     #customQuotas = {}
 

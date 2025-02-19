@@ -4,10 +4,10 @@ const set = require('lodash/set')
 const uniq = require('lodash/uniq')
 
 const conf = require('@open-condo/config')
-const { getRedisClient } = require('@open-condo/keystone/redis')
+const { getKVClient } = require('@open-condo/keystone/kv')
 const { find } = require('@open-condo/keystone/schema')
 
-const _redisClient = getRedisClient('default', 'cache')
+const _redisClient = getKVClient('default', 'cache')
 // NOTE: larger = better, but it can affect "after migration" state, where roles are changed via SQL
 const DEFAULT_CACHE_TTL_IN_MS = 60 * 60 * 1000  // 1 hour in ms
 const CACHE_TTL_FROM_ENV = parseInt(get(conf, 'USER_ORGANIZATION_CACHING_TTL_IN_MS'))

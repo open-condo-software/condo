@@ -5,7 +5,7 @@ const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 const { map } = require('lodash')
 
-const { getRedisClient } = require('@open-condo/keystone/redis')
+const { getKVClient } = require('@open-condo/keystone/kv')
 const {
     makeLoggedInAdminClient, makeClient, expectToThrowAccessDeniedErrorToResult,
     expectToThrowAuthenticationErrorToResult, waitFor, setFeatureFlag,
@@ -72,7 +72,7 @@ describe('DiscoverServiceConsumersService', () => {
         support = await makeClientWithSupportUser()
         anonymous = await makeClient()
 
-        const redisClient = getRedisClient('discoverServiceConsumersCronTask')
+        const redisClient = getKVClient('discoverServiceConsumersCronTask')
         redisClient.set(REDIS_KEY, dayjs().toISOString())
     })
 

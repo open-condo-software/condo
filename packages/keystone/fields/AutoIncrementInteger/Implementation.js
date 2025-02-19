@@ -2,7 +2,7 @@ const { Integer } = require('@keystonejs/fields')
 const get = require('lodash/get')
 const { default: Redlock } = require('redlock')
 
-const { getRedisClient } = require('@open-condo/keystone/redis')
+const { getKVClient } = require('@open-condo/keystone/kv')
 
 class AutoIncrementInteger extends Integer.implementation {
 
@@ -56,7 +56,7 @@ class AutoIncrementInteger extends Integer.implementation {
 
 class AutoIncrementIntegerKnexFieldAdapter extends Integer.adapters.knex {
     get redis () {
-        if (!this._redis) this._redis = getRedisClient()
+        if (!this._redis) this._redis = getKVClient()
         return this._redis
     }
 

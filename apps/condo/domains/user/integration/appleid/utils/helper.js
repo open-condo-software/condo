@@ -2,8 +2,8 @@ const { isNil } = require('lodash')
 const { v4: uuid } = require('uuid')
 
 const conf = require('@open-condo/config')
+const { getKVClient } = require('@open-condo/keystone/kv')
 const { getLogger } = require('@open-condo/keystone/logging')
-const { getRedisClient } = require('@open-condo/keystone/redis')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { RESIDENT } = require('@condo/domains/user/constants/common')
@@ -24,7 +24,7 @@ const {
 } = require('@condo/domains/user/utils/serverSchema')
 
 
-const redisClient = getRedisClient()
+const redisClient = getKVClient()
 const REDIS_APPLE_ID_AUTH_FLOW_PREFIX_KEY = 'APPLE_ID_AUTH_FLOW'
 const REDIS_APPLE_ID_AUTH_FLOW_EXPIRY_SEC = 60 * 60 // 1 hour
 const APPLE_ID_CONFIG = conf.APPLE_ID_CONFIG ? JSON.parse(conf.APPLE_ID_CONFIG) : {}

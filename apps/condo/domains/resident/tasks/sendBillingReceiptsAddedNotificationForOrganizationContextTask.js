@@ -3,8 +3,8 @@ const dayjs = require('dayjs')
 const { uniqBy, get, groupBy, isEmpty } = require('lodash')
 
 const conf = require('@open-condo/config')
+const { getKVClient } = require('@open-condo/keystone/kv')
 const { getLogger } = require('@open-condo/keystone/logging')
-const { getRedisClient } = require('@open-condo/keystone/redis')
 const { find, getSchemaCtx, getByCondition, itemsQuery } = require('@open-condo/keystone/schema')
 const { createTask } = require('@open-condo/keystone/tasks')
 const { getLocalized } = require('@open-condo/locales/loader')
@@ -95,7 +95,7 @@ async function sendBillingReceiptsAddedNotificationForOrganizationContext (conte
 
     if (!contextId) throw new Error('Invalid BillingIntegrationOrganizationContext, cannot get context.id')
 
-    const redisClient = await getRedisClient()
+    const redisClient = await getKVClient()
     const lastSendDate = await redisClient.get(`${BILLING_CONTEXT_SYNCHRONIZATION_DATE}:${contextId}`) || lastSyncDate
     const { keystone } = getSchemaCtx('Message')
     const receiptsWhere = {
