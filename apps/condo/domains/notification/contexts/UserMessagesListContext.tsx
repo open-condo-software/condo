@@ -1,7 +1,7 @@
 import isEqual from 'lodash/isEqual'
 import React, {
     createContext,
-    Dispatch,
+    Dispatch, ReactNode,
     SetStateAction,
     useCallback,
     useContext,
@@ -10,7 +10,6 @@ import React, {
     useState,
 } from 'react'
 
-import { isSSR } from '@open-condo/miniapp-utils'
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
 
@@ -19,14 +18,14 @@ import { useAllowedToFilterMessageTypes } from '@condo/domains/notification/hook
 import { useUserMessages } from '@condo/domains/notification/hooks/useUserMessages'
 import { useUserMessagesListSettingsStorage } from '@condo/domains/notification/hooks/useUserMessagesListSettingsStorage'
 import {
-    MessageTypesAllowedToFilterType,
+    MessageTypeAllowedToFilterType,
     UserMessageType,
 } from '@condo/domains/notification/utils/client/constants'
 
 
 type UserMessagesListContextType = {
     messagesListRef: ReturnType<typeof useRef<HTMLDivElement>>
-    userMessages: UserMessageType[]
+    userMessages: Array<UserMessageType>
     readUserMessagesAt: string
 
     newMessagesLoading: boolean
@@ -35,8 +34,8 @@ type UserMessagesListContextType = {
     isDropdownOpen: boolean
     setIsDropdownOpen: Dispatch<SetStateAction<boolean>>
 
-    excludedMessageTypes: MessageTypesAllowedToFilterType
-    setExcludedMessageTypes: Dispatch<SetStateAction<MessageTypesAllowedToFilterType>>
+    excludedMessageTypes: Array<MessageTypeAllowedToFilterType>
+    setExcludedMessageTypes: Dispatch<SetStateAction<Array<MessageTypeAllowedToFilterType>>>
 }
 
 const UserMessageListContext = createContext<UserMessagesListContextType>({
@@ -53,10 +52,14 @@ const UserMessageListContext = createContext<UserMessagesListContextType>({
 
 export const useUserMessagesList = () => useContext(UserMessageListContext)
 
-export const UserMessagesListContextProvider = ({ children }) => {
+type UserMessagesListContextProviderProps = {
+    children: ReactNode
+}
+
+export const UserMessagesListContextProvider: React.FC<UserMessagesListContextProviderProps> = ({ children }) => {
     const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false)
     const [readUserMessagesAt, setReadUserMessagesAt] = useState<string>()
-    const [excludedMessageTypes, setExcludedMessageTypes] = useState<MessageTypesAllowedToFilterType>([])
+    const [excludedMessageTypes, setExcludedMessageTypes] = useState<Array<MessageTypeAllowedToFilterType>>([])
 
     const { user } = useAuth()
     const { organization } = useOrganization()
@@ -84,7 +87,7 @@ export const UserMessagesListContextProvider = ({ children }) => {
             !userId || !organizationId || allowedMessageTypesLoading || !readUserMessagesAt || messageTypesToFilter.length === 0,
     })
 
-    const handleStorageChange = useCallback((event) => {
+    const handleStorageChange = useCallback((event: StorageEvent) => {
         if (event.key === userMessagesSettingsStorage.getStorageKey()) {
             const lastReadUserMessagesAt = userMessagesSettingsStorage.getReadUserMessagesAt()
             if (!isEqual(lastReadUserMessagesAt, readUserMessagesAt)) {
@@ -99,7 +102,8 @@ export const UserMessagesListContextProvider = ({ children }) => {
     }, [excludedMessageTypes, readUserMessagesAt, userMessagesSettingsStorage])
 
     useEffect(() => {
-        if (isSSR()) return
+        if (typeof window === 'undefined') return
+
         window.addEventListener('storage', handleStorageChange)
 
         return () => {
@@ -109,7 +113,7 @@ export const UserMessagesListContextProvider = ({ children }) => {
 
     useEffect(() => {
         // Set initial settings to state
-        if (isSSR()) return
+        if (typeof window === 'undefined') return
 
         let lastReadUserMessagesAt = userMessagesSettingsStorage.getReadUserMessagesAt()
         if (!lastReadUserMessagesAt) {
@@ -122,7 +126,7 @@ export const UserMessagesListContextProvider = ({ children }) => {
         setExcludedMessageTypes(excludedMessageTypesToFilter)
     }, [organizationId, userId, userMessagesSettingsStorage])
 
-    const handleDropdownOpenChange = useCallback(async (isOpen) => {
+    const handleDropdownOpenChange = useCallback((isOpen: boolean) => {
         setIsDropdownOpen(isOpen)
 
         if (isOpen) {
