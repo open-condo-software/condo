@@ -313,7 +313,7 @@ export const CreateMeterReadingsForm = ({ organization, canManageMeterReadings }
             const value2 = get(newMeterReading, '2')
             const value3 = get(newMeterReading, '3')
             const value4 = get(newMeterReading, '4')
-            const date = get(newMeterReading, 'date', dayjs().toISOString())
+            const date = get(newMeterReading, 'date')
             const { property, unitName, unitType, sectionName, floorName, ...clientInfo } = values
 
             createMeterReadingAction({
