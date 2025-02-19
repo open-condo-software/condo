@@ -9,7 +9,7 @@ describe('Key value adapter', () => {
     let moduleName
 
     beforeEach(() => {
-        nonPrefixedClient = new Redis(process.env.VALKEY_URL)
+        nonPrefixedClient = new Redis(process.env.KV_URL || process.env.REDIS_URL)
         moduleName = require(process.cwd() + '/package.json').name.split('/').pop() + ':'
 
         jest.resetModules()
