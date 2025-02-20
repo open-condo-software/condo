@@ -7,12 +7,12 @@ export default {
     component: Component,
     args: {
         disabled: false,
-        size: 'small',
+        size: 'large',
     },
     argTypes: {
         size: {
             control: { type: 'select' },
-            options: ['default', 'small'],
+            options: ['large', 'small'],
         },
     },
 } as Meta<typeof Component>

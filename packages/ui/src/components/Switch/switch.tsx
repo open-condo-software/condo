@@ -11,6 +11,8 @@ import './style.less'
 
 const SWITCH_CLASS_PREFIX = 'condo-switch'
 
+type CondoSwitchSize = 'small' | 'large'
+
 export type SwitchProps = Pick<DefaultSwitchProps,
 'className' |
 'id' |
@@ -18,15 +20,22 @@ export type SwitchProps = Pick<DefaultSwitchProps,
 'checked' |
 'defaultChecked' |
 'disabled' |
-'size' |
 'onChange'
->
+> & {
+    size: CondoSwitchSize
+}
+
+const SWITCH_SIZE_MAP: Record<CondoSwitchSize, DefaultSwitchProps['size']> = {
+    small: 'small',
+    large: 'default',
+}
 
 export const Switch: React.FC<SwitchProps> = (props) => {
     const {
         disabled,
         id,
         onChange,
+        size = 'large',
         ...rest
     } = props
 
@@ -45,6 +54,7 @@ export const Switch: React.FC<SwitchProps> = (props) => {
             prefixCls={SWITCH_CLASS_PREFIX}
             disabled={disabled}
             onChange={handleChange}
+            size={SWITCH_SIZE_MAP[size]}
         />
     )
 }

@@ -31,7 +31,7 @@ type ComponentSpecificChangeEventProps = {
     Tabs: { activeKey: string }
     Steps: { activeStep: number }
     Select: { value: string | Array<string>, label: string | Array<string> }
-    Switch: { checked: boolean, id?: string }
+    Switch: { checked: boolean }
     TourStep: { title: string, message?: string, step: number }
 }
 
