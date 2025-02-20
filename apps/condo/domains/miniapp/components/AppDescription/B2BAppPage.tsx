@@ -29,7 +29,6 @@ export const B2BAppPage: React.FC<B2BPageProps> = ({ id }) => {
     const employeeRoleId = get(userOrganization, ['link', 'role', 'id'], null)
     const [modalOpen, setModalOpen] = useState(false)
 
-    // Рефактор!
     const { obj: app, error: appError, loading: appLoading } = B2BApp.useObject({ where: { id } })
     const {
         obj: context,

@@ -1,6 +1,5 @@
 import { useGetTourStepsLazyQuery, useSyncTourStepsMutation } from '@app/condo/gql'
 import { TourStepStatusType, TourStepTypeType } from '@app/condo/schema'
-import get from 'lodash/get'
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 
 import { MUTATION_RESULT_EVENT, MutationEmitter } from '@open-condo/next/_useEmitterMutation'
@@ -13,7 +12,6 @@ import { TourStep } from '@condo/domains/onboarding/utils/clientSchema'
 import { MANAGING_COMPANY_TYPE } from '@condo/domains/organization/constants/common'
 
 import { getClientSideSenderInfo } from '../../common/utils/userid.utils'
-
 
 type ActiveTourStepType = typeof FIRST_LEVEL_STEPS[number] | null
 
@@ -45,24 +43,23 @@ const getActiveTourStepFromStorage = (): ActiveTourStepType => {
 
 export const TourProvider = ({ children }) => {
     const { organization } = useOrganization()
+    const organizationId = useMemo(() => organization?.id || null, [organization])
+    const organizationType = useMemo(() => organization?.type || null, [organization])
+
     const [getTourSteps, { refetch: refetchSteps }] = useGetTourStepsLazyQuery({
         variables: {
-            where: { organization: { id: get(organization, 'id', null) } },
+            where: { organization: { id: organizationId } },
         },
     })
 
     const updateTourStep = TourStep.useUpdate({})
 
-    const organizationId = useMemo(() => get(organization, 'id'), [organization])
-    const organizationType = useMemo(() => get(organization, 'type'), [organization])
     const [syncTourStepMutation, { loading: syncLoading }] = useSyncTourStepsMutation({
         onCompleted: async () => getTourSteps(),
         variables: {
-            data: {
-                organization: { id: organizationId },
-                dv: 1,
-                sender: getClientSideSenderInfo(),
-            },
+            organizationId,
+            dv: 1,
+            sender: getClientSideSenderInfo(),
         },
     })
 
@@ -101,7 +98,7 @@ export const TourProvider = ({ children }) => {
 
     const updateStepIfNotCompleted = useCallback(async (type: TourStepTypeType, nextRoute?: string) => {
         if (organizationType !== MANAGING_COMPANY_TYPE) return
-        // Нужна проверка на persistor
+
         const fetchResult = await getTourSteps({
             variables: {
                 where: {
@@ -110,7 +107,7 @@ export const TourProvider = ({ children }) => {
                 },
             },
         })
-        const tourStep = get(fetchResult, 'data.tourSteps.0')
+        const tourStep = fetchResult?.data?.tourSteps[0]
 
         if (!tourStep) return
 
@@ -133,18 +130,18 @@ export const TourProvider = ({ children }) => {
             switch (name) {
                 case 'createProperty': {
                     if (currentImport.current && isFirstSuccessImport.current) return
-                    if (get(data, 'obj.map')) {
+                    if (data?.obj?.map) {
                         await updateStepIfNotCompleted(TourStepTypeType.CreateProperty)
                         await updateStepIfNotCompleted(TourStepTypeType.CreatePropertyMap)
                     } else {
-                        await updateStepIfNotCompleted(TourStepTypeType.CreateProperty, `/property/${get(data, 'obj.id')}/map/update`)
+                        await updateStepIfNotCompleted(TourStepTypeType.CreateProperty, `/property/${data?.obj?.id}/map/update`)
                     }
 
                     break
                 }
 
                 case 'updateProperty': {
-                    if (!get(data, 'obj.map')) return
+                    if (data?.obj?.map) return
 
                     await updateStepIfNotCompleted(TourStepTypeType.CreatePropertyMap)
                     break

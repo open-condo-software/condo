@@ -6,7 +6,6 @@ import {
     useGetPropertyScopePropertiesQuery,
 } from '@app/condo/gql'
 import { TicketWhereInput } from '@app/condo/schema'
-import get from 'lodash/get'
 import { createContext, useCallback, useContext, useMemo } from 'react'
 
 
@@ -53,7 +52,7 @@ const getTicketsQueryByTicketVisibilityType = ({
         organization: { id: organizationId },
     }
     const isEmployeeInPropertyScopeWithAllProperties = !!propertyScopes.find(scope => scope.hasAllProperties)
-    const isEmployeeHasAllSpecializations = get(employee, 'hasAllSpecializations')
+    const isEmployeeHasAllSpecializations = employee?.hasAllSpecializations || null
 
     switch (ticketVisibilityType) {
         case ORGANIZATION_TICKET_VISIBILITY: {
@@ -146,13 +145,13 @@ const isEmployeeCanReadTicket = ({
     propertyScopes,
     employee,
 }) => {
-    const isUserIsTicketAssigneeOrExecutor = get(ticket, ['assignee', 'id']) === userId || get(ticket, ['executor', 'id']) === userId
-    const isEmployeeOrganizationMatchToTicketOrganization = get(ticket, ['organization', 'id']) === organizationId
-    const isTicketPropertyInPropertyScopes = !!properties.find(propertyId => propertyId === get(ticket, ['property', 'id']))
-    const isTicketClassifierInSpecializations = !!specializations.find(specId => specId === get(ticket, ['classifier', 'category', 'id']))
+    const isUserIsTicketAssigneeOrExecutor = ticket?.assignee?.id === userId || ticket?.executor?.id === userId
+    const isEmployeeOrganizationMatchToTicketOrganization = ticket?.organization?.id === organizationId
+    const isTicketPropertyInPropertyScopes = !!properties.find(propertyId => propertyId === ticket?.property?.id)
+    const isTicketClassifierInSpecializations = !!specializations.find(specId => specId === ticket?.classifier?.category?.id)
 
     const isEmployeeInPropertyScopeWithAllProperties = !!propertyScopes.find(scope => scope.hasAllProperties)
-    const isEmployeeHasAllSpecializations = get(employee, 'hasAllSpecializations')
+    const isEmployeeHasAllSpecializations = employee?.hasAllSpecializations || null
 
     switch (ticketVisibilityType) {
         case ORGANIZATION_TICKET_VISIBILITY: {
@@ -178,7 +177,7 @@ const isEmployeeCanReadTicket = ({
                 )
             }
             if (isEmployeeHasAllSpecializations) {
-                return isEmployeeOrganizationMatchToTicketOrganization && get(ticket, 'classifier') && (
+                return isEmployeeOrganizationMatchToTicketOrganization && ticket?.classifier && (
                     isTicketPropertyInPropertyScopes || isUserIsTicketAssigneeOrExecutor
                 )
             }
@@ -201,13 +200,13 @@ const isEmployeeCanReadTicket = ({
 
 const TicketVisibilityContextProvider: React.FC = ({ children }) => {
     const { user, isLoading } = useAuth()
-    const userId = get(user, 'id', null)
-    const userOrganization = useOrganization()
-    const organizationId = get(userOrganization, ['organization', 'id'], null)
-    const userOrganizationLoading = get(userOrganization, 'isLoading')
-    const employee = get(userOrganization, 'link')
-    const employeeId = get(employee, 'id', null)
-    const ticketVisibilityType = get(employee, ['role', 'ticketVisibilityType'])
+    const userId = useMemo(() => user?.id || null, [user])
+
+    const { isLoading: userOrganizationLoading, organization: userOrganization, employee } = useOrganization()
+    const organizationId = useMemo(() => userOrganization?.id || null, [userOrganization])
+    const employeeId = useMemo(() => employee?.id || null, [employee])
+    const ticketVisibilityType = useMemo(() => employee?.role?.ticketVisibilityType, [employee?.role?.ticketVisibilityType])
+
     const { persistor } = useCachePersistor()
 
     const { data: propertyScopeEmployeesResult, loading: employeesLoading } = useGetPropertyScopeOrganizationEmployeesQuery({
