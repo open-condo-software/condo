@@ -85,7 +85,6 @@ const PageContent: React.FC<PageContentProps> = ({
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
     const [moreApps, setMoreApps] = useState<Array<MiniAppOutput>>([])
-
     const [fetchMiniapps] = useLazyQuery<QueryResult>(ALL_MINI_APPS_QUERY, {
         onCompleted: (data) => {
             const fetchedApps = get(data, 'objs', [])
