@@ -2,7 +2,6 @@ import { useGetPropertyByOrganizationIdQuery, useGetTourStepsQuery } from '@app/
 import { SortPropertiesBy, SortTourStepsBy, TourStepStatusType, TourStepTypeType } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Col, Row, RowProps } from 'antd'
-import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isFunction from 'lodash/isFunction'
 import getConfig from 'next/config'
@@ -109,12 +108,12 @@ const TourPageContent = () => {
     const { locale } = useIntl()
     const { organization, isLoading } = useOrganization()
     const { persistor } = useCachePersistor()
-    const organizationId = organization?.id || null
+    const organizationId = useMemo(() => organization?.id || null, [organization])
     const { activeTourStep, setActiveTourStep, updateStepIfNotCompleted, syncLoading } = useTourContext()
     const handleBackClick = useCallback(() => setActiveTourStep(null), [setActiveTourStep])
 
     const {
-        data: tourStepsResult,
+        data: tourStepsData,
         loading: stepsLoading,
         refetch: refetchSteps,
     } = useGetTourStepsQuery({
@@ -126,10 +125,10 @@ const TourPageContent = () => {
         },
         skip: !organizationId || !persistor || isLoading || syncLoading,
     })
-    const tourSteps = useMemo(() => tourStepsResult?.tourSteps.filter(Boolean) || [], [tourStepsResult?.tourSteps])
+    const tourSteps = useMemo(() => tourStepsData?.tourSteps.filter(Boolean) || [], [tourStepsData?.tourSteps])
 
     const {
-        data: propertyResult,
+        data: propertyData,
     } = useGetPropertyByOrganizationIdQuery({
         variables: {
             organizationId,
@@ -137,7 +136,7 @@ const TourPageContent = () => {
         },
         skip: !organizationId || !persistor || isLoading || syncLoading,
     })
-    const lastCreatedProperty = useMemo(() => propertyResult?.properties.filter(Boolean) || [], [propertyResult?.properties])
+    const lastCreatedProperty = useMemo(() => propertyData?.properties.filter(Boolean) || [], [propertyData?.properties])
 
     const firstLevelSteps = useMemo(
         () => tourSteps.filter(step => FIRST_LEVEL_STEPS.includes(step.type)),
@@ -200,7 +199,7 @@ const TourPageContent = () => {
     const CardVideoTitle = intl.formatMessage({ id: `tour.cardVideo.title.${activeStepWithDefault}` as FormatjsIntl.Message['ids'] })
     const CardVideoDescription = intl.formatMessage({ id: `tour.cardVideo.description.${activeStepWithDefault}` as FormatjsIntl.Message['ids'] })
 
-    const videoUrl = useMemo(() => get(tourVideoUrl, [locale, activeStepWithDefault]), [activeStepWithDefault, locale])
+    const videoUrl = useMemo(() => tourVideoUrl?.[locale]?.[activeStepWithDefault], [activeStepWithDefault, locale])
 
     if (isLoading || stepsLoading || syncLoading) {
         return <Loader size='large'/>

@@ -3,7 +3,6 @@ import { SortBillingReceiptsBy, Ticket } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import dayjs from 'dayjs'
-import get from 'lodash/get'
 import React, { useMemo } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
@@ -60,7 +59,7 @@ const PaymentsAvailableIndicator: React.FC<PaymentsAvailableIndicatorProps> = ({
         },
         skip: !ticketOrganizationId || !propertyAddress || !persistor,
     })
-    const receiptsByProperty = useMemo(() => data?.count?.count, [data?.count?.count])
+    const receiptsByProperty = useMemo(() => data?.count?.count || 0, [data?.count?.count])
 
     const isPaymentsAvailable = !!receiptsByProperty
     const title = receiptsByProperty || isPaymentsAvailable ? PaymentsAvailableMessage : PaymentsNotAvailableMessage
@@ -79,9 +78,9 @@ interface TicketResidentFeaturesProps {
 const TICKET_RESIDENT_FEATURES_ROW_GUTTER: [Gutter, Gutter] = [8, 0]
 
 export const TicketResidentFeatures: React.FC<TicketResidentFeaturesProps> = ({ ticket }) => {
-    const isContactHasMobileApp = !!get(ticket, 'client')
-    const ticketOrganizationId = get(ticket, ['organization', 'id'], null)
-    const propertyAddress = get(ticket, ['property', 'address'], null)
+    const isContactHasMobileApp = !!ticket?.client
+    const ticketOrganizationId = ticket?.organization?.id || null
+    const propertyAddress = ticket?.property?.address || null
 
     return (
         <Row gutter={TICKET_RESIDENT_FEATURES_ROW_GUTTER}>
