@@ -35,7 +35,7 @@ const {
 const { createTestBankIntegrationAccountContext, createTestBankAccount, BankIntegration } = require('@condo/domains/banking/utils/testSchema')
 const { BankAccount, BankTransaction, createTestBankIntegrationOrganizationContext } = require('@condo/domains/banking/utils/testSchema')
 const { PARSED_TRANSACTIONS_TO_COMPARE } = require('@condo/domains/banking/utils/testSchema/assets/1CClientBankExchangeToKeystoneObjects')
-const { TASK_ERROR_STATUS } = require('@condo/domains/common/constants/tasks')
+const { TASK_ERROR_STATUS, TASK_COMPLETED_STATUS } = require('@condo/domains/common/constants/tasks')
 const { HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const {
     createTestOrganization,
@@ -886,6 +886,7 @@ describe('BankSyncTask', () => {
                 expectCorrectBankTransaction(transactions[3], PARSED_TRANSACTIONS_TO_COMPARE[3], organization, createdBankAccount)
 
                 const updatedTask1 = await BankSyncTask.getOne(adminClient, { id: task1.id })
+                expect(updatedTask1.status).toEqual(TASK_COMPLETED_STATUS)
                 expect(updatedTask1.meta).toBeNull()
             })
 

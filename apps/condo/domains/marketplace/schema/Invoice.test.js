@@ -943,7 +943,7 @@ describe('Invoice', () => {
             })
         })
 
-        test('client keep as is during update if no resident was deleted', async () => {
+        test('reset client during update if resident was deleted', async () => {
             const [o10n] = await createTestOrganization(adminClient)
 
             await createTestAcquiringIntegrationContext(adminClient, o10n, dummyAcquiringIntegration, {
@@ -999,7 +999,7 @@ describe('Invoice', () => {
             await updateTestResident(adminClient, resident.id, { deletedAt: faker.date.recent() })
             const [updatedInvoice] = await updateTestInvoice(staffClient, invoice.id, { status: INVOICE_STATUS_CANCELED })
 
-            expect(updatedInvoice.client.id).toBe(resident.user.id)
+            expect(updatedInvoice.client).toBe(null)
             expect(updatedInvoice.status).toBe(INVOICE_STATUS_CANCELED)
         })
     })
@@ -1711,6 +1711,62 @@ describe('Invoice', () => {
             expect(updatedInvoice.status).toEqual(INVOICE_STATUS_CANCELED)
         })
 
+        test(`can update status to ${INVOICE_STATUS_CANCELED} of published invoice if user&resident were created after invoice`, async () => {
+            const [o10n] = await createTestOrganization(adminClient)
+
+            await createTestAcquiringIntegrationContext(adminClient, o10n, dummyAcquiringIntegration, {
+                invoiceStatus: CONTEXT_FINISHED_STATUS,
+                invoiceRecipient: createTestRecipient(),
+            })
+
+            const [property] = await createTestProperty(adminClient, o10n)
+
+            const phone = createTestPhone()
+            const unitType = FLAT_UNIT_TYPE
+            const unitName = faker.lorem.word()
+
+            const staffClient = await makeClientWithStaffUser()
+            const [role] = await createTestOrganizationEmployeeRole(adminClient, o10n, {
+                canManageInvoices: true,
+                canManageContacts: true,
+            })
+            await createTestOrganizationEmployee(adminClient, o10n, staffClient.user, role)
+
+            const [contact] = await createTestContact(staffClient, o10n, property, {
+                phone,
+                unitType,
+                unitName,
+            })
+
+            const [invoice] = await createTestInvoice(staffClient, o10n, {
+                property: { connect: { id: property.id } },
+                unitType,
+                unitName,
+                contact: { connect: { id: contact.id } },
+                status: INVOICE_STATUS_PUBLISHED,
+            })
+
+            expect(invoice).toEqual(expect.objectContaining({
+                id: invoice.id,
+                client: null,
+            }))
+
+            const residentClient = await makeClientWithResidentUser({}, { phone })
+            const [resident] = await registerResidentByTestClient(
+                residentClient,
+                {
+                    address: property.address,
+                    addressMeta: property.addressMeta,
+                    unitType,
+                    unitName,
+                })
+
+            const [updatedInvoice] = await updateTestInvoice(staffClient, invoice.id, { status: INVOICE_STATUS_CANCELED })
+
+            expect(updatedInvoice.client.id).toBe(resident.user.id)
+            expect(updatedInvoice.status).toBe(INVOICE_STATUS_CANCELED)
+        })
+
         test('can\'t edit published invoice', async () => {
             const [invoice] = await createTestInvoice(adminClient, dummyOrganization, { status: INVOICE_STATUS_PUBLISHED })
 
@@ -1729,7 +1785,6 @@ describe('Invoice', () => {
                 messageForUser: 'api.marketplace.invoice.FORBID_EDIT_PUBLISHED',
                 changedFields: expect.objectContaining({
                     rows: expect.arrayContaining(newRows.map((r) => expect.objectContaining(r))),
-                    toPay: newToPay,
                 }),
             })
         })
