@@ -4,7 +4,7 @@ const { get } = require('lodash')
 const conf = require('@open-condo/config')
 
 const { _internalGetExecutionContextAsyncLocalStorage } = require('./executionContext')
-const { getKVClient, getKVPrefix } = require('./kv')
+const { getKVClient, getKVPrefix, checkMinimalKVDataVersion } = require('./kv')
 const { getLogger } = require('./logging')
 const { gauge } = require('./metrics')
 const { prepareKeystoneExpressApp } = require('./prepareKeystoneApp')
@@ -342,6 +342,7 @@ function getTaskLoggingContext (job) {
  * @return {Promise<void>}
  */
 async function createWorker (keystoneModule, config) {
+    await checkMinimalKVDataVersion(2)
     // NOTE: we should have only one worker per node process!
     if (isWorkerCreated) {
         logger.warn('Call createWorker() more than one time! (ignored)')

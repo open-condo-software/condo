@@ -50,7 +50,7 @@ const PREFIX = getKVPrefix()
  * @param {Object} opts -- client config such as internal API for storages and custom @open-condo specific ones
  * @param {Object} opts.kvOptions -- key-value storage config to customize some client options; But please don't use it!
  * @param {boolean} opts.ignorePrefix -- special option for disable prepending app specific prefix to all key operations. Using this flag in the enabled state should only be done if you understand how the cluster works, as well as eliminating incompatibility with third-party libraries by setting your own prefix
- * @return {import('ioredis')}
+ * @return {import('ioredis').Cluster}
  */
 function getKVClient (name = 'default', purpose = 'regular', opts = { kvOptions: {}, ignorePrefix: false }) {
     const clientKey = name + ':' + purpose
@@ -87,7 +87,27 @@ function getKVClient (name = 'default', purpose = 'regular', opts = { kvOptions:
     return KV_CLIENTS[clientKey]
 }
 
+async function checkMinimalKVDataVersion (version) {
+    const kv = getKVClient()
+    const dbSize = await kv.dbsize()
+
+    if (dbSize === 0) {
+        await kv.set('data_version', version)
+        return
+    }
+
+    const versionString = await kv.get('data_version')
+    if (!versionString || Number.isNaN(parseInt(versionString)) || parseInt(versionString) < version) {
+        throw new Error(
+            'Your KV storage is not empty and contains an older version of the data. \n' +
+            'You need to manually migrate the KV storage before proceeding. \n' +
+            'For further instructions, see /docs/migration.md \n'
+        )
+    }
+}
+
 module.exports = {
     getKVClient,
     getKVPrefix,
+    checkMinimalKVDataVersion,
 }
