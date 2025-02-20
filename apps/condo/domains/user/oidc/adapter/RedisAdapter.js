@@ -91,6 +91,9 @@ class RedisAdapter {
             ? { payload: JSON.stringify(payload) } : JSON.stringify(payload)
 
         const multi = this.redis.multi()
+        const multiGrant = this.redis.multi()
+        const multiUser = this.redis.multi()
+        const multiUid = this.redis.multi()
         multi[CONSUMABLE.has(this.name) ? 'hmset' : 'set'](key, store)
 
         if (expiresIn) {
@@ -99,28 +102,29 @@ class RedisAdapter {
 
         if (GRANTABLE.has(this.name) && payload.grantId) {
             const grantKey = grantKeyFor(payload.grantId)
-            multi.rpush(grantKey, key)
+            multiGrant.rpush(grantKey, key)
+
             // if you're seeing grant key lists growing out of acceptable proportions consider using LTRIM
             // here to trim the list to an appropriate length
             const ttl = await this.redis.ttl(grantKey)
             if (expiresIn > ttl) {
-                multi.expire(grantKey, expiresIn)
+                multiGrant.expire(grantKey, expiresIn)
             }
         }
 
         if (payload.userCode) {
             const userCodeKey = userCodeKeyFor(payload.userCode)
-            multi.set(userCodeKey, id)
-            multi.expire(userCodeKey, expiresIn)
+            multiUser.set(userCodeKey, id)
+            multiUser.expire(userCodeKey, expiresIn)
         }
 
         if (payload.uid) {
             const uidKey = uidKeyFor(payload.uid)
-            multi.set(uidKey, id)
-            multi.expire(uidKey, expiresIn)
+            multiUid.set(uidKey, id)
+            multiUid.expire(uidKey, expiresIn)
         }
 
-        await multi.exec()
+        await Promise.all([multi.exec(), multiGrant.exec(), multiUser.exec(), multiUid.exec()])
     }
 
     async revokeByGrantId (grantId) { // eslint-disable-line class-methods-use-this
