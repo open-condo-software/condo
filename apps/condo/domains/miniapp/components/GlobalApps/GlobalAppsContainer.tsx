@@ -1,7 +1,6 @@
 import { useGetB2BAppsQuery } from '@app/condo/gql'
 import { SortB2BAppsBy } from '@app/condo/schema'
 import get from 'lodash/get'
-import isNull from 'lodash/isNull'
 import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 
@@ -30,13 +29,11 @@ export const GlobalAppsContainer: React.FC = () => {
     //  so miniapps can use bridge.subscribe with Type safety on them!
     const { user, isLoading } = useAuth()
     const { organization } = useOrganization()
-    const organizationId = organization?.id || null
+    const organizationId = useMemo(() => organization?.id || null, [organization])
     const { persistor } = useCachePersistor()
 
     const {
-        data,
-        loading,
-        refetch,
+        data: B2BAppsData,
     } = useGetB2BAppsQuery({
         variables: {
             where: {
@@ -47,12 +44,11 @@ export const GlobalAppsContainer: React.FC = () => {
         },
         skip: !user || !organizationId || isLoading || !persistor,
     })
-    const b2bApps = useMemo(() => data?.b2bApps.filter(Boolean) || [], [data?.b2bApps])
+    const b2bApps = useMemo(() => B2BAppsData?.b2bApps.filter(Boolean) || [], [B2BAppsData?.b2bApps])
 
     const appUrls = b2bApps.map(app => app.appUrl)
 
     const iframeRefs = useRef<Array<HTMLIFrameElement>>([])
-    const isGlobalAppsFetched = useRef(false)
     const [isDebug, setIsDebug] = useState(false)
     const { registerFeatures, addFeatureHandler, removeFeatureHandler, features } = useGlobalAppsFeaturesContext()
 
@@ -127,14 +123,6 @@ export const GlobalAppsContainer: React.FC = () => {
             }
         }
     }, [organizationId])
-
-    useEffect(() => {
-        if (!isGlobalAppsFetched.current && !loading && !isNull(user) && !isLoading) {
-            // Зачем нужен этот фетч?
-            // refetch()
-            isGlobalAppsFetched.current = true
-        }
-    }, [user, loading, isLoading])
 
     // Global miniapps allowed only for authenticated employees
     if (!user || !organizationId) {

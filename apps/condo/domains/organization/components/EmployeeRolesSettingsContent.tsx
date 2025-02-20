@@ -547,7 +547,6 @@ export const EmployeeRolesSettingsContent = ({ useEmployeeRolesTableData }) => {
         sortBy: [SortOrganizationEmployeeRolesBy.IsDefaultDesc, SortOrganizationEmployeeRolesBy.NameAsc],
     })
 
-    // Рефактор!
     const {
         objs: b2bAppContexts,
         loading: b2bAppContextsLoading,

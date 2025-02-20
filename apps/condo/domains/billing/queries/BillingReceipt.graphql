@@ -1,5 +1,5 @@
-query getBillingReceiptsCount ($where: BillingReceiptWhereInput!, $sortBy: [SortBillingReceiptsBy!], $first: Int, $skip: Int) {
-    count: _allBillingReceiptsMeta (where: $where, sortBy: $sortBy, first: $first, skip: $skip) {
+query getBillingReceiptsCount ($where: BillingReceiptWhereInput!, $sortBy: [SortBillingReceiptsBy!]) {
+    count: _allBillingReceiptsMeta (where: $where, sortBy: $sortBy) {
         count
     }
 }

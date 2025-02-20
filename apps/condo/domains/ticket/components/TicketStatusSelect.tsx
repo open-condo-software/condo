@@ -3,7 +3,6 @@ import { useUpdateTicketMutation } from '@app/condo/gql'
 import { TicketStatusTypeType } from '@app/condo/schema'
 import { notification } from 'antd'
 import { Dayjs } from 'dayjs'
-import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isFunction from 'lodash/isFunction'
 import React, { useCallback, useMemo, useState } from 'react'
@@ -25,10 +24,11 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
     const intl = useIntl()
 
     const { getSuccessfulChangeNotification } = useNotificationMessages()
-
     const client = useApolloClient()
-    const { statuses, loading } = useStatusTransitions(get(ticket, ['status', 'id']), organization, employee)
-    const canManageTickets = useMemo(() => get(employee, ['role', 'canManageTickets'], false), [employee])
+
+    const ticketId = useMemo(() => ticket?.id || null, [ticket])
+    const { statuses, loading } = useStatusTransitions(ticket?.status?.id, organization, employee)
+    const canManageTickets = useMemo(() => employee?.role?.canManageTickets || false, [employee])
     const [isUpdating, setUpdating] = useState(false)
     const handleUpdate = useCallback(() => {
         if (isFunction(onUpdate)) onUpdate()
@@ -82,7 +82,6 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
         })
     }, [updateTicketStatus])
 
-    const ticketId = get(ticket, 'id')
     const { cancelTicketModal, openModal: openCancelModal } = useTicketCancelModal(updateTicket, ticketId)
     const { deferTicketModal, openModal: openTicketDeferModal } = useTicketDeferModal(updateDeferredTicket)
 
@@ -104,7 +103,7 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
     }), [statuses, ticket])
 
     const handleChange = useCallback(({ value }) => {
-        const selectedStatus = statuses.find((status) => get(status, 'id') === value)
+        const selectedStatus = statuses.find((status) => status.id === value)
         if (selectedStatus.type === TicketStatusTypeType.Canceled) {
             openCancelModal(value)
         } else if (selectedStatus.type === TicketStatusTypeType.Deferred) {
@@ -118,7 +117,7 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
 
     const { primary: backgroundColor, secondary: color } = ticket.status.colors
     const selectValue = useMemo(
-        () => ({ value: get(ticket, 'status.id'), label: getTicketLabel(intl, ticket) }),
+        () => ({ value: ticket?.status?.id, label: getTicketLabel(intl, ticket) }),
         [getTicketLabel, ticket?.status?.id, intl, ticket]
     )
 

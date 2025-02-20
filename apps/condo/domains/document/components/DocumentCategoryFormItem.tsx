@@ -17,7 +17,6 @@ export const DocumentCategoryFormItem: React.FC<DocumentCategoryFormItemProps> =
     const CategoryTitle = intl.formatMessage({ id: 'documents.uploadDocumentsModal.category.title' })
     const CategoryPlaceholder = intl.formatMessage({ id: 'documents.uploadDocumentsModal.category.placeholder' })
 
-    // Рефактор!
     const { objs: categories, allDataLoaded: allCategoriesLoaded } = DocumentCategory.useAllObjects({})
 
     const categoryOptions = useMemo(() => categories.map(category =>

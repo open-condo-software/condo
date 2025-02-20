@@ -1,7 +1,5 @@
 import {
     CreateIncidentMutationFn, UpdateIncidentMutationFn,
-    CreateIncidentMutationResult, UpdateIncidentMutationResult,
-    CreateIncidentMutationHookResult, UpdateIncidentMutationHookResult,
     useCreateIncidentClassifierIncidentMutation,
     useCreateIncidentPropertyMutation,
     useUpdateIncidentClassifierIncidentMutation,

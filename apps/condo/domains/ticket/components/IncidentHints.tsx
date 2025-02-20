@@ -176,7 +176,7 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
         })
 
         return res?.data?.incidentProperties?.filter(Boolean) || []
-    }, [])
+    }, [propertyId, organizationId])
 
     const fetchIncidents: FetchIncidentsType = useCallback(async ({ sortBy, incidentIds, organizationId, status, workFinishedInLastDays }) => {
         const where: IncidentWhereInput = {
@@ -207,7 +207,7 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
         })
 
         return res?.data?.incidents?.filter(Boolean) || []
-    }, [])
+    }, [organizationId])
 
     const fetchIncidentClassifierIncidents = useCallback(async (incidentIds: string[], categoryId?: string, problemId?: string) => {
         if (incidentIds.length < 1) {
@@ -282,7 +282,6 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
     }, [fetchIncidentClassifierIncidents])
 
     useEffect(() => {
-        // Реально должны рефетчить в первый рендер, даже если есть кэш?
         // NOTE: we should refetch all incidents if only was updated propertyId or organizationId
         getAllIncidents(propertyId, organizationId)
     }, [getAllIncidents, propertyId, organizationId])

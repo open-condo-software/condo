@@ -35,7 +35,6 @@ export const RecipientSettingsContent = () => {
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
-    // Рефактор!
     const {
         objs: bankAccounts,
         loading: BankAccountsIsLoading,

@@ -1,11 +1,10 @@
-import { useGetTicketInvoiceCountQuery } from '@app/condo/gql'
+import { useGetTicketInvoicesCountQuery } from '@app/condo/gql'
 import React, { useCallback, useMemo, useState } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography, Button, Modal } from '@open-condo/ui'
 
-import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
 
 type useTicketCancelModalType = (updateTicket: (id: string) => void, ticketId: string) => { openModal: (statusCanceledId: string) => void, cancelTicketModal: JSX.Element, closeModal: () => void }
 
@@ -21,7 +20,7 @@ export const useTicketCancelModal: useTicketCancelModalType = (updateTicket, tic
 
     const { persistor } = useCachePersistor()
 
-    const { data } = useGetTicketInvoiceCountQuery({
+    const { data } = useGetTicketInvoicesCountQuery({
         variables: {
             ticketId,
         },

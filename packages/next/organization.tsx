@@ -81,7 +81,9 @@ const organizationToUserFragment = `
     }
     role {
       id
+      ticketVisibilityType
     }
+    hasAllSpecializations
 `
 
 /** @deprecated */
