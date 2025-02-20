@@ -25,8 +25,8 @@ async function connectContactToMeterReading (context, resolvedData, existingItem
 
 /**
  * If restrictionEnd is bigger than the number of days in the month, then return the last day of month, else return restrictionEnd
- * @param restrictionEndDay
- * @param lastDayOfMonth
+ * @param {number} restrictionEndDay
+ * @param {number} lastDayOfMonth
  * @returns {number}
  */
 function getAdjustedRestrictionEnd (restrictionEndDay, lastDayOfMonth) {
