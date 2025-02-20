@@ -247,6 +247,9 @@ function split (paymentAmount, distribution, options = {}) {
                 restUndistributedFeeAmount = isLast ? Big(0) : restUndistributedFeeAmount.minus(roundedFeeShare)
                 splits[i].feeAmount = roundedFeeShare.toString()
                 const newAmount = Big(splits[i].amount).minus(roundedFeeShare)
+                if (newAmount.lt(0)) {
+                    throw new Error(`Recipient ${JSON.stringify(splits[i].recipient)} has amount=${splits[i].amount} and feeAmount=${splits[i].feeAmount}`)
+                }
                 splits[i].amount = newAmount.toString()
             }
         } else {
