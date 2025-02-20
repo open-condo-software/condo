@@ -86,18 +86,18 @@ export class ListHelper {
             return undefined
         }
 
-        const currentList = existing.slice(skip, skip + first)
+        const currentList = existing.slice(skip, skip + first).filter(Boolean)
 
         const cache = options?.cache.extract()
 
-        const hasBrokenLinks = currentList.filter(Boolean).some((link) => {
+        const hasBrokenLinks = currentList.some((link) => {
             const ref = (link as Reference)?.__ref
             return ref && cache && !(ref in cache)
         })
 
         if (hasBrokenLinks) return undefined
 
-        return currentList.filter(Boolean)
+        return currentList
     }
 
     /**
