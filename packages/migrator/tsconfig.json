@@ -8,7 +8,7 @@
     "moduleResolution": "Bundler",
     "rootDir": "./src",
     "outDir": "dist",
-    "declarationDir": "dist/types",
+    "declarationDir": "dist",
     "declarationMap": false,
     "noUnusedLocals": true,
     "noUnusedParameters": true,

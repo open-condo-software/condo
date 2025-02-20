@@ -31,7 +31,7 @@
     "url": "https://github.com/SavelevMatthew"
   },
   "files": [
-    "bin"
+    "dist"
   ],
   "publishConfig": {
     "access": "public"
