@@ -13,7 +13,6 @@ import {
     IncidentClassifierIncident as IIncidentClassifierIncident,
     IncidentCreateInput as IIncidentCreateInput,
     IncidentUpdateInput as IIncidentUpdateInput,
-    // QueryAllIncidentsArgs as IQueryAllIncidentsArgs,
     IncidentStatusType,
     IncidentClassifier as IIncidentClassifier,
 } from '@app/condo/schema'
@@ -33,7 +32,6 @@ import { DefaultOptionType } from 'rc-select/lib/Select'
 import React, { ComponentProps, useCallback, useEffect, useMemo, useState } from 'react'
 import { Options as ScrollOptions } from 'scroll-into-view-if-needed'
 
-// import { IGenerateHooksResult } from '@open-condo/codegen/generate.hooks'
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useApolloClient } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
@@ -55,10 +53,6 @@ import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCou
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { INCIDENT_WORK_TYPE_SCHEDULED, INCIDENT_WORK_TYPE_EMERGENCY } from '@condo/domains/ticket/constants/incident'
 import { MIN_DESCRIPTION_LENGTH } from '@condo/domains/ticket/constants/restrictions'
-import {
-// IncidentClassifierIncident,
-// IncidentProperty,
-} from '@condo/domains/ticket/utils/clientSchema'
 import { IncidentClassifiersQueryLocal, Option } from '@condo/domains/ticket/utils/clientSchema/incidentClassifierSearch'
 import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 
@@ -331,14 +325,10 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     const Details = useInputWithCounter(TextArea, 1500)
     const TextForResident = useInputWithCounter(TextArea, 500)
 
-    // const createIncidentProperty = IncidentProperty.useCreate({})
     const [createIncidentProperty] = useCreateIncidentPropertyMutation()
-    // const softDeleteIncidentProperty = IncidentProperty.useSoftDelete()
     const [updateIncidentProperty] = useUpdateIncidentPropertyMutation()
 
-    // const createIncidentClassifierIncident = IncidentClassifierIncident.useCreate({})
     const [createIncidentClassifierIncident] = useCreateIncidentClassifierIncidentMutation()
-    // const softDeleteIncidentClassifierIncident = IncidentClassifierIncident.useSoftDelete()
     const [updateIncidentClassifierIncident] = useUpdateIncidentClassifierIncidentMutation()
 
     const initialIncidentOrganization = useMemo(() => get(initialValues, 'organization.name'), [initialValues])

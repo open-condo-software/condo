@@ -7,10 +7,8 @@ import { useCachePersistor } from '@open-condo/apollo'
 import { useIntl } from '@open-condo/next/intl'
 
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
-import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 
 import { TicketUserInfoField } from './TicketUserInfoField'
-
 
 
 type TicketAssigneeFieldProps = {
@@ -19,7 +17,6 @@ type TicketAssigneeFieldProps = {
 }
 
 export const TicketAssigneeField: FC<TicketAssigneeFieldProps> = ({ ticket, phonePrefix }) => {
-    console.log('Render TicketAssigneeField start')
     const intl = useIntl()
     const AssigneeMessage = intl.formatMessage({ id: 'field.Responsible' })
     const EmployeeIsNullOrWasDeletedMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.EmployeeIsNullOrWasDeleted' })
@@ -27,17 +24,6 @@ export const TicketAssigneeField: FC<TicketAssigneeFieldProps> = ({ ticket, phon
     const ticketAssigneeUserId = useMemo(() => ticket?.assignee?.id, [ticket])
 
     const { persistor } = useCachePersistor()
-
-    // const { obj: assignee } = OrganizationEmployee.useObject({
-    //     where: {
-    //         organization: {
-    //             id: ticketOrganizationId,
-    //         },
-    //         user: {
-    //             id: ticketAssigneeUserId,
-    //         },
-    //     },
-    // })
 
     const {
         data,

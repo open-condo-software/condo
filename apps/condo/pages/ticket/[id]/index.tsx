@@ -799,7 +799,6 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
 }
 
 const TicketIdPage: PageComponentType = () => {
-    console.log('Render TicketIdPage start')
     const intl = useIntl()
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
     const { persistor } = useCachePersistor()
@@ -851,7 +850,6 @@ const TicketIdPage: PageComponentType = () => {
 
     const pollCommentsQuery = useMemo(() => ({ ticket: { organization: { id: get(organization, 'id', null) } } }),
         [organization])
-    console.log('Render TicketIdPage end')
 
     if (!ticket || ticketFilterQueryLoading) {
         return (
