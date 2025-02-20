@@ -49,6 +49,9 @@ async function canReadInvoices (args) {
 
     let canReadAsB2BAppServiceUser = false
     if (user.type === SERVICE) {
+        // service user may make call as billing integration, when acquiring updates payment to "withdrawn".
+        // But we do not able to check access of service user to integration, because invoice does not contain integration
+        // So we do not return the result here
         canReadAsB2BAppServiceUser = await canReadObjectsAsB2BAppServiceUser(args)
     }
 

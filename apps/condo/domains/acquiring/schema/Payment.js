@@ -381,16 +381,11 @@ const Payment = new GQLListSchema('Payment', {
 
                     const appliedSplits = relatedPayments.reduce((acc, payment) => [...acc, ...payment.frozenSplits], [])
 
-                    const totalAmount = Big(resolvedData['amount'] || 0)
-                        .plus(resolvedData['explicitFee'] || 0)
-                        .plus(resolvedData['explicitServiceCharge'] || 0)
+                    const splitsAmount = Big(resolvedData['amount'] || 0)
+                    const splitsFeeAmount = Big(resolvedData['implicitFee'] || 0)
 
-                    const totalFeeAmount = Big(resolvedData['implicitFee'] || 0)
-                        .plus(resolvedData['explicitFee'] || 0)
-                        .plus(resolvedData['explicitServiceCharge'] || 0)
-
-                    resolvedData['frozenSplits'] = split(totalAmount.toString(), frozenDistribution, {
-                        feeAmount: totalFeeAmount.toString(),
+                    resolvedData['frozenSplits'] = split(splitsAmount.toString(), frozenDistribution, {
+                        feeAmount: splitsFeeAmount.toString(),
                         appliedSplits,
                     })
                 }

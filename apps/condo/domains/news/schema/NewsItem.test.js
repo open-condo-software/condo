@@ -17,7 +17,7 @@ const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
-    expectToThrowAccessDeniedToFieldError,
+    expectToThrowAccessDeniedToRelationFieldError,
     catchErrorFrom,
 } = require('@open-condo/keystone/test.utils')
 
@@ -728,7 +728,7 @@ describe('NewsItems', () => {
                         const [role] = await createTestOrganizationEmployeeRole(adminClient, user_cant_o10n, { canReadNewsItems: true })
                         await createTestOrganizationEmployee(adminClient, user_cant_o10n, staffClient.user, role)
 
-                        await expectToThrowAccessDeniedToFieldError(async () => {
+                        await expectToThrowAccessDeniedToRelationFieldError(async () => {
                             await CustomNewsItemUtils.getAll(staffClient)
                         }, 'objs', 'scopes', 2)
                     })
@@ -748,7 +748,7 @@ describe('NewsItems', () => {
                         await publishTestNewsItem(adminClient, user_cant_newsItem2.id)
 
                         await waitFor(async () => {
-                            await expectToThrowAccessDeniedToFieldError(async () => {
+                            await expectToThrowAccessDeniedToRelationFieldError(async () => {
                                 await CustomNewsItemUtils.getAll(residentClient)
                             }, 'objs', 'scopes')
                         }, { delay: (SENDING_DELAY_SEC + 2) * 1000 })

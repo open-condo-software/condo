@@ -85,6 +85,13 @@ const { createTestUserRightsSet, updateTestUser } = require('@condo/domains/user
 
 
 describe('Payment', () => {
+
+    let adminClient
+
+    beforeAll(async () => {
+        adminClient = await makeLoggedInAdminClient()
+    })
+
     describe('CRUD tests', () => {
         describe('Create', () => {
             test('admin can', async () => {
@@ -586,7 +593,7 @@ describe('Payment', () => {
                 expect(payment.frozenSplits).toHaveLength(3)
                 expect(payment.frozenSplits).toEqual(expect.arrayContaining([
                     { recipient: expect.objectContaining(recipient1), amount: '100' },
-                    { recipient: expect.objectContaining(recipient2), amount: '300', feeAmount: '25' },
+                    { recipient: expect.objectContaining(recipient2), amount: '300' },
                     { recipient: expect.objectContaining(recipient3), amount: '100' },
                 ]))
             })
@@ -647,14 +654,12 @@ describe('Payment', () => {
                 expect(payment.frozenSplits).toHaveLength(3)
                 expect(payment.frozenSplits).toEqual(expect.arrayContaining([
                     { recipient: expect.objectContaining(recipient1), amount: '100' },
-                    { recipient: expect.objectContaining(recipient2), amount: '300', feeAmount: '25' },
+                    { recipient: expect.objectContaining(recipient2), amount: '300' },
                     { recipient: expect.objectContaining(recipient3), amount: '100' },
                 ]))
             })
 
             test('Should fill distribution field if paying for invoice', async () => {
-                const adminClient = await makeLoggedInAdminClient()
-
                 const [acquiringIntegration] = await createTestAcquiringIntegration(adminClient, {
                     canGroupReceipts: true,
                 })
@@ -786,8 +791,6 @@ describe('Payment', () => {
             })
 
             test('Should fill distribution field if paying for invoice partially with implicit fee', async () => {
-                const adminClient = await makeLoggedInAdminClient()
-
                 const [acquiringIntegration] = await createTestAcquiringIntegration(adminClient, {
                     canGroupReceipts: true,
                 })
@@ -914,8 +917,6 @@ describe('Payment', () => {
             })
 
             test('Should fill distribution field if paying for invoice partially with explicit fee', async () => {
-                const adminClient = await makeLoggedInAdminClient()
-
                 const [acquiringIntegration] = await createTestAcquiringIntegration(adminClient, {
                     canGroupReceipts: true,
                 })
@@ -1017,9 +1018,9 @@ describe('Payment', () => {
                 }))))
                 expect(payment1.frozenSplits).toHaveLength(3)
                 expect(payment1.frozenSplits).toEqual(expect.arrayContaining([
-                    { recipient: expect.objectContaining(recipient1), amount: '42' },
-                    { recipient: expect.objectContaining(recipient2), amount: '116', feeAmount: '10' },
-                    { recipient: expect.objectContaining(recipient3), amount: '42' },
+                    { recipient: expect.objectContaining(recipient1), amount: '40' },
+                    { recipient: expect.objectContaining(recipient2), amount: '120' },
+                    { recipient: expect.objectContaining(recipient3), amount: '40' },
                 ]))
 
                 const [payment2] = await createTestPayment(adminClient, organization, null, acquiringContext, {
@@ -1035,15 +1036,13 @@ describe('Payment', () => {
                 }))))
                 expect(payment2.frozenSplits).toHaveLength(3)
                 expect(payment2.frozenSplits).toEqual(expect.arrayContaining([
-                    { recipient: expect.objectContaining(recipient1), amount: '58' },
-                    { recipient: expect.objectContaining(recipient2), amount: '184', feeAmount: '15' },
-                    { recipient: expect.objectContaining(recipient3), amount: '58' },
+                    { recipient: expect.objectContaining(recipient1), amount: '60' },
+                    { recipient: expect.objectContaining(recipient2), amount: '180' },
+                    { recipient: expect.objectContaining(recipient3), amount: '60' },
                 ]))
             })
 
             test('Should fill distribution field if paying for invoice partially with explicit service charge', async () => {
-                const adminClient = await makeLoggedInAdminClient()
-
                 const [acquiringIntegration] = await createTestAcquiringIntegration(adminClient, {
                     canGroupReceipts: true,
                 })
@@ -1146,9 +1145,9 @@ describe('Payment', () => {
                 }))))
                 expect(payment1.frozenSplits).toHaveLength(3)
                 expect(payment1.frozenSplits).toEqual(expect.arrayContaining([
-                    { recipient: expect.objectContaining(recipient1), amount: '42' },
-                    { recipient: expect.objectContaining(recipient2), amount: '116', feeAmount: '10' },
-                    { recipient: expect.objectContaining(recipient3), amount: '42' },
+                    { recipient: expect.objectContaining(recipient1), amount: '40' },
+                    { recipient: expect.objectContaining(recipient2), amount: '120' },
+                    { recipient: expect.objectContaining(recipient3), amount: '40' },
                 ]))
 
                 const [payment2] = await createTestPayment(adminClient, organization, null, acquiringContext, {
@@ -1165,15 +1164,13 @@ describe('Payment', () => {
                 }))))
                 expect(payment2.frozenSplits).toHaveLength(3)
                 expect(payment2.frozenSplits).toEqual(expect.arrayContaining([
-                    { recipient: expect.objectContaining(recipient1), amount: '58' },
-                    { recipient: expect.objectContaining(recipient2), amount: '184', feeAmount: '15' },
-                    { recipient: expect.objectContaining(recipient3), amount: '58' },
+                    { recipient: expect.objectContaining(recipient1), amount: '60' },
+                    { recipient: expect.objectContaining(recipient2), amount: '180' },
+                    { recipient: expect.objectContaining(recipient3), amount: '60' },
                 ]))
             })
 
             test('Should fill distribution field if paying for invoice with implicit fee and explicit service charge', async () => {
-                const adminClient = await makeLoggedInAdminClient()
-
                 const [acquiringIntegration] = await createTestAcquiringIntegration(adminClient, {
                     canGroupReceipts: true,
                 })
@@ -1277,7 +1274,7 @@ describe('Payment', () => {
                 expect(payment1.frozenSplits).toHaveLength(3)
                 expect(payment1.frozenSplits).toEqual(expect.arrayContaining([
                     { recipient: expect.objectContaining(recipient1), amount: '100' },
-                    { recipient: expect.objectContaining(recipient2), amount: '290', feeAmount: '25' },
+                    { recipient: expect.objectContaining(recipient2), amount: '290', feeAmount: '10' },
                     { recipient: expect.objectContaining(recipient3), amount: '100' },
                 ]))
             })
@@ -1375,7 +1372,7 @@ describe('Payment', () => {
                 })
             })
 
-            test('context should should have same organization as payment', async () => {
+            test('context should have same organization as payment', async () => {
                 const { admin, acquiringContext } = await makePayer()
                 const [secondOrganization] = await createTestOrganization(admin)
                 await expectToThrowValidationFailureError(async () => {

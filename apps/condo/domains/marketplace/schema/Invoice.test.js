@@ -8,6 +8,8 @@ const dayjs = require('dayjs')
 const isSameOrAfter = require('dayjs/plugin/isSameOrAfter')
 const { omit, pick, get } = require('lodash')
 
+const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
+const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
 const conf = require('@open-condo/config')
 const {
     makeLoggedInAdminClient,
@@ -18,6 +20,8 @@ const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowGQLError,
     expectToThrowGraphQLRequestError, waitFor,
+    expectToThrowAccessDeniedToFieldError,
+    expectToThrowAccessDeniedToManageFieldError,
 } = require('@open-condo/keystone/test.utils')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
@@ -26,6 +30,7 @@ const {
     createTestAcquiringIntegrationContext,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestBankAccount } = require('@condo/domains/banking/utils/testSchema')
+const { AMOUNT_DISTRIBUTION_SUBFIELDS } = require('@condo/domains/billing/gql')
 const { createTestBillingIntegration, createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 const {
@@ -2402,6 +2407,195 @@ describe('Invoice', () => {
                         type: 'NO_OVERPAYMENT_RECEIVER',
                         message: 'Distribution does not have at least one item with overpaymentPart value',
                     })
+                })
+            })
+        })
+    })
+
+    describe('access to fields', () => {
+        describe('amountDistribution', () => {
+            let bankAccount1, bankAccount2, recipient1, recipient2
+            let staffWithPermissionsClient, staffWithoutPermissionsClient, residentClient
+            let CustomInvoiceTestUtils
+
+            const rows = [
+                generateInvoiceRow({ toPay: '100', count: 2 }),
+                generateInvoiceRow({ toPay: '300', count: 1 }),
+            ]
+            const rowsAmount = rows.reduce((acc, { toPay, count }) => acc.plus(Big(toPay).times(count)), Big(0)).toString()
+
+            beforeAll(async () => {
+                residentClient = await makeClientWithResidentUser()
+                // Generate utils containing the `amountDistribution` field
+                CustomInvoiceTestUtils = generateGQLTestUtils(generateGqlQueries(
+                    'Invoice',
+                    `{ id organization { id } number amountDistribution { ${AMOUNT_DISTRIBUTION_SUBFIELDS} } }`
+                ));
+                [bankAccount1] = await createTestBankAccount(supportClient, dummyOrganization);
+                [bankAccount2] = await createTestBankAccount(supportClient, dummyOrganization)
+
+                recipient1 = createTestRecipient({
+                    tin: bankAccount1.tin,
+                    bic: bankAccount1.routingNumber,
+                    bankAccount: bankAccount1.number,
+                })
+
+                recipient2 = createTestRecipient({
+                    tin: bankAccount2.tin,
+                    bic: bankAccount2.routingNumber,
+                    bankAccount: bankAccount2.number,
+                })
+
+                staffWithPermissionsClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [roleWithPermissions] = await createTestOrganizationEmployeeRole(adminClient, dummyOrganization, {
+                    canReadInvoices: true,
+                    canManageInvoices: true,
+                })
+                await createTestOrganizationEmployee(adminClient, dummyOrganization, staffWithPermissionsClient.user, roleWithPermissions)
+
+                staffWithoutPermissionsClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [roleWithoutPermissions] = await createTestOrganizationEmployeeRole(adminClient, dummyOrganization, {
+                    canReadInvoices: false,
+                    canManageInvoices: false,
+                })
+                await createTestOrganizationEmployee(adminClient, dummyOrganization, staffWithoutPermissionsClient.user, roleWithoutPermissions)
+            })
+
+            describe('can create, read and update', () => {
+                const testFunc = async (testingClient) => {
+                    const [createdObj, createAttrs] = await createTestInvoice(testingClient, dummyOrganization, {
+                        rows,
+                        amountDistribution: [
+                            { recipient: recipient1, amount: rowsAmount, vor: true, isFeePayer: true, overpaymentPart: 1 },
+                        ],
+                    })
+
+                    const readObj = await CustomInvoiceTestUtils.getOne(testingClient, { id: createdObj.id })
+                    expect(readObj.amountDistribution).toEqual([expect.objectContaining({
+                        ...createAttrs.amountDistribution[0],
+                        recipient: expect.objectContaining(recipient1),
+                    })])
+
+                    const [, updateAttrs] = await updateTestInvoice(testingClient, createdObj.id, {
+                        rows,
+                        amountDistribution: [
+                            {
+                                recipient: recipient2,
+                                amount: rowsAmount,
+                                vor: true,
+                                isFeePayer: true,
+                                overpaymentPart: 1,
+                            },
+                        ],
+                    })
+                    const updatedObj = await CustomInvoiceTestUtils.getOne(adminClient, { id: createdObj.id })
+                    expect(updatedObj.amountDistribution).toEqual([expect.objectContaining({
+                        ...updateAttrs.amountDistribution[0],
+                        recipient: expect.objectContaining(recipient2),
+                        amount: rowsAmount,
+                    })])
+                }
+
+                test('admin can create, read and update', async () => {
+                    await testFunc(adminClient)
+                })
+
+                test('support can create, read and update', async () => {
+                    await testFunc(supportClient)
+                })
+
+                test('service client with rights', async () => {
+                    const serviceClient = await makeClientWithServiceUser()
+                    const [app] = await createTestB2BApp(adminClient)
+                    await createTestB2BAppContext(supportClient, app, dummyOrganization, { status: 'Finished' })
+                    const [accessRightSet] = await createTestB2BAppAccessRightSet(supportClient, app, {
+                        canReadOrganizations: true,
+                        canReadInvoices: true,
+                        canManageInvoices: true,
+                    })
+                    await createTestB2BAppAccessRight(supportClient, serviceClient.user, app, accessRightSet)
+
+                    await testFunc(serviceClient)
+                })
+            })
+
+            describe('can not create, read and update', () => {
+                const testFunc = async (testingClient, { throwErrorOnRead = true } = {}) => {
+
+                    // cant create
+                    await expectToThrowAccessDeniedToManageFieldError(
+                        async () => await createTestInvoice(testingClient, dummyOrganization, {
+                            rows,
+                            amountDistribution: [
+                                {
+                                    recipient: recipient1,
+                                    amount: rowsAmount,
+                                    vor: true,
+                                    isFeePayer: true,
+                                    overpaymentPart: 1,
+                                },
+                            ],
+                        }),
+                        'obj',
+                        'amountDistribution',
+                    )
+
+                    // create by admin to try to read and update
+                    const [createdObj] = await createTestInvoice(adminClient, dummyOrganization, {
+                        rows,
+                        amountDistribution: [
+                            { recipient: recipient1, amount: rowsAmount, vor: true, isFeePayer: true, overpaymentPart: 1 },
+                        ],
+                    })
+
+                    // cant read
+                    if (throwErrorOnRead) {
+                        await expectToThrowAccessDeniedToFieldError(async () => {
+                            await CustomInvoiceTestUtils.getAll(testingClient, { id: createdObj.id })
+                        }, 'objs', 'amountDistribution')
+                    } else {
+                        const invoices = await CustomInvoiceTestUtils.getAll(testingClient, { id: createdObj.id })
+                        expect(invoices).toHaveLength(0)
+                    }
+
+                    // cant update
+                    await expectToThrowAccessDeniedToManageFieldError(
+                        async () => await updateTestInvoice(testingClient, createdObj.id, {
+                            amountDistribution: [
+                                {
+                                    recipient: recipient1,
+                                    amount: rowsAmount,
+                                    vor: true,
+                                    isFeePayer: true,
+                                    overpaymentPart: 2,
+                                },
+                            ],
+                        }),
+                        'obj',
+                        'amountDistribution',
+                    )
+                }
+
+                test('staff with permission', async () => {
+                    await testFunc(staffWithPermissionsClient)
+                })
+
+                test('staff without permission', async () => {
+                    await testFunc(staffWithoutPermissionsClient, { throwErrorOnRead: false })
+                })
+
+                test('resident', async () => {
+                    await testFunc(residentClient, { throwErrorOnRead: false })
+                })
+
+                test('service client without rights', async () => {
+                    const serviceClient = await makeClientWithServiceUser()
+                    const [app] = await createTestB2BApp(adminClient)
+                    await createTestB2BAppContext(supportClient, app, dummyOrganization, { status: 'Finished' })
+                    const [accessRightSet] = await createTestB2BAppAccessRightSet(supportClient, app)
+                    await createTestB2BAppAccessRight(supportClient, serviceClient.user, app, accessRightSet)
+
+                    await testFunc(serviceClient, { throwErrorOnRead: false })
                 })
             })
         })

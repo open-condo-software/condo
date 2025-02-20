@@ -31,6 +31,7 @@ const {
     AMOUNT_DISTRIBUTION_FIELD_NO_OVERPAYMENT_RECEIVER_ERROR_TYPE,
 } = require('@condo/domains/billing/constants/errors')
 const { render, getGQLErrorValidator } = require('@condo/domains/common/schema/json.utils')
+const { SERVICE } = require('@condo/domains/user/constants/common')
 
 const DEFAULT_TO_PAY_FIELD_NAME = 'toPay'
 
@@ -111,6 +112,28 @@ const feeDistributionsJsonSchema = {
 const jsonValidator = ajv.compile(feeDistributionsJsonSchema)
 const gqlValidator = getGQLErrorValidator(jsonValidator, WRONG_AMOUNT_DISTRIBUTION_ERROR_TYPE)
 
+const canReadField = async (args) => {
+    const { authentication: { item: user } } = args
+
+    if (user.deletedAt) return false
+    if (user.isAdmin || user.isSupport) return true
+
+    // We allow read field for service user
+    // Because this user already checked for access
+    return user.type === SERVICE
+}
+
+const canManageField = async (args) => {
+    const { authentication: { item: user } } = args
+
+    if (user.deletedAt) return false
+    if (user.isAdmin || user.isSupport) return true
+
+    // We allow manage field for service user
+    // Because this user already checked for access
+    return user.type === SERVICE
+}
+
 const AMOUNT_DISTRIBUTION_FIELD = {
     schemaDoc: 'This optional field stores how to distribute amount between several receivers. Applicable to models with `toPay` field',
     type: 'Json',
@@ -119,6 +142,11 @@ const AMOUNT_DISTRIBUTION_FIELD = {
     graphQLInputType: AMOUNT_DISTRIBUTION_SCHEMA_INPUT,
     graphQLReturnType: AMOUNT_DISTRIBUTION_SCHEMA_FIELD,
     graphQLAdminFragment: `{ ${AMOUNT_DISTRIBUTION_QUERY_LIST} }`,
+    access: {
+        create: canManageField,
+        read: canReadField,
+        update: canManageField,
+    },
     hooks: {
         validateInput: async (attrs) => {
             gqlValidator(attrs)
