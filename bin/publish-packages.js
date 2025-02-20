@@ -28,6 +28,7 @@ const RELEASE_LIST = [
     'packages/apollo',
     'packages/bridge',
     'packages/icons',
+    'packages/migrator',
     'packages/miniapp-utils',
     'packages/tsconfig',
     'packages/ui',
