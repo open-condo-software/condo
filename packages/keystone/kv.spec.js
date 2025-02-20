@@ -8,8 +8,9 @@ describe('Key value adapter', () => {
     let nonPrefixedClient
     let moduleName
 
-    beforeEach(() => {
-        nonPrefixedClient = new Redis(process.env.KV_URL || process.env.REDIS_URL)
+    beforeAll(() => {
+        process.env.REDIS_URL = 'redis://127.0.0.1:6379'
+        nonPrefixedClient = new Redis(process.env.REDIS_URL)
         moduleName = require(process.cwd() + '/package.json').name.split('/').pop() + ':'
 
         jest.resetModules()
@@ -18,7 +19,7 @@ describe('Key value adapter', () => {
         client = getKVClient('test')
     })
 
-    afterEach(async () => {
+    afterAll(async () => {
         await client.flushdb()
         await client.disconnect()
         await nonPrefixedClient.disconnect()
@@ -32,7 +33,7 @@ describe('Key value adapter', () => {
         expect(getKVPrefix()).toEqual(moduleName)
     })
 
-    test('key-value keyPrefix should be module specific', async () => {
+    test('key-value keyPrefix should be module specific', () => {
         expect(client.options.keyPrefix).toMatch(moduleName)
     })
 
