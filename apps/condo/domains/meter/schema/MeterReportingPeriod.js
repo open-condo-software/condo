@@ -102,9 +102,9 @@ const MeterReportingPeriod = new GQLListSchema('MeterReportingPeriod', {
             defaultValue: 20,
             isRequired: true,
             hooks: {
-                validateInput: async ({ context, operation, resolvedData }) => {
+                validateInput: async ({ context, operation, resolvedData, fieldPath }) => {
                     if (operation === 'create' || operation === 'update') {
-                        if (resolvedData.notifyStartDay > 31 || resolvedData.notifyStartDay < 1) {
+                        if (resolvedData[fieldPath] > 31 || resolvedData[fieldPath] < 1) {
                             throw new GQLError(ERRORS.INVALID_START, context)
                         }
                     }
@@ -118,9 +118,9 @@ const MeterReportingPeriod = new GQLListSchema('MeterReportingPeriod', {
             defaultValue: 25,
             isRequired: true,
             hooks: {
-                validateInput: async ({ context, operation, resolvedData }) => {
+                validateInput: async ({ context, operation, resolvedData, fieldPath }) => {
                     if (operation === 'create' || operation === 'update') {
-                        if (resolvedData.notifyEndDay > 31 || resolvedData.notifyEndDay < 1) {
+                        if (resolvedData[fieldPath] > 31 || resolvedData[fieldPath] < 1) {
                             throw new GQLError(ERRORS.INVALID_FINISH, context)
                         } 
                     }
@@ -142,9 +142,9 @@ const MeterReportingPeriod = new GQLListSchema('MeterReportingPeriod', {
             defaultValue: 31,
             kmigratorOptions: { default: 31 },
             hooks: {
-                validateInput: async ({ context, operation, resolvedData }) => {
+                validateInput: async ({ context, operation, resolvedData, fieldPath }) => {
                     if (operation === 'create' || operation === 'update') {
-                        if (resolvedData.restrictionEndDay > 31 || resolvedData.restrictionEndDay < 1) {
+                        if (resolvedData[fieldPath] > 31 || resolvedData[fieldPath] < 1) {
                             throw new GQLError(ERRORS.INVALID_RESTRICTION_END_DAY, context)
                         }
                     }
