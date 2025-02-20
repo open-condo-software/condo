@@ -1,0 +1,16 @@
+{%- if message.meta.data.passTicketType == "guest" -%}
+<b>Nuevo pase para invitado №{{ message.meta.data.number }}</b>
+{%- else -%}
+<b>Nuevo pase para vehículo №{{ message.meta.data.number }}</b>
+{% endif %}
+Organización: {{ message.meta.data.organizationName }}
+Dirección: {{ message.meta.data.propertyAddress }}
+Unidad: {{ message.meta.data.unit }}
+Solicitante: {{ message.meta.data.client }}
+{%- if message.meta.data.passTicketType == "guest" -%}
+Invitado: {{ message.meta.data.guest }}
+{%- else -%}
+Matrícula: {{ message.meta.data.vehicle }}
+{% endif %}
+Fecha de visita: {{ message.meta.data.openAt }}
+Comentario: {{ message.meta.data.comment }}
