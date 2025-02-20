@@ -14,7 +14,6 @@ import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button } from '@open-condo/ui'
 
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-// import { Incident, IncidentProperty, IncidentClassifierIncident } from '@condo/domains/ticket/utils/clientSchema'
 
 import { BaseIncidentForm, BaseIncidentFormProps } from './BaseIncidentForm'
 
@@ -67,13 +66,6 @@ export const UpdateIncidentForm: React.FC<IUpdateIncidentForm> = (props) => {
 
     const { push } = useRouter()
 
-    // const {
-    //     loading: incidentLoading,
-    //     obj: incident,
-    //     error: incidentError,
-    // } = Incident.useObject({
-    //     where: { id },
-    // })
     const {
         loading: incidentLoading,
         data: incident,
@@ -84,13 +76,6 @@ export const UpdateIncidentForm: React.FC<IUpdateIncidentForm> = (props) => {
         },
     })
 
-    // const {
-    //     objs: incidentProperties,
-    //     error: incidentPropertyError,
-    //     allDataLoaded: incidentPropertyAllDataLoaded,
-    // } = IncidentProperty.useAllObjects({
-    //     where: { incident: { id } },
-    // })
     const {
         loading: incidentPropertyAllDataLoaded,
         data: incidentProperties,
@@ -103,13 +88,6 @@ export const UpdateIncidentForm: React.FC<IUpdateIncidentForm> = (props) => {
         },
     })
 
-    // const {
-    //     objs: incidentClassifiers,
-    //     error: incidentClassifiersError,
-    //     allDataLoaded: incidentClassifiersAllDataLoaded,
-    // } = IncidentClassifierIncident.useAllObjects({
-    //     where: { incident: { id } },
-    // })
     const {
         loading: incidentClassifiersAllDataLoaded,
         data: incidentClassifiers,
@@ -122,7 +100,6 @@ export const UpdateIncidentForm: React.FC<IUpdateIncidentForm> = (props) => {
 
     const organizationId = useMemo(() => get(incident, 'organization.id', null), [incident])
 
-    // const updateIncident = Incident.useUpdate({})
     const [updateIncident] = useUpdateIncidentMutation({
         onCompleted: async () => await push(`/incident/${[id]}`),
     })

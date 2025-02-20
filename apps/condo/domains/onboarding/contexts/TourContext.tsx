@@ -13,7 +13,6 @@ import { TourStep } from '@condo/domains/onboarding/utils/clientSchema'
 import { MANAGING_COMPANY_TYPE } from '@condo/domains/organization/constants/common'
 
 import { getClientSideSenderInfo } from '../../common/utils/userid.utils'
-import {useCachePersistor} from "@open-condo/apollo";
 
 
 type ActiveTourStepType = typeof FIRST_LEVEL_STEPS[number] | null
@@ -51,9 +50,7 @@ export const TourProvider = ({ children }) => {
             where: { organization: { id: get(organization, 'id', null) } },
         },
     })
-    // const { refetch: refetchSteps } = TourStep.useObjects({
-    //     where: { organization: { id: get(organization, 'id', null) } },
-    // }, { skip: true })
+
     const updateTourStep = TourStep.useUpdate({})
 
     const organizationId = useMemo(() => get(organization, 'id'), [organization])

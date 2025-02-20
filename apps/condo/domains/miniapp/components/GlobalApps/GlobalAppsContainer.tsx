@@ -12,7 +12,6 @@ import { useOrganization } from '@open-condo/next/organization'
 
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
-// import { B2BApp } from '@condo/domains/miniapp/utils/clientSchema'
 
 import {
     useGlobalAppsFeaturesContext,
@@ -49,14 +48,6 @@ export const GlobalAppsContainer: React.FC = () => {
         skip: !user || !organizationId || isLoading || !persistor,
     })
     const b2bApps = useMemo(() => data?.b2bApps.filter(Boolean) || [], [data?.b2bApps])
-
-    // const { objs, refetch, loading } = B2BApp.useObjects({
-    //     where: {
-    //         isGlobal: true,
-    //         isHidden: false,
-    //     },
-    //     sortBy: [SortB2BAppsBy.CreatedAtAsc],
-    // }, { skip: !user || !organizationId || isLoading })
 
     const appUrls = b2bApps.map(app => app.appUrl)
 

@@ -14,10 +14,8 @@ import { useIntl } from '@open-condo/next/intl'
 import Select from '@condo/domains/common/components/antd/Select'
 import { StatusSelect } from '@condo/domains/common/components/StatusSelect'
 import { useNotificationMessages } from '@condo/domains/common/hooks/useNotificationMessages'
-// import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { useTicketCancelModal } from '@condo/domains/ticket/hooks/useTicketCancelModal'
 import { useTicketDeferModal } from '@condo/domains/ticket/hooks/useTicketDeferModal'
-// import { Ticket, TicketStatus } from '@condo/domains/ticket/utils/clientSchema'
 import { getTicketLabel, sortStatusesByType } from '@condo/domains/ticket/utils/helpers'
 
 import { useStatusTransitions } from '../hooks/useStatusTransitions'
@@ -36,7 +34,6 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
         if (isFunction(onUpdate)) onUpdate()
         setUpdating(false)
     }, [onUpdate, setUpdating])
-    // const update = Ticket.useUpdate({}, handleUpdate)
     const [updateTicketMutation] = useUpdateTicketMutation({
         variables: {
             id: ticket?.id,
@@ -52,17 +49,11 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
     })
 
     const updateTicketStatus = useCallback(async (variables) => {
-        // runMutation({
-        //     action: () => update(variables, ticket),
-        //     intl,
-        //     OnCompletedMsg: getSuccessfulChangeNotification,
-        // })
         await updateTicketMutation(variables)
     }, [updateTicketMutation])
 
     const updateTicket = useCallback((value) => {
         setUpdating(true)
-        // Добавить dv, sender
         updateTicketStatus({
             variables: {
                 data: {
@@ -77,7 +68,6 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
 
     const updateDeferredTicket = useCallback((statusDeferredId: string, deferredDate: Dayjs) => {
         setUpdating(true)
-        // Добавить dv, sender
         updateTicketStatus({
             variables: {
                 data: {
@@ -97,9 +87,7 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
     const { deferTicketModal, openModal: openTicketDeferModal } = useTicketDeferModal(updateDeferredTicket)
 
     const options = useMemo(() => sortStatusesByType(statuses).map((status) => {
-        console.log('status', status)
         const { name: label, id: value } = status
-        // const { value, label } = TicketStatus.convertGQLItemToFormSelectState(status)
         const { primary: color } = status.colors
 
         return (
@@ -131,7 +119,7 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
     const { primary: backgroundColor, secondary: color } = ticket.status.colors
     const selectValue = useMemo(
         () => ({ value: get(ticket, 'status.id'), label: getTicketLabel(intl, ticket) }),
-        [get(ticket, 'status.id'), getTicketLabel, intl, ticket]
+        [getTicketLabel, ticket?.status?.id, intl, ticket]
     )
 
     const isLoading = loading || isUpdating

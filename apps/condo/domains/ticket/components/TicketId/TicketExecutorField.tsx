@@ -8,7 +8,6 @@ import { useIntl } from '@open-condo/next/intl'
 
 
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
-import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 
 import { TicketUserInfoField } from './TicketUserInfoField'
 
@@ -26,17 +25,6 @@ export const TicketExecutorField: React.FC<TicketExecutorFieldProps> = ({ ticket
     const ticketOrganizationId = useMemo(() => ticket?.organization?.id || null, [ticket])
 
     const { persistor } = useCachePersistor()
-
-    // const { obj: executor } = OrganizationEmployee.useObject({
-    //     where: {
-    //         organization: {
-    //             id: ticketOrganizationId,
-    //         },
-    //         user: {
-    //             id: ticketExecutorUserId,
-    //         },
-    //     },
-    // })
 
     const {
         data,

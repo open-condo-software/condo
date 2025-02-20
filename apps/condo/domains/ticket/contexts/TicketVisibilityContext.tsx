@@ -20,12 +20,6 @@ import {
     PROPERTY_TICKET_VISIBILITY,
     ASSIGNED_TICKET_VISIBILITY,
 } from '@condo/domains/organization/constants/common'
-// import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
-// import {
-//     PropertyScope,
-//     PropertyScopeOrganizationEmployee,
-//     PropertyScopeProperty,
-// } from '@condo/domains/scope/utils/clientSchema'
 
 
 interface ITicketVisibilityContext {
@@ -224,12 +218,6 @@ const TicketVisibilityContextProvider: React.FC = ({ children }) => {
     })
     const propertyScopeEmployees = useMemo(() => propertyScopeEmployeesResult?.result.filter(Boolean) || [], [propertyScopeEmployeesResult?.result])
 
-    // const { objs: propertyScopeEmployees, loading: employeesLoading } = PropertyScopeOrganizationEmployee.useAllObjects({
-    //     where: {
-    //         employee: { id: employeeId },
-    //     },
-    // }, { skip: !employeeId })
-
     const propertyScopeIds = propertyScopeEmployees
         .filter(propertyScopeEmployee => propertyScopeEmployee.propertyScope && propertyScopeEmployee.employee)
         .map(propertyScopeEmployee => propertyScopeEmployee.propertyScope.id)
@@ -243,17 +231,6 @@ const TicketVisibilityContextProvider: React.FC = ({ children }) => {
     })
     const propertyScopes = useMemo(() => propertyScopesResult?.result.filter(Boolean) || [], [propertyScopesResult?.result])
 
-    // const { objs: propertyScopes, loading: propertyScopeLoading } = PropertyScope.useAllObjects({
-    //     where: {
-    //         organization: { id: organizationId },
-    //         OR: [
-    //             { id_in: propertyScopeIds },
-    //             { hasAllEmployees: true },
-    //         ],
-    //     },
-    // }, { skip: !organizationId })
-
-
     const { data: propertyScopePropertiesResult, loading: propertiesLoading } = useGetPropertyScopePropertiesQuery({
         variables: {
             propertyScopeIds: propertyScopes.map(scope => scope.id),
@@ -261,12 +238,6 @@ const TicketVisibilityContextProvider: React.FC = ({ children }) => {
         skip: propertyScopes.length === 0 || !persistor,
     })
     const propertyScopeProperties = useMemo(() => propertyScopePropertiesResult?.result.filter(Boolean) || [], [propertyScopePropertiesResult?.result])
-
-    // const { objs: propertyScopeProperties, loading: propertiesLoading } = PropertyScopeProperty.useAllObjects({
-    //     where: {
-    //         propertyScope: { id_in: propertyScopes.map(scope => scope.id) },
-    //     },
-    // }, { skip: propertyScopes.length === 0 })
 
     const { data, loading: specializationsLoading } = useGetOrganizationEmployeeSpecializationsQuery({
         variables: {
@@ -277,12 +248,6 @@ const TicketVisibilityContextProvider: React.FC = ({ children }) => {
         skip: !employeeId || !persistor,
     })
     const employeeSpecializations = useMemo(() => data?.organizationEmployeeSpecializations.filter(Boolean) || [], [data?.organizationEmployeeSpecializations])
-
-    // const { objs: employeeSpecializations, loading: specializationsLoading } = OrganizationEmployeeSpecialization.useAllObjects({
-    //     where: {
-    //         employee: { id: employeeId },
-    //     },
-    // }, { skip: !employeeId })
 
     const specializations = employeeSpecializations
         .filter(empSpec => empSpec.specialization && empSpec.employee)

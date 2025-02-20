@@ -142,11 +142,8 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
     const [incidentsToShow, setIncidentsToShow] = useState<IIncident[]>([])
 
     const [getIncidentProperties] = useGetIncidentPropertiesLazyQuery()
-    // const { refetch: refetchIncidentProperties } = useGetIncidentPropertiesQuery({ skip: true })
     const [getIncidents] = useGetIncidentsLazyQuery()
-    // const { refetch: refetchIncidents } = useGetIncidentsQuery({ skip: true })
     const [getIncidentClassifierIncidents] = useGetIncidentClassifierIncidentLazyQuery()
-    // const { refetch: refetchIncidentClassifierIncidents } = useGetIncidentClassifierIncidentQuery({ skip: true })
 
     const categoryId = useMemo(() => get(classifier, 'category.id', null), [classifier]) as string | null
     const problemId = useMemo(() => get(classifier, 'problem.id', null), [classifier]) as string | null
@@ -285,6 +282,7 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
     }, [fetchIncidentClassifierIncidents])
 
     useEffect(() => {
+        // Реально должны рефетчить в первый рендер, даже если есть кэш?
         // NOTE: we should refetch all incidents if only was updated propertyId or organizationId
         getAllIncidents(propertyId, organizationId)
     }, [getAllIncidents, propertyId, organizationId])

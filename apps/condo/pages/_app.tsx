@@ -20,6 +20,7 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { Fragment, useMemo } from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useFeatureFlags, FeaturesReady, withFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import * as AllIcons from '@open-condo/icons'
@@ -32,8 +33,6 @@ import { useOrganization, withOrganization } from '@open-condo/next/organization
 
 import { useBankReportTaskUIInterface } from '@condo/domains/banking/hooks/useBankReportTaskUIInterface'
 import { useBankSyncTaskUIInterface } from '@condo/domains/banking/hooks/useBankSyncTaskUIInterface'
-import { BillingIntegrationOrganizationContext as BillingContext } from '@condo/domains/billing/utils/clientSchema'
-import { CondoAppEventsHandler } from '@condo/domains/common/components/CondoAppEventsHandler'
 import BaseLayout, { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
@@ -46,6 +45,7 @@ import { PostMessageProvider } from '@condo/domains/common/components/PostMessag
 import { ServiceProblemsAlert } from '@condo/domains/common/components/ServiceProblemsAlert'
 import { Snowfall } from '@condo/domains/common/components/Snowfall'
 import { TasksContextProvider } from '@condo/domains/common/components/tasks/TasksContextProvider'
+import { TrackingProvider } from '@condo/domains/common/components/TrackingContext'
 import UseDeskWidget from '@condo/domains/common/components/UseDeskWidget'
 import { SERVICE_PROVIDER_PROFILE, MARKETPLACE } from '@condo/domains/common/constants/featureflags'
 import {
@@ -109,12 +109,11 @@ import { CookieAgreement } from '@condo/domains/user/components/CookieAgreement'
 import Error404Page from './404'
 import Error429Page from './429'
 import Error500Page from './500'
+
 import '@condo/domains/common/components/wdyr'
 import '@open-condo/ui/dist/styles.min.css'
 import '@open-condo/ui/dist/style-vars/variables.css'
 import '@condo/domains/common/components/containers/global-styles.css'
-import {useCachePersistor} from "@open-condo/apollo";
-
 
 
 const { publicRuntimeConfig: { defaultLocale, sppConfig, isDisabledSsr } } = getConfig()
@@ -163,7 +162,6 @@ const MenuItems: React.FC = () => {
     const orgId = get(organization, 'id', null)
     const orgFeatures = get(organization, 'features', [])
     const sppBillingId = get(sppConfig, 'BillingIntegrationId', null)
-    // const { obj: billingCtx } = BillingContext.useObject({ where: { integration: { id: sppBillingId }, organization: { id: orgId } } }, { skip: !isAuthenticated || isLoading })
     const {
         data,
     } = useGetBillingIntegrationOrganizationContextsQuery({
@@ -206,7 +204,7 @@ const MenuItems: React.FC = () => {
             key: TOUR_CATEGORY,
             items: [
                 {
-                    id: 'menu-item-tour',
+                    id: 'menuitem-tour',
                     path: 'tour',
                     icon: AllIcons['Guide'],
                     label: 'global.section.tour',
@@ -218,7 +216,7 @@ const MenuItems: React.FC = () => {
             key: DASHBOARD_CATEGORY,
             items: [
                 {
-                    id: 'menu-item-reports',
+                    id: 'menuitem-reports',
                     path: 'reports',
                     icon: AllIcons['BarChartVertical'],
                     label: 'global.section.analytics',
@@ -230,21 +228,21 @@ const MenuItems: React.FC = () => {
             key: COMMUNICATION_CATEGORY,
             items: [
                 {
-                    id: 'menu-item-ticket',
+                    id: 'menuitem-ticket',
                     path: 'ticket',
                     icon: AllIcons['LayoutList'],
                     label: 'global.section.controlRoom',
                     access: isManagingCompany && hasAccessToTickets,
                 },
                 {
-                    id: 'menu-item-incident',
+                    id: 'menuitem-incident',
                     path: 'incident',
                     icon: AllIcons['OnOff'],
                     label: 'global.section.incidents',
                     access: isManagingCompany && hasAccessToIncidents,
                 },
                 {
-                    id: 'menu-item-news',
+                    id: 'menuitem-news',
                     path: 'news',
                     icon: AllIcons['Newspaper'],
                     label: 'global.section.newsItems',
@@ -256,7 +254,7 @@ const MenuItems: React.FC = () => {
             key: PROPERTIES_CATEGORY,
             items: [
                 {
-                    id: 'menu-item-property',
+                    id: 'menuitem-property',
                     path: 'property',
                     icon: AllIcons['Building'],
                     label: 'global.section.properties',
@@ -268,7 +266,7 @@ const MenuItems: React.FC = () => {
             key: RESIDENTS_CATEGORY,
             items: [
                 {
-                    id: 'menu-item-contact',
+                    id: 'menuitem-contact',
                     path: 'contact',
                     icon: AllIcons['Contacts'],
                     label: 'global.section.contacts',
@@ -280,7 +278,7 @@ const MenuItems: React.FC = () => {
             key: EMPLOYEES_CATEGORY,
             items: [
                 {
-                    id: 'menu-item-employee',
+                    id: 'menuitem-employee',
                     path: 'employee',
                     icon: AllIcons['Employee'],
                     label: 'global.section.employees',
@@ -292,7 +290,7 @@ const MenuItems: React.FC = () => {
             key: MARKET_CATEGORY,
             items: [
                 {
-                    id: 'menu-item-marketplace',
+                    id: 'menuitem-marketplace',
                     path: 'marketplace',
                     icon: AllIcons['Market'],
                     label: 'global.section.marketplace',
@@ -304,7 +302,7 @@ const MenuItems: React.FC = () => {
             key: BILLING_CATEGORY,
             items: [
                 {
-                    id: 'menu-item-billing',
+                    id: 'menuitem-billing',
                     path: 'billing',
                     icon: AllIcons['Wallet'],
                     label: 'global.section.accrualsAndPayments',
@@ -314,7 +312,7 @@ const MenuItems: React.FC = () => {
                         : hasAccessToBilling,
                 },
                 {
-                    id: 'menu-item-service-provider-profile',
+                    id: 'menuitem-service-provider-profile',
                     path: 'service-provider-profile',
                     icon: AllIcons['Sber'],
                     label: 'global.section.SPP',
@@ -326,7 +324,7 @@ const MenuItems: React.FC = () => {
             key: METERS_CATEGORY,
             items: [
                 {
-                    id: 'menu-item-meter',
+                    id: 'menuitem-meter',
                     path: 'meter',
                     icon: AllIcons['Meters'],
                     label: 'global.section.meters',
@@ -338,7 +336,7 @@ const MenuItems: React.FC = () => {
             key: MINIAPPS_CATEGORY,
             items: [
                 {
-                    id: 'menu-item-miniapps',
+                    id: 'menuitem-miniapps',
                     path: 'miniapps',
                     icon: AllIcons['Services'],
                     label: 'global.section.miniapps',
@@ -353,7 +351,7 @@ const MenuItems: React.FC = () => {
             key: SETTINGS_CATEGORY,
             items: [
                 {
-                    id: 'menu-item-settings',
+                    id: 'menuitem-settings',
                     path: 'settings',
                     icon: AllIcons['Settings'],
                     label: 'global.section.settings',
@@ -513,32 +511,33 @@ const MyApp = ({ Component, pageProps }) => {
                     <LayoutContextProvider serviceProblemsAlert={<ServiceProblemsAlert />}>
                         <TasksProvider>
                             <PostMessageProvider>
-                                <TourProvider>
-                                    <SubscriptionProvider>
-                                        <GlobalAppsFeaturesProvider>
-                                            <GlobalAppsContainer/>
-                                            <TicketVisibilityContextProvider>
-                                                <ActiveCallContextProvider>
-                                                    <ConnectedAppsWithIconsContextProvider>
-                                                        <CondoAppEventsHandler/>
-                                                        <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
-                                                            <RequiredAccess>
-                                                                <FeaturesReady fallback={<Loader fill size='large'/>}>
-                                                                    <Component {...pageProps} />
-                                                                    {
-                                                                        isEndTrialSubscriptionReminderPopupVisible && (
-                                                                            <EndTrialSubscriptionReminderPopup/>
-                                                                        )
-                                                                    }
-                                                                </FeaturesReady>
-                                                            </RequiredAccess>
-                                                        </LayoutComponent>
-                                                    </ConnectedAppsWithIconsContextProvider>
-                                                </ActiveCallContextProvider>
-                                            </TicketVisibilityContextProvider>
-                                        </GlobalAppsFeaturesProvider>
-                                    </SubscriptionProvider>
-                                </TourProvider>
+                                <TrackingProvider>
+                                    <TourProvider>
+                                        <SubscriptionProvider>
+                                            <GlobalAppsFeaturesProvider>
+                                                <GlobalAppsContainer/>
+                                                <TicketVisibilityContextProvider>
+                                                    <ActiveCallContextProvider>
+                                                        <ConnectedAppsWithIconsContextProvider>
+                                                            <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
+                                                                <RequiredAccess>
+                                                                    <FeaturesReady fallback={<Loader fill size='large'/>}>
+                                                                        <Component {...pageProps} />
+                                                                        {
+                                                                            isEndTrialSubscriptionReminderPopupVisible && (
+                                                                                <EndTrialSubscriptionReminderPopup/>
+                                                                            )
+                                                                        }
+                                                                    </FeaturesReady>
+                                                                </RequiredAccess>
+                                                            </LayoutComponent>
+                                                        </ConnectedAppsWithIconsContextProvider>
+                                                    </ActiveCallContextProvider>
+                                                </TicketVisibilityContextProvider>
+                                            </GlobalAppsFeaturesProvider>
+                                        </SubscriptionProvider>
+                                    </TourProvider>
+                                </TrackingProvider>
                             </PostMessageProvider>
                         </TasksProvider>
                         {!isSnowfallDisabled && <Snowfall />}

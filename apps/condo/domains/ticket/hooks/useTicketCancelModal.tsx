@@ -21,12 +21,6 @@ export const useTicketCancelModal: useTicketCancelModalType = (updateTicket, tic
 
     const { persistor } = useCachePersistor()
 
-    // const { count: invoicesCount } = Invoice.useCount({
-    //     where: {
-    //         ticket: { id: ticketId },
-    //     },
-    // })
-
     const { data } = useGetTicketInvoiceCountQuery({
         variables: {
             ticketId,
