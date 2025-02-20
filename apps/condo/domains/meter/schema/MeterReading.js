@@ -7,7 +7,7 @@ const { get, isEmpty, isNil } = require('lodash')
 const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
-const { GQLListSchema, getById, find } = require('@open-condo/keystone/schema')
+const { GQLListSchema, getById, find, getByCondition } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const { i18n } = require('@open-condo/locales/loader')
 
@@ -62,7 +62,7 @@ const MeterReading = new GQLListSchema('MeterReading', {
             schemaDoc: 'Date when the readings were taken',
             type: 'DateTimeUtc',
             hooks: {
-                validateInput: async ({ context, operation, existingItem, resolvedData, fieldPath }) => {
+                validateInput: async ({ context, resolvedData, fieldPath }) => {
                     const date = resolvedData[fieldPath]
                     const source = get(resolvedData, 'source')
                     if (date) {
@@ -77,14 +77,20 @@ const MeterReading = new GQLListSchema('MeterReading', {
 
                         // NOTE: check against MeterReportingPeriod only readings passed from mobile app
                         if (source === MOBILE_APP_SOURCE_ID) {
-                            const meter = await Meter.getOne(context, {
-                                id: get(resolvedData, 'meter', null),
-                            }, 'organization { id } property { id }')
+                            const meter = await getByCondition('Meter', {
+                                id: resolvedData['meter'],
+                                deletedAt: null,
+                            })
 
                             const meterReportingPeriods = await find('MeterReportingPeriod', {
                                 OR: [
-                                    { property: { AND: [{ id: get(meter, 'property.id') }, { deletedAt: null } ] } },
-                                    { organization: { AND: [{ id: get(meter, 'organization.id') }, { deletedAt: null } ] } },
+                                    { property: { AND: [{ id: get(meter, 'property') }, { deletedAt: null } ] } },
+                                    {
+                                        AND: [
+                                            { organization: { AND: [{ id: get(meter, 'organization') }, { deletedAt: null } ] } },
+                                            { property_is_null: true },
+                                        ],
+                                    },
                                 ],
                             })
 
