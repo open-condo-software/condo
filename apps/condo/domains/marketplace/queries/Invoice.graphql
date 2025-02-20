@@ -32,7 +32,7 @@ query getTicketInvoices ($ticketId: ID!) {
     }
 }
 
-query getTicketInvoiceCount ($ticketId: ID!) {
+query getTicketInvoicesCount ($ticketId: ID!) {
     ticketInvoiceCount: _allInvoicesMeta (
         where: {
             ticket: { id: $ticketId }

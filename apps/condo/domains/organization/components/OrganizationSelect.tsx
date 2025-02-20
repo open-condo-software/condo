@@ -4,7 +4,6 @@ import {
 } from '@app/condo/gql'
 import { OrganizationTypeType } from '@app/condo/schema'
 import { Dropdown } from 'antd'
-import get from 'lodash/get'
 import uniqBy from 'lodash/uniqBy'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, CSSProperties } from 'react'
@@ -29,11 +28,8 @@ import type { DropdownProps } from 'antd'
 
 
 function compareEmployees (lhs: OrganizationEmployeeType, rhs: OrganizationEmployeeType) {
-    return get(lhs, ['organization', 'name'], '')
-        .toLowerCase()
-        .localeCompare(
-            get(rhs, ['organization', 'name'], '').toLowerCase()
-        )
+    return (lhs?.organization?.name || '').toLowerCase()
+        .localeCompare((rhs?.organization?.name || '').toLowerCase())
 }
 
 const DROPDOWN_OVERLAY_STYLES: CSSProperties = { maxWidth: 300, width: '100%' }
@@ -56,7 +52,7 @@ export const InlineOrganizationSelect: React.FC = () => {
         selectEmployee: setActiveEmployee,
         isLoading: organizationLoading,
     } = useOrganization()
-    const userId = user?.id || null
+    const userId = useMemo(() => user?.id || null, [user])
 
     const {
         data: actualEmployeesData,
@@ -65,7 +61,6 @@ export const InlineOrganizationSelect: React.FC = () => {
     } = useGetActualOrganizationEmployeesQuery({
         variables: { userId },
         skip: !userId || !persistor,
-        // fetchPolicy: 'cache-and-network',
         pollInterval: 15 * 60 * 1000, // should be not more then cache ttl
     })
     const actualData = useMemo(() => actualEmployeesData?.actualEmployees?.filter(nonNull) || [], [actualEmployeesData?.actualEmployees])
@@ -89,7 +84,7 @@ export const InlineOrganizationSelect: React.FC = () => {
 
     const { setIsVisible: showCreateOrganizationModal, ModalForm: CreateOrganizationModalForm } = useCreateOrganizationModalForm({
         onFinish: async (createdOrganization) => {
-            const organizationType = get(createdOrganization, 'type')
+            const organizationType = createdOrganization?.type || null
 
             // The slash will only be there if we have just registered and we don't have any additional parameters in the address bar.
             if (organizationType === OrganizationTypeType.ManagingCompany && router.route === '/') {
@@ -134,9 +129,9 @@ export const InlineOrganizationSelect: React.FC = () => {
             key: employee.id,
             label: (
                 <Space direction='horizontal' size={8}>
-                    <SBBOLIndicator organization={get(employee, 'organization')} />
+                    <SBBOLIndicator organization={employee?.organization || null} />
                     <Typography.Paragraph ellipsis={{ rows: 2 }} size='medium'>
-                        {get(employee, ['organization', 'name'], '')}
+                        {employee?.organization?.name || ''}
                     </Typography.Paragraph>
                 </Space>
             ),
@@ -163,7 +158,7 @@ export const InlineOrganizationSelect: React.FC = () => {
         return null
     }
 
-    const currentOrgName = get(organization, 'name', ChooseOrganizationMessage)
+    const currentOrgName = organization?.name || ChooseOrganizationMessage
 
     return (
         <>
