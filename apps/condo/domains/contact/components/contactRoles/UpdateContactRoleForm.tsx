@@ -12,6 +12,7 @@ import { BaseContactRoleForm } from './BaseContactRoleForm'
 export const UpdateContactRoleForm = ({ id }) => {
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'Save' })
+
     const { obj: contactRole, loading } = ContactRole.useObject({ where: { id } })
     const action = ContactRole.useUpdate({})
     const updateAction = (value) => {
