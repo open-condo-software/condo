@@ -80793,6 +80793,7 @@ input _internalDeleteMeterAndMeterReadingsInput {
   sender: SenderFieldInput!
   propertyIds: [ID]
   organizationId: ID!
+  resourcesIds: [ID]
 }
 
 enum Status {
@@ -80810,6 +80811,7 @@ input _internalDeleteMeterReadingsInput {
   dv: Int!
   sender: SenderFieldInput!
   propertyIds: [ID]
+  resourcesIds: [ID]
   organizationId: ID!
   startDateTime: String!
   endDateTime: String!
