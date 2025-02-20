@@ -159,9 +159,9 @@ const MenuItems: React.FC = () => {
     const { isCollapsed } = useLayoutContext()
     const { wrapElementIntoNoOrganizationToolTip } = useNoOrganizationToolTip()
     const role = get(link, 'role', {})
-    const orgId = get(organization, 'id', null)
+    const orgId = organization?.id || null
     const orgFeatures = get(organization, 'features', [])
-    const sppBillingId = get(sppConfig, 'BillingIntegrationId', null)
+    const sppBillingId = sppConfig?.BillingIntegrationId || null
     const {
         data,
     } = useGetBillingIntegrationOrganizationContextsQuery({
@@ -171,7 +171,7 @@ const MenuItems: React.FC = () => {
                 organization: { id: orgId },
             },
         },
-        skip: !isAuthenticated || isLoading || !persistor,
+        skip: !isAuthenticated || isLoading || !orgId || sppBillingId || !persistor,
     })
     const billingCtx = useMemo(() => data?.contexts?.filter(Boolean)[0] || null, [data?.contexts])
     const anyReceiptsLoaded = Boolean(billingCtx?.lastReport || null)

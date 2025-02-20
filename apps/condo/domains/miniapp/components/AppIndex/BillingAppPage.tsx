@@ -25,7 +25,6 @@ export const BillingAppPage: React.FC<BillingAppPageProps> = ({ id, children }) 
     const userOrganization = useOrganization()
     const organizationId = get(userOrganization, ['organization', 'id'], null)
 
-    // Рефактор!
     const {
         obj: context,
         loading,

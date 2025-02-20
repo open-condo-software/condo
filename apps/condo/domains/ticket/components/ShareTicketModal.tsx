@@ -6,7 +6,7 @@ import { Organization as IOrganization } from '@app/condo/schema'
 import { css, jsx } from '@emotion/react'
 import styled from '@emotion/styled'
 import { Col, Collapse, notification, Row } from 'antd'
-import { get, isEmpty } from 'lodash'
+import isEmpty  from 'lodash/isEmpty'
 import getConfig from 'next/config'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
@@ -202,7 +202,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
     }
 
     function handleSelect (value) {
-        const withoutEmails = parseSelectValue(value).filter(item => !get(item, 'value.hasEmail')).map(item => item.text)
+        const withoutEmails = parseSelectValue(value).filter(item => !item?.value?.hasEmail).map(item => item.text)
         setUsersWithoutEmail(withoutEmails)
         setChosenEmployees(value)
     }
@@ -213,7 +213,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
             variables: {
                 data: {
                     sender: getClientSideSenderInfo(),
-                    employees: parseSelectValue(chosenEmployees).filter(employee => get(employee, 'value.hasEmail')).map(employee => employee.id),
+                    employees: parseSelectValue(chosenEmployees).filter(employee => employee?.value?.hasEmail).map(employee => employee.id),
                     ticketId: Array.isArray(query?.id) ? null : query?.id,
                 },
             },
@@ -228,7 +228,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
             console.error({ msg: 'Failed to share ticket', errors })
             notification.error({
                 message: ServerErrorMessage,
-                description: get(errors, '0.message', null),
+                description: errors[0]?.message || null,
             })
         }
         setLoading(false)
@@ -315,7 +315,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
                             <Collapse.Panel key='1' header={ToEmployeesEmailMessage}>
                                 <GraphQlSearchInput
                                     id='send-employee-email'
-                                    search={getEmployeeWithEmail(get(organization, 'id'))}
+                                    search={getEmployeeWithEmail(organization?.id)}
                                     showArrow={false}
                                     mode='multiple'
                                     css={search}

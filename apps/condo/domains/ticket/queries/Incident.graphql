@@ -9,11 +9,10 @@ query getIncidents ($where: IncidentWhereInput, $sortBy: [SortIncidentsBy!]) {
 }
 
 query getIncidentById ($id: ID!) {
-    incident: allIncidents (
+    incident: Incident (
         where: {
             id: $id
-        },
-        first: 1
+        }
     ) {
         id
     }
