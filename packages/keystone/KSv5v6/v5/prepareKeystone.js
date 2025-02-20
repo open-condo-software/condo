@@ -17,7 +17,7 @@ const { parseCorsSettings } = require('@open-condo/keystone/cors.utils')
 const { _internalGetExecutionContextAsyncLocalStorage } = require('@open-condo/keystone/executionContext')
 const { IpBlackListMiddleware } = require('@open-condo/keystone/ipBlackList')
 const { registerSchemas } = require('@open-condo/keystone/KSv5v6/v5/registerSchema')
-const { getKVClient } = require('@open-condo/keystone/kv')
+const { getKVClient, checkMinimalKVDataVersion } = require('@open-condo/keystone/kv')
 const { getKeystonePinoOptions, GraphQLLoggerPlugin, getLogger } = require('@open-condo/keystone/logging')
 const { expressErrorHandler } = require('@open-condo/keystone/logging/expressErrorHandler')
 const metrics = require('@open-condo/keystone/metrics')
@@ -83,6 +83,12 @@ const sendAppMetrics = () => {
                 metrics.gauge({ name: `worker.${queueName}.pausedTasks`, value: jobCounts.paused })
             })
         })
+    }
+}
+
+class DataVersionChecker {
+    async prepareMiddleware () {
+        await checkMinimalKVDataVersion(2)
     }
 }
 
@@ -190,6 +196,7 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
         cors: (conf.CORS) ? parseCorsSettings(JSON.parse(conf.CORS)) : { origin: true, credentials: true },
         pinoOptions: getKeystonePinoOptions(),
         apps: [
+            new DataVersionChecker(),
             new IpBlackListMiddleware(),
             new KeystoneTracingApp(),
             ...((apps) ? apps() : []),
