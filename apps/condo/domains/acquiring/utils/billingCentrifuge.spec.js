@@ -63,10 +63,24 @@ describe('billingCentrifuge', () => {
             expect(hasSingleVorItem(distribution)).toBe(false)
             expect(() => split(paymentAmount, distribution, { feeAmount: '100' })).toThrow('The distribution does not contains at least one fee payer (isFeePayer=true)')
         })
+
+        test('must throw an error if fee payers has not enough amount to pay fees', () => {
+            const amount = '1000'
+            const feeAmount = '100'
+
+            const recipient1 = createTestRecipient()
+            const recipient2 = createTestRecipient()
+            const distribution = [
+                { recipient: recipient1, amount: '20', isFeePayer: true },
+                { recipient: recipient2, amount: '30000', vor: true, overpaymentPart: 1 },
+            ]
+
+            expect(() => split(amount, distribution, { feeAmount })).toThrow(`Recipient ${JSON.stringify(recipient1)} has amount=0.67 and feeAmount=100`)
+        })
     })
 
     describe('when amount is enough (full payment)', () => {
-        test('split correctly', () => {
+        test('split correctly without fee', () => {
             const paymentAmount = '1000'
             const recipient1 = createTestRecipient()
             const recipient2 = createTestRecipient()
@@ -87,110 +101,132 @@ describe('billingCentrifuge', () => {
             expect(Big(paymentAmount).eq(splitSum)).toBe(true)
         })
 
-        describe('with fee', () => {
-            test('split correctly with fee: 1 fee payer', () => {
-                const paymentAmount = '1000'
-                const feeAmount = '50'
-                const recipient1 = createTestRecipient()
-                const recipient2 = createTestRecipient()
+        test('split correctly with fee: 1 fee payer', () => {
+            const paymentAmount = '1000'
+            const feeAmount = '50'
+            const recipient1 = createTestRecipient()
+            const recipient2 = createTestRecipient()
 
-                const distribution = [
-                    { recipient: recipient1, amount: '800' },
-                    { recipient: recipient2, amount: '200', vor: true, overpaymentPart: 1, isFeePayer: true },
-                ]
-                const splits = split(paymentAmount, distribution, { feeAmount })
+            const distribution = [
+                { recipient: recipient1, amount: '800' },
+                { recipient: recipient2, amount: '200', vor: true, overpaymentPart: 1, isFeePayer: true },
+            ]
+            const splits = split(paymentAmount, distribution, { feeAmount })
 
-                expect(splits).toEqual([
-                    { recipient: recipient1, amount: '800' },
-                    { recipient: recipient2, amount: '150', feeAmount: '50' },
-                ])
+            expect(splits).toEqual([
+                { recipient: recipient1, amount: '800' },
+                { recipient: recipient2, amount: '150', feeAmount: '50' },
+            ])
 
-                const splitSum = splits.reduce((sum, split) => sum.plus(split.amount), Big(0))
-                const feeSum = splits.reduce((sum, split) => sum.plus(split.feeAmount || 0), Big(0))
+            const splitSum = splits.reduce((sum, split) => sum.plus(split.amount), Big(0))
+            const feeSum = splits.reduce((sum, split) => sum.plus(split.feeAmount || 0), Big(0))
 
-                expect(Big(feeAmount).eq(feeSum)).toBe(true)
-                expect(Big(paymentAmount).eq(splitSum.plus(feeSum))).toBe(true)
-            })
+            expect(Big(feeAmount).eq(feeSum)).toBe(true)
+            expect(Big(paymentAmount).eq(splitSum.plus(feeSum))).toBe(true)
+        })
 
-            test('split correctly with fee: 2 fee payers', () => {
-                const paymentAmount = '1000'
-                const feeAmount = '50'
-                const recipient1 = createTestRecipient()
-                const recipient2 = createTestRecipient()
+        test('split correctly with fee > amount (not enough amount to extract fee)', () => {
+            const paymentAmount = '300'
+            const feeAmount = '30'
+            const recipient1 = createTestRecipient()
+            const recipient2 = createTestRecipient()
 
-                const distribution = [
-                    { recipient: recipient1, amount: '800', isFeePayer: true },
-                    { recipient: recipient2, amount: '200', vor: true, overpaymentPart: 1, isFeePayer: true },
-                ]
-                const splits = split(paymentAmount, distribution, { feeAmount })
+            const distribution = [
+                { recipient: recipient1, amount: '990' },
+                { recipient: recipient2, amount: '20', vor: true, overpaymentPart: 1, isFeePayer: true },
+            ]
+            const splits = split(paymentAmount, distribution, { feeAmount })
 
-                expect(splits).toEqual([
-                    { recipient: recipient1, amount: '760', feeAmount: '40' },
-                    { recipient: recipient2, amount: '190', feeAmount: '10' },
-                ])
+            expect(splits).toEqual([
+                { recipient: recipient1, amount: '800' },
+                { recipient: recipient2, amount: '150', feeAmount: '50' },
+            ])
 
-                const splitSum = splits.reduce((sum, split) => sum.plus(split.amount), Big(0))
-                const feeSum = splits.reduce((sum, split) => sum.plus(split.feeAmount || 0), Big(0))
+            const splitSum = splits.reduce((sum, split) => sum.plus(split.amount), Big(0))
+            const feeSum = splits.reduce((sum, split) => sum.plus(split.feeAmount || 0), Big(0))
 
-                expect(Big(feeAmount).eq(feeSum)).toBe(true)
-                expect(Big(paymentAmount).eq(splitSum.plus(feeSum))).toBe(true)
-            })
+            expect(Big(feeAmount).eq(feeSum)).toBe(true)
+            expect(Big(paymentAmount).eq(splitSum.plus(feeSum))).toBe(true)
+        })
 
-            test('split correctly with fee: 100 between 3 fee payers', () => {
-                const paymentAmount = '2000'
-                const feeAmount = '100'
-                const recipient1 = createTestRecipient()
-                const recipient2 = createTestRecipient()
-                const recipient3 = createTestRecipient()
+        test('split correctly with fee: 2 fee payers', () => {
+            const paymentAmount = '1000'
+            const feeAmount = '50'
+            const recipient1 = createTestRecipient()
+            const recipient2 = createTestRecipient()
 
-                const distribution = [
-                    { recipient: recipient1, amount: '800', isFeePayer: true },
-                    { recipient: recipient2, amount: '200', vor: true, overpaymentPart: 1, isFeePayer: true },
-                    { recipient: recipient3, amount: '1000', isFeePayer: true },
-                ]
-                const splits = split(paymentAmount, distribution, { feeAmount })
+            const distribution = [
+                { recipient: recipient1, amount: '800', isFeePayer: true },
+                { recipient: recipient2, amount: '200', vor: true, overpaymentPart: 1, isFeePayer: true },
+            ]
+            const splits = split(paymentAmount, distribution, { feeAmount })
 
-                expect(splits).toHaveLength(3)
-                expect(splits).toEqual(expect.arrayContaining([
-                    { recipient: recipient1, amount: '760', feeAmount: '40' },
-                    { recipient: recipient2, amount: '190', feeAmount: '10' },
-                    { recipient: recipient3, amount: '950', feeAmount: '50' },
-                ]))
+            expect(splits).toEqual([
+                { recipient: recipient1, amount: '760', feeAmount: '40' },
+                { recipient: recipient2, amount: '190', feeAmount: '10' },
+            ])
 
-                const splitSum = splits.reduce((sum, split) => sum.plus(split.amount), Big(0))
-                const feeSum = splits.reduce((sum, split) => sum.plus(split.feeAmount || 0), Big(0))
+            const splitSum = splits.reduce((sum, split) => sum.plus(split.amount), Big(0))
+            const feeSum = splits.reduce((sum, split) => sum.plus(split.feeAmount || 0), Big(0))
 
-                expect(Big(feeAmount).eq(feeSum)).toBe(true)
-                expect(Big(paymentAmount).eq(splitSum.plus(feeSum))).toBe(true)
-            })
+            expect(Big(feeAmount).eq(feeSum)).toBe(true)
+            expect(Big(paymentAmount).eq(splitSum.plus(feeSum))).toBe(true)
+        })
 
-            test('split correctly with fee: 200 between 3 fee payers', () => {
-                const paymentAmount = '2000'
-                const feeAmount = '200'
-                const recipient1 = createTestRecipient()
-                const recipient2 = createTestRecipient()
-                const recipient3 = createTestRecipient()
+        test('split correctly with fee: 100 between 3 fee payers', () => {
+            const paymentAmount = '2000'
+            const feeAmount = '100'
+            const recipient1 = createTestRecipient()
+            const recipient2 = createTestRecipient()
+            const recipient3 = createTestRecipient()
 
-                const distribution = [
-                    { recipient: recipient1, amount: '800', isFeePayer: true },
-                    { recipient: recipient2, amount: '200', vor: true, overpaymentPart: 1, isFeePayer: true },
-                    { recipient: recipient3, amount: '1000', isFeePayer: true },
-                ]
-                const splits = split(paymentAmount, distribution, { feeAmount })
+            const distribution = [
+                { recipient: recipient1, amount: '800', isFeePayer: true },
+                { recipient: recipient2, amount: '200', vor: true, overpaymentPart: 1, isFeePayer: true },
+                { recipient: recipient3, amount: '1000', isFeePayer: true },
+            ]
+            const splits = split(paymentAmount, distribution, { feeAmount })
 
-                expect(splits).toHaveLength(3)
-                expect(splits).toEqual(expect.arrayContaining([
-                    { recipient: recipient1, amount: '720', feeAmount: '80' },
-                    { recipient: recipient2, amount: '180', feeAmount: '20' },
-                    { recipient: recipient3, amount: '900', feeAmount: '100' },
-                ]))
+            expect(splits).toHaveLength(3)
+            expect(splits).toEqual(expect.arrayContaining([
+                { recipient: recipient1, amount: '760', feeAmount: '40' },
+                { recipient: recipient2, amount: '190', feeAmount: '10' },
+                { recipient: recipient3, amount: '950', feeAmount: '50' },
+            ]))
 
-                const splitSum = splits.reduce((sum, split) => sum.plus(split.amount), Big(0))
-                const feeSum = splits.reduce((sum, split) => sum.plus(split.feeAmount || 0), Big(0))
+            const splitSum = splits.reduce((sum, split) => sum.plus(split.amount), Big(0))
+            const feeSum = splits.reduce((sum, split) => sum.plus(split.feeAmount || 0), Big(0))
 
-                expect(Big(feeAmount).eq(feeSum)).toBe(true)
-                expect(Big(paymentAmount).eq(splitSum.plus(feeSum))).toBe(true)
-            })
+            expect(Big(feeAmount).eq(feeSum)).toBe(true)
+            expect(Big(paymentAmount).eq(splitSum.plus(feeSum))).toBe(true)
+        })
+
+        test('split correctly with fee: 200 between 3 fee payers', () => {
+            const paymentAmount = '2000'
+            const feeAmount = '200'
+            const recipient1 = createTestRecipient()
+            const recipient2 = createTestRecipient()
+            const recipient3 = createTestRecipient()
+
+            const distribution = [
+                { recipient: recipient1, amount: '800', isFeePayer: true },
+                { recipient: recipient2, amount: '200', vor: true, overpaymentPart: 1, isFeePayer: true },
+                { recipient: recipient3, amount: '1000', isFeePayer: true },
+            ]
+            const splits = split(paymentAmount, distribution, { feeAmount })
+
+            expect(splits).toHaveLength(3)
+            expect(splits).toEqual(expect.arrayContaining([
+                { recipient: recipient1, amount: '720', feeAmount: '80' },
+                { recipient: recipient2, amount: '180', feeAmount: '20' },
+                { recipient: recipient3, amount: '900', feeAmount: '100' },
+            ]))
+
+            const splitSum = splits.reduce((sum, split) => sum.plus(split.amount), Big(0))
+            const feeSum = splits.reduce((sum, split) => sum.plus(split.feeAmount || 0), Big(0))
+
+            expect(Big(feeAmount).eq(feeSum)).toBe(true)
+            expect(Big(paymentAmount).eq(splitSum.plus(feeSum))).toBe(true)
         })
     })
 

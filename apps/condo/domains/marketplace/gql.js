@@ -6,7 +6,6 @@
 
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
-const { AMOUNT_DISTRIBUTION_SUBFIELDS } = require('@condo/domains/billing/gql')
 const { PROPERTY_MAP_JSON_FIELDS } = require('@condo/domains/property/gql')
 const { ADDRESS_META_SUBFIELDS_QUERY_LIST, ADDRESS_META_SUBFIELDS_TABLE_LIST } = require('@condo/domains/property/schema/fields/AddressMetaField')
 
@@ -18,7 +17,7 @@ const MarketCategory = generateGqlQueries('MarketCategory', MARKET_CATEGORY_FIEL
 const MARKET_ITEM_FIELDS = `{ name marketCategory { id name order parentCategory { id name order mobileSettings { bgColor titleColor } image { publicUrl } } image { publicUrl } mobileSettings { bgColor titleColor } } sku description organization { id } ${COMMON_FIELDS} }`
 const MarketItem = generateGqlQueries('MarketItem', MARKET_ITEM_FIELDS)
 
-const INVOICE_FIELDS = `{ organization { id } number property { id address addressKey addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } map { ${PROPERTY_MAP_JSON_FIELDS} } } unitType unitName accountNumber toPay rows { name toPay count vatPercent measure salesTaxPercent sku isMin currencyCode meta { imageUrl categoryBgColor } } ticket { id number property { id } unitName unitType clientName clientPhone } contact { id name phone email unitType unitName property { id } } clientName clientPhone client { id name } status paymentType publishedAt paidAt canceledAt recipient { name bankName tin bic bankAccount } currencyCode canGroupReceipts acquiringHostUrl acquiringIntegrationId amountDistribution { ${AMOUNT_DISTRIBUTION_SUBFIELDS} } ${COMMON_FIELDS} }`
+const INVOICE_FIELDS = `{ organization { id } number property { id address addressKey addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } map { ${PROPERTY_MAP_JSON_FIELDS} } } unitType unitName accountNumber toPay rows { name toPay count vatPercent measure salesTaxPercent sku isMin currencyCode meta { imageUrl categoryBgColor } } ticket { id number property { id } unitName unitType clientName clientPhone } contact { id name phone email unitType unitName property { id } } clientName clientPhone client { id name } status paymentType publishedAt paidAt canceledAt recipient { name bankName tin bic bankAccount } currencyCode canGroupReceipts acquiringHostUrl acquiringIntegrationId ${COMMON_FIELDS} }`
 const Invoice = generateGqlQueries('Invoice', INVOICE_FIELDS)
 
 const MARKET_ITEM_FILE_FIELDS = `{ marketItem { id organization { id } } file { id originalFilename publicUrl mimetype } ${COMMON_FIELDS} }`
