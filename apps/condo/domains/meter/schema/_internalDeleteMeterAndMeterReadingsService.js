@@ -41,7 +41,7 @@ const _internalDeleteMeterAndMeterReadingsService = new GQLCustomSchema('_intern
     types: [
         {
             access: true,
-            type: 'input _internalDeleteMeterAndMeterReadingsInput { dv: Int!, sender: SenderFieldInput!, propertyIds: [ID], organizationId: ID! }',
+            type: 'input _internalDeleteMeterAndMeterReadingsInput { dv: Int!, sender: SenderFieldInput!, propertyIds: [ID], organizationId: ID!, resourcesIds: [ID] }',
         },
         {
             access: true,
@@ -52,7 +52,7 @@ const _internalDeleteMeterAndMeterReadingsService = new GQLCustomSchema('_intern
             type: 'type _internalDeleteMeterAndMeterReadingsOutput { status: Status!, metersToDelete: Int!, deletedMeters: Int! }',
         },
     ],
-    
+
     mutations: [
         {
             access: access.can_internalDeleteMeterAndMeterReadings,
@@ -67,7 +67,7 @@ const _internalDeleteMeterAndMeterReadingsService = new GQLCustomSchema('_intern
             },
             resolver: async (parent, args, context) => {
                 const { data } = args
-                const { dv, sender, propertyIds, organizationId } = data
+                const { dv, sender, propertyIds, organizationId, resourcesIds } = data
 
                 checkDvAndSender(data, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
 
@@ -75,6 +75,7 @@ const _internalDeleteMeterAndMeterReadingsService = new GQLCustomSchema('_intern
                     deletedAt: null,
                     organization: { id: organizationId },
                     ...(isArray(propertyIds) ? { property: { id_in: propertyIds } } : undefined),
+                    ...(isArray(resourcesIds) ? { resource: { id_in: resourcesIds } } : undefined),
                 }
 
                 const { count: metersCount } = await itemsQuery('Meter', {
@@ -149,7 +150,7 @@ const _internalDeleteMeterAndMeterReadingsService = new GQLCustomSchema('_intern
             },
         },
     ],
-    
+
 })
 
 module.exports = {

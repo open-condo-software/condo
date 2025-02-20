@@ -66,7 +66,7 @@ const _internalDeleteMeterReadingsService = new GQLCustomSchema('_internalDelete
     types: [
         {
             access: true,
-            type: 'input _internalDeleteMeterReadingsInput { dv: Int!, sender: SenderFieldInput!, propertyIds: [ID], organizationId: ID!, startDateTime: String!, endDateTime: String! }',
+            type: 'input _internalDeleteMeterReadingsInput { dv: Int!, sender: SenderFieldInput!, propertyIds: [ID], resourcesIds: [ID], organizationId: ID!, startDateTime: String!, endDateTime: String! }',
         },
         {
             access: true,
@@ -77,7 +77,7 @@ const _internalDeleteMeterReadingsService = new GQLCustomSchema('_internalDelete
             type: 'type _internalDeleteMeterReadingsOutput { status: Status!, toDelete: Int!, deleted: Int! }',
         },
     ],
-    
+
     mutations: [
         {
             access: access.canInternalDeleteMeterReadings,
@@ -95,6 +95,7 @@ const _internalDeleteMeterReadingsService = new GQLCustomSchema('_internalDelete
                     dv,
                     sender,
                     propertyIds,
+                    resourcesIds,
                     organizationId,
                     startDateTime: startDateTimeFromInput,
                     endDateTime: endDateTimeFromInput,
@@ -118,6 +119,7 @@ const _internalDeleteMeterReadingsService = new GQLCustomSchema('_internalDelete
                     createdAt_lte: dayjs(endDateTime).endOf('s').toISOString(),
                     meter: {
                         ...(isArray(propertyIds) ? { property: { id_in: propertyIds } } : undefined),
+                        ...(isArray(resourcesIds) ? { resource: { id_in: resourcesIds } } : undefined),
                         organization: { id: organizationId },
                         deletedAt: null,
                     },
@@ -194,7 +196,7 @@ const _internalDeleteMeterReadingsService = new GQLCustomSchema('_internalDelete
             },
         },
     ],
-    
+
 })
 
 module.exports = {
