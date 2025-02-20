@@ -65,8 +65,10 @@ function isReadingDateAllowed (date, meterReportingPeriod) {
     const restrictionEnd = getRestrictionEnd(monthStart, notifyEndDay, adjustedRestrictionEnd)
     const prevRestrictionEnd = getRestrictionEnd(prevMonthStart, notifyEndDay, adjustedPrevRestrictionEnd)
 
-    return !(readingDate.isAfter(periodEnd, 'day') && !readingDate.isAfter(restrictionEnd, 'day') ||
-        readingDate.isAfter(prevPeriodEnd, 'day') && !readingDate.isAfter(prevRestrictionEnd, 'day'))
+    const isRestrictedInCurrentMonth = readingDate.isAfter(periodEnd, 'day') && !readingDate.isAfter(restrictionEnd, 'day')
+    const isRestrictedInPrevMonth = readingDate.isAfter(prevPeriodEnd, 'day') && !readingDate.isAfter(prevRestrictionEnd, 'day')
+
+    return !(isRestrictedInCurrentMonth || isRestrictedInPrevMonth)
 }
 
 module.exports = {
