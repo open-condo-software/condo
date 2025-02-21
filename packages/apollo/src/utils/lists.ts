@@ -86,6 +86,7 @@ export class ListHelper {
             return undefined
         }
 
+        return existing.slice(skip, skip + first)
     }
 
     /**
