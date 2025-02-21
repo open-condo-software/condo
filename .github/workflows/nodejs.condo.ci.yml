@@ -59,6 +59,11 @@ jobs:
           registry: ${{ secrets.DOCKER_REGISTRY }}
           username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
           password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
+      - name: Pull & push alpine to registry
+        run: |
+          docker pull alpine
+          docker tag alpine ${{ secrets.DOCKER_REGISTRY }}/doma/utils/alpine
+          docker push ${{ secrets.DOCKER_REGISTRY }}/doma/utils/alpine
       - name: Checkout code
         uses: actions/checkout@v4
         with:
@@ -66,11 +71,6 @@ jobs:
           submodules: recursive
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
           ref: ${{ env.REF }}
-      - name: Pull & push alpine to registry
-        run: |
-          docker pull alpine
-          docker tag alpine ${{ secrets.DOCKER_REGISTRY }}/doma/utils/alpine
-          docker push ${{ secrets.DOCKER_REGISTRY }}/doma/utils/alpine
       - name: Prune repo to filter out yarn.lock and package.json
         run: |
           bash bin/prune.sh
