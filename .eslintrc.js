@@ -159,6 +159,24 @@ module.exports = {
                         name: 'jspdf',
                         message: 'Please use pdfmake to generate pdf files.',
                     },
+                    {
+                        name: 'lodash',
+                        message: 'Please use `import [package] from \'lodash/[package]\'` instead',
+                    },
+                ],
+                patterns: [
+                    {
+                        group: ['!lodash/*'],
+                        message: 'Please use `import [package] from \'lodash/[package]\'` instead',
+                    },
+                    {
+                        group: ['*clientSchema*'],
+                        message: 'Please use new client utils generated inside `[app]/gql/*` by `[app]/domains/[domain]/queries/*.graphql`',
+                    },
+                    {
+                        group: ['*emotion*'],
+                        message: 'Please use className with global css or css modules instead.',
+                    },
                 ],
             },
         ],
