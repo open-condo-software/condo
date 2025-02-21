@@ -19,7 +19,7 @@ const {
 const DEFAULT_DB_NAME_PREFIX = 'local'
 const DEFAULT_APP_HTTPS_SUBDOMAIN = 'app.localhost'
 const LOCAL_PG_DB_PREFIX = 'postgresql://postgres:postgres@127.0.0.1'
-const LOCAL_VALKEY_DB = 'redis://127.0.0.1'
+const LOCAL_REDIS_DB_PREFIX = 'redis://127.0.0.1'
 const KEY_FILE = path.join(__filename, '..', '.ssl', 'localhost.key')
 const CERT_FILE = path.join(__filename, '..', '.ssl', 'localhost.pem')
 
@@ -62,6 +62,7 @@ async function prepare () {
             return {
                 ...app,
                 pgName: `${DEFAULT_DB_NAME_PREFIX}-${app.name}`,
+                redisIndex: appOrder,
                 port,
                 sport,
                 serviceUrl: https
@@ -112,7 +113,7 @@ async function prepare () {
             logWithIndent('Writing assigned urls / ports / dbs to app\'s .env', 2)
             const env = {
                 DATABASE_URL: `${LOCAL_PG_DB_PREFIX}/${app.pgName}`,
-                VALKEY_URL: `${LOCAL_VALKEY_DB}`,
+                REDIS_URL: `${LOCAL_REDIS_DB_PREFIX}/${app.redisIndex}`,
                 PORT: String(app.port),
                 SPORT: String(app.sport),
                 SERVER_URL: app.serviceUrl,
@@ -135,10 +136,10 @@ async function prepare () {
             }
 
             if (cluster && cluster.includes(app.name)) {
-                env.VALKEY_URL = JSON.stringify([
-                    { 'port':7001, 'host':'127.0.0.1' },
-                    { 'port':7002, 'host':'127.0.0.1' },
-                    { 'port':7003, 'host':'127.0.0.1' }]
+                env.REDIS_URL = JSON.stringify([
+                    { 'port': 7001, 'host': '127.0.0.1' },
+                    { 'port': 7002, 'host': '127.0.0.1' },
+                    { 'port': 7003, 'host': '127.0.0.1' }]
                 )
             }
 
