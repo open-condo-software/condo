@@ -2,10 +2,10 @@ const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
 const pick = require('lodash/pick')
 
-const { getLogger } = require('@open-condo/keystone/logging/getLogger')
-const { find, getSchemaCtx } = require('@open-condo/keystone/schema')
+const { find } = require('@open-condo/keystone/schema')
 
 const { AppleAdapter } = require('@condo/domains/notification/adapters/appleAdapter')
+const { responseResolver } = require('@condo/domains/notification/adapters/firebase/responseResolver')
 const { FirebaseAdapter } = require('@condo/domains/notification/adapters/firebaseAdapter')
 const HCMAdapter = require('@condo/domains/notification/adapters/hcmAdapter')
 const { RedStoreAdapter } = require('@condo/domains/notification/adapters/redStoreAdapter')
@@ -18,15 +18,24 @@ const {
     PUSH_TRANSPORT_REDSTORE,
 } = require('@condo/domains/notification/constants/constants')
 const { renderTemplate } = require('@condo/domains/notification/templates')
-const { RemoteClient } = require('@condo/domains/notification/utils/serverSchema')
-
-const logger = getLogger('messaging/sendNotification')
 
 const ADAPTERS = {
     [PUSH_TRANSPORT_FIREBASE]: new FirebaseAdapter(),
     [PUSH_TRANSPORT_REDSTORE]: new RedStoreAdapter(),
     [PUSH_TRANSPORT_HUAWEI]: new HCMAdapter(),
     [PUSH_TRANSPORT_APPLE]: new AppleAdapter(),
+}
+// Now we want to resolve only the error with the expired token and not send obviously erroneous requests to cloud messaging.
+const responseResolversByTransport = {
+    [PUSH_TRANSPORT_FIREBASE]: responseResolver,
+    [PUSH_TRANSPORT_HUAWEI]: () => { return 'not implemented'}, // TODO: need research on how Huawei push kit works with push tokens and responses from the API to catch expired tokens
+    /* APNS works with tokens differently than FCM
+    * in docs i not found info about token expiration and error in this case, but found some information on stackoverflow about this logic of APNS and IOS
+    * quote: "One of the Apple devs shared with me that tokens do actually expire (after 2 years, I think). For many purposes, this is long enough that can be thought of as invariant."
+    * https://stackoverflow.com/questions/19782470/what-happen-if-a-apns-device-token-expired
+    * https://stackoverflow.com/questions/6652242/does-the-apns-device-token-ever-change-once-created
+    */
+    [PUSH_TRANSPORT_APPLE]: () => { return 'not implemented'},
 }
 
 /**
@@ -154,31 +163,8 @@ async function send ({ notification, data, user, remoteClient } = {}, isVoIP = f
             const adapter = ADAPTERS[transport]
             const payload = { tokens, pushTypes, appIds, notification, data }
             const [isOk, result] = await adapter.sendNotification(payload, isVoIP)
-            if (adapter === PUSH_TRANSPORT_FIREBASE) {
-                // handling expired token error. https://firebase.google.com/docs/cloud-messaging/manage-tokens?hl=ru#detect-invalid-token-responses-from-the-fcm-backend
-                if (get(result, 'responses')) {
-                    for (const res of result.responses) {
-                        const context = getSchemaCtx('RemoteClient')
-                        if (get(res, 'error.code') === 'messaging/registration-token-not-registered') {
-                            const field = isVoIP ? 'pushTokenVoIP' : 'pushToken'
-                            const [remoteClient] = await find('RemoteClient', {
-                                [field]: res.pushToken,
-                                deletedAt: null,
-                            })
 
-                            if (get(remoteClient, 'id')) {
-                                await RemoteClient.update(context, get(remoteClient, 'id'), {
-                                    [field]: null,
-                                    dv: 1,
-                                    sender: { dv: 1, fingerprint: 'internal-update_token-not-registered' },
-                                })
-                                logger.info({ msg: 'Remove expired FCM token', remoteClientId: remoteClient.id, field })
-                            }
-                        }
-                    }
-                }
-            }
-
+            responseResolversByTransport[transport](result, isVoIP)
             container = mixResult(container, result)
             _isOk = _isOk || isOk
         }
