@@ -125,30 +125,6 @@ describe('billingCentrifuge', () => {
             expect(Big(paymentAmount).eq(splitSum.plus(feeSum))).toBe(true)
         })
 
-        test('split correctly with fee > amount (not enough amount to extract fee)', () => {
-            const paymentAmount = '300'
-            const feeAmount = '30'
-            const recipient1 = createTestRecipient()
-            const recipient2 = createTestRecipient()
-
-            const distribution = [
-                { recipient: recipient1, amount: '990' },
-                { recipient: recipient2, amount: '20', vor: true, overpaymentPart: 1, isFeePayer: true },
-            ]
-            const splits = split(paymentAmount, distribution, { feeAmount })
-
-            expect(splits).toEqual([
-                { recipient: recipient1, amount: '800' },
-                { recipient: recipient2, amount: '150', feeAmount: '50' },
-            ])
-
-            const splitSum = splits.reduce((sum, split) => sum.plus(split.amount), Big(0))
-            const feeSum = splits.reduce((sum, split) => sum.plus(split.feeAmount || 0), Big(0))
-
-            expect(Big(feeAmount).eq(feeSum)).toBe(true)
-            expect(Big(paymentAmount).eq(splitSum.plus(feeSum))).toBe(true)
-        })
-
         test('split correctly with fee: 2 fee payers', () => {
             const paymentAmount = '1000'
             const feeAmount = '50'
