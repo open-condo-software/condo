@@ -44226,7 +44226,7 @@ type ContactHistoryRecord {
   name: String
   role: String
   isVerified: Boolean
-  quota: String
+  ownershipPercentage: String
   id: ID!
   v: Int
   createdAt: String
@@ -44349,14 +44349,14 @@ input ContactHistoryRecordWhereInput {
   role_not_in: [String]
   isVerified: Boolean
   isVerified_not: Boolean
-  quota: String
-  quota_not: String
-  quota_lt: String
-  quota_lte: String
-  quota_gt: String
-  quota_gte: String
-  quota_in: [String]
-  quota_not_in: [String]
+  ownershipPercentage: String
+  ownershipPercentage_not: String
+  ownershipPercentage_lt: String
+  ownershipPercentage_lte: String
+  ownershipPercentage_gt: String
+  ownershipPercentage_gte: String
+  ownershipPercentage_in: [String]
+  ownershipPercentage_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -44452,8 +44452,8 @@ enum SortContactHistoryRecordsBy {
   name_DESC
   isVerified_ASC
   isVerified_DESC
-  quota_ASC
-  quota_DESC
+  ownershipPercentage_ASC
+  ownershipPercentage_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -44482,7 +44482,7 @@ input ContactHistoryRecordUpdateInput {
   name: String
   role: String
   isVerified: Boolean
-  quota: String
+  ownershipPercentage: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -44512,7 +44512,7 @@ input ContactHistoryRecordCreateInput {
   name: String
   role: String
   isVerified: Boolean
-  quota: String
+  ownershipPercentage: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -44589,8 +44589,9 @@ type Contact {
   """ Contact verification flag. """
   isVerified: Boolean
 
-  """ Percentage ownership of an apartment """
-  quota: String
+  """ Percentage ownership of an apartment. Example value: 50.00000000 // 50%  
+  """
+  ownershipPercentage: String
   id: ID!
   v: Int
   createdAt: String
@@ -44701,14 +44702,14 @@ input ContactWhereInput {
   role_is_null: Boolean
   isVerified: Boolean
   isVerified_not: Boolean
-  quota: String
-  quota_not: String
-  quota_lt: String
-  quota_lte: String
-  quota_gt: String
-  quota_gte: String
-  quota_in: [String]
-  quota_not_in: [String]
+  ownershipPercentage: String
+  ownershipPercentage_not: String
+  ownershipPercentage_lt: String
+  ownershipPercentage_lte: String
+  ownershipPercentage_gt: String
+  ownershipPercentage_gte: String
+  ownershipPercentage_in: [String]
+  ownershipPercentage_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -44790,8 +44791,8 @@ enum SortContactsBy {
   role_DESC
   isVerified_ASC
   isVerified_DESC
-  quota_ASC
-  quota_DESC
+  ownershipPercentage_ASC
+  ownershipPercentage_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -44820,7 +44821,7 @@ input ContactUpdateInput {
   name: String
   role: ContactRoleRelateToOneInput
   isVerified: Boolean
-  quota: String
+  ownershipPercentage: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -44847,7 +44848,7 @@ input ContactCreateInput {
   name: String
   role: ContactRoleRelateToOneInput
   isVerified: Boolean
-  quota: String
+  ownershipPercentage: String
   v: Int
   createdAt: String
   updatedAt: String
