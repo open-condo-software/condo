@@ -55,13 +55,16 @@ const {
     createTestAcquiringIntegrationContext,
     updateTestAcquiringIntegrationContext,
     makePayerAndPayments, generatePaymentLinkByTestClient,
+    registerMultiPaymentForOneReceiptByTestClient,
+    updateTestAcquiringIntegration,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestBankAccount } = require('@condo/domains/banking/utils/testSchema')
 const {
-    createTestBillingIntegration, BillingProperty,
+    createTestBillingIntegration,
+    BillingProperty,
+    createTestRecipient,
+    createTestBillingReceipt,
 } = require('@condo/domains/billing/utils/testSchema')
-const { createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
-const { createTestBillingReceipt } = require('@condo/domains/billing/utils/testSchema')
 const { TestUtils, ResidentTestMixin } = require('@condo/domains/billing/utils/testSchema/testUtils')
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 const {
@@ -101,7 +104,7 @@ describe('Payment', () => {
                 expect(payment).toHaveProperty('id')
                 expect(payment).toHaveProperty(['context', 'id'], acquiringContext.id)
             })
-            test('support can\t', async () => {
+            test('support can\'t', async () => {
                 const { billingReceipts, acquiringContext, organization } = await makePayer()
                 const support = await makeClientWithSupportUser()
                 await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -488,6 +491,14 @@ describe('Payment', () => {
                     organization,
                 } = await makePayer()
 
+                // set implicit fee
+                await updateTestAcquiringIntegrationContext(admin, acquiringContext.id, {
+                    implicitFeeDistributionSchema: [{
+                        recipient: 'organization',
+                        percent: '5',
+                    }],
+                })
+
                 const [bankAccount1] = await createTestBankAccount(admin, organization)
                 const [bankAccount2] = await createTestBankAccount(admin, organization)
                 const [bankAccount3] = await createTestBankAccount(admin, organization)
@@ -508,7 +519,7 @@ describe('Payment', () => {
                     bankAccount: bankAccount3.number,
                 })
 
-                const [receipt] = await createTestBillingReceipt(admin, billingContext, billingProperty, billingAccount, {
+                const [receipt, receiptAttrs] = await createTestBillingReceipt(admin, billingContext, billingProperty, billingAccount, {
                     period: dayjs().format('YYYY-MM-01'),
                     toPay: '500',
                     amountDistribution: [
@@ -524,12 +535,10 @@ describe('Payment', () => {
                     ],
                 })
 
-                const [payment] = await createTestPayment(admin, organization, receipt, acquiringContext, {
-                    implicitFee: '25',
-                    explicitFee: '0',
-                })
+                const [{ multiPaymentId }] = await registerMultiPaymentForOneReceiptByTestClient(admin, { id: receipt.id }, { id: acquiringContext.id })
+                const payment = await Payment.getOne(admin, { multiPayment: { id: multiPaymentId } })
 
-                expect(payment.frozenDistribution).toEqual(expect.objectContaining(receipt.amountDistribution))
+                expect(payment.frozenDistribution).toEqual(expect.objectContaining(receiptAttrs.amountDistribution))
                 expect(payment.frozenSplits).toHaveLength(3)
                 expect(payment.frozenSplits).toEqual(expect.arrayContaining([
                     { recipient: expect.objectContaining(recipient1), amount: '100' },
@@ -544,9 +553,18 @@ describe('Payment', () => {
                     billingAccount,
                     billingProperty,
                     billingContext,
+                    acquiringIntegration,
                     acquiringContext,
                     organization,
                 } = await makePayer()
+
+                // set explicit fee
+                await updateTestAcquiringIntegration(admin, acquiringIntegration.id, {
+                    explicitFeeDistributionSchema: [
+                        { 'recipient': 'acquiring', 'percent': '1.0' },
+                        { 'recipient': 'service', 'percent': '0.2' },
+                    ],
+                })
 
                 const [bankAccount1] = await createTestBankAccount(admin, organization)
                 const [bankAccount2] = await createTestBankAccount(admin, organization)
@@ -568,7 +586,7 @@ describe('Payment', () => {
                     bankAccount: bankAccount3.number,
                 })
 
-                const [receipt] = await createTestBillingReceipt(admin, billingContext, billingProperty, billingAccount, {
+                const [receipt, receiptAttrs] = await createTestBillingReceipt(admin, billingContext, billingProperty, billingAccount, {
                     period: dayjs().format('YYYY-MM-01'),
                     toPay: '500',
                     amountDistribution: [
@@ -584,73 +602,10 @@ describe('Payment', () => {
                     ],
                 })
 
-                const [payment] = await createTestPayment(admin, organization, receipt, acquiringContext, {
-                    implicitFee: '0',
-                    explicitFee: '25',
-                })
+                const [{ multiPaymentId }] = await registerMultiPaymentForOneReceiptByTestClient(admin, { id: receipt.id }, { id: acquiringContext.id })
+                const payment = await Payment.getOne(admin, { multiPayment: { id: multiPaymentId } })
 
-                expect(payment.frozenDistribution).toEqual(expect.objectContaining(receipt.amountDistribution))
-                expect(payment.frozenSplits).toHaveLength(3)
-                expect(payment.frozenSplits).toEqual(expect.arrayContaining([
-                    { recipient: expect.objectContaining(recipient1), amount: '100' },
-                    { recipient: expect.objectContaining(recipient2), amount: '300' },
-                    { recipient: expect.objectContaining(recipient3), amount: '100' },
-                ]))
-            })
-
-            test('Should fill distribution field if paying for receipt with explicit service charge', async () => {
-                const {
-                    admin,
-                    billingAccount,
-                    billingProperty,
-                    billingContext,
-                    acquiringContext,
-                    organization,
-                } = await makePayer()
-
-                const [bankAccount1] = await createTestBankAccount(admin, organization)
-                const [bankAccount2] = await createTestBankAccount(admin, organization)
-                const [bankAccount3] = await createTestBankAccount(admin, organization)
-
-                const recipient1 = createTestRecipient({
-                    tin: bankAccount1.tin,
-                    bic: bankAccount1.routingNumber,
-                    bankAccount: bankAccount1.number,
-                })
-                const recipient2 = createTestRecipient({
-                    tin: bankAccount2.tin,
-                    bic: bankAccount2.routingNumber,
-                    bankAccount: bankAccount2.number,
-                })
-                const recipient3 = createTestRecipient({
-                    tin: bankAccount3.tin,
-                    bic: bankAccount3.routingNumber,
-                    bankAccount: bankAccount3.number,
-                })
-
-                const [receipt] = await createTestBillingReceipt(admin, billingContext, billingProperty, billingAccount, {
-                    period: dayjs().format('YYYY-MM-01'),
-                    toPay: '500',
-                    amountDistribution: [
-                        { recipient: recipient1, amount: '100' },
-                        {
-                            recipient: recipient2,
-                            amount: '300',
-                            vor: true,
-                            overpaymentPart: 1,
-                            isFeePayer: true,
-                        },
-                        { recipient: recipient3, amount: '100' },
-                    ],
-                })
-
-                const [payment] = await createTestPayment(admin, organization, receipt, acquiringContext, {
-                    implicitFee: '0',
-                    explicitFee: '0',
-                    explicitServiceCharge: '25',
-                })
-
-                expect(payment.frozenDistribution).toEqual(expect.objectContaining(receipt.amountDistribution))
+                expect(payment.frozenDistribution).toEqual(expect.objectContaining(receiptAttrs.amountDistribution))
                 expect(payment.frozenSplits).toHaveLength(3)
                 expect(payment.frozenSplits).toEqual(expect.arrayContaining([
                     { recipient: expect.objectContaining(recipient1), amount: '100' },
@@ -728,7 +683,7 @@ describe('Payment', () => {
                     generateInvoiceRow({ toPay: '300', count: 1 }),
                 ]
 
-                const [invoice, invoiceAttrs] = await createTestInvoice(staffClient, organization, {
+                const [invoice, invoiceAttrs] = await createTestInvoice(adminClient, organization, {
                     property: { connect: { id: property.id } },
                     unitType,
                     unitName,
@@ -787,495 +742,6 @@ describe('Payment', () => {
                     { recipient: recipient1, amount: '100' },
                     { recipient: recipient2, amount: '275', feeAmount: '25' },
                     { recipient: recipient3, amount: '100' },
-                ]))
-            })
-
-            test('Should fill distribution field if paying for invoice partially with implicit fee', async () => {
-                const [acquiringIntegration] = await createTestAcquiringIntegration(adminClient, {
-                    canGroupReceipts: true,
-                })
-
-                const [organization] = await createTestOrganization(adminClient)
-
-                const [acquiringContext] = await createTestAcquiringIntegrationContext(adminClient, organization, acquiringIntegration, {
-                    invoiceStatus: CONTEXT_FINISHED_STATUS,
-                    invoiceImplicitFeeDistributionSchema: [{
-                        recipient: 'organization',
-                        percent: '5',
-                    }],
-                    invoiceRecipient: createTestRecipient(),
-                })
-
-                const [property] = await createTestProperty(adminClient, organization)
-
-                const residentClient = await makeClientWithResidentUser()
-                const unitType = FLAT_UNIT_TYPE
-                const unitName = faker.lorem.word()
-
-                await registerResidentByTestClient(
-                    residentClient,
-                    {
-                        address: property.address,
-                        addressMeta: property.addressMeta,
-                        unitType,
-                        unitName,
-                    })
-
-                const staffClient = await makeClientWithStaffUser()
-                const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
-                    canManageInvoices: true,
-                    canManageContacts: true,
-                })
-                await createTestOrganizationEmployee(adminClient, organization, staffClient.user, role)
-
-                const [contact] = await createTestContact(staffClient, organization, property, {
-                    phone: residentClient.userAttrs.phone,
-                    unitType,
-                    unitName,
-                })
-
-                const [bankAccount1] = await createTestBankAccount(adminClient, organization)
-                const [bankAccount2] = await createTestBankAccount(adminClient, organization)
-                const [bankAccount3] = await createTestBankAccount(adminClient, organization)
-
-                const recipient1 = createTestRecipient({
-                    tin: bankAccount1.tin,
-                    bic: bankAccount1.routingNumber,
-                    bankAccount: bankAccount1.number,
-                })
-                const recipient2 = createTestRecipient({
-                    tin: bankAccount2.tin,
-                    bic: bankAccount2.routingNumber,
-                    bankAccount: bankAccount2.number,
-                })
-                const recipient3 = createTestRecipient({
-                    tin: bankAccount3.tin,
-                    bic: bankAccount3.routingNumber,
-                    bankAccount: bankAccount3.number,
-                })
-
-                const rows = [
-                    generateInvoiceRow({ toPay: '100', count: 2 }),
-                    generateInvoiceRow({ toPay: '300', count: 1 }),
-                ]
-
-                const [invoice, invoiceAttrs] = await createTestInvoice(staffClient, organization, {
-                    property: { connect: { id: property.id } },
-                    unitType,
-                    unitName,
-                    contact: { connect: { id: contact.id } },
-                    status: INVOICE_STATUS_PUBLISHED,
-                    rows,
-                    amountDistribution: [
-                        { recipient: recipient1, amount: '100' },
-                        {
-                            recipient: recipient2,
-                            amount: '300',
-                            vor: true,
-                            overpaymentPart: 1,
-                            isFeePayer: true,
-                        },
-                        { recipient: recipient3, amount: '100' },
-                    ],
-                })
-
-                const [payment1] = await createTestPayment(adminClient, organization, null, acquiringContext, {
-                    invoice,
-                    amount: '200',
-                    explicitFee: '0',
-                    implicitFee: '10',
-                })
-
-                expect(payment1.frozenDistribution).toEqual(invoiceAttrs.amountDistribution.map((d) => (expect.objectContaining({
-                    ...d,
-                    recipient: expect.objectContaining(d.recipient),
-                }))))
-                expect(payment1.frozenSplits).toHaveLength(3)
-                expect(payment1.frozenSplits).toEqual(expect.arrayContaining([
-                    { recipient: expect.objectContaining(recipient1), amount: '40' },
-                    { recipient: expect.objectContaining(recipient2), amount: '110', feeAmount: '10' },
-                    { recipient: expect.objectContaining(recipient3), amount: '40' },
-                ]))
-
-                const [payment2] = await createTestPayment(adminClient, organization, null, acquiringContext, {
-                    invoice,
-                    amount: '300',
-                    explicitFee: '0',
-                    implicitFee: '15',
-                })
-
-                expect(payment2.frozenDistribution).toEqual(invoiceAttrs.amountDistribution.map((d) => (expect.objectContaining({
-                    ...d,
-                    recipient: expect.objectContaining(d.recipient),
-                }))))
-                expect(payment2.frozenSplits).toHaveLength(3)
-                expect(payment2.frozenSplits).toEqual(expect.arrayContaining([
-                    { recipient: expect.objectContaining(recipient1), amount: '60' },
-                    { recipient: expect.objectContaining(recipient2), amount: '165', feeAmount: '15' },
-                    { recipient: expect.objectContaining(recipient3), amount: '60' },
-                ]))
-            })
-
-            test('Should fill distribution field if paying for invoice partially with explicit fee', async () => {
-                const [acquiringIntegration] = await createTestAcquiringIntegration(adminClient, {
-                    canGroupReceipts: true,
-                })
-
-                const [organization] = await createTestOrganization(adminClient)
-
-                const [acquiringContext] = await createTestAcquiringIntegrationContext(adminClient, organization, acquiringIntegration, {
-                    invoiceStatus: CONTEXT_FINISHED_STATUS,
-                    invoiceImplicitFeeDistributionSchema: [{
-                        recipient: 'organization',
-                        percent: '5',
-                    }],
-                    invoiceRecipient: createTestRecipient(),
-                })
-
-                const [property] = await createTestProperty(adminClient, organization)
-
-                const residentClient = await makeClientWithResidentUser()
-                const unitType = FLAT_UNIT_TYPE
-                const unitName = faker.lorem.word()
-
-                await registerResidentByTestClient(
-                    residentClient,
-                    {
-                        address: property.address,
-                        addressMeta: property.addressMeta,
-                        unitType,
-                        unitName,
-                    })
-
-                const staffClient = await makeClientWithStaffUser()
-                const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
-                    canManageInvoices: true,
-                    canManageContacts: true,
-                })
-                await createTestOrganizationEmployee(adminClient, organization, staffClient.user, role)
-
-                const [contact] = await createTestContact(staffClient, organization, property, {
-                    phone: residentClient.userAttrs.phone,
-                    unitType,
-                    unitName,
-                })
-
-                const [bankAccount1] = await createTestBankAccount(adminClient, organization)
-                const [bankAccount2] = await createTestBankAccount(adminClient, organization)
-                const [bankAccount3] = await createTestBankAccount(adminClient, organization)
-
-                const recipient1 = createTestRecipient({
-                    tin: bankAccount1.tin,
-                    bic: bankAccount1.routingNumber,
-                    bankAccount: bankAccount1.number,
-                })
-                const recipient2 = createTestRecipient({
-                    tin: bankAccount2.tin,
-                    bic: bankAccount2.routingNumber,
-                    bankAccount: bankAccount2.number,
-                })
-                const recipient3 = createTestRecipient({
-                    tin: bankAccount3.tin,
-                    bic: bankAccount3.routingNumber,
-                    bankAccount: bankAccount3.number,
-                })
-
-                const rows = [
-                    generateInvoiceRow({ toPay: '100', count: 2 }),
-                    generateInvoiceRow({ toPay: '300', count: 1 }),
-                ]
-
-                const [invoice, invoiceAttrs] = await createTestInvoice(staffClient, organization, {
-                    property: { connect: { id: property.id } },
-                    unitType,
-                    unitName,
-                    contact: { connect: { id: contact.id } },
-                    status: INVOICE_STATUS_PUBLISHED,
-                    rows,
-                    amountDistribution: [
-                        { recipient: recipient1, amount: '100' },
-                        {
-                            recipient: recipient2,
-                            amount: '300',
-                            vor: true,
-                            overpaymentPart: 1,
-                            isFeePayer: true,
-                        },
-                        { recipient: recipient3, amount: '100' },
-                    ],
-                })
-
-                const [payment1] = await createTestPayment(adminClient, organization, null, acquiringContext, {
-                    invoice,
-                    amount: '200',
-                    explicitFee: '10',
-                    implicitFee: '0',
-                })
-
-                expect(payment1.frozenDistribution).toEqual(invoiceAttrs.amountDistribution.map((d) => (expect.objectContaining({
-                    ...d,
-                    recipient: expect.objectContaining(d.recipient),
-                }))))
-                expect(payment1.frozenSplits).toHaveLength(3)
-                expect(payment1.frozenSplits).toEqual(expect.arrayContaining([
-                    { recipient: expect.objectContaining(recipient1), amount: '40' },
-                    { recipient: expect.objectContaining(recipient2), amount: '120' },
-                    { recipient: expect.objectContaining(recipient3), amount: '40' },
-                ]))
-
-                const [payment2] = await createTestPayment(adminClient, organization, null, acquiringContext, {
-                    invoice,
-                    amount: '300',
-                    explicitFee: '15',
-                    implicitFee: '0',
-                })
-
-                expect(payment2.frozenDistribution).toEqual(invoiceAttrs.amountDistribution.map((d) => (expect.objectContaining({
-                    ...d,
-                    recipient: expect.objectContaining(d.recipient),
-                }))))
-                expect(payment2.frozenSplits).toHaveLength(3)
-                expect(payment2.frozenSplits).toEqual(expect.arrayContaining([
-                    { recipient: expect.objectContaining(recipient1), amount: '60' },
-                    { recipient: expect.objectContaining(recipient2), amount: '180' },
-                    { recipient: expect.objectContaining(recipient3), amount: '60' },
-                ]))
-            })
-
-            test('Should fill distribution field if paying for invoice partially with explicit service charge', async () => {
-                const [acquiringIntegration] = await createTestAcquiringIntegration(adminClient, {
-                    canGroupReceipts: true,
-                })
-
-                const [organization] = await createTestOrganization(adminClient)
-
-                const [acquiringContext] = await createTestAcquiringIntegrationContext(adminClient, organization, acquiringIntegration, {
-                    invoiceStatus: CONTEXT_FINISHED_STATUS,
-                    invoiceImplicitFeeDistributionSchema: [{
-                        recipient: 'organization',
-                        percent: '5',
-                    }],
-                    invoiceRecipient: createTestRecipient(),
-                })
-
-                const [property] = await createTestProperty(adminClient, organization)
-
-                const residentClient = await makeClientWithResidentUser()
-                const unitType = FLAT_UNIT_TYPE
-                const unitName = faker.lorem.word()
-
-                await registerResidentByTestClient(
-                    residentClient,
-                    {
-                        address: property.address,
-                        addressMeta: property.addressMeta,
-                        unitType,
-                        unitName,
-                    })
-
-                const staffClient = await makeClientWithStaffUser()
-                const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
-                    canManageInvoices: true,
-                    canManageContacts: true,
-                })
-                await createTestOrganizationEmployee(adminClient, organization, staffClient.user, role)
-
-                const [contact] = await createTestContact(staffClient, organization, property, {
-                    phone: residentClient.userAttrs.phone,
-                    unitType,
-                    unitName,
-                })
-
-                const [bankAccount1] = await createTestBankAccount(adminClient, organization)
-                const [bankAccount2] = await createTestBankAccount(adminClient, organization)
-                const [bankAccount3] = await createTestBankAccount(adminClient, organization)
-
-                const recipient1 = createTestRecipient({
-                    tin: bankAccount1.tin,
-                    bic: bankAccount1.routingNumber,
-                    bankAccount: bankAccount1.number,
-                })
-                const recipient2 = createTestRecipient({
-                    tin: bankAccount2.tin,
-                    bic: bankAccount2.routingNumber,
-                    bankAccount: bankAccount2.number,
-                })
-                const recipient3 = createTestRecipient({
-                    tin: bankAccount3.tin,
-                    bic: bankAccount3.routingNumber,
-                    bankAccount: bankAccount3.number,
-                })
-
-                const rows = [
-                    generateInvoiceRow({ toPay: '100', count: 2 }),
-                    generateInvoiceRow({ toPay: '300', count: 1 }),
-                ]
-
-                const [invoice, invoiceAttrs] = await createTestInvoice(staffClient, organization, {
-                    property: { connect: { id: property.id } },
-                    unitType,
-                    unitName,
-                    contact: { connect: { id: contact.id } },
-                    status: INVOICE_STATUS_PUBLISHED,
-                    rows,
-                    amountDistribution: [
-                        { recipient: recipient1, amount: '100' },
-                        {
-                            recipient: recipient2,
-                            amount: '300',
-                            vor: true,
-                            overpaymentPart: 1,
-                            isFeePayer: true,
-                        },
-                        { recipient: recipient3, amount: '100' },
-                    ],
-                })
-
-                const [payment1] = await createTestPayment(adminClient, organization, null, acquiringContext, {
-                    invoice,
-                    amount: '200',
-                    explicitFee: '0',
-                    implicitFee: '0',
-                    explicitServiceCharge: '10',
-                })
-
-                expect(payment1.frozenDistribution).toEqual(invoiceAttrs.amountDistribution.map((d) => (expect.objectContaining({
-                    ...d,
-                    recipient: expect.objectContaining(d.recipient),
-                }))))
-                expect(payment1.frozenSplits).toHaveLength(3)
-                expect(payment1.frozenSplits).toEqual(expect.arrayContaining([
-                    { recipient: expect.objectContaining(recipient1), amount: '40' },
-                    { recipient: expect.objectContaining(recipient2), amount: '120' },
-                    { recipient: expect.objectContaining(recipient3), amount: '40' },
-                ]))
-
-                const [payment2] = await createTestPayment(adminClient, organization, null, acquiringContext, {
-                    invoice,
-                    amount: '300',
-                    explicitFee: '0',
-                    implicitFee: '0',
-                    explicitServiceCharge: '15',
-                })
-
-                expect(payment2.frozenDistribution).toEqual(invoiceAttrs.amountDistribution.map((d) => (expect.objectContaining({
-                    ...d,
-                    recipient: expect.objectContaining(d.recipient),
-                }))))
-                expect(payment2.frozenSplits).toHaveLength(3)
-                expect(payment2.frozenSplits).toEqual(expect.arrayContaining([
-                    { recipient: expect.objectContaining(recipient1), amount: '60' },
-                    { recipient: expect.objectContaining(recipient2), amount: '180' },
-                    { recipient: expect.objectContaining(recipient3), amount: '60' },
-                ]))
-            })
-
-            test('Should fill distribution field if paying for invoice with implicit fee and explicit service charge', async () => {
-                const [acquiringIntegration] = await createTestAcquiringIntegration(adminClient, {
-                    canGroupReceipts: true,
-                })
-
-                const [organization] = await createTestOrganization(adminClient)
-
-                const [acquiringContext] = await createTestAcquiringIntegrationContext(adminClient, organization, acquiringIntegration, {
-                    invoiceStatus: CONTEXT_FINISHED_STATUS,
-                    invoiceImplicitFeeDistributionSchema: [{
-                        recipient: 'organization',
-                        percent: '5',
-                    }],
-                    invoiceRecipient: createTestRecipient(),
-                })
-
-                const [property] = await createTestProperty(adminClient, organization)
-
-                const residentClient = await makeClientWithResidentUser()
-                const unitType = FLAT_UNIT_TYPE
-                const unitName = faker.lorem.word()
-
-                await registerResidentByTestClient(
-                    residentClient,
-                    {
-                        address: property.address,
-                        addressMeta: property.addressMeta,
-                        unitType,
-                        unitName,
-                    })
-
-                const staffClient = await makeClientWithStaffUser()
-                const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
-                    canManageInvoices: true,
-                    canManageContacts: true,
-                })
-                await createTestOrganizationEmployee(adminClient, organization, staffClient.user, role)
-
-                const [contact] = await createTestContact(staffClient, organization, property, {
-                    phone: residentClient.userAttrs.phone,
-                    unitType,
-                    unitName,
-                })
-
-                const [bankAccount1] = await createTestBankAccount(adminClient, organization)
-                const [bankAccount2] = await createTestBankAccount(adminClient, organization)
-                const [bankAccount3] = await createTestBankAccount(adminClient, organization)
-
-                const recipient1 = createTestRecipient({
-                    tin: bankAccount1.tin,
-                    bic: bankAccount1.routingNumber,
-                    bankAccount: bankAccount1.number,
-                })
-                const recipient2 = createTestRecipient({
-                    tin: bankAccount2.tin,
-                    bic: bankAccount2.routingNumber,
-                    bankAccount: bankAccount2.number,
-                })
-                const recipient3 = createTestRecipient({
-                    tin: bankAccount3.tin,
-                    bic: bankAccount3.routingNumber,
-                    bankAccount: bankAccount3.number,
-                })
-
-                const rows = [
-                    generateInvoiceRow({ toPay: '100', count: 2 }),
-                    generateInvoiceRow({ toPay: '300', count: 1 }),
-                ]
-
-                const [invoice, invoiceAttrs] = await createTestInvoice(staffClient, organization, {
-                    property: { connect: { id: property.id } },
-                    unitType,
-                    unitName,
-                    contact: { connect: { id: contact.id } },
-                    status: INVOICE_STATUS_PUBLISHED,
-                    rows,
-                    amountDistribution: [
-                        { recipient: recipient1, amount: '100' },
-                        {
-                            recipient: recipient2,
-                            amount: '300',
-                            vor: true,
-                            overpaymentPart: 1,
-                            isFeePayer: true,
-                        },
-                        { recipient: recipient3, amount: '100' },
-                    ],
-                })
-
-                const [payment1] = await createTestPayment(adminClient, organization, null, acquiringContext, {
-                    invoice,
-                    amount: '500',
-                    implicitFee: '10',
-                    explicitFee: '0',
-                    explicitServiceCharge: '15',
-                })
-
-                expect(payment1.frozenDistribution).toEqual(invoiceAttrs.amountDistribution.map((d) => (expect.objectContaining({
-                    ...d,
-                    recipient: expect.objectContaining(d.recipient),
-                }))))
-                expect(payment1.frozenSplits).toHaveLength(3)
-                expect(payment1.frozenSplits).toEqual(expect.arrayContaining([
-                    { recipient: expect.objectContaining(recipient1), amount: '100' },
-                    { recipient: expect.objectContaining(recipient2), amount: '290', feeAmount: '10' },
-                    { recipient: expect.objectContaining(recipient3), amount: '100' },
                 ]))
             })
         })
