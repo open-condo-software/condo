@@ -1067,6 +1067,16 @@ describe('Ticket', () => {
             })
         })
 
+        test('user: can delete ticket', async () => {
+            const client = await makeClientWithProperty()
+            const [ticket] = await createTestTicket(client, client.organization, client.property)
+
+            const payload = { deletedAt: 'true' }
+            const [updatedTicket] = await updateTestTicket(client, ticket.id, payload)
+
+            expect(updatedTicket.deletedAt).toBeDefined()
+        })
+
         test('user: set qualityControlValue', async () => {
             const client = await makeClientWithProperty()
             const [ticket] = await createTestTicket(client, client.organization, client.property)
