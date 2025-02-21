@@ -161,10 +161,6 @@
   gap: 20px;
 }
 
-.mobile-header .organization-user-block .organization-selector .condo-typography {
-  max-width: 100px;
-}
-
 .user-dropdown {
   cursor: pointer;
 }
@@ -185,6 +181,10 @@
 .appeals-dropdown-menu .condo-typography,
 .menu .menu-item .condo-typography {
   color: inherit;
+}
+
+.mobile-header .organization-user-block .organization-selector .condo-typography {
+  max-width: 100px;
 }
 
 .appeals-button {
