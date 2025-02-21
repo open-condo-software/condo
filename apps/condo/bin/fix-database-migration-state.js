@@ -224,6 +224,14 @@ DROP TABLE "B2CAppMessageSetting" CASCADE;
 DROP TABLE "B2CAppMessageSettingHistoryRecord" CASCADE;
 
 COMMIT;
+
+--
+-- 20250221171118-0450_rename_quota_contact_ownershippercentage_and_more.js Rename Contact.quota to Contact.ownershipPercentage
+--
+
+ALTER TABLE "Contact" DROP COLUMN IF EXISTS "quota";
+ALTER TABLE "ContactHistoryRecord" DROP COLUMN IF EXISTS "quota";
+COMMIT;
     `))
 }
 
