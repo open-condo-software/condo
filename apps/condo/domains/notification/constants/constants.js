@@ -155,6 +155,8 @@ const MESSAGE_META = {
             url: { defaultValue: '', required: true },
             organizationId: { defaultValue: '', required: true },
             organizationName: { defaultValue: '', required: true },
+            authorType: { defaultValue: '', required: true },
+            authorName: { defaultValue: '', required: true },
         },
         telegramMeta: { required: false },
     },
@@ -666,16 +668,22 @@ const MESSAGE_META = {
     [PASS_TICKET_CREATED_MESSAGE_TYPE]: {
         dv: { required: true },
         data: {
+            organizationName: { required: true },
+            number: { required: true },
+            propertyAddress: { required: true },
+            unit: { required: true },
+            client: { required: true },
             openAt: { required: true },
             url: { required: true },
-
-            // for vehicle type
-            stateVehicleNumber: { required: false, defaultValue: '' },
-            vehicleBrand: { required: false, defaultValue: '' },
-
-            // for guest type
-            guestName: { required: false, defaultValue: '' },
+            comment: { required: true },
+            passTicketType: { required: true },
+            guest: { required: true },
+            guestName: { required: true },
+            vehicle: { required: true },
+            vehicleBrand: { required: true },
+            stateVehicleNumber: { required: true },
         },
+        telegramMeta: { required: false },
     },
 }
 
