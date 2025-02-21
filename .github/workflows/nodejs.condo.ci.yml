@@ -6,7 +6,7 @@ on:
       - main
 
   # NOTE: change pull_request_target to pull_request if you want to change the CI in your branch
-  pull_request_target:
+  pull_request:
     types:
       - opened
       - reopened
@@ -66,6 +66,11 @@ jobs:
           submodules: recursive
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
           ref: ${{ env.REF }}
+      - name: Pull & push alpine to registry
+        run: |
+          docker pull alpine
+          docker tag alpine ${{ secrets.DOCKER_REGISTRY }}/doma/utils/alpine
+          docker push ${{ secrets.DOCKER_REGISTRY }}/doma/utils/alpine
       - name: Prune repo to filter out yarn.lock and package.json
         run: |
           bash bin/prune.sh

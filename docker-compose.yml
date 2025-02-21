@@ -23,7 +23,7 @@ services:
       - app-network
 
   postgresdb:
-    image: alpine
+    image: ${REGISTRY}alpine
     depends_on:
       - postgresdb-master
       - postgresdb-replica
