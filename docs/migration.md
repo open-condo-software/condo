@@ -82,6 +82,36 @@ We have prepared some guards in migrations and at application startup that will 
 
 Below we have prepared few options for you to migrate existing environments.
 
+### Installing [`@open-condo/migrator`](../packages/migrator/README.md)
+
+We've prepared a dedicated package, which can perform various migrations for you 
+and published it to [npm](https://www.npmjs.com/package/@open-condo/migrator), so you can download it from there or
+build it from sources locally in [condo monorepo](https://github.com/open-condo-software/condo).
+
+#### Using migrator from npm
+
+To use prebuild and published migrator run the following command:
+```bash
+npm i -g @open-condo/migrator
+```
+
+#### Using local migrator
+
+This options is preferred, when you already have condo repo on your machine. To build migrator do the following:
+
+1. Make sure monorepo dependencies are installed by running:
+```bash
+yarn
+```
+2. Build migrator using:
+```bash
+yarn workspace @open-condo/migrator build
+```
+3. Run `yarn` again to transfer built migrator package to your monorepo node_modules folder:
+```bash
+yarn
+```
+
 ### Local migration using [`@open-condo/migrator`](../packages/migrator/README.md)
 
 To migrate monorepo locally, do the following:
