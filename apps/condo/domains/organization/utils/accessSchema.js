@@ -55,7 +55,7 @@ async function resetOrganizationEmployeesCache (organizationId, roleId = undefin
 
     if (employees.length) {
         const cacheKeys = employees.map(employee => _getUserOrganizationsCacheKey({ id: employee.user }))
-        await _redisClient.del(cacheKeys)
+        await Promise.all(cacheKeys.map(key => _redisClient.del(key)))
     }
 }
 
