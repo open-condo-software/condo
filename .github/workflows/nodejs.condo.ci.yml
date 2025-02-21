@@ -6,7 +6,7 @@ on:
       - main
 
   # NOTE: change pull_request_target to pull_request if you want to change the CI in your branch
-  pull_request:
+  pull_request_target:
     types:
       - opened
       - reopened
@@ -59,11 +59,6 @@ jobs:
           registry: ${{ secrets.DOCKER_REGISTRY }}
           username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
           password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
-      - name: Pull & push alpine to registry
-        run: |
-          docker pull alpine
-          docker tag alpine ${{ secrets.DOCKER_REGISTRY }}/doma/utils/alpine
-          docker push ${{ secrets.DOCKER_REGISTRY }}/doma/utils/alpine
       - name: Checkout code
         uses: actions/checkout@v4
         with:
