@@ -427,12 +427,18 @@ describe('FindOrganizationsByAddress', () => {
 
                 test('Should return organization and receipt if accountNumber is found', async () => {
                     const existingAccountNumber = faker.random.alphaNumeric(16)
+                    const toPay = utils.randomNumber(5).toString()
+                    const address = `${faker.address.cityName()} ${faker.address.streetAddress(true)}`
                     apiHandler.mockResolvedValue({ status: ONLINE_INTERACTION_CHECK_ACCOUNT_SUCCESS_STATUS, services: [{
                         category: HOUSING_CATEGORY_ID,
                         account: { number: existingAccountNumber },
                         bankAccount: {
                             number: faker.random.alphaNumeric(16),
                             routingNumber: faker.random.alphaNumeric(16),
+                        },
+                        receipt: {
+                            sum: toPay,
+                            address: address,
                         },
                     }] })
                     const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
@@ -441,11 +447,19 @@ describe('FindOrganizationsByAddress', () => {
                         tin: utils.organization.tin,
                     })
 
-                    const foundResult = foundOrganizations.find(({ id }) => id === utils.organization.id)
-                    expect(foundResult.receipts).toBeDefined()
-                    //TODO: change this line when eps has balance field
-                    // expect(foundResult.receipts.balance).toBeNull()
-                    expect(apiHandler).toHaveBeenCalledTimes(1)
+                    const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
+                    expect(found.receipts[0]).toMatchObject({
+                        category: HOUSING_CATEGORY_ID,
+                        balance: toPay,
+                        accountNumber: existingAccountNumber,
+                        routingNumber: expect.any(String),
+                        bankAccount: expect.any(String),
+                        address: address,
+                    })
+                    expect(found.id).toEqual(utils.organization.id)
+                    expect(found.name).toEqual(utils.organization.name)
+                    expect(found.tin).toEqual(utils.organization.tin)
+                    expect(found.type).toEqual(utils.organization.type)
                 })
             })
 
