@@ -61,6 +61,7 @@ function shouldUpdateMeter (meter, changedFields) {
         'commissioningDate',
         'sealingDate',
         'controlReadingsDate',
+        'isAutomatic',
     ]
 
     return fieldsToUpdate.reduce((result, field) => {
