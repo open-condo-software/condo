@@ -86,3 +86,17 @@ query getPropertyById ($id: ID!) {
         }
     }
 }
+
+query getPropertyByOrganizationId ($organizationId: ID!, $sortBy: [SortPropertiesBy!]) {
+    properties: allProperties (
+        where: {
+            organization: {
+                id: $organizationId
+            },
+        },
+        sortBy: $sortBy,
+        first: 1,
+    ) {
+        id
+    }
+}

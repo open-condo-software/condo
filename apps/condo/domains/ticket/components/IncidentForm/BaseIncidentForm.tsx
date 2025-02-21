@@ -1,10 +1,16 @@
 import {
+    CreateIncidentMutationFn, UpdateIncidentMutationFn,
+    useCreateIncidentClassifierIncidentMutation,
+    useCreateIncidentPropertyMutation,
+    useUpdateIncidentClassifierIncidentMutation,
+    useUpdateIncidentPropertyMutation,
+} from '@app/condo/gql'
+import {
     Incident as IIncident,
     IncidentProperty as IIncidentProperty,
     IncidentClassifierIncident as IIncidentClassifierIncident,
     IncidentCreateInput as IIncidentCreateInput,
     IncidentUpdateInput as IIncidentUpdateInput,
-    QueryAllIncidentsArgs as IQueryAllIncidentsArgs,
     IncidentStatusType,
     IncidentClassifier as IIncidentClassifier,
 } from '@app/condo/schema'
@@ -24,7 +30,7 @@ import { DefaultOptionType } from 'rc-select/lib/Select'
 import React, { ComponentProps, useCallback, useEffect, useMemo, useState } from 'react'
 import { Options as ScrollOptions } from 'scroll-into-view-if-needed'
 
-import { IGenerateHooksResult } from '@open-condo/codegen/generate.hooks'
+import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useApolloClient } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { Alert, Space, Radio, RadioGroup } from '@open-condo/ui'
@@ -45,10 +51,6 @@ import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCou
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { INCIDENT_WORK_TYPE_SCHEDULED, INCIDENT_WORK_TYPE_EMERGENCY } from '@condo/domains/ticket/constants/incident'
 import { MIN_DESCRIPTION_LENGTH } from '@condo/domains/ticket/constants/restrictions'
-import {
-    IncidentClassifierIncident,
-    IncidentProperty,
-} from '@condo/domains/ticket/utils/clientSchema'
 import { IncidentClassifiersQueryLocal, Option } from '@condo/domains/ticket/utils/clientSchema/incidentClassifierSearch'
 import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 
@@ -56,8 +58,6 @@ import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSc
 type FormWithActionChildrenProps = ComponentProps<ComponentProps<typeof FormWithAction>['children']>
 
 type ActionBarProps = Pick<FormWithActionChildrenProps, 'handleSave' | 'isLoading' | 'form'>
-
-type IncidentClientUtilsType = IGenerateHooksResult<IIncident, IIncidentCreateInput, IIncidentUpdateInput, IQueryAllIncidentsArgs>
 
 export type BaseIncidentFormProps = {
     loading?: boolean
@@ -75,8 +75,7 @@ export type BaseIncidentFormProps = {
         incidentClassifiers: IIncidentClassifierIncident[]
     }
     organizationId: string
-    action: (values: IIncidentCreateInput | IIncidentUpdateInput) => ReturnType<ReturnType<IncidentClientUtilsType['useCreate' | 'useUpdate']>>
-    afterAction?: (values: IIncidentCreateInput | IIncidentUpdateInput) => void
+    action: (values: IIncidentCreateInput | IIncidentUpdateInput) => Promise<Awaited<ReturnType<CreateIncidentMutationFn | UpdateIncidentMutationFn>>>
     showOrganization?: boolean
 }
 
@@ -310,7 +309,6 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     const {
         action: createOrUpdateIncident,
         ActionBar,
-        afterAction,
         initialValues = INITIAL_VALUES,
         loading,
         organizationId,
@@ -325,38 +323,56 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     const Details = useInputWithCounter(TextArea, 1500)
     const TextForResident = useInputWithCounter(TextArea, 500)
 
-    const createIncidentProperty = IncidentProperty.useCreate({})
-    const softDeleteIncidentProperty = IncidentProperty.useSoftDelete()
+    const [createIncidentProperty] = useCreateIncidentPropertyMutation()
+    const [updateIncidentProperty] = useUpdateIncidentPropertyMutation()
 
-    const createIncidentClassifierIncident = IncidentClassifierIncident.useCreate({})
-    const softDeleteIncidentClassifierIncident = IncidentClassifierIncident.useSoftDelete()
+    const [createIncidentClassifierIncident] = useCreateIncidentClassifierIncidentMutation()
+    const [updateIncidentClassifierIncident] = useUpdateIncidentClassifierIncidentMutation()
 
     const initialIncidentOrganization = useMemo(() => get(initialValues, 'organization.name'), [initialValues])
     const initialIncidentProperties = useMemo(() => get(initialValues, 'incidentProperties', []), [initialValues]) as IIncidentProperty[]
     const initialIncidentClassifiers = useMemo(() => get(initialValues, 'incidentClassifiers', []), [initialValues]) as IIncidentClassifierIncident[]
-
-    const initialPropertyIds = useMemo(() => initialIncidentProperties.map(item => get(item, 'property.id')).filter(Boolean), [initialIncidentProperties])
+    const initialPropertyIds = useMemo(() => initialIncidentProperties.map(item => get(item, 'id')).filter(Boolean), [initialIncidentProperties])
     const initialPropertyIdsWithDeleted = useMemo(() => initialIncidentProperties.map(item => getPropertyKey(item)), [initialIncidentProperties])
-    const initialClassifierIds = useMemo(() => initialIncidentClassifiers.map(item => get(item, 'classifier.id')), [initialIncidentClassifiers])
+    const initialClassifierIds = useMemo(() => initialIncidentClassifiers.map(item => get(item, 'id')), [initialIncidentClassifiers])
 
     const handleFormSubmit = useCallback(async (values) => {
         const { properties, allClassifiers, categoryClassifiers, problemClassifiers, ...incidentValues } = values
 
-        const incident = await createOrUpdateIncident(incidentValues)
+        const { data } = await createOrUpdateIncident(incidentValues)
 
         const addedPropertyIds = difference(properties, initialPropertyIdsWithDeleted)
         for (const propertyId of addedPropertyIds) {
-            await createIncidentProperty({
-                property: { connect: { id: propertyId } },
-                incident: { connect: { id: incident.id } },
-            })
+            if (data?.incident?.id) {
+                await createIncidentProperty({
+                    variables: {
+                        data: {
+                            property: { connect: { id: propertyId } },
+                            incident: { connect: { id: data?.incident?.id } },
+                            sender: getClientSideSenderInfo(),
+                            dv: 1,
+                        },
+                    },
+                })
+            }
         }
 
         const deletedPropertyIds = difference(initialPropertyIdsWithDeleted, properties)
         const incidentPropertyToDelete = initialIncidentProperties
             .filter(incidentProperty => deletedPropertyIds.includes(getPropertyKey(incidentProperty)))
         for (const incidentProperty of incidentPropertyToDelete) {
-            await softDeleteIncidentProperty(incidentProperty)
+            if (data?.incident?.id) {
+                await updateIncidentProperty({
+                    variables: {
+                        id: incidentProperty?.id,
+                        data: {
+                            deletedAt: new Date().toISOString(),
+                            sender: getClientSideSenderInfo(),
+                            dv: 1,
+                        },
+                    },
+                })
+            }
         }
 
         const selectedClassifiersByCategoryAndProblem = allClassifiers
@@ -375,8 +391,12 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
         const addedClassifierIds = difference(selectedClassifierIds, initialClassifierIds)
         for (const classifierId of addedClassifierIds) {
             await createIncidentClassifierIncident({
-                classifier: { connect: { id: classifierId } },
-                incident: { connect: { id: incident.id } },
+                variables: {
+                    data: {
+                        classifier: { connect: { id: classifierId } },
+                        incident: { connect: { id: data?.incident?.id } },
+                    },
+                },
             })
         }
 
@@ -384,15 +404,19 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
         const incidentClassifierIncidentToDelete = initialIncidentClassifiers
             .filter(incidentClassifier => deletedClassifierIds.includes(incidentClassifier.classifier.id))
         for (const incidentClassifier of incidentClassifierIncidentToDelete) {
-            await softDeleteIncidentClassifierIncident(incidentClassifier)
+            await updateIncidentClassifierIncident({
+                variables: {
+                    id: incidentClassifier?.id,
+                    data: {
+                        deletedAt: new Date().toISOString(),
+                        sender: getClientSideSenderInfo(),
+                        dv: 1,
+                    },
+                },
+            })
         }
 
-        if (isFunction(afterAction)) {
-            await afterAction(incidentValues)
-        } else {
-            await router.push('/incident')
-        }
-    }, [createOrUpdateIncident, initialPropertyIdsWithDeleted, initialIncidentProperties, initialClassifierIds, initialIncidentClassifiers, afterAction, createIncidentProperty, softDeleteIncidentProperty, createIncidentClassifierIncident, softDeleteIncidentClassifierIncident, router])
+    }, [createOrUpdateIncident, initialPropertyIdsWithDeleted, initialIncidentProperties, initialClassifierIds, initialIncidentClassifiers, createIncidentProperty, updateIncidentProperty, createIncidentClassifierIncident, updateIncidentClassifierIncident, router])
 
     const renderPropertyOptions: InputWithCheckAllProps['selectProps']['renderOptions'] = useCallback((options, renderOption) => {
         const deletedPropertyOptions = initialIncidentProperties.map((incidentProperty) => {

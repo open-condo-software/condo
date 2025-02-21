@@ -32,6 +32,16 @@ query getTicketInvoices ($ticketId: ID!) {
     }
 }
 
+query getTicketInvoicesCount ($ticketId: ID!) {
+    ticketInvoiceCount: _allInvoicesMeta (
+        where: {
+            ticket: { id: $ticketId }
+        }
+    ) {
+        count
+    }
+}
+
 query getInvoicesByIds ($ids: [ID!]!) {
     invoices: allInvoices (
         where: { id_in: $ids },
@@ -61,5 +71,11 @@ query getInvoicesByIds ($ids: [ID!]!) {
         ticket {
             id
         }
+    }
+}
+
+mutation createInvoice ($data: InvoiceCreateInput!) {
+    invoice: createInvoice (data: $data) {
+        id
     }
 }
