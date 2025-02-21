@@ -53,7 +53,7 @@ export const MessagesCounter: React.FC<MessagesCounterProps> = ({ count }) => {
                     className='messages-counter-icon'
                     size='medium'
                 />
-                <Badge {...badgeProps} />
+                <Badge {...badgeProps} style={{ display: count > 0 ? 'initial' : 'none' }} />
             </div>
         )
     }
