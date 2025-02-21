@@ -40,6 +40,13 @@ const ERRORS = {
         message: 'There is no such property in the specified organization',
         messageForUser: 'api.meter.meterReportingPeriod.PROPERTY_NOT_FOUND',
     },
+    INVALID_RESTRICTION_END_DAY: {
+        code: BAD_USER_INPUT,
+        variable: ['data', 'restrictionEndDay'],
+        type: 'INVALID_RESTRICTION_END_DAY',
+        message: 'The "restrictionEndDay" field can take values in the range from 1 to 31',
+        messageForUser: 'api.meter.meterReportingPeriod.INVALID_RESTRICTION_END_DAY',
+    },
 }
 
 
@@ -95,9 +102,9 @@ const MeterReportingPeriod = new GQLListSchema('MeterReportingPeriod', {
             defaultValue: 20,
             isRequired: true,
             hooks: {
-                validateInput: async ({ context, operation, resolvedData }) => {
+                validateInput: async ({ context, operation, resolvedData, fieldPath }) => {
                     if (operation === 'create' || operation === 'update') {
-                        if (resolvedData.notifyStartDay > 31 || resolvedData.notifyStartDay < 1) {
+                        if (resolvedData[fieldPath] > 31 || resolvedData[fieldPath] < 1) {
                             throw new GQLError(ERRORS.INVALID_START, context)
                         }
                     }
@@ -111,11 +118,35 @@ const MeterReportingPeriod = new GQLListSchema('MeterReportingPeriod', {
             defaultValue: 25,
             isRequired: true,
             hooks: {
-                validateInput: async ({ context, operation, resolvedData }) => {
+                validateInput: async ({ context, operation, resolvedData, fieldPath }) => {
                     if (operation === 'create' || operation === 'update') {
-                        if (resolvedData.notifyEndDay > 31 || resolvedData.notifyEndDay < 1) {
+                        if (resolvedData[fieldPath] > 31 || resolvedData[fieldPath] < 1) {
                             throw new GQLError(ERRORS.INVALID_FINISH, context)
                         } 
+                    }
+                },
+            },
+        },
+
+        isStrict: {
+            schemaDoc: 'If set to true readings from the mobile app can be passed only after the restrictionEndDay until the end of the reporting period. Otherwise anytime.',
+            type: 'Checkbox',
+            defaultValue: false,
+            kmigratorOptions: { default: false },
+        },
+
+        restrictionEndDay: {
+            schemaDoc: `Indicates the last day when mobile app users cannot pass readings. By default it is 31 (the end of each month).
+            If no restriction is needed, set it within the notify period.`,
+            type: 'Integer',
+            defaultValue: 31,
+            kmigratorOptions: { default: 31 },
+            hooks: {
+                validateInput: async ({ context, operation, resolvedData, fieldPath }) => {
+                    if (operation === 'create' || operation === 'update') {
+                        if (resolvedData[fieldPath] > 31 || resolvedData[fieldPath] < 1) {
+                            throw new GQLError(ERRORS.INVALID_RESTRICTION_END_DAY, context)
+                        }
                     }
                 },
             },
