@@ -25,7 +25,7 @@ export function useIntersectionObserver ({
     root = null,
     rootMargin = '0%',
     onChange,
-}: UseIntersectionObserverOptions): IntersectionReturnType {
+}: UseIntersectionObserverOptions = {}): IntersectionReturnType {
     const [ref, setRef] = useState<Element | null | undefined>(null)
     const [state, setState] = useState<State>(() => ({
         isIntersecting: false,
