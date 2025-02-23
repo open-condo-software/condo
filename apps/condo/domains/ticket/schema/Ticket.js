@@ -476,6 +476,11 @@ const Ticket = new GQLListSchema('Ticket', {
             isRequired: true,
             access: readOnlyFieldAccess,
         },
+        title: {
+            schemaDoc: 'Very short description of the issue',
+            type: 'Text',
+            isRequired: false,
+        },
         // description / title
         details: {
             schemaDoc: 'Text description of the issue. Maybe written by a user or an operator',
@@ -552,6 +557,11 @@ const Ticket = new GQLListSchema('Ticket', {
                     }
                 },
             },
+        },
+        customType: {
+            schemaDoc: 'Custom type for ticket. May be used by service accounts and for integration purpuses. Can be filtered against',
+            type: 'Text',
+            isRequired: false,
         },
         // Where?
         // building/community
