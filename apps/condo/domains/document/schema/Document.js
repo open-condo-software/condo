@@ -53,6 +53,12 @@ const Document = new GQLListSchema('Document', {
             isRequired: true,
             access: createAndReadOnlyFieldAccess,
         },
+        isPublic: {
+            schemaDoc: 'If set to true, this means document will be accessible by residents',
+            type: 'Checkbox',
+            isRequired: true,
+            defaultValue: false,
+        },
     },
     hooks: {
         validateInput: async ({ resolvedData, existingItem, context }) => {
