@@ -154,7 +154,6 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
                 where: {
                     property: {
                         id: propertyId,
-                        deletedAt: null,
                     },
                     incident: {
                         organization: { id: organizationId },
@@ -170,7 +169,6 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
                             },
                         ],
                     },
-                    deletedAt: null,
                 },
             },
         })
@@ -216,7 +214,6 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
 
         const where: IncidentClassifierIncidentWhereInput = {
             incident: { id_in: incidentIds },
-            deletedAt: null,
         }
 
         if (categoryId || problemId) {

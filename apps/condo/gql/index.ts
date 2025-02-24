@@ -1513,9 +1513,12 @@ export function useUpdateMeterReadingsImportTaskMutation(baseOptions?: Apollo.Mu
 export type UpdateMeterReadingsImportTaskMutationHookResult = ReturnType<typeof useUpdateMeterReadingsImportTaskMutation>;
 export type UpdateMeterReadingsImportTaskMutationResult = Apollo.MutationResult<Types.UpdateMeterReadingsImportTaskMutation>;
 export type UpdateMeterReadingsImportTaskMutationOptions = Apollo.BaseMutationOptions<Types.UpdateMeterReadingsImportTaskMutation, Types.UpdateMeterReadingsImportTaskMutationVariables>;
-export const GetB2BAppsDocument = gql`
-    query getB2BApps($where: B2BAppWhereInput!, $sortBy: [SortB2BAppsBy!]) {
-  b2bApps: allB2BApps(where: $where, sortBy: $sortBy) {
+export const GetGlobalB2BAppsDocument = gql`
+    query getGlobalB2BApps($sortBy: [SortB2BAppsBy!]) {
+  b2bApps: allB2BApps(
+    where: {isGlobal: true, isHidden: false}
+    sortBy: [createdAt_ASC]
+  ) {
     id
     appUrl
     features
@@ -1524,38 +1527,37 @@ export const GetB2BAppsDocument = gql`
     `;
 
 /**
- * __useGetB2BAppsQuery__
+ * __useGetGlobalB2BAppsQuery__
  *
- * To run a query within a React component, call `useGetB2BAppsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetB2BAppsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetGlobalB2BAppsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetGlobalB2BAppsQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetB2BAppsQuery({
+ * const { data, loading, error } = useGetGlobalB2BAppsQuery({
  *   variables: {
- *      where: // value for 'where'
  *      sortBy: // value for 'sortBy'
  *   },
  * });
  */
-export function useGetB2BAppsQuery(baseOptions: Apollo.QueryHookOptions<Types.GetB2BAppsQuery, Types.GetB2BAppsQueryVariables> & ({ variables: Types.GetB2BAppsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+export function useGetGlobalB2BAppsQuery(baseOptions?: Apollo.QueryHookOptions<Types.GetGlobalB2BAppsQuery, Types.GetGlobalB2BAppsQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<Types.GetB2BAppsQuery, Types.GetB2BAppsQueryVariables>(GetB2BAppsDocument, options);
+        return Apollo.useQuery<Types.GetGlobalB2BAppsQuery, Types.GetGlobalB2BAppsQueryVariables>(GetGlobalB2BAppsDocument, options);
       }
-export function useGetB2BAppsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetB2BAppsQuery, Types.GetB2BAppsQueryVariables>) {
+export function useGetGlobalB2BAppsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetGlobalB2BAppsQuery, Types.GetGlobalB2BAppsQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<Types.GetB2BAppsQuery, Types.GetB2BAppsQueryVariables>(GetB2BAppsDocument, options);
+          return Apollo.useLazyQuery<Types.GetGlobalB2BAppsQuery, Types.GetGlobalB2BAppsQueryVariables>(GetGlobalB2BAppsDocument, options);
         }
-export function useGetB2BAppsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetB2BAppsQuery, Types.GetB2BAppsQueryVariables>) {
+export function useGetGlobalB2BAppsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetGlobalB2BAppsQuery, Types.GetGlobalB2BAppsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<Types.GetB2BAppsQuery, Types.GetB2BAppsQueryVariables>(GetB2BAppsDocument, options);
+          return Apollo.useSuspenseQuery<Types.GetGlobalB2BAppsQuery, Types.GetGlobalB2BAppsQueryVariables>(GetGlobalB2BAppsDocument, options);
         }
-export type GetB2BAppsQueryHookResult = ReturnType<typeof useGetB2BAppsQuery>;
-export type GetB2BAppsLazyQueryHookResult = ReturnType<typeof useGetB2BAppsLazyQuery>;
-export type GetB2BAppsSuspenseQueryHookResult = ReturnType<typeof useGetB2BAppsSuspenseQuery>;
-export type GetB2BAppsQueryResult = Apollo.QueryResult<Types.GetB2BAppsQuery, Types.GetB2BAppsQueryVariables>;
+export type GetGlobalB2BAppsQueryHookResult = ReturnType<typeof useGetGlobalB2BAppsQuery>;
+export type GetGlobalB2BAppsLazyQueryHookResult = ReturnType<typeof useGetGlobalB2BAppsLazyQuery>;
+export type GetGlobalB2BAppsSuspenseQueryHookResult = ReturnType<typeof useGetGlobalB2BAppsSuspenseQuery>;
+export type GetGlobalB2BAppsQueryResult = Apollo.QueryResult<Types.GetGlobalB2BAppsQuery, Types.GetGlobalB2BAppsQueryVariables>;
 export const GetAllMiniAppsDocument = gql`
     query getAllMiniApps($data: AllMiniAppsInput!) {
   allMiniApps: allMiniApps(data: $data) {
@@ -2134,8 +2136,8 @@ export type GetOrganizationEmployeeWithTicketOrganizationQueryHookResult = Retur
 export type GetOrganizationEmployeeWithTicketOrganizationLazyQueryHookResult = ReturnType<typeof useGetOrganizationEmployeeWithTicketOrganizationLazyQuery>;
 export type GetOrganizationEmployeeWithTicketOrganizationSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationEmployeeWithTicketOrganizationSuspenseQuery>;
 export type GetOrganizationEmployeeWithTicketOrganizationQueryResult = Apollo.QueryResult<Types.GetOrganizationEmployeeWithTicketOrganizationQuery, Types.GetOrganizationEmployeeWithTicketOrganizationQueryVariables>;
-export const GetOrganizationEmployeeByUserAndOrganizationIdsDocument = gql`
-    query getOrganizationEmployeeByUserAndOrganizationIds($userId: ID!, $organizationId: ID!) {
+export const GetOrganizationEmployeeByUserAndOrganizationIdDocument = gql`
+    query getOrganizationEmployeeByUserAndOrganizationId($userId: ID!, $organizationId: ID!) {
   employee: allOrganizationEmployees(
     where: {user: {id: $userId}, organization: {id: $organizationId}}
     first: 1
@@ -2149,38 +2151,38 @@ export const GetOrganizationEmployeeByUserAndOrganizationIdsDocument = gql`
     `;
 
 /**
- * __useGetOrganizationEmployeeByUserAndOrganizationIdsQuery__
+ * __useGetOrganizationEmployeeByUserAndOrganizationIdQuery__
  *
- * To run a query within a React component, call `useGetOrganizationEmployeeByUserAndOrganizationIdsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetOrganizationEmployeeByUserAndOrganizationIdsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetOrganizationEmployeeByUserAndOrganizationIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOrganizationEmployeeByUserAndOrganizationIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetOrganizationEmployeeByUserAndOrganizationIdsQuery({
+ * const { data, loading, error } = useGetOrganizationEmployeeByUserAndOrganizationIdQuery({
  *   variables: {
  *      userId: // value for 'userId'
  *      organizationId: // value for 'organizationId'
  *   },
  * });
  */
-export function useGetOrganizationEmployeeByUserAndOrganizationIdsQuery(baseOptions: Apollo.QueryHookOptions<Types.GetOrganizationEmployeeByUserAndOrganizationIdsQuery, Types.GetOrganizationEmployeeByUserAndOrganizationIdsQueryVariables> & ({ variables: Types.GetOrganizationEmployeeByUserAndOrganizationIdsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+export function useGetOrganizationEmployeeByUserAndOrganizationIdQuery(baseOptions: Apollo.QueryHookOptions<Types.GetOrganizationEmployeeByUserAndOrganizationIdQuery, Types.GetOrganizationEmployeeByUserAndOrganizationIdQueryVariables> & ({ variables: Types.GetOrganizationEmployeeByUserAndOrganizationIdQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<Types.GetOrganizationEmployeeByUserAndOrganizationIdsQuery, Types.GetOrganizationEmployeeByUserAndOrganizationIdsQueryVariables>(GetOrganizationEmployeeByUserAndOrganizationIdsDocument, options);
+        return Apollo.useQuery<Types.GetOrganizationEmployeeByUserAndOrganizationIdQuery, Types.GetOrganizationEmployeeByUserAndOrganizationIdQueryVariables>(GetOrganizationEmployeeByUserAndOrganizationIdDocument, options);
       }
-export function useGetOrganizationEmployeeByUserAndOrganizationIdsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetOrganizationEmployeeByUserAndOrganizationIdsQuery, Types.GetOrganizationEmployeeByUserAndOrganizationIdsQueryVariables>) {
+export function useGetOrganizationEmployeeByUserAndOrganizationIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetOrganizationEmployeeByUserAndOrganizationIdQuery, Types.GetOrganizationEmployeeByUserAndOrganizationIdQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<Types.GetOrganizationEmployeeByUserAndOrganizationIdsQuery, Types.GetOrganizationEmployeeByUserAndOrganizationIdsQueryVariables>(GetOrganizationEmployeeByUserAndOrganizationIdsDocument, options);
+          return Apollo.useLazyQuery<Types.GetOrganizationEmployeeByUserAndOrganizationIdQuery, Types.GetOrganizationEmployeeByUserAndOrganizationIdQueryVariables>(GetOrganizationEmployeeByUserAndOrganizationIdDocument, options);
         }
-export function useGetOrganizationEmployeeByUserAndOrganizationIdsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetOrganizationEmployeeByUserAndOrganizationIdsQuery, Types.GetOrganizationEmployeeByUserAndOrganizationIdsQueryVariables>) {
+export function useGetOrganizationEmployeeByUserAndOrganizationIdSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetOrganizationEmployeeByUserAndOrganizationIdQuery, Types.GetOrganizationEmployeeByUserAndOrganizationIdQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<Types.GetOrganizationEmployeeByUserAndOrganizationIdsQuery, Types.GetOrganizationEmployeeByUserAndOrganizationIdsQueryVariables>(GetOrganizationEmployeeByUserAndOrganizationIdsDocument, options);
+          return Apollo.useSuspenseQuery<Types.GetOrganizationEmployeeByUserAndOrganizationIdQuery, Types.GetOrganizationEmployeeByUserAndOrganizationIdQueryVariables>(GetOrganizationEmployeeByUserAndOrganizationIdDocument, options);
         }
-export type GetOrganizationEmployeeByUserAndOrganizationIdsQueryHookResult = ReturnType<typeof useGetOrganizationEmployeeByUserAndOrganizationIdsQuery>;
-export type GetOrganizationEmployeeByUserAndOrganizationIdsLazyQueryHookResult = ReturnType<typeof useGetOrganizationEmployeeByUserAndOrganizationIdsLazyQuery>;
-export type GetOrganizationEmployeeByUserAndOrganizationIdsSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationEmployeeByUserAndOrganizationIdsSuspenseQuery>;
-export type GetOrganizationEmployeeByUserAndOrganizationIdsQueryResult = Apollo.QueryResult<Types.GetOrganizationEmployeeByUserAndOrganizationIdsQuery, Types.GetOrganizationEmployeeByUserAndOrganizationIdsQueryVariables>;
+export type GetOrganizationEmployeeByUserAndOrganizationIdQueryHookResult = ReturnType<typeof useGetOrganizationEmployeeByUserAndOrganizationIdQuery>;
+export type GetOrganizationEmployeeByUserAndOrganizationIdLazyQueryHookResult = ReturnType<typeof useGetOrganizationEmployeeByUserAndOrganizationIdLazyQuery>;
+export type GetOrganizationEmployeeByUserAndOrganizationIdSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationEmployeeByUserAndOrganizationIdSuspenseQuery>;
+export type GetOrganizationEmployeeByUserAndOrganizationIdQueryResult = Apollo.QueryResult<Types.GetOrganizationEmployeeByUserAndOrganizationIdQuery, Types.GetOrganizationEmployeeByUserAndOrganizationIdQueryVariables>;
 export const GetOrganizationEmployeesByUserIdAndOrganizationTypeDocument = gql`
     query getOrganizationEmployeesByUserIdAndOrganizationType($userId: ID!, $organizationType: [OrganizationTypeType!]) {
   employees: allOrganizationEmployees(
@@ -2805,9 +2807,17 @@ export type GetIncidentsLazyQueryHookResult = ReturnType<typeof useGetIncidentsL
 export type GetIncidentsSuspenseQueryHookResult = ReturnType<typeof useGetIncidentsSuspenseQuery>;
 export type GetIncidentsQueryResult = Apollo.QueryResult<Types.GetIncidentsQuery, Types.GetIncidentsQueryVariables>;
 export const GetIncidentByIdDocument = gql`
-    query getIncidentById($id: ID!) {
-  incident: Incident(where: {id: $id}) {
+    query getIncidentById($incidentId: ID!) {
+  incident: Incident(where: {id: $incidentId}) {
     id
+    status
+    createdAt
+    number
+    organization {
+      id
+    }
+    workStart
+    workFinish
   }
 }
     `;
@@ -2824,7 +2834,7 @@ export const GetIncidentByIdDocument = gql`
  * @example
  * const { data, loading, error } = useGetIncidentByIdQuery({
  *   variables: {
- *      id: // value for 'id'
+ *      incidentId: // value for 'incidentId'
  *   },
  * });
  */
@@ -2916,6 +2926,9 @@ export const GetIncidentClassifierIncidentDocument = gql`
   incidentClassifierIncident: allIncidentClassifierIncidents(where: $where) {
     id
     incident {
+      id
+    }
+    classifier {
       id
     }
   }
