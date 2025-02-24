@@ -76,7 +76,7 @@ describe('Document', () => {
 
             it('employee with canManageDocuments can', async () => {
                 const [createdDocument] = await createTestDocument(employeeUserWithDocumentPermissions, organization, documentCategory, {
-                    canReadByResident: true
+                    canReadByResident: true,
                 })
 
                 expect(createdDocument.id).toMatch(UUID_RE)
