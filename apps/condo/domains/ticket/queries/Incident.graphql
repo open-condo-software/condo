@@ -8,13 +8,21 @@ query getIncidents ($where: IncidentWhereInput, $sortBy: [SortIncidentsBy!]) {
     }
 }
 
-query getIncidentById ($id: ID!) {
+query getIncidentById ($incidentId: ID!) {
     incident: Incident (
         where: {
-            id: $id
+            id: $incidentId
         }
     ) {
         id
+        status
+        createdAt
+        number
+        organization {
+            id
+        }
+        workStart
+        workFinish
     }
 }
 

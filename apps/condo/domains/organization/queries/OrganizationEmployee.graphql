@@ -165,7 +165,7 @@ query getOrganizationEmployeeWithTicketOrganization ($userId: ID!, $organization
     }
 }
 
-query getOrganizationEmployeeByUserAndOrganizationIds ($userId: ID!, $organizationId: ID!) {
+query getOrganizationEmployeeByUserAndOrganizationId ($userId: ID!, $organizationId: ID!) {
     employee: allOrganizationEmployees (
         where: {
             user: { id: $userId },

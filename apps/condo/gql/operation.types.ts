@@ -220,13 +220,12 @@ export type UpdateMeterReadingsImportTaskMutationVariables = Types.Exact<{
 
 export type UpdateMeterReadingsImportTaskMutation = { __typename?: 'Mutation', task?: { __typename: 'MeterReadingsImportTask', id: string, status?: Types.MeterReadingsImportTaskStatusType | null, errorMessage?: string | null, totalRecordsCount?: number | null, processedRecordsCount?: number | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null, errorFile?: { __typename?: 'File', publicUrl?: string | null } | null } | null };
 
-export type GetB2BAppsQueryVariables = Types.Exact<{
-  where: Types.B2BAppWhereInput;
+export type GetGlobalB2BAppsQueryVariables = Types.Exact<{
   sortBy?: Types.InputMaybe<Array<Types.SortB2BAppsBy> | Types.SortB2BAppsBy>;
 }>;
 
 
-export type GetB2BAppsQuery = { __typename?: 'Query', b2bApps?: Array<{ __typename?: 'B2BApp', id: string, appUrl?: string | null, features?: Array<Types.B2BAppGlobalFeature> | null } | null> | null };
+export type GetGlobalB2BAppsQuery = { __typename?: 'Query', b2bApps?: Array<{ __typename?: 'B2BApp', id: string, appUrl?: string | null, features?: Array<Types.B2BAppGlobalFeature> | null } | null> | null };
 
 export type GetAllMiniAppsQueryVariables = Types.Exact<{
   data: Types.AllMiniAppsInput;
@@ -313,13 +312,13 @@ export type GetOrganizationEmployeeWithTicketOrganizationQueryVariables = Types.
 
 export type GetOrganizationEmployeeWithTicketOrganizationQuery = { __typename?: 'Query', employees?: Array<{ __typename?: 'OrganizationEmployee', id: string } | null> | null };
 
-export type GetOrganizationEmployeeByUserAndOrganizationIdsQueryVariables = Types.Exact<{
+export type GetOrganizationEmployeeByUserAndOrganizationIdQueryVariables = Types.Exact<{
   userId: Types.Scalars['ID']['input'];
   organizationId: Types.Scalars['ID']['input'];
 }>;
 
 
-export type GetOrganizationEmployeeByUserAndOrganizationIdsQuery = { __typename?: 'Query', employee?: Array<{ __typename?: 'OrganizationEmployee', id: string, name?: string | null, phone?: string | null, email?: string | null } | null> | null };
+export type GetOrganizationEmployeeByUserAndOrganizationIdQuery = { __typename?: 'Query', employee?: Array<{ __typename?: 'OrganizationEmployee', id: string, name?: string | null, phone?: string | null, email?: string | null } | null> | null };
 
 export type GetOrganizationEmployeesByUserIdAndOrganizationTypeQueryVariables = Types.Exact<{
   userId: Types.Scalars['ID']['input'];
@@ -427,11 +426,11 @@ export type GetIncidentsQueryVariables = Types.Exact<{
 export type GetIncidentsQuery = { __typename?: 'Query', incidents?: Array<{ __typename?: 'Incident', id: string, details?: string | null, workStart?: string | null, workFinish?: string | null, status?: Types.IncidentStatusType | null } | null> | null };
 
 export type GetIncidentByIdQueryVariables = Types.Exact<{
-  id: Types.Scalars['ID']['input'];
+  incidentId: Types.Scalars['ID']['input'];
 }>;
 
 
-export type GetIncidentByIdQuery = { __typename?: 'Query', incident?: { __typename?: 'Incident', id: string } | null };
+export type GetIncidentByIdQuery = { __typename?: 'Query', incident?: { __typename?: 'Incident', id: string, status?: Types.IncidentStatusType | null, createdAt?: string | null, number?: number | null, workStart?: string | null, workFinish?: string | null, organization?: { __typename?: 'Organization', id: string } | null } | null };
 
 export type CreateIncidentMutationVariables = Types.Exact<{
   data: Types.IncidentCreateInput;
@@ -453,7 +452,7 @@ export type GetIncidentClassifierIncidentQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetIncidentClassifierIncidentQuery = { __typename?: 'Query', incidentClassifierIncident?: Array<{ __typename?: 'IncidentClassifierIncident', id: string, incident?: { __typename?: 'Incident', id: string } | null } | null> | null };
+export type GetIncidentClassifierIncidentQuery = { __typename?: 'Query', incidentClassifierIncident?: Array<{ __typename?: 'IncidentClassifierIncident', id: string, incident?: { __typename?: 'Incident', id: string } | null, classifier?: { __typename?: 'IncidentClassifier', id: string } | null } | null> | null };
 
 export type CreateIncidentClassifierIncidentMutationVariables = Types.Exact<{
   data: Types.IncidentClassifierIncidentCreateInput;

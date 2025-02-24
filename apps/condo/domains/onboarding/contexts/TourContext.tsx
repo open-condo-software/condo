@@ -6,12 +6,12 @@ import { MUTATION_RESULT_EVENT, MutationEmitter } from '@open-condo/next/_useEmi
 import { useOrganization } from '@open-condo/next/organization'
 
 import { IMPORT_EVENT, ImportEmitter } from '@condo/domains/common/components/Import/Index'
+import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { ACTIVE_STEPS_STORAGE_KEY, FIRST_LEVEL_STEPS, STEP_TYPES } from '@condo/domains/onboarding/constants/steps'
 import { useCompletedTourModals } from '@condo/domains/onboarding/hooks/TourContext/useCompletedTourModals'
 import { TourStep } from '@condo/domains/onboarding/utils/clientSchema'
 import { MANAGING_COMPANY_TYPE } from '@condo/domains/organization/constants/common'
 
-import { getClientSideSenderInfo } from '../../common/utils/userid.utils'
 
 type ActiveTourStepType = typeof FIRST_LEVEL_STEPS[number] | null
 

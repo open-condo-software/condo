@@ -305,7 +305,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     const PromptHelpMessage = intl.formatMessage({ id: 'incident.form.prompt.exit.message' })
     const notAvailableMessage = intl.formatMessage({ id: 'global.notAvailable' })
     const SelectPlaceholder = intl.formatMessage({ id: 'Select' })
-
+    // Убрать get, потому что типы не видно из-за него
     const {
         action: createOrUpdateIncident,
         ActionBar,

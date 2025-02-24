@@ -1,4 +1,4 @@
-import { useGetOrganizationEmployeeByUserAndOrganizationIdsQuery } from '@app/condo/gql'
+import { useGetOrganizationEmployeeByUserAndOrganizationIdQuery } from '@app/condo/gql'
 import { Ticket } from '@app/condo/schema'
 import { Typography } from 'antd'
 import React, { useMemo } from 'react'
@@ -28,7 +28,7 @@ export const TicketExecutorField: React.FC<TicketExecutorFieldProps> = ({ ticket
 
     const {
         data,
-    } = useGetOrganizationEmployeeByUserAndOrganizationIdsQuery({
+    } = useGetOrganizationEmployeeByUserAndOrganizationIdQuery({
         variables: {
             userId: ticketExecutorUserId,
             organizationId: ticketOrganizationId,
