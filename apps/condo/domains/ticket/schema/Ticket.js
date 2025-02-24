@@ -539,6 +539,12 @@ const Ticket = new GQLListSchema('Ticket', {
             defaultValue: false,
             isRequired: true,
         },
+        priority: {
+            schemaDoc: 'The number used to determine the relative priority of this ticket among the others',
+            type: 'Integer',
+            isRequired: true,
+            defaultValue: 1,
+        },
         meta: {
             schemaDoc: 'Extra analytics not related to remote system',
             type: 'Json',
