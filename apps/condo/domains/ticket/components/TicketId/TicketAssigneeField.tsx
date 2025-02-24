@@ -1,4 +1,4 @@
-import { useGetOrganizationEmployeeByUserAndOrganizationIdsQuery } from '@app/condo/gql'
+import { useGetOrganizationEmployeeByUserAndOrganizationIdQuery } from '@app/condo/gql'
 import { Ticket } from '@app/condo/schema'
 import { Typography } from 'antd'
 import { FC, useMemo } from 'react'
@@ -27,7 +27,7 @@ export const TicketAssigneeField: FC<TicketAssigneeFieldProps> = ({ ticket, phon
 
     const {
         data,
-    } = useGetOrganizationEmployeeByUserAndOrganizationIdsQuery({
+    } = useGetOrganizationEmployeeByUserAndOrganizationIdQuery({
         variables: {
             userId: ticketAssigneeUserId,
             organizationId: ticketOrganizationId,

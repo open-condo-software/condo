@@ -486,6 +486,7 @@ const IncidentIdPage: PageComponentType = () => {
 
     const { query: { id } } = router as { query: { [key: string]: string } }
 
+    // Добавить кверю
     const {
         loading: incidentLoading,
         obj: incident,
