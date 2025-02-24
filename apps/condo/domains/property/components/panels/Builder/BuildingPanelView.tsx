@@ -22,6 +22,7 @@ import {
 import { AddressTopTextContainer } from './BuildingPanelEdit'
 import { FullscreenWrapper, FullscreenHeader } from './Fullscreen'
 import { MapView, MapViewMode } from './MapConstructor'
+import {Tooltip} from "@open-condo/ui";
 
 
 
@@ -178,11 +179,17 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refr
                                                                     {
                                                                         floorInfo.units.map(unit => {
                                                                             return (
-                                                                                <UnitButton
+                                                                                <Tooltip
                                                                                     key={unit.id}
-                                                                                    noninteractive
-                                                                                    unitType={unit.unitType}
-                                                                                >{unit.label}</UnitButton>
+                                                                                    overlayInnerStyle={{ whiteSpace: 'pre-line' }}
+                                                                                    title='prompt \r\n text'
+                                                                                >
+                                                                                    <UnitButton
+                                                                                        key={unit.id}
+                                                                                        noninteractive
+                                                                                        unitType={unit.unitType}
+                                                                                    >{unit.label}</UnitButton>
+                                                                                </Tooltip>
                                                                             )
                                                                         })
                                                                     }
