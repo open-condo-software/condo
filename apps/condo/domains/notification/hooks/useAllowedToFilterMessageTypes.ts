@@ -1,6 +1,7 @@
 import { useGetB2BAppsWithMessageSettingsQuery, useGetUserB2BAppRolesQuery } from '@app/condo/gql'
 import { useMemo } from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { useOrganization } from '@open-condo/next/organization'
 
 import {
@@ -17,6 +18,7 @@ type UseAllowedToFilterMessageTypesResultType = {
 type UseAllowedToFilterMessageTypesType = () => UseAllowedToFilterMessageTypesResultType
 
 export const useAllowedToFilterMessageTypes: UseAllowedToFilterMessageTypesType = () => {
+    const { persistor } = useCachePersistor()
     const { role } = useOrganization()
 
     const roleId = useMemo(() => role?.id, [role?.id])
@@ -30,9 +32,10 @@ export const useAllowedToFilterMessageTypes: UseAllowedToFilterMessageTypesType 
         variables: {
             messageTypes: messageTypesToFilter,
         },
+        skip: !persistor,
     })
     const b2bAppToMessageType = useMemo(
-        () => appMessageSettingsData?.settings?.reduce((result, setting) => {
+        () => appMessageSettingsData?.settings?.filter(Boolean)?.reduce((result, setting) => {
             result[setting.b2bApp.id] = setting.type
             return result
         }, {}) || {},
@@ -48,9 +51,9 @@ export const useAllowedToFilterMessageTypes: UseAllowedToFilterMessageTypesType 
             employeeRoleId: roleId,
             b2bAppIds,
         },
-        skip: appMessageSettingsLoading || !roleId || b2bAppIds.length === 0,
+        skip: !persistor || appMessageSettingsLoading || !roleId || b2bAppIds.length === 0,
     })
-    const b2bAppsWithEmployeeRoles = useMemo(() => userB2bRolesData?.b2bRoles?.map(role => role?.app?.id) || [],
+    const b2bAppsWithEmployeeRoles = useMemo(() => userB2bRolesData?.b2bRoles?.filter(Boolean)?.map(role => role?.app?.id) || [],
         [userB2bRolesData?.b2bRoles])
     const availableB2BAppMessageTypes = useMemo(
         () => b2bAppsWithEmployeeRoles.map(b2bAppId => b2bAppToMessageType[b2bAppId]).filter(Boolean) || [],

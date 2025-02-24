@@ -4,6 +4,7 @@ import throttle from 'lodash/throttle'
 import uniqBy from 'lodash/uniqBy'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
@@ -41,6 +42,7 @@ const USER_MESSAGES_LIST_POLL_INTERVAL_IN_MS = 60 * 1000
 export const useUserMessages: UsePollUserMessagesType = ({ isDropdownOpen, messageTypesToFilter, skipQueryMessagesCondition }) => {
     const { user } = useAuth()
     const { organization } = useOrganization()
+    const { persistor } = useCachePersistor()
 
     const messagesListRef = useRef<HTMLDivElement>()
     const userId = useMemo(() => user?.id, [user?.id])
@@ -64,11 +66,11 @@ export const useUserMessages: UsePollUserMessagesType = ({ isDropdownOpen, messa
         loading: newMessagesLoading,
     } = useGetUserMessagesQuery({
         variables: queryVariables,
-        skip: skipQueryMessagesCondition,
+        skip: !persistor || skipQueryMessagesCondition,
     })
 
     const clearLoadedMessages = useCallback(() => {
-        const messages = (newMessagesData?.messages || []) as Array<UserMessageType>
+        const messages = (newMessagesData?.messages?.filter(Boolean) || []) as Array<UserMessageType>
 
         setUserMessages(messages)
         setIsAllMessagesLoaded(false)
@@ -111,7 +113,7 @@ export const useUserMessages: UsePollUserMessagesType = ({ isDropdownOpen, messa
 
     // Send new messages to all tabs
     useDeepCompareEffect(() => {
-        const messages = (newMessagesData?.messages || []) as UserMessageType[]
+        const messages = (newMessagesData?.messages?.filter(Boolean) || []) as UserMessageType[]
         sendMessageToBroadcastChannel({ error, messages })
     }, [newMessagesData?.messages, error])
 
@@ -129,7 +131,7 @@ export const useUserMessages: UsePollUserMessagesType = ({ isDropdownOpen, messa
             fetchPolicy: 'network-only',
         })
 
-        const messages = (fetchMoreResult?.data?.messages || []) as UserMessageType[]
+        const messages = (fetchMoreResult?.data?.messages?.filter(Boolean) || []) as UserMessageType[]
         const allMessagesLoaded = messages.length === 0
 
         setUserMessages(previousMessagesState => {

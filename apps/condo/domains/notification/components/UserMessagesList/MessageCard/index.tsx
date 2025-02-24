@@ -1,4 +1,5 @@
 import dayjs from 'dayjs'
+import localizedFormat from 'dayjs/plugin/localizedFormat'
 import Link from 'next/link'
 import React, { useCallback, useMemo } from 'react'
 
@@ -8,8 +9,9 @@ import { Card, Typography } from '@open-condo/ui'
 import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { useUserMessagesList } from '@condo/domains/notification/contexts/UserMessagesListContext'
 import { MessageTypeAllowedToFilterType, UserMessageType } from '@condo/domains/notification/utils/client/constants'
-
 import './MessageCard.css'
+
+dayjs.extend(localizedFormat)
 
 
 type MessageCardProps = {
@@ -23,8 +25,6 @@ const MESSAGE_ICON: Record<MessageTypeAllowedToFilterType, string> = {
     TICKET_CREATED: '📬',
 }
 
-const DATE_FORMAT = 'DD.MM.YYYY, HH:mm'
-
 export const MessageCard: React.FC<MessageCardProps> = ({ message, viewed }) => {
     const messageType = useMemo(() => message?.type, [message?.type])
 
@@ -36,7 +36,7 @@ export const MessageCard: React.FC<MessageCardProps> = ({ message, viewed }) => 
 
     const messageContent = useMemo(() => message?.defaultContent?.content, [message?.defaultContent?.content])
     const titleLink = useMemo(() => message?.meta?.data?.url, [message?.meta])
-    const createdAt = useMemo(() => dayjs(message?.createdAt).format(DATE_FORMAT), [message?.createdAt])
+    const createdAt = useMemo(() => dayjs(message?.createdAt).format('L, LT'), [message?.createdAt])
 
     const handleLinkClick = useCallback(() => {
         logEvent({

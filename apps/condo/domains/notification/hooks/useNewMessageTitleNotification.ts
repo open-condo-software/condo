@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
 import { useAudio } from '@condo/domains/common/hooks/useAudio'
 import { useBroadcastChannel } from '@condo/domains/common/hooks/useBroadcastChannel'
+import { useExecuteWithLock } from '@condo/domains/common/hooks/useExecuteWithLock'
 
 
 const getCurrentFaviconHref = () => document.getElementById('favicon').getAttribute('href')
@@ -14,7 +15,9 @@ const getNewMessageFaviconHref = (newMessagesCount: number) => {
         : `/favicons/${newMessagesCount}.svg`
 }
 
+const TAB_WITH_AUDIO_LOCK_NAME = 'tab-with-audio'
 const CLEAR_NEW_MESSAGES_TITLE_BROADCAST_CHANNEL = 'clear-new-messages-title'
+const FOCUS_BROADCAST_CHANNEL = 'tab-focus-status'
 const TITLE_BLINK_INTERVAL_IN_MS = 3000
 
 // Play audio and update favicon when new notification received
@@ -23,15 +26,41 @@ export const useNewMessageTitleNotification = (unreadMessagesCount: number): voi
     const NewMessagePageTitle = intl.formatMessage({ id: 'notification.UserMessagesList.newMessagePageTitle' })
 
     const audio = useAudio()
-    const unreadMessagesCountRef = useRef<number>()
     const previousMessagesCount = useRef<number>()
     const originalPageTitle = useRef<string>()
     const originalIconHref = useRef<string>()
     const changeTitleInterval = useRef<ReturnType<typeof setInterval>>(null)
 
+    const unreadMessagesCountRef = useRef<number>()
     useEffect(() => {
         unreadMessagesCountRef.current = unreadMessagesCount
     }, [unreadMessagesCount])
+
+    // Lock tab that allowed to play audio
+    const isTabWithAudioRef = useRef<boolean>(false)
+    useExecuteWithLock(TAB_WITH_AUDIO_LOCK_NAME, () => isTabWithAudioRef.current = true)
+
+    // Audio can played only if no tab focused
+    const isAnyTabFocusedRef = useRef<boolean>(false)
+    const {
+        sendMessageToBroadcastChannel: sendTabFocusStateMessage,
+    } = useBroadcastChannel<{ focused: boolean }>(FOCUS_BROADCAST_CHANNEL, (message) => {
+        isAnyTabFocusedRef.current = message.focused
+    })
+    const broadcastFocusStatus = useCallback(() => {
+        sendTabFocusStateMessage({ focused: document.hasFocus() })
+    }, [sendTabFocusStateMessage])
+    useEffect(() => {
+        window.addEventListener('focus', broadcastFocusStatus)
+        window.addEventListener('blur', broadcastFocusStatus)
+        return () => {
+            window.removeEventListener('focus', broadcastFocusStatus)
+            window.removeEventListener('blur', broadcastFocusStatus)
+        }
+    }, [broadcastFocusStatus])
+    useEffect(() => {
+        broadcastFocusStatus()
+    }, [broadcastFocusStatus])
 
     // Remember page title for change it back after indicate about new messages
     useEffect(() => {
@@ -90,7 +119,9 @@ export const useNewMessageTitleNotification = (unreadMessagesCount: number): voi
                     }
                 }, TITLE_BLINK_INTERVAL_IN_MS)
 
-                audio.playNewItemsFetchedSound()
+                if (isTabWithAudioRef.current && !isAnyTabFocusedRef.current) {
+                    audio.playNewItemsFetchedSound()
+                }
             }
         }
 
