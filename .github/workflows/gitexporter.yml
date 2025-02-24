@@ -9,10 +9,13 @@ on:
 jobs:
   gitexporter:
     name: Gitexporter
-    runs-on: self-hosted
+    runs-on: new-one
     steps:
       - name: Setup node environment
         uses: actions/setup-node@v4
+        with:
+          node-version: 14.x
+          cache: 'npm'
       - name: Checkout
         uses: actions/checkout@v4
         with:
