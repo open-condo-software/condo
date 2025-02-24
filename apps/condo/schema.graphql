@@ -24143,6 +24143,7 @@ type TicketHistoryRecord {
   problemClassifier: String
   classifier: String
   isAutoClassified: Boolean
+  title: String
   details: String
   related: String
   isPaid: Boolean
@@ -24151,7 +24152,9 @@ type TicketHistoryRecord {
   isWarranty: Boolean
   isResidentTicket: Boolean
   canReadByResident: Boolean
+  customOrder: Int
   meta: JSON
+  customClassifier: String
   property: String
   propertyAddress: String
   propertyAddressMeta: JSON
@@ -24500,6 +24503,24 @@ input TicketHistoryRecordWhereInput {
   classifier_not_in: [String]
   isAutoClassified: Boolean
   isAutoClassified_not: Boolean
+  title: String
+  title_not: String
+  title_contains: String
+  title_not_contains: String
+  title_starts_with: String
+  title_not_starts_with: String
+  title_ends_with: String
+  title_not_ends_with: String
+  title_i: String
+  title_not_i: String
+  title_contains_i: String
+  title_not_contains_i: String
+  title_starts_with_i: String
+  title_not_starts_with_i: String
+  title_ends_with_i: String
+  title_not_ends_with_i: String
+  title_in: [String]
+  title_not_in: [String]
   details: String
   details_not: String
   details_contains: String
@@ -24534,10 +24555,36 @@ input TicketHistoryRecordWhereInput {
   isResidentTicket_not: Boolean
   canReadByResident: Boolean
   canReadByResident_not: Boolean
+  customOrder: Int
+  customOrder_not: Int
+  customOrder_lt: Int
+  customOrder_lte: Int
+  customOrder_gt: Int
+  customOrder_gte: Int
+  customOrder_in: [Int]
+  customOrder_not_in: [Int]
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
   meta_not_in: [JSON]
+  customClassifier: String
+  customClassifier_not: String
+  customClassifier_contains: String
+  customClassifier_not_contains: String
+  customClassifier_starts_with: String
+  customClassifier_not_starts_with: String
+  customClassifier_ends_with: String
+  customClassifier_not_ends_with: String
+  customClassifier_i: String
+  customClassifier_not_i: String
+  customClassifier_contains_i: String
+  customClassifier_not_contains_i: String
+  customClassifier_starts_with_i: String
+  customClassifier_not_starts_with_i: String
+  customClassifier_ends_with_i: String
+  customClassifier_not_ends_with_i: String
+  customClassifier_in: [String]
+  customClassifier_not_in: [String]
   property: String
   property_not: String
   property_in: [String]
@@ -24797,6 +24844,8 @@ enum SortTicketHistoryRecordsBy {
   clientPhone_DESC
   isAutoClassified_ASC
   isAutoClassified_DESC
+  title_ASC
+  title_DESC
   details_ASC
   details_DESC
   isPaid_ASC
@@ -24811,6 +24860,10 @@ enum SortTicketHistoryRecordsBy {
   isResidentTicket_DESC
   canReadByResident_ASC
   canReadByResident_DESC
+  customOrder_ASC
+  customOrder_DESC
+  customClassifier_ASC
+  customClassifier_DESC
   propertyAddress_ASC
   propertyAddress_DESC
   sectionName_ASC
@@ -24881,6 +24934,7 @@ input TicketHistoryRecordUpdateInput {
   problemClassifier: String
   classifier: String
   isAutoClassified: Boolean
+  title: String
   details: String
   related: String
   isPaid: Boolean
@@ -24889,7 +24943,9 @@ input TicketHistoryRecordUpdateInput {
   isWarranty: Boolean
   isResidentTicket: Boolean
   canReadByResident: Boolean
+  customOrder: Int
   meta: JSON
+  customClassifier: String
   property: String
   propertyAddress: String
   propertyAddressMeta: JSON
@@ -24957,6 +25013,7 @@ input TicketHistoryRecordCreateInput {
   problemClassifier: String
   classifier: String
   isAutoClassified: Boolean
+  title: String
   details: String
   related: String
   isPaid: Boolean
@@ -24965,7 +25022,9 @@ input TicketHistoryRecordCreateInput {
   isWarranty: Boolean
   isResidentTicket: Boolean
   canReadByResident: Boolean
+  customOrder: Int
   meta: JSON
+  customClassifier: String
   property: String
   propertyAddress: String
   propertyAddressMeta: JSON
@@ -25222,6 +25281,9 @@ type Ticket {
   """
   isAutoClassified: Boolean
 
+  """ Very short description of the issue """
+  title: String
+
   """ Text description of the issue. Maybe written by a user or an operator 
   """
   details: String
@@ -25253,8 +25315,15 @@ type Ticket {
   """
   canReadByResident: Boolean
 
+  """ The number used to determine the relative priority of this ticket among the others. Used by custom integrations 
+  """
+  customOrder: Int
+
   """ Extra analytics not related to remote system """
   meta: JSON
+
+  """ Custom type or classifier for ticket. Used by custom integrations """
+  customClassifier: String
 
   """ Property related to the Ticket """
   property: Property
@@ -25583,6 +25652,24 @@ input TicketWhereInput {
   classifier_is_null: Boolean
   isAutoClassified: Boolean
   isAutoClassified_not: Boolean
+  title: String
+  title_not: String
+  title_contains: String
+  title_not_contains: String
+  title_starts_with: String
+  title_not_starts_with: String
+  title_ends_with: String
+  title_not_ends_with: String
+  title_i: String
+  title_not_i: String
+  title_contains_i: String
+  title_not_contains_i: String
+  title_starts_with_i: String
+  title_not_starts_with_i: String
+  title_ends_with_i: String
+  title_not_ends_with_i: String
+  title_in: [String]
+  title_not_in: [String]
   details: String
   details_not: String
   details_contains: String
@@ -25615,10 +25702,36 @@ input TicketWhereInput {
   isResidentTicket_not: Boolean
   canReadByResident: Boolean
   canReadByResident_not: Boolean
+  customOrder: Int
+  customOrder_not: Int
+  customOrder_lt: Int
+  customOrder_lte: Int
+  customOrder_gt: Int
+  customOrder_gte: Int
+  customOrder_in: [Int]
+  customOrder_not_in: [Int]
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
   meta_not_in: [JSON]
+  customClassifier: String
+  customClassifier_not: String
+  customClassifier_contains: String
+  customClassifier_not_contains: String
+  customClassifier_starts_with: String
+  customClassifier_not_starts_with: String
+  customClassifier_ends_with: String
+  customClassifier_not_ends_with: String
+  customClassifier_i: String
+  customClassifier_not_i: String
+  customClassifier_contains_i: String
+  customClassifier_not_contains_i: String
+  customClassifier_starts_with_i: String
+  customClassifier_not_starts_with_i: String
+  customClassifier_ends_with_i: String
+  customClassifier_not_ends_with_i: String
+  customClassifier_in: [String]
+  customClassifier_not_in: [String]
   property: PropertyWhereInput
   property_is_null: Boolean
   propertyAddress: String
@@ -25850,6 +25963,8 @@ enum SortTicketsBy {
   classifier_DESC
   isAutoClassified_ASC
   isAutoClassified_DESC
+  title_ASC
+  title_DESC
   details_ASC
   details_DESC
   related_ASC
@@ -25866,6 +25981,10 @@ enum SortTicketsBy {
   isResidentTicket_DESC
   canReadByResident_ASC
   canReadByResident_DESC
+  customOrder_ASC
+  customOrder_DESC
+  customClassifier_ASC
+  customClassifier_DESC
   property_ASC
   property_DESC
   propertyAddress_ASC
@@ -25940,6 +26059,7 @@ input TicketUpdateInput {
   problemClassifier: TicketProblemClassifierRelateToOneInput
   classifier: TicketClassifierRelateToOneInput
   isAutoClassified: Boolean
+  title: String
   details: String
   related: TicketRelateToOneInput
   isPaid: Boolean
@@ -25948,7 +26068,9 @@ input TicketUpdateInput {
   isWarranty: Boolean
   isResidentTicket: Boolean
   canReadByResident: Boolean
+  customOrder: Int
   meta: JSON
+  customClassifier: String
   property: PropertyRelateToOneInput
   propertyAddress: String
   propertyAddressMeta: JSON
@@ -26013,6 +26135,7 @@ input TicketCreateInput {
   problemClassifier: TicketProblemClassifierRelateToOneInput
   classifier: TicketClassifierRelateToOneInput
   isAutoClassified: Boolean
+  title: String
   details: String
   related: TicketRelateToOneInput
   isPaid: Boolean
@@ -26021,7 +26144,9 @@ input TicketCreateInput {
   isWarranty: Boolean
   isResidentTicket: Boolean
   canReadByResident: Boolean
+  customOrder: Int
   meta: JSON
+  customClassifier: String
   property: PropertyRelateToOneInput
   propertyAddress: String
   propertyAddressMeta: JSON
@@ -27480,6 +27605,12 @@ type TicketChange {
   """
   clientPhoneTo: String
 
+  """ Very short description of the issue """
+  titleFrom: String
+
+  """ Very short description of the issue """
+  titleTo: String
+
   """ Text description of the issue. Maybe written by a user or an operator 
   """
   detailsFrom: String
@@ -27534,11 +27665,25 @@ type TicketChange {
   """
   canReadByResidentTo: Boolean
 
+  """ The number used to determine the relative priority of this ticket among the others. Used by custom integrations 
+  """
+  customOrderFrom: Int
+
+  """ The number used to determine the relative priority of this ticket among the others. Used by custom integrations 
+  """
+  customOrderTo: Int
+
   """ Extra analytics not related to remote system """
   metaFrom: JSON
 
   """ Extra analytics not related to remote system """
   metaTo: JSON
+
+  """ Custom type or classifier for ticket. Used by custom integrations """
+  customClassifierFrom: String
+
+  """ Custom type or classifier for ticket. Used by custom integrations """
+  customClassifierTo: String
 
   """ Address of property, which synced with property and displayed, if property is deleted 
   """
@@ -28123,6 +28268,42 @@ input TicketChangeWhereInput {
   clientPhoneTo_not_ends_with_i: String
   clientPhoneTo_in: [String]
   clientPhoneTo_not_in: [String]
+  titleFrom: String
+  titleFrom_not: String
+  titleFrom_contains: String
+  titleFrom_not_contains: String
+  titleFrom_starts_with: String
+  titleFrom_not_starts_with: String
+  titleFrom_ends_with: String
+  titleFrom_not_ends_with: String
+  titleFrom_i: String
+  titleFrom_not_i: String
+  titleFrom_contains_i: String
+  titleFrom_not_contains_i: String
+  titleFrom_starts_with_i: String
+  titleFrom_not_starts_with_i: String
+  titleFrom_ends_with_i: String
+  titleFrom_not_ends_with_i: String
+  titleFrom_in: [String]
+  titleFrom_not_in: [String]
+  titleTo: String
+  titleTo_not: String
+  titleTo_contains: String
+  titleTo_not_contains: String
+  titleTo_starts_with: String
+  titleTo_not_starts_with: String
+  titleTo_ends_with: String
+  titleTo_not_ends_with: String
+  titleTo_i: String
+  titleTo_not_i: String
+  titleTo_contains_i: String
+  titleTo_not_contains_i: String
+  titleTo_starts_with_i: String
+  titleTo_not_starts_with_i: String
+  titleTo_ends_with_i: String
+  titleTo_not_ends_with_i: String
+  titleTo_in: [String]
+  titleTo_not_in: [String]
   detailsFrom: String
   detailsFrom_not: String
   detailsFrom_contains: String
@@ -28183,6 +28364,22 @@ input TicketChangeWhereInput {
   canReadByResidentFrom_not: Boolean
   canReadByResidentTo: Boolean
   canReadByResidentTo_not: Boolean
+  customOrderFrom: Int
+  customOrderFrom_not: Int
+  customOrderFrom_lt: Int
+  customOrderFrom_lte: Int
+  customOrderFrom_gt: Int
+  customOrderFrom_gte: Int
+  customOrderFrom_in: [Int]
+  customOrderFrom_not_in: [Int]
+  customOrderTo: Int
+  customOrderTo_not: Int
+  customOrderTo_lt: Int
+  customOrderTo_lte: Int
+  customOrderTo_gt: Int
+  customOrderTo_gte: Int
+  customOrderTo_in: [Int]
+  customOrderTo_not_in: [Int]
   metaFrom: JSON
   metaFrom_not: JSON
   metaFrom_in: [JSON]
@@ -28191,6 +28388,42 @@ input TicketChangeWhereInput {
   metaTo_not: JSON
   metaTo_in: [JSON]
   metaTo_not_in: [JSON]
+  customClassifierFrom: String
+  customClassifierFrom_not: String
+  customClassifierFrom_contains: String
+  customClassifierFrom_not_contains: String
+  customClassifierFrom_starts_with: String
+  customClassifierFrom_not_starts_with: String
+  customClassifierFrom_ends_with: String
+  customClassifierFrom_not_ends_with: String
+  customClassifierFrom_i: String
+  customClassifierFrom_not_i: String
+  customClassifierFrom_contains_i: String
+  customClassifierFrom_not_contains_i: String
+  customClassifierFrom_starts_with_i: String
+  customClassifierFrom_not_starts_with_i: String
+  customClassifierFrom_ends_with_i: String
+  customClassifierFrom_not_ends_with_i: String
+  customClassifierFrom_in: [String]
+  customClassifierFrom_not_in: [String]
+  customClassifierTo: String
+  customClassifierTo_not: String
+  customClassifierTo_contains: String
+  customClassifierTo_not_contains: String
+  customClassifierTo_starts_with: String
+  customClassifierTo_not_starts_with: String
+  customClassifierTo_ends_with: String
+  customClassifierTo_not_ends_with: String
+  customClassifierTo_i: String
+  customClassifierTo_not_i: String
+  customClassifierTo_contains_i: String
+  customClassifierTo_not_contains_i: String
+  customClassifierTo_starts_with_i: String
+  customClassifierTo_not_starts_with_i: String
+  customClassifierTo_ends_with_i: String
+  customClassifierTo_not_ends_with_i: String
+  customClassifierTo_in: [String]
+  customClassifierTo_not_in: [String]
   propertyAddressFrom: String
   propertyAddressFrom_not: String
   propertyAddressFrom_contains: String
@@ -28932,6 +29165,10 @@ enum SortTicketChangesBy {
   clientPhoneFrom_DESC
   clientPhoneTo_ASC
   clientPhoneTo_DESC
+  titleFrom_ASC
+  titleFrom_DESC
+  titleTo_ASC
+  titleTo_DESC
   detailsFrom_ASC
   detailsFrom_DESC
   detailsTo_ASC
@@ -28960,6 +29197,14 @@ enum SortTicketChangesBy {
   canReadByResidentFrom_DESC
   canReadByResidentTo_ASC
   canReadByResidentTo_DESC
+  customOrderFrom_ASC
+  customOrderFrom_DESC
+  customOrderTo_ASC
+  customOrderTo_DESC
+  customClassifierFrom_ASC
+  customClassifierFrom_DESC
+  customClassifierTo_ASC
+  customClassifierTo_DESC
   propertyAddressFrom_ASC
   propertyAddressFrom_DESC
   propertyAddressTo_ASC
@@ -29116,6 +29361,8 @@ input TicketChangeUpdateInput {
   clientEmailTo: String
   clientPhoneFrom: String
   clientPhoneTo: String
+  titleFrom: String
+  titleTo: String
   detailsFrom: String
   detailsTo: String
   isPaidFrom: Boolean
@@ -29130,8 +29377,12 @@ input TicketChangeUpdateInput {
   isResidentTicketTo: Boolean
   canReadByResidentFrom: Boolean
   canReadByResidentTo: Boolean
+  customOrderFrom: Int
+  customOrderTo: Int
   metaFrom: JSON
   metaTo: JSON
+  customClassifierFrom: String
+  customClassifierTo: String
   propertyAddressFrom: String
   propertyAddressTo: String
   propertyAddressMetaFrom: JSON
@@ -29235,6 +29486,8 @@ input TicketChangeCreateInput {
   clientEmailTo: String
   clientPhoneFrom: String
   clientPhoneTo: String
+  titleFrom: String
+  titleTo: String
   detailsFrom: String
   detailsTo: String
   isPaidFrom: Boolean
@@ -29249,8 +29502,12 @@ input TicketChangeCreateInput {
   isResidentTicketTo: Boolean
   canReadByResidentFrom: Boolean
   canReadByResidentTo: Boolean
+  customOrderFrom: Int
+  customOrderTo: Int
   metaFrom: JSON
   metaTo: JSON
+  customClassifierFrom: String
+  customClassifierTo: String
   propertyAddressFrom: String
   propertyAddressTo: String
   propertyAddressMetaFrom: JSON
@@ -77984,6 +78241,7 @@ type DocumentHistoryRecord {
   category: String
   name: String
   file: JSON
+  canReadByResident: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -78036,6 +78294,8 @@ input DocumentHistoryRecordWhereInput {
   file_not: JSON
   file_in: [JSON]
   file_not_in: [JSON]
+  canReadByResident: Boolean
+  canReadByResident_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -78121,6 +78381,8 @@ input DocumentHistoryRecordWhereUniqueInput {
 enum SortDocumentHistoryRecordsBy {
   name_ASC
   name_DESC
+  canReadByResident_ASC
+  canReadByResident_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -78145,6 +78407,7 @@ input DocumentHistoryRecordUpdateInput {
   category: String
   name: String
   file: JSON
+  canReadByResident: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -78170,6 +78433,7 @@ input DocumentHistoryRecordCreateInput {
   category: String
   name: String
   file: JSON
+  canReadByResident: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -78222,6 +78486,9 @@ type Document {
 
   """ File attached to document """
   file: File
+
+  """ If set to true, this means document will be accessible by residents """
+  canReadByResident: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -78276,6 +78543,8 @@ input DocumentWhereInput {
   file_not: String
   file_in: [String]
   file_not_in: [String]
+  canReadByResident: Boolean
+  canReadByResident_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -78347,6 +78616,8 @@ enum SortDocumentsBy {
   category_DESC
   name_ASC
   name_DESC
+  canReadByResident_ASC
+  canReadByResident_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -78371,6 +78642,7 @@ input DocumentUpdateInput {
   category: DocumentCategoryRelateToOneInput
   name: String
   file: Upload
+  canReadByResident: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -78393,6 +78665,7 @@ input DocumentCreateInput {
   category: DocumentCategoryRelateToOneInput
   name: String
   file: Upload
+  canReadByResident: Boolean
   v: Int
   createdAt: String
   updatedAt: String
