@@ -14,7 +14,6 @@ import { Col, Row, RowProps } from 'antd'
 import { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox'
 import { TableRowSelection } from 'antd/lib/table/interface'
 import debounce from 'lodash/debounce'
-import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isNull from 'lodash/isNull'
 import isNumber from 'lodash/isNumber'
@@ -160,8 +159,7 @@ const TicketTable = ({
 
     const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
 
-    const auth = useAuth() as { user: { id: string } }
-    const user = get(auth, 'user')
+    const { user } = useAuth() as { user: { id: string } }
 
     const router = useRouter()
 
@@ -204,7 +202,7 @@ const TicketTable = ({
         format: EXCEL,
         locale: intl.locale,
         timeZone,
-        user: auth.user,
+        user,
     })
 
     const { TicketBlanksExportToPdfModal, TicketBlanksExportToPdfButton } = useTicketExportToPdfTask({
@@ -602,7 +600,7 @@ const FiltersContainer = ({ filterMetas }) => {
     } = useCheckboxSearch('isCompletedAfterDeadline')
 
     const handleAttributeCheckboxChange = useCallback((attributeName: string) => (e: CheckboxChangeEvent) => {
-        const isChecked = get(e, ['target', 'checked'])
+        const isChecked = e?.target?.checked || false
         handleChangeAttribute(isChecked, attributeName)
     }, [handleChangeAttribute])
 
@@ -722,7 +720,7 @@ const FiltersContainer = ({ filterMetas }) => {
                                     </Col>
                                     <Col>
                                         <Checkbox
-                                            onChange={(event) => handleChangeIsCompletedAfterDeadline(get(event, 'target.checked', false))}
+                                            onChange={(event) => handleChangeIsCompletedAfterDeadline(event?.target?.checked || false)}
                                             checked={isCompletedAfterDeadline}
                                             style={CHECKBOX_STYLE}
                                             id='ticket-filter-completed-after-deadline'
@@ -1005,9 +1003,9 @@ const TicketsPage: PageComponentType = () => {
 
     const { ticketFilterQuery, ticketFilterQueryLoading } = useTicketVisibility()
 
-    const userOrganization = useOrganization()
-    const userOrganizationId = get(userOrganization, ['organization', 'id'])
-    const employeeId = get(userOrganization, 'link.id')
+    const { organization: userOrganization, employee: activeEmployee } = useOrganization()
+    const userOrganizationId = useMemo(() => userOrganization?.id || null, [userOrganization])
+    const employeeId = useMemo(() => activeEmployee?.id || null, [activeEmployee])
 
     const filterMetas = useTicketTableFilters()
 
