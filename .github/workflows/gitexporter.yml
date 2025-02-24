@@ -9,7 +9,7 @@ on:
 jobs:
   gitexporter:
     name: Gitexporter
-    runs-on: new-one
+    runs-on: self-hosted
     steps:
       - name: Setup node environment
         uses: actions/setup-node@v4
