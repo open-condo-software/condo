@@ -4,6 +4,9 @@ query getIncidentClassifierIncident ($where: IncidentClassifierIncidentWhereInpu
         incident {
             id
         }
+        classifier {
+            id
+        }
     }
 }
 

@@ -1,5 +1,4 @@
-import { useGetB2BAppsQuery } from '@app/condo/gql'
-import { SortB2BAppsBy } from '@app/condo/schema'
+import { useGetGlobalB2BAppsQuery } from '@app/condo/gql'
 import get from 'lodash/get'
 import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
@@ -33,18 +32,11 @@ export const GlobalAppsContainer: React.FC = () => {
     const { persistor } = useCachePersistor()
 
     const {
-        data: B2BAppsData,
-    } = useGetB2BAppsQuery({
-        variables: {
-            where: {
-                isGlobal: true,
-                isHidden: false,
-            },
-            sortBy: [SortB2BAppsBy.CreatedAtAsc],
-        },
+        data: b2bAppsData,
+    } = useGetGlobalB2BAppsQuery({
         skip: !user || !organizationId || isLoading || !persistor,
     })
-    const b2bApps = useMemo(() => B2BAppsData?.b2bApps.filter(Boolean) || [], [B2BAppsData?.b2bApps])
+    const b2bApps = useMemo(() => b2bAppsData?.b2bApps.filter(Boolean) || [], [b2bAppsData?.b2bApps])
 
     const appUrls = b2bApps.map(app => app.appUrl)
 
