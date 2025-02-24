@@ -27,7 +27,6 @@ import { PropertyMetersPageContent } from '@condo/domains/meter/components/TabCo
 import { PropertyMeterReadingsPageContent } from '@condo/domains/meter/components/TabContent/PropertyMeterReading'
 import { useMeterFilters } from '@condo/domains/meter/hooks/useMeterFilters'
 import { useMeterReadingFilters } from '@condo/domains/meter/hooks/useMeterReadingFilters'
-import { useTableColumns } from '@condo/domains/meter/hooks/useTableColumns'
 import { METER_TAB_TYPES, METER_TYPES, MeterPageTypes, MeterTypes } from '@condo/domains/meter/utils/clientSchema'
 
 
@@ -155,10 +154,7 @@ const MetersPage: PageComponentType = () => {
     }, [activeTab, activeType, changeRouteToActiveParams])
 
     const filtersForMetersMeta = useMeterFilters(activeType as MeterTypes)
-    const tableColumnsForMeters = useTableColumns(filtersForMetersMeta, tabAsMeterPageType, activeType as MeterTypes)
-
     const filtersForMeterReadingsMeta = useMeterReadingFilters(activeType as MeterTypes)
-    const tableColumnsForMeterReadings = useTableColumns(filtersForMeterReadingsMeta, tabAsMeterPageType, activeType as MeterTypes)
 
     const baseMetersQuery = useMemo(() => ({
         deletedAt: null,
@@ -206,14 +202,12 @@ const MetersPage: PageComponentType = () => {
                 activeType === METER_TYPES.unit ?
                     <MetersPageContent
                         filtersMeta={filtersForMetersMeta}
-                        tableColumns={tableColumnsForMeters}
                         loading={isLoading}
                         canManageMeters={canManageMeters}
                         baseSearchQuery={baseMetersQuery}
                     /> : 
                     <PropertyMetersPageContent
                         filtersMeta={filtersForMetersMeta}
-                        tableColumns={tableColumnsForMeters}
                         canManageMeters={canManageMeters}
                         loading={isLoading}
                         baseSearchQuery={baseMetersQuery}
@@ -226,14 +220,13 @@ const MetersPage: PageComponentType = () => {
             children: (
                 <MeterReportingPeriodPageContent
                     filtersMeta={filtersForMeterReadingsMeta}
-                    tableColumns={tableColumnsForMeterReadings}
                     loading={isLoading}
                     canManageMeters={canManageMeters}
                     userOrganizationId={userOrganizationId}
                 />
             ),
         },
-    ].filter(Boolean), [MeterReadingMessage, activeType, filtersForMeterReadingsMeta, isLoading, canManageMeterReadings, baseMeterReadingsQuery, MeterMessage, filtersForMetersMeta, tableColumnsForMeters, canManageMeters, baseMetersQuery, ReportingPeriodMessage, tableColumnsForMeterReadings, userOrganizationId])
+    ].filter(Boolean), [MeterReadingMessage, activeType, filtersForMeterReadingsMeta, isLoading, canManageMeterReadings, baseMeterReadingsQuery, MeterMessage, filtersForMetersMeta, canManageMeters, baseMetersQuery, ReportingPeriodMessage, userOrganizationId])
 
     return (
         <MultipleFilterContextProvider>

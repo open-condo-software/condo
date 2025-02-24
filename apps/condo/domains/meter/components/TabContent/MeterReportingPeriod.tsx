@@ -5,7 +5,6 @@ import {
 } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
 import { Col, Row, RowProps, Typography } from 'antd'
-import { ColumnsType } from 'antd/lib/table'
 import { TableRowSelection } from 'antd/lib/table/interface'
 import chunk from 'lodash/chunk'
 import compact from 'lodash/compact'
@@ -30,7 +29,8 @@ import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { MeterReportingPeriod } from '@condo/domains/meter/utils/clientSchema'
+import { useTableColumns } from '@condo/domains/meter/hooks/useTableColumns'
+import { METER_TAB_TYPES, METER_TYPES, MeterReportingPeriod } from '@condo/domains/meter/utils/clientSchema'
 
 
 const METERS_PAGE_CONTENT_ROW_GUTTERS: RowProps['gutter'] = [0, 40]
@@ -39,7 +39,6 @@ const DEFAULT_PERIOD_TEXT_STYLE = { alignSelf: 'start' }
 const SORTABLE_PROPERTIES = []
 
 type MeterReportingPeriodPageContentProps = {
-    tableColumns: ColumnsType
     filtersMeta: FiltersMeta<MeterReportingPeriodWhereInput>[]
     loading?: boolean
     canManageMeters?: boolean
@@ -48,7 +47,6 @@ type MeterReportingPeriodPageContentProps = {
 
 const MeterReportingPeriodTableContent: React.FC<MeterReportingPeriodPageContentProps> = (props) => {
     const {
-        tableColumns,
         filtersMeta,
         loading,
         canManageMeters,
@@ -66,6 +64,7 @@ const MeterReportingPeriodTableContent: React.FC<MeterReportingPeriodPageContent
     const { filters, offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
     const { filtersToWhere } = useQueryMappers(filtersMeta, SORTABLE_PROPERTIES)
+    const tableColumns = useTableColumns(filtersMeta, METER_TAB_TYPES.reportingPeriod, METER_TYPES.unit)
 
     const searchMeterReportingPeriodsQuery = useMemo(() => {
         return {
