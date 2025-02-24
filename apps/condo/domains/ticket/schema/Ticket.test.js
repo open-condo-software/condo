@@ -135,6 +135,10 @@ describe('Ticket', () => {
             const [contact] = await createTestContact(client, client.organization, client.property)
             const fields = {
                 contact: { connect: { id: contact.id } },
+
+                title: 'sample ticket title',
+                customOrder: 15,
+                customClassifier: 'warranty'
             }
             const [obj, attrs] = await createTestTicket(client, client.organization, client.property, fields)
 
@@ -171,6 +175,9 @@ describe('Ticket', () => {
             expect(obj.qualityControlAdditionalOptions).toBeNull()
             expect(obj.qualityControlUpdatedAt).toBeNull()
             expect(obj.qualityControlUpdatedBy).toBeNull()
+            expect(obj.title).toEqual(attrs.title)
+            expect(obj.customOrder).toEqual(attrs.customOrder)
+            expect(obj.customClassifier).toEqual(attrs.customClassifier)
         })
 
         test('user with resident type without resident: cannot create Ticket', async () => {

@@ -65,6 +65,7 @@ describe('Document', () => {
                 expect(createdDocument.id).toMatch(UUID_RE)
                 expect(createdDocument.organization.id).toEqual(organization.id)
                 expect(createdDocument.category.id).toEqual(documentCategory.id)
+                expect(createdDocument.canReadByResident).toEqual(false)
             })
 
             it('support can not', async () => {
@@ -74,11 +75,14 @@ describe('Document', () => {
             })
 
             it('employee with canManageDocuments can', async () => {
-                const [createdDocument] = await createTestDocument(employeeUserWithDocumentPermissions, organization, documentCategory)
+                const [createdDocument] = await createTestDocument(employeeUserWithDocumentPermissions, organization, documentCategory, {
+                    canReadByResident: true
+                })
 
                 expect(createdDocument.id).toMatch(UUID_RE)
                 expect(createdDocument.organization.id).toEqual(organization.id)
                 expect(createdDocument.category.id).toEqual(documentCategory.id)
+                expect(createdDocument.canReadByResident).toEqual(true)
             })
 
             it('employee with canManageDocuments in several organizations can', async () => {
