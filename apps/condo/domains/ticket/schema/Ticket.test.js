@@ -138,7 +138,7 @@ describe('Ticket', () => {
 
                 title: 'sample ticket title',
                 customOrder: 15,
-                customClassifier: 'warranty'
+                customClassifier: 'warranty',
             }
             const [obj, attrs] = await createTestTicket(client, client.organization, client.property, fields)
 
