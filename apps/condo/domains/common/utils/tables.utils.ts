@@ -35,6 +35,7 @@ type ParsedQueryType = {
     filters: FiltersFromQueryType
     sorters: SorterColumn[]
     tab: string
+    type: string
 }
 
 type StringFilter = {
@@ -334,7 +335,9 @@ export const parseQuery = (query: ParsedUrlQuery): ParsedQueryType => {
     const offset = Number(queryOffset) ? Number(queryOffset) : 0
     const queryTab = get(query, 'tab')
     const tab = Array.isArray(queryTab) ? undefined : queryTab
-    return { filters, sorters, offset, tab }
+    const queryType = get(query, 'type')
+    const type = Array.isArray(queryType) ? undefined : queryType
+    return { filters, sorters, offset, tab, type }
 }
 
 export const convertColumns = (
