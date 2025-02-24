@@ -48,10 +48,10 @@ export const UserMessagesList = () => {
     }, [setIsDropdownOpen, setSettingsModalOpen])
 
     const unreadMessages = useMemo(
-        () => userMessages.filter(message => message.createdAt > readUserMessagesAt),
+        () => userMessages?.filter(message => message.createdAt > readUserMessagesAt),
         [readUserMessagesAt, userMessages])
     const readMessages = useMemo(
-        () => userMessages.filter(message => message.createdAt <= readUserMessagesAt),
+        () => userMessages?.filter(message => message.createdAt <= readUserMessagesAt),
         [readUserMessagesAt, userMessages])
 
     useNewMessageTitleNotification(unreadMessages?.length)
@@ -63,32 +63,32 @@ export const UserMessagesList = () => {
     ), [EmptyListMessage])
 
     const messagesListContent = useMemo(() => {
-        if (!newMessagesLoading && userMessages.length === 0) {
+        if (!newMessagesLoading && userMessages?.length === 0) {
             return emptyPlaceholder
         }
 
         return (
             <>
                 {
-                    userMessages.length === 0 && !newMessagesLoading && (
+                    userMessages?.length === 0 && !newMessagesLoading && (
                         <BasicEmptyListView />
                     )
                 }
-                {unreadMessages.map(message => <MessageCard key={message.id} message={message} />)}
+                {unreadMessages?.map(message => <MessageCard key={message.id} message={message} />)}
                 {
-                    readMessages.length > 0 && (
+                    readMessages?.length > 0 && (
                         <>
                             <Typography.Title level={6} type='secondary'>
                                 {ViewedMessage}
                             </Typography.Title>
-                            {readMessages.map(message => <MessageCard key={message.id} message={message} viewed />)}
+                            {readMessages?.map(message => <MessageCard key={message.id} message={message} viewed />)}
                         </>
                     )
                 }
                 {moreMessagesLoading && <Loader fill size='small' />}
             </>
         )
-    }, [ViewedMessage, emptyPlaceholder, moreMessagesLoading, newMessagesLoading, readMessages, unreadMessages, userMessages.length])
+    }, [ViewedMessage, emptyPlaceholder, moreMessagesLoading, newMessagesLoading, readMessages, unreadMessages, userMessages?.length])
 
     return (
         <>
@@ -114,7 +114,7 @@ export const UserMessagesList = () => {
                 placement='bottomCenter'
             >
                 <div>
-                    <MessagesCounter count={unreadMessages.length}/>
+                    <MessagesCounter count={unreadMessages?.length}/>
                 </div>
             </Dropdown>
             <UserMessagesSettingsModal

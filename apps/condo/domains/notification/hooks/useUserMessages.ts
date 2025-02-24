@@ -54,7 +54,7 @@ export const useUserMessages: UsePollUserMessagesType = ({ isDropdownOpen, messa
     }), [messageTypesToFilter, organizationId, userId])
 
     const [isPollingTab, setIsPollingTab] = useState<boolean>(false)
-    const [userMessages, setUserMessages] = useState<UserMessageType[]>([])
+    const [userMessages, setUserMessages] = useState<UserMessageType[] | undefined>()
     const [isAllMessagesLoaded, setIsAllMessagesLoaded] = useState<boolean>(false)
     const [moreMessagesLoading, setMoreMessagesLoading] = useState<boolean>(false)
 
@@ -70,7 +70,7 @@ export const useUserMessages: UsePollUserMessagesType = ({ isDropdownOpen, messa
     })
 
     const clearLoadedMessages = useCallback(() => {
-        const messages = (newMessagesData?.messages?.filter(Boolean) || []) as Array<UserMessageType>
+        const messages = newMessagesData?.messages?.filter(Boolean) as Array<UserMessageType>
 
         setUserMessages(messages)
         setIsAllMessagesLoaded(false)
@@ -91,7 +91,7 @@ export const useUserMessages: UsePollUserMessagesType = ({ isDropdownOpen, messa
         }
 
         setUserMessages(previousMessagesState => {
-            return uniqBy([...previousMessagesState, ...messages], 'id')
+            return uniqBy([...(previousMessagesState || []), ...messages], 'id')
                 .sort((firstMessage, secondMessage) => {
                     return new Date(secondMessage.createdAt).getTime() - new Date(firstMessage.createdAt).getTime()
                 })
@@ -113,8 +113,11 @@ export const useUserMessages: UsePollUserMessagesType = ({ isDropdownOpen, messa
 
     // Send new messages to all tabs
     useDeepCompareEffect(() => {
-        const messages = (newMessagesData?.messages?.filter(Boolean) || []) as UserMessageType[]
-        sendMessageToBroadcastChannel({ error, messages })
+        const messages = newMessagesData?.messages?.filter(Boolean) as Array<UserMessageType>
+
+        if (messages || error) {
+            sendMessageToBroadcastChannel({ error, messages })
+        }
     }, [newMessagesData?.messages, error])
 
 
@@ -126,16 +129,16 @@ export const useUserMessages: UsePollUserMessagesType = ({ isDropdownOpen, messa
     const fetchMoreMessages = useCallback(async () => {
         const fetchMoreResult = await fetchMoreUserMessages({
             variables: {
-                skip: userMessages.length || 0,
+                skip: userMessages?.length || 0,
             },
             fetchPolicy: 'network-only',
         })
 
-        const messages = (fetchMoreResult?.data?.messages?.filter(Boolean) || []) as UserMessageType[]
+        const messages = (fetchMoreResult?.data?.messages?.filter(Boolean) || []) as Array<UserMessageType>
         const allMessagesLoaded = messages.length === 0
 
         setUserMessages(previousMessagesState => {
-            return uniqBy([...previousMessagesState, ...messages], 'id')
+            return uniqBy([...(previousMessagesState || []), ...messages], 'id')
                 .sort((firstMessage, secondMessage) => {
                     return new Date(secondMessage.createdAt).getTime() - new Date(firstMessage.createdAt).getTime()
                 })
@@ -144,7 +147,7 @@ export const useUserMessages: UsePollUserMessagesType = ({ isDropdownOpen, messa
         if (allMessagesLoaded) {
             setIsAllMessagesLoaded(true)
         }
-    }, [fetchMoreUserMessages, userMessages.length])
+    }, [fetchMoreUserMessages, userMessages?.length])
 
     const throttledFetchMore = useMemo( () => throttle(fetchMoreMessages, 500), [fetchMoreMessages])
 

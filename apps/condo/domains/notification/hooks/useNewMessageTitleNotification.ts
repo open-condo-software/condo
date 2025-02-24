@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
@@ -31,11 +31,6 @@ export const useNewMessageTitleNotification = (unreadMessagesCount: number): voi
     const originalIconHref = useRef<string>()
     const changeTitleInterval = useRef<ReturnType<typeof setInterval>>(null)
 
-    const unreadMessagesCountRef = useRef<number>()
-    useEffect(() => {
-        unreadMessagesCountRef.current = unreadMessagesCount
-    }, [unreadMessagesCount])
-
     // Lock tab that allowed to play audio
     const isTabWithAudioRef = useRef<boolean>(false)
     useExecuteWithLock(TAB_WITH_AUDIO_LOCK_NAME, () => isTabWithAudioRef.current = true)
@@ -52,9 +47,11 @@ export const useNewMessageTitleNotification = (unreadMessagesCount: number): voi
     }, [sendTabFocusStateMessage])
     useEffect(() => {
         window.addEventListener('focus', broadcastFocusStatus)
+        window.addEventListener('click', broadcastFocusStatus)
         window.addEventListener('blur', broadcastFocusStatus)
         return () => {
             window.removeEventListener('focus', broadcastFocusStatus)
+            window.removeEventListener('click', broadcastFocusStatus)
             window.removeEventListener('blur', broadcastFocusStatus)
         }
     }, [broadcastFocusStatus])
@@ -64,12 +61,12 @@ export const useNewMessageTitleNotification = (unreadMessagesCount: number): voi
 
     // Remember page title for change it back after indicate about new messages
     useEffect(() => {
-        if (document.title !== NewMessagePageTitle) {
+        if (document.title && document.title !== NewMessagePageTitle) {
             originalPageTitle.current = document.title
         }
 
         const observer = new MutationObserver(() => {
-            if (document.title !== NewMessagePageTitle) {
+            if (document.title && document.title !== NewMessagePageTitle) {
                 originalPageTitle.current = document.title
             }
         })
@@ -80,8 +77,10 @@ export const useNewMessageTitleNotification = (unreadMessagesCount: number): voi
             })
         }
 
-        return () => observer.disconnect()
-    }, [NewMessagePageTitle])
+        return () => {
+            observer.disconnect()
+        }
+    }, [NewMessagePageTitle, unreadMessagesCount])
 
     // Remember page favicon on first load
     useEffect(() => {
@@ -91,18 +90,24 @@ export const useNewMessageTitleNotification = (unreadMessagesCount: number): voi
     }, [])
 
     useEffect(() => {
-        if (unreadMessagesCountRef.current === undefined) {
+        if (unreadMessagesCount === undefined) {
             return
+        }
+        if (changeTitleInterval.current) {
+            clearInterval(changeTitleInterval.current)
+            changeTitleInterval.current = null
         }
 
         // Do not indicate about new messages when it's first messages load
         if (
+            originalPageTitle.current &&
             previousMessagesCount.current !== undefined &&
-            unreadMessagesCountRef.current > previousMessagesCount.current
+            unreadMessagesCount > 0 &&
+            unreadMessagesCount > previousMessagesCount.current
         ) {
-            if (document.hasFocus()) {
+            if (isAnyTabFocusedRef.current) {
                 document.title = NewMessagePageTitle
-                changeFavicon(getNewMessageFaviconHref(unreadMessagesCountRef.current))
+                changeFavicon(getNewMessageFaviconHref(unreadMessagesCount))
 
                 setTimeout(() => {
                     document.title = originalPageTitle.current
@@ -115,7 +120,7 @@ export const useNewMessageTitleNotification = (unreadMessagesCount: number): voi
                         changeFavicon(originalIconHref.current)
                     } else {
                         document.title = NewMessagePageTitle
-                        changeFavicon(getNewMessageFaviconHref(unreadMessagesCountRef.current))
+                        changeFavicon(getNewMessageFaviconHref(unreadMessagesCount))
                     }
                 }, TITLE_BLINK_INTERVAL_IN_MS)
 
@@ -125,15 +130,20 @@ export const useNewMessageTitleNotification = (unreadMessagesCount: number): voi
             }
         }
 
-        previousMessagesCount.current = unreadMessagesCountRef.current
-    }, [NewMessagePageTitle, audio])
+        previousMessagesCount.current = unreadMessagesCount
+    }, [unreadMessagesCount])
 
     const handleBroadcastMessage = useCallback(() => {
-        clearInterval(changeTitleInterval.current)
-        changeTitleInterval.current = null
-
-        document.title = originalPageTitle.current
-        changeFavicon(originalIconHref.current)
+        if (changeTitleInterval.current) {
+            clearInterval(changeTitleInterval.current)
+            changeTitleInterval.current = null
+        }
+        if (originalPageTitle.current && document.title !== originalPageTitle.current) {
+            document.title = originalPageTitle.current
+        }
+        if (originalIconHref.current) {
+            changeFavicon(originalIconHref.current)
+        }
     }, [])
 
     const {
@@ -148,11 +158,11 @@ export const useNewMessageTitleNotification = (unreadMessagesCount: number): voi
         const onFocus = () => clearNewMessagesTitleFromAllTabs(true)
 
         window.addEventListener('focus', onFocus)
-        window.addEventListener('mousemove', onFocus)
+        window.addEventListener('click', onFocus)
 
         return () => {
             window.removeEventListener('focus', onFocus)
-            window.removeEventListener('mousemove', onFocus)
+            window.removeEventListener('click', onFocus)
 
             if (changeTitleInterval.current) {
                 clearInterval(changeTitleInterval.current)
