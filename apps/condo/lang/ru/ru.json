@@ -293,6 +293,8 @@
   "accrualsAndPayments.onBoardingModal.text": "Чтобы жители оплачивали квитанции через мобильное приложение Doma, выберите способ загрузки и подпишите оферту. С этого момента все оплаты будут отображаться в этом разделе.",
   "accrualsAndPayments.onBoardingModal.title": "О разделе",
   "accrualsAndPayments.payments.noPaymentsYet.message": "Жители не оплатили ни одной квитанции. Как только это случится, информация о транзакциях появится здесь.",
+  "accrualsAndPayments.payments.type.list": "Список",
+  "accrualsAndPayments.payments.type.registry": "Реестры",
   "accrualsAndPayments.payments.noPaymentsYet.title": "Оплат пока нет",
   "accrualsAndPayments.setup.chooseBillingStep.title": "Выбор биллинга",
   "accrualsAndPayments.setup.noReturn": "На данном этапе вернуться к этому шагу невозможно",

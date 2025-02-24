@@ -294,6 +294,8 @@
   "accrualsAndPayments.onBoardingModal.title": "Sobre la sección",
   "accrualsAndPayments.payments.noPaymentsYet.message": "Los vecinos no han pagado ningún recibo. Una vez que eso pase aquí aparecerá la información sobre la transacción.",
   "accrualsAndPayments.payments.noPaymentsYet.title": "Todavía no hay pagos",
+  "accrualsAndPayments.payments.type.list": "Lista",
+  "accrualsAndPayments.payments.type.registry": "Registros",
   "accrualsAndPayments.setup.chooseBillingStep.title": "Elegir facturación",
   "accrualsAndPayments.setup.noReturn": "No es posible volver a este paso en este momento",
   "accrualsAndPayments.setup.setupAcquiringStep.title": "Aceptación de oferta",

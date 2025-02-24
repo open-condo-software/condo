@@ -15,3 +15,13 @@ export * as BillingCategory from './BillingCategory'
 export * as BillingReceiptFile from './BillingReceiptFile'
 export * as BillingReceiptForOrganization from './BillingReceiptForOrganization'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
+
+export type PaymentTypes = 'list' | 'registry'
+type PaymentTypeSwitch = {
+    list: PaymentTypes
+    registry: PaymentTypes
+}
+export const PAYMENT_TYPES: PaymentTypeSwitch = {
+    list: 'list',
+    registry: 'registry',
+}
