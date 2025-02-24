@@ -4162,16 +4162,16 @@ type ResetUserLimitAction {
   """
   _label_: String
 
-  """ Type of limit to reset. Possible values: ["sms", "rateLimit", "findOrganizationsByTin", "auth"] 
+  """ Type of limit to reset. Possible values: ["sms", "rateLimit", "findOrganizationsByTin", "auth"]
   """
   type: ResetUserLimitActionTypeType
 
   """
    The identifier of user, to which reset will apply. Possible values are based on reset type: 
-  sms: ["phone", "ip"], 
+  sms: ["phone", "ip"],
   rateLimit: ["uuid", "ip"], 
-  findOrganizationsByTin: ["email", "phone", "uuid"], 
-  auth: ["ip", "uuid", "phone", "email"] 
+  findOrganizationsByTin: ["email", "phone", "uuid"],
+  auth: ["ip", "uuid", "phone", "email"]
   """
   identifier: String
 
@@ -4599,7 +4599,7 @@ input UserSudoTokenHistoryRecordsCreateInput {
   data: UserSudoTokenHistoryRecordCreateInput
 }
 
-""" A user's sudo token that is used to confirm any sensitive actions with the user. 
+""" A user's sudo token that is used to confirm any sensitive actions with the user.
 """
 type UserSudoToken {
   """
@@ -4620,7 +4620,7 @@ type UserSudoToken {
   """ User to whom a sudo token is linked """
   user: User
 
-  """ Number of remaining uses of the token. Once these are used up, the token will be not valid 
+  """ Number of remaining uses of the token. Once these are used up, the token will be not valid
   """
   remainingUses: Int
   id: ID!
@@ -4628,11 +4628,11 @@ type UserSudoToken {
   createdAt: String
   updatedAt: String
 
-  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.
   """
   createdBy: User
 
-  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.
   """
   updatedBy: User
   deletedAt: String
@@ -4641,7 +4641,7 @@ type UserSudoToken {
   """ Data structure Version """
   dv: Int
 
-  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system
   """
   sender: SenderField
 }
@@ -8997,19 +8997,19 @@ type OrganizationEmployeeRequest {
   """
   _label_: String
 
-  """ Ref to the organization. The object will be deleted if the organization ceases to exist 
+  """ Ref to the organization. The object will be deleted if the organization ceases to exist
   """
   organization: Organization
 
-  """ Organization id (For the user who sent the request because he does not have access to the organization) 
+  """ Organization id (For the user who sent the request because he does not have access to the organization)
   """
   organizationId: ID
 
-  """ Organization name (For the user who sent the request because he does not have access to the organization) 
+  """ Organization name (For the user who sent the request because he does not have access to the organization)
   """
   organizationName: String
 
-  """ Organization tin (For the user who sent the request because he does not have access to the organization) 
+  """ Organization tin (For the user who sent the request because he does not have access to the organization)
   """
   organizationTin: String
 
@@ -9031,7 +9031,7 @@ type OrganizationEmployeeRequest {
   """ Number of retries """
   retries: Int
 
-  """ An employee who was created in the organization after the request was accepted 
+  """ An employee who was created in the organization after the request was accepted
   """
   createdEmployee: OrganizationEmployee
   id: ID!
@@ -9039,11 +9039,11 @@ type OrganizationEmployeeRequest {
   createdAt: String
   updatedAt: String
 
-  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.
   """
   createdBy: User
 
-  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.
   """
   updatedBy: User
   deletedAt: String
@@ -9052,7 +9052,7 @@ type OrganizationEmployeeRequest {
   """ Data structure Version """
   dv: Int
 
-  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system
   """
   sender: SenderField
 }
@@ -54062,7 +54062,6 @@ type MeterReadingsImportTaskHistoryRecord {
   user: String
   organization: String
   locale: String
-  isPropertyMeters: Boolean
   meta: JSON
   id: ID!
   v: Int
@@ -54194,8 +54193,6 @@ input MeterReadingsImportTaskHistoryRecordWhereInput {
   locale_not_ends_with_i: String
   locale_in: [String]
   locale_not_in: [String]
-  isPropertyMeters: Boolean
-  isPropertyMeters_not: Boolean
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
@@ -54297,8 +54294,6 @@ enum SortMeterReadingsImportTaskHistoryRecordsBy {
   errorMessage_DESC
   locale_ASC
   locale_DESC
-  isPropertyMeters_ASC
-  isPropertyMeters_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -54329,7 +54324,6 @@ input MeterReadingsImportTaskHistoryRecordUpdateInput {
   user: String
   organization: String
   locale: String
-  isPropertyMeters: Boolean
   meta: JSON
   v: Int
   createdAt: String
@@ -54362,7 +54356,6 @@ input MeterReadingsImportTaskHistoryRecordCreateInput {
   user: String
   organization: String
   locale: String
-  isPropertyMeters: Boolean
   meta: JSON
   v: Int
   createdAt: String
@@ -54443,10 +54436,6 @@ type MeterReadingsImportTask {
 
   """ Requested import locale """
   locale: String
-
-  """ Indicates whether current import is for Meters and MeterReadings or for PropertyMeters and PropertyMeterReadings 
-  """
-  isPropertyMeters: Boolean
 
   """ Stores information about query and ids of exported and failed records 
   """
@@ -54557,8 +54546,6 @@ input MeterReadingsImportTaskWhereInput {
   locale_not_ends_with_i: String
   locale_in: [String]
   locale_not_in: [String]
-  isPropertyMeters: Boolean
-  isPropertyMeters_not: Boolean
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
@@ -54644,8 +54631,6 @@ enum SortMeterReadingsImportTasksBy {
   organization_DESC
   locale_ASC
   locale_DESC
-  isPropertyMeters_ASC
-  isPropertyMeters_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -54676,7 +54661,6 @@ input MeterReadingsImportTaskUpdateInput {
   user: UserRelateToOneInput
   organization: OrganizationRelateToOneInput
   locale: String
-  isPropertyMeters: Boolean
   meta: JSON
   v: Int
   createdAt: String
@@ -54706,7 +54690,6 @@ input MeterReadingsImportTaskCreateInput {
   user: UserRelateToOneInput
   organization: OrganizationRelateToOneInput
   locale: String
-  isPropertyMeters: Boolean
   meta: JSON
   v: Int
   createdAt: String
@@ -71249,7 +71232,7 @@ input MessageAppBlackListHistoryRecordsCreateInput {
   data: MessageAppBlackListHistoryRecordCreateInput
 }
 
-""" [Deprecated] Rule for blocking specific type of messages for apps. Use AppMessageSetting 
+""" [Deprecated] Rule for blocking specific type of messages for apps. Use AppMessageSetting
 """
 type MessageAppBlackList {
   """
@@ -72725,7 +72708,7 @@ type B2BAppAccessRightSet {
   canManageOrganizations: Boolean
   canReadOrganizationEmployees: Boolean
 
-  """ Currently, this field is read-only. You cannot get manage access for the specified schema. 
+  """ Currently, this field is read-only. You cannot get manage access for the specified schema.
   """
   canManageOrganizationEmployees: Boolean
   canReadProperties: Boolean
@@ -74030,7 +74013,7 @@ input AppMessageSettingHistoryRecordsCreateInput {
   data: AppMessageSettingHistoryRecordCreateInput
 }
 
-""" Configuration of sending push notifications for specific miniapp. Used to block certain types of push notifications and control throttling of notifications of a certain miniapp.Each setting contains either a B2BApp or a B2CApp, but not both at once. 
+""" Configuration of sending push notifications for specific miniapp. Used to block certain types of push notifications and control throttling of notifications of a certain miniapp.Each setting contains either a B2BApp or a B2CApp, but not both at once.
 """
 type AppMessageSetting {
   """
@@ -74057,7 +74040,7 @@ type AppMessageSetting {
   """ Time interval in seconds to which the settings apply """
   notificationWindowSize: Int
 
-  """ The number of notifications that can be sent in single time window in seconds to a specific user. If the value is 0, then the miniapp cannot send this type of message 
+  """ The number of notifications that can be sent in single time window in seconds to a specific user. If the value is 0, then the miniapp cannot send this type of message
   """
   numberOfNotificationInWindow: Int
   id: ID!
@@ -81868,62 +81851,6 @@ type RegisterMetersReadingsOutput {
   meter: RegisterMetersReadingsMeterOutput!
 }
 
-input RegisterPropertyMetersReadingsMeterMetaInput {
-  numberOfTariffs: Int
-  verificationDate: String
-  nextVerificationDate: String
-  installationDate: String
-  commissioningDate: String
-  sealingDate: String
-  controlReadingsDate: String
-  isAutomatic: Boolean
-  archiveDate: String
-}
-
-input RegisterPropertyMetersReadingsReadingAddressInfoInput {
-  globalId: String
-}
-
-input RegisterPropertyMetersReadingsReadingInput {
-  address: String!
-  addressInfo: RegisterPropertyMetersReadingsReadingAddressInfoInput
-  meterNumber: String!
-  meterResource: MeterResourceWhereUniqueInput!
-  date: String!
-  value1: String!
-  value2: String
-  value3: String
-  value4: String
-  meterMeta: RegisterPropertyMetersReadingsMeterMetaInput
-  readingSource: MeterReadingSourceWhereUniqueInput
-  billingStatus: MeterReadingBillingStatusType
-  billingStatusText: String
-}
-
-input RegisterPropertyMetersReadingsInput {
-  dv: Int!
-  sender: SenderFieldInput!
-  organization: OrganizationWhereUniqueInput!
-  readings: [RegisterPropertyMetersReadingsReadingInput!]!
-}
-
-type RegisterPropertyMetersReadingsMeterPropertyOutput {
-  id: ID!
-  address: String!
-  addressKey: String!
-}
-
-type RegisterPropertyMetersReadingsMeterOutput {
-  id: ID!
-  property: RegisterPropertyMetersReadingsMeterPropertyOutput!
-  number: String!
-}
-
-type RegisterPropertyMetersReadingsOutput {
-  id: ID!
-  meter: RegisterPropertyMetersReadingsMeterOutput!
-}
-
 input RegisterMultiPaymentReceiptAmountInput {
   receipt: BillingReceiptWhereUniqueInput!
   amount: String!
@@ -82642,14 +82569,14 @@ type Query {
   """ Retrieve the meta-data for the ResetUserLimitAction list. """
   _ResetUserLimitActionsMeta: _ListMeta
 
-  """ Search for all UserSudoTokenHistoryRecord items which match the where clause. 
+  """ Search for all UserSudoTokenHistoryRecord items which match the where clause.
   """
   allUserSudoTokenHistoryRecords(where: UserSudoTokenHistoryRecordWhereInput, search: String, sortBy: [SortUserSudoTokenHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [UserSudoTokenHistoryRecord]
 
   """ Search for the UserSudoTokenHistoryRecord item with the matching ID. """
   UserSudoTokenHistoryRecord(where: UserSudoTokenHistoryRecordWhereUniqueInput!): UserSudoTokenHistoryRecord
 
-  """ Perform a meta-query on all UserSudoTokenHistoryRecord items which match the where clause. 
+  """ Perform a meta-query on all UserSudoTokenHistoryRecord items which match the where clause.
   """
   _allUserSudoTokenHistoryRecordsMeta(where: UserSudoTokenHistoryRecordWhereInput, search: String, sortBy: [SortUserSudoTokenHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
 
@@ -82662,14 +82589,14 @@ type Query {
   """ Search for the UserSudoToken item with the matching ID. """
   UserSudoToken(where: UserSudoTokenWhereUniqueInput!): UserSudoToken
 
-  """ Perform a meta-query on all UserSudoToken items which match the where clause. 
+  """ Perform a meta-query on all UserSudoToken items which match the where clause.
   """
   _allUserSudoTokensMeta(where: UserSudoTokenWhereInput, search: String, sortBy: [SortUserSudoTokensBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
 
   """ Retrieve the meta-data for the UserSudoToken list. """
   _UserSudoTokensMeta: _ListMeta
 
-  """ Search for all OrganizationHistoryRecord items which match the where clause. 
+  """ Search for all OrganizationHistoryRecord items which match the where clause.
   """
   allOrganizationHistoryRecords(where: OrganizationHistoryRecordWhereInput, search: String, sortBy: [SortOrganizationHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [OrganizationHistoryRecord]
 
@@ -82830,38 +82757,38 @@ type Query {
   """ Retrieve the meta-data for the FindOrganizationsByTinLog list. """
   _FindOrganizationsByTinLogsMeta: _ListMeta
 
-  """ Search for all OrganizationEmployeeRequestHistoryRecord items which match the where clause. 
+  """ Search for all OrganizationEmployeeRequestHistoryRecord items which match the where clause.
   """
   allOrganizationEmployeeRequestHistoryRecords(where: OrganizationEmployeeRequestHistoryRecordWhereInput, search: String, sortBy: [SortOrganizationEmployeeRequestHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [OrganizationEmployeeRequestHistoryRecord]
 
-  """ Search for the OrganizationEmployeeRequestHistoryRecord item with the matching ID. 
+  """ Search for the OrganizationEmployeeRequestHistoryRecord item with the matching ID.
   """
   OrganizationEmployeeRequestHistoryRecord(where: OrganizationEmployeeRequestHistoryRecordWhereUniqueInput!): OrganizationEmployeeRequestHistoryRecord
 
-  """ Perform a meta-query on all OrganizationEmployeeRequestHistoryRecord items which match the where clause. 
+  """ Perform a meta-query on all OrganizationEmployeeRequestHistoryRecord items which match the where clause.
   """
   _allOrganizationEmployeeRequestHistoryRecordsMeta(where: OrganizationEmployeeRequestHistoryRecordWhereInput, search: String, sortBy: [SortOrganizationEmployeeRequestHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
 
-  """ Retrieve the meta-data for the OrganizationEmployeeRequestHistoryRecord list. 
+  """ Retrieve the meta-data for the OrganizationEmployeeRequestHistoryRecord list.
   """
   _OrganizationEmployeeRequestHistoryRecordsMeta: _ListMeta
 
-  """ Search for all OrganizationEmployeeRequest items which match the where clause. 
+  """ Search for all OrganizationEmployeeRequest items which match the where clause.
   """
   allOrganizationEmployeeRequests(where: OrganizationEmployeeRequestWhereInput, search: String, sortBy: [SortOrganizationEmployeeRequestsBy!], orderBy: String, first: Int, skip: Int): [OrganizationEmployeeRequest]
 
-  """ Search for the OrganizationEmployeeRequest item with the matching ID. 
+  """ Search for the OrganizationEmployeeRequest item with the matching ID.
   """
   OrganizationEmployeeRequest(where: OrganizationEmployeeRequestWhereUniqueInput!): OrganizationEmployeeRequest
 
-  """ Perform a meta-query on all OrganizationEmployeeRequest items which match the where clause. 
+  """ Perform a meta-query on all OrganizationEmployeeRequest items which match the where clause.
   """
   _allOrganizationEmployeeRequestsMeta(where: OrganizationEmployeeRequestWhereInput, search: String, sortBy: [SortOrganizationEmployeeRequestsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
 
   """ Retrieve the meta-data for the OrganizationEmployeeRequest list. """
   _OrganizationEmployeeRequestsMeta: _ListMeta
 
-  """ Search for all PropertyHistoryRecord items which match the where clause. 
+  """ Search for all PropertyHistoryRecord items which match the where clause.
   """
   allPropertyHistoryRecords(where: PropertyHistoryRecordWhereInput, search: String, sortBy: [SortPropertyHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [PropertyHistoryRecord]
 
@@ -85964,15 +85891,15 @@ type Query {
   """ Retrieve the meta-data for the B2BAppNewsSharingConfig list. """
   _B2BAppNewsSharingConfigsMeta: _ListMeta
 
-  """ Search for all AppMessageSettingHistoryRecord items which match the where clause. 
+  """ Search for all AppMessageSettingHistoryRecord items which match the where clause.
   """
   allAppMessageSettingHistoryRecords(where: AppMessageSettingHistoryRecordWhereInput, search: String, sortBy: [SortAppMessageSettingHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [AppMessageSettingHistoryRecord]
 
-  """ Search for the AppMessageSettingHistoryRecord item with the matching ID. 
+  """ Search for the AppMessageSettingHistoryRecord item with the matching ID.
   """
   AppMessageSettingHistoryRecord(where: AppMessageSettingHistoryRecordWhereUniqueInput!): AppMessageSettingHistoryRecord
 
-  """ Perform a meta-query on all AppMessageSettingHistoryRecord items which match the where clause. 
+  """ Perform a meta-query on all AppMessageSettingHistoryRecord items which match the where clause.
   """
   _allAppMessageSettingHistoryRecordsMeta(where: AppMessageSettingHistoryRecordWhereInput, search: String, sortBy: [SortAppMessageSettingHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
 
@@ -85985,7 +85912,7 @@ type Query {
   """ Search for the AppMessageSetting item with the matching ID. """
   AppMessageSetting(where: AppMessageSettingWhereUniqueInput!): AppMessageSetting
 
-  """ Perform a meta-query on all AppMessageSetting items which match the where clause. 
+  """ Perform a meta-query on all AppMessageSetting items which match the where clause.
   """
   _allAppMessageSettingsMeta(where: AppMessageSettingWhereInput, search: String, sortBy: [SortAppMessageSettingsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
 
@@ -86458,14 +86385,14 @@ type Query {
     "type": "UNSUPPORTED_TOKEN",
     "message": "Unsupported token"
   }`
-  
+
   `{
     "code": "BAD_USER_INPUT",
     "type": "DAILY_REQUEST_LIMIT_FOR_IP_REACHED",
     "message": "Too many requests from this ip address. Try again later",
     "messageForUser": "Too many requests from this ip address. Try again later"
   }`
-  
+
   `{
     "code": "BAD_USER_INPUT",
     "type": "DAILY_REQUEST_LIMIT_FOR_PHONE_REACHED",
@@ -87127,14 +87054,14 @@ type Mutation {
   """ Update a single OrganizationEmployeeRequestHistoryRecord item by ID. """
   updateOrganizationEmployeeRequestHistoryRecord(id: ID!, data: OrganizationEmployeeRequestHistoryRecordUpdateInput): OrganizationEmployeeRequestHistoryRecord
 
-  """ Update multiple OrganizationEmployeeRequestHistoryRecord items by ID. 
+  """ Update multiple OrganizationEmployeeRequestHistoryRecord items by ID.
   """
   updateOrganizationEmployeeRequestHistoryRecords(data: [OrganizationEmployeeRequestHistoryRecordsUpdateInput]): [OrganizationEmployeeRequestHistoryRecord]
 
   """ Delete a single OrganizationEmployeeRequestHistoryRecord item by ID. """
   deleteOrganizationEmployeeRequestHistoryRecord(id: ID!): OrganizationEmployeeRequestHistoryRecord
 
-  """ Delete multiple OrganizationEmployeeRequestHistoryRecord items by ID. 
+  """ Delete multiple OrganizationEmployeeRequestHistoryRecord items by ID.
   """
   deleteOrganizationEmployeeRequestHistoryRecords(ids: [ID!]): [OrganizationEmployeeRequestHistoryRecord]
 
@@ -91705,13 +91632,13 @@ type Mutation {
 
   """
   This mutation authorizes the user by phone and password
-  
-  
-  
+
+
+
   **Errors**
-  
+
   Following objects will be presented in `extensions` property of thrown error
-  
+
   `{
     "code": "BAD_USER_INPUT",
     "type": "WRONG_PHONE_FORMAT",
@@ -91719,27 +91646,27 @@ type Mutation {
     "messageForUser": "Wrong phone number format",
     "correctExample": "+79991234567"
   }`
-  
+
   `{
     "code": "BAD_USER_INPUT",
     "type": "WRONG_CREDENTIALS",
     "message": "Wrong phone or password",
     "messageForUser": "Wrong phone or password"
   }`
-  
+
   `{
     "code": "BAD_USER_INPUT",
     "type": "CAPTCHA_CHECK_FAILED",
     "message": "Failed to check CAPTCHA",
     "messageForUser": "The operation could not be completed. Please update the application"
   }`
-  
+
   `{
     "code": "BAD_USER_INPUT",
     "type": "DV_VERSION_MISMATCH",
     "message": "Wrong value for data version number"
   }`
-  
+
   `{
     "code": "BAD_USER_INPUT",
     "type": "WRONG_FORMAT",
@@ -92112,44 +92039,44 @@ type Mutation {
 
   """
   Generates a sudo token to confirm changes to sensitive data. The user's submitted credentials are checked and if they are valid, a sudo token is returned to the user.
-  
+
   **Errors**
-  
+
   Following objects will be presented in `extensions` property of thrown error
-  
+
   `{
     "code": "BAD_USER_INPUT",
     "type": "CAPTCHA_CHECK_FAILED",
     "message": "Failed to check CAPTCHA",
     "messageForUser": "The operation could not be completed. Please update the application"
   }`
-  
+
   `{
     "code": "BAD_USER_INPUT",
     "type": "DV_VERSION_MISMATCH",
     "message": "Wrong value for data version number"
   }`
-  
+
   `{
     "code": "BAD_USER_INPUT",
     "type": "WRONG_FORMAT",
     "message": "Invalid format of \"sender\" field value. Please, check the example for details",
     "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
   }`
-  
+
   `{
     "code": "BAD_USER_INPUT",
     "type": "CREDENTIAL_VALIDATION_FAILED",
     "message": "User credentials validation failed",
     "messageForUser": "Failed to authorize user"
   }`
-  
+
   `{
     "code": "INTERNAL_ERROR",
     "type": "GENERATE_TOKEN_FAILED",
     "message": "Generate token failed"
   }`
-  
+
   `{
     "code": "BAD_USER_INPUT",
     "type": "USER_IDENTITY_INVALID",
@@ -92160,88 +92087,88 @@ type Mutation {
 
   """
   This mutation authorizes the user by token, after confirming the phone number.
-  
+
   If the user is not registered, then he will be created with the data that is passed in the payload (user data).
-  
+
   If the existing user is missing some fields, then these fields will be taken from the payload (user data) and updated.
-  
+
   This mutation is not available for service users!
-  
-  
-  
+
+
+
   **Errors**
-  
+
   Following objects will be presented in `extensions` property of thrown error
-  
+
   `{
     "code": "BAD_USER_INPUT",
     "type": "CAPTCHA_CHECK_FAILED",
     "message": "Failed to check CAPTCHA",
     "messageForUser": "The operation could not be completed. Please update the application"
   }`
-  
+
   `{
     "code": "BAD_USER_INPUT",
     "type": "DV_VERSION_MISMATCH",
     "message": "Wrong value for data version number"
   }`
-  
+
   `{
     "code": "BAD_USER_INPUT",
     "type": "WRONG_FORMAT",
     "message": "Invalid format of \"sender\" field value. Please, check the example for details",
     "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
   }`
-  
+
   `{
     "code": "BAD_USER_INPUT",
     "type": "INVALID_TOKEN",
     "message": "Invalid token",
     "messageForUser": "Invalid token"
   }`
-  
+
   `{
     "code": "BAD_USER_INPUT",
     "type": "UNSUPPORTED_TOKEN",
     "message": "Unsupported token",
     "messageForUser": "Invalid token"
   }`
-  
+
   `{
     "code": "BAD_USER_INPUT",
     "type": "DIFFERENT_PHONES",
     "message": "The verified phone and the phone from the payload cannot be different",
     "messageForUser": "You cannot specify different phones"
   }`
-  
+
   `{
     "code": "BAD_USER_INPUT",
     "type": "OPERATION_FAILED",
     "message": "The operation failed",
     "messageForUser": "Operation failed"
   }`
-  
+
   `{
     "code": "BAD_USER_INPUT",
     "type": "REQUIRED_USER_DATA_IS_MISSING",
     "message": "Some required user data was missing",
     "messageForUser": "Please fill in the required fields"
   }`
-  
+
   `{
     "code": "BAD_USER_INPUT",
     "type": "SHOULD_AUTHORIZE_WITH_EMAIL",
     "message": "You should log in to your account using a verified email to be able to log in by phone",
     "messageForUser": "To be able to log in with your phone number, you must log in to your account using a verified email"
   }`
-  
+
   `{
     "code": "BAD_USER_INPUT",
     "type": "CREDENTIAL_VALIDATION_FAILED",
     "message": "User credentials validation failed",
     "messageForUser": "Failed to authorize user"
   }`
-  
+
   `{
     "code": "BAD_USER_INPUT",
     "type": "UNAVAILABLE_TOKEN_FOR_REGISTRATION",
@@ -92421,55 +92348,55 @@ type Mutation {
 
   """
   Creates a request to join the specified organization
-  
-  
-  
+
+
+
   **Errors**
-  
+
   Following objects will be presented in `extensions` property of thrown error
-  
+
   `{
     "code": "BAD_USER_INPUT",
     "type": "USER_DOES_NOT_HAVE_PHONE",
     "message": "The user does not have a phone"
   }`
-  
+
   `{
     "code": "BAD_USER_INPUT",
     "type": "ORGANIZATION_NOT_FOUND",
     "message": "Organization not found"
   }`
-  
+
   `{
     "code": "BAD_USER_INPUT",
     "type": "REQUEST_TO_ORGANIZATION_LIMIT_REACHED",
     "message": "A request to the organization limit reached"
   }`
-  
+
   `{
     "code": "BAD_USER_INPUT",
     "type": "REQUEST_NOT_PROCESSED",
     "message": "A request not processed yet. Please wait for a decide on the request from the organization"
   }`
-  
+
   `{
     "code": "BAD_USER_INPUT",
     "type": "EMPLOYEE_ALREADY_ACCEPTED",
     "message": "An accepted employee already exist in this organization"
   }`
-  
+
   `{
     "code": "BAD_USER_INPUT",
     "type": "EMPLOYEE_INVITATION_ALREADY_SENT",
     "message": "The invitation has already been sent to the employee."
   }`
-  
+
   `{
     "code": "BAD_USER_INPUT",
     "type": "DV_VERSION_MISMATCH",
     "message": "Wrong value for data version number"
   }`
-  
+
   `{
     "code": "BAD_USER_INPUT",
     "type": "WRONG_FORMAT",
@@ -92482,55 +92409,55 @@ type Mutation {
   """
   Accepts or rejects requests to join the organization.
   If accepted, a new employee is created
-  
-  
-  
+
+
+
   **Errors**
-  
+
   Following objects will be presented in `extensions` property of thrown error
-  
+
   `{
     "code": "BAD_USER_INPUT",
     "type": "REQUEST_NEEDS_ACCEPT_OR_REJECT",
     "message": "The request must be accepted or rejected"
   }`
-  
+
   `{
     "code": "BAD_USER_INPUT",
     "type": "REQUEST_ALREADY_PROCESSED",
     "message": "The request has already been processed"
   }`
-  
+
   `{
     "code": "BAD_USER_INPUT",
     "type": "REQUEST_NOT_FOUND",
     "message": "The request not found"
   }`
-  
+
   `{
     "code": "BAD_USER_INPUT",
     "type": "EMPLOYEE_ROLE_REQUIRED",
     "message": "Employee role required"
   }`
-  
+
   `{
     "code": "BAD_USER_INPUT",
     "type": "USER_NOT_FOUND",
     "message": "No user found to join the organization"
   }`
-  
+
   `{
     "code": "BAD_USER_INPUT",
     "type": "USER_DOES_NOT_HAVE_PHONE",
     "message": "The user does not have a phone"
   }`
-  
+
   `{
     "code": "BAD_USER_INPUT",
     "type": "DV_VERSION_MISMATCH",
     "message": "Wrong value for data version number"
   }`
-  
+
   `{
     "code": "BAD_USER_INPUT",
     "type": "WRONG_FORMAT",
@@ -94304,6 +94231,42 @@ type Mutation {
   		"telegramMeta": {
   			"required": false
   		}
+  	},
+  	"B2B_APP_MESSAGE_PUSH": {
+  		"dv": {
+  			"required": true
+  		},
+  		"title": {
+  			"required": true
+  		},
+  		"body": {
+  			"required": true
+  		}
+  	},
+  	"PASS_TICKET_CREATED": {
+  		"dv": {
+  			"required": true
+  		},
+  		"data": {
+  			"openAt": {
+  				"required": true
+  			},
+  			"url": {
+  				"required": true
+  			},
+  			"stateVehicleNumber": {
+  				"required": false,
+  				"defaultValue": ""
+  			},
+  			"vehicleBrand": {
+  				"required": false,
+  				"defaultValue": ""
+  			},
+  			"guestName": {
+  				"required": false,
+  				"defaultValue": ""
+  			}
+  		}
   	}
   }`
   
@@ -94613,73 +94576,6 @@ type Mutation {
   }`
   """
   registerMetersReadings(data: RegisterMetersReadingsInput!): [RegisterMetersReadingsOutput]
-
-  """
-  Create property meter readings and, if not exists, property meters.
-  
-  Use dates in UTC format (YYYY-MM-DDTHH:mm:ss.SSSZ) or in YYYY-MM-DD. You should prefer UTC.
-  
-  **Errors**
-  
-  Following objects will be presented in `extensions` property of thrown error
-  
-  `{
-    "code": "BAD_USER_INPUT",
-    "type": "TOO_MUCH_READINGS",
-    "message": "Too much readings. ?? sent, limit is 500.",
-    "messageForUser": "Too much readings. ?? sent, limit is 500."
-  }`
-  
-  `{
-    "code": "BAD_USER_INPUT",
-    "type": "ORGANIZATION_NOT_FOUND",
-    "message": "Organization not found",
-    "messageForUser": "Organization not found"
-  }`
-  
-  `{
-    "code": "BAD_USER_INPUT",
-    "type": "PROPERTY_NOT_FOUND",
-    "message": "Property not found",
-    "messageForUser": "Property not found"
-  }`
-  
-  `{
-    "code": "BAD_USER_INPUT",
-    "type": "INVALID_METER_VALUES",
-    "message": "Invalid meter values",
-    "messageForUser": "Invalid values: \"{column}\"=\"{errorValue}\""
-  }`
-  
-  `{
-    "code": "BAD_USER_INPUT",
-    "type": "MULTIPLE_METERS_FOUND",
-    "message": "Multiple meters found",
-    "messageForUser": "Multiple meters found (??)"
-  }`
-  
-  `{
-    "code": "BAD_USER_INPUT",
-    "type": "INVALID_ACCOUNT_NUMBER",
-    "message": "Invalid account number",
-    "messageForUser": "Account number field is filled incorrectly"
-  }`
-  
-  `{
-    "code": "BAD_USER_INPUT",
-    "type": "INVALID_METER_NUMBER",
-    "message": "Invalid meter number",
-    "messageForUser": "Meter number field is filled incorrectly"
-  }`
-  
-  `{
-    "code": "BAD_USER_INPUT",
-    "type": "INVALID_DATE",
-    "message": "Invalid date",
-    "messageForUser": "Incorrect date format in column \"columnName\". Use value of \"Text\" type in format: \"YYYY-MM-DDTHH:mm:ss.SSS[Z]\", \"YYYY-MM-DD\"."
-  }`
-  """
-  registerPropertyMetersReadings(data: RegisterPropertyMetersReadingsInput!): [RegisterPropertyMetersReadingsOutput]
   registerMultiPayment(data: RegisterMultiPaymentInput!): RegisterMultiPaymentOutput
   registerMultiPaymentForOneReceipt(data: RegisterMultiPaymentForOneReceiptInput!): RegisterMultiPaymentForOneReceiptOutput
   registerMultiPaymentForVirtualReceipt(data: RegisterMultiPaymentForVirtualReceiptInput!): RegisterMultiPaymentForOneReceiptOutput
@@ -94689,13 +94585,13 @@ type Mutation {
 
   """
   Sends message of specified type from B2BApp (service user connected to B2BApp) to specified employee (user in organization)
-  
-  
-                      B2BApp must has finished context with organization and B2BAccessRight with B2BAccessRightSet with canExecuteSendB2BAppPushMessage right 
-                      between service user (who make request) and B2BApp. Employee must has a B2BAppRole with B2BApp. 
+
+
+                      B2BApp must has finished context with organization and B2BAccessRight with B2BAccessRightSet with canExecuteSendB2BAppPushMessage right
+                      between service user (who make request) and B2BApp. Employee must has a B2BAppRole with B2BApp.
                       Settings for each type of message contains in AppMessageSetting schema.
-                      Each message type has specific set of required fields which are defined in the meta field: 
-  
+                      Each message type has specific set of required fields which are defined in the meta field:
+
   `{
   	"B2B_APP_MESSAGE_PUSH": {
   		"dv": {
@@ -94761,30 +94657,30 @@ type Mutation {
   		}
   	}
   }`
-                  
-  
+
+
   **Errors**
-  
+
   Following objects will be presented in `extensions` property of thrown error
-  
+
   `{
     "code": "FORBIDDEN",
     "type": "NOT_FOUND",
     "message": "No completed B2BContext in \"Finished\" status found for the provided organization and B2BApp."
   }`
-  
+
   `{
     "code": "FORBIDDEN",
     "type": "NOT_FOUND",
     "message": "No B2BAppAccessRight found for the provided user and B2BApp."
   }`
-  
+
   `{
     "code": "FORBIDDEN",
     "type": "NOT_FOUND",
     "message": "The provided user is not an employee of the specified organization."
   }`
-  
+
   `{
     "code": "FORBIDDEN",
     "type": "NOT_FOUND",
@@ -94799,7 +94695,7 @@ type Mutation {
   """
   sendB2BAppPushMessage(data: SendB2BAppPushMessageInput!): SendB2BAppPushMessageOutput
 
-  """ Authenticate and generate a token for a User with the Password Authentication Strategy. 
+  """ Authenticate and generate a token for a User with the Password Authentication Strategy.
   """
   authenticateUserWithPassword(email: String, password: String): authenticateUserOutput
   unauthenticateUser: unauthenticateUserOutput
