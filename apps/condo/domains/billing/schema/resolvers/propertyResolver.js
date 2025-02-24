@@ -128,7 +128,7 @@ class PropertyResolver extends Resolver {
                 unitTypes = [specificUnitType]
             }
         }
-        return { addresses, unitName: get(unitNames.filter(Boolean), '[0]', ''), unitType: get(unitTypes.filter(Boolean), '[0]', '') }
+        return { addresses: addresses.filter(Boolean), unitName: get(unitNames.filter(Boolean), '[0]', ''), unitType: get(unitTypes.filter(Boolean), '[0]', '') }
     }
 
     async normalizeChunk (properties) {
