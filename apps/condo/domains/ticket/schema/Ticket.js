@@ -539,8 +539,8 @@ const Ticket = new GQLListSchema('Ticket', {
             defaultValue: false,
             isRequired: true,
         },
-        priority: {
-            schemaDoc: 'The number used to determine the relative priority of this ticket among the others',
+        customOrder: {
+            schemaDoc: 'The number used to determine the relative priority of this ticket among the others. Used by custom integrations',
             type: 'Integer',
             isRequired: true,
             defaultValue: 1,
@@ -564,8 +564,8 @@ const Ticket = new GQLListSchema('Ticket', {
                 },
             },
         },
-        customType: {
-            schemaDoc: 'Custom type for ticket. May be used by service accounts and for integration purpuses. Can be filtered against',
+        customClassifier: {
+            schemaDoc: 'Custom type or classifier for ticket. Used by custom integrations',
             type: 'Text',
             isRequired: false,
         },
