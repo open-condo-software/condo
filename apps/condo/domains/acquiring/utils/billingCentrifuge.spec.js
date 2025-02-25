@@ -7,6 +7,7 @@ const {
     hasOverpaymentReceivers,
     split,
     createRecipientKey,
+    areAllRecipientsUnique,
 } = require('./billingCentrifuge')
 
 describe('billingCentrifuge', () => {
@@ -76,6 +77,18 @@ describe('billingCentrifuge', () => {
             ]
 
             expect(() => split(amount, distribution, { feeAmount })).toThrow(`Recipient ${JSON.stringify(recipient1)} has amount=0.67 and feeAmount=100`)
+        })
+
+        test('must throw an error if there are no unique recipients', () => {
+            const paymentAmount = '1000'
+            const recipient = createTestRecipient()
+            const distribution = [
+                { recipient, amount: '800' },
+                { recipient, amount: '200', vor: true, overpaymentPart: 1 },
+            ]
+
+            expect(areAllRecipientsUnique(distribution)).toBe(false)
+            expect(() => split(paymentAmount, distribution)).toThrow('Distribution contains not unique recipients')
         })
     })
 

@@ -1,5 +1,5 @@
 const { Big } = require('big.js')
-const { get, isUndefined, omitBy, set, uniq } = require('lodash')
+const { get, set, omit } = require('lodash')
 
 /**
  * @typedef {Object} TRecipient
@@ -17,7 +17,7 @@ const { get, isUndefined, omitBy, set, uniq } = require('lodash')
 /**
  * @typedef {Object} TSplit
  * @property {TRecipient|null} recipient
- * @property {string} [amount]
+ * @property {string} [amount] The amount without fee
  * @property {string} [feeAmount]
  */
 
@@ -34,7 +34,7 @@ const { get, isUndefined, omitBy, set, uniq } = require('lodash')
 /**
  * @typedef {Object} TSplitOptions
  * @property {TSplit[]} [appliedSplits] Needed for case when payments are partial
- * @property {number} [decimalPlaces]
+ * @property {number} [decimalPlaces] The country-specific setting - how many digits are placed after the delimiter in numbers. Default value is 2.
  * @property {string} [feeAmount]
  */
 
@@ -45,10 +45,19 @@ const { get, isUndefined, omitBy, set, uniq } = require('lodash')
  * @return {TSplit[]}
  */
 function split (paymentAmount, distribution, options = {}) {
-    const { appliedSplits, decimalPlaces, feeAmount } = resolveSplitOptions(options)
+    const {
+        /** @type {TSplit[]} */
+        appliedSplits = [],
+        decimalPlaces = 2,
+        feeAmount = '0',
+    } = options
 
     if (!hasOverpaymentReceivers(distribution)) {
         throw new Error('Distribution does not have at least one item with overpaymentPart value')
+    }
+
+    if (!areAllRecipientsUnique(distribution)) {
+        throw new Error('Distribution contains not unique recipients')
     }
 
     const totalFeeAmount = Big(feeAmount)
@@ -71,13 +80,15 @@ function split (paymentAmount, distribution, options = {}) {
         return res
     }, {})
 
-    const sortedGroupKeys = uniq(Array.from(groupKeys.values())).sort()
+    const sortedGroupKeys = Array.from(groupKeys.values()).sort()
 
     let totalAppliedAmount = Big(0) // including fees
 
     const appliedAmounts = {}
     const appliedFeeAmounts = {}
     for (const split of appliedSplits) {
+        // The recipient field of the applied split may not contain the value in the case there are no fee-payers in the previous distribution
+        // Search "NO-FEE-PAYERS" in this file below
         if (!split.recipient) continue
 
         totalAppliedAmount = totalAppliedAmount.plus(split.amount || 0).plus(split.feeAmount || 0)
@@ -139,7 +150,7 @@ function split (paymentAmount, distribution, options = {}) {
                 continue
             }
 
-            const roundedShare = share.round(decimalPlaces, 1)
+            const roundedShare = share.round(decimalPlaces, Big.roundHalfUp)
             restUndistributedAmount = restUndistributedAmount.minus(roundedShare)
 
             /** @type {TSplit} */
@@ -204,7 +215,7 @@ function split (paymentAmount, distribution, options = {}) {
             const splitIndex = splits.findIndex((split) => recipientKey === createRecipientKey(split.recipient))
             const isLast = i + 1 >= distributionsWithOverpayment.length
             const overpaymentShare = isLast ? restUndistributedOverpaymentAmount : Big(d.overpaymentPart).div(totalOverpaymentReceiversParts).times(totalOverpaymentAmount)
-            const roundedOverpaymentShare = overpaymentShare.round(decimalPlaces, 1)
+            const roundedOverpaymentShare = overpaymentShare.round(decimalPlaces, Big.roundHalfUp)
             restUndistributedOverpaymentAmount = isLast ? Big(0) : restUndistributedOverpaymentAmount.minus(roundedOverpaymentShare)
             if (splitIndex >= 0) {
                 const newAmount = Big(splits[splitIndex].amount || 0).plus(roundedOverpaymentShare)
@@ -224,17 +235,18 @@ function split (paymentAmount, distribution, options = {}) {
     let restUndistributedFeeAmount = Big(feeAmount)
     if (restUndistributedFeeAmount.gt(0)) {
         let feePayersTotalSharesAmount = Big(0)
-        let hasSplitsWithFeePayers = false
+        const splitsWithFeePayerIndexes = []
         for (let i = 0; i < splits.length; i++) {
             const split = splits[i]
             const key = createRecipientKey(split.recipient)
             if (distributionsByKey[key].isFeePayer) {
                 feePayersTotalSharesAmount = feePayersTotalSharesAmount.plus(split.amount || 0)
-                hasSplitsWithFeePayers = true
+                splitsWithFeePayerIndexes.push(i)
             }
         }
-        if (hasSplitsWithFeePayers) {
-            for (let i = 0; i < splits.length; i++) {
+        if (splitsWithFeePayerIndexes.length > 0) {
+            for (let j = 0; j < splitsWithFeePayerIndexes.length; j++) {
+                const i = splitsWithFeePayerIndexes[j]
                 const recipientKey = createRecipientKey(splits[i].recipient)
                 const d = distributionsByKey[recipientKey]
                 if (!d.isFeePayer) {
@@ -243,7 +255,7 @@ function split (paymentAmount, distribution, options = {}) {
 
                 const isLast = i + 1 >= splits.length
                 const feeShare = isLast ? restUndistributedFeeAmount : Big(splits[i].amount).div(feePayersTotalSharesAmount).times(totalFeeAmount)
-                const roundedFeeShare = feeShare.round(decimalPlaces, 1)
+                const roundedFeeShare = feeShare.round(decimalPlaces, Big.roundHalfUp)
                 restUndistributedFeeAmount = isLast ? Big(0) : restUndistributedFeeAmount.minus(roundedFeeShare)
                 splits[i].feeAmount = roundedFeeShare.toString()
                 const newAmount = Big(splits[i].amount).minus(roundedFeeShare)
@@ -256,10 +268,8 @@ function split (paymentAmount, distribution, options = {}) {
             // There are no receivers who must pay fee, but feeAmount was set.
             // So we decrease origin sum and distribute without fee
             // Than add extracted fee to separated split without recipient
-            const splitsWithoutFee = split(Big(paymentAmount).minus(feeAmount).toString(), distribution, {
-                ...options,
-                feeAmount: undefined,
-            })
+            // NO-FEE-PAYERS
+            const splitsWithoutFee = split(Big(paymentAmount).minus(feeAmount).toString(), distribution, omit(options, ['feeAmount']))
             splitsWithoutFee.push({
                 recipient: null,
                 feeAmount,
@@ -270,20 +280,6 @@ function split (paymentAmount, distribution, options = {}) {
     }
 
     return splits
-}
-
-/**
- * @param {TSplitOptions} options
- * @return {TSplitOptions}
- */
-function resolveSplitOptions (options) {
-    return {
-        /** @type {TSplit[]} */
-        appliedSplits: [],
-        decimalPlaces: 2,
-        feeAmount: '0',
-        ...omitBy(options, isUndefined),
-    }
 }
 
 /**
@@ -334,10 +330,21 @@ function createRecipientKey (recipient) {
     return `${recipient.tin}_${recipient.bic}_${recipient.bankAccount}`
 }
 
+/**
+ * @param {TDistribution[]} distribution
+ * @returns {boolean}
+ */
+function areAllRecipientsUnique (distribution) {
+    const uniqRecipientsKeys = new Set(distribution.map((d) => createRecipientKey(d.recipient)))
+
+    return uniqRecipientsKeys.size === distribution.length
+}
+
 module.exports = {
     split,
     hasSingleVorItem,
     hasOverpaymentReceivers,
     createRecipientKey,
     hasFeePayers,
+    areAllRecipientsUnique,
 }

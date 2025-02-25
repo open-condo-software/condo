@@ -2408,6 +2408,57 @@ describe('Invoice', () => {
                         message: 'Distribution does not have at least one item with overpaymentPart value',
                     })
                 })
+
+                test('not unique recipients', async () => {
+                    await expectToThrowGQLError(async () => {
+                        await createTestInvoice(serviceClient, o10n, {
+                            rows,
+                            amountDistribution: [
+                                { recipient: recipient1, amount: '200', vor: true },
+                                { recipient: recipient1, amount: '300', isFeePayer: true },
+                            ],
+                        })
+                    }, {
+                        code: 'BAD_USER_INPUT',
+                        type: 'NOT_UNIQUE_RECIPIENTS',
+                        message: 'Distribution contains not unique recipients',
+                    })
+                })
+
+                test('no recipients set', async () => {
+                    await expectToThrowGQLError(async () => {
+                        await createTestInvoice(serviceClient, o10n, {
+                            rows,
+                            amountDistribution: [],
+                        })
+                    }, {
+                        code: 'BAD_USER_INPUT',
+                        type: 'WRONG_AMOUNT_DISTRIBUTION',
+                        message: '"amountDistribution" field validation error. JSON was not in the correct format',
+                        errors: [expect.objectContaining({ message: 'must NOT have fewer than 1 items' })],
+                    })
+                })
+
+                test('5+ recipients set', async () => {
+                    await expectToThrowGQLError(async () => {
+                        await createTestInvoice(serviceClient, o10n, {
+                            rows,
+                            amountDistribution: [
+                                { recipient: createTestRecipient(), amount: '100', vor: true },
+                                { recipient: createTestRecipient(), amount: '100', isFeePayer: true },
+                                { recipient: createTestRecipient(), amount: '100' },
+                                { recipient: createTestRecipient(), amount: '100' },
+                                { recipient: createTestRecipient(), amount: '50' },
+                                { recipient: createTestRecipient(), amount: '50' },
+                            ],
+                        })
+                    }, {
+                        code: 'BAD_USER_INPUT',
+                        type: 'WRONG_AMOUNT_DISTRIBUTION',
+                        message: '"amountDistribution" field validation error. JSON was not in the correct format',
+                        errors: [expect.objectContaining({ message: 'must NOT have more than 5 items' })],
+                    })
+                })
             })
         })
     })
