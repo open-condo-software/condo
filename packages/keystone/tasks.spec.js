@@ -1,3 +1,4 @@
+const { getKVClient } = require('./kv')
 const { createTask, createWorker, taskQueues } = require('./tasks')
 
 function createTaskFactory () {
@@ -8,6 +9,8 @@ function createTaskFactory () {
 }
 
 beforeAll(async () => {
+    const kv = getKVClient()
+    await kv.set('data_version', 2)
     return await createWorker()
 })
 
