@@ -6,12 +6,6 @@ const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keys
 const { find } = require('@open-condo/keystone/schema')
 
 const {
-    AMOUNT_DISTRIBUTION_FIELD_NAME,
-    AMOUNT_DISTRIBUTION_INPUT_NAME,
-    AMOUNT_DISTRIBUTION_SCHEMA_FIELD,
-    AMOUNT_DISTRIBUTION_SCHEMA_INPUT,
-} = require('@condo/domains/acquiring/constants/gql')
-const {
     RECIPIENT_FIELD_NAME,
     RECIPIENT_INPUT_NAME,
     RECIPIENT_FIELDS_DEFINITION,
@@ -21,6 +15,7 @@ const {
     hasOverpaymentReceivers,
     hasSingleVorItem,
     hasFeePayers,
+    areAllRecipientsUnique,
 } = require('@condo/domains/acquiring/utils/billingCentrifuge')
 const {
     WRONG_AMOUNT_DISTRIBUTION_ERROR_TYPE,
@@ -29,11 +24,17 @@ const {
     AMOUNT_DISTRIBUTION_FIELD_NO_VOR_IN_GROUP_ERROR_TYPE,
     AMOUNT_DISTRIBUTION_FIELD_NO_FEE_PAYER_ERROR_TYPE,
     AMOUNT_DISTRIBUTION_FIELD_NO_OVERPAYMENT_RECEIVER_ERROR_TYPE,
+    AMOUNT_DISTRIBUTION_FIELD_NOT_UNIQUE_RECIPIENTS_ERROR_TYPE,
 } = require('@condo/domains/billing/constants/errors')
 const { render, getGQLErrorValidator } = require('@condo/domains/common/schema/json.utils')
 const { SERVICE } = require('@condo/domains/user/constants/common')
 
 const DEFAULT_TO_PAY_FIELD_NAME = 'toPay'
+
+const AMOUNT_DISTRIBUTION_FIELD_NAME = 'AmountDistributionField'
+const AMOUNT_DISTRIBUTION_INPUT_NAME = 'AmountDistributionFieldInput'
+const AMOUNT_DISTRIBUTION_SCHEMA_FIELD = `[${AMOUNT_DISTRIBUTION_FIELD_NAME}!]`
+const AMOUNT_DISTRIBUTION_SCHEMA_INPUT = `[${AMOUNT_DISTRIBUTION_INPUT_NAME}!]`
 
 const ERRORS = {
     NO_APPROVED_BANK_ACCOUNT: (notApprovedRecipients) => ({
@@ -64,6 +65,11 @@ const ERRORS = {
         type: AMOUNT_DISTRIBUTION_FIELD_NO_OVERPAYMENT_RECEIVER_ERROR_TYPE,
         message: 'Distribution does not have at least one item with overpaymentPart value',
     },
+    NOT_UNIQUE_RECIPIENTS: {
+        code: BAD_USER_INPUT,
+        type: AMOUNT_DISTRIBUTION_FIELD_NOT_UNIQUE_RECIPIENTS_ERROR_TYPE,
+        message: 'Distribution contains not unique recipients',
+    },
 }
 
 function getFields (isInput = false) {
@@ -92,7 +98,13 @@ const AMOUNT_DISTRIBUTION_QUERY_LIST = `recipient { ${Object.keys(RECIPIENT_FIEL
 const ajv = new Ajv()
 const feeDistributionJsonSchema = {
     type: 'object',
+    /**
+     * @see {import('@app/condo/domains/acquiring/utils/billingCentrifuge').TDistribution}
+     */
     properties: {
+        /**
+         * @see {import('@app/condo/domains/acquiring/utils/billingCentrifuge').TRecipient}
+         */
         recipient: RecipientSchema,
         amount: { type: 'string' },
         order: { type: 'number' },
@@ -107,6 +119,9 @@ const feeDistributionJsonSchema = {
 const feeDistributionsJsonSchema = {
     type: 'array',
     items: feeDistributionJsonSchema,
+    minItems: 1,
+    maxItems: 5,
+    uniqueItems: true,
 }
 
 const jsonValidator = ajv.compile(feeDistributionsJsonSchema)
@@ -135,7 +150,7 @@ const canManageField = async (args) => {
 }
 
 const AMOUNT_DISTRIBUTION_FIELD = {
-    schemaDoc: 'This optional field stores how to distribute amount between several receivers. Applicable to models with `toPay` field',
+    schemaDoc: `This optional field stores how to distribute amount between several receivers. Applicable to models with "${DEFAULT_TO_PAY_FIELD_NAME}" field.`,
     type: 'Json',
     isRequired: false,
     extendGraphQLTypes: [AMOUNT_DISTRIBUTION_GRAPHQL_TYPES],
@@ -156,22 +171,23 @@ const AMOUNT_DISTRIBUTION_FIELD = {
             const distribution = get(resolvedData, fieldPath)
             const nextToPay = get(resolvedData, DEFAULT_TO_PAY_FIELD_NAME, get(existingItem, DEFAULT_TO_PAY_FIELD_NAME))
 
+            // Checking if recipients are uniq
+            if (!areAllRecipientsUnique(distribution)) {
+                throw new GQLError(ERRORS.NOT_UNIQUE_RECIPIENTS, context)
+            }
+
             // Checking for every recipient has an approved mirrored BankAccount
             /** @type {BankAccount[]} */
             const bankAccounts = await find('BankAccount', {
-                OR: distribution.reduce((res, { recipient }) => {
-                    res.push({
-                        AND: [
-                            { tin: recipient.tin },
-                            { routingNumber: recipient.bic },
-                            { number: recipient.bankAccount },
-                            { isApproved: true },
-                            { deletedAt: null },
-                        ],
-                    })
-
-                    return res
-                }, []),
+                OR: distribution.map(({ recipient }) => ({
+                    AND: [
+                        { tin: recipient.tin },
+                        { routingNumber: recipient.bic },
+                        { number: recipient.bankAccount },
+                        { isApproved: true },
+                        { deletedAt: null },
+                    ],
+                })),
             })
             const distributionsWithNotApprovedRecipients = distribution.filter(({ recipient: r }) => {
                 return bankAccounts.findIndex((b) => b.tin === r.tin && b.routingNumber === r.bic && b.number === r.bankAccount) < 0
@@ -196,10 +212,9 @@ const AMOUNT_DISTRIBUTION_FIELD = {
                 return res
             }, {})
 
-            for (const strIndex in Object.values(groupedDistributions)) {
-                const order = Number(strIndex)
-                if (!hasSingleVorItem(groupedDistributions[order])) {
-                    throw new GQLError(ERRORS.NO_VOR_IN_GROUP(order), context)
+            for (const [order, group] of Object.entries(groupedDistributions)) {
+                if (!hasSingleVorItem(group)) {
+                    throw new GQLError(ERRORS.NO_VOR_IN_GROUP(Number(order)), context)
                 }
             }
 
