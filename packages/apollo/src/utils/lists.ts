@@ -109,7 +109,10 @@ export class ListHelper {
     }
 
     /**
-     * Read function, which implements paginated reading from cache
+     * Read function that implements paginated reading from cache.
+     * Returns a slice of the cached list based on pagination arguments.
+     * Includes validation of data integrity by checking for broken references
+     * (references to objects that don't exist in the cache).
      */
     private _readSlicePage<TData, TOptions extends FieldFunctionOptions>(
         existing: ReadonlyArray<TData> | undefined,
@@ -134,10 +137,9 @@ export class ListHelper {
     }
 
     /**
-     *
-     * @param existing
-     * @param options
-     * @private
+     * Read function that returns the complete list from cache without pagination.
+     * Includes validation of data integrity by checking for broken references
+     * (references to objects that don't exist in the cache).
      */
     private _readAllList<TData, TOptions extends FieldFunctionOptions>(
         existing: ReadonlyArray<TData> | undefined,
