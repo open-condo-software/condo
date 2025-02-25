@@ -1,5 +1,6 @@
 /** @jsx jsx */
-import { TicketStatusTypeType as TicketStatusType } from '@app/condo/schema'
+import { useGetCustomValuesForObjectQuery } from '@app/condo/gql'
+import { TicketStatusTypeType as TicketStatusType, CustomFieldSchemaNameType } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
 import { Row, Col, Space, RowProps } from 'antd'
 import dayjs from 'dayjs'
@@ -29,7 +30,6 @@ import { PropertyDocuments } from '@condo/domains/property/components/PropertyDo
 import { PropertyReportCard } from '@condo/domains/property/components/PropertyReportCard'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
-
 const PROPERTY_PAGE_CONTENT_ROW_GUTTER: RowProps['gutter'] = [12, 40]
 const PROPERTY_PAGE_CONTENT_ROW_INFO_BLOCK_GUTTER: RowProps['gutter'] = [52, 24]
 const PROPERTY_PAGE_CONTENT_ROW_INFO_BLOCK_STYLE: React.CSSProperties = { marginTop: '80px', marginRight: '-20px' }
@@ -37,7 +37,7 @@ const PROPERTY_PAGE_CONTENT_ROW_STYLE: React.CSSProperties = { marginTop: '60px'
 const PROPERTY_PAGE_SPACE_STYLE: React.CSSProperties = { width: '100%' }
 
 
-export const PropertyPageContent = ({ property, role = null, organizationId = null }) => {
+export const PropertyPageContent = ({ propertyCustomValues, property, role = null, organizationId = null }) => {
     const intl = useIntl()
     const UnitsCountTitle = intl.formatMessage({ id: 'pages.condo.property.id.UnitsCount' })
     const UninhabitedUnitsCountTitle = intl.formatMessage({ id: 'pages.condo.property.id.UninhabitedUnitsCountTitle' })
@@ -59,6 +59,8 @@ export const PropertyPageContent = ({ property, role = null, organizationId = nu
     const ParkingNotAvailableTitle = intl.formatMessage({ id: 'global.notAvailable' })
     const MapTabTitle = intl.formatMessage({ id: 'pages.condo.property.form.BuildingTabTitle' })
     const DocumentsTitle = intl.formatMessage({ id: 'documents.title' })
+
+    console.log(propertyCustomValues)
 
     const { push } = useRouter()
     const { breakpoints } = useLayoutContext()
@@ -106,8 +108,10 @@ export const PropertyPageContent = ({ property, role = null, organizationId = nu
             label: ParkingTitle,
             value: get(property, ['map', 'parking', 'length']) ? ParkingAvailableTitle : ParkingNotAvailableTitle,
         },
+        ...propertyCustomValues?.map(x => ({ label: get(x, ['customField', 'name']), value: get(x, 'data') }))
     ], [AreaTitle, property, ParkingTitle, UnitsCountTitle, UninhabitedUnitsCountTitle, yearOfConstructionCardLabel,
-        UnknownValueTitle, YearOfConstructionTitle, ParkingAvailableTitle, ParkingNotAvailableTitle])
+        UnknownValueTitle, YearOfConstructionTitle, ParkingAvailableTitle, ParkingNotAvailableTitle, propertyCustomValues])
+
     const propertyTicketDataSource = useMemo<ListProps['dataSource']>(() => [
         {
             label: TicketsInWorkTitle,
@@ -258,7 +262,7 @@ const PropertyIdPage: PageComponentType = () => {
 
     const organizationId = get(organization, 'id', null)
 
-    const { loading, obj: property, error } = Property.useObject({
+    const { loading: propertyLoading, obj: property, error: propertyError } = Property.useObject({
         where: {
             id: id as string,
             organization: {
@@ -266,6 +270,20 @@ const PropertyIdPage: PageComponentType = () => {
             },
         },
     })
+
+    const { loading: propertyCustomValuesLoading, data: propertyCustomValues, error: propertyCustomValuesError } = useGetCustomValuesForObjectQuery(
+        {
+            variables: {
+                schemaName: CustomFieldSchemaNameType.Property,
+                objectId: get(property, 'id')
+            },
+            skip: !property,
+            fetchPolicy: 'cache-first'
+        }
+    )
+
+    const loading = propertyLoading || propertyCustomValuesLoading
+    const error = propertyError || propertyCustomValuesError
 
     if (error || loading) {
         return <LoadingOrErrorPage title={PageTitleMsg} loading={loading} error={error ? ServerErrorMsg : null}/>
@@ -283,6 +301,7 @@ const PropertyIdPage: PageComponentType = () => {
             <PageContent>
                 <PropertyPageContent
                     property={property}
+                    propertyCustomValues={propertyCustomValues.customValues}
                     role={link.role}
                     organizationId={link.organization.id}
                 />
