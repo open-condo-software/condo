@@ -476,12 +476,12 @@ const Ticket = new GQLListSchema('Ticket', {
             isRequired: true,
             access: readOnlyFieldAccess,
         },
+        // description / title
         title: {
-            schemaDoc: 'Very short description of the issue',
+            schemaDoc: 'Very short description of the issue. Will be filled via LLM in the future',
             type: 'Text',
             isRequired: false,
         },
-        // description / title
         details: {
             schemaDoc: 'Text description of the issue. Maybe written by a user or an operator',
             type: 'Text',
@@ -528,6 +528,12 @@ const Ticket = new GQLListSchema('Ticket', {
             defaultValue: false,
             isRequired: true,
         },
+        isInsurance: {
+            schemaDoc: 'Indicates the ticket is insurance',
+            type: 'Checkbox',
+            defaultValue: false,
+            isRequired: true,
+        },
         isResidentTicket: {
             schemaDoc: 'Determines who the ticket was created for: for a resident or not for a resident',
             type: 'Checkbox',
@@ -539,12 +545,7 @@ const Ticket = new GQLListSchema('Ticket', {
             defaultValue: false,
             isRequired: true,
         },
-        customOrder: {
-            schemaDoc: 'The number used to determine the relative priority of this ticket among the others. Used by custom integrations',
-            type: 'Integer',
-            isRequired: true,
-            defaultValue: 1,
-        },
+
         meta: {
             schemaDoc: 'Extra analytics not related to remote system',
             type: 'Json',
@@ -564,11 +565,34 @@ const Ticket = new GQLListSchema('Ticket', {
                 },
             },
         },
+
+        priority: {
+            schemaDoc: 'The number used to determine priority of this ticket. Like in JIRA. Default value is: 100. ' +
+                'Preferred values are: 100, 200, 300, 400, 500. 500 is the highest',
+            type: 'Integer',
+            isRequired: true,
+            defaultValue: 100,
+        },
+
+        kanbanColumn: {
+            schemaDoc: 'Custom id for kanban column. Should be used if it is not enough to map statuses to columns. Used by custom integrations',
+            type: 'Text',
+            isRequired: false,
+        },
+
+        kanbanOrder: {
+            schemaDoc: 'The number used to determine the relative position of this ticket inside of kanban column. Used by custom integrations',
+            type: 'Integer',
+            isRequired: true,
+            defaultValue: 1,
+        },
+
         customClassifier: {
             schemaDoc: 'Custom type or classifier for ticket. Used by custom integrations',
             type: 'Text',
             isRequired: false,
         },
+
         // Where?
         // building/community
         // entrance/section
