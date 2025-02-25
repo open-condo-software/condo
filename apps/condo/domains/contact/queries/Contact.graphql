@@ -23,6 +23,19 @@ query getContactById ($id: ID!) {
     }
 }
 
+query getFlatContactByUnit ($propertyId: ID!, $unitName: String!, $unitType: ContactUnitTypeType!) {
+    contacts: allContacts(
+        where: { unitName: $unitName, unitType: $unitType, property: { id: $propertyId } }
+    ) {
+        id
+        name
+        email
+        phone
+        role { name }
+        isVerified
+    }
+}
+
 query getContactsExistence ($where: ContactWhereInput) {
     contacts: allContacts(
         first: 1
