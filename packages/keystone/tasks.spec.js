@@ -8,17 +8,17 @@ function createTaskFactory () {
     }
 }
 
-beforeAll(async () => {
-    const kv = getKVClient()
-    await kv.set('data_version', 2)
-    return await createWorker()
-})
-
-afterAll(async () => {
-    await Promise.all(Array.from(taskQueues.entries()).map(([,queue]) => queue.close()))
-})
-
 describe('tasks', () => {
+    beforeAll(async () => {
+        const kv = getKVClient()
+        await kv.set('data_version', 2)
+        return await createWorker()
+    })
+
+    afterAll(async () => {
+        await Promise.all(Array.from(taskQueues.entries()).map(([,queue]) => queue.close()))
+    })
+
     test('createTask result', () => {
         const task = createTask('asyncAddTask1', createTaskFactory())
         expect(task).toHaveProperty('delay')
