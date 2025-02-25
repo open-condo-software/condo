@@ -303,7 +303,7 @@ describe('SendB2BAppPushMessageService', () => {
                 variable: ['data', 'meta', 'data', 'url'],
                 code: 'BAD_USER_INPUT',
                 type: 'WRONG_VALUE',
-                message: `Invalid URL: must start with ${conf.SERVER_URL} and be safe`,
+                message: 'Invalid URL: must start with server url and be safe',
             })
         })
     })

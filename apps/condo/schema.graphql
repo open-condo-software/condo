@@ -93641,7 +93641,7 @@ type Mutation {
   `{
     "code": "BAD_USER_INPUT",
     "type": "WRONG_VALUE",
-    "message": "Invalid URL: must start with https://condo.app.localhost:8007 and be safe"
+    "message": "Invalid URL: must start with server url and be safe"
   }`
   """
   sendB2BAppPushMessage(data: SendB2BAppPushMessageInput!): SendB2BAppPushMessageOutput
