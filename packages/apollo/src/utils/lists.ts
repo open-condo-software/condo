@@ -51,7 +51,7 @@ function hasBrokenLinks (
     cache: NormalizedCacheObject,
 ) {
     return list.some((link) => {
-        if (hasRef(link) && typeof cache === 'object') {
+        if (hasRef(link) && typeof cache === 'object' && cache !== null) {
             const ref: string = link.__ref
             return ref !== '' && !(ref in cache)
         }
@@ -151,7 +151,7 @@ export class ListHelper {
 
         const cache: NormalizedCacheObject | undefined = options?.cache?.extract?.()
 
-        const list = existing?.filter(Boolean)
+        const list = existing.filter(Boolean)
         if (!cache || hasBrokenLinks(list, cache)) {
             return undefined
         }
