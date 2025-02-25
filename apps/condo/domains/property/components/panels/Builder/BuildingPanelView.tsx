@@ -1,4 +1,5 @@
-import { BuildingMap, BuildingUnitSubType } from '@app/condo/schema'
+import { useGetFlatContactByUnitQuery } from '@app/condo/gql'
+import { BuildingMap, BuildingUnit, BuildingUnitSubType, Property as PropertyType } from '@app/condo/schema'
 import { Col, Row, RowProps } from 'antd'
 import cloneDeep from 'lodash/cloneDeep'
 import get from 'lodash/get'
@@ -7,6 +8,7 @@ import React, { useState, useCallback, useMemo } from 'react'
 import ScrollContainer from 'react-indiana-drag-scroll'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Tooltip } from '@open-condo/ui'
 
 import { IPropertyMapFormProps } from '@condo/domains/property/components/BasePropertyMapForm'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
@@ -22,7 +24,6 @@ import {
 import { AddressTopTextContainer } from './BuildingPanelEdit'
 import { FullscreenWrapper, FullscreenHeader } from './Fullscreen'
 import { MapView, MapViewMode } from './MapConstructor'
-import {Tooltip} from "@open-condo/ui";
 
 
 
@@ -69,6 +70,87 @@ const FLOOR_CONTAINER_STYLE: React.CSSProperties = { display: 'block' }
 const UNIT_TYPE_ROW_STYLE: React.CSSProperties = { paddingLeft: '8px' }
 const FULLSCREEN_HEADER_STYLE: React.CSSProperties = { marginBottom: '28px', alignItems: 'center' }
 const UNIT_TYPE_ROW_GUTTER: RowProps['gutter'] = [42, 0]
+const TOOLTIP_MAX_CONTACT_DETAILS = 5
+
+interface IUnitTooltipProps {
+    property: PropertyType
+    unit: BuildingUnit
+}
+
+export const UnitTooltip: React.FC<IUnitTooltipProps> = ({ property,  unit }) => {
+    const { label: unitName, unitType } = unit
+
+    const intl = useIntl()
+    const FieldUnitTypeMessage = intl.formatMessage({ id: 'field.UnitType' })
+    const FieldUnitNameMessage = intl.formatMessage({ id: 'field.UnitName' })
+    const UnitTypeMessage = intl.formatMessage({ id: `field.UnitType.${unitType}` })
+
+    const {
+        data: contactsData,
+        loading: contactsLoading,
+        error: contactsError,
+    } = useGetFlatContactByUnitQuery({
+        variables: {
+            propertyId: property.id,
+            unitName: unitName,
+            unitType: unitType,
+        },
+        fetchPolicy: 'cache-first',
+    })
+
+    const contactsLines = useMemo(() => {
+        if (contactsLoading) {
+            return ['Жители: ...']
+        }
+        if (!contactsLoading && contactsData && Array.isArray(contactsData.contacts)) {
+            if (contactsData.contacts.length === 0) {
+                return ['В это помещение жители пока не добавлены в платформе Doma.ai']
+            }
+            if (contactsData.contacts.length === 1) {
+                const contact = contactsData.contacts[0]
+
+                const result = [
+                    `ФИО жителя: ${contact.name} ${contact?.role?.name ? `(${contact?.role?.name})` : ''}`,
+                    `Телефон: ${contact.phone}`,
+                ]
+
+                if (contact.isVerified) {
+                    result.push('Житель верифицирован')
+                }
+
+                return result
+            }
+            else {
+                const totalContacts = contactsData.contacts.length
+
+                const contactNames = []
+                for (let i = 0; i < Math.min(totalContacts, TOOLTIP_MAX_CONTACT_DETAILS); ++i) {
+                    contactNames.push(contactsData.contacts[i].name)
+                }
+
+                if (totalContacts > TOOLTIP_MAX_CONTACT_DETAILS) {
+                    contactNames.push('и другие')
+                }
+
+                return [`Зарегистрировано жителей ${totalContacts} (${contactNames.join(',')})`]
+            }
+        }
+        if (!contactsLoading && contactsError) {
+            return ['Произошла ошибка при получении информации о жителях']
+        }
+        return []
+    }, [contactsLoading, contactsData, contactsError])
+
+    const lines = [
+        ...contactsLines,
+        `${FieldUnitNameMessage}: ${unitName}`,
+        `${FieldUnitTypeMessage}: ${UnitTypeMessage}`,
+    ]
+
+    return <>
+        { lines.map(line => (<>{line}<br/></>)) }
+    </>
+}
 
 export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refresh, canManageProperties = false }) => {
     const intl = useIntl()
@@ -181,14 +263,17 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refr
                                                                             return (
                                                                                 <Tooltip
                                                                                     key={unit.id}
-                                                                                    overlayInnerStyle={{ whiteSpace: 'pre-line' }}
-                                                                                    title='prompt \r\n text'
+                                                                                    title={<UnitTooltip property={property} unit={unit} />}
+                                                                                    // We need a custom, longer, delay here because to render UnitTooltip one need to make HTTP requests
+                                                                                    mouseEnterDelay={0.3}
                                                                                 >
                                                                                     <UnitButton
                                                                                         key={unit.id}
                                                                                         noninteractive
                                                                                         unitType={unit.unitType}
-                                                                                    >{unit.label}</UnitButton>
+                                                                                    >
+                                                                                        {unit.label}
+                                                                                    </UnitButton>
                                                                                 </Tooltip>
                                                                             )
                                                                         })
