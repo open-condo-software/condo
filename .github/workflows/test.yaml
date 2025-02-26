@@ -42,6 +42,7 @@ jobs:
         with:
           node-version: 16.x
           cache: 'yarn'
+      - run: yarn workspaces focus root
       - run: node bin/collect-failed-tests.js
         env:
           PROMETHEUS_RW_SERVER_URL: ${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }}
