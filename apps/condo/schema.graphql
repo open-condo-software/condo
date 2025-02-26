@@ -65909,6 +65909,7 @@ enum B2BAppIconType {
   ArrowRight
   BarChartHorizontal
   BarChartVertical
+  Bell
   Bill
   Briefcase
   Building
@@ -91640,6 +91641,14 @@ type Mutation {
   			"organizationName": {
   				"defaultValue": "",
   				"required": true
+  			},
+  			"authorType": {
+  				"defaultValue": "",
+  				"required": true
+  			},
+  			"authorName": {
+  				"defaultValue": "",
+  				"required": true
   			}
   		},
   		"telegramMeta": {
@@ -93163,24 +93172,51 @@ type Mutation {
   			"required": true
   		},
   		"data": {
+  			"organizationName": {
+  				"required": true
+  			},
+  			"number": {
+  				"required": true
+  			},
+  			"propertyAddress": {
+  				"required": true
+  			},
+  			"unit": {
+  				"required": true
+  			},
+  			"client": {
+  				"required": true
+  			},
   			"openAt": {
   				"required": true
   			},
   			"url": {
   				"required": true
   			},
-  			"stateVehicleNumber": {
-  				"required": false,
-  				"defaultValue": ""
+  			"comment": {
+  				"required": true
   			},
-  			"vehicleBrand": {
-  				"required": false,
-  				"defaultValue": ""
+  			"passTicketType": {
+  				"required": true
+  			},
+  			"guest": {
+  				"required": true
   			},
   			"guestName": {
-  				"required": false,
-  				"defaultValue": ""
+  				"required": true
+  			},
+  			"vehicle": {
+  				"required": true
+  			},
+  			"vehicleBrand": {
+  				"required": true
+  			},
+  			"stateVehicleNumber": {
+  				"required": true
   			}
+  		},
+  		"telegramMeta": {
+  			"required": false
   		}
   	}
   }`
@@ -93524,24 +93560,51 @@ type Mutation {
   			"required": true
   		},
   		"data": {
+  			"organizationName": {
+  				"required": true
+  			},
+  			"number": {
+  				"required": true
+  			},
+  			"propertyAddress": {
+  				"required": true
+  			},
+  			"unit": {
+  				"required": true
+  			},
+  			"client": {
+  				"required": true
+  			},
   			"openAt": {
   				"required": true
   			},
   			"url": {
   				"required": true
   			},
-  			"stateVehicleNumber": {
-  				"required": false,
-  				"defaultValue": ""
+  			"comment": {
+  				"required": true
   			},
-  			"vehicleBrand": {
-  				"required": false,
-  				"defaultValue": ""
+  			"passTicketType": {
+  				"required": true
+  			},
+  			"guest": {
+  				"required": true
   			},
   			"guestName": {
-  				"required": false,
-  				"defaultValue": ""
+  				"required": true
+  			},
+  			"vehicle": {
+  				"required": true
+  			},
+  			"vehicleBrand": {
+  				"required": true
+  			},
+  			"stateVehicleNumber": {
+  				"required": true
   			}
+  		},
+  		"telegramMeta": {
+  			"required": false
   		}
   	}
   }`
@@ -93573,6 +93636,12 @@ type Mutation {
     "code": "FORBIDDEN",
     "type": "NOT_FOUND",
     "message": "No B2BAppRole found for the provided user, organization and B2BApp"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_VALUE",
+    "message": "Invalid URL: must start with server url and be safe"
   }`
   """
   sendB2BAppPushMessage(data: SendB2BAppPushMessageInput!): SendB2BAppPushMessageOutput

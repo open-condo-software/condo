@@ -36,7 +36,9 @@ export function usePollTicketComments ({
         skip: true,
     })
 
-    const { sendMessage } = useBroadcastChannel<string[]>(BROADCAST_CHANNEL_NAME, async (ticketIdsWithUpdatedComments) => {
+    const {
+        sendMessageToBroadcastChannel,
+    } = useBroadcastChannel<string[]>(BROADCAST_CHANNEL_NAME, async (ticketIdsWithUpdatedComments) => {
         if (ticketIdsWithUpdatedComments.includes(get(ticket, 'id'))) {
             await refetchTicketComments()
         }
@@ -63,21 +65,13 @@ export function usePollTicketComments ({
         ))
 
         if (!isEmpty(ticketsWithUpdatedComments)) {
-            sendMessage(ticketsWithUpdatedComments)
+            sendMessageToBroadcastChannel(ticketsWithUpdatedComments)
         }
-    }, [pollCommentsQuery, refetchSyncComments, sendMessage])
+    }, [pollCommentsQuery, refetchSyncComments, sendMessageToBroadcastChannel])
 
-    const { releaseLock } = useExecuteWithLock(LOCK_NAME, () => {
+    useExecuteWithLock(LOCK_NAME, () => {
         intervalRef.current = setInterval(pollTicketComments, COMMENT_RE_FETCH_INTERVAL_IN_MS)
     })
-
-    useEffect(() => {
-        return () => {
-            if (releaseLock) {
-                return releaseLock()
-            }
-        }
-    }, [releaseLock])
 
     useEffect(() => {
         return () => {
