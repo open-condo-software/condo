@@ -1,3 +1,5 @@
+const { fetch } = require('@open-condo/keystone/fetch')
+
 
 const PROMETHEUS_URL = process.env.PROMETHEUS_RW_SERVER_URL
 const PROMETHEUS_USER = process.env.PROMETHEUS_USER
