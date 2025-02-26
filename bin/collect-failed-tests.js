@@ -62,7 +62,6 @@ async function collectFailedTests () {
     const response = await fetch(PROMETHEUS_URL, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
             'Authorization': ['Basic', Buffer.from(`${PROMETHEUS_USER}:${PROMETHEUS_PASSWORD}`).toString('base64')].join(' '),
         },
         body: metrics,
