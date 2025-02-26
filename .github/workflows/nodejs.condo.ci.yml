@@ -6,7 +6,7 @@ on:
       - main
 
   # NOTE: change pull_request_target to pull_request if you want to change the CI in your branch
-  pull_request_target:
+  pull_request:
     types:
       - opened
       - reopened
@@ -66,6 +66,11 @@ jobs:
           submodules: recursive
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
           ref: ${{ env.REF }}
+      - name: push new image for builds
+        run: |
+          docker pull moby/buildkit:buildx-stable-1
+          docker tag moby/buildkit:buildx-stable-1 ${{ secrets.DOCKER_REGISTRY }}/doma/utils/buildkit:buildx-stable-2
+          docker push ${{ secrets.DOCKER_REGISTRY }}/doma/utils/buildkit:buildx-stable-2
       - name: Prune repo to filter out yarn.lock and package.json
         run: |
           bash bin/prune.sh
@@ -80,7 +85,7 @@ jobs:
           endpoint: builders
           driver-opts: |
             env.BUILDKIT_STEP_LOG_MAX_SIZE=10485760
-            image=${{ secrets.DOCKER_REGISTRY }}/doma/utils/buildkit:buildx-stable-1
+            image=${{ secrets.DOCKER_REGISTRY }}/doma/utils/buildkit:buildx-stable-2
       - name: Build repo image
         uses: docker/build-push-action@v5
         with:
