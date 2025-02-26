@@ -1,4 +1,5 @@
 const fetch = require('node-fetch')
+const client = require('prom-client')
 
 
 const PROMETHEUS_URL = process.env.PROMETHEUS_RW_SERVER_URL
@@ -42,10 +43,35 @@ async function sendFailedTest (testData) {
 }
 
 async function collectFailedTests () {
-    await sendFailedTest({
-        testFile: 'my.test.js',
-        testName: 'my test name',
+    const register = new client.Registry()
+    const failedTestMetric = new client.Counter({
+        name: 'failed_test',
+        help: 'A custom test metric for Grafana Prometheus',
+        labelNames: ['test_file', 'test_name'],
     })
+
+    register.registerMetric(failedTestMetric)
+
+    failedTestMetric.inc({
+        test_file: 'my.test.js',
+        test_name: 'my test name',
+    })
+
+    const metrics = await register.metrics()
+
+    const response = await fetch(PROMETHEUS_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': ['Basic', Buffer.from(`${PROMETHEUS_USER}:${PROMETHEUS_PASSWORD}`).toString('base64')].join(' '),
+        },
+        body: metrics,
+    })
+
+    const txt = await response.text()
+
+    console.log(response.status)
+    console.log(txt)
 }
 
 collectFailedTests().then(
