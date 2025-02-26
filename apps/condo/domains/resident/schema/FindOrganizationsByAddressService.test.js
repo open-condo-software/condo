@@ -204,8 +204,8 @@ describe('FindOrganizationsByAddress', () => {
                     address: utils.property.address,
                     addressMeta: utils.property.addressMeta,
                 })
-                const accountNumber = utils.randomNumber(10).toString()
-                const unitName = utils.randomNumber(10).toString()
+                const accountNumber = faker.random.alphaNumeric(16)
+                const unitName = faker.random.alphaNumeric(16)
                 const unitType = 'flat'
                 await utils.createMeter({ unitName, accountNumber, resourceId: COLD_WATER_METER_RESOURCE_ID })
                 await utils.createMeter({ unitName, accountNumber, resourceId: ELECTRICITY_METER_RESOURCE_ID })
@@ -252,10 +252,10 @@ describe('FindOrganizationsByAddress', () => {
             test('Should return receipt if unitName and unitType matches', async () => {
                 const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
                 await utils.init()
-                const unitName = utils.randomNumber(10).toString()
+                const unitName = faker.random.alphaNumeric(16)
                 const unitType = 'flat'
-                const accountNumber = utils.randomNumber(10).toString()
-                const toPay = utils.randomNumber(5).toString()
+                const accountNumber = faker.random.alphaNumeric(16)
+                const toPay = '1000'
                 await utils.createReceipts([
                     utils.createJSONReceipt({
                         address: utils.property.address,
@@ -283,8 +283,8 @@ describe('FindOrganizationsByAddress', () => {
             test('Should return meter if unitName and unitType matches', async () => {
                 const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
                 await utils.init()
-                const accountNumber = utils.randomNumber(10).toString()
-                const unitName = utils.randomNumber(10).toString()
+                const accountNumber = faker.random.alphaNumeric(16)
+                const unitName = faker.random.alphaNumeric(16)
                 const unitType = 'flat'
                 await MeterReadingSource.getAll(utils.clients.admin, { id: CALL_METER_READING_SOURCE_ID })
                 const [ meter ] = await utils.createMeter({ unitName, accountNumber })
@@ -310,11 +310,11 @@ describe('FindOrganizationsByAddress', () => {
             test('Should return receipt category if receipts have duplicates', async () => {
                 const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
                 await utils.init()
-                const unitName = utils.randomNumber(10).toString()
+                const unitName = faker.random.alphaNumeric(16)
                 const unitType = 'flat'
-                const accountNumber1 = utils.randomNumber(10).toString()
-                const accountNumber2 = utils.randomNumber(10).toString()
-                const toPay = utils.randomNumber(5).toString()
+                const accountNumber1 = faker.random.alphaNumeric(16)
+                const accountNumber2 = faker.random.alphaNumeric(16)
+                const toPay = '1000'
                 await utils.createReceipts([
                     utils.createJSONReceipt({
                         address: utils.property.address,
@@ -338,6 +338,7 @@ describe('FindOrganizationsByAddress', () => {
                         category: { id: REPAIR_CATEGORY_ID },
                     }),
                 ])
+
                 const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
                     addressKey: utils.property.addressKey,
                     unitName,
@@ -360,7 +361,7 @@ describe('FindOrganizationsByAddress', () => {
                 const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
                 await utils.init()
                 setFeatureFlag(DISABLE_DISCOVER_SERVICE_CONSUMERS, true)
-                const unitName = utils.randomNumber(10).toString()
+                const unitName = faker.random.alphaNumeric(8)
                 const unitType = 'flat'
                 await utils.createReceipts([
                     utils.createJSONReceipt({
@@ -427,7 +428,7 @@ describe('FindOrganizationsByAddress', () => {
 
                 test('Should return organization and receipt if accountNumber is found', async () => {
                     const existingAccountNumber = faker.random.alphaNumeric(16)
-                    const toPay = utils.randomNumber(5).toString()
+                    const toPay = '1000'
                     const address = `${faker.address.cityName()} ${faker.address.streetAddress(true)}`
                     apiHandler.mockResolvedValue({ status: ONLINE_INTERACTION_CHECK_ACCOUNT_SUCCESS_STATUS, services: [{
                         category: HOUSING_CATEGORY_ID,
@@ -466,7 +467,7 @@ describe('FindOrganizationsByAddress', () => {
             test('Should not fall if no billing context and return empty receipts', async () => {
                 const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
                 await utils.init()
-                const accountNumber = utils.randomNumber(10).toString()
+                const accountNumber = faker.random.alphaNumeric(16)
                 await updateTestBillingIntegrationOrganizationContext(utils.clients.admin, utils.billingContext.id, {
                     deletedAt: new Date().toISOString(),
                 })
@@ -493,7 +494,7 @@ describe('FindOrganizationsByAddress', () => {
             test('Should not return organization without receipts and meters', async () => {
                 const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
                 await utils.init()
-                const accountNumber = utils.randomNumber(10).toString()
+                const accountNumber = faker.random.alphaNumeric(16)
                 const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
                     addressKey: utils.property.addressKey,
                     accountNumber,
@@ -505,9 +506,9 @@ describe('FindOrganizationsByAddress', () => {
             test('Should return organization and receipt', async () => {
                 const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
                 await utils.init()
-                const accountNumber = utils.randomNumber(10).toString()
-                const toPay = utils.randomNumber(5).toString()
-                const unitName = utils.randomNumber(10).toString()
+                const accountNumber = faker.random.alphaNumeric(16)
+                const toPay = '1000'
+                const unitName = faker.random.alphaNumeric(16)
                 const unitType = 'flat'
                 await utils.createReceipts([
                     utils.createJSONReceipt({
@@ -542,10 +543,10 @@ describe('FindOrganizationsByAddress', () => {
             test('Should return organization and two receipts', async () => {
                 const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
                 await utils.init()
-                const accountNumber = utils.randomNumber(10).toString()
-                const toPay1 = utils.randomNumber(5).toString()
-                const toPay2 = utils.randomNumber(5).toString()
-                const unitName = utils.randomNumber(10).toString()
+                const accountNumber = faker.random.alphaNumeric(16)
+                const toPay1 = '1000'
+                const toPay2 = '2000'
+                const unitName = faker.random.alphaNumeric(16)
                 const unitType = 'flat'
                 await utils.createReceipts([
                     utils.createJSONReceipt({
@@ -579,7 +580,7 @@ describe('FindOrganizationsByAddress', () => {
             test('Should return organization and meter', async () => {
                 const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
                 await utils.init()
-                const accountNumber = utils.randomNumber(10).toString()
+                const accountNumber = faker.random.alphaNumeric(16)
                 await utils.createMeter({ accountNumber })
                 const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
                     addressKey: utils.property.addressKey,
