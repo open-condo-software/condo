@@ -5,6 +5,7 @@
 
 const { _internalDeleteMeterAndMeterReadingsService } = require('./_internalDeleteMeterAndMeterReadingsService')
 const { _internalDeleteMeterReadingsService } = require('./_internalDeleteMeterReadingsService')
+const { CustomMeterName } = require('./CustomMeterName')
 const { ExportPropertyMeterReadingsService } = require('./ExportPropertyMeterReadingsService')
 const { Meter } = require('./Meter')
 const { MeterReading } = require('./MeterReading')
@@ -36,5 +37,6 @@ module.exports = {
     RegisterMetersReadingsService,
     MeterReadingsImportTask,
     MeterReadingExportTask,
+    CustomMeterName,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
