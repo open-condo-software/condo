@@ -80,7 +80,7 @@ jobs:
           endpoint: builders
           driver-opts: |
             env.BUILDKIT_STEP_LOG_MAX_SIZE=10485760
-            image=${{ secrets.DOCKER_REGISTRY }}/doma/utils/buildkit:buildx-stable-1
+            image=${{ secrets.DOCKER_REGISTRY }}/doma/utils/buildkit:buildx-stable-2
       - name: Build repo image
         uses: docker/build-push-action@v5
         with:
