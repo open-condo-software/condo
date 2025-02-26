@@ -135,6 +135,13 @@ describe('Ticket', () => {
             const [contact] = await createTestContact(client, client.organization, client.property)
             const fields = {
                 contact: { connect: { id: contact.id } },
+
+                priority: 200,
+                isInsurance: true,
+                title: 'sample ticket short title',
+                kanbanOrder: 15,
+                kanbanColumn: 'my-custom-column',
+                customClassifier: 'feature',
             }
             const [obj, attrs] = await createTestTicket(client, client.organization, client.property, fields)
 
@@ -171,6 +178,12 @@ describe('Ticket', () => {
             expect(obj.qualityControlAdditionalOptions).toBeNull()
             expect(obj.qualityControlUpdatedAt).toBeNull()
             expect(obj.qualityControlUpdatedBy).toBeNull()
+            expect(obj.title).toEqual(attrs.title)
+            expect(obj.priority).toEqual(attrs.priority)
+            expect(obj.kanbanOrder).toEqual(attrs.kanbanOrder)
+            expect(obj.kanbanColumn).toEqual(attrs.kanbanColumn)
+            expect(obj.customClassifier).toEqual(attrs.customClassifier)
+            expect(obj.isInsurance).toEqual(attrs.isInsurance)
         })
 
         test('user with resident type without resident: cannot create Ticket', async () => {
