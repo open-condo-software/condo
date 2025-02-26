@@ -6,6 +6,19 @@ const FEE_DISTRIBUTION_SCHEMA_INPUT_NAME = `[${FEE_DISTRIBUTION_INPUT_NAME}!]`
 const SETTINGS_FIELD_NAME = 'SettingsField'
 const SETTINGS_INPUT_NAME = 'SettingsFieldInput'
 
+const RECIPIENT_FIELDS_DEFINITION = {
+    name: 'String',
+    bankName: 'String',
+    territoryCode: 'String',
+    offsettingAccount: 'String',
+    tin: 'String!',
+    iec: 'String',
+    // TODO(YEgorLu): DOMA-10442 rename to routingNumber
+    bic: 'String!',
+    bankAccount: 'String!',
+    classificationCode: 'String',
+}
+
 const BILLING_RECEIPT_FIELD_NAME = 'BillingReceiptsField'
 const BILLING_RECEIPT_INPUT_NAME = 'BillingReceiptsFieldInput'
 const BILLING_RECEIPTS_SCHEMA_FIELD_NAME = `[${BILLING_RECEIPT_FIELD_NAME}!]`
@@ -18,6 +31,7 @@ module.exports = {
     FEE_DISTRIBUTION_SCHEMA_INPUT_NAME,
     SETTINGS_FIELD_NAME,
     SETTINGS_INPUT_NAME,
+    RECIPIENT_FIELDS_DEFINITION,
     BILLING_RECEIPT_FIELD_NAME,
     BILLING_RECEIPT_INPUT_NAME,
     BILLING_RECEIPTS_SCHEMA_FIELD_NAME,
