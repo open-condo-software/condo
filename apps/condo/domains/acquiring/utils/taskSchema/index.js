@@ -227,13 +227,20 @@ function _getPaidAmountsByBillingReceiptsIds (payments) {
         if (!acc[payment.receipt.id]) {
             acc[payment.receipt.id] = []
         }
-        acc[payment.receipt.id].push(payment)
+        // If balance was updated after payment was sent to organization, receipt.toPay must be lower than before on payment.amount, so we don't need to count that
+        if (payment.receipt.balanceUpdatedAt) {
+            if (!payment.transferDate || dayjs(payment.transferDate).isSameOrAfter(payment.receipt.balanceUpdatedAt)) {
+                acc[payment.receipt.id].push(payment)
+            }
+        } else {
+            acc[payment.receipt.id].push(payment)
+        }
         return acc
     }, {})
 
     Object.keys(byReceipt)
         .forEach(receiptId => {
-            const payments = byReceipt[receiptId]
+            let payments = byReceipt[receiptId]
             byReceipt[receiptId] = payments.reduce((total, current) => (Big(total).plus(current.amount)), 0).toFixed(8).toString()
         })
 
@@ -254,7 +261,7 @@ async function filterPaidBillingReceipts (context, billingReceipts) {
         },
         status_in: [PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS],
         deletedAt: null,
-    }, 'id receipt { id toPay } transferDate amount')
+    }, 'id receipt { id toPay balanceUpdatedAt } transferDate amount')
 
     const receipts = await BillingReceipt.getAll(context, {
         id_in: billingReceipts.map(receipt => receipt.id),
