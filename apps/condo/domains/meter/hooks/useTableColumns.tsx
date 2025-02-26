@@ -147,7 +147,7 @@ export function useTableColumns <T> (
             width: isPropertyMeter ? '25%' : '20%',
             render: getConsumptionRender(intl, records),
         },
-    ]), [ConsumptionMessage, ContactMessage, MeterReadingDateMessage, MeterReadingMessage, SourceMessage, filterMetas, filters, intl, isPropertyMeter, records, search, sorterMap])
+    ]), [AccountNumberMessage, ConsumptionMessage, ContactMessage, MeterReadingDateMessage, MeterReadingMessage, SourceMessage, filterMetas, filters, intl, isPropertyMeter, records, search, sorterMap])
 
     const meterAndMeterReadingColumns = useMemo(() => [
         {
