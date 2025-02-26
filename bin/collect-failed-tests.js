@@ -35,6 +35,7 @@ async function sendFailedTest (testData) {
 
     const txt = await response.text()
 
+    console.log(response.status)
     console.log(txt)
 
     return response.ok
