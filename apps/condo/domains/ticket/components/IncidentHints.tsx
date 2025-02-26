@@ -1,7 +1,7 @@
 import {
-    useGetIncidentClassifierIncidentQuery,
-    useGetIncidentPropertiesQuery,
-    useGetIncidentsQuery,
+    useGetIncidentClassifierIncidentLazyQuery,
+    useGetIncidentPropertiesLazyQuery,
+    useGetIncidentsLazyQuery,
 } from '@app/condo/gql'
 import {
     Incident as IIncident,
@@ -141,40 +141,40 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
     const [allIncidents, setAllIncidents] = useState<IIncident[]>([])
     const [incidentsToShow, setIncidentsToShow] = useState<IIncident[]>([])
 
-    const { refetch: refetchIncidentProperties } = useGetIncidentPropertiesQuery({ skip: true })
-    const { refetch: refetchIncidents } = useGetIncidentsQuery({ skip: true })
-    const { refetch: refetchIncidentClassifierIncidents } = useGetIncidentClassifierIncidentQuery({ skip: true })
+    const [getIncidentProperties] = useGetIncidentPropertiesLazyQuery()
+    const [getIncidents] = useGetIncidentsLazyQuery()
+    const [getIncidentClassifierIncidents] = useGetIncidentClassifierIncidentLazyQuery()
 
     const categoryId = useMemo(() => get(classifier, 'category.id', null), [classifier]) as string | null
     const problemId = useMemo(() => get(classifier, 'problem.id', null), [classifier]) as string | null
 
     const fetchIncidentProperties = useCallback(async (propertyId: string, organizationId: string) => {
-        const res = await refetchIncidentProperties({
-            where: {
-                property: {
-                    id: propertyId,
-                    deletedAt: null,
+        const res = await getIncidentProperties({
+            variables: {
+                where: {
+                    property: {
+                        id: propertyId,
+                    },
+                    incident: {
+                        organization: { id: organizationId },
+                        OR: [
+                            {
+                                AND: [{ status: IncidentStatusType.Actual }],
+                            },
+                            {
+                                AND: [{
+                                    status: IncidentStatusType.NotActual,
+                                    workFinish_gte: dayjs().subtract(WORK_FINISHED_IN_LAST_DAYS, 'days').toISOString(),
+                                }],
+                            },
+                        ],
+                    },
                 },
-                incident: {
-                    organization: { id: organizationId },
-                    OR: [
-                        {
-                            AND: [{ status: IncidentStatusType.Actual }],
-                        },
-                        {
-                            AND: [{
-                                status: IncidentStatusType.NotActual,
-                                workFinish_gte: dayjs().subtract(WORK_FINISHED_IN_LAST_DAYS, 'days').toISOString(),
-                            }],
-                        },
-                    ],
-                },
-                deletedAt: null,
             },
         })
 
         return res?.data?.incidentProperties?.filter(Boolean) || []
-    }, [])
+    }, [propertyId, organizationId])
 
     const fetchIncidents: FetchIncidentsType = useCallback(async ({ sortBy, incidentIds, organizationId, status, workFinishedInLastDays }) => {
         const where: IncidentWhereInput = {
@@ -197,10 +197,15 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
             where.workFinish_gte = dayjs().subtract(workFinishedInLastDays, 'days').toISOString()
         }
 
-        const res = await refetchIncidents({ where, sortBy })
+        const res = await getIncidents({
+            variables: {
+                where,
+                sortBy,
+            },
+        })
 
         return res?.data?.incidents?.filter(Boolean) || []
-    }, [])
+    }, [organizationId])
 
     const fetchIncidentClassifierIncidents = useCallback(async (incidentIds: string[], categoryId?: string, problemId?: string) => {
         if (incidentIds.length < 1) {
@@ -209,7 +214,6 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
 
         const where: IncidentClassifierIncidentWhereInput = {
             incident: { id_in: incidentIds },
-            deletedAt: null,
         }
 
         if (categoryId || problemId) {
@@ -232,8 +236,10 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
             }
         }
 
-        const res = await refetchIncidentClassifierIncidents({
-            where,
+        const res = await getIncidentClassifierIncidents({
+            variables: {
+                where,
+            },
         })
 
         return res?.data?.incidentClassifierIncident?.filter(Boolean) || []

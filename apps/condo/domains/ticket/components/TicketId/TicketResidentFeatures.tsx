@@ -1,13 +1,13 @@
+import { useGetBillingReceiptsCountQuery } from '@app/condo/gql'
 import { SortBillingReceiptsBy, Ticket } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import dayjs from 'dayjs'
-import get from 'lodash/get'
-import React from 'react'
+import React, { useMemo } from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { useIntl } from '@open-condo/next/intl'
 
-import { BillingReceipt } from '@condo/domains/billing/utils/clientSchema'
 import { BankCardIcon } from '@condo/domains/common/components/icons/BankCardIcon'
 import { MobileIcon } from '@condo/domains/common/components/icons/MobileIcon'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
@@ -41,19 +41,25 @@ const PaymentsAvailableIndicator: React.FC<PaymentsAvailableIndicatorProps> = ({
     const PaymentsAvailableMessage = intl.formatMessage({ id: 'pages.condo.ticket.PaymentsAvailable' })
     const PaymentsNotAvailableMessage = intl.formatMessage({ id: 'pages.condo.ticket.PaymentsNotAvailable' })
 
-    const { count: receiptsByProperty, loading: receiptsByPropertyLoading } = BillingReceipt.useCount({
-        where: {
-            context: { organization: { id: ticketOrganizationId } },
-            property: {
-                OR: [
-                    { address: propertyAddress },
-                    { normalizedAddress: propertyAddress },
-                ],
+    const { persistor } = useCachePersistor()
+    
+    const { data, loading: receiptsByPropertyLoading } = useGetBillingReceiptsCountQuery({
+        variables: {
+            where: {
+                context: { organization: { id: ticketOrganizationId } },
+                property: {
+                    OR: [
+                        { address: propertyAddress },
+                        { normalizedAddress: propertyAddress },
+                    ],
+                },
+                period_gte: LAST_MONTH_BEGINNING,
             },
-            period_gte: LAST_MONTH_BEGINNING,
+            sortBy: [SortBillingReceiptsBy.CreatedAtDesc],
         },
-        sortBy: [SortBillingReceiptsBy.CreatedAtDesc],
+        skip: !ticketOrganizationId || !propertyAddress || !persistor,
     })
+    const receiptsByProperty = useMemo(() => data?.count?.count || 0, [data?.count?.count])
 
     const isPaymentsAvailable = !!receiptsByProperty
     const title = receiptsByProperty || isPaymentsAvailable ? PaymentsAvailableMessage : PaymentsNotAvailableMessage
@@ -72,9 +78,9 @@ interface TicketResidentFeaturesProps {
 const TICKET_RESIDENT_FEATURES_ROW_GUTTER: [Gutter, Gutter] = [8, 0]
 
 export const TicketResidentFeatures: React.FC<TicketResidentFeaturesProps> = ({ ticket }) => {
-    const isContactHasMobileApp = !!get(ticket, 'client')
-    const ticketOrganizationId = get(ticket, ['organization', 'id'], null)
-    const propertyAddress = get(ticket, ['property', 'address'], null)
+    const isContactHasMobileApp = !!ticket?.client
+    const ticketOrganizationId = ticket?.organization?.id || null
+    const propertyAddress = ticket?.property?.address || null
 
     return (
         <Row gutter={TICKET_RESIDENT_FEATURES_ROW_GUTTER}>

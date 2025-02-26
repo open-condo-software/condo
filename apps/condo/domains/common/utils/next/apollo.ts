@@ -21,6 +21,31 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
                         read: listHelper.getReadFunction('paginate'),
                         merge: listHelper.mergeLists,
                     },
+                    allTickets: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
+                    allTicketChanges: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
+                    allTicketComments: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
+                    allTicketCommentFile: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
+                    allInvoices: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
                 },
             },
 
@@ -48,7 +73,7 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
             },
         },
         invalidationPolicies: {
-            timeToLive: 15 * 60 * 1000, // 15 minutes in milliseconds
+            timeToLive: 60 * 1000, // 15 minutes in milliseconds
             types: {
                 _QueryMeta: {
                     timeToLive: 60 * 1000, // 1 minute in milliseconds

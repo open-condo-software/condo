@@ -1,0 +1,13 @@
+query getGlobalB2BApps ($sortBy: [SortB2BAppsBy!]) {
+    b2bApps: allB2BApps(
+        where: {
+            isGlobal: true,
+            isHidden: false,
+        },
+        sortBy: [createdAt_ASC]
+    ) {
+        id
+        appUrl
+        features
+    }
+}

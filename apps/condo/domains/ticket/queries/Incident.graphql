@@ -7,3 +7,33 @@ query getIncidents ($where: IncidentWhereInput, $sortBy: [SortIncidentsBy!]) {
         status
     }
 }
+
+query getIncidentById ($incidentId: ID!) {
+    incident: Incident (
+        where: {
+            id: $incidentId
+        }
+    ) {
+        id
+        status
+        createdAt
+        number
+        organization {
+            id
+        }
+        workStart
+        workFinish
+    }
+}
+
+mutation createIncident ($data: IncidentCreateInput!) {
+    incident: createIncident (data: $data) {
+        id
+    }
+}
+
+mutation updateIncident ($id: ID!, $data: IncidentUpdateInput!) {
+    incident: updateIncident (id: $id, data: $data) {
+        id
+    }
+}

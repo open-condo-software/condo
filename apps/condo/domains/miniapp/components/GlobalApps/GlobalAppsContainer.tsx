@@ -1,16 +1,15 @@
-import { SortB2BAppsBy } from '@app/condo/schema'
+import { useGetGlobalB2BAppsQuery } from '@app/condo/gql'
 import get from 'lodash/get'
-import isNull from 'lodash/isNull'
-import React, { useRef, useEffect, useState, useCallback } from 'react'
+import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
 
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
-import { B2BApp } from '@condo/domains/miniapp/utils/clientSchema'
 
 import {
     useGlobalAppsFeaturesContext,
@@ -29,21 +28,19 @@ export const GlobalAppsContainer: React.FC = () => {
     //  so miniapps can use bridge.subscribe with Type safety on them!
     const { user, isLoading } = useAuth()
     const { organization } = useOrganization()
-    const organizationId = get(organization, 'id', null)
+    const organizationId = useMemo(() => organization?.id || null, [organization])
+    const { persistor } = useCachePersistor()
 
-    const { objs, refetch, loading } = B2BApp.useObjects({
-        where: {
-            isGlobal: true,
-            isHidden: false,
-        },
-        sortBy: [SortB2BAppsBy.CreatedAtAsc],
-    }, { skip: !user || !organizationId || isLoading })
+    const {
+        data: b2bAppsData,
+    } = useGetGlobalB2BAppsQuery({
+        skip: !user || !organizationId || isLoading || !persistor,
+    })
+    const b2bApps = useMemo(() => b2bAppsData?.b2bApps.filter(Boolean) || [], [b2bAppsData?.b2bApps])
 
-    const appUrls = objs.map(app => app.appUrl)
-
+    const appUrls = b2bApps.map(app => app.appUrl)
 
     const iframeRefs = useRef<Array<HTMLIFrameElement>>([])
-    const isGlobalAppsFetched = useRef(false)
     const [isDebug, setIsDebug] = useState(false)
     const { registerFeatures, addFeatureHandler, removeFeatureHandler, features } = useGlobalAppsFeaturesContext()
 
@@ -54,7 +51,7 @@ export const GlobalAppsContainer: React.FC = () => {
     }, [appUrls])
 
     useDeepCompareEffect(() => {
-        const globalFeatures = objs.reduce((registeredFeatures, app) => {
+        const globalFeatures = b2bApps.reduce((registeredFeatures, app) => {
             const appOrigin = extractOrigin(app.appUrl)
             const availableFeatures = (app.features || []).filter(featureName => !(featureName in registeredFeatures))
             const appFeatures = Object.assign({}, ...availableFeatures.map(featureName => ({ [featureName]: appOrigin })))
@@ -65,7 +62,7 @@ export const GlobalAppsContainer: React.FC = () => {
             }
         }, {})
         registerFeatures(globalFeatures)
-    }, [registerFeatures, objs])
+    }, [registerFeatures, b2bApps])
 
     const handleFeatureRequest: IRequestFeatureHandler = useCallback((context) => {
         const receiverOrigin = get(features, context.feature)
@@ -74,7 +71,7 @@ export const GlobalAppsContainer: React.FC = () => {
                 if (iframe) {
                     const origin = extractOrigin(iframe.src)
                     if (receiverOrigin === origin) {
-                        const targetWindow = get(iframe, 'contentWindow', null)
+                        const targetWindow = iframe?.contentWindow || null
                         if (origin && targetWindow) {
                             targetWindow.postMessage({
                                 type: REQUEST_FEATURE_MESSAGE_NAME,
@@ -103,7 +100,7 @@ export const GlobalAppsContainer: React.FC = () => {
         if (organizationId) {
             for (const iframe of iframeRefs.current) {
                 if (iframe) {
-                    const iframeWindow = get(iframe, 'contentWindow', null)
+                    const iframeWindow = iframe?.contentWindow || null
                     const iframeOrigin = extractOrigin(iframe.src)
                     if (iframeOrigin && iframeWindow) {
                         iframeWindow.postMessage({
@@ -118,13 +115,6 @@ export const GlobalAppsContainer: React.FC = () => {
             }
         }
     }, [organizationId])
-
-    useEffect(() => {
-        if (!isGlobalAppsFetched.current && !loading && !isNull(user) && !isLoading) {
-            refetch()
-            isGlobalAppsFetched.current = true
-        }
-    }, [user, loading, isLoading])
 
     // Global miniapps allowed only for authenticated employees
     if (!user || !organizationId) {
