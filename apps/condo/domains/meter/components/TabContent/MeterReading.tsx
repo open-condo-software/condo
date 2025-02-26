@@ -300,7 +300,6 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
                             sticky
                             onRow={meter && handleUpdateMeterReading}
                         />
-
                     </Row>
                 </Col>
                 {
