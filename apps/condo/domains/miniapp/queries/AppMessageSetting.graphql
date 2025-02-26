@@ -1,0 +1,11 @@
+query getB2BAppsWithMessageSettings ($messageTypes: [MessageType]) {
+    settings: allAppMessageSettings (where: {
+        type_in: $messageTypes
+        b2bApp_is_null: false
+    }) {
+        b2bApp {
+            id
+        }
+        type
+    }
+}

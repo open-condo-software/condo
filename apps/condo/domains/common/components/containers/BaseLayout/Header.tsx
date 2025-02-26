@@ -6,6 +6,7 @@ import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { Menu } from '@open-condo/icons'
 import { useMutation } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
@@ -15,6 +16,9 @@ import { Space } from '@open-condo/ui'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Logo } from '@condo/domains/common/components/Logo'
 import { ResidentActions } from '@condo/domains/common/components/ResidentActions/ResidentActions'
+import { PLATFORM_NOTIFICATIONS } from '@condo/domains/common/constants/featureflags'
+import { UserMessagesList } from '@condo/domains/notification/components/UserMessagesList'
+import { UserMessagesListContextProvider } from '@condo/domains/notification/contexts/UserMessagesListContext'
 import { InlineOrganizationSelect } from '@condo/domains/organization/components/OrganizationSelect'
 import { SBBOLIndicator } from '@condo/domains/organization/components/SBBOLIndicator'
 import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
@@ -35,6 +39,7 @@ interface IHeaderProps {
 export const Header: React.FC<IHeaderProps> = (props) => {
     const client = useApolloClient()
     const { breakpoints, toggleCollapsed } = useLayoutContext()
+    const { useFlag } = useFeatureFlags()
     const router = useRouter()
 
     const { isAuthenticated } = useAuth()
@@ -67,6 +72,49 @@ export const Header: React.FC<IHeaderProps> = (props) => {
             router.push('/auth/signin')
         }
     }, [isAuthenticated, router])
+
+    const isPlatformNotificationsFeatureEnabled = useFlag(PLATFORM_NOTIFICATIONS)
+
+    if (isPlatformNotificationsFeatureEnabled) {
+        return (
+            <UserMessagesListContextProvider>
+                {
+                    !breakpoints.TABLET_LARGE
+                        ? (
+                            <>
+                                <div id='tasks-container' className='tasks-container' />
+                                <Layout.Header className='header mobile-header'>
+                                    <div className='context-bar'>
+                                        <UserMessagesList />
+                                        <div className='organization-user-block'>
+                                            <Space direction='horizontal' size={4}>
+                                                <SBBOLIndicator organization={organization} />
+                                                <InlineOrganizationSelect/>
+                                            </Space>
+                                            <UserMenu/>
+                                        </div>
+                                    </div>
+                                    <div className='appeals-bar'>
+                                        <Menu size='large' onClick={toggleCollapsed}/>
+                                        <Logo onClick={handleLogoClick} minified/>
+                                        <div>
+                                            {hasAccessToAppeals && (
+                                                <ResidentActions minified/>
+                                            )}
+                                        </div>
+                                    </div>
+                                </Layout.Header>
+                            </>
+                        )
+                        : (
+                            <Layout.Header className='header desktop-header'>
+                                <TopMenuItems headerAction={props.headerAction}/>
+                            </Layout.Header>
+                        )
+                }
+            </UserMessagesListContextProvider>
+        )
+    }
 
     return (
         !breakpoints.TABLET_LARGE

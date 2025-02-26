@@ -21,6 +21,11 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
                         read: listHelper.getReadFunction('paginate'),
                         merge: listHelper.mergeLists,
                     },
+                    allMessages: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
                 },
             },
 
@@ -51,6 +56,9 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
             timeToLive: 15 * 60 * 1000, // 15 minutes in milliseconds
             types: {
                 _QueryMeta: {
+                    timeToLive: 60 * 1000, // 1 minute in milliseconds
+                },
+                Message: {
                     timeToLive: 60 * 1000, // 1 minute in milliseconds
                 },
                 Ticket: {

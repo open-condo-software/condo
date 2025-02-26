@@ -648,9 +648,16 @@ async function sendB2BAppPushMessageByTestClient (client, app, organization, use
     if (!organization || !organization.id) throw new Error('no organization')
     if (!user || !user.id) throw new Error('no user')
 
+    const type = extraAttrs.type || B2B_APP_MESSAGE_PUSH_TYPE
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const title = faker.random.alphaNumeric(8)
     const body = faker.random.alphaNumeric(8)
+
+    const meta = { dv: 1 }
+    if (type === B2B_APP_MESSAGE_PUSH_TYPE) {
+        meta['title'] = title
+        meta['body'] = body
+    }
 
     const attrs = {
         dv: 1,
@@ -658,13 +665,11 @@ async function sendB2BAppPushMessageByTestClient (client, app, organization, use
         app: { id: app.id },
         organization: { id: organization.id },
         user: { id: user.id },
-        type: B2B_APP_MESSAGE_PUSH_TYPE,
+        type,
         ...extraAttrs,
         meta: {
-            dv: 1,
-            title,
-            body,
-            ...extraAttrs.meta
+            ...meta,
+            ...extraAttrs.meta,
         },
     }
     const { data, errors } = await client.mutate(SEND_B2B_APP_PUSH_MESSAGE_MUTATION, { data: attrs })
