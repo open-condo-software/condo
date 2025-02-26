@@ -5,6 +5,7 @@ const express = require('express')
 const { isEmpty, get } = require('lodash')
 
 const conf = require('@open-condo/config')
+const { AwsFileAdapter, AWSFilesMiddleware } = require('@open-condo/keystone/fileAdapter/awsFileAdapter')
 const { SberCloudFileAdapter, OBSFilesMiddleware } = require('@open-condo/keystone/fileAdapter/sberCloudFileAdapter')
 
 const { DEFAULT_FILE_ADAPTER } = require('./constants')
@@ -62,6 +63,9 @@ class FileAdapter {
                 break
             case 'sbercloud':
                 Adapter = this.createSbercloudFileApapter()
+                break
+            case 'aws':
+                Adapter = this.createAwsFileAdapter()
                 break
         }
         if (!Adapter) {
@@ -123,6 +127,20 @@ class FileAdapter {
         return new SberCloudFileAdapter({ ...config, folder: this.folder, isPublic: this.isPublic, saveFileName: this.saveFileName })
     }
 
+    createAwsFileAdapter () {
+        const config = this.getEnvConfig('AWS_CONFIG', [
+            'bucket',
+            's3Options.region',
+            's3Options.accessKeyId',
+            's3Options.secretAccessKey',
+        ])
+
+        if (!config) {
+            return null
+        }
+        return new AwsFileAdapter({ ...config, folder: this.folder, isPublic: this.isPublic, saveFileName: this.saveFileName })
+    }
+
     // TODO(pahaz): DOMA-1569 it's better to create just a function. But we already use FileAdapter in many places. I just want to save a backward compatibility
     static makeFileAdapterMiddleware () {
         const type = conf.FILE_FIELD_ADAPTER || DEFAULT_FILE_ADAPTER
@@ -133,7 +151,10 @@ class FileAdapter {
             return new LocalFilesMiddleware({ path: conf.MEDIA_URL, src: conf.MEDIA_ROOT })
         } else if (type === 'sbercloud') {
             return new OBSFilesMiddleware()
-        } else {
+        } else if (type === 'aws') {
+            return new AWSFilesMiddleware()
+        }
+        else {
             throw new Error('Unknown file field adapter. You need to check FILE_FIELD_ADAPTER')
         }
     }
