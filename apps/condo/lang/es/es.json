@@ -1562,6 +1562,7 @@
   "notification.messages.TICKET_STATUS_RETURNED.email.subject": "¡Hola, es Doma! 🦖",
   "notification.messages.TICKET_STATUS_RETURNED.push.title": "Incidencia abierta 💡",
   "notification.messages.VOIP_INCOMING_CALL_MESSAGE.push.title": "{title}",
+  "notification.messages.VOIP_CANCELED_CALL_MESSAGE.push.title": "{title}",
   "onboarding.tourStep.tooltip.ticket.message": "Asegúrate de que la información es correcta y crea una incidencia",
   "onboarding.tourStep.tooltip.ticket.title": "Varios campos se completan automáticamente",
   "pages.auth.AlreadyRegistered": "Ya estoy registrado",
