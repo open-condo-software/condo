@@ -33,12 +33,16 @@ async function sendFailedTest (testData) {
         }),
     })
 
+    const txt = await response.text()
+
+    console.log(txt)
+
     return response.ok
 }
 
 async function collectFailedTests () {
     await sendFailedTest({
-        testFile: 'my,test.js',
+        testFile: 'my.test.js',
         testName: 'my test name',
     })
 }
