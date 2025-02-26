@@ -60,7 +60,7 @@ const syncUser = async ({ context, userInfo, userType }) => {
     })
 
     if (existed) {
-        await User.update(context, existed.id, { isPhoneVerified: true })
+        await User.update(context, existed.id, { dv, sender, isPhoneVerified: true })
         return await linkUser(context, existed, userInfo)
     }
 

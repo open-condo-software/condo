@@ -1,11 +1,6 @@
 const crypto = require('crypto')
 
-const cookieSignature = require('cookie-signature')
 const { get, isNil } = require('lodash')
-const uidSafe = require('uid-safe').sync
-
-const conf = require('@open-condo/config')
-const { setSession } = require('@open-condo/keystone/session')
 
 const { RESIDENT, USER_TYPES } = require('@condo/domains/user/constants/common')
 const { TELEGRAM_AUTH_REDIS_STATE_PREFIX, TELEGRAM_AUTH_CONFIG_REQUIRED_FIELDS } = require('@condo/domains/user/integration/telegram/constants')
@@ -64,7 +59,7 @@ function parseJson (data) {
 }
 
 function decodeIdToken (idToken) {
-    const decoded = atob(idToken.split('.')[1])
+    const decoded = Buffer.from(idToken.split('.')[1], 'base64')
     return parseJson(decoded)
 }
 
@@ -82,27 +77,11 @@ function getUserType (req) {
     return userType
 }
 
-async function startAuthedSession  (userId, sessionStore){
-    if (!userId) {
-        throw new Error('userId is incorrect')    
-    }
-    
-    const id = uidSafe(24)
-    const payload = {
-        sessionId: id,
-        keystoneListKey: 'User',
-        keystoneItemId: userId,
-    }
-    await setSession(sessionStore, payload)
-    return cookieSignature.sign(id, conf.COOKIE_SECRET)
-}
-
 module.exports = {
     parseJson,
     decodeIdToken,
     getRedisSessionKey,
     getUserType,
-    startAuthedSession,
     validateTelegramAuthConfig,
     getAuthLink,
     signUniqueKey,

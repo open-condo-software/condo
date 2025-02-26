@@ -4,7 +4,7 @@ const TELEGRAM_AUTH_STATUS_ERROR = 'error'
 
 const TELEGRAM_AUTH_REDIS_STATE_PREFIX = 'telegram:state:'
 
-const TELEGRAM_AUTH_REDIS_TTL = 180 // 3 mins
+const TELEGRAM_AUTH_REDIS_TTL_IN_SEC = 180 // 3 mins
 
 const TELEGRAM_AUTH_CONFIG_REQUIRED_FIELDS = ['secretKey', 'clientId', 'clientSecret', 'authUrl', 'tokenUrl', 'callbackUrl']
 
@@ -13,6 +13,6 @@ module.exports = {
     TELEGRAM_AUTH_STATUS_SUCCESS,
     TELEGRAM_AUTH_STATUS_ERROR,
     TELEGRAM_AUTH_REDIS_STATE_PREFIX,
-    TELEGRAM_AUTH_REDIS_TTL,
+    TELEGRAM_AUTH_REDIS_TTL_IN_SEC,
     TELEGRAM_AUTH_CONFIG_REQUIRED_FIELDS,
 }
