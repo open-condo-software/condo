@@ -1,76 +1,28 @@
 const fetch = require('node-fetch')
-const client = require('prom-client')
+const { pushTimeseries } = require('prometheus-remote-write')
 
-
-const PROMETHEUS_URL = process.env.PROMETHEUS_RW_SERVER_URL
-const PROMETHEUS_USER = process.env.PROMETHEUS_USER
-const PROMETHEUS_PASSWORD = process.env.PROMETHEUS_PASSWORD
-// const REF = process.env.GITHUB
-
-
-/**
- * @param {string} testData.testName - name of failed test
- * @param {string} testData.testFile - file where failed test is located
- * @returns {Promise<boolean>}
- */
-async function sendFailedTest (testData) {
-    if (!PROMETHEUS_URL || !PROMETHEUS_USER || !PROMETHEUS_PASSWORD) {
-        throw new Error('Prometheus credentials was not provided!')
-    }
-
-    const response = await fetch(PROMETHEUS_URL, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': ['Basic', Buffer.from(`${PROMETHEUS_USER}:${PROMETHEUS_PASSWORD}`).toString('base64')].join(' '),
-        },
-        body: JSON.stringify({
-            metric: 'failed_test',
-            value: 1,
-            timestamp: Math.floor(Date.now() / 1000), // Date.now in MS, Prometheus accepts seconds
-            labels: {
-                ...testData,
-            },
-        }),
-    })
-
-    const txt = await response.text()
-
-    console.log(response.status)
-    console.log(txt)
-
-    return response.ok
+const PROMETHEUS_CONFIG = {
+    url: process.env.PROMETHEUS_RW_SERVER_URL,
+    auth: {
+        username: process.env.PROMETHEUS_USER,
+        password: process.env.PROMETHEUS_PASSWORD,
+    },
+    fetch,
+    labels: {
+        __name__: 'ci_failed_test',
+    },
 }
 
 async function collectFailedTests () {
-    const register = new client.Registry()
-    const failedTestMetric = new client.Counter({
-        name: 'failed_test',
-        help: 'A custom test metric for Grafana Prometheus',
-        labelNames: ['test_file', 'test_name'],
-    })
-
-    register.registerMetric(failedTestMetric)
-
-    failedTestMetric.inc({
-        test_file: 'my.test.js',
-        test_name: 'my test name',
-    })
-
-    const metrics = await register.metrics()
-
-    const response = await fetch(PROMETHEUS_URL, {
-        method: 'POST',
-        headers: {
-            'Authorization': ['Basic', Buffer.from(`${PROMETHEUS_USER}:${PROMETHEUS_PASSWORD}`).toString('base64')].join(' '),
+    await pushTimeseries({
+        labels: {
+            test_name: 'my test name',
+            test_file: 'my.test.js',
         },
-        body: metrics,
-    })
-
-    const txt = await response.text()
-
-    console.log(response.status)
-    console.log(txt)
+        samples: [
+            { value: 1, timestamp: Date.now() },
+        ],
+    }, PROMETHEUS_CONFIG)
 }
 
 collectFailedTests().then(
