@@ -215,7 +215,7 @@ export function useTableColumns <T> (
     return useMemo(() => {
         if (isReadingsForSingleMeter) return readingsForSingleMeterColumns
 
-        return meterTabType === METER_TAB_TYPES.reportingPeriod ? [
+        return isReportingPeriod ? [
             {
                 title: AddressMessage,
                 filteredValue: getFilteredValue(filters, 'address'),
