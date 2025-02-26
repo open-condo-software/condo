@@ -25365,7 +25365,7 @@ type Ticket {
   """ Extra analytics not related to remote system """
   meta: JSON
 
-  """ The number used to determine priority of this ticket. Like in JIRA. Default value is: 100. Preferred values are: 100, 200, 300, 400, 500. 500 is the highest 
+  """ The number used to determine priority of this ticket. Like in JIRA. Default value is: 100. Preferred values are: 100, 200, 300, 400, 500. 500 is the highest. Used by custom integrations 
   """
   priority: Int
 
@@ -27774,11 +27774,11 @@ type TicketChange {
   """ Extra analytics not related to remote system """
   metaTo: JSON
 
-  """ The number used to determine priority of this ticket. Like in JIRA. Default value is: 100. Preferred values are: 100, 200, 300, 400, 500. 500 is the highest 
+  """ The number used to determine priority of this ticket. Like in JIRA. Default value is: 100. Preferred values are: 100, 200, 300, 400, 500. 500 is the highest. Used by custom integrations 
   """
   priorityFrom: Int
 
-  """ The number used to determine priority of this ticket. Like in JIRA. Default value is: 100. Preferred values are: 100, 200, 300, 400, 500. 500 is the highest 
+  """ The number used to determine priority of this ticket. Like in JIRA. Default value is: 100. Preferred values are: 100, 200, 300, 400, 500. 500 is the highest. Used by custom integrations 
   """
   priorityTo: Int
 
@@ -44683,6 +44683,7 @@ type ContactHistoryRecord {
   role: String
   isVerified: Boolean
   ownershipPercentage: String
+  communityFee: String
   id: ID!
   v: Int
   createdAt: String
@@ -44813,6 +44814,14 @@ input ContactHistoryRecordWhereInput {
   ownershipPercentage_gte: String
   ownershipPercentage_in: [String]
   ownershipPercentage_not_in: [String]
+  communityFee: String
+  communityFee_not: String
+  communityFee_lt: String
+  communityFee_lte: String
+  communityFee_gt: String
+  communityFee_gte: String
+  communityFee_in: [String]
+  communityFee_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -44910,6 +44919,8 @@ enum SortContactHistoryRecordsBy {
   isVerified_DESC
   ownershipPercentage_ASC
   ownershipPercentage_DESC
+  communityFee_ASC
+  communityFee_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -44939,6 +44950,7 @@ input ContactHistoryRecordUpdateInput {
   role: String
   isVerified: Boolean
   ownershipPercentage: String
+  communityFee: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -44969,6 +44981,7 @@ input ContactHistoryRecordCreateInput {
   role: String
   isVerified: Boolean
   ownershipPercentage: String
+  communityFee: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -45048,6 +45061,9 @@ type Contact {
   """ Percentage ownership of an apartment. Example value: 50.00000000 // 50%  
   """
   ownershipPercentage: String
+
+  """ A special fee paid by this contact to the community """
+  communityFee: String
   id: ID!
   v: Int
   createdAt: String
@@ -45166,6 +45182,14 @@ input ContactWhereInput {
   ownershipPercentage_gte: String
   ownershipPercentage_in: [String]
   ownershipPercentage_not_in: [String]
+  communityFee: String
+  communityFee_not: String
+  communityFee_lt: String
+  communityFee_lte: String
+  communityFee_gt: String
+  communityFee_gte: String
+  communityFee_in: [String]
+  communityFee_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -45249,6 +45273,8 @@ enum SortContactsBy {
   isVerified_DESC
   ownershipPercentage_ASC
   ownershipPercentage_DESC
+  communityFee_ASC
+  communityFee_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -45278,6 +45304,7 @@ input ContactUpdateInput {
   role: ContactRoleRelateToOneInput
   isVerified: Boolean
   ownershipPercentage: String
+  communityFee: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -45305,6 +45332,7 @@ input ContactCreateInput {
   role: ContactRoleRelateToOneInput
   isVerified: Boolean
   ownershipPercentage: String
+  communityFee: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -66365,7 +66393,6 @@ enum B2BAppIconType {
   ArrowRight
   BarChartHorizontal
   BarChartVertical
-  Bell
   Bill
   Briefcase
   Building

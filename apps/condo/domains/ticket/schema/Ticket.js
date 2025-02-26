@@ -568,10 +568,10 @@ const Ticket = new GQLListSchema('Ticket', {
 
         priority: {
             schemaDoc: 'The number used to determine priority of this ticket. Like in JIRA. Default value is: 100. ' +
-                'Preferred values are: 100, 200, 300, 400, 500. 500 is the highest',
+                'Preferred values are: 100, 200, 300, 400, 500. 500 is the highest. Used by custom integrations',
             type: 'Integer',
             isRequired: true,
-            defaultValue: 100,
+            defaultValue: 300,
         },
 
         kanbanColumn: {
