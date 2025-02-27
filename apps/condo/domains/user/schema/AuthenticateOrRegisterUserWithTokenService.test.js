@@ -786,7 +786,6 @@ describe('AuthenticateOrRegisterUserWithTokenService', () => {
         })
     })
 
-    // TODO(DOMA-9749): update test after migrate from addFieldValidationError to GQLError
     test('should throw error if an internal error occurs while creating or updating a user', async () => {
         const [staffWithSameEmail, staffWithSameEmailAttrs] = await createTestUser(adminClient, {
             email: faker.internet.email(),
