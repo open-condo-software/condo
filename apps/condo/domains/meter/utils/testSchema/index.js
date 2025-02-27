@@ -27,7 +27,7 @@ const { INTERNAL_DELETE_METER_READINGS_MUTATION } = require('@condo/domains/mete
 const { REGISTER_METERS_READINGS_MUTATION } = require('@condo/domains/meter/gql')
 const { MeterReadingsImportTask: MeterReadingsImportTaskGQL } = require('@condo/domains/meter/gql')
 const { MeterReadingExportTask: MeterReadingExportTaskGQL } = require('@condo/domains/meter/gql')
-const { CustomMeterName: CustomMeterNameGQL } = require('@condo/domains/meter/gql')
+const { MeterUserData: MeterUserDataGQL } = require('@condo/domains/meter/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const MeterResource = generateGQLTestUtils(MeterResourceGQL)
@@ -41,7 +41,7 @@ const MeterReportingPeriod = generateGQLTestUtils(MeterReportingPeriodGQL)
 const MeterResourceOwner = generateGQLTestUtils(MeterResourceOwnerGQL)
 const MeterReadingsImportTask = generateGQLTestUtils(MeterReadingsImportTaskGQL)
 const MeterReadingExportTask = generateGQLTestUtils(MeterReadingExportTaskGQL)
-const CustomMeterName = generateGQLTestUtils(CustomMeterNameGQL)
+const MeterUserData = generateGQLTestUtils(MeterUserDataGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 const { COLD_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
@@ -514,7 +514,7 @@ async function updateTestMeterReadingExportTask (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestCustomMeterName (client, user, meter, extraAttrs = {}) {
+async function createTestMeterUserData (client, user, meter, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!user || !user.id) throw new Error('no user.id')
     if (!meter || !meter.id) throw new Error('no meter.id')
@@ -528,11 +528,11 @@ async function createTestCustomMeterName (client, user, meter, extraAttrs = {}) 
         name: faker.random.alpha(8),
         ...extraAttrs,
     }
-    const obj = await CustomMeterName.create(client, attrs)
+    const obj = await MeterUserData.create(client, attrs)
     return [obj, attrs]
 }
 
-async function updateTestCustomMeterName (client, id, extraAttrs = {}) {
+async function updateTestMeterUserData (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -542,7 +542,7 @@ async function updateTestCustomMeterName (client, id, extraAttrs = {}) {
         sender,
         ...extraAttrs,
     }
-    const obj = await CustomMeterName.update(client, id, attrs)
+    const obj = await MeterUserData.update(client, id, attrs)
     return [obj, attrs]
 }
 
@@ -590,6 +590,6 @@ module.exports = {
     createTestReadingData, registerMetersReadingsByTestClient,
     MeterReadingsImportTask, createTestMeterReadingsImportTask, updateTestMeterReadingsImportTask,
     MeterReadingExportTask, createTestMeterReadingExportTask, updateTestMeterReadingExportTask,
-    CustomMeterName, createTestCustomMeterName, updateTestCustomMeterName, makeResidentWithOwnMeter,
+    MeterUserData, createTestMeterUserData, updateTestMeterUserData, makeResidentWithOwnMeter,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

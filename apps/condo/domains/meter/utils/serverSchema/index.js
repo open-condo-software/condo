@@ -38,7 +38,7 @@ async function registerMetersReadings (context, data) {
 
 const MeterReadingsImportTask = generateServerUtils('MeterReadingsImportTask')
 const MeterReadingExportTask = generateServerUtils('MeterReadingExportTask')
-const CustomMeterName = generateServerUtils('CustomMeterName')
+const MeterUserData = generateServerUtils('MeterUserData')
 /* AUTOGENERATE MARKER <CONST> */
 
 /**
@@ -231,6 +231,6 @@ module.exports = {
     MeterReadingsImportTask,
     MeterReadingExportTask,
     loadMeterReadingsForExcelExport,
-    CustomMeterName,
+    MeterUserData,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
