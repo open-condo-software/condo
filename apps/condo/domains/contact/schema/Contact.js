@@ -151,6 +151,23 @@ const Contact = new GQLListSchema('Contact', {
                 },
             },
         },
+
+        communityFee: {
+            schemaDoc: 'A special fee paid by this contact to the community',
+            type: 'Decimal',
+            knexOptions: {
+                scale: 8,
+            },
+            isRequired: false,
+            hooks: {
+                validateInput: ({ resolvedData, fieldPath, addFieldValidationError }) => {
+                    const value = resolvedData[fieldPath]
+                    if (value < 0) {
+                        return addFieldValidationError('communityFee should be a positive number')
+                    }
+                },
+            },
+        },
     },
     hooks: {
         validateInput: async ({ resolvedData, operation, existingItem, addValidationError, context }) => {

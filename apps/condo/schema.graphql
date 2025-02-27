@@ -24143,15 +24143,21 @@ type TicketHistoryRecord {
   problemClassifier: String
   classifier: String
   isAutoClassified: Boolean
+  title: String
   details: String
   related: String
   isPaid: Boolean
   isPayable: Boolean
   isEmergency: Boolean
   isWarranty: Boolean
+  isInsurance: Boolean
   isResidentTicket: Boolean
   canReadByResident: Boolean
   meta: JSON
+  priority: Int
+  kanbanColumn: String
+  kanbanOrder: Int
+  customClassifier: String
   property: String
   propertyAddress: String
   propertyAddressMeta: JSON
@@ -24500,6 +24506,24 @@ input TicketHistoryRecordWhereInput {
   classifier_not_in: [String]
   isAutoClassified: Boolean
   isAutoClassified_not: Boolean
+  title: String
+  title_not: String
+  title_contains: String
+  title_not_contains: String
+  title_starts_with: String
+  title_not_starts_with: String
+  title_ends_with: String
+  title_not_ends_with: String
+  title_i: String
+  title_not_i: String
+  title_contains_i: String
+  title_not_contains_i: String
+  title_starts_with_i: String
+  title_not_starts_with_i: String
+  title_ends_with_i: String
+  title_not_ends_with_i: String
+  title_in: [String]
+  title_not_in: [String]
   details: String
   details_not: String
   details_contains: String
@@ -24530,6 +24554,8 @@ input TicketHistoryRecordWhereInput {
   isEmergency_not: Boolean
   isWarranty: Boolean
   isWarranty_not: Boolean
+  isInsurance: Boolean
+  isInsurance_not: Boolean
   isResidentTicket: Boolean
   isResidentTicket_not: Boolean
   canReadByResident: Boolean
@@ -24538,6 +24564,58 @@ input TicketHistoryRecordWhereInput {
   meta_not: JSON
   meta_in: [JSON]
   meta_not_in: [JSON]
+  priority: Int
+  priority_not: Int
+  priority_lt: Int
+  priority_lte: Int
+  priority_gt: Int
+  priority_gte: Int
+  priority_in: [Int]
+  priority_not_in: [Int]
+  kanbanColumn: String
+  kanbanColumn_not: String
+  kanbanColumn_contains: String
+  kanbanColumn_not_contains: String
+  kanbanColumn_starts_with: String
+  kanbanColumn_not_starts_with: String
+  kanbanColumn_ends_with: String
+  kanbanColumn_not_ends_with: String
+  kanbanColumn_i: String
+  kanbanColumn_not_i: String
+  kanbanColumn_contains_i: String
+  kanbanColumn_not_contains_i: String
+  kanbanColumn_starts_with_i: String
+  kanbanColumn_not_starts_with_i: String
+  kanbanColumn_ends_with_i: String
+  kanbanColumn_not_ends_with_i: String
+  kanbanColumn_in: [String]
+  kanbanColumn_not_in: [String]
+  kanbanOrder: Int
+  kanbanOrder_not: Int
+  kanbanOrder_lt: Int
+  kanbanOrder_lte: Int
+  kanbanOrder_gt: Int
+  kanbanOrder_gte: Int
+  kanbanOrder_in: [Int]
+  kanbanOrder_not_in: [Int]
+  customClassifier: String
+  customClassifier_not: String
+  customClassifier_contains: String
+  customClassifier_not_contains: String
+  customClassifier_starts_with: String
+  customClassifier_not_starts_with: String
+  customClassifier_ends_with: String
+  customClassifier_not_ends_with: String
+  customClassifier_i: String
+  customClassifier_not_i: String
+  customClassifier_contains_i: String
+  customClassifier_not_contains_i: String
+  customClassifier_starts_with_i: String
+  customClassifier_not_starts_with_i: String
+  customClassifier_ends_with_i: String
+  customClassifier_not_ends_with_i: String
+  customClassifier_in: [String]
+  customClassifier_not_in: [String]
   property: String
   property_not: String
   property_in: [String]
@@ -24797,6 +24875,8 @@ enum SortTicketHistoryRecordsBy {
   clientPhone_DESC
   isAutoClassified_ASC
   isAutoClassified_DESC
+  title_ASC
+  title_DESC
   details_ASC
   details_DESC
   isPaid_ASC
@@ -24807,10 +24887,20 @@ enum SortTicketHistoryRecordsBy {
   isEmergency_DESC
   isWarranty_ASC
   isWarranty_DESC
+  isInsurance_ASC
+  isInsurance_DESC
   isResidentTicket_ASC
   isResidentTicket_DESC
   canReadByResident_ASC
   canReadByResident_DESC
+  priority_ASC
+  priority_DESC
+  kanbanColumn_ASC
+  kanbanColumn_DESC
+  kanbanOrder_ASC
+  kanbanOrder_DESC
+  customClassifier_ASC
+  customClassifier_DESC
   propertyAddress_ASC
   propertyAddress_DESC
   sectionName_ASC
@@ -24881,15 +24971,21 @@ input TicketHistoryRecordUpdateInput {
   problemClassifier: String
   classifier: String
   isAutoClassified: Boolean
+  title: String
   details: String
   related: String
   isPaid: Boolean
   isPayable: Boolean
   isEmergency: Boolean
   isWarranty: Boolean
+  isInsurance: Boolean
   isResidentTicket: Boolean
   canReadByResident: Boolean
   meta: JSON
+  priority: Int
+  kanbanColumn: String
+  kanbanOrder: Int
+  customClassifier: String
   property: String
   propertyAddress: String
   propertyAddressMeta: JSON
@@ -24957,15 +25053,21 @@ input TicketHistoryRecordCreateInput {
   problemClassifier: String
   classifier: String
   isAutoClassified: Boolean
+  title: String
   details: String
   related: String
   isPaid: Boolean
   isPayable: Boolean
   isEmergency: Boolean
   isWarranty: Boolean
+  isInsurance: Boolean
   isResidentTicket: Boolean
   canReadByResident: Boolean
   meta: JSON
+  priority: Int
+  kanbanColumn: String
+  kanbanOrder: Int
+  customClassifier: String
   property: String
   propertyAddress: String
   propertyAddressMeta: JSON
@@ -25222,6 +25324,10 @@ type Ticket {
   """
   isAutoClassified: Boolean
 
+  """ Very short description of the issue. Will be filled via LLM in the future 
+  """
+  title: String
+
   """ Text description of the issue. Maybe written by a user or an operator 
   """
   details: String
@@ -25245,6 +25351,9 @@ type Ticket {
   """ Indicates the ticket is warranty """
   isWarranty: Boolean
 
+  """ Indicates the ticket is insurance """
+  isInsurance: Boolean
+
   """ Determines who the ticket was created for: for a resident or not for a resident 
   """
   isResidentTicket: Boolean
@@ -25255,6 +25364,21 @@ type Ticket {
 
   """ Extra analytics not related to remote system """
   meta: JSON
+
+  """ The number used to determine priority of this ticket. Like in JIRA. Default value is: 100. Preferred values are: 100, 200, 300, 400, 500. 500 is the highest. Used by custom integrations 
+  """
+  priority: Int
+
+  """ Custom id for kanban column. Should be used if it is not enough to map statuses to columns. Used by custom integrations 
+  """
+  kanbanColumn: String
+
+  """ The number used to determine the relative position of this ticket inside of kanban column. Used by custom integrations 
+  """
+  kanbanOrder: Int
+
+  """ Custom type or classifier for ticket. Used by custom integrations """
+  customClassifier: String
 
   """ Property related to the Ticket """
   property: Property
@@ -25583,6 +25707,24 @@ input TicketWhereInput {
   classifier_is_null: Boolean
   isAutoClassified: Boolean
   isAutoClassified_not: Boolean
+  title: String
+  title_not: String
+  title_contains: String
+  title_not_contains: String
+  title_starts_with: String
+  title_not_starts_with: String
+  title_ends_with: String
+  title_not_ends_with: String
+  title_i: String
+  title_not_i: String
+  title_contains_i: String
+  title_not_contains_i: String
+  title_starts_with_i: String
+  title_not_starts_with_i: String
+  title_ends_with_i: String
+  title_not_ends_with_i: String
+  title_in: [String]
+  title_not_in: [String]
   details: String
   details_not: String
   details_contains: String
@@ -25611,6 +25753,8 @@ input TicketWhereInput {
   isEmergency_not: Boolean
   isWarranty: Boolean
   isWarranty_not: Boolean
+  isInsurance: Boolean
+  isInsurance_not: Boolean
   isResidentTicket: Boolean
   isResidentTicket_not: Boolean
   canReadByResident: Boolean
@@ -25619,6 +25763,58 @@ input TicketWhereInput {
   meta_not: JSON
   meta_in: [JSON]
   meta_not_in: [JSON]
+  priority: Int
+  priority_not: Int
+  priority_lt: Int
+  priority_lte: Int
+  priority_gt: Int
+  priority_gte: Int
+  priority_in: [Int]
+  priority_not_in: [Int]
+  kanbanColumn: String
+  kanbanColumn_not: String
+  kanbanColumn_contains: String
+  kanbanColumn_not_contains: String
+  kanbanColumn_starts_with: String
+  kanbanColumn_not_starts_with: String
+  kanbanColumn_ends_with: String
+  kanbanColumn_not_ends_with: String
+  kanbanColumn_i: String
+  kanbanColumn_not_i: String
+  kanbanColumn_contains_i: String
+  kanbanColumn_not_contains_i: String
+  kanbanColumn_starts_with_i: String
+  kanbanColumn_not_starts_with_i: String
+  kanbanColumn_ends_with_i: String
+  kanbanColumn_not_ends_with_i: String
+  kanbanColumn_in: [String]
+  kanbanColumn_not_in: [String]
+  kanbanOrder: Int
+  kanbanOrder_not: Int
+  kanbanOrder_lt: Int
+  kanbanOrder_lte: Int
+  kanbanOrder_gt: Int
+  kanbanOrder_gte: Int
+  kanbanOrder_in: [Int]
+  kanbanOrder_not_in: [Int]
+  customClassifier: String
+  customClassifier_not: String
+  customClassifier_contains: String
+  customClassifier_not_contains: String
+  customClassifier_starts_with: String
+  customClassifier_not_starts_with: String
+  customClassifier_ends_with: String
+  customClassifier_not_ends_with: String
+  customClassifier_i: String
+  customClassifier_not_i: String
+  customClassifier_contains_i: String
+  customClassifier_not_contains_i: String
+  customClassifier_starts_with_i: String
+  customClassifier_not_starts_with_i: String
+  customClassifier_ends_with_i: String
+  customClassifier_not_ends_with_i: String
+  customClassifier_in: [String]
+  customClassifier_not_in: [String]
   property: PropertyWhereInput
   property_is_null: Boolean
   propertyAddress: String
@@ -25850,6 +26046,8 @@ enum SortTicketsBy {
   classifier_DESC
   isAutoClassified_ASC
   isAutoClassified_DESC
+  title_ASC
+  title_DESC
   details_ASC
   details_DESC
   related_ASC
@@ -25862,10 +26060,20 @@ enum SortTicketsBy {
   isEmergency_DESC
   isWarranty_ASC
   isWarranty_DESC
+  isInsurance_ASC
+  isInsurance_DESC
   isResidentTicket_ASC
   isResidentTicket_DESC
   canReadByResident_ASC
   canReadByResident_DESC
+  priority_ASC
+  priority_DESC
+  kanbanColumn_ASC
+  kanbanColumn_DESC
+  kanbanOrder_ASC
+  kanbanOrder_DESC
+  customClassifier_ASC
+  customClassifier_DESC
   property_ASC
   property_DESC
   propertyAddress_ASC
@@ -25940,15 +26148,21 @@ input TicketUpdateInput {
   problemClassifier: TicketProblemClassifierRelateToOneInput
   classifier: TicketClassifierRelateToOneInput
   isAutoClassified: Boolean
+  title: String
   details: String
   related: TicketRelateToOneInput
   isPaid: Boolean
   isPayable: Boolean
   isEmergency: Boolean
   isWarranty: Boolean
+  isInsurance: Boolean
   isResidentTicket: Boolean
   canReadByResident: Boolean
   meta: JSON
+  priority: Int
+  kanbanColumn: String
+  kanbanOrder: Int
+  customClassifier: String
   property: PropertyRelateToOneInput
   propertyAddress: String
   propertyAddressMeta: JSON
@@ -26013,15 +26227,21 @@ input TicketCreateInput {
   problemClassifier: TicketProblemClassifierRelateToOneInput
   classifier: TicketClassifierRelateToOneInput
   isAutoClassified: Boolean
+  title: String
   details: String
   related: TicketRelateToOneInput
   isPaid: Boolean
   isPayable: Boolean
   isEmergency: Boolean
   isWarranty: Boolean
+  isInsurance: Boolean
   isResidentTicket: Boolean
   canReadByResident: Boolean
   meta: JSON
+  priority: Int
+  kanbanColumn: String
+  kanbanOrder: Int
+  customClassifier: String
   property: PropertyRelateToOneInput
   propertyAddress: String
   propertyAddressMeta: JSON
@@ -27480,6 +27700,14 @@ type TicketChange {
   """
   clientPhoneTo: String
 
+  """ Very short description of the issue. Will be filled via LLM in the future 
+  """
+  titleFrom: String
+
+  """ Very short description of the issue. Will be filled via LLM in the future 
+  """
+  titleTo: String
+
   """ Text description of the issue. Maybe written by a user or an operator 
   """
   detailsFrom: String
@@ -27518,6 +27746,12 @@ type TicketChange {
   """ Indicates the ticket is warranty """
   isWarrantyTo: Boolean
 
+  """ Indicates the ticket is insurance """
+  isInsuranceFrom: Boolean
+
+  """ Indicates the ticket is insurance """
+  isInsuranceTo: Boolean
+
   """ Determines who the ticket was created for: for a resident or not for a resident 
   """
   isResidentTicketFrom: Boolean
@@ -27539,6 +27773,36 @@ type TicketChange {
 
   """ Extra analytics not related to remote system """
   metaTo: JSON
+
+  """ The number used to determine priority of this ticket. Like in JIRA. Default value is: 100. Preferred values are: 100, 200, 300, 400, 500. 500 is the highest. Used by custom integrations 
+  """
+  priorityFrom: Int
+
+  """ The number used to determine priority of this ticket. Like in JIRA. Default value is: 100. Preferred values are: 100, 200, 300, 400, 500. 500 is the highest. Used by custom integrations 
+  """
+  priorityTo: Int
+
+  """ Custom id for kanban column. Should be used if it is not enough to map statuses to columns. Used by custom integrations 
+  """
+  kanbanColumnFrom: String
+
+  """ Custom id for kanban column. Should be used if it is not enough to map statuses to columns. Used by custom integrations 
+  """
+  kanbanColumnTo: String
+
+  """ The number used to determine the relative position of this ticket inside of kanban column. Used by custom integrations 
+  """
+  kanbanOrderFrom: Int
+
+  """ The number used to determine the relative position of this ticket inside of kanban column. Used by custom integrations 
+  """
+  kanbanOrderTo: Int
+
+  """ Custom type or classifier for ticket. Used by custom integrations """
+  customClassifierFrom: String
+
+  """ Custom type or classifier for ticket. Used by custom integrations """
+  customClassifierTo: String
 
   """ Address of property, which synced with property and displayed, if property is deleted 
   """
@@ -28123,6 +28387,42 @@ input TicketChangeWhereInput {
   clientPhoneTo_not_ends_with_i: String
   clientPhoneTo_in: [String]
   clientPhoneTo_not_in: [String]
+  titleFrom: String
+  titleFrom_not: String
+  titleFrom_contains: String
+  titleFrom_not_contains: String
+  titleFrom_starts_with: String
+  titleFrom_not_starts_with: String
+  titleFrom_ends_with: String
+  titleFrom_not_ends_with: String
+  titleFrom_i: String
+  titleFrom_not_i: String
+  titleFrom_contains_i: String
+  titleFrom_not_contains_i: String
+  titleFrom_starts_with_i: String
+  titleFrom_not_starts_with_i: String
+  titleFrom_ends_with_i: String
+  titleFrom_not_ends_with_i: String
+  titleFrom_in: [String]
+  titleFrom_not_in: [String]
+  titleTo: String
+  titleTo_not: String
+  titleTo_contains: String
+  titleTo_not_contains: String
+  titleTo_starts_with: String
+  titleTo_not_starts_with: String
+  titleTo_ends_with: String
+  titleTo_not_ends_with: String
+  titleTo_i: String
+  titleTo_not_i: String
+  titleTo_contains_i: String
+  titleTo_not_contains_i: String
+  titleTo_starts_with_i: String
+  titleTo_not_starts_with_i: String
+  titleTo_ends_with_i: String
+  titleTo_not_ends_with_i: String
+  titleTo_in: [String]
+  titleTo_not_in: [String]
   detailsFrom: String
   detailsFrom_not: String
   detailsFrom_contains: String
@@ -28175,6 +28475,10 @@ input TicketChangeWhereInput {
   isWarrantyFrom_not: Boolean
   isWarrantyTo: Boolean
   isWarrantyTo_not: Boolean
+  isInsuranceFrom: Boolean
+  isInsuranceFrom_not: Boolean
+  isInsuranceTo: Boolean
+  isInsuranceTo_not: Boolean
   isResidentTicketFrom: Boolean
   isResidentTicketFrom_not: Boolean
   isResidentTicketTo: Boolean
@@ -28191,6 +28495,110 @@ input TicketChangeWhereInput {
   metaTo_not: JSON
   metaTo_in: [JSON]
   metaTo_not_in: [JSON]
+  priorityFrom: Int
+  priorityFrom_not: Int
+  priorityFrom_lt: Int
+  priorityFrom_lte: Int
+  priorityFrom_gt: Int
+  priorityFrom_gte: Int
+  priorityFrom_in: [Int]
+  priorityFrom_not_in: [Int]
+  priorityTo: Int
+  priorityTo_not: Int
+  priorityTo_lt: Int
+  priorityTo_lte: Int
+  priorityTo_gt: Int
+  priorityTo_gte: Int
+  priorityTo_in: [Int]
+  priorityTo_not_in: [Int]
+  kanbanColumnFrom: String
+  kanbanColumnFrom_not: String
+  kanbanColumnFrom_contains: String
+  kanbanColumnFrom_not_contains: String
+  kanbanColumnFrom_starts_with: String
+  kanbanColumnFrom_not_starts_with: String
+  kanbanColumnFrom_ends_with: String
+  kanbanColumnFrom_not_ends_with: String
+  kanbanColumnFrom_i: String
+  kanbanColumnFrom_not_i: String
+  kanbanColumnFrom_contains_i: String
+  kanbanColumnFrom_not_contains_i: String
+  kanbanColumnFrom_starts_with_i: String
+  kanbanColumnFrom_not_starts_with_i: String
+  kanbanColumnFrom_ends_with_i: String
+  kanbanColumnFrom_not_ends_with_i: String
+  kanbanColumnFrom_in: [String]
+  kanbanColumnFrom_not_in: [String]
+  kanbanColumnTo: String
+  kanbanColumnTo_not: String
+  kanbanColumnTo_contains: String
+  kanbanColumnTo_not_contains: String
+  kanbanColumnTo_starts_with: String
+  kanbanColumnTo_not_starts_with: String
+  kanbanColumnTo_ends_with: String
+  kanbanColumnTo_not_ends_with: String
+  kanbanColumnTo_i: String
+  kanbanColumnTo_not_i: String
+  kanbanColumnTo_contains_i: String
+  kanbanColumnTo_not_contains_i: String
+  kanbanColumnTo_starts_with_i: String
+  kanbanColumnTo_not_starts_with_i: String
+  kanbanColumnTo_ends_with_i: String
+  kanbanColumnTo_not_ends_with_i: String
+  kanbanColumnTo_in: [String]
+  kanbanColumnTo_not_in: [String]
+  kanbanOrderFrom: Int
+  kanbanOrderFrom_not: Int
+  kanbanOrderFrom_lt: Int
+  kanbanOrderFrom_lte: Int
+  kanbanOrderFrom_gt: Int
+  kanbanOrderFrom_gte: Int
+  kanbanOrderFrom_in: [Int]
+  kanbanOrderFrom_not_in: [Int]
+  kanbanOrderTo: Int
+  kanbanOrderTo_not: Int
+  kanbanOrderTo_lt: Int
+  kanbanOrderTo_lte: Int
+  kanbanOrderTo_gt: Int
+  kanbanOrderTo_gte: Int
+  kanbanOrderTo_in: [Int]
+  kanbanOrderTo_not_in: [Int]
+  customClassifierFrom: String
+  customClassifierFrom_not: String
+  customClassifierFrom_contains: String
+  customClassifierFrom_not_contains: String
+  customClassifierFrom_starts_with: String
+  customClassifierFrom_not_starts_with: String
+  customClassifierFrom_ends_with: String
+  customClassifierFrom_not_ends_with: String
+  customClassifierFrom_i: String
+  customClassifierFrom_not_i: String
+  customClassifierFrom_contains_i: String
+  customClassifierFrom_not_contains_i: String
+  customClassifierFrom_starts_with_i: String
+  customClassifierFrom_not_starts_with_i: String
+  customClassifierFrom_ends_with_i: String
+  customClassifierFrom_not_ends_with_i: String
+  customClassifierFrom_in: [String]
+  customClassifierFrom_not_in: [String]
+  customClassifierTo: String
+  customClassifierTo_not: String
+  customClassifierTo_contains: String
+  customClassifierTo_not_contains: String
+  customClassifierTo_starts_with: String
+  customClassifierTo_not_starts_with: String
+  customClassifierTo_ends_with: String
+  customClassifierTo_not_ends_with: String
+  customClassifierTo_i: String
+  customClassifierTo_not_i: String
+  customClassifierTo_contains_i: String
+  customClassifierTo_not_contains_i: String
+  customClassifierTo_starts_with_i: String
+  customClassifierTo_not_starts_with_i: String
+  customClassifierTo_ends_with_i: String
+  customClassifierTo_not_ends_with_i: String
+  customClassifierTo_in: [String]
+  customClassifierTo_not_in: [String]
   propertyAddressFrom: String
   propertyAddressFrom_not: String
   propertyAddressFrom_contains: String
@@ -28932,6 +29340,10 @@ enum SortTicketChangesBy {
   clientPhoneFrom_DESC
   clientPhoneTo_ASC
   clientPhoneTo_DESC
+  titleFrom_ASC
+  titleFrom_DESC
+  titleTo_ASC
+  titleTo_DESC
   detailsFrom_ASC
   detailsFrom_DESC
   detailsTo_ASC
@@ -28952,6 +29364,10 @@ enum SortTicketChangesBy {
   isWarrantyFrom_DESC
   isWarrantyTo_ASC
   isWarrantyTo_DESC
+  isInsuranceFrom_ASC
+  isInsuranceFrom_DESC
+  isInsuranceTo_ASC
+  isInsuranceTo_DESC
   isResidentTicketFrom_ASC
   isResidentTicketFrom_DESC
   isResidentTicketTo_ASC
@@ -28960,6 +29376,22 @@ enum SortTicketChangesBy {
   canReadByResidentFrom_DESC
   canReadByResidentTo_ASC
   canReadByResidentTo_DESC
+  priorityFrom_ASC
+  priorityFrom_DESC
+  priorityTo_ASC
+  priorityTo_DESC
+  kanbanColumnFrom_ASC
+  kanbanColumnFrom_DESC
+  kanbanColumnTo_ASC
+  kanbanColumnTo_DESC
+  kanbanOrderFrom_ASC
+  kanbanOrderFrom_DESC
+  kanbanOrderTo_ASC
+  kanbanOrderTo_DESC
+  customClassifierFrom_ASC
+  customClassifierFrom_DESC
+  customClassifierTo_ASC
+  customClassifierTo_DESC
   propertyAddressFrom_ASC
   propertyAddressFrom_DESC
   propertyAddressTo_ASC
@@ -29116,6 +29548,8 @@ input TicketChangeUpdateInput {
   clientEmailTo: String
   clientPhoneFrom: String
   clientPhoneTo: String
+  titleFrom: String
+  titleTo: String
   detailsFrom: String
   detailsTo: String
   isPaidFrom: Boolean
@@ -29126,12 +29560,22 @@ input TicketChangeUpdateInput {
   isEmergencyTo: Boolean
   isWarrantyFrom: Boolean
   isWarrantyTo: Boolean
+  isInsuranceFrom: Boolean
+  isInsuranceTo: Boolean
   isResidentTicketFrom: Boolean
   isResidentTicketTo: Boolean
   canReadByResidentFrom: Boolean
   canReadByResidentTo: Boolean
   metaFrom: JSON
   metaTo: JSON
+  priorityFrom: Int
+  priorityTo: Int
+  kanbanColumnFrom: String
+  kanbanColumnTo: String
+  kanbanOrderFrom: Int
+  kanbanOrderTo: Int
+  customClassifierFrom: String
+  customClassifierTo: String
   propertyAddressFrom: String
   propertyAddressTo: String
   propertyAddressMetaFrom: JSON
@@ -29235,6 +29679,8 @@ input TicketChangeCreateInput {
   clientEmailTo: String
   clientPhoneFrom: String
   clientPhoneTo: String
+  titleFrom: String
+  titleTo: String
   detailsFrom: String
   detailsTo: String
   isPaidFrom: Boolean
@@ -29245,12 +29691,22 @@ input TicketChangeCreateInput {
   isEmergencyTo: Boolean
   isWarrantyFrom: Boolean
   isWarrantyTo: Boolean
+  isInsuranceFrom: Boolean
+  isInsuranceTo: Boolean
   isResidentTicketFrom: Boolean
   isResidentTicketTo: Boolean
   canReadByResidentFrom: Boolean
   canReadByResidentTo: Boolean
   metaFrom: JSON
   metaTo: JSON
+  priorityFrom: Int
+  priorityTo: Int
+  kanbanColumnFrom: String
+  kanbanColumnTo: String
+  kanbanOrderFrom: Int
+  kanbanOrderTo: Int
+  customClassifierFrom: String
+  customClassifierTo: String
   propertyAddressFrom: String
   propertyAddressTo: String
   propertyAddressMetaFrom: JSON
@@ -44227,6 +44683,7 @@ type ContactHistoryRecord {
   role: String
   isVerified: Boolean
   ownershipPercentage: String
+  communityFee: String
   id: ID!
   v: Int
   createdAt: String
@@ -44357,6 +44814,14 @@ input ContactHistoryRecordWhereInput {
   ownershipPercentage_gte: String
   ownershipPercentage_in: [String]
   ownershipPercentage_not_in: [String]
+  communityFee: String
+  communityFee_not: String
+  communityFee_lt: String
+  communityFee_lte: String
+  communityFee_gt: String
+  communityFee_gte: String
+  communityFee_in: [String]
+  communityFee_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -44454,6 +44919,8 @@ enum SortContactHistoryRecordsBy {
   isVerified_DESC
   ownershipPercentage_ASC
   ownershipPercentage_DESC
+  communityFee_ASC
+  communityFee_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -44483,6 +44950,7 @@ input ContactHistoryRecordUpdateInput {
   role: String
   isVerified: Boolean
   ownershipPercentage: String
+  communityFee: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -44513,6 +44981,7 @@ input ContactHistoryRecordCreateInput {
   role: String
   isVerified: Boolean
   ownershipPercentage: String
+  communityFee: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -44592,6 +45061,9 @@ type Contact {
   """ Percentage ownership of an apartment. Example value: 50.00000000 // 50%  
   """
   ownershipPercentage: String
+
+  """ A special fee paid by this contact to the community """
+  communityFee: String
   id: ID!
   v: Int
   createdAt: String
@@ -44710,6 +45182,14 @@ input ContactWhereInput {
   ownershipPercentage_gte: String
   ownershipPercentage_in: [String]
   ownershipPercentage_not_in: [String]
+  communityFee: String
+  communityFee_not: String
+  communityFee_lt: String
+  communityFee_lte: String
+  communityFee_gt: String
+  communityFee_gte: String
+  communityFee_in: [String]
+  communityFee_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -44793,6 +45273,8 @@ enum SortContactsBy {
   isVerified_DESC
   ownershipPercentage_ASC
   ownershipPercentage_DESC
+  communityFee_ASC
+  communityFee_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -44822,6 +45304,7 @@ input ContactUpdateInput {
   role: ContactRoleRelateToOneInput
   isVerified: Boolean
   ownershipPercentage: String
+  communityFee: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -44849,6 +45332,7 @@ input ContactCreateInput {
   role: ContactRoleRelateToOneInput
   isVerified: Boolean
   ownershipPercentage: String
+  communityFee: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -77984,6 +78468,7 @@ type DocumentHistoryRecord {
   category: String
   name: String
   file: JSON
+  canReadByResident: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -78036,6 +78521,8 @@ input DocumentHistoryRecordWhereInput {
   file_not: JSON
   file_in: [JSON]
   file_not_in: [JSON]
+  canReadByResident: Boolean
+  canReadByResident_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -78121,6 +78608,8 @@ input DocumentHistoryRecordWhereUniqueInput {
 enum SortDocumentHistoryRecordsBy {
   name_ASC
   name_DESC
+  canReadByResident_ASC
+  canReadByResident_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -78145,6 +78634,7 @@ input DocumentHistoryRecordUpdateInput {
   category: String
   name: String
   file: JSON
+  canReadByResident: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -78170,6 +78660,7 @@ input DocumentHistoryRecordCreateInput {
   category: String
   name: String
   file: JSON
+  canReadByResident: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -78222,6 +78713,9 @@ type Document {
 
   """ File attached to document """
   file: File
+
+  """ If set to true, this means document will be accessible by residents """
+  canReadByResident: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -78276,6 +78770,8 @@ input DocumentWhereInput {
   file_not: String
   file_in: [String]
   file_not_in: [String]
+  canReadByResident: Boolean
+  canReadByResident_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -78347,6 +78843,8 @@ enum SortDocumentsBy {
   category_DESC
   name_ASC
   name_DESC
+  canReadByResident_ASC
+  canReadByResident_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -78371,6 +78869,7 @@ input DocumentUpdateInput {
   category: DocumentCategoryRelateToOneInput
   name: String
   file: Upload
+  canReadByResident: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -78393,6 +78892,7 @@ input DocumentCreateInput {
   category: DocumentCategoryRelateToOneInput
   name: String
   file: Upload
+  canReadByResident: Boolean
   v: Int
   createdAt: String
   updatedAt: String
