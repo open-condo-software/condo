@@ -31,11 +31,11 @@ async function manageResidentToPropertyAndOrganizationConnections (address, dv, 
     })
 
     if (oldestProperty) {
-        const residents = await ResidentAPI.getAll(context, {
+        const residents = await find('Resident', {
             address_i: address,
             deletedAt: null,
             property: { OR: [{ id_not: oldestProperty.id }, { id: null }] },
-        }, 'id property { id }')
+        })
 
         // Disconnect residents before reconnecting
         await disconnectResidents(context, residents, dv, sender)
@@ -43,10 +43,10 @@ async function manageResidentToPropertyAndOrganizationConnections (address, dv, 
         // They should be reconnected to oldestProperty
         await connectResidents(context, residents, oldestProperty, dv, sender)
     } else {
-        const residents = await ResidentAPI.getAll(context, {
+        const residents = await find('Resident', {
             address_i: address,
             deletedAt: null,
-        }, 'id property { id }')
+        })
 
         // We have no non-deleted properties with such address
         // All residents with such address should be disconnected

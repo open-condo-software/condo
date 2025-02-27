@@ -27,7 +27,7 @@ const connectResidents = async (context, residents, property, dv, sender) => {
         // Already disconnected resident
         if (!shouldConnect && isNull(resident.property)) continue
         // Resident is already connected to the property
-        if (shouldConnect && get(resident, 'property.id') === propertyId) continue
+        if (shouldConnect && get(resident, 'property') === propertyId) continue
 
         await ResidentAPI.update(context, get(resident, 'id'), attrs)
     }
