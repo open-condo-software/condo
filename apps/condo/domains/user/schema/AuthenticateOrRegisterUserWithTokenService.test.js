@@ -809,10 +809,8 @@ describe('AuthenticateOrRegisterUserWithTokenService', () => {
                 },
             })
         }, {
-            'code': 'INTERNAL_ERROR',
-            'message': '[unique:email:multipleFound] user already exists',
-            'messageForDeveloper': expect.stringContaining('[error] Update User internal error'),
-            'type': 'SUB_GQL_ERROR',
+            code: 'BAD_USER_INPUT',
+            type: 'EMAIL_ALREADY_REGISTERED_ERROR',
         })
 
         // case with unregistered user
@@ -829,10 +827,8 @@ describe('AuthenticateOrRegisterUserWithTokenService', () => {
                 },
             })
         }, {
-            'code': 'INTERNAL_ERROR',
-            'message': '[unique:email:multipleFound] user already exists',
-            'messageForDeveloper': expect.stringContaining('[error] Create User internal error'),
-            'type': 'SUB_GQL_ERROR',
+            code: 'BAD_USER_INPUT',
+            type: 'EMAIL_ALREADY_REGISTERED_ERROR',
         })
 
         // case with invalid password
