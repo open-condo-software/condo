@@ -8,6 +8,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { Button, Typography, Input } from '@open-condo/ui'
 
 import { FormItem } from '@condo/domains/common/components/Form/FormItem'
+import { useHCaptcha } from '@condo/domains/common/components/HCaptcha'
 import { TabsAuthAction } from '@condo/domains/common/components/HeaderActions'
 import { LoginWithSBBOLButton } from '@condo/domains/common/components/LoginWithSBBOLButton'
 import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
@@ -19,8 +20,6 @@ import { TOO_MANY_REQUESTS } from '@condo/domains/user/constants/errors'
 
 import { AgreementText } from './AgreementText'
 import { useRegisterContext } from './RegisterContextProvider'
-
-import { useHCaptcha } from '../../../common/components/HCaptcha'
 
 
 const { publicRuntimeConfig: { hasSbbolAuth } } = getConfig()
