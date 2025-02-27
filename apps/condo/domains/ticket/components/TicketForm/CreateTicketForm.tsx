@@ -47,7 +47,7 @@ export const CreateTicketActionBar = ({ handleSave, isLoading, form }) => {
     const [disabled, setDisabled] = useState<boolean>(true)
 
     const { user } = useAuth()
-    const userId = useMemo(() => user?.id || null, [user])
+    const userId = user?.id || null
 
     const { persistor } = useCachePersistor()
     const {
@@ -163,7 +163,6 @@ export const CreateTicketForm: React.FC = () => {
         },
     })
 
-
     const getCompletedNotification = useCallback(({ ticketId, ticketNumber, paymentUrl }) => ({
         message: (
             <Typography.Text strong>
@@ -192,7 +191,7 @@ export const CreateTicketForm: React.FC = () => {
         }
         const { newInvoices, ...ticketValues } = variables
 
-        const ticketData = await createTicketAction({
+        const { data: ticketData } = await createTicketAction({
             variables: {
                 data: {
                     status: {
@@ -203,7 +202,7 @@ export const CreateTicketForm: React.FC = () => {
                 },
             },
         })
-        const ticket = ticketData?.data?.ticket
+        const ticket = ticketData?.ticket
 
         let paymentUrl
         if (!isEmpty(newInvoices)) {

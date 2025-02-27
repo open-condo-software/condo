@@ -26,12 +26,12 @@ export const useOrganizationInvites = (organizationTypes: Array<OrganizationType
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
     
     const { user, isAuthenticated } = useAuth()
-    const userId = useMemo(() => user?.id || null, [user])
+    const userId = user?.id || null
     const { selectEmployee } = useOrganization()
     const { persistor } = useCachePersistor()
     
     const {
-        data,
+        data: organizationEmployeesData,
         refetch,
         loading,
     } = useGetOrganizationEmployeesByUserIdAndOrganizationTypeQuery({
@@ -41,7 +41,7 @@ export const useOrganizationInvites = (organizationTypes: Array<OrganizationType
         },
         skip: !userId || !organizationTypes || organizationTypes.length < 1 || !persistor,
     })
-    const userInvites = useMemo(() => data?.employees?.filter(Boolean) || null, [data?.employees])
+    const userInvites = useMemo(() => organizationEmployeesData?.employees?.filter(Boolean) || [], [organizationEmployeesData?.employees])
 
     const { addNotification } = useLayoutContext()
 

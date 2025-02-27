@@ -5,6 +5,7 @@ query getPropertyScopeOrganizationEmployees ($employeeId: ID!) {
                 id: $employeeId
             }
         }
+        first: 100,
     ) {
         id
         propertyScope {

@@ -166,10 +166,8 @@ const MenuItems: React.FC = () => {
         data,
     } = useGetBillingIntegrationOrganizationContextsQuery({
         variables: {
-            where: {
-                integration: { id: sppBillingId },
-                organization: { id: orgId },
-            },
+            integration: { id: sppBillingId },
+            organization: { id: orgId },
         },
         skip: !isAuthenticated || isLoading || !orgId || sppBillingId || !persistor,
     })

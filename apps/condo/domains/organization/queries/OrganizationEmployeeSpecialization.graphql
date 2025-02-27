@@ -1,5 +1,7 @@
-query getOrganizationEmployeeSpecializations ($where: OrganizationEmployeeSpecializationWhereInput!, $first: Int, $skip: Int) {
-    organizationEmployeeSpecializations: allOrganizationEmployeeSpecializations (where: $where, first: $first, skip: $skip) {
+query getOrganizationEmployeeSpecializations ($employeeId: ID!) {
+    organizationEmployeeSpecializations: allOrganizationEmployeeSpecializations (where: {
+        employee: { id: $employeeId }
+    }) {
         id
         employee {
             id
