@@ -18,11 +18,9 @@ const SignInPage: PageComponentType = () => {
     return (
         <>
             <Head><title>{SignInTitleMsg}</title></Head>
-            <Row justify='center'>
-                <Col span={16}>
+            <Row>
+                <Col>
                     <TabsAuthAction currentActiveKey='signin'/>
-                </Col>
-                <Col span={24}>
                     <SignInForm/>
                 </Col>
             </Row>
@@ -30,7 +28,7 @@ const SignInPage: PageComponentType = () => {
     )
 }
 SignInPage.container = AuthLayout
-SignInPage.headerAction = <WelcomeHeaderTitle/>
+SignInPage.headerAction = <WelcomeHeaderTitle userType='staff'/>
 SignInPage.skipUserPrefetch = true
 
 export default SignInPage
