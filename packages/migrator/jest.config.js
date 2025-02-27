@@ -3,6 +3,7 @@ module.exports = {
     preset: 'ts-jest',
     testEnvironment: 'node',
     rootDir: './',
+    reporters: ['default', '<rootDir>/../../bin/report-failed-tests.js'],
     testPathIgnorePatterns: ['/node_modules/'],
     moduleFileExtensions: ['js', 'ts'],
     projects: [
