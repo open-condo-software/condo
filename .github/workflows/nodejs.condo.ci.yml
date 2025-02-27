@@ -532,4 +532,9 @@ jobs:
           npm i -g turbo
           yarn install --immutable
       - name: Test webhooks utils
-        run: yarn workspace @open-condo/webhooks jest
+        run: yarn workspace @open-condo/webhooks test
+        env:
+          PROMETHEUS_RW_SERVER_URL: ${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }}
+          PROMETHEUS_USER: ${{ secrets.K6_PROMETHEUS_USER }}
+          PROMETHEUS_PASSWORD: ${{ secrets.K6_PROMETHEUS_PASSWORD }}
+          GH_REF_NAME: ${{ github.ref_name }}

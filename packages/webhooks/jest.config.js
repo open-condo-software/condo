@@ -1,12 +1,15 @@
+/** @type {import('jest').Config} */
 module.exports = {
+    rootDir: './',
+    reporters: ['default', '<rootDir>/../../bin/report-failed-tests.js'],
     projects: [
         {
             displayName: 'Specs',
             testEnvironment: 'node',
             testRunner: 'jasmine2',
-            testMatch: [`${__dirname}/**/*.spec.js`],
+            testMatch: ['<rootDir>/**/*.spec.js'],
             testPathIgnorePatterns: ['/tasks/'],
-            setupFilesAfterEnv: [`${__dirname}/jest.setupSpec.js`],
+            setupFilesAfterEnv: ['<rootDir>/jest.setupSpec.js'],
         },
     ],
 }

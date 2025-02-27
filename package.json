@@ -29,6 +29,7 @@
     "@faker-js/faker": "^7.6.0",
     "@graphql-codegen/cli": "1.21.8",
     "@graphql-codegen/typescript": "1.23.0",
+    "@jest/reporters": "^29.7.0",
     "@mono-pub/commit-analyzer": "^1.0.5",
     "@mono-pub/git": "^1.0.5",
     "@mono-pub/github": "^1.0.5",
