@@ -16,6 +16,9 @@
     "./*": "./*.js",
     "./crypto": "./crypto/index.js"
   },
+  "scripts": {
+    "test": "jest --maxWorkers=1 --forceExit"
+  },
   "dependencies": {
     "@apollo/client": "^3.11.8",
     "@graphql-tools/graphql-file-loader": "^7.5.17",
@@ -96,6 +99,7 @@
   "repository": "https://github.com/open-condo-software/condo/tree/main/packages/keystone",
   "devDependencies": {
     "@faker-js/faker": "^7",
-    "babel-jest": "^29.7.0"
+    "babel-jest": "^29.7.0",
+    "jest": "^29.7.0"
   }
 }

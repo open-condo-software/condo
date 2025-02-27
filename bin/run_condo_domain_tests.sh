@@ -80,6 +80,6 @@ else
     killall node || echo 'no node processes'
 
     # TODO: INFRA-155 Remove it completely by rewriting a task tests or migrate to jest.setup or smth
-    REDIS_URL=redis://127.0.0.1:6379/32 yarn jest ./packages/keystone --maxWorkers=1 --forceExit
+    REDIS_URL=redis://127.0.0.1:6379/32 yarn workspace @open-condo/keystone test
     yarn workspace @app/condo lint-schema
 fi

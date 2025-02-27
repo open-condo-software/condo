@@ -1,15 +1,17 @@
 /** @type {import('jest').Config} */
 module.exports = {
+    rootDir: './',
+    reporters: ['default', '<rootDir>/../../bin/report-failed-tests.js'],
     projects: [
         {
             testRunner: 'jasmine2',
             displayName: 'schema tests',
             testEnvironment: 'node',
             testMatch: [
-                `${__dirname}/schema/**/*.test.js`,
-                `${__dirname}/domains/**/schema/*.test.js`,
+                '<rootDir>/schema/**/*.test.js',
+                '<rootDir>/domains/**/schema/*.test.js',
             ],
-            setupFilesAfterEnv: [`${__dirname}/jest.setupTest.js`],
+            setupFilesAfterEnv: ['<rootDir>/jest.setupTest.js'],
             // NOTE: need to pass uuid export syntax through babel
             transformIgnorePatterns: ['/node_modules/(?!(uuid|msgpackr|n2words)/)'],
         },
@@ -18,9 +20,9 @@ module.exports = {
             displayName: 'schema specs',
             testEnvironment: 'node',
             testMatch: [
-                `${__dirname}/domains/**/schema/**/*.spec.js`,
+                '<rootDir>/domains/**/schema/**/*.spec.js',
             ],
-            setupFilesAfterEnv: [`${__dirname}/jest.setupSpec.js`],
+            setupFilesAfterEnv: ['<rootDir>/jest.setupSpec.js'],
             // NOTE: need to pass uuid export syntax through babel
             transformIgnorePatterns: ['/node_modules/(?!(uuid|bull|msgpackr|n2words)/)'],
         },
@@ -39,7 +41,7 @@ module.exports = {
             transform: {
                 '\\.[jt]sx?$': 'babel-jest',
             },
-            setupFilesAfterEnv: [`${__dirname}/jest.setupSpec.js`],
+            setupFilesAfterEnv: ['<rootDir>/jest.setupSpec.js'],
             // NOTE: need to pass uuid export syntax through babel
             transformIgnorePatterns: ['/node_modules/(?!(uuid|nanoid|msgpackr|n2words)/)'],
             moduleNameMapper: {
