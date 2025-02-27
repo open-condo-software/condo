@@ -45608,6 +45608,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"prometheus-remote-write@npm:^0.5.0":
+  version: 0.5.0
+  resolution: "prometheus-remote-write@npm:0.5.0"
+  dependencies:
+    protobufjs: ^7.2.4
+    snappyjs: ^0.6.1
+  peerDependencies:
+    node-fetch: ^2.6.7
+  peerDependenciesMeta:
+    node-fetch:
+      optional: true
+  checksum: e0fed2f5dcdda9b1cf1eab111c12342a1b1ba6e1c6970ce92a27e6f27185b6e94dfdabcaeb322d51ad01ab5c75a992be648f6ebac1a4ce3610e524474aa031ad
+  languageName: node
+  linkType: hard
+
 "promise-inflight@npm:^1.0.1":
   version: 1.0.1
   resolution: "promise-inflight@npm:1.0.1"
@@ -45738,7 +45753,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"protobufjs@npm:^7.2.5, protobufjs@npm:^7.2.6, protobufjs@npm:^7.3.2":
+"protobufjs@npm:^7.2.4, protobufjs@npm:^7.2.5, protobufjs@npm:^7.2.6, protobufjs@npm:^7.3.2":
   version: 7.4.0
   resolution: "protobufjs@npm:7.4.0"
   dependencies:
@@ -50250,6 +50265,7 @@ __metadata:
     "@faker-js/faker": ^7.6.0
     "@graphql-codegen/cli": 1.21.8
     "@graphql-codegen/typescript": 1.23.0
+    "@jest/reporters": ^29.7.0
     "@mono-pub/commit-analyzer": ^1.0.5
     "@mono-pub/git": ^1.0.5
     "@mono-pub/github": ^1.0.5
@@ -50281,6 +50297,7 @@ __metadata:
     node-fetch: ^2.6.7
     postcss: ^8.3.5
     postcss-less: ^6.0.0
+    prometheus-remote-write: ^0.5.0
     stylelint: ^14.11.0
     stylelint-config-rational-order: ^0.1.2
     stylelint-config-standard: ^28.0.0
@@ -51411,6 +51428,13 @@ __metadata:
     source-map-resolve: ^0.5.0
     use: ^3.1.0
   checksum: a197f242a8f48b11036563065b2487e9b7068f50a20dd81d9161eca6af422174fc158b8beeadbe59ce5ef172aa5718143312b3aebaae551c124b7824387c8312
+  languageName: node
+  linkType: hard
+
+"snappyjs@npm:^0.6.1":
+  version: 0.6.1
+  resolution: "snappyjs@npm:0.6.1"
+  checksum: ff1e129207e8dead5674fdf066c4b91ea8aa8f4a09b25a8de14904dce6c2a361463a0d502f6d2c074529cc3fe0aa176ed1f990528ed8f324f23b542ebc14caff
   languageName: node
   linkType: hard
 

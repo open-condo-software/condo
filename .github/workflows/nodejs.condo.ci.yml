@@ -313,10 +313,20 @@ jobs:
           docker exec condo-container yarn workspace @app/address-service makemigrations --check
       - name: Run apps and tests
         run: |
-          docker exec condo-container sh -c "(\
+          docker exec \
+          -e PROMETHEUS_RW_SERVER_URL=$PROMETHEUS_RW_SERVER_URL \
+          -e PROMETHEUS_USER=$PROMETHEUS_USER \
+          -e PROMETHEUS_PASSWORD=$PROMETHEUS_PASSWORD \
+          -e GH_REF_NAME=$GH_REF_NAME \
+          condo-container sh -c "(\
           yarn workspace @app/address-service start & \
           node bin/wait-apps-apis.js -f address-service) && \
           yarn workspace @app/address-service test"
+        env:
+          PROMETHEUS_RW_SERVER_URL: ${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }}
+          PROMETHEUS_USER: ${{ secrets.K6_PROMETHEUS_USER }}
+          PROMETHEUS_PASSWORD: ${{ secrets.K6_PROMETHEUS_PASSWORD }}
+          GH_REF_NAME: ${{ github.ref_name }}
 
   run-condo-tests:
     name: Condo Tests
@@ -389,7 +399,17 @@ jobs:
           docker exec condo-container sh -c "yarn workspace @app/condo start" 2>&1 > ./test_logs/dev_portal_api.condo.dev.log &
           docker exec condo-container sh -c "yarn workspace @app/dev-portal-api start" 2>&1 > ./test_logs/dev_portal_api.dev-portal-api.dev.log &
           docker exec condo-container sh -c "node bin/wait-apps-apis.js -f condo dev-portal-api"
-          docker exec condo-container sh -c "yarn workspace @app/dev-portal-api test" 2>&1 > ./test_logs/dev_portal_api.tests.log
+          docker exec \
+          -e PROMETHEUS_RW_SERVER_URL=$PROMETHEUS_RW_SERVER_URL \
+          -e PROMETHEUS_USER=$PROMETHEUS_USER \
+          -e PROMETHEUS_PASSWORD=$PROMETHEUS_PASSWORD \
+          -e GH_REF_NAME=$GH_REF_NAME \
+          condo-container sh -c "yarn workspace @app/dev-portal-api test" 2>&1 > ./test_logs/dev_portal_api.tests.log
+        env:
+          PROMETHEUS_RW_SERVER_URL: ${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }}
+          PROMETHEUS_USER: ${{ secrets.K6_PROMETHEUS_USER }}
+          PROMETHEUS_PASSWORD: ${{ secrets.K6_PROMETHEUS_PASSWORD }}
+          GH_REF_NAME: ${{ github.ref_name }}
       - name: Collect docker logs on failure
         if: failure()
         uses: jwalton/gh-docker-logs@v1
@@ -427,6 +447,11 @@ jobs:
           yarn install --immutable
       - name: Run @open-condo/migrator tests
         run: yarn workspace @open-condo/migrator test
+        env:
+          PROMETHEUS_RW_SERVER_URL: ${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }}
+          PROMETHEUS_USER: ${{ secrets.K6_PROMETHEUS_USER }}
+          PROMETHEUS_PASSWORD: ${{ secrets.K6_PROMETHEUS_PASSWORD }}
+          GH_REF_NAME: ${{ github.ref_name }}
 
   run-rb-tests:
     name: RB Tests
@@ -464,11 +489,21 @@ jobs:
           docker exec condo-container yarn workspace @app/rb makemigrations --check
       - name: Run apps and tests
         run: |
-          docker exec condo-container sh -c "(\
+          docker exec \
+          -e PROMETHEUS_RW_SERVER_URL=$PROMETHEUS_RW_SERVER_URL \
+          -e PROMETHEUS_USER=$PROMETHEUS_USER \
+          -e PROMETHEUS_PASSWORD=$PROMETHEUS_PASSWORD \
+          -e GH_REF_NAME=$GH_REF_NAME \
+          condo-container sh -c "(\
           yarn workspace @app/condo start & \
           yarn workspace @app/rb start & \
           node bin/wait-apps-apis.js -f condo rb) && \
           yarn workspace @app/rb test"
+        env:
+          PROMETHEUS_RW_SERVER_URL: ${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }}
+          PROMETHEUS_USER: ${{ secrets.K6_PROMETHEUS_USER }}
+          PROMETHEUS_PASSWORD: ${{ secrets.K6_PROMETHEUS_PASSWORD }}
+          GH_REF_NAME: ${{ github.ref_name }}
 
   run-registry-tests:
     name: Registry-importer Tests
@@ -506,11 +541,21 @@ jobs:
           docker exec condo-container yarn workspace @app/registry-importer makemigrations --check
       - name: Run apps and tests
         run: |
-          docker exec condo-container sh -c "(\
+          docker exec \
+          -e PROMETHEUS_RW_SERVER_URL=$PROMETHEUS_RW_SERVER_URL \
+          -e PROMETHEUS_USER=$PROMETHEUS_USER \
+          -e PROMETHEUS_PASSWORD=$PROMETHEUS_PASSWORD \
+          -e GH_REF_NAME=$GH_REF_NAME \
+          condo-container sh -c "(\
           yarn workspace @app/condo start & \
           yarn workspace @app/registry-importer start & \
           node bin/wait-apps-apis.js -f condo registry-importer) && \
           yarn workspace @app/registry-importer test"
+        env:
+          PROMETHEUS_RW_SERVER_URL: ${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }}
+          PROMETHEUS_USER: ${{ secrets.K6_PROMETHEUS_USER }}
+          PROMETHEUS_PASSWORD: ${{ secrets.K6_PROMETHEUS_PASSWORD }}
+          GH_REF_NAME: ${{ github.ref_name }}
 
   run-webhooks-tests:
     name: Webhooks Tests
@@ -532,4 +577,9 @@ jobs:
           npm i -g turbo
           yarn install --immutable
       - name: Test webhooks utils
-        run: yarn workspace @open-condo/webhooks jest
+        run: yarn workspace @open-condo/webhooks test
+        env:
+          PROMETHEUS_RW_SERVER_URL: ${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }}
+          PROMETHEUS_USER: ${{ secrets.K6_PROMETHEUS_USER }}
+          PROMETHEUS_PASSWORD: ${{ secrets.K6_PROMETHEUS_PASSWORD }}
+          GH_REF_NAME: ${{ github.ref_name }}
