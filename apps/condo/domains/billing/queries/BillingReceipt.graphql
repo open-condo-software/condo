@@ -1,5 +1,9 @@
-query getBillingReceiptsCount ($where: BillingReceiptWhereInput!, $sortBy: [SortBillingReceiptsBy!]) {
-    count: _allBillingReceiptsMeta (where: $where, sortBy: $sortBy) {
+query getBillingReceiptsCount ($context: BillingIntegrationOrganizationContextWhereInput!, $property: BillingPropertyWhereInput!, $period_gte: String!) {
+    count: _allBillingReceiptsMeta (where: {
+        context: $context,
+        property: $property,
+        period_gte: $period_gte
+    }) {
         count
     }
 }

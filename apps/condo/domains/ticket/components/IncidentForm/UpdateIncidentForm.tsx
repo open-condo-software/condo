@@ -1,7 +1,7 @@
 import {
     useGetIncidentByIdQuery,
-    useGetIncidentClassifierIncidentQuery,
-    useGetIncidentPropertiesQuery,
+    useGetIncidentClassifierIncidentByIncidentIdQuery,
+    useGetIncidentPropertiesByIncidentIdQuery,
     useUpdateIncidentMutation,
 } from '@app/condo/gql'
 import dayjs from 'dayjs'
@@ -62,7 +62,7 @@ export const UpdateIncidentForm: React.FC<IUpdateIncidentForm> = (props) => {
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
     const PageTitle = intl.formatMessage({ id: 'incident.update.title' })
 
-    const { id, showOrganization } = props
+    const { id: incidentId, showOrganization } = props
 
     const { push } = useRouter()
     const { persistor } = useCachePersistor()
@@ -73,9 +73,9 @@ export const UpdateIncidentForm: React.FC<IUpdateIncidentForm> = (props) => {
         error: incidentError,
     } = useGetIncidentByIdQuery({
         variables: {
-            incidentId: id,
+            incidentId,
         },
-        skip: !id || !persistor,
+        skip: !incidentId || !persistor,
     })
 
     const incident = useMemo(() => incidentData?.incident || null, [incidentData?.incident])
@@ -85,13 +85,11 @@ export const UpdateIncidentForm: React.FC<IUpdateIncidentForm> = (props) => {
         loading: incidentPropertyAllDataLoaded,
         data: incidentPropertiesData,
         error: incidentPropertyError,
-    } = useGetIncidentPropertiesQuery({
+    } = useGetIncidentPropertiesByIncidentIdQuery({
         variables: {
-            where: {
-                incident: { id },
-            },
+            incidentId,
         },
-        skip: !id || !persistor,
+        skip: !incidentId || !persistor,
     })
     const incidentProperties = useMemo(() => incidentPropertiesData?.incidentProperties?.filter(Boolean) || [], [incidentPropertiesData?.incidentProperties])
 
@@ -99,22 +97,22 @@ export const UpdateIncidentForm: React.FC<IUpdateIncidentForm> = (props) => {
         loading: incidentClassifiersAllDataLoaded,
         data: incidentClassifiersData,
         error: incidentClassifiersError,
-    } = useGetIncidentClassifierIncidentQuery({
+    } = useGetIncidentClassifierIncidentByIncidentIdQuery({
         variables: {
-            where: { incident: { id } },
+            incidentId,
         },
-        skip: !id || !persistor,
+        skip: !incidentId || !persistor,
     })
 
     const incidentClassifiers = useMemo(() => incidentClassifiersData?.incidentClassifierIncident?.filter(Boolean) || [], [incidentClassifiersData?.incidentClassifierIncident])
 
     const [updateIncident] = useUpdateIncidentMutation({
-        onCompleted: async () => await push(`/incident/${[id]}`),
+        onCompleted: async () => await push(`/incident/${[incidentId]}`),
     })
     const action: BaseIncidentFormProps['action'] = useCallback(
         async (values) => await updateIncident({
             variables: {
-                id: id,
+                id: incidentId,
                 data: {
                     ...values,
                     sender: getClientSideSenderInfo(),
@@ -122,7 +120,7 @@ export const UpdateIncidentForm: React.FC<IUpdateIncidentForm> = (props) => {
                 },
             },
         }),
-        [id, updateIncident])
+        [incidentId, updateIncident])
 
     const workStart = useMemo(() => incident?.workStart || null, [incident])
     const workFinish = useMemo(() => incident?.workFinish || null, [incident])
@@ -130,8 +128,8 @@ export const UpdateIncidentForm: React.FC<IUpdateIncidentForm> = (props) => {
 
     const initialValues: BaseIncidentFormProps['initialValues'] = useMemo(() => ({
         ...incident,
-        ...incidentProperties,
-        ...incidentClassifiers,
+        incidentProperties: incidentProperties,
+        incidentClassifiers: incidentClassifiers,
         workStart: workStart ? dayjs(workStart) : null,
         workFinish: workFinish ? dayjs(workFinish) : null,
         placeClassifier: placeClassifier,

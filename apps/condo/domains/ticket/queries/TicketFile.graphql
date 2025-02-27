@@ -1,5 +1,12 @@
-query getTicketFiles($where: TicketFileWhereInput!, $sortBy: [SortTicketFilesBy!], $first: Int) {
-    ticketFiles: allTicketFiles (where: $where, sortBy: $sortBy, first: $first) {
+query getTicketFiles($ticketId: ID!) {
+    ticketFiles: allTicketFiles (where: {
+        ticket: {
+            id: $ticketId,
+        }
+    },
+        sortBy: [createdAt_ASC],
+        first: 100
+    ) {
         id
         ticket {
             id

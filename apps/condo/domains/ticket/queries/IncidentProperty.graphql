@@ -1,5 +1,36 @@
-query getIncidentProperties ($where: IncidentPropertyWhereInput) {
-    incidentProperties: allIncidentProperties (where: $where) {
+query getIncidentPropertiesByIncidentId ($incidentId: ID!) {
+    incidentProperties: allIncidentProperties (where: {
+        incident: {
+            id: $incidentId,
+        }
+    }) {
+        id
+        incident {
+            id
+        }
+    }
+}
+
+query getIncidentProperties ($propertyId: ID!, $organizationId: ID!, $workFinish_gte: String) {
+    incidentProperties: allIncidentProperties (where: {
+        property: {
+            id: $propertyId,
+        },
+        incident: {
+            organization: { id: $organizationId },
+            OR: [
+                {
+                    AND: [{ status: actual }],
+                },
+                {
+                    AND: [{
+                        status: not_actual,
+                        workFinish_gte: $workFinish_gte,
+                    }],
+                },
+            ],
+        },
+    }) {
         id
         incident {
             id
