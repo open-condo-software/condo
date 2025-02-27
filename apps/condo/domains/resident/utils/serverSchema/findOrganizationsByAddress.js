@@ -94,9 +94,11 @@ async function findOrganizationByAddressKeyTinAccountNumber (organization, { add
             if (status === ONLINE_INTERACTION_CHECK_ACCOUNT_SUCCESS_STATUS) {
                 receipts = services.map(service => ({
                     category: service.category,
-                    number: service.account.number,
+                    accountNumber: service.account.number,
                     routingNumber: service.bankAccount.routingNumber,
                     bankAccount: service.bankAccount.number,
+                    balance: service.receipt.sum,
+                    address: service.receipt.address,
                 }))
             }
         }
