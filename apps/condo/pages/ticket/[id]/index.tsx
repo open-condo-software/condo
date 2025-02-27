@@ -818,8 +818,8 @@ const TicketIdPage: PageComponentType = () => {
     })
     const ticket = useMemo(() => ticketByIdData?.tickets?.filter(Boolean)[0], [ticketByIdData?.tickets])
 
-    const userId = useMemo(() => user?.id || null, [user])
-    const ticketOrganizationId = useMemo(() => ticket?.organization?.id || null, [ticket])
+    const userId = user?.id || null
+    const ticketOrganizationId = ticket?.organization?.id || null
 
     const {
         data,
@@ -834,7 +834,7 @@ const TicketIdPage: PageComponentType = () => {
 
     const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [intl, ticket])
 
-    const currentEmployeeOrganizationId = useMemo(() => organization?.id, [organization?.id])
+    const currentEmployeeOrganizationId = organization?.id
 
     useEffect(() => {
         if (

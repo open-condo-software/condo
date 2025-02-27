@@ -326,12 +326,9 @@ export type UpdateBankSyncTaskMutationHookResult = ReturnType<typeof useUpdateBa
 export type UpdateBankSyncTaskMutationResult = Apollo.MutationResult<Types.UpdateBankSyncTaskMutation>;
 export type UpdateBankSyncTaskMutationOptions = Apollo.BaseMutationOptions<Types.UpdateBankSyncTaskMutation, Types.UpdateBankSyncTaskMutationVariables>;
 export const GetBillingIntegrationOrganizationContextsDocument = gql`
-    query getBillingIntegrationOrganizationContexts($where: BillingIntegrationOrganizationContextWhereInput!, $sortBy: [SortBillingIntegrationOrganizationContextsBy!], $first: Int, $skip: Int) {
+    query getBillingIntegrationOrganizationContexts($integration: BillingIntegrationWhereInput!, $organization: OrganizationWhereInput!) {
   contexts: allBillingIntegrationOrganizationContexts(
-    where: $where
-    sortBy: $sortBy
-    first: $first
-    skip: $skip
+    where: {integration: $integration, organization: $organization}
   ) {
     id
     lastReport
@@ -351,10 +348,8 @@ export const GetBillingIntegrationOrganizationContextsDocument = gql`
  * @example
  * const { data, loading, error } = useGetBillingIntegrationOrganizationContextsQuery({
  *   variables: {
- *      where: // value for 'where'
- *      sortBy: // value for 'sortBy'
- *      first: // value for 'first'
- *      skip: // value for 'skip'
+ *      integration: // value for 'integration'
+ *      organization: // value for 'organization'
  *   },
  * });
  */
@@ -375,8 +370,10 @@ export type GetBillingIntegrationOrganizationContextsLazyQueryHookResult = Retur
 export type GetBillingIntegrationOrganizationContextsSuspenseQueryHookResult = ReturnType<typeof useGetBillingIntegrationOrganizationContextsSuspenseQuery>;
 export type GetBillingIntegrationOrganizationContextsQueryResult = Apollo.QueryResult<Types.GetBillingIntegrationOrganizationContextsQuery, Types.GetBillingIntegrationOrganizationContextsQueryVariables>;
 export const GetBillingReceiptsCountDocument = gql`
-    query getBillingReceiptsCount($where: BillingReceiptWhereInput!, $sortBy: [SortBillingReceiptsBy!]) {
-  count: _allBillingReceiptsMeta(where: $where, sortBy: $sortBy) {
+    query getBillingReceiptsCount($context: BillingIntegrationOrganizationContextWhereInput!, $property: BillingPropertyWhereInput!, $period_gte: String!) {
+  count: _allBillingReceiptsMeta(
+    where: {context: $context, property: $property, period_gte: $period_gte}
+  ) {
     count
   }
 }
@@ -394,8 +391,9 @@ export const GetBillingReceiptsCountDocument = gql`
  * @example
  * const { data, loading, error } = useGetBillingReceiptsCountQuery({
  *   variables: {
- *      where: // value for 'where'
- *      sortBy: // value for 'sortBy'
+ *      context: // value for 'context'
+ *      property: // value for 'property'
+ *      period_gte: // value for 'period_gte'
  *   },
  * });
  */
@@ -1733,13 +1731,8 @@ export type UpdateNewsItemRecipientsExportTaskMutationHookResult = ReturnType<ty
 export type UpdateNewsItemRecipientsExportTaskMutationResult = Apollo.MutationResult<Types.UpdateNewsItemRecipientsExportTaskMutation>;
 export type UpdateNewsItemRecipientsExportTaskMutationOptions = Apollo.BaseMutationOptions<Types.UpdateNewsItemRecipientsExportTaskMutation, Types.UpdateNewsItemRecipientsExportTaskMutationVariables>;
 export const GetTourStepsDocument = gql`
-    query getTourSteps($where: TourStepWhereInput!, $sortBy: [SortTourStepsBy!], $first: Int, $skip: Int) {
-  tourSteps: allTourSteps(
-    where: $where
-    sortBy: $sortBy
-    first: $first
-    skip: $skip
-  ) {
+    query getTourSteps($where: TourStepWhereInput!, $sortBy: [SortTourStepsBy!]) {
+  tourSteps: allTourSteps(where: $where, sortBy: $sortBy) {
     id
     type
     status
@@ -1761,8 +1754,6 @@ export const GetTourStepsDocument = gql`
  *   variables: {
  *      where: // value for 'where'
  *      sortBy: // value for 'sortBy'
- *      first: // value for 'first'
- *      skip: // value for 'skip'
  *   },
  * });
  */
@@ -1819,6 +1810,40 @@ export function useSyncTourStepsMutation(baseOptions?: Apollo.MutationHookOption
 export type SyncTourStepsMutationHookResult = ReturnType<typeof useSyncTourStepsMutation>;
 export type SyncTourStepsMutationResult = Apollo.MutationResult<Types.SyncTourStepsMutation>;
 export type SyncTourStepsMutationOptions = Apollo.BaseMutationOptions<Types.SyncTourStepsMutation, Types.SyncTourStepsMutationVariables>;
+export const UpdateTourStepDocument = gql`
+    mutation updateTourStep($id: ID!, $data: TourStepUpdateInput!) {
+  tourStep: updateTourStep(id: $id, data: $data) {
+    id
+  }
+}
+    `;
+export type UpdateTourStepMutationFn = Apollo.MutationFunction<Types.UpdateTourStepMutation, Types.UpdateTourStepMutationVariables>;
+
+/**
+ * __useUpdateTourStepMutation__
+ *
+ * To run a mutation, you first call `useUpdateTourStepMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateTourStepMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateTourStepMutation, { data, loading, error }] = useUpdateTourStepMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateTourStepMutation(baseOptions?: Apollo.MutationHookOptions<Types.UpdateTourStepMutation, Types.UpdateTourStepMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.UpdateTourStepMutation, Types.UpdateTourStepMutationVariables>(UpdateTourStepDocument, options);
+      }
+export type UpdateTourStepMutationHookResult = ReturnType<typeof useUpdateTourStepMutation>;
+export type UpdateTourStepMutationResult = Apollo.MutationResult<Types.UpdateTourStepMutation>;
+export type UpdateTourStepMutationOptions = Apollo.BaseMutationOptions<Types.UpdateTourStepMutation, Types.UpdateTourStepMutationVariables>;
 export const GetActiveOrganizationEmployeeDocument = gql`
     query getActiveOrganizationEmployee($userId: ID!, $employeeId: ID) {
   employees: allOrganizationEmployees(
@@ -2230,11 +2255,9 @@ export type GetOrganizationEmployeesByUserIdAndOrganizationTypeLazyQueryHookResu
 export type GetOrganizationEmployeesByUserIdAndOrganizationTypeSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationEmployeesByUserIdAndOrganizationTypeSuspenseQuery>;
 export type GetOrganizationEmployeesByUserIdAndOrganizationTypeQueryResult = Apollo.QueryResult<Types.GetOrganizationEmployeesByUserIdAndOrganizationTypeQuery, Types.GetOrganizationEmployeesByUserIdAndOrganizationTypeQueryVariables>;
 export const GetOrganizationEmployeeSpecializationsDocument = gql`
-    query getOrganizationEmployeeSpecializations($where: OrganizationEmployeeSpecializationWhereInput!, $first: Int, $skip: Int) {
+    query getOrganizationEmployeeSpecializations($employeeId: ID!) {
   organizationEmployeeSpecializations: allOrganizationEmployeeSpecializations(
-    where: $where
-    first: $first
-    skip: $skip
+    where: {employee: {id: $employeeId}}
   ) {
     id
     employee {
@@ -2259,9 +2282,7 @@ export const GetOrganizationEmployeeSpecializationsDocument = gql`
  * @example
  * const { data, loading, error } = useGetOrganizationEmployeeSpecializationsQuery({
  *   variables: {
- *      where: // value for 'where'
- *      first: // value for 'first'
- *      skip: // value for 'skip'
+ *      employeeId: // value for 'employeeId'
  *   },
  * });
  */
@@ -2387,10 +2408,10 @@ export type GetPropertyByIdLazyQueryHookResult = ReturnType<typeof useGetPropert
 export type GetPropertyByIdSuspenseQueryHookResult = ReturnType<typeof useGetPropertyByIdSuspenseQuery>;
 export type GetPropertyByIdQueryResult = Apollo.QueryResult<Types.GetPropertyByIdQuery, Types.GetPropertyByIdQueryVariables>;
 export const GetPropertyByOrganizationIdDocument = gql`
-    query getPropertyByOrganizationId($organizationId: ID!, $sortBy: [SortPropertiesBy!]) {
+    query getPropertyByOrganizationId($organizationId: ID!) {
   properties: allProperties(
     where: {organization: {id: $organizationId}}
-    sortBy: $sortBy
+    sortBy: [createdAt_DESC]
     first: 1
   ) {
     id
@@ -2411,7 +2432,6 @@ export const GetPropertyByOrganizationIdDocument = gql`
  * const { data, loading, error } = useGetPropertyByOrganizationIdQuery({
  *   variables: {
  *      organizationId: // value for 'organizationId'
- *      sortBy: // value for 'sortBy'
  *   },
  * });
  */
@@ -2435,6 +2455,7 @@ export const GetPropertyScopePropertiesDocument = gql`
     query getPropertyScopeProperties($propertyScopeIds: [ID!]) {
   result: allPropertyScopeProperties(
     where: {propertyScope: {id_in: $propertyScopeIds}}
+    first: 100
   ) {
     id
     propertyScope {
@@ -2480,9 +2501,10 @@ export type GetPropertyScopePropertiesLazyQueryHookResult = ReturnType<typeof us
 export type GetPropertyScopePropertiesSuspenseQueryHookResult = ReturnType<typeof useGetPropertyScopePropertiesSuspenseQuery>;
 export type GetPropertyScopePropertiesQueryResult = Apollo.QueryResult<Types.GetPropertyScopePropertiesQuery, Types.GetPropertyScopePropertiesQueryVariables>;
 export const GetPropertyScopesDocument = gql`
-    query getPropertyScopes($organizationId: ID!, $propertyScopeIds: [ID]) {
+    query getPropertyScopes($organizationId: ID!, $propertyScopeIds: [ID!]) {
   result: allPropertyScopes(
     where: {organization: {id: $organizationId}, OR: [{id_in: $propertyScopeIds}, {hasAllEmployees: true}]}
+    first: 100
   ) {
     id
   }
@@ -2526,6 +2548,7 @@ export const GetPropertyScopeOrganizationEmployeesDocument = gql`
     query getPropertyScopeOrganizationEmployees($employeeId: ID!) {
   result: allPropertyScopeOrganizationEmployees(
     where: {employee: {id: $employeeId}}
+    first: 100
   ) {
     id
     propertyScope {
@@ -2815,6 +2838,7 @@ export const GetIncidentByIdDocument = gql`
     number
     organization {
       id
+      name
     }
     workStart
     workFinish
@@ -2921,14 +2945,59 @@ export function useUpdateIncidentMutation(baseOptions?: Apollo.MutationHookOptio
 export type UpdateIncidentMutationHookResult = ReturnType<typeof useUpdateIncidentMutation>;
 export type UpdateIncidentMutationResult = Apollo.MutationResult<Types.UpdateIncidentMutation>;
 export type UpdateIncidentMutationOptions = Apollo.BaseMutationOptions<Types.UpdateIncidentMutation, Types.UpdateIncidentMutationVariables>;
-export const GetIncidentClassifierIncidentDocument = gql`
-    query getIncidentClassifierIncident($where: IncidentClassifierIncidentWhereInput) {
-  incidentClassifierIncident: allIncidentClassifierIncidents(where: $where) {
+export const GetIncidentClassifierIncidentByIncidentIdDocument = gql`
+    query getIncidentClassifierIncidentByIncidentId($incidentId: ID!) {
+  incidentClassifierIncident: allIncidentClassifierIncidents(
+    where: {incident: {id: $incidentId}}
+  ) {
     id
     incident {
       id
     }
     classifier {
+      id
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetIncidentClassifierIncidentByIncidentIdQuery__
+ *
+ * To run a query within a React component, call `useGetIncidentClassifierIncidentByIncidentIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetIncidentClassifierIncidentByIncidentIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetIncidentClassifierIncidentByIncidentIdQuery({
+ *   variables: {
+ *      incidentId: // value for 'incidentId'
+ *   },
+ * });
+ */
+export function useGetIncidentClassifierIncidentByIncidentIdQuery(baseOptions: Apollo.QueryHookOptions<Types.GetIncidentClassifierIncidentByIncidentIdQuery, Types.GetIncidentClassifierIncidentByIncidentIdQueryVariables> & ({ variables: Types.GetIncidentClassifierIncidentByIncidentIdQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetIncidentClassifierIncidentByIncidentIdQuery, Types.GetIncidentClassifierIncidentByIncidentIdQueryVariables>(GetIncidentClassifierIncidentByIncidentIdDocument, options);
+      }
+export function useGetIncidentClassifierIncidentByIncidentIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetIncidentClassifierIncidentByIncidentIdQuery, Types.GetIncidentClassifierIncidentByIncidentIdQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetIncidentClassifierIncidentByIncidentIdQuery, Types.GetIncidentClassifierIncidentByIncidentIdQueryVariables>(GetIncidentClassifierIncidentByIncidentIdDocument, options);
+        }
+export function useGetIncidentClassifierIncidentByIncidentIdSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetIncidentClassifierIncidentByIncidentIdQuery, Types.GetIncidentClassifierIncidentByIncidentIdQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetIncidentClassifierIncidentByIncidentIdQuery, Types.GetIncidentClassifierIncidentByIncidentIdQueryVariables>(GetIncidentClassifierIncidentByIncidentIdDocument, options);
+        }
+export type GetIncidentClassifierIncidentByIncidentIdQueryHookResult = ReturnType<typeof useGetIncidentClassifierIncidentByIncidentIdQuery>;
+export type GetIncidentClassifierIncidentByIncidentIdLazyQueryHookResult = ReturnType<typeof useGetIncidentClassifierIncidentByIncidentIdLazyQuery>;
+export type GetIncidentClassifierIncidentByIncidentIdSuspenseQueryHookResult = ReturnType<typeof useGetIncidentClassifierIncidentByIncidentIdSuspenseQuery>;
+export type GetIncidentClassifierIncidentByIncidentIdQueryResult = Apollo.QueryResult<Types.GetIncidentClassifierIncidentByIncidentIdQuery, Types.GetIncidentClassifierIncidentByIncidentIdQueryVariables>;
+export const GetIncidentClassifierIncidentDocument = gql`
+    query getIncidentClassifierIncident($where: IncidentClassifierIncidentWhereInput) {
+  incidentClassifierIncident: allIncidentClassifierIncidents(where: $where) {
+    id
+    incident {
       id
     }
   }
@@ -3168,9 +3237,54 @@ export function useUpdateIncidentExportTaskMutation(baseOptions?: Apollo.Mutatio
 export type UpdateIncidentExportTaskMutationHookResult = ReturnType<typeof useUpdateIncidentExportTaskMutation>;
 export type UpdateIncidentExportTaskMutationResult = Apollo.MutationResult<Types.UpdateIncidentExportTaskMutation>;
 export type UpdateIncidentExportTaskMutationOptions = Apollo.BaseMutationOptions<Types.UpdateIncidentExportTaskMutation, Types.UpdateIncidentExportTaskMutationVariables>;
+export const GetIncidentPropertiesByIncidentIdDocument = gql`
+    query getIncidentPropertiesByIncidentId($incidentId: ID!) {
+  incidentProperties: allIncidentProperties(where: {incident: {id: $incidentId}}) {
+    id
+    incident {
+      id
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetIncidentPropertiesByIncidentIdQuery__
+ *
+ * To run a query within a React component, call `useGetIncidentPropertiesByIncidentIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetIncidentPropertiesByIncidentIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetIncidentPropertiesByIncidentIdQuery({
+ *   variables: {
+ *      incidentId: // value for 'incidentId'
+ *   },
+ * });
+ */
+export function useGetIncidentPropertiesByIncidentIdQuery(baseOptions: Apollo.QueryHookOptions<Types.GetIncidentPropertiesByIncidentIdQuery, Types.GetIncidentPropertiesByIncidentIdQueryVariables> & ({ variables: Types.GetIncidentPropertiesByIncidentIdQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetIncidentPropertiesByIncidentIdQuery, Types.GetIncidentPropertiesByIncidentIdQueryVariables>(GetIncidentPropertiesByIncidentIdDocument, options);
+      }
+export function useGetIncidentPropertiesByIncidentIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetIncidentPropertiesByIncidentIdQuery, Types.GetIncidentPropertiesByIncidentIdQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetIncidentPropertiesByIncidentIdQuery, Types.GetIncidentPropertiesByIncidentIdQueryVariables>(GetIncidentPropertiesByIncidentIdDocument, options);
+        }
+export function useGetIncidentPropertiesByIncidentIdSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetIncidentPropertiesByIncidentIdQuery, Types.GetIncidentPropertiesByIncidentIdQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetIncidentPropertiesByIncidentIdQuery, Types.GetIncidentPropertiesByIncidentIdQueryVariables>(GetIncidentPropertiesByIncidentIdDocument, options);
+        }
+export type GetIncidentPropertiesByIncidentIdQueryHookResult = ReturnType<typeof useGetIncidentPropertiesByIncidentIdQuery>;
+export type GetIncidentPropertiesByIncidentIdLazyQueryHookResult = ReturnType<typeof useGetIncidentPropertiesByIncidentIdLazyQuery>;
+export type GetIncidentPropertiesByIncidentIdSuspenseQueryHookResult = ReturnType<typeof useGetIncidentPropertiesByIncidentIdSuspenseQuery>;
+export type GetIncidentPropertiesByIncidentIdQueryResult = Apollo.QueryResult<Types.GetIncidentPropertiesByIncidentIdQuery, Types.GetIncidentPropertiesByIncidentIdQueryVariables>;
 export const GetIncidentPropertiesDocument = gql`
-    query getIncidentProperties($where: IncidentPropertyWhereInput) {
-  incidentProperties: allIncidentProperties(where: $where) {
+    query getIncidentProperties($propertyId: ID!, $organizationId: ID!, $workFinish_gte: String) {
+  incidentProperties: allIncidentProperties(
+    where: {property: {id: $propertyId}, incident: {organization: {id: $organizationId}, OR: [{AND: [{status: actual}]}, {AND: [{status: not_actual, workFinish_gte: $workFinish_gte}]}]}}
+  ) {
     id
     incident {
       id
@@ -3191,11 +3305,13 @@ export const GetIncidentPropertiesDocument = gql`
  * @example
  * const { data, loading, error } = useGetIncidentPropertiesQuery({
  *   variables: {
- *      where: // value for 'where'
+ *      propertyId: // value for 'propertyId'
+ *      organizationId: // value for 'organizationId'
+ *      workFinish_gte: // value for 'workFinish_gte'
  *   },
  * });
  */
-export function useGetIncidentPropertiesQuery(baseOptions?: Apollo.QueryHookOptions<Types.GetIncidentPropertiesQuery, Types.GetIncidentPropertiesQueryVariables>) {
+export function useGetIncidentPropertiesQuery(baseOptions: Apollo.QueryHookOptions<Types.GetIncidentPropertiesQuery, Types.GetIncidentPropertiesQueryVariables> & ({ variables: Types.GetIncidentPropertiesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<Types.GetIncidentPropertiesQuery, Types.GetIncidentPropertiesQueryVariables>(GetIncidentPropertiesDocument, options);
       }
@@ -4199,8 +4315,8 @@ export type GetTicketChangesLazyQueryHookResult = ReturnType<typeof useGetTicket
 export type GetTicketChangesSuspenseQueryHookResult = ReturnType<typeof useGetTicketChangesSuspenseQuery>;
 export type GetTicketChangesQueryResult = Apollo.QueryResult<Types.GetTicketChangesQuery, Types.GetTicketChangesQueryVariables>;
 export const PredictTicketClassificationDocument = gql`
-    query predictTicketClassification($data: PredictTicketClassificationInput!) {
-  obj: predictTicketClassification(data: $data) {
+    query predictTicketClassification($details: String!) {
+  obj: predictTicketClassification(data: {details: $details}) {
     id
     place {
       id
@@ -4226,7 +4342,7 @@ export const PredictTicketClassificationDocument = gql`
  * @example
  * const { data, loading, error } = usePredictTicketClassificationQuery({
  *   variables: {
- *      data: // value for 'data'
+ *      details: // value for 'details'
  *   },
  * });
  */
@@ -4728,8 +4844,12 @@ export type UpdateTicketExportTaskMutationHookResult = ReturnType<typeof useUpda
 export type UpdateTicketExportTaskMutationResult = Apollo.MutationResult<Types.UpdateTicketExportTaskMutation>;
 export type UpdateTicketExportTaskMutationOptions = Apollo.BaseMutationOptions<Types.UpdateTicketExportTaskMutation, Types.UpdateTicketExportTaskMutationVariables>;
 export const GetTicketFilesDocument = gql`
-    query getTicketFiles($where: TicketFileWhereInput!, $sortBy: [SortTicketFilesBy!], $first: Int) {
-  ticketFiles: allTicketFiles(where: $where, sortBy: $sortBy, first: $first) {
+    query getTicketFiles($ticketId: ID!) {
+  ticketFiles: allTicketFiles(
+    where: {ticket: {id: $ticketId}}
+    sortBy: [createdAt_ASC]
+    first: 100
+  ) {
     id
     ticket {
       id
@@ -4755,9 +4875,7 @@ export const GetTicketFilesDocument = gql`
  * @example
  * const { data, loading, error } = useGetTicketFilesQuery({
  *   variables: {
- *      where: // value for 'where'
- *      sortBy: // value for 'sortBy'
- *      first: // value for 'first'
+ *      ticketId: // value for 'ticketId'
  *   },
  * });
  */

@@ -1,5 +1,8 @@
-query getBillingIntegrationOrganizationContexts ($where: BillingIntegrationOrganizationContextWhereInput!, $sortBy: [SortBillingIntegrationOrganizationContextsBy!], $first: Int, $skip: Int) {
-    contexts: allBillingIntegrationOrganizationContexts(where: $where, sortBy: $sortBy, first: $first, skip: $skip) {
+query getBillingIntegrationOrganizationContexts ($integration: BillingIntegrationWhereInput!, $organization: OrganizationWhereInput!) {
+    contexts: allBillingIntegrationOrganizationContexts(where: {
+        integration: $integration,
+        organization: $organization,
+    }) {
         id
         lastReport
     }

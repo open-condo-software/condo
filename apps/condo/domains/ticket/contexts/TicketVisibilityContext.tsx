@@ -8,7 +8,6 @@ import {
 import { TicketWhereInput } from '@app/condo/schema'
 import { createContext, useCallback, useContext, useMemo } from 'react'
 
-
 import { useCachePersistor } from '@open-condo/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
@@ -200,12 +199,12 @@ const isEmployeeCanReadTicket = ({
 
 const TicketVisibilityContextProvider: React.FC = ({ children }) => {
     const { user, isLoading } = useAuth()
-    const userId = useMemo(() => user?.id || null, [user])
+    const userId = user?.id || null
 
     const { isLoading: userOrganizationLoading, organization: userOrganization, employee } = useOrganization()
-    const organizationId = useMemo(() => userOrganization?.id || null, [userOrganization])
-    const employeeId = useMemo(() => employee?.id || null, [employee])
-    const ticketVisibilityType = useMemo(() => employee?.role?.ticketVisibilityType, [employee?.role?.ticketVisibilityType])
+    const organizationId = userOrganization?.id || null
+    const employeeId = employee?.id || null
+    const ticketVisibilityType = employee?.role?.ticketVisibilityType
 
     const { persistor } = useCachePersistor()
 
@@ -238,15 +237,15 @@ const TicketVisibilityContextProvider: React.FC = ({ children }) => {
     })
     const propertyScopeProperties = useMemo(() => propertyScopePropertiesResult?.result.filter(Boolean) || [], [propertyScopePropertiesResult?.result])
 
-    const { data, loading: specializationsLoading } = useGetOrganizationEmployeeSpecializationsQuery({
+    const { data: organizationEmployeeSpecializations, loading: specializationsLoading } = useGetOrganizationEmployeeSpecializationsQuery({
         variables: {
-            where: {
-                employee: { id: employeeId },
-            },
+            employeeId,
         },
         skip: !employeeId || !persistor,
     })
-    const employeeSpecializations = useMemo(() => data?.organizationEmployeeSpecializations.filter(Boolean) || [], [data?.organizationEmployeeSpecializations])
+    const employeeSpecializations = useMemo(() =>
+        organizationEmployeeSpecializations?.organizationEmployeeSpecializations.filter(Boolean) || [],
+    [organizationEmployeeSpecializations?.organizationEmployeeSpecializations])
 
     const specializations = employeeSpecializations
         .filter(empSpec => empSpec.specialization && empSpec.employee)

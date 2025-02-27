@@ -1,4 +1,4 @@
-import { useGetTourStepsLazyQuery, useSyncTourStepsMutation } from '@app/condo/gql'
+import { useGetTourStepsLazyQuery, useSyncTourStepsMutation, useUpdateTourStepMutation } from '@app/condo/gql'
 import { TourStepStatusType, TourStepTypeType } from '@app/condo/schema'
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 
@@ -9,7 +9,6 @@ import { IMPORT_EVENT, ImportEmitter } from '@condo/domains/common/components/Im
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { ACTIVE_STEPS_STORAGE_KEY, FIRST_LEVEL_STEPS, STEP_TYPES } from '@condo/domains/onboarding/constants/steps'
 import { useCompletedTourModals } from '@condo/domains/onboarding/hooks/TourContext/useCompletedTourModals'
-import { TourStep } from '@condo/domains/onboarding/utils/clientSchema'
 import { MANAGING_COMPANY_TYPE } from '@condo/domains/organization/constants/common'
 
 
@@ -43,8 +42,8 @@ const getActiveTourStepFromStorage = (): ActiveTourStepType => {
 
 export const TourProvider = ({ children }) => {
     const { organization } = useOrganization()
-    const organizationId = useMemo(() => organization?.id || null, [organization])
-    const organizationType = useMemo(() => organization?.type || null, [organization])
+    const organizationId = organization?.id || null
+    const organizationType = organization?.type || null
 
     const [getTourSteps, { refetch: refetchSteps }] = useGetTourStepsLazyQuery({
         variables: {
@@ -52,7 +51,7 @@ export const TourProvider = ({ children }) => {
         },
     })
 
-    const updateTourStep = TourStep.useUpdate({})
+    const [updateTourStep] = useUpdateTourStepMutation()
 
     const [syncTourStepMutation, { loading: syncLoading }] = useSyncTourStepsMutation({
         onCompleted: async () => getTourSteps(),
@@ -99,7 +98,7 @@ export const TourProvider = ({ children }) => {
     const updateStepIfNotCompleted = useCallback(async (type: TourStepTypeType, nextRoute?: string) => {
         if (organizationType !== MANAGING_COMPANY_TYPE) return
 
-        const fetchResult = await getTourSteps({
+        const { data: fetchResult } = await getTourSteps({
             variables: {
                 where: {
                     organization: { id: organizationId },
@@ -107,7 +106,7 @@ export const TourProvider = ({ children }) => {
                 },
             },
         })
-        const tourStep = fetchResult?.data?.tourSteps[0]
+        const tourStep = fetchResult?.tourSteps[0]
 
         if (!tourStep) return
 
@@ -115,7 +114,14 @@ export const TourProvider = ({ children }) => {
             return
         }
 
-        await updateTourStep({ status: TourStepStatusType.Completed }, tourStep)
+        await updateTourStep({
+            variables: {
+                id: tourStep.id,
+                data: {
+                    status: TourStepStatusType.Completed,
+                },
+            },
+        })
 
         // meter readings has back-end import, for this case we pass isFirstSuccessImport manually and here open complete step modal
         if (currentImport.current && type !== TourStepTypeType.CreateMeterReadings) {

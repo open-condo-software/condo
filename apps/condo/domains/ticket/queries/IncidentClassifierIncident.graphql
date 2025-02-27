@@ -1,10 +1,23 @@
-query getIncidentClassifierIncident ($where: IncidentClassifierIncidentWhereInput) {
-    incidentClassifierIncident: allIncidentClassifierIncidents (where: $where) {
+query getIncidentClassifierIncidentByIncidentId ($incidentId: ID!) {
+    incidentClassifierIncident: allIncidentClassifierIncidents (where: {
+        incident: {
+            id: $incidentId
+        }
+    }) {
         id
         incident {
             id
         }
         classifier {
+            id
+        }
+    }
+}
+
+query getIncidentClassifierIncident ($where: IncidentClassifierIncidentWhereInput) {
+    incidentClassifierIncident: allIncidentClassifierIncidents (where: $where) {
+        id
+        incident {
             id
         }
     }

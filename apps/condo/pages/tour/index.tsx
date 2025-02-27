@@ -1,5 +1,5 @@
 import { useGetPropertyByOrganizationIdQuery, useGetTourStepsQuery } from '@app/condo/gql'
-import { SortPropertiesBy, SortTourStepsBy, TourStepStatusType, TourStepTypeType } from '@app/condo/schema'
+import { SortTourStepsBy, TourStepStatusType, TourStepTypeType } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Col, Row, RowProps } from 'antd'
 import isEmpty from 'lodash/isEmpty'
@@ -108,7 +108,7 @@ const TourPageContent = () => {
     const { locale } = useIntl()
     const { organization, isLoading } = useOrganization()
     const { persistor } = useCachePersistor()
-    const organizationId = useMemo(() => organization?.id || null, [organization])
+    const organizationId = organization?.id || null
     const { activeTourStep, setActiveTourStep, updateStepIfNotCompleted, syncLoading } = useTourContext()
     const handleBackClick = useCallback(() => setActiveTourStep(null), [setActiveTourStep])
 
@@ -132,7 +132,6 @@ const TourPageContent = () => {
     } = useGetPropertyByOrganizationIdQuery({
         variables: {
             organizationId,
-            sortBy: [SortPropertiesBy.CreatedAtDesc],
         },
         skip: !organizationId || !persistor || isLoading || syncLoading,
     })

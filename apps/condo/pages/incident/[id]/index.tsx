@@ -6,7 +6,6 @@ import {
 } from '@app/condo/schema'
 import { Col, Row, RowProps } from 'antd'
 import dayjs  from 'dayjs'
-import { get } from 'lodash'
 import uniq from 'lodash/uniq'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -78,18 +77,13 @@ const IncidentPropertiesField: React.FC<IncidentFieldProps> = ({ incident }) => 
 
         // TODO(DOMA-2567) refactor duplicate in '@condo/pages/settings/propertyScope/[id]/index.tsx'
         return incidentProperties.map((incidentProperty) => {
-            const property = {
-                id: get(incidentProperty, 'property.id', get(incidentProperty, 'id', null)),
-                address: get(incidentProperty, 'property.address', get(incidentProperty, 'propertyAddress', null)),
-                addressMeta: get(incidentProperty, 'property.addressMeta', get(incidentProperty, 'propertyAddressMeta', null)),
-                deletedAt: get(incidentProperty, 'property.deletedAt', true),
-            }
-            const isDeleted = Boolean(get(property, 'deletedAt'))
+            const property = incidentProperty?.property
+            const isDeleted = Boolean(property?.deletedAt)
             const propertyMessage = getAddressRender(property, null, DeletedMessage)
 
             return (
                 <div
-                    key={get(property, 'id')}
+                    key={property?.id || null}
                 >
                     {
                         isDeleted ? (
@@ -98,7 +92,7 @@ const IncidentPropertiesField: React.FC<IncidentFieldProps> = ({ incident }) => 
                             </>
                         ) : (
                             <Typography.Link
-                                href={`/property/${get(property, 'id')}`}
+                                href={`/property/${property?.id}`}
                             >
                                 {propertyMessage}
                             </Typography.Link>
@@ -201,12 +195,12 @@ const IncidentClassifiersField: React.FC<IncidentFieldProps> = ({ incident }) =>
     })
     const categories = useMemo(
         () => uniq(incidentClassifiers
-            .map(item => get(item, 'classifier.category.name')))
+            .map(item => item?.classifier.category.name))
             .join(', '),
         [incidentClassifiers])
     const problems = useMemo(
         () => uniq(incidentClassifiers
-            .map(item => get(item, 'classifier.problem.name'))
+            .map(item => item?.classifier.problem.name)
             .filter(Boolean))
             .join(', '),
         [incidentClassifiers])
@@ -285,8 +279,8 @@ const IncidentTextForResidentField: React.FC<IncidentFieldProps> = ({ incident }
     return (
         <Row>
             <PageFieldRow title={TextForResidentLabel} ellipsis labelSpan={LABEL_SPAN_COMMON}>
-                <Typography.Text type={!get(incident, 'textForResident') ? 'secondary' : null}>
-                    {get(incident, 'textForResident') || HaveNotMessage}
+                <Typography.Text type={!incident?.textForResident ? 'secondary' : null}>
+                    {incident?.textForResident || HaveNotMessage}
                 </Typography.Text>
             </PageFieldRow>
         </Row>
@@ -301,8 +295,8 @@ const IncidentOrganizationField: React.FC<IncidentFieldProps> = ({ incident }) =
     return (
         <Row>
             <PageFieldRow title={OrganizationLabel} ellipsis labelSpan={LABEL_SPAN_COMMON}>
-                <Typography.Text type={!get(incident, 'organization.name') ? 'secondary' : null}>
-                    {get(incident, 'organization.name') || HaveNotMessage}
+                <Typography.Text type={!incident?.organization.name ? 'secondary' : null}>
+                    {incident?.organization.name || HaveNotMessage}
                 </Typography.Text>
             </PageFieldRow>
         </Row>
@@ -362,10 +356,10 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
     const { incident, refetchIncident, incidentLoading, withOrganization } = props
 
     const router = useRouter()
-    const { link } = useOrganization()
+    const { employee } = useOrganization()
 
     const isActual = incident.status === IncidentStatusType.Actual
-    const canManageIncidents = useMemo(() => get(link, ['role', 'canManageIncidents'], false), [link])
+    const canManageIncidents = useMemo(() => employee?.role?.canManageIncidents || false, [employee])
 
     const {
         objs: incidentChanges,
@@ -391,7 +385,7 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
     }, [incident.id, router])
 
     const createdAt = useMemo(() => dayjs(incident.createdAt).format('DD.MM.YYYY, HH:mm'), [incident.createdAt])
-    const createdBy = useMemo(() => get(incident, ['createdBy']), [incident])
+    const createdBy = useMemo(() => incident?.createdBy, [incident])
 
     return (
         <>
@@ -486,7 +480,6 @@ const IncidentIdPage: PageComponentType = () => {
 
     const { query: { id } } = router as { query: { [key: string]: string } }
 
-    // Добавить кверю
     const {
         loading: incidentLoading,
         obj: incident,

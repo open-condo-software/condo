@@ -1,8 +1,11 @@
 query getPropertyScopeProperties ($propertyScopeIds: [ID!]) {
     result: allPropertyScopeProperties (
         where: {
-            propertyScope: {id_in: $propertyScopeIds}
+            propertyScope: {
+                id_in: $propertyScopeIds
+            }
         }
+        first: 100,
     ) {
         id
         propertyScope {

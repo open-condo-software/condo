@@ -1,5 +1,5 @@
-query getTourSteps ($where: TourStepWhereInput!, $sortBy: [SortTourStepsBy!], $first: Int, $skip: Int) {
-    tourSteps: allTourSteps (where: $where, sortBy: $sortBy, first: $first, skip: $skip) {
+query getTourSteps ($where: TourStepWhereInput!, $sortBy: [SortTourStepsBy!]) {
+    tourSteps: allTourSteps (where: $where, sortBy: $sortBy) {
         id
         type
         status
@@ -13,5 +13,11 @@ mutation syncTourSteps ($organizationId: ID!, $dv: Int!, $sender: SenderFieldInp
         sender: $sender
     }) {
         ok
+    }
+}
+
+mutation updateTourStep ($id: ID!, $data: TourStepUpdateInput!) {
+    tourStep: updateTourStep(id: $id, data: $data) {
+        id
     }
 }

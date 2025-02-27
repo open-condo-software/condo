@@ -26,7 +26,7 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
     const { getSuccessfulChangeNotification } = useNotificationMessages()
     const client = useApolloClient()
 
-    const ticketId = useMemo(() => ticket?.id || null, [ticket])
+    const ticketId = ticket?.id || null
     const { statuses, loading } = useStatusTransitions(ticket?.status?.id, organization, employee)
     const canManageTickets = useMemo(() => employee?.role?.canManageTickets || false, [employee])
     const [isUpdating, setUpdating] = useState(false)
@@ -35,13 +35,6 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
         setUpdating(false)
     }, [onUpdate, setUpdating])
     const [updateTicketMutation] = useUpdateTicketMutation({
-        variables: {
-            id: ticket?.id,
-            data: {
-                sender: getClientSideSenderInfo(),
-                dv: 1,
-            },
-        },
         onCompleted: () => {
             handleUpdate()
             notification.success(getSuccessfulChangeNotification())
@@ -56,6 +49,7 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
         setUpdating(true)
         updateTicketStatus({
             variables: {
+                id: ticket?.id,
                 data: {
                     status: { connect: { id: value } },
                     statusUpdatedAt: new Date(),
@@ -70,6 +64,7 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
         setUpdating(true)
         updateTicketStatus({
             variables: {
+                id: ticket?.id,
                 data: {
                     status: { connect: { id: statusDeferredId } },
                     deferredUntil: deferredDate.toISOString(),

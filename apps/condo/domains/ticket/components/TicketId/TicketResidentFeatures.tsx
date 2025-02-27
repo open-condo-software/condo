@@ -1,5 +1,5 @@
 import { useGetBillingReceiptsCountQuery } from '@app/condo/gql'
-import { SortBillingReceiptsBy, Ticket } from '@app/condo/schema'
+import { Ticket } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import dayjs from 'dayjs'
@@ -45,17 +45,14 @@ const PaymentsAvailableIndicator: React.FC<PaymentsAvailableIndicatorProps> = ({
     
     const { data, loading: receiptsByPropertyLoading } = useGetBillingReceiptsCountQuery({
         variables: {
-            where: {
-                context: { organization: { id: ticketOrganizationId } },
-                property: {
-                    OR: [
-                        { address: propertyAddress },
-                        { normalizedAddress: propertyAddress },
-                    ],
-                },
-                period_gte: LAST_MONTH_BEGINNING,
+            context: { organization: { id: ticketOrganizationId } },
+            property: {
+                OR: [
+                    { address: propertyAddress },
+                    { normalizedAddress: propertyAddress },
+                ],
             },
-            sortBy: [SortBillingReceiptsBy.CreatedAtDesc],
+            period_gte: LAST_MONTH_BEGINNING,
         },
         skip: !ticketOrganizationId || !propertyAddress || !persistor,
     })

@@ -1,5 +1,4 @@
 import { useGetGlobalB2BAppsQuery } from '@app/condo/gql'
-import get from 'lodash/get'
 import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 
@@ -28,7 +27,7 @@ export const GlobalAppsContainer: React.FC = () => {
     //  so miniapps can use bridge.subscribe with Type safety on them!
     const { user, isLoading } = useAuth()
     const { organization } = useOrganization()
-    const organizationId = useMemo(() => organization?.id || null, [organization])
+    const organizationId = organization?.id || null
     const { persistor } = useCachePersistor()
 
     const {
@@ -65,7 +64,7 @@ export const GlobalAppsContainer: React.FC = () => {
     }, [registerFeatures, b2bApps])
 
     const handleFeatureRequest: IRequestFeatureHandler = useCallback((context) => {
-        const receiverOrigin = get(features, context.feature)
+        const receiverOrigin = features[context.feature] || null
         if (receiverOrigin) {
             for (const iframe of iframeRefs.current) {
                 if (iframe) {

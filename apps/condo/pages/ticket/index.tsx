@@ -1004,8 +1004,8 @@ const TicketsPage: PageComponentType = () => {
     const { ticketFilterQuery, ticketFilterQueryLoading } = useTicketVisibility()
 
     const { organization: userOrganization, employee: activeEmployee } = useOrganization()
-    const userOrganizationId = useMemo(() => userOrganization?.id || null, [userOrganization])
-    const employeeId = useMemo(() => activeEmployee?.id || null, [activeEmployee])
+    const userOrganizationId = userOrganization?.id || null
+    const employeeId = activeEmployee?.id || null
 
     const filterMetas = useTicketTableFilters()
 

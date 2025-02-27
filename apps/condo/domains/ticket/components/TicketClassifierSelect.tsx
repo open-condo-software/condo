@@ -1,7 +1,7 @@
 import { usePredictTicketClassificationLazyQuery } from '@app/condo/gql'
 import { Col, Form, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
-import { uniqBy, isEmpty, find, pick, get } from 'lodash'
+import { uniqBy, isEmpty, find, pick } from 'lodash'
 import isFunction from 'lodash/isFunction'
 import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react'
 
@@ -182,11 +182,13 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
             return
         }
         let prediction
-        if (variables?.data?.details === details) {
+        if (variables?.details === details) {
             prediction = previousPrediction
         } else {
             const { error, data } = await predictTicketClassificationQuery({
-                variables: { data: { details } },
+                variables: {
+                    details,
+                },
             })
             if (error) {
                 console.error(error)
@@ -257,7 +259,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
             if (ruleRef.current.id) {
                 ClassifierLoader.findRules({ id: ruleRef.current.id }).then(([rule]) => {
                     const { place, category, problem } = rule
-                    ruleRef.current = { ...ruleRef.current, ...{ place: place.id, category: category.id, problem: get(problem, 'id', null) } }
+                    ruleRef.current = { ...ruleRef.current, ...{ place: place.id, category: category.id, problem: problem?.id || null } }
                     updateLevels(ruleRef.current).then(stopPredict)
                 })
             } else {
@@ -363,7 +365,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
         const state = ruleRef.current
         const updateEmptyState = {}
         Object.keys(Setter).forEach(type => {
-            const isExisted = options[type].find(option => get(option, 'id') === state[type])
+            const isExisted = options[type].find(option => option?.id === state[type])
             if (!isExisted && state[type]) {
                 updateEmptyState[type] = null
             }
@@ -377,7 +379,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
         }
         Object.keys(Setter).forEach(type => {
             Setter[type].all(options[type])
-            const isExisted = options[type].find(option => get(option, 'id') === state[type])
+            const isExisted = options[type].find(option => option?.id === state[type])
             Setter[type].one(isExisted ? state[type] : null)
         })
         await updateRuleId()

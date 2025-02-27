@@ -1,5 +1,5 @@
 import { useGetTicketFilesQuery } from '@app/condo/gql'
-import { SortTicketFilesBy, Ticket } from '@app/condo/schema'
+import { Ticket } from '@app/condo/schema'
 import { isEmpty } from 'lodash'
 import React, { useMemo } from 'react'
 
@@ -22,9 +22,7 @@ export const TicketFileListField: React.FC<TicketFileListFieldProps> = ({ ticket
         data,
     } = useGetTicketFilesQuery({
         variables: {
-            where: { ticket: { id: ticket?.id || null } },
-            sortBy: [SortTicketFilesBy.CreatedAtAsc],
-            first: 100,
+            ticketId: ticket?.id,
         },
         skip: !ticket?.id,
     })

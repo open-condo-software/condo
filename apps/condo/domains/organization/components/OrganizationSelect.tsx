@@ -52,7 +52,7 @@ export const InlineOrganizationSelect: React.FC = () => {
         selectEmployee: setActiveEmployee,
         isLoading: organizationLoading,
     } = useOrganization()
-    const userId = useMemo(() => user?.id || null, [user])
+    const userId = user?.id || null
 
     const {
         data: actualEmployeesData,

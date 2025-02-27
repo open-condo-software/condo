@@ -20,7 +20,6 @@ import { FormProps } from 'antd/lib/form/Form'
 import { ColProps } from 'antd/lib/grid/col'
 import dayjs from 'dayjs'
 import difference from 'lodash/difference'
-import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isFunction from 'lodash/isFunction'
 import uniq from 'lodash/uniq'
@@ -66,6 +65,7 @@ export type BaseIncidentFormProps = {
     | 'workStart'
     | 'workFinish'
     | 'workType'
+    | 'organization'
     | 'status'
     | 'details'
     | 'textForResident'
@@ -153,7 +153,7 @@ export const Classifiers: React.FC<ClassifiersProps> = (props) => {
     const renderProblems = useMemo(() => {
         const filteredClassifiers = classifiers.filter(classifier => (
             selectedCategories.length > 0
-                ? selectedCategories.includes(get(classifier, 'category.id'))
+                ? selectedCategories.includes(classifier?.category?.id)
                 : true
         ))
         return withoutEmpty(convertToSelectOptions(ClassifierLoader.rulesToOptions(filteredClassifiers, 'problem')))
@@ -163,7 +163,7 @@ export const Classifiers: React.FC<ClassifiersProps> = (props) => {
         setSelectedCategories(ids)
         if (selectedProblems.length > 0) {
             const availableClassifiers = classifiers.filter(classifier => (
-                ids.includes(get(classifier, 'category.id'))
+                ids.includes(classifier?.category?.id)
             ))
             const intersection = intersectionClassifiers({ availableClassifiers: availableClassifiers, selectedItems: selectedProblems, type: 'problem' })
             setSelectedProblems(intersection)
@@ -187,8 +187,8 @@ export const Classifiers: React.FC<ClassifiersProps> = (props) => {
         ClassifierLoader.init().then(async () => {
             const classifiers = await ClassifierLoader.search('', 'rules', null, 500) as IIncidentClassifier[]
             const initialClassifiers = classifiers.filter(classifier => initialClassifierIds.includes(classifier.id))
-            const initialCategoryIds = uniq(initialClassifiers.map(classifier => get(classifier, 'category.id')))
-            const initialProblemIds = uniq(initialClassifiers.map(classifier => get(classifier, 'problem.id', null)).filter(Boolean))
+            const initialCategoryIds = uniq(initialClassifiers.map(classifier => classifier?.category?.id))
+            const initialProblemIds = uniq(initialClassifiers.map(classifier => classifier?.problem?.id || null).filter(Boolean))
             setClassifiers(classifiers)
             setSelectedCategories(initialCategoryIds)
             setSelectedProblems(initialProblemIds)
@@ -279,7 +279,7 @@ export const handleChangeDate: handleChangeDateType = (form, fieldName) => (valu
     form.setFieldValue(fieldName, value.set('seconds', 0).set('milliseconds', 0))
 }
 
-const getPropertyKey = (incidentProperty) => get(incidentProperty, 'property.id', `incident-property-${get(incidentProperty, 'id')}`)
+const getPropertyKey = (incidentProperty) => incidentProperty?.property?.id || `incident-property-${incidentProperty?.id}`
 
 const INITIAL_VALUES = {} as BaseIncidentFormProps['initialValues']
 
@@ -305,7 +305,6 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     const PromptHelpMessage = intl.formatMessage({ id: 'incident.form.prompt.exit.message' })
     const notAvailableMessage = intl.formatMessage({ id: 'global.notAvailable' })
     const SelectPlaceholder = intl.formatMessage({ id: 'Select' })
-    // Убрать get, потому что типы не видно из-за него
     const {
         action: createOrUpdateIncident,
         ActionBar,
@@ -329,12 +328,12 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     const [createIncidentClassifierIncident] = useCreateIncidentClassifierIncidentMutation()
     const [updateIncidentClassifierIncident] = useUpdateIncidentClassifierIncidentMutation()
 
-    const initialIncidentOrganization = useMemo(() => get(initialValues, 'organization.name'), [initialValues])
-    const initialIncidentProperties = useMemo(() => get(initialValues, 'incidentProperties', []), [initialValues]) as IIncidentProperty[]
-    const initialIncidentClassifiers = useMemo(() => get(initialValues, 'incidentClassifiers', []), [initialValues]) as IIncidentClassifierIncident[]
-    const initialPropertyIds = useMemo(() => initialIncidentProperties.map(item => get(item, 'id')).filter(Boolean), [initialIncidentProperties])
+    const initialIncidentOrganization = useMemo(() => initialValues?.organization?.name || null, [initialValues])
+    const initialIncidentProperties = useMemo(() => initialValues?.incidentProperties || [], [initialValues]) as IIncidentProperty[]
+    const initialIncidentClassifiers = useMemo(() => initialValues?.incidentClassifiers || [], [initialValues]) as IIncidentClassifierIncident[]
+    const initialPropertyIds = useMemo(() => initialIncidentProperties.map(item => item?.id || null).filter(Boolean), [initialIncidentProperties])
     const initialPropertyIdsWithDeleted = useMemo(() => initialIncidentProperties.map(item => getPropertyKey(item)), [initialIncidentProperties])
-    const initialClassifierIds = useMemo(() => initialIncidentClassifiers.map(item => get(item, 'id')), [initialIncidentClassifiers])
+    const initialClassifierIds = useMemo(() => initialIncidentClassifiers.map(item => item?.id || null), [initialIncidentClassifiers])
 
     const handleFormSubmit = useCallback(async (values) => {
         const { properties, allClassifiers, categoryClassifiers, problemClassifiers, ...incidentValues } = values
@@ -376,17 +375,18 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
         }
 
         const selectedClassifiersByCategoryAndProblem = allClassifiers
-            .filter(classifier => categoryClassifiers.includes(get(classifier, 'category.id'))
-                && problemClassifiers.includes(get(classifier, 'problem.id')))
+            .filter(classifier => categoryClassifiers.includes(classifier?.category.id)
+                && problemClassifiers.includes(classifier?.problem.id))
         const selectedCategoryWithoutSelectedProblemIds = difference(
             categoryClassifiers,
-            uniq(selectedClassifiersByCategoryAndProblem.map(classifier => get(classifier, 'category.id')))
+            uniq(selectedClassifiersByCategoryAndProblem.map(classifier => classifier?.category.id))
         )
         const selectedClassifiersWithoutProblem = allClassifiers
-            .filter(classifier => !get(classifier, 'problem.id') &&
-                selectedCategoryWithoutSelectedProblemIds.includes(get(classifier, 'category.id')))
+            .filter((classifier) => 
+                !classifier?.problem.id && selectedCategoryWithoutSelectedProblemIds.includes(classifier?.category.id)
+            )
         const selectedClassifierIds = [...selectedClassifiersByCategoryAndProblem, ...selectedClassifiersWithoutProblem]
-            .map(classifier => get(classifier, 'id'))
+            .map(classifier => classifier?.id)
 
         const addedClassifierIds = difference(selectedClassifierIds, initialClassifierIds)
         for (const classifierId of addedClassifierIds) {
@@ -422,19 +422,19 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
         const deletedPropertyOptions = initialIncidentProperties.map((incidentProperty) => {
             const property = {
                 id: getPropertyKey(incidentProperty),
-                address: get(incidentProperty, 'property.address', get(incidentProperty, 'propertyAddress', null)),
-                addressMeta: get(incidentProperty, 'property.addressMeta', get(incidentProperty, 'propertyAddressMeta', null)),
-                deletedAt: get(incidentProperty, 'property.deletedAt', true),
+                address: incidentProperty?.property.address || incidentProperty?.propertyAddress || null,
+                addressMeta: incidentProperty?.property.addressMeta || incidentProperty?.propertyAddressMeta || null,
+                deletedAt: incidentProperty?.property.deletedAt || true,
             }
             return {
                 value: property.id,
                 text: `${property.address}`,
                 data: { property },
             }
-        }).filter((option) => !!get(option, 'data.property.deletedAt', false))
+        }).filter((option) => !!option?.data.property.deletedAt || false)
 
         return [...deletedPropertyOptions, ...options]
-            .map((option) => get(option, 'data.property.deletedAt', false)
+            .map((option) => option?.data.property.deletedAt || false
                 ? renderDeletedOption(intl, option)
                 : renderOption(option)
             )
@@ -474,8 +474,8 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     }], [DetailsErrorMessage])
     const finishWorkRules: Rule[] = useMemo(() => getFinishWorkRules(WorkFinishErrorMessage), [WorkFinishErrorMessage])
 
-    const initialWorkFinish = useMemo(() => get(initialValues, 'workFinish'), [initialValues])
-    const status = useMemo(() => get(initialValues, 'status'), [initialValues])
+    const initialWorkFinish = useMemo(() => initialValues?.workFinish || null, [initialValues])
+    const status = useMemo(() => initialValues?.status || null, [initialValues])
     const showNotActualWorkFinishAlert = !isEmpty(initialValues)
         && !isEmpty(status)
         && status === IncidentStatusType.Actual
