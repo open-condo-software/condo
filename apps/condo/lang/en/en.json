@@ -1142,6 +1142,7 @@
   "import.helpModal.title": "We will help",
   "import.meter.genitive": "Meter readings",
   "import.meter.plural": "Meters and readings",
+  "import.meter.prepositional": "Meter readings",
   "import.meter.requiredFields": "Specify address, premises and its type, personal account number, meter type, meter number, number of tariffs and date of transmission of readings",
   "import.propertyMeter.genitive": "Property meter readings",
   "import.propertyMeter.plural": "Property meters",
