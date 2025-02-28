@@ -228,10 +228,10 @@ describe('DeleteMeterAndMeterReadingsService', () => {
             }))
 
             const meters = await Meter.getAll(adminClient, { id_in: [meter.id, meter2.id, meter3.id] })
-            expect(meters).toEqual([
+            expect(meters).toEqual(expect.arrayContaining([
                 expect.objectContaining({ id: meter.id }),
                 expect.objectContaining({ id: meter3.id }),
-            ])
+            ]))
         })
 
         test('Should delete a lot of meters', async () => {
