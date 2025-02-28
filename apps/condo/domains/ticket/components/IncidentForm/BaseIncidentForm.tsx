@@ -393,6 +393,8 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
             await createIncidentClassifierIncident({
                 variables: {
                     data: {
+                        dv: 1,
+                        sender: getClientSideSenderInfo(),
                         classifier: { connect: { id: classifierId } },
                         incident: { connect: { id: data?.incident?.id } },
                     },
