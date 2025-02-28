@@ -296,11 +296,11 @@ describe('importMeters', () => {
             status: ERROR,
             format: CSV,
             file: expect.objectContaining({ mimetype: 'text/csv' }),
-            errorFile: null,
-            errorMessage: 'The `s` parameter is mandatory',
+            errorFile: expect.objectContaining({ originalFilename: 'meters_failed_data.csv', mimetype: 'text/csv' }),
+            errorMessage: null,
             totalRecordsCount: validLines + invalidLines + fatalLines,
-            importedRecordsCount: 0,
-            processedRecordsCount: 0,
+            importedRecordsCount: validLines,
+            processedRecordsCount: validLines + invalidLines + fatalLines,
         })
     })
 
