@@ -29,6 +29,7 @@ import { REQUIRED_TICKET_FIELDS } from '@condo/domains/ticket/constants/common'
 import { useCacheUtils } from '@condo/domains/ticket/hooks/useCacheUtils'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
+import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 
 dayjs.extend(isToday)
 
@@ -194,6 +195,8 @@ export const CreateTicketForm: React.FC = () => {
         const { data: ticketData } = await createTicketAction({
             variables: {
                 data: {
+                    dv: 1,
+                    sender: getClientSideSenderInfo(),
                     status: {
                         connect: { id: OPEN_STATUS },
                     },
@@ -210,11 +213,17 @@ export const CreateTicketForm: React.FC = () => {
                 const payload = Invoice.formValuesProcessor({
                     ...invoiceFromForm,
                     ticket: ticket?.id,
+                    dv: 1,
+                    sender: getClientSideSenderInfo(),
                 }, intl, true)
 
                 await createInvoiceAction({
                     variables: {
-                        data: payload,
+                        data: {
+                            dv: 1,
+                            sender: getClientSideSenderInfo(),
+                            ...payload,
+                        },
                     },
                 })
             }
