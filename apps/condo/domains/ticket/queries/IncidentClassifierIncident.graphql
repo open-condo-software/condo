@@ -24,13 +24,13 @@ query getIncidentClassifierIncident ($where: IncidentClassifierIncidentWhereInpu
 }
 
 mutation createIncidentClassifierIncident ($data: IncidentClassifierIncidentCreateInput!) {
-    IncidentClassifierIncident: createIncidentClassifierIncident (data: $data) {
+    incidentClassifierIncident: createIncidentClassifierIncident (data: $data) {
         id
     }
 }
 
 mutation updateIncidentClassifierIncident ($id: ID!, $data: IncidentClassifierIncidentUpdateInput!) {
-    IncidentClassifierIncident: updateIncidentClassifierIncident (id: $id, data: $data) {
+    incidentClassifierIncident: updateIncidentClassifierIncident (id: $id, data: $data) {
         id
     }
 }

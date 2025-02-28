@@ -39,13 +39,13 @@ query getIncidentProperties ($propertyId: ID!, $organizationId: ID!, $workFinish
 }
 
 mutation createIncidentProperty ($data: IncidentPropertyCreateInput!) {
-    IncidentProperty: createIncidentProperty (data: $data) {
+    incidentProperty: createIncidentProperty (data: $data) {
         id
     }
 }
 
 mutation updateIncidentProperty ($id: ID!, $data: IncidentPropertyUpdateInput!) {
-    IncidentProperty: updateIncidentProperty (id: $id, data: $data) {
+    incidentProperty: updateIncidentProperty (id: $id, data: $data) {
         id
     }
 }
