@@ -1,5 +1,6 @@
 import { useGetGlobalB2BAppsQuery } from '@app/condo/gql'
-import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react'
+import { SortB2BAppsBy } from '@app/condo/schema'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 
 import { useCachePersistor } from '@open-condo/apollo'
@@ -10,10 +11,8 @@ import { useOrganization } from '@open-condo/next/organization'
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 
-import {
-    useGlobalAppsFeaturesContext,
-    IRequestFeatureHandler,
-} from './GlobalAppsFeaturesContext'
+import { IRequestFeatureHandler, useGlobalAppsFeaturesContext } from './GlobalAppsFeaturesContext'
+
 
 
 const REQUEST_FEATURE_MESSAGE_NAME = 'CondoWebAppFeatureRequest'
@@ -35,9 +34,9 @@ export const GlobalAppsContainer: React.FC = () => {
     } = useGetGlobalB2BAppsQuery({
         skip: !user || !organizationId || isLoading || !persistor,
     })
-    const b2bApps = useMemo(() => b2bAppsData?.b2bApps.filter(Boolean) || [], [b2bAppsData?.b2bApps])
+    const b2bApps = useMemo(() => b2bAppsData?.b2bApps?.filter(Boolean) || [], [b2bAppsData?.b2bApps])
 
-    const appUrls = b2bApps.map(app => app.appUrl)
+    const appUrls = b2bApps.map(app => app?.appUrl)
 
     const iframeRefs = useRef<Array<HTMLIFrameElement>>([])
     const [isDebug, setIsDebug] = useState(false)
@@ -51,8 +50,8 @@ export const GlobalAppsContainer: React.FC = () => {
 
     useDeepCompareEffect(() => {
         const globalFeatures = b2bApps.reduce((registeredFeatures, app) => {
-            const appOrigin = extractOrigin(app.appUrl)
-            const availableFeatures = (app.features || []).filter(featureName => !(featureName in registeredFeatures))
+            const appOrigin = extractOrigin(app?.appUrl)
+            const availableFeatures = (app?.features || []).filter(featureName => !(featureName in registeredFeatures))
             const appFeatures = Object.assign({}, ...availableFeatures.map(featureName => ({ [featureName]: appOrigin })))
 
             return {
@@ -122,12 +121,12 @@ export const GlobalAppsContainer: React.FC = () => {
 
     return (
         <>
-            {appUrls.map((url, index) => (
+            {appUrls.map((url, index) => (  
                 <IFrame
-                    key={url}
-                    src={url}
+                    key={url || undefined}   
+                    src={url || ''}
                     reloadScope='user'
-                    ref={el => iframeRefs.current[index] = el}
+                    ref={el => iframeRefs.current[index] = el as HTMLIFrameElement}
                     hidden={!isDebug}
                 />
             ))}

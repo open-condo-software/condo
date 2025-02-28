@@ -219,9 +219,7 @@ export type UpdateMeterReadingsImportTaskMutationVariables = Types.Exact<{
 
 export type UpdateMeterReadingsImportTaskMutation = { __typename?: 'Mutation', task?: { __typename: 'MeterReadingsImportTask', id: string, status?: Types.MeterReadingsImportTaskStatusType | null, errorMessage?: string | null, totalRecordsCount?: number | null, processedRecordsCount?: number | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null, errorFile?: { __typename?: 'File', publicUrl?: string | null } | null } | null };
 
-export type GetGlobalB2BAppsQueryVariables = Types.Exact<{
-  sortBy?: Types.InputMaybe<Array<Types.SortB2BAppsBy> | Types.SortB2BAppsBy>;
-}>;
+export type GetGlobalB2BAppsQueryVariables = Types.Exact<{ [key: string]: never; }>;
 
 
 export type GetGlobalB2BAppsQuery = { __typename?: 'Query', b2bApps?: Array<{ __typename?: 'B2BApp', id: string, appUrl?: string | null, features?: Array<Types.B2BAppGlobalFeature> | null } | null> | null };
