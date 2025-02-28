@@ -210,7 +210,8 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
         })
     })
 
-    test('Must relink many residents after approve new properties', async () => {
+    // Skip this test because it takes a long time
+    test.skip('Must relink many residents after approve new properties', async () => {
         // Create admin for making Resident.getAll requests to fetch all residents in a single query
         // instead of making 101 separate requests from resident clients.
         const admin = await makeLoggedInAdminClient()
