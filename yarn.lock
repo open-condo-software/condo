@@ -1255,6 +1255,12 @@ __metadata:
     "@emotion/core": ^10.1.1
     "@emotion/react": ^11.9.3
     "@emotion/styled": ^11.10.0
+    "@graphql-codegen/add": ^5.0.3
+    "@graphql-codegen/cli": ^5.0.2
+    "@graphql-codegen/import-types-preset": ^3.0.0
+    "@graphql-codegen/typescript": ^4.0.9
+    "@graphql-codegen/typescript-operations": ^4.2.3
+    "@graphql-codegen/typescript-react-apollo": ^4.3.2
     "@insurance/domains": "link:./domains"
     "@keystonejs/adapter-knex": ^13.2.0
     "@keystonejs/adapter-mongoose": ^11.2.0
@@ -1293,6 +1299,7 @@ __metadata:
     apollo-server-errors: ^3.1.0
     babel-jest: ^29.7.0
     classnames: 2.2.6
+    cross-env: ^7.0.3
     css-loader: 1.0.0
     dayjs: ^1.10.6
     emotion: ^10.0.27
@@ -1316,6 +1323,7 @@ __metadata:
     less: ^3.12.2
     less-loader: ^4.0.0
     lodash: ^4.17.21
+    mkdirp: ^1.0.4
     moment: 2.29.4
     next: ^9.5.2
     next-transpile-modules: ^4.1.0
