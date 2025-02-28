@@ -1511,6 +1511,51 @@ export function useUpdateMeterReadingsImportTaskMutation(baseOptions?: Apollo.Mu
 export type UpdateMeterReadingsImportTaskMutationHookResult = ReturnType<typeof useUpdateMeterReadingsImportTaskMutation>;
 export type UpdateMeterReadingsImportTaskMutationResult = Apollo.MutationResult<Types.UpdateMeterReadingsImportTaskMutation>;
 export type UpdateMeterReadingsImportTaskMutationOptions = Apollo.BaseMutationOptions<Types.UpdateMeterReadingsImportTaskMutation, Types.UpdateMeterReadingsImportTaskMutationVariables>;
+export const GetB2BAppsWithMessageSettingsDocument = gql`
+    query getB2BAppsWithMessageSettings($messageTypes: [MessageType]) {
+  settings: allAppMessageSettings(
+    where: {type_in: $messageTypes, b2bApp_is_null: false}
+  ) {
+    b2bApp {
+      id
+    }
+    type
+  }
+}
+    `;
+
+/**
+ * __useGetB2BAppsWithMessageSettingsQuery__
+ *
+ * To run a query within a React component, call `useGetB2BAppsWithMessageSettingsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetB2BAppsWithMessageSettingsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetB2BAppsWithMessageSettingsQuery({
+ *   variables: {
+ *      messageTypes: // value for 'messageTypes'
+ *   },
+ * });
+ */
+export function useGetB2BAppsWithMessageSettingsQuery(baseOptions?: Apollo.QueryHookOptions<Types.GetB2BAppsWithMessageSettingsQuery, Types.GetB2BAppsWithMessageSettingsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetB2BAppsWithMessageSettingsQuery, Types.GetB2BAppsWithMessageSettingsQueryVariables>(GetB2BAppsWithMessageSettingsDocument, options);
+      }
+export function useGetB2BAppsWithMessageSettingsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetB2BAppsWithMessageSettingsQuery, Types.GetB2BAppsWithMessageSettingsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetB2BAppsWithMessageSettingsQuery, Types.GetB2BAppsWithMessageSettingsQueryVariables>(GetB2BAppsWithMessageSettingsDocument, options);
+        }
+export function useGetB2BAppsWithMessageSettingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetB2BAppsWithMessageSettingsQuery, Types.GetB2BAppsWithMessageSettingsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetB2BAppsWithMessageSettingsQuery, Types.GetB2BAppsWithMessageSettingsQueryVariables>(GetB2BAppsWithMessageSettingsDocument, options);
+        }
+export type GetB2BAppsWithMessageSettingsQueryHookResult = ReturnType<typeof useGetB2BAppsWithMessageSettingsQuery>;
+export type GetB2BAppsWithMessageSettingsLazyQueryHookResult = ReturnType<typeof useGetB2BAppsWithMessageSettingsLazyQuery>;
+export type GetB2BAppsWithMessageSettingsSuspenseQueryHookResult = ReturnType<typeof useGetB2BAppsWithMessageSettingsSuspenseQuery>;
+export type GetB2BAppsWithMessageSettingsQueryResult = Apollo.QueryResult<Types.GetB2BAppsWithMessageSettingsQuery, Types.GetB2BAppsWithMessageSettingsQueryVariables>;
 export const GetGlobalB2BAppsDocument = gql`
     query getGlobalB2BApps {
   b2bApps: allB2BApps(where: {isGlobal: true, isHidden: false}) {
@@ -1552,6 +1597,52 @@ export type GetGlobalB2BAppsQueryHookResult = ReturnType<typeof useGetGlobalB2BA
 export type GetGlobalB2BAppsLazyQueryHookResult = ReturnType<typeof useGetGlobalB2BAppsLazyQuery>;
 export type GetGlobalB2BAppsSuspenseQueryHookResult = ReturnType<typeof useGetGlobalB2BAppsSuspenseQuery>;
 export type GetGlobalB2BAppsQueryResult = Apollo.QueryResult<Types.GetGlobalB2BAppsQuery, Types.GetGlobalB2BAppsQueryVariables>;
+export const GetUserB2BAppRolesDocument = gql`
+    query getUserB2BAppRoles($employeeRoleId: ID, $b2bAppIds: [ID]) {
+  b2bRoles: allB2BAppRoles(
+    where: {role: {id: $employeeRoleId}, app: {id_in: $b2bAppIds}}
+  ) {
+    id
+    app {
+      id
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetUserB2BAppRolesQuery__
+ *
+ * To run a query within a React component, call `useGetUserB2BAppRolesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetUserB2BAppRolesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetUserB2BAppRolesQuery({
+ *   variables: {
+ *      employeeRoleId: // value for 'employeeRoleId'
+ *      b2bAppIds: // value for 'b2bAppIds'
+ *   },
+ * });
+ */
+export function useGetUserB2BAppRolesQuery(baseOptions?: Apollo.QueryHookOptions<Types.GetUserB2BAppRolesQuery, Types.GetUserB2BAppRolesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetUserB2BAppRolesQuery, Types.GetUserB2BAppRolesQueryVariables>(GetUserB2BAppRolesDocument, options);
+      }
+export function useGetUserB2BAppRolesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetUserB2BAppRolesQuery, Types.GetUserB2BAppRolesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetUserB2BAppRolesQuery, Types.GetUserB2BAppRolesQueryVariables>(GetUserB2BAppRolesDocument, options);
+        }
+export function useGetUserB2BAppRolesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetUserB2BAppRolesQuery, Types.GetUserB2BAppRolesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetUserB2BAppRolesQuery, Types.GetUserB2BAppRolesQueryVariables>(GetUserB2BAppRolesDocument, options);
+        }
+export type GetUserB2BAppRolesQueryHookResult = ReturnType<typeof useGetUserB2BAppRolesQuery>;
+export type GetUserB2BAppRolesLazyQueryHookResult = ReturnType<typeof useGetUserB2BAppRolesLazyQuery>;
+export type GetUserB2BAppRolesSuspenseQueryHookResult = ReturnType<typeof useGetUserB2BAppRolesSuspenseQuery>;
+export type GetUserB2BAppRolesQueryResult = Apollo.QueryResult<Types.GetUserB2BAppRolesQuery, Types.GetUserB2BAppRolesQueryVariables>;
 export const GetAllMiniAppsDocument = gql`
     query getAllMiniApps($data: AllMiniAppsInput!) {
   allMiniApps: allMiniApps(data: $data) {
@@ -1726,6 +1817,60 @@ export function useUpdateNewsItemRecipientsExportTaskMutation(baseOptions?: Apol
 export type UpdateNewsItemRecipientsExportTaskMutationHookResult = ReturnType<typeof useUpdateNewsItemRecipientsExportTaskMutation>;
 export type UpdateNewsItemRecipientsExportTaskMutationResult = Apollo.MutationResult<Types.UpdateNewsItemRecipientsExportTaskMutation>;
 export type UpdateNewsItemRecipientsExportTaskMutationOptions = Apollo.BaseMutationOptions<Types.UpdateNewsItemRecipientsExportTaskMutation, Types.UpdateNewsItemRecipientsExportTaskMutationVariables>;
+export const GetUserMessagesDocument = gql`
+    query getUserMessages($userId: ID, $organizationId: ID, $types: [MessageType!], $skip: Int = 0) {
+  messages: allMessages(
+    where: {user: {id: $userId}, organization: {id: $organizationId}, type_in: $types}
+    first: 10
+    skip: $skip
+    sortBy: [createdAt_DESC]
+  ) {
+    id
+    type
+    createdAt
+    meta
+    defaultContent {
+      content
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetUserMessagesQuery__
+ *
+ * To run a query within a React component, call `useGetUserMessagesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetUserMessagesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetUserMessagesQuery({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *      organizationId: // value for 'organizationId'
+ *      types: // value for 'types'
+ *      skip: // value for 'skip'
+ *   },
+ * });
+ */
+export function useGetUserMessagesQuery(baseOptions?: Apollo.QueryHookOptions<Types.GetUserMessagesQuery, Types.GetUserMessagesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetUserMessagesQuery, Types.GetUserMessagesQueryVariables>(GetUserMessagesDocument, options);
+      }
+export function useGetUserMessagesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetUserMessagesQuery, Types.GetUserMessagesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetUserMessagesQuery, Types.GetUserMessagesQueryVariables>(GetUserMessagesDocument, options);
+        }
+export function useGetUserMessagesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetUserMessagesQuery, Types.GetUserMessagesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetUserMessagesQuery, Types.GetUserMessagesQueryVariables>(GetUserMessagesDocument, options);
+        }
+export type GetUserMessagesQueryHookResult = ReturnType<typeof useGetUserMessagesQuery>;
+export type GetUserMessagesLazyQueryHookResult = ReturnType<typeof useGetUserMessagesLazyQuery>;
+export type GetUserMessagesSuspenseQueryHookResult = ReturnType<typeof useGetUserMessagesSuspenseQuery>;
+export type GetUserMessagesQueryResult = Apollo.QueryResult<Types.GetUserMessagesQuery, Types.GetUserMessagesQueryVariables>;
 export const GetTourStepsDocument = gql`
     query getTourSteps($where: TourStepWhereInput!, $sortBy: [SortTourStepsBy!]) {
   tourSteps: allTourSteps(where: $where, sortBy: $sortBy) {
@@ -3034,7 +3179,7 @@ export type GetIncidentClassifierIncidentSuspenseQueryHookResult = ReturnType<ty
 export type GetIncidentClassifierIncidentQueryResult = Apollo.QueryResult<Types.GetIncidentClassifierIncidentQuery, Types.GetIncidentClassifierIncidentQueryVariables>;
 export const CreateIncidentClassifierIncidentDocument = gql`
     mutation createIncidentClassifierIncident($data: IncidentClassifierIncidentCreateInput!) {
-  IncidentClassifierIncident: createIncidentClassifierIncident(data: $data) {
+  incidentClassifierIncident: createIncidentClassifierIncident(data: $data) {
     id
   }
 }
@@ -3067,7 +3212,7 @@ export type CreateIncidentClassifierIncidentMutationResult = Apollo.MutationResu
 export type CreateIncidentClassifierIncidentMutationOptions = Apollo.BaseMutationOptions<Types.CreateIncidentClassifierIncidentMutation, Types.CreateIncidentClassifierIncidentMutationVariables>;
 export const UpdateIncidentClassifierIncidentDocument = gql`
     mutation updateIncidentClassifierIncident($id: ID!, $data: IncidentClassifierIncidentUpdateInput!) {
-  IncidentClassifierIncident: updateIncidentClassifierIncident(
+  incidentClassifierIncident: updateIncidentClassifierIncident(
     id: $id
     data: $data
   ) {
@@ -3325,7 +3470,7 @@ export type GetIncidentPropertiesSuspenseQueryHookResult = ReturnType<typeof use
 export type GetIncidentPropertiesQueryResult = Apollo.QueryResult<Types.GetIncidentPropertiesQuery, Types.GetIncidentPropertiesQueryVariables>;
 export const CreateIncidentPropertyDocument = gql`
     mutation createIncidentProperty($data: IncidentPropertyCreateInput!) {
-  IncidentProperty: createIncidentProperty(data: $data) {
+  incidentProperty: createIncidentProperty(data: $data) {
     id
   }
 }
@@ -3358,7 +3503,7 @@ export type CreateIncidentPropertyMutationResult = Apollo.MutationResult<Types.C
 export type CreateIncidentPropertyMutationOptions = Apollo.BaseMutationOptions<Types.CreateIncidentPropertyMutation, Types.CreateIncidentPropertyMutationVariables>;
 export const UpdateIncidentPropertyDocument = gql`
     mutation updateIncidentProperty($id: ID!, $data: IncidentPropertyUpdateInput!) {
-  IncidentProperty: updateIncidentProperty(id: $id, data: $data) {
+  incidentProperty: updateIncidentProperty(id: $id, data: $data) {
     id
   }
 }

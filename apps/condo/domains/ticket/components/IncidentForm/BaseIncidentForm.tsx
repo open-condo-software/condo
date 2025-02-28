@@ -375,15 +375,15 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
         }
 
         const selectedClassifiersByCategoryAndProblem = allClassifiers
-            .filter(classifier => categoryClassifiers.includes(classifier?.category.id)
-                && problemClassifiers.includes(classifier?.problem.id))
+            .filter(classifier => categoryClassifiers.includes(classifier?.category?.id)
+                && problemClassifiers.includes(classifier?.problem?.id))
         const selectedCategoryWithoutSelectedProblemIds = difference(
             categoryClassifiers,
-            uniq(selectedClassifiersByCategoryAndProblem.map(classifier => classifier?.category.id))
+            uniq(selectedClassifiersByCategoryAndProblem.map(classifier => classifier?.category?.id))
         )
         const selectedClassifiersWithoutProblem = allClassifiers
             .filter((classifier) => 
-                !classifier?.problem.id && selectedCategoryWithoutSelectedProblemIds.includes(classifier?.category.id)
+                !classifier?.problem?.id && selectedCategoryWithoutSelectedProblemIds.includes(classifier?.category?.id)
             )
         const selectedClassifierIds = [...selectedClassifiersByCategoryAndProblem, ...selectedClassifiersWithoutProblem]
             .map(classifier => classifier?.id)
@@ -422,19 +422,19 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
         const deletedPropertyOptions = initialIncidentProperties.map((incidentProperty) => {
             const property = {
                 id: getPropertyKey(incidentProperty),
-                address: incidentProperty?.property.address || incidentProperty?.propertyAddress || null,
-                addressMeta: incidentProperty?.property.addressMeta || incidentProperty?.propertyAddressMeta || null,
-                deletedAt: incidentProperty?.property.deletedAt || true,
+                address: incidentProperty?.property?.address || incidentProperty?.propertyAddress || null,
+                addressMeta: incidentProperty?.property?.addressMeta || incidentProperty?.propertyAddressMeta || null,
+                deletedAt: incidentProperty?.property?.deletedAt || true,
             }
             return {
-                value: property.id,
-                text: `${property.address}`,
+                value: property?.id,
+                text: `${property?.address}`,
                 data: { property },
             }
-        }).filter((option) => !!option?.data.property.deletedAt || false)
+        }).filter((option) => !!option?.data?.property?.deletedAt || false)
 
         return [...deletedPropertyOptions, ...options]
-            .map((option) => option?.data.property.deletedAt || false
+            .map((option) => option?.data?.property?.deletedAt || false
                 ? renderDeletedOption(intl, option)
                 : renderOption(option)
             )
