@@ -1512,11 +1512,8 @@ export type UpdateMeterReadingsImportTaskMutationHookResult = ReturnType<typeof 
 export type UpdateMeterReadingsImportTaskMutationResult = Apollo.MutationResult<Types.UpdateMeterReadingsImportTaskMutation>;
 export type UpdateMeterReadingsImportTaskMutationOptions = Apollo.BaseMutationOptions<Types.UpdateMeterReadingsImportTaskMutation, Types.UpdateMeterReadingsImportTaskMutationVariables>;
 export const GetGlobalB2BAppsDocument = gql`
-    query getGlobalB2BApps($sortBy: [SortB2BAppsBy!]) {
-  b2bApps: allB2BApps(
-    where: {isGlobal: true, isHidden: false}
-    sortBy: [createdAt_ASC]
-  ) {
+    query getGlobalB2BApps {
+  b2bApps: allB2BApps(where: {isGlobal: true, isHidden: false}) {
     id
     appUrl
     features
@@ -1536,7 +1533,6 @@ export const GetGlobalB2BAppsDocument = gql`
  * @example
  * const { data, loading, error } = useGetGlobalB2BAppsQuery({
  *   variables: {
- *      sortBy: // value for 'sortBy'
  *   },
  * });
  */
