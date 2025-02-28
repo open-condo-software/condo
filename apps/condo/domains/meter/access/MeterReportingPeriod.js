@@ -53,7 +53,11 @@ async function canManageMeterReportingPeriods ({ authentication: { item: user },
 
     if (operation === 'create') {
         if (isBulkRequest) {
-            return false
+            const organizationIds = originalInput.map((item) => get(item, ['data', 'organization', 'connect', 'id']))
+            const propertyIds = originalInput.map((item) => get(item, ['data', 'property', 'connect', 'id']))
+
+            return !(propertyIds.filter(Boolean).length !== originalInput.length &&
+                organizationIds.filter(Boolean).length !== originalInput.length)
         } else {
             let organizationId = get(originalInput, ['organization', 'connect', 'id'], null)
             const propertyId = get(originalInput, ['property', 'connect', 'id'], null)
