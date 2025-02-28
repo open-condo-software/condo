@@ -3,13 +3,15 @@ import { BuildingMap, BuildingUnit, BuildingUnitSubType, Property as PropertyTyp
 import { Col, Row, RowProps } from 'antd'
 import cloneDeep from 'lodash/cloneDeep'
 import get from 'lodash/get'
+import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { useState, useCallback, useMemo } from 'react'
 import ScrollContainer from 'react-indiana-drag-scroll'
 
 import { useIntl } from '@open-condo/next/intl'
-import {Modal, Tooltip, List, Typography} from '@open-condo/ui'
+import { Modal, Tooltip, List, Typography } from '@open-condo/ui'
 
+import { Loader } from '@condo/domains/common/components/Loader'
 import { IPropertyMapFormProps } from '@condo/domains/property/components/BasePropertyMapForm'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
 import { Property } from '@condo/domains/property/utils/clientSchema'
@@ -25,8 +27,7 @@ import { AddressTopTextContainer } from './BuildingPanelEdit'
 import { FullscreenWrapper, FullscreenHeader } from './Fullscreen'
 import { MapView, MapViewMode } from './MapConstructor'
 
-import { Loader } from '@condo/domains/common/components/Loader'
-import Link from "next/link";
+
 
 
 
@@ -88,7 +89,7 @@ export const UnitModal: React.FC<IUnitModalProps> = ({ property, unit }) => {
     const FieldUnitTypeMessage = intl.formatMessage({ id: 'field.UnitType' })
     const UnitTypeMessage = intl.formatMessage({ id: `field.UnitType.${unitType}` }).toLowerCase()
 
-    const FieldContactNameMessage = intl.formatMessage({ id: `field.FullName.short` })
+    const FieldContactNameMessage = intl.formatMessage({ id: 'field.FullName.short' })
     const FieldPhoneMessage = intl.formatMessage({ id: 'Phone' })
     const RolePhoneMessage = intl.formatMessage({ id: 'field.Role' })
 
@@ -99,7 +100,7 @@ export const UnitModal: React.FC<IUnitModalProps> = ({ property, unit }) => {
         data: contactsData,
         loading: contactsLoading,
         error: contactsError,
-    } = useGetFlatContactByUnitQuery({
+    } = useGetContactByUnitQuery({
         variables: {
             propertyId: property.id,
             unitName: unitName,
@@ -169,7 +170,7 @@ export const UnitTooltip: React.FC<IUnitModalProps> = ({ property,  unit }) => {
         data: contactsData,
         loading: contactsLoading,
         error: contactsError,
-    } = useGetFlatContactByUnitQuery({
+    } = useGetContactByUnitQuery({
         variables: {
             propertyId: property.id,
             unitName: unitName,
