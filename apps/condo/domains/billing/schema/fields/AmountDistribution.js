@@ -14,6 +14,7 @@ const {
 const {
     hasOverpaymentReceivers,
     hasSingleVorItem,
+    getVorItems,
     hasFeePayers,
     areAllRecipientsUnique,
 } = require('@condo/domains/acquiring/utils/billingCentrifuge')
@@ -25,6 +26,8 @@ const {
     AMOUNT_DISTRIBUTION_FIELD_NO_FEE_PAYER_ERROR_TYPE,
     AMOUNT_DISTRIBUTION_FIELD_NO_OVERPAYMENT_RECEIVER_ERROR_TYPE,
     AMOUNT_DISTRIBUTION_FIELD_NOT_UNIQUE_RECIPIENTS_ERROR_TYPE,
+    AMOUNT_DISTRIBUTION_FIELD_VOR_MUST_BE_FEE_PAYER_ERROR_TYPE,
+    AMOUNT_DISTRIBUTION_FIELD_VOR_MUST_BE_OVERPAYMENT_RECEIVER_ERROR_TYPE,
 } = require('@condo/domains/billing/constants/errors')
 const { render, getGQLErrorValidator } = require('@condo/domains/common/schema/json.utils')
 const { SERVICE } = require('@condo/domains/user/constants/common')
@@ -55,6 +58,16 @@ const ERRORS = {
         message: 'Group {order} does not contains a SINGLE element with vor=true',
         messageInterpolation: { order },
     }),
+    VOR_MUST_BE_FEE_PAYER: {
+        code: BAD_USER_INPUT,
+        type: AMOUNT_DISTRIBUTION_FIELD_VOR_MUST_BE_FEE_PAYER_ERROR_TYPE,
+        message: 'The victim of rounding (vor) must have isFeePayer=true',
+    },
+    VOR_MUST_BE_OVERPAYMENT_RECEIVER: {
+        code: BAD_USER_INPUT,
+        type: AMOUNT_DISTRIBUTION_FIELD_VOR_MUST_BE_OVERPAYMENT_RECEIVER_ERROR_TYPE,
+        message: 'The victim of rounding (vor) must have overpaymentPart value',
+    },
     NO_FEE_PAYERS: {
         code: BAD_USER_INPUT,
         type: AMOUNT_DISTRIBUTION_FIELD_NO_FEE_PAYER_ERROR_TYPE,
@@ -216,9 +229,18 @@ const AMOUNT_DISTRIBUTION_FIELD = {
                 if (!hasSingleVorItem(group)) {
                     throw new GQLError(ERRORS.NO_VOR_IN_GROUP(Number(order)), context)
                 }
+
+                // vor-item must pay fee and receive overpayments
+                const [vorItem] = getVorItems(group)
+                if (!vorItem.isFeePayer) {
+                    throw new GQLError(ERRORS.VOR_MUST_BE_FEE_PAYER, context)
+                }
+                if (!vorItem.overpaymentPart) {
+                    throw new GQLError(ERRORS.VOR_MUST_BE_OVERPAYMENT_RECEIVER, context)
+                }
             }
 
-            // For now, we can't get fee amount
+            // For now, we can't get fee amount here
             // We suppose that fee will be greater than nothing
             // So, the distribution must have feePayers
             if (!hasFeePayers(distribution)) {

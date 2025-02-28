@@ -115,6 +115,15 @@ function split (paymentAmount, distribution, options = {}) {
             throw new Error(`Group ${order} does not contains a SINGLE element with vor=true`)
         }
 
+        // vor-item must pay fee and receive overpayments
+        const [vorItem] = getVorItems(g)
+        if (totalFeeAmount.gt(0) && !vorItem.isFeePayer) {
+            throw new Error('The victim of rounding (vor) must have isFeePayer=true')
+        }
+        if (!vorItem.overpaymentPart) {
+            throw new Error('The victim of rounding (vor) must have overpaymentPart value')
+        }
+
         const noopForGroupAmount = g.reduce((res, d) => {
             const key = createRecipientKey(d.recipient)
             return res
@@ -208,7 +217,12 @@ function split (paymentAmount, distribution, options = {}) {
                 totalOverpaymentReceiversParts += distributionsByKey[key].overpaymentPart
             }
         }
-        const distributionsWithOverpayment = distribution.filter((d) => !!d.overpaymentPart)
+        const distributionsWithOverpayment = distribution
+            .filter((d) => !!d.overpaymentPart)
+            // The victim of the rounding operation MUST be the last item
+            // If there are several vor-item here, sort by order
+            .sort((a, b) => a.vor || a.order > b.order ? 1 : -1)
+
         for (let i = 0; i < distributionsWithOverpayment.length; i++) {
             const d = distributionsWithOverpayment[i]
             const recipientKey = createRecipientKey(d.recipient)
@@ -244,9 +258,13 @@ function split (paymentAmount, distribution, options = {}) {
                 splitsWithFeePayerIndexes.push(i)
             }
         }
-        if (splitsWithFeePayerIndexes.length > 0) {
-            for (let j = 0; j < splitsWithFeePayerIndexes.length; j++) {
-                const i = splitsWithFeePayerIndexes[j]
+
+        // The victim of the rounding operation MUST be the last item within the group
+        const sortedSplitsWithFeePayerIndexes = splitsWithFeePayerIndexes.sort((a, b) => distributionsByKey[createRecipientKey(splits[a].recipient)].vor ? 1 : -1)
+
+        if (sortedSplitsWithFeePayerIndexes.length > 0) {
+            for (let j = 0; j < sortedSplitsWithFeePayerIndexes.length; j++) {
+                const i = sortedSplitsWithFeePayerIndexes[j]
                 const recipientKey = createRecipientKey(splits[i].recipient)
                 const d = distributionsByKey[recipientKey]
                 if (!d.isFeePayer) {
@@ -284,10 +302,18 @@ function split (paymentAmount, distribution, options = {}) {
 
 /**
  * @param {TDistribution[]} g
+ * @returns {TDistribution[]}
+ */
+function getVorItems (g) {
+    return g.filter((d) => !!d.vor).filter(Boolean)
+}
+
+/**
+ * @param {TDistribution[]} g
  * @returns {boolean}
  */
 function hasSingleVorItem (g) {
-    return g.filter((d) => !!d.vor).filter(Boolean).length === 1
+    return getVorItems(g).length === 1
 }
 
 /**
@@ -342,6 +368,7 @@ function areAllRecipientsUnique (distribution) {
 
 module.exports = {
     split,
+    getVorItems,
     hasSingleVorItem,
     hasOverpaymentReceivers,
     createRecipientKey,
