@@ -2356,7 +2356,14 @@ describe('Invoice', () => {
                             await createTestInvoice(serviceClient, o10n, {
                                 rows,
                                 amountDistribution: [
-                                    { recipient: recipient1, amount: '100', order: 0, vor: true },
+                                    {
+                                        recipient: recipient1,
+                                        amount: '100',
+                                        order: 0,
+                                        vor: true,
+                                        isFeePayer: true,
+                                        overpaymentPart: 1,
+                                    },
                                     {
                                         recipient: recipient2,
                                         amount: '300',
@@ -2365,7 +2372,14 @@ describe('Invoice', () => {
                                         overpaymentPart: 1,
                                         isFeePayer: true,
                                     },
-                                    { recipient: recipient3, amount: '100', order: 1, vor: true },
+                                    {
+                                        recipient: recipient3,
+                                        amount: '100',
+                                        order: 1,
+                                        vor: true,
+                                        isFeePayer: true,
+                                        overpaymentPart: 1,
+                                    },
                                 ],
                             })
                         }, {
@@ -2377,35 +2391,35 @@ describe('Invoice', () => {
                     })
                 })
 
-                test('no fee payers', async () => {
+                test('vor-item is not fee payer', async () => {
                     await expectToThrowGQLError(async () => {
                         await createTestInvoice(serviceClient, o10n, {
                             rows,
                             amountDistribution: [
-                                { recipient: recipient1, amount: '200', vor: true },
-                                { recipient: recipient2, amount: '300', overpaymentPart: 1 },
+                                { recipient: recipient1, amount: '200' },
+                                { recipient: recipient2, amount: '300', vor: true, overpaymentPart: 1 },
                             ],
                         })
                     }, {
                         code: 'BAD_USER_INPUT',
-                        type: 'NO_FEE_PAYER',
-                        message: 'The distribution does not contains at least one fee payer (isFeePayer=true)',
+                        type: 'VOR_MUST_BE_FEE_PAYER',
+                        message: 'The victim of rounding (vor) must have isFeePayer=true',
                     })
                 })
 
-                test('no overpayment receiver', async () => {
+                test('vor-item is not overpayment receiver', async () => {
                     await expectToThrowGQLError(async () => {
                         await createTestInvoice(serviceClient, o10n, {
                             rows,
                             amountDistribution: [
-                                { recipient: recipient1, amount: '200', vor: true },
-                                { recipient: recipient2, amount: '300', isFeePayer: true },
+                                { recipient: recipient1, amount: '200' },
+                                { recipient: recipient2, amount: '300', vor: true, isFeePayer: true },
                             ],
                         })
                     }, {
                         code: 'BAD_USER_INPUT',
-                        type: 'NO_OVERPAYMENT_RECEIVER',
-                        message: 'Distribution does not have at least one item with overpaymentPart value',
+                        type: 'VOR_MUST_BE_OVERPAYMENT_RECEIVER',
+                        message: 'The victim of rounding (vor) must have overpaymentPart value',
                     })
                 })
 

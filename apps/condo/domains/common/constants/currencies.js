@@ -193,8 +193,37 @@ const CURRENCY_SYMBOLS = {
 
 const DEFAULT_CURRENCY_CODE = 'RUB'
 
+/**
+ * @typedef {Object} TCurrencyOptions
+ * @property {number} decimalPlaces
+ */
+
+/** @type {TCurrencyOptions} */
+const DEFAULT_CURRENCY_OPTIONS = {
+    decimalPlaces: 2,
+}
+
+/** @type {Record<string, TCurrencyOptions>} */
+const CURRENCY_OPTIONS = {
+    RUB: {
+        decimalPlaces: 2,
+    },
+}
+
+/**
+ * @param {string} currencyCode
+ * @returns {TCurrencyOptions}
+ */
+function getCurrencyOptions (currencyCode) {
+    return {
+        ...DEFAULT_CURRENCY_OPTIONS,
+        ...(CURRENCY_OPTIONS[currencyCode] || {}),
+    }
+}
+
 module.exports = {
     ISO_CODES,
     CURRENCY_SYMBOLS,
     DEFAULT_CURRENCY_CODE,
+    getCurrencyOptions,
 }

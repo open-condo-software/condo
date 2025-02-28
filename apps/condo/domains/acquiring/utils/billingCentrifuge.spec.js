@@ -72,8 +72,8 @@ describe('billingCentrifuge', () => {
             const recipient1 = createTestRecipient()
             const recipient2 = createTestRecipient()
             const distribution = [
-                { recipient: recipient1, amount: '20', isFeePayer: true },
-                { recipient: recipient2, amount: '30000', vor: true, overpaymentPart: 1 },
+                { recipient: recipient1, amount: '20', vor: true, overpaymentPart: 1, isFeePayer: true },
+                { recipient: recipient2, amount: '30000' },
             ]
 
             expect(() => split(amount, distribution, { feeAmount })).toThrow(`Recipient ${JSON.stringify(recipient1)} has amount=0.67 and feeAmount=100`)
@@ -89,6 +89,27 @@ describe('billingCentrifuge', () => {
 
             expect(areAllRecipientsUnique(distribution)).toBe(false)
             expect(() => split(paymentAmount, distribution)).toThrow('Distribution contains not unique recipients')
+        })
+
+        test('must throw an error if vor-item is not fee payer', () => {
+            const paymentAmount = '1000'
+            const feeAmount = '50'
+            const distribution = [
+                { recipient: createTestRecipient(), amount: '800', isFeePayer: true },
+                { recipient: createTestRecipient(), amount: '200', vor: true, overpaymentPart: 1 },
+            ]
+
+            expect(() => split(paymentAmount, distribution, { feeAmount })).toThrow('The victim of rounding (vor) must have isFeePayer=true')
+        })
+
+        test('must throw an error if vor-item have no overpaymentPart value', () => {
+            const paymentAmount = '1000'
+            const distribution = [
+                { recipient: createTestRecipient(), amount: '800', overpaymentPart: 1 },
+                { recipient: createTestRecipient(), amount: '200', vor: true, isFeePayer: true },
+            ]
+
+            expect(() => split(paymentAmount, distribution)).toThrow('The victim of rounding (vor) must have overpaymentPart value')
         })
     })
 
@@ -249,8 +270,8 @@ describe('billingCentrifuge', () => {
 
             const distribution = [
                 { recipient: recipient1, amount: '500' },
-                { recipient: recipient2, amount: '500', vor: true },
-                { recipient: recipient3, amount: '500', overpaymentPart: 1 },
+                { recipient: recipient2, amount: '500', vor: true, overpaymentPart: 1 },
+                { recipient: recipient3, amount: '500' },
             ]
             const splits = split(paymentAmount, distribution)
 
@@ -273,8 +294,8 @@ describe('billingCentrifuge', () => {
 
             const distribution = [
                 { recipient: recipient1, amount: '500' },
-                { recipient: recipient2, amount: '500', vor: true },
-                { recipient: recipient3, amount: '500', overpaymentPart: 1 },
+                { recipient: recipient2, amount: '500', vor: true, overpaymentPart: 1 },
+                { recipient: recipient3, amount: '500' },
             ]
             const splits = split(paymentAmount, distribution)
 
@@ -296,8 +317,8 @@ describe('billingCentrifuge', () => {
 
             const distribution = [
                 { recipient: recipient1, amount: '100' },
-                { recipient: recipient2, amount: '100', vor: true },
-                { recipient: recipient3, amount: '100', overpaymentPart: 1 },
+                { recipient: recipient2, amount: '100', vor: true, overpaymentPart: 1 },
+                { recipient: recipient3, amount: '100' },
             ]
 
             const paymentAmount1 = '100.00'
@@ -333,8 +354,8 @@ describe('billingCentrifuge', () => {
             const recipient3 = createTestRecipient()
 
             const distribution = [
-                { recipient: recipient1, amount: '100', order: 0, vor: true },
-                { recipient: recipient2, amount: '100', order: 1, vor: true },
+                { recipient: recipient1, amount: '100', order: 0, vor: true, overpaymentPart: 1 },
+                { recipient: recipient2, amount: '100', order: 1, vor: true, overpaymentPart: 1 },
                 { recipient: recipient3, amount: '100', order: 1, overpaymentPart: 1 },
             ]
 
@@ -369,7 +390,7 @@ describe('billingCentrifuge', () => {
             const recipient2 = createTestRecipient()
 
             const distribution = [
-                { recipient: recipient1, amount: '800', order: 0, vor: true },
+                { recipient: recipient1, amount: '800', order: 0, vor: true, overpaymentPart: 1, isFeePayer: true },
                 { recipient: recipient2, amount: '200', order: 1, vor: true, overpaymentPart: 1, isFeePayer: true },
             ]
 
@@ -379,16 +400,15 @@ describe('billingCentrifuge', () => {
             const splits1 = split(paymentAmount1, distribution, { feeAmount })
 
             expect(splits1).toEqual(expect.arrayContaining([
-                { recipient: recipient1, amount: '450' },
-                { recipient: null, feeAmount: '50' },
+                { recipient: recipient1, amount: '450', feeAmount: '50' },
             ]))
 
             const paymentAmount2 = '500'
             const splits2 = split(paymentAmount2, distribution, { appliedSplits: splits1, feeAmount })
 
             expect(splits2).toEqual(expect.arrayContaining([
-                { recipient: recipient1, amount: '350' },
-                { recipient: recipient2, amount: '100', feeAmount: '50' },
+                { recipient: recipient1, amount: '270', feeAmount: '30' },
+                { recipient: recipient2, amount: '180', feeAmount: '20' },
             ]))
 
             const splitSum1 = splits1.reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
@@ -412,8 +432,8 @@ describe('billingCentrifuge', () => {
 
             const distribution1 = [
                 { recipient: recipient1, amount: '100' },
-                { recipient: recipient2, amount: '100', vor: true },
-                { recipient: recipient3, amount: '100', overpaymentPart: 1 },
+                { recipient: recipient2, amount: '100', vor: true, overpaymentPart: 1 },
+                { recipient: recipient3, amount: '100' },
             ]
 
             const paymentAmount1 = '120.00'
@@ -427,8 +447,8 @@ describe('billingCentrifuge', () => {
 
             const distribution2 = [
                 { recipient: recipient1, amount: '100' },
-                { recipient: recipient2, amount: '50', vor: true },
-                { recipient: recipient3, amount: '150', overpaymentPart: 1 },
+                { recipient: recipient2, amount: '50', vor: true, overpaymentPart: 1 },
+                { recipient: recipient3, amount: '150' },
             ]
 
             const paymentAmount2 = '180.00'
@@ -455,8 +475,8 @@ describe('billingCentrifuge', () => {
             const recipient3 = createTestRecipient()
 
             const distribution1 = [
-                { recipient: recipient1, amount: '100', order: 0, vor: true },
-                { recipient: recipient2, amount: '100', order: 1, vor: true },
+                { recipient: recipient1, amount: '100', order: 0, vor: true, overpaymentPart: 1 },
+                { recipient: recipient2, amount: '100', order: 1, vor: true, overpaymentPart: 1 },
                 { recipient: recipient3, amount: '100', order: 1, overpaymentPart: 1 },
             ]
 
@@ -470,8 +490,8 @@ describe('billingCentrifuge', () => {
             ]))
 
             const distribution2 = [
-                { recipient: recipient1, amount: '120', order: 0, vor: true },
-                { recipient: recipient2, amount: '50', order: 1, vor: true },
+                { recipient: recipient1, amount: '120', order: 0, vor: true, overpaymentPart: 1 },
+                { recipient: recipient2, amount: '50', order: 1, vor: true, overpaymentPart: 1 },
                 { recipient: recipient3, amount: '130', order: 1, overpaymentPart: 1 },
             ]
 
@@ -499,8 +519,8 @@ describe('billingCentrifuge', () => {
             const recipient3 = createTestRecipient()
 
             const distribution1 = [
-                { recipient: recipient1, amount: '100', order: 0, vor: true },
-                { recipient: recipient2, amount: '100', order: 1, vor: true },
+                { recipient: recipient1, amount: '100', order: 0, vor: true, overpaymentPart: 1 },
+                { recipient: recipient2, amount: '100', order: 1, vor: true, overpaymentPart: 1 },
                 { recipient: recipient3, amount: '100', order: 1, overpaymentPart: 1 },
             ]
 
@@ -514,8 +534,8 @@ describe('billingCentrifuge', () => {
             ]))
 
             const distribution2 = [
-                { recipient: recipient1, amount: '80', order: 0, vor: true },
-                { recipient: recipient2, amount: '90', order: 1, vor: true },
+                { recipient: recipient1, amount: '80', order: 0, vor: true, overpaymentPart: 1 },
+                { recipient: recipient2, amount: '90', order: 1, vor: true, overpaymentPart: 1 },
                 { recipient: recipient3, amount: '130', order: 1, overpaymentPart: 1 },
             ]
 
@@ -542,8 +562,8 @@ describe('billingCentrifuge', () => {
             const recipient3 = createTestRecipient()
 
             const distribution1 = [
-                { recipient: recipient1, amount: '100', order: 0, vor: true },
-                { recipient: recipient2, amount: '100', order: 1, vor: true },
+                { recipient: recipient1, amount: '100', order: 0, vor: true, overpaymentPart: 1 },
+                { recipient: recipient2, amount: '100', order: 1, vor: true, overpaymentPart: 1 },
                 { recipient: recipient3, amount: '100', order: 1, overpaymentPart: 1 },
             ]
 
@@ -559,7 +579,7 @@ describe('billingCentrifuge', () => {
             ]))
 
             const distribution2 = [
-                { recipient: recipient1, amount: '100', order: 0, vor: true },
+                { recipient: recipient1, amount: '100', order: 0, vor: true, overpaymentPart: 1 },
                 { recipient: recipient2, amount: '100', order: 0 },
                 { recipient: recipient3, amount: '100', order: 1, vor: true, overpaymentPart: 1 },
             ]
@@ -667,7 +687,7 @@ describe('billingCentrifuge', () => {
 
             const distribution = [
                 { recipient: recipient1, amount: '100', order: 0, vor: true, overpaymentPart: 1 },
-                { recipient: recipient2, amount: '100', order: 1, vor: true },
+                { recipient: recipient2, amount: '100', order: 1, vor: true, overpaymentPart: 1 },
                 { recipient: recipient3, amount: '100', order: 1, overpaymentPart: 1 },
             ]
 
@@ -684,9 +704,9 @@ describe('billingCentrifuge', () => {
             const splits2 = split(paymentAmount2, distribution, { appliedSplits: splits1 })
 
             expect(splits2).toEqual(expect.arrayContaining([
-                { recipient: recipient1, amount: '50' },
-                { recipient: recipient2, amount: '90' },
-                { recipient: recipient3, amount: '140' },
+                { recipient: recipient1, amount: '33.33' },
+                { recipient: recipient2, amount: '123.34' },
+                { recipient: recipient3, amount: '123.33' },
             ]))
 
             const splitSum1 = splits1.reduce((sum, split) => sum.plus(split.amount), Big(0))
@@ -705,7 +725,7 @@ describe('billingCentrifuge', () => {
 
             const distribution1 = [
                 { recipient: recipient1, amount: '100', order: 0, vor: true, overpaymentPart: 1 },
-                { recipient: recipient2, amount: '100', order: 1, vor: true },
+                { recipient: recipient2, amount: '100', order: 1, vor: true, overpaymentPart: 1 },
                 { recipient: recipient3, amount: '100', order: 1, overpaymentPart: 1 },
             ]
 
@@ -719,7 +739,7 @@ describe('billingCentrifuge', () => {
             ]))
 
             const distribution2 = [
-                { recipient: recipient1, amount: '120', order: 0, vor: true },
+                { recipient: recipient1, amount: '120', order: 0, vor: true, overpaymentPart: 1 },
                 { recipient: recipient2, amount: '50', order: 1 },
                 { recipient: recipient3, amount: '130', order: 1, vor: true, overpaymentPart: 1 },
             ]
@@ -728,9 +748,9 @@ describe('billingCentrifuge', () => {
             const splits2 = split(paymentAmount2, distribution2, { appliedSplits: splits1 })
 
             expect(splits2).toEqual(expect.arrayContaining([
-                { recipient: recipient1, amount: '20' },
+                { recipient: recipient1, amount: '70' },
                 { recipient: recipient2, amount: '40' },
-                { recipient: recipient3, amount: '220' },
+                { recipient: recipient3, amount: '170' },
             ]))
 
             const splitSum1 = splits1.reduce((sum, split) => sum.plus(split.amount), Big(0))
@@ -749,8 +769,8 @@ describe('billingCentrifuge', () => {
         const recipient3 = createTestRecipient()
 
         const distribution1 = [
-            { recipient: recipient1, amount: '100', order: 0, vor: true, isFeePayer: true },
-            { recipient: recipient2, amount: '100', order: 1, vor: true, isFeePayer: true },
+            { recipient: recipient1, amount: '100', order: 0, vor: true, isFeePayer: true, overpaymentPart: 1 },
+            { recipient: recipient2, amount: '100', order: 1, vor: true, isFeePayer: true, overpaymentPart: 1 },
             { recipient: recipient3, amount: '100', order: 1, overpaymentPart: 1, isFeePayer: true },
         ]
 
@@ -768,7 +788,7 @@ describe('billingCentrifuge', () => {
         ]))
 
         const distribution2 = [
-            { recipient: recipient1, amount: '100', order: 0, vor: true, isFeePayer: true },
+            { recipient: recipient1, amount: '100', order: 0, vor: true, isFeePayer: true, overpaymentPart: 1 },
             { recipient: recipient2, amount: '100', order: 0 },
             { recipient: recipient3, amount: '100', order: 1, vor: true, overpaymentPart: 1, isFeePayer: true },
         ]

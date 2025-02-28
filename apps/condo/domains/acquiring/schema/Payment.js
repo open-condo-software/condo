@@ -42,6 +42,8 @@ const { ACQUIRING_CONTEXT_FIELD } = require('@condo/domains/acquiring/schema/fie
 const { split } = require('@condo/domains/acquiring/utils/billingCentrifuge')
 const { AcquiringIntegrationContext, Payment: PaymentGQL } = require('@condo/domains/acquiring/utils/serverSchema')
 const { PERIOD_FIELD } = require('@condo/domains/billing/schema/fields/common')
+const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
+const { getCurrencyOptions } = require('@condo/domains/common/constants/currencies')
 const {
     CURRENCY_CODE_FIELD,
     POSITIVE_MONEY_AMOUNT_FIELD,
@@ -364,12 +366,19 @@ const Payment = new GQLListSchema('Payment', {
 
                 if (invoiceId || receiptId) {
                     const wherePart = {}
+                    let currencyCode
                     if (invoiceId) {
                         wherePart.invoice = { id: invoiceId }
                         wherePart.receipt_is_null = true
+
+                        const invoice = await Invoice.getOne(context, { id: invoiceId }, '{ currencyCode }')
+                        currencyCode = get(invoice, 'currencyCode')
                     } else if (receiptId) {
                         wherePart.receipt = { id: receiptId }
                         wherePart.receipt_is_null = true
+
+                        const receipt = await BillingReceipt.getOne(context, { id: receiptId }, '{ context { integration { currencyCode } } }')
+                        currencyCode = get(receipt, ['context', 'integration', 'currencyCode'])
                     }
 
                     const relatedPayments = await PaymentGQL.getAll(context, {
@@ -387,6 +396,7 @@ const Payment = new GQLListSchema('Payment', {
                     resolvedData['frozenSplits'] = split(splitsAmount.toString(), frozenDistribution, {
                         feeAmount: splitsFeeAmount.toString(),
                         appliedSplits,
+                        decimalPlaces: getCurrencyOptions(currencyCode).decimalPlaces,
                     })
                 }
             }
