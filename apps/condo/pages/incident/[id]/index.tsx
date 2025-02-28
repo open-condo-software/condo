@@ -195,12 +195,12 @@ const IncidentClassifiersField: React.FC<IncidentFieldProps> = ({ incident }) =>
     })
     const categories = useMemo(
         () => uniq(incidentClassifiers
-            .map(item => item?.classifier.category.name))
+            .map(item => item?.classifier?.category?.name))
             .join(', '),
         [incidentClassifiers])
     const problems = useMemo(
         () => uniq(incidentClassifiers
-            .map(item => item?.classifier.problem.name)
+            .map(item => item?.classifier?.problem?.name)
             .filter(Boolean))
             .join(', '),
         [incidentClassifiers])
@@ -295,8 +295,8 @@ const IncidentOrganizationField: React.FC<IncidentFieldProps> = ({ incident }) =
     return (
         <Row>
             <PageFieldRow title={OrganizationLabel} ellipsis labelSpan={LABEL_SPAN_COMMON}>
-                <Typography.Text type={!incident?.organization.name ? 'secondary' : null}>
-                    {incident?.organization.name || HaveNotMessage}
+                <Typography.Text type={!incident?.organization?.name ? 'secondary' : null}>
+                    {incident?.organization?.name || HaveNotMessage}
                 </Typography.Text>
             </PageFieldRow>
         </Row>
@@ -384,7 +384,7 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
         await router.push(`/incident/${incident.id}/update`)
     }, [incident.id, router])
 
-    const createdAt = useMemo(() => dayjs(incident.createdAt).format('DD.MM.YYYY, HH:mm'), [incident.createdAt])
+    const createdAt = useMemo(() => dayjs(incident?.createdAt).format('DD.MM.YYYY, HH:mm'), [incident.createdAt])
     const createdBy = useMemo(() => incident?.createdBy, [incident])
 
     return (
