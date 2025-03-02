@@ -83,6 +83,9 @@ const MeterReadingsImportTask = generateGqlQueries('MeterReadingsImportTask', ME
 const METER_READING_EXPORT_TASK_FIELDS = `{ status format exportedRecordsCount totalRecordsCount file { id originalFilename publicUrl mimetype } meta where sortBy locale timeZone user { id } ${COMMON_FIELDS} }`
 const MeterReadingExportTask = generateGqlQueries('MeterReadingExportTask', METER_READING_EXPORT_TASK_FIELDS)
 
+const METER_USER_DATA_FIELDS = `{ user { id } meter { id } name ${COMMON_FIELDS} }`
+const MeterUserData = generateGqlQueries('MeterUserData', METER_USER_DATA_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -103,6 +106,7 @@ module.exports = {
     REGISTER_METERS_READINGS_MUTATION,
     MeterReadingsImportTask,
     MeterReadingExportTask,
+    MeterUserData,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 
