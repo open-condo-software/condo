@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import {
     MeterReportingPeriod as MeterReportingPeriodType,
-    MeterReportingPeriodWhereInput,
+    MeterReportingPeriodWhereInput, QueryAllMeterReportingPeriodsArgs,
 } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
 import { Col, Row, RowProps, Typography } from 'antd'
@@ -13,6 +13,7 @@ import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 
+import { IRefetchType } from '@open-condo/codegen/generate.hooks'
 import { Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button } from '@open-condo/ui'
@@ -43,7 +44,7 @@ type MeterReportingPeriodPageContentProps = {
     loading?: boolean
     canManageMeters?: boolean
     userOrganizationId?: string
-    refetchCount: () => Promise<void>
+    refetchCount?: IRefetchType<MeterReportingPeriodType, QueryAllMeterReportingPeriodsArgs>
 }
 
 const MeterReportingPeriodTableContent: React.FC<MeterReportingPeriodPageContentProps> = (props) => {
