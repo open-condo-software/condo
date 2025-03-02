@@ -55531,10 +55531,10 @@ type MeterUserData {
   """
   _label_: String
 
-  """ User that created their custom meter name """
+  """ User that created their custom meter data """
   user: User
 
-  """ Meter for which the user created a custom name """
+  """ Meter for which the user created custom data """
   meter: Meter
 
   """ Custom meter name that a user assigned to a specific meter """
