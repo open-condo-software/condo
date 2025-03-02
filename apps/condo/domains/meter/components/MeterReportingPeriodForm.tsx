@@ -7,6 +7,7 @@ import { useRouter } from 'next/router'
 import { Rule } from 'rc-field-form/lib/interface'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Radio, RadioGroup, Select, Space, Alert, Checkbox } from '@open-condo/ui'
@@ -18,8 +19,9 @@ import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSear
 import { GraphQlSearchInputWithCheckAll } from '@condo/domains/common/components/GraphQlSearchInputWithCheckAll'
 import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { METER_REPORTING_PERIOD_STRICT_RULE } from '@condo/domains/common/constants/featureflags'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
-import { DAY_SELECT_OPTIONS } from '@condo/domains/meter/constants/constants'
+import { DAY_SELECT_OPTIONS, RESTRICTION_END_DAY_DEFAULT } from '@condo/domains/meter/constants/constants'
 import { METER_TAB_TYPES, METER_TYPES, MeterReportingPeriod } from '@condo/domains/meter/utils/clientSchema'
 import { usePropertyValidations } from '@condo/domains/property/components/BasePropertyForm/usePropertyValidations'
 import { searchOrganizationPropertyWithoutPropertyHint } from '@condo/domains/ticket/utils/clientSchema/search'
@@ -83,11 +85,12 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
     
     const { organization } = useOrganization()
     const router = useRouter()
+    const { useFlag } = useFeatureFlags()
     const [form] = Form.useForm()
 
     const [isOrganizationPeriod, setIsOrganizationPeriod] = useState(false)
     const [selectedPropertyId, setSelectedPropertyId] = useState()
-    const [isStrictPeriod, setIsStrictPeriod] = useState(false)
+    const [restrictionEndDay, setRestrictionEndDay] = useState(undefined)
 
     const { breakpoints } = useLayoutContext()
     const isSmallWindow = !breakpoints.TABLET_LARGE
@@ -98,20 +101,22 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
         notifyEndDay: isCreateMode ? 25 : get(reportingPeriodRecord, 'notifyEndDay'),
         property: isCreateMode ? undefined : get(reportingPeriodRecord, 'property.address'),
         isOrganizationPeriod: isCreateMode ? false : get(reportingPeriodRecord, 'property') === null,
-        isStrict: isCreateMode ? false : get(reportingPeriodRecord, 'isStrict'),
+        restrictionEndDay: isCreateMode ? false : get(reportingPeriodRecord, 'restrictionEndDay'),
     }), [reportingPeriodRecord, mode])
 
     const startNumberRef = useRef<number>(formInitialValues.notifyStartDay)
     const finishNumberRef = useRef<number>(formInitialValues.notifyEndDay)
     const [selectRerender, execSelectRerender] = useState()
     const selectedPropertyIdRef = useRef(selectedPropertyId)
-    const isStrictPeriodRef = useRef(isStrictPeriod)
+    const restrictionEndDayRef = useRef(restrictionEndDay)
     const StrictPeriodTooltip = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.create.settings.strict.tooltip' }, { notifyEndDay: finishNumberRef.current })
+
+    const isMeterReportingPeriodStrictRuleEnabled = useFlag(METER_REPORTING_PERIOD_STRICT_RULE)
 
     useEffect(() => {
         selectedPropertyIdRef.current = selectedPropertyId
-        isStrictPeriodRef.current = isStrictPeriod
-    }, [selectedPropertyId, isStrictPeriod])
+        restrictionEndDayRef.current = restrictionEndDay
+    }, [selectedPropertyId, restrictionEndDay])
 
     const organizationId = get(organization, 'id', null)
 
@@ -151,10 +156,10 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
     }, [])
 
     useEffect(() => {
-        if (form.isFieldsTouched(['notifyStartDay', 'notifyEndDay'])) form.validateFields(['notifyStartDay', 'notifyEndDay', 'isStrict'])
+        if (form.isFieldsTouched(['notifyStartDay', 'notifyEndDay'])) form.validateFields(['notifyStartDay', 'notifyEndDay'])
         if (startNumberRef.current > finishNumberRef.current) {
-            setIsStrictPeriod(false)
-            form.setFieldValue('isStrict', false)
+            setRestrictionEndDay(undefined)
+            form.setFieldValue('restrictionEndDay', undefined)
         }
     }, [startNumberRef.current, finishNumberRef.current])
 
@@ -221,7 +226,7 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                 values.isOrganizationPeriod = undefined
                 values.notifyStartDay = startNumberRef.current
                 values.notifyEndDay = finishNumberRef.current
-                values.isStrict = isStrictPeriodRef.current
+                values.restrictionEndDay = restrictionEndDayRef.current
 
                 if (isCreateMode) {
                     if (values.properties) {
@@ -340,36 +345,36 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                                             {ResitrictionsSetupTitle}
                                         </Typography.Title>
                                     </Col>
-                                    <Col span={24}>
+                                    {isMeterReportingPeriodStrictRuleEnabled && <Col span={24}>
                                         <Form.Item
                                             {...INPUT_LAYOUT_PROPS}
                                             wrapperCol={STRICT_PERIOD_WRAPPER_COL}
                                             labelAlign='left'
-                                            name='isStrict'
+                                            name='restrictionEndDay'
                                             label={PeriodTypeLabel}
                                         >
                                             <RadioGroup
                                                 onChange={(event) => {
                                                     const value = event.target.value
-                                                    setIsStrictPeriod(value)
+                                                    setRestrictionEndDay(value)
                                                 }}
                                             >
                                                 <Space size={isSmallWindow ? 16 : 40}>
                                                     <Radio
                                                         key='not-strict'
-                                                        value={false}
+                                                        value={undefined}
                                                         label={<LabelWithInfo title={NotStrictPeriodTooltip} message={NotStrictPeriodMessage} />}
                                                     />
                                                     <Radio
                                                         key='strict'
-                                                        value={true}
+                                                        value={RESTRICTION_END_DAY_DEFAULT}
                                                         disabled={startNumberRef.current > finishNumberRef.current}
                                                         label={<LabelWithInfo title={startNumberRef.current < finishNumberRef.current ? StrictPeriodTooltip : StrictPeriodNotAllowedTooltip} message={StrictPeriodMessage} />}
                                                     />
                                                 </Space>
                                             </RadioGroup>
                                         </Form.Item>
-                                    </Col>
+                                    </Col>}
                                     <Col span={12} offset={8}>
                                         <Alert
                                             type='info'
@@ -380,7 +385,7 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                                     <Col span={24}>
                                         <Form.Item
                                             noStyle
-                                            dependencies={['property', 'notifyStartDay', 'notifyEndDay', 'isOrganizationPeriod', 'isStrict']}
+                                            dependencies={['property', 'notifyStartDay', 'notifyEndDay', 'isOrganizationPeriod', 'restrictionEndDay']}
                                             shouldUpdate>
                                             {
                                                 ({ getFieldsValue }) => {
