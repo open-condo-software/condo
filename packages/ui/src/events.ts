@@ -1,0 +1,42 @@
+import { z } from 'zod'
+
+import { ANALYTICS_HANDLER_NAME } from './components/_utils/analytics'
+
+import type { AnalyticsParams } from './components/_utils/analytics'
+
+// NOTE: catchall is used to validate basic properties values.
+// We don't want to validate "exact" shape of the event, since it can differ from version to version
+const analyticsEventSchema = z.object({
+    event: z.enum(['click', 'check', 'change']),
+    component: z.string(),
+    location: z.string(),
+}).catchall(z.union([z.string(), z.array(z.string()), z.number(), z.boolean(), z.undefined()]))
+
+const condoMessageDataSchema = z.strictObject({
+    handler: z.literal(ANALYTICS_HANDLER_NAME),
+    params: analyticsEventSchema,
+    type: z.literal('condo-ui'),
+    version: z.string(),
+})
+
+type CondoUIMessageDataType = z.infer<typeof condoMessageDataSchema>
+
+/**
+ * Checks if analytics parameters are valid
+ */
+export function isValidAnalyticsParams (params: unknown): params is AnalyticsParams {
+    const { success, data } = analyticsEventSchema.safeParse(params)
+    if (!success) {
+        return false
+    }
+
+    // NOTE: prevent overloaded messages
+    return Object.keys(data).length < 10
+}
+
+/**
+ * Checks if incoming post-message is valid Condo UI message
+ */
+export function isValidCondoUIMessage (e: MessageEvent): e is MessageEvent<CondoUIMessageDataType> {
+    return condoMessageDataSchema.safeParse(e.data).success
+}
