@@ -35,10 +35,10 @@ function getAdjustedRestrictionEnd (restrictionEndDay, lastDayOfMonth) {
 
 function isReadingDateAllowed (date, meterReportingPeriod) {
     const readingDate = dayjs(date)
-    const { notifyStartDay, notifyEndDay, restrictionEndDay, isStrict } = meterReportingPeriod
+    const { notifyStartDay, notifyEndDay, restrictionEndDay } = meterReportingPeriod
 
     // NOTE: if period is not strict, skip checks
-    if (!isStrict) return true
+    if (!restrictionEndDay) return true
 
     // NOTE: If restrictionEnd falls within the notify period, ignore restriction
     const isRestrictionWithinAllowedPeriod = notifyStartDay < notifyEndDay

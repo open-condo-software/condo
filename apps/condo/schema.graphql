@@ -53120,7 +53120,6 @@ type MeterReportingPeriodHistoryRecord {
   property: String
   notifyStartDay: Int
   notifyEndDay: Int
-  isStrict: Boolean
   restrictionEndDay: Int
   id: ID!
   v: Int
@@ -53164,8 +53163,6 @@ input MeterReportingPeriodHistoryRecordWhereInput {
   notifyEndDay_gte: Int
   notifyEndDay_in: [Int]
   notifyEndDay_not_in: [Int]
-  isStrict: Boolean
-  isStrict_not: Boolean
   restrictionEndDay: Int
   restrictionEndDay_not: Int
   restrictionEndDay_lt: Int
@@ -53261,8 +53258,6 @@ enum SortMeterReportingPeriodHistoryRecordsBy {
   notifyStartDay_DESC
   notifyEndDay_ASC
   notifyEndDay_DESC
-  isStrict_ASC
-  isStrict_DESC
   restrictionEndDay_ASC
   restrictionEndDay_DESC
   id_ASC
@@ -53288,7 +53283,6 @@ input MeterReportingPeriodHistoryRecordUpdateInput {
   property: String
   notifyStartDay: Int
   notifyEndDay: Int
-  isStrict: Boolean
   restrictionEndDay: Int
   v: Int
   createdAt: String
@@ -53314,7 +53308,6 @@ input MeterReportingPeriodHistoryRecordCreateInput {
   property: String
   notifyStartDay: Int
   notifyEndDay: Int
-  isStrict: Boolean
   restrictionEndDay: Int
   v: Int
   createdAt: String
@@ -53362,13 +53355,9 @@ type MeterReportingPeriod {
   """
   notifyEndDay: Int
 
-  """ If set to true readings from the mobile app can be passed only after the restrictionEndDay until the end of the reporting period. Otherwise anytime. 
   """
-  isStrict: Boolean
-
-  """
-   Indicates the last day when mobile app users cannot pass readings. By default it is 31 (the end of each month).
-  If no restriction is needed, set it within the notify period. 
+   Indicates the last day when mobile app users cannot pass readings. By default it is set to null, which means that the period is not strict and readings can be passed any day.
+  If it is not null, then the allowed period starts the next day after restrictionEndDay and lasts until notifyEndDay. Can be from 1 to 31.  
   """
   restrictionEndDay: Int
   id: ID!
@@ -53417,8 +53406,6 @@ input MeterReportingPeriodWhereInput {
   notifyEndDay_gte: Int
   notifyEndDay_in: [Int]
   notifyEndDay_not_in: [Int]
-  isStrict: Boolean
-  isStrict_not: Boolean
   restrictionEndDay: Int
   restrictionEndDay_not: Int
   restrictionEndDay_lt: Int
@@ -53498,8 +53485,6 @@ enum SortMeterReportingPeriodsBy {
   notifyStartDay_DESC
   notifyEndDay_ASC
   notifyEndDay_DESC
-  isStrict_ASC
-  isStrict_DESC
   restrictionEndDay_ASC
   restrictionEndDay_DESC
   id_ASC
@@ -53525,7 +53510,6 @@ input MeterReportingPeriodUpdateInput {
   property: PropertyRelateToOneInput
   notifyStartDay: Int
   notifyEndDay: Int
-  isStrict: Boolean
   restrictionEndDay: Int
   v: Int
   createdAt: String
@@ -53548,7 +53532,6 @@ input MeterReportingPeriodCreateInput {
   property: PropertyRelateToOneInput
   notifyStartDay: Int
   notifyEndDay: Int
-  isStrict: Boolean
   restrictionEndDay: Int
   v: Int
   createdAt: String

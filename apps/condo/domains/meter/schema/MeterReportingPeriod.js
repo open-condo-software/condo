@@ -132,6 +132,7 @@ const MeterReportingPeriod = new GQLListSchema('MeterReportingPeriod', {
             schemaDoc: `Indicates the last day when mobile app users cannot pass readings. By default it is set to null, which means that the period is not strict and readings can be passed any day.
             If it is not null, then the allowed period starts the next day after restrictionEndDay and lasts until notifyEndDay. Can be from 1 to 31. `,
             type: 'Integer',
+            isRequired: false,
             hooks: {
                 validateInput: async ({ context, operation, resolvedData, fieldPath }) => {
                     if (operation === 'create' || operation === 'update') {
