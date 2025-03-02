@@ -269,7 +269,7 @@ export const MeterReportingPeriodPageContent: React.FC<MeterReportingPeriodPageC
         }
 
         return <MeterReportingPeriodTableContent refetchCount={refetchCount} {...props} />
-    }, [CreateReportingPeriodLabel, EmptyListLabel, canManageMeters, count, countLoading, loading, props])
+    }, [CreateReportingPeriodLabel, EmptyListLabel, canManageMeters, count, countLoading, loading, props, refetchCount])
 
     return (
         <TablePageContent>

@@ -102,7 +102,7 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
         property: isCreateMode ? undefined : get(reportingPeriodRecord, 'property.address'),
         isOrganizationPeriod: isCreateMode ? false : get(reportingPeriodRecord, 'property') === null,
         restrictionEndDay: isCreateMode ? false : get(reportingPeriodRecord, 'restrictionEndDay'),
-    }), [reportingPeriodRecord, mode])
+    }), [isCreateMode, reportingPeriodRecord])
 
     const startNumberRef = useRef<number>(formInitialValues.notifyStartDay)
     const finishNumberRef = useRef<number>(formInitialValues.notifyEndDay)
@@ -258,6 +258,8 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                                             checkBoxOffset={breakpoints.TABLET_LARGE && 8}
                                             CheckAllMessage={OrganizationLabel}
                                             form={form}
+                                            checkboxDisabled={hasOrganizationPeriod}
+                                            onCheckBoxChange={handleCheckboxChange}
                                         />}
                                         {!isCreateMode && <Form.Item
                                             name='property'
