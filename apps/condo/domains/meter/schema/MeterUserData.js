@@ -15,7 +15,7 @@ const MeterUserData = new GQLListSchema('MeterUserData', {
     fields: {
 
         user: {
-            schemaDoc: 'User that created their custom meter name',
+            schemaDoc: 'User that created their custom meter data',
             type: 'Relationship',
             ref: 'User',
             isRequired: true,
@@ -24,7 +24,7 @@ const MeterUserData = new GQLListSchema('MeterUserData', {
         },
 
         meter: {
-            schemaDoc: 'Meter for which the user created a custom name',
+            schemaDoc: 'Meter for which the user created custom data',
             type: 'Relationship',
             ref: 'Meter',
             isRequired: true,
