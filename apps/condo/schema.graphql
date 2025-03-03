@@ -54062,6 +54062,7 @@ type MeterReadingsImportTaskHistoryRecord {
   user: String
   organization: String
   locale: String
+  isPropertyMeters: Boolean
   meta: JSON
   id: ID!
   v: Int
@@ -54193,6 +54194,8 @@ input MeterReadingsImportTaskHistoryRecordWhereInput {
   locale_not_ends_with_i: String
   locale_in: [String]
   locale_not_in: [String]
+  isPropertyMeters: Boolean
+  isPropertyMeters_not: Boolean
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
@@ -54294,6 +54297,8 @@ enum SortMeterReadingsImportTaskHistoryRecordsBy {
   errorMessage_DESC
   locale_ASC
   locale_DESC
+  isPropertyMeters_ASC
+  isPropertyMeters_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -54324,6 +54329,7 @@ input MeterReadingsImportTaskHistoryRecordUpdateInput {
   user: String
   organization: String
   locale: String
+  isPropertyMeters: Boolean
   meta: JSON
   v: Int
   createdAt: String
@@ -54356,6 +54362,7 @@ input MeterReadingsImportTaskHistoryRecordCreateInput {
   user: String
   organization: String
   locale: String
+  isPropertyMeters: Boolean
   meta: JSON
   v: Int
   createdAt: String
@@ -54436,6 +54443,10 @@ type MeterReadingsImportTask {
 
   """ Requested import locale """
   locale: String
+
+  """ Indicates whether current import is for Meters and MeterReadings or for PropertyMeters and PropertyMeterReadings 
+  """
+  isPropertyMeters: Boolean
 
   """ Stores information about query and ids of exported and failed records 
   """
@@ -54546,6 +54557,8 @@ input MeterReadingsImportTaskWhereInput {
   locale_not_ends_with_i: String
   locale_in: [String]
   locale_not_in: [String]
+  isPropertyMeters: Boolean
+  isPropertyMeters_not: Boolean
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
@@ -54631,6 +54644,8 @@ enum SortMeterReadingsImportTasksBy {
   organization_DESC
   locale_ASC
   locale_DESC
+  isPropertyMeters_ASC
+  isPropertyMeters_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -54661,6 +54676,7 @@ input MeterReadingsImportTaskUpdateInput {
   user: UserRelateToOneInput
   organization: OrganizationRelateToOneInput
   locale: String
+  isPropertyMeters: Boolean
   meta: JSON
   v: Int
   createdAt: String
@@ -54690,6 +54706,7 @@ input MeterReadingsImportTaskCreateInput {
   user: UserRelateToOneInput
   organization: OrganizationRelateToOneInput
   locale: String
+  isPropertyMeters: Boolean
   meta: JSON
   v: Int
   createdAt: String
@@ -72286,6 +72303,7 @@ type B2BAppAccessRightSetHistoryRecord {
   canManageTicketCommentFiles: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
+  canExecuteRegisterPropertyMetersReadings: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -72396,6 +72414,8 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   canExecuteRegisterMetersReadings_not: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
   canExecuteSendB2BAppPushMessage_not: Boolean
+  canExecuteRegisterPropertyMetersReadings: Boolean
+  canExecuteRegisterPropertyMetersReadings_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -72535,6 +72555,8 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
   canExecuteRegisterMetersReadings_DESC
   canExecuteSendB2BAppPushMessage_ASC
   canExecuteSendB2BAppPushMessage_DESC
+  canExecuteRegisterPropertyMetersReadings_ASC
+  canExecuteRegisterPropertyMetersReadings_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -72583,6 +72605,7 @@ input B2BAppAccessRightSetHistoryRecordUpdateInput {
   canManageTicketCommentFiles: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
+  canExecuteRegisterPropertyMetersReadings: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -72632,6 +72655,7 @@ input B2BAppAccessRightSetHistoryRecordCreateInput {
   canManageTicketCommentFiles: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
+  canExecuteRegisterPropertyMetersReadings: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -72716,6 +72740,7 @@ type B2BAppAccessRightSet {
   canManageTicketCommentFiles: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
+  canExecuteRegisterPropertyMetersReadings: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -72818,6 +72843,8 @@ input B2BAppAccessRightSetWhereInput {
   canExecuteRegisterMetersReadings_not: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
   canExecuteSendB2BAppPushMessage_not: Boolean
+  canExecuteRegisterPropertyMetersReadings: Boolean
+  canExecuteRegisterPropertyMetersReadings_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -72939,6 +72966,8 @@ enum SortB2BAppAccessRightSetsBy {
   canExecuteRegisterMetersReadings_DESC
   canExecuteSendB2BAppPushMessage_ASC
   canExecuteSendB2BAppPushMessage_DESC
+  canExecuteRegisterPropertyMetersReadings_ASC
+  canExecuteRegisterPropertyMetersReadings_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -72987,6 +73016,7 @@ input B2BAppAccessRightSetUpdateInput {
   canManageTicketCommentFiles: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
+  canExecuteRegisterPropertyMetersReadings: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -73033,6 +73063,7 @@ input B2BAppAccessRightSetCreateInput {
   canManageTicketCommentFiles: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
+  canExecuteRegisterPropertyMetersReadings: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -81835,6 +81866,62 @@ type RegisterMetersReadingsMeterOutput {
 type RegisterMetersReadingsOutput {
   id: ID!
   meter: RegisterMetersReadingsMeterOutput!
+}
+
+input RegisterPropertyMetersReadingsMeterMetaInput {
+  numberOfTariffs: Int
+  verificationDate: String
+  nextVerificationDate: String
+  installationDate: String
+  commissioningDate: String
+  sealingDate: String
+  controlReadingsDate: String
+  isAutomatic: Boolean
+  archiveDate: String
+}
+
+input RegisterPropertyMetersReadingsReadingAddressInfoInput {
+  globalId: String
+}
+
+input RegisterPropertyMetersReadingsReadingInput {
+  address: String!
+  addressInfo: RegisterPropertyMetersReadingsReadingAddressInfoInput
+  meterNumber: String!
+  meterResource: MeterResourceWhereUniqueInput!
+  date: String!
+  value1: String!
+  value2: String
+  value3: String
+  value4: String
+  meterMeta: RegisterPropertyMetersReadingsMeterMetaInput
+  readingSource: MeterReadingSourceWhereUniqueInput
+  billingStatus: MeterReadingBillingStatusType
+  billingStatusText: String
+}
+
+input RegisterPropertyMetersReadingsInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  organization: OrganizationWhereUniqueInput!
+  readings: [RegisterPropertyMetersReadingsReadingInput!]!
+}
+
+type RegisterPropertyMetersReadingsMeterPropertyOutput {
+  id: ID!
+  address: String!
+  addressKey: String!
+}
+
+type RegisterPropertyMetersReadingsMeterOutput {
+  id: ID!
+  property: RegisterPropertyMetersReadingsMeterPropertyOutput!
+  number: String!
+}
+
+type RegisterPropertyMetersReadingsOutput {
+  id: ID!
+  meter: RegisterPropertyMetersReadingsMeterOutput!
 }
 
 input RegisterMultiPaymentReceiptAmountInput {
@@ -94526,6 +94613,73 @@ type Mutation {
   }`
   """
   registerMetersReadings(data: RegisterMetersReadingsInput!): [RegisterMetersReadingsOutput]
+
+  """
+  Create property meter readings and, if not exists, property meters.
+  
+  Use dates in UTC format (YYYY-MM-DDTHH:mm:ss.SSSZ) or in YYYY-MM-DD. You should prefer UTC.
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "TOO_MUCH_READINGS",
+    "message": "Too much readings. ?? sent, limit is 500.",
+    "messageForUser": "Too much readings. ?? sent, limit is 500."
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "ORGANIZATION_NOT_FOUND",
+    "message": "Organization not found",
+    "messageForUser": "Organization not found"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "PROPERTY_NOT_FOUND",
+    "message": "Property not found",
+    "messageForUser": "Property not found"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVALID_METER_VALUES",
+    "message": "Invalid meter values",
+    "messageForUser": "Invalid values: \"{column}\"=\"{errorValue}\""
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "MULTIPLE_METERS_FOUND",
+    "message": "Multiple meters found",
+    "messageForUser": "Multiple meters found (??)"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVALID_ACCOUNT_NUMBER",
+    "message": "Invalid account number",
+    "messageForUser": "Account number field is filled incorrectly"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVALID_METER_NUMBER",
+    "message": "Invalid meter number",
+    "messageForUser": "Meter number field is filled incorrectly"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVALID_DATE",
+    "message": "Invalid date",
+    "messageForUser": "Incorrect date format in column \"columnName\". Use value of \"Text\" type in format: \"YYYY-MM-DDTHH:mm:ss.SSS[Z]\", \"YYYY-MM-DD\"."
+  }`
+  """
+  registerPropertyMetersReadings(data: RegisterPropertyMetersReadingsInput!): [RegisterPropertyMetersReadingsOutput]
   registerMultiPayment(data: RegisterMultiPaymentInput!): RegisterMultiPaymentOutput
   registerMultiPaymentForOneReceipt(data: RegisterMultiPaymentForOneReceiptInput!): RegisterMultiPaymentForOneReceiptOutput
   registerMultiPaymentForVirtualReceipt(data: RegisterMultiPaymentForVirtualReceiptInput!): RegisterMultiPaymentForOneReceiptOutput

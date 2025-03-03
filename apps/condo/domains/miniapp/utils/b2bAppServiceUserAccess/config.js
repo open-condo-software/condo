@@ -94,6 +94,7 @@ const B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS = {
     services: {
         registerMetersReadings: {},
         sendB2BAppPushMessage: {},
+        registerPropertyMetersReadings: {},
     },
 }
 

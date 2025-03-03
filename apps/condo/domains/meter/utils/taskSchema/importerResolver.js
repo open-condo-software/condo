@@ -25,8 +25,9 @@ const {
     METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION,
 } = require('@condo/domains/meter/constants/errors')
 const { DATE_FIELD_PATH_TO_TRANSLATION } = require('@condo/domains/meter/constants/registerMetersReadingsService')
-const { MeterReadingsImportTask, registerMetersReadings } = require('@condo/domains/meter/utils/serverSchema')
+const { MeterReadingsImportTask, registerMetersReadings, registerPropertyMetersReadings } = require('@condo/domains/meter/utils/serverSchema')
 const { DomaMetersImporter } = require('@condo/domains/meter/utils/taskSchema/DomaMetersImporter')
+const { DomaPropertyMetersImporter } = require('@condo/domains/meter/utils/taskSchema/DomaPropertyMetersImporter')
 const { SbbolMetersImporter } = require('@condo/domains/meter/utils/taskSchema/SbbolMetersImporter')
 const {
     FLAT_UNIT_TYPE,
@@ -41,7 +42,7 @@ const { User } = require('@condo/domains/user/utils/serverSchema')
 
 const dvAndSender = { dv: 1, sender: { dv: 1, fingerprint: 'import-meter-job' } }
 
-function getColumnNames (format, locale) {
+function getColumnNames (format, locale, isPropertyMeters) {
     // A separate translation namespace is used to make import feature independent on other
     // to avoid sudden regressed changes of column names when many clients will already use provided spreadsheet
     const AddressColumnMessage = i18n('meter.import.column.address', { locale })
@@ -65,11 +66,15 @@ function getColumnNames (format, locale) {
     const PlaceColumnMessage = i18n('meter.import.column.MeterPlace', { locale })
     const AutomaticColumnMessage = i18n('meter.import.column.Automatic', { locale })
 
-    return format === DOMA_EXCEL ? [
-        { name: AddressColumnMessage },
+    const unitClientMeterColumns = [
         { name: UnitNameColumnMessage },
         { name: UnitTypeColumnMessage },
         { name: AccountNumberColumnMessage },
+    ]
+
+    return format === DOMA_EXCEL ? [
+        { name: AddressColumnMessage },
+        ...isPropertyMeters ? [] : unitClientMeterColumns,
         { name: MeterTypeColumnMessage },
         { name: MeterNumberColumnMessage },
         { name: MeterTariffsNumberColumnMessage },
@@ -84,7 +89,7 @@ function getColumnNames (format, locale) {
         { name: CommissioningDateMessage },
         { name: SealingDateMessage },
         { name: ControlReadingsDate },
-        { name: PlaceColumnMessage },
+        ...isPropertyMeters ? [] : [{ name: PlaceColumnMessage }],
         { name: AutomaticColumnMessage },
     ] : null
 }
@@ -217,7 +222,7 @@ function getMutationError (locale) {
     }
 }
 
-async function importRows (keystone, userId, organizationId, rows) {
+async function importRows (keystone, userId, organizationId, rows, isPropertyMeters) {
     // readings meter import must be called with the user context
     const userContext = await keystone.createContext({
         authentication: {
@@ -231,7 +236,9 @@ async function importRows (keystone, userId, organizationId, rows) {
     }
 
     // call it with user context - require for MeterReadings hooks
-    const { errors, data } = await registerMetersReadings(userContext, {
+    const mutation = isPropertyMeters ? registerPropertyMetersReadings : registerMetersReadings
+    
+    const { errors, data } = await mutation(userContext, {
         ...dvAndSender,
         organization: { id: organizationId },
         readings: rows,
@@ -281,13 +288,14 @@ async function setImportedRows (keystone, id, imported) {
     })
 }
 
-async function getImporter (keystone, taskId, organizationId, userId, format, locale) {
+async function getImporter (keystone, taskId, organizationId, userId, format, locale, isPropertyMeters) {
     const MetersImporterClass = format === DOMA_EXCEL ? DomaMetersImporter : SbbolMetersImporter
-    const columns = getColumnNames(format, locale)
+    const ImporterClass = isPropertyMeters ? DomaPropertyMetersImporter : MetersImporterClass
+    const columns = getColumnNames(format, locale, isPropertyMeters)
     const mappers = getMappers(format, locale)
     const errors = await getErrors(keystone, format, locale, columns, mappers)
     const mutationErrorsToMessages = getMutationError(locale)
-    const importRowsMutation = async (rows) => await importRows(keystone, userId, organizationId, rows)
+    const importRowsMutation = async (rows) => await importRows(keystone, userId, organizationId, rows, isPropertyMeters)
     const breakProcessCheckerQuery = async () => await breakProcessChecker(keystone, taskId)
     const setTotalRowsMutation = async (total) => await setTotalRows(keystone, taskId, total)
     const setProcessedRowsMutation = async (processed) => await setProcessedRows(keystone, taskId, processed)
@@ -295,7 +303,7 @@ async function getImporter (keystone, taskId, organizationId, userId, format, lo
     const errorHandlerMutation = async (error) => await errorHandler(keystone, taskId, error)
     const dateColumnsByReadingDatePaths = getDatesColumnNamesByDatePathInReading(locale)
 
-    return new MetersImporterClass(
+    return new ImporterClass(
         columns,
         mappers,
         importRowsMutation,

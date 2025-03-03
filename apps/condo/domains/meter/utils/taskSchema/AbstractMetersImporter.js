@@ -1,5 +1,9 @@
 
-const { chunk, isNil, set, get, isArray } = require('lodash')
+const chunk = require('lodash/chunk')
+const get = require('lodash/get')
+const isArray = require('lodash/isArray')
+const isNil = require('lodash/isNil')
+const set = require('lodash/set')
 const XLSX = require('xlsx')
 
 const { getLogger } = require('@open-condo/keystone/logging')

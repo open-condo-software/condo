@@ -22,8 +22,7 @@ import {
 
 import { ActiveModalType, BaseImportWrapper, ExtraModalContentType } from './BaseImportWrapper'
 
-
-export interface IImportWrapperProps {
+export interface IImportWrapperProps<TExtraProps = unknown> {
     accessCheck: boolean
     onFinish?: () => void
     columns: Columns
@@ -39,6 +38,7 @@ export interface IImportWrapperProps {
     }
     extraModalContent?: ExtraModalContentType
     handleClose?: () => void
+    extraProps?: TExtraProps
 }
 
 export function fitToColumn (arrayOfArray) {

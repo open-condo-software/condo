@@ -3,14 +3,17 @@
  */
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
-const { map, flatten, set, zip } = require('lodash')
+const flatten = require('lodash/flatten')
+const map = require('lodash/map')
+const set = require('lodash/set')
+const zip = require('lodash/zip')
 
-const { GQLErrorCode, GQLInternalErrorTypes } = require('@open-condo/keystone/errors')
 const {
     makeLoggedInAdminClient,
     makeClient,
     expectToThrowAuthenticationError,
     expectToThrowAccessDeniedErrorToResult, expectToThrowGQLError, catchErrorFrom,
+    expectToThrowForeignKeyConstraintViolationError,
 } = require('@open-condo/keystone/test.utils')
 
 const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')
@@ -502,41 +505,9 @@ describe('RegisterMetersReadingsService', () => {
             badReading,
         ]
 
-        // TODO(pahaz): use GQLError check
-        await catchErrorFrom(
-            async () => {
-                await registerMetersReadingsByTestClient(adminClient, organization, readings)
-            },
-            ({ data: { result }, errors }) => {
-                expect(result).toEqual([
-                    expect.objectContaining({
-                        id: expect.stringMatching(UUID_REGEXP),
-                        meter: expect.objectContaining({
-                            id: expect.stringMatching(UUID_REGEXP),
-                            property: expect.objectContaining({
-                                id: property1.id,
-                                address: property1.address,
-                                addressKey: property1.addressKey,
-                            }),
-                            unitType: readings[0].addressInfo.unitType,
-                            unitName: readings[0].addressInfo.unitName,
-                            accountNumber: readings[0].accountNumber,
-                            number: readings[0].meterNumber,
-                        }),
-                    }),
-                    null,
-                ])
-                expect(errors).toEqual([
-                    expect.objectContaining({
-                        message: '[error] Create Meter internal error',
-                        extensions: expect.objectContaining({
-                            code: GQLErrorCode.INTERNAL_ERROR,
-                            type: GQLInternalErrorTypes.SUB_GQL_ERROR,
-                            message: expect.stringContaining('insert or update on table "Meter" violates foreign key constraint "Meter_resource_33ab2a27_fk_MeterResource_id"'),
-                        }),
-                    }),
-                ])
-            },
+        await expectToThrowForeignKeyConstraintViolationError(
+            async () => await registerMetersReadingsByTestClient(adminClient, organization, readings),
+            'Meter', 'Meter_resource_33ab2a27_fk_MeterResource_id'
         )
     })
 

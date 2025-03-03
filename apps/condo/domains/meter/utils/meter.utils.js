@@ -50,11 +50,9 @@ function meterReadingAsResult (meterReading) {
  * @param {RegisterMetersReadingsMeterMetaInput} changedFields
  * @return {boolean}
  */
-function shouldUpdateMeter (meter, changedFields) {
+function shouldUpdateMeter (meter, changedFields, isPropertyMeters = false) {
     const fieldsToUpdate = [
-        'accountNumber',
         'numberOfTariffs',
-        'place',
         'verificationDate',
         'nextVerificationDate',
         'installationDate',
@@ -63,6 +61,10 @@ function shouldUpdateMeter (meter, changedFields) {
         'controlReadingsDate',
         'isAutomatic',
     ]
+
+    if (!isPropertyMeters) {
+        fieldsToUpdate.push('accountNumber', 'place')
+    }
 
     return fieldsToUpdate.reduce((result, field) => {
         if (result) {
