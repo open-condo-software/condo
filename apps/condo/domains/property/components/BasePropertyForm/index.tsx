@@ -6,13 +6,14 @@ import React, { useCallback, useMemo, useState } from 'react'
 
 import { omitRecursively } from '@open-condo/keystone/fields/Json/utils/cleaner'
 import { useIntl } from '@open-condo/next/intl'
-import { Tour, Input, Typography } from '@open-condo/ui'
+import { Tour, Input, Typography, Alert } from '@open-condo/ui'
 
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import Prompt from '@condo/domains/common/components/Prompt'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { MeterReportingPeriod } from '@condo/domains/meter/utils/clientSchema'
 import { AddressSuggestionsSearchInput } from '@condo/domains/property/components/AddressSuggestionsSearchInput'
 import { TSelectedAddressSuggestion } from '@condo/domains/property/components/BasePropertyForm/types'
 import { usePropertyValidations } from '@condo/domains/property/hooks/usePropertyValidations'
@@ -32,6 +33,7 @@ interface IPropertyFormProps {
     children: (
         { handleSave, isLoading, form }: { handleSave: () => void, isLoading: boolean, form: FormInstance },
     ) => React.ReactElement
+    mode: 'create' | 'update'
 }
 
 const FORM_WITH_ACTION_VALIDATION_TRIGGERS = ['onBlur', 'onSubmit']
@@ -62,10 +64,27 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
     const { breakpoints } = useLayoutContext()
     const { addressApi } = useAddressApi()
     const { setCurrentStep } = Tour.useTourContext()
-    const { action, initialValues, organization, address } = props
+    const { action, initialValues, organization, address, mode } = props
+    const isCreateMode = mode === 'create'
 
     const organizationId = get(organization, 'id')
     const [addressValidatorError, setAddressValidatorError] = useState<string | null>(null)
+
+    const {
+        loading: isPeriodsLoading,
+        objs: reportingPeriods,
+    } = MeterReportingPeriod.useObjects({
+        where: {
+            organization: { id: organizationId },
+        },
+    })
+
+    const isShowAlert = useMemo(() => isCreateMode && !isPeriodsLoading && reportingPeriods.length > 0, [isCreateMode, isPeriodsLoading, reportingPeriods.length])
+    const PeriodForOrganizationAlertDescription = intl.formatMessage({ id: 'pages.condo.property.info.alert.ReportingPeriodForOrganization.description' })
+    const PeriodForOrganizationAlertMessage = intl.formatMessage({ id: 'pages.condo.property.info.alert.ReportingPeriodForOrganization.message' }, {
+        notifyStartDay: get(reportingPeriods, ['0', 'notifyStartDay']),
+        notifyEndDay: get(reportingPeriods, ['0', 'notifyEndDay']),
+    })
 
     const formValuesToMutationDataPreprocessor = useCallback((formData, _, form) => {
         const isAddressFieldTouched = form.isFieldsTouched(['address'])
@@ -118,18 +137,22 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
 
     const formLayout = useMemo(() => ({
         labelCol: {
-            lg: 6,
-            md: 10,
+            lg: isShowAlert ? 9 : 6,
+            md: isShowAlert ? 13 : 10,
             xs: 24,
         },
         wrapperCol: {
-            lg: 7,
-            md: 10,
+            lg: isShowAlert ? 12 : 7,
+            md: isShowAlert ? 15 : 10,
             xs: 24,
         },
         layout: breakpoints.TABLET_LARGE ? 'horizontal' : 'vertical',
         labelAlign: 'left',
-    }), [breakpoints])
+    }), [breakpoints, isShowAlert])
+    
+    const wrapperColumnSpan = useMemo(() => {
+        return isShowAlert && breakpoints.TABLET_LARGE ? 16 : 24
+    }, [breakpoints.TABLET_LARGE, isShowAlert])
 
     const handleSubmit = useCallback(async (formValues) => {
         await action(formValues)
@@ -162,8 +185,8 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                     {PromptHelpMessage}
                                 </Typography.Paragraph>
                             </Prompt>
-                            <Row gutter={[0, 40]}>
-                                <Col span={24}>
+                            <Row gutter={[16, 40]}>
+                                <Col span={wrapperColumnSpan}>
                                     <Row gutter={[0, 16]}>
                                         <Col span={24}>
                                             <Form.Item
@@ -222,6 +245,11 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                         </Col>
                                     </Row>
                                 </Col>
+                                {isShowAlert && (
+                                    <Col span={breakpoints.TABLET_LARGE ? 8 : 24}>
+                                        <Alert type='info' description={PeriodForOrganizationAlertDescription} message={PeriodForOrganizationAlertMessage}/>
+                                    </Col>
+                                )}
                                 <Col span={24}>
                                     {props.children({ handleSave, isLoading, form })}
                                 </Col>

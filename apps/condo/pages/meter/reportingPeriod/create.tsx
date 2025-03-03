@@ -1,7 +1,8 @@
 import { Col, Row, RowProps } from 'antd'
+import chunk  from 'lodash/chunk'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import React from 'react'
+import React, { useCallback } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
@@ -22,7 +23,26 @@ const MeterReportingPeriodCreatePage: PageComponentType = () => {
 
     const router = useRouter()
     
-    const action = MeterReportingPeriod.useCreate({}, () => router.push(`/meter?tab=${METER_TAB_TYPES.reportingPeriod}&type=${METER_TYPES.unit}`))
+    const createMeterReportingPeriods = MeterReportingPeriod.useCreateMany({}, () => router.push(`/meter?tab=${METER_TAB_TYPES.reportingPeriod}&type=${METER_TYPES.unit}`))
+    
+    const action = useCallback(async values => {
+        const { properties, ...rest } = values
+        const propertiesByChunk = chunk(properties, 10)
+
+        if (properties && properties.length) {
+            for (const properties of propertiesByChunk) {
+                const payload = properties.map(propertyId => ({
+                    ...rest,
+                    property: { connect: { id: propertyId } },
+                }))
+                await createMeterReportingPeriods(payload)
+            }
+        } else {
+            await createMeterReportingPeriods([values])
+        }
+
+
+    }, [createMeterReportingPeriods])
 
     return <>
         <Head>

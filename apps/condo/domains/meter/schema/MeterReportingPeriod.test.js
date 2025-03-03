@@ -295,18 +295,66 @@ describe('MeterReportingPeriod', () => {
 
     describe('Bulk-operations', () => {
         describe('create', () => {
-            test('employee cannot', async () => {
+            test('employee can for own property and own organization', async () => {
+                const client = await makeEmployeeUserClientWithAbilities({ canManageMeters: true, canManageProperties: true })
+
+                const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+                const [property] = await createTestProperty(client, client.organization)
+                const payload = [
+                    { data: {
+                        dv: 1,
+                        sender,
+                        organization: { connect: { id: client.organization.id } },
+                    } },
+                    { data: {
+                        dv: 1,
+                        sender,
+                        organization: { connect: { id: client.organization.id } },
+                        property: { connect: { id: property.id } },
+                    } },
+                ]
+                const periods = await MeterReportingPeriod.createMany(client, payload)
+                expect(periods).toEqual(
+                    expect.arrayContaining([
+                        expect.objectContaining({ organization:  expect.objectContaining({ id: client.organization.id }) }),
+                        expect.objectContaining({ property: expect.objectContaining({ id: property.id }) }),
+                    ])
+                )
+            })
+
+            test('employee cannot for not own organization', async () => {
                 const client = await makeEmployeeUserClientWithAbilities({ canManageMeters: true })
 
-                await expectToThrowAccessDeniedErrorToObjects(async () => {
-                    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-                    const payload = [client.organization, client.organization].map(org => ({
+                const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+                const payload = [
+                    {
                         data: {
                             dv: 1,
                             sender,
-                            organization: { connect: { id: org.id } },
+                            organization: { connect: { id: commonOrganization.id } },
                         },
-                    }))
+                    },
+                ]
+                await expectToThrowAccessDeniedErrorToObjects(async () => {
+                    await MeterReportingPeriod.createMany(client, payload)
+                })
+            })
+
+            test('employee cannot for property that is connected to a different organization', async () => {
+                const client = await makeEmployeeUserClientWithAbilities({ canManageMeters: true })
+                const [property] = await createTestProperty(admin, commonOrganization)
+                const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+                const payload = [
+                    {
+                        data: {
+                            dv: 1,
+                            sender,
+                            organization: { connect: { id: commonOrganization.id } },
+                            property: { connect: { id: property.id } },
+                        },
+                    },
+                ]
+                await expectToThrowAccessDeniedErrorToObjects(async () => {
                     await MeterReportingPeriod.createMany(client, payload)
                 })
             })
@@ -590,6 +638,19 @@ describe('MeterReportingPeriod', () => {
                         notifyEndDay: 32,
                     })
                 }, ERRORS.INVALID_FINISH)
+            })
+
+            test('restrictionEndDay field validation', async () => {
+                await expectToThrowGQLError(async () => {
+                    await createTestMeterReportingPeriod(admin, commonOrganization, {
+                        restrictionEndDay: 0,
+                    })
+                }, ERRORS.INVALID_RESTRICTION_END_DAY)
+                await expectToThrowGQLError(async () => {
+                    await createTestMeterReportingPeriod(admin, commonOrganization, {
+                        restrictionEndDay: 32,
+                    })
+                }, ERRORS.INVALID_RESTRICTION_END_DAY)
             })
 
             test('The uniqueness of the period for property', async () => {

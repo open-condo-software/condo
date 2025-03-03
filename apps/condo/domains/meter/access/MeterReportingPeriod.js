@@ -53,7 +53,20 @@ async function canManageMeterReportingPeriods ({ authentication: { item: user },
 
     if (operation === 'create') {
         if (isBulkRequest) {
-            return false
+            const orgIds = uniq(originalInput.map((item) => get(item, ['data', 'organization', 'connect', 'id'])).filter(Boolean))
+            const propertyIds = uniq(originalInput.map((item) => get(item, ['data', 'property', 'connect', 'id'])).filter(Boolean))
+
+            let uniqueOrgIdsFromProperties = []
+            if (propertyIds.length) {
+                const properties = await find('Property', {
+                    id_in: propertyIds,
+                    deletedAt: null,
+                })
+                uniqueOrgIdsFromProperties = uniq(properties.map(property => get(property, 'organization', null)))
+                if (uniqueOrgIdsFromProperties.some(isNull)) return false
+            }
+
+            organizationIds = [...orgIds, ...uniqueOrgIdsFromProperties]
         } else {
             let organizationId = get(originalInput, ['organization', 'connect', 'id'], null)
             const propertyId = get(originalInput, ['property', 'connect', 'id'], null)
