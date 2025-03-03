@@ -342,48 +342,51 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                                             </Typography.Text>
                                         </Form.Item>
                                     </Col>
-                                    <Col span={24}>
-                                        <Typography.Title level={2}>
-                                            {ResitrictionsSetupTitle}
-                                        </Typography.Title>
-                                    </Col>
-                                    {isMeterReportingPeriodStrictRuleEnabled && <Col span={24}>
-                                        <Form.Item
-                                            {...INPUT_LAYOUT_PROPS}
-                                            wrapperCol={STRICT_PERIOD_WRAPPER_COL}
-                                            labelAlign='left'
-                                            name='restrictionEndDay'
-                                            label={PeriodTypeLabel}
-                                        >
-                                            <RadioGroup
-                                                onChange={(event) => {
-                                                    const value = event.target.value
-                                                    setRestrictionEndDay(value)
-                                                }}
-                                            >
-                                                <Space size={isSmallWindow ? 16 : 40}>
-                                                    <Radio
-                                                        key='not-strict'
-                                                        value={undefined}
-                                                        label={<LabelWithInfo title={NotStrictPeriodTooltip} message={NotStrictPeriodMessage} />}
-                                                    />
-                                                    <Radio
-                                                        key='strict'
-                                                        value={RESTRICTION_END_DAY_DEFAULT}
-                                                        disabled={startNumberRef.current > finishNumberRef.current}
-                                                        label={<LabelWithInfo title={startNumberRef.current < finishNumberRef.current ? StrictPeriodTooltip : StrictPeriodNotAllowedTooltip} message={StrictPeriodMessage} />}
-                                                    />
-                                                </Space>
-                                            </RadioGroup>
-                                        </Form.Item>
-                                    </Col>}
-                                    <Col span={12} offset={8}>
-                                        <Alert
-                                            type='info'
-                                            showIcon
-                                            description={ResitrictionsSetupAlert}
-                                        />
-                                    </Col>
+                                    {isMeterReportingPeriodStrictRuleEnabled && (
+                                        <>
+                                            <Col span={24}>
+                                                <Typography.Title level={2}>
+                                                    {ResitrictionsSetupTitle}
+                                                </Typography.Title>
+                                            </Col>
+                                            <Col span={24}>
+                                                <Form.Item
+                                                    {...INPUT_LAYOUT_PROPS}
+                                                    wrapperCol={STRICT_PERIOD_WRAPPER_COL}
+                                                    labelAlign='left'
+                                                    name='restrictionEndDay'
+                                                    label={PeriodTypeLabel}
+                                                >
+                                                    <RadioGroup
+                                                        onChange={(event) => {
+                                                            const value = event.target.value
+                                                            setRestrictionEndDay(value)
+                                                        }}
+                                                    >
+                                                        <Space size={isSmallWindow ? 16 : 40}>
+                                                            <Radio
+                                                                key='not-strict'
+                                                                value={undefined}
+                                                                label={<LabelWithInfo title={NotStrictPeriodTooltip} message={NotStrictPeriodMessage} />}
+                                                            />
+                                                            <Radio
+                                                                key='strict'
+                                                                value={RESTRICTION_END_DAY_DEFAULT}
+                                                                disabled={startNumberRef.current > finishNumberRef.current}
+                                                                label={<LabelWithInfo title={startNumberRef.current < finishNumberRef.current ? StrictPeriodTooltip : StrictPeriodNotAllowedTooltip} message={StrictPeriodMessage} />}
+                                                            />
+                                                        </Space>
+                                                    </RadioGroup>
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={12} offset={8}>
+                                                <Alert
+                                                    type='info'
+                                                    showIcon
+                                                    description={ResitrictionsSetupAlert}
+                                                />
+                                            </Col>
+                                        </>)}
                                     <Col span={24}>
                                         <Form.Item
                                             noStyle
