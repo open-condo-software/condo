@@ -56,6 +56,7 @@ export const CreatePropertyForm: React.FC = () => {
             initialValues={initialValues}
             organization={organization}
             type='building'
+            mode='create'
         >
             {({ handleSave, isLoading }) => {
                 return (

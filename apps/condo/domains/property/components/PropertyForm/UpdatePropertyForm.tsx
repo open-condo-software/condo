@@ -60,6 +60,7 @@ export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
             organization={organization}
             type='building'
             address={property.address}
+            mode='update'
         >
             {({ handleSave, isLoading }) => {
                 return (

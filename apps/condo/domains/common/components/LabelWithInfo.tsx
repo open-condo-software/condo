@@ -1,15 +1,9 @@
 import { QuestionCircleOutlined } from '@ant-design/icons'
-import styled from '@emotion/styled'
 import { Space } from 'antd'
 import React from 'react'
 
-import { Tooltip } from '@condo/domains/common/components/Tooltip'
+import { Tooltip } from '@open-condo/ui'
 
-const StyledSpace = styled(Space)`
-    &:hover {
-      cursor: help;
-    }
-`
 
 interface ILabelWithInfo {
     title: string
@@ -18,9 +12,9 @@ interface ILabelWithInfo {
 
 export const LabelWithInfo: React.FC<ILabelWithInfo> = ({ title, message }) => (
     <Tooltip placement='topLeft' title={title}>
-        <StyledSpace>
+        <Space>
             {message}
             <QuestionCircleOutlined/>
-        </StyledSpace>
+        </Space>
     </Tooltip>
 )
