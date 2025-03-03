@@ -39,6 +39,9 @@
       ".": [
         "dist/types/index.d.ts"
       ],
+      "helpers/analytics": [
+        "dist/types/helpers/analytics.d.ts"
+      ],
       "helpers/apollo": [
         "dist/types/helpers/apollo.d.ts"
       ],
@@ -73,6 +76,11 @@
       "types": "./dist/types/index.d.ts",
       "require": "./dist/cjs/index.js",
       "import": "./dist/esm/index.js"
+    },
+    "./helpers/analytics": {
+      "types": "./dist/types/helpers/analytics.d.ts",
+      "require": "./dist/cjs/helpers/analytics.js",
+      "import": "./dist/esm/helpers/analytics.js"
     },
     "./helpers/apollo": {
       "types": "./dist/types/helpers/apollo.d.ts",
@@ -121,7 +129,8 @@
   "peerDependencies": {
     "@apollo/client": ">=3.0.0",
     "react": ">=16.0.0",
-    "react-dom": ">=16.0.0"
+    "react-dom": ">=16.0.0",
+    "analytics": "^0.8.16"
   },
   "devDependencies": {
     "@apollo/client": "^3.11.8",
@@ -132,6 +141,7 @@
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-typescript": "^11.1.6",
     "@types/react": "^16.14.61",
+    "analytics": "^0.8.16",
     "babel-core": "^6.26.3",
     "babel-loader": "^9.1.3",
     "graphql": "^16.8.1",
