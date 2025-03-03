@@ -7,6 +7,7 @@ import React from 'react'
 import { useIntl } from '@open-condo/next/intl'
 
 import { fontSizes } from '@condo/domains/common/constants/style'
+import { PageComponentType } from '@condo/domains/common/types'
 import { PosterLayout } from '@condo/domains/user/components/containers/PosterLayout'
 
 
@@ -14,7 +15,7 @@ const DESCRIPTION_TEXT_STYLE = { fontSize: fontSizes.content }
 const ROW_MESSAGE_GUTTER: RowProps['gutter'] = [0, 14]
 const FailureSrc = { poster: '/404Poster.webp' }
 
-export default function FailurePage () {
+const FailurePage: PageComponentType = () => {
     const intl = useIntl()
     const router = useRouter()
 
@@ -67,3 +68,6 @@ const FailurePageLayout = (props): React.ReactElement => (
 )
 
 FailurePage.container = FailurePageLayout
+FailurePage.skipUserPrefetch = true
+
+export default FailurePage

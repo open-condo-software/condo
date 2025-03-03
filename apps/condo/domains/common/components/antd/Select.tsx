@@ -55,7 +55,13 @@ const Select = <T extends SelectValueType> (props: CustomSelectProps<T>) => {
     }
 
     return (
-        <DefaultSelect <T> autoClearSearchValue={props.mode === 'tags'} {...restProps } onChange={onChangeCallback} />
+        <DefaultSelect <T>
+            autoClearSearchValue={props.mode === 'tags'}
+            {...restProps}
+            onChange={onChangeCallback}
+            // NOTE: Autofocus not working with server rendering (antd problem)
+            autoFocus={typeof window === 'undefined' ? false : restProps?.autoFocus || false}
+        />
     )
 }
 

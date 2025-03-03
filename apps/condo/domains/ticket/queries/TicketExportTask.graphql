@@ -1,0 +1,48 @@
+query getTicketExportTasks ($where: TicketExportTaskWhereInput!) {
+    tasks: allTicketExportTasks(
+        where: $where
+    ) {
+        id
+        status
+        file {
+            publicUrl
+            originalFilename
+        }
+        totalRecordsCount
+        exportedRecordsCount
+        __typename
+    }
+}
+
+mutation createTicketExportTask ($data: TicketExportTaskCreateInput!) {
+    task: createTicketExportTask(
+        data: $data
+    ) {
+        id
+        status
+        file {
+            publicUrl
+            originalFilename
+        }
+        totalRecordsCount
+        exportedRecordsCount
+        __typename
+    }
+}
+
+mutation updateTicketExportTask ($id: ID!, $data: TicketExportTaskUpdateInput!) {
+    task: updateTicketExportTask(
+        data: $data,
+        id: $id
+    ) {
+        id
+        status
+        file {
+            publicUrl
+            originalFilename
+        }
+        totalRecordsCount
+        exportedRecordsCount
+        __typename
+    }
+}

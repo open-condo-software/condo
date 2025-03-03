@@ -1,18 +1,19 @@
 import Custom500 from '@app/condo/pages/500'
 import { captureException } from '@sentry/nextjs'
 import get from 'lodash/get'
-import { NextPageContext } from 'next'
 import NextErrorComponent from 'next/error'
 import React from 'react'
 
+import { PageComponentType } from '@condo/domains/common/types'
 
-export default function ErrorPage (): React.ReactElement {
+
+const ErrorPage: PageComponentType = () => {
     return <Custom500/>
 }
 
-ErrorPage.container = <></>
+ErrorPage.container = (props) => <React.Fragment {...props} />
 
-ErrorPage.getInitialProps = async (props: NextPageContext) => {
+ErrorPage.getInitialProps = async (props) => {
     const { req, asPath, pathname, res, err } = props
 
     console.error('Pathname, asPath:', pathname, asPath)
@@ -31,19 +32,7 @@ ErrorPage.getInitialProps = async (props: NextPageContext) => {
 
     console.error('StatusCode:', statusCode)
 
-    if (statusCode >= 500) {
-        res.writeHead(302, {
-            Location: '/500',
-        })
-        res.end()
-    }
-
-    if (statusCode === 404) {
-        res.writeHead(302, {
-            Location: '/404',
-        })
-        res.end()
-    }
-
     return errorInitialProps
 }
+
+export default ErrorPage

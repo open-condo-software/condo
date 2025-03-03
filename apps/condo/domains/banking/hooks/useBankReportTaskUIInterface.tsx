@@ -1,5 +1,11 @@
+import {
+    GetBankAccountReportTasksDocument,
+    CreateBankAccountReportTaskDocument,
+    UpdateBankAccountReportTaskDocument,
+    type GetBankAccountReportTasksQuery,
+} from '@app/condo/gql'
+import { BankAccountReportTaskCreateInput }  from '@app/condo/schema'
 import { notification } from 'antd'
-import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 
@@ -7,18 +13,20 @@ import { useIntl } from '@open-condo/next/intl'
 import { Button } from '@open-condo/ui'
 import type { ButtonProps } from '@open-condo/ui'
 
-import { BankAccountReportTask } from '@condo/domains/banking/utils/clientSchema'
-import { ITask, TASK_REMOVE_STRATEGY, TASK_STATUS } from '@condo/domains/common/components/tasks'
+import { ITask, TASK_REMOVE_STRATEGY } from '@condo/domains/common/components/tasks'
 import { TasksCondoStorage } from '@condo/domains/common/components/tasks/storage/TasksCondoStorage'
 import { useTaskLauncher } from '@condo/domains/common/components/tasks/TaskLauncher'
+import { TASK_COMPLETED_STATUS } from '@condo/domains/common/constants/tasks'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 
-import type {
-    BankAccountReportTask as BankAccountReportTaskType,
-    BankAccount as BankAccountType,
-} from '@app/condo/schema'
+import type { BankAccount as BankAccountType } from '@app/condo/schema'
 
-export const useBankReportTaskUIInterface = () => {
+
+type TaskRecordType = GetBankAccountReportTasksQuery['tasks'][number]
+
+type UseBankReportTaskUIInterfaceType = () => ({ BankReportTask: ITask<TaskRecordType> })
+
+export const useBankReportTaskUIInterface: UseBankReportTaskUIInterfaceType = () => {
     const intl = useIntl()
     const TaskProgressTitle = intl.formatMessage({ id: 'tasks.BankReportTask.progress.title' })
     const TaskProgressDescriptionProcessing = intl.formatMessage({ id: 'tasks.BankReportTask.progress.description.processing' })
@@ -27,20 +35,22 @@ export const useBankReportTaskUIInterface = () => {
 
     const { reload } = useRouter()
 
-    const TaskUIInterface: ITask = {
+    const TaskUIInterface: ITask<TaskRecordType> = {
         storage: new TasksCondoStorage({
-            clientSchema: BankAccountReportTask,
+            getTasksDocument: GetBankAccountReportTasksDocument,
+            createTaskDocument: CreateBankAccountReportTaskDocument,
+            updateTaskDocument: UpdateBankAccountReportTaskDocument,
         }),
         removeStrategy: [TASK_REMOVE_STRATEGY.PANEL],
         translations: {
             title: () => TaskProgressTitle,
             description: (taskRecord) => {
-                return taskRecord.status === TASK_STATUS.COMPLETED
+                return taskRecord.status === TASK_COMPLETED_STATUS
                     ? TaskProgressDescriptionCompleted
                     : TaskProgressDescriptionProcessing
             },
         },
-        calculateProgress: (task: BankAccountReportTaskType) => {
+        calculateProgress: (task: TaskRecordType) => {
             return task.progress
         },
         onComplete: () => {
@@ -59,7 +69,7 @@ export const useBankReportTaskUIInterface = () => {
 
 type UserBankReportTaskButtonProps = {
     organizationId: string
-    user: Record<string, 'unknown'>,
+    userId: string
     bankAccount: BankAccountType
     type?: ButtonProps['type']
 }
@@ -68,24 +78,25 @@ export const useBankReportTaskButton = (props: UserBankReportTaskButtonProps) =>
     const intl = useIntl()
     const CreateReportTitle = intl.formatMessage({ id: 'pages.condo.property.report.createReport.title' })
 
-    const { organizationId, user, bankAccount, type = 'primary' } = props
+    const { organizationId, userId, bankAccount, type = 'primary' } = props
 
     const { BankReportTask: TaskUIInterface } = useBankReportTaskUIInterface()
 
-    const { loading, handleRunTask } = useTaskLauncher(TaskUIInterface, {
+    const { loading, handleRunTask } = useTaskLauncher<BankAccountReportTaskCreateInput>(TaskUIInterface, {
         dv: 1,
         sender: getClientSideSenderInfo(),
         account: { connect: { id: bankAccount.id } },
         progress: 0,
         organization: { connect: { id: organizationId } },
-        user: { connect: { id: get(user, 'id') } },
+        user: { connect: { id: userId } },
     })
 
+    const handleClick = useCallback(() => handleRunTask(), [handleRunTask])
     const BankReportTaskButton = useCallback(() => (
-        <Button type={type} onClick={handleRunTask} loading={loading}>
+        <Button type={type} onClick={handleClick} loading={loading}>
             {CreateReportTitle}
         </Button>
-    ), [CreateReportTitle, handleRunTask, loading, type])
+    ), [CreateReportTitle, handleClick, loading, type])
 
     return {
         BankReportTaskButton,

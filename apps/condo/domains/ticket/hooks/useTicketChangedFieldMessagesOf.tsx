@@ -1,3 +1,4 @@
+import { useGetTicketStatusesQuery } from '@app/condo/gql'
 import {
     QualityControlAdditionalOptionsType,
     TicketChange as ITicketChange,
@@ -16,6 +17,7 @@ import isNull from 'lodash/isNull'
 import Link from 'next/link'
 import React, { ComponentProps, useMemo } from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { useIntl } from '@open-condo/next/intl'
 
 import { ChangeHistory } from '@condo/domains/common/components/ChangeHistory'
@@ -26,7 +28,6 @@ import { MAX_DESCRIPTION_DISPLAY_LENGTH } from '@condo/domains/ticket/constants/
 import { STATUS_IDS } from '@condo/domains/ticket/constants/statusTransitions'
 import { TICKET_TYPE_TAG_STYLE } from '@condo/domains/ticket/constants/style'
 import { convertQualityControlOrFeedbackOptionsToText } from '@condo/domains/ticket/utils'
-import { TicketStatus } from '@condo/domains/ticket/utils/clientSchema'
 import { RESIDENT } from '@condo/domains/user/constants/common'
 
 
@@ -169,7 +170,14 @@ export const useTicketChangedFieldMessagesOf: UseTicketChangedFieldMessagesOfTyp
         [QualityControlAdditionalOptionsType.Quickly]: QuicklyMessage.toLowerCase(),
     }), [HighQualityMessage, LowQualityMessage, QuicklyMessage, SlowlyMessage])
 
-    const { objs: ticketStatuses } = TicketStatus.useObjects({})
+    const { persistor } = useCachePersistor()
+    const {
+        data: ticketStatusesData,
+    } = useGetTicketStatusesQuery({
+        skip: !persistor,
+    })
+    const ticketStatuses = useMemo(() => ticketStatusesData?.statuses?.filter(Boolean) || [],
+        [ticketStatusesData?.statuses])
 
     const fields: Array<[string, string, ITicketChangeFieldMessages] | [string,  string]> = [
         ['canReadByResident', CanReadByResidentMessage, { change: 'pages.condo.ticket.TicketChanges.canReadByResident.change' }],

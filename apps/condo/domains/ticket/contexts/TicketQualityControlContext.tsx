@@ -1,4 +1,3 @@
-import { Ticket as TicketType } from '@app/condo/schema'
 import React, { createContext, useContext } from 'react'
 
 import {
@@ -7,7 +6,7 @@ import {
 } from '@condo/domains/ticket/hooks/useTicketQualityControlModal'
 
 
-interface ITicketQualityControlProviderProps { ticket: TicketType, afterUpdate?: (values: QualityControlDataType) => void }
+interface ITicketQualityControlProviderProps { ticketId: string, afterUpdate?: (values: QualityControlDataType) => void }
 
 type TicketQualityControlContextType = IUseTicketQualityControlModalReturn
 
@@ -18,8 +17,8 @@ const Context = createContext<TicketQualityControlContextType>(null)
 
 export const useTicketQualityControl: UseTicketQualityControlType = () => useContext(Context)
 
-export const TicketQualityControlProvider: React.FC<ITicketQualityControlProviderProps> = ({ children, ticket, afterUpdate }) => {
-    const qualityControl = useTicketQualityControlModal({ ticket, afterUpdate })
+export const TicketQualityControlProvider: React.FC<ITicketQualityControlProviderProps> = ({ children, ticketId, afterUpdate }) => {
+    const qualityControl = useTicketQualityControlModal({ ticketId, afterUpdate })
 
     return (
         <Context.Provider value={qualityControl}>

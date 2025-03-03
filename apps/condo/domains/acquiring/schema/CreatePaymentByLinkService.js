@@ -6,37 +6,44 @@ const Big = require('big.js')
 const { get } = require('lodash')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { GQLCustomSchema } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/acquiring/access/CreatePaymentByLinkService')
+const { CONTEXT_FINISHED_STATUS: ACQUIRING_CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const {
     registerMultiPaymentForOneReceipt,
     registerMultiPaymentForVirtualReceipt,
     MultiPayment,
 } = require('@condo/domains/acquiring/utils/serverSchema')
-const { isReceiptPaid, compareQRCodeWithLastReceipt, formatPeriodFromQRCode, findAuxiliaryData, getQRCodeFields } = require('@condo/domains/billing/utils/receiptQRCodeUtils')
+const { CONTEXT_FINISHED_STATUS: BILLING_CONTEXT_FINISHED_STATUS } = require('@condo/domains/billing/constants/constants')
+const {
+    isReceiptPaid,
+    compareQRCodeWithLastReceipt,
+    formatPeriodFromQRCode,
+    getQRCodeFields,
+} = require('@condo/domains/billing/utils/receiptQRCodeUtils')
 const {
     validateQRCode,
 } = require('@condo/domains/billing/utils/serverSchema')
-const { ALREADY_EXISTS_ERROR, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
+const { ALREADY_EXISTS_ERROR, NOT_FOUND } = require('@condo/domains/common/constants/errors')
 
 /**
  * List of possible errors, that this custom schema can throw
  * They will be rendered in documentation section in GraphiQL for this custom schema
  */
 const ERRORS = {
-    ADDRESS_IS_INVALID: {
-        mutation: 'createPaymentByLink',
-        code: BAD_USER_INPUT,
-        type: WRONG_FORMAT,
-        message: 'The provided address is invalid',
-    },
     RECEIPT_ALREADY_PAID: {
         mutation: 'createPaymentByLink',
         code: BAD_USER_INPUT,
         type: ALREADY_EXISTS_ERROR,
         message: 'Provided receipt already paid',
         messageForUser: 'api.billing.billingReceipt.RECEIPT_ALREADY_PAID_ERROR',
+    },
+    NO_PREV_RECEIPT: {
+        mutation: 'createPaymentByLink',
+        code: BAD_USER_INPUT,
+        type: NOT_FOUND,
+        message: 'No previous receipt was found',
     },
 }
 
@@ -67,16 +74,41 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                     paymPeriod, // mm.yyyy
                     sum,
                     persAcc, // resident's account within organization
-                } = getQRCodeFields(qrCodeFields, ['personalAcc', 'paymPeriod', 'sum', 'persAcc'])
+                    payeeINN,
+                    bic,
+                } = getQRCodeFields(qrCodeFields, ['personalAcc', 'paymPeriod', 'sum', 'persAcc', 'payeeINN', 'bic'])
                 const period = formatPeriodFromQRCode(paymPeriod)
                 const amount = String(Big(sum).div(100))
 
-                const auxiliaryData = await findAuxiliaryData(qrCodeFields, { address: ERRORS.ADDRESS_IS_INVALID })
-                const { normalizedAddress } = auxiliaryData
+                // Existence of this billing account and billing property was checked at ValidateQRCodeService
+                const [billingAccount] = await find('BillingAccount', {
+                    number: persAcc,
+                    context: {
+                        organization: { tin: payeeINN, deletedAt: null },
+                        status: BILLING_CONTEXT_FINISHED_STATUS,
+                        deletedAt: null,
+                    },
+                    deletedAt: null,
+                })
 
-                const [organizationId] = Object.keys(auxiliaryData.contexts)
-                const { acquiringContext } = auxiliaryData.contexts[organizationId]
-                const acquiringContextRecipient = get(acquiringContext, 'recipient')
+                const [billingProperty] = await find('BillingProperty', {
+                    id: billingAccount.property,
+                    deletedAt: null,
+                })
+
+                const [billingContext] = await find('BillingIntegrationOrganizationContext', {
+                    id: billingAccount.context,
+                    status: BILLING_CONTEXT_FINISHED_STATUS,
+                    deletedAt: null,
+                })
+
+                const organizationId = billingContext.organization
+
+                const [acquiringContext] = await find('AcquiringIntegrationContext', {
+                    organization: { id: organizationId, deletedAt: null },
+                    status: ACQUIRING_CONTEXT_FINISHED_STATUS,
+                    deletedAt: null,
+                })
 
                 let multiPaymentId
 
@@ -93,9 +125,13 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                 }
 
                 const payForQR = async (lastBillingReceipt) => {
+                    if (!lastBillingReceipt) {
+                        throw new GQLError(ERRORS.NO_PREV_RECEIPT, context)
+                    }
                     if (await isReceiptPaid(context, persAcc, period, [organizationId], personalAcc)) {
                         throw new GQLError(ERRORS.RECEIPT_ALREADY_PAID, context)
                     }
+                    const categoryId = get(lastBillingReceipt, ['category', 'id'])
                     const { multiPaymentId: id } = await registerMultiPaymentForVirtualReceipt(context, {
                         dv, sender,
                         receipt: {
@@ -103,10 +139,11 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                             amount,
                             period,
                             recipient: {
-                                routingNumber: acquiringContextRecipient.bic, // get bank account from acquiring context
-                                bankAccount: acquiringContextRecipient.bankAccount,
+                                routingNumber: bic,
+                                bankAccount: personalAcc,
                                 accountNumber: persAcc, // resident's account number
                             },
+                            ...categoryId ? { category: { id: categoryId } } : {},
                         },
                         acquiringIntegrationContext: {
                             id: acquiringContext.id,
@@ -124,10 +161,10 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                     onReceiptPeriodOlderThanQrCodePeriod: payForQR,
                 }
 
-                await compareQRCodeWithLastReceipt(qrCodeFields, resolvers)
+                await compareQRCodeWithLastReceipt(context, qrCodeFields, resolvers)
 
                 const multiPayment = await MultiPayment.getOne(context, { id: multiPaymentId },
-                    'id amountWithoutExplicitFee explicitServiceCharge amount currencyCode'
+                    'id amountWithoutExplicitFee explicitServiceCharge amount currencyCode',
                 )
 
                 return {
@@ -137,15 +174,15 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                     totalAmount: multiPayment.amount,
                     acquiringIntegrationHostUrl,
                     currencyCode: multiPayment.currencyCode,
-                    address: normalizedAddress.address,
+                    address: billingProperty.address,
                     addressMeta: {
                         dv: 1,
-                        value: get(normalizedAddress, ['addressMeta', 'value'], ''),
-                        unrestricted_value: get(normalizedAddress, ['addressMeta', 'unrestricted_value'], ''),
-                        data: get(normalizedAddress, ['addressMeta', 'data'], null),
+                        value: get(billingProperty, ['addressMeta', 'value'], ''),
+                        unrestricted_value: get(billingProperty, ['addressMeta', 'unrestricted_value'], ''),
+                        data: get(billingProperty, ['addressMeta', 'data'], null),
                     },
-                    unitType: get(normalizedAddress, 'unitType'),
-                    unitName: get(normalizedAddress, 'unitName'),
+                    unitType: billingAccount.unitType,
+                    unitName: billingAccount.unitName,
                     accountNumber: persAcc,
                     period,
                 }

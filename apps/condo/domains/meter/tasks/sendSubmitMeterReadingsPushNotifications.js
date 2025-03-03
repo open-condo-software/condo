@@ -105,10 +105,13 @@ const checkIsDateStartOrEndOfPeriod = (date, today, start, end) => (
     dayjs(date).isSame(dayjs(today).set('date', end), 'day')
 )
 
-const createEndDate = (date, notifyEndDay) => {
+const createEndDate = (date, notifyStartDay, notifyEndDay) => {
     let currentDate = dayjs(date.startTime).set('date', notifyEndDay)
     while (date.get('month') < currentDate.get('month')) {
         currentDate = currentDate.subtract(1, 'd')
+    }
+    if (notifyStartDay > notifyEndDay) {
+        currentDate = currentDate.add(1, 'M')
     }
     return currentDate.format('YYYY-MM-DD')
 }
@@ -183,7 +186,7 @@ const sendSubmitMeterReadingsPushNotifications = async () => {
             const notifyStartDay = get(period, 'notifyStartDay')
             const notifyEndDay = get(period, 'notifyEndDay')
             const notifyStartDate = dayjs(state.startTime).set('date', notifyStartDay).format('YYYY-MM-DD')
-            const notifyEndDate = createEndDate(state.startTime, notifyEndDay)
+            const notifyEndDate = createEndDate(state.startTime, notifyStartDay, notifyEndDay)
 
             const readingsOfCurrentMeter = meterReadings.filter(reading => (
                 reading.meter.id === meter.id &&

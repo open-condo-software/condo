@@ -18,12 +18,6 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "downlevelIteration": true,
-    "baseUrl": ".",
-    "paths": {
-      "@/*": [
-        "./*"
-      ]
-    }
   },
   "include": [
     "next-env.d.ts",
@@ -33,8 +27,6 @@
   "exclude": [
     "node_modules",
     ".next",
-    "out",
-    "cypress/cypress.config.ts",
-    "cypress/**/*.ts"
+    "out"
   ]
 }

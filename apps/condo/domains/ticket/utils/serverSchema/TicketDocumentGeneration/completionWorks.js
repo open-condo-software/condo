@@ -1,7 +1,8 @@
 const dayjs = require('dayjs')
 const { get } = require('lodash')
 
-const { getById, getByCondition } = require('@open-condo/keystone/schema')
+const { getByCondition } = require('@open-condo/keystone/schema')
+const { i18n } = require('@open-condo/locales/loader')
 
 const { buildExportFile, DOCX_FILE_META } = require('@condo/domains/common/utils/createExportFile')
 const { buildUploadInputFrom } = require('@condo/domains/common/utils/serverSchema/export')
@@ -11,12 +12,6 @@ const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { getAddressDetails } = require('@condo/domains/property/utils/serverSchema/helpers')
 const { TICKET_DOCUMENT_GENERATION_TASK_FORMAT } = require('@condo/domains/ticket/constants/ticketDocument')
-
-
-const DATE_FORMAT = 'DD.MM.YYYY'
-const formatDate = (date, timeZone, format = DATE_FORMAT) => {
-    return dayjs(date).tz(timeZone).format(format)
-}
 
 const buildExportWordFile = async ({ task, documentData, locale, timeZone }) => {
     const { id, ticket } = task
@@ -28,7 +23,7 @@ const buildExportWordFile = async ({ task, documentData, locale, timeZone }) => 
 
     return {
         stream,
-        filename: `completion_works_ticket_${ticket.id}_${formatDate(undefined, timeZone, 'DD_MM_YYYY')}.docx`,
+        filename: `completion_works_ticket_${ticket.id}_${dayjs().tz(timeZone).format('DD_MM_YYYY')}.docx`,
         mimetype: DOCX_FILE_META.mimetype,
         encoding: DOCX_FILE_META.encoding,
         meta: {
@@ -38,30 +33,32 @@ const buildExportWordFile = async ({ task, documentData, locale, timeZone }) => 
     }
 }
 
-const renderMoney = (amount, currencyCode, locale) => {
-    const options = { currency: currencyCode }
-    const numberFormat = new Intl.NumberFormat(locale, options)
-    const parts = numberFormat.formatToParts(amount)
-    return parts.map((part) => part.value).join('')
-}
-
 const generateTicketDocumentOfCompletionWorks = async ({ task, baseAttrs, context, locale, ticket, organization }) => {
     const { format, timeZone: timeZoneFromUser } = task
 
     const timeZone = normalizeTimeZone(timeZoneFromUser) || DEFAULT_ORGANIZATION_TIMEZONE
     const printDate = dayjs().tz(timeZone).locale(locale)
+    const CURRENCY_CODE_REGEXP = /[A-Z]{3}/
 
-    const property = await getById('Property', ticket.property)
+    const property = await getByCondition('Property', {
+        id: ticket.property,
+        deletedAt: null,
+    })
+
     const { renderData, streetPart, settlement, cityType, cityName, houseName, block } = getAddressDetails(get(property, 'addressMeta', ticket.propertyAddressMeta))
 
     const contact = ticket.contact
-        ? await getById('Contact', ticket.contact)
+        ? await getByCondition('Contact', {
+            id: ticket.contact,
+            deletedAt: null,
+        })
         : null
 
     const employee = organization.id && ticket.executor
         ? await getByCondition('OrganizationEmployee', {
-            organization: { id: organization.id },
-            user: { id: ticket.executor },
+            organization: { id: organization.id, deletedAt: null },
+            user: { id: ticket.executor, deletedAt: null },
+            deletedAt: null,
         })
         : null
 
@@ -83,13 +80,23 @@ const generateTicketDocumentOfCompletionWorks = async ({ task, baseAttrs, contex
             return {
                 name: row.name || '',
                 count: String(row.count) || '',
-                price: !Number.isNaN(price) ? renderMoney(price, currencyCode, locale) : '',
-                sum: !Number.isNaN(price) ? renderMoney(price * row.count, currencyCode, locale) : '',
+                price: !Number.isNaN(price) ? new Intl.NumberFormat(locale, {
+                    style: 'currency',
+                    currency: currencyCode,
+                    currencyDisplay: 'code',
+                }).format(price).replace(CURRENCY_CODE_REGEXP, '').trim() : '',
+                sum: !Number.isNaN(price * row.count) ? new Intl.NumberFormat(locale, {
+                    style: 'currency',
+                    currency: currencyCode,
+                    currencyDisplay: 'code',
+                }).format(price * row.count).replace(CURRENCY_CODE_REGEXP, '').trim() : '',
             }
         }))
 
         return acc
     }, [])
+
+    const unitType = get(ticket, 'unitType') || 'flat'
 
     const documentData = {
         city: {
@@ -111,6 +118,7 @@ const generateTicketDocumentOfCompletionWorks = async ({ task, baseAttrs, contex
         },
         unit: {
             name: get(ticket, 'unitName') || '',
+            type: (unitType ? i18n(`field.UnitType.act.${unitType}`, { locale }) : '').toLowerCase(),
         },
         company: {
             name: get(organization, 'name') || '',

@@ -1,4 +1,5 @@
-import { BuildingFloor, BuildingSection, Property, BuildingUnitSubType, MeterUnitTypeType } from '@app/condo/schema'
+import { GetPropertyByIdQueryHookResult } from '@app/condo/gql'
+import { BuildingFloor, BuildingSection, BuildingUnitSubType, MeterUnitTypeType } from '@app/condo/schema'
 import { Col, FormInstance, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { isEmpty } from 'lodash'
@@ -72,7 +73,7 @@ type InitialUnitInfoType = {
 }
 
 interface IUnitInfo {
-    property: Property
+    property: GetPropertyByIdQueryHookResult['data']['properties'][number]
     form: FormInstance
     loading: boolean
     setSelectedUnitName: React.Dispatch<React.SetStateAction<string>>

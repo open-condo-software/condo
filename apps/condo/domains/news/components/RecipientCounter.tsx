@@ -29,6 +29,7 @@ import { useNewsItemRecipientsExportToExcelTask } from '@condo/domains/news/hook
 
 import { NewsItemScopeNoInstanceType, TUnit } from './types'
 
+
 interface CounterProps {
     label: string
     value: number

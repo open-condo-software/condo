@@ -71,7 +71,7 @@ export const BillingOnboardingPage: React.FC<BillingOnboardingPageProps> = ({ on
     ])
 
     const handleReturn = useCallback((newStep: number) => {
-        router.push({ query: { ...router.query, step: newStep } })
+        router.push({ query: { ...router.query, step: newStep } }, undefined, { shallow: true })
     }, [router])
 
     const handleCloseWelcomeModal = useCallback(() => {

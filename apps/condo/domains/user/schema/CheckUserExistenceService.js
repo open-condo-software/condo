@@ -4,17 +4,21 @@
 
 const get = require('lodash/get')
 
-const { GQLError } = require('@open-condo/keystone/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
 const { GQLCustomSchema, getByCondition } = require('@open-condo/keystone/schema')
 
 const { NOT_FOUND, COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/user/access/CheckUserExistenceService')
+const { CAPTCHA_CHECK_FAILED, INVALID_TOKEN, UNSUPPORTED_TOKEN } = require('@condo/domains/user/constants/errors')
+const { GQL_ERRORS: USER_ERRORS } = require('@condo/domains/user/constants/errors')
+const { captchaCheck } = require('@condo/domains/user/utils/hCaptcha')
 const { ConfirmPhoneAction } = require('@condo/domains/user/utils/serverSchema')
 const {
     checkDailyRequestLimitCountersByIp,
     checkDailyRequestLimitCountersByPhone,
 } = require('@condo/domains/user/utils/serverSchema/requestLimitHelpers')
+const { detectTokenTypeSafely, TOKEN_TYPES } = require('@condo/domains/user/utils/tokens')
 
 
 /**
@@ -29,6 +33,14 @@ const ERRORS = {
         type: 'TOKEN_NOT_FOUND',
         message: 'Token not found',
     },
+    CAPTCHA_CHECK_FAILED: {
+        query: 'checkUserExistence',
+        variable: ['data', 'captcha'],
+        code: BAD_USER_INPUT,
+        type: CAPTCHA_CHECK_FAILED,
+        message: 'Failed to check CAPTCHA',
+        messageForUser: 'api.user.CAPTCHA_CHECK_FAILED',
+    },
     DV_VERSION_MISMATCH: {
         ...COMMON_ERRORS.DV_VERSION_MISMATCH,
         query: 'checkUserExistence',
@@ -37,17 +49,35 @@ const ERRORS = {
         ...COMMON_ERRORS.WRONG_SENDER_FORMAT,
         query: 'checkUserExistence',
     },
+    INVALID_TOKEN: {
+        query: 'checkUserExistence',
+        code: BAD_USER_INPUT,
+        type: INVALID_TOKEN,
+        message: 'Invalid token',
+    },
+    UNSUPPORTED_TOKEN: {
+        query: 'checkUserExistence',
+        code: BAD_USER_INPUT,
+        type: UNSUPPORTED_TOKEN,
+        message: 'Unsupported token',
+    },
+    DAILY_REQUEST_LIMIT_FOR_IP_REACHED: {
+        ...USER_ERRORS.DAILY_REQUEST_LIMIT_FOR_IP_REACHED,
+    },
+    DAILY_REQUEST_LIMIT_FOR_PHONE_REACHED: {
+        ...USER_ERRORS.DAILY_REQUEST_LIMIT_FOR_PHONE_REACHED,
+    },
 }
 
 const CheckUserExistenceService = new GQLCustomSchema('CheckUserExistenceService', {
     types: [
         {
             access: true,
-            type: 'input CheckUserExistenceInput { dv: Int!, sender: SenderFieldInput!, confirmActionToken: ID!, userType: UserTypeType! }',
+            type: 'input CheckUserExistenceInput { dv: Int!, sender: SenderFieldInput!, token: String!, userType: UserTypeType!, captcha: String }',
         },
         {
             access: true,
-            type: 'type CheckUserExistenceOutput { userExists: Boolean!, nameSet: Boolean!, emailSet: Boolean!, phoneSet: Boolean!, passwordSet: Boolean! }',
+            type: 'type CheckUserExistenceOutput { isUserExists: Boolean!, isNameSet: Boolean!, isEmailSet: Boolean!, isPhoneSet: Boolean!, isPasswordSet: Boolean! }',
         },
     ],
 
@@ -59,21 +89,37 @@ const CheckUserExistenceService = new GQLCustomSchema('CheckUserExistenceService
                 summary: 'Using an action token with a verified phone number,' +
                     ' checks whether a user with the specified type (resident, staff, service) is registered.\n' +
                     'As a result, information about the completion of some important fields (name, email, phone, password) is also returned.',
+                description: 'Token can be: \n' +
+                    ' - confirmPhoneToken',
                 errors: ERRORS,
             },
             resolver: async (parent, args, context) => {
                 const { data } = args
-                const { confirmActionToken, userType } = data
+                const { token, userType, captcha } = data
 
                 await checkDailyRequestLimitCountersByIp(context, 'checkUserExistence', context.req.ip)
 
+                const { error: captchaError } = await captchaCheck(context, captcha)
+                if (captchaError) {
+                    throw new GQLError({ ...ERRORS.CAPTCHA_CHECK_FAILED, data: { error: captchaError } }, context)
+                }
+
                 checkDvAndSender(data, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
 
-                if (!confirmActionToken) throw new GQLError(ERRORS.TOKEN_NOT_FOUND, context)
+                if (!token) throw new GQLError(ERRORS.TOKEN_NOT_FOUND, context)
+
+                const { error: tokenError, tokenType } = detectTokenTypeSafely(token)
+                if (tokenError) {
+                    throw new GQLError({ ...ERRORS.INVALID_TOKEN, data: { error: tokenError } }, context)
+                }
+
+                if (tokenType !== TOKEN_TYPES.CONFIRM_PHONE) {
+                    throw new GQLError(ERRORS.UNSUPPORTED_TOKEN, context)
+                }
 
                 const action = await ConfirmPhoneAction.getOne(context,
                     {
-                        token: confirmActionToken,
+                        token: token,
                         expiresAt_gte: new Date().toISOString(),
                         completedAt: null,
                         isPhoneVerified: true,
@@ -92,20 +138,20 @@ const CheckUserExistenceService = new GQLCustomSchema('CheckUserExistenceService
                 })
 
                 const result = {
-                    userExists: false,
-                    nameSet: false,
-                    emailSet: false,
-                    phoneSet: false,
-                    passwordSet: false,
+                    isUserExists: false,
+                    isNameSet: false,
+                    isEmailSet: false,
+                    isPhoneSet: false,
+                    isPasswordSet: false,
                 }
 
                 if (!user) return result
 
-                result.userExists = true
-                result.nameSet = Boolean(get(user, 'name', null))
-                result.emailSet = Boolean(get(user, 'email', null))
-                result.phoneSet = Boolean(get(user, 'phone', null))
-                result.passwordSet = Boolean(get(user, 'password', null))
+                result.isUserExists = true
+                result.isNameSet = Boolean(get(user, 'name', null))
+                result.isEmailSet = Boolean(get(user, 'email', null))
+                result.isPhoneSet = Boolean(get(user, 'phone', null))
+                result.isPasswordSet = Boolean(get(user, 'password', null))
 
                 return result
             },

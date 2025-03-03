@@ -16,16 +16,18 @@ import {
 } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
+import { PageComponentType } from '@condo/domains/common/types'
 import { SettingsReadPermissionRequired } from '@condo/domains/settings/components/PageAccess'
 import { TicketPropertyHintContent } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintContent'
 import { TicketPropertyHint, TicketPropertyHintProperty } from '@condo/domains/ticket/utils/clientSchema'
 import { getAddressRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
 
+
 const BIG_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 60]
 const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]
 const PARAGRAPH_STYLES: CSSProperties = { margin: 0 }
 
-const TicketPropertyHintIdPage = () => {
+const TicketPropertyHintIdPage: PageComponentType = () => {
     const intl = useIntl()
     const TicketPropertyHintTitleMessage = intl.formatMessage({ id: 'Hint' })
     const NameMessage  = intl.formatMessage({ id: 'pages.condo.property.section.form.name' })

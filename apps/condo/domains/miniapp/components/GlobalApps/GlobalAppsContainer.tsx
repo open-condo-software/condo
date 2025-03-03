@@ -17,6 +17,7 @@ import {
     IRequestFeatureHandler,
 } from './GlobalAppsFeaturesContext'
 
+
 const REQUEST_FEATURE_MESSAGE_NAME = 'CondoWebAppFeatureRequest'
 const ORGANIZATION_CHANGE_MESSAGE_NAME = 'CondoWebAppOrganizationChange'
 
@@ -26,10 +27,9 @@ export const GlobalAppsContainer: React.FC = () => {
     //  (Provider addOrigin must be changed to addFrame or something like that)
     //  2. Move constants like REQUEST_FEATURE_MESSAGE_NAME, ORGANIZATION_CHANGE_MESSAGE_NAME to incoming bridge events
     //  so miniapps can use bridge.subscribe with Type safety on them!
-    const { user } = useAuth()
+    const { user, isLoading } = useAuth()
     const { organization } = useOrganization()
     const organizationId = get(organization, 'id', null)
-
 
     const { objs, refetch, loading } = B2BApp.useObjects({
         where: {
@@ -37,7 +37,7 @@ export const GlobalAppsContainer: React.FC = () => {
             isHidden: false,
         },
         sortBy: [SortB2BAppsBy.CreatedAtAsc],
-    })
+    }, { skip: !user || !organizationId || isLoading })
 
     const appUrls = objs.map(app => app.appUrl)
 
@@ -120,14 +120,14 @@ export const GlobalAppsContainer: React.FC = () => {
     }, [organizationId])
 
     useEffect(() => {
-        if (!isGlobalAppsFetched.current && !loading && !isNull(user)) {
+        if (!isGlobalAppsFetched.current && !loading && !isNull(user) && !isLoading) {
             refetch()
             isGlobalAppsFetched.current = true
         }
-    }, [user, loading])
+    }, [user, loading, isLoading])
 
-    // Global miniapps allowed only for authenticated users
-    if (!user) {
+    // Global miniapps allowed only for authenticated employees
+    if (!user || !organizationId) {
         return null
     }
 

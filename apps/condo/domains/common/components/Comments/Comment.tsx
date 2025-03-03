@@ -20,13 +20,14 @@ import { Button } from '../Button'
 
 import { CommentWithFiles } from './index'
 
+
 const { RESIDENT, STAFF, SERVICE } = require('@condo/domains/user/constants/common')
 
 
 interface ICommentProps {
     comment: CommentWithFiles
     setEditableComment: React.Dispatch<React.SetStateAction<CommentWithFiles>>
-    deleteAction?: (obj: CommentWithFiles) => Promise<TicketComment>
+    deleteAction?: (obj: CommentWithFiles) => Promise<void>
 }
 
 const DeleteButtonStyle = css`

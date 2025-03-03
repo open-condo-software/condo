@@ -1,8 +1,4 @@
-/*
-* refs to: https://doma.atlassian.net/browse/SBERDOMA-97
-* */
-
-const { RU_LOCALE, EN_LOCALE } = require('@condo/domains/common/constants/locale')
+const { RU_LOCALE, EN_LOCALE, ES_LOCALE } = require('@condo/domains/common/constants/locale')
 const STATUS_IDS = {
     OPEN: '6ef3abc4-022f-481b-90fb-8430345ebfc2',
     IN_PROGRESS: 'aa5ed9c2-90ca-4042-8194-d3ed23cb7919',
@@ -24,6 +20,7 @@ const DEFAULT_STATUS_TRANSITIONS = {
 const COUNTRY_RELATED_STATUS_TRANSITIONS = {
     [RU_LOCALE]: DEFAULT_STATUS_TRANSITIONS,
     [EN_LOCALE]: DEFAULT_STATUS_TRANSITIONS,
+    [ES_LOCALE]: DEFAULT_STATUS_TRANSITIONS,
 }
 
 const TICKET_ORDER_BY_STATUS = {

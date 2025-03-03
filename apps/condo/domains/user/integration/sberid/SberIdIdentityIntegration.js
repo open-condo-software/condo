@@ -22,19 +22,18 @@ const {
     clientId,
     clientSecret,
     redirectUri,
-    cert,
-    key,
+    certificate = '',
+    passphrase,
     verifyServerSsl,
 } = SBER_ID_CONFIG
 const callbackPath = '/api/sber_id/auth/callback'
 const callbackUri = redirectUri || `${conf.SERVER_URL}${callbackPath}`
 const axiosTimeout = 10000
-
 // instantiate httpsAgent in order to support mTLS communication with sber id servers
 const httpsAgent = new https.Agent({
     rejectUnauthorized: verifyServerSsl,
-    cert,
-    key,
+    pfx: Buffer.from(certificate, 'base64'),
+    passphrase,
 })
 
 // instantiate request id generator

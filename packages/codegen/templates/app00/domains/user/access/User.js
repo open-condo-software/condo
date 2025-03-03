@@ -8,7 +8,7 @@ async function canReadUsers ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
-    return true
+    return { id: user.id }
 }
 
 async function canManageUsers ({ authentication: { item: user } }) {

@@ -1,17 +1,20 @@
 import React, { createContext, useCallback } from 'react'
 
+import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useMutation } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
+import { STAFF } from '@condo/domains/user/constants/common'
 import { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, SIGNIN_MUTATION } from '@condo/domains/user/gql'
+
 
 interface IAuthLayoutContext {
     isMobile: boolean
-    signInByEmail: ({ email, password }, onCompleted?: () => void) => Promise<unknown>,
-    signInByPhone: ({ phone, password }, onCompleted?: () => void) => Promise<unknown>,
+    signInByEmail: ({ email, password }, onCompleted?: () => void) => Promise<unknown>
+    signInByPhone: ({ phone, password }, onCompleted?: () => void) => Promise<unknown>
 }
 
 export const AuthLayoutContext = createContext<IAuthLayoutContext>({
@@ -28,10 +31,19 @@ export const AuthLayoutContextProvider: React.FC = (props) => {
     const [signinByEmailMutation] = useMutation(SIGNIN_MUTATION)
     const { isMobile } = useLayoutContext()
 
-    const signInByPhone = useCallback((variables, onCompleted) => {
+    const signInByPhone = useCallback((values, onCompleted) => {
+        const sender = getClientSideSenderInfo()
         return runMutation({
             mutation: signinByPhoneMutation,
-            variables,
+            variables: {
+                data: {
+                    phone: values.phone,
+                    password: values.password,
+                    userType: STAFF,
+                    sender,
+                    dv: 1,
+                },
+            },
             onCompleted: () => {
                 refetch().then(() => {
                     onCompleted()

@@ -16,6 +16,7 @@ const ROLE_PERMISSION_REGEX = /^can(?:[A-Z][a-z]*)+$/
 const EMAIL_REGEX = new RegExp(/\S+@\S+\.\S+/, 'gm')
 const URL_REGEX = new RegExp('(https?:\\/\\/(?:www\\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|www\\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|https?:\\/\\/(?:www\\.|(?!www))[a-zA-Z0-9]+\\.[^\\s]{2,}|www\\.[a-zA-Z0-9]+\\.[^\\s]{2,})', 'gm')
 const URL_WITH_CYRILLIC_REGEX = new RegExp('(https?:\\/\\/(?:www\\.|(?!www))[a-zа-я0-9][a-zа-я0-9-]+[a-zа-я0-9]\\.[^\\s]{2,}|www\\.[a-zа-я0-9][a-zа-я0-9-]+[a-zа-я0-9]\\.[^\\s]{2,}|https?:\\/\\/(?:www\\.|(?!www))[a-zа-я0-9]+\\.[^\\s]{2,}|www\\.[a-zа-я0-9]+\\.[^\\s]{2,})', 'gmi')
+const IPv4_REGEX = /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
 
 module.exports = {
     ALPHANUMERIC_REGEXP,
@@ -36,4 +37,5 @@ module.exports = {
     EMAIL_REGEX,
     URL_REGEX,
     URL_WITH_CYRILLIC_REGEX,
+    IPv4_REGEX,
 }

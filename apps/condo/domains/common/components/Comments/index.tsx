@@ -1,9 +1,23 @@
-import { TicketComment, TicketUpdateInput, TicketCommentFile, Ticket } from '@app/condo/schema'
+import { useApolloClient } from '@apollo/client'
+import {
+    CreateTicketCommentMutationHookResult,
+    CreateUserTicketCommentReadTimeMutationHookResult,
+    GetTicketLastCommentsTimeQueryHookResult,
+    GetUserTicketCommentsReadTimeQueryHookResult,
+    UpdateTicketCommentMutationHookResult,
+    UpdateUserTicketCommentReadTimeMutationHookResult,
+} from '@app/condo/gql'
+import {
+    TicketComment,
+    TicketCommentFile,
+} from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Empty, Typography } from 'antd'
 import get from 'lodash/get'
 import React, { CSSProperties, UIEventHandler, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
+import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { Radio, RadioGroup } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
@@ -73,11 +87,6 @@ const EmptyContainer = styled.div`
   }
 `
 
-type ActionsForComment = {
-    updateAction?: (values: Partial<TicketUpdateInput>, obj: TicketComment) => Promise<TicketComment>,
-    deleteAction?: (obj: TicketComment) => Promise<TicketComment>
-}
-
 const CommentsTabsContainer = styled.div<{ isTitleHidden: boolean }>`
   padding: 0;
   display: flex;
@@ -115,9 +124,9 @@ const EmptyCommentsContainer = ({ PromptTitleMessage, PromptDescriptionMessage }
 
 type CommentsTabContentProps = {
     comments: CommentWithFiles[]
+    updateAction: UpdateTicketCommentMutationHookResult[0]
     PromptTitleMessage: string
     PromptDescriptionMessage: string
-    actionsFor: (comment: CommentWithFiles) => ActionsForComment
     editableComment: CommentWithFiles
     setEditableComment: React.Dispatch<React.SetStateAction<CommentWithFiles>>
     handleBodyScroll: UIEventHandler<HTMLDivElement>
@@ -131,9 +140,9 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> =
         handleBodyScroll,
         bodyRef,
         comments,
+        updateAction,
         PromptTitleMessage,
         PromptDescriptionMessage,
-        actionsFor,
         editableComment,
         setEditableComment,
     }) => {
@@ -141,7 +150,18 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> =
             comments
                 .filter(comment => editableComment ? comment.id !== editableComment.id : true)
                 .map(comment => {
-                    const { deleteAction } = actionsFor(comment)
+                    const deleteAction = async ({ id }) => {
+                        await updateAction({
+                            variables: {
+                                id,
+                                data: {
+                                    deletedAt: new Date().toISOString(),
+                                    dv: 1,
+                                    sender: getClientSideSenderInfo(),
+                                },
+                            },
+                        })
+                    }
 
                     return (
                         <Comment
@@ -151,7 +171,7 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> =
                             setEditableComment={setEditableComment}
                         />
                     )
-                }), [actionsFor, comments, editableComment, setEditableComment])
+                }), [comments, editableComment, setEditableComment, updateAction])
 
         return (
             <>
@@ -182,18 +202,6 @@ const NewCommentIndicator = styled.span`
   left: 2px;
 `
 
-const CommentsTabPaneLabel = ({ label, commentsCount, newCommentsIndicator }) => (
-    <>
-        <Typography.Text>
-            {label}
-        </Typography.Text>
-        <sup>
-            {commentsCount}
-            {newCommentsIndicator && <NewCommentIndicator title=''/>}
-        </sup>
-    </>
-)
-
 const SwitchCommentsTypeWrapper = styled.div`
   padding: 24px;
   display: flex;
@@ -207,34 +215,31 @@ export type CommentWithFiles = TicketComment & {
 }
 
 interface ICommentsListProps {
-    ticket: Ticket
+    ticketId: string
     comments: CommentWithFiles[]
-    createAction?: (formValues) => Promise<TicketComment>
-    updateAction?: (attrs, obj: CommentWithFiles) => Promise<TicketComment>
-    // Place for abilities check. If action of given type is not returned, appropriate button will not be displayed
-    actionsFor: (comment: CommentWithFiles) => ActionsForComment
+    createAction: CreateTicketCommentMutationHookResult[0]
+    updateAction: UpdateTicketCommentMutationHookResult[0]
     canCreateComments: boolean
-    refetchComments
+    refetchComments: () => Promise<void>
     FileModel: Module
-    ticketCommentsTime
+    ticketCommentTimes: GetTicketLastCommentsTimeQueryHookResult['data']['ticketCommentTimes'][0]
     fileModelRelationField: string
-    userTicketCommentReadTime
-    createUserTicketCommentReadTime
-    updateUserTicketCommentReadTime
+    userTicketCommentReadTime: GetUserTicketCommentsReadTimeQueryHookResult['data']['objs'][0]
+    createUserTicketCommentReadTime: CreateUserTicketCommentReadTimeMutationHookResult[0]
+    updateUserTicketCommentReadTime: UpdateUserTicketCommentReadTimeMutationHookResult[0]
     loadingUserTicketCommentReadTime: boolean
 }
 
 const Comments: React.FC<ICommentsListProps> = ({
-    ticket,
+    ticketId,
     comments,
     createAction,
     updateAction,
     refetchComments,
     canCreateComments,
-    actionsFor,
     FileModel,
     fileModelRelationField,
-    ticketCommentsTime,
+    ticketCommentTimes,
     userTicketCommentReadTime,
     createUserTicketCommentReadTime,
     updateUserTicketCommentReadTime,
@@ -249,6 +254,9 @@ const Comments: React.FC<ICommentsListProps> = ({
     const ResidentCommentsMessage = intl.formatMessage({ id: 'Comments.tab.resident' })
     const PromptResidentCommentsTitleMessage = intl.formatMessage({ id: 'Comments.tab.resident.prompt.title' })
     const PromptResidentCommentsDescriptionMessage = intl.formatMessage({ id: 'Comments.tab.resident.prompt.description' })
+
+    const { user } = useAuth()
+    const client = useApolloClient()
 
     const { breakpoints } = useLayoutContext()
     const [commentType, setCommentType] = useState(ORGANIZATION_COMMENT_TYPE)
@@ -283,10 +291,31 @@ const Comments: React.FC<ICommentsListProps> = ({
 
     const handleCommentAction = useCallback(async (values, syncModifiedFiles) => {
         if (editableComment) {
-            await updateAction(values, editableComment)
+            await updateAction({
+                variables: {
+                    id: editableComment.id,
+                    data: {
+                        ...values,
+                        dv: 1,
+                        sender: getClientSideSenderInfo(),
+                    },
+                },
+            })
             await syncModifiedFiles(editableComment.id)
         } else {
-            const comment = await createAction({ ...values, type: commentType })
+            const commentData = await createAction({
+                variables: {
+                    data: {
+                        ...values,
+                        type: commentType,
+                        ticket: { connect: { id: ticketId } },
+                        user: { connect: { id: user?.id || null } },
+                        dv: 1,
+                        sender: getClientSideSenderInfo(),
+                    },
+                },
+            })
+            const comment = commentData?.data?.ticketComment
             await syncModifiedFiles(comment.id)
             scrollToBottom()
         }
@@ -294,21 +323,38 @@ const Comments: React.FC<ICommentsListProps> = ({
         await refetchComments()
         setEditableComment(null)
     },
-    [commentType, createAction, editableComment, refetchComments, updateAction])
+    [commentType, createAction, editableComment, refetchComments, ticketId, updateAction, user?.id])
 
-    const createOrUpdateUserTicketCommentReadTime = useCallback((payload) => {
+    const createOrUpdateUserTicketCommentReadTime = useCallback(async (payload) => {
         if (loadingUserTicketCommentReadTime) return
 
         if (userTicketCommentReadTime) {
-            updateUserTicketCommentReadTime({
-                ...payload,
-            }, userTicketCommentReadTime)
+            await updateUserTicketCommentReadTime({
+                variables: {
+                    id: userTicketCommentReadTime.id,
+                    data: {
+                        ...payload,
+                        dv: 1,
+                        sender: getClientSideSenderInfo(),
+                    },
+                },
+            })
         } else {
-            createUserTicketCommentReadTime({
-                ...payload,
+            await createUserTicketCommentReadTime({
+                variables: {
+                    data: {
+                        ...payload,
+                        ticket: { connect: { id: ticketId } },
+                        user: { connect: { id: user?.id || null } },
+                        dv: 1,
+                        sender: getClientSideSenderInfo(),
+                    },
+                },
             })
         }
-    }, [createUserTicketCommentReadTime, loadingUserTicketCommentReadTime, updateUserTicketCommentReadTime, userTicketCommentReadTime])
+
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allUserTicketCommentReadTimes' })
+    }, [client, createUserTicketCommentReadTime, loadingUserTicketCommentReadTime, ticketId, updateUserTicketCommentReadTime, user?.id, userTicketCommentReadTime])
 
     useEffect(() => {
         if (!loadingUserTicketCommentReadTime && !isInitialUserTicketCommentReadTimeSet) {
@@ -321,19 +367,19 @@ const Comments: React.FC<ICommentsListProps> = ({
         }
     }, [createOrUpdateUserTicketCommentReadTime, isInitialUserTicketCommentReadTimeSet, loadingUserTicketCommentReadTime])
 
-    const handleTabChange = useCallback((event) => {
+    const handleTabChange = useCallback(async (event) => {
         const value = event.target.value
 
         setCommentType(value)
         const now = new Date()
 
         if (value === RESIDENT_COMMENT_TYPE) {
-            createOrUpdateUserTicketCommentReadTime({
+            await createOrUpdateUserTicketCommentReadTime({
                 readResidentCommentAt: now,
                 readCommentAt: now,
             })
         } else if (value === ORGANIZATION_COMMENT_TYPE) {
-            createOrUpdateUserTicketCommentReadTime({
+            await createOrUpdateUserTicketCommentReadTime({
                 readCommentAt: now,
             })
         }
@@ -341,9 +387,9 @@ const Comments: React.FC<ICommentsListProps> = ({
         scrollToBottom()
     }, [createOrUpdateUserTicketCommentReadTime])
 
-    const lastResidentCommentAt = get(ticketCommentsTime, 'lastResidentCommentAt')
-    const lastCommentWithResidentTypeAt = get(ticketCommentsTime, 'lastCommentWithResidentTypeAt')
-    const readResidentCommentByUserAt = get(userTicketCommentReadTime, 'readResidentCommentAt')
+    const lastResidentCommentAt = useMemo(() => ticketCommentTimes?.lastResidentCommentAt, [ticketCommentTimes?.lastResidentCommentAt])
+    const lastCommentWithResidentTypeAt = useMemo(() => ticketCommentTimes?.lastCommentWithResidentTypeAt, [ticketCommentTimes?.lastCommentWithResidentTypeAt])
+    const readResidentCommentByUserAt = useMemo(() => userTicketCommentReadTime?.readResidentCommentAt, [userTicketCommentReadTime?.readResidentCommentAt])
     const showIndicator = useMemo(() => hasUnreadResidentComments(lastResidentCommentAt, readResidentCommentByUserAt, lastCommentWithResidentTypeAt),
         [lastCommentWithResidentTypeAt, lastResidentCommentAt, readResidentCommentByUserAt])
 
@@ -396,9 +442,9 @@ const Comments: React.FC<ICommentsListProps> = ({
             <CommentsTabsContainer isTitleHidden={isTitleHidden} className='card-container'>
                 <CommentsTabContent
                     {...commentTabContentProps}
-                    actionsFor={actionsFor}
                     editableComment={editableComment}
                     setEditableComment={setEditableComment}
+                    updateAction={updateAction}
                     handleBodyScroll={handleBodyScroll}
                     bodyRef={bodyRef}
                     sending={sending}
@@ -407,7 +453,7 @@ const Comments: React.FC<ICommentsListProps> = ({
             <Footer isSmall={!breakpoints.TABLET_LARGE}>
                 {canCreateComments ? (
                     <CommentForm
-                        ticket={ticket}
+                        ticketId={ticketId}
                         FileModel={FileModel}
                         relationField={fileModelRelationField}
                         action={handleCommentAction}

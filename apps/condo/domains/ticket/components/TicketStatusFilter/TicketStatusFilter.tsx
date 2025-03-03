@@ -130,11 +130,11 @@ export const TicketStatusFilter = ({ count, title, type }) => {
         if (ticketStatusTagType === 'checked') {
             const newStatusFilter = Array.isArray(filters.status) && filters.status.filter(statusType => statusType !== type)
             const newParameters = getFiltersQueryData({ ...filters, status: newStatusFilter })
-            await updateQuery(router, { newParameters })
+            await updateQuery(router, { newParameters }, { shallow: true })
         } else {
             const newStatusFilter = Array.isArray(filters.status) ? [...filters.status, type] : [type]
             const newParameters = getFiltersQueryData({ ...filters, status: newStatusFilter })
-            await updateQuery(router, { newParameters }, { routerAction: 'replace' })
+            await updateQuery(router, { newParameters }, { routerAction: 'replace', shallow: true })
         }
     }, [filters, router, ticketStatusTagType, type])
 
@@ -151,7 +151,7 @@ export const TicketStatusFilter = ({ count, title, type }) => {
             <Tag
                 textColor={colorsByTagType.counterTextColor}
             >
-                {count[type].count}
+                {count?.[type]?.count}
             </Tag>
             {title}
             {

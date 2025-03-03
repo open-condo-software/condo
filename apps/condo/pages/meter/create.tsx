@@ -10,6 +10,7 @@ import { useOrganization } from '@open-condo/next/organization'
 import { Tour, Typography } from '@open-condo/ui'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { PageComponentType } from '@condo/domains/common/types'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import {
@@ -22,14 +23,10 @@ import {
 } from '@condo/domains/meter/components/PageAccess'
 import { METER_TAB_TYPES, MeterPageTypes } from '@condo/domains/meter/utils/clientSchema'
 
-interface ICreateMeterPage extends React.FC {
-    headerAction?: JSX.Element
-    requiredAccess?: React.FC
-}
 
 const CREATE_METER_PAGE_GUTTER: [Gutter, Gutter] = [12, 40]
 
-const CreateMeterPage: ICreateMeterPage = () => {
+const CreateMeterPage: PageComponentType = () => {
     const intl = useIntl()
     const PageTitleAddMeterReadings = intl.formatMessage({ id: 'meter.AddMeterReadings' })
     const PageTitleAddPropertyMeterReadings = intl.formatMessage({ id: 'meter.AddPropertyMeterReadings' })
@@ -47,7 +44,7 @@ const CreateMeterPage: ICreateMeterPage = () => {
             newParameters: {
                 tab: METER_TAB_TYPES.meter,
             },
-        }, { routerAction: 'replace', resetOldParameters: true })
+        }, { routerAction: 'replace', resetOldParameters: true, shallow: true })
     }, [router])
 
     useEffect(() => {        
@@ -61,7 +58,6 @@ const CreateMeterPage: ICreateMeterPage = () => {
 
         return PageTitleAddPropertyMeters
     }, [PageTitleAddMeterReadings, PageTitleAddMeters, PageTitleAddPropertyMeterReadings, PageTitleAddPropertyMeters, tab])
-
 
 
     return (
@@ -86,13 +82,12 @@ const CreateMeterPage: ICreateMeterPage = () => {
                                     <Tour.Provider>
                                         <CreateMeterReadingsForm
                                             organization={organization}
-                                            role={role}
                                             canManageMeterReadings={canManageMeterReadings}
                                         />
                                     </Tour.Provider>
                                 ) : tab === METER_TAB_TYPES.meter ? (
                                     <Tour.Provider>
-                                        <CreateMeterForm 
+                                        <CreateMeterForm
                                             organizationId={get(organization, 'id')}
                                             meterType={METER_TAB_TYPES.meter}
                                             canManageMeters={canManageMeters}
@@ -100,7 +95,7 @@ const CreateMeterPage: ICreateMeterPage = () => {
                                     </Tour.Provider>
                                 ) : (
                                     <Tour.Provider>
-                                        <CreateMeterForm 
+                                        <CreateMeterForm
                                             organizationId={get(organization, 'id')}
                                             meterType={METER_TAB_TYPES.propertyMeter}
                                             canManageMeters={canManageMeters}

@@ -3,7 +3,6 @@ import {
     SortMetersBy,
 } from '@app/condo/schema'
 import { Col, Row, RowProps } from 'antd'
-import { ColumnsType } from 'antd/lib/table'
 import dayjs, { Dayjs } from 'dayjs'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
@@ -30,13 +29,14 @@ import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { MetersImportWrapper } from '@condo/domains/meter/components/Import/Index'
+import { useTableColumns } from '@condo/domains/meter/hooks/useTableColumns'
 import {
     MeterReadingFilterTemplate,
     MeterForOrganization,
     METER_TAB_TYPES,
+    METER_TYPES,
 } from '@condo/domains/meter/utils/clientSchema'
 import { getInitialArchivedOrActiveMeter } from '@condo/domains/meter/utils/helpers'
-
 
 
 const METERS_PAGE_CONTENT_ROW_GUTTERS: RowProps['gutter'] = [0, 40]
@@ -52,7 +52,6 @@ const DEFAULT_DATE_RANGE: [Dayjs, Dayjs] = [dayjs(), dayjs().add(2, 'month')]
 
 type MetersTableContentProps = {
     filtersMeta: FiltersMeta<MeterReadingWhereInput>[]
-    tableColumns: ColumnsType
     baseSearchQuery: MeterReadingWhereInput
     canManageMeters: boolean
     sortableProperties?: string[]
@@ -68,7 +67,6 @@ type UpdateMeterQueryParamsType = {
 
 const MetersTableContent: React.FC<MetersTableContentProps> = ({
     filtersMeta,
-    tableColumns,
     baseSearchQuery,
     canManageMeters,
     sortableProperties,
@@ -89,6 +87,7 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
 
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filtersMeta, sortableProperties || SORTABLE_PROPERTIES)
+    const tableColumns = useTableColumns(filtersMeta, METER_TAB_TYPES.meter, METER_TYPES.unit)
 
     const sortBy = useMemo(() => sortersToSortBy(sorters) as SortMetersBy[], [sorters, sortersToSortBy])
 
@@ -279,7 +278,6 @@ type MeterReadingsPageContentProps = Omit<MetersTableContentProps, 'mutationErro
 
 export const MetersPageContent: React.FC<MeterReadingsPageContentProps> = ({
     filtersMeta,
-    tableColumns,
     baseSearchQuery,
     canManageMeters,
     loading,
@@ -325,14 +323,13 @@ export const MetersPageContent: React.FC<MeterReadingsPageContentProps> = ({
         return (
             <MetersTableContent
                 filtersMeta={filtersMeta}
-                tableColumns={tableColumns}
                 baseSearchQuery={baseSearchQuery}
                 canManageMeters={canManageMeters}
                 loading={countLoading}
                 showImportButton={showImportButton}
             />
         )
-    }, [CreateMeter, EmptyListLabel, EmptyListManualBodyDescription, baseSearchQuery, canManageMeters, count, countLoading, filtersMeta, loading, refetch, showImportButton, tableColumns])
+    }, [CreateMeter, EmptyListLabel, EmptyListManualBodyDescription, baseSearchQuery, canManageMeters, count, countLoading, filtersMeta, loading, refetch, showImportButton])
 
     return (
         <TablePageContent>

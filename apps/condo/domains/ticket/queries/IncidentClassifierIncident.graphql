@@ -1,0 +1,8 @@
+query getIncidentClassifierIncident ($where: IncidentClassifierIncidentWhereInput) {
+    incidentClassifierIncident: allIncidentClassifierIncidents (where: $where) {
+        id
+        incident {
+            id
+        }
+    }
+}

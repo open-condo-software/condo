@@ -8,8 +8,10 @@ import React, { useEffect } from 'react'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 
+
 import { isFunction } from '../../utils/ecmascript.utils'
 import { Loader } from '../Loader'
+
 
 function RedirectToLogin () {
     const intl = useIntl()

@@ -5,8 +5,12 @@ import nextCookie from 'next-cookies'
 import React, { useContext, useEffect, useState } from 'react'
 import { IntlProvider, useIntl, FormattedMessage } from 'react-intl'
 
+import { isSSR } from '@open-condo/miniapp-utils'
+
 import { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } from './_utils'
 import { useAuth } from './auth'
+
+import type { OnErrorFn } from '@formatjs/intl'
 
 
 interface ILocaleContext {
@@ -86,7 +90,13 @@ const initOnRestore = async (ctx) => {
     return { locale, messages }
 }
 
-const Intl = ({ children, initialLocale, initialMessages, onError }) => {
+type IntlProps = {
+    initialLocale?: string
+    initialMessages?: Record<string, string>
+    onError?: OnErrorFn
+}
+
+const Intl: React.FC<IntlProps> = ({ children, initialLocale, initialMessages, onError }) => {
     const { user, isLoading: isUserLoading } = useAuth()
     const [locale, setLocale] = useState(initialLocale)
     const [messages, setMessages] = useState(initialMessages)
@@ -119,6 +129,7 @@ const Intl = ({ children, initialLocale, initialMessages, onError }) => {
     )
 }
 
+// @ts-ignore
 if (DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER) Intl.whyDidYouRender = true
 
 type WithIntlProps = {
@@ -130,17 +141,16 @@ type WithIntlProps = {
     getLocale?: GetLocale
     hideErrors?: boolean
 }
-export type WithIntl = (props: WithIntlProps) => (PageComponent: NextPage<any>) => NextPage<any>
+export type WithIntlType = (props: WithIntlProps) => (PageComponent: NextPage<any>) => NextPage<any>
 
-const withIntl: WithIntl = ({ ssr = false, ...opts }: WithIntlProps = {}) => PageComponent => {
+const withIntl: WithIntlType = ({ ssr = false, ...opts }: WithIntlProps = {}) => PageComponent => {
     // TODO(pahaz): refactor it. No need to patch globals here!
     defaultLocale = opts.defaultLocale || defaultLocale
     extractReqLocale = opts.extractReqLocale || extractReqLocale
     messagesImporter = opts.messagesImporter ? opts.messagesImporter : messagesImporter
     getMessages = opts.getMessages ? opts.getMessages : getMessages
     getLocale = opts.getLocale ? opts.getLocale : getLocale
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    const onIntlError = opts.hideErrors ? (() => { }) : undefined
+    const onIntlError = opts.hideErrors ? (() => ({})) : undefined
 
     const WithIntl = ({ locale, messages, ...pageProps }) => {
         // in there is no locale and no messages => client side rerender (we should use some client side cache)
@@ -162,14 +172,13 @@ const withIntl: WithIntl = ({ ssr = false, ...opts }: WithIntlProps = {}) => Pag
         WithIntl.displayName = `withIntl(${displayName})`
     }
 
-    if (ssr || PageComponent.getInitialProps) {
+    if (ssr || !isSSR() || PageComponent.getInitialProps) {
         WithIntl.getInitialProps = async ctx => {
             if (DEBUG_RERENDERS) console.log('WithIntl.getInitialProps()', ctx)
-            const isOnServerSide = typeof window === 'undefined'
             const { locale, messages } = await initOnRestore(ctx)
             const pageProps = await getContextIndependentWrappedInitialProps(PageComponent, ctx)
 
-            if (isOnServerSide) {
+            if (isSSR()) {
                 preventInfinityLoop(ctx)
             }
 

@@ -17,16 +17,16 @@ const MarketCategory = generateGqlQueries('MarketCategory', MARKET_CATEGORY_FIEL
 const MARKET_ITEM_FIELDS = `{ name marketCategory { id name order parentCategory { id name order mobileSettings { bgColor titleColor } image { publicUrl } } image { publicUrl } mobileSettings { bgColor titleColor } } sku description organization { id } ${COMMON_FIELDS} }`
 const MarketItem = generateGqlQueries('MarketItem', MARKET_ITEM_FIELDS)
 
-const INVOICE_FIELDS = `{ organization { id } number property { id address addressKey addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } map { ${PROPERTY_MAP_JSON_FIELDS} } } unitType unitName accountNumber toPay rows { name toPay count vatPercent salesTaxPercent sku isMin currencyCode meta { imageUrl categoryBgColor } } ticket { id number property { id } unitName unitType clientName clientPhone } contact { id name phone email unitType unitName property { id } } clientName clientPhone client { id name } status paymentType publishedAt paidAt canceledAt recipient { name bankName tin bic bankAccount } currencyCode canGroupReceipts acquiringHostUrl acquiringIntegrationId ${COMMON_FIELDS} }`
+const INVOICE_FIELDS = `{ organization { id } number property { id address addressKey addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } map { ${PROPERTY_MAP_JSON_FIELDS} } } unitType unitName accountNumber toPay rows { name toPay count vatPercent measure salesTaxPercent sku isMin currencyCode meta { imageUrl categoryBgColor } } ticket { id number property { id } unitName unitType clientName clientPhone } contact { id name phone email unitType unitName property { id } } clientName clientPhone client { id name } status paymentType publishedAt paidAt canceledAt recipient { name bankName tin bic bankAccount } currencyCode canGroupReceipts acquiringHostUrl acquiringIntegrationId ${COMMON_FIELDS} }`
 const Invoice = generateGqlQueries('Invoice', INVOICE_FIELDS)
 
 const MARKET_ITEM_FILE_FIELDS = `{ marketItem { id organization { id } } file { id originalFilename publicUrl mimetype } ${COMMON_FIELDS} }`
 const MarketItemFile = generateGqlQueries('MarketItemFile', MARKET_ITEM_FILE_FIELDS)
 
-const MARKET_ITEM_PRICE_FIELDS = `{ price { type name price isMin vatPercent salesTaxPercent currencyCode } marketItem { id } ${COMMON_FIELDS} }`
+const MARKET_ITEM_PRICE_FIELDS = `{ price { type name measure price isMin vatPercent salesTaxPercent currencyCode } marketItem { id } ${COMMON_FIELDS} }`
 const MarketItemPrice = generateGqlQueries('MarketItemPrice', MARKET_ITEM_PRICE_FIELDS)
 
-const MARKET_PRICE_SCOPE_FIELDS = `{ marketItemPrice { id marketItem { id name sku organization { id } marketCategory { id name order parentCategory { id order name } } } price { type name price isMin vatPercent salesTaxPercent currencyCode } } property { id addressMeta { ${ADDRESS_META_SUBFIELDS_TABLE_LIST} } } type ${COMMON_FIELDS} }`
+const MARKET_PRICE_SCOPE_FIELDS = `{ marketItemPrice { id marketItem { id name sku organization { id } marketCategory { id name order parentCategory { id order name } } } price { type name price isMin measure vatPercent salesTaxPercent currencyCode } } property { id addressMeta { ${ADDRESS_META_SUBFIELDS_TABLE_LIST} } } type ${COMMON_FIELDS} }`
 const MarketPriceScope = generateGqlQueries('MarketPriceScope', MARKET_PRICE_SCOPE_FIELDS)
 
 const MARKET_SETTING_FIELDS = `{ organization { id } residentAllowedPaymentTypes ${COMMON_FIELDS} }`

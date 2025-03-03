@@ -47,13 +47,20 @@ const COMMENT_TYPES = [ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE]
  */
 // TODO(AntonAL) add files to trackable - files are now in hidden relation
 const OMIT_COMMON_TRACKABLE_FIELDS = ['v', 'dv', 'sender', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy']
-const OMIT_TICKET_CHANGE_TRACKABLE_FIELDS = [...OMIT_COMMON_TRACKABLE_FIELDS, 'categoryClassifier', 'isAutoClassified', 'placeClassifier', 'problemClassifier', 'completedAt', 'isCompletedAfterDeadline', 'lastCommentAt', 'statusUpdatedAt', 'lastResidentCommentAt', 'lastCommentWithResidentTypeAt', 'number', 'order', 'qualityControlUpdatedAt', 'qualityControlUpdatedBy', 'feedbackUpdatedAt']
+const OMIT_TICKET_CHANGE_TRACKABLE_FIELDS = [...OMIT_COMMON_TRACKABLE_FIELDS, 'categoryClassifier', 'isAutoClassified', 'placeClassifier', 'problemClassifier', 'completedAt', 'isCompletedAfterDeadline', 'lastCommentAt', 'statusUpdatedAt', 'lastResidentCommentAt', 'lastCommentWithResidentTypeAt', 'number', 'order', 'qualityControlUpdatedAt', 'deletedAt', 'qualityControlUpdatedBy', 'feedbackUpdatedAt']
 const OMIT_INCIDENT_CHANGE_TRACKABLE_FIELDS = [...OMIT_COMMON_TRACKABLE_FIELDS, 'hasAllProperties', 'number']
 
 const MAX_DETAILS_LENGTH = 700
 const MAX_COMMENT_LENGTH = 700
 
 const DEFAULT_DEFERRED_DAYS = 30
+
+const BULK_UPDATE_ALLOWED_FIELDS = [
+    'executor',
+    'assignee',
+    'dv',
+    'sender',
+]
 
 module.exports = {
     NEW_OR_REOPENED_STATUS_TYPE,
@@ -72,4 +79,5 @@ module.exports = {
     MAX_COMMENT_LENGTH,
     DEFAULT_DEFERRED_DAYS,
     MAX_DETAILS_LENGTH,
+    BULK_UPDATE_ALLOWED_FIELDS,
 }

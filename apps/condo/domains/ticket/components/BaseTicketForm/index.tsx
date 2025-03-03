@@ -1,12 +1,14 @@
 import {
+    useGetTicketSourcesQuery,
+    useGetPropertyByIdQuery,
+    useGetInvoicesByIdsQuery,
+} from '@app/condo/gql'
+import {
     BuildingUnitSubType,
     Organization,
-    OrganizationEmployeeRole,
-    PropertyWhereInput,
     Ticket,
     TicketFile as TicketFileType,
     TicketStatusTypeType,
-    TicketSource as TicketSourceType, SortInvoicesBy,
 } from '@app/condo/schema'
 import { Affix, Col, ColProps, Form, FormItemProps, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
@@ -16,13 +18,13 @@ import isEmpty from 'lodash/isEmpty'
 import isFunction from 'lodash/isFunction'
 import isNull from 'lodash/isNull'
 import omit from 'lodash/omit'
-import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-
+import { useCachePersistor } from '@open-condo/apollo'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { PlusCircle, QuestionCircle } from '@open-condo/icons'
+import { useApolloClient } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Typography, Alert, Space, Tooltip } from '@open-condo/ui'
@@ -32,7 +34,6 @@ import { AcquiringIntegrationContext } from '@condo/domains/acquiring/utils/clie
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input from '@condo/domains/common/components/antd/Input'
 import Select from '@condo/domains/common/components/antd/Select'
-import { Button } from '@condo/domains/common/components/Button'
 import { FormWithAction, OnCompletedMsgType } from '@condo/domains/common/components/containers/FormList'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
@@ -55,7 +56,6 @@ import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/org
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { UnitInfo, UnitInfoMode } from '@condo/domains/property/components/UnitInfo'
 import { PropertyFormItemTooltip } from '@condo/domains/property/PropertyFormItemTooltip'
-import { Property } from '@condo/domains/property/utils/clientSchema'
 import { IncidentHints } from '@condo/domains/ticket/components/IncidentHints'
 import { useTicketThreeLevelsClassifierHook } from '@condo/domains/ticket/components/TicketClassifierSelect'
 import {
@@ -66,7 +66,7 @@ import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketP
 import { MAX_DETAILS_LENGTH } from '@condo/domains/ticket/constants'
 import { VISIBLE_TICKET_SOURCE_TYPES_IN_TICKET_FORM } from '@condo/domains/ticket/constants/sourceTypes'
 import { useActiveCall } from '@condo/domains/ticket/contexts/ActiveCallContext'
-import { TicketFile, TicketSource } from '@condo/domains/ticket/utils/clientSchema'
+import { TicketFile } from '@condo/domains/ticket/utils/clientSchema'
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
 import { RESIDENT } from '@condo/domains/user/constants/common'
@@ -98,7 +98,7 @@ export const IncidentHintsBlock = ({ organizationId, propertyId }) => {
     )
 }
 
-export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId, disabled = false, initialValues = {}, hasNotResidentTab = true, residentTitle = null }) => {
+export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId, disabled = false, initialValues = {}, hasNotResidentTab = true, residentTitle = null, notResidentTitle = null }) => {
     const contactId = useMemo(() => get(initialValues, 'contact'), [initialValues])
 
     const value = useMemo(() => ({
@@ -128,13 +128,11 @@ export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId
                 unitType={unitType}
                 hasNotResidentTab={hasNotResidentTab}
                 residentTitle={residentTitle}
+                notResidentTitle={notResidentTitle}
                 disabled={disabled}
             />
         )
-    }, [
-        ContactsEditorComponent, contactEditorComponentFields, disabled, form, hasNotResidentTab,
-        residentTitle, selectedPropertyId, value,
-    ])
+    }, [ContactsEditorComponent, contactEditorComponentFields, disabled, form, hasNotResidentTab, notResidentTitle, residentTitle, selectedPropertyId, value])
 
     return (
         <Col span={24}>
@@ -303,12 +301,16 @@ const TicketFormInvoicesEmptyContent = ({
 }
 
 const TicketFormInvoices = ({ newInvoices, existedInvoices, invoiceIds, organizationId, initialValues, ticketCreatedByResident, initialInvoiceIds, form }) => {
-    const { objs: invoices } = Invoice.useObjects({
-        where: {
-            id_in: invoiceIds,
+    const { persistor } = useCachePersistor()
+    const {
+        data: invoicesData,
+    } = useGetInvoicesByIdsQuery({
+        variables: {
+            ids: invoiceIds,
         },
-        sortBy: [SortInvoicesBy.CreatedAtDesc],
+        skip: !persistor || !invoiceIds,
     })
+    const invoices = useMemo(() => invoicesData?.invoices?.filter(Boolean) || [], [invoicesData?.invoices])
 
     const { link } = useOrganization()
     const canManageInvoices = get(link, 'role.canManageInvoices', false)
@@ -624,11 +626,17 @@ export const TicketSourceSelect: React.FC = () => {
     const intl = useIntl()
     const TicketSourceLabel = intl.formatMessage({ id: 'pages.condo.ticket.field.Source.label' })
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
-
-    const { objs: sources, loading } = TicketSource.useObjects({
-        where: { type_in: VISIBLE_TICKET_SOURCE_TYPES_IN_TICKET_FORM },
+    
+    const {
+        data: sourcesData,
+        loading,
+    } = useGetTicketSourcesQuery({
+        variables: {
+            types: VISIBLE_TICKET_SOURCE_TYPES_IN_TICKET_FORM,
+        },
     })
-    const sourceOptions = convertToOptions<TicketSourceType>(sources, 'name', 'id')
+    const sources = useMemo(() => sourcesData?.sources || [], [sourcesData?.sources])
+    const sourceOptions = convertToOptions(sources, 'name', 'id')
 
     const LoadingSelect = useMemo(() => (
         <Form.Item
@@ -670,8 +678,7 @@ const CAN_READ_BY_RESIDENT_WRAPPER_STYLE: CSSProperties = { display: 'flex', gap
 const CAN_READ_BY_RESIDENT_ICON_WRAPPER_STYLE: CSSProperties = { padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }
 
 export interface ITicketFormProps {
-    organization?: Organization
-    role?: OrganizationEmployeeRole
+    organization?: Pick<Organization, 'id'>
     initialValues?: ITicketFormState
     action?: (...args) => Promise<Ticket>
     files?: TicketFileType[]
@@ -683,27 +690,26 @@ export interface ITicketFormProps {
 
 export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const intl = useIntl()
-    const AddMessage = intl.formatMessage({ id: 'Add' })
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
     const AddressPlaceholder = intl.formatMessage({ id: 'placeholder.Address' })
     const AddressNotSelected = intl.formatMessage({ id: 'field.Property.nonSelectedError' })
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.ticket.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.ticket.warning.modal.HelpMessage' })
-    const NoPropertiesMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.NoProperties' })
     const CanReadByResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.CanReadByResident' })
     const AttachCallRecordMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.AttachCallRecord' })
     const CanReadByResidentTooltip = intl.formatMessage({ id: 'pages.condo.ticket.field.CanReadByResident.tooltip' })
+    const TicketNotFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketNotFromResident' })
+    const TicketFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketFromResident' })
 
+    const client = useApolloClient()
     const { breakpoints } = useLayoutContext()
     const { isCallActive } = useActiveCall()
-
-    const router = useRouter()
+    const { persistor } = useCachePersistor()
 
     const {
         action: _action,
         initialValues,
         organization,
-        role,
         afterActionCompleted,
         files,
         autoAssign,
@@ -714,29 +720,19 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(get(initialValues, 'property', null))
     const selectPropertyIdRef = useRef(selectedPropertyId)
 
-    const propertyWhereQuery: PropertyWhereInput = useMemo(() => {
-        const where = {
-            organization: {
-                id: organization ? organization.id : null,
-            },
-            deletedAt: null,
-        }
-
-        if (selectedPropertyId) {
-            where['id_in'] = [selectedPropertyId]
-        }
-
-        return where
-    }, [organization, selectedPropertyId])
-
-    const { loading: organizationPropertiesLoading, objs: organizationProperties, refetch } = Property.useObjects({
-        where: propertyWhereQuery,
-        first: 1,
-        skip: 0,
+    const {
+        data: propertyByIdData,
+        loading: organizationPropertiesLoading,
+        refetch,
+    } = useGetPropertyByIdQuery({
+        variables: {
+            id: selectedPropertyId,
+        },
+        skip: !persistor || !selectedPropertyId,
     })
-
-    const property = useMemo(() => organizationProperties.find(property => get(property, 'id') === selectedPropertyId), [organizationProperties, selectedPropertyId])
-
+    const property = useMemo(() => propertyByIdData?.properties?.filter(Boolean)[0],
+        [propertyByIdData?.properties])
+    
     const [isPropertyChanged, setIsPropertyChanged] = useState<boolean>(false)
     const initialTicketValues = useMemo(() => isPropertyChanged ? omit(initialValues, ['unitName', 'unitType']) : initialValues,
         [initialValues, isPropertyChanged])
@@ -749,7 +745,9 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
 
     useEffect(() => {
         selectPropertyIdRef.current = selectedPropertyId
-        refetch()
+        if (selectPropertyIdRef.current) {
+            refetch()
+        }
     }, [refetch, selectedPropertyId])
 
     useEffect(() => {
@@ -775,8 +773,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     })
 
     const { ContactsEditorComponent } = useContactsEditorHook({
-        role,
-        allowLandLine: true,
         initialQuery: { organization: { id: organization.id } },
     })
 
@@ -803,9 +799,19 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
 
         await syncModifiedFiles(result.id)
 
+        // NOTE: update queries, related to objects, which may be created in ticket form
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allTickets' })
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allTicketChanges' })
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allContacts' })
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allInvoices' })
+        // TODO: DOMA-11038 delete this evict, then cache in ROOT_QUERY works correctly
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allTicketComments' })
+        client.cache.gc()
+
         if (afterActionCompleted) {
             return afterActionCompleted(result)
         }
+
         return result
     }
 
@@ -831,28 +837,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         values.assignee = values.assignee ? values.assignee : null
         return values
     }, [])
-
-    const handleAddPropertiesClick = useCallback(() => router.push('/property/create'), [router])
-    const NoPropertiesAlert = useMemo(() => !organizationPropertiesLoading && isEmpty(organizationProperties) ? (
-        <Col span={!breakpoints.TABLET_LARGE ? 24 : 20}>
-            <Alert
-                showIcon
-                type='warning'
-                message={
-                    <>
-                        {NoPropertiesMessage}&nbsp;
-                        <Button
-                            type='inlineLink'
-                            size='small'
-                            onClick={handleAddPropertiesClick}
-                        >
-                            {AddMessage}
-                        </Button>
-                    </>
-                }
-            />
-        </Col>
-    ) : null, [AddMessage, NoPropertiesMessage, handleAddPropertiesClick, breakpoints.TABLET_LARGE, organizationProperties, organizationPropertiesLoading])
 
     const handlePropertySelectChange = useCallback((form) => (_, option) => {
         setIsPropertyChanged(true)
@@ -937,7 +921,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                             <Row gutter={BIG_VERTICAL_GUTTER}>
                                                                 <Col span={24}>
                                                                     <Row gutter={SMALL_VERTICAL_GUTTER}>
-                                                                        {NoPropertiesAlert}
                                                                         <Col span={24} data-cy='ticket__property-address-search-input'>
                                                                             <TicketFormItem
                                                                                 name='property'
@@ -985,6 +968,8 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                     initialValues={initialTicketValues}
                                                                     selectedPropertyId={selectedPropertyId}
                                                                     disabled={!isEmpty(initialNotDraftInvoices)}
+                                                                    residentTitle={TicketFromResidentMessage}
+                                                                    notResidentTitle={TicketNotFromResidentMessage}
                                                                 />
                                                             </Row>
                                                         </Col>

@@ -27,6 +27,7 @@ const { INTERNAL_DELETE_METER_READINGS_MUTATION } = require('@condo/domains/mete
 const { REGISTER_METERS_READINGS_MUTATION } = require('@condo/domains/meter/gql')
 const { MeterReadingsImportTask: MeterReadingsImportTaskGQL } = require('@condo/domains/meter/gql')
 const { MeterReadingExportTask: MeterReadingExportTaskGQL } = require('@condo/domains/meter/gql')
+const { MeterUserData: MeterUserDataGQL } = require('@condo/domains/meter/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const MeterResource = generateGQLTestUtils(MeterResourceGQL)
@@ -40,13 +41,21 @@ const MeterReportingPeriod = generateGQLTestUtils(MeterReportingPeriodGQL)
 const MeterResourceOwner = generateGQLTestUtils(MeterResourceOwnerGQL)
 const MeterReadingsImportTask = generateGQLTestUtils(MeterReadingsImportTaskGQL)
 const MeterReadingExportTask = generateGQLTestUtils(MeterReadingExportTaskGQL)
+const MeterUserData = generateGQLTestUtils(MeterUserDataGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 const { COLD_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
 const { makeClientWithServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 const { EXCEL } = require('@condo/domains/common/constants/export')
-const { LOCALE_EN } = require('@condo/domains/user/constants/common')
+const {
+    makeContextWithOrganizationAndIntegrationAsAdmin,
+    createTestBillingProperty,
+    createTestBillingAccount
+} = require("@condo/domains/billing/utils/testSchema")
+const { makeClientWithResidentUser } = require("@condo/domains/user/utils/testSchema")
+const { createTestProperty } = require("@condo/domains/property/utils/testSchema")
+const { createTestResident, createTestServiceConsumer } = require("@condo/domains/resident/utils/testSchema")
 
 
 async function createTestMeterResource (client, extraAttrs = {}) {
@@ -505,6 +514,63 @@ async function updateTestMeterReadingExportTask (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestMeterUserData (client, user, meter, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!user || !user.id) throw new Error('no user.id')
+    if (!meter || !meter.id) throw new Error('no meter.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        user: { connect: { id: user.id } },
+        meter: { connect: { id: meter.id } },
+        name: faker.random.alpha(8),
+        ...extraAttrs,
+    }
+    const obj = await MeterUserData.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestMeterUserData (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await MeterUserData.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function makeResidentWithOwnMeter (admin) {
+    const unitName = faker.random.alphaNumeric(8)
+    const { context, organization } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+    const residentClient = await makeClientWithResidentUser();
+    const [property] = await createTestProperty(admin, organization)
+    const [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
+    const [billingProperty] = await createTestBillingProperty(admin, context)
+    const [billingAccount] = await createTestBillingAccount(admin, context, billingProperty)
+    const [resident] = await createTestResident(admin, residentClient.user, property, {
+        unitName,
+    })
+    await createTestServiceConsumer(admin, resident, organization, {
+        accountNumber: billingAccount.number,
+    })
+
+    const [meter] = await createTestMeter(admin, organization, property, resource, {
+        accountNumber: billingAccount.number,
+        unitName,
+    })
+
+    return {
+        residentClient,
+        meter,
+    }
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -524,5 +590,6 @@ module.exports = {
     createTestReadingData, registerMetersReadingsByTestClient,
     MeterReadingsImportTask, createTestMeterReadingsImportTask, updateTestMeterReadingsImportTask,
     MeterReadingExportTask, createTestMeterReadingExportTask, updateTestMeterReadingExportTask,
+    MeterUserData, createTestMeterUserData, updateTestMeterUserData, makeResidentWithOwnMeter,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

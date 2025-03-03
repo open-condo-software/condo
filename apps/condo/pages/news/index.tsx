@@ -24,6 +24,7 @@ import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePreviousQueryParams'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
+import { PageComponentType } from '@condo/domains/common/types'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { NewsReadPermissionRequired } from '@condo/domains/news/components/PageAccess'
 import { useNewsItemsAccess } from '@condo/domains/news/hooks/useNewsItemsAccess'
@@ -33,11 +34,6 @@ import { NewsItem } from '@condo/domains/news/utils/clientSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
 
-
-interface INewsIndexPage extends React.FC {
-    headerAction?: JSX.Element
-    requiredAccess?: React.FC
-}
 
 const PAGE_ROW_GUTTER: RowProps['gutter'] = [0, 40]
 const SORTABLE_PROPERTIES = ['number', 'createdAt']
@@ -217,7 +213,7 @@ const NewsPageContent = ({
     )
 }
 
-const NewsPage: INewsIndexPage = () => {
+const NewsPage: PageComponentType = () => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.news.index.pageTitle' })
 
@@ -259,4 +255,5 @@ const NewsPage: INewsIndexPage = () => {
 }
 
 NewsPage.requiredAccess = NewsReadPermissionRequired
+
 export default NewsPage

@@ -25,7 +25,7 @@
   },
   "license": "MIT",
   "scripts": {
-    "build:deps": "turbo build --filter=miniapp-utils^...",
+    "build:deps": "turbo build --filter=@open-condo/miniapp-utils^...",
     "build:code": "NODE_ENV=production rollup -c",
     "build:types": "tsc --declaration --emitDeclarationOnly",
     "build": "rimraf dist && yarn build:code && yarn build:types",
@@ -36,8 +36,17 @@
   ],
   "typesVersions": {
     "*": {
+      ".": [
+        "dist/types/index.d.ts"
+      ],
       "helpers/apollo": [
         "dist/types/helpers/apollo.d.ts"
+      ],
+      "helpers/collections": [
+        "dist/types/helpers/collections.d.ts"
+      ],
+      "helpers/cookies": [
+        "dist/types/helpers/cookies.d.ts"
       ],
       "helpers/environment": [
         "dist/types/helpers/environment.d.ts"
@@ -56,11 +65,29 @@
       ]
     }
   },
+  "types": "dist/types/index.d.ts",
+  "main": "dist/cjs/index.js",
+  "module": "/dist/esm/index.js",
   "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "require": "./dist/cjs/index.js",
+      "import": "./dist/esm/index.js"
+    },
     "./helpers/apollo": {
       "types": "./dist/types/helpers/apollo.d.ts",
       "require": "./dist/cjs/helpers/apollo.js",
       "import": "./dist/esm/helpers/apollo.js"
+    },
+    "./helpers/collections": {
+      "types": "./dist/types/helpers/collections.d.ts",
+      "require": "./dist/cjs/helpers/collections.js",
+      "import": "./dist/esm/helpers/collections.js"
+    },
+    "./helpers/cookies": {
+      "types": "./dist/types/helpers/cookies.d.ts",
+      "require": "./dist/cjs/helpers/cookies.js",
+      "import": "./dist/esm/helpers/cookies.js"
     },
     "./helpers/environment": {
       "types": "./dist/types/helpers/environment.d.ts",
@@ -111,7 +138,7 @@
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "rimraf": "^6.0.1",
-    "rollup": "^4.21.2",
+    "rollup": "^4.28.0",
     "rollup-plugin-peer-deps-external": "^2.2.4",
     "rollup-plugin-uglify": "^6.0.4",
     "typescript": "^5.5.4"

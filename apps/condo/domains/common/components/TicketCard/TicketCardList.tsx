@@ -1,4 +1,5 @@
 import { green } from '@ant-design/colors'
+import { useGetContactTicketsQuery } from '@app/condo/gql'
 import { SortTicketsBy, Ticket as TicketSchema } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Col, Row, RowProps, Space, Typography } from 'antd'
@@ -9,12 +10,11 @@ import Link from 'next/link'
 import qs, { IStringifyOptions } from 'qs'
 import React, { useMemo } from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { useIntl } from '@open-condo/next/intl'
 
 import { Loader } from '@condo/domains/common/components/Loader'
 import { colors } from '@condo/domains/common/constants/style'
-import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
-
 
 import { TicketOverview } from './TicketOverview'
 
@@ -143,12 +143,15 @@ const TicketCardList: React.FC<ITicketCardListProps> = ({ contactId }) => {
     const intl = useIntl()
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
 
+    const { persistor } = useCachePersistor()
     const {
         loading,
-        objs: tickets,
-    } = Ticket.useObjects(generateQueryVariables(contactId), {
-        fetchPolicy: 'cache-first',
+        data: ticketsData,
+    } = useGetContactTicketsQuery({
+        variables: { contactId },
+        skip: !persistor || !contactId,
     })
+    const tickets = ticketsData?.tickets
     const addresses = useMemo(() => {
         return Object.entries(groupBy(tickets, (ticket) => get(ticket, 'property.address', DeletedMessage)))
     }, [tickets])

@@ -49,7 +49,7 @@ const globalHints = JSON.parse(conf['GLOBAL_HINTS'] || '{}')
 const newsItemsSendingDelay = Number(conf['NEWS_ITEMS_SENDING_DELAY_SEC']) || 15
 const audioConfig = JSON.parse(conf['AUDIO_CONFIG'] || '{}')
 const checkTLSClientCertConfig = JSON.parse(conf['CHECK_TLS_CLIENT_CERT_CONFIG'] || '{}')
-const condoRBDomain = conf['CONDORB_DOMAIN']
+const condoRBDomain = conf['RB_DOMAIN']
 const sentryConfig = conf['SENTRY_CONFIG'] ? JSON.parse(conf['SENTRY_CONFIG']) : {}
 const apolloBatchingEnabled = !falsey(conf['APOLLO_BATCHING_ENABLED'])
 const tourVideoUrl = JSON.parse(conf['TOUR_VIDEO_URL'] || '{}')
@@ -59,10 +59,11 @@ const guideModalCardReviews = JSON.parse(conf['GUIDE_MODAL_CARD_REVIEWS'] || '{}
 const guideIntroduceAppMaterials = JSON.parse(conf['GUIDE_INTRODUCE_APP_MATERIALS'] || '{}')
 const importInstructionUrl = JSON.parse(conf['IMPORT_INSTRUCTION_URL'] || '{}')
 const telegramEmployeeBotName = conf['TELEGRAM_EMPLOYEE_BOT_NAME']
-const disableSSR = conf['DISABLE_SSR']
+const isDisabledSsr = conf['DISABLE_SSR'] === 'true'
 const termsOfUseUrl = conf['LEGAL_TERMS_OF_USE_URL']
 const privacyPolicyUrl = conf['LEGAL_PRIVACY_POLICY_URL']
 const dataProcessingConsentUrl = conf['LEGAL_DATA_PROCESSING_CONSENT_URL']
+const isSnowfallDisabled = conf['IS_SNOWFALL_DISABLED'] === 'true'
 
 let nextConfig = withTM(withLess(withCSS({
     publicRuntimeConfig: {
@@ -102,10 +103,11 @@ let nextConfig = withTM(withLess(withCSS({
         guideIntroduceAppMaterials,
         importInstructionUrl,
         telegramEmployeeBotName,
-        disableSSR,
+        isDisabledSsr,
         termsOfUseUrl,
         privacyPolicyUrl,
         dataProcessingConsentUrl,
+        isSnowfallDisabled,
     },
     lessLoaderOptions: {
         javascriptEnabled: true,

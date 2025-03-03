@@ -8,11 +8,10 @@ const {
     makeLoggedInAdminClient,
     makeClient,
     makeLoggedInClient,
-    expectToThrowGQLError,
+    expectToThrowGQLErrorToResult,
 } = require('@open-condo/keystone/test.utils')
 
 const { RESIDENT, USER_TYPES } = require('@condo/domains/user/constants/common')
-const { GQL_ERRORS: USER_ERRORS } = require('@condo/domains/user/constants/errors')
 const {
     createTestConfirmPhoneAction,
     createTestUser,
@@ -22,8 +21,7 @@ const {
     ConfirmPhoneAction,
     checkUserExistenceByTestClient,
 } = require('@condo/domains/user/utils/testSchema')
-
-const { ERRORS } = require('./CheckUserExistenceService')
+const { TOKEN_TYPES } = require('@condo/domains/user/utils/tokens')
 
 
 describe('CheckUserExistenceService', () => {
@@ -43,15 +41,15 @@ describe('CheckUserExistenceService', () => {
                 const userClient = await makeLoggedInClient()
                 const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: true })
                 const [result] = await checkUserExistenceByTestClient(userClient, {
-                    confirmActionToken: confirmPhoneAction.token,
+                    token: confirmPhoneAction.token,
                     userType: RESIDENT,
                 })
                 expect(result).toEqual({
-                    userExists: false,
-                    nameSet: false,
-                    emailSet: false,
-                    phoneSet: false,
-                    passwordSet: false,
+                    isUserExists: false,
+                    isNameSet: false,
+                    isEmailSet: false,
+                    isPhoneSet: false,
+                    isPasswordSet: false,
                 })
             })
         })
@@ -60,241 +58,296 @@ describe('CheckUserExistenceService', () => {
             test('can execute', async () => {
                 const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: true })
                 const [result] = await checkUserExistenceByTestClient(anonymousClient, {
-                    confirmActionToken: confirmPhoneAction.token,
+                    token: confirmPhoneAction.token,
                     userType: RESIDENT,
                 })
                 expect(result).toEqual({
-                    userExists: false,
-                    nameSet: false,
-                    emailSet: false,
-                    phoneSet: false,
-                    passwordSet: false,
+                    isUserExists: false,
+                    isNameSet: false,
+                    isEmailSet: false,
+                    isPhoneSet: false,
+                    isPasswordSet: false,
                 })
             })
         })
     })
 
     describe('Base logic', () => {
-        describe.each(USER_TYPES)('should return valid value for userType: %p', (userType) => {
-            const cases = [
-                {
-                    userData: {
-                        name: faker.name.fullName(),
-                        email: faker.internet.email(),
-                        phone: createTestPhone(),
-                        password: faker.internet.password(),
-                    },
-                    expectedResult: {
-                        userExists: true,
-                        nameSet: true,
-                        emailSet: true,
-                        phoneSet: true,
-                        passwordSet: true,
-                    },
-                },
-                {
-                    userData: {
-                        name: null,
-                        email: faker.internet.email(),
-                        phone: createTestPhone(),
-                        password: faker.internet.password(),
-                    },
-                    expectedResult: {
-                        userExists: true,
-                        nameSet: false,
-                        emailSet: true,
-                        phoneSet: true,
-                        passwordSet: true,
-                    },
-                },
-                {
-                    userData: {
-                        name: faker.name.fullName(),
-                        email: null,
-                        phone: createTestPhone(),
-                        password: faker.internet.password(),
-                    },
-                    expectedResult: {
-                        userExists: true,
-                        nameSet: true,
-                        emailSet: false,
-                        phoneSet: true,
-                        passwordSet: true,
-                    },
-                },
-                {
-                    userData: {
-                        name: faker.name.fullName(),
-                        email: faker.internet.email(),
-                        phone: createTestPhone(),
-                        password: null,
-                    },
-                    expectedResult: {
-                        userExists: true,
-                        nameSet: true,
-                        emailSet: true,
-                        phoneSet: true,
-                        passwordSet: false,
-                    },
-                },
-            ]
+        describe('should correct work different token types', () => {
+            describe('confirmPhoneAction', () => {
+                describe.each(USER_TYPES)('should return valid value for userType: %p', (userType) => {
+                    const cases = [
+                        {
+                            userData: {
+                                name: faker.name.fullName(),
+                                email: faker.internet.email(),
+                                phone: createTestPhone(),
+                                password: faker.internet.password(),
+                            },
+                            expectedResult: {
+                                isUserExists: true,
+                                isNameSet: true,
+                                isEmailSet: true,
+                                isPhoneSet: true,
+                                isPasswordSet: true,
+                            },
+                        },
+                        {
+                            userData: {
+                                name: null,
+                                email: faker.internet.email(),
+                                phone: createTestPhone(),
+                                password: faker.internet.password(),
+                            },
+                            expectedResult: {
+                                isUserExists: true,
+                                isNameSet: false,
+                                isEmailSet: true,
+                                isPhoneSet: true,
+                                isPasswordSet: true,
+                            },
+                        },
+                        {
+                            userData: {
+                                name: faker.name.fullName(),
+                                email: null,
+                                phone: createTestPhone(),
+                                password: faker.internet.password(),
+                            },
+                            expectedResult: {
+                                isUserExists: true,
+                                isNameSet: true,
+                                isEmailSet: false,
+                                isPhoneSet: true,
+                                isPasswordSet: true,
+                            },
+                        },
+                        {
+                            userData: {
+                                name: faker.name.fullName(),
+                                email: faker.internet.email(),
+                                phone: createTestPhone(),
+                                password: null,
+                            },
+                            expectedResult: {
+                                isUserExists: true,
+                                isNameSet: true,
+                                isEmailSet: true,
+                                isPhoneSet: true,
+                                isPasswordSet: false,
+                            },
+                        },
+                    ]
 
-            test.each(cases)('if user is exist (case: %#)', async ({ userData, expectedResult }) => {
-                const [, userAttrs] = await createTestUser(adminClient, {
-                    type: userType,
-                    ...userData,
+                    test.each(cases)('if user is exist (case: %#)', async ({ userData, expectedResult }) => {
+                        const [, userAttrs] = await createTestUser(adminClient, {
+                            type: userType,
+                            ...userData,
+                        })
+                        const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, {
+                            isPhoneVerified: true,
+                            phone: userAttrs.phone,
+                        })
+                        const [result] = await checkUserExistenceByTestClient(anonymousClient, {
+                            token: confirmPhoneAction.token,
+                            userType: userType,
+                        })
+                        expect(result).toEqual(expectedResult)
+                    })
+
+                    test('if user is not exist', async () => {
+                        const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: true })
+                        const [result] = await checkUserExistenceByTestClient(anonymousClient, {
+                            token: confirmPhoneAction.token,
+                            userType: userType,
+                        })
+                        expect(result).toEqual({
+                            isUserExists: false,
+                            isNameSet: false,
+                            isEmailSet: false,
+                            isPhoneSet: false,
+                            isPasswordSet: false,
+                        })
+                    })
+
+                    test('if user was reset', async () => {
+                        const [resetUser, resetUserAttrs] = await createTestUser(adminClient, {
+                            type: userType,
+                        })
+                        await resetUserByTestClient(adminClient, { user: { id: resetUser.id } })
+                        const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, {
+                            isPhoneVerified: true,
+                            phone: resetUserAttrs.phone,
+                        })
+                        const [result] = await checkUserExistenceByTestClient(anonymousClient, {
+                            token: confirmPhoneAction.token,
+                            userType: resetUserAttrs.type,
+                        })
+                        expect(result).toEqual({
+                            isUserExists: false,
+                            isNameSet: false,
+                            isEmailSet: false,
+                            isPhoneSet: false,
+                            isPasswordSet: false,
+                        })
+                    })
+
+                    test('if user was soft deleted', async () => {
+                        const [deletedUser, deletedUserAttrs] = await createTestUser(adminClient, {
+                            type: userType,
+                        })
+                        await updateTestUser(adminClient, deletedUser.id, {
+                            deletedAt: new Date().toDateString(),
+                        })
+                        const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, {
+                            isPhoneVerified: true,
+                            phone: deletedUserAttrs.phone,
+                        })
+                        const [result] = await checkUserExistenceByTestClient(anonymousClient, {
+                            token: confirmPhoneAction.token,
+                            userType: deletedUserAttrs.type,
+                        })
+                        expect(result).toEqual({
+                            isUserExists: false,
+                            isNameSet: false,
+                            isEmailSet: false,
+                            isPhoneSet: false,
+                            isPasswordSet: false,
+                        })
+                    })
                 })
-                const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, {
-                    isPhoneVerified: true,
-                    phone: userAttrs.phone,
+
+                test('confirmPhoneAction should not be marked as used after checkUserExistence has been executed', async () => {
+                    const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: true })
+                    const [result] = await checkUserExistenceByTestClient(anonymousClient, {
+                        token: confirmPhoneAction.token,
+                        userType: RESIDENT,
+                    })
+                    expect(result).toBeDefined()
+                    const confirmPhoneAction2 = await ConfirmPhoneAction.getOne(adminClient, { token: confirmPhoneAction.token })
+                    expect(confirmPhoneAction2).toEqual(confirmPhoneAction)
+                    expect(confirmPhoneAction2.completedAt).toBeNull()
                 })
-                const [result] = await checkUserExistenceByTestClient(anonymousClient, {
-                    confirmActionToken: confirmPhoneAction.token,
-                    userType: userType,
+
+                test('should throw error if phone token is expired', async () => {
+                    const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, {
+                        isPhoneVerified: true, expiresAt: new Date().toISOString(),
+                    })
+                    await expectToThrowGQLErrorToResult(async () => {
+                        await checkUserExistenceByTestClient(anonymousClient, {
+                            token: confirmPhoneAction.token,
+                            userType: RESIDENT,
+                        })
+                    }, {
+                        query: 'checkUserExistence',
+                        variable: ['data', 'token'],
+                        code: 'NOT_FOUND',
+                        type: 'TOKEN_NOT_FOUND',
+                        message: 'Token not found',
+                    })
                 })
-                expect(result).toEqual(expectedResult)
+
+                test('should throw error if phone token is used', async () => {
+                    const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, {
+                        isPhoneVerified: true, completedAt: new Date().toISOString(),
+                    })
+                    await expectToThrowGQLErrorToResult(async () => {
+                        await checkUserExistenceByTestClient(anonymousClient, {
+                            token: confirmPhoneAction.token,
+                            userType: RESIDENT,
+                        })
+                    }, {
+                        query: 'checkUserExistence',
+                        variable: ['data', 'token'],
+                        code: 'NOT_FOUND',
+                        type: 'TOKEN_NOT_FOUND',
+                        message: 'Token not found',
+                    })
+                })
+
+                test('should throw error if phone token is not confirmed', async () => {
+                    const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: false })
+                    await expectToThrowGQLErrorToResult(async () => {
+                        await checkUserExistenceByTestClient(anonymousClient, {
+                            token: confirmPhoneAction.token,
+                            userType: RESIDENT,
+                        })
+                    }, {
+                        query: 'checkUserExistence',
+                        variable: ['data', 'token'],
+                        code: 'NOT_FOUND',
+                        type: 'TOKEN_NOT_FOUND',
+                        message: 'Token not found',
+                    })
+                })
+
+                describe('should throw error if invalid token', () => {
+                    const cases = [
+                        [TOKEN_TYPES.CONFIRM_PHONE, faker.datatype.uuid()].join('_'),
+                        ['unsupportedType', faker.datatype.uuid()].join(':'),
+                    ]
+
+                    test.each(cases)('%p', async (invalidToken) => {
+                        await expectToThrowGQLErrorToResult(async () => {
+                            await checkUserExistenceByTestClient(anonymousClient, {
+                                token: invalidToken,
+                                userType: RESIDENT,
+                            })
+                        }, {
+                            query: 'checkUserExistence',
+                            code: 'BAD_USER_INPUT',
+                            type: 'INVALID_TOKEN',
+                            message: 'Invalid token',
+                        })
+                    })
+                })
             })
+        })
 
-            test('if user is not exist', async () => {
+        describe('request limits', () => {
+            test('should throw error if there are a lot of requests for one phone number per day', async () => {
                 const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: true })
-                const [result] = await checkUserExistenceByTestClient(anonymousClient, {
-                    confirmActionToken: confirmPhoneAction.token,
-                    userType: userType,
-                })
-                expect(result).toEqual({
-                    userExists: false,
-                    nameSet: false,
-                    emailSet: false,
-                    phoneSet: false,
-                    passwordSet: false,
-                })
-            })
-
-            test('if user was reset', async () => {
-                const [resetUser, resetUserAttrs] = await createTestUser(adminClient, {
-                    type: userType,
-                })
-                await resetUserByTestClient(adminClient, { user: { id: resetUser.id } })
-                const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, {
-                    isPhoneVerified: true,
-                    phone: resetUserAttrs.phone,
-                })
-                const [result] = await checkUserExistenceByTestClient(anonymousClient, {
-                    confirmActionToken: confirmPhoneAction.token,
-                    userType: resetUserAttrs.type,
-                })
-                expect(result).toEqual({
-                    userExists: false,
-                    nameSet: false,
-                    emailSet: false,
-                    phoneSet: false,
-                    passwordSet: false,
-                })
-            })
-
-            test('if user was soft deleted', async () => {
-                const [deletedUser, deletedUserAttrs] = await createTestUser(adminClient, {
-                    type: userType,
-                })
-                await updateTestUser(adminClient, deletedUser.id, {
-                    deletedAt: new Date().toDateString(),
-                })
-                const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, {
-                    isPhoneVerified: true,
-                    phone: deletedUserAttrs.phone,
-                })
-                const [result] = await checkUserExistenceByTestClient(anonymousClient, {
-                    confirmActionToken: confirmPhoneAction.token,
-                    userType: deletedUserAttrs.type,
-                })
-                expect(result).toEqual({
-                    userExists: false,
-                    nameSet: false,
-                    emailSet: false,
-                    phoneSet: false,
-                    passwordSet: false,
-                })
-            })
-        })
-
-        test('confirmPhoneAction should not be marked as used after checkUserExistence has been executed', async () => {
-            const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: true })
-            const [result] = await checkUserExistenceByTestClient(anonymousClient, {
-                confirmActionToken: confirmPhoneAction.token,
-                userType: RESIDENT,
-            })
-            expect(result).toBeDefined()
-            const confirmPhoneAction2 = await ConfirmPhoneAction.getOne(adminClient, { token: confirmPhoneAction.token })
-            expect(confirmPhoneAction2).toEqual(confirmPhoneAction)
-            expect(confirmPhoneAction2.completedAt).toBeNull()
-        })
-
-        test('should throw error if phone token is expired', async () => {
-            const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, {
-                isPhoneVerified: true, expiresAt: new Date().toISOString(),
-            })
-            await expectToThrowGQLError(async () => {
-                await checkUserExistenceByTestClient(anonymousClient, {
-                    confirmActionToken: confirmPhoneAction.token,
-                    userType: RESIDENT,
-                })
-            }, ERRORS.TOKEN_NOT_FOUND, 'result')
-        })
-
-        test('should throw error if phone token is used', async () => {
-            const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, {
-                isPhoneVerified: true, completedAt: new Date().toISOString(),
-            })
-            await expectToThrowGQLError(async () => {
-                await checkUserExistenceByTestClient(anonymousClient, {
-                    confirmActionToken: confirmPhoneAction.token,
-                    userType: RESIDENT,
-                })
-            }, ERRORS.TOKEN_NOT_FOUND, 'result')
-        })
-
-        test('should throw error if phone token is not confirmed', async () => {
-            const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: false })
-            await expectToThrowGQLError(async () => {
-                await checkUserExistenceByTestClient(anonymousClient, {
-                    confirmActionToken: confirmPhoneAction.token,
-                    userType: RESIDENT,
-                })
-            }, ERRORS.TOKEN_NOT_FOUND, 'result')
-        })
-
-        test('should throw error if there are a lot of requests for one phone number per day', async () => {
-            const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: true })
-            for (let i = 0; i < 10; i++) {
+                for (let i = 0; i < 10; i++) {
+                    const client = await makeClient()
+                    await checkUserExistenceByTestClient(client, {
+                        token: confirmPhoneAction.token,
+                        userType: RESIDENT,
+                    })
+                }
                 const client = await makeClient()
-                await checkUserExistenceByTestClient(client, {
-                    confirmActionToken: confirmPhoneAction.token,
-                    userType: RESIDENT,
+                await expectToThrowGQLErrorToResult(async () => {
+                    await checkUserExistenceByTestClient(client, {
+                        token: confirmPhoneAction.token,
+                        userType: RESIDENT,
+                    })
+                }, {
+                    code: 'BAD_USER_INPUT',
+                    type: 'DAILY_REQUEST_LIMIT_FOR_PHONE_REACHED',
+                    message: 'Too many requests with this phone. Try again later',
+                    messageForUser: 'api.user.DAILY_REQUEST_LIMIT_FOR_PHONE_REACHED',
                 })
-            }
-            const client = await makeClient()
-            await expectToThrowGQLError(async () => {
-                await checkUserExistenceByTestClient(client, {
-                    confirmActionToken: confirmPhoneAction.token,
-                    userType: RESIDENT,
-                })
-            }, USER_ERRORS.DAILY_REQUEST_LIMIT_FOR_PHONE_REACHED, 'result')
-        })
+            })
 
-        test('should throw error if there are a lot of requests by ip per day', async () => {
-            const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: true })
-            for (let i = 0; i < 10; i++) {
-                await checkUserExistenceByTestClient(anonymousClient, {
-                    confirmActionToken: confirmPhoneAction.token,
-                    userType: RESIDENT,
+            test('should throw error if there are a lot of requests by ip per day', async () => {
+                const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: true })
+                for (let i = 0; i < 10; i++) {
+                    await checkUserExistenceByTestClient(anonymousClient, {
+                        token: confirmPhoneAction.token,
+                        userType: RESIDENT,
+                    })
+                }
+                await expectToThrowGQLErrorToResult(async () => {
+                    await checkUserExistenceByTestClient(anonymousClient, {
+                        token: confirmPhoneAction.token,
+                        userType: RESIDENT,
+                    })
+                }, {
+                    code: 'BAD_USER_INPUT',
+                    type: 'DAILY_REQUEST_LIMIT_FOR_IP_REACHED',
+                    message: 'Too many requests from this ip address. Try again later',
+                    messageForUser: 'api.user.DAILY_REQUEST_LIMIT_FOR_IP_REACHED',
                 })
-            }
-            await expectToThrowGQLError(async () => {
-                await checkUserExistenceByTestClient(anonymousClient, {
-                    confirmActionToken: confirmPhoneAction.token,
-                    userType: RESIDENT,
-                })
-            }, USER_ERRORS.DAILY_REQUEST_LIMIT_FOR_IP_REACHED, 'result')
+            })
         })
     })
 })

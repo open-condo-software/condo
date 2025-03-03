@@ -21,9 +21,10 @@ import {
     GraphQlSearchInputWithCheckAll,
     InputWithCheckAllProps,
 } from '@condo/domains/common/components/GraphQlSearchInputWithCheckAll'
-import { ImagesUploadList } from '@condo/domains/common/components/ImagesUploadList'
+import { ImagesUploadList, UploadFileType } from '@condo/domains/common/components/ImagesUploadList'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import Prompt from '@condo/domains/common/components/Prompt'
+import { DEFAULT_BORDER_RADIUS } from '@condo/domains/common/constants/style'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { DEFAULT_INVOICE_CURRENCY_CODE, MIN_PRICE_VALUE } from '@condo/domains/marketplace/constants'
 import {
@@ -36,6 +37,7 @@ import {
     INITIAL_PRICE_FORM_VALUE,
     MarketItemFormValuesType,
     PriceType,
+    PriceMeasuresType,
 } from '@condo/domains/marketplace/utils/clientSchema/MarketItem'
 import { searchOrganizationPropertyWithExclusion } from '@condo/domains/marketplace/utils/clientSchema/search'
 import { Property } from '@condo/domains/property/utils/clientSchema'
@@ -104,33 +106,34 @@ const AppPreviewContainer = styled.div`
     justify-content: space-between;
     padding: 12px 20px;
     overflow: hidden;
-    
+
     & .order-header .condo-typography {
       font-family: 'SF Pro Display', 'Wix Madefor Display', -apple-system, BlinkMacSystemFont, Helvetica, sans-serif;
       font-style: normal;
       font-weight: 600;
+      line-height: 1;
     }
-    
+
     & .order-sku .condo-typography {
       font-family: 'SF Pro Text', 'Wix Madefor Display', -apple-system, BlinkMacSystemFont, Helvetica, sans-serif;
       font-size: 10px;
       font-style: normal;
       font-weight: 400;
     }
-    
+
     & .order-description .condo-typography {
       font-family: 'SF Pro Text', 'Wix Madefor Display', -apple-system, BlinkMacSystemFont, Helvetica, sans-serif;
       font-size: 12px;
       font-style: normal;
       font-weight: 400;
-      line-height: 0;
+      line-height: 1.5;
     }
 
     & .order-button-wrapper {
       width: 100%;
       padding-right: 11px;
     }
-    
+
     & .order-button {
       & .condo-typography {
         font-family: 'SF Pro Display', 'Wix Madefor Display', -apple-system, BlinkMacSystemFont, Helvetica, sans-serif;
@@ -155,7 +158,17 @@ const AppPreviewContainer = styled.div`
   }
 `
 
-const MobilePreview = ({ name, price, priceType, sku, description, files }) => {
+interface IMobilePreviewProps {
+    name: string
+    price?: string
+    priceType: PriceType
+    sku: string
+    description: string
+    measure: PriceMeasuresType
+    files?: UploadFileType[]
+}
+
+const MobilePreview: React.FC<IMobilePreviewProps> = ({ name, price, measure, priceType, sku, description, files }) => {
     const intl = useIntl()
     const MobilePreviewTitle = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.mobileAppPreview.title' })
     const ContractPrice = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' })
@@ -175,6 +188,8 @@ const MobilePreview = ({ name, price, priceType, sku, description, files }) => {
         resultPrice = moneyRender(price, priceType === PriceType.Min)
     }
 
+    const showMeasureType = !!(measure)
+
     return (
         <MobilePreviewContainer>
             <div style={{ textAlign: 'center' }}>
@@ -184,7 +199,7 @@ const MobilePreview = ({ name, price, priceType, sku, description, files }) => {
             </div>
             <AppPreviewContainer>
                 <div className='mobile-content-wrapper'>
-                    <Row gutter={[0, 20]} style={{ maxWidth: '100%' }}>
+                    <Row gutter={[0, 15]} style={{ maxWidth: '100%' }}>
                         <Col span={24}>
                             <Row>
                                 <Col span={24} className='order-header'>
@@ -192,22 +207,23 @@ const MobilePreview = ({ name, price, priceType, sku, description, files }) => {
                                         {name || NameMessage}
                                     </Typography.Title>
                                 </Col>
-                                <Col span={24} className='order-header'>
+                                <Col span={24} style={{ marginTop: '-0px' }} className='order-header'>
                                     <Typography.Title type='secondary' level={3}>
-                                        {resultPrice || PriceMessage}
+                                        {resultPrice || PriceMessage}{(showMeasureType && `/${intl.formatMessage({ id: `pages.condo.marketplace.measure.${measure}.short` })}`)}
                                     </Typography.Title>
                                 </Col>
-                                <Col span={24} className='order-sku'>
+                                <Col span={24} style={{ marginTop: '-6px' }} className='order-sku'>
                                     <Typography.Text size='small' type='secondary'>
                                         {SkuMessage} {sku}
                                     </Typography.Text>
                                 </Col>
                             </Row>
                         </Col>
-                        <Col span={24} className='order-description'>
-                            <Typography.Text size='medium'>
+
+                        <Col span={24} style={{ marginTop: '-10px' }} className='order-description'>
+                            <Typography.Paragraph ellipsis={{ 'rows': 5 }} size='medium'>
                                 {description || DescriptionMessage}
-                            </Typography.Text>
+                            </Typography.Paragraph>
                         </Col>
                         {
                             !isEmpty(files) && (
@@ -222,11 +238,37 @@ const MobilePreview = ({ name, price, priceType, sku, description, files }) => {
                             )
                         }
                     </Row>
-                    <div className='order-button-wrapper'>
+
+                    <Space direction='vertical' size={8} className='order-button-wrapper'>
+                        {
+                            (showMeasureType && (
+                                <div style={{
+                                    'padding': '4px 9px',
+                                    'display': 'flex',
+                                    'justifyContent': 'space-between',
+                                    'alignItems': 'center',
+                                    'backgroundColor': colors.gray[1],
+                                    width: '100%',
+                                    borderRadius: DEFAULT_BORDER_RADIUS,
+                                }}>
+                                    <div style={{ 'marginTop': '-2px' }}>
+                                        <Typography.Text size='small' type='secondary'>итого</Typography.Text>
+                                        <div style={{ 'marginTop': '-6px' }}>
+                                            <Typography.Text strong size='medium' type='inherit'>{resultPrice || PriceMessage}</Typography.Text>
+                                        </div>
+                                    </div>
+                                    <div style={{ 'display':'flex', 'justifyContent':'space-between', 'alignItems':'center', 'padding': '2px 4px', 'backgroundColor': 'white', borderRadius: '4px' }}>
+                                        <span>{`1${intl.formatMessage({ id: `pages.condo.marketplace.measure.${measure}.short` })}`}</span>
+                                        <span style={{ 'marginLeft': '2px' }}>+</span>
+                                    </div>
+                                </div>)
+                            )
+                        }
+
                         <AntdButton className='order-button'>
                             <Typography.Text strong type='inherit'>{OrderMessage}</Typography.Text>
                         </AntdButton>
-                    </div>
+                    </Space>
                 </div>
             </AppPreviewContainer>
         </MobilePreviewContainer>
@@ -560,9 +602,14 @@ const MarketPriceForm = ({ priceFormDescription, removeOperation, organizationPr
     const MinPriceTypeLabel = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.priceType.minPrice' })
     const ContractPriceTypeLabel = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.priceType.contractPrice' })
     const PriceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.price' })
+    const MeasureLabel = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.measure' })
     const PriceTooltip = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.price.tooltip' })
     const CancelMessage = intl.formatMessage({ id: 'Cancel' })
     const MinPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.price.minPriceMessage' })
+    const PerItemPriceMeasureLabel = intl.formatMessage({ id: 'pages.condo.marketplace.measure.perItem.full' })
+    const PerMeterPriceMeasureLabel = intl.formatMessage({ id: 'pages.condo.marketplace.measure.perMeter.full' })
+    const PerHourPriceMeasureLabel = intl.formatMessage({ id: 'pages.condo.marketplace.measure.perHour.full' })
+    const NoPriceMeasureLabel = intl.formatMessage({ id: 'pages.condo.marketplace.noMeasure' })
 
     const { requiredValidator, numberValidator, lessThanValidator } = useValidations()
     const { form, currencyCode, getUpdatedPricesField } = useMarketItemFormContext()
@@ -589,6 +636,8 @@ const MarketPriceForm = ({ priceFormDescription, removeOperation, organizationPr
 
     const handleContractPriceCheck = useCallback(async () => {
         form.setFieldsValue(getUpdatedPricesField(priceFormName, { price: null }))
+        form.setFieldsValue(getUpdatedPricesField(priceFormName, { measure: undefined }))
+
         await form.validateFields(['prices', priceFormName, 'price'])
     }, [form, getUpdatedPricesField, priceFormName])
 
@@ -642,6 +691,46 @@ const MarketPriceForm = ({ priceFormDescription, removeOperation, organizationPr
                             </Radio>
                         </Space>
                     </RadioGroup>
+                </Form.Item>
+            </Col>
+            <Col span={24}>
+                <Form.Item
+                    required
+                    name={[priceFormName, 'measure']}
+                    label={MeasureLabel}
+                    wrapperCol={{
+                        span: 5,
+                    }}
+                >
+                    <Select
+                        defaultValue='perItem'
+                        disabled={isContractPrice}
+                    >
+                        <Select.Option
+                            key={PriceMeasuresType.PerItem}
+                            value={PriceMeasuresType.PerItem}
+                        >
+                            { PerItemPriceMeasureLabel }
+                        </Select.Option>
+                        <Select.Option
+                            key={PriceMeasuresType.PerHour}
+                            value={PriceMeasuresType.PerHour}
+                        >
+                            { PerHourPriceMeasureLabel }
+                        </Select.Option>
+                        <Select.Option
+                            key={PriceMeasuresType.PerMeter}
+                            value={PriceMeasuresType.PerMeter}
+                        >
+                            { PerMeterPriceMeasureLabel }
+                        </Select.Option>
+                        <Select.Option
+                            key={undefined}
+                            value={undefined}
+                        >
+                            {NoPriceMeasureLabel}
+                        </Select.Option>
+                    </Select>
                 </Form.Item>
             </Col>
             <Col span={24}>
@@ -758,7 +847,7 @@ type BaseMarketItemFormProps = {
 export const BaseMarketItemForm: React.FC<BaseMarketItemFormProps> = (props) => {
     const intl = useIntl()
     const SaveChangesModalTitle = intl.formatMessage({ id: 'form.prompt.title' })
-    const SaveChangesNodalMessage = intl.formatMessage({ id: 'form.prompt.message' })
+    const SaveChangesModalMessage = intl.formatMessage({ id: 'form.prompt.message' })
 
     const { children, action, initialValues } = props
     const { breakpoints } = useLayoutContext()
@@ -803,7 +892,7 @@ export const BaseMarketItemForm: React.FC<BaseMarketItemFormProps> = (props) => 
                                 handleSave={handleSave}
                             >
                                 <Typography.Paragraph>
-                                    {SaveChangesNodalMessage}
+                                    {SaveChangesModalMessage}
                                 </Typography.Paragraph>
                             </Prompt>
                             <Row gutter={[0, 60]}>
@@ -842,12 +931,14 @@ export const BaseMarketItemForm: React.FC<BaseMarketItemFormProps> = (props) => 
 
                                                                 const price = get(prices, '0.price')
                                                                 const priceType = get(prices, '0.priceType')
+                                                                const measure = get(prices, '0.measure')
 
                                                                 return (
                                                                     <MobilePreview
                                                                         name={name}
                                                                         price={price}
                                                                         priceType={priceType}
+                                                                        measure={measure}
                                                                         sku={sku}
                                                                         description={description}
                                                                         files={files}

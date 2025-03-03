@@ -90,7 +90,7 @@ const LRUCache = require('lru-cache')
 
 const { getDatabaseAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
 
-const { getRedisClient } = require('./redis')
+const { getKVClient } = require('./kv')
 
 const DEFAULT_HEALTHCHECK_URL = '/server-health'
 const DEFAULT_INTERVAL = 1000 // 1s
@@ -115,7 +115,7 @@ const getRedisHealthCheck = (clientName = 'healthcheck') => {
     return {
         name: 'redis',
         prepare: () => {
-            this.redisClient = getRedisClient(clientName)
+            this.redisClient = getKVClient(clientName)
         },
         run: async () => {
             try {

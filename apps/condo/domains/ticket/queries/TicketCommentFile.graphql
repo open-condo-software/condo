@@ -1,0 +1,19 @@
+query getTicketCommentsFiles ($ticketCommentsIds: [ID!]!) {
+    files: allTicketCommentFiles (
+        where: {
+            ticketComment: { id_in: $ticketCommentsIds }
+        }
+        first: 100
+        sortBy: [createdAt_DESC]
+    ) {
+        id
+        file {
+            originalFilename
+            mimetype
+            publicUrl
+        }
+        ticketComment {
+            id
+        }
+    }
+}

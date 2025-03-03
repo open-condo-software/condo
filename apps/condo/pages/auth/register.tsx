@@ -9,12 +9,13 @@ import { useIntl } from '@open-condo/next/intl'
 import { Button } from '@condo/domains/common/components/Button'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { fontSizes } from '@condo/domains/common/constants/style'
+import { PageComponentType } from '@condo/domains/common/types'
 import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 import { InputPhoneForm } from '@condo/domains/user/components/auth/InputPhoneForm'
 import { RegisterContext, RegisterContextProvider } from '@condo/domains/user/components/auth/RegisterContextProvider'
 import { RegisterForm } from '@condo/domains/user/components/auth/RegisterForm'
 import { ValidatePhoneForm } from '@condo/domains/user/components/auth/ValidatePhoneForm'
-import AuthLayout, { AuthPage } from '@condo/domains/user/components/containers/AuthLayout'
+import AuthLayout from '@condo/domains/user/components/containers/AuthLayout'
 import { WelcomeHeaderTitle } from '@condo/domains/user/components/UserWelcomeTitle'
 
 
@@ -25,7 +26,7 @@ const HeaderAction = () => {
     )
 }
 
-const RegisterPage: AuthPage = () => {
+const RegisterPage: PageComponentType = () => {
     const intl = useIntl()
     const RegistrationTitleMsg = intl.formatMessage({ id: 'pages.auth.RegistrationTitle' })
     const PhoneConfirmTokenErrorLabel = intl.formatMessage({ id: 'pages.auth.register.PhoneConfirmTokenErrorLabel' })
@@ -115,5 +116,6 @@ const RegisterPage: AuthPage = () => {
 RegisterPage.headerAction = <HeaderAction/>
 
 RegisterPage.container = AuthLayout
+RegisterPage.skipUserPrefetch = true
 
 export default RegisterPage

@@ -24,7 +24,7 @@ export const SettingsPageContent: React.FC<PageContentProps> = ({ settingsTabs, 
             newParameters: {
                 tab: activeTab,
             },
-        }, { routerAction, resetOldParameters: true })
+        }, { routerAction, resetOldParameters: true, shallow: true })
     }, [router])
 
     useEffect(() => {

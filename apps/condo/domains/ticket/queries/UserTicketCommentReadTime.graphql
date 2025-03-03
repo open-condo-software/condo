@@ -1,0 +1,24 @@
+query getUserTicketCommentsReadTime ($userId: ID!, $ticketIds: [ID!]) {
+    objs: allUserTicketCommentReadTimes (
+        where: {
+            user: { id: $userId },
+            ticket: { id_in: $ticketIds }
+        }
+    ) {
+        id
+        readResidentCommentAt
+        ticket { id }
+    }
+}
+
+mutation createUserTicketCommentReadTime ($data: UserTicketCommentReadTimeCreateInput) {
+    obj: createUserTicketCommentReadTime (data: $data) {
+        id
+    }
+}
+
+mutation updateUserTicketCommentReadTime ($id: ID!, $data: UserTicketCommentReadTimeUpdateInput) {
+    obj: updateUserTicketCommentReadTime (id: $id, data: $data) {
+        id
+    }
+}

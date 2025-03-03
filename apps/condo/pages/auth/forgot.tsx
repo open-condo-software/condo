@@ -13,12 +13,13 @@ import { Loader } from '@condo/domains/common/components/Loader'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { colors } from '@condo/domains/common/constants/style'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { PageComponentType } from '@condo/domains/common/types'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { normalizePhone } from '@condo/domains/common/utils/phone'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { RegisterContext, RegisterContextProvider } from '@condo/domains/user/components/auth/RegisterContextProvider'
 import { ValidatePhoneForm } from '@condo/domains/user/components/auth/ValidatePhoneForm'
-import AuthLayout, { AuthPage } from '@condo/domains/user/components/containers/AuthLayout'
+import AuthLayout from '@condo/domains/user/components/containers/AuthLayout'
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 import { SMS_CODE_TTL } from '@condo/domains/user/constants/common'
 import { WRONG_PHONE_ERROR, TOO_MANY_REQUESTS } from '@condo/domains/user/constants/errors'
@@ -198,12 +199,13 @@ function ResetPageView () {
     )
 }
 
-const ResetPage: AuthPage = () => {
+const ResetPage: PageComponentType = () => {
     return (
         <RegisterContextProvider><ResetPageView /></RegisterContextProvider>
     )
 }
 
 ResetPage.container = AuthLayout
+ResetPage.skipUserPrefetch = true
 
 export default ResetPage

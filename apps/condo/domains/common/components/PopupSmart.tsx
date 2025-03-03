@@ -4,8 +4,10 @@ import isNull from 'lodash/isNull'
 import getConfig from 'next/config'
 import { useEffect, useRef } from 'react'
 
+
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
+
 
 const PopupSmart = (): null => {
     const { user } = useAuth()

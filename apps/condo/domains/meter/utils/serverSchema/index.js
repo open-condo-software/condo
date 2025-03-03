@@ -38,6 +38,7 @@ async function registerMetersReadings (context, data) {
 
 const MeterReadingsImportTask = generateServerUtils('MeterReadingsImportTask')
 const MeterReadingExportTask = generateServerUtils('MeterReadingExportTask')
+const MeterUserData = generateServerUtils('MeterUserData')
 /* AUTOGENERATE MARKER <CONST> */
 
 /**
@@ -154,7 +155,7 @@ async function getAvailableResidentMeterReportCondition (userId) {
 const loadMetersForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
     const metersLoader = new GqlWithKnexLoadList({
         listKey: 'Meter',
-        fields: 'id unitName unitType accountNumber number place',
+        fields: 'id unitName unitType accountNumber number place nextVerificationDate archiveDate',
         singleRelations: [
             ['Property', 'property', 'address'],
             ['MeterResource', 'resource', 'id'],
@@ -230,5 +231,6 @@ module.exports = {
     MeterReadingsImportTask,
     MeterReadingExportTask,
     loadMeterReadingsForExcelExport,
+    MeterUserData,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

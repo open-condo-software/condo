@@ -123,6 +123,16 @@ export function useTableColumns <T> (
             width: isPropertyMeter ? '25%' : '20%',
             render: getTextRender(search),
         },
+        isPropertyMeter ? undefined : {
+            title: AccountNumberMessage,
+            filteredValue: getFilteredValue(filters, 'accountNumber'),
+            dataIndex: 'accountNumber',
+            key: 'accountNumber',
+            width: '15%',
+            filterDropdown: getFilterDropdownByKey(filterMetas, 'accountNumber'),
+            render: getTextRender(search),
+            filterIcon: getFilterIcon,
+        },
         {
             title: MeterReadingMessage,
             ellipsis: false,
@@ -137,7 +147,7 @@ export function useTableColumns <T> (
             width: isPropertyMeter ? '25%' : '20%',
             render: getConsumptionRender(intl, records),
         },
-    ]), [ConsumptionMessage, ContactMessage, MeterReadingDateMessage, MeterReadingMessage, SourceMessage, filterMetas, filters, intl, isPropertyMeter, records, search, sorterMap])
+    ]), [AccountNumberMessage, ConsumptionMessage, ContactMessage, MeterReadingDateMessage, MeterReadingMessage, SourceMessage, filterMetas, filters, intl, isPropertyMeter, records, search, sorterMap])
 
     const meterAndMeterReadingColumns = useMemo(() => [
         {
@@ -162,7 +172,7 @@ export function useTableColumns <T> (
         isPropertyMeter ? undefined : {
             title: AccountNumberMessage,
             filteredValue: getFilteredValue(filters, 'accountNumber'),
-            dataIndex: isMeter ? 'accountNumber' : ['meter', 'accountNumber'],
+            dataIndex: 'accountNumber',
             key: 'accountNumber',
             width: '10%',
             filterDropdown: getFilterDropdownByKey(filterMetas, 'accountNumber'),
@@ -227,6 +237,13 @@ export function useTableColumns <T> (
         ] : meterTabType === METER_TAB_TYPES.meterReading ? compact([
             ...meterAndMeterReadingColumns,
             {
+                title: SourceMessage,
+                ellipsis: false,
+                key: 'source',
+                width: isPropertyMeter ? '25%' : '13%',
+                render: getSourceRender(intl, search),
+            },
+            {
                 title: MeterReadingDateMessage,
                 sortOrder: get(sorterMap, 'date'),
                 filteredValue: getFilteredValue(filters, 'date'),
@@ -267,5 +284,5 @@ export function useTableColumns <T> (
             },
             
         ])
-    }, [isReadingsForSingleMeter, readingsForSingleMeterColumns, meterTabType, AddressMessage, filters, renderAddress, filterMetas, PeriodMessage, sorterMap, search, intl, meterAndMeterReadingColumns, MeterReadingDateMessage, isPropertyMeter, MeterReadingMessage, MeterNextVerificationDateMessage, isMeter, StatusMessage])
+    }, [isReadingsForSingleMeter, readingsForSingleMeterColumns, meterTabType, AddressMessage, filters, renderAddress, filterMetas, PeriodMessage, sorterMap, search, intl, meterAndMeterReadingColumns, SourceMessage, isPropertyMeter, MeterReadingDateMessage, MeterReadingMessage, MeterNextVerificationDateMessage, isMeter, StatusMessage])
 }

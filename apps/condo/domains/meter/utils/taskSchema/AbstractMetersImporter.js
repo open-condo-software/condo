@@ -95,25 +95,6 @@ class AbstractMetersImporter {
         }, [])
     }
 
-    prepareReading (reading, row, transformedData, transformedRowToSourceRowMap, transformedIndex, sourceIndex) {
-        const invalidDatesPaths = this.getInvalidDatesPaths(reading)
-        const invalidDatesColumns = invalidDatesPaths.map(path => this.dateColumnsTranslationsByPath[path])
-        if (invalidDatesPaths.length > 0) {
-            const columnNamesInError = invalidDatesColumns.join('", "')
-            this.failProcessingHandler({
-                originalRow: row,
-                errors: [this.errors.invalidDate.get(`"${columnNamesInError}"`)],
-            })
-        }
-        this.convertDatesToISOOrUndefined(reading)
-        reading.readingSource = READING_SOURCE
-        transformedData.push(reading)
-        transformedRowToSourceRowMap.set(
-            transformedIndex,
-            sourceIndex
-        )
-    }
-
     /**
      * Converts dates to UTC if they are valid, otherwise to undefined
      * @param {RegisterMetersReadingsReadingInput} data
@@ -123,6 +104,23 @@ class AbstractMetersImporter {
             const date = get(data, path)
             set(data, path, tryToISO(clearDateStr(date)))
         })
+    }
+
+    prepareReading (rowPart) {
+        this.convertDatesToISOOrUndefined(rowPart)
+        rowPart.readingSource = READING_SOURCE
+        return rowPart
+    }
+
+    validateReading (rowPart) {
+        const invalidDatesPaths = this.getInvalidDatesPaths(rowPart)
+        const invalidDatesColumns = invalidDatesPaths.map(path => this.dateColumnsTranslationsByPath[path])
+        const errors = []
+        if (invalidDatesPaths.length > 0) {
+            const columnNamesInError = invalidDatesColumns.join('", "')
+            errors.push(this.errors.invalidDate.get(columnNamesInError))
+        }
+        return errors
     }
 
     async import (data) {
@@ -170,26 +168,39 @@ class AbstractMetersImporter {
                     const row = sourceChunk[sourceIndex]
                     try {
                         // map excel/csv row into register meter record format
-                        const transformedRow = this.transformRow(row)
-
+                        let transformedRow = this.transformRow(row)
                         // sbbol row can hold multiply register meter records
-                        if (isArray(transformedRow)) {
-                            if (transformedRow.length === 0) {
-                                logger.error({ msg: this.errors.invalidTypes.message })
+                        if (!isArray(transformedRow)) {
+                            transformedRow = [transformedRow]
+                        }
+
+                        if (transformedRow.length === 0) {
+                            logger.error({ msg: this.errors.invalidTypes.message })
+                            this.failProcessingHandler({
+                                originalRow: row,
+                                errors: [this.errors.invalidTypes.message],
+                            })
+                            indexesOfFailedSourceRows.add(sourceIndex)
+                        }
+
+                        for (const rowPart of transformedRow) {
+                            const validationErrors = this.validateReading(rowPart)
+                            if (validationErrors.length) {
                                 this.failProcessingHandler({
                                     originalRow: row,
-                                    errors: [this.errors.invalidTypes.message],
+                                    errors: validationErrors,
                                 })
                                 indexesOfFailedSourceRows.add(sourceIndex)
+                                continue
                             }
-                            for (const rowPart of transformedRow) {
-                                this.prepareReading(rowPart, row, transformedData, transformedRowToSourceRowMap, transformedIndex, sourceIndex)
-                                transformedIndex++
-                            }
-                        } else {
-                            this.prepareReading(transformedRow, row, transformedData, transformedRowToSourceRowMap, transformedIndex, sourceIndex)
+                            transformedData.push(this.prepareReading(rowPart))
+                            transformedRowToSourceRowMap.set(
+                                transformedIndex,
+                                sourceIndex
+                            )
                             transformedIndex++
                         }
+
                     } catch (err) {
                         logger.error({ msg: this.errors.invalidTypes.message, err })
                         this.failProcessingHandler({

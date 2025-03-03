@@ -3,7 +3,6 @@ import {
     SortPropertyMetersBy,
 } from '@app/condo/schema'
 import { Col, Row, RowProps } from 'antd'
-import { ColumnsType } from 'antd/lib/table'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
@@ -25,10 +24,12 @@ import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { useTableColumns } from '@condo/domains/meter/hooks/useTableColumns'
 import {
     PropertyMeter,
     METER_TAB_TYPES,
     MeterReadingFilterTemplate,
+    METER_TYPES,
 } from '@condo/domains/meter/utils/clientSchema'
 import { getInitialArchivedOrActiveMeter } from '@condo/domains/meter/utils/helpers'
 
@@ -42,7 +43,6 @@ const SORTABLE_PROPERTIES = ['date', 'clientName', 'source']
 
 type PropertyMetersTableContentProps = {
     filtersMeta: FiltersMeta<MeterReadingWhereInput>[]
-    tableColumns: ColumnsType
     baseSearchQuery: MeterReadingWhereInput
     canManageMeters: boolean
     sortableProperties?: string[]
@@ -58,7 +58,6 @@ type UpdateMeterQueryParamsType = {
 
 const PropertyMetersTableContent: React.FC<PropertyMetersTableContentProps> = ({
     filtersMeta,
-    tableColumns,
     baseSearchQuery,
     canManageMeters,
     sortableProperties,
@@ -80,6 +79,7 @@ const PropertyMetersTableContent: React.FC<PropertyMetersTableContentProps> = ({
     const [isShowArchivedMeters, setIsShowArchivedMeters] = useState(() => getInitialArchivedOrActiveMeter(router, 'isShowArchivedMeters'))
 
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filtersMeta, sortableProperties || SORTABLE_PROPERTIES)
+    const tableColumns = useTableColumns(filtersMeta, METER_TAB_TYPES.meter, METER_TYPES.property)
 
     const sortBy = useMemo(() => sortersToSortBy(sorters) as SortPropertyMetersBy[], [sorters, sortersToSortBy])
 
@@ -223,7 +223,6 @@ type PropertyMeterReadingsPageContentProps = Omit<PropertyMetersTableContentProp
 
 export const PropertyMetersPageContent: React.FC<PropertyMeterReadingsPageContentProps> = ({
     filtersMeta,
-    tableColumns,
     baseSearchQuery,
     canManageMeters,
     loading,
@@ -251,13 +250,12 @@ export const PropertyMetersPageContent: React.FC<PropertyMeterReadingsPageConten
         return (
             <PropertyMetersTableContent
                 filtersMeta={filtersMeta}
-                tableColumns={tableColumns}
                 baseSearchQuery={baseSearchQuery}
                 canManageMeters={canManageMeters}
                 loading={countLoading}
             />
         )
-    }, [CreateMeter, EmptyListLabel, baseSearchQuery, canManageMeters, count, countLoading, filtersMeta, loading, tableColumns])
+    }, [CreateMeter, EmptyListLabel, baseSearchQuery, canManageMeters, count, countLoading, filtersMeta, loading])
 
     return (
         <TablePageContent>

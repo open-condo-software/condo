@@ -7,6 +7,7 @@ import upperFirst from 'lodash/upperFirst'
 import { useRouter } from 'next/router'
 import React, { createContext, useContext, useEffect, useLayoutEffect, useRef, useCallback } from 'react'
 
+
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
 
@@ -17,6 +18,7 @@ import AmplitudeInstance from './trackers/AmplitudeInstance'
 import TrackerInstance, { ITrackerLogEventType } from './trackers/TrackerInstance'
 
 import type { RequestHandler } from './PostMessageProvider/types'
+
 
 const TRACKING_INITIAL_VALUE = {
     // Here you should create app related tracker instances

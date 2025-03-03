@@ -23,7 +23,7 @@ services:
       - app-network
 
   postgresdb:
-    image: alpine
+    image: ${REGISTRY}alpine
     depends_on:
       - postgresdb-master
       - postgresdb-replica
@@ -82,6 +82,7 @@ services:
       - "127.0.0.1:6379:6379"
     networks:
       - app-network
+    command: ["redis-server", "--databases", "64"]
 networks:
   app-network:
     driver: bridge

@@ -103,6 +103,7 @@ const DEFAULT_ROLES = {
         'canReadMarketSetting': true,
         'canManageMarketSetting': true,
         'canManageTicketAutoAssignments': true,
+        'canManageOrganizationEmployeeRequests': true,
     },
     'Dispatcher': {
         'isDefault': true,
@@ -168,6 +169,7 @@ const DEFAULT_ROLES = {
         'canReadMarketSetting': true,
         'canManageMarketSetting': false,
         'canManageTicketAutoAssignments': false,
+        'canManageOrganizationEmployeeRequests': false,
     },
     'Manager': {
         'isDefault': true,
@@ -236,6 +238,7 @@ const DEFAULT_ROLES = {
         'canReadMarketSetting': true,
         'canManageMarketSetting': true,
         'canManageTicketAutoAssignments': false,
+        'canManageOrganizationEmployeeRequests': false,
     },
     'Foreman': {
         'isDefault': true,
@@ -300,6 +303,7 @@ const DEFAULT_ROLES = {
         'canReadMarketSetting': true,
         'canManageMarketSetting': false,
         'canManageTicketAutoAssignments': false,
+        'canManageOrganizationEmployeeRequests': true,
     },
     'Technician': {
         'isDefault': true,
@@ -363,6 +367,7 @@ const DEFAULT_ROLES = {
         'canReadMarketSetting': true,
         'canManageMarketSetting': false,
         'canManageTicketAutoAssignments': false,
+        'canManageOrganizationEmployeeRequests': false,
     },
     'Contractor': {
         'isDefault': true,
@@ -424,9 +429,12 @@ const DEFAULT_ROLES = {
         'canReadMarketSetting': false,
         'canManageMarketSetting': false,
         'canManageTicketAutoAssignments': false,
+        'canManageOrganizationEmployeeRequests': false,
     },
 }
 
+const MAX_ORGANIZATION_EMPLOYEE_REQUEST_RETRIES = 5
+const MIN_ORGANIZATION_EMPLOYEE_REQUEST_RETRIES = 0
 
 
 module.exports = {
@@ -448,4 +456,6 @@ module.exports = {
     MAX_ROLE_NAME_LENGTH,
     MAX_ROLE_DESCRIPTION_LENGTH,
     MAX_ROLE_COUNT,
+    MIN_ORGANIZATION_EMPLOYEE_REQUEST_RETRIES,
+    MAX_ORGANIZATION_EMPLOYEE_REQUEST_RETRIES,
 }

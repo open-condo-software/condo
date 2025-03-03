@@ -1,8 +1,10 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "pipeline": {
+  "tasks": {
     "build": {
-      "dependsOn": ["^build"],
+      "dependsOn": [
+        "^build"
+      ],
       "outputs": [
         ".next/**",
         "!.next/cache/**",
@@ -12,12 +14,14 @@
         "src/tokens/**/*"
       ]
     },
-    "lint-translations":{
+    "lint-translations": {
       "cache": false,
       "outputs": []
     },
     "prepare": {
-      "dependsOn": ["^prepare"],
+      "dependsOn": [
+        "^prepare"
+      ],
       "cache": false
     }
   }

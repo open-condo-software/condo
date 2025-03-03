@@ -1,14 +1,15 @@
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { getSchemaCtx, getById } = require('@open-condo/keystone/schema')
+const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
-const { WRONG_PHONE_FORMAT } = require('@condo/domains/common/constants/errors')
+const { WRONG_PHONE_FORMAT, COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
-const { STAFF } = require('@condo/domains/user/constants/common')
-const { USER_FIELDS } = require('@condo/domains/user/gql')
-const { User } = require('@condo/domains/user/utils/serverSchema')
+const { STAFF, SERVICE } = require('@condo/domains/user/constants/common')
+const { WRONG_CREDENTIALS, CAPTCHA_CHECK_FAILED } = require('@condo/domains/user/constants/errors')
+const { captchaCheck } = require('@condo/domains/user/utils/hCaptcha')
+const { authGuards, validateUserCredentials } = require('@condo/domains/user/utils/serverSchema/auth')
 
-const { USER_NOT_FOUND, WRONG_PASSWORD } = require('../constants/errors')
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -24,21 +25,28 @@ const ERRORS = {
         correctExample: '+79991234567',
         messageForUser: 'api.common.WRONG_PHONE_FORMAT',
     },
-    USER_NOT_FOUND: {
+    WRONG_CREDENTIALS: {
         mutation: 'authenticateUserWithPhoneAndPassword',
         code: BAD_USER_INPUT,
-        type: USER_NOT_FOUND,
-        message: 'Unable to find user by provided phone. Try to register',
-        variable: ['data', 'phone'],
-        messageForUser: 'api.user.authenticateUserWithPhoneAndPassword.USER_NOT_FOUND',
+        type: WRONG_CREDENTIALS,
+        message: 'Wrong phone or password',
+        messageForUser: 'api.user.authenticateUserWithPhoneAndPassword.WRONG_CREDENTIALS',
     },
-    WRONG_PASSWORD: {
-        mutation: 'authenticateUserWithPhoneAndPassword',
+    CAPTCHA_CHECK_FAILED: {
+        query: 'authenticateUserWithPhoneAndPassword',
+        variable: ['data', 'captcha'],
         code: BAD_USER_INPUT,
-        type: WRONG_PASSWORD,
-        message: 'Wrong password',
-        variable: ['data', 'password'],
-        messageForUser: 'api.user.authenticateUserWithPhoneAndPassword.WRONG_PASSWORD',
+        type: CAPTCHA_CHECK_FAILED,
+        message: 'Failed to check CAPTCHA',
+        messageForUser: 'api.user.CAPTCHA_CHECK_FAILED',
+    },
+    DV_VERSION_MISMATCH: {
+        ...COMMON_ERRORS.DV_VERSION_MISMATCH,
+        query: 'authenticateOrRegisterUserWithToken',
+    },
+    WRONG_SENDER_FORMAT: {
+        ...COMMON_ERRORS.WRONG_SENDER_FORMAT,
+        query: 'authenticateOrRegisterUserWithToken',
     },
 }
 
@@ -46,7 +54,7 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
     types: [
         {
             access: true,
-            type: 'input AuthenticateUserWithPhoneAndPasswordInput { phone: String! password: String! }',
+            type: 'input AuthenticateUserWithPhoneAndPasswordInput { dv: Int, sender: SenderFieldInput, captcha: String, userType: UserTypeType, phone: String! password: String! }',
         },
         {
             access: true,
@@ -57,25 +65,52 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
         {
             access: true,
             schema: 'authenticateUserWithPhoneAndPassword(data: AuthenticateUserWithPhoneAndPasswordInput!): AuthenticateUserWithPhoneAndPasswordOutput',
+            doc: {
+                summary: 'This mutation authorizes the user by phone and password',
+                errors: ERRORS,
+            },
             resolver: async (parent, args, context) => {
-                const { data: { phone: inputPhone, password } } = args
-                const phone = normalizePhone(inputPhone)
+                const { data } = args
+                const {
+                    password,
+                    captcha,
+
+                    // NOTE: Previously we did not allow specifying the userType, dv and sender.
+                    // And we do not want breaking changes, so we specify default values
+                    dv = 1,
+                    sender = { dv: 1, fingerprint: 'auth-by-phone-and-password' },
+                    userType = STAFF,
+                } = data
+
+                const phone = normalizePhone(data.phone)
+
+                await authGuards({ phone, userType }, context)
+
+                if (captcha && userType !== SERVICE) {
+                    const { error: captchaError } = await captchaCheck(context, captcha)
+                    if (captchaError) {
+                        throw new GQLError({ ...ERRORS.CAPTCHA_CHECK_FAILED, data: { error: captchaError } }, context)
+                    }
+                }
+
+                checkDvAndSender({ dv, sender }, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
+
                 if (!phone) {
                     throw new GQLError(ERRORS.WRONG_PHONE_FORMAT, context)
                 }
-                const users = await User.getAll(context, { phone, type: STAFF, deletedAt: null }, USER_FIELDS)
-                if (users.length !== 1) {
-                    throw new GQLError(ERRORS.USER_NOT_FOUND, context)
-                }
-                const user = await getById('User', users[0].id)
-                const { keystone } = getSchemaCtx('User')
-                const { auth: { User: { password: PasswordStrategy } } } = keystone
-                const list = PasswordStrategy.getList()
-                const { success } = await PasswordStrategy._matchItem(user, { password }, list.fieldsByPath['password'] )
+
+                const { success, user } = await validateUserCredentials(
+                    { phone, userType },
+                    { password }
+                )
+
                 if (!success) {
-                    throw new GQLError(ERRORS.WRONG_PASSWORD, context)
+                    throw new GQLError(ERRORS.WRONG_CREDENTIALS, context)
                 }
-                const token = await context.startAuthedSession({ item: users[0], list: keystone.lists['User'] })
+
+                const { keystone } = getSchemaCtx('User')
+                const token = await context.startAuthedSession({ item: user, list: keystone.lists['User'] })
+
                 return {
                     item: user,
                     token,

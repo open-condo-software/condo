@@ -82,7 +82,6 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
     const [form] = Form.useForm()
 
     const [isOrganizationPeriod, setIsOrganizationPeriod] = useState(false)
-    const [incorrectPeriodError, setIncorrectPeriodError] = useState(false)
     const [selectedPropertyId, setSelectedPropertyId] = useState()
 
     const isCreateMode = mode === 'create'
@@ -113,16 +112,11 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
 
     const { requiredValidator } = useValidations()
     const { addressValidator } = usePropertyValidations()
-    const incorrectPeriodValidation: (hasError: boolean) => Rule = (hasError) => {
-        if (hasError) {
-            return { message: IncorrectPeriodLabel }
-        }
-    }
 
     const validations: { [key: string]: Rule[] } = {
         property: [addressValidator(selectedPropertyId, true)],
-        notifyStartDay: [requiredValidator, incorrectPeriodValidation(incorrectPeriodError)],
-        notifyEndDay: [requiredValidator, incorrectPeriodValidation(incorrectPeriodError)],
+        notifyStartDay: [requiredValidator],
+        notifyEndDay: [requiredValidator],
     }
 
     const handleCheckboxChange = useCallback(() => {
@@ -133,21 +127,15 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
         }
     }, [isOrganizationPeriod])
 
-    const handleDayChange = useCallback( () => {
-        if (startNumberRef.current > finishNumberRef.current) setIncorrectPeriodError(true)
-        else setIncorrectPeriodError(false)
-    }, [startNumberRef, finishNumberRef])
 
     const handleStartChange = useCallback((value) => {
         startNumberRef.current = value
         execSelectRerender(value)
-        handleDayChange()
     }, [])
 
     const handleFinishChange = useCallback((value) => {
         finishNumberRef.current = value
         execSelectRerender(value)
-        handleDayChange()
     }, [])
 
     useEffect(() => {
@@ -320,13 +308,10 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                                                     if (!notifyStartDay) messageLabels.push(`"${StartLabel}"`)
                                                     if (!notifyEndDay) messageLabels.push(`"${FinishLabel}"`)
 
-                                                    const incorrectPeriodErrorMessage = incorrectPeriodError ? IncorrectPeriodLabel : undefined
                                                     const requiredErrorMessage = !isEmpty(messageLabels) && ErrorsContainerTitle.concat(' ', messageLabels.join(', '))
-                                                    const errors = [incorrectPeriodErrorMessage, requiredErrorMessage]
-                                                        .filter(Boolean)
-                                                        .join(', ')
+                                                    const errors = [requiredErrorMessage].filter(Boolean).join('')
 
-                                                    const isDisabled = (!property && !isOrganizationPeriod) || !notifyStartDay || !notifyEndDay || !!incorrectPeriodErrorMessage
+                                                    const isDisabled = (!property && !isOrganizationPeriod) || !notifyStartDay || !notifyEndDay
 
                                                     return (
                                                         <ActionBar

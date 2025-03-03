@@ -1,11 +1,19 @@
-import { GrowthBook, GrowthBookProvider, useGrowthBook, FeaturesReady } from '@growthbook/growthbook-react'
+import {
+    FeatureDefinitions,
+    FeaturesReady,
+    GrowthBook,
+    GrowthBookProvider,
+    useGrowthBook,
+    Context,
+} from '@growthbook/growthbook-react'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
 import { NextPage } from 'next'
 import getConfig from 'next/config'
-import { createContext, useCallback, useContext, useEffect, useState } from 'react'
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
 
+import { isSSR } from '@open-condo/miniapp-utils'
 import {
     DEBUG_RERENDERS,
     DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER,
@@ -22,7 +30,6 @@ const {
     },
 } = getConfig()
 
-const growthbook = new GrowthBook()
 const FEATURES_RE_FETCH_INTERVAL_IN_MS = 60 * 1000 // 1 min
 
 type UseFlagValueType = <T>(name: string) => T | null
@@ -41,7 +48,11 @@ const FeatureFlagsContext = createContext<IFeatureFlagsContext>({
 
 const useFeatureFlags = (): IFeatureFlagsContext => useContext(FeatureFlagsContext)
 
-const FeatureFlagsProviderWrapper = ({ children, initFeatures = null }) => {
+type FeatureFlagsProviderWrapperProps = {
+    initFeatures?: FeatureDefinitions
+}
+
+const FeatureFlagsProviderWrapper: React.FC<FeatureFlagsProviderWrapperProps> = ({ children, initFeatures = null }) => {
     const growthbook = useGrowthBook()
     const { user, isLoading: userIsLoading  } = useAuth()
     const { organization, isLoading: organizationIsLoading } = useOrganization()
@@ -113,9 +124,39 @@ const FeatureFlagsProviderWrapper = ({ children, initFeatures = null }) => {
     )
 }
 
-const FeatureFlagsProvider: React.FC<{ initFeatures? }> = ({ children, initFeatures = null }) => {
+type FeatureFlagsProviderProps = FeatureFlagsProviderWrapperProps
+
+const FeatureFlagsProvider: React.FC<FeatureFlagsProviderProps> = ({ children, initFeatures = null }) => {
+    const { user, isLoading: userIsLoading  } = useAuth()
+    const { organization, isLoading: organizationIsLoading } = useOrganization()
+
+    const [growthbookInstance] = useState(() => {
+        // NOTE: We need to fill the growthbook during server rendering so that the correct page is generated
+        const isSupport = get(user, 'isSupport', false)
+        const isAdmin = get(user, 'isAdmin', false)
+        const userId = get(user, 'id', null)
+        const organizationId = get(organization, 'id', null)
+
+        const context: Context = {}
+
+        // NOTE: After we write feature to the growthbook, the growthbook will be marked as ready.
+        // Therefore, if not all the necessary data is loaded,
+        // then we want to consider that the growthbook is not ready for work
+        if (!userIsLoading && !organizationIsLoading && initFeatures) {
+            context.features = initFeatures
+        }
+
+        context.attributes = {
+            isSupport: isSupport || isAdmin,
+            organization: organizationId,
+            userId,
+        }
+
+        return new GrowthBook(context)
+    })
+
     return (
-        <GrowthBookProvider growthbook={growthbook}>
+        <GrowthBookProvider growthbook={growthbookInstance}>
             <FeatureFlagsProviderWrapper initFeatures={initFeatures}>
                 {children}
             </FeatureFlagsProviderWrapper>
@@ -146,7 +187,7 @@ const initOnRestore = async (ctx) => {
 type WithFeatureFlagsProps = {
     ssr?: boolean
 }
-export type WithFeatureFlags = (props: WithFeatureFlagsProps) => (PageComponent: NextPage<any>) => NextPage<any>
+export type WithFeatureFlags = (props: WithFeatureFlagsProps) => (PageComponent: NextPage) => NextPage
 
 const withFeatureFlags: WithFeatureFlags = ({ ssr = false }) => PageComponent => {
     const WithFeatureFlags = ({ features, ...pageProps }) => {
@@ -167,14 +208,13 @@ const withFeatureFlags: WithFeatureFlags = ({ ssr = false }) => PageComponent =>
         WithFeatureFlags.displayName = `withFeatureFlags(${displayName})`
     }
 
-    if (ssr || PageComponent.getInitialProps) {
+    if (ssr || !isSSR() || PageComponent.getInitialProps) {
         WithFeatureFlags.getInitialProps = async (ctx) => {
             if (DEBUG_RERENDERS) console.log('WithIntl.getInitialProps()', ctx)
-            const isOnServerSide = typeof window === 'undefined'
             const { features } = await initOnRestore(ctx)
             const pageProps = await getContextIndependentWrappedInitialProps(PageComponent, ctx)
 
-            if (isOnServerSide) {
+            if (isSSR()) {
                 preventInfinityLoop(ctx)
             }
 

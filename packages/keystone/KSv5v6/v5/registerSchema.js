@@ -25,6 +25,7 @@ const {
     Select,
     SignedDecimal,
     Text,
+    EncryptedText,
 } = require('../../fields')
 const { HiddenRelationship } = require('../../plugins/utils/HiddenRelationship')
 const { AuthedRelationship, Relationship } = require('../../plugins/utils/Relationship')
@@ -39,7 +40,7 @@ function _defaultAdminUiColumns (fields) {
 
 function applyKeystoneV5AdminFixes (schema) {
     // https://v5.keystonejs.com/api/create-list#labelresolver
-    if (!schema.labelResolver) {
+    if (!schema.labelResolver && !schema.labelField) {
         schema.labelResolver = (item) => (item.name) ? `${item.name} -- <${item.id}>` : item.id
     }
     schema.adminConfig = {
@@ -83,6 +84,7 @@ function convertStringToTypes (schema) {
         Select,
         SignedDecimal,
         Text,
+        EncryptedText,
     }
     const allTypesForPrint = Object.keys(mapping).map(item => `"${item}"`).join(', ')
 

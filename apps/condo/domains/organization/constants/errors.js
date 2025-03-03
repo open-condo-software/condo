@@ -1,6 +1,7 @@
 const ALREADY_ACCEPTED_INVITATION = 'ALREADY_ACCEPTED_INVITATION'
 const ALREADY_INVITED_EMAIL = 'ALREADY_INVITED_EMAIL'
 const ALREADY_INVITED_PHONE = 'ALREADY_INVITED_PHONE'
+// TODO(pahaz): DOMA-10729 it looks like we need to remove this const. it's useless
 const EMPTY_NAME_ERROR = '[name.is.too.short'
 const TIN_TOO_SHORT_ERROR = '[tin.is.too.short'
 const TIN_VALUE_INVALID = '[tin.value.is.invalid'

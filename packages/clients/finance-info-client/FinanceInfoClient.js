@@ -2,7 +2,7 @@ const { get } = require('lodash')
 const fetch = require('node-fetch')
 
 const conf = require('@open-condo/config')
-const { getRedisClient } = require('@open-condo/keystone/redis')
+const { getKVClient } = require('@open-condo/keystone/kv')
 
 const { apiToken: API_KEY } = conf['ADDRESS_SUGGESTIONS_CONFIG'] ? JSON.parse(conf['ADDRESS_SUGGESTIONS_CONFIG']) : {}
 
@@ -39,7 +39,7 @@ class FinanceInfoClient {
         bank: '/findById/bank',
     }
 
-    redis = getRedisClient('company-info-cache')
+    redis = getKVClient('company-info-cache')
 
     /**
      * Get organization details by Taxpayer Identification Number (TIN).
@@ -65,6 +65,7 @@ class FinanceInfoClient {
                     short_with_opf: organizationShortName,
                 },
                 address: {
+                    value: organizationAddress,
                     data: {
                         country_iso_code: organizationCountry,
                         timezone,
@@ -72,7 +73,7 @@ class FinanceInfoClient {
                 },
             },
         } = info
-        const result = { timezone, territoryCode, iec, tin, psrn, name: organizationShortName || organizationFullName, country: organizationCountry.toLowerCase() }
+        const result = { timezone, territoryCode, iec, tin, psrn, name: organizationShortName || organizationFullName, country: organizationCountry.toLowerCase(), organizationAddress }
         await this.#setToCache(`ORGANIZATION_${requestTin}`, result)
         return result
     }

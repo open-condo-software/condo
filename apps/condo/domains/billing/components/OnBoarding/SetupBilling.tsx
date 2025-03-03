@@ -16,6 +16,7 @@ import { CONTEXT_FINISHED_STATUS } from '@condo/domains/miniapp/constants'
 
 import type { RowProps } from 'antd'
 
+
 const INSTRUCTION_FOOTER_GUTTER: RowProps['gutter'] = [0, 40]
 const COL_FULL_SPAN = 24
 
@@ -32,7 +33,7 @@ const SetupInstructionBilling: React.FC<SetupInstructionBillingProps> = ({ instr
     const router = useRouter()
 
     const handleDoneClick = useCallback(() => {
-        router.push({ query: { step: 2 } })
+        router.push({ query: { step: 2 } }, undefined, { shallow: true })
     }, [router])
 
     return (
@@ -67,7 +68,7 @@ const SetupInteractiveBilling: React.FC<SetupInteractiveBillingProps> = ({ setup
     const frameOrigin = useMemo(() => extractOrigin(setupUrl), [setupUrl])
     const handleDoneMessage = useCallback((event: MessageEvent) => {
         if (event.origin === frameOrigin && get(event.data, 'success') === true) {
-            router.push({ query: { step: 2 } } )
+            router.push({ query: { step: 2 } }, undefined, { shallow: true })
         }
     }, [frameOrigin, router])
 
@@ -113,14 +114,14 @@ export const SetupBilling: React.FC = ()=> {
     // NOTE: If already connected billing = skip to final step
     useEffect(() => {
         if (!connectedCtxLoading && !connectedCtxError && connectedContextId) {
-            router.replace({ query: { ...router.query, step: 2 } })
+            router.replace({ query: { ...router.query, step: 2 } }, undefined, { shallow: true })
         }
     }, [router, connectedCtxLoading, connectedCtxError, connectedContextId])
 
     // If no context found, return to step 0
     useEffect(() => {
         if (!currentCtxLoading && !currentCtxError && !currentContextId) {
-            router.replace({ query: { step: 0 } })
+            router.replace({ query: { step: 0 } }, undefined, { shallow: true })
         }
     }, [router, currentCtxLoading, currentCtxError, currentContextId])
 

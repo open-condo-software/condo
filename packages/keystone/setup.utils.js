@@ -2,10 +2,10 @@ const { KnexAdapter } = require('@keystonejs/adapter-knex')
 const { MongooseAdapter } = require('@keystonejs/adapter-mongoose')
 const connectRedis = require('connect-redis')
 const session = require('express-session')
-const IORedis = require('ioredis')
 const { v5: uuidv5 } = require('uuid')
 
 const conf = require('@open-condo/config')
+const { getKVClient } = require('@open-condo/keystone/kv')
 
 const { FakeDatabaseAdapter, BalancingReplicaKnexAdapter } = require('./databaseAdapters')
 
@@ -62,17 +62,22 @@ function getAdapter (databaseUrl) {
     }
 }
 
+function getCookieOptions (conf) {
+    return {
+        sameSite: HTTPS_REGEXP.test(conf.SERVER_URL) && conf.NODE_ENV === 'production' ? 'None' : 'Lax',
+        // NOTE(pahaz): Apollo server client doesn't work with secure=true! Need to research why
+        secure: HTTPS_REGEXP.test(conf.SERVER_URL) && conf.NODE_ENV === 'production',
+        httpOnly: conf.DISABLE_HTTP_ONLY_COOKIE !== 'true',
+        // 1000 * (Math.pow(2, 31) - 1) IS APPROXIMATELY 68 YEARS IN MILLISECONDS :)
+        maxAge: conf.COOKIE_MAX_AGE || 1000 * (Math.pow(2, 31) - 1),
+    }
+}
+
 /** @deprecated use prepareKeystone */
 function prepareDefaultKeystoneConfig (conf) {
     const config = {
         cookieSecret: getCookieSecret(conf.COOKIE_SECRET),
-        cookie: {
-            sameSite: HTTPS_REGEXP.test(conf.SERVER_URL) && conf.NODE_ENV === 'production' ? 'None' : 'Lax',
-            // NOTE(pahaz): Apollo server client doesn't work with secure=true! Need to research why
-            secure: HTTPS_REGEXP.test(conf.SERVER_URL) && conf.NODE_ENV === 'production',
-            // 1000 * (Math.pow(2, 31) - 1) IS APPROXIMATELY 68 YEARS IN MILLISECONDS :)
-            maxAge: conf.COOKIE_MAX_AGE || 1000 * (Math.pow(2, 31) - 1),
-        },
+        cookie: getCookieOptions(conf),
         name: conf.PROJECT_NAME,
         defaultAccess: { list: false, field: true, custom: false },
         queryLimits: { maxTotalResults: 1000 },
@@ -83,10 +88,9 @@ function prepareDefaultKeystoneConfig (conf) {
         },
     }
 
-    if (!IS_BUILD && conf.REDIS_URL) {
-        const redisClient = new IORedis(conf.REDIS_URL)
-        const sessionStore = new RedisStore({ client: redisClient })
-        config.sessionStore = sessionStore
+    if (!IS_BUILD && (conf.VALKEY_URL || conf.REDIS_URL)) {
+        const client = getKVClient()
+        config.sessionStore = new RedisStore({ client })
     }
 
     config.adapter = getAdapter(conf.DATABASE_URL || 'undefined')
@@ -98,4 +102,5 @@ module.exports = {
     getCookieSecret,
     getAdapter,
     prepareDefaultKeystoneConfig,
+    getCookieOptions,
 }

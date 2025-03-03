@@ -1,0 +1,282 @@
+<mjml>
+
+  <mj-head>
+    <mj-attributes>
+      <mj-all padding="0" />
+      <mj-all font-family="Open Sans" />
+      <mj-wrapper padding-left="25px" padding-right="25px" />
+      <mj-text color="#696969" />
+
+      <mj-class name="link" color="#3cbbc9" />
+      <mj-class name="black" color="#000000" />
+      <mj-class name="bold" font-weight="700" />
+
+      <mj-class name="paragraph" font-size="16px" line-height="25px" />
+      <mj-class name="title" font-size="24px" line-height="38px" font-weight="700" />
+
+      <mj-class name="bg-white" background-color="#ffffff" />
+    </mj-attributes>
+
+    <mj-style inline="inline">
+      .link {
+      	color: #3cbbc9;
+      }
+
+      .black {
+      	color: #000;
+      }
+
+      .header-btn a {
+      	padding: 8px 16px !important;
+      }
+    </mj-style>
+
+    <mj-style>
+      @media screen and (max-width: 479px) {
+        .header-logo td {
+      	  width: 90px !important;
+        }
+
+        .header-btn a {
+      	  font-size: 14px !important;
+        }
+
+        .title {
+       		padding-top: 16px !important;
+        }
+
+        .title div {
+          font-size: 20px !important;
+          line-height: 28px !important;
+        }
+
+        .paragraph {
+      	  padding-top: 16px !important;
+        }
+
+        .paragraph div {
+          font-size: 14px !important;
+          line-height: 22px !important;
+        }
+
+        .paragraph.company-name {
+      	  padding-top: 0px !important;
+        }
+
+        .letter-btn {
+        	padding-bottom: 24px !important;
+        }
+
+        .footer div {
+          font-size: 11px !important;
+          line-height: 18px !important;
+        }
+      }
+    </mj-style>
+  </mj-head>
+
+  <mj-body background-color="#fafafa">
+
+    <mj-wrapper background-color="transparent" padding="8px"></mj-wrapper>
+
+    <mj-raw>
+      <!-- Header -->
+    </mj-raw>
+    <mj-wrapper mj-class="bg-white" padding-top="20px">
+      <mj-section>
+        <mj-group>
+          <mj-column vertical-align="middle">
+            <mj-image width="100px" align="left" src="{{ env.serverUrl }}/messages/companyLogo.png" href="{{ env.serverUrl }}" alt="Logo" css-class="header-logo"></mj-image>
+          </mj-column>
+          <mj-column vertical-align="middle">
+            <mj-button background-color="transparent" color="#000000" font-size="20px" border="1px solid" border-radius="8px" align="right" href="{{ env.serverUrl }}" css-class="header-btn">
+              Ir a Doma
+            </mj-button>
+          </mj-column>
+        </mj-group>
+      </mj-section>
+    </mj-wrapper>
+
+
+    <mj-raw>
+      <!-- Image -->
+    </mj-raw>
+    <mj-wrapper mj-class="bg-white" padding-top="20px">
+      <mj-section>
+        <mj-column>
+          <mj-image src="{{ env.serverUrl }}/messages/SEND_DAILY_STATISTICS/cover.png" alt="cover"></mj-image>
+        </mj-column>
+      </mj-section>
+    </mj-wrapper>
+
+
+    <mj-raw>
+      <!-- Letter -->
+    </mj-raw>
+    <mj-wrapper mj-class="bg-white" padding-top="5px">
+      <mj-section>
+        <mj-column>
+          <mj-text mj-class="title black" font-size="24px" css-class="title" padding-top="20px">¡Hola!</mj-text>
+        </mj-column>
+      </mj-section>
+
+      <mj-section>
+        <mj-column>
+          <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">Esta carta es una lista de eventos importantes en la vida de sus propiedades para <b class="black">{{ message.meta.data.date }}</b> basada en los datos de la plataforma Doma.ai. Le contamos lo sucedido para que le sea más fácil mantener la situación bajo control y responder a los eventos a tiempo.</mj-text>
+        </mj-column>
+      </mj-section>
+
+      <mj-section>
+        <mj-column>
+          <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">
+            <b class="black">Número total de incidencias en curso: </b>
+            <b class="black">{{ message.meta.data.tickets.inProgress.total }}</b>
+            {% if message.meta.data.tickets.inProgress.details %}
+              <span>({{ message.meta.data.tickets.inProgress.details }})</span>
+            {% endif %}
+          </mj-text>
+        </mj-column>
+      </mj-section>
+
+      <mj-section>
+        <mj-column>
+          <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">
+            <b class="black">Incidencias urgentes en estado abierto y creadas hace más de 24 horas:</b>
+            <b class="black">{{ message.meta.data.tickets.isEmergency.total }}</b>
+            {% if message.meta.data.tickets.isEmergency.details %}
+              <span>({{ message.meta.data.tickets.isEmergency.details }})</span>
+            {% endif %}
+          </mj-text>
+        </mj-column>
+      </mj-section>
+
+      <mj-section>
+        <mj-column>
+          <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">
+            <b class="black">Incidencias devueltas: </b>
+            <b class="black">{{ message.meta.data.tickets.isReturned.total }}</b>
+            {% if message.meta.data.tickets.isReturned.details %}
+              <span>({{ message.meta.data.tickets.isReturned.details }})</span>
+            {% endif %}
+          </mj-text>
+        </mj-column>
+      </mj-section>
+
+      <mj-section>
+        <mj-column>
+          <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">
+            <b class="black">Incidencias caducadas: </b>
+            <b class="black">{{ message.meta.data.tickets.isExpired.total }}</b>
+            {% if message.meta.data.tickets.isExpired.details %}
+              <span>({{ message.meta.data.tickets.isExpired.details }})</span>
+            {% endif %}
+          </mj-text>
+        </mj-column>
+      </mj-section>
+
+      <mj-section>
+        <mj-column>
+          <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">
+            <b class="black">Incidencias que requieren la asignación de proveedores: </b>
+            <b class="black">{{ message.meta.data.tickets.withoutEmployee.total }}</b>
+            {% if message.meta.data.tickets.withoutEmployee.details %}
+              <span>({{ message.meta.data.tickets.withoutEmployee.details }})</span>
+            {% endif %}
+          </mj-text>
+        </mj-column>
+      </mj-section>
+
+      <mj-section>
+        <mj-column>
+          <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">Ir a la <a href="{{ env.serverUrl }}" class="link">plataforma Doma.ai</a> para conocer más detalles sobre las incidencias y utilizar otros servicios.</mj-text>
+        </mj-column>
+      </mj-section>
+
+      {% if message.meta.data.incidents.water %}
+        <mj-section>
+          <mj-column>
+            <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">
+              <b class="black">Cortes de agua previstos: </b>
+              <span>{{ message.meta.data.incidents.water }}</span>
+            </mj-text>
+          </mj-column>
+        </mj-section>
+      {% endif %}
+
+      <mj-section>
+        <mj-column>
+          <mj-button background-color="#49d48a" border-radius="8px" font-size="16px" line-height="22px" href="{{ env.serverUrl }}/ticket" padding-top="20px" padding-bottom="32px" css-class="letter-btn">
+            Ir al panel de control
+          </mj-button>
+        </mj-column>
+      </mj-section>
+
+      <mj-section>
+        <mj-column>
+          <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">Con cuidado para su negocio, </mj-text>
+          {% if env.landingUrl.en %}
+            <mj-text mj-class="paragraph company-name" css-class="paragraph company-name" padding-top="4px"><a href="{{ env.landingUrl.en }}" class="link">Domá</a></mj-text>
+          {% else %}
+            <mj-text mj-class="paragraph company-name" css-class="paragraph company-name" padding-top="4px">Domá</mj-text>
+          {% endif %}
+        </mj-column>
+      </mj-section>
+
+      <mj-section padding="8px"></mj-section>
+    </mj-wrapper>
+
+
+    <mj-raw>
+      <!-- Footer -->
+    </mj-raw>
+    <mj-wrapper background-color="transparent" css-class="footer" padding-top="20px">
+
+      {% if env.socialMediaLinks.en %}
+        <mj-section>
+          <mj-column>
+            <mj-text align="center" font-weight="500" line-height="19px">Siga las noticias de Doma en las redes sociales</mj-text>
+          </mj-column>
+        </mj-section>
+
+        <mj-section>
+          <mj-column>
+            <mj-social align="center" mode="horizontal" padding-top="8px">
+              {% for name, link in env.socialMediaLinks.en %}
+                <mj-social-element href="{{ link }}" src="{{ env.serverUrl }}/socials/{{ name }}.png" icon-size="32px" padding="4px" alt="{{ name }}">
+                </mj-social-element>
+              {% endfor %}
+            </mj-social>
+          </mj-column>
+        </mj-section>
+      {% endif %}
+
+      <mj-section>
+        <mj-column>
+          <mj-text align="center" font-weight="500" padding-top="8px" line-height="19px">¿Queda alguna duda? <a href="mailto:{{ env.supportEmail }}" class="link">El equipo de soporte las responderá</a>.</mj-text>
+        </mj-column>
+      </mj-section>
+
+      <mj-section>
+        <mj-column>
+          <mj-text align="center" padding-top="12px" line-height="19px">Está recibiendo este correo electrónico porque ha dado su consentimiento para recibir comunicaciones de Doma.</mj-text>
+        </mj-column>
+      </mj-section>
+
+      <mj-section>
+        <mj-column>
+          <mj-text align="center" padding-top="12px" line-height="19px">¿Desea darse de baja del boletín? Haga clic <a href="{{ env.serverUrl }}/api/unsubscribe?id={{ message.id }}" class="link">aquí</a>.</mj-text>
+        </mj-column>
+      </mj-section>
+
+      <mj-section>
+        <mj-column>
+          <mj-text align="center" padding-top="20px" line-height="19px">© Doma 2024</mj-text>
+        </mj-column>
+      </mj-section>
+
+      <mj-section padding="8px"></mj-section>
+    </mj-wrapper>
+
+  </mj-body>
+
+</mjml>

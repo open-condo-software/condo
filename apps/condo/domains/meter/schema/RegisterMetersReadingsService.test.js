@@ -889,22 +889,6 @@ describe('RegisterMetersReadingsService', () => {
 
     })
 
-    test('Meter info controlReadingsDate should take todays date on empty input if meter is being created', async () => {
-        const [organization] = await createTestOrganization(adminClient)
-        const [property] = await createTestPropertyWithMap(adminClient, organization)
-
-        const reading = createTestReadingData(property)
-        reading.meterMeta.controlReadingsDate = undefined
-        const [data] = await registerMetersReadingsByTestClient(adminClient, organization, [reading])
-
-        expect(data).toHaveLength(1)
-
-        const row = data[0]
-
-        const meter = await Meter.getOne(adminClient, { id: row.meter.id })
-        expect(meter.controlReadingsDate).toBeTruthy()
-    })
-
     describe('Meter info dates saves as empty on empty input', () => {
         const dateFields = [
             'verificationDate',
@@ -912,6 +896,7 @@ describe('RegisterMetersReadingsService', () => {
             'installationDate',
             'commissioningDate',
             'sealingDate',
+            'controlReadingsDate',
         ]
 
         const emptyValues = [ null, undefined ]
@@ -1177,4 +1162,54 @@ describe('RegisterMetersReadingsService', () => {
             expect.objectContaining({ source: expect.objectContaining({ id: REMOTE_SYSTEM_METER_READING_SOURCE_ID }) }),
         ])
     })
+
+    test('possible re-import readings that were previously deleted', async () => {
+        const [organization] = await createTestOrganization(adminClient)
+        const [property] = await createTestPropertyWithMap(adminClient, organization)
+        const readings = [createTestReadingData(property, {
+            meterMeta: {
+                numberOfTariffs: 2,
+            },
+        })]
+        const [firstImport] = await registerMetersReadingsByTestClient(adminClient, organization, readings)
+
+        // be sure that meter and meter reading was created successfully
+        const meters = await Meter.getAll(adminClient, {
+            organization: { id: organization.id },
+            property: { id: property.id },
+        })
+        expect(meters).toHaveLength(1)
+        expect(meters[0].number).toBe(readings[0].meterNumber)
+        expect(meters[0].nextVerificationDate).toBeFalsy()
+        expect(meters[0].isAutomatic).toBe(false)
+
+        const meterReadings = await MeterReading.getAll(adminClient, { meter: { id_in: map(meters, 'id') } })
+        expect(meterReadings).toHaveLength(1)
+        expect(meterReadings[0].meter.id).toBe(meters[0].id)
+
+        // soft delete created Meter Reading
+        const [deletedReading] = await MeterReading.softDelete(adminClient, meterReadings[0].id)
+        expect(deletedReading.id).toBe(meterReadings[0].id)
+
+        // create same reading again
+        const [secondImport] = await registerMetersReadingsByTestClient(adminClient, organization, readings)
+        expect(firstImport[0].meter.id).toBe(secondImport[0].meter.id)
+
+        const metersReadings2 = await MeterReading.getAll(adminClient, { meter: { id_in: map(meters, 'id') } })
+        expect(metersReadings2).toHaveLength(1)
+        expect(metersReadings2[0].meter.id).toBe(meters[0].id)
+
+        // ensure that meter reading was created again with all the same fields
+        expect(metersReadings2).toHaveLength(1)
+        expect(metersReadings2[0].value1).toBe(meterReadings[0].value1)
+        expect(metersReadings2[0].value2).toBe(meterReadings[0].value2)
+        expect(metersReadings2[0].date).toBe(meterReadings[0].date)
+        expect(metersReadings2[0].date).toBe(meterReadings[0].date)
+        expect(metersReadings2[0].meter.id).toBe(meterReadings[0].meter.id)
+        expect(metersReadings2[0].accountNumber).toBe(meterReadings[0].accountNumber)
+        expect(metersReadings2[0].organization.id).toBe(meterReadings[0].organization.id)
+        expect(metersReadings2[0].source.id).toBe(meterReadings[0].source.id)
+
+    })
+
 })

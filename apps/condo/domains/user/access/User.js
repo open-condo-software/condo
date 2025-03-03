@@ -4,7 +4,7 @@
 const get = require('lodash/get')
 
 const access = require('@open-condo/keystone/access')
-const { isFilteringBy } = require('@open-condo/keystone/access')
+const { isFilteringBy, isDirectListQuery } = require('@open-condo/keystone/access')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
 const { SERVICE } = require('@condo/domains/user/constants/common')
@@ -56,7 +56,7 @@ const canAccessToEmailField = {
 
         const { existingItem, authentication: { item: user }, listKey, fieldKey } = args
 
-        // Service users with right set (dev-api) can read only emails of service users
+        // Service users with right set (dev-portal) can read only emails of service users
         if (user.type === SERVICE && existingItem.type === SERVICE) {
             return await canDirectlyReadSchemaField(user, listKey, fieldKey)
         }
@@ -99,6 +99,13 @@ const canAccessToIsAdminField = {
     update: access.userIsAdmin,
 }
 
+const canManageUserType = {
+    read: true,
+    create: canManageUsers,
+    // TODO Change access.userIsAdmin to FALSE
+    update: access.userIsAdmin,
+}
+
 const canAccessToIsEmailVerifiedField = readByAnyUpdateByAdminField
 const canAccessToIsPhoneVerifiedField = readByAnyUpdateByAdminField
 const canAccessToImportField = readByAnyUpdateByAdminField
@@ -110,6 +117,28 @@ const canAccessCustomAccessField = {
     update: access.userIsAdmin,
 }
 
+async function canReadUserNameField (args) {
+    const { authentication: { item: user }, listKey, existingItem } = args
+
+    // NOTE: Order of checks is important. Outside allUsers / User we want to keep default behaviour
+    // Including access for non-authorized users in queries such as signIn / registerNewUser
+    // But inside User / allUsers we want to restrict access to name field
+
+    if (isDirectListQuery(args)) {
+        if (!user) return throwAuthenticationError()
+        if (user.deletedAt) return false
+        if (user.isAdmin || user.isSupport) return true
+
+        const hasDirectAccess = await canDirectlyReadSchemaObjects(user, listKey)
+        if (hasDirectAccess) return true
+
+        return existingItem.id === user.id
+    }
+
+    // NOTE: Managed by default list / custom query access
+    return true
+}
+
 /*
   Rules are logical functions that used for list access, and may return a boolean (meaning
   all or no items are available) or a set of filters that limit the available items.
@@ -117,6 +146,7 @@ const canAccessCustomAccessField = {
 module.exports = {
     canReadUsers,
     canManageUsers,
+    canManageUserType,
     canAccessToEmailField,
     canAccessToPhoneField,
     canAccessToPasswordField,
@@ -128,4 +158,5 @@ module.exports = {
     canAccessToRelatedOrganizationsField,
     canAccessToEmployeesField,
     canAccessCustomAccessField,
+    canReadUserNameField,
 }

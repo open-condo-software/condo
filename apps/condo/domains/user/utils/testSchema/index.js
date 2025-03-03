@@ -4,22 +4,25 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const { faker } = require('@faker-js/faker')
+const { gql } = require('graphql-tag')
 const { v4: uuid } = require('uuid')
 const { countryPhoneData } = require('phone')
 const { max, repeat, get, isEmpty } = require('lodash')
+const dayjs = require('dayjs')
 
 const { getRandomString, makeClient, makeLoggedInClient, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 
+const { TOKEN_TYPES, generateToken } = require('@condo/domains/user/utils/tokens')
 const {
     SMS_CODE_TTL,
     CONFIRM_PHONE_ACTION_EXPIRY,
     SBER_ID_IDP_TYPE,
     RESIDENT,
     STAFF,
-    SERVICE
+    SERVICE,
 } = require('@condo/domains/user/constants/common')
-const { IDENTITY_TYPES} = require('@condo/domains/user/constants')
+const { IDENTITY_TYPES } = require('@condo/domains/user/constants')
 const {
     ConfirmPhoneAction: ConfirmPhoneActionGQL,
     OidcClient: OidcClientGQL,
@@ -46,10 +49,20 @@ const { ExternalTokenAccessRight: ExternalTokenAccessRightGQL } = require('@cond
 const { GET_ACCESS_TOKEN_BY_USER_ID_QUERY } = require('@condo/domains/user/gql')
 const { UserRightsSet: UserRightsSetGQL } = require('@condo/domains/user/gql')
 const { CHECK_USER_EXISTENCE_MUTATION } = require('@condo/domains/user/gql')
+const { ResetUserLimitAction: ResetUserLimitActionGQL } = require('@condo/domains/user/gql')
+const { UserSudoToken: UserSudoTokenGQL } = require('@condo/domains/user/gql')
+const { GENERATE_SUDO_TOKEN_MUTATION } = require('@condo/domains/user/gql')
+const { AUTHENTICATE_OR_REGISTER_USER_WITH_TOKEN_MUTATION } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
+
+const OIDC_REDIRECT_URI = 'https://httpbin.org/anything'
 
 function createTestEmail () {
     return ('test.' + getRandomString() + '@example.com').toLowerCase()
+}
+
+const captcha = () => {
+    return faker.lorem.sentence()
 }
 
 function createTestPhone () {
@@ -239,6 +252,8 @@ const ConfirmPhoneAction = generateGQLTestUtils(ConfirmPhoneActionGQL)
 const OidcClient = generateGQLTestUtils(OidcClientGQL)
 const ExternalTokenAccessRight = generateGQLTestUtils(ExternalTokenAccessRightGQL)
 const UserRightsSet = generateGQLTestUtils(UserRightsSetGQL)
+const ResetUserLimitAction = generateGQLTestUtils(ResetUserLimitActionGQL)
+const UserSudoToken = generateGQLTestUtils(UserSudoTokenGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestConfirmPhoneAction (client, extraAttrs = {}) {
@@ -246,7 +261,7 @@ async function createTestConfirmPhoneAction (client, extraAttrs = {}) {
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const now = Date.now()
     const attributes = {
-        token: uuid(),
+        token: generateToken(TOKEN_TYPES.CONFIRM_PHONE),
         phone: createTestPhone(),
         smsCode: generateSmsCode(),
         smsCodeRequestedAt: new Date(now).toISOString(),
@@ -391,19 +406,13 @@ async function authenticateUserWithPhoneAndPasswordByTestClient (client, extraAt
     const attrs = {
         dv: 1,
         sender,
+        captcha: captcha(),
         ...extraAttrs,
     }
-    const { data, errors } = await client.mutate(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, {
-        phone: attrs.phone,
-        password: attrs.password,
-    })
-    throwIfError(data, errors, {
-        query: SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, variables: {
-            phone: attrs.phone,
-            password: attrs.password,
-        }
-    })
-    return [data.obj, attrs]
+
+    const { data, errors } = await client.mutate(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
 }
 
 async function createTestOidcClient (client, extraAttrs = {}) {
@@ -420,7 +429,7 @@ async function createTestOidcClient (client, extraAttrs = {}) {
             client_id: clientId,
             grant_types: ['implicit', 'authorization_code', 'refresh_token'],
             client_secret: faker.random.alphaNumeric(12),
-            redirect_uris: ['https://jwt.io/'],
+            redirect_uris: [OIDC_REDIRECT_URI],
             response_types: ['code id_token', 'code', 'id_token'],
             token_endpoint_auth_method: 'client_secret_basic',
         },
@@ -447,7 +456,7 @@ async function updateTestOidcClient (client, id, extraAttrs = {}) {
 async function createTestExternalTokenAccessRight (client, user, identityType, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!user || !user.id) throw new Error('no user.id')
-    if(!identityType) throw new Error('no identityType')
+    if (!identityType) throw new Error('no identityType')
     if (!IDENTITY_TYPES.includes(identityType)) throw new Error('unknown identityType')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -477,7 +486,7 @@ async function updateTestExternalTokenAccessRight (client, id, extraAttrs = {}) 
 }
 
 
-async function getAccessTokenByUserIdByTestClient(client, extraAttrs = {}) {
+async function getAccessTokenByUserIdByTestClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
 
     const attrs = {
@@ -487,6 +496,7 @@ async function getAccessTokenByUserIdByTestClient(client, extraAttrs = {}) {
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+
 async function createTestUserRightsSet (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -530,6 +540,97 @@ async function checkUserExistenceByTestClient(client, extraAttrs = {}) {
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+async function createTestResetUserLimitAction (client, type, identifier, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const reason = faker.random.words(5)
+
+    const attrs = {
+        dv: 1,
+        sender,
+        reason,
+        type,
+        identifier,
+        ...extraAttrs,
+    }
+    const obj = await ResetUserLimitAction.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestResetUserLimitAction (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await ResetUserLimitAction.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function createTestUserSudoToken (client, user, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!user || !user.id) throw new Error('no user.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        user: { connect: { id: user.id } },
+        token: generateToken(TOKEN_TYPES.SUDO),
+        expiresAt: dayjs().add(5, 'minutes').toISOString(),
+        remainingUses: 1,
+        ...extraAttrs,
+    }
+    const obj = await UserSudoToken.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestUserSudoToken (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await UserSudoToken.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+
+async function generateSudoTokenByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(GENERATE_SUDO_TOKEN_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+async function authenticateOrRegisterUserWithTokenByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        captcha: captcha(),
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(AUTHENTICATE_OR_REGISTER_USER_WITH_TOKEN_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -570,5 +671,10 @@ module.exports = {
     UserRightsSet, createTestUserRightsSet, updateTestUserRightsSet,
     checkUserExistenceByTestClient,
     authenticateUserWithPhoneAndPasswordByTestClient,
+    ResetUserLimitAction, createTestResetUserLimitAction, updateTestResetUserLimitAction,
+    UserSudoToken, createTestUserSudoToken, updateTestUserSudoToken,
+    generateSudoTokenByTestClient,
+    OIDC_REDIRECT_URI,
+    authenticateOrRegisterUserWithTokenByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

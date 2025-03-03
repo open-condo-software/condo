@@ -13,6 +13,7 @@ import { PROMO_BLOCK_TEXT_VARIANTS_TO_PROPS, CONTEXT_IN_PROGRESS_STATUS } from '
 
 import type { RowProps } from 'antd'
 
+
 type BillingDescriptionModalContentProps = {
     id: string
     name: string
@@ -69,17 +70,17 @@ export const BillingDescriptionModalContent: React.FC<BillingDescriptionModalCon
         if (!contextId) {
             ctxCreateAction({ organization: { connect: { id: orgId } }, integration: { connect: { id } } })
                 .then(() => {
-                    router.push({ query: { step: 1, billing: id } })
+                    router.push({ query: { step: 1, billing: id } }, undefined, { shallow: true })
                 })
         } else if (contextId && contextIntegrationId !== id) {
             ctxSoftDeleteAction(ctx).then(()=> {
                 ctxCreateAction({ organization: { connect: { id: orgId } }, integration: { connect: { id } } })
                     .then(() => {
-                        router.push({ query: { step: 1, billing: id } })
+                        router.push({ query: { step: 1, billing: id } }, undefined, { shallow: true })
                     })
             })
         } else {
-            router.push({ query: { step: 1, billing: id } })
+            router.push({ query: { step: 1, billing: id } }, undefined, { shallow: true })
         }
     }, [contextId, orgId, id, ctxCreateAction, router, contextIntegrationId, ctxSoftDeleteAction])
 

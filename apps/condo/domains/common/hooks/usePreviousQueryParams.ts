@@ -125,7 +125,7 @@ export const usePreviousQueryParams: UsePreviousQueryParamsType = ({
         if (!paramsFromLocalStorage) return
 
         const newParameters = { ...query, ...paramsFromLocalStorage }
-        await updateQuery(router, { newParameters }, { routerAction: 'replace', resetOldParameters: false })
+        await updateQuery(router, { newParameters }, { routerAction: 'replace', resetOldParameters: false, shallow: true })
     }, [trackedParams, path, query, router, employeeSpecificKey, delimitersParams])
     
     const saveQueryParamsToLocalStorage = useCallback(() => {

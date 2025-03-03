@@ -27,7 +27,7 @@ docker:
 ---
 image: condo
 fromImage: base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
 - add: /
   to: /app
@@ -81,7 +81,7 @@ docker:
 ---
 image: callcenter
 fromImage: base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
   - add: /
     to: /app
@@ -129,7 +129,7 @@ docker:
 ---
 image: eps
 fromImage: base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
   - add: /
     to: /app
@@ -176,7 +176,7 @@ docker:
 ---
 image: rb
 fromImage: base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
   - add: /
     to: /app
@@ -211,9 +211,9 @@ shell:
   - "echo 'REDIS_URL=undefined' >> /app/.env"
   - "echo 'NODE_ENV=production' >> /app/.env"
   - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
-  - "yarn workspace @app/condorb next telemetry disable"
-  - "yarn workspace @app/condorb build:deps"
-  - "yarn workspace @app/condorb build"
+  - "yarn workspace @app/rb next telemetry disable"
+  - "yarn workspace @app/rb build:deps"
+  - "yarn workspace @app/rb build"
   - "rm -rf /app/.env"
   - "rm -rf /app/.config"
 
@@ -223,7 +223,7 @@ docker:
 ---
 image: insurance
 fromImage: base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
   - add: /
     to: /app
@@ -268,9 +268,9 @@ docker:
   ENV:
     LANG: C.UTF-8
 ---
-image: registryma
+image: registry_importer
 fromImage: base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
   - add: /
     to: /app
@@ -307,9 +307,9 @@ shell:
   - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
   - >
     echo 'OIDC_CONDO_CLIENT_CONFIG={"serverUrl":"https://test.doma.ai","clientId":"test","clientSecret":"test"}' >> /app/.env
-  - "yarn workspace @app/registry next telemetry disable"
-  - "yarn workspace @app/registry build:deps"
-  - "yarn workspace @app/registry build"
+  - "yarn workspace @app/registry-importer next telemetry disable"
+  - "yarn workspace @app/registry-importer build:deps"
+  - "yarn workspace @app/registry-importer build"
   - "rm -rf /app/.env"
   - "rm -rf /app/.config"
 
@@ -319,7 +319,7 @@ docker:
 ---
 image: miniapp
 fromImage: base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
   - add: /
     to: /app
@@ -364,20 +364,11 @@ docker:
   ENV:
     LANG: C.UTF-8
 ---
-image: postgresreview
-from: postgres:13.8
----
-image: pgbouncerreview
-from: bitnami/pgbouncer:1.22.1
----
-image: haproxyreview
-from: haproxy:3.0.2
----
 image: redisreview
 from: redis:6.2
 ---
 image: preparepostgresreview
-from: postgres:13.8
+from: postgres:16.6
 shell:
   install:
   - "apt update -qq"
@@ -393,7 +384,7 @@ docker:
 ---
 image: property_importer
 fromImage: base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
   - add: /
     to: /app
@@ -451,9 +442,9 @@ docker:
   ENV:
     LANG: C.UTF-8
 ---
-image: classifier
+image: classifiers_api
 fromImage: python-base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
   - add: /
     to: /app
@@ -474,9 +465,9 @@ docker:
   ENV:
     LANG: C.UTF-8
 ---
-image: addressservice
+image: address_service
 fromImage: base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
   - add: /
     to: /app
@@ -523,7 +514,7 @@ docker:
 ---
 image: telephony
 fromImage: base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
   - add: /
     to: /app
@@ -568,9 +559,9 @@ docker:
   ENV:
     LANG: C.UTF-8
 ---
-image: devportal
+image: dev_portal_web
 fromImage: base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
   - add: /
     to: /app
@@ -600,12 +591,12 @@ shell:
   setup:
     - "cd /app"
     #NOTE: Next.js is picking .env only from package-level envs during build time
-    - "echo '# Build time .env config!' >> /app/apps/dev-portal/.env"
-    - "echo 'NODE_ENV=production' >> /app/apps/dev-portal/.env"
-    - "yarn workspace @app/dev-portal next telemetry disable"
-    - "yarn workspace @app/dev-portal build:deps"
-    - "yarn workspace @app/dev-portal build"
-    - "rm -rf /app/apps/dev-portal/.env"
+    - "echo '# Build time .env config!' >> /app/apps/dev-portal-web/.env"
+    - "echo 'NODE_ENV=production' >> /app/apps/dev-portal-web/.env"
+    - "yarn workspace @app/dev-portal-web next telemetry disable"
+    - "yarn workspace @app/dev-portal-web build:deps"
+    - "yarn workspace @app/dev-portal-web build"
+    - "rm -rf /app/apps/dev-portal-web/.env"
     - "rm -rf /app/.config"
 
 
@@ -613,9 +604,9 @@ docker:
   ENV:
     LANG: C.UTF-8
 ---
-image: passapp
+image: pass
 fromImage: base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
   - add: /
     to: /app
@@ -662,7 +653,7 @@ docker:
 ---
 image: documents
 fromImage: base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
   - add: /
     to: /app
@@ -697,9 +688,9 @@ shell:
   - "echo 'REDIS_URL=undefined' >> /app/.env"
   - "echo 'NODE_ENV=production' >> /app/.env"
   - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
-  - "yarn workspace @app/documents-next next telemetry disable"
-  - "yarn workspace @app/documents-next build:deps"
-  - "yarn workspace @app/documents-next build"
+  - "yarn workspace @app/documents next telemetry disable"
+  - "yarn workspace @app/documents build:deps"
+  - "yarn workspace @app/documents build"
   - "rm -rf /app/.env"
   - "rm -rf /app/.config"
 
@@ -707,9 +698,9 @@ docker:
   ENV:
     LANG: C.UTF-8
 ---
-image: devportalapi
+image: dev_portal_api
 fromImage: base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
   - add: /
     to: /app
@@ -744,8 +735,8 @@ shell:
   - "echo 'REDIS_URL=undefined' >> /app/.env"
   - "echo 'NODE_ENV=production' >> /app/.env"
   - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
-  - "yarn workspace @app/dev-api build:deps"
-  - "yarn workspace @app/dev-api build"
+  - "yarn workspace @app/dev-portal-api build:deps"
+  - "yarn workspace @app/dev-portal-api build"
   - "rm -rf /app/.env"
   - "rm -rf /app/.config"
 
@@ -753,9 +744,9 @@ docker:
   ENV:
     LANG: C.UTF-8
 ---
-image: telegramemployeebot
+image: employee_bot
 fromImage: base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
   - add: /
     to: /app
@@ -789,7 +780,7 @@ shell:
     - "echo 'REDIS_URL=undefined' >> /app/.env"
     - "echo 'NODE_ENV=production' >> /app/.env"
     - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
-    - "yarn workspace @app/telegram-employee-bot build"
+    - "yarn workspace @app/employee-bot build"
     - "rm -rf /app/.env"
     - "rm -rf /app/.config"
 
@@ -797,9 +788,9 @@ docker:
   ENV:
     LANG: C.UTF-8
 ---
-image: edsintegration
+image: ticket_importer
 fromImage: base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
   - add: /
     to: /app
@@ -833,13 +824,13 @@ shell:
     - "echo 'REDIS_URL=undefined' >> /app/.env"
     - "echo 'NODE_ENV=production' >> /app/.env"
     - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
-    - "yarn workspace @app/eds-mosreg-integration build"
+    - "yarn workspace @app/ticket-importer build"
     - "rm -rf /app/.env"
     - "rm -rf /app/.config"
 ---
-image: condorestapi
+image: external_api
 fromImage: base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
   - add: /
     to: /app
@@ -864,7 +855,7 @@ shell:
 ---
 image: resident_app
 fromImage: base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
   - add: /
     to: /app
@@ -898,9 +889,9 @@ shell:
     - "yarn workspace @app/resident-app build"
     - "rm -rf /app/.config"
 ---
-image: announcement
+image: announcements
 fromImage: base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
   - add: /
     to: /app
@@ -935,15 +926,15 @@ shell:
     - "echo 'REDIS_URL=undefined' >> /app/.env"
     - "echo 'NODE_ENV=production' >> /app/.env"
     - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
-    - "yarn workspace @app/announcement-generator next telemetry disable"
-    - "yarn workspace @app/announcement-generator build:deps"
-    - "yarn workspace @app/announcement-generator build"
+    - "yarn workspace @app/announcements next telemetry disable"
+    - "yarn workspace @app/announcements build:deps"
+    - "yarn workspace @app/announcements build"
     - "rm -rf /app/.env"
     - "rm -rf /app/.config"
 ---
-image: newssharinggreendom
+image: news_greenhouse
 fromImage: base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
   - add: /
     to: /app
@@ -978,16 +969,16 @@ shell:
     - "echo 'REDIS_URL=undefined' >> /app/.env"
     - "echo 'NODE_ENV=production' >> /app/.env"
     - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
-    - "yarn workspace @app/news-sharing-greendom next telemetry disable"
-    - "yarn workspace @app/news-sharing-greendom build:deps"
-    - "yarn workspace @app/news-sharing-greendom build"
+    - "yarn workspace @app/news-greenhouse next telemetry disable"
+    - "yarn workspace @app/news-greenhouse build:deps"
+    - "yarn workspace @app/news-greenhouse build"
     - "rm -rf /app/.env"
     - "rm -rf /app/.config"
 
 ---
-image: meters_billing_integration
+image: meter_importer
 fromImage: base
-fromCacheVersion: "1"
+fromCacheVersion: "2"
 git:
   - add: /
     to: /app
@@ -1022,9 +1013,9 @@ shell:
     - "echo 'REDIS_URL=undefined' >> /app/.env"
     - "echo 'NODE_ENV=production' >> /app/.env"
     - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
-    - "yarn workspace @app/meters-billing-integration next telemetry disable"
-    - "yarn workspace @app/meters-billing-integration build:deps"
-    - "yarn workspace @app/meters-billing-integration build"
+    - "yarn workspace @app/meter-importer next telemetry disable"
+    - "yarn workspace @app/meter-importer build:deps"
+    - "yarn workspace @app/meter-importer build"
     - "rm -rf /app/.env"
     - "rm -rf /app/.config"
 

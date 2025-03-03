@@ -1,4 +1,4 @@
-const { get, isArray, isString, isEmpty } = require('lodash')
+const { get, isArray, isString, isEmpty, cloneDeep } = require('lodash')
 
 const { getExecutionContext } = require('@open-condo/keystone/executionContext')
 const { fetch } = require('@open-condo/keystone/fetch')
@@ -10,12 +10,12 @@ const { validateMessage } = require('./validators')
 
 const ENDPOINT = 'https://push-api.cloud.huawei.com/v1'
 const ANDROID_PAYLOAD_KEY = 'android'
-const DEFAULT_ANDROID_PAYLOAD = {
+const DEFAULT_ANDROID_PAYLOAD = Object.freeze({
     [ANDROID_PAYLOAD_KEY]: {
         urgency: URGENCY_NORMAL,
         ttl: '10000s',
     },
-}
+})
 
 const logger = getLogger('HCMMessaging')
 
@@ -49,8 +49,10 @@ class HCMMessaging {
         if (!isArray(payload.token)) payload.token = [payload.token]
         if (!isEmpty(payload.data) && !isString(payload.data)) payload.data = JSON.stringify(payload.data)
 
+        const defaultAndroidPayload = cloneDeep(DEFAULT_ANDROID_PAYLOAD)
+
         const message = {
-            ...DEFAULT_ANDROID_PAYLOAD,
+            ...defaultAndroidPayload,
             token: payload.token,
         }
         if (!isEmpty(payload.notification)) message[ANDROID_PAYLOAD_KEY].notification = payload.notification

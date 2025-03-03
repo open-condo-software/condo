@@ -6,7 +6,7 @@ const { parseAcceptLanguageHeader } = require('./headers')
 
 
 // TODO: Take it from @open-condo/config (right now it's not working and all apps implements only 2 locales, so maybe it's overhead)
-const ACCEPT_LOCALES = ['ru', 'en']
+const ACCEPT_LOCALES = ['ru', 'en', 'es']
 
 /**
  * Get locale from Express request object or return conf.DEFAULT_LOCALE

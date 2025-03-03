@@ -5,16 +5,16 @@ const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.ut
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { find, getById, getSchemaCtx } = require('@open-condo/keystone/schema')
 
+const { parseSession } = require('@condo/domains/common/utils/session')
 const { B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess/config')
 const { SERVICE } = require('@condo/domains/user/constants/common')
 
 const { generateGqlQueryToOrganizationId, getFilterByOrganizationIds } = require('./helpers.utils')
 
-
 /**
  * @return {Promise<Record<string, any>|false>}
  */
-const canReadByServiceUser = async ({ authentication: { item: user }, args, listKey }, schemaConfig) => {
+const canReadByServiceUser = async ({ authentication: { item: user }, args, listKey, context }, schemaConfig) => {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -22,12 +22,22 @@ const canReadByServiceUser = async ({ authentication: { item: user }, args, list
 
     const pathToOrganizationId = get(schemaConfig, 'pathToOrganizationId', ['organization', 'id'])
 
+    const sessionRestrictions = parseSession(context.req.session)
+
+    const permissionKey = `canRead${pluralize.plural(listKey)}`
+    if (sessionRestrictions.enabledB2BAppPermissions !== true && !sessionRestrictions.enabledB2BAppPermissions.includes(permissionKey)) {
+        return false
+    }
+
     const B2BAppContexts = await find('B2BAppContext', {
         organization: { deletedAt: null },
-        ...buildB2BAppContextCommonConditions(user, { [`canRead${pluralize.plural(listKey)}`]: true }),
+        ...buildB2BAppContextCommonConditions(user, { [permissionKey]: true }),
     })
 
-    const organizationIds = B2BAppContexts.map(ctx => ctx.organization)
+    let organizationIds = B2BAppContexts.map(ctx => ctx.organization)
+    if (sessionRestrictions.allowedOrganizations !== true) {
+        organizationIds = organizationIds.filter(id => sessionRestrictions.allowedOrganizations.includes(id))
+    }
 
     if (!organizationIds || isEmpty(organizationIds)) return false
 
@@ -47,6 +57,7 @@ const canManageByServiceUser = async ({ authentication: { item: user }, listKey,
     const pathToOrganizationId = get(schemaConfig, 'pathToOrganizationId', ['organization', 'id'])
     if (!isArray(pathToOrganizationId) || isEmpty(pathToOrganizationId)) return false
 
+    const sessionRestrictions = parseSession(context.req.session)
     let organizationId
 
     if (operation === 'create') {
@@ -98,18 +109,27 @@ const canManageByServiceUser = async ({ authentication: { item: user }, listKey,
         }
     }
 
+    if (sessionRestrictions.allowedOrganizations !== true) {
+        organizationId = sessionRestrictions.allowedOrganizations.find(organizationId)
+    }
+
     if (!organizationId) return false
+
+    const permissionKey = `canManage${pluralize.plural(listKey)}`
+    if (sessionRestrictions.enabledB2BAppPermissions !== true && !sessionRestrictions.enabledB2BAppPermissions.includes(permissionKey)) {
+        return false
+    }
 
     const B2BAppContexts = await find('B2BAppContext', {
         organization: { id: organizationId, deletedAt: null },
-        ...buildB2BAppContextCommonConditions(user, { [`canManage${pluralize.plural(listKey)}`]: true }),
+        ...buildB2BAppContextCommonConditions(user, { [permissionKey]: true }),
     })
 
     return !isEmpty(B2BAppContexts)
 }
 
 const canExecuteByServiceUser = async (params, serviceConfig) => {
-    const { authentication: { item: user }, args, gqlName } = params
+    const { authentication: { item: user }, args, gqlName, context } = params
 
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
@@ -119,13 +139,23 @@ const canExecuteByServiceUser = async (params, serviceConfig) => {
     const pathToOrganizationId = get(serviceConfig, 'pathToOrganizationId', ['data', 'organization', 'id'])
     if (!isArray(pathToOrganizationId) || isEmpty(pathToOrganizationId)) return false
 
-    const organizationId = get(args, pathToOrganizationId)
+    const sessionRestrictions = parseSession(context.req.session)
+    let organizationId = get(args, pathToOrganizationId)
+
+    if (sessionRestrictions.allowedOrganizations !== true) {
+        organizationId = sessionRestrictions.allowedOrganizations.find(organizationId)
+    }
 
     if (!organizationId) return false
 
+    const permissionKey = `canExecute${upperFirst(gqlName)}`
+    if (sessionRestrictions.enabledB2BAppPermissions !== true && !sessionRestrictions.enabledB2BAppPermissions.includes(permissionKey)) {
+        return false
+    }
+
     const B2BAppContexts = await find('B2BAppContext', {
         organization: { id: organizationId, deletedAt: null },
-        ...buildB2BAppContextCommonConditions(user, { [`canExecute${upperFirst(gqlName)}`]: true }),
+        ...buildB2BAppContextCommonConditions(user, { [permissionKey]: true }),
     })
 
     return !isEmpty(B2BAppContexts)

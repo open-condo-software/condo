@@ -96,8 +96,8 @@ const CHANGE_PASSWORD_WITH_TOKEN_MUTATION = gql`
 `
 
 const SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION = gql`
-    mutation authenticateUserWithPhoneAndPassword ($phone: String!, $password: String!) {
-        obj: authenticateUserWithPhoneAndPassword(data: { phone: $phone, password: $password }) {
+    mutation authenticateUserWithPhoneAndPassword ($data: AuthenticateUserWithPhoneAndPasswordInput!) {
+        result: authenticateUserWithPhoneAndPassword(data: $data) {
             item {
                 id
             }
@@ -130,13 +130,12 @@ const CONFIRM_PHONE_ACTION_FIELDS = '{ id dv sender { dv fingerprint } deletedAt
 const ConfirmPhoneAction = generateGqlQueries('ConfirmPhoneAction', CONFIRM_PHONE_ACTION_FIELDS)
 
 
-// TODO(codegen): write return type result!
 const SIGNIN_RESIDENT_USER_MUTATION = gql`
     mutation signinResidentUser ($data: SigninResidentUserInput!) {
         result: signinResidentUser(data: $data) { user { id name }, token }
     }
 `
-// TODO(codegen): write return type result!
+
 const CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION = gql`
     mutation changePhoneNumberResidentUser ($data: ChangePhoneNumberResidentUserInput!) {
         result: changePhoneNumberResidentUser(data: $data) { status }
@@ -159,8 +158,6 @@ const REGISTER_NEW_SERVICE_USER_MUTATION = gql`
         result: registerNewServiceUser(data: $data) { id email password }
     }
 `
-
-// TODO(codegen): write return type result!
 
 const SEND_MESSAGE_TO_SUPPORT_MUTATION = gql`
     mutation sendMessageToSupport ($data: SendMessageToSupportInput!) {
@@ -186,7 +183,25 @@ const UserRightsSet = generateGqlQueries('UserRightsSet', USER_RIGHTS_SET_FIELDS
 
 const CHECK_USER_EXISTENCE_MUTATION = gql`
     query checkUserExistence ($data: CheckUserExistenceInput!) {
-        result: checkUserExistence(data: $data) { userExists nameSet emailSet phoneSet passwordSet }
+        result: checkUserExistence(data: $data) { isUserExists isNameSet isEmailSet isPhoneSet isPasswordSet }
+    }
+`
+
+const RESET_USER_LIMIT_ACTION_FIELDS = `{ type identifier reason ${COMMON_FIELDS} }`
+const ResetUserLimitAction = generateGqlQueries('ResetUserLimitAction', RESET_USER_LIMIT_ACTION_FIELDS)
+
+const USER_SUDO_TOKEN_FIELDS = `{ token expiresAt user { id } remainingUses ${COMMON_FIELDS} }`
+const UserSudoToken = generateGqlQueries('UserSudoToken', USER_SUDO_TOKEN_FIELDS)
+
+const GENERATE_SUDO_TOKEN_MUTATION = gql`
+    mutation generateSudoToken ($data: GenerateSudoTokenInput!) {
+        result: generateSudoToken(data: $data) { token }
+    }
+`
+
+const AUTHENTICATE_OR_REGISTER_USER_WITH_TOKEN_MUTATION = gql`
+    mutation authenticateOrRegisterUserWithToken ($data: AuthenticateOrRegisterUserWithTokenInput!) {
+        result: authenticateOrRegisterUserWithToken(data: $data) { user: item { id } token }
     }
 `
 
@@ -221,5 +236,9 @@ module.exports = {
     UserRightsSet,
     CHECK_USER_EXISTENCE_MUTATION,
     USER_FIELDS,
+    ResetUserLimitAction,
+    UserSudoToken,
+    GENERATE_SUDO_TOKEN_MUTATION,
+    AUTHENTICATE_OR_REGISTER_USER_WITH_TOKEN_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

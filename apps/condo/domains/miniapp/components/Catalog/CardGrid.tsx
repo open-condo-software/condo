@@ -147,7 +147,7 @@ export const CardGrid: React.FC<CardGridProps> = ({ tabs, search, resetSearch })
 
     const handleTabChange = useCallback((newKey) => {
         const newRoute = `${router.route}?tab=${newKey}`
-        return router.push(newRoute).then(resetSearch)
+        return router.push(newRoute, undefined, { shallow: true }).then(resetSearch)
     }, [router, resetSearch])
 
     const searchTab: TabContent = {

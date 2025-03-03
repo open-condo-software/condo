@@ -47,6 +47,15 @@
  */
 const B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS = {
     lists: {
+        B2BAccessToken: {
+            pathToOrganizationId: ['context', 'organization', 'id'],
+        },
+
+        BillingReceipt: {
+            pathToOrganizationId: ['context', 'organization', 'id'],
+            canBeManaged: false,
+        },
+
         // Contact domain
         Contact: {},
 
@@ -60,6 +69,9 @@ const B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS = {
         Organization: {
             pathToOrganizationId: ['id'],
             // NOTE: service users cannot manage organizations!
+            canBeManaged: false,
+        },
+        OrganizationEmployee: {
             canBeManaged: false,
         },
 
@@ -81,6 +93,7 @@ const B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS = {
 
     services: {
         registerMetersReadings: {},
+        sendB2BAppPushMessage: {},
     },
 }
 

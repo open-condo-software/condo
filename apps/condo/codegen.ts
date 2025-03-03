@@ -32,7 +32,7 @@ const config: CodegenConfig = {
         'gql/operation.types.ts': {
             preset: 'import-types',
             presetConfig: {
-                typesPath: '@/schema',
+                typesPath: '@app/condo/schema',
             },
             plugins: [
                 codegenCommentPlugin(),
@@ -42,17 +42,14 @@ const config: CodegenConfig = {
         'gql/index.ts': {
             preset: 'import-types',
             presetConfig: {
-                typesPath: '@/gql/operation.types',
+                typesPath: '@app/condo/gql/operation.types',
             },
             plugins: [
                 codegenCommentPlugin(),
                 'typescript-react-apollo',
-                exportFromPlugin('@/gql/operation.types'),
+                exportFromPlugin('@app/condo/gql/operation.types'),
             ],
         },
-    },
-    hooks: {
-        afterAllFileWrite: ['eslint --fix --no-ignore'],
     },
 }
 

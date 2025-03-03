@@ -21,12 +21,13 @@ import { ImagesUploadList } from '@condo/domains/common/components/ImagesUploadL
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
+import { PageComponentType } from '@condo/domains/common/types'
 import { getObjectCreatedMessage } from '@condo/domains/common/utils/date.utils'
 import { getAddressDetails } from '@condo/domains/common/utils/helpers'
 import { MarketItemReadPermissionRequired } from '@condo/domains/marketplace/components/PageAccess'
 import { MarketItem, MarketItemFile, MarketPriceScope } from '@condo/domains/marketplace/utils/clientSchema'
 import { getMoneyRender } from '@condo/domains/marketplace/utils/clientSchema/Invoice'
-import { convertFilesToUploadType } from '@condo/domains/marketplace/utils/clientSchema/MarketItem'
+import { convertFilesToUploadType, PriceMeasuresType } from '@condo/domains/marketplace/utils/clientSchema/MarketItem'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
 
@@ -100,6 +101,7 @@ const MarketItemFields = ({ marketItem }) => {
 type AddressesPriceType = {
     price: string
     addresses: string[]
+    shortMeasureMessage?: string
 }
 
 type PriceScopePropsType = {
@@ -130,7 +132,7 @@ const PriceScope: React.FC<PriceScopePropsType> = ({ addressesPrice, closable })
             <Col span={24}>
                 <Row justify='space-between' onClick={handlePriceBlockClick} style={priceBlockStyle}>
                     <Col style={PRICE_COL_STYLE}>
-                        <Typography.Text size='medium'>{addressesPrice.price}</Typography.Text>
+                        <Typography.Text size='medium'>{addressesPrice.price}{(addressesPrice.shortMeasureMessage && `/${addressesPrice.shortMeasureMessage}`)}</Typography.Text>
                     </Col>
                     {
                         closable && (
@@ -201,9 +203,16 @@ const PricesBlock = ({ marketItemId }) => {
     }, { skip: !organizationId || propertyIdsInScopes.length < 2 })
 
     const addressesPrices: AddressesPriceType[] = useMemo(() => {
-        const resultAddressesPrices = uniquePrices.map(priceObj => {
+        const resultAddressesPrices: AddressesPriceType[] = uniquePrices.map(priceObj => {
             const firstPrice =  get(priceObj, 'price.0')
             const price = getMoneyRender(intl, get(firstPrice, 'currency', 'RUB'))(get(firstPrice, 'price'), get(firstPrice, 'isMin'))
+            const measure: PriceMeasuresType = get(firstPrice, 'measure')
+
+            let shortMeasureMessage = null
+            if (measure) {
+                shortMeasureMessage = intl.formatMessage({ id: `pages.condo.marketplace.measure.${measure}.short` })
+            }
+
             const scopesWithSamePrice = priceScopes
                 .filter(scope => get(scope, 'marketItemPrice.id') === get(priceObj, 'id'))
             const addresses = scopesWithSamePrice.map(scope => {
@@ -221,7 +230,7 @@ const PricesBlock = ({ marketItemId }) => {
                 return streetPart
             })
 
-            return { price, addresses }
+            return { price, shortMeasureMessage, addresses }
         })
 
         const addressesWithoutPrices = propertiesWithoutPrices.map(property => {
@@ -266,7 +275,7 @@ const PricesBlock = ({ marketItemId }) => {
     )
 }
 
-const MarketItemIdPage = () => {
+const MarketItemIdPage: PageComponentType = () => {
     const intl = useIntl()
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
     const EditMessage = intl.formatMessage({ id: 'Edit' })
@@ -404,6 +413,6 @@ const MarketItemIdPage = () => {
     )
 }
 
-MarketItemIdPage.requiredPermission = MarketItemReadPermissionRequired
+MarketItemIdPage.requiredAccess = MarketItemReadPermissionRequired
 
 export default MarketItemIdPage

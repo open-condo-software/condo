@@ -11,6 +11,7 @@ const ShareTicketService = new GQLCustomSchema('ShareTicketService', {
     types: [
         {
             access: true,
+            // TODO(pahaz): we need to use OrganizationEmployeeWhereUniqueInput and TicketWhereUniqueInput
             type: 'input ShareTicketInput { sender: SenderFieldInput!, employees: [ID!]!, ticketId: ID! }',
         },
         {

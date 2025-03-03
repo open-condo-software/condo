@@ -6,7 +6,7 @@ import dayjs from 'dayjs'
 import { DocumentNode } from 'graphql'
 import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, useMemo } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useMutation, useQuery } from '@open-condo/next/apollo'
@@ -94,6 +94,10 @@ type IGQLType = {
     UPDATE_OBJS_MUTATION: DocumentNode
     GET_ALL_OBJS_WITH_COUNT_QUERY: DocumentNode
     GET_COUNT_OBJS_QUERY: DocumentNode
+}
+
+function nonNull<TVal> (val: TVal): val is NonNullable<TVal> {
+    return val !== null && val !== undefined
 }
 
 export function generateReactHooks<
@@ -355,7 +359,7 @@ export function generateReactHooks<
             ...(typeof options === 'object' && 'fetchPolicy' in options ? null : { fetchPolicy: 'no-cache' }),
         })
 
-        const objs: GQLObject[] = (data && data.objs) ? data.objs : []
+        const objs: GQLObject[] = useMemo(() => (data && data.objs) ? data.objs.filter(nonNull) : [], [data])
         const count = (data && data.meta) ? data.meta.count : null
         const typedRefetch: IRefetchType<GQLObject, QueryVariables> = refetch
         const typedFetchMore: IFetchMoreType<GQLObject, QueryVariables> = fetchMore
@@ -404,9 +408,11 @@ export function generateReactHooks<
                     },
                     updateQuery (previousData, { fetchMoreResult }) {
                         // @ts-ignore
-                        const updatedObjs = [...previousData.objs, ...fetchMoreResult.objs]
+                        const updatedObjs = [...(previousData?.objs.filter(nonNull) || []), ...(fetchMoreResult?.objs?.filter(nonNull) || [])]
                         // @ts-ignore
-                        return { ...previousData, objs: updatedObjs, count: fetchMoreResult.count }
+                        const updatedCount = fetchMoreResult?.meta?.count || previousData?.meta?.count || 0
+                        // @ts-ignore
+                        return { ...previousData, objs: updatedObjs, count: updatedCount }
                     },
                 })
             } catch (error) {

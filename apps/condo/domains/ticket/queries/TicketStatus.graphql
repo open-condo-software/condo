@@ -1,0 +1,11 @@
+query getTicketStatuses {
+    statuses: allTicketStatuses {
+        id
+        name
+        type
+        colors {
+            primary
+            secondary
+        }
+    }
+}

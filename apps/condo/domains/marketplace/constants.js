@@ -69,7 +69,7 @@ const DEFAULT_IMPLICIT_FEE_PERCENT = '5'
 
 const COMMON_RESOLVED_FIELDS = ['dv', 'sender', 'v', 'updatedAt', 'updatedBy', 'publishedAt', 'paidAt', 'canceledAt']
 const CLIENT_DATA_FIELDS = ['property', 'unitName', 'unitType', 'clientName', 'clientPhone', 'contact', 'client']
-const INITIAL_ROWS_VALUE = [{ name: '', count: 1, toPay: '0', isMin: false }]
+const INITIAL_ROWS_VALUE = [{ name: '', count: 1, toPay: '0', measure: undefined, isMin: false }]
 
 const DAYS_TO_CANCEL_PUBLISHED_INVOICES = 60
 

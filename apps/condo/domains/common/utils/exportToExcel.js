@@ -28,7 +28,7 @@ const EXCEL_TEMPLATES_HEADERS = {
     [EXPORT_TYPE_CONTACTS]: ['name', 'address', 'unitName', 'unitType', 'phone', 'email', 'role', 'isVerified'],
     [EXPORT_TYPE_METERS]: [
         'date', 'address', 'unitName', 'unitType', 'accountNumber', 'resource',
-        'number', 'place', 'value1', 'value2', 'value3', 'value4', 'clientName', 'source',
+        'number', 'place', 'value1', 'value2', 'value3', 'value4', 'clientName', 'source', 'nextVerificationDate', 'status',
     ],
     [EXPORT_TYPE_PROPERTY_METERS]: [
         'date', 'address', 'resource', 'number', 'value1', 'value2', 'value3', 'value4', 'source',

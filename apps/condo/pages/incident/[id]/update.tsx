@@ -6,13 +6,10 @@ import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 
 import { PageHeader, PageWrapper, PageContent } from '@condo/domains/common/components/containers/BaseLayout'
+import { PageComponentType } from '@condo/domains/common/types'
 import { IncidentForm } from '@condo/domains/ticket/components/IncidentForm'
 import { IncidentReadAndManagePermissionRequired } from '@condo/domains/ticket/components/PageAccess'
 
-export interface IUpdateIncidentPage extends React.FC {
-    headerAction?: JSX.Element
-    requiredAccess?: React.FC
-}
 
 const UpdateIncidentPageContent: React.FC = () => {
     const intl = useIntl()
@@ -37,7 +34,7 @@ const UpdateIncidentPageContent: React.FC = () => {
     )
 }
 
-const UpdateIncidentPage: IUpdateIncidentPage = () => {
+const UpdateIncidentPage: PageComponentType = () => {
     return <UpdateIncidentPageContent />
 }
 

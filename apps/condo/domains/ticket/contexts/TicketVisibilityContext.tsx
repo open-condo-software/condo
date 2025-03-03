@@ -1,6 +1,8 @@
+import { GetTicketByIdQueryResult } from '@app/condo/gql'
 import { Ticket, TicketWhereInput } from '@app/condo/schema'
 import get from 'lodash/get'
 import { createContext, useCallback, useContext } from 'react'
+
 
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
@@ -22,7 +24,7 @@ import {
 interface ITicketVisibilityContext {
     ticketFilterQuery: TicketWhereInput
     ticketFilterQueryLoading: boolean
-    canEmployeeReadTicket: (ticket: Ticket) => boolean
+    canEmployeeReadTicket: (ticket: GetTicketByIdQueryResult['data']['tickets'][0]) => boolean
 }
 
 const TicketVisibilityContext = createContext<ITicketVisibilityContext>(null)
@@ -210,7 +212,7 @@ const TicketVisibilityContextProvider: React.FC = ({ children }) => {
         where: {
             employee: { id: employeeId },
         },
-    })
+    }, { skip: !employeeId })
     const propertyScopeIds = propertyScopeEmployees
         .filter(propertyScopeEmployee => propertyScopeEmployee.propertyScope && propertyScopeEmployee.employee)
         .map(propertyScopeEmployee => propertyScopeEmployee.propertyScope.id)
@@ -222,17 +224,17 @@ const TicketVisibilityContextProvider: React.FC = ({ children }) => {
                 { hasAllEmployees: true },
             ],
         },
-    })
+    }, { skip: !organizationId })
     const { objs: propertyScopeProperties, loading: propertiesLoading } = PropertyScopeProperty.useAllObjects({
         where: {
             propertyScope: { id_in: propertyScopes.map(scope => scope.id) },
         },
-    })
+    }, { skip: propertyScopes.length === 0 })
     const { objs: employeeSpecializations, loading: specializationsLoading } = OrganizationEmployeeSpecialization.useAllObjects({
         where: {
             employee: { id: employeeId },
         },
-    })
+    }, { skip: !employeeId })
 
     const specializations = employeeSpecializations
         .filter(empSpec => empSpec.specialization && empSpec.employee)

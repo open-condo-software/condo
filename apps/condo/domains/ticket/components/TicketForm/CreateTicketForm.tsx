@@ -1,3 +1,4 @@
+import { useGetTicketByCreatedByQuery } from '@app/condo/gql'
 import { B2BAppGlobalFeature } from '@app/condo/schema'
 import { Form, notification } from 'antd'
 import dayjs from 'dayjs'
@@ -7,6 +8,7 @@ import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState, useEffect } from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { useApolloClient } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
@@ -49,21 +51,29 @@ export const CreateTicketActionBar = ({ handleSave, isLoading, form }) => {
     const { user } = useAuth()
     const userId = get(user, 'id', null)
 
-    const { count } = Ticket.useCount({
-        where: {
-            createdBy: { id: userId },
+    const { persistor } = useCachePersistor()
+    const {
+        data: userTicketsData,
+        loading: userTicketsLoading,
+    } = useGetTicketByCreatedByQuery({
+        variables: {
+            userId,
         },
+        skip: !persistor || !userId,
     })
+    const userTicketsCount = useMemo(() => userTicketsData?.tickets?.filter(Boolean)?.length || 0,
+        [userTicketsData?.tickets])
 
     useEffect(() => {
-        setCurrentStep((count === 0 && !disabled) ? 1 : 0)
-    }, [disabled, setCurrentStep, count])
+        if (userTicketsLoading) return
+        setCurrentStep((userTicketsCount === 0 && !disabled) ? 1 : 0)
+    }, [disabled, setCurrentStep, userTicketsCount, userTicketsLoading])
 
     return (
         <Form.Item noStyle shouldUpdate>
             {
                 ({ getFieldsValue, getFieldError }) => {
-                    const { property, details, placeClassifier, categoryClassifier, assignee, deadline } = getFieldsValue(REQUIRED_TICKET_FIELDS)
+                    const { property, details, placeClassifier, categoryClassifier, deadline } = getFieldsValue(REQUIRED_TICKET_FIELDS)
                     const propertyMismatchError = getFieldError('property').find((error)=>error.includes(AddressNotSelected))
                     const isPayable = form.getFieldValue('isPayable')
                     const isEmergency = form.getFieldValue('isEmergency')
@@ -121,7 +131,7 @@ export const CreateTicketForm: React.FC = () => {
     const CopiedLinkMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.create.notification.copiedLink' })
     const SuccessNotificationWithPaymentLinkDescription = intl.formatMessage({ id: 'pages.condo.ticket.notification.success.description.withPaymentLink' })
 
-    const { organization, link } = useOrganization()
+    const { organization } = useOrganization()
     const router = useRouter()
     const auth = useAuth() as { user: { id: string } }
     const client = useApolloClient()
@@ -251,7 +261,6 @@ export const CreateTicketForm: React.FC = () => {
                 action={createAction}
                 initialValues={initialValues}
                 organization={organization}
-                role={link.role}
                 autoAssign
                 OnCompletedMsg={null}
                 isExisted={false}
@@ -259,5 +268,5 @@ export const CreateTicketForm: React.FC = () => {
                 {({ handleSave, isLoading, form }) => <CreateTicketActionBar handleSave={handleSave} isLoading={isLoading} form={form} />}
             </BaseTicketForm>
         </Tour.Provider>
-    ), [createAction, initialValues, link.role, organization])
+    ), [createAction, initialValues, organization])
 }

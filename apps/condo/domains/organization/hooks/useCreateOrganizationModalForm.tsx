@@ -1,4 +1,5 @@
-import { BaseQueryOptions } from '@apollo/client'
+import { useApolloClient } from '@apollo/client'
+import { GetActualOrganizationEmployeesDocument } from '@app/condo/gql'
 import { Organization } from '@app/condo/schema'
 import { Form } from 'antd'
 import get from 'lodash/get'
@@ -33,7 +34,6 @@ interface IUseCreateOrganizationModalFormProps {
 const MODAL_VALIDATE_TRIGGERS = ['onBlur', 'onSubmit']
 const FORM_ITEM_STYLES = { width: '60%' }
 const ORGANIZATION_TYPE_FORM_ITEM_STYLES = { marginBottom: 8 }
-const FETCH_OPTIONS: BaseQueryOptions = { fetchPolicy: 'network-only' }
 const { publicRuntimeConfig: { defaultLocale } } = getConfig()
 const MUTATION_EXTRA_DATA = { country: defaultLocale }
 
@@ -47,22 +47,6 @@ const adaptOrganizationMeta = (values) => {
         type: type || MANAGING_COMPANY_TYPE,
     })
 }
-const findPropByValue = (list, path, value) => list.find(item => get(item, path) === value)
-const prepareFetchParams = userId => ({
-    user: {
-        id: userId,
-    },
-    isRejected: false,
-    isBlocked: false,
-})
-const prepareFinishFetchParams = ({ id, userId }) => ({
-    where: {
-        organization: { id },
-        user: {
-            id: userId,
-        },
-    },
-})
 const prepareValidationErrorsMapping = ({ ValueIsTooShortMsg, TinTooShortMsg, TinValueIsInvalid }) => ({
     [EMPTY_NAME_ERROR]: {
         name: 'name',
@@ -105,10 +89,11 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
     )
 
     const [isVisible, setIsVisible] = useState<boolean>(false)
-    const { selectLink, organization } = useOrganization()
+    const { selectEmployee, organization } = useOrganization()
     const { user } = useAuth()
     const userId = get(user, 'id')
     const locale = get(organization, 'country', defaultLocale)
+    // TODO(pahaz): DOMA-10729 use this locale for country and MUTATION_EXTRA_DATA
 
     const { requiredValidator, tinValidator, trimValidator } = useValidations()
     const validators = React.useMemo(
@@ -121,27 +106,39 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
         [requiredValidator, tinValidator, trimValidator, locale],
     )
 
-    const fetchParams = React.useMemo(() => ({ where: userId ? prepareFetchParams(userId) : {} }), [userId])
-    const { refetch } = OrganizationEmployee.useObjects(fetchParams, FETCH_OPTIONS)
+    const { refetch } = OrganizationEmployee.useObjects({}, { skip: true })
+
+    const client = useApolloClient()
 
     const handleFinish = useCallback(async (createResult) => {
         const id = get(createResult, 'data.obj.id')
-        const data = await refetch(prepareFinishFetchParams({ id, userId }))
-        const userLinks = get(data, 'data.objs', [])
+        const data = await refetch({
+            where: {
+                organization: { id },
+                user: {
+                    id: userId,
+                },
+                isRejected: false,
+                isBlocked: false,
+                isAccepted: true,
+            },
+            first: 1,
+        })
+        const employee = get(data, ['data', 'objs', 0]) || null
 
-        if (id) {
-            const newLink = findPropByValue(userLinks, ['organization', 'id'], id)
+        if (id && employee?.id) {
+            await client.refetchQueries({
+                include: [GetActualOrganizationEmployeesDocument],
+            })
 
-            if (newLink) {
-                await selectLink(newLink)
-                setIsVisible(false)
-            }
+            await selectEmployee(employee?.id)
+            setIsVisible(false)
         }
 
         if (isFunction(onFinish)) onFinish(get(createResult, 'data.obj'))
 
         return null
-    }, [userId, selectLink, setIsVisible, refetch, onFinish])
+    }, [refetch, userId, onFinish, client, selectEmployee])
 
     const handleMutationCompleted = React.useCallback(async (result) => {
         setIsVisible(false)

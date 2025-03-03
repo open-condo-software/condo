@@ -22,6 +22,7 @@ import {
     ERROR_ORGANIZATION_NOT_FOUND,
 } from '@condo/domains/marketplace/constants'
 
+
 const FORM_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']
 const VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
 const LABEL_COL = { lg: 10 }
@@ -196,7 +197,7 @@ export const RequisitesSetup: React.FC = () => {
             }
 
             promise.then(async () => {
-                await router.replace({ query: { step: 1 } })
+                await router.replace({ query: { step: 1 } }, undefined, { shallow: true })
             }).catch(errorHandler)
 
             setIsLoading(false)

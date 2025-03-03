@@ -18,6 +18,39 @@ interface INewsFormProps {
     hasCategories?: boolean
 }
 
+type TCategory =
+    'water'
+    | 'heating'
+    | 'electricity'
+    | 'utilities'
+    | 'electricityAndElevators'
+    | 'elevators'
+    | 'telephone'
+    | 'meters'
+    | 'gas'
+    | 'cleaning'
+    | 'intercom'
+    | 'snow'
+    | 'other'
+    | 'fireProtection'
+
+const CATEGORIES: { [k in string]: TCategory } = {
+    WATER: 'water',
+    HEATING: 'heating',
+    ELECTRICITY: 'electricity',
+    UTILITIES: 'utilities',
+    ELECTRICITY_AND_ELEVATORS: 'electricityAndElevators',
+    ELEVATORS: 'elevators',
+    TELEPHONE: 'telephone',
+    METERS: 'meters',
+    GAS: 'gas',
+    CLEANING: 'cleaning',
+    INTERCOM: 'intercom',
+    SNOW: 'snow',
+    OTHER: 'other',
+    FIRE_PROTECTION: 'fireProtection',
+}
+
 export const TemplatesSelect: React.FC<INewsFormProps> = ({ items, onChange, hasCategories }) => {
     const intl = useIntl()
     const TemplatesPlaceholderLabel = intl.formatMessage({ id: 'news.fields.template.placeholder' })
@@ -34,9 +67,9 @@ export const TemplatesSelect: React.FC<INewsFormProps> = ({ items, onChange, has
     const processedOptions = useMemo(() => {
         if (hasCategories) {
             const result = []
-            for (const category of Object.keys(templatesByCategory)) {
+            for (const category of (Object.keys(templatesByCategory).reverse())) {
                 result.push({
-                    label: category,
+                    label: category ? intl.formatMessage( { id: `news.template.category.${CATEGORIES[category]}` }) : '',
                     options: templatesByCategory[category],
                 })
             }

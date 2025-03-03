@@ -95,7 +95,7 @@ describe('AbstractMetersImporter', () => {
                 const reading = readings[i]
                 const rawDate = dates[i]
                 const utcDate = tryToISO(rawDate)
-                abstractMetersImporter.prepareReading(reading, [], [], new Map(), 0, 0)
+                abstractMetersImporter.prepareReading(reading)
 
                 expect(reading.date).toEqual(utcDate)
                 expect(reading.meterMeta.controlReadingsDate).toEqual(utcDate)
@@ -105,11 +105,19 @@ describe('AbstractMetersImporter', () => {
                 expect(reading.meterMeta.verificationDate).toEqual(utcDate)
                 expect(reading.meterMeta.sealingDate).toEqual(utcDate)
             }
-
-            expect(abstractMetersImporter.failedRows).toHaveLength(0)
         })
 
-        it('Errors on invalid dates', () => {
+        it('Sets reading source', () => {
+            const reading = cloneDeep(defaultReading)
+            abstractMetersImporter.prepareReading(reading)
+            expect(reading.readingSource).toEqual({ id: 'b0caa26a-bfba-41e3-a9fe-64d7f02f0650' })
+        })
+
+    })
+
+    describe('Row validation', () => {
+
+        it('Validates invalid dates', () => {
             const dates = [
                 '2024-28-05',
                 '2024-28',
@@ -129,52 +137,16 @@ describe('AbstractMetersImporter', () => {
             })
 
             for (let i = 0; i < readings.length; i += 1) {
-                const row = [i]
-                const reading = readings[i]
-                abstractMetersImporter.prepareReading(reading, row, [], new Map(), 0, 0)
-            }
-
-            expect(abstractMetersImporter.failedRows).toHaveLength(readings.length)
-            abstractMetersImporter.failedRows.forEach((row) => 
-                expect(row.errors).toEqual([
-                    'invalidDate on "meter.import.column.meterReadingSubmissionDate", "meter.import.column.VerificationDate",' +
+                const errors = abstractMetersImporter.validateReading(readings[i])
+                expect(errors).toHaveLength(1)
+                expect(errors).toEqual([
+                    'invalidDate on meter.import.column.meterReadingSubmissionDate", "meter.import.column.VerificationDate",' +
                     ' "meter.import.column.NextVerificationDate", "meter.import.column.NextVerificationDate",' +
-                    ' "meter.import.column.CommissioningDate", "meter.import.column.SealingDate", "meter.import.column.ControlReadingsDate"',
+                    ' "meter.import.column.CommissioningDate", "meter.import.column.SealingDate", "meter.import.column.ControlReadingsDate',
                 ])
-            )
-        })
-
-        it('Allows invalid dates in not required fields, if they are clering to empty string', () => {
-            const dates = [
-                '!!!',
-                '[]',
-                'dasd',
-            ]
-
-            const readings = dates.map(date => {
-                const reading = cloneDeep(defaultReading)
-                reading.date = date
-                reading.meterMeta.controlReadingsDate = date
-                reading.meterMeta.commissioningDate = date
-                reading.meterMeta.installationDate = date
-                reading.meterMeta.nextVerificationDate = date
-                reading.meterMeta.verificationDate = date
-                reading.meterMeta.sealingDate = date
-                return reading
-            })
-
-            for (let i = 0; i < readings.length; i += 1) {
-                const row = [i]
-                const reading = readings[i]
-                abstractMetersImporter.prepareReading(reading, row, [], new Map(), 0, 0)
             }
 
-            expect(abstractMetersImporter.failedRows).toHaveLength(readings.length)
-            abstractMetersImporter.failedRows.forEach((row) =>
-                expect(row.errors).toEqual([
-                    'invalidDate on "meter.import.column.meterReadingSubmissionDate"',
-                ])
-            )
         })
+
     })
 })

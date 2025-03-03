@@ -86,6 +86,8 @@ const SERVICE_USER_CREATED_MESSAGE_TYPE = 'SERVICE_USER_CREATED'
 const TITLE_IS_REQUIRED_FOR_CUSTOM_CONTENT_MESSAGE_TYPE = 'TITLE_IS_REQUIRED_FOR_CUSTOM_CONTENT_MESSAGE_TYPE'
 const BODY_IS_REQUIRED_FOR_CUSTOM_CONTENT_MESSAGE_TYPE = 'BODY_IS_REQUIRED_FOR_CUSTOM_CONTENT_MESSAGE_TYPE'
 const SEND_DAILY_STATISTICS_MESSAGE_TYPE = 'SEND_DAILY_STATISTICS'
+const B2B_APP_MESSAGE_PUSH_TYPE = 'B2B_APP_MESSAGE_PUSH'
+const PASS_TICKET_CREATED_MESSAGE_TYPE = 'PASS_TICKET_CREATED'
 
 const SMS_FORBIDDEN_SYMBOLS_REGEXP = /[&#|«»]+/gim
 
@@ -153,6 +155,8 @@ const MESSAGE_META = {
             url: { defaultValue: '', required: true },
             organizationId: { defaultValue: '', required: true },
             organizationName: { defaultValue: '', required: true },
+            authorType: { defaultValue: '', required: true },
+            authorName: { defaultValue: '', required: true },
         },
         telegramMeta: { required: false },
     },
@@ -656,10 +660,36 @@ const MESSAGE_META = {
             incidents: { required: true },
         },
     },
+    [B2B_APP_MESSAGE_PUSH_TYPE]: {
+        dv: { required: true },
+        title: { required: true },
+        body: { required: true },
+    },
+    [PASS_TICKET_CREATED_MESSAGE_TYPE]: {
+        dv: { required: true },
+        data: {
+            organizationName: { required: true },
+            number: { required: true },
+            propertyAddress: { required: true },
+            unit: { required: true },
+            client: { required: true },
+            openAt: { required: true },
+            url: { required: true },
+            comment: { required: true },
+            passTicketType: { required: true },
+            guest: { required: true },
+            guestName: { required: true },
+            vehicle: { required: true },
+            vehicleBrand: { required: true },
+            stateVehicleNumber: { required: true },
+        },
+        telegramMeta: { required: false },
+    },
 }
 
 /** Used to validate type field for sendMessage mutation payload */
 const MESSAGE_TYPES = Object.keys(MESSAGE_META)
+const B2B_APP_MESSAGE_TYPES = [B2B_APP_MESSAGE_PUSH_TYPE, PASS_TICKET_CREATED_MESSAGE_TYPE]
 
 const MESSAGE_DELIVERY_STRATEGY_AT_LEAST_ONE_TRANSPORT = 'atLeastOneTransport'
 const MESSAGE_DELIVERY_STRATEGY_ALL_TRANSPORTS = 'allTransports'
@@ -858,7 +888,7 @@ const MESSAGE_DELIVERY_OPTIONS = {
         defaultTransports: [PUSH_TRANSPORT],
     },
     [DEV_PORTAL_MESSAGE_TYPE]: {
-        // NOTE: Email and phone codes from dev-api are sent via this type
+        // NOTE: Email and phone codes from dev-portal are sent via this type
         priority: MESSAGE_DELIVERY_FAST_PRIORITY,
         allowedTransports: [SMS_TRANSPORT, EMAIL_TRANSPORT],
         defaultTransports: [SMS_TRANSPORT, EMAIL_TRANSPORT],
@@ -904,6 +934,17 @@ const MESSAGE_DELIVERY_OPTIONS = {
         allowedTransports: [EMAIL_TRANSPORT],
         defaultTransports: [EMAIL_TRANSPORT],
         isAllowedToChangeDefaultTransport: false,
+    },
+    [B2B_APP_MESSAGE_PUSH_TYPE]: {
+        allowedTransports: [PUSH_TRANSPORT],
+        defaultTransports: [PUSH_TRANSPORT],
+        isAllowedToChangeDefaultTransport: false,
+    },
+    [PASS_TICKET_CREATED_MESSAGE_TYPE]: {
+        allowedTransports: [TELEGRAM_TRANSPORT],
+        defaultTransports: [TELEGRAM_TRANSPORT],
+        isAllowedToChangeDefaultTransport: false,
+        strategy: MESSAGE_DELIVERY_STRATEGY_ALL_TRANSPORTS,
     },
 }
 
@@ -1144,5 +1185,8 @@ module.exports = {
     REDSTORE_CONFIG_ENV,
     REDSTORE_CONFIG_TEST_PUSHTOKEN_ENV,
     PUSH_TRANSPORT_REDSTORE,
+    B2B_APP_MESSAGE_PUSH_TYPE,
+    PASS_TICKET_CREATED_MESSAGE_TYPE,
+    B2B_APP_MESSAGE_TYPES,
 }
 

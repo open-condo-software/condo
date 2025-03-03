@@ -1,8 +1,9 @@
 const dayjs = require('dayjs')
 const utc = require('dayjs/plugin/utc')
+const cloneDeep = require('lodash/cloneDeep')
 
 const { GQLError } = require('@open-condo/keystone/errors')
-const { getRedisClient } = require('@open-condo/keystone/redis')
+const { getKVClient } = require('@open-condo/keystone/kv')
 
 const { GQL_ERRORS } = require('@condo/domains/user/constants/errors')
 
@@ -10,7 +11,7 @@ dayjs.extend(utc)
 
 class RedisGuard {
     get redis () {
-        if (!this._redis) this._redis = getRedisClient('guards')
+        if (!this._redis) this._redis = getKVClient('guards')
         return this._redis
     }
 
@@ -61,6 +62,57 @@ class RedisGuard {
         }
     }
 
+    /**
+     * Increments all counters and then checks the limits
+     *
+     * @param {{key: string, windowSizeInSec: number, windowLimit: number}[]} countersData
+     * @param {Object | undefined} context - Keystone context
+     * @return {Promise<void>}
+     */
+    async checkMultipleCustomLimitCounters (countersData, context) {
+        /**
+         * @type {{key: string, windowSizeInSec: number, windowLimit: number, isBlocked?: boolean, secondsRemaining?: number}[]}
+         * @private
+         */
+        const _countersData = cloneDeep(countersData)
+
+        /**
+         * @type {Array<number>}
+         */
+        const counters = await Promise.all(_countersData.map(({ key }) => this.redis.incr(`${this.counterPrefix}${key}`)))
+
+        const expireatPromises = []
+        for (let i = 0; i < _countersData.length; i++) {
+            const guard = _countersData[i]
+            const counter = counters[i]
+
+            // if variable not exists - it will be set to 1
+            if (counter === 1) {
+                const expiryAnchorDate = dayjs().add(guard.windowSizeInSec, 'second')
+                expireatPromises.push(this.redis.expireat(`${this.counterPrefix}${guard.key}`, parseInt(`${expiryAnchorDate / 1000}`)))
+            }
+
+            guard.isBlocked = counter > guard.windowLimit
+            if (guard.isBlocked) {
+                guard.secondsRemaining = await this.counterTimeRemain(guard.key)
+            }
+        }
+        await Promise.all(expireatPromises)
+
+        const isBlocked = _countersData.some(guard => guard.isBlocked)
+
+        const maxSecondsRemaining = Math.max(..._countersData.map(guard => guard?.secondsRemaining ?? 0))
+
+        if (isBlocked) {
+            throw new GQLError({
+                ...GQL_ERRORS.TOO_MANY_REQUESTS,
+                messageInterpolation: {
+                    secondsRemaining: maxSecondsRemaining,
+                },
+            }, context)
+        }
+    }
+
     async incrementDayCounter (variable) {
         return this.incrementCustomCounter(variable, dayjs().endOf('day'))
     }
@@ -75,6 +127,32 @@ class RedisGuard {
             await this.redis.expireat(`${this.counterPrefix}${variable}`, parseInt(`${date / 1000}`))
         }
         return afterIncrement
+    }
+
+    async getCounterValue (variable) {
+        const key = `${this.counterPrefix}${variable}`
+        return await this.redis.get(key)
+    }
+
+    async checkCounterExistence (variable) {
+        const key = `${this.counterPrefix}${variable}`
+        return await this.redis.exists(key)
+    }
+
+    async checkCountersExistence (...variables) {
+        const keys = variables.map((variable) => `${this.counterPrefix}${variable}`)
+        const counters = await Promise.all(keys.map(key => this.redis.del(key)))
+        return counters.reduce((acc, currentValue) => acc + currentValue, 0)
+    }
+
+    async deleteCounter (variable) {
+        const key = `${this.counterPrefix}${variable}`
+        await this.redis.del(key)
+    }
+
+    async deleteCounters (...variables) {
+        const keys = variables.map((variable) => `${this.counterPrefix}${variable}`)
+        await Promise.all(keys.map(key => this.redis.del(key)))
     }
 
     // Counter

@@ -21,6 +21,7 @@ import { HistoricalChange } from '@condo/domains/common/components/ChangeHistory
 import { PageHeader, PageWrapper, PageContent } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
+import { PageComponentType } from '@condo/domains/common/types'
 import { getTimeLeftMessage, getTimeLeftMessageType } from '@condo/domains/common/utils/date.utils'
 import { IncidentReadPermissionRequired } from '@condo/domains/ticket/components/PageAccess'
 import {
@@ -34,11 +35,6 @@ import { Incident, IncidentProperty, IncidentClassifierIncident, IncidentChange 
 import { getAddressRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
 
-
-export interface IIncidentIdPage extends React.FC {
-    headerAction?: JSX.Element
-    requiredAccess?: React.FC
-}
 
 type IncidentContentProps = {
     incident: IIncident
@@ -481,7 +477,7 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
     )
 }
 
-const IncidentIdPage: IIncidentIdPage = () => {
+const IncidentIdPage: PageComponentType = () => {
     const intl = useIntl()
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
     const ErrorPageTitle = intl.formatMessage({ id: 'incident.id.error.title' })

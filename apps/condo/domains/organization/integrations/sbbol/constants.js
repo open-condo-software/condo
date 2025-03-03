@@ -52,6 +52,7 @@ const SBBOL_PAYMENT_STATUS_MAP = {
 const SbbolUserInfoSchema = {
     type: 'object',
     properties: {
+        sub: { type: 'string' },
         // Organization's field
         OrgName: { type: 'string' },
         HashOrgId: { type: 'string' },
@@ -68,8 +69,13 @@ const SbbolUserInfoSchema = {
         email: { type: 'string' },
         phone_number: { type: 'string' },
     },
-    required: ['inn', 'OrgName', 'userGuid', 'phone_number', 'HashOrgId'],
     additionalProperties: true,
+    // use sub as userId on a remote system if no userGuid in response
+    required: ['OrgName', 'HashOrgId', 'inn', 'phone_number'],
+    anyOf: [
+        { required: ['sub'] },
+        { required: ['userGuid'] },
+    ],
 }
 
 const ERROR_PASSED_DATE_IN_THE_FUTURE = 'An invalid date was received. It is possible to request transactions only for the past date.'

@@ -1,6 +1,7 @@
 import { Invoice } from '@app/condo/schema'
 import { Table as AntdTable } from 'antd'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import React, { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -10,9 +11,8 @@ import { Table } from '@condo/domains/common/components/Table/Index'
 import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 import { DEFAULT_INVOICE_CURRENCY_CODE } from '@condo/domains/marketplace/constants'
 import { MarketItem } from '@condo/domains/marketplace/utils/clientSchema'
-import {
-    getMoneyRender,
-} from '@condo/domains/marketplace/utils/clientSchema/Invoice'
+import { getMoneyRender } from '@condo/domains/marketplace/utils/clientSchema/Invoice'
+import { PriceMeasuresType } from '@condo/domains/marketplace/utils/clientSchema/MarketItem'
 
 
 const useInvoiceRowsTableColumns = (currencyCode, marketItems) => {
@@ -31,9 +31,13 @@ const useInvoiceRowsTableColumns = (currencyCode, marketItems) => {
         return render(value)
     }, [render])
     const moneyRender = useMemo(() => getMoneyRender(intl, currencyCode), [currencyCode, intl])
-    const toPayRender = useCallback((row, count) => {
+    const toPayRender = useCallback((row, count, options = {}) => {
+
+        const showMeasure = get(options, 'showMeasure', false)
+
         const toPay = get(row, 'toPay')
         const isMin = get(row, 'isMin')
+        const measure: PriceMeasuresType = get(row, 'measure')
 
         let value
         if (isMin) {
@@ -46,6 +50,10 @@ const useInvoiceRowsTableColumns = (currencyCode, marketItems) => {
         } else {
             const toPayStr = String(+toPay * count)
             value = moneyRender(toPayStr, false)
+        }
+
+        if (value !== ContractPriceMessage && showMeasure) {
+            value += measure ? `/${intl.formatMessage({ id: `pages.condo.marketplace.measure.${measure}.short` })}` : ''
         }
 
         return renderWithEmptyValue(value)
@@ -93,7 +101,7 @@ const useInvoiceRowsTableColumns = (currencyCode, marketItems) => {
             dataIndex: 'toPay',
             key: 'toPay',
             width: '19%',
-            render: (_, row) => toPayRender(row, 1),
+            render: (_, row) => toPayRender(row, 1, { showMeasure: true }),
         },
         {
             title: ToPayMessage,
@@ -110,10 +118,10 @@ type InvoiceRowsTableProps = {
 
 export const InvoiceRowsTable: React.FC<InvoiceRowsTableProps> = ({ invoice }) => {
     const intl = useIntl()
-    const ContractPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' }).toLowerCase()
+    const NegotiatedPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' }).toLowerCase()
 
     const currencyCode = get(invoice, 'currencyCode') || DEFAULT_INVOICE_CURRENCY_CODE
-    const rows = useMemo(() => get(invoice, 'rows'), [invoice])
+    const rows = useMemo(() => get(invoice, 'rows') || [], [invoice])
     const organizationId = get(invoice, 'organization.id') || get(invoice, 'organization')
     const skuItems = rows.map(({ sku }) => sku).filter(Boolean)
 
@@ -122,14 +130,14 @@ export const InvoiceRowsTable: React.FC<InvoiceRowsTableProps> = ({ invoice }) =
             sku_in: skuItems,
             organization: { id: organizationId },
         },
-    })
+    }, { skip: isEmpty(skuItems) || !organizationId })
 
     const orderColumns = useInvoiceRowsTableColumns(currencyCode, marketItems)
 
     const moneyRender = useMemo(() => getMoneyRender(intl, currencyCode), [currencyCode, intl])
     const totalPrice = rows.filter(row => row.toPay !== '0').reduce((acc, row) => acc + Number(row.toPay) * row.count, 0)
     const hasMinPrice = rows.some(row => row.isMin)
-    const isContractToPay = rows.every(row => row.isMin && row.toPay === '0')
+    const isNegotiatedPay = rows.every(row => row.isMin && row.toPay === '0')
 
     const SummaryContent = useCallback(() => (
         <AntdTable.Summary fixed>
@@ -139,11 +147,11 @@ export const InvoiceRowsTable: React.FC<InvoiceRowsTableProps> = ({ invoice }) =
                         .map(index => <AntdTable.Summary.Cell key={index} index={index} colSpan={1} />)
                 }
                 <AntdTable.Summary.Cell index={orderColumns.length} colSpan={1}>
-                    <Typography.Text strong>{isContractToPay ? ContractPriceMessage : moneyRender(String(totalPrice), hasMinPrice)}</Typography.Text>
+                    <Typography.Text strong>{isNegotiatedPay ? NegotiatedPriceMessage : moneyRender(String(totalPrice), hasMinPrice)}</Typography.Text>
                 </AntdTable.Summary.Cell>
             </AntdTable.Summary.Row>
         </AntdTable.Summary>
-    ), [ContractPriceMessage, hasMinPrice, isContractToPay, moneyRender, orderColumns.length, totalPrice])
+    ), [NegotiatedPriceMessage, hasMinPrice, isNegotiatedPay, moneyRender, orderColumns.length, totalPrice])
 
     return (
         <Table

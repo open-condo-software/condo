@@ -55,7 +55,7 @@ const makeBillingReceiptWithResident = async (billingReceiptAttrs = {}, skipCons
     const receiptAttrs = { period: thisMonthStart, ...billingReceiptAttrs }
     const [receipt] = await createTestBillingReceipt(integrationClient, billingContext, billingProperty, billingAccount, receiptAttrs)
 
-    return { receipt, resident, residentUser }
+    return { receipt, resident, residentUser, billingContext }
 }
 
 module.exports = {

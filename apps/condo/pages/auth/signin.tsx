@@ -5,11 +5,13 @@ import React from 'react'
 import { useIntl } from '@open-condo/next/intl'
 
 import { TabsAuthAction } from '@condo/domains/common/components/HeaderActions'
+import { PageComponentType } from '@condo/domains/common/types'
 import { SignInForm } from '@condo/domains/user/components/auth/SignInForm'
-import AuthLayout, { AuthPage } from '@condo/domains/user/components/containers/AuthLayout'
+import AuthLayout from '@condo/domains/user/components/containers/AuthLayout'
 import { WelcomeHeaderTitle } from '@condo/domains/user/components/UserWelcomeTitle'
 
-const SignInPage: AuthPage = () => {
+
+const SignInPage: PageComponentType = () => {
     const intl = useIntl()
     const SignInTitleMsg = intl.formatMessage({ id: 'pages.auth.SignInTitle' })
 
@@ -29,4 +31,6 @@ const SignInPage: AuthPage = () => {
 }
 SignInPage.container = AuthLayout
 SignInPage.headerAction = <WelcomeHeaderTitle/>
+SignInPage.skipUserPrefetch = true
+
 export default SignInPage

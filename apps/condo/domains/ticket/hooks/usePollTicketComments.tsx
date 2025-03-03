@@ -1,14 +1,18 @@
-import { SortTicketCommentsBy } from '@app/condo/schema'
+import { useGetPollTicketCommentsQuery } from '@app/condo/gql'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import uniq from 'lodash/uniq'
 import { useCallback, useEffect, useRef } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
+import { isSSR } from '@open-condo/miniapp-utils'
+
+import { POLL_TICKET_COMMENTS } from '@condo/domains/common/constants/featureflags'
 import { useBroadcastChannel } from '@condo/domains/common/hooks/useBroadcastChannel'
 import { useExecuteWithLock } from '@condo/domains/common/hooks/useExecuteWithLock'
-import { TicketComment } from '@condo/domains/ticket/utils/clientSchema'
 
 
-const COMMENT_RE_FETCH_INTERVAL_IN_MS = 5 * 1000
+const COMMENT_RE_FETCH_INTERVAL_IN_MS = 15 * 1000
 const LOCK_NAME = 'ticketComments'
 const BROADCAST_CHANNEL_NAME = 'ticketComments'
 const LOCAL_STORAGE_SYNC_KEY = 'syncTicketCommentsAt'
@@ -18,50 +22,56 @@ export function usePollTicketComments ({
     refetchTicketComments,
     pollCommentsQuery,
 }) {
+    const { useFlag } = useFeatureFlags()
+    const isPollTicketsEnabled = useFlag(POLL_TICKET_COMMENTS)
+
+    const firstArgRef = useRef<number>()
+    useEffect(() => {
+        firstArgRef.current = isPollTicketsEnabled ? 100 : undefined
+    }, [isPollTicketsEnabled])
+    
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>()
 
-    const { refetch: refetchSyncComments } = TicketComment.useObjects({}, { skip: true })
+    const { refetch: refetchSyncComments } = useGetPollTicketCommentsQuery({
+        skip: true,
+    })
 
-    const { sendMessage } = useBroadcastChannel<string[]>(BROADCAST_CHANNEL_NAME, async (ticketIdsWithUpdatedComments) => {
+    const {
+        sendMessageToBroadcastChannel,
+    } = useBroadcastChannel<string[]>(BROADCAST_CHANNEL_NAME, async (ticketIdsWithUpdatedComments) => {
         if (ticketIdsWithUpdatedComments.includes(get(ticket, 'id'))) {
             await refetchTicketComments()
         }
     })
 
     const pollTicketComments = useCallback(async () => {
-        if (!localStorage) return
+        if (isSSR() || !localStorage) return
 
         const now = new Date().toISOString()
         const lastSyncAt = localStorage.getItem(LOCAL_STORAGE_SYNC_KEY)
+        localStorage.setItem(LOCAL_STORAGE_SYNC_KEY, now)
 
         const result = await refetchSyncComments({
             where: {
                 ...pollCommentsQuery,
                 updatedAt_gt: lastSyncAt || now,
             },
-            sortBy: [SortTicketCommentsBy.UpdatedAtDesc],
+            first: firstArgRef.current,
         })
-        const ticketComments = get(result, 'data.objs', [])
+        const ticketComments = result?.data?.ticketComments?.filter(Boolean) || []
 
-        const newSyncedAt = get(ticketComments, '0.updatedAt', now)
-        localStorage.setItem(LOCAL_STORAGE_SYNC_KEY, newSyncedAt)
+        const ticketsWithUpdatedComments: string[] = uniq(ticketComments.map(
+            ticketComment => ticketComment?.ticket?.id
+        ))
 
-        const ticketsWithUpdatedComments: string[] = uniq(ticketComments.map(ticketComment => get(ticketComment, 'ticket.id')))
+        if (!isEmpty(ticketsWithUpdatedComments)) {
+            sendMessageToBroadcastChannel(ticketsWithUpdatedComments)
+        }
+    }, [pollCommentsQuery, refetchSyncComments, sendMessageToBroadcastChannel])
 
-        sendMessage(ticketsWithUpdatedComments)
-    }, [pollCommentsQuery, refetchSyncComments, sendMessage])
-
-    const { releaseLock } = useExecuteWithLock(LOCK_NAME, () => {
+    useExecuteWithLock(LOCK_NAME, () => {
         intervalRef.current = setInterval(pollTicketComments, COMMENT_RE_FETCH_INTERVAL_IN_MS)
     })
-
-    useEffect(() => {
-        return () => {
-            if (releaseLock) {
-                return releaseLock()
-            }
-        }
-    }, [releaseLock])
 
     useEffect(() => {
         return () => {

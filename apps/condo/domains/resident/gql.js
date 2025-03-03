@@ -9,6 +9,7 @@ const { gql } = require('graphql-tag')
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
 const { INVOICE_FIELDS } = require('@condo/domains/marketplace/gql')
+const { METER_READING_MAX_VALUES_COUNT } = require('@condo/domains/meter/constants/constants')
 const { ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('@condo/domains/property/schema/fields/AddressMetaField')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
@@ -60,7 +61,7 @@ const REGISTER_RESIDENT_INVOICE_MUTATION = gql`
 
 const FIND_ORGANIZATIONS_BY_ADDRESS_QUERY = gql`
     query findOrganizationsByAddress ($data: FindOrganizationsByAddressInput!) {
-        result: findOrganizationsByAddress(data: $data) { organization { id name tin type } account { number category balance routingNumber bankAccountNumber } hasMeters hasBillingData }
+        result: findOrganizationsByAddress(data: $data) { id name tin type receipts { accountNumber category balance routingNumber bankAccount address } meters { number resource accountNumber address } }
     }
 `
 

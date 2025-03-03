@@ -4,7 +4,7 @@ import { css, jsx } from '@emotion/react'
 import styled from '@emotion/styled'
 import { Col, List, notification, Progress, Row, RowProps } from 'antd'
 import isFunction from 'lodash/isFunction'
-import React, { useCallback, useContext, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 
 import { ChevronDown, ChevronUp, Check, Close } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
@@ -19,17 +19,17 @@ import {
     TASK_CANCELLED_STATUS,
 } from '@condo/domains/common/constants/tasks'
 
+import { useTasks } from './TasksContextProvider'
+
 import { CloseCircleIcon } from '../icons/CloseCircleIcon'
 
 import {
     ITaskTrackableItem,
     TASK_PROGRESS_UNKNOWN,
     TASK_REMOVE_STRATEGY,
-    TASK_STATUS,
     TaskProgressTranslations,
-    TaskRecord,
     TaskRecordProgress,
-    TasksContext,
+    BaseTaskRecord,
 } from './index'
 
 
@@ -106,7 +106,7 @@ const TaskIconsHoverSwitcher = ({ progress, taskStatus, removeTask }) => {
 }
 
 interface ITaskProgressProps {
-    task: TaskRecord
+    task: BaseTaskRecord
     translations: TaskProgressTranslations
     progress: TaskRecordProgress
     removeTask: () => void
@@ -122,7 +122,7 @@ export const TaskProgress = ({ task, translations, progress, removeTask, isDeskt
     const DeleteTitle = intl.formatMessage({ id: 'Delete' })
     const CancelTitle = intl.formatMessage({ id: 'Cancel' })
 
-    const isProcessing = task.status === TASK_STATUS.PROCESSING
+    const isProcessing = task.status === TASK_PROCESSING_STATUS
 
     return (
         <List.Item style={RELATIVE_CONTAINER_STYLE}>
@@ -173,7 +173,7 @@ export const TaskProgressTracker: React.FC<ITaskProgressTrackerProps> = ({ task,
     const { storage, removeStrategy, calculateProgress, onComplete, onCancel, onError, translations } = task
     const { record, stopPolling } = storage.useTask(task.record.id)
 
-    const { deleteTask: deleteTaskFromContext, updateTask } = useContext(TasksContext)
+    const { deleteTask: deleteTaskFromContext, updateTask } = useTasks()
 
     const removeTaskFromStorage = storage.useDeleteTask({}, () => {
         if (removeStrategy.includes(TASK_REMOVE_STRATEGY.PANEL)) {
@@ -189,11 +189,11 @@ export const TaskProgressTracker: React.FC<ITaskProgressTrackerProps> = ({ task,
         }
     }
 
-    const cancelTaskAndRemoveFromUI = storage.useUpdateTask({ status: TASK_STATUS.CANCELLED }, removeTaskFromUI)
+    const cancelTaskAndRemoveFromUI = storage.useUpdateTask({ status: TASK_CANCELLED_STATUS }, removeTaskFromUI)
 
     const handleRemoveTask = useCallback(async () => {
         // Tasks under processing should be cancelled before removing from UI
-        if (record.status === TASK_STATUS.PROCESSING) {
+        if (record.status === TASK_PROCESSING_STATUS) {
             cancelTaskAndRemoveFromUI({}, record)
         } else {
             removeTaskFromUI()
@@ -254,7 +254,7 @@ const RELATIVE_CONTAINER_STYLE: React.CSSProperties = {
 const TASK_ROW_GUTTER: RowProps['gutter'] = [12, 0]
 
 interface ITasksProgressProps {
-    tasks: ITaskTrackableItem[]
+    tasks: Array<ITaskTrackableItem>
 }
 
 /**
@@ -266,7 +266,7 @@ export const TasksProgress = ({ tasks }: ITasksProgressProps) => {
     const TitleMsg = intl.formatMessage({ id: 'tasks.progressNotification.title' })
 
     const { breakpoints: { TABLET_LARGE: isDesktop } } = useLayoutContext()
-    const { deleteAllTasks } = useContext(TasksContext)
+    const { deleteAllTasks } = useTasks()
 
     const [collapsed, setCollapsed] = useState(!isDesktop)
 
@@ -280,7 +280,7 @@ export const TasksProgress = ({ tasks }: ITasksProgressProps) => {
         overflowY: 'auto',
     }
 
-    const isAllTasksFinished = tasks.every(task => task.record.status !== TASK_STATUS.PROCESSING)
+    const isAllTasksFinished = tasks.every(task => task.record.status !== TASK_PROCESSING_STATUS)
     const chevronIcon = collapsed ? <ChevronDown size='medium' /> : <ChevronUp size='medium' />
 
     return (
@@ -333,7 +333,7 @@ export const TasksProgress = ({ tasks }: ITasksProgressProps) => {
 
 interface IDisplayTasksProgressArgs {
     notificationApi: any
-    tasks: ITaskTrackableItem[]
+    tasks: Array<ITaskTrackableItem>
 }
 
 /**

@@ -4,7 +4,7 @@ const get = require('lodash/get')
 const omit = require('lodash/omit')
 
 const conf = require('@open-condo/config')
-const { _internalGetAsyncLocalStorage } = require('@open-condo/keystone/executionContext')
+const { graphqlCtx } = require('@open-condo/keystone/KSv5v6/utils/graphqlCtx')
 
 const { KnexPool } = require('./pool')
 const { getNamedDBs, getReplicaPoolsConfig, getQueryRoutingRules, isDefaultRule } = require('./utils/env')
@@ -13,8 +13,6 @@ const { logger } = require('./utils/logger')
 const { isRuleMatching } = require('./utils/rules')
 const { extractCRUDQueryData } = require('./utils/sql')
 
-
-const graphqlCtx = _internalGetAsyncLocalStorage('graphqlCtx')
 
 class BalancingReplicaKnexAdapter extends KnexAdapter {
     constructor ({ databaseUrl, replicaPools, routingRules }) {

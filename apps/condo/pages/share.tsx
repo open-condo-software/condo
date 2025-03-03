@@ -1,5 +1,3 @@
-import crypto from 'crypto'
-
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import getConfig from 'next/config'
@@ -9,14 +7,10 @@ import React, { useEffect } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
-
 import BaseLayout, { PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { LOCALES } from '@condo/domains/common/constants/locale'
-import {
-    ALGORITHM,
-    SALT,
-    CRYPTOENCODING,
-} from '@condo/domains/ticket/constants/crypto'
+import { PageComponentType } from '@condo/domains/common/types'
+import { unpackShareData } from '@condo/domains/ticket/utils/shareDataPacker'
 
 
 function RedirectToTicket ({ ticketId }) {
@@ -42,11 +36,7 @@ interface ShareProps {
     date: string
 }
 
-interface IShareProps extends React.FC<ShareProps> {
-    container: React.FC
-}
-
-const Share: IShareProps = ({ date, number, details, id }) => {
+const Share: PageComponentType<ShareProps> = ({ date, number, details, id }) => {
     const intl = useIntl()
     const locale = get(LOCALES, intl.locale)
     const localizedDate = locale ? dayjs(date || 0).locale(locale) : dayjs(date || 0)
@@ -84,10 +74,9 @@ const Share: IShareProps = ({ date, number, details, id }) => {
 }
 
 export const getServerSideProps = ({ query }) => {
-    const decipher = crypto.createDecipher(ALGORITHM, SALT)
-    const decryptedText = decipher.update(query.q.replace(/\s/gm, '+'), CRYPTOENCODING, 'utf8') + decipher.final('utf8')
-    // TODO(leonid-d): update encrypt method, or use link shortening service
-    return { props: JSON.parse(decryptedText) }
+    const packedData = query.q.replace(/\s/gm, '+')
+    const shareParams = unpackShareData(packedData)
+    return { props: JSON.parse(shareParams) }
 }
 
 const EmptyLayout = ({ children, ...props }) => {
@@ -103,5 +92,6 @@ const EmptyLayout = ({ children, ...props }) => {
 }
 
 Share.container = EmptyLayout
+Share.skipUserPrefetch = true
 
 export default Share

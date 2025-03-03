@@ -1,5 +1,5 @@
 import { ErrorLayoutFooter, ErrorLayoutHeader } from '@app/condo/pages/500'
-import { Col, Row, RowProps, Typography } from 'antd'
+import { Typography } from 'antd'
 import getConfig from 'next/config'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -9,6 +9,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { Button, Space } from '@open-condo/ui'
 
 import { fontSizes } from '@condo/domains/common/constants/style'
+import { PageComponentType } from '@condo/domains/common/types'
 import { PosterLayout } from '@condo/domains/user/components/containers/PosterLayout'
 
 
@@ -17,7 +18,7 @@ const SuccessSrc = { poster: '/successDino.webp' }
 
 const { publicRuntimeConfig:{ condoRBDomain } } = getConfig()
 
-export default function SuccessPage () {
+const SuccessPage: PageComponentType = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage( { id: 'pages.condo.marketplace.invoice.payment.success.title' })
     const DescriptionMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.payment.success.description' })
@@ -74,3 +75,6 @@ const SuccessPageLayout = (props): React.ReactElement => (
 )
 
 SuccessPage.container = SuccessPageLayout
+SuccessPage.skipUserPrefetch = true
+
+export default SuccessPage

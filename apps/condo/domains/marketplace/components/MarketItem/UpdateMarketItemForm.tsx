@@ -4,6 +4,7 @@ import difference from 'lodash/difference'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
+import omit from 'lodash/omit'
 import sortBy from 'lodash/sortBy'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState } from 'react'
@@ -114,16 +115,23 @@ export const UpdateMarketItemForm = ({ marketItem }) => {
         const existedPrices = prices.filter(price => price.id)
 
         for (const price of existedPrices) {
-            const { priceType, price: formPrice, id, hasAllProperties, properties } = price
+            const { priceType, price: formPrice, id, hasAllProperties, properties, measure } = price
             const { price: resultPrice, isMin } = getPriceValueFromFormPrice({ priceType, price: formPrice })
 
             const initialMarketItemPrice = marketItemPrices.find(marketItemPrice => marketItemPrice.id === price.id)
             const initialPriceArray = get(initialMarketItemPrice, 'price')
             const initialPriceObj = get(initialPriceArray, '0')
 
-            if (get(initialPriceObj, 'price') !== resultPrice || get(initialPriceObj, 'isMin') !== isMin) {
+            if (
+                get(initialPriceObj, 'price') !== resultPrice ||
+                get(initialPriceObj, 'isMin') !== isMin ||
+                get(initialPriceObj, 'measure') !== measure
+            ) {
                 const { __typename, ...initialPrice } = initialPriceObj
-                const newPrice = { ...initialPrice, price: resultPrice, isMin }
+                let newPrice = { ...initialPrice, price: resultPrice, isMin, measure }
+                if (!newPrice.measure) {
+                    newPrice = omit(newPrice, 'measure')
+                }
                 await updateMarketItemPrice({
                     price: [newPrice],
                 }, { id })

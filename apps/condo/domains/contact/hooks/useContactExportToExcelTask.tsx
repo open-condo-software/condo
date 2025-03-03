@@ -10,13 +10,16 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 
 import { useContactExportTaskUIInterface } from './useContactExportTaskUIInterface'
 
+import type { GetContactExportTasksQuery } from '@app/condo/gql'
 import type {
     ContactWhereInput,
     SortContactsBy,
     User,
     ContactExportTask as ContactExportTaskType,
+    ContactExportTaskCreateInput,
 } from '@app/condo/schema'
 import type { ITask } from '@condo/domains/common/components/tasks'
+
 
 type UseContactExportToExcelTaskProps = {
     where: ContactWhereInput
@@ -27,10 +30,11 @@ type UseContactExportToExcelTaskProps = {
     user: User
 }
 
+type TaskRecordType = GetContactExportTasksQuery['tasks'][number]
 interface IUseContactExportToExcelTask {
     ({ where, sortBy, format, locale, timeZone, user }: UseContactExportToExcelTaskProps): ({
         ExportButton: React.FC
-        TaskUIInterface: ITask
+        TaskUIInterface: ITask<TaskRecordType>
     })
 }
 
@@ -42,7 +46,7 @@ export const useContactExportToExcelTask: IUseContactExportToExcelTask = (props)
 
     const { where, sortBy, format, locale, timeZone, user } = props
 
-    const { loading, handleRunTask } = useTaskLauncher(TaskUIInterface, {
+    const { loading, handleRunTask } = useTaskLauncher<ContactExportTaskCreateInput>(TaskUIInterface, {
         dv: 1,
         sender: getClientSideSenderInfo(),
         where,
@@ -53,15 +57,16 @@ export const useContactExportToExcelTask: IUseContactExportToExcelTask = (props)
         user: { connect: { id: get(user, 'id') } },
     })
 
+    const handleClick = useCallback(() => handleRunTask(), [handleRunTask])
     const ExportButton = useCallback(() => (
         <Button
             type='secondary'
             children={ExportAsExcelTitle}
-            onClick={handleRunTask}
+            onClick={handleClick}
             loading={loading}
             icon={<Sheet size='medium' />}
         />
-    ), [loading, ExportAsExcelTitle, handleRunTask])
+    ), [loading, ExportAsExcelTitle, handleClick])
 
     return {
         ExportButton,

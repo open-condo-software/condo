@@ -14,7 +14,7 @@ const { ERRORS } = require('@condo/domains/document/constants')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 
 const DOCUMENT_FOLDER_NAME = 'document'
-const Adapter = new FileAdapter(DOCUMENT_FOLDER_NAME, false, true)
+const Adapter = new FileAdapter(DOCUMENT_FOLDER_NAME, false)
 const fileMetaAfterChange = getFileMetaAfterChange(Adapter)
 
 const createAndReadOnlyFieldAccess = {
@@ -52,6 +52,12 @@ const Document = new GQLListSchema('Document', {
             adapter: Adapter,
             isRequired: true,
             access: createAndReadOnlyFieldAccess,
+        },
+        canReadByResident: {
+            schemaDoc: 'If set to true, this means document will be accessible by residents',
+            type: 'Checkbox',
+            isRequired: true,
+            defaultValue: false,
         },
     },
     hooks: {

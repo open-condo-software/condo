@@ -7,7 +7,6 @@ import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
 import React, { useEffect, useRef, useState } from 'react'
 
-
 import { useLazyQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -19,6 +18,7 @@ import { TICKET_ANALYTICS_REPORT_QUERY } from '@condo/domains/analytics/gql'
 import { filterToQuery, getAggregatedData, GroupTicketsByTypes } from '@condo/domains/analytics/utils/helpers'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { Logo } from '@condo/domains/common/components/Logo'
+import { PageComponentType } from '@condo/domains/common/types'
 import { createPdfWithPageBreaks } from '@condo/domains/common/utils/pdf'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import {
@@ -552,7 +552,7 @@ const PdfView = () => {
 
 const DynamicPdfView = dynamic(() => Promise.resolve(PdfView), { ssr: false })
 
-const AnalyticsPdfPage = () => (
+const AnalyticsPdfPage: PageComponentType = () => (
     <DynamicPdfView />
 )
 

@@ -20,7 +20,7 @@ codegen.yaml
 schema.graphql
 !apps/condo/schema.graphql
 !apps/miniapp/schema.graphql
-!apps/dev-api/schema.graphql
+!apps/dev-portal-api/schema.graphql
 
 # yarn + npm
 yarn-error.log
@@ -50,9 +50,6 @@ ignore.*
 .vscode
 .werf_secret_key
 /bin/werf
-
-**/cypress/videos/**
-**/cypress/screenshots/**
 
 # Condo UI-kit static
 apps/condo/public/ui

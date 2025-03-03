@@ -23,11 +23,13 @@ const CAPTCHA_CHECK_ENABLED = 'captcha-check-enabled'
 const IMPORT_HELP_MODAL = 'import-help-modal'
 const SEND_DAILY_STATISTICS_TASK = 'send-daily-statistics-task'
 const RETENTION_LOOPS_ENABLED = 'retention-loops-enabled'
-const NEWS_SHARING = 'news-sharing'
-const NEWS_SHARING_TEMPLATES = 'news-sharing-templates'
-const TICKET_DOCUMENT_GENERATION = 'ticket-document-generation'
 const SERVICE_PROBLEMS_ALERT = 'service-problems-alert'
 const TICKET_AUTO_ASSIGNMENT_MANAGEMENT = 'ticket-auto-assignment-management'
+const POLL_TICKET_COMMENTS = 'poll-ticket-comments'
+const REASSIGN_EMPLOYEE_TICKETS = 'reassign-employee-tickets'
+const SNOWFLAKES_SETTINGS = 'snowflakes-settings'
+const USER_WHITE_LIST_FOR_FIND_ORGANIZATIONS_BY_TIN = 'user-white-list-for-find-organizations-by-tin'
+const PLATFORM_NOTIFICATIONS = 'platform-notifications'
 
 module.exports = {
     SMS_AFTER_TICKET_CREATION,
@@ -54,9 +56,12 @@ module.exports = {
     IMPORT_HELP_MODAL,
     RETENTION_LOOPS_ENABLED,
     SEND_DAILY_STATISTICS_TASK,
-    NEWS_SHARING,
-    NEWS_SHARING_TEMPLATES,
-    TICKET_DOCUMENT_GENERATION,
+
     SERVICE_PROBLEMS_ALERT,
     TICKET_AUTO_ASSIGNMENT_MANAGEMENT,
+    POLL_TICKET_COMMENTS,
+    REASSIGN_EMPLOYEE_TICKETS,
+    SNOWFLAKES_SETTINGS,
+    USER_WHITE_LIST_FOR_FIND_ORGANIZATIONS_BY_TIN,
+    PLATFORM_NOTIFICATIONS,
 }

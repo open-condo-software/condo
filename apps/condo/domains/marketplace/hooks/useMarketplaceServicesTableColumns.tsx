@@ -19,7 +19,7 @@ import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils
 import { getAddressDetails, getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { getMoneyRender } from '@condo/domains/marketplace/utils/clientSchema/Invoice'
-
+import { PriceMeasuresType } from '@condo/domains/marketplace/utils/clientSchema/MarketItem'
 
 export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, marketPriceScopes: MarketPriceScopeType[], marketCategories: MarketCategoryType[], properties: Property[]) {
     const intl = useIntl()
@@ -52,6 +52,7 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
                 price,
                 isMin: get(prices, '0.isMin'),
                 currency: get(prices, '0.currencyCode', 'RUB'),
+                measure: get(prices, '0.measure'),
                 address: streetPart,
             }
 
@@ -145,8 +146,11 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
                     if (priceForAllProperties) {
                         const currency = get(priceForAllProperties, 'currency', 'RUB')
                         const price = get(priceForAllProperties, 'price')
+                        const measure: PriceMeasuresType = get(priceForAllProperties, 'measure')
                         const isMin = get(priceForAllProperties, 'isMin')
                         const renderedPrice = isMin && price == 0 ? ContractPriceMessage : getMoneyRender(intl, currency)(price, isMin)
+
+                        const shouldShowMeasure = !!(measure)
 
                         if (properties.length === 1) {
                             const { streetPart } = getAddressDetails(get(properties, '0'))
@@ -159,7 +163,7 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
                             </div>)
                         } else {
                             componentsToRender.push(<div key='priceForAllProperties'>
-                                {renderedPrice}
+                                {renderedPrice}{( shouldShowMeasure ? `/${intl.formatMessage( { id: `pages.condo.marketplace.measure.${measure}.short` })}` : '' )}
                                 <Typography.Text type='secondary' style={{ margin: '10px' }}>({AllPropertiesMessage})</Typography.Text>
                             </div>)
                         }
@@ -169,14 +173,23 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
 
                     for (const price in processedScopes[marketItem.id]) {
                         const items = processedScopes[marketItem.id][price]
+                        const measure: PriceMeasuresType = get(items[0], 'measure')
+                        const shouldShowMeasure = !!(measure)
                         const address = get(items[0], 'address')
 
-                        componentsToRender.push(<div key={address}>
-                            {get(items[0], 'isMin') && (get(items[0], 'price') == 0) ? ContractPriceMessage : getMoneyRender(intl, get(items[0], 'currency', 'RUB'))(price, get(items[0], 'isMin'))}
-                            <Typography.Text type='secondary' style={{ margin: '10px' }}>
+                        componentsToRender.push(
+                            <div key={address}>
+                                {
+                                    get(items[0], 'isMin') && (get(items[0], 'price') == 0) ?
+                                        ContractPriceMessage :
+                                        getMoneyRender(intl, get(items[0], 'currency', 'RUB'))(price, get(items[0], 'isMin'))
+                                        + (shouldShowMeasure ? `/${intl.formatMessage( { id: `pages.condo.marketplace.measure.${measure}.short` })}` : '')
+                                }
+                                <Typography.Text type='secondary' style={{ margin: '10px' }}>
                                 ({items.length > 1 ? `${address} ${AndMoreMessage} ${items.length - 1}` : address})
-                            </Typography.Text>
-                        </div>)
+                                </Typography.Text>
+                            </div>
+                        )
                     }
                     return componentsToRender
                 },

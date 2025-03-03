@@ -1,10 +1,10 @@
 const { get, set, pick } = require('lodash')
 
 const conf = require('@open-condo/config')
-const { getRedisClient } = require('@open-condo/keystone/redis')
+const { getKVClient } = require('@open-condo/keystone/kv')
 const { find } = require('@open-condo/keystone/schema')
 
-const _redisClient = getRedisClient('default', 'cache')
+const _redisClient = getKVClient('default', 'cache')
 const DEFAULT_CACHE_TTL_IN_MS = 60 * 60 * 1000 // 1 hour
 const CACHE_TTL_FROM_ENV = parseInt(conf['USER_RESIDENT_CACHING_TTL_IN_MS'])
 const CACHE_TTL_IN_MS = isNaN(CACHE_TTL_FROM_ENV) ? DEFAULT_CACHE_TTL_IN_MS : CACHE_TTL_FROM_ENV

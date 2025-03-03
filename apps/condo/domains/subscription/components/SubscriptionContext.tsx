@@ -1,8 +1,7 @@
-import { ServiceSubscription, SortServiceSubscriptionsBy } from '@app/condo/schema'
+import { useGetServiceSubscriptionQuery, GetServiceSubscriptionQueryResult } from '@app/condo/gql'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { get } from 'lodash'
 import getConfig from 'next/config'
 import Router, { useRouter } from 'next/router'
 import React, { useContext, useEffect, useState, createContext } from 'react'
@@ -13,14 +12,14 @@ import { Modal, Button, Typography } from '@open-condo/ui'
 
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 
-import { ServiceSubscription as ServiceSubscriptionUtil } from '../utils/clientSchema'
 import { isExpired } from '../utils/helpers'
+
 
 dayjs.extend(relativeTime)
 dayjs.extend(duration)
 
 interface ISubscriptionContext {
-    subscription?: ServiceSubscription
+    subscription?: GetServiceSubscriptionQueryResult['data']['subscriptions'][number]
     daysLeft?: number
     daysLeftHumanized?: string
     isExpired?: boolean
@@ -31,16 +30,16 @@ const SubscriptionContext = createContext<ISubscriptionContext>({})
 export const useServiceSubscriptionContext = () => useContext(SubscriptionContext)
 
 const useServiceSubscriptionLoader = (): ISubscriptionContext => {
-    const { organization } = useOrganization()
-    const { objs } = ServiceSubscriptionUtil.useObjects({
-        where: {
-            organization: { id: get(organization, 'id') },
-        },
-        sortBy: [SortServiceSubscriptionsBy.StartAtDesc],
-    }, {
+    const { organization, isLoading } = useOrganization()
+
+    const hasSubscriptionFeature = hasFeature('subscription')
+
+    const { data } = useGetServiceSubscriptionQuery({
+        variables: { organizationId: organization?.id || null },
         fetchPolicy: 'network-only',
+        skip: !hasSubscriptionFeature || isLoading || !organization?.id,
     })
-    const subscription = objs[0]
+    const subscription = data?.subscriptions?.length ? data.subscriptions[0] : null
 
     if (!subscription) {
         return {}

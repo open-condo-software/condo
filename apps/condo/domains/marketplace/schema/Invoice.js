@@ -74,6 +74,7 @@ const sendPush = async ({ originalInput, userId, propertyId, unitName, unitType,
         if (!resident) return
 
         if (updatedItem.paymentType === INVOICE_PAYMENT_TYPE_ONLINE) {
+            // TODO(DOMA-11040): get locale for sendMessage from user
             if (isNil(updatedItem.ticket)) {
                 await sendMessage(context, {
                     dv: 1,
@@ -95,6 +96,7 @@ const sendPush = async ({ originalInput, userId, propertyId, unitName, unitType,
                 const ticket = await getById('Ticket', updatedItem.ticket)
                 const ticketSource = await getById('TicketSource', ticket.source)
                 if (ticketSource.type !== TICKET_SOURCE_TYPES.MOBILE_APP ) {
+                    // TODO(DOMA-11040): get locale for sendMessage from user
                     await sendMessage(context, {
                         dv: 1,
                         sender,
@@ -118,6 +120,7 @@ const sendPush = async ({ originalInput, userId, propertyId, unitName, unitType,
 
         } else if (updatedItem.paymentType === INVOICE_PAYMENT_TYPE_CASH) {
             if (isNil(updatedItem.ticket)) {
+                // TODO(DOMA-11040): get locale for sendMessage from user
                 await sendMessage(context, {
                     dv: 1,
                     sender,
@@ -138,6 +141,7 @@ const sendPush = async ({ originalInput, userId, propertyId, unitName, unitType,
                 const ticket = await getById('Ticket', updatedItem.ticket)
                 const ticketSource = await getById('TicketSource', ticket.source)
                 if (ticketSource.type !== TICKET_SOURCE_TYPES.MOBILE_APP ) {
+                    // TODO(DOMA-11040): get locale for sendMessage from user
                     await sendMessage(context, {
                         dv: 1,
                         sender,
@@ -200,12 +204,13 @@ const ERRORS = {
         message: 'The organization has no AcquiringIntegrationContext in finished status for invoices',
         messageForUser: 'api.marketplace.invoice.NO_FINISHED_ACQUIRING_CONTEXT',
     },
-    FORBID_EDIT_PUBLISHED: {
+    FORBID_EDIT_PUBLISHED: (changedFields) => ({
         code: BAD_USER_INPUT,
         type: ERROR_FORBID_EDIT_PUBLISHED,
         message: `Only the status ${INVOICE_STATUS_CANCELED} and ${INVOICE_STATUS_PAID} can be updated by the published invoice`,
         messageForUser: 'api.marketplace.invoice.FORBID_EDIT_PUBLISHED',
-    },
+        changedFields,
+    }),
     CLIENT_DATA_DOES_NOT_MATCH_TICKET: {
         code: BAD_USER_INPUT,
         type: ERROR_CLIENT_DATA_DOES_NOT_MATCH_TICKET,
@@ -413,14 +418,14 @@ const Invoice = new GQLListSchema('Invoice', {
 
     },
     hooks: {
-        validateInput: async ({ resolvedData, operation, existingItem, context }) => {
+        validateInput: async ({ resolvedData, operation, existingItem, context, originalInput }) => {
             const nextData = { ...existingItem, ...resolvedData }
             const isUpdate = operation === 'update'
             const isConnectClientDataOp = Object.keys(resolvedData).some(key => CLIENT_DATA_FIELDS.includes(key))
             const connectedTicketId = get(nextData, 'ticket')
             const existingTicketId = get(existingItem, 'ticket')
             const resolvedTicketId = get(resolvedData, 'ticket')
-            const changedFields = omitBy(resolvedData, (value, key) => {
+            const changedFields = omitBy(originalInput, (value, key) => {
                 if (key === 'toPay') {
                     return Number(value) === Number(get(existingItem, key))
                 }
@@ -452,7 +457,7 @@ const Invoice = new GQLListSchema('Invoice', {
                     [INVOICE_STATUS_CANCELED, INVOICE_STATUS_PAID, INVOICE_STATUS_PUBLISHED].includes(resolvedStatus) : true
 
                 if (!isEmpty(changedFieldsWithoutStatus) || !hasAccessToUpdateStatus) {
-                    throw new GQLError(ERRORS.FORBID_EDIT_PUBLISHED, context)
+                    throw new GQLError(ERRORS.FORBID_EDIT_PUBLISHED(changedFieldsWithoutStatus), context)
                 }
             }
 

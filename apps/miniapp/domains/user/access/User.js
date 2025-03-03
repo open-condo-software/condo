@@ -7,8 +7,9 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 async function canReadUsers ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
+    if (user.isAdmin || user.isSupport) return true
 
-    return true
+    return { id: user.id }
 }
 
 async function canManageUsers ({ authentication: { item: user } }) {

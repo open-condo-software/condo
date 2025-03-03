@@ -1,10 +1,17 @@
 /** @jsx jsx */
 import {
-    B2BAppGlobalFeature, SortInvoicesBy,
-    SortTicketChangesBy,
-    SortTicketCommentFilesBy,
-    SortTicketCommentsBy,
-} from '@app/condo/schema'
+    useCreateTicketCommentMutation,
+    useGetOrganizationEmployeeWithTicketOrganizationQuery,
+    useGetTicketByIdQuery,
+    useGetTicketChangesQuery,
+    useGetTicketCommentsFilesQuery,
+    useGetTicketCommentsQuery,
+    useGetTicketLastCommentsTimeQuery, useGetUserTicketCommentsReadTimeQuery,
+    useUpdateTicketCommentMutation,
+    useCreateUserTicketCommentReadTimeMutation,
+    useUpdateUserTicketCommentReadTimeMutation, useGetTicketInvoicesQuery,
+} from '@app/condo/gql'
+import { B2BAppGlobalFeature } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
 import { Affix, Col, ColProps, notification, Row, RowProps, Space, Typography } from 'antd'
 import dayjs from 'dayjs'
@@ -15,10 +22,11 @@ import map from 'lodash/map'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
+import { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
-import { Edit, Link as LinkIcon } from '@open-condo/icons'
+import { Link as LinkIcon } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { FormattedMessage } from '@open-condo/next/intl'
 import { useIntl } from '@open-condo/next/intl'
@@ -34,20 +42,19 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
-import { MARKETPLACE, TICKET_DOCUMENT_GENERATION } from '@condo/domains/common/constants/featureflags'
+import { MARKETPLACE } from '@condo/domains/common/constants/featureflags'
+import { PageComponentType } from '@condo/domains/common/types'
 import { getObjectCreatedMessage } from '@condo/domains/common/utils/date.utils'
 import { CopyButton } from '@condo/domains/marketplace/components/Invoice/CopyButton'
 import { TicketInvoicesList } from '@condo/domains/marketplace/components/Invoice/TicketInvoicesList'
-import { INVOICE_STATUS_PUBLISHED } from '@condo/domains/marketplace/constants'
+import { INVOICE_STATUS_CANCELED, INVOICE_STATUS_PUBLISHED } from '@condo/domains/marketplace/constants'
 import { useInvoicePaymentLink } from '@condo/domains/marketplace/hooks/useInvoicePaymentLink'
-import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
 import { useGlobalAppsFeaturesContext } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsFeaturesContext'
 import {
     ASSIGNED_TICKET_VISIBILITY,
     MANAGING_COMPANY_TYPE,
     SERVICE_PROVIDER_TYPE,
 } from '@condo/domains/organization/constants/common'
-import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { IncidentHints } from '@condo/domains/ticket/components/IncidentHints'
 import { TicketReadPermissionRequired } from '@condo/domains/ticket/components/PageAccess'
 import { ShareTicketModal } from '@condo/domains/ticket/components/ShareTicketModal'
@@ -81,17 +88,13 @@ import { useTicketChangedFieldMessagesOf } from '@condo/domains/ticket/hooks/use
 import { useTicketDocumentGenerationTask } from '@condo/domains/ticket/hooks/useTicketDocumentGenerationTask'
 import { useTicketExportToPdfTask } from '@condo/domains/ticket/hooks/useTicketExportToPdfTask'
 import {
-    Ticket,
-    TicketChange,
-    TicketComment,
     TicketCommentFile,
-    TicketLastCommentsTime,
-    UserTicketCommentReadTime,
 } from '@condo/domains/ticket/utils/clientSchema'
 import { FavoriteTicketIndicator } from '@condo/domains/ticket/utils/clientSchema/Renders'
 import {
     getTicketTitleMessage,
 } from '@condo/domains/ticket/utils/helpers'
+import { prefetchTicket } from '@condo/domains/ticket/utils/next/Ticket'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import { RESIDENT } from '@condo/domains/user/constants/common'
 
@@ -354,6 +357,7 @@ const TicketContent = ({ ticket }) => {
 }
 
 const TicketActionBar = ({
+    invoices,
     ticket,
     organization,
     employee,
@@ -366,15 +370,11 @@ const TicketActionBar = ({
 
     const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
 
-    const auth = useAuth() as { user: { id: string } }
-    const user = get(auth, 'user')
+    const { user } = useAuth()
 
     const { breakpoints } = useLayoutContext()
     const { requestFeature } = useGlobalAppsFeaturesContext()
     const { isCallActive, connectedTickets } = useActiveCall()
-
-    const { useFlag } = useFeatureFlags()
-    const isTicketDocumentGenerationEnabled = useFlag(TICKET_DOCUMENT_GENERATION)
 
     const id = get(ticket, 'id')
     const ticketOrganizationId = useMemo(() => get(ticket, 'organization.id'), [ticket])
@@ -401,10 +401,14 @@ const TicketActionBar = ({
         eventNamePrefix: 'TicketDetail',
     })
 
+    const hasValidInvoice = useMemo(() => Array.isArray(invoices) && !!invoices.find((invoice) => get(invoice, 'status') !== INVOICE_STATUS_CANCELED), [invoices])
+
     const { TicketDocumentGenerationButton } = useTicketDocumentGenerationTask({
-        ticket,
+        hasValidInvoice,
+        ticketId: id || null,
+        isPaidTicket: ticket?.isPayable || false,
         timeZone,
-        user,
+        userId: user?.id || null,
     })
 
     const { EditButton: EditQualityControlButton } = useTicketQualityControl()
@@ -444,7 +448,7 @@ const TicketActionBar = ({
                         </Button>
                     </Link>
                 ),
-                isTicketDocumentGenerationEnabled && <TicketDocumentGenerationButton key='generateDocument' />,
+                <TicketDocumentGenerationButton key='generateDocument' />,
                 breakpoints.TABLET_LARGE && <>
                     <TicketBlanksExportToPdfButton/>
                     {TicketBlanksExportToPdfModal}
@@ -550,31 +554,49 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
     const BlockedEditingDescriptionMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.BlockedEditing.description' })
     const TicketChangesMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketChanges' })
 
-    const auth = useAuth() as { user: { id: string } }
-    const user = get(auth, 'user')
+    const { user } = useAuth()
     const { breakpoints } = useLayoutContext()
+    const { persistor } = useCachePersistor()
 
-    const id = get(ticket, 'id')
+    const id = useMemo(() => ticket?.id, [ticket?.id])
 
-    // TODO(antonal): get rid of separate GraphQL query for TicketChanges
-    const ticketChangesResult = TicketChange.useObjects({
-        where: { ticket: { id } },
-        sortBy: [SortTicketChangesBy.ActualCreationDateDesc],
-    }, {
-        fetchPolicy: 'network-only',
+    const {
+        data: ticketChangesData,
+        refetch: refetchTicketChanges,
+        loading: ticketChangesLoading,
+    } = useGetTicketChangesQuery({
+        variables: {
+            ticketId: id,
+        },
+        skip: !persistor,
     })
+    const ticketChanges = useMemo(() => ticketChangesData?.ticketChanges?.filter(Boolean) || [], [ticketChangesData?.ticketChanges])
+    const ticketChangesCount = useMemo(() => ticketChanges.length, [ticketChanges.length])
 
-    const { objs: comments, refetch: refetchComments } = TicketComment.useObjects({
-        where: { ticket: { id } },
-        sortBy: [SortTicketCommentsBy.CreatedAtDesc],
+    const {
+        data: ticketCommentsData,
+        refetch: refetchTicketComments,
+    } = useGetTicketCommentsQuery({
+        variables: {
+            ticketId: id,
+        },
+        skip: !persistor,
     })
-
+    const comments = useMemo(() => ticketCommentsData?.ticketComments?.filter(Boolean) || [],
+        [ticketCommentsData?.ticketComments])
     const commentsIds = useMemo(() => map(comments, 'id'), [comments])
 
-    const { objs: ticketCommentFiles, refetch: refetchCommentFiles } = TicketCommentFile.useObjects({
-        where: { ticketComment: { id_in: commentsIds } },
-        sortBy: [SortTicketCommentFilesBy.CreatedAtDesc],
+    const {
+        data: ticketCommentsFilesData,
+        refetch: refetchCommentFiles,
+    } = useGetTicketCommentsFilesQuery({
+        variables: {
+            ticketCommentsIds: commentsIds,
+        },
+        skip: isEmpty(commentsIds) || !persistor,
     })
+    const ticketCommentFiles = useMemo(() => ticketCommentsFilesData?.files?.filter(Boolean) || [],
+        [ticketCommentsFilesData?.files])
 
     const commentsWithFiles = useMemo(() => comments.map(comment => {
         return {
@@ -583,47 +605,59 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
         }
     }), [comments, ticketCommentFiles])
 
-    const updateComment = TicketComment.useUpdate({}, () => {
-        refetchComments()
-        refetchCommentFiles()
-    })
-    const deleteComment = TicketComment.useSoftDelete(() => refetchComments())
-    const createCommentAction = TicketComment.useCreate({
-        ticket: { connect: { id: id } },
-        user: { connect: { id: auth.user && auth.user.id } },
-    })
-
-    const { obj: ticketCommentsTime, refetch: refetchTicketCommentsTime } = TicketLastCommentsTime.useObject({
-        where: { id },
-    })
-
-    const {
-        obj: userTicketCommentReadTime,
-        refetch: refetchUserTicketCommentReadTime,
-        loading: loadingUserTicketCommentReadTime,
-    } = UserTicketCommentReadTime.useObject({
-        where: {
-            user: { id: user.id },
-            ticket: { id },
+    const [updateComment] = useUpdateTicketCommentMutation({
+        onCompleted: async () => {
+            await refetchTicketComments()
+            await refetchCommentFiles()
         },
     })
-    const createUserTicketCommentReadTime = UserTicketCommentReadTime.useCreate({
-        user: { connect: { id: user.id } },
-        ticket: { connect: { id } },
-    }, () => refetchUserTicketCommentReadTime())
-    const updateUserTicketCommentReadTime = UserTicketCommentReadTime.useUpdate({
-        user: { connect: { id: user.id } },
-        ticket: { connect: { id } },
-    }, () => refetchUserTicketCommentReadTime())
+    const [createCommentAction] = useCreateTicketCommentMutation()
+
+    const {
+        data: ticketCommentTimesData,
+        refetch: refetchTicketCommentTimes,
+    } = useGetTicketLastCommentsTimeQuery({
+        variables: {
+            id,
+        },
+        skip: !persistor || isEmpty(comments),
+    })
+    const ticketCommentTimes = useMemo(() => ticketCommentTimesData?.ticketCommentTimes?.filter(Boolean)[0],
+        [ticketCommentTimesData?.ticketCommentTimes])
+
+    const {
+        data: userTicketCommentsReadTimesData,
+        refetch: refetchUserTicketCommentsReadTimes,
+        loading: loadingUserTicketCommentsReadTimes,
+    } = useGetUserTicketCommentsReadTimeQuery({
+        variables: {
+            userId: user.id,
+            ticketIds: [id],
+        },
+        skip: !persistor || isEmpty(user),
+    })
+    const userTicketCommentsReadTimes = useMemo(() => userTicketCommentsReadTimesData?.objs?.filter(Boolean)[0],
+        [userTicketCommentsReadTimesData?.objs])
+
+    const [createUserTicketCommentReadTime] = useCreateUserTicketCommentReadTimeMutation({
+        onCompleted: async () => {
+            await refetchUserTicketCommentsReadTimes()
+        },
+    })
+    const [updateUserTicketCommentReadTime] = useUpdateUserTicketCommentReadTimeMutation({
+        onCompleted: async () => {
+            await refetchUserTicketCommentsReadTimes()
+        },
+    })
 
     const ticketVisibilityType = get(employee, 'role.ticketVisibilityType')
 
     const refetchCommentsWithFiles = useCallback(async () => {
-        await refetchComments()
+        await refetchTicketComments()
         await refetchCommentFiles()
-        await refetchTicketCommentsTime()
-        await refetchUserTicketCommentReadTime()
-    }, [refetchCommentFiles, refetchComments, refetchTicketCommentsTime, refetchUserTicketCommentReadTime])
+        await refetchTicketCommentTimes()
+        await refetchUserTicketCommentsReadTimes()
+    }, [refetchCommentFiles, refetchTicketComments, refetchTicketCommentTimes, refetchUserTicketCommentsReadTimes])
 
     usePollTicketComments({
         ticket,
@@ -631,36 +665,35 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
         pollCommentsQuery,
     })
 
-    const actionsFor = useCallback(comment => {
-        const isAuthor = comment.user.id === auth.user.id
-        const isAdmin = get(auth, ['user', 'isAdmin'])
-        return {
-            updateAction: isAdmin || isAuthor ? updateComment : null,
-            deleteAction: isAdmin || isAuthor ? deleteComment : null,
-        }
-    }, [auth, deleteComment, updateComment])
-
     const ticketPropertyId = get(ticket, ['property', 'id'], null)
     const isDeletedProperty = !ticket.property && ticket.propertyAddress
-    const canCreateComments = useMemo(() => get(auth, ['user', 'isAdmin']) || get(employee, ['role', 'canManageTicketComments']),
-        [auth, employee])
+    const canCreateComments = useMemo(
+        () => user?.isAdmin || get(employee, ['role', 'canManageTicketComments']),
+        [user, employee]
+    )
 
     const { useFlag } = useFeatureFlags()
     const isMarketplaceEnabled = useFlag(MARKETPLACE)
     const isNoServiceProviderOrganization = useMemo(() => (get(organization, 'type', MANAGING_COMPANY_TYPE) !== SERVICE_PROVIDER_TYPE), [organization])
 
-    const { objs: invoices, loading: invoicesLoading, refetch: refetchInvoices } = Invoice.useObjects({
-        where: {
-            ticket: { id: ticket.id },
+    const {
+        data: invoicesData,
+        loading: invoicesLoading,
+        refetch: refetchInvoices,
+    } = useGetTicketInvoicesQuery({
+        variables: {
+            ticketId: ticket.id,
         },
-        sortBy: [SortInvoicesBy.CreatedAtDesc],
-    }, { skip: !isMarketplaceEnabled || !isNoServiceProviderOrganization })
+        skip: !persistor || !ticket?.id || !isMarketplaceEnabled || !isNoServiceProviderOrganization,
+    })
+    const invoices = useMemo(() => invoicesData?.invoices?.filter(Boolean) || [],
+        [invoicesData?.invoices])
 
-    const refetchTicketAndRelatedObjs = useCallback(() => {
-        refetchTicket()
-        ticketChangesResult.refetch()
-        refetchInvoices()
-    }, [refetchInvoices, refetchTicket, ticketChangesResult])
+    const refetchTicketAndRelatedObjs = useCallback(async () => {
+        await refetchTicket()
+        await refetchTicketChanges()
+        await refetchInvoices()
+    }, [refetchInvoices, refetchTicket, refetchTicketChanges])
 
     const render = (
         <Row gutter={BIG_VERTICAL_GUTTER}>
@@ -719,15 +752,16 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
                         ticketOrganizationId={organization.id}
                     />
                     <ChangeHistory
-                        items={get(ticketChangesResult, 'objs')}
-                        total={get(ticketChangesResult, 'count')}
-                        loading={get(ticketChangesResult, 'loading')}
+                        items={ticketChanges}
+                        total={ticketChangesCount}
+                        loading={ticketChangesLoading}
                         title={TicketChangesMessage}
                         useChangedFieldMessagesOf={useTicketChangedFieldMessagesOf}
                         HistoricalChange={HistoricalChange}
                     />
                     <Col span={24}>
                         <TicketActionBar
+                            invoices={invoices}
                             ticket={ticket}
                             organization={organization}
                             employee={employee}
@@ -738,20 +772,19 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
             <Col lg={7} xs={24} offset={breakpoints.DESKTOP_SMALL ? 1 : 0}>
                 <Affix offsetTop={40}>
                     <Comments
-                        ticketCommentsTime={ticketCommentsTime}
-                        userTicketCommentReadTime={userTicketCommentReadTime}
+                        ticketId={id}
+                        ticketCommentTimes={ticketCommentTimes}
+                        userTicketCommentReadTime={userTicketCommentsReadTimes}
                         createUserTicketCommentReadTime={createUserTicketCommentReadTime}
                         updateUserTicketCommentReadTime={updateUserTicketCommentReadTime}
-                        loadingUserTicketCommentReadTime={loadingUserTicketCommentReadTime}
+                        loadingUserTicketCommentReadTime={loadingUserTicketCommentsReadTimes}
                         FileModel={TicketCommentFile}
                         fileModelRelationField='ticketComment'
-                        ticket={ticket}
                         createAction={createCommentAction}
                         updateAction={updateComment}
                         refetchComments={refetchCommentsWithFiles}
                         comments={commentsWithFiles}
                         canCreateComments={canCreateComments}
-                        actionsFor={actionsFor}
                     />
                 </Affix>
             </Col>
@@ -759,53 +792,60 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
     )
 
     return (
-        <TicketQualityControlProvider ticket={ticket} afterUpdate={refetchTicketAndRelatedObjs}>
+        <TicketQualityControlProvider ticketId={id} afterUpdate={refetchTicketAndRelatedObjs}>
             {render}
         </TicketQualityControlProvider>
     )
 }
 
-const TicketIdPage = () => {
+const TicketIdPage: PageComponentType = () => {
     const intl = useIntl()
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
 
     const { user } = useAuth()
-    const { link, organization, selectLink } = useOrganization()
+    const { link, organization, selectEmployee } = useOrganization()
+    const { query } = useRouter()
+    const { id } = query as { id: string }
 
-    const router = useRouter()
+    const { persistor } = useCachePersistor()
 
-    // NOTE: cast `string | string[]` to `string`
-    const { query: { id } } = router as { query: { [key: string]: string } }
-
-    const { refetch: refetchTicket, loading: ticketLoading, obj: ticket, error } = Ticket.useObject({
-        where: { id },
+    const {
+        data: ticketByIdData,
+        loading: ticketLoading,
+        refetch: refetchTicket,
+        error,
+    } = useGetTicketByIdQuery({
+        variables: { id },
+        skip: !persistor,
     })
+    const ticket = useMemo(() => ticketByIdData?.tickets?.filter(Boolean)[0], [ticketByIdData?.tickets])
 
     const userId = get(user, 'id', null)
     const ticketOrganizationId = get(ticket, 'organization.id', null)
 
     const {
-        obj: ticketOrganizationEmployee,
-    } = OrganizationEmployee.useObject({
-        where: {
-            user: { id: userId },
-            organization: { id: ticketOrganizationId },
+        data,
+    } = useGetOrganizationEmployeeWithTicketOrganizationQuery({
+        variables: {
+            userId,
+            organizationId: ticketOrganizationId,
         },
+        skip: !userId || !ticketOrganizationId || !persistor,
     })
+    const ticketOrganizationEmployee = useMemo(() => data?.employees?.filter(Boolean)[0], [data?.employees])
 
     const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [ticket])
 
-    const ticketOrganizationEmployeeOrganizationId = get(ticketOrganizationEmployee, 'organization.id')
-    const currentEmployeeOrganization = get(organization, 'id')
+    const currentEmployeeOrganizationId = useMemo(() => organization?.id, [organization?.id])
 
     useEffect(() => {
         if (
-            ticketOrganizationEmployeeOrganizationId &&
-            ticketOrganizationEmployeeOrganizationId !== currentEmployeeOrganization
+            !isEmpty(ticketOrganizationEmployee) &&
+            ticketOrganizationId !== currentEmployeeOrganizationId
         ) {
-            selectLink(ticketOrganizationEmployee)
+            selectEmployee(ticketOrganizationEmployee?.id)
         }
-    }, [ticketOrganizationEmployeeOrganizationId, currentEmployeeOrganization])
+    }, [ticketOrganizationId, currentEmployeeOrganizationId, ticketOrganizationEmployee, selectEmployee])
 
     const { canEmployeeReadTicket, ticketFilterQueryLoading } = useTicketVisibility()
 
@@ -853,5 +893,16 @@ const TicketIdPage = () => {
 }
 
 TicketIdPage.requiredAccess = TicketReadPermissionRequired
+
+TicketIdPage.getPrefetchedData = async ({ context, apolloClient }) => {
+    const { query } = context
+    const { id: ticketId } = query as { id: string }
+
+    await prefetchTicket({ client: apolloClient, ticketId })
+
+    return {
+        props: {},
+    }
+}
 
 export default TicketIdPage

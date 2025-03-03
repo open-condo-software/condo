@@ -13,15 +13,22 @@ import qs from 'qs'
 import { IRecordWithId } from '../types'
 
 const DEFAULT_WIDTH_PRECISION = 2
-const PHONE_FORMAT_REGEXP = /(\d)(\d{3})(\d{3})(\d{2})(\d{2})/
+const RUSSIAN_PHONE_FORMAT_REGEXP = /(\d)(\d{3})(\d{3})(\d{2})(\d{2})/
+const SPANISH_PHONE_FORMAT_REGEXP = /(\d{2})(\d{3})(\d{3})(\d{3})/
 
 /**
  * Formats a phone, convert it from number string to string with dividers
  * for example: 01234567890 -> 0 (123) 456-78-90
-*/
-export const formatPhone = (phone?: string): string =>
-    phone ? phone.replace(PHONE_FORMAT_REGEXP, '$1 ($2) $3-$4-$5') : phone
-
+ */
+export const formatPhone = (phone?: string): string =>{
+    if (phone.startsWith('+7')){
+        return phone.replace(RUSSIAN_PHONE_FORMAT_REGEXP, '$1 ($2) $3-$4-$5')
+    }
+    if (phone.startsWith('+34')){
+        return phone.replace(SPANISH_PHONE_FORMAT_REGEXP, '$1-$2-$3-$4')
+    }
+    return phone
+}
 
 export const getFiltersFromQuery = <T>(query: ParsedUrlQuery): T | Record<string, unknown> => {
     const { filters } = query
@@ -105,6 +112,8 @@ export const getFilteredValue = <T>(filters: T, key: string | Array<string>): Fi
 interface IUpdateQueryOptions {
     routerAction: 'replace' | 'push'
     resetOldParameters: boolean
+    /** Prevents the "getServerSideProps" call */
+    shallow?: boolean
 }
 interface IUpdateQueryData {
     newParameters: Record<string, unknown>
@@ -117,6 +126,7 @@ export const updateQuery: UpdateQueryType = async (router, data, options) => {
     const newRoute = get(data, 'newRoute')
     const routerAction = get(options, 'routerAction', 'push')
     const resetOldParameters = get(options, 'resetOldParameters', true)
+    const shallow = get(options, 'shallow', routerAction === 'replace')
 
     if (isEmpty(newParameters) && isEmpty(newRoute)) return
 
@@ -136,8 +146,8 @@ export const updateQuery: UpdateQueryType = async (router, data, options) => {
     const url = route + query
 
     if (routerAction === 'push') {
-        await router.push(url)
+        await router.push(url, undefined, { shallow })
     } else {
-        await router.replace(url)
+        await router.replace(url, undefined, { shallow })
     }
 }

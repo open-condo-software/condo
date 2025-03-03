@@ -43,13 +43,25 @@ jobs:
         env:
           REGISTRY: ${{ secrets.DOCKER_REGISTRY }}/doma/utils/
         run: |
-          docker-compose up -d redis postgresdb-master postgresdb-replica
+          docker-compose up -d redis postgresdb
 
       - name: run tests
         run: |
           mkdir test_logs
           chmod -R a+rw ./test_logs
-          docker run -v ./test_logs:/app/test_logs --network="host" ${{ secrets.DOCKER_REGISTRY }}/${{ inputs.image_name }} bash -c "./bin/run_condo_domain_tests.sh -d ${{ inputs.domain_name }}"
+          docker run \
+          -e PROMETHEUS_RW_SERVER_URL=$PROMETHEUS_RW_SERVER_URL \
+          -e PROMETHEUS_USER=$PROMETHEUS_USER \
+          -e PROMETHEUS_PASSWORD=$PROMETHEUS_PASSWORD \
+          -e GH_REF_NAME=$GH_REF_NAME \
+          -v ./test_logs:/app/test_logs --network="host" \
+          ${{ secrets.DOCKER_REGISTRY }}/${{ inputs.image_name }} \
+          bash -c "./bin/run_condo_domain_tests.sh -d ${{ inputs.domain_name }}"
+        env:
+          PROMETHEUS_RW_SERVER_URL: ${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }}
+          PROMETHEUS_USER: ${{ secrets.K6_PROMETHEUS_USER }}
+          PROMETHEUS_PASSWORD: ${{ secrets.K6_PROMETHEUS_PASSWORD }}
+          GH_REF_NAME: ${{ github.ref_name }}
 
       - name: Collect docker logs on failure
         if: failure()

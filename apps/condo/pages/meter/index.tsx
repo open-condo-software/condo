@@ -16,6 +16,7 @@ import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import { MultipleFilterContextProvider } from '@condo/domains/common/hooks/useMultipleFiltersModal'
 import { usePreviousQueryParams } from '@condo/domains/common/hooks/usePreviousQueryParams'
+import { PageComponentType } from '@condo/domains/common/types'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { MeterReadPermissionRequired } from '@condo/domains/meter/components/PageAccess'
@@ -26,14 +27,8 @@ import { PropertyMetersPageContent } from '@condo/domains/meter/components/TabCo
 import { PropertyMeterReadingsPageContent } from '@condo/domains/meter/components/TabContent/PropertyMeterReading'
 import { useMeterFilters } from '@condo/domains/meter/hooks/useMeterFilters'
 import { useMeterReadingFilters } from '@condo/domains/meter/hooks/useMeterReadingFilters'
-import { useTableColumns } from '@condo/domains/meter/hooks/useTableColumns'
 import { METER_TAB_TYPES, METER_TYPES, MeterPageTypes, MeterTypes } from '@condo/domains/meter/utils/clientSchema'
 
-
-interface IMeterIndexPage extends React.FC {
-    headerAction?: JSX.Element
-    requiredAccess?: React.FC
-}
 
 export function MeterPageTypeFromQuery (tabFromQuery) {
     switch (tabFromQuery) {
@@ -89,7 +84,11 @@ export const MeterTypeSwitch = ({ defaultValue, activeTab }: MeterTypeSwitchProp
         const value = event.target.value
         setValue(value)
         logEvent({ eventName: 'MeterTypeChange', denyDuplicates: true, eventProperties: { type: value } })
-        updateQuery(router, { newParameters: { type: value, tab: activeTab } }, { resetOldParameters: true, routerAction: 'replace' })
+        updateQuery(
+            router,
+            { newParameters: { type: value, tab: activeTab } },
+            { resetOldParameters: true, routerAction: 'replace', shallow: true }
+        )
     }, [activeTab, logEvent, router])
 
     return (
@@ -110,7 +109,7 @@ export const MeterTypeSwitch = ({ defaultValue, activeTab }: MeterTypeSwitchProp
 
 const PAGE_DIV_STYLE: CSSProperties = { display: 'flex', flexDirection: 'column',  height: '100%' }
 
-const MetersPage: IMeterIndexPage = () => {
+const MetersPage: PageComponentType = () => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.meter.index.PageTitle' })
     const MeterMessage = intl.formatMessage({ id: 'pages.condo.meter.index.meterTab' })
@@ -125,7 +124,7 @@ const MetersPage: IMeterIndexPage = () => {
     const { breakpoints } = useLayoutContext()
 
     const { GlobalHints } = useGlobalHints()
-    usePreviousQueryParams({ paramNamesForPageChange: ['tab', 'type'], trackedParamNames: ['sort', 'filters', 'isShowActiveMeters', 'isShowArchivedMeters'], employeeSpecificKey: employeeId }) 
+    usePreviousQueryParams({ paramNamesForPageChange: ['tab', 'type'], trackedParamNames: ['sort', 'filters', 'isShowActiveMeters', 'isShowArchivedMeters'], employeeSpecificKey: employeeId })
 
     const { tab } = parseQuery(router.query)
     const type = Array.isArray(get(router.query, 'type')) ? undefined : get(router.query, 'type') as string
@@ -136,7 +135,7 @@ const MetersPage: IMeterIndexPage = () => {
     const activeType = useMemo(() => type in METER_TYPES ? type : METER_TYPES.unit, [type])
 
     const changeRouteToActiveParams = useCallback(async (newParameters) => {
-        await updateQuery(router, { newParameters }, { resetOldParameters: true, routerAction: 'replace' } )
+        await updateQuery(router, { newParameters }, { resetOldParameters: true, routerAction: 'replace', shallow: true } )
     }, [router])
 
 
@@ -145,7 +144,7 @@ const MetersPage: IMeterIndexPage = () => {
         if ((!type || type !== activeType) || (!tab || tab !== activeTab)) {
             changeRouteToActiveParams({ type: activeType, tab: activeTab })
         }
-       
+
     }, [activeTab, activeType, changeRouteToActiveParams, tab, type])
 
     useEffect(() => {
@@ -155,10 +154,7 @@ const MetersPage: IMeterIndexPage = () => {
     }, [activeTab, activeType, changeRouteToActiveParams])
 
     const filtersForMetersMeta = useMeterFilters(activeType as MeterTypes)
-    const tableColumnsForMeters = useTableColumns(filtersForMetersMeta, tabAsMeterPageType, activeType as MeterTypes)
-
     const filtersForMeterReadingsMeta = useMeterReadingFilters(activeType as MeterTypes)
-    const tableColumnsForMeterReadings = useTableColumns(filtersForMeterReadingsMeta, tabAsMeterPageType, activeType as MeterTypes)
 
     const baseMetersQuery = useMemo(() => ({
         deletedAt: null,
@@ -206,14 +202,12 @@ const MetersPage: IMeterIndexPage = () => {
                 activeType === METER_TYPES.unit ?
                     <MetersPageContent
                         filtersMeta={filtersForMetersMeta}
-                        tableColumns={tableColumnsForMeters}
                         loading={isLoading}
                         canManageMeters={canManageMeters}
                         baseSearchQuery={baseMetersQuery}
                     /> : 
                     <PropertyMetersPageContent
                         filtersMeta={filtersForMetersMeta}
-                        tableColumns={tableColumnsForMeters}
                         canManageMeters={canManageMeters}
                         loading={isLoading}
                         baseSearchQuery={baseMetersQuery}
@@ -226,14 +220,13 @@ const MetersPage: IMeterIndexPage = () => {
             children: (
                 <MeterReportingPeriodPageContent
                     filtersMeta={filtersForMeterReadingsMeta}
-                    tableColumns={tableColumnsForMeterReadings}
                     loading={isLoading}
                     canManageMeters={canManageMeters}
                     userOrganizationId={userOrganizationId}
                 />
             ),
         },
-    ].filter(Boolean), [MeterReadingMessage, activeType, filtersForMeterReadingsMeta, isLoading, canManageMeterReadings, baseMeterReadingsQuery, MeterMessage, filtersForMetersMeta, tableColumnsForMeters, canManageMeters, baseMetersQuery, ReportingPeriodMessage, tableColumnsForMeterReadings, userOrganizationId])
+    ].filter(Boolean), [MeterReadingMessage, activeType, filtersForMeterReadingsMeta, isLoading, canManageMeterReadings, baseMeterReadingsQuery, MeterMessage, filtersForMetersMeta, canManageMeters, baseMetersQuery, ReportingPeriodMessage, userOrganizationId])
 
     return (
         <MultipleFilterContextProvider>

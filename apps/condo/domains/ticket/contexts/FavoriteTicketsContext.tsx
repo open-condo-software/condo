@@ -1,9 +1,10 @@
+import { useGetUserFavoriteTicketsQuery } from '@app/condo/gql'
 import { UserFavoriteTicket as TUserFavoriteTicket } from '@app/condo/schema'
-import { createContext, useContext } from 'react'
+import { createContext, useContext, useMemo } from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { useAuth } from '@open-condo/next/auth'
 
-import { UserFavoriteTicket } from '@condo/domains/ticket/utils/clientSchema'
 
 interface IFavoriteTicketsContext {
     userFavoriteTickets: TUserFavoriteTicket[]
@@ -25,18 +26,23 @@ const useFavoriteTickets = (): IFavoriteTicketsContext => useContext(FavoriteTic
 
 const FavoriteTicketsContextProvider = ({ children, extraTicketsQuery = {} }) => {
     const { user } = useAuth()
+    const { persistor } = useCachePersistor()
 
     const {
-        objs: userFavoriteTickets,
-        count: userFavoriteTicketsCount,
+        data: userFavoriteTicketsData,
         refetch: refetchFavoriteTickets,
         loading,
-    } = UserFavoriteTicket.useAllObjects({
-        where: {
-            user: { id: user.id },
-            ticket: extraTicketsQuery,
+    } = useGetUserFavoriteTicketsQuery({
+        variables: {
+            userId: user.id,
+            ticketWhere: extraTicketsQuery,
         },
+        skip: !persistor || !user,
     })
+    const userFavoriteTickets = useMemo(() => userFavoriteTicketsData?.userFavoriteTickets?.filter(Boolean) || [],
+        [userFavoriteTicketsData?.userFavoriteTickets])
+    const userFavoriteTicketsCount = useMemo(() => userFavoriteTicketsData?.meta?.count,
+        [userFavoriteTicketsData?.meta?.count])
 
     return (
         <FavoriteTicketsContext.Provider

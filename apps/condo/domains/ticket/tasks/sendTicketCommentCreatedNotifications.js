@@ -16,7 +16,7 @@ const { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE } = require('@condo/dom
 const { buildFullClassifierName } = require('@condo/domains/ticket/utils')
 const { TicketClassifier } = require('@condo/domains/ticket/utils/serverSchema')
 const { getUsersAvailableToReadTicketByPropertyScope } = require('@condo/domains/ticket/utils/serverSchema/propertyScope')
-const { STAFF, RESIDENT } = require('@condo/domains/user/constants/common')
+const { STAFF, RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 
 
 const appLogger = getLogger('condo')
@@ -43,6 +43,24 @@ const getCommentTypeMessage = (commentType, commentAuthorType, lang) => {
     return ''
 }
 
+const getCommentAuthorRoleMessage = (author, locale) => {
+    const ResidentMessage = i18n('Contact', { locale }).toLowerCase()
+    const ServiceMessage = i18n('Service', { locale }).toLowerCase()
+    const EmployeeMessage = i18n('Employee', { locale }).toLowerCase()
+
+    switch (author?.type) {
+        case RESIDENT: {
+            return ResidentMessage
+        }
+        case STAFF: {
+            return EmployeeMessage
+        }
+        case SERVICE: {
+            return ServiceMessage
+        }
+    }
+}
+
 const EMPTY_CONTENT = '—'
 
 /**
@@ -59,6 +77,7 @@ const sendTicketCommentCreatedNotifications = async (commentId, ticketId) => {
             deletedAt: null,
         })
         const organizationCountry = get(organization, 'country', conf.DEFAULT_LOCALE)
+        // TODO(DOMA-11040): get locale for sendMessage from user
         const lang = get(COUNTRIES, [organizationCountry, 'locale'], conf.DEFAULT_LOCALE)
 
         setLocaleForKeystoneContext(context, lang)
@@ -78,7 +97,7 @@ const sendTicketCommentCreatedNotifications = async (commentId, ticketId) => {
         const TicketStatusName = i18n(`ticket.status.${ticketStatus.type}.name`, { locale: lang })
         const TicketUnitType = i18n(`field.UnitType.prefix.${ticket.unitType}`, { locale: lang }).toLowerCase()
         const CommentTypeMessage = getCommentTypeMessage(commentType, commentAuthorType, lang)
-
+        const authorType = getCommentAuthorRoleMessage(commentAuthor, lang)
         const ticketClassifier = buildFullClassifierName(classifier)
 
         const users = await getUsersAvailableToReadTicketByPropertyScope({
@@ -115,6 +134,8 @@ const sendTicketCommentCreatedNotifications = async (commentId, ticketId) => {
                         ticketUnit: ticket.unitName ? `${TicketUnitType} ${ticket.unitName}` : EMPTY_CONTENT,
                         userId: employeeUserId,
                         url: ticketUrl,
+                        authorType,
+                        authorName: commentAuthor?.name,
                     },
                     telegramMeta: {
                         inlineKeyboard: [[{ text: OpenTicketMessage, url: ticketUrl }]],

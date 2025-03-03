@@ -39,7 +39,7 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
                 }
             })
         },
-        [],
+        [client, organizationId],
     )
 
     const searchAddress = useCallback(

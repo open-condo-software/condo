@@ -1,0 +1,60 @@
+query getMeterReadingsImportTasks ($where: MeterReadingsImportTaskWhereInput!) {
+    tasks: allMeterReadingsImportTasks(
+        where: $where
+    ) {
+        id
+        status
+        file {
+            publicUrl
+            originalFilename
+        }
+        errorFile {
+            publicUrl
+        }
+        errorMessage
+        totalRecordsCount
+        processedRecordsCount
+        __typename
+    }
+}
+
+mutation createMeterReadingsImportTask ($data: MeterReadingsImportTaskCreateInput!) {
+    task: createMeterReadingsImportTask(
+        data: $data
+    ) {
+        id
+        status
+        file {
+            publicUrl
+            originalFilename
+        }
+        errorFile {
+            publicUrl
+        }
+        errorMessage
+        totalRecordsCount
+        processedRecordsCount
+        __typename
+    }
+}
+
+mutation updateMeterReadingsImportTask ($id: ID!, $data: MeterReadingsImportTaskUpdateInput!) {
+    task: updateMeterReadingsImportTask(
+        data: $data,
+        id: $id
+    ) {
+        id
+        status
+        file {
+            publicUrl
+            originalFilename
+        }
+        errorFile {
+            publicUrl
+        }
+        errorMessage
+        totalRecordsCount
+        processedRecordsCount
+        __typename
+    }
+}

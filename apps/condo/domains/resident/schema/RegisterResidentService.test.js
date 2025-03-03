@@ -10,16 +10,6 @@ const {
     expectToThrowAuthenticationErrorToResult, expectToThrowAccessDeniedErrorToResult,
 } = require('@open-condo/keystone/test.utils')
 
-const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
-const {
-    createTestAcquiringIntegration,
-    createTestAcquiringIntegrationContext,
-} = require('@condo/domains/acquiring/utils/testSchema')
-const {
-    createTestBillingAccount,
-    makeContextWithOrganizationAndIntegrationAsAdmin,
-    createTestBillingProperty,
-} = require('@condo/domains/billing/utils/testSchema')
 const { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
 const {
     registerNewOrganization,
@@ -218,6 +208,56 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
             expect(anotherResident.organization.id).toEqual(olderPropertyClient.organization.id)
             expect(anotherResident.property.id).toEqual(olderProperty.id)
         })
+    })
+
+    // Skip this test because it takes a long time
+    test.skip('Must relink many residents after approve new properties', async () => {
+        // Create admin for making Resident.getAll requests to fetch all residents in a single query
+        // instead of making 101 separate requests from resident clients.
+        const admin = await makeLoggedInAdminClient()
+        const support = await makeClientWithSupportUser()
+        const staffUserClient = await makeClientWithNewRegisteredAndLoggedInUser()
+
+        const [organization] = await registerNewOrganization(staffUserClient)
+        const [organization1] = await registerNewOrganization(staffUserClient)
+
+        const [olderProperty] = await createTestProperty(staffUserClient, organization, propertyPayload)
+        const [newerProperty] = await createTestProperty(staffUserClient, organization1, propertyPayload)
+
+        const residentsInProperty = 101
+
+        const residentIds = await Promise.all(
+            Array.from({ length: residentsInProperty }).map(async () => {
+                const residentUserClient = await makeClientWithResidentUser()
+                const [resident] = await registerResidentByTestClient(residentUserClient, { address: residentAddress, addressMeta: residentAddressMeta })
+
+                return resident.id
+            })
+        )
+
+        // NOTE: Should connect to older property
+        await waitFor(async () => {
+            const residents = await Resident.getAll(admin, { id_in: residentIds }, { first: residentsInProperty })
+
+            for (const resident of residents) {
+                expect(resident.organization?.id).toEqual(organization.id)
+                expect(resident.property?.id).toEqual(olderProperty.id)
+            }
+        })
+
+        // The newer property company requests support for ownership approval by providing a document of management rights
+        const [approvedProperty] = await updateTestProperty(support, newerProperty.id, { isApproved: true })
+        expect(approvedProperty).toHaveProperty('isApproved', true)
+
+        // // NOTE: After that all residents reconnect to newer property, since it's approved now
+        await waitFor(async () => {
+            const residents = await Resident.getAll(admin, { id_in: residentIds }, { first: residentsInProperty })
+
+            for (const resident of residents) {
+                expect(resident.organization?.id).toEqual(organization1.id)
+                expect(resident.property?.id).toEqual(newerProperty.id)
+            }
+        }, { timeout: 1000 * 60 })
     })
 })
 

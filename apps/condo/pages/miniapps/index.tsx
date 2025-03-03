@@ -4,15 +4,12 @@ import React from 'react'
 import { useIntl } from '@open-condo/next/intl'
 
 import { PageWrapper, PageContent } from '@condo/domains/common/components/containers/BaseLayout'
+import { PageComponentType } from '@condo/domains/common/types'
 import { CatalogPageContent } from '@condo/domains/miniapp/components/Catalog/PageContent'
 import { ServicesReadPermissionRequired } from '@condo/domains/miniapp/components/PageAccess'
 
 
-type PageType = React.FC & {
-    requiredAccess: React.ReactNode
-}
-
-const MiniappsCatalogPage: PageType = () => {
+const MiniappsCatalogPage: PageComponentType = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'global.section.miniapps' })
 

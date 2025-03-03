@@ -1,4 +1,3 @@
-import { BillingCategory as BillingCategoryType } from '@app/condo/schema'
 import { BillingReceiptWhereInput } from '@app/condo/schema'
 import { useMemo } from 'react'
 
@@ -23,7 +22,7 @@ export function useReceiptTableFilters (defaultPeriod: string, search: string): 
     const StatusMessage =  intl.formatMessage({ id: 'Status' })
     const categorySearchFilter = categoryToSearchQuery(search, intl.messages)
     const { objs: categories } = BillingCategory.useObjects({})
-    const categoryOptions = useMemo(() => convertToOptions<BillingCategoryType>(categories, 'name', 'id'), [categories])
+    const categoryOptions = useMemo(() => convertToOptions(categories, 'name', 'id'), [categories])
     return useMemo(() => {
         return [
             { keyword: 'period', filters: [periodFilter], defaultValue: defaultPeriod },

@@ -16,7 +16,7 @@ const {
 const { DEBUG_APP_ID } = require('@condo/domains/miniapp/constants')
 const {
     createTestB2CApp,
-    sendB2CAppPushMessageByTestClient, createTestB2CAppMessageSetting,
+    sendB2CAppPushMessageByTestClient, createTestAppMessageSetting,
 } = require('@condo/domains/miniapp/utils/testSchema')
 const {
     B2C_APP_MESSAGE_PUSH_TYPE,
@@ -41,10 +41,11 @@ const { ERRORS } = require('./SendB2CAppPushMessageService')
 const APPLE_TEST_VOIP_PUSHTOKEN = conf[APPLE_CONFIG_TEST_VOIP_PUSHTOKEN_ENV] || null
 
 describe('SendB2CAppPushMessageService', () => {
-    let admin, user, residentClient, resident, appAttrs, b2cApp
+    let admin, supportClient, user, residentClient, resident, appAttrs, b2cApp
 
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
+        supportClient = await makeClientWithSupportUser()
         residentClient = await makeClientWithResidentAccessAndProperty()
 
         const [b2c] = await createTestB2CApp(admin)
@@ -62,13 +63,13 @@ describe('SendB2CAppPushMessageService', () => {
     })
 
     describe('access checks', () => {
-        it('Admin can SendB2CAppPushMessageService', async () => {
+        test('Admin can SendB2CAppPushMessageService', async () => {
             const [message] = await sendB2CAppPushMessageByTestClient(admin, appAttrs)
 
             expect(message.id).toMatch(UUID_RE)
         })
 
-        it('Admin can with debug app id', async () => {
+        test('Admin can with debug app id', async () => {
             const [message] = await sendB2CAppPushMessageByTestClient(admin, {
                 ...appAttrs,
                 app: { id: DEBUG_APP_ID },
@@ -77,9 +78,8 @@ describe('SendB2CAppPushMessageService', () => {
             expect(message.id).toMatch(UUID_RE)
         })
 
-        it('Support can SendB2CAppPushMessageService', async () => {
-            const supportClient = await makeClientWithSupportUser()
-            const [b2c] = await createTestB2CApp(admin)
+        test('Support can SendB2CAppPushMessageService', async () => {
+            const [b2c] = await createTestB2CApp(supportClient)
             const [message] = await sendB2CAppPushMessageByTestClient(supportClient, {
                 ...appAttrs,
                 app: { id: b2c.id },
@@ -88,7 +88,7 @@ describe('SendB2CAppPushMessageService', () => {
             expect(message.id).toMatch(UUID_RE)
         })
 
-        it('Anonymous cannot SendB2CAppPushMessageService', async () => {
+        test('Anonymous cannot SendB2CAppPushMessageService', async () => {
             const anonymousClient = await makeClient()
 
             await expectToThrowAuthenticationErrorToResult(async () => {
@@ -96,7 +96,7 @@ describe('SendB2CAppPushMessageService', () => {
             })
         })
 
-        it('Management company admin user cannot SendB2CAppPushMessageService to other users', async () => {
+        test('Management company admin user cannot SendB2CAppPushMessageService to other users', async () => {
             const client = await makeClientWithRegisteredOrganization()
 
             await expectToThrowAccessDeniedErrorToResult(async () => {
@@ -104,7 +104,7 @@ describe('SendB2CAppPushMessageService', () => {
             })
         })
 
-        it('Staff cannot SendB2CAppPushMessageService to other users', async () => {
+        test('Staff cannot SendB2CAppPushMessageService to other users', async () => {
             const staffClient = await makeClientWithStaffUser()
 
             await expectToThrowAccessDeniedErrorToResult(async () => {
@@ -123,7 +123,7 @@ describe('SendB2CAppPushMessageService', () => {
             expect(message.id).toMatch(UUID_RE)
         })
 
-        it('Resident cannot SendB2CAppPushMessageService to other users', async () => {
+        test('Resident cannot SendB2CAppPushMessageService to other users', async () => {
             const residentClient1 = await makeClientWithResidentUser()
 
             await expectToThrowAccessDeniedErrorToResult(async () => {
@@ -131,8 +131,8 @@ describe('SendB2CAppPushMessageService', () => {
             })
         })
 
-        it('Resident can SendB2CAppPushMessageService to himself', async () => {
-            const [b2c] = await createTestB2CApp(admin)
+        test('Resident can SendB2CAppPushMessageService to himself', async () => {
+            const [b2c] = await createTestB2CApp(supportClient)
             const [message] = await sendB2CAppPushMessageByTestClient(residentClient, {
                 ...appAttrs,
                 app: { id: b2c.id },
@@ -143,7 +143,7 @@ describe('SendB2CAppPushMessageService', () => {
     })
 
     describe('errors', () => {
-        it('No user with provided id for random id', async () => {
+        test('No user with provided id for random id', async () => {
             await expectToThrowGQLErrorToResult(async () => {
                 await sendB2CAppPushMessageByTestClient(admin, {
                     ...appAttrs,
@@ -152,7 +152,7 @@ describe('SendB2CAppPushMessageService', () => {
             }, ERRORS.USER_NOT_FOUND)
         })
 
-        it('No app with provided id for random id', async () => {
+        test('No app with provided id for random id', async () => {
             await expectToThrowGQLErrorToResult(async () => {
                 await sendB2CAppPushMessageByTestClient(admin, {
                     ...appAttrs,
@@ -161,7 +161,7 @@ describe('SendB2CAppPushMessageService', () => {
             }, ERRORS.APP_NOT_FOUND)
         })
 
-        it('Should have correct dv field (=== 1)', async () => {
+        test('Should have correct dv field (=== 1)', async () => {
             await expectToThrowGQLErrorToResult(async () => {
                 await sendB2CAppPushMessageByTestClient(admin, {
                     ...appAttrs,
@@ -170,7 +170,7 @@ describe('SendB2CAppPushMessageService', () => {
             }, ERRORS.DV_VERSION_MISMATCH)
         })
 
-        it('Should have correct sender field [\'Dv must be equal to 1\']', async () => {
+        test('Should have correct sender field [\'Dv must be equal to 1\']', async () => {
             await expectToThrowGQLErrorToResult(async () => {
                 await sendB2CAppPushMessageByTestClient(admin, {
                     ...appAttrs,
@@ -179,7 +179,7 @@ describe('SendB2CAppPushMessageService', () => {
             }, ERRORS.WRONG_SENDER_FORMAT)
         })
 
-        it('Resident id is missing', async () => {
+        test('Resident id is missing', async () => {
             const expectedErrorMessage = 'Field "resident" of required type "ResidentWhereUniqueInput!" was not provided'
 
             await expectToThrowGraphQLRequestError(
@@ -193,7 +193,7 @@ describe('SendB2CAppPushMessageService', () => {
             )
         })
 
-        it('User id is missing', async () => {
+        test('User id is missing', async () => {
             const expectedErrorMessage = 'Field "user" of required type "UserWhereUniqueInput!" was not provided'
 
             await expectToThrowGraphQLRequestError(
@@ -207,7 +207,7 @@ describe('SendB2CAppPushMessageService', () => {
             )
         })
 
-        it('App id is missing', async () => {
+        test('App id is missing', async () => {
             const expectedErrorMessage = 'Field "app" of required type "B2CAppWhereUniqueInput!" was not provided'
 
             await expectToThrowGraphQLRequestError(
@@ -221,7 +221,7 @@ describe('SendB2CAppPushMessageService', () => {
             )
         })
 
-        it('Type is missing', async () => {
+        test('Type is missing', async () => {
             const expectedErrorMessage = 'Field "type" of required type "SendB2CAppPushMessageType!" was not provided'
 
             await expectToThrowGraphQLRequestError(
@@ -235,7 +235,7 @@ describe('SendB2CAppPushMessageService', () => {
             )
         })
 
-        it('No resident with provided id for random id', async () => {
+        test('No resident with provided id for random id', async () => {
             await expectToThrowGQLErrorToResult(async () => {
                 await sendB2CAppPushMessageByTestClient(admin, {
                     ...appAttrs,
@@ -245,41 +245,20 @@ describe('SendB2CAppPushMessageService', () => {
         })
     })
 
-    describe('Black list checks', () => {
-        it('Don\'t send message if app added to MessageAppBlackList', async () => {
-            const [b2c] = await createTestB2CApp(admin)
-
-            const [obj, attrs] = await createTestB2CAppMessageSetting(admin, b2c, {
-                type: B2C_APP_MESSAGE_PUSH_TYPE,
-                isBlacklisted: true,
-            })
-
-            await expectToThrowGQLErrorToResult(async () => {
-                await sendB2CAppPushMessageByTestClient(admin, {
-                    ...appAttrs,
-                    app: { id: b2c.id },
-                })
-            }, ERRORS.APP_IN_BLACK_LIST)
-        })
-    })
-
     describe('Notification throttling checks', () => {
-        it('Don\'t send a notification if there was already a notification in the default time window', async () => {
-            const [b2c] = await createTestB2CApp(admin)
+        test('Don\'t send message if AppMessageSetting has numberOfNotificationInWindow: 0', async () => {
+            const [b2cApp] = await createTestB2CApp(supportClient)
 
-            await createTestB2CAppMessageSetting(admin, b2c, {
+            await createTestAppMessageSetting(supportClient, {
+                b2cApp,
                 type: B2C_APP_MESSAGE_PUSH_TYPE,
+                numberOfNotificationInWindow: 0,
             })
-            const [message] = await sendB2CAppPushMessageByTestClient(admin, {
-                ...appAttrs,
-                app: { id: b2c.id },
-            })
-            expect(message.id).toMatch(UUID_RE)
 
             await expectToThrowGQLErrorToResult(async () => {
                 await sendB2CAppPushMessageByTestClient(admin, {
                     ...appAttrs,
-                    app: { id: b2c.id },
+                    app: { id: b2cApp.id },
                 })
             }, {
                 code: 'BAD_USER_INPUT',
@@ -288,32 +267,58 @@ describe('SendB2CAppPushMessageService', () => {
             })
         })
 
-        it('Don\'t send a notification if the notification limit in the custom time window is exhausted', async () => {
-            const [b2c] = await createTestB2CApp(admin)
+        test('Don\'t send a notification if there was already a notification in the default time window', async () => {
+            const [b2cApp] = await createTestB2CApp(supportClient)
+
+            await createTestAppMessageSetting(supportClient, {
+                type: B2C_APP_MESSAGE_PUSH_TYPE,
+                b2cApp,
+            })
+            const [message] = await sendB2CAppPushMessageByTestClient(admin, {
+                ...appAttrs,
+                app: { id: b2cApp.id },
+            })
+            expect(message.id).toMatch(UUID_RE)
+
+            await expectToThrowGQLErrorToResult(async () => {
+                await sendB2CAppPushMessageByTestClient(admin, {
+                    ...appAttrs,
+                    app: { id: b2cApp.id },
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'TOO_MANY_REQUESTS',
+                message: 'You have to wait {secondsRemaining} seconds to be able to send request again',
+            })
+        })
+
+        test('Don\'t send a notification if the notification limit in the custom time window is exhausted', async () => {
+            const [b2cApp] = await createTestB2CApp(supportClient)
 
             const notificationWindowSize = 3600
             const numberOfNotificationInWindow = 2
-            await createTestB2CAppMessageSetting(admin, b2c, {
+            await createTestAppMessageSetting(supportClient, {
+                b2cApp,
                 notificationWindowSize,
                 numberOfNotificationInWindow,
             })
 
             const [message1] = await sendB2CAppPushMessageByTestClient(admin, {
                 ...appAttrs,
-                app: { id: b2c.id },
+                app: { id: b2cApp.id },
             })
             expect(message1.id).toMatch(UUID_RE)
 
             const [message2] = await sendB2CAppPushMessageByTestClient(admin, {
                 ...appAttrs,
-                app: { id: b2c.id },
+                app: { id: b2cApp.id },
             })
             expect(message2.id).toMatch(UUID_RE)
 
             await expectToThrowGQLErrorToResult(async () => {
                 await sendB2CAppPushMessageByTestClient(admin, {
                     ...appAttrs,
-                    app: { id: b2c.id },
+                    app: { id: b2cApp.id },
                 })
             }, {
                 code: 'BAD_USER_INPUT',
@@ -327,7 +332,7 @@ describe('SendB2CAppPushMessageService', () => {
      * This test is needed only for local debugging
      */
     describe.skip('real notification send for debugging', () => {
-        it('send VOIP_INCOMING_CALL_MESSAGE_TYPE to real VoIP push token if exists', async () => {
+        test('send VOIP_INCOMING_CALL_MESSAGE_TYPE to real VoIP push token if exists', async () => {
             const user = await makeLoggedInClient()
             const propertyId = 'e360edab-db67-408c-9aef-ddb70c31d3ec'
             // This is app id from condo, make sure to substitute it to one of already existing b2c apps locally for this test to work

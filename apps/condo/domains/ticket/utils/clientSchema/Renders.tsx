@@ -33,6 +33,7 @@ import {
 
 import { UserFavoriteTicket } from './index'
 
+
 const NEW_COMMENTS_INDICATOR_TOOLTIP_WRAPPER_STYLES_ON_LARGER_THAN_XL: CSSProperties = {
     position: 'absolute', left: '-102px', top: '50%', transform: 'translateY(-50%)', zIndex: 999,
 }
@@ -51,7 +52,7 @@ const NEW_COMMENTS_INDICATOR_STYLES: CSSProperties = {
 }
 const ADDRESS_RENDER_POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }
 
-export const getCommentsIndicatorRender = ({ intl, breakpoints, userTicketCommentReadTimes, tickets }) => {
+export const getCommentsIndicatorRender = ({ intl, breakpoints, userTicketCommentReadTimes }) => {
     const NewResidentCommentMessage = intl.formatMessage({ id: 'ticket.newResidentComment' })
 
     return function render (ticket: Ticket) {

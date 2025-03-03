@@ -1,0 +1,29 @@
+query getCallRecordFragmentExistence ($organizationId: ID!) {
+    callRecordFragments: allCallRecordFragments (where: {
+        organization: { id: $organizationId }
+    }, first: 1) {
+        id
+    }
+}
+
+query getTicketCallRecordsFragments ($ticketId: ID!) {
+    callRecordFragments: allCallRecordFragments (
+        where: {
+            ticket: { id: $ticketId }
+        },
+        sortBy: [createdAt_DESC]
+    ) {
+        id
+        callRecord {
+            id
+            isIncomingCall
+            callerPhone
+            destCallerPhone
+            startedAt
+            file {
+                publicUrl
+                id
+            }
+        }
+    }
+}

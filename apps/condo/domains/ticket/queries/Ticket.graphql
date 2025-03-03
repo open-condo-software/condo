@@ -1,0 +1,317 @@
+query getTickets ($where: TicketWhereInput!, $sortBy: [SortTicketsBy!], $first: Int, $skip: Int) {
+    tickets: allTickets(where: $where, sortBy: $sortBy, first: $first, skip: $skip) {
+        id
+        number
+        createdAt
+        isEmergency
+        isPayable
+        isWarranty
+        statusReopenedCounter
+        statusUpdatedAt
+        completedAt
+        deadline
+        lastResidentCommentAt
+        lastCommentWithResidentTypeAt
+        propertyAddressMeta { ...AddressMetaForTableAddress }
+        propertyAddress
+        sectionType
+        sectionName
+        floorName
+        unitType
+        unitName
+        details
+        clientName
+        clientPhone
+        classifier {
+            id
+            category {
+                id
+                name
+            }
+            place {
+                id
+                name
+            }
+        }
+        contact {
+            id
+            name
+        }
+        executor {
+            id
+            name
+        }
+        assignee {
+            id
+            name
+        }
+        organization {
+            id
+            name
+        }
+        property {
+            id
+            deletedAt
+            address
+            addressMeta { ...AddressMetaForTableAddress }
+        }
+        status {
+            id
+            type
+            name
+            colors {
+                primary
+                secondary
+            }
+        }
+        createdBy {
+            id
+            name
+        }
+        source {
+            id
+            name
+        }
+    }
+
+    meta: _allTicketsMeta (where: $where) {
+        count
+    }
+}
+
+query getTicketExistence ($where: TicketWhereInput!) {
+    tickets: allTickets (where: $where, first: 1) {
+        id
+    }
+}
+
+query getTicketsCount ($where: TicketWhereInput!) {
+    meta: _allTicketsMeta (where: $where) {
+        count
+    }
+}
+
+query getOrganizationEmployeeTicketsCountForReassignment ($userId: ID!, $organizationId: ID!) {
+    meta: _allTicketsMeta (
+        where: {
+            organization: { id: $organizationId },
+            OR: { assignee: { id: $userId }, executor: { id: $userId } },
+            status: {
+                type_in: [
+                    new_or_reopened,
+                    processing,
+                    deferred,
+                ],
+            },
+        },
+    ) {
+        count
+    }
+}
+
+query getTicketsCountersByStatus ($whereWithoutStatuses: TicketWhereInput!) {
+    new_or_reopened: _allTicketsMeta(where: { AND: [$whereWithoutStatuses, { status: { type: new_or_reopened } }]}) {
+        count
+    }
+
+    processing: _allTicketsMeta(where: { AND: [$whereWithoutStatuses, { status: { type: processing } }]}) {
+        count
+    }
+
+    deferred: _allTicketsMeta(where: { AND: [$whereWithoutStatuses, { status: { type: deferred } }]}) {
+        count
+    }
+
+    canceled: _allTicketsMeta(where: { AND: [$whereWithoutStatuses, { status: { type: canceled } }]}) {
+        count
+    }
+
+    completed: _allTicketsMeta(where: { AND: [$whereWithoutStatuses, { status: { type: completed } }]}) {
+        count
+    }
+
+    closed: _allTicketsMeta(where: { AND: [$whereWithoutStatuses, { status: { type: closed } }]}) {
+        count
+    }
+}
+
+query getTicketById ($id: ID!) {
+    tickets: allTickets (
+        where: {
+            id: $id
+        },
+        first: 1
+    ) {
+        id
+        number
+        propertyAddress
+        propertyAddressMeta { ...AddressMetaForTableAddress }
+        createdAt
+        isEmergency
+        isPayable
+        isWarranty
+        statusReopenedCounter
+        statusUpdatedAt
+        canReadByResident
+        qualityControlValue
+        qualityControlAdditionalOptions
+        qualityControlComment
+        feedbackValue
+        feedbackAdditionalOptions
+        feedbackComment
+        deadline
+        deferredUntil
+        completedAt
+        unitType
+        unitName
+        sectionName
+        sectionType
+        floorName
+        isResidentTicket
+        clientName
+        clientPhone
+        details
+        isPayable
+
+        organization {
+            id
+            type
+            name
+            statusTransitions
+            country
+        }
+        assignee {
+            id
+        }
+        executor {
+            id
+        }
+        property {
+            id
+            deletedAt
+            address
+            addressMeta { ...AddressMetaForTableAddress }
+        }
+        classifier {
+            id
+            place {
+                id
+                name
+            }
+            category {
+                id
+                name
+            }
+            problem {
+                id
+                name
+            }
+        }
+        createdBy {
+            id
+            name
+            type
+        }
+        source {
+            id
+            name
+        }
+        status {
+            id
+            type
+            name
+            colors {
+                primary
+                secondary
+            }
+        }
+        client {
+            id
+        }
+        contact {
+            id
+            name
+            phone
+        }
+    }
+}
+
+query getTicketByCreatedBy ($userId: ID!) {
+    tickets: allTickets (
+        where: { createdBy: { id: $userId } },
+        first: 1
+    ) {
+        id
+    }
+}
+
+query getTicketLastCommentsTime ($id: ID!) {
+    ticketCommentTimes: allTickets(
+        where: {
+            id: $id
+        },
+        first: 1
+    ) {
+        id
+        lastResidentCommentAt
+        lastCommentWithResidentTypeAt
+    }
+}
+
+query getContactTickets ($contactId: ID!) {
+    tickets: allTickets(
+        where: { contact: { id: $contactId } }
+        sortBy: [createdAt_DESC]
+    ) {
+        id
+        details
+        createdAt
+        number
+        status {
+            id
+            name
+        }
+        property {
+            id
+            address
+        }
+    }
+}
+
+query getOrganizationEmployeeTicketsForReassignment ($userId: ID!, $organizationId: ID!, $first: Int) {
+    tickets: allTickets(
+        where: {
+            organization: { id: $organizationId },
+            OR: { assignee: { id: $userId }, executor: { id: $userId } },
+            status: {
+                type_in: [
+                    new_or_reopened,
+                    processing,
+                    deferred,
+                ],
+            },
+        },
+        first: $first,
+        sortBy: [createdAt_DESC]
+    ) {
+        id
+        assignee {
+            id
+        }
+        executor {
+            id
+        }
+    }
+}
+
+mutation updateTicket ($id: ID!, $data: TicketUpdateInput!) {
+    ticket: updateTicket (id: $id, data: $data) {
+        id
+    }
+}
+
+mutation updateOrganizationEmployeeTicketsForReassignment ($data: [TicketsUpdateInput]) {
+    tickets: updateTickets (data: $data) {
+        id
+    }
+}

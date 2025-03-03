@@ -15,8 +15,14 @@ const { MeterResourceOwner, MeterReportingPeriod } = require('@condo/domains/met
 const { B2BAppContext } = require('@condo/domains/miniapp/utils/serverSchema')
 const access = require('@condo/domains/organization/access/ResetOrganizationService')
 const { DELETED_ORGANIZATION_NAME } = require('@condo/domains/organization/constants/common')
-const { Organization, OrganizationLink, OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
+const {
+    Organization,
+    OrganizationLink,
+    OrganizationEmployee,
+    OrganizationEmployeeRequest,
+} = require('@condo/domains/organization/utils/serverSchema')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
+
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -98,6 +104,14 @@ const ResetOrganizationService = new GQLCustomSchema('ResetOrganizationService',
                     await OrganizationEmployee.softDelete(context, employee.id, 'id', DV_SENDER)
                 }
 
+                const employeeRequests = await find('OrganizationEmployeeRequest', {
+                    organization: { id: organizationId },
+                    deletedAt: null,
+                })
+                for (const request of employeeRequests) {
+                    await OrganizationEmployeeRequest.softDelete(context, request.id, 'id', DV_SENDER)
+                }
+
                 const organizationLinks = await OrganizationLink.getAll(context, {
                     OR: [
                         { from: { id: organizationId } },
@@ -170,11 +184,9 @@ const ResetOrganizationService = new GQLCustomSchema('ResetOrganizationService',
                 await Organization.update(context, organizationId, newOrganizationData)
 
                 return { status: 'ok' }
-
             },
         },
     ],
-
 })
 
 module.exports = {

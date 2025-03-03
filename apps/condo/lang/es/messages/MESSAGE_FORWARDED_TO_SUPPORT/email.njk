@@ -1,0 +1,25 @@
+Sistema: {{ message.meta.os }}
+Versión de la aplicación: {{ message.meta.appVersion }}
+Email: {% if message.emailFrom %}{{ message.emailFrom | safe }}{% else %}no indicado{% endif %}
+Información del vecino:
+{%- if message.meta.residentsExtraInfo.length == 0 -%}
+  no
+{%- else -%}
+ {% for residentInfo in message.meta.residentsExtraInfo %}
+     Administrador: {% if residentInfo.organization %}{{ residentInfo.organization.name }}. NIF: {{ residentInfo.organization.tin }}{% else %}no indicado{% endif %}.
+     Dirección: {% if residentInfo.address %}{{ residentInfo.address | safe }}{% else %}no indicado{% endif %}.
+     Propiedad: {% if residentInfo.unitName %}{{ residentInfo.unitName | safe }}{% else %}no indicado{% endif %}.
+     Cuentas personales:
+         {%- if residentInfo.serviceConsumers.length == 0 -%}
+           No
+         {%- else -%}
+           {% for serviceConsumer in residentInfo.serviceConsumers %}
+             Cuenta personal: {% if serviceConsumer.accountNumber %}{{ serviceConsumer.accountNumber | safe }}{% else %}no indicada{% endif %}.
+             Organización: {% if serviceConsumer.organizationName %}{{ serviceConsumer.organizationName | safe }}{% else %}no indicada{% endif %}.
+
+           {% endfor %}
+         {% endif %}
+
+ {% endfor %}
+{% endif %}
+Mensaje: {{ message.meta.text | safe }}

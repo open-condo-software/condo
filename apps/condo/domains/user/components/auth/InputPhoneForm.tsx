@@ -1,4 +1,4 @@
-import { Col, Form, Row, RowProps, Typography } from 'antd'
+import { Col, Form, Row, RowProps } from 'antd'
 import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import React, { useCallback, useContext, useMemo, useState } from 'react'
@@ -20,15 +20,12 @@ import { ResponsiveCol } from '@condo/domains/user/components/containers/Respons
 import { TOO_MANY_REQUESTS } from '@condo/domains/user/constants/errors'
 import { START_CONFIRM_PHONE_MUTATION } from '@condo/domains/user/gql'
 
+import { AgreementText } from './AgreementText'
 import { RegisterContext } from './RegisterContextProvider'
 
 
 const ROW_STYLES: React.CSSProperties = {
     justifyContent: 'center',
-}
-const FORM_PARAGRAPH_STYLES: React.CSSProperties = {
-    margin: '28px 0 12px',
-    fontSize: '12px',
 }
 const FORM_TYPOGRAPHY_STYLES: React.CSSProperties = {
     textAlign: 'center',
@@ -52,13 +49,10 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
     const SMSTooManyRequestsErrorMsg = intl.formatMessage({ id: 'pages.auth.TooManyRequests' })
     const WrongPhoneFormatErrorMsg = intl.formatMessage({ id: 'api.common.WRONG_PHONE_FORMAT' })
     const RegisterMsg = intl.formatMessage({ id: 'Register' })
-    const ConsentContent = intl.formatMessage({ id: 'pages.auth.register.info.ConsentContent' })
-    const PrivacyPolicyContent = intl.formatMessage({ id: 'pages.auth.register.info.PrivacyPolicyContent' })
-    const TermsOfUseContent = intl.formatMessage({ id: 'pages.auth.register.info.termsOfUseContent' })
 
     const REGISTER_PHONE_LABEL = <label style={{ alignSelf: 'flex-end' }}>{PhoneMsg}</label>
 
-    const { publicRuntimeConfig: { hasSbbolAuth, termsOfUseUrl, privacyPolicyUrl, dataProcessingConsentUrl } } = getConfig()
+    const { publicRuntimeConfig: { hasSbbolAuth } } = getConfig()
 
     const router = useRouter()
     const { query: { next } } = router
@@ -149,7 +143,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
                 >
                     <Row style={ROW_STYLES} gutter={[0, 28]}>
                         <ResponsiveCol span={24}>
-                            <Row>
+                            <Row gutter={[0, 28]}>
                                 <Col span={24}>
                                     <Form.Item
                                         name='phone'
@@ -164,45 +158,8 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
                                         />
                                     </Form.Item>
                                 </Col>
-                                { ( termsOfUseUrl && privacyPolicyUrl && dataProcessingConsentUrl ) && (
-                                    <Col span={24}>
-                                        <Typography.Paragraph type='secondary' style={FORM_PARAGRAPH_STYLES}>
-                                            <FormattedMessage
-                                                id='pages.auth.register.info.PersonalDataProcessingConsent'
-                                                values={{
-                                                    termsOfUse: (
-                                                        <Typography.Link
-                                                            style={{ color: colors.black }}
-                                                            target='_blank'
-                                                            href={termsOfUseUrl}
-                                                            rel='noreferrer'
-                                                        >
-                                                            {TermsOfUseContent}
-                                                        </Typography.Link>
-                                                    ),
-                                                    consentLink: (
-                                                        <Typography.Link
-                                                            style={{ color: colors.black }}
-                                                            target='_blank'
-                                                            href={dataProcessingConsentUrl}
-                                                            rel='noreferrer'>
-                                                            {ConsentContent}
-                                                        </Typography.Link>
-                                                    ),
-                                                    privacyPolicyLink: (
-                                                        <Typography.Link
-                                                            style={{ color: colors.black }}
-                                                            target='_blank'
-                                                            href={privacyPolicyUrl}
-                                                            rel='noreferrer'>
-                                                            {PrivacyPolicyContent}
-                                                        </Typography.Link>
-                                                    ),
-                                                }}
-                                            />
-                                        </Typography.Paragraph>
-                                    </Col>
-                                ) }
+
+                                <AgreementText />
                             </Row>
                         </ResponsiveCol>
                         <ResponsiveCol span={24}>

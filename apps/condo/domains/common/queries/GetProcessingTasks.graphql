@@ -1,0 +1,166 @@
+query getProcessingTasks ($userId: ID!, $createdAtGte: String!) {
+    allTicketDocumentGenerationTasks(
+        where: {
+            status: processing,
+            user: { id: $userId },
+            createdAt_gte: $createdAtGte
+        }
+    ) {
+        id
+        progress
+        status
+        file {
+            publicUrl
+            originalFilename
+        }
+        __typename
+    }
+
+    allTicketExportTasks(
+        where: {
+            status: processing,
+            user: { id: $userId },
+            createdAt_gte: $createdAtGte
+        }
+    ) {
+        id
+        status
+        file {
+            publicUrl
+            originalFilename
+        }
+        totalRecordsCount
+        exportedRecordsCount
+        __typename
+    }
+
+    allIncidentExportTasks(
+        where: {
+            status: processing,
+            user: { id: $userId },
+            createdAt_gte: $createdAtGte
+        }
+    ) {
+        id
+        status
+        file {
+            publicUrl
+            originalFilename
+        }
+        totalRecordsCount
+        exportedRecordsCount
+        __typename
+    }
+
+    allContactExportTasks(
+        where: {
+            status: processing,
+            user: { id: $userId },
+            createdAt_gte: $createdAtGte
+        }
+    ) {
+        id
+        status
+        file {
+            publicUrl
+            originalFilename
+        }
+        totalRecordsCount
+        exportedRecordsCount
+        __typename
+    }
+
+    allBankSyncTasks(
+        where: {
+            status: processing,
+            user: { id: $userId },
+            createdAt_gte: $createdAtGte
+        }
+    ) {
+        id
+        status
+        processedCount
+        totalCount
+        meta
+        property {
+            id
+        }
+        options {
+            type
+        }
+        file {
+            publicUrl
+            originalFilename
+        }
+        __typename
+    }
+
+    allBankAccountReportTasks(
+        where: {
+            status: processing,
+            user: { id: $userId },
+            createdAt_gte: $createdAtGte
+        }
+    ) {
+        id
+        progress
+        status
+        __typename
+    }
+
+    allNewsItemRecipientsExportTasks(
+        where: {
+            status: processing,
+            user: { id: $userId },
+            createdAt_gte: $createdAtGte
+        }
+    ) {
+        id
+        status
+        file {
+            publicUrl
+            originalFilename
+        }
+        __typename
+    }
+
+    allMeterReadingsImportTasks(
+        where: {
+            status: processing,
+            user: { id: $userId },
+            createdAt_gte: $createdAtGte
+        }
+    ) {
+        id
+        status
+        file {
+            publicUrl
+            originalFilename
+        }
+        errorFile {
+            publicUrl
+        }
+        errorMessage
+        totalRecordsCount
+        processedRecordsCount
+        __typename
+    }
+
+    allMeterReadingExportTasks(
+        where: {
+            status: processing,
+            user: { id: $userId },
+            createdAt_gte: $createdAtGte
+        }
+    ) {
+        id
+        status
+        file {
+            publicUrl
+            originalFilename
+        }
+        totalRecordsCount
+        exportedRecordsCount
+        __typename
+    }
+}

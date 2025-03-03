@@ -57,6 +57,7 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
 
         // User domain
         'OidcClient',
+        'ResetUserLimitAction',
         { schemaName: 'User', readonly: true },
         'UserRightsSet',
 

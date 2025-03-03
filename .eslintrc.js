@@ -35,6 +35,7 @@ module.exports = {
     ignorePatterns: [
         'dist',
         '*schema.ts',
+        'apps/*/gql/*.ts',
     ],
     rules: {
         'comma-spacing': 'off',
@@ -149,6 +150,7 @@ module.exports = {
                 },
             },
         ],
+        '@typescript-eslint/no-empty-interface': 'off',
         'no-restricted-imports': [
             'warn',
             {

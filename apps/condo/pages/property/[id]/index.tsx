@@ -20,6 +20,7 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import {
     DeleteButtonWithConfirmModal,
 } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
+import { PageComponentType } from '@condo/domains/common/types'
 import { Document } from '@condo/domains/document/utils/clientSchema'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { PropertyPanels } from '@condo/domains/property/components/panels'
@@ -245,12 +246,7 @@ export const PropertyPageContent = ({ property, role = null, organizationId = nu
     )
 }
 
-interface IPropertyIdPage extends React.FC {
-    headerAction?: JSX.Element
-    requiredAccess?: React.FC
-}
-
-const PropertyIdPage: IPropertyIdPage = () => {
+const PropertyIdPage: PageComponentType = () => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.property.id.PageTitle' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })

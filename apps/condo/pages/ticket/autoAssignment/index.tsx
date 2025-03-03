@@ -31,16 +31,12 @@ import { useOrganization } from '@open-condo/next/organization'
 import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { TICKET_AUTO_ASSIGNMENT_MANAGEMENT } from '@condo/domains/common/constants/featureflags'
+import { PageComponentType } from '@condo/domains/common/types'
 import { PermissionsRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { TicketAutoAssignment } from '@condo/domains/ticket/utils/clientSchema'
 import { ClassifiersQueryLocal } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 
-
-interface ITicketAutoAssignmentPage extends React.FC {
-    headerAction?: JSX.Element
-    requiredAccess?: React.FC
-}
 
 interface Item {
     key?: string
@@ -113,7 +109,7 @@ const getClassifierName = (classifier) => {
 
 const EMPTY_TABLE_DATA = [{}]
 
-const TicketAutoAssignmentPage: ITicketAutoAssignmentPage = () => {
+const TicketAutoAssignmentPage: PageComponentType = () => {
     const intl = useIntl()
     const NoMessage = intl.formatMessage({ id: 'No' })
     const YesMessage = intl.formatMessage({ id: 'Yes' })

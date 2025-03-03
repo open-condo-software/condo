@@ -1,0 +1,131 @@
+@import "antd/lib/switch/style/index.less";
+@import (reference) "@open-condo/ui/src/tokens/variables.less";
+
+// ant default - 24px
+@condo-switch-height-default: 20px;
+// ant default - 44px
+@condo-switch-min-width-default: 36px;
+// adt default - 18px
+@condo-switch-handle-size-default: 16px;
+// ant default - 2px
+@condo-switch-handle-space-to-borders-default: 1px;
+// ant default - calc(100% - 18px - 2px)
+@condo-switch-checked-handle-space-left-default: calc(
+  100% - @condo-switch-handle-size-default - @condo-switch-handle-space-to-borders-default
+);
+
+// ant default - 16px
+@condo-switch-height-small: 16px;
+// ant default - 36px
+@condo-switch-min-width-small: 28px;
+// adt default - 16px
+@condo-switch-handle-size-small: 12px;
+// ant default - 1px
+@condo-switch-handle-space-to-borders-small: 1px;
+// ant default - calc(100% - 16px - 1px)
+@condo-switch-checked-handle-space-left-small: calc(
+  100% - @condo-switch-handle-size-small - @condo-switch-handle-space-to-borders-small
+);
+
+@condo-switch-border-width: 1px;
+@condo-switch-focus-stroke-width: 2px;
+@condo-switch-focus-stroke-padding: 3x;
+
+.gradient-border-overlay (@border-width: @condo-switch-border-width, @padding: 0) {
+  position: absolute;
+  top: -@border-width - @padding;
+  right: -@border-width - @padding;
+  bottom: -@border-width - @padding;
+  left: -@border-width - @padding;
+  display: block;
+  background: @condo-global-color-brand-gradient-5 border-box;
+  border: @border-width solid transparent;
+  border-radius: inherit;
+  content: "";
+  mask: linear-gradient(#111 0 0) padding-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+}
+
+.condo-switch {
+  min-width: @condo-switch-min-width-default;
+  height: @condo-switch-height-default;
+  background: transparent;
+  border: @condo-switch-border-width solid @condo-global-color-gray-5;
+
+  .condo-switch-handle {
+    top: @condo-switch-handle-space-to-borders-default;
+    left: @condo-switch-handle-space-to-borders-default;
+    width: @condo-switch-handle-size-default;
+    height: @condo-switch-handle-size-default;
+
+    &::before {
+      background: @condo-global-color-gray-5;
+      box-shadow: none;
+      transition: background 0ms;
+    }
+  }
+
+  &.condo-switch-checked {
+    background: @condo-global-color-brand-gradient-1;
+
+    // gradient border on hover
+    &::before {
+      .gradient-border-overlay();
+
+      opacity: 0;
+      transition: opacity @condo-global-transition-duration-default;
+    }
+
+    .condo-switch-handle {
+      left: @condo-switch-checked-handle-space-left-default;
+
+      &::before {
+        background: @condo-global-color-brand-gradient-5;
+      }
+    }
+
+    &:hover:not(.condo-switch-disabled) {
+      border: @condo-switch-border-width solid transparent;
+
+      &::before {
+        opacity: 1;
+      }
+    }
+  }
+
+  &:focus {
+    box-shadow: none;
+  }
+
+  &:focus-visible {
+    outline: none;
+
+    // gradient stroke on focus
+    &::after {
+      .gradient-border-overlay(@condo-switch-focus-stroke-width, @condo-switch-focus-stroke-padding);
+    }
+  }
+
+  &:hover:not(.condo-switch-disabled) {
+    border-color: @condo-global-color-gray-7;
+    transition: border-color 0ms;
+  }
+}
+
+.condo-switch.condo-switch-small {
+  min-width: @condo-switch-min-width-small;
+  height: @condo-switch-height-small;
+
+  .condo-switch-handle {
+    top: @condo-switch-handle-space-to-borders-small;
+    left: @condo-switch-handle-space-to-borders-small;
+    width: @condo-switch-handle-size-small;
+    height: @condo-switch-handle-size-small;
+  }
+
+  &.condo-switch-checked {
+    .condo-switch-handle {
+      left: @condo-switch-checked-handle-space-left-small;
+    }
+  }
+}

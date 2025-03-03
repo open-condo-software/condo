@@ -3,8 +3,8 @@ const { get } = require('lodash')
 
 const conf = require('@open-condo/config')
 const { fetch } = require('@open-condo/keystone/fetch')
+const { getKVClient } = require('@open-condo/keystone/kv')
 const { getLogger } = require('@open-condo/keystone/logging')
-const { getRedisClient } = require('@open-condo/keystone/redis')
 const { getFeatureFlag } = require('@open-condo/keystone/test.utils')
 
 const logger = getLogger('featureToggleManager')
@@ -17,7 +17,7 @@ const FEATURES_EXPIRED_IN_SECONDS = 60
 
 class FeatureToggleManager {
     get redis () {
-        if (!this._redis) this._redis = getRedisClient('features')
+        if (!this._redis) this._redis = getKVClient('features')
         return this._redis
     }
 

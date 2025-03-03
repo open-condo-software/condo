@@ -18,7 +18,6 @@ import { NEW_CONTACT_NAME_FORM_ITEM_NAME } from '@condo/domains/contact/componen
 import { INVOICE_PAYMENT_TYPES, INVOICE_STATUSES } from '@condo/domains/marketplace/constants'
 import { Invoice as InvoiceGQL } from '@condo/domains/marketplace/gql'
 
-
 const RELATIONS = ['property', 'contact', 'ticket', 'organization', 'context']
 const DISCONNECT_ON_NULL = ['property', 'contact', 'ticket']
 const IGNORE_FORM_FIELDS = ['payerData', 'toPay', NEW_CONTACT_NAME_FORM_ITEM_NAME]
@@ -29,6 +28,7 @@ export type InvoiceRowType = {
     name: string
     toPay: string
     sku?: string
+    measure?: string
 }
 
 export type InvoiceFormValuesType = {
@@ -50,7 +50,7 @@ export function convertToFormState (invoice: Invoice, intl): InvoiceFormValuesTy
     const ContractPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' }).toLowerCase()
 
     const initialRows = get(invoice, 'rows') && invoice.rows
-        .map(({ count, isMin, name, toPay, sku }) => {
+        .map(({ count, isMin, name, toPay, sku, measure }) => {
             let toPayValue
             if (isMin) {
                 if (toPay === '0') {
@@ -62,7 +62,7 @@ export function convertToFormState (invoice: Invoice, intl): InvoiceFormValuesTy
                 toPayValue = { isMin: false, toPay: toPay.replace('.', ',') }
             }
 
-            return { count, name, sku, ...toPayValue }
+            return { count, name, sku, measure, ...toPayValue }
         })
 
     return {
@@ -101,7 +101,8 @@ export function formValuesProcessor (formValues: InvoiceFormValuesType, intl, is
             if (key === 'rows' && !isNull(formValues[key])) {
                 let rows = formValues[key]
                 if (!isTicketForm) {
-                    rows = formValues[key].map(({ name, toPay, count, sku }) => {
+                    rows = formValues[key].map(({ name, toPay, count, sku, measure }) => {
+
                         const baseFields = { name, count }
                         let toPayFields
                         if (toPay === ContractPriceMessage) {
@@ -113,7 +114,7 @@ export function formValuesProcessor (formValues: InvoiceFormValuesType, intl, is
                             toPayFields = { toPay: toPay.replace(',', '.'), isMin: false }
                         }
 
-                        const otherFields = pickBy({ sku }, (value) => !isEmpty(value))
+                        const otherFields = pickBy({ sku, measure }, (value) => !isEmpty(value))
 
                         return { ...baseFields, ...toPayFields, ...otherFields }
                     })
@@ -257,6 +258,9 @@ export function processRowsFromInvoiceTicketForm (rawRows, intl) {
         }
 
         const resultRow = { ...row, toPay: resultToPay }
+        if (!row.measure) {
+            resultRow.measure = undefined
+        }
 
         return resultRow.sku ? resultRow : omit(resultRow, 'sku')
     })

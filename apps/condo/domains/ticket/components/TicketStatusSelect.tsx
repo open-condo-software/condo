@@ -1,3 +1,4 @@
+import { useApolloClient } from '@apollo/client'
 import { TicketStatusTypeType } from '@app/condo/schema'
 import { Dayjs } from 'dayjs'
 import get from 'lodash/get'
@@ -24,6 +25,7 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
 
     const { getSuccessfulChangeNotification } = useNotificationMessages()
 
+    const client = useApolloClient()
     const { statuses, loading } = useStatusTransitions(get(ticket, ['status', 'id']), organization, employee)
     const canManageTickets = useMemo(() => get(employee, ['role', 'canManageTickets'], false), [employee])
     const [isUpdating, setUpdating] = useState(false)
@@ -83,7 +85,9 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
         } else {
             updateTicket(value)
         }
-    }, [ticket, statuses, updateTicket, openCancelModal])
+
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: '_allTicketsMeta' })
+    }, [statuses, client.cache, openCancelModal, openTicketDeferModal, updateTicket])
 
     const { primary: backgroundColor, secondary: color } = ticket.status.colors
     const selectValue = useMemo(

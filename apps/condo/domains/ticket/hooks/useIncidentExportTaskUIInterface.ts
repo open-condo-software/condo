@@ -1,13 +1,23 @@
-import { IncidentExportTask } from '@app/condo/schema'
+import {
+    GetIncidentExportTasksDocument,
+    CreateIncidentExportTaskDocument,
+    UpdateIncidentExportTaskDocument,
+    type GetIncidentExportTasksQuery,
+} from '@app/condo/gql'
 
+import { ITask } from '@condo/domains/common/components/tasks'
 import { useExportTaskUIInterface } from '@condo/domains/common/hooks/useExportTaskUIInterface'
-import { IncidentExportTask as IncidentExportTaskApi } from '@condo/domains/ticket/utils/clientSchema'
 
 
-export const useIncidentExportTaskUIInterface = () => {
-    const { TaskUIInterface } = useExportTaskUIInterface<IncidentExportTask>({
-        clientSchema: IncidentExportTaskApi,
+type TaskRecordType = GetIncidentExportTasksQuery['tasks'][number]
+type UseIncidentExportTaskUIInterfaceType = () => ({ IncidentExportTask: ITask<TaskRecordType> })
+
+export const useIncidentExportTaskUIInterface: UseIncidentExportTaskUIInterfaceType = () => {
+    const { TaskUIInterface } = useExportTaskUIInterface({
         schemaName: 'IncidentExportTask',
+        getTasksDocument: GetIncidentExportTasksDocument,
+        createTaskDocument: CreateIncidentExportTaskDocument,
+        updateTaskDocument: UpdateIncidentExportTaskDocument,
     })
 
     return { IncidentExportTask: TaskUIInterface }

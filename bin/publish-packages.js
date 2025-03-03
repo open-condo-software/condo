@@ -4,11 +4,16 @@ const github = require('@mono-pub/github')
 const npm = require('@mono-pub/npm')
 const execa = require('execa')
 const publish = require('mono-pub')
+const { getExecutionOrder } = require('mono-pub/utils')
 
+/** @type {import('mono-pub').MonoPubPlugin} */
 const builder = {
     name: '@open-condo/turbo-builder',
-    async prepare (_, ctx) {
-        await execa('yarn', ['build:packages'], { cwd: ctx.cwd })
+    async prepareAll ({ foundPackages }, ctx) {
+        const batches = getExecutionOrder(foundPackages, { batching: true })
+        for (const batch of batches) {
+            await execa('yarn', ['build', ...batch.map((pkg) => `--filter=${pkg.name}`)], { cwd: ctx.cwd })
+        }
     },
 }
 
@@ -23,6 +28,7 @@ const RELEASE_LIST = [
     'packages/apollo',
     'packages/bridge',
     'packages/icons',
+    'packages/migrator',
     'packages/miniapp-utils',
     'packages/tsconfig',
     'packages/ui',

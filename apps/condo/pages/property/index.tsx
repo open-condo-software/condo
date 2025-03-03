@@ -20,6 +20,7 @@ import {
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePreviousQueryParams'
+import { PageComponentType } from '@condo/domains/common/types'
 import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import BuildingsTable from '@condo/domains/property/components/BuildingsTable'
@@ -27,13 +28,8 @@ import { useTableColumns as usePropertiesTableColumns } from '@condo/domains/pro
 import { useTableFilters as usePropertyTableFilters } from '@condo/domains/property/hooks/useTableFilters'
 
 
-interface IPropertiesPage extends React.FC {
-    headerAction?: JSX.Element
-    requiredAccess?: React.FC
-}
-
 type PropertiesContentProps = {
-    role: OrganizationEmployeeRole
+    role: Pick<OrganizationEmployeeRole, 'canManageProperties' | 'canReadProperties'>
     baseSearchQuery: PropertyWhereInput
     propertiesTableColumns: ColumnsType
     propertyFilterMeta: FiltersMeta<PropertyWhereInput>[]
@@ -79,9 +75,9 @@ export const PropertiesContent: React.FC<PropertiesContentProps> = (props) => {
     )
 }
 
-const PropertiesPage: IPropertiesPage = () => {
+const PropertiesPage: PageComponentType = () => {
     const { link, organization } = useOrganization()
-    const role = get(link, 'role', {}) || {}
+    const role = get(link, 'role', {})
     const employeeId = get(link, 'id')
 
     usePreviousSortAndFilters({ employeeSpecificKey: employeeId })

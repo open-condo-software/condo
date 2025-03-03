@@ -11,7 +11,12 @@ const {
     expectToThrowAuthenticationErrorToResult,
 } = require('@open-condo/keystone/test.utils')
 
-const { COLD_WATER_METER_RESOURCE_ID, METER_READING_SOURCE_INTERNAL_IMPORT_TYPE } = require('@condo/domains/meter/constants/constants')
+const {
+    COLD_WATER_METER_RESOURCE_ID,
+    HOT_WATER_METER_RESOURCE_ID,
+    METER_READING_SOURCE_INTERNAL_IMPORT_TYPE,
+}
+    = require('@condo/domains/meter/constants/constants')
 const {
     _internalDeleteMeterAndMeterReadingsByTestClient,
     createTestMeterReading,
@@ -29,7 +34,7 @@ const {
     makeClientWithServiceUser,
 } = require('@condo/domains/user/utils/testSchema')
 
- 
+
 describe('DeleteMeterAndMeterReadingsService', () => {
     let adminClient, supportClient, residentClient, staffClient, serviceClient, anonymous,
         payload, organization, property, resource, source,
@@ -136,7 +141,7 @@ describe('DeleteMeterAndMeterReadingsService', () => {
     })
 
     describe('Basic logic', () => {
-        test('Meters for all properties in organization should be deleted if the "propertyIds" is not specified', async () => {
+        test('Meters for all properties in organization should be deleted if no "propertyIds" and "resourcesIds" specified', async () => {
             const [property2] = await createTestProperty(adminClient, organization)
             const [meter2] = await createTestMeter(adminClient, organization, property2, resource, {})
             await createTestMeterReading(adminClient, meter2, source)
@@ -168,6 +173,65 @@ describe('DeleteMeterAndMeterReadingsService', () => {
             const deletedMeters = await Meter.getAll(adminClient, { id_in: [meter.id, meter2.id] })
             expect(deletedMeters).toHaveLength(1)
             expect(deletedMeters[0].id).toBe(meter2.id)
+        })
+
+        test('Meters should be deleted only if meter resource is specified in "resourcesIds"', async () => {
+            const [resource2] = await MeterResource.getAll(adminClient, { id: HOT_WATER_METER_RESOURCE_ID })
+            const [meter2] = await createTestMeter(adminClient, organization, property, resource2, {})
+            await createTestMeterReading(adminClient, meter2, source)
+
+            const [result] = await _internalDeleteMeterAndMeterReadingsByTestClient(adminClient, {
+                ...payload,
+                resourcesIds: [resource.id],
+            })
+            expect(result).toEqual(expect.objectContaining({
+                status: 'success',
+                metersToDelete: 1,
+                deletedMeters: 1,
+            }))
+            const meters = await Meter.getAll(adminClient, { id_in: [meter.id, meter2.id] })
+            expect(meters).toHaveLength(1)
+            expect(meters[0].id).toBe(meter2.id)
+        })
+
+        test('Meters should be deleted only if meter resource is specified in "resourcesIds" and property is specified in "propertyIds"', async () => {
+            const [resource2] = await MeterResource.getAll(adminClient, { id: HOT_WATER_METER_RESOURCE_ID })
+            const [meter2] = await createTestMeter(adminClient, organization, property, resource2, {})
+            await createTestMeterReading(adminClient, meter2, source)
+
+            const [property2] = await createTestProperty(adminClient, organization)
+            const [meter3] = await createTestMeter(adminClient, organization, property2, resource2, {})
+            await createTestMeterReading(adminClient, meter3, source)
+
+            // Be sure that no meters will be deleted if no meters contains passed property and resource
+            const [result1] = await _internalDeleteMeterAndMeterReadingsByTestClient(adminClient, {
+                ...payload,
+                propertyIds: [property2.id],
+                resourcesIds: [resource.id],
+            })
+            expect(result1).toEqual(expect.objectContaining({
+                status: 'success',
+                metersToDelete: 0,
+                deletedMeters: 0,
+            }))
+
+            // Be sure that we delete only one meter with both: property and resource
+            const [result2] = await _internalDeleteMeterAndMeterReadingsByTestClient(adminClient, {
+                ...payload,
+                propertyIds: [property.id],
+                resourcesIds: [resource2.id],
+            })
+            expect(result2).toEqual(expect.objectContaining({
+                status: 'success',
+                metersToDelete: 1,
+                deletedMeters: 1,
+            }))
+
+            const meters = await Meter.getAll(adminClient, { id_in: [meter.id, meter2.id, meter3.id] })
+            expect(meters).toEqual(expect.arrayContaining([
+                expect.objectContaining({ id: meter.id }),
+                expect.objectContaining({ id: meter3.id }),
+            ]))
         })
 
         test('Should delete a lot of meters', async () => {

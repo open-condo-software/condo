@@ -1,10 +1,12 @@
 /** This file is auto-generated. Do not edit it directly **/
 export type { IconProps } from './wrappers'
 export { AlertCircle } from './components/AlertCircle'
+export { ArrowDownUp } from './components/ArrowDownUp'
 export { ArrowLeft } from './components/ArrowLeft'
 export { ArrowRight } from './components/ArrowRight'
 export { BarChartHorizontal } from './components/BarChartHorizontal'
 export { BarChartVertical } from './components/BarChartVertical'
+export { Bell } from './components/Bell'
 export { Bill } from './components/Bill'
 export { Briefcase } from './components/Briefcase'
 export { Building } from './components/Building'

@@ -34,9 +34,16 @@ export enum PriceType {
     Contract = 'contract',
 }
 
+export enum PriceMeasuresType {
+    PerHour = 'perHour',
+    PerItem = 'perItem',
+    PerMeter = 'perMeter',
+}
+
 export type PriceFormValuesType = {
     properties?: string[]
     priceType?: PriceType
+    measure?: PriceMeasuresType
     price?: string
     hasAllProperties?: boolean
     id?: string
@@ -94,6 +101,7 @@ export function convertToFormState ({ marketItem, marketItemPrices, marketPriceS
 
         const [priceObj] = get(marketItemPrice, 'price')
         const priceFromObj = get(priceObj, 'price')
+        const measureFromPriceObj = get(priceObj, 'measure')
         const isMinPrice = get(priceObj, 'isMin')
 
         let priceType
@@ -107,9 +115,9 @@ export function convertToFormState ({ marketItem, marketItemPrices, marketPriceS
         }
 
         if (hasAllProperties && initialProperties.length === 1) {
-            prices.push({ id, priceType, price, properties: initialProperties[0].id, hasAllProperties: false })
+            prices.push({ id, priceType, price, properties: initialProperties[0].id, hasAllProperties: false, measure: measureFromPriceObj })
         } else {
-            prices.push({ id, priceType, price, properties, hasAllProperties })
+            prices.push({ id, priceType, price, properties, hasAllProperties, measure: measureFromPriceObj })
         }
     }
 
@@ -186,12 +194,17 @@ export async function createNewPricesAndPriceScopes ({
     createMarketPriceScopes,
 }: CreateNewPricesAndPriceScopesArgType) {
     for (const formPrice of prices) {
-        const { properties, hasAllProperties, price, priceType } = formPrice
+        const { properties, hasAllProperties, price, priceType, measure } = formPrice
+
+        let processedMeasure = measure
+        if (!measure) {
+            processedMeasure = undefined
+        }
 
         const { price: resultPrice, isMin } = getPriceValueFromFormPrice({ priceType, price })
 
         const createdPrice = await createMarketItemPrice({
-            price: [{ type: 'variant', name: marketItem.name, price: resultPrice, isMin }],
+            price: [{ type: 'variant', name: marketItem.name, price: resultPrice, isMin, measure: processedMeasure }],
             marketItem: { connect: { id: marketItem.id } },
         })
 

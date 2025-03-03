@@ -13,9 +13,10 @@ import Input from '@condo/domains/common/components/antd/Input'
 import { useHCaptcha } from '@condo/domains/common/components/HCaptcha'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { PageComponentType } from '@condo/domains/common/types'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
-import AuthLayout, { AuthPage } from '@condo/domains/user/components/containers/AuthLayout'
+import AuthLayout from '@condo/domains/user/components/containers/AuthLayout'
 import { AuthLayoutContext } from '@condo/domains/user/components/containers/AuthLayoutContext'
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 import { MIN_PASSWORD_LENGTH } from '@condo/domains/user/constants/common'
@@ -36,7 +37,7 @@ const FormItemOnlyError = styled(Form.Item)`
   }
 `
 
-const ChangePasswordPage: AuthPage = () => {
+const ChangePasswordPage: PageComponentType = () => {
     const router = useRouter()
     const [form] = Form.useForm()
     const { token } = router.query
@@ -238,5 +239,6 @@ const ChangePasswordPage: AuthPage = () => {
 
 ChangePasswordPage.headerAction = <></>
 ChangePasswordPage.container = AuthLayout
+ChangePasswordPage.skipUserPrefetch = true
 
 export default ChangePasswordPage

@@ -13,7 +13,7 @@ const {
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { createTestAcquiringIntegration, createTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
-const { PRICE_FIELD_SCHEMA } = require('@condo/domains/marketplace/schema/fields/price')
+const { PRICE_FIELD_SCHEMA, PRICE_MEASURES } = require('@condo/domains/marketplace/schema/fields/price')
 const {
     MarketItemPrice,
     MarketPriceScope,
@@ -38,7 +38,7 @@ const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSc
 
 const ajv = new Ajv()
 const validatePriceField = ajv.compile(PRICE_FIELD_SCHEMA)
-const validPriceFieldValue = [{ type: 'variant', name: 'name', price: '300', isMin: false, vatPercent: '20', salesTaxPercent: '0', currencyCode: 'RUB' }]
+const validPriceFieldValue = [{ type: 'variant', name: 'name', price: '300', isMin: false, vatPercent: '20', salesTaxPercent: '0', currencyCode: 'RUB', measure: PRICE_MEASURES.PER_ITEM }]
 
 describe('MarketItemPrice', () => {
     let admin, organization, marketCategory
@@ -219,7 +219,7 @@ describe('MarketItemPrice', () => {
             })
         })
 
-        describe('anonymus', () => {
+        describe('anonymous', () => {
             let client
             beforeAll(async () => {
                 client = await makeClient()
@@ -324,6 +324,14 @@ describe('MarketItemPrice', () => {
                 },
                 'obj'
             )
+        })
+
+        test('Validate item price measure, undefined is valid measure', async () => {
+            const [price] = await createTestMarketItemPrice(admin, marketItem, {
+                price: [{ ...validPriceFieldValue[0], measure: undefined }],
+            })
+
+            expect(price).toBeDefined()
         })
 
         test('Validate salesTaxPercent less when 0', async () => {

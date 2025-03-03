@@ -3,7 +3,7 @@ const get = require('lodash/get')
 
 const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
-const { getById, find } = require('@open-condo/keystone/schema')
+const { getById, find, getByCondition } = require('@open-condo/keystone/schema')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const { WRONG_FORMAT, NOT_FOUND, WRONG_PHONE_FORMAT, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
@@ -14,7 +14,7 @@ const { sendMessage } = require('@condo/domains/notification/utils/serverSchema'
 const access = require('@condo/domains/organization/access/InviteNewOrganizationEmployeeService')
 const { HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const { ALREADY_ACCEPTED_INVITATION, ALREADY_INVITED_EMAIL, ALREADY_INVITED_PHONE, UNABLE_TO_REGISTER_USER } = require('@condo/domains/organization/constants/errors')
-const { Organization, OrganizationEmployee, OrganizationEmployeeSpecialization } = require('@condo/domains/organization/utils/serverSchema')
+const { Organization, OrganizationEmployee, OrganizationEmployeeSpecialization, OrganizationEmployeeRequest } = require('@condo/domains/organization/utils/serverSchema')
 const guards = require('@condo/domains/organization/utils/serverSchema/guards')
 const { createUserAndSendLoginData } = require('@condo/domains/user/utils/serverSchema')
 
@@ -186,6 +186,14 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                     user = await createUserAndSendLoginData({ context, userData })
                 }
 
+                const notProcessedEmployeeRequest = await getByCondition('OrganizationEmployeeRequest', {
+                    user: { id: user.id, deletedAt: null },
+                    organization: { id: userOrganization.id, deletedAt: null },
+                    deletedAt: null,
+                    isAccepted: false,
+                    isRejected: false,
+                })
+
                 const employee = await OrganizationEmployee.create(context, {
                     user: { connect: { id: user.id } },
                     organization: { connect: { id: userOrganization.id } },
@@ -196,6 +204,10 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                     phone,
                     hasAllSpecializations,
                     ...dvSenderData,
+                    // NOTE: If a user has submitted a request to join
+                    // and the organization sends an invitation to that user,
+                    // we consider the user to have accepted the invitation and the organization to have accepted the request
+                    ...(notProcessedEmployeeRequest ? { isAccepted: true, isRejected: false } : null),
                 })
 
                 for (const specializationIdObj of specializations) {
@@ -206,12 +218,25 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                     })
                 }
 
+                if (notProcessedEmployeeRequest) {
+                    // NOTE: If a user has submitted a request to join
+                    // and the organization sends an invitation to that user,
+                    // we consider the user to have accepted the invitation and the organization to have accepted the request
+                    await OrganizationEmployeeRequest.update(context, notProcessedEmployeeRequest.id, {
+                        isAccepted: true,
+                        isRejected: false,
+                        createdEmployee: { connect: { id: employee.id } },
+                        ...dvSenderData,
+                    })
+                }
+
                 const organizationCountry = get(userOrganization, 'country', 'en')
                 const organizationName = get(userOrganization, 'name')
                 const organizationId = get(userOrganization, 'id')
                 const type = !email ? DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE : DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE
                 const serverUrl = userOrganization.type === HOLDING_TYPE && get(conf, 'CALLCENTER_DOMAIN') ? conf['CALLCENTER_DOMAIN'] : conf['SERVER_URL']
 
+                // TODO(DOMA-11040): get locale for sendMessage from user
                 await sendMessage(context, {
                     lang: organizationCountry,
                     to: {
@@ -278,6 +303,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                 const type = !email ? DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE : DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE
                 const serverUrl = employeeOrganization.type === HOLDING_TYPE && get(conf, 'CALLCENTER_DOMAIN') ? conf['CALLCENTER_DOMAIN'] : conf['SERVER_URL']
 
+                // TODO(DOMA-11040): get locale for sendMessage from user
                 await sendMessage(context, {
                     lang: organizationCountry,
                     to: {

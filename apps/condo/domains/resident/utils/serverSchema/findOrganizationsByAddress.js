@@ -1,8 +1,7 @@
-
-const Big = require('big.js')
 const { get } = require('lodash')
 
-const { find, itemsQuery } = require('@open-condo/keystone/schema')
+const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
+const { find } = require('@open-condo/keystone/schema')
 
 const {
     CONTEXT_FINISHED_STATUS: ACQUIRING_CONTEXT_FINISHED_STATUS,
@@ -11,112 +10,213 @@ const {
     ONLINE_INTERACTION_CHECK_ACCOUNT_SUCCESS_STATUS,
 } = require('@condo/domains/billing/constants/onlineInteraction')
 const { getAccountsWithOnlineInteractionUrl } = require('@condo/domains/billing/utils/serverSchema/checkAccountNumberWithOnlineInteractionUrl')
+const { DISABLE_DISCOVER_SERVICE_CONSUMERS } = require('@condo/domains/common/constants/featureflags')
 const { CONTEXT_FINISHED_STATUS: BILLING_CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 
-async function findBillingReceiptsForOrganizations (organizations, billingInformation, accountQuery = {}) {
-    const receipts = await Promise.all(organizations.map(async ({ id, tin }) => {
-        const contextId = get(billingInformation[id], 'id')
-        if (!contextId) {
-            return []
-        }
-        const period = get(billingInformation[id], 'period')
-        const checkAccountNumberUrl = get(billingInformation[id], 'checkAccountNumberUrl')
-        let receipts = []
-        if (period) {
-            const billingAccounts = await find('BillingAccount', { context: { id: contextId }, deletedAt: null, ...accountQuery })
-            console.error({ context: { id: contextId }, deletedAt: null, ...accountQuery })
-            console.error(billingAccounts)
-            if (billingAccounts.length) {
-                const billingAccountsNumbersIndex = Object.fromEntries(billingAccounts.map(account => ([account.id, account.number])))
-                const billingReceipts = await find('BillingReceipt', {
-                    context: { id: contextId },
-                    deletedAt: null,
-                    period,
-                    account: { id_in: Object.keys(billingAccountsNumbersIndex) },
-                })
-                if (billingReceipts.length) {
-                    receipts = billingReceipts.map(receipt => ({
-                        organizationId: id,
-                        number: billingAccountsNumbersIndex[receipt.account],
-                        category: receipt.category,
-                        balance: Big(receipt.toPay).toFixed(2),
-                        routingNumber: get(receipt, 'recipient.bic'),
-                        bankAccountNumber: get(receipt, 'recipient.bankAccount'),
-                    }))
-                }
-            }
-        }
-        const accountNumber = accountQuery.number
-        if (!receipts.length && checkAccountNumberUrl && accountNumber) {
+/*
+    TODO: (DOMA-11059) Eliminate unnecessary subqueries like MeterResourceOwner and BillingContext.
+    Currently, each organization is processed separately, leading to excessive subqueries.
+    All necessary data can be fetched in the previous step before processing, reducing the number of database queries.
+    MeterResourceOwner is fetched when checking organizations with meters.
+    BillingContext can be unified across all organizations.
+*/
+
+async function findOrganizationByAddressKey (organization, { addressKey }) {
+    const meterResourceOwner = await find('MeterResourceOwner', {
+        organization: { id: organization.id },
+        addressKey,
+        deletedAt: null,
+    })
+    const billingContext = await getOrganizationBillingContext(organization)
+
+    return {
+        id: organization.id,
+        name: organization.name,
+        tin: organization.tin,
+        type: organization.type,
+        receipts: get(billingContext, 'lastReport.categories', []).map(category => ({ category })),
+        meters: meterResourceOwner.map(({ resource }) => ({ resource })),
+    }
+}
+
+async function findOrganizationByAddressKeyUnitNameUnitType (organization, { addressKey, unitName, unitType }, context, properties) {
+    const isInBlackList = await featureToggleManager.isFeatureEnabled(
+        context,
+        DISABLE_DISCOVER_SERVICE_CONSUMERS,
+        { organization: organization.id }
+    )
+    
+    if (isInBlackList) {
+        return findOrganizationByAddressKey(organization, { addressKey })
+    }
+    const billingContext = await getOrganizationBillingContext(organization)
+    let receipts = await getOrganizationReceipts(billingContext, addressKey, { unitName, unitType })
+
+    if (receipts.length) {
+        receipts = Object.values(
+            receipts.reduce((acc, receipt) => {
+                acc[receipt.category] = acc[receipt.category] ? { category: receipt.category } : receipt
+                return acc
+            }, {})
+        )
+    } else {
+        receipts = []
+    }
+
+    const meters = await getOrganizationMeters(organization, addressKey, properties, { unitName, unitType })
+
+    return {
+        id: organization.id,
+        name: organization.name,
+        tin: organization.tin,
+        type: organization.type,
+        receipts,
+        meters,
+    }
+}
+
+async function findOrganizationByAddressKeyTinAccountNumber (organization, { addressKey, tin, accountNumber }, properties) {
+    const billingContext = await getOrganizationBillingContext(organization)
+    let receipts = []
+
+    if (billingContext) {
+        const [billingIntegration] = await find('BillingIntegration', {
+            id: billingContext.integration,
+            checkAccountNumberUrl_not: null,
+            deletedAt: null,
+        })
+        const checkAccountNumberUrl = get(billingIntegration, 'checkAccountNumberUrl')
+
+        receipts = await getOrganizationReceipts(billingContext, addressKey, { number: accountNumber })
+
+        if (!receipts.length && checkAccountNumberUrl) {
             const { status, services } = await getAccountsWithOnlineInteractionUrl(checkAccountNumberUrl, tin, accountNumber)
             if (status === ONLINE_INTERACTION_CHECK_ACCOUNT_SUCCESS_STATUS) {
-                receipts = services.map(service => {
-                    const { category, account: { number }, bankAccount: { number: bankAccountNumber, routingNumber } } = service
-                    return {
-                        organizationId: id,
-                        category,
-                        number,
-                        routingNumber,
-                        bankAccountNumber,
-                    }
-                })
+                receipts = services.map(service => ({
+                    category: service.category,
+                    accountNumber: service.account.number,
+                    routingNumber: service.bankAccount.routingNumber,
+                    bankAccount: service.bankAccount.number,
+                    balance: service.receipt.sum,
+                    address: service.receipt.address,
+                }))
             }
         }
-        return receipts
-    }))
-    return receipts.flat()
+    }
+
+    const meters = await getOrganizationMeters(organization, addressKey, properties, { accountNumber })
+
+    return {
+        id: organization.id,
+        name: organization.name,
+        tin: organization.tin,
+        type: organization.type,
+        receipts,
+        meters,
+    }
 }
 
-async function getBillingInformationForOrganizations (organizations) {
-    const billingContexts = await find('BillingIntegrationOrganizationContext', {
+async function getOrganizationReceipts (billingContext, addressKey, query = {}) {
+    if (!billingContext) return []
+    const billingAccounts = await find('BillingAccount', {
+        context: { id: billingContext.id },
+        property: { addressKey, deletedAt: null },
+        deletedAt: null,
+        ...query,
+    })
+    let receipts = []
+
+    if (billingAccounts.length && get(billingContext, 'lastReport.period')) {
+        receipts = await find('BillingReceipt', {
+            context: { id: billingContext.id },
+            property: { addressKey, deletedAt: null },
+            deletedAt: null,
+            period: billingContext.lastReport.period,
+            account: { id_in: billingAccounts.map(({ id }) => id) },
+        })
+
+        const billingAccountsNumbersIndex = Object.fromEntries(
+            billingAccounts.map(account => [account.id, account.number])
+        )
+        receipts = receipts.map(receipt => ({
+            category: receipt.category,
+            balance: receipt.toPay,
+            accountNumber: billingAccountsNumbersIndex[receipt.account],
+            routingNumber: receipt.recipient.bic,
+            bankAccount: receipt.recipient.bankAccount,
+            address: get(receipt, 'raw.address', null),
+        }))
+    }
+
+    return receipts
+}
+
+async function getOrganizationMeters (organization, addressKey, properties, query = {}) {
+    const meterResourceOwners = await find('MeterResourceOwner', {
+        organization: { id: organization.id },
+        addressKey,
+        deletedAt: null,
+    })
+
+    let meters = await find('Meter', {
+        organization: { id: organization.id },
+        deletedAt: null,
+        resource: { id_in: meterResourceOwners.map(owner => owner.resource) },
+        property: { addressKey, deletedAt: null },
+        ...query,
+    })
+
+    const property = properties.find(p => p.addressKey === addressKey)
+    const address = property ? property.address : null
+
+    if (meters.length){
+        meters = meters.map((meter) => ({
+            resource: meter.resource,
+            accountNumber: meter.accountNumber,
+            number: meter.number,
+            address,
+        }))
+    } else {
+        meters = []
+    }
+
+    return meters
+}
+
+async function getOrganizationBillingContext (organization) {
+    const [context] = await find('BillingIntegrationOrganizationContext', {
         status: BILLING_CONTEXT_FINISHED_STATUS,
         deletedAt: null,
+        organization: { id: organization.id },
+    })
+
+    return context
+}
+
+async function getOrganizationIdsWithMeters (organizations, addressKey) {
+    const meterResourceOwners = await find('MeterResourceOwner', {
+        addressKey,
         organization: { id_in: organizations.map(({ id }) => id) },
+        deletedAt: null,
     })
-    const billingContextIndex = Object.fromEntries(billingContexts.map(context => ([context.organization, context])))
-    const billingIntegrationsWithRemoteInteraction = await find('BillingIntegration', {
-        id_in: billingContexts.map(({ integration }) => integration),
-        checkAccountNumberUrl_not: null,
-    })
-    const remoteInteractions = Object.fromEntries(billingIntegrationsWithRemoteInteraction
-        .map(({ id, checkAccountNumberUrl }) => ([ id, checkAccountNumberUrl])))
 
-    return Object.fromEntries(organizations.map(organization => {
-        const context = billingContextIndex[organization.id]
-        if (!context) {
-            return [organization.id, null]
-        }
-        return [organization.id, {
-            id: context.id,
-            period: get(context, 'lastReport.period'),
-            checkAccountNumberUrl: remoteInteractions[context.integration],
-        }]
-    }))
+    return new Set(meterResourceOwners.map(owner => owner.organization))
 }
 
-async function getOrganizationsWithMeters (organizationIds, query = {}) {
-    const organizationsWithMeters = await Promise.all(organizationIds.map(async id => {
-        const [meter] = await itemsQuery('Meter', {
-            where: { organization: { id }, deletedAt: null, ...query },
-            first: 1,
-        })
-        return meter ? id : null
-    }))
-    return new Set(organizationsWithMeters.filter(Boolean))
-}
-
-async function getOrganizationsWithAcquiring (organizationIds) {
+async function getOrganizationIdsWithAcquiring (organizations) {
     const acquiringContexts = await find('AcquiringIntegrationContext', {
         status: ACQUIRING_CONTEXT_FINISHED_STATUS,
         deletedAt: null,
-        organization: { id_in: organizationIds },
+        organization: { id_in: organizations.map(({ id }) => id) },
     })
+
     return new Set(acquiringContexts.map(({ organization }) => organization))
 }
 
 module.exports = {
-    getOrganizationsWithMeters,
-    getOrganizationsWithAcquiring,
-    getBillingInformationForOrganizations,
-    findBillingReceiptsForOrganizations,
+    getOrganizationIdsWithMeters,
+    getOrganizationIdsWithAcquiring,
+    findOrganizationByAddressKeyTinAccountNumber,
+    findOrganizationByAddressKeyUnitNameUnitType,
+    findOrganizationByAddressKey,
 }

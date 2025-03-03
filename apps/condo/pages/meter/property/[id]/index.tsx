@@ -10,19 +10,20 @@ import { useOrganization } from '@open-condo/next/organization'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { MultipleFilterContextProvider } from '@condo/domains/common/hooks/useMultipleFiltersModal'
+import { PageComponentType } from '@condo/domains/common/types'
 import { MeterPageContent } from '@condo/domains/meter/components/Meters/MeterPageContent'
 import { MeterReportingPeriod, MeterResource, METER_TYPES, PropertyMeter } from '@condo/domains/meter/utils/clientSchema'
 import { getMeterTitleMessage } from '@condo/domains/meter/utils/helpers'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 
 
-const PropertyMeterInfoPage = (): JSX.Element => {
+const PropertyMeterInfoPage: PageComponentType = () => {
     const intl = useIntl()
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
     
     const { query: { id: meterId } } = useRouter()
     const { user } = useAuth()
-    const { organization, selectLink } = useOrganization()
+    const { organization, selectEmployee } = useOrganization()
 
     const {
         obj: propertyMeter,
@@ -74,7 +75,7 @@ const PropertyMeterInfoPage = (): JSX.Element => {
             meterOrganizationEmployeeOrganizationId &&
             meterOrganizationEmployeeOrganizationId !== currentEmployeeOrganization
         ) {
-            selectLink(meterOrganizationEmployee)
+            selectEmployee(meterOrganizationEmployee?.id)
         }
     }, [meterOrganizationEmployeeOrganizationId, currentEmployeeOrganization])
 
@@ -107,5 +108,7 @@ const PropertyMeterInfoPage = (): JSX.Element => {
         </MultipleFilterContextProvider>
     )
 }
+
+// TODO(DOMA-10641): add accessRequired for page
 
 export default PropertyMeterInfoPage

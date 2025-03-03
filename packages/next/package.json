@@ -4,6 +4,8 @@
   "version": "1.0.0",
   "dependencies": {
     "@apollo/client": "^3.11.8",
+    "@open-condo/apollo": "workspace:^",
+    "@open-condo/miniapp-utils": "workspace:^",
     "apollo-upload-client": "^14.1.3",
     "eventemitter3": "^4.0.0",
     "graphql": "^15.6.1",

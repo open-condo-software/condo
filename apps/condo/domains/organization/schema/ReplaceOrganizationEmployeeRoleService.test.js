@@ -257,6 +257,9 @@ describe('ReplaceOrganizationEmployeeRoleService', () => {
             const [defaultRole] = await OrganizationEmployeeRole.getAll(admin, {
                 organization: { id: o10n.id },
                 isDefault: true,
+                // NOTE: If we get the administrator role,
+                // we will not be able to perform the following operation (createTestB2BAppRole)
+                canManageRoles: false,
             })
             const [defaultB2bAppRole] = await createTestB2BAppRole(admin, b2bApp, defaultRole)
             await updateTestOrganizationEmployee(admin, employeeWithOldRole.id, {
@@ -282,6 +285,9 @@ describe('ReplaceOrganizationEmployeeRoleService', () => {
             const [defaultRole] = await OrganizationEmployeeRole.getAll(admin, {
                 organization: { id: o10n.id },
                 isDefault: true,
+                // NOTE: If we get the administrator role,
+                // we will not be able to perform the following operation (createTestB2BAppRole)
+                canManageRoles: false,
             })
             const [defaultB2bAppRole] = await createTestB2BAppRole(admin, b2bApp, defaultRole)
             await updateTestOrganizationEmployee(admin, employeeWithOldRole.id, {

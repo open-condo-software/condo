@@ -7,8 +7,8 @@ const { default: RedLock } = require('redlock')
 
 const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, TOO_MANY_REQUESTS } } = require('@open-condo/keystone/errors')
+const { getKVClient } = require('@open-condo/keystone/kv')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
-const { getRedisClient } = require('@open-condo/keystone/redis')
 const { GQLCustomSchema, getById, find } = require('@open-condo/keystone/schema')
 
 const { DV_VERSION_MISMATCH, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
@@ -21,7 +21,7 @@ const { OrganizationEmployee, OrganizationEmployeeRole } = require('@condo/domai
 const IS_BUILD = conf['DATABASE_URL'] === 'undefined'
 const LOCK_DURATION_IN_SEC = 60 * 1000 // 60 sec
 
-const rLock = (IS_BUILD) ? undefined : new RedLock([getRedisClient()])
+const rLock = (IS_BUILD) ? undefined : new RedLock([getKVClient()])
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -145,8 +145,8 @@ const ReplaceOrganizationEmployeeRoleService = new GQLCustomSchema('ReplaceOrgan
                 let lock
 
                 try {
-                    const oldRoleLockKey = `replaceOrganizationEmployeeRole:${oldRoleId}`
-                    const newRoleLockKey = `replaceOrganizationEmployeeRole:${newRoleId}`
+                    const oldRoleLockKey = `{replaceOrganizationEmployeeRole}:${oldRoleId}`
+                    const newRoleLockKey = `{replaceOrganizationEmployeeRole}:${newRoleId}`
                     lock = await rLock.acquire([oldRoleLockKey, newRoleLockKey], LOCK_DURATION_IN_SEC, {
                         retryCount: 0,
                     })
@@ -205,7 +205,7 @@ const ReplaceOrganizationEmployeeRoleService = new GQLCustomSchema('ReplaceOrgan
             },
         },
     ],
-    
+
 })
 
 module.exports = {

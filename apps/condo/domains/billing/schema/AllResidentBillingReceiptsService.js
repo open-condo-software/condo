@@ -14,7 +14,7 @@ const { getAcquiringIntegrationContextFormula, FeeDistribution } = require('@con
 const access = require('@condo/domains/billing/access/AllResidentBillingReceipts')
 const { BILLING_RECEIPT_FILE_FOLDER_NAME } = require('@condo/domains/billing/constants/constants')
 const { BILLING_RECEIPT_COMMON_FIELDS } = require('@condo/domains/billing/gql')
-const { BillingReceipt, getPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
+const { BillingReceipt, getPaymentsSum, getNewPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
 const { normalizeUnitName } = require('@condo/domains/billing/utils/unitName.utils')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 
@@ -194,19 +194,19 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                 const receiptsWithPayments = []
                 for (const receipt of processedReceipts) {
                     const billingCategory = get(receipt, ['category']) || {}
-                    const paid = await getPaymentsSum(receipt.id)
+                    const newPaid = await getNewPaymentsSum(receipt.id)
                     const acquiringContextId = get(receipt, ['serviceConsumer', 'acquiringIntegrationContext'], null)
                     const toPay = get(receipt, ['toPay'], 0)
                     let fee = '0'
                     if (acquiringContextId) {
                         const formula = await getAcquiringIntegrationContextFormula(context, acquiringContextId)
                         const feeCalculator = new FeeDistribution(formula, billingCategory.id)
-                        const { explicitFee } = feeCalculator.calculate(Big(toPay).minus(Big(paid)).toFixed(2))
+                        const { explicitFee } = feeCalculator.calculate(Big(toPay).minus(Big(newPaid)).toFixed(2))
                         fee = String(explicitFee)
                     }
                     receiptsWithPayments.push(({
                         ...receipt,
-                        paid,
+                        paid: newPaid,
                         explicitFee: fee,
                     }))
                 }

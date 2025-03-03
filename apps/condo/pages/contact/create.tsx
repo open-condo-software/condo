@@ -5,16 +5,12 @@ import React from 'react'
 import { useIntl } from '@open-condo/next/intl'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { PageComponentType } from '@condo/domains/common/types'
 import { CreateContactForm } from '@condo/domains/contact/components/CreateContactForm'
 import { ContactsReadAndManagePermissionRequired } from '@condo/domains/contact/components/PageAccess'
 
 
-interface ICreateContactPage extends React.FC {
-    headerAction?: JSX.Element
-    requiredAccess?: React.FC
-}
-
-const CreateContactPage: ICreateContactPage = () => {
+const CreateContactPage: PageComponentType = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'contact.AddContact' })
 

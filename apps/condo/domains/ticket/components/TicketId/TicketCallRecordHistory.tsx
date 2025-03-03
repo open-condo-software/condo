@@ -1,13 +1,13 @@
-import { SortCallRecordFragmentsBy } from '@app/condo/schema'
+import { useGetTicketCallRecordsFragmentsQuery } from '@app/condo/gql'
 import { Col, Row, RowProps } from 'antd'
 import React, { useMemo } from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 
 import { CallRecordCard } from '@condo/domains/ticket/components/CallRecordCard'
 import { useActiveCall } from '@condo/domains/ticket/contexts/ActiveCallContext'
-import { CallRecordFragment } from '@condo/domains/ticket/utils/clientSchema'
 
 
 interface ITicketCallRecordHistoryProps {
@@ -24,12 +24,17 @@ export const TicketCallRecordHistory: React.FC<ITicketCallRecordHistoryProps> = 
 
     const { ticketId } = props
 
+    const { persistor } = useCachePersistor()
     const { isCallActive, connectedTickets } = useActiveCall()
 
-    const { objs: ticketCalls } = CallRecordFragment.useObjects({
-        where: { ticket: { id: ticketId } },
-        sortBy: [SortCallRecordFragmentsBy.CreatedAtDesc],
+    const {
+        data: ticketCallsData,
+    } = useGetTicketCallRecordsFragmentsQuery({
+        variables: { ticketId },
+        skip: !persistor,
     })
+    const ticketCalls = useMemo(() => ticketCallsData?.callRecordFragments?.filter(Boolean) || [],
+        [ticketCallsData?.callRecordFragments])
 
     const renderTicketCalls = useMemo(() => ticketCalls.map(
         ({ callRecord }) => (

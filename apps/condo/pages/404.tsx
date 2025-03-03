@@ -1,26 +1,18 @@
-import styled from '@emotion/styled'
-import { Col, Row, RowProps, Typography } from 'antd'
+import { Col, Row } from 'antd'
 import Router from 'next/router'
 import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Typography, Button } from '@open-condo/ui'
 
-import { Button } from '@condo/domains/common/components/Button'
-import { fontSizes } from '@condo/domains/common/constants/style'
+import { PageComponentType } from '@condo/domains/common/types'
 import { PosterLayout } from '@condo/domains/user/components/containers/PosterLayout'
 
 import { ErrorLayoutFooter, ErrorLayoutHeader } from './500'
 
-
-export const ErrorPosterWrapper = styled.div<{ isSmall: boolean }>`
-  height: 55vh;
-`
-
-const DESCRIPTION_TEXT_STYLE = { fontSize: fontSizes.content }
-const ROW_MESSAGE_GUTTER: RowProps['gutter'] = [0, 14]
 const Src404 = { poster: '/404Poster.webp', placeholder: '/404PosterPlaceholder.jpg' }
 
-export default function Custom404 (): React.ReactElement {
+const Custom404: PageComponentType = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage( { id: 'pages.condo.error.NotFoundTitle' })
     const DescriptionMessage = intl.formatMessage({ id: 'pages.condo.error.NotFoundDescription' })
@@ -29,19 +21,23 @@ export default function Custom404 (): React.ReactElement {
     return (
         <Row justify='center'>
             <Col span={24}>
-                <Row gutter={ROW_MESSAGE_GUTTER}>
+                <Row gutter={[0, 40]}>
                     <Col span={24}>
-                        <Typography.Title>{PageTitle}</Typography.Title>
-                    </Col>
-                    <Col span={24}>
-                        <Typography.Paragraph style={DESCRIPTION_TEXT_STYLE}>
-                            {DescriptionMessage}
-                        </Typography.Paragraph>
+                        <Row gutter={[0, 24]}>
+                            <Col span={24}>
+                                <Typography.Title>{PageTitle}</Typography.Title>
+                            </Col>
+                            <Col span={24}>
+                                <Typography.Paragraph>
+                                    {DescriptionMessage}
+                                </Typography.Paragraph>
+                            </Col>
+                        </Row>
                     </Col>
                     <Col>
                         <Button
                             key='submit'
-                            type='sberDefaultGradient'
+                            type='primary'
                             htmlType='submit'
                             onClick={() => Router.push('/')}
                             data-cy='register-button'
@@ -65,3 +61,6 @@ const Error404Layout = (props): React.ReactElement => <PosterLayout
 
 Custom404.container = Error404Layout
 Custom404.isError = true
+Custom404.skipUserPrefetch = true
+
+export default Custom404

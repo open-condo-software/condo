@@ -1,10 +1,13 @@
+/** @type {import('jest').Config} */
 module.exports = {
+    rootDir: './',
+    reporters: ['default', '<rootDir>/../../bin/report-failed-tests.js'],
     projects: [
         {
             testRunner: 'jasmine2',
             displayName: '@open-condo/keystone',
             testEnvironment: 'node',
-            testMatch: [`${__dirname}/**/*.spec.js`],
+            testMatch: ['<rootDir>/**/*.spec.js'],
             transform: {
                 '\\.[jt]sx?$': 'babel-jest',
             },

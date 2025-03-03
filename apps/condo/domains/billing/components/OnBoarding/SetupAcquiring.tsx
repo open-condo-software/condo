@@ -19,6 +19,7 @@ import { SBBOL_IMPORT_NAME } from '@condo/domains/organization/integrations/sbbo
 
 import type { RowProps } from 'antd'
 
+
 type SetupAcquiringProps = {
     onFinish: () => void
 }
@@ -89,7 +90,6 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
     })
 
 
-
     const billingCtxId = get(billingCtx, 'id', null)
     const acquiringCtxId = get(acquiringCtx, 'id', null)
     const connectedCtxId = get(connectedCtx, 'id', null)
@@ -97,9 +97,9 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
     useEffect(() => {
         // No connected billing = go to setup beginning
         if (!billingCtxLoading && !billingCtxError && !billingCtxId) {
-            router.replace({ query: { step: 0 } })
+            router.replace({ query: { step: 0 } }, undefined, { shallow: true })
         } else if (!connectedCtxLoading && !connectedCtxError && connectedCtxId) {
-            router.replace({ query: { step: 3 } })
+            router.replace({ query: { step: 3 } }, undefined, { shallow: true })
         }
     }, [
         billingCtxLoading,
@@ -149,7 +149,7 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
             }, { id: billingCtxId })
                 .then(()=> {
                     if (orgType === SERVICE_PROVIDER_TYPE) {
-                        router.push({ query: { step: 3 } })
+                        router.push({ query: { step: 3 } }, undefined, { shallow: true })
                     } else {
                         onFinish()
                     }

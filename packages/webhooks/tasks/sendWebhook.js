@@ -5,8 +5,8 @@ const { v4: uuid } = require('uuid')
 
 const { execGqlAsUser } = require('@open-condo/codegen/generate.server.utils')
 const conf = require('@open-condo/config')
+const { getKVClient } = require('@open-condo/keystone/kv')
 const { getLogger } = require('@open-condo/keystone/logging')
-const { getRedisClient } = require('@open-condo/keystone/redis')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { DEFAULT_MAX_PACK_SIZE } = require('@open-condo/webhooks/constants')
 const { WebhookSubscription } = require('@open-condo/webhooks/schema/utils/serverSchema')
@@ -19,7 +19,7 @@ const BAD_RESPONSE_STATUS = 'BAD_RESPONSE'
 const NO_RESPONSE_STATUS = 'NO_RESPONSE'
 const NO_SUBSCRIPTION_STATUS = 'NO_SUBSCRIPTION'
 
-const rLock = (IS_BUILD) ? undefined : new RedLock([getRedisClient('worker')])
+const rLock = (IS_BUILD) ? undefined : new RedLock([getKVClient('worker')])
 const logger = getLogger('sendWebhook')
 
 /**

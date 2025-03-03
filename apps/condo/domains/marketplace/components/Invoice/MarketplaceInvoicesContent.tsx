@@ -28,6 +28,7 @@ import { useMarketplaceInvoicesFilters } from '@condo/domains/marketplace/hooks/
 import { useMarketplaceInvoicesTableColumns } from '@condo/domains/marketplace/hooks/useMarketplaceInvoicesTableColumns'
 import { Invoice, MARKETPLACE_PAGE_TYPES } from '@condo/domains/marketplace/utils/clientSchema'
 
+
 const TableContent = () => {
     const intl = useIntl()
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
@@ -79,13 +80,14 @@ const TableContent = () => {
             { ...filtersFromQuery, createdAt }
         )
         updateQuery(router, {
-            newParameters: { ...newParameters, tab: MARKETPLACE_PAGE_TYPES.bills } },
-        { routerAction: 'replace', resetOldParameters: false }
-        )
+            newParameters: { ...newParameters, tab: MARKETPLACE_PAGE_TYPES.bills },
+        }, {
+            routerAction: 'replace', resetOldParameters: false, shallow: true,
+        })
     }, [])
 
     const disabledDate = useCallback((currentDate) => {
-        return currentDate && currentDate < dayjs().startOf('year')
+        return currentDate && currentDate < dayjs().subtract(12, 'month')
     }, [])
 
     const handleCreateButtonClick = useCallback(async () => {

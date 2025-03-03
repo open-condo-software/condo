@@ -23,6 +23,8 @@ const { RESET_USER_MUTATION } = require('@condo/domains/user/gql')
 // nosemgrep: generic.secrets.gitleaks.generic-api-key.generic-api-key
 const { GET_ACCESS_TOKEN_BY_USER_ID_QUERY } = require('@condo/domains/user/gql')
 const { CHECK_USER_EXISTENCE_MUTATION } = require('@condo/domains/user/gql')
+const { GENERATE_SUDO_TOKEN_MUTATION } = require('@condo/domains/user/gql')
+const { AUTHENTICATE_OR_REGISTER_USER_WITH_TOKEN_MUTATION } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateServerUtils('User')
@@ -108,6 +110,34 @@ async function checkUserExistence (context, data) {
     })
 }
 
+const ResetUserLimitAction = generateServerUtils('ResetUserLimitAction')
+const UserSudoToken = generateServerUtils('UserSudoToken')
+async function generateSudoToken (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: GENERATE_SUDO_TOKEN_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to generateSudoToken',
+        dataPath: 'obj',
+    })
+}
+
+async function authenticateOrRegisterUserWithToken (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: AUTHENTICATE_OR_REGISTER_USER_WITH_TOKEN_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to authenticateOrRegisterUserWithToken',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 const whiteList = conf.SMS_WHITE_LIST ? JSON.parse(conf.SMS_WHITE_LIST) : {}
@@ -152,6 +182,7 @@ async function createUserAndSendLoginData ({ context, userData }) {
         },
     })
 
+    // TODO(DOMA-11040): get locale for sendMessage from user
     await sendMessage(context, {
         to: { user: { id: user.id } },
         type: REGISTER_NEW_USER_MESSAGE_TYPE,
@@ -182,5 +213,9 @@ module.exports = {
     getAccessTokenByUserId,
     UserRightsSet,
     checkUserExistence,
+    ResetUserLimitAction,
+    UserSudoToken,
+    generateSudoToken,
+    authenticateOrRegisterUserWithToken,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

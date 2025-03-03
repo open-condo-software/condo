@@ -239,6 +239,31 @@ describe('B2BAppAccessRight', () => {
                 })
             }, ERRORS.ACCESS_RIGHT_SET_NOT_FOR_CONNECTED_B2B_APP)
         })
+
+        test('Can not create or update "B2BAppAccessRight" if "accessRightSet"."type" != "GLOBAL"', async () => {
+            const support = await makeClientWithSupportUser()
+            const [serviceUser] = await registerNewServiceUserByTestClient(support)
+
+            const [app] = await createTestB2BApp(support)
+
+            const [accessRightSetGlobal] = await createTestB2BAppAccessRightSet(support, app)
+            const [accessRightSetScoped] = await createTestB2BAppAccessRightSet(support, app, { type: 'SCOPED' })
+
+            // cannot create B2BAppAccessRight for app if accessRightSet type != 'GLOBAL'
+            await expectToThrowGQLError(async () => {
+                await createTestB2BAppAccessRight(support, serviceUser, app, accessRightSetScoped)
+            }, ERRORS.ACCESS_RIGHT_SET_INVALID_TYPE)
+
+            // can create B2BAppAccessRight for app if accessRightSet type = 'GLOBAL'
+            const [b2BAppAccessRight] = await createTestB2BAppAccessRight(support, serviceUser, app, accessRightSetGlobal)
+
+            // cannot update B2BAppAccessRight for app if accessRightSet type != 'GLOBAL'
+            await expectToThrowGQLError(async () => {
+                await updateTestB2BAppAccessRight(support, b2BAppAccessRight.id, {
+                    accessRightSet: { connect: { id: accessRightSetScoped.id } },
+                })
+            }, ERRORS.ACCESS_RIGHT_SET_INVALID_TYPE)
+        })
     })
     describe('Constraints', () => {
         test('Cannot be created 2 active access rights for a single app', async () => {

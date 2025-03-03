@@ -216,6 +216,21 @@ COMMIT;
 --
 DROP TABLE "ExternalReport" CASCADE;
 DROP TABLE "ExternalReportHistoryRecord" CASCADE;
+
+--
+-- 20250207130251-0447_auto_20250207_0802.js Rename B2CAppMessageSetting to AppMessageSetting 
+--
+DROP TABLE "B2CAppMessageSetting" CASCADE;
+DROP TABLE "B2CAppMessageSettingHistoryRecord" CASCADE;
+
+COMMIT;
+
+--
+-- 20250221171118-0450_rename_quota_contact_ownershippercentage_and_more.js Rename Contact.quota to Contact.ownershipPercentage
+--
+
+ALTER TABLE "Contact" DROP COLUMN IF EXISTS "quota";
+ALTER TABLE "ContactHistoryRecord" DROP COLUMN IF EXISTS "quota";
 COMMIT;
     `))
 }

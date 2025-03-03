@@ -394,6 +394,7 @@ type File {
 enum UserLocaleType {
   ru
   en
+  es
 }
 
 type CustomAccessFieldRule {
@@ -2759,6 +2760,8 @@ type UserRightsSetHistoryRecord {
   canManageTicketAutoAssignments: Boolean
   canReadOidcClients: Boolean
   canManageOidcClients: Boolean
+  canReadResetUserLimitActions: Boolean
+  canManageResetUserLimitActions: Boolean
   canReadUsers: Boolean
   canReadUserRightsSets: Boolean
   canManageUserRightsSets: Boolean
@@ -2874,6 +2877,10 @@ input UserRightsSetHistoryRecordWhereInput {
   canReadOidcClients_not: Boolean
   canManageOidcClients: Boolean
   canManageOidcClients_not: Boolean
+  canReadResetUserLimitActions: Boolean
+  canReadResetUserLimitActions_not: Boolean
+  canManageResetUserLimitActions: Boolean
+  canManageResetUserLimitActions_not: Boolean
   canReadUsers: Boolean
   canReadUsers_not: Boolean
   canReadUserRightsSets: Boolean
@@ -3051,6 +3058,10 @@ enum SortUserRightsSetHistoryRecordsBy {
   canReadOidcClients_DESC
   canManageOidcClients_ASC
   canManageOidcClients_DESC
+  canReadResetUserLimitActions_ASC
+  canReadResetUserLimitActions_DESC
+  canManageResetUserLimitActions_ASC
+  canManageResetUserLimitActions_DESC
   canReadUsers_ASC
   canReadUsers_DESC
   canReadUserRightsSets_ASC
@@ -3130,6 +3141,8 @@ input UserRightsSetHistoryRecordUpdateInput {
   canManageTicketAutoAssignments: Boolean
   canReadOidcClients: Boolean
   canManageOidcClients: Boolean
+  canReadResetUserLimitActions: Boolean
+  canManageResetUserLimitActions: Boolean
   canReadUsers: Boolean
   canReadUserRightsSets: Boolean
   canManageUserRightsSets: Boolean
@@ -3197,6 +3210,8 @@ input UserRightsSetHistoryRecordCreateInput {
   canManageTicketAutoAssignments: Boolean
   canReadOidcClients: Boolean
   canManageOidcClients: Boolean
+  canReadResetUserLimitActions: Boolean
+  canManageResetUserLimitActions: Boolean
   canReadUsers: Boolean
   canReadUserRightsSets: Boolean
   canManageUserRightsSets: Boolean
@@ -3376,6 +3391,14 @@ type UserRightsSet {
   """
   canManageOidcClients: Boolean
 
+  """ Enables a user with the given UserRightsSet to view all entities of model "ResetUserLimitAction" as support / admin users do 
+  """
+  canReadResetUserLimitActions: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "ResetUserLimitAction" similar to support users 
+  """
+  canManageResetUserLimitActions: Boolean
+
   """ Enables a user with the given UserRightsSet to view all entities of model "User" as support / admin users do 
   """
   canReadUsers: Boolean
@@ -3537,6 +3560,10 @@ input UserRightsSetWhereInput {
   canReadOidcClients_not: Boolean
   canManageOidcClients: Boolean
   canManageOidcClients_not: Boolean
+  canReadResetUserLimitActions: Boolean
+  canReadResetUserLimitActions_not: Boolean
+  canManageResetUserLimitActions: Boolean
+  canManageResetUserLimitActions_not: Boolean
   canReadUsers: Boolean
   canReadUsers_not: Boolean
   canReadUserRightsSets: Boolean
@@ -3694,6 +3721,10 @@ enum SortUserRightsSetsBy {
   canReadOidcClients_DESC
   canManageOidcClients_ASC
   canManageOidcClients_DESC
+  canReadResetUserLimitActions_ASC
+  canReadResetUserLimitActions_DESC
+  canManageResetUserLimitActions_ASC
+  canManageResetUserLimitActions_DESC
   canReadUsers_ASC
   canReadUsers_DESC
   canReadUserRightsSets_ASC
@@ -3773,6 +3804,8 @@ input UserRightsSetUpdateInput {
   canManageTicketAutoAssignments: Boolean
   canReadOidcClients: Boolean
   canManageOidcClients: Boolean
+  canReadResetUserLimitActions: Boolean
+  canManageResetUserLimitActions: Boolean
   canReadUsers: Boolean
   canReadUserRightsSets: Boolean
   canManageUserRightsSets: Boolean
@@ -3837,6 +3870,8 @@ input UserRightsSetCreateInput {
   canManageTicketAutoAssignments: Boolean
   canReadOidcClients: Boolean
   canManageOidcClients: Boolean
+  canReadResetUserLimitActions: Boolean
+  canManageResetUserLimitActions: Boolean
   canReadUsers: Boolean
   canReadUserRightsSets: Boolean
   canManageUserRightsSets: Boolean
@@ -3863,6 +3898,921 @@ input UserRightsSetCreateInput {
 
 input UserRightsSetsCreateInput {
   data: UserRightsSetCreateInput
+}
+
+enum ResetUserLimitActionHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type ResetUserLimitActionHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the ResetUserLimitActionHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the ResetUserLimitActionHistoryRecord List config, or
+   3. As an alias to a 'name' field on the ResetUserLimitActionHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the ResetUserLimitActionHistoryRecord List.
+  """
+  _label_: String
+  type: String
+  identifier: String
+  reason: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: ResetUserLimitActionHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input ResetUserLimitActionHistoryRecordWhereInput {
+  AND: [ResetUserLimitActionHistoryRecordWhereInput]
+  OR: [ResetUserLimitActionHistoryRecordWhereInput]
+  type: String
+  type_not: String
+  type_contains: String
+  type_not_contains: String
+  type_starts_with: String
+  type_not_starts_with: String
+  type_ends_with: String
+  type_not_ends_with: String
+  type_i: String
+  type_not_i: String
+  type_contains_i: String
+  type_not_contains_i: String
+  type_starts_with_i: String
+  type_not_starts_with_i: String
+  type_ends_with_i: String
+  type_not_ends_with_i: String
+  type_in: [String]
+  type_not_in: [String]
+  identifier: String
+  identifier_not: String
+  identifier_contains: String
+  identifier_not_contains: String
+  identifier_starts_with: String
+  identifier_not_starts_with: String
+  identifier_ends_with: String
+  identifier_not_ends_with: String
+  identifier_i: String
+  identifier_not_i: String
+  identifier_contains_i: String
+  identifier_not_contains_i: String
+  identifier_starts_with_i: String
+  identifier_not_starts_with_i: String
+  identifier_ends_with_i: String
+  identifier_not_ends_with_i: String
+  identifier_in: [String]
+  identifier_not_in: [String]
+  reason: String
+  reason_not: String
+  reason_contains: String
+  reason_not_contains: String
+  reason_starts_with: String
+  reason_not_starts_with: String
+  reason_ends_with: String
+  reason_not_ends_with: String
+  reason_i: String
+  reason_not_i: String
+  reason_contains_i: String
+  reason_not_contains_i: String
+  reason_starts_with_i: String
+  reason_not_starts_with_i: String
+  reason_ends_with_i: String
+  reason_not_ends_with_i: String
+  reason_in: [String]
+  reason_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: ResetUserLimitActionHistoryRecordHistoryActionType
+  history_action_not: ResetUserLimitActionHistoryRecordHistoryActionType
+  history_action_in: [ResetUserLimitActionHistoryRecordHistoryActionType]
+  history_action_not_in: [ResetUserLimitActionHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input ResetUserLimitActionHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortResetUserLimitActionHistoryRecordsBy {
+  type_ASC
+  type_DESC
+  identifier_ASC
+  identifier_DESC
+  reason_ASC
+  reason_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input ResetUserLimitActionHistoryRecordUpdateInput {
+  type: String
+  identifier: String
+  reason: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: ResetUserLimitActionHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input ResetUserLimitActionHistoryRecordsUpdateInput {
+  id: ID!
+  data: ResetUserLimitActionHistoryRecordUpdateInput
+}
+
+input ResetUserLimitActionHistoryRecordCreateInput {
+  type: String
+  identifier: String
+  reason: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: ResetUserLimitActionHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input ResetUserLimitActionHistoryRecordsCreateInput {
+  data: ResetUserLimitActionHistoryRecordCreateInput
+}
+
+enum ResetUserLimitActionTypeType {
+  sms
+  rateLimit
+  findOrganizationsByTin
+  auth
+}
+
+""" A model for resetting user counters limit. To reset a counter limit, you need to create a new object and specify the counter type, identifier, and reason for the reset. 
+"""
+type ResetUserLimitAction {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the ResetUserLimitAction List config, or
+   2. As an alias to the field set on 'labelField' in the ResetUserLimitAction List config, or
+   3. As an alias to a 'name' field on the ResetUserLimitAction List (if one exists), or
+   4. As an alias to the 'id' field on the ResetUserLimitAction List.
+  """
+  _label_: String
+
+  """ Type of limit to reset. Possible values: ["sms", "rateLimit", "findOrganizationsByTin", "auth"] 
+  """
+  type: ResetUserLimitActionTypeType
+
+  """
+   The identifier of user, to which reset will apply. Possible values are based on reset type: 
+  sms: ["phone", "ip"], 
+  rateLimit: ["uuid", "ip"], 
+  findOrganizationsByTin: ["email", "phone", "uuid"], 
+  auth: ["ip", "uuid", "phone", "email"] 
+  """
+  identifier: String
+
+  """ Reason for resetting the limit """
+  reason: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input ResetUserLimitActionWhereInput {
+  AND: [ResetUserLimitActionWhereInput]
+  OR: [ResetUserLimitActionWhereInput]
+  type: ResetUserLimitActionTypeType
+  type_not: ResetUserLimitActionTypeType
+  type_in: [ResetUserLimitActionTypeType]
+  type_not_in: [ResetUserLimitActionTypeType]
+  identifier: String
+  identifier_not: String
+  identifier_contains: String
+  identifier_not_contains: String
+  identifier_starts_with: String
+  identifier_not_starts_with: String
+  identifier_ends_with: String
+  identifier_not_ends_with: String
+  identifier_i: String
+  identifier_not_i: String
+  identifier_contains_i: String
+  identifier_not_contains_i: String
+  identifier_starts_with_i: String
+  identifier_not_starts_with_i: String
+  identifier_ends_with_i: String
+  identifier_not_ends_with_i: String
+  identifier_in: [String]
+  identifier_not_in: [String]
+  reason: String
+  reason_not: String
+  reason_contains: String
+  reason_not_contains: String
+  reason_starts_with: String
+  reason_not_starts_with: String
+  reason_ends_with: String
+  reason_not_ends_with: String
+  reason_i: String
+  reason_not_i: String
+  reason_contains_i: String
+  reason_not_contains_i: String
+  reason_starts_with_i: String
+  reason_not_starts_with_i: String
+  reason_ends_with_i: String
+  reason_not_ends_with_i: String
+  reason_in: [String]
+  reason_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input ResetUserLimitActionWhereUniqueInput {
+  id: ID!
+}
+
+enum SortResetUserLimitActionsBy {
+  type_ASC
+  type_DESC
+  identifier_ASC
+  identifier_DESC
+  reason_ASC
+  reason_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input ResetUserLimitActionUpdateInput {
+  type: ResetUserLimitActionTypeType
+  identifier: String
+  reason: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input ResetUserLimitActionsUpdateInput {
+  id: ID!
+  data: ResetUserLimitActionUpdateInput
+}
+
+input ResetUserLimitActionCreateInput {
+  type: ResetUserLimitActionTypeType
+  identifier: String
+  reason: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input ResetUserLimitActionsCreateInput {
+  data: ResetUserLimitActionCreateInput
+}
+
+enum UserSudoTokenHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type UserSudoTokenHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the UserSudoTokenHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the UserSudoTokenHistoryRecord List config, or
+   3. As an alias to a 'name' field on the UserSudoTokenHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the UserSudoTokenHistoryRecord List.
+  """
+  _label_: String
+  token: String
+  expiresAt: String
+  user: String
+  remainingUses: Int
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: UserSudoTokenHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input UserSudoTokenHistoryRecordWhereInput {
+  AND: [UserSudoTokenHistoryRecordWhereInput]
+  OR: [UserSudoTokenHistoryRecordWhereInput]
+  token: String
+  token_not: String
+  token_contains: String
+  token_not_contains: String
+  token_starts_with: String
+  token_not_starts_with: String
+  token_ends_with: String
+  token_not_ends_with: String
+  token_i: String
+  token_not_i: String
+  token_contains_i: String
+  token_not_contains_i: String
+  token_starts_with_i: String
+  token_not_starts_with_i: String
+  token_ends_with_i: String
+  token_not_ends_with_i: String
+  token_in: [String]
+  token_not_in: [String]
+  expiresAt: String
+  expiresAt_not: String
+  expiresAt_lt: String
+  expiresAt_lte: String
+  expiresAt_gt: String
+  expiresAt_gte: String
+  expiresAt_in: [String]
+  expiresAt_not_in: [String]
+  user: String
+  user_not: String
+  user_in: [String]
+  user_not_in: [String]
+  remainingUses: Int
+  remainingUses_not: Int
+  remainingUses_lt: Int
+  remainingUses_lte: Int
+  remainingUses_gt: Int
+  remainingUses_gte: Int
+  remainingUses_in: [Int]
+  remainingUses_not_in: [Int]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: UserSudoTokenHistoryRecordHistoryActionType
+  history_action_not: UserSudoTokenHistoryRecordHistoryActionType
+  history_action_in: [UserSudoTokenHistoryRecordHistoryActionType]
+  history_action_not_in: [UserSudoTokenHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input UserSudoTokenHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortUserSudoTokenHistoryRecordsBy {
+  token_ASC
+  token_DESC
+  expiresAt_ASC
+  expiresAt_DESC
+  remainingUses_ASC
+  remainingUses_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input UserSudoTokenHistoryRecordUpdateInput {
+  token: String
+  expiresAt: String
+  user: String
+  remainingUses: Int
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: UserSudoTokenHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input UserSudoTokenHistoryRecordsUpdateInput {
+  id: ID!
+  data: UserSudoTokenHistoryRecordUpdateInput
+}
+
+input UserSudoTokenHistoryRecordCreateInput {
+  token: String
+  expiresAt: String
+  user: String
+  remainingUses: Int
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: UserSudoTokenHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input UserSudoTokenHistoryRecordsCreateInput {
+  data: UserSudoTokenHistoryRecordCreateInput
+}
+
+""" A user's sudo token that is used to confirm any sensitive actions with the user. 
+"""
+type UserSudoToken {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the UserSudoToken List config, or
+   2. As an alias to the field set on 'labelField' in the UserSudoToken List config, or
+   3. As an alias to a 'name' field on the UserSudoToken List (if one exists), or
+   4. As an alias to the 'id' field on the UserSudoToken List.
+  """
+  _label_: String
+
+  """ Unique token """
+  token: String
+
+  """ Time when sudo token becomes not valid """
+  expiresAt: String
+
+  """ User to whom a sudo token is linked """
+  user: User
+
+  """ Number of remaining uses of the token. Once these are used up, the token will be not valid 
+  """
+  remainingUses: Int
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input UserSudoTokenWhereInput {
+  AND: [UserSudoTokenWhereInput]
+  OR: [UserSudoTokenWhereInput]
+  token: String
+  token_not: String
+  token_contains: String
+  token_not_contains: String
+  token_starts_with: String
+  token_not_starts_with: String
+  token_ends_with: String
+  token_not_ends_with: String
+  token_i: String
+  token_not_i: String
+  token_contains_i: String
+  token_not_contains_i: String
+  token_starts_with_i: String
+  token_not_starts_with_i: String
+  token_ends_with_i: String
+  token_not_ends_with_i: String
+  token_in: [String]
+  token_not_in: [String]
+  expiresAt: String
+  expiresAt_not: String
+  expiresAt_lt: String
+  expiresAt_lte: String
+  expiresAt_gt: String
+  expiresAt_gte: String
+  expiresAt_in: [String]
+  expiresAt_not_in: [String]
+  user: UserWhereInput
+  user_is_null: Boolean
+  remainingUses: Int
+  remainingUses_not: Int
+  remainingUses_lt: Int
+  remainingUses_lte: Int
+  remainingUses_gt: Int
+  remainingUses_gte: Int
+  remainingUses_in: [Int]
+  remainingUses_not_in: [Int]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input UserSudoTokenWhereUniqueInput {
+  id: ID!
+}
+
+enum SortUserSudoTokensBy {
+  token_ASC
+  token_DESC
+  expiresAt_ASC
+  expiresAt_DESC
+  user_ASC
+  user_DESC
+  remainingUses_ASC
+  remainingUses_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input UserSudoTokenUpdateInput {
+  token: String
+  expiresAt: String
+  user: UserRelateToOneInput
+  remainingUses: Int
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input UserSudoTokensUpdateInput {
+  id: ID!
+  data: UserSudoTokenUpdateInput
+}
+
+input UserSudoTokenCreateInput {
+  token: String
+  expiresAt: String
+  user: UserRelateToOneInput
+  remainingUses: Int
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input UserSudoTokensCreateInput {
+  data: UserSudoTokenCreateInput
 }
 
 enum OrganizationHistoryRecordHistoryActionType {
@@ -4261,6 +5211,7 @@ input OrganizationHistoryRecordsCreateInput {
 enum OrganizationCountryType {
   en
   ru
+  es
 }
 
 enum OrganizationTypeType {
@@ -5462,6 +6413,7 @@ type OrganizationEmployeeRoleHistoryRecord {
   canReadMarketSetting: Boolean
   canManageMarketSetting: Boolean
   canManageTicketAutoAssignments: Boolean
+  canManageOrganizationEmployeeRequests: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -5668,6 +6620,8 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   canManageMarketSetting_not: Boolean
   canManageTicketAutoAssignments: Boolean
   canManageTicketAutoAssignments_not: Boolean
+  canManageOrganizationEmployeeRequests: Boolean
+  canManageOrganizationEmployeeRequests_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -5877,6 +6831,8 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   canManageMarketSetting_DESC
   canManageTicketAutoAssignments_ASC
   canManageTicketAutoAssignments_DESC
+  canManageOrganizationEmployeeRequests_ASC
+  canManageOrganizationEmployeeRequests_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -5964,6 +6920,7 @@ input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   canReadMarketSetting: Boolean
   canManageMarketSetting: Boolean
   canManageTicketAutoAssignments: Boolean
+  canManageOrganizationEmployeeRequests: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -6052,6 +7009,7 @@ input OrganizationEmployeeRoleHistoryRecordCreateInput {
   canReadMarketSetting: Boolean
   canManageMarketSetting: Boolean
   canManageTicketAutoAssignments: Boolean
+  canManageOrganizationEmployeeRequests: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -6188,6 +7146,7 @@ type OrganizationEmployeeRole {
   canReadMarketSetting: Boolean
   canManageMarketSetting: Boolean
   canManageTicketAutoAssignments: Boolean
+  canManageOrganizationEmployeeRequests: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -6388,6 +7347,8 @@ input OrganizationEmployeeRoleWhereInput {
   canManageMarketSetting_not: Boolean
   canManageTicketAutoAssignments: Boolean
   canManageTicketAutoAssignments_not: Boolean
+  canManageOrganizationEmployeeRequests: Boolean
+  canManageOrganizationEmployeeRequests_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -6591,6 +7552,8 @@ enum SortOrganizationEmployeeRolesBy {
   canManageMarketSetting_DESC
   canManageTicketAutoAssignments_ASC
   canManageTicketAutoAssignments_DESC
+  canManageOrganizationEmployeeRequests_ASC
+  canManageOrganizationEmployeeRequests_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -6680,6 +7643,7 @@ input OrganizationEmployeeRoleUpdateInput {
   canReadMarketSetting: Boolean
   canManageMarketSetting: Boolean
   canManageTicketAutoAssignments: Boolean
+  canManageOrganizationEmployeeRequests: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -6767,6 +7731,7 @@ input OrganizationEmployeeRoleCreateInput {
   canReadMarketSetting: Boolean
   canManageMarketSetting: Boolean
   canManageTicketAutoAssignments: Boolean
+  canManageOrganizationEmployeeRequests: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -7508,6 +8473,817 @@ input OrganizationEmployeeSpecializationCreateInput {
 
 input OrganizationEmployeeSpecializationsCreateInput {
   data: OrganizationEmployeeSpecializationCreateInput
+}
+
+""" Log of "FindOrganizationsByTin" executions """
+type FindOrganizationsByTinLog {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the FindOrganizationsByTinLog List config, or
+   2. As an alias to the field set on 'labelField' in the FindOrganizationsByTinLog List config, or
+   3. As an alias to a 'name' field on the FindOrganizationsByTinLog List (if one exists), or
+   4. As an alias to the 'id' field on the FindOrganizationsByTinLog List.
+  """
+  _label_: String
+
+  """ The user who executed the query """
+  user: User
+
+  """ The phone of user who executed the query """
+  userPhone: String
+
+  """ The email of user who executed the query """
+  userEmail: String
+
+  """ TIN by which organizations were searched """
+  tin: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input FindOrganizationsByTinLogWhereInput {
+  AND: [FindOrganizationsByTinLogWhereInput]
+  OR: [FindOrganizationsByTinLogWhereInput]
+  user: UserWhereInput
+  user_is_null: Boolean
+  userPhone: String
+  userPhone_not: String
+  userPhone_contains: String
+  userPhone_not_contains: String
+  userPhone_starts_with: String
+  userPhone_not_starts_with: String
+  userPhone_ends_with: String
+  userPhone_not_ends_with: String
+  userPhone_i: String
+  userPhone_not_i: String
+  userPhone_contains_i: String
+  userPhone_not_contains_i: String
+  userPhone_starts_with_i: String
+  userPhone_not_starts_with_i: String
+  userPhone_ends_with_i: String
+  userPhone_not_ends_with_i: String
+  userPhone_in: [String]
+  userPhone_not_in: [String]
+  userEmail: String
+  userEmail_not: String
+  userEmail_contains: String
+  userEmail_not_contains: String
+  userEmail_starts_with: String
+  userEmail_not_starts_with: String
+  userEmail_ends_with: String
+  userEmail_not_ends_with: String
+  userEmail_i: String
+  userEmail_not_i: String
+  userEmail_contains_i: String
+  userEmail_not_contains_i: String
+  userEmail_starts_with_i: String
+  userEmail_not_starts_with_i: String
+  userEmail_ends_with_i: String
+  userEmail_not_ends_with_i: String
+  userEmail_in: [String]
+  userEmail_not_in: [String]
+  tin: String
+  tin_not: String
+  tin_contains: String
+  tin_not_contains: String
+  tin_starts_with: String
+  tin_not_starts_with: String
+  tin_ends_with: String
+  tin_not_ends_with: String
+  tin_i: String
+  tin_not_i: String
+  tin_contains_i: String
+  tin_not_contains_i: String
+  tin_starts_with_i: String
+  tin_not_starts_with_i: String
+  tin_ends_with_i: String
+  tin_not_ends_with_i: String
+  tin_in: [String]
+  tin_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input FindOrganizationsByTinLogWhereUniqueInput {
+  id: ID!
+}
+
+enum SortFindOrganizationsByTinLogsBy {
+  user_ASC
+  user_DESC
+  userPhone_ASC
+  userPhone_DESC
+  userEmail_ASC
+  userEmail_DESC
+  tin_ASC
+  tin_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input FindOrganizationsByTinLogUpdateInput {
+  user: UserRelateToOneInput
+  userPhone: String
+  userEmail: String
+  tin: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input FindOrganizationsByTinLogsUpdateInput {
+  id: ID!
+  data: FindOrganizationsByTinLogUpdateInput
+}
+
+input FindOrganizationsByTinLogCreateInput {
+  user: UserRelateToOneInput
+  userPhone: String
+  userEmail: String
+  tin: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input FindOrganizationsByTinLogsCreateInput {
+  data: FindOrganizationsByTinLogCreateInput
+}
+
+enum OrganizationEmployeeRequestHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type OrganizationEmployeeRequestHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the OrganizationEmployeeRequestHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the OrganizationEmployeeRequestHistoryRecord List config, or
+   3. As an alias to a 'name' field on the OrganizationEmployeeRequestHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the OrganizationEmployeeRequestHistoryRecord List.
+  """
+  _label_: String
+  organization: String
+  organizationId: ID
+  organizationName: String
+  organizationTin: String
+  user: String
+  isAccepted: Boolean
+  isRejected: Boolean
+  processedBy: String
+  processedAt: String
+  retries: Int
+  createdEmployee: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: OrganizationEmployeeRequestHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input OrganizationEmployeeRequestHistoryRecordWhereInput {
+  AND: [OrganizationEmployeeRequestHistoryRecordWhereInput]
+  OR: [OrganizationEmployeeRequestHistoryRecordWhereInput]
+  organization: String
+  organization_not: String
+  organization_in: [String]
+  organization_not_in: [String]
+  organizationId: ID
+  organizationId_not: ID
+  organizationId_in: [ID]
+  organizationId_not_in: [ID]
+  organizationName: String
+  organizationName_not: String
+  organizationName_contains: String
+  organizationName_not_contains: String
+  organizationName_starts_with: String
+  organizationName_not_starts_with: String
+  organizationName_ends_with: String
+  organizationName_not_ends_with: String
+  organizationName_i: String
+  organizationName_not_i: String
+  organizationName_contains_i: String
+  organizationName_not_contains_i: String
+  organizationName_starts_with_i: String
+  organizationName_not_starts_with_i: String
+  organizationName_ends_with_i: String
+  organizationName_not_ends_with_i: String
+  organizationName_in: [String]
+  organizationName_not_in: [String]
+  organizationTin: String
+  organizationTin_not: String
+  organizationTin_contains: String
+  organizationTin_not_contains: String
+  organizationTin_starts_with: String
+  organizationTin_not_starts_with: String
+  organizationTin_ends_with: String
+  organizationTin_not_ends_with: String
+  organizationTin_i: String
+  organizationTin_not_i: String
+  organizationTin_contains_i: String
+  organizationTin_not_contains_i: String
+  organizationTin_starts_with_i: String
+  organizationTin_not_starts_with_i: String
+  organizationTin_ends_with_i: String
+  organizationTin_not_ends_with_i: String
+  organizationTin_in: [String]
+  organizationTin_not_in: [String]
+  user: String
+  user_not: String
+  user_in: [String]
+  user_not_in: [String]
+  isAccepted: Boolean
+  isAccepted_not: Boolean
+  isRejected: Boolean
+  isRejected_not: Boolean
+  processedBy: String
+  processedBy_not: String
+  processedBy_in: [String]
+  processedBy_not_in: [String]
+  processedAt: String
+  processedAt_not: String
+  processedAt_lt: String
+  processedAt_lte: String
+  processedAt_gt: String
+  processedAt_gte: String
+  processedAt_in: [String]
+  processedAt_not_in: [String]
+  retries: Int
+  retries_not: Int
+  retries_lt: Int
+  retries_lte: Int
+  retries_gt: Int
+  retries_gte: Int
+  retries_in: [Int]
+  retries_not_in: [Int]
+  createdEmployee: String
+  createdEmployee_not: String
+  createdEmployee_in: [String]
+  createdEmployee_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: OrganizationEmployeeRequestHistoryRecordHistoryActionType
+  history_action_not: OrganizationEmployeeRequestHistoryRecordHistoryActionType
+  history_action_in: [OrganizationEmployeeRequestHistoryRecordHistoryActionType]
+  history_action_not_in: [OrganizationEmployeeRequestHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input OrganizationEmployeeRequestHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortOrganizationEmployeeRequestHistoryRecordsBy {
+  organizationId_ASC
+  organizationId_DESC
+  organizationName_ASC
+  organizationName_DESC
+  organizationTin_ASC
+  organizationTin_DESC
+  isAccepted_ASC
+  isAccepted_DESC
+  isRejected_ASC
+  isRejected_DESC
+  processedAt_ASC
+  processedAt_DESC
+  retries_ASC
+  retries_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input OrganizationEmployeeRequestHistoryRecordUpdateInput {
+  organization: String
+  organizationId: ID
+  organizationName: String
+  organizationTin: String
+  user: String
+  isAccepted: Boolean
+  isRejected: Boolean
+  processedBy: String
+  processedAt: String
+  retries: Int
+  createdEmployee: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: OrganizationEmployeeRequestHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input OrganizationEmployeeRequestHistoryRecordsUpdateInput {
+  id: ID!
+  data: OrganizationEmployeeRequestHistoryRecordUpdateInput
+}
+
+input OrganizationEmployeeRequestHistoryRecordCreateInput {
+  organization: String
+  organizationId: ID
+  organizationName: String
+  organizationTin: String
+  user: String
+  isAccepted: Boolean
+  isRejected: Boolean
+  processedBy: String
+  processedAt: String
+  retries: Int
+  createdEmployee: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: OrganizationEmployeeRequestHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input OrganizationEmployeeRequestHistoryRecordsCreateInput {
+  data: OrganizationEmployeeRequestHistoryRecordCreateInput
+}
+
+""" User request to join the organization """
+type OrganizationEmployeeRequest {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the OrganizationEmployeeRequest List config, or
+   2. As an alias to the field set on 'labelField' in the OrganizationEmployeeRequest List config, or
+   3. As an alias to a 'name' field on the OrganizationEmployeeRequest List (if one exists), or
+   4. As an alias to the 'id' field on the OrganizationEmployeeRequest List.
+  """
+  _label_: String
+
+  """ Ref to the organization. The object will be deleted if the organization ceases to exist 
+  """
+  organization: Organization
+
+  """ Organization id (For the user who sent the request because he does not have access to the organization) 
+  """
+  organizationId: ID
+
+  """ Organization name (For the user who sent the request because he does not have access to the organization) 
+  """
+  organizationName: String
+
+  """ Organization tin (For the user who sent the request because he does not have access to the organization) 
+  """
+  organizationTin: String
+
+  """ User who sent the request """
+  user: User
+
+  """ Means that the request has been accepted """
+  isAccepted: Boolean
+
+  """ Means that the request has been rejected """
+  isRejected: Boolean
+
+  """ User who processed the request """
+  processedBy: User
+
+  """ Date when the request was processed """
+  processedAt: String
+
+  """ Number of retries """
+  retries: Int
+
+  """ An employee who was created in the organization after the request was accepted 
+  """
+  createdEmployee: OrganizationEmployee
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input OrganizationEmployeeRequestWhereInput {
+  AND: [OrganizationEmployeeRequestWhereInput]
+  OR: [OrganizationEmployeeRequestWhereInput]
+  organization: OrganizationWhereInput
+  organization_is_null: Boolean
+  organizationId: ID
+  organizationId_not: ID
+  organizationId_in: [ID]
+  organizationId_not_in: [ID]
+  organizationName: String
+  organizationName_not: String
+  organizationName_contains: String
+  organizationName_not_contains: String
+  organizationName_starts_with: String
+  organizationName_not_starts_with: String
+  organizationName_ends_with: String
+  organizationName_not_ends_with: String
+  organizationName_i: String
+  organizationName_not_i: String
+  organizationName_contains_i: String
+  organizationName_not_contains_i: String
+  organizationName_starts_with_i: String
+  organizationName_not_starts_with_i: String
+  organizationName_ends_with_i: String
+  organizationName_not_ends_with_i: String
+  organizationName_in: [String]
+  organizationName_not_in: [String]
+  organizationTin: String
+  organizationTin_not: String
+  organizationTin_contains: String
+  organizationTin_not_contains: String
+  organizationTin_starts_with: String
+  organizationTin_not_starts_with: String
+  organizationTin_ends_with: String
+  organizationTin_not_ends_with: String
+  organizationTin_i: String
+  organizationTin_not_i: String
+  organizationTin_contains_i: String
+  organizationTin_not_contains_i: String
+  organizationTin_starts_with_i: String
+  organizationTin_not_starts_with_i: String
+  organizationTin_ends_with_i: String
+  organizationTin_not_ends_with_i: String
+  organizationTin_in: [String]
+  organizationTin_not_in: [String]
+  user: UserWhereInput
+  user_is_null: Boolean
+  isAccepted: Boolean
+  isAccepted_not: Boolean
+  isRejected: Boolean
+  isRejected_not: Boolean
+  processedBy: UserWhereInput
+  processedBy_is_null: Boolean
+  processedAt: String
+  processedAt_not: String
+  processedAt_lt: String
+  processedAt_lte: String
+  processedAt_gt: String
+  processedAt_gte: String
+  processedAt_in: [String]
+  processedAt_not_in: [String]
+  retries: Int
+  retries_not: Int
+  retries_lt: Int
+  retries_lte: Int
+  retries_gt: Int
+  retries_gte: Int
+  retries_in: [Int]
+  retries_not_in: [Int]
+  createdEmployee: OrganizationEmployeeWhereInput
+  createdEmployee_is_null: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input OrganizationEmployeeRequestWhereUniqueInput {
+  id: ID!
+}
+
+enum SortOrganizationEmployeeRequestsBy {
+  organization_ASC
+  organization_DESC
+  organizationId_ASC
+  organizationId_DESC
+  organizationName_ASC
+  organizationName_DESC
+  organizationTin_ASC
+  organizationTin_DESC
+  user_ASC
+  user_DESC
+  isAccepted_ASC
+  isAccepted_DESC
+  isRejected_ASC
+  isRejected_DESC
+  processedBy_ASC
+  processedBy_DESC
+  processedAt_ASC
+  processedAt_DESC
+  retries_ASC
+  retries_DESC
+  createdEmployee_ASC
+  createdEmployee_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input OrganizationEmployeeRequestUpdateInput {
+  organization: OrganizationRelateToOneInput
+  organizationId: ID
+  organizationName: String
+  organizationTin: String
+  user: UserRelateToOneInput
+  isAccepted: Boolean
+  isRejected: Boolean
+  processedBy: UserRelateToOneInput
+  processedAt: String
+  retries: Int
+  createdEmployee: OrganizationEmployeeRelateToOneInput
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input OrganizationEmployeeRequestsUpdateInput {
+  id: ID!
+  data: OrganizationEmployeeRequestUpdateInput
+}
+
+input OrganizationEmployeeRequestCreateInput {
+  organization: OrganizationRelateToOneInput
+  organizationId: ID
+  organizationName: String
+  organizationTin: String
+  user: UserRelateToOneInput
+  isAccepted: Boolean
+  isRejected: Boolean
+  processedBy: UserRelateToOneInput
+  processedAt: String
+  retries: Int
+  createdEmployee: OrganizationEmployeeRelateToOneInput
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input OrganizationEmployeeRequestsCreateInput {
+  data: OrganizationEmployeeRequestCreateInput
 }
 
 enum PropertyHistoryRecordHistoryActionType {
@@ -12524,6 +14300,7 @@ type BillingReceiptHistoryRecord {
   recalculation: String
   privilege: String
   penalty: String
+  balanceUpdatedAt: String
   paid: String
   toPayDetails: JSON
   services: JSON
@@ -12678,6 +14455,14 @@ input BillingReceiptHistoryRecordWhereInput {
   penalty_gte: String
   penalty_in: [String]
   penalty_not_in: [String]
+  balanceUpdatedAt: String
+  balanceUpdatedAt_not: String
+  balanceUpdatedAt_lt: String
+  balanceUpdatedAt_lte: String
+  balanceUpdatedAt_gt: String
+  balanceUpdatedAt_gte: String
+  balanceUpdatedAt_in: [String]
+  balanceUpdatedAt_not_in: [String]
   paid: String
   paid_not: String
   paid_lt: String
@@ -12809,6 +14594,8 @@ enum SortBillingReceiptHistoryRecordsBy {
   privilege_DESC
   penalty_ASC
   penalty_DESC
+  balanceUpdatedAt_ASC
+  balanceUpdatedAt_DESC
   paid_ASC
   paid_DESC
   id_ASC
@@ -12845,6 +14632,7 @@ input BillingReceiptHistoryRecordUpdateInput {
   recalculation: String
   privilege: String
   penalty: String
+  balanceUpdatedAt: String
   paid: String
   toPayDetails: JSON
   services: JSON
@@ -12886,6 +14674,7 @@ input BillingReceiptHistoryRecordCreateInput {
   recalculation: String
   privilege: String
   penalty: String
+  balanceUpdatedAt: String
   paid: String
   toPayDetails: JSON
   services: JSON
@@ -13084,6 +14873,9 @@ type BillingReceipt {
   """
   penalty: String
 
+  """ Last date time when the balance was updated """
+  balanceUpdatedAt: String
+
   """ Amount of money that recipient already paid by current receipt. Example: "50.00", "-50.00" 
   """
   paid: String
@@ -13275,6 +15067,14 @@ input BillingReceiptWhereInput {
   penalty_gte: String
   penalty_in: [String]
   penalty_not_in: [String]
+  balanceUpdatedAt: String
+  balanceUpdatedAt_not: String
+  balanceUpdatedAt_lt: String
+  balanceUpdatedAt_lte: String
+  balanceUpdatedAt_gt: String
+  balanceUpdatedAt_gte: String
+  balanceUpdatedAt_in: [String]
+  balanceUpdatedAt_not_in: [String]
   paid: String
   paid_not: String
   paid_lt: String
@@ -13390,6 +15190,8 @@ enum SortBillingReceiptsBy {
   privilege_DESC
   penalty_ASC
   penalty_DESC
+  balanceUpdatedAt_ASC
+  balanceUpdatedAt_DESC
   paid_ASC
   paid_DESC
   receiver_ASC
@@ -13430,6 +15232,7 @@ input BillingReceiptUpdateInput {
   recalculation: String
   privilege: String
   penalty: String
+  balanceUpdatedAt: String
   paid: String
   toPayDetails: BillingReceiptToPayDetailsFieldInput
   services: [BillingReceiptServiceFieldInput!]
@@ -13468,6 +15271,7 @@ input BillingReceiptCreateInput {
   recalculation: String
   privilege: String
   penalty: String
+  balanceUpdatedAt: String
   paid: String
   toPayDetails: BillingReceiptToPayDetailsFieldInput
   services: [BillingReceiptServiceFieldInput!]
@@ -15755,6 +17559,7 @@ input PropertyRelateToOneInput {
 enum BankAccountCountryType {
   en
   ru
+  es
 }
 
 enum BankAccountCurrencyCodeType {
@@ -22338,15 +24143,21 @@ type TicketHistoryRecord {
   problemClassifier: String
   classifier: String
   isAutoClassified: Boolean
+  title: String
   details: String
   related: String
   isPaid: Boolean
   isPayable: Boolean
   isEmergency: Boolean
   isWarranty: Boolean
+  isInsurance: Boolean
   isResidentTicket: Boolean
   canReadByResident: Boolean
   meta: JSON
+  priority: Int
+  kanbanColumn: String
+  kanbanOrder: Int
+  customClassifier: String
   property: String
   propertyAddress: String
   propertyAddressMeta: JSON
@@ -22695,6 +24506,24 @@ input TicketHistoryRecordWhereInput {
   classifier_not_in: [String]
   isAutoClassified: Boolean
   isAutoClassified_not: Boolean
+  title: String
+  title_not: String
+  title_contains: String
+  title_not_contains: String
+  title_starts_with: String
+  title_not_starts_with: String
+  title_ends_with: String
+  title_not_ends_with: String
+  title_i: String
+  title_not_i: String
+  title_contains_i: String
+  title_not_contains_i: String
+  title_starts_with_i: String
+  title_not_starts_with_i: String
+  title_ends_with_i: String
+  title_not_ends_with_i: String
+  title_in: [String]
+  title_not_in: [String]
   details: String
   details_not: String
   details_contains: String
@@ -22725,6 +24554,8 @@ input TicketHistoryRecordWhereInput {
   isEmergency_not: Boolean
   isWarranty: Boolean
   isWarranty_not: Boolean
+  isInsurance: Boolean
+  isInsurance_not: Boolean
   isResidentTicket: Boolean
   isResidentTicket_not: Boolean
   canReadByResident: Boolean
@@ -22733,6 +24564,58 @@ input TicketHistoryRecordWhereInput {
   meta_not: JSON
   meta_in: [JSON]
   meta_not_in: [JSON]
+  priority: Int
+  priority_not: Int
+  priority_lt: Int
+  priority_lte: Int
+  priority_gt: Int
+  priority_gte: Int
+  priority_in: [Int]
+  priority_not_in: [Int]
+  kanbanColumn: String
+  kanbanColumn_not: String
+  kanbanColumn_contains: String
+  kanbanColumn_not_contains: String
+  kanbanColumn_starts_with: String
+  kanbanColumn_not_starts_with: String
+  kanbanColumn_ends_with: String
+  kanbanColumn_not_ends_with: String
+  kanbanColumn_i: String
+  kanbanColumn_not_i: String
+  kanbanColumn_contains_i: String
+  kanbanColumn_not_contains_i: String
+  kanbanColumn_starts_with_i: String
+  kanbanColumn_not_starts_with_i: String
+  kanbanColumn_ends_with_i: String
+  kanbanColumn_not_ends_with_i: String
+  kanbanColumn_in: [String]
+  kanbanColumn_not_in: [String]
+  kanbanOrder: Int
+  kanbanOrder_not: Int
+  kanbanOrder_lt: Int
+  kanbanOrder_lte: Int
+  kanbanOrder_gt: Int
+  kanbanOrder_gte: Int
+  kanbanOrder_in: [Int]
+  kanbanOrder_not_in: [Int]
+  customClassifier: String
+  customClassifier_not: String
+  customClassifier_contains: String
+  customClassifier_not_contains: String
+  customClassifier_starts_with: String
+  customClassifier_not_starts_with: String
+  customClassifier_ends_with: String
+  customClassifier_not_ends_with: String
+  customClassifier_i: String
+  customClassifier_not_i: String
+  customClassifier_contains_i: String
+  customClassifier_not_contains_i: String
+  customClassifier_starts_with_i: String
+  customClassifier_not_starts_with_i: String
+  customClassifier_ends_with_i: String
+  customClassifier_not_ends_with_i: String
+  customClassifier_in: [String]
+  customClassifier_not_in: [String]
   property: String
   property_not: String
   property_in: [String]
@@ -22992,6 +24875,8 @@ enum SortTicketHistoryRecordsBy {
   clientPhone_DESC
   isAutoClassified_ASC
   isAutoClassified_DESC
+  title_ASC
+  title_DESC
   details_ASC
   details_DESC
   isPaid_ASC
@@ -23002,10 +24887,20 @@ enum SortTicketHistoryRecordsBy {
   isEmergency_DESC
   isWarranty_ASC
   isWarranty_DESC
+  isInsurance_ASC
+  isInsurance_DESC
   isResidentTicket_ASC
   isResidentTicket_DESC
   canReadByResident_ASC
   canReadByResident_DESC
+  priority_ASC
+  priority_DESC
+  kanbanColumn_ASC
+  kanbanColumn_DESC
+  kanbanOrder_ASC
+  kanbanOrder_DESC
+  customClassifier_ASC
+  customClassifier_DESC
   propertyAddress_ASC
   propertyAddress_DESC
   sectionName_ASC
@@ -23076,15 +24971,21 @@ input TicketHistoryRecordUpdateInput {
   problemClassifier: String
   classifier: String
   isAutoClassified: Boolean
+  title: String
   details: String
   related: String
   isPaid: Boolean
   isPayable: Boolean
   isEmergency: Boolean
   isWarranty: Boolean
+  isInsurance: Boolean
   isResidentTicket: Boolean
   canReadByResident: Boolean
   meta: JSON
+  priority: Int
+  kanbanColumn: String
+  kanbanOrder: Int
+  customClassifier: String
   property: String
   propertyAddress: String
   propertyAddressMeta: JSON
@@ -23152,15 +25053,21 @@ input TicketHistoryRecordCreateInput {
   problemClassifier: String
   classifier: String
   isAutoClassified: Boolean
+  title: String
   details: String
   related: String
   isPaid: Boolean
   isPayable: Boolean
   isEmergency: Boolean
   isWarranty: Boolean
+  isInsurance: Boolean
   isResidentTicket: Boolean
   canReadByResident: Boolean
   meta: JSON
+  priority: Int
+  kanbanColumn: String
+  kanbanOrder: Int
+  customClassifier: String
   property: String
   propertyAddress: String
   propertyAddressMeta: JSON
@@ -23417,6 +25324,10 @@ type Ticket {
   """
   isAutoClassified: Boolean
 
+  """ Very short description of the issue. Will be filled via LLM in the future 
+  """
+  title: String
+
   """ Text description of the issue. Maybe written by a user or an operator 
   """
   details: String
@@ -23440,6 +25351,9 @@ type Ticket {
   """ Indicates the ticket is warranty """
   isWarranty: Boolean
 
+  """ Indicates the ticket is insurance """
+  isInsurance: Boolean
+
   """ Determines who the ticket was created for: for a resident or not for a resident 
   """
   isResidentTicket: Boolean
@@ -23450,6 +25364,21 @@ type Ticket {
 
   """ Extra analytics not related to remote system """
   meta: JSON
+
+  """ The number used to determine priority of this ticket. Like in JIRA. Default value is: 100. Preferred values are: 100, 200, 300, 400, 500. 500 is the highest. Used by custom integrations 
+  """
+  priority: Int
+
+  """ Custom id for kanban column. Should be used if it is not enough to map statuses to columns. Used by custom integrations 
+  """
+  kanbanColumn: String
+
+  """ The number used to determine the relative position of this ticket inside of kanban column. Used by custom integrations 
+  """
+  kanbanOrder: Int
+
+  """ Custom type or classifier for ticket. Used by custom integrations """
+  customClassifier: String
 
   """ Property related to the Ticket """
   property: Property
@@ -23778,6 +25707,24 @@ input TicketWhereInput {
   classifier_is_null: Boolean
   isAutoClassified: Boolean
   isAutoClassified_not: Boolean
+  title: String
+  title_not: String
+  title_contains: String
+  title_not_contains: String
+  title_starts_with: String
+  title_not_starts_with: String
+  title_ends_with: String
+  title_not_ends_with: String
+  title_i: String
+  title_not_i: String
+  title_contains_i: String
+  title_not_contains_i: String
+  title_starts_with_i: String
+  title_not_starts_with_i: String
+  title_ends_with_i: String
+  title_not_ends_with_i: String
+  title_in: [String]
+  title_not_in: [String]
   details: String
   details_not: String
   details_contains: String
@@ -23806,6 +25753,8 @@ input TicketWhereInput {
   isEmergency_not: Boolean
   isWarranty: Boolean
   isWarranty_not: Boolean
+  isInsurance: Boolean
+  isInsurance_not: Boolean
   isResidentTicket: Boolean
   isResidentTicket_not: Boolean
   canReadByResident: Boolean
@@ -23814,6 +25763,58 @@ input TicketWhereInput {
   meta_not: JSON
   meta_in: [JSON]
   meta_not_in: [JSON]
+  priority: Int
+  priority_not: Int
+  priority_lt: Int
+  priority_lte: Int
+  priority_gt: Int
+  priority_gte: Int
+  priority_in: [Int]
+  priority_not_in: [Int]
+  kanbanColumn: String
+  kanbanColumn_not: String
+  kanbanColumn_contains: String
+  kanbanColumn_not_contains: String
+  kanbanColumn_starts_with: String
+  kanbanColumn_not_starts_with: String
+  kanbanColumn_ends_with: String
+  kanbanColumn_not_ends_with: String
+  kanbanColumn_i: String
+  kanbanColumn_not_i: String
+  kanbanColumn_contains_i: String
+  kanbanColumn_not_contains_i: String
+  kanbanColumn_starts_with_i: String
+  kanbanColumn_not_starts_with_i: String
+  kanbanColumn_ends_with_i: String
+  kanbanColumn_not_ends_with_i: String
+  kanbanColumn_in: [String]
+  kanbanColumn_not_in: [String]
+  kanbanOrder: Int
+  kanbanOrder_not: Int
+  kanbanOrder_lt: Int
+  kanbanOrder_lte: Int
+  kanbanOrder_gt: Int
+  kanbanOrder_gte: Int
+  kanbanOrder_in: [Int]
+  kanbanOrder_not_in: [Int]
+  customClassifier: String
+  customClassifier_not: String
+  customClassifier_contains: String
+  customClassifier_not_contains: String
+  customClassifier_starts_with: String
+  customClassifier_not_starts_with: String
+  customClassifier_ends_with: String
+  customClassifier_not_ends_with: String
+  customClassifier_i: String
+  customClassifier_not_i: String
+  customClassifier_contains_i: String
+  customClassifier_not_contains_i: String
+  customClassifier_starts_with_i: String
+  customClassifier_not_starts_with_i: String
+  customClassifier_ends_with_i: String
+  customClassifier_not_ends_with_i: String
+  customClassifier_in: [String]
+  customClassifier_not_in: [String]
   property: PropertyWhereInput
   property_is_null: Boolean
   propertyAddress: String
@@ -24045,6 +26046,8 @@ enum SortTicketsBy {
   classifier_DESC
   isAutoClassified_ASC
   isAutoClassified_DESC
+  title_ASC
+  title_DESC
   details_ASC
   details_DESC
   related_ASC
@@ -24057,10 +26060,20 @@ enum SortTicketsBy {
   isEmergency_DESC
   isWarranty_ASC
   isWarranty_DESC
+  isInsurance_ASC
+  isInsurance_DESC
   isResidentTicket_ASC
   isResidentTicket_DESC
   canReadByResident_ASC
   canReadByResident_DESC
+  priority_ASC
+  priority_DESC
+  kanbanColumn_ASC
+  kanbanColumn_DESC
+  kanbanOrder_ASC
+  kanbanOrder_DESC
+  customClassifier_ASC
+  customClassifier_DESC
   property_ASC
   property_DESC
   propertyAddress_ASC
@@ -24135,15 +26148,21 @@ input TicketUpdateInput {
   problemClassifier: TicketProblemClassifierRelateToOneInput
   classifier: TicketClassifierRelateToOneInput
   isAutoClassified: Boolean
+  title: String
   details: String
   related: TicketRelateToOneInput
   isPaid: Boolean
   isPayable: Boolean
   isEmergency: Boolean
   isWarranty: Boolean
+  isInsurance: Boolean
   isResidentTicket: Boolean
   canReadByResident: Boolean
   meta: JSON
+  priority: Int
+  kanbanColumn: String
+  kanbanOrder: Int
+  customClassifier: String
   property: PropertyRelateToOneInput
   propertyAddress: String
   propertyAddressMeta: JSON
@@ -24208,15 +26227,21 @@ input TicketCreateInput {
   problemClassifier: TicketProblemClassifierRelateToOneInput
   classifier: TicketClassifierRelateToOneInput
   isAutoClassified: Boolean
+  title: String
   details: String
   related: TicketRelateToOneInput
   isPaid: Boolean
   isPayable: Boolean
   isEmergency: Boolean
   isWarranty: Boolean
+  isInsurance: Boolean
   isResidentTicket: Boolean
   canReadByResident: Boolean
   meta: JSON
+  priority: Int
+  kanbanColumn: String
+  kanbanOrder: Int
+  customClassifier: String
   property: PropertyRelateToOneInput
   propertyAddress: String
   propertyAddressMeta: JSON
@@ -25675,6 +27700,14 @@ type TicketChange {
   """
   clientPhoneTo: String
 
+  """ Very short description of the issue. Will be filled via LLM in the future 
+  """
+  titleFrom: String
+
+  """ Very short description of the issue. Will be filled via LLM in the future 
+  """
+  titleTo: String
+
   """ Text description of the issue. Maybe written by a user or an operator 
   """
   detailsFrom: String
@@ -25713,6 +27746,12 @@ type TicketChange {
   """ Indicates the ticket is warranty """
   isWarrantyTo: Boolean
 
+  """ Indicates the ticket is insurance """
+  isInsuranceFrom: Boolean
+
+  """ Indicates the ticket is insurance """
+  isInsuranceTo: Boolean
+
   """ Determines who the ticket was created for: for a resident or not for a resident 
   """
   isResidentTicketFrom: Boolean
@@ -25734,6 +27773,36 @@ type TicketChange {
 
   """ Extra analytics not related to remote system """
   metaTo: JSON
+
+  """ The number used to determine priority of this ticket. Like in JIRA. Default value is: 100. Preferred values are: 100, 200, 300, 400, 500. 500 is the highest. Used by custom integrations 
+  """
+  priorityFrom: Int
+
+  """ The number used to determine priority of this ticket. Like in JIRA. Default value is: 100. Preferred values are: 100, 200, 300, 400, 500. 500 is the highest. Used by custom integrations 
+  """
+  priorityTo: Int
+
+  """ Custom id for kanban column. Should be used if it is not enough to map statuses to columns. Used by custom integrations 
+  """
+  kanbanColumnFrom: String
+
+  """ Custom id for kanban column. Should be used if it is not enough to map statuses to columns. Used by custom integrations 
+  """
+  kanbanColumnTo: String
+
+  """ The number used to determine the relative position of this ticket inside of kanban column. Used by custom integrations 
+  """
+  kanbanOrderFrom: Int
+
+  """ The number used to determine the relative position of this ticket inside of kanban column. Used by custom integrations 
+  """
+  kanbanOrderTo: Int
+
+  """ Custom type or classifier for ticket. Used by custom integrations """
+  customClassifierFrom: String
+
+  """ Custom type or classifier for ticket. Used by custom integrations """
+  customClassifierTo: String
 
   """ Address of property, which synced with property and displayed, if property is deleted 
   """
@@ -26318,6 +28387,42 @@ input TicketChangeWhereInput {
   clientPhoneTo_not_ends_with_i: String
   clientPhoneTo_in: [String]
   clientPhoneTo_not_in: [String]
+  titleFrom: String
+  titleFrom_not: String
+  titleFrom_contains: String
+  titleFrom_not_contains: String
+  titleFrom_starts_with: String
+  titleFrom_not_starts_with: String
+  titleFrom_ends_with: String
+  titleFrom_not_ends_with: String
+  titleFrom_i: String
+  titleFrom_not_i: String
+  titleFrom_contains_i: String
+  titleFrom_not_contains_i: String
+  titleFrom_starts_with_i: String
+  titleFrom_not_starts_with_i: String
+  titleFrom_ends_with_i: String
+  titleFrom_not_ends_with_i: String
+  titleFrom_in: [String]
+  titleFrom_not_in: [String]
+  titleTo: String
+  titleTo_not: String
+  titleTo_contains: String
+  titleTo_not_contains: String
+  titleTo_starts_with: String
+  titleTo_not_starts_with: String
+  titleTo_ends_with: String
+  titleTo_not_ends_with: String
+  titleTo_i: String
+  titleTo_not_i: String
+  titleTo_contains_i: String
+  titleTo_not_contains_i: String
+  titleTo_starts_with_i: String
+  titleTo_not_starts_with_i: String
+  titleTo_ends_with_i: String
+  titleTo_not_ends_with_i: String
+  titleTo_in: [String]
+  titleTo_not_in: [String]
   detailsFrom: String
   detailsFrom_not: String
   detailsFrom_contains: String
@@ -26370,6 +28475,10 @@ input TicketChangeWhereInput {
   isWarrantyFrom_not: Boolean
   isWarrantyTo: Boolean
   isWarrantyTo_not: Boolean
+  isInsuranceFrom: Boolean
+  isInsuranceFrom_not: Boolean
+  isInsuranceTo: Boolean
+  isInsuranceTo_not: Boolean
   isResidentTicketFrom: Boolean
   isResidentTicketFrom_not: Boolean
   isResidentTicketTo: Boolean
@@ -26386,6 +28495,110 @@ input TicketChangeWhereInput {
   metaTo_not: JSON
   metaTo_in: [JSON]
   metaTo_not_in: [JSON]
+  priorityFrom: Int
+  priorityFrom_not: Int
+  priorityFrom_lt: Int
+  priorityFrom_lte: Int
+  priorityFrom_gt: Int
+  priorityFrom_gte: Int
+  priorityFrom_in: [Int]
+  priorityFrom_not_in: [Int]
+  priorityTo: Int
+  priorityTo_not: Int
+  priorityTo_lt: Int
+  priorityTo_lte: Int
+  priorityTo_gt: Int
+  priorityTo_gte: Int
+  priorityTo_in: [Int]
+  priorityTo_not_in: [Int]
+  kanbanColumnFrom: String
+  kanbanColumnFrom_not: String
+  kanbanColumnFrom_contains: String
+  kanbanColumnFrom_not_contains: String
+  kanbanColumnFrom_starts_with: String
+  kanbanColumnFrom_not_starts_with: String
+  kanbanColumnFrom_ends_with: String
+  kanbanColumnFrom_not_ends_with: String
+  kanbanColumnFrom_i: String
+  kanbanColumnFrom_not_i: String
+  kanbanColumnFrom_contains_i: String
+  kanbanColumnFrom_not_contains_i: String
+  kanbanColumnFrom_starts_with_i: String
+  kanbanColumnFrom_not_starts_with_i: String
+  kanbanColumnFrom_ends_with_i: String
+  kanbanColumnFrom_not_ends_with_i: String
+  kanbanColumnFrom_in: [String]
+  kanbanColumnFrom_not_in: [String]
+  kanbanColumnTo: String
+  kanbanColumnTo_not: String
+  kanbanColumnTo_contains: String
+  kanbanColumnTo_not_contains: String
+  kanbanColumnTo_starts_with: String
+  kanbanColumnTo_not_starts_with: String
+  kanbanColumnTo_ends_with: String
+  kanbanColumnTo_not_ends_with: String
+  kanbanColumnTo_i: String
+  kanbanColumnTo_not_i: String
+  kanbanColumnTo_contains_i: String
+  kanbanColumnTo_not_contains_i: String
+  kanbanColumnTo_starts_with_i: String
+  kanbanColumnTo_not_starts_with_i: String
+  kanbanColumnTo_ends_with_i: String
+  kanbanColumnTo_not_ends_with_i: String
+  kanbanColumnTo_in: [String]
+  kanbanColumnTo_not_in: [String]
+  kanbanOrderFrom: Int
+  kanbanOrderFrom_not: Int
+  kanbanOrderFrom_lt: Int
+  kanbanOrderFrom_lte: Int
+  kanbanOrderFrom_gt: Int
+  kanbanOrderFrom_gte: Int
+  kanbanOrderFrom_in: [Int]
+  kanbanOrderFrom_not_in: [Int]
+  kanbanOrderTo: Int
+  kanbanOrderTo_not: Int
+  kanbanOrderTo_lt: Int
+  kanbanOrderTo_lte: Int
+  kanbanOrderTo_gt: Int
+  kanbanOrderTo_gte: Int
+  kanbanOrderTo_in: [Int]
+  kanbanOrderTo_not_in: [Int]
+  customClassifierFrom: String
+  customClassifierFrom_not: String
+  customClassifierFrom_contains: String
+  customClassifierFrom_not_contains: String
+  customClassifierFrom_starts_with: String
+  customClassifierFrom_not_starts_with: String
+  customClassifierFrom_ends_with: String
+  customClassifierFrom_not_ends_with: String
+  customClassifierFrom_i: String
+  customClassifierFrom_not_i: String
+  customClassifierFrom_contains_i: String
+  customClassifierFrom_not_contains_i: String
+  customClassifierFrom_starts_with_i: String
+  customClassifierFrom_not_starts_with_i: String
+  customClassifierFrom_ends_with_i: String
+  customClassifierFrom_not_ends_with_i: String
+  customClassifierFrom_in: [String]
+  customClassifierFrom_not_in: [String]
+  customClassifierTo: String
+  customClassifierTo_not: String
+  customClassifierTo_contains: String
+  customClassifierTo_not_contains: String
+  customClassifierTo_starts_with: String
+  customClassifierTo_not_starts_with: String
+  customClassifierTo_ends_with: String
+  customClassifierTo_not_ends_with: String
+  customClassifierTo_i: String
+  customClassifierTo_not_i: String
+  customClassifierTo_contains_i: String
+  customClassifierTo_not_contains_i: String
+  customClassifierTo_starts_with_i: String
+  customClassifierTo_not_starts_with_i: String
+  customClassifierTo_ends_with_i: String
+  customClassifierTo_not_ends_with_i: String
+  customClassifierTo_in: [String]
+  customClassifierTo_not_in: [String]
   propertyAddressFrom: String
   propertyAddressFrom_not: String
   propertyAddressFrom_contains: String
@@ -27127,6 +29340,10 @@ enum SortTicketChangesBy {
   clientPhoneFrom_DESC
   clientPhoneTo_ASC
   clientPhoneTo_DESC
+  titleFrom_ASC
+  titleFrom_DESC
+  titleTo_ASC
+  titleTo_DESC
   detailsFrom_ASC
   detailsFrom_DESC
   detailsTo_ASC
@@ -27147,6 +29364,10 @@ enum SortTicketChangesBy {
   isWarrantyFrom_DESC
   isWarrantyTo_ASC
   isWarrantyTo_DESC
+  isInsuranceFrom_ASC
+  isInsuranceFrom_DESC
+  isInsuranceTo_ASC
+  isInsuranceTo_DESC
   isResidentTicketFrom_ASC
   isResidentTicketFrom_DESC
   isResidentTicketTo_ASC
@@ -27155,6 +29376,22 @@ enum SortTicketChangesBy {
   canReadByResidentFrom_DESC
   canReadByResidentTo_ASC
   canReadByResidentTo_DESC
+  priorityFrom_ASC
+  priorityFrom_DESC
+  priorityTo_ASC
+  priorityTo_DESC
+  kanbanColumnFrom_ASC
+  kanbanColumnFrom_DESC
+  kanbanColumnTo_ASC
+  kanbanColumnTo_DESC
+  kanbanOrderFrom_ASC
+  kanbanOrderFrom_DESC
+  kanbanOrderTo_ASC
+  kanbanOrderTo_DESC
+  customClassifierFrom_ASC
+  customClassifierFrom_DESC
+  customClassifierTo_ASC
+  customClassifierTo_DESC
   propertyAddressFrom_ASC
   propertyAddressFrom_DESC
   propertyAddressTo_ASC
@@ -27311,6 +29548,8 @@ input TicketChangeUpdateInput {
   clientEmailTo: String
   clientPhoneFrom: String
   clientPhoneTo: String
+  titleFrom: String
+  titleTo: String
   detailsFrom: String
   detailsTo: String
   isPaidFrom: Boolean
@@ -27321,12 +29560,22 @@ input TicketChangeUpdateInput {
   isEmergencyTo: Boolean
   isWarrantyFrom: Boolean
   isWarrantyTo: Boolean
+  isInsuranceFrom: Boolean
+  isInsuranceTo: Boolean
   isResidentTicketFrom: Boolean
   isResidentTicketTo: Boolean
   canReadByResidentFrom: Boolean
   canReadByResidentTo: Boolean
   metaFrom: JSON
   metaTo: JSON
+  priorityFrom: Int
+  priorityTo: Int
+  kanbanColumnFrom: String
+  kanbanColumnTo: String
+  kanbanOrderFrom: Int
+  kanbanOrderTo: Int
+  customClassifierFrom: String
+  customClassifierTo: String
   propertyAddressFrom: String
   propertyAddressTo: String
   propertyAddressMetaFrom: JSON
@@ -27430,6 +29679,8 @@ input TicketChangeCreateInput {
   clientEmailTo: String
   clientPhoneFrom: String
   clientPhoneTo: String
+  titleFrom: String
+  titleTo: String
   detailsFrom: String
   detailsTo: String
   isPaidFrom: Boolean
@@ -27440,12 +29691,22 @@ input TicketChangeCreateInput {
   isEmergencyTo: Boolean
   isWarrantyFrom: Boolean
   isWarrantyTo: Boolean
+  isInsuranceFrom: Boolean
+  isInsuranceTo: Boolean
   isResidentTicketFrom: Boolean
   isResidentTicketTo: Boolean
   canReadByResidentFrom: Boolean
   canReadByResidentTo: Boolean
   metaFrom: JSON
   metaTo: JSON
+  priorityFrom: Int
+  priorityTo: Int
+  kanbanColumnFrom: String
+  kanbanColumnTo: String
+  kanbanOrderFrom: Int
+  kanbanOrderTo: Int
+  customClassifierFrom: String
+  customClassifierTo: String
   propertyAddressFrom: String
   propertyAddressTo: String
   propertyAddressMetaFrom: JSON
@@ -37692,6 +39953,7 @@ enum TicketDocumentGenerationTaskFormatType {
 
 enum TicketDocumentGenerationTaskDocumentTypeType {
   completionWorks
+  paidWorks
 }
 
 """ Information about generation process of ticket document """
@@ -38376,6 +40638,7 @@ input RemoteClientRelateToOneInput {
 enum MessageLangType {
   ru
   en
+  es
 }
 
 enum MessageStatusType {
@@ -38390,6 +40653,10 @@ enum MessageStatusType {
   canceled
   disabledByUser
   throttled
+}
+
+type MessageDefaultContentField {
+  content: String
 }
 
 """ Notification message """
@@ -38437,6 +40704,9 @@ type Message {
   """ Task processing metadata. Just for debug purpose. You can see exactly what and where the message was sent 
   """
   processingMeta: JSON
+
+  """ Specifies the default message content if it exists """
+  defaultContent: MessageDefaultContentField
 
   """ Delivered (received) at time """
   deliveredAt: String
@@ -42412,7 +44682,8 @@ type ContactHistoryRecord {
   name: String
   role: String
   isVerified: Boolean
-  quota: String
+  ownershipPercentage: String
+  communityFee: String
   id: ID!
   v: Int
   createdAt: String
@@ -42535,14 +44806,22 @@ input ContactHistoryRecordWhereInput {
   role_not_in: [String]
   isVerified: Boolean
   isVerified_not: Boolean
-  quota: String
-  quota_not: String
-  quota_lt: String
-  quota_lte: String
-  quota_gt: String
-  quota_gte: String
-  quota_in: [String]
-  quota_not_in: [String]
+  ownershipPercentage: String
+  ownershipPercentage_not: String
+  ownershipPercentage_lt: String
+  ownershipPercentage_lte: String
+  ownershipPercentage_gt: String
+  ownershipPercentage_gte: String
+  ownershipPercentage_in: [String]
+  ownershipPercentage_not_in: [String]
+  communityFee: String
+  communityFee_not: String
+  communityFee_lt: String
+  communityFee_lte: String
+  communityFee_gt: String
+  communityFee_gte: String
+  communityFee_in: [String]
+  communityFee_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -42638,8 +44917,10 @@ enum SortContactHistoryRecordsBy {
   name_DESC
   isVerified_ASC
   isVerified_DESC
-  quota_ASC
-  quota_DESC
+  ownershipPercentage_ASC
+  ownershipPercentage_DESC
+  communityFee_ASC
+  communityFee_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -42668,7 +44949,8 @@ input ContactHistoryRecordUpdateInput {
   name: String
   role: String
   isVerified: Boolean
-  quota: String
+  ownershipPercentage: String
+  communityFee: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -42698,7 +44980,8 @@ input ContactHistoryRecordCreateInput {
   name: String
   role: String
   isVerified: Boolean
-  quota: String
+  ownershipPercentage: String
+  communityFee: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -42775,8 +45058,12 @@ type Contact {
   """ Contact verification flag. """
   isVerified: Boolean
 
-  """ Percentage ownership of an apartment """
-  quota: String
+  """ Percentage ownership of an apartment. Example value: 50.00000000 // 50%  
+  """
+  ownershipPercentage: String
+
+  """ A special fee paid by this contact to the community """
+  communityFee: String
   id: ID!
   v: Int
   createdAt: String
@@ -42887,14 +45174,22 @@ input ContactWhereInput {
   role_is_null: Boolean
   isVerified: Boolean
   isVerified_not: Boolean
-  quota: String
-  quota_not: String
-  quota_lt: String
-  quota_lte: String
-  quota_gt: String
-  quota_gte: String
-  quota_in: [String]
-  quota_not_in: [String]
+  ownershipPercentage: String
+  ownershipPercentage_not: String
+  ownershipPercentage_lt: String
+  ownershipPercentage_lte: String
+  ownershipPercentage_gt: String
+  ownershipPercentage_gte: String
+  ownershipPercentage_in: [String]
+  ownershipPercentage_not_in: [String]
+  communityFee: String
+  communityFee_not: String
+  communityFee_lt: String
+  communityFee_lte: String
+  communityFee_gt: String
+  communityFee_gte: String
+  communityFee_in: [String]
+  communityFee_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -42976,8 +45271,10 @@ enum SortContactsBy {
   role_DESC
   isVerified_ASC
   isVerified_DESC
-  quota_ASC
-  quota_DESC
+  ownershipPercentage_ASC
+  ownershipPercentage_DESC
+  communityFee_ASC
+  communityFee_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -43006,7 +45303,8 @@ input ContactUpdateInput {
   name: String
   role: ContactRoleRelateToOneInput
   isVerified: Boolean
-  quota: String
+  ownershipPercentage: String
+  communityFee: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -43033,7 +45331,8 @@ input ContactCreateInput {
   name: String
   role: ContactRoleRelateToOneInput
   isVerified: Boolean
-  quota: String
+  ownershipPercentage: String
+  communityFee: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -47414,6 +49713,7 @@ type MeterReadingHistoryRecord {
   source: String
   billingStatus: String
   billingStatusText: String
+  accountNumber: String
   organization: String
   id: ID!
   v: Int
@@ -47579,6 +49879,24 @@ input MeterReadingHistoryRecordWhereInput {
   billingStatusText_not_ends_with_i: String
   billingStatusText_in: [String]
   billingStatusText_not_in: [String]
+  accountNumber: String
+  accountNumber_not: String
+  accountNumber_contains: String
+  accountNumber_not_contains: String
+  accountNumber_starts_with: String
+  accountNumber_not_starts_with: String
+  accountNumber_ends_with: String
+  accountNumber_not_ends_with: String
+  accountNumber_i: String
+  accountNumber_not_i: String
+  accountNumber_contains_i: String
+  accountNumber_not_contains_i: String
+  accountNumber_starts_with_i: String
+  accountNumber_not_starts_with_i: String
+  accountNumber_ends_with_i: String
+  accountNumber_not_ends_with_i: String
+  accountNumber_in: [String]
+  accountNumber_not_in: [String]
   organization: String
   organization_not: String
   organization_in: [String]
@@ -47686,6 +50004,8 @@ enum SortMeterReadingHistoryRecordsBy {
   billingStatus_DESC
   billingStatusText_ASC
   billingStatusText_DESC
+  accountNumber_ASC
+  accountNumber_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -47719,6 +50039,7 @@ input MeterReadingHistoryRecordUpdateInput {
   source: String
   billingStatus: String
   billingStatusText: String
+  accountNumber: String
   organization: String
   v: Int
   createdAt: String
@@ -47754,6 +50075,7 @@ input MeterReadingHistoryRecordCreateInput {
   source: String
   billingStatus: String
   billingStatusText: String
+  accountNumber: String
   organization: String
   v: Int
   createdAt: String
@@ -47855,6 +50177,10 @@ type MeterReading {
   """ A message from external billing system. Set to null if billing status is `approved`. This field can be changed only by service user. 
   """
   billingStatusText: String
+
+  """ Account number of the related Meter at the moment of creation. Filled once. 
+  """
+  accountNumber: String
 
   """ Ref to the organization. It is filled in on the server and is read-only 
   """
@@ -48009,6 +50335,24 @@ input MeterReadingWhereInput {
   billingStatusText_not_ends_with_i: String
   billingStatusText_in: [String]
   billingStatusText_not_in: [String]
+  accountNumber: String
+  accountNumber_not: String
+  accountNumber_contains: String
+  accountNumber_not_contains: String
+  accountNumber_starts_with: String
+  accountNumber_not_starts_with: String
+  accountNumber_ends_with: String
+  accountNumber_not_ends_with: String
+  accountNumber_i: String
+  accountNumber_not_i: String
+  accountNumber_contains_i: String
+  accountNumber_not_contains_i: String
+  accountNumber_starts_with_i: String
+  accountNumber_not_starts_with_i: String
+  accountNumber_ends_with_i: String
+  accountNumber_not_ends_with_i: String
+  accountNumber_in: [String]
+  accountNumber_not_in: [String]
   organization: OrganizationWhereInput
   organization_is_null: Boolean
   id: ID
@@ -48102,6 +50446,8 @@ enum SortMeterReadingsBy {
   billingStatus_DESC
   billingStatusText_ASC
   billingStatusText_DESC
+  accountNumber_ASC
+  accountNumber_DESC
   organization_ASC
   organization_DESC
   id_ASC
@@ -48137,6 +50483,7 @@ input MeterReadingUpdateInput {
   source: MeterReadingSourceRelateToOneInput
   billingStatus: MeterReadingBillingStatusType
   billingStatusText: String
+  accountNumber: String
   organization: OrganizationRelateToOneInput
   v: Int
   createdAt: String
@@ -48169,6 +50516,7 @@ input MeterReadingCreateInput {
   source: MeterReadingSourceRelateToOneInput
   billingStatus: MeterReadingBillingStatusType
   billingStatusText: String
+  accountNumber: String
   organization: OrganizationRelateToOneInput
   v: Int
   createdAt: String
@@ -52668,6 +55016,7 @@ enum MeterReadingExportTaskFormatType {
 enum MeterReadingExportTaskLocaleType {
   ru
   en
+  es
 }
 
 """ Stores requested export format, status of export job, link to exported file and information about progress of export job 
@@ -52957,6 +55306,411 @@ input MeterReadingExportTaskCreateInput {
 
 input MeterReadingExportTasksCreateInput {
   data: MeterReadingExportTaskCreateInput
+}
+
+enum MeterUserDataHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type MeterUserDataHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the MeterUserDataHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the MeterUserDataHistoryRecord List config, or
+   3. As an alias to a 'name' field on the MeterUserDataHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the MeterUserDataHistoryRecord List.
+  """
+  _label_: String
+  user: String
+  meter: String
+  name: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: MeterUserDataHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input MeterUserDataHistoryRecordWhereInput {
+  AND: [MeterUserDataHistoryRecordWhereInput]
+  OR: [MeterUserDataHistoryRecordWhereInput]
+  user: String
+  user_not: String
+  user_in: [String]
+  user_not_in: [String]
+  meter: String
+  meter_not: String
+  meter_in: [String]
+  meter_not_in: [String]
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: MeterUserDataHistoryRecordHistoryActionType
+  history_action_not: MeterUserDataHistoryRecordHistoryActionType
+  history_action_in: [MeterUserDataHistoryRecordHistoryActionType]
+  history_action_not_in: [MeterUserDataHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input MeterUserDataHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortMeterUserDataHistoryRecordsBy {
+  name_ASC
+  name_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input MeterUserDataHistoryRecordUpdateInput {
+  user: String
+  meter: String
+  name: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: MeterUserDataHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input MeterUserDataHistoryRecordsUpdateInput {
+  id: ID!
+  data: MeterUserDataHistoryRecordUpdateInput
+}
+
+input MeterUserDataHistoryRecordCreateInput {
+  user: String
+  meter: String
+  name: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: MeterUserDataHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input MeterUserDataHistoryRecordsCreateInput {
+  data: MeterUserDataHistoryRecordCreateInput
+}
+
+""" Custom user data that a user with type resident can assign to a specific meter device to make it easier to understand what kind of device it is 
+"""
+type MeterUserData {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the MeterUserData List config, or
+   2. As an alias to the field set on 'labelField' in the MeterUserData List config, or
+   3. As an alias to a 'name' field on the MeterUserData List (if one exists), or
+   4. As an alias to the 'id' field on the MeterUserData List.
+  """
+  _label_: String
+
+  """ User that created their custom meter data """
+  user: User
+
+  """ Meter for which the user created custom data """
+  meter: Meter
+
+  """ Custom meter name that a user assigned to a specific meter """
+  name: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input MeterUserDatumWhereInput {
+  AND: [MeterUserDatumWhereInput]
+  OR: [MeterUserDatumWhereInput]
+  user: UserWhereInput
+  user_is_null: Boolean
+  meter: MeterWhereInput
+  meter_is_null: Boolean
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input MeterUserDatumWhereUniqueInput {
+  id: ID!
+}
+
+enum SortMeterUserDataBy {
+  user_ASC
+  user_DESC
+  meter_ASC
+  meter_DESC
+  name_ASC
+  name_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input MeterUserDatumUpdateInput {
+  user: UserRelateToOneInput
+  meter: MeterRelateToOneInput
+  name: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input MeterUserDataUpdateInput {
+  id: ID!
+  data: MeterUserDatumUpdateInput
+}
+
+input MeterUserDatumCreateInput {
+  user: UserRelateToOneInput
+  meter: MeterRelateToOneInput
+  name: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input MeterUserDataCreateInput {
+  data: MeterUserDatumCreateInput
 }
 
 enum ServiceSubscriptionHistoryRecordHistoryActionType {
@@ -56175,6 +58929,7 @@ enum MultiPaymentPaymentWayType {
   SBERPAY
   SBERID
   SBRF_SBOL_BINDING
+  SBOL_BINDING
 }
 
 enum MultiPaymentStatusType {
@@ -61998,6 +64753,7 @@ enum NewsItemTemplateCategoryType {
   INTERCOM
   SNOW
   OTHER
+  FIRE_PROTECTION
 }
 
 """ The news item template for quick composing a news item """
@@ -64037,10 +66793,12 @@ input B2BAppHistoryRecordsCreateInput {
 
 enum B2BAppIconType {
   AlertCircle
+  ArrowDownUp
   ArrowLeft
   ArrowRight
   BarChartHorizontal
   BarChartVertical
+  Bell
   Bill
   Briefcase
   Building
@@ -68443,7 +71201,7 @@ input MessageAppBlackListHistoryRecordsCreateInput {
   data: MessageAppBlackListHistoryRecordCreateInput
 }
 
-""" [Deprecated] Rule for blocking specific type of messages for apps. Use B2CAppMessageSetting 
+""" [Deprecated] Rule for blocking specific type of messages for apps. Use AppMessageSetting 
 """
 type MessageAppBlackList {
   """
@@ -69469,6 +72227,12 @@ type B2BAppAccessRightSetHistoryRecord {
   """
   _label_: String
   app: String
+  name: String
+  type: String
+  canReadB2BAccessTokens: Boolean
+  canManageB2BAccessTokens: Boolean
+  canReadBillingReceipts: Boolean
+  canManageBillingReceipts: Boolean
   canReadContacts: Boolean
   canManageContacts: Boolean
   canReadMeters: Boolean
@@ -69477,6 +72241,8 @@ type B2BAppAccessRightSetHistoryRecord {
   canManageMeterReadings: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
+  canReadOrganizationEmployees: Boolean
+  canManageOrganizationEmployees: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
   canReadTickets: Boolean
@@ -69488,6 +72254,7 @@ type B2BAppAccessRightSetHistoryRecord {
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
   canExecuteRegisterMetersReadings: Boolean
+  canExecuteSendB2BAppPushMessage: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -69510,6 +72277,50 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   app_not: String
   app_in: [String]
   app_not_in: [String]
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
+  type: String
+  type_not: String
+  type_contains: String
+  type_not_contains: String
+  type_starts_with: String
+  type_not_starts_with: String
+  type_ends_with: String
+  type_not_ends_with: String
+  type_i: String
+  type_not_i: String
+  type_contains_i: String
+  type_not_contains_i: String
+  type_starts_with_i: String
+  type_not_starts_with_i: String
+  type_ends_with_i: String
+  type_not_ends_with_i: String
+  type_in: [String]
+  type_not_in: [String]
+  canReadB2BAccessTokens: Boolean
+  canReadB2BAccessTokens_not: Boolean
+  canManageB2BAccessTokens: Boolean
+  canManageB2BAccessTokens_not: Boolean
+  canReadBillingReceipts: Boolean
+  canReadBillingReceipts_not: Boolean
+  canManageBillingReceipts: Boolean
+  canManageBillingReceipts_not: Boolean
   canReadContacts: Boolean
   canReadContacts_not: Boolean
   canManageContacts: Boolean
@@ -69526,6 +72337,10 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   canReadOrganizations_not: Boolean
   canManageOrganizations: Boolean
   canManageOrganizations_not: Boolean
+  canReadOrganizationEmployees: Boolean
+  canReadOrganizationEmployees_not: Boolean
+  canManageOrganizationEmployees: Boolean
+  canManageOrganizationEmployees_not: Boolean
   canReadProperties: Boolean
   canReadProperties_not: Boolean
   canManageProperties: Boolean
@@ -69548,6 +72363,8 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   canManageTicketCommentFiles_not: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteRegisterMetersReadings_not: Boolean
+  canExecuteSendB2BAppPushMessage: Boolean
+  canExecuteSendB2BAppPushMessage_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -69631,6 +72448,18 @@ input B2BAppAccessRightSetHistoryRecordWhereUniqueInput {
 }
 
 enum SortB2BAppAccessRightSetHistoryRecordsBy {
+  name_ASC
+  name_DESC
+  type_ASC
+  type_DESC
+  canReadB2BAccessTokens_ASC
+  canReadB2BAccessTokens_DESC
+  canManageB2BAccessTokens_ASC
+  canManageB2BAccessTokens_DESC
+  canReadBillingReceipts_ASC
+  canReadBillingReceipts_DESC
+  canManageBillingReceipts_ASC
+  canManageBillingReceipts_DESC
   canReadContacts_ASC
   canReadContacts_DESC
   canManageContacts_ASC
@@ -69647,6 +72476,10 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
   canReadOrganizations_DESC
   canManageOrganizations_ASC
   canManageOrganizations_DESC
+  canReadOrganizationEmployees_ASC
+  canReadOrganizationEmployees_DESC
+  canManageOrganizationEmployees_ASC
+  canManageOrganizationEmployees_DESC
   canReadProperties_ASC
   canReadProperties_DESC
   canManageProperties_ASC
@@ -69669,6 +72502,8 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
   canManageTicketCommentFiles_DESC
   canExecuteRegisterMetersReadings_ASC
   canExecuteRegisterMetersReadings_DESC
+  canExecuteSendB2BAppPushMessage_ASC
+  canExecuteSendB2BAppPushMessage_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -69689,6 +72524,12 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
 
 input B2BAppAccessRightSetHistoryRecordUpdateInput {
   app: String
+  name: String
+  type: String
+  canReadB2BAccessTokens: Boolean
+  canManageB2BAccessTokens: Boolean
+  canReadBillingReceipts: Boolean
+  canManageBillingReceipts: Boolean
   canReadContacts: Boolean
   canManageContacts: Boolean
   canReadMeters: Boolean
@@ -69697,6 +72538,8 @@ input B2BAppAccessRightSetHistoryRecordUpdateInput {
   canManageMeterReadings: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
+  canReadOrganizationEmployees: Boolean
+  canManageOrganizationEmployees: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
   canReadTickets: Boolean
@@ -69708,6 +72551,7 @@ input B2BAppAccessRightSetHistoryRecordUpdateInput {
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
   canExecuteRegisterMetersReadings: Boolean
+  canExecuteSendB2BAppPushMessage: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -69729,6 +72573,12 @@ input B2BAppAccessRightSetHistoryRecordsUpdateInput {
 
 input B2BAppAccessRightSetHistoryRecordCreateInput {
   app: String
+  name: String
+  type: String
+  canReadB2BAccessTokens: Boolean
+  canManageB2BAccessTokens: Boolean
+  canReadBillingReceipts: Boolean
+  canManageBillingReceipts: Boolean
   canReadContacts: Boolean
   canManageContacts: Boolean
   canReadMeters: Boolean
@@ -69737,6 +72587,8 @@ input B2BAppAccessRightSetHistoryRecordCreateInput {
   canManageMeterReadings: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
+  canReadOrganizationEmployees: Boolean
+  canManageOrganizationEmployees: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
   canReadTickets: Boolean
@@ -69748,6 +72600,7 @@ input B2BAppAccessRightSetHistoryRecordCreateInput {
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
   canExecuteRegisterMetersReadings: Boolean
+  canExecuteSendB2BAppPushMessage: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -69764,6 +72617,11 @@ input B2BAppAccessRightSetHistoryRecordCreateInput {
 
 input B2BAppAccessRightSetHistoryRecordsCreateInput {
   data: B2BAppAccessRightSetHistoryRecordCreateInput
+}
+
+enum B2BAppAccessRightSetTypeType {
+  GLOBAL
+  SCOPED
 }
 
 """
@@ -69786,6 +72644,19 @@ type B2BAppAccessRightSet {
 
   """ Link to B2BApp """
   app: B2BApp
+
+  """ Name for right set to distinguish it """
+  name: String
+
+  """ Scope type of right set """
+  type: B2BAppAccessRightSetTypeType
+  canReadB2BAccessTokens: Boolean
+  canManageB2BAccessTokens: Boolean
+  canReadBillingReceipts: Boolean
+
+  """ Currently, this field is read-only. You cannot get manage access for the specified schema. 
+  """
+  canManageBillingReceipts: Boolean
   canReadContacts: Boolean
   canManageContacts: Boolean
   canReadMeters: Boolean
@@ -69797,6 +72668,11 @@ type B2BAppAccessRightSet {
   """ Currently, this field is read-only. You cannot get manage access for the specified schema. 
   """
   canManageOrganizations: Boolean
+  canReadOrganizationEmployees: Boolean
+
+  """ Currently, this field is read-only. You cannot get manage access for the specified schema. 
+  """
+  canManageOrganizationEmployees: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
   canReadTickets: Boolean
@@ -69808,6 +72684,7 @@ type B2BAppAccessRightSet {
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
   canExecuteRegisterMetersReadings: Boolean
+  canExecuteSendB2BAppPushMessage: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -69836,6 +72713,36 @@ input B2BAppAccessRightSetWhereInput {
   OR: [B2BAppAccessRightSetWhereInput]
   app: B2BAppWhereInput
   app_is_null: Boolean
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
+  type: B2BAppAccessRightSetTypeType
+  type_not: B2BAppAccessRightSetTypeType
+  type_in: [B2BAppAccessRightSetTypeType]
+  type_not_in: [B2BAppAccessRightSetTypeType]
+  canReadB2BAccessTokens: Boolean
+  canReadB2BAccessTokens_not: Boolean
+  canManageB2BAccessTokens: Boolean
+  canManageB2BAccessTokens_not: Boolean
+  canReadBillingReceipts: Boolean
+  canReadBillingReceipts_not: Boolean
+  canManageBillingReceipts: Boolean
+  canManageBillingReceipts_not: Boolean
   canReadContacts: Boolean
   canReadContacts_not: Boolean
   canManageContacts: Boolean
@@ -69852,6 +72759,10 @@ input B2BAppAccessRightSetWhereInput {
   canReadOrganizations_not: Boolean
   canManageOrganizations: Boolean
   canManageOrganizations_not: Boolean
+  canReadOrganizationEmployees: Boolean
+  canReadOrganizationEmployees_not: Boolean
+  canManageOrganizationEmployees: Boolean
+  canManageOrganizationEmployees_not: Boolean
   canReadProperties: Boolean
   canReadProperties_not: Boolean
   canManageProperties: Boolean
@@ -69874,6 +72785,8 @@ input B2BAppAccessRightSetWhereInput {
   canManageTicketCommentFiles_not: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteRegisterMetersReadings_not: Boolean
+  canExecuteSendB2BAppPushMessage: Boolean
+  canExecuteSendB2BAppPushMessage_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -69939,6 +72852,18 @@ input B2BAppAccessRightSetWhereUniqueInput {
 enum SortB2BAppAccessRightSetsBy {
   app_ASC
   app_DESC
+  name_ASC
+  name_DESC
+  type_ASC
+  type_DESC
+  canReadB2BAccessTokens_ASC
+  canReadB2BAccessTokens_DESC
+  canManageB2BAccessTokens_ASC
+  canManageB2BAccessTokens_DESC
+  canReadBillingReceipts_ASC
+  canReadBillingReceipts_DESC
+  canManageBillingReceipts_ASC
+  canManageBillingReceipts_DESC
   canReadContacts_ASC
   canReadContacts_DESC
   canManageContacts_ASC
@@ -69955,6 +72880,10 @@ enum SortB2BAppAccessRightSetsBy {
   canReadOrganizations_DESC
   canManageOrganizations_ASC
   canManageOrganizations_DESC
+  canReadOrganizationEmployees_ASC
+  canReadOrganizationEmployees_DESC
+  canManageOrganizationEmployees_ASC
+  canManageOrganizationEmployees_DESC
   canReadProperties_ASC
   canReadProperties_DESC
   canManageProperties_ASC
@@ -69977,6 +72906,8 @@ enum SortB2BAppAccessRightSetsBy {
   canManageTicketCommentFiles_DESC
   canExecuteRegisterMetersReadings_ASC
   canExecuteRegisterMetersReadings_DESC
+  canExecuteSendB2BAppPushMessage_ASC
+  canExecuteSendB2BAppPushMessage_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -69997,6 +72928,12 @@ enum SortB2BAppAccessRightSetsBy {
 
 input B2BAppAccessRightSetUpdateInput {
   app: B2BAppRelateToOneInput
+  name: String
+  type: B2BAppAccessRightSetTypeType
+  canReadB2BAccessTokens: Boolean
+  canManageB2BAccessTokens: Boolean
+  canReadBillingReceipts: Boolean
+  canManageBillingReceipts: Boolean
   canReadContacts: Boolean
   canManageContacts: Boolean
   canReadMeters: Boolean
@@ -70005,6 +72942,8 @@ input B2BAppAccessRightSetUpdateInput {
   canManageMeterReadings: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
+  canReadOrganizationEmployees: Boolean
+  canManageOrganizationEmployees: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
   canReadTickets: Boolean
@@ -70016,6 +72955,7 @@ input B2BAppAccessRightSetUpdateInput {
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
   canExecuteRegisterMetersReadings: Boolean
+  canExecuteSendB2BAppPushMessage: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -70034,6 +72974,12 @@ input B2BAppAccessRightSetsUpdateInput {
 
 input B2BAppAccessRightSetCreateInput {
   app: B2BAppRelateToOneInput
+  name: String
+  type: B2BAppAccessRightSetTypeType
+  canReadB2BAccessTokens: Boolean
+  canManageB2BAccessTokens: Boolean
+  canReadBillingReceipts: Boolean
+  canManageBillingReceipts: Boolean
   canReadContacts: Boolean
   canManageContacts: Boolean
   canReadMeters: Boolean
@@ -70042,6 +72988,8 @@ input B2BAppAccessRightSetCreateInput {
   canManageMeterReadings: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
+  canReadOrganizationEmployees: Boolean
+  canManageOrganizationEmployees: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
   canReadTickets: Boolean
@@ -70053,6 +73001,7 @@ input B2BAppAccessRightSetCreateInput {
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
   canExecuteRegisterMetersReadings: Boolean
+  canExecuteSendB2BAppPushMessage: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -70759,25 +73708,25 @@ input B2BAppNewsSharingConfigsCreateInput {
   data: B2BAppNewsSharingConfigCreateInput
 }
 
-enum B2CAppMessageSettingHistoryRecordHistoryActionType {
+enum AppMessageSettingHistoryRecordHistoryActionType {
   c
   u
   d
 }
 
 """ A keystone list """
-type B2CAppMessageSettingHistoryRecord {
+type AppMessageSettingHistoryRecord {
   """
   This virtual field will be resolved in one of the following ways (in this order):
-   1. Execution of 'labelResolver' set on the B2CAppMessageSettingHistoryRecord List config, or
-   2. As an alias to the field set on 'labelField' in the B2CAppMessageSettingHistoryRecord List config, or
-   3. As an alias to a 'name' field on the B2CAppMessageSettingHistoryRecord List (if one exists), or
-   4. As an alias to the 'id' field on the B2CAppMessageSettingHistoryRecord List.
+   1. Execution of 'labelResolver' set on the AppMessageSettingHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the AppMessageSettingHistoryRecord List config, or
+   3. As an alias to a 'name' field on the AppMessageSettingHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the AppMessageSettingHistoryRecord List.
   """
   _label_: String
-  app: String
-  blockReason: String
-  isBlacklisted: Boolean
+  b2bApp: String
+  b2cApp: String
+  reason: String
   type: String
   notificationWindowSize: Int
   numberOfNotificationInWindow: Int
@@ -70792,37 +73741,39 @@ type B2CAppMessageSettingHistoryRecord {
   dv: Int
   sender: JSON
   history_date: String
-  history_action: B2CAppMessageSettingHistoryRecordHistoryActionType
+  history_action: AppMessageSettingHistoryRecordHistoryActionType
   history_id: String
 }
 
-input B2CAppMessageSettingHistoryRecordWhereInput {
-  AND: [B2CAppMessageSettingHistoryRecordWhereInput]
-  OR: [B2CAppMessageSettingHistoryRecordWhereInput]
-  app: String
-  app_not: String
-  app_in: [String]
-  app_not_in: [String]
-  blockReason: String
-  blockReason_not: String
-  blockReason_contains: String
-  blockReason_not_contains: String
-  blockReason_starts_with: String
-  blockReason_not_starts_with: String
-  blockReason_ends_with: String
-  blockReason_not_ends_with: String
-  blockReason_i: String
-  blockReason_not_i: String
-  blockReason_contains_i: String
-  blockReason_not_contains_i: String
-  blockReason_starts_with_i: String
-  blockReason_not_starts_with_i: String
-  blockReason_ends_with_i: String
-  blockReason_not_ends_with_i: String
-  blockReason_in: [String]
-  blockReason_not_in: [String]
-  isBlacklisted: Boolean
-  isBlacklisted_not: Boolean
+input AppMessageSettingHistoryRecordWhereInput {
+  AND: [AppMessageSettingHistoryRecordWhereInput]
+  OR: [AppMessageSettingHistoryRecordWhereInput]
+  b2bApp: String
+  b2bApp_not: String
+  b2bApp_in: [String]
+  b2bApp_not_in: [String]
+  b2cApp: String
+  b2cApp_not: String
+  b2cApp_in: [String]
+  b2cApp_not_in: [String]
+  reason: String
+  reason_not: String
+  reason_contains: String
+  reason_not_contains: String
+  reason_starts_with: String
+  reason_not_starts_with: String
+  reason_ends_with: String
+  reason_not_ends_with: String
+  reason_i: String
+  reason_not_i: String
+  reason_contains_i: String
+  reason_not_contains_i: String
+  reason_starts_with_i: String
+  reason_not_starts_with_i: String
+  reason_ends_with_i: String
+  reason_not_ends_with_i: String
+  reason_in: [String]
+  reason_not_in: [String]
   type: String
   type_not: String
   type_contains: String
@@ -70925,25 +73876,23 @@ input B2CAppMessageSettingHistoryRecordWhereInput {
   history_date_gte: String
   history_date_in: [String]
   history_date_not_in: [String]
-  history_action: B2CAppMessageSettingHistoryRecordHistoryActionType
-  history_action_not: B2CAppMessageSettingHistoryRecordHistoryActionType
-  history_action_in: [B2CAppMessageSettingHistoryRecordHistoryActionType]
-  history_action_not_in: [B2CAppMessageSettingHistoryRecordHistoryActionType]
+  history_action: AppMessageSettingHistoryRecordHistoryActionType
+  history_action_not: AppMessageSettingHistoryRecordHistoryActionType
+  history_action_in: [AppMessageSettingHistoryRecordHistoryActionType]
+  history_action_not_in: [AppMessageSettingHistoryRecordHistoryActionType]
   history_id: String
   history_id_not: String
   history_id_in: [String]
   history_id_not_in: [String]
 }
 
-input B2CAppMessageSettingHistoryRecordWhereUniqueInput {
+input AppMessageSettingHistoryRecordWhereUniqueInput {
   id: ID!
 }
 
-enum SortB2CAppMessageSettingHistoryRecordsBy {
-  blockReason_ASC
-  blockReason_DESC
-  isBlacklisted_ASC
-  isBlacklisted_DESC
+enum SortAppMessageSettingHistoryRecordsBy {
+  reason_ASC
+  reason_DESC
   type_ASC
   type_DESC
   notificationWindowSize_ASC
@@ -70968,10 +73917,10 @@ enum SortB2CAppMessageSettingHistoryRecordsBy {
   history_action_DESC
 }
 
-input B2CAppMessageSettingHistoryRecordUpdateInput {
-  app: String
-  blockReason: String
-  isBlacklisted: Boolean
+input AppMessageSettingHistoryRecordUpdateInput {
+  b2bApp: String
+  b2cApp: String
+  reason: String
   type: String
   notificationWindowSize: Int
   numberOfNotificationInWindow: Int
@@ -70985,19 +73934,19 @@ input B2CAppMessageSettingHistoryRecordUpdateInput {
   dv: Int
   sender: JSON
   history_date: String
-  history_action: B2CAppMessageSettingHistoryRecordHistoryActionType
+  history_action: AppMessageSettingHistoryRecordHistoryActionType
   history_id: String
 }
 
-input B2CAppMessageSettingHistoryRecordsUpdateInput {
+input AppMessageSettingHistoryRecordsUpdateInput {
   id: ID!
-  data: B2CAppMessageSettingHistoryRecordUpdateInput
+  data: AppMessageSettingHistoryRecordUpdateInput
 }
 
-input B2CAppMessageSettingHistoryRecordCreateInput {
-  app: String
-  blockReason: String
-  isBlacklisted: Boolean
+input AppMessageSettingHistoryRecordCreateInput {
+  b2bApp: String
+  b2cApp: String
+  reason: String
   type: String
   notificationWindowSize: Int
   numberOfNotificationInWindow: Int
@@ -71011,42 +73960,42 @@ input B2CAppMessageSettingHistoryRecordCreateInput {
   dv: Int
   sender: JSON
   history_date: String
-  history_action: B2CAppMessageSettingHistoryRecordHistoryActionType
+  history_action: AppMessageSettingHistoryRecordHistoryActionType
   history_id: String
 }
 
-input B2CAppMessageSettingHistoryRecordsCreateInput {
-  data: B2CAppMessageSettingHistoryRecordCreateInput
+input AppMessageSettingHistoryRecordsCreateInput {
+  data: AppMessageSettingHistoryRecordCreateInput
 }
 
-""" Configuration of sending push notifications for specific miniapps.Used to block certain types of push notifications and control throttling of notifications of a certain miniapp 
+""" Configuration of sending push notifications for specific miniapp. Used to block certain types of push notifications and control throttling of notifications of a certain miniapp.Each setting contains either a B2BApp or a B2CApp, but not both at once. 
 """
-type B2CAppMessageSetting {
+type AppMessageSetting {
   """
   This virtual field will be resolved in one of the following ways (in this order):
-   1. Execution of 'labelResolver' set on the B2CAppMessageSetting List config, or
-   2. As an alias to the field set on 'labelField' in the B2CAppMessageSetting List config, or
-   3. As an alias to a 'name' field on the B2CAppMessageSetting List (if one exists), or
-   4. As an alias to the 'id' field on the B2CAppMessageSetting List.
+   1. Execution of 'labelResolver' set on the AppMessageSetting List config, or
+   2. As an alias to the field set on 'labelField' in the AppMessageSetting List config, or
+   3. As an alias to a 'name' field on the AppMessageSetting List (if one exists), or
+   4. As an alias to the 'id' field on the AppMessageSetting List.
   """
   _label_: String
 
+  """ Link to B2BApp to which this setting applies """
+  b2bApp: B2BApp
+
   """ Link to B2CApp to which this config applies """
-  app: B2CApp
+  b2cApp: B2CApp
 
-  """ Reason for blocking messages with types from type """
-  blockReason: String
-
-  """ Is message type in black list for this B2CApp """
-  isBlacklisted: Boolean
+  """ Reason why specific message type limits changed for miniapp """
+  reason: String
 
   """ The type of message we want to configure """
   type: MessageType
 
-  """ Time window for sending push notifications in sec """
+  """ Time interval in seconds to which the settings apply """
   notificationWindowSize: Int
 
-  """ The number of notifications that can be sent in one time window in sec 
+  """ The number of notifications that can be sent in single time window in seconds to a specific user. If the value is 0, then the miniapp cannot send this type of message 
   """
   numberOfNotificationInWindow: Int
   id: ID!
@@ -71072,31 +74021,31 @@ type B2CAppMessageSetting {
   sender: SenderField
 }
 
-input B2CAppMessageSettingWhereInput {
-  AND: [B2CAppMessageSettingWhereInput]
-  OR: [B2CAppMessageSettingWhereInput]
-  app: B2CAppWhereInput
-  app_is_null: Boolean
-  blockReason: String
-  blockReason_not: String
-  blockReason_contains: String
-  blockReason_not_contains: String
-  blockReason_starts_with: String
-  blockReason_not_starts_with: String
-  blockReason_ends_with: String
-  blockReason_not_ends_with: String
-  blockReason_i: String
-  blockReason_not_i: String
-  blockReason_contains_i: String
-  blockReason_not_contains_i: String
-  blockReason_starts_with_i: String
-  blockReason_not_starts_with_i: String
-  blockReason_ends_with_i: String
-  blockReason_not_ends_with_i: String
-  blockReason_in: [String]
-  blockReason_not_in: [String]
-  isBlacklisted: Boolean
-  isBlacklisted_not: Boolean
+input AppMessageSettingWhereInput {
+  AND: [AppMessageSettingWhereInput]
+  OR: [AppMessageSettingWhereInput]
+  b2bApp: B2BAppWhereInput
+  b2bApp_is_null: Boolean
+  b2cApp: B2CAppWhereInput
+  b2cApp_is_null: Boolean
+  reason: String
+  reason_not: String
+  reason_contains: String
+  reason_not_contains: String
+  reason_starts_with: String
+  reason_not_starts_with: String
+  reason_ends_with: String
+  reason_not_ends_with: String
+  reason_i: String
+  reason_not_i: String
+  reason_contains_i: String
+  reason_not_contains_i: String
+  reason_starts_with_i: String
+  reason_not_starts_with_i: String
+  reason_ends_with_i: String
+  reason_not_ends_with_i: String
+  reason_in: [String]
+  reason_not_in: [String]
   type: MessageType
   type_not: MessageType
   type_in: [MessageType]
@@ -71175,17 +74124,17 @@ input B2CAppMessageSettingWhereInput {
   sender_not_in: [SenderFieldInput]
 }
 
-input B2CAppMessageSettingWhereUniqueInput {
+input AppMessageSettingWhereUniqueInput {
   id: ID!
 }
 
-enum SortB2CAppMessageSettingsBy {
-  app_ASC
-  app_DESC
-  blockReason_ASC
-  blockReason_DESC
-  isBlacklisted_ASC
-  isBlacklisted_DESC
+enum SortAppMessageSettingsBy {
+  b2bApp_ASC
+  b2bApp_DESC
+  b2cApp_ASC
+  b2cApp_DESC
+  reason_ASC
+  reason_DESC
   type_ASC
   type_DESC
   notificationWindowSize_ASC
@@ -71210,10 +74159,10 @@ enum SortB2CAppMessageSettingsBy {
   dv_DESC
 }
 
-input B2CAppMessageSettingUpdateInput {
-  app: B2CAppRelateToOneInput
-  blockReason: String
-  isBlacklisted: Boolean
+input AppMessageSettingUpdateInput {
+  b2bApp: B2BAppRelateToOneInput
+  b2cApp: B2CAppRelateToOneInput
+  reason: String
   type: MessageType
   notificationWindowSize: Int
   numberOfNotificationInWindow: Int
@@ -71228,15 +74177,15 @@ input B2CAppMessageSettingUpdateInput {
   sender: SenderFieldInput
 }
 
-input B2CAppMessageSettingsUpdateInput {
+input AppMessageSettingsUpdateInput {
   id: ID!
-  data: B2CAppMessageSettingUpdateInput
+  data: AppMessageSettingUpdateInput
 }
 
-input B2CAppMessageSettingCreateInput {
-  app: B2CAppRelateToOneInput
-  blockReason: String
-  isBlacklisted: Boolean
+input AppMessageSettingCreateInput {
+  b2bApp: B2BAppRelateToOneInput
+  b2cApp: B2CAppRelateToOneInput
+  reason: String
   type: MessageType
   notificationWindowSize: Int
   numberOfNotificationInWindow: Int
@@ -71251,8 +74200,445 @@ input B2CAppMessageSettingCreateInput {
   sender: SenderFieldInput
 }
 
-input B2CAppMessageSettingsCreateInput {
-  data: B2CAppMessageSettingCreateInput
+input AppMessageSettingsCreateInput {
+  data: AppMessageSettingCreateInput
+}
+
+enum B2BAccessTokenHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type B2BAccessTokenHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the B2BAccessTokenHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the B2BAccessTokenHistoryRecord List config, or
+   3. As an alias to a 'name' field on the B2BAccessTokenHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the B2BAccessTokenHistoryRecord List.
+  """
+  _label_: String
+  sessionId: JSON
+  context: String
+  user: String
+  rightSet: String
+  expiresAt: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: B2BAccessTokenHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input B2BAccessTokenHistoryRecordWhereInput {
+  AND: [B2BAccessTokenHistoryRecordWhereInput]
+  OR: [B2BAccessTokenHistoryRecordWhereInput]
+  sessionId: JSON
+  sessionId_not: JSON
+  sessionId_in: [JSON]
+  sessionId_not_in: [JSON]
+  context: String
+  context_not: String
+  context_in: [String]
+  context_not_in: [String]
+  user: String
+  user_not: String
+  user_in: [String]
+  user_not_in: [String]
+  rightSet: String
+  rightSet_not: String
+  rightSet_in: [String]
+  rightSet_not_in: [String]
+  expiresAt: String
+  expiresAt_not: String
+  expiresAt_lt: String
+  expiresAt_lte: String
+  expiresAt_gt: String
+  expiresAt_gte: String
+  expiresAt_in: [String]
+  expiresAt_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: B2BAccessTokenHistoryRecordHistoryActionType
+  history_action_not: B2BAccessTokenHistoryRecordHistoryActionType
+  history_action_in: [B2BAccessTokenHistoryRecordHistoryActionType]
+  history_action_not_in: [B2BAccessTokenHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input B2BAccessTokenHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortB2BAccessTokenHistoryRecordsBy {
+  expiresAt_ASC
+  expiresAt_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input B2BAccessTokenHistoryRecordUpdateInput {
+  sessionId: JSON
+  context: String
+  user: String
+  rightSet: String
+  expiresAt: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: B2BAccessTokenHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input B2BAccessTokenHistoryRecordsUpdateInput {
+  id: ID!
+  data: B2BAccessTokenHistoryRecordUpdateInput
+}
+
+input B2BAccessTokenHistoryRecordCreateInput {
+  sessionId: JSON
+  context: String
+  user: String
+  rightSet: String
+  expiresAt: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: B2BAccessTokenHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input B2BAccessTokenHistoryRecordsCreateInput {
+  data: B2BAccessTokenHistoryRecordCreateInput
+}
+
+""" Access to service user with additional restrictions by Organization and B2BAppAccessRightSet 
+"""
+type B2BAccessToken {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the B2BAccessToken List config, or
+   2. As an alias to the field set on 'labelField' in the B2BAccessToken List config, or
+   3. As an alias to a 'name' field on the B2BAccessToken List (if one exists), or
+   4. As an alias to the 'id' field on the B2BAccessToken List.
+  """
+  _label_: String
+
+  """ Encrypted sessionId of session """
+  sessionId: String
+
+  """ Token, ready to be put in Authorization header. Shown only once after creation 
+  """
+  token: String
+
+  """ Link to B2BApp and Organization """
+  context: B2BAppContext
+
+  """ Link to user. Note, that user must be of "service" type """
+  user: User
+
+  """ Right set for token """
+  rightSet: B2BAppAccessRightSet
+
+  """ Date, when access by this token will be restricted """
+  expiresAt: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input B2BAccessTokenWhereInput {
+  AND: [B2BAccessTokenWhereInput]
+  OR: [B2BAccessTokenWhereInput]
+  sessionId: String
+  sessionId_not: String
+  sessionId_contains: String
+  sessionId_not_contains: String
+  sessionId_starts_with: String
+  sessionId_not_starts_with: String
+  sessionId_ends_with: String
+  sessionId_not_ends_with: String
+  sessionId_i: String
+  sessionId_not_i: String
+  sessionId_contains_i: String
+  sessionId_not_contains_i: String
+  sessionId_starts_with_i: String
+  sessionId_not_starts_with_i: String
+  sessionId_ends_with_i: String
+  sessionId_not_ends_with_i: String
+  sessionId_in: [String]
+  sessionId_not_in: [String]
+  context: B2BAppContextWhereInput
+  context_is_null: Boolean
+  user: UserWhereInput
+  user_is_null: Boolean
+  rightSet: B2BAppAccessRightSetWhereInput
+  rightSet_is_null: Boolean
+  expiresAt: String
+  expiresAt_not: String
+  expiresAt_lt: String
+  expiresAt_lte: String
+  expiresAt_gt: String
+  expiresAt_gte: String
+  expiresAt_in: [String]
+  expiresAt_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input B2BAccessTokenWhereUniqueInput {
+  id: ID!
+}
+
+enum SortB2BAccessTokensBy {
+  sessionId_ASC
+  sessionId_DESC
+  context_ASC
+  context_DESC
+  user_ASC
+  user_DESC
+  rightSet_ASC
+  rightSet_DESC
+  expiresAt_ASC
+  expiresAt_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input B2BAccessTokenUpdateInput {
+  sessionId: String
+  context: B2BAppContextRelateToOneInput
+  user: UserRelateToOneInput
+  rightSet: B2BAppAccessRightSetRelateToOneInput
+  expiresAt: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input B2BAccessTokensUpdateInput {
+  id: ID!
+  data: B2BAccessTokenUpdateInput
+}
+
+input B2BAccessTokenCreateInput {
+  sessionId: String
+  context: B2BAppContextRelateToOneInput
+  user: UserRelateToOneInput
+  rightSet: B2BAppAccessRightSetRelateToOneInput
+  expiresAt: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input B2BAccessTokensCreateInput {
+  data: B2BAccessTokenCreateInput
 }
 
 enum MobileFeatureConfigHistoryRecordHistoryActionType {
@@ -73116,6 +76502,7 @@ type InvoiceRowSchemaField {
   salesTaxPercent: String
   sku: String
   isMin: Boolean!
+  measure: String
   meta: InvoiceRowMetaSchemaField
 }
 
@@ -73128,6 +76515,7 @@ input InvoiceRowSchemaFieldInput {
   salesTaxPercent: String
   sku: String
   isMin: Boolean!
+  measure: String
   meta: InvoiceRowMetaSchemaFieldInput
 }
 
@@ -74142,6 +77530,7 @@ type MarketItemPricePriceSchemaField {
   name: String!
   price: String!
   isMin: Boolean!
+  measure: String
   vatPercent: String
   salesTaxPercent: String
   currencyCode: String
@@ -74152,6 +77541,7 @@ input MarketItemPricePriceSchemaFieldInput {
   name: String!
   price: String!
   isMin: Boolean!
+  measure: String
   vatPercent: String
   salesTaxPercent: String
   currencyCode: String
@@ -75483,6 +78873,7 @@ type DocumentHistoryRecord {
   category: String
   name: String
   file: JSON
+  canReadByResident: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -75535,6 +78926,8 @@ input DocumentHistoryRecordWhereInput {
   file_not: JSON
   file_in: [JSON]
   file_not_in: [JSON]
+  canReadByResident: Boolean
+  canReadByResident_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -75620,6 +79013,8 @@ input DocumentHistoryRecordWhereUniqueInput {
 enum SortDocumentHistoryRecordsBy {
   name_ASC
   name_DESC
+  canReadByResident_ASC
+  canReadByResident_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -75644,6 +79039,7 @@ input DocumentHistoryRecordUpdateInput {
   category: String
   name: String
   file: JSON
+  canReadByResident: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -75669,6 +79065,7 @@ input DocumentHistoryRecordCreateInput {
   category: String
   name: String
   file: JSON
+  canReadByResident: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -75721,6 +79118,9 @@ type Document {
 
   """ File attached to document """
   file: File
+
+  """ If set to true, this means document will be accessible by residents """
+  canReadByResident: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -75775,6 +79175,8 @@ input DocumentWhereInput {
   file_not: String
   file_in: [String]
   file_not_in: [String]
+  canReadByResident: Boolean
+  canReadByResident_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -75846,6 +79248,8 @@ enum SortDocumentsBy {
   category_DESC
   name_ASC
   name_DESC
+  canReadByResident_ASC
+  canReadByResident_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -75870,6 +79274,7 @@ input DocumentUpdateInput {
   category: DocumentCategoryRelateToOneInput
   name: String
   file: Upload
+  canReadByResident: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -75892,6 +79297,7 @@ input DocumentCreateInput {
   category: DocumentCategoryRelateToOneInput
   name: String
   file: Upload
+  canReadByResident: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -77224,6 +80630,10 @@ input RegisterNewUserInput {
 }
 
 input AuthenticateUserWithPhoneAndPasswordInput {
+  dv: Int
+  sender: SenderFieldInput
+  captcha: String
+  userType: UserTypeType
   phone: String!
   password: String!
 }
@@ -77339,6 +80749,7 @@ type RegisterNewServiceUserOutput {
 enum SendMessageToSupportLang {
   ru
   en
+  es
 }
 
 input SendMessageToSupportInput {
@@ -77382,16 +80793,61 @@ type GetAccessTokenByUserIdOutput {
 input CheckUserExistenceInput {
   dv: Int!
   sender: SenderFieldInput!
-  confirmActionToken: ID!
+  token: String!
   userType: UserTypeType!
+  captcha: String
 }
 
 type CheckUserExistenceOutput {
-  userExists: Boolean!
-  nameSet: Boolean!
-  emailSet: Boolean!
-  phoneSet: Boolean!
-  passwordSet: Boolean!
+  isUserExists: Boolean!
+  isNameSet: Boolean!
+  isEmailSet: Boolean!
+  isPhoneSet: Boolean!
+  isPasswordSet: Boolean!
+}
+
+input GenerateSudoTokenUserIdentifierInput {
+  phone: String
+  email: String
+  userType: UserTypeType!
+}
+
+input GenerateSudoTokenAuthFactorsInput {
+  confirmPhoneToken: String
+  password: String
+}
+
+input GenerateSudoTokenInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  captcha: String!
+  user: GenerateSudoTokenUserIdentifierInput!
+  authFactors: GenerateSudoTokenAuthFactorsInput!
+}
+
+type GenerateSudoTokenOutput {
+  token: String!
+}
+
+input AuthenticateOrRegisterUserWithTokenUserDataInput {
+  phone: String
+  name: String
+  email: String
+  password: String
+}
+
+input AuthenticateOrRegisterUserWithTokenInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  token: String!
+  userType: UserTypeType!
+  captcha: String!
+  userData: AuthenticateOrRegisterUserWithTokenUserDataInput
+}
+
+type AuthenticateOrRegisterUserWithTokenOutput {
+  item: User
+  token: String!
 }
 
 enum OrganizationType {
@@ -77461,6 +80917,40 @@ input ReplaceOrganizationEmployeeRoleInput {
 
 type ReplaceOrganizationEmployeeRoleOutput {
   status: String!
+}
+
+input FindOrganizationsByTinInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  tin: String!
+}
+
+type FindOrganizationsByTinOrganizationType {
+  id: String!
+  name: String!
+}
+
+type FindOrganizationsByTinOutput {
+  organizations: [FindOrganizationsByTinOrganizationType]!
+}
+
+input SendOrganizationEmployeeRequestInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  organization: OrganizationWhereUniqueInput!
+}
+
+input AcceptOrRejectOrganizationEmployeeRequestEmployeeDataInput {
+  role: OrganizationEmployeeRoleWhereUniqueInput!
+}
+
+input AcceptOrRejectOrganizationEmployeeRequestInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  employeeRequest: OrganizationEmployeeRequestWhereUniqueInput!
+  employeeData: AcceptOrRejectOrganizationEmployeeRequestEmployeeDataInput
+  isRejected: Boolean
+  isAccepted: Boolean
 }
 
 input ExportPropertiesToExcelInput {
@@ -77831,6 +81321,7 @@ input TicketMultipleUpdateInput {
 enum SendMessageLang {
   ru
   en
+  es
 }
 
 input SendMessageToInput {
@@ -77906,6 +81397,8 @@ enum MessageType {
   MARKETPLACE_INVOICE_CASH_WITH_TICKET_PUBLISHED_MESSAGE
   SERVICE_USER_CREATED
   SEND_DAILY_STATISTICS
+  B2B_APP_MESSAGE_PUSH
+  PASS_TICKET_CREATED
 }
 
 input SendMessageInput {
@@ -78158,26 +81651,29 @@ input FindOrganizationsByAddressInput {
   accountNumber: String
 }
 
-type FindOrganizationByAddressOrganizationType {
+type FindOrganizationByAddressReceiptType {
+  accountNumber: String
+  category: ID!
+  balance: String
+  routingNumber: String
+  bankAccount: String
+  address: String
+}
+
+type FindOrganizationByAddressMeterType {
+  resource: ID!
+  number: String
+  accountNumber: String
+  address: String
+}
+
+type FindOrganizationByAddressOutput {
   id: ID!
   name: String!
   tin: String!
   type: OrganizationTypeType!
-}
-
-type FindOrganizationByAddressAccountType {
-  number: String!
-  category: ID!
-  balance: String
-  routingNumber: String!
-  bankAccountNumber: String!
-}
-
-type FindOrganizationByAddressOutput {
-  organization: FindOrganizationByAddressOrganizationType!
-  account: FindOrganizationByAddressAccountType
-  hasMeters: Boolean!
-  hasBillingData: Boolean!
+  receipts: [FindOrganizationByAddressReceiptType]!
+  meters: [FindOrganizationByAddressMeterType]!
 }
 
 input SuggestServiceProviderInput {
@@ -78204,6 +81700,7 @@ input _internalDeleteMeterAndMeterReadingsInput {
   sender: SenderFieldInput!
   propertyIds: [ID]
   organizationId: ID!
+  resourcesIds: [ID]
 }
 
 enum Status {
@@ -78221,6 +81718,7 @@ input _internalDeleteMeterReadingsInput {
   dv: Int!
   sender: SenderFieldInput!
   propertyIds: [ID]
+  resourcesIds: [ID]
   organizationId: ID!
   startDateTime: String!
   endDateTime: String!
@@ -78376,6 +81874,7 @@ input RegisterMultiPaymentVirtualReceiptInput {
   amount: String!
   period: String!
   recipient: RegisterMultiPaymentVirtualReceiptRecipientInput!
+  category: BillingCategoryWhereUniqueInput
 }
 
 input RegisterMultiPaymentForVirtualReceiptInput {
@@ -78789,6 +82288,26 @@ type SendB2CAppPushMessageOutput {
   status: String!
 }
 
+enum B2BAppMessageType {
+  B2B_APP_MESSAGE_PUSH
+  PASS_TICKET_CREATED
+}
+
+input SendB2BAppPushMessageInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  user: UserWhereUniqueInput!
+  organization: OrganizationWhereUniqueInput!
+  app: B2BAppWhereUniqueInput!
+  type: B2BAppMessageType!
+  meta: JSON!
+}
+
+type SendB2BAppPushMessageOutput {
+  status: String!
+  id: String!
+}
+
 type unauthenticateUserOutput {
   """
   `true` when unauthentication succeeds.
@@ -78975,6 +82494,63 @@ type Query {
   """ Retrieve the meta-data for the UserRightsSet list. """
   _UserRightsSetsMeta: _ListMeta
 
+  """ Search for all ResetUserLimitActionHistoryRecord items which match the where clause. 
+  """
+  allResetUserLimitActionHistoryRecords(where: ResetUserLimitActionHistoryRecordWhereInput, search: String, sortBy: [SortResetUserLimitActionHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [ResetUserLimitActionHistoryRecord]
+
+  """ Search for the ResetUserLimitActionHistoryRecord item with the matching ID. 
+  """
+  ResetUserLimitActionHistoryRecord(where: ResetUserLimitActionHistoryRecordWhereUniqueInput!): ResetUserLimitActionHistoryRecord
+
+  """ Perform a meta-query on all ResetUserLimitActionHistoryRecord items which match the where clause. 
+  """
+  _allResetUserLimitActionHistoryRecordsMeta(where: ResetUserLimitActionHistoryRecordWhereInput, search: String, sortBy: [SortResetUserLimitActionHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the ResetUserLimitActionHistoryRecord list. 
+  """
+  _ResetUserLimitActionHistoryRecordsMeta: _ListMeta
+
+  """ Search for all ResetUserLimitAction items which match the where clause. 
+  """
+  allResetUserLimitActions(where: ResetUserLimitActionWhereInput, search: String, sortBy: [SortResetUserLimitActionsBy!], orderBy: String, first: Int, skip: Int): [ResetUserLimitAction]
+
+  """ Search for the ResetUserLimitAction item with the matching ID. """
+  ResetUserLimitAction(where: ResetUserLimitActionWhereUniqueInput!): ResetUserLimitAction
+
+  """ Perform a meta-query on all ResetUserLimitAction items which match the where clause. 
+  """
+  _allResetUserLimitActionsMeta(where: ResetUserLimitActionWhereInput, search: String, sortBy: [SortResetUserLimitActionsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the ResetUserLimitAction list. """
+  _ResetUserLimitActionsMeta: _ListMeta
+
+  """ Search for all UserSudoTokenHistoryRecord items which match the where clause. 
+  """
+  allUserSudoTokenHistoryRecords(where: UserSudoTokenHistoryRecordWhereInput, search: String, sortBy: [SortUserSudoTokenHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [UserSudoTokenHistoryRecord]
+
+  """ Search for the UserSudoTokenHistoryRecord item with the matching ID. """
+  UserSudoTokenHistoryRecord(where: UserSudoTokenHistoryRecordWhereUniqueInput!): UserSudoTokenHistoryRecord
+
+  """ Perform a meta-query on all UserSudoTokenHistoryRecord items which match the where clause. 
+  """
+  _allUserSudoTokenHistoryRecordsMeta(where: UserSudoTokenHistoryRecordWhereInput, search: String, sortBy: [SortUserSudoTokenHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the UserSudoTokenHistoryRecord list. """
+  _UserSudoTokenHistoryRecordsMeta: _ListMeta
+
+  """ Search for all UserSudoToken items which match the where clause. """
+  allUserSudoTokens(where: UserSudoTokenWhereInput, search: String, sortBy: [SortUserSudoTokensBy!], orderBy: String, first: Int, skip: Int): [UserSudoToken]
+
+  """ Search for the UserSudoToken item with the matching ID. """
+  UserSudoToken(where: UserSudoTokenWhereUniqueInput!): UserSudoToken
+
+  """ Perform a meta-query on all UserSudoToken items which match the where clause. 
+  """
+  _allUserSudoTokensMeta(where: UserSudoTokenWhereInput, search: String, sortBy: [SortUserSudoTokensBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the UserSudoToken list. """
+  _UserSudoTokensMeta: _ListMeta
+
   """ Search for all OrganizationHistoryRecord items which match the where clause. 
   """
   allOrganizationHistoryRecords(where: OrganizationHistoryRecordWhereInput, search: String, sortBy: [SortOrganizationHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [OrganizationHistoryRecord]
@@ -79121,6 +82697,51 @@ type Query {
   """ Retrieve the meta-data for the OrganizationEmployeeSpecialization list. 
   """
   _OrganizationEmployeeSpecializationsMeta: _ListMeta
+
+  """ Search for all FindOrganizationsByTinLog items which match the where clause. 
+  """
+  allFindOrganizationsByTinLogs(where: FindOrganizationsByTinLogWhereInput, search: String, sortBy: [SortFindOrganizationsByTinLogsBy!], orderBy: String, first: Int, skip: Int): [FindOrganizationsByTinLog]
+
+  """ Search for the FindOrganizationsByTinLog item with the matching ID. """
+  FindOrganizationsByTinLog(where: FindOrganizationsByTinLogWhereUniqueInput!): FindOrganizationsByTinLog
+
+  """ Perform a meta-query on all FindOrganizationsByTinLog items which match the where clause. 
+  """
+  _allFindOrganizationsByTinLogsMeta(where: FindOrganizationsByTinLogWhereInput, search: String, sortBy: [SortFindOrganizationsByTinLogsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the FindOrganizationsByTinLog list. """
+  _FindOrganizationsByTinLogsMeta: _ListMeta
+
+  """ Search for all OrganizationEmployeeRequestHistoryRecord items which match the where clause. 
+  """
+  allOrganizationEmployeeRequestHistoryRecords(where: OrganizationEmployeeRequestHistoryRecordWhereInput, search: String, sortBy: [SortOrganizationEmployeeRequestHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [OrganizationEmployeeRequestHistoryRecord]
+
+  """ Search for the OrganizationEmployeeRequestHistoryRecord item with the matching ID. 
+  """
+  OrganizationEmployeeRequestHistoryRecord(where: OrganizationEmployeeRequestHistoryRecordWhereUniqueInput!): OrganizationEmployeeRequestHistoryRecord
+
+  """ Perform a meta-query on all OrganizationEmployeeRequestHistoryRecord items which match the where clause. 
+  """
+  _allOrganizationEmployeeRequestHistoryRecordsMeta(where: OrganizationEmployeeRequestHistoryRecordWhereInput, search: String, sortBy: [SortOrganizationEmployeeRequestHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the OrganizationEmployeeRequestHistoryRecord list. 
+  """
+  _OrganizationEmployeeRequestHistoryRecordsMeta: _ListMeta
+
+  """ Search for all OrganizationEmployeeRequest items which match the where clause. 
+  """
+  allOrganizationEmployeeRequests(where: OrganizationEmployeeRequestWhereInput, search: String, sortBy: [SortOrganizationEmployeeRequestsBy!], orderBy: String, first: Int, skip: Int): [OrganizationEmployeeRequest]
+
+  """ Search for the OrganizationEmployeeRequest item with the matching ID. 
+  """
+  OrganizationEmployeeRequest(where: OrganizationEmployeeRequestWhereUniqueInput!): OrganizationEmployeeRequest
+
+  """ Perform a meta-query on all OrganizationEmployeeRequest items which match the where clause. 
+  """
+  _allOrganizationEmployeeRequestsMeta(where: OrganizationEmployeeRequestWhereInput, search: String, sortBy: [SortOrganizationEmployeeRequestsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the OrganizationEmployeeRequest list. """
+  _OrganizationEmployeeRequestsMeta: _ListMeta
 
   """ Search for all PropertyHistoryRecord items which match the where clause. 
   """
@@ -81311,6 +84932,33 @@ type Query {
   """ Retrieve the meta-data for the MeterReadingExportTask list. """
   _MeterReadingExportTasksMeta: _ListMeta
 
+  """ Search for all MeterUserDataHistoryRecord items which match the where clause. 
+  """
+  allMeterUserDataHistoryRecords(where: MeterUserDataHistoryRecordWhereInput, search: String, sortBy: [SortMeterUserDataHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [MeterUserDataHistoryRecord]
+
+  """ Search for the MeterUserDataHistoryRecord item with the matching ID. """
+  MeterUserDataHistoryRecord(where: MeterUserDataHistoryRecordWhereUniqueInput!): MeterUserDataHistoryRecord
+
+  """ Perform a meta-query on all MeterUserDataHistoryRecord items which match the where clause. 
+  """
+  _allMeterUserDataHistoryRecordsMeta(where: MeterUserDataHistoryRecordWhereInput, search: String, sortBy: [SortMeterUserDataHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the MeterUserDataHistoryRecord list. """
+  _MeterUserDataHistoryRecordsMeta: _ListMeta
+
+  """ Search for all MeterUserData items which match the where clause. """
+  allMeterUserData(where: MeterUserDatumWhereInput, search: String, sortBy: [SortMeterUserDataBy!], orderBy: String, first: Int, skip: Int): [MeterUserData]
+
+  """ Search for the MeterUserData item with the matching ID. """
+  MeterUserDatum(where: MeterUserDatumWhereUniqueInput!): MeterUserData
+
+  """ Perform a meta-query on all MeterUserData items which match the where clause. 
+  """
+  _allMeterUserDataMeta(where: MeterUserDatumWhereInput, search: String, sortBy: [SortMeterUserDataBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the MeterUserDatum list. """
+  _MeterUserDataMeta: _ListMeta
+
   """ Search for all ServiceSubscriptionHistoryRecord items which match the where clause. 
   """
   allServiceSubscriptionHistoryRecords(where: ServiceSubscriptionHistoryRecordWhereInput, search: String, sortBy: [SortServiceSubscriptionHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [ServiceSubscriptionHistoryRecord]
@@ -82198,35 +85846,61 @@ type Query {
   """ Retrieve the meta-data for the B2BAppNewsSharingConfig list. """
   _B2BAppNewsSharingConfigsMeta: _ListMeta
 
-  """ Search for all B2CAppMessageSettingHistoryRecord items which match the where clause. 
+  """ Search for all AppMessageSettingHistoryRecord items which match the where clause. 
   """
-  allB2CAppMessageSettingHistoryRecords(where: B2CAppMessageSettingHistoryRecordWhereInput, search: String, sortBy: [SortB2CAppMessageSettingHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [B2CAppMessageSettingHistoryRecord]
+  allAppMessageSettingHistoryRecords(where: AppMessageSettingHistoryRecordWhereInput, search: String, sortBy: [SortAppMessageSettingHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [AppMessageSettingHistoryRecord]
 
-  """ Search for the B2CAppMessageSettingHistoryRecord item with the matching ID. 
+  """ Search for the AppMessageSettingHistoryRecord item with the matching ID. 
   """
-  B2CAppMessageSettingHistoryRecord(where: B2CAppMessageSettingHistoryRecordWhereUniqueInput!): B2CAppMessageSettingHistoryRecord
+  AppMessageSettingHistoryRecord(where: AppMessageSettingHistoryRecordWhereUniqueInput!): AppMessageSettingHistoryRecord
 
-  """ Perform a meta-query on all B2CAppMessageSettingHistoryRecord items which match the where clause. 
+  """ Perform a meta-query on all AppMessageSettingHistoryRecord items which match the where clause. 
   """
-  _allB2CAppMessageSettingHistoryRecordsMeta(where: B2CAppMessageSettingHistoryRecordWhereInput, search: String, sortBy: [SortB2CAppMessageSettingHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+  _allAppMessageSettingHistoryRecordsMeta(where: AppMessageSettingHistoryRecordWhereInput, search: String, sortBy: [SortAppMessageSettingHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
 
-  """ Retrieve the meta-data for the B2CAppMessageSettingHistoryRecord list. 
+  """ Retrieve the meta-data for the AppMessageSettingHistoryRecord list. """
+  _AppMessageSettingHistoryRecordsMeta: _ListMeta
+
+  """ Search for all AppMessageSetting items which match the where clause. """
+  allAppMessageSettings(where: AppMessageSettingWhereInput, search: String, sortBy: [SortAppMessageSettingsBy!], orderBy: String, first: Int, skip: Int): [AppMessageSetting]
+
+  """ Search for the AppMessageSetting item with the matching ID. """
+  AppMessageSetting(where: AppMessageSettingWhereUniqueInput!): AppMessageSetting
+
+  """ Perform a meta-query on all AppMessageSetting items which match the where clause. 
   """
-  _B2CAppMessageSettingHistoryRecordsMeta: _ListMeta
+  _allAppMessageSettingsMeta(where: AppMessageSettingWhereInput, search: String, sortBy: [SortAppMessageSettingsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
 
-  """ Search for all B2CAppMessageSetting items which match the where clause. 
+  """ Retrieve the meta-data for the AppMessageSetting list. """
+  _AppMessageSettingsMeta: _ListMeta
+
+  """ Search for all B2BAccessTokenHistoryRecord items which match the where clause. 
   """
-  allB2CAppMessageSettings(where: B2CAppMessageSettingWhereInput, search: String, sortBy: [SortB2CAppMessageSettingsBy!], orderBy: String, first: Int, skip: Int): [B2CAppMessageSetting]
+  allB2BAccessTokenHistoryRecords(where: B2BAccessTokenHistoryRecordWhereInput, search: String, sortBy: [SortB2BAccessTokenHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [B2BAccessTokenHistoryRecord]
 
-  """ Search for the B2CAppMessageSetting item with the matching ID. """
-  B2CAppMessageSetting(where: B2CAppMessageSettingWhereUniqueInput!): B2CAppMessageSetting
-
-  """ Perform a meta-query on all B2CAppMessageSetting items which match the where clause. 
+  """ Search for the B2BAccessTokenHistoryRecord item with the matching ID. 
   """
-  _allB2CAppMessageSettingsMeta(where: B2CAppMessageSettingWhereInput, search: String, sortBy: [SortB2CAppMessageSettingsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+  B2BAccessTokenHistoryRecord(where: B2BAccessTokenHistoryRecordWhereUniqueInput!): B2BAccessTokenHistoryRecord
 
-  """ Retrieve the meta-data for the B2CAppMessageSetting list. """
-  _B2CAppMessageSettingsMeta: _ListMeta
+  """ Perform a meta-query on all B2BAccessTokenHistoryRecord items which match the where clause. 
+  """
+  _allB2BAccessTokenHistoryRecordsMeta(where: B2BAccessTokenHistoryRecordWhereInput, search: String, sortBy: [SortB2BAccessTokenHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the B2BAccessTokenHistoryRecord list. """
+  _B2BAccessTokenHistoryRecordsMeta: _ListMeta
+
+  """ Search for all B2BAccessToken items which match the where clause. """
+  allB2BAccessTokens(where: B2BAccessTokenWhereInput, search: String, sortBy: [SortB2BAccessTokensBy!], orderBy: String, first: Int, skip: Int): [B2BAccessToken]
+
+  """ Search for the B2BAccessToken item with the matching ID. """
+  B2BAccessToken(where: B2BAccessTokenWhereUniqueInput!): B2BAccessToken
+
+  """ Perform a meta-query on all B2BAccessToken items which match the where clause. 
+  """
+  _allB2BAccessTokensMeta(where: B2BAccessTokenWhereInput, search: String, sortBy: [SortB2BAccessTokensBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the B2BAccessToken list. """
+  _B2BAccessTokensMeta: _ListMeta
 
   """ Search for all MobileFeatureConfigHistoryRecord items which match the where clause. 
   """
@@ -82622,7 +86296,8 @@ type Query {
   Using an action token with a verified phone number, checks whether a user with the specified type (resident, staff, service) is registered.
   As a result, information about the completion of some important fields (name, email, phone, password) is also returned.
   
-  
+  Token can be: 
+   - confirmPhoneToken
   
   **Errors**
   
@@ -82636,6 +86311,13 @@ type Query {
   
   `{
     "code": "BAD_USER_INPUT",
+    "type": "CAPTCHA_CHECK_FAILED",
+    "message": "Failed to check CAPTCHA",
+    "messageForUser": "The operation could not be completed. Please update the application"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
     "type": "DV_VERSION_MISMATCH",
     "message": "Wrong value for data version number"
   }`
@@ -82643,11 +86325,73 @@ type Query {
   `{
     "code": "BAD_USER_INPUT",
     "type": "WRONG_FORMAT",
-    "message": "Invalid format of \"sender\" field value",
+    "message": "Invalid format of \"sender\" field value. Please, check the example for details",
     "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVALID_TOKEN",
+    "message": "Invalid token"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "UNSUPPORTED_TOKEN",
+    "message": "Unsupported token"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "DAILY_REQUEST_LIMIT_FOR_IP_REACHED",
+    "message": "Too many requests from this ip address. Try again later",
+    "messageForUser": "Too many requests from this ip address. Try again later"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "DAILY_REQUEST_LIMIT_FOR_PHONE_REACHED",
+    "message": "Too many requests with this phone. Try again later",
+    "messageForUser": "Too many requests with this phone. Try again later"
   }`
   """
   checkUserExistence(data: CheckUserExistenceInput!): CheckUserExistenceOutput
+
+  """
+  Returns all organizations by TIN. Used to get organizations that the user can apply to join
+  
+  
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "EMPTY_TIN",
+    "message": "Empty tin"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "UNAVAILABLE_TIN",
+    "message": "Unavailable tin"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "DV_VERSION_MISMATCH",
+    "message": "Wrong value for data version number"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_FORMAT",
+    "message": "Invalid format of \"sender\" field value. Please, check the example for details",
+    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
+  }`
+  """
+  findOrganizationsByTin(data: FindOrganizationsByTinInput!): FindOrganizationsByTinOutput
   exportPropertiesToExcel(data: ExportPropertiesToExcelInput!): ExportPropertiesToExcelOutput
   allResidentBillingReceipts(where: ResidentBillingReceiptWhereInput, first: Int, skip: Int, sortBy: [SortResidentBillingReceiptsBy!]): [ResidentBillingReceiptOutput]
 
@@ -82980,6 +86724,78 @@ type Mutation {
   """ Delete multiple UserRightsSet items by ID. """
   deleteUserRightsSets(ids: [ID!]): [UserRightsSet]
 
+  """ Create a single ResetUserLimitActionHistoryRecord item. """
+  createResetUserLimitActionHistoryRecord(data: ResetUserLimitActionHistoryRecordCreateInput): ResetUserLimitActionHistoryRecord
+
+  """ Create multiple ResetUserLimitActionHistoryRecord items. """
+  createResetUserLimitActionHistoryRecords(data: [ResetUserLimitActionHistoryRecordsCreateInput]): [ResetUserLimitActionHistoryRecord]
+
+  """ Update a single ResetUserLimitActionHistoryRecord item by ID. """
+  updateResetUserLimitActionHistoryRecord(id: ID!, data: ResetUserLimitActionHistoryRecordUpdateInput): ResetUserLimitActionHistoryRecord
+
+  """ Update multiple ResetUserLimitActionHistoryRecord items by ID. """
+  updateResetUserLimitActionHistoryRecords(data: [ResetUserLimitActionHistoryRecordsUpdateInput]): [ResetUserLimitActionHistoryRecord]
+
+  """ Delete a single ResetUserLimitActionHistoryRecord item by ID. """
+  deleteResetUserLimitActionHistoryRecord(id: ID!): ResetUserLimitActionHistoryRecord
+
+  """ Delete multiple ResetUserLimitActionHistoryRecord items by ID. """
+  deleteResetUserLimitActionHistoryRecords(ids: [ID!]): [ResetUserLimitActionHistoryRecord]
+
+  """ Create a single ResetUserLimitAction item. """
+  createResetUserLimitAction(data: ResetUserLimitActionCreateInput): ResetUserLimitAction
+
+  """ Create multiple ResetUserLimitAction items. """
+  createResetUserLimitActions(data: [ResetUserLimitActionsCreateInput]): [ResetUserLimitAction]
+
+  """ Update a single ResetUserLimitAction item by ID. """
+  updateResetUserLimitAction(id: ID!, data: ResetUserLimitActionUpdateInput): ResetUserLimitAction
+
+  """ Update multiple ResetUserLimitAction items by ID. """
+  updateResetUserLimitActions(data: [ResetUserLimitActionsUpdateInput]): [ResetUserLimitAction]
+
+  """ Delete a single ResetUserLimitAction item by ID. """
+  deleteResetUserLimitAction(id: ID!): ResetUserLimitAction
+
+  """ Delete multiple ResetUserLimitAction items by ID. """
+  deleteResetUserLimitActions(ids: [ID!]): [ResetUserLimitAction]
+
+  """ Create a single UserSudoTokenHistoryRecord item. """
+  createUserSudoTokenHistoryRecord(data: UserSudoTokenHistoryRecordCreateInput): UserSudoTokenHistoryRecord
+
+  """ Create multiple UserSudoTokenHistoryRecord items. """
+  createUserSudoTokenHistoryRecords(data: [UserSudoTokenHistoryRecordsCreateInput]): [UserSudoTokenHistoryRecord]
+
+  """ Update a single UserSudoTokenHistoryRecord item by ID. """
+  updateUserSudoTokenHistoryRecord(id: ID!, data: UserSudoTokenHistoryRecordUpdateInput): UserSudoTokenHistoryRecord
+
+  """ Update multiple UserSudoTokenHistoryRecord items by ID. """
+  updateUserSudoTokenHistoryRecords(data: [UserSudoTokenHistoryRecordsUpdateInput]): [UserSudoTokenHistoryRecord]
+
+  """ Delete a single UserSudoTokenHistoryRecord item by ID. """
+  deleteUserSudoTokenHistoryRecord(id: ID!): UserSudoTokenHistoryRecord
+
+  """ Delete multiple UserSudoTokenHistoryRecord items by ID. """
+  deleteUserSudoTokenHistoryRecords(ids: [ID!]): [UserSudoTokenHistoryRecord]
+
+  """ Create a single UserSudoToken item. """
+  createUserSudoToken(data: UserSudoTokenCreateInput): UserSudoToken
+
+  """ Create multiple UserSudoToken items. """
+  createUserSudoTokens(data: [UserSudoTokensCreateInput]): [UserSudoToken]
+
+  """ Update a single UserSudoToken item by ID. """
+  updateUserSudoToken(id: ID!, data: UserSudoTokenUpdateInput): UserSudoToken
+
+  """ Update multiple UserSudoToken items by ID. """
+  updateUserSudoTokens(data: [UserSudoTokensUpdateInput]): [UserSudoToken]
+
+  """ Delete a single UserSudoToken item by ID. """
+  deleteUserSudoToken(id: ID!): UserSudoToken
+
+  """ Delete multiple UserSudoToken items by ID. """
+  deleteUserSudoTokens(ids: [ID!]): [UserSudoToken]
+
   """ Create a single OrganizationHistoryRecord item. """
   createOrganizationHistoryRecord(data: OrganizationHistoryRecordCreateInput): OrganizationHistoryRecord
 
@@ -83165,6 +86981,62 @@ type Mutation {
 
   """ Delete multiple OrganizationEmployeeSpecialization items by ID. """
   deleteOrganizationEmployeeSpecializations(ids: [ID!]): [OrganizationEmployeeSpecialization]
+
+  """ Create a single FindOrganizationsByTinLog item. """
+  createFindOrganizationsByTinLog(data: FindOrganizationsByTinLogCreateInput): FindOrganizationsByTinLog
+
+  """ Create multiple FindOrganizationsByTinLog items. """
+  createFindOrganizationsByTinLogs(data: [FindOrganizationsByTinLogsCreateInput]): [FindOrganizationsByTinLog]
+
+  """ Update a single FindOrganizationsByTinLog item by ID. """
+  updateFindOrganizationsByTinLog(id: ID!, data: FindOrganizationsByTinLogUpdateInput): FindOrganizationsByTinLog
+
+  """ Update multiple FindOrganizationsByTinLog items by ID. """
+  updateFindOrganizationsByTinLogs(data: [FindOrganizationsByTinLogsUpdateInput]): [FindOrganizationsByTinLog]
+
+  """ Delete a single FindOrganizationsByTinLog item by ID. """
+  deleteFindOrganizationsByTinLog(id: ID!): FindOrganizationsByTinLog
+
+  """ Delete multiple FindOrganizationsByTinLog items by ID. """
+  deleteFindOrganizationsByTinLogs(ids: [ID!]): [FindOrganizationsByTinLog]
+
+  """ Create a single OrganizationEmployeeRequestHistoryRecord item. """
+  createOrganizationEmployeeRequestHistoryRecord(data: OrganizationEmployeeRequestHistoryRecordCreateInput): OrganizationEmployeeRequestHistoryRecord
+
+  """ Create multiple OrganizationEmployeeRequestHistoryRecord items. """
+  createOrganizationEmployeeRequestHistoryRecords(data: [OrganizationEmployeeRequestHistoryRecordsCreateInput]): [OrganizationEmployeeRequestHistoryRecord]
+
+  """ Update a single OrganizationEmployeeRequestHistoryRecord item by ID. """
+  updateOrganizationEmployeeRequestHistoryRecord(id: ID!, data: OrganizationEmployeeRequestHistoryRecordUpdateInput): OrganizationEmployeeRequestHistoryRecord
+
+  """ Update multiple OrganizationEmployeeRequestHistoryRecord items by ID. 
+  """
+  updateOrganizationEmployeeRequestHistoryRecords(data: [OrganizationEmployeeRequestHistoryRecordsUpdateInput]): [OrganizationEmployeeRequestHistoryRecord]
+
+  """ Delete a single OrganizationEmployeeRequestHistoryRecord item by ID. """
+  deleteOrganizationEmployeeRequestHistoryRecord(id: ID!): OrganizationEmployeeRequestHistoryRecord
+
+  """ Delete multiple OrganizationEmployeeRequestHistoryRecord items by ID. 
+  """
+  deleteOrganizationEmployeeRequestHistoryRecords(ids: [ID!]): [OrganizationEmployeeRequestHistoryRecord]
+
+  """ Create a single OrganizationEmployeeRequest item. """
+  createOrganizationEmployeeRequest(data: OrganizationEmployeeRequestCreateInput): OrganizationEmployeeRequest
+
+  """ Create multiple OrganizationEmployeeRequest items. """
+  createOrganizationEmployeeRequests(data: [OrganizationEmployeeRequestsCreateInput]): [OrganizationEmployeeRequest]
+
+  """ Update a single OrganizationEmployeeRequest item by ID. """
+  updateOrganizationEmployeeRequest(id: ID!, data: OrganizationEmployeeRequestUpdateInput): OrganizationEmployeeRequest
+
+  """ Update multiple OrganizationEmployeeRequest items by ID. """
+  updateOrganizationEmployeeRequests(data: [OrganizationEmployeeRequestsUpdateInput]): [OrganizationEmployeeRequest]
+
+  """ Delete a single OrganizationEmployeeRequest item by ID. """
+  deleteOrganizationEmployeeRequest(id: ID!): OrganizationEmployeeRequest
+
+  """ Delete multiple OrganizationEmployeeRequest items by ID. """
+  deleteOrganizationEmployeeRequests(ids: [ID!]): [OrganizationEmployeeRequest]
 
   """ Create a single PropertyHistoryRecord item. """
   createPropertyHistoryRecord(data: PropertyHistoryRecordCreateInput): PropertyHistoryRecord
@@ -85952,6 +89824,42 @@ type Mutation {
   """ Delete multiple MeterReadingExportTask items by ID. """
   deleteMeterReadingExportTasks(ids: [ID!]): [MeterReadingExportTask]
 
+  """ Create a single MeterUserDataHistoryRecord item. """
+  createMeterUserDataHistoryRecord(data: MeterUserDataHistoryRecordCreateInput): MeterUserDataHistoryRecord
+
+  """ Create multiple MeterUserDataHistoryRecord items. """
+  createMeterUserDataHistoryRecords(data: [MeterUserDataHistoryRecordsCreateInput]): [MeterUserDataHistoryRecord]
+
+  """ Update a single MeterUserDataHistoryRecord item by ID. """
+  updateMeterUserDataHistoryRecord(id: ID!, data: MeterUserDataHistoryRecordUpdateInput): MeterUserDataHistoryRecord
+
+  """ Update multiple MeterUserDataHistoryRecord items by ID. """
+  updateMeterUserDataHistoryRecords(data: [MeterUserDataHistoryRecordsUpdateInput]): [MeterUserDataHistoryRecord]
+
+  """ Delete a single MeterUserDataHistoryRecord item by ID. """
+  deleteMeterUserDataHistoryRecord(id: ID!): MeterUserDataHistoryRecord
+
+  """ Delete multiple MeterUserDataHistoryRecord items by ID. """
+  deleteMeterUserDataHistoryRecords(ids: [ID!]): [MeterUserDataHistoryRecord]
+
+  """ Create a single MeterUserData item. """
+  createMeterUserDatum(data: MeterUserDatumCreateInput): MeterUserData
+
+  """ Create multiple MeterUserData items. """
+  createMeterUserData(data: [MeterUserDataCreateInput]): [MeterUserData]
+
+  """ Update a single MeterUserData item by ID. """
+  updateMeterUserDatum(id: ID!, data: MeterUserDatumUpdateInput): MeterUserData
+
+  """ Update multiple MeterUserData items by ID. """
+  updateMeterUserData(data: [MeterUserDataUpdateInput]): [MeterUserData]
+
+  """ Delete a single MeterUserData item by ID. """
+  deleteMeterUserDatum(id: ID!): MeterUserData
+
+  """ Delete multiple MeterUserData items by ID. """
+  deleteMeterUserData(ids: [ID!]): [MeterUserData]
+
   """ Create a single ServiceSubscriptionHistoryRecord item. """
   createServiceSubscriptionHistoryRecord(data: ServiceSubscriptionHistoryRecordCreateInput): ServiceSubscriptionHistoryRecord
 
@@ -87083,41 +90991,77 @@ type Mutation {
   """ Delete multiple B2BAppNewsSharingConfig items by ID. """
   deleteB2BAppNewsSharingConfigs(ids: [ID!]): [B2BAppNewsSharingConfig]
 
-  """ Create a single B2CAppMessageSettingHistoryRecord item. """
-  createB2CAppMessageSettingHistoryRecord(data: B2CAppMessageSettingHistoryRecordCreateInput): B2CAppMessageSettingHistoryRecord
+  """ Create a single AppMessageSettingHistoryRecord item. """
+  createAppMessageSettingHistoryRecord(data: AppMessageSettingHistoryRecordCreateInput): AppMessageSettingHistoryRecord
 
-  """ Create multiple B2CAppMessageSettingHistoryRecord items. """
-  createB2CAppMessageSettingHistoryRecords(data: [B2CAppMessageSettingHistoryRecordsCreateInput]): [B2CAppMessageSettingHistoryRecord]
+  """ Create multiple AppMessageSettingHistoryRecord items. """
+  createAppMessageSettingHistoryRecords(data: [AppMessageSettingHistoryRecordsCreateInput]): [AppMessageSettingHistoryRecord]
 
-  """ Update a single B2CAppMessageSettingHistoryRecord item by ID. """
-  updateB2CAppMessageSettingHistoryRecord(id: ID!, data: B2CAppMessageSettingHistoryRecordUpdateInput): B2CAppMessageSettingHistoryRecord
+  """ Update a single AppMessageSettingHistoryRecord item by ID. """
+  updateAppMessageSettingHistoryRecord(id: ID!, data: AppMessageSettingHistoryRecordUpdateInput): AppMessageSettingHistoryRecord
 
-  """ Update multiple B2CAppMessageSettingHistoryRecord items by ID. """
-  updateB2CAppMessageSettingHistoryRecords(data: [B2CAppMessageSettingHistoryRecordsUpdateInput]): [B2CAppMessageSettingHistoryRecord]
+  """ Update multiple AppMessageSettingHistoryRecord items by ID. """
+  updateAppMessageSettingHistoryRecords(data: [AppMessageSettingHistoryRecordsUpdateInput]): [AppMessageSettingHistoryRecord]
 
-  """ Delete a single B2CAppMessageSettingHistoryRecord item by ID. """
-  deleteB2CAppMessageSettingHistoryRecord(id: ID!): B2CAppMessageSettingHistoryRecord
+  """ Delete a single AppMessageSettingHistoryRecord item by ID. """
+  deleteAppMessageSettingHistoryRecord(id: ID!): AppMessageSettingHistoryRecord
 
-  """ Delete multiple B2CAppMessageSettingHistoryRecord items by ID. """
-  deleteB2CAppMessageSettingHistoryRecords(ids: [ID!]): [B2CAppMessageSettingHistoryRecord]
+  """ Delete multiple AppMessageSettingHistoryRecord items by ID. """
+  deleteAppMessageSettingHistoryRecords(ids: [ID!]): [AppMessageSettingHistoryRecord]
 
-  """ Create a single B2CAppMessageSetting item. """
-  createB2CAppMessageSetting(data: B2CAppMessageSettingCreateInput): B2CAppMessageSetting
+  """ Create a single AppMessageSetting item. """
+  createAppMessageSetting(data: AppMessageSettingCreateInput): AppMessageSetting
 
-  """ Create multiple B2CAppMessageSetting items. """
-  createB2CAppMessageSettings(data: [B2CAppMessageSettingsCreateInput]): [B2CAppMessageSetting]
+  """ Create multiple AppMessageSetting items. """
+  createAppMessageSettings(data: [AppMessageSettingsCreateInput]): [AppMessageSetting]
 
-  """ Update a single B2CAppMessageSetting item by ID. """
-  updateB2CAppMessageSetting(id: ID!, data: B2CAppMessageSettingUpdateInput): B2CAppMessageSetting
+  """ Update a single AppMessageSetting item by ID. """
+  updateAppMessageSetting(id: ID!, data: AppMessageSettingUpdateInput): AppMessageSetting
 
-  """ Update multiple B2CAppMessageSetting items by ID. """
-  updateB2CAppMessageSettings(data: [B2CAppMessageSettingsUpdateInput]): [B2CAppMessageSetting]
+  """ Update multiple AppMessageSetting items by ID. """
+  updateAppMessageSettings(data: [AppMessageSettingsUpdateInput]): [AppMessageSetting]
 
-  """ Delete a single B2CAppMessageSetting item by ID. """
-  deleteB2CAppMessageSetting(id: ID!): B2CAppMessageSetting
+  """ Delete a single AppMessageSetting item by ID. """
+  deleteAppMessageSetting(id: ID!): AppMessageSetting
 
-  """ Delete multiple B2CAppMessageSetting items by ID. """
-  deleteB2CAppMessageSettings(ids: [ID!]): [B2CAppMessageSetting]
+  """ Delete multiple AppMessageSetting items by ID. """
+  deleteAppMessageSettings(ids: [ID!]): [AppMessageSetting]
+
+  """ Create a single B2BAccessTokenHistoryRecord item. """
+  createB2BAccessTokenHistoryRecord(data: B2BAccessTokenHistoryRecordCreateInput): B2BAccessTokenHistoryRecord
+
+  """ Create multiple B2BAccessTokenHistoryRecord items. """
+  createB2BAccessTokenHistoryRecords(data: [B2BAccessTokenHistoryRecordsCreateInput]): [B2BAccessTokenHistoryRecord]
+
+  """ Update a single B2BAccessTokenHistoryRecord item by ID. """
+  updateB2BAccessTokenHistoryRecord(id: ID!, data: B2BAccessTokenHistoryRecordUpdateInput): B2BAccessTokenHistoryRecord
+
+  """ Update multiple B2BAccessTokenHistoryRecord items by ID. """
+  updateB2BAccessTokenHistoryRecords(data: [B2BAccessTokenHistoryRecordsUpdateInput]): [B2BAccessTokenHistoryRecord]
+
+  """ Delete a single B2BAccessTokenHistoryRecord item by ID. """
+  deleteB2BAccessTokenHistoryRecord(id: ID!): B2BAccessTokenHistoryRecord
+
+  """ Delete multiple B2BAccessTokenHistoryRecord items by ID. """
+  deleteB2BAccessTokenHistoryRecords(ids: [ID!]): [B2BAccessTokenHistoryRecord]
+
+  """ Create a single B2BAccessToken item. """
+  createB2BAccessToken(data: B2BAccessTokenCreateInput): B2BAccessToken
+
+  """ Create multiple B2BAccessToken items. """
+  createB2BAccessTokens(data: [B2BAccessTokensCreateInput]): [B2BAccessToken]
+
+  """ Update a single B2BAccessToken item by ID. """
+  updateB2BAccessToken(id: ID!, data: B2BAccessTokenUpdateInput): B2BAccessToken
+
+  """ Update multiple B2BAccessToken items by ID. """
+  updateB2BAccessTokens(data: [B2BAccessTokensUpdateInput]): [B2BAccessToken]
+
+  """ Delete a single B2BAccessToken item by ID. """
+  deleteB2BAccessToken(id: ID!): B2BAccessToken
+
+  """ Delete multiple B2BAccessToken items by ID. """
+  deleteB2BAccessTokens(ids: [ID!]): [B2BAccessToken]
 
   """ Create a single MobileFeatureConfigHistoryRecord item. """
   createMobileFeatureConfigHistoryRecord(data: MobileFeatureConfigHistoryRecordCreateInput): MobileFeatureConfigHistoryRecord
@@ -87640,6 +91584,51 @@ type Mutation {
   }`
   """
   registerNewUser(data: RegisterNewUserInput!): User
+
+  """
+  This mutation authorizes the user by phone and password
+  
+  
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_PHONE_FORMAT",
+    "message": "Wrong format of provided phone number",
+    "messageForUser": "Wrong phone number format",
+    "correctExample": "+79991234567"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_CREDENTIALS",
+    "message": "Wrong phone or password",
+    "messageForUser": "Wrong phone or password"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "CAPTCHA_CHECK_FAILED",
+    "message": "Failed to check CAPTCHA",
+    "messageForUser": "The operation could not be completed. Please update the application"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "DV_VERSION_MISMATCH",
+    "message": "Wrong value for data version number"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_FORMAT",
+    "message": "Invalid format of \"sender\" field value. Please, check the example for details",
+    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
+  }`
+  """
   authenticateUserWithPhoneAndPassword(data: AuthenticateUserWithPhoneAndPasswordInput!): AuthenticateUserWithPhoneAndPasswordOutput
 
   """
@@ -87712,7 +91701,7 @@ type Mutation {
   `{
     "code": "BAD_USER_INPUT",
     "type": "WRONG_FORMAT",
-    "message": "Invalid format of \"sender\" field value",
+    "message": "Invalid format of \"sender\" field value. Please, check the example for details",
     "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
   }`
   """
@@ -88004,6 +91993,146 @@ type Mutation {
   resetUser(data: ResetUserInput!): ResetUserOutput
 
   """
+  Generates a sudo token to confirm changes to sensitive data. The user's submitted credentials are checked and if they are valid, a sudo token is returned to the user.
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "CAPTCHA_CHECK_FAILED",
+    "message": "Failed to check CAPTCHA",
+    "messageForUser": "The operation could not be completed. Please update the application"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "DV_VERSION_MISMATCH",
+    "message": "Wrong value for data version number"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_FORMAT",
+    "message": "Invalid format of \"sender\" field value. Please, check the example for details",
+    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "CREDENTIAL_VALIDATION_FAILED",
+    "message": "User credentials validation failed",
+    "messageForUser": "Failed to authorize user"
+  }`
+  
+  `{
+    "code": "INTERNAL_ERROR",
+    "type": "GENERATE_TOKEN_FAILED",
+    "message": "Generate token failed"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "USER_IDENTITY_INVALID",
+    "message": "Email or phone cannot be empty"
+  }`
+  """
+  generateSudoToken(data: GenerateSudoTokenInput!): GenerateSudoTokenOutput
+
+  """
+  This mutation authorizes the user by token, after confirming the phone number.
+  
+  If the user is not registered, then he will be created with the data that is passed in the payload (user data).
+  
+  If the existing user is missing some fields, then these fields will be taken from the payload (user data) and updated.
+  
+  This mutation is not available for service users!
+  
+  
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "CAPTCHA_CHECK_FAILED",
+    "message": "Failed to check CAPTCHA",
+    "messageForUser": "The operation could not be completed. Please update the application"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "DV_VERSION_MISMATCH",
+    "message": "Wrong value for data version number"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_FORMAT",
+    "message": "Invalid format of \"sender\" field value. Please, check the example for details",
+    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVALID_TOKEN",
+    "message": "Invalid token",
+    "messageForUser": "Invalid token"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "UNSUPPORTED_TOKEN",
+    "message": "Unsupported token",
+    "messageForUser": "Invalid token"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "DIFFERENT_PHONES",
+    "message": "The verified phone and the phone from the payload cannot be different",
+    "messageForUser": "You cannot specify different phones"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "OPERATION_FAILED",
+    "message": "The operation failed",
+    "messageForUser": "Operation failed"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "REQUIRED_USER_DATA_IS_MISSING",
+    "message": "Some required user data was missing",
+    "messageForUser": "Please fill in the required fields"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "SHOULD_AUTHORIZE_WITH_EMAIL",
+    "message": "You should log in to your account using a verified email to be able to log in by phone",
+    "messageForUser": "To be able to log in with your phone number, you must log in to your account using a verified email"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "CREDENTIAL_VALIDATION_FAILED",
+    "message": "User credentials validation failed",
+    "messageForUser": "Failed to authorize user"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "UNAVAILABLE_TOKEN_FOR_REGISTRATION",
+    "message": "It is not possible to register a user with the type ? using ?"
+  }`
+  """
+  authenticateOrRegisterUserWithToken(data: AuthenticateOrRegisterUserWithTokenInput!): AuthenticateOrRegisterUserWithTokenOutput
+
+  """
   Registers new Organization for current user
   
   Creates new Organization, new OrganizationEmployee for current user, creates a set of default OrganizationEmployeeRole for organization and connects created OrganizationEmployee to "Admin" OrganizationEmployeeRole, creates trial ServiceSubscription for organization
@@ -88171,6 +92300,127 @@ type Mutation {
   }`
   """
   replaceOrganizationEmployeeRole(data: ReplaceOrganizationEmployeeRoleInput!): ReplaceOrganizationEmployeeRoleOutput
+
+  """
+  Creates a request to join the specified organization
+  
+  
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "USER_DOES_NOT_HAVE_PHONE",
+    "message": "The user does not have a phone"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "ORGANIZATION_NOT_FOUND",
+    "message": "Organization not found"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "REQUEST_TO_ORGANIZATION_LIMIT_REACHED",
+    "message": "A request to the organization limit reached"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "REQUEST_NOT_PROCESSED",
+    "message": "A request not processed yet. Please wait for a decide on the request from the organization"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "EMPLOYEE_ALREADY_ACCEPTED",
+    "message": "An accepted employee already exist in this organization"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "EMPLOYEE_INVITATION_ALREADY_SENT",
+    "message": "The invitation has already been sent to the employee."
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "DV_VERSION_MISMATCH",
+    "message": "Wrong value for data version number"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_FORMAT",
+    "message": "Invalid format of \"sender\" field value. Please, check the example for details",
+    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
+  }`
+  """
+  sendOrganizationEmployeeRequest(data: SendOrganizationEmployeeRequestInput!): OrganizationEmployeeRequest
+
+  """
+  Accepts or rejects requests to join the organization.
+  If accepted, a new employee is created
+  
+  
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "REQUEST_NEEDS_ACCEPT_OR_REJECT",
+    "message": "The request must be accepted or rejected"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "REQUEST_ALREADY_PROCESSED",
+    "message": "The request has already been processed"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "REQUEST_NOT_FOUND",
+    "message": "The request not found"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "EMPLOYEE_ROLE_REQUIRED",
+    "message": "Employee role required"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "USER_NOT_FOUND",
+    "message": "No user found to join the organization"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "USER_DOES_NOT_HAVE_PHONE",
+    "message": "The user does not have a phone"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "DV_VERSION_MISMATCH",
+    "message": "Wrong value for data version number"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_FORMAT",
+    "message": "Invalid format of \"sender\" field value. Please, check the example for details",
+    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
+  }`
+  """
+  acceptOrRejectOrganizationEmployeeRequest(data: AcceptOrRejectOrganizationEmployeeRequestInput!): OrganizationEmployeeRequest
   registerBillingReceipts(data: RegisterBillingReceiptsInput!): [BillingReceipt]
   sendNewBillingReceiptFilesNotifications(data: SendNewBillingReceiptFilesNotificationsInput!): SendNewBillingReceiptFilesNotificationsOutput
 
@@ -88357,6 +92607,14 @@ type Mutation {
   				"required": true
   			},
   			"organizationName": {
+  				"defaultValue": "",
+  				"required": true
+  			},
+  			"authorType": {
+  				"defaultValue": "",
+  				"required": true
+  			},
+  			"authorName": {
   				"defaultValue": "",
   				"required": true
   			}
@@ -89865,6 +94123,69 @@ type Mutation {
   				"required": true
   			}
   		}
+  	},
+  	"B2B_APP_MESSAGE_PUSH": {
+  		"dv": {
+  			"required": true
+  		},
+  		"title": {
+  			"required": true
+  		},
+  		"body": {
+  			"required": true
+  		}
+  	},
+  	"PASS_TICKET_CREATED": {
+  		"dv": {
+  			"required": true
+  		},
+  		"data": {
+  			"organizationName": {
+  				"required": true
+  			},
+  			"number": {
+  				"required": true
+  			},
+  			"propertyAddress": {
+  				"required": true
+  			},
+  			"unit": {
+  				"required": true
+  			},
+  			"client": {
+  				"required": true
+  			},
+  			"openAt": {
+  				"required": true
+  			},
+  			"url": {
+  				"required": true
+  			},
+  			"comment": {
+  				"required": true
+  			},
+  			"passTicketType": {
+  				"required": true
+  			},
+  			"guest": {
+  				"required": true
+  			},
+  			"guestName": {
+  				"required": true
+  			},
+  			"vehicle": {
+  				"required": true
+  			},
+  			"vehicleBrand": {
+  				"required": true
+  			},
+  			"stateVehicleNumber": {
+  				"required": true
+  			}
+  		},
+  		"telegramMeta": {
+  			"required": false
+  		}
   	}
   }`
   
@@ -90180,6 +94501,118 @@ type Mutation {
   createPaymentByLink(data: CreatePaymentByLinkInput!): CreatePaymentByLinkOutput
   registerMultiPaymentForInvoices(data: RegisterMultiPaymentForInvoicesInput!): RegisterMultiPaymentForInvoicesOutput
   sendB2CAppPushMessage(data: SendB2CAppPushMessageInput!): SendB2CAppPushMessageOutput
+
+  """
+  Sends message of specified type from B2BApp (service user connected to B2BApp) to specified employee (user in organization)
+  
+  
+                      B2BApp must has finished context with organization and B2BAccessRight with B2BAccessRightSet with canExecuteSendB2BAppPushMessage right 
+                      between service user (who make request) and B2BApp. Employee must has a B2BAppRole with B2BApp. 
+                      Settings for each type of message contains in AppMessageSetting schema.
+                      Each message type has specific set of required fields which are defined in the meta field: 
+  
+  `{
+  	"B2B_APP_MESSAGE_PUSH": {
+  		"dv": {
+  			"required": true
+  		},
+  		"title": {
+  			"required": true
+  		},
+  		"body": {
+  			"required": true
+  		}
+  	},
+  	"PASS_TICKET_CREATED": {
+  		"dv": {
+  			"required": true
+  		},
+  		"data": {
+  			"organizationName": {
+  				"required": true
+  			},
+  			"number": {
+  				"required": true
+  			},
+  			"propertyAddress": {
+  				"required": true
+  			},
+  			"unit": {
+  				"required": true
+  			},
+  			"client": {
+  				"required": true
+  			},
+  			"openAt": {
+  				"required": true
+  			},
+  			"url": {
+  				"required": true
+  			},
+  			"comment": {
+  				"required": true
+  			},
+  			"passTicketType": {
+  				"required": true
+  			},
+  			"guest": {
+  				"required": true
+  			},
+  			"guestName": {
+  				"required": true
+  			},
+  			"vehicle": {
+  				"required": true
+  			},
+  			"vehicleBrand": {
+  				"required": true
+  			},
+  			"stateVehicleNumber": {
+  				"required": true
+  			}
+  		},
+  		"telegramMeta": {
+  			"required": false
+  		}
+  	}
+  }`
+                  
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "FORBIDDEN",
+    "type": "NOT_FOUND",
+    "message": "No completed B2BContext in \"Finished\" status found for the provided organization and B2BApp."
+  }`
+  
+  `{
+    "code": "FORBIDDEN",
+    "type": "NOT_FOUND",
+    "message": "No B2BAppAccessRight found for the provided user and B2BApp."
+  }`
+  
+  `{
+    "code": "FORBIDDEN",
+    "type": "NOT_FOUND",
+    "message": "The provided user is not an employee of the specified organization."
+  }`
+  
+  `{
+    "code": "FORBIDDEN",
+    "type": "NOT_FOUND",
+    "message": "No B2BAppRole found for the provided user, organization and B2BApp"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_VALUE",
+    "message": "Invalid URL: must start with server url and be safe"
+  }`
+  """
+  sendB2BAppPushMessage(data: SendB2BAppPushMessageInput!): SendB2BAppPushMessageOutput
 
   """ Authenticate and generate a token for a User with the Password Authentication Strategy. 
   """

@@ -41,7 +41,9 @@ const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema
 const { SECTION_TYPES } = require('@condo/domains/property/constants/common')
 const access = require('@condo/domains/ticket/access/Ticket')
 const {
-    OMIT_TICKET_CHANGE_TRACKABLE_FIELDS, REVIEW_VALUES, DEFERRED_STATUS_TYPE,
+    OMIT_TICKET_CHANGE_TRACKABLE_FIELDS,
+    REVIEW_VALUES,
+    DEFERRED_STATUS_TYPE,
 } = require('@condo/domains/ticket/constants')
 const { FEEDBACK_VALUES, FEEDBACK_ADDITIONAL_OPTIONS_BY_KEY } = require('@condo/domains/ticket/constants/feedback')
 const { QUALITY_CONTROL_VALUES } = require('@condo/domains/ticket/constants/qualityControl')
@@ -187,7 +189,8 @@ const ERRORS = {
  * Checks limits on ticket creation.
  * User should not be able to create more than $DAILY_TICKET_LIMIT tickets to 1 organization.
  * User should not be able to create more than $DAILY_SAME_TICKET_LIMIT tickets to 1 organization.
- *
+ * Pushes for bulk operations are disabled in this scheme.
+ * 
  * $USERS_WITHOUT_TICKET_LIMITS phones are excluded from this rule.
  *
  * @param {string} phone
@@ -474,6 +477,11 @@ const Ticket = new GQLListSchema('Ticket', {
             access: readOnlyFieldAccess,
         },
         // description / title
+        title: {
+            schemaDoc: 'Very short description of the issue. Will be filled via LLM in the future',
+            type: 'Text',
+            isRequired: false,
+        },
         details: {
             schemaDoc: 'Text description of the issue. Maybe written by a user or an operator',
             type: 'Text',
@@ -520,6 +528,12 @@ const Ticket = new GQLListSchema('Ticket', {
             defaultValue: false,
             isRequired: true,
         },
+        isInsurance: {
+            schemaDoc: 'Indicates the ticket is insurance',
+            type: 'Checkbox',
+            defaultValue: false,
+            isRequired: true,
+        },
         isResidentTicket: {
             schemaDoc: 'Determines who the ticket was created for: for a resident or not for a resident',
             type: 'Checkbox',
@@ -531,6 +545,7 @@ const Ticket = new GQLListSchema('Ticket', {
             defaultValue: false,
             isRequired: true,
         },
+
         meta: {
             schemaDoc: 'Extra analytics not related to remote system',
             type: 'Json',
@@ -550,6 +565,34 @@ const Ticket = new GQLListSchema('Ticket', {
                 },
             },
         },
+
+        priority: {
+            schemaDoc: 'The number used to determine priority of this ticket. Like in JIRA. Default value is: 100. ' +
+                'Preferred values are: 100, 200, 300, 400, 500. 500 is the highest. Used by custom integrations',
+            type: 'Integer',
+            isRequired: true,
+            defaultValue: 300,
+        },
+
+        kanbanColumn: {
+            schemaDoc: 'Custom id for kanban column. Should be used if it is not enough to map statuses to columns. Used by custom integrations',
+            type: 'Text',
+            isRequired: false,
+        },
+
+        kanbanOrder: {
+            schemaDoc: 'The number used to determine the relative position of this ticket inside of kanban column. Used by custom integrations',
+            type: 'Integer',
+            isRequired: true,
+            defaultValue: 1,
+        },
+
+        customClassifier: {
+            schemaDoc: 'Custom type or classifier for ticket. Used by custom integrations',
+            type: 'Text',
+            isRequired: false,
+        },
+
         // Where?
         // building/community
         // entrance/section
@@ -961,8 +1004,11 @@ const Ticket = new GQLListSchema('Ticket', {
                 ]
             )(...args)
 
-            /* NOTE: this sends different kinds of notifications on ticket create/update */
-            await sendTicketChangedNotifications.delay({ ticketId: updatedItem.id, existingItem, operation })
+            /* NOTE: this sends different kinds of notifications on ticket create/update except bulk update operation */
+            const isBulkOperation = Array.isArray(get(context, ['req', 'body', 'variables', 'data'], null))
+            if (!isBulkOperation) {
+                await sendTicketChangedNotifications.delay({ ticketId: updatedItem.id, existingItem, operation })
+            }
         },
     },
     access: {

@@ -1,4 +1,5 @@
 import { SortOrganizationEmployeesBy } from '@app/condo/schema'
+import styled from '@emotion/styled'
 import { Col, Row, Typography } from 'antd'
 import { get } from 'lodash'
 import Head from 'next/head'
@@ -21,6 +22,7 @@ import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePreviousQueryParams'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
+import { PageComponentType } from '@condo/domains/common/types'
 import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { EmployeesReadPermissionRequired } from '@condo/domains/organization/components/PageAccess'
@@ -54,6 +56,17 @@ export const EmployeesPageContent = ({
 
     const { GlobalHints } = useGlobalHints()
 
+    const rowClassName = (record) => {
+        return record.isBlocked ? 'ant-table-row-inactive' : ''
+    }
+
+    const TableWithInactiveEmployee = styled(Table)`
+        .ant-table-row-inactive .ant-typography {
+            color: ${colors.gray[7]};
+        }
+    `
+
+
     const handleRowAction = useCallback((record) => {
         return {
             onClick: () => {
@@ -73,7 +86,7 @@ export const EmployeesPageContent = ({
             </Head>
             <PageWrapper>
                 {GlobalHints}
-                <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitleMessage}</Typography.Title>}/>
+                <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitleMessage}</Typography.Title>} />
                 <TablePageContent>
                     {
                         !employees.length && !filtersFromQuery
@@ -99,12 +112,13 @@ export const EmployeesPageContent = ({
                                     </TableFiltersContainer>
                                 </Col>
                                 <Col span={24}>
-                                    <Table
+                                    <TableWithInactiveEmployee
                                         totalRows={total}
                                         loading={employeesLoading}
                                         dataSource={employees}
                                         columns={tableColumns}
                                         onRow={handleRowAction}
+                                        rowClassName={rowClassName}
                                     />
                                 </Col>
                                 {
@@ -115,7 +129,7 @@ export const EmployeesPageContent = ({
                                                     <Button
                                                         key='create'
                                                         type='primary'
-                                                        icon={<PlusCircle size='medium'/>}
+                                                        icon={<PlusCircle size='medium' />}
                                                         onClick={handleAddEmployee}
                                                     >
                                                         {AddEmployeeLabel}
@@ -133,8 +147,8 @@ export const EmployeesPageContent = ({
     )
 }
 
-const EmployeesPage = () => {
-    const { link, organization }  = useOrganization()
+const EmployeesPage: PageComponentType = () => {
+    const { link, organization } = useOrganization()
     const userOrganizationId = get(organization, 'id', null)
     const canManageEmployee = get(link, 'role.canInviteNewOrganizationEmployees', null)
     const employeeId = get(link, 'id')
@@ -162,8 +176,6 @@ const EmployeesPage = () => {
         where: searchEmployeeQuery,
         skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
         first: DEFAULT_PAGE_SIZE,
-    }, {
-        fetchPolicy: 'network-only',
     })
 
     const tableColumns = useTableColumns(filtersMeta, userOrganizationId, employees)

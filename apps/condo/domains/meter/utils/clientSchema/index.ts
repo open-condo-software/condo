@@ -25,8 +25,7 @@ export * as PropertyMeter from './PropertyMeter'
 export * as PropertyMeterReading from './PropertyMeterReading'
 export * as MeterReportingPeriod from './MeterReportingPeriod'
 export * as MeterResourceOwner from './MeterResourceOwner'
-export * as MeterReadingsImportTask from './MeterReadingsImportTask'
-export * as MeterReadingExportTask from './MeterReadingExportTask'
+export * as MeterUserData from './MeterUserData'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
 
 

@@ -3,6 +3,7 @@ import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState } from 'react'
 
+import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useMutation } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { FormattedMessage } from '@open-condo/next/intl'
@@ -16,8 +17,11 @@ import { colors } from '@condo/domains/common/constants/style'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
-import { WRONG_PASSWORD_ERROR, WRONG_PHONE_ERROR } from '@condo/domains/user/constants/errors'
+import { STAFF } from '@condo/domains/user/constants/common'
+import { WRONG_CREDENTIALS } from '@condo/domains/user/constants/errors'
 import { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } from '@condo/domains/user/gql'
+
+import { AgreementText } from './AgreementText'
 
 
 const ROW_STYLES: React.CSSProperties = {
@@ -27,7 +31,7 @@ const FORM_TYPOGRAPHY_STYLES: React.CSSProperties = {
     textAlign:'center',
 }
 const FORM_PARAGRAPH_STYLES: React.CSSProperties = {
-    margin: '24px 0 40px',
+    margin: '24px 0',
 }
 const FORM_PHONE_STYLES: React.CSSProperties = { borderRadius: 8, borderColor: colors.inputBorderGrey }
 const FORM_BUTTONS_GUTTER: RowProps['gutter'] = [0, 20]
@@ -57,12 +61,8 @@ export const SignInForm = (): React.ReactElement => {
     // TODO(DOMA-3293): remove this legacy error style and Useless error messages
     const ErrorToFormFieldMsgMapping = useMemo(() => {
         return {
-            [WRONG_PHONE_ERROR]: {
-                name: 'signinError',
-                errors: [PasswordOrPhoneMismatch],
-            },
-            [WRONG_PASSWORD_ERROR]: {
-                name: 'signinError',
+            [WRONG_CREDENTIALS]: {
+                name: 'phone',
                 errors: [PasswordOrPhoneMismatch],
             },
         }
@@ -71,9 +71,18 @@ export const SignInForm = (): React.ReactElement => {
     const onFormSubmit = useCallback((values) => {
         setIsLoading(true)
 
+        const sender = getClientSideSenderInfo()
         return runMutation({
             mutation: signinByPhoneAndPassword,
-            variables: values,
+            variables: {
+                data: {
+                    phone: values.phone,
+                    password: values.password,
+                    userType: STAFF,
+                    sender,
+                    dv: 1,
+                },
+            },
             onCompleted: () => {
                 refetch().then(() => {
                     return router.push(redirectUrl)
@@ -147,9 +156,11 @@ export const SignInForm = (): React.ReactElement => {
                                 />
                             </Typography.Paragraph>
                         </Col>
+
+                        <AgreementText />
                     </Row>
                     <Row gutter={FORM_BUTTONS_GUTTER}>
-                        <Col span={24}>
+                        <Col span={24} style={FORM_PARAGRAPH_STYLES}>
                             <Form.Item>
                                 <Button
                                     key='submit'

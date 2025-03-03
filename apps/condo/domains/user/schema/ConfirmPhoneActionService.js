@@ -1,10 +1,9 @@
 const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
 const pick = require('lodash/pick')
-const { v4: uuid } = require('uuid')
 
 const conf = require('@open-condo/config')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
@@ -28,14 +27,19 @@ const {
     UNABLE_TO_FIND_CONFIRM_PHONE_ACTION,
     SMS_CODE_EXPIRED,
     SMS_CODE_MAX_RETRIES_REACHED,
-    SMS_CODE_VERIFICATION_FAILED, GQL_ERRORS,
+    SMS_CODE_VERIFICATION_FAILED,
+    GQL_ERRORS,
+    GENERATE_TOKEN_FAILED,
 } = require('@condo/domains/user/constants/errors')
+const { SMS_COUNTER_LIMIT_TYPE } = require('@condo/domains/user/constants/limits')
 const { captchaCheck } = require('@condo/domains/user/utils/hCaptcha')
 const {
     ConfirmPhoneAction,
     generateSmsCode,
 } = require('@condo/domains/user/utils/serverSchema')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
+const { TOKEN_TYPES, generateTokenSafely } = require('@condo/domains/user/utils/tokens')
+
 
 const redisGuard = new RedisGuard()
 
@@ -101,6 +105,12 @@ const ERRORS = {
         message: 'SMS code verification mismatch',
         messageForUser: 'api.user.completeConfirmPhoneAction.SMS_CODE_VERIFICATION_FAILED',
     },
+    GENERATE_TOKEN_ERROR: {
+        mutation: 'completeConfirmPhoneAction',
+        code: INTERNAL_ERROR,
+        type: GENERATE_TOKEN_FAILED,
+        message: 'Generate token failed',
+    },
 }
 
 const phoneWhiteList = Object.keys(conf.SMS_WHITE_LIST ? JSON.parse(conf.SMS_WHITE_LIST) : {})
@@ -111,11 +121,11 @@ const APP_ID_HEADER = 'x-request-app'
 
 const checkSMSDayLimitCounters = async (phone, rawIp, context) => {
     const ip = rawIp.split(':').pop()
-    const byPhoneCounter = await redisGuard.incrementDayCounter(phone)
+    const byPhoneCounter = await redisGuard.incrementDayCounter(`${SMS_COUNTER_LIMIT_TYPE}:${phone}`)
     if (byPhoneCounter > maxSmsForPhoneByDay && !phoneWhiteList.includes(phone)) {
         throw new GQLError(GQL_ERRORS.SMS_FOR_PHONE_DAY_LIMIT_REACHED, context)
     }
-    const byIpCounter = await redisGuard.incrementDayCounter(ip)
+    const byIpCounter = await redisGuard.incrementDayCounter(`${SMS_COUNTER_LIMIT_TYPE}:${ip}`)
     if (byIpCounter > maxSmsForIpByDay && !ipWhiteList.includes(ip)) {
         throw new GQLError(GQL_ERRORS.SMS_FOR_IP_DAY_LIMIT_REACHED, context)
     }
@@ -219,7 +229,10 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 await checkSMSDayLimitCounters(phone, context.req.ip, context)
                 await redisGuard.checkLock(phone, 'sendsms', context)
                 await redisGuard.lock(phone, 'sendsms', SMS_CODE_TTL)
-                const token = uuid()
+                const { error: tokenError, token } = generateTokenSafely(TOKEN_TYPES.CONFIRM_PHONE)
+                if (tokenError) {
+                    throw new GQLError({ ...ERRORS.GENERATE_TOKEN_ERROR, data: { error: tokenError } }, context)
+                }
                 const now = extra.extraNow || Date.now()
                 const requestedAt = new Date(now).toISOString()
                 const expiresAt = new Date(now + CONFIRM_PHONE_ACTION_EXPIRY * 1000).toISOString()

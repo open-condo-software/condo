@@ -1,6 +1,6 @@
-[submodule "apps/asterix_bot"]
-	path = apps/asterix_bot
-	url = ../asterix_bot.git
+[submodule "apps/asterisk-bot"]
+	path = apps/asterisk-bot
+	url = git@github.com:open-condo-software/condo-asterisk-bot.git
 [submodule "apps/callcenter"]
 	path = apps/callcenter
 	url = ../condo_call_center.git
@@ -10,12 +10,12 @@
 [submodule "infrastructure/helm"]
 	path = .helm
 	url = ../infrastructure-condo.git
-[submodule "apps/condorb"]
-	path = apps/condorb
-	url = ../condorb.git
-[submodule "apps/registry"]
-	path = apps/registry
-	url = git@github.com:open-condo-software/condo-registry-import-billing.git
+[submodule "apps/rb"]
+	path = apps/rb
+	url = git@github.com:open-condo-software/condo-rb.git
+[submodule "apps/registry-importer"]
+	path = apps/registry-importer
+	url = git@github.com:open-condo-software/condo-registry-importer.git
 [submodule "apps/insurance"]
 	path = apps/insurance
 	url = git@github.com:open-condo-software/condo_insurance_app.git
@@ -28,33 +28,33 @@
 [submodule "apps/telephony"]
 	path = apps/telephony
 	url = git@github.com:open-condo-software/condo-telephony.git
-[submodule "apps/telephony-integration"]
-    path = apps/telephony-integration
-    url = git@github.com:open-condo-software/condo-telephony-integration.git
+[submodule "apps/telephony-ws-api"]
+	path = apps/telephony-ws-api
+	url = git@github.com:open-condo-software/condo-telephony-ws-api.git
 [submodule "apps/pass"]
 	path = apps/pass
 	url = git@github.com:open-condo-software/condo-pass.git
-[submodule "apps/documents-next"]
-	path = apps/documents-next
-	url = git@github.com:open-condo-software/condo-documents-next.git
-[submodule "apps/telegram-employee-bot"]
-    path = apps/telegram-employee-bot
-    url = git@github.com:open-condo-software/condo-telegram-employee-bot.git
-[submodule "apps/eds-mosreg-integration"]
-	path = apps/eds-mosreg-integration
-	url = git@github.com:open-condo-software/condo-eds-mosreg-integration.git
-[submodule "apps/condo-restapi"]
-	path = apps/condo-restapi
-	url = git@github.com:open-condo-software/condo-restapi.git
+[submodule "apps/documents"]
+	path = apps/documents
+	url = git@github.com:open-condo-software/condo-documents.git
+[submodule "apps/employee-bot"]
+	path = apps/employee-bot
+	url = git@github.com:open-condo-software/condo-employee-bot.git
+[submodule "apps/ticket-importer"]
+	path = apps/ticket-importer
+	url = git@github.com:open-condo-software/condo-ticket-importer.git
+[submodule "apps/external-api"]
+	path = apps/external-api
+	url = git@github.com:open-condo-software/condo-external-api.git
 [submodule "apps/resident-app"]
 	path = apps/resident-app
 	url = git@github.com:open-condo-software/condo-resident-app.git
-[submodule "apps/meters-billing-integration"]
-	path = apps/meters-billing-integration
-	url = git@github.com:open-condo-software/condo-meters-billing-integration.git
-[submodule "apps/announcement-generator"]
-	path = apps/announcement-generator
-	url = git@github.com:open-condo-software/condo-announcement-generator.git
-[submodule "apps/condo-news-sharing-greendom"]
-	path = apps/condo-news-sharing-greendom
-	url = git@github.com:open-condo-software/condo-news-sharing-greendom.git
+[submodule "apps/meter-importer"]
+	path = apps/meter-importer
+	url = git@github.com:open-condo-software/condo-meter-importer.git
+[submodule "apps/news-greenhouse"]
+	path = apps/news-greenhouse
+	url = git@github.com:open-condo-software/condo-news-greenhouse.git
+[submodule "apps/announcements"]
+    path = apps/announcements
+	url = git@github.com:open-condo-software/condo-announcements.git

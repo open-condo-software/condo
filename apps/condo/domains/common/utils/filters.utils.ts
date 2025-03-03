@@ -208,7 +208,15 @@ export function getFilterDropdownByKey <FilterType, RecordType> (filterMetas: Ar
     }
 }
 
-export function convertToOptions <T> (objects: T[], labelField: string, valueField: string): OptionType[] {
+export function convertToOptions <
+    TData extends Record<string, any>,
+    TLabel extends keyof TData,
+    TValue extends keyof TData,
+> (
+    objects: TData[],
+    labelField: TData[TLabel] extends string ? TLabel : never,
+    valueField: TData[TValue] extends string ? TValue : never,
+): OptionType[] {
     return objects.map(object => {
         const label = get(object, labelField)
         const value = get(object, valueField)

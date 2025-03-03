@@ -1,5 +1,5 @@
 const Big = require('big.js')
-const { isEmpty, pick } = require('lodash')
+const { isEmpty, pick, get } = require('lodash')
 
 const { find } = require('@open-condo/keystone/schema')
 
@@ -49,9 +49,14 @@ class ReceiptResolver extends Resolver {
                     receiptToUpdate,
                     ['category', 'account', 'property', 'receiver']
                 )
+                const oldPaid = Big(get(receipt, 'toPayDetails.paid') || 0).toFixed(2)
+                const newPaid = Big(get(receiptToUpdate, 'toPayDetails.paid') || 0).toFixed(2)
+                if (receiptToUpdate.toPay !== receipt.toPay || oldPaid !== newPaid) {
+                    updateInput['balanceUpdatedAt'] = new Date().toISOString()
+                }
                 if (!isEmpty(updateInput)) {
                     try {
-                        receiptIndex[index] = await BillingReceipt.update(this.context, receiptToUpdate.id, { ...updateInput, raw: receipt })
+                        receiptIndex[index] = await BillingReceipt.update(this.context, receiptToUpdate.id, { ...updateInput, raw: receipt }, 'id')
                     } catch (error) {
                         this.error(ERRORS.RECEIPT_SAVE_FAILED, index, error)
                     }
@@ -65,7 +70,7 @@ class ReceiptResolver extends Resolver {
                 try {
                     receiptIndex[index] = await BillingReceipt.create(this.context, this.buildCreateInput({
                         ...pick(receipt, RECEIPT_UPDATE_FIELDS), context: this.billingContext.id, raw: receipt,
-                    }, ['category', 'account', 'property', 'receiver', 'context']))
+                    }, ['category', 'account', 'property', 'receiver', 'context']), 'id')
                 } catch (error) {
                     this.error(ERRORS.RECEIPT_SAVE_FAILED, index, error)
                 }

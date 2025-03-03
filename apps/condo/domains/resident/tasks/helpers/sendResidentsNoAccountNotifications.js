@@ -2,8 +2,8 @@ const dayjs = require('dayjs')
 const { get, isEmpty, uniq } = require('lodash')
 
 const conf = require('@open-condo/config')
+const { getKVClient } = require('@open-condo/keystone/kv')
 const { getLogger } = require('@open-condo/keystone/logging')
-const { getRedisClient } = require('@open-condo/keystone/redis')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { BillingIntegrationOrganizationContext, BillingProperty, BillingReceipt, BillingAccount } = require('@condo/domains/billing/utils/serverSchema')
@@ -195,7 +195,7 @@ const sendResidentsNoAccountNotificationsForContext = async (billingContext, rec
  */
 const sendResidentsNoAccountNotificationsForPeriod = async (period, billingContextId, resendFromDt) => {
     const { keystone: context } = await getSchemaCtx('Resident')
-    const redisClient = getRedisClient()
+    const redisClient = getKVClient()
 
     const { thisMonthStart } = getStartDates()
     const today = dayjs().format(DATE_FORMAT_Z)

@@ -2,28 +2,68 @@ import { ApolloQueryResult } from '@apollo/client'
 import { DocumentNode } from 'graphql'
 import { gql } from 'graphql-tag'
 import cookie from 'js-cookie'
+import get from 'lodash/get'
 import { NextPage } from 'next'
 import nextCookie from 'next-cookies'
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react'
+
+import { isSSR } from '@open-condo/miniapp-utils'
 
 import { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } from './_utils'
 import { useQuery } from './apollo'
 import { useAuth } from './auth'
+import { Either } from './types'
 
 
-interface IOrganizationContext {
-    selectLink: (linkItem) => Promise<ApolloQueryResult<any>> | Promise<void>
-    isLoading: boolean
-    link?: any | null
-    organization?: any | null
+// NOTE: OpenCondoNext is defined as a global namespace so the library user can override the default types
+declare global {
+    // eslint-disable-next-line @typescript-eslint/no-namespace
+    namespace OpenCondoNext {
+        interface GetActiveOrganizationEmployeeQueryType {}
+        interface LinkType {}
+        interface OrganizationType {}
+        interface EmployeeType {}
+        interface RoleType {}
+    }
 }
 
-const OrganizationContext = createContext<IOrganizationContext>({
+/** @deprecated */
+type LinkType = keyof OpenCondoNext.LinkType extends never
+    ? any
+    : OpenCondoNext.LinkType
+type OrganizationType = keyof OpenCondoNext.OrganizationType extends never
+    ? any
+    : OpenCondoNext.OrganizationType
+type EmployeeType = keyof OpenCondoNext.EmployeeType extends never
+    ? any
+    : OpenCondoNext.LinkType
+type RoleType = keyof OpenCondoNext.RoleType extends never
+    ? any
+    : OpenCondoNext.RoleType
+type GetActiveOrganizationEmployeeQueryType = keyof OpenCondoNext.GetActiveOrganizationEmployeeQueryType extends never
+    ? any
+    : OpenCondoNext.GetActiveOrganizationEmployeeQueryType
+
+type OrganizationContextType = {
+    /** @deprecated Use selectEmployee */
+    selectLink: (linkItem: { id: string }) => Promise<void | ApolloQueryResult<GetActiveOrganizationEmployeeQueryType>>
+    selectEmployee: (employeeId: string) => Promise<void | ApolloQueryResult<GetActiveOrganizationEmployeeQueryType>>
+    isLoading: boolean
+    /** @deprecated Use organization, employee or role */
+    link?: LinkType | null
+    organization?: OrganizationType | null
+    employee?: EmployeeType | null
+    role?: RoleType | null
+}
+
+const OrganizationContext = createContext<OrganizationContextType>({
     isLoading: false,
     selectLink: () => Promise.resolve(),
+    selectEmployee: () => Promise.resolve(),
 })
 
-const useOrganization = (): IOrganizationContext => useContext(OrganizationContext)
+type UseOrganization = () => OrganizationContextType
+const useOrganization: UseOrganization = () => useContext(OrganizationContext)
 
 const organizationToUserFragment = `
     id
@@ -39,10 +79,13 @@ const organizationToUserFragment = `
     user {
       id
     }
-    role
+    role {
+      id
+    }
 `
 
-let GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY = gql`
+/** @deprecated */
+let GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY_LEGACY = gql`
     query getOrganizationToUserLinkById($id: ID!) {
         obj: OrganizationToUserLink (where: {id: $id}) {
             ${organizationToUserFragment}
@@ -50,25 +93,42 @@ let GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY = gql`
     }
 `
 
-const setCookieLinkId = (value) => {
+let GET_ORGANIZATION_EMPLOYEE_QUERY = gql`
+    query getOrganizationEmployee($userId: ID!, $employeeId: ID!) {
+        employee: OrganizationEmployee (where: { id: $employeeId, user: { id: $userId } }) {
+            ${organizationToUserFragment}
+        }
+    }
+`
+
+const ACTIVE_EMPLOYEE_COOKIE_NAME = 'organizationLinkId'
+
+const setCookieEmployeeId = (value) => {
     if (typeof window !== 'undefined') {
-        cookie.set('organizationLinkId', value, { expires: 365 })
+        cookie.set(ACTIVE_EMPLOYEE_COOKIE_NAME, value, { expires: 365 })
     }
 }
 
-const getLinkId = () => {
+const removeCookieEmployeeId = () => {
+    if (typeof window !== 'undefined') {
+        cookie.remove(ACTIVE_EMPLOYEE_COOKIE_NAME)
+    }
+}
+
+const getCookieEmployeeId = () => {
     let state = null
     if (typeof window !== 'undefined') {
         try {
-            state = cookie.get('organizationLinkId') || null
+            state = cookie.get(ACTIVE_EMPLOYEE_COOKIE_NAME) || null
         } catch (e) {
+            console.error('Failed to get employee id from cookie', e)
             state = null
         }
     }
     return state
 }
 
-const extractReqLinkId = (req) => {
+const extractReqEmployeeId = (req) => {
     try {
         return nextCookie({ req }).organizationLinkId || null
     } catch (e) {
@@ -76,21 +136,22 @@ const extractReqLinkId = (req) => {
     }
 }
 
-const OrganizationProvider = ({ children, initialLinkValue }) => {
+/** @deprecated */
+const OrganizationProviderLegacy = ({ children, initialEmployee }) => {
     const auth = useAuth()
-    const cookieOrganizationEmployee = getLinkId()
-    const [linkIdState, setLinkIdState] = useState(initialLinkValue && initialLinkValue.id || cookieOrganizationEmployee)
-    const [link, setLink] = useState(initialLinkValue)
+    const cookieEmployee = getCookieEmployeeId()
+    const [employeeIdState, setEmployeeIdState] = useState(initialEmployee && initialEmployee.id || cookieEmployee)
+    const [activeEmployee, setActiveEmployee] = useState(initialEmployee)
 
     useEffect(() => {
-        if (!(initialLinkValue && initialLinkValue.id || cookieOrganizationEmployee)) {
-            setLinkIdState(null)
+        if (!(initialEmployee && initialEmployee.id || cookieEmployee)) {
+            setEmployeeIdState(null)
         }
-    }, [initialLinkValue, cookieOrganizationEmployee])
+    }, [initialEmployee, cookieEmployee])
 
-    const { loading: linkLoading, refetch, data } = useQuery(GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY, {
-        variables: { id: linkIdState },
-        skip: auth.isLoading || !auth.user || !linkIdState,
+    const { loading: employeeLoading, refetch, data } = useQuery(GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY_LEGACY, {
+        variables: { id: employeeIdState },
+        skip: auth.isLoading || !auth.user || !employeeIdState,
         onError,
     })
 
@@ -98,63 +159,68 @@ const OrganizationProvider = ({ children, initialLinkValue }) => {
         if (!data) return
 
         const employee = data.obj
-        if (JSON.stringify(employee) === JSON.stringify(link)) return
-        if (DEBUG_RERENDERS) console.log('OrganizationProvider() newState', employee)
+        if (JSON.stringify(employee) === JSON.stringify(activeEmployee)) return
+        if (DEBUG_RERENDERS) console.log('OrganizationProviderLegacy() newState', employee)
 
         const isEmployeeActive = !employee.isRejected && !employee.isBlocked && employee.isAccepted
 
         if (!isEmployeeActive) {
-            setCookieLinkId('')
-            setLinkIdState(null)
-            setLink(null)
+            setCookieEmployeeId('')
+            setEmployeeIdState(null)
+            setActiveEmployee(null)
         } else {
-            setCookieLinkId(employee.id)
-            setLinkIdState(employee.id)
-            setLink(employee)
+            setCookieEmployeeId(employee.id)
+            setEmployeeIdState(employee.id)
+            setActiveEmployee(employee)
         }
-    }, [data, link])
+    }, [data, activeEmployee])
 
     useEffect(() => {
         if (auth.isLoading) return
-        if (!auth.user && link !== null) setLink(null)
+        if (!auth.user && activeEmployee !== null) setActiveEmployee(null)
     }, [auth.user])
 
     function onError (error) {
         // NOTE: In case, when organization from cookie left from old user, and we don't have access to it
         // We'll reset cookie without showing explicit error
         if (error.message.includes('You do not have access to this resource')) {
-            setCookieLinkId('')
-            setLinkIdState(null)
-            setLink(null)
+            setCookieEmployeeId('')
+            setEmployeeIdState(null)
+            setActiveEmployee(null)
         } else {
             throw error
         }
     }
 
-    function handleSelectItem (linkItem) {
-        if (linkItem && linkItem.id) {
-            const newId = linkItem.id
-            setLinkIdState(newId)
+    const handleSelectLink: OrganizationContextType['selectLink'] = (newEmployee) => {
+        if (newEmployee && newEmployee.id) {
+            const newId = newEmployee.id
+            setEmployeeIdState(newId)
             return refetch({ id: newId })
         } else {
-            setCookieLinkId('')
-            setLinkIdState(null)
-            setLink(null)
+            setCookieEmployeeId('')
+            setEmployeeIdState(null)
+            setActiveEmployee(null)
             return Promise.resolve()
         }
     }
 
-    if (DEBUG_RERENDERS) console.log('OrganizationProvider()', link, 'loading', linkLoading, 'skip', (auth.isLoading || !auth.user || !linkIdState))
+    const handleSelectEmployee: OrganizationContextType['selectEmployee'] = useCallback((employeeId) => {
+        return handleSelectLink({ id: employeeId })
+    }, [handleSelectLink])
 
-    const isLoading = auth.isLoading || linkLoading
+    if (DEBUG_RERENDERS) console.log('OrganizationProviderLegacy()', activeEmployee, 'loading', employeeLoading, 'skip', (auth.isLoading || !auth.user || !employeeIdState))
+
+    const isLoading = auth.isLoading || employeeLoading
 
     return (
         <OrganizationContext.Provider
             value={{
-                selectLink: handleSelectItem,
-                isLoading: (!auth.user || !linkIdState) ? false : isLoading,
-                link: (link && link.id) ? link : null,
-                organization: (link && link.organization) ? link.organization : null,
+                selectLink: handleSelectLink,
+                selectEmployee: handleSelectEmployee,
+                isLoading: (!auth.user || !employeeIdState) ? false : isLoading,
+                link: (activeEmployee && activeEmployee.id) ? activeEmployee : null,
+                organization: (activeEmployee && activeEmployee.organization) ? activeEmployee.organization : null,
             }}
         >
             {children}
@@ -162,55 +228,56 @@ const OrganizationProvider = ({ children, initialLinkValue }) => {
     )
 }
 
-if (DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER) OrganizationProvider.whyDidYouRender = true
+if (DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER) OrganizationProviderLegacy.whyDidYouRender = true
 
 const initOnRestore = async (ctx) => {
-    let linkId, link = null
+    let employeeId, employee = null
     const isOnServerSide = typeof window === 'undefined'
     if (isOnServerSide) {
         const inAppContext = Boolean(ctx.ctx)
         const req = (inAppContext) ? ctx.ctx.req : ctx.req
-        linkId = extractReqLinkId(req)
+        employeeId = extractReqEmployeeId(req)
     } else {
-        linkId = getLinkId()
+        employeeId = getCookieEmployeeId()
     }
 
-    if (linkId) {
+    if (employeeId) {
         try {
             const data = await ctx.apolloClient.query({
-                query: GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY,
-                variables: { id: linkId },
+                query: GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY_LEGACY,
+                variables: { id: employeeId },
                 fetchPolicy: (isOnServerSide) ? 'network-only' : 'cache-first',
             })
-            link = data.data ? data.data.obj : null
+            employee = data.data ? data.data.obj : null
         } catch (error) {
             // Prevent Apollo Client GraphQL errors from crashing SSR.
             // Handle them in components via the data.error prop:
             // https://www.apollographql.com/docs/react/api/react-apollo.html#graphql-query-data-error
             console.error('Error while running `withOrganization`', error)
-            link = null
+            employee = null
         }
     }
 
-    return { link }
+    return { employee }
 }
 
-type WithOrganizationProps = {
+type WithOrganizationLegacyProps = {
     ssr?: boolean
     GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY?: DocumentNode
 }
-export type WithOrganization = (props: WithOrganizationProps) => (PageComponent: NextPage<any>) => NextPage<any>
+type WithOrganizationLegacyType = (props: WithOrganizationLegacyProps) => (PageComponent: NextPage) => NextPage
 
-const withOrganization: WithOrganization = ({ ssr = false, ...opts } = {}) => PageComponent => {
+/** @deprecated */
+const _withOrganizationLegacy: WithOrganizationLegacyType = ({ ssr = false, ...opts } = {}) => PageComponent => {
     // TODO(pahaz): refactor it. No need to patch globals here!
-    GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY = opts.GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY ? opts.GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY : GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY
+    GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY_LEGACY = opts.GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY ? opts.GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY : GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY_LEGACY
 
-    const WithOrganization = ({ link, ...pageProps }) => {
-        if (DEBUG_RERENDERS) console.log('WithOrganization()', link)
+    const WithOrganization = ({ employee, ...pageProps }) => {
+        if (DEBUG_RERENDERS) console.log('WithOrganization()', employee)
         return (
-            <OrganizationProvider initialLinkValue={link}>
+            <OrganizationProviderLegacy initialEmployee={employee}>
                 <PageComponent {...pageProps} />
-            </OrganizationProvider>
+            </OrganizationProviderLegacy>
         )
     }
 
@@ -222,11 +289,11 @@ const withOrganization: WithOrganization = ({ ssr = false, ...opts } = {}) => Pa
         WithOrganization.displayName = `withOrganization(${displayName})`
     }
 
-    if (ssr || PageComponent.getInitialProps) {
+    if (ssr || !isSSR() || PageComponent.getInitialProps) {
         WithOrganization.getInitialProps = async ctx => {
             if (DEBUG_RERENDERS) console.log('WithOrganization.getInitialProps()', ctx)
             const isOnServerSide = typeof window === 'undefined'
-            const { link } = await initOnRestore(ctx)
+            const { employee } = await initOnRestore(ctx)
             const pageProps = await getContextIndependentWrappedInitialProps(PageComponent, ctx)
 
             if (isOnServerSide) {
@@ -235,7 +302,7 @@ const withOrganization: WithOrganization = ({ ssr = false, ...opts } = {}) => Pa
 
             return {
                 ...pageProps,
-                link,
+                employee,
             }
         }
     }
@@ -243,8 +310,148 @@ const withOrganization: WithOrganization = ({ ssr = false, ...opts } = {}) => Pa
     return WithOrganization
 }
 
+type OrganizationProviderProps = {
+    useInitialEmployeeId: () => { employeeId?: string | null }
+}
+const OrganizationProvider: React.FC<OrganizationProviderProps> = ({
+    children,
+    useInitialEmployeeId,
+}) => {
+    const { user, isLoading: userLoading } = useAuth()
+    const { employeeId } = useInitialEmployeeId()
+    const [activeEmployeeId, setActiveEmployeeId] = useState<string | null>(employeeId)
+
+    const onError = useCallback((error) => {
+        // NOTE: In case, when organization from cookie left from old user, and we don't have access to it
+        // We'll reset cookie without showing explicit error
+        if (error.message.includes('You do not have access to this resource')) {
+            setCookieEmployeeId('')
+            setActiveEmployeeId(null)
+            setActiveEmployee(null)
+        } else {
+            throw error
+        }
+    }, [])
+
+    const { loading: employeeLoading, refetch, data } = useQuery(GET_ORGANIZATION_EMPLOYEE_QUERY, {
+        variables: {
+            userId: user?.id || null,
+            employeeId: activeEmployeeId,
+        },
+        skip: userLoading || !user || !user.id || !activeEmployeeId,
+        onError,
+    })
+
+    const isLoading = userLoading || employeeLoading
+
+    const [activeEmployee, setActiveEmployee] = useState(get(data, ['employees', 0]) || null)
+
+    const handleSelectEmployee: OrganizationContextType['selectEmployee'] = useCallback((employeeId) => {
+        if (employeeId) {
+            setActiveEmployeeId(employeeId)
+            return refetch({ employeeId })
+        } else {
+            setCookieEmployeeId('')
+            setActiveEmployeeId(null)
+            setActiveEmployee(null)
+            return Promise.resolve()
+        }
+    }, [refetch])
+
+    /** @deprecated */
+    const handleSelectLink: OrganizationContextType['selectLink'] = useCallback((newEmployee) => {
+        return handleSelectEmployee(newEmployee?.id || null)
+    }, [handleSelectEmployee])
+
+    useEffect(() => {
+        const employee = get(data, ['employees', 0])
+        if (!employee) return
+
+        if (JSON.stringify(employee) === JSON.stringify(activeEmployee)) return
+        if (DEBUG_RERENDERS) console.log('OrganizationProvider() newState', employee)
+
+        const isEmployeeActive = !employee.isRejected && !employee.isBlocked && employee.isAccepted
+
+        if (!isEmployeeActive) {
+            setCookieEmployeeId('')
+            setActiveEmployeeId(null)
+            setActiveEmployee(null)
+        } else {
+            setCookieEmployeeId(employee.id)
+            setActiveEmployeeId(employee.id)
+            setActiveEmployee(employee)
+        }
+    }, [data, activeEmployee])
+
+    useEffect(() => {
+        if (userLoading) return
+        if (!user && activeEmployee !== null) {
+            setActiveEmployee(null)
+            setActiveEmployeeId(null)
+        }
+    }, [user])
+
+    if (DEBUG_RERENDERS) console.log('OrganizationProvider()', activeEmployee, 'loading', employeeLoading, 'skip', (userLoading || !user || !activeEmployeeId))
+
+    return (
+        <OrganizationContext.Provider
+            value={{
+                selectLink: handleSelectLink,
+                selectEmployee: handleSelectEmployee,
+                isLoading: (!user || !activeEmployeeId) ? false : isLoading,
+                link: (user && activeEmployee && activeEmployee.id) ? activeEmployee : null,
+                organization: (user && activeEmployee && activeEmployee.organization) ? activeEmployee.organization : null,
+                employee: (user && activeEmployee && activeEmployee.id) ? activeEmployee : null,
+                role: (user && activeEmployee && activeEmployee.role) ? activeEmployee.role : null,
+            }}
+            children={children}
+        />
+    )
+}
+
+
+type WithOrganizationProps = {
+    useInitialEmployeeId: OrganizationProviderProps['useInitialEmployeeId']
+    GET_ORGANIZATION_EMPLOYEE_QUERY?: DocumentNode
+}
+type WithOrganizationType = (props: WithOrganizationProps) => (PageComponent: NextPage) => NextPage
+
+const _withOrganization: WithOrganizationType = (opts) => (PageComponent) => {
+    GET_ORGANIZATION_EMPLOYEE_QUERY = opts.GET_ORGANIZATION_EMPLOYEE_QUERY ? opts.GET_ORGANIZATION_EMPLOYEE_QUERY : GET_ORGANIZATION_EMPLOYEE_QUERY
+
+    const WithOrganization = (props) => {
+        return (
+            <OrganizationProvider useInitialEmployeeId={opts.useInitialEmployeeId}>
+                <PageComponent {...props} />
+            </OrganizationProvider>
+        )
+    }
+
+    // Set the correct displayName in development
+    if (process.env.NODE_ENV !== 'production') {
+        const displayName =
+            PageComponent.displayName || PageComponent.name || 'Component'
+        WithOrganization.displayName = `WithOrganization(${displayName})`
+    }
+
+    WithOrganization.getInitialProps = PageComponent.getInitialProps
+
+    return WithOrganization
+}
+
+type mergedWithOrganizationProps = Either<WithOrganizationProps & { legacy: false }, WithOrganizationLegacyProps & { legacy?: true }>
+type mergedWithOrganizationType = (props: mergedWithOrganizationProps) => (PageComponent: NextPage) => NextPage
+const withOrganization: mergedWithOrganizationType = (opts) => (PageComponent: NextPage): NextPage => {
+    if (opts.legacy === false) {
+        return _withOrganization(opts)(PageComponent)
+    } else {
+        return _withOrganizationLegacy(opts)(PageComponent)
+    }
+}
+
 export {
     withOrganization,
     useOrganization,
-    setCookieLinkId,
+    setCookieEmployeeId,
+    removeCookieEmployeeId,
 }

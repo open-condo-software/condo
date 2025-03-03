@@ -1,5 +1,12 @@
 /** @jsx jsx */
-import { useApolloClient } from '@apollo/client'
+import {
+    useGetCallRecordFragmentExistenceQuery,
+    useGetTicketExistenceQuery,
+    useGetTicketsCountersByStatusQuery,
+    useGetTicketsCountLazyQuery,
+    useGetTicketsCountQuery,
+    useGetTicketsQuery,
+} from '@app/condo/gql'
 import { SortTicketsBy, Ticket as ITicket, TicketStatusTypeType } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
 import styled from '@emotion/styled'
@@ -9,7 +16,6 @@ import { TableRowSelection } from 'antd/lib/table/interface'
 import debounce from 'lodash/debounce'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
-import isEqual from 'lodash/isEqual'
 import isNull from 'lodash/isNull'
 import isNumber from 'lodash/isNumber'
 import isString from 'lodash/isString'
@@ -21,10 +27,10 @@ import { NextRouter, useRouter } from 'next/router'
 import { TableComponents } from 'rc-table/lib/interface'
 import React, { CSSProperties, Key, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { Search, Close, Phone } from '@open-condo/icons'
-import { useLazyQuery } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -60,6 +66,7 @@ import {
 import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePreviousQueryParams'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
+import { PageComponentType } from '@condo/domains/common/types'
 import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
@@ -75,7 +82,6 @@ import {
     useFavoriteTickets,
 } from '@condo/domains/ticket/contexts/FavoriteTicketsContext'
 import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
-import { Ticket as TicketGQL } from '@condo/domains/ticket/gql'
 import { useBooleanAttributesSearch } from '@condo/domains/ticket/hooks/useBooleanAttributesSearch'
 import { useFiltersTooltipData } from '@condo/domains/ticket/hooks/useFiltersTooltipData'
 import { useImporterFunctions } from '@condo/domains/ticket/hooks/useImporterFunctions'
@@ -83,15 +89,9 @@ import { useTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
 import { useTicketExportToExcelTask } from '@condo/domains/ticket/hooks/useTicketExportToExcelTask'
 import { useTicketExportToPdfTask } from '@condo/domains/ticket/hooks/useTicketExportToPdfTask'
 import { useTicketTableFilters } from '@condo/domains/ticket/hooks/useTicketTableFilters'
-import { CallRecordFragment, Ticket, TicketFilterTemplate } from '@condo/domains/ticket/utils/clientSchema'
-import { GET_TICKETS_COUNT_QUERY } from '@condo/domains/ticket/utils/clientSchema/search'
+import { TicketFilterTemplate } from '@condo/domains/ticket/utils/clientSchema'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
 
-
-interface ITicketIndexPage extends React.FC {
-    headerAction?: JSX.Element
-    requiredAccess?: React.FC
-}
 
 type TicketType = 'all' | 'own' | 'favorite'
 
@@ -152,7 +152,6 @@ const TicketTable = ({
     columns,
     filters,
     loading,
-    ticketsWithFiltersCount,
     searchTicketsQuery,
     TicketImportButton,
 }) => {
@@ -176,6 +175,7 @@ const TicketTable = ({
         await updateQuery(router, { newParameters: { selectedTicketIds: selectedTicketKeys } }, {
             routerAction: 'replace',
             resetOldParameters: false,
+            shallow: true,
         })
     }, DEBOUNCE_TIMEOUT), [])
 
@@ -308,7 +308,7 @@ const TicketTable = ({
                 />
             </Col>
             {
-                !loading && ticketsWithFiltersCount > 0 && (
+                !loading && total > 0 && (
                     <Col span={24}>
                         <ActionBar
                             message={selectedTicketKeys.length > 0 && `${CountSelectedTicketLabel}: ${selectedTicketKeys.length}`}
@@ -348,10 +348,9 @@ const TicketsTableContainer = ({
     useTableColumns,
     baseQueryLoading,
     TicketImportButton,
+    playSoundOnNewTickets,
 }) => {
     const intl = useIntl()
-
-    const { count: ticketsWithFiltersCount } = Ticket.useCount({ where: searchTicketsQuery })
 
     const router = useRouter()
     const { filters, offset } = useMemo(() => parseQuery(router.query), [router.query])
@@ -365,19 +364,23 @@ const TicketsTableContainer = ({
 
     const {
         loading: isTicketsFetching,
-        count: total,
-        objs: tickets,
+        data: ticketsData,
         refetch,
-    } = Ticket.useObjects({
-        // NOTE: we have index "ticket_order_createdat" for sorting by order ASC, createdAt DESC.
-        // If you change sort condition, you need to change index
-        sortBy,
-        where: searchTicketsQuery,
-        first: DEFAULT_PAGE_SIZE,
-        skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
+    } = useGetTicketsQuery({
+        variables: {
+            // NOTE: we have index "ticket_order_createdat" for sorting by order ASC, createdAt DESC.
+            // If you change sort condition, you need to change index
+            sortBy,
+            where: searchTicketsQuery,
+            first: DEFAULT_PAGE_SIZE,
+            skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
+        },
+        fetchPolicy: 'network-only',
     })
+    const tickets = useMemo(() => ticketsData?.tickets?.filter(Boolean) || [], [ticketsData?.tickets])
+    const total = useMemo(() => ticketsData?.meta?.count, [ticketsData?.meta?.count])
 
-    const [loadNewTicketCount] = useLazyQuery(TicketGQL.GET_COUNT_OBJS_QUERY, {
+    const [loadNewTicketCount] = useGetTicketsCountLazyQuery({
         onCompleted: ({ meta: { count } }) => {
             if (!isNull(ticketsCountRef.current) && ticketsCountRef.current < count) {
                 const totalNewTicketsCount = count - ticketsCountRef.current + unreadCount
@@ -404,14 +407,16 @@ const TicketsTableContainer = ({
                     pick(searchTicketsQuery, 'organization'), { status: { type: TicketStatusTypeType.NewOrReopened } },
                 ],
             },
-            first: DEFAULT_PAGE_SIZE,
         },
     })
 
     const refetchTickets = useCallback(async () => {
         await refetch()
-        await loadNewTicketCount()
-    }, [loadNewTicketCount, refetch])
+
+        if (playSoundOnNewTickets) {
+            await loadNewTicketCount()
+        }
+    }, [loadNewTicketCount, playSoundOnNewTickets, refetch])
 
     const {
         columns,
@@ -419,8 +424,10 @@ const TicketsTableContainer = ({
     } = useTableColumns(filterMetas, tickets, refetchTickets, isRefetching, setIsRefetching)
 
     useEffect(() => {
-        loadNewTicketCount()
-    }, [loadNewTicketCount])
+        if (playSoundOnNewTickets) {
+            loadNewTicketCount()
+        }
+    }, [loadNewTicketCount, playSoundOnNewTickets])
 
     const loading = (isTicketsFetching || columnsLoading || baseQueryLoading) && !isRefetching
 
@@ -431,7 +438,6 @@ const TicketsTableContainer = ({
             tickets={tickets}
             loading={loading}
             columns={columns}
-            ticketsWithFiltersCount={ticketsWithFiltersCount}
             searchTicketsQuery={searchTicketsQuery}
             sortBy={sortBy}
             TicketImportButton={TicketImportButton}
@@ -468,32 +474,30 @@ const TicketStatusFilterContainer = ({ searchTicketsQuery, searchTicketsWithoutS
     const DeferredTicketsMessage = intl.formatMessage({ id: 'ticket.status.DEFERRED.many' })
     const ClosedTicketsMessage = intl.formatMessage({ id: 'ticket.status.CLOSED.many' })
 
-    const client = useApolloClient()
+    const { persistor } = useCachePersistor()
 
-    const [count, setCount] = useState<Record<TicketStatusTypeType, { count: number }> & { all: { count: number } }>()
+    const {
+        data: allTicketsCountData,
+        loading: allTicketsCountLoading,
+    } = useGetTicketsCountQuery({
+        variables: {
+            where: searchTicketsQuery,
+        },
+        skip: !persistor,
+    })
+    const allTicketsCount = useMemo(() => allTicketsCountData?.meta?.count, [allTicketsCountData?.meta?.count])
 
-    const searchTicketsQueryRef = useRef(searchTicketsQuery)
-    useEffect(() => {
-        searchTicketsQueryRef.current = searchTicketsQuery
-    }, [searchTicketsQuery])
+    const {
+        data: ticketsCountByStatusesData,
+        loading: ticketsCountByStatusesLoading,
+    } = useGetTicketsCountersByStatusQuery({
+        variables: {
+            whereWithoutStatuses: searchTicketsWithoutStatusQuery,
+        },
+        skip: !persistor,
+    })
 
-    useDeepCompareEffect(() => {
-        client.query({
-            query: GET_TICKETS_COUNT_QUERY,
-            variables: {
-                where: searchTicketsQuery,
-                whereWithoutStatuses: searchTicketsWithoutStatusQuery,
-            },
-            fetchPolicy: 'network-only',
-        }).then(({ data }) => {
-            if (isEqual(searchTicketsQueryRef.current, searchTicketsQuery)) {
-                setCount(data)
-            }
-        })
-            .catch(e => console.error(e))
-    }, [searchTicketsQuery, searchTicketsWithoutStatusQuery])
-
-    const loading = count === undefined
+    const loading = allTicketsCountLoading || ticketsCountByStatusesLoading
 
     return loading ? <Loader style={LOADER_STYLES}/> : (
         <Row gutter={SMALL_HORIZONTAL_GUTTER} style={TICKET_STATUS_FILTER_CONTAINER_ROW_STYLES}>
@@ -501,7 +505,7 @@ const TicketStatusFilterContainer = ({ searchTicketsQuery, searchTicketsWithoutS
                 <Typography.Text size='large' strong>
                     {
                         intl.formatMessage({ id: 'TicketsCount' }, {
-                            ticketsCount: count.all.count,
+                            ticketsCount: allTicketsCount,
                         })
                     }
                 </Typography.Text>
@@ -510,42 +514,42 @@ const TicketStatusFilterContainer = ({ searchTicketsQuery, searchTicketsWithoutS
                 <TicketStatusFilter
                     title={OpenedTicketsMessage}
                     type={TicketStatusTypeType.NewOrReopened}
-                    count={count}
+                    count={ticketsCountByStatusesData}
                 />
             </Col>
             <Col>
                 <TicketStatusFilter
                     title={InProgressTicketsMessage}
                     type={TicketStatusTypeType.Processing}
-                    count={count}
+                    count={ticketsCountByStatusesData}
                 />
             </Col>
             <Col>
                 <TicketStatusFilter
                     title={CompletedTicketsMessage}
                     type={TicketStatusTypeType.Completed}
-                    count={count}
+                    count={ticketsCountByStatusesData}
                 />
             </Col>
             <Col>
                 <TicketStatusFilter
                     title={DeferredTicketsMessage}
                     type={TicketStatusTypeType.Deferred}
-                    count={count}
+                    count={ticketsCountByStatusesData}
                 />
             </Col>
             <Col>
                 <TicketStatusFilter
                     title={CanceledTicketsMessage}
                     type={TicketStatusTypeType.Canceled}
-                    count={count}
+                    count={ticketsCountByStatusesData}
                 />
             </Col>
             <Col>
                 <TicketStatusFilter
                     title={ClosedTicketsMessage}
                     type={TicketStatusTypeType.Closed}
-                    count={count}
+                    count={ticketsCountByStatusesData}
                 />
             </Col>
         </Row>
@@ -752,7 +756,8 @@ export const TicketsPageContent = ({
     sortableProperties,
     showImport = false,
     loading = false,
-    ticketsWithoutFiltersCount,
+    isTicketsExists,
+    playSoundOnNewTickets = false,
     error,
 }): JSX.Element => {
     const intl = useIntl()
@@ -761,7 +766,7 @@ export const TicketsPageContent = ({
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
 
     const router = useRouter()
-    const { link } = useOrganization()
+    const { role } = useOrganization()
     const { filters, sorters } = parseQuery(router.query)
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, sortableProperties)
     const sortBy = sortersToSortBy(sorters, TICKETS_DEFAULT_SORT_BY) as SortTicketsBy[]
@@ -785,7 +790,7 @@ export const TicketsPageContent = ({
     const isTicketImportFeatureEnabled = useFlag(TICKET_IMPORT)
     const [columns, ticketNormalizer, ticketValidator, ticketCreator] = useImporterFunctions()
 
-    const canManageTickets = useMemo(() => get(link, ['role', 'canManageTickets'], false), [link])
+    const canManageTickets = useMemo(() => role?.canManageTickets, [role])
 
     const TicketImportButton = useMemo(() => {
         return canManageTickets && showImport && isTicketImportFeatureEnabled && (
@@ -800,15 +805,12 @@ export const TicketsPageContent = ({
         )
     }, [canManageTickets, columns, isTicketImportFeatureEnabled, showImport, ticketCreator, ticketNormalizer, ticketValidator])
 
-    //TODO(DOMA-7354): Remove featureflag after resolve global search problem
-    const disableTicketCounters = useFlag('callcenter-disable-ticket-counters')
-
     if (loading || error) {
         const errorToPrint = error ? ServerErrorMsg : null
         return <LoadingOrErrorPage loading={loading} error={errorToPrint}/>
     }
 
-    if (ticketsWithoutFiltersCount === 0) {
+    if (!isTicketsExists) {
         return (
             <EmptyListContent
                 label={EmptyListLabel}
@@ -819,12 +821,12 @@ export const TicketsPageContent = ({
                     manualCreateDescription: EmptyListManualBodyDescription,
                     importCreateEmoji: EMOJI.LIST,
                     importWrapper: {
-                        onFinish: undefined,
                         columns: columns,
                         rowNormalizer: ticketNormalizer,
                         rowValidator: ticketValidator,
                         objectCreator: ticketCreator,
                         domainName: 'ticket',
+                        onFinish: undefined,
                     },
                 }}
             />
@@ -840,14 +842,10 @@ export const TicketsPageContent = ({
                     />
                 </Col>
                 <Col span={24}>
-                    {
-                        !disableTicketCounters && (
-                            <TicketStatusFilterContainer
-                                searchTicketsQuery={searchTicketsQuery}
-                                searchTicketsWithoutStatusQuery={searchTicketsWithoutStatusQuery}
-                            />
-                        )
-                    }
+                    <TicketStatusFilterContainer
+                        searchTicketsQuery={searchTicketsQuery}
+                        searchTicketsWithoutStatusQuery={searchTicketsWithoutStatusQuery}
+                    />
                 </Col>
             </Row>
             <TicketsTableContainer
@@ -857,6 +855,7 @@ export const TicketsPageContent = ({
                 searchTicketsQuery={searchTicketsQuery}
                 baseQueryLoading={loading}
                 TicketImportButton={TicketImportButton}
+                playSoundOnNewTickets={playSoundOnNewTickets}
             />
         </>
     )
@@ -868,6 +867,7 @@ export const TicketTypeFilterSwitch = ({ ticketFilterQuery }) => {
     const OwnTicketsMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.TicketType.own' })
     const FavoriteTicketsMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.TicketType.favorite' })
 
+    const { persistor } = useCachePersistor()
     const { user } = useAuth()
     const { userFavoriteTicketsCount } = useFavoriteTickets()
     const router = useRouter()
@@ -888,20 +888,27 @@ export const TicketTypeFilterSwitch = ({ ticketFilterQuery }) => {
         }
     }, [isAllTicketsSelected, isFavoriteTicketsSelected, isOwnTicketsSelected])
 
-    const { count: allTicketsCount, refetch: refetchAllTickets } = Ticket.useCount({
-        where: {
-            ...ticketFilterQuery,
+    const { data: allTicketsCountData, refetch: refetchAllTickets } = useGetTicketsCountQuery({
+        variables: {
+            where: ticketFilterQuery,
         },
+        skip: !persistor,
     })
+    const allTicketsCount = useMemo(() => allTicketsCountData?.meta?.count, [allTicketsCountData?.meta?.count])
+
     // NOTE: we have index "ticket_org_assign_exec_deletedAt" for this filter
     // If you change filter condition, you need to change index
     const ownTicketsQuery = { OR: [{ executor: { id: user.id }, assignee: { id: user.id } }] }
-    const { count: ownTicketsCount, refetch: refetchOwnTickets } = Ticket.useCount({
-        where: {
-            ...ticketFilterQuery,
-            ...ownTicketsQuery,
+    const { data: ownTicketsCountData, refetch: refetchOwnTickets } = useGetTicketsCountQuery({
+        variables: {
+            where: {
+                ...ticketFilterQuery,
+                ...ownTicketsQuery,
+            },
         },
+        skip: !persistor,
     })
+    const ownTicketsCount = useMemo(() => ownTicketsCountData?.meta?.count, [ownTicketsCountData?.meta?.count])
 
     const { isRefetchTicketsFeatureEnabled, refetchInterval } = useAutoRefetchTickets()
     const refetch = useCallback(async () => {
@@ -943,7 +950,7 @@ export const TicketTypeFilterSwitch = ({ ticketFilterQuery }) => {
             }
         }
         const newParameters = getFiltersQueryData(newFilters)
-        await updateQuery(router, { newParameters }, { routerAction: 'replace' })
+        await updateQuery(router, { newParameters }, { routerAction: 'replace', shallow: true })
     }, [filters, logEvent, router])
 
     return (
@@ -982,10 +989,12 @@ export const TicketTypeFilterSwitch = ({ ticketFilterQuery }) => {
     )
 }
 
-const TicketsPage: ITicketIndexPage = () => {
+const TicketsPage: PageComponentType = () => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
     const CallRecordsLogMessage = intl.formatMessage({ id: 'callRecord.index.title' })
+
+    const { persistor } = useCachePersistor()
 
     const { ticketFilterQuery, ticketFilterQueryLoading } = useTicketVisibility()
 
@@ -1000,18 +1009,28 @@ const TicketsPage: ITicketIndexPage = () => {
     usePreviousSortAndFilters({ employeeSpecificKey: employeeId })
 
     const {
-        count: ticketsWithoutFiltersCount,
-        loading: ticketsWithoutFiltersCountLoading,
         error,
-    } = Ticket.useCount({ where: ticketFilterQuery })
+        data: ticketExistenceData,
+        loading: ticketExistenceLoading,
+    } = useGetTicketExistenceQuery({
+        variables: {
+            where: ticketFilterQuery,
+        },
+        skip: !persistor,
+    })
+    const isTicketsExists = useMemo(() => ticketExistenceData?.tickets?.length > 0,
+        [ticketExistenceData?.tickets?.length])
 
     const {
-        count: callRecordsCount,
-    } = CallRecordFragment.useCount({
-        where: {
-            organization: { id: userOrganizationId },
+        data: callRecordFragmentExistenceData,
+    } = useGetCallRecordFragmentExistenceQuery({
+        variables: {
+            organizationId: userOrganizationId,
         },
+        skip: !persistor,
     })
+    const isCallRecordsExists = useMemo(() => callRecordFragmentExistenceData?.callRecordFragments?.length > 0,
+        [callRecordFragmentExistenceData?.callRecordFragments?.length])
 
     return (
         <>
@@ -1040,7 +1059,7 @@ const TicketsPage: ITicketIndexPage = () => {
                                     <Col>
                                         <Space size={20} direction={breakpoints.TABLET_SMALL ? 'horizontal' : 'vertical'}>
                                             {
-                                                callRecordsCount > 0 && (
+                                                isCallRecordsExists && (
                                                     <Link href='/callRecord'>
                                                         <Typography.Link size='large'>
                                                             <Space size={8}>
@@ -1052,7 +1071,7 @@ const TicketsPage: ITicketIndexPage = () => {
                                                 )
                                             }
                                             {
-                                                !ticketsWithoutFiltersCountLoading && ticketsWithoutFiltersCount > 0 && (
+                                                !ticketExistenceLoading && isTicketsExists && (
                                                     <TicketTypeFilterSwitch
                                                         ticketFilterQuery={ticketFilterQuery}
                                                     />
@@ -1067,10 +1086,10 @@ const TicketsPage: ITicketIndexPage = () => {
                                             filterMetas={filterMetas}
                                             useTableColumns={useTableColumns}
                                             baseTicketsQuery={ticketFilterQuery}
-                                            loading={ticketFilterQueryLoading || ticketsWithoutFiltersCountLoading}
+                                            loading={ticketFilterQueryLoading || ticketExistenceLoading}
                                             sortableProperties={SORTABLE_PROPERTIES}
                                             showImport
-                                            ticketsWithoutFiltersCount={ticketsWithoutFiltersCount}
+                                            isTicketsExists={isTicketsExists}
                                             error={error}
                                         />
                                     </MultipleFilterContextProvider>
@@ -1085,4 +1104,5 @@ const TicketsPage: ITicketIndexPage = () => {
 }
 
 TicketsPage.requiredAccess = TicketReadPermissionRequired
+
 export default TicketsPage

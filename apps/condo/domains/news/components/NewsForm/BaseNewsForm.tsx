@@ -78,7 +78,6 @@ import { SectionNameInput } from '@condo/domains/user/components/SectionNameInpu
 import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/components/UnitNameInput'
 
 
-
 type FormWithActionChildrenProps = ComponentProps<ComponentProps<typeof FormWithAction>['children']>
 
 type ActionBarProps = Pick<FormWithActionChildrenProps, 'handleSave' | 'isLoading' | 'form'>
@@ -622,7 +621,11 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         Body.setTextLength(initialBody.length)
     }, [])
 
+    const [templateId, setTemplateId] = useState<string | null>(null)
+
     const handleTemplateChange = useCallback((form) => (value) => {
+        setTemplateId(value)
+
         const templateId = value
         const title = templateId !== 'emptyTemplate' ? templates[templateId].title : ''
         const body = templateId !== 'emptyTemplate' ? templates[templateId].body : ''
@@ -650,7 +653,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
 
     const commonTemplatesTabsProps = useMemo(() => Object.keys(commonTemplates).map(id => ({
         key: id,
-        label: commonTemplates[id].label || emergencyTemplates[id].title,
+        label: commonTemplates[id].label || commonTemplates[id].title,
         category: commonTemplates[id].category,
     })), [commonTemplates])
 
@@ -1157,6 +1160,21 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         return getSteps().length - 1
     }, [getSteps])
 
+    const validateBeforeSave = () => {
+        if (!selectAppsFormValues.validBefore) return false
+
+        const validBeforeValue: dayjs.Dayjs = dayjs(selectAppsFormValues.validBefore)
+
+        if (validBeforeValue.isBefore(dayjs())) {
+            setCurrentStep(0)
+            notification.error({ message: PastTimeErrorMessage })
+
+            return true
+        }
+
+        return false
+    }
+
     return (
         <Row gutter={BIG_HORIZONTAL_GUTTER}>
             <Col span={24} flex='auto'>
@@ -1448,6 +1466,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                     (getStepTypeByStep(currentStep) === 'sharingApp') && (
                                         // TODO (DOMA-9328) Move onSkip to BaseNewsForm component, since steps are handled here!
                                         <NewsItemSharingForm
+                                            template={{ id: templateId, ...templates[templateId] }}
                                             ctxId={getStepDataByStep(currentStep).sharingAppData.id}
                                             onSkip={() => handleStepSkip({ skip: true, step: currentStep })}
                                             onSubmit={(values) => handleSharingAppFormSubmit({ values: values, ctxId: getStepDataByStep(currentStep).sharingAppData.id })}
@@ -1595,7 +1614,11 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                             key='submit'
                                                             type='primary'
                                                             children={ShareButtonMessage}
-                                                            onClick={handleSave}
+                                                            onClick={() => {
+                                                                if (validateBeforeSave()) return
+
+                                                                handleSave()
+                                                            }}
                                                             disabled={isLoading}
                                                         />,
                                                     ]}

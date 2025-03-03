@@ -51,8 +51,11 @@ const GET_ALL_PROPERTIES_WITH_MAP_BY_VALUE_QUERY = gql`
 `
 
 const GET_ALL_ORGANIZATION_EMPLOYEE_QUERY = gql`
-    query selectOrganizationEmployee ($value: String, $organizationId: ID) {
-        objs: allOrganizationEmployees(where: {name_contains_i: $value, organization: { id: $organizationId }}) {
+    query searchEmployeeUser ($value: String, $organizationId: ID) {
+        objs: allOrganizationEmployees(
+            where: {name_contains_i: $value, organization: { id: $organizationId }},
+            first: 100
+        ) {
             isBlocked
             name
             id
@@ -71,7 +74,10 @@ const GET_ALL_ORGANIZATION_EMPLOYEE_QUERY = gql`
 
 const GET_ALL_ORGANIZATION_EMPLOYEE_QUERY_WITH_EMAIL = gql`
     query selectOrganizationEmployee ($value: String, $organizationId: ID) {
-        objs: allOrganizationEmployees(where: {name_contains_i: $value, organization: { id: $organizationId } }) {
+        objs: allOrganizationEmployees(
+            where: {name_contains_i: $value, organization: { id: $organizationId } },
+            first: 100
+        ) {
             id
             name
             email
@@ -117,7 +123,7 @@ export async function searchProperty (client, where, orderBy, first = 10, skip =
         skip,
     })
     if (error) console.warn(error)
-    if (data) return data.objs.map(x => ({ text: x.address, value: x.id }))
+    if (data) return data.objs.filter(Boolean).map(x => ({ text: x.address, value: x.id }))
 
     return []
 }
@@ -130,7 +136,7 @@ export async function searchPropertyWithMap (client, where, orderBy, first = 10,
         skip,
     })
     if (error) console.warn(error)
-    if (data) return data.objs.map(x => ({ address: x.address, id: x.id, map: x.map }))
+    if (data) return data.objs.filter(Boolean).map(x => ({ address: x.address, id: x.id, map: x.map }))
 
     return []
 }
@@ -154,7 +160,7 @@ export function searchOrganizationProperty (organizationId) {
         })
         if (error) console.warn(error)
 
-        return data.objs.map(({ address, id }) => ({ text: address, value: id }))
+        return data.objs.filter(Boolean).map(({ address, id }) => ({ text: address, value: id }))
     }
 }
 
@@ -178,7 +184,7 @@ export function searchOrganizationPropertyWithoutPropertyHint (organizationId, o
         })
         if (error) console.warn(error)
 
-        return data.objs.map(({ address, id }) => ({ text: address, value: id }))
+        return data.objs.filter(Boolean).map(({ address, id }) => ({ text: address, value: id }))
     }
 }
 
@@ -189,14 +195,14 @@ export async function searchSingleProperty (client, propertyId, organizationId) 
 
     if (!data) return undefined
 
-    return data.objs[0]
+    return data.objs.filter(Boolean)[0]
 }
 
 export async function searchTicketSources (client, value) {
     const { data, error } = await _search(client, GET_ALL_SOURCES_QUERY, { value })
 
     if (error) console.warn(error)
-    if (data) return data.objs.map(x => ({ text: x.name, value: x.id }))
+    if (data) return data.objs.filter(Boolean).map(x => ({ text: x.name, value: x.id }))
 
     return []
 }
@@ -205,7 +211,7 @@ export async function searchTicketClassifier (client, value) {
     const { data, error } = await _search(client, GET_ALL_CLASSIFIERS_QUERY, { value })
 
     if (error) console.warn(error)
-    if (data) return data.objs.map(x => ({ text: x.name, value: x.id }))
+    if (data) return data.objs.filter(Boolean).map(x => ({ text: x.name, value: x.id }))
 
     return []
 }
@@ -219,6 +225,7 @@ export function searchEmployeeUser (organizationId, filter = null) {
         if (error) console.warn(error)
 
         const result = data.objs
+            .filter(Boolean)
             .filter(filter || Boolean)
             .filter(({ user }) => user)
             .map(object => {
@@ -238,6 +245,7 @@ export function searchEmployee (organizationId, filter) {
         if (error) console.warn(error)
 
         return data.objs
+            .filter(Boolean)
             .filter(filter || Boolean)
             .map(({ name, id, isBlocked }) => ({ text: name, value: id, isBlocked }))
     }
@@ -252,17 +260,14 @@ export function getEmployeeWithEmail (organizationId) {
 
         if (error) console.warn(error)
 
-        const result = data.objs.map(object => {
-            if (object.user) {
-                return ({
-                    text: object.name,
-                    id: object.id,
-                    value: { id: object.user.id, hasEmail: !isEmpty(object.email) },
-                })
-            }
-        }).filter(Boolean)
-
-        return result
+        return data
+            ?.objs
+            ?.filter(employee => !!employee && employee.user)
+            ?.map(employee => ({
+                text: employee.name,
+                id: employee.id,
+                value: { id: employee.user.id, hasEmail: !isEmpty(employee.email) },
+            })) || []
     }
 }
 

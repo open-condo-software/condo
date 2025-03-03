@@ -10,8 +10,6 @@ export * as BankContractorAccount from './BankContractorAccount'
 export * as BankIntegration from './BankIntegration'
 export * as BankIntegrationAccountContext from './BankIntegrationAccountContext'
 export * as BankTransaction from './BankTransaction'
-export * as BankSyncTask from './BankSyncTask'
 export * as BankIntegrationAccessRight from './BankIntegrationAccessRight'
 export * as BankAccountReport from './BankAccountReport'
-export * as BankAccountReportTask from './BankAccountReportTask'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

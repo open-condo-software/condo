@@ -106,10 +106,12 @@ const Organization = new GQLListSchema('Organization', {
                     const tin = get(item, 'tin')
 
                     if (!country || !tin) {
+                        // TODO(pahaz): we need to use GQLError here! It's not displayed!
                         addFieldValidationError('Country and Tin fields can not be empty')
                     }
 
                     if (!isValidTin(tin, country)) {
+                        // TODO(pahaz): DOMA-10729 we need to use GQLError here! It's not displayed!
                         addFieldValidationError('Tin field has not a valid values supplied')
                     }
                 },

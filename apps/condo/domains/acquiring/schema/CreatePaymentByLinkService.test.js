@@ -7,7 +7,7 @@ const Big = require('big.js')
 const dayjs = require('dayjs')
 
 const {
-    makeLoggedInAdminClient, makeClient, expectToThrowAuthenticationErrorToResult, catchErrorFrom,
+    makeLoggedInAdminClient, makeClient, expectToThrowAuthenticationErrorToResult,
     expectToThrowAccessDeniedErrorToResult, expectToThrowGQLErrorToResult,
 } = require('@open-condo/keystone/test.utils')
 
@@ -32,6 +32,7 @@ const {
     createTestBillingReceipt, createTestBillingAccount,
     addBillingIntegrationAndContext, createTestRecipient,
 } = require('@condo/domains/billing/utils/testSchema')
+const { ALREADY_EXISTS_ERROR } = require('@condo/domains/common/constants/errors')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const {
@@ -106,6 +107,7 @@ async function createBillingReceiptAndAllDependencies (admin, organization, qrCo
     const [billingRecipient] = await createTestBillingRecipient(admin, billingIntegrationContext, {
         bankAccount: qrCodeAttrs.PersonalAcc,
         bic: qrCodeAttrs.BIC,
+        tin: qrCodeAttrs.PayeeINN,
     })
     const [billingReceipt] = await createTestBillingReceipt(admin, billingIntegrationContext, billingProperty, billingAccount, {
         period: `2024-${month}-01`,
@@ -180,6 +182,7 @@ describe('CreatePaymentByLinkService', () => {
         const [billingRecipient] = await createTestBillingRecipient(admin, billingIntegrationContext, {
             bankAccount: qrCodeAttrs.PersonalAcc,
             bic: qrCodeAttrs.BIC,
+            tin: qrCodeAttrs.PayeeINN,
         })
         const [billingReceipt] = await createTestBillingReceipt(admin, billingIntegrationContext, billingProperty, billingAccount, {
             period: '2023-07-01',
@@ -240,6 +243,7 @@ describe('CreatePaymentByLinkService', () => {
         const [billingRecipient] = await createTestBillingRecipient(admin, billingIntegrationContext, {
             bankAccount: qrCodeAttrs.PersonalAcc,
             bic: qrCodeAttrs.BIC,
+            tin: qrCodeAttrs.PayeeINN,
         })
         await createTestBillingReceipt(admin, billingIntegrationContext, billingProperty, billingAccount, {
             period: '2023-07-01',
@@ -297,6 +301,7 @@ describe('CreatePaymentByLinkService', () => {
         const [billingRecipient] = await createTestBillingRecipient(admin, billingIntegrationContext, {
             bankAccount: qrCodeAttrs.PersonalAcc,
             bic: qrCodeAttrs.BIC,
+            tin: qrCodeAttrs.PayeeINN,
         })
         await createTestBillingReceipt(admin, billingIntegrationContext, billingProperty, billingAccount, {
             period: '2023-06-01',
@@ -339,36 +344,25 @@ describe('CreatePaymentByLinkService', () => {
             bic: qrCodeAttrs.BIC,
             bankAccount: qrCodeAttrs.PersonalAcc,
         })
-        const { acquiringIntegration } = await addAcquiringIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS, recipient })
+        await addAcquiringIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS, recipient })
 
         const [billingProperty] = await createTestBillingProperty(admin, billingIntegrationContext)
         await createTestBillingAccount(admin, billingIntegrationContext, billingProperty, { number: qrCodeAttrs.PersAcc })
         await createTestBillingRecipient(admin, billingIntegrationContext, { bankAccount: qrCodeAttrs.PersonalAcc })
         await createTestBillingRecipient(admin, billingIntegrationContext)
-        const [bankAccount] = await createTestBankAccount(admin, organization, {
+        await createTestBankAccount(admin, organization, {
             number: qrCodeAttrs.PersonalAcc,
             routingNumber: qrCodeAttrs.BIC,
         })
 
-        const [data] = await createPaymentByLinkByTestClient(user, { qrCode }) // NOSONAR code duplications is normal for tests
-
-        expect(data.address).toBeDefined()
-        expect(data.accountNumber).toEqual(qrCodeAttrs.PersAcc)
-        expect(data.multiPaymentId).toBeDefined()
-        expect(data.unitName).toBeDefined()
-        expect(data.acquiringIntegrationHostUrl).toBe(acquiringIntegration.hostUrl)
-        expect(data.currencyCode).toBe(billingIntegrationContext.integration.currencyCode)
-
-        const multiPayment = await MultiPayment.getOne(admin, { id: data.multiPaymentId })
-        expect(multiPayment).toBeDefined()
-
-        const payments = await Payment.getAll(admin, {
-            multiPayment: { id: multiPayment.id },
+        await expectToThrowGQLErrorToResult(async () => {
+            await createPaymentByLinkByTestClient(user, { qrCode })
+        }, {
+            mutation: 'validateQRCode',
+            code: 'BAD_USER_INPUT',
+            type: 'NOT_FOUND',
+            message: 'No previous receipt was found',
         })
-
-        expect(payments[0].accountNumber).toBe(qrCodeAttrs.PersAcc)
-        expect(payments[0].recipientBic).toBe(bankAccount.routingNumber)
-        expect(payments[0].receipt).toBeNull()
     })
 
     test('user: create virtual multiPayment if no receipts found and no PaymPeriod passed', async () => {
@@ -388,46 +382,42 @@ describe('CreatePaymentByLinkService', () => {
             bic: qrCodeAttrs.BIC,
             bankAccount: qrCodeAttrs.PersonalAcc,
         })
-        const { acquiringIntegration } = await addAcquiringIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS, recipient })
+        await addAcquiringIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS, recipient })
 
         const [billingProperty] = await createTestBillingProperty(admin, billingIntegrationContext)
         await createTestBillingAccount(admin, billingIntegrationContext, billingProperty, { number: qrCodeAttrs.PersAcc })
         await createTestBillingRecipient(admin, billingIntegrationContext, { bankAccount: qrCodeAttrs.PersonalAcc })
         await createTestBillingRecipient(admin, billingIntegrationContext)
-        const [bankAccount] = await createTestBankAccount(admin, organization, {
+        await createTestBankAccount(admin, organization, {
             number: qrCodeAttrs.PersonalAcc,
             routingNumber: qrCodeAttrs.BIC,
         })
 
-        const [data] = await createPaymentByLinkByTestClient(user, { qrCode })
-
-        expect(data.address).toBeDefined()
-        expect(data.accountNumber).toEqual(qrCodeAttrs.PersAcc)
-        expect(data.multiPaymentId).toBeDefined()
-        expect(data.unitName).toBeDefined()
-        expect(data.acquiringIntegrationHostUrl).toBe(acquiringIntegration.hostUrl)
-        expect(data.currencyCode).toBe(billingIntegrationContext.integration.currencyCode)
-
-        const multiPayment = await MultiPayment.getOne(admin, { id: data.multiPaymentId })
-        expect(multiPayment).toBeDefined()
-
-        const payments = await Payment.getAll(admin, {
-            multiPayment: { id: multiPayment.id },
+        await expectToThrowGQLErrorToResult(async () => {
+            await createPaymentByLinkByTestClient(user, { qrCode })
+        }, {
+            mutation: 'validateQRCode',
+            code: 'BAD_USER_INPUT',
+            type: 'NOT_FOUND',
+            message: 'No previous receipt was found',
         })
-
-        expect(payments).toHaveLength(1)
-        expect(payments[0].accountNumber).toBe(qrCodeAttrs.PersAcc)
-        expect(payments[0].recipientBic).toBe(bankAccount.routingNumber)
-        expect(payments[0].receipt).toBeNull()
     })
 
-    test('should throw if no bank account found', async () => {
+    test('should throw an error if no bank account found', async () => {
         const [organization] = await createTestOrganization(admin)
         const [property] = await createTestProperty(admin, organization)
-        const [qrCode] = generateQRCode({ PayeeINN: organization.tin, PayerAddress: `${property.address}, кв. 1` })
 
-        await addBillingIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
+        const { billingIntegrationContext } = await addBillingIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
         await addAcquiringIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
+
+        const [billingProperty] = await createTestBillingProperty(admin, billingIntegrationContext, { address: property.address })
+        const [billingAccount] = await createTestBillingAccount(admin, billingIntegrationContext, billingProperty)
+
+        const [qrCode] = generateQRCode({
+            PayeeINN: organization.tin,
+            PayerAddress: `${property.address}, кв. 1`,
+            PersAcc: billingAccount.number,
+        })
 
         const payload = { qrCode }
 
@@ -439,7 +429,30 @@ describe('CreatePaymentByLinkService', () => {
             type: 'WRONG_FORMAT',
             message: 'Provided bank account is not in the system',
         })
+    })
 
+    test('should throw an error by ValidateQRCodeService if no billing account found', async () => {
+        const [organization] = await createTestOrganization(admin)
+        const [property] = await createTestProperty(admin, organization)
+
+        await addBillingIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
+        await addAcquiringIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
+
+        const [qrCode] = generateQRCode({
+            PayeeINN: organization.tin,
+            PayerAddress: `${property.address}, кв. 1`,
+        })
+
+        const payload = { qrCode }
+
+        await expectToThrowGQLErrorToResult(async () => {
+            await createPaymentByLinkByTestClient(user, payload)
+        }, {
+            mutation: 'validateQRCode',
+            code: 'INTERNAL_ERROR',
+            type: 'NOT_FOUND',
+            message: 'No billing account was found',
+        })
     })
 
     test('anonymous: can\'t execute', async () => {
@@ -503,20 +516,22 @@ describe('CreatePaymentByLinkService', () => {
             expect(payments).toBeDefined()
             expect(payments).toHaveLength(1)
 
-            // mark payment as payed
+            // mark payment as paid
             await updateTestPayment(admin, payments[0].id, {
                 status: PAYMENT_DONE_STATUS,
                 advancedAt: dayjs().toISOString(),
             })
 
-            // TODO(pahaz): DOMA-10368 use expectToThrowGQLErrorToResult
-            await catchErrorFrom(async () => {
+            await expectToThrowGQLErrorToResult(async () => {
                 await createPaymentByLinkByTestClient(admin, { qrCode })
-            }, (error) => {
-                expect(error.message).toContain('Provided receipt already paid')
+            }, {
+                mutation: 'validateQRCode',
+                code: 'BAD_USER_INPUT',
+                type: ALREADY_EXISTS_ERROR,
+                message: 'Provided receipt already paid',
             })
         })
-        test('scanned receipt period less the last billing receipt in out database', async () => {
+        test('scanned receipt period less than the last billing receipt in out database', async () => {
             const {
                 organization,
                 qrCode,
@@ -552,20 +567,22 @@ describe('CreatePaymentByLinkService', () => {
             expect(payments).toBeDefined()
             expect(payments).toHaveLength(1)
 
-            // mark payment as payed
+            // mark payment as paid
             await updateTestPayment(admin, payments[0].id, {
                 status: PAYMENT_DONE_STATUS,
                 advancedAt: dayjs().toISOString(),
             })
 
-            // TODO(pahaz): DOMA-10368 use expectToThrowGQLErrorToResult
-            await catchErrorFrom(async () => {
+            await expectToThrowGQLErrorToResult(async () => {
                 await createPaymentByLinkByTestClient(admin, { qrCode })
-            }, (error) => {
-                expect(error.message).toContain('Provided receipt already paid')
+            }, {
+                mutation: 'validateQRCode',
+                code: 'BAD_USER_INPUT',
+                type: ALREADY_EXISTS_ERROR,
+                message: 'Provided receipt already paid',
             })
         })
-        test('scanned receipt period great the last billing receipt in out database', async () => {
+        test('scanned receipt period great than the last billing receipt in out database', async () => {
             const {
                 organization,
                 qrCode,
@@ -601,20 +618,22 @@ describe('CreatePaymentByLinkService', () => {
             expect(payments).toBeDefined()
             expect(payments).toHaveLength(1)
 
-            // mark payment as payed
+            // mark payment as paid
             await updateTestPayment(admin, payments[0].id, {
                 status: PAYMENT_DONE_STATUS,
                 advancedAt: dayjs().toISOString(),
             })
 
-            // TODO(pahaz): DOMA-10368 use expectToThrowGQLErrorToResult
-            await catchErrorFrom(async () => {
+            await expectToThrowGQLErrorToResult(async () => {
                 await createPaymentByLinkByTestClient(admin, { qrCode })
-            }, (error) => {
-                expect(error.message).toContain('Provided receipt already paid')
+            }, {
+                mutation: 'validateQRCode',
+                code: 'BAD_USER_INPUT',
+                type: ALREADY_EXISTS_ERROR,
+                message: 'Provided receipt already paid',
             })
         })
-        test('scanned receipt not in out database', async () => {
+        test('scanned receipt not in our database', async () => {
             const {
                 organization,
                 qrCode,
@@ -666,17 +685,19 @@ describe('CreatePaymentByLinkService', () => {
             expect(payments).toBeDefined()
             expect(payments).toHaveLength(1)
 
-            // mark payment as payed
+            // mark payment as paid
             await updateTestPayment(admin, payments[0].id, {
                 status: PAYMENT_DONE_STATUS,
                 advancedAt: dayjs().toISOString(),
             })
 
-            // TODO(pahaz): DOMA-10368 use expectToThrowGQLErrorToResult
-            await catchErrorFrom(async () => {
-                await createPaymentByLinkByTestClient(admin, { qrCode })
-            }, (error) => {
-                expect(error.message).toContain('Provided receipt already paid')
+            await expectToThrowGQLErrorToResult(async () => {
+                await createPaymentByLinkByTestClient(user, { qrCode })
+            }, {
+                mutation: 'validateQRCode',
+                code: 'BAD_USER_INPUT',
+                type: 'NOT_FOUND',
+                message: 'No previous receipt was found',
             })
         })
     })

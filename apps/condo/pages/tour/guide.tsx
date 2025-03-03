@@ -18,6 +18,7 @@ import {
     PageWrapper,
     useLayoutContext,
 } from '@condo/domains/common/components/containers/BaseLayout'
+import { PageComponentType } from '@condo/domains/common/types'
 
 
 const {
@@ -356,7 +357,7 @@ const IntroduceAppBlock = () => {
     )
 }
 
-const GuidePage = () => {
+const GuidePage: PageComponentType = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'tour.guide.title' })
 

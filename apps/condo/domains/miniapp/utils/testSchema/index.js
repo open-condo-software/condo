@@ -13,7 +13,7 @@ const { throwIfError, generateGQLTestUtils } = require('@open-condo/codegen/gene
 const { PROMO_BLOCK_TEXT_VARIANTS_TO_PROPS } = require('@condo/domains/miniapp/constants')
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
 const {
-    B2C_APP_MESSAGE_PUSH_TYPE,
+    B2C_APP_MESSAGE_PUSH_TYPE, B2B_APP_MESSAGE_PUSH_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const {
     ALL_MINI_APPS_QUERY,
@@ -32,19 +32,24 @@ const { B2BAppPermission: B2BAppPermissionGQL } = require('@condo/domains/miniap
 const { B2BAppRole: B2BAppRoleGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAppAccessRightSet: B2BAppAccessRightSetGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAppNewsSharingConfig: B2BAppNewsSharingConfigGQL } = require('@condo/domains/miniapp/gql')
-const { B2CAppMessageSetting: B2CAppMessageSettingGQL } = require('@condo/domains/miniapp/gql')
+const { B2BAccessToken: B2BAccessTokenGQL } = require('@condo/domains/miniapp/gql')
+const { B2BAccessTokenAdmin: B2BAccessTokenAdminGQL } = require('@condo/domains/miniapp/gql')
+const { B2BAccessTokenReadonly: B2BAccessTokenReadonlyGQL } = require('@condo/domains/miniapp/gql')
+const { B2BAccessTokenReadonlyAdmin: B2BAccessTokenReadonlyAdminGQL } = require('@condo/domains/miniapp/gql')
+const { AppMessageSetting: AppMessageSettingGQL } = require('@condo/domains/miniapp/gql')
+const { SEND_B2B_APP_PUSH_MESSAGE_MUTATION } = require('@condo/domains/miniapp/gql')
+
 /* AUTOGENERATE MARKER <IMPORT> */
 
-function randomChoice(options) {
-    const index = Math.floor(Math.random() * options.length);
-    return options[index];
+function randomChoice (options) {
+    return faker.helpers.arrayElement(options)
 }
 
-function randomHex() {
-    return `#${Math.floor(Math.random()*16777215).toString(16).padStart(6, '0')}`
+function randomHex () {
+    return faker.color.rgb({ format: 'hex', casing: 'lower' })
 }
 
-function generatePermissionKey() {
+function generatePermissionKey () {
     const action = capitalize(faker.word.verb()).replace(/\W/g, '')
     const subject = capitalize(faker.word.noun()).replace(/\W/g, '')
 
@@ -64,11 +69,15 @@ const B2BAppPermission = generateGQLTestUtils(B2BAppPermissionGQL)
 const B2BAppRole = generateGQLTestUtils(B2BAppRoleGQL)
 const B2BAppAccessRightSet = generateGQLTestUtils(B2BAppAccessRightSetGQL)
 const B2BAppNewsSharingConfig = generateGQLTestUtils(B2BAppNewsSharingConfigGQL)
-const B2CAppMessageSetting = generateGQLTestUtils(B2CAppMessageSettingGQL)
+const AppMessageSetting = generateGQLTestUtils(AppMessageSettingGQL)
+const B2BAccessToken = generateGQLTestUtils(B2BAccessTokenGQL)
+const B2BAccessTokenAdmin = generateGQLTestUtils(B2BAccessTokenAdminGQL)
+const B2BAccessTokenReadonly = generateGQLTestUtils(B2BAccessTokenReadonlyGQL)
+const B2BAccessTokenReadonlyAdmin = generateGQLTestUtils(B2BAccessTokenReadonlyAdminGQL)
+
 /* AUTOGENERATE MARKER <CONST> */
 
-
-async function allMiniAppsByTestClient(client, organization, extraAttrs) {
+async function allMiniAppsByTestClient (client, organization, extraAttrs) {
     if (!client) throw new Error('no client')
     if (!organization || !organization.id) throw new Error('no organization id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -319,7 +328,7 @@ async function createTestB2BAppPromoBlock (client, extraAttrs = {}) {
         ? randomHex()
         : `linear-gradient(90deg,  ${randomHex()} 0%, ${randomHex()} 100%)`
     const backgroundImage = new UploadingFile(path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/dino.png'))
-    const targetUrl  = faker.internet.url()
+    const targetUrl = faker.internet.url()
 
     const attrs = {
         dv: 1,
@@ -351,8 +360,7 @@ async function updateTestB2BAppPromoBlock (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-
-async function sendB2CAppPushMessageByTestClient(client, extraAttrs = {}) {
+async function sendB2CAppPushMessageByTestClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
 
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -367,10 +375,11 @@ async function sendB2CAppPushMessageByTestClient(client, extraAttrs = {}) {
     }
     const { data, errors } = await client.mutate(SEND_B2C_APP_PUSH_MESSAGE_MUTATION, { data: attrs })
 
-    throwIfError(data, errors, { query: SEND_B2C_APP_PUSH_MESSAGE_MUTATION, variables: { data: attrs }})
+    throwIfError(data, errors, { query: SEND_B2C_APP_PUSH_MESSAGE_MUTATION, variables: { data: attrs } })
 
     return [data.result, attrs]
 }
+
 async function createTestMessageAppBlackList (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
 
@@ -402,6 +411,7 @@ async function updateTestMessageAppBlackList (client, id, extraAttrs = {}) {
     const obj = await MessageAppBlackList.update(client, id, attrs)
     return [obj, attrs]
 }
+
 async function createTestB2BAppPermission (client, app, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!app || !app.id) throw new Error('no app.id')
@@ -477,6 +487,8 @@ async function createTestB2BAppAccessRightSet (client, app, extraAttrs = {}) {
         dv: 1,
         sender,
         app: { connect: { id: app.id } },
+        type: 'GLOBAL',
+        name: faker.random.alphaNumeric(8),
         ...extraAttrs,
     }
     const obj = await B2BAppAccessRightSet.create(client, attrs)
@@ -528,24 +540,31 @@ async function updateTestB2BAppNewsSharingConfig (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestB2CAppMessageSetting (client, b2cApp, extraAttrs = {}) {
+async function createTestAppMessageSetting (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
-    if (!b2cApp.id) throw new Error('no b2cApp.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const type = B2C_APP_MESSAGE_PUSH_TYPE
+    const { b2cApp, b2bApp, ...otherAttrs } = extraAttrs
 
     const attrs = {
         dv: 1,
         sender,
-        type,
-        app: { connect: { id: b2cApp.id } },
-        ...extraAttrs,
+        reason: faker.lorem.sentence()
     }
-    const obj = await B2CAppMessageSetting.create(client, attrs)
+    if (extraAttrs.b2cApp) {
+        attrs['b2cApp'] = { connect: { id: b2cApp.id } }
+        attrs['type'] = B2C_APP_MESSAGE_PUSH_TYPE
+    }
+    if (extraAttrs.b2bApp) {
+        attrs['b2bApp'] = { connect: { id: b2bApp.id } }
+        attrs['type'] = B2B_APP_MESSAGE_PUSH_TYPE
+    }
+
+    const obj = await AppMessageSetting.create(client, { ...attrs, ...otherAttrs })
+
     return [obj, attrs]
 }
 
-async function updateTestB2CAppMessageSetting (client, id, extraAttrs = {}) {
+async function updateTestAppMessageSetting (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -555,8 +574,107 @@ async function updateTestB2CAppMessageSetting (client, id, extraAttrs = {}) {
         sender,
         ...extraAttrs,
     }
-    const obj = await B2CAppMessageSetting.update(client, id, attrs)
+    const obj = await AppMessageSetting.update(client, id, attrs)
     return [obj, attrs]
+}
+
+async function _createTestB2BAccessToken (gql, client, context, rightSet, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!context || !context.id) throw new Error('no context.id')
+    if (!rightSet || !rightSet.id) throw new Error('no rightSet.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        context: { connect: { id: context.id } },
+        rightSet: { connect: { id: rightSet.id } },
+        ...extraAttrs,
+    }
+    const obj = await gql.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function createTestB2BAccessToken (client, context, rightSet, extraAttrs = {}) {
+    return await _createTestB2BAccessToken(B2BAccessToken, client, context, rightSet, extraAttrs)
+}
+
+async function createTestB2BAccessTokenAdmin (client, context, rightSet, extraAttrs = {}) {
+    return await _createTestB2BAccessToken(B2BAccessTokenAdmin, client, context, rightSet, extraAttrs)
+}
+
+async function createTestB2BAccessTokenReadonly (client, context, rightSet, extraAttrs = {}) {
+    return await _createTestB2BAccessToken(B2BAccessTokenReadonly, client, context, rightSet, extraAttrs)
+}
+
+async function createTestB2BAccessTokenReadonlyAdmin (client, context, rightSet, extraAttrs = {}) {
+    return await _createTestB2BAccessToken(B2BAccessTokenReadonlyAdmin, client, context, rightSet, extraAttrs)
+}
+
+async function _updateTestB2BAccessToken (utils, client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await utils.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestB2BAccessToken (client, id, extraAttrs = {}) {
+    return await _updateTestB2BAccessToken(B2BAccessToken, client, id, extraAttrs)
+}
+
+async function updateTestB2BAccessTokenAdmin (client, id, extraAttrs = {}) {
+    return await _updateTestB2BAccessToken(B2BAccessTokenAdmin, client, id, extraAttrs)
+}
+
+async function updateTestB2BAccessTokenReadonly (client, id, extraAttrs = {}) {
+    return await _updateTestB2BAccessToken(B2BAccessTokenReadonly, client, id, extraAttrs)
+}
+
+async function updateTestB2BAccessTokenReadonlyAdmin (client, id, extraAttrs = {}) {
+    return await _updateTestB2BAccessToken(B2BAccessTokenReadonlyAdmin, client, id, extraAttrs)
+}
+
+
+async function sendB2BAppPushMessageByTestClient (client, app, organization, user, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!app || !app.id) throw new Error('no app')
+    if (!organization || !organization.id) throw new Error('no organization')
+    if (!user || !user.id) throw new Error('no user')
+
+    const type = extraAttrs.type || B2B_APP_MESSAGE_PUSH_TYPE
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const title = faker.random.alphaNumeric(8)
+    const body = faker.random.alphaNumeric(8)
+
+    const meta = { dv: 1 }
+    if (type === B2B_APP_MESSAGE_PUSH_TYPE) {
+        meta['title'] = title
+        meta['body'] = body
+    }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        app: { id: app.id },
+        organization: { id: organization.id },
+        user: { id: user.id },
+        type,
+        ...extraAttrs,
+        meta: {
+            ...meta,
+            ...extraAttrs.meta,
+        },
+    }
+    const { data, errors } = await client.mutate(SEND_B2B_APP_PUSH_MESSAGE_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
 }
 
 /* AUTOGENERATE MARKER <FACTORY> */
@@ -577,6 +695,11 @@ module.exports = {
     B2BAppRole, createTestB2BAppRole, updateTestB2BAppRole,
     B2BAppAccessRightSet, createTestB2BAppAccessRightSet, updateTestB2BAppAccessRightSet,
     B2BAppNewsSharingConfig, createTestB2BAppNewsSharingConfig, updateTestB2BAppNewsSharingConfig,
-    B2CAppMessageSetting, createTestB2CAppMessageSetting, updateTestB2CAppMessageSetting,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    sendB2BAppPushMessageByTestClient,
+    B2BAccessToken, createTestB2BAccessToken, updateTestB2BAccessToken,
+    B2BAccessTokenAdmin, createTestB2BAccessTokenAdmin, updateTestB2BAccessTokenAdmin,
+    B2BAccessTokenReadonly, createTestB2BAccessTokenReadonly, updateTestB2BAccessTokenReadonly,
+    B2BAccessTokenReadonlyAdmin, createTestB2BAccessTokenReadonlyAdmin, updateTestB2BAccessTokenReadonlyAdmin,
+    AppMessageSetting, createTestAppMessageSetting, updateTestAppMessageSetting,
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

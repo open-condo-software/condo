@@ -11,6 +11,11 @@ jobs:
     name: Gitexporter
     runs-on: self-hosted
     steps:
+      - name: Setup node environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 14.x
+          cache: 'npm'
       - name: Checkout
         uses: actions/checkout@v4
         with:

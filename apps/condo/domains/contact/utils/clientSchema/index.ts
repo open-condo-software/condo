@@ -5,5 +5,4 @@
 
 export * as Contact from './Contact'
 export * as ContactRole from './ContactRole'
-export * as ContactExportTask from './ContactExportTask'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

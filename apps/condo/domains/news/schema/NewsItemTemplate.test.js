@@ -92,6 +92,15 @@ describe('NewsItemTemplate', () => {
                 expect(obj.body).toEqual(attrs.body)
                 expect(obj.type).toEqual(attrs.type)
             })
+            
+            test('can be created with special symbols', async () => {
+                const testText = 'test \\n'
+
+                const [obj] = await createTestNewsItemTemplate(adminClient, { title: testText, body: testText })
+
+                expect(obj.title).toEqual(testText)
+                expect(obj.body).toEqual(testText)
+            })
 
             test('support can', async () => {
                 const [obj, attrs] = await createTestNewsItemTemplate(supportClient)

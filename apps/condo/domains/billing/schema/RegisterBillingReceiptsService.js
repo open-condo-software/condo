@@ -98,12 +98,6 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
             schema: 'registerBillingReceipts(data: RegisterBillingReceiptsInput!): [BillingReceipt]',
             resolver: async (parent, args, context = {}) => {
                 const { data: { context: billingContextInput, receipts: receiptsInput, dv, sender } } = args
-                // The flow description:
-                // 1. Normalize addresses
-                // 2. Collect data for BillingProblems
-                // 3. Create BillingRecipients
-                // 4. Auto-detect BillingCategory
-
                 // Input guard validations
                 if (receiptsInput.length > RECEIPTS_LIMIT) {
                     throw new GQLError(ERRORS.RECEIPTS_LIMIT_HIT, context)

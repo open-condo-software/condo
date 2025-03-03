@@ -55,7 +55,7 @@ const MeterReading = new GQLListSchema('MeterReading', {
             type: 'DateTimeUtc',
             hooks: {
                 validateInput: async ({ context, operation, existingItem, resolvedData, fieldPath }) => {
-                    const date = get(resolvedData, fieldPath)
+                    const date = resolvedData[fieldPath]
                     if (date) {
                         const now = dayjs()
                         const readingDate = dayjs(date)
@@ -145,6 +145,16 @@ const MeterReading = new GQLListSchema('MeterReading', {
                 update: access.canEditBillingStatusFields,
             },
         },
+        accountNumber: {
+            schemaDoc: 'Account number of the related Meter at the moment of creation. Filled once.',
+            type: 'Text',
+            isRequired: false,
+            access: {
+                read: true,
+                create: true,
+                update: false,
+            },
+        },
 
     },
     hooks: {
@@ -162,7 +172,12 @@ const MeterReading = new GQLListSchema('MeterReading', {
 
             const meter = await Meter.getOne(context, {
                 id: get(resolvedData, 'meter', null),
-            }, 'organization { id } property { id } unitName unitType')
+            }, 'organization { id } property { id } unitName unitType accountNumber')
+
+            if (operation === 'create') {
+                resolvedData['accountNumber'] = get(meter, 'accountNumber', null)
+            }
+
             if (meter && resolvedData.clientName && resolvedData.clientPhone) {
                 const contactCreationData = {
                     ...resolvedData,

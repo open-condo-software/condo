@@ -28,21 +28,20 @@ export const getUnitFilter = (translations: ResolvedIntlConfig['messages']): Fil
     const [typeOrNumber, ...nameParts] = search.trim().split(' ')
     if (!typeOrNumber) return
 
-    const unitType = get(
-        Object.keys(UNIT_TYPES_BY_TRANSLATION_KEYS)
-            .find((key) => {
-                const keyTranslation = get(translations, key)
-                if (!keyTranslation) return false
-                return typeOrNumber.toLowerCase() === (keyTranslation as string).toLowerCase()
-            }),
-        '1'
-    )
+    const translationKey = Object.keys(UNIT_TYPES_BY_TRANSLATION_KEYS)
+        .find((key) => {
+            const keyTranslation = get(translations, key)
+            if (!keyTranslation) return false
+            return typeOrNumber.toLowerCase() === (keyTranslation as string).toLowerCase()
+        })
+
+    const unitType = UNIT_TYPES_BY_TRANSLATION_KEYS[translationKey]
 
     const unitName = (unitType ? nameParts : [typeOrNumber, ...nameParts]).join(' ')
     if (!unitName) return
 
     return {
         unitName_i: unitName,
-        unitType: unitType || FLAT_UNIT_TYPE,
+        ...(unitType ? { unitType: unitType } : {}),
     }
 }

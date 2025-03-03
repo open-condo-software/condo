@@ -7,7 +7,7 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
-const { BillingReceipt, getPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
+const { BillingReceipt, getNewPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { RU_LOCALE } = require('@condo/domains/common/constants/locale')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
@@ -48,6 +48,7 @@ async function sendNotification (context, receipt, consumer) {
     }
 
     const uniqKey = `${userId}_notification_on_payday_${receipt.period}`
+    // TODO(DOMA-11040): get locale for sendMessage from user
     await sendMessage(context, {
         ...DV_SENDER,
         to: { user: { id: userId } },
@@ -161,7 +162,7 @@ async function notifyResidentsOnPayday () {
                 let isAllPaid = true
                 for (const receipt of payableReceipts) {
                     const toPay = Number(get(receipt, ['toPay']))
-                    const paid = Number(await getPaymentsSum(receipt.id))
+                    const paid = Number(await getNewPaymentsSum(receipt.id))
                     if (paid < toPay) isAllPaid = false
                 }
 

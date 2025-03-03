@@ -27,7 +27,7 @@
   },
   "license": "MIT",
   "scripts": {
-    "build:deps": "turbo build --filter=apollo^...",
+    "build:deps": "turbo build --filter=@open-condo/apollo^...",
     "build:code": "NODE_ENV=production rollup -c",
     "build:types": "tsc --declaration --emitDeclarationOnly",
     "build": "rimraf dist && yarn build:code && yarn build:types",
@@ -36,7 +36,6 @@
   "files": [
     "dist"
   ],
-  "type": "module",
   "types": "dist/types/index.d.ts",
   "main": "dist/cjs/index.js",
   "module": "/dist/esm/index.js",
@@ -71,7 +70,7 @@
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "rimraf": "^6.0.1",
-    "rollup": "^4.21.2",
+    "rollup": "^4.28.0",
     "rollup-plugin-peer-deps-external": "^2.2.4",
     "rollup-plugin-uglify": "^6.0.4",
     "typescript": "^5.5.4"

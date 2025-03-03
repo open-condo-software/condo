@@ -1,4 +1,5 @@
 import { CheckOutlined } from '@ant-design/icons'
+import { ServiceSubscription } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Col, Row, Typography } from 'antd'
 import classNames from 'classnames'
@@ -6,18 +7,22 @@ import get from 'lodash/get'
 import React, { Dispatch, SetStateAction } from 'react'
 
 import { Button } from '@condo/domains/common/components/Button'
-import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { SberIcon, SberIconWithoutLabel } from '@condo/domains/common/components/icons/SberIcon'
 import { colors } from '@condo/domains/common/constants/style'
 
-import { ServiceSubscription } from '../../../../schema'
+import type { IntlShape } from 'react-intl/src/types'
+
 
 const StyledTitle = styled(Typography.Title)`
   color: ${colors.sberPrimary[6]};
 `
 
-export const getSubscriptionOptions = (intl, subscription: ServiceSubscription, setIsVisible: Dispatch<SetStateAction<boolean>>) => {
+export const getSubscriptionOptions = (
+    intl: IntlShape,
+    subscription: Pick<ServiceSubscription, 'type' | 'isTrial'>,
+    setIsVisible: Dispatch<SetStateAction<boolean>>
+) => {
     const ClientsMessage = intl.formatMessage({ id: 'subscription.option.description.clients' })
     const ActiveMessage = intl.formatMessage({ id: 'subscription.action.active' })
     const LoginBySbbolMessage = intl.formatMessage({ id: 'LoginBySBBOL' })
@@ -26,6 +31,8 @@ export const getSubscriptionOptions = (intl, subscription: ServiceSubscription, 
     const CreateBillMessage = intl.formatMessage({ id: 'subscription.data.createBill' })
 
     const type = get(subscription, 'type')
+    const isTrial = get(subscription, 'isTrial')
+
     const focusContainerClassNames = classNames({
         ['disabled']: subscription && type === 'sbbol',
     })
@@ -54,7 +61,7 @@ export const getSubscriptionOptions = (intl, subscription: ServiceSubscription, 
                     </Col>
                     <Col span={24}>
                         {
-                            subscription && !get(subscription, 'isTrial') && type === 'sbbol'
+                            subscription && !isTrial && type === 'sbbol'
                                 ? (
                                     <Button
                                         key='submit'
@@ -101,7 +108,7 @@ export const getSubscriptionOptions = (intl, subscription: ServiceSubscription, 
                     </Col>
                     <Col span={24}>
                         {
-                            subscription && !get(subscription, 'isTrial') && type === 'default'
+                            subscription && !isTrial && type === 'default'
                                 ? (
                                     <Button
                                         disabled

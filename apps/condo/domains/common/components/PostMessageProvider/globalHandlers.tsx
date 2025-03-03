@@ -4,7 +4,7 @@ import get from 'lodash/get'
 import omit from 'lodash/omit'
 import pickBy from 'lodash/pickBy'
 import { useRouter } from 'next/router'
-import React, { useCallback, useContext, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { v4 as uuidV4 } from 'uuid'
 
 import type { CondoBridgeResultResponseEvent } from '@open-condo/bridge'
@@ -14,7 +14,8 @@ import { useOrganization } from '@open-condo/next/organization'
 import { Modal } from '@open-condo/ui'
 import type { ModalProps } from '@open-condo/ui'
 
-import { TASK_STATUS, TasksContext } from '@condo/domains/common/components/tasks'
+import { useTasks } from '@condo/domains/common/components/tasks/TasksContextProvider'
+import { TASK_PROCESSING_STATUS, TASK_COMPLETED_STATUS } from '@condo/domains/common/constants/tasks'
 import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniappTaskUIInterface'
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
 import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
@@ -22,6 +23,7 @@ import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 import { STAFF } from '@condo/domains/user/constants/common'
 
 import type { RequestHandler } from './types'
+
 
 type OpenModalRecord = {
     destroy: () => void
@@ -86,6 +88,7 @@ export const useModalHandler: () => [
                     reloadScope='organization'
                     withLoader
                     withResize
+                    allowFullscreen
                 />
             ),
             onCancel: handleClose,
@@ -146,16 +149,13 @@ export const useLaunchParamsHandler: () => RequestHandler<'CondoWebAppGetLaunchP
 
 export const useShowProgressBarHandler: () => RequestHandler<'CondoWebAppShowProgressBar'> = () => {
     const { user } = useAuth()
-    const { addTask } = useContext(TasksContext)
+    const { addTask } = useTasks()
     const { MiniAppTask: miniAppTaskUIInterface } = useMiniappTaskUIInterface()
     const userId = get(user, 'id', null)
 
     const createTaskOp = miniAppTaskUIInterface.storage.useCreateTask({}, (record) => {
         addTask({
             ...miniAppTaskUIInterface,
-            // TODO(DOMA-5171): Fix types
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
             record,
         })
     })
@@ -172,7 +172,7 @@ export const useShowProgressBarHandler: () => RequestHandler<'CondoWebAppShowPro
             title: message,
             description,
             progress: 0,
-            status: TASK_STATUS.PROCESSING,
+            status: TASK_PROCESSING_STATUS,
             user: { id: userId },
             sender: origin,
             createdAt: dayjs().toISOString(),
@@ -188,7 +188,7 @@ export const useShowProgressBarHandler: () => RequestHandler<'CondoWebAppShowPro
 
 export const useGetActiveProgressBarsHandler: () => RequestHandler<'CondoWebAppGetActiveProgressBars'> = () => {
     const { user } = useAuth()
-    const { tasks } = useContext(TasksContext)
+    const { tasks } = useTasks()
     const userId = get(user, 'id', null)
 
     return useCallback((params, origin) => {
@@ -197,7 +197,7 @@ export const useGetActiveProgressBarsHandler: () => RequestHandler<'CondoWebAppG
                 .map(task => task.record)
                 .filter(task => task.sender === origin &&
                     task.user && task.user && task.user.id === userId &&
-                    task.status === TASK_STATUS.PROCESSING &&
+                    task.status === TASK_PROCESSING_STATUS &&
                     typeof task.progress === 'number'
                 )
                 .map(task => ({
@@ -213,14 +213,11 @@ export const useGetActiveProgressBarsHandler: () => RequestHandler<'CondoWebAppG
 
 export const useUpdateProgressBarHandler: () => RequestHandler<'CondoWebAppUpdateProgressBar'> = () => {
     const { user } = useAuth()
-    const { updateTask } = useContext(TasksContext)
+    const { updateTask } = useTasks()
     const { MiniAppTask: miniAppTaskUIInterface } = useMiniappTaskUIInterface()
     const userId = get(user, 'id', null)
 
     const updateTaskOperation = miniAppTaskUIInterface.storage.useUpdateTask({}, (record) => {
-        // TODO(DOMA-5171): Fix types
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
         updateTask(record)
     })
 
@@ -232,7 +229,7 @@ export const useUpdateProgressBarHandler: () => RequestHandler<'CondoWebAppUpdat
             progress: data.progress,
             status: data.status
                 ? data.status
-                : (data.progress !== undefined && data.progress >= 100 ? TASK_STATUS.COMPLETED : undefined),
+                : (data.progress !== undefined && data.progress >= 100 ? TASK_COMPLETED_STATUS : undefined),
             user: { id: userId },
             sender: origin,
             __typename: 'MiniAppTask',

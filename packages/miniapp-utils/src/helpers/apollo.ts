@@ -1,5 +1,5 @@
 import { parse as parseCookieString, serialize as serializeCookie } from 'cookie'
-import { setCookie } from 'cookies-next'
+import { setCookie, getCookies } from 'cookies-next'
 
 import {
     FINGERPRINT_ID_COOKIE_NAME,
@@ -10,11 +10,6 @@ import { generateUUIDv4 } from './uuid'
 
 import type { DefaultContext, RequestHandler } from '@apollo/client'
 import type { IncomingMessage, ServerResponse } from 'http'
-
-
-type RequestWithCookies = IncomingMessage & {
-    cookies: Partial<Record<string, string>>
-}
 
 type Response = ServerResponse
 
@@ -85,10 +80,14 @@ export function getTracingMiddleware (options: TracingMiddlewareOptions): Reques
     }
 }
 
-export function prepareSSRContext (req: RequestWithCookies, res: Response): SSRContext {
-    const requestCookies = {
-        ...req.cookies,
+export function prepareSSRContext (req?: IncomingMessage, res?: Response): SSRContext {
+    if (!req) {
+        return {
+            headers: {},
+        }
     }
+
+    const requestCookies = getCookies({ req, res })
 
     if (!requestCookies[FINGERPRINT_ID_COOKIE_NAME]) {
         const fingerprint = generateFingerprint()
@@ -97,7 +96,7 @@ export function prepareSSRContext (req: RequestWithCookies, res: Response): SSRC
         setCookie(FINGERPRINT_ID_COOKIE_NAME, fingerprint, { req, res })
     }
 
-    const cookieHeader = Object.entries(req.cookies)
+    const cookieHeader = Object.entries(requestCookies)
         .map(([name, value]) => value ? serializeCookie(name, value) : null)
         .filter(Boolean)
         .join(';')

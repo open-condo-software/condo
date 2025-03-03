@@ -6,13 +6,19 @@ import React from 'react'
 import { useIntl } from '@open-condo/next/intl'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { PageComponentType } from '@condo/domains/common/types'
 import { TicketReadAndManagePermissionRequired } from '@condo/domains/ticket/components/PageAccess'
 import { TicketForm } from '@condo/domains/ticket/components/TicketForm'
+import { prefetchTicket } from '@condo/domains/ticket/utils/next/Ticket'
 
-const TicketUpdatePage = () => {
+
+const TicketUpdatePage: PageComponentType = () => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id:'pages.condo.ticket.index.EditTicketModalTitle' })
-    const { query } = useRouter()
+
+    const router = useRouter()
+    const { query } = router
+    const { id } = query as { id: string }
 
     return (
         <>
@@ -25,7 +31,7 @@ const TicketUpdatePage = () => {
                         <Col span={24}>
                             <Typography.Title level={1} style={{ margin: 0 }}>{PageTitleMsg}</Typography.Title>
                         </Col>
-                        <TicketForm id={query.id as string}/>
+                        <TicketForm id={id}/>
                     </Row>
                 </PageContent>
             </PageWrapper>
@@ -34,5 +40,16 @@ const TicketUpdatePage = () => {
 }
 
 TicketUpdatePage.requiredAccess = TicketReadAndManagePermissionRequired
+
+TicketUpdatePage.getPrefetchedData = async ({ context, apolloClient }) => {
+    const { query } = context
+    const { id: ticketId } = query as { id: string }
+
+    await prefetchTicket({ client: apolloClient, ticketId })
+
+    return {
+        props: {},
+    }
+}
 
 export default TicketUpdatePage

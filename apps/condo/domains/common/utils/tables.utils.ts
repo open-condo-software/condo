@@ -101,6 +101,8 @@ enum SHORT_TO_FULL_ORDERS_MAP {
     DESC = 'descend',
 }
 
+const INT_32 = 2147483647
+
 export const getFilter: (
     dataIndex: DataIndexType,
     argType: ArgumentType,
@@ -125,7 +127,8 @@ export const getFilter: (
         }
         switch (argData) {
             case 'number':
-                args = search.filter(value => Number(value) && String(value).indexOf('.') === -1).map(Number)
+                // if value is Number, value is not float (indexOf), value is less then signed 32 bit
+                args = search.filter(value => Number(value) && String(value).indexOf('.') === -1 && Math.abs(Number(value)) <= INT_32).map(Number)
                 break
             case 'dateTime':
                 args = search

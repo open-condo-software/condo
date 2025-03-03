@@ -1,5 +1,4 @@
-import { Ticket, User } from '@app/condo/schema'
-import { get } from 'lodash'
+import { User } from '@app/condo/schema'
 import Link from 'next/link'
 import React, { useMemo } from 'react'
 
@@ -32,26 +31,36 @@ interface ITicketUserInfoFieldProps {
 }
 
 export const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = (props) => {
-    const id = useMemo(() => get(props, ['user', 'id']), [props])
-    const name = useMemo(() => get(props, ['user', 'name']), [props])
-    const nameLink = useMemo(() => get(props, ['nameLink'], '#'), [props])
-    const phone = useMemo(() => get(props, ['user', 'phone']), [props])
-    const email = useMemo(() => get(props, ['user', 'email']), [props])
+    const id = useMemo(() => props?.user?.id, [props])
+    const name = useMemo(() => props?.user?.name, [props])
+    const nameLink = useMemo(() => props?.nameLink, [props])
+    const phone = useMemo(() => props?.user?.phone, [props])
+    const email = useMemo(() => props?.user?.email, [props])
     const userInfo = useMemo(() => [], [])
 
     if (name) {
         userInfo.push(
             <UserNameField user={{ name, id }}>
-                {({ name: userName, postfix }) => (
-                    <Link href={nameLink}>
-                        <a>
+                {({ name: userName, postfix }) => {
+                    if (nameLink) {
+                        return (
+                            <Link href={nameLink}>
+                                <a>
+                                    {userName}
+                                    {postfix && (
+                                        <Typography.Text type='secondary'>&nbsp;{postfix}</Typography.Text>
+                                    )}
+                                </a>
+                            </Link>
+                        )
+                    }
+                    return (
+                        <Typography.Text>
                             {userName}
-                            {postfix && (
-                                <Typography.Text type='secondary'>&nbsp;{postfix}</Typography.Text>
-                            )}
-                        </a>
-                    </Link>
-                )}
+                            {postfix && (<Typography.Text type='secondary'>&nbsp;{postfix}</Typography.Text>)}
+                        </Typography.Text>
+                    )
+                }}
             </UserNameField>
         )
     }

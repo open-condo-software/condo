@@ -34,11 +34,20 @@ const { passwordValidations } = require('@condo/domains/user/utils/serverSchema/
 const AVATAR_FILE_ADAPTER = new FileAdapter('avatars')
 
 const User = new GQLListSchema('User', {
+    labelResolver: (item, _, { authedItem: user }) => {
+        if (user && (user.isSupport || user.isAdmin)) {
+            return `${item.name} -- <${item.id}>`
+        }
+        return item.id
+    },
     schemaDoc: 'Individual / person / service account / impersonal company account. Used primarily for authorization purposes, optimized access control with checking of `type` field, tracking authority of performed CRUD operations. Think of `User` as a technical entity, not a business actor. Business actor entities are Resident, OrganizationEmployee etc., — they are participating in high-level business scenarios and have connected to `User`. Almost everyting, created in the system, ends up to `User` as a source of action.',
     fields: {
         name: {
             schemaDoc: 'Name. If impersonal account should be a company name',
             type: 'Text',
+            access: {
+                read: access.canReadUserNameField,
+            },
         },
         hasEmail: {
             type: 'Virtual',
@@ -76,6 +85,7 @@ const User = new GQLListSchema('User', {
             options: USER_TYPES,
             defaultValue: STAFF,
             isRequired: true,
+            access: access.canManageUserType,
         },
 
         isAdmin: {
@@ -106,6 +116,7 @@ const User = new GQLListSchema('User', {
                 },
                 validateInput: async ({ context, operation, resolvedData, existingItem, addFieldValidationError }) => {
                     if (resolvedData['email'] && normalizeEmail(resolvedData['email']) !== resolvedData['email']) {
+                        // TODO(DOMA-9749): migrate from addFieldValidationError to GQLError
                         addFieldValidationError(`${EMAIL_WRONG_FORMAT_ERROR}mail] invalid format`)
                     }
                     if (resolvedData.email === null) {
@@ -128,6 +139,7 @@ const User = new GQLListSchema('User', {
                             })
                         }
                         if (existedUsers && existedUsers.length > 0) {
+                            // TODO(DOMA-9749): migrate from addFieldValidationError to GQLError
                             addFieldValidationError(`${EMAIL_ALREADY_REGISTERED_ERROR}] user already exists`)
                         }
                     }
@@ -155,6 +167,7 @@ const User = new GQLListSchema('User', {
                 },
                 validateInput: async ({ context, operation, resolvedData, existingItem, addFieldValidationError }) => {
                     if (resolvedData['phone'] && normalizePhone(resolvedData['phone']) !== resolvedData['phone']) {
+                        // TODO(DOMA-9749): migrate from addFieldValidationError to GQLError
                         addFieldValidationError(`${PHONE_WRONG_FORMAT_ERROR}] invalid format`)
                         return
                     }
@@ -163,6 +176,7 @@ const User = new GQLListSchema('User', {
                     // NOTE: Undefined here means that user.phone is not being updated
                     if (isUndefined(resolvedData.phone) && operation === 'update') return
                     if (!resolvedData.phone) {
+                        // TODO(DOMA-9749): migrate from addFieldValidationError to GQLError
                         addFieldValidationError(`${PHONE_IS_REQUIRED_ERROR}] phone is required`)
                     } else if (get(resolvedData, 'phone', '').length) {
                         let existedUsers = []
@@ -181,6 +195,7 @@ const User = new GQLListSchema('User', {
                             })
                         }
                         if (existedUsers && existedUsers.length > 0) {
+                            // TODO(DOMA-9749): migrate from addFieldValidationError to GQLError
                             addFieldValidationError(`${PHONE_ALREADY_REGISTERED_ERROR}] user already exists`)
                         }
                     }
