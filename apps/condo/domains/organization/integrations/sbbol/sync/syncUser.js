@@ -109,7 +109,6 @@ const syncUser = async ({ context: { context, keystone }, userInfo, identityId }
             },
             type: REGISTER_NEW_USER_MESSAGE_TYPE,
             meta: {
-                userPassword: userInfo.password,
                 userPhone: userInfo.phone,
                 dv: 1,
             },
