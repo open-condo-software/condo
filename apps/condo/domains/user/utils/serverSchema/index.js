@@ -187,7 +187,6 @@ async function createUserAndSendLoginData ({ context, userData }) {
         to: { user: { id: user.id } },
         type: REGISTER_NEW_USER_MESSAGE_TYPE,
         meta: {
-            userPassword: userData.password,
             userPhone: userData.phone,
             dv: 1,
         },

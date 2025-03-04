@@ -30,7 +30,7 @@ export async function prefetchAuthOrRedirect (
         result.user = user
     } else {
         const { asPath } = context
-        const redirectPath = `/auth/signin?next=${encodeURIComponent(asPath)}`
+        const redirectPath = `/auth?next=${encodeURIComponent(asPath)}`
         result.redirectToAuth = {
             redirect: {
                 destination: redirectPath,

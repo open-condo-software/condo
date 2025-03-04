@@ -186,16 +186,17 @@ const MESSAGE_META = {
         dv: { defaultValue: '', required: true },
         organizationName: { defaultValue: 'ORGANIZATION', required: false },
         serverUrl: { defaultValue: '', required: false },
+        isRegistration: { defaultValue: false, required: false },
     },
     [DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE]: {
         dv: { defaultValue: '', required: true },
         organizationName: { defaultValue: 'ORGANIZATION', required: false },
         serverUrl: { defaultValue: '', required: false },
+        isRegistration: { defaultValue: false, required: false },
     },
     [REGISTER_NEW_USER_MESSAGE_TYPE]: {
         dv: { defaultValue: '', required: true },
         userPhone: { defaultValue: '', required: false },
-        userPassword: { defaultValue: '', required: false },
     },
     [SMS_VERIFY_CODE_MESSAGE_TYPE]: {
         dv: { defaultValue: '', required: true },
