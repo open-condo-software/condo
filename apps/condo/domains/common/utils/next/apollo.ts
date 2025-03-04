@@ -86,9 +86,6 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
                 Message: {
                     timeToLive: 60 * 1000, // 1 minute in milliseconds
                 },
-                OrganizationEmployee: {
-                    timeToLive: 60 * 1000, // 1 minute in milliseconds
-                },
                 Ticket: {
                     timeToLive: 60 * 1000, // 1 minute in milliseconds
                 },

@@ -6,16 +6,6 @@ query getTourSteps ($where: TourStepWhereInput!, $sortBy: [SortTourStepsBy!]) {
     }
 }
 
-mutation syncTourSteps ($organizationId: ID!, $dv: Int!, $sender: SenderFieldInput!) {
-    result: syncTourSteps(data: {
-        organization: { id: $organizationId },
-        dv: $dv,
-        sender: $sender
-    }) {
-        ok
-    }
-}
-
 mutation updateTourStep ($id: ID!, $data: TourStepUpdateInput!) {
     tourStep: updateTourStep(id: $id, data: $data) {
         id
