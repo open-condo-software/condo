@@ -1,16 +1,19 @@
 {%- if message.meta.data.passTicketType == "guest" -%}
 <b>New pass ticket for guest №{{ message.meta.data.number }}</b>
-{%- else -%}
-<b>New pass ticket for vehicle №{{ message.meta.data.number }}</b>
-{% endif %}
 Organization: {{ message.meta.data.organizationName }}
 Address: {{ message.meta.data.propertyAddress }}
 Unit: {{ message.meta.data.unit }}
 Client: {{ message.meta.data.client }}
-{%- if message.meta.data.passTicketType == "guest" -%}
 Guest: {{ message.meta.data.guest }}
-{%- else -%}
-Vehicle number: {{ message.meta.data.vehicle }}
-{% endif %}
 Visit Date: {{ message.meta.data.openAt }}
 Comment: {{ message.meta.data.comment }}
+{%- else -%}
+<b>New pass ticket for vehicle №{{ message.meta.data.number }}</b>
+Organization: {{ message.meta.data.organizationName }}
+Address: {{ message.meta.data.propertyAddress }}
+Unit: {{ message.meta.data.unit }}
+Client: {{ message.meta.data.client }}
+Vehicle number: {{ message.meta.data.vehicle }}
+Visit Date: {{ message.meta.data.openAt }}
+Comment: {{ message.meta.data.comment }}
+{% endif %}
