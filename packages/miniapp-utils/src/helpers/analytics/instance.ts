@@ -159,11 +159,24 @@ export class Analytics<
      * Associates the user with a group, adding the attributes `groups.${groupName} = groupId`
      * to all subsequent analytic queries for the user
      * @example
-     * analytics.group('organization', organizationId)
+     * analytics.setGroup('organization', organizationId)
      */
-    async group (groupName: GroupNames, groupId: string): Promise<void> {
+    setGroup (groupName: GroupNames, groupId: string): void {
         const groupKey = Analytics.getGroupKey(groupName)
         this._groups.add(groupName)
         this._analytics.storage.setItem(groupKey, groupId)
+    }
+
+    /**
+     * Removes the current user from the group, stripping the “groups.${groupName}”
+     * attribute from all subsequent eventualities
+     * @example
+     * deleteOrganization()
+     *     .then(() => analytics.removeGroup('organization'))
+     */
+    removeGroup (groupName: GroupNames): void {
+        const groupKey = Analytics.getGroupKey(groupName)
+        this._analytics.storage.removeItem(groupKey)
+        this._groups.delete(groupName)
     }
 }
