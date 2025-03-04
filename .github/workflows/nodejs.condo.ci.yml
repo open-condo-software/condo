@@ -66,12 +66,6 @@ jobs:
           submodules: recursive
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
           ref: ${{ env.REF }}
-      - name: Pull & push to registry
-        run: |
-          docker pull postgres:16.8
-          docker tag postgres:16.8 ${{ secrets.DOCKER_REGISTRY }}/doma/utils/postgres:16.8
-          docker push ${{ secrets.DOCKER_REGISTRY }}/doma/utils/postgres:16.8
-
       - name: Prune repo to filter out yarn.lock and package.json
         run: |
           bash bin/prune.sh
