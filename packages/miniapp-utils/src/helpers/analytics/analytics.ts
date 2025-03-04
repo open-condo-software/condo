@@ -1,44 +1,8 @@
 import DefaultAnalytics from 'analytics'
 
-import type { AnalyticsPlugin, AnalyticsInstance, PageData } from 'analytics'
+import { GroupingMiddlewarePlugin } from './middlewares'
 
-export type AnalyticsConfig = {
-    app?: string
-    version?: string | number
-    debug?: boolean
-    plugins?: AnalyticsPlugin[]
-}
-
-type AnalyticsInstanceWithGroups<GroupNames extends string> = AnalyticsInstance & {
-    groups: Set<GroupNames>
-}
-
-type AnyPayload = Record<string, any>
-
-type PluginTrackData = AnyPayload & {
-    abort(): void
-    instance: AnalyticsInstanceWithGroups<string>
-    payload: AnyPayload & {
-        properties: AnyPayload
-    }
-}
-
-const GroupingPlugin: AnalyticsPlugin = {
-    name: 'analytics-plugins-grouping-attrs',
-    track (data: PluginTrackData) {
-        const { instance } = data
-        for (const groupName of instance.groups) {
-            const groupKey = Analytics.getGroupKey(groupName)
-            const groupValue = instance.storage.getItem(groupKey)
-
-            if (typeof groupValue === 'string') {
-                const groupAttrName = `groups.${groupName}`
-                data.payload.properties[groupAttrName] = groupValue
-            }
-        }
-        return data
-    },
-}
+import type { AnyPayload, AnalyticsConfig, AnalyticsInstanceWithGroups, PageData } from './types'
 
 /**
  * Type-safe wrapper on top of "[analytics](https://www.npmjs.com/package/analytics)" npm package
@@ -132,7 +96,7 @@ export class Analytics<
         this._analytics = DefaultAnalytics({
             ...config,
             plugins: [
-                GroupingPlugin,
+                GroupingMiddlewarePlugin,
                 ...(config.plugins || []),
             ],
         }) as AnalyticsInstanceWithGroups<GroupNames>
@@ -203,6 +167,3 @@ export class Analytics<
         this._analytics.storage.setItem(groupKey, groupId)
     }
 }
-
-export type { AnalyticsPlugin } from 'analytics'
-

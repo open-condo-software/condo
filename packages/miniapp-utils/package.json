@@ -40,7 +40,7 @@
         "dist/types/index.d.ts"
       ],
       "helpers/analytics": [
-        "dist/types/helpers/analytics.d.ts"
+        "dist/types/helpers/analytics/index.d.ts"
       ],
       "helpers/apollo": [
         "dist/types/helpers/apollo.d.ts"
@@ -78,7 +78,7 @@
       "import": "./dist/esm/index.js"
     },
     "./helpers/analytics": {
-      "types": "./dist/types/helpers/analytics.d.ts",
+      "types": "./dist/types/helpers/analytics/index.d.ts",
       "require": "./dist/cjs/helpers/analytics.js",
       "import": "./dist/esm/helpers/analytics.js"
     },
