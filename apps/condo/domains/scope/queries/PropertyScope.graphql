@@ -1,5 +1,5 @@
 query getPropertyScopes ($organizationId: ID!, $propertyScopeIds: [ID!]) {
-    result: allPropertyScopes (
+    propertyScope: allPropertyScopes (
         where: {
             organization: {
                 id: $organizationId
