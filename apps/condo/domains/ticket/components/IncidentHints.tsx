@@ -1,6 +1,6 @@
 import {
     useGetIncidentClassifierIncidentLazyQuery,
-    useGetIncidentPropertiesLazyQuery,
+    useGetIncidentPropertiesByPropertyIdAndIncidentLazyQuery,
     useGetIncidentsLazyQuery,
 } from '@app/condo/gql'
 import {
@@ -140,7 +140,7 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
     const [allIncidents, setAllIncidents] = useState<IIncident[]>([])
     const [incidentsToShow, setIncidentsToShow] = useState<IIncident[]>([])
 
-    const [getIncidentProperties] = useGetIncidentPropertiesLazyQuery()
+    const [getIncidentProperties] = useGetIncidentPropertiesByPropertyIdAndIncidentLazyQuery()
     const [getIncidents] = useGetIncidentsLazyQuery()
     const [getIncidentClassifierIncidents] = useGetIncidentClassifierIncidentLazyQuery()
 
@@ -157,7 +157,7 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
         })
 
         return incidentPropertiesData?.incidentProperties?.filter(Boolean) || []
-    }, [propertyId, organizationId])
+    }, [])
 
     const fetchIncidents: FetchIncidentsType = useCallback(async ({ sortBy, incidentIds, organizationId, status, workFinishedInLastDays }) => {
         const where: IncidentWhereInput = {
@@ -188,7 +188,7 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
         })
 
         return res?.data?.incidents?.filter(Boolean) || []
-    }, [organizationId])
+    }, [])
 
     const fetchIncidentClassifierIncidents = useCallback(async (incidentIds: string[], categoryId?: string, problemId?: string) => {
         if (incidentIds.length < 1) {

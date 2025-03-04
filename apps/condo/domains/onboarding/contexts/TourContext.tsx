@@ -56,9 +56,11 @@ export const TourProvider = ({ children }) => {
     const [syncTourStepMutation, { loading: syncLoading }] = useSyncTourStepsMutation({
         onCompleted: async () => getTourSteps(),
         variables: {
-            organizationId,
-            dv: 1,
-            sender: getClientSideSenderInfo(),
+            data: {
+                organization: { id: organizationId },
+                dv: 1,
+                sender: getClientSideSenderInfo(),
+            },
         },
     })
 
@@ -106,7 +108,7 @@ export const TourProvider = ({ children }) => {
                 },
             },
         })
-        const tourStep = fetchResult?.tourSteps[0]
+        const tourStep = fetchResult?.tourSteps.filter(Boolean)[0] || null
 
         if (!tourStep) return
 

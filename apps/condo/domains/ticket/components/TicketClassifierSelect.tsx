@@ -162,9 +162,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
     const validations = useTicketValidations()
     const ticketForm = useRef(null)
     const hasUserSetClassifier = useRef<boolean>(false)
-    const [predictTicketClassificationQuery, { variables, data: previousPrediction }] = usePredictTicketClassificationLazyQuery({
-        nextFetchPolicy: 'network-only',
-    })
+    const [predictTicketClassificationQuery, { variables, data: previousPrediction }] = usePredictTicketClassificationLazyQuery()
 
     const stopPredict = useCallback(() => {
         if (!ruleRef.current.category && !ruleRef.current.place) {
@@ -197,10 +195,10 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
             }
         }
 
-        if (!prediction || prediction?.obj === null) {
+        if (!prediction || prediction?.ticketClassification === null) {
             return
         }
-        const { obj: { id, category, place } } = prediction
+        const { ticketClassification: { id, category, place } } = prediction
         await ClassifierLoader.init()
         await updateLevels({ id: id, category: category.id, place: place.id, problem: null }).then(() => {
             placeSet.one(ruleRef.current.place)

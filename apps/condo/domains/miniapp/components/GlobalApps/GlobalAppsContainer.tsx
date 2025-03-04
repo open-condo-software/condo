@@ -1,5 +1,4 @@
 import { useGetGlobalB2BAppsQuery } from '@app/condo/gql'
-import { SortB2BAppsBy } from '@app/condo/schema'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 
@@ -123,7 +122,7 @@ export const GlobalAppsContainer: React.FC = () => {
         <>
             {appUrls.map((url, index) => (  
                 <IFrame
-                    key={url || undefined}   
+                    key={url || index}
                     src={url || ''}
                     reloadScope='user'
                     ref={el => iframeRefs.current[index] = el as HTMLIFrameElement}
