@@ -31,7 +31,6 @@ async function canManageMeterUserSetting ({ authentication: { item: user }, orig
     if (user.isAdmin || user.isSupport) return true
 
     if (user.type === RESIDENT) {
-        let userId
         if (operation === 'update') {
             const ids = itemIds || [itemId]
             if (ids.length !== new Set(ids).size) return false
@@ -41,26 +40,25 @@ async function canManageMeterUserSetting ({ authentication: { item: user }, orig
                 deletedAt: null,
             })
             if (items.length !== ids.length || items.some(item => !item.user)) return false
-            const uniqUserIds = [...new Set(items.map(item => item.user))]
 
-            if (uniqUserIds.length !== 1) return false
-
-            userId = uniqUserIds[0]
+            return items.every(item => item.user === user.id)
         }
 
         if (operation === 'create') {
-            userId = get(originalInput, ['user', 'connect', 'id'])
+            const inputs = Array.isArray(originalInput) ? originalInput : [originalInput]
 
-            const meterId = get(originalInput, ['meter', 'connect', 'id'], null)
-            if (!meterId) return false
+            const otherUserIds = inputs.map(inp => get(inp, ['connect', 'user', 'id']).filter(id => id !== user.id))
+            if (otherUserIds.length) return false
+
+            const inputMeterIds = inputs.map(inp => get(inp, ['connect', 'meter', 'id']))
+            // restrict meter: { create: {} } case
+            if (!inputMeterIds.every(Boolean)) return false
 
             const availableMeters = await getAvailableResidentMeters(user.id)
-            if (!availableMeters.some((meter) => meter.id === meterId && !meter.isAutomatic)){
-                return false
-            }
-        }
+            const availableMetersIds = new Set(availableMeters.map((meter) => meter.id))
 
-        return userId === user.id
+            return inputMeterIds.every(id => availableMetersIds.has(id))
+        }
     }
 
     return false
