@@ -45,18 +45,27 @@ async function canReadInvoices (args) {
         }
     }
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadInvoices')
-
     // The service user may make a call from billing integration.
     // The user from integration has no b2b access rights.
     // So, we return true if the service user has explicit rights.
     // Otherwise, we continue the checking.
-    if (user.type === SERVICE && await canReadObjectsAsB2BAppServiceUser(args)) {
-        return true
+    let filterByOrganizationIds = []
+    if (user.type === SERVICE) {
+        const canReadAsB2BServiceUser = await canReadObjectsAsB2BAppServiceUser(args)
+        if (canReadAsB2BServiceUser === true) {
+            return true
+        }
+
+        filterByOrganizationIds = canReadAsB2BServiceUser
     }
 
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadInvoices')
+
     return {
-        organization: { id_in: permittedOrganizations },
+        OR: [
+            { organization: { id_in: permittedOrganizations } },
+            filterByOrganizationIds,
+        ],
         deletedAt: null,
     }
 }
