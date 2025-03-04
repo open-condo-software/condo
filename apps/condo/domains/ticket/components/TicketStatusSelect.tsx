@@ -41,41 +41,37 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
         },
     })
 
-    const updateTicketStatus = useCallback(async (variables) => {
-        await updateTicketMutation(variables)
-    }, [updateTicketMutation])
-
-    const updateTicket = useCallback((value) => {
+    const updateTicket = useCallback(async (value) => {
         setUpdating(true)
-        updateTicketStatus({
+        await updateTicketMutation({
             variables: {
-                id: ticket?.id,
+                id: ticketId,
                 data: {
                     status: { connect: { id: value } },
-                    statusUpdatedAt: new Date(),
+                    statusUpdatedAt: new Date().toString(),
                     sender: getClientSideSenderInfo(),
                     dv: 1,
                 },
             },
         })
-    }, [updateTicketStatus])
+    }, [ticketId, updateTicketMutation])
 
-    const updateDeferredTicket = useCallback((statusDeferredId: string, deferredDate: Dayjs) => {
+    const updateDeferredTicket = useCallback(async (statusDeferredId: string, deferredDate: Dayjs) => {
         setUpdating(true)
-        updateTicketStatus({
+        await updateTicketMutation({
             variables: {
-                id: ticket?.id,
+                id: ticketId,
                 data: {
                     status: { connect: { id: statusDeferredId } },
                     deferredUntil: deferredDate.toISOString(),
-                    statusUpdatedAt: new Date(),
+                    statusUpdatedAt: new Date().toString(),
                     sender: getClientSideSenderInfo(),
                     dv: 1,
                 },
             },
 
         })
-    }, [updateTicketStatus])
+    }, [ticketId, updateTicketMutation])
 
     const { cancelTicketModal, openModal: openCancelModal } = useTicketCancelModal(updateTicket, ticketId)
     const { deferTicketModal, openModal: openTicketDeferModal } = useTicketDeferModal(updateDeferredTicket)

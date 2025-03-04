@@ -334,9 +334,3 @@ mutation updateOrganizationEmployeeTicketsForReassignment ($data: [TicketsUpdate
         id
     }
 }
-
-mutation shareTicket($data: ShareTicketInput!) {
-    ticket: shareTicket(data: $data) {
-        status
-    }
-}

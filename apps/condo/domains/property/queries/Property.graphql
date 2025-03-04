@@ -87,7 +87,7 @@ query getPropertyById ($id: ID!) {
     }
 }
 
-query getPropertyByOrganizationId ($organizationId: ID!) {
+query getLastCreatedPropertyByOrganizationId ($organizationId: ID!) {
     properties: allProperties (
         where: {
             organization: {

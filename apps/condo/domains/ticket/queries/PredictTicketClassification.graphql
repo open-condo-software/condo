@@ -1,5 +1,5 @@
 query predictTicketClassification ($details: String!) {
-    obj: predictTicketClassification(data: {
+    ticketClassification: predictTicketClassification(data: {
         details: $details,
     }) {
         id

@@ -159,7 +159,7 @@ const TicketTable = ({
 
     const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
 
-    const { user } = useAuth() as { user: { id: string } }
+    const { user } = useAuth()
 
     const router = useRouter()
 

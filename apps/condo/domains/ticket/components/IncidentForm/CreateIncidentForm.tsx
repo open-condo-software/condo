@@ -1,6 +1,5 @@
 import { useCreateIncidentMutation } from '@app/condo/gql'
-import get from 'lodash/get'
-import { useRouter } from 'next/router'
+import Router from 'next/router'
 import React, { ComponentProps, useCallback, useMemo } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
@@ -35,11 +34,10 @@ export const CreateIncidentActionBar: React.FC<ComponentProps<BaseIncidentFormPr
 
 export const CreateIncidentForm: React.FC = () => {
     const { organization } = useOrganization()
-    const organizationId = useMemo(() => get(organization, 'id'), [organization])
-    const { push } = useRouter()
+    const organizationId = useMemo(() => organization?.id, [organization])
 
     const [createIncident] = useCreateIncidentMutation({
-        onCompleted: async () => await push('/incident'),
+        onCompleted: async () => await Router.push('/incident'),
     })
     const action: BaseIncidentFormProps['action'] = useCallback(async (values) => await createIncident({
         variables: {

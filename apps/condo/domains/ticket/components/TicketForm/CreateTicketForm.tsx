@@ -147,7 +147,7 @@ export const CreateTicketForm: React.FC = () => {
             addTicketToQueryCacheForTicketCardList(ticket)
             if (redirectToClientCard) {
                 const clientPhone = ticket?.clientPhone
-                const ticketPropertyId = ticket?.property.id
+                const ticketPropertyId = ticket?.property?.id
                 const isResidentTicket = !!ticket?.contact
 
                 if (clientPhone && ticketPropertyId) {
@@ -206,13 +206,14 @@ export const CreateTicketForm: React.FC = () => {
             },
         })
         const ticket = ticketData?.ticket
+        const ticketId = ticket?.id || null
 
         let paymentUrl
         if (!isEmpty(newInvoices)) {
             for (const invoiceFromForm of newInvoices) {
                 const payload = Invoice.formValuesProcessor({
                     ...invoiceFromForm,
-                    ticket: ticket?.id,
+                    ticket: ticketId,
                 }, intl, true)
 
                 await createInvoiceAction({
@@ -230,7 +231,7 @@ export const CreateTicketForm: React.FC = () => {
                 query: InvoiceGQL.GET_ALL_OBJS_QUERY,
                 variables: {
                     where: {
-                        ticket: { id: ticket?.id },
+                        ticket: { id: ticketId },
                         status: INVOICE_STATUS_PUBLISHED,
                     },
                 },
@@ -244,14 +245,14 @@ export const CreateTicketForm: React.FC = () => {
         if (attachCallRecord) {
             requestFeature({
                 feature: B2BAppGlobalFeature.AttachCallRecordToTicket,
-                ticketId: ticket.id,
+                ticketId,
                 ticketOrganizationId: organization.id,
             })
         }
 
         notification.success(getCompletedNotification({
             ticketNumber: ticket?.number,
-            ticketId: ticket.id,
+            ticketId: ticketId,
         }))
 
         if (paymentUrl && ticket.contact) {

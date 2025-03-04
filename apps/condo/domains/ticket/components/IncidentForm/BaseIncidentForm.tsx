@@ -347,7 +347,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
                     variables: {
                         data: {
                             property: { connect: { id: propertyId } },
-                            incident: { connect: { id: data?.incident?.id } },
+                            incident: { connect: { id: data.incident.id } },
                             sender: getClientSideSenderInfo(),
                             dv: 1,
                         },
@@ -363,7 +363,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
             if (data?.incident?.id) {
                 await updateIncidentProperty({
                     variables: {
-                        id: incidentProperty?.id,
+                        id: incidentProperty.id,
                         data: {
                             deletedAt: new Date().toISOString(),
                             sender: getClientSideSenderInfo(),

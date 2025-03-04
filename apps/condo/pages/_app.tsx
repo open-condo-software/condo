@@ -11,7 +11,6 @@ import esES from 'antd/lib/locale/es_ES'
 import ruRU from 'antd/lib/locale/ru_RU'
 import dayjs from 'dayjs'
 import { cache } from 'emotion'
-import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import { NextPage, NextPageContext } from 'next'
 import App, { AppContext } from 'next/app'
@@ -152,15 +151,15 @@ const MenuItems: React.FC = () => {
     const { persistor } = useCachePersistor()
 
     const { isAuthenticated, isLoading } = useAuth()
-    const { link, organization } = useOrganization()
+    const { employee, organization } = useOrganization()
     const { isExpired } = useServiceSubscriptionContext()
     const hasSubscriptionFeature = hasFeature('subscription')
-    const disabled = !link || (hasSubscriptionFeature && isExpired)
+    const disabled = !employee || (hasSubscriptionFeature && isExpired)
     const { isCollapsed } = useLayoutContext()
     const { wrapElementIntoNoOrganizationToolTip } = useNoOrganizationToolTip()
-    const role = get(link, 'role', {})
+    const role = employee.role || null
     const orgId = organization?.id || null
-    const orgFeatures = get(organization, 'features', [])
+    const orgFeatures = organization?.features || []
     const sppBillingId = sppConfig?.BillingIntegrationId || null
     const {
         data,
@@ -173,21 +172,20 @@ const MenuItems: React.FC = () => {
     })
     const billingCtx = useMemo(() => data?.contexts?.filter(Boolean)[0] || null, [data?.contexts])
     const anyReceiptsLoaded = Boolean(billingCtx?.lastReport || null)
-    const hasAccessToBilling = get(role, 'canReadPayments', false) || get(role, 'canReadBillingReceipts', false)
-    const isManagingCompany = get(organization, 'type', MANAGING_COMPANY_TYPE) === MANAGING_COMPANY_TYPE
-    const isNoServiceProviderOrganization = get(organization, 'type', MANAGING_COMPANY_TYPE) !== SERVICE_PROVIDER_TYPE
-    const hasAccessToTickets = get(role, 'canReadTickets', false)
-    const hasAccessToIncidents = get(role, 'canReadIncidents', false)
-    const hasAccessToEmployees = get(role, 'canReadEmployees', false)
-    const hasAccessToProperties = get(role, 'canReadProperties', false)
-    const hasAccessToContacts = get(role, 'canReadContacts', false)
-    const hasAccessToAnalytics = get(role, 'canReadAnalytics')
-    const hasAccessToMeters = get(role, 'canReadMeters', false)
-    const hasAccessToServices = get(role, 'canReadServices', false)
-    const hasAccessToSettings = get(role, 'canReadSettings', false)
-    const hasAccessToMarketplace = get(role, 'canReadMarketItems', false) ||
-        get(role, 'canReadInvoices', false) || get(role, 'canReadPaymentsWithInvoices', false)
-    const hasAccessToTour = get(role, 'canReadTour', false)
+    const hasAccessToBilling = role?.canReadPayments || role?.canReadBillingReceipts || false
+    const isManagingCompany = (organization?.type || MANAGING_COMPANY_TYPE) === MANAGING_COMPANY_TYPE
+    const isNoServiceProviderOrganization = (organization?.type || MANAGING_COMPANY_TYPE) !== SERVICE_PROVIDER_TYPE
+    const hasAccessToTickets = role?.canReadTickets || false
+    const hasAccessToIncidents = role?.canReadIncidents || false
+    const hasAccessToEmployees = role?.canReadEmployees || false
+    const hasAccessToProperties = role?.canReadProperties || false
+    const hasAccessToContacts = role?.canReadContacts || false
+    const hasAccessToAnalytics = role?.canReadAnalytics
+    const hasAccessToMeters = role?.canReadMeters || false
+    const hasAccessToServices = role?.canReadServices || false
+    const hasAccessToSettings = role?.canReadSettings || false
+    const hasAccessToMarketplace = role?.canReadMarketItems || role?.canReadInvoices || role?.canReadPaymentsWithInvoices || false
+    const hasAccessToTour = role?.canReadTour || false
 
     const { canRead: hasAccessToNewsItems } = useNewsItemsAccess()
 
@@ -376,7 +374,7 @@ const MenuItems: React.FC = () => {
                             excludePaths={item.excludePaths}
                         />
                     ))}
-                    {get(appsByCategories, category.key, []).map((app) => {
+                    {(appsByCategories?.[category.key] || []).map((app) => {
                         // not a ReDoS issue: running on end user browser
                         // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
                         const miniAppsPattern = new RegExp(`/miniapps/${app.id}/.+`)
@@ -384,7 +382,7 @@ const MenuItems: React.FC = () => {
                             id={`menu-item-app-${app.id}`}
                             key={`menu-item-app-${app.id}`}
                             path={`/miniapps/${app.id}`}
-                            icon={get(AllIcons, app.icon, AllIcons['QuestionCircle'])}
+                            icon={AllIcons?.[app.icon] || AllIcons['QuestionCircle']}
                             label={app.name}
                             labelRaw
                             disabled={disabled}

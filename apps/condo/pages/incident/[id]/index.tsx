@@ -76,14 +76,14 @@ const IncidentPropertiesField: React.FC<IncidentFieldProps> = ({ incident }) => 
         }
 
         // TODO(DOMA-2567) refactor duplicate in '@condo/pages/settings/propertyScope/[id]/index.tsx'
-        return incidentProperties.map((incidentProperty) => {
+        return incidentProperties.map((incidentProperty, index) => {
             const property = incidentProperty?.property
             const isDeleted = Boolean(property?.deletedAt)
             const propertyMessage = getAddressRender(property, null, DeletedMessage)
 
             return (
                 <div
-                    key={property?.id || null}
+                    key={property?.id || index}
                 >
                     {
                         isDeleted ? (
