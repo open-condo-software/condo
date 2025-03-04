@@ -55610,9 +55610,9 @@ type MeterUserData {
   sender: SenderField
 }
 
-input MeterUserDatumWhereInput {
-  AND: [MeterUserDatumWhereInput]
-  OR: [MeterUserDatumWhereInput]
+input MeterUserDataWhereInput {
+  AND: [MeterUserDataWhereInput]
+  OR: [MeterUserDataWhereInput]
   user: UserWhereInput
   user_is_null: Boolean
   meter: MeterWhereInput
@@ -55693,11 +55693,11 @@ input MeterUserDatumWhereInput {
   sender_not_in: [SenderFieldInput]
 }
 
-input MeterUserDatumWhereUniqueInput {
+input MeterUserDataWhereUniqueInput {
   id: ID!
 }
 
-enum SortMeterUserDataBy {
+enum SortMeterUserDatasBy {
   user_ASC
   user_DESC
   meter_ASC
@@ -55722,27 +55722,7 @@ enum SortMeterUserDataBy {
   dv_DESC
 }
 
-input MeterUserDatumUpdateInput {
-  user: UserRelateToOneInput
-  meter: MeterRelateToOneInput
-  name: String
-  v: Int
-  createdAt: String
-  updatedAt: String
-  createdBy: UserRelateToOneInput
-  updatedBy: UserRelateToOneInput
-  deletedAt: String
-  newId: String
-  dv: Int
-  sender: SenderFieldInput
-}
-
 input MeterUserDataUpdateInput {
-  id: ID!
-  data: MeterUserDatumUpdateInput
-}
-
-input MeterUserDatumCreateInput {
   user: UserRelateToOneInput
   meter: MeterRelateToOneInput
   name: String
@@ -55755,10 +55735,30 @@ input MeterUserDatumCreateInput {
   newId: String
   dv: Int
   sender: SenderFieldInput
+}
+
+input MeterUserDatasUpdateInput {
+  id: ID!
+  data: MeterUserDataUpdateInput
 }
 
 input MeterUserDataCreateInput {
-  data: MeterUserDatumCreateInput
+  user: UserRelateToOneInput
+  meter: MeterRelateToOneInput
+  name: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input MeterUserDatasCreateInput {
+  data: MeterUserDataCreateInput
 }
 
 enum ServiceSubscriptionHistoryRecordHistoryActionType {
@@ -85065,17 +85065,17 @@ type Query {
   _MeterUserDataHistoryRecordsMeta: _ListMeta
 
   """ Search for all MeterUserData items which match the where clause. """
-  allMeterUserData(where: MeterUserDatumWhereInput, search: String, sortBy: [SortMeterUserDataBy!], orderBy: String, first: Int, skip: Int): [MeterUserData]
+  allMeterUserDatas(where: MeterUserDataWhereInput, search: String, sortBy: [SortMeterUserDatasBy!], orderBy: String, first: Int, skip: Int): [MeterUserData]
 
   """ Search for the MeterUserData item with the matching ID. """
-  MeterUserDatum(where: MeterUserDatumWhereUniqueInput!): MeterUserData
+  MeterUserData(where: MeterUserDataWhereUniqueInput!): MeterUserData
 
   """ Perform a meta-query on all MeterUserData items which match the where clause. 
   """
-  _allMeterUserDataMeta(where: MeterUserDatumWhereInput, search: String, sortBy: [SortMeterUserDataBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+  _allMeterUserDatasMeta(where: MeterUserDataWhereInput, search: String, sortBy: [SortMeterUserDatasBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
 
-  """ Retrieve the meta-data for the MeterUserDatum list. """
-  _MeterUserDataMeta: _ListMeta
+  """ Retrieve the meta-data for the MeterUserData list. """
+  _MeterUserDatasMeta: _ListMeta
 
   """ Search for all ServiceSubscriptionHistoryRecord items which match the where clause. 
   """
@@ -89961,22 +89961,22 @@ type Mutation {
   deleteMeterUserDataHistoryRecords(ids: [ID!]): [MeterUserDataHistoryRecord]
 
   """ Create a single MeterUserData item. """
-  createMeterUserDatum(data: MeterUserDatumCreateInput): MeterUserData
+  createMeterUserData(data: MeterUserDataCreateInput): MeterUserData
 
   """ Create multiple MeterUserData items. """
-  createMeterUserData(data: [MeterUserDataCreateInput]): [MeterUserData]
+  createMeterUserDatas(data: [MeterUserDatasCreateInput]): [MeterUserData]
 
   """ Update a single MeterUserData item by ID. """
-  updateMeterUserDatum(id: ID!, data: MeterUserDatumUpdateInput): MeterUserData
+  updateMeterUserData(id: ID!, data: MeterUserDataUpdateInput): MeterUserData
 
   """ Update multiple MeterUserData items by ID. """
-  updateMeterUserData(data: [MeterUserDataUpdateInput]): [MeterUserData]
+  updateMeterUserDatas(data: [MeterUserDatasUpdateInput]): [MeterUserData]
 
   """ Delete a single MeterUserData item by ID. """
-  deleteMeterUserDatum(id: ID!): MeterUserData
+  deleteMeterUserData(id: ID!): MeterUserData
 
   """ Delete multiple MeterUserData items by ID. """
-  deleteMeterUserData(ids: [ID!]): [MeterUserData]
+  deleteMeterUserDatas(ids: [ID!]): [MeterUserData]
 
   """ Create a single ServiceSubscriptionHistoryRecord item. """
   createServiceSubscriptionHistoryRecord(data: ServiceSubscriptionHistoryRecordCreateInput): ServiceSubscriptionHistoryRecord

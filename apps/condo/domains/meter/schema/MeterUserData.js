@@ -11,7 +11,8 @@ const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 const MeterUserData = new GQLListSchema('MeterUserData', {
     schemaDoc: `Custom user data that a user with type ${RESIDENT} can assign to a specific meter device to make it easier to understand what kind of device it is`,
-    plural: 'MeterUserData',
+    plural: 'MeterUserDatas',
+    singular: 'MeterUserData',
     fields: {
 
         user: {
