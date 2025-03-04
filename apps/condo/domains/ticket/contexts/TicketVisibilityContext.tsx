@@ -208,44 +208,50 @@ const TicketVisibilityContextProvider: React.FC = ({ children }) => {
 
     const { persistor } = useCachePersistor()
 
-    const { data: propertyScopeEmployeesResult, loading: employeesLoading } = useGetPropertyScopeOrganizationEmployeesQuery({
+    const { data: propertyScopeEmployeesData, loading: employeesLoading } = useGetPropertyScopeOrganizationEmployeesQuery({
         variables: {
             employeeId,
         },
         skip: !employeeId || !persistor,
     })
-    const propertyScopeEmployees = useMemo(() => propertyScopeEmployeesResult?.result.filter(Boolean) || [], [propertyScopeEmployeesResult?.result])
+    const propertyScopeEmployees = useMemo(() =>
+        propertyScopeEmployeesData?.propertyScopeOrganizationEmployees.filter(Boolean) || [],
+    [propertyScopeEmployeesData?.propertyScopeOrganizationEmployees])
 
     const propertyScopeIds = propertyScopeEmployees
         .filter(propertyScopeEmployee => propertyScopeEmployee.propertyScope && propertyScopeEmployee.employee)
         .map(propertyScopeEmployee => propertyScopeEmployee.propertyScope.id)
 
-    const { data: propertyScopesResult, loading: propertyScopeLoading } = useGetPropertyScopesQuery({
+    const { data: propertyScopesData, loading: propertyScopeLoading } = useGetPropertyScopesQuery({
         variables: {
             organizationId,
             propertyScopeIds,
         },
         skip: !organizationId || !persistor,
     })
-    const propertyScopes = useMemo(() => propertyScopesResult?.result.filter(Boolean) || [], [propertyScopesResult?.result])
+    const propertyScopes = useMemo(() =>
+        propertyScopesData?.propertyScope.filter(Boolean) || [],
+    [propertyScopesData?.propertyScope])
 
-    const { data: propertyScopePropertiesResult, loading: propertiesLoading } = useGetPropertyScopePropertiesQuery({
+    const { data: propertyScopePropertiesData, loading: propertiesLoading } = useGetPropertyScopePropertiesQuery({
         variables: {
             propertyScopeIds: propertyScopes.map(scope => scope.id),
         },
         skip: propertyScopes.length === 0 || !persistor,
     })
-    const propertyScopeProperties = useMemo(() => propertyScopePropertiesResult?.result.filter(Boolean) || [], [propertyScopePropertiesResult?.result])
+    const propertyScopeProperties = useMemo(() =>
+        propertyScopePropertiesData?.propertyScopeProperty.filter(Boolean) || [],
+    [propertyScopePropertiesData?.propertyScopeProperty])
 
-    const { data: organizationEmployeeSpecializations, loading: specializationsLoading } = useGetOrganizationEmployeeSpecializationsQuery({
+    const { data: organizationEmployeeSpecializationsData, loading: specializationsLoading } = useGetOrganizationEmployeeSpecializationsQuery({
         variables: {
             employeeId,
         },
         skip: !employeeId || !persistor,
     })
     const employeeSpecializations = useMemo(() =>
-        organizationEmployeeSpecializations?.organizationEmployeeSpecializations.filter(Boolean) || [],
-    [organizationEmployeeSpecializations?.organizationEmployeeSpecializations])
+        organizationEmployeeSpecializationsData?.organizationEmployeeSpecializations.filter(Boolean) || [],
+    [organizationEmployeeSpecializationsData?.organizationEmployeeSpecializations])
 
     const specializations = employeeSpecializations
         .filter(empSpec => empSpec.specialization && empSpec.employee)

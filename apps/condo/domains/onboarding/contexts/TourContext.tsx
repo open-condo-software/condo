@@ -40,7 +40,7 @@ const getActiveTourStepFromStorage = (): ActiveTourStepType => {
     }
 }
 
-export const TourProvider = ({ children }) => {
+export const TourProvider: React.FC = ({ children }) => {
     const { organization } = useOrganization()
     const organizationId = organization?.id || null
     const organizationType = organization?.type || null
@@ -54,7 +54,7 @@ export const TourProvider = ({ children }) => {
     const [updateTourStep] = useUpdateTourStepMutation()
 
     const [syncTourStepMutation, { loading: syncLoading }] = useSyncTourStepsMutation({
-        onCompleted: async () => getTourSteps(),
+        onCompleted: async () => await getTourSteps(),
         variables: {
             data: {
                 organization: { id: organizationId },

@@ -1,11 +1,11 @@
 query getPropertyScopeOrganizationEmployees ($employeeId: ID!) {
-    result: allPropertyScopeOrganizationEmployees (
+    propertyScopeOrganizationEmployees: allPropertyScopeOrganizationEmployees (
         where: {
             employee: {
                 id: $employeeId
             }
         }
-        first: 100,
+        first: 300,
     ) {
         id
         propertyScope {
