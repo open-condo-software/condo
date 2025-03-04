@@ -4,8 +4,10 @@ const Upload = require('graphql-upload/Upload.js')
 const { get, isEmpty } = require('lodash')
 
 const { ConvertFileToTable, getObjectStream, readFileFromStream } = require('@open-condo/keystone/file')
+const { ROWS_COUNT_LIMIT, ROWS_COUNT_LIMIT_EXCEEDED } = require('@open-condo/keystone/file/utils')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
+const { i18n } = require('@open-condo/locales/loader')
 
 const {
     DOMA_EXCEL,
@@ -104,7 +106,7 @@ async function importMeters (taskId) {
         const content = await readFileFromStream(contentStream)
 
         // create file converter
-        const converter = new ConvertFileToTable(content)
+        const converter = new ConvertFileToTable(content, ROWS_COUNT_LIMIT)
 
         // For now we support only two formats: doma-excel and 1S (txt/csv)
         const isExcelFile = await converter.isExcelFile()
@@ -115,7 +117,7 @@ async function importMeters (taskId) {
         })
 
         // read table && fill total
-        const data = await converter.getData()
+        const data = await converter.getData(locale)
 
         // create importer
         const importer = await getImporter(context, taskId, organization.id, user.id, format, locale, isPropertyMeters)
@@ -146,8 +148,18 @@ async function importMeters (taskId) {
             await failWithErrorFile(context, taskId, errorFileContent, format)
         }
     } catch (err) {
-        const errorMessage = get(err, 'errors[0].extensions.messageForUser', get(err, 'message'))
-            || 'not recognized error'
+        let errorMessage = get(err, 'errors[0].extensions.messageForUser', get(err, 'message'))
+
+        if (errorMessage === ROWS_COUNT_LIMIT_EXCEEDED) {
+            const TooManyRowsErrorTitle = i18n('TooManyRowsInTable.title', { locale })
+            const TooManyRowsErrorMessage = i18n('TooManyRowsInTable.message', {
+                locale,
+                meta: { value: ROWS_COUNT_LIMIT },
+            })
+            errorMessage = `${TooManyRowsErrorTitle}. ${TooManyRowsErrorMessage}`
+        } else if (!errorMessage) {
+            errorMessage = 'not recognized error'
+        }
 
         await MeterReadingsImportTask.update(context, taskId, {
             ...dvAndSender,
