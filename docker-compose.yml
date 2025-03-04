@@ -1,7 +1,7 @@
 version: '3.8'
 x-postgres-common:
   &postgres-common
-  image: ${REGISTRY}postgres:16.4
+  image: ${REGISTRY}postgres:16.8
   user: postgres
 
 services:
