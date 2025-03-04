@@ -81637,7 +81637,7 @@ enum MessageType {
   CUSTOM_CONTENT_MESSAGE_EMAIL
   CUSTOM_CONTENT_MESSAGE_SMS
   VOIP_INCOMING_CALL_MESSAGE
-  VOIP_CANCELED_CALL_MESSAGE
+  CANCELED_CALL_MESSAGE_PUSH
   B2C_APP_MESSAGE_PUSH
   RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE
   RECURRENT_PAYMENT_PROCEEDING_UNKNOWN_ERROR_MESSAGE
@@ -82577,7 +82577,7 @@ type MiniAppOutput {
 
 enum SendB2CAppPushMessageType {
   VOIP_INCOMING_CALL_MESSAGE
-  VOIP_CANCELED_CALL_MESSAGE
+  undefined
   B2C_APP_MESSAGE_PUSH
 }
 
@@ -93867,7 +93867,7 @@ type Mutation {
   			}
   		}
   	},
-  	"VOIP_CANCELED_CALL_MESSAGE": {
+  	"CANCELED_CALL_MESSAGE_PUSH": {
   		"dv": {
   			"required": true
   		},
@@ -93891,21 +93891,6 @@ type Mutation {
   				"required": true
   			},
   			"callId": {
-  				"required": false
-  			},
-  			"voipType": {
-  				"required": false
-  			},
-  			"voipAddress": {
-  				"required": false
-  			},
-  			"voipLogin": {
-  				"required": false
-  			},
-  			"voipPassword": {
-  				"required": false
-  			},
-  			"voipDtfmCommand": {
   				"required": false
   			}
   		}

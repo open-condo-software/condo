@@ -2,7 +2,7 @@ const { isEmpty, get } = require('lodash')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 
-const { PUSH_TYPE_SILENT_DATA } = require('@condo/domains/notification/constants/constants')
+const { PUSH_TYPE_SILENT_DATA, CANCELED_CALL_MESSAGE_PUSH_TYPE } = require('@condo/domains/notification/constants/constants')
 
 const { AppleJSONWebToken } = require('./AppleJSONWebToken')
 const AppleSession = require('./AppleSession')
@@ -155,7 +155,7 @@ class AppleMessaging {
             if (isVoIP) {
                 options.type = APS_PUSH_TYPE_VOIP
                 payload.aps.alert = { ...notification }
-            } else if (type === PUSH_TYPE_SILENT_DATA) {
+            } else if (type === PUSH_TYPE_SILENT_DATA || pushData?.type === CANCELED_CALL_MESSAGE_PUSH_TYPE) {
                 options.type = APS_PUSH_TYPE_BACKGROUND
                 payload.aps['content-available'] = 1
             } else {
