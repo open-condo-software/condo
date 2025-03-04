@@ -67,32 +67,24 @@ describe('MeterUserData', () => {
                 expect(obj.createdBy).toEqual(expect.objectContaining({ id: support.user.id }))
             })
 
-            test('resident can', async () => {
-                const unitName = faker.random.alphaNumeric(8)
-                const client = await makeClientWithResidentUser()
-                const { context, organization } = await makeContextWithOrganizationAndIntegrationAsAdmin();
-                [property] = await createTestProperty(admin, organization)
-                const [billingProperty] = await createTestBillingProperty(admin, context)
-                const [billingAccount] = await createTestBillingAccount(admin, context, billingProperty)
-                const [resident] = await createTestResident(admin, client.user, property, {
-                    unitName,
-                })
-                await createTestServiceConsumer(admin, resident, organization, {
-                    accountNumber: billingAccount.number,
-                })
-
-                const [meter] = await createTestMeter(admin, organization, property, resource, {
-                    accountNumber: billingAccount.number,
-                    unitName,
-                })
-                const [obj, attrs] = await createTestMeterUserData(client, resident.user, meter)
+            test('resident can for own meter', async () => {
+                const { residentClient, meter } = await makeResidentWithOwnMeter(admin)
+                const [obj, attrs] = await createTestMeterUserData(residentClient, residentClient.user, meter)
 
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
                 expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.createdBy).toEqual(expect.objectContaining({ id: resident.user.id }))
-                expect(obj.user).toEqual(expect.objectContaining({ id: resident.user.id }))
+                expect(obj.createdBy).toEqual(expect.objectContaining({ id: residentClient.user.id }))
+                expect(obj.user).toEqual(expect.objectContaining({ id: residentClient.user.id }))
                 expect(obj.meter).toEqual(expect.objectContaining({ id: meter.id }))
+            })
+
+            test('resident cannot for someone else\'s meter', async () => {
+                const { residentClient } = await makeResidentWithOwnMeter(admin)
+                const [meter] = await createTestMeter(admin, organization, property, resource)
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestMeterUserData(residentClient, residentClient.user, meter)
+                })
             })
 
             test('user can\'t', async () => {

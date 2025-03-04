@@ -5,8 +5,9 @@
 const get = require('lodash/get')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { getByCondition } = require('@open-condo/keystone/schema')
+const { find } = require('@open-condo/keystone/schema')
 
+const { getAvailableResidentMeters } = require('@condo/domains/meter/utils/serverSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 async function canReadMeterUserData ({ authentication: { item: user } }) {
@@ -24,7 +25,7 @@ async function canReadMeterUserData ({ authentication: { item: user } }) {
 }
 
 
-async function canManageMeterUserData ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageMeterUserData ({ authentication: { item: user }, originalInput, operation, itemId, itemIds }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -32,17 +33,31 @@ async function canManageMeterUserData ({ authentication: { item: user }, origina
     if (user.type === RESIDENT) {
         let userId
         if (operation === 'update') {
-            if (!itemId) return false
-            const customName = await getByCondition('MeterUserData', {
-                id: itemId,
+            const ids = itemIds || [itemId]
+            if (ids.length !== new Set(ids).size) return false
+
+            const items = await find('MeterUserData', {
+                id_in: ids,
                 deletedAt: null,
             })
+            if (items.length !== ids.length || items.some(item => !item.user)) return false
+            const uniqUserIds = [...new Set(items.map(item => item.user))]
 
-            userId = get(customName, 'user', null)
+            if (uniqUserIds.length !== 1) return false
+
+            userId = uniqUserIds[0]
         }
 
         if (operation === 'create') {
             userId = get(originalInput, ['user', 'connect', 'id'])
+
+            const meterId = get(originalInput, ['meter', 'connect', 'id'], null)
+            if (!meterId) return false
+
+            const availableMeters = await getAvailableResidentMeters(user.id)
+            if (!availableMeters.some((meter) => meter.id === meterId && !meter.isAutomatic)){
+                return false
+            }
         }
 
         return userId === user.id
