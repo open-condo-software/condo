@@ -48,7 +48,7 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
                 id: ticketId,
                 data: {
                     status: { connect: { id: value } },
-                    statusUpdatedAt: new Date().toString(),
+                    statusUpdatedAt: new Date() as unknown as string,
                     sender: getClientSideSenderInfo(),
                     dv: 1,
                 },
@@ -64,7 +64,7 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
                 data: {
                     status: { connect: { id: statusDeferredId } },
                     deferredUntil: deferredDate.toISOString(),
-                    statusUpdatedAt: new Date().toString(),
+                    statusUpdatedAt: new Date() as unknown as string,
                     sender: getClientSideSenderInfo(),
                     dv: 1,
                 },
