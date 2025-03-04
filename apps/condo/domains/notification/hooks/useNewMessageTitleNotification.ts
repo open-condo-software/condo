@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useRef } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 
+import { PLATFORM_NOTIFICATIONS_SOUND } from '@condo/domains/common/constants/featureflags'
 import { useAudio } from '@condo/domains/common/hooks/useAudio'
 import { useBroadcastChannel } from '@condo/domains/common/hooks/useBroadcastChannel'
 import { useExecuteWithLock } from '@condo/domains/common/hooks/useExecuteWithLock'
-
 
 const getCurrentFaviconHref = () => document.getElementById('favicon').getAttribute('href')
 const changeFavicon = (href: string) => document.getElementById('favicon').setAttribute('href', href)
@@ -25,11 +26,20 @@ export const useNewMessageTitleNotification = (unreadMessagesCount: number): voi
     const intl = useIntl()
     const NewMessagePageTitle = intl.formatMessage({ id: 'notification.UserMessagesList.newMessagePageTitle' })
 
+    const { useFlag } = useFeatureFlags()
+    // TODO(DOMA-11185): Remove this featureflag after implement on/off sound logic
+    const isNotificationSoundEnabled = useFlag(PLATFORM_NOTIFICATIONS_SOUND)
+
     const audio = useAudio()
     const previousMessagesCount = useRef<number>()
     const originalPageTitle = useRef<string>()
     const originalIconHref = useRef<string>()
     const changeTitleInterval = useRef<ReturnType<typeof setInterval>>(null)
+    const isNotificationSoundEnabledRef = useRef<boolean>(isNotificationSoundEnabled)
+
+    useEffect(() => {
+        isNotificationSoundEnabledRef.current = isNotificationSoundEnabled
+    }, [isNotificationSoundEnabled])
 
     // Lock tab that allowed to play audio
     const isTabWithAudioRef = useRef<boolean>(false)
@@ -124,7 +134,11 @@ export const useNewMessageTitleNotification = (unreadMessagesCount: number): voi
                     }
                 }, TITLE_BLINK_INTERVAL_IN_MS)
 
-                if (isTabWithAudioRef.current && !isAnyTabFocusedRef.current) {
+                if (
+                    isNotificationSoundEnabledRef.current &&
+                    isTabWithAudioRef.current &&
+                    !isAnyTabFocusedRef.current
+                ) {
                     audio.playNewItemsFetchedSound()
                 }
             }

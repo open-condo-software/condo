@@ -2,6 +2,10 @@
   opacity: 0.5;
 }
 
+.condo-card.message-card {
+  height: fit-content;
+}
+
 .message-card .message-card-title {
   display: flex;
   justify-content: space-between;

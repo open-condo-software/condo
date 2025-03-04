@@ -32,7 +32,7 @@ export const MessageCard: React.FC<MessageCardProps> = ({ message, viewed }) => 
     const MessageTitle = intl.formatMessage({ id: `notification.UserMessagesList.message.${messageType}.label` })
 
     const { logEvent } = useTracking()
-    const { updateReadUserMessagesAt } = useUserMessagesList()
+    const { setIsDropdownOpen } = useUserMessagesList()
 
     const messageContent = useMemo(() => message?.defaultContent?.content, [message?.defaultContent?.content])
     const titleLink = useMemo(() => message?.meta?.data?.url, [message?.meta])
@@ -43,8 +43,8 @@ export const MessageCard: React.FC<MessageCardProps> = ({ message, viewed }) => 
             eventName: 'UserMessageCardClickTitle',
             eventProperties: { type: messageType, id: message?.id },
         })
-        updateReadUserMessagesAt()
-    }, [logEvent, message?.id, messageType, updateReadUserMessagesAt])
+        setIsDropdownOpen(false)
+    }, [logEvent, message?.id, messageType, setIsDropdownOpen])
 
     return (
         <Card

@@ -52,7 +52,7 @@ import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { useWindowTitleContext, WindowTitleContextProvider } from '@condo/domains/common/components/WindowTitleContext'
 import { EMOJI } from '@condo/domains/common/constants/emoji'
 import { EXCEL } from '@condo/domains/common/constants/export'
-import { TICKET_IMPORT } from '@condo/domains/common/constants/featureflags'
+import { PLATFORM_NOTIFICATIONS_SOUND, TICKET_IMPORT } from '@condo/domains/common/constants/featureflags'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { useAudio } from '@condo/domains/common/hooks/useAudio'
 import { useCheckboxSearch } from '@condo/domains/common/hooks/useCheckboxSearch'
@@ -355,6 +355,19 @@ const TicketsTableContainer = ({
     const router = useRouter()
     const { filters, offset } = useMemo(() => parseQuery(router.query), [router.query])
 
+    const { useFlag } = useFeatureFlags()
+    // TODO(DOMA-11185): Remove this featureflag after implement on/off sound logic
+    const isNotificationSoundEnabled = useFlag(PLATFORM_NOTIFICATIONS_SOUND)
+    const isNotificationSoundEnabledRef = useRef<boolean>(isNotificationSoundEnabled)
+    const playSoundOnNewTicketsRef = useRef<boolean>(playSoundOnNewTickets)
+
+    useEffect(() => {
+        isNotificationSoundEnabledRef.current = isNotificationSoundEnabled
+    }, [isNotificationSoundEnabled])
+    useEffect(() => {
+        playSoundOnNewTicketsRef.current = playSoundOnNewTickets
+    }, [playSoundOnNewTickets])
+
     const [isRefetching, setIsRefetching] = useState(false)
     const ticketsCountRef = useRef(null)
     const audio = useAudio()
@@ -392,8 +405,13 @@ const TicketsTableContainer = ({
                     ? intl.formatMessage({ id: 'pages.condo.ticket.index.manyNewTicketsTitle' })
                     : intl.formatMessage({ id: 'pages.condo.ticket.index.fewNewTicketsTitle' }, { count: totalNewTicketsCount })
 
-                setTitleConfig({ label: newTitle, iconPath, count: totalNewTicketsCount })
-                audio.playNewItemsFetchedSound()
+                if (playSoundOnNewTicketsRef.current) {
+                    setTitleConfig({ label: newTitle, iconPath, count: totalNewTicketsCount })
+                }
+
+                if (playSoundOnNewTicketsRef.current || !isNotificationSoundEnabledRef.current) {
+                    audio.playNewItemsFetchedSound()
+                }
             }
             ticketsCountRef.current = count
         },
@@ -413,10 +431,10 @@ const TicketsTableContainer = ({
     const refetchTickets = useCallback(async () => {
         await refetch()
 
-        if (playSoundOnNewTickets) {
+        if (playSoundOnNewTicketsRef.current || !isNotificationSoundEnabledRef.current) {
             await loadNewTicketCount()
         }
-    }, [loadNewTicketCount, playSoundOnNewTickets, refetch])
+    }, [loadNewTicketCount, refetch])
 
     const {
         columns,
@@ -424,10 +442,10 @@ const TicketsTableContainer = ({
     } = useTableColumns(filterMetas, tickets, refetchTickets, isRefetching, setIsRefetching)
 
     useEffect(() => {
-        if (playSoundOnNewTickets) {
+        if (playSoundOnNewTicketsRef.current || !isNotificationSoundEnabledRef.current) {
             loadNewTicketCount()
         }
-    }, [loadNewTicketCount, playSoundOnNewTickets])
+    }, [loadNewTicketCount])
 
     const loading = (isTicketsFetching || columnsLoading || baseQueryLoading) && !isRefetching
 
