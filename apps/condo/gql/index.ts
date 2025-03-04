@@ -2347,7 +2347,7 @@ export type GetOrganizationEmployeeByUserAndOrganizationIdSuspenseQueryHookResul
 export type GetOrganizationEmployeeByUserAndOrganizationIdQueryResult = Apollo.QueryResult<Types.GetOrganizationEmployeeByUserAndOrganizationIdQuery, Types.GetOrganizationEmployeeByUserAndOrganizationIdQueryVariables>;
 export const GetOrganizationEmployeesByUserIdAndOrganizationTypeDocument = gql`
     query getOrganizationEmployeesByUserIdAndOrganizationType($userId: ID!, $organizationType: [OrganizationTypeType!]) {
-  employees: allOrganizationEmployees(
+  invitations: allOrganizationEmployees(
     where: {user: {id: $userId}, organization: {type_in: $organizationType}, isAccepted: false, isRejected: false, isBlocked: false}
   ) {
     id
@@ -2590,9 +2590,9 @@ export type GetLastCreatedPropertyByOrganizationIdSuspenseQueryHookResult = Retu
 export type GetLastCreatedPropertyByOrganizationIdQueryResult = Apollo.QueryResult<Types.GetLastCreatedPropertyByOrganizationIdQuery, Types.GetLastCreatedPropertyByOrganizationIdQueryVariables>;
 export const GetPropertyScopePropertiesDocument = gql`
     query getPropertyScopeProperties($propertyScopeIds: [ID!]) {
-  result: allPropertyScopeProperties(
+  propertyScopeProperty: allPropertyScopeProperties(
     where: {propertyScope: {id_in: $propertyScopeIds}}
-    first: 100
+    first: 300
   ) {
     id
     propertyScope {
@@ -2639,7 +2639,7 @@ export type GetPropertyScopePropertiesSuspenseQueryHookResult = ReturnType<typeo
 export type GetPropertyScopePropertiesQueryResult = Apollo.QueryResult<Types.GetPropertyScopePropertiesQuery, Types.GetPropertyScopePropertiesQueryVariables>;
 export const GetPropertyScopesDocument = gql`
     query getPropertyScopes($organizationId: ID!, $propertyScopeIds: [ID!]) {
-  result: allPropertyScopes(
+  propertyScope: allPropertyScopes(
     where: {organization: {id: $organizationId}, OR: [{id_in: $propertyScopeIds}, {hasAllEmployees: true}]}
     first: 100
   ) {
@@ -2683,9 +2683,9 @@ export type GetPropertyScopesSuspenseQueryHookResult = ReturnType<typeof useGetP
 export type GetPropertyScopesQueryResult = Apollo.QueryResult<Types.GetPropertyScopesQuery, Types.GetPropertyScopesQueryVariables>;
 export const GetPropertyScopeOrganizationEmployeesDocument = gql`
     query getPropertyScopeOrganizationEmployees($employeeId: ID!) {
-  result: allPropertyScopeOrganizationEmployees(
+  propertyScopeOrganizationEmployees: allPropertyScopeOrganizationEmployees(
     where: {employee: {id: $employeeId}}
-    first: 100
+    first: 300
   ) {
     id
     propertyScope {
@@ -4985,7 +4985,7 @@ export const GetTicketFilesDocument = gql`
   ticketFiles: allTicketFiles(
     where: {ticket: {id: $ticketId}}
     sortBy: [createdAt_ASC]
-    first: 100
+    first: 50
   ) {
     id
     ticket {

@@ -352,7 +352,7 @@ export type GetOrganizationEmployeesByUserIdAndOrganizationTypeQueryVariables = 
 }>;
 
 
-export type GetOrganizationEmployeesByUserIdAndOrganizationTypeQuery = { __typename?: 'Query', employees?: Array<{ __typename?: 'OrganizationEmployee', id: string, organization?: { __typename?: 'Organization', name?: string | null } | null } | null> | null };
+export type GetOrganizationEmployeesByUserIdAndOrganizationTypeQuery = { __typename?: 'Query', invitations?: Array<{ __typename?: 'OrganizationEmployee', id: string, organization?: { __typename?: 'Organization', name?: string | null } | null } | null> | null };
 
 export type GetOrganizationEmployeeSpecializationsQueryVariables = Types.Exact<{
   employeeId: Types.Scalars['ID']['input'];
@@ -393,7 +393,7 @@ export type GetPropertyScopePropertiesQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetPropertyScopePropertiesQuery = { __typename?: 'Query', result?: Array<{ __typename?: 'PropertyScopeProperty', id: string, propertyScope?: { __typename?: 'PropertyScope', id: string } | null, property?: { __typename?: 'Property', id: string } | null } | null> | null };
+export type GetPropertyScopePropertiesQuery = { __typename?: 'Query', propertyScopeProperty?: Array<{ __typename?: 'PropertyScopeProperty', id: string, propertyScope?: { __typename?: 'PropertyScope', id: string } | null, property?: { __typename?: 'Property', id: string } | null } | null> | null };
 
 export type GetPropertyScopesQueryVariables = Types.Exact<{
   organizationId: Types.Scalars['ID']['input'];
@@ -401,14 +401,14 @@ export type GetPropertyScopesQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetPropertyScopesQuery = { __typename?: 'Query', result?: Array<{ __typename?: 'PropertyScope', id: string } | null> | null };
+export type GetPropertyScopesQuery = { __typename?: 'Query', propertyScope?: Array<{ __typename?: 'PropertyScope', id: string } | null> | null };
 
 export type GetPropertyScopeOrganizationEmployeesQueryVariables = Types.Exact<{
   employeeId: Types.Scalars['ID']['input'];
 }>;
 
 
-export type GetPropertyScopeOrganizationEmployeesQuery = { __typename?: 'Query', result?: Array<{ __typename?: 'PropertyScopeOrganizationEmployee', id: string, propertyScope?: { __typename?: 'PropertyScope', id: string } | null, employee?: { __typename?: 'OrganizationEmployee', id: string } | null } | null> | null };
+export type GetPropertyScopeOrganizationEmployeesQuery = { __typename?: 'Query', propertyScopeOrganizationEmployees?: Array<{ __typename?: 'PropertyScopeOrganizationEmployee', id: string, propertyScope?: { __typename?: 'PropertyScope', id: string } | null, employee?: { __typename?: 'OrganizationEmployee', id: string } | null } | null> | null };
 
 export type GetServiceSubscriptionQueryVariables = Types.Exact<{
   organizationId: Types.Scalars['ID']['input'];

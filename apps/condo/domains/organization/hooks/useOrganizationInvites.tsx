@@ -31,7 +31,7 @@ export const useOrganizationInvites = (organizationTypes: Array<OrganizationType
     const { persistor } = useCachePersistor()
     
     const {
-        data: organizationEmployeesData,
+        data: userInvitationsData,
         refetch,
         loading,
     } = useGetOrganizationEmployeesByUserIdAndOrganizationTypeQuery({
@@ -41,7 +41,7 @@ export const useOrganizationInvites = (organizationTypes: Array<OrganizationType
         },
         skip: !userId || !organizationTypes || organizationTypes.length < 1 || !persistor,
     })
-    const userInvites = useMemo(() => organizationEmployeesData?.employees?.filter(Boolean) || [], [organizationEmployeesData?.employees])
+    const userInvites = useMemo(() => userInvitationsData?.invitations?.filter(Boolean) || [], [userInvitationsData?.invitations])
 
     const { addNotification } = useLayoutContext()
 
