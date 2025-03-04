@@ -46,11 +46,10 @@ async function canManageMeterUserSetting ({ authentication: { item: user }, orig
 
         if (operation === 'create') {
             const inputs = Array.isArray(originalInput) ? originalInput : [originalInput]
-
-            const otherUserIds = inputs.map(inp => get(inp, ['connect', 'user', 'id']).filter(id => id !== user.id))
+            const otherUserIds = inputs.map(inp => get(inp, ['user', 'connect', 'id'])).filter(id => id !== user.id)
             if (otherUserIds.length) return false
 
-            const inputMeterIds = inputs.map(inp => get(inp, ['connect', 'meter', 'id']))
+            const inputMeterIds = inputs.map(inp => get(inp, ['meter', 'connect', 'id']))
             // restrict meter: { create: {} } case
             if (!inputMeterIds.every(Boolean)) return false
 
