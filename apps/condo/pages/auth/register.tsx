@@ -1,12 +1,15 @@
 import { Row, Col } from 'antd'
+import { setCookie } from 'cookies-next'
 import Head from 'next/head'
 import Router, { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useState, useMemo } from 'react'
 
+import { useEffectOnce } from '@open-condo/miniapp-utils'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Typography } from '@open-condo/ui'
 
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { COOKIE_MAX_AGE_IN_SEC } from '@condo/domains/common/constants/cookies'
 import { PageComponentType } from '@condo/domains/common/types'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
@@ -16,6 +19,7 @@ import { RegisterForm } from '@condo/domains/user/components/auth/RegisterForm'
 import { ValidatePhoneForm } from '@condo/domains/user/components/auth/ValidatePhoneForm'
 import AuthLayout, { AuthLayoutProps } from '@condo/domains/user/components/containers/AuthLayout'
 import { WelcomeHeaderTitle } from '@condo/domains/user/components/UserWelcomeTitle'
+import { AUTH_FLOW_USER_TYPE_COOKIE_NAME } from '@condo/domains/user/constants/auth'
 
 
 const RegisterPage: PageComponentType = () => {
@@ -77,6 +81,10 @@ const RegisterPage: PageComponentType = () => {
             { routerAction: 'replace', resetOldParameters: false }
         )
     }, [step])
+    
+    useEffectOnce(() => {
+        setCookie(AUTH_FLOW_USER_TYPE_COOKIE_NAME, 'staff', { maxAge: COOKIE_MAX_AGE_IN_SEC })
+    })
 
     if (tokenError && token) {
         return (

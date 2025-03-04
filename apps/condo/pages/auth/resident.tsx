@@ -1,20 +1,28 @@
 import { Col, Row } from 'antd'
+import { setCookie } from 'cookies-next'
 import Head from 'next/head'
 import Link from 'next/link'
 import React from 'react'
 
+import { useEffectOnce } from '@open-condo/miniapp-utils'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 
+import { COOKIE_MAX_AGE_IN_SEC } from '@condo/domains/common/constants/cookies'
 import { PageComponentType } from '@condo/domains/common/types'
 import AuthLayout from '@condo/domains/user/components/containers/AuthLayout'
 import { WelcomeHeaderTitle } from '@condo/domains/user/components/UserWelcomeTitle'
+import { AUTH_FLOW_USER_TYPE_COOKIE_NAME } from '@condo/domains/user/constants/auth'
 
 
 const ResidentAuthPage: PageComponentType = () => {
     const intl = useIntl()
     const SignInTitleMsg = intl.formatMessage({ id: 'pages.auth.SignInTitle' })
     // TODO(DOMA-9722): add translations
+
+    useEffectOnce(() => {
+        setCookie(AUTH_FLOW_USER_TYPE_COOKIE_NAME, 'resident', { maxAge: COOKIE_MAX_AGE_IN_SEC })
+    })
 
     return (
         <>
