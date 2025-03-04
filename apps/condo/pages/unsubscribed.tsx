@@ -54,7 +54,7 @@ export const UnsubscribeLayoutHeader = () => {
         if (isAuthenticated) {
             push('/')
         } else {
-            push('/auth/signin')
+            push('/auth')
         }
     }, [isAuthenticated, push])
 
