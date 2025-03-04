@@ -9,9 +9,35 @@ export type AnalyticsConfig = {
     plugins?: AnalyticsPlugin[]
 }
 
+type AnalyticsInstanceWithGroups<GroupNames extends string> = AnalyticsInstance & {
+    groups: Set<GroupNames>
+}
+
 type AnyPayload = Record<string, any>
-type GroupingPlugin = {
-    group(groupName: string, groupId: string): Promise<void>
+
+type PluginTrackData = AnyPayload & {
+    abort(): void
+    instance: AnalyticsInstanceWithGroups<string>
+    payload: AnyPayload & {
+        properties: AnyPayload
+    }
+}
+
+const GroupingPlugin: AnalyticsPlugin = {
+    name: 'analytics-plugins-grouping-attrs',
+    track (data: PluginTrackData) {
+        const { instance } = data
+        for (const groupName of instance.groups) {
+            const groupKey = Analytics.getGroupKey(groupName)
+            const groupValue = instance.storage.getItem(groupKey)
+
+            if (typeof groupValue === 'string') {
+                const groupAttrName = `groups.${groupName}`
+                data.payload.properties[groupAttrName] = groupValue
+            }
+        }
+        return data
+    },
 }
 
 /**
@@ -99,17 +125,18 @@ export class Analytics<
     UserData extends AnyPayload = Record<string, never>,
     GroupNames extends string = never,
 > {
-    private readonly _analytics: AnalyticsInstance
+    private readonly _analytics: AnalyticsInstanceWithGroups<GroupNames>
+    private readonly _groups = new Set<GroupNames>()
 
     constructor (config: AnalyticsConfig) {
-        this._analytics = DefaultAnalytics(config)
-    }
-
-    private _isGroupingPlugin (unknownPlugin: unknown): unknownPlugin is GroupingPlugin {
-        return (typeof unknownPlugin === 'object')
-            && unknownPlugin !== null
-            && 'group' in unknownPlugin
-            && typeof unknownPlugin.group === 'function'
+        this._analytics = DefaultAnalytics({
+            ...config,
+            plugins: [
+                GroupingPlugin,
+                ...(config.plugins || []),
+            ],
+        }) as AnalyticsInstanceWithGroups<GroupNames>
+        this._analytics.groups = this._groups
     }
 
     /**
@@ -152,30 +179,28 @@ export class Analytics<
      * Resets analytics providers
      */
     async reset (): Promise<void> {
+        for (const groupName of this._groups) {
+            const groupKey = Analytics.getGroupKey(groupName)
+            this._analytics.storage.removeItem(groupKey)
+        }
+        this._groups.clear()
         await this._analytics.reset()
     }
 
+    static getGroupKey (groupName: string): string {
+        return ['analytics', 'groups', groupName].join(':')
+    }
+
     /**
-     * Plugin-specific method allowing you to group users based together.
-     *
-     * NOTE: Currently supported only in Posthog provider
-     *
+     * Associates the user with a group, adding the attributes `groups.${groupName} = groupId`
+     * to all subsequent analytic queries for the user
      * @example
      * analytics.group('organization', organizationId)
      */
     async group (groupName: GroupNames, groupId: string): Promise<void> {
-        const groupingPromises: Array<Promise<void>> = []
-
-        for (const plugin of Object.values(this._analytics.plugins)) {
-            // NOTE: there's Typing error on "analytics" package, so we need to retype plugins by ourselves:
-            // https://github.com/DavidWells/analytics/issues/266
-            const unknownPlugin = plugin as unknown
-            if (this._isGroupingPlugin(unknownPlugin)) {
-                groupingPromises.push(unknownPlugin.group(groupName, groupId))
-            }
-        }
-
-        await Promise.all(groupingPromises)
+        const groupKey = Analytics.getGroupKey(groupName)
+        this._groups.add(groupName)
+        this._analytics.storage.setItem(groupKey, groupId)
     }
 }
 
