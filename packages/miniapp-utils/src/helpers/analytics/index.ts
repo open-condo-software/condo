@@ -1,2 +1,2 @@
-export { Analytics } from './analytics'
+export { Analytics } from './instance'
 export type { AnalyticsPlugin, AnalyticsConfig } from './types'

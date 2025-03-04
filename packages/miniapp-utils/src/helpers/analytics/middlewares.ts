@@ -1,4 +1,4 @@
-import { Analytics } from './analytics'
+import { Analytics } from './instance'
 
 import type { AnalyticsPlugin, PluginTrackData } from './types'
 
