@@ -286,7 +286,7 @@ function split (paymentAmount, distribution, options = {}) {
             // There are no receivers who must pay fee, but feeAmount was set.
             // So we decrease origin sum and distribute without fee
             // Than add extracted fee to separated split without recipient
-            // NO-FEE-PAYERS
+            // Search "NO-FEE-PAYERS" in this file above
             const splitsWithoutFee = split(Big(paymentAmount).minus(feeAmount).toString(), distribution, omit(options, ['feeAmount']))
             splitsWithoutFee.push({
                 recipient: null,
