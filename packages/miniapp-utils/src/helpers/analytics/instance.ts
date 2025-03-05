@@ -1,4 +1,4 @@
-import DefaultAnalytics from 'analytics'
+import { Analytics as DefaultAnalytics } from 'analytics'
 
 import { GroupingMiddlewarePlugin } from './middlewares'
 

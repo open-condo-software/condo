@@ -28,7 +28,7 @@
     "build:deps": "turbo build --filter=@open-condo/miniapp-utils^...",
     "build:code": "NODE_ENV=production rollup -c",
     "build:types": "tsc --declaration --emitDeclarationOnly",
-    "build": "rimraf dist && yarn build:code && yarn build:types",
+    "build": "tsup",
     "dev": "rimraf dist && yarn build:deps &&(rollup -c -w & tsc --declaration --emitDeclarationOnly --watch)"
   },
   "files": [
@@ -37,90 +37,98 @@
   "typesVersions": {
     "*": {
       ".": [
-        "dist/types/index.d.ts"
+        "dist/index.d.ts"
+      ],
+      "helpers/posthog": [
+        "dist/helpers/posthog.d.ts"
       ],
       "helpers/analytics": [
-        "dist/types/helpers/analytics/index.d.ts"
+        "dist/helpers/analytics/index.d.ts"
       ],
       "helpers/apollo": [
-        "dist/types/helpers/apollo.d.ts"
+        "dist/helpers/apollo.d.ts"
       ],
       "helpers/collections": [
-        "dist/types/helpers/collections.d.ts"
+        "dist/helpers/collections.d.ts"
       ],
       "helpers/cookies": [
-        "dist/types/helpers/cookies.d.ts"
+        "dist/helpers/cookies.d.ts"
       ],
       "helpers/environment": [
-        "dist/types/helpers/environment.d.ts"
+        "dist/helpers/environment.d.ts"
       ],
       "helpers/sender": [
-        "dist/types/helpers/sender.d.ts"
+        "dist/helpers/sender.d.ts"
       ],
       "helpers/uuid": [
-        "dist/types/helpers/uuid.d.ts"
+        "dist/helpers/uuid.d.ts"
       ],
       "hooks/useEffectOnce": [
-        "dist/types/hooks/useEffectOnce.d.ts"
+        "dist/hooks/useEffectOnce.d.ts"
       ],
       "hooks/usePrevious": [
-        "dist/types/hooks/usePrevious.d.ts"
+        "dist/hooks/usePrevious.d.ts"
       ]
     }
   },
-  "types": "dist/types/index.d.ts",
-  "main": "dist/cjs/index.js",
-  "module": "/dist/esm/index.js",
+  "types": "dist/index.d.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
   "exports": {
     ".": {
-      "types": "./dist/types/index.d.ts",
-      "require": "./dist/cjs/index.js",
-      "import": "./dist/esm/index.js"
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs"
+    },
+    "./helpers/posthog": {
+      "types": "./dist/helpers/posthog.d.ts",
+      "require": "./dist/helpers/posthog.js",
+      "import": "./dist/helpers/posthog.mjs"
     },
     "./helpers/analytics": {
-      "types": "./dist/types/helpers/analytics/index.d.ts",
-      "require": "./dist/cjs/helpers/analytics.js",
-      "import": "./dist/esm/helpers/analytics.js"
+      "types": "./dist/helpers/analytics/index.d.ts",
+      "require": "./dist/helpers/analytics/index.js",
+      "import": "./dist/helpers/analytics/index.mjs"
     },
     "./helpers/apollo": {
-      "types": "./dist/types/helpers/apollo.d.ts",
-      "require": "./dist/cjs/helpers/apollo.js",
-      "import": "./dist/esm/helpers/apollo.js"
+      "types": "./dist/helpers/apollo.d.ts",
+      "require": "./dist/helpers/apollo.js",
+      "import": "./dist/helpers/apollo.mjs"
     },
     "./helpers/collections": {
-      "types": "./dist/types/helpers/collections.d.ts",
-      "require": "./dist/cjs/helpers/collections.js",
-      "import": "./dist/esm/helpers/collections.js"
+      "types": "./dist/helpers/collections.d.ts",
+      "require": "./dist/helpers/collections.js",
+      "import": "./dist/helpers/collections.mjs"
     },
     "./helpers/cookies": {
-      "types": "./dist/types/helpers/cookies.d.ts",
-      "require": "./dist/cjs/helpers/cookies.js",
-      "import": "./dist/esm/helpers/cookies.js"
+      "types": "./dist/helpers/cookies.d.ts",
+      "require": "./dist/helpers/cookies.js",
+      "import": "./dist/helpers/cookies.mjs"
     },
     "./helpers/environment": {
-      "types": "./dist/types/helpers/environment.d.ts",
-      "require": "./dist/cjs/helpers/environment.js",
-      "import": "./dist/esm/helpers/environment.js"
+      "types": "./dist/helpers/environment.d.ts",
+      "require": "./dist/helpers/environment.js",
+      "import": "./dist/helpers/environment.mjs"
     },
     "./helpers/sender": {
-      "types": "./dist/types/helpers/sender.d.ts",
-      "require": "./dist/cjs/helpers/sender.js",
-      "import": "./dist/esm/helpers/sender.js"
+      "types": "./dist/helpers/sender.d.ts",
+      "require": "./dist/helpers/sender.js",
+      "import": "./dist/helpers/sender.mjs"
     },
     "./helpers/uuid": {
-      "types": "./dist/types/helpers/uuid.d.ts",
-      "require": "./dist/cjs/helpers/uuid.js",
-      "import": "./dist/esm/helpers/uuid.js"
+      "types": "./dist/helpers/uuid.d.ts",
+      "require": "./dist/helpers/uuid.js",
+      "import": "./dist/helpers/uuid.mjs"
     },
     "./hooks/useEffectOnce": {
-      "types": "./dist/types/hooks/useEffectOnce.d.ts",
-      "require": "./dist/cjs/hooks/useEffectOnce.js",
-      "import": "./dist/esm/hooks/useEffectOnce.js"
+      "types": "./dist/hooks/useEffectOnce.d.ts",
+      "require": "./dist/hooks/useEffectOnce.js",
+      "import": "./dist/hooks/useEffectOnce.mjs"
     },
     "./hooks/usePrevious": {
-      "types": "./dist/types/hooks/usePrevious.d.ts",
-      "require": "./dist/cjs/hooks/usePrevious.js",
-      "import": "./dist/esm/hooks/usePrevious.js"
+      "types": "./dist/hooks/usePrevious.d.ts",
+      "require": "./dist/hooks/usePrevious.js",
+      "import": "./dist/hooks/usePrevious.mjs"
     }
   },
   "publishConfig": {
@@ -134,23 +142,13 @@
   },
   "devDependencies": {
     "@apollo/client": "^3.11.8",
-    "@babel/preset-react": "^7.24.7",
     "@open-condo/tsconfig": "workspace:^",
-    "@rollup/plugin-babel": "^6.0.4",
-    "@rollup/plugin-commonjs": "^26.0.1",
-    "@rollup/plugin-node-resolve": "^15.2.3",
-    "@rollup/plugin-typescript": "^11.1.6",
     "@types/react": "^16.14.61",
     "analytics": "^0.8.16",
-    "babel-core": "^6.26.3",
-    "babel-loader": "^9.1.3",
     "graphql": "^16.8.1",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
-    "rimraf": "^6.0.1",
-    "rollup": "^4.28.0",
-    "rollup-plugin-peer-deps-external": "^2.2.4",
-    "rollup-plugin-uglify": "^6.0.4",
+    "tsup": "^8.4.0",
     "typescript": "^5.5.4"
   },
   "dependencies": {
