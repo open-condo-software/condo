@@ -22,6 +22,7 @@ const {
     expectToThrowGraphQLRequestError, waitFor,
     expectToThrowAccessDeniedToFieldError,
     expectToThrowAccessDeniedToManageFieldError,
+    expectToThrowAccessDeniedErrorToObjects,
 } = require('@open-condo/keystone/test.utils')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
@@ -516,9 +517,9 @@ describe('Invoice', () => {
 
                     await createTestInvoice(adminClient, organization)
 
-                    const invoices = await Invoice.getAll(serviceClient, {})
-
-                    expect(invoices).toHaveLength(0)
+                    await expectToThrowAccessDeniedErrorToObjects(async () => {
+                        await Invoice.getAll(serviceClient, {})
+                    })
                 })
             })
         })
@@ -2651,16 +2652,6 @@ describe('Invoice', () => {
 
                 test('resident', async () => {
                     await testFunc(residentClient, { throwErrorOnRead: false })
-                })
-
-                test('service client without rights', async () => {
-                    const serviceClient = await makeClientWithServiceUser()
-                    const [app] = await createTestB2BApp(adminClient)
-                    await createTestB2BAppContext(supportClient, app, dummyOrganization, { status: 'Finished' })
-                    const [accessRightSet] = await createTestB2BAppAccessRightSet(supportClient, app)
-                    await createTestB2BAppAccessRight(supportClient, serviceClient.user, app, accessRightSet)
-
-                    await testFunc(serviceClient, { throwErrorOnRead: false })
                 })
             })
         })

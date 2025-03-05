@@ -7,6 +7,8 @@ const Big = require('big.js')
 const dayjs = require('dayjs')
 const { pick } = require('lodash')
 
+const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
+const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
 const {
     makeClient,
     makeLoggedInAdminClient,
@@ -389,9 +391,19 @@ describe('Payment', () => {
                         const integrationClient = await makeClientWithServiceUser()
                         await createTestAcquiringIntegrationAccessRight(admin, acquiringIntegration, integrationClient.user)
 
-                        const payload = { status: PAYMENT_ERROR_STATUS }
+                        const payload = {
+                            status: PAYMENT_ERROR_STATUS,
+                            dv: 1,
+                            sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                        }
 
-                        const [updatedPayment] = await updateTestPayment(integrationClient, payment.id, payload)
+                        // Integration client can't read the `invoice` field
+                        // So, create a field set without invoice
+                        const CustomPaymentTestUtils = generateGQLTestUtils(generateGqlQueries(
+                            'Payment',
+                            '{ id organization { id } context { id integration { id } } frozenInvoice frozenReceipt status dv sender { dv fingerprint } }'
+                        ))
+                        const updatedPayment = await CustomPaymentTestUtils.update(integrationClient, payment.id, payload)
 
                         expect(updatedPayment).toBeDefined()
                         expect(updatedPayment).toEqual(expect.objectContaining(payload))
