@@ -92450,6 +92450,18 @@ type Mutation {
     "type": "UNAVAILABLE_TOKEN_FOR_REGISTRATION",
     "message": "It is not possible to register a user with the type ? using ?"
   }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "PHONE_ALREADY_REGISTERED_ERROR",
+    "message": "Phone already registered"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "EMAIL_ALREADY_REGISTERED_ERROR",
+    "message": "Email already registered"
+  }`
   """
   authenticateOrRegisterUserWithToken(data: AuthenticateOrRegisterUserWithTokenInput!): AuthenticateOrRegisterUserWithTokenOutput
 
@@ -93024,6 +93036,10 @@ type Mutation {
   		"serverUrl": {
   			"defaultValue": "",
   			"required": false
+  		},
+  		"isRegistration": {
+  			"defaultValue": false,
+  			"required": false
   		}
   	},
   	"DIRTY_INVITE_NEW_EMPLOYEE_EMAIL": {
@@ -93038,6 +93054,10 @@ type Mutation {
   		"serverUrl": {
   			"defaultValue": "",
   			"required": false
+  		},
+  		"isRegistration": {
+  			"defaultValue": false,
+  			"required": false
   		}
   	},
   	"REGISTER_NEW_USER": {
@@ -93046,10 +93066,6 @@ type Mutation {
   			"required": true
   		},
   		"userPhone": {
-  			"defaultValue": "",
-  			"required": false
-  		},
-  		"userPassword": {
   			"defaultValue": "",
   			"required": false
   		}
