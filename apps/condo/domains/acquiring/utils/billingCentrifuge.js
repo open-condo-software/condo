@@ -124,13 +124,13 @@ function split (paymentAmount, distribution, options = {}) {
             throw new Error('The victim of rounding (vor) must have overpaymentPart value')
         }
 
-        const noopForGroupAmount = g.reduce((res, d) => {
+        const alreadyAppliedForGroupAmount = g.reduce((res, d) => {
             const key = createRecipientKey(d.recipient)
             return res
                 .plus(get(appliedAmounts, key, Big(0)))
                 .plus(get(appliedFeeAmounts, key, Big(0)))
         }, Big(0))
-        let needToSplitToGroupAmount = g.reduce((res, d) => res.plus(Big(d.amount)), Big(0)).minus(noopForGroupAmount)
+        let needToSplitToGroupAmount = g.reduce((res, d) => res.plus(Big(d.amount)), Big(0)).minus(alreadyAppliedForGroupAmount)
 
         if (needToSplitToGroupAmount.lte(0)) {
             needToSplitToGroupAmount = Big(0)
@@ -261,14 +261,14 @@ function split (paymentAmount, distribution, options = {}) {
         const sortedSplitsWithFeePayerIndexes = splitsWithFeePayerIndexes.sort((a, b) => distributionsByKey[createRecipientKey(splits[a].recipient)].vor ? 1 : -1)
 
         if (sortedSplitsWithFeePayerIndexes.length > 0) {
-            for (const i of sortedSplitsWithFeePayerIndexes) {
+            for (const [index, i] of sortedSplitsWithFeePayerIndexes.entries()) {
                 const recipientKey = createRecipientKey(splits[i].recipient)
                 const d = distributionsByKey[recipientKey]
                 if (!d.isFeePayer) {
                     continue
                 }
 
-                const isLast = i + 1 >= splits.length
+                const isLast = index + 1 >= sortedSplitsWithFeePayerIndexes.length
                 const feeShare = isLast ? restUndistributedFeeAmount : Big(splits[i].amount).div(feePayersTotalSharesAmount).times(totalFeeAmount)
                 const roundedFeeShare = feeShare.round(decimalPlaces, Big.roundHalfUp)
                 restUndistributedFeeAmount = isLast ? Big(0) : restUndistributedFeeAmount.minus(roundedFeeShare)
