@@ -1,0 +1,14 @@
+query getAllMiniApps($data: AllMiniAppsInput!) {
+    allMiniApps: allMiniApps(data: $data) {
+        id
+        name
+        shortDescription
+        connected
+        accessible
+        category
+        logo
+        label
+        icon
+        menuCategory
+    }
+}

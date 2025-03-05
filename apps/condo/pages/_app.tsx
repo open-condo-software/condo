@@ -1,7 +1,7 @@
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 import {
     AuthenticatedUserDocument,
-    GetActiveOrganizationEmployeeDocument,
+    GetActiveOrganizationEmployeeDocument, useGetBillingIntegrationOrganizationContextsQuery,
     useGetProcessingTasksQuery,
 } from '@app/condo/gql'
 import { CacheProvider } from '@emotion/core'
@@ -11,7 +11,6 @@ import esES from 'antd/lib/locale/es_ES'
 import ruRU from 'antd/lib/locale/ru_RU'
 import dayjs from 'dayjs'
 import { cache } from 'emotion'
-import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import { NextPage, NextPageContext } from 'next'
 import App, { AppContext } from 'next/app'
@@ -20,6 +19,7 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { Fragment, useMemo } from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useFeatureFlags, FeaturesReady, withFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import * as AllIcons from '@open-condo/icons'
@@ -32,7 +32,6 @@ import { useOrganization, withOrganization } from '@open-condo/next/organization
 
 import { useBankReportTaskUIInterface } from '@condo/domains/banking/hooks/useBankReportTaskUIInterface'
 import { useBankSyncTaskUIInterface } from '@condo/domains/banking/hooks/useBankSyncTaskUIInterface'
-import { BillingIntegrationOrganizationContext as BillingContext } from '@condo/domains/billing/utils/clientSchema'
 import BaseLayout, { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
@@ -149,35 +148,44 @@ const MenuItems: React.FC = () => {
     const { updateContext, useFlag } = useFeatureFlags()
     const isSPPOrg = useFlag(SERVICE_PROVIDER_PROFILE)
     const isMarketplaceEnabled = useFlag(MARKETPLACE)
+    const { persistor } = useCachePersistor()
 
     const { isAuthenticated, isLoading } = useAuth()
-    const { link, organization } = useOrganization()
+    const { employee, organization } = useOrganization()
     const { isExpired } = useServiceSubscriptionContext()
     const hasSubscriptionFeature = hasFeature('subscription')
-    const disabled = !link || (hasSubscriptionFeature && isExpired)
+    const disabled = !employee || (hasSubscriptionFeature && isExpired)
     const { isCollapsed } = useLayoutContext()
     const { wrapElementIntoNoOrganizationToolTip } = useNoOrganizationToolTip()
-    const role = get(link, 'role', {})
-    const orgId = get(organization, 'id', null)
-    const orgFeatures = get(organization, 'features', [])
-    const sppBillingId = get(sppConfig, 'BillingIntegrationId', null)
-    const { obj: billingCtx } = BillingContext.useObject({ where: { integration: { id: sppBillingId }, organization: { id: orgId } } }, { skip: !isAuthenticated || isLoading })
-    const anyReceiptsLoaded = Boolean(get(billingCtx, 'lastReport', null))
-    const hasAccessToBilling = get(role, 'canReadPayments', false) || get(role, 'canReadBillingReceipts', false)
-    const isManagingCompany = get(organization, 'type', MANAGING_COMPANY_TYPE) === MANAGING_COMPANY_TYPE
-    const isNoServiceProviderOrganization = get(organization, 'type', MANAGING_COMPANY_TYPE) !== SERVICE_PROVIDER_TYPE
-    const hasAccessToTickets = get(role, 'canReadTickets', false)
-    const hasAccessToIncidents = get(role, 'canReadIncidents', false)
-    const hasAccessToEmployees = get(role, 'canReadEmployees', false)
-    const hasAccessToProperties = get(role, 'canReadProperties', false)
-    const hasAccessToContacts = get(role, 'canReadContacts', false)
-    const hasAccessToAnalytics = get(role, 'canReadAnalytics')
-    const hasAccessToMeters = get(role, 'canReadMeters', false)
-    const hasAccessToServices = get(role, 'canReadServices', false)
-    const hasAccessToSettings = get(role, 'canReadSettings', false)
-    const hasAccessToMarketplace = get(role, 'canReadMarketItems', false) ||
-        get(role, 'canReadInvoices', false) || get(role, 'canReadPaymentsWithInvoices', false)
-    const hasAccessToTour = get(role, 'canReadTour', false)
+    const role = employee.role || null
+    const orgId = organization?.id || null
+    const orgFeatures = organization?.features || []
+    const sppBillingId = sppConfig?.BillingIntegrationId || null
+    const {
+        data,
+    } = useGetBillingIntegrationOrganizationContextsQuery({
+        variables: {
+            integration: { id: sppBillingId },
+            organization: { id: orgId },
+        },
+        skip: !isAuthenticated || isLoading || !orgId || sppBillingId || !persistor,
+    })
+    const billingCtx = useMemo(() => data?.contexts?.filter(Boolean)[0] || null, [data?.contexts])
+    const anyReceiptsLoaded = Boolean(billingCtx?.lastReport || null)
+    const hasAccessToBilling = role?.canReadPayments || role?.canReadBillingReceipts || false
+    const isManagingCompany = (organization?.type || MANAGING_COMPANY_TYPE) === MANAGING_COMPANY_TYPE
+    const isNoServiceProviderOrganization = (organization?.type || MANAGING_COMPANY_TYPE) !== SERVICE_PROVIDER_TYPE
+    const hasAccessToTickets = role?.canReadTickets || false
+    const hasAccessToIncidents = role?.canReadIncidents || false
+    const hasAccessToEmployees = role?.canReadEmployees || false
+    const hasAccessToProperties = role?.canReadProperties || false
+    const hasAccessToContacts = role?.canReadContacts || false
+    const hasAccessToAnalytics = role?.canReadAnalytics
+    const hasAccessToMeters = role?.canReadMeters || false
+    const hasAccessToServices = role?.canReadServices || false
+    const hasAccessToSettings = role?.canReadSettings || false
+    const hasAccessToMarketplace = role?.canReadMarketItems || role?.canReadInvoices || role?.canReadPaymentsWithInvoices || false
+    const hasAccessToTour = role?.canReadTour || false
 
     const { canRead: hasAccessToNewsItems } = useNewsItemsAccess()
 
@@ -366,7 +374,7 @@ const MenuItems: React.FC = () => {
                             excludePaths={item.excludePaths}
                         />
                     ))}
-                    {get(appsByCategories, category.key, []).map((app) => {
+                    {(appsByCategories?.[category.key] || []).map((app) => {
                         // not a ReDoS issue: running on end user browser
                         // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
                         const miniAppsPattern = new RegExp(`/miniapps/${app.id}/.+`)
@@ -374,7 +382,7 @@ const MenuItems: React.FC = () => {
                             id={`menu-item-app-${app.id}`}
                             key={`menu-item-app-${app.id}`}
                             path={`/miniapps/${app.id}`}
-                            icon={get(AllIcons, app.icon, AllIcons['QuestionCircle'])}
+                            icon={AllIcons?.[app.icon] || AllIcons['QuestionCircle']}
                             label={app.name}
                             labelRaw
                             disabled={disabled}
@@ -391,6 +399,8 @@ const MenuItems: React.FC = () => {
 
 const TasksProvider = ({ children }) => {
     const { user, isLoading } = useAuth()
+    const { persistor } = useCachePersistor()
+
     // Use UI interfaces for all tasks, that are supposed to be tracked
     const { TicketDocumentGenerationTask: TicketDocumentGenerationTaskUIInterface } = useTicketDocumentGenerationTaskUIInterface()
     const { TicketExportTask: TicketExportTaskUIInterface } = useTicketExportTaskUIInterface()
@@ -407,7 +417,7 @@ const TasksProvider = ({ children }) => {
     // Load all tasks with 'processing' status
     const { data, loading: isProcessingTasksLoading } = useGetProcessingTasksQuery({
         variables: { userId: user?.id || null, createdAtGte: dayjs().startOf('day').toISOString() },
-        skip: !user?.id || isLoading,
+        skip: !user?.id || isLoading || !persistor,
     })
 
     const { records: miniAppTasks, loading: isMiniAppTasksLoading } = MiniAppTaskUIInterface.storage.useTasks(

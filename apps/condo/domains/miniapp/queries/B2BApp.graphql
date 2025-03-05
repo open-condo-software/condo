@@ -1,0 +1,12 @@
+query getGlobalB2BApps {
+    b2bApps: allB2BApps (
+        where: {
+            isGlobal: true,
+            isHidden: false,
+        },
+    ) {
+        id
+        appUrl
+        features
+    }
+}
