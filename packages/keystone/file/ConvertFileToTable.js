@@ -1,7 +1,7 @@
 const jschardet = require('jschardet')
 
+const { clearString, encode, detectEncoding, convertEncoding, ROWS_COUNT_LIMIT_EXCEEDED } = require('./constants')
 const { DBFParser, CSVParser, ExcelParser } = require('./file-types')
-const { clearString, encode, detectEncoding, convertEncoding, ROWS_COUNT_LIMIT_EXCEEDED } = require('./utils')
 
 const TYPES = {
     DBF: 'DBF',

@@ -11,8 +11,6 @@ const FORCE_ENCODING_CHANGE = {
     'KOI8-R': 'WINDOWS-1251', // TODO: Find why KOI8 detected on WINDOWS-1251
     'ISO-8859-2': 'WINDOWS-1251',
 }
-const ROWS_COUNT_LIMIT = 100_000
-const ROWS_COUNT_LIMIT_EXCEEDED = 'Rows count limit exceeded'
 
 const detectEncoding = (buffer) => {
     const { encoding: detectedEncoding } = jschardet.detect(buffer)
@@ -135,6 +133,4 @@ module.exports = {
     detectEncoding,
     encode,
     convertEncoding,
-    ROWS_COUNT_LIMIT,
-    ROWS_COUNT_LIMIT_EXCEEDED,
 }

@@ -4,7 +4,7 @@ const Upload = require('graphql-upload/Upload.js')
 const { get, isEmpty } = require('lodash')
 
 const { ConvertFileToTable, getObjectStream, readFileFromStream } = require('@open-condo/keystone/file')
-const { ROWS_COUNT_LIMIT, ROWS_COUNT_LIMIT_EXCEEDED } = require('@open-condo/keystone/file/utils')
+const { ROWS_COUNT_LIMIT, ROWS_COUNT_LIMIT_EXCEEDED } = require('@open-condo/keystone/file/constants')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { i18n } = require('@open-condo/locales/loader')
