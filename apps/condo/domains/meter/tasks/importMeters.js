@@ -118,7 +118,7 @@ async function importMeters (taskId, rowsLimit = ROWS_COUNT_LIMIT) {
         })
 
         // read table && fill total
-        const data = await converter.getData(locale)
+        const data = await converter.getData()
 
         // create importer
         const importer = await getImporter(context, taskId, organization.id, user.id, format, locale, isPropertyMeters)
