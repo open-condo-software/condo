@@ -38,13 +38,21 @@ const INITIAL_VALUES = { smsCode: '' }
 export const ValidatePhoneForm: React.FC<ValidatePhoneFormProps> = ({ onFinish, onReset, title }) => {
     const intl = useIntl()
     const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
-    const ResendSmsLabel = intl.formatMessage({ id: 'pages.auth.register.ResendSmsLabel' })
-    const SMSAvailableLabel = intl.formatMessage({ id: 'pages.auth.register.CodeIsAvailable' })
-    const SMSCodeMismatchError = intl.formatMessage({ id: 'pages.auth.register.SMSCodeMismatchError' })
+    const ResendSmsLabel = intl.formatMessage({ id: 'pages.auth.validatePhoneForm.resendSms' })
+    const codeAvailableLabel = intl.formatMessage({ id: 'pages.auth.validatePhoneForm.codeIsAvailable' })
+    const smsCodeMismatchError = intl.formatMessage({ id: 'pages.auth.validatePhoneForm.smsCodeMismatchError' })
+    const smsNotDeliveredMessage = intl.formatMessage({ id: 'pages.auth.validatePhoneForm.smsNotDelivered' })
+    const problemsModalTitle = intl.formatMessage({ id: 'pages.auth.validatePhoneForm.problemsModal.title' })
+    const checkPhoneLabel = intl.formatMessage({ id: 'pages.auth.validatePhoneForm.problemsModal.checkPhone' })
+    const instructionStepCheckPhone = intl.formatMessage({ id: 'pages.auth.validatePhoneForm.problemsModal.instruction.steps.checkPhone' })
+    const instructionStepSupportTelegramChat = intl.formatMessage({ id: 'pages.auth.validatePhoneForm.problemsModal.instruction.steps.supportTelegramChat' })
+    const instructionStepOne = intl.formatMessage({ id: 'pages.auth.validatePhoneForm.problemsModal.instruction.steps.1' }, { step: instructionStepCheckPhone })
+    const instructionStepTwo = intl.formatMessage({ id: 'pages.auth.validatePhoneForm.problemsModal.instruction.steps.2' }, { step: instructionStepSupportTelegramChat })
+
+    const { token, phone } = useRegisterContext()
+    const SmsCodeSentMessage = intl.formatMessage({ id: 'pages.auth.validatePhoneForm.description.smsCodeSent' }, { phone: formatPhone(phone) })
 
     const { executeCaptcha } = useHCaptcha()
-    const { token, phone } = useRegisterContext()
-    const SmsCodeSentMessage = intl.formatMessage({ id: 'pages.auth.register.info.SmsCodeSent' }, { phone: formatPhone(phone) })
 
     const [form] = Form.useForm()
 
@@ -111,12 +119,12 @@ export const ValidatePhoneForm: React.FC<ValidatePhoneFormProps> = ({ onFinish, 
             return
         }
         if (smsCode.length > SMS_CODE_LENGTH) {
-            return setPhoneValidateError(SMSCodeMismatchError)
+            return setPhoneValidateError(smsCodeMismatchError)
         }
 
         const smsCodeAsNumber = Number(smsCode)
         if (Number.isNaN(smsCodeAsNumber)) {
-            return setPhoneValidateError(SMSCodeMismatchError)
+            return setPhoneValidateError(smsCodeMismatchError)
         }
 
         try {
@@ -143,7 +151,7 @@ export const ValidatePhoneForm: React.FC<ValidatePhoneFormProps> = ({ onFinish, 
             console.error('Phone verification error')
             console.error(error)
         }
-    }, [SMSCodeMismatchError, completeConfirmPhoneMutation, form, executeCaptcha, onFinish, token])
+    }, [smsCodeMismatchError, completeConfirmPhoneMutation, form, executeCaptcha, onFinish, token])
 
     return (
         <>
@@ -202,7 +210,7 @@ export const ValidatePhoneForm: React.FC<ValidatePhoneFormProps> = ({ onFinish, 
                                                     ? (
                                                         <Space direction='horizontal' size={8}>
                                                             <Typography.Text disabled>
-                                                                {SMSAvailableLabel}
+                                                                {codeAvailableLabel}
                                                             </Typography.Text>
                                                             <Typography.Text disabled>
                                                                 {`${new Date(countdown * 1000).toISOString().substr(14, 5)}`}
@@ -219,7 +227,7 @@ export const ValidatePhoneForm: React.FC<ValidatePhoneFormProps> = ({ onFinish, 
                                     </CountDownTimer>
 
                                     <Typography.Link onClick={() => setIsOpenProblemsModal(true)}>
-                                        Не приходит СМС с кодом
+                                        {smsNotDeliveredMessage}
                                     </Typography.Link>
                                 </Space>
                             </Col>
@@ -230,12 +238,12 @@ export const ValidatePhoneForm: React.FC<ValidatePhoneFormProps> = ({ onFinish, 
 
             <Modal
                 open={isOpenProblemsModal}
-                title='Почему не приходит смс?'
+                title={problemsModalTitle}
                 width='small'
                 onCancel={() => setIsOpenProblemsModal(false)}
                 footer={
                     <Button type='primary' onClick={() => setIsOpenProblemsModal(false)}>
-                        Проверить номер
+                        {checkPhoneLabel}
                     </Button>
                 }
             >
@@ -244,10 +252,10 @@ export const ValidatePhoneForm: React.FC<ValidatePhoneFormProps> = ({ onFinish, 
                     size={0}
                 >
                     <Typography.Text type='secondary'>
-                        1. Проверьте, нет ли ошибки в номере телефона.
+                        {instructionStepOne}
                     </Typography.Text>
                     <Typography.Text type='secondary'>
-                        2. Если все верно, напишите в чат поддержки в Telegram — поможем.
+                        {instructionStepTwo}
                     </Typography.Text>
                 </Space>
             </Modal>

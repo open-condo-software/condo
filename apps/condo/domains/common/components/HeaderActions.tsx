@@ -14,8 +14,8 @@ type TabsAuthActionsProps = {
 export const TabsAuthAction: React.FC<TabsAuthActionsProps> = (props) => {
     const { currentActiveKey } = props
     const intl = useIntl()
-    const registerTab = intl.formatMessage({ id: 'pages.auth.RegistrationTitle' })
-    const signInTab = intl.formatMessage({ id: 'pages.auth.SignInTitle' })
+    const registerTab = intl.formatMessage({ id: 'pages.auth.register.step.inputPhone.title' })
+    const signInTab = intl.formatMessage({ id: 'pages.auth.signin.title' })
 
     const router = useRouter()
     const { query: { next }  } = router

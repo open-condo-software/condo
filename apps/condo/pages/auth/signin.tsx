@@ -17,7 +17,7 @@ import { AUTH_FLOW_USER_TYPE_COOKIE_NAME } from '@condo/domains/user/constants/a
 
 const SignInPage: PageComponentType = () => {
     const intl = useIntl()
-    const SignInTitleMsg = intl.formatMessage({ id: 'pages.auth.SignInTitle' })
+    const SignInTitleMsg = intl.formatMessage({ id: 'pages.auth.signin.title' })
 
     useEffectOnce(() => {
         setCookie(AUTH_FLOW_USER_TYPE_COOKIE_NAME, 'staff', { maxAge: COOKIE_MAX_AGE_IN_SEC })
