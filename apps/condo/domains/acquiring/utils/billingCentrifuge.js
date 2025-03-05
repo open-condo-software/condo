@@ -145,8 +145,7 @@ function split (paymentAmount, distribution, options = {}) {
          */
         const sortedGroup = g.sort((a, b) => a.vor ? 1 : -1)
 
-        for (let i = 0; i < sortedGroup.length; i++) {
-            const d = sortedGroup[i]
+        for (const d of sortedGroup) {
             const recipientKey = createRecipientKey(d.recipient)
             // The rest needed amount for particular recipient
             let distributionAmount = Big(d.amount)
@@ -169,21 +168,20 @@ function split (paymentAmount, distribution, options = {}) {
                     recipient: d.recipient,
                     amount: roundedShare.toString(),
                 }
-            } else {
+            } else if (d.vor) {
                 // `hasEnoughAmountForGroup=false` means that this is the last group of recipients to split amount for
                 // Also, this means that VOR-item gets rounding result (the rest undistributed amount)
-                if (d.vor) {
-                    // if this is the last recipient within sorted group (vor=true)
-                    split = {
-                        recipient: d.recipient,
-                        amount: roundedShare.plus(restUndistributedAmount).toString(),
-                    }
-                    restUndistributedAmount = Big(0)
-                } else {
-                    split = {
-                        recipient: d.recipient,
-                        amount: roundedShare.toString(),
-                    }
+
+                // if this is the last recipient within sorted group (vor=true)
+                split = {
+                    recipient: d.recipient,
+                    amount: roundedShare.plus(restUndistributedAmount).toString(),
+                }
+                restUndistributedAmount = Big(0)
+            } else {
+                split = {
+                    recipient: d.recipient,
+                    amount: roundedShare.toString(),
                 }
             }
 
@@ -211,8 +209,8 @@ function split (paymentAmount, distribution, options = {}) {
         const totalOverpaymentAmount = Big(restUndistributedOverpaymentAmount)
 
         let totalOverpaymentReceiversParts = 0
-        for (let i = 0; i < distribution.length; i++) {
-            const key = createRecipientKey(distribution[i].recipient)
+        for (const d of distribution) {
+            const key = createRecipientKey(d.recipient)
             if (distributionsByKey[key].overpaymentPart) {
                 totalOverpaymentReceiversParts += distributionsByKey[key].overpaymentPart
             }
@@ -263,8 +261,7 @@ function split (paymentAmount, distribution, options = {}) {
         const sortedSplitsWithFeePayerIndexes = splitsWithFeePayerIndexes.sort((a, b) => distributionsByKey[createRecipientKey(splits[a].recipient)].vor ? 1 : -1)
 
         if (sortedSplitsWithFeePayerIndexes.length > 0) {
-            for (let j = 0; j < sortedSplitsWithFeePayerIndexes.length; j++) {
-                const i = sortedSplitsWithFeePayerIndexes[j]
+            for (const i of sortedSplitsWithFeePayerIndexes) {
                 const recipientKey = createRecipientKey(splits[i].recipient)
                 const d = distributionsByKey[recipientKey]
                 if (!d.isFeePayer) {
