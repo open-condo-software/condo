@@ -19,6 +19,7 @@ const {
 } = require('@condo/domains/notification/constants/constants')
 const { renderTemplate } = require('@condo/domains/notification/templates')
 const { RemoteClient } = require('@condo/domains/notification/utils/serverSchema')
+const { getPreferPushTypeByMessageType } = require('@condo/domains/notification/utils/serverSchema/helpers')
 
 const logger = getLogger('messaging/sendNotification')
 
@@ -141,6 +142,17 @@ async function send ({ notification, data, user, remoteClient } = {}, isVoIP = f
     const userId = get(user, 'id')
     const remoteClientId = get(remoteClient, 'id')
     const { tokensByTransport, pushTypes, appIds, count } = await getTokens(userId, remoteClientId, isVoIP)
+
+
+    // NOTE: For some message types with push transport, you need to override the push type for all push tokens.
+    // If the message has a preferred push type, it takes priority over the value from the remote client.
+    const preferPushTypeForMessage = getPreferPushTypeByMessageType(data?.type)
+    if (preferPushTypeForMessage) {
+        Object.keys(pushTypes).forEach((pushToken) => {
+            pushTypes[pushToken] = preferPushTypeForMessage
+        })
+    }
+
 
     let container = {}
     let _isOk = false
