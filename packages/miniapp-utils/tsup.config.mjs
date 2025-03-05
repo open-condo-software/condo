@@ -21,6 +21,8 @@ function getInputFileFromExports (exportsPath) {
 }
 
 export default defineConfig({
+    // Controlled traversal
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
     entry: Object.keys(pkg.exports).map(entry => getInputFileFromExports(path.join('src', entry))),
     clean: true,
     dts: true,

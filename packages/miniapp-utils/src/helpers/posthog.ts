@@ -4,7 +4,7 @@ type Rewrite = {
 }
 
 const POSTHOG_CLOUD_HOST_BASE = 'i.posthog.com'
-const POSTHOG_CLOUD_HOST_MATCHER = new RegExp(`^(\\w+)\\.${POSTHOG_CLOUD_HOST_BASE.replaceAll('.', '\.')}$`)
+const POSTHOG_CLOUD_HOST_MATCHER = new RegExp(`^(\\w+)\\.${POSTHOG_CLOUD_HOST_BASE.replaceAll('.', '\\.')}$`)
 
 /**
  * Generates Next.js rewrites based on PostHog domain,

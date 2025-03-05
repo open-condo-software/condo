@@ -184,7 +184,7 @@ jobs:
           yarn workspaces focus root
       - name: Check JS code-style rules
         run: |
-          yarn lint:code
+          yarn lint:code --quiet
       - name: Check styling rules
         run: |
           yarn lint:styles
