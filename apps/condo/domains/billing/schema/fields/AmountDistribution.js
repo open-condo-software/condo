@@ -140,24 +140,13 @@ const feeDistributionsJsonSchema = {
 const jsonValidator = ajv.compile(feeDistributionsJsonSchema)
 const gqlValidator = getGQLErrorValidator(jsonValidator, WRONG_AMOUNT_DISTRIBUTION_ERROR_TYPE)
 
-const canReadField = async (args) => {
+const canReadOrManageField = async (args) => {
     const { authentication: { item: user } } = args
 
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
 
     // We allow read field for service user
-    // Because this user already checked for access
-    return user.type === SERVICE
-}
-
-const canManageField = async (args) => {
-    const { authentication: { item: user } } = args
-
-    if (user.deletedAt) return false
-    if (user.isAdmin || user.isSupport) return true
-
-    // We allow manage field for service user
     // Because this user already checked for access
     return user.type === SERVICE
 }
@@ -171,9 +160,9 @@ const AMOUNT_DISTRIBUTION_FIELD = {
     graphQLReturnType: AMOUNT_DISTRIBUTION_SCHEMA_FIELD,
     graphQLAdminFragment: `{ ${AMOUNT_DISTRIBUTION_QUERY_LIST} }`,
     access: {
-        create: canManageField,
-        read: canReadField,
-        update: canManageField,
+        create: canReadOrManageField,
+        read: canReadOrManageField,
+        update: canReadOrManageField,
     },
     hooks: {
         validateInput: async (attrs) => {
