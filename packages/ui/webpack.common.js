@@ -17,6 +17,7 @@ module.exports = {
         'index': './src/index.ts',
         'colors/index': './src/colors/index.ts',
         'hooks': './src/hooks.ts',
+        'events': './src/events.ts',
     },
     output: {
         filename: '[name].js',
