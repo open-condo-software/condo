@@ -40,24 +40,21 @@ const AMOUNT_DISTRIBUTION_SCHEMA_FIELD = `[${AMOUNT_DISTRIBUTION_FIELD_NAME}!]`
 const AMOUNT_DISTRIBUTION_SCHEMA_INPUT = `[${AMOUNT_DISTRIBUTION_INPUT_NAME}!]`
 
 const ERRORS = {
-    NO_APPROVED_BANK_ACCOUNT: (notApprovedRecipients) => ({
+    NO_APPROVED_BANK_ACCOUNT: {
         code: BAD_USER_INPUT,
         type: AMOUNT_DISTRIBUTION_FIELD_NO_APPROVED_BANK_ACCOUNT_ERROR_TYPE,
         message: 'Some recipients not approved. Please connect to support.',
-        messageInterpolation: { notApprovedRecipients },
-    }),
-    SUMS_NOT_MATCH: (toPay, distributionsSum) => ({
+    },
+    SUMS_NOT_MATCH: {
         code: BAD_USER_INPUT,
         type: AMOUNT_DISTRIBUTION_FIELD_SUMS_NOT_MATCH_ERROR_TYPE,
         message: 'Total sum (toPay={toPay}) is not match to sum of distributions ({distributionsSum})',
-        messageInterpolation: { toPay, distributionsSum },
-    }),
-    NO_VOR_IN_GROUP: (order) => ({
+    },
+    NO_VOR_IN_GROUP: {
         code: BAD_USER_INPUT,
         type: AMOUNT_DISTRIBUTION_FIELD_NO_VOR_IN_GROUP_ERROR_TYPE,
         message: 'Group {order} does not contains a SINGLE element with vor=true',
-        messageInterpolation: { order },
-    }),
+    },
     VOR_MUST_BE_FEE_PAYER: {
         code: BAD_USER_INPUT,
         type: AMOUNT_DISTRIBUTION_FIELD_VOR_MUST_BE_FEE_PAYER_ERROR_TYPE,
@@ -195,13 +192,21 @@ const AMOUNT_DISTRIBUTION_FIELD = {
                 return bankAccounts.findIndex((b) => b.tin === r.tin && b.routingNumber === r.bic && b.number === r.bankAccount) < 0
             })
             if (distributionsWithNotApprovedRecipients.length > 0) {
-                throw new GQLError(ERRORS.NO_APPROVED_BANK_ACCOUNT(distributionsWithNotApprovedRecipients.map(({ recipient: r }) => r)), context)
+                throw new GQLError({
+                    ...ERRORS.NO_APPROVED_BANK_ACCOUNT,
+                    messageInterpolation: {
+                        notApprovedRecipients: distributionsWithNotApprovedRecipients.map(({ recipient: r }) => r),
+                    },
+                }, context)
             }
 
             // Check that nextToPay === totalDistributionSum
             const distributionSum = distribution.reduce((sum, d) => sum.plus(d.amount), Big(0))
             if (!Big(nextToPay).eq(distributionSum)) {
-                throw new GQLError(ERRORS.SUMS_NOT_MATCH(nextToPay, distributionSum.toString()), context)
+                throw new GQLError({
+                    ...ERRORS.SUMS_NOT_MATCH,
+                    messageInterpolation: { toPay: nextToPay, distributionsSum: distributionSum.toString() },
+                }, context)
             }
 
             // Each group must have a single vor-item
@@ -216,7 +221,10 @@ const AMOUNT_DISTRIBUTION_FIELD = {
 
             for (const [order, group] of Object.entries(groupedDistributions)) {
                 if (!hasSingleVorItem(group)) {
-                    throw new GQLError(ERRORS.NO_VOR_IN_GROUP(Number(order)), context)
+                    throw new GQLError({
+                        ...ERRORS.NO_VOR_IN_GROUP,
+                        messageInterpolation: { order: Number(order) },
+                    }, context)
                 }
 
                 // vor-item must pay fee and receive overpayments
