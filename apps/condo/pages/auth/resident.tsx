@@ -2,7 +2,6 @@ import { QRCodeCanvas } from '@rc-component/qrcode'
 import { Col, Row } from 'antd'
 import { setCookie } from 'cookies-next'
 import Head from 'next/head'
-import Link from 'next/link'
 import React from 'react'
 
 import { useEffectOnce } from '@open-condo/miniapp-utils'
@@ -20,8 +19,17 @@ import { AUTH_FLOW_USER_TYPE_COOKIE_NAME } from '@condo/domains/user/constants/a
 
 const ResidentAuthPage: PageComponentType = () => {
     const intl = useIntl()
-    const SignInTitleMsg = intl.formatMessage({ id: 'pages.auth.SignInTitle' })
-    // TODO(DOMA-9722): add translations
+    const ResidentAuthTitle = intl.formatMessage({ id: 'pages.auth.resident.title' })
+    const ResidentAuthDescription = intl.formatMessage({ id: 'pages.auth.resident.description' })
+    const LinkDativeMessage = intl.formatMessage({ id: 'pages.auth.resident.qrCode.info.link.dative' })
+    const QRCodeInfoMessage = intl.formatMessage({ id: 'pages.auth.resident.qrCode.info' }, {
+        link: (
+            <Typography.Link href='https://help.doma.ai/article/171-doma' target='_blank'>
+                {LinkDativeMessage}
+            </Typography.Link>
+        ),
+    })
+    // TODO(DOMA-9722): REMOVE HARDCODE
 
     useEffectOnce(() => {
         setCookie(AUTH_FLOW_USER_TYPE_COOKIE_NAME, 'resident', { maxAge: COOKIE_MAX_AGE_IN_SEC })
@@ -29,7 +37,7 @@ const ResidentAuthPage: PageComponentType = () => {
 
     return (
         <>
-            <Head><title>{SignInTitleMsg}</title></Head>
+            <Head><title>{ResidentAuthTitle}</title></Head>
 
             <Row justify='center'>
                 <ResponsiveCol desktopWidth='422px' span={24}>
@@ -38,12 +46,12 @@ const ResidentAuthPage: PageComponentType = () => {
                             <Row gutter={[0, 24]}>
                                 <Col span={24}>
                                     <Typography.Title level={2}>
-                                        Мобильное приложение жителя
+                                        {ResidentAuthTitle}
                                     </Typography.Title>
                                 </Col>
                                 <Col span={24}>
                                     <Typography.Text>
-                                        Оплачивайте квитанции, сдавайте показания счетчиков и&nbsp;отправляйте заявки в управляющую организацию
+                                        {ResidentAuthDescription}
                                     </Typography.Text>
                                 </Col>
                             </Row>
@@ -66,7 +74,7 @@ const ResidentAuthPage: PageComponentType = () => {
                                 <Col span={24}>
                                     <InfoBlock>
                                         <Typography.Text size='medium'>
-                                            Наведите камеру вашего телефона на QR-код или скачайте приложение по <Link href='#'>ссылке</Link>
+                                            {QRCodeInfoMessage}
                                         </Typography.Text>
                                     </InfoBlock>
                                 </Col>

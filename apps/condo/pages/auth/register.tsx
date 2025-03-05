@@ -24,7 +24,9 @@ import { AUTH_FLOW_USER_TYPE_COOKIE_NAME } from '@condo/domains/user/constants/a
 
 const RegisterPage: PageComponentType = () => {
     const intl = useIntl()
-    const RegistrationTitleMsg = intl.formatMessage({ id: 'pages.auth.RegistrationTitle' })
+    const InputPhoneTitle = intl.formatMessage({ id: 'pages.auth.register.step.inputPhone.title' })
+    const ValidatePhoneTitle = intl.formatMessage({ id: 'pages.auth.register.step.validatePhone.title' })
+    const RegisterTitle = intl.formatMessage({ id: 'pages.auth.register.step.register.title' })
     const PhoneConfirmTokenErrorLabel = intl.formatMessage({ id: 'pages.auth.register.PhoneConfirmTokenErrorLabel' })
     const PhoneConfirmTokenErrorMessage = intl.formatMessage({ id: 'pages.auth.register.PhoneConfirmTokenErrorMessage' })
     const RestartPhoneConfirmLabel = intl.formatMessage({ id: 'pages.auth.register.RestartPhoneConfirmLabel' })
@@ -34,6 +36,13 @@ const RegisterPage: PageComponentType = () => {
 
     const { token, isConfirmed, tokenError, setToken, setTokenError } = useRegisterContext()
     const [step, setStep] = useState<'inputPhone' | 'validatePhone' | 'register'>('inputPhone')
+
+    const title = useMemo(() => {
+        if (step === 'inputPhone') return InputPhoneTitle
+        if (step === 'validatePhone') return ValidatePhoneTitle
+        if (step === 'register') return RegisterTitle
+        return ''
+    }, [InputPhoneTitle, RegisterTitle, ValidatePhoneTitle, step])
 
     const handleFinish = useCallback(async () => {
         if (isValidNextUrl) {
@@ -53,7 +62,7 @@ const RegisterPage: PageComponentType = () => {
                 setStep('inputPhone')
                 Router.push('/auth/register')
             }}
-            title={RegistrationTitleMsg}
+            title={ValidatePhoneTitle}
         />,
         register: <RegisterForm
             onFinish={handleFinish}
@@ -62,7 +71,7 @@ const RegisterPage: PageComponentType = () => {
                 Router.push('/auth/register')
             }}
         />,
-    }), [RegistrationTitleMsg, handleFinish])
+    }), [ValidatePhoneTitle, handleFinish])
 
     useEffect(() => {
         if (token && isConfirmed) {
@@ -89,7 +98,7 @@ const RegisterPage: PageComponentType = () => {
     if (tokenError && token) {
         return (
             <>
-                <Head><title>{RegistrationTitleMsg}</title></Head>
+                <Head><title>{title}</title></Head>
                 <BasicEmptyListView>
                     <Row gutter={[0, 24]}>
                         <Col span={24}>
@@ -122,8 +131,7 @@ const RegisterPage: PageComponentType = () => {
 
     return (
         <>
-            {/* TODO(DOMA-9722): Dynamic title */}
-            <Head><title>{RegistrationTitleMsg}</title></Head>
+            <Head><title>{title}</title></Head>
             {steps[step]}
         </>
     )

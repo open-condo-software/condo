@@ -37,6 +37,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
     const EmailMessage = intl.formatMessage({ id: 'pages.auth.register.field.Email' })
     const RegistrationTitle = intl.formatMessage({ id: 'pages.auth.register.step.register.title' })
     const EnterPasswordTitle = intl.formatMessage({ id: 'pages.auth.register.step.register.title.createPassword' })
+    const RegisterFailMessage = intl.formatMessage({ id: 'pages.auth.register.fail' })
 
     const { executeCaptcha } = useHCaptcha()
     const { phone, token } = useRegisterContext()
@@ -201,7 +202,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
                             </Col>
 
                             <Col span={24}>
-                                <Typography.Text>Не удалось завершить регистрацию. Попробуйте еще раз</Typography.Text>
+                                <Typography.Text>{RegisterFailMessage}</Typography.Text>
                             </Col>
                         </Row>
                     </ResponsiveCol>

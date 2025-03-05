@@ -27,11 +27,11 @@ const INITIAL_VALUES = { password: '', phone: '' }
 
 export const SignInForm = (): React.ReactElement => {
     const intl = useIntl()
-    const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
-    const SignInMsg = intl.formatMessage({ id: 'SignIn' })
-    const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
-    const PasswordMsg = intl.formatMessage({ id: 'pages.auth.signin.field.Password' })
-    const PhoneMsg = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
+    const FieldIsRequiredMessage = intl.formatMessage({ id: 'FieldIsRequired' })
+    const SignInMessage = intl.formatMessage({ id: 'SignIn' })
+    const ExamplePhoneMessage = intl.formatMessage({ id: 'example.Phone' })
+    const PasswordMessage = intl.formatMessage({ id: 'pages.auth.signin.field.Password' })
+    const PhoneMessage = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
     const ResetPasswordMessage = intl.formatMessage({ id: 'pages.auth.signin.ResetPasswordLink' })
     const OrMessage = intl.formatMessage({ id: 'Or' })
 
@@ -108,11 +108,11 @@ export const SignInForm = (): React.ReactElement => {
                                 <Col span={24}>
                                     <FormItem
                                         name='phone'
-                                        label={PhoneMsg}
-                                        rules={[{ required: true, message: FieldIsRequiredMsg }]}
+                                        label={PhoneMessage}
+                                        rules={[{ required: true, message: FieldIsRequiredMessage }]}
                                         data-cy='signin-phone-item'
                                     >
-                                        <Input.Phone placeholder={ExamplePhoneMsg} />
+                                        <Input.Phone placeholder={ExamplePhoneMessage} />
                                     </FormItem>
                                 </Col>
                                 <Col span={24}>
@@ -120,8 +120,8 @@ export const SignInForm = (): React.ReactElement => {
                                         <Col span={24}>
                                             <FormItem
                                                 name='password'
-                                                label={PasswordMsg}
-                                                rules={[{ required: true, message: FieldIsRequiredMsg }]}
+                                                label={PasswordMessage}
+                                                rules={[{ required: true, message: FieldIsRequiredMessage }]}
                                                 data-cy='signin-password-item'
                                             >
                                                 <Input.Password tabIndex={2} />
@@ -153,7 +153,7 @@ export const SignInForm = (): React.ReactElement => {
                                         block
                                         data-cy='signin-button'
                                     >
-                                        {SignInMsg}
+                                        {SignInMessage}
                                     </Button>
                                 </Col>
 
