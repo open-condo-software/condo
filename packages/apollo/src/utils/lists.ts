@@ -32,9 +32,10 @@ function hasRef (link: unknown): link is Reference {
     return (
         typeof link === 'object' &&
         link !== null &&
-        Object.prototype.hasOwnProperty.call(link, '__ref') &&
-        typeof (link as any).__ref === 'string'
+        '__ref' in link &&
+        typeof link.__ref === 'string'
     )
+
 }
 
 /**
@@ -47,13 +48,13 @@ function hasRef (link: unknown): link is Reference {
  * @returns True if the list contains any broken references or non-reference items, false if all references are valid
  */
 function hasBrokenLinks (
-    list: unknown[],
+    list: ReadonlyArray<unknown>,
     cache: NormalizedCacheObject,
 ) {
     return list.some((link) => {
-        if (hasRef(link) && typeof cache === 'object' && cache !== null) {
+        if (hasRef(link)) {
             const ref: string = link.__ref
-            return ref !== '' && !(ref in cache)
+            return ref && !(ref in cache)
         }
         return false
     })
@@ -105,7 +106,7 @@ export class ListHelper {
             this.skipCacheOnRead = options.cacheOptions.skipOnRead
         }
 
-        bindAll(this, '_readSlicePage', '_readAllList', '_networkOnlyRead', 'getReadFunction', 'mergeLists')
+        bindAll(this, '_readPage', '_readList', '_networkOnlyRead', 'getReadFunction', 'mergeLists')
     }
 
     /**
@@ -114,7 +115,7 @@ export class ListHelper {
      * Includes validation of data integrity by checking for broken references
      * (references to objects that don't exist in the cache).
      */
-    private _readSlicePage<TData, TOptions extends FieldFunctionOptions>(
+    private _readPage<TData, TOptions extends FieldFunctionOptions>(
         existing: ReadonlyArray<TData> | undefined,
         options: TOptions
     ): Array<TData> | undefined {
@@ -127,13 +128,13 @@ export class ListHelper {
             return undefined
         }
 
-        const sliceList = existing.slice(skip, skip + first).filter(Boolean)
+        const filteredPage = existing.slice(skip, skip + first).filter(Boolean)
 
-        const cache: NormalizedCacheObject | undefined = options?.cache?.extract?.()
+        const cache: NormalizedCacheObject = options.cache.extract()
 
-        if (!cache || hasBrokenLinks(sliceList, cache)) return undefined
+        if (!cache || hasBrokenLinks(filteredPage, cache)) return undefined
 
-        return sliceList
+        return filteredPage
     }
 
     /**
@@ -141,7 +142,7 @@ export class ListHelper {
      * Includes validation of data integrity by checking for broken references
      * (references to objects that don't exist in the cache).
      */
-    private _readAllList<TData, TOptions extends FieldFunctionOptions>(
+    private _readAll<TData, TOptions extends FieldFunctionOptions>(
         existing: ReadonlyArray<TData> | undefined,
         options: TOptions
     ): Array<TData> | undefined {
@@ -149,14 +150,14 @@ export class ListHelper {
             return undefined
         }
 
-        const cache: NormalizedCacheObject | undefined = options?.cache?.extract?.()
+        const cache: NormalizedCacheObject = options.cache.extract()
 
-        const list = existing.filter(Boolean)
-        if (!cache || hasBrokenLinks(list, cache)) {
+        const filteredList = existing.filter(Boolean)
+        if (!cache || hasBrokenLinks(filteredList, cache)) {
             return undefined
         }
 
-        return list
+        return filteredList
     }
 
     /**
@@ -175,11 +176,11 @@ export class ListHelper {
         }
 
         if (clientPagination === 'paginate') {
-            return this._readSlicePage
+            return this._readPage
         }
 
         if (clientPagination === 'showAll') {
-            return this._readAllList
+            return this._readAll
         }
 
         return undefined
