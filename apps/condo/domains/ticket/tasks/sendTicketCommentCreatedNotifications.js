@@ -96,6 +96,7 @@ const sendTicketCommentCreatedNotifications = async (commentId, ticketId) => {
         const OpenTicketMessage = i18n(`notification.messages.${TICKET_COMMENT_CREATED_TYPE}.telegram.openTicket`, { locale: lang })
         const TicketStatusName = i18n(`ticket.status.${ticketStatus.type}.name`, { locale: lang })
         const TicketUnitType = i18n(`field.UnitType.prefix.${ticket.unitType}`, { locale: lang }).toLowerCase()
+        const FilesAttachedMessage = i18n(`notification.messages.${TICKET_COMMENT_CREATED_TYPE}.filesAttached`, { locale: lang })
         const CommentTypeMessage = getCommentTypeMessage(commentType, commentAuthorType, lang)
         const authorType = getCommentAuthorRoleMessage(commentAuthor, lang)
         const ticketClassifier = buildFullClassifierName(classifier)
@@ -120,7 +121,7 @@ const sendTicketCommentCreatedNotifications = async (commentId, ticketId) => {
                         organizationId: organization.id,
                         organizationName: organization.name,
                         commentId,
-                        commentContent: createdComment.content || EMPTY_CONTENT,
+                        commentContent: createdComment.content || FilesAttachedMessage,
                         commentType: createdComment.type,
                         commentTypeMessage: CommentTypeMessage,
                         // TODO(DOMA-9568): use user timezone after adding it
