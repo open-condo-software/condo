@@ -13,6 +13,7 @@ const conf = require('@open-condo/config')
 const {
     setFakeClientMode, makeLoggedInAdminClient,
 } = require('@open-condo/keystone/test.utils')
+const { i18n } = require('@open-condo/locales/loader')
 
 const {
     CSV,
@@ -511,6 +512,45 @@ describe('importMeters', () => {
         await downloadFile(url, filename)
         const errorData = await readXlsx(filename)
         expect(errorData[1][20]).toBe(`ИПУ с таким номером и ресурсом уже есть в организации на лицевом счете ${meter.accountNumber}. Проверьте, пожалуйста, правильность данных.`)
+    })
+
+    test('throws error when file has too many rows', async () => {
+        const locale = 'ru'
+        const adminClient = await makeLoggedInAdminClient()
+        adminClient.setHeaders({ 'Accept-Language': locale })
+        const [o10n] = await createTestOrganization(adminClient)
+        const [property] = await createTestPropertyWithMap(adminClient, o10n)
+
+        const validLines = 5
+        const invalidLines = 0
+        const fatalLines = 0
+        const meterReadingsImportTask = await MeterReadingsImportTask.create(context, {
+            ...dvAndSender,
+            file: await generateExcelFile(validLines, invalidLines, fatalLines, property),
+            user: { connect: { id: adminClient.user.id } },
+            organization: { connect: { id: o10n.id } },
+            locale,
+        })
+
+        const rowsLimit = 2
+        // run import
+        await importMeters(meterReadingsImportTask.id, rowsLimit)
+
+        const TooManyRowsErrorTitle = i18n('TooManyRowsInTable.title', { locale })
+        const TooManyRowsErrorMessage = i18n('TooManyRowsInTable.message', {
+            locale,
+            meta: { value: rowsLimit },
+        })
+        const errorMessage = `${TooManyRowsErrorTitle}. ${TooManyRowsErrorMessage}`
+
+        // assert
+        const task = await MeterReadingsImportTask.getOne(context, { id: meterReadingsImportTask.id }, METER_READINGS_IMPORT_TASK_FIELDS)
+        expect(task).toMatchObject({
+            format: DOMA_EXCEL,
+            file: expect.objectContaining({ mimetype: EXCEL_FILE_META.mimetype }),
+            errorMessage: errorMessage,
+            errorFile: null,
+        })
     })
 
     describe('Mock files', () => {

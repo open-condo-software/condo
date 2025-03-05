@@ -1,10 +1,13 @@
 const excel = require('xlsx')
 
+const { ROWS_COUNT_LIMIT_EXCEEDED } = require('../constants')
+
 
 class ExcelParser {
 
-    constructor (buffer) {
+    constructor (buffer, maxRowsCount) {
         this.buffer = buffer
+        this.maxRowsCount = maxRowsCount
     }
     
     static isXlsxFile (buffer) {
@@ -45,6 +48,10 @@ class ExcelParser {
         workbook.SheetNames.forEach((sheetName) => {
             const worksheet = workbook.Sheets[sheetName]
             const range = excel.utils.decode_range(worksheet['!ref'])
+            if (this.maxRowsCount && range.e.r > this.maxRowsCount) {
+                throw new Error(ROWS_COUNT_LIMIT_EXCEEDED)
+            }
+
             for (let rowNum = range.s.r; rowNum <= range.e.r; rowNum++) {
                 const row = []
                 for (let colNum = range.s.c; colNum <= range.e.c; colNum++) {
