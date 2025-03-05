@@ -80,7 +80,7 @@ function split (paymentAmount, distribution, options = {}) {
         return res
     }, {})
 
-    const sortedGroupKeys = Array.from(groupKeys.values()).sort()
+    const sortedGroupKeys = Array.from(groupKeys.values()).sort((a, b) => a > b ? 1 : -1)
 
     let totalAppliedAmount = Big(0) // including fees
 
@@ -221,7 +221,7 @@ function split (paymentAmount, distribution, options = {}) {
             .filter((d) => !!d.overpaymentPart)
             // The victim of the rounding operation MUST be the last item
             // If there are several vor-item here, sort by order
-            .sort((a, b) => a.vor || a.order > b.order ? 1 : -1)
+            .sort((a, b) => (a.vor && b.vor) ? a.order - b.order : (a.vor ? 1 : -1))
 
         for (let i = 0; i < distributionsWithOverpayment.length; i++) {
             const d = distributionsWithOverpayment[i]
@@ -305,7 +305,7 @@ function split (paymentAmount, distribution, options = {}) {
  * @returns {TDistribution[]}
  */
 function getVorItems (g) {
-    return g.filter((d) => !!d.vor).filter(Boolean)
+    return g.filter((d) => !!d.vor)
 }
 
 /**
@@ -321,7 +321,7 @@ function hasSingleVorItem (g) {
  * @returns {TDistribution[]}
  */
 function getOverpaymentItems (g) {
-    return g.filter((d) => !!d.overpaymentPart).filter(Boolean)
+    return g.filter((d) => !!d.overpaymentPart)
 }
 
 /**
@@ -337,7 +337,7 @@ function hasOverpaymentReceivers (g) {
  * @returns {TDistribution[]}
  */
 function getFeePayers (g) {
-    return g.filter((d) => d.isFeePayer).filter(Boolean)
+    return g.filter((d) => d.isFeePayer)
 }
 
 /**

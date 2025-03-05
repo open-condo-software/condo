@@ -5,10 +5,11 @@
 const Big = require('big.js')
 const { get } = require('lodash')
 
+const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
-
+const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 
 const access = require('@condo/domains/acquiring/access/Payment')
 const {
@@ -43,13 +44,13 @@ const { split } = require('@condo/domains/acquiring/utils/billingCentrifuge')
 const { AcquiringIntegrationContext, Payment: PaymentGQL } = require('@condo/domains/acquiring/utils/serverSchema')
 const { PERIOD_FIELD } = require('@condo/domains/billing/schema/fields/common')
 const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
-const { getCurrencyOptions } = require('@condo/domains/common/constants/currencies')
 const {
     CURRENCY_CODE_FIELD,
     POSITIVE_MONEY_AMOUNT_FIELD,
     NON_NEGATIVE_MONEY_FIELD,
     IMPORT_ID_FIELD,
 } = require('@condo/domains/common/schema/fields')
+const { getCurrencyDecimalPlaces } = require('@condo/domains/common/utils/currencies')
 const { INVOICE_STATUS_PUBLISHED, INVOICE_STATUS_PAID } = require('@condo/domains/marketplace/constants')
 const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
 
@@ -393,10 +394,13 @@ const Payment = new GQLListSchema('Payment', {
                     const splitsAmount = Big(resolvedData['amount'] || 0)
                     const splitsFeeAmount = Big(resolvedData['implicitFee'] || 0)
 
+                    const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
+                    const decimalPlaces = getCurrencyDecimalPlaces(locale, currencyCode)
+
                     resolvedData['frozenSplits'] = split(splitsAmount.toString(), frozenDistribution, {
                         feeAmount: splitsFeeAmount.toString(),
                         appliedSplits,
-                        decimalPlaces: getCurrencyOptions(currencyCode).decimalPlaces,
+                        decimalPlaces,
                     })
                 }
             }
