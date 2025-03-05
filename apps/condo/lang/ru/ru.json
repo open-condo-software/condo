@@ -1550,6 +1550,7 @@
   "notification.messages.TICKET_ASSIGNEE_CONNECTED.push.title": "Новая заявка",
   "notification.messages.TICKET_COMMENT_ADDED.email.subject": "Новости по заявке №{data.ticketNumber}! 🦖",
   "notification.messages.TICKET_COMMENT_ADDED.push.title": "Новости по заявке 💡",
+  "notification.messages.TICKET_COMMENT_CREATED.filesAttached": "(прикреплены файлы)",
   "notification.messages.TICKET_COMMENT_CREATED.telegram.openTicket": "Открыть заявку",
   "notification.messages.TICKET_COMMENT_CREATED.telegram.ticketType.fromResident": "(от жителя)",
   "notification.messages.TICKET_COMMENT_CREATED.telegram.ticketType.organization": "(внутренний)",
