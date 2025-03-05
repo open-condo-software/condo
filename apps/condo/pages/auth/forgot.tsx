@@ -1,207 +1,206 @@
-import { Form, Row, Col } from 'antd'
+import { useStartConfirmPhoneActionMutation } from '@app/condo/gql'
+import { Col, Form, Row } from 'antd'
 import Head from 'next/head'
-import  { useRouter } from 'next/router'
-import React, { useContext, useState } from 'react'
+import { useRouter } from 'next/router'
+import React, { useCallback, useMemo, useState } from 'react'
 
-import { useMutation } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
-import { Typography, Button } from '@open-condo/ui'
+import { Button, Input, Typography } from '@open-condo/ui'
 
 import { CountDownTimer } from '@condo/domains/common/components/CountDownTimer'
+import { FormItem } from '@condo/domains/common/components/Form/FormItem'
 import { useHCaptcha } from '@condo/domains/common/components/HCaptcha'
-import { Loader } from '@condo/domains/common/components/Loader'
-import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
-import { colors } from '@condo/domains/common/constants/style'
+import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { PageComponentType } from '@condo/domains/common/types'
-import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { normalizePhone } from '@condo/domains/common/utils/phone'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
-import { RegisterContext, RegisterContextProvider } from '@condo/domains/user/components/auth/RegisterContextProvider'
+import {
+    RegisterContextProvider,
+    useRegisterContext,
+} from '@condo/domains/user/components/auth/RegisterContextProvider'
 import { ValidatePhoneForm } from '@condo/domains/user/components/auth/ValidatePhoneForm'
 import AuthLayout from '@condo/domains/user/components/containers/AuthLayout'
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 import { SMS_CODE_TTL } from '@condo/domains/user/constants/common'
-import { WRONG_PHONE_ERROR, TOO_MANY_REQUESTS } from '@condo/domains/user/constants/errors'
-import { START_CONFIRM_PHONE_MUTATION } from '@condo/domains/user/gql'
+import { TOO_MANY_REQUESTS } from '@condo/domains/user/constants/errors'
 
 
-const ROW_STYLES: React.CSSProperties = {
-    justifyContent: 'center',
-}
-const FORM_PHONE_STYLES: React.CSSProperties = {
-    borderRadius: 8,
-    borderColor: colors.inputBorderGrey,
-}
+type StepType = 'inputPhone' | 'validatePhone'
+
+const INITIAL_VALUES = { email: '' }
 
 function ResetPageView () {
     const intl = useIntl()
     const router = useRouter()
-    const RestorePasswordMsg = intl.formatMessage({ id: 'pages.auth.reset.ResetPasswordTitle' })
-    const ResetTitleMsg = intl.formatMessage({ id: 'pages.auth.ResetTitle' })
-    const InstructionsMsg = intl.formatMessage({ id: 'pages.auth.reset.ResetHelp' })
-    const PhoneIsNotRegisteredMsg = intl.formatMessage({ id: 'pages.auth.PhoneIsNotRegistered' })
-    const PhoneMsg = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
-    const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
-    const TooManyRequestsMsg = intl.formatMessage({ id: 'TooManyRequests' })
-
-    const REGISTER_PHONE_LABEL = <label style={ { alignSelf:'end' } }>{PhoneMsg}</label>
+    const RestorePasswordMessage = intl.formatMessage({ id: 'pages.auth.reset.ResetPasswordTitle' })
+    const ResetTitleMessage = intl.formatMessage({ id: 'pages.auth.ResetTitle' })
+    const InstructionsMessage = intl.formatMessage({ id: 'pages.auth.reset.ResetHelp' })
+    const PhoneMessage = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
+    const ExamplePhoneMessage = intl.formatMessage({ id: 'example.Phone' })
+    const SMSTooManyRequestsErrorMessage = intl.formatMessage({ id: 'pages.auth.TooManyRequests' })
 
     const [form] = Form.useForm()
     const { executeCaptcha } = useHCaptcha()
-    const { token, setToken, setPhone } = useContext(RegisterContext)
+    const { token, setToken, setPhone } = useRegisterContext()
 
-    type StepType = 'inputPhone' | 'validatePhone'
     const [step, setStep] = useState<StepType>('inputPhone')
-    const [isLoading, setIsLoading] = useState(false)
-    const [startConfirmPhone] = useMutation(START_CONFIRM_PHONE_MUTATION)
+    const [isLoading, setIsLoading] = useState<boolean>(false)
 
-    const initialValues = { email: '' }
-    const ErrorToFormFieldMsgMapping = {
-        [WRONG_PHONE_ERROR]: {
-            name: 'phone',
-            errors: [PhoneIsNotRegisteredMsg],
+    const onError = useMutationErrorHandler({
+        form,
+        typeToFieldMapping: {
+            [TOO_MANY_REQUESTS]: 'phone',
         },
-        [TOO_MANY_REQUESTS]: {
-            name: 'phone',
-            errors: [TooManyRequestsMsg],
-        },
-    }
+    })
+    const [startConfirmPhoneActionMutation] = useStartConfirmPhoneActionMutation({
+        onError,
+    })
 
     const { requiredValidator, phoneValidator } = useValidations()
-    const validations = {
+    const validations = useMemo(() => ({
         phone: [requiredValidator, phoneValidator],
-    }
+    }), [requiredValidator, phoneValidator])
 
-    const startConfirmPhoneAction = async () => {
+    const startConfirmPhone = useCallback(async () => {
+        if (isLoading) return
+
         setIsLoading(true)
-        if (!executeCaptcha) {
-            setIsLoading(false)
-            return
-        }
-        let captcha
+
+        const { phone: inputPhone } = form.getFieldsValue(['phone'])
+        const phone = normalizePhone(inputPhone)
+
         try {
-            captcha = await executeCaptcha()
-        } catch (error) {
-            console.error(error)
-        }
-        if (!captcha) {
-            setIsLoading(false)
-            return
-        }
+            const sender = getClientSideSenderInfo()
+            const captcha = await executeCaptcha()
+            const res = await startConfirmPhoneActionMutation({
+                variables: {
+                    data: {
+                        dv: 1,
+                        sender,
+                        captcha,
+                        phone,
+                    },
+                },
+            })
 
-        const sender = getClientSideSenderInfo()
-        const dv = 1
-        let { phone } = form.getFieldsValue(['phone'])
-        phone = normalizePhone(phone)
-        const values = { phone, dv, sender, captcha }
-
-        return runMutation({
-            mutation: startConfirmPhone,
-            variables: { data: values },
-            onCompleted: ({ data: { result: { token } } }) => {
+            const token = res?.data?.result?.token
+            if (!res.errors && token) {
                 setPhone(phone)
                 setToken(token)
-                setIsLoading(false)
                 setStep('validatePhone')
-            },
-            onFinally: () => setIsLoading(false),
-            intl,
-            form,
-            ErrorToFormFieldMsgMapping,
-        }).catch(err => {
-            console.error(err)
+            }
+        } catch (error) {
+            console.error('Start confirm phone action failed')
+            console.error(error)
+            form.setFields([
+                {
+                    name: 'phone',
+                    // NOTE(pahaz): `friendlyDescription` is the last GQLError.messageForUser!
+                    errors: [(error.friendlyDescription) ? error.friendlyDescription : SMSTooManyRequestsErrorMessage],
+                },
+            ])
+        } finally {
             setIsLoading(false)
-        })
-    }
-
-    if (isLoading) {
-        return <Loader size='large' />
-    }
+        }
+    }, [SMSTooManyRequestsErrorMessage, executeCaptcha, form, isLoading, setPhone, setToken, startConfirmPhoneActionMutation])
 
     if (step === 'validatePhone') {
         return (
             <ValidatePhoneForm
                 onFinish={() => router.push('/auth/change-password?token=' + token)}
                 onReset={() => setStep('inputPhone')}
-                title={ResetTitleMsg}
+                title={ResetTitleMessage}
             />
         )
     }
 
     return (
-        <Row gutter={[0, 40]}>
-            <Head><title>{ResetTitleMsg}</title></Head>
+        <>
+            <Head>
+                <title>{ResetTitleMessage}</title>
+            </Head>
             <Form
                 form={form}
                 name='forgot-password'
                 validateTrigger={['onBlur', 'onSubmit']}
-                initialValues={initialValues}
+                initialValues={INITIAL_VALUES}
                 colon={false}
                 requiredMark={false}
                 layout='vertical'
             >
-                <Row style={ROW_STYLES}>
+                <Row justify='center'>
                     <ResponsiveCol span={24}>
-                        <Row gutter={[0, 20]}>
+                        <Row gutter={[0, 40]} justify='center'>
                             <Col span={24}>
-                                <Typography.Title level={2}>{ResetTitleMsg}</Typography.Title>
-                            </Col>
-                            <Col span={24}>
-                                <Typography.Paragraph size='medium'>{InstructionsMsg}</Typography.Paragraph>
-                            </Col>
-                        </Row>
-                        <Row gutter={[0, 40]}>
-                            <Col span={24}>
-                                <Form.Item
-                                    name='phone'
-                                    label={REGISTER_PHONE_LABEL}
-                                    rules={validations.phone}
-                                    data-cy='forgot-phone-item'
-                                >
-                                    <PhoneInput style={FORM_PHONE_STYLES} placeholder={ExamplePhoneMsg} />
-                                </Form.Item>
-                            </Col>
-                            <Col span={24}>
-                                <Form.Item>
-                                    <CountDownTimer action={startConfirmPhoneAction} id='FORGOT_ACTION' timeout={SMS_CODE_TTL}>
-                                        {({ countdown, runAction }) => {
-                                            const isCountDownActive = countdown > 0
+                                <Row gutter={[0, 16]}>
+                                    <Col span={24}>
+                                        <Typography.Title level={2}>
+                                            {ResetTitleMessage}
+                                        </Typography.Title>
+                                    </Col>
 
-                                            return (
-                                                <Button
-                                                    onClick={() => {
-                                                        form.validateFields().then(() => {
-                                                            runAction()
-                                                        }).catch(_ => {
-                                                            // validation check failed - don't invoke runAction
-                                                        })
-                                                    }}
-                                                    type='primary'
-                                                    disabled={isCountDownActive}
-                                                    loading={isLoading}
-                                                    htmlType='submit'
-                                                    block
-                                                    data-cy='forgot-button'
-                                                >
-                                                    {isCountDownActive ? `${RestorePasswordMsg} ${countdown}` : RestorePasswordMsg}
-                                                </Button>
-                                            )
-                                        }}
-                                    </CountDownTimer>
-                                </Form.Item>
+                                    <Col span={24}>
+                                        <Typography.Text type='secondary'>
+                                            {InstructionsMessage}
+                                        </Typography.Text>
+                                    </Col>
+
+                                    <Col span={24}>
+                                        <FormItem
+                                            name='phone'
+                                            label={PhoneMessage}
+                                            rules={validations.phone}
+                                            data-cy='forgot-phone-item'
+                                        >
+                                            <Input.Phone placeholder={ExamplePhoneMessage}/>
+                                        </FormItem>
+                                    </Col>
+                                </Row>
+                            </Col>
+
+                            <Col span={24}>
+                                <CountDownTimer
+                                    action={startConfirmPhone}
+                                    id='FORGOT_ACTION'
+                                    timeout={SMS_CODE_TTL}
+                                >
+                                    {({ countdown, runAction }) => {
+                                        const isCountDownActive = countdown > 0
+
+                                        return (
+                                            <Button
+                                                onClick={() => {
+                                                    form.validateFields().then(() => {
+                                                        runAction()
+                                                    }).catch(_ => {
+                                                        // validation check failed - don't invoke runAction
+                                                    })
+                                                }}
+                                                type='primary'
+                                                disabled={isCountDownActive}
+                                                loading={isLoading}
+                                                htmlType='submit'
+                                                block
+                                                data-cy='forgot-button'
+                                            >
+                                                {isCountDownActive ? `${RestorePasswordMessage} ${countdown}` : RestorePasswordMessage}
+                                            </Button>
+                                        )
+                                    }}
+                                </CountDownTimer>
                             </Col>
                         </Row>
                     </ResponsiveCol>
                 </Row>
             </Form>
-        </Row>
+        </>
     )
 }
 
 const ResetPage: PageComponentType = () => {
     return (
-        <RegisterContextProvider><ResetPageView /></RegisterContextProvider>
+        <RegisterContextProvider><ResetPageView/></RegisterContextProvider>
     )
 }
 

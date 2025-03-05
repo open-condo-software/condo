@@ -1,17 +1,17 @@
-import { Tabs } from 'antd'
 import { useRouter } from 'next/router'
-import React from 'react'
+import React, { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Tabs } from '@open-condo/ui'
 
 import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
-import { RemoveTabsLineWrapper } from '@condo/domains/user/components/containers/styles'
 
-interface ITabsActionsProps {
+
+type TabsAuthActionsProps = {
     currentActiveKey: string
 }
 
-export const TabsAuthAction: React.FC<ITabsActionsProps> = (props) => {
+export const TabsAuthAction: React.FC<TabsAuthActionsProps> = (props) => {
     const { currentActiveKey } = props
     const intl = useIntl()
     const registerTab = intl.formatMessage({ id: 'pages.auth.RegistrationTitle' })
@@ -21,22 +21,24 @@ export const TabsAuthAction: React.FC<ITabsActionsProps> = (props) => {
     const { query: { next }  } = router
     const isValidNextUrl = next && !Array.isArray(next) && isSafeUrl(next)
 
+    const handleChange = useCallback((activeKey: string): void => {
+        if (activeKey === 'signin') {
+            router.push(isValidNextUrl ? `/auth/signin?next=${encodeURIComponent(next)}` : '/auth/signin')
+        } else if (activeKey === 'register') {
+            router.push(isValidNextUrl ? `/auth/register?next=${encodeURIComponent(next)}` : '/auth/register')
+        }
+    }, [isValidNextUrl, next])
+
+    const tabItems = useMemo(() => [
+        { key: 'register', label: registerTab },
+        { key: 'signin', label: signInTab },
+    ], [registerTab, signInTab])
+
     return (
-        <RemoveTabsLineWrapper>
-            <Tabs
-                defaultActiveKey={currentActiveKey}
-                onChange={(activeKey) => {
-                    if (activeKey === 'signin') {
-                        router.push(isValidNextUrl ? `/auth/signin?next=${encodeURIComponent(next)}` : '/auth/signin')
-                    } else if (activeKey === 'register') {
-                        router.push(isValidNextUrl ? `/auth/register?step=inputPhone&next=${encodeURIComponent(next)}` : '/auth/register')
-                    }}}
-                centered
-                animated={false}
-            >
-                <Tabs.TabPane key='register' tab={registerTab}/>
-                <Tabs.TabPane key='signin' tab={signInTab}/>
-            </Tabs>
-        </RemoveTabsLineWrapper>
+        <Tabs
+            items={tabItems}
+            defaultActiveKey={currentActiveKey}
+            onChange={handleChange}
+        />
     )
 }

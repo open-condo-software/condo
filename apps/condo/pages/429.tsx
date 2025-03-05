@@ -11,7 +11,11 @@ import { ErrorLayoutFooter, ErrorLayoutHeader } from './500'
 
 const Src429 = { poster: '/404Poster.webp', placeholder: '/404PosterPlaceholder.jpg' }
 
-const Custom429: PageComponentType = ({ resetTime }) => {
+type Custom429Props = {
+    resetTime: number
+}
+
+const Custom429: PageComponentType<Custom429Props> = ({ resetTime }) => {
     const intl = useIntl()
 
     const date = new Date(resetTime * 1000)
