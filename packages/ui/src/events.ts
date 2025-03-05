@@ -18,6 +18,7 @@ const condoMessageDataSchema = z.strictObject({
     type: z.literal('condo-ui'),
     version: z.string(),
 })
+const MAX_ALLOWED_EVENT_PARAMS = 10
 
 type CondoUIMessageDataType = z.infer<typeof condoMessageDataSchema>
 
@@ -31,12 +32,29 @@ export function isValidAnalyticsParams (params: unknown): params is AnalyticsPar
     }
 
     // NOTE: prevent overloaded messages
-    return Object.keys(data).length < 10
+    const isCompactEnough = Object.keys(data).length < MAX_ALLOWED_EVENT_PARAMS
+    if (!isCompactEnough) {
+        console.warn(`Condo UI event "${data?.event}" is containing too many parameters`)
+    }
+
+    return isCompactEnough
 }
 
 /**
  * Checks if incoming post-message is valid Condo UI message
  */
 export function isValidCondoUIMessage (e: MessageEvent): e is MessageEvent<CondoUIMessageDataType> {
-    return condoMessageDataSchema.safeParse(e.data).success
+    const { success, data } = condoMessageDataSchema.safeParse(e.data)
+
+    if (!success) {
+        return false
+    }
+
+    // NOTE: prevent overloaded messages
+    const isCompactEnough = Object.keys(data?.params).length < MAX_ALLOWED_EVENT_PARAMS
+    if (!isCompactEnough) {
+        console.warn(`Condo UI event "${data?.params.event}" is containing too many parameters`)
+    }
+
+    return isCompactEnough
 }
