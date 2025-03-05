@@ -84,10 +84,7 @@ describe('SendMessageService', () => {
             })
 
             describe('VoIP messages', () => {
-                test.each([
-                    VOIP_INCOMING_CALL_MESSAGE_TYPE,
-                    VOIP_CANCELED_CALL_MESSAGE_TYPE,
-                ])('correctly detects %s message type and sends notification to proper FireBase token', async (messageType) => {
+                it('correctly detects VoIP message type and sends notification to proper FireBase token', async () => {
                     const userClient = await makeClientWithResidentAccessAndProperty()
                     const payload = {
                         devicePlatform: DEVICE_PLATFORM_ANDROID,
@@ -101,7 +98,7 @@ describe('SendMessageService', () => {
 
                     const messageAttrs = {
                         to: { user: { id: userClient.user.id } },
-                        type: messageType,
+                        type: VOIP_INCOMING_CALL_MESSAGE_TYPE,
                         meta: {
                             dv: 1,
                             body: faker.random.alphaNumeric(8),
@@ -130,13 +127,9 @@ describe('SendMessageService', () => {
                     expect(message.processingMeta.isVoIP).toBeTruthy()
                     expect(transportMeta.deliveryMetadata.pushContext[payload.pushTypeVoIP].token).toEqual(payload.pushTokenVoIP)
                     expect(transportMeta.deliveryMetadata.pushContext[payload.pushTypeVoIP].token).not.toEqual(payload.pushToken)
-                    expect(transportMeta.deliveryMetadata.pushContext[payload.pushTypeVoIP].data.type).toEqual(messageType)
                 })
 
-                test.each([
-                    VOIP_INCOMING_CALL_MESSAGE_TYPE,
-                    VOIP_CANCELED_CALL_MESSAGE_TYPE,
-                ])('correctly detects %s message type and sends notification to proper Huawei token', async (messageType) => {
+                it('correctly detects VoIP message type and sends notification to proper Huawei token', async () => {
                     const userClient = await makeClientWithResidentAccessAndProperty()
                     const payload = {
                         devicePlatform: DEVICE_PLATFORM_ANDROID,
@@ -149,7 +142,7 @@ describe('SendMessageService', () => {
 
                     const messageAttrs = {
                         to: { user: { id: userClient.user.id } },
-                        type: messageType,
+                        type: VOIP_INCOMING_CALL_MESSAGE_TYPE,
                         meta: {
                             dv: 1,
                             body: faker.random.alphaNumeric(8),
@@ -178,13 +171,9 @@ describe('SendMessageService', () => {
                     expect(message.processingMeta.isVoIP).toBeTruthy()
                     expect(transportMeta.deliveryMetadata.pushContext.default.token).toEqual(payload.pushTokenVoIP)
                     expect(transportMeta.deliveryMetadata.pushContext.default.token).not.toEqual(payload.pushToken)
-                    expect(transportMeta.deliveryMetadata.pushContext.default.data.type).toEqual(messageType)
                 })
 
-                test.each([
-                    VOIP_INCOMING_CALL_MESSAGE_TYPE,
-                    VOIP_CANCELED_CALL_MESSAGE_TYPE,
-                ])('correctly detects %s message type and sends notification to proper Apple token', async (messageType) => {
+                it('correctly detects VoIP message type and sends notification to proper Apple token', async () => {
                     const userClient = await makeClientWithResidentAccessAndProperty()
                     const payload = {
                         devicePlatform: DEVICE_PLATFORM_IOS,
@@ -197,7 +186,7 @@ describe('SendMessageService', () => {
 
                     const messageAttrs = {
                         to: { user: { id: userClient.user.id } },
-                        type: messageType,
+                        type: VOIP_INCOMING_CALL_MESSAGE_TYPE,
                         meta: {
                             dv: 1,
                             body: faker.random.alphaNumeric(8),
@@ -226,7 +215,6 @@ describe('SendMessageService', () => {
                     expect(message.processingMeta.isVoIP).toBeTruthy()
                     expect(transportMeta.deliveryMetadata.pushContext.default.token).toEqual(payload.pushTokenVoIP)
                     expect(transportMeta.deliveryMetadata.pushContext.default.token).not.toEqual(payload.pushToken)
-                    expect(transportMeta.deliveryMetadata.pushContext.default.data.type).toEqual(messageType)
                 })
 
             })

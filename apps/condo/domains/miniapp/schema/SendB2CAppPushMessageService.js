@@ -19,7 +19,7 @@ const { AppMessageSetting } = require('@condo/domains/miniapp/utils/serverSchema
 const { B2CApp } = require('@condo/domains/miniapp/utils/serverSchema')
 const {
     VOIP_INCOMING_CALL_MESSAGE_TYPE,
-    VOIP_CANCELED_CALL_MESSAGE_TYPE,
+    CANCELED_CALL_MESSAGE_PUSH_TYPE,
     B2C_APP_MESSAGE_PUSH_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
@@ -27,11 +27,9 @@ const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 const { User } = require('@condo/domains/user/utils/serverSchema')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
-// Should we add TTL for VOIP push call cancellation?
 const CACHE_TTL = {
     DEFAULT: DEFAULT_NOTIFICATION_WINDOW_DURATION_IN_SECONDS,
     VOIP_INCOMING_CALL_MESSAGE: 2,
-    VOIP_CANCELED_CALL_MESSAGE: 2, // ???
     B2C_APP_MESSAGE_PUSH: 3600,
 }
 
@@ -92,7 +90,7 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
     types: [
         {
             access: true,
-            type: `enum SendB2CAppPushMessageType { ${VOIP_INCOMING_CALL_MESSAGE_TYPE} ${VOIP_CANCELED_CALL_MESSAGE_TYPE} ${B2C_APP_MESSAGE_PUSH_TYPE} }`,
+            type: `enum SendB2CAppPushMessageType { ${VOIP_INCOMING_CALL_MESSAGE_TYPE} ${CANCELED_CALL_MESSAGE_PUSH_TYPE} ${B2C_APP_MESSAGE_PUSH_TYPE} }`,
         },
         {
             access: true,
