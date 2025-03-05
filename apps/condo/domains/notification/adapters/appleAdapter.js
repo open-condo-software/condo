@@ -161,8 +161,6 @@ class AppleAdapter {
             const isFakeToken = pushToken.startsWith(PUSH_FAKE_TOKEN_SUCCESS) || pushToken.startsWith(PUSH_FAKE_TOKEN_FAIL)
             const target = isFakeToken ? fakeNotifications : notifications
             const pushType = pushTypes[pushToken] || PUSH_TYPE_DEFAULT
-            console.log('message type data', data)
-            console.log('message type type', data?.type)
             const preparedData = AppleAdapter.prepareData(data, pushToken)
             const pushData = pushType === PUSH_TYPE_SILENT_DATA
                 ? {

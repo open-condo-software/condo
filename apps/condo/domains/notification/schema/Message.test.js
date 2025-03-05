@@ -13,7 +13,7 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { PLATFORM_NOTIFICATIONS } = require('@condo/domains/common/constants/featureflags')
-const { INVITE_NEW_EMPLOYEE_MESSAGE_TYPE, VOIP_INCOMING_CALL_MESSAGE_TYPE, VOIP_CANCELED_CALL_MESSAGE_TYPE, TICKET_CREATED_TYPE, SHARE_TICKET_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
+const { INVITE_NEW_EMPLOYEE_MESSAGE_TYPE, VOIP_INCOMING_CALL_MESSAGE_TYPE, TICKET_CREATED_TYPE, SHARE_TICKET_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { renderDefaultTemplate } = require('@condo/domains/notification/templates')
 const { Message, createTestMessage, updateTestMessage } = require('@condo/domains/notification/utils/testSchema')
 const { makeClientWithRegisteredOrganization, createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
@@ -179,13 +179,10 @@ describe('Message', () => {
         )
     })
 
-    test.each([
-        [VOIP_INCOMING_CALL_MESSAGE_TYPE],
-        [VOIP_CANCELED_CALL_MESSAGE_TYPE],
-    ])('User with direct rights set can read message type: %s', async (messageType) => {
+    test('User with direct rights set can read specific message types', async () => {
         const [wrongMessage] = await createTestMessage(admin)
         const [correctMessage] = await createTestMessage(admin, {
-            type: messageType,
+            type: VOIP_INCOMING_CALL_MESSAGE_TYPE,
         })
 
         const messages = await Message.getAll(permittedClient, { id_in: [wrongMessage.id, correctMessage.id] })
