@@ -1569,6 +1569,7 @@
   "notification.messages.TICKET_STATUS_RETURNED.email.subject": "Привет, это Doma! 🦖",
   "notification.messages.TICKET_STATUS_RETURNED.push.title": "Заявка открыта💡",
   "notification.messages.VOIP_INCOMING_CALL_MESSAGE.push.title": "{title}",
+  "notification.messages.CANCELED_CALL_MESSAGE_PUSH.push.title": "{title}",
   "onboarding.tourStep.tooltip.ticket.message": "Убедитесь, что информация верная, и создайте заявку",
   "onboarding.tourStep.tooltip.ticket.title": "Несколько полей заполнено автоматически",
   "pages.auth.AlreadyRegistered": "Я уже зарегистрирован",
