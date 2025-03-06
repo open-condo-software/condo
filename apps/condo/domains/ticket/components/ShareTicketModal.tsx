@@ -216,7 +216,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
                 },
             },
         })
-        if (data && data?.ticket) {
+        if (data?.ticket) {
             setChosenEmployees([])
             setShareVisible(false)
             setOkVisible(true)
