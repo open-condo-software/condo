@@ -17,7 +17,7 @@ function getInputFileFromExports (exportsPath) {
     const ext = AVAILABLE_EXTENSIONS.find(ext => fs.existsSync(`${pathToFile}${ext}`))
     if (!ext) throw new Error('Unknown extension')
 
-    return `${pathToFile}${ext}`
+    return path.resolve(`${pathToFile}${ext}`)
 }
 
 export default defineConfig({
