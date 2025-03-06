@@ -16,7 +16,7 @@ const { HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const { ALREADY_ACCEPTED_INVITATION, ALREADY_INVITED_EMAIL, ALREADY_INVITED_PHONE, UNABLE_TO_REGISTER_USER } = require('@condo/domains/organization/constants/errors')
 const { Organization, OrganizationEmployee, OrganizationEmployeeSpecialization, OrganizationEmployeeRequest } = require('@condo/domains/organization/utils/serverSchema')
 const guards = require('@condo/domains/organization/utils/serverSchema/guards')
-const { createUserAndSendLoginData } = require('@condo/domains/user/utils/serverSchema')
+const { createUser } = require('@condo/domains/user/utils/serverSchema')
 
 const ERRORS = {
     inviteNewOrganizationEmployee: {
@@ -184,7 +184,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                         ...dvSenderData,
                     }
 
-                    user = await createUserAndSendLoginData({ context, userData })
+                    user = await createUser({ context, userData })
                 }
 
                 const notProcessedEmployeeRequest = await getByCondition('OrganizationEmployeeRequest', {
@@ -318,7 +318,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                     meta: {
                         serverUrl,
                         organizationName,
-                        isRegistration: false,
+                        isRegistration: true,
                         dv: 1,
                     },
                     sender: sender,
