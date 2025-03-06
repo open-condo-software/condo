@@ -76,6 +76,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
     } = MeterReportingPeriod.useObjects({
         where: {
             organization: { id: organizationId },
+            property_is_null: true,
         },
     })
 
