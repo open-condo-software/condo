@@ -159,7 +159,7 @@ export const SignInForm = (): React.ReactElement => {
                                 </Col>
 
                                 {
-                                    true && (
+                                    hasSbbolAuth && (
                                         <>
                                             <Col span={24}>
                                                 <Divider plain>
