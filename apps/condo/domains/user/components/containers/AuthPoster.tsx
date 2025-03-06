@@ -1,6 +1,7 @@
 import { Col, Row, Image } from 'antd'
 import React from 'react'
 
+import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 
 import { PosterProps } from '@condo/domains/common/components/containers/LayoutWithPoster'
@@ -8,8 +9,14 @@ import { PosterProps } from '@condo/domains/common/components/containers/LayoutW
 import './AuthPoster.css'
 
 
-// TODO(DOMA-9722): add translations
 export const AuthPoster: React.FC<PosterProps> = ({ Header, Footer }) => {
+    const intl = useIntl()
+    const AuthPosterTitle = intl.formatMessage({ id: 'component.authPoster.title' })
+    const AuthPosterDescription = intl.formatMessage({ id: 'component.authPoster.description' })
+
+    const locale = intl.locale
+    const imageSrc = `/auth/poster/image-${locale}.webp`
+
     return (
         <div className='auth-poster'>
             <div className='auth-poster-content'>
@@ -21,12 +28,12 @@ export const AuthPoster: React.FC<PosterProps> = ({ Header, Footer }) => {
                         <Row gutter={[0, 20]}>
                             <Col span={24}>
                                 <Typography.Title level={2}>
-                                    Сокращайте расходы, улучшайте процессы и&nbsp;отношения с жителями
+                                    {AuthPosterTitle}
                                 </Typography.Title>
                             </Col>
                             <Col span={24}>
                                 <Typography.Text>
-                                    Онлайн-платформа для управляющих компаний, ТСН, ТСЖ, РСО
+                                    {AuthPosterDescription}
                                 </Typography.Text>
                             </Col>
                         </Row>
@@ -37,8 +44,7 @@ export const AuthPoster: React.FC<PosterProps> = ({ Header, Footer }) => {
                 {Footer}
             </div>
             <div className='auth-poster-image'>
-                {/* TODO(DOMA-9722): remove hardcode */}
-                <Image src='/auth-test.png' preview={false} />
+                <Image src={imageSrc} preview={false} />
             </div>
         </div>
     )
