@@ -64,6 +64,7 @@ const termsOfUseUrl = conf['LEGAL_TERMS_OF_USE_URL']
 const privacyPolicyUrl = conf['LEGAL_PRIVACY_POLICY_URL']
 const dataProcessingConsentUrl = conf['LEGAL_DATA_PROCESSING_CONSENT_URL']
 const isSnowfallDisabled = conf['IS_SNOWFALL_DISABLED'] === 'true'
+const residentAppInfo = conf['RESIDENT_APP_INFO'] ? JSON.parse(conf['RESIDENT_APP_INFO']) : {}
 
 let nextConfig = withTM(withLess(withCSS({
     publicRuntimeConfig: {
@@ -108,6 +109,7 @@ let nextConfig = withTM(withLess(withCSS({
         privacyPolicyUrl,
         dataProcessingConsentUrl,
         isSnowfallDisabled,
+        residentAppInfo,
     },
     lessLoaderOptions: {
         javascriptEnabled: true,
