@@ -376,6 +376,8 @@
   "api.meter.meter.SAME_NUMBER_AND_RESOURCE_EXISTS_IN_ORGANIZATION": "Meter with same number and resource exist in current organization and linked with account number {accountNumbersCsv}. Please check your data.",
   "api.meter.meterReading.METER_READING_DATE_IN_FUTURE": "Reading date ({givenDate}) can not be from the future",
   "api.meter.meterReading.METER_READING_DATE_AFTER_NOTIFY_END": "The date of the meter reading ({givenDate}) must not be later than the end of the specified period for taking readings ({notifyEndDay} day of each month)",
+  "api.meter.meterReading.METER_ARCHIVED": "It is not allowed to take readings on the device, which is in the archive",
+  "api.meter.meterReading.METER_VERIFICATION_MISSED": "You cannot take readings on a device that has missed the verification date",
   "api.meter.meterReading.METER_READING_EXTRA_VALUES": "Meter {meterNumber} has {numberOfTariffs} tariff(s), please remove next fields: {fieldsNames}",
   "api.meter.meterReading.METER_READING_FEW_VALUES": "Meter {meterNumber} has {numberOfTariffs} tariff(s), please fill next fields: {fieldsNames}",
   "api.meter.meterReportingPeriod.INVALID_FINISH": "The \"finish\" field can take values in the range from 1 to 31",

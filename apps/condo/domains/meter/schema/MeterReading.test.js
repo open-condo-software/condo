@@ -1786,6 +1786,64 @@ describe('MeterReading', () => {
                 expect(connectedContact).toBeDefined()
                 expect(connectedContact.id).toEqual(contact.id)
             })
+
+            test('Cannot pass reading if Meter is archived when using the mobile app', async () => {
+                const [resource] = await MeterResource.getAll(employeeCanManageReadings, { id: COLD_WATER_METER_RESOURCE_ID })
+                const [source] = await MeterReadingSource.getAll(employeeCanManageReadings, { id: MOBILE_APP_SOURCE_ID })
+                const [meter] = await createTestMeter(
+                    employeeCanManageReadings,
+                    employeeCanManageReadings.organization,
+                    employeeCanManageReadings.property,
+                    resource,
+                    { archiveDate: dayjs().toISOString() }
+                )
+
+                await expectToThrowGQLError(
+                    async () => await createTestMeterReading(employeeCanManageReadings, meter, source, { date: dayjs().format('YYYY-MM-DD') }),
+                    {
+                        code: 'BAD_USER_INPUT',
+                        type: 'METER_ARCHIVED',
+                        message: 'Cannot pass meter readings for archived Meter',
+                    }
+                )
+            })
+
+            test('Cannot pass reading if meter verification date is in the past when using the mobile app', async () => {
+                const [resource] = await MeterResource.getAll(employeeCanManageReadings, { id: COLD_WATER_METER_RESOURCE_ID })
+                const [source] = await MeterReadingSource.getAll(employeeCanManageReadings, { id: MOBILE_APP_SOURCE_ID })
+                const [meter] = await createTestMeter(
+                    employeeCanManageReadings,
+                    employeeCanManageReadings.organization,
+                    employeeCanManageReadings.property,
+                    resource,
+                    { nextVerificationDate: dayjs().subtract(1, 'day').format('YYYY-MM-DD') }
+                )
+
+                await expectToThrowGQLError(
+                    async () => await createTestMeterReading(employeeCanManageReadings, meter, source, { date: dayjs().format('YYYY-MM-DD') }),
+                    {
+                        code: 'BAD_USER_INPUT',
+                        type: 'METER_VERIFICATION_MISSED',
+                        message: 'Cannot pass meter readings for Meter whose next verification date is in the past',
+                    }
+                )
+            })
+
+            test('Allows meter reading if meter is active and next verification date is in the future', async () => {
+                const [resource] = await MeterResource.getAll(employeeCanManageReadings, { id: COLD_WATER_METER_RESOURCE_ID })
+                const [source] = await MeterReadingSource.getAll(employeeCanManageReadings, { id: MOBILE_APP_SOURCE_ID })
+                const [meter] = await createTestMeter(
+                    employeeCanManageReadings,
+                    employeeCanManageReadings.organization,
+                    employeeCanManageReadings.property,
+                    resource,
+                    { nextVerificationDate: dayjs().add(1, 'month').format('YYYY-MM-DD') }
+                )
+
+                const [reading] = await createTestMeterReading(employeeCanManageReadings, meter, source, { date: dayjs().format('YYYY-MM-DD') })
+                expect(reading.id).toMatch(UUID_RE)
+                expect(reading.date).toMatch(DATETIME_RE)
+            })
         })
     })
 

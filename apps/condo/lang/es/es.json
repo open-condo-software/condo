@@ -376,6 +376,8 @@
   "api.meter.meter.SAME_NUMBER_AND_RESOURCE_EXISTS_IN_ORGANIZATION": "El contador con el mismo número y recurso existe en la organización actual y está vinculado con el número de cuenta {accountNumbersCsv}",
   "api.meter.meterReading.METER_READING_DATE_IN_FUTURE": "La fecha de lectura ({givenDate}) no puede ser del futuro",
   "api.meter.meterReading.METER_READING_DATE_AFTER_NOTIFY_END": "La fecha de transmisión de la lectura ({givenDate}) no debe ser posterior al final del período de lectura especificado ({notifyEndDay} el día de cada mes)",
+  "api.meter.meterReading.METER_ARCHIVED": "No se puede tomar una lectura del dispositivo que está en el archivo",
+  "api.meter.meterReading.METER_VERIFICATION_MISSED": "No se puede dar una lectura de un dispositivo que haya perdido la fecha de verificación",
   "api.meter.meterReading.METER_READING_EXTRA_VALUES": "Meter {meterNumber} has {numberOfTariffs} tariff(s), please remove next fields: {fieldsNames}",
   "api.meter.meterReading.METER_READING_FEW_VALUES": "Meter {meterNumber} has {numberOfTariffs} tariff(s), please fill next fields: {fieldsNames}",
   "api.meter.meterReportingPeriod.INVALID_FINISH": "Fin de período sólo puede tener un valor entre 1 y 31",

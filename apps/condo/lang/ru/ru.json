@@ -376,6 +376,8 @@
   "api.meter.meter.SAME_NUMBER_AND_RESOURCE_EXISTS_IN_ORGANIZATION": "ИПУ с таким номером и ресурсом уже есть в организации на лицевом счете {accountNumbersCsv}. Проверьте, пожалуйста, правильность данных.",
   "api.meter.meterReading.METER_READING_DATE_IN_FUTURE": "Дата передачи показания ({givenDate}) не должна быть больше текущей даты",
   "api.meter.meterReading.METER_READING_DATE_AFTER_NOTIFY_END": "Дата передачи показания ({givenDate}) не должна быть позднее конца заданного периода для сдачи показаний ({notifyEndDay} число каждого месяца)",
+  "api.meter.meterReading.METER_ARCHIVED": "Нельзя сдавать показания по прибору, который находится в архиве",
+  "api.meter.meterReading.METER_VERIFICATION_MISSED": "Нельзя сдавать показания по прибору, у которого пропущена дата поверки",
   "api.meter.meterReading.METER_READING_EXTRA_VALUES": "Количество тарифов в приборе учета {meterNumber}: {numberOfTariffs}, необходимо удалить значения из полей: {fieldsNames}",
   "api.meter.meterReading.METER_READING_FEW_VALUES": "Количество тарифов в приборе учета {meterNumber}: {numberOfTariffs}, необходимо заполнить поля: {fieldsNames}",
   "api.meter.meterReportingPeriod.INVALID_FINISH": "Конец периода может принимать значение только от 1 до 31",
