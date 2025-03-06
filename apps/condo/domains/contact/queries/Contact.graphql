@@ -23,7 +23,7 @@ query getContactById ($id: ID!) {
     }
 }
 
-query getFlatContactByUnit ($propertyId: ID!, $unitName: String!, $unitType: ContactUnitTypeType!) {
+query getContactByUnit ($propertyId: ID!, $unitName: String!, $unitType: ContactUnitTypeType!) {
     contacts: allContacts(
         where: { unitName: $unitName, unitType: $unitType, property: { id: $propertyId } }
     ) {

@@ -62,14 +62,14 @@ export type GetContactByIdQueryVariables = Types.Exact<{
 
 export type GetContactByIdQuery = { __typename?: 'Query', contacts?: Array<{ __typename?: 'Contact', id: string, name?: string | null, email?: string | null, phone?: string | null, unitName?: string | null, unitType?: Types.ContactUnitTypeType | null, isVerified?: boolean | null, organization?: { __typename?: 'Organization', id: string } | null, property?: { __typename?: 'Property', id: string, address?: string | null } | null, role?: { __typename?: 'ContactRole', id: string, name?: string | null } | null } | null> | null };
 
-export type GetFlatContactByUnitQueryVariables = Types.Exact<{
+export type GetContactByUnitQueryVariables = Types.Exact<{
   propertyId: Types.Scalars['ID']['input'];
   unitName: Types.Scalars['String']['input'];
   unitType: Types.ContactUnitTypeType;
 }>;
 
 
-export type GetFlatContactByUnitQuery = { __typename?: 'Query', contacts?: Array<{ __typename?: 'Contact', id: string, name?: string | null, email?: string | null, phone?: string | null, isVerified?: boolean | null, role?: { __typename?: 'ContactRole', name?: string | null } | null } | null> | null };
+export type GetContactByUnitQuery = { __typename?: 'Query', contacts?: Array<{ __typename?: 'Contact', id: string, name?: string | null, email?: string | null, phone?: string | null, isVerified?: boolean | null, role?: { __typename?: 'ContactRole', name?: string | null } | null } | null> | null };
 
 export type GetContactsExistenceQueryVariables = Types.Exact<{
   where?: Types.InputMaybe<Types.ContactWhereInput>;

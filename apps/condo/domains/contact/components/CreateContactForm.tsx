@@ -78,17 +78,24 @@ export const CreateContactForm: React.FC = () => {
     
     const { organization, role } = useOrganization()
     const router = useRouter()
+    const initialValuesFromQuery = useMemo(() => getObjectValueFromQuery(router, ['initialValues']), [router])
 
-    const [selectedPropertyId, setSelectedPropertyId] = useState(null)
+    const [selectedPropertyId, setSelectedPropertyId] = useState(initialValuesFromQuery?.property || null)
     const selectedPropertyIdRef = useRef(selectedPropertyId)
-    const [selectedUnitName, setSelectedUnitName] = useState(null)
+    const [selectedUnitName, setSelectedUnitName] = useState(initialValuesFromQuery?.unitName || null)
     const selectedUnitNameRef = useRef(selectedUnitName)
-    const [selectedUnitType, setSelectedUnitType] = useState<BuildingUnitSubType>(BuildingUnitSubType.Flat)
+    // @ts-ignore
+    const [selectedUnitType, setSelectedUnitType] = useState<BuildingUnitSubType>(initialValuesFromQuery?.unitType || BuildingUnitSubType.Flat)
     const selectedUnitTypeRef = useRef(selectedUnitType)
     const [isFieldsChanged, setIsFieldsChanged] = useState(false)
 
-    const initialValuesFromQuery = useMemo(() => getObjectValueFromQuery(router, ['initialValues']), [router])
     const redirectToClientCard = useMemo(() => !!get(router, ['query', 'redirectToClientCard']), [router])
+
+    console.log('initialValues', initialValuesFromQuery)
+
+    console.log('propId', selectedPropertyId)
+    console.log('uname', selectedUnitName)
+    console.log('utype', selectedUnitType)
 
     const {
         changeMessage,
@@ -237,7 +244,6 @@ export const CreateContactForm: React.FC = () => {
                                                     setSelectedUnitType(null)
                                                 }}
                                                 placeholder={AddressPlaceholderMessage}
-
                                             />
                                         </Form.Item>
                                     </Col>
@@ -322,7 +328,7 @@ export const CreateContactForm: React.FC = () => {
                                             }
                                         </Form.Item>
                                     </Col>
-                                    <Col span={24}>
+                                    <Col lg={18} xs={24}>
                                         <Form.Item
                                             {...INPUT_LAYOUT_PROPS}
                                             labelAlign='left'

@@ -127,8 +127,6 @@ const PropertyCardInfoContent: IPropertyCardInfoContent = (props) => {
     const intl = useIntl()
     const PropertyReportTitle = intl.formatMessage({ id: 'pages.condo.property.id.propertyReportTitle' })
     const PropertyReportDescription = intl.formatMessage({ id: 'pages.condo.property.id.propertyReportDescription' })
-    const PropertyReportComingSoonTitle = intl.formatMessage({ id: 'pages.condo.property.id.propertyReportComingSoonTitle' })
-    const PropertyReportComingSoonSubTitle = intl.formatMessage({ id: 'pages.condo.property.id.propertyReportComingSoonSubTitle' })
     const PropertyReportAccessDeniedTitle = intl.formatMessage({ id: 'pages.condo.property.id.propertyReportAccessDenied' })
     const BecomeSberClientTitle = intl.formatMessage({ id: 'pages.condo.property.id.becomeSberClientTitle' })
     const SetupReportTitle = intl.formatMessage({ id: 'pages.condo.property.id.setupReportTitle' })
@@ -163,7 +161,7 @@ const PropertyCardInfoContent: IPropertyCardInfoContent = (props) => {
             const errors = get(result, 'errors')
 
             if (errors) {
-                console.error({ msg: 'Failed to create bunk account request', errors })
+                console.error({ msg: 'Failed to create bank account request', errors })
                 notification.error({
                     message: LoadingError,
                 })
@@ -182,7 +180,7 @@ const PropertyCardInfoContent: IPropertyCardInfoContent = (props) => {
         <>
             <Space direction='vertical' size={12}>
                 <Typography.Title level={3}>
-                    {featureEnabled ? PropertyReportTitle : PropertyReportComingSoonTitle}
+                    {featureEnabled ? PropertyReportTitle : null}
                 </Typography.Title>
                 <>
                     <Typography.Paragraph>{PropertyReportDescription}</Typography.Paragraph>
@@ -190,9 +188,8 @@ const PropertyCardInfoContent: IPropertyCardInfoContent = (props) => {
                         ? hasAccess ? null : (
                             <Typography.Paragraph>{PropertyReportAccessDeniedTitle}</Typography.Paragraph>
                         )
-                        : (
-                            <Typography.Paragraph>{PropertyReportComingSoonSubTitle}</Typography.Paragraph>
-                        )}
+                        : null
+                    }
                 </>
             </Space>
             <PropertyReportCardBottomWrapper
@@ -251,28 +248,32 @@ const PropertyReportCard: IPropertyReportCard = ({ organizationId, property, rol
     const bankAccountCardEnabled = useFlag(PROPERTY_BANK_ACCOUNT)
     const canManageBankAccount = get(role, 'canManageBankAccounts', false)
 
-    return (
-        <>
-            <Card css={PropertyCardCss}>
-                {loading ? <Loader fill size='large' /> : (
-                    <PropertyCardContent>
-                        {bankAccountCardEnabled && bankAccount && canManageBankAccount
-                            ? <PropertyCardBalanceContent
-                                bankAccount={bankAccount}
-                                clickCallback={setupReportClick} />
-                            : <PropertyCardInfoContent
-                                hasAccess={canManageBankAccount}
-                                featureEnabled={bankAccountCardEnabled}
-                                setupButtonClick={setupReportClick}
-                                organizationId={organizationId}
-                                propertyId={property.id}
-                            />
-                        }
-                    </PropertyCardContent>
-                )}
-            </Card>
-        </>
-    )
+    if (bankAccountCardEnabled && bankAccount && canManageBankAccount) {
+        return (
+            <>
+                <Card css={PropertyCardCss}>
+                    {loading ? <Loader fill size='large' /> : (
+                        <PropertyCardContent>
+                            {bankAccountCardEnabled && bankAccount && canManageBankAccount
+                                ? <PropertyCardBalanceContent
+                                    bankAccount={bankAccount}
+                                    clickCallback={setupReportClick} />
+                                : <PropertyCardInfoContent
+                                    hasAccess={canManageBankAccount}
+                                    featureEnabled={bankAccountCardEnabled}
+                                    setupButtonClick={setupReportClick}
+                                    organizationId={organizationId}
+                                    propertyId={property.id}
+                                />
+                            }
+                        </PropertyCardContent>
+                    )}
+                </Card>
+            </>
+        )
+    }
+
+    return null
 }
 
 export {

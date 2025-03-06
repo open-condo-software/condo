@@ -540,8 +540,8 @@ export type GetContactByIdQueryHookResult = ReturnType<typeof useGetContactByIdQ
 export type GetContactByIdLazyQueryHookResult = ReturnType<typeof useGetContactByIdLazyQuery>;
 export type GetContactByIdSuspenseQueryHookResult = ReturnType<typeof useGetContactByIdSuspenseQuery>;
 export type GetContactByIdQueryResult = Apollo.QueryResult<Types.GetContactByIdQuery, Types.GetContactByIdQueryVariables>;
-export const GetFlatContactByUnitDocument = gql`
-    query getFlatContactByUnit($propertyId: ID!, $unitName: String!, $unitType: ContactUnitTypeType!) {
+export const GetContactByUnitDocument = gql`
+    query getContactByUnit($propertyId: ID!, $unitName: String!, $unitType: ContactUnitTypeType!) {
   contacts: allContacts(
     where: {unitName: $unitName, unitType: $unitType, property: {id: $propertyId}}
   ) {
@@ -558,16 +558,16 @@ export const GetFlatContactByUnitDocument = gql`
     `;
 
 /**
- * __useGetFlatContactByUnitQuery__
+ * __useGetContactByUnitQuery__
  *
- * To run a query within a React component, call `useGetFlatContactByUnitQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetFlatContactByUnitQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetContactByUnitQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetContactByUnitQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetFlatContactByUnitQuery({
+ * const { data, loading, error } = useGetContactByUnitQuery({
  *   variables: {
  *      propertyId: // value for 'propertyId'
  *      unitName: // value for 'unitName'
@@ -575,22 +575,22 @@ export const GetFlatContactByUnitDocument = gql`
  *   },
  * });
  */
-export function useGetFlatContactByUnitQuery(baseOptions: Apollo.QueryHookOptions<Types.GetFlatContactByUnitQuery, Types.GetFlatContactByUnitQueryVariables> & ({ variables: Types.GetFlatContactByUnitQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+export function useGetContactByUnitQuery(baseOptions: Apollo.QueryHookOptions<Types.GetContactByUnitQuery, Types.GetContactByUnitQueryVariables> & ({ variables: Types.GetContactByUnitQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<Types.GetFlatContactByUnitQuery, Types.GetFlatContactByUnitQueryVariables>(GetFlatContactByUnitDocument, options);
+        return Apollo.useQuery<Types.GetContactByUnitQuery, Types.GetContactByUnitQueryVariables>(GetContactByUnitDocument, options);
       }
-export function useGetFlatContactByUnitLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetFlatContactByUnitQuery, Types.GetFlatContactByUnitQueryVariables>) {
+export function useGetContactByUnitLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetContactByUnitQuery, Types.GetContactByUnitQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<Types.GetFlatContactByUnitQuery, Types.GetFlatContactByUnitQueryVariables>(GetFlatContactByUnitDocument, options);
+          return Apollo.useLazyQuery<Types.GetContactByUnitQuery, Types.GetContactByUnitQueryVariables>(GetContactByUnitDocument, options);
         }
-export function useGetFlatContactByUnitSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetFlatContactByUnitQuery, Types.GetFlatContactByUnitQueryVariables>) {
+export function useGetContactByUnitSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetContactByUnitQuery, Types.GetContactByUnitQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<Types.GetFlatContactByUnitQuery, Types.GetFlatContactByUnitQueryVariables>(GetFlatContactByUnitDocument, options);
+          return Apollo.useSuspenseQuery<Types.GetContactByUnitQuery, Types.GetContactByUnitQueryVariables>(GetContactByUnitDocument, options);
         }
-export type GetFlatContactByUnitQueryHookResult = ReturnType<typeof useGetFlatContactByUnitQuery>;
-export type GetFlatContactByUnitLazyQueryHookResult = ReturnType<typeof useGetFlatContactByUnitLazyQuery>;
-export type GetFlatContactByUnitSuspenseQueryHookResult = ReturnType<typeof useGetFlatContactByUnitSuspenseQuery>;
-export type GetFlatContactByUnitQueryResult = Apollo.QueryResult<Types.GetFlatContactByUnitQuery, Types.GetFlatContactByUnitQueryVariables>;
+export type GetContactByUnitQueryHookResult = ReturnType<typeof useGetContactByUnitQuery>;
+export type GetContactByUnitLazyQueryHookResult = ReturnType<typeof useGetContactByUnitLazyQuery>;
+export type GetContactByUnitSuspenseQueryHookResult = ReturnType<typeof useGetContactByUnitSuspenseQuery>;
+export type GetContactByUnitQueryResult = Apollo.QueryResult<Types.GetContactByUnitQuery, Types.GetContactByUnitQueryVariables>;
 export const GetContactsExistenceDocument = gql`
     query getContactsExistence($where: ContactWhereInput) {
   contacts: allContacts(first: 1, where: $where) {
