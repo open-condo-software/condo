@@ -8,7 +8,7 @@ describe('Count fraction length (number of decimal places) correctly', () => {
         ['en', 'BHD', 3], // Bahraini Dinar
         ['en', 'GNF', 0], // Guinea Franc
         ['oh', 'my', 2], // wrong locale and currency
-        ['en', 'oops', 2], // wrong  currency
+        ['en', 'oops', 2], // wrong currency
         ['oops', 'USD', 2], // wrong locale
     ]
 
