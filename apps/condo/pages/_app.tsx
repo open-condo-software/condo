@@ -157,7 +157,7 @@ const MenuItems: React.FC = () => {
     const disabled = !employee || (hasSubscriptionFeature && isExpired)
     const { isCollapsed } = useLayoutContext()
     const { wrapElementIntoNoOrganizationToolTip } = useNoOrganizationToolTip()
-    const role = employee.role || null
+    const role = employee?.role || null
     const orgId = organization?.id || null
     const orgFeatures = organization?.features || []
     const sppBillingId = sppConfig?.BillingIntegrationId || null
