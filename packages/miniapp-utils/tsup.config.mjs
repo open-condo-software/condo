@@ -18,7 +18,8 @@ function getInputFileFromExports (exportsPath) {
     if (!ext) throw new Error('Unknown extension')
 
     // NOTE: tsup expect linux-styled path with "/"
-    return `${pathToFile}${ext}`.replaceAll('\\', '/')
+    // https://github.com/egoist/tsup/pull/1300
+    return `${pathToFile}${ext}`.split(path.win32.sep).join(path.posix.sep)
 }
 
 export default defineConfig({
