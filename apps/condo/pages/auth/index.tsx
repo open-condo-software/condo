@@ -21,8 +21,7 @@ const AuthPage: PageComponentType = () => {
     const SignInTitleMsg = intl.formatMessage({ id: 'pages.auth.SignInTitle' })
     const IAmResidentMessage = intl.formatMessage({ id: 'pages.auth.IAmResident' })
     const IAmOrganizationRepresentativeMessage = intl.formatMessage({ id: 'pages.auth.IAmOrganizationRepresentative' })
-    // todo(DOMA-9722): move productName to envs
-    const WelcomeMessage = intl.formatMessage({ id: 'pages.auth.Welcome' }, { productName: 'Doma.ai' })
+    const WelcomeMessage = intl.formatMessage({ id: 'pages.auth.Welcome' })
 
     const router = useRouter()
     const { query: { next } } = router

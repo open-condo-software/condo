@@ -639,6 +639,8 @@
   "component.TicketWarningModal.Entity.property": "домов",
   "component.TicketWarningModal.Entity.status": "статусов",
   "component.TicketWarningModal.Title": "Выбрано больше {ticketFilterRestriction} {selectedEntity}",
+  "component.authPoster.description": "Онлайн-платформа для управляющих компаний, ТСН, ТСЖ, РСО",
+  "component.authPoster.title": "Сокращайте расходы, улучшайте процессы и отношения с жителями",
   "component.statscard.ExtraTitle": "Подробнее",
   "component.statscard.periodtypes.Month": "месяц",
   "component.statscard.periodtypes.Quarter": "квартал",
@@ -1608,7 +1610,7 @@
   "pages.auth.TooManyRequests": "Повторите попытку позже",
   "pages.auth.TwoPasswordDontMatch": "Введенные вами пароли не совпадают",
   "pages.auth.WeMustMakeSureThatYouAreHuman": "Нам нужно убедиться, что вы человек",
-  "pages.auth.Welcome": "Добро пожаловать  на платформу {productName}",
+  "pages.auth.Welcome": "Добро пожаловать  на платформу Doma.ai",
   "pages.auth.WhatDoYouWantOthersToCallYou": "Как вас будут называть другие?",
   "pages.auth.WrongPhoneOrPassword": "Неверный номер телефона или пароль",
   "pages.auth.register.AllFieldsAreRequired": "Все поля обязательны для заполнения",
