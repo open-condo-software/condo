@@ -17,7 +17,8 @@ function getInputFileFromExports (exportsPath) {
     const ext = AVAILABLE_EXTENSIONS.find(ext => fs.existsSync(`${pathToFile}${ext}`))
     if (!ext) throw new Error('Unknown extension')
 
-    return path.resolve(`${pathToFile}${ext}`)
+    // NOTE: tsup expect linux-styled path with "/"
+    return `${pathToFile}${ext}`.replaceAll('\\', '/')
 }
 
 export default defineConfig({
