@@ -680,15 +680,18 @@ describe('billingCentrifuge', () => {
             expect(Big(paymentAmount).eq(splitSum)).toBe(true)
         })
 
-        test('split 2 payments with overpayment for same distribution with two groups', () => {
+        test('split 2 payments with overpayment for same distribution with two groups + correct sorting', () => {
             const recipient1 = createTestRecipient()
             const recipient2 = createTestRecipient()
             const recipient3 = createTestRecipient()
 
+            // Also, test for correct sorting
+            // [4,10].sort((a,b)=>a-b)  ==>>    [4,10]  <--- we need this sorting
+            // [4,10].sort()            ==>>    [10,4]
             const distribution = [
-                { recipient: recipient1, amount: '100', order: 0, vor: true, overpaymentPart: 1 },
-                { recipient: recipient2, amount: '100', order: 1, vor: true, overpaymentPart: 1 },
-                { recipient: recipient3, amount: '100', order: 1, overpaymentPart: 1 },
+                { recipient: recipient1, amount: '100', order: 4, vor: true, overpaymentPart: 1 },
+                { recipient: recipient2, amount: '100', order: 10, vor: true, overpaymentPart: 1 },
+                { recipient: recipient3, amount: '100', order: 10, overpaymentPart: 1 },
             ]
 
             const paymentAmount1 = '120.00'
