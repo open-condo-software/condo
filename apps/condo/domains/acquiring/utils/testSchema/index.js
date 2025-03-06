@@ -20,7 +20,7 @@ const { createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = r
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 const { MULTIPAYMENT_INIT_STATUS } = require('@condo/domains/acquiring/constants/payment')
-const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, UploadingFile } = require('@open-condo/keystone/test.utils')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 
@@ -60,6 +60,10 @@ const {
     createValidRuNumber,
     createValidRuTin10
 } = require("@condo/domains/banking/utils/testSchema/bankAccount");
+const { PaymentsFile: PaymentsFileGQL } = require('@condo/domains/acquiring/gql')
+const path = require("path");
+const conf = require("@open-condo/config");
+const { PAYMENTS_FILE_CREATED_STATUS} = require("@condo/domains/acquiring/constants/constants");
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateGQLTestUtils(AcquiringIntegrationGQL)
@@ -70,10 +74,13 @@ const Payment = generateGQLTestUtils(PaymentGQL)
 const PaymentsFilterTemplate = generateGQLTestUtils(PaymentsFilterTemplateGQL)
 const RecurrentPaymentContext = generateGQLTestUtils(RecurrentPaymentContextGQL)
 const RecurrentPayment = generateGQLTestUtils(RecurrentPaymentGQL)
+const PaymentsFile = generateGQLTestUtils(PaymentsFileGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 const RecurrentPaymentContextLiteGQL = generateGqlQueries('RecurrentPaymentContext', '{ id }')
 const RecurrentPaymentContextLite = generateGQLTestUtils(RecurrentPaymentContextLiteGQL)
+
+const FILE = path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/simple-text-file.txt')
 
 function getRandomHiddenCard() {
     const prefix = Math.floor(Math.random() * 9000 + 1000)
@@ -540,6 +547,46 @@ async function calculateFeeForReceiptByTestClient(client, extraAttrs = {}) {
     throwIfError(data, errors, { query: CALCULATE_FEE_FOR_RECEIPT_QUERY, variables: { data: extraAttrs } })
     return [data.result, extraAttrs]
 }
+async function createTestPaymentsFile (client, billingContext = null, acquiringContext = null,  extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...billingContext ? { billingContext: { connect: { id: billingContext.id } } } : {},
+        ...acquiringContext ? { acquiringContext: { connect: { id: acquiringContext.id } } }: {},
+        file: new UploadingFile(FILE),
+        account: faker.random.alphaNumeric(8),
+        dateBegin: dayjs(faker.date.recent()).format('YYYY-MM-DD'),
+        dateEnd: dayjs(faker.date.recent()).format('YYYY-MM-DD'),
+        dateLoad: new Date().toISOString(),
+        uploadedRecords: Number(faker.random.numeric(4)),
+        amount: faker.random.numeric(8),
+        amountBring: faker.random.numeric(8),
+        registryName: faker.random.alphaNumeric(20),
+        status: PAYMENTS_FILE_CREATED_STATUS,
+        ...extraAttrs,
+    }
+    const obj = await PaymentsFile.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestPaymentsFile (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await PaymentsFile.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 // Utils used to generate a bunch of entities for working with MultiPayments
@@ -829,5 +876,6 @@ module.exports = {
     generateVirtualReceipt,
     calculateFeeForReceiptByTestClient,
     generateQRCode,
+    PaymentsFile, createTestPaymentsFile, updateTestPaymentsFile,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
