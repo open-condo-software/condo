@@ -88,6 +88,9 @@ const CALCULATE_FEE_FOR_RECEIPT_QUERY = gql`
     }
 `
 
+const PAYMENTS_FILE_FIELDS = `{ number file { id originalFilename publicUrl mimetype } billingContext { id } acquiringContext { id } externalId account dateBegin dateEnd dateLoad uploadedRecords amount amountBring registryName status bankComment fileName paymentOrder ${COMMON_FIELDS} }`
+const PaymentsFile = generateGqlQueries('PaymentsFile', PAYMENTS_FILE_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 const EXPORT_PAYMENTS_TO_EXCEL =  gql`
@@ -114,5 +117,6 @@ module.exports = {
     PAYMENT_BY_LINK_MUTATION,
     REGISTER_MULTI_PAYMENT_FOR_INVOICES_MUTATION,
     CALCULATE_FEE_FOR_RECEIPT_QUERY,
+    PaymentsFile,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
