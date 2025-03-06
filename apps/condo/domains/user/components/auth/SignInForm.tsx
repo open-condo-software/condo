@@ -1,6 +1,6 @@
 import { useAuthenticateUserWithPhoneAndPasswordMutation } from '@app/condo/gql'
 import { UserTypeType as UserType } from '@app/condo/schema'
-import { Col, Form, Row, Divider } from 'antd'
+import { Col, Form, Row } from 'antd'
 import getConfig from 'next/config'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
@@ -11,6 +11,7 @@ import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography, Button, Input } from '@open-condo/ui'
 
+import { Divider } from '@condo/domains/common/components/Divider'
 import { FormItem } from '@condo/domains/common/components/Form/FormItem'
 import { useHCaptcha } from '@condo/domains/common/components/HCaptcha'
 import { LoginWithSBBOLButton } from '@condo/domains/common/components/LoginWithSBBOLButton'
@@ -158,7 +159,7 @@ export const SignInForm = (): React.ReactElement => {
                                 </Col>
 
                                 {
-                                    hasSbbolAuth && (
+                                    true && (
                                         <>
                                             <Col span={24}>
                                                 <Divider plain>
