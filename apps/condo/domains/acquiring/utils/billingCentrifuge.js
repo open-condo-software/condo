@@ -219,7 +219,7 @@ function split (paymentAmount, distribution, options = {}) {
             .filter((d) => !!d.overpaymentPart)
             // The victim of the rounding operation MUST be the last item
             // If there are several vor-item here, sort by order
-            .sort((a, b) => !(a.vor ^ b.vor) ? a.order - b.order : (a.vor ? 1 : -1))
+            .sort(sortByVorAndOrderComparator)
 
         for (let i = 0; i < distributionsWithOverpayment.length; i++) {
             const d = distributionsWithOverpayment[i]
@@ -247,6 +247,7 @@ function split (paymentAmount, distribution, options = {}) {
     let restUndistributedFeeAmount = Big(feeAmount)
     if (restUndistributedFeeAmount.gt(0)) {
         let feePayersTotalSharesAmount = Big(0)
+        /** @type {Number[]} */
         const splitsWithFeePayerIndexes = []
         for (let i = 0; i < splits.length; i++) {
             const split = splits[i]
@@ -258,7 +259,11 @@ function split (paymentAmount, distribution, options = {}) {
         }
 
         // The victim of the rounding operation MUST be the last item within the group
-        const sortedSplitsWithFeePayerIndexes = splitsWithFeePayerIndexes.sort((a, b) => distributionsByKey[createRecipientKey(splits[a].recipient)].vor ? 1 : -1)
+        const sortedSplitsWithFeePayerIndexes = splitsWithFeePayerIndexes.sort((a, b) => {
+            const dA = distributionsByKey[createRecipientKey(splits[a].recipient)]
+            const dB = distributionsByKey[createRecipientKey(splits[b].recipient)]
+            return sortByVorAndOrderComparator(dA, dB)
+        })
 
         if (sortedSplitsWithFeePayerIndexes.length > 0) {
             for (const [index, i] of sortedSplitsWithFeePayerIndexes.entries()) {
@@ -363,6 +368,20 @@ function areAllRecipientsUnique (distribution) {
     return uniqRecipientsKeys.size === distribution.length
 }
 
+/**
+ * @param {TDistribution} a
+ * @param {TDistribution} b
+ * @returns {number}
+ */
+function sortByVorAndOrderComparator (a, b) {
+    // ^ = xor
+    // false ^ false = false
+    // false ^ true = true
+    // true ^ false = true
+    // true ^ true = false
+    return (a.vor ^ b.vor) ? (a.vor ? 1 : -1) : a.order - b.order
+}
+
 module.exports = {
     split,
     getVorItems,
@@ -371,4 +390,5 @@ module.exports = {
     createRecipientKey,
     hasFeePayers,
     areAllRecipientsUnique,
+    sortByVorAndOrderComparator,
 }

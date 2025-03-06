@@ -8,6 +8,7 @@ const {
     split,
     createRecipientKey,
     areAllRecipientsUnique,
+    sortByVorAndOrderComparator,
 } = require('./billingCentrifuge')
 
 describe('billingCentrifuge', () => {
@@ -15,6 +16,28 @@ describe('billingCentrifuge', () => {
         test('recipient key created successfully', () => {
             const recipient = createTestRecipient()
             expect(createRecipientKey(recipient)).toBe(`${recipient.tin}_${recipient.bic}_${recipient.bankAccount}`)
+        })
+
+        test('distributions sorted by vor ond order', () => {
+            const recipient1 = createTestRecipient()
+            const recipient2 = createTestRecipient()
+            const recipient3 = createTestRecipient()
+            const recipient4 = createTestRecipient()
+
+            const distribution = [
+                { recipient: recipient1, order: 0, vor: true },
+                { recipient: recipient2, order: 0 },
+                { recipient: recipient3, order: 2, vor: true },
+                { recipient: recipient4, order: 1 },
+            ]
+
+            const sortedDistribution = distribution.sort(sortByVorAndOrderComparator)
+            expect(sortedDistribution).toEqual([
+                { recipient: recipient2, order: 0 },
+                { recipient: recipient4, order: 1 },
+                { recipient: recipient1, order: 0, vor: true },
+                { recipient: recipient3, order: 2, vor: true },
+            ])
         })
     })
 
