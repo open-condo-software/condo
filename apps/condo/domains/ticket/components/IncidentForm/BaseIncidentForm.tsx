@@ -436,7 +436,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
         }).filter((option) => !!option?.data?.property?.deletedAt || false)
 
         return [...deletedPropertyOptions, ...options]
-            .map((option) => option?.data?.property?.deletedAt || false
+            .map((option) => option?.data?.property?.deletedAt
                 ? renderDeletedOption(intl, option)
                 : renderOption(option)
             )
