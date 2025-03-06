@@ -1,5 +1,6 @@
 const jschardet = require('jschardet')
 
+const { ROWS_COUNT_LIMIT_EXCEEDED } = require('./constants')
 const { DBFParser, CSVParser, ExcelParser } = require('./file-types')
 const { clearString, encode, detectEncoding, convertEncoding } = require('./utils')
 
@@ -13,8 +14,9 @@ const TYPES = {
 
 class ConvertFileToTable {
 
-    constructor (buffer) {
+    constructor (buffer, maxRowsCount) {
         this.buffer = Buffer.from(buffer)
+        this.maxRowsCount = maxRowsCount
     }
 
     isDBFFile () {
@@ -84,7 +86,7 @@ class ConvertFileToTable {
                 worker = new DBFParser(this.buffer, this.detectEncoding())
                 break
             case TYPES.EXCEL:
-                worker = new ExcelParser(this.buffer)
+                worker = new ExcelParser(this.buffer, this.maxRowsCount)
                 break
             case TYPES.UNSUPPORTED:
             default:
@@ -98,6 +100,10 @@ class ConvertFileToTable {
                     return rowString.length && rowString[0] !== '#'
                 })
         } catch (error) {
+            if (error.message === ROWS_COUNT_LIMIT_EXCEEDED) {
+                throw new Error(ROWS_COUNT_LIMIT_EXCEEDED)
+            }
+
             return []
         }
 
