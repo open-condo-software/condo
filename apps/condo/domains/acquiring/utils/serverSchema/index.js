@@ -78,6 +78,7 @@ async function allPaymentsSum (context, data) {
 
 const RecurrentPaymentContext = generateServerUtils('RecurrentPaymentContext')
 const RecurrentPayment = generateServerUtils('RecurrentPayment')
+const PaymentsFile = generateServerUtils('PaymentsFile')
 
 async function createPaymentByLink (context, data) {
     if (!context) throw new Error('no context')
@@ -136,5 +137,6 @@ module.exports = {
     createPaymentByLink,
     registerMultiPaymentForInvoices,
     calculateFeeForReceipt,
+    PaymentsFile,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
