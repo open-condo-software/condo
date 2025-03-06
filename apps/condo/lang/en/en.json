@@ -1550,6 +1550,7 @@
   "notification.messages.TICKET_ASSIGNEE_CONNECTED.push.title": "New ticket",
   "notification.messages.TICKET_COMMENT_ADDED.email.subject": "We have news on ticket #{data.ticketNumber}! 🦖",
   "notification.messages.TICKET_COMMENT_ADDED.push.title": "Ticket news 💡",
+  "notification.messages.TICKET_COMMENT_CREATED.filesAttached": "files sent",
   "notification.messages.TICKET_COMMENT_CREATED.telegram.openTicket": "Open a ticket",
   "notification.messages.TICKET_COMMENT_CREATED.telegram.ticketType.fromResident": "(from resident)",
   "notification.messages.TICKET_COMMENT_CREATED.telegram.ticketType.organization": "(internal)",

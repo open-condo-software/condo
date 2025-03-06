@@ -1550,6 +1550,7 @@
   "notification.messages.TICKET_ASSIGNEE_CONNECTED.push.title": "Nueva incidencia",
   "notification.messages.TICKET_COMMENT_ADDED.email.subject": "Noticias sobre la incidencia №{data.ticketNumber}! 🦖",
   "notification.messages.TICKET_COMMENT_ADDED.push.title": "Noticias sobre incidencia 💡",
+  "notification.messages.TICKET_COMMENT_CREATED.filesAttached": "archivos enviados",
   "notification.messages.TICKET_COMMENT_CREATED.telegram.openTicket": "Abrir incidencia",
   "notification.messages.TICKET_COMMENT_CREATED.telegram.ticketType.fromResident": "(del vecino)",
   "notification.messages.TICKET_COMMENT_CREATED.telegram.ticketType.organization": "(interno)",
