@@ -1,5 +1,7 @@
 import bindAll from 'lodash/bindAll'
 
+import { nonNull } from '@open-condo/miniapp-utils'
+
 import type { InitCacheOptions } from './cache'
 import type { FieldReadFunction, FieldFunctionOptions, Reference } from '@apollo/client'
 import type { NormalizedCacheObject } from '@apollo/client/core'
@@ -25,15 +27,15 @@ export type ClientPaginationBehaviour = 'paginate' | 'showAll'
  * Checks if the provided value is an Apollo Client Reference object
  * Used to determine if a value in the cache is a reference to another cached object
  * 
- * @param link - Value to check for Reference type
+ * @param ref - Value to check for Reference type
  * @returns True if the value is an Apollo Reference object, false otherwise
  */
-function hasRef (link: unknown): link is Reference {
+function hasRef (ref: unknown): ref is Reference {
     return (
-        typeof link === 'object' &&
-        link !== null &&
-        '__ref' in link &&
-        typeof link.__ref === 'string'
+        typeof ref === 'object' &&
+        ref !== null &&
+        '__ref' in ref &&
+        typeof ref.__ref === 'string'
     )
 
 }
@@ -45,16 +47,16 @@ function hasRef (link: unknown): link is Reference {
  * 
  * @param list - Array of potentially cached items to check
  * @param cache - Apollo normalized cache object
- * @returns True if the list contains any broken references or non-reference items, false if all references are valid
+ * @returns True if the list contains any broken references, false if all references are valid or if list contain non-reference items
  */
-function hasBrokenLinks (
+function hasBrokenRefs (
     list: ReadonlyArray<unknown>,
     cache: NormalizedCacheObject,
 ) {
-    return list.some((link) => {
-        if (hasRef(link)) {
-            const ref: string = link.__ref
-            return ref && !(ref in cache)
+    return list.some((ref) => {
+        if (hasRef(ref)) {
+            const cacheIdentifier = ref.__ref
+            return cacheIdentifier && !(cacheIdentifier in cache)
         }
         return false
     })
@@ -106,7 +108,7 @@ export class ListHelper {
             this.skipCacheOnRead = options.cacheOptions.skipOnRead
         }
 
-        bindAll(this, '_readPage', '_readList', '_networkOnlyRead', 'getReadFunction', 'mergeLists')
+        bindAll(this, '_readPage', '_readAll', '_networkOnlyRead', 'getReadFunction', 'mergeLists')
     }
 
     /**
@@ -128,11 +130,11 @@ export class ListHelper {
             return undefined
         }
 
-        const filteredPage = existing.slice(skip, skip + first).filter(Boolean)
+        const filteredPage = existing.slice(skip, skip + first).filter(nonNull)
 
-        const cache: NormalizedCacheObject = options.cache.extract()
+        const cache = options.cache.extract()
 
-        if (!cache || hasBrokenLinks(filteredPage, cache)) return undefined
+        if (hasBrokenRefs(filteredPage, cache)) return undefined
 
         return filteredPage
     }
@@ -150,10 +152,10 @@ export class ListHelper {
             return undefined
         }
 
-        const cache: NormalizedCacheObject = options.cache.extract()
+        const cache = options.cache.extract()
 
-        const filteredList = existing.filter(Boolean)
-        if (!cache || hasBrokenLinks(filteredList, cache)) {
+        const filteredList = existing.filter(nonNull)
+        if (hasBrokenRefs(filteredList, cache)) {
             return undefined
         }
 
@@ -170,7 +172,7 @@ export class ListHelper {
     /**
      * Selects the appropriate read function depending on cache options and desired pagination behaviour
      */
-    getReadFunction (clientPagination: ClientPaginationBehaviour): FieldReadFunction | undefined {
+    getReadFunction (clientPagination: ClientPaginationBehaviour): FieldReadFunction {
         if (this.skipCacheOnRead) {
             return this._networkOnlyRead
         }
@@ -179,11 +181,7 @@ export class ListHelper {
             return this._readPage
         }
 
-        if (clientPagination === 'showAll') {
-            return this._readAll
-        }
-
-        return undefined
+        return this._readAll
     }
 
     /**
