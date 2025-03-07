@@ -29,6 +29,7 @@
 > 
 > - `react` / `react-dom` are required for `/hooks/**` and `/components/**` entry points
 > - `@apollo/client` is required for `/helpers/apollo.ts`
+> - 'analytics' is required for `/helpers/analytics/*`
 > 
 > You can skip installing them if you don't use these utilities, as each utility is built separately, 
 > but we highly recommend leaving them installed

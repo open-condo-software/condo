@@ -7,7 +7,9 @@ const POSTHOG_CLOUD_HOST_BASE = 'i.posthog.com'
 const POSTHOG_CLOUD_HOST_MATCHER = new RegExp(`^(\\w+)\\.${POSTHOG_CLOUD_HOST_BASE.replaceAll('.', '\\.')}$`)
 
 /**
- * Gets posthog host and pathname based on domain and requested path. See example below for detailed explanation
+ * Gets posthog endpoint based on its domain and requested path.
+ * Used to support both cloud and self-hosted instances, which differs in set of endpoints.
+ * See example below for detailed explanation:
  * @example
  * getPosthogPath('https://eu.i.posthog.com', ['static', 'something']) // https://eu-assets.i.posthog.com/something
  * getPosthogPath('https://eu.i.posthog.com', ['other', 'path']) // https://eu.i.posthog.com/other/path
