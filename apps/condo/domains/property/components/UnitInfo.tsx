@@ -4,7 +4,7 @@ import { Col, FormInstance, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { isEmpty } from 'lodash'
 import get from 'lodash/get'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useIntl } from '@open-condo/next/intl'
@@ -116,6 +116,28 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
 
     const [selectedSectionName, setSelectedSectionName] = useState<string>(get(initialValues, 'sectionName'))
     const [selectedFloorName, setSelectedFloorName] = useState<string>(get(initialValues, 'floorName'))
+
+    const propertyId = useMemo(() => property?.id, [property?.id])
+    const isInitialPropertySet = useRef<boolean>(false)
+    useEffect(() => {
+        if (!isInitialPropertySet.current) {
+            isInitialPropertySet.current = true
+            return
+        }
+
+        setSelectedUnitName(null)
+        setSelectedSectionName(null)
+        setSelectedFloorName(null)
+
+        if (setSelectedUnitType) {
+            setSelectedUnitName(null)
+        }
+        if (setSelectedSectionType) {
+            setSelectedSectionType(null)
+        }
+
+        form.setFieldsValue({ unitName: null, unitType: null, sectionName: null, sectionType: null, floorName: null })
+    }, [form, propertyId, setSelectedSectionType, setSelectedUnitName, setSelectedUnitType])
 
     const sections = useMemo(() => get(property, ['map', 'sections'], []), [property])
     const parking = useMemo(() => get(property, ['map', 'parking'], []), [property])

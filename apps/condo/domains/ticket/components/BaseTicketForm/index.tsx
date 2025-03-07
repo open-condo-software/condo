@@ -844,10 +844,13 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
             unitName: null,
             unitType: null,
             sectionName: null,
+            sectionType: null,
             floorName: null,
             property: option.key,
         })
         setSelectedUnitName(null)
+        setSelectedUnitType(null)
+        setSelectedSectionType(null)
         setSelectedPropertyId(option.key)
     }, [])
 
@@ -857,10 +860,13 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
             unitName: null,
             unitType: null,
             sectionName: null,
+            sectionType: null,
             floorName: null,
             property: null,
         })
         setSelectedUnitName(null)
+        setSelectedUnitType(null)
+        setSelectedSectionType(null)
         setSelectedPropertyId(null)
     }, [])
 
