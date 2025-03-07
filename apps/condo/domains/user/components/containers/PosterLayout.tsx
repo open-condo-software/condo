@@ -1,5 +1,5 @@
 import { Image } from 'antd'
-import React from 'react'
+import React, { useCallback } from 'react'
 import ProgressiveImage from 'react-progressive-image'
 
 import { LayoutWithPoster, PosterProps as DefaultPosterProps } from '@condo/domains/common/components/containers/LayoutWithPoster'
@@ -41,11 +41,15 @@ export const PosterLayout: React.FC<PosterLayoutProps> = ({
     headerAction,
     image,
 }) => {
+    const PosterComponent = useCallback((props: DefaultPosterProps) => {
+        return <Poster {...props} image={image} key='poster-layout' />
+    }, [image])
+
     return (
         <LayoutWithPoster
             children={children}
             headerAction={headerAction}
-            Poster={(props) => <Poster {...props} image={image} /> }
+            Poster={PosterComponent}
         />
     )
 }
