@@ -9,6 +9,7 @@ const { getFileMetaAfterChange } = require('@open-condo/keystone/fileAdapter/fil
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 
+const { META_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/document/access/Document')
 const { ERRORS } = require('@condo/domains/document/constants')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
@@ -59,6 +60,7 @@ const Document = new GQLListSchema('Document', {
             isRequired: true,
             defaultValue: false,
         },
+        meta: META_FIELD,
     },
     hooks: {
         validateInput: async ({ resolvedData, existingItem, context }) => {

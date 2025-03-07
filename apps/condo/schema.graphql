@@ -44684,6 +44684,8 @@ type ContactHistoryRecord {
   isVerified: Boolean
   ownershipPercentage: String
   communityFee: String
+  note: String
+  meta: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -44822,6 +44824,28 @@ input ContactHistoryRecordWhereInput {
   communityFee_gte: String
   communityFee_in: [String]
   communityFee_not_in: [String]
+  note: String
+  note_not: String
+  note_contains: String
+  note_not_contains: String
+  note_starts_with: String
+  note_not_starts_with: String
+  note_ends_with: String
+  note_not_ends_with: String
+  note_i: String
+  note_not_i: String
+  note_contains_i: String
+  note_not_contains_i: String
+  note_starts_with_i: String
+  note_not_starts_with_i: String
+  note_ends_with_i: String
+  note_not_ends_with_i: String
+  note_in: [String]
+  note_not_in: [String]
+  meta: JSON
+  meta_not: JSON
+  meta_in: [JSON]
+  meta_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -44921,6 +44945,8 @@ enum SortContactHistoryRecordsBy {
   ownershipPercentage_DESC
   communityFee_ASC
   communityFee_DESC
+  note_ASC
+  note_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -44951,6 +44977,8 @@ input ContactHistoryRecordUpdateInput {
   isVerified: Boolean
   ownershipPercentage: String
   communityFee: String
+  note: String
+  meta: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -44982,6 +45010,8 @@ input ContactHistoryRecordCreateInput {
   isVerified: Boolean
   ownershipPercentage: String
   communityFee: String
+  note: String
+  meta: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -45064,6 +45094,13 @@ type Contact {
 
   """ A special fee paid by this contact to the community """
   communityFee: String
+
+  """ A note about the contact """
+  note: String
+
+  """ Untyped metadata for this object. May be used by custom integrations. 
+  """
+  meta: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -45190,6 +45227,28 @@ input ContactWhereInput {
   communityFee_gte: String
   communityFee_in: [String]
   communityFee_not_in: [String]
+  note: String
+  note_not: String
+  note_contains: String
+  note_not_contains: String
+  note_starts_with: String
+  note_not_starts_with: String
+  note_ends_with: String
+  note_not_ends_with: String
+  note_i: String
+  note_not_i: String
+  note_contains_i: String
+  note_not_contains_i: String
+  note_starts_with_i: String
+  note_not_starts_with_i: String
+  note_ends_with_i: String
+  note_not_ends_with_i: String
+  note_in: [String]
+  note_not_in: [String]
+  meta: JSON
+  meta_not: JSON
+  meta_in: [JSON]
+  meta_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -45275,6 +45334,8 @@ enum SortContactsBy {
   ownershipPercentage_DESC
   communityFee_ASC
   communityFee_DESC
+  note_ASC
+  note_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -45305,6 +45366,8 @@ input ContactUpdateInput {
   isVerified: Boolean
   ownershipPercentage: String
   communityFee: String
+  note: String
+  meta: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -45333,6 +45396,8 @@ input ContactCreateInput {
   isVerified: Boolean
   ownershipPercentage: String
   communityFee: String
+  note: String
+  meta: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -78936,6 +79001,7 @@ type DocumentHistoryRecord {
   name: String
   file: JSON
   canReadByResident: Boolean
+  meta: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -78990,6 +79056,10 @@ input DocumentHistoryRecordWhereInput {
   file_not_in: [JSON]
   canReadByResident: Boolean
   canReadByResident_not: Boolean
+  meta: JSON
+  meta_not: JSON
+  meta_in: [JSON]
+  meta_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -79102,6 +79172,7 @@ input DocumentHistoryRecordUpdateInput {
   name: String
   file: JSON
   canReadByResident: Boolean
+  meta: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -79128,6 +79199,7 @@ input DocumentHistoryRecordCreateInput {
   name: String
   file: JSON
   canReadByResident: Boolean
+  meta: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -79183,6 +79255,10 @@ type Document {
 
   """ If set to true, this means document will be accessible by residents """
   canReadByResident: Boolean
+
+  """ Untyped metadata for this object. May be used by custom integrations. 
+  """
+  meta: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -79239,6 +79315,10 @@ input DocumentWhereInput {
   file_not_in: [String]
   canReadByResident: Boolean
   canReadByResident_not: Boolean
+  meta: JSON
+  meta_not: JSON
+  meta_in: [JSON]
+  meta_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -79337,6 +79417,7 @@ input DocumentUpdateInput {
   name: String
   file: Upload
   canReadByResident: Boolean
+  meta: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -79360,6 +79441,7 @@ input DocumentCreateInput {
   name: String
   file: Upload
   canReadByResident: Boolean
+  meta: JSON
   v: Int
   createdAt: String
   updatedAt: String
