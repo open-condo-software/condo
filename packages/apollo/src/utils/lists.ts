@@ -55,8 +55,8 @@ function hasBrokenRefs (
 ) {
     return list.some((ref) => {
         if (hasRef(ref)) {
-            const cacheIdentifier = ref.__ref
-            return cacheIdentifier && !(cacheIdentifier in cache)
+            const itemRef = ref.__ref
+            return itemRef && !(itemRef in cache)
         }
         return false
     })
@@ -130,13 +130,13 @@ export class ListHelper {
             return undefined
         }
 
-        const filteredPage = existing.slice(skip, skip + first).filter(nonNull)
+        const filteredItems = existing.slice(skip, skip + first).filter(nonNull)
 
         const cache = options.cache.extract()
 
-        if (hasBrokenRefs(filteredPage, cache)) return undefined
+        if (hasBrokenRefs(filteredItems, cache)) return undefined
 
-        return filteredPage
+        return filteredItems
     }
 
     /**
@@ -154,12 +154,12 @@ export class ListHelper {
 
         const cache = options.cache.extract()
 
-        const filteredList = existing.filter(nonNull)
-        if (hasBrokenRefs(filteredList, cache)) {
+        const filteredItems = existing.filter(nonNull)
+        if (hasBrokenRefs(filteredItems, cache)) {
             return undefined
         }
 
-        return filteredList
+        return filteredItems
     }
 
     /**
