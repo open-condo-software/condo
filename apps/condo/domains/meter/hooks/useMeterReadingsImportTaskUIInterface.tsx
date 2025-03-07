@@ -19,9 +19,9 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 
 type TaskRecordType = GetMeterReadingsImportTasksQuery['tasks'][number]
 
-type UseMeterReadingsImportTaskUIInterfaceType = (isPropertyMeters: boolean) => ({ MeterReadingsImportTask: ITask<TaskRecordType> })
+type UseMeterReadingsImportTaskUIInterfaceType = (isPropertyMeters?: boolean) => ({ MeterReadingsImportTask: ITask<TaskRecordType> })
 
-export const useMeterReadingsImportTaskUIInterface: UseMeterReadingsImportTaskUIInterfaceType = (isPropertyMeters) => {
+export const useMeterReadingsImportTaskUIInterface: UseMeterReadingsImportTaskUIInterfaceType = (isPropertyMeters = false) => {
     const schemaName = isPropertyMeters ? 'PropertyMeterReadingsImportTask' : 'MeterReadingsImportTask'
 
     const intl = useIntl()
