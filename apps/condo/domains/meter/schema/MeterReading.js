@@ -15,7 +15,15 @@ const { CONTACT_FIELD, CLIENT_EMAIL_FIELD, CLIENT_NAME_FIELD, CLIENT_PHONE_LANDL
 const access = require('@condo/domains/meter/access/MeterReading')
 const { METER_READING_MAX_VALUES_COUNT, METER_READING_BILLING_STATUSES, METER_READING_BILLING_STATUS_APPROVED } = require('@condo/domains/meter/constants/constants')
 const { MOBILE_APP_SOURCE_ID } = require('@condo/domains/meter/constants/constants')
-const { METER_READING_DATE_IN_FUTURE, METER_READING_FEW_VALUES, METER_READING_EXTRA_VALUES, BILLING_STATUS_MESSAGE_WITHOUT_BILLING_STATUS, METER_READING_DATE_AFTER_NOTIFY_END } = require('@condo/domains/meter/constants/errors')
+const {
+    METER_READING_DATE_IN_FUTURE,
+    METER_READING_FEW_VALUES,
+    METER_READING_EXTRA_VALUES,
+    BILLING_STATUS_MESSAGE_WITHOUT_BILLING_STATUS,
+    METER_READING_DATE_AFTER_NOTIFY_END,
+    METER_ARCHIVED,
+    METER_VERIFICATION_MISSED,
+} = require('@condo/domains/meter/constants/errors')
 const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 const { connectContactToMeterReading } = require('@condo/domains/meter/utils/serverSchema/resolveHelpers')
 const { addClientInfoToResidentMeterReading } = require('@condo/domains/meter/utils/serverSchema/resolveHelpers')
@@ -53,6 +61,18 @@ const ERRORS = {
         message: 'Meter reading date cannot be after the end of the MeterReportingPeriod\'s notifyEndDay',
         messageForUser: 'api.meter.meterReading.METER_READING_DATE_AFTER_NOTIFY_END',
     },
+    METER_ARCHIVED: {
+        code: BAD_USER_INPUT,
+        type: METER_ARCHIVED,
+        message: 'Cannot pass meter readings for archived Meter',
+        messageForUser: 'api.meter.meterReading.METER_ARCHIVED',
+    },
+    METER_VERIFICATION_MISSED: {
+        code: BAD_USER_INPUT,
+        type: METER_VERIFICATION_MISSED,
+        message: 'Cannot pass meter readings for Meter whose next verification date is in the past',
+        messageForUser: 'api.meter.meterReading.METER_VERIFICATION_MISSED',
+    },
 }
 
 const MeterReading = new GQLListSchema('MeterReading', {
@@ -82,6 +102,14 @@ const MeterReading = new GQLListSchema('MeterReading', {
                                 deletedAt: null,
                             })
 
+                            if (get(meter, 'archiveDate')) {
+                                throw new GQLError(ERRORS.METER_ARCHIVED, context)
+                            }
+
+                            if (dayjs(get(meter, 'nextVerificationDate')).isBefore(now)) {
+                                throw new GQLError(ERRORS.METER_VERIFICATION_MISSED, context)
+                            }
+
                             const meterReportingPeriods = await find('MeterReportingPeriod', {
                                 OR: [
                                     { property: { AND: [{ id: get(meter, 'property') }, { deletedAt: null } ] } },
@@ -101,10 +129,7 @@ const MeterReading = new GQLListSchema('MeterReading', {
                                 const { notifyEndDay } = meterReportingPeriod
                                 if (!isReadingDateAllowed(date, meterReportingPeriod)) {
                                     throw new GQLError({
-                                        code: BAD_USER_INPUT,
-                                        type: METER_READING_DATE_AFTER_NOTIFY_END,
-                                        message: 'Meter reading date cannot be after the end of the MeterReportingPeriod\'s notifyEndDay',
-                                        messageForUser: 'api.meter.meterReading.METER_READING_DATE_AFTER_NOTIFY_END',
+                                        ...ERRORS.METER_READING_DATE_AFTER_NOTIFY_END,
                                         messageInterpolation: { notifyEndDay, givenDate: date },
                                     }, context)
                                 }
