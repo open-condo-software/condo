@@ -376,7 +376,7 @@ const Payment = new GQLListSchema('Payment', {
                         currencyCode = get(invoice, 'currencyCode')
                     } else if (receiptId) {
                         wherePart.receipt = { id: receiptId }
-                        wherePart.receipt_is_null = true
+                        wherePart.invoice_is_null = true
 
                         const receipt = await BillingReceipt.getOne(context, { id: receiptId }, '{ context { integration { currencyCode } } }')
                         currencyCode = get(receipt, ['context', 'integration', 'currencyCode'])
