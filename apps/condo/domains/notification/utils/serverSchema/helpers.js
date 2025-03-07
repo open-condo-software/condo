@@ -148,8 +148,8 @@ function getMessageOptions (type) {
  * @returns {customPushType: string | undefined}
  */
 function getPreferPushTypeByMessageType (messageType) {
-    const { customPushType } = get(MESSAGE_DELIVERY_OPTIONS, messageType)
-    return customPushType
+    const { pushType } = get(MESSAGE_DELIVERY_OPTIONS, messageType)
+    return pushType
 }
 
 module.exports = {
