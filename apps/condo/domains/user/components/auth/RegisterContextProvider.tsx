@@ -1,7 +1,7 @@
 import { useGetPhoneByConfirmPhoneActionTokenLazyQuery } from '@app/condo/gql'
 import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
-import React, { createContext, Dispatch, SetStateAction, useCallback, useEffect, useState, useContext } from 'react'
+import React, { createContext, Dispatch, SetStateAction, useEffect, useState, useContext } from 'react'
 
 import { useHCaptcha } from '@condo/domains/common/components/HCaptcha'
 
@@ -34,7 +34,7 @@ export const RegisterContextProvider: React.FC = ({ children }) => {
     const { query: { token: tokenFromQuery } } = useRouter()
     const queryToken = typeof tokenFromQuery === 'string' ? tokenFromQuery : ''
 
-    const [token, setToken] = useState<string>(queryToken as string)
+    const [token, setToken] = useState<string>(queryToken)
     const [phone, setPhone] = useState<string>('')
     const [tokenError, setTokenError] = useState<Error | null>(null)
     const [isConfirmed, setIsConfirmed] = useState<boolean>(false)
