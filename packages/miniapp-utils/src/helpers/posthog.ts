@@ -34,6 +34,9 @@ export function getPosthogEndpoint (posthogDomain: string, requestedPath: Array<
  * generateRewrites('https://eu.i.posthog.com', '/api/posthog')
  * generateRewrites('https://posthog.my.domain.com', '/api/posthog')
  * generateRewrites(process.env.NEXT_PUBLIC_POSTHOG_HOST, '/api/posthog')
+ *
+ * @deprecated This util is not used in condo applications and will be removed in next major upgrade,
+ * since it requires knowing postHogDomain during build time. Consider setting up http proxy on API route instead
  */
 export function generateRewrites (postHogDomain: string, routeEndpoint: string): Array<Rewrite> {
     const url = new URL(postHogDomain)
