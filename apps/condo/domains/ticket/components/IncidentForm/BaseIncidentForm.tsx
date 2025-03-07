@@ -1,5 +1,5 @@
 import {
-    CreateIncidentMutationFn, UpdateIncidentMutationFn,
+    CreateIncidentMutationFn, GetIncidentPropertiesByIncidentIdQuery, UpdateIncidentMutationFn,
     useCreateIncidentClassifierIncidentMutation,
     useCreateIncidentPropertyMutation,
     useUpdateIncidentClassifierIncidentMutation,
@@ -7,7 +7,6 @@ import {
 } from '@app/condo/gql'
 import {
     Incident as IIncident,
-    IncidentProperty as IIncidentProperty,
     IncidentClassifierIncident as IIncidentClassifierIncident,
     IncidentCreateInput as IIncidentCreateInput,
     IncidentUpdateInput as IIncidentUpdateInput,
@@ -71,7 +70,7 @@ export type BaseIncidentFormProps = {
     | 'textForResident'
     | 'hasAllProperties'
     > & {
-        incidentProperties: IIncidentProperty[]
+        incidentProperties: GetIncidentPropertiesByIncidentIdQuery['incidentProperties']
         incidentClassifiers: IIncidentClassifierIncident[]
     }
     organizationId: string
@@ -329,7 +328,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     const [updateIncidentClassifierIncident] = useUpdateIncidentClassifierIncidentMutation()
 
     const initialIncidentOrganization = useMemo(() => initialValues?.organization?.name || null, [initialValues])
-    const initialIncidentProperties = useMemo(() => initialValues?.incidentProperties || [], [initialValues]) as IIncidentProperty[]
+    const initialIncidentProperties = useMemo(() => initialValues?.incidentProperties || [], [initialValues])
     const initialIncidentClassifiers = useMemo(() => initialValues?.incidentClassifiers || [], [initialValues]) as IIncidentClassifierIncident[]
     const initialPropertyIds = useMemo(() => initialIncidentProperties.map(item => item?.id || null).filter(Boolean), [initialIncidentProperties])
     const initialPropertyIdsWithDeleted = useMemo(() => initialIncidentProperties.map(item => getPropertyKey(item)), [initialIncidentProperties])
