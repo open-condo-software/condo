@@ -119,6 +119,8 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
 
     const propertyId = useMemo(() => property?.id, [property?.id])
     const isInitialPropertySet = useRef<boolean>(false)
+
+    // Reset unit/section/floor data when property is changed
     useEffect(() => {
         if (!isInitialPropertySet.current) {
             isInitialPropertySet.current = true
