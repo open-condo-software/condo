@@ -31,7 +31,7 @@ query getContactByUnit ($propertyId: ID!, $unitName: String!, $unitType: Contact
         name
         email
         phone
-        role { name }
+        role { id name }
         isVerified
     }
 }

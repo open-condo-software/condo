@@ -550,6 +550,7 @@ export const GetContactByUnitDocument = gql`
     email
     phone
     role {
+      id
       name
     }
     isVerified

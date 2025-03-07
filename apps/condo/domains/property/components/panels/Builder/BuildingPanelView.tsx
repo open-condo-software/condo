@@ -1,5 +1,5 @@
 import { useGetContactByUnitLazyQuery } from '@app/condo/gql'
-import { BuildingMap, BuildingUnit, BuildingUnitSubType } from '@app/condo/schema'
+import { Property as PropertyType, Contact as ContactType, ContactUnitTypeType, BuildingMap, BuildingUnit, BuildingUnitSubType } from '@app/condo/schema'
 import { Col, Row, RowProps } from 'antd'
 import cloneDeep from 'lodash/cloneDeep'
 import get from 'lodash/get'
@@ -8,8 +8,9 @@ import React, { useState, useCallback, useMemo } from 'react'
 import ScrollContainer from 'react-indiana-drag-scroll'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Modal, Tooltip, List, Typography } from '@open-condo/ui'
+import { Modal, Tooltip, List, Typography, Space, Button } from '@open-condo/ui'
 
+import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { IPropertyMapFormProps } from '@condo/domains/property/components/BasePropertyMapForm'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
 import { Property } from '@condo/domains/property/utils/clientSchema'
@@ -72,13 +73,14 @@ const UNIT_TYPE_ROW_GUTTER: RowProps['gutter'] = [42, 0]
 const TOOLTIP_MAX_CONTACT_DETAILS = 5
 
 interface IUnitModalProps {
+    property: PropertyType
     unit: BuildingUnit
     contactsLoading: boolean
-    contacts: Array<any>
-    error?: any
+    contacts: Array<ContactType>
+    contactsError: boolean
 }
 
-export const UnitModal: React.FC<IUnitModalProps> = ({ unit, contactsLoading, contacts, error }) => {
+export const UnitModal: React.FC<IUnitModalProps> = ({ property, unit, contactsLoading, contacts }) => {
     const intl = useIntl()
     const FieldUnitNameMessage = intl.formatMessage({ id: 'field.Name' })
     const FieldUnitTypeMessage = intl.formatMessage({ id: 'field.UnitType' })
@@ -91,9 +93,9 @@ export const UnitModal: React.FC<IUnitModalProps> = ({ unit, contactsLoading, co
     const ContactsMessage = intl.formatMessage({ id: 'global.section.contacts' })
     const GoToContactMessage = intl.formatMessage({ id: 'pages.condo.property.map.modal.goToContacts' })
 
-    if (error) {
-        return <Typography.Text type='danger'>ErrorLoadingContacts</Typography.Text>
-    }
+    const NoContactsTitleMessage = intl.formatMessage({ id: 'pages.condo.property.map.modal.noContacts.emptyView.title' })
+    const NoContactsSubtitleMessage = intl.formatMessage({ id: 'pages.condo.property.map.modal.noContacts.emptyView.subtitle' })
+    const NoContactsButtonLabel = intl.formatMessage({ id: 'AddContact' })
 
     return (
         <Row gutter={[0, 36]}>
@@ -114,6 +116,15 @@ export const UnitModal: React.FC<IUnitModalProps> = ({ unit, contactsLoading, co
                 <Col span={24}>
                     <Typography.Title level={4}>{ContactsMessage}</Typography.Title>
                 </Col>
+            )}
+            {(!contactsLoading && Array.isArray(contacts) && contacts.length === 0) && (
+                <BasicEmptyListView spaceSize={16} image='/dino/searching@2x.png'>
+                    <Space align='center' direction='vertical' size={8}>
+                        <Typography.Title level={3}>{NoContactsTitleMessage}</Typography.Title>
+                        <Typography.Text type='secondary'>{NoContactsSubtitleMessage}</Typography.Text>
+                    </Space>
+                    <Button type='primary' href={`contact/create?initialValues=${JSON.stringify( { property: property.id, unitName: unit.label, unitType: unit.unitType })}`}>{NoContactsButtonLabel}</Button>
+                </BasicEmptyListView>
             )}
             {contacts?.map(contact => (
                 <Col span={24} key={contact.id}>
@@ -147,7 +158,7 @@ export const UnitModal: React.FC<IUnitModalProps> = ({ unit, contactsLoading, co
     )
 }
 
-export const UnitTooltip: React.FC<IUnitModalProps> = ({ unit, contactsLoading, contacts, error }) => {
+export const UnitTooltip: React.FC<IUnitModalProps> = ({ unit, contactsLoading, contacts, contactsError }) => {
     const intl = useIntl()
     const FieldUnitTypeMessage = intl.formatMessage({ id: 'field.UnitType' })
     const UnitTypeMessage = intl.formatMessage({ id: `field.UnitType.${unit.unitType}` }).toLowerCase()
@@ -156,7 +167,7 @@ export const UnitTooltip: React.FC<IUnitModalProps> = ({ unit, contactsLoading, 
     const NoContactsMessage = intl.formatMessage({ id: 'pages.condo.property.map.modal.noContacts' })
     const TotalContactsMessage = intl.formatMessage({ id: 'pages.condo.property.map.modal.totalContacts' })
     const AndOthersMessage = intl.formatMessage({ id: 'AndOthers' })
-    const ErrorLoadingContacts = intl.formatMessage({ id: 'pages.condo.property.map.modal.errorLoadingContacts' })
+    const ErrorLoadingContactsMessage = intl.formatMessage({ id: 'pages.condo.property.map.modal.errorLoadingContacts' })
 
     const contactsLines = useMemo(() => {
         if (!contactsLoading && contacts) {
@@ -190,11 +201,13 @@ export const UnitTooltip: React.FC<IUnitModalProps> = ({ unit, contactsLoading, 
                 return [`${TotalContactsMessage}: ${totalContacts} (${contactNames.join(', ')})`]
             }
         }
-        if (!contactsLoading && error) {
-            return [ErrorLoadingContacts]
+
+        if (!contactsLoading && contactsError) {
+            return [ErrorLoadingContactsMessage]
         }
+
         return []
-    }, [contactsLoading, contacts, error])
+    }, [contactsLoading, contacts])
 
     return (
         <div style={{ minWidth: '240px' }}>
@@ -270,9 +283,9 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refr
                 variables: {
                     propertyId: property.id,
                     unitName: unit.label,
-                    unitType: unit.unitType,
+                    unitType: unit.unitType as unknown as ContactUnitTypeType,
                 },
-                fetchPolicy: 'network-only',
+                fetchPolicy: 'cache-first',
             }).then(() => {
                 setReadyTooltip(unitId)
             })
@@ -312,10 +325,11 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refr
             </FullscreenHeader>
             <Modal title={UnitModalTitle} onCancel={toggleUnitModal} open={isUnitModalOpen}>
                 <UnitModal
+                    property={property}
                     unit={modalOpenedUnit}
                     contactsLoading={contactsLoading}
                     contacts={contactsData?.contacts}
-                    error={contactsError}
+                    contactsError={!!contactsError}
                 />
             </Modal>
             <Row align='middle' style={CHESS_ROW_STYLE}>
@@ -363,17 +377,18 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refr
                                                                                     key={unit.id}
                                                                                     title={
                                                                                         <UnitTooltip
+                                                                                            property={property}
                                                                                             unit={unit}
                                                                                             contactsLoading={contactsLoading}
                                                                                             contacts={contactsData?.contacts}
-                                                                                            error={contactsError}
+                                                                                            contactsError={!!contactsError}
                                                                                         />
                                                                                     }
                                                                                     // We do not want to show tooltip before data is loaded, because that would cause interface to be jaggy,
                                                                                     // because tooltip in loading state is different from tooltip with data
                                                                                     open={lastOpenTooltip === unit.id && readyTooltip === unit.id}
                                                                                     onOpenChange={(visible) => handleTooltipVisibilityChange(unit.id, visible, unit)}
-                                                                                    // Custom delay is implemented here, because we do not need user to spam with HTTP requests and eat all of the available complexity
+                                                                                    // Custom delay is implemented here, because we do not need user to spam with HTTP requests and eat all the available complexity
                                                                                     mouseEnterDelay={0.3}
                                                                                     placement='top'
                                                                                 >
@@ -388,9 +403,9 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refr
                                                                                                 variables: {
                                                                                                     propertyId: property.id,
                                                                                                     unitName: unit.label,
-                                                                                                    unitType: unit.unitType,
+                                                                                                    unitType: unit.unitType as unknown as ContactUnitTypeType,
                                                                                                 },
-                                                                                                fetchPolicy: 'network-only',
+                                                                                                fetchPolicy: 'cache-first',
                                                                                             })
                                                                                             toggleUnitModal() 
                                                                                         }}

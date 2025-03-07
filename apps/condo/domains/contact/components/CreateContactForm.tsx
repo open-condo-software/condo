@@ -84,8 +84,7 @@ export const CreateContactForm: React.FC = () => {
     const selectedPropertyIdRef = useRef(selectedPropertyId)
     const [selectedUnitName, setSelectedUnitName] = useState(initialValuesFromQuery?.unitName || null)
     const selectedUnitNameRef = useRef(selectedUnitName)
-    // @ts-ignore
-    const [selectedUnitType, setSelectedUnitType] = useState<BuildingUnitSubType>(initialValuesFromQuery?.unitType || BuildingUnitSubType.Flat)
+    const [selectedUnitType, setSelectedUnitType] = useState<BuildingUnitSubType>(initialValuesFromQuery?.unitType as BuildingUnitSubType || BuildingUnitSubType.Flat)
     const selectedUnitTypeRef = useRef(selectedUnitType)
     const [isFieldsChanged, setIsFieldsChanged] = useState(false)
 
@@ -116,7 +115,7 @@ export const CreateContactForm: React.FC = () => {
 
     const { loading, data: propertyData } = useGetPropertyWithMapByIdQuery({
         variables: {
-            id: selectedPropertyId,
+            id: selectedPropertyId as string,
         },
         skip: !selectedPropertyId,
         fetchPolicy: 'network-only',
