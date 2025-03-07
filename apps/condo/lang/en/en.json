@@ -2869,7 +2869,7 @@
   "tasks.PropertyMeterReadingsImportTask.progress.description.partiallyCompleted": "File partially imported. Fix errors and upload broken records again",
   "tasks.PropertyMeterReadingsImportTask.progress.description.preparing": "Preparing to import meter readings",
   "tasks.PropertyMeterReadingsImportTask.progress.description.processing": "Meter readings processed: {imported} of {total}",
-  "tasks.MeterReadingsImportTask.progress.title": "Import property meter readings",
+  "tasks.PropertyMeterReadingsImportTask.progress.title": "Import property meter readings",
   "tasks.NewsItemRecipientsExportTask.progress.description.completed": "File has been created",
   "tasks.NewsItemRecipientsExportTask.progress.description.completed.link.label": "Download",
   "tasks.NewsItemRecipientsExportTask.progress.description.preparing": "Preparing for export",
