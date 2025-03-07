@@ -91,12 +91,6 @@ export const CreateContactForm: React.FC = () => {
 
     const redirectToClientCard = useMemo(() => !!get(router, ['query', 'redirectToClientCard']), [router])
 
-    console.log('initialValues', initialValuesFromQuery)
-
-    console.log('propId', selectedPropertyId)
-    console.log('uname', selectedUnitName)
-    console.log('utype', selectedUnitType)
-
     const {
         changeMessage,
         phoneValidator,
