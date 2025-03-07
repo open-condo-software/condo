@@ -11,41 +11,19 @@ const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 const access = require('@condo/domains/acquiring/access/CreatePaymentByLinkService')
 const { CONTEXT_FINISHED_STATUS: ACQUIRING_CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const {
-    registerMultiPaymentForOneReceipt,
     registerMultiPaymentForVirtualReceipt,
     MultiPayment,
 } = require('@condo/domains/acquiring/utils/serverSchema')
 const { CONTEXT_FINISHED_STATUS: BILLING_CONTEXT_FINISHED_STATUS } = require('@condo/domains/billing/constants/constants')
 const {
-    isReceiptPaid,
-    compareQRCodeWithLastReceipt,
     formatPeriodFromQRCode,
     getQRCodeFields,
+    calculatePaymentPeriod,
 } = require('@condo/domains/billing/utils/receiptQRCodeUtils')
 const {
     validateQRCode,
 } = require('@condo/domains/billing/utils/serverSchema')
 const { ALREADY_EXISTS_ERROR, NOT_FOUND } = require('@condo/domains/common/constants/errors')
-
-/**
- * List of possible errors, that this custom schema can throw
- * They will be rendered in documentation section in GraphiQL for this custom schema
- */
-const ERRORS = {
-    RECEIPT_ALREADY_PAID: {
-        mutation: 'createPaymentByLink',
-        code: BAD_USER_INPUT,
-        type: ALREADY_EXISTS_ERROR,
-        message: 'Provided receipt already paid',
-        messageForUser: 'api.billing.billingReceipt.RECEIPT_ALREADY_PAID_ERROR',
-    },
-    NO_PREV_RECEIPT: {
-        mutation: 'createPaymentByLink',
-        code: BAD_USER_INPUT,
-        type: NOT_FOUND,
-        message: 'No previous receipt was found',
-    },
-}
 
 const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkService', {
     types: [
@@ -68,16 +46,17 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
 
                 const validationResult = await validateQRCode(context, { dv, sender, qrCode })
 
-                const { qrCodeFields, acquiringIntegrationHostUrl, currencyCode } = validationResult
+                // LastReceiptData will be present if validation was successful
+                const { qrCodeFields, acquiringIntegrationHostUrl, currencyCode, lastReceiptData } = validationResult
                 const {
                     personalAcc, // organization's bank account
-                    paymPeriod, // mm.yyyy
+                    paymPeriod, // mm.yyyy NOTE: could not be here
                     sum,
                     persAcc, // resident's account within organization
                     payeeINN,
                     bic,
                 } = getQRCodeFields(qrCodeFields, ['personalAcc', 'paymPeriod', 'sum', 'persAcc', 'payeeINN', 'bic'])
-                const period = formatPeriodFromQRCode(paymPeriod)
+
                 const amount = String(Big(sum).div(100))
 
                 // Existence of this billing account and billing property was checked at ValidateQRCodeService
@@ -110,58 +89,33 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                     deletedAt: null,
                 })
 
-                let multiPaymentId
-
-                const payForLastBillingReceipt = async (lastBillingReceipt) => {
-                    if (await isReceiptPaid(context, persAcc, lastBillingReceipt.period, [organizationId], personalAcc)) {
-                        throw new GQLError(ERRORS.RECEIPT_ALREADY_PAID, context)
-                    }
-                    const { multiPaymentId: id } = await registerMultiPaymentForOneReceipt(context, {
-                        dv, sender,
-                        receipt: { id: lastBillingReceipt.id },
-                        acquiringIntegrationContext: { id: acquiringContext.id },
-                    })
-                    multiPaymentId = id
+                // NOTE(YEgorLu): Get period and category for payment
+                // Period can be explicitly present in QR, save it in that case
+                let period
+                if (paymPeriod && paymPeriod !== 'undefined') {
+                    period = formatPeriodFromQRCode(paymPeriod)
+                } else {
+                    period = await calculatePaymentPeriod(lastReceiptData, get(billingContext, ['settings', 'receiptUploadDate']))
                 }
 
-                const payForQR = async (lastBillingReceipt) => {
-                    if (!lastBillingReceipt) {
-                        throw new GQLError(ERRORS.NO_PREV_RECEIPT, context)
-                    }
-                    if (await isReceiptPaid(context, persAcc, period, [organizationId], personalAcc)) {
-                        throw new GQLError(ERRORS.RECEIPT_ALREADY_PAID, context)
-                    }
-                    const categoryId = get(lastBillingReceipt, ['category', 'id'])
-                    const { multiPaymentId: id } = await registerMultiPaymentForVirtualReceipt(context, {
-                        dv, sender,
-                        receipt: {
-                            currencyCode,
-                            amount,
-                            period,
-                            recipient: {
-                                routingNumber: bic,
-                                bankAccount: personalAcc,
-                                accountNumber: persAcc, // resident's account number
-                            },
-                            ...categoryId ? { category: { id: categoryId } } : {},
+                const categoryId = lastReceiptData.category.id
+                const { multiPaymentId } = await registerMultiPaymentForVirtualReceipt(context, {
+                    dv, sender,
+                    receipt: {
+                        currencyCode,
+                        amount,
+                        period,
+                        recipient: {
+                            routingNumber: bic,
+                            bankAccount: personalAcc,
+                            accountNumber: persAcc, // resident's account number
                         },
-                        acquiringIntegrationContext: {
-                            id: acquiringContext.id,
-                        },
-                    })
-
-                    multiPaymentId = id
-                }
-
-                /** @type {TCompareQRResolvers} */
-                const resolvers = {
-                    onNoReceipt: payForQR,
-                    onReceiptPeriodEqualsQrCodePeriod: payForLastBillingReceipt,
-                    onReceiptPeriodNewerThanQrCodePeriod: payForLastBillingReceipt,
-                    onReceiptPeriodOlderThanQrCodePeriod: payForQR,
-                }
-
-                await compareQRCodeWithLastReceipt(context, qrCodeFields, resolvers)
+                        ...categoryId ? { category: { id: categoryId } } : {},
+                    },
+                    acquiringIntegrationContext: {
+                        id: acquiringContext.id,
+                    },
+                })
 
                 const multiPayment = await MultiPayment.getOne(context, { id: multiPaymentId },
                     'id amountWithoutExplicitFee explicitServiceCharge amount currencyCode',

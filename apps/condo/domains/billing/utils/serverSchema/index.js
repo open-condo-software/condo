@@ -67,20 +67,44 @@ const getPaymentsSum = async (receiptId) => {
  */
 const getNewPaymentsSum = async (receiptId) => {
     const receipt = await getById('BillingReceipt', receiptId)
-    const conditions = [
+    const billingContext = await getById('BillingIntegrationOrganizationContext', receipt.context)
+    const recipient = await getById('BillingRecipient', receipt.receiver)
+    const account = await getById('BillingAccount', receipt.account)
+    const defaultConditions = [
         { status_in: [PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS] },
         { deletedAt: null },
+    ]
+    const conditionsByReceipt = [
         { receipt: { id: receiptId } },
     ]
     if (receipt.balanceUpdatedAt) {
-        conditions.push({
+        conditionsByReceipt.push({
             OR: [
                 { transferDate: null },
                 { transferDate_gte: new Date(receipt.balanceUpdatedAt).toISOString() },
             ],
         })
     }
-    const payments = await find('Payment', { AND: conditions })
+    const conditionsWithNoReceipt = [
+        { receipt_is_null: true },
+        { invoice_is_null: true },
+        { organization: { id: billingContext.organization } },
+        { period: receipt.period },
+        { accountNumber: account.number },
+        {
+            recipientBic: recipient.bic,
+            recipientBankAccount: recipient.bankAccount,
+        },
+    ]
+
+    const c = {
+        AND: [
+            { AND: defaultConditions },
+            { OR: [{ AND: conditionsByReceipt }, { AND: conditionsWithNoReceipt }] },
+        ],
+    }
+    console.error(JSON.stringify(c))
+    const payments = await find('Payment', c)
     return payments.reduce((total, current) => (Big(total).plus(current.amount)), 0).toFixed(8).toString()
 }
 

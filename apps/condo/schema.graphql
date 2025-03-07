@@ -66911,7 +66911,6 @@ enum B2BAppIconType {
   ArrowRight
   BarChartHorizontal
   BarChartVertical
-  Bell
   Bill
   Briefcase
   Building
@@ -81289,6 +81288,11 @@ type SendNewReceiptMessagesToResidentScopesOutput {
   status: String!
 }
 
+type ValidateQRCodeReceiptCategoryOutput {
+  id: ID!
+  name: String!
+}
+
 input ValidateQRCodeInput {
   dv: Int!
   sender: SenderFieldInput!
@@ -81299,6 +81303,8 @@ type ValidateQRCodeLastReceiptDataOutput {
   id: ID!
   period: String!
   toPay: String!
+  category: ValidateQRCodeReceiptCategoryOutput!
+  createdAt: String!
 }
 
 type ValidateQRCodeFeesOutput {
