@@ -81483,7 +81483,6 @@ enum MessageType {
   BANK_ACCOUNT_CREATION_REQUEST
   DIRTY_INVITE_NEW_EMPLOYEE_SMS
   DIRTY_INVITE_NEW_EMPLOYEE_EMAIL
-  REGISTER_NEW_USER
   SMS_VERIFY
   DEVELOPER_IMPORTANT_NOTE_TYPE
   CUSTOMER_IMPORTANT_NOTE_TYPE
@@ -92330,6 +92329,18 @@ type Mutation {
     "type": "UNAVAILABLE_TOKEN_FOR_REGISTRATION",
     "message": "It is not possible to register a user with the type ? using ?"
   }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "PHONE_ALREADY_REGISTERED_ERROR",
+    "message": "Phone already registered"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "EMAIL_ALREADY_REGISTERED_ERROR",
+    "message": "Email already registered"
+  }`
   """
   authenticateOrRegisterUserWithToken(data: AuthenticateOrRegisterUserWithTokenInput!): AuthenticateOrRegisterUserWithTokenOutput
 
@@ -92904,6 +92915,10 @@ type Mutation {
   		"serverUrl": {
   			"defaultValue": "",
   			"required": false
+  		},
+  		"isRegistration": {
+  			"defaultValue": false,
+  			"required": false
   		}
   	},
   	"DIRTY_INVITE_NEW_EMPLOYEE_EMAIL": {
@@ -92918,19 +92933,9 @@ type Mutation {
   		"serverUrl": {
   			"defaultValue": "",
   			"required": false
-  		}
-  	},
-  	"REGISTER_NEW_USER": {
-  		"dv": {
-  			"defaultValue": "",
-  			"required": true
   		},
-  		"userPhone": {
-  			"defaultValue": "",
-  			"required": false
-  		},
-  		"userPassword": {
-  			"defaultValue": "",
+  		"isRegistration": {
+  			"defaultValue": false,
   			"required": false
   		}
   	},

@@ -18,9 +18,22 @@ const ALLOWED_OPTIONS = ['errorMapping', 'doesNotExistError', 'multipleObjectsEr
 
 function _getAllErrorMessages (errors) {
     const messages = []
-    for (const x of errors) {
-        const m = get(x, 'message')
-        if (m) messages.push(m)
+    for (const error of errors) {
+        const message = error?.message
+        if (message) messages.push(message)
+
+        const originalErrorName = error?.originalError?.name
+        if (message === 'You attempted to perform an invalid mutation' && originalErrorName === 'ValidationFailureError') {
+            const originalErrorMessages = error?.originalError?.data?.messages
+            if (Array.isArray(originalErrorMessages)) {
+                for (const originalErrorMessage of originalErrorMessages) {
+                    if (originalErrorMessage && typeof originalErrorMessage === 'string') {
+                        messages.push(originalErrorMessage)
+                    }
+                }
+            }
+        }
+
     }
     return messages
 }

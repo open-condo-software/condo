@@ -1,0 +1,3 @@
+query checkUserExistence ($data: CheckUserExistenceInput!) {
+    result: checkUserExistence(data: $data) { isUserExists isNameSet isEmailSet isPhoneSet isPasswordSet }
+}
