@@ -195,6 +195,7 @@
     "@parcel/watcher": "^2.4.1",
     "@testing-library/react": "^11.2.5",
     "@types/echarts": "4.9.16",
+    "@types/http-proxy": "^1.17.16",
     "@types/jest": "^29.4.0",
     "@types/k6": "^0.54.0",
     "@types/mjml": "^4.7.4",

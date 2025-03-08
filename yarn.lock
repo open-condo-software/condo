@@ -821,6 +821,7 @@ __metadata:
     "@testing-library/react": ^11.2.5
     "@tinymce/tinymce-react": ^4.1.0
     "@types/echarts": 4.9.16
+    "@types/http-proxy": ^1.17.16
     "@types/jest": ^29.4.0
     "@types/k6": ^0.54.0
     "@types/lodash": 4.14.186
@@ -1034,6 +1035,7 @@ __metadata:
     "@open-condo/tsconfig": "workspace:^"
     "@open-condo/ui": "workspace:^"
     "@parcel/watcher": ^2.3.0
+    "@types/http-proxy": ^1.17.16
     "@types/react": 18.0.27
     "@types/react-dom": 18.0.10
     "@types/title": 3.4.1
@@ -2064,6 +2066,7 @@ __metadata:
     "@parcel/watcher": ^2.3.0
     "@serwist/next": ^9.0.1
     "@types/big.js": ^6.2.2
+    "@types/http-proxy": ^1.17.16
     "@types/node": ^16
     "@types/react": 18.0.27
     "@types/react-dom": 18.0.10
@@ -19609,6 +19612,15 @@ __metadata:
   dependencies:
     "@types/node": "*"
   checksum: 53b7cd0c9410e69fe77ac097860ee1dca2281abdd9cfed98cfd0f5d2d232901f3016b7306e1f8ee57e506f39d9b4cb8f17903be885076e1f28b9d78d4a3e5bc8
+  languageName: node
+  linkType: hard
+
+"@types/http-proxy@npm:^1.17.16":
+  version: 1.17.16
+  resolution: "@types/http-proxy@npm:1.17.16"
+  dependencies:
+    "@types/node": "*"
+  checksum: f5ab4afe7e3feba9d87bdddbf44e03d9a836bd2cdab679a794badbff7c4bfb6bebf46bfe22d9964eb1820e1349f2ff7807cccb20fd27cb17f03db849289e5892
   languageName: node
   linkType: hard
 
