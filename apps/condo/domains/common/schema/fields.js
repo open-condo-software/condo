@@ -213,6 +213,12 @@ const PHONE_WITHOUT_LAND_LINE_FIELD = {
     hooks: getPhoneFieldHooks({ allowLandline: false }),
 }
 
+const META_FIELD = {
+    type: 'Json',
+    schemaDoc: 'Untyped metadata for this object. May be used by custom integrations.',
+    isRequired: false,
+}
+
 module.exports = {
     DV_FIELD,
     SENDER_FIELD,
@@ -232,4 +238,5 @@ module.exports = {
     PHONE_FIELD,
     PHONE_WITHOUT_LAND_LINE_FIELD,
     PERCENT_FIELD,
+    META_FIELD,
 }

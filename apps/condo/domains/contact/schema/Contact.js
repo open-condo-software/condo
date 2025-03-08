@@ -8,13 +8,15 @@ const { GQLListSchema, find } = require('@open-condo/keystone/schema')
 const { webHooked } = require('@open-condo/webhooks/plugins')
 
 const { PHONE_WRONG_FORMAT_ERROR, EMAIL_WRONG_FORMAT_ERROR, PROPERTY_REQUIRED_ERROR } = require('@condo/domains/common/constants/errors')
-const { UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
+const { UNIT_TYPE_FIELD, META_FIELD } = require('@condo/domains/common/schema/fields')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { getUnitTypeFieldResolveInput } = require('@condo/domains/common/utils/serverSchema/resolveHelpers')
+const { normalizeText } = require('@condo/domains/common/utils/text')
 const access = require('@condo/domains/contact/access/Contact')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const { UNABLE_TO_CREATE_CONTACT_DUPLICATE, UNABLE_TO_UPDATE_CONTACT_DUPLICATE } = require('@condo/domains/user/constants/errors')
+
 
 
 /**
@@ -168,6 +170,19 @@ const Contact = new GQLListSchema('Contact', {
                 },
             },
         },
+
+        note: {
+            schemaDoc: 'A note about the contact',
+            type: 'Text',
+            isRequired: false,
+            hooks: {
+                resolveInput: async ({ resolvedData }) => {
+                    return normalizeText(resolvedData['details'])
+                },
+            },
+        },
+
+        meta: META_FIELD,
     },
     hooks: {
         validateInput: async ({ resolvedData, operation, existingItem, addValidationError, context }) => {
