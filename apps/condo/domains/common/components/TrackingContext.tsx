@@ -7,6 +7,12 @@ import upperFirst from 'lodash/upperFirst'
 import { useRouter } from 'next/router'
 import React, { createContext, useContext, useEffect, useLayoutEffect, useRef, useCallback } from 'react'
 
+type ITrackerLogEventType = {
+    eventName: string
+    eventProperties?: Record<string, unknown>
+    userProperties?: Record<string, unknown>
+    denyDuplicates?: boolean
+}
 
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
@@ -14,15 +20,14 @@ import { useOrganization } from '@open-condo/next/organization'
 import { TRACKING_USER_FIELDS } from '@condo/domains/user/constants'
 
 import { usePostMessageContext } from './PostMessageProvider'
-import AmplitudeInstance from './trackers/AmplitudeInstance'
-import TrackerInstance, { ITrackerLogEventType } from './trackers/TrackerInstance'
 
 import type { RequestHandler } from './PostMessageProvider/types'
 
 
 const TRACKING_INITIAL_VALUE = {
     // Here you should create app related tracker instances
-    trackerInstances: { amplitude: new AmplitudeInstance() },
+    // trackerInstances: { amplitude: new AmplitudeInstance() },
+    trackerInstances: {},
 }
 
 export type TrackingEventPropertiesType = {
@@ -40,7 +45,7 @@ export interface ITrackingComponent {
 }
 
 interface ITrackingContext {
-    trackerInstances: Record<string, TrackerInstance>
+    trackerInstances: Record<string, any>
     eventProperties?: TrackingEventPropertiesType
     userProperties?: TrackingCommonEventProperties
 }
