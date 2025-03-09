@@ -22,7 +22,11 @@ type UserData = {
     type?: string | null
 }
 
-type AppGroups = 'addressKey'
+type AppGroups =
+    'organization.id' |
+    'organization.type' |
+    'organization.tin' |
+    'employee.role'
 
 function initAnalytics (): Analytics<Events, UserData, AppGroups> {
     const plugins: Array<AnalyticsPlugin> = []
@@ -32,7 +36,10 @@ function initAnalytics (): Analytics<Events, UserData, AppGroups> {
             enabled: true,
             token: posthogApiKey,
             options: {
-                api_host: '/api/ph',
+                // TODO(SavelevMatthew): replace this back to proxy once you've figured out,
+                //  why 308 are not followed correctly
+                // api_host: '/api/ph',
+                api_host: posthogApiHost,
                 debug: isDebug(),
                 autocapture: false,
             },

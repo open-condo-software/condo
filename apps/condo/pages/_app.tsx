@@ -506,10 +506,10 @@ const MyApp = ({ Component, pageProps }) => {
                                                 <TicketVisibilityContextProvider>
                                                     <ActiveCallContextProvider>
                                                         <ConnectedAppsWithIconsContextProvider>
+                                                            <CondoAppEventsHandler/>
                                                             <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
                                                                 <RequiredAccess>
                                                                     <FeaturesReady fallback={<Loader fill size='large'/>}>
-                                                                        <CondoAppEventsHandler/>
                                                                         <Component {...pageProps} />
                                                                         {
                                                                             isEndTrialSubscriptionReminderPopupVisible && (

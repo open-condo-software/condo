@@ -1,11 +1,10 @@
 import compact from 'lodash/compact'
-import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
 import isUndefined from 'lodash/isUndefined'
 import pick from 'lodash/pick'
 import upperFirst from 'lodash/upperFirst'
 import { useRouter } from 'next/router'
-import React, { createContext, useContext, useEffect, useLayoutEffect, useRef, useCallback } from 'react'
+import React, { createContext, useContext, useLayoutEffect, useRef, useCallback } from 'react'
 
 type ITrackerLogEventType = {
     eventName: string
@@ -13,16 +12,6 @@ type ITrackerLogEventType = {
     userProperties?: Record<string, unknown>
     denyDuplicates?: boolean
 }
-
-import { useAuth } from '@open-condo/next/auth'
-import { useOrganization } from '@open-condo/next/organization'
-
-import { TRACKING_USER_FIELDS } from '@condo/domains/user/constants'
-
-import { usePostMessageContext } from './PostMessageProvider'
-
-import type { RequestHandler } from './PostMessageProvider/types'
-
 
 const TRACKING_INITIAL_VALUE = {
     // Here you should create app related tracker instances
@@ -181,10 +170,7 @@ const useTracking: IUseTracking = () => {
 }
 
 const TrackingProvider: React.FC = ({ children }) => {
-    const { user } = useAuth()
-    const { link } = useOrganization()
     const router = useRouter()
-    const { addEventHandler } = usePostMessageContext()
 
     const trackingProviderValueRef = useRef<ITrackingContext>({
         trackerInstances: TRACKING_INITIAL_VALUE.trackerInstances,
@@ -196,25 +182,6 @@ const TrackingProvider: React.FC = ({ children }) => {
         },
     })
 
-    const routeChangeComplete = (url) => {
-        trackingProviderValueRef.current.eventProperties.page.path = url
-    }
-
-    const handleExternalAnalyticsEvent = useCallback<RequestHandler<'CondoWebSendAnalyticsEvent'>>((params) => {
-        const eventName = getEventNameFromRoute(router.route, upperFirst(params.event) as TrackingEventType)
-        const eventProperties = {
-            ...trackingProviderValueRef.current.eventProperties,
-            components: params,
-        }
-        Object.values(trackingProviderValueRef.current.trackerInstances).forEach((trackerInstance) => trackerInstance.logEvent({
-            eventName,
-            eventProperties,
-            userProperties: trackingProviderValueRef.current.userProperties,
-        }))
-
-        return { sent: true }
-    }, [router.route])
-
     // It's important to init all the analytics instances right before first content render
     useLayoutEffect(() => {
         if (!isUndefined(window)) {
@@ -223,45 +190,11 @@ const TrackingProvider: React.FC = ({ children }) => {
         }
     }, [])
 
-    useEffect(() => {
-        // Init all instances of trackers only on client side rendering
-        if (!isUndefined(window)) {
-            addEventHandler('CondoWebSendAnalyticsEvent', '*', handleExternalAnalyticsEvent)
-            // Page path changed -> change value at context object
-            router.events.on('routeChangeComplete', routeChangeComplete)
-        }
-
-        return () => {
-            router.events.off('routeChangeComplete', routeChangeComplete)
-        }
-    }, [router, addEventHandler, handleExternalAnalyticsEvent])
-
-    // Collect user & organization related data to slice custom groups based on given attributes
-    useEffect(() => {
-        if (user) {
-            trackingProviderValueRef.current.userProperties = pick(user, TRACKING_USER_FIELDS)
-
-            if (link) {
-                trackingProviderValueRef.current.userProperties['role'] = get(link, 'role.name')
-                trackingProviderValueRef.current.userProperties['organization'] = get(link, 'organization.name')
-                trackingProviderValueRef.current.userProperties['organizationId'] = get(link, 'organization.id')
-            }
-        }
-    }, [user, link])
-
     return (
         <TrackingContext.Provider value={trackingProviderValueRef.current}>
             {children}
         </TrackingContext.Provider>
     )
-}
-
-export enum TrackingPageState {
-    Empty = 'Empty',
-    InProgress = 'InProgress',
-    Error = 'Error',
-    Success = 'Success',
-    AccessError = 'AccessError',
 }
 
 export { useTracking, TrackingProvider }

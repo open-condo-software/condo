@@ -12,6 +12,7 @@ query authenticatedUser {
         rightsSet {
             id
         }
+        type
         locale
         showGlobalHints
     }
