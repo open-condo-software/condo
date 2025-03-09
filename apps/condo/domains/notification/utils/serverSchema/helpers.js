@@ -142,8 +142,19 @@ function getMessageOptions (type) {
     return { strategy, transports: defaultTransports, isVoIP, throttlePeriodForUser }
 }
 
+/**
+ * Gets value customPushType from MESSAGE_DELIVERY_OPTIONS[type] if it exists
+ * @param messageType
+ * @returns {customPushType: string | undefined}
+ */
+function getPreferPushTypeByMessageType (messageType) {
+    const { pushType } = get(MESSAGE_DELIVERY_OPTIONS, messageType)
+    return pushType
+}
+
 module.exports = {
     getAnonymousSettings,
     getUserSettingsForMessage,
     getMessageOptions,
+    getPreferPushTypeByMessageType,
 }
