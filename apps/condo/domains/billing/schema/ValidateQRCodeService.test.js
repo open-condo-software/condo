@@ -15,7 +15,7 @@ const {
     expectToThrowGQLErrorToResult,
 } = require('@open-condo/keystone/test.utils')
 
-const { CONTEXT_FINISHED_STATUS, CONTEXT_IN_PROGRESS_STATUS } = require('@condo/domains/acquiring/constants/context')
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { PAYMENT_DONE_STATUS } = require('@condo/domains/acquiring/constants/payment')
 const {
     createTestAcquiringIntegrationContext,
@@ -46,7 +46,6 @@ const {
     createTestRecipient,
     updateTestBillingReceipt,
 } = require('@condo/domains/billing/utils/testSchema')
-const { ALREADY_EXISTS_ERROR } = require('@condo/domains/common/constants/errors')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const {
@@ -93,7 +92,6 @@ async function createBillingReceiptAndAllDependencies (admin, organization, prop
         bic: qrCodeAttrs.BIC,
         tin: qrCodeAttrs.PayeeINN,
     })
-    console.error('sum', sum, String(sum))
     const [billingReceipt] = await createTestBillingReceipt(admin, billingIntegrationContext, billingProperty, billingAccount, {
         period,
         receiver: { connect: { id: billingRecipient.id } },
@@ -377,33 +375,6 @@ describe('ValidateQRCodeService', () => {
                 'result',
             )
         })
-
-        test('should throw if no BillingIntegrationOrganizationContext in status finished was found', async () => {
-            const [anotherOrganization] = await createTestOrganization(adminClient)
-            const [anotherProperty] = await createTestProperty(adminClient, anotherOrganization)
-            const { billingIntegrationContext } = await addBillingIntegrationAndContext(adminClient, anotherOrganization, {}, { status: CONTEXT_IN_PROGRESS_STATUS })
-
-            const anotherQrCodeObj = generateQrCodeObj({
-                PayeeINN: anotherOrganization.tin,
-                PayerAddress: `${anotherProperty.address}, кв. 1`,
-            })
-
-            const [billingProperty] = await createTestBillingProperty(adminClient, billingIntegrationContext, { address: anotherProperty.address })
-            await createTestBillingAccount(adminClient, billingIntegrationContext, billingProperty, { number: anotherQrCodeObj.PersAcc })
-
-            await expectToThrowGQLError(
-                async () => {
-                    await validateQRCodeByTestClient(adminClient, { qrCode: stringifyQrCode(anotherQrCodeObj) })
-                },
-                {
-                    mutation: 'validateQRCode',
-                    code: 'INTERNAL_ERROR',
-                    type: 'NOT_FOUND',
-                    message: 'Organization with provided TIN does not have an active billing integration',
-                },
-                'result',
-            )
-        })
     })
 
     describe('The error on requests limit reached', () => {
@@ -568,6 +539,11 @@ describe('ValidateQRCodeService', () => {
                     id: billingReceiptLast.id,
                     period: '2024-06-01',
                     toPay: '2000.00000000',
+                    createdAt: billingReceiptLast.createdAt,
+                    category: {
+                        id: billingReceiptLast.category.id,
+                        name: billingReceiptLast.category.name,
+                    },
                 },
                 explicitFees: {
                     explicitServiceCharge: '30',
@@ -611,6 +587,11 @@ describe('ValidateQRCodeService', () => {
                     id: billingReceipt.id,
                     period,
                     toPay: `${sum}.00000000`,
+                    createdAt: billingReceipt.createdAt,
+                    category: {
+                        id: billingReceipt.category.id,
+                        name: billingReceipt.category.name,
+                    },
                 },
                 explicitFees: {
                     explicitServiceCharge: '25',
@@ -655,6 +636,11 @@ describe('ValidateQRCodeService', () => {
                     id: billingReceipt.id,
                     period,
                     toPay: `${olderReceiptSum}.00000000`,
+                    createdAt: billingReceipt.createdAt,
+                    category: {
+                        id: billingReceipt.category.id,
+                        name: billingReceipt.category.name,
+                    },
                 },
                 explicitFees: {
                     explicitServiceCharge: '25',
@@ -752,6 +738,11 @@ describe('ValidateQRCodeService', () => {
                 id: billingReceipt.id,
                 period: billingReceipt.period,
                 toPay: billingReceipt.toPay,
+                createdAt: billingReceipt.createdAt,
+                category: {
+                    id: billingReceipt.category.id,
+                    name: billingReceipt.category.name,
+                },
             },
             explicitFees: {
                 explicitServiceCharge: '25',

@@ -20,19 +20,15 @@ const {
     registerMultiPaymentForVirtualReceiptByTestClient,
     updateTestPayment,
     generateVirtualReceipt,
+    generateQRCode,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestBankAccount } = require('@condo/domains/banking/utils/testSchema')
-const {
-    createValidRuTin10,
-    createValidRuRoutingNumber, createValidRuNumber,
-} = require('@condo/domains/banking/utils/testSchema/bankAccount')
 const {
     createTestBillingProperty,
     createTestBillingRecipient,
     createTestBillingReceipt, createTestBillingAccount,
     addBillingIntegrationAndContext, createTestRecipient,
 } = require('@condo/domains/billing/utils/testSchema')
-const { ALREADY_EXISTS_ERROR } = require('@condo/domains/common/constants/errors')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const {
@@ -41,24 +37,6 @@ const {
     makeClientWithStaffUser,
     makeClientWithServiceUser,
 } = require('@condo/domains/user/utils/testSchema')
-
-function generateQRCode (qrCodeData = {}, { version = '0001', encodingTag = '2' } = {}) {
-    const bic = createValidRuRoutingNumber()
-
-    const qrCodeObj = {
-        PersonalAcc: createValidRuNumber(bic),
-        PayeeINN: createValidRuTin10(),
-        Sum: faker.random.numeric(6),
-        LastName: faker.random.alpha(10),
-        PaymPeriod: '07.2023',
-        BIC: bic,
-        PersAcc: faker.random.numeric(8),
-        PayerAddress: 'г Москва, ул Тверская, д 14, кв 2',
-        ...qrCodeData,
-    }
-
-    return [Buffer.from(`ST${version}${encodingTag}|${Object.keys(qrCodeObj).map((k) => `${k}=${qrCodeObj[k]}`).join('|')}`).toString('base64'), qrCodeObj]
-}
 
 async function createOrganizationAndPropertyAndQrCode (client, houseNumber, flatNumber, PaymPeriod) {
     const [organization] = await createTestOrganization(client)
@@ -671,8 +649,6 @@ describe('CreatePaymentByLinkService', () => {
                 multiPayment: { id: multiPayment.id },
             })
 
-            console.error(payments[0])
-
             expect(payments[0].accountNumber).toBe(qrCodeAttrs.PersAcc)
             expect(payments[0].recipientBic).toBe(qrCodeAttrs.BIC)
             expect(payments[0].currencyCode).toBe(billingIntegrationContext.integration.currencyCode)
@@ -756,9 +732,6 @@ describe('CreatePaymentByLinkService', () => {
 
         // create the receipt
         const {
-            billingAccount: { number: accountNumber },
-            bankAccount,
-            acquiringIntegrationContext,
             acquiringIntegration,
             billingIntegrationContext,
             billingReceipt,

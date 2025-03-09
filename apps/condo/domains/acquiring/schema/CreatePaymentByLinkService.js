@@ -5,7 +5,6 @@
 const Big = require('big.js')
 const { get } = require('lodash')
 
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/acquiring/access/CreatePaymentByLinkService')
@@ -23,7 +22,8 @@ const {
 const {
     validateQRCode,
 } = require('@condo/domains/billing/utils/serverSchema')
-const { ALREADY_EXISTS_ERROR, NOT_FOUND } = require('@condo/domains/common/constants/errors')
+
+const PERIOD_REGEXP = /\d\d\d\d-\d\d-01/
 
 const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkService', {
     types: [
@@ -91,8 +91,9 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
 
                 // NOTE(YEgorLu): Get period and category for payment
                 // Period can be explicitly present in QR, save it in that case
+                // In case paymPeriod is null or undefined we receive strings 'null' | 'undefined'
                 let period
-                if (paymPeriod && paymPeriod !== 'undefined') {
+                if (paymPeriod && PERIOD_REGEXP.test(paymPeriod)) {
                     period = formatPeriodFromQRCode(paymPeriod)
                 } else {
                     period = await calculatePaymentPeriod(lastReceiptData, get(billingContext, ['settings', 'receiptUploadDate']))
