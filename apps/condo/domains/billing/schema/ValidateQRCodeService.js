@@ -152,7 +152,6 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
                 if (missedFields.length > 0) {
                     throw new GQLError(ERRORS.INVALID_QR_CODE_FIELDS(missedFields), context)
                 }
-                console.error('qrCodeAmount', getQRCodeField(qrCodeFields, 'Sum'), String(Big(getQRCodeField(qrCodeFields, 'Sum')).div(100)))
                 // NOTE(YEgorLu): amount in qrcode exists without "." between parts ("1000.11" -> "100011"), so let's add it
                 // NOTE(YEgorLu): Round to 8 characters, so qrcode amount has same format as receipt amount - "1000.00000000" instead of "1000"
                 const qrCodeAmount = Big(getQRCodeField(qrCodeFields, 'Sum')).div(100).toFixed(8)
