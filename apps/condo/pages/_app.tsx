@@ -33,6 +33,7 @@ import { useOrganization, withOrganization } from '@open-condo/next/organization
 import { useBankReportTaskUIInterface } from '@condo/domains/banking/hooks/useBankReportTaskUIInterface'
 import { useBankSyncTaskUIInterface } from '@condo/domains/banking/hooks/useBankSyncTaskUIInterface'
 import { BillingIntegrationOrganizationContext as BillingContext } from '@condo/domains/billing/utils/clientSchema'
+import { CondoAppEventsHandler } from '@condo/domains/common/components/CondoAppEventsHandler'
 import BaseLayout, { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
@@ -109,11 +110,11 @@ import { CookieAgreement } from '@condo/domains/user/components/CookieAgreement'
 import Error404Page from './404'
 import Error429Page from './429'
 import Error500Page from './500'
-
 import '@condo/domains/common/components/wdyr'
 import '@open-condo/ui/dist/styles.min.css'
 import '@open-condo/ui/dist/style-vars/variables.css'
 import '@condo/domains/common/components/containers/global-styles.css'
+
 
 
 const { publicRuntimeConfig: { defaultLocale, sppConfig, isDisabledSsr } } = getConfig()
@@ -508,6 +509,7 @@ const MyApp = ({ Component, pageProps }) => {
                                                             <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
                                                                 <RequiredAccess>
                                                                     <FeaturesReady fallback={<Loader fill size='large'/>}>
+                                                                        <CondoAppEventsHandler/>
                                                                         <Component {...pageProps} />
                                                                         {
                                                                             isEndTrialSubscriptionReminderPopupVisible && (

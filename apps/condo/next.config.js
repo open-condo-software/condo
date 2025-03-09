@@ -68,10 +68,12 @@ const dataProcessingConsentUrl = conf['LEGAL_DATA_PROCESSING_CONSENT_URL']
 const isSnowfallDisabled = conf['IS_SNOWFALL_DISABLED'] === 'true'
 const proxyName = conf['API_PROXY_NAME'] || 'Next'
 const posthogApiHost = conf['POSTHOG_API_HOST']
+const posthogApiKey = conf['POSTHOG_API_KEY']
 
 let nextConfig = withTM(withLess(withCSS({
     publicRuntimeConfig: {
         // Will be available on both server and client
+        appName,
         currentVersion: getCurrentVersion(),
         serverUrl,
         apolloGraphQLUrl,
@@ -112,6 +114,7 @@ let nextConfig = withTM(withLess(withCSS({
         dataProcessingConsentUrl,
         isSnowfallDisabled,
         posthogApiHost,
+        posthogApiKey,
     },
     serverRuntimeConfig: {
         proxyName,
