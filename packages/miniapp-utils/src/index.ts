@@ -3,6 +3,7 @@
  */
 
 export { Analytics } from './helpers/analytics'
+export type { AnalyticsPlugin } from './helpers/analytics'
 
 export { prepareSSRContext, getTracingMiddleware } from './helpers/apollo'
 export type { TracingMiddlewareOptions } from './helpers/apollo'
