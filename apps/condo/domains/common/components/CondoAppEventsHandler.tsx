@@ -48,6 +48,10 @@ export const CondoAppEventsHandler: FC = () => {
         return analytics.trackUntyped(event, eventData).then(() => ({ sent: true }))
     }, [])
 
+    useEffect(() => {
+        addEventHandler('CondoWebSendAnalyticsEvent', '*', handleExternalAnalyticsEvent)
+    }, [addEventHandler, handleExternalAnalyticsEvent])
+
     // Organization tracking
     useEffect(() => {
         if (employee) {
@@ -76,10 +80,6 @@ export const CondoAppEventsHandler: FC = () => {
             }
         }
     }, [employee])
-
-    useEffect(() => {
-        addEventHandler('CondoWebSendAnalyticsEvent', '*', handleExternalAnalyticsEvent)
-    }, [addEventHandler, handleExternalAnalyticsEvent])
 
     return null
 }
