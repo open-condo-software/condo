@@ -605,7 +605,7 @@ export type UpdateUserTicketCommentReadTimeMutation = { __typename?: 'Mutation',
 export type AuthenticatedUserQueryVariables = Types.Exact<{ [key: string]: never; }>;
 
 
-export type AuthenticatedUserQuery = { __typename?: 'Query', authenticatedUser?: { __typename?: 'User', id: string, name?: string | null, phone?: string | null, email?: string | null, isAdmin?: boolean | null, isSupport?: boolean | null, locale?: Types.UserLocaleType | null, showGlobalHints?: boolean | null, avatar?: { __typename?: 'File', publicUrl?: string | null } | null, rightsSet?: { __typename?: 'UserRightsSet', id: string } | null } | null };
+export type AuthenticatedUserQuery = { __typename?: 'Query', authenticatedUser?: { __typename?: 'User', id: string, name?: string | null, phone?: string | null, email?: string | null, isAdmin?: boolean | null, isSupport?: boolean | null, type?: Types.UserTypeType | null, locale?: Types.UserLocaleType | null, showGlobalHints?: boolean | null, avatar?: { __typename?: 'File', publicUrl?: string | null } | null, rightsSet?: { __typename?: 'UserRightsSet', id: string } | null } | null };
 
 export type SignOutMutationVariables = Types.Exact<{ [key: string]: never; }>;
 

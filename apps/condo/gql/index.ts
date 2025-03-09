@@ -4175,6 +4175,7 @@ export const AuthenticatedUserDocument = gql`
     rightsSet {
       id
     }
+    type
     locale
     showGlobalHints
   }

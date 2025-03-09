@@ -71,6 +71,7 @@ const posthogApiHost = conf['POSTHOG_API_HOST']
 const posthogApiKey = conf['POSTHOG_API_KEY']
 
 let nextConfig = withTM(withLess(withCSS({
+    skipTrailingSlashRedirect: true,
     publicRuntimeConfig: {
         // Will be available on both server and client
         appName,
