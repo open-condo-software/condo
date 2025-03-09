@@ -11,6 +11,8 @@ const conf = require('@open-condo/config')
 const { antGlobalVariables } = require('@condo/domains/common/constants/style')
 const { getCurrentVersion } = require('@condo/domains/common/utils/VersioningMiddleware')
 
+const { name } = require('./package.json')
+
 // Tell webpack to compile the "@open-condo/next" package, necessary
 // https://www.npmjs.com/package/next-transpile-modules
 // NOTE: FormTable require rc-table module
@@ -24,6 +26,7 @@ const withTM = withTMModule([
     '@emotion/styled',
 ])
 
+const appName = name
 const serverUrl = process.env.SERVER_URL || 'http://localhost:3000'
 const apolloGraphQLUrl = `${serverUrl}/admin/api`
 const addressServiceUrl = conf['ADDRESS_SERVICE_URL']
@@ -35,7 +38,6 @@ const docsConfig = { 'isGraphqlPlaygroundEnabled': conf['ENABLE_DANGEROUS_GRAPHQ
 const hCaptcha = conf['HCAPTCHA_CONFIG'] && JSON.parse(conf['HCAPTCHA_CONFIG'])
 const disableCaptcha = conf.DISABLE_CAPTCHA === 'true'
 const yandexMetrikaID = conf['YANDEX_METRIKA_ID']
-const trackingConfig = conf['TRACKING_CONFIG'] && JSON.parse(conf['TRACKING_CONFIG'])
 const defaultLocale = conf.DEFAULT_LOCALE
 const insuranceAppUrl = conf['INSURANCE_APP_URL']
 const JivoSiteWidgetId = conf['JIVO_SITE_WIDGET_ID']
@@ -64,10 +66,15 @@ const termsOfUseUrl = conf['LEGAL_TERMS_OF_USE_URL']
 const privacyPolicyUrl = conf['LEGAL_PRIVACY_POLICY_URL']
 const dataProcessingConsentUrl = conf['LEGAL_DATA_PROCESSING_CONSENT_URL']
 const isSnowfallDisabled = conf['IS_SNOWFALL_DISABLED'] === 'true'
+const proxyName = conf['API_PROXY_NAME'] || 'Next'
+const posthogApiHost = conf['POSTHOG_API_HOST']
+const posthogApiKey = conf['POSTHOG_API_KEY']
 
 let nextConfig = withTM(withLess(withCSS({
     publicRuntimeConfig: {
         // Will be available on both server and client
+        appName,
+        currentVersion: getCurrentVersion(),
         serverUrl,
         apolloGraphQLUrl,
         addressServiceUrl,
@@ -78,7 +85,6 @@ let nextConfig = withTM(withLess(withCSS({
         featureFlagsConfig,
         docsConfig,
         yandexMetrikaID,
-        trackingConfig,
         defaultLocale,
         insuranceAppUrl,
         JivoSiteWidgetId,
@@ -95,7 +101,6 @@ let nextConfig = withTM(withLess(withCSS({
         condoRBDomain,
         sentryConfig,
         apolloBatchingEnabled,
-        currentVersion: getCurrentVersion(),
         tourVideoUrl,
         residentAppLandingUrl,
         createMapVideoUrl,
@@ -108,6 +113,11 @@ let nextConfig = withTM(withLess(withCSS({
         privacyPolicyUrl,
         dataProcessingConsentUrl,
         isSnowfallDisabled,
+        posthogApiHost,
+        posthogApiKey,
+    },
+    serverRuntimeConfig: {
+        proxyName,
     },
     lessLoaderOptions: {
         javascriptEnabled: true,
