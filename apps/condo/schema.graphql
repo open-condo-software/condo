@@ -14307,6 +14307,7 @@ type BillingReceiptHistoryRecord {
   recipient: JSON
   receiver: String
   file: String
+  amountDistribution: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -14491,6 +14492,10 @@ input BillingReceiptHistoryRecordWhereInput {
   file_not: String
   file_in: [String]
   file_not_in: [String]
+  amountDistribution: JSON
+  amountDistribution_not: JSON
+  amountDistribution_in: [JSON]
+  amountDistribution_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -14639,6 +14644,7 @@ input BillingReceiptHistoryRecordUpdateInput {
   recipient: JSON
   receiver: String
   file: String
+  amountDistribution: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -14681,6 +14687,7 @@ input BillingReceiptHistoryRecordCreateInput {
   recipient: JSON
   receiver: String
   file: String
+  amountDistribution: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -14811,6 +14818,24 @@ input BillingReceiptFileRelateToOneInput {
   disconnectAll: Boolean
 }
 
+type AmountDistributionField {
+  recipient: RecipientField!
+  amount: String!
+  order: Int
+  vor: Boolean
+  isFeePayer: Boolean
+  overpaymentPart: Int
+}
+
+input AmountDistributionFieldInput {
+  recipient: RecipientFieldInput!
+  amount: String!
+  order: Int
+  vor: Boolean
+  isFeePayer: Boolean
+  overpaymentPart: Int
+}
+
 """ Account monthly invoice document """
 type BillingReceipt {
   """
@@ -14919,6 +14944,10 @@ type BillingReceipt {
 
   """ Code of currency in ISO-4217 format """
   currencyCode: String
+
+  """ This optional field stores how to distribute amount between several receivers. Applicable to models with "toPay" field. 
+  """
+  amountDistribution: [AmountDistributionField!]
   id: ID!
   v: Int
   createdAt: String
@@ -15099,6 +15128,10 @@ input BillingReceiptWhereInput {
   receiver_is_null: Boolean
   file: BillingReceiptFileWhereInput
   file_is_null: Boolean
+  amountDistribution: [AmountDistributionFieldInput!]
+  amountDistribution_not: [AmountDistributionFieldInput!]
+  amountDistribution_in: [[AmountDistributionFieldInput!]]
+  amountDistribution_not_in: [[AmountDistributionFieldInput!]]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -15239,6 +15272,7 @@ input BillingReceiptUpdateInput {
   recipient: BillingReceiptsRecipientFieldInput
   receiver: BillingRecipientRelateToOneInput
   file: BillingReceiptFileRelateToOneInput
+  amountDistribution: [AmountDistributionFieldInput!]
   v: Int
   createdAt: String
   updatedAt: String
@@ -15278,6 +15312,7 @@ input BillingReceiptCreateInput {
   recipient: BillingReceiptsRecipientFieldInput
   receiver: BillingRecipientRelateToOneInput
   file: BillingReceiptFileRelateToOneInput
+  amountDistribution: [AmountDistributionFieldInput!]
   v: Int
   createdAt: String
   updatedAt: String
@@ -59573,6 +59608,8 @@ type PaymentHistoryRecord {
   recipient: JSON
   rawAddress: String
   importId: String
+  frozenDistribution: JSON
+  frozenSplits: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -59857,6 +59894,14 @@ input PaymentHistoryRecordWhereInput {
   importId_not_ends_with_i: String
   importId_in: [String]
   importId_not_in: [String]
+  frozenDistribution: JSON
+  frozenDistribution_not: JSON
+  frozenDistribution_in: [JSON]
+  frozenDistribution_not_in: [JSON]
+  frozenSplits: JSON
+  frozenSplits_not: JSON
+  frozenSplits_in: [JSON]
+  frozenSplits_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -60021,6 +60066,8 @@ input PaymentHistoryRecordUpdateInput {
   recipient: JSON
   rawAddress: String
   importId: String
+  frozenDistribution: JSON
+  frozenSplits: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -60067,6 +60114,8 @@ input PaymentHistoryRecordCreateInput {
   recipient: JSON
   rawAddress: String
   importId: String
+  frozenDistribution: JSON
+  frozenSplits: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -60393,6 +60442,13 @@ type Payment {
   """ Id of object in external service which represents current item. Mostly used for internal needs of integration services for matching our objects with theirs 
   """
   importId: String
+
+  """ Distribution obtained from a paid model (receipt or invoice) """
+  frozenDistribution: JSON
+
+  """ Splits created from distribution. Contains data applicable in external acquiring integration 
+  """
+  frozenSplits: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -60647,6 +60703,14 @@ input PaymentWhereInput {
   importId_not_ends_with_i: String
   importId_in: [String]
   importId_not_in: [String]
+  frozenDistribution: JSON
+  frozenDistribution_not: JSON
+  frozenDistribution_in: [JSON]
+  frozenDistribution_not_in: [JSON]
+  frozenSplits: JSON
+  frozenSplits_not: JSON
+  frozenSplits_in: [JSON]
+  frozenSplits_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -60801,6 +60865,8 @@ input PaymentUpdateInput {
   recipient: RecipientFieldInput
   rawAddress: String
   importId: String
+  frozenDistribution: JSON
+  frozenSplits: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -60844,6 +60910,8 @@ input PaymentCreateInput {
   recipient: RecipientFieldInput
   rawAddress: String
   importId: String
+  frozenDistribution: JSON
+  frozenSplits: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -72348,6 +72416,8 @@ type B2BAppAccessRightSetHistoryRecord {
   canManageBillingReceipts: Boolean
   canReadContacts: Boolean
   canManageContacts: Boolean
+  canReadInvoices: Boolean
+  canManageInvoices: Boolean
   canReadMeters: Boolean
   canManageMeters: Boolean
   canReadMeterReadings: Boolean
@@ -72439,6 +72509,10 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   canReadContacts_not: Boolean
   canManageContacts: Boolean
   canManageContacts_not: Boolean
+  canReadInvoices: Boolean
+  canReadInvoices_not: Boolean
+  canManageInvoices: Boolean
+  canManageInvoices_not: Boolean
   canReadMeters: Boolean
   canReadMeters_not: Boolean
   canManageMeters: Boolean
@@ -72580,6 +72654,10 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
   canReadContacts_DESC
   canManageContacts_ASC
   canManageContacts_DESC
+  canReadInvoices_ASC
+  canReadInvoices_DESC
+  canManageInvoices_ASC
+  canManageInvoices_DESC
   canReadMeters_ASC
   canReadMeters_DESC
   canManageMeters_ASC
@@ -72650,6 +72728,8 @@ input B2BAppAccessRightSetHistoryRecordUpdateInput {
   canManageBillingReceipts: Boolean
   canReadContacts: Boolean
   canManageContacts: Boolean
+  canReadInvoices: Boolean
+  canManageInvoices: Boolean
   canReadMeters: Boolean
   canManageMeters: Boolean
   canReadMeterReadings: Boolean
@@ -72700,6 +72780,8 @@ input B2BAppAccessRightSetHistoryRecordCreateInput {
   canManageBillingReceipts: Boolean
   canReadContacts: Boolean
   canManageContacts: Boolean
+  canReadInvoices: Boolean
+  canManageInvoices: Boolean
   canReadMeters: Boolean
   canManageMeters: Boolean
   canReadMeterReadings: Boolean
@@ -72779,6 +72861,8 @@ type B2BAppAccessRightSet {
   canManageBillingReceipts: Boolean
   canReadContacts: Boolean
   canManageContacts: Boolean
+  canReadInvoices: Boolean
+  canManageInvoices: Boolean
   canReadMeters: Boolean
   canManageMeters: Boolean
   canReadMeterReadings: Boolean
@@ -72868,6 +72952,10 @@ input B2BAppAccessRightSetWhereInput {
   canReadContacts_not: Boolean
   canManageContacts: Boolean
   canManageContacts_not: Boolean
+  canReadInvoices: Boolean
+  canReadInvoices_not: Boolean
+  canManageInvoices: Boolean
+  canManageInvoices_not: Boolean
   canReadMeters: Boolean
   canReadMeters_not: Boolean
   canManageMeters: Boolean
@@ -72991,6 +73079,10 @@ enum SortB2BAppAccessRightSetsBy {
   canReadContacts_DESC
   canManageContacts_ASC
   canManageContacts_DESC
+  canReadInvoices_ASC
+  canReadInvoices_DESC
+  canManageInvoices_ASC
+  canManageInvoices_DESC
   canReadMeters_ASC
   canReadMeters_DESC
   canManageMeters_ASC
@@ -73061,6 +73153,8 @@ input B2BAppAccessRightSetUpdateInput {
   canManageBillingReceipts: Boolean
   canReadContacts: Boolean
   canManageContacts: Boolean
+  canReadInvoices: Boolean
+  canManageInvoices: Boolean
   canReadMeters: Boolean
   canManageMeters: Boolean
   canReadMeterReadings: Boolean
@@ -73108,6 +73202,8 @@ input B2BAppAccessRightSetCreateInput {
   canManageBillingReceipts: Boolean
   canReadContacts: Boolean
   canManageContacts: Boolean
+  canReadInvoices: Boolean
+  canManageInvoices: Boolean
   canReadMeters: Boolean
   canManageMeters: Boolean
   canReadMeterReadings: Boolean
@@ -76210,6 +76306,7 @@ type InvoiceHistoryRecord {
   publishedAt: String
   paidAt: String
   canceledAt: String
+  amountDistribution: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -76414,6 +76511,10 @@ input InvoiceHistoryRecordWhereInput {
   canceledAt_gte: String
   canceledAt_in: [String]
   canceledAt_not_in: [String]
+  amountDistribution: JSON
+  amountDistribution_not: JSON
+  amountDistribution_in: [JSON]
+  amountDistribution_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -76556,6 +76657,7 @@ input InvoiceHistoryRecordUpdateInput {
   publishedAt: String
   paidAt: String
   canceledAt: String
+  amountDistribution: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -76594,6 +76696,7 @@ input InvoiceHistoryRecordCreateInput {
   publishedAt: String
   paidAt: String
   canceledAt: String
+  amountDistribution: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -76753,6 +76856,10 @@ type Invoice {
 
   """ Code of currency in ISO-4217 format """
   currencyCode: String
+
+  """ This optional field stores how to distribute amount between several receivers. Applicable to models with "toPay" field. 
+  """
+  amountDistribution: [AmountDistributionField!]
   id: ID!
   v: Int
   createdAt: String
@@ -76917,6 +77024,10 @@ input InvoiceWhereInput {
   canceledAt_gte: String
   canceledAt_in: [String]
   canceledAt_not_in: [String]
+  amountDistribution: [AmountDistributionFieldInput!]
+  amountDistribution_not: [AmountDistributionFieldInput!]
+  amountDistribution_in: [[AmountDistributionFieldInput!]]
+  amountDistribution_not_in: [[AmountDistributionFieldInput!]]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -77051,6 +77162,7 @@ input InvoiceUpdateInput {
   publishedAt: String
   paidAt: String
   canceledAt: String
+  amountDistribution: [AmountDistributionFieldInput!]
   v: Int
   createdAt: String
   updatedAt: String
@@ -77086,6 +77198,7 @@ input InvoiceCreateInput {
   publishedAt: String
   paidAt: String
   canceledAt: String
+  amountDistribution: [AmountDistributionFieldInput!]
   v: Int
   createdAt: String
   updatedAt: String

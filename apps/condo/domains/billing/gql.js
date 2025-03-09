@@ -8,6 +8,7 @@ const { gql } = require('graphql-tag')
 
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
+const { RECIPIENT_FIELDS_DEFINITION } = require('@condo/domains/acquiring/constants/gql')
 const { ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('@condo/domains/property/schema/fields/AddressMetaField')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
@@ -41,6 +42,7 @@ const BILLING_RECEIPT_SERVICE_TO_PAY_DETAILS_FIELDS = `toPayDetails { ${BILLING_
 const BILLING_RECEIPT_SERVICE_FIELDS = `services { id name toPay ${BILLING_RECEIPT_SERVICE_TO_PAY_DETAILS_FIELDS} }`
 const BILLING_RECEIPT_RECIPIENT_FIELDS = 'recipient { name tin iec bic bankAccount }'
 const BILLING_RECEIPT_COMMON_FIELDS = `context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} importId property { id address addressKey } account { id number unitType unitName fullName property { address } ownerType globalId isClosed } period toPay printableNumber toPayDetails { ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELDS} } ${BILLING_RECEIPT_SERVICE_FIELDS} charge formula balance recalculation privilege penalty paid receiver { id tin iec bic bankAccount isApproved } ${BILLING_RECEIPT_RECIPIENT_FIELDS} ${COMMON_FIELDS} category ${BILLING_CATEGORY_FIELDS} invalidServicesError`
+const AMOUNT_DISTRIBUTION_SUBFIELDS = `recipient { ${Object.keys(RECIPIENT_FIELDS_DEFINITION).join(' ')} } amount order vor isFeePayer overpaymentPart`
 const BILLING_RECEIPT_FIELDS = `{ ${BILLING_RECEIPT_COMMON_FIELDS} file { id file { id filename originalFilename publicUrl mimetype } controlSum } acquiringIntegrationId acquiringHostUrl canGroupReceipts currencyCode balanceUpdatedAt }`
 const BILLING_RECEIPT_ADMIN_FIELDS = `{ ${BILLING_RECEIPT_COMMON_FIELDS} file { id sensitiveDataFile { id filename originalFilename publicUrl mimetype } publicDataFile { id filename originalFilename publicUrl mimetype } controlSum } isPayable }`
 
@@ -132,5 +134,6 @@ module.exports = {
     SUM_BILLING_RECEIPTS_QUERY,
     REGISTER_BILLING_RECEIPT_FILE_MUTATION,
     BILLING_RECEIPT_COMMON_FIELDS,
+    AMOUNT_DISTRIBUTION_SUBFIELDS,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

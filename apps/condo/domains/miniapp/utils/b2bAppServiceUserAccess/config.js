@@ -59,6 +59,9 @@ const B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS = {
         // Contact domain
         Contact: {},
 
+        // Marketplace domain
+        Invoice: {},
+
         // Meter domain
         Meter: {},
         MeterReading: {
