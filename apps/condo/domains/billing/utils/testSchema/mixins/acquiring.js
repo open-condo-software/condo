@@ -70,8 +70,9 @@ const AcquiringTestMixin = {
             },
         }
 
-        const [ { multiPaymentId }] = await registerMultiPaymentForVirtualReceiptByTestClient(this.clients.admin, partialReceipt, { id: this.acquiringContext.id })
+        const [{ multiPaymentId }] = await registerMultiPaymentForVirtualReceiptByTestClient(this.clients.admin, partialReceipt, { id: this.acquiringContext.id })
         await this.completeMultiPayment(multiPaymentId)
+        return { multiPaymentId }
     },
 
     async completeMultiPayment (multiPaymentId) {

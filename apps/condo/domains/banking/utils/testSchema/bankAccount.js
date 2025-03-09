@@ -4,14 +4,6 @@ const {
     RU_NUMBER_WEIGHTS,
     getRuTinControlSum,
 } = require('@condo/domains/banking/utils/validate/countrySpecificValidators/ru.validator')
-const dayjs = require('dayjs')
-const {
-    createTestBankIntegrationAccountContext,
-    createTestBankAccount,
-    createTestBankCostItem,
-    createTestBankContractorAccount,
-    createTestBankTransaction,
-} = require('./index')
 
 
 function getRange (length) {
