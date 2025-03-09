@@ -54,30 +54,28 @@ export const CondoAppEventsHandler: FC = () => {
 
     // Organization tracking
     useEffect(() => {
-        if (employee) {
-            if (employee.organization.id) {
-                analytics.setGroup('organization.id', employee.organization.id)
-            } else {
-                analytics.removeGroup('organization.id')
-            }
+        if (employee?.organization.id) {
+            analytics.setGroup('organization.id', employee.organization.id)
+        } else {
+            analytics.removeGroup('organization.id')
+        }
 
-            if (employee.organization.type) {
-                analytics.setGroup('organization.type', employee.organization.type)
-            } else {
-                analytics.removeGroup('organization.type')
-            }
+        if (employee?.organization.type) {
+            analytics.setGroup('organization.type', employee.organization.type)
+        } else {
+            analytics.removeGroup('organization.type')
+        }
 
-            if (employee.organization.tin) {
-                analytics.setGroup('organization.tin', employee.organization.tin)
-            } else {
-                analytics.removeGroup('organization.tin')
-            }
+        if (employee?.organization.tin) {
+            analytics.setGroup('organization.tin', employee.organization.tin)
+        } else {
+            analytics.removeGroup('organization.tin')
+        }
 
-            if (employee.role.nameNonLocalized) {
-                analytics.setGroup('employee.role', employee.role.nameNonLocalized)
-            } else {
-                analytics.removeGroup('employee.role')
-            }
+        if (employee?.role.nameNonLocalized) {
+            analytics.setGroup('employee.role', employee.role.nameNonLocalized)
+        } else {
+            analytics.removeGroup('employee.role')
         }
     }, [employee])
 
