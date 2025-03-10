@@ -13,14 +13,17 @@ const {
     INVOICE_STATUS_DRAFT,
     INVOICE_STATUS_CANCELED,
 } = require('@condo/domains/marketplace/constants')
+const { canReadObjectsAsB2BAppServiceUser, canManageObjectsAsB2BAppServiceUser } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess/server.utils')
 const {
     getEmployedOrRelatedOrganizationsByPermissions,
     checkPermissionsInEmployedOrRelatedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
-const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 
 
-async function canReadInvoices ({ authentication: { item: user }, context }) {
+async function canReadInvoices (args) {
+    const { authentication: { item: user }, context } = args
+
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -42,8 +45,11 @@ async function canReadInvoices ({ authentication: { item: user }, context }) {
         }
     }
 
-    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadInvoices')
+    if (user.type === SERVICE) {
+        return await canReadObjectsAsB2BAppServiceUser(args)
+    }
 
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadInvoices')
 
     return {
         organization: {
@@ -53,11 +59,17 @@ async function canReadInvoices ({ authentication: { item: user }, context }) {
     }
 }
 
-async function canManageInvoices ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
+async function canManageInvoices (args) {
+    const { authentication: { item: user }, originalInput, operation, itemId, context } = args
+
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
     if (user.type === RESIDENT) return false
+
+    if (user.type === SERVICE) {
+        return await canManageObjectsAsB2BAppServiceUser(args)
+    }
 
     let organizationId
 

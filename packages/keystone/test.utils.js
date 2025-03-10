@@ -632,7 +632,7 @@ const expectToThrowAccessDeniedErrorToCount = async (testFunc) => {
  * @param {Number} [count]
  * @returns {Promise<void>}
  */
-const expectToThrowAccessDeniedToFieldError = async (testFunc, path, field, count = 1) => {
+const expectToThrowAccessDeniedToRelationFieldError = async (testFunc, path, field, count = 1) => {
     if (!path) throw new Error('path is not specified')
     if (!field) throw new Error('field is not specified')
 
@@ -644,6 +644,70 @@ const expectToThrowAccessDeniedToFieldError = async (testFunc, path, field, coun
                 'message': 'You do not have access to this resource',
                 'name': 'AccessDeniedError',
                 'path': [path, i, field],
+                'locations': [expect.objectContaining({
+                    line: expect.anything(),
+                    column: expect.anything(),
+                })],
+                'extensions': {
+                    'code': 'INTERNAL_SERVER_ERROR',
+                    'messageForDeveloper': expect.stringMatching(/^You do not have access to this resource/),
+                },
+            })),
+        })
+    })
+}
+
+/**
+ * @param testFunc
+ * @param {string} path
+ * @param {string} field
+ * @param {Number} [count]
+ * @returns {Promise<void>}
+ */
+const expectToThrowAccessDeniedToFieldError = async (testFunc, path, field, count = 1) => {
+    if (!path) throw new Error('path is not specified')
+    if (!field) throw new Error('field is not specified')
+
+    await catchErrorFrom(testFunc, (caught) => {
+        expect(pick(caught, ['name', 'data', 'errors'])).toMatchObject({
+            name: 'TestClientResponseError',
+            data: { [path]: Array(count).fill(expect.objectContaining({ [field]: null })) },
+            errors: Array(count).fill(null).map((v, i) => expect.objectContaining({
+                'message': 'You do not have access to this resource',
+                'name': 'AccessDeniedError',
+                'path': [path, i, field],
+                'locations': [expect.objectContaining({
+                    line: expect.anything(),
+                    column: expect.anything(),
+                })],
+                'extensions': {
+                    'code': 'INTERNAL_SERVER_ERROR',
+                    'messageForDeveloper': expect.stringMatching(/^You do not have access to this resource/),
+                },
+            })),
+        })
+    })
+}
+
+/**
+ * @param testFunc
+ * @param {string} path
+ * @param {string} field
+ * @param {Number} [count]
+ * @returns {Promise<void>}
+ */
+const expectToThrowAccessDeniedToManageFieldError = async (testFunc, path, field, count = 1) => {
+    if (!path) throw new Error('path is not specified')
+    if (!field) throw new Error('field is not specified')
+
+    await catchErrorFrom(testFunc, (caught) => {
+        expect(pick(caught, ['name', 'data', 'errors'])).toMatchObject({
+            name: 'TestClientResponseError',
+            data: { [path]: null },
+            errors: Array(count).fill(null).map((v, i) => expect.objectContaining({
+                'message': 'You do not have access to this resource',
+                'name': 'AccessDeniedError',
+                path: [path],
                 'locations': [expect.objectContaining({
                     line: expect.anything(),
                     column: expect.anything(),
@@ -995,7 +1059,9 @@ module.exports = {
     expectToThrowAccessDeniedErrorToObjects,
     expectToThrowAccessDeniedErrorToResult,
     expectToThrowAccessDeniedErrorToCount,
+    expectToThrowAccessDeniedToRelationFieldError,
     expectToThrowAccessDeniedToFieldError,
+    expectToThrowAccessDeniedToManageFieldError,
     expectToThrowAuthenticationError,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
