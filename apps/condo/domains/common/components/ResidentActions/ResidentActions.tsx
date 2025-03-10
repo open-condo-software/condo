@@ -49,7 +49,7 @@ const ResidentAppealDropdownOverlay = ({ setIsSearchByPhoneModalVisible, setDrop
                 showSearchButton && (
                     <>
                         <MenuItem
-                            id='menuitem-search-by-phone'
+                            id='menu-item-search-by-phone'
                             onClick={handleButtonClick}
                             menuItemWrapperProps={ResidentAppealDropDownMenuItemWrapperProps}
                             icon={Smartphone}
@@ -63,7 +63,7 @@ const ResidentAppealDropdownOverlay = ({ setIsSearchByPhoneModalVisible, setDrop
                 canManageTickets && (
                     <>
                         <MenuItem
-                            id='menuitem-create-appeal'
+                            id='menu-item-create-appeal'
                             menuItemWrapperProps={ResidentAppealDropDownMenuItemWrapperProps}
                             path='/ticket/create'
                             icon={NewAppeal}
@@ -76,7 +76,7 @@ const ResidentAppealDropdownOverlay = ({ setIsSearchByPhoneModalVisible, setDrop
             {
                 canManageMeterReadings && (
                     <MenuItem
-                        id='menuitem-create-meter-reading'
+                        id='menu-item-create-meter-reading'
                         menuItemWrapperProps={ResidentAppealDropDownMenuItemWrapperProps}
                         path='/meter/create?tab=meter-reading'
                         icon={Readings}

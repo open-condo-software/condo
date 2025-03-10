@@ -217,7 +217,6 @@ const TicketTable = ({
         user,
         timeZone,
         locale: intl.locale,
-        eventNamePrefix: 'TicketIndex',
     })
 
     const handleRowAction = useCallback((record) => {

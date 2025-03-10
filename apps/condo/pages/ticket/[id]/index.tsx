@@ -398,7 +398,6 @@ const TicketActionBar = ({
         user,
         timeZone,
         locale: intl.locale,
-        eventNamePrefix: 'TicketDetail',
     })
 
     const hasValidInvoice = useMemo(() => Array.isArray(invoices) && !!invoices.find((invoice) => get(invoice, 'status') !== INVOICE_STATUS_CANCELED), [invoices])

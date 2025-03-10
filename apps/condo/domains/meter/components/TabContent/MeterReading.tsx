@@ -25,7 +25,6 @@ import { EmptyListContent } from '@condo/domains/common/components/EmptyListCont
 import { Loader } from '@condo/domains/common/components/Loader'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
-import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { EMOJI } from '@condo/domains/common/constants/emoji'
 import { useDateRangeSearch } from '@condo/domains/common/hooks/useDateRangeSearch'
 import { useMultipleFiltersModal } from '@condo/domains/common/hooks/useMultipleFiltersModal'
