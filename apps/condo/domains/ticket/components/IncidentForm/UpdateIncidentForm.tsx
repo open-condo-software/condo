@@ -120,7 +120,8 @@ export const UpdateIncidentForm: React.FC<IUpdateIncidentForm> = (props) => {
                 },
             },
         }),
-        [incidentId, updateIncident])
+        [incidentId, updateIncident]
+    )
 
     const workStart = useMemo(() => incident?.workStart || null, [incident])
     const workFinish = useMemo(() => incident?.workFinish || null, [incident])
@@ -128,16 +129,17 @@ export const UpdateIncidentForm: React.FC<IUpdateIncidentForm> = (props) => {
 
     const initialValues: BaseIncidentFormProps['initialValues'] = useMemo(() => ({
         ...incident,
-        incidentProperties: incidentProperties,
-        incidentClassifiers: incidentClassifiers,
+        incidentProperties,
+        incidentClassifiers,
         workStart: workStart ? dayjs(workStart) : null,
         workFinish: workFinish ? dayjs(workFinish) : null,
-        placeClassifier: placeClassifier,
+        placeClassifier,
     }), [incident, incidentClassifiers, incidentProperties, placeClassifier, workFinish, workStart]) as any
 
     const error = useMemo(
         () => incidentError || incidentPropertyError || incidentClassifiersError,
-        [incidentClassifiersError, incidentError, incidentPropertyError])
+        [incidentClassifiersError, incidentError, incidentPropertyError]
+    )
 
     const loading = incidentLoading || incidentPropertyAllDataLoaded || incidentClassifiersAllDataLoaded
 

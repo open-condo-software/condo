@@ -8,6 +8,17 @@ query getIncidentPropertiesByIncidentId ($incidentId: ID!) {
         incident {
             id
         }
+        property {
+            id
+            addressMeta {
+                value
+            }
+            address
+        }
+        propertyAddress
+        propertyAddressMeta {
+            value
+        }
     }
 }
 

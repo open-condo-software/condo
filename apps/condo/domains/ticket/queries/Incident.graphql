@@ -24,6 +24,7 @@ query getIncidentById ($incidentId: ID!) {
         }
         workStart
         workFinish
+        hasAllProperties
     }
 }
 
