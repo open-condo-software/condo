@@ -69,6 +69,7 @@ const isSnowfallDisabled = conf['IS_SNOWFALL_DISABLED'] === 'true'
 const proxyName = conf['API_PROXY_NAME'] || 'Next'
 const posthogApiHost = conf['POSTHOG_API_HOST']
 const posthogApiKey = conf['POSTHOG_API_KEY']
+const residentAppInfo = conf['RESIDENT_APP_INFO'] ? JSON.parse(conf['RESIDENT_APP_INFO']) : {}
 
 let nextConfig = withTM(withLess(withCSS({
     skipTrailingSlashRedirect: true,
@@ -116,6 +117,7 @@ let nextConfig = withTM(withLess(withCSS({
         isSnowfallDisabled,
         posthogApiHost,
         posthogApiKey,
+        residentAppInfo,
     },
     serverRuntimeConfig: {
         proxyName,

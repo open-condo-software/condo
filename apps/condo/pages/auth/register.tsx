@@ -1,34 +1,32 @@
-import { Typography } from 'antd'
+import { Row, Col } from 'antd'
+import { setCookie } from 'cookies-next'
 import Head from 'next/head'
 import Router, { useRouter } from 'next/router'
-import qs from 'qs'
-import React, { useCallback, useContext, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState, useMemo } from 'react'
 
+import { useEffectOnce } from '@open-condo/miniapp-utils'
 import { useIntl } from '@open-condo/next/intl'
+import { Button, Typography } from '@open-condo/ui'
 
-import { Button } from '@condo/domains/common/components/Button'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
-import { fontSizes } from '@condo/domains/common/constants/style'
+import { COOKIE_MAX_AGE_IN_SEC } from '@condo/domains/common/constants/cookies'
 import { PageComponentType } from '@condo/domains/common/types'
+import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 import { InputPhoneForm } from '@condo/domains/user/components/auth/InputPhoneForm'
-import { RegisterContext, RegisterContextProvider } from '@condo/domains/user/components/auth/RegisterContextProvider'
+import { RegisterContextProvider, useRegisterContext } from '@condo/domains/user/components/auth/RegisterContextProvider'
 import { RegisterForm } from '@condo/domains/user/components/auth/RegisterForm'
 import { ValidatePhoneForm } from '@condo/domains/user/components/auth/ValidatePhoneForm'
-import AuthLayout from '@condo/domains/user/components/containers/AuthLayout'
+import AuthLayout, { AuthLayoutProps } from '@condo/domains/user/components/containers/AuthLayout'
 import { WelcomeHeaderTitle } from '@condo/domains/user/components/UserWelcomeTitle'
+import { AUTH_FLOW_USER_TYPE_COOKIE_NAME } from '@condo/domains/user/constants/auth'
 
-
-const HeaderAction = () => {
-    const router = useRouter()
-    return router.query.step == 'inputPhone' && (
-        <WelcomeHeaderTitle/>
-    )
-}
 
 const RegisterPage: PageComponentType = () => {
     const intl = useIntl()
-    const RegistrationTitleMsg = intl.formatMessage({ id: 'pages.auth.RegistrationTitle' })
+    const InputPhoneTitle = intl.formatMessage({ id: 'pages.auth.register.step.inputPhone.title' })
+    const ValidatePhoneTitle = intl.formatMessage({ id: 'pages.auth.register.step.validatePhone.title' })
+    const RegisterTitle = intl.formatMessage({ id: 'pages.auth.register.step.register.title' })
     const PhoneConfirmTokenErrorLabel = intl.formatMessage({ id: 'pages.auth.register.PhoneConfirmTokenErrorLabel' })
     const PhoneConfirmTokenErrorMessage = intl.formatMessage({ id: 'pages.auth.register.PhoneConfirmTokenErrorMessage' })
     const RestartPhoneConfirmLabel = intl.formatMessage({ id: 'pages.auth.register.RestartPhoneConfirmLabel' })
@@ -36,9 +34,15 @@ const RegisterPage: PageComponentType = () => {
     const { query: { next }  } = router
     const isValidNextUrl = next && !Array.isArray(next) && isSafeUrl(next)
 
+    const { token, isConfirmed, tokenError, setToken, setTokenError } = useRegisterContext()
+    const [step, setStep] = useState<'inputPhone' | 'validatePhone' | 'register'>('inputPhone')
 
-    const { token, isConfirmed, tokenError, setToken, setTokenError } = useContext(RegisterContext)
-    const [step, setStep] = useState('inputPhone')
+    const title = useMemo(() => {
+        if (step === 'inputPhone') return InputPhoneTitle
+        if (step === 'validatePhone') return ValidatePhoneTitle
+        if (step === 'register') return RegisterTitle
+        return ''
+    }, [InputPhoneTitle, RegisterTitle, ValidatePhoneTitle, step])
 
     const handleFinish = useCallback(async () => {
         if (isValidNextUrl) {
@@ -46,7 +50,28 @@ const RegisterPage: PageComponentType = () => {
         } else {
             await router.push('/')
         }
-    }, [router])
+    }, [])
+
+    const steps = useMemo(() => ({
+        inputPhone: <InputPhoneForm
+            onFinish={() => setStep('validatePhone')}
+        />,
+        validatePhone: <ValidatePhoneForm
+            onFinish={() => setStep('register')}
+            onReset={() => {
+                setStep('inputPhone')
+                Router.push('/auth/register')
+            }}
+            title={ValidatePhoneTitle}
+        />,
+        register: <RegisterForm
+            onFinish={handleFinish}
+            onReset={() => {
+                setStep('inputPhone')
+                Router.push('/auth/register')
+            }}
+        />,
+    }), [ValidatePhoneTitle, handleFinish])
 
     useEffect(() => {
         if (token && isConfirmed) {
@@ -59,63 +84,78 @@ const RegisterPage: PageComponentType = () => {
     }, [token, isConfirmed])
 
     useEffect(() => {
-        router.push(router.route + qs.stringify(
-            { ...router.query, step },
-            { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
-        ))
+        updateQuery(
+            router,
+            { newParameters: { step } },
+            { routerAction: 'replace', resetOldParameters: false }
+        )
     }, [step])
+    
+    useEffectOnce(() => {
+        setCookie(AUTH_FLOW_USER_TYPE_COOKIE_NAME, 'staff', { maxAge: COOKIE_MAX_AGE_IN_SEC })
+    })
 
     if (tokenError && token) {
         return (
-            <BasicEmptyListView>
-                <Typography.Title level={3}>
-                    {PhoneConfirmTokenErrorLabel}
-                </Typography.Title>
-                <Typography.Text style={{ fontSize: fontSizes.content }}>
-                    {PhoneConfirmTokenErrorMessage}
-                </Typography.Text>
-                <Button
-                    type='sberPrimary'
-                    style={{ marginTop: '16px' }}
-                    onClick={() => {
-                        setToken(null)
-                        setTokenError(null)
-                        setStep('inputPhone')
-                        Router.push('/auth/register')
-                    }}
-                >
-                    {RestartPhoneConfirmLabel}
-                </Button>
-            </BasicEmptyListView>
+            <>
+                <Head><title>{title}</title></Head>
+                <BasicEmptyListView>
+                    <Row gutter={[0, 24]}>
+                        <Col span={24}>
+                            <Typography.Title level={3}>
+                                {PhoneConfirmTokenErrorLabel}
+                            </Typography.Title>
+                            <Typography.Text>
+                                {PhoneConfirmTokenErrorMessage}
+                            </Typography.Text>
+                        </Col>
+                        <Col span={24}>
+                            <Button
+                                type='primary'
+                                onClick={() => {
+                                    setToken(null)
+                                    setTokenError(null)
+                                    setStep('inputPhone')
+                                    Router.push('/auth/register')
+                                }}
+                                block
+                            >
+                                {RestartPhoneConfirmLabel}
+                            </Button>
+                        </Col>
+                    </Row>
+                </BasicEmptyListView>
+            </>
         )
-    }
-
-    const steps = {
-        inputPhone: <InputPhoneForm onFinish={() => setStep('validatePhone')}/>,
-        validatePhone: <ValidatePhoneForm
-            onFinish={() => setStep('register')}
-            onReset={() => {
-                setStep('inputPhone')
-                Router.push('/auth/register')
-            }}
-            title={RegistrationTitleMsg}
-        />,
-        register: <RegisterForm onFinish={handleFinish}/>,
     }
 
     return (
         <>
-            <Head><title>{RegistrationTitleMsg}</title></Head>
-            <RegisterContextProvider>
-                {steps[step]}
-            </RegisterContextProvider>
+            <Head><title>{title}</title></Head>
+            {steps[step]}
         </>
     )
 }
 
-RegisterPage.headerAction = <HeaderAction/>
+const HeaderAction: React.FC = () => {
+    const router = useRouter()
+    return router.query.step == 'inputPhone' && (
+        <WelcomeHeaderTitle userType='staff'/>
+    )
+}
 
-RegisterPage.container = AuthLayout
+const RegisterLayout: React.FC<AuthLayoutProps> = ({ headerAction, children }) => {
+    return (
+        <AuthLayout headerAction={headerAction}>
+            <RegisterContextProvider>
+                {children}
+            </RegisterContextProvider>
+        </AuthLayout>
+    )
+}
+
+RegisterPage.headerAction = <HeaderAction />
+RegisterPage.container = RegisterLayout
 RegisterPage.skipUserPrefetch = true
 
 export default RegisterPage

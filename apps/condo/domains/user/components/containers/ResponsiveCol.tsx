@@ -2,11 +2,23 @@ import { Col, ColProps } from 'antd'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
-export const ResponsiveCol = ({ style, children, ...otherProps }: ColProps) => {
+type ResponsiveColProps = ColProps & {
+    desktopWidth?: ColProps['style']['width']
+    mobileWidth?: ColProps['style']['width']
+}
+
+export const ResponsiveCol: React.FC<ResponsiveColProps> = (props) => {
+    const {
+        style,
+        children,
+        desktopWidth = '320px',
+        mobileWidth = '600px',
+        ...otherProps
+    } = props
     const { breakpoints } = useLayoutContext()
     const modifiedStyle = {
         ...style,
-        maxWidth: !breakpoints.TABLET_LARGE ? '600px' : '320px',
+        maxWidth: !breakpoints.TABLET_LARGE ? mobileWidth : desktopWidth,
     }
 
     return (
