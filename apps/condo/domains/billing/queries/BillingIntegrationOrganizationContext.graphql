@@ -1,0 +1,9 @@
+query getBillingIntegrationOrganizationContexts ($integration: BillingIntegrationWhereInput!, $organization: OrganizationWhereInput!) {
+    contexts: allBillingIntegrationOrganizationContexts(where: {
+        integration: $integration,
+        organization: $organization,
+    }) {
+        id
+        lastReport
+    }
+}

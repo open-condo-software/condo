@@ -1,13 +1,19 @@
+import {
+    useGetIncidentByIdQuery,
+    useGetIncidentClassifierIncidentByIncidentIdQuery,
+    useGetIncidentPropertiesByIncidentIdQuery,
+    useUpdateIncidentMutation,
+} from '@app/condo/gql'
 import dayjs from 'dayjs'
-import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { ComponentProps, useCallback, useMemo } from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
+import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button } from '@open-condo/ui'
 
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { Incident, IncidentProperty, IncidentClassifierIncident } from '@condo/domains/ticket/utils/clientSchema'
 
 import { BaseIncidentForm, BaseIncidentFormProps } from './BaseIncidentForm'
 
@@ -23,11 +29,11 @@ export const UpdateIncidentActionBar: React.FC<ComponentProps<BaseIncidentFormPr
     const CancelLabel = intl.formatMessage({ id: 'Cancel' })
 
     const { handleSave, isLoading } = props
-    const router = useRouter()
-    const incidentId = get(router, 'query.id')
+    const { push, query } = useRouter()
+    const incidentId = useMemo(() => query?.id, [query])
     const onCancel = useCallback(async () => {
-        incidentId && await router.push(`/incident/${incidentId}`)
-    }, [incidentId, router])
+        incidentId && await push(`/incident/${incidentId}`)
+    }, [incidentId, push])
 
     return (
         <ActionBar
@@ -56,47 +62,70 @@ export const UpdateIncidentForm: React.FC<IUpdateIncidentForm> = (props) => {
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
     const PageTitle = intl.formatMessage({ id: 'incident.update.title' })
 
-    const { id, showOrganization } = props
+    const { id: incidentId, showOrganization } = props
 
-    const router = useRouter()
+    const { push } = useRouter()
+    const { persistor } = useCachePersistor()
 
     const {
         loading: incidentLoading,
-        obj: incident,
+        data: incidentData,
         error: incidentError,
-    } = Incident.useObject({
-        where: { id },
+    } = useGetIncidentByIdQuery({
+        variables: {
+            incidentId,
+        },
+        skip: !incidentId || !persistor,
     })
 
+    const incident = useMemo(() => incidentData?.incident || null, [incidentData?.incident])
+    const organizationId = useMemo(() => incident?.organization?.id || null, [incident])
+
     const {
-        objs: incidentProperties,
+        loading: incidentPropertyAllDataLoaded,
+        data: incidentPropertiesData,
         error: incidentPropertyError,
-        allDataLoaded: incidentPropertyAllDataLoaded,
-    } = IncidentProperty.useAllObjects({
-        where: { incident: { id } },
+    } = useGetIncidentPropertiesByIncidentIdQuery({
+        variables: {
+            incidentId,
+        },
+        skip: !incidentId || !persistor,
     })
+    const incidentProperties = useMemo(() => incidentPropertiesData?.incidentProperties?.filter(Boolean) || [], [incidentPropertiesData?.incidentProperties])
 
     const {
-        objs: incidentClassifiers,
+        loading: incidentClassifiersAllDataLoaded,
+        data: incidentClassifiersData,
         error: incidentClassifiersError,
-        allDataLoaded: incidentClassifiersAllDataLoaded,
-    } = IncidentClassifierIncident.useAllObjects({
-        where: { incident: { id } },
+    } = useGetIncidentClassifierIncidentByIncidentIdQuery({
+        variables: {
+            incidentId,
+        },
+        skip: !incidentId || !persistor,
     })
 
-    const organizationId = useMemo(() => get(incident, 'organization.id', null), [incident])
+    const incidentClassifiers = useMemo(() => incidentClassifiersData?.incidentClassifierIncident?.filter(Boolean) || [], [incidentClassifiersData?.incidentClassifierIncident])
 
-    const updateIncident = Incident.useUpdate({})
+    const [updateIncident] = useUpdateIncidentMutation({
+        onCompleted: async () => await push(`/incident/${[incidentId]}`),
+    })
     const action: BaseIncidentFormProps['action'] = useCallback(
-        async (values) => await updateIncident(values, incident),
-        [incident, updateIncident])
-    const afterAction: BaseIncidentFormProps['afterAction'] = useCallback(
-        async () => await router.push(`/incident/${id}`),
-        [id, router])
+        async (values) => await updateIncident({
+            variables: {
+                id: incidentId,
+                data: {
+                    ...values,
+                    sender: getClientSideSenderInfo(),
+                    dv: 1,
+                },
+            },
+        }),
+        [incidentId, updateIncident]
+    )
 
-    const workStart = useMemo(() => get(incident, 'workStart', null), [incident])
-    const workFinish = useMemo(() => get(incident, 'workFinish', null), [incident])
-    const placeClassifier = useMemo(() => get(incidentClassifiers, [0, 'classifier', 'place', 'id']), [incidentClassifiers])
+    const workStart = useMemo(() => incident?.workStart || null, [incident])
+    const workFinish = useMemo(() => incident?.workFinish || null, [incident])
+    const placeClassifier = useMemo(() => incidentClassifiers[0]?.classifier?.id || null, [incidentClassifiers])
 
     const initialValues: BaseIncidentFormProps['initialValues'] = useMemo(() => ({
         ...incident,
@@ -104,14 +133,15 @@ export const UpdateIncidentForm: React.FC<IUpdateIncidentForm> = (props) => {
         incidentClassifiers,
         workStart: workStart ? dayjs(workStart) : null,
         workFinish: workFinish ? dayjs(workFinish) : null,
-        placeClassifier: placeClassifier,
+        placeClassifier,
     }), [incident, incidentClassifiers, incidentProperties, placeClassifier, workFinish, workStart]) as any
 
     const error = useMemo(
         () => incidentError || incidentPropertyError || incidentClassifiersError,
-        [incidentClassifiersError, incidentError, incidentPropertyError])
+        [incidentClassifiersError, incidentError, incidentPropertyError]
+    )
 
-    const loading = incidentLoading || !incidentPropertyAllDataLoaded || !incidentClassifiersAllDataLoaded
+    const loading = incidentLoading || incidentPropertyAllDataLoaded || incidentClassifiersAllDataLoaded
 
     if (loading && !incident) {
         return (
@@ -130,7 +160,6 @@ export const UpdateIncidentForm: React.FC<IUpdateIncidentForm> = (props) => {
             ActionBar={UpdateIncidentActionBar}
             initialValues={initialValues}
             loading={loading}
-            afterAction={afterAction}
             showOrganization={showOrganization}
         />
     )

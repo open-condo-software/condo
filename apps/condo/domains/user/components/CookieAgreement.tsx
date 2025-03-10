@@ -1,7 +1,6 @@
 import styled from '@emotion/styled'
 import cookie from 'js-cookie'
 import getConfig from 'next/config'
-import Link from 'next/link'
 import React, { useState, useCallback } from 'react'
 
 import { ChevronDown, ChevronUp } from '@open-condo/icons'
