@@ -1,4 +1,3 @@
-const passwordGenerator = require('generate-password')
 const get = require('lodash/get')
 
 const conf = require('@open-condo/config')
@@ -172,15 +171,10 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                 }
 
                 if (shouldRegisterUser) {
-                    const password = passwordGenerator.generate({
-                        length: 8,
-                        numbers: true,
-                    })
                     const userData = {
                         name,
                         email,
                         phone,
-                        password,
                         ...dvSenderData,
                     }
 
