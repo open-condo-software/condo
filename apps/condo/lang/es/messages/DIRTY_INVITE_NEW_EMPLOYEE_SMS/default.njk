@@ -1,1 +1,1 @@
-"{{ message.meta.organizationName }}" invitar a Doma: {{ message.meta.serverUrl }}/auth/{% if message.meta.isRegistration %}register{% else %}signin{% endif %}
+"{{ message.meta.organizationName }}" invitar a Doma: {{ message.meta.serverUrl }}{% if message.meta.isRegistration %}/auth/register{% else %}/{% endif %}
