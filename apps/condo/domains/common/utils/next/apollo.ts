@@ -28,29 +28,30 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
                     },
                     allTickets: {
                         keyArgs: ['where'],
-                        read: listHelper.getReadFunction('showAll'),
+                        read: listHelper.getReadFunction(),
                         merge: listHelper.mergeLists,
                     },
                     allTicketChanges: {
                         keyArgs: ['where'],
-                        read: listHelper.getReadFunction('showAll'),
+                        read: listHelper.getReadFunction(),
                         merge: listHelper.mergeLists,
                     },
                     allTicketComments: {
                         keyArgs: ['where'],
-                        read: listHelper.getReadFunction('showAll'),
+                        read: listHelper.getReadFunction(),
                         merge: listHelper.mergeLists,
                     },
                     allTicketCommentFile: {
                         keyArgs: ['where'],
-                        read: listHelper.getReadFunction('showAll'),
+                        read: listHelper.getReadFunction(),
                         merge: listHelper.mergeLists,
                     },
                     allInvoices: {
                         keyArgs: ['where'],
-                        read: listHelper.getReadFunction('showAll'),
+                        read: listHelper.getReadFunction(),
                         merge: listHelper.mergeLists,
                     },
+
                 },
             },
 

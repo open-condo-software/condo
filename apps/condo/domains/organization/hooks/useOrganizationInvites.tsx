@@ -1,4 +1,4 @@
-import { useGetOrganizationEmployeesByUserIdAndOrganizationTypeQuery } from '@app/condo/gql'
+import { useGetEmployeesInvitesByUserIdAndOrganizationTypeQuery } from '@app/condo/gql'
 import { OrganizationEmployee as OrganizationEmployeeType, OrganizationTypeType } from '@app/condo/schema'
 import { notification } from 'antd'
 import React, { useMemo } from 'react'
@@ -34,7 +34,7 @@ export const useOrganizationInvites = (organizationTypes: Array<OrganizationType
         data: userInvitationsData,
         refetch,
         loading,
-    } = useGetOrganizationEmployeesByUserIdAndOrganizationTypeQuery({
+    } = useGetEmployeesInvitesByUserIdAndOrganizationTypeQuery({
         variables: {
             userId,
             organizationType: organizationTypes,

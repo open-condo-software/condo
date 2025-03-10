@@ -5,6 +5,7 @@ query getIncidents ($where: IncidentWhereInput, $sortBy: [SortIncidentsBy!]) {
         workStart
         workFinish
         status
+        details
     }
 }
 

@@ -172,7 +172,7 @@ export class ListHelper {
     /**
      * Selects the appropriate read function depending on cache options and desired pagination behaviour
      */
-    getReadFunction (clientPagination: ClientPaginationBehaviour): FieldReadFunction {
+    getReadFunction (clientPagination?: ClientPaginationBehaviour): FieldReadFunction {
         if (this.skipCacheOnRead) {
             return this._networkOnlyRead
         }
