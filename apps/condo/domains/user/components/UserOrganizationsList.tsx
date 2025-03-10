@@ -4,12 +4,12 @@ import get from 'lodash/get'
 import uniqBy from 'lodash/uniqBy'
 import React, { useCallback, useMemo } from 'react'
 
+import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Typography, Tag } from '@open-condo/ui'
 
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
-import {useAuth} from "@open-condo/next/auth";
 
 
 interface IOrganizationName {
