@@ -39,7 +39,7 @@ type ValidatePhoneFormProps = {
     title: string
 }
 
-const SMS_CODE_REGEX = /[^0-9]/g
+const NOT_NUMBER_REGEX = /\D/g
 
 const INITIAL_VALUES = { smsCode: '' }
 
@@ -130,7 +130,7 @@ export const ValidatePhoneForm: React.FC<ValidatePhoneFormProps> = ({ onFinish, 
     const handleVerifyCode = useCallback(async () => {
         setPhoneValidateError(null)
         const smsCodeFromInput = (form.getFieldValue('smsCode') || '').toString()
-        const smsCode = smsCodeFromInput.replace(SMS_CODE_REGEX, '')
+        const smsCode = smsCodeFromInput.replace(NOT_NUMBER_REGEX, '')
         form.setFieldsValue({ smsCode })
         if (smsCode.length < SMS_CODE_LENGTH) {
             return
