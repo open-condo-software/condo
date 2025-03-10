@@ -82577,7 +82577,7 @@ type MiniAppOutput {
 
 enum SendB2CAppPushMessageType {
   VOIP_INCOMING_CALL_MESSAGE
-  undefined
+  CANCELED_CALL_MESSAGE_PUSH
   B2C_APP_MESSAGE_PUSH
 }
 
