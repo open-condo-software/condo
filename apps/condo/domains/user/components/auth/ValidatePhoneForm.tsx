@@ -1,5 +1,6 @@
 import { useCompleteConfirmPhoneActionMutation, useResendConfirmPhoneActionSmsMutation } from '@app/condo/gql'
 import { Col, Form, Row } from 'antd'
+import getConfig from 'next/config'
 import React, { useCallback, useMemo, useState } from 'react'
 
 import { ArrowLeft } from '@open-condo/icons'
@@ -24,6 +25,13 @@ import {
 
 import { useRegisterContext } from './RegisterContextProvider'
 
+import './ValidatePhoneForm.css'
+
+
+const {
+    publicRuntimeConfig: { HelpRequisites },
+} = getConfig()
+
 
 type ValidatePhoneFormProps = {
     onFinish: () => void
@@ -45,9 +53,16 @@ export const ValidatePhoneForm: React.FC<ValidatePhoneFormProps> = ({ onFinish, 
     const problemsModalTitle = intl.formatMessage({ id: 'pages.auth.validatePhoneForm.problemsModal.title' })
     const checkPhoneLabel = intl.formatMessage({ id: 'pages.auth.validatePhoneForm.problemsModal.checkPhone' })
     const instructionStepCheckPhone = intl.formatMessage({ id: 'pages.auth.validatePhoneForm.problemsModal.instruction.steps.checkPhone' })
-    const instructionStepSupportTelegramChat = intl.formatMessage({ id: 'pages.auth.validatePhoneForm.problemsModal.instruction.steps.supportTelegramChat' })
-    const instructionStepOne = intl.formatMessage({ id: 'pages.auth.validatePhoneForm.problemsModal.instruction.steps.1' }, { step: instructionStepCheckPhone })
-    const instructionStepTwo = intl.formatMessage({ id: 'pages.auth.validatePhoneForm.problemsModal.instruction.steps.2' }, { step: instructionStepSupportTelegramChat })
+    const chatInTelegramMessage = intl.formatMessage({ id: 'pages.auth.validatePhoneForm.problemsModal.instruction.steps.supportTelegramChat.chatInTelegram' })
+    const instructionStepSupportTelegramChat = intl.formatMessage({ id: 'pages.auth.validatePhoneForm.problemsModal.instruction.steps.supportTelegramChat' }, {
+        chatBotLink: (
+            <span className='secondary-link'>
+                <Typography.Link target='_blank' href={HelpRequisites?.support_bot ? `https://t.me/${HelpRequisites.support_bot}` : '#'}>
+                    {chatInTelegramMessage}
+                </Typography.Link>
+            </span>
+        ),
+    })
 
     const { token, phone } = useRegisterContext()
     const SmsCodeSentMessage = intl.formatMessage({ id: 'pages.auth.validatePhoneForm.description.smsCodeSent' }, { phone: formatPhone(phone) })
@@ -59,6 +74,8 @@ export const ValidatePhoneForm: React.FC<ValidatePhoneFormProps> = ({ onFinish, 
     const [phoneValidateError, setPhoneValidateError] = useState(null)
 
     const [isOpenProblemsModal, setIsOpenProblemsModal] = useState<boolean>(false)
+
+    const hasSupportTelegramChat = !!HelpRequisites?.support_bot
 
     const errorHandler = useMutationErrorHandler({
         form,
@@ -256,11 +273,15 @@ export const ValidatePhoneForm: React.FC<ValidatePhoneFormProps> = ({ onFinish, 
                     size={0}
                 >
                     <Typography.Text type='secondary'>
-                        {instructionStepOne}
+                        {instructionStepCheckPhone}
                     </Typography.Text>
-                    <Typography.Text type='secondary'>
-                        {instructionStepTwo}
-                    </Typography.Text>
+                    {
+                        hasSupportTelegramChat && (
+                            <Typography.Text type='secondary'>
+                                {instructionStepSupportTelegramChat}
+                            </Typography.Text>
+                        )
+                    }
                 </Space>
             </Modal>
         </>
