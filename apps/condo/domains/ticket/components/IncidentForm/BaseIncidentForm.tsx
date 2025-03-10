@@ -1,13 +1,15 @@
 import {
-    CreateIncidentMutationFn, GetIncidentPropertiesByIncidentIdQuery, UpdateIncidentMutationFn,
+    CreateIncidentMutationFn,
+    UpdateIncidentMutationFn,
+    GetIncidentByIdQuery,
+    GetIncidentPropertiesByIncidentIdQuery,
+    GetIncidentClassifierIncidentByIncidentIdQuery,
     useCreateIncidentClassifierIncidentMutation,
     useCreateIncidentPropertyMutation,
     useUpdateIncidentClassifierIncidentMutation,
     useUpdateIncidentPropertyMutation,
 } from '@app/condo/gql'
 import {
-    Incident as IIncident,
-    IncidentClassifierIncident as IIncidentClassifierIncident,
     IncidentCreateInput as IIncidentCreateInput,
     IncidentUpdateInput as IIncidentUpdateInput,
     IncidentStatusType,
@@ -60,18 +62,9 @@ type ActionBarProps = Pick<FormWithActionChildrenProps, 'handleSave' | 'isLoadin
 export type BaseIncidentFormProps = {
     loading?: boolean
     ActionBar?: React.FC<ActionBarProps>
-    initialValues?: Pick<IIncident, 'id'
-    | 'workStart'
-    | 'workFinish'
-    | 'workType'
-    | 'organization'
-    | 'status'
-    | 'details'
-    | 'textForResident'
-    | 'hasAllProperties'
-    > & {
+    initialValues?: GetIncidentByIdQuery['incident'] & {
         incidentProperties: GetIncidentPropertiesByIncidentIdQuery['incidentProperties']
-        incidentClassifiers: IIncidentClassifierIncident[]
+        incidentClassifiers: GetIncidentClassifierIncidentByIncidentIdQuery['incidentClassifierIncident']
     }
     organizationId: string
     action: (values: IIncidentCreateInput | IIncidentUpdateInput) => Promise<Awaited<ReturnType<CreateIncidentMutationFn | UpdateIncidentMutationFn>>>
@@ -329,7 +322,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
 
     const initialIncidentOrganization = useMemo(() => initialValues?.organization?.name || null, [initialValues])
     const initialIncidentProperties = useMemo(() => initialValues?.incidentProperties || [], [initialValues])
-    const initialIncidentClassifiers = useMemo(() => initialValues?.incidentClassifiers || [], [initialValues]) as IIncidentClassifierIncident[]
+    const initialIncidentClassifiers = useMemo(() => initialValues?.incidentClassifiers || [], [initialValues])
     const initialPropertyIds = useMemo(() => initialIncidentProperties.map(item => item?.id || null).filter(Boolean), [initialIncidentProperties])
     const initialPropertyIdsWithDeleted = useMemo(() => initialIncidentProperties.map(item => getPropertyKey(item)), [initialIncidentProperties])
     const initialClassifierIds = useMemo(() => initialIncidentClassifiers.map(item => item?.id || null), [initialIncidentClassifiers])
@@ -425,14 +418,14 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
                 id: getPropertyKey(incidentProperty),
                 address: incidentProperty?.property?.address || incidentProperty?.propertyAddress || null,
                 addressMeta: incidentProperty?.property?.addressMeta || incidentProperty?.propertyAddressMeta || null,
-                deletedAt: incidentProperty?.property?.deletedAt || true,
+                deletedAt: !incidentProperty?.property,
             }
             return {
                 value: property?.id,
-                text: `${property?.address}`,
+                text: property?.address,
                 data: { property },
             }
-        }).filter((option) => !!option?.data?.property?.deletedAt || false)
+        }).filter((option) => option?.data?.property?.deletedAt || false)
 
         return [...deletedPropertyOptions, ...options]
             .map((option) => option?.data?.property?.deletedAt
@@ -535,7 +528,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
                                 <Col span={24}>
                                     <GraphQlSearchInputWithCheckAll
                                         checkAllFieldName='hasAllProperties'
-                                        checkAllInitialValue={initialValues.hasAllProperties}
+                                        checkAllInitialValue={initialValues?.hasAllProperties}
                                         selectFormItemProps={propertySelectFormItemProps}
                                         selectProps={propertySelectProps}
                                         checkBoxOffset={isSmallWindow ? 0 : 6}
