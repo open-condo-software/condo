@@ -87,8 +87,8 @@ export function useMutationErrorHandler<FormType> (opts: UseMutationErrorHandler
                 } else if (form && variable) {
                     const fieldName = variable[variable.length - 1]
                     if (fieldName) {
-                        const filed = form.getFieldInstance(fieldName)
-                        if (filed) {
+                        const field = form.getFieldInstance(fieldName)
+                        if (field) {
                             formAffected = true
                             form.setFields([{
                                 name: fieldName,

@@ -31,7 +31,7 @@ type ValidatePhoneFormProps = {
     title: string
 }
 
-const SMS_CODE_CLEAR_REGEX = /[^0-9]/g
+const SMS_CODE_REGEX = /[^0-9]/g
 
 const INITIAL_VALUES = { smsCode: '' }
 
@@ -112,8 +112,8 @@ export const ValidatePhoneForm: React.FC<ValidatePhoneFormProps> = ({ onFinish, 
 
     const handleVerifyCode = useCallback(async () => {
         setPhoneValidateError(null)
-        const dirtySmsCode = (form.getFieldValue('smsCode') || '').toString()
-        const smsCode = dirtySmsCode.replace(SMS_CODE_CLEAR_REGEX, '')
+        const smsCodeFromInput = (form.getFieldValue('smsCode') || '').toString()
+        const smsCode = smsCodeFromInput.replace(SMS_CODE_REGEX, '')
         form.setFieldsValue({ smsCode })
         if (smsCode.length < SMS_CODE_LENGTH) {
             return
@@ -152,6 +152,10 @@ export const ValidatePhoneForm: React.FC<ValidatePhoneFormProps> = ({ onFinish, 
             console.error(error)
         }
     }, [smsCodeMismatchError, completeConfirmPhoneMutation, form, executeCaptcha, onFinish, token])
+
+    const closeModal = useCallback(() => setIsOpenProblemsModal(false), [])
+
+    const openModal = useCallback(() => setIsOpenProblemsModal(true), [])
 
     return (
         <>
@@ -226,7 +230,7 @@ export const ValidatePhoneForm: React.FC<ValidatePhoneFormProps> = ({ onFinish, 
                                         }}
                                     </CountDownTimer>
 
-                                    <Typography.Link onClick={() => setIsOpenProblemsModal(true)}>
+                                    <Typography.Link onClick={openModal}>
                                         {smsNotDeliveredMessage}
                                     </Typography.Link>
                                 </Space>
@@ -240,9 +244,9 @@ export const ValidatePhoneForm: React.FC<ValidatePhoneFormProps> = ({ onFinish, 
                 open={isOpenProblemsModal}
                 title={problemsModalTitle}
                 width='small'
-                onCancel={() => setIsOpenProblemsModal(false)}
+                onCancel={closeModal}
                 footer={
-                    <Button type='primary' onClick={() => setIsOpenProblemsModal(false)}>
+                    <Button type='primary' onClick={closeModal}>
                         {checkPhoneLabel}
                     </Button>
                 }
