@@ -640,6 +640,7 @@ const Ticket = new GQLListSchema('Ticket', {
                 resolveInput: getSectionTypeFieldResolveInput(),
             },
         },
+
         floorName: {
             schemaDoc: 'Floor of an apartment building (property). You need to take from Property.map',
             type: 'Text',
