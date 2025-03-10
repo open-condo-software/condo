@@ -104,7 +104,6 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filtersMeta, sortableProperties || SORTABLE_PROPERTIES)
 
     const sortBy = useMemo(() => sortersToSortBy(sorters) as SortMeterReadingsBy[], [sorters, sortersToSortBy])
-    const { getTrackingWrappedCallback } = useTracking()
 
     const [dateRange] = useDateRangeSearch('date')
     const dateFilterValue = dateRange || null
@@ -207,14 +206,10 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
         }
     }, [selectedReadingKeys, updateSelectedReadingKeys])
 
-    const handleSelectRowWithTracking = useMemo(
-        () => getTrackingWrappedCallback('MeterReadingTableCheckboxSelectRow', null, handleSelectRow),
-        [getTrackingWrappedCallback, handleSelectRow])
-
     const rowSelection: TableRowSelection<IMeterReading> = useMemo(() => ({
         selectedRowKeys: selectedRowKeysByPage,
         fixed: true,
-        onSelect: handleSelectRowWithTracking,
+        onSelect: handleSelectRow,
         columnTitle: (
             <Checkbox
                 checked={isSelectedAllRowsByPage}
@@ -222,7 +217,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
                 onChange={handleSelectAllRowsByPage}
             />
         ),
-    }), [handleSelectAllRowsByPage, handleSelectRowWithTracking, isSelectedAllRowsByPage, isSelectedSomeRowsByPage, selectedRowKeysByPage])
+    }), [handleSelectAllRowsByPage, handleSelectRow, isSelectedAllRowsByPage, isSelectedSomeRowsByPage, selectedRowKeysByPage])
 
     const handleSearch = useCallback((e) => {handleSearchChange(e.target.value)}, [handleSearchChange])
     const handleUpdateMeterReading = useCallback((record) => { 

@@ -54,9 +54,9 @@ import {
 import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
-import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
 import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCounter'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { analytics } from '@condo/domains/common/utils/analytics'
 import { NewsCardGrid } from '@condo/domains/news/components/NewsForm/NewsCardGrid'
 import { NewsItemSharingForm, SharingAppValues } from '@condo/domains/news/components/NewsForm/NewsItemSharingForm'
 import SelectSharingAppControl from '@condo/domains/news/components/NewsForm/SelectSharingAppControl'
@@ -411,8 +411,6 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const SendNewsLabel = intl.formatMessage({ id: 'news.filed.shareNews.button' })
     const ShareButtonMessage = intl.formatMessage({ id: 'global.share' })
 
-    const { logEvent, getEventName } = useTracking()
-
     const router = useRouter()
 
     const { breakpoints } = useLayoutContext()
@@ -630,11 +628,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         const title = templateId !== 'emptyTemplate' ? templates[templateId].title : ''
         const body = templateId !== 'emptyTemplate' ? templates[templateId].body : ''
 
-        const eventName = getEventName(TrackingEventType.Click)
-        const eventProperties = {
-            components: { value: { title, body } },
-        }
-        logEvent({ eventName, eventProperties })
+        analytics.track('news_template_change', { title, body })
 
         form.setFieldValue('title', title)
         setSelectedTitle(title)

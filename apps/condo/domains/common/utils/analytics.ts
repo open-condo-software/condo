@@ -58,6 +58,7 @@ type Events = {
     'file_upload': { fileId: string, location: string }
     'miniapp_session_start': { appId: string, startedAt: string }
     'miniapp_session_end': { appId: string, startedAt: string, durationInSec: number }
+    'news_template_change': { title: string, body: string }
 }
 
 type UserData = {
