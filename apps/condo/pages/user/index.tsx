@@ -52,6 +52,7 @@ export const UserInfoPageContent: React.FC<UserInfoPageContentProps> = ({ useAll
     const EmployeeTelegramTooltipMessage = intl.formatMessage({ id: 'pages.condo.profile.employeeTelegramBot.description' })
     const EmployeeTelegramOpenMessage = intl.formatMessage({ id: 'pages.condo.profile.employeeTelegramBot.open' })
     const GlobalHintsTitle = intl.formatMessage({ id: 'pages.condo.profile.globalHints' })
+
     const RuTitle = intl.formatMessage({ id: 'language.russian.withFlag' })
     const EnTitle = intl.formatMessage({ id: 'language.english-us.withFlag' })
     const EsTitle = intl.formatMessage({ id: 'language.spanish-es.withFlag' })
@@ -129,7 +130,7 @@ export const UserInfoPageContent: React.FC<UserInfoPageContentProps> = ({ useAll
                                                     </Typography.Title>
                                                 </Col>
                                                 <Col span={24}>
-                                                    <Row gutter={ROW_GUTTER_SMALL}>
+                                                    <Row gutter={[0, 16]}>
                                                         <Col lg={5} xs={10}>
                                                             <Typography.Text type='secondary'>
                                                                 {PhoneMessage}

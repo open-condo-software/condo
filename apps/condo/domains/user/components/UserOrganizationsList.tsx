@@ -4,6 +4,7 @@ import get from 'lodash/get'
 import uniqBy from 'lodash/uniqBy'
 import React, { useCallback, useMemo } from 'react'
 
+import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Typography, Tag } from '@open-condo/ui'
@@ -42,6 +43,7 @@ const OrganizationName: React.FC<IOrganizationName> = (props) => {
 
 interface IOrganizationEmployeeItem {
     employee: OrganizationEmployeeType
+    shouldDisplayId: boolean
 }
 
 const OrganizationEmployeeItem: React.FC<IOrganizationEmployeeItem> = (props) => {
@@ -51,7 +53,7 @@ const OrganizationEmployeeItem: React.FC<IOrganizationEmployeeItem> = (props) =>
     const PositionMessage = intl.formatMessage({ id: 'employee.Position' })
     const RoleMessage = intl.formatMessage({ id: 'employee.Role' })
 
-    const { employee } = props
+    const { employee, shouldDisplayId = false } = props
 
     const { selectEmployee, organization } = useOrganization()
 
@@ -65,7 +67,7 @@ const OrganizationEmployeeItem: React.FC<IOrganizationEmployeeItem> = (props) =>
 
     return (
         <Col span={24}>
-            <Row gutter={[0, 24]}>
+            <Row gutter={[0, 16]}>
                 <Col lg={5} xs={10}>
                     <Typography.Text type='secondary'>
                         {OrganizationMessage}
@@ -84,6 +86,18 @@ const OrganizationEmployeeItem: React.FC<IOrganizationEmployeeItem> = (props) =>
                         )}
                     />
                 </Col>
+                {
+                    shouldDisplayId && (
+                        <>
+                            <Col lg={5} xs={10}>
+                                <Typography.Text type='secondary'>ID</Typography.Text>
+                            </Col>
+                            <Col lg={18} xs={12} offset={1}>
+                                <Typography.Text>{employee.organization.id}</Typography.Text>
+                            </Col>
+                        </>
+                    )
+                }
                 <Col lg={5} xs={10}>
                     <Typography.Text type='secondary'>
                         {TinMessage}
@@ -122,6 +136,8 @@ export type UserOrganizationsListProps = {
 export const UserOrganizationsList: React.FC<UserOrganizationsListProps> = ({ useAllOrganizationEmployee }) => {
     const { objs: userOrganizations, allDataLoaded } = useAllOrganizationEmployee()
 
+    const { user } = useAuth()
+
     const list = useMemo(() => {
         return uniqBy(userOrganizations, employee => get(employee, 'organization.id')).slice()
             .sort((optionA, optionB) =>
@@ -131,6 +147,7 @@ export const UserOrganizationsList: React.FC<UserOrganizationsListProps> = ({ us
                 <OrganizationEmployeeItem
                     employee={employee}
                     key={index}
+                    shouldDisplayId={user.isSupport || user.isAdmin}
                 />
             ))
     }, [userOrganizations])
