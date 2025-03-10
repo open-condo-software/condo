@@ -5,6 +5,7 @@ import { uniqBy, isEmpty, find, pick } from 'lodash'
 import isFunction from 'lodash/isFunction'
 import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { useApolloClient } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 
@@ -15,7 +16,6 @@ import { MIN_DESCRIPTION_LENGTH } from '@condo/domains/ticket/constants/restrict
 import { ClassifiersQueryLocal, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 
 import { TicketFormItem } from './BaseTicketForm'
-import {useCachePersistor} from "@open-condo/apollo";
 
 
 const { Option } = Select
