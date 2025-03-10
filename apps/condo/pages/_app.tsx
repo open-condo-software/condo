@@ -485,7 +485,7 @@ const MyApp = ({ Component, pageProps }) => {
         isEndTrialSubscriptionReminderPopupVisible,
     } = useEndTrialSubscriptionReminderPopup()
 
-    const shouldDisplayCookieAgreement = router.pathname.match(/\/auth\/.*/)
+    const shouldDisplayCookieAgreement = router.pathname.match(/\/auth(\/.*)?/)
 
     // NOTE: We remember that the client has already been authorized,
     // so that instead of opening the "/auth" page, we redirect to "/auth/signin"
