@@ -21,8 +21,14 @@ type ButtonCLick = {
     component: 'Button'
 }
 
+type MenuItemClick =  {
+    id: string
+    component: 'MenuItem'
+}
+
 type Events = {
-    'click': ButtonCLick
+    'click': ButtonCLick | MenuItemClick
+    'ticket_comment_submit': Record<string, never>
 }
 
 type UserData = {
