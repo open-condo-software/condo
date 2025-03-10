@@ -101,7 +101,7 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
         notifyEndDay: isCreateMode ? 25 : get(reportingPeriodRecord, 'notifyEndDay'),
         property: isCreateMode ? undefined : get(reportingPeriodRecord, 'property.address'),
         isOrganizationPeriod: isCreateMode ? false : get(reportingPeriodRecord, 'property') === null,
-        restrictionEndDay: isCreateMode ? false : get(reportingPeriodRecord, 'restrictionEndDay'),
+        restrictionEndDay: isCreateMode ? undefined : get(reportingPeriodRecord, 'restrictionEndDay'),
     }), [isCreateMode, reportingPeriodRecord])
 
     const startNumberRef = useRef<number>(formInitialValues.notifyStartDay)
