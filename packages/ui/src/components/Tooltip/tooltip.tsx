@@ -15,6 +15,8 @@ export type TooltipProps = Pick<DefaultTooltipProps,
 | 'destroyTooltipOnHide'
 | 'zIndex'
 | 'defaultOpen'
+| 'overlayInnerStyle'
+| 'mouseEnterDelay'
 | 'title'> & {
     children?: React.ReactNode
 }
@@ -24,7 +26,7 @@ export const Tooltip: React.FC<TooltipProps> = (props) => {
         <DefaultTooltip
             {...props}
             prefixCls={TOOLTIP_CLASS_PREFIX}
-            mouseEnterDelay={MOUSE_ENTER_DELAY_IN_SECONDS}
+            mouseEnterDelay={props.mouseEnterDelay || MOUSE_ENTER_DELAY_IN_SECONDS}
         />
     )
 }
