@@ -932,7 +932,7 @@ const MESSAGE_DELIVERY_OPTIONS = {
         allowedTransports: [PUSH_TRANSPORT],
         defaultTransports: [PUSH_TRANSPORT],
         isAllowedToChangeDefaultTransport: false,
-        pushType: PUSH_TYPE_SILENT_DATA,
+        preferredPushType: PUSH_TYPE_SILENT_DATA,
     },
     [B2C_APP_MESSAGE_PUSH_TYPE]: {
         allowedTransports: [PUSH_TRANSPORT],

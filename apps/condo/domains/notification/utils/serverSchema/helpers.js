@@ -147,14 +147,14 @@ function getMessageOptions (type) {
  * @param messageType
  * @returns {customPushType: string | undefined}
  */
-function getPreferPushTypeByMessageType (messageType) {
-    const { pushType } = get(MESSAGE_DELIVERY_OPTIONS, messageType)
-    return pushType
+function getPreferredPushTypeByMessageType (messageType) {
+    const { preferredPushType } = get(MESSAGE_DELIVERY_OPTIONS, messageType)
+    return preferredPushType
 }
 
 module.exports = {
     getAnonymousSettings,
     getUserSettingsForMessage,
     getMessageOptions,
-    getPreferPushTypeByMessageType,
+    getPreferredPushTypeByMessageType,
 }
