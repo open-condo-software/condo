@@ -4,7 +4,8 @@ import { Gutter } from 'antd/lib/grid/row'
 import { DefaultOptionType } from 'antd/lib/select'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
-import React, { Dispatch, SetStateAction } from 'react'
+import pick from 'lodash/pick'
+import React, { Dispatch, SetStateAction, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
@@ -74,6 +75,12 @@ export const AddressAndUnitInfo = (props: AddressAndUnitInfoProps): JSX.Element 
     const validations = {
         property: [requiredValidator, addressValidator(selectedPropertyId, isMatchSelectedProperty)],
     }
+    const unitInfoInitialValues = useMemo(() => {
+        if (selectedPropertyId === initialValues?.propertyId) {
+            return pick(initialValues, ['unitName', 'unitType'])
+        }
+        return {}
+    }, [initialValues, selectedPropertyId])
 
     return (
         <Row justify='space-between' gutter={FORM_ROW_MEDIUM_VERTICAL_GUTTER}>
@@ -125,7 +132,7 @@ export const AddressAndUnitInfo = (props: AddressAndUnitInfoProps): JSX.Element 
                                 setSelectedUnitType={setSelectedUnitType}
                                 form={form}
                                 required
-                                initialValues={{ unitName: get(initialValues, 'unitName'), unitType: get(initialValues, 'unitType') }}
+                                initialValues={unitInfoInitialValues}
                             />
                         </Col>
                         {notFoundMetersForAddressTooltip && isNoMeterForUnitName && (
