@@ -14,8 +14,8 @@ import { Button } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { MAX_UPLOAD_FILE_SIZE } from '@condo/domains/common/constants/uploads'
+import { analytics } from '@condo/domains/common/utils/analytics'
 
-import { useTracking, TrackingEventType } from './TrackingContext'
 
 
 type DBFile = {
@@ -267,7 +267,6 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
     } = props
 
     const [listFiles, setListFiles] = useState<UploadListFile[]>([])
-    const { getEventName, logEvent } = useTracking()
 
     useEffect(() => {
         const convertedFiles = convertFilesToUploadFormat(fileList)
@@ -341,10 +340,7 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
                 updateFileList({ type: 'add', payload: dbFile })
                 setFilesCount(filesCount => filesCount + 1)
 
-                logEvent({
-                    eventName: getEventName(TrackingEventType.FileUpload),
-                    eventProperties: { components: { value: dbFile.id } },
-                })
+                analytics.track('file_upload', { fileId: dbFile.id, location: window.location.href })
             }).catch(err => {
                 const error = new Error(UploadFailedErrorMessage)
                 console.error('Upload failed', err)

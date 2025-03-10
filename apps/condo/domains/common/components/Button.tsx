@@ -301,6 +301,7 @@ export const Button: React.FC<CustomButtonProps> = (props) => {
             type,
             id,
             value,
+            location: window.location.href,
         })
         onClick(e)
     }, [id, onClick, type, value])

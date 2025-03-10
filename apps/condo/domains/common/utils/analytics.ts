@@ -13,22 +13,48 @@ const {
     },
 } = getConfig()
 
-// TODO: Remove once button from @condo/domains is removed
-type ButtonCLick = {
+// TODO: Remove the types after components replaces with ones from @open-condo/ui
+
+type CommonLegacyComponentProps = {
+    location: string
     id?: string
+}
+
+type ButtonCLick = CommonLegacyComponentProps & {
     value?: string
     type?: string
     component: 'Button'
 }
 
-type MenuItemClick =  {
+type MenuItemClick = CommonLegacyComponentProps & {
     id: string
     component: 'MenuItem'
 }
 
+type GQLInputChange = CommonLegacyComponentProps & {
+    value: string | Array<string>
+    component: 'GraphQLSearchInput'
+}
+
+type DateRangeChange = CommonLegacyComponentProps & {
+    from: string
+    to: string
+    id: string
+    component: 'DateRangePicker'
+}
+
+type CheckboxCheck = CommonLegacyComponentProps & {
+    component: 'Checkbox'
+    value: string
+}
+
+
 type Events = {
     'click': ButtonCLick | MenuItemClick
+    'change': GQLInputChange | DateRangeChange
+    'check': CheckboxCheck
     'ticket_comment_submit': Record<string, never>
+    'file_upload': { fileId: string, location: string }
 }
 
 type UserData = {

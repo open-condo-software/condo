@@ -127,9 +127,9 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
     }, [path, asPath, excludePaths])
 
     const handleClick: React.MouseEventHandler<HTMLDivElement> = useCallback(() => {
-        analytics.track('click', { component: 'MenuItem', id })
+        analytics.track('click', { component: 'MenuItem', id, location: window.location.href })
         onClick?.()
-    }, [])
+    }, [id, onClick])
 
     if (hideInMenu) {
         return null
