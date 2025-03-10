@@ -81,7 +81,6 @@ jobs:
           driver-opts: |
             env.BUILDKIT_STEP_LOG_MAX_SIZE=10485760
             image=${{ secrets.DOCKER_REGISTRY }}/doma/utils/buildkit:buildx-stable-2
-            network=host
       - name: Build repo image
         uses: docker/build-push-action@v6
         with:
