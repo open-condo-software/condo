@@ -5,14 +5,13 @@ import { Col, Row, RowProps } from 'antd'
 import get from 'lodash/get'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
+import { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Radio, RadioGroup, Tabs, Typography } from '@open-condo/ui'
 
 import { PageHeader, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
-import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import { MultipleFilterContextProvider } from '@condo/domains/common/hooks/useMultipleFiltersModal'
 import { usePreviousQueryParams } from '@condo/domains/common/hooks/usePreviousQueryParams'
@@ -62,7 +61,6 @@ export const MeterTypeSwitch = ({ defaultValue, activeTab }: MeterTypeSwitchProp
     const intl = useIntl()
     const MeterReadingMessage = intl.formatMessage({ id: 'pages.condo.meter.index.MeterType.meterReading' })
     const HouseMeterReadingMessage = intl.formatMessage({ id: 'pages.condo.meter.index.MeterType.houseMeterReading' })
-    const { logEvent } = useTracking()
 
     const router = useRouter()
     const type  = get(router.query, 'type', METER_TYPES.unit) as string
@@ -83,13 +81,12 @@ export const MeterTypeSwitch = ({ defaultValue, activeTab }: MeterTypeSwitchProp
     const handleRadioChange = useCallback(async (event) => {
         const value = event.target.value
         setValue(value)
-        logEvent({ eventName: 'MeterTypeChange', denyDuplicates: true, eventProperties: { type: value } })
         updateQuery(
             router,
             { newParameters: { type: value, tab: activeTab } },
             { resetOldParameters: true, routerAction: 'replace', shallow: true }
         )
-    }, [activeTab, logEvent, router])
+    }, [activeTab, router])
 
     return (
         <RadioGroup optionType='button' value={value} onChange={handleRadioChange} defaultValue={defaultValue}>

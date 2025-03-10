@@ -54,7 +54,10 @@ type Events = {
     'change': GQLInputChange | DateRangeChange
     'check': CheckboxCheck
     'ticket_comment_submit': Record<string, never>
+    'import_complete': Record<string, never>
     'file_upload': { fileId: string, location: string }
+    'miniapp_session_start': { appId: string, startedAt: string }
+    'miniapp_session_end': { appId: string, startedAt: string, durationInSec: number }
 }
 
 type UserData = {

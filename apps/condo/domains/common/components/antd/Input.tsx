@@ -1,6 +1,8 @@
 import { Input as BaseInput, InputProps } from 'antd'
 import React from 'react'
 
+export type { InputProps } from 'antd'
+
 /** @deprecated use Input from "@open-condo/ui" */
 const Input = (props: InputProps) => {
     return <BaseInput {...props} />

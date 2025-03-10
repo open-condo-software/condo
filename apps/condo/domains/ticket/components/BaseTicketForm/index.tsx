@@ -496,7 +496,7 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
                                                 <Form.Item name='isEmergency' valuePropName='checked'>
                                                     <Checkbox
                                                         disabled={disableUserInteraction}
-                                                        eventName='TicketCreateCheckboxEmergency'
+                                                        id='ticket-is-emergency'
                                                         onChange={handleChangeType}
                                                     >
                                                         {EmergencyLabel}
@@ -511,7 +511,7 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
                                                     >
                                                         <Checkbox
                                                             disabled={disableUserInteraction || disableIsPayableCheckbox}
-                                                            eventName='TicketCreateCheckboxIsPayable'
+                                                            id='ticket-is-payable'
                                                             onChange={handlePayableChange}
                                                         >
                                                             {PayableLabel}
@@ -523,7 +523,7 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
                                                 <Form.Item name='isWarranty' valuePropName='checked'>
                                                     <Checkbox
                                                         disabled={disableUserInteraction}
-                                                        eventName='TicketCreateCheckboxIsWarranty'
+                                                        id='ticket-is-warranty'
                                                         onChange={handleChangeType}
                                                     >
                                                         {WarrantyLabel}
@@ -1021,7 +1021,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                                                 <Form.Item name='canReadByResident' valuePropName='checked' initialValue={initialCanReadByResidentValue}>
                                                                                                     <Checkbox
                                                                                                         disabled={disableUserInteraction}
-                                                                                                        eventName='TicketCreateCheckboxCanReadByResident'
+                                                                                                        id='ticket-can-read-by-resident'
                                                                                                     >
                                                                                                         <div style={CAN_READ_BY_RESIDENT_WRAPPER_STYLE}>
                                                                                                             <Typography.Text>
@@ -1044,7 +1044,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                                                 <Form.Item name='attachCallRecord' valuePropName='checked' initialValue={true}>
                                                                                                     <Checkbox
                                                                                                         disabled={disableUserInteraction}
-                                                                                                        eventName='TicketCreateCheckboxAttachCallRecord'
+                                                                                                        id='ticket-attach-call-record'
                                                                                                     >
                                                                                                         {AttachCallRecordMessage}
                                                                                                     </Checkbox>

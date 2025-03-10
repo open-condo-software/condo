@@ -9,8 +9,8 @@ import { useIntl } from '@open-condo/next/intl'
 import { Button, CardBodyProps, CardHeaderProps } from '@open-condo/ui'
 
 import { DataImporter } from '@condo/domains/common/components/DataImporter'
-import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
 import { useImporter } from '@condo/domains/common/hooks/useImporter'
+import { analytics } from '@condo/domains/common/utils/analytics'
 import {
     Columns,
     RowNormalizer,
@@ -76,8 +76,6 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
     const ChooseFileForUploadLabel = intl.formatMessage({ id: 'import.uploadModal.chooseFileForUpload' })
     const ErrorsMessage = intl.formatMessage({ id: 'import.Errors' })
 
-    const { logEvent, getEventName } = useTracking()
-
     const [activeModal, setActiveModal] = useState<ActiveModalType>()
 
     useEffect(() => {
@@ -115,8 +113,8 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
         onFinish: () => {
             setActiveModal(errors.current.length > 0 ? 'partlyLoaded' : 'success')
 
-            const eventName = getEventName(TrackingEventType.ImportComplete)
-            logEvent({ eventName })
+
+            analytics.track('import_complete', {})
             if (isFunction(handleFinish)) {
                 handleFinish()
             }

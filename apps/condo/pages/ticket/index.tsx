@@ -48,7 +48,6 @@ import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { DEFAULT_PAGE_SIZE, Table, TableRecord } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
-import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { useWindowTitleContext, WindowTitleContextProvider } from '@condo/domains/common/components/WindowTitleContext'
 import { EMOJI } from '@condo/domains/common/constants/emoji'
 import { EXCEL } from '@condo/domains/common/constants/export'
@@ -159,7 +158,6 @@ const TicketTable = ({
     const CancelSelectedTicketLabel = intl.formatMessage({ id: 'global.cancelSelection' })
     const CountSelectedTicketLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.CountSelectedTicket' })
 
-    const { getTrackingWrappedCallback } = useTracking()
     const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
 
     const auth = useAuth() as { user: { id: string } }
@@ -255,23 +253,19 @@ const TicketTable = ({
         }
     }, [selectedTicketKeys, updateSelectedTicketKeys])
 
-    const handleSelectRowWithTracking = useMemo(
-        () => getTrackingWrappedCallback('TicketTableCheckboxSelectRow', null, handleSelectRow),
-        [getTrackingWrappedCallback, handleSelectRow])
-
     const rowSelection: TableRowSelection<ITicket> = useMemo(() => ({
         selectedRowKeys: selectedRowKeysByPage,
         fixed: true,
-        onSelect: handleSelectRowWithTracking,
+        onSelect: handleSelectRow,
         columnTitle: (
             <Checkbox
                 checked={isSelectedAllRowsByPage}
                 indeterminate={isSelectedSomeRowsByPage}
                 onChange={handleSelectAllRowsByPage}
-                eventName='TicketTableCheckboxSelectAll'
+                id='ticket-table-select-all'
             />
         ),
-    }), [handleSelectAllRowsByPage, handleSelectRowWithTracking, isSelectedAllRowsByPage, isSelectedSomeRowsByPage, selectedRowKeysByPage])
+    }), [handleSelectAllRowsByPage, handleSelectRow, isSelectedAllRowsByPage, isSelectedSomeRowsByPage, selectedRowKeysByPage])
 
     const tableComponents: TableComponents<TableRecord> = useMemo(() => ({
         body: {
@@ -678,7 +672,7 @@ const FiltersContainer = ({ filterMetas }) => {
                                             onChange={handleAttributeCheckboxChange('isRegular')}
                                             checked={regular}
                                             style={CHECKBOX_STYLE}
-                                            eventName='TicketFilterCheckboxRegular'
+                                            id='ticket-filter-regular'
                                             data-cy='ticket__filter-isRegular'
                                         >
                                             {RegularLabel}
@@ -689,7 +683,7 @@ const FiltersContainer = ({ filterMetas }) => {
                                             onChange={handleAttributeCheckboxChange('isEmergency')}
                                             checked={emergency}
                                             style={CHECKBOX_STYLE}
-                                            eventName='TicketFilterCheckboxEmergency'
+                                            id='ticket-filter-emergency'
                                             data-cy='ticket__filter-isEmergency'
                                         >
                                             {EmergenciesLabel}
@@ -700,7 +694,7 @@ const FiltersContainer = ({ filterMetas }) => {
                                             onChange={handleAttributeCheckboxChange('isPayable')}
                                             checked={payable}
                                             style={CHECKBOX_STYLE}
-                                            eventName='TicketFilterCheckboxPayable'
+                                            id='ticket-filter-payable'
                                             data-cy='ticket__filter-isPayable'
                                         >
                                             {PayableLabel}
@@ -711,7 +705,7 @@ const FiltersContainer = ({ filterMetas }) => {
                                             onChange={handleAttributeCheckboxChange('isWarranty')}
                                             checked={warranty}
                                             style={CHECKBOX_STYLE}
-                                            eventName='TicketFilterCheckboxWarranty'
+                                            id='ticket-filter-warranty'
                                             data-cy='ticket__filter-isWarranty'
                                         >
                                             {WarrantiesLabel}
@@ -722,7 +716,7 @@ const FiltersContainer = ({ filterMetas }) => {
                                             onChange={handleAttributeCheckboxChange('statusReopenedCounter')}
                                             checked={returned}
                                             style={CHECKBOX_STYLE}
-                                            eventName='TicketFilterCheckboxReturned'
+                                            id='ticket-filter-returned'
                                             data-cy='ticket__filter-isReturned'
                                         >
                                             {ReturnedLabel}
@@ -733,7 +727,7 @@ const FiltersContainer = ({ filterMetas }) => {
                                             onChange={(event) => handleChangeIsCompletedAfterDeadline(get(event, 'target.checked', false))}
                                             checked={isCompletedAfterDeadline}
                                             style={CHECKBOX_STYLE}
-                                            eventName='TicketFilterCheckboxIsCompletedAfterDeadline'
+                                            id='ticket-filter-completed-after-deadline'
                                             data-cy='ticket__filter-isCompletedAfterDeadline'
                                             children={ExpiredLabel}
                                         />
@@ -945,13 +939,10 @@ export const TicketTypeFilterSwitch = ({ ticketFilterQuery }) => {
         }
     }, [isRefetchTicketsFeatureEnabled, refetchInterval])
 
-    const { logEvent } = useTracking()
-
     const handleRadioChange = useCallback(async (event) => {
         const value = event.target.value
 
         setValue(value)
-        logEvent({ eventName: 'TicketTypeFilterTabChange', denyDuplicates: true, eventProperties: { tab: value } })
 
         let newFilters
         if (value === 'all') {
@@ -969,7 +960,7 @@ export const TicketTypeFilterSwitch = ({ ticketFilterQuery }) => {
         }
         const newParameters = getFiltersQueryData(newFilters)
         await updateQuery(router, { newParameters }, { routerAction: 'replace', shallow: true })
-    }, [filters, logEvent, router])
+    }, [filters, router])
 
     return (
         <RadioGroup optionType='button' value={value} onChange={handleRadioChange}>

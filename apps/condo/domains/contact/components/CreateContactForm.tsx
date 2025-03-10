@@ -331,7 +331,7 @@ export const CreateContactForm: React.FC = () => {
                                         >
                                             <Checkbox
                                                 style={CHECKBOX_STYLE}
-                                                eventName='ContactIsVerifiedCheckbox'
+                                                id='contact-is-verified'
                                             />
                                         </Form.Item>
                                     </Col>
