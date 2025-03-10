@@ -11,6 +11,7 @@ const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const access = require('@condo/domains/user/access/AuthenticateOrRegisterUserWithTokenService')
 const { RESIDENT, STAFF, SERVICE } = require('@condo/domains/user/constants/common')
+const { ERRORS: USER_ERRORS } = require('@condo/domains/user/constants/errors')
 const {
     CAPTCHA_CHECK_FAILED,
     UNSUPPORTED_TOKEN,
@@ -133,11 +134,37 @@ const ERRORS = {
         type: 'EMAIL_ALREADY_REGISTERED_ERROR',
         message: 'Email already registered',
     },
+    INVALID_PASSWORD_LENGTH: {
+        ...USER_ERRORS.INVALID_PASSWORD_LENGTH,
+        mutation: 'authenticateOrRegisterUserWithToken',
+    },
+    PASSWORD_IS_FREQUENTLY_USED: {
+        ...USER_ERRORS.PASSWORD_IS_FREQUENTLY_USED,
+        mutation: 'authenticateOrRegisterUserWithToken',
+    },
+    PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS: {
+        ...USER_ERRORS.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS,
+        mutation: 'authenticateOrRegisterUserWithToken',
+    },
+    PASSWORD_CONTAINS_EMAIL: {
+        ...USER_ERRORS.PASSWORD_CONTAINS_EMAIL,
+        mutation: 'authenticateOrRegisterUserWithToken',
+    },
+    PASSWORD_CONTAINS_PHONE: {
+        ...USER_ERRORS.PASSWORD_CONTAINS_PHONE,
+        mutation: 'authenticateOrRegisterUserWithToken',
+    },
 }
 
 const USER_ERROR_MAPPING = {
     [PHONE_ALREADY_REGISTERED_ERROR]: ERRORS.PHONE_ALREADY_REGISTERED_ERROR,
     [EMAIL_ALREADY_REGISTERED_ERROR]: ERRORS.EMAIL_ALREADY_REGISTERED_ERROR,
+    '[password:minLength:User:password]': ERRORS.INVALID_PASSWORD_LENGTH,
+    '[password:rejectCommon:User:password]': ERRORS.PASSWORD_IS_FREQUENTLY_USED,
+    [ERRORS.INVALID_PASSWORD_LENGTH.message]: ERRORS.INVALID_PASSWORD_LENGTH,
+    [ERRORS.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS.message]: ERRORS.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS,
+    [ERRORS.PASSWORD_CONTAINS_EMAIL.message]: ERRORS.PASSWORD_CONTAINS_EMAIL,
+    [ERRORS.PASSWORD_CONTAINS_PHONE.message]: ERRORS.PASSWORD_CONTAINS_PHONE,
 }
 
 const SUPPORTED_TOKENS = [
