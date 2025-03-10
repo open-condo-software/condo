@@ -49,12 +49,11 @@ const ResidentAppealDropdownOverlay = ({ setIsSearchByPhoneModalVisible, setDrop
                 showSearchButton && (
                     <>
                         <MenuItem
-                            id='menuitem-action-SearchByPhoneNumber'
+                            id='menu-item-search-by-phone'
                             onClick={handleButtonClick}
                             menuItemWrapperProps={ResidentAppealDropDownMenuItemWrapperProps}
                             icon={Smartphone}
                             label='SearchByPhoneNumber'
-                            eventName='MenuSearchByPhoneClick'
                         />
                         {(canManageTickets || canManageMeterReadings) && <Divider style={DIVIDER_STYLES}/>}
                     </>
@@ -64,12 +63,11 @@ const ResidentAppealDropdownOverlay = ({ setIsSearchByPhoneModalVisible, setDrop
                 canManageTickets && (
                     <>
                         <MenuItem
-                            id='menuitem-action-CreateAppeal'
+                            id='menu-item-create-appeal'
                             menuItemWrapperProps={ResidentAppealDropDownMenuItemWrapperProps}
                             path='/ticket/create'
                             icon={NewAppeal}
                             label='CreateAppeal'
-                            eventName='MenuCreateTicketClick'
                         />
                         {canManageMeterReadings && <Divider style={DIVIDER_STYLES}/>}
                     </>
@@ -78,12 +76,11 @@ const ResidentAppealDropdownOverlay = ({ setIsSearchByPhoneModalVisible, setDrop
             {
                 canManageMeterReadings && (
                     <MenuItem
-                        id='menuitem-action-CreateMeterReading'
+                        id='menu-item-create-meter-reading'
                         menuItemWrapperProps={ResidentAppealDropDownMenuItemWrapperProps}
                         path='/meter/create?tab=meter-reading'
                         icon={Readings}
                         label='CreateMeterReading'
-                        eventName='MenuCreateMeterReadingClick'
                     />
                 )
             }

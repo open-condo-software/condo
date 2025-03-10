@@ -5,12 +5,10 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo } from 'react'
 
 import { useAuth } from '@open-condo/next/auth'
-import { useIntl } from '@open-condo/next/intl'
 
 import { FROM_INPUT_CSS } from '@condo/domains/common/components/containers/BaseLayout/components/styles'
 import { HCaptchaProvider } from '@condo/domains/common/components/HCaptcha'
 import { Logo } from '@condo/domains/common/components/Logo'
-import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
 import { colors } from '@condo/domains/common/constants/style'
 
 import { AuthLayoutContextProvider } from './AuthLayoutContext'
@@ -32,21 +30,10 @@ const {
 } = getConfig()
 
 const AuthLayout: React.FC<IAuthLayoutProps> = (props) => {
-    const intl = useIntl()
-    const PrivacyPolicy = intl.formatMessage({ id: 'pages.auth.register.info.PrivacyPolicyContent' })
-    const TermsOfService = intl.formatMessage({ id: 'pages.auth.register.info.termsOfService' })
-
     const { children, ...otherProps } = props
 
-    const { asPath, push } = useRouter()
+    const { push } = useRouter()
     const { isAuthenticated } = useAuth()
-
-    const { getEventName, logEvent } = useTracking()
-
-    useEffect(() => {
-        const eventName = getEventName(TrackingEventType.Visit)
-        logEvent({ eventName, denyDuplicates: true })
-    }, [asPath])
 
     const handleLogoClick = useCallback(() => {
         if (isAuthenticated) {

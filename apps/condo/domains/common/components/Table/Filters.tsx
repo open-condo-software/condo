@@ -14,7 +14,7 @@ import React, { CSSProperties, useCallback, useMemo } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
-import Input, { CustomInputProps } from '@condo/domains/common/components/antd/Input'
+import Input, { InputProps } from '@condo/domains/common/components/antd/Input'
 import Select, { CustomSelectProps, SelectValueType } from '@condo/domains/common/components/antd/Select'
 import { GraphQlSearchInput, ISearchInputProps } from '@condo/domains/common/components/GraphQlSearchInput'
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
@@ -32,7 +32,7 @@ type FilterValueType = (path: string | Array<string>, filters: { [x: string]: Qu
 type CommonFilterDropdownProps = { containerStyles?: CSSProperties }
 type GetCommonFilterDropdownType<P> = (props?: P) => (props: FilterDropdownProps) => React.ReactNode
 
-type GetTextFilterDropdownType = GetCommonFilterDropdownType<{ inputProps?: CustomInputProps } & CommonFilterDropdownProps>
+type GetTextFilterDropdownType = GetCommonFilterDropdownType<{ inputProps?: InputProps } & CommonFilterDropdownProps>
 
 type GetOptionFilterDropdownType = GetCommonFilterDropdownType<{ checkboxGroupProps?: CheckboxGroupProps & { id?: string } } & CommonFilterDropdownProps>
 
@@ -141,7 +141,7 @@ export const getTextFilterDropdown: GetTextFilterDropdownType = ({ containerStyl
             confirm({ closeDropdown: true })
         }, [clearFilters, confirm, setSelectedKeys])
 
-        const handleChangeInput: CustomInputProps['onChange'] = useCallback((event) => {
+        const handleChangeInput: InputProps['onChange'] = useCallback((event) => {
             // NOTE: Type casting problem
             // @ts-ignore
             setSelectedKeys(event.target.value)

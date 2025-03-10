@@ -28,7 +28,6 @@ import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportT
 import { Loader } from '@condo/domains/common/components/Loader'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
-import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { EMOJI } from '@condo/domains/common/constants/emoji'
 import { useMultipleFiltersModal } from '@condo/domains/common/hooks/useMultipleFiltersModal'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
@@ -100,7 +99,6 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
     const isDeletedProperty = !get(meter, 'property')
 
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filtersMeta, sortableProperties || SORTABLE_PROPERTIES)
-    const { getTrackingWrappedCallback } = useTracking()
 
     const sortBy = useMemo(() => sortersToSortBy(sorters) as SortPropertyMeterReadingsBy[], [sorters, sortersToSortBy])
 
@@ -192,14 +190,10 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
         }
     }, [selectedReadingKeys, updateSelectedReadingKeys])
 
-    const handleSelectRowWithTracking = useMemo(
-        () => getTrackingWrappedCallback('MeterReadingTableCheckboxSelectRow', null, handleSelectRow),
-        [getTrackingWrappedCallback, handleSelectRow])
-
     const rowSelection: TableRowSelection<PropertyMeterReadingType> = useMemo(() => ({
         selectedRowKeys: selectedRowKeysByPage,
         fixed: true,
-        onSelect: handleSelectRowWithTracking,
+        onSelect: handleSelectRow,
         columnTitle: (
             <Checkbox
                 checked={isSelectedAllRowsByPage}
@@ -207,7 +201,7 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
                 onChange={handleSelectAllRowsByPage}
             />
         ),
-    }), [handleSelectAllRowsByPage, handleSelectRowWithTracking, isSelectedAllRowsByPage, isSelectedSomeRowsByPage, selectedRowKeysByPage])
+    }), [handleSelectAllRowsByPage, isSelectedAllRowsByPage, isSelectedSomeRowsByPage, selectedRowKeysByPage])
 
     const handleUpdateMeterReading = useCallback((record) => { 
         if (get(meter, 'archiveDate') || !get(meter, 'property')) {

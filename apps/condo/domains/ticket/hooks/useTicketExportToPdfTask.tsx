@@ -25,7 +25,7 @@ import { CommentPreview } from '@condo/domains/common/components/Comments/Commen
 import { ChevronIcon as ChevronIconBase } from '@condo/domains/common/components/icons/ChevronIcon'
 import { useTaskLauncher } from '@condo/domains/common/components/tasks/TaskLauncher'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
-import { TrackingEventType, useTracking } from '@condo/domains/common/components/TrackingContext'
+import { analytics, EventsData } from '@condo/domains/common/utils/analytics'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { TicketComment } from '@condo/domains/ticket/utils/clientSchema'
 
@@ -200,7 +200,6 @@ type UseTicketExportToPdfTaskInputType = {
     sortBy: SortTicketsBy[]
     locale: ResolvedIntlConfig['locale']
     timeZone: string
-    eventNamePrefix?: string
 }
 
 type UseTicketExportToPdfTaskType = (props: UseTicketExportToPdfTaskInputType) => {
@@ -209,7 +208,7 @@ type UseTicketExportToPdfTaskType = (props: UseTicketExportToPdfTaskInputType) =
 }
 
 export const useTicketExportToPdfTask: UseTicketExportToPdfTaskType = (props)  => {
-    const { ticketId, where, sortBy, locale, timeZone, user, eventNamePrefix } = props
+    const { ticketId, where, sortBy, locale, timeZone, user } = props
 
     const intl = useIntl()
     const SaveInPdfTitle = intl.formatMessage({ id: 'pages.condo.ticket.exportBlank.title' })
@@ -229,10 +228,6 @@ export const useTicketExportToPdfTask: UseTicketExportToPdfTaskType = (props)  =
     const [checkedCommentIds, setCheckedCommentIds] = useState<string[]>([])
 
     const { TicketExportTask: TaskUIInterface } = useTicketExportTaskUIInterface()
-
-    const { logEvent, getEventName } = useTracking()
-    const openModalButtonEventName = eventNamePrefix ? `${eventNamePrefix}BlanksToPdfClickOpenModal` : getEventName(TrackingEventType.Click)
-    const taskStartButtonEventName = eventNamePrefix ? `${eventNamePrefix}BlanksToPdfClickStartTask` : getEventName(TrackingEventType.Click)
 
     const { loading, handleRunTask } = useTaskLauncher<TicketExportTaskCreateInput>(TaskUIInterface, {
         dv: 1,
@@ -277,7 +272,7 @@ export const useTicketExportToPdfTask: UseTicketExportToPdfTaskType = (props)  =
 
     const handleSaveToPdfTask = useCallback(() => {
         const selectedTicketsCount = ticketId ? 1 : where?.id_in?.length || null
-        const eventProperties = {
+        const eventProperties: EventsData['ticket_export_to_pdf_task_start'] = {
             selectedCommentCount: haveAllComments
                 ? 'all'
                 : (checkedCommentIds.length < 1 ? 'nothing' : 'some'),
@@ -289,11 +284,10 @@ export const useTicketExportToPdfTask: UseTicketExportToPdfTaskType = (props)  =
             mode: selectedTicketsCount === 1
                 ? 'single'
                 : (selectedTicketsCount > 1 ? 'multiple' : null),
-            event: 'BlanksToPdfClickStartTask',
         }
 
         handleRunTask()
-        logEvent({ eventName: taskStartButtonEventName, eventProperties })
+        analytics.track('ticket_export_to_pdf_task_start', eventProperties)
         handleCloseModal()
     }, [checkedCommentIds.length, handleCloseModal, handleRunTask, haveAllComments, haveConsumedMaterials, haveListCompletedWorks, haveTotalCostWork, ticketId, where])
 
@@ -305,11 +299,11 @@ export const useTicketExportToPdfTask: UseTicketExportToPdfTaskType = (props)  =
                 loading={loading}
                 disabled={disabled}
                 onClick={handleOpenModal}
-                id={openModalButtonEventName}
+                id='export-tickets-to-pdf'
                 children={SaveInPdfLabel}
             />
         )
-    }, [SaveToPDFTooltipMessage, loading, handleOpenModal, SaveInPdfLabel, openModalButtonEventName])
+    }, [SaveToPDFTooltipMessage, loading, handleOpenModal, SaveInPdfLabel])
 
     const TicketBlanksExportToPdfModal = (
         <Modal

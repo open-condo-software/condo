@@ -1,7 +1,6 @@
 import compact from 'lodash/compact'
 import isFunction from 'lodash/isFunction'
 import isUndefined from 'lodash/isUndefined'
-import pick from 'lodash/pick'
 import upperFirst from 'lodash/upperFirst'
 import { useRouter } from 'next/router'
 import React, { createContext, useContext, useLayoutEffect, useRef, useCallback } from 'react'
@@ -9,7 +8,6 @@ import React, { createContext, useContext, useLayoutEffect, useRef, useCallback 
 type ITrackerLogEventType = {
     eventName: string
     eventProperties?: Record<string, unknown>
-    userProperties?: Record<string, unknown>
     denyDuplicates?: boolean
 }
 
@@ -36,11 +34,6 @@ export interface ITrackingComponent {
 interface ITrackingContext {
     trackerInstances: Record<string, any>
     eventProperties?: TrackingEventPropertiesType
-    userProperties?: TrackingCommonEventProperties
-}
-
-interface ILogEventTo extends ITrackerLogEventType {
-    destination: Array<string>
 }
 
 const TrackingContext = createContext<ITrackingContext>(TRACKING_INITIAL_VALUE)
@@ -108,16 +101,14 @@ interface IGetEventName {
 interface IUseTracking {
     (): {
         eventProperties: ITrackingContext['eventProperties']
-        userProperties: Pick<ITrackingContext, 'userProperties'>
         logEvent: (logEventProps: ITrackerLogEventType) => void
-        logEventTo: (logEventToProps: ILogEventTo) => void
         getTrackingWrappedCallback: (eventName: string, eventProperties?: TrackingCommonEventProperties, func?: any) => any
         getEventName: IGetEventName
     }
 }
 
 const useTracking: IUseTracking = () => {
-    const { trackerInstances, eventProperties, userProperties } = useTrackingContext()
+    const { trackerInstances, eventProperties } = useTrackingContext()
     const { route } = useRouter()
 
     const logEvent = useCallback(({ eventName, eventProperties: localEventProperties = {}, denyDuplicates }: ITrackerLogEventType) => {
@@ -129,27 +120,13 @@ const useTracking: IUseTracking = () => {
             eventName,
             eventProperties: resultEventProperties,
             denyDuplicates,
-            userProperties,
         }))
-    }, [eventProperties, trackerInstances, userProperties])
-
-    const logEventTo = useCallback(({ eventName, eventProperties: localEventProperties = {}, destination, denyDuplicates }: ILogEventTo) => {
-        const resultEventProperties = {
-            ...eventProperties,
-            ...localEventProperties,
-        }
-        Object.values(pick(trackerInstances, destination)).forEach(trackerInstance => trackerInstance.logEvent({
-            eventName,
-            eventProperties: resultEventProperties,
-            denyDuplicates,
-            userProperties,
-        }))
-    }, [eventProperties, trackerInstances, userProperties])
+    }, [eventProperties, trackerInstances])
 
     const getTrackingWrappedCallback = <T extends (...args: any[]) => any>(eventName: string, eventProperties?: TrackingEventPropertiesType, func?: T): T => {
         function fn (...params) {
             const retVal = isFunction(func) ? func(...params) : undefined
-            logEvent({ eventName, eventProperties, userProperties })
+            logEvent({ eventName, eventProperties })
             return retVal
         }
         return fn as T
@@ -161,9 +138,7 @@ const useTracking: IUseTracking = () => {
 
     return {
         eventProperties,
-        userProperties,
         logEvent,
-        logEventTo,
         getTrackingWrappedCallback,
         getEventName,
     }
@@ -174,7 +149,6 @@ const TrackingProvider: React.FC = ({ children }) => {
 
     const trackingProviderValueRef = useRef<ITrackingContext>({
         trackerInstances: TRACKING_INITIAL_VALUE.trackerInstances,
-        userProperties: {},
         eventProperties: {
             page: {
                 path: router.asPath,

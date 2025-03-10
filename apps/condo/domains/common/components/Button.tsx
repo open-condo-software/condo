@@ -2,11 +2,10 @@
 import { green } from '@ant-design/colors'
 import { css, jsx } from '@emotion/react'
 import { Button as DefaultButton, ButtonProps } from 'antd'
-import isArray from 'lodash/isArray'
 import isString from 'lodash/isString'
-import React from 'react'
+import React, { useCallback, useMemo } from 'react'
 
-import { ITrackingComponent, TrackingEventType, useTracking } from '@condo/domains/common/components/TrackingContext'
+import { analytics } from '@condo/domains/common/utils/analytics'
 
 import { colors, gradients, transitions } from '../constants/style'
 
@@ -263,7 +262,7 @@ const sberBlackCss = css`
   }
 `
 
-export interface CustomButtonProps extends Omit<ButtonProps, 'type'>, ITrackingComponent {
+export interface CustomButtonProps extends Omit<ButtonProps, 'type'> {
     type?: 'sberDefault' | 'sberGradient' | 'sberPrimary' | 'inlineLink' | 'sberDanger' | 'sberGrey' | 'sberAction'
     | 'sberDangerGhost' | 'sberDefaultGradient' | 'sberBlack' | ButtonProps['type']
     secondary?: boolean
@@ -284,26 +283,31 @@ const BUTTON_TYPE_STYLES = {
 
 /** @deprecated use Button from @open-condo/ui **/
 export const Button: React.FC<CustomButtonProps> = (props) => {
-    const { type, secondary, onClick, eventName: propEventName, eventProperties = {}, ...restProps } = props
-    const { getTrackingWrappedCallback, getEventName } = useTracking()
+    const { type, secondary, id, onClick, ...restProps } = props
 
-    const eventName = propEventName ? propEventName : getEventName(TrackingEventType.Click)
-    const componentProperties = { ...eventProperties }
-
-    if (restProps.children) {
+    const value = useMemo(() => {
         if (isString(restProps.children)) {
-            componentProperties['components'] = { value: restProps.children }
+            return restProps.children
+        } else if (Array.isArray(restProps.children)) {
+            return restProps.children.filter(child => isString(child)).join(' ')
         }
-        if (isArray(restProps.children)) {
-            const stringValue = restProps.children.filter(child => isString(child)).join(' ')
-            componentProperties['components'] = { value: stringValue }
-        }
-    }
 
-    const onClickCallback = eventName ? getTrackingWrappedCallback(eventName, componentProperties, onClick) : onClick
+        return null
+    }, [restProps.children])
+
+    const onClickWrapped: React.MouseEventHandler<HTMLElement> = useCallback((e) => {
+        analytics.track('click', {
+            component: 'Button',
+            type,
+            id,
+            value,
+            location: window.location.href,
+        })
+        onClick(e)
+    }, [id, onClick, type, value])
 
     if (!SKIP_BUTTON_TYPES_FOR_DEFAULT.includes(type)) {
-        return <DefaultButton {...restProps} type={type as ButtonProps['type']} onClick={onClickCallback}/>
+        return <DefaultButton {...restProps} type={type as ButtonProps['type']} onClick={onClickWrapped}/>
     }
 
     let buttonStyles
@@ -315,5 +319,5 @@ export const Button: React.FC<CustomButtonProps> = (props) => {
         buttonStyles = secondary ? buttonSecondaryCss(colors[type]) : buttonCss(colors[type])
     }
 
-    return <DefaultButton css={buttonStyles} {...restProps} onClick={onClickCallback}/>
+    return <DefaultButton css={buttonStyles} {...restProps} onClick={onClickWrapped}/>
 }
