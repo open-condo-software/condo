@@ -13,8 +13,16 @@ const {
     },
 } = getConfig()
 
+// TODO: Remove once button from @condo/domains is removed
+type ButtonCLick = {
+    id?: string
+    value?: string
+    type?: string
+    component: 'Button'
+}
+
 type Events = {
-    // 'organization_create': { user: string, addressKey: string }
+    'click': ButtonCLick
 }
 
 type UserData = {
