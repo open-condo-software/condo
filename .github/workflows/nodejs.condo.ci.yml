@@ -83,7 +83,7 @@ jobs:
             image=${{ secrets.DOCKER_REGISTRY }}/doma/utils/buildkit:buildx-stable-2
             network=host
       - name: Build repo image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: Dockerfile
