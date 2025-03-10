@@ -1,10 +1,10 @@
 import {
     useGetIncidentClassifierIncidentLazyQuery,
-    useGetIncidentPropertiesByPropertyIdAndIncidentLazyQuery,
+    useGetIncidentPropertiesByPropertyIdAndRecentIncidentsLazyQuery,
     useGetIncidentsLazyQuery,
+    GetIncidentsQuery,
 } from '@app/condo/gql'
 import {
-    Incident as IIncident,
     IncidentClassifier as IIncidentClassifier,
     IncidentClassifierIncidentWhereInput,
     IncidentClassifierWhereInput,
@@ -37,7 +37,7 @@ type IncidentHintsProps = {
 }
 
 type IncidentHintProps = {
-    incident: IIncident
+    incident: GetIncidentsQuery['incidents'][number]
 }
 
 const formatDate = (intl: IntlShape, date?: string) => {
@@ -114,7 +114,7 @@ const IncidentHint: React.FC<IncidentHintProps> = (props) => {
 }
 
 
-type FetchIncidentsType = (props: { sortBy: SortIncidentsBy[], incidentIds: string[], organizationId: string, status?: IncidentStatusType, workFinishedInLastDays?: number }) => Promise<IIncident[]>
+type FetchIncidentsType = (props: { sortBy: SortIncidentsBy[], incidentIds: string[], organizationId: string, status?: IncidentStatusType, workFinishedInLastDays?: number }) => Promise<GetIncidentsQuery['incidents']>
 
 const WORK_FINISHED_IN_LAST_DAYS = 7
 
@@ -137,10 +137,10 @@ const WORK_FINISHED_IN_LAST_DAYS = 7
 export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
     const { propertyId, classifier, organizationId, colProps } = props
 
-    const [allIncidents, setAllIncidents] = useState<IIncident[]>([])
-    const [incidentsToShow, setIncidentsToShow] = useState<IIncident[]>([])
+    const [allIncidents, setAllIncidents] = useState<GetIncidentsQuery['incidents']>([])
+    const [incidentsToShow, setIncidentsToShow] = useState<GetIncidentsQuery['incidents']>([])
 
-    const [getIncidentProperties] = useGetIncidentPropertiesByPropertyIdAndIncidentLazyQuery()
+    const [getIncidentProperties] = useGetIncidentPropertiesByPropertyIdAndRecentIncidentsLazyQuery()
     const [getIncidents] = useGetIncidentsLazyQuery()
     const [getIncidentClassifierIncidents] = useGetIncidentClassifierIncidentLazyQuery()
 
@@ -248,7 +248,7 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
         setAllIncidents(incidents)
     }, [fetchIncidentProperties, fetchIncidents])
 
-    const getIncidentsToShow = useCallback(async (incidents: IIncident[], categoryId?: string, problemId?: string) => {
+    const getIncidentsToShow = useCallback(async (incidents: GetIncidentsQuery['incidents'], categoryId?: string, problemId?: string) => {
         if (!categoryId && !problemId) {
             // NOTE: if we have not categoryId and problemId then we can show all incidents (without request to server)
             setIncidentsToShow(incidents)

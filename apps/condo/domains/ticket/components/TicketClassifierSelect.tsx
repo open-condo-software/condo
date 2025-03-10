@@ -15,6 +15,7 @@ import { MIN_DESCRIPTION_LENGTH } from '@condo/domains/ticket/constants/restrict
 import { ClassifiersQueryLocal, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 
 import { TicketFormItem } from './BaseTicketForm'
+import {useCachePersistor} from "@open-condo/apollo";
 
 
 const { Option } = Select
@@ -162,7 +163,9 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
     const validations = useTicketValidations()
     const ticketForm = useRef(null)
     const hasUserSetClassifier = useRef<boolean>(false)
-    const [predictTicketClassificationQuery, { variables, data: previousPrediction }] = usePredictTicketClassificationLazyQuery()
+    const [predictTicketClassificationQuery] = usePredictTicketClassificationLazyQuery()
+
+    const { persistor } = useCachePersistor()
 
     const stopPredict = useCallback(() => {
         if (!ruleRef.current.category && !ruleRef.current.place) {
@@ -179,20 +182,19 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
         if (ruleRef.current && (ruleRef.current.category || ruleRef.current.place) && hasUserSetClassifier.current) {
             return
         }
-        let prediction
-        if (variables?.details === details) {
-            prediction = previousPrediction
-        } else {
-            const { error, data } = await predictTicketClassificationQuery({
-                variables: {
-                    details,
-                },
-            })
-            if (error) {
-                console.error(error)
-            } else {
-                prediction = data
-            }
+
+        if (!persistor) {
+            return
+        }
+
+        const { error, data: prediction } = await predictTicketClassificationQuery({
+            variables: {
+                details,
+            },
+        })
+
+        if (error) {
+            console.error(error)
         }
 
         if (!prediction || prediction?.ticketClassification === null) {

@@ -2345,8 +2345,8 @@ export type GetOrganizationEmployeeByUserAndOrganizationIdQueryHookResult = Retu
 export type GetOrganizationEmployeeByUserAndOrganizationIdLazyQueryHookResult = ReturnType<typeof useGetOrganizationEmployeeByUserAndOrganizationIdLazyQuery>;
 export type GetOrganizationEmployeeByUserAndOrganizationIdSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationEmployeeByUserAndOrganizationIdSuspenseQuery>;
 export type GetOrganizationEmployeeByUserAndOrganizationIdQueryResult = Apollo.QueryResult<Types.GetOrganizationEmployeeByUserAndOrganizationIdQuery, Types.GetOrganizationEmployeeByUserAndOrganizationIdQueryVariables>;
-export const GetOrganizationEmployeesByUserIdAndOrganizationTypeDocument = gql`
-    query getOrganizationEmployeesByUserIdAndOrganizationType($userId: ID!, $organizationType: [OrganizationTypeType!]) {
+export const GetEmployeesInvitesByUserIdAndOrganizationTypeDocument = gql`
+    query getEmployeesInvitesByUserIdAndOrganizationType($userId: ID!, $organizationType: [OrganizationTypeType!]) {
   invitations: allOrganizationEmployees(
     where: {user: {id: $userId}, organization: {type_in: $organizationType}, isAccepted: false, isRejected: false, isBlocked: false}
   ) {
@@ -2359,38 +2359,38 @@ export const GetOrganizationEmployeesByUserIdAndOrganizationTypeDocument = gql`
     `;
 
 /**
- * __useGetOrganizationEmployeesByUserIdAndOrganizationTypeQuery__
+ * __useGetEmployeesInvitesByUserIdAndOrganizationTypeQuery__
  *
- * To run a query within a React component, call `useGetOrganizationEmployeesByUserIdAndOrganizationTypeQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetOrganizationEmployeesByUserIdAndOrganizationTypeQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetEmployeesInvitesByUserIdAndOrganizationTypeQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetEmployeesInvitesByUserIdAndOrganizationTypeQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetOrganizationEmployeesByUserIdAndOrganizationTypeQuery({
+ * const { data, loading, error } = useGetEmployeesInvitesByUserIdAndOrganizationTypeQuery({
  *   variables: {
  *      userId: // value for 'userId'
  *      organizationType: // value for 'organizationType'
  *   },
  * });
  */
-export function useGetOrganizationEmployeesByUserIdAndOrganizationTypeQuery(baseOptions: Apollo.QueryHookOptions<Types.GetOrganizationEmployeesByUserIdAndOrganizationTypeQuery, Types.GetOrganizationEmployeesByUserIdAndOrganizationTypeQueryVariables> & ({ variables: Types.GetOrganizationEmployeesByUserIdAndOrganizationTypeQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+export function useGetEmployeesInvitesByUserIdAndOrganizationTypeQuery(baseOptions: Apollo.QueryHookOptions<Types.GetEmployeesInvitesByUserIdAndOrganizationTypeQuery, Types.GetEmployeesInvitesByUserIdAndOrganizationTypeQueryVariables> & ({ variables: Types.GetEmployeesInvitesByUserIdAndOrganizationTypeQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<Types.GetOrganizationEmployeesByUserIdAndOrganizationTypeQuery, Types.GetOrganizationEmployeesByUserIdAndOrganizationTypeQueryVariables>(GetOrganizationEmployeesByUserIdAndOrganizationTypeDocument, options);
+        return Apollo.useQuery<Types.GetEmployeesInvitesByUserIdAndOrganizationTypeQuery, Types.GetEmployeesInvitesByUserIdAndOrganizationTypeQueryVariables>(GetEmployeesInvitesByUserIdAndOrganizationTypeDocument, options);
       }
-export function useGetOrganizationEmployeesByUserIdAndOrganizationTypeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetOrganizationEmployeesByUserIdAndOrganizationTypeQuery, Types.GetOrganizationEmployeesByUserIdAndOrganizationTypeQueryVariables>) {
+export function useGetEmployeesInvitesByUserIdAndOrganizationTypeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetEmployeesInvitesByUserIdAndOrganizationTypeQuery, Types.GetEmployeesInvitesByUserIdAndOrganizationTypeQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<Types.GetOrganizationEmployeesByUserIdAndOrganizationTypeQuery, Types.GetOrganizationEmployeesByUserIdAndOrganizationTypeQueryVariables>(GetOrganizationEmployeesByUserIdAndOrganizationTypeDocument, options);
+          return Apollo.useLazyQuery<Types.GetEmployeesInvitesByUserIdAndOrganizationTypeQuery, Types.GetEmployeesInvitesByUserIdAndOrganizationTypeQueryVariables>(GetEmployeesInvitesByUserIdAndOrganizationTypeDocument, options);
         }
-export function useGetOrganizationEmployeesByUserIdAndOrganizationTypeSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetOrganizationEmployeesByUserIdAndOrganizationTypeQuery, Types.GetOrganizationEmployeesByUserIdAndOrganizationTypeQueryVariables>) {
+export function useGetEmployeesInvitesByUserIdAndOrganizationTypeSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetEmployeesInvitesByUserIdAndOrganizationTypeQuery, Types.GetEmployeesInvitesByUserIdAndOrganizationTypeQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<Types.GetOrganizationEmployeesByUserIdAndOrganizationTypeQuery, Types.GetOrganizationEmployeesByUserIdAndOrganizationTypeQueryVariables>(GetOrganizationEmployeesByUserIdAndOrganizationTypeDocument, options);
+          return Apollo.useSuspenseQuery<Types.GetEmployeesInvitesByUserIdAndOrganizationTypeQuery, Types.GetEmployeesInvitesByUserIdAndOrganizationTypeQueryVariables>(GetEmployeesInvitesByUserIdAndOrganizationTypeDocument, options);
         }
-export type GetOrganizationEmployeesByUserIdAndOrganizationTypeQueryHookResult = ReturnType<typeof useGetOrganizationEmployeesByUserIdAndOrganizationTypeQuery>;
-export type GetOrganizationEmployeesByUserIdAndOrganizationTypeLazyQueryHookResult = ReturnType<typeof useGetOrganizationEmployeesByUserIdAndOrganizationTypeLazyQuery>;
-export type GetOrganizationEmployeesByUserIdAndOrganizationTypeSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationEmployeesByUserIdAndOrganizationTypeSuspenseQuery>;
-export type GetOrganizationEmployeesByUserIdAndOrganizationTypeQueryResult = Apollo.QueryResult<Types.GetOrganizationEmployeesByUserIdAndOrganizationTypeQuery, Types.GetOrganizationEmployeesByUserIdAndOrganizationTypeQueryVariables>;
+export type GetEmployeesInvitesByUserIdAndOrganizationTypeQueryHookResult = ReturnType<typeof useGetEmployeesInvitesByUserIdAndOrganizationTypeQuery>;
+export type GetEmployeesInvitesByUserIdAndOrganizationTypeLazyQueryHookResult = ReturnType<typeof useGetEmployeesInvitesByUserIdAndOrganizationTypeLazyQuery>;
+export type GetEmployeesInvitesByUserIdAndOrganizationTypeSuspenseQueryHookResult = ReturnType<typeof useGetEmployeesInvitesByUserIdAndOrganizationTypeSuspenseQuery>;
+export type GetEmployeesInvitesByUserIdAndOrganizationTypeQueryResult = Apollo.QueryResult<Types.GetEmployeesInvitesByUserIdAndOrganizationTypeQuery, Types.GetEmployeesInvitesByUserIdAndOrganizationTypeQueryVariables>;
 export const GetOrganizationEmployeeSpecializationsDocument = gql`
     query getOrganizationEmployeeSpecializations($employeeId: ID!) {
   organizationEmployeeSpecializations: allOrganizationEmployeeSpecializations(
@@ -2929,6 +2929,7 @@ export const GetIncidentsDocument = gql`
     workStart
     workFinish
     status
+    details
   }
 }
     `;
@@ -3429,8 +3430,8 @@ export type GetIncidentPropertiesByIncidentIdQueryHookResult = ReturnType<typeof
 export type GetIncidentPropertiesByIncidentIdLazyQueryHookResult = ReturnType<typeof useGetIncidentPropertiesByIncidentIdLazyQuery>;
 export type GetIncidentPropertiesByIncidentIdSuspenseQueryHookResult = ReturnType<typeof useGetIncidentPropertiesByIncidentIdSuspenseQuery>;
 export type GetIncidentPropertiesByIncidentIdQueryResult = Apollo.QueryResult<Types.GetIncidentPropertiesByIncidentIdQuery, Types.GetIncidentPropertiesByIncidentIdQueryVariables>;
-export const GetIncidentPropertiesByPropertyIdAndIncidentDocument = gql`
-    query getIncidentPropertiesByPropertyIdAndIncident($propertyId: ID!, $organizationId: ID!, $workFinish_gte: String) {
+export const GetIncidentPropertiesByPropertyIdAndRecentIncidentsDocument = gql`
+    query getIncidentPropertiesByPropertyIdAndRecentIncidents($propertyId: ID!, $organizationId: ID!, $workFinish_gte: String) {
   incidentProperties: allIncidentProperties(
     where: {property: {id: $propertyId}, incident: {organization: {id: $organizationId}, OR: [{AND: [{status: actual}]}, {AND: [{status: not_actual, workFinish_gte: $workFinish_gte}]}]}}
   ) {
@@ -3443,16 +3444,16 @@ export const GetIncidentPropertiesByPropertyIdAndIncidentDocument = gql`
     `;
 
 /**
- * __useGetIncidentPropertiesByPropertyIdAndIncidentQuery__
+ * __useGetIncidentPropertiesByPropertyIdAndRecentIncidentsQuery__
  *
- * To run a query within a React component, call `useGetIncidentPropertiesByPropertyIdAndIncidentQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetIncidentPropertiesByPropertyIdAndIncidentQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetIncidentPropertiesByPropertyIdAndRecentIncidentsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetIncidentPropertiesByPropertyIdAndRecentIncidentsQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetIncidentPropertiesByPropertyIdAndIncidentQuery({
+ * const { data, loading, error } = useGetIncidentPropertiesByPropertyIdAndRecentIncidentsQuery({
  *   variables: {
  *      propertyId: // value for 'propertyId'
  *      organizationId: // value for 'organizationId'
@@ -3460,22 +3461,22 @@ export const GetIncidentPropertiesByPropertyIdAndIncidentDocument = gql`
  *   },
  * });
  */
-export function useGetIncidentPropertiesByPropertyIdAndIncidentQuery(baseOptions: Apollo.QueryHookOptions<Types.GetIncidentPropertiesByPropertyIdAndIncidentQuery, Types.GetIncidentPropertiesByPropertyIdAndIncidentQueryVariables> & ({ variables: Types.GetIncidentPropertiesByPropertyIdAndIncidentQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+export function useGetIncidentPropertiesByPropertyIdAndRecentIncidentsQuery(baseOptions: Apollo.QueryHookOptions<Types.GetIncidentPropertiesByPropertyIdAndRecentIncidentsQuery, Types.GetIncidentPropertiesByPropertyIdAndRecentIncidentsQueryVariables> & ({ variables: Types.GetIncidentPropertiesByPropertyIdAndRecentIncidentsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<Types.GetIncidentPropertiesByPropertyIdAndIncidentQuery, Types.GetIncidentPropertiesByPropertyIdAndIncidentQueryVariables>(GetIncidentPropertiesByPropertyIdAndIncidentDocument, options);
+        return Apollo.useQuery<Types.GetIncidentPropertiesByPropertyIdAndRecentIncidentsQuery, Types.GetIncidentPropertiesByPropertyIdAndRecentIncidentsQueryVariables>(GetIncidentPropertiesByPropertyIdAndRecentIncidentsDocument, options);
       }
-export function useGetIncidentPropertiesByPropertyIdAndIncidentLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetIncidentPropertiesByPropertyIdAndIncidentQuery, Types.GetIncidentPropertiesByPropertyIdAndIncidentQueryVariables>) {
+export function useGetIncidentPropertiesByPropertyIdAndRecentIncidentsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetIncidentPropertiesByPropertyIdAndRecentIncidentsQuery, Types.GetIncidentPropertiesByPropertyIdAndRecentIncidentsQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<Types.GetIncidentPropertiesByPropertyIdAndIncidentQuery, Types.GetIncidentPropertiesByPropertyIdAndIncidentQueryVariables>(GetIncidentPropertiesByPropertyIdAndIncidentDocument, options);
+          return Apollo.useLazyQuery<Types.GetIncidentPropertiesByPropertyIdAndRecentIncidentsQuery, Types.GetIncidentPropertiesByPropertyIdAndRecentIncidentsQueryVariables>(GetIncidentPropertiesByPropertyIdAndRecentIncidentsDocument, options);
         }
-export function useGetIncidentPropertiesByPropertyIdAndIncidentSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetIncidentPropertiesByPropertyIdAndIncidentQuery, Types.GetIncidentPropertiesByPropertyIdAndIncidentQueryVariables>) {
+export function useGetIncidentPropertiesByPropertyIdAndRecentIncidentsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetIncidentPropertiesByPropertyIdAndRecentIncidentsQuery, Types.GetIncidentPropertiesByPropertyIdAndRecentIncidentsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<Types.GetIncidentPropertiesByPropertyIdAndIncidentQuery, Types.GetIncidentPropertiesByPropertyIdAndIncidentQueryVariables>(GetIncidentPropertiesByPropertyIdAndIncidentDocument, options);
+          return Apollo.useSuspenseQuery<Types.GetIncidentPropertiesByPropertyIdAndRecentIncidentsQuery, Types.GetIncidentPropertiesByPropertyIdAndRecentIncidentsQueryVariables>(GetIncidentPropertiesByPropertyIdAndRecentIncidentsDocument, options);
         }
-export type GetIncidentPropertiesByPropertyIdAndIncidentQueryHookResult = ReturnType<typeof useGetIncidentPropertiesByPropertyIdAndIncidentQuery>;
-export type GetIncidentPropertiesByPropertyIdAndIncidentLazyQueryHookResult = ReturnType<typeof useGetIncidentPropertiesByPropertyIdAndIncidentLazyQuery>;
-export type GetIncidentPropertiesByPropertyIdAndIncidentSuspenseQueryHookResult = ReturnType<typeof useGetIncidentPropertiesByPropertyIdAndIncidentSuspenseQuery>;
-export type GetIncidentPropertiesByPropertyIdAndIncidentQueryResult = Apollo.QueryResult<Types.GetIncidentPropertiesByPropertyIdAndIncidentQuery, Types.GetIncidentPropertiesByPropertyIdAndIncidentQueryVariables>;
+export type GetIncidentPropertiesByPropertyIdAndRecentIncidentsQueryHookResult = ReturnType<typeof useGetIncidentPropertiesByPropertyIdAndRecentIncidentsQuery>;
+export type GetIncidentPropertiesByPropertyIdAndRecentIncidentsLazyQueryHookResult = ReturnType<typeof useGetIncidentPropertiesByPropertyIdAndRecentIncidentsLazyQuery>;
+export type GetIncidentPropertiesByPropertyIdAndRecentIncidentsSuspenseQueryHookResult = ReturnType<typeof useGetIncidentPropertiesByPropertyIdAndRecentIncidentsSuspenseQuery>;
+export type GetIncidentPropertiesByPropertyIdAndRecentIncidentsQueryResult = Apollo.QueryResult<Types.GetIncidentPropertiesByPropertyIdAndRecentIncidentsQuery, Types.GetIncidentPropertiesByPropertyIdAndRecentIncidentsQueryVariables>;
 export const CreateIncidentPropertyDocument = gql`
     mutation createIncidentProperty($data: IncidentPropertyCreateInput!) {
   incidentProperty: createIncidentProperty(data: $data) {

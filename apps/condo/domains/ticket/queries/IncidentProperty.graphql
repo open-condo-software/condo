@@ -22,7 +22,7 @@ query getIncidentPropertiesByIncidentId ($incidentId: ID!) {
     }
 }
 
-query getIncidentPropertiesByPropertyIdAndIncident ($propertyId: ID!, $organizationId: ID!, $workFinish_gte: String) {
+query getIncidentPropertiesByPropertyIdAndRecentIncidents ($propertyId: ID!, $organizationId: ID!, $workFinish_gte: String) {
     incidentProperties: allIncidentProperties (where: {
         property: {
             id: $propertyId,
