@@ -92,7 +92,7 @@ const IncidentPropertiesField: React.FC<IncidentFieldProps> = ({ incident }) => 
                             </>
                         ) : (
                             <Typography.Link
-                                href={`/property/${property?.id}`}
+                                href={`/property/${property?.id || ''}`}
                             >
                                 {propertyMessage}
                             </Typography.Link>
