@@ -122,8 +122,11 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
 
     // Reset unit/section/floor data when property is changed
     useEffect(() => {
-        if (!isInitialPropertySet.current) {
+        if (propertyId && !isInitialPropertySet.current) {
             isInitialPropertySet.current = true
+            return
+        }
+        if (!isInitialPropertySet.current) {
             return
         }
 
@@ -168,7 +171,7 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
         }
 
         form.setFieldsValue({ sectionName: null, sectionType: null, floorName: null, unitType: null })
-    }, [property, setSelectedSectionType, setSelectedUnitType])
+    }, [property, setSelectedSectionType, setSelectedUnitName, setSelectedUnitType])
 
     useDeepCompareEffect(() => {
         const initialUnitName = get(initialValues, 'unitName')
