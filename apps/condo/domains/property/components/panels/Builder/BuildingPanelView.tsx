@@ -123,7 +123,7 @@ export const UnitModal: React.FC<IUnitModalProps> = ({ property, unit, contactsL
                         <Typography.Title level={3}>{NoContactsTitleMessage}</Typography.Title>
                         <Typography.Text type='secondary'>{NoContactsSubtitleMessage}</Typography.Text>
                     </Space>
-                    <Button type='primary' href={`contact/create?initialValues=${JSON.stringify( { property: property.id, unitName: unit.label, unitType: unit.unitType })}`}>{NoContactsButtonLabel}</Button>
+                    <Button type='primary' href={`/contact/create?initialValues=${JSON.stringify( { property: property.id, unitName: unit.label, unitType: unit.unitType })}`}>{NoContactsButtonLabel}</Button>
                 </BasicEmptyListView>
             )}
             {contacts?.map(contact => (
