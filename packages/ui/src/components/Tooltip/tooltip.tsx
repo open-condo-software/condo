@@ -10,6 +10,7 @@ export type TooltipProps = Pick<DefaultTooltipProps,
 'open'
 | 'onOpenChange'
 | 'className'
+| 'overlayClassName'
 | 'id'
 | 'placement'
 | 'destroyTooltipOnHide'
