@@ -1,11 +1,11 @@
 import styled from '@emotion/styled'
 import { Tabs } from 'antd'
-import React from 'react'
+import React, { useCallback } from 'react'
 
 import { colors, fontSizes, shadows } from '@condo/domains/common/constants/style'
+import { analytics } from '@condo/domains/common/utils/analytics'
 
 import { StarIcon } from './icons/Star'
-import { ITrackingComponent, TrackingEventType, useTracking } from './TrackingContext'
 
 const IconWrapper = styled.span`
   display: flex;
@@ -70,8 +70,9 @@ const TabWrapper = styled.div`
   }
 `
 
-interface TabProps extends ITrackingComponent {
+interface TabProps {
     title: string
+    tabKey: string
     showIcon?: boolean
     icon?: React.ReactNode
     onClick?: React.MouseEventHandler<HTMLDivElement>
@@ -79,18 +80,25 @@ interface TabProps extends ITrackingComponent {
 
 export const Tab: React.FC<TabProps> = ({
     title,
+    tabKey,
     showIcon = true,
     icon = <StarIcon/>,
-    eventName: propEventName,
     onClick,
 }) => {
-    const { getTrackingWrappedCallback, getEventName } = useTracking()
+    const onClickWrapped: React.MouseEventHandler<HTMLDivElement> = useCallback((e) => {
+        analytics.track('change', {
+            component: 'Tabs',
+            location: window.location.href,
+            activeKey: tabKey,
+        })
 
-    const eventName = propEventName ? propEventName : getEventName(TrackingEventType.Click)
-    const onClickCallback = eventName ? getTrackingWrappedCallback(eventName, {}, onClick) : onClick
+        if (onClick) {
+            onClick(e)
+        }
+    }, [])
 
     return (
-        <TabWrapper onClick={onClickCallback}>
+        <TabWrapper onClick={onClickWrapped}>
             {showIcon && (
                 <IconWrapper>
                     {icon}

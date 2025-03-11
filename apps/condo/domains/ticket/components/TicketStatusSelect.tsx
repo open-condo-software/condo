@@ -110,7 +110,6 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
                 value={selectValue}
                 bordered={false}
                 labelInValue
-                eventName='TicketStatusSelect'
                 {...props}
             >
                 {options}

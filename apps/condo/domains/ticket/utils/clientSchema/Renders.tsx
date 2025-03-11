@@ -17,7 +17,7 @@ import { colors } from '@open-condo/ui/dist/colors'
 
 import { getHighlightedContents, getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
-import { useTracking } from '@condo/domains/common/components/TrackingContext'
+import { analytics } from '@condo/domains/common/utils/analytics'
 import { getAddressCellRender } from '@condo/domains/property/utils/clientSchema/Renders'
 import { getPropertyAddressParts } from '@condo/domains/property/utils/helpers'
 import { TicketTag } from '@condo/domains/ticket/components/TicketTag'
@@ -87,7 +87,6 @@ export const FavoriteTicketIndicator = ({ ticketId }) => {
 
     const { user } = useAuth()
     const { userFavoriteTickets, refetchFavoriteTickets, loading } = useFavoriteTickets()
-    const { logEvent } = useTracking()
 
     const [isFavorite, setIsFavorite] = useState<boolean>()
     const [debouncedIsFavorite, setDebouncedIsFavorite] = useState<boolean>()
@@ -112,7 +111,7 @@ export const FavoriteTicketIndicator = ({ ticketId }) => {
     useEffect(() => {
         if (debouncedIsFavorite !== undefined && debouncedIsFavorite !== initialIsFavorite) {
             if (debouncedIsFavorite) {
-                logEvent({ eventName: 'TicketAddFavorite' })
+                analytics.track('ticket_set_favourite_click', {})
                 createUserFavoriteTicketAction({})
             } else {
                 const favoriteTicket = userFavoriteTickets.find(favoriteTicket => get(favoriteTicket, 'ticket.id') === ticketId)

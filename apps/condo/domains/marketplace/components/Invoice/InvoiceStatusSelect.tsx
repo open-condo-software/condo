@@ -96,7 +96,6 @@ export const InvoiceStatusSelect = ({ invoice, onUpdate, employee }) => {
                 value={selectedStatus.value}
                 bordered={false}
                 options={optionsWithSelected}
-                eventName='InvoiceStatusSelect'
                 data-cy='invoice__status-select'
             />
             <CancelStatusModal

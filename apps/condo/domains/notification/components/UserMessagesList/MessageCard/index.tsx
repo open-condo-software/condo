@@ -6,7 +6,7 @@ import React, { useCallback, useMemo } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { Card, Typography } from '@open-condo/ui'
 
-import { useTracking } from '@condo/domains/common/components/TrackingContext'
+import { analytics } from '@condo/domains/common/utils/analytics'
 import { useUserMessagesList } from '@condo/domains/notification/contexts/UserMessagesListContext'
 import { MessageTypeAllowedToFilterType, UserMessageType } from '@condo/domains/notification/utils/client/constants'
 import './MessageCard.css'
@@ -31,7 +31,6 @@ export const MessageCard: React.FC<MessageCardProps> = ({ message, viewed }) => 
     const intl = useIntl()
     const MessageTitle = intl.formatMessage({ id: `notification.UserMessagesList.message.${messageType}.label` })
 
-    const { logEvent } = useTracking()
     const { setIsDropdownOpen } = useUserMessagesList()
 
     const messageContent = useMemo(() => message?.defaultContent?.content, [message?.defaultContent?.content])
@@ -39,12 +38,9 @@ export const MessageCard: React.FC<MessageCardProps> = ({ message, viewed }) => 
     const createdAt = useMemo(() => dayjs(message?.createdAt).format('L, LT'), [message?.createdAt])
 
     const handleLinkClick = useCallback(() => {
-        logEvent({
-            eventName: 'UserMessageCardClickTitle',
-            eventProperties: { type: messageType, id: message?.id },
-        })
+        analytics.track('notification_view', { type: messageType, id: message?.id })
         setIsDropdownOpen(false)
-    }, [logEvent, message?.id, messageType, setIsDropdownOpen])
+    }, [message?.id, messageType, setIsDropdownOpen])
 
     return (
         <Card
