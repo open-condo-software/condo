@@ -1575,6 +1575,7 @@
   "notification.messages.TICKET_STATUS_RETURNED.email.subject": "Hi, it's Doma! 🦖",
   "notification.messages.TICKET_STATUS_RETURNED.push.title": "Ticket is open 💡",
   "notification.messages.VOIP_INCOMING_CALL_MESSAGE.push.title": "{title}",
+  "notification.messages.CANCELED_CALL_MESSAGE_PUSH.push.title": "{title}",
   "onboarding.tourStep.tooltip.ticket.message": "Make sure the information is correct and create an ticket",
   "onboarding.tourStep.tooltip.ticket.title": "Multiple fields filled automatically",
   "pages.auth.AlreadyRegistered": "Already registered",
