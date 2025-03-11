@@ -78,6 +78,9 @@ const PredictTicketClassificationService = new GQLCustomSchema('PredictTicketCla
                 }
                 const result = await response.json()
                 const { prediction: [id] } = result
+                if (!id) {
+                    return null
+                }
                 const ticketClassifier = await getById('TicketClassifier', id)
                 if (!ticketClassifier) {
                     throw new GQLError(ERRORS.TICKET_RULE_NOT_FOUND, context)
