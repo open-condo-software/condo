@@ -42,7 +42,7 @@ jobs:
   build-image:
     name: Build Docker Image
     needs: authorize
-    runs-on: test-pool-runners
+    runs-on: build-runners
     outputs:
       DOCKER_IMAGE: ${{ env.DOCKER_IMAGE }}
     steps:
@@ -354,7 +354,7 @@ jobs:
     uses: ./.github/workflows/_nodejs.condo.core.tests.yml
     with:
       domain_name: ${{ matrix.domain }}
-      runs-on: runners-dind-set-cpu5-ram10
+      runs-on: test-runners
       image_name: ${{ needs.build-image.outputs.DOCKER_IMAGE }}
     secrets: inherit
 
