@@ -13,7 +13,6 @@ import { colors } from '@open-condo/ui/dist/colors'
 
 import Select, { CustomSelectProps } from '@condo/domains/common/components/antd/Select'
 import { Loader } from '@condo/domains/common/components/Loader'
-import { TrackingEventPropertiesType } from '@condo/domains/common/components/TrackingContext'
 import { isNeedToLoadNewElements } from '@condo/domains/common/utils/select.utils'
 
 import { InitialValuesGetter, useInitialValueGetter } from './useInitialValueGetter'
@@ -32,8 +31,6 @@ interface ISearchInput<S> extends Omit<CustomSelectProps<S>, 'onSelect'> {
     initialValueGetter?: InitialValuesGetter
     onSelect?: (value: string, option) => void
     infinityScroll?: boolean
-    eventName?: string
-    eventProperties?: TrackingEventPropertiesType
     setIsMatchSelectedProperty?: Dispatch<SetStateAction<boolean>>
 }
 
@@ -71,8 +68,6 @@ export const BaseSearchInput = <S extends string> (props: ISearchInput<S>) => {
         style,
         infinityScroll,
         value,
-        eventName,
-        eventProperties,
         loading,
         ...restSelectProps
     } = props
@@ -254,8 +249,6 @@ export const BaseSearchInput = <S extends string> (props: ISearchInput<S>) => {
             autoClearSearchValue={false}
             defaultActiveFirstOption={false}
             style={style}
-            eventName={eventName}
-            eventProperties={eventProperties}
             loading={loading}
         >
             {options}

@@ -46,7 +46,6 @@ import { PostMessageProvider } from '@condo/domains/common/components/PostMessag
 import { ServiceProblemsAlert } from '@condo/domains/common/components/ServiceProblemsAlert'
 import { Snowfall } from '@condo/domains/common/components/Snowfall'
 import { TasksContextProvider } from '@condo/domains/common/components/tasks/TasksContextProvider'
-import { TrackingProvider } from '@condo/domains/common/components/TrackingContext'
 import UseDeskWidget from '@condo/domains/common/components/UseDeskWidget'
 import { SERVICE_PROVIDER_PROFILE, MARKETPLACE } from '@condo/domains/common/constants/featureflags'
 import {
@@ -498,34 +497,32 @@ const MyApp = ({ Component, pageProps }) => {
                     <LayoutContextProvider serviceProblemsAlert={<ServiceProblemsAlert />}>
                         <TasksProvider>
                             <PostMessageProvider>
-                                <TrackingProvider>
-                                    <TourProvider>
-                                        <SubscriptionProvider>
-                                            <GlobalAppsFeaturesProvider>
-                                                <GlobalAppsContainer/>
-                                                <TicketVisibilityContextProvider>
-                                                    <ActiveCallContextProvider>
-                                                        <ConnectedAppsWithIconsContextProvider>
-                                                            <CondoAppEventsHandler/>
-                                                            <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
-                                                                <RequiredAccess>
-                                                                    <FeaturesReady fallback={<Loader fill size='large'/>}>
-                                                                        <Component {...pageProps} />
-                                                                        {
-                                                                            isEndTrialSubscriptionReminderPopupVisible && (
-                                                                                <EndTrialSubscriptionReminderPopup/>
-                                                                            )
-                                                                        }
-                                                                    </FeaturesReady>
-                                                                </RequiredAccess>
-                                                            </LayoutComponent>
-                                                        </ConnectedAppsWithIconsContextProvider>
-                                                    </ActiveCallContextProvider>
-                                                </TicketVisibilityContextProvider>
-                                            </GlobalAppsFeaturesProvider>
-                                        </SubscriptionProvider>
-                                    </TourProvider>
-                                </TrackingProvider>
+                                <TourProvider>
+                                    <SubscriptionProvider>
+                                        <GlobalAppsFeaturesProvider>
+                                            <GlobalAppsContainer/>
+                                            <TicketVisibilityContextProvider>
+                                                <ActiveCallContextProvider>
+                                                    <ConnectedAppsWithIconsContextProvider>
+                                                        <CondoAppEventsHandler/>
+                                                        <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
+                                                            <RequiredAccess>
+                                                                <FeaturesReady fallback={<Loader fill size='large'/>}>
+                                                                    <Component {...pageProps} />
+                                                                    {
+                                                                        isEndTrialSubscriptionReminderPopupVisible && (
+                                                                            <EndTrialSubscriptionReminderPopup/>
+                                                                        )
+                                                                    }
+                                                                </FeaturesReady>
+                                                            </RequiredAccess>
+                                                        </LayoutComponent>
+                                                    </ConnectedAppsWithIconsContextProvider>
+                                                </ActiveCallContextProvider>
+                                            </TicketVisibilityContextProvider>
+                                        </GlobalAppsFeaturesProvider>
+                                    </SubscriptionProvider>
+                                </TourProvider>
                             </PostMessageProvider>
                         </TasksProvider>
                         {!isSnowfallDisabled && <Snowfall />}

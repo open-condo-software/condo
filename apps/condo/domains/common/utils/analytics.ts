@@ -4,14 +4,12 @@ import getConfig from 'next/config'
 import { Analytics, isSSR, isDebug } from '@open-condo/miniapp-utils'
 import type { AnalyticsPlugin } from '@open-condo/miniapp-utils'
 
-const {
-    publicRuntimeConfig: {
-        appName,
-        currentVersion,
-        posthogApiHost,
-        posthogApiKey,
-    },
-} = getConfig()
+const nextConfig = getConfig()
+
+const appName = nextConfig?.publicRuntimeConfig?.appName
+const currentVersion = nextConfig?.publicRuntimeConfig?.currentVersion
+const posthogApiHost = nextConfig?.publicRuntimeConfig?.posthogApiHost
+const posthogApiKey = nextConfig?.publicRuntimeConfig?.posthogApiKey
 
 // TODO: Remove the types after components replaces with ones from @open-condo/ui
 
@@ -43,8 +41,23 @@ type DateRangeChangeEventData = CommonLegacyComponentProps & {
     component: 'DateRangePicker'
 }
 
+type TabsChangeEventData = CommonLegacyComponentProps & {
+    activeKey: string
+    component: 'Tabs'
+}
+
+type SelectChangeEventData = CommonLegacyComponentProps & {
+    component: 'Select'
+    value: string | Array<string>
+}
+
 type CheckboxCheckEventData = CommonLegacyComponentProps & {
     component: 'Checkbox'
+    value: string
+}
+
+type RadioCheckEventData = CommonLegacyComponentProps & {
+    component: 'Radio'
     value: string
 }
 
@@ -60,8 +73,8 @@ type TicketExportToPdfEventData = {
 
 export type EventsData = {
     'click': ButtonClickEventData | MenuItemClickEventData
-    'change': GQLInputChangeEventData | DateRangeChangeEventData
-    'check': CheckboxCheckEventData
+    'change': GQLInputChangeEventData | DateRangeChangeEventData | TabsChangeEventData | SelectChangeEventData
+    'check': CheckboxCheckEventData | RadioCheckEventData
     'ticket_comment_submit': Record<string, never>
     'import_complete': Record<string, never>
     'file_upload': { fileId: string, location: string }
@@ -69,6 +82,14 @@ export type EventsData = {
     'miniapp_session_end': { appId: string, startedAt: string, durationInSec: number }
     'news_template_change': { title: string, body: string }
     'ticket_export_to_pdf_task_start': TicketExportToPdfEventData
+    'ticket_share_click': { destination: string }
+    'ticket_status_filter_click': { status: string }
+    'notification_view': { id?: string, type: string }
+    'notifications_list_view': Record<string, never>
+    'tour_step_complete': { activeStep: string, type: string }
+    'filter_changed': { location: string }
+    'incident_status_update': { newStatus: string }
+    'ticket_set_favourite_click': Record<string, never>
 }
 
 type UserData = {

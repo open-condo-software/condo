@@ -1,34 +1,29 @@
 import { Radio as DefaultRadio, RadioProps } from 'antd'
-import get from 'lodash/get'
-import React from 'react'
+import React, { useCallback } from 'react'
 
-import { useTracking, TrackingEventPropertiesType, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
+import { analytics } from '@condo/domains/common/utils/analytics'
 
-export interface CustomRadioProps extends RadioProps {
-    eventName?: string
-    eventProperties?: TrackingEventPropertiesType
-}
+/** @deprecated use Radio from "@open-condo/ui" */
+const Radio = (props: RadioProps) => {
+    const { onChange, id, value, ...restProps } = props
 
-const Radio = (props: CustomRadioProps) => {
-    const { eventName: propEventName, eventProperties = {}, onChange, ...restProps } = props
-    const { getTrackingWrappedCallback, getEventName } = useTracking()
-
-    const eventName = propEventName ? propEventName : getEventName(TrackingEventType.Radio)
-    const componentProperties = { ...eventProperties }
-
-    if (restProps.value) {
-        componentProperties['component'] = { value: restProps.value }
-
-        const componentId = get(restProps, 'id')
-        if (componentId) {
-            componentProperties['component']['id'] = componentId
+    const onChangeWrapped: RadioProps['onChange'] = useCallback((e) => {
+        if (typeof value === 'string') {
+            analytics.track('check', {
+                component: 'Radio',
+                location: window.location.href,
+                id,
+                value,
+            })
         }
-    }
 
-    const onChangeCallback = eventName ? getTrackingWrappedCallback(eventName, componentProperties, onChange) : onChange
+        if (onChange) {
+            onChange(e)
+        }
+    }, [])
 
     return (
-        <DefaultRadio {...restProps} onChange={onChangeCallback} />
+        <DefaultRadio {...restProps} id={id} onChange={onChangeWrapped} />
     )
 }
 

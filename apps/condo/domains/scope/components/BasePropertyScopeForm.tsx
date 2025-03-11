@@ -235,7 +235,6 @@ export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = (prop
                                             checkBoxOffset={breakpoints.TABLET_LARGE && 6}
                                             CheckAllMessage={CheckAllPropertiesMessage}
                                             form={form}
-                                            checkBoxEventName='PropertyScopeFormClickCheckAllProperties'
                                         />
                                     </Col>
                                     <Col span={24}>
@@ -248,7 +247,6 @@ export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = (prop
                                             CheckAllMessage={CheckAllEmployeesMessage}
                                             form={form}
                                             onCheckBoxChange={handleCheckAllEmployeesCheckboxChange}
-                                            checkBoxEventName='PropertyScopeFormClickCheckAllEmployees'
                                         />
                                     </Col>
                                     {

@@ -9,16 +9,16 @@ import { get, isEmpty } from 'lodash'
 import getConfig from 'next/config'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 
 import { useMutation } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Modal, Typography } from '@open-condo/ui'
 
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
-import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
 import { EN_LOCALE } from '@condo/domains/common/constants/locale'
 import { colors } from '@condo/domains/common/constants/style'
+import { analytics } from '@condo/domains/common/utils/analytics'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { SHARE_TICKET_MUTATION } from '@condo/domains/ticket/gql'
 import { getEmployeeWithEmail } from '@condo/domains/ticket/utils/clientSchema/search'
@@ -171,8 +171,6 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
     const ShareSentMessage = intl.formatMessage({ id: 'ticket.shareSent' })
     const ShareSentToEmailMessage = intl.formatMessage({ id: 'ticket.shareSentToEmail' })
 
-    const { logEvent, getEventName } = useTracking()
-
     const { date, number, details, id, locale, organization } = props
 
     let cutDetails = details || ''
@@ -250,13 +248,9 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
         setOkVisible(false)
     }
 
-    const handleClickShareLink = (linkTitle: string) => () => {
-        const eventName = getEventName(TrackingEventType.Click)
-
-        if (eventName) {
-            logEvent({ eventName, eventProperties: { component: { value: linkTitle } } })
-        }
-    }
+    const handleClickShareLink = useCallback((linkTitle: string) => () => {
+        analytics.track('ticket_share_click', { destination: linkTitle })
+    }, [])
 
     return (
         <>

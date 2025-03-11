@@ -7,7 +7,6 @@ import { FilterValue, FilterDropdownProps } from 'antd/es/table/interface'
 import dayjs, { Dayjs } from 'dayjs'
 import get from 'lodash/get'
 import isArray from 'lodash/isArray'
-import isEmpty from 'lodash/isEmpty'
 import isFunction from 'lodash/isFunction'
 import React, { CSSProperties, useCallback, useMemo } from 'react'
 
@@ -23,7 +22,6 @@ import { colors } from '@condo/domains/common/constants/style'
 import { QueryArgType } from '@condo/domains/common/utils/tables.utils'
 
 import { Button } from '../Button'
-import { TrackingEventType, useTracking } from '../TrackingContext'
 
 
 type FilterIconType = (filtered?: boolean) => React.ReactNode
@@ -168,9 +166,6 @@ export const getTextFilterDropdown: GetTextFilterDropdownType = ({ containerStyl
 
 export const getOptionFilterDropdown: GetOptionFilterDropdownType = ({ containerStyles, checkboxGroupProps } = {}) => {
     return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
-        const { logEvent, getEventName } = useTracking()
-
-        const eventName = getEventName(TrackingEventType.Checkbox)
 
         const options = useMemo(() => get(checkboxGroupProps, 'options'), [])
 
@@ -190,17 +185,6 @@ export const getOptionFilterDropdown: GetOptionFilterDropdownType = ({ container
                     })
                     .map((option) => get(option, 'label'))
                     .filter(Boolean)
-            }
-            if (!isEmpty(selectedValue)) {
-                logEvent({
-                    eventName,
-                    eventProperties: {
-                        component: {
-                            id: checkboxGroupProps.id,
-                            value: selectedValue,
-                        },
-                    },
-                })
             }
 
             setSelectedKeys(values as React.Key[])
