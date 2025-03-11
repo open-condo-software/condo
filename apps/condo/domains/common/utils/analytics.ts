@@ -4,14 +4,12 @@ import getConfig from 'next/config'
 import { Analytics, isSSR, isDebug } from '@open-condo/miniapp-utils'
 import type { AnalyticsPlugin } from '@open-condo/miniapp-utils'
 
-const {
-    publicRuntimeConfig: {
-        appName,
-        currentVersion,
-        posthogApiHost,
-        posthogApiKey,
-    },
-} = getConfig()
+const nextConfig = getConfig()
+
+const appName = nextConfig?.publicRuntimeConfig?.appName
+const currentVersion = nextConfig?.publicRuntimeConfig?.currentVersion
+const posthogApiHost = nextConfig?.publicRuntimeConfig?.posthogApiHost
+const posthogApiKey = nextConfig?.publicRuntimeConfig?.posthogApiKey
 
 // TODO: Remove the types after components replaces with ones from @open-condo/ui
 
