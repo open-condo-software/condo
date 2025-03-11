@@ -1,5 +1,4 @@
-import { useGetBillingReceiptsCountQuery } from '@app/condo/gql'
-import { Ticket } from '@app/condo/schema'
+import { useGetBillingReceiptsByPropertyCountQuery, GetTicketByIdQuery } from '@app/condo/gql'
 import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import dayjs from 'dayjs'
@@ -42,8 +41,9 @@ const PaymentsAvailableIndicator: React.FC<PaymentsAvailableIndicatorProps> = ({
     const PaymentsNotAvailableMessage = intl.formatMessage({ id: 'pages.condo.ticket.PaymentsNotAvailable' })
 
     const { persistor } = useCachePersistor()
-    
-    const { data, loading: receiptsByPropertyLoading } = useGetBillingReceiptsCountQuery({
+
+    // TODO: We really need to use the account to understand if payments are available in MP?
+    const { data: receiptsByPropertyData, loading: receiptsByPropertyLoading } = useGetBillingReceiptsByPropertyCountQuery({
         variables: {
             context: { organization: { id: ticketOrganizationId } },
             property: {
@@ -56,7 +56,7 @@ const PaymentsAvailableIndicator: React.FC<PaymentsAvailableIndicatorProps> = ({
         },
         skip: !ticketOrganizationId || !propertyAddress || !persistor,
     })
-    const receiptsByProperty = useMemo(() => data?.count?.count || 0, [data?.count?.count])
+    const receiptsByProperty = useMemo(() => receiptsByPropertyData?.count?.count || 0, [receiptsByPropertyData?.count?.count])
 
     const isPaymentsAvailable = !!receiptsByProperty
     const title = receiptsByProperty || isPaymentsAvailable ? PaymentsAvailableMessage : PaymentsNotAvailableMessage
@@ -68,8 +68,8 @@ const PaymentsAvailableIndicator: React.FC<PaymentsAvailableIndicatorProps> = ({
     )
 }
 
-interface TicketResidentFeaturesProps {
-    ticket: Ticket
+type TicketResidentFeaturesProps = {
+    ticket: GetTicketByIdQuery['tickets'][number]
 }
 
 const TICKET_RESIDENT_FEATURES_ROW_GUTTER: [Gutter, Gutter] = [8, 0]

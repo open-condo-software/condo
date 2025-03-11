@@ -329,6 +329,7 @@ export const GetBillingIntegrationOrganizationContextsDocument = gql`
     query getBillingIntegrationOrganizationContexts($integration: BillingIntegrationWhereInput!, $organization: OrganizationWhereInput!) {
   contexts: allBillingIntegrationOrganizationContexts(
     where: {integration: $integration, organization: $organization}
+    first: 1
   ) {
     id
     lastReport
@@ -369,10 +370,11 @@ export type GetBillingIntegrationOrganizationContextsQueryHookResult = ReturnTyp
 export type GetBillingIntegrationOrganizationContextsLazyQueryHookResult = ReturnType<typeof useGetBillingIntegrationOrganizationContextsLazyQuery>;
 export type GetBillingIntegrationOrganizationContextsSuspenseQueryHookResult = ReturnType<typeof useGetBillingIntegrationOrganizationContextsSuspenseQuery>;
 export type GetBillingIntegrationOrganizationContextsQueryResult = Apollo.QueryResult<Types.GetBillingIntegrationOrganizationContextsQuery, Types.GetBillingIntegrationOrganizationContextsQueryVariables>;
-export const GetBillingReceiptsCountDocument = gql`
-    query getBillingReceiptsCount($context: BillingIntegrationOrganizationContextWhereInput!, $property: BillingPropertyWhereInput!, $period_gte: String!) {
+export const GetBillingReceiptsByPropertyCountDocument = gql`
+    query getBillingReceiptsByPropertyCount($context: BillingIntegrationOrganizationContextWhereInput!, $property: BillingPropertyWhereInput!, $period_gte: String!) {
   count: _allBillingReceiptsMeta(
     where: {context: $context, property: $property, period_gte: $period_gte}
+    first: 1
   ) {
     count
   }
@@ -380,16 +382,16 @@ export const GetBillingReceiptsCountDocument = gql`
     `;
 
 /**
- * __useGetBillingReceiptsCountQuery__
+ * __useGetBillingReceiptsByPropertyCountQuery__
  *
- * To run a query within a React component, call `useGetBillingReceiptsCountQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetBillingReceiptsCountQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetBillingReceiptsByPropertyCountQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetBillingReceiptsByPropertyCountQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetBillingReceiptsCountQuery({
+ * const { data, loading, error } = useGetBillingReceiptsByPropertyCountQuery({
  *   variables: {
  *      context: // value for 'context'
  *      property: // value for 'property'
@@ -397,22 +399,22 @@ export const GetBillingReceiptsCountDocument = gql`
  *   },
  * });
  */
-export function useGetBillingReceiptsCountQuery(baseOptions: Apollo.QueryHookOptions<Types.GetBillingReceiptsCountQuery, Types.GetBillingReceiptsCountQueryVariables> & ({ variables: Types.GetBillingReceiptsCountQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+export function useGetBillingReceiptsByPropertyCountQuery(baseOptions: Apollo.QueryHookOptions<Types.GetBillingReceiptsByPropertyCountQuery, Types.GetBillingReceiptsByPropertyCountQueryVariables> & ({ variables: Types.GetBillingReceiptsByPropertyCountQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<Types.GetBillingReceiptsCountQuery, Types.GetBillingReceiptsCountQueryVariables>(GetBillingReceiptsCountDocument, options);
+        return Apollo.useQuery<Types.GetBillingReceiptsByPropertyCountQuery, Types.GetBillingReceiptsByPropertyCountQueryVariables>(GetBillingReceiptsByPropertyCountDocument, options);
       }
-export function useGetBillingReceiptsCountLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetBillingReceiptsCountQuery, Types.GetBillingReceiptsCountQueryVariables>) {
+export function useGetBillingReceiptsByPropertyCountLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetBillingReceiptsByPropertyCountQuery, Types.GetBillingReceiptsByPropertyCountQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<Types.GetBillingReceiptsCountQuery, Types.GetBillingReceiptsCountQueryVariables>(GetBillingReceiptsCountDocument, options);
+          return Apollo.useLazyQuery<Types.GetBillingReceiptsByPropertyCountQuery, Types.GetBillingReceiptsByPropertyCountQueryVariables>(GetBillingReceiptsByPropertyCountDocument, options);
         }
-export function useGetBillingReceiptsCountSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetBillingReceiptsCountQuery, Types.GetBillingReceiptsCountQueryVariables>) {
+export function useGetBillingReceiptsByPropertyCountSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetBillingReceiptsByPropertyCountQuery, Types.GetBillingReceiptsByPropertyCountQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<Types.GetBillingReceiptsCountQuery, Types.GetBillingReceiptsCountQueryVariables>(GetBillingReceiptsCountDocument, options);
+          return Apollo.useSuspenseQuery<Types.GetBillingReceiptsByPropertyCountQuery, Types.GetBillingReceiptsByPropertyCountQueryVariables>(GetBillingReceiptsByPropertyCountDocument, options);
         }
-export type GetBillingReceiptsCountQueryHookResult = ReturnType<typeof useGetBillingReceiptsCountQuery>;
-export type GetBillingReceiptsCountLazyQueryHookResult = ReturnType<typeof useGetBillingReceiptsCountLazyQuery>;
-export type GetBillingReceiptsCountSuspenseQueryHookResult = ReturnType<typeof useGetBillingReceiptsCountSuspenseQuery>;
-export type GetBillingReceiptsCountQueryResult = Apollo.QueryResult<Types.GetBillingReceiptsCountQuery, Types.GetBillingReceiptsCountQueryVariables>;
+export type GetBillingReceiptsByPropertyCountQueryHookResult = ReturnType<typeof useGetBillingReceiptsByPropertyCountQuery>;
+export type GetBillingReceiptsByPropertyCountLazyQueryHookResult = ReturnType<typeof useGetBillingReceiptsByPropertyCountLazyQuery>;
+export type GetBillingReceiptsByPropertyCountSuspenseQueryHookResult = ReturnType<typeof useGetBillingReceiptsByPropertyCountSuspenseQuery>;
+export type GetBillingReceiptsByPropertyCountQueryResult = Apollo.QueryResult<Types.GetBillingReceiptsByPropertyCountQuery, Types.GetBillingReceiptsByPropertyCountQueryVariables>;
 export const GetProcessingTasksDocument = gql`
     query getProcessingTasks($userId: ID!, $createdAtGte: String!) {
   allTicketDocumentGenerationTasks(

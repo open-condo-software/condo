@@ -55,14 +55,14 @@ export type GetBillingIntegrationOrganizationContextsQueryVariables = Types.Exac
 
 export type GetBillingIntegrationOrganizationContextsQuery = { __typename?: 'Query', contexts?: Array<{ __typename?: 'BillingIntegrationOrganizationContext', id: string, lastReport?: any | null } | null> | null };
 
-export type GetBillingReceiptsCountQueryVariables = Types.Exact<{
+export type GetBillingReceiptsByPropertyCountQueryVariables = Types.Exact<{
   context: Types.BillingIntegrationOrganizationContextWhereInput;
   property: Types.BillingPropertyWhereInput;
   period_gte: Types.Scalars['String']['input'];
 }>;
 
 
-export type GetBillingReceiptsCountQuery = { __typename?: 'Query', count?: { __typename?: '_QueryMeta', count?: number | null } | null };
+export type GetBillingReceiptsByPropertyCountQuery = { __typename?: 'Query', count?: { __typename?: '_QueryMeta', count?: number | null } | null };
 
 export type GetProcessingTasksQueryVariables = Types.Exact<{
   userId: Types.Scalars['ID']['input'];

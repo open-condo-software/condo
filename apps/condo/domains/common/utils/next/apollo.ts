@@ -26,6 +26,11 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
                         read: listHelper.getReadFunction('paginate'),
                         merge: listHelper.mergeLists,
                     },
+                    allBillingIntegrationOrganizationContexts: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction(),
+                        merge: listHelper.mergeLists,
+                    },
                     allTickets: {
                         keyArgs: ['where'],
                         read: listHelper.getReadFunction(),
