@@ -72429,6 +72429,8 @@ type B2BAppAccessRightSetHistoryRecord {
   canManageOrganizations: Boolean
   canReadOrganizationEmployees: Boolean
   canManageOrganizationEmployees: Boolean
+  canReadOrganizationEmployeeRoles: Boolean
+  canManageOrganizationEmployeeRoles: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
   canReadTickets: Boolean
@@ -72532,6 +72534,10 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   canReadOrganizationEmployees_not: Boolean
   canManageOrganizationEmployees: Boolean
   canManageOrganizationEmployees_not: Boolean
+  canReadOrganizationEmployeeRoles: Boolean
+  canReadOrganizationEmployeeRoles_not: Boolean
+  canManageOrganizationEmployeeRoles: Boolean
+  canManageOrganizationEmployeeRoles_not: Boolean
   canReadProperties: Boolean
   canReadProperties_not: Boolean
   canManageProperties: Boolean
@@ -72677,6 +72683,10 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
   canReadOrganizationEmployees_DESC
   canManageOrganizationEmployees_ASC
   canManageOrganizationEmployees_DESC
+  canReadOrganizationEmployeeRoles_ASC
+  canReadOrganizationEmployeeRoles_DESC
+  canManageOrganizationEmployeeRoles_ASC
+  canManageOrganizationEmployeeRoles_DESC
   canReadProperties_ASC
   canReadProperties_DESC
   canManageProperties_ASC
@@ -72741,6 +72751,8 @@ input B2BAppAccessRightSetHistoryRecordUpdateInput {
   canManageOrganizations: Boolean
   canReadOrganizationEmployees: Boolean
   canManageOrganizationEmployees: Boolean
+  canReadOrganizationEmployeeRoles: Boolean
+  canManageOrganizationEmployeeRoles: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
   canReadTickets: Boolean
@@ -72793,6 +72805,8 @@ input B2BAppAccessRightSetHistoryRecordCreateInput {
   canManageOrganizations: Boolean
   canReadOrganizationEmployees: Boolean
   canManageOrganizationEmployees: Boolean
+  canReadOrganizationEmployeeRoles: Boolean
+  canManageOrganizationEmployeeRoles: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
   canReadTickets: Boolean
@@ -72880,6 +72894,11 @@ type B2BAppAccessRightSet {
   """ Currently, this field is read-only. You cannot get manage access for the specified schema. 
   """
   canManageOrganizationEmployees: Boolean
+  canReadOrganizationEmployeeRoles: Boolean
+
+  """ Currently, this field is read-only. You cannot get manage access for the specified schema. 
+  """
+  canManageOrganizationEmployeeRoles: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
   canReadTickets: Boolean
@@ -72975,6 +72994,10 @@ input B2BAppAccessRightSetWhereInput {
   canReadOrganizationEmployees_not: Boolean
   canManageOrganizationEmployees: Boolean
   canManageOrganizationEmployees_not: Boolean
+  canReadOrganizationEmployeeRoles: Boolean
+  canReadOrganizationEmployeeRoles_not: Boolean
+  canManageOrganizationEmployeeRoles: Boolean
+  canManageOrganizationEmployeeRoles_not: Boolean
   canReadProperties: Boolean
   canReadProperties_not: Boolean
   canManageProperties: Boolean
@@ -73102,6 +73125,10 @@ enum SortB2BAppAccessRightSetsBy {
   canReadOrganizationEmployees_DESC
   canManageOrganizationEmployees_ASC
   canManageOrganizationEmployees_DESC
+  canReadOrganizationEmployeeRoles_ASC
+  canReadOrganizationEmployeeRoles_DESC
+  canManageOrganizationEmployeeRoles_ASC
+  canManageOrganizationEmployeeRoles_DESC
   canReadProperties_ASC
   canReadProperties_DESC
   canManageProperties_ASC
@@ -73166,6 +73193,8 @@ input B2BAppAccessRightSetUpdateInput {
   canManageOrganizations: Boolean
   canReadOrganizationEmployees: Boolean
   canManageOrganizationEmployees: Boolean
+  canReadOrganizationEmployeeRoles: Boolean
+  canManageOrganizationEmployeeRoles: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
   canReadTickets: Boolean
@@ -73215,6 +73244,8 @@ input B2BAppAccessRightSetCreateInput {
   canManageOrganizations: Boolean
   canReadOrganizationEmployees: Boolean
   canManageOrganizationEmployees: Boolean
+  canReadOrganizationEmployeeRoles: Boolean
+  canManageOrganizationEmployeeRoles: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
   canReadTickets: Boolean
