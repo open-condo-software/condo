@@ -290,7 +290,7 @@ export const MemoizedCondoNewsPreview = React.memo(CondoNewsPreview)
 
 interface ISharingAppNewsPreview {
     hasPush?: boolean
-
+    ctxId: string
     appName: string
     appIcon: string
 
@@ -302,7 +302,7 @@ interface ISharingAppNewsPreview {
     validBefore?: string
 }
 
-const SharingNewsPreview: React.FC<ISharingAppNewsPreview> = ({ hasPush = true, appName, appIcon, iFrameUrl, iFrameRef, title, body, validBefore }) => {
+const SharingNewsPreview: React.FC<ISharingAppNewsPreview> = ({ hasPush = true, appName, appIcon, iFrameUrl, iFrameRef, title, body, ctxId, validBefore }) => {
     const intl = useIntl()
     const PushNotificationTitle = intl.formatMessage({ id: 'pages.condo.news.preview.push' })
 
@@ -314,7 +314,7 @@ const SharingNewsPreview: React.FC<ISharingAppNewsPreview> = ({ hasPush = true, 
                     // el => iFrameRef.current = el is used here to support IFrame API
                     // @ts-ignore
                     ref={el => iFrameRef.current = el}
-                    src={`${iFrameUrl}?title=${title}&body=${body}`}
+                    src={`${iFrameUrl}?title=${title}&body=${body}&ctxId=${ctxId}`}
                     reloadScope='organization'
                 />
                 <SharingAppOverflowContainer/>

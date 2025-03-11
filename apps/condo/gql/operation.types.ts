@@ -234,6 +234,13 @@ export type UpdateNewsItemRecipientsExportTaskMutationVariables = Types.Exact<{
 
 export type UpdateNewsItemRecipientsExportTaskMutation = { __typename?: 'Mutation', task?: { __typename: 'NewsItemRecipientsExportTask', id: string, status?: Types.NewsItemRecipientsExportTaskStatusType | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null };
 
+export type GetNewsSharingRecipientsQueryVariables = Types.Exact<{
+  data: Types.GetNewsSharingRecipientsInput;
+}>;
+
+
+export type GetNewsSharingRecipientsQuery = { __typename?: 'Query', recipients?: Array<{ __typename?: 'GetNewsSharingRecipientsOutput', id: string, name: string, receiversCount?: number | null } | null> | null };
+
 export type GetUserMessagesQueryVariables = Types.Exact<{
   userId?: Types.InputMaybe<Types.Scalars['ID']['input']>;
   organizationId?: Types.InputMaybe<Types.Scalars['ID']['input']>;
