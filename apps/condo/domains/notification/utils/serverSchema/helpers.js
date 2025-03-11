@@ -148,7 +148,7 @@ function getMessageOptions (type) {
  * @returns {customPushType: string | undefined}
  */
 function getPreferredPushTypeByMessageType (messageType) {
-    const { preferredPushType } = get(MESSAGE_DELIVERY_OPTIONS, messageType)
+    const { preferredPushType } = get(MESSAGE_DELIVERY_OPTIONS, messageType, {})
     return preferredPushType
 }
 
