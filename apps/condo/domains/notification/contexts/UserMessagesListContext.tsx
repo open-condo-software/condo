@@ -13,7 +13,7 @@ import React, {
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
 
-import { useTracking } from '@condo/domains/common/components/TrackingContext'
+import { analytics } from '@condo/domains/common/utils/analytics'
 import { useAllowedToFilterMessageTypes } from '@condo/domains/notification/hooks/useAllowedToFilterMessageTypes'
 import { useUserMessages } from '@condo/domains/notification/hooks/useUserMessages'
 import { useUserMessagesListSettingsStorage } from '@condo/domains/notification/hooks/useUserMessagesListSettingsStorage'
@@ -65,7 +65,6 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
 
     const { user } = useAuth()
     const { organization } = useOrganization()
-    const { logEvent } = useTracking()
 
     const userId = useMemo(() => user?.id, [user?.id])
     const organizationId = useMemo(() => organization?.id, [organization?.id])
@@ -140,14 +139,16 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
             if (messagesListRef.current) {
                 messagesListRef.current.scroll({ top: 0 })
             }
-            logEvent({ eventName: 'UserMessagesListOpen' })
+
+            analytics.track('notifications_list_view', {})
+
             return
         }
 
         // When dropdown closes - update last read time to createdAt of newest Message
         updateReadUserMessagesAt()
         clearLoadedMessages()
-    }, [clearLoadedMessages, logEvent, messagesListRef, updateReadUserMessagesAt])
+    }, [clearLoadedMessages, messagesListRef, updateReadUserMessagesAt])
 
 
     return (

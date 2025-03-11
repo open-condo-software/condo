@@ -23,7 +23,6 @@ export type InputWithCheckAllProps = {
     selectProps: ComponentProps<typeof GraphQlSearchInput>
     checkBoxOffset?: number
     form: FormInstance
-    checkBoxEventName?: string
     disabled?: boolean
     checkboxDisabled?: boolean
     checkboxHidden?: boolean
@@ -60,7 +59,6 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
         CheckAllMessage,
         form,
         checkBoxOffset,
-        checkBoxEventName,
         disabled,
         onDataLoaded,
         mutationOfFormAfterCheckAll,

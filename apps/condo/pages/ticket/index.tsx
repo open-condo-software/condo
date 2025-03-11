@@ -622,7 +622,6 @@ const FiltersContainer = ({ filterMetas }) => {
         filtersSchemaGql: TicketFilterTemplate,
         onReset: handleResetFilters,
         onSubmit: handleSubmitFilters,
-        eventNamePrefix: 'Ticket',
         detailedLogging: DETAILED_LOGGING,
     })
 

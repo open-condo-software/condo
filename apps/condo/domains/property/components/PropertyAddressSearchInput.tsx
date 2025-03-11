@@ -111,7 +111,6 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
         <BaseSearchInput
             {...props}
             id='propertyAddressSearchInput'
-            eventName='PropertyAddressSearchInput'
             search={searchAddress}
             renderOption={renderOption}
             initialValueGetter={initialValueGetter}
