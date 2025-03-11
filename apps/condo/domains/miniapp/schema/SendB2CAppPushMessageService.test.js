@@ -20,7 +20,10 @@ const {
 } = require('@condo/domains/miniapp/utils/testSchema')
 const {
     B2C_APP_MESSAGE_PUSH_TYPE,
+    CANCELED_CALL_MESSAGE_PUSH_TYPE,
     VOIP_INCOMING_CALL_MESSAGE_TYPE,
+    B2B_APP_MESSAGE_PUSH_TYPE,
+    MESSAGE_SENDING_STATUS,
     APPLE_CONFIG_TEST_VOIP_PUSHTOKEN_ENV,
     DEVICE_PLATFORM_IOS, APP_RESIDENT_ID_IOS,
     PUSH_TRANSPORT_APPLE,
@@ -325,6 +328,31 @@ describe('SendB2CAppPushMessageService', () => {
                 type: 'TOO_MANY_REQUESTS',
                 message: 'You have to wait {secondsRemaining} seconds to be able to send request again',
             })
+        })
+    })
+
+    describe('Checking the sending of available push types in SendB2CAppPushMessageService', () => {
+        test('Push with type CANCELED_CALL_MESSAGE_PUSH_TYPE is being sent', async () => {
+            const [message] = await sendB2CAppPushMessageByTestClient(admin, {
+                ...appAttrs,
+                type: CANCELED_CALL_MESSAGE_PUSH_TYPE,
+            })
+            expect(message.id).toMatch(UUID_RE)
+            expect(message.status).toMatch(MESSAGE_SENDING_STATUS)
+        })
+
+        test('Push with type B2B_APP_MESSAGE_PUSH_TYPE is not sent', async () => {
+            const expectedErrorMessage = 'Variable "$data" got invalid value "B2B_APP_MESSAGE_PUSH" at "data.type"; Value "B2B_APP_MESSAGE_PUSH" does not exist in "SendB2CAppPushMessageType" enum. Did you mean the enum value "B2C_APP_MESSAGE_PUSH"?'
+
+            await expectToThrowGraphQLRequestError(
+                async () => {
+                    await sendB2CAppPushMessageByTestClient(admin, {
+                        ...appAttrs,
+                        type: B2B_APP_MESSAGE_PUSH_TYPE,
+                    })
+                },
+                expectedErrorMessage,
+            )
         })
     })
 
