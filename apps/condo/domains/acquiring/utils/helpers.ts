@@ -1,4 +1,4 @@
-import { Payment } from '@app/condo/schema'
+import { Payment, PaymentsFile } from '@app/condo/schema'
 
 export interface IFilters extends Pick<Payment, 'advancedAt' | 'accountNumber' | 'receipt'> {
     search?: string
@@ -6,4 +6,11 @@ export interface IFilters extends Pick<Payment, 'advancedAt' | 'accountNumber' |
     accountNumber?: string
     address?: Array<string>
     type?: Array<string>
+}
+
+
+export interface IPaymentsFilesFilters extends Pick<PaymentsFile, 'dateLoad' | 'paymentOrder'> {
+    search?: string
+    dateLoad?: string
+    paymentOrder?: string
 }
