@@ -3,6 +3,7 @@ import { useCallback, useMemo } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 
+import { PaymentTypes } from '@condo/domains/acquiring/utils/clientSchema'
 import { ACCRUALS_TAB_KEY, PAYMENTS_TAB_KEY, EXTENSION_TAB_KEY, PAYMENTS_TYPE_LIST, PAYMENTS_TYPE_REGISTRY } from '@condo/domains/billing/constants/constants'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
@@ -12,7 +13,7 @@ type ParamUpdateHandler = (key: string) => void
 const AVAILABLE_TABS = [ACCRUALS_TAB_KEY, PAYMENTS_TAB_KEY]
 const PAYMENTS_TYPES = [PAYMENTS_TYPE_LIST, PAYMENTS_TYPE_REGISTRY]
 
-export function useQueryParams (includeExtension: boolean): [string, string, ParamUpdateHandler] {
+export function useQueryParams (includeExtension: boolean): [string, PaymentTypes, ParamUpdateHandler] {
     if (includeExtension) {
         AVAILABLE_TABS.push(EXTENSION_TAB_KEY)
     }
@@ -42,5 +43,5 @@ export function useQueryParams (includeExtension: boolean): [string, string, Par
         await changeRouteToActiveParams({ tab: activeTab })
     }, [changeRouteToActiveParams])
 
-    return [activeTab, activeType, handleUpdateTab]
+    return [activeTab, activeType as PaymentTypes, handleUpdateTab]
 }
