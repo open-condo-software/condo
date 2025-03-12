@@ -2,7 +2,7 @@ import { Global } from '@emotion/react'
 import { Col, Row } from 'antd'
 import getConfig from 'next/config'
 import { useRouter } from 'next/router'
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 
 import { useAuth } from '@open-condo/next/auth'
 import { Typography } from '@open-condo/ui'
@@ -10,7 +10,6 @@ import { useBreakpoints } from '@open-condo/ui/dist/hooks'
 
 import { FROM_INPUT_CSS } from '@condo/domains/common/components/containers/BaseLayout/components/styles'
 import { Logo } from '@condo/domains/common/components/Logo'
-import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
 import { Layout } from '@condo/domains/user/components/containers/styles'
 
 import './styles.css'
@@ -32,26 +31,19 @@ export type PosterProps = {
 }
 
 export const LayoutWithPoster: React.FC<LayoutWithPosterProps> = ({ children, headerAction, Poster }) => {
-    const { asPath, push } = useRouter()
+    const router = useRouter()
     const { isAuthenticated } = useAuth()
     const breakpoints = useBreakpoints()
 
     const isSmallDisplay = !breakpoints.DESKTOP_SMALL
 
-    const { getEventName, logEvent } = useTracking()
-
-    useEffect(() => {
-        const eventName = getEventName(TrackingEventType.Visit)
-        logEvent({ eventName, denyDuplicates: true })
-    }, [asPath])
-
     const handleLogoClick = useCallback(() => {
         if (isAuthenticated) {
-            push('/')
+            router.push('/')
         } else {
-            push('/auth')
+            router.push('/auth')
         }
-    }, [isAuthenticated, push])
+    }, [isAuthenticated, router?.push])
 
     const Header = useMemo(() => (
         <Row gutter={[20, 20]} justify='space-between' align='middle'>
