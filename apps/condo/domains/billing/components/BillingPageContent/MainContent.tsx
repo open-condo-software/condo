@@ -7,14 +7,13 @@ import { useOrganization } from '@open-condo/next/organization'
 import { RadioGroup, Tabs, Radio } from '@open-condo/ui'
 import type { TabItem } from '@open-condo/ui'
 
+import { PAYMENT_TYPES, PaymentTypes } from '@condo/domains/acquiring/utils/clientSchema'
 import { AccrualsTab } from '@condo/domains/billing/components/BillingPageContent/AccrualsTab'
 import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
 import { EmptyContent } from '@condo/domains/billing/components/BillingPageContent/EmptyContent'
 import { PaymentsTab } from '@condo/domains/billing/components/BillingPageContent/PaymentsTab'
 import { ACCRUALS_TAB_KEY, PAYMENTS_TAB_KEY, EXTENSION_TAB_KEY } from '@condo/domains/billing/constants/constants'
 import { useQueryParams } from '@condo/domains/billing/hooks/useQueryParams'
-import { PAYMENT_TYPES, PaymentTypes } from '@condo/domains/billing/utils/clientSchema'
-import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 
@@ -24,12 +23,10 @@ type PaymentTypeSwitchProps = {
     activeTab: string
 }
 
-// TODO(abshnko): think about moving this component to packages/ui 
 export const PaymentTypeSwitch = ({ defaultValue, activeTab }: PaymentTypeSwitchProps): JSX.Element => {
     const intl = useIntl()
     const PaymentsTypeListTitle = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.list' })
     const PaymentsTypeRegistryTitle = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.registry' })
-    const { logEvent } = useTracking()
 
     const router = useRouter()
     const type  = get(router.query, 'type', PAYMENT_TYPES.list) as string
@@ -50,13 +47,12 @@ export const PaymentTypeSwitch = ({ defaultValue, activeTab }: PaymentTypeSwitch
     const handleRadioChange = useCallback(async (event) => {
         const value = event.target.value
         setValue(value)
-        logEvent({ eventName: 'PaymentTypeChange', denyDuplicates: true, eventProperties: { type: value } })
-        updateQuery(
+        await updateQuery(
             router,
             { newParameters: { type: value, tab: activeTab } },
             { resetOldParameters: true, routerAction: 'replace', shallow: true }
         )
-    }, [activeTab, logEvent, router])
+    }, [activeTab, router])
 
     return (
         <RadioGroup optionType='button' value={value} onChange={handleRadioChange} defaultValue={defaultValue}>
@@ -89,9 +85,8 @@ export const MainContent: React.FC<MainContentProps> = ({
     const canReadBillingReceipts = get(userOrganization, ['link', 'role', 'canReadBillingReceipts'], false)
     const canReadPayments = get(userOrganization, ['link', 'role', 'canReadPayments'], false)
 
-    const { billingContext, acquiringContext } = useBillingAndAcquiringContexts()
+    const { billingContext } = useBillingAndAcquiringContexts()
     const appUrl = get(billingContext, ['integration', 'appUrl'])
-    const paymentsRegistryUrl = get(acquiringContext, ['integration', 'paymentsRegistryUrl'])
     const extendsBillingPage = get(billingContext, ['integration', 'extendsBillingPage'], false)
     const billingName = get(billingContext, ['integration', 'name'], '')
     const billingPageTitle = get(billingContext, ['integration', 'billingPageTitle'])
@@ -112,7 +107,7 @@ export const MainContent: React.FC<MainContentProps> = ({
             canReadPayments && {
                 label: PaymentsTabTitle,
                 key: PAYMENTS_TAB_KEY,
-                children: currentType === PAYMENT_TYPES.list ? <PaymentsTab/> : <IFrame src={appUrl} reloadScope='organization' withPrefetch withLoader withResize />,
+                children: <PaymentsTab type={currentType} />,
             }]
 
         if (shouldIncludeAppTab) {

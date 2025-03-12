@@ -1,3 +1,4 @@
+import { PaymentStatusType, SortPaymentsBy } from '@app/condo/schema'
 import { Col, Row, Space } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
 import dayjs, { Dayjs } from 'dayjs'
@@ -6,22 +7,22 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useState } from 'react'
 
 import { Search } from '@open-condo/icons'
-import { useQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Modal, Typography } from '@open-condo/ui'
+import { Button } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { PaymentsSumTable } from '@condo/domains/acquiring/components/payments/PaymentsSumTable'
 import { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } from '@condo/domains/acquiring/constants/payment'
-import { EXPORT_PAYMENTS_TO_EXCEL, SUM_PAYMENTS_QUERY } from '@condo/domains/acquiring/gql'
+import { EXPORT_PAYMENTS_TO_EXCEL } from '@condo/domains/acquiring/gql'
+import usePaymentsSum from '@condo/domains/acquiring/hooks/usePaymentsSum'
 import { usePaymentsTableColumns } from '@condo/domains/acquiring/hooks/usePaymentsTableColumns'
 import { usePaymentsTableFilters } from '@condo/domains/acquiring/hooks/usePaymentsTableFilters'
 import { Payment, PaymentsFilterTemplate } from '@condo/domains/acquiring/utils/clientSchema'
 import { IFilters } from '@condo/domains/acquiring/utils/helpers'
 import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
 import Input from '@condo/domains/common/components/antd/Input'
-import { Button } from '@condo/domains/common/components/Button'
 import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
@@ -36,8 +37,6 @@ import {
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
-
-import type { SortPaymentsBy } from '@app/condo/schema'
 
 
 
@@ -81,17 +80,6 @@ export const PaymentsSumInfo: React.FC<IPaymentsSumInfoProps> = ({
     )
 }
 
-function usePaymentsSum (whereQuery) {
-    const { data, error, loading } = useQuery(SUM_PAYMENTS_QUERY, {
-        fetchPolicy: 'cache-first',
-        variables: {
-            where: {
-                ...whereQuery,
-            },
-        },
-    })
-    return { data, error, loading }
-}
 
 const PaymentsTableContent: React.FC = (): JSX.Element => {
     const intl = useIntl()
@@ -111,7 +99,7 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
 
     const { filters, sorters, offset } = parseQuery(router.query)
 
-    const currencyCode = get(billingContext, ['integration', 'currencyCode'], 'RUB')
+    const currencyCode = get(billingContext, ['integration', 'currencyCode'], DEFAULT_CURRENCY_CODE)
 
     const [isStatusDescModalVisible, setIsStatusDescModalVisible] = useState<boolean>(false)
     const [titleStatusDescModal, setTitleStatusDescModal] = useState('')
@@ -161,9 +149,9 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
         fetchPolicy: 'network-only',
     })
 
-    const { data: sumDonePayments, loading: donePaymentsLoading } = usePaymentsSum({ ...searchPaymentsQuery, status: PAYMENT_DONE_STATUS })
-    const { data: sumWithdrawnPayments, loading: withdrawnPaymentsLoading } = usePaymentsSum({ ...searchPaymentsQuery, status: PAYMENT_WITHDRAWN_STATUS })
-    const { data: sumAllPayments, loading: allPaymentsLoading } = usePaymentsSum({ ...searchPaymentsQuery })
+    const { data: sumDonePayments, loading: donePaymentsLoading } = usePaymentsSum({ paymentsWhere: { ...searchPaymentsQuery, status: PaymentStatusType.Done } })
+    const { data: sumWithdrawnPayments, loading: withdrawnPaymentsLoading } = usePaymentsSum({ paymentsWhere: { ...searchPaymentsQuery, status: PaymentStatusType.Withdrawn } })
+    const { data: sumAllPayments, loading: allPaymentsLoading } = usePaymentsSum({ paymentsWhere: searchPaymentsQuery })
 
     const [search, handleSearchChange, handleResetSearch] = useSearch<IFilters>()
     const handleDateChange = useCallback((value) => {
@@ -295,7 +283,7 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
                 footer={[
                     <Button
                         key='close'
-                        type='sberDefaultGradient'
+                        type='primary'
                         onClick={() => setIsStatusDescModalVisible(false)}
                     >
                         {ConfirmTitle}

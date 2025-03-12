@@ -11,3 +11,13 @@ export * as Payment from './Payment'
 export * as PaymentsFilterTemplate from './PaymentsFilterTemplate'
 export * as PaymentsFile from './PaymentsFile'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
+
+export type PaymentTypes = 'list' | 'registry'
+type PaymentTypeSwitch = {
+    list: PaymentTypes
+    registry: PaymentTypes
+}
+export const PAYMENT_TYPES: PaymentTypeSwitch = {
+    list: 'list',
+    registry: 'registry',
+}
