@@ -13,9 +13,10 @@ const TicketProblemClassifier = new GQLListSchema('TicketProblemClassifier', {
     fields: {
         organization: COMMON_AND_ORGANIZATION_OWNED_FIELD,
         name: {
-            schemaDoc: 'text content',
-            type: 'Text',
+            schemaDoc: 'Localized Ticket Problem classifier name',
+            type: 'LocalizedText',
             isRequired: true,
+            template: 'ticket.problem.classifier.*.name',
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
