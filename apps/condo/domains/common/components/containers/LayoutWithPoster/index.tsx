@@ -1,4 +1,3 @@
-import { Global } from '@emotion/react'
 import { Col, Row } from 'antd'
 import getConfig from 'next/config'
 import { useRouter } from 'next/router'
@@ -8,7 +7,6 @@ import { useAuth } from '@open-condo/next/auth'
 import { Typography } from '@open-condo/ui'
 import { useBreakpoints } from '@open-condo/ui/dist/hooks'
 
-import { FROM_INPUT_CSS } from '@condo/domains/common/components/containers/BaseLayout/components/styles'
 import { Logo } from '@condo/domains/common/components/Logo'
 import { Layout } from '@condo/domains/user/components/containers/styles'
 
@@ -90,68 +88,64 @@ export const LayoutWithPoster: React.FC<LayoutWithPosterProps> = ({ children, he
     ), [])
 
     return (
-        <>
-            <Global styles={FROM_INPUT_CSS}/>
-
-            <Layout>
-                <Row
-                    className='layout-with-poster-wrapper'
-                    gutter={[20, 20]}
+        <Layout>
+            <Row
+                className='layout-with-poster-wrapper'
+                gutter={[20, 20]}
+            >
+                {/* NOTE: 0px so that the width is calculated based on the content */}
+                <Col
+                    flex={isSmallDisplay ? 'none' : '0px'}
+                    span={isSmallDisplay ? 24 : null}
                 >
-                    {/* NOTE: 0px so that the width is calculated based on the content */}
-                    <Col
-                        flex={isSmallDisplay ? 'none' : '0px'}
-                        span={isSmallDisplay ? 24 : null}
-                    >
-                        <Poster
-                            Header={Header}
-                            Footer={Footer}
-                        />
-                    </Col>
+                    <Poster
+                        Header={Header}
+                        Footer={Footer}
+                    />
+                </Col>
 
-                    <Col
-                        className='layout-with-poster-content-col'
-                        flex={isSmallDisplay ? 'none' : 'auto'}
-                        span={isSmallDisplay ? 24 : null}
-                    >
-                        <Row className='layout-with-poster-content-row'>
-                            <Col
-                                className='layout-with-poster-content-wrapper'
-                                flex='12'
-                            >
-                                <div className='layout-with-poster-content'>
-                                    {children}
-                                </div>
+                <Col
+                    className='layout-with-poster-content-col'
+                    flex={isSmallDisplay ? 'none' : 'auto'}
+                    span={isSmallDisplay ? 24 : null}
+                >
+                    <Row className='layout-with-poster-content-row'>
+                        <Col
+                            className='layout-with-poster-content-wrapper'
+                            flex='12'
+                        >
+                            <div className='layout-with-poster-content'>
+                                {children}
+                            </div>
 
-                                {
-                                    !isSmallDisplay && headerAction && (
-                                        <Row
-                                            className='layout-with-poster-content-footer'
-                                            align='bottom'
-                                        >
-                                            <Col>
-                                                {headerAction}
-                                            </Col>
-                                        </Row>
-                                    )
-                                }
-                            </Col>
+                            {
+                                !isSmallDisplay && headerAction && (
+                                    <Row
+                                        className='layout-with-poster-content-footer'
+                                        align='bottom'
+                                    >
+                                        <Col>
+                                            {headerAction}
+                                        </Col>
+                                    </Row>
+                                )
+                            }
+                        </Col>
+                    </Row>
+                </Col>
+
+                {
+                    isSmallDisplay && (
+                        <Row
+                            className='layout-with-poster-content-footer'
+                            align='bottom'
+                            gutter={[16, 0]}
+                        >
+                            {Footer}
                         </Row>
-                    </Col>
-
-                    {
-                        isSmallDisplay && (
-                            <Row
-                                className='layout-with-poster-content-footer'
-                                align='bottom'
-                                gutter={[16, 0]}
-                            >
-                                {Footer}
-                            </Row>
-                        )
-                    }
-                </Row>
-            </Layout>
-        </>
+                    )
+                }
+            </Row>
+        </Layout>
     )
 }
