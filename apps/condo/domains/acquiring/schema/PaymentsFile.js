@@ -22,15 +22,6 @@ const PaymentsFile = new GQLListSchema('PaymentsFile', {
     schemaDoc: 'Payments registry file. A file that contains all payments detalization for a period of time',
     fields: {
 
-        billingContext: {
-            schemaDoc: 'Link to Billing Integration Context',
-            type: 'Relationship',
-            ref: 'BillingIntegrationOrganizationContext',
-            isRequired: false,
-            knexOptions: { isNotNullable: false },
-            kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
-        },
-
         acquiringContext: {
             schemaDoc: 'Link to Acquiring Integration Context',
             type: 'Relationship',
@@ -162,19 +153,6 @@ const PaymentsFile = new GQLListSchema('PaymentsFile', {
                 type: 'BTreeIndex',
                 fields: ['fileName'],
                 name: 'payments_file_file_name_idx',
-            },
-            {
-                type: 'HashIndex',
-                fields: ['billingContext'],
-                name: 'payments_file_context_idx',
-            },
-        ],
-        constraints: [
-            {
-                type: 'models.UniqueConstraint',
-                fields: ['billingContext', 'registryName', 'dateLoad'],
-                condition: 'Q(deletedAt__isnull=True)',
-                name: 'paymentsFile_uniq_for_context',
             },
         ],
     },
