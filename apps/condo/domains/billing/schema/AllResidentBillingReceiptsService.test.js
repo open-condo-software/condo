@@ -6,33 +6,16 @@ const { basename } = require('path')
 
 const { faker } = require('@faker-js/faker')
 const Big = require('big.js')
-const dayjs = require('dayjs')
 
 const { DATETIME_RE } = require('@open-condo/keystone/test.utils')
 
-const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
-const { PAYMENT_DONE_STATUS, MULTIPAYMENT_DONE_STATUS } = require('@condo/domains/acquiring/constants/payment')
-const { Payment } = require('@condo/domains/acquiring/utils/testSchema')
-const { createPaymentByLinkByTestClient, generateQRCode } = require('@condo/domains/acquiring/utils/testSchema')
-const { addAcquiringIntegrationAndContext } = require('@condo/domains/acquiring/utils/testSchema')
-const { updateTestPayment, updateTestMultiPayment } = require('@condo/domains/acquiring/utils/testSchema')
-const { createTestBankAccount } = require('@condo/domains/banking/utils/testSchema')
-const { ResidentBillingReceipt, PUBLIC_FILE, PRIVATE_FILE, updateTestBillingReceipt } = require('@condo/domains/billing/utils/testSchema')
-const {
-    addBillingIntegrationAndContext,
-    createTestBillingProperty,
-    createTestBillingAccount, createTestRecipient, createTestBillingReceipt,
-    createTestBillingRecipient,
-} = require('@condo/domains/billing/utils/testSchema')
+const { ResidentBillingReceipt, PUBLIC_FILE, PRIVATE_FILE } = require('@condo/domains/billing/utils/testSchema')
 const {
     TestUtils,
     ResidentTestMixin,
     ContactTestMixin,
 } = require('@condo/domains/billing/utils/testSchema/testUtils')
-const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
-const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
-const { createTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
+
 
 const HOUSING_CATEGORY = '928c97ef-5289-4daa-b80e-4b9fed50c629'
 const OVERHAUL_CATEGORY = 'c0b9db6a-c351-4bf4-aa35-8e5a500d0195'
@@ -367,200 +350,6 @@ describe('AllResidentBillingReceiptsService', () => {
                 expect(Big(receiptAfterPayment.paid).toFixed(2)).toEqual(remainPay)
                 expect(Big(receiptAfterPayment.toPayDetails.paid).toFixed(2)).toEqual(partialPay)
             })
-            describe('QRCoode cases', () => {
-                
-                let completePayment
-                let generateInitialData
-                
-                beforeEach(async () => {
-                    completePayment = async function completePayment (multiPaymentId) {
-                        const payment = await Payment.getOne(utils.clients.admin, { multiPayment: { id: multiPaymentId } }, { sortBy: ['createdAt_DESC'] })
-                        await updateTestPayment(utils.clients.admin, payment.id, {
-                            explicitFee: '0.0',
-                            advancedAt: dayjs().toISOString(),
-                            transferDate: dayjs().toISOString(),
-                            status: PAYMENT_DONE_STATUS,
-                        })
-                        await updateTestMultiPayment(utils.clients.admin, multiPaymentId, {
-                            explicitFee: '0.0',
-                            explicitServiceCharge: '0.0',
-                            withdrawnAt: dayjs().toISOString(),
-                            cardNumber: '407*****01',
-                            paymentWay: 'CARD',
-                            transactionId: faker.datatype.uuid(),
-                            status: MULTIPAYMENT_DONE_STATUS,
-                        })
-                    }
-                    
-                    generateInitialData = async function generateInitialData (payAmount = '5000.00') {
-                        const [organization] = await createTestOrganization(utils.clients.admin)
-                        const [property] = await createTestProperty(utils.clients.admin, organization)
-                        const { billingIntegrationContext } = await addBillingIntegrationAndContext(utils.clients.admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
-                        const [billingProperty] = await createTestBillingProperty(utils.clients.admin, billingIntegrationContext, { address: property.address })
-                        const [billingAccount] = await createTestBillingAccount(utils.clients.admin, billingIntegrationContext, billingProperty)
-                        const [bankAccount] = await createTestBankAccount(utils.clients.admin, organization)
-                        const recipient = createTestRecipient({
-                            name: organization.name,
-                            tin: organization.tin,
-                            bic: bankAccount.routingNumber,
-                            bankAccount: bankAccount.number,
-                        })
-                        const { acquiringIntegrationContext } = await addAcquiringIntegrationAndContext(utils.clients.admin, organization, {}, {
-                            status: CONTEXT_FINISHED_STATUS,
-                            recipient,
-                        })
-                        const [resident] = await createTestResident(utils.clients.admin, utils.clients.resident.user, property, {
-                            unitName: faker.random.alphaNumeric(8),
-                            unitType: 'flat',
-                        })
-                        await createTestServiceConsumer(utils.clients.admin, resident, organization, {
-                            accountNumber: billingAccount.number,
-                            billingIntegrationContext: { connect: { id: billingIntegrationContext.id } },
-                            acquiringIntegrationContext: { connect: { id: acquiringIntegrationContext.id } },
-                        })
-                        const [billingRecipient] = await createTestBillingRecipient(utils.clients.admin, billingIntegrationContext, {
-                            bankAccount: bankAccount.number,
-                            bic: bankAccount.routingNumber,
-                            tin: organization.tin,
-                        })
-                        const [billingReceipt] = await createTestBillingReceipt(utils.clients.admin, billingIntegrationContext, billingProperty, billingAccount, {
-                            period: '2024-03-01',
-                            receiver: { connect: { id: billingRecipient.id } },
-                            account: { connect: { id: billingAccount.id } },
-                            recipient: createTestRecipient({
-                                bic: billingRecipient.bic,
-                            }),
-                            toPay: Big(payAmount),
-                        })
-                        return {
-                            billingReceipt,
-                            resident,
-                            property,
-                            billingAccount,
-                            organization,
-                            bankAccount,
-                            billingRecipient,
-                            billingIntegrationContext,
-                            billingProperty,
-                        }
-                    }
-                })
-                
-                test('Receipt was published => virtually partially payed by qr => receipt was updated with the information about this payment => complete paid by qr', async () => {
-                    const payAmount = '5000.00'
-                    const partialPay = '3000.00'
-                    const remainPay = '2000.00'
-
-                    // 1. Publish receipt
-                    const {
-                        resident,
-                        billingReceipt,
-                        bankAccount,
-                        billingAccount,
-                        organization,
-                        property,
-                    } = await generateInitialData(payAmount)
-
-                    // 2. Partially pay by qr
-                    let [qrCode, qrCodeAttrs] = generateQRCode({
-                        PayeeINN: organization.tin,
-                        PayerAddress: `${property.address}, кв. 1`,
-                        PersAcc: billingAccount.number,
-                        PersonalAcc: bankAccount.number,
-                        BIC: bankAccount.routingNumber,
-                        Sum: Big(partialPay).mul(100).toString(),
-                        PaymPeriod: null,
-                    })
-                    let [{ multiPaymentId: firstMultiPaymentId }] = await createPaymentByLinkByTestClient(utils.clients.resident, { qrCode }) // NOSONAR code duplications is normal for tests
-                    await completePayment(firstMultiPaymentId)
-                    const receiptsAfterFirstPayment = await ResidentBillingReceipt.getAll(utils.clients.resident, {
-                        serviceConsumer: { resident: { id: resident.id } },
-                    })
-                    const receiptAfterFirstPayment = receiptsAfterFirstPayment.find((receipt) => receipt.id === billingReceipt.id)
-                    expect(Big(receiptAfterFirstPayment.paid).toFixed(2)).toEqual(partialPay)
-                    expect(receiptAfterFirstPayment.toPayDetails.paid).toBe(null)
-
-
-                    // 3. Update receipt (put toPayDetails.paid, toPay, balanceUpdatedAt)
-                    await updateTestBillingReceipt(utils.clients.admin, billingReceipt.id, {
-                        toPay: remainPay, toPayDetails: { charge: payAmount, paid: partialPay },
-                        balanceUpdatedAt: dayjs().toISOString(),
-                    });
-
-                    // 4. Complete pay
-                    [qrCode, qrCodeAttrs] = generateQRCode({ ...qrCodeAttrs, Sum: Big(remainPay).mul(100).toString() })
-                    let [{ multiPaymentId }] = await createPaymentByLinkByTestClient(utils.clients.resident, { qrCode }) // NOSONAR code duplications is normal for tests
-                    await completePayment(multiPaymentId)
-                    const receiptsAfterPayment = await ResidentBillingReceipt.getAll(utils.clients.resident, {
-                        serviceConsumer: { resident: { id: resident.id } },
-                    })
-                    const receiptAfterPayment = receiptsAfterPayment.find((receipt) => receipt.id === billingReceipt.id)
-                    expect(Big(receiptAfterPayment.paid).toFixed(2)).toEqual(remainPay)
-                    expect(receiptAfterPayment.toPayDetails.paid).toBe(partialPay)
-
-                })
-                test('Receipt was published => virtually paid by qr => virtually paid by qr => next period receipt was published', async () => {
-                    const payAmount = '5000.00'
-
-                    // 1. Publish receipt
-                    const {
-                        resident,
-                        billingReceipt,
-                        bankAccount,
-                        billingAccount,
-                        organization,
-                        property,
-                        billingIntegrationContext,
-                        billingProperty,
-                        billingRecipient,
-                    } = await generateInitialData(payAmount)
-
-                    // 2. Pay for virtual receipt
-                    let [qrCode, qrCodeAttrs] = generateQRCode({
-                        PayeeINN: organization.tin,
-                        PayerAddress: `${property.address}, кв. 1`,
-                        PersAcc: billingAccount.number,
-                        PersonalAcc: bankAccount.number,
-                        BIC: bankAccount.routingNumber,
-                        Sum: Big(payAmount).mul(100).toString(),
-                        PaymPeriod: null,
-                    })
-                    let [{ multiPaymentId: firstMultiPaymentId }] = await createPaymentByLinkByTestClient(utils.clients.resident, { qrCode }) // NOSONAR code duplications is normal for tests
-                    await completePayment(firstMultiPaymentId)
-                    const receiptsAfterFirstPayment = await ResidentBillingReceipt.getAll(utils.clients.resident, {
-                        serviceConsumer: { resident: { id: resident.id } },
-                    })
-                    const receiptAfterFirstPayment = receiptsAfterFirstPayment.find((receipt) => receipt.id === billingReceipt.id)
-                    expect(Big(receiptAfterFirstPayment.paid).toFixed(2)).toEqual(payAmount)
-                    expect(receiptAfterFirstPayment.toPayDetails.paid).toBe(null)
-
-                    // 3. Pay for virtual receipt again
-                    let [{ multiPaymentId: secondMultiPaymentId }] = await createPaymentByLinkByTestClient(utils.clients.resident, { qrCode }) // NOSONAR code duplications is normal for tests
-                    await completePayment(secondMultiPaymentId)
-                    const receiptsAfterSecondPayment = await ResidentBillingReceipt.getAll(utils.clients.resident, {
-                        serviceConsumer: { resident: { id: resident.id } },
-                    })
-                    const receiptAfterSecondPayment = receiptsAfterSecondPayment.find((receipt) => receipt.id === billingReceipt.id)
-                    expect(Big(receiptAfterSecondPayment.paid).toFixed(2)).toEqual(payAmount)
-                    expect(receiptAfterSecondPayment.toPayDetails.paid).toBe(null)
-
-                    // 3. Publish new receipt in next period
-                    const [newReceipt] = await createTestBillingReceipt(utils.clients.admin, billingIntegrationContext, billingProperty, billingAccount, {
-                        period: dayjs(billingReceipt.period, 'YYYY-MM-DD').add(1, 'month').format('YYYY-MM-01'),
-                        receiver: { connect: { id: billingRecipient.id } },
-                        account: { connect: { id: billingAccount.id } },
-                        recipient: createTestRecipient({
-                            bic: billingRecipient.bic,
-                        }),
-                        toPay: Big(payAmount),
-                    })
-                    const receiptsData = await ResidentBillingReceipt.getAll(utils.clients.resident, {
-                        serviceConsumer: { resident: { id: resident.id } },
-                    })
-                    const receiptData = receiptsData.find((receipt) => receipt.id === newReceipt.id)
-                    expect(Big(receiptData.paid).toFixed(2)).toEqual(payAmount)
-                })
-            })
         })
 
         test('after partial payment allows to pay the rest amount', async () => {
@@ -586,7 +375,7 @@ describe('AllResidentBillingReceiptsService', () => {
             expect(receiptAfterPayment.isPayable).toBeTruthy()
         })
 
-        test('paid field is calculated when payment was made before receipt creation', async () => {
+        test('paid field is not calculated when payment was made before receipt creation', async () => {
             const accountNumber = faker.random.alphaNumeric(12)
             const total = '5000.00'
             const partialPay = '2600.00'
@@ -599,7 +388,7 @@ describe('AllResidentBillingReceiptsService', () => {
                 serviceConsumer: { resident: { id: resident.id } },
             })
             const receiptAfterPayment = receiptsAfterPayment.find(({ id }) => id === receiptId )
-            expect(Big(receiptAfterPayment.paid).toFixed(2)).toEqual(Big(partialPay).toFixed(2))
+            expect(Big(receiptAfterPayment.paid).toFixed(2)).toEqual(Big(0).toFixed(2))
         })
 
         test('paid field calculated when several payments was made', async () => {

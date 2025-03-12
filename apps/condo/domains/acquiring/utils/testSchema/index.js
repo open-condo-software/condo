@@ -55,11 +55,6 @@ const { REGISTER_MULTI_PAYMENT_FOR_INVOICES_MUTATION } = require('@condo/domains
 const { EXPORT_PAYMENTS_TO_EXCEL } = require('@condo/domains/acquiring/gql')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { CALCULATE_FEE_FOR_RECEIPT_QUERY } = require('@condo/domains/acquiring/gql')
-const {
-    createValidRuRoutingNumber,
-    createValidRuNumber,
-    createValidRuTin10
-} = require("@condo/domains/banking/utils/testSchema/bankAccount");
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateGQLTestUtils(AcquiringIntegrationGQL)
@@ -779,24 +774,6 @@ const generateVirtualReceipt = ({ period, bankAccount, accountNumber }, extraAtt
     }
 }
 
-function generateQRCode (qrCodeData = {}, { version = '0001', encodingTag = '2' } = {}) {
-    const bic = createValidRuRoutingNumber()
-
-    const qrCodeObj = {
-        PersonalAcc: createValidRuNumber(bic),
-        PayeeINN: createValidRuTin10(),
-        Sum: faker.random.numeric(6),
-        LastName: faker.random.alpha(10),
-        PaymPeriod: '07.2023',
-        BIC: bic,
-        PersAcc: faker.random.numeric(8),
-        PayerAddress: 'г Москва, ул Тверская, д 14, кв 2',
-        ...qrCodeData,
-    }
-
-    return [Buffer.from(`ST${version}${encodingTag}|${Object.keys(qrCodeObj).map((k) => `${k}=${qrCodeObj[k]}`).join('|')}`).toString('base64'), qrCodeObj]
-}
-
 module.exports = {
     AcquiringIntegration, createTestAcquiringIntegration, updateTestAcquiringIntegration,
     AcquiringIntegrationAccessRight, createTestAcquiringIntegrationAccessRight, updateTestAcquiringIntegrationAccessRight,
@@ -828,6 +805,5 @@ module.exports = {
     formatDateWithDefaultTimeZone,
     generateVirtualReceipt,
     calculateFeeForReceiptByTestClient,
-    generateQRCode,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

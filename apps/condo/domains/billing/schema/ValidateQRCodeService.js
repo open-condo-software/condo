@@ -52,6 +52,13 @@ const ERRORS = {
         type: NOT_FOUND,
         message: 'Organization with provided TIN does not have an active acquiring integration',
     },
+    RECEIPT_ALREADY_PAID: {
+        mutation: 'validateQRCode',
+        code: BAD_USER_INPUT,
+        type: ALREADY_EXISTS_ERROR,
+        message: 'Provided receipt already paid',
+        messageForUser: 'api.billing.billingReceipt.RECEIPT_ALREADY_PAID_ERROR',
+    },
     INVALID_QR_CODE_STRING: {
         mutation: 'validateQRCode',
         variable: ['data', 'qrCode'],
@@ -99,15 +106,11 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
     types: [
         {
             access: true,
-            type: 'type ValidateQRCodeReceiptCategoryOutput { id: ID!, name: String! }',
-        },
-        {
-            access: true,
             type: 'input ValidateQRCodeInput { dv: Int!, sender: SenderFieldInput!, qrCode: String! }',
         },
         {
             access: true,
-            type: 'type ValidateQRCodeLastReceiptDataOutput { id: ID!, period: String!, toPay: String!, category: ValidateQRCodeReceiptCategoryOutput!, createdAt: String! }',
+            type: 'type ValidateQRCodeLastReceiptDataOutput { id: ID!, period: String!, toPay: String! }',
         },
         {
             access: true,
@@ -152,9 +155,8 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
                 if (missedFields.length > 0) {
                     throw new GQLError(ERRORS.INVALID_QR_CODE_FIELDS(missedFields), context)
                 }
-                // NOTE(YEgorLu): amount in qrcode exists without "." between parts ("1000.11" -> "100011"), so let's add it
-                // NOTE(YEgorLu): Round to 8 characters, so qrcode amount has same format as receipt amount - "1000.00000000" instead of "1000"
-                const qrCodeAmount = Big(getQRCodeField(qrCodeFields, 'Sum')).div(100).toFixed(8)
+
+                const qrCodeAmount = String(Big(getQRCodeField(qrCodeFields, 'Sum')).div(100))
                 const { persAcc, personalAcc, payeeINN } = getQRCodeFields(qrCodeFields, ['persAcc', 'personalAcc', 'payeeINN'])
 
                 const billingAccounts = await find('BillingAccount', {
@@ -211,8 +213,11 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
                 let foundReceipt
                 let amount
                 const setDataFromReceipt = async (lastBillingReceipt) => {
+                    if (await isReceiptPaid(context, persAcc, lastBillingReceipt.period, [organizationId], personalAcc)) {
+                        throw new GQLError(ERRORS.RECEIPT_ALREADY_PAID, context)
+                    }
                     foundReceipt = lastBillingReceipt
-                    amount = qrCodeAmount
+                    amount = foundReceipt.toPay
                 }
 
                 /** @type {TCompareQRResolvers} */
@@ -222,7 +227,13 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
                     },
                     onReceiptPeriodEqualsQrCodePeriod: setDataFromReceipt,
                     onReceiptPeriodNewerThanQrCodePeriod: setDataFromReceipt,
-                    onReceiptPeriodOlderThanQrCodePeriod: setDataFromReceipt,
+                    onReceiptPeriodOlderThanQrCodePeriod: async (lastBillingReceipt) => {
+                        if (await isReceiptPaid(context, persAcc, period, [organizationId], personalAcc)) {
+                            throw new GQLError(ERRORS.RECEIPT_ALREADY_PAID, context)
+                        }
+                        foundReceipt = lastBillingReceipt
+                        amount = qrCodeAmount
+                    },
                 }
 
                 await compareQRCodeWithLastReceipt(context, qrCodeFields, resolvers)
@@ -252,7 +263,7 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
 
                 return {
                     qrCodeFields,
-                    lastReceiptData: foundReceipt ? pick(foundReceipt, ['id', 'period', 'toPay', 'createdAt', 'category.id', 'category.name']) : null,
+                    lastReceiptData: foundReceipt ? pick(foundReceipt, ['id', 'period', 'toPay']) : null,
                     explicitFees,
                     amount,
                     acquiringIntegrationHostUrl: get(acquiringIntegration, 'hostUrl'),
