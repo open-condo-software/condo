@@ -9,6 +9,7 @@ import isBoolean from 'lodash/isBoolean'
 import isNull from 'lodash/isNull'
 import isString from 'lodash/isString'
 import React from 'react'
+import { IntlShape } from 'react-intl/src/types'
 
 import { IconProps } from '@open-condo/icons'
 import { Space, Tag, TypographyLinkProps } from '@open-condo/ui'
@@ -324,9 +325,9 @@ export const getMoneyRender = (
     }
 }
 
-export const getStatusRender = (intl, openStatusDescModal, search?: FilterValue | string) => {
+export const getStatusRender = (intl: IntlShape, openStatusDescModal, search?: FilterValue | string) => {
     return function render (statusType: string): RenderReturnType {
-        const nameStatus = intl.formatMessage({ id: 'payment.status.' + statusType })
+        const nameStatus = intl.formatMessage({ id: `payment.status.${statusType}` as FormatjsIntl.Message['ids'] })
 
         return (
             <span onClick={() => openStatusDescModal(statusType)} aria-hidden role='button'>

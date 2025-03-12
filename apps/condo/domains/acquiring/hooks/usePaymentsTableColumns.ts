@@ -11,7 +11,7 @@ import {
     getStatusRender,
     getTextRender,
 } from '@condo/domains/common/components/Table/Renders'
-import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 
 export function usePaymentsTableColumns (currencyCode: string, openStatusDescModal): Record<string, unknown>[] {
     const intl = useIntl()
@@ -29,8 +29,7 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
     const PaymentOrderTooltipTitle = intl.formatMessage({ id: 'PaymentOrder' })
     const StatusTitle = intl.formatMessage({ id: 'Status' })
 
-    const { filters, sorters } = parseQuery(router.query)
-    const sorterMap = getSorterMap(sorters)
+    const { filters } = parseQuery(router.query)
 
     return useMemo(() => {
         let search = get(filters, 'search')
