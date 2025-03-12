@@ -51,7 +51,7 @@ import { TableFiltersContainer } from '@condo/domains/common/components/TableFil
 import { useWindowTitleContext, WindowTitleContextProvider } from '@condo/domains/common/components/WindowTitleContext'
 import { EMOJI } from '@condo/domains/common/constants/emoji'
 import { EXCEL } from '@condo/domains/common/constants/export'
-import { PLATFORM_NOTIFICATIONS_SOUND, TICKET_IMPORT } from '@condo/domains/common/constants/featureflags'
+import { TICKET_IMPORT } from '@condo/domains/common/constants/featureflags'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { useAudio } from '@condo/domains/common/hooks/useAudio'
 import { useCheckboxSearch } from '@condo/domains/common/hooks/useCheckboxSearch'
@@ -348,15 +348,7 @@ const TicketsTableContainer = ({
     const router = useRouter()
     const { filters, offset } = useMemo(() => parseQuery(router.query), [router.query])
 
-    const { useFlag } = useFeatureFlags()
-    // TODO(DOMA-11185): Remove this featureflag after implement on/off sound logic
-    const isNotificationSoundEnabled = useFlag(PLATFORM_NOTIFICATIONS_SOUND)
-    const isNotificationSoundEnabledRef = useRef<boolean>(isNotificationSoundEnabled)
     const playSoundOnNewTicketsRef = useRef<boolean>(playSoundOnNewTickets)
-
-    useEffect(() => {
-        isNotificationSoundEnabledRef.current = isNotificationSoundEnabled
-    }, [isNotificationSoundEnabled])
     useEffect(() => {
         playSoundOnNewTicketsRef.current = playSoundOnNewTickets
     }, [playSoundOnNewTickets])
@@ -402,7 +394,7 @@ const TicketsTableContainer = ({
                     setTitleConfig({ label: newTitle, iconPath, count: totalNewTicketsCount })
                 }
 
-                if (playSoundOnNewTicketsRef.current || !isNotificationSoundEnabledRef.current) {
+                if (playSoundOnNewTicketsRef.current) {
                     audio.playNewItemsFetchedSound()
                 }
             }
@@ -424,7 +416,7 @@ const TicketsTableContainer = ({
     const refetchTickets = useCallback(async () => {
         await refetch()
 
-        if (playSoundOnNewTicketsRef.current || !isNotificationSoundEnabledRef.current) {
+        if (playSoundOnNewTicketsRef.current) {
             await loadNewTicketCount()
         }
     }, [loadNewTicketCount, refetch])
@@ -435,7 +427,7 @@ const TicketsTableContainer = ({
     } = useTableColumns(filterMetas, tickets, refetchTickets, isRefetching, setIsRefetching)
 
     useEffect(() => {
-        if (playSoundOnNewTicketsRef.current || !isNotificationSoundEnabledRef.current) {
+        if (playSoundOnNewTicketsRef.current) {
             loadNewTicketCount()
         }
     }, [loadNewTicketCount])
