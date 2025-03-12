@@ -52,6 +52,7 @@
 
   .layout-with-poster-content-footer {
     gap: 0 16px;
+    justify-content: center;
     margin: auto 0 0;
     padding: 32px 20px;
   }
