@@ -26,6 +26,36 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
                         read: listHelper.getReadFunction('paginate'),
                         merge: listHelper.mergeLists,
                     },
+                    allPropertyScopeProperties: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
+                    allPropertyScopeOrganizationEmployees: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
+                    allPropertyScopes: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction(),
+                        merge: listHelper.mergeLists,
+                    },
+                    allIncidents: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
+                    allIncidentProperties: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
+                    allIncidentClassifierIncidents: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
                     allBillingIntegrationOrganizationContexts: {
                         keyArgs: ['where'],
                         read: listHelper.getReadFunction(),
@@ -51,7 +81,42 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
                         read: listHelper.getReadFunction(),
                         merge: listHelper.mergeLists,
                     },
+                    allTicketStatuses: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction(),
+                        merge: listHelper.mergeLists,
+                    },
+                    allTicketFiles: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction(),
+                        merge: listHelper.mergeLists,
+                    },
                     allInvoices: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction(),
+                        merge: listHelper.mergeLists,
+                    },
+                    allProperties: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction(),
+                        merge: listHelper.mergeLists,
+                    },
+                    allTourStep: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction(),
+                        merge: listHelper.mergeLists,
+                    },
+                    allMiniApps: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction(),
+                        merge: listHelper.mergeLists,
+                    },
+                    allB2BApps: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction(),
+                        merge: listHelper.mergeLists,
+                    },
+                    allOrganizationEmployeeSpecializations: {
                         keyArgs: ['where'],
                         read: listHelper.getReadFunction(),
                         merge: listHelper.mergeLists,

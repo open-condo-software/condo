@@ -35,7 +35,7 @@ export const TicketAssigneeField: FC<TicketAssigneeFieldProps> = ({ ticket, phon
         skip: !ticketAssigneeUserId || !ticketOrganizationId || !persistor,
     })
 
-    const assignee = useMemo(() => data?.employee.filter(Boolean)[0] || null, [data?.employee])
+    const assignee = useMemo(() => data?.employee?.filter(Boolean)[0] || null, [data?.employee])
 
     const assigneeUser = useMemo(() => ({
         name: assignee?.name,

@@ -1,5 +1,9 @@
 query getTourSteps ($where: TourStepWhereInput!, $sortBy: [SortTourStepsBy!]) {
-    tourSteps: allTourSteps (where: $where, sortBy: $sortBy) {
+    tourSteps: allTourSteps (
+        where: $where,
+        sortBy: $sortBy,
+        first: 20,
+    ) {
         id
         type
         status

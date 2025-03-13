@@ -1,5 +1,8 @@
 query getAllMiniApps($data: AllMiniAppsInput!) {
-    allMiniApps: allMiniApps(data: $data) {
+    allMiniApps: allMiniApps(
+        data: $data,
+
+    ) {
         id
         name
         shortDescription

@@ -36,7 +36,7 @@ export const TicketExecutorField: React.FC<TicketExecutorFieldProps> = ({ ticket
         skip: !ticketExecutorUserId || !ticketOrganizationId || !persistor,
     })
 
-    const executor = useMemo(() => data?.employee.filter(Boolean)[0] || null, [data?.employee])
+    const executor = useMemo(() => data?.employee?.filter(Boolean)[0] || null, [data?.employee])
 
     const executorUser = useMemo(() => ({
         name: executor?.name,

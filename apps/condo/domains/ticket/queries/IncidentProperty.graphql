@@ -1,9 +1,24 @@
-query getIncidentPropertiesByIncidentId ($incidentId: ID!) {
-    incidentProperties: allIncidentProperties (where: {
-        incident: {
-            id: $incidentId,
+query getIncidentProperties ($where: IncidentPropertyWhereInput!, $first: Int) {
+    incidentProperties: allIncidentProperties (
+        where: $where,
+        first: $first,
+    ) {
+        id
+        incident {
+            id
         }
-    }) {
+    }
+}
+
+query getIncidentPropertiesByIncidentId ($incidentId: ID!) {
+    incidentProperties: allIncidentProperties (
+        where: {
+            incident: {
+                id: $incidentId,
+            }
+        },
+        first: 100,
+    ) {
         id
         incident {
             id
@@ -18,33 +33,6 @@ query getIncidentPropertiesByIncidentId ($incidentId: ID!) {
         propertyAddress
         propertyAddressMeta {
             value
-        }
-    }
-}
-
-query getIncidentPropertiesByPropertyIdAndRecentIncidents ($propertyId: ID!, $organizationId: ID!, $workFinish_gte: String) {
-    incidentProperties: allIncidentProperties (where: {
-        property: {
-            id: $propertyId,
-        },
-        incident: {
-            organization: { id: $organizationId },
-            OR: [
-                {
-                    AND: [{ status: actual }],
-                },
-                {
-                    AND: [{
-                        status: not_actual,
-                        workFinish_gte: $workFinish_gte,
-                    }],
-                },
-            ],
-        },
-    }) {
-        id
-        incident {
-            id
         }
     }
 }

@@ -1,4 +1,9 @@
-import { useCreateTicketMutation, useGetTicketByCreatedByQuery, useCreateInvoiceMutation } from '@app/condo/gql'
+import {
+    useCreateTicketMutation,
+    useGetTicketByCreatedByQuery,
+    useCreateInvoiceMutation,
+    useGetPublishTicketInvoicesLazyQuery,
+} from '@app/condo/gql'
 import { B2BAppGlobalFeature } from '@app/condo/schema'
 import { Form, notification } from 'antd'
 import dayjs from 'dayjs'
@@ -18,8 +23,6 @@ import { ActionBar, Space, Typography, Tour } from '@open-condo/ui'
 import { getObjectValueFromQuery } from '@condo/domains/common/utils/query'
 import { ClientType, getClientCardTabKey } from '@condo/domains/contact/utils/clientCard'
 import { CopyButton } from '@condo/domains/marketplace/components/Invoice/CopyButton'
-import { INVOICE_STATUS_PUBLISHED } from '@condo/domains/marketplace/constants'
-import { Invoice as InvoiceGQL } from '@condo/domains/marketplace/gql'
 import { useInvoicePaymentLink } from '@condo/domains/marketplace/hooks/useInvoicePaymentLink'
 import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
 import { useGlobalAppsFeaturesContext } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsFeaturesContext'
@@ -132,7 +135,8 @@ export const CreateTicketForm: React.FC = () => {
 
     const { organization } = useOrganization()
     const router = useRouter()
-    const auth = useAuth() as { user: { id: string } }
+    const { user } = useAuth()
+    const userId = user?.id || null
     const client = useApolloClient()
     const { addTicketToQueryCacheForTicketCardList } = useCacheUtils(client.cache)
     const { requestFeature } = useGlobalAppsFeaturesContext()
@@ -163,6 +167,7 @@ export const CreateTicketForm: React.FC = () => {
             }
         },
     })
+    const [getPublishTicketInvoices] = useGetPublishTicketInvoicesLazyQuery()
 
     const getCompletedNotification = useCallback(({ ticketId, ticketNumber, paymentUrl }) => ({
         message: (
@@ -227,16 +232,14 @@ export const CreateTicketForm: React.FC = () => {
                 })
             }
 
-            const data = await client.query({
-                query: InvoiceGQL.GET_ALL_OBJS_QUERY,
+            const { data: publishTicketInvoicesData } = await getPublishTicketInvoices({
                 variables: {
-                    where: {
-                        ticket: { id: ticketId },
-                        status: INVOICE_STATUS_PUBLISHED,
-                    },
+                    ticketId,
+                    first: 100,
                 },
             })
-            const publishedInvoices = data?.data?.objs
+
+            const publishedInvoices = publishTicketInvoicesData?.publishInvoices?.filter(Boolean) || []
 
             const { paymentLink } = await getPaymentLink(publishedInvoices.map(({ id }) => id))
             paymentUrl = paymentLink
@@ -263,14 +266,14 @@ export const CreateTicketForm: React.FC = () => {
         }
 
         return ticket
-    }, [createTicketAction, organization.id, getCompletedNotification, client, getPaymentLink, intl, createInvoiceAction, requestFeature])
+    }, [createTicketAction, organization.id, getCompletedNotification, client, getPaymentLink, intl, createInvoiceAction, getPublishTicketInvoices, requestFeature])
 
     const initialValues = useMemo(() => ({
         ...initialValuesFromQuery,
-        assignee: auth.user.id,
-        executor: auth.user.id,
+        assignee: userId,
+        executor: userId,
         invoices: [],
-    }), [auth.user.id, initialValuesFromQuery])
+    }), [userId, initialValuesFromQuery])
 
     return useMemo(() => (
         <Tour.Provider>

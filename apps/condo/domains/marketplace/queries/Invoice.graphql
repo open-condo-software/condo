@@ -32,13 +32,26 @@ query getTicketInvoices ($ticketId: ID!) {
     }
 }
 
-query getTicketInvoicesCount ($ticketId: ID!) {
-    ticketInvoiceCount: _allInvoicesMeta (
+query getPublishTicketInvoices ($ticketId: ID!, $first: Int) {
+    publishInvoices: allInvoices (
+        where: {
+            ticket: { id: $ticketId },
+            status: published,
+        },
+        first: $first,
+    ) {
+        id
+    }
+}
+
+query getTicketInvoicesCount ($ticketId: ID!, $first: Int) {
+    invoiceCount: _allInvoicesMeta (
         where: {
             ticket: {
                 id: $ticketId
             }
-        }
+        },
+        first: $first,
     ) {
         count
     }

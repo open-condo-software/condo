@@ -13,7 +13,6 @@ import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 import { IRequestFeatureHandler, useGlobalAppsFeaturesContext } from './GlobalAppsFeaturesContext'
 
 
-
 const REQUEST_FEATURE_MESSAGE_NAME = 'CondoWebAppFeatureRequest'
 const ORGANIZATION_CHANGE_MESSAGE_NAME = 'CondoWebAppOrganizationChange'
 

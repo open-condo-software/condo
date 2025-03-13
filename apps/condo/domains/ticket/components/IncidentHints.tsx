@@ -1,6 +1,6 @@
 import {
     useGetIncidentClassifierIncidentLazyQuery,
-    useGetIncidentPropertiesByPropertyIdAndRecentIncidentsLazyQuery,
+    useGetIncidentPropertiesLazyQuery,
     useGetIncidentsLazyQuery,
     GetIncidentsQuery,
 } from '@app/condo/gql'
@@ -140,19 +140,36 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
     const [allIncidents, setAllIncidents] = useState<GetIncidentsQuery['incidents']>([])
     const [incidentsToShow, setIncidentsToShow] = useState<GetIncidentsQuery['incidents']>([])
 
-    const [getIncidentProperties] = useGetIncidentPropertiesByPropertyIdAndRecentIncidentsLazyQuery()
+    const [getIncidentProperties] = useGetIncidentPropertiesLazyQuery()
     const [getIncidents] = useGetIncidentsLazyQuery()
     const [getIncidentClassifierIncidents] = useGetIncidentClassifierIncidentLazyQuery()
 
-    const categoryId = useMemo(() => classifier?.category?.id || null, [classifier]) as string | null
-    const problemId = useMemo(() => classifier?.problem?.id || null, [classifier]) as string | null
+    const categoryId = useMemo(() => classifier?.category?.id || null, [classifier])
+    const problemId = useMemo(() => classifier?.problem?.id || null, [classifier])
 
     const fetchIncidentProperties = useCallback(async (propertyId: string, organizationId: string) => {
         const { data:  incidentPropertiesData } = await getIncidentProperties({
             variables: {
-                propertyId,
-                organizationId,
-                workFinish_gte: dayjs().subtract(WORK_FINISHED_IN_LAST_DAYS, 'days').toISOString(),
+                where: {
+                    property: {
+                        id: propertyId,
+                    },
+                    incident: {
+                        organization: { id: organizationId },
+                        OR: [
+                            {
+                                AND: [{ status: IncidentStatusType.Actual }],
+                            },
+                            {
+                                AND: [{
+                                    status: IncidentStatusType.NotActual,
+                                    workFinish_gte: dayjs().subtract(WORK_FINISHED_IN_LAST_DAYS, 'days').toISOString(),
+                                }],
+                            },
+                        ],
+                    },
+                },
+                first: 100,
             },
         })
 
@@ -180,14 +197,17 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
             where.workFinish_gte = dayjs().subtract(workFinishedInLastDays, 'days').toISOString()
         }
 
-        const res = await getIncidents({
+        const {
+            data: incidentsData,
+        } = await getIncidents({
             variables: {
                 where,
                 sortBy,
+                first: 100,
             },
         })
 
-        return res?.data?.incidents?.filter(Boolean) || []
+        return incidentsData?.incidents?.filter(Boolean) || []
     }, [])
 
     const fetchIncidentClassifierIncidents = useCallback(async (incidentIds: string[], categoryId?: string, problemId?: string) => {
@@ -222,6 +242,7 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
         const { data: incidentClassifierIncidentData } = await getIncidentClassifierIncidents({
             variables: {
                 where,
+                first: 100,
             },
         })
 

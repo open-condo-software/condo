@@ -1,5 +1,7 @@
 query getTicketStatuses {
-    statuses: allTicketStatuses {
+    statuses: allTicketStatuses (
+        first: 6,
+    ) {
         id
         name
         type

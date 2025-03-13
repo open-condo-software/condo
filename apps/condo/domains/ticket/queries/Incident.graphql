@@ -1,5 +1,9 @@
-query getIncidents ($where: IncidentWhereInput, $sortBy: [SortIncidentsBy!]) {
-    incidents: allIncidents (where: $where, sortBy: $sortBy) {
+query getIncidents ($where: IncidentWhereInput, $sortBy: [SortIncidentsBy!], $first: Int,) {
+    incidents: allIncidents (
+        where: $where,
+        sortBy: $sortBy,
+        first: $first,
+    ) {
         id
         details
         workStart
@@ -18,13 +22,19 @@ query getIncidentById ($incidentId: ID!) {
         id
         status
         createdAt
+        createdBy {
+            id
+        }
         number
+        details
         organization {
             id
             name
         }
         workStart
         workFinish
+        workType
+        textForResident
         hasAllProperties
     }
 }

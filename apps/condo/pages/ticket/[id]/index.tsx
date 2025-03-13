@@ -805,7 +805,7 @@ const TicketIdPage: PageComponentType = () => {
     const { user } = useAuth()
     const { link, organization, selectEmployee } = useOrganization()
     const { query } = useRouter()
-    const { id: ticketId } = query as { id: string }
+    const { id: ticketId } = query
 
     const {
         data: ticketByIdData,
@@ -813,8 +813,10 @@ const TicketIdPage: PageComponentType = () => {
         refetch: refetchTicket,
         error,
     } = useGetTicketByIdQuery({
-        variables: { id: ticketId },
-        skip: !persistor,
+        variables: {
+            id: Array.isArray(ticketId) ? ticketId[0] : ticketId,
+        },
+        skip: !persistor || !ticketId,
     })
     const ticket = useMemo(() => ticketByIdData?.tickets?.filter(Boolean)[0], [ticketByIdData?.tickets])
 

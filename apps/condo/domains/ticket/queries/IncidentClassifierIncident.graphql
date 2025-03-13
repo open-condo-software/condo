@@ -1,9 +1,12 @@
 query getIncidentClassifierIncidentByIncidentId ($incidentId: ID!) {
-    incidentClassifierIncident: allIncidentClassifierIncidents (where: {
-        incident: {
-            id: $incidentId
-        }
-    }) {
+    incidentClassifierIncident: allIncidentClassifierIncidents (
+        where: {
+            incident: {
+                id: $incidentId
+            }
+        },
+        first: 110,
+    ) {
         id
         incident {
             id
@@ -14,8 +17,11 @@ query getIncidentClassifierIncidentByIncidentId ($incidentId: ID!) {
     }
 }
 
-query getIncidentClassifierIncident ($where: IncidentClassifierIncidentWhereInput) {
-    incidentClassifierIncident: allIncidentClassifierIncidents (where: $where) {
+query getIncidentClassifierIncident ($where: IncidentClassifierIncidentWhereInput!, $first: Int) {
+    incidentClassifierIncident: allIncidentClassifierIncidents (
+        where: $where
+        first: $first,
+    ) {
         id
         incident {
             id

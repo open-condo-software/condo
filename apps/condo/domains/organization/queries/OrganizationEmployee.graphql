@@ -189,6 +189,7 @@ query getEmployeesInvitesByUserIdAndOrganizationType ($userId: ID!, $organizatio
             isRejected: false,
             isBlocked: false,
         },
+        first: 10,
     ) {
         id
         organization {

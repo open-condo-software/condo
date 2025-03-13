@@ -1,7 +1,10 @@
 query getOrganizationEmployeeSpecializations ($employeeId: ID!) {
-    organizationEmployeeSpecializations: allOrganizationEmployeeSpecializations (where: {
-        employee: { id: $employeeId }
-    }) {
+    organizationEmployeeSpecializations: allOrganizationEmployeeSpecializations (
+        where: {
+            employee: { id: $employeeId }
+        },
+        first: 30,
+    ) {
         id
         employee {
             id

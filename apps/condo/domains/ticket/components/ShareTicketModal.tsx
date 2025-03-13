@@ -10,15 +10,15 @@ import isEmpty  from 'lodash/isEmpty'
 import getConfig from 'next/config'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { useCallback, useState } from 'react'
+import React, { useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Modal, Typography } from '@open-condo/ui'
 
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
+import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
 import { EN_LOCALE } from '@condo/domains/common/constants/locale'
 import { colors } from '@condo/domains/common/constants/style'
-import { analytics } from '@condo/domains/common/utils/analytics'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { getEmployeeWithEmail } from '@condo/domains/ticket/utils/clientSchema/search'
 import { packShareData } from '@condo/domains/ticket/utils/shareDataPacker'
@@ -170,16 +170,17 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
     const ShareSentMessage = intl.formatMessage({ id: 'ticket.shareSent' })
     const ShareSentToEmailMessage = intl.formatMessage({ id: 'ticket.shareSentToEmail' })
 
-    const { date, number, details, id, locale, organization } = props
+    const { logEvent, getEventName } = useTracking()
+
+    const { date, number, details, id: ticketId, locale, organization } = props
 
     let cutDetails = details || ''
     if (cutDetails.length >= 110) {
         cutDetails = `${cutDetails.substr(0, 100)}…`
     }
-    const shareParams = JSON.stringify({ date, number, details: cutDetails, id })
+    const shareParams = JSON.stringify({ date, number, details: cutDetails, id: ticketId })
     const encryptedText = packShareData(shareParams)
 
-    const { query } = useRouter()
     const [shareTicket] = useShareTicketMutation()
     const {
         publicRuntimeConfig: { serverUrl: origin },
@@ -207,16 +208,16 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
 
     async function handleClick () {
         setLoading(true)
-        const { data, errors } = await shareTicket({
+        const { data: ticketData, errors } = await shareTicket({
             variables: {
                 data: {
                     sender: getClientSideSenderInfo(),
                     employees: parseSelectValue(chosenEmployees).filter(employee => employee?.value?.hasEmail).map(employee => employee.id),
-                    ticketId: Array.isArray(query?.id) ? null : query?.id,
+                    ticketId,
                 },
             },
         })
-        if (data?.ticket) {
+        if (ticketData?.ticket) {
             setChosenEmployees([])
             setShareVisible(false)
             setOkVisible(true)
@@ -245,9 +246,13 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
         setOkVisible(false)
     }
 
-    const handleClickShareLink = useCallback((linkTitle: string) => () => {
-        analytics.track('ticket_share_click', { destination: linkTitle })
-    }, [])
+    const handleClickShareLink = (linkTitle: string) => () => {
+        const eventName = getEventName(TrackingEventType.Click)
+
+        if (eventName) {
+            logEvent({ eventName, eventProperties: { component: { value: linkTitle } } })
+        }
+    }
 
     return (
         <>

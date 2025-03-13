@@ -45,16 +45,11 @@ export const TourProvider: React.FC = ({ children }) => {
     const organizationId = organization?.id || null
     const organizationType = organization?.type || null
 
-    const [getTourSteps, { refetch: refetchSteps }] = useGetTourStepsLazyQuery({
-        variables: {
-            where: { organization: { id: organizationId } },
-        },
-    })
+    const [getTourSteps, { refetch: refetchSteps }] = useGetTourStepsLazyQuery()
 
     const [updateTourStep] = useUpdateTourStepMutation()
 
     const [syncTourStepMutation, { loading: syncLoading }] = useSyncTourStepsMutation({
-        onCompleted: async () => await getTourSteps(),
         variables: {
             data: {
                 organization: { id: organizationId },
@@ -62,6 +57,11 @@ export const TourProvider: React.FC = ({ children }) => {
                 sender: getClientSideSenderInfo(),
             },
         },
+        onCompleted: async () => await getTourSteps({
+            variables: {
+                where: { organization: { id: organizationId } },
+            },
+        }),
     })
 
     useEffect(() => {

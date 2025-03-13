@@ -1,9 +1,10 @@
 query getTicketFiles($ticketId: ID!) {
-    ticketFiles: allTicketFiles (where: {
-        ticket: {
-            id: $ticketId,
-        }
-    },
+    ticketFiles: allTicketFiles (
+        where: {
+            ticket: {
+                id: $ticketId,
+            },
+        },
         sortBy: [createdAt_ASC],
         first: 50
     ) {

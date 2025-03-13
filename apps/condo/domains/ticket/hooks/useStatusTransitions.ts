@@ -9,18 +9,18 @@ export const useStatusTransitions = (ticketStatusId: string, organization: Organ
     const { persistor } = useCachePersistor()
 
     const {
-        data,
-        loading,
+        data: ticketStatusesData,
+        loading: ticketStatusesLoading,
     } = useGetTicketStatusesQuery({
         skip: !persistor,
     })
+    const statusList = ticketStatusesData?.statuses.filter(Boolean) || []
 
-    const statusList = data?.statuses.filter(Boolean) || []
     const organizationStatusTransition = organization?.statusTransitions || null
     const employeeRoleStatusTransitions = employee?.role?.statusTransitions || null
 
     return {
-        loading: loading,
+        loading: ticketStatusesLoading,
         statuses:  getPossibleStatuses(
             statusList,
             ticketStatusId,

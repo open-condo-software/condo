@@ -187,7 +187,10 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
             return
         }
 
-        const { error, data: prediction } = await predictTicketClassificationQuery({
+        const {
+            data: prediction,
+            error,
+        } = await predictTicketClassificationQuery({
             variables: {
                 details,
             },

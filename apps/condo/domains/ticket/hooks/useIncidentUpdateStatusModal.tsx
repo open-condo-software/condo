@@ -1,7 +1,6 @@
-import { Incident as IIncident, IncidentStatusType } from '@app/condo/schema'
+import { IncidentStatusType } from '@app/condo/schema'
 import { Col, ColProps, Form, FormInstance, Row, RowProps } from 'antd'
 import dayjs, { Dayjs } from 'dayjs'
-import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
 import { Rule } from 'rc-field-form/lib/interface'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
@@ -11,8 +10,8 @@ import { Button, Modal, Typography } from '@open-condo/ui'
 
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
+import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
-import { analytics } from '@condo/domains/common/utils/analytics'
 import { handleChangeDate } from '@condo/domains/ticket/components/IncidentForm/BaseIncidentForm'
 import { Incident } from '@condo/domains/ticket/utils/clientSchema'
 
@@ -22,20 +21,21 @@ const SHOW_TIME_CONFIG = { defaultValue: dayjs('00:00:00:000', 'HH:mm:ss:SSS') }
 const ITEM_LABEL_COL: ColProps = { span: 24 }
 const MODAL_GUTTER: RowProps['gutter'] = [0, 16]
 
-type UseIncidentUpdateStatusModalType = (props: {
-    incident: IIncident
+type UseIncidentUpdateStatusModalType<TIncident> = (props: {
+    incident: TIncident
     afterUpdate?: (date: Dayjs) => void
 }) => {
     handleOpen: () => void
     IncidentUpdateStatusModal: JSX.Element
 }
 
+// TODO: remove dublicate code from BaseIncidentForm
 export const getFinishWorkRules: (incident: IIncident, error: string) => Rule[] = (incident, error) => [() => {
     return {
         type: 'date',
         message: error,
         validator: (rule, workFinish: Dayjs) => {
-            const workStart: string = get(incident, 'workStart')
+            const workStart: string = incident?.workStart
             if (workStart && workFinish) {
                 const diff = dayjs(workFinish).diff(workStart)
                 if (diff < 0) return Promise.reject()
@@ -45,7 +45,12 @@ export const getFinishWorkRules: (incident: IIncident, error: string) => Rule[] 
     }
 }]
 
-export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType = ({ incident, afterUpdate }) => {
+const ANALYTICS_EVENT_NAME = 'IncidentUpdateStatusModalClickSubmit'
+
+export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType<TIncident> = <TIncident,>({ incident, afterUpdate }): {
+    incident: TIncident
+    afterUpdate?: (date: Dayjs) => void
+} => {
     const intl = useIntl()
     const WorkFinishFieldMessage = intl.formatMessage({ id: 'incident.fields.workFinish.label' })
     const WorkFinishErrorMessage = intl.formatMessage({ id: 'incident.fields.workFinish.error.lessThenWorkStart' })
@@ -55,6 +60,8 @@ export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType = ({
     const ToNotActualBeforeWorkFinishMessage = intl.formatMessage({ id: 'incident.modalChangeStatus.toActualStatus.beforeWorkFinish.descriptions' })
     const ToNotActualAfterWorkFinishMessage = intl.formatMessage({ id: 'incident.modalChangeStatus.toActualStatus.afterWorkFinish.descriptions' })
     const ToActualMessage = intl.formatMessage({ id: 'incident.modalChangeStatus.toNotActualStatus.descriptions' })
+
+    const { logEvent } = useTracking()
 
     const formRef = useRef<FormInstance>(null)
     const [open, setOpen] = useState<boolean>(false)
@@ -99,8 +106,11 @@ export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType = ({
                 : IncidentStatusType.Actual,
             workFinish,
         }, incident)
-        
-        analytics.track('incident_status_update', { newStatus: isActual ? 'notActual' : 'actual' })
+
+        const eventProperties = {
+            changedToStatus: isActual ? 'notActual' : 'actual',
+        }
+        logEvent({ eventName: ANALYTICS_EVENT_NAME, eventProperties })
 
         handleClose()
         if (isFunction(afterUpdate)) {

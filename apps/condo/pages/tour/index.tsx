@@ -191,7 +191,7 @@ const TourPageContent = () => {
     const isDisabledStep = useCallback(step => {
         if (FIRST_LEVEL_STEPS.includes(step.type) || step.status === TourStepStatusType.Completed) return false
         const firstTodoStep = stepsToRender.find(step => step.status === TourStepStatusType.Todo)
-        if (firstTodoStep?.id || null !== step.id) return true
+        if (firstTodoStep?.id !== step.id) return true
     }, [stepsToRender])
 
     const activeStepWithDefault = useMemo(() => activeTourStep || 'default', [activeTourStep])

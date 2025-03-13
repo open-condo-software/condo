@@ -8,6 +8,7 @@ import { Typography, Button, Modal } from '@open-condo/ui'
 
 type useTicketCancelModalType = (updateTicket: (id: string) => void, ticketId: string) => { openModal: (statusCanceledId: string) => void, cancelTicketModal: JSX.Element, closeModal: () => void }
 
+// TODO: Maybe it would be better to change the hook signature rather than making an extra (optional) request?
 export const useTicketCancelModal: useTicketCancelModalType = (updateTicket, ticketId) => {
     const intl = useIntl()
     const CancelModalTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.id.CancelModal.title' })
@@ -20,13 +21,14 @@ export const useTicketCancelModal: useTicketCancelModalType = (updateTicket, tic
 
     const { persistor } = useCachePersistor()
 
-    const { data } = useGetTicketInvoicesCountQuery({
+    const { data: ticketInvoicesCountData } = useGetTicketInvoicesCountQuery({
         variables: {
             ticketId,
+            first: 1,
         },
         skip: !ticketId || !persistor,
     })
-    const invoicesCount = useMemo(() => data?.ticketInvoiceCount?.count || 0, [data?.ticketInvoiceCount?.count])
+    const invoicesCount = useMemo(() => ticketInvoicesCountData?.invoiceCount?.count || 0, [ticketInvoicesCountData?.invoiceCount?.count])
 
     const openModal = useCallback((statusCanceledId: string) => {
         setIsModalVisible(true)

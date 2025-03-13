@@ -3,6 +3,7 @@ import { Ticket } from '@app/condo/schema'
 import { isEmpty } from 'lodash'
 import React, { useMemo } from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { useIntl } from '@open-condo/next/intl'
 
 
@@ -17,17 +18,18 @@ type TicketFileListFieldProps = {
 export const TicketFileListField: React.FC<TicketFileListFieldProps> = ({ ticket }) => {
     const intl = useIntl()
     const FilesFieldLabel = intl.formatMessage({ id: 'pages.condo.ticket.field.Files' })
+    const { persistor } = useCachePersistor()
 
     const {
-        data,
+        data: ticketFilesData,
     } = useGetTicketFilesQuery({
         variables: {
             ticketId: ticket?.id,
         },
-        skip: !ticket?.id,
+        skip: !ticket?.id || !persistor,
     })
 
-    const files = useMemo(() => data?.ticketFiles.filter(Boolean) || [], [data?.ticketFiles])
+    const files = useMemo(() => ticketFilesData?.ticketFiles.filter(Boolean) || [], [ticketFilesData?.ticketFiles])
 
     return (
         !isEmpty(files) && (

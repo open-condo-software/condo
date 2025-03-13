@@ -1,5 +1,10 @@
 import {
-    Incident as IIncident,
+    useGetIncidentByIdQuery,
+    GetIncidentByIdQuery,
+    useGetIncidentClassifierIncidentByIncidentIdQuery,
+    useGetIncidentPropertiesByIncidentIdQuery,
+} from '@app/condo/gql'
+import {
     IncidentStatusType,
     SortIncidentChangesBy,
     IncidentChange as IIncidentChange,
@@ -11,6 +16,7 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button, Tag, Typography } from '@open-condo/ui'
@@ -30,25 +36,25 @@ import {
 } from '@condo/domains/ticket/constants/incident'
 import { useIncidentChangedFieldMessagesOf } from '@condo/domains/ticket/hooks/useIncidentChangedFieldMessagesOf'
 import { useIncidentUpdateStatusModal } from '@condo/domains/ticket/hooks/useIncidentUpdateStatusModal'
-import { Incident, IncidentProperty, IncidentClassifierIncident, IncidentChange } from '@condo/domains/ticket/utils/clientSchema'
+import { IncidentClassifierIncident, IncidentChange } from '@condo/domains/ticket/utils/clientSchema'
 import { getAddressRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
 
 
 type IncidentContentProps = {
-    incident: IIncident
+    incident: GetIncidentByIdQuery['incident']
     withOrganization?: boolean
 }
 
 type IncidentIdPageContentProps = {
-    incident: IIncident
+    incident: GetIncidentByIdQuery['incident']
     refetchIncident
     incidentLoading: boolean
     withOrganization?: boolean
 }
 
 type IncidentFieldProps = {
-    incident: IIncident
+    incident: GetIncidentByIdQuery['incident']
 }
 
 const LABEL_SPAN_COMMON = 5
@@ -60,18 +66,23 @@ const IncidentPropertiesField: React.FC<IncidentFieldProps> = ({ incident }) => 
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
 
-    const { objs: incidentProperties, allDataLoaded } = IncidentProperty.useAllObjects({
-        where: {
-            incident: { id: incident.id },
+    const {
+        data: incidentPropertiesData,
+        loading: incidentPropertiesLoading,
+    } = useGetIncidentPropertiesByIncidentIdQuery({
+        variables: {
+            incidentId: incident.id,
         },
     })
+
+    const incidentProperties = useMemo(() => incidentPropertiesData?.incidentProperties?.filter(Boolean) || [], [incidentPropertiesData?.incidentProperties])
 
     const renderPropertyScopeProperties = useMemo(() => {
         if (incident.hasAllProperties) {
             return AllPropertiesMessage
         }
 
-        if (!allDataLoaded) {
+        if (incidentPropertiesLoading) {
             return LoadingMessage
         }
 
@@ -101,7 +112,7 @@ const IncidentPropertiesField: React.FC<IncidentFieldProps> = ({ incident }) => 
                 </div>
             )
         })
-    }, [AllPropertiesMessage, DeletedMessage, LoadingMessage, allDataLoaded, incident.hasAllProperties, incidentProperties])
+    }, [AllPropertiesMessage, DeletedMessage, LoadingMessage, incidentPropertiesLoading, incident.hasAllProperties, incidentProperties])
 
     return (
         <Row>
@@ -378,7 +389,7 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
         await refetchIncidentChanges()
     }, [refetchIncident, refetchIncidentChanges])
 
-    const { handleOpen, IncidentUpdateStatusModal } = useIncidentUpdateStatusModal({ incident, afterUpdate: afterStatusUpdate })
+    const { handleOpen, IncidentUpdateStatusModal } = useIncidentUpdateStatusModal<GetIncidentByIdQuery>({ incident, afterUpdate: afterStatusUpdate })
 
     const handleEditIncident = useCallback(async () => {
         await router.push(`/incident/${incident.id}/update`)
@@ -476,23 +487,28 @@ const IncidentIdPage: PageComponentType = () => {
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
     const ErrorPageTitle = intl.formatMessage({ id: 'incident.id.error.title' })
 
-    const router = useRouter()
+    const { query: { id: incidentId } } = useRouter()
+    const { persistor } = useCachePersistor()
 
-    const { query: { id } } = router as { query: { [key: string]: string } }
-
-    const {
+    const { 
+        data: incidentData,
         loading: incidentLoading,
-        obj: incident,
-        error,
-        refetch,
-    } = Incident.useObject({ where: { id } })
+        error: incidentError,
+        refetch: fetchIncidents,
+    } = useGetIncidentByIdQuery({
+        variables: {
+            incidentId: Array.isArray(incidentId) ? incidentId[0] : incidentId,
+        },
+        skip: !persistor || !incidentId,
+    })
+    const incident = useMemo(() => incidentData?.incident || null, [incidentData])
 
-    if (!incident || error) {
+    if (!incident || incidentError) {
         return (
             <LoadingOrErrorPage
                 title={ErrorPageTitle}
                 loading={incidentLoading}
-                error={error && ServerErrorMessage}
+                error={incidentError && ServerErrorMessage}
             />
         )
     }
@@ -500,7 +516,7 @@ const IncidentIdPage: PageComponentType = () => {
     return (
         <IncidentIdPageContent
             incident={incident}
-            refetchIncident={refetch}
+            refetchIncident={fetchIncidents}
             incidentLoading={incidentLoading}
         />
     )
