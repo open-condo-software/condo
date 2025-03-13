@@ -59,10 +59,15 @@ type FormWithActionChildrenProps = ComponentProps<ComponentProps<typeof FormWith
 
 type ActionBarProps = Pick<FormWithActionChildrenProps, 'handleSave' | 'isLoading' | 'form'>
 
+type incidentInitialValue = Omit<GetIncidentByIdQuery['incident'], 'workStart' | 'workFinish'> & {
+    workStart?: dayjs.Dayjs | null
+    workFinish?: dayjs.Dayjs | null
+}
+
 export type BaseIncidentFormProps = {
     loading?: boolean
     ActionBar?: React.FC<ActionBarProps>
-    initialValues?: GetIncidentByIdQuery['incident'] & {
+    initialValues?: incidentInitialValue & {
         incidentProperties: GetIncidentPropertiesByIncidentIdQuery['incidentProperties']
         incidentClassifiers: GetIncidentClassifierIncidentByIncidentIdQuery['incidentClassifierIncident']
     }
@@ -271,7 +276,7 @@ export const handleChangeDate: handleChangeDateType = (form, fieldName) => (valu
     form.setFieldValue(fieldName, value.set('seconds', 0).set('milliseconds', 0))
 }
 
-const getPropertyKey = (incidentProperty) => incidentProperty?.property?.id || `incident-property-${incidentProperty?.id}`
+const getPropertyKey = (incidentProperty: GetIncidentPropertiesByIncidentIdQuery['incidentProperties'][number]) => incidentProperty?.property?.id || `incident-property-${incidentProperty?.id}`
 
 const INITIAL_VALUES = {} as BaseIncidentFormProps['initialValues']
 
@@ -330,16 +335,19 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     const handleFormSubmit = useCallback(async (values) => {
         const { properties, allClassifiers, categoryClassifiers, problemClassifiers, ...incidentValues } = values
 
-        const { data } = await createOrUpdateIncident(incidentValues)
+        const {
+            data: incidentData,
+        } = await createOrUpdateIncident(incidentValues)
+        const incidentId = incidentData?.incident.id || null
 
         const addedPropertyIds = difference(properties, initialPropertyIdsWithDeleted)
         for (const propertyId of addedPropertyIds) {
-            if (data?.incident?.id) {
+            if (incidentId) {
                 await createIncidentProperty({
                     variables: {
                         data: {
                             property: { connect: { id: propertyId } },
-                            incident: { connect: { id: data.incident.id } },
+                            incident: { connect: { id: incidentId } },
                             sender: getClientSideSenderInfo(),
                             dv: 1,
                         },
@@ -352,7 +360,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
         const incidentPropertyToDelete = initialIncidentProperties
             .filter(incidentProperty => deletedPropertyIds.includes(getPropertyKey(incidentProperty)))
         for (const incidentProperty of incidentPropertyToDelete) {
-            if (data?.incident?.id) {
+            if (incidentId) {
                 await updateIncidentProperty({
                     variables: {
                         id: incidentProperty.id,
@@ -388,7 +396,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
                         dv: 1,
                         sender: getClientSideSenderInfo(),
                         classifier: { connect: { id: classifierId } },
-                        incident: { connect: { id: data?.incident?.id } },
+                        incident: { connect: { id: incidentId } },
                     },
                 },
             })
@@ -418,17 +426,17 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
                 id: getPropertyKey(incidentProperty),
                 address: incidentProperty?.property?.address || incidentProperty?.propertyAddress || null,
                 addressMeta: incidentProperty?.property?.addressMeta || incidentProperty?.propertyAddressMeta || null,
-                deletedAt: !incidentProperty?.property,
+                propertyRemoved: !incidentProperty?.property,
             }
             return {
                 value: property?.id,
                 text: property?.address,
                 data: { property },
             }
-        }).filter((option) => option?.data?.property?.deletedAt || false)
+        }).filter((option) => option?.data?.property?.propertyRemoved || false)
 
         return [...deletedPropertyOptions, ...options]
-            .map((option) => option?.data?.property?.deletedAt
+            .map((option) => option?.data?.property?.propertyRemoved
                 ? renderDeletedOption(intl, option)
                 : renderOption(option)
             )

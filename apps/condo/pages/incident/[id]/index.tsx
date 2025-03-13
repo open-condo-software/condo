@@ -1,13 +1,14 @@
 import {
     useGetIncidentByIdQuery,
-    GetIncidentByIdQuery,
+    useGetIncidentChangesByIncidentIdQuery,
     useGetIncidentClassifierIncidentByIncidentIdQuery,
-    useGetIncidentPropertiesByIncidentIdQuery,
+    useGetFullIncidentPropertiesByIncidentIdQuery,
+    GetIncidentByIdQuery,
+    GetIncidentChangesByIncidentIdQuery,
 } from '@app/condo/gql'
 import {
     IncidentStatusType,
     SortIncidentChangesBy,
-    IncidentChange as IIncidentChange,
 } from '@app/condo/schema'
 import { Col, Row, RowProps } from 'antd'
 import dayjs  from 'dayjs'
@@ -36,7 +37,6 @@ import {
 } from '@condo/domains/ticket/constants/incident'
 import { useIncidentChangedFieldMessagesOf } from '@condo/domains/ticket/hooks/useIncidentChangedFieldMessagesOf'
 import { useIncidentUpdateStatusModal } from '@condo/domains/ticket/hooks/useIncidentUpdateStatusModal'
-import { IncidentClassifierIncident, IncidentChange } from '@condo/domains/ticket/utils/clientSchema'
 import { getAddressRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
 
@@ -66,15 +66,17 @@ const IncidentPropertiesField: React.FC<IncidentFieldProps> = ({ incident }) => 
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
 
+    const { persistor } = useCachePersistor()
+
     const {
         data: incidentPropertiesData,
         loading: incidentPropertiesLoading,
-    } = useGetIncidentPropertiesByIncidentIdQuery({
+    } = useGetFullIncidentPropertiesByIncidentIdQuery({
         variables: {
             incidentId: incident.id,
         },
+        skip: !incident.id || !persistor,
     })
-
     const incidentProperties = useMemo(() => incidentPropertiesData?.incidentProperties?.filter(Boolean) || [], [incidentPropertiesData?.incidentProperties])
 
     const renderPropertyScopeProperties = useMemo(() => {
@@ -89,15 +91,14 @@ const IncidentPropertiesField: React.FC<IncidentFieldProps> = ({ incident }) => 
         // TODO(DOMA-2567) refactor duplicate in '@condo/pages/settings/propertyScope/[id]/index.tsx'
         return incidentProperties.map((incidentProperty, index) => {
             const property = incidentProperty?.property
-            const isDeleted = Boolean(property?.deletedAt)
-            const propertyMessage = getAddressRender(property, null, DeletedMessage)
+            const propertyMessage = property ? getAddressRender(property, null, DeletedMessage) : ''
 
             return (
                 <div
                     key={property?.id || index}
                 >
                     {
-                        isDeleted ? (
+                        !property ? (
                             <>
                                 {propertyMessage}
                             </>
@@ -199,11 +200,19 @@ const IncidentClassifiersField: React.FC<IncidentFieldProps> = ({ incident }) =>
     const HaveNotMessage = intl.formatMessage({ id: 'incident.fields.classifier.empty' })
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
 
-    const { objs: incidentClassifiers, allDataLoaded } = IncidentClassifierIncident.useAllObjects({
-        where: {
-            incident: { id: incident.id },
+    const { persistor } = useCachePersistor()
+
+    const {
+        data: incidentClassifierIncidentsData,
+        loading: incidentClassifierIncidentLoading,
+    } = useGetIncidentClassifierIncidentByIncidentIdQuery({
+        variables: {
+            incidentId: incident.id,
         },
+        skip: !incident.id || !persistor,
     })
+    const incidentClassifiers = useMemo(() => incidentClassifierIncidentsData?.incidentClassifierIncident?.filter(Boolean) || [], [incidentClassifierIncidentsData?.incidentClassifierIncident])
+
     const categories = useMemo(
         () => uniq(incidentClassifiers
             .map(item => item?.classifier?.category?.name))
@@ -217,7 +226,7 @@ const IncidentClassifiersField: React.FC<IncidentFieldProps> = ({ incident }) =>
         [incidentClassifiers])
 
     const renderClassifiers = useMemo(() => {
-        if (!allDataLoaded) {
+        if (incidentClassifierIncidentLoading) {
             return LoadingMessage
         }
 
@@ -235,7 +244,7 @@ const IncidentClassifiersField: React.FC<IncidentFieldProps> = ({ incident }) =>
                 </Typography.Text>}
             </Typography.Text>
         )
-    }, [HaveNotMessage, LoadingMessage, allDataLoaded, categories, incidentClassifiers.length, problems])
+    }, [HaveNotMessage, LoadingMessage, incidentClassifierIncidentLoading, categories, incidentClassifiers.length, problems])
 
     return (
         <Row>
@@ -368,28 +377,29 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
 
     const router = useRouter()
     const { employee } = useOrganization()
-
+    const { persistor } = useCachePersistor()
     const isActual = incident.status === IncidentStatusType.Actual
     const canManageIncidents = useMemo(() => employee?.role?.canManageIncidents || false, [employee])
 
     const {
-        objs: incidentChanges,
+        data: incidentChangesData,
         loading: incidentChangesLoading,
-        count: incidentChangesCount,
         refetch: refetchIncidentChanges,
-    } = IncidentChange.useObjects({
-        where: { incident: { id: incident.id } },
-        sortBy: [SortIncidentChangesBy.CreatedAtDesc],
-    }, {
-        fetchPolicy: 'network-only',
+    } = useGetIncidentChangesByIncidentIdQuery({
+        variables: {
+            incidentId: incident.id,
+            sortBy: [SortIncidentChangesBy.CreatedAtDesc],
+        },
+        skip: !incident.id || !persistor,
     })
+    const incidentChanges = useMemo(() => incidentChangesData?.incidentChanges?.filter(Boolean) || [], [incidentChangesData?.incidentChanges])
 
     const afterStatusUpdate = useCallback(async () => {
         await refetchIncident()
         await refetchIncidentChanges()
     }, [refetchIncident, refetchIncidentChanges])
 
-    const { handleOpen, IncidentUpdateStatusModal } = useIncidentUpdateStatusModal<GetIncidentByIdQuery>({ incident, afterUpdate: afterStatusUpdate })
+    const { handleOpen, IncidentUpdateStatusModal } = useIncidentUpdateStatusModal({ incident, afterUpdate: afterStatusUpdate })
 
     const handleEditIncident = useCallback(async () => {
         await router.push(`/incident/${incident.id}/update`)
@@ -438,10 +448,10 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
                             incidentChanges && (
                                 <Col span={24} lg={24} xl={22}>
                                     <ChangeHistory
-                                        <IIncidentChange>
+                                        <GetIncidentChangesByIncidentIdQuery['incidentChanges'][number]>
                                         items={incidentChanges}
                                         loading={incidentChangesLoading}
-                                        total={incidentChangesCount}
+                                        total={incidentChanges.length}
                                         title={ChangeHistoryTitle}
                                         useChangedFieldMessagesOf={useIncidentChangedFieldMessagesOf}
                                         HistoricalChange={HistoricalChange}
@@ -487,8 +497,10 @@ const IncidentIdPage: PageComponentType = () => {
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
     const ErrorPageTitle = intl.formatMessage({ id: 'incident.id.error.title' })
 
-    const { query: { id: incidentId } } = useRouter()
+    const { query } = useRouter()
     const { persistor } = useCachePersistor()
+
+    const incidentId = typeof query?.id === 'string' ? query?.id : null
 
     const { 
         data: incidentData,
@@ -497,7 +509,7 @@ const IncidentIdPage: PageComponentType = () => {
         refetch: fetchIncidents,
     } = useGetIncidentByIdQuery({
         variables: {
-            incidentId: Array.isArray(incidentId) ? incidentId[0] : incidentId,
+            incidentId,
         },
         skip: !persistor || !incidentId,
     })

@@ -29,11 +29,11 @@ export const UpdateIncidentActionBar: React.FC<ComponentProps<BaseIncidentFormPr
     const CancelLabel = intl.formatMessage({ id: 'Cancel' })
 
     const { handleSave, isLoading } = props
-    const { push, query } = useRouter()
-    const incidentId = useMemo(() => query?.id, [query])
+    const router = useRouter()
+    const incidentId =  typeof router.query?.id === 'string' ? router.query?.id : null
     const onCancel = useCallback(async () => {
-        incidentId && await push(`/incident/${incidentId}`)
-    }, [incidentId, push])
+        incidentId && await router.push(`/incident/${incidentId}`)
+    }, [incidentId, router.push])
 
     return (
         <ActionBar
@@ -82,7 +82,7 @@ export const UpdateIncidentForm: React.FC<IUpdateIncidentForm> = (props) => {
     const organizationId = useMemo(() => incident?.organization?.id || null, [incident])
 
     const {
-        loading: incidentPropertyAllDataLoaded,
+        loading: incidentPropertyLoading,
         data: incidentPropertiesData,
         error: incidentPropertyError,
     } = useGetIncidentPropertiesByIncidentIdQuery({
@@ -94,7 +94,7 @@ export const UpdateIncidentForm: React.FC<IUpdateIncidentForm> = (props) => {
     const incidentProperties = useMemo(() => incidentPropertiesData?.incidentProperties?.filter(Boolean) || [], [incidentPropertiesData?.incidentProperties])
 
     const {
-        loading: incidentClassifiersAllDataLoaded,
+        loading: incidentClassifiersLoading,
         data: incidentClassifiersData,
         error: incidentClassifiersError,
     } = useGetIncidentClassifierIncidentByIncidentIdQuery({
@@ -134,14 +134,14 @@ export const UpdateIncidentForm: React.FC<IUpdateIncidentForm> = (props) => {
         workStart: workStart ? dayjs(workStart) : null,
         workFinish: workFinish ? dayjs(workFinish) : null,
         placeClassifier,
-    }), [incident, incidentClassifiers, incidentProperties, placeClassifier, workFinish, workStart]) as any
+    }), [incident, incidentClassifiers, incidentProperties, placeClassifier, workFinish, workStart])
 
     const error = useMemo(
         () => incidentError || incidentPropertyError || incidentClassifiersError,
         [incidentClassifiersError, incidentError, incidentPropertyError]
     )
 
-    const loading = incidentLoading || incidentPropertyAllDataLoaded || incidentClassifiersAllDataLoaded
+    const loading = incidentLoading || incidentPropertyLoading || incidentClassifiersLoading
 
     if (loading && !incident) {
         return (

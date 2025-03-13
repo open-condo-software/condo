@@ -1,0 +1,14 @@
+query getIncidentChangesByIncidentId ($incidentId: ID!, $sortBy: [SortIncidentChangesBy!]) {
+    incidentChanges: allIncidentChanges (
+        where: {
+            incident: {
+                id: $incidentId
+            }
+        },
+        sortBy: $sortBy,
+        first: 100,
+    ) {
+        id
+        createdAt
+    }
+}

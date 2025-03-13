@@ -46,6 +46,11 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
                         read: listHelper.getReadFunction('paginate'),
                         merge: listHelper.mergeLists,
                     },
+                    allIncidentChanges: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
                     allIncidentProperties: {
                         keyArgs: ['where'],
                         read: listHelper.getReadFunction('paginate'),
@@ -121,7 +126,6 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
                         read: listHelper.getReadFunction(),
                         merge: listHelper.mergeLists,
                     },
-
                 },
             },
 
@@ -185,6 +189,9 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
                     timeToLive: 60 * 1000, // 1 minute in milliseconds
                 },
                 Invoice: {
+                    timeToLive: 60 * 1000, // 1 minute in milliseconds
+                },
+                Incident: {
                     timeToLive: 60 * 1000, // 1 minute in milliseconds
                 },
             },

@@ -3140,6 +3140,52 @@ export function useUpdateIncidentMutation(baseOptions?: Apollo.MutationHookOptio
 export type UpdateIncidentMutationHookResult = ReturnType<typeof useUpdateIncidentMutation>;
 export type UpdateIncidentMutationResult = Apollo.MutationResult<Types.UpdateIncidentMutation>;
 export type UpdateIncidentMutationOptions = Apollo.BaseMutationOptions<Types.UpdateIncidentMutation, Types.UpdateIncidentMutationVariables>;
+export const GetIncidentChangesByIncidentIdDocument = gql`
+    query getIncidentChangesByIncidentId($incidentId: ID!, $sortBy: [SortIncidentChangesBy!]) {
+  incidentChanges: allIncidentChanges(
+    where: {incident: {id: $incidentId}}
+    sortBy: $sortBy
+    first: 100
+  ) {
+    id
+    createdAt
+  }
+}
+    `;
+
+/**
+ * __useGetIncidentChangesByIncidentIdQuery__
+ *
+ * To run a query within a React component, call `useGetIncidentChangesByIncidentIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetIncidentChangesByIncidentIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetIncidentChangesByIncidentIdQuery({
+ *   variables: {
+ *      incidentId: // value for 'incidentId'
+ *      sortBy: // value for 'sortBy'
+ *   },
+ * });
+ */
+export function useGetIncidentChangesByIncidentIdQuery(baseOptions: Apollo.QueryHookOptions<Types.GetIncidentChangesByIncidentIdQuery, Types.GetIncidentChangesByIncidentIdQueryVariables> & ({ variables: Types.GetIncidentChangesByIncidentIdQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetIncidentChangesByIncidentIdQuery, Types.GetIncidentChangesByIncidentIdQueryVariables>(GetIncidentChangesByIncidentIdDocument, options);
+      }
+export function useGetIncidentChangesByIncidentIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetIncidentChangesByIncidentIdQuery, Types.GetIncidentChangesByIncidentIdQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetIncidentChangesByIncidentIdQuery, Types.GetIncidentChangesByIncidentIdQueryVariables>(GetIncidentChangesByIncidentIdDocument, options);
+        }
+export function useGetIncidentChangesByIncidentIdSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetIncidentChangesByIncidentIdQuery, Types.GetIncidentChangesByIncidentIdQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetIncidentChangesByIncidentIdQuery, Types.GetIncidentChangesByIncidentIdQueryVariables>(GetIncidentChangesByIncidentIdDocument, options);
+        }
+export type GetIncidentChangesByIncidentIdQueryHookResult = ReturnType<typeof useGetIncidentChangesByIncidentIdQuery>;
+export type GetIncidentChangesByIncidentIdLazyQueryHookResult = ReturnType<typeof useGetIncidentChangesByIncidentIdLazyQuery>;
+export type GetIncidentChangesByIncidentIdSuspenseQueryHookResult = ReturnType<typeof useGetIncidentChangesByIncidentIdSuspenseQuery>;
+export type GetIncidentChangesByIncidentIdQueryResult = Apollo.QueryResult<Types.GetIncidentChangesByIncidentIdQuery, Types.GetIncidentChangesByIncidentIdQueryVariables>;
 export const GetIncidentClassifierIncidentByIncidentIdDocument = gql`
     query getIncidentClassifierIncidentByIncidentId($incidentId: ID!) {
   incidentClassifierIncident: allIncidentClassifierIncidents(
@@ -3152,6 +3198,12 @@ export const GetIncidentClassifierIncidentByIncidentIdDocument = gql`
     }
     classifier {
       id
+      category {
+        name
+      }
+      problem {
+        name
+      }
     }
   }
 }
@@ -3538,6 +3590,144 @@ export type GetIncidentPropertiesByIncidentIdQueryHookResult = ReturnType<typeof
 export type GetIncidentPropertiesByIncidentIdLazyQueryHookResult = ReturnType<typeof useGetIncidentPropertiesByIncidentIdLazyQuery>;
 export type GetIncidentPropertiesByIncidentIdSuspenseQueryHookResult = ReturnType<typeof useGetIncidentPropertiesByIncidentIdSuspenseQuery>;
 export type GetIncidentPropertiesByIncidentIdQueryResult = Apollo.QueryResult<Types.GetIncidentPropertiesByIncidentIdQuery, Types.GetIncidentPropertiesByIncidentIdQueryVariables>;
+export const GetFullIncidentPropertiesByIncidentIdDocument = gql`
+    query getFullIncidentPropertiesByIncidentId($incidentId: ID!) {
+  incidentProperties: allIncidentProperties(
+    where: {incident: {id: $incidentId}}
+    first: 100
+  ) {
+    id
+    incident {
+      id
+    }
+    property {
+      id
+      addressMeta {
+        value
+        unrestricted_value
+        data {
+          postal_code
+          country
+          country_iso_code
+          federal_district
+          region_fias_id
+          region_kladr_id
+          region_iso_code
+          region_with_type
+          region_type
+          region_type_full
+          region
+          area_fias_id
+          area_kladr_id
+          area_with_type
+          area_type
+          area_type_full
+          area
+          city_fias_id
+          city_kladr_id
+          city_with_type
+          city_type
+          city_type_full
+          city
+          city_area
+          city_district_fias_id
+          city_district_kladr_id
+          city_district_with_type
+          city_district_type
+          city_district_type_full
+          city_district
+          settlement_fias_id
+          settlement_kladr_id
+          settlement_with_type
+          settlement_type
+          settlement_type_full
+          settlement
+          street_fias_id
+          street_kladr_id
+          street_with_type
+          street_type
+          street_type_full
+          street
+          house_fias_id
+          house_kladr_id
+          house_type
+          house_type_full
+          house
+          block_type
+          block_type_full
+          block
+          entrance
+          floor
+          flat_fias_id
+          flat_type
+          flat_type_full
+          flat
+          flat_area
+          square_meter_price
+          flat_price
+          postal_box
+          fias_id
+          fias_code
+          fias_level
+          fias_actuality_state
+          kladr_id
+          geoname_id
+          capital_marker
+          okato
+          oktmo
+          tax_office
+          tax_office_legal
+          timezone
+          geo_lat
+          geo_lon
+          beltway_hit
+          beltway_distance
+          qc_geo
+          qc_complete
+          qc_house
+          unparsed_parts
+          source
+          qc
+        }
+      }
+      address
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetFullIncidentPropertiesByIncidentIdQuery__
+ *
+ * To run a query within a React component, call `useGetFullIncidentPropertiesByIncidentIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetFullIncidentPropertiesByIncidentIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetFullIncidentPropertiesByIncidentIdQuery({
+ *   variables: {
+ *      incidentId: // value for 'incidentId'
+ *   },
+ * });
+ */
+export function useGetFullIncidentPropertiesByIncidentIdQuery(baseOptions: Apollo.QueryHookOptions<Types.GetFullIncidentPropertiesByIncidentIdQuery, Types.GetFullIncidentPropertiesByIncidentIdQueryVariables> & ({ variables: Types.GetFullIncidentPropertiesByIncidentIdQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetFullIncidentPropertiesByIncidentIdQuery, Types.GetFullIncidentPropertiesByIncidentIdQueryVariables>(GetFullIncidentPropertiesByIncidentIdDocument, options);
+      }
+export function useGetFullIncidentPropertiesByIncidentIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetFullIncidentPropertiesByIncidentIdQuery, Types.GetFullIncidentPropertiesByIncidentIdQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetFullIncidentPropertiesByIncidentIdQuery, Types.GetFullIncidentPropertiesByIncidentIdQueryVariables>(GetFullIncidentPropertiesByIncidentIdDocument, options);
+        }
+export function useGetFullIncidentPropertiesByIncidentIdSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetFullIncidentPropertiesByIncidentIdQuery, Types.GetFullIncidentPropertiesByIncidentIdQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetFullIncidentPropertiesByIncidentIdQuery, Types.GetFullIncidentPropertiesByIncidentIdQueryVariables>(GetFullIncidentPropertiesByIncidentIdDocument, options);
+        }
+export type GetFullIncidentPropertiesByIncidentIdQueryHookResult = ReturnType<typeof useGetFullIncidentPropertiesByIncidentIdQuery>;
+export type GetFullIncidentPropertiesByIncidentIdLazyQueryHookResult = ReturnType<typeof useGetFullIncidentPropertiesByIncidentIdLazyQuery>;
+export type GetFullIncidentPropertiesByIncidentIdSuspenseQueryHookResult = ReturnType<typeof useGetFullIncidentPropertiesByIncidentIdSuspenseQuery>;
+export type GetFullIncidentPropertiesByIncidentIdQueryResult = Apollo.QueryResult<Types.GetFullIncidentPropertiesByIncidentIdQuery, Types.GetFullIncidentPropertiesByIncidentIdQueryVariables>;
 export const CreateIncidentPropertyDocument = gql`
     mutation createIncidentProperty($data: IncidentPropertyCreateInput!) {
   incidentProperty: createIncidentProperty(data: $data) {

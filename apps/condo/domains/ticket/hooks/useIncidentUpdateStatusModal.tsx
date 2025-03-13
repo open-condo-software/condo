@@ -1,3 +1,7 @@
+import {
+    useUpdateIncidentMutation,
+    GetIncidentByIdQuery,
+} from '@app/condo/gql'
 import { IncidentStatusType } from '@app/condo/schema'
 import { Col, ColProps, Form, FormInstance, Row, RowProps } from 'antd'
 import dayjs, { Dayjs } from 'dayjs'
@@ -5,6 +9,7 @@ import isFunction from 'lodash/isFunction'
 import { Rule } from 'rc-field-form/lib/interface'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 
+import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Modal, Typography } from '@open-condo/ui'
 
@@ -13,7 +18,6 @@ import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { handleChangeDate } from '@condo/domains/ticket/components/IncidentForm/BaseIncidentForm'
-import { Incident } from '@condo/domains/ticket/utils/clientSchema'
 
 
 const DATE_PICKER_STYLE: React.CSSProperties = { width: '100%' }
@@ -21,8 +25,8 @@ const SHOW_TIME_CONFIG = { defaultValue: dayjs('00:00:00:000', 'HH:mm:ss:SSS') }
 const ITEM_LABEL_COL: ColProps = { span: 24 }
 const MODAL_GUTTER: RowProps['gutter'] = [0, 16]
 
-type UseIncidentUpdateStatusModalType<TIncident> = (props: {
-    incident: TIncident
+type UseIncidentUpdateStatusModalType = (props: {
+    incident: GetIncidentByIdQuery['incident']
     afterUpdate?: (date: Dayjs) => void
 }) => {
     handleOpen: () => void
@@ -30,7 +34,7 @@ type UseIncidentUpdateStatusModalType<TIncident> = (props: {
 }
 
 // TODO: remove dublicate code from BaseIncidentForm
-export const getFinishWorkRules: (incident: IIncident, error: string) => Rule[] = (incident, error) => [() => {
+export const getFinishWorkRules: (incident, error: string) => Rule[] = (incident, error) => [() => {
     return {
         type: 'date',
         message: error,
@@ -47,10 +51,7 @@ export const getFinishWorkRules: (incident: IIncident, error: string) => Rule[] 
 
 const ANALYTICS_EVENT_NAME = 'IncidentUpdateStatusModalClickSubmit'
 
-export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType<TIncident> = <TIncident,>({ incident, afterUpdate }): {
-    incident: TIncident
-    afterUpdate?: (date: Dayjs) => void
-} => {
+export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType = ({ incident, afterUpdate }) => {
     const intl = useIntl()
     const WorkFinishFieldMessage = intl.formatMessage({ id: 'incident.fields.workFinish.label' })
     const WorkFinishErrorMessage = intl.formatMessage({ id: 'incident.fields.workFinish.error.lessThenWorkStart' })
@@ -68,7 +69,7 @@ export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType<TInc
 
     const { requiredValidator } = useValidations()
 
-    const update = Incident.useUpdate({})
+    const [updateIncident] = useUpdateIncidentMutation()
 
     const isActual = incident.status === IncidentStatusType.Actual
     const isOverdue = useMemo(() => incident.workFinish && dayjs().set('seconds', 0).set('milliseconds', 0).diff(incident.workFinish) > 0, [incident.workFinish])
@@ -100,12 +101,20 @@ export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType<TInc
     const handleUpdate = useCallback(async (values) => {
         const { workFinish } = values
 
-        await update({
-            status: isActual
-                ? IncidentStatusType.NotActual
-                : IncidentStatusType.Actual,
-            workFinish,
-        }, incident)
+        await updateIncident({
+            variables: {
+                id: incident.id,
+                data: {
+                    status: isActual
+                        ? IncidentStatusType.NotActual
+                        : IncidentStatusType.Actual,
+                    workFinish,
+                    sender: getClientSideSenderInfo(),
+                    dv: 1,
+                },
+            },
+
+        })
 
         const eventProperties = {
             changedToStatus: isActual ? 'notActual' : 'actual',
@@ -116,7 +125,7 @@ export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType<TInc
         if (isFunction(afterUpdate)) {
             await afterUpdate(workFinish)
         }
-    }, [afterUpdate, handleClose, incident, isActual, update])
+    }, [afterUpdate, handleClose, incident, isActual, updateIncident])
 
     const descriptionText = useMemo(() => {
         if (!isActual) {
