@@ -485,7 +485,7 @@ export type GetProcessingTasksSuspenseQueryHookResult = ReturnType<typeof useGet
 export type GetProcessingTasksQueryResult = Apollo.QueryResult<Types.GetProcessingTasksQuery, Types.GetProcessingTasksQueryVariables>;
 export const GetContactByIdDocument = gql`
     query getContactById($id: ID!) {
-  contacts: allContacts(where: {id: $id}) {
+  contacts: allContacts(where: {id: $id}, first: 1) {
     id
     name
     email
@@ -544,6 +544,7 @@ export const GetContactByUnitDocument = gql`
     query getContactByUnit($propertyId: ID!, $unitName: String!, $unitType: ContactUnitTypeType!) {
   contacts: allContacts(
     where: {unitName: $unitName, unitType: $unitType, property: {id: $propertyId}}
+    first: 50
   ) {
     id
     name
