@@ -486,7 +486,7 @@ export type GetIncidentChangesByIncidentIdQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetIncidentChangesByIncidentIdQuery = { __typename?: 'Query', incidentChanges?: Array<{ __typename?: 'IncidentChange', id: string, createdAt?: string | null } | null> | null };
+export type GetIncidentChangesByIncidentIdQuery = { __typename?: 'Query', incidentChanges?: Array<{ __typename?: 'IncidentChange', id: string, createdAt?: string | null, detailsFrom?: string | null, detailsTo?: string | null, statusFrom?: Types.IncidentChangeStatusFromType | null, statusTo?: Types.IncidentChangeStatusToType | null, textForResidentFrom?: string | null, textForResidentTo?: string | null, workStartFrom?: string | null, workStartTo?: string | null, workFinishFrom?: string | null, workFinishTo?: string | null, workTypeFrom?: Types.IncidentChangeWorkTypeFromType | null, workTypeTo?: Types.IncidentChangeWorkTypeToType | null, organizationIdFrom?: string | null, organizationIdTo?: string | null, organizationDisplayNameFrom?: string | null, organizationDisplayNameTo?: string | null } | null> | null };
 
 export type GetIncidentClassifierIncidentByIncidentIdQueryVariables = Types.Exact<{
   incidentId: Types.Scalars['ID']['input'];

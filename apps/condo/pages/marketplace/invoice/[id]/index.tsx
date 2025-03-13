@@ -207,10 +207,9 @@ const AddressField = ({ invoice }) => {
 
     const unitName = get(invoice, 'unitName')
     const unitType = get(invoice, 'unitType')
-    const address = get(property, 'address')
     const addressMeta = get(property, 'addressMeta')
     const UnitTypePrefix = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${unitType}` as FormatjsIntl.Message['ids'] })
-    const addressDetails = getAddressDetails({ address, addressMeta })
+    const addressDetails = getAddressDetails({ addressMeta })
     const streetPart = get(addressDetails, 'streetPart')
     const renderPostfix = get(addressDetails, 'renderPostfix')
     const ticketUnitMessage = unitName ? `${UnitTypePrefix.toLowerCase()} ${invoice.unitName} ` : ''

@@ -3149,6 +3149,22 @@ export const GetIncidentChangesByIncidentIdDocument = gql`
   ) {
     id
     createdAt
+    detailsFrom
+    detailsTo
+    statusFrom
+    statusTo
+    textForResidentFrom
+    textForResidentTo
+    workStartFrom
+    workStartTo
+    workFinishFrom
+    workFinishTo
+    workTypeFrom
+    workTypeTo
+    organizationIdFrom
+    organizationIdTo
+    organizationDisplayNameFrom
+    organizationDisplayNameTo
   }
 }
     `;
