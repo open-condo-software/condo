@@ -45,6 +45,15 @@ let getMessages: GetMessages = async (locale) => {
     } catch (error) {
         console.error('getMessages error:', error)
         const module = await import(`./lang/${defaultLocale}/${defaultLocale}.json`)
+
+        try {
+            const customModule = await import(`./lang/${defaultLocale}/${defaultLocale}.custom.json`)
+            console.log(customModule)
+            return { ...module.default, ...customModule.default }
+        } catch (err) {
+            console.warn(`Could not load custom translations. ${err}`)
+        }
+
         return module.default
     }
 }

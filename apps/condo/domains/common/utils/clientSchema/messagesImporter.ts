@@ -1,4 +1,10 @@
 export async function messagesImporter (locale: string) {
-    const locale_data = await import(`@app/condo/lang/${locale}/${locale}`)
-    return locale_data.default
+    const localeData = await import(`@app/condo/lang/${locale}/${locale}`)
+
+    const customLocaleData = await import(`@app/condo/lang/${locale}/${locale}.custom`)
+    if (customLocaleData) {
+        return { ...localeData.default, ...customLocaleData.default }
+    }
+
+    return localeData.default
 }
