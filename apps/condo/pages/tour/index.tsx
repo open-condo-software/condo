@@ -1,4 +1,7 @@
-import { useGetLastCreatedPropertyByOrganizationIdQuery, useGetTourStepsQuery } from '@app/condo/gql'
+import {
+    useGetLastCreatedPropertyByOrganizationIdQuery,
+    useGetTourStepsQuery
+} from '@app/condo/gql'
 import { SortTourStepsBy, TourStepStatusType, TourStepTypeType } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Col, Row, RowProps } from 'antd'

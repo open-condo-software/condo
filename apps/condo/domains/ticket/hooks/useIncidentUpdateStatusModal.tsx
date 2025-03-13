@@ -15,8 +15,8 @@ import { Button, Modal, Typography } from '@open-condo/ui'
 
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
-import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { analytics } from '@condo/domains/common/utils/analytics'
 import { handleChangeDate } from '@condo/domains/ticket/components/IncidentForm/BaseIncidentForm'
 
 
@@ -49,8 +49,6 @@ export const getFinishWorkRules: (incident, error: string) => Rule[] = (incident
     }
 }]
 
-const ANALYTICS_EVENT_NAME = 'IncidentUpdateStatusModalClickSubmit'
-
 export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType = ({ incident, afterUpdate }) => {
     const intl = useIntl()
     const WorkFinishFieldMessage = intl.formatMessage({ id: 'incident.fields.workFinish.label' })
@@ -61,8 +59,6 @@ export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType = ({
     const ToNotActualBeforeWorkFinishMessage = intl.formatMessage({ id: 'incident.modalChangeStatus.toActualStatus.beforeWorkFinish.descriptions' })
     const ToNotActualAfterWorkFinishMessage = intl.formatMessage({ id: 'incident.modalChangeStatus.toActualStatus.afterWorkFinish.descriptions' })
     const ToActualMessage = intl.formatMessage({ id: 'incident.modalChangeStatus.toNotActualStatus.descriptions' })
-
-    const { logEvent } = useTracking()
 
     const formRef = useRef<FormInstance>(null)
     const [open, setOpen] = useState<boolean>(false)
@@ -116,10 +112,7 @@ export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType = ({
 
         })
 
-        const eventProperties = {
-            changedToStatus: isActual ? 'notActual' : 'actual',
-        }
-        logEvent({ eventName: ANALYTICS_EVENT_NAME, eventProperties })
+        analytics.track('incident_status_update', { newStatus: isActual ? 'notActual' : 'actual' })
 
         handleClose()
         if (isFunction(afterUpdate)) {

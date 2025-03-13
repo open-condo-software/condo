@@ -805,7 +805,7 @@ const TicketIdPage: PageComponentType = () => {
     const { user } = useAuth()
     const { link, organization, selectEmployee } = useOrganization()
     const { query } = useRouter()
-    const { id: ticketId } = query
+    const ticketId = typeof query?.id === 'string' ? query?.id : null
 
     const {
         data: ticketByIdData,
@@ -814,7 +814,7 @@ const TicketIdPage: PageComponentType = () => {
         error,
     } = useGetTicketByIdQuery({
         variables: {
-            id: Array.isArray(ticketId) ? ticketId[0] : ticketId,
+            id: ticketId,
         },
         skip: !persistor || !ticketId,
     })

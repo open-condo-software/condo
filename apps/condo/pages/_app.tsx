@@ -1,7 +1,8 @@
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 import {
     AuthenticatedUserDocument,
-    GetActiveOrganizationEmployeeDocument, useGetBillingIntegrationOrganizationContextsQuery,
+    GetActiveOrganizationEmployeeDocument,
+    useGetBillingIntegrationOrganizationContextsQuery,
     useGetProcessingTasksQuery,
 } from '@app/condo/gql'
 import { CacheProvider } from '@emotion/core'
@@ -32,6 +33,7 @@ import { useOrganization, withOrganization } from '@open-condo/next/organization
 
 import { useBankReportTaskUIInterface } from '@condo/domains/banking/hooks/useBankReportTaskUIInterface'
 import { useBankSyncTaskUIInterface } from '@condo/domains/banking/hooks/useBankSyncTaskUIInterface'
+import { CondoAppEventsHandler } from '@condo/domains/common/components/CondoAppEventsHandler'
 import BaseLayout, { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
@@ -44,7 +46,6 @@ import { PostMessageProvider } from '@condo/domains/common/components/PostMessag
 import { ServiceProblemsAlert } from '@condo/domains/common/components/ServiceProblemsAlert'
 import { Snowfall } from '@condo/domains/common/components/Snowfall'
 import { TasksContextProvider } from '@condo/domains/common/components/tasks/TasksContextProvider'
-import { TrackingProvider } from '@condo/domains/common/components/TrackingContext'
 import UseDeskWidget from '@condo/domains/common/components/UseDeskWidget'
 import { SERVICE_PROVIDER_PROFILE, MARKETPLACE } from '@condo/domains/common/constants/featureflags'
 import {
@@ -200,7 +201,7 @@ const MenuItems: React.FC = () => {
             key: TOUR_CATEGORY,
             items: [
                 {
-                    id: 'menuitem-tour',
+                    id: 'menu-item-tour',
                     path: 'tour',
                     icon: AllIcons['Guide'],
                     label: 'global.section.tour',
@@ -212,7 +213,7 @@ const MenuItems: React.FC = () => {
             key: DASHBOARD_CATEGORY,
             items: [
                 {
-                    id: 'menuitem-reports',
+                    id: 'menu-item-reports',
                     path: 'reports',
                     icon: AllIcons['BarChartVertical'],
                     label: 'global.section.analytics',
@@ -224,21 +225,21 @@ const MenuItems: React.FC = () => {
             key: COMMUNICATION_CATEGORY,
             items: [
                 {
-                    id: 'menuitem-ticket',
+                    id: 'menu-item-ticket',
                     path: 'ticket',
                     icon: AllIcons['LayoutList'],
                     label: 'global.section.controlRoom',
                     access: isManagingCompany && hasAccessToTickets,
                 },
                 {
-                    id: 'menuitem-incident',
+                    id: 'menu-item-incident',
                     path: 'incident',
                     icon: AllIcons['OnOff'],
                     label: 'global.section.incidents',
                     access: isManagingCompany && hasAccessToIncidents,
                 },
                 {
-                    id: 'menuitem-news',
+                    id: 'menu-item-news',
                     path: 'news',
                     icon: AllIcons['Newspaper'],
                     label: 'global.section.newsItems',
@@ -250,7 +251,7 @@ const MenuItems: React.FC = () => {
             key: PROPERTIES_CATEGORY,
             items: [
                 {
-                    id: 'menuitem-property',
+                    id: 'menu-item-property',
                     path: 'property',
                     icon: AllIcons['Building'],
                     label: 'global.section.properties',
@@ -262,7 +263,7 @@ const MenuItems: React.FC = () => {
             key: RESIDENTS_CATEGORY,
             items: [
                 {
-                    id: 'menuitem-contact',
+                    id: 'menu-item-contact',
                     path: 'contact',
                     icon: AllIcons['Contacts'],
                     label: 'global.section.contacts',
@@ -274,7 +275,7 @@ const MenuItems: React.FC = () => {
             key: EMPLOYEES_CATEGORY,
             items: [
                 {
-                    id: 'menuitem-employee',
+                    id: 'menu-item-employee',
                     path: 'employee',
                     icon: AllIcons['Employee'],
                     label: 'global.section.employees',
@@ -286,7 +287,7 @@ const MenuItems: React.FC = () => {
             key: MARKET_CATEGORY,
             items: [
                 {
-                    id: 'menuitem-marketplace',
+                    id: 'menu-item-marketplace',
                     path: 'marketplace',
                     icon: AllIcons['Market'],
                     label: 'global.section.marketplace',
@@ -298,7 +299,7 @@ const MenuItems: React.FC = () => {
             key: BILLING_CATEGORY,
             items: [
                 {
-                    id: 'menuitem-billing',
+                    id: 'menu-item-billing',
                     path: 'billing',
                     icon: AllIcons['Wallet'],
                     label: 'global.section.accrualsAndPayments',
@@ -308,7 +309,7 @@ const MenuItems: React.FC = () => {
                         : hasAccessToBilling,
                 },
                 {
-                    id: 'menuitem-service-provider-profile',
+                    id: 'menu-item-service-provider-profile',
                     path: 'service-provider-profile',
                     icon: AllIcons['Sber'],
                     label: 'global.section.SPP',
@@ -320,7 +321,7 @@ const MenuItems: React.FC = () => {
             key: METERS_CATEGORY,
             items: [
                 {
-                    id: 'menuitem-meter',
+                    id: 'menu-item-meter',
                     path: 'meter',
                     icon: AllIcons['Meters'],
                     label: 'global.section.meters',
@@ -332,7 +333,7 @@ const MenuItems: React.FC = () => {
             key: MINIAPPS_CATEGORY,
             items: [
                 {
-                    id: 'menuitem-miniapps',
+                    id: 'menu-item-miniapps',
                     path: 'miniapps',
                     icon: AllIcons['Services'],
                     label: 'global.section.miniapps',
@@ -347,7 +348,7 @@ const MenuItems: React.FC = () => {
             key: SETTINGS_CATEGORY,
             items: [
                 {
-                    id: 'menuitem-settings',
+                    id: 'menu-item-settings',
                     path: 'settings',
                     icon: AllIcons['Settings'],
                     label: 'global.section.settings',
@@ -507,33 +508,32 @@ const MyApp = ({ Component, pageProps }) => {
                     <LayoutContextProvider serviceProblemsAlert={<ServiceProblemsAlert />}>
                         <TasksProvider>
                             <PostMessageProvider>
-                                <TrackingProvider>
-                                    <TourProvider>
-                                        <SubscriptionProvider>
-                                            <GlobalAppsFeaturesProvider>
-                                                <GlobalAppsContainer/>
-                                                <TicketVisibilityContextProvider>
-                                                    <ActiveCallContextProvider>
-                                                        <ConnectedAppsWithIconsContextProvider>
-                                                            <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
-                                                                <RequiredAccess>
-                                                                    <FeaturesReady fallback={<Loader fill size='large'/>}>
-                                                                        <Component {...pageProps} />
-                                                                        {
-                                                                            isEndTrialSubscriptionReminderPopupVisible && (
-                                                                                <EndTrialSubscriptionReminderPopup/>
-                                                                            )
-                                                                        }
-                                                                    </FeaturesReady>
-                                                                </RequiredAccess>
-                                                            </LayoutComponent>
-                                                        </ConnectedAppsWithIconsContextProvider>
-                                                    </ActiveCallContextProvider>
-                                                </TicketVisibilityContextProvider>
-                                            </GlobalAppsFeaturesProvider>
-                                        </SubscriptionProvider>
-                                    </TourProvider>
-                                </TrackingProvider>
+                                <TourProvider>
+                                    <SubscriptionProvider>
+                                        <GlobalAppsFeaturesProvider>
+                                            <GlobalAppsContainer/>
+                                            <TicketVisibilityContextProvider>
+                                                <ActiveCallContextProvider>
+                                                    <ConnectedAppsWithIconsContextProvider>
+                                                        <CondoAppEventsHandler/>
+                                                        <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
+                                                            <RequiredAccess>
+                                                                <FeaturesReady fallback={<Loader fill size='large'/>}>
+                                                                    <Component {...pageProps} />
+                                                                    {
+                                                                        isEndTrialSubscriptionReminderPopupVisible && (
+                                                                            <EndTrialSubscriptionReminderPopup/>
+                                                                        )
+                                                                    }
+                                                                </FeaturesReady>
+                                                            </RequiredAccess>
+                                                        </LayoutComponent>
+                                                    </ConnectedAppsWithIconsContextProvider>
+                                                </ActiveCallContextProvider>
+                                            </TicketVisibilityContextProvider>
+                                        </GlobalAppsFeaturesProvider>
+                                    </SubscriptionProvider>
+                                </TourProvider>
                             </PostMessageProvider>
                         </TasksProvider>
                         {!isSnowfallDisabled && <Snowfall />}
