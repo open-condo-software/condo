@@ -2,7 +2,7 @@ import { useApolloClient } from '@apollo/client'
 import {
     GetActualOrganizationEmployeesDocument,
     useAcceptOrRejectOrganizationInviteMutation,
-    useGetLastEmployeeInviteQuery,
+    useGetLastEmployeeInviteQuery, useGetOrganizationEmployeeExistenceQuery,
 } from '@app/condo/gql'
 import { OrganizationTypeType } from '@app/condo/schema'
 import pickBy from 'lodash/pickBy'
@@ -15,12 +15,12 @@ import { useOrganization } from '@open-condo/next/organization'
 import { Button, Space, Typography } from '@open-condo/ui'
 
 import { LayoutWithPoster } from '@condo/domains/common/components/containers/LayoutWithPoster'
+import { Loader } from '@condo/domains/common/components/Loader'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { AuthPoster } from '@condo/domains/user/components/containers/AuthPoster'
 import { WelcomeHeaderTitle } from '@condo/domains/user/components/UserWelcomeTitle'
 
 import './OrganizationExistenceRequired.css'
-import { Loader } from '@condo/domains/common/components/Loader'
 
 
 type OrganizationExistenceRequiredProps = {
@@ -38,6 +38,18 @@ export const OrganizationExistenceRequired: React.FC<OrganizationExistenceRequir
 
     // skip queries if user is not logged in or he has organization already
     // skip => initialDataLoading || !user || !!organization
+    const skipQueryStatement = initialDataLoading || !user || !!organization
+
+    const {
+        data: employeeExistenceData,
+        loading: employeeExistenceLoading,
+    } = useGetOrganizationEmployeeExistenceQuery({
+        variables: {
+            userId: user?.id,
+        },
+        skip: skipQueryStatement,
+    })
+    const isEmployeeExist = useMemo(() => employeeExistenceData?.actualEmployees?.length > 0, [employeeExistenceData?.actualEmployees])
 
     const {
         data: lastInviteData,
@@ -47,7 +59,7 @@ export const OrganizationExistenceRequired: React.FC<OrganizationExistenceRequir
         variables: {
             userId: user?.id,
         },
-        skip: initialDataLoading || !user || !!organization,
+        skip: skipQueryStatement || employeeExistenceLoading,
     })
     const lastInvite = useMemo(() => lastInviteData?.employees?.filter(Boolean)?.[0], [lastInviteData?.employees])
 
@@ -83,12 +95,18 @@ export const OrganizationExistenceRequired: React.FC<OrganizationExistenceRequir
         await refetchLastInvite()
     }, [acceptOrRejectInvite, lastInvite?.id, refetchLastInvite, selectEmployee])
 
-    const loading = lastInviteLoading || initialDataLoading
+    const loading = lastInviteLoading || initialDataLoading || employeeExistenceLoading
 
     if (loading) {
         return <Loader />
     }
 
+    // If user has employee => skip this screens
+    if (isEmployeeExist) {
+        return <>{children}</>
+    }
+
+    // If user has invites => show last invite to him
     if (lastInvite) {
         return (
             <>
@@ -120,5 +138,8 @@ export const OrganizationExistenceRequired: React.FC<OrganizationExistenceRequir
         )
     }
 
+    // if (organizationEmployeeRequest) ...
+
+    // Return CreateOrganization form
     return <>{children}</>
 }
