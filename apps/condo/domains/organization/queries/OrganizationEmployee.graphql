@@ -161,6 +161,26 @@ query getEmployeeInvitesCount($userId: ID!) {
     }
 }
 
+query getLastEmployeeInvite($userId: ID!) {
+    employees: allOrganizationEmployees(
+        where: {
+            user: { id: $userId },
+            isAccepted: false,
+            isRejected: false,
+            isBlocked: false,
+            organization: { type_in: [MANAGING_COMPANY, SERVICE_PROVIDER] },
+        }
+        first: 1
+        sortBy: [createdAt_DESC]
+    ) {
+        id
+        organization {
+            id
+            name
+        }
+    }
+}
+
 query getContactEditorOrganizationEmployees ($where: OrganizationEmployeeWhereInput) {
     employees: allOrganizationEmployees (
         where: $where,
@@ -213,6 +233,18 @@ query getEmployeesInvitesByUserIdAndOrganizationType ($userId: ID!, $organizatio
         id
         organization {
             name
+        }
+    }
+}
+
+mutation acceptOrRejectOrganizationInvite($id: ID!, $data: AcceptOrRejectOrganizationInviteInput!){
+    invite: acceptOrRejectOrganizationInviteById(id: $id, data: $data) {
+        id
+        isAccepted
+        isRejected
+        isBlocked
+        organization {
+            type
         }
     }
 }

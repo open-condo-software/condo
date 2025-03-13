@@ -4,7 +4,7 @@ import { OrganizationTypeType } from '@app/condo/schema'
 import { Layout } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 
 import { Menu } from '@open-condo/icons'
 import { useMutation } from '@open-condo/next/apollo'
@@ -40,7 +40,7 @@ export const Header: React.FC<IHeaderProps> = (props) => {
     const router = useRouter()
 
     const { isAuthenticated } = useAuth()
-    const { organization } = useOrganization()
+    const { organization, isLoading: organizationLoading } = useOrganization()
 
     const hasAccessToAppeals = get(organization, 'type', MANAGING_COMPANY_TYPE) !== SERVICE_PROVIDER_TYPE
 
@@ -60,7 +60,9 @@ export const Header: React.FC<IHeaderProps> = (props) => {
         },
     })
 
-    useOrganizationInvites(ORGANIZATION_TYPES, acceptOrReject)
+    // Что если у пользователя просто не выбрана кука? Надо отдельно высчитывать видимо: если нет организаций у пользователя, то скип
+    const noOrganization = useMemo(() => !organizationLoading && !organization, [organization, organizationLoading])
+    useOrganizationInvites(ORGANIZATION_TYPES, acceptOrReject, noOrganization)
 
     const handleLogoClick = useCallback(() => {
         if (isAuthenticated) {

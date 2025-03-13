@@ -90,6 +90,7 @@ import {
 import { useNewsItemsAccess } from '@condo/domains/news/hooks/useNewsItemsAccess'
 import { TourProvider } from '@condo/domains/onboarding/contexts/TourContext'
 import { useNoOrganizationToolTip } from '@condo/domains/onboarding/hooks/useNoOrganizationToolTip'
+import { OrganizationExistenceRequired } from '@condo/domains/organization/components/OrganizationExistenceRequired'
 import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
 import {
     SubscriptionProvider,
@@ -530,18 +531,20 @@ const MyApp = ({ Component, pageProps }) => {
                                                 <ActiveCallContextProvider>
                                                     <ConnectedAppsWithIconsContextProvider>
                                                         <CondoAppEventsHandler/>
-                                                        <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
-                                                            <RequiredAccess>
-                                                                <FeaturesReady fallback={<Loader fill size='large'/>}>
-                                                                    <Component {...pageProps} />
-                                                                    {
-                                                                        isEndTrialSubscriptionReminderPopupVisible && (
-                                                                            <EndTrialSubscriptionReminderPopup/>
-                                                                        )
-                                                                    }
-                                                                </FeaturesReady>
-                                                            </RequiredAccess>
-                                                        </LayoutComponent>
+                                                        <OrganizationExistenceRequired>
+                                                            <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
+                                                                <RequiredAccess>
+                                                                    <FeaturesReady fallback={<Loader fill size='large'/>}>
+                                                                        <Component {...pageProps} />
+                                                                        {
+                                                                            isEndTrialSubscriptionReminderPopupVisible && (
+                                                                                <EndTrialSubscriptionReminderPopup/>
+                                                                            )
+                                                                        }
+                                                                    </FeaturesReady>
+                                                                </RequiredAccess>
+                                                            </LayoutComponent>
+                                                        </OrganizationExistenceRequired>
                                                     </ConnectedAppsWithIconsContextProvider>
                                                 </ActiveCallContextProvider>
                                             </TicketVisibilityContextProvider>
