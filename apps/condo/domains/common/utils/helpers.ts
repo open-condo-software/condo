@@ -1,6 +1,8 @@
 import { ParsedUrlQuery } from 'querystring'
 
-import { Property } from '@app/condo/schema'
+import {
+    AddressMetaForTableAddressFragment,
+} from '@app/condo/gql'
 import { FilterValue } from 'antd/es/table/interface'
 import get from 'lodash/get'
 import isArray from 'lodash/isArray'
@@ -9,8 +11,6 @@ import isNumber from 'lodash/isNumber'
 import isObject from 'lodash/isObject'
 import { NextRouter } from 'next/router'
 import qs from 'qs'
-
-import { IRecordWithId } from '../types'
 
 const DEFAULT_WIDTH_PRECISION = 2
 const RUSSIAN_PHONE_FORMAT_REGEXP = /(\d)(\d{3})(\d{3})(\d{2})(\d{2})/
@@ -48,43 +48,46 @@ export const preciseFloor = (x: number, precision: number = DEFAULT_WIDTH_PRECIS
     return Math.floor(x * Math.pow(10, precision)) / 100
 }
 
-type ObjectWithAddressInfo = Pick<Property, 'address' | 'addressMeta'>
+export type ObjectWithAddressInfo = {
+    addressMeta?: AddressMetaForTableAddressFragment
+    deletedAt?: string
+}
 /**
  * Tries to extract address details from a property (or any object, containing address and addressMeta, like ticket)
  * @param property
  */
 export const getAddressDetails = (property: ObjectWithAddressInfo) => {
-    const addressMeta = get(property, ['addressMeta', 'data'])
+    const addressMeta = property?.addressMeta?.data
 
-    const streetWithType = get(addressMeta, 'street_with_type')
+    const streetWithType = addressMeta?.street_with_type
 
-    const houseType = get(addressMeta, 'house_type')
-    const houseName = get(addressMeta, 'house')
+    const houseType = addressMeta?.house_type
+    const houseName = addressMeta?.house
     const houseNamePrefix = (houseType) ? `${houseType} ` : ''
-    const blockType = get(addressMeta, 'block_type')
-    const blockName = get(addressMeta, 'block')
+    const blockType = addressMeta?.block_type
+    const blockName = addressMeta?.block
     const houseNameSuffix = blockType ? ` ${blockType} ${blockName}` : ''
-    const flatType = get(addressMeta, 'flat_type')
-    const flatName = get(addressMeta, 'flat')
+    const flatType = addressMeta?.flat_type
+    const flatName = addressMeta?.flat
     const flatPart = flatType ? `${flatType} ${flatName}` : ''
 
-    const regionType = get(addressMeta, 'region_type_full')
-    const regionName = get(addressMeta, 'region')
-    const regionWithType = get(addressMeta, 'region_with_type')
+    const regionType = addressMeta?.region_type_full
+    const regionName = addressMeta?.region
+    const regionWithType = addressMeta?.region_with_type
     const regionNamePosition = regionWithType && regionWithType.split(' ')[0] === regionName ? 0 : 1
     const regionWithFullType = (regionType) ? (regionNamePosition === 0 ? `${regionName} ${regionType}` : `${regionType} ${regionName}`) : `${regionName}`
 
-    const cityPart = get(addressMeta, 'city_with_type')
-    const cityName = get(addressMeta, 'city')
+    const cityPart = addressMeta?.city_with_type
+    const cityName = addressMeta?.city
 
-    const settlementPart = get(addressMeta, 'settlement_with_type')
+    const settlementPart = addressMeta?.settlement_with_type
 
     const settlement = streetWithType ? streetWithType : settlementPart
     const settlementWithComma = settlement ? `${settlement}, ` : ''
     const streetPart = `${settlementWithComma}${houseNamePrefix}${houseName}${houseNameSuffix}`
     const regionPart = regionName && regionName !== cityName && regionWithFullType
 
-    const areaWithType = get(addressMeta, 'area_with_type')
+    const areaWithType = addressMeta?.area_with_type
     const areaPart = areaWithType && areaWithType !== cityPart && areaWithType
 
     const regionLine = regionPart ? `\n${regionPart}` : ''
@@ -95,12 +98,6 @@ export const getAddressDetails = (property: ObjectWithAddressInfo) => {
 
     return { flatPart, streetPart, areaPart, settlementPart, regionPart, cityPart, renderPostfix }
 }
-
-/**
- * Tries to get id of string type from any record that might contain such
- * @param record
- */
-export const getId = (record: IRecordWithId): string | null => get(record, 'id', null)
 
 /**
  * Generic function for extracting value from filters

@@ -426,17 +426,17 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
                 id: getPropertyKey(incidentProperty),
                 address: incidentProperty?.property?.address || incidentProperty?.propertyAddress || null,
                 addressMeta: incidentProperty?.property?.addressMeta || incidentProperty?.propertyAddressMeta || null,
-                propertyRemoved: !incidentProperty?.property,
+                deleted: !incidentProperty?.property,
             }
             return {
                 value: property?.id,
                 text: property?.address,
                 data: { property },
             }
-        }).filter((option) => option?.data?.property?.propertyRemoved || false)
+        }).filter((option) => option?.data?.property?.deleted || false)
 
         return [...deletedPropertyOptions, ...options]
-            .map((option) => option?.data?.property?.propertyRemoved
+            .map((option) => option?.data?.property?.deleted
                 ? renderDeletedOption(intl, option)
                 : renderOption(option)
             )
