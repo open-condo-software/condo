@@ -1,4 +1,4 @@
-import { MeterReportingPeriod, Property, Ticket } from '@app/condo/schema'
+import { MeterReportingPeriod, Ticket } from '@app/condo/schema'
 import { Space, Typography } from 'antd'
 import { FilterValue } from 'antd/es/table/interface'
 import { TextProps } from 'antd/es/typography/Text'
@@ -23,6 +23,7 @@ import { TicketTag } from '@condo/domains/ticket/components/TicketTag'
 import { TICKET_TYPE_TAG_STYLE } from '@condo/domains/ticket/constants/style'
 import { useFavoriteTickets } from '@condo/domains/ticket/contexts/FavoriteTicketsContext'
 
+import { ObjectWithAddressInfo } from '../../../common/utils/helpers'
 import {
     getDeadlineType,
     getHumanizeDeadlineDateDifference,
@@ -31,7 +32,6 @@ import {
 } from '../helpers'
 
 import { UserFavoriteTicket } from './index'
-import {ObjectWithAddressInfo} from "../../../common/utils/helpers";
 
 
 const NEW_COMMENTS_INDICATOR_TOOLTIP_WRAPPER_STYLES_ON_LARGER_THAN_XL: CSSProperties = {
