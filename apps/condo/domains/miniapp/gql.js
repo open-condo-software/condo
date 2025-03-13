@@ -70,6 +70,9 @@ const B2BAppPromoBlock = generateGqlQueries('B2BAppPromoBlock', B2B_APP_PROMO_BL
 const B2B_APP_ROLE_FIELDS = `{ app { id } role { id } permissions ${COMMON_FIELDS} }`
 const B2BAppRole = generateGqlQueries('B2BAppRole', B2B_APP_ROLE_FIELDS)
 
+const B2B_APP_ROLE_WITHOUT_EMPLOYEE_ROLE_FIELDS = `{ app { id } permissions ${COMMON_FIELDS} }`
+const B2BAppRoleWithoutEmployeeRole = generateGqlQueries('B2BAppRole', B2B_APP_ROLE_WITHOUT_EMPLOYEE_ROLE_FIELDS)
+
 const MESSAGE_APP_BLACK_LIST_FIELDS = `{ app { id } description ${COMMON_FIELDS} }`
 const MessageAppBlackList = generateGqlQueries('MessageAppBlackList', MESSAGE_APP_BLACK_LIST_FIELDS)
 
@@ -115,5 +118,6 @@ module.exports = {
     B2BAccessTokenReadonlyAdmin,
     AppMessageSetting,
     SEND_B2B_APP_PUSH_MESSAGE_MUTATION,
+    B2BAppRoleWithoutEmployeeRole,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

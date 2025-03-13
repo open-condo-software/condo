@@ -16,9 +16,9 @@ const {
     waitFor,
 } = require('@open-condo/keystone/test.utils')
 
-const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 const {
     B2BAppRole,
+    B2BAppRoleWithoutEmployeeRole,
     createTestB2BAppRole,
     updateTestB2BAppRole,
     createTestB2BApp,
@@ -252,7 +252,7 @@ describe('B2BAppRole', () => {
                 await createTestB2BAppContext(manager, anotherApp, manager.organization)
                 const [anotherAppRole] = await createTestB2BAppRole(manager, anotherApp, employee.role)
 
-                const roles = await B2BAppRole.getAll(serviceUser, { id_in: [role.id, anotherRole.id, anotherAppRole.id] })
+                const roles = await B2BAppRoleWithoutEmployeeRole.getAll(serviceUser, { id_in: [role.id, anotherRole.id, anotherAppRole.id] })
                 expect(roles).toHaveLength(2)
                 expect(roles).toEqual(expect.arrayContaining([
                     expect.objectContaining({ id: role.id }),
