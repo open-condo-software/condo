@@ -92097,13 +92097,15 @@ type Mutation {
   `{
     "code": "BAD_USER_INPUT",
     "type": "SMS_FOR_PHONE_DAY_LIMIT_REACHED",
-    "message": "Too many sms requests for this phone number. Try again tomorrow"
+    "message": "Too many sms requests for this phone number. Try again tomorrow",
+    "messageForUser": "Too many sms requests for this phone number. Try again tomorrow"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "SMS_FOR_IP_DAY_LIMIT_REACHED",
-    "message": "Too many sms requests from this ip address. Try again tomorrow"
+    "message": "Too many sms requests from this ip address. Try again tomorrow",
+    "messageForUser": "Too many sms requests. Try again tomorrow"
   }`
   """
   startConfirmPhoneAction(data: StartConfirmPhoneActionInput!): StartConfirmPhoneActionOutput
@@ -92141,13 +92143,15 @@ type Mutation {
   `{
     "code": "BAD_USER_INPUT",
     "type": "SMS_FOR_PHONE_DAY_LIMIT_REACHED",
-    "message": "Too many sms requests for this phone number. Try again tomorrow"
+    "message": "Too many sms requests for this phone number. Try again tomorrow",
+    "messageForUser": "Too many sms requests for this phone number. Try again tomorrow"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "SMS_FOR_IP_DAY_LIMIT_REACHED",
-    "message": "Too many sms requests from this ip address. Try again tomorrow"
+    "message": "Too many sms requests from this ip address. Try again tomorrow",
+    "messageForUser": "Too many sms requests. Try again tomorrow"
   }`
   """
   resendConfirmPhoneActionSms(data: ResendConfirmPhoneActionSmsInput!): ResendConfirmPhoneActionSmsOutput
