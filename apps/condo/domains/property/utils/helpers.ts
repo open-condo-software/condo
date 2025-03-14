@@ -1,12 +1,12 @@
 import { ParsedUrlQuery } from 'querystring'
 
-import { AddressMetaField, Property, PropertyWhereInput } from '@app/condo/schema'
+import { Property, PropertyWhereInput } from '@app/condo/schema'
 import { SortOrder } from 'antd/es/table/interface'
 import get from 'lodash/get'
 import uniqWith from 'lodash/uniqWith'
 
 import { TTextHighlighterProps } from '@condo/domains/common/components/TextHighlighter'
-import { getAddressDetails } from '@condo/domains/common/utils/helpers'
+import { getAddressDetails, ObjectWithAddressInfo } from '@condo/domains/common/utils/helpers'
 
 
 export const PROPERTY_PAGE_SIZE = 10
@@ -103,12 +103,8 @@ export const filtersToQuery = (filters: IFilters): PropertyWhereInput => {
     }
 }
 
-export const formatAddressWithoutCityFrom = ({ value, data }: AddressMetaField) => {
-    return value.replace(data.city_with_type + ', ', '')
-}
-
-export const getPropertyAddressParts = (property: Property, DeletedMessage?: string) => {
-    const isDeleted = !!get(property, 'deletedAt')
+export const getPropertyAddressParts = (property: ObjectWithAddressInfo, DeletedMessage?: string) => {
+    const isDeleted = !!property?.deletedAt
     const { streetPart, regionPart, cityPart, settlementPart, areaPart } = getAddressDetails(property)
     const extraProps: Partial<TTextHighlighterProps> = isDeleted && { type: 'secondary' }
     const text = `${streetPart},`

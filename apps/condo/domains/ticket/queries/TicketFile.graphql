@@ -1,0 +1,21 @@
+query getTicketFiles($ticketId: ID!) {
+    ticketFiles: allTicketFiles (
+        where: {
+            ticket: {
+                id: $ticketId,
+            },
+        },
+        sortBy: [createdAt_ASC],
+        first: 100,
+    ) {
+        id
+        ticket {
+            id
+        }
+        file {
+            id
+            originalFilename
+            publicUrl
+        }
+    }
+}

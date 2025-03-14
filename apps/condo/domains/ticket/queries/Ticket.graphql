@@ -304,9 +304,28 @@ query getOrganizationEmployeeTicketsForReassignment ($userId: ID!, $organization
     }
 }
 
+mutation createTicket ($data: TicketCreateInput!) {
+    ticket: createTicket(data: $data) {
+        id
+        number
+        clientPhone
+        property {
+            id
+        }
+        contact {
+            id
+        }
+        unitName
+        unitType
+    }
+}
+
 mutation updateTicket ($id: ID!, $data: TicketUpdateInput!) {
     ticket: updateTicket (id: $id, data: $data) {
         id
+        clientPhone
+        unitName
+        unitType
     }
 }
 

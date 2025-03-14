@@ -1,9 +1,9 @@
+import { useGetTicketInvoicesQuery } from '@app/condo/gql'
 import React, { useCallback, useMemo, useState } from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography, Button, Modal } from '@open-condo/ui'
-
-import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
 
 
 type useTicketCancelModalType = (updateTicket: (id: string) => void, ticketId: string) => { openModal: (statusCanceledId: string) => void, cancelTicketModal: JSX.Element, closeModal: () => void }
@@ -18,11 +18,18 @@ export const useTicketCancelModal: useTicketCancelModalType = (updateTicket, tic
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false)
     const [statusCanceledId, setStatusCanceledId] = useState<string | null>(null)
 
-    const { count: invoicesCount } = Invoice.useCount({
-        where: {
-            ticket: { id: ticketId },
+    const { persistor } = useCachePersistor()
+
+    const {
+        data: invoicesData,
+    } = useGetTicketInvoicesQuery({
+        variables: {
+            ticketId: ticketId,
         },
+        skip: !persistor || !ticketId,
     })
+    const invoices = useMemo(() => invoicesData?.invoices?.filter(Boolean) || [],
+        [invoicesData?.invoices])
 
     const openModal = useCallback((statusCanceledId: string) => {
         setIsModalVisible(true)
@@ -47,10 +54,10 @@ export const useTicketCancelModal: useTicketCancelModalType = (updateTicket, tic
             footer={<Button onClick={handleCancelTicket} type='primary'>{CancelButtonLabelMessage}</Button>}
         >
             <Typography.Text type='secondary'>
-                {invoicesCount > 0 ? CancelModalContentWithInvoices : CancelModalContentMessage}
+                {invoices.length > 0 ? CancelModalContentWithInvoices : CancelModalContentMessage}
             </Typography.Text>
         </Modal>
-    ), [CancelButtonLabelMessage, CancelModalContentMessage, CancelModalContentWithInvoices, CancelModalTitleMessage, closeModal, handleCancelTicket, invoicesCount, isModalVisible])
+    ), [CancelButtonLabelMessage, CancelModalContentMessage, CancelModalContentWithInvoices, CancelModalTitleMessage, closeModal, handleCancelTicket, invoices, isModalVisible])
 
     return { cancelTicketModal, openModal, closeModal }
 }

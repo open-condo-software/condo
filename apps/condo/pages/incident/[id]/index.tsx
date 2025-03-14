@@ -1,17 +1,23 @@
 import {
-    Incident as IIncident,
+    useGetIncidentByIdQuery,
+    useGetIncidentChangesByIncidentIdQuery,
+    useGetIncidentClassifierIncidentByIncidentIdQuery,
+    useGetFullIncidentPropertiesByIncidentIdQuery,
+    GetIncidentByIdQuery,
+    GetIncidentChangesByIncidentIdQuery,
+} from '@app/condo/gql'
+import {
     IncidentStatusType,
     SortIncidentChangesBy,
-    IncidentChange as IIncidentChange,
 } from '@app/condo/schema'
 import { Col, Row, RowProps } from 'antd'
 import dayjs  from 'dayjs'
-import { get } from 'lodash'
 import uniq from 'lodash/uniq'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button, Tag, Typography } from '@open-condo/ui'
@@ -31,25 +37,24 @@ import {
 } from '@condo/domains/ticket/constants/incident'
 import { useIncidentChangedFieldMessagesOf } from '@condo/domains/ticket/hooks/useIncidentChangedFieldMessagesOf'
 import { useIncidentUpdateStatusModal } from '@condo/domains/ticket/hooks/useIncidentUpdateStatusModal'
-import { Incident, IncidentProperty, IncidentClassifierIncident, IncidentChange } from '@condo/domains/ticket/utils/clientSchema'
 import { getAddressRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
 
 
 type IncidentContentProps = {
-    incident: IIncident
+    incident: GetIncidentByIdQuery['incident']
     withOrganization?: boolean
 }
 
 type IncidentIdPageContentProps = {
-    incident: IIncident
+    incident: GetIncidentByIdQuery['incident']
     refetchIncident
     incidentLoading: boolean
     withOrganization?: boolean
 }
 
 type IncidentFieldProps = {
-    incident: IIncident
+    incident: GetIncidentByIdQuery['incident']
 }
 
 const LABEL_SPAN_COMMON = 5
@@ -61,44 +66,45 @@ const IncidentPropertiesField: React.FC<IncidentFieldProps> = ({ incident }) => 
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
 
-    const { objs: incidentProperties, allDataLoaded } = IncidentProperty.useAllObjects({
-        where: {
-            incident: { id: incident.id },
+    const { persistor } = useCachePersistor()
+
+    const {
+        data: incidentPropertiesData,
+        loading: incidentPropertiesLoading,
+    } = useGetFullIncidentPropertiesByIncidentIdQuery({
+        variables: {
+            incidentId: incident.id,
         },
+        skip: !incident.id || !persistor,
     })
+    const incidentProperties = useMemo(() => incidentPropertiesData?.incidentProperties?.filter(Boolean) || [], [incidentPropertiesData?.incidentProperties])
 
     const renderPropertyScopeProperties = useMemo(() => {
         if (incident.hasAllProperties) {
             return AllPropertiesMessage
         }
 
-        if (!allDataLoaded) {
+        if (incidentPropertiesLoading) {
             return LoadingMessage
         }
 
         // TODO(DOMA-2567) refactor duplicate in '@condo/pages/settings/propertyScope/[id]/index.tsx'
-        return incidentProperties.map((incidentProperty) => {
-            const property = {
-                id: get(incidentProperty, 'property.id', get(incidentProperty, 'id', null)),
-                address: get(incidentProperty, 'property.address', get(incidentProperty, 'propertyAddress', null)),
-                addressMeta: get(incidentProperty, 'property.addressMeta', get(incidentProperty, 'propertyAddressMeta', null)),
-                deletedAt: get(incidentProperty, 'property.deletedAt', true),
-            }
-            const isDeleted = Boolean(get(property, 'deletedAt'))
-            const propertyMessage = getAddressRender(property, null, DeletedMessage)
+        return incidentProperties.map((incidentProperty, index) => {
+            const property = incidentProperty?.property
+            const propertyMessage = property ? getAddressRender(property, null, DeletedMessage) : ''
 
             return (
                 <div
-                    key={get(property, 'id')}
+                    key={property?.id || index}
                 >
                     {
-                        isDeleted ? (
+                        !property ? (
                             <>
                                 {propertyMessage}
                             </>
                         ) : (
                             <Typography.Link
-                                href={`/property/${get(property, 'id')}`}
+                                href={`/property/${property?.id || ''}`}
                             >
                                 {propertyMessage}
                             </Typography.Link>
@@ -107,7 +113,7 @@ const IncidentPropertiesField: React.FC<IncidentFieldProps> = ({ incident }) => 
                 </div>
             )
         })
-    }, [AllPropertiesMessage, DeletedMessage, LoadingMessage, allDataLoaded, incident.hasAllProperties, incidentProperties])
+    }, [AllPropertiesMessage, DeletedMessage, LoadingMessage, incidentPropertiesLoading, incident.hasAllProperties, incidentProperties])
 
     return (
         <Row>
@@ -194,25 +200,33 @@ const IncidentClassifiersField: React.FC<IncidentFieldProps> = ({ incident }) =>
     const HaveNotMessage = intl.formatMessage({ id: 'incident.fields.classifier.empty' })
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
 
-    const { objs: incidentClassifiers, allDataLoaded } = IncidentClassifierIncident.useAllObjects({
-        where: {
-            incident: { id: incident.id },
+    const { persistor } = useCachePersistor()
+
+    const {
+        data: incidentClassifierIncidentsData,
+        loading: incidentClassifierIncidentLoading,
+    } = useGetIncidentClassifierIncidentByIncidentIdQuery({
+        variables: {
+            incidentId: incident.id,
         },
+        skip: !incident.id || !persistor,
     })
+    const incidentClassifiers = useMemo(() => incidentClassifierIncidentsData?.incidentClassifierIncident?.filter(Boolean) || [], [incidentClassifierIncidentsData?.incidentClassifierIncident])
+
     const categories = useMemo(
         () => uniq(incidentClassifiers
-            .map(item => get(item, 'classifier.category.name')))
+            .map(item => item?.classifier?.category?.name))
             .join(', '),
         [incidentClassifiers])
     const problems = useMemo(
         () => uniq(incidentClassifiers
-            .map(item => get(item, 'classifier.problem.name'))
+            .map(item => item?.classifier?.problem?.name)
             .filter(Boolean))
             .join(', '),
         [incidentClassifiers])
 
     const renderClassifiers = useMemo(() => {
-        if (!allDataLoaded) {
+        if (incidentClassifierIncidentLoading) {
             return LoadingMessage
         }
 
@@ -230,7 +244,7 @@ const IncidentClassifiersField: React.FC<IncidentFieldProps> = ({ incident }) =>
                 </Typography.Text>}
             </Typography.Text>
         )
-    }, [HaveNotMessage, LoadingMessage, allDataLoaded, categories, incidentClassifiers.length, problems])
+    }, [HaveNotMessage, LoadingMessage, incidentClassifierIncidentLoading, categories, incidentClassifiers.length, problems])
 
     return (
         <Row>
@@ -285,8 +299,8 @@ const IncidentTextForResidentField: React.FC<IncidentFieldProps> = ({ incident }
     return (
         <Row>
             <PageFieldRow title={TextForResidentLabel} ellipsis labelSpan={LABEL_SPAN_COMMON}>
-                <Typography.Text type={!get(incident, 'textForResident') ? 'secondary' : null}>
-                    {get(incident, 'textForResident') || HaveNotMessage}
+                <Typography.Text type={!incident?.textForResident ? 'secondary' : null}>
+                    {incident?.textForResident || HaveNotMessage}
                 </Typography.Text>
             </PageFieldRow>
         </Row>
@@ -301,8 +315,8 @@ const IncidentOrganizationField: React.FC<IncidentFieldProps> = ({ incident }) =
     return (
         <Row>
             <PageFieldRow title={OrganizationLabel} ellipsis labelSpan={LABEL_SPAN_COMMON}>
-                <Typography.Text type={!get(incident, 'organization.name') ? 'secondary' : null}>
-                    {get(incident, 'organization.name') || HaveNotMessage}
+                <Typography.Text type={!incident?.organization?.name ? 'secondary' : null}>
+                    {incident?.organization?.name || HaveNotMessage}
                 </Typography.Text>
             </PageFieldRow>
         </Row>
@@ -362,22 +376,23 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
     const { incident, refetchIncident, incidentLoading, withOrganization } = props
 
     const router = useRouter()
-    const { link } = useOrganization()
-
+    const { employee } = useOrganization()
+    const { persistor } = useCachePersistor()
     const isActual = incident.status === IncidentStatusType.Actual
-    const canManageIncidents = useMemo(() => get(link, ['role', 'canManageIncidents'], false), [link])
+    const canManageIncidents = useMemo(() => employee?.role?.canManageIncidents || false, [employee])
 
     const {
-        objs: incidentChanges,
+        data: incidentChangesData,
         loading: incidentChangesLoading,
-        count: incidentChangesCount,
         refetch: refetchIncidentChanges,
-    } = IncidentChange.useObjects({
-        where: { incident: { id: incident.id } },
-        sortBy: [SortIncidentChangesBy.CreatedAtDesc],
-    }, {
-        fetchPolicy: 'network-only',
+    } = useGetIncidentChangesByIncidentIdQuery({
+        variables: {
+            incidentId: incident.id,
+            sortBy: [SortIncidentChangesBy.CreatedAtDesc],
+        },
+        skip: !incident.id || !persistor,
     })
+    const incidentChanges = useMemo(() => incidentChangesData?.incidentChanges?.filter(Boolean) || [], [incidentChangesData?.incidentChanges])
 
     const afterStatusUpdate = useCallback(async () => {
         await refetchIncident()
@@ -390,8 +405,8 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
         await router.push(`/incident/${incident.id}/update`)
     }, [incident.id, router])
 
-    const createdAt = useMemo(() => dayjs(incident.createdAt).format('DD.MM.YYYY, HH:mm'), [incident.createdAt])
-    const createdBy = useMemo(() => get(incident, ['createdBy']), [incident])
+    const createdAt = useMemo(() => dayjs(incident?.createdAt).format('DD.MM.YYYY, HH:mm'), [incident.createdAt])
+    const createdBy = useMemo(() => incident?.createdBy, [incident])
 
     return (
         <>
@@ -433,10 +448,10 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
                             incidentChanges && (
                                 <Col span={24} lg={24} xl={22}>
                                     <ChangeHistory
-                                        <IIncidentChange>
+                                        <GetIncidentChangesByIncidentIdQuery['incidentChanges'][number]>
                                         items={incidentChanges}
                                         loading={incidentChangesLoading}
-                                        total={incidentChangesCount}
+                                        total={incidentChanges.length}
                                         title={ChangeHistoryTitle}
                                         useChangedFieldMessagesOf={useIncidentChangedFieldMessagesOf}
                                         HistoricalChange={HistoricalChange}
@@ -482,23 +497,30 @@ const IncidentIdPage: PageComponentType = () => {
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
     const ErrorPageTitle = intl.formatMessage({ id: 'incident.id.error.title' })
 
-    const router = useRouter()
+    const { query } = useRouter()
+    const { persistor } = useCachePersistor()
 
-    const { query: { id } } = router as { query: { [key: string]: string } }
+    const incidentId = typeof query?.id === 'string' ? query?.id : null
 
-    const {
+    const { 
+        data: incidentData,
         loading: incidentLoading,
-        obj: incident,
-        error,
-        refetch,
-    } = Incident.useObject({ where: { id } })
+        error: incidentError,
+        refetch: fetchIncidents,
+    } = useGetIncidentByIdQuery({
+        variables: {
+            incidentId,
+        },
+        skip: !persistor || !incidentId,
+    })
+    const incident = useMemo(() => incidentData?.incident || null, [incidentData])
 
-    if (!incident || error) {
+    if (!incident || incidentError) {
         return (
             <LoadingOrErrorPage
                 title={ErrorPageTitle}
                 loading={incidentLoading}
-                error={error && ServerErrorMessage}
+                error={incidentError && ServerErrorMessage}
             />
         )
     }
@@ -506,7 +528,7 @@ const IncidentIdPage: PageComponentType = () => {
     return (
         <IncidentIdPageContent
             incident={incident}
-            refetchIncident={refetch}
+            refetchIncident={fetchIncidents}
             incidentLoading={incidentLoading}
         />
     )

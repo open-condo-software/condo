@@ -1,0 +1,17 @@
+query getTourSteps ($where: TourStepWhereInput!, $sortBy: [SortTourStepsBy!]) {
+    tourSteps: allTourSteps (
+        where: $where,
+        sortBy: $sortBy,
+        first: 100,
+    ) {
+        id
+        type
+        status
+    }
+}
+
+mutation updateTourStep ($id: ID!, $data: TourStepUpdateInput!) {
+    tourStep: updateTourStep(id: $id, data: $data) {
+        id
+    }
+}

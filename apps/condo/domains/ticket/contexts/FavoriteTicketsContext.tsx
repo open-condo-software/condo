@@ -34,7 +34,7 @@ const FavoriteTicketsContextProvider = ({ children, extraTicketsQuery = {} }) =>
         loading,
     } = useGetUserFavoriteTicketsQuery({
         variables: {
-            userId: user.id,
+            userId: user?.id,
             ticketWhere: extraTicketsQuery,
         },
         skip: !persistor || !user,

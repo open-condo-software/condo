@@ -1,4 +1,4 @@
-import { MeterReportingPeriod, Property, Ticket } from '@app/condo/schema'
+import { MeterReportingPeriod, Ticket } from '@app/condo/schema'
 import { Space, Typography } from 'antd'
 import { FilterValue } from 'antd/es/table/interface'
 import { TextProps } from 'antd/es/typography/Text'
@@ -18,7 +18,7 @@ import { colors } from '@open-condo/ui/dist/colors'
 import { getHighlightedContents, getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { analytics } from '@condo/domains/common/utils/analytics'
-import { getAddressCellRender } from '@condo/domains/property/utils/clientSchema/Renders'
+import { ObjectWithAddressInfo } from '@condo/domains/common/utils/helpers'
 import { getPropertyAddressParts } from '@condo/domains/property/utils/helpers'
 import { TicketTag } from '@condo/domains/ticket/components/TicketTag'
 import { TICKET_TYPE_TAG_STYLE } from '@condo/domains/ticket/constants/style'
@@ -329,18 +329,6 @@ export const getStatusRender = (intl, search?: FilterValue) => {
     }
 }
 
-// This function is needed to shorten the ClientName so that the field in which it is located is not unnecessarily stretched
-export const getTicketClientNameRender = (search: FilterValue) => {
-    return function render (clientName: string, ticket: Ticket) {
-        const address = get(ticket, ['property', 'address'])
-        const clientNameLength = get(clientName, 'length', 0)
-        const maxClientNameLength = address ? address.length : clientNameLength
-        const trimmedClientName = clientNameLength > maxClientNameLength ? `${clientName.substring(0, maxClientNameLength)}…` : clientName
-
-        return getTableCellRenderer({ search, extraTitle: clientName })(trimmedClientName)
-    }
-}
-
 export const getTicketUserNameRender = (search: FilterValue) => {
     return function render (clientName, ticket: Ticket) {
         const contact = get(ticket, 'contact')
@@ -364,19 +352,7 @@ export const getMeterReportingPeriodRender = (search: FilterValue, intl) => {
     }
 }
 
-export const getTicketPropertyHintAddressesRender = (search: FilterValue) => {
-    return function render (intl, properties) {
-        const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
-
-        if (isEmpty(properties)) {
-            return '—'
-        }
-
-        return properties.map((property) => getAddressCellRender(property, DeletedMessage, search))
-    }
-}
-
-export const getAddressRender = (property: Property, unitNameMessage?: string, DeletedMessage?: string, ellipsis?: boolean) => {
+export const getAddressRender = (property: ObjectWithAddressInfo, unitNameMessage?: string, DeletedMessage?: string, ellipsis?: boolean) => {
     const { postfix, text } = getPropertyAddressParts(property, DeletedMessage)
     let renderText = ''
     if (text) {

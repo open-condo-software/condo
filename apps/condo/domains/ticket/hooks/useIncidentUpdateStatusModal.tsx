@@ -1,11 +1,15 @@
-import { Incident as IIncident, IncidentStatusType } from '@app/condo/schema'
+import {
+    useUpdateIncidentMutation,
+    GetIncidentByIdQuery,
+} from '@app/condo/gql'
+import { IncidentStatusType } from '@app/condo/schema'
 import { Col, ColProps, Form, FormInstance, Row, RowProps } from 'antd'
 import dayjs, { Dayjs } from 'dayjs'
-import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
 import { Rule } from 'rc-field-form/lib/interface'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 
+import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Modal, Typography } from '@open-condo/ui'
 
@@ -14,7 +18,6 @@ import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { handleChangeDate } from '@condo/domains/ticket/components/IncidentForm/BaseIncidentForm'
-import { Incident } from '@condo/domains/ticket/utils/clientSchema'
 
 
 const DATE_PICKER_STYLE: React.CSSProperties = { width: '100%' }
@@ -23,19 +26,20 @@ const ITEM_LABEL_COL: ColProps = { span: 24 }
 const MODAL_GUTTER: RowProps['gutter'] = [0, 16]
 
 type UseIncidentUpdateStatusModalType = (props: {
-    incident: IIncident
+    incident: GetIncidentByIdQuery['incident']
     afterUpdate?: (date: Dayjs) => void
 }) => {
     handleOpen: () => void
     IncidentUpdateStatusModal: JSX.Element
 }
 
-export const getFinishWorkRules: (incident: IIncident, error: string) => Rule[] = (incident, error) => [() => {
+// TODO: remove dublicate code from BaseIncidentForm
+export const getFinishWorkRules: (incident, error: string) => Rule[] = (incident, error) => [() => {
     return {
         type: 'date',
         message: error,
         validator: (rule, workFinish: Dayjs) => {
-            const workStart: string = get(incident, 'workStart')
+            const workStart: string = incident?.workStart
             if (workStart && workFinish) {
                 const diff = dayjs(workFinish).diff(workStart)
                 if (diff < 0) return Promise.reject()
@@ -61,7 +65,7 @@ export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType = ({
 
     const { requiredValidator } = useValidations()
 
-    const update = Incident.useUpdate({})
+    const [updateIncident] = useUpdateIncidentMutation()
 
     const isActual = incident.status === IncidentStatusType.Actual
     const isOverdue = useMemo(() => incident.workFinish && dayjs().set('seconds', 0).set('milliseconds', 0).diff(incident.workFinish) > 0, [incident.workFinish])
@@ -93,20 +97,28 @@ export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType = ({
     const handleUpdate = useCallback(async (values) => {
         const { workFinish } = values
 
-        await update({
-            status: isActual
-                ? IncidentStatusType.NotActual
-                : IncidentStatusType.Actual,
-            workFinish,
-        }, incident)
-        
+        await updateIncident({
+            variables: {
+                id: incident.id,
+                data: {
+                    status: isActual
+                        ? IncidentStatusType.NotActual
+                        : IncidentStatusType.Actual,
+                    workFinish,
+                    sender: getClientSideSenderInfo(),
+                    dv: 1,
+                },
+            },
+
+        })
+
         analytics.track('incident_status_update', { newStatus: isActual ? 'notActual' : 'actual' })
 
         handleClose()
         if (isFunction(afterUpdate)) {
             await afterUpdate(workFinish)
         }
-    }, [afterUpdate, handleClose, incident, isActual, update])
+    }, [afterUpdate, handleClose, incident, isActual, updateIncident])
 
     const descriptionText = useMemo(() => {
         if (!isActual) {
