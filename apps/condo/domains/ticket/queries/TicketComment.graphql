@@ -1,8 +1,10 @@
 query getTicketComments ($ticketId: ID!) {
     ticketComments: allTicketComments (
-        where: { ticket: { id: $ticketId } }
-        first: 100
-        sortBy: [createdAt_DESC]
+        where: {
+            ticket: { id: $ticketId }
+        },
+        sortBy: [createdAt_DESC],
+        first: 100,
     ) {
         id
         type
@@ -18,7 +20,7 @@ query getTicketComments ($ticketId: ID!) {
     }
 }
 
-query getPollTicketComments ($where: TicketCommentWhereInput!, $first: Int) {
+query getPollTicketComments ($where: TicketCommentWhereInput!, $first: Int!) {
     ticketComments: allTicketComments (
         where: $where
         first: $first

@@ -1,5 +1,10 @@
-query getTickets ($where: TicketWhereInput!, $sortBy: [SortTicketsBy!], $first: Int, $skip: Int) {
-    tickets: allTickets(where: $where, sortBy: $sortBy, first: $first, skip: $skip) {
+query getTickets ($where: TicketWhereInput!, $sortBy: [SortTicketsBy!], $first: Int!, $skip: Int) {
+    tickets: allTickets(
+        where: $where,
+        sortBy: $sortBy,
+        first: $first,
+        skip: $skip
+    ) {
         id
         number
         createdAt
@@ -80,7 +85,10 @@ query getTickets ($where: TicketWhereInput!, $sortBy: [SortTicketsBy!], $first: 
 }
 
 query getTicketExistence ($where: TicketWhereInput!) {
-    tickets: allTickets (where: $where, first: 1) {
+    tickets: allTickets (
+        where: $where,
+        first: 1,
+    ) {
         id
     }
 }
@@ -140,7 +148,7 @@ query getTicketById ($id: ID!) {
         where: {
             id: $id
         },
-        first: 1
+        first: 1,
     ) {
         id
         number
@@ -238,8 +246,10 @@ query getTicketById ($id: ID!) {
 
 query getTicketByCreatedBy ($userId: ID!) {
     tickets: allTickets (
-        where: { createdBy: { id: $userId } },
-        first: 1
+        where: {
+            createdBy: { id: $userId }
+        },
+        first: 1,
     ) {
         id
     }
@@ -250,7 +260,7 @@ query getTicketLastCommentsTime ($id: ID!) {
         where: {
             id: $id
         },
-        first: 1
+        first: 1,
     ) {
         id
         lastResidentCommentAt
@@ -261,7 +271,8 @@ query getTicketLastCommentsTime ($id: ID!) {
 query getContactTickets ($contactId: ID!) {
     tickets: allTickets(
         where: { contact: { id: $contactId } }
-        sortBy: [createdAt_DESC]
+        sortBy: [createdAt_DESC],
+        first: 100,
     ) {
         id
         details
@@ -278,7 +289,7 @@ query getContactTickets ($contactId: ID!) {
     }
 }
 
-query getOrganizationEmployeeTicketsForReassignment ($userId: ID!, $organizationId: ID!, $first: Int) {
+query getOrganizationEmployeeTicketsForReassignment ($userId: ID!, $organizationId: ID!, $first: Int!) {
     tickets: allTickets(
         where: {
             organization: { id: $organizationId },
