@@ -602,19 +602,19 @@ export type ShareTicketMutation = { __typename?: 'Mutation', ticket?: { __typena
 export type GetTicketsQueryVariables = Types.Exact<{
   where: Types.TicketWhereInput;
   sortBy?: Types.InputMaybe<Array<Types.SortTicketsBy> | Types.SortTicketsBy>;
-  first?: Types.InputMaybe<Types.Scalars['Int']['input']>;
+  first: Types.Scalars['Int']['input'];
   skip?: Types.InputMaybe<Types.Scalars['Int']['input']>;
 }>;
 
 
 export type GetTicketsQuery = { __typename?: 'Query', tickets?: Array<{ __typename?: 'Ticket', id: string, number?: number | null, createdAt?: string | null, isEmergency?: boolean | null, isPayable?: boolean | null, isWarranty?: boolean | null, statusReopenedCounter?: number | null, statusUpdatedAt?: string | null, completedAt?: string | null, deadline?: string | null, lastResidentCommentAt?: string | null, lastCommentWithResidentTypeAt?: string | null, propertyAddress?: string | null, sectionType?: Types.TicketSectionTypeType | null, sectionName?: string | null, floorName?: string | null, unitType?: Types.TicketUnitTypeType | null, unitName?: string | null, details?: string | null, clientName?: string | null, clientPhone?: string | null, propertyAddressMeta?: { __typename?: 'AddressMetaField', data: { __typename?: 'AddressMetaDataField', street_with_type?: string | null, house_type?: string | null, house?: string | null, block_type?: string | null, block?: string | null, flat_type?: string | null, flat?: string | null, region_type_full?: string | null, region: string, region_with_type?: string | null, city_with_type?: string | null, city?: string | null, settlement_with_type?: string | null, area_with_type?: string | null } } | null, classifier?: { __typename?: 'TicketClassifier', id: string, category?: { __typename?: 'TicketCategoryClassifier', id: string, name?: string | null } | null, place?: { __typename?: 'TicketPlaceClassifier', id: string, name?: string | null } | null } | null, contact?: { __typename?: 'Contact', id: string, name?: string | null } | null, executor?: { __typename?: 'User', id: string, name?: string | null } | null, assignee?: { __typename?: 'User', id: string, name?: string | null } | null, organization?: { __typename?: 'Organization', id: string, name?: string | null } | null, property?: { __typename?: 'Property', id: string, deletedAt?: string | null, address?: string | null, addressMeta?: { __typename?: 'AddressMetaField', data: { __typename?: 'AddressMetaDataField', street_with_type?: string | null, house_type?: string | null, house?: string | null, block_type?: string | null, block?: string | null, flat_type?: string | null, flat?: string | null, region_type_full?: string | null, region: string, region_with_type?: string | null, city_with_type?: string | null, city?: string | null, settlement_with_type?: string | null, area_with_type?: string | null } } | null } | null, status?: { __typename?: 'TicketStatus', id: string, type?: Types.TicketStatusTypeType | null, name?: string | null, colors?: { __typename?: 'TicketStatusColorsField', primary?: string | null, secondary?: string | null } | null } | null, createdBy?: { __typename?: 'User', id: string, name?: string | null } | null, source?: { __typename?: 'TicketSource', id: string, name?: string | null } | null } | null> | null, meta?: { __typename?: '_QueryMeta', count?: number | null } | null };
 
-export type GetTicketExistenceQueryVariables = Types.Exact<{
+export type CheckTicketExistenceQueryVariables = Types.Exact<{
   where: Types.TicketWhereInput;
 }>;
 
 
-export type GetTicketExistenceQuery = { __typename?: 'Query', tickets?: Array<{ __typename?: 'Ticket', id: string } | null> | null };
+export type CheckTicketExistenceQuery = { __typename?: 'Query', tickets?: Array<{ __typename?: 'Ticket', id: string } | null> | null };
 
 export type GetTicketsCountQueryVariables = Types.Exact<{
   where: Types.TicketWhereInput;
@@ -659,17 +659,17 @@ export type GetTicketLastCommentsTimeQueryVariables = Types.Exact<{
 
 export type GetTicketLastCommentsTimeQuery = { __typename?: 'Query', ticketCommentTimes?: Array<{ __typename?: 'Ticket', id: string, lastResidentCommentAt?: string | null, lastCommentWithResidentTypeAt?: string | null } | null> | null };
 
-export type GetContactTicketsQueryVariables = Types.Exact<{
+export type GetTicketsByContactQueryVariables = Types.Exact<{
   contactId: Types.Scalars['ID']['input'];
 }>;
 
 
-export type GetContactTicketsQuery = { __typename?: 'Query', tickets?: Array<{ __typename?: 'Ticket', id: string, details?: string | null, createdAt?: string | null, number?: number | null, status?: { __typename?: 'TicketStatus', id: string, name?: string | null } | null, property?: { __typename?: 'Property', id: string, address?: string | null } | null } | null> | null };
+export type GetTicketsByContactQuery = { __typename?: 'Query', tickets?: Array<{ __typename?: 'Ticket', id: string, details?: string | null, createdAt?: string | null, number?: number | null, status?: { __typename?: 'TicketStatus', id: string, name?: string | null } | null, property?: { __typename?: 'Property', id: string, address?: string | null } | null } | null> | null };
 
 export type GetOrganizationEmployeeTicketsForReassignmentQueryVariables = Types.Exact<{
   userId: Types.Scalars['ID']['input'];
   organizationId: Types.Scalars['ID']['input'];
-  first?: Types.InputMaybe<Types.Scalars['Int']['input']>;
+  first: Types.Scalars['Int']['input'];
 }>;
 
 
@@ -713,7 +713,7 @@ export type GetTicketCommentsQuery = { __typename?: 'Query', ticketComments?: Ar
 
 export type GetPollTicketCommentsQueryVariables = Types.Exact<{
   where: Types.TicketCommentWhereInput;
-  first?: Types.InputMaybe<Types.Scalars['Int']['input']>;
+  first: Types.Scalars['Int']['input'];
 }>;
 
 

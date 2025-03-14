@@ -4,6 +4,7 @@ query getGlobalB2BApps {
             isGlobal: true,
             isHidden: false,
         },
+        first: 100,
     ) {
         id
         appUrl
