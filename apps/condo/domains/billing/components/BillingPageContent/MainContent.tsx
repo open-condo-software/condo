@@ -1,20 +1,74 @@
 import get from 'lodash/get'
-import React, { useMemo } from 'react'
+import { useRouter } from 'next/router'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Tabs } from '@open-condo/ui'
+import { RadioGroup, Tabs, Radio } from '@open-condo/ui'
 import type { TabItem } from '@open-condo/ui'
 
+import { PAYMENT_TYPES, PaymentTypes } from '@condo/domains/acquiring/utils/clientSchema'
+import { AccrualsTab } from '@condo/domains/billing/components/BillingPageContent/AccrualsTab'
+import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
+import { EmptyContent } from '@condo/domains/billing/components/BillingPageContent/EmptyContent'
+import { PaymentsTab } from '@condo/domains/billing/components/BillingPageContent/PaymentsTab'
 import { ACCRUALS_TAB_KEY, PAYMENTS_TAB_KEY, EXTENSION_TAB_KEY } from '@condo/domains/billing/constants/constants'
-import { useQueryTab } from '@condo/domains/billing/hooks/useQueryTab'
+import { useQueryParams } from '@condo/domains/billing/hooks/useQueryParams'
+import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 
-import { AccrualsTab } from './AccrualsTab'
-import { useBillingAndAcquiringContexts } from './ContextProvider'
-import { EmptyContent } from './EmptyContent'
-import { PaymentsTab } from './PaymentsTab'
 
+type PaymentTypeSwitchProps = {
+    defaultValue: PaymentTypes
+    activeTab: string
+}
+
+export const PaymentTypeSwitch = ({ defaultValue, activeTab }: PaymentTypeSwitchProps): JSX.Element => {
+    const intl = useIntl()
+    const PaymentsTypeListTitle = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.list' })
+    const PaymentsTypeRegistryTitle = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.registry' })
+
+    const router = useRouter()
+    const type  = get(router.query, 'type', PAYMENT_TYPES.list) as string
+
+    const isListSelected = type === PAYMENT_TYPES.list
+    const isRegistrySelected = type === PAYMENT_TYPES.registry
+
+    const [value, setValue] = useState<PaymentTypes>(PAYMENT_TYPES.list)
+    useEffect(() => {
+        if (isListSelected) {
+            setValue(PAYMENT_TYPES.list)
+        } else if (isRegistrySelected) {
+            setValue(PAYMENT_TYPES.registry)
+        }
+    }, [isListSelected, isRegistrySelected, setValue])
+
+
+    const handleRadioChange = useCallback(async (event) => {
+        const value = event.target.value
+        setValue(value)
+        await updateQuery(
+            router,
+            { newParameters: { type: value, tab: activeTab } },
+            { resetOldParameters: true, routerAction: 'replace', shallow: true }
+        )
+    }, [activeTab, router])
+
+    return (
+        <RadioGroup optionType='button' value={value} onChange={handleRadioChange} defaultValue={defaultValue}>
+            <Radio
+                key={PAYMENT_TYPES.list}
+                value={PAYMENT_TYPES.list}
+                label={PaymentsTypeListTitle}
+            />
+            <Radio
+                key={PAYMENT_TYPES.registry}
+                value={PAYMENT_TYPES.registry}
+                label={PaymentsTypeRegistryTitle}
+            />
+        </RadioGroup>
+    )
+}
 
 type MainContentProps = {
     uploadComponent?: React.ReactElement
@@ -39,8 +93,8 @@ export const MainContent: React.FC<MainContentProps> = ({
     const lastReport = get(billingContext, 'lastReport')
 
     const shouldIncludeAppTab = Boolean(appUrl && extendsBillingPage)
-    const [currentTab, onTabChange] = useQueryTab(shouldIncludeAppTab)
-
+    const [currentTab, currentType, onTabChange] = useQueryParams(shouldIncludeAppTab)
+    
     const extensionPageTitle = billingPageTitle || billingName
 
     const items = useMemo(() => {
@@ -53,7 +107,7 @@ export const MainContent: React.FC<MainContentProps> = ({
             canReadPayments && {
                 label: PaymentsTabTitle,
                 key: PAYMENTS_TAB_KEY,
-                children: <PaymentsTab/>,
+                children: <PaymentsTab type={currentType} />,
             }]
 
         if (shouldIncludeAppTab) {
@@ -65,7 +119,7 @@ export const MainContent: React.FC<MainContentProps> = ({
         }
 
         return result
-    }, [canReadBillingReceipts, AccrualsTabTitle, lastReport, uploadComponent, canReadPayments, PaymentsTabTitle, shouldIncludeAppTab, extensionPageTitle, appUrl])
+    }, [canReadBillingReceipts, AccrualsTabTitle, lastReport, uploadComponent, canReadPayments, PaymentsTabTitle, currentType, appUrl, shouldIncludeAppTab, extensionPageTitle])
 
     return (
         <Tabs
@@ -73,6 +127,7 @@ export const MainContent: React.FC<MainContentProps> = ({
             onChange={onTabChange}
             items={items}
             destroyInactiveTabPane
+            tabBarExtraContent={currentTab === PAYMENTS_TAB_KEY && <PaymentTypeSwitch defaultValue={PAYMENT_TYPES.list} activeTab={currentTab}/>}
         />
     )
 }
