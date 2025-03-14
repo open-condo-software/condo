@@ -349,6 +349,7 @@
   "api.common.WRONG_PHONE_FORMAT": "Formato del número de teléfono incorrecto",
   "api.contact.contact.CONTACT_DUPLICATE_ERROR": "Un contacto con este número de teléfono ya está registrado en esta propiedad",
   "api.document.WRONG_PROPERTY_ORGANIZATION": "La propiedad tiene una organización diferente",
+  "api.global.queryBlocking.FORBIDDEN_REQUEST": "Esta petición ha sido denegada por el servidor porque contiene operaciones bloqueadas: {blockedOperations}",
   "api.global.rateLimit.RATE_LIMIT_EXCEEDED": "Has creado demasiadas incidencias. Por favor, inténtalo más tarde.",
   "api.marketplace.invoice.ALREADY_CANCELED": "No se puede modificar una factura cancelada",
   "api.marketplace.invoice.ALREADY_PAID": "No se puede modificar una factura pagada",
