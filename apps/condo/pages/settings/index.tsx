@@ -54,8 +54,6 @@ const SettingsPage: PageComponentType = () => {
     const MobileFeatureConfigTitle = intl.formatMessage({ id: 'pages.condo.settings.barItem.MobileFeatureConfig' })
     const MarketSettingTitle = intl.formatMessage({ id: 'global.section.marketplace' })
 
-    const TestCustomTranslation = intl.formatMessage({ id: 'custom.example' })
-
     const hasSubscriptionFeature = hasFeature('subscription')
 
     const userOrganization = useOrganization()
@@ -141,7 +139,6 @@ const SettingsPage: PageComponentType = () => {
             </Head>
             <PageWrapper>
                 <OrganizationRequired>
-                    {TestCustomTranslation}
                     <PageHeader title={titleContent}/>
                     <TablePageContent>
                         <SettingsPageContent settingsTabs={settingsTabs} availableTabs={availableTabs}/>
