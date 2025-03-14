@@ -135,7 +135,7 @@ const MeterReportingPeriod = new GQLListSchema('MeterReportingPeriod', {
             hooks: {
                 validateInput: async ({ context, operation, resolvedData, fieldPath }) => {
                     if (operation === 'create' || operation === 'update') {
-                        if (resolvedData[fieldPath] > 31 || resolvedData[fieldPath] < 1) {
+                        if (resolvedData[fieldPath] !== null && (resolvedData[fieldPath] > 31 || resolvedData[fieldPath] < 1)) {
                             throw new GQLError(ERRORS.INVALID_RESTRICTION_END_DAY, context)
                         }
                     }

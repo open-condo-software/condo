@@ -90,7 +90,7 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
 
     const [isOrganizationPeriod, setIsOrganizationPeriod] = useState(false)
     const [selectedPropertyId, setSelectedPropertyId] = useState()
-    const [restrictionEndDay, setRestrictionEndDay] = useState(undefined)
+    const [restrictionEndDay, setRestrictionEndDay] = useState(null)
 
     const { breakpoints } = useLayoutContext()
     const isSmallWindow = !breakpoints.TABLET_LARGE
@@ -101,7 +101,7 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
         notifyEndDay: isCreateMode ? 25 : get(reportingPeriodRecord, 'notifyEndDay'),
         property: isCreateMode ? undefined : get(reportingPeriodRecord, 'property.address'),
         isOrganizationPeriod: isCreateMode ? false : get(reportingPeriodRecord, 'property') === null,
-        restrictionEndDay: isCreateMode ? undefined : get(reportingPeriodRecord, 'restrictionEndDay'),
+        restrictionEndDay: isCreateMode ? null : get(reportingPeriodRecord, 'restrictionEndDay'),
     }), [isCreateMode, reportingPeriodRecord])
 
     const startNumberRef = useRef<number>(formInitialValues.notifyStartDay)
@@ -158,8 +158,8 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
     useEffect(() => {
         if (form.isFieldsTouched(['notifyStartDay', 'notifyEndDay'])) form.validateFields(['notifyStartDay', 'notifyEndDay'])
         if (startNumberRef.current > finishNumberRef.current) {
-            setRestrictionEndDay(undefined)
-            form.setFieldValue('restrictionEndDay', undefined)
+            setRestrictionEndDay(null)
+            form.setFieldValue('restrictionEndDay', null)
         }
     }, [startNumberRef.current, finishNumberRef.current])
 
@@ -366,7 +366,7 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                                                         <Space size={isSmallWindow ? 16 : 40}>
                                                             <Radio
                                                                 key='not-strict'
-                                                                value={undefined}
+                                                                value={null}
                                                                 label={<LabelWithInfo title={NotStrictPeriodTooltip} message={NotStrictPeriodMessage} />}
                                                             />
                                                             <Radio

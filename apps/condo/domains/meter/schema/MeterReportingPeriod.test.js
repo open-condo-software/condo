@@ -641,6 +641,15 @@ describe('MeterReportingPeriod', () => {
             })
 
             test('restrictionEndDay field validation', async () => {
+                const [property] = await createTestProperty(admin, commonOrganization)
+                const [allowedWithNull, attrs] = await createTestMeterReportingPeriod(admin, commonOrganization, {
+                    restrictionEndDay: null,
+                    property: { connect: { id: property.id } },
+                })
+                expect(allowedWithNull.dv).toEqual(1)
+                expect(allowedWithNull.sender).toEqual(attrs.sender)
+                expect(allowedWithNull.createdBy).toEqual(expect.objectContaining({ id: admin.user.id }))
+
                 await expectToThrowGQLError(async () => {
                     await createTestMeterReportingPeriod(admin, commonOrganization, {
                         restrictionEndDay: 0,
