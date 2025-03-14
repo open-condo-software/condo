@@ -251,7 +251,11 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
                                                     data-cy='register-name-item'
                                                     validateFirst
                                                 >
-                                                    <Input placeholder={ExampleNameMessage}/>
+                                                    <Input
+                                                        placeholder={ExampleNameMessage}
+                                                        tabIndex={1}
+                                                        autoFocus
+                                                    />
                                                 </FormItem>
                                             </RequiredFlagWrapper>
                                         </Col>
@@ -269,7 +273,12 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
                                                     data-cy='register-email-item'
                                                     validateFirst
                                                 >
-                                                    <Input autoComplete='chrome-off' placeholder={EmailPlaceholder} />
+                                                    <Input
+                                                        autoComplete='chrome-off'
+                                                        placeholder={EmailPlaceholder}
+                                                        tabIndex={2}
+                                                        autoFocus={!visibleFields.name}
+                                                    />
                                                 </FormItem>
                                             </RequiredFlagWrapper>
                                         </Col>
@@ -287,7 +296,11 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
                                                     data-cy='register-password-item'
                                                     validateFirst
                                                 >
-                                                    <Input.Password autoComplete='new-password' />
+                                                    <Input.Password
+                                                        autoComplete='new-password'
+                                                        tabIndex={3}
+                                                        autoFocus={!visibleFields.name && !visibleFields.email}
+                                                    />
                                                 </FormItem>
                                             </RequiredFlagWrapper>
                                         </Col>
@@ -304,6 +317,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
                                 loading={isLoading}
                                 block
                                 data-cy='registercomplete-button'
+                                tabIndex={4}
                             >
                                 {RegisterMessage}
                             </Button>

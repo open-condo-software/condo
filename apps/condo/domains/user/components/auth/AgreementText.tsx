@@ -7,7 +7,15 @@ import { Typography } from '@open-condo/ui'
 
 import { colors } from '@condo/domains/common/constants/style'
 
-export const AgreementText = (): React.ReactElement => {
+type AgreementTextProps = {
+    tabIndexes?: {
+        termsOfUse: number
+        consentLink: number
+        privacyPolicyLink: number
+    }
+}
+
+export const AgreementText: React.FC<AgreementTextProps> = ({ tabIndexes }): React.ReactElement => {
     const intl = useIntl()
     const { publicRuntimeConfig: { termsOfUseUrl, privacyPolicyUrl, dataProcessingConsentUrl } } = getConfig()
     const ConsentContent = intl.formatMessage( { id: 'pages.auth.register.info.ConsentContent' } )
@@ -29,6 +37,7 @@ export const AgreementText = (): React.ReactElement => {
                                             target='_blank'
                                             href={termsOfUseUrl}
                                             rel='noreferrer'
+                                            tabIndex={tabIndexes?.termsOfUse}
                                         >
                                             {TermsOfUseContent}
                                         </Typography.Link>
@@ -38,7 +47,9 @@ export const AgreementText = (): React.ReactElement => {
                                             style={ { color: colors.black } }
                                             target='_blank'
                                             href={dataProcessingConsentUrl}
-                                            rel='noreferrer'>
+                                            rel='noreferrer'
+                                            tabIndex={tabIndexes?.consentLink}
+                                        >
                                             {ConsentContent}
                                         </Typography.Link>
                                     ),
@@ -47,7 +58,9 @@ export const AgreementText = (): React.ReactElement => {
                                             style={ { color: colors.black } }
                                             target='_blank'
                                             href={privacyPolicyUrl}
-                                            rel='noreferrer'>
+                                            rel='noreferrer'
+                                            tabIndex={tabIndexes?.privacyPolicyLink}
+                                        >
                                             {PrivacyPolicyContent}
                                         </Typography.Link>
                                     ),

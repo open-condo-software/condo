@@ -29,6 +29,9 @@ type InputPhoneFormProps = {
     onFinish: () => void
 }
 
+const PHONE_INPUT_PROPS = { tabIndex: 1, autoFocus: true }
+const TAB_INDEXES = { termsOfUse: 1, consentLink: 2, privacyPolicyLink: 3 }
+
 export const InputPhoneForm: React.FC<InputPhoneFormProps> = ({ onFinish }) => {
     const intl = useIntl()
     const PhoneMessage = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
@@ -141,11 +144,11 @@ export const InputPhoneForm: React.FC<InputPhoneFormProps> = ({ onFinish }) => {
                                                 data-cy='register-phone-item'
                                                 rules={registerPhoneRules}
                                             >
-                                                <Input.Phone placeholder={ExamplePhoneMessage} />
+                                                <Input.Phone placeholder={ExamplePhoneMessage} inputProps={PHONE_INPUT_PROPS} />
                                             </FormItem>
                                         </Col>
 
-                                        <AgreementText />
+                                        <AgreementText tabIndexes={TAB_INDEXES} />
                                     </Row>
                                 </Col>
 
@@ -159,6 +162,7 @@ export const InputPhoneForm: React.FC<InputPhoneFormProps> = ({ onFinish }) => {
                                                 loading={isLoading}
                                                 data-cy='register-button'
                                                 block
+                                                tabIndex={5}
                                             >
                                                 {RegisterMessage}
                                             </Button>
@@ -174,7 +178,12 @@ export const InputPhoneForm: React.FC<InputPhoneFormProps> = ({ onFinish }) => {
                                                         </Divider>
                                                     </Col>
                                                     <Col span={24} id='inputPhoneSBBOL'>
-                                                        <LoginWithSBBOLButton redirect={redirectUrl} block checkTlsCert />
+                                                        <LoginWithSBBOLButton
+                                                            redirect={redirectUrl}
+                                                            block
+                                                            checkTlsCert
+                                                            tabIndex={6}
+                                                        />
                                                     </Col>
                                                 </>
                                             )

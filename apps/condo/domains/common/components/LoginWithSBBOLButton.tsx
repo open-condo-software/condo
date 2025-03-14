@@ -9,11 +9,20 @@ import { colors } from '@open-condo/ui/dist/colors'
 import { useCheckTLSClientCert } from '@condo/domains/common/hooks/useCheckTLSClientCert'
 
 
-export const LoginWithSBBOLButton: React.FC<{ label?: string, block?: boolean, redirect?: string, checkTlsCert: boolean }> = ({
+type LoginWithSBBOLButtonProps = {
+    label?: string
+    block?: boolean
+    redirect?: string
+    checkTlsCert: boolean
+    tabIndex?: number
+}
+
+export const LoginWithSBBOLButton: React.FC<LoginWithSBBOLButtonProps> = ({
     label,
     block,
     redirect,
     checkTlsCert = true,
+    tabIndex,
 }) => {
     const intl = useIntl()
     const LoginLabel = intl.formatMessage({ id: 'LoginBySBBOL' })
@@ -44,6 +53,7 @@ export const LoginWithSBBOLButton: React.FC<{ label?: string, block?: boolean, r
             loading={loading}
             block={block}
             id='loginWithSBBOL'
+            tabIndex={tabIndex}
         >
             {label || LoginLabel}
         </Button>
