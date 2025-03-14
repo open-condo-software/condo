@@ -18,9 +18,12 @@ type StorageDataType = {
             [organizationId: string]: Array<MessageTypeAllowedToFilterType>
         }
     }
+    isNotificationSoundEnabled: {
+        [userId: string]: boolean
+    }
 }
 
-const DEFAULT_VALUE: StorageDataType = { readMessagesAt: {}, excludedMessages: {} }
+const DEFAULT_VALUE: StorageDataType = { readMessagesAt: {}, excludedMessages: {}, isNotificationSoundEnabled: {} }
 
 class UserMessagesListSettingsStorage {
     private readonly userId: string
@@ -68,6 +71,25 @@ class UserMessagesListSettingsStorage {
         if (!data.readMessagesAt[this.userId]) data.readMessagesAt[this.userId] = {}
 
         data.readMessagesAt[this.userId][this.organizationId] = datetime
+        this.storage.setItem(this.storageKey, data)
+    }
+
+    getIsNotificationSoundEnabled (): boolean {
+        if (!this.userId) return
+        const data = this.storage.getItem(this.storageKey) ?? DEFAULT_VALUE
+
+        return data.isNotificationSoundEnabled?.[this.userId] ?? true
+    }
+
+    setIsNotificationSoundEnabled (isEnabled: boolean): void {
+        if (!this.userId) return
+
+        const data = this.storage.getItem(this.storageKey) ?? DEFAULT_VALUE
+        if (!data.isNotificationSoundEnabled) {
+            data.isNotificationSoundEnabled = {}
+        }
+        data.isNotificationSoundEnabled[this.userId] = isEnabled
+
         this.storage.setItem(this.storageKey, data)
     }
 }
