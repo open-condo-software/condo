@@ -1,16 +1,17 @@
-import { Col, Form, Row, Space, Typography as DefaultTypography, RowProps } from 'antd'
-import React, { CSSProperties, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { useCompleteConfirmPhoneActionMutation, useResendConfirmPhoneActionSmsMutation } from '@app/condo/gql'
+import { Col, Form, Row } from 'antd'
+import getConfig from 'next/config'
+import React, { useCallback, useMemo, useState } from 'react'
 
-import { useMutation } from '@open-condo/next/apollo'
-import { FormattedMessage } from '@open-condo/next/intl'
+import { ArrowLeft } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Typography } from '@open-condo/ui'
+import { Typography, Input, Space, Modal, Button } from '@open-condo/ui'
 
-import Input from '@condo/domains/common/components/antd/Input'
 import { CountDownTimer } from '@condo/domains/common/components/CountDownTimer'
-import { colors } from '@condo/domains/common/constants/style'
+import { FormItem } from '@condo/domains/common/components/Form/FormItem'
+import { useHCaptcha } from '@condo/domains/common/components/HCaptcha'
+import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
 import { formatPhone } from '@condo/domains/common/utils/helpers'
-import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 import { SMS_CODE_LENGTH, SMS_CODE_TTL } from '@condo/domains/user/constants/common'
@@ -18,77 +19,79 @@ import {
     CONFIRM_PHONE_ACTION_EXPIRED,
     CONFIRM_PHONE_SMS_CODE_EXPIRED,
     CONFIRM_PHONE_SMS_CODE_MAX_RETRIES_REACHED,
-    CONFIRM_PHONE_SMS_CODE_VERIFICATION_FAILED, TOO_MANY_REQUESTS,
+    CONFIRM_PHONE_SMS_CODE_VERIFICATION_FAILED,
+    TOO_MANY_REQUESTS,
 } from '@condo/domains/user/constants/errors'
-import { COMPLETE_CONFIRM_PHONE_MUTATION, RESEND_CONFIRM_PHONE_SMS_MUTATION } from '@condo/domains/user/gql'
 
-import { RegisterContext } from './RegisterContextProvider'
+import { useRegisterContext } from './RegisterContextProvider'
+import { SecondaryLink } from './SecondaryLink'
 
 
-const ROW_STYLES: React.CSSProperties = {
-    justifyContent: 'center',
-}
+const {
+    publicRuntimeConfig: { HelpRequisites },
+} = getConfig()
 
-interface IValidatePhoneFormProps {
+
+type ValidatePhoneFormProps = {
     onFinish: () => void
     onReset: () => void
     title: string
 }
 
-const SMS_CODE_CLEAR_REGEX = /[^0-9]/g
-const BUTTON_FORM_GUTTER: RowProps['gutter'] = [0, 40]
-const FORM_ITEMS_GUTTER: RowProps['gutter'] = [0, 24]
-const INPUT_STYLE: CSSProperties = { maxWidth: '120px' }
+const NOT_NUMBER_REGEX = /\D/g
 
-export const ValidatePhoneForm = ({ onFinish, onReset, title }): React.ReactElement<IValidatePhoneFormProps> => {
+const INITIAL_VALUES = { smsCode: '' }
+
+export const ValidatePhoneForm: React.FC<ValidatePhoneFormProps> = ({ onFinish, onReset, title }) => {
     const intl = useIntl()
-    const ChangePhoneNumberLabel = intl.formatMessage({ id: 'pages.auth.register.ChangePhoneNumber' })
     const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
-    const SmsCodeTitle = intl.formatMessage({ id: 'pages.auth.register.field.SmsCode' })
-    const ResendSmsLabel = intl.formatMessage({ id: 'pages.auth.register.ResendSmsLabel' })
-    const SMSAvailableLabel = intl.formatMessage({ id: 'pages.auth.register.CodeIsAvailable' })
-    const SMSCodeMismatchError = intl.formatMessage({ id: 'pages.auth.register.SMSCodeMismatchError' })
-    const SMSExpiredError = intl.formatMessage({ id: 'pages.auth.register.SMSExpiredError' })
-    const ConfirmActionExpiredError = intl.formatMessage({ id: 'pages.auth.register.ConfirmActionExpiredError' })
-    const SMSMaxRetriesReachedError = intl.formatMessage({ id: 'pages.auth.register.SMSMaxRetriesReachedError' })
-    const SMSBadFormat = intl.formatMessage({ id: 'pages.auth.register.SMSBadFormat' })
-    const SMSTooManyRequestsError = intl.formatMessage({ id: 'pages.auth.TooManyRequests' })
-    // TODO(DOMA-3293): remove this legacy error style and Useless error messages
-    const ErrorToFormFieldMsgMapping = useMemo(() => {
-        return {
-            [CONFIRM_PHONE_SMS_CODE_VERIFICATION_FAILED]: {
-                name: 'smsCode',
-                errors: [SMSCodeMismatchError],
-            },
-            [CONFIRM_PHONE_ACTION_EXPIRED]: {
-                name: 'smsCode',
-                errors: [ConfirmActionExpiredError],
-            },
-            [CONFIRM_PHONE_SMS_CODE_EXPIRED]: {
-                name: 'smsCode',
-                errors: [SMSExpiredError],
-            },
-            [CONFIRM_PHONE_SMS_CODE_MAX_RETRIES_REACHED]: {
-                name: 'smsCode',
-                errors: [SMSMaxRetriesReachedError],
-            },
-            [TOO_MANY_REQUESTS]: {
-                name: 'smsCode',
-                errors: [SMSTooManyRequestsError],
-            },
-        }
-    }, [intl])
+    const ResendSmsLabel = intl.formatMessage({ id: 'pages.auth.validatePhoneForm.resendSms' })
+    const codeAvailableLabel = intl.formatMessage({ id: 'pages.auth.validatePhoneForm.codeIsAvailable' })
+    const smsCodeMismatchError = intl.formatMessage({ id: 'pages.auth.validatePhoneForm.smsCodeMismatchError' })
+    const smsNotDeliveredMessage = intl.formatMessage({ id: 'pages.auth.validatePhoneForm.smsNotDelivered' })
+    const problemsModalTitle = intl.formatMessage({ id: 'pages.auth.validatePhoneForm.problemsModal.title' })
+    const checkPhoneLabel = intl.formatMessage({ id: 'pages.auth.validatePhoneForm.problemsModal.checkPhone' })
+    const instructionStepCheckPhone = intl.formatMessage({ id: 'pages.auth.validatePhoneForm.problemsModal.instruction.steps.checkPhone' })
+    const chatInTelegramMessage = intl.formatMessage({ id: 'pages.auth.validatePhoneForm.problemsModal.instruction.steps.supportTelegramChat.chatInTelegram' })
+    const instructionStepSupportTelegramChat = intl.formatMessage({ id: 'pages.auth.validatePhoneForm.problemsModal.instruction.steps.supportTelegramChat' }, {
+        chatBotLink: (
+            <SecondaryLink target='_blank' href={HelpRequisites?.support_bot ? `https://t.me/${HelpRequisites.support_bot}` : '#'}>
+                {chatInTelegramMessage}
+            </SecondaryLink>
+        ),
+    })
+
+    const { token, phone } = useRegisterContext()
+    const SmsCodeSentMessage = intl.formatMessage({ id: 'pages.auth.validatePhoneForm.description.smsCodeSent' }, { phone: formatPhone(phone) })
+
+    const { executeCaptcha } = useHCaptcha()
 
     const [form] = Form.useForm()
-    const { token, phone, handleCaptchaVerify } = useContext(RegisterContext)
-    const [showPhone, setShowPhone] = useState(phone)
-    const [isPhoneVisible, setIsPhoneVisible] = useState(false)
-    const [phoneValidateError, setPhoneValidateError] = useState(null)
-    const [resendSmsMutation] = useMutation(RESEND_CONFIRM_PHONE_SMS_MUTATION)
-    const [completeConfirmPhoneMutation] = useMutation(COMPLETE_CONFIRM_PHONE_MUTATION)
-    const PhoneToggleLabel = isPhoneVisible ? intl.formatMessage({ id: 'Hide' }) : intl.formatMessage({ id: 'Show' })
 
-    const SMS_VALIDATOR = useCallback(() => ({
+    const [phoneValidateError, setPhoneValidateError] = useState(null)
+
+    const [isOpenProblemsModal, setIsOpenProblemsModal] = useState<boolean>(false)
+
+    const hasSupportTelegramChat = !!HelpRequisites?.support_bot
+
+    const errorHandler = useMutationErrorHandler({
+        form,
+        typeToFieldMapping: {
+            [CONFIRM_PHONE_SMS_CODE_VERIFICATION_FAILED]: 'smsCode',
+            [CONFIRM_PHONE_ACTION_EXPIRED]: 'smsCode',
+            [CONFIRM_PHONE_SMS_CODE_EXPIRED]: 'smsCode',
+            [CONFIRM_PHONE_SMS_CODE_MAX_RETRIES_REACHED]: 'smsCode',
+            [TOO_MANY_REQUESTS]: 'smsCode',
+        },
+    })
+    const [completeConfirmPhoneMutation] = useCompleteConfirmPhoneActionMutation({
+        onError: errorHandler,
+    })
+    const [resendSmsMutation] = useResendConfirmPhoneActionSmsMutation({
+        onError: errorHandler,
+    })
+
+    const smsValidator = useCallback(() => ({
         validator () {
             if (!phoneValidateError) {
                 return Promise.resolve()
@@ -97,163 +100,189 @@ export const ValidatePhoneForm = ({ onFinish, onReset, title }): React.ReactElem
         },
     }), [phoneValidateError])
 
-    const SMS_CODE_VALIDATOR_RULES = useMemo(() => [
-        { required: true, message: FieldIsRequiredMsg }, SMS_VALIDATOR], [FieldIsRequiredMsg, SMS_VALIDATOR])
+    const smsCodeValidatorRules = useMemo(() => [
+        { required: true, message: FieldIsRequiredMsg }, smsValidator,
+    ], [FieldIsRequiredMsg, smsValidator])
 
     const resendSms = useCallback(async () => {
-        const sender = getClientSideSenderInfo()
-        const captcha = await handleCaptchaVerify()
-        const variables = { data: { token, sender, captcha, dv: 1 } }
-        return runMutation({
-            mutation: resendSmsMutation,
-            variables,
-            intl,
-            form,
-            ErrorToFormFieldMsgMapping,
-        }).catch(error => {
+        try {
+            const sender = getClientSideSenderInfo()
+            const captcha = await executeCaptcha()
+            await resendSmsMutation({
+                variables: {
+                    data: {
+                        dv: 1,
+                        sender,
+                        captcha,
+                        token,
+                    },
+                },
+            })
+        } catch (error) {
+            console.error('Code resending error')
             console.error(error)
-        })
-    }, [intl, form, handleCaptchaVerify, resendSmsMutation])
-
-    const confirmPhone = useCallback(async () => {
-        const sender = getClientSideSenderInfo()
-        const smsCode = Number(form.getFieldValue('smsCode'))
-        if (isNaN(smsCode)) {
-            throw new Error(SMSBadFormat)
         }
-        const captcha = await handleCaptchaVerify()
-        const variables = { data: { token, smsCode, captcha, dv: 1, sender } }
-        return runMutation({
-            mutation: completeConfirmPhoneMutation,
-            variables,
-            intl,
-            form,
-            // Skip notification
-            OnCompletedMsg: null,
-            ErrorToFormFieldMsgMapping,
-        })
-    }, [intl, form, completeConfirmPhoneMutation])
+    }, [executeCaptcha, resendSmsMutation, token])
 
     const handleVerifyCode = useCallback(async () => {
         setPhoneValidateError(null)
-        let smsCode = (form.getFieldValue('smsCode') || '').toString()
-        smsCode = smsCode.replace(SMS_CODE_CLEAR_REGEX, '')
+        const smsCodeFromInput = (form.getFieldValue('smsCode') || '').toString()
+        const smsCode = smsCodeFromInput.replace(NOT_NUMBER_REGEX, '')
         form.setFieldsValue({ smsCode })
         if (smsCode.length < SMS_CODE_LENGTH) {
             return
         }
         if (smsCode.length > SMS_CODE_LENGTH) {
-            return setPhoneValidateError(SMSCodeMismatchError)
+            return setPhoneValidateError(smsCodeMismatchError)
         }
+
+        const smsCodeAsNumber = Number(smsCode)
+        if (Number.isNaN(smsCodeAsNumber)) {
+            return setPhoneValidateError(smsCodeMismatchError)
+        }
+
         try {
-            await confirmPhone()
-            onFinish()
+            const sender = getClientSideSenderInfo()
+            const captcha = await executeCaptcha()
+
+            const res = await completeConfirmPhoneMutation({
+                variables: {
+                    data: {
+                        dv: 1,
+                        sender,
+                        captcha,
+                        token,
+                        smsCode: smsCodeAsNumber,
+                    },
+                },
+            })
+
+            if (!res.errors && res?.data?.result?.status === 'ok') {
+                onFinish()
+                return
+            }
         } catch (error) {
+            console.error('Phone verification error')
             console.error(error)
         }
-    }, [confirmPhone])
+    }, [smsCodeMismatchError, completeConfirmPhoneMutation, form, executeCaptcha, onFinish, token])
 
-    useEffect(() => {
-        const formattedPhone = formatPhone(phone)
-        const phoneVisible = isPhoneVisible ? formattedPhone : `${formattedPhone.substring(0, 9)}***${formattedPhone.substring(12)}`
-        setShowPhone(phoneVisible)
-    }, [isPhoneVisible, phone, setShowPhone])
+    const closeModal = useCallback(() => setIsOpenProblemsModal(false), [])
 
-    const initialValues = { smsCode: '' }
+    const openModal = useCallback(() => setIsOpenProblemsModal(true), [])
 
     return (
-        <Form
-            form={form}
-            name='register-verify-code'
-            initialValues={initialValues}
-            colon={false}
-            labelAlign='left'
-            requiredMark={false}
-            layout='vertical'
-        >
-            <Row gutter={BUTTON_FORM_GUTTER} style={ROW_STYLES}>
-                <ResponsiveCol span={24}>
-                    <Row gutter={FORM_ITEMS_GUTTER}>
-                        <Col span={24}>
-                            <Typography.Title level={2}>{title}</Typography.Title>
-                        </Col>
-                        <Col span={24}>
-                            <DefaultTypography.Text>
-                                <FormattedMessage
-                                    id='pages.auth.register.info.SmsCodeSent'
-                                    values={{
-                                        phone: (
-                                            <span style={{ whiteSpace: 'nowrap' }}>
-                                                {`${formatPhone(showPhone)} `}
-                                                <DefaultTypography.Link
-                                                    underline
-                                                    style={{ color: 'black' }}
-                                                    onClick={() => setIsPhoneVisible(!isPhoneVisible)}
-                                                >
-                                                    ({PhoneToggleLabel})
-                                                </DefaultTypography.Link>
-                                            </span>),
-                                    }}
-                                />
-                            </DefaultTypography.Text>
-                        </Col>
-                        <Col span={24}>
-                            <DefaultTypography.Link underline style={{ color: colors.textSecondary }} onClick={onReset}>
-                                {ChangePhoneNumberLabel}
-                            </DefaultTypography.Link>
-                        </Col>
-                        <Col span={24}>
-                            <Form.Item
-                                name='smsCode'
-                                label={SmsCodeTitle}
-                                data-cy='register-smscode-item'
-                                rules={SMS_CODE_VALIDATOR_RULES}
-                            >
-                                <Input
-                                    placeholder=''
-                                    inputMode='numeric'
-                                    pattern='[0-9]*'
-                                    onChange={handleVerifyCode}
-                                    style={INPUT_STYLE}
-                                />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                </ResponsiveCol>
-                <ResponsiveCol span={24}>
-                    <CountDownTimer action={resendSms} id='RESEND_SMS' timeout={SMS_CODE_TTL} autostart={true}>
-                        {({ countdown, runAction }) => {
-                            const isCountDownActive = countdown > 0
-                            return (
-                                isCountDownActive ?
-
-                                    <Space direction='horizontal' size={8}>
-                                        <DefaultTypography.Link
-                                            style={{ color: colors.textSecondary }}
-                                            disabled={true}
+        <>
+            <Form
+                form={form}
+                name='register-verify-code'
+                initialValues={INITIAL_VALUES}
+                colon={false}
+                labelAlign='left'
+                requiredMark={false}
+                layout='vertical'
+            >
+                <Row justify='center'>
+                    <ResponsiveCol span={24}>
+                        <Row gutter={[0, 40]} justify='center'>
+                            <Col span={24}>
+                                <Row gutter={[0, 16]}>
+                                    <Col span={24}>
+                                        <Space direction='vertical' size={24}>
+                                            <Button.Icon onClick={onReset} size='small'>
+                                                <ArrowLeft />
+                                            </Button.Icon>
+                                            <Typography.Title level={2}>{title}</Typography.Title>
+                                        </Space>
+                                    </Col>
+                                    <Col span={24}>
+                                        <Typography.Text type='secondary'>
+                                            {SmsCodeSentMessage}
+                                        </Typography.Text>
+                                    </Col>
+                                    <Col span={24}>
+                                        <FormItem
+                                            name='smsCode'
+                                            label=' '
+                                            data-cy='register-smscode-item'
+                                            rules={smsCodeValidatorRules}
                                         >
-                                            {SMSAvailableLabel}
-                                        </DefaultTypography.Link>
-                                        <DefaultTypography.Text type='secondary'>
-                                            {`${new Date(countdown * 1000).toISOString().substr(14, 5)}`}
-                                        </DefaultTypography.Text>
-                                    </Space>
+                                            <Input
+                                                placeholder=''
+                                                inputMode='numeric'
+                                                pattern='[0-9]'
+                                                onChange={handleVerifyCode}
+                                                tabIndex={1}
+                                                autoFocus
+                                            />
+                                        </FormItem>
+                                    </Col>
+                                </Row>
+                            </Col>
 
-                                    :
+                            <Col span={24}>
+                                <Space size={12} direction='vertical'>
+                                    <CountDownTimer action={resendSms} id='RESEND_SMS' timeout={SMS_CODE_TTL} autostart={true}>
+                                        {({ countdown, runAction }) => {
+                                            const isCountDownActive = countdown > 0
+                                            return (
+                                                isCountDownActive
+                                                    ? (
+                                                        <Space direction='horizontal' size={8}>
+                                                            <Typography.Text type='secondary'>
+                                                                {codeAvailableLabel}
+                                                            </Typography.Text>
+                                                            <Typography.Text type='secondary'>
+                                                                {`${new Date(countdown * 1000).toISOString().substr(14, 5)}`}
+                                                            </Typography.Text>
+                                                        </Space>
+                                                    )
+                                                    : (
+                                                        <Typography.Link onClick={runAction} tabIndex={2}>
+                                                            {ResendSmsLabel}
+                                                        </Typography.Link>
+                                                    )
+                                            )
+                                        }}
+                                    </CountDownTimer>
 
-                                    <DefaultTypography.Link
-                                        underline
-                                        style={{ color: colors.textSecondary }}
-                                        onClick={runAction}
-                                    >
-                                        {ResendSmsLabel}
-                                    </DefaultTypography.Link>
+                                    <Typography.Link onClick={openModal} tabIndex={3}>
+                                        {smsNotDeliveredMessage}
+                                    </Typography.Link>
+                                </Space>
+                            </Col>
+                        </Row>
+                    </ResponsiveCol>
+                </Row>
+            </Form>
 
-                            )
-                        }}
-                    </CountDownTimer>
-                </ResponsiveCol>
-            </Row>
-        </Form>
+            <Modal
+                open={isOpenProblemsModal}
+                title={problemsModalTitle}
+                width='small'
+                onCancel={closeModal}
+                footer={
+                    <Button type='primary' onClick={closeModal}>
+                        {checkPhoneLabel}
+                    </Button>
+                }
+            >
+                <Space
+                    direction='vertical'
+                    size={0}
+                >
+                    <Typography.Text type='secondary'>
+                        {instructionStepCheckPhone}
+                    </Typography.Text>
+                    {
+                        hasSupportTelegramChat && (
+                            <Typography.Text type='secondary'>
+                                {instructionStepSupportTelegramChat}
+                            </Typography.Text>
+                        )
+                    }
+                </Space>
+            </Modal>
+        </>
     )
 }

@@ -90,11 +90,13 @@ const GQL_ERRORS = {
         code: 'BAD_USER_INPUT',
         type: SMS_FOR_PHONE_DAY_LIMIT_REACHED,
         message: 'Too many sms requests for this phone number. Try again tomorrow',
+        messageForUser: 'api.user.SMS_FOR_PHONE_DAY_LIMIT_REACHED',
     },
     SMS_FOR_IP_DAY_LIMIT_REACHED: {
         code: 'BAD_USER_INPUT',
         type: SMS_FOR_IP_DAY_LIMIT_REACHED,
         message: 'Too many sms requests from this ip address. Try again tomorrow',
+        messageForUser: 'api.user.SMS_FOR_IP_DAY_LIMIT_REACHED',
     },
     DAILY_REQUEST_LIMIT_FOR_IP_REACHED: {
         code: 'BAD_USER_INPUT',

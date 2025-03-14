@@ -11,7 +11,14 @@ const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const access = require('@condo/domains/user/access/AuthenticateOrRegisterUserWithTokenService')
 const { RESIDENT, STAFF, SERVICE } = require('@condo/domains/user/constants/common')
-const { CAPTCHA_CHECK_FAILED, UNSUPPORTED_TOKEN, INVALID_TOKEN } = require('@condo/domains/user/constants/errors')
+const { ERRORS: USER_ERRORS } = require('@condo/domains/user/constants/errors')
+const {
+    CAPTCHA_CHECK_FAILED,
+    UNSUPPORTED_TOKEN,
+    INVALID_TOKEN,
+    EMAIL_ALREADY_REGISTERED_ERROR,
+    PHONE_ALREADY_REGISTERED_ERROR,
+} = require('@condo/domains/user/constants/errors')
 const { captchaCheck } = require('@condo/domains/user/utils/hCaptcha')
 const { User, ConfirmPhoneAction } = require('@condo/domains/user/utils/serverSchema')
 const { validateUserCredentials, authGuards } = require('@condo/domains/user/utils/serverSchema/auth')
@@ -113,6 +120,51 @@ const ERRORS = {
         message: 'It is not possible to register a user with the type {userType} using {identifierType}',
         messageInterpolation: { userType: '?', identifierType: '?' },
     },
+    PHONE_ALREADY_REGISTERED_ERROR: {
+        query: 'authenticateOrRegisterUserWithToken',
+        variable: ['data', 'userData', 'phone'],
+        code: BAD_USER_INPUT,
+        type: 'PHONE_ALREADY_REGISTERED_ERROR',
+        message: 'Phone already registered',
+    },
+    EMAIL_ALREADY_REGISTERED_ERROR: {
+        query: 'authenticateOrRegisterUserWithToken',
+        variable: ['data', 'userData', 'email'],
+        code: BAD_USER_INPUT,
+        type: 'EMAIL_ALREADY_REGISTERED_ERROR',
+        message: 'Email already registered',
+    },
+    INVALID_PASSWORD_LENGTH: {
+        ...USER_ERRORS.INVALID_PASSWORD_LENGTH,
+        mutation: 'authenticateOrRegisterUserWithToken',
+    },
+    PASSWORD_IS_FREQUENTLY_USED: {
+        ...USER_ERRORS.PASSWORD_IS_FREQUENTLY_USED,
+        mutation: 'authenticateOrRegisterUserWithToken',
+    },
+    PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS: {
+        ...USER_ERRORS.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS,
+        mutation: 'authenticateOrRegisterUserWithToken',
+    },
+    PASSWORD_CONTAINS_EMAIL: {
+        ...USER_ERRORS.PASSWORD_CONTAINS_EMAIL,
+        mutation: 'authenticateOrRegisterUserWithToken',
+    },
+    PASSWORD_CONTAINS_PHONE: {
+        ...USER_ERRORS.PASSWORD_CONTAINS_PHONE,
+        mutation: 'authenticateOrRegisterUserWithToken',
+    },
+}
+
+const USER_ERROR_MAPPING = {
+    [PHONE_ALREADY_REGISTERED_ERROR]: ERRORS.PHONE_ALREADY_REGISTERED_ERROR,
+    [EMAIL_ALREADY_REGISTERED_ERROR]: ERRORS.EMAIL_ALREADY_REGISTERED_ERROR,
+    '[password:minLength:User:password]': ERRORS.INVALID_PASSWORD_LENGTH,
+    '[password:rejectCommon:User:password]': ERRORS.PASSWORD_IS_FREQUENTLY_USED,
+    [ERRORS.INVALID_PASSWORD_LENGTH.message]: ERRORS.INVALID_PASSWORD_LENGTH,
+    [ERRORS.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS.message]: ERRORS.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS,
+    [ERRORS.PASSWORD_CONTAINS_EMAIL.message]: ERRORS.PASSWORD_CONTAINS_EMAIL,
+    [ERRORS.PASSWORD_CONTAINS_PHONE.message]: ERRORS.PASSWORD_CONTAINS_PHONE,
 }
 
 const SUPPORTED_TOKENS = [
@@ -147,7 +199,7 @@ const USER_REGISTRATION_TOKEN_TYPES = {
 
 const prepareCreateOrUpdateUserData = (user, userData, dvAndSender) => {
     const payload = {}
-    for (const [key, value] of Object.entries(userData))  {
+    for (const [key, value] of Object.entries(userData)) {
         if (!value) continue
         if (user?.[key]) continue
         payload[key] = value
@@ -296,7 +348,10 @@ const AuthenticateOrRegisterUserWithTokenService = new GQLCustomSchema('Authenti
                         }, context)
                     }
 
-                    const { missingRequiredFields, missingFields } = checkRequiredUserFields(REQUIRED_USER_REGISTRATION_FIELDS[userType], userPayload)
+                    const {
+                        missingRequiredFields,
+                        missingFields,
+                    } = checkRequiredUserFields(REQUIRED_USER_REGISTRATION_FIELDS[userType], userPayload)
                     if (missingRequiredFields) {
                         throw new GQLError({
                             ...ERRORS.REQUIRED_USER_DATA_IS_MISSING,
@@ -305,7 +360,9 @@ const AuthenticateOrRegisterUserWithTokenService = new GQLCustomSchema('Authenti
                         }, context)
                     }
 
-                    actualUser = await User.create(context, userPayload)
+                    actualUser = await User.create(context, userPayload, 'id', {
+                        errorMapping: USER_ERROR_MAPPING,
+                    })
                 } else {
                     if (tokenType === TOKEN_TYPES.CONFIRM_PHONE && !existingUser.isPhoneVerified && existingUser.isEmailVerified) {
                         throw new GQLError(ERRORS.SHOULD_AUTHORIZE_WITH_EMAIL, context)
@@ -338,12 +395,18 @@ const AuthenticateOrRegisterUserWithTokenService = new GQLCustomSchema('Authenti
                     actualUser = existingUser
 
                     if (Object.keys(userPayload).some(key => key !== 'dv' && key !== 'sender')) {
-                        actualUser = await User.update(context, existingUser.id, userPayload)
+                        actualUser = await User.update(context, existingUser.id, userPayload, 'id', {
+                            errorMapping: USER_ERROR_MAPPING,
+                        })
                     }
                 }
 
                 if (tokenType === TOKEN_TYPES.CONFIRM_PHONE) {
-                    await ConfirmPhoneAction.update(context, confirmAction.id, { dv: 1, sender, completedAt: new Date().toISOString() })
+                    await ConfirmPhoneAction.update(context, confirmAction.id, {
+                        dv: 1,
+                        sender,
+                        completedAt: new Date().toISOString(),
+                    })
                 }
                 // TODO(DOMA-9890): implement when added ConfirmEmailToken
                 // if (tokenType === TOKEN_TYPES.CONFIRM_EMAIL) {
@@ -351,7 +414,10 @@ const AuthenticateOrRegisterUserWithTokenService = new GQLCustomSchema('Authenti
                 // }
 
                 const { keystone } = getSchemaCtx('User')
-                const sessionToken = await context.startAuthedSession({ item: actualUser, list: keystone.lists['User'] })
+                const sessionToken = await context.startAuthedSession({
+                    item: actualUser,
+                    list: keystone.lists['User'],
+                })
 
                 return {
                     item: actualUser,

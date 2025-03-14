@@ -23,6 +23,7 @@ const GQLErrorSchema = z.object({
         type: z.string(),
         message: z.string(),
         messageForUser: z.string().optional(),
+        variable: z.array(z.string()).optional(),
     }),
 })
 
@@ -53,14 +54,15 @@ export function useMutationErrorHandler<FormType> (opts: UseMutationErrorHandler
         for (const graphQLError of error.graphQLErrors) {
             let errorMessage: string | undefined
             let errorType: string | undefined
+            let variable: Array<string> | undefined
 
             const gqlErrorParseResult = GQLErrorSchema.safeParse(graphQLError)
 
             if (gqlErrorParseResult.success) {
-                const { extensions: { type, message, messageForUser } } = gqlErrorParseResult.data
+                const { extensions: { type, message, messageForUser, variable: variableFromError } } = gqlErrorParseResult.data
                 errorMessage = messageForUser || message
                 errorType = type
-
+                variable = variableFromError
             } else {
                 const constraintErrorParseResult = ConstraintErrorSchema.safeParse(graphQLError)
                 if (constraintErrorParseResult.success) {
@@ -73,6 +75,8 @@ export function useMutationErrorHandler<FormType> (opts: UseMutationErrorHandler
             }
 
             if (errorMessage) {
+                messageToShow = errorMessage
+
                 if (errorType && form && typeToFieldMapping && typeToFieldMapping.hasOwnProperty(errorType)) {
                     formAffected = true
                     const fieldName = typeToFieldMapping[errorType]
@@ -80,8 +84,18 @@ export function useMutationErrorHandler<FormType> (opts: UseMutationErrorHandler
                         name: fieldName,
                         errors: [errorMessage],
                     }])
-                } else {
-                    messageToShow = errorMessage
+                } else if (form && variable) {
+                    const fieldName = variable[variable.length - 1]
+                    if (fieldName) {
+                        const field = form.getFieldInstance(fieldName)
+                        if (field) {
+                            formAffected = true
+                            form.setFields([{
+                                name: fieldName,
+                                errors: [errorMessage],
+                            }])
+                        }
+                    }
                 }
             }
         }

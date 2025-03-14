@@ -24,7 +24,6 @@ const INVITE_NEW_EMPLOYEE_MESSAGE_TYPE = 'INVITE_NEW_EMPLOYEE'
 const SHARE_TICKET_MESSAGE_TYPE = 'SHARE_TICKET'
 const DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE = 'DIRTY_INVITE_NEW_EMPLOYEE_SMS'
 const DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE = 'DIRTY_INVITE_NEW_EMPLOYEE_EMAIL'
-const REGISTER_NEW_USER_MESSAGE_TYPE = 'REGISTER_NEW_USER'
 const SMS_VERIFY_CODE_MESSAGE_TYPE = 'SMS_VERIFY'
 const DEVELOPER_IMPORTANT_NOTE_TYPE = 'DEVELOPER_IMPORTANT_NOTE_TYPE'
 const CUSTOMER_IMPORTANT_NOTE_TYPE = 'CUSTOMER_IMPORTANT_NOTE_TYPE'
@@ -282,16 +281,13 @@ const MESSAGE_META = {
         dv: { defaultValue: '', required: true },
         organizationName: { defaultValue: 'ORGANIZATION', required: false },
         serverUrl: { defaultValue: '', required: false },
+        isRegistration: { defaultValue: false, required: false },
     },
     [DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE]: {
         dv: { defaultValue: '', required: true },
         organizationName: { defaultValue: 'ORGANIZATION', required: false },
         serverUrl: { defaultValue: '', required: false },
-    },
-    [REGISTER_NEW_USER_MESSAGE_TYPE]: {
-        dv: { defaultValue: '', required: true },
-        userPhone: { defaultValue: '', required: false },
-        userPassword: { defaultValue: '', required: false },
+        isRegistration: { defaultValue: false, required: false },
     },
     [SMS_VERIFY_CODE_MESSAGE_TYPE]: {
         dv: { defaultValue: '', required: true },
@@ -849,13 +845,6 @@ const MESSAGE_DELIVERY_OPTIONS = {
         defaultTransports: [TELEGRAM_TRANSPORT],
         isAllowedToChangeDefaultTransport: false,
     },
-    [REGISTER_NEW_USER_MESSAGE_TYPE]: {
-        priority: MESSAGE_DELIVERY_FAST_PRIORITY,
-        strategy: MESSAGE_DELIVERY_STRATEGY_ALL_TRANSPORTS,
-        allowedTransports: [SMS_TRANSPORT, EMAIL_TRANSPORT],
-        defaultTransports: [SMS_TRANSPORT, EMAIL_TRANSPORT],
-        isAllowedToChangeDefaultTransport: false,
-    },
     [DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE]: {
         allowedTransports: [SMS_TRANSPORT, EMAIL_TRANSPORT],
         defaultTransports: [SMS_TRANSPORT, EMAIL_TRANSPORT],
@@ -1075,7 +1064,6 @@ module.exports = {
     MESSAGE_TRANSPORTS,
     TICKET_CREATED_TYPE,
     TICKET_COMMENT_CREATED_TYPE,
-    REGISTER_NEW_USER_MESSAGE_TYPE,
     SMS_VERIFY_CODE_MESSAGE_TYPE,
     INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
     DEVELOPER_IMPORTANT_NOTE_TYPE,

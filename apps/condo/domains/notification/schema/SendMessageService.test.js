@@ -23,9 +23,9 @@ const {
     PUSH_TRANSPORT_APPLE,
     PUSH_TYPE_DEFAULT,
     PUSH_TYPE_SILENT_DATA,
-    REGISTER_NEW_USER_MESSAGE_TYPE,
     MESSAGE_DISABLED_BY_USER_STATUS,
     MESSAGE_DELIVERY_OPTIONS,
+    DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const {
     syncRemoteClientWithPushTokenByTestClient, sendMessageByTestClient,
@@ -451,7 +451,7 @@ describe('SendMessageService', () => {
     })
 
     test('Send message even if one of 2+ transports is disabled by user', async () => {
-        const messageType = REGISTER_NEW_USER_MESSAGE_TYPE
+        const messageType = DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE
         const transportToDisable = SMS_TRANSPORT
         const allTransports = get(MESSAGE_DELIVERY_OPTIONS, [messageType, 'allowedTransports'])
 
@@ -498,7 +498,7 @@ describe('SendMessageService', () => {
     })
 
     test('Not send message if message type is disabled by user', async () => {
-        const messageType = REGISTER_NEW_USER_MESSAGE_TYPE
+        const messageType = DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE
         const allTransports = get(MESSAGE_DELIVERY_OPTIONS, [messageType, 'allowedTransports'])
 
         // Need to test message type that have 2+ transports

@@ -1,5 +1,4 @@
 const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
-const { REGISTER_NEW_USER_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { SBBOL_IDP_TYPE, STAFF } = require('@condo/domains/user/constants/common')
 const { MULTIPLE_ACCOUNTS_MATCHES } = require('@condo/domains/user/constants/errors')
@@ -95,25 +94,6 @@ const syncUser = async ({ context: { context, keystone }, userInfo, identityId }
         // register a UserExternalIdentity
         await registerIdentity({
             context, user, identityId,
-        })
-
-        // SBBOL works only in Russia, another languages does not need t
-        const lang = COUNTRIES[RUSSIA_COUNTRY].locale
-        await sendMessage(context, {
-            lang,
-            to: {
-                user: {
-                    id: user.id,
-                },
-                phone: userInfo.phone,
-            },
-            type: REGISTER_NEW_USER_MESSAGE_TYPE,
-            meta: {
-                userPassword: userInfo.password,
-                userPhone: userInfo.phone,
-                dv: 1,
-            },
-            ...dvSenderFields,
         })
 
         return user

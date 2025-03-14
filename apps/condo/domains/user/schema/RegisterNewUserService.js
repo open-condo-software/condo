@@ -7,7 +7,7 @@ const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { STAFF } = require('@condo/domains/user/constants/common')
 const { ERRORS } = require('@condo/domains/user/constants/errors')
-const { ConfirmPhoneAction, User, createUserAndSendLoginData } = require('@condo/domains/user/utils/serverSchema')
+const { ConfirmPhoneAction, User, createUser } = require('@condo/domains/user/utils/serverSchema')
 
 async function ensureNotExists (context, field, value) {
     const existed = await User.getOne(context, { [field]: value, type: STAFF })
@@ -80,7 +80,7 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                     throw new GQLError(ERRORS.INVALID_PASSWORD_LENGTH, context)
                 }
 
-                const user = await createUserAndSendLoginData({ context, userData })
+                const user = await createUser({ context, userData })
 
                 if (action) {
                     const completedAt = new Date().toISOString()

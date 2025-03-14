@@ -1,0 +1,9 @@
+.info-block {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  text-align: center;
+  background: #f2f4f6;
+  border-radius: 8px;
+}
