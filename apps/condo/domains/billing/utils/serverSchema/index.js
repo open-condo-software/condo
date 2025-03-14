@@ -8,7 +8,6 @@ const Big = require('big.js')
 
 const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
 const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
-const conf = require('@open-condo/config')
 const { find, getById } = require('@open-condo/keystone/schema')
 
 const { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } = require('@condo/domains/acquiring/constants/payment')
@@ -30,8 +29,6 @@ const BillingReceipt = generateServerUtils('BillingReceipt')
 const BillingRecipient = generateServerUtils('BillingRecipient')
 const BillingCategory = generateServerUtils('BillingCategory')
 const BillingReceiptFile = generateServerUtils('BillingReceiptFile')
-
-const DISABLE_QR_NEW_PAYMENTS_SUM = String(conf.DISABLE_QR_NEW_PAYMENTS_SUM).toLowerCase() === 'true'
 
 async function registerBillingReceipts (context, data) {
     if (!context) throw new Error('no context')
@@ -92,26 +89,21 @@ const getNewPaymentsSum = async (receiptId) => {
     let payments = await find('Payment', {
         AND: conditionsByReceipt,
     })
-    // NOTE(YEgorLu): This query is not indexed properly and can potentially take long time,
-    // when you have a lot of Payments without receipt and invoice on individual Organization,
-    // so you can disable it temporarily.
-    if (!DISABLE_QR_NEW_PAYMENTS_SUM) {
-        const billingContext = await getById('BillingIntegrationOrganizationContext', receipt.context)
-        const account = await getById('BillingAccount', receipt.account)
-        if (billingContext && account) {
-            const conditionsWithNoReceipt = [
-                { receipt_is_null: true },
-                { invoice_is_null: true },
-                { organization: { id: billingContext.organization } },
-                { period: receipt.period },
-                { accountNumber: account.number },
-                ...defaultConditions,
-            ]
-            const qrPayments = await find('Payment', {
-                AND: conditionsWithNoReceipt,
-            })
-            payments = payments.concat(qrPayments)
-        }
+    const billingContext = await getById('BillingIntegrationOrganizationContext', receipt.context)
+    const account = await getById('BillingAccount', receipt.account)
+    if (billingContext && account) {
+        const conditionsWithNoReceipt = [
+            { receipt_is_null: true },
+            { invoice_is_null: true },
+            { organization: { id: billingContext.organization } },
+            { period: receipt.period },
+            { accountNumber: account.number },
+            ...defaultConditions,
+        ]
+        const qrPayments = await find('Payment', {
+            AND: conditionsWithNoReceipt,
+        })
+        payments = payments.concat(qrPayments)
     }
     return payments.reduce((total, current) => (Big(total).plus(current.amount)), 0).toFixed(8).toString()
 }
