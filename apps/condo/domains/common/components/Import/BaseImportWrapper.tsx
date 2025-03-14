@@ -138,7 +138,6 @@ const BaseImportWrapper: React.FC<TBaseImportWrapperProps> = (props) => {
                 ) : (
                     <Button
                         type='secondary'
-                        icon={<FileDown size='medium'/>}
                         onClick={() => setActiveModal('example')}
                     >
                         {UploadButtonLabel}
