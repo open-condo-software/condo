@@ -84,7 +84,7 @@ query getTickets ($where: TicketWhereInput!, $sortBy: [SortTicketsBy!], $first: 
     }
 }
 
-query getTicketExistence ($where: TicketWhereInput!) {
+query checkTicketExistence ($where: TicketWhereInput!) {
     tickets: allTickets (
         where: $where,
         first: 1,
@@ -268,7 +268,7 @@ query getTicketLastCommentsTime ($id: ID!) {
     }
 }
 
-query getContactTickets ($contactId: ID!) {
+query getTicketsByContact ($contactId: ID!) {
     tickets: allTickets(
         where: { contact: { id: $contactId } }
         sortBy: [createdAt_DESC],
