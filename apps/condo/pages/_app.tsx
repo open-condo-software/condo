@@ -589,7 +589,7 @@ if (!isDisabledSsr || !isSSR()) {
             let redirectToAuth: GetPrefetchedDataReturnRedirect
             let user: Parameters<PageComponentType['getPrefetchedData']>[0]['user'] = null
             if (!skipUserPrefetch) {
-                ({ redirectToAuth, user } = await prefetchAuthOrRedirect(apolloClient, pageContext))
+                ({ redirectToAuth, user } = await prefetchAuthOrRedirect(apolloClient, pageContext, '/auth'))
 
                 const skipRedirectToAuth = appContext.Component.skipRedirectToAuth || false
                 if (redirectToAuth && !skipRedirectToAuth) return await nextRedirect(pageContext, redirectToAuth.redirect)
