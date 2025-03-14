@@ -215,6 +215,8 @@ export const ValidatePhoneForm: React.FC<ValidatePhoneFormProps> = ({ onFinish, 
                                                 inputMode='numeric'
                                                 pattern='[0-9]'
                                                 onChange={handleVerifyCode}
+                                                tabIndex={1}
+                                                autoFocus
                                             />
                                         </FormItem>
                                     </Col>
@@ -239,7 +241,7 @@ export const ValidatePhoneForm: React.FC<ValidatePhoneFormProps> = ({ onFinish, 
                                                         </Space>
                                                     )
                                                     : (
-                                                        <Typography.Link onClick={runAction}>
+                                                        <Typography.Link onClick={runAction} tabIndex={2}>
                                                             {ResendSmsLabel}
                                                         </Typography.Link>
                                                     )
@@ -247,7 +249,7 @@ export const ValidatePhoneForm: React.FC<ValidatePhoneFormProps> = ({ onFinish, 
                                         }}
                                     </CountDownTimer>
 
-                                    <Typography.Link onClick={openModal}>
+                                    <Typography.Link onClick={openModal} tabIndex={3}>
                                         {smsNotDeliveredMessage}
                                     </Typography.Link>
                                 </Space>

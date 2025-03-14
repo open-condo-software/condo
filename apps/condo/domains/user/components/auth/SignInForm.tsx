@@ -25,6 +25,8 @@ import { AgreementText } from './AgreementText'
 const { publicRuntimeConfig: { hasSbbolAuth } } = getConfig()
 
 const INITIAL_VALUES = { password: '', phone: '' }
+const PHONE_INPUT_PROPS = { tabIndex: 1, autoFocus: true }
+const TAB_INDEXES = { termsOfUse: 4, consentLink: 5, privacyPolicyLink: 6 }
 
 export const SignInForm = (): React.ReactElement => {
     const intl = useIntl()
@@ -113,7 +115,7 @@ export const SignInForm = (): React.ReactElement => {
                                         rules={[{ required: true, message: FieldIsRequiredMessage }]}
                                         data-cy='signin-phone-item'
                                     >
-                                        <Input.Phone placeholder={ExamplePhoneMessage} />
+                                        <Input.Phone placeholder={ExamplePhoneMessage} inputProps={PHONE_INPUT_PROPS} />
                                     </FormItem>
                                 </Col>
                                 <Col span={24}>
@@ -131,7 +133,7 @@ export const SignInForm = (): React.ReactElement => {
 
                                         <Col span={24}>
                                             <Link href='/auth/forgot'>
-                                                <Typography.Link href='/auth/forgot'>
+                                                <Typography.Link href='/auth/forgot' tabIndex={3}>
                                                     {ResetPasswordMessage}
                                                 </Typography.Link>
                                             </Link>
@@ -139,7 +141,7 @@ export const SignInForm = (): React.ReactElement => {
                                     </Row>
                                 </Col>
 
-                                <AgreementText />
+                                <AgreementText tabIndexes={TAB_INDEXES} />
                             </Row>
                         </Col>
 
@@ -153,6 +155,7 @@ export const SignInForm = (): React.ReactElement => {
                                         loading={isLoading}
                                         block
                                         data-cy='signin-button'
+                                        tabIndex={7}
                                     >
                                         {SignInMessage}
                                     </Button>
@@ -163,13 +166,18 @@ export const SignInForm = (): React.ReactElement => {
                                         <>
                                             <Col span={24}>
                                                 <Divider plain>
-                                                    <Typography.Text type='secondary'>
+                                                    <Typography.Text type='secondary' tabIndex={8}>
                                                         {OrMessage}
                                                     </Typography.Text>
                                                 </Divider>
                                             </Col>
                                             <Col span={24} id='signInSBBOL'>
-                                                <LoginWithSBBOLButton redirect={redirectUrl} block checkTlsCert/>
+                                                <LoginWithSBBOLButton
+                                                    tabIndex={9}
+                                                    redirect={redirectUrl}
+                                                    block
+                                                    checkTlsCert
+                                                />
                                             </Col>
                                         </>
                                     )
