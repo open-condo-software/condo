@@ -1,6 +1,7 @@
 import { useCheckUserExistenceLazyQuery, useAuthenticateOrRegisterUserWithTokenMutation } from '@app/condo/gql'
 import { UserTypeType as UserType } from '@app/condo/schema'
 import { Col, Form, Row } from 'antd'
+import { ValidateStatus } from 'antd/lib/form/FormItem'
 import React, { useCallback, useEffect, useState, useMemo } from 'react'
 
 import { ArrowLeft } from '@open-condo/icons'
@@ -15,6 +16,7 @@ import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutation
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 import { RequiredFlagWrapper } from '@condo/domains/user/components/containers/styles'
+import { MIN_PASSWORD_LENGTH } from '@condo/domains/user/constants/common'
 import { EMAIL_ALREADY_REGISTERED_ERROR } from '@condo/domains/user/constants/errors'
 
 import { useRegisterFormValidators } from './hooks'
@@ -38,12 +40,16 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
     const RegistrationTitle = intl.formatMessage({ id: 'pages.auth.register.step.register.title' })
     const EnterPasswordTitle = intl.formatMessage({ id: 'pages.auth.register.step.register.title.createPassword' })
     const RegisterFailMessage = intl.formatMessage({ id: 'pages.auth.register.fail' })
+    const PasswordIsTooShortMsg = intl.formatMessage({ id: 'pages.auth.PasswordIsTooShort' }, { min: MIN_PASSWORD_LENGTH })
 
     const { executeCaptcha } = useHCaptcha()
     const { phone, token } = useRegisterContext()
     const { refetch } = useAuth()
 
     const [form] = Form.useForm()
+
+    const [passwordValidateStatus, setPasswordValidateStatus] = useState<ValidateStatus>()
+    const [passwordHelp, setPasswordHelp] = useState<string>('')
 
     const validators = useRegisterFormValidators()
 
@@ -295,12 +301,31 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
                                                     rules={validators.password}
                                                     data-cy='register-password-item'
                                                     validateFirst
+                                                    validateStatus={passwordValidateStatus}
+                                                    help={passwordHelp}
                                                 >
                                                     <Input.Password
                                                         autoComplete='new-password'
                                                         tabIndex={3}
                                                         autoFocus={!visibleFields.name && !visibleFields.email}
                                                     />
+                                                </FormItem>
+                                                <FormItem noStyle shouldUpdate>
+                                                    {
+                                                        ({ getFieldError, getFieldValue, isFieldTouched, isFieldValidating }) => {
+                                                            const passwordError = getFieldError('password')
+                                                            const passwordValue = getFieldValue('password') || ''
+
+                                                            const passwordHelp = passwordError.length
+                                                                ? passwordError[0]
+                                                                : passwordValue?.length < MIN_PASSWORD_LENGTH
+                                                                    ? PasswordIsTooShortMsg
+                                                                    : ''
+                                                            setPasswordHelp(passwordHelp)
+                                                            setPasswordValidateStatus(passwordError.length ? 'error' : '')
+                                                            return null
+                                                        }
+                                                    }
                                                 </FormItem>
                                             </RequiredFlagWrapper>
                                         </Col>
