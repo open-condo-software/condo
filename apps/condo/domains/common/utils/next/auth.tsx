@@ -22,6 +22,7 @@ type RedirectOrAuthDataType = Redirect | AuthData
 export async function prefetchAuthOrRedirect (
     client: ApolloClient<NormalizedCacheObject>,
     context: NextPageContext,
+    redirectPath = '/auth/signin',
 ): Promise<RedirectOrAuthDataType> {
     const result: RedirectOrAuthDataType = { user: null, redirectToAuth: null }
     const user = await prefetchAuth(client)
@@ -30,10 +31,16 @@ export async function prefetchAuthOrRedirect (
         result.user = user
     } else {
         const { asPath } = context
-        const redirectPath = `/auth?next=${encodeURIComponent(asPath)}`
+        const currentPath = asPath.split('?')[0]
+
+        if (currentPath === redirectPath) {
+            return result
+        }
+
+        const redirectFullPath = `${redirectPath}?next=${encodeURIComponent(asPath)}`
         result.redirectToAuth = {
             redirect: {
-                destination: redirectPath,
+                destination: redirectFullPath,
                 permanent: false,
             },
         }
