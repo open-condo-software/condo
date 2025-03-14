@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useRef } from 'react'
 
-import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 
-import { PLATFORM_NOTIFICATIONS_SOUND } from '@condo/domains/common/constants/featureflags'
 import { useAudio } from '@condo/domains/common/hooks/useAudio'
 import { useBroadcastChannel } from '@condo/domains/common/hooks/useBroadcastChannel'
 import { useExecuteWithLock } from '@condo/domains/common/hooks/useExecuteWithLock'
+import { useUserMessagesList } from '@condo/domains/notification/contexts/UserMessagesListContext'
+
 
 const getCurrentFaviconHref = () => document.getElementById('favicon').getAttribute('href')
 const changeFavicon = (href: string) => document.getElementById('favicon').setAttribute('href', href)
@@ -26,11 +26,9 @@ export const useNewMessageTitleNotification = (unreadMessagesCount: number): voi
     const intl = useIntl()
     const NewMessagePageTitle = intl.formatMessage({ id: 'notification.UserMessagesList.newMessagePageTitle' })
 
-    const { useFlag } = useFeatureFlags()
-    // TODO(DOMA-11185): Remove this featureflag after implement on/off sound logic
-    const isNotificationSoundEnabled = useFlag(PLATFORM_NOTIFICATIONS_SOUND)
-
     const audio = useAudio()
+    const { isNotificationSoundEnabled } = useUserMessagesList()
+
     const previousMessagesCount = useRef<number>()
     const originalPageTitle = useRef<string>()
     const originalIconHref = useRef<string>()
