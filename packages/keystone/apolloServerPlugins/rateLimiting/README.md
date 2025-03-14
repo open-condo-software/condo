@@ -5,7 +5,7 @@
 2. For each query it's complexity calculated
 3. Mutations and queries complexities are summed to form total request complexity
 4. Complexity is extracted from request in logger plugin.
-5. (TODO) If request is too complex or there's no quota left it throws 429 GQLError
+5. If request is too complex or there's no quota left it throws 429 GQLError
 
 ## Calculating query complexity
 ### List query complexity
