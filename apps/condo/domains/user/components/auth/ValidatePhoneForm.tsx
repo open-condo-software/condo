@@ -24,8 +24,7 @@ import {
 } from '@condo/domains/user/constants/errors'
 
 import { useRegisterContext } from './RegisterContextProvider'
-
-import './ValidatePhoneForm.css'
+import { SecondaryLink } from './SecondaryLink'
 
 
 const {
@@ -56,11 +55,9 @@ export const ValidatePhoneForm: React.FC<ValidatePhoneFormProps> = ({ onFinish, 
     const chatInTelegramMessage = intl.formatMessage({ id: 'pages.auth.validatePhoneForm.problemsModal.instruction.steps.supportTelegramChat.chatInTelegram' })
     const instructionStepSupportTelegramChat = intl.formatMessage({ id: 'pages.auth.validatePhoneForm.problemsModal.instruction.steps.supportTelegramChat' }, {
         chatBotLink: (
-            <span className='secondary-link'>
-                <Typography.Link target='_blank' href={HelpRequisites?.support_bot ? `https://t.me/${HelpRequisites.support_bot}` : '#'}>
-                    {chatInTelegramMessage}
-                </Typography.Link>
-            </span>
+            <SecondaryLink target='_blank' href={HelpRequisites?.support_bot ? `https://t.me/${HelpRequisites.support_bot}` : '#'}>
+                {chatInTelegramMessage}
+            </SecondaryLink>
         ),
     })
 

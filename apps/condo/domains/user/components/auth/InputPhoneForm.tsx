@@ -5,9 +5,8 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Button, Typography, Input } from '@open-condo/ui'
+import { Button, Typography, Input, Checkbox } from '@open-condo/ui'
 
-import { Divider } from '@condo/domains/common/components/Divider'
 import { FormItem } from '@condo/domains/common/components/Form/FormItem'
 import { useHCaptcha } from '@condo/domains/common/components/HCaptcha'
 import { TabsAuthAction } from '@condo/domains/common/components/HeaderActions'
@@ -30,17 +29,18 @@ type InputPhoneFormProps = {
 }
 
 const PHONE_INPUT_PROPS = { tabIndex: 1, autoFocus: true }
-const TAB_INDEXES = { termsOfUse: 1, consentLink: 2, privacyPolicyLink: 3 }
+const TAB_INDEXES = { termsOfUse: 5, consentLink: 7, privacyPolicyLink: 6 }
 
 export const InputPhoneForm: React.FC<InputPhoneFormProps> = ({ onFinish }) => {
     const intl = useIntl()
+
     const PhoneMessage = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
     const ExamplePhoneMessage = intl.formatMessage({ id: 'example.Phone' })
     const FieldIsRequiredMessage = intl.formatMessage({ id: 'FieldIsRequired' })
     const SMSTooManyRequestsErrorMessage = intl.formatMessage({ id: 'pages.auth.TooManyRequests' })
     const WrongPhoneFormatErrorMessage = intl.formatMessage({ id: 'api.common.WRONG_PHONE_FORMAT' })
-    const RegisterMessage = intl.formatMessage({ id: 'Register' })
-    const OrMessage = intl.formatMessage({ id: 'Or' })
+    const SubmitMessage = intl.formatMessage({ id: 'page.auth.register.inputPhone.submit' })
+    const ConsentToReceiveMarketingMaterialsMessage = intl.formatMessage({ id: 'common.consentToReceiveMarketingMaterials' })
 
     const [form] = Form.useForm()
 
@@ -134,9 +134,9 @@ export const InputPhoneForm: React.FC<InputPhoneFormProps> = ({ onFinish }) => {
                 >
                     <Row justify='start'>
                         <ResponsiveCol span={24}>
-                            <Row gutter={[0, 40]}>
+                            <Row gutter={[0, 48]}>
                                 <Col span={24}>
-                                    <Row gutter={[0, 32]}>
+                                    <Row gutter={[0, 40]}>
                                         <Col span={24}>
                                             <FormItem
                                                 name='phone'
@@ -148,46 +148,52 @@ export const InputPhoneForm: React.FC<InputPhoneFormProps> = ({ onFinish }) => {
                                             </FormItem>
                                         </Col>
 
-                                        <AgreementText tabIndexes={TAB_INDEXES} />
+                                        <Col span={24}>
+                                            <Row gutter={[0, 24]}>
+                                                <Col span={24}>
+                                                    <Button
+                                                        key='submit'
+                                                        type='primary'
+                                                        htmlType='submit'
+                                                        loading={isLoading}
+                                                        data-cy='register-button'
+                                                        block
+                                                        tabIndex={2}
+                                                    >
+                                                        {SubmitMessage}
+                                                    </Button>
+                                                </Col>
+                                                {
+                                                    hasSbbolAuth && (
+                                                        <Col span={24} id='inputPhoneSBBOL'>
+                                                            <LoginWithSBBOLButton
+                                                                redirect={redirectUrl}
+                                                                block
+                                                                checkTlsCert
+                                                                tabIndex={3}
+                                                            />
+                                                        </Col>
+                                                    )
+                                                }
+                                            </Row>
+                                        </Col>
                                     </Row>
                                 </Col>
 
                                 <Col span={24}>
-                                    <Row gutter={[0, 20]}>
+                                    <Row gutter={[0, 16]}>
                                         <Col span={24}>
-                                            <Button
-                                                key='submit'
-                                                type='primary'
-                                                htmlType='submit'
-                                                loading={isLoading}
-                                                data-cy='register-button'
-                                                block
-                                                tabIndex={5}
-                                            >
-                                                {RegisterMessage}
-                                            </Button>
+                                            <Checkbox
+                                                tabIndex={4}
+                                                children={(
+                                                    <Typography.Text size='small'>
+                                                        {ConsentToReceiveMarketingMaterialsMessage}
+                                                    </Typography.Text>
+                                                )}
+                                            />
                                         </Col>
-                                        {
-                                            hasSbbolAuth && (
-                                                <>
-                                                    <Col span={24}>
-                                                        <Divider plain>
-                                                            <Typography.Text type='secondary'>
-                                                                {OrMessage}
-                                                            </Typography.Text>
-                                                        </Divider>
-                                                    </Col>
-                                                    <Col span={24} id='inputPhoneSBBOL'>
-                                                        <LoginWithSBBOLButton
-                                                            redirect={redirectUrl}
-                                                            block
-                                                            checkTlsCert
-                                                            tabIndex={6}
-                                                        />
-                                                    </Col>
-                                                </>
-                                            )
-                                        }
+
+                                        <AgreementText tabIndexes={TAB_INDEXES} />
                                     </Row>
                                 </Col>
                             </Row>
