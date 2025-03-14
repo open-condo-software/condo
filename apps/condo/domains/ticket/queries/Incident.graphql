@@ -1,4 +1,4 @@
-query getIncidents ($where: IncidentWhereInput, $sortBy: [SortIncidentsBy!], $first: Int!,) {
+query getIncidents ($where: IncidentWhereInput, $sortBy: [SortIncidentsBy!], $first: Int!) {
     incidents: allIncidents (
         where: $where,
         sortBy: $sortBy,

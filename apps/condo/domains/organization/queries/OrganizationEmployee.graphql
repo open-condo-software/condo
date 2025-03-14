@@ -1,12 +1,17 @@
 query getActiveOrganizationEmployee($userId: ID!, $employeeId: ID) {
-    employees: allOrganizationEmployees(where: {
-        id: $employeeId,
-        organization: { type_in: [MANAGING_COMPANY, SERVICE_PROVIDER] },
-        user: { id: $userId, type: staff },
-        isAccepted: true,
-        isBlocked: false,
-        isRejected: false,
-    }, first: 1, skip: 0, sortBy: [createdAt_DESC]) {
+    employees: allOrganizationEmployees(
+        where: {
+            id: $employeeId,
+            organization: { type_in: [MANAGING_COMPANY, SERVICE_PROVIDER] },
+            user: { id: $userId, type: staff },
+            isAccepted: true,
+            isBlocked: false,
+            isRejected: false,
+        },
+        first: 1,
+        skip: 0,
+        sortBy: [createdAt_DESC]
+    ) {
         id
         name
         email
@@ -159,7 +164,7 @@ query getOrganizationEmployeeWithTicketOrganization ($userId: ID!, $organization
             user: { id: $userId },
             organization: { id: $organizationId },
         }
-        first: 1
+        first: 1,
     ) {
         id
     }
