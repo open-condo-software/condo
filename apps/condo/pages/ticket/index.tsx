@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import {
     useGetCallRecordFragmentExistenceQuery,
-    useGetTicketExistenceQuery,
+    useCheckTicketExistenceQuery,
     useGetTicketsCountersByStatusQuery,
     useGetTicketsCountLazyQuery,
     useGetTicketsCountQuery,
@@ -1009,7 +1009,7 @@ const TicketsPage: PageComponentType = () => {
         error,
         data: ticketExistenceData,
         loading: ticketExistenceLoading,
-    } = useGetTicketExistenceQuery({
+    } = useCheckTicketExistenceQuery({
         variables: {
             where: ticketFilterQuery,
         },
