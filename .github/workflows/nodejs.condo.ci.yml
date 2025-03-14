@@ -326,7 +326,7 @@ jobs:
           PROMETHEUS_RW_SERVER_URL: ${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }}
           PROMETHEUS_USER: ${{ secrets.K6_PROMETHEUS_USER }}
           PROMETHEUS_PASSWORD: ${{ secrets.K6_PROMETHEUS_PASSWORD }}
-          GH_REF_NAME: ${{ github.ref_name }}
+          GH_REF_NAME: ${{ github.event.pull_request.head.ref || github.ref_name }}
 
   run-condo-tests:
     name: Condo Tests
@@ -409,7 +409,7 @@ jobs:
           PROMETHEUS_RW_SERVER_URL: ${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }}
           PROMETHEUS_USER: ${{ secrets.K6_PROMETHEUS_USER }}
           PROMETHEUS_PASSWORD: ${{ secrets.K6_PROMETHEUS_PASSWORD }}
-          GH_REF_NAME: ${{ github.ref_name }}
+          GH_REF_NAME: ${{ github.event.pull_request.head.ref || github.ref_name }}
       - name: Collect docker logs on failure
         if: failure()
         uses: jwalton/gh-docker-logs@v1
@@ -451,7 +451,7 @@ jobs:
           PROMETHEUS_RW_SERVER_URL: ${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }}
           PROMETHEUS_USER: ${{ secrets.K6_PROMETHEUS_USER }}
           PROMETHEUS_PASSWORD: ${{ secrets.K6_PROMETHEUS_PASSWORD }}
-          GH_REF_NAME: ${{ github.ref_name }}
+          GH_REF_NAME: ${{ github.event.pull_request.head.ref || github.ref_name }}
 
   run-rb-tests:
     name: RB Tests
@@ -503,7 +503,7 @@ jobs:
           PROMETHEUS_RW_SERVER_URL: ${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }}
           PROMETHEUS_USER: ${{ secrets.K6_PROMETHEUS_USER }}
           PROMETHEUS_PASSWORD: ${{ secrets.K6_PROMETHEUS_PASSWORD }}
-          GH_REF_NAME: ${{ github.ref_name }}
+          GH_REF_NAME: ${{ github.event.pull_request.head.ref || github.ref_name }}
 
   run-registry-tests:
     name: Registry-importer Tests
@@ -555,7 +555,7 @@ jobs:
           PROMETHEUS_RW_SERVER_URL: ${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }}
           PROMETHEUS_USER: ${{ secrets.K6_PROMETHEUS_USER }}
           PROMETHEUS_PASSWORD: ${{ secrets.K6_PROMETHEUS_PASSWORD }}
-          GH_REF_NAME: ${{ github.ref_name }}
+          GH_REF_NAME: ${{ github.event.pull_request.head.ref || github.ref_name }}
 
   run-webhooks-tests:
     name: Webhooks Tests
@@ -582,4 +582,4 @@ jobs:
           PROMETHEUS_RW_SERVER_URL: ${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }}
           PROMETHEUS_USER: ${{ secrets.K6_PROMETHEUS_USER }}
           PROMETHEUS_PASSWORD: ${{ secrets.K6_PROMETHEUS_PASSWORD }}
-          GH_REF_NAME: ${{ github.ref_name }}
+          GH_REF_NAME: ${{ github.event.pull_request.head.ref || github.ref_name }}
