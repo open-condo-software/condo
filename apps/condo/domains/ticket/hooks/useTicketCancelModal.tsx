@@ -1,4 +1,4 @@
-import { useGetTicketInvoicesCountQuery } from '@app/condo/gql'
+import { useGetTicketInvoicesQuery } from '@app/condo/gql'
 import React, { useCallback, useMemo, useState } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
@@ -8,7 +8,6 @@ import { Typography, Button, Modal } from '@open-condo/ui'
 
 type useTicketCancelModalType = (updateTicket: (id: string) => void, ticketId: string) => { openModal: (statusCanceledId: string) => void, cancelTicketModal: JSX.Element, closeModal: () => void }
 
-// TODO: Maybe it would be better to change the hook signature rather than making an extra (optional) request?
 export const useTicketCancelModal: useTicketCancelModalType = (updateTicket, ticketId) => {
     const intl = useIntl()
     const CancelModalTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.id.CancelModal.title' })
@@ -21,14 +20,16 @@ export const useTicketCancelModal: useTicketCancelModalType = (updateTicket, tic
 
     const { persistor } = useCachePersistor()
 
-    const { data: ticketInvoicesCountData } = useGetTicketInvoicesCountQuery({
+    const {
+        data: invoicesData,
+    } = useGetTicketInvoicesQuery({
         variables: {
-            ticketId,
-            first: 1,
+            ticketId: ticketId,
         },
-        skip: !ticketId || !persistor,
+        skip: !persistor || !ticketId,
     })
-    const invoicesCount = useMemo(() => ticketInvoicesCountData?.invoiceCount?.count || 0, [ticketInvoicesCountData?.invoiceCount?.count])
+    const invoices = useMemo(() => invoicesData?.invoices?.filter(Boolean) || [],
+        [invoicesData?.invoices])
 
     const openModal = useCallback((statusCanceledId: string) => {
         setIsModalVisible(true)
@@ -53,10 +54,10 @@ export const useTicketCancelModal: useTicketCancelModalType = (updateTicket, tic
             footer={<Button onClick={handleCancelTicket} type='primary'>{CancelButtonLabelMessage}</Button>}
         >
             <Typography.Text type='secondary'>
-                {invoicesCount > 0 ? CancelModalContentWithInvoices : CancelModalContentMessage}
+                {invoices.length > 0 ? CancelModalContentWithInvoices : CancelModalContentMessage}
             </Typography.Text>
         </Modal>
-    ), [CancelButtonLabelMessage, CancelModalContentMessage, CancelModalContentWithInvoices, CancelModalTitleMessage, closeModal, handleCancelTicket, invoicesCount, isModalVisible])
+    ), [CancelButtonLabelMessage, CancelModalContentMessage, CancelModalContentWithInvoices, CancelModalTitleMessage, closeModal, handleCancelTicket, invoices, isModalVisible])
 
     return { cancelTicketModal, openModal, closeModal }
 }

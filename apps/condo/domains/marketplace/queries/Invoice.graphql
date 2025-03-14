@@ -3,7 +3,8 @@ query getTicketInvoices ($ticketId: ID!) {
         where: {
             ticket: { id: $ticketId }
         },
-        sortBy: [createdAt_DESC]
+        sortBy: [createdAt_DESC],
+        first: 100,
     ) {
         id
         status
@@ -32,7 +33,7 @@ query getTicketInvoices ($ticketId: ID!) {
     }
 }
 
-query getPublishTicketInvoices ($ticketId: ID!, $first: Int) {
+query getPublishTicketInvoices ($ticketId: ID!, $first: Int!) {
     publishInvoices: allInvoices (
         where: {
             ticket: { id: $ticketId },
@@ -41,19 +42,6 @@ query getPublishTicketInvoices ($ticketId: ID!, $first: Int) {
         first: $first,
     ) {
         id
-    }
-}
-
-query getTicketInvoicesCount ($ticketId: ID!, $first: Int) {
-    invoiceCount: _allInvoicesMeta (
-        where: {
-            ticket: {
-                id: $ticketId
-            }
-        },
-        first: $first,
-    ) {
-        count
     }
 }
 

@@ -1,6 +1,6 @@
 import {
     useGetLastCreatedPropertyByOrganizationIdQuery,
-    useGetTourStepsQuery
+    useGetTourStepsQuery,
 } from '@app/condo/gql'
 import { SortTourStepsBy, TourStepStatusType, TourStepTypeType } from '@app/condo/schema'
 import styled from '@emotion/styled'
@@ -138,7 +138,7 @@ const TourPageContent = () => {
         },
         skip: !organizationId || !persistor || isLoading || syncLoading,
     })
-    const lastCreatedProperty = useMemo(() => propertyData?.properties.filter(Boolean) || [], [propertyData?.properties])
+    const lastCreatedProperty = useMemo(() => propertyData?.properties.filter(Boolean)?.[0] || null, [propertyData?.properties])
 
     const firstLevelSteps = useMemo(
         () => tourSteps.filter(step => FIRST_LEVEL_STEPS.includes(step.type)),
@@ -173,7 +173,7 @@ const TourPageContent = () => {
             let newRoute = TODO_STEP_CLICK_ROUTE[type]
 
             if (isFunction(newRoute)) {
-                newRoute = newRoute({ lastCreatedPropertyId: lastCreatedProperty[0]?.id })
+                newRoute = newRoute({ lastCreatedPropertyId: lastCreatedProperty?.id })
             }
             if (typeof newRoute !== 'string') return
 

@@ -18,12 +18,12 @@ import { colors } from '@open-condo/ui/dist/colors'
 import { getHighlightedContents, getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { analytics } from '@condo/domains/common/utils/analytics'
+import { ObjectWithAddressInfo } from '@condo/domains/common/utils/helpers'
 import { getPropertyAddressParts } from '@condo/domains/property/utils/helpers'
 import { TicketTag } from '@condo/domains/ticket/components/TicketTag'
 import { TICKET_TYPE_TAG_STYLE } from '@condo/domains/ticket/constants/style'
 import { useFavoriteTickets } from '@condo/domains/ticket/contexts/FavoriteTicketsContext'
 
-import { ObjectWithAddressInfo } from '../../../common/utils/helpers'
 import {
     getDeadlineType,
     getHumanizeDeadlineDateDifference,

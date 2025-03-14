@@ -194,6 +194,12 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
                 Incident: {
                     timeToLive: 60 * 1000, // 1 minute in milliseconds
                 },
+                IncidentProperty: {
+                    timeToLive: 60 * 1000, // 1 minute in milliseconds
+                },
+                IncidentClassifierIncident: {
+                    timeToLive: 60 * 1000, // 1 minute in milliseconds
+                },
             },
         },
     }

@@ -3,7 +3,7 @@ query getOrganizationEmployeeSpecializations ($employeeId: ID!) {
         where: {
             employee: { id: $employeeId }
         },
-        first: 30,
+        first: 100,
     ) {
         id
         employee {

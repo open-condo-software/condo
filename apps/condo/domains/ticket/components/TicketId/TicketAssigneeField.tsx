@@ -26,7 +26,7 @@ export const TicketAssigneeField: FC<TicketAssigneeFieldProps> = ({ ticket, phon
     const { persistor } = useCachePersistor()
 
     const {
-        data,
+        data: assigneeData,
     } = useGetOrganizationEmployeeByUserAndOrganizationIdQuery({
         variables: {
             userId: ticketAssigneeUserId,
@@ -35,7 +35,7 @@ export const TicketAssigneeField: FC<TicketAssigneeFieldProps> = ({ ticket, phon
         skip: !ticketAssigneeUserId || !ticketOrganizationId || !persistor,
     })
 
-    const assignee = useMemo(() => data?.employee?.filter(Boolean)[0] || null, [data?.employee])
+    const assignee = useMemo(() => assigneeData?.employee?.filter(Boolean)[0] || null, [assigneeData?.employee])
 
     const assigneeUser = useMemo(() => ({
         name: assignee?.name,

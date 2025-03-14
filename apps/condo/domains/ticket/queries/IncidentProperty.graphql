@@ -1,4 +1,4 @@
-query getIncidentProperties ($where: IncidentPropertyWhereInput!, $first: Int) {
+query getIncidentProperties ($where: IncidentPropertyWhereInput!, $first: Int!) {
     incidentProperties: allIncidentProperties (
         where: $where,
         first: $first,

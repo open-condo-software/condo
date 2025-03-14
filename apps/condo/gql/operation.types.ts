@@ -165,19 +165,11 @@ export type GetTicketInvoicesQuery = { __typename?: 'Query', invoices?: Array<{ 
 
 export type GetPublishTicketInvoicesQueryVariables = Types.Exact<{
   ticketId: Types.Scalars['ID']['input'];
-  first?: Types.InputMaybe<Types.Scalars['Int']['input']>;
+  first: Types.Scalars['Int']['input'];
 }>;
 
 
 export type GetPublishTicketInvoicesQuery = { __typename?: 'Query', publishInvoices?: Array<{ __typename?: 'Invoice', id: string } | null> | null };
-
-export type GetTicketInvoicesCountQueryVariables = Types.Exact<{
-  ticketId: Types.Scalars['ID']['input'];
-  first?: Types.InputMaybe<Types.Scalars['Int']['input']>;
-}>;
-
-
-export type GetTicketInvoicesCountQuery = { __typename?: 'Query', invoiceCount?: { __typename?: '_QueryMeta', count?: number | null } | null };
 
 export type GetInvoicesByIdsQueryVariables = Types.Exact<{
   ids: Array<Types.Scalars['ID']['input']> | Types.Scalars['ID']['input'];
@@ -461,7 +453,7 @@ export type GetTicketCallRecordsFragmentsQuery = { __typename?: 'Query', callRec
 export type GetIncidentsQueryVariables = Types.Exact<{
   where?: Types.InputMaybe<Types.IncidentWhereInput>;
   sortBy?: Types.InputMaybe<Array<Types.SortIncidentsBy> | Types.SortIncidentsBy>;
-  first?: Types.InputMaybe<Types.Scalars['Int']['input']>;
+  first: Types.Scalars['Int']['input'];
 }>;
 
 
@@ -506,7 +498,7 @@ export type GetIncidentClassifierIncidentByIncidentIdQuery = { __typename?: 'Que
 
 export type GetIncidentClassifierIncidentQueryVariables = Types.Exact<{
   where: Types.IncidentClassifierIncidentWhereInput;
-  first?: Types.InputMaybe<Types.Scalars['Int']['input']>;
+  first: Types.Scalars['Int']['input'];
 }>;
 
 
@@ -551,7 +543,7 @@ export type UpdateIncidentExportTaskMutation = { __typename?: 'Mutation', task?:
 
 export type GetIncidentPropertiesQueryVariables = Types.Exact<{
   where: Types.IncidentPropertyWhereInput;
-  first?: Types.InputMaybe<Types.Scalars['Int']['input']>;
+  first: Types.Scalars['Int']['input'];
 }>;
 
 

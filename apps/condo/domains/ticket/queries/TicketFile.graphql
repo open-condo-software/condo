@@ -6,7 +6,7 @@ query getTicketFiles($ticketId: ID!) {
             },
         },
         sortBy: [createdAt_ASC],
-        first: 50
+        first: 100,
     ) {
         id
         ticket {

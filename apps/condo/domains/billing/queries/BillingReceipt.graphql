@@ -5,7 +5,6 @@ query getBillingReceiptsByPropertyCount ($context: BillingIntegrationOrganizatio
             property: $property,
             period_gte: $period_gte
         },
-        first: 1,
     ) {
         count
     }

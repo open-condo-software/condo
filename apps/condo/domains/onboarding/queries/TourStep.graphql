@@ -2,7 +2,7 @@ query getTourSteps ($where: TourStepWhereInput!, $sortBy: [SortTourStepsBy!]) {
     tourSteps: allTourSteps (
         where: $where,
         sortBy: $sortBy,
-        first: 20,
+        first: 100,
     ) {
         id
         type
