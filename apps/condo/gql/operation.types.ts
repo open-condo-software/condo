@@ -595,7 +595,7 @@ export type ShareTicketMutation = { __typename?: 'Mutation', ticket?: { __typena
 export type GetTicketsQueryVariables = Types.Exact<{
   where: Types.TicketWhereInput;
   sortBy?: Types.InputMaybe<Array<Types.SortTicketsBy> | Types.SortTicketsBy>;
-  first?: Types.InputMaybe<Types.Scalars['Int']['input']>;
+  first: Types.Scalars['Int']['input'];
   skip?: Types.InputMaybe<Types.Scalars['Int']['input']>;
 }>;
 
@@ -662,7 +662,7 @@ export type GetContactTicketsQuery = { __typename?: 'Query', tickets?: Array<{ _
 export type GetOrganizationEmployeeTicketsForReassignmentQueryVariables = Types.Exact<{
   userId: Types.Scalars['ID']['input'];
   organizationId: Types.Scalars['ID']['input'];
-  first?: Types.InputMaybe<Types.Scalars['Int']['input']>;
+  first: Types.Scalars['Int']['input'];
 }>;
 
 
@@ -706,7 +706,7 @@ export type GetTicketCommentsQuery = { __typename?: 'Query', ticketComments?: Ar
 
 export type GetPollTicketCommentsQueryVariables = Types.Exact<{
   where: Types.TicketCommentWhereInput;
-  first?: Types.InputMaybe<Types.Scalars['Int']['input']>;
+  first: Types.Scalars['Int']['input'];
 }>;
 
 

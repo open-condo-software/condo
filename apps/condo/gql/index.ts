@@ -1666,7 +1666,7 @@ export type GetB2BAppsWithMessageSettingsSuspenseQueryHookResult = ReturnType<ty
 export type GetB2BAppsWithMessageSettingsQueryResult = Apollo.QueryResult<Types.GetB2BAppsWithMessageSettingsQuery, Types.GetB2BAppsWithMessageSettingsQueryVariables>;
 export const GetGlobalB2BAppsDocument = gql`
     query getGlobalB2BApps {
-  b2bApps: allB2BApps(where: {isGlobal: true, isHidden: false}) {
+  b2bApps: allB2BApps(where: {isGlobal: true, isHidden: false}, first: 100) {
     id
     appUrl
     features
@@ -2502,7 +2502,7 @@ export type GetOrganizationEmployeeSpecializationsSuspenseQueryHookResult = Retu
 export type GetOrganizationEmployeeSpecializationsQueryResult = Apollo.QueryResult<Types.GetOrganizationEmployeeSpecializationsQuery, Types.GetOrganizationEmployeeSpecializationsQueryVariables>;
 export const GetPropertyWithMapByIdDocument = gql`
     query getPropertyWithMapById($id: ID!) {
-  property: allProperties(where: {id: $id}) {
+  property: allProperties(where: {id: $id}, first: 1) {
     id
     organization {
       id
@@ -3822,7 +3822,7 @@ export type ShareTicketMutationHookResult = ReturnType<typeof useShareTicketMuta
 export type ShareTicketMutationResult = Apollo.MutationResult<Types.ShareTicketMutation>;
 export type ShareTicketMutationOptions = Apollo.BaseMutationOptions<Types.ShareTicketMutation, Types.ShareTicketMutationVariables>;
 export const GetTicketsDocument = gql`
-    query getTickets($where: TicketWhereInput!, $sortBy: [SortTicketsBy!], $first: Int, $skip: Int) {
+    query getTickets($where: TicketWhereInput!, $sortBy: [SortTicketsBy!], $first: Int!, $skip: Int) {
   tickets: allTickets(where: $where, sortBy: $sortBy, first: $first, skip: $skip) {
     id
     number
@@ -4352,6 +4352,7 @@ export const GetContactTicketsDocument = gql`
   tickets: allTickets(
     where: {contact: {id: $contactId}}
     sortBy: [createdAt_DESC]
+    first: 100
   ) {
     id
     details
@@ -4402,7 +4403,7 @@ export type GetContactTicketsLazyQueryHookResult = ReturnType<typeof useGetConta
 export type GetContactTicketsSuspenseQueryHookResult = ReturnType<typeof useGetContactTicketsSuspenseQuery>;
 export type GetContactTicketsQueryResult = Apollo.QueryResult<Types.GetContactTicketsQuery, Types.GetContactTicketsQueryVariables>;
 export const GetOrganizationEmployeeTicketsForReassignmentDocument = gql`
-    query getOrganizationEmployeeTicketsForReassignment($userId: ID!, $organizationId: ID!, $first: Int) {
+    query getOrganizationEmployeeTicketsForReassignment($userId: ID!, $organizationId: ID!, $first: Int!) {
   tickets: allTickets(
     where: {organization: {id: $organizationId}, OR: {assignee: {id: $userId}, executor: {id: $userId}}, status: {type_in: [new_or_reopened, processing, deferred]}}
     first: $first
@@ -4571,6 +4572,7 @@ export const GetTicketChangesDocument = gql`
   ticketChanges: allTicketChanges(
     where: {ticket: {id: $ticketId}}
     sortBy: [actualCreationDate_DESC]
+    first: 100
   ) {
     id
     actualCreationDate
@@ -4712,8 +4714,8 @@ export const GetTicketCommentsDocument = gql`
     query getTicketComments($ticketId: ID!) {
   ticketComments: allTicketComments(
     where: {ticket: {id: $ticketId}}
-    first: 100
     sortBy: [createdAt_DESC]
+    first: 100
   ) {
     id
     type
@@ -4763,7 +4765,7 @@ export type GetTicketCommentsLazyQueryHookResult = ReturnType<typeof useGetTicke
 export type GetTicketCommentsSuspenseQueryHookResult = ReturnType<typeof useGetTicketCommentsSuspenseQuery>;
 export type GetTicketCommentsQueryResult = Apollo.QueryResult<Types.GetTicketCommentsQuery, Types.GetTicketCommentsQueryVariables>;
 export const GetPollTicketCommentsDocument = gql`
-    query getPollTicketComments($where: TicketCommentWhereInput!, $first: Int) {
+    query getPollTicketComments($where: TicketCommentWhereInput!, $first: Int!) {
   ticketComments: allTicketComments(
     where: $where
     first: $first

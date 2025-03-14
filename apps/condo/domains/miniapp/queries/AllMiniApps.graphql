@@ -1,7 +1,6 @@
 query getAllMiniApps($data: AllMiniAppsInput!) {
     allMiniApps: allMiniApps(
         data: $data,
-        first: 100,
     ) {
         id
         name
