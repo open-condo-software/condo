@@ -229,7 +229,7 @@ const MenuItems: React.FC = () => {
                 {
                     id: 'menu-item-ticket',
                     path: 'ticket',
-                    icon: AllIcons['LayoutList'],
+                    icon: AllIcons['NewAppeal'],
                     label: 'global.section.controlRoom',
                     access: isManagingCompany && hasAccessToTickets,
                 },

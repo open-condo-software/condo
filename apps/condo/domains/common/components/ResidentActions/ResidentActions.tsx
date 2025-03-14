@@ -1,6 +1,5 @@
 import styled from '@emotion/styled'
 import { Divider, Dropdown, DropDownProps, Menu } from 'antd'
-import get from 'lodash/get'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { Readings, NewAppeal, Smartphone, Plus } from '@open-condo/icons'
@@ -31,11 +30,11 @@ export const ResidentAppealDropDownMenuItemWrapperProps = {
 const DIVIDER_STYLES: CSSProperties = { margin: 0 }
 
 const ResidentAppealDropdownOverlay = ({ setIsSearchByPhoneModalVisible, setDropdownVisible }) => {
-    const { link } = useOrganization()
-    const canReadContacts = get(link, ['role', 'canReadContacts'], false)
-    const canReadTickets = get(link, ['role', 'canReadTickets'], false)
-    const canManageTickets = get(link, ['role', 'canManageTickets'], false)
-    const canManageMeterReadings = get(link, ['role', 'canManageMeterReadings'], false)
+    const { employee } = useOrganization()
+    const canReadContacts = employee?.role?.canReadContacts || false
+    const canReadTickets = employee?.role?.canReadTickets || false
+    const canManageTickets = employee?.role?.canManageTickets || false
+    const canManageMeterReadings = employee?.role?.canManageMeterReadings || false
     const showSearchButton = canReadContacts && canReadTickets
 
     const handleButtonClick = useCallback(() => {
@@ -67,7 +66,7 @@ const ResidentAppealDropdownOverlay = ({ setIsSearchByPhoneModalVisible, setDrop
                             menuItemWrapperProps={ResidentAppealDropDownMenuItemWrapperProps}
                             path='/ticket/create'
                             icon={NewAppeal}
-                            label='CreateAppeal'
+                            label='CreateTicket'
                         />
                         {canManageMeterReadings && <Divider style={DIVIDER_STYLES}/>}
                     </>
@@ -102,14 +101,16 @@ export const ResidentActions: React.FC<IResidentActionsProps> = (props) => {
     const ResidentAppealMessage = intl.formatMessage({ id: 'ResidentAppeal' })
 
     const { minified } = props
-    const { organization, link } = useOrganization()
+    const { organization, employee } = useOrganization()
+    const organizationId = organization?.id
+
     const { ticketFilterQuery } = useTicketVisibility()
 
     const searchByPhoneFn = useMemo(
-        () => searchByPhone(get(organization, 'id', null), ticketFilterQuery),
-        [organization, ticketFilterQuery]
+        () => searchByPhone(organizationId, ticketFilterQuery),
+        [organizationId, ticketFilterQuery]
     )
-    const canManageContacts = useMemo(() => get(link, 'role.canManageContacts'), [link])
+    const canManageContacts = useMemo(() => employee?.role?.canManageContacts, [employee])
 
     const {
         setIsSearchByPhoneModalVisible,
@@ -129,10 +130,10 @@ export const ResidentActions: React.FC<IResidentActionsProps> = (props) => {
     const trigger: DropDownProps['trigger'] = useMemo(() => isMobile ? ['click'] : ['hover'], [isMobile])
     const iconSize: IconProps['size'] = minified ? 'medium' : 'small'
 
-    const canReadTickets = get(link, ['role', 'canReadTickets'], false)
-    const canManageTickets = get(link, ['role', 'canManageTickets'], false)
-    const canManageMeterReadings = get(link, ['role', 'canManageMeterReadings'], false)
-    const canReadContacts = get(link, ['role', 'canReadContacts'], false)
+    const canReadTickets = employee?.role?.canReadTickets || false
+    const canManageTickets = employee?.role?.canManageTickets || false
+    const canManageMeterReadings = employee?.role?.canManageMeterReadings || false
+    const canReadContacts = employee?.role?.canReadContacts || false
 
     if (!canReadTickets && !canReadContacts && !canManageTickets && !canManageMeterReadings) {
         return null

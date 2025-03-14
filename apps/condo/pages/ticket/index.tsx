@@ -29,7 +29,7 @@ import React, { CSSProperties, Key, useCallback, useEffect, useMemo, useRef, use
 import { useCachePersistor } from '@open-condo/apollo'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
-import { Search, Close, Phone } from '@open-condo/icons'
+import { Search, Phone } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -155,6 +155,7 @@ const TicketTable = ({
 }) => {
     const intl = useIntl()
     const CancelSelectedTicketLabel = intl.formatMessage({ id: 'global.cancelSelection' })
+    const CreateTicket = intl.formatMessage({ id: 'CreateTicket' })
     const CountSelectedTicketLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.CountSelectedTicket' })
 
     const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
@@ -304,13 +305,19 @@ const TicketTable = ({
                         <ActionBar
                             message={selectedTicketKeys.length > 0 && `${CountSelectedTicketLabel}: ${selectedTicketKeys.length}`}
                             actions={[
+                                <Button
+                                    key='createTicket'
+                                    type='primary'
+                                    children={CreateTicket}
+                                    onClick={() => router.push('/ticket/create')}
+                                />,
                                 selectedTicketKeys.length > 0 && (
                                     <TicketBlanksExportToPdfButton
                                         key='exportToPdf'
                                         disabled={selectedTicketKeys.length > MAX_TICKET_BLANKS_EXPORT}
                                     />
                                 ),
-                                selectedTicketKeys.length < 1 && TicketImportButton && TicketImportButton,
+                                selectedTicketKeys.length < 1 && TicketImportButton,
                                 // nosemgrep: generic.secrets.gitleaks.generic-api-key.generic-api-key
                                 <TicketsExportToXlsxButton key='exportToXlsx'/>,
                                 selectedTicketKeys.length > 0 && (
@@ -319,7 +326,6 @@ const TicketTable = ({
                                         type='secondary'
                                         children={CancelSelectedTicketLabel}
                                         onClick={handleResetSelectedTickets}
-                                        icon={<Close size='medium'/>}
                                     />
                                 ),
                             ]}
@@ -619,19 +625,19 @@ const FiltersContainer = ({ filterMetas }) => {
         changeSearch(e.target.value)
     }, [changeSearch])
 
-    let checkboxColSpan = 24
+    let checkboxColSpan = 18
     let filterButtonColSpan = 24
 
     const isXlContainerSize = contentWidth >= 980
     const isXxlContainerSize = contentWidth >= 1288
 
     if (isXlContainerSize) {
-        checkboxColSpan = 17
+        checkboxColSpan = 13
         filterButtonColSpan = 7
     }
 
     if (isXxlContainerSize) {
-        checkboxColSpan = 18
+        checkboxColSpan = 14
         filterButtonColSpan = 6
     }
 
@@ -639,7 +645,7 @@ const FiltersContainer = ({ filterMetas }) => {
         <>
             <TableFiltersContainer ref={setRef}>
                 <Row gutter={FILTERS_CONTAINER_ROW_GUTTER} align='middle'>
-                    <Col span={24}>
+                    <Col span={3}>
                         <Input
                             placeholder={SearchPlaceholder}
                             onChange={handleSearchChange}
@@ -649,96 +655,85 @@ const FiltersContainer = ({ filterMetas }) => {
                         />
                     </Col>
                     <Col span={checkboxColSpan}>
-                        <Row
-                            align='middle'
-                            gutter={CHECKBOX_WRAPPER_GUTTERS}
-                        >
-                            <Col span={24}>
-                                <Row gutter={CHECKBOX_WRAPPER_GUTTERS} style={!isXlContainerSize ? CHECKBOX_WRAPPER_STYLES : null}>
-                                    <Col>
-                                        <Checkbox
-                                            onChange={handleAttributeCheckboxChange('isRegular')}
-                                            checked={regular}
-                                            style={CHECKBOX_STYLE}
-                                            id='ticket-filter-regular'
-                                            data-cy='ticket__filter-isRegular'
-                                        >
-                                            {RegularLabel}
-                                        </Checkbox>
-                                    </Col>
-                                    <Col>
-                                        <Checkbox
-                                            onChange={handleAttributeCheckboxChange('isEmergency')}
-                                            checked={emergency}
-                                            style={CHECKBOX_STYLE}
-                                            id='ticket-filter-emergency'
-                                            data-cy='ticket__filter-isEmergency'
-                                        >
-                                            {EmergenciesLabel}
-                                        </Checkbox>
-                                    </Col>
-                                    <Col>
-                                        <Checkbox
-                                            onChange={handleAttributeCheckboxChange('isPayable')}
-                                            checked={payable}
-                                            style={CHECKBOX_STYLE}
-                                            id='ticket-filter-payable'
-                                            data-cy='ticket__filter-isPayable'
-                                        >
-                                            {PayableLabel}
-                                        </Checkbox>
-                                    </Col>
-                                    <Col>
-                                        <Checkbox
-                                            onChange={handleAttributeCheckboxChange('isWarranty')}
-                                            checked={warranty}
-                                            style={CHECKBOX_STYLE}
-                                            id='ticket-filter-warranty'
-                                            data-cy='ticket__filter-isWarranty'
-                                        >
-                                            {WarrantiesLabel}
-                                        </Checkbox>
-                                    </Col>
-                                    <Col>
-                                        <Checkbox
-                                            onChange={handleAttributeCheckboxChange('statusReopenedCounter')}
-                                            checked={returned}
-                                            style={CHECKBOX_STYLE}
-                                            id='ticket-filter-returned'
-                                            data-cy='ticket__filter-isReturned'
-                                        >
-                                            {ReturnedLabel}
-                                        </Checkbox>
-                                    </Col>
-                                    <Col>
-                                        <Checkbox
-                                            onChange={(event) => handleChangeIsCompletedAfterDeadline(event?.target?.checked || false)}
-                                            checked={isCompletedAfterDeadline}
-                                            style={CHECKBOX_STYLE}
-                                            id='ticket-filter-completed-after-deadline'
-                                            data-cy='ticket__filter-isCompletedAfterDeadline'
-                                            children={ExpiredLabel}
-                                        />
-                                    </Col>
-                                </Row>
+                        <Row gutter={CHECKBOX_WRAPPER_GUTTERS} style={!isXlContainerSize ? CHECKBOX_WRAPPER_STYLES : null}>
+                            <Col>
+                                <Checkbox
+                                    onChange={handleAttributeCheckboxChange('isRegular')}
+                                    checked={regular}
+                                    style={CHECKBOX_STYLE}
+                                    id='ticket-filter-regular'
+                                    data-cy='ticket__filter-isRegular'
+                                >
+                                    {RegularLabel}
+                                </Checkbox>
+                            </Col>
+                            <Col>
+                                <Checkbox
+                                    onChange={handleAttributeCheckboxChange('isEmergency')}
+                                    checked={emergency}
+                                    style={CHECKBOX_STYLE}
+                                    id='ticket-filter-emergency'
+                                    data-cy='ticket__filter-isEmergency'
+                                >
+                                    {EmergenciesLabel}
+                                </Checkbox>
+                            </Col>
+                            <Col>
+                                <Checkbox
+                                    onChange={handleAttributeCheckboxChange('isPayable')}
+                                    checked={payable}
+                                    style={CHECKBOX_STYLE}
+                                    id='ticket-filter-payable'
+                                    data-cy='ticket__filter-isPayable'
+                                >
+                                    {PayableLabel}
+                                </Checkbox>
+                            </Col>
+                            <Col>
+                                <Checkbox
+                                    onChange={handleAttributeCheckboxChange('isWarranty')}
+                                    checked={warranty}
+                                    style={CHECKBOX_STYLE}
+                                    id='ticket-filter-warranty'
+                                    data-cy='ticket__filter-isWarranty'
+                                >
+                                    {WarrantiesLabel}
+                                </Checkbox>
+                            </Col>
+                            <Col>
+                                <Checkbox
+                                    onChange={handleAttributeCheckboxChange('statusReopenedCounter')}
+                                    checked={returned}
+                                    style={CHECKBOX_STYLE}
+                                    id='ticket-filter-returned'
+                                    data-cy='ticket__filter-isReturned'
+                                >
+                                    {ReturnedLabel}
+                                </Checkbox>
+                            </Col>
+                            <Col>
+                                <Checkbox
+                                    onChange={(event) => handleChangeIsCompletedAfterDeadline(event?.target?.checked || false)}
+                                    checked={isCompletedAfterDeadline}
+                                    style={CHECKBOX_STYLE}
+                                    id='ticket-filter-completed-after-deadline'
+                                    data-cy='ticket__filter-isCompletedAfterDeadline'
+                                    children={ExpiredLabel}
+                                />
                             </Col>
                         </Row>
                     </Col>
-                    <Col span={filterButtonColSpan} style={{ alignSelf: 'end' }}>
-                        <Row justify={isXlContainerSize ? 'end' : 'start'} align='bottom'>
-                            <Col>
-                                <Row align='middle' gutter={FILTERS_BUTTON_ROW_GUTTER} style={FILTERS_BUTTON_ROW_STYLES}>
-                                    {
-                                        appliedFiltersCount > 0 && (
-                                            <Col>
-                                                <ResetFiltersModalButton style={RESET_FILTERS_BUTTON_STYLES}/>
-                                            </Col>
-                                        )
-                                    }
+                    <Col span={filterButtonColSpan} style={{ marginLeft: 'auto' }}>
+                        <Row align='middle' justify='end' gutter={FILTERS_BUTTON_ROW_GUTTER} style={FILTERS_BUTTON_ROW_STYLES}>
+                            {
+                                appliedFiltersCount > 0 && (
                                     <Col>
-                                        <OpenFiltersButton />
+                                        <ResetFiltersModalButton style={RESET_FILTERS_BUTTON_STYLES}/>
                                     </Col>
-                                </Row>
+                                )
+                            }
+                            <Col>
+                                <OpenFiltersButton />
                             </Col>
                         </Row>
                     </Col>
