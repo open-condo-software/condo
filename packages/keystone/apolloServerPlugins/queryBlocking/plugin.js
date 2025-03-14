@@ -1,7 +1,6 @@
 const { GQLError, GQLErrorCode: { FORBIDDEN } } = require('@open-condo/keystone/errors')
 
 const { validatePluginConfig } = require('./config.utils')
-const { ERROR_TYPE } = require('./constants')
 
 const { extractQueriesAndMutationsFromRequest } = require('../utils/requests')
 
@@ -41,9 +40,9 @@ class ApolloQueryBlockingPlugin {
                 if (blockedMutations.length || blockedQueries.length) {
                     throw new GQLError({
                         code: FORBIDDEN,
-                        type: ERROR_TYPE,
+                        type: 'FORBIDDEN_REQUEST',
                         message: 'Request is rejected because it contains blocked queries / mutations: {blockedOperations}',
-                        messageForUser: `api.global.queryBlocking.${ERROR_TYPE}`,
+                        messageForUser: 'api.global.queryBlocking.FORBIDDEN_REQUEST',
                         messageInterpolation: {
                             blockedOperations: [...blockedMutations, ...blockedQueries].join(', '),
                         },
