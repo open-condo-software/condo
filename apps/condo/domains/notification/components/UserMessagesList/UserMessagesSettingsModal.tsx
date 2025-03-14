@@ -99,7 +99,6 @@ export const UserMessagesSettingsModal: React.FC<UserMessagesSettingsModalProps>
                                     </Typography.Text>
                                 </Space>
                                 <Tooltip
-                                    overlayClassName='user-messages-settings-sound-tooltip'
                                     title={isNotificationSoundEnabled ? SoundEnabledTooltip : SoundDisabledTooltip}
                                     placement='topLeft'
                                 >
