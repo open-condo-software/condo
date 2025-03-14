@@ -5,6 +5,8 @@ const util = require('util')
 
 const execPromise = util.promisify(exec)
 
+const RESERVED_PREFIXES = ['custom']
+
 async function writeTranslationData (translationFilePath, translationData) {
     const sortedTranslationData = Object.keys(translationData).sort().reduce((acc, key) => {
         acc[key] = translationData[key]
@@ -55,7 +57,23 @@ async function saveTranslations (langDir, translations) {
     }
 }
 
-async function validateTranslations (translations) {
+async function getKeysWithReservedPrefixes (translations) {
+    const keysWithReservedPrefixes = []
+
+    translations.forEach(([, keys]) => {
+        keys.forEach(key => {
+            RESERVED_PREFIXES.forEach(reservedPrefix => {
+                if (key.startsWith(reservedPrefix)) {
+                    keysWithReservedPrefixes.push(key)
+                }
+            })
+        })
+    })
+
+    return keysWithReservedPrefixes
+}
+
+async function getMissingKeys (translations) {
     const allKeys = new Set()
     translations.forEach(([, keys]) => {
         keys.forEach(key => allKeys.add(key))
@@ -143,7 +161,7 @@ async function main () {
     const langDir = path.join(root, 'lang')
 
     const translations = await loadTranslations(langDir)
-    const missingKeysReport = await validateTranslations(translations)
+    const missingKeysReport = await getMissingKeys(translations)
 
     if (missingKeysReport.length > 0) {
         if (shouldFix) {
@@ -151,6 +169,11 @@ async function main () {
         } else {
             throw new Error('Validation failed: Missing keys found in translation files')
         }
+    }
+
+    const keysWithReservedPrefixes = await getKeysWithReservedPrefixes(translations)
+    if (keysWithReservedPrefixes.length > 0) {
+        throw new Error(`Keys starting with one of reserved prefixes: [${RESERVED_PREFIXES.join(', ')}] found. Please check your translation files and fix those keys`)
     }
 
     if (shouldFix) {
