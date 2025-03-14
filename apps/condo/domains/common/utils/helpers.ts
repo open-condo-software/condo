@@ -49,6 +49,7 @@ export const preciseFloor = (x: number, precision: number = DEFAULT_WIDTH_PRECIS
 }
 
 export type ObjectWithAddressInfo = {
+    address?: string
     addressMeta?: AddressMetaForTableAddressFragment
     deletedAt?: string
 }
