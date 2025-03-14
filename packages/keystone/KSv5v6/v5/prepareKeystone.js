@@ -12,6 +12,8 @@ const { v4 } = require('uuid')
 
 const conf = require('@open-condo/config')
 const { safeApolloErrorFormatter } = require('@open-condo/keystone/apolloErrorFormatter')
+const { ApolloRateLimitingPlugin } = require('@open-condo/keystone/apolloServerPlugins')
+const { ApolloSentryPlugin } = require('@open-condo/keystone/apolloServerPlugins')
 const { ExtendedPasswordAuthStrategy } = require('@open-condo/keystone/authStrategy/passwordAuth')
 const { parseCorsSettings } = require('@open-condo/keystone/cors.utils')
 const { _internalGetExecutionContextAsyncLocalStorage } = require('@open-condo/keystone/executionContext')
@@ -23,8 +25,6 @@ const { expressErrorHandler } = require('@open-condo/keystone/logging/expressErr
 const metrics = require('@open-condo/keystone/metrics')
 const { composeNonResolveInputHook, composeResolveInputHook } = require('@open-condo/keystone/plugins/utils')
 const { schemaDocPreprocessor, adminDocPreprocessor, escapeSearchPreprocessor, customAccessPostProcessor } = require('@open-condo/keystone/preprocessors')
-const { ApolloRateLimitingPlugin } = require('@open-condo/keystone/rateLimiting')
-const { ApolloSentryPlugin } = require('@open-condo/keystone/sentry')
 const { prepareDefaultKeystoneConfig } = require('@open-condo/keystone/setup.utils')
 const { registerTasks, registerTaskQueues, taskQueues } = require('@open-condo/keystone/tasks')
 const { KeystoneTracingApp } = require('@open-condo/keystone/tracing')
@@ -178,14 +178,14 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
         setInterval(sendAppMetrics, 2000)
     }
 
-    const apolloPlugins = []
+    const apolloServerPlugins = []
     if (!IS_RATE_LIMIT_DISABLED) {
-        apolloPlugins.push(new ApolloRateLimitingPlugin(keystone, RATE_LIMIT_CONFIG))
+        apolloServerPlugins.push(new ApolloRateLimitingPlugin(keystone, RATE_LIMIT_CONFIG))
     }
-    apolloPlugins.push(new GraphQLLoggerPlugin())
+    apolloServerPlugins.push(new GraphQLLoggerPlugin())
 
     if (IS_SENTRY_ENABLED) {
-        apolloPlugins.unshift(new ApolloSentryPlugin())
+        apolloServerPlugins.unshift(new ApolloSentryPlugin())
     }
 
     return {
@@ -211,7 +211,7 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
                     debug: IS_ENABLE_APOLLO_DEBUG,
                     introspection: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
                     playground: false,
-                    plugins: apolloPlugins,
+                    plugins: apolloServerPlugins,
                 },
                 ...(graphql || {}),
             }),

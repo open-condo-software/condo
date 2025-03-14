@@ -3,8 +3,8 @@
  */
 const { faker } = require('@faker-js/faker')
 
+const { ApolloRateLimitingPlugin } = require('@open-condo/keystone/apolloServerPlugins')
 const { getKVClient } = require('@open-condo/keystone/kv')
-const { ApolloRateLimitingPlugin } = require('@open-condo/keystone/rateLimiting')
 const { makeLoggedInAdminClient, makeClient, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj,

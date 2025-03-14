@@ -16,8 +16,10 @@ const {
     ERROR_TYPE,
 } = require('./constants')
 const { extractWhereComplexityFactor, extractRelationsComplexityFactor } = require('./query.utils')
-const { extractQueriesAndMutationsFromRequest, extractQuotaKeyFromRequest, addComplexity, buildQuotaKey } = require('./request.utils')
+const { extractQuotaKeyFromRequest, addComplexity, buildQuotaKey } = require('./request.utils')
 const { extractPossibleArgsFromSchemaQueries, extractKeystoneListsData } = require('./schema.utils')
+
+const { extractQueriesAndMutationsFromRequest } = require('../utils/requests')
 
 /** @implements {import('apollo-server-plugin-base').ApolloServerPlugin} */
 class ApolloRateLimitingPlugin {
