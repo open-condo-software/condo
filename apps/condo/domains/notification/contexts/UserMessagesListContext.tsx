@@ -35,6 +35,9 @@ type UserMessagesListContextType = {
     isDropdownOpen: boolean
     setIsDropdownOpen: Dispatch<SetStateAction<boolean>>
 
+    isNotificationSoundEnabled: boolean
+    setIsNotificationSoundEnabled: Dispatch<SetStateAction<boolean>>
+
     excludedMessageTypes: Array<MessageTypeAllowedToFilterType>
     setExcludedMessageTypes: Dispatch<SetStateAction<Array<MessageTypeAllowedToFilterType>>>
 }
@@ -48,6 +51,8 @@ const UserMessageListContext = createContext<UserMessagesListContextType>({
     moreMessagesLoading: false,
     isDropdownOpen: false,
     setIsDropdownOpen: null,
+    isNotificationSoundEnabled: false,
+    setIsNotificationSoundEnabled: null,
     excludedMessageTypes: [],
     setExcludedMessageTypes: null,
 })
@@ -62,6 +67,7 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
     const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false)
     const [readUserMessagesAt, setReadUserMessagesAt] = useState<string>()
     const [excludedMessageTypes, setExcludedMessageTypes] = useState<Array<MessageTypeAllowedToFilterType>>([])
+    const [isNotificationSoundEnabled, setIsNotificationSoundEnabled] = useState<boolean>()
 
     const { user } = useAuth()
     const { organization } = useOrganization()
@@ -88,28 +94,6 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
             !userId || !organizationId || allowedMessageTypesLoading || !readUserMessagesAt || messageTypesToFilter.length === 0,
     })
 
-    const handleStorageChange = useCallback((event: StorageEvent) => {
-        if (event.key === userMessagesSettingsStorage.getStorageKey()) {
-            const lastReadUserMessagesAt = userMessagesSettingsStorage.getReadUserMessagesAt()
-            if (!isEqual(lastReadUserMessagesAt, readUserMessagesAt)) {
-                setReadUserMessagesAt(lastReadUserMessagesAt)
-            }
-
-            const excludedMessageTypesToFilter = userMessagesSettingsStorage.getExcludedUserMessagesTypes()
-            if (!isEqual(excludedMessageTypesToFilter, excludedMessageTypes)) {
-                setExcludedMessageTypes(excludedMessageTypesToFilter)
-            }
-        }
-    }, [excludedMessageTypes, readUserMessagesAt, userMessagesSettingsStorage])
-
-    useEffect(() => {
-        window.addEventListener('storage', handleStorageChange)
-
-        return () => {
-            window.removeEventListener('storage', handleStorageChange)
-        }
-    }, [handleStorageChange])
-
     // Set initial settings to state
     useEffect(() => {
         let lastReadUserMessagesAt = userMessagesSettingsStorage.getReadUserMessagesAt()
@@ -121,6 +105,9 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
 
         const excludedMessageTypesToFilter = userMessagesSettingsStorage.getExcludedUserMessagesTypes()
         setExcludedMessageTypes(excludedMessageTypesToFilter)
+
+        const isSoundEnabled = userMessagesSettingsStorage.getIsNotificationSoundEnabled()
+        setIsNotificationSoundEnabled(isSoundEnabled)
     }, [organizationId, userId, userMessagesSettingsStorage])
 
     const updateReadUserMessagesAt = useCallback(() => {
@@ -150,6 +137,10 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
         clearLoadedMessages()
     }, [clearLoadedMessages, messagesListRef, updateReadUserMessagesAt])
 
+    const handleIsNotificationSoundEnabledChange = useCallback((isEnabled: boolean) => {
+        setIsNotificationSoundEnabled(isEnabled)
+        userMessagesSettingsStorage.setIsNotificationSoundEnabled(isEnabled)
+    }, [userMessagesSettingsStorage])
 
     return (
         <UserMessageListContext.Provider
@@ -162,6 +153,8 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
                 moreMessagesLoading,
                 isDropdownOpen,
                 setIsDropdownOpen: handleDropdownOpenChange,
+                isNotificationSoundEnabled,
+                setIsNotificationSoundEnabled: handleIsNotificationSoundEnabledChange,
                 excludedMessageTypes,
                 setExcludedMessageTypes,
             }}

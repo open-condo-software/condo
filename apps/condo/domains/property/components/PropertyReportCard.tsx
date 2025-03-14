@@ -67,7 +67,6 @@ const ImageWrapper = styled.div`
 `
 
 const PropertyBalanceContentWrapper = styled.div`
-  padding: 90px 0;
   display: flex;
   text-align: center;
   justify-content: center;
@@ -76,6 +75,9 @@ const PropertyBalanceContentWrapper = styled.div`
 `
 
 const PropertyCardCss = css`
+  width: 100%;
+  margin-top: 40px;
+  
   &, & .condo-card-body {
     height: 100%;
   }
@@ -95,18 +97,15 @@ const PropertyCardBalanceContent: IPropertyCardBalanceContent = ({ bankAccount, 
         style: 'currency',
         currency: bankAccount.currencyCode,
     })
-    const ButtonTitle = intl.formatMessage({ id: 'pages.condo.property.id.propertyReportBalance.buttonTitle' })
 
     return (
         <>
-            <Typography.Title level={3}>{BalanceTitle}</Typography.Title>
             <PropertyBalanceContentWrapper>
-                <Space direction='vertical' size={20}>
-                    <Space direction='vertical' size={12}>
-                        <Typography.Title level={1}>{BalanceValue}</Typography.Title>
-                        <Typography.Text size='small' type='secondary'>{BalanceDescription}</Typography.Text>
-                    </Space>
-                    <Button type='secondary' onClick={clickCallback}>{ButtonTitle}</Button>
+                <Space direction='vertical' size={4}>
+                    <Typography.Text>
+                        <Typography.Link onClick={clickCallback}>{BalanceTitle} {BalanceValue}</Typography.Link>
+                        <Typography.Text type='secondary'> ({BalanceDescription})</Typography.Text>
+                    </Typography.Text>
                 </Space>
             </PropertyBalanceContentWrapper>
         </>

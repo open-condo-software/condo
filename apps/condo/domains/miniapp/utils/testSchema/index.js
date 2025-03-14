@@ -29,7 +29,7 @@ const {
 } = require('@condo/domains/miniapp/gql')
 const { MessageAppBlackList: MessageAppBlackListGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAppPermission: B2BAppPermissionGQL } = require('@condo/domains/miniapp/gql')
-const { B2BAppRole: B2BAppRoleGQL } = require('@condo/domains/miniapp/gql')
+const { B2BAppRole: B2BAppRoleGQL, B2BAppRoleWithoutEmployeeRole: B2BAppRoleWithoutEmployeeRoleGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAppAccessRightSet: B2BAppAccessRightSetGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAppNewsSharingConfig: B2BAppNewsSharingConfigGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAccessToken: B2BAccessTokenGQL } = require('@condo/domains/miniapp/gql')
@@ -67,6 +67,7 @@ const B2BAppPromoBlock = generateGQLTestUtils(B2BAppPromoBlockGQL)
 const MessageAppBlackList = generateGQLTestUtils(MessageAppBlackListGQL)
 const B2BAppPermission = generateGQLTestUtils(B2BAppPermissionGQL)
 const B2BAppRole = generateGQLTestUtils(B2BAppRoleGQL)
+const B2BAppRoleWithoutEmployeeRole = generateGQLTestUtils(B2BAppRoleWithoutEmployeeRoleGQL)
 const B2BAppAccessRightSet = generateGQLTestUtils(B2BAppAccessRightSetGQL)
 const B2BAppNewsSharingConfig = generateGQLTestUtils(B2BAppNewsSharingConfigGQL)
 const AppMessageSetting = generateGQLTestUtils(AppMessageSettingGQL)
@@ -692,7 +693,7 @@ module.exports = {
     B2CAppProperty, createTestB2CAppProperty, updateTestB2CAppProperty,
     sendB2CAppPushMessageByTestClient,
     MessageAppBlackList, createTestMessageAppBlackList, updateTestMessageAppBlackList,
-    B2BAppRole, createTestB2BAppRole, updateTestB2BAppRole,
+    B2BAppRole, B2BAppRoleWithoutEmployeeRole, createTestB2BAppRole, updateTestB2BAppRole,
     B2BAppAccessRightSet, createTestB2BAppAccessRightSet, updateTestB2BAppAccessRightSet,
     B2BAppNewsSharingConfig, createTestB2BAppNewsSharingConfig, updateTestB2BAppNewsSharingConfig,
     sendB2BAppPushMessageByTestClient,
