@@ -93,7 +93,7 @@ const OrganizationEmployeeItem: React.FC<IOrganizationEmployeeItem> = (props) =>
                                 <Typography.Text type='secondary'>ID</Typography.Text>
                             </Col>
                             <Col lg={18} xs={12} offset={1}>
-                                <Typography.Text>{employee.organization.id}</Typography.Text>
+                                <NotDefinedField value={get(employee, ['organization', 'id'])} />
                             </Col>
                         </>
                     )
