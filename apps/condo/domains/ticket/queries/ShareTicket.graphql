@@ -1,0 +1,5 @@
+mutation shareTicket($data: ShareTicketInput!) {
+    ticket: shareTicket(data: $data) {
+        status
+    }
+}

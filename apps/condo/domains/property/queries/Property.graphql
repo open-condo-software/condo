@@ -86,3 +86,17 @@ query getPropertyById ($id: ID!) {
         }
     }
 }
+
+query getLastCreatedPropertyByOrganizationId ($organizationId: ID!) {
+    properties: allProperties (
+        where: {
+            organization: {
+                id: $organizationId
+            },
+        },
+        sortBy: [createdAt_DESC],
+        first: 1,
+    ) {
+        id
+    }
+}

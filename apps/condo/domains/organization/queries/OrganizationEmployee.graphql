@@ -164,3 +164,36 @@ query getOrganizationEmployeeWithTicketOrganization ($userId: ID!, $organization
         id
     }
 }
+
+query getOrganizationEmployeeByUserAndOrganizationId ($userId: ID!, $organizationId: ID!) {
+    employee: allOrganizationEmployees (
+        where: {
+            user: { id: $userId },
+            organization: { id: $organizationId},
+        },
+        first: 1,
+    ) {
+        id
+        name
+        phone
+        email
+    }
+}
+
+query getEmployeesInvitesByUserIdAndOrganizationType ($userId: ID!, $organizationType: [OrganizationTypeType!]) {
+    invitations: allOrganizationEmployees (
+        where: {
+            user: { id: $userId },
+            organization: { type_in: $organizationType },
+            isAccepted: false,
+            isRejected: false,
+            isBlocked: false,
+        },
+        first: 10,
+    ) {
+        id
+        organization {
+            name
+        }
+    }
+}

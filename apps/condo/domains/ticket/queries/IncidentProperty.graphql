@@ -1,8 +1,75 @@
-query getIncidentProperties ($where: IncidentPropertyWhereInput) {
-    incidentProperties: allIncidentProperties (where: $where) {
+query getIncidentProperties ($where: IncidentPropertyWhereInput!, $first: Int!) {
+    incidentProperties: allIncidentProperties (
+        where: $where,
+        first: $first,
+    ) {
         id
         incident {
             id
         }
+    }
+}
+
+query getIncidentPropertiesByIncidentId ($incidentId: ID!) {
+    incidentProperties: allIncidentProperties (
+        where: {
+            incident: {
+                id: $incidentId,
+            }
+        },
+        first: 100,
+    ) {
+        id
+        incident {
+            id
+        }
+        property {
+            id
+            addressMeta {
+                value
+            }
+            address
+        }
+        propertyAddress
+        propertyAddressMeta {
+            value
+        }
+    }
+}
+
+query getFullIncidentPropertiesByIncidentId ($incidentId: ID!) {
+    incidentProperties: allIncidentProperties (
+        where: {
+            incident: {
+                id: $incidentId,
+            }
+        },
+        first: 100,
+    ) {
+        id
+        incident {
+            id
+        }
+        property {
+            id
+            addressMeta {
+                value
+                unrestricted_value
+                ...AddressMetaForTableAddress
+            }
+            address
+        }
+    }
+}
+
+mutation createIncidentProperty ($data: IncidentPropertyCreateInput!) {
+    incidentProperty: createIncidentProperty (data: $data) {
+        id
+    }
+}
+
+mutation updateIncidentProperty ($id: ID!, $data: IncidentPropertyUpdateInput!) {
+    incidentProperty: updateIncidentProperty (id: $id, data: $data) {
+        id
     }
 }

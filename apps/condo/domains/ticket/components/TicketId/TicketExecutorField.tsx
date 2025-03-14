@@ -1,13 +1,13 @@
+import { useGetOrganizationEmployeeByUserAndOrganizationIdQuery } from '@app/condo/gql'
 import { Ticket } from '@app/condo/schema'
 import { Typography } from 'antd'
-import { get } from 'lodash'
 import React, { useMemo } from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { useIntl } from '@open-condo/next/intl'
 
 
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
-import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 
 import { TicketUserInfoField } from './TicketUserInfoField'
 
@@ -21,24 +21,27 @@ export const TicketExecutorField: React.FC<TicketExecutorFieldProps> = ({ ticket
     const ExecutorMessage = intl.formatMessage({ id: 'field.Executor' })
     const EmployeeIsNullOrWasDeletedMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.EmployeeIsNullOrWasDeleted' })
 
-    const ticketExecutorUserId = useMemo(() => get(ticket, ['executor', 'id'], null), [ticket])
-    const ticketOrganizationId = useMemo(() => get(ticket, ['organization', 'id'], null), [ticket])
+    const ticketExecutorUserId = useMemo(() => ticket?.executor?.id || null, [ticket])
+    const ticketOrganizationId = useMemo(() => ticket?.organization?.id || null, [ticket])
 
-    const { obj: executor } = OrganizationEmployee.useObject({
-        where: {
-            organization: {
-                id: ticketOrganizationId,
-            },
-            user: {
-                id: ticketExecutorUserId,
-            },
+    const { persistor } = useCachePersistor()
+
+    const {
+        data: executorData,
+    } = useGetOrganizationEmployeeByUserAndOrganizationIdQuery({
+        variables: {
+            userId: ticketExecutorUserId,
+            organizationId: ticketOrganizationId,
         },
+        skip: !ticketExecutorUserId || !ticketOrganizationId || !persistor,
     })
 
+    const executor = useMemo(() => executorData?.employee?.filter(Boolean)[0] || null, [executorData?.employee])
+
     const executorUser = useMemo(() => ({
-        name: get(executor, 'name'),
-        phone: get(executor, 'phone'),
-        email: get(executor, 'email'),
+        name: executor?.name,
+        phone: executor?.phone,
+        email: executor?.email,
     }), [executor])
 
     return (
@@ -48,7 +51,7 @@ export const TicketExecutorField: React.FC<TicketExecutorFieldProps> = ({ ticket
                     ? <Typography.Text strong>
                         <TicketUserInfoField
                             user={executorUser}
-                            nameLink={`/employee/${get(executor, 'id')}`}
+                            nameLink={`/employee/${executor?.id}`}
                             phonePrefix={phonePrefix}
                         />
                     </Typography.Text>

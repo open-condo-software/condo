@@ -43,9 +43,8 @@ export const TicketPropertyField: React.FC<TicketPropertyFieldProps> = ({ ticket
     const UnitTypePrefix = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${ticket.unitType}` as FormatjsIntl.Message['ids'] })
 
     const propertyWasDeleted = !ticket.property
-    const address = useMemo(() => get(ticket, ['property', 'address'], ticket.propertyAddress), [ticket])
     const addressMeta = useMemo(() => get(ticket, ['property', 'addressMeta'], ticket.propertyAddressMeta), [ticket])
-    const { streetPart, renderPostfix } = getAddressDetails({ address, addressMeta })
+    const { streetPart, renderPostfix } = getAddressDetails({ addressMeta })
 
     const ticketUnitMessage = ticket.unitName ? `${UnitTypePrefix.toLowerCase()} ${ticket.unitName} ` : ''
     const ticketSectionAndFloorMessage = getTicketSectionAndFloorMessage(ticket, ticketUnitMessage, intl)
