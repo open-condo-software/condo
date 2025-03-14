@@ -27,12 +27,10 @@ import flattenDeep from 'lodash/flattenDeep'
 import get from 'lodash/get'
 import has from 'lodash/has'
 import includes from 'lodash/includes'
-import isArray from 'lodash/isArray'
 import isEmpty from 'lodash/isEmpty'
 import isFunction from 'lodash/isFunction'
 import isNull from 'lodash/isNull'
 import keyBy from 'lodash/keyBy'
-import transform from 'lodash/transform'
 import uniq from 'lodash/uniq'
 import { useRouter } from 'next/router'
 import { Rule } from 'rc-field-form/lib/interface'
@@ -42,40 +40,30 @@ import { Options as ScrollOptions } from 'scroll-into-view-if-needed'
 import { IGenerateHooksResult } from '@open-condo/codegen/generate.hooks'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar as UIActionBar, Alert, Button, Radio, RadioGroup, Space, Steps, Typography, Modal } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
-import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
-import {
-    GraphQlSearchInputWithCheckAll,
-    InputWithCheckAllProps,
-} from '@condo/domains/common/components/GraphQlSearchInputWithCheckAll'
 import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCounter'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
-import { analytics } from '@condo/domains/common/utils/analytics'
 import { NewsCardGrid } from '@condo/domains/news/components/NewsForm/NewsCardGrid'
-import { NewsItemSharingForm, SharingAppValues } from '@condo/domains/news/components/NewsForm/NewsItemSharingForm'
 import SelectSharingAppControl from '@condo/domains/news/components/NewsForm/SelectSharingAppControl'
 import { NewsItemCard } from '@condo/domains/news/components/NewsItemCard'
-import { MemoizedCondoNewsPreview } from '@condo/domains/news/components/NewsPreview'
 import {
     detectTargetedSections,
-    MemoizedRecipientCounter,
 } from '@condo/domains/news/components/RecipientCounter'
-import { TemplatesSelect } from '@condo/domains/news/components/TemplatesSelect'
-import { NewsItemScopeNoInstanceType } from '@condo/domains/news/components/types'
-import { PROFANITY_TITLE_DETECTED_MOT_ERF_KER, PROFANITY_BODY_DETECTED_MOT_ERF_KER } from '@condo/domains/news/constants/errors'
+import {
+    PROFANITY_TITLE_DETECTED_MOT_ERF_KER,
+    PROFANITY_BODY_DETECTED_MOT_ERF_KER,
+} from '@condo/domains/news/constants/errors'
 import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
 import { NewsItem, NewsItemScope } from '@condo/domains/news/utils/clientSchema'
 import { PARKING_SECTION_TYPE } from '@condo/domains/property/constants/common'
 import { Property } from '@condo/domains/property/utils/clientSchema'
-import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
-import { SectionNameInput } from '@condo/domains/user/components/SectionNameInput'
-import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/components/UnitNameInput'
+
+import { InputStep, SharingAppValuesType } from './InputStep'
 
 
 type FormWithActionChildrenProps = ComponentProps<ComponentProps<typeof FormWithAction>['children']>
@@ -104,19 +92,31 @@ type StepData = {
 
 export type SendPeriodType = 'now' | 'later'
 
+export type InitialValuesType =  Partial<INewsItem> & Partial<{
+    newsItemScopes: INewsItemScope[]
+    hasAllProperties: boolean
+    sendPeriod: SendPeriodType
+    properties?: IProperty[]
+}>
+
+export type TemplatesType = {
+    [key: string]: {
+        title: string
+        body: string
+        type?: string
+        id?: string
+        label?: string
+        category?: string
+    }
+}
+
 export type BaseNewsFormProps = {
     organizationId: string
     ActionBar: React.FC<ActionBarProps>
     newsItemAction: (values: INewsItemCreateInput | INewsItemUpdateInput) => ReturnType<ReturnType<NewsItemClientUtilsType['useCreate' | 'useUpdate']>>
     newsItemSharingAction: (values: INewsItemSharingCreateInput | INewsItemSharingUpdateInput) => ReturnType<ReturnType<NewsItemSharingClientUtilsType['useCreate']>>
-    initialValues?: Partial<INewsItem>
-    & Partial<{
-        newsItemScopes: INewsItemScope[]
-        hasAllProperties: boolean
-        sendPeriod: SendPeriodType
-        properties?: IProperty[]
-    }>
-    templates: { [key: string]: { title: string, body: string, type: string | null, id?: string, label?: string, category?: string } }
+    initialValues?: InitialValuesType
+    templates: TemplatesType
     afterAction?: () => void
     newsItem?: INewsItem
     OnCompletedMsg: (INewsItem) => ArgsProps | null
@@ -143,24 +143,29 @@ type SelectAppsFormValues = {
     validBefore: string
 }
 
-const HiddenBlock = styled.div<{ hide?: boolean }>`
+export type ScopeType = {
+    selectedUnitNameKeys: string[] | null
+    selectedPropertiesId: string[] | null
+    isAllPropertiesChecked: boolean | null
+    selectedSectionKeys: string[] | null
+}
+
+export const HiddenBlock = styled.div<{ hide?: boolean }>`
   ${({ hide }) => hide ? 'display: none;' : ''}
 `
 
 //TODO(DOMA-6846) wrap form label with 0 margin and use default spacing (details in 6613 pr)
-const NO_RESIZE_STYLE: React.CSSProperties = { resize: 'none' }
 const FLEX_START_STYLE: React.CSSProperties = { alignItems: 'flex-start' }
 const BIG_MARGIN_BOTTOM_STYLE: React.CSSProperties = { marginBottom: '60px' }
-const MARGIN_BOTTOM_32_STYLE: React.CSSProperties = { marginBottom: '32px' }
 const MARGIN_BOTTOM_38_STYLE: React.CSSProperties = { marginBottom: '38px' }
 const MARGIN_BOTTOM_10_STYLE: React.CSSProperties = { marginBottom: '10px' }
 const MARGIN_BOTTOM_24_STYLE: React.CSSProperties = { marginBottom: '24px' }
 const MARGIN_TOP_8_STYLE: React.CSSProperties = { marginTop: '8px' }
 const MARGIN_TOP_44_STYLE: React.CSSProperties = { marginTop: '44px' }
 const FORM_FILED_COL_PROPS = { style: { width: '100%', padding: 0, height: '44px' } }
-export const SCROLL_TO_FIRST_ERROR_CONFIG: ScrollOptions = { behavior: 'smooth', block: 'center' }
-export const SHOW_TIME_CONFIG = { defaultValue: dayjs('00:00:00:000', 'HH:mm:ss:SSS') }
-export const FULL_WIDTH_STYLE: React.CSSProperties = { width: '100%' }
+const SCROLL_TO_FIRST_ERROR_CONFIG: ScrollOptions = { behavior: 'smooth', block: 'center' }
+const SHOW_TIME_CONFIG = { defaultValue: dayjs('00:00:00:000', 'HH:mm:ss:SSS') }
+const FULL_WIDTH_STYLE: React.CSSProperties = { width: '100%' }
 const SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]
 const EXTRA_SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 10]
 const BIG_HORIZONTAL_GUTTER: [Gutter, Gutter] = [50, 0]
@@ -171,31 +176,7 @@ const DATE_FORMAT = 'DD MMMM YYYY HH:mm'
 const DOMA_APP_ICON_URL = '/homeWithSun.svg'
 const SHARING_APP_FALLBACK_ICON = '/news/sharingAppIconPlaceholder.svg'
 
-const buildCounterStyle = (textLength: number, type: 'Body' | 'Title'): React.CSSProperties => {
-    const style: React.CSSProperties = {
-        position: 'absolute',
-        right: 0,
-        margin: '12px',
-        padding: '2px 10px',
-        borderRadius: '100px',
-        backgroundColor: `${colors.gray[7]}`,
-    }
-
-    if (textLength > 0) {
-        style.backgroundColor = `${colors.black}`
-    }
-
-    if (type === 'Body') {
-        style.bottom = '12px'
-    }
-    if (type === 'Title') {
-        style.bottom = '12px'
-    }
-
-    return style
-}
-
-const getTypeAndNameByKey = (unitKey) => {
+export const getTypeAndNameByKey = (unitKey) => {
     const indexOfFirst = unitKey.indexOf('-')
 
     const type = unitKey.substring(0, indexOfFirst)
@@ -204,7 +185,7 @@ const getTypeAndNameByKey = (unitKey) => {
     return { type, name }
 }
 
-const getUnitNamesAndUnitTypes = (property, sectionKeys) => {
+export const getUnitNamesAndUnitTypes = (property, sectionKeys) => {
     const selectedSections = (get(property, ['map', 'sections'], []) || []).filter((section) => includes(sectionKeys, `${section.type}-${section.name}`))
     const selectedParking = (get(property, ['map', 'parking'], []) || []).filter((section) => includes(sectionKeys, `${PARKING_SECTION_TYPE}-${section.name}`))
     const allSectionsUnits = getAllSectionsUnits([...selectedSections, ...selectedParking])
@@ -373,29 +354,12 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const TypeLabel = intl.formatMessage({ id: 'news.fields.type.label' })
     const CommonTypeLabel = intl.formatMessage({ id: 'news.fields.type.common' })
     const EmergencyTypeLabel = intl.formatMessage({ id: 'news.fields.type.emergency' })
-    const TitleLabel = intl.formatMessage({ id: 'news.fields.title.label' })
-    const TitlePlaceholderMessage = intl.formatMessage({ id: 'news.fields.title.placeholder' })
-    const BodyLabel = intl.formatMessage({ id: 'news.fields.body.label' })
-    const BodyPlaceholderMessage = intl.formatMessage({ id: 'news.fields.body.placeholder' })
-    const CheckAllLabel = intl.formatMessage({ id: 'global.checkAll' })
-    const UnitsLabel = intl.formatMessage({ id: 'news.fields.units.label' })
-    const UnitsMessage = intl.formatMessage({ id: 'news.fields.units.message' })
-    const SectionsLabel = intl.formatMessage({ id: 'news.fields.sections.label' })
-    const SectionsMessage = intl.formatMessage({ id: 'news.fields.sections.message' })
-    const PropertiesLabel = intl.formatMessage({ id: 'field.Address' })
     const SelectPlaceholder = intl.formatMessage({ id: 'Select' })
-    const SelectAddressPlaceholder = intl.formatMessage({ id: 'global.select.address' })
     const SendPeriodNowLabel = intl.formatMessage({ id: 'global.now' })
     const SendPeriodLaterLabel = intl.formatMessage({ id: 'global.later' })
     const ValidBeforeLabel = intl.formatMessage({ id: 'global.actualUntil' })
     const ValidBeforeTitle = intl.formatMessage({ id: 'news.fields.validBefore.title' })
-    const TitleErrorMessage = intl.formatMessage({ id: 'news.fields.title.error.length' })
-    const BodyErrorMessage = intl.formatMessage({ id: 'news.fields.body.error.length' })
-    const MakeTextLabel = intl.formatMessage({ id: 'news.fields.makeText.label' })
-    const SelectTextLabel = intl.formatMessage({ id: 'news.fields.text.label' })
-    const SelectAddressLabel = intl.formatMessage({ id: 'news.fields.address.label' })
     const SelectSendPeriodLabel = intl.formatMessage({ id: 'news.fields.period.label' })
-    const TemplateBlanksNotFilledErrorMessage = intl.formatMessage({ id: 'news.fields.template.blanksNotFilledError' })
     const ValidBeforeErrorMessage = intl.formatMessage({ id: 'news.fields.validBefore.error' })
     const ToManyMessagesMessage = intl.formatMessage({ id: 'news.fields.toManyMessages.error' })
     const PastTimeErrorMessage = intl.formatMessage({ id: 'global.input.error.pastTime' })
@@ -416,7 +380,6 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const { breakpoints } = useLayoutContext()
     const isMediumWindow = !breakpoints.DESKTOP_SMALL
     const formFieldsColSpan = isMediumWindow ? 24 : 14
-    const formInfoColSpan = 24 - formFieldsColSpan
 
     const initialValidBefore = useMemo(() => get(initialValues, 'validBefore', null), [initialValues])
     const initialSendAt = useMemo(() => get(initialValues, 'sendAt', null), [initialValues])
@@ -467,23 +430,6 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         }).filter(Boolean)
     }, [initialHasAllProperties, initialNewsItemScopes, initialProperties.length])
 
-
-    const commonTemplates = useMemo(() => {
-        return transform(templates, (result, value, key) => {
-            if (value.type === NEWS_TYPE_COMMON || isNull(value.type)) {
-                result[key] = value
-            }
-        }, {})
-    }, [templates])
-
-    const emergencyTemplates = useMemo(() => {
-        return transform(templates, (result, value, key) => {
-            if (value.type === NEWS_TYPE_EMERGENCY || isNull(value.type)) {
-                result[key] = value
-            }
-        }, {})
-    }, [templates])
-
     const sharingAppContextsIndex = useMemo(() => keyBy(sharingAppContexts, 'id'), [sharingAppContexts])
     const [selectedSharingAppsContexts, setSelectedSharingAppsContexts] = useState<Set<string>>(new Set())
 
@@ -497,10 +443,14 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const [selectedBody, setSelectedBody] = useState<string>(get(initialValues, 'body', ''))
     const [isValidBeforeAfterSendAt, setIsValidBeforeAfterSendAt] = useState<boolean>(true)
     const [newsItemCountAtSameDay, setNewsItemCountAtSameDay] = useState(getNewsItemCountAtSameDay(null, allNews))
-    const [selectedUnitNameKeys, setSelectedUnitNameKeys] = useState(initialUnitKeys)
-    const [selectedPropertiesId, setSelectedPropertiesId] = useState(initialPropertyIds)
-    const [isAllPropertiesChecked, setIsAllPropertiesChecked] = useState(initialHasAllProperties)
-    const [selectedSectionKeys, setSelectedSectionKeys] = useState(initialSectionIds)
+
+    const [scope, setScope] = useState<ScopeType>({
+        selectedUnitNameKeys: initialUnitKeys,
+        selectedPropertiesId: initialPropertyIds,
+        isAllPropertiesChecked: initialHasAllProperties,
+        selectedSectionKeys: initialSectionIds,
+    })
+
     const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false)
 
     // Select apps form values
@@ -510,16 +460,11 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const [condoFormValues, setCondoFormValues] = useState<CondoFormValues | null>(null)
 
     // SharingApp form values:
-    const [sharingAppsFormValues, setSharingAppsFormValues] = useState<Record<string, SharingAppValues>>({})
-
-    const countPropertiesAvailableToSelect = useRef(null)
-    const onlyPropertyThatCanBeSelected = useRef(null)
+    const [sharingAppsFormValues, setSharingAppsFormValues] = useState<Record<string, SharingAppValuesType>>({})
 
     const { loading: selectedPropertiesLoading, objs: selectedProperties } = Property.useAllObjects({
-        where: { id_in: selectedPropertiesId },
+        where: { id_in: scope.selectedPropertiesId },
     }, { fetchPolicy: 'cache-first' })
-
-    const isOnlyOnePropertySelected: boolean = useMemo(() => (selectedPropertiesId.length === 1), [selectedPropertiesId.length])
 
     const softDeleteNewsItemScope = NewsItemScope.useSoftDeleteMany()
     const createNewsItemScope = NewsItemScope.useCreateMany({})
@@ -543,14 +488,6 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         setSelectedType(e.target.value)
     }, [])
 
-    const handleTitleChange = useCallback((e) => {
-        setSelectedTitle(e.target.value)
-    }, [])
-
-    const handleBodyChange = useCallback((e) => {
-        setSelectedBody(e.target.value)
-    }, [])
-
     const handleValidBeforeChange = useCallback((form, fieldName) => (value, dateString) => {
         const handleChangeDateEvent = handleChangeDate(form, fieldName, setIsValidBeforeAfterSendAt)
         handleChangeDateEvent(value, dateString)
@@ -567,34 +504,6 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
 
         handleSetSendDate(value)
     }, [handleSetSendDate])
-
-    const handleChangeSectionNameInput = useCallback((property) => {
-        return (sections, options) => {
-            if (!isEmpty(sections)) {
-                const sectionKeys = options.map(option => get(option, 'key'))
-                setSelectedSectionKeys(sectionKeys)
-            } else {
-                setSelectedSectionKeys([])
-            }
-        }
-    }, [])
-
-    const handleChangeUnitNameInput = useCallback((_, options: UnitNameInputOption[]) => {
-        if (!options) {
-            setSelectedUnitNameKeys(null)
-        } else {
-            const unitNamesKeys = options.map(option => get(option, 'key'))
-            setSelectedUnitNameKeys(unitNamesKeys)
-
-        }
-    }, [])
-
-    const handleAllPropertiesDataLoading = useCallback((data) => {
-        countPropertiesAvailableToSelect.current = data.length
-        if (data.length === 1) {
-            onlyPropertyThatCanBeSelected.current = data[0]
-        }
-    }, [])
 
     const handleSelectSharingApp = useCallback(({ value, checked }: { value: string, checked: boolean }) => {
         setSkippedSteps(new Set())
@@ -619,102 +528,10 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         Body.setTextLength(initialBody.length)
     }, [])
 
-    const [templateId, setTemplateId] = useState<string | null>(null)
-
-    const handleTemplateChange = useCallback((form) => (value) => {
-        setTemplateId(value)
-
-        const templateId = value
-        const title = templateId !== 'emptyTemplate' ? templates[templateId].title : ''
-        const body = templateId !== 'emptyTemplate' ? templates[templateId].body : ''
-
-        analytics.track('news_template_change', { title, body })
-
-        form.setFieldValue('title', title)
-        setSelectedTitle(title)
-        Title.setTextLength(title.length)
-
-        form.setFieldValue('body', body)
-        setSelectedBody(body)
-        Body.setTextLength(body.length)
-    }, [Body, Title, templates])
-
-    const emergencyTemplatesTabsProps = useMemo(() => Object.keys(emergencyTemplates).map(id => ({
-        key: id,
-        label: emergencyTemplates[id].label || emergencyTemplates[id].title,
-        category: emergencyTemplates[id].category,
-    })), [emergencyTemplates])
-
-    const commonTemplatesTabsProps = useMemo(() => Object.keys(commonTemplates).map(id => ({
-        key: id,
-        label: commonTemplates[id].label || commonTemplates[id].title,
-        category: commonTemplates[id].category,
-    })), [commonTemplates])
-
-    const propertyCheckboxChange = (form) => {
-        return (value) => {
-            if (value) setSelectedPropertiesId(selectedPropertiesId => {
-                if (countPropertiesAvailableToSelect.current === 1 && selectedPropertiesId.length === 1)
-                    return selectedPropertiesId
-                if (countPropertiesAvailableToSelect.current === 1 && selectedPropertiesId.length === 0 && has(onlyPropertyThatCanBeSelected, 'current.value')) {
-                    return [onlyPropertyThatCanBeSelected.current.value]
-                }
-                return []
-            })
-            if (countPropertiesAvailableToSelect.current === 1 && !value) {
-                setSelectedPropertiesId([])
-            }
-            setIsAllPropertiesChecked(value)
-            form.setFieldsValue({ 'unitNames': [] })
-            form.setFieldsValue({ 'sectionIds': [] })
-            setSelectedUnitNameKeys([])
-            setSelectedSectionKeys([])
-        }
-    }
-
-    const propertySelectProps = (form) => {
-        return {
-            showArrow: false,
-            infinityScroll: true,
-            initialValue: initialPropertyIds,
-            search: searchOrganizationProperty(organizationId),
-            disabled: !organizationId,
-            required: true,
-            placeholder: SelectAddressPlaceholder,
-            onChange: (propIds: string[]) => {
-                setSelectedPropertiesId(!isArray(propIds) ? [propIds].filter(Boolean) : propIds)
-                form.setFieldsValue({ 'unitNames': [] })
-                form.setFieldsValue({ 'sectionIds': [] })
-                setSelectedUnitNameKeys([])
-                setSelectedSectionKeys([])
-            },
-        }
-    }
-
-    const propertySelectFormItemProps: InputWithCheckAllProps['selectFormItemProps'] = useMemo(() => ({
-        label: PropertiesLabel,
-        labelCol: FORM_FILED_COL_PROPS,
-        required: true,
-        name: 'properties',
-        validateFirst: true,
-    }), [PropertiesLabel])
-
     const { requiredValidator } = useValidations()
     const dateRule: Rule = useMemo(() => getIsDateInFutureRule(PastTimeErrorMessage), [PastTimeErrorMessage])
     const finishWorkRule: Rule = useMemo(() => getFinishWorkRule(ValidBeforeErrorMessage), [ValidBeforeErrorMessage])
     const commonRule: Rule = useMemo(() => requiredValidator, [requiredValidator])
-    const titleRule = useMemo(() => ({
-        whitespace: true,
-        required: true,
-        message: TitleErrorMessage,
-    }), [TitleErrorMessage])
-    const MemoizedTitleTemplateChangedRule = useMemo(() => getTitleTemplateChangedRule(TemplateBlanksNotFilledErrorMessage), [TemplateBlanksNotFilledErrorMessage])
-    const bodyRule = useMemo(() => ({
-        whitespace: true,
-        required: true,
-        message: BodyErrorMessage,
-    }), [BodyErrorMessage])
-    const MemoizedBodyTemplateChangedRule = useMemo(() => getBodyTemplateChangedRule(TemplateBlanksNotFilledErrorMessage), [TemplateBlanksNotFilledErrorMessage])
 
     const initialFormValues = useMemo(() => {
         return {
@@ -726,8 +543,8 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             type: selectedType,
             title: selectedTitle,
             body: selectedBody,
-            properties: selectedPropertiesId,
-            ...(totalProperties === 1 && selectedPropertiesId.length === 1 ? { property: selectedPropertiesId[0] } : undefined),
+            properties: scope.selectedPropertiesId,
+            ...(totalProperties === 1 && scope.selectedPropertiesId.length === 1 ? { property: scope.selectedPropertiesId[0] } : undefined),
             validBefore: initialValidBefore ? dayjs(initialValidBefore) : null,
             sendAt: initialSendAt ? dayjs(initialSendAt) : null,
         }
@@ -943,41 +760,6 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         }
     }, [actionName, createOrUpdateNewsItem, initialHasAllProperties, initialPropertyIds, updateNewsItem, OnCompletedMsg, afterAction, initialSentAt, currentNewsItem, initialNewsItemScopes, softDeleteNewsItemScope, initialUnitKeys, createNewsItemScope, router])
 
-    const newsItemScopesNoInstance = useMemo<NewsItemScopeNoInstanceType[]>(() => {
-        if (isAllPropertiesChecked && countPropertiesAvailableToSelect.current !== 1) {
-            return [{ property: null, unitType: null, unitName: null }]
-        }
-
-        if (selectedPropertiesLoading || selectedPropertiesId.length === 0) {
-            return []
-        }
-
-        if (isOnlyOnePropertySelected) {
-            if (!isEmpty(selectedUnitNameKeys)) {
-                return selectedUnitNameKeys.map((unitKey) => {
-                    const { name: unitName, type: unitType } = getTypeAndNameByKey(unitKey)
-                    return { property: selectedProperties[0], unitType: unitType, unitName: unitName }
-                })
-            }
-            if (!isEmpty(selectedSectionKeys)) {
-                const { unitNames, unitTypes } = getUnitNamesAndUnitTypes(selectedProperties[0], selectedSectionKeys)
-                return unitNames.map((unitName, i) => {
-                    return { property: selectedProperties[0], unitType: unitTypes[i], unitName: unitName }
-                })
-            }
-            if (isEmpty(selectedUnitNameKeys) && isEmpty(selectedSectionKeys)) {
-                return [{ property: selectedProperties[0], unitType: null, unitName: null }]
-            }
-
-            return []
-        } else if (!isEmpty(selectedProperties)) {
-            return selectedProperties.map(property => {
-                return { property: property, unitType: null, unitName: null }
-            })
-        }
-
-        return []
-    }, [isAllPropertiesChecked, isOnlyOnePropertySelected, selectedProperties, selectedPropertiesId.length, selectedPropertiesLoading, selectedSectionKeys, selectedUnitNameKeys])
 
     const dayjsTz = dayjs().format('Z')
     const tzInfo = useMemo<string>(() => {
@@ -1007,26 +789,6 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         },
     }), [ProfanityInBody, ProfanityInTitle])
 
-    const newsItemForOneProperty = totalProperties === 1 && initialPropertyIds.length < 2
-    const propertyIsAutoFilled = useRef(false)
-    const handleAllPropertiesLoading = useCallback((form: FormInstance) => (data) => {
-        if (!isEmpty(get(initialFormValues, 'property')) || !isEmpty(get(initialFormValues, 'properties')) || get(initialFormValues, 'hasAllProperties')) return
-        if (!newsItemForOneProperty) return
-        if (data.length !== 1) return
-        if (propertyIsAutoFilled.current) return
-
-        propertyIsAutoFilled.current = true
-        const propertyId = get(data, '0.value')
-        if (propertyId) {
-            setSelectedPropertiesId([propertyId])
-            form.setFieldsValue({
-                property: propertyId,
-                'properties': [propertyId],
-                hasAllProperties: true,
-            })
-        }
-    }, [initialFormValues, newsItemForOneProperty])
-
     const [currentStep, setCurrentStep] = useState<number>(0)
     const [skippedSteps, setSkippedSteps] = useState(new Set<number>)
 
@@ -1042,7 +804,11 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
 
         if (currentStep === 1) {
             fieldsToValidate = ['templates', 'title', 'body', 'property', 'properties', 'hasAllProperties', 'unitNames', 'sectionIds']
-            setCondoFormValues({ ...form.getFieldsValue(true) })
+            const res = form.getFieldsValue(true)
+
+            setSelectedTitle(res.title)
+            setSelectedBody(res.body)
+            setCondoFormValues(res)
         }
 
         if (currentStep === getLastStep()) {
@@ -1169,6 +935,9 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         return false
     }
 
+    const isSharingAppStep = getStepTypeByStep(currentStep) === 'sharingApp'
+    const isFormStep = getStepTypeByStep(currentStep) === 'condoApp' || isSharingAppStep
+
     return (
         <Row gutter={BIG_HORIZONTAL_GUTTER}>
             <Col span={24} flex='auto'>
@@ -1275,201 +1044,37 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                     </>
                                 )}
 
-                                {getStepTypeByStep(currentStep) === 'condoApp' && (
-                                    <>
-                                        <Col span={24} style={BIG_MARGIN_BOTTOM_STYLE}>
-                                            <Row gutter={BIG_HORIZONTAL_GUTTER}>
-                                                <Col span={formFieldsColSpan}>
-                                                    <Row>
-                                                        <Col span={24} style={MARGIN_BOTTOM_32_STYLE}>
-                                                            <Typography.Title level={2}>
-                                                                {MakeTextLabel}
-                                                            </Typography.Title>
-                                                        </Col>
-
-                                                        {templates && (
-                                                            <Col span={24} style={BIG_MARGIN_BOTTOM_STYLE}>
-                                                                <Form.Item
-                                                                    name='template'
-                                                                >
-                                                                    {selectedType === NEWS_TYPE_COMMON && (
-                                                                        <TemplatesSelect
-                                                                            onChange={handleTemplateChange(form)}
-                                                                            items={commonTemplatesTabsProps}
-                                                                            hasCategories
-                                                                        />
-                                                                    )}
-                                                                    {selectedType === NEWS_TYPE_EMERGENCY && (
-                                                                        <TemplatesSelect
-                                                                            onChange={handleTemplateChange(form)}
-                                                                            items={emergencyTemplatesTabsProps}
-                                                                            hasCategories
-                                                                        />
-                                                                    )}
-                                                                </Form.Item>
-                                                            </Col>
-                                                        )}
-
-                                                        <Col span={24}>
-                                                            <Col span={24} style={MARGIN_BOTTOM_10_STYLE}>
-                                                                <Typography.Title level={4}>{SelectTextLabel}</Typography.Title>
-                                                            </Col>
-                                                            <Col span={24}>
-                                                                <Form.Item
-                                                                    label={TitleLabel}
-                                                                    labelCol={FORM_FILED_COL_PROPS}
-                                                                    name='title'
-                                                                    required
-                                                                    rules={[titleRule, MemoizedTitleTemplateChangedRule]}
-                                                                    validateFirst={true}
-                                                                    data-cy='news__create-title-input'
-                                                                >
-                                                                    <Title.InputWithCounter
-                                                                        style={NO_RESIZE_STYLE}
-                                                                        rows={4}
-                                                                        placeholder={TitlePlaceholderMessage}
-                                                                        onChange={handleTitleChange} />
-                                                                </Form.Item>
-                                                                <Col style={buildCounterStyle(Title.textLength, 'Title')}>
-                                                                    <Title.Counter type='inverted' />
-                                                                </Col>
-                                                            </Col>
-                                                            <Col span={24}>
-                                                                <Form.Item
-                                                                    label={BodyLabel}
-                                                                    labelCol={FORM_FILED_COL_PROPS}
-                                                                    name='body'
-                                                                    required
-                                                                    rules={[bodyRule, MemoizedBodyTemplateChangedRule]}
-                                                                    validateFirst={true}
-                                                                    data-cy='news__create-body-input'
-                                                                >
-                                                                    <Body.InputWithCounter
-                                                                        autoFocus={autoFocusBody}
-                                                                        style={NO_RESIZE_STYLE}
-                                                                        rows={7}
-                                                                        placeholder={BodyPlaceholderMessage}
-                                                                        onChange={handleBodyChange} />
-                                                                </Form.Item>
-                                                                <Col style={buildCounterStyle(Body.textLength, 'Body')}>
-                                                                    <Body.Counter type='inverted' />
-                                                                </Col>
-                                                            </Col>
-                                                        </Col>
-                                                    </Row>
-                                                </Col>
-                                                {
-                                                    !!formInfoColSpan && (!!selectedBody || !!selectedTitle) && (
-                                                        <Col span={formInfoColSpan}>
-                                                            <MemoizedCondoNewsPreview
-                                                                body={selectedBody}
-                                                                title={selectedTitle}
-                                                                validBefore={selectedType === NEWS_TYPE_EMERGENCY ? selectedValidBeforeText : null}
-                                                            />
-                                                        </Col>
-                                                    )
-                                                }
-                                            </Row>
-                                        </Col>
-
-                                        <Col span={24}>
-                                            <Row gutter={BIG_HORIZONTAL_GUTTER}>
-                                                <Col span={formFieldsColSpan}>
-                                                    <Row gutter={EXTRA_SMALL_VERTICAL_GUTTER}>
-                                                        <Col span={24}>
-                                                            <Typography.Title level={2}>{SelectAddressLabel}</Typography.Title>
-                                                        </Col>
-                                                        <Col span={24} data-cy='news__create-property-search'>
-                                                            {newsItemForOneProperty && (
-                                                                <Form.Item
-                                                                    {...propertySelectFormItemProps}
-                                                                    name='property'
-                                                                    rules={[requiredValidator]}
-                                                                >
-                                                                    <GraphQlSearchInput
-                                                                        {...propertySelectProps(form)}
-                                                                        onAllDataLoading={handleAllPropertiesLoading(form)} />
-                                                                </Form.Item>
-                                                            )}
-                                                            <HiddenBlock hide={newsItemForOneProperty}>
-                                                                <GraphQlSearchInputWithCheckAll
-                                                                    checkAllFieldName='hasAllProperties'
-                                                                    checkAllInitialValue={get(initialValues, 'hasAllProperties', false)}
-                                                                    selectFormItemProps={propertySelectFormItemProps}
-                                                                    selectProps={propertySelectProps(form)}
-                                                                    onCheckBoxChange={propertyCheckboxChange(form)}
-                                                                    CheckAllMessage={CheckAllLabel}
-                                                                    onDataLoaded={handleAllPropertiesDataLoading}
-                                                                    form={form} />
-                                                            </HiddenBlock>
-                                                        </Col>
-                                                        {isOnlyOnePropertySelected && (
-                                                            <>
-                                                                <Col span={11}>
-                                                                    <Form.Item
-                                                                        name='unitNames'
-                                                                        label={selectedPropertiesLoading || !isEmpty(selectedSectionKeys)
-                                                                            ? (
-                                                                                <LabelWithInfo
-                                                                                    title={UnitsMessage}
-                                                                                    message={UnitsLabel}
-                                                                                />
-                                                                            )
-                                                                            : UnitsLabel}
-                                                                    >
-                                                                        <UnitNameInput
-                                                                            multiple={true}
-                                                                            property={selectedProperties[0]}
-                                                                            loading={selectedPropertiesLoading}
-                                                                            disabled={selectedPropertiesLoading || !isEmpty(selectedSectionKeys)}
-                                                                            onChange={handleChangeUnitNameInput} />
-                                                                    </Form.Item>
-                                                                </Col>
-                                                                <Col span={11} offset={2}>
-                                                                    <Form.Item
-                                                                        name='sectionIds'
-                                                                        label={selectedPropertiesLoading || !isEmpty(selectedUnitNameKeys)
-                                                                            ? (<LabelWithInfo
-                                                                                title={SectionsMessage}
-                                                                                message={SectionsLabel} />)
-                                                                            : SectionsLabel}
-                                                                    >
-                                                                        <SectionNameInput
-                                                                            disabled={selectedPropertiesLoading || !isEmpty(selectedUnitNameKeys)}
-                                                                            property={selectedProperties[0]}
-                                                                            onChange={handleChangeSectionNameInput(selectedProperties[0])}
-                                                                            mode='multiple'
-                                                                            data-cy='news__create-property-section-search' />
-                                                                    </Form.Item>
-                                                                </Col>
-                                                            </>
-                                                        )}
-                                                    </Row>
-                                                </Col>
-                                                <Col span={formInfoColSpan}>
-                                                    <HiddenBlock hide={newsItemScopesNoInstance.length <= 0} >
-                                                        <MemoizedRecipientCounter newsItemScopes={newsItemScopesNoInstance}/>
-                                                    </HiddenBlock>
-                                                </Col>
-                                            </Row>
-                                        </Col>
-                                    </>
+                                {isFormStep && (
+                                    <InputStep
+                                        form={form}
+                                        scope={scope}
+                                        setScope={setScope}
+                                        templates={templates}
+                                        isSharingStep={isSharingAppStep}
+                                        autoFocusBody={autoFocusBody}
+                                        organizationId={organizationId}
+                                        totalProperties={totalProperties}
+                                        initialFormValues={initialFormValues}
+                                        initialPropertyIds={initialPropertyIds}
+                                        onSkip={() => handleStepSkip({ skip: true, step: currentStep })}
+                                        sharingAppData={getStepDataByStep(currentStep).sharingAppData}
+                                        initialValues={get(sharingAppsFormValues, [getStepDataByStep(currentStep).sharingAppData?.id], undefined)}
+                                        selectedProperty={{
+                                            loading: selectedPropertiesLoading,
+                                            objs: selectedProperties,
+                                        }}
+                                        onSubmit={(values) => handleSharingAppFormSubmit({
+                                            values: values,
+                                            ctxId: getStepDataByStep(currentStep).sharingAppData?.id,
+                                        })}
+                                        newsItemData={{
+                                            type: selectedType,
+                                            validBefore: selectedValidBeforeText,
+                                            title: selectedTitle,
+                                            body: selectedBody,
+                                        }}
+                                    />
                                 )}
-
-                                {
-                                    (getStepTypeByStep(currentStep) === 'sharingApp') && (
-                                        // TODO (DOMA-9328) Move onSkip to BaseNewsForm component, since steps are handled here!
-                                        <NewsItemSharingForm
-                                            template={{ id: templateId, ...templates[templateId] }}
-                                            ctxId={getStepDataByStep(currentStep).sharingAppData.id}
-                                            onSkip={() => handleStepSkip({ skip: true, step: currentStep })}
-                                            onSubmit={(values) => handleSharingAppFormSubmit({ values: values, ctxId: getStepDataByStep(currentStep).sharingAppData.id })}
-                                            sharingApp={getStepDataByStep(currentStep).sharingAppData.app}
-                                            initialValues={get(sharingAppsFormValues, [getStepDataByStep(currentStep).sharingAppData.id], undefined)}
-                                            newsItemData={{ type: selectedType, validBefore: selectedValidBeforeText, title: selectedTitle, body: selectedBody, scopes: newsItemScopesNoInstance }}
-                                        />
-                                    )
-                                }
 
                                 {getStepTypeByStep(currentStep) === 'review' && (
                                     <Col span={24}>
