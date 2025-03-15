@@ -177,7 +177,7 @@ const Contact = new GQLListSchema('Contact', {
             isRequired: false,
             hooks: {
                 resolveInput: async ({ resolvedData }) => {
-                    return normalizeText(resolvedData['details'])
+                    return normalizeText(resolvedData['note'])
                 },
             },
         },
