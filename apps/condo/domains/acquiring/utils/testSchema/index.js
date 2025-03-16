@@ -547,15 +547,15 @@ async function calculateFeeForReceiptByTestClient(client, extraAttrs = {}) {
     throwIfError(data, errors, { query: CALCULATE_FEE_FOR_RECEIPT_QUERY, variables: { data: extraAttrs } })
     return [data.result, extraAttrs]
 }
-async function createTestPaymentsFile (client, billingContext = null, acquiringContext = null,  extraAttrs = {}) {
+async function createTestPaymentsFile (client, acquiringContext,  extraAttrs = {}) {
     if (!client) throw new Error('no client')
+    if (!acquiringContext) throw new Error('Acquiring context is missing')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
         dv: 1,
         sender,
-        ...billingContext ? { billingContext: { connect: { id: billingContext.id } } } : {},
-        ...acquiringContext ? { acquiringContext: { connect: { id: acquiringContext.id } } }: {},
+        acquiringContext: { connect: { id: acquiringContext.id } },
         file: new UploadingFile(FILE),
         account: faker.random.alphaNumeric(8),
         dateBegin: dayjs(faker.date.recent()).format('YYYY-MM-DD'),

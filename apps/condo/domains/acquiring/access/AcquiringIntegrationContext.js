@@ -12,7 +12,7 @@ const { SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants
 const { checkPermissionsInEmployedOrganizations } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 
-const { checkAcquiringIntegrationAccessRight } = require('../utils/accessSchema')
+const { checkAcquiringIntegrationAccessRights } = require('../utils/accessSchema')
 
 
 /**
@@ -104,7 +104,7 @@ async function canManageAcquiringIntegrationContexts ({ authentication: { item: 
         }
     }
 
-    return await checkAcquiringIntegrationAccessRight(user.id, integrationId)
+    return await checkAcquiringIntegrationAccessRights(user.id, [integrationId])
 }
 
 async function canManageStatusField ({ authentication: { item: user }, existingItem, operation, originalInput }) {
