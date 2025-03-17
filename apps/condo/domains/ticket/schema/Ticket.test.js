@@ -4496,6 +4496,12 @@ describe('Ticket', () => {
 
                 expect(ticket.client.id).toEqual(userClient.user.id)
 
+                await waitFor(async () => {
+                    const message = await Message.getOne(admin, { user: { id: userClient.user.id }, type: TICKET_STATUS_COMPLETED_TYPE })
+                    expect(message.meta.data.userId).toEqual(userClient.user.id)
+                    expect(message.status).toEqual(MESSAGE_SENT_STATUS)
+                })
+
                 await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.OPEN } } })
 
                 await waitFor(async () => {
