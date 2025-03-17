@@ -21,6 +21,9 @@ import { AuthPoster } from '@condo/domains/user/components/containers/AuthPoster
 import { WelcomeHeaderTitle } from '@condo/domains/user/components/UserWelcomeTitle'
 
 import './OrganizationExistenceRequired.css'
+import { CreateOrganizationForm } from './CreateOrganizationForm'
+
+import { FormWithAction } from '../../common/components/containers/FormList'
 
 
 type OrganizationExistenceRequiredProps = {
@@ -49,6 +52,7 @@ export const OrganizationExistenceRequired: React.FC<OrganizationExistenceRequir
         },
         skip: skipQueryStatement,
     })
+
     const isEmployeeExist = useMemo(() => employeeExistenceData?.actualEmployees?.length > 0, [employeeExistenceData?.actualEmployees])
 
     const {
@@ -97,49 +101,50 @@ export const OrganizationExistenceRequired: React.FC<OrganizationExistenceRequir
 
     const loading = lastInviteLoading || initialDataLoading || employeeExistenceLoading
 
-    if (loading) {
-        return <Loader />
-    }
+    console.log('loading', loading, isEmployeeExist, !user)
 
     // If user has employee => skip this screens
-    if (isEmployeeExist) {
+    if (loading || isEmployeeExist || !user || !!organization) {
         return <>{children}</>
     }
 
+    let content = <CreateOrganizationForm />
+
     // If user has invites => show last invite to him
     if (lastInvite) {
-        return (
-            <>
-                <Head>
-                    <title>ахаха)</title>
-                </Head>
-                <LayoutWithPoster
-                    headerAction={<WelcomeHeaderTitle userType='staff'/>}
-                    Poster={AuthPoster}
-                >
-                    <Space size={40} direction='vertical' align='center' className='initial-organization-invite'>
-                        <Space size={24} direction='vertical'>
-                            <Typography.Title level={2}>Вас пригласила организация {lastInvite.organization?.name}</Typography.Title>
-                            <Typography.Text type='secondary' size='large'>
-                                Примите приглашение, если вы сотрудник этой организации и хотите присоединиться
-                            </Typography.Text>
-                        </Space>
-                        <Space size={20} direction='vertical' className='initial-organization-invite-buttons'>
-                            <Button type='primary' onClick={() => handleAcceptOrReject(true, false)}>
-                                Принять
-                            </Button>
-                            <Button type='secondary' onClick={() => handleAcceptOrReject(false, true)}>
-                                Отклонить
-                            </Button>
-                        </Space>
-                    </Space>
-                </LayoutWithPoster>
-            </>
+        content = (
+            <Space size={40} direction='vertical' align='center' className='initial-organization-invite'>
+                <Space size={24} direction='vertical'>
+                    <Typography.Title level={2}>Вас пригласила организация {lastInvite.organization?.name}</Typography.Title>
+                    <Typography.Text type='secondary' size='large'>
+                        Примите приглашение, если вы сотрудник этой организации и хотите присоединиться
+                    </Typography.Text>
+                </Space>
+                <Space size={20} direction='vertical' className='initial-organization-invite-buttons'>
+                    <Button type='primary' onClick={() => handleAcceptOrReject(true, false)}>
+                        Принять
+                    </Button>
+                    <Button type='secondary' onClick={() => handleAcceptOrReject(false, true)}>
+                        Отклонить
+                    </Button>
+                </Space>
+            </Space>
         )
     }
 
     // if (organizationEmployeeRequest) ...
 
-    // Return CreateOrganization form
-    return <>{children}</>
+    return (
+        <>
+            <Head>
+                <title>ахаха)</title>
+            </Head>
+            <LayoutWithPoster
+                headerAction={<WelcomeHeaderTitle userType='staff'/>}
+                Poster={AuthPoster}
+            >
+                {content}
+            </LayoutWithPoster>
+        </>
+    )
 }
