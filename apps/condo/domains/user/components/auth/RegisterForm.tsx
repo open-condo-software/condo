@@ -245,7 +245,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
                         </Col>
 
                         <Col span={24}>
-                            <Row gutter={[0, 32]}>
+                            <Row gutter={[0, 24]}>
                                 {
                                     visibleFields.name && (
                                         <Col span={24}>
