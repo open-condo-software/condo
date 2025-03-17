@@ -8,6 +8,7 @@ import { Typography } from '@open-condo/ui'
 import { useBreakpoints } from '@open-condo/ui/dist/hooks'
 
 import { Logo } from '@condo/domains/common/components/Logo'
+import { formatPhone } from '@condo/domains/common/utils/helpers'
 import { Layout } from '@condo/domains/user/components/containers/styles'
 
 import './styles.css'
@@ -16,6 +17,7 @@ import './styles.css'
 const {
     publicRuntimeConfig: { HelpRequisites: { support_email: SUPPORT_EMAIL = null, support_phone: SUPPORT_PHONE = null } },
 } = getConfig()
+const FORMATTED_SUPPORT_PHONE = SUPPORT_PHONE ? formatPhone(SUPPORT_PHONE) : SUPPORT_PHONE
 
 
 export type LayoutWithPosterProps = {
@@ -77,7 +79,7 @@ export const LayoutWithPoster: React.FC<LayoutWithPosterProps> = ({ children, he
                                 <Typography.Link
                                     href={`tel:${SUPPORT_PHONE}`}
                                 >
-                                    {SUPPORT_PHONE}
+                                    {FORMATTED_SUPPORT_PHONE}
                                 </Typography.Link>
                             )
                         }
