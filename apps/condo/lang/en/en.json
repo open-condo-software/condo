@@ -1625,7 +1625,6 @@
   "pages.auth.WeMustMakeSureThatYouAreHuman": "We must make sure that your are a human",
   "pages.auth.Welcome": "Welcome to the platform Doma.ai",
   "pages.auth.WhatDoYouWantOthersToCallYou": "What do you want others to call you?",
-  "pages.auth.WrongPhoneOrPassword": "Wrong phone or password",
   "pages.auth.register.AllFieldsAreRequired": "All fields are required",
   "pages.auth.register.PhoneConfirmTokenErrorLabel": "Attempt failed",
   "pages.auth.register.PhoneConfirmTokenErrorMessage": "You can initiate registration again",

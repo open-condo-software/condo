@@ -1625,7 +1625,6 @@
   "pages.auth.WeMustMakeSureThatYouAreHuman": "Tenemos que asegurarnos de que eres humano",
   "pages.auth.Welcome": "Bienvenido a la plataforma Doma.ai",
   "pages.auth.WhatDoYouWantOthersToCallYou": "¿Cómo te llamarán los demás?",
-  "pages.auth.WrongPhoneOrPassword": "Número de teléfono o contraseña incorrectos",
   "pages.auth.register.AllFieldsAreRequired": "Todos los campos son obligatorios",
   "pages.auth.register.PhoneConfirmTokenErrorLabel": "No ha sido cumplido",
   "pages.auth.register.PhoneConfirmTokenErrorMessage": "Puedes volver a iniciar la confirmación del número de teléfono",

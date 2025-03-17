@@ -1625,7 +1625,6 @@
   "pages.auth.WeMustMakeSureThatYouAreHuman": "Нам нужно убедиться, что вы человек",
   "pages.auth.Welcome": "Добро пожаловать  на платформу Doma.ai",
   "pages.auth.WhatDoYouWantOthersToCallYou": "Как вас будут называть другие?",
-  "pages.auth.WrongPhoneOrPassword": "Неверный номер телефона или пароль",
   "pages.auth.register.AllFieldsAreRequired": "Все поля обязательны для заполнения",
   "pages.auth.register.PhoneConfirmTokenErrorLabel": "Не получилось",
   "pages.auth.register.PhoneConfirmTokenErrorMessage": "Вы можете инициировать подтверждение телефона ещё раз",
