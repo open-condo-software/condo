@@ -178,16 +178,20 @@ export const SignInForm = (): React.ReactElement => {
                         </Col>
 
                         <Row gutter={[0, 16]}>
-                            <Col span={24}>
-                                <Checkbox
-                                    tabIndex={6}
-                                    children={(
-                                        <Typography.Text size='small'>
-                                            {ConsentToReceiveMarketingMaterialsMessage}
-                                        </Typography.Text>
-                                    )}
-                                />
-                            </Col>
+                            {
+                                hasSbbolAuth && (
+                                    <Col span={24}>
+                                        <Checkbox
+                                            tabIndex={6}
+                                            children={(
+                                                <Typography.Text size='small'>
+                                                    {ConsentToReceiveMarketingMaterialsMessage}
+                                                </Typography.Text>
+                                            )}
+                                        />
+                                    </Col>
+                                )
+                            }
 
                             <AgreementText tabIndexes={TAB_INDEXES} />
                         </Row>
