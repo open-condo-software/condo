@@ -129,6 +129,11 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
     const IsResidentContactMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.isResidentContact.true' })
     const IsNotResidentContactMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.isResidentContact.false' })
     const LastCommentAtMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.lastCommentAt' })
+    const HaveCommentAtMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.haveComments' })
+    const CommentFromOrganizationEmploies = intl.formatMessage({ id: 'pages.condo.ticket.filters.haveCommentsFromOrganizationEmployes' })
+    const CommentsFromResidents = intl.formatMessage({ id: 'pages.condo.ticket.filters.haveCommentsFromResident' })
+
+
     const PropertyScopeMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope' })
     const TicketTypeMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.TicketType' })
     const OwnTicketTypeMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.TicketType.own' })
@@ -165,6 +170,10 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
         { label: GoodQualityControlMessage, value: QUALITY_CONTROL_VALUES_BY_KEY.GOOD },
         { label: BadQualityControlMessage, value: QUALITY_CONTROL_VALUES_BY_KEY.BAD },
     ], [BadQualityControlMessage, GoodQualityControlMessage])
+    const haveCommentsValueOptions = useMemo(() => [
+        { label: CommentFromOrganizationEmploies, value: 'OrganizationEmployee' },
+        { label: CommentsFromResidents, value: 'Resident' },
+    ], [BadQualityControlMessage, GoodQualityControlMessage])
     const unitTypeOptions = useMemo(() => [
         { label: intl.formatMessage({ id: `field.UnitType.${BuildingUnitSubType.Flat}` }), value: BuildingUnitSubType.Flat },
         { label: intl.formatMessage({ id: `field.UnitType.${BuildingUnitSubType.Parking}` }), value: BuildingUnitSubType.Parking },
@@ -180,7 +189,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
     const categoryClassifiersOptions = useMemo(() => convertToOptions(categoryClassifiers, 'name', 'id'), [categoryClassifiers])
 
     const userOrganization = useOrganization()
-    const userOrganizationId = get(userOrganization, ['organization', 'id'])
+    const userOrganizationId = userOrganization?.organization?.id
 
     const ticketTypeOptions = useMemo(
         () => [
@@ -513,20 +522,6 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
                 },
             },
             {
-                keyword: 'lastCommentAt',
-                filters: [filterLastResidentCommentAtRange],
-                component: {
-                    type: ComponentType.DateRange,
-                    props: {
-                        placeholder: [StartDateMessage, EndDateMessage],
-                    },
-                    modalFilterComponentWrapper: {
-                        label: LastCommentAtMessage,
-                        size: FilterComponentSize.Small,
-                    },
-                },
-            },
-            {
                 keyword: 'feedbackValue',
                 filters: [filterFeedbackValue],
                 component: {
@@ -557,9 +552,57 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
                     modalFilterComponentWrapper: {
                         label: QualityControlValueMessage,
                         size: FilterComponentSize.Small,
+                        spaceSizeAfter: FilterComponentSize.Small,
                     },
                 },
             },
+            {
+                keyword: 'haveComments',
+                filters: [filterLastResidentCommentAtRange],
+                component: {
+                    type: ComponentType.Select,
+                    options: haveCommentsValueOptions,
+                    props: {
+                        mode: 'multiple',
+                        placeholder: SelectMessage,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: HaveCommentAtMessage,
+                        size: FilterComponentSize.Small,
+                    },
+                },
+            },
+            {
+                keyword: 'haveComments',
+                filters: [filterLastResidentCommentAtRange],
+                component: {
+                    type: ComponentType.CheckboxGroup,
+                    options: haveCommentsValueOptions,
+                    props: {
+                        placeholder: SelectMessage,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: ' ',
+                        size: FilterComponentSize.Small,
+                    },
+                },
+            },
+
+            {
+                keyword: 'lastCommentAt',
+                filters: [filterLastResidentCommentAtRange],
+                component: {
+                    type: ComponentType.DateRange,
+                    props: {
+                        placeholder: [StartDateMessage, EndDateMessage],
+                    },
+                    modalFilterComponentWrapper: {
+                        label: LastCommentAtMessage,
+                        size: FilterComponentSize.Small,
+                    },
+                },
+            },
+
             {
                 keyword: 'executor',
                 filters: [filterExecutor],
@@ -567,7 +610,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
                     type: ComponentType.GQLSelect,
                     props: {
                         search: searchEmployeeUser(userOrganizationId, ({ role }) => (
-                            get(role, 'canBeAssignedAsExecutor', false)
+                            role?.canBeAssignedAsExecutor || false
                         )),
                         mode: 'multiple',
                         showArrow: true,
@@ -586,7 +629,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
                     type: ComponentType.GQLSelect,
                     props: {
                         search: searchEmployeeUser(userOrganizationId, ({ role }) => (
-                            get(role, 'canBeAssignedAsResponsible', false)
+                            role?.canBeAssignedAsResponsible || false
                         )),
                         mode: 'multiple',
                         showArrow: true,
