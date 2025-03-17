@@ -11,7 +11,10 @@ query getTourSteps ($where: TourStepWhereInput!, $sortBy: [SortTourStepsBy!]) {
 }
 
 mutation updateTourStep ($id: ID!, $data: TourStepUpdateInput!) {
-    tourStep: updateTourStep(id: $id, data: $data) {
+    tourStep: updateTourStep (
+        id: $id,
+        data: $data
+    ) {
         id
     }
 }

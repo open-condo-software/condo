@@ -14,7 +14,7 @@ import React, { useCallback, useMemo, useState, useEffect } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
-import { useApolloClient } from '@open-condo/next/apollo'
+import { MUTATION_RESULT_EVENT, MutationEmitter, useApolloClient } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -149,6 +149,9 @@ export const CreateTicketForm: React.FC = () => {
         onCompleted: async (ticketData) => {
             const ticket = ticketData?.ticket
             addTicketToQueryCacheForTicketCardList(ticket)
+            MutationEmitter.emit(MUTATION_RESULT_EVENT, {
+                name: 'createTicket',
+            })
             if (redirectToClientCard) {
                 const clientPhone = ticket?.clientPhone
                 const ticketPropertyId = ticket?.property?.id

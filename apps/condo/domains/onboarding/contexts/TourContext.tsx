@@ -45,7 +45,17 @@ export const TourProvider: React.FC = ({ children }) => {
     const organizationId = organization?.id || null
     const organizationType = organization?.type || null
 
-    const [getTourSteps, { refetch: refetchSteps }] = useGetTourStepsLazyQuery()
+    const [getTourSteps, {
+        refetch: refetchSteps,
+    }] = useGetTourStepsLazyQuery({
+        variables: {
+            where: {
+                organization: {
+                    id: organizationId,
+                },
+            },
+        },
+    })
 
     const [updateTourStep] = useUpdateTourStepMutation()
 
@@ -57,11 +67,11 @@ export const TourProvider: React.FC = ({ children }) => {
                 sender: getClientSideSenderInfo(),
             },
         },
-        onCompleted: async () => await getTourSteps({
-            variables: {
-                where: { organization: { id: organizationId } },
-            },
-        }),
+        onCompleted: async () => {
+            if (organizationId) {
+                await refetchSteps()
+            }
+        },
     })
 
     useEffect(() => {
@@ -100,7 +110,9 @@ export const TourProvider: React.FC = ({ children }) => {
     const updateStepIfNotCompleted = useCallback(async (type: TourStepTypeType, nextRoute?: string) => {
         if (organizationType !== MANAGING_COMPANY_TYPE) return
 
-        const { data: fetchResult } = await getTourSteps({
+        const {
+            data: tourStepData,
+        } = await getTourSteps({
             variables: {
                 where: {
                     organization: { id: organizationId },
@@ -108,7 +120,7 @@ export const TourProvider: React.FC = ({ children }) => {
                 },
             },
         })
-        const tourStep = fetchResult?.tourSteps.filter(Boolean)[0] || null
+        const tourStep = tourStepData?.tourSteps.filter(Boolean)[0] || null
 
         if (!tourStep) return
 
@@ -151,7 +163,7 @@ export const TourProvider: React.FC = ({ children }) => {
                 }
 
                 case 'updateProperty': {
-                    if (data?.obj?.map) return
+                    if (!data?.obj?.map) return
 
                     await updateStepIfNotCompleted(TourStepTypeType.CreatePropertyMap)
                     break
