@@ -112,10 +112,10 @@ async function checkMkCertCommandAndLocalCerts (keyFile, certFile, domain = 'app
  * @param filePath {string} path to env file
  * @param key {string} environment variable name
  * @param value {string} environment variable value
- * @param opts {{ override: boolean }}
+ * @param opts {{ override: boolean, commentAbove: string }}
  * @return {Promise<void>}
  */
-async function updateEnvFile (filePath, key, value, opts = { override: true }) {
+async function updateEnvFile (filePath, key, value, opts = { override: true, commentAbove: '' }) {
     if (typeof value !== 'string') throw new Error('updateAppEnvFile(..., value) should be a string')
     if (typeof key !== 'string') throw new Error('updateAppEnvFile(..., key) should be a string')
     if (!key) throw new Error('updateAppEnvFile(..., key) should be a defined')
@@ -145,7 +145,10 @@ async function updateEnvFile (filePath, key, value, opts = { override: true }) {
     const re = new RegExp(`^${key}=.*?[\n]`, 'ms')
 
     if (!re.test(envData)) {
-        result = envData + (envData && envData[envData.length - 1] !== '\n' ? '\n' : '') + `${key}=${value}\n`
+        const aboveComment = opts.commentAbove
+            ? `\n# Comment for ${key}:\n${opts.commentAbove.split('\n').map((l) => `# ${l}`).join('\n')}\n`
+            : ''
+        result = envData + (envData && envData[envData.length - 1] !== '\n' ? '\n' : '') + `${aboveComment}${key}=${value}\n`
     } else if (opts.override) {
         result = envData.replace(re, `${key}=${value}\n`)
     }
@@ -160,10 +163,10 @@ async function updateEnvFile (filePath, key, value, opts = { override: true }) {
  * @param appName {string} application name ./apps/<appName>
  * @param key {string} environment variable name
  * @param value {string} environment variable value
- * @param opts {{ override: boolean }}
+ * @param opts {{ override: boolean, commentAbove: string }}
  * @return {Promise<void>}
  */
-async function updateAppEnvFile (appName, key, value, opts = { override: true }) {
+async function updateAppEnvFile (appName, key, value, opts = { override: true, commentAbove: '' }) {
     if (typeof appName !== 'string') throw new Error('updateAppEnvFile(..., appName) should be a string')
     if (!appName) throw new Error('updateAppEnvFile(..., appName) should be a defined')
     return await updateEnvFile(`${PROJECT_ROOT}/apps/${appName}/.env`, key, value, opts)
