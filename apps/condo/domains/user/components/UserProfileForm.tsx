@@ -1,4 +1,5 @@
 import { Col, Form, Row } from 'antd'
+import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
@@ -6,7 +7,6 @@ import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button, Typography, Input } from '@open-condo/ui'
 
-import { Button as DeprecatedButton } from '@condo/domains/common/components/Button'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import Prompt from '@condo/domains/common/components/Prompt'
@@ -141,12 +141,11 @@ export const UserProfileForm: React.FC<UserProfileFormProps> = ({ showResetPassw
                                         showResetPassword && (
                                             <Col span={24}>
                                                 <Form.Item {...INPUT_LAYOUT_PROPS} labelAlign='left' label={PasswordLabel}>
-                                                    <DeprecatedButton
-                                                        type='inlineLink'
-                                                        onClick={handleResetPasswordAction}
-                                                    >
-                                                        {ChangePasswordLabel}
-                                                    </DeprecatedButton>
+                                                    <Link href={RESET_PASSWORD_URL}>
+                                                        <Typography.Link href={RESET_PASSWORD_URL}>
+                                                            {ChangePasswordLabel}
+                                                        </Typography.Link>
+                                                    </Link>
                                                 </Form.Item>
                                             </Col>
                                         )
