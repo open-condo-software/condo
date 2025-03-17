@@ -25,7 +25,7 @@ export const AgreementText: React.FC<AgreementTextProps> = ({ tabIndexes }): Rea
 
     return (
         <>
-            {true &&
+            {(termsOfUseUrl && privacyPolicyUrl && dataProcessingConsentUrl) &&
                 (
                     <Col span={24}>
                         <Typography.Paragraph type='secondary' size='small'>
