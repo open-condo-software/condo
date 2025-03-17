@@ -4,8 +4,9 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState } from 'react'
 
+import { ArrowLeft } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Button, Input, Typography } from '@open-condo/ui'
+import { Button, Input, Space, Typography } from '@open-condo/ui'
 
 import { CountDownTimer } from '@condo/domains/common/components/CountDownTimer'
 import { FormItem } from '@condo/domains/common/components/Form/FormItem'
@@ -105,6 +106,10 @@ function ResetPageView () {
         }
     }, [SMSTooManyRequestsErrorMessage, executeCaptcha, form, isLoading, setPhone, setToken, startConfirmPhoneActionMutation])
 
+    const onReset = useCallback(async () => {
+        await router.push('/')
+    }, [])
+
     if (step === 'validatePhone') {
         return (
             <ValidatePhoneForm
@@ -135,9 +140,12 @@ function ResetPageView () {
                             <Col span={24}>
                                 <Row gutter={[0, 16]}>
                                     <Col span={24}>
-                                        <Typography.Title level={2}>
-                                            {ResetTitleMessage}
-                                        </Typography.Title>
+                                        <Space direction='vertical' size={24}>
+                                            <Button.Icon onClick={onReset} size='small'>
+                                                <ArrowLeft />
+                                            </Button.Icon>
+                                            <Typography.Title level={2}>{ResetTitleMessage}</Typography.Title>
+                                        </Space>
                                     </Col>
 
                                     <Col span={24}>
