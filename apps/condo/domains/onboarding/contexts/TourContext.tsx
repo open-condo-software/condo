@@ -120,6 +120,8 @@ export const TourProvider: React.FC = ({ children }) => {
             variables: {
                 id: tourStep.id,
                 data: {
+                    dv: 1,
+                    sender: getClientSideSenderInfo(),
                     status: TourStepStatusType.Completed,
                 },
             },

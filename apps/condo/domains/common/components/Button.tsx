@@ -303,7 +303,10 @@ export const Button: React.FC<CustomButtonProps> = (props) => {
             value,
             location: window.location.href,
         })
-        onClick(e)
+
+        if (onClick) {
+            onClick(e)
+        }
     }, [id, onClick, type, value])
 
     if (!SKIP_BUTTON_TYPES_FOR_DEFAULT.includes(type)) {
