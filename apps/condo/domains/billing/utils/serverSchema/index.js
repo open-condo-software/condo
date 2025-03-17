@@ -67,8 +67,6 @@ const getPaymentsSum = async (receiptId) => {
  */
 const getNewPaymentsSum = async (receiptId) => {
     const receipt = await getById('BillingReceipt', receiptId)
-    const billingContext = await getById('BillingIntegrationOrganizationContext', receipt.context)
-    const account = await getById('BillingAccount', receipt.account)
     const defaultConditions = [
         { status_in: [PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS] },
         { deletedAt: null },
@@ -86,20 +84,27 @@ const getNewPaymentsSum = async (receiptId) => {
     }
     const conditionsByReceipt = [
         { receipt: { id: receiptId } },
+        ...defaultConditions,
     ]
-    const conditionsWithNoReceipt = [
-        { receipt_is_null: true },
-        { invoice_is_null: true },
-        { organization: { id: billingContext.organization } },
-        { period: receipt.period },
-        { accountNumber: account.number },
-    ]
-    const payments = await find('Payment', {
-        AND: [
-            { AND: defaultConditions },
-            { OR: [{ AND: conditionsByReceipt }, { AND: conditionsWithNoReceipt }] },
-        ],
+    let payments = await find('Payment', {
+        AND: conditionsByReceipt,
     })
+    const billingContext = await getById('BillingIntegrationOrganizationContext', receipt.context)
+    const account = await getById('BillingAccount', receipt.account)
+    if (billingContext && account) {
+        const conditionsWithNoReceipt = [
+            { receipt_is_null: true },
+            { invoice_is_null: true },
+            { organization: { id: billingContext.organization } },
+            { period: receipt.period },
+            { accountNumber: account.number },
+            ...defaultConditions,
+        ]
+        const qrPayments = await find('Payment', {
+            AND: conditionsWithNoReceipt,
+        })
+        payments = payments.concat(qrPayments)
+    }
     return payments.reduce((total, current) => (Big(total).plus(current.amount)), 0).toFixed(8).toString()
 }
 
