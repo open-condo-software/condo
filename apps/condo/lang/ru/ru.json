@@ -2663,6 +2663,10 @@
   "pages.condo.ticket.filters.isResidentContact.false": "Не житель",
   "pages.condo.ticket.filters.isResidentContact.true": "Житель",
   "pages.condo.ticket.filters.lastCommentAt": "Дата последнего комментария",
+  "pages.condo.ticket.filters.haveComments": "Наличие комментариев",
+  "pages.condo.ticket.filters.haveCommentsFromOrganizationEmployes": "От коллег",
+  "pages.condo.ticket.filters.haveCommentsFromResident": "От жителей",
+
   "pages.condo.ticket.generateDocument.completionWorks.label": "Акт выполненных работ",
   "pages.condo.ticket.generateDocument.label": "Сформировать акт",
   "pages.condo.ticket.generateDocument.paidWorks.label": "Акт платных работ",

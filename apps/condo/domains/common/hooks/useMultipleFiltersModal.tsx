@@ -4,7 +4,6 @@ import { Col, FormInstance, Row, RowProps, Tabs } from 'antd'
 import { FormItemProps } from 'antd/es'
 import { SizeType } from 'antd/lib/config-provider/SizeContext'
 import Form from 'antd/lib/form'
-import get from 'lodash/get'
 import has from 'lodash/has'
 import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
@@ -122,7 +121,7 @@ function FilterComponent<T> ({
     filters,
     children,
 }: IFilterComponentProps<T>) {
-    const value = get(filters, name)
+    const value = filters?.name
     const initialValue = queryToValueProcessor && value ? queryToValueProcessor(value) : value
 
     return (
@@ -149,11 +148,11 @@ const GQL_SELECT_STYLE: CSSProperties = { width: '100%' }
 const TAGS_SELECT_DROPDOWN_STYLE = { display: 'none' }
 
 export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string, component: FilterComponentType, form: FormInstance): React.ReactElement => {
-    const type = get(component, 'type')
+    const type = component?.type
     const props = {
         // It is necessary so that dropdowns do not go along with the screen when scrolling the modal window
         getPopupContainer: getFiltersModalPopupContainer,
-        ...get(component, 'props', {}),
+        ...(component?.props || {}),
     }
 
     switch (type) {
@@ -176,7 +175,7 @@ export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string
         }
 
         case ComponentType.CheckboxGroup: {
-            const options: OptionType[] = get(component, 'options')
+            const options: OptionType[] = component?.options
 
             return (
                 <Checkbox.Group
@@ -198,11 +197,11 @@ export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string
         }
 
         case ComponentType.Select: {
-            const options: OptionType[] = get(component, 'options')
+            const options: OptionType[] = component?.options
 
             return (
                 <Select
-                    defaultValue={get(filters, keyword)}
+                    defaultValue={filters?.keyword}
                     style={SELECT_STYLE}
                     optionFilterProp='title'
                     {...props}
@@ -255,18 +254,18 @@ function getModalComponents <T> (filters: IFilters, filterMetas: Array<FiltersMe
     return filterMetas.map(filterMeta => {
         const { keyword, component } = filterMeta
 
-        const modalFilterComponentWrapper = get(component, 'modalFilterComponentWrapper')
+        const modalFilterComponentWrapper = component?.modalFilterComponentWrapper
         if (!modalFilterComponentWrapper) return
 
-        const size = get(modalFilterComponentWrapper, 'size')
-        const spaceSizeAfter = get(modalFilterComponentWrapper, 'spaceSizeAfter')
-        const label = get(modalFilterComponentWrapper, 'label')
-        const formItemProps = get(modalFilterComponentWrapper, 'formItemProps')
-        const type = get(component, 'type')
+        const size = modalFilterComponentWrapper?.size
+        const spaceSizeAfter = modalFilterComponentWrapper?.spaceSizeAfter
+        const label = modalFilterComponentWrapper?.label
+        const formItemProps = modalFilterComponentWrapper?.formItemProps
+        const type = component?.type
 
         let Component
         if (type === ComponentType.Custom) {
-            const componentGetter = get(component, 'modalFilterComponent')
+            const componentGetter = component?.modalFilterComponent
             Component = isFunction(componentGetter) ? componentGetter(form) : componentGetter
         }
         else
@@ -386,7 +385,7 @@ type MultipleFiltersModalProps<F = unknown> = {
 }
 
 const isEqualSelectedFiltersTemplateAndFilters = (selectedFiltersTemplate, filters) => {
-    const templateFilters = get(selectedFiltersTemplate, 'fields', null)
+    const templateFilters = selectedFiltersTemplate?.fields || null
     if (!templateFilters) return false
     if (has(templateFilters, '__typename')) delete templateFilters['__typename']
     return isEqual(omitBy(templateFilters, isNil), filters)
@@ -419,7 +418,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
 
     const router = useRouter()
     const { filters } = parseQuery(router.query)
-    const searchFilter = get(filters, 'search', null)
+    const searchFilter = filters?.search || null
     const { link } = useOrganization()
     const { breakpoints } = useLayoutContext()
 
@@ -534,7 +533,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
             name='existedTemplateName'
             label={TemplateLabel}
             labelCol={LABEL_COL_PROPS}
-            initialValue={get(openedFiltersTemplate, 'name')}
+            initialValue={openedFiltersTemplate?.name}
             required
             rules={ExistingFiltersTemplateNameInputRules}
         >
@@ -663,7 +662,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     const handleCancelModal = useCallback(() => setIsMultipleFiltersModalVisible(false), [setIsMultipleFiltersModalVisible])
 
     const handleTabChange = useCallback((filtersTemplateId) => {
-        const openedTemplateId = get(openedFiltersTemplate, 'id')
+        const openedTemplateId = openedFiltersTemplate?.id
 
         if (openedTemplateId === filtersTemplateId) {
             return
@@ -678,18 +677,18 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         resetFilters()
     }, [filtersTemplates, resetFilters, openedFiltersTemplate, setOpenedFiltersTemplate])
 
-    const tabsActiveKey = useMemo(() => get(openedFiltersTemplate, 'id', 'newFilter'), [openedFiltersTemplate])
+    const tabsActiveKey = useMemo(() => openedFiltersTemplate?.id || 'newFilter', [openedFiltersTemplate])
 
     const templatesTabs = useMemo(() => filtersTemplates.map((filterTemplate, index) => (
         <TabPane
-            tab={get(filterTemplate, 'name', `${TemplateMessage} ${index + 1}`)}
+            tab={filterTemplate?.name || `${TemplateMessage} ${index + 1}`}
             key={filterTemplate.id}
         >
             <ExistingFiltersTemplateNameInput />
         </TabPane>
     )), [ExistingFiltersTemplateNameInput, TemplateMessage, filtersTemplates])
 
-    const initialFormValues = useMemo(() => get(openedFiltersTemplate, 'fields', filters), [filters, openedFiltersTemplate])
+    const initialFormValues = useMemo(() => openedFiltersTemplate?.fields || filters, [filters, openedFiltersTemplate])
     const modalComponents = useMemo(() => getModalComponents(pickBy(initialFormValues), filterMetas, form, breakpoints), [breakpoints, filterMetas, form, initialFormValues])
 
     const ModalFormItems = useCallback(() => {
