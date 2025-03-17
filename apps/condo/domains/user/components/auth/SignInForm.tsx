@@ -17,6 +17,7 @@ import { LoginWithSBBOLButton } from '@condo/domains/common/components/LoginWith
 import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
 import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
+import { WRONG_CREDENTIALS } from '@condo/domains/user/constants/errors'
 
 import { AgreementText } from './AgreementText'
 
@@ -52,7 +53,7 @@ export const SignInForm = (): React.ReactElement => {
     const onError = useMutationErrorHandler({
         form,
         typeToFieldMapping: {
-            WRONG_CREDENTIALS: 'phone',
+            [WRONG_CREDENTIALS]: 'phone',
         },
     })
     const [authenticateUserWithPhoneAndPassword] = useAuthenticateUserWithPhoneAndPasswordMutation({
