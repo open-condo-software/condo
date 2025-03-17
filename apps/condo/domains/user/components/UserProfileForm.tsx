@@ -32,10 +32,10 @@ const INPUT_LAYOUT_PROPS = {
 const RESET_PASSWORD_URL = '/auth/forgot'
 
 type UserProfileFormProps = {
-    withoutResetPassword?: boolean
+    showResetPassword?: boolean
 }
 
-export const UserProfileForm: React.FC<UserProfileFormProps> = ({ withoutResetPassword }) => {
+export const UserProfileForm: React.FC<UserProfileFormProps> = ({ showResetPassword = true }) => {
     const intl = useIntl()
     const router = useRouter()
     const FullNameLabel = intl.formatMessage({ id: 'pages.auth.register.field.Name' })
@@ -138,7 +138,7 @@ export const UserProfileForm: React.FC<UserProfileFormProps> = ({ withoutResetPa
                                     </Col>
 
                                     {
-                                        !withoutResetPassword && (
+                                        showResetPassword && (
                                             <Col span={24}>
                                                 <Form.Item {...INPUT_LAYOUT_PROPS} labelAlign='left' label={PasswordLabel}>
                                                     <DeprecatedButton
