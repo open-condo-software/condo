@@ -25,10 +25,10 @@ const SPANISH_PHONE_FORMAT_REGEXP = /(\d{2})(\d{3})(\d{3})(\d{3})/
  */
 export const formatPhone = (phone?: string): string =>{
     const normalizedPhone = normalizePhone(phone, true)
-    if (normalizedPhone.startsWith('+7')){
+    if (normalizedPhone?.startsWith('+7')){
         return normalizedPhone.replace(RUSSIAN_PHONE_FORMAT_REGEXP, '$1 ($2) $3-$4-$5')
     }
-    if (normalizedPhone.startsWith('+34')){
+    if (normalizedPhone?.startsWith('+34')){
         return normalizedPhone.replace(SPANISH_PHONE_FORMAT_REGEXP, '$1-$2-$3-$4')
     }
     return phone
