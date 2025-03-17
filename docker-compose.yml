@@ -125,11 +125,13 @@ services:
       timeout: 5s
     image: ${REGISTRY}valkey/valkey:8.0.2
     network_mode: host
+    configs:
+      - source: valkey.conf
+        target: /valkey/valkey.conf
     ports:
       - 7001:7000
     volumes:
       - valkey-data-1:/data
-      - ./valkey:/valkey
   valkey-node-2:
     command:
       - valkey-server
@@ -143,11 +145,13 @@ services:
       timeout: 5s
     image: ${REGISTRY}valkey/valkey:8.0.2
     network_mode: host
+    configs:
+      - source: valkey.conf
+        target: /valkey/valkey.conf
     ports:
       - 7002:7000
     volumes:
       - valkey-data-2:/data
-      - ./valkey:/valkey
   valkey-node-3:
     command:
       - valkey-server
@@ -161,11 +165,13 @@ services:
       timeout: 5s
     image: ${REGISTRY}valkey/valkey:8.0.2
     network_mode: host
+    configs:
+      - source: valkey.conf
+        target: /valkey/valkey.conf
     ports:
       - 7003:7000
     volumes:
       - valkey-data-3:/data
-      - ./valkey:/valkey
 
 networks:
   app-network:
@@ -174,3 +180,11 @@ volumes:
   valkey-data-1: {}
   valkey-data-2: {}
   valkey-data-3: {}
+configs:
+  valkey.conf:
+    content: |
+      cluster-enabled yes
+      cluster-config-file nodes.conf
+      cluster-node-timeout 5000
+      appendonly yes
+
