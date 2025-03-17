@@ -108,7 +108,7 @@ export const SignInForm = (): React.ReactElement => {
                         <Col span={24}>
                             <Row gutter={[0, 40]}>
                                 <Col span={24}>
-                                    <Row gutter={[0, 32]}>
+                                    <Row gutter={[0, 24]}>
                                         <Col span={24}>
                                             <FormItem
                                                 name='phone'
