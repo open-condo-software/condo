@@ -66,12 +66,12 @@ function shouldUpdateMeter (meter, changedFields, isPropertyMeters = false) {
         fieldsToUpdate.push('accountNumber', 'place')
     }
 
-    return fieldsToUpdate.reduce((result, field) => {
-        if (result) {
-            return result
-        }
-        return !!get(changedFields, field) && get(changedFields, field) !== get(meter, field)
-    }, false)
+    return fieldsToUpdate.some(field => {
+        const newValue = get(changedFields, field)
+
+        // NOTE: isAutomatic is a true/false field, so we need to check if it was changed
+        return (newValue === false || Boolean(newValue)) && newValue !== get(meter, field)
+    })
 }
 
 module.exports = {
