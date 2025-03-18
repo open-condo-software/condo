@@ -2659,7 +2659,7 @@ describe('Invoice', () => {
     })
 
     describe('real-life cases', () => {
-        test('B2B app add invoice for some organization\'s resident', async () => {
+        test('B2B app can add an invoice for organization and it\'s resident', async () => {
             // Some staff registers new organization and add property
             const staffClient = await makeClientWithStaffUser()
             const [o10n] = await registerNewOrganization(staffClient)
@@ -2731,6 +2731,88 @@ describe('Invoice', () => {
             expect(o10nInvoices).toEqual([expect.objectContaining({ id: invoice.id })])
 
             // resident can see invoice in mobile application
+            const residentInvoices = await Invoice.getAll(residentClient, {})
+            expect(residentInvoices).toEqual([expect.objectContaining({ id: invoice.id })])
+        })
+
+        test('B2B app can add an invoice for b2b\'s organization and for some organization\'s resident', async () => {
+            // Some staff registers new organization and add property
+            const staffClient = await makeClientWithStaffUser()
+            const b2bStaffClient = await makeClientWithStaffUser()
+            const [o10n] = await registerNewOrganization(staffClient)
+            const [b2bO10n] = await registerNewOrganization(b2bStaffClient)
+            const [property] = await createTestProperty(staffClient, o10n)
+
+            const unitType = FLAT_UNIT_TYPE
+            const unitName = faker.lorem.word()
+
+            // New resident registers in property
+            const residentClient = await makeClientWithResidentUser()
+            await registerResidentByTestClient(
+                residentClient,
+                {
+                    address: property.address,
+                    addressMeta: property.addressMeta,
+                    unitType,
+                    unitName,
+                })
+
+            // Some b2b-app decided to have an ability to create invoices
+            const serviceClient = await makeClientWithServiceUser()
+            const [app] = await createTestB2BApp(supportClient)
+            const [accessRightSet] = await createTestB2BAppAccessRightSet(supportClient, app, {
+                canReadOrganizations: true,
+                canReadInvoices: true,
+                canManageInvoices: true,
+            })
+            await createTestB2BAppAccessRight(supportClient, serviceClient.user, app, accessRightSet)
+
+            const [bankAccount1] = await createTestBankAccount(supportClient, b2bO10n)
+            const [bankAccount2] = await createTestBankAccount(supportClient, b2bO10n)
+
+            const recipient1 = createTestRecipient({
+                tin: bankAccount1.tin,
+                bic: bankAccount1.routingNumber,
+                bankAccount: bankAccount1.number,
+            })
+            const recipient2 = createTestRecipient({
+                tin: bankAccount2.tin,
+                bic: bankAccount2.routingNumber,
+                bankAccount: bankAccount2.number,
+            })
+
+            // The organization connects marketplace
+            const [acquiringIntegration] = await createTestAcquiringIntegration(supportClient, { canGroupReceipts: true })
+            await createTestAcquiringIntegrationContext(b2bStaffClient, b2bO10n, acquiringIntegration, {
+                invoiceStatus: CONTEXT_FINISHED_STATUS,
+                invoiceRecipient: recipient1,
+            })
+
+            // The organization connects b2b-app
+            await createTestB2BAppContext(b2bStaffClient, app, b2bO10n, { status: 'Finished' })
+
+            // b2b-app creates invoice for organization's resident
+            const [invoice] = await createTestInvoice(serviceClient, b2bO10n, {
+                rows: [
+                    generateInvoiceRow({ toPay: '1000', count: 1 }),
+                ],
+                amountDistribution: [
+                    { recipient: recipient1, amount: '200', vor: true, overpaymentPart: 1, isFeePayer: true },
+                    { recipient: recipient2, amount: '800' },
+                ],
+                client: { connect: { id: residentClient.user.id } },
+                status: INVOICE_STATUS_PUBLISHED,
+            })
+
+            // organization can't see the invoice in marketplace
+            const o10nInvoices = await Invoice.getAll(staffClient, {})
+            expect(o10nInvoices).toHaveLength(0)
+
+            // b2b organization can see the invoice in marketplace
+            const b2bO10nInvoices = await Invoice.getAll(b2bStaffClient, {})
+            expect(b2bO10nInvoices).toEqual([expect.objectContaining({ id: invoice.id })])
+
+            // resident or organization can see invoice in mobile application
             const residentInvoices = await Invoice.getAll(residentClient, {})
             expect(residentInvoices).toEqual([expect.objectContaining({ id: invoice.id })])
         })

@@ -169,6 +169,7 @@ const AMOUNT_DISTRIBUTION_FIELD = {
             /** @type {TDistribution[]} */
             const distribution = get(resolvedData, fieldPath)
             const nextToPay = get(resolvedData, DEFAULT_TO_PAY_FIELD_NAME, get(existingItem, DEFAULT_TO_PAY_FIELD_NAME))
+            const nextOrganizationId = get(resolvedData,  'organization', get(existingItem, 'organization'))
 
             // Checking if recipients are uniq
             if (!areAllRecipientsUnique(distribution)) {
@@ -180,6 +181,7 @@ const AMOUNT_DISTRIBUTION_FIELD = {
             const bankAccounts = await find('BankAccount', {
                 OR: distribution.map(({ recipient }) => ({
                     AND: [
+                        { organization: { id: nextOrganizationId } },
                         { tin: recipient.tin },
                         { routingNumber: recipient.bic },
                         { number: recipient.bankAccount },
