@@ -48,6 +48,7 @@ function meterReadingAsResult (meterReading) {
  * @deprecated
  * @param {Meter} meter
  * @param {RegisterMetersReadingsMeterMetaInput} changedFields
+ * @param {boolean} isPropertyMeters
  * @return {boolean}
  */
 function shouldUpdateMeter (meter, changedFields, isPropertyMeters = false) {
@@ -68,9 +69,9 @@ function shouldUpdateMeter (meter, changedFields, isPropertyMeters = false) {
 
     return fieldsToUpdate.some(field => {
         const newValue = get(changedFields, field)
+        const currentValue = get(meter, field)
 
-        // NOTE: isAutomatic is a true/false field, so we need to check if it was changed
-        return (newValue === false || Boolean(newValue)) && newValue !== get(meter, field)
+        return newValue !== undefined && newValue !== currentValue
     })
 }
 
