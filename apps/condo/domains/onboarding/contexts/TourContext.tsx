@@ -57,7 +57,9 @@ export const TourProvider: React.FC = ({ children }) => {
         },
     })
 
-    const [updateTourStep] = useUpdateTourStepMutation()
+    const [updateTourStep] = useUpdateTourStepMutation({
+        onCompleted: async () => await refetchSteps(),
+    })
 
     const [syncTourStepMutation, { loading: syncLoading }] = useSyncTourStepsMutation({
         variables: {
