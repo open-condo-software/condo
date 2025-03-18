@@ -4,6 +4,7 @@ import { Col, Form, Row } from 'antd'
 import Router from 'next/router'
 import React, { useCallback, useMemo, useState } from 'react'
 
+import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Input, Typography } from '@open-condo/ui'
@@ -13,7 +14,6 @@ import { useHCaptcha } from '@condo/domains/common/components/HCaptcha'
 import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { PageComponentType } from '@condo/domains/common/types'
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import {
     RegisterContextProvider,
     useRegisterContext,

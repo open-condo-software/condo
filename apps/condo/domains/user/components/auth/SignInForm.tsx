@@ -9,7 +9,7 @@ import React, { useCallback, useState } from 'react'
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
-import { Typography, Button, Input, Checkbox } from '@open-condo/ui'
+import { Typography, Button, Input } from '@open-condo/ui'
 
 import { FormItem } from '@condo/domains/common/components/Form/FormItem'
 import { useHCaptcha } from '@condo/domains/common/components/HCaptcha'
@@ -36,7 +36,6 @@ export const SignInForm = (): React.ReactElement => {
     const PasswordMessage = intl.formatMessage({ id: 'pages.auth.signin.field.Password' })
     const PhoneMessage = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
     const ResetPasswordMessage = intl.formatMessage({ id: 'pages.auth.signin.ResetPasswordLink' })
-    const ConsentToReceiveMarketingMaterialsMessage = intl.formatMessage({ id: 'common.consentToReceiveMarketingMaterials' })
 
     const router = useRouter()
     const { refetch } = useAuth()
@@ -178,24 +177,7 @@ export const SignInForm = (): React.ReactElement => {
                             </Row>
                         </Col>
 
-                        <Row gutter={[0, 16]}>
-                            {
-                                hasSbbolAuth && (
-                                    <Col span={24}>
-                                        <Checkbox
-                                            tabIndex={6}
-                                            children={(
-                                                <Typography.Text size='small'>
-                                                    {ConsentToReceiveMarketingMaterialsMessage}
-                                                </Typography.Text>
-                                            )}
-                                        />
-                                    </Col>
-                                )
-                            }
-
-                            <AgreementText tabIndexes={TAB_INDEXES} />
-                        </Row>
+                        <AgreementText tabIndexes={TAB_INDEXES} />
                     </Row>
 
                 </ResponsiveCol>

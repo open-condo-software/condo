@@ -4,16 +4,16 @@ import { Col, Form, Row } from 'antd'
 import { ValidateStatus } from 'antd/lib/form/FormItem'
 import React, { useCallback, useEffect, useState, useMemo } from 'react'
 
+import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { ArrowLeft } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
-import { Typography, Button, Input, Space } from '@open-condo/ui'
+import { Typography, Button, Input, Space, Checkbox } from '@open-condo/ui'
 
 import { FormItem } from '@condo/domains/common/components/Form/FormItem'
 import { useHCaptcha } from '@condo/domains/common/components/HCaptcha'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 import { RequiredFlagWrapper } from '@condo/domains/user/components/containers/styles'
 import { MIN_PASSWORD_LENGTH } from '@condo/domains/user/constants/common'
@@ -41,6 +41,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
     const EnterPasswordTitle = intl.formatMessage({ id: 'pages.auth.register.step.register.title.createPassword' })
     const RegisterFailMessage = intl.formatMessage({ id: 'pages.auth.register.fail' })
     const PasswordIsTooShortMsg = intl.formatMessage({ id: 'pages.auth.PasswordIsTooShort' }, { min: MIN_PASSWORD_LENGTH })
+    const ConsentToReceiveMarketingMaterialsMessage = intl.formatMessage({ id: 'common.consentToReceiveMarketingMaterials' })
 
     const { executeCaptcha } = useHCaptcha()
     const { phone, token } = useRegisterContext()
@@ -270,24 +271,37 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
 
                                 {
                                     visibleFields.email && (
-                                        <Col span={24}>
-                                            <RequiredFlagWrapper>
-                                                <FormItem
-                                                    name='email'
-                                                    label={EmailMessage}
-                                                    rules={validators.email}
-                                                    data-cy='register-email-item'
-                                                    validateFirst
-                                                >
-                                                    <Input
-                                                        autoComplete='chrome-off'
-                                                        placeholder={EmailPlaceholder}
-                                                        tabIndex={2}
-                                                        autoFocus={!visibleFields.name}
-                                                    />
-                                                </FormItem>
-                                            </RequiredFlagWrapper>
-                                        </Col>
+                                        <>
+                                            <Col span={24}>
+                                                <RequiredFlagWrapper>
+                                                    <FormItem
+                                                        name='email'
+                                                        label={EmailMessage}
+                                                        rules={validators.email}
+                                                        data-cy='register-email-item'
+                                                        validateFirst
+                                                    >
+                                                        <Input
+                                                            autoComplete='chrome-off'
+                                                            placeholder={EmailPlaceholder}
+                                                            tabIndex={2}
+                                                            autoFocus={!visibleFields.name}
+                                                        />
+                                                    </FormItem>
+                                                </RequiredFlagWrapper>
+                                            </Col>
+
+                                            <Col span={24}>
+                                                <Checkbox
+                                                    tabIndex={4}
+                                                    children={(
+                                                        <Typography.Text size='small'>
+                                                            {ConsentToReceiveMarketingMaterialsMessage}
+                                                        </Typography.Text>
+                                                    )}
+                                                />
+                                            </Col>
+                                        </>
                                     )
                                 }
 

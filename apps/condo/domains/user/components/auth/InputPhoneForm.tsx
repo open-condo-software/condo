@@ -4,8 +4,9 @@ import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState } from 'react'
 
+import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useIntl } from '@open-condo/next/intl'
-import { Button, Typography, Input, Checkbox } from '@open-condo/ui'
+import { Button, Input } from '@open-condo/ui'
 
 import { FormItem } from '@condo/domains/common/components/Form/FormItem'
 import { useHCaptcha } from '@condo/domains/common/components/HCaptcha'
@@ -14,7 +15,6 @@ import { LoginWithSBBOLButton } from '@condo/domains/common/components/LoginWith
 import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
 import { normalizePhone } from '@condo/domains/common/utils/phone'
 import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 import { TOO_MANY_REQUESTS } from '@condo/domains/user/constants/errors'
 
@@ -40,7 +40,6 @@ export const InputPhoneForm: React.FC<InputPhoneFormProps> = ({ onFinish }) => {
     const SMSTooManyRequestsErrorMessage = intl.formatMessage({ id: 'pages.auth.TooManyRequests' })
     const WrongPhoneFormatErrorMessage = intl.formatMessage({ id: 'api.common.WRONG_PHONE_FORMAT' })
     const SubmitMessage = intl.formatMessage({ id: 'page.auth.register.inputPhone.submit' })
-    const ConsentToReceiveMarketingMaterialsMessage = intl.formatMessage({ id: 'common.consentToReceiveMarketingMaterials' })
 
     const [form] = Form.useForm()
 
@@ -180,22 +179,7 @@ export const InputPhoneForm: React.FC<InputPhoneFormProps> = ({ onFinish }) => {
                                     </Row>
                                 </Col>
 
-                                <Col span={24}>
-                                    <Row gutter={[0, 16]}>
-                                        <Col span={24}>
-                                            <Checkbox
-                                                tabIndex={4}
-                                                children={(
-                                                    <Typography.Text size='small'>
-                                                        {ConsentToReceiveMarketingMaterialsMessage}
-                                                    </Typography.Text>
-                                                )}
-                                            />
-                                        </Col>
-
-                                        <AgreementText tabIndexes={TAB_INDEXES} />
-                                    </Row>
-                                </Col>
+                                <AgreementText tabIndexes={TAB_INDEXES} />
                             </Row>
                         </ResponsiveCol>
                     </Row>

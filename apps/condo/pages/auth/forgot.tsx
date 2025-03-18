@@ -4,6 +4,7 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState } from 'react'
 
+import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { ArrowLeft } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Input, Space, Typography } from '@open-condo/ui'
@@ -15,7 +16,6 @@ import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutation
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { PageComponentType } from '@condo/domains/common/types'
 import { normalizePhone } from '@condo/domains/common/utils/phone'
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import {
     RegisterContextProvider,
     useRegisterContext,
