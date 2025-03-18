@@ -27,7 +27,6 @@ const Address = new GQLListSchema('Address', {
             schemaDoc: 'The unique key of the address',
             type: 'Text',
             isRequired: true,
-            isUnique: true,
         },
 
         meta: {
@@ -69,6 +68,16 @@ const Address = new GQLListSchema('Address', {
                 },
             },
         },
+    },
+    kmigratorOptions: {
+        constraints: [
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['key'],
+                condition: 'Q(deletedAt__isnull=True)',
+                name: 'address_unique_key',
+            },
+        ],
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
