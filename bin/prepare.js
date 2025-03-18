@@ -1,6 +1,6 @@
 const path = require('path')
 
-const { program } = require('commander')
+const { program, Option } = require('commander')
 
 const {
     getRandomString,
@@ -25,6 +25,8 @@ const CERT_FILE = path.join(__filename, '..', '.ssl', 'localhost.pem')
 
 program.option('-f, --filter <names...>', 'Filters apps by name')
 program.option('--https', 'Uses https for local running')
+program.addOption(new Option('-p, --preset <preset>', 'Allows you to select one of the presets for the databases')
+    .choices(['local', 'production']).default('local'))
 program.option('-r, --replicate <names...>', 'Enables replica adapter to interact with multiple databases')
 program.option('-c, --cluster <names...>', 'Enables cluster setup for key-value storage')
 program.description(`Prepares applications from the /apps directory for local running 
@@ -38,7 +40,7 @@ function logWithIndent (message, indent = 1) {
 
 async function prepare () {
     program.parse()
-    const { https, filter, replicate, cluster } = program.opts()
+    const { https, filter, replicate, cluster, preset } = program.opts()
 
     // TODO(pahaz): DOMA-10616 we need to run packages build before migrations ... because our backend depends on icon package ...
 
@@ -119,7 +121,7 @@ async function prepare () {
                 SERVER_URL: app.serviceUrl,
             }
 
-            if (replicate && replicate.includes(app.name)) {
+            if (preset === 'production' || (replicate && replicate.includes(app.name))) {
                 env.DATABASE_URL = `custom:${JSON.stringify({
                     main: `${LOCAL_PG_DB_PREFIX}:5432/${app.pgName}`,
                     replica: `${LOCAL_PG_DB_PREFIX}:5433/${app.pgName}`,
@@ -135,7 +137,7 @@ async function prepare () {
                 ])
             }
 
-            if (cluster && cluster.includes(app.name)) {
+            if (preset === 'production' || (cluster && cluster.includes(app.name))) {
                 env.REDIS_URL = JSON.stringify([
                     { 'port': 7001, 'host': '127.0.0.1' },
                     { 'port': 7002, 'host': '127.0.0.1' },
