@@ -117,7 +117,7 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
             infinityScroll
             notFoundContent={notFoundContent}
         />
-    ), [props, searchAddress, renderOption, initialValueGetter, notFoundContent])
+    ), [organizationId, disabled, notFoundContent])
 
     return <MemoizedBaseSearchInput/>
 }
