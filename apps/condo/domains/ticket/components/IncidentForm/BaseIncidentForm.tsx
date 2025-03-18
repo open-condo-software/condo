@@ -330,7 +330,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     const initialIncidentClassifiers = useMemo(() => initialValues?.incidentClassifiers || [], [initialValues])
     const initialPropertyIds = useMemo(() => initialIncidentProperties.map(item => item?.id || null).filter(Boolean), [initialIncidentProperties])
     const initialPropertyIdsWithDeleted = useMemo(() => initialIncidentProperties.map(item => getPropertyKey(item)), [initialIncidentProperties])
-    const initialClassifierIds = useMemo(() => initialIncidentClassifiers.map(item => item?.id || null), [initialIncidentClassifiers])
+    const initialClassifierIds = useMemo(() => initialIncidentClassifiers.map(item => item?.classifier?.id || null), [initialIncidentClassifiers])
 
     const handleFormSubmit = useCallback(async (values) => {
         const { properties, allClassifiers, categoryClassifiers, problemClassifiers, ...incidentValues } = values
