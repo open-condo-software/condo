@@ -1,0 +1,11 @@
+mutation acceptOrRejectOrganizationInvite($id: ID!, $data: AcceptOrRejectOrganizationInviteInput!){
+    invite: acceptOrRejectOrganizationInviteById(id: $id, data: $data) {
+        id
+        isAccepted
+        isRejected
+        isBlocked
+        organization {
+            type
+        }
+    }
+}

@@ -193,7 +193,7 @@ query getContactEditorOrganizationEmployees ($where: OrganizationEmployeeWhereIn
     }
 }
 
-query getOrganizationEmployeeWithTicketOrganization ($userId: ID!, $organizationId: ID!) {
+query getOrganizationEmployeeByUserAndOrganization ($userId: ID!, $organizationId: ID!) {
     employees: allOrganizationEmployees (
         where: {
             user: { id: $userId },
@@ -234,18 +234,6 @@ query getEmployeesInvitesByUserIdAndOrganizationType ($userId: ID!, $organizatio
         id
         organization {
             name
-        }
-    }
-}
-
-mutation acceptOrRejectOrganizationInvite($id: ID!, $data: AcceptOrRejectOrganizationInviteInput!){
-    invite: acceptOrRejectOrganizationInviteById(id: $id, data: $data) {
-        id
-        isAccepted
-        isRejected
-        isBlocked
-        organization {
-            type
         }
     }
 }

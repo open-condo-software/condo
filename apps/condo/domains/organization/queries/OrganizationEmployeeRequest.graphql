@@ -1,0 +1,17 @@
+query getLastUserOrganizationEmployeeRequest ($userId: ID!) {
+    requests: allOrganizationEmployeeRequests (
+        where: {
+            user: { id: $userId }
+            isAccepted: false
+        }
+        first: 1
+        sortBy: [createdAt_DESC]
+    ) {
+        id
+        organizationId
+        organizationName
+        isRejected
+        isAccepted
+        retries
+    }
+}
