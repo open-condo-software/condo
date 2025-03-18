@@ -67,7 +67,8 @@ function getKVClient (name = 'default', purpose = 'regular', opts = { kvOptions:
         try {
             kvUrl = JSON.parse(kvUrl)
         } catch (err) {
-            // skip that error
+            /* NOTE: skip that error is legit because your KV_URL might be single instance format, for example redis://127.0.0.1:6379.
+             That will be handled below */
         }
 
         if (!kvUrl) throw new Error(`No KV_URL or REDIS_URL env! You need to set ${kvEnvName} / KV_URL / ${redisEnvName} / REDIS_URL env`)

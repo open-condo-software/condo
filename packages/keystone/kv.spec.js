@@ -31,7 +31,7 @@ describe('Key value adapter', () => {
     test('kv client should resolve cluster specific url', () => {
         const kvUrl = process.env.KV_URL || process.env.REDIS_URL
 
-        expect(client).toHaveProperty('isCluster', typeof kvUrl !== 'string')
+        expect(client).toHaveProperty('isCluster', !kvUrl.startsWith('redis') || !kvUrl.startsWith('valkey'))
     })
 
     test('prefix should be the name of root package json', () => {
