@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import {
     useCreateTicketCommentMutation,
-    useGetOrganizationEmployeeWithTicketOrganizationQuery,
+    useGetOrganizationEmployeeByUserAndOrganizationQuery,
     useGetTicketByIdQuery,
     useGetTicketChangesQuery,
     useGetTicketCommentsFilesQuery,
@@ -825,7 +825,7 @@ const TicketIdPage: PageComponentType = () => {
 
     const {
         data,
-    } = useGetOrganizationEmployeeWithTicketOrganizationQuery({
+    } = useGetOrganizationEmployeeByUserAndOrganizationQuery({
         variables: {
             userId,
             organizationId: ticketOrganizationId,
