@@ -97,6 +97,12 @@ const renderQualityControlAdditionalOptions = (ticket, locale) => {
     return convertQualityControlOrFeedbackOptionsToText(selectedOption, optionsTranslations)
 }
 
+function _getTranslatedClassifier (translationId, locale) {
+    if (!translationId) return EMPTY_VALUE
+
+    return i18n(translationId, { locale })
+}
+
 /**
  * Converts record obtained from database to JSON representation for file row
  *
@@ -154,9 +160,9 @@ const ticketToRow = async ({ task, ticket, indexedStatuses, classifier }) => {
         isEmergency: ticket.isEmergency ? YesMessage : NoMessage,
         isPayable: ticket.isPayable ? YesMessage : NoMessage,
         isWarranty: ticket.isWarranty ? YesMessage : NoMessage,
-        place: get(ticketClassifier, [0, 'place']) || EMPTY_VALUE,
-        category: get(ticketClassifier, [0, 'category']) || EMPTY_VALUE,
-        description: get(ticketClassifier, [0, 'problem']) || EMPTY_VALUE,
+        place: _getTranslatedClassifier(get(ticketClassifier, [0, 'place']), locale),
+        category: _getTranslatedClassifier(get(ticketClassifier, [0, 'category']), locale),
+        description: _getTranslatedClassifier(get(ticketClassifier, [0, 'problem']), locale),
         createdAt: formatDate(ticket.createdAt),
         inworkAt: ticket.startedAt ? formatDate(ticket.startedAt) : EMPTY_VALUE,
         completedAt: ticket.completedAt ? formatDate(ticket.completedAt) : EMPTY_VALUE,

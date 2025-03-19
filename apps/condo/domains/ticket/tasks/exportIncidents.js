@@ -42,16 +42,16 @@ const buildTranslations = (locale) => ({
     },
 })
 
-const classifiersToString = (classifiers = []) => {
-    if (classifiers.length < 1) {
+const classifiersToString = (classifiers, locale) => {
+    if (!classifiers || classifiers.length < 1) {
         return EMPTY_VALUE
     }
 
     const categories = compact(uniq(classifiers
-        .map(({ category }) => category)))
+        .map(({ category }) => i18n(category, { locale }))))
         .join(', ')
     const problems = compact(uniq(classifiers
-        .map(({ problem }) => problem)))
+        .map(({ problem }) => i18n(problem, { locale }))))
         .join(', ')
 
     const renderProblems = problems ? ` » ${problems}` : ''
@@ -64,7 +64,7 @@ const formatDate = (date, timeZone, format = DATE_FORMAT) => {
 }
 
 const incidentToRow = async ({ task, incident, translations }) => {
-    const { timeZone } = task
+    const { timeZone, locale } = task
 
     const where = {
         incident: { id: incident.id },
@@ -97,7 +97,7 @@ const incidentToRow = async ({ task, incident, translations }) => {
         addresses: incident.hasAllProperties
             ? translations.AllProperties
             : properties.join(';\n'),
-        classifiers: classifiersToString(classifiers),
+        classifiers: classifiersToString(classifiers, locale),
         details: incident.details,
         status: isActual ? translations.Actual : translations.NotActual,
         workStart: incident.workStart ? formatDate(incident.workStart, timeZone) : EMPTY_VALUE,
