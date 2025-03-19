@@ -169,7 +169,7 @@ const MenuItems: React.FC = () => {
             integration: { id: sppBillingId },
             organization: { id: orgId },
         },
-        skip: !isAuthenticated || isLoading || !orgId || sppBillingId || !persistor,
+        skip: !isAuthenticated || isLoading || !orgId || !sppBillingId || !persistor,
     })
     const billingCtx = useMemo(() => data?.contexts?.filter(Boolean)[0] || null, [data?.contexts])
     const anyReceiptsLoaded = Boolean(billingCtx?.lastReport || null)
