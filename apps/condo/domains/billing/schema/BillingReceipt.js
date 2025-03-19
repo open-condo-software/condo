@@ -277,7 +277,15 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             access: { create: false, read: true, update: false },
         },
 
-        amountDistribution: AMOUNT_DISTRIBUTION_FIELD,
+        amountDistribution: AMOUNT_DISTRIBUTION_FIELD({
+            organizationIdResolver: async (context, validateInputAttrs) => {
+                const { existingItem, resolvedData } = validateInputAttrs
+                const nextData = { ...existingItem, ...resolvedData }
+                const billingContext = await getById('BillingIntegrationOrganizationContext', nextData.context)
+
+                return billingContext.organization
+            },
+        }),
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {

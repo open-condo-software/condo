@@ -32,8 +32,6 @@ const {
 const { render, getGQLErrorValidator } = require('@condo/domains/common/schema/json.utils')
 const { SERVICE } = require('@condo/domains/user/constants/common')
 
-const DEFAULT_TO_PAY_FIELD_NAME = 'toPay'
-
 const AMOUNT_DISTRIBUTION_FIELD_NAME = 'AmountDistributionField'
 const AMOUNT_DISTRIBUTION_INPUT_NAME = 'AmountDistributionFieldInput'
 const AMOUNT_DISTRIBUTION_SCHEMA_FIELD = `[${AMOUNT_DISTRIBUTION_FIELD_NAME}!]`
@@ -147,9 +145,24 @@ const canReadOrManageField = async (args) => {
     // Because this user already checked for access
     return user.type === SERVICE
 }
+/**
+ * @typedef {Object} TValidateInputAttrs
+ * @property {Object} existingItem
+ * @property {Object} resolvedData
+ */
 
-const AMOUNT_DISTRIBUTION_FIELD = {
-    schemaDoc: `This optional field stores how to distribute amount between several receivers. Applicable to models with "${DEFAULT_TO_PAY_FIELD_NAME}" field.`,
+/**
+ * @param {string} toPayFieldName The name of field with total amount
+ * @param {function(context: *, validateInputAttrs: TValidateInputAttrs): Promise<string>} organizationIdResolver The function which must return an organization id. Implementation depends on the item type.
+ * @returns {*} The organization's id
+ */
+const AMOUNT_DISTRIBUTION_FIELD = ({ toPayFieldName = 'toPay',
+    organizationIdResolver = async (_, {
+        existingItem,
+        resolvedData,
+    }) => get({ ...existingItem, ...resolvedData }, 'organization'),
+} = {}) => ({
+    schemaDoc: 'This optional field stores how to distribute amount between several receivers.',
     type: 'Json',
     isRequired: false,
     extendGraphQLTypes: [AMOUNT_DISTRIBUTION_GRAPHQL_TYPES],
@@ -168,8 +181,8 @@ const AMOUNT_DISTRIBUTION_FIELD = {
             const { context, resolvedData, existingItem, fieldPath } = attrs
             /** @type {TDistribution[]} */
             const distribution = get(resolvedData, fieldPath)
-            const nextToPay = get(resolvedData, DEFAULT_TO_PAY_FIELD_NAME, get(existingItem, DEFAULT_TO_PAY_FIELD_NAME))
-            const nextOrganizationId = get(resolvedData,  'organization', get(existingItem, 'organization'))
+            const nextToPay = get(resolvedData, toPayFieldName, get(existingItem, toPayFieldName))
+            const nextOrganizationId = await organizationIdResolver(context, attrs)
 
             // Checking if recipients are uniq
             if (!areAllRecipientsUnique(distribution)) {
@@ -252,7 +265,7 @@ const AMOUNT_DISTRIBUTION_FIELD = {
             }
         },
     },
-}
+})
 
 module.exports = {
     AMOUNT_DISTRIBUTION_FIELD,
