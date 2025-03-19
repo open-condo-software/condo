@@ -1056,11 +1056,15 @@ describe('RegisterMetersReadingsService', () => {
         expect(updatedMeters[0].isAutomatic).toBe(true)
 
         // sent third readings without place - field value must be 'place2'
+        // and set isAutomatic to false
         const thirdReadings = [{
             ...readings[0],
             value1: faker.random.numeric(3),
             value2: faker.random.numeric(4),
-            meterMeta: undefined,
+            meterMeta: {
+                isAutomatic: false,
+                place: '',
+            },
         }]
         const [thirdAttempt] = await registerMetersReadingsByTestClient(adminClient, organization, thirdReadings)
         expect(firstAttempt[0].meter.id).toBe(thirdAttempt[0].meter.id)
@@ -1075,7 +1079,7 @@ describe('RegisterMetersReadingsService', () => {
         expect(updatedMeters2[0].place).toBe('place2')
         expect(updatedMeters2[0].numberOfTariffs).toBe(2)
         expect(updatedMeters2[0].nextVerificationDate).toBeTruthy()
-        expect(updatedMeters2[0].isAutomatic).toBe(true)
+        expect(updatedMeters2[0].isAutomatic).toBe(false)
 
         // be sure that keep same value from creation
         expect(meters[0].controlReadingsDate).toBe(updatedMeters2[0].controlReadingsDate)
