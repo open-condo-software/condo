@@ -21,8 +21,6 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 
 import { BaseIncidentForm, BaseIncidentFormProps } from './BaseIncidentForm'
 
-import { SortIncidentChangesBy } from '../../../../schema'
-
 
 export interface IUpdateIncidentForm {
     id: string
