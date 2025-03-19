@@ -3037,6 +3037,7 @@ export const GetIncidentByIdDocument = gql`
     createdAt
     createdBy {
       id
+      name
     }
     number
     details

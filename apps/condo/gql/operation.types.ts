@@ -464,7 +464,7 @@ export type GetIncidentByIdQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetIncidentByIdQuery = { __typename?: 'Query', incident?: { __typename?: 'Incident', id: string, status?: Types.IncidentStatusType | null, createdAt?: string | null, number?: number | null, details?: string | null, workStart?: string | null, workFinish?: string | null, workType?: Types.IncidentWorkTypeType | null, textForResident?: string | null, hasAllProperties?: boolean | null, createdBy?: { __typename?: 'User', id: string } | null, organization?: { __typename?: 'Organization', id: string, name?: string | null } | null } | null };
+export type GetIncidentByIdQuery = { __typename?: 'Query', incident?: { __typename?: 'Incident', id: string, status?: Types.IncidentStatusType | null, createdAt?: string | null, number?: number | null, details?: string | null, workStart?: string | null, workFinish?: string | null, workType?: Types.IncidentWorkTypeType | null, textForResident?: string | null, hasAllProperties?: boolean | null, createdBy?: { __typename?: 'User', id: string, name?: string | null } | null, organization?: { __typename?: 'Organization', id: string, name?: string | null } | null } | null };
 
 export type CreateIncidentMutationVariables = Types.Exact<{
   data: Types.IncidentCreateInput;

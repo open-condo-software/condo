@@ -24,6 +24,7 @@ query getIncidentById ($incidentId: ID!) {
         createdAt
         createdBy {
             id
+            name
         }
         number
         details
