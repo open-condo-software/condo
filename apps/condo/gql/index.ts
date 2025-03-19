@@ -2705,6 +2705,7 @@ export const GetPropertyScopesDocument = gql`
     first: 100
   ) {
     id
+    hasAllProperties
   }
 }
     `;

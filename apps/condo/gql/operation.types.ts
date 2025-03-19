@@ -411,7 +411,7 @@ export type GetPropertyScopesQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetPropertyScopesQuery = { __typename?: 'Query', propertyScope?: Array<{ __typename?: 'PropertyScope', id: string } | null> | null };
+export type GetPropertyScopesQuery = { __typename?: 'Query', propertyScope?: Array<{ __typename?: 'PropertyScope', id: string, hasAllProperties?: boolean | null } | null> | null };
 
 export type GetPropertyScopeOrganizationEmployeesQueryVariables = Types.Exact<{
   employeeId: Types.Scalars['ID']['input'];
