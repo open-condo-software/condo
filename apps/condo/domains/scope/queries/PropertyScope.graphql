@@ -12,5 +12,6 @@ query getPropertyScopes ($organizationId: ID!, $propertyScopeIds: [ID!]) {
         first: 100,
     ) {
         id
+        hasAllProperties
     }
 }
