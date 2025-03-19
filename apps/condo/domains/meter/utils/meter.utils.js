@@ -48,6 +48,7 @@ function meterReadingAsResult (meterReading) {
  * @deprecated
  * @param {Meter} meter
  * @param {RegisterMetersReadingsMeterMetaInput} changedFields
+ * @param {boolean} isPropertyMeters
  * @return {boolean}
  */
 function shouldUpdateMeter (meter, changedFields, isPropertyMeters = false) {
@@ -66,12 +67,12 @@ function shouldUpdateMeter (meter, changedFields, isPropertyMeters = false) {
         fieldsToUpdate.push('accountNumber', 'place')
     }
 
-    return fieldsToUpdate.reduce((result, field) => {
-        if (result) {
-            return result
-        }
-        return !!get(changedFields, field) && get(changedFields, field) !== get(meter, field)
-    }, false)
+    return fieldsToUpdate.some(field => {
+        const newValue = get(changedFields, field)
+        const currentValue = get(meter, field)
+
+        return newValue !== undefined && newValue !== currentValue
+    })
 }
 
 module.exports = {

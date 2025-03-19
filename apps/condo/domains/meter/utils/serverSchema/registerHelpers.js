@@ -191,7 +191,7 @@ function getFieldsToUpdate (reading, isPropertyMeter = false) {
     
     return {
         ...!isPropertyMeter ? { accountNumber: reading.accountNumber.trim() } : {},
-        ...!isPropertyMeter ? { place: get(reading, ['meterMeta', 'place']) } : {},
+        ...!isPropertyMeter ? { place: get(reading, ['meterMeta', 'place']) || undefined } : {},
         numberOfTariffs: get(reading, ['meterMeta', 'numberOfTariffs']),
         verificationDate: tryToISO(get(reading, ['meterMeta', 'verificationDate'])),
         nextVerificationDate: tryToISO(get(reading, ['meterMeta', 'nextVerificationDate'])),
