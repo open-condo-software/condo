@@ -282,6 +282,7 @@ export const useTicketChangedFieldMessagesOf: UseTicketChangedFieldMessagesOfTyp
                 return addLink(ticketChange, 'propertyId', !isEmpty(addressChangePostfix) ? `${value}${addressChangePostfix}` : value,  type,  '/property/{id}')
             },
             classifierDisplayName: (field, value) => {
+                // TODO(DOMA-11296): need more solid approach (localized TicketChange?)
                 const parts = (value || '').split(/\s+/g)
                 const message = parts.map(part =>
                     CLASSIFIER_NAME_REGEXP.test(part)
