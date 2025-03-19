@@ -42,8 +42,8 @@ const buildTranslations = (locale) => ({
     },
 })
 
-const classifiersToString = (classifiers = [], locale) => {
-    if (classifiers.length < 1) {
+const classifiersToString = (classifiers, locale) => {
+    if (!classifiers || classifiers.length < 1) {
         return EMPTY_VALUE
     }
 
