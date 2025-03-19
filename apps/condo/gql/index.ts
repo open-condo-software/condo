@@ -3178,6 +3178,10 @@ export const GetIncidentChangesByIncidentIdDocument = gql`
     organizationIdTo
     organizationDisplayNameFrom
     organizationDisplayNameTo
+    changedByRole
+    createdBy {
+      name
+    }
   }
 }
     `;

@@ -26,5 +26,9 @@ query getIncidentChangesByIncidentId ($incidentId: ID!, $sortBy: [SortIncidentCh
         organizationIdTo
         organizationDisplayNameFrom
         organizationDisplayNameTo
+        changedByRole
+        createdBy {
+            name
+        }
     }
 }
