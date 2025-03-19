@@ -825,23 +825,28 @@ describe('BankSyncTask', () => {
         it('reuses existing BankIntegrationOrganizationContext of the same integration', async () => {
             const [organization] = await createTestOrganization(adminClient)
 
+            const obj0 = await BankIntegrationOrganizationContext.getOne(adminClient, {
+                organization: { id: organization.id },
+                enabled: true,
+            })
+            expect(obj0).not.toBeDefined()
+
             const [firstTask] = await createTestBankSyncTask(adminClient, organization, {
                 file: new UploadingFile(pathToCorrectFile),
             })
 
-            let obj
-
             await waitFor(async () => {
                 const updatedFirstTask = await BankSyncTask.getOne(adminClient, { id: firstTask.id })
                 expect(updatedFirstTask.status).toBe(BANK_SYNC_TASK_STATUS.COMPLETED)
-                obj = await BankIntegrationOrganizationContext.getOne(adminClient, {
-                    organization: { id: organization.id },
-                    enabled: true,
-                })
-                expect(obj).toBeDefined()
-                expect(obj.enabled).toBeTruthy()
-                expect(obj.integration.id).toEqual(BANK_INTEGRATION_IDS['1CClientBankExchange'])
             })
+
+            const obj1 = await BankIntegrationOrganizationContext.getOne(adminClient, {
+                organization: { id: organization.id },
+                enabled: true,
+            })
+            expect(obj1).toBeDefined()
+            expect(obj1.enabled).toBeTruthy()
+            expect(obj1.integration.id).toEqual(BANK_INTEGRATION_IDS['1CClientBankExchange'])
 
             const [secondTask] = await createTestBankSyncTask(adminClient, organization, {
                 file: new UploadingFile(pathToCorrectFile),
@@ -852,14 +857,14 @@ describe('BankSyncTask', () => {
                 // Otherwise, checks below will use records, produced by previous worker operation
                 const secondUpdatedTask = await BankSyncTask.getOne(adminClient, { id: secondTask.id })
                 expect(secondUpdatedTask.status).toEqual(BANK_SYNC_TASK_STATUS.COMPLETED)
-
-                const sameObj = await BankIntegrationOrganizationContext.getOne(adminClient, {
-                    organization: { id: organization.id },
-                    enabled: true,
-                })
-                expect(sameObj).toBeDefined()
-                expect(sameObj.id).toEqual(obj.id)
             })
+
+            const obj2 = await BankIntegrationOrganizationContext.getOne(adminClient, {
+                organization: { id: organization.id },
+                enabled: true,
+            })
+            expect(obj2).toBeDefined()
+            expect(obj2.id).toEqual(obj1.id)
         })
 
         it('skips duplicated BankTransaction records by (number, date) uniqueness rule', async () => {
