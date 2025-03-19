@@ -289,6 +289,7 @@ export function getOrganizationTickets (organizationId) {
 
         const result = data.objs.map(object => {
             return ({
+                title: object.number,
                 text: object.number,
                 id: object.id,
                 value: object.id,
