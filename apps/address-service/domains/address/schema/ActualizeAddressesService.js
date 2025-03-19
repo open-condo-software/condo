@@ -68,6 +68,11 @@ const ActualizeAddressesService = new GQLCustomSchema('ActualizeAddressesService
 
                         // Logic partially similar to SearchByFiasId plugin
                         const denormalizedResult = await provider.getAddressByFiasId(fiasId)
+                        if (!denormalizedResult) {
+                            failures.push({ addressId, errorMessage: `Address not found with provider=${providerName}` })
+                            continue
+                        }
+
                         const [searchResult] = provider.normalize([denormalizedResult])
                         const addressKey = generateAddressKey(searchResult)
 
