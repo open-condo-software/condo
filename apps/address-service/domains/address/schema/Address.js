@@ -75,7 +75,7 @@ const Address = new GQLListSchema('Address', {
                 type: 'models.UniqueConstraint',
                 fields: ['key'],
                 condition: 'Q(deletedAt__isnull=True)',
-                name: 'address_unique_key',
+                name: 'address_key_unique_key',
             },
         ],
     },

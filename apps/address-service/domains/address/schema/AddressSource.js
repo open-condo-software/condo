@@ -30,7 +30,6 @@ const AddressSource = new GQLListSchema('AddressSource', {
             schemaDoc: 'The string the address was found by (address origin)',
             type: 'Text',
             isRequired: true,
-            isUnique: true,
             hooks: {
                 resolveInput: ({ resolvedData, fieldPath }) => {
                     if (has(resolvedData, fieldPath)) {
@@ -66,6 +65,16 @@ const AddressSource = new GQLListSchema('AddressSource', {
             many: false,
         },
 
+    },
+    kmigratorOptions: {
+        constraints: [
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['source'],
+                condition: 'Q(deletedAt__isnull=True)',
+                name: 'addresssource_source_unique_key',
+            },
+        ],
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
