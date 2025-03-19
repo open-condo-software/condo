@@ -11,7 +11,7 @@ async function _search (client, query, variables) {
 
 const GET_ALL_PROPERTY_SCOPES_BY_VALUE_QUERY = gql`
     query selectPropertyScope ($where: PropertyScopeWhereInput, $orderBy: String) {
-        objs: allPropertyScopes(where: $where, orderBy: $orderBy) {
+        objs: allPropertyScopes(where: $where, orderBy: $orderBy, first: 100) {
             id
             name
             hasAllProperties
