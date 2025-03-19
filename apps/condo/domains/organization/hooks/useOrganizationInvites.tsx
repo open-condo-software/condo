@@ -91,7 +91,8 @@ export const useOrganizationInvites = (organizationTypes: Array<OrganizationType
                         }}
                     />
                 ),
-                type: 'success',
+                description: intl.formatMessage({ id: 'pages.users.InviteMessageDescription' }),
+                type: 'info',
                 id: `invite_${invite.id}`,
             })
         })
