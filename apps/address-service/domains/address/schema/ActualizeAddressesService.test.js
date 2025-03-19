@@ -178,14 +178,14 @@ describe('ActualizeAddressesService', () => {
                     const createdAddress = await createOrUpdateAddressWithSource(adminClient, Address, AddressSource, addressData, s, dvSender)
 
                     mockedCallToDadata.mockImplementationOnce(() => {
-                        const cityDistrictType = faker.datatype.string(2)
-                        const cityDistrict = faker.datatype.string(12)
+                        const cityDistrictType = faker.lorem.word(2)
+                        const cityDistrict = faker.lorem.word(12)
                         const data = {
                             ...initialData,
                             city_district_fias_id: faker.datatype.uuid(),
                             city_district_with_type: `${cityDistrictType} ${cityDistrict}`,
                             city_district_type: cityDistrictType,
-                            city_district_type_full: `${cityDistrictType}${faker.datatype.string(4)}`,
+                            city_district_type_full: `${cityDistrictType}${faker.lorem.word(4)}`,
                             city_district: cityDistrict,
                             settlement_fias_id: null,
                             settlement_with_type: null,
@@ -228,14 +228,14 @@ describe('ActualizeAddressesService', () => {
                     const createdAddress1 = await createOrUpdateAddressWithSource(adminClient, Address, AddressSource, addressData1, s1, dvSender)
                     const sources1 = await AddressSource.getAll(supportClient, { address: { id: createdAddress1.id } })
 
-                    const cityDistrictType = faker.datatype.string(2)
-                    const cityDistrict = faker.datatype.string(12)
+                    const cityDistrictType = faker.lorem.word(2)
+                    const cityDistrict = faker.lorem.word(12)
                     const changedSuggestionItem = generateDadataSuggestionItem({}, {
                         ...initialData,
                         city_district_fias_id: faker.datatype.uuid(),
                         city_district_with_type: `${cityDistrictType} ${cityDistrict}`,
                         city_district_type: cityDistrictType,
-                        city_district_type_full: `${cityDistrictType}${faker.datatype.string(4)}`,
+                        city_district_type_full: `${cityDistrictType}${faker.lorem.word(4)}`,
                         city_district: cityDistrict,
                         settlement_fias_id: null,
                         settlement_with_type: null,
