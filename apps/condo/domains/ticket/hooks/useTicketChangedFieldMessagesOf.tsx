@@ -49,6 +49,8 @@ type UseTicketChangedFieldMessagesOfType =
 const LINK_STYLE: React.CSSProperties = { color: 'inherit' }
 const DETAILS_TOOLTIP_STYLE: React.CSSProperties = { maxWidth: '80%' }
 
+const CLASSIFIER_NAME_REGEXP = /^ticket\..+\.classifier/
+
 const getAddressChangePostfix = (sectionName, sectionType, floorName, unitName, unitType, intl) => {
     const FloorMessage = intl.formatMessage({ id: 'field.floorName' }).toLowerCase()
 
@@ -280,7 +282,14 @@ export const useTicketChangedFieldMessagesOf: UseTicketChangedFieldMessagesOfTyp
                 return addLink(ticketChange, 'propertyId', !isEmpty(addressChangePostfix) ? `${value}${addressChangePostfix}` : value,  type,  '/property/{id}')
             },
             classifierDisplayName: (field, value) => {
-                return <Typography.Text>«{value}»</Typography.Text>
+                const parts = (value || '').split(/\s+/g)
+                const message = parts.map(part =>
+                    CLASSIFIER_NAME_REGEXP.test(part)
+                        ?  intl.formatMessage({ id: part })
+                        : part
+                ).join(' ')
+
+                return <Typography.Text>«{message}»</Typography.Text>
             },
             sourceDisplayName: (field, value) => {
                 return <Typography.Text>«{value}»</Typography.Text>
