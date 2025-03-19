@@ -1,11 +1,11 @@
 /** @jsx jsx */
-import { InfoCircleFilled } from '@ant-design/icons'
 import { css, jsx } from '@emotion/react'
-import { Affix, Alert, AlertProps, Space } from 'antd'
+import { Affix, AlertProps, Space } from 'antd'
 import React, { useState } from 'react'
 
-import { Button } from '@condo/domains/common/components/Button'
-import { colors } from '@condo/domains/common/constants/style'
+import { Info } from '@open-condo/icons'
+import { Alert, Button } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/dist/colors'
 
 import { useLayoutContext } from './LayoutContext'
 
@@ -43,6 +43,7 @@ export interface ITopNotification {
     id: string
     actions: ITopNotificationAction[]
     message: string | JSX.Element
+    description?: string
     type: AlertProps['type']
 }
 
@@ -77,30 +78,29 @@ export const useTopNotificationsHook = (serviceProblemsAlert?: React.ReactNode):
                                 <Alert
                                     banner
                                     showIcon
-                                    icon={(<InfoCircleFilled />)}
                                     message={notification.message}
+                                    description={notification.description}
                                     type={notification.type}
                                     key={notification.id}
-                                    css={notificationAlert({ isSmall: !breakpoints.TABLET_LARGE })}
-                                    action={<Space size={20}>
-                                        {
-                                            notification.actions.map((action, idx) => {
-                                                return (
-                                                    <Button
-                                                        onClick={async () => {
-                                                            await action.action()
-                                                            removeNotification(notification.id)
-                                                        }}
-                                                        size={!breakpoints.TABLET_LARGE ? 'middle' : 'large'}
-                                                        type='sberPrimary'
-                                                        secondary={action.secondary}
-                                                        key={idx}
-                                                    >
-                                                        {action.title}
-                                                    </Button>
-                                                )
-                                            })}
-                                    </Space>}
+                                    action={
+                                        <Space size={16}>
+                                            {
+                                                notification.actions.map((action, idx) => {
+                                                    return (
+                                                        <Button
+                                                            onClick={async () => {
+                                                                await action.action()
+                                                                removeNotification(notification.id)
+                                                            }}
+                                                            type={action.secondary ? 'secondary' : 'primary'}
+                                                            key={idx}
+                                                        >
+                                                            {action.title}
+                                                        </Button>
+                                                    )
+                                                })}
+                                        </Space>
+                                    }
                                 />
                             )
                         })
