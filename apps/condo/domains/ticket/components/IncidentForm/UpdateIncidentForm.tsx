@@ -4,7 +4,6 @@ import {
     useGetIncidentPropertiesByIncidentIdQuery,
     useUpdateIncidentMutation,
     GetIncidentByIdDocument,
-    GetIncidentClassifierIncidentByIncidentIdDocument,
     GetIncidentPropertiesByIncidentIdDocument,
     GetIncidentChangesByIncidentIdDocument,
 } from '@app/condo/gql'
@@ -114,7 +113,6 @@ export const UpdateIncidentForm: React.FC<IUpdateIncidentForm> = (props) => {
         onCompleted: async () => await push(`/incident/${[incidentId]}`),
         refetchQueries: [
             { query: GetIncidentByIdDocument, variables: { incidentId } },
-            { query: GetIncidentClassifierIncidentByIncidentIdDocument, variables: { incidentId } },
             { query: GetIncidentPropertiesByIncidentIdDocument, variables: { incidentId } },
             { query: GetIncidentChangesByIncidentIdDocument, variables: { incidentId } },
         ],

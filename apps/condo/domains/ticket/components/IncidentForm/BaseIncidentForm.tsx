@@ -8,6 +8,7 @@ import {
     useCreateIncidentPropertyMutation,
     useUpdateIncidentClassifierIncidentMutation,
     useUpdateIncidentPropertyMutation,
+    useGetIncidentClassifierIncidentByIncidentIdLazyQuery,
 } from '@app/condo/gql'
 import {
     IncidentCreateInput as IIncidentCreateInput,
@@ -24,7 +25,6 @@ import difference from 'lodash/difference'
 import isEmpty from 'lodash/isEmpty'
 import isFunction from 'lodash/isFunction'
 import uniq from 'lodash/uniq'
-import { useRouter } from 'next/router'
 import { Rule } from 'rc-field-form/lib/interface'
 import { DefaultOptionType } from 'rc-select/lib/Select'
 import React, { ComponentProps, useCallback, useEffect, useMemo, useState } from 'react'
@@ -311,8 +311,6 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
         showOrganization = false,
     } = props
 
-    const router = useRouter()
-
     const { breakpoints } = useLayoutContext()
     const isSmallWindow = !breakpoints.TABLET_LARGE
     const { requiredValidator } = useValidations()
@@ -324,6 +322,8 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
 
     const [createIncidentClassifierIncident] = useCreateIncidentClassifierIncidentMutation()
     const [updateIncidentClassifierIncident] = useUpdateIncidentClassifierIncidentMutation()
+
+    const [fetchClassifiers] = useGetIncidentClassifierIncidentByIncidentIdLazyQuery()
 
     const initialIncidentOrganization = useMemo(() => initialValues?.organization?.name || null, [initialValues])
     const initialIncidentProperties = useMemo(() => initialValues?.incidentProperties || [], [initialValues])
@@ -418,7 +418,15 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
             })
         }
 
-    }, [createOrUpdateIncident, initialPropertyIdsWithDeleted, initialIncidentProperties, initialClassifierIds, initialIncidentClassifiers, createIncidentProperty, updateIncidentProperty, createIncidentClassifierIncident, updateIncidentClassifierIncident, router])
+        if (incidentId) {
+            fetchClassifiers({
+                variables: {
+                    incidentId,
+                },
+                fetchPolicy: 'network-only',
+            })
+        }
+    }, [createOrUpdateIncident, initialPropertyIdsWithDeleted, initialIncidentProperties, initialClassifierIds, initialIncidentClassifiers, createIncidentProperty, updateIncidentProperty, createIncidentClassifierIncident, updateIncidentClassifierIncident, fetchClassifiers])
 
     const renderPropertyOptions: InputWithCheckAllProps['selectProps']['renderOptions'] = useCallback((options, renderOption) => {
         const deletedPropertyOptions = initialIncidentProperties.map((incidentProperty) => {
