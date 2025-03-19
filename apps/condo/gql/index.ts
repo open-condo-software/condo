@@ -3038,6 +3038,7 @@ export const GetIncidentByIdDocument = gql`
     createdAt
     createdBy {
       id
+      name
     }
     number
     details
@@ -3154,10 +3155,10 @@ export type UpdateIncidentMutationHookResult = ReturnType<typeof useUpdateIncide
 export type UpdateIncidentMutationResult = Apollo.MutationResult<Types.UpdateIncidentMutation>;
 export type UpdateIncidentMutationOptions = Apollo.BaseMutationOptions<Types.UpdateIncidentMutation, Types.UpdateIncidentMutationVariables>;
 export const GetIncidentChangesByIncidentIdDocument = gql`
-    query getIncidentChangesByIncidentId($incidentId: ID!, $sortBy: [SortIncidentChangesBy!]) {
+    query getIncidentChangesByIncidentId($incidentId: ID!) {
   incidentChanges: allIncidentChanges(
     where: {incident: {id: $incidentId}}
-    sortBy: $sortBy
+    sortBy: [createdAt_DESC]
     first: 100
   ) {
     id
@@ -3178,6 +3179,10 @@ export const GetIncidentChangesByIncidentIdDocument = gql`
     organizationIdTo
     organizationDisplayNameFrom
     organizationDisplayNameTo
+    changedByRole
+    createdBy {
+      name
+    }
   }
 }
     `;
@@ -3195,7 +3200,6 @@ export const GetIncidentChangesByIncidentIdDocument = gql`
  * const { data, loading, error } = useGetIncidentChangesByIncidentIdQuery({
  *   variables: {
  *      incidentId: // value for 'incidentId'
- *      sortBy: // value for 'sortBy'
  *   },
  * });
  */

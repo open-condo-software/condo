@@ -464,7 +464,7 @@ export type GetIncidentByIdQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetIncidentByIdQuery = { __typename?: 'Query', incident?: { __typename?: 'Incident', id: string, status?: Types.IncidentStatusType | null, createdAt?: string | null, number?: number | null, details?: string | null, workStart?: string | null, workFinish?: string | null, workType?: Types.IncidentWorkTypeType | null, textForResident?: string | null, hasAllProperties?: boolean | null, createdBy?: { __typename?: 'User', id: string } | null, organization?: { __typename?: 'Organization', id: string, name?: string | null } | null } | null };
+export type GetIncidentByIdQuery = { __typename?: 'Query', incident?: { __typename?: 'Incident', id: string, status?: Types.IncidentStatusType | null, createdAt?: string | null, number?: number | null, details?: string | null, workStart?: string | null, workFinish?: string | null, workType?: Types.IncidentWorkTypeType | null, textForResident?: string | null, hasAllProperties?: boolean | null, createdBy?: { __typename?: 'User', id: string, name?: string | null } | null, organization?: { __typename?: 'Organization', id: string, name?: string | null } | null } | null };
 
 export type CreateIncidentMutationVariables = Types.Exact<{
   data: Types.IncidentCreateInput;
@@ -483,11 +483,10 @@ export type UpdateIncidentMutation = { __typename?: 'Mutation', incident?: { __t
 
 export type GetIncidentChangesByIncidentIdQueryVariables = Types.Exact<{
   incidentId: Types.Scalars['ID']['input'];
-  sortBy?: Types.InputMaybe<Array<Types.SortIncidentChangesBy> | Types.SortIncidentChangesBy>;
 }>;
 
 
-export type GetIncidentChangesByIncidentIdQuery = { __typename?: 'Query', incidentChanges?: Array<{ __typename?: 'IncidentChange', id: string, createdAt?: string | null, detailsFrom?: string | null, detailsTo?: string | null, statusFrom?: Types.IncidentChangeStatusFromType | null, statusTo?: Types.IncidentChangeStatusToType | null, textForResidentFrom?: string | null, textForResidentTo?: string | null, workStartFrom?: string | null, workStartTo?: string | null, workFinishFrom?: string | null, workFinishTo?: string | null, workTypeFrom?: Types.IncidentChangeWorkTypeFromType | null, workTypeTo?: Types.IncidentChangeWorkTypeToType | null, organizationIdFrom?: string | null, organizationIdTo?: string | null, organizationDisplayNameFrom?: string | null, organizationDisplayNameTo?: string | null } | null> | null };
+export type GetIncidentChangesByIncidentIdQuery = { __typename?: 'Query', incidentChanges?: Array<{ __typename?: 'IncidentChange', id: string, createdAt?: string | null, detailsFrom?: string | null, detailsTo?: string | null, statusFrom?: Types.IncidentChangeStatusFromType | null, statusTo?: Types.IncidentChangeStatusToType | null, textForResidentFrom?: string | null, textForResidentTo?: string | null, workStartFrom?: string | null, workStartTo?: string | null, workFinishFrom?: string | null, workFinishTo?: string | null, workTypeFrom?: Types.IncidentChangeWorkTypeFromType | null, workTypeTo?: Types.IncidentChangeWorkTypeToType | null, organizationIdFrom?: string | null, organizationIdTo?: string | null, organizationDisplayNameFrom?: string | null, organizationDisplayNameTo?: string | null, changedByRole?: string | null, createdBy?: { __typename?: 'User', name?: string | null } | null } | null> | null };
 
 export type GetIncidentClassifierIncidentByIncidentIdQueryVariables = Types.Exact<{
   incidentId: Types.Scalars['ID']['input'];

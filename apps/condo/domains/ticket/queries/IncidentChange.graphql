@@ -1,11 +1,11 @@
-query getIncidentChangesByIncidentId ($incidentId: ID!, $sortBy: [SortIncidentChangesBy!]) {
+query getIncidentChangesByIncidentId ($incidentId: ID!) {
     incidentChanges: allIncidentChanges (
         where: {
             incident: {
                 id: $incidentId
             }
         },
-        sortBy: $sortBy,
+        sortBy: [createdAt_DESC],
         first: 100,
     ) {
         id
@@ -26,5 +26,9 @@ query getIncidentChangesByIncidentId ($incidentId: ID!, $sortBy: [SortIncidentCh
         organizationIdTo
         organizationDisplayNameFrom
         organizationDisplayNameTo
+        changedByRole
+        createdBy {
+            name
+        }
     }
 }

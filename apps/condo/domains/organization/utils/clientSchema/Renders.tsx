@@ -54,7 +54,8 @@ export const getEmployeeSpecializationsMessage = (intl, employee, organizationEm
 export const EmployeeNameAndSpecializations = ({ employee, organizationEmployeeSpecializations }) => {
     const intl = useIntl()
     const { SpecializationsMessage, title } = getEmployeeSpecializationsMessage(intl, employee, organizationEmployeeSpecializations)
-    const textTitle = `${employee.name} (${title})`
+
+    const textTitle = title ? `${employee.name} (${title})` : employee.name
 
     return (
         <Typography.Paragraph key={employee.id} style={PARAGRAPH_STYLES} title={textTitle}>
