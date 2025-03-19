@@ -4,11 +4,12 @@
 const get = require('lodash/get')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
+const { find } = require('@open-condo/keystone/schema')
 
 const { checkPermissionsInEmployedOrganizations } = require('@condo/domains/organization/utils/accessSchema')
 const { canDirectlyExecuteService } = require('@condo/domains/user/utils/directAccess')
 
-async function canSumPayments ({ args: { where }, authentication: { item: user }, context, gqlName }) {
+async function canSumPayments ({ args: { data: { paymentsWhere, paymentsFilesWhere } }, authentication: { item: user }, context, gqlName }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -16,13 +17,31 @@ async function canSumPayments ({ args: { where }, authentication: { item: user }
     const hasDirectAccess = await canDirectlyExecuteService(user, gqlName)
     if (hasDirectAccess) return hasDirectAccess
 
-    const organizationFromInvoice = get(where, ['invoice', 'context', 'organization', 'id'], null)
-    if (organizationFromInvoice) return await checkPermissionsInEmployedOrganizations(context, user, organizationFromInvoice, 'canReadPayments')
+    if (paymentsWhere) {
+        const organizationFromInvoice = get(paymentsWhere, ['invoice', 'context', 'organization', 'id'], null)
+        if (organizationFromInvoice) return await checkPermissionsInEmployedOrganizations(context, user, organizationFromInvoice, 'canReadPayments')
 
-    const organizationId = get(where, ['organization', 'id'], null)
-    if (!organizationId) return false
+        const organizationId = get(paymentsWhere, ['organization', 'id'], null)
+        if (!organizationId) return false
 
-    return await checkPermissionsInEmployedOrganizations(context, user, organizationId, 'canReadPayments')
+        return await checkPermissionsInEmployedOrganizations(context, user, organizationId, 'canReadPayments')
+    }
+
+    if (paymentsFilesWhere) {
+        const contextId = get(paymentsFilesWhere, ['acquiringContext', 'id'], null)
+        if (!contextId) return false
+
+        const [context] = await find('AcquiringIntegrationContext', {
+            id: contextId,
+            deletedAt: null,
+        })
+
+        if (!context) return false
+
+        return await checkPermissionsInEmployedOrganizations(context, user, context.organization, 'canReadPayments')
+    }
+
+    return false
 }
 
 /*

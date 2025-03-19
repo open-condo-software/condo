@@ -450,11 +450,11 @@ async function generatePaymentLinkByTestClient(client, receipt, receiptData, acq
     return [data.result, attrs]
 }
 
-async function sumPaymentsByTestClient(client, where = {}) {
+async function sumPaymentsByTestClient(client, args = {}) {
     if (!client) throw new Error('no client')
 
-    const { data, errors } = await client.query(SUM_PAYMENTS_QUERY, { where: where })
-    throwIfError(data, errors, { query: SUM_PAYMENTS_QUERY, variables: { where: where } })
+    const { data, errors } = await client.query(SUM_PAYMENTS_QUERY, { data: args })
+    throwIfError(data, errors, { query: SUM_PAYMENTS_QUERY, variables: { data: args } })
     return data.result
 }
 async function createTestRecurrentPaymentContext (client, extraAttrs = {}) {
@@ -793,6 +793,15 @@ async function createPaymentsAndGetSum(paymentsAmount = 1) {
     return { client: admin, organization, sum: totalSum.toFixed(8) }
 }
 
+async function createPaymentsFilesAndGetSum(client, context, paymentsFilesAmount = 1) {
+    let totalSum = Big(0)
+    for (let i = 0; i < paymentsFilesAmount; i++){
+        const [paymentsFile] = await createTestPaymentsFile(client, context)
+        totalSum = totalSum.plus(Big(paymentsFile.amount))
+    }
+    return { sum: totalSum.toFixed(8) }
+}
+
 
 async function exportPaymentsServiceByTestClient(client, where, extraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -852,7 +861,7 @@ module.exports = {
     makeAcquiringContext,
     makeAcquiringContextAndIntegrationAccount,
     makeAcquiringContextAndIntegrationManager,
-    createPaymentsAndGetSum,
+    createPaymentsAndGetSum, createPaymentsFilesAndGetSum,
     Payment, createTestPayment, updateTestPayment,
     makePayer,
     makePayerAndPayments,

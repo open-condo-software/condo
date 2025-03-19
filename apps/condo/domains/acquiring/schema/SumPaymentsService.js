@@ -3,15 +3,46 @@
  */
 
 const Big = require('big.js')
+const get = require('lodash/get')
 
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/acquiring/access/SumPaymentsService')
+const { WRONG_VALUE } = require('@condo/domains/common/constants/errors')
 const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchema')
 
 
+const ERRORS = {
+    WRONG_WHERE_INPUT: {
+        mutation: '_allPaymentsSum',
+        variable: ['data'],
+        code: BAD_USER_INPUT,
+        type: WRONG_VALUE,
+        message: 'You must specify one of two where inputs: PaymentWhereInput or PaymentsFileWhereInput',
+    },
+    WRONG_PAYMENT_WHERE_INPUT: {
+        mutation: '_allPaymentsSum',
+        variable: ['data'],
+        code: BAD_USER_INPUT,
+        type: WRONG_VALUE,
+        message: 'You must specify organization id for PaymentWhereInput',
+    },
+    WRONG_PAYMENT_FILE_WHERE_INPUT: {
+        mutation: '_allPaymentsSum',
+        variable: ['data'],
+        code: BAD_USER_INPUT,
+        type: WRONG_VALUE,
+        message: 'You must specify context id for PaymentsFileWhereInput',
+    },
+}
+
 const SumPaymentsService = new GQLCustomSchema('SumPaymentsService', {
     types: [
+        {
+            access: true,
+            type: 'input PaymentsSumInput { paymentsFilesWhere: PaymentsFileWhereInput, paymentsWhere: PaymentWhereInput }',
+        },
         {
             access: true,
             type: 'type PaymentsSumOutput { sum: String! }',
@@ -21,19 +52,45 @@ const SumPaymentsService = new GQLCustomSchema('SumPaymentsService', {
     queries: [
         {
             access: access.canSumPayments,
-            schema: '_allPaymentsSum(where: PaymentWhereInput!): PaymentsSumOutput',
-            resolver: async (parent, args, context, info, extra = {}) => {
-                const { where } = args
+            schema: '_allPaymentsSum(data: PaymentsSumInput!): PaymentsSumOutput',
+            doc: {
+                summary: 'Sum of payments by organization or sum of payments files by acquiring context',
+                description: 'Calculate sum of payments for organization or sum of payments files for acquiring context',
+                errors: ERRORS,
+            },
+            resolver: async (parent, args, context) => {
+                const { data } = args
+                const { paymentsWhere, paymentsFilesWhere } = data
+
+                if (!paymentsWhere && !paymentsFilesWhere) {
+                    throw new GQLError(ERRORS.WRONG_WHERE_INPUT, context)
+                }
+
+                if (paymentsWhere) {
+                    if (!get(paymentsWhere, 'organization')) {
+                        throw new GQLError(ERRORS.WRONG_PAYMENT_WHERE_INPUT, context)
+                    }
+                }
+
+                if (paymentsFilesWhere) {
+                    if (!get(paymentsFilesWhere, 'acquiringContext')) {
+                        throw new GQLError(ERRORS.WRONG_PAYMENT_FILE_WHERE_INPUT, context)
+                    }
+                }
+
+                const listName = paymentsFilesWhere ? 'PaymentsFile' : 'Payment'
+
                 const paymentLoader = new GqlWithKnexLoadList({
-                    listKey: 'Payment',
+                    listKey: listName,
                     fields: 'id',
-                    where,
+                    where: paymentsWhere ? paymentsWhere : paymentsFilesWhere,
                 })
                 const idObjects = await paymentLoader.load()
                 const aggregate = await paymentLoader.loadAggregate('SUM(amount) as "amountSum"', idObjects.map(({ id }) => id))
                 const sum = Big(aggregate.amountSum || 0).toFixed(8)
+
                 return {
-                    sum: sum,
+                    sum,
                 }
             },
         },

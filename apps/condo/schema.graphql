@@ -83284,8 +83284,8 @@ type GeneratePaymentLinkOutput {
 }
 
 input PaymentsSumInput {
-  paymentsFilesWhere: JSON
-  paymentsWhere: JSON
+  paymentsFilesWhere: PaymentsFileWhereInput
+  paymentsWhere: PaymentWhereInput
 }
 
 type PaymentsSumOutput {
@@ -87887,6 +87887,22 @@ type Query {
   exportPropertyMeterReadings(data: ExportPropertyMeterReadingsInput!): ExportPropertyMeterReadingsOutput
   exportPaymentsToExcel(data: ExportPaymentsToExcelInput!): ExportPaymentsToExcelOutput
   generatePaymentLink(data: GeneratePaymentLinkInput!): GeneratePaymentLinkOutput
+
+  """
+  Sum of payments for the given PaymentsFile
+  
+  Calculate sum of payments inside the given PaymentsFile
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_VALUE",
+    "message": "You must specify one of two where inputs: PaymentWhereInput or PaymentsFileWhereInput"
+  }`
+  """
   _allPaymentsSum(data: PaymentsSumInput!): PaymentsSumOutput
   calculateFeeForReceipt(data: CalculateFeeForReceiptInput!): CalculateFeeForReceiptOutput
   ticketReportWidgetData(data: TicketReportWidgetInput!): TicketReportWidgetOutput

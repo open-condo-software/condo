@@ -4,107 +4,324 @@
 
 const Big = require('big.js')
 
-const { makeClient } = require('@open-condo/keystone/test.utils')
-const { catchErrorFrom, expectToThrowAuthenticationError } = require('@open-condo/keystone/test.utils')
+const {
+    makeClient,
+    makeLoggedInAdminClient,
+    expectToThrowAccessDeniedErrorToResult,
+    expectToThrowGQLErrorToResult,
+} = require('@open-condo/keystone/test.utils')
+const { expectToThrowAuthenticationError } = require('@open-condo/keystone/test.utils')
 
 const { makePayer, createTestPayment, sumPaymentsByTestClient, createPaymentsAndGetSum } = require('@condo/domains/acquiring/utils/testSchema')
+const { createTestPaymentsFile, createPaymentsFilesAndGetSum,
+    createTestAcquiringIntegration,
+    createTestAcquiringIntegrationContext,
+} = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestUserRightsSet, updateTestUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 
 
+
 describe('SumPaymentsService', () => {
-    describe('logic and correct summing', () => {
-        test('admin: sum one payment', async () => {
-            const { client: admin, organization, sum: manualSum } = await createPaymentsAndGetSum()
-            const where = { organization: { id: organization.id } }
-            const { sum } = await sumPaymentsByTestClient(admin, where)
 
-            expect(String(sum)).toEqual(manualSum)
+    let admin, support, anonymous
+    let organization, integration, context
+
+    beforeAll(async () => {
+        admin = await makeLoggedInAdminClient()
+        support = await makeClientWithSupportUser()
+        anonymous = await makeClient();
+
+        [organization] = await createTestOrganization(admin);
+        [integration] = await createTestAcquiringIntegration(admin);
+        [context] = await createTestAcquiringIntegrationContext(admin, organization, integration)
+    })
+    describe('logic and correct summing for different amounts', () => {
+        describe('payments', () => {
+            test('one', async () => {
+                const { client: admin, organization, sum: manualPaymentsSum } = await createPaymentsAndGetSum()
+                const paymentsWhere = { organization: { id: organization.id } }
+                const { sum: paymentsSum } = await sumPaymentsByTestClient(admin,  { paymentsWhere })
+
+                expect(String(paymentsSum)).toEqual(manualPaymentsSum)
+            })
+            test('101', async () => {
+                const { client: admin, organization, sum: manualSum } = await createPaymentsAndGetSum(101)
+                const paymentsWhere = { organization: { id: organization.id } }
+                const { sum } = await sumPaymentsByTestClient(admin, { paymentsWhere })
+
+                expect(String(sum)).toEqual(manualSum)
+            })
+            test('zero', async () => {
+                const { admin, organization } = await makePayer()
+                const paymentsWhere = { organization: { id: organization.id } }
+                const { sum } = await sumPaymentsByTestClient(admin, { paymentsWhere })
+
+                expect(String(sum)).toEqual(Big(0).toFixed(8))
+            })
         })
-        test('admin: sum 101 payments', async () => {
-            const { client: admin, organization, sum: manualSum } = await createPaymentsAndGetSum(101)
-            const where = { organization: { id: organization.id } }
-            const { sum } = await sumPaymentsByTestClient(admin, where)
 
-            expect(String(sum)).toEqual(manualSum)
+        describe('paymentsFiles', () => {
+            test('one', async () => {
+                const [context] = await createTestAcquiringIntegrationContext(admin, organization, integration)
+                const { sum: manualSum } = await createPaymentsFilesAndGetSum(admin, context)
+                const paymentsFilesWhere = { acquiringContext: { id: context.id } }
+                const { sum } = await sumPaymentsByTestClient(admin, { paymentsFilesWhere })
+
+                expect(String(sum)).toEqual(manualSum)
+            })
+
+            test('101', async () => {
+                const [context] = await createTestAcquiringIntegrationContext(admin, organization, integration)
+                const { sum: manualSum } = await createPaymentsFilesAndGetSum(admin, context, 101)
+                const paymentsFilesWhere = { acquiringContext: { id: context.id } }
+                const { sum } = await sumPaymentsByTestClient(admin, { paymentsFilesWhere })
+
+                expect(String(sum)).toEqual(manualSum)
+            })
+
+            test('zero', async () => {
+                const [context] = await createTestAcquiringIntegrationContext(admin, organization, integration)
+                const paymentsFilesWhere = { acquiringContext: { id: context.id } }
+                const { sum } = await sumPaymentsByTestClient(admin, { paymentsFilesWhere })
+
+                expect(String(sum)).toEqual('0.00000000')
+            })
         })
-        test('admin: sum zero payments', async () => {
-            const { admin, organization } = await makePayer()
-            const where = { organization: { id: organization.id } }
-            const { sum } = await sumPaymentsByTestClient(admin, where)
 
-            expect(String(sum)).toEqual(Big(0).toFixed(8))
+    })
+
+    describe('access checks', () => {
+        describe('payments', () => {
+            test('support can sum payments', async () => {
+                const { organization, sum: manualSum } = await createPaymentsAndGetSum(10)
+                const paymentsWhere = { organization: { id: organization.id } }
+                const { sum } = await sumPaymentsByTestClient(support, { paymentsWhere })
+
+                expect(String(sum)).toEqual(manualSum)
+            })
+            test('user with directAccess can sum payments', async () => {
+                const { organization, sum: manualSum } = await createPaymentsAndGetSum(10)
+
+                const support = await makeClientWithSupportUser()
+                const serviceUserClient = await makeClientWithServiceUser()
+                const [userRightsSet] = await createTestUserRightsSet(support, { canExecute_allPaymentsSum: true })
+                await updateTestUser(support, serviceUserClient.user.id, { rightsSet: { connect: { id: userRightsSet.id } } })
+
+                const paymentsWhere = { organization: { id: organization.id } }
+                const { sum } = await sumPaymentsByTestClient(serviceUserClient, { paymentsWhere })
+
+                expect(String(sum)).toEqual(manualSum)
+            })
+            test('employee with canReadPayments can sum payments', async () => {
+                const { client: admin, organization, sum: manualSum } = await createPaymentsAndGetSum(10)
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                    canReadPayments: true,
+                })
+                const employeeClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                await createTestOrganizationEmployee(admin, organization, employeeClient.user, role)
+                const paymentsWhere = { organization: { id: organization.id } }
+                const { sum } = await sumPaymentsByTestClient(employeeClient, { paymentsWhere })
+
+                expect(String(sum)).toEqual(manualSum)
+            })
+            test('employee without canReadPayments cant sum payments', async () => {
+                const { admin, billingReceipts, acquiringContext, organization } = await makePayer()
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                    canReadPayments: false,
+                })
+                const employeeClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                await createTestOrganizationEmployee(admin, organization, employeeClient.user, role)
+                await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
+                const paymentsWhere = { organization: { id: organization.id } }
+
+                await expectToThrowAccessDeniedErrorToResult(async () => {
+                    await sumPaymentsByTestClient(employeeClient, { paymentsWhere })
+                })
+            })
+            test('anonymous cant sum payments', async () => {
+                const { admin, billingReceipts, acquiringContext, organization } = await makePayer()
+                const anonymous = await makeClient()
+                await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
+
+                const paymentsWhere = { organization: { id: organization.id } }
+                await expectToThrowAuthenticationError(async () => {
+                    await sumPaymentsByTestClient(anonymous, { paymentsWhere })
+                }, 'result')
+            })
+        })
+
+        describe('paymentsFiles', () => {
+            test('admin can sum payments files', async () => {
+                const { sum: manualSum } = await createPaymentsFilesAndGetSum(admin, context)
+                const paymentsFilesWhere = { acquiringContext: { id: context.id } }
+                const { sum } = await sumPaymentsByTestClient(admin, { paymentsFilesWhere })
+
+                expect(String(sum)).toEqual(manualSum)
+            })
+
+            test('support can sum payments files', async () => {
+                const [context] = await createTestAcquiringIntegrationContext(admin, organization, integration)
+                const { sum: manualSum } = await createPaymentsFilesAndGetSum(admin, context)
+                const paymentsFilesWhere = { acquiringContext: { id: context.id } }
+                const { sum } = await sumPaymentsByTestClient(support, { paymentsFilesWhere })
+
+                expect(String(sum)).toEqual(manualSum)
+            })
+
+            test('user with directAccess can sum payments files', async () => {
+                const [context] = await createTestAcquiringIntegrationContext(admin, organization, integration)
+                const { sum: manualSum } = await createPaymentsFilesAndGetSum(admin, context, 10)
+
+                const support = await makeClientWithSupportUser()
+                const serviceUserClient = await makeClientWithServiceUser()
+                const [userRightsSet] = await createTestUserRightsSet(support, { canExecute_allPaymentsSum: true })
+                await updateTestUser(support, serviceUserClient.user.id, { rightsSet: { connect: { id: userRightsSet.id } } })
+
+                const paymentsFilesWhere = { acquiringContext: { id: context.id } }
+                const { sum } = await sumPaymentsByTestClient(serviceUserClient, { paymentsFilesWhere })
+
+                expect(String(sum)).toEqual(manualSum)
+            })
+
+            test('employee with canReadPayments can sum payments files', async () => {
+                const [context] = await createTestAcquiringIntegrationContext(admin, organization, integration)
+                const { sum: manualSum } = await createPaymentsFilesAndGetSum(admin, context, 10)
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                    canReadPayments: true,
+                })
+                const employeeClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                await createTestOrganizationEmployee(admin, organization, employeeClient.user, role)
+                const paymentsFilesWhere = { acquiringContext: { id: context.id } }
+                const { sum } = await sumPaymentsByTestClient(employeeClient, { paymentsFilesWhere })
+
+                expect(String(sum)).toEqual(manualSum)
+            })
+
+            test('employee without canReadPayments can\'t sum payments', async () => {
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                    canReadPayments: false,
+                })
+                const employeeClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                await createTestOrganizationEmployee(admin, organization, employeeClient.user, role)
+                await createTestPaymentsFile(admin, context)
+                const paymentsFilesWhere = { acquiringContext: { id: context.id } }
+
+                await expectToThrowAccessDeniedErrorToResult(async () => {
+                    await sumPaymentsByTestClient(employeeClient, { paymentsFilesWhere })
+                })
+            })
+            test('anonymous cant sum payments', async () => {
+                const paymentsFilesWhere = { acquiringContext: { id: context.id } }
+                await expectToThrowAuthenticationError(async () => {
+                    await sumPaymentsByTestClient(anonymous, { paymentsFilesWhere })
+                }, 'result')
+            })
         })
     })
-    describe('access checks', () => {
-        test('support can sum payments', async () => {
-            const { organization, sum: manualSum } = await createPaymentsAndGetSum(10)
-            const support = await makeClientWithSupportUser()
-            const where = { organization: { id: organization.id } }
-            const { sum } = await sumPaymentsByTestClient(support, where)
+
+    describe('check correctness of arguments', () => {
+
+        test('throw error if neither paymentsWhere or paymentsFilesWhere was passed', async () => {
+            await expectToThrowGQLErrorToResult(async () => {
+                await sumPaymentsByTestClient(admin)
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'WRONG_VALUE',
+                message: 'You must specify one of two where inputs: PaymentWhereInput or PaymentsFileWhereInput',
+            })
+        })
+
+        test('throw error if paymentsWhere does not have organization in query', async () => {
+            await expectToThrowGQLErrorToResult(async () => {
+                await sumPaymentsByTestClient(admin, { paymentsWhere: {} })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'WRONG_VALUE',
+                message: 'You must specify organization id for PaymentWhereInput',
+            })
+        })
+
+        test('throw error if paymentsFilesWhere does not have context in query', async () => {
+            await expectToThrowGQLErrorToResult(async () => {
+                await sumPaymentsByTestClient(admin, { paymentsFilesWhere: {} })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'WRONG_VALUE',
+                message: 'You must specify context id for PaymentsFileWhereInput',
+            })
+        })
+
+
+    })
+
+    describe('paymentsFiles', () => {
+        test('admin can sum payments files', async () => {
+            const [context] = await createTestAcquiringIntegrationContext(admin, organization, integration)
+            const { sum: manualSum } = await createPaymentsFilesAndGetSum(admin, context)
+            const paymentsFilesWhere = { acquiringContext: { id: context.id } }
+            const { sum } = await sumPaymentsByTestClient(admin, { paymentsFilesWhere })
 
             expect(String(sum)).toEqual(manualSum)
         })
-        test('user with directAccess can sum payments', async () => {
-            const { organization, sum: manualSum } = await createPaymentsAndGetSum(10)
+
+        test('support can sum payments files', async () => {
+            const [context] = await createTestAcquiringIntegrationContext(admin, organization, integration)
+            const { sum: manualSum } = await createPaymentsFilesAndGetSum(admin, context)
+            const paymentsFilesWhere = { acquiringContext: { id: context.id } }
+            const { sum } = await sumPaymentsByTestClient(support, { paymentsFilesWhere })
+
+            expect(String(sum)).toEqual(manualSum)
+        })
+
+        test('user with directAccess can sum payments files', async () => {
+            const [context] = await createTestAcquiringIntegrationContext(admin, organization, integration)
+            const { sum: manualSum } = await createPaymentsFilesAndGetSum(admin, context, 10)
 
             const support = await makeClientWithSupportUser()
             const serviceUserClient = await makeClientWithServiceUser()
             const [userRightsSet] = await createTestUserRightsSet(support, { canExecute_allPaymentsSum: true })
             await updateTestUser(support, serviceUserClient.user.id, { rightsSet: { connect: { id: userRightsSet.id } } })
 
-            const where = { organization: { id: organization.id } }
-            const { sum } = await sumPaymentsByTestClient(serviceUserClient, where)
+            const paymentsFilesWhere = { acquiringContext: { id: context.id } }
+            const { sum } = await sumPaymentsByTestClient(serviceUserClient, { paymentsFilesWhere })
 
             expect(String(sum)).toEqual(manualSum)
         })
-        test('employee with canReadPayments can sum payments', async () => {
-            const { client: admin, organization, sum: manualSum } = await createPaymentsAndGetSum(10)
+
+        test('employee with canReadPayments can sum payments files', async () => {
+            const [context] = await createTestAcquiringIntegrationContext(admin, organization, integration)
+            const { sum: manualSum } = await createPaymentsFilesAndGetSum(admin, context, 10)
             const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
                 canReadPayments: true,
             })
             const employeeClient = await makeClientWithNewRegisteredAndLoggedInUser()
             await createTestOrganizationEmployee(admin, organization, employeeClient.user, role)
-            const where = { organization: { id: organization.id } }
-            const { sum } = await sumPaymentsByTestClient(employeeClient, where)
+            const paymentsFilesWhere = { acquiringContext: { id: context.id } }
+            const { sum } = await sumPaymentsByTestClient(employeeClient, { paymentsFilesWhere })
 
             expect(String(sum)).toEqual(manualSum)
         })
-        test('employee without canReadPayments cant sum payments', async () => {
-            const { admin, billingReceipts, acquiringContext, organization } = await makePayer()
+
+        test('employee without canReadPayments can\'t sum payments', async () => {
             const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
                 canReadPayments: false,
             })
             const employeeClient = await makeClientWithNewRegisteredAndLoggedInUser()
             await createTestOrganizationEmployee(admin, organization, employeeClient.user, role)
+            await createTestPaymentsFile(admin, context)
+            const paymentsFilesWhere = { acquiringContext: { id: context.id } }
 
-            await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
-
-            const where = { organization: { id: organization.id } }
-            // TODO(pahaz): DOMA-10368 use expectToThrowAccessDenied
-            await catchErrorFrom(async () => {
-                await sumPaymentsByTestClient(employeeClient, where)
-            }, ({ errors }) => {
-                expect(errors).toMatchObject([{
-                    'message': 'You do not have access to this resource',
-                    'name': 'AccessDeniedError',
-                    'path': ['result'],
-                    'data': {
-                        'type': 'query',
-                        'target': '_allPaymentsSum',
-                    },
-                }])
+            await expectToThrowAccessDeniedErrorToResult(async () => {
+                await sumPaymentsByTestClient(employeeClient, { paymentsFilesWhere })
             })
         })
         test('anonymous cant sum payments', async () => {
-            const { admin, billingReceipts, acquiringContext, organization } = await makePayer()
-            const anonymous = await makeClient()
-            await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
-
-            const where = { organization: { id: organization.id } }
+            const paymentsFilesWhere = { acquiringContext: { id: context.id } }
             await expectToThrowAuthenticationError(async () => {
-                await sumPaymentsByTestClient(anonymous, where)
+                await sumPaymentsByTestClient(anonymous, { paymentsFilesWhere })
             }, 'result')
         })
     })

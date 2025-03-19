@@ -59,8 +59,8 @@ const GENERATE_PAYMENT_LINK_QUERY = gql`
 
 
 const SUM_PAYMENTS_QUERY = gql`
-    query _allPaymentsSum ($where: PaymentWhereInput!) {
-        result: _allPaymentsSum(where: $where) { sum }
+    query _allPaymentsSum ($data: PaymentsSumInput!) {
+        result: _allPaymentsSum(data: $data) { sum }
     }
 `
 
