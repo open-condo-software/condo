@@ -483,7 +483,6 @@ export type UpdateIncidentMutation = { __typename?: 'Mutation', incident?: { __t
 
 export type GetIncidentChangesByIncidentIdQueryVariables = Types.Exact<{
   incidentId: Types.Scalars['ID']['input'];
-  sortBy?: Types.InputMaybe<Array<Types.SortIncidentChangesBy> | Types.SortIncidentChangesBy>;
 }>;
 
 

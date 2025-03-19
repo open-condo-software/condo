@@ -3,6 +3,10 @@ import {
     useGetIncidentClassifierIncidentByIncidentIdQuery,
     useGetIncidentPropertiesByIncidentIdQuery,
     useUpdateIncidentMutation,
+    GetIncidentByIdDocument,
+    GetIncidentClassifierIncidentByIncidentIdDocument,
+    GetIncidentPropertiesByIncidentIdDocument,
+    GetIncidentChangesByIncidentIdDocument,
 } from '@app/condo/gql'
 import dayjs from 'dayjs'
 import { useRouter } from 'next/router'
@@ -16,6 +20,8 @@ import { ActionBar, Button } from '@open-condo/ui'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 
 import { BaseIncidentForm, BaseIncidentFormProps } from './BaseIncidentForm'
+
+import { SortIncidentChangesBy } from '../../../../schema'
 
 
 export interface IUpdateIncidentForm {
@@ -108,6 +114,12 @@ export const UpdateIncidentForm: React.FC<IUpdateIncidentForm> = (props) => {
 
     const [updateIncident] = useUpdateIncidentMutation({
         onCompleted: async () => await push(`/incident/${[incidentId]}`),
+        refetchQueries: [
+            { query: GetIncidentByIdDocument, variables: { incidentId } },
+            { query: GetIncidentClassifierIncidentByIncidentIdDocument, variables: { incidentId } },
+            { query: GetIncidentPropertiesByIncidentIdDocument, variables: { incidentId } },
+            { query: GetIncidentChangesByIncidentIdDocument, variables: { incidentId } },
+        ],
     })
     const action: BaseIncidentFormProps['action'] = useCallback(
         async (values) => await updateIncident({

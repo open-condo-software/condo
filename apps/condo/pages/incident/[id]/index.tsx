@@ -388,7 +388,6 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
     } = useGetIncidentChangesByIncidentIdQuery({
         variables: {
             incidentId: incident.id,
-            sortBy: [SortIncidentChangesBy.CreatedAtDesc],
         },
         skip: !incident.id || !persistor,
     })
