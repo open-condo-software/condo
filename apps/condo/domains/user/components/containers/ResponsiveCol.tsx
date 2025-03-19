@@ -11,7 +11,7 @@ export const ResponsiveCol: React.FC<ResponsiveColProps> = (props) => {
     const {
         style,
         children,
-        desktopWidth = '320px',
+        desktopWidth = '324px',
         mobileWidth = '600px',
         ...otherProps
     } = props

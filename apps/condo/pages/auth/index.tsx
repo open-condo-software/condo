@@ -38,7 +38,7 @@ const AuthPage: PageComponentType = () => {
         <>
             <Head><title>{SignInTitleMsg}</title></Head>
             <Row justify='center' gutter={[0, 40]}>
-                <ResponsiveCol desktopWidth={350}>
+                <ResponsiveCol desktopWidth='350px'>
                     <Row gutter={[0, 40]}>
                         <Col span={24}>
                             <Typography.Title level={2}>
