@@ -20,7 +20,8 @@ import { Loader } from '../Loader'
 
 export type GraphQlSearchInputOption = {
     value: string
-    text: string
+    text: string | React.ReactNode
+    title?: string
     data?: any
 }
 
@@ -131,7 +132,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
     [NotFoundMessage, isInitialLoading, isLoadingMore, isSearchLoading, propsNotFoundContent])
 
     const renderOption: RenderOptionFunc = useCallback((option, index) => {
-        let optionLabel: JSX.Element | string = option.text
+        let optionLabel: React.ReactNode | string = option.text
 
         if (formatLabel) {
             optionLabel = formatLabel(option)
@@ -139,9 +140,11 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         const value = ['string', 'number'].includes(typeof option.value) ? option.value : JSON.stringify(option)
         const key = keyField === 'value' ? value : option[keyField]
 
+        const title = option.title || (typeof option.text === 'string' ? option.text : undefined)
+
         return (
-            <Select.Option id={index} key={key} value={value} title={option.text} data-cy='search-input--option'>
-                <Typography.Text title={option.text} disabled={disabled}>
+            <Select.Option id={index} key={key} value={value} title={title} data-cy='search-input--option'>
+                <Typography.Text title={title} disabled={disabled}>
                     {optionLabel}
                 </Typography.Text>
             </Select.Option>
