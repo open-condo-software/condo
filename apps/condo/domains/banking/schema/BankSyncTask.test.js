@@ -825,13 +825,15 @@ describe('BankSyncTask', () => {
         it('reuses existing BankIntegrationOrganizationContext of the same integration', async () => {
             const [organization] = await createTestOrganization(adminClient)
 
-            await createTestBankSyncTask(adminClient, organization, {
+            const [firstTask] = await createTestBankSyncTask(adminClient, organization, {
                 file: new UploadingFile(pathToCorrectFile),
             })
 
             let obj
 
             await waitFor(async () => {
+                const updatedFirstTask = await BankSyncTask.getOne(adminClient, { id: firstTask.id })
+                expect(updatedFirstTask.status).toBe(BANK_SYNC_TASK_STATUS.COMPLETED)
                 obj = await BankIntegrationOrganizationContext.getOne(adminClient, {
                     organization: { id: organization.id },
                     enabled: true,
