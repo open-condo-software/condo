@@ -149,7 +149,6 @@ export const CallRecordModal = ({ selectedCallRecordFragment, setSelectedCallRec
     const organizationId = get(callRecord, 'organization.id')
     const Title = `${callRecord.isIncomingCall ? IncomingCallMessage : OutgoingCallMessage} ${CallMessage}`
     const clientName = get(ticket, 'clientName') || EmptyClientMessage
-    const property = get(ticket, 'property') || EmptyAddressMessage
 
     return (
         <Modal
@@ -175,7 +174,11 @@ export const CallRecordModal = ({ selectedCallRecordFragment, setSelectedCallRec
                             <Space size={12} direction='vertical'>
                                 <Typography.Title level={4}>{clientName}</Typography.Title>
                                 <Typography.Paragraph size='medium'>
-                                    {getAddressRender(property, null, null, true)}
+                                    {
+                                        ticket?.property ?
+                                            getAddressRender(ticket?.property, null, null, true) :
+                                            EmptyAddressMessage
+                                    }
                                 </Typography.Paragraph>
                             </Space>
                         </Col>
