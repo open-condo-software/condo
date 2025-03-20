@@ -31,11 +31,8 @@ const INPUT_LAYOUT_PROPS = {
 
 const RESET_PASSWORD_URL = '/auth/forgot'
 
-type UserProfileFormProps = {
-    showResetPassword?: boolean
-}
 
-export const UserProfileForm: React.FC<UserProfileFormProps> = ({ showResetPassword = true }) => {
+export const UserProfileForm: React.FC = () => {
     const intl = useIntl()
     const router = useRouter()
     const FullNameLabel = intl.formatMessage({ id: 'pages.auth.register.field.Name' })
@@ -137,19 +134,15 @@ export const UserProfileForm: React.FC<UserProfileFormProps> = ({ showResetPassw
                                         </Form.Item>
                                     </Col>
 
-                                    {
-                                        showResetPassword && (
-                                            <Col span={24}>
-                                                <Form.Item {...INPUT_LAYOUT_PROPS} labelAlign='left' label={PasswordLabel}>
-                                                    <Link href={RESET_PASSWORD_URL}>
-                                                        <Typography.Link href={RESET_PASSWORD_URL}>
-                                                            {ChangePasswordLabel}
-                                                        </Typography.Link>
-                                                    </Link>
-                                                </Form.Item>
-                                            </Col>
-                                        )
-                                    }
+                                    <Col span={24}>
+                                        <Form.Item {...INPUT_LAYOUT_PROPS} labelAlign='left' label={PasswordLabel}>
+                                            <Link href={RESET_PASSWORD_URL}>
+                                                <Typography.Link href={RESET_PASSWORD_URL}>
+                                                    {ChangePasswordLabel}
+                                                </Typography.Link>
+                                            </Link>
+                                        </Form.Item>
+                                    </Col>
 
                                     <Col span={24}>
                                         <ActionBar
