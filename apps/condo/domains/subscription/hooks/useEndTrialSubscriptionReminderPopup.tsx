@@ -4,17 +4,22 @@ import { Col, Row } from 'antd'
 import dayjs from 'dayjs'
 import cookie from 'js-cookie'
 import get from 'lodash/get'
+import getConfig from 'next/config'
 import React, { useState, Dispatch, SetStateAction, useEffect } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { FormattedMessage } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Modal, Button, Typography } from '@open-condo/ui'
 
-import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
+import { SUBSCRIPTION } from '@condo/domains/common/constants/featureflags'
 import { fontSizes } from '@condo/domains/common/constants/style'
 
+
+
+const { canEnableSubscriptions } = getConfig()
 
 interface IEndTrialSubscriptionReminderPopup {
     EndTrialSubscriptionReminderPopup: React.FC
@@ -34,7 +39,9 @@ export const useEndTrialSubscriptionReminderPopup = (): IEndTrialSubscriptionRem
     const GratitudeMessage = intl.formatMessage({ id: 'subscription.modal.newClient.gratitude' })
     const CompleteActionMessage = intl.formatMessage({ id: 'subscription.modal.complete.action' })
 
-    const hasSubscriptionFeature = hasFeature('subscription')
+    const { useFlag } = useFeatureFlags()
+
+    const hasSubscriptionFeature = useFlag(SUBSCRIPTION) && canEnableSubscriptions
 
     const [isEndTrialSubscriptionReminderPopupVisible, setIsSEndTrialSubscriptionReminderPopupVisible] = useState<boolean>(false)
 
