@@ -3,10 +3,10 @@ import { css, jsx } from '@emotion/react'
 import { Dropdown, DropDownProps, Menu, MenuProps } from 'antd'
 import React, { useMemo } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 
 import { Button } from '@condo/domains/common/components/Button'
-import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import {
     FlatIcon,
     FloorIcon,
@@ -14,7 +14,10 @@ import {
     ParkingIcon, ParkingPlaceIcon,
     SectionIcon,
 } from '@condo/domains/common/components/icons/PropertyMapIcons'
+import { ADD_SECTION_FLOOR } from '@condo/domains/common/constants/featureflags'
 import { colors } from '@condo/domains/common/constants/style'
+
+
 
 import { MapEdit } from './MapConstructor'
 
@@ -74,6 +77,9 @@ interface IBuildingTopModalProps {
 
 const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ menuClick, mapEdit }) => {
     const intl = useIntl()
+    const { useFlag } = useFeatureFlags()
+    const addSectionFloorDisabled = !useFlag(ADD_SECTION_FLOOR) || mapEdit.isEmptySections
+
     const AddElementTitle = intl.formatMessage({ id: 'pages.condo.property.menu.MenuPlaceholder' })
     const AddSection = intl.formatMessage({ id: 'pages.condo.property.select.option.section' })
     const AddUnit = intl.formatMessage({ id: 'pages.condo.property.select.option.unit' })
@@ -82,8 +88,6 @@ const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ menuClick, mapE
     const AddInterFloorRoom = intl.formatMessage({ id: 'pages.condo.property.select.option.interfloorroom' })
     const AddParkingFloor = intl.formatMessage({ id: 'pages.condo.property.select.option.parkingFloor' })
     const AddParkingPlace = intl.formatMessage({ id: 'pages.condo.property.select.option.parkingPlace' })
-
-    const addSectionFloorDisabled = mapEdit.isEmptySections || !hasFeature('add_section_floor')
 
     const menuOverlay = useMemo(() => (
         <Menu css={MenuCss} onClick={menuClick} data-cy='property-map__edit-menu-container'>

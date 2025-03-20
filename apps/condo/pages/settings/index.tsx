@@ -1,8 +1,10 @@
 import { Typography } from 'antd'
 import get from 'lodash/get'
+import getConfig from 'next/config'
 import Head from 'next/head'
 import React, { CSSProperties, useMemo } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { TabItem } from '@open-condo/ui'
@@ -10,10 +12,10 @@ import { TabItem } from '@open-condo/ui'
 import { AcquiringIntegrationContext } from '@condo/domains/acquiring/utils/clientSchema'
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
-import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import { ControlRoomSettingsContent } from '@condo/domains/common/components/settings/ControlRoomSettingsContent'
 import { MobileFeatureConfigContent } from '@condo/domains/common/components/settings/MobileFeatureConfigContent'
 import { SettingsPageContent } from '@condo/domains/common/components/settings/SettingsPageContent'
+import { SUBSCRIPTION } from '@condo/domains/common/constants/featureflags'
 import {
     SETTINGS_TAB_CONTACT_ROLES,
     SETTINGS_TAB_PAYMENT_DETAILS,
@@ -39,6 +41,8 @@ import { SubscriptionPane } from '@condo/domains/subscription/components/Subscri
 import MarketplaceSettingsPage from './marketplace'
 
 
+const { canEnableSubscriptions } = getConfig()
+
 const TITLE_STYLES: CSSProperties = { margin: 0 }
 
 const ALWAYS_AVAILABLE_TABS = []
@@ -54,7 +58,9 @@ const SettingsPage: PageComponentType = () => {
     const MobileFeatureConfigTitle = intl.formatMessage({ id: 'pages.condo.settings.barItem.MobileFeatureConfig' })
     const MarketSettingTitle = intl.formatMessage({ id: 'global.section.marketplace' })
 
-    const hasSubscriptionFeature = hasFeature('subscription')
+    const { useFlag } = useFeatureFlags()
+
+    const hasSubscriptionFeature = useFlag(SUBSCRIPTION) && canEnableSubscriptions
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'], null)

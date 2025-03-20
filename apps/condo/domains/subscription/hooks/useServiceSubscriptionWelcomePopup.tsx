@@ -3,16 +3,22 @@ import styled from '@emotion/styled'
 import { Col, Row } from 'antd'
 import dayjs from 'dayjs'
 import cookie from 'js-cookie'
+import getConfig from 'next/config'
 import React, { useState, Dispatch, SetStateAction, useEffect } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { FormattedMessage } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Modal, Typography, Button } from '@open-condo/ui'
 
-import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
+import { SUBSCRIPTION } from '@condo/domains/common/constants/featureflags'
 import { fontSizes } from '@condo/domains/common/constants/style'
+
+
+
+const { canEnableSubscriptions } = getConfig()
 
 
 interface IServiceSubscriptionWelcomePopup {
@@ -36,7 +42,9 @@ export const useServiceSubscriptionWelcomePopup = (): IServiceSubscriptionWelcom
     const CurrentTariffMessage = intl.formatMessage({ id: 'subscription.modal.newClient.currentTariff' })
     const ServiceDisconnectMessage = intl.formatMessage({ id: 'subscription.modal.newClient.serviceDisconnect' })
 
-    const hasSubscriptionFeature = hasFeature('subscription')
+    const { useFlag } = useFeatureFlags()
+
+    const hasSubscriptionFeature = useFlag(SUBSCRIPTION) && canEnableSubscriptions
 
     const { organization } = useOrganization()
     const { user } = useAuth()

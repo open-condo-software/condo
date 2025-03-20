@@ -32,7 +32,7 @@ const apolloGraphQLUrl = `${serverUrl}/admin/api`
 const addressServiceUrl = conf['ADDRESS_SERVICE_URL']
 const mapApiKey = conf['MAP_API_KEY']
 const behaviorRecorder = { 'plerdy': conf['BEHAVIOR_RECORDER_PLERDY_CONFIG'] }
-const featureFlagsConfig = conf['FEATURE_FLAGS_CONFIG']
+const canEnableSubscriptions = conf['CAN_ENABLE_SUBSCRIPTIONS'] === 'true'
 const docsConfig = { 'isGraphqlPlaygroundEnabled': conf['ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND'] === 'true' }
 // TODO(DOMA-8696): Update next.config in cc, eps, miniapp
 const hCaptcha = conf['HCAPTCHA_CONFIG'] && JSON.parse(conf['HCAPTCHA_CONFIG'])
@@ -80,10 +80,10 @@ let nextConfig = withTM(withLess(withCSS({
         apolloGraphQLUrl,
         addressServiceUrl,
         mapApiKey,
+        canEnableSubscriptions,
         hCaptcha,
         disableCaptcha,
         behaviorRecorder,
-        featureFlagsConfig,
         docsConfig,
         yandexMetrikaID,
         defaultLocale,

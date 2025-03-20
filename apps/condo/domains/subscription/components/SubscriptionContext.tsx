@@ -6,11 +6,13 @@ import getConfig from 'next/config'
 import Router, { useRouter } from 'next/router'
 import React, { useContext, useEffect, useState, createContext } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Modal, Button, Typography } from '@open-condo/ui'
 
-import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
+
+import { SUBSCRIPTION } from '@condo/domains/common/constants/featureflags'
 
 import { isExpired } from '../utils/helpers'
 
@@ -32,7 +34,9 @@ export const useServiceSubscriptionContext = () => useContext(SubscriptionContex
 const useServiceSubscriptionLoader = (): ISubscriptionContext => {
     const { organization, isLoading } = useOrganization()
 
-    const hasSubscriptionFeature = hasFeature('subscription')
+    const { useFlag } = useFeatureFlags()
+
+    const hasSubscriptionFeature = useFlag(SUBSCRIPTION) && canEnableSubscriptions
 
     const { data } = useGetServiceSubscriptionQuery({
         variables: { organizationId: organization?.id || null },
@@ -58,7 +62,7 @@ const useServiceSubscriptionLoader = (): ISubscriptionContext => {
 }
 
 const {
-    publicRuntimeConfig: { HelpRequisites: { support_email: SUPPORT_EMAIL = null } },
+    publicRuntimeConfig: { canEnableSubscriptions, HelpRequisites: { support_email: SUPPORT_EMAIL = null } },
 } = getConfig()
 
 const ExpiredModal: React.FC = () => {
@@ -123,7 +127,9 @@ const SubscriptionContextProvider: React.FC<ISubscriptionProviderProps> = ({ chi
 }
 
 export const SubscriptionProvider: React.FC<ISubscriptionProviderProps> = ({ children }) => {
-    const hasSubscriptionFeature = hasFeature('subscription')
+    const { useFlag } = useFeatureFlags()
+
+    const hasSubscriptionFeature = useFlag(SUBSCRIPTION) && canEnableSubscriptions
 
     if (hasSubscriptionFeature) {
         return (

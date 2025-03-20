@@ -17,7 +17,6 @@ import { ActionBar, Button, Select, Tooltip, Typography } from '@open-condo/ui'
 
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
 import { PageContent, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
-import { FeatureFlagsController } from '@condo/domains/common/components/containers/FeatureFlag'
 import { PageComponentType } from '@condo/domains/common/types'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
@@ -109,7 +108,6 @@ export const UserInfoPageContent: React.FC<UserInfoPageContentProps> = ({ useAll
             <Head>
                 <title>{name}</title>
             </Head>
-            <FeatureFlagsController/>
             <PageWrapper>
                 <PageContent>
                     <Row gutter={ROW_GUTTER_BIG}>

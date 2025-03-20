@@ -1,7 +1,9 @@
 import getConfig from 'next/config'
 import { useState } from 'react'
 
-import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
+
+import { CHECK_TLS_CLIENT_CERT } from '@condo/domains/common/constants/featureflags'
 
 const {
     publicRuntimeConfig,
@@ -20,11 +22,14 @@ interface IUseCheckSSLClientCert {
 export const useCheckTLSClientCert = ({ onSuccess, onFail }: UseCheckSSLClientCertProps): IUseCheckSSLClientCert => {
     const [loading, setLoading] = useState(false)
 
+    const { useFlag } = useFeatureFlags()
+    const tlsCheckEnabled = useFlag(CHECK_TLS_CLIENT_CERT)
+
     const { checkTLSClientCertConfig: { verificationUrl } } = publicRuntimeConfig
 
     async function checkSSLClientCert () {
         // Assume also that feature is disabled in case when environment variable is not specified
-        if (!verificationUrl || !hasFeature('check_tls_client_cert_config')) {
+        if (!tlsCheckEnabled || !verificationUrl) {
             return await onSuccess()
         }
 
