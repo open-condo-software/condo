@@ -417,7 +417,7 @@ const Invoice = new GQLListSchema('Invoice', {
             access: { create: false, read: true, update: false },
         },
 
-        amountDistribution: AMOUNT_DISTRIBUTION_FIELD,
+        amountDistribution: AMOUNT_DISTRIBUTION_FIELD(),
     },
     hooks: {
         validateInput: async ({ resolvedData, operation, existingItem, context, originalInput }) => {
