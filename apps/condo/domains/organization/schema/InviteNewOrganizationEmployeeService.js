@@ -244,7 +244,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                     meta: {
                         serverUrl,
                         organizationName,
-                        isRegistration: !isHolding && shouldRegisterUser,
+                        isRegistration: shouldRegisterUser,
                         dv: 1,
                     },
                     sender: data.sender,
