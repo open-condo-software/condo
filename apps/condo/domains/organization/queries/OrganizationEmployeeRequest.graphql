@@ -15,3 +15,19 @@ query getLastUserOrganizationEmployeeRequest ($userId: ID!) {
         retries
     }
 }
+
+query getLastActiveOrganizationEmployeeRequestByTin ($userId: ID!, $tin: String!) {
+    requests: allOrganizationEmployeeRequests (
+        where: {
+            user: { id: $userId }
+            organizationTin: $tin
+            isAccepted: false
+            isRejected: false
+        }
+        first: 1
+        sortBy: [createdAt_DESC]
+    ) {
+        id
+        organizationName
+    }
+}
