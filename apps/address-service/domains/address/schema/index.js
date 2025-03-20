@@ -3,6 +3,7 @@
  * In most cases you should not change it by hands. And please don't remove `AUTOGENERATE MARKER`s
  */
 
+const { ActualizeAddressesService } = require('./ActualizeAddressesService')
 const { Address } = require('./Address')
 const { AddressInjection } = require('./AddressInjection')
 const { AddressSource } = require('./AddressSource')
@@ -12,5 +13,6 @@ module.exports = {
     Address,
     AddressInjection,
     AddressSource,
+    ActualizeAddressesService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

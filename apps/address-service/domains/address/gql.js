@@ -4,6 +4,8 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
+const gql = require('graphql-tag')
+
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
@@ -17,11 +19,18 @@ const AddressInjection = generateGqlQueries('AddressInjection', ADDRESS_INJECTIO
 const ADDRESS_SOURCE_FIELDS = `{ source address { id key address } ${COMMON_FIELDS} }`
 const AddressSource = generateGqlQueries('AddressSource', ADDRESS_SOURCE_FIELDS)
 
+const ACTUALIZE_ADDRESSES_MUTATION = gql`
+    mutation actualizeAddresses ($data: ActualizeAddressesInput!) {
+        result: actualizeAddresses(data: $data) { successIds failures { addressId errorMessage } }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     Address,
     AddressInjection,
     AddressSource,
+    ACTUALIZE_ADDRESSES_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

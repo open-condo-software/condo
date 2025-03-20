@@ -1,12 +1,18 @@
 const { prepareAppEnvLocalAdminUsers, prepareCondoAppOidcConfig, updateAppEnvFile } = require('@open-condo/cli')
 
 async function main () {
-    // 1) register oidc url in condo!
+    // register oidc url in condo!
     const appName = 'address-service'
     const oidcConf = await prepareCondoAppOidcConfig(appName)
     await updateAppEnvFile(appName, 'OIDC_CONFIG', JSON.stringify(oidcConf))
-    // 2) add local admin user!
+
+    // add local admin user!
     await prepareAppEnvLocalAdminUsers(appName)
+
+    await updateAppEnvFile(appName, 'PROVIDER', 'dadata', { commentAbove: 'Possible values:\n- dadata (need DADATA_SUGGESTIONS)\n- google (need GOOGLE_API_KEY)' } )
+    await updateAppEnvFile(appName, 'DADATA_SUGGESTIONS', '{"url": "https://suggestions.dadata.ru/suggestions/api/4_1/rs", "token": "<your token here>"}', { commentAbove: 'need for PROVIDER=dadata' } )
+    await updateAppEnvFile(appName, 'GOOGLE_API_KEY', '<google api key>', { commentAbove: 'need for PROVIDER=google\nsee:\n- https://console.cloud.google.com/google/maps-apis/credentials\n- https://code.google.com/apis/console/' } )
+
     console.log('done')
 }
 
