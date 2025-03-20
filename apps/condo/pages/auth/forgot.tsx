@@ -106,8 +106,8 @@ function ResetPageView () {
         }
     }, [SMSTooManyRequestsErrorMessage, executeCaptcha, form, isLoading, setPhone, setToken, startConfirmPhoneActionMutation])
 
-    const onReset = useCallback(async () => {
-        await router.push('/')
+    const onReset = useCallback(() => {
+        router.back()
     }, [])
 
     if (step === 'validatePhone') {
