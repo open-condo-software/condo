@@ -853,10 +853,9 @@ describe('BankSyncTask', () => {
             })
 
             await waitFor(async () => {
-                // Before getting records, produced by worker operation we should wait until it will be completed
-                // Otherwise, checks below will use records, produced by previous worker operation
                 const secondUpdatedTask = await BankSyncTask.getOne(adminClient, { id: secondTask.id })
-                expect(secondUpdatedTask.status).toEqual(BANK_SYNC_TASK_STATUS.COMPLETED)
+                // 2nd task will in error status due to all transactions are duplicated
+                expect(secondUpdatedTask.status).toEqual(BANK_SYNC_TASK_STATUS.ERROR)
             })
 
             const obj2 = await BankIntegrationOrganizationContext.getOne(adminClient, {
