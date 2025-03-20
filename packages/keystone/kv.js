@@ -63,7 +63,13 @@ function getKVClient (name = 'default', purpose = 'regular', opts = { kvOptions:
     if (!KV_CLIENTS[clientKey]) {
         const kvEnvName = `${name.toLowerCase()}_KV_URL`
         const redisEnvName = `${name.toUpperCase()}_REDIS_URL`
-        const kvUrl = conf[kvEnvName] || conf[redisEnvName] || conf.KV_URL || conf.REDIS_URL
+        let kvUrl = conf[kvEnvName] || conf[redisEnvName] || conf.KV_URL || conf.REDIS_URL
+        try {
+            kvUrl = JSON.parse(kvUrl)
+        } catch (err) {
+            /* NOTE: skip that error is legit because your KV_URL might be single instance format, for example redis://127.0.0.1:6379.
+             That will be handled below */
+        }
 
         if (!kvUrl) throw new Error(`No KV_URL or REDIS_URL env! You need to set ${kvEnvName} / KV_URL / ${redisEnvName} / REDIS_URL env`)
 
@@ -73,7 +79,7 @@ function getKVClient (name = 'default', purpose = 'regular', opts = { kvOptions:
         const clientOptions = { connectionName: clientKey, ...opts.kvOptions }
         if (!opts.ignorePrefix) clientOptions['keyPrefix'] = PREFIX
 
-        const client = new IORedis(kvUrl, clientOptions)
+        const client = typeof kvUrl === 'string' ? new IORedis(kvUrl, clientOptions) : new IORedis.Cluster(kvUrl, clientOptions)
 
         client.on('connect', () => logger.info({ msg: 'connect', clientKey }))
         client.on('close', () => logger.info({ msg: 'close', clientKey }))
