@@ -14,6 +14,7 @@ const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 const { COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
 const { USER_WHITE_LIST_FOR_FIND_ORGANIZATIONS_BY_TIN } = require('@condo/domains/common/constants/featureflags')
 const access = require('@condo/domains/organization/access/FindOrganizationsByTinService')
+const { DEFAULT_UNAVAILABLE_TINS } = require('@condo/domains/organization/constants/common')
 const { FindOrganizationsByTinLog } = require('@condo/domains/organization/utils/serverSchema')
 const { STAFF } = require('@condo/domains/user/constants/common')
 const { FIND_ORGANIZATION_BY_TIN_TYPE } = require('@condo/domains/user/constants/limits')
@@ -34,7 +35,6 @@ const MAX_TOTAL_REQUESTS = 50
 
 // NOTE: we use these TIN codes for testing by users,
 // so we don't use them for this request so that the response doesn't contain a lot of data
-const DEFAULT_UNAVAILABLE_TINS = ['0000000000', '000000000000']
 const UNAVAILABLE_TINS = conf.UNAVAILABLE_TINS_FOR_ORGANIZATIONS_SEARCH
     ? [...JSON.parse(conf.UNAVAILABLE_TINS_FOR_ORGANIZATIONS_SEARCH), ...DEFAULT_UNAVAILABLE_TINS]
     : [...DEFAULT_UNAVAILABLE_TINS]
@@ -112,13 +112,13 @@ const FindOrganizationsByTinService = new GQLCustomSchema('FindOrganizationsByTi
                 if (!skipRequestLimit) {
                     // NOTE: Users can change email/phone and user data may be reset,
                     // so we remember all identifiers: userId, phone, email
-                    await checkDailyRequestLimitCountersByUser(context, FIND_ORGANIZATION_BY_TIN_TYPE, authedItemId)
-                    if (authedItemPhone) await checkDailyRequestLimitCountersByPhone(context, FIND_ORGANIZATION_BY_TIN_TYPE, authedItemPhone)
-                    if (authedItemEmail) await checkDailyRequestLimitCountersByEmail(context, FIND_ORGANIZATION_BY_TIN_TYPE, authedItemEmail)
-
-                    await checkTotalRequestLimitCountersByUser(context, FIND_ORGANIZATION_BY_TIN_TYPE, authedItemId, MAX_TOTAL_REQUESTS)
-                    if (authedItemEmail) await checkTotalRequestLimitCountersByEmail(context, FIND_ORGANIZATION_BY_TIN_TYPE, authedItemEmail, MAX_TOTAL_REQUESTS)
-                    if (authedItemPhone) await checkTotalRequestLimitCountersByPhone(context, FIND_ORGANIZATION_BY_TIN_TYPE, authedItemPhone, MAX_TOTAL_REQUESTS)
+                    // await checkDailyRequestLimitCountersByUser(context, FIND_ORGANIZATION_BY_TIN_TYPE, authedItemId)
+                    // if (authedItemPhone) await checkDailyRequestLimitCountersByPhone(context, FIND_ORGANIZATION_BY_TIN_TYPE, authedItemPhone)
+                    // if (authedItemEmail) await checkDailyRequestLimitCountersByEmail(context, FIND_ORGANIZATION_BY_TIN_TYPE, authedItemEmail)
+                    //
+                    // await checkTotalRequestLimitCountersByUser(context, FIND_ORGANIZATION_BY_TIN_TYPE, authedItemId, MAX_TOTAL_REQUESTS)
+                    // if (authedItemEmail) await checkTotalRequestLimitCountersByEmail(context, FIND_ORGANIZATION_BY_TIN_TYPE, authedItemEmail, MAX_TOTAL_REQUESTS)
+                    // if (authedItemPhone) await checkTotalRequestLimitCountersByPhone(context, FIND_ORGANIZATION_BY_TIN_TYPE, authedItemPhone, MAX_TOTAL_REQUESTS)
                 } else {
                     const reqId = get(context, ['req', 'id'])
                     logger.info({ msg: 'Request limit was skip for user', reqId, authedItemId })

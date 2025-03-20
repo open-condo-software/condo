@@ -7,12 +7,13 @@ import {
 import { OrganizationTypeType } from '@app/condo/schema'
 import pickBy from 'lodash/pickBy'
 import Head from 'next/head'
+import { useRouter } from 'next/router'
 import React, { ReactNode, useCallback, useMemo, useState } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
-import { Alert, Button, Space, Typography } from '@open-condo/ui'
+import { Alert, Button, Modal, Space, Typography } from '@open-condo/ui'
 
 import { LayoutWithPoster } from '@condo/domains/common/components/containers/LayoutWithPoster'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
@@ -32,11 +33,13 @@ type OrganizationExistenceRequiredProps = {
 }
 
 export const OrganizationExistenceRequired: React.FC<OrganizationExistenceRequiredProps> = ({ children }) => {
+    const router = useRouter()
     const { persistor } = useCachePersistor()
-    const { user, isLoading: userLoading } = useAuth()
+    const { user, isLoading: userLoading, signOut } = useAuth()
     const { organization, isLoading: organizationLoading, selectEmployee } = useOrganization()
 
     const [showOrganizationForm, setShowOrganizationForm] = useState<boolean>(false)
+    const [isCancelModalOpen, setIsCancelModalOpen] = useState<boolean>(false)
 
     const initialDataLoading = !persistor || userLoading || organizationLoading
 
@@ -82,7 +85,7 @@ export const OrganizationExistenceRequired: React.FC<OrganizationExistenceRequir
         onError,
         skip: skipQueryStatement || employeeExistenceLoading || lastInviteLoading,
     })
-    const lastOrganizationEmployeeRequest = lastOrganizationEmployeeRequestData?.requests?.[0]
+    const lastOrganizationEmployeeRequest = useMemo(() => lastOrganizationEmployeeRequestData?.requests?.[0], [lastOrganizationEmployeeRequestData?.requests])
 
     const [acceptOrRejectInvite] = useAcceptOrRejectOrganizationInviteMutation({ onError })
     const [sendOrganizationEmployeeRequest] = useSendOrganizationEmployeeRequestMutation({ onError })
@@ -119,8 +122,6 @@ export const OrganizationExistenceRequired: React.FC<OrganizationExistenceRequir
         await refetchLastInvite()
     }, [acceptOrRejectInvite, lastInvite?.id, refetchLastInvite, selectEmployee])
 
-    const loading = initialDataLoading || employeeExistenceLoading || lastInviteLoading || lastOrganizationEmployeeRequestLoading
-
     const handleRetryOrganizationEmployeeRequest = useCallback(async () => {
         await sendOrganizationEmployeeRequest({
             variables: {
@@ -135,18 +136,56 @@ export const OrganizationExistenceRequired: React.FC<OrganizationExistenceRequir
         await refetchLastOrganizationEmployeeRequest()
     }, [lastOrganizationEmployeeRequest?.organizationId, refetchLastOrganizationEmployeeRequest, sendOrganizationEmployeeRequest])
 
+    const handleCancelOrganizationCreation = useCallback(async () => {
+        await signOut()
+        // pass next link?
+        await router.push('/auth/signin')
+        setShowOrganizationForm(false)
+    }, [router, signOut])
+
+    const loading = initialDataLoading || employeeExistenceLoading || lastInviteLoading || lastOrganizationEmployeeRequestLoading
+
     // If user has employee => skip this screens
     if (loading || isEmployeeExist || !user || !!organization) {
         return <>{children}</>
     }
 
     let content = (
-        <CreateOrganizationForm
-            onSendOrganizationRequest={async () => {
-                await refetchLastOrganizationEmployeeRequest()
-            }}
-            onFormClose={() => setShowOrganizationForm(false)}
-        />
+        <>
+            <CreateOrganizationForm
+                type='form'
+                onSendOrganizationRequest={async () => {
+                    await refetchLastOrganizationEmployeeRequest()
+                    setShowOrganizationForm(false)
+                }}
+                onOrganizationCreated={() => setShowOrganizationForm(false)}
+                onCancel={() => setIsCancelModalOpen(true)}
+            />
+            <Modal
+                open={isCancelModalOpen}
+                onCancel={() => setIsCancelModalOpen(false)}
+                title='Передумали создавать организацию?'
+                footer={(
+                    <Space size={16} direction='horizontal'>
+                        <Button
+                            type='secondary'
+                            danger
+                            onClick={handleCancelOrganizationCreation}
+                        >
+                            Уйти
+                        </Button>
+                        <Button type='secondary' onClick={() => setIsCancelModalOpen(false)}>
+                            Остаться
+                        </Button>
+                    </Space>
+                )}
+            >
+                <Typography.Text type='secondary'>
+                    Вход на платформу будет доступен только после создания организации. Если вы уйдете с этой страницы
+                    данные об организации не сохраняться.
+                </Typography.Text>
+            </Modal>
+        </>
     )
 
     if (!showOrganizationForm && lastOrganizationEmployeeRequest) {

@@ -1,5 +1,6 @@
 mutation sendOrganizationEmployeeRequest($data: SendOrganizationEmployeeRequestInput!) {
     request: sendOrganizationEmployeeRequest (data: $data) {
         id
+        organizationName
     }
 }
