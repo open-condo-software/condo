@@ -1,22 +1,28 @@
+import { PaymentsFile as IPaymentsFile, SortPaymentsFilesBy } from '@app/condo/schema'
 import { Col, Row } from 'antd'
+import { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox'
 import { Gutter } from 'antd/lib/grid/row'
+import { TableRowSelection } from 'antd/lib/table/interface'
 import dayjs, { Dayjs } from 'dayjs'
+import debounce from 'lodash/debounce'
 import get from 'lodash/get'
-import { useRouter } from 'next/router'
-import React, { useCallback, useState } from 'react'
+import { NextRouter, useRouter } from 'next/router'
+import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
-import { Search } from '@open-condo/icons'
+import { Download, Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { ActionBar, Button, Checkbox } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { PaymentsSumTable } from '@condo/domains/acquiring/components/payments/PaymentsSumTable'
 import { PaymentsSumInfo } from '@condo/domains/acquiring/components/payments/PaymentsTable'
+import useDownloadRegistryFiles from '@condo/domains/acquiring/hooks/useDownloadRegistryFiles'
 import { usePaymentsFilesTableColumns } from '@condo/domains/acquiring/hooks/usePaymentsFilesTableColumns'
 import { usePaymentsFilesTableFilters } from '@condo/domains/acquiring/hooks/usePaymentsFilesTableFilters'
 import usePaymentsSum from '@condo/domains/acquiring/hooks/usePaymentsSum'
 import { PaymentsFile } from '@condo/domains/acquiring/utils/clientSchema'
-import { IPaymentsFilesFilters } from '@condo/domains/acquiring/utils/helpers'
+import { getInitialSelectedRegistryKeys, IPaymentsFilesFilters } from '@condo/domains/acquiring/utils/helpers'
 import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
 import Input from '@condo/domains/common/components/antd/Input'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
@@ -27,20 +33,21 @@ import { useDateRangeSearch } from '@condo/domains/common/hooks/useDateRangeSear
 import { MultipleFilterContextProvider } from '@condo/domains/common/hooks/useMultipleFiltersModal'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
+import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
-
-import type { SortPaymentsFilesBy } from '@app/condo/schema'
 
 
 const SORTABLE_PROPERTIES = ['amount']
 const PAYMENTS_DEFAULT_SORT_BY = ['dateLoad_DESC']
 const DEFAULT_CURRENCY_CODE = 'RUB'
 const DEFAULT_DATE_RANGE: [Dayjs, Dayjs] = [dayjs().subtract(1, 'week'), dayjs()]
+const DEBOUNCE_TIMEOUT = 400
 
 const ROW_GUTTER: [Gutter, Gutter] = [0, 30]
 const TAP_BAR_ROW_GUTTER: [Gutter, Gutter] = [0, 20]
 const SUM_BAR_COL_GUTTER: [Gutter, Gutter] = [40, 0]
 const DATE_PICKER_COL_LAYOUT = { span: 11, offset: 1 }
+const BOTTOM_PADDING_LIKE_ACTION_BAR: CSSProperties = { paddingBottom: '104px' }
 
 
 const PaymentFilesTableContent: React.FC = (): JSX.Element => {
@@ -49,21 +56,24 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
     const StartDateMessage = intl.formatMessage({ id: 'pages.condo.meter.StartDate' })
     const EndDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
     const TotalsSumTitle = intl.formatMessage({ id: 'pages.condo.payments.TotalSum' })
+    const CancelSelectedRegistryMessage = intl.formatMessage({ id: 'global.cancelSelection' })
+    const DownloadRegistriesMessage = intl.formatMessage({ id: 'Download' })
 
     const { acquiringContext, billingContext } = useBillingAndAcquiringContexts()
 
     const { breakpoints } = useLayoutContext()
     const router = useRouter()
     const userOrganization = useOrganization()
+    const organizationId = get(userOrganization, ['organization', 'id'], '')
 
     const { filters, sorters, offset } = parseQuery(router.query)
-
     const currencyCode = get(billingContext, ['integration', 'currencyCode'], DEFAULT_CURRENCY_CODE)
 
     const tableColumns = usePaymentsFilesTableColumns(currencyCode)
-
-    const organizationId = get(userOrganization, ['organization', 'id'], '')
     const queryMetas = usePaymentsFilesTableFilters(organizationId)
+    const [isFilesDownloading, setIsFilesDownloading] = useState(false)
+    const [selectedRegistryKeys, setSelectedRegistryKeys] = useState<string[]>(() => getInitialSelectedRegistryKeys(router))
+    const CountSelectedRegistryMessage = intl.formatMessage({ id: 'ItemsSelectedCount' }, { count: selectedRegistryKeys.length })
 
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(queryMetas, SORTABLE_PROPERTIES)
@@ -83,7 +93,8 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
     const {
         loading,
         count,
-        objs,
+        objs: paymentsFiles,
+        refetch,
     } = PaymentsFile.useObjects({
         where: searchPaymentsFilesQuery,
         sortBy: sortBy as SortPaymentsFilesBy[],
@@ -93,16 +104,82 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
         fetchPolicy: 'network-only',
     })
 
+    const { downloadRegistryFiles } = useDownloadRegistryFiles(refetch)
+    const selectedRowKeysByPage = useMemo(() => {
+        return paymentsFiles.filter(file => selectedRegistryKeys.includes(file.id)).map(file => file.id)
+    }, [paymentsFiles, selectedRegistryKeys])
 
     const { data: sumAllPayments, loading: sumAllPaymentsLoading } = usePaymentsSum({ paymentsFilesWhere: searchPaymentsFilesQuery })
 
-    const [search, handleSearchChange, handleResetSearch] = useSearch<IPaymentsFilesFilters>()
+    const [search, handleSearchChange] = useSearch<IPaymentsFilesFilters>()
     const handleDateChange = useCallback((value) => {
         if (!value) {
             setFiltersAreReset(true)
         }
         setDateRange(value)
     }, [setDateRange])
+
+    const handleResetSelectedRegistry = useCallback(() => {
+        setSelectedRegistryKeys([])
+    }, [])
+
+    const handleDownloadClick = async () => {
+        setIsFilesDownloading(true)
+        await downloadRegistryFiles(selectedRegistryKeys, paymentsFiles)
+        setSelectedRegistryKeys([])
+
+        setIsFilesDownloading(false)
+    }
+
+    const changeQuery = useMemo(() => debounce(async (router: NextRouter, selectedRegistryKeys: string[]) => {
+        await updateQuery(router, { newParameters: { selectedRegistryIds: selectedRegistryKeys } }, {
+            routerAction: 'replace',
+            resetOldParameters: false,
+            shallow: true,
+        })
+    }, DEBOUNCE_TIMEOUT), [])
+
+    const updateSelectedRegistryKeys = useCallback((selectedRegistryKeys: string[]) => {
+        setSelectedRegistryKeys(selectedRegistryKeys)
+        changeQuery(router, selectedRegistryKeys)
+    }, [changeQuery, router])
+
+    const isSelectedAllRowsByPage = !loading && selectedRowKeysByPage.length > 0 && selectedRowKeysByPage.length === paymentsFiles.length
+    const isSelectedSomeRowsByPage = !loading && selectedRowKeysByPage.length > 0 && selectedRowKeysByPage.length < paymentsFiles.length
+
+    const handleSelectAllRowsByPage = useCallback((e: CheckboxChangeEvent) => {
+        const checked = e.target.checked
+        if (checked) {
+            const newSelectedRegistryKeys = paymentsFiles
+                .filter(file => !selectedRowKeysByPage.includes(file.id))
+                .map(file => file.id)
+            updateSelectedRegistryKeys([...selectedRegistryKeys, ...newSelectedRegistryKeys])
+        } else {
+            updateSelectedRegistryKeys(selectedRegistryKeys.filter(key => !selectedRowKeysByPage.includes(key)))
+        }
+    }, [paymentsFiles, updateSelectedRegistryKeys, selectedRegistryKeys, selectedRowKeysByPage])
+
+    const handleSelectRow: (record: IPaymentsFile, checked: boolean) => void = useCallback((record, checked) => {
+        const selectedKey = record.id
+        if (checked) {
+            updateSelectedRegistryKeys([...selectedRegistryKeys, selectedKey])
+        } else {
+            updateSelectedRegistryKeys(selectedRegistryKeys.filter(key => selectedKey !== key))
+        }
+    }, [selectedRegistryKeys, updateSelectedRegistryKeys])
+
+    const rowSelection: TableRowSelection<IPaymentsFile> = useMemo(() => ({
+        selectedRowKeys: selectedRowKeysByPage,
+        fixed: true,
+        onSelect: handleSelectRow,
+        columnTitle: (
+            <Checkbox
+                checked={isSelectedAllRowsByPage}
+                indeterminate={isSelectedSomeRowsByPage}
+                onChange={handleSelectAllRowsByPage}
+            />
+        ),
+    }), [handleSelectAllRowsByPage, handleSelectRow, isSelectedAllRowsByPage, isSelectedSomeRowsByPage, selectedRowKeysByPage])
 
 
     return (
@@ -155,20 +232,47 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
                 <Col span={24}>
                     <Table
                         loading={loading}
-                        dataSource={objs}
+                        dataSource={paymentsFiles}
                         totalRows={count}
                         columns={tableColumns}
+                        rowSelection={rowSelection}
                     />
                 </Col>
+                <Col span={24}>
+                    {!loading && count > 0 && selectedRegistryKeys.length > 0 && (
+                        <ActionBar
+                            message={CountSelectedRegistryMessage}
+                            actions={[
+                                <Button
+                                    key='create'
+                                    type='primary'
+                                    loading={isFilesDownloading}
+                                    icon={<Download size='medium' />}
+                                    onClick={handleDownloadClick}
+                                >
+                                    {DownloadRegistriesMessage}
+                                </Button>,
+                                <Button
+                                    key='cancelPaymentsFileSelection'
+                                    type='secondary'
+                                    children={CancelSelectedRegistryMessage}
+                                    onClick={handleResetSelectedRegistry}
+                                    loading={isFilesDownloading}
+                                />,
+                            ]}
+                        />
+                    )}
+                </Col>
+                <Col style={BOTTOM_PADDING_LIKE_ACTION_BAR}></Col>
             </Row>
         </>
     )
 }
 
-const PaymentFilesTable = (props) => {
+const PaymentFilesTable = () => {
     return (
         <MultipleFilterContextProvider>
-            <PaymentFilesTableContent {...props} />
+            <PaymentFilesTableContent />
         </MultipleFilterContextProvider>
     )
 }
