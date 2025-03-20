@@ -480,7 +480,7 @@
   "api.user.PASSWORD_IS_FREQUENTLY_USED": "Пароль слишком простой. Нужно использовать что-то более безопасное",
   "api.user.SMS_FOR_IP_DAY_LIMIT_REACHED": "Слишком много смс было отправлено. Попробуйте еще раз завтра",
   "api.user.SMS_FOR_PHONE_DAY_LIMIT_REACHED": "Слишком много смс было отправлено для этого номера телефона. Попробуйте еще раз завтра",
-  "api.user.TOO_MANY_REQUESTS": "Подождите {secondsRemaining} сек., чтобы отправить запрос снова",
+  "api.user.TOO_MANY_REQUESTS": "Подождите {minutesRemaining} мин., чтобы отправить запрос снова",
   "api.user.TOTAL_REQUEST_LIMIT_FOR_EMAIL_REACHED": "С использованием вашей почты поступает очень много запросов, попробуйте позже",
   "api.user.TOTAL_REQUEST_LIMIT_FOR_PHONE_REACHED": "С использованием вашего номера телефона поступает очень много запросов, попробуйте позже",
   "api.user.TOTAL_REQUEST_LIMIT_FOR_USER_REACHED": "От вас поступает очень много запросов, попробуйте позже",

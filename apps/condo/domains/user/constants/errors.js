@@ -82,9 +82,9 @@ const GQL_ERRORS = {
         // TODO(pahaz): it' looks like a wrong code. Use TOO_MANY_REQUESTS
         code: 'BAD_USER_INPUT',
         type: TOO_MANY_REQUESTS,
-        message: 'You have to wait {secondsRemaining} seconds to be able to send request again',
+        message: 'You have to wait {minutesRemaining} minutes to be able to send request again',
         messageForUser: 'api.user.TOO_MANY_REQUESTS',
-        messageInterpolation: { secondsRemaining: 5000 },
+        messageInterpolation: { minutesRemaining: 100 },
     },
     SMS_FOR_PHONE_DAY_LIMIT_REACHED: {
         code: 'BAD_USER_INPUT',

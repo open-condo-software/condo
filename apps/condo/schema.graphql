@@ -92090,8 +92090,8 @@ type Mutation {
   `{
     "code": "BAD_USER_INPUT",
     "type": "TOO_MANY_REQUESTS",
-    "message": "You have to wait 5000 seconds to be able to send request again",
-    "messageForUser": "You have to wait 5000 sec. to be able to send request again"
+    "message": "You have to wait 100 minutes to be able to send request again",
+    "messageForUser": "You have to wait 100 min. to be able to send request again"
   }`
   
   `{
@@ -92136,8 +92136,8 @@ type Mutation {
   `{
     "code": "BAD_USER_INPUT",
     "type": "TOO_MANY_REQUESTS",
-    "message": "You have to wait 5000 seconds to be able to send request again",
-    "messageForUser": "You have to wait 5000 sec. to be able to send request again"
+    "message": "You have to wait 100 minutes to be able to send request again",
+    "messageForUser": "You have to wait 100 min. to be able to send request again"
   }`
   
   `{
@@ -92203,8 +92203,8 @@ type Mutation {
   `{
     "code": "BAD_USER_INPUT",
     "type": "TOO_MANY_REQUESTS",
-    "message": "You have to wait 5000 seconds to be able to send request again",
-    "messageForUser": "You have to wait 5000 sec. to be able to send request again"
+    "message": "You have to wait 100 minutes to be able to send request again",
+    "messageForUser": "You have to wait 100 min. to be able to send request again"
   }`
   """
   completeConfirmPhoneAction(data: CompleteConfirmPhoneActionInput!): CompleteConfirmPhoneActionOutput

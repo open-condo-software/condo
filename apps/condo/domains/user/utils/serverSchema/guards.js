@@ -31,10 +31,11 @@ class RedisGuard {
         const isLocked = await this.isLocked(lockName, action)
         if (isLocked) {
             const secondsRemaining = await this.lockTimeRemain(lockName, action)
+            const minutesRemaining = Math.ceil(secondsRemaining / 60) || 1
             throw new GQLError({
                 ...GQL_ERRORS.TOO_MANY_REQUESTS,
                 messageInterpolation: {
-                    secondsRemaining,
+                    minutesRemaining,
                 },
             }, context)
         }
@@ -53,10 +54,11 @@ class RedisGuard {
         const counter = await this.incrementCustomCounter(variable, expiryAnchorDate)
         if (counter > counterLimit) {
             const secondsRemaining = await this.counterTimeRemain(variable)
+            const minutesRemaining = Math.ceil(secondsRemaining / 60) || 1
             throw new GQLError({
                 ...GQL_ERRORS.TOO_MANY_REQUESTS,
                 messageInterpolation: {
-                    secondsRemaining,
+                    minutesRemaining,
                 },
             }, context)
         }
@@ -102,12 +104,13 @@ class RedisGuard {
         const isBlocked = _countersData.some(guard => guard.isBlocked)
 
         const maxSecondsRemaining = Math.max(..._countersData.map(guard => guard?.secondsRemaining ?? 0))
+        const maxMinutesRemaining = Math.ceil(maxSecondsRemaining / 60) || 1
 
         if (isBlocked) {
             throw new GQLError({
                 ...GQL_ERRORS.TOO_MANY_REQUESTS,
                 messageInterpolation: {
-                    secondsRemaining: maxSecondsRemaining,
+                    minutesRemaining: maxMinutesRemaining,
                 },
             }, context)
         }
