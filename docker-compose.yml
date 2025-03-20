@@ -24,6 +24,7 @@ services:
 
   postgresdb:
     image: ${REGISTRY}alpine
+    profiles: ['dbs']
     depends_on:
       - postgresdb-master
       - postgresdb-replica
@@ -86,6 +87,7 @@ services:
 
   valkey-cluster:
     image: alpine
+    profiles: ['dbs']
     depends_on:
       - valkey-node-3
       - valkey-node-2
