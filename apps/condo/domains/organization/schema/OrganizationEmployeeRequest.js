@@ -112,6 +112,28 @@ const OrganizationEmployeeRequest = new GQLListSchema('OrganizationEmployeeReque
             },
         },
 
+        userName: {
+            schemaDoc: 'The name of the user who sent the request (For the organization employee because he does not have access to the user fields)',
+            type: 'Text',
+            isRequired: true,
+            access: {
+                read: true,
+                create: false,
+                update: false,
+            },
+        },
+
+        userPhone: {
+            schemaDoc: 'The phone of the user who sent the request (For the organization employee because he does not have access to the user fields)',
+            type: 'Text',
+            isRequired: true,
+            access: {
+                read: true,
+                create: false,
+                update: false,
+            },
+        },
+
         isAccepted: {
             schemaDoc: 'Means that the request has been accepted',
             type: 'Checkbox',
