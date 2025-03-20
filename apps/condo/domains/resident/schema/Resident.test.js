@@ -631,9 +631,18 @@ describe('Resident', () => {
         })
 
         describe('Contact-related fields', () => {
-            const ResidentWithContactInfo = generateGQLTestUtils(generateGqlQueries('Resident', '{ id isVerifiedByManagingCompany managingCompanyContactRole { id name organization } }'))
+            const ResidentWithContactInfo = generateGQLTestUtils(generateGqlQueries(
+                'Resident', 
+                `{ 
+                            id 
+                            isVerifiedByManagingCompany 
+                            managingCompanyOwnershipPercentage 
+                            managingCompanyCommunityFee 
+                            managingCompanyContactRole { id name organization } 
+                       }`
+            ))
 
-            test('isVerifiedByManagingCompany must return true if corresponding contact is verified', async () => {
+            test('Virtual fields isVerifiedByManagingCompany, managingCompanyOwnershipPercentage and managingCompanyCommunityFee must return correct values based on contact data', async () => {
                 const staffClient = await makeClientWithProperty()
                 const phone = createTestPhone()
                 const residentUser = await makeClientWithResidentUser({
@@ -649,6 +658,8 @@ describe('Resident', () => {
                 // Case 1: No contact
                 const residentWithNoContact = await ResidentWithContactInfo.getOne(residentUser, { id: resident.id })
                 expect(residentWithNoContact).toHaveProperty('isVerifiedByManagingCompany', false)
+                expect(residentWithNoContact).toHaveProperty('managingCompanyOwnershipPercentage', null)
+                expect(residentWithNoContact).toHaveProperty('managingCompanyCommunityFee', null)
 
                 // Case 2: Matched but not verified contact
                 const [contact] = await createTestContact(staffClient, staffClient.organization, staffClient.property, {
@@ -660,9 +671,14 @@ describe('Resident', () => {
                 expect(residentWithContact).toHaveProperty('isVerifiedByManagingCompany', false)
 
                 // Case 3: Matched and verified contact
-                await updateTestContact(staffClient, contact.id, { isVerified: true })
+                const isVerified = true
+                const ownershipPercentage = '0.55000000'
+                const communityFee = '57.55000000'
+                await updateTestContact(staffClient, contact.id, { isVerified, communityFee,  ownershipPercentage })
                 const residentWithVerifiedContact = await ResidentWithContactInfo.getOne(residentUser, { id: resident.id })
-                expect(residentWithVerifiedContact).toHaveProperty('isVerifiedByManagingCompany', true)
+                expect(residentWithVerifiedContact).toHaveProperty('isVerifiedByManagingCompany', isVerified)
+                expect(residentWithVerifiedContact).toHaveProperty('managingCompanyOwnershipPercentage', ownershipPercentage)
+                expect(residentWithVerifiedContact).toHaveProperty('managingCompanyCommunityFee', communityFee)
 
                 // Case 4: Same unit, different user
                 const anotherPhoneResidentUser = await makeClientWithResidentUser()
@@ -675,11 +691,15 @@ describe('Resident', () => {
 
                 const residentWithDifferentPhone = await ResidentWithContactInfo.getOne(anotherPhoneResidentUser, { id: anotherPhoneResident.id })
                 expect(residentWithDifferentPhone).toHaveProperty('isVerifiedByManagingCompany', false)
+                expect(residentWithDifferentPhone).toHaveProperty('managingCompanyOwnershipPercentage', null)
+                expect(residentWithDifferentPhone).toHaveProperty('managingCompanyCommunityFee', null)
 
                 // Case 5: Deleted contact
                 await updateTestContact(staffClient, contact.id, { deletedAt: dayjs().toISOString() })
                 const residentWithDeletedContact = await ResidentWithContactInfo.getOne(residentUser, { id: resident.id })
                 expect(residentWithDeletedContact).toHaveProperty('isVerifiedByManagingCompany', false)
+                expect(residentWithDeletedContact).toHaveProperty('managingCompanyOwnershipPercentage', null)
+                expect(residentWithDeletedContact).toHaveProperty('managingCompanyCommunityFee', null)
 
                 // Case 6: Same user different unit
                 await createTestContact(staffClient, staffClient.organization, staffClient.property, {
@@ -690,6 +710,8 @@ describe('Resident', () => {
                 })
                 const residentWithNoFlatContact = await ResidentWithContactInfo.getOne(residentUser, { id: resident.id })
                 expect(residentWithNoFlatContact).toHaveProperty('isVerifiedByManagingCompany', false)
+                expect(residentWithNoFlatContact).toHaveProperty('managingCompanyOwnershipPercentage', null)
+                expect(residentWithNoFlatContact).toHaveProperty('managingCompanyCommunityFee', null)
 
                 // Case 7: Same user, same unit, not managing company
                 const anotherStaffClient = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -707,6 +729,8 @@ describe('Resident', () => {
 
                 const residentWithNonManagingContact = await ResidentWithContactInfo.getOne(residentUser, { id: resident.id })
                 expect(residentWithNonManagingContact).toHaveProperty('isVerifiedByManagingCompany', false)
+                expect(residentWithNonManagingContact).toHaveProperty('managingCompanyOwnershipPercentage', null)
+                expect(residentWithNonManagingContact).toHaveProperty('managingCompanyCommunityFee', null)
             })
             test('managingCompanyContactRole must return proper ContactRole is there\'s contact in resident property', async () => {
                 // NOTE: managingCompanyContactRole and isVerifiedByManagingCompany share common logic of obtaining contact,
