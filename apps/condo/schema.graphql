@@ -14945,7 +14945,7 @@ type BillingReceipt {
   """ Code of currency in ISO-4217 format """
   currencyCode: String
 
-  """ This optional field stores how to distribute amount between several receivers. Applicable to models with "toPay" field. 
+  """ This optional field stores how to distribute amount between several receivers. 
   """
   amountDistribution: [AmountDistributionField!]
   id: ID!
@@ -76891,7 +76891,7 @@ type Invoice {
   """ Code of currency in ISO-4217 format """
   currencyCode: String
 
-  """ This optional field stores how to distribute amount between several receivers. Applicable to models with "toPay" field. 
+  """ This optional field stores how to distribute amount between several receivers. 
   """
   amountDistribution: [AmountDistributionField!]
   id: ID!
