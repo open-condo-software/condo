@@ -16,8 +16,8 @@ const TEXT_GAP = 16
 
 const PaymentsFiles = (): JSX.Element => {
     const intl = useIntl()
-    const NoPaymentsTitle = intl.formatMessage({ id:'accrualsAndPayments.payments.noPaymentsYet.title' })
-    const NoPaymentsMessage = intl.formatMessage({ id:'accrualsAndPayments.payments.noPaymentsYet.message' })
+    const NoPaymentsFilesTitle = intl.formatMessage({ id:'accrualsAndPayments.paymentsFiles.noPaymentsFilesYet.title' })
+    const NoPaymentsFilesMessage = intl.formatMessage({ id:'accrualsAndPayments.paymentsFiles.noPaymentsFilesYet.message' })
 
     const { acquiringContext } = useBillingAndAcquiringContexts()
 
@@ -39,8 +39,8 @@ const PaymentsFiles = (): JSX.Element => {
     if (!anyPaymentsFiles.length) {
         return (
             <BasicEmptyListView image={SEARCHING_DINO_IMG} imageStyle={IMG_STYLES} spaceSize={TEXT_GAP}>
-                <Typography.Title level={3}>{NoPaymentsTitle}</Typography.Title>
-                <Typography.Text type='secondary'>{NoPaymentsMessage}</Typography.Text>
+                <Typography.Title level={3}>{NoPaymentsFilesTitle}</Typography.Title>
+                <Typography.Text type='secondary'>{NoPaymentsFilesMessage}</Typography.Text>
             </BasicEmptyListView>
         )
     }

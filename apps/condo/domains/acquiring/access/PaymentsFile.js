@@ -9,7 +9,7 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { find, getById } = require('@open-condo/keystone/schema')
 
 const { checkAcquiringIntegrationAccessRights } = require('@condo/domains/acquiring/utils/accessSchema')
-const { SERVICE } = require('@condo/domains/user/constants/common')
+const { SERVICE, STAFF } = require('@condo/domains/user/constants/common')
 
 async function canReadPaymentsFiles ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
@@ -17,14 +17,18 @@ async function canReadPaymentsFiles ({ authentication: { item: user } }) {
 
     if (user.isSupport || user.isAdmin) return {}
 
-    return {
-        OR: [
-            // Acquiring integration account can see its payments files
-            { acquiringContext: { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } } },
-            // Employee with `canReadPayments` can see theirs organization payments files
-            { acquiringContext: { organization: { employees_some: { user: { id: user.id }, role: { canReadPayments: true }, deletedAt: null, isBlocked: false } } } },
-        ],
+    // Acquiring integration account can see its payments files
+    if (user.type === SERVICE) {
+        return { acquiringContext: { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } } }
     }
+
+    // Employee with `canReadPayments` can see theirs organization payments files
+    if (user.type === STAFF) {
+        return { acquiringContext: { organization: { employees_some: { user: { id: user.id }, role: { canReadPayments: true }, deletedAt: null, isBlocked: false } } } }
+
+    }
+
+    return false
 }
 
 // Only service users can manage

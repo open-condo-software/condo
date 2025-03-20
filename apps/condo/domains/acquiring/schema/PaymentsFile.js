@@ -12,7 +12,7 @@ const {
 } = require('@condo/domains/acquiring/constants/constants')
 const { PAYMENTS_FILE_STATUSES } = require('@condo/domains/acquiring/constants/constants')
 const {
-    NON_NEGATIVE_MONEY_FIELD,
+    MONEY_AMOUNT_FIELD,
 } = require('@condo/domains/common/schema/fields')
 
 
@@ -22,20 +22,19 @@ const PaymentsFile = new GQLListSchema('PaymentsFile', {
     schemaDoc: 'Payments registry file. A file that contains all payments detalization for a period of time',
     fields: {
 
-        acquiringContext: {
+        context: {
             schemaDoc: 'Link to Acquiring Integration Context',
             type: 'Relationship',
             ref: 'AcquiringIntegrationContext',
-            isRequired: false,
-            knexOptions: { isNotNullable: false },
-            kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
+            isRequired: true,
+            knexOptions: { isNotNullable: true },
+            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
 
         number: {
             schemaDoc: 'The number of payments registry file',
-            type: 'AutoIncrementInteger',
+            type: 'Text',
             isRequired: false,
-            autoIncrementScopeFields: ['account'],
         },
 
         paymentOrder: {
@@ -69,7 +68,7 @@ const PaymentsFile = new GQLListSchema('PaymentsFile', {
             isRequired: true,
         },
 
-        dateLoad: {
+        loadedAt: {
             schemaDoc: 'Date when payments registry file was created',
             type: 'DateTimeUtc',
             isRequired: true,
@@ -82,13 +81,13 @@ const PaymentsFile = new GQLListSchema('PaymentsFile', {
         },
 
         amount: {
-            ...NON_NEGATIVE_MONEY_FIELD,
+            ...MONEY_AMOUNT_FIELD,
             schemaDoc: 'Total amount of all payments from registry file',
             isRequired: true,
         },
 
         amountBring: {
-            ...NON_NEGATIVE_MONEY_FIELD,
+            ...MONEY_AMOUNT_FIELD,
             schemaDoc: 'Total amount of all payments excluding fees',
             isRequired: true,
         },
@@ -105,7 +104,7 @@ const PaymentsFile = new GQLListSchema('PaymentsFile', {
             isRequired: true,
         },
 
-        externalId: {
+        importId: {
             schemaDoc: 'Id from a remote system',
             type: 'Text',
             isRequired: false,
@@ -117,17 +116,6 @@ const PaymentsFile = new GQLListSchema('PaymentsFile', {
             isRequired: false,
         },
 
-        fileId: {
-            schemaDoc: 'File id of an external file',
-            type: 'Text',
-            isRequired: false,
-        },
-
-        fileName: {
-            schemaDoc: 'External file name',
-            type: 'Text',
-            isRequired: false,
-        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
@@ -149,16 +137,11 @@ const PaymentsFile = new GQLListSchema('PaymentsFile', {
                 fields: ['paymentOrder'],
                 name: 'payments_file_paymentOrder_idx',
             },
-            {
-                type: 'BTreeIndex',
-                fields: ['fileName'],
-                name: 'payments_file_file_name_idx',
-            },
         ],
         constraints: [
             {
                 type: 'models.UniqueConstraint',
-                fields: ['acquiringContext', 'registryName', 'dateLoad'],
+                fields: ['context', 'registryName', 'loadedAt'],
                 condition: 'Q(deletedAt__isnull=True)',
                 name: 'PaymentsFile_uniq_for_context',
             },
