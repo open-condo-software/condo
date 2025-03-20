@@ -35,7 +35,6 @@ import { useBankReportTaskUIInterface } from '@condo/domains/banking/hooks/useBa
 import { useBankSyncTaskUIInterface } from '@condo/domains/banking/hooks/useBankSyncTaskUIInterface'
 import { CondoAppEventsHandler } from '@condo/domains/common/components/CondoAppEventsHandler'
 import BaseLayout, { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
-import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
 import YandexMetrika from '@condo/domains/common/components/containers/YandexMetrika'
 import { LayoutContextProvider } from '@condo/domains/common/components/LayoutContext'
@@ -47,7 +46,7 @@ import { ServiceProblemsAlert } from '@condo/domains/common/components/ServicePr
 import { Snowfall } from '@condo/domains/common/components/Snowfall'
 import { TasksContextProvider } from '@condo/domains/common/components/tasks/TasksContextProvider'
 import UseDeskWidget from '@condo/domains/common/components/UseDeskWidget'
-import { SERVICE_PROVIDER_PROFILE, MARKETPLACE } from '@condo/domains/common/constants/featureflags'
+import { SERVICE_PROVIDER_PROFILE, MARKETPLACE, SUBSCRIPTION } from '@condo/domains/common/constants/featureflags'
 import {
     TOUR_CATEGORY,
     DASHBOARD_CATEGORY,
@@ -116,7 +115,7 @@ import '@open-condo/ui/dist/style-vars/variables.css'
 import '@condo/domains/common/components/containers/global-styles.css'
 
 
-const { publicRuntimeConfig: { defaultLocale, sppConfig, isDisabledSsr } } = getConfig()
+const { canEnableSubscriptions, publicRuntimeConfig: { defaultLocale, sppConfig, isDisabledSsr } } = getConfig()
 
 
 const ANT_LOCALES = {
@@ -154,7 +153,7 @@ const MenuItems: React.FC = () => {
     const { isAuthenticated, isLoading } = useAuth()
     const { employee, organization } = useOrganization()
     const { isExpired } = useServiceSubscriptionContext()
-    const hasSubscriptionFeature = hasFeature('subscription')
+    const hasSubscriptionFeature = useFlag(SUBSCRIPTION) && canEnableSubscriptions
     const disabled = !employee || (hasSubscriptionFeature && isExpired)
     const { isCollapsed } = useLayoutContext()
     const { wrapElementIntoNoOrganizationToolTip } = useNoOrganizationToolTip()
