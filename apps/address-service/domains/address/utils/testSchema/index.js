@@ -5,15 +5,19 @@
  */
 const conf = require('@open-condo/config')
 const { faker } = require('@faker-js/faker')
+const get = require('lodash/get')
 
 const {
-    generateGQLTestUtils,
+    generateGQLTestUtils, throwIfError,
 } = require('@open-condo/codegen/generate.test.utils')
 
 const { Address: AddressGQL } = require('@address-service/domains/address/gql')
 const { AddressInjection: AddressInjectionGQL } = require('@address-service/domains/address/gql')
 const { InjectionsSeeker } = require('@address-service/domains/common/utils/services/InjectionsSeeker')
-const { AddressSource: AddressSourceGQL } = require('@address-service/domains/address/gql')
+const {
+    AddressSource: AddressSourceGQL,
+    ACTUALIZE_ADDRESSES_MUTATION,
+} = require('@address-service/domains/address/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 if (conf.DEFAULT_LOCALE) {
@@ -22,7 +26,6 @@ if (conf.DEFAULT_LOCALE) {
 
 const Address = generateGQLTestUtils(AddressGQL)
 const AddressInjection = generateGQLTestUtils(AddressInjectionGQL)
-
 const AddressSource = generateGQLTestUtils(AddressSourceGQL)
 
 /* AUTOGENERATE MARKER <CONST> */
@@ -31,7 +34,7 @@ async function createTestAddress (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    const address = `${faker.address.city()}, ${faker.address.street() }`
+    const address = `${faker.address.city()}, ${faker.address.street()}`
 
     const attrs = {
         dv: 1,
@@ -96,7 +99,7 @@ async function createTestAddressInjection (client, extraAttrs = {}) {
         city: createTestAddressPartWithType(faker.address.city()),
         cityDistrict: createTestAddressPartWithType(faker.address.state()),
         settlement: createTestAddressPartWithType(faker.address.city()),
-        street: createTestAddressPartWithType(faker.address.street() ),
+        street: createTestAddressPartWithType(faker.address.street()),
         house: createTestAddressPartWithType(`${faker.datatype.number()}${faker.datatype.string(1)}`),
         block: createTestAddressPartWithType(faker.datatype.number()),
         dv: 1,
@@ -145,7 +148,7 @@ async function createTestAddressSource (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    const source = `${faker.address.city()}${faker.random.alphaNumeric(8)}, ${faker.address.street() }, ${faker.random.alphaNumeric(8)}`
+    const source = `${faker.address.city()}${faker.random.alphaNumeric(8)}, ${faker.address.street()}, ${faker.random.alphaNumeric(8)}`
 
     const attrs = {
         dv: 1,
@@ -171,6 +174,39 @@ async function updateTestAddressSource (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function actualizeAddressesByTestClient (client, addresses, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!addresses) throw new Error('no addresses')
+
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        addresses,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(ACTUALIZE_ADDRESSES_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
+function buildAddressModelData (searchResult, addressKey, searchProviderName, rawData) {
+    return {
+        address: searchResult.value,
+        key: addressKey,
+        meta: {
+            provider: {
+                name: searchProviderName,
+                rawData,
+            },
+            value: searchResult.value,
+            unrestricted_value: searchResult.unrestricted_value,
+            data: get(searchResult, 'data', {}),
+        },
+    }
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -182,6 +218,10 @@ module.exports = {
     updateTestAddressInjection,
     getTestInjections,
     createTestAddressPartWithType,
-    AddressSource, createTestAddressSource, updateTestAddressSource,
+    AddressSource,
+    createTestAddressSource,
+    updateTestAddressSource,
+    actualizeAddressesByTestClient,
+    buildAddressModelData,
     /* AUTOGENERATE MARKER <EXPORTS> */
 }

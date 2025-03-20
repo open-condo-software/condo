@@ -16,8 +16,10 @@ module.exports = {
             testRunner: 'jasmine2',
             displayName: 'main',
             testEnvironment: 'jsdom',
-            testURL: 'http://localhost:3000/',
-            testPathIgnorePatterns: ['/node_modules/', '/.next/', '/dist/', '/.kmigrator/', '/schema/'],
+            testEnvironmentOptions: {
+                url: 'http://localhost:3000/',
+            },
+            testPathIgnorePatterns: ['/node_modules/', '/.next/', '/dist/', '/.kmigrator/'],
             transform: {
                 '\\.[jt]sx?$': 'babel-jest',
             },
