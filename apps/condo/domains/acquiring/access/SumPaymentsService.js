@@ -28,7 +28,7 @@ async function canSumPayments ({ args: { data: { paymentsWhere, paymentsFilesWhe
     }
 
     if (paymentsFilesWhere) {
-        const contextId = get(paymentsFilesWhere, ['acquiringContext', 'id'], null)
+        const contextId = get(paymentsFilesWhere, ['context', 'id'], null)
         if (!contextId) return false
 
         const [context] = await find('AcquiringIntegrationContext', {

@@ -239,11 +239,11 @@ describe('PaymentsFile', () => {
         })
 
         test('There can only be one payments file for one context, registryName and dateLoad', async () => {
-            const dateLoad = new Date()
-            await createTestPaymentsFile(admin, context, { registryName: 'name', dateLoad })
+            const loadedAt = new Date()
+            await createTestPaymentsFile(admin, context, { registryName: 'name', loadedAt })
 
             await expectToThrowUniqueConstraintViolationError(async () => {
-                await createTestPaymentsFile(admin, context, { registryName: 'name', dateLoad })
+                await createTestPaymentsFile(admin, context, { registryName: 'name', loadedAt })
             }, 'PaymentsFile_uniq_for_context')
         })
     })

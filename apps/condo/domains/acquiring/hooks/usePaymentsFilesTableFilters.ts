@@ -3,7 +3,7 @@ import { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
-import { PAYMENTS_FILE_CREATED_STATUS, PAYMENTS_FILE_DOWNLOADED_STATUS } from '@condo/domains/acquiring/constants/constants'
+import { PAYMENTS_FILE_NEW_STATUS, PAYMENTS_FILE_DOWNLOADED_STATUS } from '@condo/domains/acquiring/constants/constants'
 import { searchAcquiringIntegration } from '@condo/domains/acquiring/utils/clientSchema/search'
 import {
     ComponentType,
@@ -19,7 +19,7 @@ const acquiringContextFilter = getFilter(['context', 'id'], 'array', 'string', '
 const statusFilter = getFilter('status', 'array', 'string', 'in')
 const paymentOrderFilter = getStringContainsFilter('paymentOrder')
 
-const statusType = [PAYMENTS_FILE_CREATED_STATUS, PAYMENTS_FILE_DOWNLOADED_STATUS]
+const statusType = [PAYMENTS_FILE_NEW_STATUS, PAYMENTS_FILE_DOWNLOADED_STATUS]
 
 export function usePaymentsFilesTableFilters ( organizationId: string ): FiltersMeta<PaymentsFileWhereInput>[] {
     const intl = useIntl()

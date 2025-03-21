@@ -63,7 +63,7 @@ const {
 const { PaymentsFile: PaymentsFileGQL } = require('@condo/domains/acquiring/gql')
 const path = require("path");
 const conf = require("@open-condo/config");
-const { PAYMENTS_FILE_CREATED_STATUS} = require("@condo/domains/acquiring/constants/constants");
+const { PAYMENTS_FILE_NEW_STATUS} = require("@condo/domains/acquiring/constants/constants");
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateGQLTestUtils(AcquiringIntegrationGQL)
@@ -547,25 +547,25 @@ async function calculateFeeForReceiptByTestClient(client, extraAttrs = {}) {
     throwIfError(data, errors, { query: CALCULATE_FEE_FOR_RECEIPT_QUERY, variables: { data: extraAttrs } })
     return [data.result, extraAttrs]
 }
-async function createTestPaymentsFile (client, acquiringContext,  extraAttrs = {}) {
+async function createTestPaymentsFile (client, context,  extraAttrs = {}) {
     if (!client) throw new Error('no client')
-    if (!acquiringContext) throw new Error('Acquiring context is missing')
+    if (!context) throw new Error('Acquiring context is missing')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
         dv: 1,
         sender,
-        acquiringContext: { connect: { id: acquiringContext.id } },
+        context: { connect: { id: context.id } },
         file: new UploadingFile(FILE),
         account: faker.random.alphaNumeric(8),
         dateBegin: dayjs(faker.date.recent()).format('YYYY-MM-DD'),
         dateEnd: dayjs(faker.date.recent()).format('YYYY-MM-DD'),
-        dateLoad: new Date().toISOString(),
+        loadedAt: new Date().toISOString(),
         uploadedRecords: Number(faker.random.numeric(4)),
         amount: faker.random.numeric(8),
         amountBring: faker.random.numeric(8),
         registryName: faker.random.alphaNumeric(20),
-        status: PAYMENTS_FILE_CREATED_STATUS,
+        status: PAYMENTS_FILE_NEW_STATUS,
         ...extraAttrs,
     }
     const obj = await PaymentsFile.create(client, attrs)

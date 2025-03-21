@@ -62395,23 +62395,21 @@ type PaymentsFileHistoryRecord {
    4. As an alias to the 'id' field on the PaymentsFileHistoryRecord List.
   """
   _label_: String
-  acquiringContext: String
-  number: JSON
+  context: String
+  number: String
   paymentOrder: String
   file: JSON
   account: String
   dateBegin: String
   dateEnd: String
-  dateLoad: String
+  loadedAt: String
   uploadedRecords: Int
   amount: String
   amountBring: String
   registryName: String
   status: String
-  externalId: String
+  importId: String
   bankComment: String
-  fileId: String
-  fileName: String
   id: ID!
   v: Int
   createdAt: String
@@ -62430,14 +62428,28 @@ type PaymentsFileHistoryRecord {
 input PaymentsFileHistoryRecordWhereInput {
   AND: [PaymentsFileHistoryRecordWhereInput]
   OR: [PaymentsFileHistoryRecordWhereInput]
-  acquiringContext: String
-  acquiringContext_not: String
-  acquiringContext_in: [String]
-  acquiringContext_not_in: [String]
-  number: JSON
-  number_not: JSON
-  number_in: [JSON]
-  number_not_in: [JSON]
+  context: String
+  context_not: String
+  context_in: [String]
+  context_not_in: [String]
+  number: String
+  number_not: String
+  number_contains: String
+  number_not_contains: String
+  number_starts_with: String
+  number_not_starts_with: String
+  number_ends_with: String
+  number_not_ends_with: String
+  number_i: String
+  number_not_i: String
+  number_contains_i: String
+  number_not_contains_i: String
+  number_starts_with_i: String
+  number_not_starts_with_i: String
+  number_ends_with_i: String
+  number_not_ends_with_i: String
+  number_in: [String]
+  number_not_in: [String]
   paymentOrder: String
   paymentOrder_not: String
   paymentOrder_contains: String
@@ -62494,14 +62506,14 @@ input PaymentsFileHistoryRecordWhereInput {
   dateEnd_gte: String
   dateEnd_in: [String]
   dateEnd_not_in: [String]
-  dateLoad: String
-  dateLoad_not: String
-  dateLoad_lt: String
-  dateLoad_lte: String
-  dateLoad_gt: String
-  dateLoad_gte: String
-  dateLoad_in: [String]
-  dateLoad_not_in: [String]
+  loadedAt: String
+  loadedAt_not: String
+  loadedAt_lt: String
+  loadedAt_lte: String
+  loadedAt_gt: String
+  loadedAt_gte: String
+  loadedAt_in: [String]
+  loadedAt_not_in: [String]
   uploadedRecords: Int
   uploadedRecords_not: Int
   uploadedRecords_lt: Int
@@ -62562,24 +62574,24 @@ input PaymentsFileHistoryRecordWhereInput {
   status_not_ends_with_i: String
   status_in: [String]
   status_not_in: [String]
-  externalId: String
-  externalId_not: String
-  externalId_contains: String
-  externalId_not_contains: String
-  externalId_starts_with: String
-  externalId_not_starts_with: String
-  externalId_ends_with: String
-  externalId_not_ends_with: String
-  externalId_i: String
-  externalId_not_i: String
-  externalId_contains_i: String
-  externalId_not_contains_i: String
-  externalId_starts_with_i: String
-  externalId_not_starts_with_i: String
-  externalId_ends_with_i: String
-  externalId_not_ends_with_i: String
-  externalId_in: [String]
-  externalId_not_in: [String]
+  importId: String
+  importId_not: String
+  importId_contains: String
+  importId_not_contains: String
+  importId_starts_with: String
+  importId_not_starts_with: String
+  importId_ends_with: String
+  importId_not_ends_with: String
+  importId_i: String
+  importId_not_i: String
+  importId_contains_i: String
+  importId_not_contains_i: String
+  importId_starts_with_i: String
+  importId_not_starts_with_i: String
+  importId_ends_with_i: String
+  importId_not_ends_with_i: String
+  importId_in: [String]
+  importId_not_in: [String]
   bankComment: String
   bankComment_not: String
   bankComment_contains: String
@@ -62598,42 +62610,6 @@ input PaymentsFileHistoryRecordWhereInput {
   bankComment_not_ends_with_i: String
   bankComment_in: [String]
   bankComment_not_in: [String]
-  fileId: String
-  fileId_not: String
-  fileId_contains: String
-  fileId_not_contains: String
-  fileId_starts_with: String
-  fileId_not_starts_with: String
-  fileId_ends_with: String
-  fileId_not_ends_with: String
-  fileId_i: String
-  fileId_not_i: String
-  fileId_contains_i: String
-  fileId_not_contains_i: String
-  fileId_starts_with_i: String
-  fileId_not_starts_with_i: String
-  fileId_ends_with_i: String
-  fileId_not_ends_with_i: String
-  fileId_in: [String]
-  fileId_not_in: [String]
-  fileName: String
-  fileName_not: String
-  fileName_contains: String
-  fileName_not_contains: String
-  fileName_starts_with: String
-  fileName_not_starts_with: String
-  fileName_ends_with: String
-  fileName_not_ends_with: String
-  fileName_i: String
-  fileName_not_i: String
-  fileName_contains_i: String
-  fileName_not_contains_i: String
-  fileName_starts_with_i: String
-  fileName_not_starts_with_i: String
-  fileName_ends_with_i: String
-  fileName_not_ends_with_i: String
-  fileName_in: [String]
-  fileName_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -62717,6 +62693,8 @@ input PaymentsFileHistoryRecordWhereUniqueInput {
 }
 
 enum SortPaymentsFileHistoryRecordsBy {
+  number_ASC
+  number_DESC
   paymentOrder_ASC
   paymentOrder_DESC
   account_ASC
@@ -62725,8 +62703,8 @@ enum SortPaymentsFileHistoryRecordsBy {
   dateBegin_DESC
   dateEnd_ASC
   dateEnd_DESC
-  dateLoad_ASC
-  dateLoad_DESC
+  loadedAt_ASC
+  loadedAt_DESC
   uploadedRecords_ASC
   uploadedRecords_DESC
   amount_ASC
@@ -62737,14 +62715,10 @@ enum SortPaymentsFileHistoryRecordsBy {
   registryName_DESC
   status_ASC
   status_DESC
-  externalId_ASC
-  externalId_DESC
+  importId_ASC
+  importId_DESC
   bankComment_ASC
   bankComment_DESC
-  fileId_ASC
-  fileId_DESC
-  fileName_ASC
-  fileName_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -62764,23 +62738,21 @@ enum SortPaymentsFileHistoryRecordsBy {
 }
 
 input PaymentsFileHistoryRecordUpdateInput {
-  acquiringContext: String
-  number: JSON
+  context: String
+  number: String
   paymentOrder: String
   file: JSON
   account: String
   dateBegin: String
   dateEnd: String
-  dateLoad: String
+  loadedAt: String
   uploadedRecords: Int
   amount: String
   amountBring: String
   registryName: String
   status: String
-  externalId: String
+  importId: String
   bankComment: String
-  fileId: String
-  fileName: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -62801,23 +62773,21 @@ input PaymentsFileHistoryRecordsUpdateInput {
 }
 
 input PaymentsFileHistoryRecordCreateInput {
-  acquiringContext: String
-  number: JSON
+  context: String
+  number: String
   paymentOrder: String
   file: JSON
   account: String
   dateBegin: String
   dateEnd: String
-  dateLoad: String
+  loadedAt: String
   uploadedRecords: Int
   amount: String
   amountBring: String
   registryName: String
   status: String
-  externalId: String
+  importId: String
   bankComment: String
-  fileId: String
-  fileName: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -62849,10 +62819,10 @@ type PaymentsFile {
   _label_: String
 
   """ Link to Acquiring Integration Context """
-  acquiringContext: AcquiringIntegrationContext
+  context: AcquiringIntegrationContext
 
   """ The number of payments registry file """
-  number: Int
+  number: String
 
   """ Numeric id to define the money transaction """
   paymentOrder: String
@@ -62870,7 +62840,7 @@ type PaymentsFile {
   dateEnd: String
 
   """ Date when payments registry file was created """
-  dateLoad: String
+  loadedAt: String
 
   """ The number of payments """
   uploadedRecords: Int
@@ -62884,20 +62854,14 @@ type PaymentsFile {
   """ Name of the registry file on accounting system """
   registryName: String
 
-  """ Status of the payments registry. Can be one of: PROCESSED, PROCESSED """
+  """ Status of the payments registry. Can be one of: NEW, DOWNLOADED """
   status: String
 
   """ Id from a remote system """
-  externalId: String
+  importId: String
 
   """ Text description of the registry file about the file content """
   bankComment: String
-
-  """ File id of an external file """
-  fileId: String
-
-  """ External file name """
-  fileName: String
   id: ID!
   v: Int
   createdAt: String
@@ -62924,16 +62888,26 @@ type PaymentsFile {
 input PaymentsFileWhereInput {
   AND: [PaymentsFileWhereInput]
   OR: [PaymentsFileWhereInput]
-  acquiringContext: AcquiringIntegrationContextWhereInput
-  acquiringContext_is_null: Boolean
-  number: Int
-  number_not: Int
-  number_lt: Int
-  number_lte: Int
-  number_gt: Int
-  number_gte: Int
-  number_in: [Int]
-  number_not_in: [Int]
+  context: AcquiringIntegrationContextWhereInput
+  context_is_null: Boolean
+  number: String
+  number_not: String
+  number_contains: String
+  number_not_contains: String
+  number_starts_with: String
+  number_not_starts_with: String
+  number_ends_with: String
+  number_not_ends_with: String
+  number_i: String
+  number_not_i: String
+  number_contains_i: String
+  number_not_contains_i: String
+  number_starts_with_i: String
+  number_not_starts_with_i: String
+  number_ends_with_i: String
+  number_not_ends_with_i: String
+  number_in: [String]
+  number_not_in: [String]
   paymentOrder: String
   paymentOrder_not: String
   paymentOrder_contains: String
@@ -62990,14 +62964,14 @@ input PaymentsFileWhereInput {
   dateEnd_gte: String
   dateEnd_in: [String]
   dateEnd_not_in: [String]
-  dateLoad: String
-  dateLoad_not: String
-  dateLoad_lt: String
-  dateLoad_lte: String
-  dateLoad_gt: String
-  dateLoad_gte: String
-  dateLoad_in: [String]
-  dateLoad_not_in: [String]
+  loadedAt: String
+  loadedAt_not: String
+  loadedAt_lt: String
+  loadedAt_lte: String
+  loadedAt_gt: String
+  loadedAt_gte: String
+  loadedAt_in: [String]
+  loadedAt_not_in: [String]
   uploadedRecords: Int
   uploadedRecords_not: Int
   uploadedRecords_lt: Int
@@ -63058,24 +63032,24 @@ input PaymentsFileWhereInput {
   status_not_ends_with_i: String
   status_in: [String]
   status_not_in: [String]
-  externalId: String
-  externalId_not: String
-  externalId_contains: String
-  externalId_not_contains: String
-  externalId_starts_with: String
-  externalId_not_starts_with: String
-  externalId_ends_with: String
-  externalId_not_ends_with: String
-  externalId_i: String
-  externalId_not_i: String
-  externalId_contains_i: String
-  externalId_not_contains_i: String
-  externalId_starts_with_i: String
-  externalId_not_starts_with_i: String
-  externalId_ends_with_i: String
-  externalId_not_ends_with_i: String
-  externalId_in: [String]
-  externalId_not_in: [String]
+  importId: String
+  importId_not: String
+  importId_contains: String
+  importId_not_contains: String
+  importId_starts_with: String
+  importId_not_starts_with: String
+  importId_ends_with: String
+  importId_not_ends_with: String
+  importId_i: String
+  importId_not_i: String
+  importId_contains_i: String
+  importId_not_contains_i: String
+  importId_starts_with_i: String
+  importId_not_starts_with_i: String
+  importId_ends_with_i: String
+  importId_not_ends_with_i: String
+  importId_in: [String]
+  importId_not_in: [String]
   bankComment: String
   bankComment_not: String
   bankComment_contains: String
@@ -63094,42 +63068,6 @@ input PaymentsFileWhereInput {
   bankComment_not_ends_with_i: String
   bankComment_in: [String]
   bankComment_not_in: [String]
-  fileId: String
-  fileId_not: String
-  fileId_contains: String
-  fileId_not_contains: String
-  fileId_starts_with: String
-  fileId_not_starts_with: String
-  fileId_ends_with: String
-  fileId_not_ends_with: String
-  fileId_i: String
-  fileId_not_i: String
-  fileId_contains_i: String
-  fileId_not_contains_i: String
-  fileId_starts_with_i: String
-  fileId_not_starts_with_i: String
-  fileId_ends_with_i: String
-  fileId_not_ends_with_i: String
-  fileId_in: [String]
-  fileId_not_in: [String]
-  fileName: String
-  fileName_not: String
-  fileName_contains: String
-  fileName_not_contains: String
-  fileName_starts_with: String
-  fileName_not_starts_with: String
-  fileName_ends_with: String
-  fileName_not_ends_with: String
-  fileName_i: String
-  fileName_not_i: String
-  fileName_contains_i: String
-  fileName_not_contains_i: String
-  fileName_starts_with_i: String
-  fileName_not_starts_with_i: String
-  fileName_ends_with_i: String
-  fileName_not_ends_with_i: String
-  fileName_in: [String]
-  fileName_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -63193,8 +63131,8 @@ input PaymentsFileWhereUniqueInput {
 }
 
 enum SortPaymentsFilesBy {
-  acquiringContext_ASC
-  acquiringContext_DESC
+  context_ASC
+  context_DESC
   number_ASC
   number_DESC
   paymentOrder_ASC
@@ -63205,8 +63143,8 @@ enum SortPaymentsFilesBy {
   dateBegin_DESC
   dateEnd_ASC
   dateEnd_DESC
-  dateLoad_ASC
-  dateLoad_DESC
+  loadedAt_ASC
+  loadedAt_DESC
   uploadedRecords_ASC
   uploadedRecords_DESC
   amount_ASC
@@ -63217,14 +63155,10 @@ enum SortPaymentsFilesBy {
   registryName_DESC
   status_ASC
   status_DESC
-  externalId_ASC
-  externalId_DESC
+  importId_ASC
+  importId_DESC
   bankComment_ASC
   bankComment_DESC
-  fileId_ASC
-  fileId_DESC
-  fileName_ASC
-  fileName_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -63244,23 +63178,21 @@ enum SortPaymentsFilesBy {
 }
 
 input PaymentsFileUpdateInput {
-  acquiringContext: AcquiringIntegrationContextRelateToOneInput
-  number: Int
+  context: AcquiringIntegrationContextRelateToOneInput
+  number: String
   paymentOrder: String
   file: Upload
   account: String
   dateBegin: String
   dateEnd: String
-  dateLoad: String
+  loadedAt: String
   uploadedRecords: Int
   amount: String
   amountBring: String
   registryName: String
   status: String
-  externalId: String
+  importId: String
   bankComment: String
-  fileId: String
-  fileName: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -63278,23 +63210,21 @@ input PaymentsFilesUpdateInput {
 }
 
 input PaymentsFileCreateInput {
-  acquiringContext: AcquiringIntegrationContextRelateToOneInput
-  number: Int
+  context: AcquiringIntegrationContextRelateToOneInput
+  number: String
   paymentOrder: String
   file: Upload
   account: String
   dateBegin: String
   dateEnd: String
-  dateLoad: String
+  loadedAt: String
   uploadedRecords: Int
   amount: String
   amountBring: String
   registryName: String
   status: String
-  externalId: String
+  importId: String
   bankComment: String
-  fileId: String
-  fileName: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -87889,9 +87819,9 @@ type Query {
   generatePaymentLink(data: GeneratePaymentLinkInput!): GeneratePaymentLinkOutput
 
   """
-  Sum of payments for the given PaymentsFile
+  Sum of payments by organization or sum of payments files by acquiring context
   
-  Calculate sum of payments inside the given PaymentsFile
+  Calculate sum of payments for organization or sum of payments files for acquiring context
   
   **Errors**
   
@@ -87901,6 +87831,18 @@ type Query {
     "code": "BAD_USER_INPUT",
     "type": "WRONG_VALUE",
     "message": "You must specify one of two where inputs: PaymentWhereInput or PaymentsFileWhereInput"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_VALUE",
+    "message": "You must specify organization id for PaymentWhereInput"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_VALUE",
+    "message": "You must specify context id for PaymentsFileWhereInput"
   }`
   """
   _allPaymentsSum(data: PaymentsSumInput!): PaymentsSumOutput
