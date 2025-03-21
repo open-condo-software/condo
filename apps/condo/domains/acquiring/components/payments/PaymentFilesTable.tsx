@@ -1,3 +1,4 @@
+import { useGetPaymentsFilesQuery } from '@app/condo/gql'
 import { PaymentsFile as IPaymentsFile, SortPaymentsFilesBy } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox'
@@ -9,6 +10,7 @@ import get from 'lodash/get'
 import { NextRouter, useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { Download, Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -17,11 +19,10 @@ import { colors } from '@open-condo/ui/dist/colors'
 
 import { PaymentsSumTable } from '@condo/domains/acquiring/components/payments/PaymentsSumTable'
 import { PaymentsSumInfo } from '@condo/domains/acquiring/components/payments/PaymentsTable'
-import useDownloadRegistryFiles from '@condo/domains/acquiring/hooks/useDownloadRegistryFiles'
+import useDownloadPaymentsFiles from '@condo/domains/acquiring/hooks/useDownloadPaymentsFiles'
 import { usePaymentsFilesTableColumns } from '@condo/domains/acquiring/hooks/usePaymentsFilesTableColumns'
 import { usePaymentsFilesTableFilters } from '@condo/domains/acquiring/hooks/usePaymentsFilesTableFilters'
 import usePaymentsSum from '@condo/domains/acquiring/hooks/usePaymentsSum'
-import { PaymentsFile } from '@condo/domains/acquiring/utils/clientSchema'
 import { getInitialSelectedRegistryKeys, IPaymentsFilesFilters } from '@condo/domains/acquiring/utils/helpers'
 import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
 import Input from '@condo/domains/common/components/antd/Input'
@@ -60,6 +61,7 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
     const DownloadRegistriesMessage = intl.formatMessage({ id: 'Download' })
 
     const { acquiringContext, billingContext } = useBillingAndAcquiringContexts()
+    const { persistor } = useCachePersistor()
 
     const { breakpoints } = useLayoutContext()
     const router = useRouter()
@@ -91,23 +93,23 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
     const sortBy = sortersToSortBy(sorters, PAYMENTS_DEFAULT_SORT_BY)
 
     const {
+        data,
         loading,
-        count,
-        objs: paymentsFiles,
         refetch,
-    } = PaymentsFile.useObjects({
-        where: searchPaymentsFilesQuery,
-        sortBy: sortBy as SortPaymentsFilesBy[],
-        first: DEFAULT_PAGE_SIZE,
-        skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
-    }, {
-        fetchPolicy: 'network-only',
+    } = useGetPaymentsFilesQuery({
+        variables: {
+            where: searchPaymentsFilesQuery,
+            sortBy: sortBy as SortPaymentsFilesBy[],
+            first: DEFAULT_PAGE_SIZE,
+            skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
+        },
+        skip: !acquiringContext?.id || !persistor,
     })
 
-    const { downloadRegistryFiles } = useDownloadRegistryFiles(refetch)
+    const { downloadPaymentsFiles } = useDownloadPaymentsFiles(refetch)
     const selectedRowKeysByPage = useMemo(() => {
-        return paymentsFiles.filter(file => selectedRegistryKeys.includes(file.id)).map(file => file.id)
-    }, [paymentsFiles, selectedRegistryKeys])
+        return data?.paymentsFiles?.filter(file => selectedRegistryKeys.includes(file.id)).map(file => file.id)
+    }, [data, selectedRegistryKeys])
 
     const { data: sumAllPayments, loading: sumAllPaymentsLoading } = usePaymentsSum({ paymentsFilesWhere: searchPaymentsFilesQuery })
 
@@ -125,9 +127,9 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
 
     const handleDownloadClick = async () => {
         setIsFilesDownloading(true)
-        await downloadRegistryFiles(selectedRegistryKeys, paymentsFiles)
+        await downloadPaymentsFiles(selectedRegistryKeys, data?.paymentsFiles)
         setSelectedRegistryKeys([])
-
+        changeQuery(router, [])
         setIsFilesDownloading(false)
     }
 
@@ -144,20 +146,20 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
         changeQuery(router, selectedRegistryKeys)
     }, [changeQuery, router])
 
-    const isSelectedAllRowsByPage = !loading && selectedRowKeysByPage.length > 0 && selectedRowKeysByPage.length === paymentsFiles.length
-    const isSelectedSomeRowsByPage = !loading && selectedRowKeysByPage.length > 0 && selectedRowKeysByPage.length < paymentsFiles.length
+    const isSelectedAllRowsByPage = !loading && selectedRowKeysByPage.length > 0 && selectedRowKeysByPage.length === data?.paymentsFiles.length
+    const isSelectedSomeRowsByPage = !loading && selectedRowKeysByPage.length > 0 && selectedRowKeysByPage.length < data?.paymentsFiles.length
 
     const handleSelectAllRowsByPage = useCallback((e: CheckboxChangeEvent) => {
         const checked = e.target.checked
         if (checked) {
-            const newSelectedRegistryKeys = paymentsFiles
-                .filter(file => !selectedRowKeysByPage.includes(file.id))
+            const newSelectedRegistryKeys = data?.paymentsFiles
+                ?.filter(file => !selectedRowKeysByPage.includes(file.id))
                 .map(file => file.id)
             updateSelectedRegistryKeys([...selectedRegistryKeys, ...newSelectedRegistryKeys])
         } else {
             updateSelectedRegistryKeys(selectedRegistryKeys.filter(key => !selectedRowKeysByPage.includes(key)))
         }
-    }, [paymentsFiles, updateSelectedRegistryKeys, selectedRegistryKeys, selectedRowKeysByPage])
+    }, [data, updateSelectedRegistryKeys, selectedRegistryKeys, selectedRowKeysByPage])
 
     const handleSelectRow: (record: IPaymentsFile, checked: boolean) => void = useCallback((record, checked) => {
         const selectedKey = record.id
@@ -232,14 +234,14 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
                 <Col span={24}>
                     <Table
                         loading={loading}
-                        dataSource={paymentsFiles}
-                        totalRows={count}
+                        dataSource={data?.paymentsFiles}
+                        totalRows={data?.meta?.count}
                         columns={tableColumns}
                         rowSelection={rowSelection}
                     />
                 </Col>
                 <Col span={24}>
-                    {!loading && count > 0 && selectedRegistryKeys.length > 0 && (
+                    {!loading && data?.meta?.count > 0 && selectedRegistryKeys.length > 0 && (
                         <ActionBar
                             message={CountSelectedRegistryMessage}
                             actions={[

@@ -1,10 +1,11 @@
+import { useCheckPaymentsFilesExistenceQuery } from '@app/condo/gql'
 import React, { CSSProperties } from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 
 import PaymentFilesTable from '@condo/domains/acquiring/components/payments/PaymentFilesTable'
-import { PaymentsFile } from '@condo/domains/acquiring/utils/clientSchema'
 import { useBillingAndAcquiringContexts } from '@condo/domains/billing/components/BillingPageContent/ContextProvider'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Loader } from '@condo/domains/common/components/Loader'
@@ -20,12 +21,19 @@ const PaymentsFiles = (): JSX.Element => {
     const NoPaymentsFilesMessage = intl.formatMessage({ id:'accrualsAndPayments.paymentsFiles.noPaymentsFilesYet.message' })
 
     const { acquiringContext } = useBillingAndAcquiringContexts()
+    const { persistor } = useCachePersistor()
 
-    const { objs: anyPaymentsFiles, loading: isAnyPaymentsFilesLoading, error: anyPaymentsFilesError } = PaymentsFile.useObjects({
-        where: {
-            context: { id: acquiringContext.id },
+    const {
+        data: anyPaymentsFiles,
+        error: anyPaymentsFilesError,
+        loading: isAnyPaymentsFilesLoading,
+    } = useCheckPaymentsFilesExistenceQuery({
+        variables: {
+            where: {
+                context: { id: acquiringContext.id },
+            },
         },
-        first: 1,
+        skip: !acquiringContext.id || !persistor,
     })
 
     if (isAnyPaymentsFilesLoading) {
@@ -36,7 +44,7 @@ const PaymentsFiles = (): JSX.Element => {
         return <Typography.Title>{anyPaymentsFilesError}</Typography.Title>
     }
 
-    if (!anyPaymentsFiles.length) {
+    if (!anyPaymentsFiles?.paymentsFiles?.length) {
         return (
             <BasicEmptyListView image={SEARCHING_DINO_IMG} imageStyle={IMG_STYLES} spaceSize={TEXT_GAP}>
                 <Typography.Title level={3}>{NoPaymentsFilesTitle}</Typography.Title>

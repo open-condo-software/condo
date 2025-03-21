@@ -57,6 +57,150 @@ export const AddressMetaForTableAddressFragmentDoc = gql`
   }
 }
     `;
+export const GetPaymentsFilesDocument = gql`
+    query getPaymentsFiles($where: PaymentsFileWhereInput!, $sortBy: [SortPaymentsFilesBy!], $first: Int!, $skip: Int) {
+  paymentsFiles: allPaymentsFiles(
+    where: $where
+    sortBy: $sortBy
+    first: $first
+    skip: $skip
+  ) {
+    id
+    number
+    loadedAt
+    file {
+      id
+      originalFilename
+      publicUrl
+      mimetype
+    }
+    context {
+      id
+    }
+    account
+    dateBegin
+    dateEnd
+    uploadedRecords
+    amount
+    registryName
+    status
+    paymentOrder
+  }
+  meta: _allPaymentsFilesMeta(where: $where) {
+    count
+  }
+}
+    `;
+
+/**
+ * __useGetPaymentsFilesQuery__
+ *
+ * To run a query within a React component, call `useGetPaymentsFilesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPaymentsFilesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPaymentsFilesQuery({
+ *   variables: {
+ *      where: // value for 'where'
+ *      sortBy: // value for 'sortBy'
+ *      first: // value for 'first'
+ *      skip: // value for 'skip'
+ *   },
+ * });
+ */
+export function useGetPaymentsFilesQuery(baseOptions: Apollo.QueryHookOptions<Types.GetPaymentsFilesQuery, Types.GetPaymentsFilesQueryVariables> & ({ variables: Types.GetPaymentsFilesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetPaymentsFilesQuery, Types.GetPaymentsFilesQueryVariables>(GetPaymentsFilesDocument, options);
+      }
+export function useGetPaymentsFilesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetPaymentsFilesQuery, Types.GetPaymentsFilesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetPaymentsFilesQuery, Types.GetPaymentsFilesQueryVariables>(GetPaymentsFilesDocument, options);
+        }
+export function useGetPaymentsFilesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetPaymentsFilesQuery, Types.GetPaymentsFilesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetPaymentsFilesQuery, Types.GetPaymentsFilesQueryVariables>(GetPaymentsFilesDocument, options);
+        }
+export type GetPaymentsFilesQueryHookResult = ReturnType<typeof useGetPaymentsFilesQuery>;
+export type GetPaymentsFilesLazyQueryHookResult = ReturnType<typeof useGetPaymentsFilesLazyQuery>;
+export type GetPaymentsFilesSuspenseQueryHookResult = ReturnType<typeof useGetPaymentsFilesSuspenseQuery>;
+export type GetPaymentsFilesQueryResult = Apollo.QueryResult<Types.GetPaymentsFilesQuery, Types.GetPaymentsFilesQueryVariables>;
+export const CheckPaymentsFilesExistenceDocument = gql`
+    query checkPaymentsFilesExistence($where: PaymentsFileWhereInput!) {
+  paymentsFiles: allPaymentsFiles(where: $where, first: 1) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useCheckPaymentsFilesExistenceQuery__
+ *
+ * To run a query within a React component, call `useCheckPaymentsFilesExistenceQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCheckPaymentsFilesExistenceQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCheckPaymentsFilesExistenceQuery({
+ *   variables: {
+ *      where: // value for 'where'
+ *   },
+ * });
+ */
+export function useCheckPaymentsFilesExistenceQuery(baseOptions: Apollo.QueryHookOptions<Types.CheckPaymentsFilesExistenceQuery, Types.CheckPaymentsFilesExistenceQueryVariables> & ({ variables: Types.CheckPaymentsFilesExistenceQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.CheckPaymentsFilesExistenceQuery, Types.CheckPaymentsFilesExistenceQueryVariables>(CheckPaymentsFilesExistenceDocument, options);
+      }
+export function useCheckPaymentsFilesExistenceLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.CheckPaymentsFilesExistenceQuery, Types.CheckPaymentsFilesExistenceQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.CheckPaymentsFilesExistenceQuery, Types.CheckPaymentsFilesExistenceQueryVariables>(CheckPaymentsFilesExistenceDocument, options);
+        }
+export function useCheckPaymentsFilesExistenceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.CheckPaymentsFilesExistenceQuery, Types.CheckPaymentsFilesExistenceQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.CheckPaymentsFilesExistenceQuery, Types.CheckPaymentsFilesExistenceQueryVariables>(CheckPaymentsFilesExistenceDocument, options);
+        }
+export type CheckPaymentsFilesExistenceQueryHookResult = ReturnType<typeof useCheckPaymentsFilesExistenceQuery>;
+export type CheckPaymentsFilesExistenceLazyQueryHookResult = ReturnType<typeof useCheckPaymentsFilesExistenceLazyQuery>;
+export type CheckPaymentsFilesExistenceSuspenseQueryHookResult = ReturnType<typeof useCheckPaymentsFilesExistenceSuspenseQuery>;
+export type CheckPaymentsFilesExistenceQueryResult = Apollo.QueryResult<Types.CheckPaymentsFilesExistenceQuery, Types.CheckPaymentsFilesExistenceQueryVariables>;
+export const UpdatePaymentsFileDocument = gql`
+    mutation updatePaymentsFile($id: ID!, $data: PaymentsFileUpdateInput!) {
+  paymentsFile: updatePaymentsFile(id: $id, data: $data) {
+    id
+  }
+}
+    `;
+export type UpdatePaymentsFileMutationFn = Apollo.MutationFunction<Types.UpdatePaymentsFileMutation, Types.UpdatePaymentsFileMutationVariables>;
+
+/**
+ * __useUpdatePaymentsFileMutation__
+ *
+ * To run a mutation, you first call `useUpdatePaymentsFileMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePaymentsFileMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updatePaymentsFileMutation, { data, loading, error }] = useUpdatePaymentsFileMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdatePaymentsFileMutation(baseOptions?: Apollo.MutationHookOptions<Types.UpdatePaymentsFileMutation, Types.UpdatePaymentsFileMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.UpdatePaymentsFileMutation, Types.UpdatePaymentsFileMutationVariables>(UpdatePaymentsFileDocument, options);
+      }
+export type UpdatePaymentsFileMutationHookResult = ReturnType<typeof useUpdatePaymentsFileMutation>;
+export type UpdatePaymentsFileMutationResult = Apollo.MutationResult<Types.UpdatePaymentsFileMutation>;
+export type UpdatePaymentsFileMutationOptions = Apollo.BaseMutationOptions<Types.UpdatePaymentsFileMutation, Types.UpdatePaymentsFileMutationVariables>;
 export const GetBankAccountReportTasksDocument = gql`
     query getBankAccountReportTasks($where: BankAccountReportTaskWhereInput!) {
   tasks: allBankAccountReportTasks(where: $where) {
