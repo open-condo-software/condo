@@ -2,15 +2,17 @@ To make requests to the API, you need to authorize the user.
 At the moment, we use two authorization mechanisms: **cookie based** authentication
 and **bearer token** based authentication.
 
-## authenticateUserWithPhoneAndPassword
-
-Use the `authenticateUserWithPhoneAndPassword` mutation to authenticate the user.
+There are several ways to authenticate. Each one has own mutation.
 After successfully executing the mutation, we will set you a `cookie` session.
 From the same mutation you will be able to get an authorization token and use it in further requests,
 by setting the `Authorization` header to `Bearer <token>`.
 
+## authenticateUserWithPhoneAndPassword
+
+Use the `authenticateUserWithPhoneAndPassword` mutation to authenticate the user.
+
 <Tabs labels={['GQL-query example', 'CURL-query example', 'Response example']}>
-```
+```graphql
 mutation {
   authenticateUserWithPhoneAndPassword(data: {
     phone: "+79990000000"
@@ -32,7 +34,7 @@ curl 'https://condo.d.doma.ai/admin/api' -H 'Content-Type: application/json' --d
 {
   "data": {
     "authenticateUserWithPhoneAndPassword": {
-      "token": "lSULdzVaPWBK8CTH-7A5JpL8YFRk3YNg0.8R+N+OrJXoAA7fNe60EBR+ckkQ73SSZqa/7WXTTG6ZMMQ",
+      "token": "AaaaAAaAaBbbBbbbb.ccCCCcCcCCCDDDDDddddDDdDd",
       "item": {
         "id": "d586e452-d60f-44fa-9330-b7318a3a4c57",
         "name": "Ivan Ivanov"
@@ -41,6 +43,37 @@ curl 'https://condo.d.doma.ai/admin/api' -H 'Content-Type: application/json' --d
   }
 }
 ```
+</Tabs>
+
+## authenticateUserWithPassword
+
+Authentication with email and password may be used for service users. It works the same way as `authenticateUserWithPhoneAndPassword`.
+
+<Tabs labels={['GQL-query example', 'CURL-query example', 'Response example']}>
+    ```graphql
+    mutation {
+      authenticateUserWithPassword(email: "e@ma.il" password: "***") {
+        token item { id name }
+      }
+    }
+    ```
+    ```bash
+    curl 'https://condo.d.doma.ai/admin/api' -H 'Content-Type: application/json' --data-raw $'{"operationName":"authenticateUserWithPassword","variables":{"identity":"e@ma.il","password":"12345678"},"query":"mutation authenticateUserWithPassword($identity: String!, $password: String!) { obj: authenticateUserWithPassword(email: $identity, password: $password) { token item { id name } } }"}'
+    ```
+
+    ```json
+    {
+      "data": {
+        "authenticateUserWithPassword": {
+          "token": "AaaaAAaAaBbbBbbbb.ccCCCcCcCCCDDDDDddddDDdDd",
+          "item": {
+            "id": "d586e452-d60f-44fa-9330-b7318a3a4c57",
+            "name": "Ivan Ivanov"
+          }
+        }
+      }
+    }
+    ```
 </Tabs>
 
 ## authenticatedUser
