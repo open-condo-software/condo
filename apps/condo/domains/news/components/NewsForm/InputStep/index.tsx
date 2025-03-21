@@ -49,7 +49,7 @@ export type NewsItemDataType = {
     body: string
 }
 
-interface INewsItemSharingForm {
+type NewsItemSharingFormProps = {
     sharingAppData?: {
         app: B2BApp
         id: string
