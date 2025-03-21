@@ -133,53 +133,49 @@ export const InputPhoneForm: React.FC<InputPhoneFormProps> = ({ onFinish }) => {
                 >
                     <Row justify='start'>
                         <ResponsiveCol span={24}>
-                            <Row gutter={[0, 48]}>
+                            <Row gutter={[0, 40]}>
                                 <Col span={24}>
-                                    <Row gutter={[0, 40]}>
-                                        <Col span={24}>
-                                            <FormItem
-                                                name='phone'
-                                                label={PhoneMessage}
-                                                data-cy='register-phone-item'
-                                                rules={registerPhoneRules}
-                                            >
-                                                <Input.Phone placeholder={ExamplePhoneMessage} inputProps={PHONE_INPUT_PROPS} />
-                                            </FormItem>
-                                        </Col>
-
-                                        <Col span={24}>
-                                            <Row gutter={[0, 24]}>
-                                                <Col span={24}>
-                                                    <Button
-                                                        key='submit'
-                                                        type='primary'
-                                                        htmlType='submit'
-                                                        loading={isLoading}
-                                                        data-cy='register-button'
-                                                        block
-                                                        tabIndex={2}
-                                                    >
-                                                        {SubmitMessage}
-                                                    </Button>
-                                                </Col>
-                                                {
-                                                    hasSbbolAuth && (
-                                                        <Col span={24} id='inputPhoneSBBOL'>
-                                                            <LoginWithSBBOLButton
-                                                                redirect={redirectUrl}
-                                                                block
-                                                                checkTlsCert
-                                                                tabIndex={3}
-                                                            />
-                                                        </Col>
-                                                    )
-                                                }
-                                            </Row>
-                                        </Col>
-                                    </Row>
+                                    <FormItem
+                                        name='phone'
+                                        label={PhoneMessage}
+                                        data-cy='register-phone-item'
+                                        rules={registerPhoneRules}
+                                    >
+                                        <Input.Phone placeholder={ExamplePhoneMessage} inputProps={PHONE_INPUT_PROPS} />
+                                    </FormItem>
                                 </Col>
 
-                                <AgreementText tabIndexes={TAB_INDEXES} />
+                                <Col span={24}>
+                                    <Row gutter={[0, 24]}>
+                                        <Col span={24}>
+                                            <Button
+                                                key='submit'
+                                                type='primary'
+                                                htmlType='submit'
+                                                loading={isLoading}
+                                                data-cy='register-button'
+                                                block
+                                                tabIndex={2}
+                                            >
+                                                {SubmitMessage}
+                                            </Button>
+                                        </Col>
+                                        {
+                                            hasSbbolAuth && (
+                                                <Col span={24} id='inputPhoneSBBOL'>
+                                                    <LoginWithSBBOLButton
+                                                        redirect={redirectUrl}
+                                                        block
+                                                        checkTlsCert
+                                                        tabIndex={3}
+                                                    />
+                                                </Col>
+                                            )
+                                        }
+
+                                        <AgreementText tabIndexes={TAB_INDEXES} />
+                                    </Row>
+                                </Col>
                             </Row>
                         </ResponsiveCol>
                     </Row>

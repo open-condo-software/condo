@@ -104,82 +104,77 @@ export const SignInForm = (): React.ReactElement => {
         >
             <Row justify='start'>
                 <ResponsiveCol span={24}>
-                    <Row gutter={[0, 48]}>
+                    <Row gutter={[0, 40]}>
                         <Col span={24}>
-                            <Row gutter={[0, 40]}>
+                            <Row gutter={[0, 24]}>
+                                <Col span={24}>
+                                    <FormItem
+                                        name='phone'
+                                        label={PhoneMessage}
+                                        rules={[{ required: true, message: FieldIsRequiredMessage }]}
+                                        data-cy='signin-phone-item'
+                                    >
+                                        <Input.Phone placeholder={ExamplePhoneMessage} inputProps={PHONE_INPUT_PROPS} />
+                                    </FormItem>
+                                </Col>
                                 <Col span={24}>
                                     <Row gutter={[0, 24]}>
                                         <Col span={24}>
                                             <FormItem
-                                                name='phone'
-                                                label={PhoneMessage}
+                                                name='password'
+                                                label={PasswordMessage}
                                                 rules={[{ required: true, message: FieldIsRequiredMessage }]}
-                                                data-cy='signin-phone-item'
+                                                data-cy='signin-password-item'
                                             >
-                                                <Input.Phone placeholder={ExamplePhoneMessage} inputProps={PHONE_INPUT_PROPS} />
+                                                <Input.Password tabIndex={2} />
                                             </FormItem>
                                         </Col>
+
                                         <Col span={24}>
-                                            <Row gutter={[0, 24]}>
-                                                <Col span={24}>
-                                                    <FormItem
-                                                        name='password'
-                                                        label={PasswordMessage}
-                                                        rules={[{ required: true, message: FieldIsRequiredMessage }]}
-                                                        data-cy='signin-password-item'
-                                                    >
-                                                        <Input.Password tabIndex={2} />
-                                                    </FormItem>
-                                                </Col>
-
-                                                <Col span={24}>
-                                                    <Link href='/auth/forgot'>
-                                                        <Typography.Link href='/auth/forgot' tabIndex={3}>
-                                                            {ResetPasswordMessage}
-                                                        </Typography.Link>
-                                                    </Link>
-                                                </Col>
-                                            </Row>
+                                            <Link href='/auth/forgot'>
+                                                <Typography.Link href='/auth/forgot' tabIndex={3}>
+                                                    {ResetPasswordMessage}
+                                                </Typography.Link>
+                                            </Link>
                                         </Col>
-                                    </Row>
-                                </Col>
-
-                                <Col span={24}>
-                                    <Row gutter={[0, 24]}>
-                                        <Col span={24}>
-                                            <Button
-                                                key='submit'
-                                                type='primary'
-                                                htmlType='submit'
-                                                loading={isLoading}
-                                                block
-                                                data-cy='signin-button'
-                                                tabIndex={4}
-                                            >
-                                                {SignInMessage}
-                                            </Button>
-                                        </Col>
-
-                                        {
-                                            hasSbbolAuth && (
-                                                <Col span={24} id='signInSBBOL'>
-                                                    <LoginWithSBBOLButton
-                                                        tabIndex={5}
-                                                        redirect={redirectUrl}
-                                                        block
-                                                        checkTlsCert
-                                                    />
-                                                </Col>
-                                            )
-                                        }
                                     </Row>
                                 </Col>
                             </Row>
                         </Col>
 
-                        <AgreementText tabIndexes={TAB_INDEXES} />
-                    </Row>
+                        <Col span={24}>
+                            <Row gutter={[0, 24]}>
+                                <Col span={24}>
+                                    <Button
+                                        key='submit'
+                                        type='primary'
+                                        htmlType='submit'
+                                        loading={isLoading}
+                                        block
+                                        data-cy='signin-button'
+                                        tabIndex={4}
+                                    >
+                                        {SignInMessage}
+                                    </Button>
+                                </Col>
 
+                                {
+                                    hasSbbolAuth && (
+                                        <Col span={24} id='signInSBBOL'>
+                                            <LoginWithSBBOLButton
+                                                tabIndex={5}
+                                                redirect={redirectUrl}
+                                                block
+                                                checkTlsCert
+                                            />
+                                        </Col>
+                                    )
+                                }
+
+                                <AgreementText tabIndexes={TAB_INDEXES} />
+                            </Row>
+                        </Col>
+                    </Row>
                 </ResponsiveCol>
             </Row>
         </Form>
