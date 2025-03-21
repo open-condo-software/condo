@@ -238,7 +238,7 @@ describe('PaymentsFile', () => {
             expect(obj.dv).toEqual(1)
         })
 
-        test('There can only be one payments file for one context, registryName and dateLoad', async () => {
+        test('There can only be one payments file for one context, registryName and loadedAt', async () => {
             const loadedAt = new Date()
             await createTestPaymentsFile(admin, context, { registryName: 'name', loadedAt })
 

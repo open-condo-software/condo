@@ -14,7 +14,7 @@ import {
 import { getDayRangeFilter, getFilter, getStringContainsFilter } from '@condo/domains/common/utils/tables.utils'
 
 
-const dateLoadFilter = getDayRangeFilter('dateLoad')
+const loadedAtFilter = getDayRangeFilter('loadedAt')
 const acquiringContextFilter = getFilter(['context', 'id'], 'array', 'string', 'in')
 const statusFilter = getFilter('status', 'array', 'string', 'in')
 const paymentOrderFilter = getStringContainsFilter('paymentOrder')
@@ -41,12 +41,12 @@ export function usePaymentsFilesTableFilters ( organizationId: string ): Filters
         return [
             {
                 keyword: 'search',
-                filters: [dateLoadFilter, paymentOrderFilter],
+                filters: [loadedAtFilter, paymentOrderFilter],
                 combineType: 'OR',
             },
             {
-                keyword: 'dateLoad',
-                filters: [dateLoadFilter],
+                keyword: 'loadedAt',
+                filters: [loadedAtFilter],
                 component: {
                     type: ComponentType.DateRange,
                     props: {
