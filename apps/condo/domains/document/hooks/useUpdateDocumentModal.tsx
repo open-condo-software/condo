@@ -106,12 +106,16 @@ const UpdateDocumentModal = ({ selectedDocument, setSelectedDocument, refetchDoc
                                 {
                                     ({ getFieldValue }) => {
                                         const categoryFromField = getFieldValue('category')
+                                        const canReadByResidentField = getFieldValue('canReadByResident')
 
                                         return (
                                             <Button
                                                 type='primary'
                                                 onClick={() => updateForm.submit()}
-                                                disabled={get(selectedDocument, 'category.id') === categoryFromField}
+                                                disabled={
+                                                    get(selectedDocument, 'category.id') === categoryFromField &&
+                                                    get(selectedDocument, 'canReadByResident')  === canReadByResidentField
+                                                }
                                                 loading={loading}
                                             >
                                                 {SaveMessage}
