@@ -7,8 +7,8 @@ const index = require('@app/condo/index')
 const { setFakeClientMode, makeLoggedInAdminClient, makeLoggedInClient } = require('@open-condo/keystone/test.utils')
 
 const {
-    REGISTER_NEW_USER_MESSAGE_TYPE,
     NEWS_ITEM_COMMON_MESSAGE_TYPE,
+    DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const {
     createTestNotificationAnonymousSetting,
@@ -50,7 +50,7 @@ describe('Transport settings for message', () => {
     })
 
     test('allow all transports if no user set for the Message model', async () => {
-        const [message] = await createTestMessage(adminClient, { type: REGISTER_NEW_USER_MESSAGE_TYPE })
+        const [message] = await createTestMessage(adminClient, { type: DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE })
         const settings = await getUserSettingsForMessage(keystone, message)
 
         for (const val of Object.values(settings)) {
@@ -62,13 +62,13 @@ describe('Transport settings for message', () => {
         const [, userAttrs] = await createTestUser(adminClient)
         const userClient = await makeLoggedInClient(userAttrs)
         await createTestNotificationUserSetting(userClient, {
-            messageType: REGISTER_NEW_USER_MESSAGE_TYPE,
+            messageType: DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE,
             messageTransport: 'email',
             isEnabled: false,
         })
         const [message] = await createTestMessage(adminClient, {
             user: { connect: { id: userClient.user.id } },
-            type: REGISTER_NEW_USER_MESSAGE_TYPE,
+            type: DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE,
         })
         const settings = await getUserSettingsForMessage(keystone, message)
 

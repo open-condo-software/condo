@@ -1,20 +1,16 @@
-import { ErrorLayoutFooter, ErrorLayoutHeader } from '@app/condo/pages/500'
-import { Typography } from 'antd'
 import getConfig from 'next/config'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Button, Space } from '@open-condo/ui'
+import { Button, Space, Typography } from '@open-condo/ui'
 
-import { fontSizes } from '@condo/domains/common/constants/style'
 import { PageComponentType } from '@condo/domains/common/types'
 import { PosterLayout } from '@condo/domains/user/components/containers/PosterLayout'
 
 
-const DESCRIPTION_TEXT_STYLE = { fontSize: fontSizes.content }
-const SuccessSrc = { poster: '/successDino.webp' }
+const SuccessSrc = { main: '/successDino.webp' }
 
 const { publicRuntimeConfig:{ condoRBDomain } } = getConfig()
 
@@ -35,7 +31,7 @@ const SuccessPage: PageComponentType = () => {
             </Head>
             <Space direction='vertical' size={16}>
                 <Typography.Title>{PageTitle}</Typography.Title>
-                <Typography.Paragraph style={DESCRIPTION_TEXT_STYLE}>
+                <Typography.Paragraph>
                     {DescriptionMessage}
                 </Typography.Paragraph>
                 {
@@ -68,9 +64,7 @@ const SuccessPage: PageComponentType = () => {
 const SuccessPageLayout = (props): React.ReactElement => (
     <PosterLayout
         {...props}
-        Header={<ErrorLayoutHeader />}
-        Footer={<ErrorLayoutFooter />}
-        layoutBgImage={SuccessSrc}
+        image={SuccessSrc}
     />
 )
 

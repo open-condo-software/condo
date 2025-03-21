@@ -1,192 +1,179 @@
-import { Col, Form, Row, RowProps, Typography } from 'antd'
+import { useAuthenticateUserWithPhoneAndPasswordMutation } from '@app/condo/gql'
+import { UserTypeType as UserType } from '@app/condo/schema'
+import { Col, Form, Row } from 'antd'
 import getConfig from 'next/config'
+import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
-import { useMutation } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
-import { FormattedMessage } from '@open-condo/next/intl'
 import { useIntl } from '@open-condo/next/intl'
+import { Typography, Button, Input } from '@open-condo/ui'
 
-import Input from '@condo/domains/common/components/antd/Input'
-import { Button } from '@condo/domains/common/components/Button'
+import { FormItem } from '@condo/domains/common/components/Form/FormItem'
+import { useHCaptcha } from '@condo/domains/common/components/HCaptcha'
 import { LoginWithSBBOLButton } from '@condo/domains/common/components/LoginWithSBBOLButton'
-import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
-import { colors } from '@condo/domains/common/constants/style'
-import { runMutation } from '@condo/domains/common/utils/mutations.utils'
+import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
 import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
-import { STAFF } from '@condo/domains/user/constants/common'
 import { WRONG_CREDENTIALS } from '@condo/domains/user/constants/errors'
-import { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } from '@condo/domains/user/gql'
 
 import { AgreementText } from './AgreementText'
 
 
-const ROW_STYLES: React.CSSProperties = {
-    justifyContent: 'center',
-}
-const FORM_TYPOGRAPHY_STYLES: React.CSSProperties = {
-    textAlign:'center',
-}
-const FORM_PARAGRAPH_STYLES: React.CSSProperties = {
-    margin: '24px 0',
-}
-const FORM_PHONE_STYLES: React.CSSProperties = { borderRadius: 8, borderColor: colors.inputBorderGrey }
-const FORM_BUTTONS_GUTTER: RowProps['gutter'] = [0, 20]
+const { publicRuntimeConfig: { hasSbbolAuth } } = getConfig()
+
+const INITIAL_VALUES = { password: '', phone: '' }
+const PHONE_INPUT_PROPS = { tabIndex: 1, autoFocus: true }
+const TAB_INDEXES = { termsOfUse: 7, consentLink: 9, privacyPolicyLink: 8 }
 
 export const SignInForm = (): React.ReactElement => {
     const intl = useIntl()
-    const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
-    const SignInMsg = intl.formatMessage({ id: 'SignIn' })
-    const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
-    const PasswordMsg = intl.formatMessage({ id: 'pages.auth.signin.field.Password' })
-    const PhoneMsg = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
-    const ResetMsg = intl.formatMessage({ id: 'pages.auth.signin.ResetPasswordLinkTitle' })
-    const PasswordOrPhoneMismatch = intl.formatMessage({ id: 'pages.auth.WrongPhoneOrPassword' })
+    const FieldIsRequiredMessage = intl.formatMessage({ id: 'FieldIsRequired' })
+    const SignInMessage = intl.formatMessage({ id: 'SignIn' })
+    const ExamplePhoneMessage = intl.formatMessage({ id: 'example.Phone' })
+    const PasswordMessage = intl.formatMessage({ id: 'pages.auth.signin.field.Password' })
+    const PhoneMessage = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
+    const ResetPasswordMessage = intl.formatMessage({ id: 'pages.auth.signin.ResetPasswordLink' })
 
-    const LOGIN_PHONE_LABEL = <label style={{ alignSelf: 'flex-end' }}>{PhoneMsg}</label>
-    const PASSWORD_LABEL = <label style={{ alignSelf: 'flex-end' }}>{PasswordMsg}</label>
-
-    const { publicRuntimeConfig: { hasSbbolAuth } } = getConfig()
+    const router = useRouter()
+    const { refetch } = useAuth()
+    const { executeCaptcha } = useHCaptcha()
 
     const [form] = Form.useForm()
-    const router = useRouter()
-    const { query: { next }  } = router
-    const redirectUrl = (next && !Array.isArray(next) && isSafeUrl(next)) ? next : '/'
-    const { refetch } = useAuth()
-    const [isLoading, setIsLoading] = useState(false)
-    const [signinByPhoneAndPassword] = useMutation(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION)
-    // TODO(DOMA-3293): remove this legacy error style and Useless error messages
-    const ErrorToFormFieldMsgMapping = useMemo(() => {
-        return {
-            [WRONG_CREDENTIALS]: {
-                name: 'phone',
-                errors: [PasswordOrPhoneMismatch],
-            },
-        }
-    }, [PasswordOrPhoneMismatch])
 
-    const onFormSubmit = useCallback((values) => {
+    const [isLoading, setIsLoading] = useState(false)
+
+    const { query: { next }  } = router
+
+    const redirectUrl = (next && !Array.isArray(next) && isSafeUrl(next)) ? next : '/'
+
+    const onError = useMutationErrorHandler({
+        form,
+        typeToFieldMapping: {
+            [WRONG_CREDENTIALS]: 'phone',
+        },
+    })
+    const [authenticateUserWithPhoneAndPassword] = useAuthenticateUserWithPhoneAndPasswordMutation({
+        onError,
+    })
+
+    const onFormSubmit = useCallback(async (values: { phone: string, password: string }): Promise<void> => {
+        if (isLoading) return
+
         setIsLoading(true)
 
-        const sender = getClientSideSenderInfo()
-        return runMutation({
-            mutation: signinByPhoneAndPassword,
-            variables: {
-                data: {
-                    phone: values.phone,
-                    password: values.password,
-                    userType: STAFF,
-                    sender,
-                    dv: 1,
+        try {
+            const sender = getClientSideSenderInfo()
+            const captcha = await executeCaptcha()
+            const res = await authenticateUserWithPhoneAndPassword({
+                variables: {
+                    data: {
+                        captcha: captcha,
+                        phone: values.phone,
+                        password: values.password,
+                        userType: UserType.Staff,
+                        sender,
+                        dv: 1,
+                    },
                 },
-            },
-            onCompleted: () => {
-                refetch().then(() => {
-                    return router.push(redirectUrl)
-                })
-            },
-            // Skip notification
-            OnCompletedMsg: null,
-            onFinally: () => {
-                setIsLoading(false)
-            },
-            intl,
-            form,
-            ErrorToFormFieldMsgMapping,
-        }).catch(() => {
-            setIsLoading(false)
-        })
-    }, [intl, form, ErrorToFormFieldMsgMapping, redirectUrl, refetch, router, signinByPhoneAndPassword])
+            })
 
-    const initialValues = { password: '', phone: '' }
+            if (!res.errors && res.data?.result?.item?.id) {
+                await refetch()
+                await router.push(redirectUrl)
+                return
+            }
+        } catch (error) {
+            console.error('Authorization failed')
+            console.error(error)
+        } finally {
+            setIsLoading(false)
+        }
+    }, [isLoading, executeCaptcha, authenticateUserWithPhoneAndPassword, refetch, router, redirectUrl])
 
     return (
         <Form
             form={form}
             name='signin'
             onFinish={onFormSubmit}
-            initialValues={initialValues}
+            initialValues={INITIAL_VALUES}
             requiredMark={false}
             layout='vertical'
         >
-            <Row style={ROW_STYLES}>
+            <Row justify='start'>
                 <ResponsiveCol span={24}>
-                    <Row>
+                    <Row gutter={[0, 40]}>
                         <Col span={24}>
-                            <Form.Item
-                                name='phone'
-                                label={LOGIN_PHONE_LABEL}
-                                rules={[{ required: true, message: FieldIsRequiredMsg }]}
-                                data-cy='signin-phone-item'
-                            >
-                                <PhoneInput
-                                    style={FORM_PHONE_STYLES}
-                                    placeholder={ExamplePhoneMsg}
-                                    tabIndex={1}
-                                    block
-                                />
-                            </Form.Item>
-                        </Col>
-                        <Col span={24}>
-                            <Form.Item
-                                name='password'
-                                label={PASSWORD_LABEL}
-                                rules={[{ required: true, message: FieldIsRequiredMsg }]}
-                                data-cy='signin-password-item'
-                            >
-                                <Input.Password tabIndex={2}/>
-                            </Form.Item>
-                        </Col>
-                        <Col span={24}>
-                            <Typography.Paragraph type='secondary' style={FORM_PARAGRAPH_STYLES}>
-                                <FormattedMessage
-                                    id='pages.auth.signin.ResetPasswordLink'
-                                    values={{
-                                        link: (
-                                            <Typography.Link
-                                                style={{ color: colors.black }}
-                                                onClick={() => router.push('/auth/forgot')}>
-                                                {ResetMsg}
-                                            </Typography.Link>
-                                        ),
-                                    }}
-                                />
-                            </Typography.Paragraph>
-                        </Col>
-
-                        <AgreementText />
-                    </Row>
-                    <Row gutter={FORM_BUTTONS_GUTTER}>
-                        <Col span={24} style={FORM_PARAGRAPH_STYLES}>
-                            <Form.Item>
-                                <Button
-                                    key='submit'
-                                    type='sberDefaultGradient'
-                                    htmlType='submit'
-                                    loading={isLoading}
-                                    block
-                                    data-cy='signin-button'
-                                >
-                                    {SignInMsg}
-                                </Button>
-                            </Form.Item>
-                        </Col>
-                        {(hasSbbolAuth) ?
-                            <>
-                                <Col span={24} style={FORM_TYPOGRAPHY_STYLES}>
-                                    <FormattedMessage id='Or'/>
+                            <Row gutter={[0, 24]}>
+                                <Col span={24}>
+                                    <FormItem
+                                        name='phone'
+                                        label={PhoneMessage}
+                                        rules={[{ required: true, message: FieldIsRequiredMessage }]}
+                                        data-cy='signin-phone-item'
+                                    >
+                                        <Input.Phone placeholder={ExamplePhoneMessage} inputProps={PHONE_INPUT_PROPS} />
+                                    </FormItem>
                                 </Col>
                                 <Col span={24}>
-                                    <Form.Item id='signInSBBOL'>
-                                        <LoginWithSBBOLButton redirect={redirectUrl} block checkTlsCert/>
-                                    </Form.Item>
+                                    <Row gutter={[0, 24]}>
+                                        <Col span={24}>
+                                            <FormItem
+                                                name='password'
+                                                label={PasswordMessage}
+                                                rules={[{ required: true, message: FieldIsRequiredMessage }]}
+                                                data-cy='signin-password-item'
+                                            >
+                                                <Input.Password tabIndex={2} />
+                                            </FormItem>
+                                        </Col>
+
+                                        <Col span={24}>
+                                            <Link href='/auth/forgot'>
+                                                <Typography.Link href='/auth/forgot' tabIndex={3}>
+                                                    {ResetPasswordMessage}
+                                                </Typography.Link>
+                                            </Link>
+                                        </Col>
+                                    </Row>
                                 </Col>
-                            </>
-                            : null
-                        }
+                            </Row>
+                        </Col>
+
+                        <Col span={24}>
+                            <Row gutter={[0, 24]}>
+                                <Col span={24}>
+                                    <Button
+                                        key='submit'
+                                        type='primary'
+                                        htmlType='submit'
+                                        loading={isLoading}
+                                        block
+                                        data-cy='signin-button'
+                                        tabIndex={4}
+                                    >
+                                        {SignInMessage}
+                                    </Button>
+                                </Col>
+
+                                {
+                                    hasSbbolAuth && (
+                                        <Col span={24} id='signInSBBOL'>
+                                            <LoginWithSBBOLButton
+                                                tabIndex={5}
+                                                redirect={redirectUrl}
+                                                block
+                                                checkTlsCert
+                                            />
+                                        </Col>
+                                    )
+                                }
+
+                                <AgreementText tabIndexes={TAB_INDEXES} />
+                            </Row>
+                        </Col>
                     </Row>
                 </ResponsiveCol>
             </Row>

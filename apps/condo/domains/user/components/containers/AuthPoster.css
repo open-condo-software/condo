@@ -1,0 +1,63 @@
+.auth-poster {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 410px;
+  height: calc(100vh - 32px - 32px);
+  padding: 32px 32px 20px;
+  overflow: hidden;
+  background: radial-gradient(circle at bottom left, #6fcd92, #e5f1fd 50%);
+  border-radius: 20px;
+}
+
+.auth-poster-content {
+  flex-grow: 1;
+}
+
+.auth-poster-footer {
+  display: flex;
+  flex-flow: wrap;
+  gap: 0 16px;
+  align-items: center;
+  justify-content: center;
+  width: 300px;
+  margin: 0 auto;
+}
+
+.auth-poster-image {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  min-height: 320px;
+  pointer-events: none;
+}
+
+@media (max-width: 991px) {
+  .auth-poster {
+    width: 100vw;
+    height: auto;
+    padding: 20px;
+    background: #f2f3f7;
+    border-radius: 0;
+  }
+
+  .auth-poster-text {
+    display: none;
+  }
+
+  .auth-poster-footer {
+    display: none;
+  }
+
+  .auth-poster-image {
+    display: none;
+  }
+}
+
+@media (max-height: 720px) {
+  .auth-poster-image {
+    display: none;
+  }
+}

@@ -7,10 +7,10 @@ import { Typography, Button } from '@open-condo/ui'
 
 import { PageComponentType } from '@condo/domains/common/types'
 import { PosterLayout } from '@condo/domains/user/components/containers/PosterLayout'
+import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 
-import { ErrorLayoutFooter, ErrorLayoutHeader } from './500'
 
-const Src404 = { poster: '/404Poster.webp', placeholder: '/404PosterPlaceholder.jpg' }
+const Src404 = { main: '/404Poster.webp', placeholder: '/404PosterPlaceholder.jpg' }
 
 const Custom404: PageComponentType = () => {
     const intl = useIntl()
@@ -19,8 +19,8 @@ const Custom404: PageComponentType = () => {
     const MainPagesMessageButton = intl.formatMessage({ id: 'pages.auth.MainPage' })
 
     return (
-        <Row justify='center'>
-            <Col span={24}>
+        <Row justify='start'>
+            <ResponsiveCol span={24} desktopWidth={470}>
                 <Row gutter={[0, 40]}>
                     <Col span={24}>
                         <Row gutter={[0, 24]}>
@@ -47,16 +47,14 @@ const Custom404: PageComponentType = () => {
                         </Button>
                     </Col>
                 </Row>
-            </Col>
+            </ResponsiveCol>
         </Row>
     )
 }
 
 const Error404Layout = (props): React.ReactElement => <PosterLayout
     {...props}
-    Header={<ErrorLayoutHeader />}
-    Footer={<ErrorLayoutFooter />}
-    layoutBgImage={Src404}
+    image={Src404}
 />
 
 Custom404.container = Error404Layout

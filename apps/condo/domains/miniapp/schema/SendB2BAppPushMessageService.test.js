@@ -208,7 +208,7 @@ describe('SendB2BAppPushMessageService', () => {
             }, {
                 code: 'BAD_USER_INPUT',
                 type: 'TOO_MANY_REQUESTS',
-                message: 'You have to wait {secondsRemaining} seconds to be able to send request again',
+                message: 'You have to wait {minutesRemaining} min. to be able to send request again',
             })
         })
 
@@ -232,7 +232,7 @@ describe('SendB2BAppPushMessageService', () => {
             }, {
                 code: 'BAD_USER_INPUT',
                 type: 'TOO_MANY_REQUESTS',
-                message: 'You have to wait {secondsRemaining} seconds to be able to send request again',
+                message: 'You have to wait {minutesRemaining} min. to be able to send request again',
             })
         })
 
