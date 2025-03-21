@@ -269,6 +269,18 @@ const OrganizationEmployeeRequest = new GQLListSchema('OrganizationEmployeeReque
                 }
             }
 
+            const userId = get(resolvedData, 'user')
+            if (userId) {
+                const user = await getByCondition('User', {
+                    id: userId,
+                    deletedAt: null,
+                })
+                if (user) {
+                    resolvedData['userName'] = user.name
+                    resolvedData['userPhone'] = user.phone
+                }
+            }
+
             return resolvedData
         },
         validateInput: async ({ resolvedData, existingItem, context }) => {

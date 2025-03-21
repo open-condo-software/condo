@@ -1,0 +1,12 @@
+query getOrganizationEmployeeRolesByOrganization ($organizationId: ID!) {
+    roles: allOrganizationEmployeeRoles (
+        where: {
+            organization: { id: $organizationId }
+        }
+        first: 100
+    ) {
+        id
+        name
+        description
+    }
+}
