@@ -10,7 +10,7 @@ const { checkPermissionsInEmployedOrganizations } = require('@condo/domains/orga
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { canDirectlyReadSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
-const { checkAcquiringIntegrationAccessRight } = require('../utils/accessSchema')
+const { checkAcquiringIntegrationAccessRights } = require('../utils/accessSchema')
 
 async function canReadPayments ({ authentication: { item: user }, listKey }) {
     if (!user) return throwAuthenticationError()
@@ -79,7 +79,7 @@ async function canReadPaymentsSensitiveData ({ authentication: { item: user }, e
     // If context exist => check is it's integration account
     if (acquiringContext) {
         const integrationId = get(acquiringContext, ['integration'])
-        if (await checkAcquiringIntegrationAccessRight(user.id, integrationId)) return true
+        if (await checkAcquiringIntegrationAccessRights(user.id, [integrationId])) return true
     }
 
     // Otherwise check if it's employee or not
