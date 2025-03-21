@@ -123,7 +123,7 @@ export const InputStep: React.FC<TInputStepProps> = ({
     const intl = useIntl()
     const { app: sharingApp, id: sharingAppId } = sharingAppData ?? { sharingAppId: null, sharingApp: null }
     const { id, newsSharingConfig } = sharingApp ?? { id: null, newsSharingConfig: null }
-    const { title: title, body: body } = newsItemData
+    const { title, body } = newsItemData
     const { loading: selectedPropertiesLoading, objs: selectedProperties } = selectedProperty
 
     const SelectAddressPlaceholder = intl.formatMessage({ id: 'global.select.address' })
