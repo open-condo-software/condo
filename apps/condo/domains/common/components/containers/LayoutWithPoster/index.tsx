@@ -46,14 +46,18 @@ export const LayoutWithPoster: React.FC<LayoutWithPosterProps> = ({ children, he
     }, [isAuthenticated, router?.push])
 
     const Header = useMemo(() => (
-        <Row gutter={[20, 20]} justify='space-between' align='middle'>
-            <Col className='layout-with-poster-logo-wrapper'>
+        <Row gutter={[20, 20]} justify='space-between' align='top'>
+            <Col className='layout-with-poster-logo-wrapper' span={12}>
                 <Logo onClick={handleLogoClick} />
             </Col>
             {
                 isSmallDisplay && headerAction && (
-                    <Col>
-                        {headerAction}
+                    <Col span={12}>
+                        <Row justify='end'>
+                            <Col>
+                                {headerAction}
+                            </Col>
+                        </Row>
                     </Col>
                 )
             }

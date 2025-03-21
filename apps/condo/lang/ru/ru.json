@@ -1598,7 +1598,7 @@
   "pages.auth.ForgotPasswordDescription": "Вы можете изменить свой пароль по соображениям безопасности или сбросить его, если вы его забыли. Вы получите электронное письмо с инструкциями по восстановлению пароля к вашей учетной записи",
   "pages.auth.ForgotPasswordStartedDescription": "Вы успешно запустили процесс восстановления. Обычно требуется некоторое время, чтобы доставить инструкции по восстановлению на электронную почту. Если вы не получили письмо, то проверьте папку СПАМ или повторите процесс через некоторое время",
   "pages.auth.ForgotPasswordTitle": "Сброс пароля",
-  "pages.auth.IAmOrganizationRepresentative": "Я — представитель бизнеса УК, ТСЖ, ТСН или РСО",
+  "pages.auth.IAmOrganizationRepresentative": "Я — УК, ТСЖ, ТСН или РСО",
   "pages.auth.IAmResident": "Я — житель",
   "pages.auth.IHaveReadAndAcceptTheAgreement": "Я прочитал и принимаю ваше соглашение",
   "pages.auth.IsNotImplementedYet": "Пока не реализовано ...",
