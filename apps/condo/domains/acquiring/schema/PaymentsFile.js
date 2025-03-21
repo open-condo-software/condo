@@ -141,9 +141,9 @@ const PaymentsFile = new GQLListSchema('PaymentsFile', {
         constraints: [
             {
                 type: 'models.UniqueConstraint',
-                fields: ['context', 'registryName', 'loadedAt'],
+                fields: ['context', 'registryName'],
                 condition: 'Q(deletedAt__isnull=True)',
-                name: 'PaymentsFile_uniq_for_context',
+                name: 'PaymentsFile_uniq_for_context_and_name',
             },
         ],
     },

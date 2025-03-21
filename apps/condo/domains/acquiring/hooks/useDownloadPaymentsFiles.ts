@@ -1,17 +1,36 @@
+import { useUpdatePaymentsFileMutation } from '@app/condo/gql'
 import JSZip from 'jszip'
+import { useCallback } from 'react'
+
+import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 
 import { PAYMENTS_FILE_DOWNLOADED_STATUS } from '@condo/domains/acquiring/constants/constants'
-import { PaymentsFile } from '@condo/domains/acquiring/utils/clientSchema'
 import { useDownloadFileFromServer } from '@condo/domains/common/hooks/useDownloadFileFromServer'
 
 
-export default function useDownloadRegistryFiles (refetch) {
+export default function useDownloadPaymentsFiles (refetch) {
     const { downloadFile } = useDownloadFileFromServer()
-    const updateRegistryStatus = PaymentsFile.useUpdate({
-        status: PAYMENTS_FILE_DOWNLOADED_STATUS,
-    }, () => refetch())
 
-    const downloadRegistryFiles = async (selectedRegistryIds, paymentsFiles) => {
+    const [updatePaymentsFileMutation] = useUpdatePaymentsFileMutation({
+        onCompleted: () => {
+            refetch()
+        },
+    })
+
+    const updatePaymentsFileStatus = useCallback(async (id) => {
+        await updatePaymentsFileMutation({
+            variables: {
+                id,
+                data: {
+                    status: PAYMENTS_FILE_DOWNLOADED_STATUS,
+                    sender: getClientSideSenderInfo(),
+                    dv: 1,
+                },
+            },
+        })
+    }, [updatePaymentsFileMutation])
+
+    const downloadPaymentsFiles = async (selectedRegistryIds, paymentsFiles) => {
         const selectedFiles = paymentsFiles.filter(file => selectedRegistryIds.includes(file.id))
 
         if (selectedFiles.length === 0) {
@@ -26,7 +45,7 @@ export default function useDownloadRegistryFiles (refetch) {
 
             if (url && name) {
                 await downloadFile({ url, name })
-                await updateRegistryStatus({}, { id: file.id })
+                await updatePaymentsFileStatus(file.id)
             } else {
                 console.error('No files selected for download')
             }
@@ -41,7 +60,7 @@ export default function useDownloadRegistryFiles (refetch) {
                 const blob = await response.blob()
                 zip.file(file.file.originalFilename, blob)
 
-                await updateRegistryStatus({}, { id: file.id })
+                await updatePaymentsFileStatus(file.id)
             }))
 
             const zipBlob = await zip.generateAsync({ type: 'blob' })
@@ -57,5 +76,5 @@ export default function useDownloadRegistryFiles (refetch) {
         }
     }
 
-    return { downloadRegistryFiles }
+    return { downloadPaymentsFiles }
 }

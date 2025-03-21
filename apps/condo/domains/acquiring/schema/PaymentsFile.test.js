@@ -238,13 +238,12 @@ describe('PaymentsFile', () => {
             expect(obj.dv).toEqual(1)
         })
 
-        test('There can only be one payments file for one context, registryName and loadedAt', async () => {
-            const loadedAt = new Date()
-            await createTestPaymentsFile(admin, context, { registryName: 'name', loadedAt })
+        test('There can only be one payments file for one context and registryName', async () => {
+            await createTestPaymentsFile(admin, context, { registryName: 'name' })
 
             await expectToThrowUniqueConstraintViolationError(async () => {
-                await createTestPaymentsFile(admin, context, { registryName: 'name', loadedAt })
-            }, 'PaymentsFile_uniq_for_context')
+                await createTestPaymentsFile(admin, context, { registryName: 'name' })
+            }, 'PaymentsFile_uniq_for_context_and_name')
         })
     })
 })
