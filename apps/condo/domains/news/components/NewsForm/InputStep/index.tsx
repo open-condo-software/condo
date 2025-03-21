@@ -297,7 +297,7 @@ export const InputStep: React.FC<TInputStepProps> = ({
     }, [])
 
     useEffect(() => {
-        if (window !== undefined && (isCustomForm || isCustomPreview)) {
+        if (isCustomForm || isCustomPreview) {
             window.addEventListener('message', handleSharingAppIFrameFormMessage)
             return () => window.removeEventListener('message', handleSharingAppIFrameFormMessage)
         }
