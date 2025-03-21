@@ -144,10 +144,10 @@ type SelectAppsFormValues = {
 }
 
 export type ScopeType = {
-    selectedUnitNameKeys: string[] | null
-    selectedPropertiesId: string[] | null
+    selectedUnitNameKeys: Array<string> | null
+    selectedPropertiesId: Array<string> | null
     isAllPropertiesChecked: boolean | null
-    selectedSectionKeys: string[] | null
+    selectedSectionKeys: Array<string> | null
 }
 
 export const HiddenBlock = styled.div<{ hide?: boolean }>`
