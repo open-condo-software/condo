@@ -86,7 +86,7 @@ services:
     command: ["redis-server", "--databases", "64"]
 
   valkey-cluster:
-    image: alpine
+    image: ${REGISTRY}alpine
     profiles: ['dbs']
     depends_on:
       - valkey-node-3
