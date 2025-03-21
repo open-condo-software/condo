@@ -93,7 +93,7 @@ type StepData = {
 export type SendPeriodType = 'now' | 'later'
 
 export type InitialValuesType =  Partial<INewsItem> & Partial<{
-    newsItemScopes: INewsItemScope[]
+    newsItemScopes: Array<INewsItemScope>
     hasAllProperties: boolean
     sendPeriod: SendPeriodType
     properties?: IProperty[]
