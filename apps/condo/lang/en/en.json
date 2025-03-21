@@ -232,6 +232,7 @@
   "SelectIsRequired": "Required to select value",
   "SelectOrganizationRequired": "Please select any organization",
   "Selected": "Selected",
+  "SelectedElements": "Selected elements",
   "SendTicketToEmail": "Send ticket to email",
   "SendVerificationCode": "Send verification code",
   "ServerError": "Server error",

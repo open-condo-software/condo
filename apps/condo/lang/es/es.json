@@ -232,6 +232,7 @@
   "SelectIsRequired": "Debe seleccionar un valor",
   "SelectOrganizationRequired": "Debe seleccionar una organización",
   "Selected": "Seleccionado",
+  "SelectedElements": "Elementos seleccionados",
   "SendTicketToEmail": "Enviar por correo al proveedor",
   "SendVerificationCode": "Enviar código de confirmación",
   "ServerError": "Error del servidor",
