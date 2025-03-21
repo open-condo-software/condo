@@ -50,10 +50,10 @@ export function usePaymentsFilesTableColumns (currencyCode: string): Record<stri
                 width: '10%',
                 render: stringSearch,
             },
-            dateLoad: {
+            loadedAt: {
                 title: DateLoadTitle,
-                key: 'dateLoad',
-                dataIndex: ['dateLoad'],
+                key: 'loadedAt',
+                dataIndex: ['loadedAt'],
                 sorter: true,
                 width: '15%',
                 render: getDateRender(intl, String(search)),
