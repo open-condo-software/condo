@@ -1058,7 +1058,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                         initialPropertyIds={initialPropertyIds}
                                         onSkip={() => handleStepSkip({ skip: true, step: currentStep })}
                                         sharingAppData={getStepDataByStep(currentStep).sharingAppData}
-                                        initialValues={get(sharingAppsFormValues, [getStepDataByStep(currentStep).sharingAppData?.id], undefined)}
+                                        initialValues={sharingAppsFormValues?.[getStepDataByStep(currentStep).sharingAppData?.id]}
                                         selectedProperty={{
                                             loading: selectedPropertiesLoading,
                                             objs: selectedProperties,
