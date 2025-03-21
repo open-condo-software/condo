@@ -5,7 +5,7 @@ import { useQuery } from '@open-condo/next/apollo'
 import { SUM_PAYMENTS_QUERY } from '@condo/domains/acquiring/gql'
 
 type UsePaymentsSumParams =
-    | { paymentsFilesWhere: PaymentsFileWhereInput, paymentsWhere?: never }
+    { paymentsFilesWhere: PaymentsFileWhereInput, paymentsWhere?: never }
     | { paymentsFilesWhere?: never, paymentsWhere: PaymentWhereInput }
 
 export default function usePaymentsSum (params: UsePaymentsSumParams) {
