@@ -27,7 +27,7 @@ import { useBillingAndAcquiringContexts } from '@condo/domains/billing/component
 import Input from '@condo/domains/common/components/antd/Input'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
-import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table'
+import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useDateRangeSearch } from '@condo/domains/common/hooks/useDateRangeSearch'
 import { MultipleFilterContextProvider } from '@condo/domains/common/hooks/useMultipleFiltersModal'
