@@ -145,7 +145,7 @@ export const InputStep: React.FC<TInputStepProps> = ({
 
     const newsItemForOneProperty = totalProperties === 1 && initialPropertyIds.length < 2
 
-    const newsItemScopesNoInstance = useMemo<NewsItemScopeNoInstanceType[]>(() => {
+    const newsItemScopesNoInstance = useMemo<Array<NewsItemScopeNoInstanceType>>(() => {
         if (scope.isAllPropertiesChecked && countPropertiesAvailableToSelect.current !== 1) {
             return [{ property: null, unitType: null, unitName: null }]
         }
