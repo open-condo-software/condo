@@ -81,7 +81,7 @@ export type BaseNewsFormProps = {
 type InputStepProps = NewsItemSharingFormProps & BaseNewsFormProps & {
     form: FormInstance
     scope: ScopeType
-    setScope:  React.Dispatch<React.SetStateAction<ScopeType>>
+    setScope: React.Dispatch<React.SetStateAction<ScopeType>>
     isSharingStep: boolean
     selectedProperty: {
         loading: boolean
