@@ -18,7 +18,10 @@ import { MainContent } from './MainContent'
 const StyledPageWrapper = styled(PageWrapper)`
      & .condo-tabs, & .condo-tabs-content, & .condo-tabs-tabpane, & .page-content {
        height: 100%;
-     }
+     },
+    & .condo-tabs-nav, & .condo-tabs-nav-wrap {
+        height: 48px;
+    },
 `
 
 export const BillingPageContent: React.FC = () => {
