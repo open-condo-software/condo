@@ -78,7 +78,7 @@ export type BaseNewsFormProps = {
     autoFocusBody?: boolean
 }
 
-type TInputStepProps = INewsItemSharingForm & BaseNewsFormProps & {
+type InputStepProps = NewsItemSharingFormProps & BaseNewsFormProps & {
     form: FormInstance
     scope: ScopeType
     setScope:  React.Dispatch<React.SetStateAction<ScopeType>>
