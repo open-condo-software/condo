@@ -2,20 +2,20 @@
 Средства, поступившие в результате оплаты счета, обычно поступают на банковские реквизиты, указанные при настройке Маркетплейса (если не было сделано иных корректировок).
 В случае, если нужно разделить полученные средства на разные счета (разные подрядчики, поставщики услуг и т.п.), используется поле `amountDistribution` при создании счета.
 Поле `amountDistribution` - это json массив, состоящий из объектов следующего вида:
-```json lines
-{
+```typescript
+type TDistribution = {
   "recipient": {
     "name": string,
     "tin": string,
     "bic": string,
     "bankName": string,
-    "bankAccount": string,
+    "bankAccount": string
   },
   "amount": string,
   "order": number,
   "vor": boolean,
   "isFeePayer": boolean,
-  "overpaymentPart": number,
+  "overpaymentPart": number
 }
 ```
 | поле            | тип     | Обязательно | описание                                                                                                                                                                                                                                                                                                                                                                                          |
