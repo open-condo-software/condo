@@ -1,0 +1,3 @@
+mutation completeConfirmPhoneAction($data: CompleteConfirmPhoneActionInput!) {
+    result: completeConfirmPhoneAction(data: $data) { status }
+}

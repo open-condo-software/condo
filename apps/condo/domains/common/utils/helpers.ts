@@ -12,6 +12,9 @@ import isObject from 'lodash/isObject'
 import { NextRouter } from 'next/router'
 import qs from 'qs'
 
+import { normalizePhone } from '@condo/domains/common/utils/phone'
+
+
 const DEFAULT_WIDTH_PRECISION = 2
 const RUSSIAN_PHONE_FORMAT_REGEXP = /(\d)(\d{3})(\d{3})(\d{2})(\d{2})/
 const SPANISH_PHONE_FORMAT_REGEXP = /(\d{2})(\d{3})(\d{3})(\d{3})/
@@ -21,11 +24,12 @@ const SPANISH_PHONE_FORMAT_REGEXP = /(\d{2})(\d{3})(\d{3})(\d{3})/
  * for example: 01234567890 -> 0 (123) 456-78-90
  */
 export const formatPhone = (phone?: string): string =>{
-    if (phone.startsWith('+7')){
-        return phone.replace(RUSSIAN_PHONE_FORMAT_REGEXP, '$1 ($2) $3-$4-$5')
+    const normalizedPhone = normalizePhone(phone, true)
+    if (normalizedPhone?.startsWith('+7')){
+        return normalizedPhone.replace(RUSSIAN_PHONE_FORMAT_REGEXP, '$1 ($2) $3-$4-$5')
     }
-    if (phone.startsWith('+34')){
-        return phone.replace(SPANISH_PHONE_FORMAT_REGEXP, '$1-$2-$3-$4')
+    if (normalizedPhone?.startsWith('+34')){
+        return normalizedPhone.replace(SPANISH_PHONE_FORMAT_REGEXP, '$1-$2-$3-$4')
     }
     return phone
 }

@@ -1,0 +1,3 @@
+mutation authenticateOrRegisterUserWithToken ($data: AuthenticateOrRegisterUserWithTokenInput!) {
+    result: authenticateOrRegisterUserWithToken(data: $data) { user: item { id } }
+}

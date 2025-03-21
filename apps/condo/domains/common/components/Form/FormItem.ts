@@ -11,4 +11,8 @@ export const FormItem = styled(Form.Item)`
       white-space: nowrap;
     }
   }
+  
+  .ant-form-item-control {
+    gap: 4px 0;
+  }
 `

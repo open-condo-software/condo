@@ -66,7 +66,7 @@ export const Header: React.FC<IHeaderProps> = (props) => {
         if (isAuthenticated) {
             router.push('/')
         } else {
-            router.push('/auth/signin')
+            router.push('/auth')
         }
     }, [isAuthenticated, router])
 

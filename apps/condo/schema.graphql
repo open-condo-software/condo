@@ -81637,7 +81637,6 @@ enum MessageType {
   BANK_ACCOUNT_CREATION_REQUEST
   DIRTY_INVITE_NEW_EMPLOYEE_SMS
   DIRTY_INVITE_NEW_EMPLOYEE_EMAIL
-  REGISTER_NEW_USER
   SMS_VERIFY
   DEVELOPER_IMPORTANT_NOTE_TYPE
   CUSTOMER_IMPORTANT_NOTE_TYPE
@@ -92091,20 +92090,22 @@ type Mutation {
   `{
     "code": "BAD_USER_INPUT",
     "type": "TOO_MANY_REQUESTS",
-    "message": "You have to wait 5000 seconds to be able to send request again",
-    "messageForUser": "You have to wait 5000 sec. to be able to send request again"
+    "message": "You have to wait 100 min. to be able to send request again",
+    "messageForUser": "You have to wait 100 min. to be able to send request again"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "SMS_FOR_PHONE_DAY_LIMIT_REACHED",
-    "message": "Too many sms requests for this phone number. Try again tomorrow"
+    "message": "Too many sms requests for this phone number. Try again tomorrow",
+    "messageForUser": "Too many sms requests for this phone number. Try again tomorrow"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "SMS_FOR_IP_DAY_LIMIT_REACHED",
-    "message": "Too many sms requests from this ip address. Try again tomorrow"
+    "message": "Too many sms requests from this ip address. Try again tomorrow",
+    "messageForUser": "Too many sms requests. Try again tomorrow"
   }`
   """
   startConfirmPhoneAction(data: StartConfirmPhoneActionInput!): StartConfirmPhoneActionOutput
@@ -92135,20 +92136,22 @@ type Mutation {
   `{
     "code": "BAD_USER_INPUT",
     "type": "TOO_MANY_REQUESTS",
-    "message": "You have to wait 5000 seconds to be able to send request again",
-    "messageForUser": "You have to wait 5000 sec. to be able to send request again"
+    "message": "You have to wait 100 min. to be able to send request again",
+    "messageForUser": "You have to wait 100 min. to be able to send request again"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "SMS_FOR_PHONE_DAY_LIMIT_REACHED",
-    "message": "Too many sms requests for this phone number. Try again tomorrow"
+    "message": "Too many sms requests for this phone number. Try again tomorrow",
+    "messageForUser": "Too many sms requests for this phone number. Try again tomorrow"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "SMS_FOR_IP_DAY_LIMIT_REACHED",
-    "message": "Too many sms requests from this ip address. Try again tomorrow"
+    "message": "Too many sms requests from this ip address. Try again tomorrow",
+    "messageForUser": "Too many sms requests. Try again tomorrow"
   }`
   """
   resendConfirmPhoneActionSms(data: ResendConfirmPhoneActionSmsInput!): ResendConfirmPhoneActionSmsOutput
@@ -92200,8 +92203,8 @@ type Mutation {
   `{
     "code": "BAD_USER_INPUT",
     "type": "TOO_MANY_REQUESTS",
-    "message": "You have to wait 5000 seconds to be able to send request again",
-    "messageForUser": "You have to wait 5000 sec. to be able to send request again"
+    "message": "You have to wait 100 min. to be able to send request again",
+    "messageForUser": "You have to wait 100 min. to be able to send request again"
   }`
   """
   completeConfirmPhoneAction(data: CompleteConfirmPhoneActionInput!): CompleteConfirmPhoneActionOutput
@@ -92485,6 +92488,53 @@ type Mutation {
     "code": "BAD_USER_INPUT",
     "type": "UNAVAILABLE_TOKEN_FOR_REGISTRATION",
     "message": "It is not possible to register a user with the type ? using ?"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "PHONE_ALREADY_REGISTERED_ERROR",
+    "message": "Phone already registered"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "EMAIL_ALREADY_REGISTERED_ERROR",
+    "message": "Email already registered"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVALID_PASSWORD_LENGTH",
+    "message": "Password length must be between 8 and 128 characters",
+    "messageForUser": "Password length must be between 8 and 128 characters"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "PASSWORD_IS_FREQUENTLY_USED",
+    "message": "The password is too simple. We found it in the list of stolen passwords. You need to use something more secure",
+    "messageForUser": "This password is weak or too obvious please choose something more secure"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS",
+    "message": "Password must contain at least 4 different characters",
+    "messageForUser": "Password must contain at least 4 different characters"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "PASSWORD_CONTAINS_EMAIL",
+    "message": "Password must not contain email",
+    "messageForUser": "Password must not contain email"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "PASSWORD_CONTAINS_PHONE",
+    "message": "Password must not contain phone",
+    "messageForUser": "Password must not contain phone"
   }`
   """
   authenticateOrRegisterUserWithToken(data: AuthenticateOrRegisterUserWithTokenInput!): AuthenticateOrRegisterUserWithTokenOutput
@@ -93060,6 +93110,10 @@ type Mutation {
   		"serverUrl": {
   			"defaultValue": "",
   			"required": false
+  		},
+  		"isRegistration": {
+  			"defaultValue": false,
+  			"required": false
   		}
   	},
   	"DIRTY_INVITE_NEW_EMPLOYEE_EMAIL": {
@@ -93074,19 +93128,9 @@ type Mutation {
   		"serverUrl": {
   			"defaultValue": "",
   			"required": false
-  		}
-  	},
-  	"REGISTER_NEW_USER": {
-  		"dv": {
-  			"defaultValue": "",
-  			"required": true
   		},
-  		"userPhone": {
-  			"defaultValue": "",
-  			"required": false
-  		},
-  		"userPassword": {
-  			"defaultValue": "",
+  		"isRegistration": {
+  			"defaultValue": false,
   			"required": false
   		}
   	},

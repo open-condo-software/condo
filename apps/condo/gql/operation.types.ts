@@ -848,6 +848,62 @@ export type UpdateUserTicketCommentReadTimeMutationVariables = Types.Exact<{
 
 export type UpdateUserTicketCommentReadTimeMutation = { __typename?: 'Mutation', obj?: { __typename?: 'UserTicketCommentReadTime', id: string } | null };
 
+export type AuthenticateOrRegisterUserWithTokenMutationVariables = Types.Exact<{
+  data: Types.AuthenticateOrRegisterUserWithTokenInput;
+}>;
+
+
+export type AuthenticateOrRegisterUserWithTokenMutation = { __typename?: 'Mutation', result?: { __typename?: 'AuthenticateOrRegisterUserWithTokenOutput', user?: { __typename?: 'User', id: string } | null } | null };
+
+export type AuthenticateUserWithPhoneAndPasswordMutationVariables = Types.Exact<{
+  data: Types.AuthenticateUserWithPhoneAndPasswordInput;
+}>;
+
+
+export type AuthenticateUserWithPhoneAndPasswordMutation = { __typename?: 'Mutation', result?: { __typename?: 'AuthenticateUserWithPhoneAndPasswordOutput', item?: { __typename?: 'User', id: string } | null } | null };
+
+export type ChangePasswordWithTokenMutationVariables = Types.Exact<{
+  data: Types.ChangePasswordWithTokenInput;
+}>;
+
+
+export type ChangePasswordWithTokenMutation = { __typename?: 'Mutation', result?: { __typename?: 'ChangePasswordWithTokenOutput', status: string, phone: string } | null };
+
+export type CheckUserExistenceQueryVariables = Types.Exact<{
+  data: Types.CheckUserExistenceInput;
+}>;
+
+
+export type CheckUserExistenceQuery = { __typename?: 'Query', result?: { __typename?: 'CheckUserExistenceOutput', isUserExists: boolean, isNameSet: boolean, isEmailSet: boolean, isPhoneSet: boolean, isPasswordSet: boolean } | null };
+
+export type CompleteConfirmPhoneActionMutationVariables = Types.Exact<{
+  data: Types.CompleteConfirmPhoneActionInput;
+}>;
+
+
+export type CompleteConfirmPhoneActionMutation = { __typename?: 'Mutation', result?: { __typename?: 'CompleteConfirmPhoneActionOutput', status: string } | null };
+
+export type GetPhoneByConfirmPhoneActionTokenQueryVariables = Types.Exact<{
+  data: Types.GetPhoneByConfirmPhoneActionTokenInput;
+}>;
+
+
+export type GetPhoneByConfirmPhoneActionTokenQuery = { __typename?: 'Query', result?: { __typename?: 'GetPhoneByConfirmPhoneActionTokenOutput', phone: string, isPhoneVerified: boolean } | null };
+
+export type ResendConfirmPhoneActionSmsMutationVariables = Types.Exact<{
+  data: Types.ResendConfirmPhoneActionSmsInput;
+}>;
+
+
+export type ResendConfirmPhoneActionSmsMutation = { __typename?: 'Mutation', result?: { __typename?: 'ResendConfirmPhoneActionSmsOutput', status: string } | null };
+
+export type StartConfirmPhoneActionMutationVariables = Types.Exact<{
+  data: Types.StartConfirmPhoneActionInput;
+}>;
+
+
+export type StartConfirmPhoneActionMutation = { __typename?: 'Mutation', result?: { __typename?: 'StartConfirmPhoneActionOutput', token: string } | null };
+
 export type AuthenticatedUserQueryVariables = Types.Exact<{ [key: string]: never; }>;
 
 
