@@ -23,7 +23,7 @@ const PaymentsFiles = (): JSX.Element => {
 
     const { objs: anyPaymentsFiles, loading: isAnyPaymentsFilesLoading, error: anyPaymentsFilesError } = PaymentsFile.useObjects({
         where: {
-            acquiringContext: { id: acquiringContext.id },
+            context: { id: acquiringContext.id },
         },
         first: 1,
     })

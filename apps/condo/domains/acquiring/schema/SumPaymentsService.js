@@ -73,7 +73,7 @@ const SumPaymentsService = new GQLCustomSchema('SumPaymentsService', {
                 }
 
                 if (paymentsFilesWhere) {
-                    if (!get(paymentsFilesWhere, 'acquiringContext')) {
+                    if (!get(paymentsFilesWhere, 'context')) {
                         throw new GQLError(ERRORS.WRONG_PAYMENT_FILE_WHERE_INPUT, context)
                     }
                 }

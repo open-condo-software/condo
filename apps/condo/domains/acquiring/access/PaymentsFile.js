@@ -19,12 +19,12 @@ async function canReadPaymentsFiles ({ authentication: { item: user } }) {
 
     // Acquiring integration account can see its payments files
     if (user.type === SERVICE) {
-        return { acquiringContext: { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } } }
+        return { context: { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } } }
     }
 
     // Employee with `canReadPayments` can see theirs organization payments files
     if (user.type === STAFF) {
-        return { acquiringContext: { organization: { employees_some: { user: { id: user.id }, role: { canReadPayments: true }, deletedAt: null, isBlocked: false } } } }
+        return { context: { organization: { employees_some: { user: { id: user.id }, role: { canReadPayments: true }, deletedAt: null, isBlocked: false } } } }
 
     }
 
@@ -44,11 +44,11 @@ async function canManagePaymentsFiles ({ authentication: { item: user }, origina
     let contextIds
     if (operation === 'create') {
         if (isBulkRequest) {
-            contextIds = originalInput.map(element => get(element, ['data', 'acquiringContext', 'connect', 'id']))
+            contextIds = originalInput.map(element => get(element, ['data', 'context', 'connect', 'id']))
             if (contextIds.filter(Boolean).length !== originalInput.length) return false
             contextIds = uniq(contextIds)
         } else {
-            const contextId = get(originalInput, ['acquiringContext', 'connect', 'id'])
+            const contextId = get(originalInput, ['context', 'connect', 'id'])
             if (!contextId) return false
             contextIds = [contextId]
         }
@@ -65,7 +65,7 @@ async function canManagePaymentsFiles ({ authentication: { item: user }, origina
         } else {
             if (!itemId) return false
             const item = await getById(listKey, itemId)
-            contextIds = [item.acquiringContext]
+            contextIds = [item.context]
         }
     }
 

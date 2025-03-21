@@ -86,7 +86,7 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
 
     const searchPaymentsFilesQuery: Record<string, unknown> = {
         ...filtersToWhere({ dateLoad: dateFilter, ...filters }),
-        acquiringContext: { id: acquiringContext.id },
+        context: { id: acquiringContext.id },
     }
     const sortBy = sortersToSortBy(sorters, PAYMENTS_DEFAULT_SORT_BY)
 
