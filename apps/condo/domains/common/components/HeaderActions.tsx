@@ -30,8 +30,8 @@ export const TabsAuthAction: React.FC<TabsAuthActionsProps> = (props) => {
     }, [isValidNextUrl, next])
 
     const tabItems = useMemo(() => [
-        { key: 'register', label: registerTab },
         { key: 'signin', label: signInTab },
+        { key: 'register', label: registerTab },
     ], [registerTab, signInTab])
 
     return (
