@@ -1,15 +1,17 @@
+/** @jsx jsx */
 import { B2BAppNewsSharingConfig } from '@app/condo/schema'
-import { Col, Form, FormInstance, Row } from 'antd'
+import { css, jsx } from '@emotion/react'
+import { Col, FormInstance, Row } from 'antd'
 import isNull from 'lodash/isNull'
 import transform from 'lodash/transform'
 import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors'
 
+import { FormItem } from '@condo/domains/common/components/Form/FormItem'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCounter'
+import { TextArea } from '@condo/domains/common/components/TextArea'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 import { getBodyTemplateChangedRule, getTitleTemplateChangedRule, type TemplatesType } from '@condo/domains/news/components/NewsForm/BaseNewsForm'
 import { TemplatesSelect } from '@condo/domains/news/components/TemplatesSelect'
@@ -17,39 +19,14 @@ import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@condo/domains/news/const
 
 import { NewsItemDataType } from './index'
 
-const NO_RESIZE_STYLE: React.CSSProperties = { resize: 'none' }
-const BIG_MARGIN_BOTTOM_STYLE: React.CSSProperties = { marginBottom: '60px' }
-const MARGIN_BOTTOM_32_STYLE: React.CSSProperties = { marginBottom: '32px' }
-const MARGIN_BOTTOM_10_STYLE: React.CSSProperties = { marginBottom: '10px' }
-const FORM_FILED_COL_PROPS = { style: { width: '100%', padding: 0, height: '44px' } }
-
-const buildCounterStyle = (textLength: number, type: 'Body' | 'Title'): React.CSSProperties => {
-    const style: React.CSSProperties = {
-        position: 'absolute',
-        right: 0,
-        margin: '12px',
-        padding: '2px 10px',
-        borderRadius: '100px',
-        backgroundColor: `${colors.gray[7]}`,
-    }
-
-    if (textLength > 0) {
-        style.backgroundColor = `${colors.black}`
-    }
-
-    if (type === 'Body') {
-        style.bottom = '12px'
-    }
-    if (type === 'Title') {
-        style.bottom = '12px'
-    }
-
-    return style
-}
+const NO_RESIZE_STYLE = css`resize: none;`
+const BIG_MARGIN_BOTTOM_STYLE = css`margin-bottom: 60px `
+const MARGIN_BOTTOM_32_STYLE = css`margin-bottom: 32px`
+const MARGIN_BOTTOM_10_STYLE = css`margin-bottom: 10px`
+const FORM_FILED_COL_PROPS = css`width: 100%; padding: 0; height: 44px`
+const CUSTOM_FORM_STYLES = css`margin-left: -10px; min-height: 500px`
 
 interface InputStepFormProps {
-    TitleInput: ReturnType<typeof useInputWithCounter>
-    BodyInput: ReturnType<typeof useInputWithCounter>
     newsSharingConfig: B2BAppNewsSharingConfig
     isSharingStep: boolean
     newsItemData: NewsItemDataType
@@ -99,8 +76,6 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
     handleFormTitleChange,
     template,
     handleFormBodyChange,
-    TitleInput: Title,
-    BodyInput: Body,
 }) => {
     const { type: selectedType } = newsItemData
 
@@ -123,18 +98,20 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
     const isMediumWindow = !breakpoints.DESKTOP_SMALL
     const formFieldsColSpan = isMediumWindow ? 24 : 14
 
-    const titleRule = useMemo(() => ({
-        whitespace: true,
-        required: true,
-        message: TitleErrorMessage,
-    }), [TitleErrorMessage])
-    const MemoizedTitleTemplateChangedRule = useMemo(() => getTitleTemplateChangedRule(TemplateBlanksNotFilledErrorMessage), [TemplateBlanksNotFilledErrorMessage])
-    const bodyRule = useMemo(() => ({
-        whitespace: true,
-        required: true,
-        message: BodyErrorMessage,
-    }), [BodyErrorMessage])
-    const MemoizedBodyTemplateChangedRule = useMemo(() => getBodyTemplateChangedRule(TemplateBlanksNotFilledErrorMessage), [TemplateBlanksNotFilledErrorMessage])
+    const titleRule = useMemo(() => {
+        return [{
+            whitespace: true,
+            required: true,
+            message: TitleErrorMessage,
+        }, getTitleTemplateChangedRule(TemplateBlanksNotFilledErrorMessage),
+        ]}, [TitleErrorMessage, TemplateBlanksNotFilledErrorMessage])
+    const bodyRule = useMemo(() => {
+        return [{
+            whitespace: true,
+            required: true,
+            message: BodyErrorMessage,
+        }, getBodyTemplateChangedRule(TemplateBlanksNotFilledErrorMessage)]
+    }, [BodyErrorMessage, TemplateBlanksNotFilledErrorMessage])
 
     const commonTemplates = useMemo(() => {
         return transform(templates, (result, value, key) => {
@@ -168,11 +145,18 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
         <>
             {
                 isCustomForm ? (
-                    <Col style={{ marginLeft: '-10px', minHeight: '500px' }} span={formFieldsColSpan}>
+                    <Col css={CUSTOM_FORM_STYLES} span={formFieldsColSpan}>
                         <IFrame
                             src={
-                                `${newsSharingConfig.customFormUrl}?ctxId=${sharingAppId}&title=${selectedTitle}&body=${selectedBody}&type=${newsItemData.type}&initialValues=${JSON.stringify(processedInitialValues)}&template=${JSON.stringify(template)}`
-                            }
+                                `${newsSharingConfig.customFormUrl}?${[
+                                    `ctxId=${sharingAppId}`,
+                                    `title=${selectedTitle}`,
+                                    `body=${selectedBody}`,
+                                    `type=${newsItemData.type}`,
+                                    `initialValues=${JSON.stringify(processedInitialValues)}`,
+                                    `template=${JSON.stringify(template)}`,
+                                ].join('&')
+                                }`}
                             reloadScope='organization'
                             withLoader
                             withPrefetch
@@ -182,15 +166,15 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
                 ) : (
                     <Col span={formFieldsColSpan}>
                         <Row>
-                            <Col span={24} style={MARGIN_BOTTOM_32_STYLE}>
+                            <Col span={24} css={MARGIN_BOTTOM_32_STYLE}>
                                 <Typography.Title level={2}>
                                     {MakeTextLabel}
                                 </Typography.Title>
                             </Col>
 
                             {templates && (
-                                <Col span={24} style={BIG_MARGIN_BOTTOM_STYLE}>
-                                    <Form.Item
+                                <Col span={24} css={BIG_MARGIN_BOTTOM_STYLE}>
+                                    <FormItem
                                         name='template'
                                     >
                                         {selectedType === NEWS_TYPE_COMMON && (
@@ -207,56 +191,50 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
                                                 hasCategories
                                             />
                                         )}
-                                    </Form.Item>
+                                    </FormItem>
                                 </Col>
                             )}
 
                             <Col span={24}>
-                                <Col span={24} style={MARGIN_BOTTOM_10_STYLE}>
+                                <Col span={24} css={MARGIN_BOTTOM_10_STYLE}>
                                     <Typography.Title level={4}>{SelectTextLabel}</Typography.Title>
                                 </Col>
                                 <Col span={24}>
-                                    <Form.Item
+                                    <FormItem
                                         label={TitleLabel}
-                                        labelCol={FORM_FILED_COL_PROPS}
+                                        labelCol={{ css:FORM_FILED_COL_PROPS }}
                                         name='title'
                                         required
-                                        rules={[titleRule, MemoizedTitleTemplateChangedRule]}
+                                        rules={titleRule}
                                         validateFirst={true}
                                         data-cy='news__create-title-input'
                                     >
-                                        <Title.InputWithCounter
-                                            style={NO_RESIZE_STYLE}
+                                        <TextArea
+                                            css={NO_RESIZE_STYLE}
                                             rows={4}
                                             placeholder={TitlePlaceholderMessage}
                                             onChange={e=>handleFormTitleChange(e.target.value)}
                                         />
-                                    </Form.Item>
-                                    <Col style={buildCounterStyle(Title.textLength, 'Title')}>
-                                        <Title.Counter type='inverted'/>
-                                    </Col>
+                                    </FormItem>
                                 </Col>
                                 <Col span={24}>
-                                    <Form.Item
+                                    <FormItem
                                         label={BodyLabel}
-                                        labelCol={FORM_FILED_COL_PROPS}
+                                        labelCol={{ css:FORM_FILED_COL_PROPS }}
                                         name='body'
                                         required
-                                        rules={[bodyRule, MemoizedBodyTemplateChangedRule]}
+                                        rules={bodyRule}
                                         validateFirst={true}
                                         data-cy='news__create-body-input'
                                     >
-                                        <Body.InputWithCounter
+                                        <TextArea
                                             autoFocus={autoFocusBody}
-                                            style={NO_RESIZE_STYLE}
+                                            css={NO_RESIZE_STYLE}
                                             rows={7}
                                             placeholder={BodyPlaceholderMessage}
                                             onChange={e=>handleFormBodyChange(e.target.value)}
                                         />
-                                    </Form.Item>
-                                    <Col style={buildCounterStyle(Body.textLength, 'Body')}>
-                                        <Body.Counter type='inverted'/>
-                                    </Col>
+                                    </FormItem>
                                 </Col>
                             </Col>
                         </Row>

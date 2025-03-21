@@ -1,11 +1,13 @@
+/** @jsx jsx */
 import { useGetNewsSharingRecipientsLazyQuery } from '@app/condo/gql'
 import { B2BAppNewsSharingConfig, Property as IProperty,  NewsItem as INewsItem } from '@app/condo/schema'
+import { css, jsx } from '@emotion/react'
 import { Col, Form, FormInstance, notification, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
 import has from 'lodash/has'
 import isEmpty from 'lodash/isEmpty'
-import React, { useCallback, useEffect, useMemo, useRef } from 'react'
+import React, { useCallback, useMemo, useRef } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useIntl } from '@open-condo/next/intl'
@@ -23,7 +25,7 @@ import { SectionNameInput } from '@condo/domains/user/components/SectionNameInpu
 import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/components/UnitNameInput'
 
 const SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]
-const FORM_FILED_COL_PROPS = { style: { width: '100%', padding: 0, height: '44px' } }
+const FORM_FILED_COL_PROPS = css`width: 100%; padding: 0; height: 44px`
 
 interface InputStepSelectorProps {
     newsSharingConfig: B2BAppNewsSharingConfig
@@ -86,7 +88,7 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
 
     const propertySelectFormItemProps: InputWithCheckAllProps['selectFormItemProps'] = useMemo(() => ({
         label: PropertiesLabel,
-        labelCol: FORM_FILED_COL_PROPS,
+        labelCol: { css: FORM_FILED_COL_PROPS },
         required: true,
         name: 'properties',
         validateFirst: true,
@@ -94,7 +96,7 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
 
     const customSelectFormItemProps: InputWithCheckAllProps['selectFormItemProps'] = useMemo(() => ({
         label: CustomSelectLabel,
-        labelCol: FORM_FILED_COL_PROPS,
+        labelCol: { css: FORM_FILED_COL_PROPS },
         required: true,
         name: 'customSelect',
         validateFirst: true,
@@ -206,8 +208,9 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
                 return data.data.recipients.map(el => ({ text: el.name, value: el.id }))
             }
             catch (error) {
-                console.log('error: ', error)
+                console.error('error: ', error)
                 notification.error({ message: ErrorLoadingMessage })
+                return []
             }
         },
         required: true,
