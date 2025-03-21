@@ -255,16 +255,16 @@ export const InputStep: React.FC<TInputStepProps> = ({
     const [selectedBody, setSelectedBody] = useState<string>(body)
 
     useEffect(() => {
+        if (!iFramePreviewRef.current) return 
+        
         const title = get(sharingAppFormValues, ['preview', 'renderedTitle'])
         const body = get(sharingAppFormValues, ['preview', 'renderedBody'])
 
-        if (iFramePreviewRef.current) {
-            iFramePreviewRef.current.contentWindow.postMessage({
-                handler: 'handleUpdateFromCondo',
-                title,
-                body,
-            }, appPreviewUrl)
-        }
+        iFramePreviewRef.current.contentWindow.postMessage({
+            handler: 'handleUpdateFromCondo',
+            title,
+            body,
+        }, appPreviewUrl)
     }, [sharingAppFormValues, iFramePreviewRef, appPreviewUrl])
 
     useEffect(() => {
