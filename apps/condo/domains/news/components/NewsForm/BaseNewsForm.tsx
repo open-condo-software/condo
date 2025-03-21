@@ -96,7 +96,7 @@ export type InitialValuesType =  Partial<INewsItem> & Partial<{
     newsItemScopes: Array<INewsItemScope>
     hasAllProperties: boolean
     sendPeriod: SendPeriodType
-    properties?: IProperty[]
+    properties?: Array<IProperty>
 }>
 
 export type TemplatesType = {
