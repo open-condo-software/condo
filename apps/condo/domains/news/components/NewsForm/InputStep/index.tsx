@@ -68,7 +68,7 @@ export type BaseNewsFormProps = {
     organizationId: string
     initialValues?: Partial<INewsItem>
     & Partial<{
-        newsItemScopes: INewsItemScope[]
+        newsItemScopes: Array<INewsItemScope>
         hasAllProperties: boolean
         sendPeriod: SendPeriodType
         properties?: IProperty[]
