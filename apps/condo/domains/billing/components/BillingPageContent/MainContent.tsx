@@ -2,6 +2,7 @@ import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { RadioGroup, Tabs, Radio } from '@open-condo/ui'
@@ -14,6 +15,7 @@ import { EmptyContent } from '@condo/domains/billing/components/BillingPageConte
 import { PaymentsTab } from '@condo/domains/billing/components/BillingPageContent/PaymentsTab'
 import { ACCRUALS_TAB_KEY, PAYMENTS_TAB_KEY, EXTENSION_TAB_KEY } from '@condo/domains/billing/constants/constants'
 import { useQueryParams } from '@condo/domains/billing/hooks/useQueryParams'
+import { ACQUIRING_PAYMENTS_FILES_TABLE } from '@condo/domains/common/constants/featureflags'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 
@@ -92,6 +94,9 @@ export const MainContent: React.FC<MainContentProps> = ({
     const billingPageTitle = get(billingContext, ['integration', 'billingPageTitle'])
     const lastReport = get(billingContext, 'lastReport')
 
+    const { useFlag } = useFeatureFlags()
+    const isPaymentsFilesTableEnabled = useFlag(ACQUIRING_PAYMENTS_FILES_TABLE)
+
     const shouldIncludeAppTab = Boolean(appUrl && extendsBillingPage)
     const [currentTab, currentType, onTabChange] = useQueryParams(shouldIncludeAppTab)
     
@@ -127,7 +132,7 @@ export const MainContent: React.FC<MainContentProps> = ({
             onChange={onTabChange}
             items={items}
             destroyInactiveTabPane
-            tabBarExtraContent={currentTab === PAYMENTS_TAB_KEY && <PaymentTypeSwitch defaultValue={PAYMENT_TYPES.list} activeTab={currentTab}/>}
+            tabBarExtraContent={isPaymentsFilesTableEnabled && currentTab === PAYMENTS_TAB_KEY && <PaymentTypeSwitch defaultValue={PAYMENT_TYPES.list} activeTab={currentTab}/>}
         />
     )
 }

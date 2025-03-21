@@ -38,7 +38,7 @@ import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/
 
 
 const SORTABLE_PROPERTIES = ['amount']
-const PAYMENTS_DEFAULT_SORT_BY = ['dateLoad_DESC']
+const PAYMENTS_DEFAULT_SORT_BY = ['loadedAt_DESC']
 const DEFAULT_CURRENCY_CODE = 'RUB'
 const DEFAULT_DATE_RANGE: [Dayjs, Dayjs] = [dayjs().subtract(1, 'week'), dayjs()]
 const DEBOUNCE_TIMEOUT = 400
@@ -80,12 +80,12 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
 
     const [filtersAreReset, setFiltersAreReset] = useState(false)
     const dateFallback = filtersAreReset ? null : DEFAULT_DATE_RANGE
-    const [dateRange, setDateRange] = useDateRangeSearch('dateLoad')
+    const [dateRange, setDateRange] = useDateRangeSearch('loadedAt')
     const dateFilterValue = dateRange || dateFallback
     const dateFilter = dateFilterValue ? dateFilterValue.map(el => el.toISOString()) : null
 
     const searchPaymentsFilesQuery: Record<string, unknown> = {
-        ...filtersToWhere({ dateLoad: dateFilter, ...filters }),
+        ...filtersToWhere({ loadedAt: dateFilter, ...filters }),
         context: { id: acquiringContext.id },
     }
     const sortBy = sortersToSortBy(sorters, PAYMENTS_DEFAULT_SORT_BY)
