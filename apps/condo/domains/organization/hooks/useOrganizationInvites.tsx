@@ -75,12 +75,14 @@ export const useOrganizationInvites = (organizationTypes: Array<OrganizationType
                         action: () => handleAcceptOrReject(invite, 'reject'),
                         title: RejectMessage,
                         secondary: true,
+                        removeNotificationOnClick: true,
                     },
                     {
                         action: () => handleAcceptOrReject(invite, 'accept').then(() => {
                             selectEmployee(invite.id)
                         }),
                         title: AcceptMessage,
+                        removeNotificationOnClick: true,
                     },
                 ],
                 message: (

@@ -194,10 +194,13 @@ export const InlineOrganizationSelect: React.FC = () => {
                 setIsCreateOrganizationModalOpen={setIsCreateOrganizationModalOpen}
                 onSendOrganizationRequest={(organizationEmployeeRequest, isDuplicateRequest) => {
                     setIsCreateOrganizationModalOpen(false)
-                    setOrganizationWithRequest({
-                        name: organizationEmployeeRequest?.organizationName,
-                        isDuplicateRequest,
-                    })
+
+                    if (organizationEmployeeRequest) {
+                        setOrganizationWithRequest({
+                            name: organizationEmployeeRequest?.organizationName,
+                            isDuplicateRequest,
+                        })
+                    }
                 }}
                 onOrganizationCreated={() => {
                     setIsCreateOrganizationModalOpen(false)

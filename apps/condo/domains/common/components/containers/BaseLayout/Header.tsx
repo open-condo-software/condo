@@ -28,6 +28,9 @@ import { UserMenu } from '@condo/domains/user/components/UserMenu'
 
 import { ITopMenuItemsProps, TopMenuItems } from './components/TopMenuItems'
 
+import { OrganizationEmployeeRequests } from '../../../../organization/components/OrganizationEmployeeRequests'
+
+
 
 const ORGANIZATION_TYPES: Array<OrganizationTypeType> = [OrganizationTypeType.ManagingCompany, OrganizationTypeType.ServiceProvider]
 
@@ -72,6 +75,7 @@ export const Header: React.FC<IHeaderProps> = (props) => {
     // Do not show invite alerts if user dont have an employee (he will view invite in OrganizationExistenceRequired)
     const isEmployeeExist = useMemo(() => employeeExistenceData?.actualEmployees?.length > 0, [employeeExistenceData?.actualEmployees])
     useOrganizationInvites(ORGANIZATION_TYPES, acceptOrReject, !isEmployeeExist)
+    // useOrganizationEmployeeRequests(!isEmployeeExist)
 
     const handleLogoClick = useCallback(() => {
         if (isAuthenticated) {
@@ -83,6 +87,7 @@ export const Header: React.FC<IHeaderProps> = (props) => {
 
     return (
         <UserMessagesListContextProvider>
+            {isEmployeeExist && <OrganizationEmployeeRequests />}
             {
                 !breakpoints.TABLET_LARGE
                     ? (

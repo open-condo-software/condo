@@ -31,3 +31,21 @@ query getLastActiveOrganizationEmployeeRequestByTin ($userId: ID!, $tin: String!
         organizationName
     }
 }
+
+query getRequestsForUserOrganizations ($userId: ID!) {
+    requests: allOrganizationEmployeeRequests (
+        where: {
+            user: { id_not: $userId }
+            isAccepted: false
+            isRejected: false
+        }
+        first: 100
+        sortBy: [createdAt_DESC]
+    ) {
+        id
+        userName
+        userPhone
+        organizationName
+        organizationId
+    }
+}

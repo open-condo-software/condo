@@ -6,7 +6,7 @@ import { OrganizationEmployeeRole } from '@condo/domains/organization/utils/clie
 
 
 interface IEmployeeRoleSelectProps extends SelectProps<string> {
-    employeeRoles: Array<IOrganizationEmployeeRole>
+    employeeRoles: Array<Pick<IOrganizationEmployeeRole, 'id' | 'name'>>
 }
 
 export const EmployeeRoleSelect: React.FC<IEmployeeRoleSelectProps> = (props) => {
