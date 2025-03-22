@@ -1876,6 +1876,48 @@ export function useUpdateNewsItemRecipientsExportTaskMutation(baseOptions?: Apol
 export type UpdateNewsItemRecipientsExportTaskMutationHookResult = ReturnType<typeof useUpdateNewsItemRecipientsExportTaskMutation>;
 export type UpdateNewsItemRecipientsExportTaskMutationResult = Apollo.MutationResult<Types.UpdateNewsItemRecipientsExportTaskMutation>;
 export type UpdateNewsItemRecipientsExportTaskMutationOptions = Apollo.BaseMutationOptions<Types.UpdateNewsItemRecipientsExportTaskMutation, Types.UpdateNewsItemRecipientsExportTaskMutationVariables>;
+export const GetNewsSharingRecipientsDocument = gql`
+    query getNewsSharingRecipients($data: GetNewsSharingRecipientsInput!) {
+  recipients: getNewsSharingRecipients(data: $data) {
+    id
+    name
+    receiversCount
+  }
+}
+    `;
+
+/**
+ * __useGetNewsSharingRecipientsQuery__
+ *
+ * To run a query within a React component, call `useGetNewsSharingRecipientsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetNewsSharingRecipientsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetNewsSharingRecipientsQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useGetNewsSharingRecipientsQuery(baseOptions: Apollo.QueryHookOptions<Types.GetNewsSharingRecipientsQuery, Types.GetNewsSharingRecipientsQueryVariables> & ({ variables: Types.GetNewsSharingRecipientsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetNewsSharingRecipientsQuery, Types.GetNewsSharingRecipientsQueryVariables>(GetNewsSharingRecipientsDocument, options);
+      }
+export function useGetNewsSharingRecipientsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetNewsSharingRecipientsQuery, Types.GetNewsSharingRecipientsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetNewsSharingRecipientsQuery, Types.GetNewsSharingRecipientsQueryVariables>(GetNewsSharingRecipientsDocument, options);
+        }
+export function useGetNewsSharingRecipientsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetNewsSharingRecipientsQuery, Types.GetNewsSharingRecipientsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetNewsSharingRecipientsQuery, Types.GetNewsSharingRecipientsQueryVariables>(GetNewsSharingRecipientsDocument, options);
+        }
+export type GetNewsSharingRecipientsQueryHookResult = ReturnType<typeof useGetNewsSharingRecipientsQuery>;
+export type GetNewsSharingRecipientsLazyQueryHookResult = ReturnType<typeof useGetNewsSharingRecipientsLazyQuery>;
+export type GetNewsSharingRecipientsSuspenseQueryHookResult = ReturnType<typeof useGetNewsSharingRecipientsSuspenseQuery>;
+export type GetNewsSharingRecipientsQueryResult = Apollo.QueryResult<Types.GetNewsSharingRecipientsQuery, Types.GetNewsSharingRecipientsQueryVariables>;
 export const GetUserMessagesDocument = gql`
     query getUserMessages($userId: ID, $organizationId: ID, $types: [MessageType!], $skip: Int = 0) {
   messages: allMessages(
