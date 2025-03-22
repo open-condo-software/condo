@@ -242,6 +242,24 @@ const Resident = new GQLListSchema('Resident', {
                 return Boolean(contact && contact.isVerified)
             },
         },
+        managingCompanyOwnershipPercentage: {
+            schema: 'Contact ownership percentage',
+            type: 'Virtual',
+            graphQLReturnType: 'String',
+            resolver: async (item) => {
+                const contact = await getManagingCompanyContactFromItem(item)
+                return contact ? contact.ownershipPercentage : null
+            },
+        },
+        managingCompanyCommunityFee: {
+            schema: 'Contact community fee',
+            type: 'Virtual',
+            graphQLReturnType: 'String',
+            resolver: async (item) => {
+                const contact = await getManagingCompanyContactFromItem(item)
+                return contact ? contact.communityFee : null
+            },
+        },
         managingCompanyContactRole: {
             schema: 'Role of the contact corresponding to this resident in the managing company',
             type: 'Virtual',
