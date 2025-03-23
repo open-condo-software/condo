@@ -314,7 +314,7 @@ const SharingNewsPreview: React.FC<ISharingAppNewsPreview> = ({ hasPush = true, 
                     // el => iFrameRef.current = el is used here to support IFrame API
                     // @ts-ignore
                     ref={el => iFrameRef.current = el}
-                    src={`${iFrameUrl}?title=${title}&body=${body}&ctxId=${ctxId}`}
+                    src={`${iFrameUrl}?title=${title}&body=${body}&ctxId=${ctxId}&validBefore=${validBefore}`}
                     reloadScope='organization'
                 />
                 <SharingAppOverflowContainer/>
