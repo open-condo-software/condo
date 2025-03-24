@@ -383,7 +383,7 @@ describe('CreatePaymentByLinkService', () => {
     })
 
 
-    // NOTE (YEgorLu):
+    // NOTE (YEgorLu): it actually checks for AcquiringContext.recipient. It is not used anyway, so maybe remove this test completely
     test.skip('should throw an error if no bank account found', async () => {
         const [organization] = await createTestOrganization(admin)
         const [property] = await createTestProperty(admin, organization)
