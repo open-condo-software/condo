@@ -11,7 +11,7 @@ interface InputStepRecipientCounterProps {
     newsSharingConfig: B2BAppNewsSharingConfig
     isSharingStep: boolean
     sharingAppId: string
-    newsItemScopesNoInstance: NewsItemScopeNoInstanceType[]
+    newsItemScopesNoInstance: Array<NewsItemScopeNoInstanceType>
 }
 
 export const InputStepRecipientCounter: React.FC<InputStepRecipientCounterProps> = ({

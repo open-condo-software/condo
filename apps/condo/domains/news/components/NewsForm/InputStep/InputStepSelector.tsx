@@ -1,13 +1,13 @@
-/** @jsx jsx */
 import { useGetNewsSharingRecipientsLazyQuery } from '@app/condo/gql'
-import { B2BAppNewsSharingConfig, Property as IProperty,  NewsItem as INewsItem } from '@app/condo/schema'
-import { css, jsx } from '@emotion/react'
+import {
+    B2BAppNewsSharingConfig,
+    Property as IProperty,
+    NewsItem as INewsItem,
+    B2BAppContext as IB2BAppContext,
+} from '@app/condo/schema'
 import { Col, Form, FormInstance, notification, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
-import get from 'lodash/get'
-import has from 'lodash/has'
-import isEmpty from 'lodash/isEmpty'
-import React, { useCallback, useMemo, useRef } from 'react'
+import React, { useCallback, useMemo, useRef, ComponentProps } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useIntl } from '@open-condo/next/intl'
@@ -24,25 +24,28 @@ import { HiddenBlock, ScopeType } from '@condo/domains/news/components/NewsForm/
 import { SectionNameInput } from '@condo/domains/user/components/SectionNameInput'
 import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/components/UnitNameInput'
 
+import { useMutationErrorHandler } from '../../../../common/hooks/useMutationErrorHandler'
+
+import { SharingAppValuesType } from '.'
+
 const SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]
-const FORM_FILED_COL_PROPS = css`width: 100%; padding: 0; height: 44px`
 
 interface InputStepSelectorProps {
     newsSharingConfig: B2BAppNewsSharingConfig
     isSharingStep: boolean
     form: FormInstance
-    ctx: any
-    setSharingAppFormValues: any
+    ctx: IB2BAppContext
+    setSharingAppFormValues: React.Dispatch<React.SetStateAction<SharingAppValuesType>>
     scope: ScopeType
     setScope:  React.Dispatch<React.SetStateAction<ScopeType>>
 
-    propertySelectProps: (form: FormInstance) => any
+    propertySelectProps: (form: FormInstance) => ComponentProps<typeof GraphQlSearchInput>
     selectedProperty: {
         loading: boolean
-        objs:  IProperty[]
+        objs:  Array<IProperty>
     }
     newsItemForOneProperty: boolean
-    initialValues?: Partial<INewsItem>
+    initialValues?: Partial<INewsItem> & { hasAllProperties?: boolean, hasAllCustom?: boolean }
     initialFormValues: Record<string, unknown>
 }
 
@@ -78,17 +81,17 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
     const CustomSelectRecipientsPlaceholder = intl.formatMessage({ id: 'global.select.recipients' })
     const CustomSelectLabel = intl.formatMessage({ id: 'field.Recipients' })
 
+    const onError = useMutationErrorHandler()
     const [getNewsSharingRecipients, { data }] = useGetNewsSharingRecipientsLazyQuery({
         onError: (error) => {
             console.error({ msg: 'Failed to load recipients counters', error })
             const message = error?.graphQLErrors?.[0]?.extensions?.messageForUser || ErrorLoadingMessage
-            notification.error({ message })
+            onError(message)
         },
     })
 
     const propertySelectFormItemProps: InputWithCheckAllProps['selectFormItemProps'] = useMemo(() => ({
         label: PropertiesLabel,
-        labelCol: { css: FORM_FILED_COL_PROPS },
         required: true,
         name: 'properties',
         validateFirst: true,
@@ -96,7 +99,6 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
 
     const customSelectFormItemProps: InputWithCheckAllProps['selectFormItemProps'] = useMemo(() => ({
         label: CustomSelectLabel,
-        labelCol: { css: FORM_FILED_COL_PROPS },
         required: true,
         name: 'customSelect',
         validateFirst: true,
@@ -119,7 +121,7 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
 
                     if (countPropertiesAvailableToSelect.current === 1 && selectedPropertiesId.length === 1)
                         return prev
-                    if (countPropertiesAvailableToSelect.current === 1 && selectedPropertiesId.length === 0 && has(onlyPropertyThatCanBeSelected, 'current.value')) {
+                    if (countPropertiesAvailableToSelect.current === 1 && selectedPropertiesId.length === 0 && !!onlyPropertyThatCanBeSelected?.current?.value) {
                         return { ...prev, selectedPropertiesId:  [onlyPropertyThatCanBeSelected.current.value] }
                     }
                     return { ...prev, selectedPropertiesId: [] }
@@ -148,13 +150,13 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
     }
 
     const handleAllPropertiesLoading = useCallback((form: FormInstance) => (data) => {
-        if (!isEmpty(get(initialFormValues, 'property')) || !isEmpty(get(initialFormValues, 'properties')) || get(initialFormValues, 'hasAllProperties')) return
+        if (!initialFormValues?.property || !initialFormValues?.properties || !initialFormValues?.hasAllProperties) return
         if (!newsItemForOneProperty) return
         if (data.length !== 1) return
         if (propertyIsAutoFilled.current) return
 
         propertyIsAutoFilled.current = true
-        const propertyId = get(data, '0.value')
+        const propertyId = data?.[0]?.value
         if (propertyId) {
             setScope(prev=>({ ...prev, selectedPropertiesId: [propertyId] }))
             form.setFieldsValue({
@@ -176,15 +178,15 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
         if (!options) {
             setScope(prev=>({ ...prev, selectedUnitNameKeys: null }))
         } else {
-            const unitNamesKeys = options.map(option => get(option, 'key'))
+            const unitNamesKeys = options.map(option => option.key)
             setScope(prev=>({ ...prev, selectedUnitNameKeys: unitNamesKeys }))
         }
     }, [])
 
     const handleChangeSectionNameInput = useCallback((property) => {
         return (sections, options) => {
-            if (!isEmpty(sections)) {
-                const sectionKeys = options.map(option => get(option, 'key'))
+            if (!sections) {
+                const sectionKeys = options.map(option => option.key)
                 setScope(prev=>({ ...prev, selectedSectionKeys: sectionKeys }))
             } else {
                 setScope(prev=>({ ...prev, selectedSectionKeys: [] }))
@@ -217,7 +219,7 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
         showArrow:false,
         infinityScroll:true,
         placeholder:CustomSelectRecipientsPlaceholder,
-        onChange:(propIds: string[]) => {
+        onChange:(propIds: Array<string>) => {
             setSharingAppFormValues(prev=>({ ...prev, scope: propIds, isAllChecked: false }))
         },
     }
@@ -246,7 +248,7 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
                                 <HiddenBlock hide={newsItemForOneProperty}>
                                     <GraphQlSearchInputWithCheckAll
                                         checkAllFieldName='hasAllProperties'
-                                        checkAllInitialValue={get(initialValues, 'hasAllProperties', false)}
+                                        checkAllInitialValue={!!initialValues?.hasAllProperties}
                                         selectFormItemProps={propertySelectFormItemProps}
                                         selectProps={propertySelectProps(form)}
                                         onCheckBoxChange={propertyCheckboxChange(form)}
@@ -260,7 +262,7 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
                                     <Col span={11}>
                                         <Form.Item
                                             name='unitNames'
-                                            label={selectedPropertiesLoading || !isEmpty(scope.selectedSectionKeys)
+                                            label={selectedPropertiesLoading || !scope.selectedSectionKeys
                                                 ? (
                                                     <LabelWithInfo
                                                         title={UnitsMessage}
@@ -273,21 +275,21 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
                                                 multiple={true}
                                                 property={selectedProperties[0]}
                                                 loading={selectedPropertiesLoading}
-                                                disabled={selectedPropertiesLoading || !isEmpty(scope.selectedSectionKeys)}
+                                                disabled={selectedPropertiesLoading || !scope.selectedSectionKeys}
                                                 onChange={handleChangeUnitNameInput}/>
                                         </Form.Item>
                                     </Col>
                                     <Col span={11} offset={2}>
                                         <Form.Item
                                             name='sectionIds'
-                                            label={selectedPropertiesLoading || !isEmpty(scope.selectedUnitNameKeys)
+                                            label={selectedPropertiesLoading || !scope.selectedUnitNameKeys
                                                 ? (<LabelWithInfo
                                                     title={SectionsMessage}
                                                     message={SectionsLabel}/>)
                                                 : SectionsLabel}
                                         >
                                             <SectionNameInput
-                                                disabled={selectedPropertiesLoading || !isEmpty(scope.selectedUnitNameKeys)}
+                                                disabled={selectedPropertiesLoading || !scope.selectedUnitNameKeys}
                                                 property={selectedProperties[0]}
                                                 onChange={handleChangeSectionNameInput(selectedProperties[0])}
                                                 mode='multiple'
@@ -302,7 +304,7 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
                             CheckAllMessage={CheckAllLabel}
                             checkAllFieldName='hasAllCustom'
                             selectProps={customSelectProps}
-                            checkAllInitialValue={get(initialValues, 'hasAllCustom', false)}
+                            checkAllInitialValue={initialValues?.hasAllCustom}
                             onCheckBoxChange={customCheckboxChange()}
                             form={form}
                             selectFormItemProps={customSelectFormItemProps}

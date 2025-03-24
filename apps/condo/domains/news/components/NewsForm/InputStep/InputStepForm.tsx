@@ -1,9 +1,5 @@
-/** @jsx jsx */
 import { B2BAppNewsSharingConfig } from '@app/condo/schema'
-import { css, jsx } from '@emotion/react'
 import { Col, FormInstance, Row } from 'antd'
-import isNull from 'lodash/isNull'
-import transform from 'lodash/transform'
 import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -19,12 +15,7 @@ import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@condo/domains/news/const
 
 import { NewsItemDataType } from './index'
 
-const NO_RESIZE_STYLE = css`resize: none;`
-const BIG_MARGIN_BOTTOM_STYLE = css`margin-bottom: 60px `
-const MARGIN_BOTTOM_32_STYLE = css`margin-bottom: 32px`
-const MARGIN_BOTTOM_10_STYLE = css`margin-bottom: 10px`
-const FORM_FILED_COL_PROPS = css`width: 100%; padding: 0; height: 44px`
-const CUSTOM_FORM_STYLES = css`margin-left: -10px; min-height: 500px`
+import './styles.css'
 
 interface InputStepFormProps {
     newsSharingConfig: B2BAppNewsSharingConfig
@@ -114,20 +105,23 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
     }, [BodyErrorMessage, TemplateBlanksNotFilledErrorMessage])
 
     const commonTemplates = useMemo(() => {
-        return transform(templates, (result, value, key) => {
-            if (value.type === NEWS_TYPE_COMMON || isNull(value.type)) {
+        return Object.entries(templates).reduce((result, [key, value]) => {
+            if (value.type === NEWS_TYPE_COMMON || value.type === null) {
                 result[key] = value
             }
-        }, {})
+            return result
+        }, {} as typeof templates)
     }, [templates])
 
     const emergencyTemplates = useMemo(() => {
-        return transform(templates, (result, value, key) => {
-            if (value.type === NEWS_TYPE_EMERGENCY || isNull(value.type)) {
+        return Object.entries(templates).reduce((result, [key, value]) => {
+            if (value.type === NEWS_TYPE_EMERGENCY || value.type === null) {
                 result[key] = value
             }
-        }, {})
+            return result
+        }, {} as typeof templates)
     }, [templates])
+
 
     const emergencyTemplatesTabsProps = useMemo(() => Object.keys(emergencyTemplates).map(id => ({
         key: id,
@@ -145,7 +139,7 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
         <>
             {
                 isCustomForm ? (
-                    <Col css={CUSTOM_FORM_STYLES} span={formFieldsColSpan}>
+                    <Col className='custom-form' span={formFieldsColSpan}>
                         <IFrame
                             src={
                                 `${newsSharingConfig.customFormUrl}?${[
@@ -165,62 +159,65 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
                     </Col>
                 ) : (
                     <Col span={formFieldsColSpan}>
-                        <Row>
-                            <Col span={24} css={MARGIN_BOTTOM_32_STYLE}>
-                                <Typography.Title level={2}>
-                                    {MakeTextLabel}
-                                </Typography.Title>
-                            </Col>
+                        <Row gutter={[0, 60]}>
+                            <Row gutter={[0, 32]}>
 
-                            {templates && (
-                                <Col span={24} css={BIG_MARGIN_BOTTOM_STYLE}>
-                                    <FormItem
-                                        name='template'
-                                    >
-                                        {selectedType === NEWS_TYPE_COMMON && (
-                                            <TemplatesSelect
-                                                onChange={handleTemplateChange(form)}
-                                                items={commonTemplatesTabsProps}
-                                                hasCategories
-                                            />
-                                        )}
-                                        {selectedType === NEWS_TYPE_EMERGENCY && (
-                                            <TemplatesSelect
-                                                onChange={handleTemplateChange(form)}
-                                                items={emergencyTemplatesTabsProps}
-                                                hasCategories
-                                            />
-                                        )}
-                                    </FormItem>
+                                <Col span={24}>
+                                    <Typography.Title level={2}>
+                                        {MakeTextLabel}
+                                    </Typography.Title>
                                 </Col>
-                            )}
+
+                                {templates && (
+                                    <Col span={24}>
+                                        <FormItem
+                                            name='template'
+                                        >
+                                            {selectedType === NEWS_TYPE_COMMON && (
+                                                <TemplatesSelect
+                                                    onChange={handleTemplateChange(form)}
+                                                    items={commonTemplatesTabsProps}
+                                                    hasCategories
+                                                />
+                                            )}
+                                            {selectedType === NEWS_TYPE_EMERGENCY && (
+                                                <TemplatesSelect
+                                                    onChange={handleTemplateChange(form)}
+                                                    items={emergencyTemplatesTabsProps}
+                                                    hasCategories
+                                                />
+                                            )}
+                                        </FormItem>
+                                    </Col>
+                                )}
+                            </Row>
 
                             <Col span={24}>
-                                <Col span={24} css={MARGIN_BOTTOM_10_STYLE}>
-                                    <Typography.Title level={4}>{SelectTextLabel}</Typography.Title>
-                                </Col>
-                                <Col span={24}>
-                                    <FormItem
-                                        label={TitleLabel}
-                                        labelCol={{ css:FORM_FILED_COL_PROPS }}
-                                        name='title'
-                                        required
-                                        rules={titleRule}
-                                        validateFirst={true}
-                                        data-cy='news__create-title-input'
-                                    >
-                                        <TextArea
-                                            css={NO_RESIZE_STYLE}
-                                            rows={4}
-                                            placeholder={TitlePlaceholderMessage}
-                                            onChange={e=>handleFormTitleChange(e.target.value)}
-                                        />
-                                    </FormItem>
-                                </Col>
+                                <Row gutter={[0, 5]}>
+                                    <Col span={24} >
+                                        <Typography.Title level={4}>{SelectTextLabel}</Typography.Title>
+                                    </Col>
+                                    <Col span={24}>
+                                        <FormItem
+                                            label={TitleLabel}
+                                            name='title'
+                                            required
+                                            rules={titleRule}
+                                            validateFirst={true}
+                                            data-cy='news__create-title-input'
+                                        >
+                                            <TextArea
+                                                className='text-area-no-resize'
+                                                rows={4}
+                                                placeholder={TitlePlaceholderMessage}
+                                                onChange={e=>handleFormTitleChange(e.target.value)}
+                                            />
+                                        </FormItem>
+                                    </Col>
+                                </Row>
                                 <Col span={24}>
                                     <FormItem
                                         label={BodyLabel}
-                                        labelCol={{ css:FORM_FILED_COL_PROPS }}
                                         name='body'
                                         required
                                         rules={bodyRule}
@@ -229,7 +226,6 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
                                     >
                                         <TextArea
                                             autoFocus={autoFocusBody}
-                                            css={NO_RESIZE_STYLE}
                                             rows={7}
                                             placeholder={BodyPlaceholderMessage}
                                             onChange={e=>handleFormBodyChange(e.target.value)}

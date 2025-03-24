@@ -1,10 +1,8 @@
-/** @jsx jsx */
 import {
-    B2BApp, B2BAppNewsSharingConfig,  NewsItem as INewsItem,
+    B2BApp, B2BAppContext as IB2BAppContext, B2BAppNewsSharingConfig, NewsItem as INewsItem,
     NewsItemScope as INewsItemScope,
     Property as IProperty,
 } from '@app/condo/schema'
-import { css, jsx } from '@emotion/react'
 import { Col, FormInstance, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import isEmpty from 'lodash/isEmpty'
@@ -14,7 +12,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { Button, ActionBar } from '@open-condo/ui'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { TrackingEventType, useTracking } from '@condo/domains/common/components/TrackingContext'
+import { analytics } from '@condo/domains/common/utils/analytics'
 import {
     getTypeAndNameByKey,
     getUnitNamesAndUnitTypes,
@@ -29,8 +27,7 @@ import { InputStepPreview } from './InputStepPreview'
 import { InputStepRecipientCounter } from './InputStepRecipientCounter'
 import { InputStepSelector } from './InputStepSelector'
 
-const BIG_MARGIN_BOTTOM_STYLE = css`margin-bottom: 60px`
-const ACTIONS_STYLE = css`width: 100%`
+const BIG_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 60]
 const BIG_HORIZONTAL_GUTTER: [Gutter, Gutter] = [50, 0]
 
 export type SharingAppValuesType = {
@@ -39,6 +36,8 @@ export type SharingAppValuesType = {
         renderedTitle: string
         renderedBody: string
     }
+    isAllChecked?: boolean
+    scope?: Array<string>
     isValid: boolean
 }
 
@@ -54,7 +53,7 @@ type NewsItemSharingFormProps = {
         app: B2BApp
         id: string
         newsSharingConfig: B2BAppNewsSharingConfig
-        ctx: any
+        ctx: IB2BAppContext
     }
     onSubmit: (SharingAppValues: SharingAppValuesType) => void
     onSkip: (SharingAppValues: SharingAppValuesType) => void
@@ -71,7 +70,7 @@ export type BaseNewsFormProps = {
         newsItemScopes: Array<INewsItemScope>
         hasAllProperties: boolean
         sendPeriod: SendPeriodType
-        properties?: IProperty[]
+        properties?: Array<IProperty>
     }>
     templates: TemplatesType
     totalProperties: number
@@ -85,15 +84,15 @@ type InputStepProps = NewsItemSharingFormProps & BaseNewsFormProps & {
     isSharingStep: boolean
     selectedProperty: {
         loading: boolean
-        objs:  IProperty[]
+        objs: Array<IProperty>
     }
-    initialPropertyIds: string[]
+    initialPropertyIds: Array<string>
     initialFormValues: Record<string, unknown>
 }
 
 export const FormContainer: React.FC = ({ children }) => {
     return (
-        <Col span={24} css={BIG_MARGIN_BOTTOM_STYLE}>
+        <Col span={24}>
             <Row gutter={BIG_HORIZONTAL_GUTTER}>
                 {children}
             </Row>
@@ -120,12 +119,20 @@ export const InputStep: React.FC<InputStepProps> = ({
     initialFormValues,
 }
 ) => {
+    const intl = useIntl()
+    const SelectAddressPlaceholder = intl.formatMessage({ id: 'global.select.address' })
+    const NextStepShortMessage = intl.formatMessage({ id: 'pages.condo.news.steps.skipLabelShort' })
+    const NextStepMessage = intl.formatMessage({ id: 'pages.condo.news.steps.nextStep' })
+
     const { app: sharingApp, id: sharingAppId } = sharingAppData ?? { id: null, app: null }
     const { id, newsSharingConfig } = sharingApp ?? { id: null, newsSharingConfig: null }
     const { title, body } = newsItemData
     const { loading: selectedPropertiesLoading, objs: selectedProperties } = selectedProperty
 
     const appName = newsSharingConfig?.name
+
+    const NextStepLongMessage = intl.formatMessage({ id: 'pages.condo.news.steps.skipLabelLong' }, { appName })
+
     const appPreviewUrl = newsSharingConfig?.previewUrl
 
     const iFramePreviewRef = useRef(null)
@@ -137,15 +144,8 @@ export const InputStep: React.FC<InputStepProps> = ({
 
     const { breakpoints } = useLayoutContext()
     const isMediumWindow = !breakpoints.DESKTOP_SMALL
-
-    const intl = useIntl()
-    const SelectAddressPlaceholder = intl.formatMessage({ id: 'global.select.address' })
-    const NextStepShortMessage = intl.formatMessage({ id: 'pages.condo.news.steps.skipLabelShort' })
-    const NextStepMessage = intl.formatMessage({ id: 'pages.condo.news.steps.nextStep' })
-    const NextStepLongMessage = intl.formatMessage({ id: 'pages.condo.news.steps.skipLabelLong' }, { appName })
     const NextStepLabelMessage = isMediumWindow ? NextStepShortMessage : NextStepLongMessage
 
-    const { logEvent, getEventName } = useTracking()
     const [templateId, setTemplateId] = useState<string | null>(null)
 
     const [selectedTitle, setSelectedTitle] = useState<string>(title)
@@ -230,7 +230,7 @@ export const InputStep: React.FC<InputStepProps> = ({
         const { handler, sharingAppId: eventsharingAppId, formValues, preview, isValid } = event.data
 
         if (handler === 'handleSharingAppIFrameFormMessage' && sharingAppId === eventsharingAppId) {
-            setSharingAppFormValues({ formValues, preview, isValid })
+            setSharingAppFormValues(prev => ({ ...prev, formValues, preview, isValid }))
         }
     }, [id])
 
@@ -309,11 +309,11 @@ export const InputStep: React.FC<InputStepProps> = ({
         const title = templateId !== 'emptyTemplate' ? templates[templateId].title : ''
         const body = templateId !== 'emptyTemplate' ? templates[templateId].body : ''
 
-        const eventName = getEventName(TrackingEventType.Click)
-        const eventProperties = {
-            components: { value: { title, body } },
-        }
-        logEvent({ eventName, eventProperties })
+        analytics.track('change', {
+            value: templateId,
+            component: 'Select',
+            location: window.location.href,
+        })
 
         form.setFieldValue('title', title)
         setSelectedTitle(title)
@@ -323,7 +323,7 @@ export const InputStep: React.FC<InputStepProps> = ({
     }, [templates])
 
     return (
-        <>
+        <Row gutter={BIG_VERTICAL_GUTTER}>
             <FormContainer>
                 <InputStepForm
                     template={{ id: templateId, ...templates[templateId] }}
@@ -379,29 +379,27 @@ export const InputStep: React.FC<InputStepProps> = ({
             </FormContainer>
 
             {viewNewsSharingSubmit && (
-                <Row css={ACTIONS_STYLE}>
-                    <Col span={24}>
-                        <ActionBar
-                            actions={[
-                                <Button
-                                    key='submit'
-                                    type='primary'
-                                    children={NextStepMessage}
-                                    onClick={() => onSubmit(sharingAppFormValues)}
-                                    disabled={!sharingAppFormValues.isValid}
-                                />,
-                                <Button
-                                    key='submit'
-                                    type='secondary'
-                                    children={NextStepLabelMessage}
-                                    onClick={() => onSkip(sharingAppFormValues)}
-                                />,
-                            ]}
-                        />
-                    </Col>
-                </Row>
+                <Col span={24}>
+                    <ActionBar
+                        actions={[
+                            <Button
+                                key='submit'
+                                type='primary'
+                                children={NextStepMessage}
+                                onClick={() => onSubmit(sharingAppFormValues)}
+                                disabled={!sharingAppFormValues.isValid}
+                            />,
+                            <Button
+                                key='submit'
+                                type='secondary'
+                                children={NextStepLabelMessage}
+                                onClick={() => onSkip(sharingAppFormValues)}
+                            />,
+                        ]}
+                    />
+                </Col>
             )}
-        </>)
+        </Row>)
 }
 
 

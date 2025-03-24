@@ -1,6 +1,5 @@
 import { B2BAppNewsSharingConfig } from '@app/condo/schema'
 import { Col } from 'antd'
-import get from 'lodash/get'
 import React, { useMemo } from 'react'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
@@ -52,14 +51,14 @@ export const InputStepPreview: React.FC<InputStepPreviewProps> = ({
     [newsSharingConfig, newsItemData, NEWS_SHARING_PUSH_NOTIFICATION_SETTINGS])
 
     const appName = newsSharingConfig?.name
-    const appIcon = get(newsSharingConfig, ['icon', 'publicUrl'])
+    const appIcon = newsSharingConfig?.icon?.publicUrl
     const appPreviewUrl = newsSharingConfig?.previewUrl
 
     return (
         <>
             {isCustomPreview ? (
                 <Col span={formInfoColSpan}>
-                    {(!!get(sharingAppFormValues, ['preview', 'renderedTitle']) || !!get(sharingAppFormValues, ['preview', 'renderedBody'])) && (
+                    {(!!sharingAppFormValues?.preview?.renderedTitle || !!sharingAppFormValues?.preview?.renderedBody) && (
                         <MemoizedSharingNewsPreview
                             hasPush={previewHasPush}
                             ctxId={sharingAppId}
@@ -67,8 +66,8 @@ export const InputStepPreview: React.FC<InputStepPreviewProps> = ({
                             appIcon={appIcon}
                             iFrameUrl={appPreviewUrl}
                             iFrameRef={iFramePreviewRef}
-                            title = {get(sharingAppFormValues, ['preview', 'renderedTitle'])}
-                            body = {get(sharingAppFormValues, ['preview', 'renderedBody'])}
+                            title = {sharingAppFormValues?.preview?.renderedTitle}
+                            body = {sharingAppFormValues?.preview?.renderedBody}
 
                             validBefore={newsItemData.type === NEWS_TYPE_EMERGENCY ? newsItemData.validBefore : null}
                         />
