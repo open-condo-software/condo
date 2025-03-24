@@ -85,21 +85,6 @@ export const InlineOrganizationSelect: React.FC = () => {
     [actualEmployees]
     )
 
-    const { setIsVisible: showCreateOrganizationModal, ModalForm: CreateOrganizationModalForm } = useCreateOrganizationModalForm({
-        onFinish: async (createdOrganization) => {
-            const organizationType = createdOrganization?.type || null
-
-            // The slash will only be there if we have just registered and we don't have any additional parameters in the address bar.
-            if (organizationType === OrganizationTypeType.ManagingCompany && router.route === '/') {
-                await router.push('/tour')
-            }
-        },
-    })
-
-    const showCreateModal = useCallback(() => {
-        showCreateOrganizationModal(true)
-    }, [showCreateOrganizationModal])
-
     useDeepCompareEffect(() => {
         if (!persistor) return
         if (!user) return

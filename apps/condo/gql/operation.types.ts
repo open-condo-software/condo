@@ -353,6 +353,28 @@ export type UpdateTourStepMutationVariables = Types.Exact<{
 
 export type UpdateTourStepMutation = { __typename?: 'Mutation', tourStep?: { __typename?: 'TourStep', id: string } | null };
 
+export type AcceptOrRejectOrganizationEmployeeRequestMutationVariables = Types.Exact<{
+  data: Types.AcceptOrRejectOrganizationEmployeeRequestInput;
+}>;
+
+
+export type AcceptOrRejectOrganizationEmployeeRequestMutation = { __typename?: 'Mutation', request?: { __typename?: 'OrganizationEmployeeRequest', id: string } | null };
+
+export type AcceptOrRejectOrganizationInviteMutationVariables = Types.Exact<{
+  id: Types.Scalars['ID']['input'];
+  data: Types.AcceptOrRejectOrganizationInviteInput;
+}>;
+
+
+export type AcceptOrRejectOrganizationInviteMutation = { __typename?: 'Mutation', invite?: { __typename?: 'OrganizationEmployee', id: string, isAccepted?: boolean | null, isRejected?: boolean | null, isBlocked?: boolean | null, organization?: { __typename?: 'Organization', type?: Types.OrganizationTypeType | null } | null } | null };
+
+export type FindOrganizationsByTinQueryVariables = Types.Exact<{
+  data: Types.FindOrganizationsByTinInput;
+}>;
+
+
+export type FindOrganizationsByTinQuery = { __typename?: 'Query', data?: { __typename?: 'FindOrganizationsByTinOutput', organizations: Array<{ __typename?: 'FindOrganizationsByTinOrganizationType', id: string, name: string } | null> } | null };
+
 export type GetActiveOrganizationEmployeeQueryVariables = Types.Exact<{
   userId: Types.Scalars['ID']['input'];
   employeeId?: Types.InputMaybe<Types.Scalars['ID']['input']>;
@@ -385,6 +407,13 @@ export type GetEmployeeInvitesCountQueryVariables = Types.Exact<{
 
 export type GetEmployeeInvitesCountQuery = { __typename?: 'Query', meta?: { __typename?: '_QueryMeta', count?: number | null } | null };
 
+export type GetLastEmployeeInviteQueryVariables = Types.Exact<{
+  userId: Types.Scalars['ID']['input'];
+}>;
+
+
+export type GetLastEmployeeInviteQuery = { __typename?: 'Query', employees?: Array<{ __typename?: 'OrganizationEmployee', id: string, organization?: { __typename?: 'Organization', id: string, name?: string | null } | null } | null> | null };
+
 export type GetContactEditorOrganizationEmployeesQueryVariables = Types.Exact<{
   where?: Types.InputMaybe<Types.OrganizationEmployeeWhereInput>;
 }>;
@@ -392,13 +421,13 @@ export type GetContactEditorOrganizationEmployeesQueryVariables = Types.Exact<{
 
 export type GetContactEditorOrganizationEmployeesQuery = { __typename?: 'Query', employees?: Array<{ __typename?: 'OrganizationEmployee', id: string, name?: string | null, phone?: string | null } | null> | null };
 
-export type GetOrganizationEmployeeWithTicketOrganizationQueryVariables = Types.Exact<{
+export type GetOrganizationEmployeeByUserAndOrganizationQueryVariables = Types.Exact<{
   userId: Types.Scalars['ID']['input'];
   organizationId: Types.Scalars['ID']['input'];
 }>;
 
 
-export type GetOrganizationEmployeeWithTicketOrganizationQuery = { __typename?: 'Query', employees?: Array<{ __typename?: 'OrganizationEmployee', id: string } | null> | null };
+export type GetOrganizationEmployeeByUserAndOrganizationQuery = { __typename?: 'Query', employees?: Array<{ __typename?: 'OrganizationEmployee', id: string } | null> | null };
 
 export type GetOrganizationEmployeeByUserAndOrganizationIdQueryVariables = Types.Exact<{
   userId: Types.Scalars['ID']['input'];
@@ -416,12 +445,55 @@ export type GetEmployeesInvitesByUserIdAndOrganizationTypeQueryVariables = Types
 
 export type GetEmployeesInvitesByUserIdAndOrganizationTypeQuery = { __typename?: 'Query', invitations?: Array<{ __typename?: 'OrganizationEmployee', id: string, organization?: { __typename?: 'Organization', name?: string | null } | null } | null> | null };
 
+export type GetLastUserOrganizationEmployeeRequestQueryVariables = Types.Exact<{
+  userId: Types.Scalars['ID']['input'];
+}>;
+
+
+export type GetLastUserOrganizationEmployeeRequestQuery = { __typename?: 'Query', requests?: Array<{ __typename?: 'OrganizationEmployeeRequest', id: string, organizationId?: string | null, organizationName?: string | null, isRejected?: boolean | null, isAccepted?: boolean | null, retries?: number | null } | null> | null };
+
+export type GetLastActiveOrganizationEmployeeRequestByTinQueryVariables = Types.Exact<{
+  userId: Types.Scalars['ID']['input'];
+  tin: Types.Scalars['String']['input'];
+}>;
+
+
+export type GetLastActiveOrganizationEmployeeRequestByTinQuery = { __typename?: 'Query', requests?: Array<{ __typename?: 'OrganizationEmployeeRequest', id: string, organizationName?: string | null } | null> | null };
+
+export type GetRequestsForUserOrganizationsQueryVariables = Types.Exact<{
+  userId: Types.Scalars['ID']['input'];
+}>;
+
+
+export type GetRequestsForUserOrganizationsQuery = { __typename?: 'Query', requests?: Array<{ __typename?: 'OrganizationEmployeeRequest', id: string, userName?: string | null, userPhone?: string | null, organizationName?: string | null, organizationId?: string | null } | null> | null };
+
+export type GetOrganizationEmployeeRolesByOrganizationQueryVariables = Types.Exact<{
+  organizationId: Types.Scalars['ID']['input'];
+}>;
+
+
+export type GetOrganizationEmployeeRolesByOrganizationQuery = { __typename?: 'Query', roles?: Array<{ __typename?: 'OrganizationEmployeeRole', id: string, name?: string | null, description?: string | null } | null> | null };
+
 export type GetOrganizationEmployeeSpecializationsQueryVariables = Types.Exact<{
   employeeId: Types.Scalars['ID']['input'];
 }>;
 
 
 export type GetOrganizationEmployeeSpecializationsQuery = { __typename?: 'Query', organizationEmployeeSpecializations?: Array<{ __typename?: 'OrganizationEmployeeSpecialization', id: string, employee?: { __typename?: 'OrganizationEmployee', id: string } | null, specialization?: { __typename?: 'TicketCategoryClassifier', id: string } | null } | null> | null };
+
+export type RegisterNewOrganizationMutationVariables = Types.Exact<{
+  data: Types.RegisterNewOrganizationInput;
+}>;
+
+
+export type RegisterNewOrganizationMutation = { __typename?: 'Mutation', organization?: { __typename?: 'Organization', id: string } | null };
+
+export type SendOrganizationEmployeeRequestMutationVariables = Types.Exact<{
+  data: Types.SendOrganizationEmployeeRequestInput;
+}>;
+
+
+export type SendOrganizationEmployeeRequestMutation = { __typename?: 'Mutation', request?: { __typename?: 'OrganizationEmployeeRequest', id: string, organizationName?: string | null } | null };
 
 export type FloorInfoFragment = { __typename?: 'BuildingFloor', id: string, type: Types.BuildingFloorType, index: number, name: string, units: Array<{ __typename?: 'BuildingUnit', id: string, type: Types.BuildingUnitType, unitType?: Types.BuildingUnitSubType | null, name?: string | null, label: string, preview?: boolean | null } | null> };
 
