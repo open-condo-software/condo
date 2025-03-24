@@ -32,7 +32,7 @@ export const InputStepRecipientCounter: React.FC<InputStepRecipientCounterProps>
             contextId={sharingAppId}
             newsItemScopes={newsItemScopesNoInstance}
         />
-    )}</>, [newsSharingConfig])
+    )}</>, [newsSharingConfig, sharingAppId, newsItemScopesNoInstance])
 
     return (
         <Col span={formInfoColSpan}>

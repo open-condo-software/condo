@@ -124,7 +124,7 @@ export const InputStep: React.FC<InputStepProps> = ({
     const NextStepMessage = intl.formatMessage({ id: 'pages.condo.news.steps.nextStep' })
 
     const { app: sharingApp, id: sharingAppId } = sharingAppData ?? { id: null, app: null }
-    const { id, newsSharingConfig } = sharingApp ?? { id: null, newsSharingConfig: null }
+    const { newsSharingConfig } = sharingApp ?? { id: null, newsSharingConfig: null }
     const { title, body } = newsItemData
     const { loading: selectedPropertiesLoading, objs: selectedProperties } = selectedProperty
 
@@ -231,7 +231,7 @@ export const InputStep: React.FC<InputStepProps> = ({
         if (handler === 'handleSharingAppIFrameFormMessage' && sharingAppId === eventsharingAppId) {
             setSharingAppFormValues(prev => ({ ...prev, formValues, preview, isValid }))
         }
-    }, [id])
+    }, [sharingAppId])
 
     const handleTitleChange = useCallback((value) => {
         setSelectedTitle(value)

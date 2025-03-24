@@ -19,12 +19,12 @@ import {
     InputWithCheckAllProps,
 } from '@condo/domains/common/components/GraphQlSearchInputWithCheckAll'
 import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'
+import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { HiddenBlock, ScopeType } from '@condo/domains/news/components/NewsForm/BaseNewsForm'
 import { SectionNameInput } from '@condo/domains/user/components/SectionNameInput'
 import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/components/UnitNameInput'
 
-import { useMutationErrorHandler } from '../../../../common/hooks/useMutationErrorHandler'
 
 import { SharingAppValuesType } from '.'
 
@@ -210,8 +210,8 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
                 return data.data.recipients.map(el => ({ text: el.name, value: el.id }))
             }
             catch (error) {
-                console.error('error: ', error)
-                notification.error({ message: ErrorLoadingMessage })
+                const message = error?.graphQLErrors?.[0]?.extensions?.messageForUser || ErrorLoadingMessage
+                onError(message)
                 return []
             }
         },
