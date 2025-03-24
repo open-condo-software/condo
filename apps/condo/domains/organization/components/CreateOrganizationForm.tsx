@@ -262,6 +262,9 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
         }
 
         const registeredOrganization = registeredOrganizationData?.data?.organization
+        if (onOrganizationCreated) {
+            onOrganizationCreated(registeredOrganization)
+        }
         const organizationId = registeredOrganization?.id
         const newOrganizationEmployeeData = await getOrganizationEmployee({
             variables: {
@@ -276,10 +279,6 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
                 include: [GetActualOrganizationEmployeesDocument],
             })
             await selectEmployee(newOrganizationEmployeeId)
-        }
-
-        if (onOrganizationCreated) {
-            onOrganizationCreated(registeredOrganization)
         }
     }, [client, findOrganizationsByTin, getLastActiveOrganizationEmployeeRequest, getOrganizationEmployee, onOrganizationCreated, onSendOrganizationRequest, registerNewOrganization, selectEmployee, type, userId])
 
