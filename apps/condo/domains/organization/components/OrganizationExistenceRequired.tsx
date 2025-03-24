@@ -2,7 +2,7 @@ import {
     useAcceptOrRejectOrganizationInviteMutation,
     useGetLastEmployeeInviteQuery,
     useGetLastUserOrganizationEmployeeRequestQuery,
-    useGetOrganizationEmployeeExistenceQuery, useSendOrganizationEmployeeRequestMutation,
+    useSendOrganizationEmployeeRequestMutation,
 } from '@app/condo/gql'
 import { OrganizationTypeType } from '@app/condo/schema'
 import pickBy from 'lodash/pickBy'
@@ -19,16 +19,12 @@ import { LayoutWithPoster } from '@condo/domains/common/components/containers/La
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { AuthPoster } from '@condo/domains/user/components/containers/AuthPoster'
 import { WelcomeHeaderTitle } from '@condo/domains/user/components/UserWelcomeTitle'
-
 import './OrganizationExistenceRequired.css'
 import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
+import { Loader } from '@condo/domains/common/components/Loader'
+import { MAX_ORGANIZATION_EMPLOYEE_REQUEST_RETRIES } from '@condo/domains/organization/constants/common'
 
 import { CreateOrganizationForm } from './CreateOrganizationForm'
-
-import { Loader } from '../../common/components/Loader'
-
-
-import { MAX_ORGANIZATION_EMPLOYEE_REQUEST_RETRIES } from '@condo/domains/organization/constants/common'
 
 
 type OrganizationExistenceRequiredProps = {
