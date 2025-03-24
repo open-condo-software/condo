@@ -12,7 +12,6 @@ import { useIntl } from '@open-condo/next/intl'
 import { Button, ActionBar } from '@open-condo/ui'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { analytics } from '@condo/domains/common/utils/analytics'
 import {
     getTypeAndNameByKey,
     getUnitNamesAndUnitTypes,
@@ -308,12 +307,6 @@ export const InputStep: React.FC<InputStepProps> = ({
         const templateId = value
         const title = templateId !== 'emptyTemplate' ? templates[templateId].title : ''
         const body = templateId !== 'emptyTemplate' ? templates[templateId].body : ''
-
-        analytics.track('change', {
-            value: templateId,
-            component: 'Select',
-            location: window.location.href,
-        })
 
         form.setFieldValue('title', title)
         setSelectedTitle(title)
