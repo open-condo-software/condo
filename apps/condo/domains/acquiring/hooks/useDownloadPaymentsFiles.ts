@@ -1,10 +1,10 @@
 import { useUpdatePaymentsFileMutation } from '@app/condo/gql'
+import { PaymentsFileStatusType } from '@app/condo/schema'
 import JSZip from 'jszip'
 import { useCallback } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 
-import { PAYMENTS_FILE_DOWNLOADED_STATUS } from '@condo/domains/acquiring/constants/constants'
 import { useDownloadFileFromServer } from '@condo/domains/common/hooks/useDownloadFileFromServer'
 
 
@@ -22,7 +22,7 @@ export default function useDownloadPaymentsFiles (refetch) {
             variables: {
                 id,
                 data: {
-                    status: PAYMENTS_FILE_DOWNLOADED_STATUS,
+                    status: PaymentsFileStatusType.Downloaded,
                     sender: getClientSideSenderInfo(),
                     dv: 1,
                 },
