@@ -625,27 +625,13 @@ const FiltersContainer = ({ filterMetas }) => {
         changeSearch(e.target.value)
     }, [changeSearch])
 
-    let checkboxColSpan = 18
-    let filterButtonColSpan = 24
-
     const isXlContainerSize = contentWidth >= 980
-    const isXxlContainerSize = contentWidth >= 1288
-
-    if (isXlContainerSize) {
-        checkboxColSpan = 13
-        filterButtonColSpan = 7
-    }
-
-    if (isXxlContainerSize) {
-        checkboxColSpan = 14
-        filterButtonColSpan = 6
-    }
 
     return (
         <>
             <TableFiltersContainer ref={setRef}>
                 <Row gutter={FILTERS_CONTAINER_ROW_GUTTER} align='middle'>
-                    <Col span={3}>
+                    <Col span={isXlContainerSize ? 3 : 24}>
                         <Input
                             placeholder={SearchPlaceholder}
                             onChange={handleSearchChange}
@@ -654,7 +640,7 @@ const FiltersContainer = ({ filterMetas }) => {
                             suffix={<Search size='medium' color={colors.gray[7]}/>}
                         />
                     </Col>
-                    <Col span={checkboxColSpan}>
+                    <Col>
                         <Row gutter={CHECKBOX_WRAPPER_GUTTERS} style={!isXlContainerSize ? CHECKBOX_WRAPPER_STYLES : null}>
                             <Col>
                                 <Checkbox
@@ -723,7 +709,7 @@ const FiltersContainer = ({ filterMetas }) => {
                             </Col>
                         </Row>
                     </Col>
-                    <Col span={filterButtonColSpan} style={{ marginLeft: 'auto' }}>
+                    <Col style={{ marginLeft: 'auto' }}>
                         <Row align='middle' justify='end' gutter={FILTERS_BUTTON_ROW_GUTTER} style={FILTERS_BUTTON_ROW_STYLES}>
                             {
                                 appliedFiltersCount > 0 && (
