@@ -19,7 +19,6 @@ describe('Key value adapter', () => {
     })
 
     afterAll(async () => {
-        await client.flushdb()
         await client.disconnect()
         await nonPrefixedClient.disconnect()
     })
