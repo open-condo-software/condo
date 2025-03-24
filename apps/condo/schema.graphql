@@ -81983,6 +81983,19 @@ type SuggestServiceProviderOutput {
   name: String!
 }
 
+input FindUnitsByAddressInput {
+  addressKey: String!
+}
+
+type UnitType {
+  unitName: String!
+  unitType: BuildingUnitType!
+}
+
+type FindUnitsByAddressOutput {
+  units: [UnitType]!
+}
+
 input SyncTourStepsInput {
   dv: Int!
   sender: SenderFieldInput!
@@ -86813,6 +86826,7 @@ type Query {
   getResidentExistenceByPhoneAndAddress(data: GetResidentExistenceByPhoneAndAddressInput!): GetResidentExistenceByPhoneAndAddressOutput
   findOrganizationsByAddress(data: FindOrganizationsByAddressInput!): [FindOrganizationByAddressOutput]
   suggestServiceProvider(data: SuggestServiceProviderInput!): [SuggestServiceProviderOutput]
+  findUnitsByAddress(data: FindUnitsByAddressInput!): FindUnitsByAddressOutput
 
   """
   Export of property meters readings. A link to the file is returned

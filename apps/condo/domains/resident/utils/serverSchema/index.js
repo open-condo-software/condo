@@ -17,6 +17,7 @@ const { SEND_MESSAGE_TO_RESIDENT_SCOPES_MUTATION } = require('@condo/domains/res
 const { DISCOVER_SERVICE_CONSUMERS_MUTATION } = require('@condo/domains/resident/gql')
 const { GET_RESIDENT_EXISTENCE_BY_PHONE_AND_ADDRESS_MUTATION } = require('@condo/domains/resident/gql')
 const { FIND_ORGANIZATIONS_BY_ADDRESS_QUERY } = require('@condo/domains/resident/gql')
+const { FIND_UNITS_BY_ADDRESS_MUTATION } = require('@condo/domains/resident/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const logger = getLogger('resident/serverSchema')
@@ -136,6 +137,20 @@ async function suggestServiceProvider (context, data) {
     })
 }
 
+async function findUnitsByAddress (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+    // TODO(codegen): write findUnitsByAddress serverSchema guards
+
+    return await execGqlWithoutAccess(context, {
+        query: FIND_UNITS_BY_ADDRESS_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to findUnitsByAddress',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -149,5 +164,6 @@ module.exports = {
     registerResidentInvoice,
     findOrganizationsByAddress,
     suggestServiceProvider,
+    findUnitsByAddress,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

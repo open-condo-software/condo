@@ -13,6 +13,7 @@ const { Resident } = require('./Resident')
 const { SendMessageToResidentScopesService } = require('./SendMessageToResidentScopesService')
 const { ServiceConsumer } = require('./ServiceConsumer')
 const { SuggestServiceProviderService } = require('./SuggestServiceProviderService')
+const { FindUnitsByAddressService } = require('./FindUnitsByAddressService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -26,5 +27,6 @@ module.exports = {
     RegisterResidentInvoiceService,
     FindOrganizationsByAddressService,
     SuggestServiceProviderService,
+    FindUnitsByAddressService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

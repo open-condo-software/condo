@@ -65,6 +65,12 @@ const FIND_ORGANIZATIONS_BY_ADDRESS_QUERY = gql`
     }
 `
 
+const FIND_UNITS_BY_ADDRESS_QUERY = gql`
+    query findUnitsByAddress ($data: FindUnitsByAddressInput!) {
+        result: findUnitsByAddress (data: $data) { units { unitName, unitType } }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 const REGISTER_RESIDENT_SERVICE_CONSUMERS_MUTATION = gql`
@@ -96,5 +102,6 @@ module.exports = {
     FIND_ORGANIZATIONS_BY_ADDRESS_QUERY,
     SUGGEST_SERVICE_PROVIDER_QUERY,
     SERVICE_CONSUMER_FIELDS,
+    FIND_UNITS_BY_ADDRESS_QUERY,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
