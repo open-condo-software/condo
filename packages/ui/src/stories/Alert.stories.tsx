@@ -41,14 +41,15 @@ export const ErrorAlert: StoryObj<typeof Alert> = {
 
 export const Banner: StoryObj<typeof Alert> = {
     args: {
+        type: 'info',
         banner: true,
         action: (
-            <Space size={16}>
-                <Button type='primary'>
-                    Label
-                </Button>
+            <Space size={16} wrap width='100%'>
                 <Button type='secondary'>
-                    Label
+                    Cancel
+                </Button>
+                <Button type='primary'>
+                    Save
                 </Button>
             </Space>
         ),
