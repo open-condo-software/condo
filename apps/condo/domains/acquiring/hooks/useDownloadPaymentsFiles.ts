@@ -31,6 +31,10 @@ export default function useDownloadPaymentsFiles (refetch) {
     }, [updatePaymentsFileMutation])
 
     const downloadPaymentsFiles = async (selectedRegistryIds, paymentsFiles) => {
+        if (!paymentsFiles || !Array.isArray(paymentsFiles)) {
+            console.error('Invalid paymentsFiles parameter')
+            return
+        }
         const selectedFiles = paymentsFiles.filter(file => selectedRegistryIds.includes(file.id))
 
         if (selectedFiles.length === 0) {
@@ -63,16 +67,22 @@ export default function useDownloadPaymentsFiles (refetch) {
                 await updatePaymentsFileStatus(file.id)
             }))
 
-            const zipBlob = await zip.generateAsync({ type: 'blob' })
-            const zipUrl = URL.createObjectURL(zipBlob)
-
-            if (zipUrl) {
-                await downloadFile({ url: zipUrl, name: 'payments_files.zip' })
-            } else {
-                console.error('Error downloading zip payments file')
+            let zipUrl = null
+            try {
+                const zipBlob = await zip.generateAsync({ type: 'blob' })
+                zipUrl = URL.createObjectURL(zipBlob)
+                if (zipUrl) {
+                    await downloadFile({ url: zipUrl, name: 'payments_files.zip' })
+                } else {
+                    console.error('Error creating object URL for zip file')
+                }
+            } catch (error) {
+                console.error('Error generating or downloading zip file:', error)
+            } finally {
+                if (zipUrl) {
+                    URL.revokeObjectURL(zipUrl)
+                }
             }
-
-            URL.revokeObjectURL(zipUrl)
         }
     }
 

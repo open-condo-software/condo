@@ -10,10 +10,11 @@ import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 
 type ParamUpdateHandler = (key: string) => void
 
-const AVAILABLE_TABS = [ACCRUALS_TAB_KEY, PAYMENTS_TAB_KEY]
+const DEFAULT_TABS = [ACCRUALS_TAB_KEY, PAYMENTS_TAB_KEY]
 const PAYMENTS_TYPES = [PAYMENTS_TYPE_LIST, PAYMENTS_TYPE_REGISTRY]
 
 export function useQueryParams (includeExtension: boolean): [string, PaymentTypes, ParamUpdateHandler] {
+    const AVAILABLE_TABS = [...DEFAULT_TABS]
     if (includeExtension) {
         AVAILABLE_TABS.push(EXTENSION_TAB_KEY)
     }
