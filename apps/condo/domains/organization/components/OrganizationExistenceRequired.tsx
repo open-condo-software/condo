@@ -25,6 +25,9 @@ import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutation
 
 import { CreateOrganizationForm } from './CreateOrganizationForm'
 
+import { Loader } from '../../common/components/Loader'
+
+
 import { MAX_ORGANIZATION_EMPLOYEE_REQUEST_RETRIES } from '@condo/domains/organization/constants/common'
 
 
@@ -41,25 +44,13 @@ export const OrganizationExistenceRequired: React.FC<OrganizationExistenceRequir
     const [showOrganizationForm, setShowOrganizationForm] = useState<boolean>(false)
     const [isCancelModalOpen, setIsCancelModalOpen] = useState<boolean>(false)
 
-    const initialDataLoading = !persistor || userLoading || organizationLoading
+    const initialDataLoading = userLoading || organizationLoading
 
     // skip queries if user is not logged in or he has organization already
     // skip => initialDataLoading || !user || !!organization
-    const skipQueryStatement = initialDataLoading || !user || !!organization
+    const skipQueryStatement = !persistor || initialDataLoading || !user || !!organization
 
     const onError = useMutationErrorHandler()
-
-    const {
-        data: employeeExistenceData,
-        loading: employeeExistenceLoading,
-    } = useGetOrganizationEmployeeExistenceQuery({
-        variables: {
-            userId: user?.id,
-        },
-        onError,
-        skip: skipQueryStatement,
-    })
-    const isEmployeeExist = useMemo(() => employeeExistenceData?.actualEmployees?.length > 0, [employeeExistenceData?.actualEmployees])
 
     const {
         data: lastInviteData,
@@ -70,7 +61,7 @@ export const OrganizationExistenceRequired: React.FC<OrganizationExistenceRequir
             userId: user?.id,
         },
         onError,
-        skip: skipQueryStatement || employeeExistenceLoading,
+        skip: skipQueryStatement,
     })
     const lastInvite = useMemo(() => lastInviteData?.employees?.filter(Boolean)?.[0], [lastInviteData?.employees])
 
@@ -83,7 +74,7 @@ export const OrganizationExistenceRequired: React.FC<OrganizationExistenceRequir
             userId: user?.id,
         },
         onError,
-        skip: skipQueryStatement || employeeExistenceLoading || lastInviteLoading,
+        skip: skipQueryStatement || lastInviteLoading,
     })
     const lastOrganizationEmployeeRequest = useMemo(() => lastOrganizationEmployeeRequestData?.requests?.[0], [lastOrganizationEmployeeRequestData?.requests])
 
@@ -140,13 +131,14 @@ export const OrganizationExistenceRequired: React.FC<OrganizationExistenceRequir
         await signOut()
         // pass next link?
         await router.push('/auth/signin')
+        setIsCancelModalOpen(false)
         setShowOrganizationForm(false)
     }, [router, signOut])
 
-    const loading = initialDataLoading || employeeExistenceLoading || lastInviteLoading || lastOrganizationEmployeeRequestLoading
+    const pageDataLoading = lastInviteLoading || lastOrganizationEmployeeRequestLoading
 
     // If user has employee => skip this screens
-    if (loading || isEmployeeExist || !user || !!organization) {
+    if (initialDataLoading || !user || !!organization) {
         return <>{children}</>
     }
 
@@ -270,6 +262,10 @@ export const OrganizationExistenceRequired: React.FC<OrganizationExistenceRequir
                 </Space>
             </Space>
         )
+    }
+
+    if (pageDataLoading) {
+        content = <Loader fill size='large'/>
     }
 
     return (

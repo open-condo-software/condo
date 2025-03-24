@@ -30,13 +30,18 @@ interface ITopNotificationHookResult {
 export const useTopNotificationsHook = (serviceProblemsAlert?: React.ReactNode): ITopNotificationHookResult => {
     const [topNotifications, setTopNotifications] = useState<ITopNotification[]>([])
     const addNotification = useCallback((notification: ITopNotification) => {
-        if (!topNotifications.find(existedNotification => existedNotification.id === notification.id)) {
-            setTopNotifications([...topNotifications, notification])
-        }
-    }, [topNotifications])
+        setTopNotifications(topNotifications => {
+            if (!topNotifications.find(existedNotification => existedNotification.id === notification.id)) {
+                return [...topNotifications, notification]
+            }
+            return topNotifications
+        })
+    }, [])
     const removeNotification = useCallback((notificationId) => {
         setTopNotifications(topNotifications => topNotifications.filter(notification => notification.id !== notificationId))
     }, [])
+
+    // console.log('topNotifications', topNotifications)
 
     const TopNotificationComponent: React.FC = () => {
         if (topNotifications.length === 0 && !serviceProblemsAlert) return null

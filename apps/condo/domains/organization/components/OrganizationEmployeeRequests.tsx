@@ -1,8 +1,9 @@
 import { jsx } from '@emotion/react'
 import { Form, notification } from 'antd'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Dispatch, FC, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
+import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -11,6 +12,7 @@ import { Alert, Button, Modal, Select, Space, Typography } from '@open-condo/ui'
 import { EmployeeRoleSelect } from './EmployeeRoleSelect'
 
 import {
+    AcceptOrRejectOrganizationEmployeeRequestMutationFn, GetOrganizationEmployeeRolesByOrganizationQueryResult,
     GetRequestsForUserOrganizationsQueryResult,
     useAcceptOrRejectOrganizationEmployeeRequestMutation, useGetOrganizationEmployeeRolesByOrganizationQuery,
     useGetRequestsForUserOrganizationsQuery,
@@ -18,88 +20,35 @@ import {
 import { useLayoutContext } from '../../common/components/LayoutContext'
 import { useMutationErrorHandler } from '../../common/hooks/useMutationErrorHandler'
 import { formatPhone } from '../../common/utils/helpers'
-import { getClientSideSenderInfo } from '../../common/utils/userid.utils'
 
 
 type ActiveOrganizationRequestType = GetRequestsForUserOrganizationsQueryResult['data']['requests'][number] | null
 
-export const OrganizationEmployeeRequests = () => {
-    const intl = useIntl()
-    const AcceptMessage = intl.formatMessage({ id: 'Accept' })
-    const RejectMessage = intl.formatMessage({ id: 'Reject' })
-    const DoneMessage = intl.formatMessage({ id: 'OperationCompleted' })
-    const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
+type ChooseEmployeeRoleModalProps = {
+    activeRequest: ActiveOrganizationRequestType
+    setActiveRequest: Dispatch<SetStateAction<ActiveOrganizationRequestType>>
+    acceptOrRejectRequest: AcceptOrRejectOrganizationEmployeeRequestMutationFn
+    refetchOrganizationsRequests: GetRequestsForUserOrganizationsQueryResult['refetch']
+    employeeRoles: GetOrganizationEmployeeRolesByOrganizationQueryResult['data']['roles']
+}
 
-    const { user, isAuthenticated } = useAuth()
-    const { employee } = useOrganization()
-    const { addNotification, removeNotification } = useLayoutContext()
+const ChooseEmployeeRoleModal: FC<ChooseEmployeeRoleModalProps> = ({
+    activeRequest,
+    setActiveRequest,
+    acceptOrRejectRequest,
+    refetchOrganizationsRequests,
+    employeeRoles,
+}) => {
+    const intl = useIntl()
+
+    const { removeNotification } = useLayoutContext()
 
     const [form] = Form.useForm()
-
-    const [activeRequest, setActiveRequest] = useState<ActiveOrganizationRequestType>(null)
-
-    const onError = useMutationErrorHandler()
-    const {
-        data: userOrganizationsRequestsData,
-        refetch: refetchOrganizationsRequests,
-    } = useGetRequestsForUserOrganizationsQuery({
-        variables: {
-            userId: user?.id,
-        },
-        onError,
-        skip: !isAuthenticated || !employee,
-    })
-    const [acceptOrRejectRequest] = useAcceptOrRejectOrganizationEmployeeRequestMutation({
-        onError,
-    })
-
-    const { data: employeeRolesData } = useGetOrganizationEmployeeRolesByOrganizationQuery({
-        variables: {
-            organizationId: activeRequest?.organizationId,
-        },
-        skip: !activeRequest,
-    })
-    const employeeRoles = useMemo(() => employeeRolesData?.roles, [employeeRolesData?.roles])
-
-    userOrganizationsRequestsData?.requests?.map((request) => {
-        addNotification({
-            actions: [
-                {
-                    action: async () => {
-                        await acceptOrRejectRequest({
-                            variables: {
-                                data: {
-                                    dv: 1,
-                                    sender: getClientSideSenderInfo(),
-                                    isAccepted: false,
-                                    isRejected: true,
-                                    employeeRequest: { id: request.id },
-                                },
-                            },
-                        })
-                        await refetchOrganizationsRequests()
-                    },
-                    title: RejectMessage,
-                    secondary: true,
-                    removeNotificationOnClick: true,
-                },
-                {
-                    action: async () => {setActiveRequest(request)},
-                    title: 'Подтвердить',
-                    removeNotificationOnClick: false,
-                },
-            ],
-            message: `${request.userName} хочет добавиться к организации ${request.organizationName}`,
-            description: formatPhone(request.userPhone),
-            type: 'info',
-            id: `request_${request.id}`,
-        })
-    })
 
     const closeChooseRoleModal = useCallback(() => {
         setActiveRequest(null)
         form.resetFields()
-    }, [form])
+    }, [form, setActiveRequest])
 
     const handleAcceptRequest = useCallback(async (values) => {
         const roleId = values['role']
@@ -123,8 +72,8 @@ export const OrganizationEmployeeRequests = () => {
 
         notification.success({ message: `${activeRequest.userName} добавлен в ${activeRequest.organizationName}` })
 
-        removeNotification(`request_${activeRequest.id}`)
         await refetchOrganizationsRequests()
+        removeNotification(`request_${activeRequest.id}`)
         closeChooseRoleModal()
     }, [acceptOrRejectRequest, activeRequest, closeChooseRoleModal, refetchOrganizationsRequests, removeNotification])
 
@@ -172,8 +121,8 @@ export const OrganizationEmployeeRequests = () => {
                                     <Alert
                                         type='info'
                                         showIcon
-                                        message={intl.formatMessage({ id: 'employee.Role.whoIs' }, { roleName: role.name.toLowerCase() })}
-                                        description={role.description}
+                                        message={intl.formatMessage({ id: 'employee.Role.whoIs' }, { roleName: role?.name?.toLowerCase() })}
+                                        description={role?.description}
                                     />
                                 )
                             }
@@ -182,5 +131,93 @@ export const OrganizationEmployeeRequests = () => {
                 </Space>
             </Form>
         </Modal>
+    )
+}
+
+export const OrganizationEmployeeRequests = () => {
+    const intl = useIntl()
+    const AcceptMessage = intl.formatMessage({ id: 'Accept' })
+    const RejectMessage = intl.formatMessage({ id: 'Reject' })
+    const DoneMessage = intl.formatMessage({ id: 'OperationCompleted' })
+    const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
+
+    const { user, isAuthenticated } = useAuth()
+    const { employee } = useOrganization()
+    const { addNotification } = useLayoutContext()
+
+    const [activeRequest, setActiveRequest] = useState<ActiveOrganizationRequestType>(null)
+
+    const onError = useMutationErrorHandler()
+    const {
+        data: userOrganizationsRequestsData,
+        refetch: refetchOrganizationsRequests,
+    } = useGetRequestsForUserOrganizationsQuery({
+        variables: {
+            userId: user?.id,
+        },
+        onError,
+        skip: !isAuthenticated || !employee,
+    })
+    const [acceptOrRejectRequest] = useAcceptOrRejectOrganizationEmployeeRequestMutation({
+        onError,
+    })
+
+    const { data: employeeRolesData } = useGetOrganizationEmployeeRolesByOrganizationQuery({
+        variables: {
+            organizationId: activeRequest?.organizationId,
+        },
+        skip: !activeRequest,
+    })
+    const employeeRoles = useMemo(() => employeeRolesData?.roles, [employeeRolesData?.roles])
+
+    useDeepCompareEffect(() => {
+        userOrganizationsRequestsData?.requests?.map((request) => {
+            addNotification({
+                actions: [
+                    {
+                        action: async () => {
+                            await acceptOrRejectRequest({
+                                variables: {
+                                    data: {
+                                        dv: 1,
+                                        sender: getClientSideSenderInfo(),
+                                        isAccepted: false,
+                                        isRejected: true,
+                                        employeeRequest: { id: request.id },
+                                    },
+                                },
+                            })
+                            await refetchOrganizationsRequests()
+                        },
+                        title: RejectMessage,
+                        secondary: true,
+                        removeNotificationOnClick: true,
+                    },
+                    {
+                        action: async () => {setActiveRequest(request)},
+                        title: 'Подтвердить',
+                        removeNotificationOnClick: false,
+                    },
+                ],
+                message: `${request.userName} хочет добавиться к организации ${request.organizationName}`,
+                description: formatPhone(request.userPhone),
+                type: 'info',
+                id: `request_${request.id}`,
+            })
+        })
+    }, [userOrganizationsRequestsData?.requests])
+
+    if (!employeeRoles) {
+        return null
+    }
+
+    return (
+        <ChooseEmployeeRoleModal
+            activeRequest={activeRequest}
+            setActiveRequest={setActiveRequest}
+            acceptOrRejectRequest={acceptOrRejectRequest}
+            refetchOrganizationsRequests={refetchOrganizationsRequests}
+            employeeRoles={employeeRoles}
+        />
     )
 }
