@@ -89,7 +89,7 @@ export const useOrganizationInvites = (organizationTypes: Array<OrganizationType
                     <FormattedMessage
                         id='pages.users.InviteMessageTitle'
                         values={{
-                            name: invite.organization.name,
+                            name: invite.organization?.name,
                         }}
                     />
                 ),
