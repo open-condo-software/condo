@@ -10,10 +10,8 @@ const access = require('@condo/domains/acquiring/access/PaymentsFile')
 const {
     PAYMENTS_FILES_FOLDER_NAME,
 } = require('@condo/domains/acquiring/constants/constants')
-const { PAYMENTS_FILE_STATUSES } = require('@condo/domains/acquiring/constants/constants')
-const {
-    MONEY_AMOUNT_FIELD,
-} = require('@condo/domains/common/schema/fields')
+const { PAYMENTS_FILE_STATUSES, PAYMENTS_FILE_NEW_STATUS } = require('@condo/domains/acquiring/constants/constants')
+const {  MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
 
 
 const Adapter = new FileAdapter(PAYMENTS_FILES_FOLDER_NAME)
@@ -100,8 +98,10 @@ const PaymentsFile = new GQLListSchema('PaymentsFile', {
 
         status: {
             schemaDoc: `Status of the payments registry. Can be one of: ${PAYMENTS_FILE_STATUSES.join(', ')}`,
-            type: 'Text',
+            type: 'Select',
             isRequired: true,
+            options: PAYMENTS_FILE_STATUSES,
+            defaultValue: PAYMENTS_FILE_NEW_STATUS,
         },
 
         importId: {

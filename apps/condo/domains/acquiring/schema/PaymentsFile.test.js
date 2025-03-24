@@ -30,7 +30,6 @@ const { makeClientWithServiceUser } = require('@condo/domains/user/utils/testSch
 const FILE = path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/simple-text-file.txt')
 
 const CREATE_PAYMENTS_FILE_PAYLOAD = {
-    file: new UploadingFile(FILE),
     account: faker.random.alphaNumeric(8),
     dateBegin: dayjs(faker.date.recent()).format('YYYY-MM-DD'),
     dateEnd: dayjs(faker.date.recent()).format('YYYY-MM-DD'),
@@ -278,12 +277,14 @@ describe('PaymentsFile', () => {
             const payload = [
                 { data: {
                     ...CREATE_PAYMENTS_FILE_PAYLOAD,
+                    file: new UploadingFile(FILE),
                     dv: 1,
                     sender,
                     context: { connect: { id: context.id } },
                 } },
                 { data: {
                     ...CREATE_PAYMENTS_FILE_PAYLOAD,
+                    file: new UploadingFile(FILE),
                     dv: 1,
                     sender,
                     context: { connect: { id: context.id } },
@@ -306,12 +307,14 @@ describe('PaymentsFile', () => {
             const payload = [
                 { data: {
                     ...CREATE_PAYMENTS_FILE_PAYLOAD,
+                    file: new UploadingFile(FILE),
                     dv: 1,
                     sender,
                     context: { connect: { id: context.id } },
                 } },
                 { data: {
                     ...CREATE_PAYMENTS_FILE_PAYLOAD,
+                    file: new UploadingFile(FILE),
                     dv: 1,
                     sender,
                     context: { connect: { id: context.id } },
