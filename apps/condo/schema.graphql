@@ -62806,6 +62806,11 @@ input PaymentsFileHistoryRecordsCreateInput {
   data: PaymentsFileHistoryRecordCreateInput
 }
 
+enum PaymentsFileStatusType {
+  NEW
+  DOWNLOADED
+}
+
 """ Payments registry file. A file that contains all payments detalization for a period of time 
 """
 type PaymentsFile {
@@ -62855,7 +62860,7 @@ type PaymentsFile {
   registryName: String
 
   """ Status of the payments registry. Can be one of: NEW, DOWNLOADED """
-  status: String
+  status: PaymentsFileStatusType
 
   """ Id from a remote system """
   importId: String
@@ -63014,24 +63019,10 @@ input PaymentsFileWhereInput {
   registryName_not_ends_with_i: String
   registryName_in: [String]
   registryName_not_in: [String]
-  status: String
-  status_not: String
-  status_contains: String
-  status_not_contains: String
-  status_starts_with: String
-  status_not_starts_with: String
-  status_ends_with: String
-  status_not_ends_with: String
-  status_i: String
-  status_not_i: String
-  status_contains_i: String
-  status_not_contains_i: String
-  status_starts_with_i: String
-  status_not_starts_with_i: String
-  status_ends_with_i: String
-  status_not_ends_with_i: String
-  status_in: [String]
-  status_not_in: [String]
+  status: PaymentsFileStatusType
+  status_not: PaymentsFileStatusType
+  status_in: [PaymentsFileStatusType]
+  status_not_in: [PaymentsFileStatusType]
   importId: String
   importId_not: String
   importId_contains: String
@@ -63190,7 +63181,7 @@ input PaymentsFileUpdateInput {
   amount: String
   amountBring: String
   registryName: String
-  status: String
+  status: PaymentsFileStatusType
   importId: String
   bankComment: String
   v: Int
@@ -63222,7 +63213,7 @@ input PaymentsFileCreateInput {
   amount: String
   amountBring: String
   registryName: String
-  status: String
+  status: PaymentsFileStatusType
   importId: String
   bankComment: String
   v: Int

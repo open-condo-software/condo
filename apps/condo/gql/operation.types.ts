@@ -11,7 +11,7 @@ export type GetPaymentsFilesQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetPaymentsFilesQuery = { __typename?: 'Query', paymentsFiles?: Array<{ __typename?: 'PaymentsFile', id: string, number?: string | null, loadedAt?: string | null, account?: string | null, dateBegin?: string | null, dateEnd?: string | null, uploadedRecords?: number | null, amount?: string | null, registryName?: string | null, status?: string | null, paymentOrder?: string | null, file?: { __typename?: 'File', id?: string | null, originalFilename?: string | null, publicUrl?: string | null, mimetype?: string | null } | null, context?: { __typename?: 'AcquiringIntegrationContext', id: string } | null } | null> | null, meta?: { __typename?: '_QueryMeta', count?: number | null } | null };
+export type GetPaymentsFilesQuery = { __typename?: 'Query', paymentsFiles?: Array<{ __typename?: 'PaymentsFile', id: string, number?: string | null, loadedAt?: string | null, account?: string | null, dateBegin?: string | null, dateEnd?: string | null, uploadedRecords?: number | null, amount?: string | null, registryName?: string | null, status?: Types.PaymentsFileStatusType | null, paymentOrder?: string | null, file?: { __typename?: 'File', id?: string | null, originalFilename?: string | null, publicUrl?: string | null, mimetype?: string | null } | null, context?: { __typename?: 'AcquiringIntegrationContext', id: string } | null } | null> | null, meta?: { __typename?: '_QueryMeta', count?: number | null } | null };
 
 export type CheckPaymentsFilesExistenceQueryVariables = Types.Exact<{
   where: Types.PaymentsFileWhereInput;
