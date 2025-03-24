@@ -234,6 +234,19 @@ describe('SumPaymentsService', () => {
             })
         })
 
+        test('throw error if both paymentsWhere and paymentsFilesWhere were passed', async () => {
+            await expectToThrowGQLErrorToResult(async () => {
+                await sumPaymentsByTestClient(admin, {
+                    paymentsFilesWhere: { context: { id: context.id } },
+                    paymentsWhere: { organization: { id: organization.id } },
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'WRONG_VALUE',
+                message: 'You must specify one of two where inputs: PaymentWhereInput or PaymentsFileWhereInput',
+            })
+        })
+
         test('throw error if paymentsWhere does not have organization in query', async () => {
             await expectToThrowGQLErrorToResult(async () => {
                 await sumPaymentsByTestClient(admin, { paymentsWhere: {} })

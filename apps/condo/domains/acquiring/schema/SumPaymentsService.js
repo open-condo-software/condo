@@ -62,7 +62,7 @@ const SumPaymentsService = new GQLCustomSchema('SumPaymentsService', {
                 const { data } = args
                 const { paymentsWhere, paymentsFilesWhere } = data
 
-                if (!paymentsWhere && !paymentsFilesWhere) {
+                if ((!paymentsWhere && !paymentsFilesWhere) || (paymentsWhere && paymentsFilesWhere)) {
                     throw new GQLError(ERRORS.WRONG_WHERE_INPUT, context)
                 }
 
@@ -83,7 +83,7 @@ const SumPaymentsService = new GQLCustomSchema('SumPaymentsService', {
                 const paymentLoader = new GqlWithKnexLoadList({
                     listKey: listName,
                     fields: 'id',
-                    where: paymentsWhere ? paymentsWhere : paymentsFilesWhere,
+                    where: paymentsFilesWhere || paymentsWhere,
                 })
                 const idObjects = await paymentLoader.load()
                 const aggregate = await paymentLoader.loadAggregate('SUM(amount) as "amountSum"', idObjects.map(({ id }) => id))
