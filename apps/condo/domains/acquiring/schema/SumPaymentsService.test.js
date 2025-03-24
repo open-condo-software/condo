@@ -128,13 +128,13 @@ describe('SumPaymentsService', () => {
                 expect(String(sum)).toEqual(manualSum)
             })
             test('employee without canReadPayments cant sum payments', async () => {
-                const { admin, billingReceipts, context, organization } = await makePayer()
+                const { admin, billingReceipts, acquiringContext, organization } = await makePayer()
                 const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
                     canReadPayments: false,
                 })
                 const employeeClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 await createTestOrganizationEmployee(admin, organization, employeeClient.user, role)
-                await createTestPayment(admin, organization, billingReceipts[0], context)
+                await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
                 const paymentsWhere = { organization: { id: organization.id } }
 
                 await expectToThrowAccessDeniedErrorToResult(async () => {
@@ -142,9 +142,9 @@ describe('SumPaymentsService', () => {
                 })
             })
             test('anonymous cant sum payments', async () => {
-                const { admin, billingReceipts, context, organization } = await makePayer()
+                const { admin, billingReceipts, acquiringContext, organization } = await makePayer()
                 const anonymous = await makeClient()
-                await createTestPayment(admin, organization, billingReceipts[0], context)
+                await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
 
                 const paymentsWhere = { organization: { id: organization.id } }
                 await expectToThrowAuthenticationError(async () => {
