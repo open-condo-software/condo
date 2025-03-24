@@ -31,8 +31,9 @@ const replaceSameEnglishLetters = (input) => {
 }
 
 const isPerson = (fullName) => {
+    if (typeof fullName !== 'string') return false
+    fullName = fullName.trim()
     if (okopfRegex.test(fullName)) return false
-
     let [input] = fullName.split(new RegExp(`\\s(${FIO_ENDINGS})$`))
     input = replaceSameEnglishLetters(input).replace(/([А-ЯЁ])([А-ЯЁ]+)/gu,
         (match, firstChar, restOfString) => firstChar + restOfString.toLowerCase()

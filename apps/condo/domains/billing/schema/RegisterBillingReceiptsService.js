@@ -136,7 +136,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                     context: billingContextInput,
                     receiptsCount: receiptsInput.length,
                 })
-                const receiptIds = Object.values(receiptIndex).map(({ id }) => id)
+                const receiptIds = Object.values(receiptIndex).map(({ id }) => id).filter(Boolean)
                 const receipts = receiptIds.length ? await find('BillingReceipt', { id_in: receiptIds }) : []
                 const receiptsIndex = Object.fromEntries(receipts.map(receipt => ([receipt.id, receipt])))
                 await buildLastReportForBillingContext(receipts, { dv, sender, billingContext })
