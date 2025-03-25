@@ -1,7 +1,6 @@
 import { useCheckPaymentsFilesExistenceQuery } from '@app/condo/gql'
 import React, { CSSProperties } from 'react'
 
-import { useCachePersistor } from '@open-condo/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 
@@ -21,7 +20,6 @@ const PaymentsFiles = (): JSX.Element => {
     const NoPaymentsFilesMessage = intl.formatMessage({ id:'accrualsAndPayments.paymentsFiles.noPaymentsFilesYet.message' })
 
     const { acquiringContext } = useBillingAndAcquiringContexts()
-    const { persistor } = useCachePersistor()
 
     const {
         data: anyPaymentsFiles,
@@ -33,7 +31,7 @@ const PaymentsFiles = (): JSX.Element => {
                 context: { id: acquiringContext.id },
             },
         },
-        skip: !acquiringContext.id || !persistor,
+        skip: !acquiringContext.id,
     })
 
     if (isAnyPaymentsFilesLoading) {

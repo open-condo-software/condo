@@ -122,7 +122,7 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
                         merge: listHelper.mergeLists,
                     },
                     allPaymentsFiles: {
-                        keyArgs: ['where'],
+                        keyArgs: ['where', 'skip'],
                         read: listHelper.getReadFunction('paginate'),
                         merge: listHelper.mergeLists,
                     },

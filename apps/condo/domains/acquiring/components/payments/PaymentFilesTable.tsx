@@ -106,10 +106,13 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
         skip: !acquiringContext?.id || !persistor,
     })
 
+    const paymentsFiles = useMemo(() => data?.paymentsFiles?.filter(Boolean) || [], [data?.paymentsFiles])
+    const total = useMemo(() => data?.meta?.count, [data?.meta?.count])
+
     const { downloadPaymentsFiles } = useDownloadPaymentsFiles(refetch)
     const selectedRowKeysByPage = useMemo(() => {
-        return data?.paymentsFiles?.filter(file => selectedRegistryKeys.includes(file.id)).map(file => file.id)
-    }, [data, selectedRegistryKeys])
+        return paymentsFiles?.filter(file => selectedRegistryKeys.includes(file.id)).map(file => file.id) || []
+    }, [selectedRegistryKeys, paymentsFiles])
 
     const { data: sumAllPayments, loading: sumAllPaymentsLoading } = usePaymentsSum({ paymentsFilesWhere: searchPaymentsFilesQuery })
 
@@ -127,7 +130,7 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
 
     const handleDownloadClick = async () => {
         setIsFilesDownloading(true)
-        await downloadPaymentsFiles(selectedRegistryKeys, data?.paymentsFiles)
+        await downloadPaymentsFiles(selectedRegistryKeys)
         setSelectedRegistryKeys([])
         changeQuery(router, [])
         setIsFilesDownloading(false)
@@ -146,20 +149,20 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
         changeQuery(router, selectedRegistryKeys)
     }, [changeQuery, router])
 
-    const isSelectedAllRowsByPage = !loading && selectedRowKeysByPage.length > 0 && selectedRowKeysByPage.length === data?.paymentsFiles.length
-    const isSelectedSomeRowsByPage = !loading && selectedRowKeysByPage.length > 0 && selectedRowKeysByPage.length < data?.paymentsFiles.length
+    const isSelectedAllRowsByPage = !loading && selectedRowKeysByPage.length > 0 && selectedRowKeysByPage.length === paymentsFiles.length
+    const isSelectedSomeRowsByPage = !loading && selectedRowKeysByPage.length > 0 && selectedRowKeysByPage.length < paymentsFiles.length
 
     const handleSelectAllRowsByPage = useCallback((e: CheckboxChangeEvent) => {
         const checked = e.target.checked
         if (checked) {
-            const newSelectedRegistryKeys = data?.paymentsFiles
+            const newSelectedRegistryKeys = paymentsFiles
                 ?.filter(file => !selectedRowKeysByPage.includes(file.id))
                 .map(file => file.id)
             updateSelectedRegistryKeys([...selectedRegistryKeys, ...newSelectedRegistryKeys])
         } else {
             updateSelectedRegistryKeys(selectedRegistryKeys.filter(key => !selectedRowKeysByPage.includes(key)))
         }
-    }, [data, updateSelectedRegistryKeys, selectedRegistryKeys, selectedRowKeysByPage])
+    }, [updateSelectedRegistryKeys, selectedRegistryKeys, selectedRowKeysByPage, paymentsFiles])
 
     const handleSelectRow: (record: IPaymentsFile, checked: boolean) => void = useCallback((record, checked) => {
         const selectedKey = record.id
@@ -234,14 +237,14 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
                 <Col span={24}>
                     <Table
                         loading={loading}
-                        dataSource={data?.paymentsFiles}
-                        totalRows={data?.meta?.count}
+                        dataSource={paymentsFiles}
+                        totalRows={total}
                         columns={tableColumns}
                         rowSelection={rowSelection}
                     />
                 </Col>
                 <Col span={24}>
-                    {!loading && data?.meta?.count > 0 && selectedRegistryKeys.length > 0 && (
+                    {!loading && total > 0 && selectedRegistryKeys.length > 0 && (
                         <ActionBar
                             message={CountSelectedRegistryMessage}
                             actions={[
