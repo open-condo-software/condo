@@ -112,13 +112,13 @@ const FindOrganizationsByTinService = new GQLCustomSchema('FindOrganizationsByTi
                 if (!skipRequestLimit) {
                     // NOTE: Users can change email/phone and user data may be reset,
                     // so we remember all identifiers: userId, phone, email
-                    // await checkDailyRequestLimitCountersByUser(context, FIND_ORGANIZATION_BY_TIN_TYPE, authedItemId)
-                    // if (authedItemPhone) await checkDailyRequestLimitCountersByPhone(context, FIND_ORGANIZATION_BY_TIN_TYPE, authedItemPhone)
-                    // if (authedItemEmail) await checkDailyRequestLimitCountersByEmail(context, FIND_ORGANIZATION_BY_TIN_TYPE, authedItemEmail)
-                    //
-                    // await checkTotalRequestLimitCountersByUser(context, FIND_ORGANIZATION_BY_TIN_TYPE, authedItemId, MAX_TOTAL_REQUESTS)
-                    // if (authedItemEmail) await checkTotalRequestLimitCountersByEmail(context, FIND_ORGANIZATION_BY_TIN_TYPE, authedItemEmail, MAX_TOTAL_REQUESTS)
-                    // if (authedItemPhone) await checkTotalRequestLimitCountersByPhone(context, FIND_ORGANIZATION_BY_TIN_TYPE, authedItemPhone, MAX_TOTAL_REQUESTS)
+                    await checkDailyRequestLimitCountersByUser(context, FIND_ORGANIZATION_BY_TIN_TYPE, authedItemId)
+                    if (authedItemPhone) await checkDailyRequestLimitCountersByPhone(context, FIND_ORGANIZATION_BY_TIN_TYPE, authedItemPhone)
+                    if (authedItemEmail) await checkDailyRequestLimitCountersByEmail(context, FIND_ORGANIZATION_BY_TIN_TYPE, authedItemEmail)
+
+                    await checkTotalRequestLimitCountersByUser(context, FIND_ORGANIZATION_BY_TIN_TYPE, authedItemId, MAX_TOTAL_REQUESTS)
+                    if (authedItemEmail) await checkTotalRequestLimitCountersByEmail(context, FIND_ORGANIZATION_BY_TIN_TYPE, authedItemEmail, MAX_TOTAL_REQUESTS)
+                    if (authedItemPhone) await checkTotalRequestLimitCountersByPhone(context, FIND_ORGANIZATION_BY_TIN_TYPE, authedItemPhone, MAX_TOTAL_REQUESTS)
                 } else {
                     const reqId = get(context, ['req', 'id'])
                     logger.info({ msg: 'Request limit was skip for user', reqId, authedItemId })
