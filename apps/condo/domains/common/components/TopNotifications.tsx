@@ -41,8 +41,6 @@ export const useTopNotificationsHook = (serviceProblemsAlert?: React.ReactNode):
         setTopNotifications(topNotifications => topNotifications.filter(notification => notification.id !== notificationId))
     }, [])
 
-    // console.log('topNotifications', topNotifications)
-
     const TopNotificationComponent: React.FC = () => {
         if (topNotifications.length === 0 && !serviceProblemsAlert) return null
 
@@ -51,40 +49,37 @@ export const useTopNotificationsHook = (serviceProblemsAlert?: React.ReactNode):
                 <Affix>
                     {serviceProblemsAlert}
                     {
-                        topNotifications.map(notification => {
-                            return (
-                                <Alert
-                                    banner
-                                    showIcon
-                                    message={notification.message}
-                                    description={notification.description}
-                                    type={notification.type}
-                                    key={notification.id}
-                                    action={
-                                        <Space size={16}>
-                                            {
-                                                notification.actions.map((action, idx) => {
-                                                    return (
-                                                        <Button
-                                                            onClick={async () => {
-                                                                await action.action()
+                        topNotifications.map(notification => (
+                            <Alert
+                                banner
+                                showIcon
+                                message={notification.message}
+                                description={notification.description}
+                                type={notification.type}
+                                key={notification.id}
+                                action={
+                                    <Space size={16}>
+                                        {
+                                            notification.actions.map((action, idx) => (
+                                                <Button
+                                                    onClick={async () => {
+                                                        await action.action()
 
-                                                                if (action.removeNotificationOnClick) {
-                                                                    removeNotification(notification.id)
-                                                                }
-                                                            }}
-                                                            type={action.secondary ? 'secondary' : 'primary'}
-                                                            key={idx}
-                                                        >
-                                                            {action.title}
-                                                        </Button>
-                                                    )
-                                                })}
-                                        </Space>
-                                    }
-                                />
-                            )
-                        })
+                                                        if (action.removeNotificationOnClick) {
+                                                            removeNotification(notification.id)
+                                                        }
+                                                    }}
+                                                    type={action.secondary ? 'secondary' : 'primary'}
+                                                    key={idx}
+                                                >
+                                                    {action.title}
+                                                </Button>
+                                            ))
+                                        }
+                                    </Space>
+                                }
+                            />
+                        ))
                     }
                 </Affix>
             </>

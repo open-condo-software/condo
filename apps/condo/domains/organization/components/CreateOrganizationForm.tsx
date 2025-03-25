@@ -1,6 +1,16 @@
+import {
+    useFindOrganizationsByTinLazyQuery,
+    useRegisterNewOrganizationMutation,
+    useGetOrganizationEmployeeByUserAndOrganizationLazyQuery,
+    useSendOrganizationEmployeeRequestMutation,
+    FindOrganizationsByTinQueryResult,
+    RegisterNewOrganizationMutationResult,
+    GetActualOrganizationEmployeesDocument,
+    useGetLastActiveOrganizationEmployeeRequestByTinLazyQuery,
+    SendOrganizationEmployeeRequestMutationResult,
+} from '@app/condo/gql'
 import { Col, Form, FormInstance, Row } from 'antd'
 import getConfig from 'next/config'
-import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
@@ -10,28 +20,16 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Radio, RadioGroup, Space, Typography, Input, Button, Alert, Modal } from '@open-condo/ui'
 
+import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { DEFAULT_UNAVAILABLE_TINS, MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
+import { SecondaryLink } from '@condo/domains/user/components/auth/SecondaryLink'
 import { REQUEST_LIMIT_ERRORS } from '@condo/domains/user/constants/errors'
-
-import {
-    useFindOrganizationsByTinLazyQuery,
-    useRegisterNewOrganizationMutation,
-    useGetOrganizationEmployeeByUserAndOrganizationLazyQuery,
-    useSendOrganizationEmployeeRequestMutation,
-    FindOrganizationsByTinQueryResult,
-    RegisterNewOrganizationMutationResult,
-    GetActualOrganizationEmployeesDocument,
-    useGetLastUserOrganizationEmployeeRequestLazyQuery,
-    useGetLastActiveOrganizationEmployeeRequestByTinLazyQuery,
-    GetLastActiveOrganizationEmployeeRequestByTinQueryResult, SendOrganizationEmployeeRequestMutationResult,
-} from '../../../gql'
-import { useMutationErrorHandler } from '../../common/hooks/useMutationErrorHandler'
-import { DEFAULT_UNAVAILABLE_TINS, MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '../constants/common'
 
 import './CreateOtganizationForm.css'
 
 
-const { publicRuntimeConfig: { defaultLocale, unavailableTinsForOrganizationsSearch } } = getConfig()
+const { publicRuntimeConfig: { defaultLocale, unavailableTinsForOrganizationsSearch, HelpRequisites } } = getConfig()
 
 const SKIP_SEARCH_TINS = [...unavailableTinsForOrganizationsSearch, ...DEFAULT_UNAVAILABLE_TINS]
 
@@ -60,9 +58,12 @@ const FoundOrganizationsModal: React.FC<FoundOrganizationsModalProps> = (props) 
         foundOrganizations,
     } = props
 
-    const client = useApolloClient()
-
     const intl = useIntl()
+    const SendOrganizationRequestMessage = intl.formatMessage({ id: 'organization.createOrganizationForm.foundOrganizationsModal.sendRequest' })
+    const FoundOrganizationsModalTitle = intl.formatMessage({ id: 'organization.createOrganizationForm.foundOrganizationsModal.title' })
+    const No = intl.formatMessage({ id: 'No' })
+
+    const client = useApolloClient()
 
     const onError = useMutationErrorHandler({ form })
     const [sendOrganizationEmployeeRequest] = useSendOrganizationEmployeeRequestMutation({
@@ -91,33 +92,41 @@ const FoundOrganizationsModal: React.FC<FoundOrganizationsModalProps> = (props) 
         }
 
         client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allOrganizationEmployeeRequests' })
-    }, [client.cache, form, foundOrganizations, onSendOrganizationRequest, sendOrganizationEmployeeRequest, setIsFoundOrganizationModalOpen])
+    }, [client.cache, foundOrganizations, onSendOrganizationRequest, sendOrganizationEmployeeRequest, setIsFoundOrganizationModalOpen])
+
+    const closeFoundOrganizationsModal = useCallback(() => setIsFoundOrganizationModalOpen(false), [setIsFoundOrganizationModalOpen])
 
     let OrganizationExistModalTitle = ''
     if (foundOrganizations.length === 1) {
-        OrganizationExistModalTitle = `Организация ${foundOrganizations[0].name} с таким ИНН уже добавлена`
+        OrganizationExistModalTitle = intl.formatMessage(
+            { id: 'organization.createOrganizationForm.foundOrganizationsModal.title.singleOrganization' },
+            { name: foundOrganizations[0].name }
+        )
     } else if (foundOrganizations.length > 1) {
-        OrganizationExistModalTitle = `ИНН ${form.getFieldValue('tin')} уже добавлен`
+        OrganizationExistModalTitle = intl.formatMessage(
+            { id: 'organization.createOrganizationForm.foundOrganizationsModal.title.multipleOrganizations' },
+            { tin: form.getFieldValue('tin') }
+        )
     }
 
     return (
         <Modal
             open={isFoundOrganizationModalOpen}
-            onCancel={() => setIsFoundOrganizationModalOpen(false)}
+            onCancel={closeFoundOrganizationsModal}
             title={OrganizationExistModalTitle}
             footer={(
                 <Space size={16} direction='horizontal'>
-                    <Button type='secondary' onClick={() => setIsFoundOrganizationModalOpen(false)}>
-                        Нет
+                    <Button type='secondary' onClick={closeFoundOrganizationsModal}>
+                        {No}
                     </Button>
                     <Button type='primary' onClick={handleSendOrganizationRequest}>
-                        Да, присоединиться
+                        {SendOrganizationRequestMessage}
                     </Button>
                 </Space>
             )}
         >
             <Typography.Text type='secondary'>
-                Вы сотрудник и хотите присоединиться к организации?
+                {FoundOrganizationsModalTitle}
             </Typography.Text>
         </Modal>
     )
@@ -155,16 +164,29 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
     const ServiceProviderMessage = intl.formatMessage({ id: 'pages.organizations.serviceProvider' })
     const NameMsg = intl.formatMessage({ id: 'pages.organizations.OrganizationName' })
     const InnMessage = intl.formatMessage({ id: 'pages.organizations.tin' })
+    const FormTitleMessage = intl.formatMessage({ id: 'organization.createOrganizationForm.title' })
+    const SearchByTinLimitMessage = intl.formatMessage({ id: 'organization.createOrganizationForm.searchByTinLimit.message' })
+    const ChatInTelegramMessage = intl.formatMessage({ id: 'organization.createOrganizationForm.supportChat' })
+    const SearchByTinLimitDescription = intl.formatMessage({ id: 'organization.createOrganizationForm.searchByTinLimit.description' }, {
+        chatBotLink: (
+            <SecondaryLink target='_blank' href={HelpRequisites?.support_bot ? `https://t.me/${HelpRequisites.support_bot}` : '#'}>
+                {ChatInTelegramMessage}
+            </SecondaryLink>
+        ),
+    })
+    const NameFieldDescription = intl.formatMessage({ id: 'organization.createOrganizationForm.field.name.description' })
+    const CreateMessage = intl.formatMessage({ id: 'Create' })
+    const CancelMessage = intl.formatMessage({ id: 'Cancel' })
 
     const [form] = Form.useForm()
 
     const client = useApolloClient()
     const { selectEmployee, organization } = useOrganization()
     const { user } = useAuth()
-    const userId = user?.id
+    const userId = useMemo(() => user?.id, [user?.id])
 
     // ??????? It is correct logic?
-    const locale = organization?.country || defaultLocale
+    const locale = useMemo(() => organization?.country || defaultLocale, [organization?.country])
 
     const [isFoundOrganizationModalOpen, setIsFoundOrganizationModalOpen] = useState<boolean>(false)
     const [isSearchByTinLimitReached, setIsSearchByTinLimitReached] = useState<boolean>(false)
@@ -317,7 +339,7 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
                                 type === 'form' && (
                                     <Col span={24}>
                                         <Typography.Title level={2}>
-                                            Создайте организацию
+                                            {FormTitleMessage}
                                         </Typography.Title>
                                     </Col>
                                 )
@@ -326,8 +348,8 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
                                 isSearchByTinLimitReached && (
                                     <Alert
                                         type='error'
-                                        message='Превышено количество попыток ввода ИНН'
-                                        description='В целях безопасности для разблокировки регистрации обратитесь в чат поддержки'
+                                        message={SearchByTinLimitMessage}
+                                        description={SearchByTinLimitDescription}
                                         showIcon
                                     />
                                 )
@@ -362,7 +384,7 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
                             <Col span={24}>
                                 <Alert
                                     type='info'
-                                    description='Введите официальное название организации. Оно будет автоматически копироваться в различные документы.'
+                                    description={NameFieldDescription}
                                 />
                             </Col>
                         </Row>
@@ -390,7 +412,7 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
                                         className='create-organization-form-button'
                                         disabled={isRequiredFieldsEmpty || isFieldsHasError || isSearchByTinLimitReached}
                                     >
-                                        Создать
+                                        {CreateMessage}
                                     </Button>
                                 </Form.Item>
                             </Col>
@@ -400,7 +422,7 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
                                     className='create-organization-form-button'
                                     onClick={props.onCancel}
                                 >
-                                    Отмена
+                                    {CancelMessage}
                                 </Button>
                             </Col>
                         </Row>
@@ -420,7 +442,7 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
                     onCancel={() => {
                         setIsCreateOrganizationModalOpen(false)
                     }}
-                    title='Создание организации'
+                    title={FormTitleMessage}
                     footer={(
                         <Space size={16}>
                             <Button
@@ -429,7 +451,7 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
                                     setIsCreateOrganizationModalOpen(false)
                                 }}
                             >
-                                Отменить
+                                {CancelMessage}
                             </Button>
                             <Button
                                 type='primary'
@@ -439,7 +461,7 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
                                 }}
                                 disabled={isRequiredFieldsEmpty || isFieldsHasError || isSearchByTinLimitReached}
                             >
-                                Создать
+                                {CreateMessage}
                             </Button>
                         </Space>
                     )}

@@ -2,10 +2,9 @@ import {
     useGetActualOrganizationEmployeesQuery,
     useGetEmployeeInvitesCountQuery,
 } from '@app/condo/gql'
-import { OrganizationTypeType } from '@app/condo/schema'
 import { Dropdown } from 'antd'
 import uniqBy from 'lodash/uniqBy'
-import { useRouter } from 'next/router'
+import getConfig from 'next/config'
 import React, { useCallback, useMemo, CSSProperties, useState } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
@@ -19,6 +18,7 @@ import type { TypographyTextProps } from '@open-condo/ui'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { nonNull } from '@condo/domains/common/utils/nonNull'
+import { SecondaryLink } from '@condo/domains/user/components/auth/SecondaryLink'
 
 import { CreateOrganizationForm } from './CreateOrganizationForm'
 import { SBBOLIndicator } from './SBBOLIndicator'
@@ -26,6 +26,10 @@ import { SBBOLIndicator } from './SBBOLIndicator'
 import type { OrganizationEmployee as OrganizationEmployeeType } from '@app/condo/schema'
 import type { DropdownProps } from 'antd'
 
+
+const {
+    publicRuntimeConfig: { HelpRequisites },
+} = getConfig()
 
 function compareEmployees (lhs: OrganizationEmployeeType, rhs: OrganizationEmployeeType) {
     return (lhs?.organization?.name || '').toLowerCase()
@@ -38,25 +42,32 @@ export const InlineOrganizationSelect: React.FC = () => {
     const intl = useIntl()
     const ChooseOrganizationMessage = intl.formatMessage({ id: 'pages.organizations.ChooseOrganizationLabel' })
     const AddOrganizationTitle = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationButtonLabel' })
-
-    const [isCreateOrganizationModalOpen, setIsCreateOrganizationModalOpen] = useState<boolean>(false)
-    // show modal if user sent OrganizationEmployeeRequest by tin
-    const [organizationWithRequest, setOrganizationWithRequest] = useState<{ name: string, isDuplicateRequest: boolean } | null>(null)
+    const OkMessage = intl.formatMessage({ id: 'OK' })
+    const EmployeeRequestDescription = intl.formatMessage({ id: 'organization.createOrganizationForm.request.description' })
+    const ChatInTelegramMessage = intl.formatMessage({ id: 'organization.createOrganizationForm.request.alert.description' })
+    const EmployeeRequestAlertDescription = intl.formatMessage({ id: 'organization.createOrganizationForm.searchByTinLimit.description' }, {
+        chatBotLink: (
+            <SecondaryLink target='_blank' href={HelpRequisites?.support_bot ? `https://t.me/${HelpRequisites.support_bot}` : '#'}>
+                {ChatInTelegramMessage}
+            </SecondaryLink>
+        ),
+    })
 
     const { persistor } = useCachePersistor()
-    const router = useRouter()
-
     const { breakpoints } = useLayoutContext()
-    const textSize: TypographyTextProps['size'] = !breakpoints.TABLET_LARGE ? 'small' : 'medium'
-
+    const textSize: TypographyTextProps['size'] = useMemo(() => !breakpoints.TABLET_LARGE ? 'small' : 'medium', [breakpoints.TABLET_LARGE])
     const { user } = useAuth()
+    const userId = useMemo(() => user?.id, [user?.id])
     const {
         employee: activeEmployee,
         organization,
         selectEmployee: setActiveEmployee,
         isLoading: organizationLoading,
     } = useOrganization()
-    const userId = user?.id || null
+
+    const [isCreateOrganizationModalOpen, setIsCreateOrganizationModalOpen] = useState<boolean>(false)
+    // show modal if user sent OrganizationEmployeeRequest by tin
+    const [organizationWithRequest, setOrganizationWithRequest] = useState<{ name: string, isDuplicateRequest: boolean } | null>(null)
 
     const {
         data: actualEmployeesData,
@@ -68,22 +79,19 @@ export const InlineOrganizationSelect: React.FC = () => {
     })
     const actualData = useMemo(() => actualEmployeesData?.actualEmployees?.filter(nonNull) || [], [actualEmployeesData?.actualEmployees])
     const prevData = useMemo(() => previousEmployeesData?.actualEmployees?.filter(nonNull) || [], [previousEmployeesData?.actualEmployees])
-    const actualEmployees = useMemo(
-        () => !actualData.length ? prevData : actualData
-        , [actualData, prevData]
+    const actualEmployees = useMemo(() => !actualData.length ? prevData : actualData, [actualData, prevData])
+    const currentOrgName = useMemo(() => organization?.name || ChooseOrganizationMessage, [ChooseOrganizationMessage, organization?.name])
+    // Note: Filter case where organization was deleted
+    const filteredEmployees = useMemo(() =>
+        uniqBy(actualEmployees.filter(employee => employee.organization), employee => employee.organization.id),
+    [actualEmployees]
     )
 
     const { data: invites, loading: isInvitesLoading } = useGetEmployeeInvitesCountQuery({
         variables: { userId },
         skip: !userId || !persistor || !!activeEmployee?.id || actualEmployees.length > 0,
     })
-    const hasInvites = invites?.meta?.count > 0
-
-    // Note: Filter case where organization was deleted
-    const filteredEmployees = useMemo(() =>
-        uniqBy(actualEmployees.filter(employee => employee.organization), employee => employee.organization.id),
-    [actualEmployees]
-    )
+    const hasInvites = useMemo(() => invites?.meta?.count > 0, [invites?.meta?.count])
 
     useDeepCompareEffect(() => {
         if (!persistor) return
@@ -143,8 +151,6 @@ export const InlineOrganizationSelect: React.FC = () => {
         return null
     }
 
-    const currentOrgName = organization?.name || ChooseOrganizationMessage
-
     return (
         <>
             {
@@ -193,25 +199,36 @@ export const InlineOrganizationSelect: React.FC = () => {
             />
             <Modal
                 open={organizationWithRequest !== null}
-                title={organizationWithRequest?.isDuplicateRequest ?
-                    `Запрос в ${organizationWithRequest?.name} уже был отправлен` :
-                    `Запрос в ${organizationWithRequest?.name} отправлен`
+                title={
+                    organizationWithRequest?.isDuplicateRequest ?
+                        intl.formatMessage(
+                            { id: 'organization.createOrganizationForm.request.duplicate.title' },
+                            {
+                                organizationName: organizationWithRequest?.name,
+                            }
+                        ) :
+                        intl.formatMessage(
+                            { id: 'organization.createOrganizationForm.request.title' },
+                            {
+                                organizationName: organizationWithRequest?.name,
+                            }
+                        )
                 }
                 onCancel={() => setOrganizationWithRequest(null)}
                 footer={(
                     <Button type='primary' onClick={() => setOrganizationWithRequest(null)}>
-                        Хорошо
+                        {OkMessage}
                     </Button>
                 )}
             >
                 <Space size={24} direction='vertical'>
                     <Typography.Text type='secondary'>
-                        Как только администратор одобрит ваш запрос, вам придет СМС-подтверждение и откроется доступ к платформе
+                        {EmployeeRequestDescription}
                     </Typography.Text>
                     <Alert
                         showIcon
                         type='info'
-                        description='Если запрос долго не подтверджают, обратитесь в вашу организацию или напишите в чат поддержки'
+                        description={EmployeeRequestAlertDescription}
                     />
                 </Space>
             </Modal>

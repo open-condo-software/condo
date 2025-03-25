@@ -62,7 +62,6 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: 'EMPLOYEE_INVITATION_ALREADY_SENT',
         message: 'The invitation has already been sent to the employee.',
-        messageForUser: 'api.meter.meterReading.METER_ARCHIVED',
     },
     DV_VERSION_MISMATCH: {
         ...COMMON_ERRORS.DV_VERSION_MISMATCH,
