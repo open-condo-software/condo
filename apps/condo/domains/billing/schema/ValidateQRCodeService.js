@@ -201,9 +201,10 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
 
                 const period = formatPeriodFromQRCode(paymPeriod)
 
-                const acquiringContextRecipient = get(acquiringContext, 'recipient')
-
-                if (!acquiringContextRecipient) throw new GQLError(ERRORS.BANK_ACCOUNT_IS_INVALID, context)
+                // NOTE (YEgorLu): We just take tin, bic, bankAccount from QR-code
+                // const acquiringContextRecipient = get(acquiringContext, 'recipient')
+                //
+                // if (!acquiringContextRecipient) throw new GQLError(ERRORS.BANK_ACCOUNT_IS_INVALID, context)
 
                 const billingIntegration = await getById('BillingIntegration', billingContext.integration)
 
