@@ -1,4 +1,8 @@
-import { useUpdatePaymentsFileMutation } from '@app/condo/gql'
+import { useApolloClient } from '@apollo/client'
+import {
+    useGetPaymentsFilesLazyQuery,
+    useUpdatePaymentsFileMutation,
+} from '@app/condo/gql'
 import { PaymentsFileStatusType } from '@app/condo/schema'
 import JSZip from 'jszip'
 import { useCallback } from 'react'
@@ -10,10 +14,14 @@ import { useDownloadFileFromServer } from '@condo/domains/common/hooks/useDownlo
 
 export default function useDownloadPaymentsFiles (refetch) {
     const { downloadFile } = useDownloadFileFromServer()
+    const client = useApolloClient()
+
+    const [getPaymentsFiles] = useGetPaymentsFilesLazyQuery()
 
     const [updatePaymentsFileMutation] = useUpdatePaymentsFileMutation({
         onCompleted: () => {
             refetch()
+            client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allPaymentsFiles' })
         },
     })
 
@@ -30,12 +38,21 @@ export default function useDownloadPaymentsFiles (refetch) {
         })
     }, [updatePaymentsFileMutation])
 
-    const downloadPaymentsFiles = async (selectedRegistryIds, paymentsFiles) => {
-        if (!paymentsFiles || !Array.isArray(paymentsFiles)) {
-            console.error('Invalid paymentsFiles parameter')
+    const downloadPaymentsFiles = async (selectedPaymentsFilesIds) => {
+        if (!selectedPaymentsFilesIds || !Array.isArray(selectedPaymentsFilesIds)) {
+            console.error('Invalid selectedPaymentsFilesIds parameter')
             return
         }
-        const selectedFiles = paymentsFiles.filter(file => selectedRegistryIds.includes(file.id))
+        const { data } = await getPaymentsFiles({
+            variables: {
+                where: {
+                    id_in: selectedPaymentsFilesIds,
+                },
+                first: selectedPaymentsFilesIds.length,
+            },
+        })
+
+        const selectedFiles = data?.paymentsFiles?.filter(Boolean) || []
 
         if (selectedFiles.length === 0) {
             console.warn('No files selected for download')
