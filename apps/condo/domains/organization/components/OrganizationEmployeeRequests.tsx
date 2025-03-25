@@ -1,6 +1,11 @@
-import { jsx } from '@emotion/react'
+import {
+    AcceptOrRejectOrganizationEmployeeRequestMutationFn, GetOrganizationEmployeeRolesByOrganizationQueryResult,
+    GetRequestsForUserOrganizationsQueryResult,
+    useAcceptOrRejectOrganizationEmployeeRequestMutation, useGetOrganizationEmployeeRolesByOrganizationQuery,
+    useGetRequestsForUserOrganizationsQuery,
+} from '@app/condo/gql'
 import { Form, notification } from 'antd'
-import { Dispatch, FC, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
+import { Dispatch, FC, SetStateAction, useCallback, useMemo, useState } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
@@ -9,17 +14,9 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Alert, Button, Modal, Select, Space, Typography } from '@open-condo/ui'
 
-import { EmployeeRoleSelect } from './EmployeeRoleSelect'
-
-import {
-    AcceptOrRejectOrganizationEmployeeRequestMutationFn, GetOrganizationEmployeeRolesByOrganizationQueryResult,
-    GetRequestsForUserOrganizationsQueryResult,
-    useAcceptOrRejectOrganizationEmployeeRequestMutation, useGetOrganizationEmployeeRolesByOrganizationQuery,
-    useGetRequestsForUserOrganizationsQuery,
-} from '../../../gql'
-import { useLayoutContext } from '../../common/components/LayoutContext'
-import { useMutationErrorHandler } from '../../common/hooks/useMutationErrorHandler'
-import { formatPhone } from '../../common/utils/helpers'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
+import { formatPhone } from '@condo/domains/common/utils/helpers'
 
 
 type ActiveOrganizationRequestType = GetRequestsForUserOrganizationsQueryResult['data']['requests'][number] | null
@@ -40,6 +37,15 @@ const ChooseEmployeeRoleModal: FC<ChooseEmployeeRoleModalProps> = ({
     employeeRoles,
 }) => {
     const intl = useIntl()
+    const SuccessNotificationMessage = intl.formatMessage(
+        { id: 'organization.employeeRequest.successNotification' },
+        {
+            userName: activeRequest?.userName,
+            organizationName: activeRequest?.organizationName,
+        }
+    )
+    const ChooseRoleMessage = intl.formatMessage({ id: 'organization.employeeRequest.chooseRole' })
+    const SaveMessage = intl.formatMessage({ id: 'Save' })
 
     const { removeNotification } = useLayoutContext()
 
@@ -70,12 +76,12 @@ const ChooseEmployeeRoleModal: FC<ChooseEmployeeRoleModalProps> = ({
             },
         })
 
-        notification.success({ message: `${activeRequest.userName} добавлен в ${activeRequest.organizationName}` })
+        notification.success({ message: SuccessNotificationMessage })
 
         await refetchOrganizationsRequests()
         removeNotification(`request_${activeRequest.id}`)
         closeChooseRoleModal()
-    }, [acceptOrRejectRequest, activeRequest, closeChooseRoleModal, refetchOrganizationsRequests, removeNotification])
+    }, [SuccessNotificationMessage, acceptOrRejectRequest, activeRequest, closeChooseRoleModal, refetchOrganizationsRequests, removeNotification])
 
     const employeeRolesOptions = useMemo(() => employeeRoles?.map((role) => ({
         value: role.id,
@@ -88,13 +94,13 @@ const ChooseEmployeeRoleModal: FC<ChooseEmployeeRoleModalProps> = ({
             onCancel={closeChooseRoleModal}
             title={(
                 <Space size={8} direction='vertical'>
-                    <Typography.Title level={3}>Выбери роль сотрудника</Typography.Title>
+                    <Typography.Title level={3}>{ChooseRoleMessage}</Typography.Title>
                     <Typography.Text type='secondary'>{activeRequest?.userName}</Typography.Text>
                 </Space>
             )}
             footer={(
                 <Button type='primary' onClick={() => form.submit()}>
-                    Сохранить
+                    {SaveMessage}
                 </Button>
             )}
         >
@@ -136,10 +142,8 @@ const ChooseEmployeeRoleModal: FC<ChooseEmployeeRoleModalProps> = ({
 
 export const OrganizationEmployeeRequests = () => {
     const intl = useIntl()
-    const AcceptMessage = intl.formatMessage({ id: 'Accept' })
+    const AcceptMessage = intl.formatMessage({ id: 'Confirm' })
     const RejectMessage = intl.formatMessage({ id: 'Reject' })
-    const DoneMessage = intl.formatMessage({ id: 'OperationCompleted' })
-    const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
 
     const { user, isAuthenticated } = useAuth()
     const { employee } = useOrganization()
@@ -195,11 +199,17 @@ export const OrganizationEmployeeRequests = () => {
                     },
                     {
                         action: async () => {setActiveRequest(request)},
-                        title: 'Подтвердить',
+                        title: AcceptMessage,
                         removeNotificationOnClick: false,
                     },
                 ],
-                message: `${request.userName} хочет добавиться к организации ${request.organizationName}`,
+                message: intl.formatMessage(
+                    { id: 'organization.employeeRequest.message' },
+                    {
+                        userName: request?.userName,
+                        organizationName: request?.organizationName,
+                    }
+                ),
                 description: formatPhone(request.userPhone),
                 type: 'info',
                 id: `request_${request.id}`,

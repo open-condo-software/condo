@@ -1,5 +1,5 @@
 import { useApolloClient } from '@apollo/client'
-import { GetActualOrganizationEmployeesDocument, useGetOrganizationEmployeeExistenceQuery } from '@app/condo/gql'
+import { GetActualOrganizationEmployeesDocument } from '@app/condo/gql'
 import { OrganizationTypeType } from '@app/condo/schema'
 import { Layout } from 'antd'
 import get from 'lodash/get'
@@ -7,7 +7,6 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
-import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { Menu } from '@open-condo/icons'
 import { useMutation } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
@@ -19,6 +18,7 @@ import { Logo } from '@condo/domains/common/components/Logo'
 import { ResidentActions } from '@condo/domains/common/components/ResidentActions/ResidentActions'
 import { UserMessagesList } from '@condo/domains/notification/components/UserMessagesList'
 import { UserMessagesListContextProvider } from '@condo/domains/notification/contexts/UserMessagesListContext'
+import { OrganizationEmployeeRequests } from '@condo/domains/organization/components/OrganizationEmployeeRequests'
 import { InlineOrganizationSelect } from '@condo/domains/organization/components/OrganizationSelect'
 import { SBBOLIndicator } from '@condo/domains/organization/components/SBBOLIndicator'
 import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
@@ -27,9 +27,6 @@ import { useOrganizationInvites } from '@condo/domains/organization/hooks/useOrg
 import { UserMenu } from '@condo/domains/user/components/UserMenu'
 
 import { ITopMenuItemsProps, TopMenuItems } from './components/TopMenuItems'
-
-import { OrganizationEmployeeRequests } from '../../../../organization/components/OrganizationEmployeeRequests'
-
 
 
 const ORGANIZATION_TYPES: Array<OrganizationTypeType> = [OrganizationTypeType.ManagingCompany, OrganizationTypeType.ServiceProvider]
@@ -66,16 +63,9 @@ export const Header: React.FC<IHeaderProps> = (props) => {
         },
     })
 
-    const { data: employeeExistenceData } = useGetOrganizationEmployeeExistenceQuery({
-        variables: {
-            userId: user?.id,
-        },
-        skip: !persistor || userLoading || organizationLoading || !user,
-    })
     // Do not show invite alerts if user dont have an employee (he will view invite in OrganizationExistenceRequired)
-    const isEmployeeExist = useMemo(() => employeeExistenceData?.actualEmployees?.length > 0, [employeeExistenceData?.actualEmployees])
+    const isEmployeeExist = useMemo(() => !!organization, [organization])
     useOrganizationInvites(ORGANIZATION_TYPES, acceptOrReject, !isEmployeeExist)
-    // useOrganizationEmployeeRequests(!isEmployeeExist)
 
     const handleLogoClick = useCallback(() => {
         if (isAuthenticated) {

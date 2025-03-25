@@ -348,13 +348,6 @@ export type GetActualOrganizationEmployeesQueryVariables = Types.Exact<{
 
 export type GetActualOrganizationEmployeesQuery = { __typename?: 'Query', actualEmployees?: Array<{ __typename?: 'OrganizationEmployee', id: string, organization?: { __typename?: 'Organization', id: string, name?: string | null, importId?: string | null, importRemoteSystem?: string | null } | null } | null> | null };
 
-export type GetOrganizationEmployeeExistenceQueryVariables = Types.Exact<{
-  userId: Types.Scalars['ID']['input'];
-}>;
-
-
-export type GetOrganizationEmployeeExistenceQuery = { __typename?: 'Query', actualEmployees?: Array<{ __typename?: 'OrganizationEmployee', id: string } | null> | null };
-
 export type GetEmployeeInvitesCountQueryVariables = Types.Exact<{
   userId: Types.Scalars['ID']['input'];
 }>;
