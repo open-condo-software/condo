@@ -68,6 +68,7 @@ module.exports = {
             'always',
         ],
         'comma-dangle': 'off',
+        '@typescript-eslint/no-explicit-any': 'warn',
         '@typescript-eslint/comma-dangle': [
             'error',
             {

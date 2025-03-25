@@ -5,9 +5,7 @@ import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
 import { clientGql } from '@miniapp/domains/condo/gql'
 
 
-type EmptyObjectTypePlaceHolder = {
-
-}
+type EmptyObjectTypePlaceHolder = Record<string, never>
 
 const {
     useObject,
