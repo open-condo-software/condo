@@ -94050,8 +94050,7 @@ type Mutation {
   `{
     "code": "BAD_USER_INPUT",
     "type": "EMPLOYEE_INVITATION_ALREADY_SENT",
-    "message": "The invitation has already been sent to the employee.",
-    "messageForUser": "It is not allowed to take readings on the device, which is in the archive"
+    "message": "The invitation has already been sent to the employee."
   }`
   
   `{

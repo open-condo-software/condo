@@ -44,9 +44,9 @@ export const InlineOrganizationSelect: React.FC = () => {
     const AddOrganizationTitle = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationButtonLabel' })
     const OkMessage = intl.formatMessage({ id: 'OK' })
     const EmployeeRequestDescription = intl.formatMessage({ id: 'organization.createOrganizationForm.request.description' })
-    const ChatInTelegramMessage = intl.formatMessage({ id: 'organization.createOrganizationForm.request.alert.description' })
-    const EmployeeRequestAlertDescription = intl.formatMessage({ id: 'organization.createOrganizationForm.searchByTinLimit.description' }, {
-        chatBotLink: (
+    const ChatInTelegramMessage = intl.formatMessage({ id: 'organization.createOrganizationForm.supportChat' })
+    const EmployeeRequestAlertDescription = intl.formatMessage({ id: 'organization.createOrganizationForm.request.alert.description' }, {
+        supportChat: (
             <SecondaryLink target='_blank' href={HelpRequisites?.support_bot ? `https://t.me/${HelpRequisites.support_bot}` : '#'}>
                 {ChatInTelegramMessage}
             </SecondaryLink>
@@ -66,7 +66,6 @@ export const InlineOrganizationSelect: React.FC = () => {
     } = useOrganization()
 
     const [isCreateOrganizationModalOpen, setIsCreateOrganizationModalOpen] = useState<boolean>(false)
-    // show modal if user sent OrganizationEmployeeRequest by tin
     const [organizationWithRequest, setOrganizationWithRequest] = useState<{ name: string, isDuplicateRequest: boolean } | null>(null)
 
     const {

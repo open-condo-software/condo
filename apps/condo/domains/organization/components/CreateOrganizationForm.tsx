@@ -184,8 +184,6 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
     const { selectEmployee, organization } = useOrganization()
     const { user } = useAuth()
     const userId = useMemo(() => user?.id, [user?.id])
-
-    // ??????? It is correct logic?
     const locale = useMemo(() => organization?.country || defaultLocale, [organization?.country])
 
     const [isFoundOrganizationModalOpen, setIsFoundOrganizationModalOpen] = useState<boolean>(false)
