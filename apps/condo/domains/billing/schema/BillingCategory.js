@@ -52,7 +52,7 @@ const BillingCategory = new GQLListSchema('BillingCategory', {
         },
 
         requiresFullPayment: {
-            schemaDoc: 'The number of months the receipt can be paid for',
+            schemaDoc: 'Shows whether the receipt should be paid in full',
             type: 'Checkbox',
             defaultValue: false,
             kmigratorOptions: { default: false },
