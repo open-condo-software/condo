@@ -61,6 +61,7 @@ const ChooseEmployeeRoleModal: FC<ChooseEmployeeRoleModalProps> = ({
 
         if (!activeRequest || !roleId) {
             closeChooseRoleModal()
+            return
         }
 
         await acceptOrRejectRequest({

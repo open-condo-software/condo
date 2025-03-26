@@ -220,7 +220,7 @@ export const OrganizationExistenceRequired: React.FC<OrganizationExistenceRequir
                         <Typography.Title level={2}>
                             {
                                 intl.formatMessage(
-                                    { id: 'organization.createOrganizationForm.rejectedRequest.title ' },
+                                    { id: 'organization.createOrganizationForm.rejectedRequest.title' },
                                     { organizationName: lastOrganizationEmployeeRequest?.organizationName }
                                 )
                             }
