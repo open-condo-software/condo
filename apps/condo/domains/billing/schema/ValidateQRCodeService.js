@@ -22,14 +22,12 @@ const { getCountrySpecificQRCodeParser } = require('@condo/domains/billing/utils
 const {
     getQRCodeMissedFields,
     compareQRCodeWithLastReceipt,
-    isReceiptPaid,
-    formatPeriodFromQRCode,
     getQRCodeFields,
     getQRCodeField,
     getQRCodePaymPeriod,
 } = require('@condo/domains/billing/utils/receiptQRCodeUtils')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
-const { WRONG_FORMAT, NOT_FOUND, ALREADY_EXISTS_ERROR, WRONG_VALUE } = require('@condo/domains/common/constants/errors')
+const { WRONG_FORMAT, NOT_FOUND, WRONG_VALUE } = require('@condo/domains/common/constants/errors')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
 const redisGuard = new RedisGuard()
@@ -155,7 +153,7 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
                 // NOTE(YEgorLu): amount in qrcode exists without "." between parts ("1000.11" -> "100011"), so let's add it
                 // NOTE(YEgorLu): Round to 8 characters, so qrcode amount has same format as receipt amount - "1000.00000000" instead of "1000"
                 const qrCodeAmount = Big(getQRCodeField(qrCodeFields, 'Sum')).div(100).toFixed(8)
-                const { persAcc, personalAcc, payeeINN } = getQRCodeFields(qrCodeFields, ['persAcc', 'personalAcc', 'payeeINN'])
+                const { persAcc, payeeINN } = getQRCodeFields(qrCodeFields, ['persAcc', 'personalAcc', 'payeeINN'])
 
                 const billingAccounts = await find('BillingAccount', {
                     number: persAcc,
@@ -193,13 +191,7 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
 
                 if (!acquiringContext) throw new GQLError(ERRORS.NO_ACQUIRING_CONTEXT, context)
 
-                const paymPeriod = getQRCodePaymPeriod(qrCodeFields, billingContext)
-
-                if (!qrCodeFields['PaymPeriod']) {
-                    qrCodeFields['PaymPeriod'] = paymPeriod
-                }
-
-                const period = formatPeriodFromQRCode(paymPeriod)
+                qrCodeFields['PaymPeriod'] = getQRCodePaymPeriod(qrCodeFields, billingContext)
 
                 // NOTE (YEgorLu): We just take tin, bic, bankAccount from QR-code
                 // const acquiringContextRecipient = get(acquiringContext, 'recipient')
