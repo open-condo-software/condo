@@ -3,7 +3,7 @@ import {
     useGetLastEmployeeInviteQuery,
     useGetLastUserOrganizationEmployeeRequestQuery,
     useSendOrganizationEmployeeRequestMutation,
-    useGetOrganizationEmployeeExistenceQuery,
+    useGetOrganizationEmployeeExistenceQuery, useGetActualOrganizationEmployeesQuery,
 } from '@app/condo/gql'
 import { OrganizationTypeType } from '@app/condo/schema'
 import pickBy from 'lodash/pickBy'
@@ -72,21 +72,15 @@ export const OrganizationExistenceRequired: React.FC<OrganizationExistenceRequir
     const [isCancelModalOpen, setIsCancelModalOpen] = useState<boolean>(false)
 
     const onError = useMutationErrorHandler()
-
-    // getActualOrganizationEmployees?
     const {
-        data: employeeExistenceData,
-        loading: employeeExistenceLoading,
-    } = useGetOrganizationEmployeeExistenceQuery({
-        variables: {
-            userId: user?.id,
-        },
-        onError,
+        data: actualEmployeesData,
+        loading: isActualEmployeeLoading,
+    } = useGetActualOrganizationEmployeesQuery({
+        variables: { userId: user?.id },
         skip: !persistor || userLoading || !user,
     })
-    const isEmployeeExist = useMemo(() => employeeExistenceData?.actualEmployees?.length > 0, [employeeExistenceData?.actualEmployees])
-
-    const skipQueryStatement = !persistor || userLoading || !user || employeeExistenceLoading || isEmployeeExist
+    const hasEmployees = useMemo(() => actualEmployeesData?.actualEmployees?.length > 0, [actualEmployeesData?.actualEmployees?.length])
+    const skipQueryStatement = !persistor || userLoading || !user || isActualEmployeeLoading || hasEmployees
 
     const {
         data: lastInviteData,
@@ -166,12 +160,12 @@ export const OrganizationExistenceRequired: React.FC<OrganizationExistenceRequir
 
     const pageDataLoading = lastInviteLoading || lastOrganizationEmployeeRequestLoading
 
-    if (userLoading || employeeExistenceLoading) {
+    if (userLoading || isActualEmployeeLoading) {
         return <Loader fill size='large' />
     }
 
     // If there is no user or user has employee => skip this screens
-    if (!user || isEmployeeExist) {
+    if (!user || hasEmployees) {
         return <>{children}</>
     }
 
