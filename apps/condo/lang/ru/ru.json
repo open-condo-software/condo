@@ -321,6 +321,7 @@
   "acquiringReceipt.total": "Итого",
   "api.acquiring.exportPaymentsToExcel.NOTHING_TO_EXPORT": "Не найдены платежи для экспорта",
   "api.acquiring.multiPayment.RECEIPTS_WITH_INVOICES_FORBIDDEN": "Квитанции и счета не могут быть в одном платеже, увы. Но мы над этим работаем.",
+  "api.acquiring.multiPayment.FULL_PAYMENT_AMOUNT_MISMATCH": "Невозможно оплатить сумму, которая отличается от выставленной суммы в квитанции с данной категорией",
   "api.acquiring.payment.PAYMENT_AMOUNT_GREATER_THAN_MAXIMUM": "Сумма оплаты не должна превышать {maximumPaymentAmount}",
   "api.acquiring.payment.PAYMENT_AMOUNT_LESS_THAN_MINIMUM": "Сумма оплаты должна быть не меньше чем {minimumPaymentAmount}",
   "api.analytics.getOverviewDashboard.FEATURE_IS_DISABLED": "Эта функция недоступна в вашей организации",

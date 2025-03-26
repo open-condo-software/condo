@@ -321,6 +321,7 @@
   "acquiringReceipt.total": "Total",
   "api.acquiring.exportPaymentsToExcel.NOTHING_TO_EXPORT": "No se han encontrado pagos para exportar",
   "api.acquiring.multiPayment.RECEIPTS_WITH_INVOICES_FORBIDDEN": "Está prohibido que los recibos y las facturas estén juntos",
+  "api.acquiring.multiPayment.FULL_PAYMENT_AMOUNT_MISMATCH": "No se puede pagar una cantidad que sea diferente de la cantidad facturada en el recibo con esta categoría",
   "api.acquiring.payment.PAYMENT_AMOUNT_GREATER_THAN_MAXIMUM": "El importe del pago no debe superar {maximumPaymentAmount}",
   "api.acquiring.payment.PAYMENT_AMOUNT_LESS_THAN_MINIMUM": "El importe del pago debe ser al menos {minimumPaymentAmount}",
   "api.analytics.getOverviewDashboard.FEATURE_IS_DISABLED": "Esta función no está disponible en su organización",
