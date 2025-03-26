@@ -72441,6 +72441,8 @@ type B2BAppAccessRightSetHistoryRecord {
   canManageTicketFiles: Boolean
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
+  canExecuteRegisterBillingReceipts: Boolean
+  canExecuteRegisterBillingReceiptFile: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
   canExecuteRegisterPropertyMetersReadings: Boolean
@@ -72558,6 +72560,10 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   canReadTicketCommentFiles_not: Boolean
   canManageTicketCommentFiles: Boolean
   canManageTicketCommentFiles_not: Boolean
+  canExecuteRegisterBillingReceipts: Boolean
+  canExecuteRegisterBillingReceipts_not: Boolean
+  canExecuteRegisterBillingReceiptFile: Boolean
+  canExecuteRegisterBillingReceiptFile_not: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteRegisterMetersReadings_not: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
@@ -72707,6 +72713,10 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
   canReadTicketCommentFiles_DESC
   canManageTicketCommentFiles_ASC
   canManageTicketCommentFiles_DESC
+  canExecuteRegisterBillingReceipts_ASC
+  canExecuteRegisterBillingReceipts_DESC
+  canExecuteRegisterBillingReceiptFile_ASC
+  canExecuteRegisterBillingReceiptFile_DESC
   canExecuteRegisterMetersReadings_ASC
   canExecuteRegisterMetersReadings_DESC
   canExecuteSendB2BAppPushMessage_ASC
@@ -72763,6 +72773,8 @@ input B2BAppAccessRightSetHistoryRecordUpdateInput {
   canManageTicketFiles: Boolean
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
+  canExecuteRegisterBillingReceipts: Boolean
+  canExecuteRegisterBillingReceiptFile: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
   canExecuteRegisterPropertyMetersReadings: Boolean
@@ -72817,6 +72829,8 @@ input B2BAppAccessRightSetHistoryRecordCreateInput {
   canManageTicketFiles: Boolean
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
+  canExecuteRegisterBillingReceipts: Boolean
+  canExecuteRegisterBillingReceiptFile: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
   canExecuteRegisterPropertyMetersReadings: Boolean
@@ -72909,6 +72923,8 @@ type B2BAppAccessRightSet {
   canManageTicketFiles: Boolean
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
+  canExecuteRegisterBillingReceipts: Boolean
+  canExecuteRegisterBillingReceiptFile: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
   canExecuteRegisterPropertyMetersReadings: Boolean
@@ -73018,6 +73034,10 @@ input B2BAppAccessRightSetWhereInput {
   canReadTicketCommentFiles_not: Boolean
   canManageTicketCommentFiles: Boolean
   canManageTicketCommentFiles_not: Boolean
+  canExecuteRegisterBillingReceipts: Boolean
+  canExecuteRegisterBillingReceipts_not: Boolean
+  canExecuteRegisterBillingReceiptFile: Boolean
+  canExecuteRegisterBillingReceiptFile_not: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteRegisterMetersReadings_not: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
@@ -73149,6 +73169,10 @@ enum SortB2BAppAccessRightSetsBy {
   canReadTicketCommentFiles_DESC
   canManageTicketCommentFiles_ASC
   canManageTicketCommentFiles_DESC
+  canExecuteRegisterBillingReceipts_ASC
+  canExecuteRegisterBillingReceipts_DESC
+  canExecuteRegisterBillingReceiptFile_ASC
+  canExecuteRegisterBillingReceiptFile_DESC
   canExecuteRegisterMetersReadings_ASC
   canExecuteRegisterMetersReadings_DESC
   canExecuteSendB2BAppPushMessage_ASC
@@ -73205,6 +73229,8 @@ input B2BAppAccessRightSetUpdateInput {
   canManageTicketFiles: Boolean
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
+  canExecuteRegisterBillingReceipts: Boolean
+  canExecuteRegisterBillingReceiptFile: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
   canExecuteRegisterPropertyMetersReadings: Boolean
@@ -73256,6 +73282,8 @@ input B2BAppAccessRightSetCreateInput {
   canManageTicketFiles: Boolean
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
+  canExecuteRegisterBillingReceipts: Boolean
+  canExecuteRegisterBillingReceiptFile: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
   canExecuteRegisterPropertyMetersReadings: Boolean

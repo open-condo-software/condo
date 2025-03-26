@@ -98,6 +98,12 @@ const B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS = {
     },
 
     services: {
+        registerBillingReceipts: {
+            pathToOrganizationId: ['context', 'organization', 'id'],
+        },
+        registerBillingReceiptFile: {
+            pathToOrganizationId: ['context', 'organization', 'id'],
+        },
         registerMetersReadings: {},
         sendB2BAppPushMessage: {},
         registerPropertyMetersReadings: {},
