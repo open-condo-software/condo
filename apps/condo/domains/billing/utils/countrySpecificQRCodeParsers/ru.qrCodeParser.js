@@ -6,6 +6,22 @@ const { getLogger } = require('@open-condo/keystone/logging')
 
 const logger = getLogger('parseRUReceiptQRCode')
 
+// NOTE(YEgorLu): billings send qrCodes with fields in any casing. So let's map all variants to one casing
+const FIELDS_OVERRIDES = {
+    'name': 'Name',
+    'personalacc': 'PersonalAcc',
+    'bankname': 'BankName',
+    'bic': 'BIC',
+    'correspacc': 'CorrespAcc',
+    'sum': 'Sum',
+    'purpose': 'Purpose',
+    'payeeinn': 'PayeeINN',
+    'lastname': 'LastName',
+    'payeraddress': 'PayerAddress',
+    'persacc': 'PersAcc',
+    'paymperiod': 'PaymPeriod',
+}
+
 /**
  * @typedef {Object} TRUQRCodeFields
  * @property {string} BIC
@@ -35,7 +51,18 @@ function parseRUReceiptQRCode (qrBase64Str) {
     logger.info({ msg:'Parsed qr-code', data: { qrStr: qrBase64Str, decodedQrStr, detectedEncoding } })
 
     const requisitesStr = get(matches, ['groups', 'requisitesStr'], '')
-    return Object.fromEntries(requisitesStr.split('|').map((part) => part.split('=', 2)))
+    return Object.fromEntries(
+        requisitesStr
+            .split('|')
+            .map((part) => part.split('=', 2))
+            .map(keyValue => {
+                const key = keyValue[0].toLowerCase()
+                if (FIELDS_OVERRIDES[key]) {
+                    keyValue[0] = FIELDS_OVERRIDES[key]
+                }
+                return keyValue
+            })
+    )
 }
 
 module.exports = parseRUReceiptQRCode

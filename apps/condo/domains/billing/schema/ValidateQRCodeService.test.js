@@ -529,7 +529,7 @@ describe('ValidateQRCodeService', () => {
                 toPay: '2000',
             })
 
-            const qrObjLast = { ...qrObj, PaymPeriod: '06.2024', sum: '200000' }
+            const qrObjLast = { ...qrObj, PaymPeriod: '06.2024', Sum: '200000' }
             const qrStr = stringifyQrCode(qrObjLast)
 
             const [result] = await validateQRCodeByTestClient(adminClient, { qrCode: qrStr })
