@@ -598,5 +598,50 @@ describe('receiptQRCodeUtils', () => {
                 expect(resultPeriodAAnother).toEqual(dayjs(period, 'YYYY-MM-DD').add(1, 'month').format('YYYY-MM-01'))
             })
         })
+
+        const getValidRandomDateWithoutDot = () => {
+            let curDate = dayjs()
+            const randomDays = parseInt(faker.random.numeric(2))
+            if (Math.random() >= .5) {
+                curDate = curDate.add(randomDays, 'day')
+            } else {
+                curDate = curDate.add(-randomDays, 'day')
+            }
+            return curDate
+        }
+        const getInvalidRandomDateWithoutDot = () => {
+            let curDate = dayjs()
+            const randomDays = parseInt(faker.random.numeric(1, { bannedDigits: ['0', '1'] }))
+            if (Math.random() >= .5) {
+                curDate = curDate.add(randomDays, 'year')
+            } else {
+                curDate = curDate.add(-randomDays, 'year')
+            }
+            return curDate
+        }
+
+        test('Formats period correctly', async () => {
+            const PERIOD_WITH_DOT = '01.2022'
+            const qrCodeObj = {
+                paymPeriod: PERIOD_WITH_DOT,
+            }
+            expect(getQRCodePaymPeriod(qrCodeObj)).toEqual(PERIOD_WITH_DOT)
+
+            const validWithoutDot1 = getValidRandomDateWithoutDot()
+            qrCodeObj.paymPeriod = validWithoutDot1.format('MMYYYY')
+            expect(getQRCodePaymPeriod(qrCodeObj)).toEqual(validWithoutDot1.format('MM.YYYY'))
+
+            const validWithoutDot2 = getValidRandomDateWithoutDot()
+            qrCodeObj.paymPeriod = validWithoutDot2.format('YYYYMM')
+            expect(getQRCodePaymPeriod(qrCodeObj)).toEqual(validWithoutDot2.format('MM.YYYY'))
+
+            const invalidWithoutDot1 = getInvalidRandomDateWithoutDot()
+            qrCodeObj.paymPeriod = invalidWithoutDot1.format('MMYYYY')
+            expect(getQRCodePaymPeriod(qrCodeObj)).toEqual(dayjs().format('MM.YYYY'))
+
+            const invalidWithoutDot2 = getInvalidRandomDateWithoutDot()
+            qrCodeObj.paymPeriod = invalidWithoutDot2.format('YYYYMM')
+            expect(getQRCodePaymPeriod(qrCodeObj)).toEqual(dayjs().format('MM.YYYY'))
+        })
     })
 })
