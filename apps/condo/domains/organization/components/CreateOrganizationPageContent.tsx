@@ -3,44 +3,37 @@ import {
     useGetLastEmployeeInviteQuery,
     useGetLastUserOrganizationEmployeeRequestQuery,
     useSendOrganizationEmployeeRequestMutation,
-    useGetOrganizationEmployeeExistenceQuery, useGetActualOrganizationEmployeesQuery,
+    useGetActualOrganizationEmployeesQuery, GetActualOrganizationEmployeesDocument,
 } from '@app/condo/gql'
 import { OrganizationTypeType } from '@app/condo/schema'
 import pickBy from 'lodash/pickBy'
 import getConfig from 'next/config'
-import Head from 'next/head'
 import { useRouter } from 'next/router'
-import React, { ReactNode, useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
+import { useApolloClient } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Alert, Button, Modal, Space, Typography } from '@open-condo/ui'
 
-import { LayoutWithPoster } from '@condo/domains/common/components/containers/LayoutWithPoster'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
 import { MAX_ORGANIZATION_EMPLOYEE_REQUEST_RETRIES } from '@condo/domains/organization/constants/common'
 import { SecondaryLink } from '@condo/domains/user/components/auth/SecondaryLink'
-import { AuthPoster } from '@condo/domains/user/components/containers/AuthPoster'
-import { WelcomeHeaderTitle } from '@condo/domains/user/components/UserWelcomeTitle'
 
 import { CreateOrganizationForm } from './CreateOrganizationForm'
 
-import './OrganizationExistenceRequired.css'
+import './CreateOrganizationPageContent.css'
 
 
 const {
     publicRuntimeConfig: { HelpRequisites },
 } = getConfig()
 
-type OrganizationExistenceRequiredProps = {
-    children: ReactNode
-}
-
-export const OrganizationExistenceRequired: React.FC<OrganizationExistenceRequiredProps> = ({ children }) => {
+export const CreateOrganizationPageContent: React.FC = () => {
     const intl = useIntl()
     const Accept = intl.formatMessage({ id: 'Accept' })
     const Reject = intl.formatMessage({ id: 'Reject' })
@@ -61,8 +54,8 @@ export const OrganizationExistenceRequired: React.FC<OrganizationExistenceRequir
         ),
     })
     const InviteEmployeeDescription = intl.formatMessage({ id: 'organization.createOrganizationForm.invite.description' })
-    const CreateOrganizationTitle = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationModalTitle' })
 
+    const client = useApolloClient()
     const router = useRouter()
     const { persistor } = useCachePersistor()
     const { user, isLoading: userLoading, signOut } = useAuth()
@@ -70,6 +63,7 @@ export const OrganizationExistenceRequired: React.FC<OrganizationExistenceRequir
 
     const [showOrganizationForm, setShowOrganizationForm] = useState<boolean>(false)
     const [isCancelModalOpen, setIsCancelModalOpen] = useState<boolean>(false)
+    const [acceptOrRejectInviteLoading, setAcceptOrRejectInviteLoading] = useState<boolean>(false)
 
     const onError = useMutationErrorHandler()
     const {
@@ -112,6 +106,8 @@ export const OrganizationExistenceRequired: React.FC<OrganizationExistenceRequir
     const [sendOrganizationEmployeeRequest] = useSendOrganizationEmployeeRequestMutation({ onError })
 
     const handleAcceptOrReject = useCallback(async (isAccepted: boolean, isRejected: boolean) => {
+        setAcceptOrRejectInviteLoading(true)
+
         const result = await acceptOrRejectInvite({
             variables: {
                 id: lastInvite?.id,
@@ -130,11 +126,14 @@ export const OrganizationExistenceRequired: React.FC<OrganizationExistenceRequir
             && [OrganizationTypeType.ManagingCompany, OrganizationTypeType.ServiceProvider].includes(invite?.organization?.type)
 
         if (isAcceptedInvite) {
+            client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allOrganizationEmployees' })
             await selectEmployee(invite.id)
+            await router.push('/')
         }
 
         await refetchLastInvite()
-    }, [acceptOrRejectInvite, lastInvite?.id, refetchLastInvite, selectEmployee])
+        setAcceptOrRejectInviteLoading(false)
+    }, [acceptOrRejectInvite, client, lastInvite?.id, refetchLastInvite, router, selectEmployee])
 
     const handleRetryOrganizationEmployeeRequest = useCallback(async () => {
         await sendOrganizationEmployeeRequest({
@@ -151,22 +150,30 @@ export const OrganizationExistenceRequired: React.FC<OrganizationExistenceRequir
     }, [lastOrganizationEmployeeRequest?.organizationId, refetchLastOrganizationEmployeeRequest, sendOrganizationEmployeeRequest])
 
     const handleCancelOrganizationCreation = useCallback(async () => {
+        setIsCancelModalOpen(false)
+        setShowOrganizationForm(false)
+
         await signOut()
         // pass next link?
         await router.push('/auth/signin')
-        setIsCancelModalOpen(false)
-        setShowOrganizationForm(false)
     }, [router, signOut])
 
-    const pageDataLoading = lastInviteLoading || lastOrganizationEmployeeRequestLoading
+    const pageDataLoading = lastInviteLoading || lastOrganizationEmployeeRequestLoading || acceptOrRejectInviteLoading
+
+    useEffect(() => {
+        if (userLoading || isActualEmployeeLoading || pageDataLoading) return
+
+        // redirects in prefetch?
+        if (!user) {
+            router.push('/auth/signin')
+        }
+        if (hasEmployees) {
+            router.push('/')
+        }
+    }, [hasEmployees, isActualEmployeeLoading, pageDataLoading, router, user, userLoading])
 
     if (userLoading || isActualEmployeeLoading) {
         return <Loader fill size='large' />
-    }
-
-    // If there is no user or user has employee => skip this screens
-    if (!user || hasEmployees) {
-        return <>{children}</>
     }
 
     let content = (
@@ -177,7 +184,10 @@ export const OrganizationExistenceRequired: React.FC<OrganizationExistenceRequir
                     await refetchLastOrganizationEmployeeRequest()
                     setShowOrganizationForm(false)
                 }}
-                onOrganizationCreated={() => setShowOrganizationForm(false)}
+                onOrganizationCreated={async () => {
+                    setShowOrganizationForm(false)
+                    await router.push('/')
+                }}
                 onCancel={() => setIsCancelModalOpen(true)}
             />
             <Modal
@@ -309,19 +319,5 @@ export const OrganizationExistenceRequired: React.FC<OrganizationExistenceRequir
         content = <Loader fill size='large'/>
     }
 
-    return (
-        <>
-            <Head>
-                <title>{CreateOrganizationTitle}</title>
-            </Head>
-            <LayoutWithPoster
-                headerAction={<WelcomeHeaderTitle userType='staff'/>}
-                Poster={AuthPoster}
-            >
-                <div className='create-organization-content-wrapper'>
-                    {content}
-                </div>
-            </LayoutWithPoster>
-        </>
-    )
+    return content
 }

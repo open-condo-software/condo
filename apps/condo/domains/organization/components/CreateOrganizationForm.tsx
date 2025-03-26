@@ -5,7 +5,6 @@ import {
     useSendOrganizationEmployeeRequestMutation,
     FindOrganizationsByTinQueryResult,
     RegisterNewOrganizationMutationResult,
-    GetActualOrganizationEmployeesDocument,
     useGetLastActiveOrganizationEmployeeRequestByTinLazyQuery,
     SendOrganizationEmployeeRequestMutationResult,
 } from '@app/condo/gql'
@@ -137,7 +136,7 @@ type BaseCreateOrganizationFormProps = {
         request: SendOrganizationEmployeeRequestMutationResult['data']['request'],
         isDuplicateRequest: boolean
     ) => void | Promise<void>
-    onOrganizationCreated?: (organization: RegisterNewOrganizationMutationResult['data']['organization']) => void
+    onOrganizationCreated?: (organization: RegisterNewOrganizationMutationResult['data']['organization']) => void | Promise<void>
 }
 
 type FormCreateOrganizationFormProps = {
@@ -190,6 +189,7 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
     const [isSearchByTinLimitReached, setIsSearchByTinLimitReached] = useState<boolean>(false)
     const [isRequiredFieldsEmpty, setIsRequiredFieldsEmpty] = useState<boolean>(false)
     const [isFieldsHasError, setIsFieldsHasError] = useState<boolean>(false)
+    const [isOrganizationCreating, setIsOrganizationCreating] = useState<boolean>(false)
 
     const { requiredValidator, tinValidator } = useValidations()
     const validators = React.useMemo(
@@ -215,6 +215,7 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
     })
 
     const createOrganizationAction = useCallback(async (values) => {
+        setIsOrganizationCreating(true)
         const tin = values.tin
 
         if (!SKIP_SEARCH_TINS.includes(tin)) {
@@ -237,6 +238,7 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
                 if (hasLimitError) {
                     setIsSearchByTinLimitReached(true)
                 }
+                setIsOrganizationCreating(false)
                 return
             }
 
@@ -253,12 +255,14 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
                     if (onSendOrganizationRequest) {
                         onSendOrganizationRequest(duplicatedRequest, true)
                     }
+                    setIsOrganizationCreating(false)
                     return
                 }
             }
 
             if (foundOrganizations.length > 0) {
                 setIsFoundOrganizationModalOpen(true)
+                setIsOrganizationCreating(false)
                 return
             }
         }
@@ -278,12 +282,13 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
         })
         const registerOrganizationsError = registeredOrganizationData?.errors
         if (registerOrganizationsError) {
+            setIsOrganizationCreating(false)
             return
         }
 
         const registeredOrganization = registeredOrganizationData?.data?.organization
         if (onOrganizationCreated) {
-            onOrganizationCreated(registeredOrganization)
+            await onOrganizationCreated(registeredOrganization)
         }
         const organizationId = registeredOrganization?.id
         const newOrganizationEmployeeData = await getOrganizationEmployee({
@@ -295,11 +300,12 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
         const newOrganizationEmployeeId = newOrganizationEmployeeData?.data?.employees?.[0]?.id
 
         if (newOrganizationEmployeeId) {
-            await client.refetchQueries({
-                include: [GetActualOrganizationEmployeesDocument],
-            })
+            // Evict cache for get actual employee in prefetchOrganizationEmployee
+            client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allOrganizationEmployees' })
+
             await selectEmployee(newOrganizationEmployeeId)
         }
+        setIsOrganizationCreating(false)
     }, [client, findOrganizationsByTin, getLastActiveOrganizationEmployeeRequest, getOrganizationEmployee, onOrganizationCreated, onSendOrganizationRequest, registerNewOrganization, selectEmployee, type, userId])
 
     const foundOrganizations = useMemo(() => foundOrganizationsData?.data?.organizations || [], [foundOrganizationsData?.data?.organizations])
@@ -408,6 +414,7 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
                                         htmlType='submit'
                                         type='primary'
                                         className='create-organization-form-button'
+                                        loading={isOrganizationCreating}
                                         disabled={isRequiredFieldsEmpty || isFieldsHasError || isSearchByTinLimitReached}
                                     >
                                         {CreateMessage}
