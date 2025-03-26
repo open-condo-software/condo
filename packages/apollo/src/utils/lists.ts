@@ -23,6 +23,10 @@ export type ListHelperOptions = {
  */
 export type ClientPaginationBehaviour = 'paginate' | 'showAll'
 
+type EmptyData = {
+    empty: true
+}
+
 /**
  * Checks if the provided value is an Apollo Client Reference object
  * Used to determine if a value in the cache is a reference to another cached object
@@ -130,13 +134,19 @@ export class ListHelper {
             return undefined
         }
 
-        const filteredItems = existing.slice(skip, skip + first).filter(nonNull)
+        const filteredItemsFromNull = existing.slice(skip, skip + first).filter(nonNull)
+
+        if (!filteredItemsFromNull.length) {
+            return undefined
+        }
+
+        const filteredItemsFromEmptyData = filteredItemsFromNull.filter((item) => !(typeof item === 'object' && ('empty' in item) && item['empty'] === true))
 
         const cache = options.cache.extract()
 
-        if (hasBrokenRefs(filteredItems, cache)) return undefined
+        if (hasBrokenRefs(filteredItemsFromEmptyData, cache)) return undefined
 
-        return filteredItems
+        return filteredItemsFromEmptyData
     }
 
     /**
@@ -154,12 +164,19 @@ export class ListHelper {
 
         const cache = options.cache.extract()
 
-        const filteredItems = existing.filter(nonNull)
-        if (hasBrokenRefs(filteredItems, cache)) {
+        const filteredItemsFromNull = existing.filter(nonNull)
+
+        if (!filteredItemsFromNull.length) {
             return undefined
         }
 
-        return filteredItems
+        const filteredItemsFromEmptyData = filteredItemsFromNull.filter((item) => !(typeof item === 'object' && ('empty' in item) && item['empty'] === true))
+
+        if (hasBrokenRefs(filteredItemsFromEmptyData, cache)) {
+            return undefined
+        }
+
+        return filteredItemsFromEmptyData
     }
 
     /**
@@ -191,9 +208,9 @@ export class ListHelper {
         existing: ReadonlyArray<TData> | undefined,
         incoming: ReadonlyArray<TData>,
         options: TOptions
-    ): Array<TData | null> {
+    ): Array<TData | EmptyData | null> {
         // Copy array, so it's not ReadOnly anymore
-        const merged: Array<TData | null> = existing ? existing.slice(0) : []
+        const merged: Array<TData | EmptyData | null> = existing ? existing.slice(0) : []
 
         const skip = options?.args?.[this.skipArgName] || 0
         const first = options?.args?.[this.firstArgName] || 0
@@ -204,7 +221,9 @@ export class ListHelper {
         }
 
         for (let i = 0; i < Math.max(incoming.length, first); i++) {
-            merged[skip + i] = i < incoming.length ? incoming[i] : null
+            merged[skip + i] = i < incoming.length ? incoming[i] : {
+                empty: true,
+            }
         }
 
         return merged
