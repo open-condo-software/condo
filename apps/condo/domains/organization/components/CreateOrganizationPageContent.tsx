@@ -3,7 +3,7 @@ import {
     useGetLastEmployeeInviteQuery,
     useGetLastUserOrganizationEmployeeRequestQuery,
     useSendOrganizationEmployeeRequestMutation,
-    useGetActualOrganizationEmployeesQuery, GetActualOrganizationEmployeesDocument,
+    useGetActualOrganizationEmployeesQuery,
 } from '@app/condo/gql'
 import { OrganizationTypeType } from '@app/condo/schema'
 import pickBy from 'lodash/pickBy'
@@ -21,6 +21,7 @@ import { Alert, Button, Modal, Space, Typography } from '@open-condo/ui'
 
 import { Loader } from '@condo/domains/common/components/Loader'
 import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
+import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 import { MAX_ORGANIZATION_EMPLOYEE_REQUEST_RETRIES } from '@condo/domains/organization/constants/common'
 import { SecondaryLink } from '@condo/domains/user/components/auth/SecondaryLink'
 
@@ -56,10 +57,13 @@ export const CreateOrganizationPageContent: React.FC = () => {
     const InviteEmployeeDescription = intl.formatMessage({ id: 'organization.createOrganizationForm.invite.description' })
 
     const client = useApolloClient()
-    const router = useRouter()
     const { persistor } = useCachePersistor()
     const { user, isLoading: userLoading, signOut } = useAuth()
     const { selectEmployee } = useOrganization()
+    const router = useRouter()
+    const { query: { next }  } = router
+    const isValidNextUrl = next && !Array.isArray(next) && isSafeUrl(next)
+    const redirectUrl = isValidNextUrl ? next : '/'
 
     const [showOrganizationForm, setShowOrganizationForm] = useState<boolean>(false)
     const [isCancelModalOpen, setIsCancelModalOpen] = useState<boolean>(false)
@@ -126,14 +130,16 @@ export const CreateOrganizationPageContent: React.FC = () => {
             && [OrganizationTypeType.ManagingCompany, OrganizationTypeType.ServiceProvider].includes(invite?.organization?.type)
 
         if (isAcceptedInvite) {
+            // Evict cache for get actual employee in prefetchOrganizationEmployee
             client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allOrganizationEmployees' })
+
             await selectEmployee(invite.id)
-            await router.push('/')
+            await router.push(redirectUrl)
         }
 
         await refetchLastInvite()
         setAcceptOrRejectInviteLoading(false)
-    }, [acceptOrRejectInvite, client, lastInvite?.id, refetchLastInvite, router, selectEmployee])
+    }, [acceptOrRejectInvite, client.cache, lastInvite?.id, redirectUrl, refetchLastInvite, router, selectEmployee])
 
     const handleRetryOrganizationEmployeeRequest = useCallback(async () => {
         await sendOrganizationEmployeeRequest({
@@ -154,23 +160,20 @@ export const CreateOrganizationPageContent: React.FC = () => {
         setShowOrganizationForm(false)
 
         await signOut()
-        // pass next link?
-        await router.push('/auth/signin')
-    }, [router, signOut])
+        await router.push(isValidNextUrl ? `/auth/signin?next=${encodeURIComponent(next)}` : '/auth/signin')
+    }, [isValidNextUrl, next, router, signOut])
 
     const pageDataLoading = lastInviteLoading || lastOrganizationEmployeeRequestLoading || acceptOrRejectInviteLoading
 
     useEffect(() => {
         if (userLoading || isActualEmployeeLoading || pageDataLoading) return
-
-        // redirects in prefetch?
         if (!user) {
-            router.push('/auth/signin')
+            router.push(isValidNextUrl ? `/auth/signin?next=${encodeURIComponent(next)}` : '/auth/signin')
         }
         if (hasEmployees) {
-            router.push('/')
+            router.push(redirectUrl)
         }
-    }, [hasEmployees, isActualEmployeeLoading, pageDataLoading, router, user, userLoading])
+    }, [hasEmployees, isActualEmployeeLoading, isValidNextUrl, next, pageDataLoading, redirectUrl, router, user, userLoading])
 
     if (userLoading || isActualEmployeeLoading) {
         return <Loader fill size='large' />
@@ -186,7 +189,7 @@ export const CreateOrganizationPageContent: React.FC = () => {
                 }}
                 onOrganizationCreated={async () => {
                     setShowOrganizationForm(false)
-                    await router.push('/')
+                    await router.push(redirectUrl)
                 }}
                 onCancel={() => setIsCancelModalOpen(true)}
             />
@@ -304,7 +307,11 @@ export const CreateOrganizationPageContent: React.FC = () => {
                     </Typography.Text>
                 </Space>
                 <Space size={20} direction='vertical' className='initial-organization-invite-buttons'>
-                    <Button type='primary' onClick={() => handleAcceptOrReject(true, false)}>
+                    <Button
+                        type='primary'
+                        loading={acceptOrRejectInviteLoading}
+                        onClick={() => handleAcceptOrReject(true, false)}
+                    >
                         {Accept}
                     </Button>
                     <Button type='secondary' onClick={() => handleAcceptOrReject(false, true)}>
