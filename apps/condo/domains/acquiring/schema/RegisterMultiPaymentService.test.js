@@ -852,6 +852,39 @@ describe('RegisterMultiPaymentService', () => {
                     }])
                 })
             })
+            test('Amount is different from toPay amount from receipt for billing category with requiresFullPayment: true', async () => {
+                const { commonData, batches } = await makePayerWithMultipleConsumers(1, 2)
+                const { admin } = commonData
+
+                const [batch] = batches
+                const { billingContext, billingProperty, billingAccount } = batch
+                const [category] = await createTestBillingCategory(admin, { requiresFullPayment: true })
+                const [receiptWithToPay100] = await createTestBillingReceipt(admin, billingContext, billingProperty, billingAccount, {
+                    toPay: '100.00',
+                    category: { connect: { id: category.id } },
+                })
+                const serviceConsumerId = batch.serviceConsumer.id
+
+                const payload = [{
+                    serviceConsumer: { id: serviceConsumerId },
+                    receipts: [receiptWithToPay100].map(receipt => ({ id: receipt.id })),
+                    amountDistribution: [receiptWithToPay100].map(receipt => ({ receipt: { id: receipt.id }, amount: '10' })),
+                }]
+
+                await catchErrorFrom(async () => {
+                    await registerMultiPaymentByTestClient(commonData.client, payload)
+                }, ({ errors }) => {
+                    expect(errors).toMatchObject([{
+                        message: 'Different amount and toPay from receipt are forbidden for receipt with Billing Category that has requiresFullPayment set to true',
+                        path: ['result'],
+                        extensions: {
+                            code: 'BAD_USER_INPUT',
+                            type: 'FULL_PAYMENT_AMOUNT_MISMATCH',
+                            message: 'Different amount and toPay from receipt are forbidden for receipt with Billing Category that has requiresFullPayment set to true',
+                        },
+                    }])
+                })
+            })
         })
 
         describe('Invoices check', () => {

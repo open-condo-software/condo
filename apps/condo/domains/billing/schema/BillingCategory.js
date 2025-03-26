@@ -12,7 +12,8 @@ const { getValidator } = require('@condo/domains/common/schema/json.utils')
 const ajv = new Ajv()
 
 const BillingCategory = new GQLListSchema('BillingCategory', {
-    schemaDoc: 'Receipt category - used primarily in display purposes',
+    schemaDoc: 'Receipt category - used for display purposes as well as for custom logic for different categories.' +
+        'For example, insurance category can have a custom logic for whether to send push notifications or not.',
     fields: {
         name: {
             schemaDoc: 'Localized name of billing category: Hot water, Cold water, Housing Services',
@@ -32,6 +33,30 @@ const BillingCategory = new GQLListSchema('BillingCategory', {
                     },
                 })),
             },
+        },
+
+        sendReceiptNotifications: {
+            schemaDoc: 'Shows whether push notifications about new receipts should be sent to residents',
+            type: 'Checkbox',
+            defaultValue: true,
+            kmigratorOptions: { default: true },
+            isRequired: false,
+        },
+
+        receiptValidityMonths: {
+            schemaDoc: 'The number of months the receipt can be paid for',
+            type: 'Integer',
+            defaultValue: 3,
+            kmigratorOptions: { default: 3 },
+            isRequired: false,
+        },
+
+        requiresFullPayment: {
+            schemaDoc: 'The number of months the receipt can be paid for',
+            type: 'Checkbox',
+            defaultValue: false,
+            kmigratorOptions: { default: false },
+            isRequired: false,
         },
     },
     labelResolver: item => item.id,
