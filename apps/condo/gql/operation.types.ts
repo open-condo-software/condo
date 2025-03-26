@@ -445,13 +445,6 @@ export type GetEmployeesInvitesByUserIdAndOrganizationTypeQueryVariables = Types
 
 export type GetEmployeesInvitesByUserIdAndOrganizationTypeQuery = { __typename?: 'Query', invitations?: Array<{ __typename?: 'OrganizationEmployee', id: string, organization?: { __typename?: 'Organization', name?: string | null } | null } | null> | null };
 
-export type GetOrganizationEmployeeExistenceQueryVariables = Types.Exact<{
-  userId: Types.Scalars['ID']['input'];
-}>;
-
-
-export type GetOrganizationEmployeeExistenceQuery = { __typename?: 'Query', actualEmployees?: Array<{ __typename?: 'OrganizationEmployee', id: string } | null> | null };
-
 export type GetLastUserOrganizationEmployeeRequestQueryVariables = Types.Exact<{
   userId: Types.Scalars['ID']['input'];
 }>;

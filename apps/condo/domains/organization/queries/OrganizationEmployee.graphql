@@ -251,18 +251,3 @@ query getEmployeesInvitesByUserIdAndOrganizationType ($userId: ID!, $organizatio
         }
     }
 }
-
-query getOrganizationEmployeeExistence($userId: ID!) {
-    actualEmployees: allOrganizationEmployees(
-        where: {
-            user: { id: $userId },
-            isAccepted: true,
-            isRejected: false,
-            isBlocked: false,
-            organization: { type_in: [MANAGING_COMPANY, SERVICE_PROVIDER] },
-        },
-        first: 1,
-    ) {
-        id
-    }
-}
