@@ -399,10 +399,8 @@ describe('OrganizationEmployeeRequest', () => {
 
         test('"userName", "userPhone" fields should be auto-set from "user"', async () => {
             const [request] = await createTestOrganizationEmployeeRequest(admin, organization, user)
-            expect(request.organization.id).toBe(organization.id)
-            expect(request.organizationId).toBe(organization.id)
-            expect(request.organizationName).toBe(organization.name)
-            expect(request.organizationTin).toBe(organization.tin)
+            expect(request.userName).toBe(userAttrs.name)
+            expect(request.userPhone).toBe(userAttrs.phone)
         })
 
         test('cannot update "user" field', async () => {
