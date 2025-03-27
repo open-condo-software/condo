@@ -47,7 +47,15 @@ export const CreateOrganizationPageContent: React.FC = () => {
     const OrganizationEmployeeRequestDescription = intl.formatMessage({ id: 'organization.createOrganizationForm.request.description' })
     const ChatInTelegramMessage = intl.formatMessage({ id: 'organization.createOrganizationForm.supportChat' })
     const OrganizationEmployeeRequestAlert = intl.formatMessage({ id: 'organization.createOrganizationForm.request.alert.description' }, {
-        supportChat: (
+        chatBotLink: (
+            <SecondaryLink target='_blank' href={HelpRequisites?.support_bot ? `https://t.me/${HelpRequisites.support_bot}` : '#'}>
+                {ChatInTelegramMessage}
+            </SecondaryLink>
+        ),
+    })
+    const OrganizationRequestsLimitTitle = intl.formatMessage({ id: 'api.organization.sendOrganizationEmployeeRequest.REQUEST_TO_ORGANIZATION_LIMIT_REACHED' })
+    const OrganizationRequestsLimitDescription = intl.formatMessage({ id: 'organization.createOrganizationForm.limit.description' }, {
+        chatBotLink: (
             <SecondaryLink target='_blank' href={HelpRequisites?.support_bot ? `https://t.me/${HelpRequisites.support_bot}` : '#'}>
                 {ChatInTelegramMessage}
             </SecondaryLink>
@@ -104,6 +112,7 @@ export const CreateOrganizationPageContent: React.FC = () => {
         skip: skipQueryStatement || lastInviteLoading,
     })
     const lastOrganizationEmployeeRequest = useMemo(() => lastOrganizationEmployeeRequestData?.requests?.[0], [lastOrganizationEmployeeRequestData?.requests])
+    const hasRequestsLimitError = useMemo(() => lastOrganizationEmployeeRequest?.retries >= MAX_ORGANIZATION_EMPLOYEE_REQUEST_RETRIES - 1, [lastOrganizationEmployeeRequest?.retries])
 
     const [acceptOrRejectInvite] = useAcceptOrRejectOrganizationInviteMutation({ onError })
     const [sendOrganizationEmployeeRequest] = useSendOrganizationEmployeeRequestMutation({ onError })
@@ -141,6 +150,10 @@ export const CreateOrganizationPageContent: React.FC = () => {
     }, [acceptOrRejectInvite, client.cache, lastInvite?.id, redirectUrl, refetchLastInvite, router, selectEmployee])
 
     const handleRetryOrganizationEmployeeRequest = useCallback(async () => {
+        if (!lastOrganizationEmployeeRequest?.organizationId) {
+            return
+        }
+
         await sendOrganizationEmployeeRequest({
             variables: {
                 data: {
@@ -231,13 +244,24 @@ export const CreateOrganizationPageContent: React.FC = () => {
                                 )
                             }
                         </Typography.Title>
-                        <Typography.Text type='secondary'>
-                            {RejectedRequestMessage}
-                        </Typography.Text>
+                        {
+                            !hasRequestsLimitError ? (
+                                <Typography.Text type='secondary'>
+                                    {RejectedRequestMessage}
+                                </Typography.Text>
+                            ) : (
+                                <Alert
+                                    showIcon
+                                    type='error'
+                                    message={OrganizationRequestsLimitTitle}
+                                    description={OrganizationRequestsLimitDescription}
+                                />
+                            )
+                        }
                     </Space>
                     <Space size={24} direction='vertical' width='100%'>
                         {
-                            lastOrganizationEmployeeRequest.retries < MAX_ORGANIZATION_EMPLOYEE_REQUEST_RETRIES - 1 && (
+                            !hasRequestsLimitError && (
                                 <Button
                                     type='primary'
                                     block
