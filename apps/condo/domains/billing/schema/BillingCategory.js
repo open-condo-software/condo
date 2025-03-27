@@ -35,11 +35,11 @@ const BillingCategory = new GQLListSchema('BillingCategory', {
             },
         },
 
-        sendReceiptNotifications: {
-            schemaDoc: 'Shows whether push notifications about new receipts should be sent to residents',
+        skipNotifications: {
+            schemaDoc: 'Shows whether push notifications about new receipts should be sent to residents or skipped',
             type: 'Checkbox',
-            defaultValue: true,
-            kmigratorOptions: { default: true },
+            defaultValue: false,
+            kmigratorOptions: { default: false },
             isRequired: false,
         },
 

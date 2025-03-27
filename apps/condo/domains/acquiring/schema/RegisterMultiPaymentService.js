@@ -587,9 +587,9 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
 
                             let billingCategories
                             if (billingCategoryId) {
-                                billingCategories = await BillingCategory.getAll(context, {
+                                billingCategories = await find('BillingCategory', {
                                     id: billingCategoryId,
-                                }, 'id deletedAt requiresFullPayment')
+                                })
                             }
 
                             // for cases when we have set amount distribution explicitly
