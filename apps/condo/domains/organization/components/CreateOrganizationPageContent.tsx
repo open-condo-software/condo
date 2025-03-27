@@ -6,6 +6,7 @@ import {
     useGetActualOrganizationEmployeesQuery,
 } from '@app/condo/gql'
 import { OrganizationTypeType } from '@app/condo/schema'
+import { Col, Row } from 'antd'
 import pickBy from 'lodash/pickBy'
 import getConfig from 'next/config'
 import { useRouter } from 'next/router'
@@ -26,8 +27,6 @@ import { MAX_ORGANIZATION_EMPLOYEE_REQUEST_RETRIES } from '@condo/domains/organi
 import { SecondaryLink } from '@condo/domains/user/components/auth/SecondaryLink'
 
 import { CreateOrganizationForm } from './CreateOrganizationForm'
-
-import './CreateOrganizationPageContent.css'
 
 
 const {
@@ -241,8 +240,8 @@ export const CreateOrganizationPageContent: React.FC = () => {
                             lastOrganizationEmployeeRequest.retries < MAX_ORGANIZATION_EMPLOYEE_REQUEST_RETRIES - 1 && (
                                 <Button
                                     type='primary'
+                                    block
                                     onClick={handleRetryOrganizationEmployeeRequest}
-                                    className='initial-organization-invite-buttons'
                                 >
                                     {SendAgainMessage}
                                 </Button>
@@ -250,8 +249,8 @@ export const CreateOrganizationPageContent: React.FC = () => {
                         }
                         <Button
                             type='secondary'
+                            block
                             onClick={() => setShowOrganizationForm(true)}
-                            className='initial-organization-invite-buttons'
                         >
                             {CreateOtherOrganizationMessage}
                         </Button>
@@ -282,7 +281,7 @@ export const CreateOrganizationPageContent: React.FC = () => {
                     <Button
                         type='secondary'
                         onClick={() => setShowOrganizationForm(true)}
-                        className='initial-organization-invite-buttons'
+                        block
                     >
                         {CreateOtherOrganizationMessage}
                     </Button>
@@ -293,32 +292,41 @@ export const CreateOrganizationPageContent: React.FC = () => {
 
     if (!showOrganizationForm && lastInvite) {
         content = (
-            <Space size={40} direction='vertical' align='center' className='initial-organization-invite'>
-                <Space size={24} direction='vertical'>
-                    <Typography.Title level={2}>
-                        {
-                            intl.formatMessage({
-                                id: 'organization.createOrganizationForm.invite.title',
-                            }, { organizationName: lastInvite?.organization?.name })
-                        }
-                    </Typography.Title>
-                    <Typography.Text type='secondary' size='large'>
-                        {InviteEmployeeDescription}
-                    </Typography.Text>
-                </Space>
-                <Space size={20} direction='vertical' className='initial-organization-invite-buttons'>
-                    <Button
-                        type='primary'
-                        loading={acceptOrRejectInviteLoading}
-                        onClick={() => handleAcceptOrReject(true, false)}
-                    >
-                        {Accept}
-                    </Button>
-                    <Button type='secondary' onClick={() => handleAcceptOrReject(false, true)}>
-                        {Reject}
-                    </Button>
-                </Space>
-            </Space>
+            <Row gutter={[0, 40]}>
+                <Col span={24}>
+                    <Space size={24} direction='vertical' width='100%'>
+                        <Typography.Title level={2}>
+                            {
+                                intl.formatMessage({
+                                    id: 'organization.createOrganizationForm.invite.title',
+                                }, { organizationName: lastInvite?.organization?.name })
+                            }
+                        </Typography.Title>
+                        <Typography.Text type='secondary' size='large'>
+                            {InviteEmployeeDescription}
+                        </Typography.Text>
+                    </Space>
+                </Col>
+                <Col span={24}>
+                    <Space size={20} direction='vertical' width='100%'>
+                        <Button
+                            type='primary'
+                            block
+                            loading={acceptOrRejectInviteLoading}
+                            onClick={() => handleAcceptOrReject(true, false)}
+                        >
+                            {Accept}
+                        </Button>
+                        <Button
+                            type='secondary'
+                            block
+                            onClick={() => handleAcceptOrReject(false, true)}
+                        >
+                            {Reject}
+                        </Button>
+                    </Space>
+                </Col>
+            </Row>
         )
     }
 
