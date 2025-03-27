@@ -4,12 +4,14 @@ import type { BillingIntegrationOrganizationContext, AcquiringIntegrationContext
 
 type IBillingAndAcquiringContexts = {
     billingContext: BillingIntegrationOrganizationContext
+    allBillingContexts: [BillingIntegrationOrganizationContext]
     acquiringContext: AcquiringIntegrationContext
     refetchBilling: () => void
 }
 
 export const BillingAndAcquiringContext = createContext<IBillingAndAcquiringContexts>({
     billingContext: null,
+    allBillingContexts: [],
     acquiringContext: null,
     refetchBilling: () => ({}),
 })

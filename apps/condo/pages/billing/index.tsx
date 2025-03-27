@@ -25,12 +25,13 @@ const AccrualsAndPaymentsPage: PageComponentType = () => {
     const userOrganization = useOrganization()
     const orgId = get(userOrganization, ['organization', 'id'], null)
     const orgType = get(userOrganization, ['organization', 'type'], MANAGING_COMPANY_TYPE)
-    const { obj: billingCtx, loading: billingLoading, error: billingError, refetch: refetchBilling } = BillingContext.useObject({
+    const { objs: billingCTXs, loading: billingLoading, error: billingError, refetch: refetchBilling } = BillingContext.useObjects({
         where: {
             status: BILLING_FINISHED_STATUS,
             organization: { id: orgId },
         },
     })
+    const billingCtx = billingCTXs.length ? billingCTXs[0] : null
     const { obj: acquiringCtx, loading: acquiringLoading, error: acquiringError, refetch: refetchAcquiring } = AcquiringContext.useObject({
         where: {
             status_in: [CONTEXT_FINISHED_STATUS, CONTEXT_VERIFICATION_STATUS],
