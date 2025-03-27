@@ -311,6 +311,7 @@ const MESSAGE_META = {
         os: { defaultValue: null, required: true },
         appVersion: { defaultValue: null, required: true },
         attachments: { defaultValue: [], isRequired: false },
+        appealNumber: { defaultValue: 1, isRequired: true },
     },
     [TICKET_ASSIGNEE_CONNECTED_TYPE]: {
         dv: { defaultValue: '', required: true },

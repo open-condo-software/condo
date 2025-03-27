@@ -93199,6 +93199,10 @@ type Mutation {
   		"attachments": {
   			"defaultValue": [],
   			"isRequired": false
+  		},
+  		"appealNumber": {
+  			"defaultValue": 1,
+  			"isRequired": true
   		}
   	},
   	"TICKET_ASSIGNEE_CONNECTED": {

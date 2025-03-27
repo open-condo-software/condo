@@ -1515,7 +1515,7 @@
   "notification.messages.MARKETPLACE_INVOICE_CASH_WITH_TICKET_PUBLISHED_MESSAGE.push.title": "Your invoice for paid services 🔔️",
   "notification.messages.MARKETPLACE_INVOICE_PUBLISHED_MESSAGE.push.title": "Your invoice 🔔",
   "notification.messages.MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE.push.title": "Your invoice 🔔️",
-  "notification.messages.MESSAGE_FORWARDED_TO_SUPPORT.email.subject": "Message from mobile application",
+  "notification.messages.MESSAGE_FORWARDED_TO_SUPPORT.email.subject": "Message from mobile application #{appealNumber}",
   "notification.messages.METER_SUBMIT_READINGS_REMINDER.email.subject": "Let's submit meter readings?",
   "notification.messages.METER_SUBMIT_READINGS_REMINDER.push.title": "Doma ⏰",
   "notification.messages.METER_SUBMIT_READINGS_REMINDER_END_PERIOD.email.subject": "Submit your meter readings! Today is the last day to submit meter readings for {data.monthName}.",
