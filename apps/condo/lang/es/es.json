@@ -1277,6 +1277,7 @@
   "meter.import.MeterReading.objectsName.many": "Lecturas de contadores",
   "meter.import.MeterReading.objectsName.many.genitive": "lecturas de contadores",
   "meter.import.column.Automatic": "Automático",
+  "meter.import.column.ArchiveDate": "Fecha de desmantelamiento",
   "meter.import.column.CommissioningDate": "Fecha de puesta en servicio",
   "meter.import.column.ControlReadingsDate": "Fecha de las lecturas de control",
   "meter.import.column.InstallationDate": "Fecha de instalación",

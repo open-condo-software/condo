@@ -200,6 +200,7 @@ function getFieldsToUpdate (reading, isPropertyMeter = false) {
         sealingDate: tryToISO(get(reading, ['meterMeta', 'sealingDate'])),
         controlReadingsDate: tryToISO(get(reading, ['meterMeta', 'controlReadingsDate'])),
         isAutomatic: get(reading, ['meterMeta', 'isAutomatic']),
+        archiveDate: get(reading, ['meterMeta', 'archiveDate']),
     }
 }
 

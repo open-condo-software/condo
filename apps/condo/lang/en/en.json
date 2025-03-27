@@ -1277,6 +1277,7 @@
   "meter.import.MeterReading.objectsName.many": "Meter readings",
   "meter.import.MeterReading.objectsName.many.genitive": " meter readings",
   "meter.import.column.Automatic": "Automatic",
+  "meter.import.column.ArchiveDate": "Decommissioning date",
   "meter.import.column.CommissioningDate": "Commissioning date",
   "meter.import.column.ControlReadingsDate": "Control readings date",
   "meter.import.column.InstallationDate": "Installation date",

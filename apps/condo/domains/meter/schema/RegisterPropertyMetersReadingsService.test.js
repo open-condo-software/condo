@@ -722,6 +722,7 @@ describe('RegisterPropertyMetersReadingsService', () => {
             'commissioningDate',
             'sealingDate',
             'controlReadingsDate',
+            'archiveDate',
         ]
 
         const emptyValues = [ null, undefined ]
@@ -873,9 +874,10 @@ describe('RegisterPropertyMetersReadingsService', () => {
         expect(propertyMeterReadings).toHaveLength(1)
         expect(propertyMeterReadings[0].meter.id).toBe(propertyMeters[0].id)
 
-        // create another reading for same meter and change `verificationDate` and `nextVerificationDate` fields values
+        // create another reading for same meter and change `verificationDate`, `nextVerificationDate` and `archiveDate` fields values
         const nextVerificationDate = dayjs().add(1, 'week').toISOString()
         const verificationDate2 = dayjs().subtract(1, 'week').toISOString()
+        const archiveDate = dayjs().add(2, 'week').toISOString()
         const anotherReadings = [{
             ...readings[0],
             value1: faker.random.numeric(3),
@@ -885,6 +887,7 @@ describe('RegisterPropertyMetersReadingsService', () => {
                 verificationDate: verificationDate2,
                 nextVerificationDate,
                 isAutomatic: true,
+                archiveDate,
             },
         }]
         const [secondAttempt] = await registerPropertyMetersReadingsByTestClient(adminClient, organization, anotherReadings)
@@ -901,14 +904,17 @@ describe('RegisterPropertyMetersReadingsService', () => {
         expect(updatedPropertyMeters[0].number).toBe(readings[0].meterNumber)
         expect(updatedPropertyMeters[0].verificationDate).toBe(verificationDate2)
         expect(updatedPropertyMeters[0].nextVerificationDate).toBeTruthy()
+        expect(updatedPropertyMeters[0].archiveDate).toBe(archiveDate)
         expect(updatedPropertyMeters[0].isAutomatic).toBe(true)
 
-        // sent third readings without verificationDate - field value must be 'verificationDate'
+        // sent third readings with isAutomatic = false, 'verificationDate' must stay the same
         const thirdReadings = [{
             ...readings[0],
             value1: faker.random.numeric(3),
             value2: faker.random.numeric(4),
-            meterMeta: undefined,
+            meterMeta: {
+                isAutomatic: false,
+            },
         }]
         const [thirdAttempt] = await registerPropertyMetersReadingsByTestClient(adminClient, organization, thirdReadings)
         expect(firstAttempt[0].meter.id).toBe(thirdAttempt[0].meter.id)
@@ -923,7 +929,7 @@ describe('RegisterPropertyMetersReadingsService', () => {
         expect(updatedPropertyMeters2[0].verificationDate).toBe(verificationDate2)
         expect(updatedPropertyMeters2[0].numberOfTariffs).toBe(2)
         expect(updatedPropertyMeters2[0].nextVerificationDate).toBeTruthy()
-        expect(updatedPropertyMeters2[0].isAutomatic).toBe(true)
+        expect(updatedPropertyMeters2[0].isAutomatic).toBe(false)
 
         // be sure that keep same value from creation
         expect(propertyMeters[0].controlReadingsDate).toBe(updatedPropertyMeters2[0].controlReadingsDate)

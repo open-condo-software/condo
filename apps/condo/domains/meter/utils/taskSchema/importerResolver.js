@@ -65,6 +65,7 @@ function getColumnNames (format, locale, isPropertyMeters) {
     const ControlReadingsDate = i18n('meter.import.column.ControlReadingsDate', { locale })
     const PlaceColumnMessage = i18n('meter.import.column.MeterPlace', { locale })
     const AutomaticColumnMessage = i18n('meter.import.column.Automatic', { locale })
+    const ArchiveDateColumnMessage = i18n('meter.import.column.ArchiveDate', { locale })
 
     const unitClientMeterColumns = [
         { name: UnitNameColumnMessage },
@@ -91,6 +92,7 @@ function getColumnNames (format, locale, isPropertyMeters) {
         { name: ControlReadingsDate },
         ...isPropertyMeters ? [] : [{ name: PlaceColumnMessage }],
         { name: AutomaticColumnMessage },
+        { name: ArchiveDateColumnMessage },
     ] : null
 }
 

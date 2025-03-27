@@ -61,6 +61,7 @@ function shouldUpdateMeter (meter, changedFields, isPropertyMeters = false) {
         'sealingDate',
         'controlReadingsDate',
         'isAutomatic',
+        'archiveDate',
     ]
 
     if (!isPropertyMeters) {
