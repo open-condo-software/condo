@@ -1515,7 +1515,7 @@
   "notification.messages.MARKETPLACE_INVOICE_CASH_WITH_TICKET_PUBLISHED_MESSAGE.push.title": "Ваш счет за платные услуги 🔔",
   "notification.messages.MARKETPLACE_INVOICE_PUBLISHED_MESSAGE.push.title": "Ваш счет 🔔",
   "notification.messages.MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE.push.title": "Ваш счет 🔔️",
-  "notification.messages.MESSAGE_FORWARDED_TO_SUPPORT.email.subject": "Обращение из мобильного приложения",
+  "notification.messages.MESSAGE_FORWARDED_TO_SUPPORT.email.subject": "Обращение из мобильного приложения №{appealNumber}",
   "notification.messages.METER_SUBMIT_READINGS_REMINDER.email.subject": "Пора передать показания счетчиков!",
   "notification.messages.METER_SUBMIT_READINGS_REMINDER.push.title": "Doma ⏰",
   "notification.messages.METER_SUBMIT_READINGS_REMINDER_END_PERIOD.email.subject": "Передайте показания счетчиков! Сегодня последний день подачи показаний за {data.monthName}.",

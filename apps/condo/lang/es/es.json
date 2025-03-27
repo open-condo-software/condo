@@ -1515,7 +1515,7 @@
   "notification.messages.MARKETPLACE_INVOICE_CASH_WITH_TICKET_PUBLISHED_MESSAGE.push.title": "Nueva factura por servicios de pago 🔔",
   "notification.messages.MARKETPLACE_INVOICE_PUBLISHED_MESSAGE.push.title": "Nueva factura 🔔",
   "notification.messages.MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE.push.title": "Nueva factura 🔔️",
-  "notification.messages.MESSAGE_FORWARDED_TO_SUPPORT.email.subject": "Solicitud de la aplicación móvil",
+  "notification.messages.MESSAGE_FORWARDED_TO_SUPPORT.email.subject": "Llamamiento desde la aplicación móvil nº {appealNumber}",
   "notification.messages.METER_SUBMIT_READINGS_REMINDER.email.subject": "¡Es hora de transmitir lecturas del contador!",
   "notification.messages.METER_SUBMIT_READINGS_REMINDER.push.title": "Doma ⏰",
   "notification.messages.METER_SUBMIT_READINGS_REMINDER_END_PERIOD.email.subject": "¡Envíe las lecturas del contador! Hoy es el último día para presentar lecturas de {data.monthName}.",
