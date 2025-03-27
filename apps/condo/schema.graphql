@@ -16237,6 +16237,9 @@ type BillingCategoryHistoryRecord {
   _label_: String
   name: String
   serviceNames: JSON
+  skipNotifications: Boolean
+  receiptValidityMonths: Int
+  requiresFullPayment: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -16277,6 +16280,18 @@ input BillingCategoryHistoryRecordWhereInput {
   serviceNames_not: JSON
   serviceNames_in: [JSON]
   serviceNames_not_in: [JSON]
+  skipNotifications: Boolean
+  skipNotifications_not: Boolean
+  receiptValidityMonths: Int
+  receiptValidityMonths_not: Int
+  receiptValidityMonths_lt: Int
+  receiptValidityMonths_lte: Int
+  receiptValidityMonths_gt: Int
+  receiptValidityMonths_gte: Int
+  receiptValidityMonths_in: [Int]
+  receiptValidityMonths_not_in: [Int]
+  requiresFullPayment: Boolean
+  requiresFullPayment_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -16362,6 +16377,12 @@ input BillingCategoryHistoryRecordWhereUniqueInput {
 enum SortBillingCategoryHistoryRecordsBy {
   name_ASC
   name_DESC
+  skipNotifications_ASC
+  skipNotifications_DESC
+  receiptValidityMonths_ASC
+  receiptValidityMonths_DESC
+  requiresFullPayment_ASC
+  requiresFullPayment_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -16383,6 +16404,9 @@ enum SortBillingCategoryHistoryRecordsBy {
 input BillingCategoryHistoryRecordUpdateInput {
   name: String
   serviceNames: JSON
+  skipNotifications: Boolean
+  receiptValidityMonths: Int
+  requiresFullPayment: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -16405,6 +16429,9 @@ input BillingCategoryHistoryRecordsUpdateInput {
 input BillingCategoryHistoryRecordCreateInput {
   name: String
   serviceNames: JSON
+  skipNotifications: Boolean
+  receiptValidityMonths: Int
+  requiresFullPayment: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -16423,7 +16450,8 @@ input BillingCategoryHistoryRecordsCreateInput {
   data: BillingCategoryHistoryRecordCreateInput
 }
 
-""" Receipt category - used primarily in display purposes """
+""" Receipt category - used for display purposes as well as for custom logic for different categories.For example, insurance category can have a custom logic for whether to send push notifications or not. 
+"""
 type BillingCategory {
   """
   This virtual field will be resolved in one of the following ways (in this order):
@@ -16441,6 +16469,16 @@ type BillingCategory {
 
   """ Possible names of services to auto-detect receipt category """
   serviceNames: JSON
+
+  """ Shows whether push notifications about new receipts should be sent to residents or skipped 
+  """
+  skipNotifications: Boolean
+
+  """ The number of months the receipt can be paid for """
+  receiptValidityMonths: Int
+
+  """ Shows whether the receipt should be paid in full """
+  requiresFullPayment: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -16489,6 +16527,18 @@ input BillingCategoryWhereInput {
   serviceNames_not: JSON
   serviceNames_in: [JSON]
   serviceNames_not_in: [JSON]
+  skipNotifications: Boolean
+  skipNotifications_not: Boolean
+  receiptValidityMonths: Int
+  receiptValidityMonths_not: Int
+  receiptValidityMonths_lt: Int
+  receiptValidityMonths_lte: Int
+  receiptValidityMonths_gt: Int
+  receiptValidityMonths_gte: Int
+  receiptValidityMonths_in: [Int]
+  receiptValidityMonths_not_in: [Int]
+  requiresFullPayment: Boolean
+  requiresFullPayment_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -16554,6 +16604,12 @@ input BillingCategoryWhereUniqueInput {
 enum SortBillingCategoriesBy {
   name_ASC
   name_DESC
+  skipNotifications_ASC
+  skipNotifications_DESC
+  receiptValidityMonths_ASC
+  receiptValidityMonths_DESC
+  requiresFullPayment_ASC
+  requiresFullPayment_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -16575,6 +16631,9 @@ enum SortBillingCategoriesBy {
 input BillingCategoryUpdateInput {
   name: String
   serviceNames: JSON
+  skipNotifications: Boolean
+  receiptValidityMonths: Int
+  requiresFullPayment: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -16594,6 +16653,9 @@ input BillingCategoriesUpdateInput {
 input BillingCategoryCreateInput {
   name: String
   serviceNames: JSON
+  skipNotifications: Boolean
+  receiptValidityMonths: Int
+  requiresFullPayment: Boolean
   v: Int
   createdAt: String
   updatedAt: String
