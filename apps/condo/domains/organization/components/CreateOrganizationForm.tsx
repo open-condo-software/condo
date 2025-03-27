@@ -25,8 +25,6 @@ import { DEFAULT_UNAVAILABLE_TINS, MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE 
 import { SecondaryLink } from '@condo/domains/user/components/auth/SecondaryLink'
 import { REQUEST_LIMIT_ERRORS } from '@condo/domains/user/constants/errors'
 
-import './CreateOtganizationForm.css'
-
 
 const { publicRuntimeConfig: { defaultLocale, unavailableTinsForOrganizationsSearch, HelpRequisites } } = getConfig()
 
@@ -413,7 +411,7 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
                                     <Button
                                         htmlType='submit'
                                         type='primary'
-                                        className='create-organization-form-button'
+                                        block
                                         loading={isOrganizationCreating}
                                         disabled={isRequiredFieldsEmpty || isFieldsHasError || isSearchByTinLimitReached}
                                     >
@@ -424,7 +422,7 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
                             <Col span={24}>
                                 <Button
                                     type='secondary'
-                                    className='create-organization-form-button'
+                                    block
                                     onClick={props.onCancel}
                                 >
                                     {CancelMessage}
