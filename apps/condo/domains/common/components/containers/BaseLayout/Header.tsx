@@ -6,7 +6,6 @@ import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
-import { useCachePersistor } from '@open-condo/apollo'
 import { Menu } from '@open-condo/icons'
 import { useMutation } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
@@ -40,10 +39,9 @@ export const Header: React.FC<IHeaderProps> = (props) => {
     const client = useApolloClient()
     const { breakpoints, toggleCollapsed } = useLayoutContext()
     const router = useRouter()
-    const { persistor } = useCachePersistor()
 
-    const { isAuthenticated, user, isLoading: userLoading } = useAuth()
-    const { organization, isLoading: organizationLoading } = useOrganization()
+    const { isAuthenticated } = useAuth()
+    const { organization } = useOrganization()
 
     const hasAccessToAppeals = get(organization, 'type', MANAGING_COMPANY_TYPE) !== SERVICE_PROVIDER_TYPE
 
@@ -63,7 +61,6 @@ export const Header: React.FC<IHeaderProps> = (props) => {
         },
     })
 
-    // Do not show invite alerts if user dont have an employee (he will view invite in OrganizationExistenceRequired)
     const isEmployeeExist = useMemo(() => !!organization, [organization])
     useOrganizationInvites(ORGANIZATION_TYPES, acceptOrReject, !isEmployeeExist)
 

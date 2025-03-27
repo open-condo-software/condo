@@ -28,7 +28,7 @@ import { REQUEST_LIMIT_ERRORS } from '@condo/domains/user/constants/errors'
 
 const { publicRuntimeConfig: { defaultLocale, unavailableTinsForOrganizationsSearch, HelpRequisites } } = getConfig()
 
-const SKIP_SEARCH_TINS = [...unavailableTinsForOrganizationsSearch, ...DEFAULT_UNAVAILABLE_TINS]
+const SKIP_SEARCH_TINS = [...(unavailableTinsForOrganizationsSearch || []), ...DEFAULT_UNAVAILABLE_TINS]
 
 const prepareValidators = ({ requiredValidator, tinValidator, locale }) => ({
     name: [requiredValidator],
@@ -164,7 +164,7 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
     const FormTitleMessage = intl.formatMessage({ id: 'organization.createOrganizationForm.title' })
     const SearchByTinLimitMessage = intl.formatMessage({ id: 'organization.createOrganizationForm.searchByTinLimit.message' })
     const ChatInTelegramMessage = intl.formatMessage({ id: 'organization.createOrganizationForm.supportChat' })
-    const SearchByTinLimitDescription = intl.formatMessage({ id: 'organization.createOrganizationForm.searchByTinLimit.description' }, {
+    const SearchByTinLimitDescription = intl.formatMessage({ id: 'organization.createOrganizationForm.limit.description' }, {
         chatBotLink: (
             <SecondaryLink target='_blank' href={HelpRequisites?.support_bot ? `https://t.me/${HelpRequisites.support_bot}` : '#'}>
                 {ChatInTelegramMessage}
