@@ -41,6 +41,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: 'REQUEST_TO_ORGANIZATION_LIMIT_REACHED',
         message: 'A request to the organization limit reached',
+        messageForUser: 'api.organization.sendOrganizationEmployeeRequest.REQUEST_TO_ORGANIZATION_LIMIT_REACHED',
     },
     REQUEST_NOT_PROCESSED: {
         mutation: 'sendOrganizationEmployeeRequest',
@@ -48,6 +49,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: 'REQUEST_NOT_PROCESSED',
         message: 'A request not processed yet. Please wait for a decide on the request from the organization',
+        messageForUser: 'api.organization.sendOrganizationEmployeeRequest.REQUEST_NOT_PROCESSED',
     },
     EMPLOYEE_ALREADY_ACCEPTED: {
         mutation: 'sendOrganizationEmployeeRequest',
@@ -55,6 +57,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: 'EMPLOYEE_ALREADY_ACCEPTED',
         message: 'An accepted employee already exist in this organization',
+        messageForUser: 'api.organization.sendOrganizationEmployeeRequest.EMPLOYEE_ALREADY_ACCEPTED',
     },
     EMPLOYEE_INVITATION_ALREADY_SENT: {
         mutation: 'sendOrganizationEmployeeRequest',
@@ -62,6 +65,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: 'EMPLOYEE_INVITATION_ALREADY_SENT',
         message: 'The invitation has already been sent to the employee.',
+        messageForUser: 'api.organization.sendOrganizationEmployeeRequest.EMPLOYEE_INVITATION_ALREADY_SENT',
     },
     DV_VERSION_MISMATCH: {
         ...COMMON_ERRORS.DV_VERSION_MISMATCH,
