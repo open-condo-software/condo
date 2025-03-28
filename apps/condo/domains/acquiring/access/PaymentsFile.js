@@ -76,7 +76,7 @@ async function canManagePaymentsFiles ({ authentication: { item: user }, origina
     if (contexts.length !== contextIds.length) return false
     const integrationIds = uniq(contexts.map(context => context.integration))
 
-    // STEP 3: Check billing integration access rights
+    // STEP 3: Check acquiring integration access rights
     return await checkAcquiringIntegrationAccessRights(user.id, integrationIds)
 }
 
