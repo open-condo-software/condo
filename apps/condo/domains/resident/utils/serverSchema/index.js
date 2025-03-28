@@ -141,7 +141,6 @@ async function findUnitsByAddress (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
-    // TODO(codegen): write findUnitsByAddress serverSchema guards
 
     return await execGqlWithoutAccess(context, {
         query: FIND_UNITS_BY_ADDRESS_MUTATION,
