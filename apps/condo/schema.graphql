@@ -81989,7 +81989,7 @@ input FindUnitsByAddressInput {
 
 type UnitType {
   unitName: String!
-  unitType: BuildingUnitType!
+  unitType: BuildingUnitSubType!
 }
 
 type FindUnitsByAddressOutput {

@@ -5,6 +5,7 @@
 
 const { DiscoverServiceConsumersService } = require('./DiscoverServiceConsumersService')
 const { FindOrganizationsByAddressService } = require('./FindOrganizationsByAddressService')
+const { FindUnitsByAddressService } = require('./FindUnitsByAddressService')
 const { GetResidentExistenceByPhoneAndAddressService } = require('./GetResidentExistenceByPhoneAndAddressService')
 const { RegisterResidentInvoiceService } = require('./RegisterResidentInvoiceService')
 const { RegisterResidentService } = require('./RegisterResidentService')
@@ -13,7 +14,6 @@ const { Resident } = require('./Resident')
 const { SendMessageToResidentScopesService } = require('./SendMessageToResidentScopesService')
 const { ServiceConsumer } = require('./ServiceConsumer')
 const { SuggestServiceProviderService } = require('./SuggestServiceProviderService')
-const { FindUnitsByAddressService } = require('./FindUnitsByAddressService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {

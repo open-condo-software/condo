@@ -34,6 +34,8 @@ const { manageTicketPropertyAddressChange } = require('@condo/domains/ticket/tas
 const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
 const { softDeleteTicketHintPropertiesByProperty } = require('@condo/domains/ticket/utils/serverSchema/resolveHelpers')
 
+const { getUnitsFromSections } = require('../utils/serverSchema/helpers')
+
 
 const ajv = new Ajv()
 const jsonMapValidator = ajv.compile(MapSchemaJSON)
@@ -160,14 +162,11 @@ const Property = new GQLListSchema('Property', {
             hooks: {
                 resolveInput: async ({ operation, existingItem, resolvedData }) => {
                     const getTotalUnitsCount = (map) => {
-                        return get(map, 'sections', [])
-                            .map((section) => get(section, 'floors', [])
-                                .map(floor => get(floor, 'units', [])))
-                            .flat(2).filter(unit => {
-                                const unitType = get(unit, 'unitType', 'flat')
-                                // unitType may be null with old property data, so all these units used to be 'flat' type by default
-                                return !isEmpty(unitType) ? unitType === 'flat' : isEmpty(unitType)
-                            }).length
+                        return getUnitsFromSections(get(map, 'sections')).filter(unit => {
+                            const unitType = get(unit, 'unitType', 'flat')
+                            // unitType may be null with old property data, so all these units used to be 'flat' type by default
+                            return !isEmpty(unitType) ? unitType === 'flat' : isEmpty(unitType)
+                        }).length
                     }
 
                     let unitsCount = 0
@@ -216,10 +215,8 @@ const Property = new GQLListSchema('Property', {
                             .flat()
                             .reduce((total, unitsOnFloor) => total + unitsOnFloor, 0) : 0
 
-                        const sectionUnitsCount = get(map, 'sections', [])
-                            .map((section) => get(section, 'floors', [])
-                                .map(floor => get(floor, 'units', [])))
-                            .flat(2).filter(unit => {
+                        const sectionUnitsCount = getUnitsFromSections(get(map, 'sections', []))
+                            .filter(unit => {
                                 const unitType = get(unit, 'unitType', 'flat')
                                 return !isEmpty(unitType) ? unitType !== 'flat' : !isEmpty(unitType)
                             }).length
