@@ -3,6 +3,7 @@
  */
 
 const get = require('lodash/get')
+const slice = require('lodash/slice')
 
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
@@ -18,7 +19,6 @@ const {
     RESIDENT_FIND_UNITS_WINDOW_SEC,
     MAX_RESIDENT_FIND_UNITS_BY_WINDOW_SEC,
 } = require('../constants/constants')
-const slice = require("lodash/slice");
 
 const TOTAL_UNITS_LIMIT = 25000
 
