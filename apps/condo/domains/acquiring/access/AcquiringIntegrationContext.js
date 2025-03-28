@@ -8,12 +8,11 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { getById } = require('@open-condo/keystone/schema')
 
 const { CONTEXT_IN_PROGRESS_STATUS, CONTEXT_VERIFICATION_STATUS, CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+const { checkAcquiringIntegrationAccessRights } = require('@condo/domains/acquiring/utils/accessSchema')
 const { SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
 const { checkPermissionsInEmployedOrganizations } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
-
-const { checkAcquiringIntegrationAccessRights } = require('../utils/accessSchema')
-
+const { SERVICE } = require('@condo/domains/user/constants/common')
 
 /**
  * Acquiring integration context may only be read:
@@ -85,26 +84,32 @@ async function canManageAcquiringIntegrationContexts ({ authentication: { item: 
 
     if (!organizationId) return false
 
-    const canManageIntegrations = await checkPermissionsInEmployedOrganizations(reqContext, user, organizationId, 'canManageIntegrations')
-    if (canManageIntegrations && operation === 'create') return true
-    if (canManageIntegrations && operation === 'update') {
+    if (user.type === STAFF) {
+        const canManageIntegrations = await checkPermissionsInEmployedOrganizations(reqContext, user, organizationId, 'canManageIntegrations')
+        if (canManageIntegrations && operation === 'create') return true
+        if (canManageIntegrations && operation === 'update') {
         // Allow employee to complete context settings
-        if (context.status === CONTEXT_IN_PROGRESS_STATUS) {
-            return true
+            if (context.status === CONTEXT_IN_PROGRESS_STATUS) {
+                return true
+            }
         }
-    }
 
-    const canManageMarketplace = await checkPermissionsInEmployedOrganizations(reqContext, user, organizationId, 'canManageMarketplace')
-    if (canManageMarketplace && operation === 'create') return true
-    if (canManageMarketplace && operation === 'update') {
+        const canManageMarketplace = await checkPermissionsInEmployedOrganizations(reqContext, user, organizationId, 'canManageMarketplace')
+        if (canManageMarketplace && operation === 'create') return true
+        if (canManageMarketplace && operation === 'update') {
         // Allow employee to complete context settings
         // Contexts that created before the marketplace feature is released are have invoiceStatus=null
-        if ([CONTEXT_IN_PROGRESS_STATUS, null].includes(context.invoiceStatus)) {
-            return true
+            if ([CONTEXT_IN_PROGRESS_STATUS, null].includes(context.invoiceStatus)) {
+                return true
+            }
         }
     }
 
-    return await checkAcquiringIntegrationAccessRights(user.id, [integrationId])
+    if (user.type === SERVICE) {
+        return await checkAcquiringIntegrationAccessRights(user.id, [integrationId])
+    }
+
+    return false
 }
 
 async function canManageStatusField ({ authentication: { item: user }, existingItem, operation, originalInput }) {

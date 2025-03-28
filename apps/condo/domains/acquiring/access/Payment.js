@@ -6,11 +6,12 @@ const get = require('lodash/get')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { find } = require('@open-condo/keystone/schema')
 
+const { checkAcquiringIntegrationAccessRights } = require('@condo/domains/acquiring/utils/accessSchema')
 const { checkPermissionsInEmployedOrganizations } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { SERVICE, STAFF } = require('@condo/domains/user/constants/common')
 const { canDirectlyReadSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
-const { checkAcquiringIntegrationAccessRights } = require('../utils/accessSchema')
 
 async function canReadPayments ({ authentication: { item: user }, listKey }) {
     if (!user) return throwAuthenticationError()
@@ -58,7 +59,7 @@ async function canManagePayments ({ authentication: { item: user }, operation, i
     if (user.isAdmin) return true
     // Nobody can create Payments manually
     if (operation === 'create') return false
-    // Acquiring integration can update it's own Payments
+    // Acquiring integration can update its own Payments
     if (operation === 'update' && itemId) {
         return { context: { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } } }
     }
@@ -72,26 +73,32 @@ async function canReadPaymentsSensitiveData ({ authentication: { item: user }, e
     const hasDirectAccess = await canDirectlyReadSchemaObjects(user, listKey)
     if (hasDirectAccess) return true
 
-    const [acquiringContext] = await find('AcquiringIntegrationContext', {
-        deletedAt: null,
-        id: existingItem.context,
-    })
-    // If context exist => check is it's integration account
-    if (acquiringContext) {
-        const integrationId = get(acquiringContext, ['integration'])
-        if (await checkAcquiringIntegrationAccessRights(user.id, [integrationId])) return true
+    if (user.type === SERVICE) {
+        const [acquiringContext] = await find('AcquiringIntegrationContext', {
+            deletedAt: null,
+            id: existingItem.context,
+        })
+        // If context exist => check is it's integration account
+        if (acquiringContext) {
+            const integrationId = get(acquiringContext, ['integration'])
+            if (await checkAcquiringIntegrationAccessRights(user.id, [integrationId])) return true
+        }
     }
 
-    // Otherwise check if it's employee or not
-    const canReadPayments = !!(await checkPermissionsInEmployedOrganizations(context, user, existingItem.organization, 'canReadPayments'))
-    if (canReadPayments) {
-        return true
+    if (user.type === STAFF) {
+        // Otherwise check if it's employee or not
+        const canReadPayments = !!(await checkPermissionsInEmployedOrganizations(context, user, existingItem.organization, 'canReadPayments'))
+        if (canReadPayments) {
+            return true
+        }
+
+        const canReadPaymentsWithInvoices = !!(await checkPermissionsInEmployedOrganizations(context, user, existingItem.organization, 'canReadPaymentsWithInvoices'))
+        if (canReadPaymentsWithInvoices) {
+            return true
+        }
     }
 
-    const canReadPaymentsWithInvoices = !!(await checkPermissionsInEmployedOrganizations(context, user, existingItem.organization, 'canReadPaymentsWithInvoices'))
-    if (canReadPaymentsWithInvoices) {
-        return true
-    }
+    return false
 }
 
 

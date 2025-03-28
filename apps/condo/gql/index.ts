@@ -77,12 +77,12 @@ export const GetPaymentsFilesDocument = gql`
     context {
       id
     }
-    account
-    dateBegin
-    dateEnd
-    uploadedRecords
+    bankAccount
+    paymentPeriodStartDate
+    paymentPeriodEndDay
+    paymentsCount
     amount
-    registryName
+    name
     status
     paymentOrder
   }

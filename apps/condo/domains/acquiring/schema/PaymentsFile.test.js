@@ -30,14 +30,14 @@ const { makeClientWithServiceUser } = require('@condo/domains/user/utils/testSch
 const FILE = path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/simple-text-file.txt')
 
 const CREATE_PAYMENTS_FILE_PAYLOAD = {
-    account: faker.random.alphaNumeric(8),
-    dateBegin: dayjs(faker.date.recent()).format('YYYY-MM-DD'),
-    dateEnd: dayjs(faker.date.recent()).format('YYYY-MM-DD'),
+    bankAccount: faker.random.alphaNumeric(8),
+    paymentPeriodStartDate: dayjs(faker.date.recent()).format('YYYY-MM-DD'),
+    paymentPeriodEndDay: dayjs(faker.date.recent()).format('YYYY-MM-DD'),
     loadedAt: new Date().toISOString(),
-    uploadedRecords: Number(faker.random.numeric(4)),
+    paymentsCount: Number(faker.random.numeric(4)),
     amount: faker.random.numeric(8),
-    amountBring: faker.random.numeric(8),
-    registryName: faker.random.alphaNumeric(20),
+    amountWithoutFees: faker.random.numeric(8),
+    name: faker.random.alphaNumeric(20),
     status: PAYMENTS_FILE_NEW_STATUS,
 }
 
@@ -260,10 +260,10 @@ describe('PaymentsFile', () => {
         })
 
         test('There can only be one payments file for one context and registryName', async () => {
-            await createTestPaymentsFile(admin, context, { registryName: 'name' })
+            await createTestPaymentsFile(admin, context, { name: 'name' })
 
             await expectToThrowUniqueConstraintViolationError(async () => {
-                await createTestPaymentsFile(admin, context, { registryName: 'name' })
+                await createTestPaymentsFile(admin, context, { name: 'name' })
             }, 'PaymentsFile_uniq_for_context_and_name')
         })
     })
@@ -288,7 +288,7 @@ describe('PaymentsFile', () => {
                     dv: 1,
                     sender,
                     context: { connect: { id: context.id } },
-                    registryName: faker.random.alphaNumeric(20),
+                    name: faker.random.alphaNumeric(20),
                 } },
             ]
             const paymentsFiles = await PaymentsFile.createMany(service, payload)
@@ -318,7 +318,7 @@ describe('PaymentsFile', () => {
                     dv: 1,
                     sender,
                     context: { connect: { id: context.id } },
-                    registryName: faker.random.alphaNumeric(20),
+                    name: faker.random.alphaNumeric(20),
                 } },
             ]
             await expectToThrowAccessDeniedErrorToObjects(async () => {
