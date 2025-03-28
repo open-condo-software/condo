@@ -10,6 +10,7 @@ const { makeLoggedInAdminClient, setFakeClientMode } = require('@open-condo/keys
 
 const { registerBillingReceiptsByTestClient } = require('@condo/domains/billing/utils/testSchema')
 const { updateTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
+const { createTestBillingCategory } = require('@condo/domains/billing/utils/testSchema')
 const { TestUtils, ResidentTestMixin } = require('@condo/domains/billing/utils/testSchema/testUtils')
 const {
     BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE,
@@ -770,6 +771,49 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
             const messages = await Message.getAll(environment.clients.admin, messageWhere)
             expect(messages).toHaveLength(1)
             expect(messages[0].meta.data.billingReceiptId).toBe(receipts.find(r => r.period === '2024-02-01').id)
+        })
+
+        test('Should not send push for receipts with billing category that has skipNotifications: true', async () => {
+            const environment = new TestUtils([ResidentTestMixin])
+            await environment.init()
+            const accountNumber = faker.random.alphaNumeric(12)
+            const [category] = await createTestBillingCategory(admin, { skipNotifications: true })
+            const resident = await environment.createResident({ unitName: '1', unitType: FLAT_UNIT_TYPE })
+            const addressUnit = {
+                unitName: resident.unitName,
+                unitType: resident.unitType,
+            }
+            const [ receipts ] = await environment.createReceipts([
+                environment.createJSONReceipt({
+                    accountNumber,
+                    address: resident.address,
+                    addressMeta: addressUnit,
+                    year: 2024,
+                    month: 1,
+                    toPay: '100',
+                }),
+                environment.createJSONReceipt({
+                    accountNumber,
+                    address: resident.address,
+                    addressMeta: addressUnit,
+                    year: 2024,
+                    month: 2,
+                    toPay: '100',
+                    category: { id: category.id },
+                }),
+            ])
+            await environment.createServiceConsumer(resident, accountNumber)
+
+            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...environment.billingContext, organization: environment.billingContext.organization.id, integration: environment.billingContext.integration.id }, dayjs().subtract(1, 'h').toISOString())
+
+            const messageWhere = {
+                user: { id: resident.user.id },
+                type: BILLING_RECEIPT_ADDED_TYPE,
+            }
+
+            const messages = await Message.getAll(environment.clients.admin, messageWhere)
+            expect(messages).toHaveLength(1)
+            expect(messages[0].meta.data.billingReceiptId).toBe(receipts.find(r => r.period === '2024-01-01').id)
         })
     })
 })

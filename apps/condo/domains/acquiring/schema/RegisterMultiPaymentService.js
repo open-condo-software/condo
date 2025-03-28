@@ -20,6 +20,7 @@ const {
     CANNOT_FIND_ALL_BILLING_RECEIPTS, ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED,
     INVOICES_ARE_NOT_PUBLISHED, INVOICES_FOR_THIRD_USER, INVOICE_CONTEXT_NOT_FINISHED,
     MULTIPAYMENT_RECEIPTS_WITH_INVOICES_FORBIDDEN, GQL_ERRORS: { PAYMENT_AMOUNT_LESS_THAN_MINIMUM, PAYMENT_AMOUNT_GREATER_THAN_MAXIMUM },
+    FULL_PAYMENT_AMOUNT_MISMATCH,
 } = require('@condo/domains/acquiring/constants/errors')
 const {
     FEE_CALCULATION_PATH,
@@ -38,6 +39,7 @@ const {
     FeeDistribution,
     compactDistributionSettings,
 } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
+const { BillingCategory } = require('@condo/domains/billing/utils/serverSchema')
 const { getNewPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
 const {
     REQUIRED,
@@ -279,6 +281,12 @@ const ERRORS = {
         type: MULTIPAYMENT_RECEIPTS_WITH_INVOICES_FORBIDDEN,
         message: 'Receipts and invoices are forbidden to be together',
         messageForUser: 'api.acquiring.multiPayment.RECEIPTS_WITH_INVOICES_FORBIDDEN',
+    },
+    FULL_PAYMENT_AMOUNT_MISMATCH: {
+        code: BAD_USER_INPUT,
+        type: FULL_PAYMENT_AMOUNT_MISMATCH,
+        message: 'Different amount and toPay from receipt are forbidden for receipt with Billing Category that has requiresFullPayment set to true',
+        messageForUser: 'api.acquiring.multiPayment.FULL_PAYMENT_AMOUNT_MISMATCH',
     },
 }
 
@@ -570,17 +578,29 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                         for (const receiptInfo of group['receipts']) {
                             const receipt = receiptsByIds[receiptInfo.id]
                             const billingCategoryId = get(receipt, 'category')
+                            const toPayFromReceipt = get(receipt, 'toPay')
                             const amountDistributionForReceipt = amountDistributions.find(distribution => distribution.receipt.id === receipt.id)
 
                             const frozenReceipt = await freezeBillingReceipt(context, receipt)
                             const feeCalculator = new FeeDistribution(formula, billingCategoryId)
                             const billingAccountNumber = get(frozenReceipt, ['data', 'account', 'number'])
 
+                            let billingCategories
+                            if (billingCategoryId) {
+                                billingCategories = await find('BillingCategory', {
+                                    id: billingCategoryId,
+                                })
+                            }
+
                             // for cases when we have set amount distribution explicitly
                             // let's override toPay amount in billingReceipt
                             let amount = null
                             if (!isNil(amountDistributionForReceipt)) {
                                 amount = amountDistributionForReceipt.amount
+                                const isNotFullPayment = !new Big(amount).eq(new Big(toPayFromReceipt))
+                                if (billingCategories && get(billingCategories, ['0', 'requiresFullPayment']) && isNotFullPayment) {
+                                    throw new GQLError(ERRORS.FULL_PAYMENT_AMOUNT_MISMATCH, context)
+                                }
                             } else {
                                 const paidAmount = await getNewPaymentsSum(receiptInfo.id)
                                 amount = String(Big(receipt.toPay).minus(Big(paidAmount)))
