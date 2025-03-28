@@ -90,6 +90,7 @@ export const UserMessagesSettingsModal: React.FC<UserMessagesSettingsModalProps>
                             <Space size={4}>
                                 <Space size={8}>
                                     <Switch
+                                        id='notification-sound-switch'
                                         checked={isNotificationSoundEnabled}
                                         onChange={setIsNotificationSoundEnabled}
                                         size='small'
