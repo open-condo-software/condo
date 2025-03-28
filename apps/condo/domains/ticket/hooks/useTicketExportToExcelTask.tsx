@@ -1,7 +1,6 @@
 import { TicketExportTaskCreateInput }  from '@app/condo/schema'
 import React, { useCallback } from 'react'
 
-import { Sheet } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Button } from '@open-condo/ui'
 
@@ -32,7 +31,6 @@ export const useTicketExportToExcelTask = ({ where, sortBy, format, locale, time
     const TicketsExportToXlsxButton = useCallback(() => (
         <Button
             type='secondary'
-            icon={<Sheet size='medium' />}
             loading={loading}
             onClick={handleClick}
             id='TicketsExportClick'
