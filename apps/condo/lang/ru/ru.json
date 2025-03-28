@@ -1277,6 +1277,7 @@
   "meter.import.MeterReading.objectsName.many": "Показания ИПУ",
   "meter.import.MeterReading.objectsName.many.genitive": " показаний ИПУ",
   "meter.import.column.Automatic": "Автоматический",
+  "meter.import.column.ArchiveDate": "Дата вывода из эксплуатации",
   "meter.import.column.CommissioningDate": "Дата ввода в эксплуатацию",
   "meter.import.column.ControlReadingsDate": "Дата контрольных показаний",
   "meter.import.column.InstallationDate": "Дата установки",

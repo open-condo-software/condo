@@ -868,6 +868,7 @@ describe('RegisterMetersReadingsService', () => {
             'commissioningDate',
             'sealingDate',
             'controlReadingsDate',
+            'archiveDate',
         ]
 
         const emptyValues = [ null, undefined ]
@@ -1028,6 +1029,7 @@ describe('RegisterMetersReadingsService', () => {
 
         // create another reading for same meter and change `place` and `nextVerificationDate` fields values
         const nextVerificationDate = dayjs().add(1, 'week').toISOString()
+        const archiveDate = dayjs().add(2, 'week').toISOString()
         const anotherReadings = [{
             ...readings[0],
             value1: faker.random.numeric(3),
@@ -1037,6 +1039,7 @@ describe('RegisterMetersReadingsService', () => {
                 place: 'place2',
                 nextVerificationDate,
                 isAutomatic: true,
+                archiveDate,
             },
         }]
         const [secondAttempt] = await registerMetersReadingsByTestClient(adminClient, organization, anotherReadings)
@@ -1053,6 +1056,7 @@ describe('RegisterMetersReadingsService', () => {
         expect(updatedMeters[0].number).toBe(readings[0].meterNumber)
         expect(updatedMeters[0].place).toBe('place2')
         expect(updatedMeters[0].nextVerificationDate).toBeTruthy()
+        expect(updatedMeters[0].archiveDate).toBeTruthy()
         expect(updatedMeters[0].isAutomatic).toBe(true)
 
         // sent third readings without place - field value must be 'place2'
@@ -1079,6 +1083,7 @@ describe('RegisterMetersReadingsService', () => {
         expect(updatedMeters2[0].place).toBe('place2')
         expect(updatedMeters2[0].numberOfTariffs).toBe(2)
         expect(updatedMeters2[0].nextVerificationDate).toBeTruthy()
+        expect(updatedMeters2[0].archiveDate).toBeTruthy()
         expect(updatedMeters2[0].isAutomatic).toBe(false)
 
         // be sure that keep same value from creation

@@ -64,6 +64,7 @@ class DomaPropertyMetersImporter extends AbstractMetersImporter {
                 sealingDate: row[13],
                 controlReadingsDate: row[14],
                 isAutomatic: get(this, ['mappers', 'isAutomatic', cell15Value]),
+                archiveDate: row[16],
             },
         }
     }
