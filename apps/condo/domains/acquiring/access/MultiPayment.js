@@ -4,7 +4,7 @@
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
-const { checkAcquiringIntegrationAccessRight } = require(
+const { checkAcquiringIntegrationAccessRights } = require(
     '@condo/domains/acquiring/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
@@ -42,7 +42,7 @@ async function canReadMultiPaymentsSensitiveData ({ authentication: { item: user
     if (!user || user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
 
-    return !!(await checkAcquiringIntegrationAccessRight(user.id, existingItem.integration))
+    return !!(await checkAcquiringIntegrationAccessRights(user.id, [existingItem.integration]))
 }
 
 /*

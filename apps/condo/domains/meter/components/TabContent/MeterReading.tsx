@@ -86,7 +86,6 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
     const CreateMeterReadingsButtonLabel = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterReadingsButtonLabel' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const CancelSelectedReadingsMessage = intl.formatMessage({ id: 'global.cancelSelection' })
-    const CountSelectedReadingsMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterReading.CountSelectedReadings' })
     const DeleteMeterReadingsMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterReading.DeleteMeterReadings' })
     const DeleteMeterReadingsMessageWarn = intl.formatMessage({ id: 'pages.condo.meter.MeterReading.DeleteMeterReadings.Warn' })
     const MeterReadingsMessage = intl.formatMessage({ id: 'import.meterReading.plural' })
@@ -165,6 +164,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
 
     const isSelectedAllRowsByPage = !metersLoading && selectedRowKeysByPage.length > 0 && selectedRowKeysByPage.length === readingsToFilter.length
     const isSelectedSomeRowsByPage = !metersLoading && selectedRowKeysByPage.length > 0 && selectedRowKeysByPage.length < readingsToFilter.length
+    const CountSelectedReadingsMessage = useMemo(() => intl.formatMessage({ id: 'ItemsSelectedCount' }, { count: selectedReadingKeys.length }), [intl, selectedReadingKeys])
 
     const handleResetSelectedReadings = useCallback(() => {
         setSelectedReadingKeys([])
@@ -300,7 +300,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
                     !loading && total > 0 && (
                         <Col span={24}>
                             <ActionBar
-                                message={selectedReadingKeys.length > 0 && `${CountSelectedReadingsMessage}: ${selectedReadingKeys.length}`}
+                                message={selectedReadingKeys.length > 0 && CountSelectedReadingsMessage}
                                 actions={[
                                     selectedReadingKeys.length > 0 && (
                                         <>

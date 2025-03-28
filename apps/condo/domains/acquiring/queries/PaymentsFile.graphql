@@ -1,0 +1,45 @@
+query getPaymentsFiles ($where: PaymentsFileWhereInput!, $sortBy: [SortPaymentsFilesBy!], $first: Int!, $skip: Int) {
+    paymentsFiles: allPaymentsFiles(
+        where: $where,
+        sortBy: $sortBy,
+        first: $first,
+        skip: $skip
+    ) {
+        id
+        number
+        loadedAt
+        file {
+            id
+            originalFilename
+            publicUrl
+            mimetype
+        }
+        context { id }
+        bankAccount
+        paymentPeriodStartDate
+        paymentPeriodEndDay
+        paymentsCount
+        amount
+        name
+        status
+        paymentOrder
+    }
+    meta: _allPaymentsFilesMeta (where: $where) {
+        count
+    }
+}
+
+query checkPaymentsFilesExistence ($where: PaymentsFileWhereInput!) {
+    paymentsFiles: allPaymentsFiles (
+        where: $where,
+        first: 1,
+    ) {
+        id
+    }
+}
+
+mutation updatePaymentsFile ($id: ID!, $data: PaymentsFileUpdateInput!) {
+    paymentsFile: updatePaymentsFile (id: $id, data: $data) {
+        id
+    }
+}

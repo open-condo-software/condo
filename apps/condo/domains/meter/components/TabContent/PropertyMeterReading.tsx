@@ -83,7 +83,6 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const CreateMeterReadingsButtonLabel = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterReadingsButtonLabel' })
     const CancelSelectedReadingsMessage = intl.formatMessage({ id: 'global.cancelSelection' })
-    const CountSelectedReadingsMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterReading.CountSelectedReadings' })
     const DeleteMeterReadingsMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterReading.DeleteMeterReadings' })
     const DeleteMeterReadingsMessageWarn = intl.formatMessage({ id: 'pages.condo.meter.MeterReading.DeleteMeterReadings.Warn' })
     const MeterReadingsMessage = intl.formatMessage({ id: 'import.meterReading.plural' })
@@ -127,6 +126,7 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
 
     const [search, handleSearchChange, handleSearchReset] = useSearch()
     const [selectedReadingKeys, setSelectedReadingKeys] = useState<string[]>(() => getInitialSelectedReadingKeys(router))
+    const CountSelectedReadingsMessage = useMemo(() => intl.formatMessage({ id: 'ItemsSelectedCount' }, { count: selectedReadingKeys.length }), [intl, selectedReadingKeys])
     const { MultipleFiltersModal, ResetFiltersModalButton, OpenFiltersButton, appliedFiltersCount } = useMultipleFiltersModal({
         filterMetas: filtersMeta,
         filtersSchemaGql: MeterReadingFilterTemplate,
@@ -273,7 +273,7 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
                     !loading && total > 0 && (
                         <Col span={24}>
                             <ActionBar
-                                message={selectedReadingKeys.length > 0 && `${CountSelectedReadingsMessage}: ${selectedReadingKeys.length}`}
+                                message={selectedReadingKeys.length > 0 && CountSelectedReadingsMessage}
                                 actions={[
                                     selectedReadingKeys.length > 0 && (
                                         <>

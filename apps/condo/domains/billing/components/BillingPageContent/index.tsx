@@ -18,7 +18,10 @@ import { MainContent } from './MainContent'
 const StyledPageWrapper = styled(PageWrapper)`
      & .condo-tabs, & .condo-tabs-content, & .condo-tabs-tabpane, & .page-content {
        height: 100%;
-     }
+     },
+    & .condo-tabs-nav, & .condo-tabs-nav-wrap {
+        height: 48px;
+    },
 `
 
 export const BillingPageContent: React.FC = () => {
@@ -49,7 +52,7 @@ export const BillingPageContent: React.FC = () => {
                 <title>{PageTitle}</title>
             </Head>
             <StyledPageWrapper>
-                <PageHeader title={<Typography.Title>{PageTitle}</Typography.Title>} extra={<Tag bgColor={tagBg} textColor={colors.white}>{tagMessage}</Tag>}/>
+                <PageHeader tags={<Tag bgColor={tagBg} textColor={colors.white}>{tagMessage}</Tag>} title={<Typography.Title>{PageTitle}</Typography.Title>} />
                 <MainContent />
             </StyledPageWrapper>
         </>
