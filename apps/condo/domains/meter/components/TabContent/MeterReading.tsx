@@ -164,7 +164,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
 
     const isSelectedAllRowsByPage = !metersLoading && selectedRowKeysByPage.length > 0 && selectedRowKeysByPage.length === readingsToFilter.length
     const isSelectedSomeRowsByPage = !metersLoading && selectedRowKeysByPage.length > 0 && selectedRowKeysByPage.length < readingsToFilter.length
-    const CountSelectedReadingsMessage = intl.formatMessage({ id: 'ItemsSelectedCount' }, { count: selectedReadingKeys.length })
+    const CountSelectedReadingsMessage = useMemo(() => intl.formatMessage({ id: 'ItemsSelectedCount' }, { count: selectedReadingKeys.length }), [intl, selectedReadingKeys])
 
     const handleResetSelectedReadings = useCallback(() => {
         setSelectedReadingKeys([])

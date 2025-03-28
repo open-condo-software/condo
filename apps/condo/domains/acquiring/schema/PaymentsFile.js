@@ -10,14 +10,19 @@ const access = require('@condo/domains/acquiring/access/PaymentsFile')
 const {
     PAYMENTS_FILES_FOLDER_NAME,
 } = require('@condo/domains/acquiring/constants/constants')
-const { PAYMENTS_FILE_STATUSES, PAYMENTS_FILE_NEW_STATUS } = require('@condo/domains/acquiring/constants/constants')
+const {
+    PAYMENTS_FILE_STATUSES,
+    PAYMENTS_FILE_NEW_STATUS,
+    PAYMENTS_FILE_DOWNLOADED_STATUS,
+} = require('@condo/domains/acquiring/constants/constants')
 const {  MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
 
 
 const Adapter = new FileAdapter(PAYMENTS_FILES_FOLDER_NAME)
 
 const PaymentsFile = new GQLListSchema('PaymentsFile', {
-    schemaDoc: 'Payments registry file. A file that contains all payments detalization for a period of time',
+    schemaDoc: 'Payments file. A file that contains all payments detalization for a common payments order for a period of time.' +
+        'Is filled in external integration systems.',
     fields: {
 
         context: {
@@ -48,56 +53,57 @@ const PaymentsFile = new GQLListSchema('PaymentsFile', {
             adapter: Adapter,
         },
 
-        account: {
-            schemaDoc: 'Bank account for payments',
+        bankAccount: {
+            schemaDoc: 'Bank account of the bank that the money is transferred to',
             type: 'Text',
             isRequired: true,
         },
 
-        dateBegin: {
-            schemaDoc: 'Starting period of time for included payments',
+        paymentPeriodStartDate: {
+            schemaDoc: 'Date marking the beginning of the period for which payment transactions are included',
             type: 'CalendarDay',
             isRequired: true,
         },
 
-        dateEnd: {
-            schemaDoc: 'End of the time period  for included payments',
+        paymentPeriodEndDay: {
+            schemaDoc: 'Date marking the end of the period for which payment transactions are included',
             type: 'CalendarDay',
             isRequired: true,
         },
 
         loadedAt: {
-            schemaDoc: 'Date when payments registry file was created',
+            schemaDoc: 'Date when payments file itself was created',
             type: 'DateTimeUtc',
             isRequired: true,
         },
 
-        uploadedRecords: {
-            schemaDoc: 'The number of payments',
+        paymentsCount: {
+            schemaDoc: 'The count of payments inside the Payments file',
             type: 'Integer',
             isRequired: true,
         },
 
         amount: {
             ...MONEY_AMOUNT_FIELD,
-            schemaDoc: 'Total amount of all payments from registry file',
+            schemaDoc: 'Total amount sum of all payments from payments file',
             isRequired: true,
         },
 
-        amountBring: {
+        amountWithoutFees: {
             ...MONEY_AMOUNT_FIELD,
-            schemaDoc: 'Total amount of all payments excluding fees',
+            schemaDoc: 'Total amount smu of all payments from payments file excluding fees',
             isRequired: true,
         },
 
-        registryName: {
-            schemaDoc: 'Name of the registry file on accounting system',
+        name: {
+            schemaDoc: 'Name of the payments file in accounting system',
             type: 'Text',
             isRequired: true,
         },
 
         status: {
-            schemaDoc: `Status of the payments registry. Can be one of: ${PAYMENTS_FILE_STATUSES.join(', ')}`,
+            schemaDoc: `Status of the payments file. Can be one of: ${PAYMENTS_FILE_STATUSES.join(', ')}. After user downloads the file
+            its status changes to ${PAYMENTS_FILE_DOWNLOADED_STATUS}`,
             type: 'Select',
             isRequired: true,
             options: PAYMENTS_FILE_STATUSES,
@@ -105,13 +111,13 @@ const PaymentsFile = new GQLListSchema('PaymentsFile', {
         },
 
         importId: {
-            schemaDoc: 'Id from a remote system',
+            schemaDoc: 'Identifier of corresponding record in external system',
             type: 'Text',
             isRequired: false,
         },
 
         bankComment: {
-            schemaDoc: 'Text description of the registry file about the file content',
+            schemaDoc: 'Text description of the payments file about the file content',
             type: 'Text',
             isRequired: false,
         },
@@ -129,8 +135,8 @@ const PaymentsFile = new GQLListSchema('PaymentsFile', {
         indexes: [
             {
                 type: 'BTreeIndex',
-                fields: ['registryName'],
-                name: 'payments_file_registryName_idx',
+                fields: ['name'],
+                name: 'payments_file_name_idx',
             },
             {
                 type: 'BTreeIndex',
@@ -141,7 +147,7 @@ const PaymentsFile = new GQLListSchema('PaymentsFile', {
         constraints: [
             {
                 type: 'models.UniqueConstraint',
-                fields: ['context', 'registryName'],
+                fields: ['context', 'name'],
                 condition: 'Q(deletedAt__isnull=True)',
                 name: 'PaymentsFile_uniq_for_context_and_name',
             },

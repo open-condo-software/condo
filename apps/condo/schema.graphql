@@ -62399,14 +62399,14 @@ type PaymentsFileHistoryRecord {
   number: String
   paymentOrder: String
   file: JSON
-  account: String
-  dateBegin: String
-  dateEnd: String
+  bankAccount: String
+  paymentPeriodStartDate: String
+  paymentPeriodEndDay: String
   loadedAt: String
-  uploadedRecords: Int
+  paymentsCount: Int
   amount: String
-  amountBring: String
-  registryName: String
+  amountWithoutFees: String
+  name: String
   status: String
   importId: String
   bankComment: String
@@ -62472,40 +62472,40 @@ input PaymentsFileHistoryRecordWhereInput {
   file_not: JSON
   file_in: [JSON]
   file_not_in: [JSON]
-  account: String
-  account_not: String
-  account_contains: String
-  account_not_contains: String
-  account_starts_with: String
-  account_not_starts_with: String
-  account_ends_with: String
-  account_not_ends_with: String
-  account_i: String
-  account_not_i: String
-  account_contains_i: String
-  account_not_contains_i: String
-  account_starts_with_i: String
-  account_not_starts_with_i: String
-  account_ends_with_i: String
-  account_not_ends_with_i: String
-  account_in: [String]
-  account_not_in: [String]
-  dateBegin: String
-  dateBegin_not: String
-  dateBegin_lt: String
-  dateBegin_lte: String
-  dateBegin_gt: String
-  dateBegin_gte: String
-  dateBegin_in: [String]
-  dateBegin_not_in: [String]
-  dateEnd: String
-  dateEnd_not: String
-  dateEnd_lt: String
-  dateEnd_lte: String
-  dateEnd_gt: String
-  dateEnd_gte: String
-  dateEnd_in: [String]
-  dateEnd_not_in: [String]
+  bankAccount: String
+  bankAccount_not: String
+  bankAccount_contains: String
+  bankAccount_not_contains: String
+  bankAccount_starts_with: String
+  bankAccount_not_starts_with: String
+  bankAccount_ends_with: String
+  bankAccount_not_ends_with: String
+  bankAccount_i: String
+  bankAccount_not_i: String
+  bankAccount_contains_i: String
+  bankAccount_not_contains_i: String
+  bankAccount_starts_with_i: String
+  bankAccount_not_starts_with_i: String
+  bankAccount_ends_with_i: String
+  bankAccount_not_ends_with_i: String
+  bankAccount_in: [String]
+  bankAccount_not_in: [String]
+  paymentPeriodStartDate: String
+  paymentPeriodStartDate_not: String
+  paymentPeriodStartDate_lt: String
+  paymentPeriodStartDate_lte: String
+  paymentPeriodStartDate_gt: String
+  paymentPeriodStartDate_gte: String
+  paymentPeriodStartDate_in: [String]
+  paymentPeriodStartDate_not_in: [String]
+  paymentPeriodEndDay: String
+  paymentPeriodEndDay_not: String
+  paymentPeriodEndDay_lt: String
+  paymentPeriodEndDay_lte: String
+  paymentPeriodEndDay_gt: String
+  paymentPeriodEndDay_gte: String
+  paymentPeriodEndDay_in: [String]
+  paymentPeriodEndDay_not_in: [String]
   loadedAt: String
   loadedAt_not: String
   loadedAt_lt: String
@@ -62514,14 +62514,14 @@ input PaymentsFileHistoryRecordWhereInput {
   loadedAt_gte: String
   loadedAt_in: [String]
   loadedAt_not_in: [String]
-  uploadedRecords: Int
-  uploadedRecords_not: Int
-  uploadedRecords_lt: Int
-  uploadedRecords_lte: Int
-  uploadedRecords_gt: Int
-  uploadedRecords_gte: Int
-  uploadedRecords_in: [Int]
-  uploadedRecords_not_in: [Int]
+  paymentsCount: Int
+  paymentsCount_not: Int
+  paymentsCount_lt: Int
+  paymentsCount_lte: Int
+  paymentsCount_gt: Int
+  paymentsCount_gte: Int
+  paymentsCount_in: [Int]
+  paymentsCount_not_in: [Int]
   amount: String
   amount_not: String
   amount_lt: String
@@ -62530,32 +62530,32 @@ input PaymentsFileHistoryRecordWhereInput {
   amount_gte: String
   amount_in: [String]
   amount_not_in: [String]
-  amountBring: String
-  amountBring_not: String
-  amountBring_lt: String
-  amountBring_lte: String
-  amountBring_gt: String
-  amountBring_gte: String
-  amountBring_in: [String]
-  amountBring_not_in: [String]
-  registryName: String
-  registryName_not: String
-  registryName_contains: String
-  registryName_not_contains: String
-  registryName_starts_with: String
-  registryName_not_starts_with: String
-  registryName_ends_with: String
-  registryName_not_ends_with: String
-  registryName_i: String
-  registryName_not_i: String
-  registryName_contains_i: String
-  registryName_not_contains_i: String
-  registryName_starts_with_i: String
-  registryName_not_starts_with_i: String
-  registryName_ends_with_i: String
-  registryName_not_ends_with_i: String
-  registryName_in: [String]
-  registryName_not_in: [String]
+  amountWithoutFees: String
+  amountWithoutFees_not: String
+  amountWithoutFees_lt: String
+  amountWithoutFees_lte: String
+  amountWithoutFees_gt: String
+  amountWithoutFees_gte: String
+  amountWithoutFees_in: [String]
+  amountWithoutFees_not_in: [String]
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
   status: String
   status_not: String
   status_contains: String
@@ -62697,22 +62697,22 @@ enum SortPaymentsFileHistoryRecordsBy {
   number_DESC
   paymentOrder_ASC
   paymentOrder_DESC
-  account_ASC
-  account_DESC
-  dateBegin_ASC
-  dateBegin_DESC
-  dateEnd_ASC
-  dateEnd_DESC
+  bankAccount_ASC
+  bankAccount_DESC
+  paymentPeriodStartDate_ASC
+  paymentPeriodStartDate_DESC
+  paymentPeriodEndDay_ASC
+  paymentPeriodEndDay_DESC
   loadedAt_ASC
   loadedAt_DESC
-  uploadedRecords_ASC
-  uploadedRecords_DESC
+  paymentsCount_ASC
+  paymentsCount_DESC
   amount_ASC
   amount_DESC
-  amountBring_ASC
-  amountBring_DESC
-  registryName_ASC
-  registryName_DESC
+  amountWithoutFees_ASC
+  amountWithoutFees_DESC
+  name_ASC
+  name_DESC
   status_ASC
   status_DESC
   importId_ASC
@@ -62742,14 +62742,14 @@ input PaymentsFileHistoryRecordUpdateInput {
   number: String
   paymentOrder: String
   file: JSON
-  account: String
-  dateBegin: String
-  dateEnd: String
+  bankAccount: String
+  paymentPeriodStartDate: String
+  paymentPeriodEndDay: String
   loadedAt: String
-  uploadedRecords: Int
+  paymentsCount: Int
   amount: String
-  amountBring: String
-  registryName: String
+  amountWithoutFees: String
+  name: String
   status: String
   importId: String
   bankComment: String
@@ -62777,14 +62777,14 @@ input PaymentsFileHistoryRecordCreateInput {
   number: String
   paymentOrder: String
   file: JSON
-  account: String
-  dateBegin: String
-  dateEnd: String
+  bankAccount: String
+  paymentPeriodStartDate: String
+  paymentPeriodEndDay: String
   loadedAt: String
-  uploadedRecords: Int
+  paymentsCount: Int
   amount: String
-  amountBring: String
-  registryName: String
+  amountWithoutFees: String
+  name: String
   status: String
   importId: String
   bankComment: String
@@ -62811,7 +62811,7 @@ enum PaymentsFileStatusType {
   DOWNLOADED
 }
 
-""" Payments registry file. A file that contains all payments detalization for a period of time 
+""" Payments file. A file that contains all payments detalization for a common payments order for a period of time.Is filled in external integration systems. 
 """
 type PaymentsFile {
   """
@@ -62835,37 +62835,42 @@ type PaymentsFile {
   """ Payments registry file itself """
   file: File
 
-  """ Bank account for payments """
-  account: String
+  """ Bank account of the bank that the money is transferred to """
+  bankAccount: String
 
-  """ Starting period of time for included payments """
-  dateBegin: String
+  """ Date marking the beginning of the period for which payment transactions are included 
+  """
+  paymentPeriodStartDate: String
 
-  """ End of the time period  for included payments """
-  dateEnd: String
+  """ Date marking the end of the period for which payment transactions are included 
+  """
+  paymentPeriodEndDay: String
 
-  """ Date when payments registry file was created """
+  """ Date when payments file itself was created """
   loadedAt: String
 
-  """ The number of payments """
-  uploadedRecords: Int
+  """ The count of payments inside the Payments file """
+  paymentsCount: Int
 
-  """ Total amount of all payments from registry file """
+  """ Total amount sum of all payments from payments file """
   amount: String
 
-  """ Total amount of all payments excluding fees """
-  amountBring: String
+  """ Total amount smu of all payments from payments file excluding fees """
+  amountWithoutFees: String
 
-  """ Name of the registry file on accounting system """
-  registryName: String
+  """ Name of the payments file in accounting system """
+  name: String
 
-  """ Status of the payments registry. Can be one of: NEW, DOWNLOADED """
+  """
+   Status of the payments file. Can be one of: NEW, DOWNLOADED. After user downloads the file
+  its status changes to DOWNLOADED 
+  """
   status: PaymentsFileStatusType
 
-  """ Id from a remote system """
+  """ Identifier of corresponding record in external system """
   importId: String
 
-  """ Text description of the registry file about the file content """
+  """ Text description of the payments file about the file content """
   bankComment: String
   id: ID!
   v: Int
@@ -62935,40 +62940,40 @@ input PaymentsFileWhereInput {
   file_not: String
   file_in: [String]
   file_not_in: [String]
-  account: String
-  account_not: String
-  account_contains: String
-  account_not_contains: String
-  account_starts_with: String
-  account_not_starts_with: String
-  account_ends_with: String
-  account_not_ends_with: String
-  account_i: String
-  account_not_i: String
-  account_contains_i: String
-  account_not_contains_i: String
-  account_starts_with_i: String
-  account_not_starts_with_i: String
-  account_ends_with_i: String
-  account_not_ends_with_i: String
-  account_in: [String]
-  account_not_in: [String]
-  dateBegin: String
-  dateBegin_not: String
-  dateBegin_lt: String
-  dateBegin_lte: String
-  dateBegin_gt: String
-  dateBegin_gte: String
-  dateBegin_in: [String]
-  dateBegin_not_in: [String]
-  dateEnd: String
-  dateEnd_not: String
-  dateEnd_lt: String
-  dateEnd_lte: String
-  dateEnd_gt: String
-  dateEnd_gte: String
-  dateEnd_in: [String]
-  dateEnd_not_in: [String]
+  bankAccount: String
+  bankAccount_not: String
+  bankAccount_contains: String
+  bankAccount_not_contains: String
+  bankAccount_starts_with: String
+  bankAccount_not_starts_with: String
+  bankAccount_ends_with: String
+  bankAccount_not_ends_with: String
+  bankAccount_i: String
+  bankAccount_not_i: String
+  bankAccount_contains_i: String
+  bankAccount_not_contains_i: String
+  bankAccount_starts_with_i: String
+  bankAccount_not_starts_with_i: String
+  bankAccount_ends_with_i: String
+  bankAccount_not_ends_with_i: String
+  bankAccount_in: [String]
+  bankAccount_not_in: [String]
+  paymentPeriodStartDate: String
+  paymentPeriodStartDate_not: String
+  paymentPeriodStartDate_lt: String
+  paymentPeriodStartDate_lte: String
+  paymentPeriodStartDate_gt: String
+  paymentPeriodStartDate_gte: String
+  paymentPeriodStartDate_in: [String]
+  paymentPeriodStartDate_not_in: [String]
+  paymentPeriodEndDay: String
+  paymentPeriodEndDay_not: String
+  paymentPeriodEndDay_lt: String
+  paymentPeriodEndDay_lte: String
+  paymentPeriodEndDay_gt: String
+  paymentPeriodEndDay_gte: String
+  paymentPeriodEndDay_in: [String]
+  paymentPeriodEndDay_not_in: [String]
   loadedAt: String
   loadedAt_not: String
   loadedAt_lt: String
@@ -62977,14 +62982,14 @@ input PaymentsFileWhereInput {
   loadedAt_gte: String
   loadedAt_in: [String]
   loadedAt_not_in: [String]
-  uploadedRecords: Int
-  uploadedRecords_not: Int
-  uploadedRecords_lt: Int
-  uploadedRecords_lte: Int
-  uploadedRecords_gt: Int
-  uploadedRecords_gte: Int
-  uploadedRecords_in: [Int]
-  uploadedRecords_not_in: [Int]
+  paymentsCount: Int
+  paymentsCount_not: Int
+  paymentsCount_lt: Int
+  paymentsCount_lte: Int
+  paymentsCount_gt: Int
+  paymentsCount_gte: Int
+  paymentsCount_in: [Int]
+  paymentsCount_not_in: [Int]
   amount: String
   amount_not: String
   amount_lt: String
@@ -62993,32 +62998,32 @@ input PaymentsFileWhereInput {
   amount_gte: String
   amount_in: [String]
   amount_not_in: [String]
-  amountBring: String
-  amountBring_not: String
-  amountBring_lt: String
-  amountBring_lte: String
-  amountBring_gt: String
-  amountBring_gte: String
-  amountBring_in: [String]
-  amountBring_not_in: [String]
-  registryName: String
-  registryName_not: String
-  registryName_contains: String
-  registryName_not_contains: String
-  registryName_starts_with: String
-  registryName_not_starts_with: String
-  registryName_ends_with: String
-  registryName_not_ends_with: String
-  registryName_i: String
-  registryName_not_i: String
-  registryName_contains_i: String
-  registryName_not_contains_i: String
-  registryName_starts_with_i: String
-  registryName_not_starts_with_i: String
-  registryName_ends_with_i: String
-  registryName_not_ends_with_i: String
-  registryName_in: [String]
-  registryName_not_in: [String]
+  amountWithoutFees: String
+  amountWithoutFees_not: String
+  amountWithoutFees_lt: String
+  amountWithoutFees_lte: String
+  amountWithoutFees_gt: String
+  amountWithoutFees_gte: String
+  amountWithoutFees_in: [String]
+  amountWithoutFees_not_in: [String]
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
   status: PaymentsFileStatusType
   status_not: PaymentsFileStatusType
   status_in: [PaymentsFileStatusType]
@@ -63128,22 +63133,22 @@ enum SortPaymentsFilesBy {
   number_DESC
   paymentOrder_ASC
   paymentOrder_DESC
-  account_ASC
-  account_DESC
-  dateBegin_ASC
-  dateBegin_DESC
-  dateEnd_ASC
-  dateEnd_DESC
+  bankAccount_ASC
+  bankAccount_DESC
+  paymentPeriodStartDate_ASC
+  paymentPeriodStartDate_DESC
+  paymentPeriodEndDay_ASC
+  paymentPeriodEndDay_DESC
   loadedAt_ASC
   loadedAt_DESC
-  uploadedRecords_ASC
-  uploadedRecords_DESC
+  paymentsCount_ASC
+  paymentsCount_DESC
   amount_ASC
   amount_DESC
-  amountBring_ASC
-  amountBring_DESC
-  registryName_ASC
-  registryName_DESC
+  amountWithoutFees_ASC
+  amountWithoutFees_DESC
+  name_ASC
+  name_DESC
   status_ASC
   status_DESC
   importId_ASC
@@ -63173,14 +63178,14 @@ input PaymentsFileUpdateInput {
   number: String
   paymentOrder: String
   file: Upload
-  account: String
-  dateBegin: String
-  dateEnd: String
+  bankAccount: String
+  paymentPeriodStartDate: String
+  paymentPeriodEndDay: String
   loadedAt: String
-  uploadedRecords: Int
+  paymentsCount: Int
   amount: String
-  amountBring: String
-  registryName: String
+  amountWithoutFees: String
+  name: String
   status: PaymentsFileStatusType
   importId: String
   bankComment: String
@@ -63205,14 +63210,14 @@ input PaymentsFileCreateInput {
   number: String
   paymentOrder: String
   file: Upload
-  account: String
-  dateBegin: String
-  dateEnd: String
+  bankAccount: String
+  paymentPeriodStartDate: String
+  paymentPeriodEndDay: String
   loadedAt: String
-  uploadedRecords: Int
+  paymentsCount: Int
   amount: String
-  amountBring: String
-  registryName: String
+  amountWithoutFees: String
+  name: String
   status: PaymentsFileStatusType
   importId: String
   bankComment: String

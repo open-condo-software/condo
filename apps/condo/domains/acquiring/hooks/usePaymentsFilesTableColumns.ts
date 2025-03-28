@@ -60,8 +60,8 @@ export function usePaymentsFilesTableColumns (currencyCode: string): Record<stri
             },
             registryName: {
                 title: RegistryNameTitle,
-                key: 'registryName',
-                dataIndex: 'registryName',
+                key: 'name',
+                dataIndex: 'name',
                 width: '30%',
                 render: stringSearch,
             },
@@ -75,8 +75,8 @@ export function usePaymentsFilesTableColumns (currencyCode: string): Record<stri
             },
             uploadedRecords: {
                 title: UploadedRecordsTitle,
-                key: 'uploadedRecords',
-                dataIndex: 'uploadedRecords',
+                key: 'paymentsCount',
+                dataIndex: 'paymentsCount',
                 width: '15%',
                 render: stringSearch,
             },

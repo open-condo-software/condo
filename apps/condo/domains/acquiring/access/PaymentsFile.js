@@ -6,12 +6,13 @@ const get = require('lodash/get')
 const uniq = require('lodash/uniq')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { find, getById } = require('@open-condo/keystone/schema')
+const { find } = require('@open-condo/keystone/schema')
 
 const { checkAcquiringIntegrationAccessRights } = require('@condo/domains/acquiring/utils/accessSchema')
+const { getEmployedOrRelatedOrganizationsByPermissions } = require('@condo/domains/organization/utils/accessSchema')
 const { SERVICE, STAFF } = require('@condo/domains/user/constants/common')
 
-async function canReadPaymentsFiles ({ authentication: { item: user } }) {
+async function canReadPaymentsFiles ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -23,8 +24,10 @@ async function canReadPaymentsFiles ({ authentication: { item: user } }) {
     }
 
     // Employee with `canReadPayments` can see theirs organization payments files
+    const permittedOrganizations =  await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadPayments')
+
     if (user.type === STAFF) {
-        return { context: { organization: { employees_some: { user: { id: user.id }, role: { canReadPayments: true }, deletedAt: null, isBlocked: false } } } }
+        return { context: { organization: { id_in: permittedOrganizations } } }
 
     }
 
@@ -53,20 +56,15 @@ async function canManagePaymentsFiles ({ authentication: { item: user }, origina
             contextIds = [contextId]
         }
     } else if (operation === 'update') {
-        if (isBulkRequest) {
-            if (!itemIds || !Array.isArray(itemIds)) return false
-            if (itemIds.length !== uniq(itemIds).length) return false
-            const items = await find(listKey, {
-                id_in: itemIds,
-                deletedAt: null,
-            })
-            if (items.length !== itemIds.length) return false
-            contextIds = uniq(items.map(item => item.context))
-        } else {
-            if (!itemId) return false
-            const item = await getById(listKey, itemId)
-            contextIds = [item.context]
-        }
+        const ids = itemIds || [itemId]
+        if (!ids) return false
+        if (ids.length !== uniq(ids).length) return false
+        const items = await find(listKey, {
+            id_in: ids,
+            deletedAt: null,
+        })
+        if (items.length !== ids.length) return false
+        contextIds = uniq(items.map(item => item.context))
     }
 
     // STEP 2: Obtain all contexts and check their deletion status

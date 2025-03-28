@@ -88,7 +88,7 @@ const CALCULATE_FEE_FOR_RECEIPT_QUERY = gql`
     }
 `
 
-const PAYMENTS_FILE_FIELDS = `{ number file { id originalFilename publicUrl mimetype } context { id } importId account dateBegin dateEnd loadedAt uploadedRecords amount amountBring registryName status bankComment paymentOrder ${COMMON_FIELDS} }`
+const PAYMENTS_FILE_FIELDS = `{ number file { id originalFilename publicUrl mimetype } context { id } importId bankAccount paymentPeriodStartDate paymentPeriodEndDay loadedAt paymentsCount amount amountWithoutFees name status bankComment paymentOrder ${COMMON_FIELDS} }`
 const PaymentsFile = generateGqlQueries('PaymentsFile', PAYMENTS_FILE_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
