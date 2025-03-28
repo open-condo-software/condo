@@ -10,7 +10,7 @@ const { get } = require('lodash')
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 
 
-const { FIND_UNITS_BY_ADDRESS_MUTATION } = require('@condo/domains/resident/gql')
+const { FIND_UNITS_BY_ADDRESS_QUERY } = require('@condo/domains/resident/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 
@@ -208,11 +208,9 @@ async function findUnitsByAddressByTestClient(client, extraAttrs = {}) {
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
-        dv: 1,
-        sender,
         ...extraAttrs,
     }
-    const { data, errors } = await client.mutate(FIND_UNITS_BY_ADDRESS_MUTATION, { data: attrs })
+    const { data, errors } = await client.query(FIND_UNITS_BY_ADDRESS_QUERY, { data: attrs })
     throwIfError(data, errors)
     return [data.result, attrs]
 }

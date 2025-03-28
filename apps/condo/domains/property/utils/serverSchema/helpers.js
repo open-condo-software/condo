@@ -87,9 +87,21 @@ const getAddressDetails = (propertyAddressMeta) => {
     return { streetPart, areaPart, settlementPart, regionPart, cityPart, renderData, settlement, housePart, cityType, cityName, houseName, block }
 }
 
+/**
+ * Returns a flat array of units
+ * @param sections – sections from property map
+ * @return {FlatArray<*[], 2>[]}
+ */
+const getUnitsFromSections = (sections = []) => {
+    return sections.map(section =>
+        get(section, 'floors', []).map(floor => get(floor, 'units', []))
+    ).flat(2)
+}
+
 module.exports = {
     FLAT_WITHOUT_FLAT_TYPE_MESSAGE,
     getAddressUpToBuildingFrom,
     normalizePropertyMap,
     getAddressDetails,
+    getUnitsFromSections,
 }
