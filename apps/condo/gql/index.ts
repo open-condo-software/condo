@@ -582,6 +582,9 @@ export const GetContactByIdDocument = gql`
     unitName
     unitType
     isVerified
+    ownershipPercentage
+    note
+    communityFee
     organization {
       id
     }
@@ -736,6 +739,9 @@ export const GetContactsForTableDocument = gql`
     unitType
     phone
     email
+    ownershipPercentage
+    note
+    communityFee
     organization {
       id
       name
