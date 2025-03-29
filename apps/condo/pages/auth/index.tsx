@@ -87,9 +87,9 @@ AuthPage.getPrefetchedData = async ({ context }) => {
     if (wasAuthenticated) {
         nextUrl = isValidNext ? `/auth/signin?next=${encodeURIComponent(next)}` : '/auth/signin'
     } else if (userType === 'staff') {
-        nextUrl = isValidNext ? `/auth/register?next=${encodeURIComponent(next)}&step=inputPhone` : '/auth/register?step=inputPhone'
+        nextUrl = isValidNext ? `/auth/signin?next=${encodeURIComponent(next)}` : '/auth/signin'
     } else if (!hasResidentApp) {
-        nextUrl = isValidNext ? `/auth/register?next=${encodeURIComponent(next)}&step=inputPhone` : '/auth/register?step=inputPhone'
+        nextUrl = isValidNext ? `/auth/signin?next=${encodeURIComponent(next)}` : '/auth/signin'
     } else if (userType === 'resident') {
         nextUrl = '/auth/resident'
     }
