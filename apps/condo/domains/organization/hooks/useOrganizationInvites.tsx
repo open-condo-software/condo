@@ -18,18 +18,18 @@ type OrganizationInvitesReturnType = {
     loading: boolean
 }
 
-export const useOrganizationInvites = (organizationTypes: Array<OrganizationTypeType>, acceptOrRejectMutation: MutationTuple<{ obj: OrganizationEmployeeType }, any>[0]): OrganizationInvitesReturnType => {
+export const useOrganizationInvites = (organizationTypes: Array<OrganizationTypeType>, acceptOrRejectMutation: MutationTuple<{ obj: OrganizationEmployeeType }, any>[0], skip?: boolean): OrganizationInvitesReturnType => {
     const intl = useIntl()
     const AcceptMessage = intl.formatMessage({ id: 'Accept' })
     const RejectMessage = intl.formatMessage({ id: 'Reject' })
     const DoneMessage = intl.formatMessage({ id: 'OperationCompleted' })
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
-    
+
     const { user, isAuthenticated } = useAuth()
     const userId = user?.id || null
     const { selectEmployee } = useOrganization()
     const { persistor } = useCachePersistor()
-    
+
     const {
         data: userInvitationsData,
         refetch,
@@ -39,7 +39,7 @@ export const useOrganizationInvites = (organizationTypes: Array<OrganizationType
             userId,
             organizationType: organizationTypes,
         },
-        skip: !userId || !organizationTypes || organizationTypes.length < 1 || !persistor,
+        skip: skip || !userId || !organizationTypes || organizationTypes.length < 1 || !persistor,
     })
     const userInvites = useMemo(() => userInvitationsData?.invitations?.filter(Boolean) || [], [userInvitationsData?.invitations])
 
@@ -75,23 +75,26 @@ export const useOrganizationInvites = (organizationTypes: Array<OrganizationType
                         action: () => handleAcceptOrReject(invite, 'reject'),
                         title: RejectMessage,
                         secondary: true,
+                        removeNotificationOnClick: true,
                     },
                     {
                         action: () => handleAcceptOrReject(invite, 'accept').then(() => {
                             selectEmployee(invite.id)
                         }),
                         title: AcceptMessage,
+                        removeNotificationOnClick: true,
                     },
                 ],
                 message: (
                     <FormattedMessage
                         id='pages.users.InviteMessageTitle'
                         values={{
-                            name: invite.organization.name,
+                            name: invite.organization?.name,
                         }}
                     />
                 ),
-                type: 'success',
+                description: intl.formatMessage({ id: 'pages.users.InviteMessageDescription' }),
+                type: 'info',
                 id: `invite_${invite.id}`,
             })
         })

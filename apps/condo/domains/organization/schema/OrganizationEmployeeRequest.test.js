@@ -37,7 +37,7 @@ const {
 
 describe('OrganizationEmployeeRequest', () => {
     let admin, support, resident, service, anonymous,
-        organization, user
+        organization, user, userAttrs
 
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
@@ -49,7 +49,7 @@ describe('OrganizationEmployeeRequest', () => {
 
     beforeEach(async () => {
         [organization] = await createTestOrganization(admin);
-        [user] = await createTestUser(admin)
+        [user, userAttrs] = await createTestUser(admin)
     })
 
     describe('Accesses', () => {
@@ -61,6 +61,8 @@ describe('OrganizationEmployeeRequest', () => {
                 expect(request.organizationName).toBe(organization.name)
                 expect(request.organizationTin).toBe(organization.tin)
                 expect(request.user.id).toBe(user.id)
+                expect(request.userName).toBe(userAttrs.name)
+                expect(request.userPhone).toBe(userAttrs.phone)
                 expect(request.isAccepted).toBeFalsy()
                 expect(request.isRejected).toBeFalsy()
                 expect(request.processedBy).toBeNull()
@@ -168,6 +170,8 @@ describe('OrganizationEmployeeRequest', () => {
                 const [createdRequest] = await createTestOrganizationEmployeeRequest(admin, organization, justStaff.user)
                 const request = await OrganizationEmployeeRequest.getOne(employeeWithPermission, { id: createdRequest.id })
                 expect(request.id).toBe(createdRequest.id)
+                expect(request.userName).toBe(justStaff.userAttrs.name)
+                expect(request.userPhone).toBe(justStaff.userAttrs.phone)
             })
             test('can read if it is his request', async () => {
                 const [createdRequest] = await createTestOrganizationEmployeeRequest(admin, organization, justStaff.user)
@@ -391,6 +395,12 @@ describe('OrganizationEmployeeRequest', () => {
             expect(request.organizationId).toBe(organization.id)
             expect(request.organizationName).toBe(organization.name)
             expect(request.organizationTin).toBe(organization.tin)
+        })
+
+        test('"userName", "userPhone" fields should be auto-set from "user"', async () => {
+            const [request] = await createTestOrganizationEmployeeRequest(admin, organization, user)
+            expect(request.userName).toBe(userAttrs.name)
+            expect(request.userPhone).toBe(userAttrs.phone)
         })
 
         test('cannot update "user" field', async () => {

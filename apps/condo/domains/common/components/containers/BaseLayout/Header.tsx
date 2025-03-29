@@ -4,7 +4,7 @@ import { OrganizationTypeType } from '@app/condo/schema'
 import { Layout } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 
 import { Menu } from '@open-condo/icons'
 import { useMutation } from '@open-condo/next/apollo'
@@ -17,6 +17,7 @@ import { Logo } from '@condo/domains/common/components/Logo'
 import { ResidentActions } from '@condo/domains/common/components/ResidentActions/ResidentActions'
 import { UserMessagesList } from '@condo/domains/notification/components/UserMessagesList'
 import { UserMessagesListContextProvider } from '@condo/domains/notification/contexts/UserMessagesListContext'
+import { OrganizationEmployeeRequests } from '@condo/domains/organization/components/OrganizationEmployeeRequests'
 import { InlineOrganizationSelect } from '@condo/domains/organization/components/OrganizationSelect'
 import { SBBOLIndicator } from '@condo/domains/organization/components/SBBOLIndicator'
 import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
@@ -60,7 +61,8 @@ export const Header: React.FC<IHeaderProps> = (props) => {
         },
     })
 
-    useOrganizationInvites(ORGANIZATION_TYPES, acceptOrReject)
+    const isEmployeeExist = useMemo(() => !!organization, [organization])
+    useOrganizationInvites(ORGANIZATION_TYPES, acceptOrReject, !isEmployeeExist)
 
     const handleLogoClick = useCallback(() => {
         if (isAuthenticated) {
@@ -72,6 +74,7 @@ export const Header: React.FC<IHeaderProps> = (props) => {
 
     return (
         <UserMessagesListContextProvider>
+            {isEmployeeExist && <OrganizationEmployeeRequests />}
             {
                 !breakpoints.TABLET_LARGE
                     ? (

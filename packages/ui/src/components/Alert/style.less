@@ -11,6 +11,9 @@
 @alert-warning-icon-color: @condo-global-color-orange-5;
 @alert-error-bg-color: @condo-global-color-red-1;
 @alert-error-icon-color: @condo-global-color-red-5;
+@alert-icon-size: @condo-global-spacing-24;
+@alert-icon-space-right: @condo-global-spacing-12;
+@alert-actions-space-left: @alert-icon-size + @alert-icon-space-right;
 
 .condo-alert {
   &-description {
@@ -36,5 +39,31 @@
     .condo-typography-h4();
 
     margin-bottom: @condo-global-spacing-4;
+  }
+
+  & .condo-alert-icon {
+    width: @alert-icon-size;
+    height: @alert-icon-size;
+    margin-right: @alert-icon-space-right;
+  }
+
+  @media @from-mobile-small and @to-tablet-small {
+    & {
+      flex-wrap: wrap;
+
+      &.condo-alert-no-icon .condo-alert-content {
+        flex: unset;
+      }
+
+      & .condo-alert-action {
+        width: 100%;
+        margin-top: @condo-global-spacing-24;
+        margin-left: 0;
+      }
+
+      & > .condo-alert-icon ~ .condo-alert-action {
+        margin-left: @alert-actions-space-left;
+      }
+    }
   }
 }
