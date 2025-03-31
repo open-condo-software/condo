@@ -605,6 +605,7 @@
   "billing.category.trash.name": "Recolección de basura",
   "billing.category.trash.name.declined": "basura",
   "billing.category.water_removal.name": "Alcantarillado",
+  "billing.category.insurance.name": "Seguro",
   "callRecord.call": "Llamada",
   "callRecord.callType.incoming": "Llamada entrante",
   "callRecord.callType.outgoing": "Llamada saliente",
