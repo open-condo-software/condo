@@ -246,30 +246,19 @@ describe('Contact', () => {
                 expect(obj.ownershipPercentage).toEqual('32.14000000')
             })
 
-            it('can not be 0', async () => {
+            it('can be 0', async () => {
                 const userClient = await makeClientWithProperty()
                 const adminClient = await makeLoggedInAdminClient()
                 const fields = {
                     ownershipPercentage: '0',
                 }
 
-                await catchErrorFrom(async () => {
-                    await createTestContact(adminClient, userClient.organization, userClient.property, fields)
-                }, ({ errors, data }) => {
-                    expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
-                    expect(errors[0].data.messages[0]).toMatch('ownershipPercentage should be a positive number below 100')
-                    expect(data.obj).toBeNull()
-                })
+                const [obj, attrs] = await createTestContact(adminClient, userClient.organization, userClient.property, fields)
 
-                const [obj, attrs] = await createTestContact(adminClient, userClient.organization, userClient.property)
-
-                await catchErrorFrom(async () => {
-                    await updateTestContact(adminClient, obj.id, fields)
-                }, ({ errors, data }) => {
-                    expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
-                    expect(errors[0].data.messages[0]).toMatch('ownershipPercentage should be a positive number below 100')
-                    expect(data.obj).toBeNull()
-                })
+                expect(obj.id).toMatch(UUID_RE)
+                expect(obj.dv).toEqual(1)
+                expect(obj.sender).toEqual(attrs.sender)
+                expect(obj.ownershipPercentage).toEqual('0.00000000')
             })
 
             it('can be 100', async () => {
