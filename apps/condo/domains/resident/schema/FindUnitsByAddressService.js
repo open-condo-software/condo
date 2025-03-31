@@ -12,13 +12,13 @@ const { PROPERTY_MAP_JSON_FIELDS } = require('@condo/domains/property/gql')
 const { Property: PropertyAPI } = require('@condo/domains/property/utils/serverSchema')
 const { getUnitsFromSections } = require('@condo/domains/property/utils/serverSchema/helpers')
 const access = require('@condo/domains/resident/access/FindUnitsByAddressService')
-const { RESIDENT } = require('@condo/domains/user/constants/common')
-const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
-
 const {
     RESIDENT_FIND_UNITS_WINDOW_SEC,
     MAX_RESIDENT_FIND_UNITS_BY_WINDOW_SEC,
-} = require('../constants/constants')
+} = require('@condo/domains/resident/constants/constants')
+const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
+
 
 const TOTAL_UNITS_LIMIT = 25000
 
