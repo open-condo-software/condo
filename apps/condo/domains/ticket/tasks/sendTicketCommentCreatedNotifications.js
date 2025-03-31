@@ -15,7 +15,7 @@ const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/c
 const { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
 const { buildFullClassifierName } = require('@condo/domains/ticket/utils')
 const { TicketClassifier } = require('@condo/domains/ticket/utils/serverSchema')
-const { getUsersAvailableToReadTicketByPropertyScope } = require('@condo/domains/ticket/utils/serverSchema/propertyScope')
+const { getUsersToSendTicketRelatedNotifications } = require('@condo/domains/ticket/utils/serverSchema/notification')
 const { STAFF, RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 
 
@@ -101,7 +101,7 @@ const sendTicketCommentCreatedNotifications = async (commentId, ticketId) => {
         const authorType = getCommentAuthorRoleMessage(commentAuthor, lang)
         const ticketClassifier = buildFullClassifierName(classifier)
 
-        const users = await getUsersAvailableToReadTicketByPropertyScope({
+        const users = await getUsersToSendTicketRelatedNotifications({
             ticketOrganizationId: ticket.organization,
             ticketPropertyId: ticket.property,
             ticketExecutorId: ticket.executor,

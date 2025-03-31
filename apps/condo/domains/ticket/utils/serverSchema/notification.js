@@ -42,12 +42,10 @@ const _getPropertyAndSpecializationsEmployeesAccessedToTicket = async (propertyA
  * @param ticketAssigneeId
  * @returns {Promise<String>} User ids
  */
-const getUsersAvailableToReadTicketByPropertyScope = async ({
+const _getUsersAvailableToReadTicketByPropertyScope = async ({
     ticketOrganizationId,
     ticketPropertyId,
     ticketCategoryClassifierId,
-    ticketExecutorId,
-    ticketAssigneeId,
 }) => {
     const roles = await find('OrganizationEmployeeRole', {
         organization: { id: ticketOrganizationId },
@@ -65,7 +63,7 @@ const getUsersAvailableToReadTicketByPropertyScope = async ({
     const employees = organizationEmployees.filter(
         employee => roleIds.includes(employee.role)
     )
-    const availableToReadTicketUsers = [ticketExecutorId, ticketAssigneeId]
+    const availableToReadTicketUsers = []
 
     const employeesWithRoles = employees.map(employee => {
         employee.role = roles.find(role => role.id === employee.role)
@@ -121,6 +119,47 @@ const getUsersAvailableToReadTicketByPropertyScope = async ({
     return uniq(availableToReadTicketUsers.filter(Boolean))
 }
 
+/*
+    Returns id of users who assignee or executor of this ticket
+    Or they can read ticket by ticket visibility logic
+    Or they are an organization employee from related organization
+*/
+export const getUsersToSendTicketRelatedNotifications = async ({
+    ticketOrganizationId,
+    ticketPropertyId,
+    ticketCategoryClassifierId,
+    ticketExecutorId,
+    ticketAssigneeId,
+}) => {
+    const organizationLinks = await find('OrganizationLink', {
+        from: { deletedAt: null },
+        to: { id: ticketOrganizationId, deletedAt: null },
+        deletedAt: null,
+    })
+    const organizationsToSendNotification = organizationLinks.map(link => link?.from)
+    const employeesFromRelatedOrganizations = await find('OrganizationEmployee', {
+        organization: { id_in: organizationsToSendNotification },
+        user: { deletedAt: null },
+        isRejected: false,
+        isAccepted: true,
+        isBlocked: false,
+        deletedAt: null,
+    })
+    const usersIdFromRelatedOrganizations = employeesFromRelatedOrganizations.map(employee => employee.user)
+
+    const usersIdFromOrganization = await _getUsersAvailableToReadTicketByPropertyScope({
+        ticketOrganizationId,
+        ticketPropertyId,
+        ticketCategoryClassifierId,
+    })
+
+    return uniq([
+        ...[ticketExecutorId, ticketAssigneeId],
+        ...usersIdFromOrganization,
+        ...usersIdFromRelatedOrganizations,
+    ]).filter(Boolean)
+}
+
 module.exports = {
-    getUsersAvailableToReadTicketByPropertyScope,
+    getUsersToSendTicketRelatedNotifications,
 }

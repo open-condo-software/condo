@@ -13,7 +13,7 @@ const { sendMessage } = require('@condo/domains/notification/utils/serverSchema'
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { buildFullClassifierName } = require('@condo/domains/ticket/utils')
 const { TicketClassifier } = require('@condo/domains/ticket/utils/serverSchema')
-const { getUsersAvailableToReadTicketByPropertyScope } = require('@condo/domains/ticket/utils/serverSchema/propertyScope')
+const { getUsersToSendTicketRelatedNotifications } = require('@condo/domains/ticket/utils/serverSchema/notification')
 
 
 const appLogger = getLogger('condo')
@@ -31,6 +31,7 @@ const sendTicketCreatedNotifications = async (ticketId, lang, organizationId, or
         setLocaleForKeystoneContext(context, lang)
 
         const createdTicket = await getById('Ticket', ticketId)
+        const ticketOrganization = createdTicket.organization
         const ticketStatus = await getById('TicketStatus', createdTicket.status)
         const ticketUrl = `${conf.SERVER_URL}/ticket/${ticketId}`
         const classifier = await TicketClassifier.getOne(context,
@@ -44,7 +45,7 @@ const sendTicketCreatedNotifications = async (ticketId, lang, organizationId, or
 
         const ticketClassifier = buildFullClassifierName(classifier)
 
-        const users = await getUsersAvailableToReadTicketByPropertyScope({
+        const users = await getUsersToSendTicketRelatedNotifications({
             ticketOrganizationId: createdTicket.organization,
             ticketPropertyId: createdTicket.property,
             ticketExecutorId: createdTicket.executor,
