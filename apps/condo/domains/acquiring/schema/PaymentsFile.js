@@ -16,6 +16,7 @@ const {
     PAYMENTS_FILE_DOWNLOADED_STATUS,
 } = require('@condo/domains/acquiring/constants/constants')
 const {  MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
+const { convertFileNameToUTF8 } = require('@condo/domains/common/utils/fixFileNameEncoding')
 
 
 const Adapter = new FileAdapter(PAYMENTS_FILES_FOLDER_NAME)
@@ -122,6 +123,29 @@ const PaymentsFile = new GQLListSchema('PaymentsFile', {
             isRequired: false,
         },
 
+    },
+    hooks: {
+        resolveInput: async ({ resolvedData }) => {
+            if (resolvedData['file']) {
+                resolvedData['file'].originalFilename = convertFileNameToUTF8(resolvedData['file'].originalFilename)
+            }
+            return resolvedData
+        },
+        afterChange: async ({ operation, updatedItem }) => {
+            if (updatedItem && Adapter.acl) {
+                const { context, file } = updatedItem
+                if (file) {
+                    const { filename } = file
+                    const key = `${PAYMENTS_FILES_FOLDER_NAME}/${filename}`
+                    // OBS will lowercase all keys from meta
+                    const metaToSet = {
+                        listkey: 'AcquiringIntregrationContext',
+                        id: context,
+                    }
+                    await Adapter.acl.setMeta(key, metaToSet)
+                }
+            }
+        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
