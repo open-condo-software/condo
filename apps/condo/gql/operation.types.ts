@@ -417,6 +417,7 @@ export type GetLastActiveOrganizationEmployeeRequestByTinQuery = { __typename?: 
 
 export type GetRequestsForUserOrganizationsQueryVariables = Types.Exact<{
   userId: Types.Scalars['ID']['input'];
+  userOrganizationIds?: Types.InputMaybe<Array<Types.Scalars['ID']['input']> | Types.Scalars['ID']['input']>;
 }>;
 
 

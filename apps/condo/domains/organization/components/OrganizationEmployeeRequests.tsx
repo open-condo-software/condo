@@ -2,11 +2,12 @@ import {
     AcceptOrRejectOrganizationEmployeeRequestMutationFn, GetOrganizationEmployeeRolesByOrganizationQueryResult,
     GetRequestsForUserOrganizationsQueryResult,
     useAcceptOrRejectOrganizationEmployeeRequestMutation, useGetOrganizationEmployeeRolesByOrganizationQuery,
-    useGetRequestsForUserOrganizationsQuery,
+    useGetRequestsForUserOrganizationsQuery, useGetActualOrganizationEmployeesQuery,
 } from '@app/condo/gql'
 import { Form, notification } from 'antd'
 import { Dispatch, FC, SetStateAction, useCallback, useMemo, useState } from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useAuth } from '@open-condo/next/auth'
@@ -146,7 +147,9 @@ export const OrganizationEmployeeRequests = () => {
     const AcceptMessage = intl.formatMessage({ id: 'Confirm' })
     const RejectMessage = intl.formatMessage({ id: 'Reject' })
 
+    const { persistor } = useCachePersistor()
     const { user, isAuthenticated } = useAuth()
+    const userId = useMemo(() => user?.id, [user?.id])
     const { employee } = useOrganization()
     const { addNotification } = useLayoutContext()
 
@@ -154,14 +157,27 @@ export const OrganizationEmployeeRequests = () => {
 
     const onError = useMutationErrorHandler()
     const {
+        data: actualEmployeesData,
+        loading: isEmployeesLoading,
+    } = useGetActualOrganizationEmployeesQuery({
+        variables: { userId },
+        skip: !userId || !persistor,
+    })
+    const userOrganizationIds = useMemo(() => actualEmployeesData?.actualEmployees
+        ?.map(employee => employee?.organization?.id)
+        ?.filter(Boolean)
+    , [actualEmployeesData?.actualEmployees])
+
+    const {
         data: userOrganizationsRequestsData,
         refetch: refetchOrganizationsRequests,
     } = useGetRequestsForUserOrganizationsQuery({
         variables: {
             userId: user?.id,
+            userOrganizationIds,
         },
         onError,
-        skip: !isAuthenticated || !employee,
+        skip: !isAuthenticated || !employee || isEmployeesLoading,
     })
     const [acceptOrRejectRequest] = useAcceptOrRejectOrganizationEmployeeRequestMutation({
         onError,
