@@ -605,6 +605,7 @@
   "billing.category.trash.name": "Мусор",
   "billing.category.trash.name.declined": "мусор",
   "billing.category.water_removal.name": "Водоотведение",
+  "billing.category.insurance.name": "Страхование",
   "callRecord.call": "Звонок",
   "callRecord.callType.incoming": "Входящий",
   "callRecord.callType.outgoing": "Исходящий",

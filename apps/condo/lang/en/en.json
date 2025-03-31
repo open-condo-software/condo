@@ -605,6 +605,7 @@
   "billing.category.trash.name": "Trash",
   "billing.category.trash.name.declined": "trash",
   "billing.category.water_removal.name": "Water removal",
+  "billing.category.insurance.name": "Insurance",
   "callRecord.call": "Call",
   "callRecord.callType.incoming": "Incoming",
   "callRecord.callType.outgoing": "Outgoing",
