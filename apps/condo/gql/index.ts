@@ -3024,9 +3024,9 @@ export type GetLastActiveOrganizationEmployeeRequestByTinLazyQueryHookResult = R
 export type GetLastActiveOrganizationEmployeeRequestByTinSuspenseQueryHookResult = ReturnType<typeof useGetLastActiveOrganizationEmployeeRequestByTinSuspenseQuery>;
 export type GetLastActiveOrganizationEmployeeRequestByTinQueryResult = Apollo.QueryResult<Types.GetLastActiveOrganizationEmployeeRequestByTinQuery, Types.GetLastActiveOrganizationEmployeeRequestByTinQueryVariables>;
 export const GetRequestsForUserOrganizationsDocument = gql`
-    query getRequestsForUserOrganizations($userId: ID!) {
+    query getRequestsForUserOrganizations($userId: ID!, $userOrganizationIds: [ID!]) {
   requests: allOrganizationEmployeeRequests(
-    where: {user: {id_not: $userId}, isAccepted: false, isRejected: false}
+    where: {user: {id_not: $userId}, organization: {id_in: $userOrganizationIds}, isAccepted: false, isRejected: false}
     first: 100
     sortBy: [createdAt_DESC]
   ) {
@@ -3052,6 +3052,7 @@ export const GetRequestsForUserOrganizationsDocument = gql`
  * const { data, loading, error } = useGetRequestsForUserOrganizationsQuery({
  *   variables: {
  *      userId: // value for 'userId'
+ *      userOrganizationIds: // value for 'userOrganizationIds'
  *   },
  * });
  */

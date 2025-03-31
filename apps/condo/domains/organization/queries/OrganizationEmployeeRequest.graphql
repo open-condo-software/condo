@@ -32,10 +32,11 @@ query getLastActiveOrganizationEmployeeRequestByTin ($userId: ID!, $tin: String!
     }
 }
 
-query getRequestsForUserOrganizations ($userId: ID!) {
+query getRequestsForUserOrganizations ($userId: ID!, $userOrganizationIds: [ID!]) {
     requests: allOrganizationEmployeeRequests (
         where: {
             user: { id_not: $userId }
+            organization: { id_in: $userOrganizationIds }
             isAccepted: false
             isRejected: false
         }
