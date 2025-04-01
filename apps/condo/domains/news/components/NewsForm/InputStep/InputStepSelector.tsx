@@ -104,8 +104,9 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
         validateFirst: true,
     }), [CustomSelectLabel])
 
+    const isCustomForm = !!newsSharingConfig?.customFormUrl && isSharingStep
     const isCustomSelector = newsSharingConfig?.getRecipientsUrl
-    const viewSelector = !isSharingStep || isCustomSelector
+    const viewSelector = !isCustomForm && (!isSharingStep || isCustomSelector)
 
     const isOnlyOnePropertySelected: boolean = useMemo(() => (scope.selectedPropertiesId.length === 1), [scope.selectedPropertiesId.length])
 
