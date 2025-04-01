@@ -1,12 +1,12 @@
+import { useGetOrganizationEmployeeByUserAndOrganizationIdQuery } from '@app/condo/gql'
 import { Ticket } from '@app/condo/schema'
 import { Typography } from 'antd'
-import { get } from 'lodash'
 import { FC, useMemo } from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { useIntl } from '@open-condo/next/intl'
 
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
-import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 
 import { TicketUserInfoField } from './TicketUserInfoField'
 
@@ -20,25 +20,27 @@ export const TicketAssigneeField: FC<TicketAssigneeFieldProps> = ({ ticket, phon
     const intl = useIntl()
     const AssigneeMessage = intl.formatMessage({ id: 'field.Responsible' })
     const EmployeeIsNullOrWasDeletedMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.EmployeeIsNullOrWasDeleted' })
+    const ticketOrganizationId = useMemo(() => ticket?.organization?.id || null, [ticket])
+    const ticketAssigneeUserId = useMemo(() => ticket?.assignee?.id, [ticket])
 
-    const ticketOrganizationId = useMemo(() => get(ticket, ['organization', 'id'], null), [ticket])
-    const ticketAssigneeUserId = useMemo(() => get(ticket, ['assignee', 'id'], null), [ticket])
+    const { persistor } = useCachePersistor()
 
-    const { obj: assignee } = OrganizationEmployee.useObject({
-        where: {
-            organization: {
-                id: ticketOrganizationId,
-            },
-            user: {
-                id: ticketAssigneeUserId,
-            },
+    const {
+        data: assigneeData,
+    } = useGetOrganizationEmployeeByUserAndOrganizationIdQuery({
+        variables: {
+            userId: ticketAssigneeUserId,
+            organizationId: ticketOrganizationId,
         },
+        skip: !ticketAssigneeUserId || !ticketOrganizationId || !persistor,
     })
 
+    const assignee = useMemo(() => assigneeData?.employee?.filter(Boolean)[0] || null, [assigneeData?.employee])
+
     const assigneeUser = useMemo(() => ({
-        name: get(assignee, 'name'),
-        phone: get(assignee, 'phone'),
-        email: get(assignee, 'email'),
+        name: assignee?.name,
+        phone: assignee?.phone,
+        email: assignee?.email,
     }), [assignee])
 
     return (
@@ -49,7 +51,7 @@ export const TicketAssigneeField: FC<TicketAssigneeFieldProps> = ({ ticket, phon
                     <Typography.Text strong>
                         <TicketUserInfoField
                             user={assigneeUser}
-                            nameLink={`/employee/${get(assignee, 'id')}`}
+                            nameLink={`/employee/${assignee?.id}`}
                             phonePrefix={phonePrefix}
                         />
                     </Typography.Text>

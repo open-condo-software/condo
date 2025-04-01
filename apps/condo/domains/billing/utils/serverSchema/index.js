@@ -67,20 +67,44 @@ const getPaymentsSum = async (receiptId) => {
  */
 const getNewPaymentsSum = async (receiptId) => {
     const receipt = await getById('BillingReceipt', receiptId)
-    const conditions = [
+    const defaultConditions = [
         { status_in: [PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS] },
         { deletedAt: null },
-        { receipt: { id: receiptId } },
     ]
+    // NOTE(YEgorLu): this is hack to know, that BillingReceipt.toPay was reduced by Managing Company during update
+    // When Company uploads receipt, we know it is same receipt with different "toPay", we set "balanceUpdatedAt"
+    // In that case all payments with "transferDate" <= "balanceUpdatedAt" should already be calculated in "toPay" by Managing Company
     if (receipt.balanceUpdatedAt) {
-        conditions.push({
+        defaultConditions.push({
             OR: [
                 { transferDate: null },
                 { transferDate_gte: new Date(receipt.balanceUpdatedAt).toISOString() },
             ],
         })
     }
-    const payments = await find('Payment', { AND: conditions })
+    const conditionsByReceipt = [
+        { receipt: { id: receiptId } },
+        ...defaultConditions,
+    ]
+    let payments = await find('Payment', {
+        AND: conditionsByReceipt,
+    })
+    const billingContext = await getById('BillingIntegrationOrganizationContext', receipt.context)
+    const account = await getById('BillingAccount', receipt.account)
+    if (billingContext && account) {
+        const conditionsWithNoReceipt = [
+            { receipt_is_null: true },
+            { invoice_is_null: true },
+            { organization: { id: billingContext.organization } },
+            { period: receipt.period },
+            { accountNumber: account.number },
+            ...defaultConditions,
+        ]
+        const qrPayments = await find('Payment', {
+            AND: conditionsWithNoReceipt,
+        })
+        payments = payments.concat(qrPayments)
+    }
     return payments.reduce((total, current) => (Big(total).plus(current.amount)), 0).toFixed(8).toString()
 }
 

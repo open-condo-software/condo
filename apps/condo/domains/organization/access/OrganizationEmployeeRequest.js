@@ -57,11 +57,11 @@ async function canManageOrganizationEmployeeRequests ({ authentication: { item: 
         if (user.isSupport) return true
 
         if (!itemId) return false
-        const item = await getById('OrganizationEmployeeRequest', itemId)
-        if (!item || item.deletedAt) return false
-        const userId = get(item, 'user')
+        const employeeRequest = await getById('OrganizationEmployeeRequest', itemId)
+        if (!employeeRequest || employeeRequest.deletedAt) return false
+        const userId = get(employeeRequest, 'user')
         if (!userId) return false
-        if (get(item, 'isAccepted') || get(item, 'isRejected')) return false
+        if (get(employeeRequest, 'isAccepted') || get(employeeRequest, 'isRejected')) return false
         return userId === user.id
     }
 

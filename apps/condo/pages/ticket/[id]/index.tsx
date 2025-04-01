@@ -398,7 +398,6 @@ const TicketActionBar = ({
         user,
         timeZone,
         locale: intl.locale,
-        eventNamePrefix: 'TicketDetail',
     })
 
     const hasValidInvoice = useMemo(() => Array.isArray(invoices) && !!invoices.find((invoice) => get(invoice, 'status') !== INVOICE_STATUS_CANCELED), [invoices])
@@ -801,13 +800,12 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
 const TicketIdPage: PageComponentType = () => {
     const intl = useIntl()
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
+    const { persistor } = useCachePersistor()
 
     const { user } = useAuth()
     const { link, organization, selectEmployee } = useOrganization()
     const { query } = useRouter()
-    const { id } = query as { id: string }
-
-    const { persistor } = useCachePersistor()
+    const ticketId = typeof query?.id === 'string' ? query?.id : null
 
     const {
         data: ticketByIdData,
@@ -815,13 +813,15 @@ const TicketIdPage: PageComponentType = () => {
         refetch: refetchTicket,
         error,
     } = useGetTicketByIdQuery({
-        variables: { id },
-        skip: !persistor,
+        variables: {
+            id: ticketId,
+        },
+        skip: !persistor || !ticketId,
     })
     const ticket = useMemo(() => ticketByIdData?.tickets?.filter(Boolean)[0], [ticketByIdData?.tickets])
 
-    const userId = get(user, 'id', null)
-    const ticketOrganizationId = get(ticket, 'organization.id', null)
+    const userId = user?.id || null
+    const ticketOrganizationId = ticket?.organization?.id || null
 
     const {
         data,
@@ -834,9 +834,9 @@ const TicketIdPage: PageComponentType = () => {
     })
     const ticketOrganizationEmployee = useMemo(() => data?.employees?.filter(Boolean)[0], [data?.employees])
 
-    const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [ticket])
+    const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [intl, ticket])
 
-    const currentEmployeeOrganizationId = useMemo(() => organization?.id, [organization?.id])
+    const currentEmployeeOrganizationId = organization?.id
 
     useEffect(() => {
         if (
@@ -875,7 +875,7 @@ const TicketIdPage: PageComponentType = () => {
             <PageWrapper>
                 <PageContent>
                     <FavoriteTicketsContextProvider
-                        extraTicketsQuery={{ id }}
+                        extraTicketsQuery={{ id: ticketId }}
                     >
                         <TicketPageContent
                             pollCommentsQuery={pollCommentsQuery}

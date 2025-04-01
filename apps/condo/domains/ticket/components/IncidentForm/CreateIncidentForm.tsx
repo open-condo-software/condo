@@ -1,11 +1,11 @@
-import get from 'lodash/get'
+import { useCreateIncidentMutation } from '@app/condo/gql'
+import Router from 'next/router'
 import React, { ComponentProps, useCallback, useMemo } from 'react'
 
+import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button } from '@open-condo/ui'
-
-import { Incident } from '@condo/domains/ticket/utils/clientSchema'
 
 import { BaseIncidentForm, BaseIncidentFormProps } from './BaseIncidentForm'
 
@@ -34,10 +34,21 @@ export const CreateIncidentActionBar: React.FC<ComponentProps<BaseIncidentFormPr
 
 export const CreateIncidentForm: React.FC = () => {
     const { organization } = useOrganization()
-    const organizationId = useMemo(() => get(organization, 'id'), [organization])
+    const organizationId = useMemo(() => organization?.id, [organization])
 
-    const createIncident = Incident.useCreate({ organization: { connect: { id: organizationId } } })
-    const action: BaseIncidentFormProps['action'] = useCallback(async (values) => await createIncident(values), [createIncident])
+    const [createIncident] = useCreateIncidentMutation({
+        onCompleted: async () => await Router.push('/incident'),
+    })
+    const action: BaseIncidentFormProps['action'] = useCallback(async (values) => await createIncident({
+        variables: {
+            data: {
+                ...values,
+                organization: { connect: { id: organizationId } },
+                dv: 1,
+                sender: getClientSideSenderInfo(),
+            },
+        },
+    }), [createIncident, organizationId])
 
     return (
         <BaseIncidentForm

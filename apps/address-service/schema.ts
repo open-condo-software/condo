@@ -16,6 +16,24 @@ export type Scalars = {
 };
 
 
+export type ActualizeAddressesFailuresOutput = {
+  __typename?: 'ActualizeAddressesFailuresOutput';
+  addressId: Scalars['ID'];
+  errorMessage: Scalars['String'];
+};
+
+export type ActualizeAddressesInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  addresses: Array<AddressWhereUniqueInput>;
+};
+
+export type ActualizeAddressesOutput = {
+  __typename?: 'ActualizeAddressesOutput';
+  successIds: Array<Maybe<Scalars['ID']>>;
+  failures: Array<Maybe<ActualizeAddressesFailuresOutput>>;
+};
+
 /**  A model containing data on the particular building's address  */
 export type Address = {
   __typename?: 'Address';
@@ -1363,6 +1381,7 @@ export type Mutation = {
   deleteAddressSource?: Maybe<AddressSource>;
   /**  Delete multiple AddressSource items by ID.  */
   deleteAddressSources?: Maybe<Array<Maybe<AddressSource>>>;
+  actualizeAddresses?: Maybe<ActualizeAddressesOutput>;
   /**  Authenticate and generate a token for a User with the Password Authentication Strategy.  */
   authenticateUserWithPassword?: Maybe<AuthenticateUserOutput>;
   unauthenticateUser?: Maybe<UnauthenticateUserOutput>;
@@ -1615,6 +1634,11 @@ export type MutationDeleteAddressSourceArgs = {
 
 export type MutationDeleteAddressSourcesArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationActualizeAddressesArgs = {
+  data: ActualizeAddressesInput;
 };
 
 

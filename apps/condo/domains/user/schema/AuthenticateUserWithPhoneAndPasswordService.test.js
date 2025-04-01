@@ -272,7 +272,7 @@ describe('Auth by phone and password', () => {
                     if (i === GUARD_WINDOW_LIMIT) {
                         expect(errors).toHaveLength(1)
                         expect(errors[0]).toMatchObject(expect.objectContaining({
-                            message: expect.stringMatching(/You have to wait \d{1,4} seconds to be able to send request again/),
+                            message: expect.stringMatching(/You have to wait \d{1,4} min. to be able to send request again/),
                             extensions: expect.objectContaining({
                                 type: 'TOO_MANY_REQUESTS',
                                 messageForUserTemplateKey: 'api.user.TOO_MANY_REQUESTS',
@@ -310,7 +310,7 @@ describe('Auth by phone and password', () => {
                 // Ensure that lock works fine
                 expect(lockErrors).toHaveLength(1)
                 expect(lockErrors[0]).toMatchObject(expect.objectContaining({
-                    message: expect.stringMatching(/You have to wait \d{1,4} seconds to be able to send request again/),
+                    message: expect.stringMatching(/You have to wait \d{1,4} min. to be able to send request again/),
                     extensions: expect.objectContaining({
                         type: 'TOO_MANY_REQUESTS',
                         messageForUserTemplateKey: 'api.user.TOO_MANY_REQUESTS',
@@ -348,7 +348,7 @@ describe('Auth by phone and password', () => {
                     if (i === GUARD_WINDOW_LIMIT) {
                         expect(errors).toHaveLength(1)
                         expect(errors[0]).toMatchObject(expect.objectContaining({
-                            message: expect.stringMatching(/You have to wait \d{1,4} seconds to be able to send request again/),
+                            message: expect.stringMatching(/You have to wait \d{1,4} min. to be able to send request again/),
                             extensions: expect.objectContaining({
                                 type: 'TOO_MANY_REQUESTS',
                                 messageForUserTemplateKey: 'api.user.TOO_MANY_REQUESTS',
@@ -384,7 +384,7 @@ describe('Auth by phone and password', () => {
                 // Ensure that lock works fine
                 expect(lockErrors).toHaveLength(1)
                 expect(lockErrors[0]).toMatchObject(expect.objectContaining({
-                    message: expect.stringMatching(/You have to wait \d{1,4} seconds to be able to send request again/),
+                    message: expect.stringMatching(/You have to wait \d{1,4} min. to be able to send request again/),
                     extensions: expect.objectContaining({
                         type: 'TOO_MANY_REQUESTS',
                         messageForUserTemplateKey: 'api.user.TOO_MANY_REQUESTS',

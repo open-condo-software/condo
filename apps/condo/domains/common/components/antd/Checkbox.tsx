@@ -1,36 +1,29 @@
 import { Checkbox as DefaultCheckbox, CheckboxProps } from 'antd'
-import get from 'lodash/get'
-import React from 'react'
+import React, { useCallback } from 'react'
 
-import { useTracking, TrackingEventPropertiesType, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
+import { analytics } from '@condo/domains/common/utils/analytics'
 
-export interface CustomCheckboxProps extends CheckboxProps {
-    eventName?: string
-    eventProperties?: TrackingEventPropertiesType
-}
+/** @deprecated use Checkbox from @open-condo/ui */
+const Checkbox = (props: CheckboxProps) => {
+    const { onChange, id, children, ...restProps } = props
 
-const Checkbox = (props: CustomCheckboxProps) => {
-    const { eventName: propEventName, eventProperties = {}, onChange, ...restProps } = props
-    const { getTrackingWrappedCallback, getEventName } = useTracking()
-
-    const eventName = propEventName ? propEventName : getEventName(TrackingEventType.Checkbox)
-    const componentProperties = { ...eventProperties }
-
-    if (restProps.children && typeof restProps.children === 'string') {
-        componentProperties['component'] = { value: restProps.children }
-
-        const componentId = get(restProps, 'id')
-        if (componentId) {
-            componentProperties['component']['id'] = componentId
+    const onChangeWrapped: CheckboxProps['onChange'] = useCallback((e) => {
+        if (children && typeof children === 'string') {
+            analytics.track('check', {
+                component: 'Checkbox',
+                value: children,
+                location: window.location.href,
+                id,
+            })
         }
-    }
 
-    const onChangeCallback = eventName
-        ? getTrackingWrappedCallback(eventName, componentProperties, onChange)
-        : onChange
+        if (onChange) {
+            onChange(e)
+        }
+    }, [children, id, onChange])
 
     return (
-        <DefaultCheckbox {...restProps} onChange={onChangeCallback} />
+        <DefaultCheckbox {...restProps} onChange={onChangeWrapped} id={id} children={children}/>
     )
 }
 

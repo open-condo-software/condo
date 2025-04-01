@@ -32,10 +32,8 @@ import { Property } from '@condo/domains/property/utils/clientSchema'
 
 const PROPERTY_PAGE_CONTENT_ROW_GUTTER: RowProps['gutter'] = [12, 40]
 const PROPERTY_PAGE_CONTENT_ROW_INFO_BLOCK_GUTTER: RowProps['gutter'] = [52, 24]
-const PROPERTY_PAGE_CONTENT_ROW_INFO_BLOCK_STYLE: React.CSSProperties = { marginTop: '80px', marginRight: '-20px' }
+const PROPERTY_PAGE_CONTENT_ROW_INFO_BLOCK_STYLE: React.CSSProperties = { marginTop: '60px', marginRight: '-20px' }
 const PROPERTY_PAGE_CONTENT_ROW_STYLE: React.CSSProperties = { marginTop: '60px' }
-const PROPERTY_PAGE_SPACE_STYLE: React.CSSProperties = { width: '100%' }
-
 
 export const PropertyPageContent = ({ property, role = null, organizationId = null }) => {
     const intl = useIntl()
@@ -52,7 +50,7 @@ export const PropertyPageContent = ({ property, role = null, organizationId = nu
     const EditPropertyTitle = intl.formatMessage({ id: 'pages.condo.property.id.EditPropertyTitle' })
     const EditPropertyMapTitle = intl.formatMessage({ id: 'pages.condo.property.id.EditPropertyMapTitle' })
     const UnknownValueTitle = intl.formatMessage({ id: 'pages.condo.property.id.UnknownMessage' })
-    const TicketsTitle = intl.formatMessage({ id: 'global.section.tickets' })
+    const TicketsTitle = intl.formatMessage({ id: 'pages.condo.property.id.ticketInformationTitle' })
     const PropertyInformationTitle = intl.formatMessage({ id: 'pages.condo.property.id.propertyInformationTitle' })
     const ParkingTitle = intl.formatMessage({ id: 'field.sectionType.parking' })
     const ParkingAvailableTitle = intl.formatMessage({ id: 'global.available' })
@@ -184,18 +182,18 @@ export const PropertyPageContent = ({ property, role = null, organizationId = nu
                     </Space>
                 </Col>
             </Row>
+            <Row>
+                <PropertyReportCard property={property} organizationId={organizationId} role={role}/>
+            </Row>
             <Row
                 gutter={PROPERTY_PAGE_CONTENT_ROW_INFO_BLOCK_GUTTER}
                 style={PROPERTY_PAGE_CONTENT_ROW_INFO_BLOCK_STYLE}
             >
                 <Col xl={12} md={24} sm={24} xs={24}>
-                    <Space direction='vertical' size={40} style={PROPERTY_PAGE_SPACE_STYLE}>
-                        <List title={PropertyInformationTitle} dataSource={propertyInfoDataSource} />
-                        <List title={TicketsTitle} dataSource={propertyTicketDataSource} />
-                    </Space>
+                    <List title={PropertyInformationTitle} dataSource={propertyInfoDataSource} />
                 </Col>
                 <Col xl={12} md={24} sm={24} xs={24}>
-                    <PropertyReportCard property={property} organizationId={organizationId} role={role} />
+                    <List title={TicketsTitle} dataSource={propertyTicketDataSource} />
                 </Col>
             </Row>
             <Row gutter={[0, 24]} style={PROPERTY_PAGE_CONTENT_ROW_STYLE}>

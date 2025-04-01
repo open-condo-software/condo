@@ -496,7 +496,7 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
                                                 <Form.Item name='isEmergency' valuePropName='checked'>
                                                     <Checkbox
                                                         disabled={disableUserInteraction}
-                                                        eventName='TicketCreateCheckboxEmergency'
+                                                        id='ticket-is-emergency'
                                                         onChange={handleChangeType}
                                                     >
                                                         {EmergencyLabel}
@@ -511,7 +511,7 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
                                                     >
                                                         <Checkbox
                                                             disabled={disableUserInteraction || disableIsPayableCheckbox}
-                                                            eventName='TicketCreateCheckboxIsPayable'
+                                                            id='ticket-is-payable'
                                                             onChange={handlePayableChange}
                                                         >
                                                             {PayableLabel}
@@ -523,7 +523,7 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
                                                 <Form.Item name='isWarranty' valuePropName='checked'>
                                                     <Checkbox
                                                         disabled={disableUserInteraction}
-                                                        eventName='TicketCreateCheckboxIsWarranty'
+                                                        id='ticket-is-warranty'
                                                         onChange={handleChangeType}
                                                     >
                                                         {WarrantyLabel}
@@ -804,8 +804,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allTicketChanges' })
         client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allContacts' })
         client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allInvoices' })
-        // TODO: DOMA-11038 delete this evict, then cache in ROOT_QUERY works correctly
-        client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allTicketComments' })
         client.cache.gc()
 
         if (afterActionCompleted) {
@@ -844,10 +842,13 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
             unitName: null,
             unitType: null,
             sectionName: null,
+            sectionType: null,
             floorName: null,
             property: option.key,
         })
         setSelectedUnitName(null)
+        setSelectedUnitType(null)
+        setSelectedSectionType(null)
         setSelectedPropertyId(option.key)
     }, [])
 
@@ -857,10 +858,13 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
             unitName: null,
             unitType: null,
             sectionName: null,
+            sectionType: null,
             floorName: null,
             property: null,
         })
         setSelectedUnitName(null)
+        setSelectedUnitType(null)
+        setSelectedSectionType(null)
         setSelectedPropertyId(null)
     }, [])
 
@@ -1015,7 +1019,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                                                 <Form.Item name='canReadByResident' valuePropName='checked' initialValue={initialCanReadByResidentValue}>
                                                                                                     <Checkbox
                                                                                                         disabled={disableUserInteraction}
-                                                                                                        eventName='TicketCreateCheckboxCanReadByResident'
+                                                                                                        id='ticket-can-read-by-resident'
                                                                                                     >
                                                                                                         <div style={CAN_READ_BY_RESIDENT_WRAPPER_STYLE}>
                                                                                                             <Typography.Text>
@@ -1038,7 +1042,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                                                 <Form.Item name='attachCallRecord' valuePropName='checked' initialValue={true}>
                                                                                                     <Checkbox
                                                                                                         disabled={disableUserInteraction}
-                                                                                                        eventName='TicketCreateCheckboxAttachCallRecord'
+                                                                                                        id='ticket-attach-call-record'
                                                                                                     >
                                                                                                         {AttachCallRecordMessage}
                                                                                                     </Checkbox>

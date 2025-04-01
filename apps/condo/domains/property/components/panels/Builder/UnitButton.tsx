@@ -149,11 +149,6 @@ interface CustomButtonProps extends ButtonProps {
     unitType?: BuildingUnitSubType
     isDuplicated?: boolean
 }
-const TOOLTIP_OVERLAY_STYLE: React.CSSProperties = {
-    background: colors.white,
-    color: colors.black,
-    borderRadius: '12px',
-}
 
 export const UnitButton: React.FC<CustomButtonProps> = (props) => {
     const { secondary, selected, preview, noninteractive, ellipsis = true, unitType, isDuplicated, children, ...restProps } = props

@@ -6,17 +6,25 @@ const get = require('lodash/get')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
+const { canReadObjectsAsB2BAppServiceUser } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
 const {
     getEmployedOrRelatedOrganizationsByPermissions,
     checkPermissionsInEmployedOrRelatedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
+const { SERVICE } = require('@condo/domains/user/constants/common')
 
 
-async function canReadOrganizationEmployeeRoles ({ authentication: { item: user }, context }) {
+async function canReadOrganizationEmployeeRoles (args) {
+    const { authentication: { item: user }, context } = args
+
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isSupport || user.isAdmin) return {}
+
+    if (user.type === SERVICE) {
+        return await canReadObjectsAsB2BAppServiceUser(args)
+    }
 
     const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, [])
 

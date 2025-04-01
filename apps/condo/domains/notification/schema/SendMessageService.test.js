@@ -12,6 +12,8 @@ const {
     PUSH_TRANSPORT,
     SMS_TRANSPORT,
     VOIP_INCOMING_CALL_MESSAGE_TYPE,
+    CANCELED_CALL_MESSAGE_PUSH_TYPE,
+    B2C_APP_MESSAGE_PUSH_TYPE,
     DEVICE_PLATFORM_ANDROID,
     APP_RESIDENT_ID_ANDROID,
     APP_RESIDENT_ID_IOS,
@@ -19,10 +21,11 @@ const {
     PUSH_TRANSPORT_FIREBASE,
     PUSH_TRANSPORT_HUAWEI,
     PUSH_TRANSPORT_APPLE,
+    PUSH_TYPE_DEFAULT,
     PUSH_TYPE_SILENT_DATA,
-    REGISTER_NEW_USER_MESSAGE_TYPE,
     MESSAGE_DISABLED_BY_USER_STATUS,
     MESSAGE_DELIVERY_OPTIONS,
+    DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const {
     syncRemoteClientWithPushTokenByTestClient, sendMessageByTestClient,
@@ -218,6 +221,84 @@ describe('SendMessageService', () => {
 
             })
 
+            describe('Push message sent by preferred push type', () => {
+                it('CANCELED_CALL_MESSAGE_PUSH_TYPE has a preferred push type - PUSH_TYPE_SILENT_DATA', async () => {
+                    const userClient = await makeClientWithResidentAccessAndProperty()
+                    const payload = {
+                        pushType: PUSH_TYPE_DEFAULT,
+                    }
+
+                    await syncRemoteClientWithPushTokenByTestClient(userClient, payload)
+                    const messageAttrs = {
+                        to: { user: { id: userClient.user.id } },
+                        type: CANCELED_CALL_MESSAGE_PUSH_TYPE,
+                        meta: {
+                            dv: 1,
+                            body: faker.random.alphaNumeric(8),
+                            title: faker.random.alphaNumeric(8),
+                            data: {
+                                B2CAppId: faker.datatype.uuid(),
+                                callId: faker.datatype.uuid(),
+                            },
+                        },
+                    }
+                    const [data] = await sendMessageByTestClient(admin, messageAttrs)
+
+                    let message
+
+                    await waitFor(async () => {
+                        message = await Message.getOne(admin, { id: data.id })
+
+                        expect(message.status).toEqual(MESSAGE_SENT_STATUS)
+                        expect(message.user.id).toEqual(userClient.user.id)
+                    })
+
+                    const transportMeta = message.processingMeta.transportsMeta[0]
+
+                    expect(transportMeta.status).toEqual(MESSAGE_SENT_STATUS)
+                    expect(transportMeta.transport).toEqual(PUSH_TRANSPORT)
+                    expect(transportMeta.deliveryMetadata.pushContext[PUSH_TYPE_SILENT_DATA].data.type).toEqual(CANCELED_CALL_MESSAGE_PUSH_TYPE)
+                })
+
+                it('Any message type without a preferred push type is retrieved from the remote client', async () => {
+                    const userClient = await makeClientWithResidentAccessAndProperty()
+                    const payload = {
+                        pushType: PUSH_TYPE_DEFAULT,
+                    }
+
+                    await syncRemoteClientWithPushTokenByTestClient(userClient, payload)
+                    const messageAttrs = {
+                        to: { user: { id: userClient.user.id } },
+                        type: B2C_APP_MESSAGE_PUSH_TYPE, // Any other message type without a preferred push type can be here
+                        meta: {
+                            dv: 1,
+                            body: faker.random.alphaNumeric(8),
+                            title: faker.random.alphaNumeric(8),
+                            data: {
+                                B2CAppId: faker.datatype.uuid(),
+                                callId: faker.datatype.uuid(),
+                            },
+                        },
+                    }
+                    const [data] = await sendMessageByTestClient(admin, messageAttrs)
+
+                    let message
+
+                    await waitFor(async () => {
+                        message = await Message.getOne(admin, { id: data.id })
+
+                        expect(message.status).toEqual(MESSAGE_SENT_STATUS)
+                        expect(message.user.id).toEqual(userClient.user.id)
+                    })
+
+                    const transportMeta = message.processingMeta.transportsMeta[0]
+
+                    expect(transportMeta.status).toEqual(MESSAGE_SENT_STATUS)
+                    expect(transportMeta.transport).toEqual(PUSH_TRANSPORT)
+                    expect(transportMeta.deliveryMetadata.pushContext[payload.pushType].data.type).toEqual(B2C_APP_MESSAGE_PUSH_TYPE)
+                })
+            })
+
 
             describe('with INVITE_NEW_EMPLOYEE message type', () => {
                 it('throws error when "inviteCode" is not specified in meta', async () => {
@@ -370,7 +451,7 @@ describe('SendMessageService', () => {
     })
 
     test('Send message even if one of 2+ transports is disabled by user', async () => {
-        const messageType = REGISTER_NEW_USER_MESSAGE_TYPE
+        const messageType = DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE
         const transportToDisable = SMS_TRANSPORT
         const allTransports = get(MESSAGE_DELIVERY_OPTIONS, [messageType, 'allowedTransports'])
 
@@ -417,7 +498,7 @@ describe('SendMessageService', () => {
     })
 
     test('Not send message if message type is disabled by user', async () => {
-        const messageType = REGISTER_NEW_USER_MESSAGE_TYPE
+        const messageType = DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE
         const allTransports = get(MESSAGE_DELIVERY_OPTIONS, [messageType, 'allowedTransports'])
 
         // Need to test message type that have 2+ transports

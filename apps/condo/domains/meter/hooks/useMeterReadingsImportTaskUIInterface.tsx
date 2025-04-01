@@ -19,10 +19,10 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 
 type TaskRecordType = GetMeterReadingsImportTasksQuery['tasks'][number]
 
-type UseMeterReadingsImportTaskUIInterfaceType = () => ({ MeterReadingsImportTask: ITask<TaskRecordType> })
+type UseMeterReadingsImportTaskUIInterfaceType = (isPropertyMeters?: boolean) => ({ MeterReadingsImportTask: ITask<TaskRecordType> })
 
-export const useMeterReadingsImportTaskUIInterface: UseMeterReadingsImportTaskUIInterfaceType = () => {
-    const schemaName = 'MeterReadingsImportTask'
+export const useMeterReadingsImportTaskUIInterface: UseMeterReadingsImportTaskUIInterfaceType = (isPropertyMeters = false) => {
+    const schemaName = isPropertyMeters ? 'PropertyMeterReadingsImportTask' : 'MeterReadingsImportTask'
 
     const intl = useIntl()
     const ExportTaskProgressTitle = intl.formatMessage({ id: `tasks.${schemaName}.progress.title` })
@@ -106,8 +106,8 @@ export const useMeterReadingsImportTaskUIInterface: UseMeterReadingsImportTaskUI
     }
 }
 
-export const useMeterReadingsImportTask = ({ file, userId, organizationId }) => {
-    const { MeterReadingsImportTask: TaskUIInterface } = useMeterReadingsImportTaskUIInterface()
+export const useMeterReadingsImportTask = ({ file, userId, organizationId, isPropertyMeters }) => {
+    const { MeterReadingsImportTask: TaskUIInterface } = useMeterReadingsImportTaskUIInterface(isPropertyMeters)
 
     // there must be all args to create MeterReadingsImportTask job
     const { handleRunTask } = useTaskLauncher<MeterReadingsImportTaskCreateInput>(TaskUIInterface, {
@@ -116,6 +116,7 @@ export const useMeterReadingsImportTask = ({ file, userId, organizationId }) => 
         user: { connect: { id: userId } },
         organization: { connect: { id: organizationId } },
         file,
+        isPropertyMeters,
     })
 
     return {

@@ -27,7 +27,8 @@ const { INTERNAL_DELETE_METER_READINGS_MUTATION } = require('@condo/domains/mete
 const { REGISTER_METERS_READINGS_MUTATION } = require('@condo/domains/meter/gql')
 const { MeterReadingsImportTask: MeterReadingsImportTaskGQL } = require('@condo/domains/meter/gql')
 const { MeterReadingExportTask: MeterReadingExportTaskGQL } = require('@condo/domains/meter/gql')
-const { MeterUserData: MeterUserDataGQL } = require('@condo/domains/meter/gql')
+const { REGISTER_PROPERTY_METERS_READINGS_MUTATION } = require('@condo/domains/meter/gql')
+const { MeterUserSetting: MeterUserSettingGQL } = require('@condo/domains/meter/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const MeterResource = generateGQLTestUtils(MeterResourceGQL)
@@ -41,7 +42,7 @@ const MeterReportingPeriod = generateGQLTestUtils(MeterReportingPeriodGQL)
 const MeterResourceOwner = generateGQLTestUtils(MeterResourceOwnerGQL)
 const MeterReadingsImportTask = generateGQLTestUtils(MeterReadingsImportTaskGQL)
 const MeterReadingExportTask = generateGQLTestUtils(MeterReadingExportTaskGQL)
-const MeterUserData = generateGQLTestUtils(MeterUserDataGQL)
+const MeterUserSetting = generateGQLTestUtils(MeterUserSettingGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 const { COLD_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
@@ -237,7 +238,7 @@ async function updateTestMeterReadingFilterTemplate (client, id, extraAttrs = {}
 }
 
 
-async function _internalDeleteMeterAndMeterReadingsByTestClient(client, extraAttrs = {}) {
+async function _internalDeleteMeterAndMeterReadingsByTestClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -379,7 +380,7 @@ async function updateTestMeterResourceOwner (client, id, extraAttrs = {}) {
 }
 
 
-async function _internalDeleteMeterReadingsByTestClient(client, extraAttrs = {}) {
+async function _internalDeleteMeterReadingsByTestClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -393,7 +394,7 @@ async function _internalDeleteMeterReadingsByTestClient(client, extraAttrs = {})
     return [data.result, attrs]
 }
 
-async function exportPropertyMeterReadingsByTestClient(client, extraAttrs = {}) {
+async function exportPropertyMeterReadingsByTestClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -410,17 +411,18 @@ async function exportPropertyMeterReadingsByTestClient(client, extraAttrs = {}) 
 
 /**
  * @param {Pick<Property, 'address'>} property
+ * @param {boolean} isPropertyMeters
  * @param {Partial<RegisterMetersReadingsReadingInput>} extraAttrs
  * @return {RegisterMetersReadingsReadingInput}
  */
-const createTestReadingData = (property, extraAttrs = {}) => ({
+const createTestReadingData = (property, extraAttrs = {}, isPropertyMeters = false) => ({
     address: property.address,
     addressInfo: {
-        unitType: FLAT_UNIT_TYPE,
-        unitName: get(property, ['map', 'sections', 0, 'floors', 0, 'units', 0, 'label'], faker.random.alphaNumeric(4)),
+        ...!isPropertyMeters ? { unitType: FLAT_UNIT_TYPE } : {},
+        ...!isPropertyMeters ? { unitName: get(property, ['map', 'sections', 0, 'floors', 0, 'units', 0, 'label'], faker.random.alphaNumeric(4)) } : {},
         globalId: get(property, ['addressMeta', 'data', 'house_fias_id'], faker.datatype.uuid()),
     },
-    accountNumber: faker.random.alphaNumeric(12),
+    ...!isPropertyMeters ? { accountNumber: faker.random.alphaNumeric(12) } : {},
     meterNumber: faker.random.numeric(8),
     meterResource: { id: COLD_WATER_METER_RESOURCE_ID },
     date: dayjs().toISOString(),
@@ -514,7 +516,7 @@ async function updateTestMeterReadingExportTask (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestMeterUserData (client, user, meter, extraAttrs = {}) {
+async function createTestMeterUserSetting (client, user, meter, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!user || !user.id) throw new Error('no user.id')
     if (!meter || !meter.id) throw new Error('no meter.id')
@@ -528,11 +530,11 @@ async function createTestMeterUserData (client, user, meter, extraAttrs = {}) {
         name: faker.random.alpha(8),
         ...extraAttrs,
     }
-    const obj = await MeterUserData.create(client, attrs)
+    const obj = await MeterUserSetting.create(client, attrs)
     return [obj, attrs]
 }
 
-async function updateTestMeterUserData (client, id, extraAttrs = {}) {
+async function updateTestMeterUserSetting (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -542,7 +544,7 @@ async function updateTestMeterUserData (client, id, extraAttrs = {}) {
         sender,
         ...extraAttrs,
     }
-    const obj = await MeterUserData.update(client, id, attrs)
+    const obj = await MeterUserSetting.update(client, id, attrs)
     return [obj, attrs]
 }
 
@@ -571,6 +573,26 @@ async function makeResidentWithOwnMeter (admin) {
         meter,
     }
 }
+
+async function registerPropertyMetersReadingsByTestClient (client, organization, readings, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    if (!readings) throw new Error('no readings')
+    if (!Array.isArray(readings)) throw new Error('readings is not an array')
+
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        organization: { id: organization.id },
+        readings,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(REGISTER_PROPERTY_METERS_READINGS_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -590,6 +612,7 @@ module.exports = {
     createTestReadingData, registerMetersReadingsByTestClient,
     MeterReadingsImportTask, createTestMeterReadingsImportTask, updateTestMeterReadingsImportTask,
     MeterReadingExportTask, createTestMeterReadingExportTask, updateTestMeterReadingExportTask,
-    MeterUserData, createTestMeterUserData, updateTestMeterUserData, makeResidentWithOwnMeter,
+    MeterUserSetting, createTestMeterUserSetting, updateTestMeterUserSetting, makeResidentWithOwnMeter,
+    registerPropertyMetersReadingsByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

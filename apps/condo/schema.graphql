@@ -14307,6 +14307,7 @@ type BillingReceiptHistoryRecord {
   recipient: JSON
   receiver: String
   file: String
+  amountDistribution: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -14491,6 +14492,10 @@ input BillingReceiptHistoryRecordWhereInput {
   file_not: String
   file_in: [String]
   file_not_in: [String]
+  amountDistribution: JSON
+  amountDistribution_not: JSON
+  amountDistribution_in: [JSON]
+  amountDistribution_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -14639,6 +14644,7 @@ input BillingReceiptHistoryRecordUpdateInput {
   recipient: JSON
   receiver: String
   file: String
+  amountDistribution: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -14681,6 +14687,7 @@ input BillingReceiptHistoryRecordCreateInput {
   recipient: JSON
   receiver: String
   file: String
+  amountDistribution: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -14811,6 +14818,24 @@ input BillingReceiptFileRelateToOneInput {
   disconnectAll: Boolean
 }
 
+type AmountDistributionField {
+  recipient: RecipientField!
+  amount: String!
+  order: Int
+  vor: Boolean
+  isFeePayer: Boolean
+  overpaymentPart: Int
+}
+
+input AmountDistributionFieldInput {
+  recipient: RecipientFieldInput!
+  amount: String!
+  order: Int
+  vor: Boolean
+  isFeePayer: Boolean
+  overpaymentPart: Int
+}
+
 """ Account monthly invoice document """
 type BillingReceipt {
   """
@@ -14919,6 +14944,10 @@ type BillingReceipt {
 
   """ Code of currency in ISO-4217 format """
   currencyCode: String
+
+  """ This optional field stores how to distribute amount between several receivers. 
+  """
+  amountDistribution: [AmountDistributionField!]
   id: ID!
   v: Int
   createdAt: String
@@ -15099,6 +15128,10 @@ input BillingReceiptWhereInput {
   receiver_is_null: Boolean
   file: BillingReceiptFileWhereInput
   file_is_null: Boolean
+  amountDistribution: [AmountDistributionFieldInput!]
+  amountDistribution_not: [AmountDistributionFieldInput!]
+  amountDistribution_in: [[AmountDistributionFieldInput!]]
+  amountDistribution_not_in: [[AmountDistributionFieldInput!]]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -15239,6 +15272,7 @@ input BillingReceiptUpdateInput {
   recipient: BillingReceiptsRecipientFieldInput
   receiver: BillingRecipientRelateToOneInput
   file: BillingReceiptFileRelateToOneInput
+  amountDistribution: [AmountDistributionFieldInput!]
   v: Int
   createdAt: String
   updatedAt: String
@@ -15278,6 +15312,7 @@ input BillingReceiptCreateInput {
   recipient: BillingReceiptsRecipientFieldInput
   receiver: BillingRecipientRelateToOneInput
   file: BillingReceiptFileRelateToOneInput
+  amountDistribution: [AmountDistributionFieldInput!]
   v: Int
   createdAt: String
   updatedAt: String
@@ -30441,8 +30476,9 @@ type TicketPlaceClassifier {
   """
   organization: Organization
 
-  """ text content """
+  """ Localized Ticket Place classifier name """
   name: String
+  nameNonLocalized: String
   id: ID!
   v: Int
   createdAt: String
@@ -30830,8 +30866,9 @@ type TicketCategoryClassifier {
   """
   organization: Organization
 
-  """ text description """
+  """ Localized Ticket Category classifier name """
   name: String
+  nameNonLocalized: String
   id: ID!
   v: Int
   createdAt: String
@@ -31219,8 +31256,9 @@ type TicketProblemClassifier {
   """
   organization: Organization
 
-  """ text content """
+  """ Localized Ticket Problem classifier name """
   name: String
+  nameNonLocalized: String
   id: ID!
   v: Int
   createdAt: String
@@ -44684,6 +44722,8 @@ type ContactHistoryRecord {
   isVerified: Boolean
   ownershipPercentage: String
   communityFee: String
+  note: String
+  meta: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -44822,6 +44862,28 @@ input ContactHistoryRecordWhereInput {
   communityFee_gte: String
   communityFee_in: [String]
   communityFee_not_in: [String]
+  note: String
+  note_not: String
+  note_contains: String
+  note_not_contains: String
+  note_starts_with: String
+  note_not_starts_with: String
+  note_ends_with: String
+  note_not_ends_with: String
+  note_i: String
+  note_not_i: String
+  note_contains_i: String
+  note_not_contains_i: String
+  note_starts_with_i: String
+  note_not_starts_with_i: String
+  note_ends_with_i: String
+  note_not_ends_with_i: String
+  note_in: [String]
+  note_not_in: [String]
+  meta: JSON
+  meta_not: JSON
+  meta_in: [JSON]
+  meta_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -44921,6 +44983,8 @@ enum SortContactHistoryRecordsBy {
   ownershipPercentage_DESC
   communityFee_ASC
   communityFee_DESC
+  note_ASC
+  note_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -44951,6 +45015,8 @@ input ContactHistoryRecordUpdateInput {
   isVerified: Boolean
   ownershipPercentage: String
   communityFee: String
+  note: String
+  meta: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -44982,6 +45048,8 @@ input ContactHistoryRecordCreateInput {
   isVerified: Boolean
   ownershipPercentage: String
   communityFee: String
+  note: String
+  meta: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -45064,6 +45132,13 @@ type Contact {
 
   """ A special fee paid by this contact to the community """
   communityFee: String
+
+  """ A note about the contact """
+  note: String
+
+  """ Untyped metadata for this object. May be used by custom integrations. 
+  """
+  meta: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -45190,6 +45265,28 @@ input ContactWhereInput {
   communityFee_gte: String
   communityFee_in: [String]
   communityFee_not_in: [String]
+  note: String
+  note_not: String
+  note_contains: String
+  note_not_contains: String
+  note_starts_with: String
+  note_not_starts_with: String
+  note_ends_with: String
+  note_not_ends_with: String
+  note_i: String
+  note_not_i: String
+  note_contains_i: String
+  note_not_contains_i: String
+  note_starts_with_i: String
+  note_not_starts_with_i: String
+  note_ends_with_i: String
+  note_not_ends_with_i: String
+  note_in: [String]
+  note_not_in: [String]
+  meta: JSON
+  meta_not: JSON
+  meta_in: [JSON]
+  meta_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -45275,6 +45372,8 @@ enum SortContactsBy {
   ownershipPercentage_DESC
   communityFee_ASC
   communityFee_DESC
+  note_ASC
+  note_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -45305,6 +45404,8 @@ input ContactUpdateInput {
   isVerified: Boolean
   ownershipPercentage: String
   communityFee: String
+  note: String
+  meta: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -45333,6 +45434,8 @@ input ContactCreateInput {
   isVerified: Boolean
   ownershipPercentage: String
   communityFee: String
+  note: String
+  meta: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -53120,6 +53223,7 @@ type MeterReportingPeriodHistoryRecord {
   property: String
   notifyStartDay: Int
   notifyEndDay: Int
+  restrictionEndDay: Int
   id: ID!
   v: Int
   createdAt: String
@@ -53162,6 +53266,14 @@ input MeterReportingPeriodHistoryRecordWhereInput {
   notifyEndDay_gte: Int
   notifyEndDay_in: [Int]
   notifyEndDay_not_in: [Int]
+  restrictionEndDay: Int
+  restrictionEndDay_not: Int
+  restrictionEndDay_lt: Int
+  restrictionEndDay_lte: Int
+  restrictionEndDay_gt: Int
+  restrictionEndDay_gte: Int
+  restrictionEndDay_in: [Int]
+  restrictionEndDay_not_in: [Int]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -53249,6 +53361,8 @@ enum SortMeterReportingPeriodHistoryRecordsBy {
   notifyStartDay_DESC
   notifyEndDay_ASC
   notifyEndDay_DESC
+  restrictionEndDay_ASC
+  restrictionEndDay_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -53272,6 +53386,7 @@ input MeterReportingPeriodHistoryRecordUpdateInput {
   property: String
   notifyStartDay: Int
   notifyEndDay: Int
+  restrictionEndDay: Int
   v: Int
   createdAt: String
   updatedAt: String
@@ -53296,6 +53411,7 @@ input MeterReportingPeriodHistoryRecordCreateInput {
   property: String
   notifyStartDay: Int
   notifyEndDay: Int
+  restrictionEndDay: Int
   v: Int
   createdAt: String
   updatedAt: String
@@ -53341,6 +53457,12 @@ type MeterReportingPeriod {
   """ Finish day of the month for sending a push about the need to submit meter readings 
   """
   notifyEndDay: Int
+
+  """
+   Indicates the last day when mobile app users cannot pass readings. By default it is set to null, which means that the period is not strict and readings can be passed any day.
+  If it is not null, then the allowed period starts the next day after restrictionEndDay and lasts until notifyEndDay. Can be from 1 to 31.  
+  """
+  restrictionEndDay: Int
   id: ID!
   v: Int
   createdAt: String
@@ -53387,6 +53509,14 @@ input MeterReportingPeriodWhereInput {
   notifyEndDay_gte: Int
   notifyEndDay_in: [Int]
   notifyEndDay_not_in: [Int]
+  restrictionEndDay: Int
+  restrictionEndDay_not: Int
+  restrictionEndDay_lt: Int
+  restrictionEndDay_lte: Int
+  restrictionEndDay_gt: Int
+  restrictionEndDay_gte: Int
+  restrictionEndDay_in: [Int]
+  restrictionEndDay_not_in: [Int]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -53458,6 +53588,8 @@ enum SortMeterReportingPeriodsBy {
   notifyStartDay_DESC
   notifyEndDay_ASC
   notifyEndDay_DESC
+  restrictionEndDay_ASC
+  restrictionEndDay_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -53481,6 +53613,7 @@ input MeterReportingPeriodUpdateInput {
   property: PropertyRelateToOneInput
   notifyStartDay: Int
   notifyEndDay: Int
+  restrictionEndDay: Int
   v: Int
   createdAt: String
   updatedAt: String
@@ -53502,6 +53635,7 @@ input MeterReportingPeriodCreateInput {
   property: PropertyRelateToOneInput
   notifyStartDay: Int
   notifyEndDay: Int
+  restrictionEndDay: Int
   v: Int
   createdAt: String
   updatedAt: String
@@ -54031,6 +54165,7 @@ type MeterReadingsImportTaskHistoryRecord {
   user: String
   organization: String
   locale: String
+  isPropertyMeters: Boolean
   meta: JSON
   id: ID!
   v: Int
@@ -54162,6 +54297,8 @@ input MeterReadingsImportTaskHistoryRecordWhereInput {
   locale_not_ends_with_i: String
   locale_in: [String]
   locale_not_in: [String]
+  isPropertyMeters: Boolean
+  isPropertyMeters_not: Boolean
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
@@ -54263,6 +54400,8 @@ enum SortMeterReadingsImportTaskHistoryRecordsBy {
   errorMessage_DESC
   locale_ASC
   locale_DESC
+  isPropertyMeters_ASC
+  isPropertyMeters_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -54293,6 +54432,7 @@ input MeterReadingsImportTaskHistoryRecordUpdateInput {
   user: String
   organization: String
   locale: String
+  isPropertyMeters: Boolean
   meta: JSON
   v: Int
   createdAt: String
@@ -54325,6 +54465,7 @@ input MeterReadingsImportTaskHistoryRecordCreateInput {
   user: String
   organization: String
   locale: String
+  isPropertyMeters: Boolean
   meta: JSON
   v: Int
   createdAt: String
@@ -54405,6 +54546,10 @@ type MeterReadingsImportTask {
 
   """ Requested import locale """
   locale: String
+
+  """ Indicates whether current import is for Meters and MeterReadings or for PropertyMeters and PropertyMeterReadings 
+  """
+  isPropertyMeters: Boolean
 
   """ Stores information about query and ids of exported and failed records 
   """
@@ -54515,6 +54660,8 @@ input MeterReadingsImportTaskWhereInput {
   locale_not_ends_with_i: String
   locale_in: [String]
   locale_not_in: [String]
+  isPropertyMeters: Boolean
+  isPropertyMeters_not: Boolean
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
@@ -54600,6 +54747,8 @@ enum SortMeterReadingsImportTasksBy {
   organization_DESC
   locale_ASC
   locale_DESC
+  isPropertyMeters_ASC
+  isPropertyMeters_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -54630,6 +54779,7 @@ input MeterReadingsImportTaskUpdateInput {
   user: UserRelateToOneInput
   organization: OrganizationRelateToOneInput
   locale: String
+  isPropertyMeters: Boolean
   meta: JSON
   v: Int
   createdAt: String
@@ -54659,6 +54809,7 @@ input MeterReadingsImportTaskCreateInput {
   user: UserRelateToOneInput
   organization: OrganizationRelateToOneInput
   locale: String
+  isPropertyMeters: Boolean
   meta: JSON
   v: Int
   createdAt: String
@@ -55308,20 +55459,20 @@ input MeterReadingExportTasksCreateInput {
   data: MeterReadingExportTaskCreateInput
 }
 
-enum MeterUserDataHistoryRecordHistoryActionType {
+enum MeterUserSettingHistoryRecordHistoryActionType {
   c
   u
   d
 }
 
 """ A keystone list """
-type MeterUserDataHistoryRecord {
+type MeterUserSettingHistoryRecord {
   """
   This virtual field will be resolved in one of the following ways (in this order):
-   1. Execution of 'labelResolver' set on the MeterUserDataHistoryRecord List config, or
-   2. As an alias to the field set on 'labelField' in the MeterUserDataHistoryRecord List config, or
-   3. As an alias to a 'name' field on the MeterUserDataHistoryRecord List (if one exists), or
-   4. As an alias to the 'id' field on the MeterUserDataHistoryRecord List.
+   1. Execution of 'labelResolver' set on the MeterUserSettingHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the MeterUserSettingHistoryRecord List config, or
+   3. As an alias to a 'name' field on the MeterUserSettingHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the MeterUserSettingHistoryRecord List.
   """
   _label_: String
   user: String
@@ -55338,13 +55489,13 @@ type MeterUserDataHistoryRecord {
   dv: Int
   sender: JSON
   history_date: String
-  history_action: MeterUserDataHistoryRecordHistoryActionType
+  history_action: MeterUserSettingHistoryRecordHistoryActionType
   history_id: String
 }
 
-input MeterUserDataHistoryRecordWhereInput {
-  AND: [MeterUserDataHistoryRecordWhereInput]
-  OR: [MeterUserDataHistoryRecordWhereInput]
+input MeterUserSettingHistoryRecordWhereInput {
+  AND: [MeterUserSettingHistoryRecordWhereInput]
+  OR: [MeterUserSettingHistoryRecordWhereInput]
   user: String
   user_not: String
   user_in: [String]
@@ -55439,21 +55590,21 @@ input MeterUserDataHistoryRecordWhereInput {
   history_date_gte: String
   history_date_in: [String]
   history_date_not_in: [String]
-  history_action: MeterUserDataHistoryRecordHistoryActionType
-  history_action_not: MeterUserDataHistoryRecordHistoryActionType
-  history_action_in: [MeterUserDataHistoryRecordHistoryActionType]
-  history_action_not_in: [MeterUserDataHistoryRecordHistoryActionType]
+  history_action: MeterUserSettingHistoryRecordHistoryActionType
+  history_action_not: MeterUserSettingHistoryRecordHistoryActionType
+  history_action_in: [MeterUserSettingHistoryRecordHistoryActionType]
+  history_action_not_in: [MeterUserSettingHistoryRecordHistoryActionType]
   history_id: String
   history_id_not: String
   history_id_in: [String]
   history_id_not_in: [String]
 }
 
-input MeterUserDataHistoryRecordWhereUniqueInput {
+input MeterUserSettingHistoryRecordWhereUniqueInput {
   id: ID!
 }
 
-enum SortMeterUserDataHistoryRecordsBy {
+enum SortMeterUserSettingHistoryRecordsBy {
   name_ASC
   name_DESC
   id_ASC
@@ -55474,7 +55625,7 @@ enum SortMeterUserDataHistoryRecordsBy {
   history_action_DESC
 }
 
-input MeterUserDataHistoryRecordUpdateInput {
+input MeterUserSettingHistoryRecordUpdateInput {
   user: String
   meter: String
   name: String
@@ -55488,16 +55639,16 @@ input MeterUserDataHistoryRecordUpdateInput {
   dv: Int
   sender: JSON
   history_date: String
-  history_action: MeterUserDataHistoryRecordHistoryActionType
+  history_action: MeterUserSettingHistoryRecordHistoryActionType
   history_id: String
 }
 
-input MeterUserDataHistoryRecordsUpdateInput {
+input MeterUserSettingHistoryRecordsUpdateInput {
   id: ID!
-  data: MeterUserDataHistoryRecordUpdateInput
+  data: MeterUserSettingHistoryRecordUpdateInput
 }
 
-input MeterUserDataHistoryRecordCreateInput {
+input MeterUserSettingHistoryRecordCreateInput {
   user: String
   meter: String
   name: String
@@ -55511,30 +55662,30 @@ input MeterUserDataHistoryRecordCreateInput {
   dv: Int
   sender: JSON
   history_date: String
-  history_action: MeterUserDataHistoryRecordHistoryActionType
+  history_action: MeterUserSettingHistoryRecordHistoryActionType
   history_id: String
 }
 
-input MeterUserDataHistoryRecordsCreateInput {
-  data: MeterUserDataHistoryRecordCreateInput
+input MeterUserSettingHistoryRecordsCreateInput {
+  data: MeterUserSettingHistoryRecordCreateInput
 }
 
-""" Custom user data that a user with type resident can assign to a specific meter device to make it easier to understand what kind of device it is 
+""" Custom user setting that a user with type resident can assign to a specific meter device to make it easier to understand what kind of device it is 
 """
-type MeterUserData {
+type MeterUserSetting {
   """
   This virtual field will be resolved in one of the following ways (in this order):
-   1. Execution of 'labelResolver' set on the MeterUserData List config, or
-   2. As an alias to the field set on 'labelField' in the MeterUserData List config, or
-   3. As an alias to a 'name' field on the MeterUserData List (if one exists), or
-   4. As an alias to the 'id' field on the MeterUserData List.
+   1. Execution of 'labelResolver' set on the MeterUserSetting List config, or
+   2. As an alias to the field set on 'labelField' in the MeterUserSetting List config, or
+   3. As an alias to a 'name' field on the MeterUserSetting List (if one exists), or
+   4. As an alias to the 'id' field on the MeterUserSetting List.
   """
   _label_: String
 
-  """ User that created their custom meter data """
+  """ User that created their custom meter setting """
   user: User
 
-  """ Meter for which the user created custom data """
+  """ Meter for which the user created custom setting """
   meter: Meter
 
   """ Custom meter name that a user assigned to a specific meter """
@@ -55562,9 +55713,9 @@ type MeterUserData {
   sender: SenderField
 }
 
-input MeterUserDatumWhereInput {
-  AND: [MeterUserDatumWhereInput]
-  OR: [MeterUserDatumWhereInput]
+input MeterUserSettingWhereInput {
+  AND: [MeterUserSettingWhereInput]
+  OR: [MeterUserSettingWhereInput]
   user: UserWhereInput
   user_is_null: Boolean
   meter: MeterWhereInput
@@ -55645,11 +55796,11 @@ input MeterUserDatumWhereInput {
   sender_not_in: [SenderFieldInput]
 }
 
-input MeterUserDatumWhereUniqueInput {
+input MeterUserSettingWhereUniqueInput {
   id: ID!
 }
 
-enum SortMeterUserDataBy {
+enum SortMeterUserSettingsBy {
   user_ASC
   user_DESC
   meter_ASC
@@ -55674,7 +55825,7 @@ enum SortMeterUserDataBy {
   dv_DESC
 }
 
-input MeterUserDatumUpdateInput {
+input MeterUserSettingUpdateInput {
   user: UserRelateToOneInput
   meter: MeterRelateToOneInput
   name: String
@@ -55689,12 +55840,12 @@ input MeterUserDatumUpdateInput {
   sender: SenderFieldInput
 }
 
-input MeterUserDataUpdateInput {
+input MeterUserSettingsUpdateInput {
   id: ID!
-  data: MeterUserDatumUpdateInput
+  data: MeterUserSettingUpdateInput
 }
 
-input MeterUserDatumCreateInput {
+input MeterUserSettingCreateInput {
   user: UserRelateToOneInput
   meter: MeterRelateToOneInput
   name: String
@@ -55709,8 +55860,8 @@ input MeterUserDatumCreateInput {
   sender: SenderFieldInput
 }
 
-input MeterUserDataCreateInput {
-  data: MeterUserDatumCreateInput
+input MeterUserSettingsCreateInput {
+  data: MeterUserSettingCreateInput
 }
 
 enum ServiceSubscriptionHistoryRecordHistoryActionType {
@@ -59460,6 +59611,8 @@ type PaymentHistoryRecord {
   recipient: JSON
   rawAddress: String
   importId: String
+  frozenDistribution: JSON
+  frozenSplits: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -59744,6 +59897,14 @@ input PaymentHistoryRecordWhereInput {
   importId_not_ends_with_i: String
   importId_in: [String]
   importId_not_in: [String]
+  frozenDistribution: JSON
+  frozenDistribution_not: JSON
+  frozenDistribution_in: [JSON]
+  frozenDistribution_not_in: [JSON]
+  frozenSplits: JSON
+  frozenSplits_not: JSON
+  frozenSplits_in: [JSON]
+  frozenSplits_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -59908,6 +60069,8 @@ input PaymentHistoryRecordUpdateInput {
   recipient: JSON
   rawAddress: String
   importId: String
+  frozenDistribution: JSON
+  frozenSplits: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -59954,6 +60117,8 @@ input PaymentHistoryRecordCreateInput {
   recipient: JSON
   rawAddress: String
   importId: String
+  frozenDistribution: JSON
+  frozenSplits: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -60280,6 +60445,13 @@ type Payment {
   """ Id of object in external service which represents current item. Mostly used for internal needs of integration services for matching our objects with theirs 
   """
   importId: String
+
+  """ Distribution obtained from a paid model (receipt or invoice) """
+  frozenDistribution: JSON
+
+  """ Splits created from distribution. Contains data applicable in external acquiring integration 
+  """
+  frozenSplits: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -60534,6 +60706,14 @@ input PaymentWhereInput {
   importId_not_ends_with_i: String
   importId_in: [String]
   importId_not_in: [String]
+  frozenDistribution: JSON
+  frozenDistribution_not: JSON
+  frozenDistribution_in: [JSON]
+  frozenDistribution_not_in: [JSON]
+  frozenSplits: JSON
+  frozenSplits_not: JSON
+  frozenSplits_in: [JSON]
+  frozenSplits_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -60688,6 +60868,8 @@ input PaymentUpdateInput {
   recipient: RecipientFieldInput
   rawAddress: String
   importId: String
+  frozenDistribution: JSON
+  frozenSplits: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -60731,6 +60913,8 @@ input PaymentCreateInput {
   recipient: RecipientFieldInput
   rawAddress: String
   importId: String
+  frozenDistribution: JSON
+  frozenSplits: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -72235,6 +72419,8 @@ type B2BAppAccessRightSetHistoryRecord {
   canManageBillingReceipts: Boolean
   canReadContacts: Boolean
   canManageContacts: Boolean
+  canReadInvoices: Boolean
+  canManageInvoices: Boolean
   canReadMeters: Boolean
   canManageMeters: Boolean
   canReadMeterReadings: Boolean
@@ -72243,6 +72429,8 @@ type B2BAppAccessRightSetHistoryRecord {
   canManageOrganizations: Boolean
   canReadOrganizationEmployees: Boolean
   canManageOrganizationEmployees: Boolean
+  canReadOrganizationEmployeeRoles: Boolean
+  canManageOrganizationEmployeeRoles: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
   canReadTickets: Boolean
@@ -72255,6 +72443,7 @@ type B2BAppAccessRightSetHistoryRecord {
   canManageTicketCommentFiles: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
+  canExecuteRegisterPropertyMetersReadings: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -72325,6 +72514,10 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   canReadContacts_not: Boolean
   canManageContacts: Boolean
   canManageContacts_not: Boolean
+  canReadInvoices: Boolean
+  canReadInvoices_not: Boolean
+  canManageInvoices: Boolean
+  canManageInvoices_not: Boolean
   canReadMeters: Boolean
   canReadMeters_not: Boolean
   canManageMeters: Boolean
@@ -72341,6 +72534,10 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   canReadOrganizationEmployees_not: Boolean
   canManageOrganizationEmployees: Boolean
   canManageOrganizationEmployees_not: Boolean
+  canReadOrganizationEmployeeRoles: Boolean
+  canReadOrganizationEmployeeRoles_not: Boolean
+  canManageOrganizationEmployeeRoles: Boolean
+  canManageOrganizationEmployeeRoles_not: Boolean
   canReadProperties: Boolean
   canReadProperties_not: Boolean
   canManageProperties: Boolean
@@ -72365,6 +72562,8 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   canExecuteRegisterMetersReadings_not: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
   canExecuteSendB2BAppPushMessage_not: Boolean
+  canExecuteRegisterPropertyMetersReadings: Boolean
+  canExecuteRegisterPropertyMetersReadings_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -72464,6 +72663,10 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
   canReadContacts_DESC
   canManageContacts_ASC
   canManageContacts_DESC
+  canReadInvoices_ASC
+  canReadInvoices_DESC
+  canManageInvoices_ASC
+  canManageInvoices_DESC
   canReadMeters_ASC
   canReadMeters_DESC
   canManageMeters_ASC
@@ -72480,6 +72683,10 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
   canReadOrganizationEmployees_DESC
   canManageOrganizationEmployees_ASC
   canManageOrganizationEmployees_DESC
+  canReadOrganizationEmployeeRoles_ASC
+  canReadOrganizationEmployeeRoles_DESC
+  canManageOrganizationEmployeeRoles_ASC
+  canManageOrganizationEmployeeRoles_DESC
   canReadProperties_ASC
   canReadProperties_DESC
   canManageProperties_ASC
@@ -72504,6 +72711,8 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
   canExecuteRegisterMetersReadings_DESC
   canExecuteSendB2BAppPushMessage_ASC
   canExecuteSendB2BAppPushMessage_DESC
+  canExecuteRegisterPropertyMetersReadings_ASC
+  canExecuteRegisterPropertyMetersReadings_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -72532,6 +72741,8 @@ input B2BAppAccessRightSetHistoryRecordUpdateInput {
   canManageBillingReceipts: Boolean
   canReadContacts: Boolean
   canManageContacts: Boolean
+  canReadInvoices: Boolean
+  canManageInvoices: Boolean
   canReadMeters: Boolean
   canManageMeters: Boolean
   canReadMeterReadings: Boolean
@@ -72540,6 +72751,8 @@ input B2BAppAccessRightSetHistoryRecordUpdateInput {
   canManageOrganizations: Boolean
   canReadOrganizationEmployees: Boolean
   canManageOrganizationEmployees: Boolean
+  canReadOrganizationEmployeeRoles: Boolean
+  canManageOrganizationEmployeeRoles: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
   canReadTickets: Boolean
@@ -72552,6 +72765,7 @@ input B2BAppAccessRightSetHistoryRecordUpdateInput {
   canManageTicketCommentFiles: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
+  canExecuteRegisterPropertyMetersReadings: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -72581,6 +72795,8 @@ input B2BAppAccessRightSetHistoryRecordCreateInput {
   canManageBillingReceipts: Boolean
   canReadContacts: Boolean
   canManageContacts: Boolean
+  canReadInvoices: Boolean
+  canManageInvoices: Boolean
   canReadMeters: Boolean
   canManageMeters: Boolean
   canReadMeterReadings: Boolean
@@ -72589,6 +72805,8 @@ input B2BAppAccessRightSetHistoryRecordCreateInput {
   canManageOrganizations: Boolean
   canReadOrganizationEmployees: Boolean
   canManageOrganizationEmployees: Boolean
+  canReadOrganizationEmployeeRoles: Boolean
+  canManageOrganizationEmployeeRoles: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
   canReadTickets: Boolean
@@ -72601,6 +72819,7 @@ input B2BAppAccessRightSetHistoryRecordCreateInput {
   canManageTicketCommentFiles: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
+  canExecuteRegisterPropertyMetersReadings: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -72659,6 +72878,8 @@ type B2BAppAccessRightSet {
   canManageBillingReceipts: Boolean
   canReadContacts: Boolean
   canManageContacts: Boolean
+  canReadInvoices: Boolean
+  canManageInvoices: Boolean
   canReadMeters: Boolean
   canManageMeters: Boolean
   canReadMeterReadings: Boolean
@@ -72673,6 +72894,11 @@ type B2BAppAccessRightSet {
   """ Currently, this field is read-only. You cannot get manage access for the specified schema. 
   """
   canManageOrganizationEmployees: Boolean
+  canReadOrganizationEmployeeRoles: Boolean
+
+  """ Currently, this field is read-only. You cannot get manage access for the specified schema. 
+  """
+  canManageOrganizationEmployeeRoles: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
   canReadTickets: Boolean
@@ -72685,6 +72911,7 @@ type B2BAppAccessRightSet {
   canManageTicketCommentFiles: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
+  canExecuteRegisterPropertyMetersReadings: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -72747,6 +72974,10 @@ input B2BAppAccessRightSetWhereInput {
   canReadContacts_not: Boolean
   canManageContacts: Boolean
   canManageContacts_not: Boolean
+  canReadInvoices: Boolean
+  canReadInvoices_not: Boolean
+  canManageInvoices: Boolean
+  canManageInvoices_not: Boolean
   canReadMeters: Boolean
   canReadMeters_not: Boolean
   canManageMeters: Boolean
@@ -72763,6 +72994,10 @@ input B2BAppAccessRightSetWhereInput {
   canReadOrganizationEmployees_not: Boolean
   canManageOrganizationEmployees: Boolean
   canManageOrganizationEmployees_not: Boolean
+  canReadOrganizationEmployeeRoles: Boolean
+  canReadOrganizationEmployeeRoles_not: Boolean
+  canManageOrganizationEmployeeRoles: Boolean
+  canManageOrganizationEmployeeRoles_not: Boolean
   canReadProperties: Boolean
   canReadProperties_not: Boolean
   canManageProperties: Boolean
@@ -72787,6 +73022,8 @@ input B2BAppAccessRightSetWhereInput {
   canExecuteRegisterMetersReadings_not: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
   canExecuteSendB2BAppPushMessage_not: Boolean
+  canExecuteRegisterPropertyMetersReadings: Boolean
+  canExecuteRegisterPropertyMetersReadings_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -72868,6 +73105,10 @@ enum SortB2BAppAccessRightSetsBy {
   canReadContacts_DESC
   canManageContacts_ASC
   canManageContacts_DESC
+  canReadInvoices_ASC
+  canReadInvoices_DESC
+  canManageInvoices_ASC
+  canManageInvoices_DESC
   canReadMeters_ASC
   canReadMeters_DESC
   canManageMeters_ASC
@@ -72884,6 +73125,10 @@ enum SortB2BAppAccessRightSetsBy {
   canReadOrganizationEmployees_DESC
   canManageOrganizationEmployees_ASC
   canManageOrganizationEmployees_DESC
+  canReadOrganizationEmployeeRoles_ASC
+  canReadOrganizationEmployeeRoles_DESC
+  canManageOrganizationEmployeeRoles_ASC
+  canManageOrganizationEmployeeRoles_DESC
   canReadProperties_ASC
   canReadProperties_DESC
   canManageProperties_ASC
@@ -72908,6 +73153,8 @@ enum SortB2BAppAccessRightSetsBy {
   canExecuteRegisterMetersReadings_DESC
   canExecuteSendB2BAppPushMessage_ASC
   canExecuteSendB2BAppPushMessage_DESC
+  canExecuteRegisterPropertyMetersReadings_ASC
+  canExecuteRegisterPropertyMetersReadings_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -72936,6 +73183,8 @@ input B2BAppAccessRightSetUpdateInput {
   canManageBillingReceipts: Boolean
   canReadContacts: Boolean
   canManageContacts: Boolean
+  canReadInvoices: Boolean
+  canManageInvoices: Boolean
   canReadMeters: Boolean
   canManageMeters: Boolean
   canReadMeterReadings: Boolean
@@ -72944,6 +73193,8 @@ input B2BAppAccessRightSetUpdateInput {
   canManageOrganizations: Boolean
   canReadOrganizationEmployees: Boolean
   canManageOrganizationEmployees: Boolean
+  canReadOrganizationEmployeeRoles: Boolean
+  canManageOrganizationEmployeeRoles: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
   canReadTickets: Boolean
@@ -72956,6 +73207,7 @@ input B2BAppAccessRightSetUpdateInput {
   canManageTicketCommentFiles: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
+  canExecuteRegisterPropertyMetersReadings: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -72982,6 +73234,8 @@ input B2BAppAccessRightSetCreateInput {
   canManageBillingReceipts: Boolean
   canReadContacts: Boolean
   canManageContacts: Boolean
+  canReadInvoices: Boolean
+  canManageInvoices: Boolean
   canReadMeters: Boolean
   canManageMeters: Boolean
   canReadMeterReadings: Boolean
@@ -72990,6 +73244,8 @@ input B2BAppAccessRightSetCreateInput {
   canManageOrganizations: Boolean
   canReadOrganizationEmployees: Boolean
   canManageOrganizationEmployees: Boolean
+  canReadOrganizationEmployeeRoles: Boolean
+  canManageOrganizationEmployeeRoles: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
   canReadTickets: Boolean
@@ -73002,6 +73258,7 @@ input B2BAppAccessRightSetCreateInput {
   canManageTicketCommentFiles: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
+  canExecuteRegisterPropertyMetersReadings: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -76083,6 +76340,7 @@ type InvoiceHistoryRecord {
   publishedAt: String
   paidAt: String
   canceledAt: String
+  amountDistribution: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -76287,6 +76545,10 @@ input InvoiceHistoryRecordWhereInput {
   canceledAt_gte: String
   canceledAt_in: [String]
   canceledAt_not_in: [String]
+  amountDistribution: JSON
+  amountDistribution_not: JSON
+  amountDistribution_in: [JSON]
+  amountDistribution_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -76429,6 +76691,7 @@ input InvoiceHistoryRecordUpdateInput {
   publishedAt: String
   paidAt: String
   canceledAt: String
+  amountDistribution: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -76467,6 +76730,7 @@ input InvoiceHistoryRecordCreateInput {
   publishedAt: String
   paidAt: String
   canceledAt: String
+  amountDistribution: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -76626,6 +76890,10 @@ type Invoice {
 
   """ Code of currency in ISO-4217 format """
   currencyCode: String
+
+  """ This optional field stores how to distribute amount between several receivers. 
+  """
+  amountDistribution: [AmountDistributionField!]
   id: ID!
   v: Int
   createdAt: String
@@ -76790,6 +77058,10 @@ input InvoiceWhereInput {
   canceledAt_gte: String
   canceledAt_in: [String]
   canceledAt_not_in: [String]
+  amountDistribution: [AmountDistributionFieldInput!]
+  amountDistribution_not: [AmountDistributionFieldInput!]
+  amountDistribution_in: [[AmountDistributionFieldInput!]]
+  amountDistribution_not_in: [[AmountDistributionFieldInput!]]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -76924,6 +77196,7 @@ input InvoiceUpdateInput {
   publishedAt: String
   paidAt: String
   canceledAt: String
+  amountDistribution: [AmountDistributionFieldInput!]
   v: Int
   createdAt: String
   updatedAt: String
@@ -76959,6 +77232,7 @@ input InvoiceCreateInput {
   publishedAt: String
   paidAt: String
   canceledAt: String
+  amountDistribution: [AmountDistributionFieldInput!]
   v: Int
   createdAt: String
   updatedAt: String
@@ -78874,6 +79148,7 @@ type DocumentHistoryRecord {
   name: String
   file: JSON
   canReadByResident: Boolean
+  meta: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -78928,6 +79203,10 @@ input DocumentHistoryRecordWhereInput {
   file_not_in: [JSON]
   canReadByResident: Boolean
   canReadByResident_not: Boolean
+  meta: JSON
+  meta_not: JSON
+  meta_in: [JSON]
+  meta_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -79040,6 +79319,7 @@ input DocumentHistoryRecordUpdateInput {
   name: String
   file: JSON
   canReadByResident: Boolean
+  meta: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -79066,6 +79346,7 @@ input DocumentHistoryRecordCreateInput {
   name: String
   file: JSON
   canReadByResident: Boolean
+  meta: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -79121,6 +79402,10 @@ type Document {
 
   """ If set to true, this means document will be accessible by residents """
   canReadByResident: Boolean
+
+  """ Untyped metadata for this object. May be used by custom integrations. 
+  """
+  meta: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -79177,6 +79462,10 @@ input DocumentWhereInput {
   file_not_in: [String]
   canReadByResident: Boolean
   canReadByResident_not: Boolean
+  meta: JSON
+  meta_not: JSON
+  meta_in: [JSON]
+  meta_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -79275,6 +79564,7 @@ input DocumentUpdateInput {
   name: String
   file: Upload
   canReadByResident: Boolean
+  meta: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -79298,6 +79588,7 @@ input DocumentCreateInput {
   name: String
   file: Upload
   canReadByResident: Boolean
+  meta: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -81145,6 +81436,11 @@ type SendNewReceiptMessagesToResidentScopesOutput {
   status: String!
 }
 
+type ValidateQRCodeReceiptCategoryOutput {
+  id: ID!
+  name: String!
+}
+
 input ValidateQRCodeInput {
   dv: Int!
   sender: SenderFieldInput!
@@ -81155,6 +81451,8 @@ type ValidateQRCodeLastReceiptDataOutput {
   id: ID!
   period: String!
   toPay: String!
+  category: ValidateQRCodeReceiptCategoryOutput!
+  createdAt: String!
 }
 
 type ValidateQRCodeFeesOutput {
@@ -81339,7 +81637,6 @@ enum MessageType {
   BANK_ACCOUNT_CREATION_REQUEST
   DIRTY_INVITE_NEW_EMPLOYEE_SMS
   DIRTY_INVITE_NEW_EMPLOYEE_EMAIL
-  REGISTER_NEW_USER
   SMS_VERIFY
   DEVELOPER_IMPORTANT_NOTE_TYPE
   CUSTOMER_IMPORTANT_NOTE_TYPE
@@ -81373,6 +81670,7 @@ enum MessageType {
   CUSTOM_CONTENT_MESSAGE_EMAIL
   CUSTOM_CONTENT_MESSAGE_SMS
   VOIP_INCOMING_CALL_MESSAGE
+  CANCELED_CALL_MESSAGE_PUSH
   B2C_APP_MESSAGE_PUSH
   RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE
   RECURRENT_PAYMENT_PROCEEDING_UNKNOWN_ERROR_MESSAGE
@@ -81685,6 +81983,19 @@ type SuggestServiceProviderOutput {
   name: String!
 }
 
+input FindUnitsByAddressInput {
+  addressKey: String!
+}
+
+type UnitType {
+  unitName: String!
+  unitType: BuildingUnitSubType!
+}
+
+type FindUnitsByAddressOutput {
+  units: [UnitType]!
+}
+
 input SyncTourStepsInput {
   dv: Int!
   sender: SenderFieldInput!
@@ -81804,6 +82115,62 @@ type RegisterMetersReadingsMeterOutput {
 type RegisterMetersReadingsOutput {
   id: ID!
   meter: RegisterMetersReadingsMeterOutput!
+}
+
+input RegisterPropertyMetersReadingsMeterMetaInput {
+  numberOfTariffs: Int
+  verificationDate: String
+  nextVerificationDate: String
+  installationDate: String
+  commissioningDate: String
+  sealingDate: String
+  controlReadingsDate: String
+  isAutomatic: Boolean
+  archiveDate: String
+}
+
+input RegisterPropertyMetersReadingsReadingAddressInfoInput {
+  globalId: String
+}
+
+input RegisterPropertyMetersReadingsReadingInput {
+  address: String!
+  addressInfo: RegisterPropertyMetersReadingsReadingAddressInfoInput
+  meterNumber: String!
+  meterResource: MeterResourceWhereUniqueInput!
+  date: String!
+  value1: String!
+  value2: String
+  value3: String
+  value4: String
+  meterMeta: RegisterPropertyMetersReadingsMeterMetaInput
+  readingSource: MeterReadingSourceWhereUniqueInput
+  billingStatus: MeterReadingBillingStatusType
+  billingStatusText: String
+}
+
+input RegisterPropertyMetersReadingsInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  organization: OrganizationWhereUniqueInput!
+  readings: [RegisterPropertyMetersReadingsReadingInput!]!
+}
+
+type RegisterPropertyMetersReadingsMeterPropertyOutput {
+  id: ID!
+  address: String!
+  addressKey: String!
+}
+
+type RegisterPropertyMetersReadingsMeterOutput {
+  id: ID!
+  property: RegisterPropertyMetersReadingsMeterPropertyOutput!
+  number: String!
+}
+
+type RegisterPropertyMetersReadingsOutput {
+  id: ID!
+  meter: RegisterPropertyMetersReadingsMeterOutput!
 }
 
 input RegisterMultiPaymentReceiptAmountInput {
@@ -82256,6 +82623,7 @@ type MiniAppOutput {
 
 enum SendB2CAppPushMessageType {
   VOIP_INCOMING_CALL_MESSAGE
+  CANCELED_CALL_MESSAGE_PUSH
   B2C_APP_MESSAGE_PUSH
 }
 
@@ -84932,32 +85300,33 @@ type Query {
   """ Retrieve the meta-data for the MeterReadingExportTask list. """
   _MeterReadingExportTasksMeta: _ListMeta
 
-  """ Search for all MeterUserDataHistoryRecord items which match the where clause. 
+  """ Search for all MeterUserSettingHistoryRecord items which match the where clause. 
   """
-  allMeterUserDataHistoryRecords(where: MeterUserDataHistoryRecordWhereInput, search: String, sortBy: [SortMeterUserDataHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [MeterUserDataHistoryRecord]
+  allMeterUserSettingHistoryRecords(where: MeterUserSettingHistoryRecordWhereInput, search: String, sortBy: [SortMeterUserSettingHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [MeterUserSettingHistoryRecord]
 
-  """ Search for the MeterUserDataHistoryRecord item with the matching ID. """
-  MeterUserDataHistoryRecord(where: MeterUserDataHistoryRecordWhereUniqueInput!): MeterUserDataHistoryRecord
-
-  """ Perform a meta-query on all MeterUserDataHistoryRecord items which match the where clause. 
+  """ Search for the MeterUserSettingHistoryRecord item with the matching ID. 
   """
-  _allMeterUserDataHistoryRecordsMeta(where: MeterUserDataHistoryRecordWhereInput, search: String, sortBy: [SortMeterUserDataHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+  MeterUserSettingHistoryRecord(where: MeterUserSettingHistoryRecordWhereUniqueInput!): MeterUserSettingHistoryRecord
 
-  """ Retrieve the meta-data for the MeterUserDataHistoryRecord list. """
-  _MeterUserDataHistoryRecordsMeta: _ListMeta
-
-  """ Search for all MeterUserData items which match the where clause. """
-  allMeterUserData(where: MeterUserDatumWhereInput, search: String, sortBy: [SortMeterUserDataBy!], orderBy: String, first: Int, skip: Int): [MeterUserData]
-
-  """ Search for the MeterUserData item with the matching ID. """
-  MeterUserDatum(where: MeterUserDatumWhereUniqueInput!): MeterUserData
-
-  """ Perform a meta-query on all MeterUserData items which match the where clause. 
+  """ Perform a meta-query on all MeterUserSettingHistoryRecord items which match the where clause. 
   """
-  _allMeterUserDataMeta(where: MeterUserDatumWhereInput, search: String, sortBy: [SortMeterUserDataBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+  _allMeterUserSettingHistoryRecordsMeta(where: MeterUserSettingHistoryRecordWhereInput, search: String, sortBy: [SortMeterUserSettingHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
 
-  """ Retrieve the meta-data for the MeterUserDatum list. """
-  _MeterUserDataMeta: _ListMeta
+  """ Retrieve the meta-data for the MeterUserSettingHistoryRecord list. """
+  _MeterUserSettingHistoryRecordsMeta: _ListMeta
+
+  """ Search for all MeterUserSetting items which match the where clause. """
+  allMeterUserSettings(where: MeterUserSettingWhereInput, search: String, sortBy: [SortMeterUserSettingsBy!], orderBy: String, first: Int, skip: Int): [MeterUserSetting]
+
+  """ Search for the MeterUserSetting item with the matching ID. """
+  MeterUserSetting(where: MeterUserSettingWhereUniqueInput!): MeterUserSetting
+
+  """ Perform a meta-query on all MeterUserSetting items which match the where clause. 
+  """
+  _allMeterUserSettingsMeta(where: MeterUserSettingWhereInput, search: String, sortBy: [SortMeterUserSettingsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the MeterUserSetting list. """
+  _MeterUserSettingsMeta: _ListMeta
 
   """ Search for all ServiceSubscriptionHistoryRecord items which match the where clause. 
   """
@@ -86457,6 +86826,7 @@ type Query {
   getResidentExistenceByPhoneAndAddress(data: GetResidentExistenceByPhoneAndAddressInput!): GetResidentExistenceByPhoneAndAddressOutput
   findOrganizationsByAddress(data: FindOrganizationsByAddressInput!): [FindOrganizationByAddressOutput]
   suggestServiceProvider(data: SuggestServiceProviderInput!): [SuggestServiceProviderOutput]
+  findUnitsByAddress(data: FindUnitsByAddressInput!): FindUnitsByAddressOutput
 
   """
   Export of property meters readings. A link to the file is returned
@@ -89824,41 +90194,41 @@ type Mutation {
   """ Delete multiple MeterReadingExportTask items by ID. """
   deleteMeterReadingExportTasks(ids: [ID!]): [MeterReadingExportTask]
 
-  """ Create a single MeterUserDataHistoryRecord item. """
-  createMeterUserDataHistoryRecord(data: MeterUserDataHistoryRecordCreateInput): MeterUserDataHistoryRecord
+  """ Create a single MeterUserSettingHistoryRecord item. """
+  createMeterUserSettingHistoryRecord(data: MeterUserSettingHistoryRecordCreateInput): MeterUserSettingHistoryRecord
 
-  """ Create multiple MeterUserDataHistoryRecord items. """
-  createMeterUserDataHistoryRecords(data: [MeterUserDataHistoryRecordsCreateInput]): [MeterUserDataHistoryRecord]
+  """ Create multiple MeterUserSettingHistoryRecord items. """
+  createMeterUserSettingHistoryRecords(data: [MeterUserSettingHistoryRecordsCreateInput]): [MeterUserSettingHistoryRecord]
 
-  """ Update a single MeterUserDataHistoryRecord item by ID. """
-  updateMeterUserDataHistoryRecord(id: ID!, data: MeterUserDataHistoryRecordUpdateInput): MeterUserDataHistoryRecord
+  """ Update a single MeterUserSettingHistoryRecord item by ID. """
+  updateMeterUserSettingHistoryRecord(id: ID!, data: MeterUserSettingHistoryRecordUpdateInput): MeterUserSettingHistoryRecord
 
-  """ Update multiple MeterUserDataHistoryRecord items by ID. """
-  updateMeterUserDataHistoryRecords(data: [MeterUserDataHistoryRecordsUpdateInput]): [MeterUserDataHistoryRecord]
+  """ Update multiple MeterUserSettingHistoryRecord items by ID. """
+  updateMeterUserSettingHistoryRecords(data: [MeterUserSettingHistoryRecordsUpdateInput]): [MeterUserSettingHistoryRecord]
 
-  """ Delete a single MeterUserDataHistoryRecord item by ID. """
-  deleteMeterUserDataHistoryRecord(id: ID!): MeterUserDataHistoryRecord
+  """ Delete a single MeterUserSettingHistoryRecord item by ID. """
+  deleteMeterUserSettingHistoryRecord(id: ID!): MeterUserSettingHistoryRecord
 
-  """ Delete multiple MeterUserDataHistoryRecord items by ID. """
-  deleteMeterUserDataHistoryRecords(ids: [ID!]): [MeterUserDataHistoryRecord]
+  """ Delete multiple MeterUserSettingHistoryRecord items by ID. """
+  deleteMeterUserSettingHistoryRecords(ids: [ID!]): [MeterUserSettingHistoryRecord]
 
-  """ Create a single MeterUserData item. """
-  createMeterUserDatum(data: MeterUserDatumCreateInput): MeterUserData
+  """ Create a single MeterUserSetting item. """
+  createMeterUserSetting(data: MeterUserSettingCreateInput): MeterUserSetting
 
-  """ Create multiple MeterUserData items. """
-  createMeterUserData(data: [MeterUserDataCreateInput]): [MeterUserData]
+  """ Create multiple MeterUserSetting items. """
+  createMeterUserSettings(data: [MeterUserSettingsCreateInput]): [MeterUserSetting]
 
-  """ Update a single MeterUserData item by ID. """
-  updateMeterUserDatum(id: ID!, data: MeterUserDatumUpdateInput): MeterUserData
+  """ Update a single MeterUserSetting item by ID. """
+  updateMeterUserSetting(id: ID!, data: MeterUserSettingUpdateInput): MeterUserSetting
 
-  """ Update multiple MeterUserData items by ID. """
-  updateMeterUserData(data: [MeterUserDataUpdateInput]): [MeterUserData]
+  """ Update multiple MeterUserSetting items by ID. """
+  updateMeterUserSettings(data: [MeterUserSettingsUpdateInput]): [MeterUserSetting]
 
-  """ Delete a single MeterUserData item by ID. """
-  deleteMeterUserDatum(id: ID!): MeterUserData
+  """ Delete a single MeterUserSetting item by ID. """
+  deleteMeterUserSetting(id: ID!): MeterUserSetting
 
-  """ Delete multiple MeterUserData items by ID. """
-  deleteMeterUserData(ids: [ID!]): [MeterUserData]
+  """ Delete multiple MeterUserSetting items by ID. """
+  deleteMeterUserSettings(ids: [ID!]): [MeterUserSetting]
 
   """ Create a single ServiceSubscriptionHistoryRecord item. """
   createServiceSubscriptionHistoryRecord(data: ServiceSubscriptionHistoryRecordCreateInput): ServiceSubscriptionHistoryRecord
@@ -91734,20 +92104,22 @@ type Mutation {
   `{
     "code": "BAD_USER_INPUT",
     "type": "TOO_MANY_REQUESTS",
-    "message": "You have to wait 5000 seconds to be able to send request again",
-    "messageForUser": "You have to wait 5000 sec. to be able to send request again"
+    "message": "You have to wait 100 min. to be able to send request again",
+    "messageForUser": "You have to wait 100 min. to be able to send request again"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "SMS_FOR_PHONE_DAY_LIMIT_REACHED",
-    "message": "Too many sms requests for this phone number. Try again tomorrow"
+    "message": "Too many sms requests for this phone number. Try again tomorrow",
+    "messageForUser": "Too many sms requests for this phone number. Try again tomorrow"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "SMS_FOR_IP_DAY_LIMIT_REACHED",
-    "message": "Too many sms requests from this ip address. Try again tomorrow"
+    "message": "Too many sms requests from this ip address. Try again tomorrow",
+    "messageForUser": "Too many sms requests. Try again tomorrow"
   }`
   """
   startConfirmPhoneAction(data: StartConfirmPhoneActionInput!): StartConfirmPhoneActionOutput
@@ -91778,20 +92150,22 @@ type Mutation {
   `{
     "code": "BAD_USER_INPUT",
     "type": "TOO_MANY_REQUESTS",
-    "message": "You have to wait 5000 seconds to be able to send request again",
-    "messageForUser": "You have to wait 5000 sec. to be able to send request again"
+    "message": "You have to wait 100 min. to be able to send request again",
+    "messageForUser": "You have to wait 100 min. to be able to send request again"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "SMS_FOR_PHONE_DAY_LIMIT_REACHED",
-    "message": "Too many sms requests for this phone number. Try again tomorrow"
+    "message": "Too many sms requests for this phone number. Try again tomorrow",
+    "messageForUser": "Too many sms requests for this phone number. Try again tomorrow"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "SMS_FOR_IP_DAY_LIMIT_REACHED",
-    "message": "Too many sms requests from this ip address. Try again tomorrow"
+    "message": "Too many sms requests from this ip address. Try again tomorrow",
+    "messageForUser": "Too many sms requests. Try again tomorrow"
   }`
   """
   resendConfirmPhoneActionSms(data: ResendConfirmPhoneActionSmsInput!): ResendConfirmPhoneActionSmsOutput
@@ -91843,8 +92217,8 @@ type Mutation {
   `{
     "code": "BAD_USER_INPUT",
     "type": "TOO_MANY_REQUESTS",
-    "message": "You have to wait 5000 seconds to be able to send request again",
-    "messageForUser": "You have to wait 5000 sec. to be able to send request again"
+    "message": "You have to wait 100 min. to be able to send request again",
+    "messageForUser": "You have to wait 100 min. to be able to send request again"
   }`
   """
   completeConfirmPhoneAction(data: CompleteConfirmPhoneActionInput!): CompleteConfirmPhoneActionOutput
@@ -92128,6 +92502,53 @@ type Mutation {
     "code": "BAD_USER_INPUT",
     "type": "UNAVAILABLE_TOKEN_FOR_REGISTRATION",
     "message": "It is not possible to register a user with the type ? using ?"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "PHONE_ALREADY_REGISTERED_ERROR",
+    "message": "Phone already registered"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "EMAIL_ALREADY_REGISTERED_ERROR",
+    "message": "Email already registered"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVALID_PASSWORD_LENGTH",
+    "message": "Password length must be between 8 and 128 characters",
+    "messageForUser": "Password length must be between 8 and 128 characters"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "PASSWORD_IS_FREQUENTLY_USED",
+    "message": "The password is too simple. We found it in the list of stolen passwords. You need to use something more secure",
+    "messageForUser": "This password is weak or too obvious please choose something more secure"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS",
+    "message": "Password must contain at least 4 different characters",
+    "messageForUser": "Password must contain at least 4 different characters"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "PASSWORD_CONTAINS_EMAIL",
+    "message": "Password must not contain email",
+    "messageForUser": "Password must not contain email"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "PASSWORD_CONTAINS_PHONE",
+    "message": "Password must not contain phone",
+    "messageForUser": "Password must not contain phone"
   }`
   """
   authenticateOrRegisterUserWithToken(data: AuthenticateOrRegisterUserWithTokenInput!): AuthenticateOrRegisterUserWithTokenOutput
@@ -92703,6 +93124,10 @@ type Mutation {
   		"serverUrl": {
   			"defaultValue": "",
   			"required": false
+  		},
+  		"isRegistration": {
+  			"defaultValue": false,
+  			"required": false
   		}
   	},
   	"DIRTY_INVITE_NEW_EMPLOYEE_EMAIL": {
@@ -92717,19 +93142,9 @@ type Mutation {
   		"serverUrl": {
   			"defaultValue": "",
   			"required": false
-  		}
-  	},
-  	"REGISTER_NEW_USER": {
-  		"dv": {
-  			"defaultValue": "",
-  			"required": true
   		},
-  		"userPhone": {
-  			"defaultValue": "",
-  			"required": false
-  		},
-  		"userPassword": {
-  			"defaultValue": "",
+  		"isRegistration": {
+  			"defaultValue": false,
   			"required": false
   		}
   	},
@@ -92798,6 +93213,10 @@ type Mutation {
   		"attachments": {
   			"defaultValue": [],
   			"isRequired": false
+  		},
+  		"appealNumber": {
+  			"defaultValue": 1,
+  			"isRequired": true
   		}
   	},
   	"TICKET_ASSIGNEE_CONNECTED": {
@@ -93540,6 +93959,34 @@ type Mutation {
   				"required": false
   			},
   			"voipDtfmCommand": {
+  				"required": false
+  			}
+  		}
+  	},
+  	"CANCELED_CALL_MESSAGE_PUSH": {
+  		"dv": {
+  			"required": true
+  		},
+  		"title": {
+  			"required": false
+  		},
+  		"body": {
+  			"required": true
+  		},
+  		"data": {
+  			"B2CAppId": {
+  				"required": true
+  			},
+  			"B2CAppContext": {
+  				"required": false
+  			},
+  			"B2CAppName": {
+  				"required": true
+  			},
+  			"residentId": {
+  				"required": true
+  			},
+  			"callId": {
   				"required": false
   			}
   		}
@@ -94495,6 +94942,73 @@ type Mutation {
   }`
   """
   registerMetersReadings(data: RegisterMetersReadingsInput!): [RegisterMetersReadingsOutput]
+
+  """
+  Create property meter readings and, if not exists, property meters.
+  
+  Use dates in UTC format (YYYY-MM-DDTHH:mm:ss.SSSZ) or in YYYY-MM-DD. You should prefer UTC.
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "TOO_MUCH_READINGS",
+    "message": "Too much readings. ?? sent, limit is 500.",
+    "messageForUser": "Too much readings. ?? sent, limit is 500."
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "ORGANIZATION_NOT_FOUND",
+    "message": "Organization not found",
+    "messageForUser": "Organization not found"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "PROPERTY_NOT_FOUND",
+    "message": "Property not found",
+    "messageForUser": "Property not found"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVALID_METER_VALUES",
+    "message": "Invalid meter values",
+    "messageForUser": "Invalid values: \"{column}\"=\"{errorValue}\""
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "MULTIPLE_METERS_FOUND",
+    "message": "Multiple meters found",
+    "messageForUser": "Multiple meters found (??)"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVALID_ACCOUNT_NUMBER",
+    "message": "Invalid account number",
+    "messageForUser": "Account number field is filled incorrectly"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVALID_METER_NUMBER",
+    "message": "Invalid meter number",
+    "messageForUser": "Meter number field is filled incorrectly"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVALID_DATE",
+    "message": "Invalid date",
+    "messageForUser": "Incorrect date format in column \"columnName\". Use value of \"Text\" type in format: \"YYYY-MM-DDTHH:mm:ss.SSS[Z]\", \"YYYY-MM-DD\"."
+  }`
+  """
+  registerPropertyMetersReadings(data: RegisterPropertyMetersReadingsInput!): [RegisterPropertyMetersReadingsOutput]
   registerMultiPayment(data: RegisterMultiPaymentInput!): RegisterMultiPaymentOutput
   registerMultiPaymentForOneReceipt(data: RegisterMultiPaymentForOneReceiptInput!): RegisterMultiPaymentForOneReceiptOutput
   registerMultiPaymentForVirtualReceipt(data: RegisterMultiPaymentForVirtualReceiptInput!): RegisterMultiPaymentForOneReceiptOutput

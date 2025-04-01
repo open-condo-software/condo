@@ -29,7 +29,7 @@ import Input from '@condo/domains/common/components/antd/Input'
 import Select from '@condo/domains/common/components/antd/Select'
 import { Button as CommonButton } from '@condo/domains/common/components/Button'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
-import { TrackingEventType, useTracking } from '@condo/domains/common/components/TrackingContext'
+import { analytics } from '@condo/domains/common/utils/analytics'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { OptionType, parseQuery, QueryArgType } from '@condo/domains/common/utils/tables.utils'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
@@ -382,7 +382,6 @@ type MultipleFiltersModalProps<F = unknown> = {
     filtersSchemaGql?
     onReset?: () => void
     onSubmit?: (filters) => void
-    eventNamePrefix?: string
     detailedLogging?: Array<string>
     extraQueryParameters?: Record<string, unknown>
 }
@@ -401,7 +400,6 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     filtersSchemaGql,
     onReset,
     onSubmit,
-    eventNamePrefix,
     detailedLogging,
     extraQueryParameters,
 }) => {
@@ -433,10 +431,6 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     const [openedFiltersTemplate, setOpenedFiltersTemplate] = useState(
         isEqualSelectedFiltersTemplateAndFilters(selectedFiltersTemplate, filters) ? selectedFiltersTemplate : null
     )
-
-    const { logEvent, getEventName } = useTracking()
-
-    const eventName = eventNamePrefix ? `${eventNamePrefix}FilterModalClickSubmit` : getEventName(TrackingEventType.Click)
 
     const { objs: filtersTemplates, loading, refetch } = filtersSchemaGql.useObjects({
         sortBy: 'createdAt_ASC',
@@ -516,26 +510,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         const { newTemplateName, existedTemplateName, ...otherValues } = values
         const filtersValue = pickBy(otherValues)
 
-        if (eventName && !isEmpty(filtersValue)) {
-            const selectedFilters = omitBy(filtersValue, isEmpty)
-            const filterKeyList = Object.keys(selectedFilters)
-            const filterDetails = {}
-            const eventProperties = {}
-
-            if (isArray(detailedLogging)) {
-                detailedLogging.forEach(key => {
-                    if (key in selectedFilters) {
-                        filterDetails[key] = selectedFilters[key]
-                    }
-                })
-            }
-
-            eventProperties['filters'] = { details: filterDetails, list: filterKeyList }
-            // will help find the event if eventName with default value
-            eventProperties['event'] = 'FilterModalClickSubmit'
-
-            logEvent({ eventName, eventProperties })
-        }
+        analytics.track('filter_changed', { location: window.location.href })
 
         if (searchFilter) {
             filtersValue.search = searchFilter
@@ -838,7 +813,6 @@ type UseMultipleFiltersModalInput<F = unknown> = Pick<MultipleFiltersModalProps,
 'filtersSchemaGql'
 | 'onReset'
 | 'onSubmit'
-| 'eventNamePrefix'
 | 'detailedLogging'
 | 'extraQueryParameters'> & { filterMetas: Array<FiltersMeta<F>> }
 
@@ -854,7 +828,6 @@ export function useMultipleFiltersModal <F> ({
     filtersSchemaGql,
     onReset,
     onSubmit,
-    eventNamePrefix,
     detailedLogging = [],
     extraQueryParameters,
 }: UseMultipleFiltersModalInput<F>): UseMultipleFiltersModalOutput {
@@ -870,11 +843,10 @@ export function useMultipleFiltersModal <F> ({
             filtersSchemaGql={filtersSchemaGql}
             onReset={onReset}
             onSubmit={onSubmit}
-            eventNamePrefix={eventNamePrefix}
             detailedLogging={detailedLogging}
             extraQueryParameters={extraQueryParameters}
         />
-    ), [detailedLogging, eventNamePrefix, filterMetas, filtersSchemaGql, isMultipleFiltersModalVisible, onReset, onSubmit, extraQueryParameters])
+    ), [detailedLogging, filterMetas, filtersSchemaGql, isMultipleFiltersModalVisible, onReset, onSubmit, extraQueryParameters])
 
     const ResetFilterButton = useCallback((props) => (
         <ResetFiltersModalButton handleReset={onReset} {...props} />

@@ -1,0 +1,34 @@
+query getIncidentChangesByIncidentId ($incidentId: ID!) {
+    incidentChanges: allIncidentChanges (
+        where: {
+            incident: {
+                id: $incidentId
+            }
+        },
+        sortBy: [createdAt_DESC],
+        first: 100,
+    ) {
+        id
+        createdAt
+        detailsFrom
+        detailsTo
+        statusFrom
+        statusTo
+        textForResidentFrom
+        textForResidentTo
+        workStartFrom
+        workStartTo
+        workFinishFrom
+        workFinishTo
+        workTypeFrom
+        workTypeTo
+        organizationIdFrom
+        organizationIdTo
+        organizationDisplayNameFrom
+        organizationDisplayNameTo
+        changedByRole
+        createdBy {
+            name
+        }
+    }
+}

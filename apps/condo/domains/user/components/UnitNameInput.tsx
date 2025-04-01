@@ -11,7 +11,6 @@ import { Space, Typography } from '@open-condo/ui'
 
 import Input from '@condo/domains/common/components/antd/Input'
 import Select, { CustomSelectProps } from '@condo/domains/common/components/antd/Select'
-import { TrackingEventPropertiesType } from '@condo/domains/common/components/TrackingContext'
 import { getFloorsBySection, UnitInfoMode } from '@condo/domains/property/components/UnitInfo'
 
 export interface IUnitNameInputProps extends Pick<CustomSelectProps<string>, 'onChange' | 'onSelect'> {
@@ -20,8 +19,6 @@ export interface IUnitNameInputProps extends Pick<CustomSelectProps<string>, 'on
     allowClear?: boolean
     loading?: boolean
     disabled?: boolean
-    eventName?: string
-    eventProperties?: TrackingEventPropertiesType
     mode?: UnitInfoMode
     selectedFloorName?: string
     selectedSectionName?: string

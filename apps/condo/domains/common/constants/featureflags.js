@@ -29,7 +29,10 @@ const POLL_TICKET_COMMENTS = 'poll-ticket-comments'
 const REASSIGN_EMPLOYEE_TICKETS = 'reassign-employee-tickets'
 const SNOWFLAKES_SETTINGS = 'snowflakes-settings'
 const USER_WHITE_LIST_FOR_FIND_ORGANIZATIONS_BY_TIN = 'user-white-list-for-find-organizations-by-tin'
-const PLATFORM_NOTIFICATIONS = 'platform-notifications'
+const METER_REPORTING_PERIOD_STRICT_RULE = 'meter-reporting-period-strict-rule'
+const SUBSCRIPTION = 'subscription'
+const CHECK_TLS_CLIENT_CERT = 'check-tls-client-cert-config'
+const ADD_SECTION_FLOOR = 'add-section-floor'
 
 module.exports = {
     SMS_AFTER_TICKET_CREATION,
@@ -56,12 +59,14 @@ module.exports = {
     IMPORT_HELP_MODAL,
     RETENTION_LOOPS_ENABLED,
     SEND_DAILY_STATISTICS_TASK,
-
     SERVICE_PROBLEMS_ALERT,
     TICKET_AUTO_ASSIGNMENT_MANAGEMENT,
     POLL_TICKET_COMMENTS,
     REASSIGN_EMPLOYEE_TICKETS,
     SNOWFLAKES_SETTINGS,
     USER_WHITE_LIST_FOR_FIND_ORGANIZATIONS_BY_TIN,
-    PLATFORM_NOTIFICATIONS,
+    METER_REPORTING_PERIOD_STRICT_RULE,
+    SUBSCRIPTION,
+    CHECK_TLS_CLIENT_CERT,
+    ADD_SECTION_FLOOR,
 }

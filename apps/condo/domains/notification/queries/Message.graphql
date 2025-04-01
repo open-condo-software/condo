@@ -4,10 +4,10 @@ query getUserMessages ($userId: ID, $organizationId: ID, $types: [MessageType!],
             user: { id: $userId }
             organization: { id: $organizationId }
             type_in: $types
-        }
-        first: 10
-        skip: $skip
-        sortBy: [createdAt_DESC]
+        },
+        first: 10,
+        skip: $skip,
+        sortBy: [createdAt_DESC],
     ) {
         id
         type

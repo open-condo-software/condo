@@ -7,14 +7,13 @@ import { FilterValue, FilterDropdownProps } from 'antd/es/table/interface'
 import dayjs, { Dayjs } from 'dayjs'
 import get from 'lodash/get'
 import isArray from 'lodash/isArray'
-import isEmpty from 'lodash/isEmpty'
 import isFunction from 'lodash/isFunction'
 import React, { CSSProperties, useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
-import Input, { CustomInputProps } from '@condo/domains/common/components/antd/Input'
+import Input, { InputProps } from '@condo/domains/common/components/antd/Input'
 import Select, { CustomSelectProps, SelectValueType } from '@condo/domains/common/components/antd/Select'
 import { GraphQlSearchInput, ISearchInputProps } from '@condo/domains/common/components/GraphQlSearchInput'
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
@@ -23,7 +22,6 @@ import { colors } from '@condo/domains/common/constants/style'
 import { QueryArgType } from '@condo/domains/common/utils/tables.utils'
 
 import { Button } from '../Button'
-import { TrackingEventType, useTracking } from '../TrackingContext'
 
 
 type FilterIconType = (filtered?: boolean) => React.ReactNode
@@ -32,7 +30,7 @@ type FilterValueType = (path: string | Array<string>, filters: { [x: string]: Qu
 type CommonFilterDropdownProps = { containerStyles?: CSSProperties }
 type GetCommonFilterDropdownType<P> = (props?: P) => (props: FilterDropdownProps) => React.ReactNode
 
-type GetTextFilterDropdownType = GetCommonFilterDropdownType<{ inputProps?: CustomInputProps } & CommonFilterDropdownProps>
+type GetTextFilterDropdownType = GetCommonFilterDropdownType<{ inputProps?: InputProps } & CommonFilterDropdownProps>
 
 type GetOptionFilterDropdownType = GetCommonFilterDropdownType<{ checkboxGroupProps?: CheckboxGroupProps & { id?: string } } & CommonFilterDropdownProps>
 
@@ -141,7 +139,7 @@ export const getTextFilterDropdown: GetTextFilterDropdownType = ({ containerStyl
             confirm({ closeDropdown: true })
         }, [clearFilters, confirm, setSelectedKeys])
 
-        const handleChangeInput: CustomInputProps['onChange'] = useCallback((event) => {
+        const handleChangeInput: InputProps['onChange'] = useCallback((event) => {
             // NOTE: Type casting problem
             // @ts-ignore
             setSelectedKeys(event.target.value)
@@ -168,9 +166,6 @@ export const getTextFilterDropdown: GetTextFilterDropdownType = ({ containerStyl
 
 export const getOptionFilterDropdown: GetOptionFilterDropdownType = ({ containerStyles, checkboxGroupProps } = {}) => {
     return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
-        const { logEvent, getEventName } = useTracking()
-
-        const eventName = getEventName(TrackingEventType.Checkbox)
 
         const options = useMemo(() => get(checkboxGroupProps, 'options'), [])
 
@@ -190,17 +185,6 @@ export const getOptionFilterDropdown: GetOptionFilterDropdownType = ({ container
                     })
                     .map((option) => get(option, 'label'))
                     .filter(Boolean)
-            }
-            if (!isEmpty(selectedValue)) {
-                logEvent({
-                    eventName,
-                    eventProperties: {
-                        component: {
-                            id: checkboxGroupProps.id,
-                            value: selectedValue,
-                        },
-                    },
-                })
             }
 
             setSelectedKeys(values as React.Key[])

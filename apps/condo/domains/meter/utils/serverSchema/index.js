@@ -9,7 +9,7 @@ const { generateServerUtils } = require('@open-condo/codegen/generate.server.uti
 const { find } = require('@open-condo/keystone/schema')
 
 const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchema')
-const { REGISTER_METERS_READINGS_MUTATION } = require('@condo/domains/meter/gql')
+const { REGISTER_METERS_READINGS_MUTATION, REGISTER_PROPERTY_METERS_READINGS_MUTATION } = require('@condo/domains/meter/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const MeterResource = generateServerUtils('MeterResource')
@@ -36,9 +36,24 @@ async function registerMetersReadings (context, data) {
     })
 }
 
+async function registerPropertyMetersReadings (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await context.executeGraphQL({
+        query: REGISTER_PROPERTY_METERS_READINGS_MUTATION,
+        context: {
+            req: context.req,
+            ...context.createContext({ skipAccessControl: true }),
+        },
+        variables: { data: { dv: 1, ...data } },
+    })
+}
+
 const MeterReadingsImportTask = generateServerUtils('MeterReadingsImportTask')
 const MeterReadingExportTask = generateServerUtils('MeterReadingExportTask')
-const MeterUserData = generateServerUtils('MeterUserData')
+const MeterUserSetting = generateServerUtils('MeterUserSetting')
 /* AUTOGENERATE MARKER <CONST> */
 
 /**
@@ -228,9 +243,10 @@ module.exports = {
     MeterReportingPeriod,
     MeterResourceOwner,
     registerMetersReadings,
+    registerPropertyMetersReadings,
     MeterReadingsImportTask,
     MeterReadingExportTask,
     loadMeterReadingsForExcelExport,
-    MeterUserData,
+    MeterUserSetting,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

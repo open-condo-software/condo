@@ -47,7 +47,7 @@ const PropertyMeter = generateGqlQueries('PropertyMeter', PROPERTY_METER_FIELDS)
 const PROPERTY_METER_READING_FIELDS = `{ organization { id name } date meter ${PROPERTY_METER_FIELDS} value1 value2 value3 value4 source { id name type } ${COMMON_FIELDS} }`
 const PropertyMeterReading = generateGqlQueries('PropertyMeterReading', PROPERTY_METER_READING_FIELDS)
 
-const METER_REPORTING_PERIOD_FIELDS = `{ organization { id } property { id address addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } } notifyStartDay notifyEndDay ${COMMON_FIELDS} }`
+const METER_REPORTING_PERIOD_FIELDS = `{ organization { id } property { id address addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } } notifyStartDay notifyEndDay restrictionEndDay ${COMMON_FIELDS} }`
 const MeterReportingPeriod = generateGqlQueries('MeterReportingPeriod', METER_REPORTING_PERIOD_FIELDS)
 
 const DELETE_METER_AND_METER_READINGS_MUTATION = gql`
@@ -77,14 +77,20 @@ const REGISTER_METERS_READINGS_MUTATION = gql`
     }
 `
 
+const REGISTER_PROPERTY_METERS_READINGS_MUTATION = gql`
+    mutation registerPropertyMetersReadings ($data: RegisterPropertyMetersReadingsInput!) {
+        result: registerPropertyMetersReadings(data: $data) { id meter { id property { id address addressKey } number } }
+    }
+`
+
 const METER_READINGS_IMPORT_TASK_FIELDS = `{ status format processedRecordsCount importedRecordsCount totalRecordsCount file { id filename originalFilename publicUrl mimetype } errorFile { id filename originalFilename publicUrl mimetype } errorMessage user { id } organization { id } locale meta ${COMMON_FIELDS} }`
 const MeterReadingsImportTask = generateGqlQueries('MeterReadingsImportTask', METER_READINGS_IMPORT_TASK_FIELDS)
 
 const METER_READING_EXPORT_TASK_FIELDS = `{ status format exportedRecordsCount totalRecordsCount file { id originalFilename publicUrl mimetype } meta where sortBy locale timeZone user { id } ${COMMON_FIELDS} }`
 const MeterReadingExportTask = generateGqlQueries('MeterReadingExportTask', METER_READING_EXPORT_TASK_FIELDS)
 
-const METER_USER_DATA_FIELDS = `{ user { id } meter { id } name ${COMMON_FIELDS} }`
-const MeterUserData = generateGqlQueries('MeterUserData', METER_USER_DATA_FIELDS)
+const METER_USER_SETTING_FIELDS = `{ user { id } meter { id } name ${COMMON_FIELDS} }`
+const MeterUserSetting = generateGqlQueries('MeterUserSetting', METER_USER_SETTING_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -104,9 +110,10 @@ module.exports = {
     INTERNAL_DELETE_METER_READINGS_MUTATION,
     EXPORT_PROPERTY_METER_READINGS_QUERY,
     REGISTER_METERS_READINGS_MUTATION,
+    REGISTER_PROPERTY_METERS_READINGS_MUTATION,
     MeterReadingsImportTask,
     MeterReadingExportTask,
-    MeterUserData,
+    MeterUserSetting,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 

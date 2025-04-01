@@ -18,18 +18,22 @@ import { TOnMetersUpload } from '@condo/domains/meter/components/MetersDataImpor
 import { useMeterReadingsImportTask } from '@condo/domains/meter/hooks/useMeterReadingsImportTaskUIInterface'
 
 
-export type IMetersImportWrapperProps = Pick<IImportWrapperProps, 'accessCheck' | 'onFinish' | 'uploadButtonLabel' | 'importCardButton'>
+export type IMetersImportWrapperProps<TExtraProps = unknown> = Pick<IImportWrapperProps<TExtraProps>, 'accessCheck' | 'onFinish' | 'uploadButtonLabel' | 'importCardButton' | 'extraProps'>
+interface IMetersImportWrapperExtraProps {
+    isPropertyMeters?: boolean
+}
 
-const MetersImportWrapper: React.FC<IMetersImportWrapperProps> = (props) => {
+const MetersImportWrapper: React.FC<IMetersImportWrapperProps<IMetersImportWrapperExtraProps>> = (props) => {
     const {
         accessCheck,
         onFinish: handleFinish,
         uploadButtonLabel,
         importCardButton,
+        extraProps,
     } = props
 
     const intl = useIntl()
-    const domain = 'meter'
+    const domain = extraProps?.isPropertyMeters ? 'propertyMeter' : 'meter'
     const { organization } = useOrganization()
     const { user } = useAuth()
 
@@ -42,7 +46,7 @@ const MetersImportWrapper: React.FC<IMetersImportWrapperProps> = (props) => {
         if (typeof activeModal !== 'undefined') {
             ImportEmitter.emit(IMPORT_EVENT, { domain, status: activeModal })
         }
-    }, [activeModal])
+    }, [activeModal, domain])
 
     const totalRowsRef = useRef(0)
     const successRowsRef = useRef(0)
@@ -64,6 +68,7 @@ const MetersImportWrapper: React.FC<IMetersImportWrapperProps> = (props) => {
         file: fileRef,
         userId: user?.id || null,
         organizationId: organization?.id || null,
+        isPropertyMeters: Boolean(extraProps?.isPropertyMeters),
     })
 
     useEffect(() => {

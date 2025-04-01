@@ -11,7 +11,7 @@ import { Typography } from '@open-condo/ui'
 
 import { PageContent, PageWrapper, PageHeader } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { useTracking } from '@condo/domains/common/components/TrackingContext'
+import { analytics } from '@condo/domains/common/utils/analytics'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 import { B2BAppContext, B2BAppRole } from '@condo/domains/miniapp/utils/clientSchema'
 
@@ -26,7 +26,6 @@ export const B2BAppPage: React.FC<B2BAppPageProps> = ({ id }) => {
     const SupportNotAllowedMessage = intl.formatMessage({ id: 'miniapp.supportIsNotAllowed' })
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
 
-    const { logEvent } = useTracking()
     const router = useRouter()
     const auth = useAuth()
     const isSupport = get(auth, ['user', 'isSupport'], false)
@@ -77,22 +76,17 @@ export const B2BAppPage: React.FC<B2BAppPageProps> = ({ id }) => {
     useEffect(() => {
         if (!shouldSendAnalytics) return
 
-        const visitedAt = dayjs().toISOString()
-        logEvent({
-            eventName: 'MiniappSessionStart',
-            eventProperties: { appId: id, appUrl, appName, visitedAt },
-        })
+        const startedAt = dayjs().toISOString()
+
+        analytics.track('miniapp_session_start', { appId: id, startedAt })
 
         return () => {
             const leftAt = dayjs().toISOString()
-            const diff = dayjs(leftAt).diff(dayjs(visitedAt))
-            const sessionTime = dayjs.duration(diff).format('YYYY-MM-DDTHH:mm:ss')
-            logEvent({
-                eventName: 'MiniappSessionEnd',
-                eventProperties: { appId: id, appUrl, appName, visitedAt, leftAt, sessionTime },
-            })
+            const durationInSec = Math.round(dayjs(leftAt).diff(dayjs(startedAt)) / 1000)
+
+            analytics.track('miniapp_session_end', { appId: id, startedAt, durationInSec })
         }
-    }, [shouldSendAnalytics])
+    }, [id, shouldSendAnalytics])
 
     if (contextLoading || contextError || appRoleLoading || appRoleError) {
         return <LoadingOrErrorPage error={contextError || appRoleError} loading={contextLoading || appRoleLoading} title={LoadingMessage}/>

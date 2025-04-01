@@ -1,4 +1,4 @@
-const { sample } = require('lodash')
+const sample = require('lodash/sample')
 
 function makeId (length) {
     let result = ''

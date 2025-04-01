@@ -5,7 +5,7 @@ const { isEmpty } = require('lodash')
 
 const GET_PROPERTY_BY_ID_QUERY = gql`
     query GetPropertyByIdQuery ($propertyId: ID!, $organizationId: ID) {
-        objs: allProperties(where: {id: $propertyId, organization: { id: $organizationId }}) {
+        objs: allProperties(where: {id: $propertyId, organization: { id: $organizationId }}, first: 1) {
             id
             address
         }
@@ -14,7 +14,7 @@ const GET_PROPERTY_BY_ID_QUERY = gql`
 
 const GET_ALL_SOURCES_QUERY = gql`
     query selectSource ($value: String, $organizationId: ID) {
-        objs: allTicketSources(where: {name_contains: $value, organization: { id: $organizationId }}) {
+        objs: allTicketSources(where: {name_contains: $value, organization: { id: $organizationId }}, first: 100) {
             id
             name
         }
@@ -289,6 +289,7 @@ export function getOrganizationTickets (organizationId) {
 
         const result = data.objs.map(object => {
             return ({
+                title: object.number,
                 text: object.number,
                 id: object.id,
                 value: object.id,

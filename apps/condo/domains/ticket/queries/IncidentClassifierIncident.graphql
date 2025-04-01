@@ -1,8 +1,48 @@
-query getIncidentClassifierIncident ($where: IncidentClassifierIncidentWhereInput) {
-    incidentClassifierIncident: allIncidentClassifierIncidents (where: $where) {
+query getIncidentClassifierIncidentByIncidentId ($incidentId: ID!) {
+    incidentClassifierIncident: allIncidentClassifierIncidents (
+        where: {
+            incident: {
+                id: $incidentId
+            }
+        },
+        first: 200,
+    ) {
         id
         incident {
             id
         }
+        classifier {
+            id
+            category {
+                name
+            }
+            problem {
+                name
+            }
+        }
+    }
+}
+
+query getIncidentClassifierIncident ($where: IncidentClassifierIncidentWhereInput!, $first: Int!) {
+    incidentClassifierIncident: allIncidentClassifierIncidents (
+        where: $where
+        first: $first,
+    ) {
+        id
+        incident {
+            id
+        }
+    }
+}
+
+mutation createIncidentClassifierIncident ($data: IncidentClassifierIncidentCreateInput!) {
+    incidentClassifierIncident: createIncidentClassifierIncident (data: $data) {
+        id
+    }
+}
+
+mutation updateIncidentClassifierIncident ($id: ID!, $data: IncidentClassifierIncidentUpdateInput!) {
+    incidentClassifierIncident: updateIncidentClassifierIncident (id: $id, data: $data) {
+        id
     }
 }

@@ -1,19 +1,18 @@
-import { ErrorLayoutFooter, ErrorLayoutHeader } from '@app/condo/pages/500'
-import { Col, Row, RowProps, Typography } from 'antd'
+import { Col, Row, RowProps } from 'antd'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Typography } from '@open-condo/ui'
 
-import { fontSizes } from '@condo/domains/common/constants/style'
 import { PageComponentType } from '@condo/domains/common/types'
 import { PosterLayout } from '@condo/domains/user/components/containers/PosterLayout'
+import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 
 
-const DESCRIPTION_TEXT_STYLE = { fontSize: fontSizes.content }
 const ROW_MESSAGE_GUTTER: RowProps['gutter'] = [0, 14]
-const FailureSrc = { poster: '/404Poster.webp' }
+const FailureSrc = { main: '/404Poster.webp' }
 
 const FailurePage: PageComponentType = () => {
     const intl = useIntl()
@@ -40,19 +39,19 @@ const FailurePage: PageComponentType = () => {
             <Head>
                 <title>{PageTitle}</title>
             </Head>
-            <Row justify='center'>
-                <Col span={24}>
+            <Row justify='start'>
+                <ResponsiveCol span={24} desktopWidth={470}>
                     <Row gutter={ROW_MESSAGE_GUTTER}>
                         <Col span={24}>
                             <Typography.Title>{PageTitle}</Typography.Title>
                         </Col>
                         <Col span={24}>
-                            <Typography.Paragraph style={DESCRIPTION_TEXT_STYLE}>
+                            <Typography.Paragraph>
                                 {Description}
                             </Typography.Paragraph>
                         </Col>
                     </Row>
-                </Col>
+                </ResponsiveCol>
             </Row>
         </>
     )
@@ -61,9 +60,7 @@ const FailurePage: PageComponentType = () => {
 const FailurePageLayout = (props): React.ReactElement => (
     <PosterLayout
         {...props}
-        Header={<ErrorLayoutHeader />}
-        Footer={<ErrorLayoutFooter />}
-        layoutBgImage={FailureSrc}
+        image={FailureSrc}
     />
 )
 

@@ -31,7 +31,6 @@ import { PlusIcon } from '@condo/domains/common/components/icons/PlusIcon'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { Tag } from '@condo/domains/common/components/Tag'
-import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { colors, gradients, shadows, transitions } from '@condo/domains/common/constants/style'
 import { PageComponentType } from '@condo/domains/common/types'
 import { renderPhone } from '@condo/domains/common/utils/Renders'
@@ -180,7 +179,7 @@ const AddAddressCard = ({ onClick }) => {
     const AddAddressMessage = intl.formatMessage({ id: 'pages.clientCard.addAddress' })
 
     return (
-        <StyledAddAddressButton onClick={onClick} eventName='ClientCardAddAddressClick'>
+        <StyledAddAddressButton onClick={onClick}>
             <Space size={12} direction='vertical' align='center'>
                 <PlusIconWrapper className={PLUS_ICON_WRAPPER_CLASS}>
                     <PlusIcon/>
@@ -394,35 +393,28 @@ const ClientCardTabContent = ({
     const organizationId = useMemo(() => get(organization, 'id'), [organization])
 
     const columns = useClientCardTicketTableColumns(tickets)
-    const { logEvent } = useTracking()
 
     const handleShowAllPropertyTicketsMessage = useCallback(async () => {
         if (typeof window !== 'undefined') {
-            logEvent({ eventName: 'ClientCardShowAllPropertyTicketsClick' })
             window.open(`/ticket?filters={"property":"${property.id}"}`, '_blank')
         }
-    }, [logEvent, property])
+    }, [property])
 
     const handleRowAction = useCallback((record) => {
         return {
             onClick: async () => {
                 if (typeof window !== 'undefined') {
-                    logEvent({
-                        eventName: 'ClientCardTicketIndexClick',
-                        eventProperties: { ticketId: record.id },
-                    }
-                    )
                     window.open(`/ticket/${record.id}/`, '_blank')
                 }
             },
         }
-    }, [logEvent])
+    }, [])
 
     const handleCreateTicket = useCallback(() => {
         const dataForTicketForm = property ? lastCreatedTicket : { clientPhone: phone }
         handleTicketCreateClick(dataForTicketForm)
     },
-    [handleTicketCreateClick, lastCreatedTicket, property])
+    [handleTicketCreateClick, lastCreatedTicket, phone, property])
 
     return (
         <Row gutter={ROW_BIG_GUTTER}>

@@ -16,6 +16,7 @@ const { BillingRecipient } = require('@condo/domains/billing/utils/serverSchema'
 const { WRONG_TEXT_FORMAT, UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
 const { MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
 
+const { AMOUNT_DISTRIBUTION_FIELD } = require('./fields/AmountDistribution')
 const { RECIPIENT_FIELD } = require('./fields/BillingReceipt/Recipient')
 const { SERVICES_FIELD } = require('./fields/BillingReceipt/Services')
 const { TO_PAY_DETAILS_FIELD } = require('./fields/BillingReceipt/ToPayDetailsField')
@@ -275,6 +276,16 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             },
             access: { create: false, read: true, update: false },
         },
+
+        amountDistribution: AMOUNT_DISTRIBUTION_FIELD({
+            organizationIdResolver: async (context, validateInputAttrs) => {
+                const { existingItem, resolvedData } = validateInputAttrs
+                const nextData = { ...existingItem, ...resolvedData }
+                const billingContext = await getById('BillingIntegrationOrganizationContext', nextData.context)
+
+                return billingContext.organization
+            },
+        }),
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {

@@ -12,6 +12,8 @@ const { v4 } = require('uuid')
 
 const conf = require('@open-condo/config')
 const { safeApolloErrorFormatter } = require('@open-condo/keystone/apolloErrorFormatter')
+const { ApolloRateLimitingPlugin, ApolloQueryBlockingPlugin } = require('@open-condo/keystone/apolloServerPlugins')
+const { ApolloSentryPlugin } = require('@open-condo/keystone/apolloServerPlugins')
 const { ExtendedPasswordAuthStrategy } = require('@open-condo/keystone/authStrategy/passwordAuth')
 const { parseCorsSettings } = require('@open-condo/keystone/cors.utils')
 const { _internalGetExecutionContextAsyncLocalStorage } = require('@open-condo/keystone/executionContext')
@@ -23,8 +25,6 @@ const { expressErrorHandler } = require('@open-condo/keystone/logging/expressErr
 const metrics = require('@open-condo/keystone/metrics')
 const { composeNonResolveInputHook, composeResolveInputHook } = require('@open-condo/keystone/plugins/utils')
 const { schemaDocPreprocessor, adminDocPreprocessor, escapeSearchPreprocessor, customAccessPostProcessor } = require('@open-condo/keystone/preprocessors')
-const { ApolloRateLimitingPlugin } = require('@open-condo/keystone/rateLimiting')
-const { ApolloSentryPlugin } = require('@open-condo/keystone/sentry')
 const { prepareDefaultKeystoneConfig } = require('@open-condo/keystone/setup.utils')
 const { registerTasks, registerTaskQueues, taskQueues } = require('@open-condo/keystone/tasks')
 const { KeystoneTracingApp } = require('@open-condo/keystone/tracing')
@@ -49,6 +49,7 @@ const INFINITY_MAX_AGE_COOKIE = 1707195600
 const SERVICE_USER_SESSION_TTL_IN_SEC = 7 * 24 * 60 * 60 // 7 days in sec
 const RATE_LIMIT_CONFIG = JSON.parse(conf['RATE_LIMIT_CONFIG'] || '{}')
 const IS_RATE_LIMIT_DISABLED = conf['DISABLE_RATE_LIMIT'] === 'true'
+const BLOCKED_OPERATIONS = JSON.parse(conf['BLOCKED_OPERATIONS'] || '{}')
 
 const logger = getLogger('uncaughtError')
 
@@ -90,6 +91,26 @@ class DataVersionChecker {
     async prepareMiddleware () {
         await checkMinimalKVDataVersion(2)
     }
+}
+
+function _getApolloServerPlugins (keystone) {
+    /** @type {Array<import('apollo-server-plugin-base').ApolloServerPlugin>} */
+    const apolloServerPlugins = [
+        new ApolloQueryBlockingPlugin(BLOCKED_OPERATIONS),
+    ]
+
+    if (!IS_RATE_LIMIT_DISABLED) {
+        apolloServerPlugins.push(new ApolloRateLimitingPlugin(keystone, RATE_LIMIT_CONFIG))
+    }
+
+    // NOTE: Must be after all req.context filling plugins
+    apolloServerPlugins.push(new GraphQLLoggerPlugin())
+
+    if (IS_SENTRY_ENABLED) {
+        apolloServerPlugins.unshift(new ApolloSentryPlugin())
+    }
+
+    return apolloServerPlugins
 }
 
 function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, schemas, schemasPreprocessors, tasks, queues, apps, lastApp, graphql, ui, authStrategyOpts }) {
@@ -178,15 +199,7 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
         setInterval(sendAppMetrics, 2000)
     }
 
-    const apolloPlugins = []
-    if (!IS_RATE_LIMIT_DISABLED) {
-        apolloPlugins.push(new ApolloRateLimitingPlugin(keystone, RATE_LIMIT_CONFIG))
-    }
-    apolloPlugins.push(new GraphQLLoggerPlugin())
-
-    if (IS_SENTRY_ENABLED) {
-        apolloPlugins.unshift(new ApolloSentryPlugin())
-    }
+    const apolloServerPlugins = _getApolloServerPlugins(keystone)
 
     return {
         keystone,
@@ -211,7 +224,7 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
                     debug: IS_ENABLE_APOLLO_DEBUG,
                     introspection: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
                     playground: false,
-                    plugins: apolloPlugins,
+                    plugins: apolloServerPlugins,
                 },
                 ...(graphql || {}),
             }),

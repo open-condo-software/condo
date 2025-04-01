@@ -30,11 +30,12 @@ if [ -z "$domain_name" ]; then
     usage
 fi
 
-node bin/prepare.js -f condo -r condo
+node bin/prepare.js -f condo -r condo -c condo
 
 export NEWS_ITEMS_SENDING_DELAY_SEC=2
 export NEWS_ITEM_SENDING_TTL_SEC=2
 export NODE_OPTIONS="--max_old_space_size=4192"
+export WORKER_CONCURRENCY=100
 
 node -e 'console.log(v8.getHeapStatistics().heap_size_limit/(1024*1024))'
 
@@ -80,6 +81,6 @@ else
     killall node || echo 'no node processes'
 
     # TODO: INFRA-155 Remove it completely by rewriting a task tests or migrate to jest.setup or smth
-    REDIS_URL=redis://127.0.0.1:6379/32 yarn workspace @open-condo/keystone test
+    REDIS_URL='[{"port":7001,"host":"127.0.0.1"},{"port":7002,"host":"127.0.0.1"},{"port":7003,"host":"127.0.0.1"}]' yarn workspace @open-condo/keystone test
     yarn workspace @app/condo lint-schema
 fi

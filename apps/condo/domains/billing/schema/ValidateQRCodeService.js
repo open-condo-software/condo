@@ -22,14 +22,12 @@ const { getCountrySpecificQRCodeParser } = require('@condo/domains/billing/utils
 const {
     getQRCodeMissedFields,
     compareQRCodeWithLastReceipt,
-    isReceiptPaid,
-    formatPeriodFromQRCode,
     getQRCodeFields,
     getQRCodeField,
     getQRCodePaymPeriod,
 } = require('@condo/domains/billing/utils/receiptQRCodeUtils')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
-const { WRONG_FORMAT, NOT_FOUND, ALREADY_EXISTS_ERROR, WRONG_VALUE } = require('@condo/domains/common/constants/errors')
+const { WRONG_FORMAT, NOT_FOUND, WRONG_VALUE } = require('@condo/domains/common/constants/errors')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
 const redisGuard = new RedisGuard()
@@ -51,13 +49,6 @@ const ERRORS = {
         code: INTERNAL_ERROR,
         type: NOT_FOUND,
         message: 'Organization with provided TIN does not have an active acquiring integration',
-    },
-    RECEIPT_ALREADY_PAID: {
-        mutation: 'validateQRCode',
-        code: BAD_USER_INPUT,
-        type: ALREADY_EXISTS_ERROR,
-        message: 'Provided receipt already paid',
-        messageForUser: 'api.billing.billingReceipt.RECEIPT_ALREADY_PAID_ERROR',
     },
     INVALID_QR_CODE_STRING: {
         mutation: 'validateQRCode',
@@ -106,11 +97,15 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
     types: [
         {
             access: true,
+            type: 'type ValidateQRCodeReceiptCategoryOutput { id: ID!, name: String! }',
+        },
+        {
+            access: true,
             type: 'input ValidateQRCodeInput { dv: Int!, sender: SenderFieldInput!, qrCode: String! }',
         },
         {
             access: true,
-            type: 'type ValidateQRCodeLastReceiptDataOutput { id: ID!, period: String!, toPay: String! }',
+            type: 'type ValidateQRCodeLastReceiptDataOutput { id: ID!, period: String!, toPay: String!, category: ValidateQRCodeReceiptCategoryOutput!, createdAt: String! }',
         },
         {
             access: true,
@@ -155,9 +150,10 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
                 if (missedFields.length > 0) {
                     throw new GQLError(ERRORS.INVALID_QR_CODE_FIELDS(missedFields), context)
                 }
-
-                const qrCodeAmount = String(Big(getQRCodeField(qrCodeFields, 'Sum')).div(100))
-                const { persAcc, personalAcc, payeeINN } = getQRCodeFields(qrCodeFields, ['persAcc', 'personalAcc', 'payeeINN'])
+                // NOTE(YEgorLu): amount in qrcode exists without "." between parts ("1000.11" -> "100011"), so let's add it
+                // NOTE(YEgorLu): Round to 8 characters, so qrcode amount has same format as receipt amount - "1000.00000000" instead of "1000"
+                const qrCodeAmount = Big(getQRCodeField(qrCodeFields, 'Sum')).div(100).toFixed(8)
+                const { persAcc, payeeINN } = getQRCodeFields(qrCodeFields, ['persAcc', 'personalAcc', 'payeeINN'])
 
                 const billingAccounts = await find('BillingAccount', {
                     number: persAcc,
@@ -195,17 +191,12 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
 
                 if (!acquiringContext) throw new GQLError(ERRORS.NO_ACQUIRING_CONTEXT, context)
 
-                const paymPeriod = getQRCodePaymPeriod(qrCodeFields, billingContext)
+                qrCodeFields['PaymPeriod'] = getQRCodePaymPeriod(qrCodeFields, billingContext)
 
-                if (!qrCodeFields['PaymPeriod']) {
-                    qrCodeFields['PaymPeriod'] = paymPeriod
-                }
-
-                const period = formatPeriodFromQRCode(paymPeriod)
-
-                const acquiringContextRecipient = get(acquiringContext, 'recipient')
-
-                if (!acquiringContextRecipient) throw new GQLError(ERRORS.BANK_ACCOUNT_IS_INVALID, context)
+                // NOTE (YEgorLu): We just take tin, bic, bankAccount from QR-code
+                // const acquiringContextRecipient = get(acquiringContext, 'recipient')
+                //
+                // if (!acquiringContextRecipient) throw new GQLError(ERRORS.BANK_ACCOUNT_IS_INVALID, context)
 
                 const billingIntegration = await getById('BillingIntegration', billingContext.integration)
 
@@ -213,11 +204,8 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
                 let foundReceipt
                 let amount
                 const setDataFromReceipt = async (lastBillingReceipt) => {
-                    if (await isReceiptPaid(context, persAcc, lastBillingReceipt.period, [organizationId], personalAcc)) {
-                        throw new GQLError(ERRORS.RECEIPT_ALREADY_PAID, context)
-                    }
                     foundReceipt = lastBillingReceipt
-                    amount = foundReceipt.toPay
+                    amount = qrCodeAmount
                 }
 
                 /** @type {TCompareQRResolvers} */
@@ -227,13 +215,7 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
                     },
                     onReceiptPeriodEqualsQrCodePeriod: setDataFromReceipt,
                     onReceiptPeriodNewerThanQrCodePeriod: setDataFromReceipt,
-                    onReceiptPeriodOlderThanQrCodePeriod: async (lastBillingReceipt) => {
-                        if (await isReceiptPaid(context, persAcc, period, [organizationId], personalAcc)) {
-                            throw new GQLError(ERRORS.RECEIPT_ALREADY_PAID, context)
-                        }
-                        foundReceipt = lastBillingReceipt
-                        amount = qrCodeAmount
-                    },
+                    onReceiptPeriodOlderThanQrCodePeriod: setDataFromReceipt,
                 }
 
                 await compareQRCodeWithLastReceipt(context, qrCodeFields, resolvers)
@@ -263,7 +245,7 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
 
                 return {
                     qrCodeFields,
-                    lastReceiptData: foundReceipt ? pick(foundReceipt, ['id', 'period', 'toPay']) : null,
+                    lastReceiptData: foundReceipt ? pick(foundReceipt, ['id', 'period', 'toPay', 'createdAt', 'category.id', 'category.name']) : null,
                     explicitFees,
                     amount,
                     acquiringIntegrationHostUrl: get(acquiringIntegration, 'hostUrl'),

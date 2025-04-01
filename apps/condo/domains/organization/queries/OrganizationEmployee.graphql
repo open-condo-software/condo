@@ -1,12 +1,17 @@
 query getActiveOrganizationEmployee($userId: ID!, $employeeId: ID) {
-    employees: allOrganizationEmployees(where: {
-        id: $employeeId,
-        organization: { type_in: [MANAGING_COMPANY, SERVICE_PROVIDER] },
-        user: { id: $userId, type: staff },
-        isAccepted: true,
-        isBlocked: false,
-        isRejected: false,
-    }, first: 1, skip: 0, sortBy: [createdAt_DESC]) {
+    employees: allOrganizationEmployees(
+        where: {
+            id: $employeeId,
+            organization: { type_in: [MANAGING_COMPANY, SERVICE_PROVIDER] },
+            user: { id: $userId, type: staff },
+            isAccepted: true,
+            isBlocked: false,
+            isRejected: false,
+        },
+        first: 1,
+        skip: 0,
+        sortBy: [createdAt_DESC]
+    ) {
         id
         name
         email
@@ -159,8 +164,41 @@ query getOrganizationEmployeeWithTicketOrganization ($userId: ID!, $organization
             user: { id: $userId },
             organization: { id: $organizationId },
         }
-        first: 1
+        first: 1,
     ) {
         id
+    }
+}
+
+query getOrganizationEmployeeByUserAndOrganizationId ($userId: ID!, $organizationId: ID!) {
+    employee: allOrganizationEmployees (
+        where: {
+            user: { id: $userId },
+            organization: { id: $organizationId},
+        },
+        first: 1,
+    ) {
+        id
+        name
+        phone
+        email
+    }
+}
+
+query getEmployeesInvitesByUserIdAndOrganizationType ($userId: ID!, $organizationType: [OrganizationTypeType!]) {
+    invitations: allOrganizationEmployees (
+        where: {
+            user: { id: $userId },
+            organization: { type_in: $organizationType },
+            isAccepted: false,
+            isRejected: false,
+            isBlocked: false,
+        },
+        first: 10,
+    ) {
+        id
+        organization {
+            name
+        }
     }
 }

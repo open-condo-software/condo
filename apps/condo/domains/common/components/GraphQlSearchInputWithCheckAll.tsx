@@ -7,10 +7,10 @@ import isUndefined from 'lodash/isUndefined'
 import React, { ComponentProps, useCallback, useEffect, useRef, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Checkbox } from '@open-condo/ui'
 
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 
-import Checkbox from './antd/Checkbox'
 import { GraphQlSearchInputOption, GraphQlSearchInput } from './GraphQlSearchInput'
 
 
@@ -23,7 +23,6 @@ export type InputWithCheckAllProps = {
     selectProps: ComponentProps<typeof GraphQlSearchInput>
     checkBoxOffset?: number
     form: FormInstance
-    checkBoxEventName?: string
     disabled?: boolean
     checkboxDisabled?: boolean
     checkboxHidden?: boolean
@@ -60,7 +59,6 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
         CheckAllMessage,
         form,
         checkBoxOffset,
-        checkBoxEventName,
         disabled,
         onDataLoaded,
         mutationOfFormAfterCheckAll,
@@ -163,7 +161,6 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
                         >
                             <Checkbox
                                 onChange={handleCheckboxChange}
-                                eventName={checkBoxEventName}
                                 disabled={disabled || checkboxDisabled}
                             >
                                 {CheckAllMessage}

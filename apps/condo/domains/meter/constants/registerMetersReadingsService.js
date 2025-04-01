@@ -8,6 +8,7 @@ const DATE_FIELD_PATHS = [
     { path: 'meterMeta.commissioningDate', nullable: true },
     { path: 'meterMeta.sealingDate', nullable: true },
     { path: 'meterMeta.controlReadingsDate', nullable: true },
+    { path: 'meterMeta.archiveDate', nullable: true },
 ]
 
 const DATE_FIELD_PATH_TO_TRANSLATION = {
@@ -18,6 +19,7 @@ const DATE_FIELD_PATH_TO_TRANSLATION = {
     'meterMeta.commissioningDate': 'meter.import.column.CommissioningDate',
     'meterMeta.sealingDate': 'meter.import.column.SealingDate',
     'meterMeta.controlReadingsDate': 'meter.import.column.ControlReadingsDate',
+    'meterMeta.archiveDate': 'meter.import.column.ArchiveDate',
 }
 
 module.exports = {

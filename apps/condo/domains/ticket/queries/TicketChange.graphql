@@ -1,7 +1,10 @@
 query getTicketChanges ($ticketId: ID!) {
     ticketChanges: allTicketChanges (
-        where: { ticket: { id: $ticketId } },
+        where: {
+            ticket: { id: $ticketId }
+        },
         sortBy: [actualCreationDate_DESC]
+        first: 100,
     ) {
         id
         actualCreationDate

@@ -1,15 +1,20 @@
-import { useGetTicketByCreatedByQuery } from '@app/condo/gql'
+import {
+    useCreateTicketMutation,
+    useGetTicketByCreatedByQuery,
+    useCreateInvoiceMutation,
+    useGetPublishTicketInvoicesLazyQuery,
+} from '@app/condo/gql'
 import { B2BAppGlobalFeature } from '@app/condo/schema'
 import { Form, notification } from 'antd'
 import dayjs from 'dayjs'
 import isToday from 'dayjs/plugin/isToday'
-import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState, useEffect } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
-import { useApolloClient } from '@open-condo/next/apollo'
+import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
+import { MUTATION_RESULT_EVENT, MutationEmitter, useApolloClient } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -18,8 +23,6 @@ import { ActionBar, Space, Typography, Tour } from '@open-condo/ui'
 import { getObjectValueFromQuery } from '@condo/domains/common/utils/query'
 import { ClientType, getClientCardTabKey } from '@condo/domains/contact/utils/clientCard'
 import { CopyButton } from '@condo/domains/marketplace/components/Invoice/CopyButton'
-import { INVOICE_STATUS_PUBLISHED } from '@condo/domains/marketplace/constants'
-import { Invoice as InvoiceGQL } from '@condo/domains/marketplace/gql'
 import { useInvoicePaymentLink } from '@condo/domains/marketplace/hooks/useInvoicePaymentLink'
 import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
 import { useGlobalAppsFeaturesContext } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsFeaturesContext'
@@ -30,7 +33,6 @@ import { REQUIRED_TICKET_FIELDS } from '@condo/domains/ticket/constants/common'
 import { useCacheUtils } from '@condo/domains/ticket/hooks/useCacheUtils'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
-
 
 dayjs.extend(isToday)
 
@@ -49,7 +51,7 @@ export const CreateTicketActionBar = ({ handleSave, isLoading, form }) => {
     const [disabled, setDisabled] = useState<boolean>(true)
 
     const { user } = useAuth()
-    const userId = get(user, 'id', null)
+    const userId = user?.id || null
 
     const { persistor } = useCachePersistor()
     const {
@@ -133,38 +135,42 @@ export const CreateTicketForm: React.FC = () => {
 
     const { organization } = useOrganization()
     const router = useRouter()
-    const auth = useAuth() as { user: { id: string } }
+    const { user } = useAuth()
+    const userId = user?.id || null
     const client = useApolloClient()
     const { addTicketToQueryCacheForTicketCardList } = useCacheUtils(client.cache)
     const { requestFeature } = useGlobalAppsFeaturesContext()
 
     const initialValuesFromQuery = useMemo(() => getObjectValueFromQuery(router, ['initialValues']), [router])
-    const redirectToClientCard = useMemo(() => !!get(router, ['query', 'redirectToClientCard']), [router])
+    const redirectToClientCard = useMemo(() => !!router?.query?.redirectToClientCard || null, [router])
 
-    const createInvoiceAction = Invoice.useCreate({})
-    const action = Ticket.useCreate(
-        {
-            status: { connect: { id: OPEN_STATUS } },
-        },
-        async (ticket) => {
+    const [createInvoiceAction] = useCreateInvoiceMutation()
+    const [createTicketAction] = useCreateTicketMutation({
+        onCompleted: async (ticketData) => {
+            const ticket = ticketData?.ticket
             addTicketToQueryCacheForTicketCardList(ticket)
+            MutationEmitter.emit(MUTATION_RESULT_EVENT, {
+                name: 'createTicket',
+            })
             if (redirectToClientCard) {
-                const clientPhone = ticket.clientPhone
-                const ticketPropertyId = get(ticket, 'property.id')
-                const isResidentTicket = !!get(ticket, 'contact')
+                const clientPhone = ticket?.clientPhone
+                const ticketPropertyId = ticket?.property?.id
+                const isResidentTicket = !!ticket?.contact
 
                 if (clientPhone && ticketPropertyId) {
                     const clientCardTabType = isResidentTicket ? ClientType.Resident : ClientType.NotResident
                     await router.push(
                         `/phone/${clientPhone}?tab=${
-                            getClientCardTabKey(ticketPropertyId, clientCardTabType, ticket.unitName, ticket.unitType)
+                            getClientCardTabKey(ticketPropertyId, clientCardTabType, ticket?.unitName, ticket?.unitType)
                         }`
                     )
                 }
             } else {
                 await router.push('/ticket')
             }
-        })
+        },
+    })
+    const [getPublishTicketInvoices] = useGetPublishTicketInvoicesLazyQuery()
 
     const getCompletedNotification = useCallback(({ ticketId, ticketNumber, paymentUrl }) => ({
         message: (
@@ -188,38 +194,55 @@ export const CreateTicketForm: React.FC = () => {
     const getPaymentLink = useInvoicePaymentLink()
 
     const createAction = useCallback(async ({ attachCallRecord, ...variables }) => {
-        let deadline = get(variables, 'deadline')
+        let deadline = variables?.deadline
         if (deadline && deadline.isToday()) {
             deadline = deadline.endOf('day')
         }
-        const { invoices, existedInvoices, newInvoices, ...ticketValues } = variables
+        const { newInvoices, ...ticketValues } = variables
 
-        const ticket = await action({
-            ...Ticket.formValuesProcessor({ ...ticketValues, deadline }),
-            organization: { connect: { id: organization.id } },
+        const { data: ticketData } = await createTicketAction({
+            variables: {
+                data: {
+                    dv: 1,
+                    sender: getClientSideSenderInfo(),
+                    status: {
+                        connect: { id: OPEN_STATUS },
+                    },
+                    organization: { connect: { id: organization.id } },
+                    ...Ticket.formValuesProcessor({ ...ticketValues, deadline }),
+                },
+            },
         })
+        const ticket = ticketData?.ticket
+        const ticketId = ticket?.id || null
 
         let paymentUrl
         if (!isEmpty(newInvoices)) {
             for (const invoiceFromForm of newInvoices) {
                 const payload = Invoice.formValuesProcessor({
                     ...invoiceFromForm,
-                    ticket: ticket.id,
+                    ticket: ticketId,
                 }, intl, true)
 
-                await createInvoiceAction(payload)
+                await createInvoiceAction({
+                    variables: {
+                        data: {
+                            dv: 1,
+                            sender: getClientSideSenderInfo(),
+                            ...payload,
+                        },
+                    },
+                })
             }
 
-            const data = await client.query({
-                query: InvoiceGQL.GET_ALL_OBJS_QUERY,
+            const { data: publishTicketInvoicesData } = await getPublishTicketInvoices({
                 variables: {
-                    where: {
-                        ticket: { id: ticket.id },
-                        status: INVOICE_STATUS_PUBLISHED,
-                    },
+                    ticketId,
+                    first: 100,
                 },
             })
-            const publishedInvoices = get(data, 'data.objs')
+
+            const publishedInvoices = publishTicketInvoicesData?.publishInvoices?.filter(Boolean) || []
 
             const { paymentLink } = await getPaymentLink(publishedInvoices.map(({ id }) => id))
             paymentUrl = paymentLink
@@ -228,32 +251,32 @@ export const CreateTicketForm: React.FC = () => {
         if (attachCallRecord) {
             requestFeature({
                 feature: B2BAppGlobalFeature.AttachCallRecordToTicket,
-                ticketId: ticket.id,
+                ticketId,
                 ticketOrganizationId: organization.id,
             })
         }
 
         notification.success(getCompletedNotification({
-            ticketNumber: ticket.number,
-            ticketId: ticket.id,
+            ticketNumber: ticket?.number,
+            ticketId: ticketId,
         }))
 
         if (paymentUrl && ticket.contact) {
             notification.success(getCompletedNotification({
-                ticketNumber: ticket.number,
+                ticketNumber: ticket?.number,
                 paymentUrl,
             }))
         }
 
         return ticket
-    }, [action, organization.id, getCompletedNotification, client, getPaymentLink, intl, createInvoiceAction, requestFeature])
+    }, [createTicketAction, organization.id, getCompletedNotification, client, getPaymentLink, intl, createInvoiceAction, getPublishTicketInvoices, requestFeature])
 
     const initialValues = useMemo(() => ({
         ...initialValuesFromQuery,
-        assignee: auth.user.id,
-        executor: auth.user.id,
+        assignee: userId,
+        executor: userId,
         invoices: [],
-    }), [auth.user.id, initialValuesFromQuery])
+    }), [userId, initialValuesFromQuery])
 
     return useMemo(() => (
         <Tour.Provider>

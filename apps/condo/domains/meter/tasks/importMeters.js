@@ -4,8 +4,10 @@ const Upload = require('graphql-upload/Upload.js')
 const { get, isEmpty } = require('lodash')
 
 const { ConvertFileToTable, getObjectStream, readFileFromStream } = require('@open-condo/keystone/file')
+const { ROWS_COUNT_LIMIT, ROWS_COUNT_LIMIT_EXCEEDED } = require('@open-condo/keystone/file/constants')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
+const { i18n } = require('@open-condo/locales/loader')
 
 const {
     DOMA_EXCEL,
@@ -74,17 +76,18 @@ async function failWithErrorFile (context, taskId, content, format) {
  * will be emitted and the job will be translated to 'failed' state
  *
  * @param taskId - id of `MeterReadingsImportTask` record, obtained from job `data` arguments
+ * @param rowsLimit - max rows count for import
  * @returns {Promise<void>}
  */
-async function importMeters (taskId) {
+async function importMeters (taskId, rowsLimit = ROWS_COUNT_LIMIT) {
     if (!taskId) throw new Error('taskId is undefined')
     const { keystone: context } = getSchemaCtx('MeterReadingsImportTask')
 
     // get task definition
-    const { file, user, organization, locale } = await MeterReadingsImportTask.getOne(
+    const { file, user, organization, locale, isPropertyMeters } = await MeterReadingsImportTask.getOne(
         context,
         { id: taskId },
-        'file { id originalFilename filename publicUrl mimetype } user { id } organization { id } locale'
+        'file { id originalFilename filename publicUrl mimetype } user { id } organization { id } locale isPropertyMeters'
     )
 
     // since we would like to catch all errors and immediately tell to user about them
@@ -104,7 +107,7 @@ async function importMeters (taskId) {
         const content = await readFileFromStream(contentStream)
 
         // create file converter
-        const converter = new ConvertFileToTable(content)
+        const converter = new ConvertFileToTable(content, rowsLimit)
 
         // For now we support only two formats: doma-excel and 1S (txt/csv)
         const isExcelFile = await converter.isExcelFile()
@@ -118,7 +121,7 @@ async function importMeters (taskId) {
         const data = await converter.getData()
 
         // create importer
-        const importer = await getImporter(context, taskId, organization.id, user.id, format, locale)
+        const importer = await getImporter(context, taskId, organization.id, user.id, format, locale, isPropertyMeters)
 
         // do import
         await importer.import(data)
@@ -146,8 +149,18 @@ async function importMeters (taskId) {
             await failWithErrorFile(context, taskId, errorFileContent, format)
         }
     } catch (err) {
-        const errorMessage = get(err, 'errors[0].extensions.messageForUser', get(err, 'message'))
-            || 'not recognized error'
+        let errorMessage = get(err, 'errors[0].extensions.messageForUser', get(err, 'message'))
+
+        if (errorMessage === ROWS_COUNT_LIMIT_EXCEEDED) {
+            const TooManyRowsErrorTitle = i18n('TooManyRowsInTable.title', { locale })
+            const TooManyRowsErrorMessage = i18n('TooManyRowsInTable.message', {
+                locale,
+                meta: { value: rowsLimit },
+            })
+            errorMessage = `${TooManyRowsErrorTitle}. ${TooManyRowsErrorMessage}`
+        } else if (!errorMessage) {
+            errorMessage = 'not recognized error'
+        }
 
         await MeterReadingsImportTask.update(context, taskId, {
             ...dvAndSender,

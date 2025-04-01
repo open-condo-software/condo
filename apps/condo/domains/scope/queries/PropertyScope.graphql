@@ -1,0 +1,17 @@
+query getPropertyScopes ($organizationId: ID!, $propertyScopeIds: [ID!]) {
+    propertyScope: allPropertyScopes (
+        where: {
+            organization: {
+                id: $organizationId
+            },
+            OR: [
+                { id_in: $propertyScopeIds },
+                { hasAllEmployees: true },
+            ],
+        }
+        first: 100,
+    ) {
+        id
+        hasAllProperties
+    }
+}

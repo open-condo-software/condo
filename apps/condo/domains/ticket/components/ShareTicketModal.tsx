@@ -1,26 +1,24 @@
 /** @jsx jsx */
 import { green } from '@ant-design/colors'
 import { CloseCircleFilled, RightOutlined } from '@ant-design/icons'
+import { useShareTicketMutation } from '@app/condo/gql'
 import { Organization as IOrganization } from '@app/condo/schema'
 import { css, jsx } from '@emotion/react'
 import styled from '@emotion/styled'
 import { Col, Collapse, notification, Row } from 'antd'
-import { get, isEmpty } from 'lodash'
+import isEmpty  from 'lodash/isEmpty'
 import getConfig from 'next/config'
 import Link from 'next/link'
-import { useRouter } from 'next/router'
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 
-import { useMutation } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Modal, Typography } from '@open-condo/ui'
 
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
-import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
 import { EN_LOCALE } from '@condo/domains/common/constants/locale'
 import { colors } from '@condo/domains/common/constants/style'
+import { analytics } from '@condo/domains/common/utils/analytics'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
-import { SHARE_TICKET_MUTATION } from '@condo/domains/ticket/gql'
 import { getEmployeeWithEmail } from '@condo/domains/ticket/utils/clientSchema/search'
 import { packShareData } from '@condo/domains/ticket/utils/shareDataPacker'
 
@@ -171,20 +169,16 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
     const ShareSentMessage = intl.formatMessage({ id: 'ticket.shareSent' })
     const ShareSentToEmailMessage = intl.formatMessage({ id: 'ticket.shareSentToEmail' })
 
-    const { logEvent, getEventName } = useTracking()
-
-    const { date, number, details, id, locale, organization } = props
+    const { date, number, details, id: ticketId, locale, organization } = props
 
     let cutDetails = details || ''
     if (cutDetails.length >= 110) {
         cutDetails = `${cutDetails.substr(0, 100)}…`
     }
-    const shareParams = JSON.stringify({ date, number, details: cutDetails, id })
+    const shareParams = JSON.stringify({ date, number, details: cutDetails, id: ticketId })
     const encryptedText = packShareData(shareParams)
 
-    const { query } = useRouter()
-    const [shareTicket] = useMutation(SHARE_TICKET_MUTATION)
-
+    const [shareTicket] = useShareTicketMutation()
     const {
         publicRuntimeConfig: { serverUrl: origin },
     } = getConfig()
@@ -204,24 +198,23 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
     }
 
     function handleSelect (value) {
-        const withoutEmails = parseSelectValue(value).filter(item => !get(item, 'value.hasEmail')).map(item => item.text)
+        const withoutEmails = parseSelectValue(value).filter(item => !item?.value?.hasEmail).map(item => item.text)
         setUsersWithoutEmail(withoutEmails)
         setChosenEmployees(value)
     }
 
     async function handleClick () {
         setLoading(true)
-        const sender = getClientSideSenderInfo()
-        const { data, errors } = await shareTicket({
+        const { data: ticketData, errors } = await shareTicket({
             variables: {
                 data: {
-                    sender,
-                    employees: parseSelectValue(chosenEmployees).filter(employee => get(employee, 'value.hasEmail')).map(employee => employee.id),
-                    ticketId: query.id,
+                    sender: getClientSideSenderInfo(),
+                    employees: parseSelectValue(chosenEmployees).filter(employee => employee?.value?.hasEmail).map(employee => employee.id),
+                    ticketId,
                 },
             },
         })
-        if (data && data.obj) {
+        if (ticketData?.ticket) {
             setChosenEmployees([])
             setShareVisible(false)
             setOkVisible(true)
@@ -231,7 +224,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
             console.error({ msg: 'Failed to share ticket', errors })
             notification.error({
                 message: ServerErrorMessage,
-                description: get(errors, '0.message', null),
+                description: errors[0]?.message || null,
             })
         }
         setLoading(false)
@@ -250,13 +243,9 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
         setOkVisible(false)
     }
 
-    const handleClickShareLink = (linkTitle: string) => () => {
-        const eventName = getEventName(TrackingEventType.Click)
-
-        if (eventName) {
-            logEvent({ eventName, eventProperties: { component: { value: linkTitle } } })
-        }
-    }
+    const handleClickShareLink = useCallback((linkTitle: string) => () => {
+        analytics.track('ticket_share_click', { destination: linkTitle })
+    }, [])
 
     return (
         <>
@@ -318,7 +307,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
                             <Collapse.Panel key='1' header={ToEmployeesEmailMessage}>
                                 <GraphQlSearchInput
                                     id='send-employee-email'
-                                    search={getEmployeeWithEmail(get(organization, 'id'))}
+                                    search={getEmployeeWithEmail(organization?.id)}
                                     showArrow={false}
                                     mode='multiple'
                                     css={search}

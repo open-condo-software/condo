@@ -13,6 +13,7 @@ const conf = require('@open-condo/config')
 const {
     setFakeClientMode, makeLoggedInAdminClient,
 } = require('@open-condo/keystone/test.utils')
+const { i18n } = require('@open-condo/locales/loader')
 
 const {
     CSV,
@@ -94,7 +95,7 @@ const generateExcelFile = async (validLinesSize, invalidLinesSize, fatalLinesSiz
         'Тип счетчика', 'Номер счетчика', 'Количество тарифов',
         'Показание 1', 'Показание 2', 'Показание 3', 'Показание 4',
         'Дата передачи показаний', 'Дата поверки', 'Дата следующей поверки',
-        'Дата установки', 'Дата ввода в эксплуатацию', 'Дата опломбирования', 'Дата контрольных показаний', 'Место установки счетчика', 'Автоматический']
+        'Дата установки', 'Дата ввода в эксплуатацию', 'Дата опломбирования', 'Дата контрольных показаний', 'Место установки счетчика', 'Автоматический', 'Дата вывода из эксплуатации']
     const data = []
 
     for (let i = 0; i < validLinesSize; i++) {
@@ -160,6 +161,7 @@ function generateRowForDomaExcel (data = {}) {
         '2021-01-25', // controlReadingsDate
         'Кухня', // place
         '', // isAutomatic
+        '', // archiveDate
     ]
 }
 
@@ -169,7 +171,7 @@ const generateDomaExcelFileWithGivenData = async (rows) => {
         'Тип счетчика', 'Номер счетчика', 'Количество тарифов',
         'Показание 1', 'Показание 2', 'Показание 3', 'Показание 4',
         'Дата передачи показаний', 'Дата поверки', 'Дата следующей поверки',
-        'Дата установки', 'Дата ввода в эксплуатацию', 'Дата опломбирования', 'Дата контрольных показаний', 'Место установки счетчика', 'Автоматический']]
+        'Дата установки', 'Дата ввода в эксплуатацию', 'Дата опломбирования', 'Дата контрольных показаний', 'Место установки счетчика', 'Автоматический', 'Дата вывода из эксплуатации']]
 
     data.push(...rows)
 
@@ -296,11 +298,11 @@ describe('importMeters', () => {
             status: ERROR,
             format: CSV,
             file: expect.objectContaining({ mimetype: 'text/csv' }),
-            errorFile: null,
-            errorMessage: 'The `s` parameter is mandatory',
+            errorFile: expect.objectContaining({ originalFilename: 'meters_failed_data.csv', mimetype: 'text/csv' }),
+            errorMessage: null,
             totalRecordsCount: validLines + invalidLines + fatalLines,
-            importedRecordsCount: 0,
-            processedRecordsCount: 0,
+            importedRecordsCount: validLines,
+            processedRecordsCount: validLines + invalidLines + fatalLines,
         })
     })
 
@@ -510,7 +512,46 @@ describe('importMeters', () => {
         const filename = getTmpFile('xlsx')
         await downloadFile(url, filename)
         const errorData = await readXlsx(filename)
-        expect(errorData[1][20]).toBe(`ИПУ с таким номером и ресурсом уже есть в организации на лицевом счете ${meter.accountNumber}. Проверьте, пожалуйста, правильность данных.`)
+        expect(errorData[1][21]).toBe(`ИПУ с таким номером и ресурсом уже есть в организации на лицевом счете ${meter.accountNumber}. Проверьте, пожалуйста, правильность данных.`)
+    })
+
+    test('throws error when file has too many rows', async () => {
+        const locale = 'ru'
+        const adminClient = await makeLoggedInAdminClient()
+        adminClient.setHeaders({ 'Accept-Language': locale })
+        const [o10n] = await createTestOrganization(adminClient)
+        const [property] = await createTestPropertyWithMap(adminClient, o10n)
+
+        const validLines = 5
+        const invalidLines = 0
+        const fatalLines = 0
+        const meterReadingsImportTask = await MeterReadingsImportTask.create(context, {
+            ...dvAndSender,
+            file: await generateExcelFile(validLines, invalidLines, fatalLines, property),
+            user: { connect: { id: adminClient.user.id } },
+            organization: { connect: { id: o10n.id } },
+            locale,
+        })
+
+        const rowsLimit = 2
+        // run import
+        await importMeters(meterReadingsImportTask.id, rowsLimit)
+
+        const TooManyRowsErrorTitle = i18n('TooManyRowsInTable.title', { locale })
+        const TooManyRowsErrorMessage = i18n('TooManyRowsInTable.message', {
+            locale,
+            meta: { value: rowsLimit },
+        })
+        const errorMessage = `${TooManyRowsErrorTitle}. ${TooManyRowsErrorMessage}`
+
+        // assert
+        const task = await MeterReadingsImportTask.getOne(context, { id: meterReadingsImportTask.id }, METER_READINGS_IMPORT_TASK_FIELDS)
+        expect(task).toMatchObject({
+            format: DOMA_EXCEL,
+            file: expect.objectContaining({ mimetype: EXCEL_FILE_META.mimetype }),
+            errorMessage: errorMessage,
+            errorFile: null,
+        })
     })
 
     describe('Mock files', () => {

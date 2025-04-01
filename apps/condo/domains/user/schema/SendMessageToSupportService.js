@@ -9,6 +9,7 @@ const { v4: uuid } = require('uuid')
 const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
+const { getKVClient } = require('@open-condo/keystone/kv')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
@@ -26,6 +27,9 @@ const SUPPORT_EMAIL_MOBILE = conf['HELP_REQUISITES'] && get(JSON.parse(conf['HEL
 if (!SUPPORT_EMAIL_MOBILE) logger.warn('No HELP_REQUISITES.support_email_mobile!')
 
 const fileAdapter = new FileAdapter('forwarded-emails-attachments')
+const kv = getKVClient()
+
+const APPEAL_NUMBER_KEY = 'send_message_to_support:appeal_number'
 
 const ERRORS = {
     WRONG_EMAIL_FORMAT: {
@@ -137,6 +141,9 @@ const SendMessageToSupportService = new GQLCustomSchema('SendMessageToSupportSer
                     residentsExtraInfo.push(residentInfo)
                 }
 
+                // NOTE: Used to generate unique subjects, so messages are not grouped by mailing server
+                const appealNumber = await kv.incr(APPEAL_NUMBER_KEY)
+
                 const messageAttrs = {
                     sender,
                     lang,
@@ -152,6 +159,7 @@ const SendMessageToSupportService = new GQLCustomSchema('SendMessageToSupportSer
                         os,
                         appVersion,
                         attachments: files,
+                        appealNumber,
                     },
                 }
 

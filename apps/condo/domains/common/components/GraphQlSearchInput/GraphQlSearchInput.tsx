@@ -1,5 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
 import { ApolloClient } from '@apollo/client'
 import { AutoComplete, Select, SelectProps, Typography } from 'antd'
 import debounce from 'lodash/debounce'
@@ -13,11 +11,7 @@ import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import { useApolloClient } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 
-import {
-    useTracking,
-    TrackingEventPropertiesType,
-    TrackingEventType,
-} from '@condo/domains/common/components/TrackingContext'
+import { analytics } from '@condo/domains/common/utils/analytics'
 
 import { isNeedToLoadNewElements } from '../../utils/select.utils'
 import { WhereType } from '../../utils/tables.utils'
@@ -26,7 +20,8 @@ import { Loader } from '../Loader'
 
 export type GraphQlSearchInputOption = {
     value: string
-    text: string
+    text: string | React.ReactNode
+    title?: string
     data?: any
 }
 
@@ -38,9 +33,9 @@ export enum SearchComponentType {
 }
 
 // TODO: add apollo cache shape typings
-export interface ISearchInputProps extends SelectProps<string> {
-    search: (client: ApolloClient<Record<string, unknown>>, searchText: string, where?: WhereType, first?: number, skip?: number) => Promise<Array<Record<string, unknown>>>
-    initialValueSearch?: (client: ApolloClient<Record<string, unknown>>, searchText: string, where?: WhereType, first?: number, skip?: number) => Promise<Array<Record<string, unknown>>>
+export interface ISearchInputProps extends SelectProps<string | Array<string>> {
+    search: (client: ApolloClient<any>, searchText: string, where?: WhereType, first?: number, skip?: number) => Promise<Array<Record<string, unknown>>>
+    initialValueSearch?: (client: ApolloClient<any>, searchText: string, where?: WhereType, first?: number, skip?: number) => Promise<Array<Record<string, unknown>>>
     onSelect?: (...args: Array<unknown>) => void
     onChange?: (...args: Array<unknown>) => void
     onAllDataLoading?: (data: Array<unknown>, allDataLoaded: boolean) => void
@@ -57,8 +52,6 @@ export interface ISearchInputProps extends SelectProps<string> {
     formatLabel?: (option: GraphQlSearchInputOption) => JSX.Element
     renderOptions?: (items: any[], renderOption: RenderOptionFunc) => JSX.Element[]
     infinityScroll?: boolean
-    eventName?: string
-    eventProperties?: TrackingEventPropertiesType
     keyField?: string
     SearchInputComponentType?: SearchComponentType
     showLoadingMessage?: boolean
@@ -81,8 +74,6 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         disabled,
         placeholder: initialPlaceholder,
         value,
-        eventName: propEventName,
-        eventProperties = {},
         keyField = 'value',
         onAllDataLoading,
         searchMoreFirst,
@@ -92,6 +83,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         notFoundContent: propsNotFoundContent,
         mode,
         onBlur,
+        id,
         ...restProps
     } = props
 
@@ -119,11 +111,6 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         }
     }, [allData, onAllDataLoading, isAllDataLoaded])
 
-    const { logEvent, getEventName } = useTracking()
-
-    const eventName = propEventName ? propEventName : getEventName(TrackingEventType.Select)
-    const componentProperties = { ...eventProperties }
-
     const needShowLoadingMessage = showLoadingMessage && (isInitialLoading || ((isSearchLoading || isLoadingMore) && isEmpty(allData)))
     const placeholder = useMemo(() => needShowLoadingMessage ? LoadingMessage : initialPlaceholder,
         [LoadingMessage, initialPlaceholder, needShowLoadingMessage])
@@ -145,7 +132,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
     [NotFoundMessage, isInitialLoading, isLoadingMore, isSearchLoading, propsNotFoundContent])
 
     const renderOption: RenderOptionFunc = useCallback((option, index) => {
-        let optionLabel = option.text
+        let optionLabel: React.ReactNode | string = option.text
 
         if (formatLabel) {
             optionLabel = formatLabel(option)
@@ -153,9 +140,11 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         const value = ['string', 'number'].includes(typeof option.value) ? option.value : JSON.stringify(option)
         const key = keyField === 'value' ? value : option[keyField]
 
+        const title = option.title || (typeof option.text === 'string' ? option.text : undefined)
+
         return (
-            <Select.Option id={index} key={option.key || key} value={value} title={option.title || option.text} data-cy='search-input--option'>
-                <Typography.Text title={option.title || option.text} disabled={disabled}>
+            <Select.Option id={index} key={key} value={value} title={title} data-cy='search-input--option'>
+                <Typography.Text title={title} disabled={disabled}>
                     {optionLabel}
                 </Typography.Text>
             </Select.Option>
@@ -210,25 +199,17 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
     const handleSelect = useCallback(async (value, option) => {
         if (onSelect) onSelect(value, option)
 
-        if (eventName) {
-            const componentValue = get(option, 'title')
+        const componentValue = get(option, 'title')
 
-            if (componentValue) {
-                const componentId = get(restProps, 'id')
-                componentProperties['component'] = { value: componentValue }
-
-                if (componentId) {
-                    componentProperties['component']['id'] = componentId
-                }
-
-                logEvent({ eventName, eventProperties: componentProperties })
-            }
+        if (componentValue) {
+            analytics.track('change', { component: 'GraphQLSearchInput', id, value, location: window.location.href })
         }
+
         if (autoClearSearchValue || !mode) {
             setSearchValue('')
             setSearchData([])
         }
-    }, [onSelect, mode])
+    }, [onSelect, autoClearSearchValue, mode, id])
 
     const searchMoreSuggestions = useCallback(
         async (value, skip) => {
@@ -247,7 +228,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
 
             setLoadingMore(false)
         },
-        [client, keyField, isAllDataLoaded, search, searchValue],
+        [search, isAllDataLoaded, client, searchMoreFirst, searchValue, keyField],
     )
 
     const handleClear = useCallback(() => {
@@ -302,6 +283,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         notFoundContent,
         mode,
         onBlur: handleBlur,
+        id,
         ...restProps,
     }),
     [allowClear, autoClearSearchValue, handleClear, handleScroll, handleSearch, handleSelect, infinityScroll,

@@ -1,5 +1,5 @@
 import { green } from '@ant-design/colors'
-import { useGetContactTicketsQuery } from '@app/condo/gql'
+import { useGetTicketsByContactQuery } from '@app/condo/gql'
 import { SortTicketsBy, Ticket as TicketSchema } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Col, Row, RowProps, Space, Typography } from 'antd'
@@ -147,7 +147,7 @@ const TicketCardList: React.FC<ITicketCardListProps> = ({ contactId }) => {
     const {
         loading,
         data: ticketsData,
-    } = useGetContactTicketsQuery({
+    } = useGetTicketsByContactQuery({
         variables: { contactId },
         skip: !persistor || !contactId,
     })

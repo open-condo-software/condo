@@ -17,7 +17,6 @@ import { ActionBar, Button, Select, Tooltip, Typography } from '@open-condo/ui'
 
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
 import { PageContent, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
-import { FeatureFlagsController } from '@condo/domains/common/components/containers/FeatureFlag'
 import { PageComponentType } from '@condo/domains/common/types'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
@@ -52,6 +51,7 @@ export const UserInfoPageContent: React.FC<UserInfoPageContentProps> = ({ useAll
     const EmployeeTelegramTooltipMessage = intl.formatMessage({ id: 'pages.condo.profile.employeeTelegramBot.description' })
     const EmployeeTelegramOpenMessage = intl.formatMessage({ id: 'pages.condo.profile.employeeTelegramBot.open' })
     const GlobalHintsTitle = intl.formatMessage({ id: 'pages.condo.profile.globalHints' })
+
     const RuTitle = intl.formatMessage({ id: 'language.russian.withFlag' })
     const EnTitle = intl.formatMessage({ id: 'language.english-us.withFlag' })
     const EsTitle = intl.formatMessage({ id: 'language.spanish-es.withFlag' })
@@ -108,7 +108,6 @@ export const UserInfoPageContent: React.FC<UserInfoPageContentProps> = ({ useAll
             <Head>
                 <title>{name}</title>
             </Head>
-            <FeatureFlagsController/>
             <PageWrapper>
                 <PageContent>
                     <Row gutter={ROW_GUTTER_BIG}>
@@ -129,7 +128,7 @@ export const UserInfoPageContent: React.FC<UserInfoPageContentProps> = ({ useAll
                                                     </Typography.Title>
                                                 </Col>
                                                 <Col span={24}>
-                                                    <Row gutter={ROW_GUTTER_SMALL}>
+                                                    <Row gutter={[0, 16]}>
                                                         <Col lg={5} xs={10}>
                                                             <Typography.Text type='secondary'>
                                                                 {PhoneMessage}

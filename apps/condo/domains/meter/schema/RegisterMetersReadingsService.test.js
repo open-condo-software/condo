@@ -3,14 +3,17 @@
  */
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
-const { map, flatten, set, zip } = require('lodash')
+const flatten = require('lodash/flatten')
+const map = require('lodash/map')
+const set = require('lodash/set')
+const zip = require('lodash/zip')
 
-const { GQLErrorCode, GQLInternalErrorTypes } = require('@open-condo/keystone/errors')
 const {
     makeLoggedInAdminClient,
     makeClient,
     expectToThrowAuthenticationError,
     expectToThrowAccessDeniedErrorToResult, expectToThrowGQLError, catchErrorFrom,
+    expectToThrowForeignKeyConstraintViolationError,
 } = require('@open-condo/keystone/test.utils')
 
 const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')
@@ -502,41 +505,9 @@ describe('RegisterMetersReadingsService', () => {
             badReading,
         ]
 
-        // TODO(pahaz): use GQLError check
-        await catchErrorFrom(
-            async () => {
-                await registerMetersReadingsByTestClient(adminClient, organization, readings)
-            },
-            ({ data: { result }, errors }) => {
-                expect(result).toEqual([
-                    expect.objectContaining({
-                        id: expect.stringMatching(UUID_REGEXP),
-                        meter: expect.objectContaining({
-                            id: expect.stringMatching(UUID_REGEXP),
-                            property: expect.objectContaining({
-                                id: property1.id,
-                                address: property1.address,
-                                addressKey: property1.addressKey,
-                            }),
-                            unitType: readings[0].addressInfo.unitType,
-                            unitName: readings[0].addressInfo.unitName,
-                            accountNumber: readings[0].accountNumber,
-                            number: readings[0].meterNumber,
-                        }),
-                    }),
-                    null,
-                ])
-                expect(errors).toEqual([
-                    expect.objectContaining({
-                        message: '[error] Create Meter internal error',
-                        extensions: expect.objectContaining({
-                            code: GQLErrorCode.INTERNAL_ERROR,
-                            type: GQLInternalErrorTypes.SUB_GQL_ERROR,
-                            message: expect.stringContaining('insert or update on table "Meter" violates foreign key constraint "Meter_resource_33ab2a27_fk_MeterResource_id"'),
-                        }),
-                    }),
-                ])
-            },
+        await expectToThrowForeignKeyConstraintViolationError(
+            async () => await registerMetersReadingsByTestClient(adminClient, organization, readings),
+            'Meter', 'Meter_resource_33ab2a27_fk_MeterResource_id'
         )
     })
 
@@ -897,6 +868,7 @@ describe('RegisterMetersReadingsService', () => {
             'commissioningDate',
             'sealingDate',
             'controlReadingsDate',
+            'archiveDate',
         ]
 
         const emptyValues = [ null, undefined ]
@@ -1057,6 +1029,7 @@ describe('RegisterMetersReadingsService', () => {
 
         // create another reading for same meter and change `place` and `nextVerificationDate` fields values
         const nextVerificationDate = dayjs().add(1, 'week').toISOString()
+        const archiveDate = dayjs().add(2, 'week').toISOString()
         const anotherReadings = [{
             ...readings[0],
             value1: faker.random.numeric(3),
@@ -1066,6 +1039,7 @@ describe('RegisterMetersReadingsService', () => {
                 place: 'place2',
                 nextVerificationDate,
                 isAutomatic: true,
+                archiveDate,
             },
         }]
         const [secondAttempt] = await registerMetersReadingsByTestClient(adminClient, organization, anotherReadings)
@@ -1082,14 +1056,19 @@ describe('RegisterMetersReadingsService', () => {
         expect(updatedMeters[0].number).toBe(readings[0].meterNumber)
         expect(updatedMeters[0].place).toBe('place2')
         expect(updatedMeters[0].nextVerificationDate).toBeTruthy()
+        expect(updatedMeters[0].archiveDate).toBeTruthy()
         expect(updatedMeters[0].isAutomatic).toBe(true)
 
         // sent third readings without place - field value must be 'place2'
+        // and set isAutomatic to false
         const thirdReadings = [{
             ...readings[0],
             value1: faker.random.numeric(3),
             value2: faker.random.numeric(4),
-            meterMeta: undefined,
+            meterMeta: {
+                isAutomatic: false,
+                place: '',
+            },
         }]
         const [thirdAttempt] = await registerMetersReadingsByTestClient(adminClient, organization, thirdReadings)
         expect(firstAttempt[0].meter.id).toBe(thirdAttempt[0].meter.id)
@@ -1104,7 +1083,8 @@ describe('RegisterMetersReadingsService', () => {
         expect(updatedMeters2[0].place).toBe('place2')
         expect(updatedMeters2[0].numberOfTariffs).toBe(2)
         expect(updatedMeters2[0].nextVerificationDate).toBeTruthy()
-        expect(updatedMeters2[0].isAutomatic).toBe(true)
+        expect(updatedMeters2[0].archiveDate).toBeTruthy()
+        expect(updatedMeters2[0].isAutomatic).toBe(false)
 
         // be sure that keep same value from creation
         expect(meters[0].controlReadingsDate).toBe(updatedMeters2[0].controlReadingsDate)

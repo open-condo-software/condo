@@ -45,7 +45,10 @@ fragment AddressMetaForTableAddress on AddressMetaField {
 
 query getPropertyWithMapById ($id: ID!) {
     property: allProperties(
-        where: { id: $id }
+        where: {
+            id: $id
+        },
+        first: 1,
     ) {
         id
         organization {
@@ -69,7 +72,7 @@ query getPropertyById ($id: ID!) {
         where: {
             id: $id
         },
-        first: 1
+        first: 1,
     ) {
         id
         address
@@ -84,5 +87,19 @@ query getPropertyById ($id: ID!) {
                 ...SectionOrParkingInfo
             }
         }
+    }
+}
+
+query getLastCreatedPropertyByOrganizationId ($organizationId: ID!) {
+    properties: allProperties (
+        where: {
+            organization: {
+                id: $organizationId
+            },
+        },
+        sortBy: [createdAt_DESC],
+        first: 1,
+    ) {
+        id
     }
 }

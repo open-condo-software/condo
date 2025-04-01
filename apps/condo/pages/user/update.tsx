@@ -1,4 +1,3 @@
-import get from 'lodash/get'
 import Head from 'next/head'
 import React from 'react'
 
@@ -12,7 +11,7 @@ import { UserProfileForm } from '@condo/domains/user/components/UserProfileForm'
 
 export const UserInfoPage: PageComponentType = () => {
     const { user } = useAuth()
-    const name = get(user, 'name')
+    const name = user?.name
 
     return (
         <>

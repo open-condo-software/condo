@@ -1,7 +1,7 @@
 version: '3.8'
 x-postgres-common:
   &postgres-common
-  image: ${REGISTRY}postgres:16.4
+  image: ${REGISTRY}postgres:16.8
   user: postgres
 
 services:
@@ -24,6 +24,7 @@ services:
 
   postgresdb:
     image: ${REGISTRY}alpine
+    profiles: ['dbs']
     depends_on:
       - postgresdb-master
       - postgresdb-replica
@@ -83,6 +84,109 @@ services:
     networks:
       - app-network
     command: ["redis-server", "--databases", "64"]
+
+  valkey-cluster:
+    image: ${REGISTRY}alpine
+    profiles: ['dbs']
+    depends_on:
+      - valkey-node-3
+      - valkey-node-2
+      - valkey-node-1
+      - valkey-cluster-creator
+
+  valkey-cluster-creator:
+    command:
+      - valkey-cli
+      - --cluster
+      - create
+      - localhost:7001
+      - localhost:7002
+      - localhost:7003
+      - --cluster-yes
+      - --cluster-replicas
+      - '0'
+    depends_on:
+      valkey-node-1:
+        condition: service_healthy
+      valkey-node-2:
+        condition: service_healthy
+      valkey-node-3:
+        condition: service_healthy
+    image: ${REGISTRY}valkey/valkey:8.0.2
+    network_mode: host
+  valkey-node-1:
+    command:
+      - valkey-server
+      - /valkey/valkey.conf
+      - --port
+      - '7001'
+    healthcheck:
+      interval: 10s
+      retries: 3
+      test: [ "CMD", "valkey-cli", "-p", "7001", "-c", "ping" ]
+      timeout: 5s
+    image: ${REGISTRY}valkey/valkey:8.0.2
+    network_mode: host
+    configs:
+      - source: valkey.conf
+        target: /valkey/valkey.conf
+    ports:
+      - 7001:7000
+    volumes:
+      - valkey-data-1:/data
+  valkey-node-2:
+    command:
+      - valkey-server
+      - /valkey/valkey.conf
+      - --port
+      - '7002'
+    healthcheck:
+      interval: 10s
+      retries: 3
+      test: ["CMD", "valkey-cli", "-p", "7002", "-c", "ping"]
+      timeout: 5s
+    image: ${REGISTRY}valkey/valkey:8.0.2
+    network_mode: host
+    configs:
+      - source: valkey.conf
+        target: /valkey/valkey.conf
+    ports:
+      - 7002:7000
+    volumes:
+      - valkey-data-2:/data
+  valkey-node-3:
+    command:
+      - valkey-server
+      - /valkey/valkey.conf
+      - --port
+      - '7003'
+    healthcheck:
+      interval: 10s
+      retries: 3
+      test: ["CMD", "valkey-cli", "-p", "7003", "-c", "ping"]
+      timeout: 5s
+    image: ${REGISTRY}valkey/valkey:8.0.2
+    network_mode: host
+    configs:
+      - source: valkey.conf
+        target: /valkey/valkey.conf
+    ports:
+      - 7003:7000
+    volumes:
+      - valkey-data-3:/data
+
 networks:
   app-network:
     driver: bridge
+volumes:
+  valkey-data-1: {}
+  valkey-data-2: {}
+  valkey-data-3: {}
+configs:
+  valkey.conf:
+    content: |
+      cluster-enabled yes
+      cluster-config-file nodes.conf
+      cluster-node-timeout 5000
+      appendonly yes
+

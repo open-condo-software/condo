@@ -1,13 +1,12 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/react'
-import { Col, Layout, PageHeader as AntPageHeader, PageHeaderProps, Row } from 'antd'
+import { Layout, PageHeader as AntPageHeader, PageHeaderProps } from 'antd'
 import MenuItem from 'antd/lib/menu/MenuItem'
 import classnames from 'classnames'
 import Router from 'next/router'
-import React, { CSSProperties, FunctionComponent, useEffect, ElementType, ReactElement } from 'react'
+import React, { CSSProperties, FunctionComponent, ElementType } from 'react'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
 
 import { SideNav } from './components/SideNav'
 import {
@@ -65,12 +64,6 @@ interface IPageWrapperProps {
 const PageWrapper: FunctionComponent<IPageWrapperProps> = (props) => {
     const { children, className, style } = props
     const { breakpoints } = useLayoutContext()
-    const { logEvent, getEventName } = useTracking()
-
-    useEffect(() => {
-        const eventName = getEventName(TrackingEventType.Visit)
-        logEvent({ eventName, denyDuplicates: true })
-    }, [])
 
     return (
         <StyledPageWrapper isSmall={!breakpoints.TABLET_LARGE} className={classnames('page-wrapper', className)} style={style}>

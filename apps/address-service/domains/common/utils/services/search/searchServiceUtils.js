@@ -20,14 +20,9 @@ async function createOrUpdateAddressWithSource (context, addressServerUtils, add
     //
     // Address
     //
-    let addressItem = await addressServerUtils.getOne(context, { key }, ADDRESS_ITEM_FIELDS)
+    let addressItem = await addressServerUtils.getOne(context, { key, deletedAt: null }, ADDRESS_ITEM_FIELDS)
 
-    if (addressItem) {
-        addressItem = await addressServerUtils.update(context, addressItem.id, {
-            ...dvSender,
-            deletedAt: null, // Restore deleted address on demand
-        }, ADDRESS_ITEM_FIELDS)
-    } else {
+    if (!addressItem) {
         addressItem = await addressServerUtils.create(context, { ...dvSender, ...addressData }, ADDRESS_ITEM_FIELDS)
     }
 
@@ -35,14 +30,13 @@ async function createOrUpdateAddressWithSource (context, addressServerUtils, add
     // Address source
     //
     const compoundedAddressSource = mergeAddressAndHelpers(addressSource, helpers)
-    const addressSourceItem = await addressSourceServerUtils.getOne(context, { source: compoundedAddressSource.toLowerCase() })
+    const addressSourceItem = await addressSourceServerUtils.getOne(context, { source: compoundedAddressSource.toLowerCase(), deletedAt: null }, ADDRESS_ITEM_FIELDS)
 
     if (addressSourceItem) {
         await addressSourceServerUtils.update(context, addressSourceItem.id, {
             ...dvSender,
             source: compoundedAddressSource,
             address: { connect: { id: addressItem.id } },
-            deletedAt: null, // Restore deleted address source on demand
         })
     } else {
         await addressSourceServerUtils.create(

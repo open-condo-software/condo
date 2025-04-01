@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import {
     MeterReportingPeriod as MeterReportingPeriodType,
-    MeterReportingPeriodWhereInput,
+    MeterReportingPeriodWhereInput, QueryAllMeterReportingPeriodsArgs,
 } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
 import { Col, Row, RowProps, Typography } from 'antd'
@@ -13,6 +13,7 @@ import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 
+import { IRefetchType } from '@open-condo/codegen/generate.hooks'
 import { Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button } from '@open-condo/ui'
@@ -43,6 +44,7 @@ type MeterReportingPeriodPageContentProps = {
     loading?: boolean
     canManageMeters?: boolean
     userOrganizationId?: string
+    refetchCount?: IRefetchType<MeterReportingPeriodType, QueryAllMeterReportingPeriodsArgs>
 }
 
 const MeterReportingPeriodTableContent: React.FC<MeterReportingPeriodPageContentProps> = (props) => {
@@ -51,6 +53,7 @@ const MeterReportingPeriodTableContent: React.FC<MeterReportingPeriodPageContent
         loading,
         canManageMeters,
         userOrganizationId,
+        refetchCount,
     } = props
 
     const intl = useIntl()
@@ -153,6 +156,7 @@ const MeterReportingPeriodTableContent: React.FC<MeterReportingPeriodPageContent
 
     const softDeleteMeterReportingPeriods = MeterReportingPeriod.useSoftDeleteMany(() => {
         setSelectedRows([])
+        refetchCount()
         refetch()
     })
 
@@ -250,7 +254,7 @@ export const MeterReportingPeriodPageContent: React.FC<MeterReportingPeriodPageC
             ],
         }},
     [userOrganizationId])
-    const { count, loading: countLoading } = MeterReportingPeriod.useCount({ where: searchMeterReportingPeriodsQuery })
+    const { count, loading: countLoading, refetch: refetchCount } = MeterReportingPeriod.useCount({ where: searchMeterReportingPeriodsQuery })
 
     const pageContent = useMemo(() => {
         if (countLoading || loading) return <Loader />
@@ -265,8 +269,8 @@ export const MeterReportingPeriodPageContent: React.FC<MeterReportingPeriodPageC
             )
         }
 
-        return <MeterReportingPeriodTableContent {...props} />
-    }, [CreateReportingPeriodLabel, EmptyListLabel, canManageMeters, count, countLoading, loading, props])
+        return <MeterReportingPeriodTableContent refetchCount={refetchCount} {...props} />
+    }, [CreateReportingPeriodLabel, EmptyListLabel, canManageMeters, count, countLoading, loading, props, refetchCount])
 
     return (
         <TablePageContent>

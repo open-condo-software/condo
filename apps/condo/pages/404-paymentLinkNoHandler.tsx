@@ -1,18 +1,15 @@
-import { Col, Row, RowProps, Typography } from 'antd'
+import { Col, Row, RowProps } from 'antd'
 import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Typography } from '@open-condo/ui'
 
-import { fontSizes } from '@condo/domains/common/constants/style'
 import { PageComponentType } from '@condo/domains/common/types'
 import { PosterLayout } from '@condo/domains/user/components/containers/PosterLayout'
 
-import { ErrorLayoutFooter, ErrorLayoutHeader } from './500'
 
-
-const DESCRIPTION_TEXT_STYLE = { fontSize: fontSizes.content }
 const ROW_MESSAGE_GUTTER: RowProps['gutter'] = [0, 14]
-const Src404 = { poster: '/404Poster.webp', placeholder: '/404PosterPlaceholder.jpg' }
+const Src404 = { main: '/404Poster.webp', placeholder: '/404PosterPlaceholder.jpg' }
 
 const Custom404: PageComponentType = () => {
     const intl = useIntl()
@@ -27,7 +24,7 @@ const Custom404: PageComponentType = () => {
                         <Typography.Title>{PageTitle}</Typography.Title>
                     </Col>
                     <Col span={24}>
-                        <Typography.Paragraph style={DESCRIPTION_TEXT_STYLE}>
+                        <Typography.Paragraph>
                             {DescriptionMessage}
                         </Typography.Paragraph>
                     </Col>
@@ -39,9 +36,7 @@ const Custom404: PageComponentType = () => {
 
 const Error404Layout = (props): React.ReactElement => <PosterLayout
     {...props}
-    Header={<ErrorLayoutHeader />}
-    Footer={<ErrorLayoutFooter />}
-    layoutBgImage={Src404}
+    image={Src404}
 />
 
 Custom404.container = Error404Layout

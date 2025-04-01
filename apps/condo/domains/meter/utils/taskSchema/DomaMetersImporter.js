@@ -1,4 +1,7 @@
-const { get, isEqual, isNil, has } = require('lodash')
+const get = require('lodash/get')
+const has = require('lodash/has')
+const isEqual = require('lodash/isEqual')
+const isNil = require('lodash/isNil')
 
 const { AbstractMetersImporter } = require('./AbstractMetersImporter')
 const { TransformRowError } = require('./MetersDataImporterTypes')
@@ -69,6 +72,7 @@ class DomaMetersImporter extends AbstractMetersImporter {
                 sealingDate: row[16],
                 controlReadingsDate: row[17],
                 isAutomatic: get(this, ['mappers', 'isAutomatic', cell19Value]),
+                archiveDate: row[20],
             },
         }
     }

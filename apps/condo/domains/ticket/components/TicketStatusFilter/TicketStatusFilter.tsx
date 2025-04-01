@@ -7,8 +7,8 @@ import { Close } from '@open-condo/icons'
 import { Tag } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
-import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { transitions } from '@condo/domains/common/constants/style'
+import { analytics } from '@condo/domains/common/utils/analytics'
 import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
@@ -124,8 +124,6 @@ export const TicketStatusFilter = ({ count, title, type }) => {
     const ticketStatusTagType = useMemo(() => getTicketStatusTagType(filters, type), [filters, type])
     const colorsByTagType = useMemo(() => getTagColorsByTagType(ticketStatusTagType, type), [ticketStatusTagType, type])
 
-    const { getTrackingWrappedCallback } = useTracking()
-
     const handleStatusFilterClick = useCallback(async () => {
         if (ticketStatusTagType === 'checked') {
             const newStatusFilter = Array.isArray(filters.status) && filters.status.filter(statusType => statusType !== type)
@@ -136,17 +134,15 @@ export const TicketStatusFilter = ({ count, title, type }) => {
             const newParameters = getFiltersQueryData({ ...filters, status: newStatusFilter })
             await updateQuery(router, { newParameters }, { routerAction: 'replace', shallow: true })
         }
-    }, [filters, router, ticketStatusTagType, type])
 
-    const wrappedHandleStatusFilterClick = useMemo(() =>
-        getTrackingWrappedCallback('TicketStatusFilterClick', { type }, handleStatusFilterClick),
-    [getTrackingWrappedCallback, handleStatusFilterClick, type])
+        analytics.track('ticket_status_filter_click', { status: type })
+    }, [filters, router, ticketStatusTagType, type])
 
     return (
         <StatusFilterContainer
             colorsByTagType={colorsByTagType}
             tagType={ticketStatusTagType}
-            onClick={wrappedHandleStatusFilterClick}
+            onClick={handleStatusFilterClick}
         >
             <Tag
                 textColor={colorsByTagType.counterTextColor}

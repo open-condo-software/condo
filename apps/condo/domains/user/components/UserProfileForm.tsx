@@ -1,15 +1,12 @@
-import { Col, Form, Row, Typography } from 'antd'
-import get from 'lodash/get'
+import { Col, Form, Row } from 'antd'
+import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { useCallback } from 'react'
-
+import React, { useCallback, useMemo } from 'react'
 
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
-import { ActionBar, Button } from '@open-condo/ui'
+import { ActionBar, Button, Typography, Input } from '@open-condo/ui'
 
-import Input from '@condo/domains/common/components/antd/Input'
-import { Button as DeprecatedButton } from '@condo/domains/common/components/Button'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import Prompt from '@condo/domains/common/components/Prompt'
@@ -34,7 +31,8 @@ const INPUT_LAYOUT_PROPS = {
 
 const RESET_PASSWORD_URL = '/auth/forgot'
 
-export const UserProfileForm = () => {
+
+export const UserProfileForm: React.FC = () => {
     const intl = useIntl()
     const router = useRouter()
     const FullNameLabel = intl.formatMessage({ id: 'pages.auth.register.field.Name' })
@@ -66,11 +64,11 @@ export const UserProfileForm = () => {
         name: [requiredValidator, minClientNameRule],
     }
 
-    const initialValues = {
-        name: get(user, 'name'),
-        email: get(user, 'email'),
-        avatar: get(user, 'avatar'),
-    }
+    const initialValues = useMemo(() => ({
+        name: user?.name,
+        email: user?.email,
+        avatar: user?.avatar,
+    }), [user])
     const ErrorToFormFieldMsgMapping = {
         [EMAIL_ALREADY_REGISTERED_ERROR]: {
             name: 'email',
@@ -109,10 +107,7 @@ export const UserProfileForm = () => {
                             <Col lg={20} offset={!breakpoints.TABLET_LARGE ? 0 : 1}>
                                 <Row gutter={[0, 40]}>
                                     <Col span={24}>
-                                        <Typography.Title
-                                            level={1}
-                                            style={{ margin: 0, fontWeight: 'bold' }}
-                                        >
+                                        <Typography.Title level={1}>
                                             {ProfileUpdateTitle}
                                         </Typography.Title>
                                     </Col>
@@ -138,16 +133,17 @@ export const UserProfileForm = () => {
                                             <Input placeholder={ExampleEmailMessage}/>
                                         </Form.Item>
                                     </Col>
+
                                     <Col span={24}>
                                         <Form.Item {...INPUT_LAYOUT_PROPS} labelAlign='left' label={PasswordLabel}>
-                                            <DeprecatedButton
-                                                type='inlineLink'
-                                                onClick={handleResetPasswordAction}
-                                            >
-                                                {ChangePasswordLabel}
-                                            </DeprecatedButton>
+                                            <Link href={RESET_PASSWORD_URL}>
+                                                <Typography.Link href={RESET_PASSWORD_URL}>
+                                                    {ChangePasswordLabel}
+                                                </Typography.Link>
+                                            </Link>
                                         </Form.Item>
                                     </Col>
+
                                     <Col span={24}>
                                         <ActionBar
                                             actions={[

@@ -115,7 +115,6 @@ export const MeterHeader = ({ meter, meterReportingPeriod, refetchMeter, meterTy
             value={meterStatus}
             bordered={false}
             labelInValue
-            eventName='MeterStatusSelect'
         >
             {options}
         </StatusSelect>

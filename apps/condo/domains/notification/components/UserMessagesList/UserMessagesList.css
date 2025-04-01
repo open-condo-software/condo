@@ -10,6 +10,7 @@
   border-radius: 8px;
   box-shadow: var(--condo-global-box-shadow-default);
   scrollbar-width: none;
+  overscroll-behavior: contain;
 }
 
 .user-messages-list .user-messages-list-header {

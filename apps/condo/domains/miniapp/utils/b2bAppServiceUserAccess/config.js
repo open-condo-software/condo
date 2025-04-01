@@ -59,6 +59,9 @@ const B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS = {
         // Contact domain
         Contact: {},
 
+        // Marketplace domain
+        Invoice: {},
+
         // Meter domain
         Meter: {},
         MeterReading: {
@@ -72,6 +75,9 @@ const B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS = {
             canBeManaged: false,
         },
         OrganizationEmployee: {
+            canBeManaged: false,
+        },
+        OrganizationEmployeeRole: {
             canBeManaged: false,
         },
 
@@ -94,6 +100,7 @@ const B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS = {
     services: {
         registerMetersReadings: {},
         sendB2BAppPushMessage: {},
+        registerPropertyMetersReadings: {},
     },
 }
 

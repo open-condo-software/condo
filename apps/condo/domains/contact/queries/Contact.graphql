@@ -1,6 +1,7 @@
 query getContactById ($id: ID!) {
     contacts: allContacts(
         where: { id: $id }
+        first: 1
     ) {
         id
         name
@@ -20,6 +21,20 @@ query getContactById ($id: ID!) {
             id
             name
         }
+    }
+}
+
+query getContactByUnit ($propertyId: ID!, $unitName: String!, $unitType: ContactUnitTypeType!) {
+    contacts: allContacts(
+        where: { unitName: $unitName, unitType: $unitType, property: { id: $propertyId } }
+        first: 50
+    ) {
+        id
+        name
+        email
+        phone
+        role { id name }
+        isVerified
     }
 }
 

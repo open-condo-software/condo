@@ -1,9 +1,53 @@
-query getIncidents ($where: IncidentWhereInput, $sortBy: [SortIncidentsBy!]) {
-    incidents: allIncidents (where: $where, sortBy: $sortBy) {
+query getIncidents ($where: IncidentWhereInput, $sortBy: [SortIncidentsBy!], $first: Int!) {
+    incidents: allIncidents (
+        where: $where,
+        sortBy: $sortBy,
+        first: $first,
+    ) {
         id
         details
         workStart
         workFinish
         status
+        details
+    }
+}
+
+query getIncidentById ($incidentId: ID!) {
+    incident: Incident (
+        where: {
+            id: $incidentId
+        }
+    ) {
+        id
+        status
+        createdAt
+        createdBy {
+            id
+            name
+        }
+        number
+        details
+        organization {
+            id
+            name
+        }
+        workStart
+        workFinish
+        workType
+        textForResident
+        hasAllProperties
+    }
+}
+
+mutation createIncident ($data: IncidentCreateInput!) {
+    incident: createIncident (data: $data) {
+        id
+    }
+}
+
+mutation updateIncident ($id: ID!, $data: IncidentUpdateInput!) {
+    incident: updateIncident (id: $id, data: $data) {
+        id
     }
 }

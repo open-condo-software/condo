@@ -364,11 +364,11 @@ docker:
   ENV:
     LANG: C.UTF-8
 ---
-image: redisreview
-from: redis:6.2
+image: valkeyreview
+from: valkey/valkey:8.0.2
 ---
 image: preparepostgresreview
-from: postgres:16.6
+from: postgres:16.8
 shell:
   install:
   - "apt update -qq"

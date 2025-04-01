@@ -1,5 +1,3 @@
-const Redis = require('ioredis')
-
 const { getKVPrefix } = require('./kv')
 
 describe('Key value adapter', () => {
@@ -9,24 +7,30 @@ describe('Key value adapter', () => {
     let moduleName
 
     beforeAll(() => {
-        process.env.REDIS_URL = 'redis://127.0.0.1:6379'
-        nonPrefixedClient = new Redis(process.env.REDIS_URL)
+        if (!process.env.KV_URL || !process.env.REDIS_URL) {
+            process.env.REDIS_URL = JSON.stringify([{ 'port':7001, 'host':'127.0.0.1' }, { 'port':7002, 'host':'127.0.0.1' }, { 'port':7003, 'host':'127.0.0.1' }])
+        }
+        jest.resetModules()
         moduleName = require(process.cwd() + '/package.json').name.split('/').pop() + ':'
 
-        jest.resetModules()
-
         const { getKVClient } = require('./kv')
+        nonPrefixedClient = getKVClient('nonPrefixed', 'test', { kvOptions: {}, ignorePrefix: true })
         client = getKVClient('test')
     })
 
     afterAll(async () => {
-        await client.flushdb()
         await client.disconnect()
         await nonPrefixedClient.disconnect()
     })
 
     afterAll(async () => {
         process.env = { ...OLD_ENV }
+    })
+
+    test('kv client should resolve cluster specific url', () => {
+        const kvUrl = process.env.KV_URL || process.env.REDIS_URL
+
+        expect(client).toHaveProperty('isCluster', !kvUrl.startsWith('redis') || !kvUrl.startsWith('valkey'))
     })
 
     test('prefix should be the name of root package json', () => {

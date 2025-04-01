@@ -1,5 +1,5 @@
+const { ApolloRateLimitingPlugin } = require('@open-condo/keystone/apolloServerPlugins')
 const { getKVClient } = require('@open-condo/keystone/kv')
-const { ApolloRateLimitingPlugin } = require('@open-condo/keystone/rateLimiting')
 
 const { UUID_TYPE, IPv4_TYPE } = require('@condo/domains/user/constants/identifiers')
 

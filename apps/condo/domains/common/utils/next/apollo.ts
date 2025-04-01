@@ -26,6 +26,101 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
                         read: listHelper.getReadFunction('paginate'),
                         merge: listHelper.mergeLists,
                     },
+                    allPropertyScopeProperties: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
+                    allPropertyScopeOrganizationEmployees: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
+                    allPropertyScopes: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
+                    allIncidents: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
+                    allIncidentChanges: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
+                    allIncidentProperties: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
+                    allIncidentClassifierIncidents: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
+                    allBillingIntegrationOrganizationContexts: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
+                    allTickets: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
+                    allTicketChanges: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
+                    allTicketComments: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
+                    allTicketCommentFile: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
+                    allTicketStatuses: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
+                    allTicketFiles: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
+                    allInvoices: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
+                    allProperties: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
+                    allTourStep: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
+                    allB2BApps: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
+                    allOrganizationEmployeeSpecializations: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
                 },
             },
 
@@ -89,6 +184,15 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
                     timeToLive: 60 * 1000, // 1 minute in milliseconds
                 },
                 Invoice: {
+                    timeToLive: 60 * 1000, // 1 minute in milliseconds
+                },
+                Incident: {
+                    timeToLive: 60 * 1000, // 1 minute in milliseconds
+                },
+                IncidentProperty: {
+                    timeToLive: 60 * 1000, // 1 minute in milliseconds
+                },
+                IncidentClassifierIncident: {
                     timeToLive: 60 * 1000, // 1 minute in milliseconds
                 },
             },

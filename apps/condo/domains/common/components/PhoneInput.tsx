@@ -80,6 +80,9 @@ const getPhoneLocalization = (locale: string) => {
     return {}
 }
 
+/**
+ * @deprecated use Input.Phone from Condo UI Kit
+ */
 export const PhoneInput: React.FC<IPhoneInputProps> = forwardRef((props, ref) => {
     const { value, placeholder, style, disabled, block, showCountryPrefix = true, country, ...otherProps } = props
     const configSize = useContext<SizeType>(ConfigProvider.SizeContext)

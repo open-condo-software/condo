@@ -10,7 +10,12 @@ const iconv = require('iconv-lite')
 const { catchErrorFrom, setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+const { PAYMENT_DONE_STATUS } = require('@condo/domains/acquiring/constants/payment')
 const { addAcquiringIntegrationAndContext } = require('@condo/domains/acquiring/utils/testSchema')
+const {
+    generateVirtualReceipt,
+    registerMultiPaymentForVirtualReceiptByTestClient, Payment, updateTestPayment,
+} = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestBankAccount } = require('@condo/domains/banking/utils/testSchema')
 const {
     createValidRuRoutingNumber,
@@ -18,6 +23,7 @@ const {
 } = require('@condo/domains/banking/utils/testSchema/bankAccount')
 const { HOUSING_CATEGORY_ID } = require('@condo/domains/billing/constants/constants')
 const { getCountrySpecificQRCodeParser } = require('@condo/domains/billing/utils/countrySpecificQRCodeParsers')
+const { calculatePaymentPeriod } = require('@condo/domains/billing/utils/receiptQRCodeUtils')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
@@ -39,6 +45,7 @@ const {
     createTestBillingReceipt,
     createTestRecipient,
 } = require('./testSchema')
+
 
 const { keystone } = index
 
@@ -74,9 +81,9 @@ describe('receiptQRCodeUtils', () => {
                 'BIC': '048073601',
                 'CorrespAcc': '30102110300320000206',
                 'PayeeINN': '0524967340',
-                'persAcc': '5018435412',
-                'payerAddress': 'ул.Ивана Спатара, д.14, кв.32',
-                'lastName': 'Иванов',
+                'PersAcc': '5018435412',
+                'PayerAddress': 'ул.Ивана Спатара, д.14, кв.32',
+                'LastName': 'Иванов',
                 'firstName': 'Иван',
                 'middleName': 'Иванович',
                 'Sum': '12351',
@@ -213,7 +220,8 @@ describe('receiptQRCodeUtils', () => {
                     id: billingReceipt.id,
                     period: billingReceipt.period,
                     toPay: billingReceipt.toPay,
-                    category: { id: HOUSING_CATEGORY_ID },
+                    createdAt: billingReceipt.createdAt,
+                    category: { id: HOUSING_CATEGORY_ID, name: billingReceipt.category.name },
                 }
             })
 
@@ -356,6 +364,284 @@ describe('receiptQRCodeUtils', () => {
             const PaymPeriod = getQRCodePaymPeriod(qrCodeObj, billingIntegrationContext)
 
             expect(PaymPeriod).toBe('07.2023')
+        })
+    })
+
+    describe('calculatePaymentPeriod', () => {
+
+        /** @type {TRUQRCodeFields} */
+        let qrCodeObj
+        let billingIntegrationContext,
+            billingProperty,
+            billingAccount,
+            billingRecipient,
+            acquiringIntegrationContext,
+            bankAccount
+        let lastPeriod = dayjs().format('YYYY-MM-01')
+        const getPeriod = () => dayjs(lastPeriod, 'YYYY-MM-DD').add(1, 'month').format('YYYY-MM-01')
+
+        beforeAll(async () => {
+            const [o10n] = await createTestOrganization(adminClient)
+            const [property] = await createTestProperty(adminClient, o10n)
+            const bic = createValidRuRoutingNumber()
+            const bankAccountNumber = createValidRuNumber(bic)
+            qrCodeObj = {
+                BIC: bic,
+                PayerAddress: property.address,
+                PaymPeriod: dayjs().format('MM.YYYY'),
+                Sum: '10000',
+                PersAcc: faker.random.numeric(8),
+                PayeeINN: o10n.tin,
+                PersonalAcc: bankAccountNumber,
+            };
+
+            ({ billingIntegrationContext } = await addBillingIntegrationAndContext(adminClient, o10n, {}, { status: CONTEXT_FINISHED_STATUS }));
+            ({ acquiringIntegrationContext } = await addAcquiringIntegrationAndContext(adminClient, o10n, {}, { status: CONTEXT_FINISHED_STATUS }));
+            [bankAccount] = await createTestBankAccount(adminClient, o10n, {
+                number: bankAccountNumber,
+                routingNumber: bic,
+            });
+
+            [billingProperty] = await createTestBillingProperty(adminClient, billingIntegrationContext);
+            [billingRecipient] = await createTestBillingRecipient(adminClient, billingIntegrationContext, {
+                tin: o10n.tin,
+                bankAccount: bankAccountNumber,
+                bic: bic,
+            })
+        })
+
+        beforeEach(async () => {
+            const billingAccountNumber = faker.random.numeric(8);
+            [billingAccount] = await createTestBillingAccount(adminClient, billingIntegrationContext, billingProperty, { number: billingAccountNumber })
+            qrCodeObj.PersAcc = billingAccountNumber
+        })
+
+        test('No billing receipt in current period', async () => {
+            const period = dayjs(getPeriod()).subtract(1, 'month').format('YYYY-MM-01')
+            const [billingReceipt] = await createTestBillingReceipt(adminClient, billingIntegrationContext, billingProperty, billingAccount, {
+                period: period,
+                receiver: { connect: { id: billingRecipient.id } },
+                recipient: createTestRecipient({
+                    tin: billingRecipient.tin,
+                    bic: billingRecipient.bic,
+                    bankAccount: billingRecipient.bankAccount,
+                }),
+                toPay: Big(qrCodeObj.Sum).div(100),
+            })
+            const receipt = generateVirtualReceipt({
+                period: billingReceipt.period,
+                bankAccount: bankAccount,
+                accountNumber: qrCodeObj.PersAcc,
+            })
+            const [{ multiPaymentId }] = await registerMultiPaymentForVirtualReceiptByTestClient(adminClient, receipt, {
+                id: acquiringIntegrationContext.id,
+            })
+
+            const payments = await Payment.getAll(adminClient, {
+                multiPayment: {
+                    id: multiPaymentId,
+                },
+            })
+
+            // mark payment as paid
+            await updateTestPayment(adminClient, payments[0].id, {
+                status: PAYMENT_DONE_STATUS,
+                advancedAt: dayjs().toISOString(),
+            })
+
+            const resultPeriod = await calculatePaymentPeriod(billingReceipt, dayjs().endOf('month').date())
+            expect(resultPeriod).toEqual(dayjs(period, 'YYYY-MM-DD').add(1, 'month').format('YYYY-MM-01'))
+        })
+
+        test('Partially paid receipt in current period', async () => {
+            const period = getPeriod()
+            const [billingReceipt] = await createTestBillingReceipt(adminClient, billingIntegrationContext, billingProperty, billingAccount, {
+                period: period,
+                receiver: { connect: { id: billingRecipient.id } },
+                recipient: createTestRecipient({
+                    tin: billingRecipient.tin,
+                    bic: billingRecipient.bic,
+                    bankAccount: billingRecipient.bankAccount,
+                }),
+                toPay: Big(qrCodeObj.Sum).add(1000).div(100),
+            })
+            const receipt = generateVirtualReceipt({
+                period: billingReceipt.period,
+                bankAccount: bankAccount,
+                accountNumber: qrCodeObj.PersAcc,
+                amount: Big(billingReceipt.toPay).mul(.5).toString(),
+            })
+            const [{ multiPaymentId }] = await registerMultiPaymentForVirtualReceiptByTestClient(adminClient, receipt, {
+                id: acquiringIntegrationContext.id,
+            })
+
+            const payments = await Payment.getAll(adminClient, {
+                multiPayment: {
+                    id: multiPaymentId,
+                },
+            })
+
+            // mark payment as paid
+            await updateTestPayment(adminClient, payments[0].id, {
+                status: PAYMENT_DONE_STATUS,
+                advancedAt: dayjs().toISOString(),
+            })
+
+            const resultPeriod = await calculatePaymentPeriod(billingReceipt, dayjs().endOf('month').date())
+            expect(resultPeriod).toEqual(period)
+        })
+
+        test('Fully paid receipt in current period', async () => {
+            const period = getPeriod()
+            const [billingReceipt] = await createTestBillingReceipt(adminClient, billingIntegrationContext, billingProperty, billingAccount, {
+                period: period,
+                receiver: { connect: { id: billingRecipient.id } },
+                recipient: createTestRecipient({
+                    tin: billingRecipient.tin,
+                    bic: billingRecipient.bic,
+                    bankAccount: billingRecipient.bankAccount,
+                }),
+                toPay: Big(qrCodeObj.Sum).div(100),
+            })
+            const receipt = generateVirtualReceipt({
+                period: billingReceipt.period,
+                bankAccount: bankAccount,
+                accountNumber: qrCodeObj.PersAcc,
+                amount: billingReceipt.toPay,
+            })
+            const [{ multiPaymentId }] = await registerMultiPaymentForVirtualReceiptByTestClient(adminClient, receipt, {
+                id: acquiringIntegrationContext.id,
+            })
+
+            const payments = await Payment.getAll(adminClient, {
+                multiPayment: {
+                    id: multiPaymentId,
+                },
+            })
+
+            // mark payment as paid
+            await updateTestPayment(adminClient, payments[0].id, {
+                status: PAYMENT_DONE_STATUS,
+                advancedAt: dayjs().toISOString(),
+            })
+
+            const resultPeriod = await calculatePaymentPeriod(billingReceipt, dayjs().endOf('month').date())
+            expect(resultPeriod).toEqual(dayjs(period, 'YYYY-MM-DD').add(1, 'month').format('YYYY-MM-01'))
+        })
+
+        describe('Uses last payment day', () => {
+
+            test('Receipt was uploaded after receiptsUploadDay', async () => {
+                const period = getPeriod()
+                const [billingReceipt] = await createTestBillingReceipt(adminClient, billingIntegrationContext, billingProperty, billingAccount, {
+                    period: period,
+                    receiver: { connect: { id: billingRecipient.id } },
+                    recipient: createTestRecipient({
+                        tin: billingRecipient.tin,
+                        bic: billingRecipient.bic,
+                        bankAccount: billingRecipient.bankAccount,
+                    }),
+                    toPay: Big(qrCodeObj.Sum).div(100),
+                })
+                const receipt = generateVirtualReceipt({
+                    period: billingReceipt.period,
+                    bankAccount: bankAccount,
+                    accountNumber: qrCodeObj.PersAcc,
+                    amount: billingReceipt.toPay,
+                })
+
+                // NOTE(YEgorLu): receipt is in current period and not paid, so keep in current period
+                let resultPeriodForToday = await calculatePaymentPeriod(billingReceipt, dayjs().date())
+                let resultPeriodForYesterday = await calculatePaymentPeriod(billingReceipt, dayjs().subtract(1, 'day').date())
+                expect(resultPeriodForToday).toEqual(period)
+                expect(resultPeriodForYesterday).toEqual(period)
+
+                const [{ multiPaymentId }] = await registerMultiPaymentForVirtualReceiptByTestClient(adminClient, receipt, {
+                    id: acquiringIntegrationContext.id,
+                })
+
+                const payments = await Payment.getAll(adminClient, {
+                    multiPayment: {
+                        id: multiPaymentId,
+                    },
+                })
+
+                // mark payment as paid
+                await updateTestPayment(adminClient, payments[0].id, {
+                    status: PAYMENT_DONE_STATUS,
+                    advancedAt: dayjs().toISOString(),
+                })
+
+                // NOTE(YEgorLu): receipt is in current period, but fully paid, so throw in next period
+                resultPeriodForToday = await calculatePaymentPeriod(billingReceipt, dayjs().date())
+                resultPeriodForYesterday = await calculatePaymentPeriod(billingReceipt, dayjs().subtract(1, 'day').date())
+                expect(resultPeriodForToday).toEqual(dayjs(period, 'YYYY-MM-DD').add(1, 'month').format('YYYY-MM-01'))
+                expect(resultPeriodForYesterday).toEqual(dayjs(period, 'YYYY-MM-DD').add(1, 'month').format('YYYY-MM-01'))
+            })
+
+            // NOTE(YEgorLu): that's how it should work, but for now I don't know how to test it because of immutable "createdAt" of "BillingReceipt" and use of Date.now()
+            test.skip('Receipt was not uploaded after receiptsUploadDay', async () => {
+                const period = getPeriod()
+                const [billingReceipt] = await createTestBillingReceipt(adminClient, billingIntegrationContext, billingProperty, billingAccount, {
+                    period: period,
+                    receiver: { connect: { id: billingRecipient.id } },
+                    recipient: createTestRecipient({
+                        tin: billingRecipient.tin,
+                        bic: billingRecipient.bic,
+                        bankAccount: billingRecipient.bankAccount,
+                    }),
+                    toPay: Big(qrCodeObj.Sum).div(100),
+                })
+
+                // NOTE(YEgorLu): there should be new receipt in next period, just not loaded in system yet. So throw in next period
+                const resultPeriodAAnother = await calculatePaymentPeriod(billingReceipt, dayjs().add(1, 'day').date())
+                expect(resultPeriodAAnother).toEqual(dayjs(period, 'YYYY-MM-DD').add(1, 'month').format('YYYY-MM-01'))
+            })
+        })
+
+        const getValidRandomDateWithoutDot = () => {
+            let curDate = dayjs()
+            const randomDays = parseInt(faker.random.numeric(2))
+            if (Math.random() >= .5) {
+                curDate = curDate.add(randomDays, 'day')
+            } else {
+                curDate = curDate.add(-randomDays, 'day')
+            }
+            return curDate
+        }
+        const getInvalidRandomDateWithoutDot = () => {
+            let curDate = dayjs()
+            const randomDays = parseInt(faker.random.numeric(1, { bannedDigits: ['0', '1'] }))
+            if (Math.random() >= .5) {
+                curDate = curDate.add(randomDays, 'year')
+            } else {
+                curDate = curDate.add(-randomDays, 'year')
+            }
+            return curDate
+        }
+
+        test('Formats period correctly', async () => {
+            const PERIOD_WITH_DOT = '01.2022'
+            const qrCodeObj = {
+                paymPeriod: PERIOD_WITH_DOT,
+            }
+            expect(getQRCodePaymPeriod(qrCodeObj)).toEqual(PERIOD_WITH_DOT)
+
+            const validWithoutDot1 = getValidRandomDateWithoutDot()
+            qrCodeObj.paymPeriod = validWithoutDot1.format('MMYYYY')
+            expect(getQRCodePaymPeriod(qrCodeObj)).toEqual(validWithoutDot1.format('MM.YYYY'))
+
+            const validWithoutDot2 = getValidRandomDateWithoutDot()
+            qrCodeObj.paymPeriod = validWithoutDot2.format('YYYYMM')
+            expect(getQRCodePaymPeriod(qrCodeObj)).toEqual(validWithoutDot2.format('MM.YYYY'))
+
+            const invalidWithoutDot1 = getInvalidRandomDateWithoutDot()
+            qrCodeObj.paymPeriod = invalidWithoutDot1.format('MMYYYY')
+            expect(getQRCodePaymPeriod(qrCodeObj)).toEqual(dayjs().format('MM.YYYY'))
+
+            const invalidWithoutDot2 = getInvalidRandomDateWithoutDot()
+            qrCodeObj.paymPeriod = invalidWithoutDot2.format('YYYYMM')
+            expect(getQRCodePaymPeriod(qrCodeObj)).toEqual(dayjs().format('MM.YYYY'))
         })
     })
 })

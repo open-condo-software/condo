@@ -68,7 +68,7 @@ export const useIncidentChangedFieldMessagesOf: UseIncidentChangedFieldMessagesO
     const formatField = (field, value, type: IncidentChangeFieldMessageType) => {
         const formatterFor = {
             details: (field, value, type) => {
-                const formattedValue = value.length > MAX_DESCRIPTION_DISPLAY_LENGTH ? (
+                const formattedValue = value?.length > MAX_DESCRIPTION_DISPLAY_LENGTH ? (
                     <Tooltip
                         title={value}
                         placement='top'
