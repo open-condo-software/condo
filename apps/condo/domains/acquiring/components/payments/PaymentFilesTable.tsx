@@ -38,7 +38,7 @@ import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 
 
-const SORTABLE_PROPERTIES = ['amount']
+const SORTABLE_PROPERTIES = ['amount', 'loadedAt']
 const PAYMENTS_DEFAULT_SORT_BY = ['loadedAt_DESC']
 const DEFAULT_CURRENCY_CODE = 'RUB'
 const DEFAULT_DATE_RANGE: [Dayjs, Dayjs] = [dayjs().subtract(1, 'week'), dayjs()]
@@ -104,6 +104,7 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
             skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
         },
         skip: !acquiringContext?.id || !persistor,
+        fetchPolicy: 'network-only', // TODO(@abshnko): remove when sorters work with cache
     })
 
     const paymentsFiles = useMemo(() => data?.paymentsFiles?.filter(Boolean) || [], [data?.paymentsFiles])
@@ -188,89 +189,87 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
 
 
     return (
-        <>
-            <Row gutter={ROW_GUTTER} align='middle' justify='center'>
-                <Col span={24}>
-                    <TableFiltersContainer>
-                        <Row justify={breakpoints.DESKTOP_SMALL ? 'end' : 'start'} gutter={TAP_BAR_ROW_GUTTER}>
-                            <Col flex='auto'>
-                                <Row gutter={TAP_BAR_ROW_GUTTER}>
-                                    <Col xs={24} lg={8}>
-                                        <Input
-                                            placeholder={SearchPlaceholder}
-                                            value={search}
-                                            onChange={(e) => {
-                                                handleSearchChange(e.target.value)
-                                            }}
-                                            allowClear
-                                            suffix={<Search size='medium' color={colors.gray[7]} />}
-                                        />
-                                    </Col>
-                                    <Col xs={24} lg={DATE_PICKER_COL_LAYOUT}>
-                                        <DateRangePicker
-                                            value={dateRange || dateFallback}
-                                            onChange={handleDateChange}
-                                            placeholder={[StartDateMessage, EndDateMessage]}
-                                        />
-                                    </Col>
-                                </Row>
-                            </Col>
-                        </Row>
-                    </TableFiltersContainer>
-                </Col>
+        <Row gutter={ROW_GUTTER} align='middle' justify='center'>
+            <Col span={24}>
+                <TableFiltersContainer>
+                    <Row justify={breakpoints.DESKTOP_SMALL ? 'end' : 'start'} gutter={TAP_BAR_ROW_GUTTER}>
+                        <Col flex='auto'>
+                            <Row gutter={TAP_BAR_ROW_GUTTER}>
+                                <Col xs={24} lg={8}>
+                                    <Input
+                                        placeholder={SearchPlaceholder}
+                                        value={search}
+                                        onChange={(e) => {
+                                            handleSearchChange(e.target.value)
+                                        }}
+                                        allowClear
+                                        suffix={<Search size='medium' color={colors.gray[7]} />}
+                                    />
+                                </Col>
+                                <Col xs={24} lg={DATE_PICKER_COL_LAYOUT}>
+                                    <DateRangePicker
+                                        value={dateRange || dateFallback}
+                                        onChange={handleDateChange}
+                                        placeholder={[StartDateMessage, EndDateMessage]}
+                                    />
+                                </Col>
+                            </Row>
+                        </Col>
+                    </Row>
+                </TableFiltersContainer>
+            </Col>
 
-                <Col span={24}>
-                    <PaymentsSumTable>
-                        <Row justify='center' gutter={SUM_BAR_COL_GUTTER}>
-                            <Col>
-                                <PaymentsSumInfo
-                                    title={TotalsSumTitle}
-                                    message={sumAllPayments?.result?.sum}
-                                    currencyCode={currencyCode}
-                                    loading={sumAllPaymentsLoading}
-                                />
-                            </Col>
-                        </Row>
-                    </PaymentsSumTable>
-                </Col>
+            <Col span={24}>
+                <PaymentsSumTable>
+                    <Row justify='center' gutter={SUM_BAR_COL_GUTTER}>
+                        <Col>
+                            <PaymentsSumInfo
+                                title={TotalsSumTitle}
+                                message={sumAllPayments?.result?.sum}
+                                currencyCode={currencyCode}
+                                loading={sumAllPaymentsLoading}
+                            />
+                        </Col>
+                    </Row>
+                </PaymentsSumTable>
+            </Col>
 
-                <Col span={24}>
-                    <Table
-                        loading={loading}
-                        dataSource={paymentsFiles}
-                        totalRows={total}
-                        columns={tableColumns}
-                        rowSelection={rowSelection}
+            <Col span={24}>
+                <Table
+                    loading={loading}
+                    dataSource={paymentsFiles}
+                    totalRows={total}
+                    columns={tableColumns}
+                    rowSelection={rowSelection}
+                />
+            </Col>
+            <Col span={24}>
+                {!loading && total > 0 && selectedRegistryKeys.length > 0 && (
+                    <ActionBar
+                        message={CountSelectedRegistryMessage}
+                        actions={[
+                            <Button
+                                key='create'
+                                type='primary'
+                                loading={isFilesDownloading}
+                                icon={<Download size='medium' />}
+                                onClick={handleDownloadClick}
+                            >
+                                {DownloadRegistriesMessage}
+                            </Button>,
+                            <Button
+                                key='cancelPaymentsFileSelection'
+                                type='secondary'
+                                children={CancelSelectedRegistryMessage}
+                                onClick={handleResetSelectedRegistry}
+                                loading={isFilesDownloading}
+                            />,
+                        ]}
                     />
-                </Col>
-                <Col span={24}>
-                    {!loading && total > 0 && selectedRegistryKeys.length > 0 && (
-                        <ActionBar
-                            message={CountSelectedRegistryMessage}
-                            actions={[
-                                <Button
-                                    key='create'
-                                    type='primary'
-                                    loading={isFilesDownloading}
-                                    icon={<Download size='medium' />}
-                                    onClick={handleDownloadClick}
-                                >
-                                    {DownloadRegistriesMessage}
-                                </Button>,
-                                <Button
-                                    key='cancelPaymentsFileSelection'
-                                    type='secondary'
-                                    children={CancelSelectedRegistryMessage}
-                                    onClick={handleResetSelectedRegistry}
-                                    loading={isFilesDownloading}
-                                />,
-                            ]}
-                        />
-                    )}
-                </Col>
-                <Col style={BOTTOM_PADDING_LIKE_ACTION_BAR}></Col>
-            </Row>
-        </>
+                )}
+            </Col>
+            <Col style={BOTTOM_PADDING_LIKE_ACTION_BAR}></Col>
+        </Row>
     )
 }
 

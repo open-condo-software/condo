@@ -47,7 +47,7 @@ export function usePaymentsFilesTableColumns (currencyCode: string): Record<stri
                 title: getColumnTooltip(PaymentOrderColumnTitle, PaymentOrderTooltipTitle),
                 key: 'paymentOrder',
                 dataIndex: 'paymentOrder',
-                width: '10%',
+                width: '15%',
                 render: stringSearch,
             },
             loadedAt: {
@@ -62,7 +62,7 @@ export function usePaymentsFilesTableColumns (currencyCode: string): Record<stri
                 title: RegistryNameTitle,
                 key: 'name',
                 dataIndex: 'name',
-                width: '30%',
+                width: '25%',
                 render: stringSearch,
             },
             amount: {
@@ -77,7 +77,7 @@ export function usePaymentsFilesTableColumns (currencyCode: string): Record<stri
                 title: UploadedRecordsTitle,
                 key: 'paymentsCount',
                 dataIndex: 'paymentsCount',
-                width: '15%',
+                width: '10%',
                 render: stringSearch,
             },
 
@@ -85,7 +85,7 @@ export function usePaymentsFilesTableColumns (currencyCode: string): Record<stri
                 title: StatusTitle,
                 key: 'status',
                 dataIndex: 'status',
-                width: '15%',
+                width: '10%',
                 render: getPaymentsFileStatusRender(intl, search),
             },
         }

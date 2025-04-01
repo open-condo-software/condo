@@ -139,7 +139,7 @@ const PaymentsFile = new GQLListSchema('PaymentsFile', {
                     const key = `${PAYMENTS_FILES_FOLDER_NAME}/${filename}`
                     // OBS will lowercase all keys from meta
                     const metaToSet = {
-                        listkey: 'AcquiringIntregrationContext',
+                        listkey: 'AcquiringIntegrationContext',
                         id: context,
                     }
                     await Adapter.acl.setMeta(key, metaToSet)
