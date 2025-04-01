@@ -74,7 +74,7 @@ const DistributionItem: React.FC<TDistributionItemProps> = (props) => {
     }, [amount, bankAccount, bic, index, isFeePayer, onUpdate, order, overpaymentPart, tin, vor])
 
     return (
-        <Row align='stretch' justify='space-between' gutter={GUTTER_COMPACT_ROW}>
+        <Row align='middle' justify='space-between' gutter={GUTTER_COMPACT_ROW}>
             <Col span={24}>
                 <Input value={tin} onChange={(e) => {
                     setTin(e.target.value)
@@ -343,7 +343,7 @@ export const AmountDistributionCalculator: React.FC = () => {
             {
                 !!splitError && (
                     <Col span={24}>
-                        <Alert type='error' message={splitError} showIcon/>
+                        <Alert type='error' description={splitError} message='Code exception' showIcon/>
                     </Col>
                 )
             }
