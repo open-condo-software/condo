@@ -198,8 +198,8 @@ describe('Document', () => {
                     [organizationWithAccess] = await createTestOrganization(admin);
                     [organizationWithoutAccess] = await createTestOrganization(admin)
 
-                    const unitName1 = faker.random.alphaNumeric(8)
-                    const unitName2 = faker.random.alphaNumeric(8)
+                    const unitName1 = faker.random.alphaNumeric(4)
+                    const unitName2 = unitName1 + faker.random.alphaNumeric(4)
 
                     const [propertyWithAccess] = await createTestProperty(admin, organizationWithAccess)
                     const [propertyWithoutAccess] = await createTestProperty(admin, organizationWithoutAccess)
