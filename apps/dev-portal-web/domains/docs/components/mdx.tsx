@@ -4,6 +4,7 @@ import React from 'react'
 import { Typography, MarkdownCodeWrapper } from '@open-condo/ui'
 
 import { Alert } from '@/domains/docs/components/Alert'
+import { AmountDistributionCalculator } from '@/domains/docs/components/AmountDistributionCalculator'
 import { CardLink } from '@/domains/docs/components/CardLink'
 import { Grid } from '@/domains/docs/components/Grid'
 import { Link } from '@/domains/docs/components/Link'
@@ -26,4 +27,5 @@ export const MDXMapping: MDXComponents = {
     Tabs,
     Grid,
     CardLink,
+    AmountDistributionCalculator,
 }

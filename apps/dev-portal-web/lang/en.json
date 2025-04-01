@@ -182,5 +182,21 @@
   "apps.b2c.sections.publishing.publishForm.items.info.label": "Information about the application",
   "apps.b2c.sections.publishing.publishForm.items.build.label": "Application build",
   "apps.b2c.sections.publishing.publishForm.items.build.select.placeholder": "Select build",
-  "apps.b2c.sections.publishing.publishForm.actions.publish": "Publish"
+  "apps.b2c.sections.publishing.publishForm.actions.publish": "Publish",
+
+  "amountDistributionCalculator.paymentSettings": "Payment settings",
+  "amountDistributionCalculator.paymentAmount": "Payment amount",
+  "amountDistributionCalculator.paymentFee": "Payment fee",
+  "amountDistributionCalculator.recipients": "Recipients",
+  "amountDistributionCalculator.tin": "TIN",
+  "amountDistributionCalculator.amount": "Sum",
+  "amountDistributionCalculator.order": "Order",
+  "amountDistributionCalculator.isFeePayer": "Fee payer",
+  "amountDistributionCalculator.vor": "Rounding",
+  "amountDistributionCalculator.overpaymentPart": "Overpayment part",
+  "amountDistributionCalculator.splitOptions": "Options",
+  "amountDistributionCalculator.decimalPlaces": "Decimal places",
+  "amountDistributionCalculator.amountDistributionFieldValue": "Value for amountDistribution field",
+  "amountDistributionCalculator.splitResultTitle": "Distribution result",
+  "amountDistributionCalculator.fee": "Fee"
 }
