@@ -3,7 +3,6 @@ import {
     useGetLastEmployeeInviteQuery,
     useGetLastUserOrganizationEmployeeRequestQuery,
     useSendOrganizationEmployeeRequestMutation,
-    useGetActualOrganizationEmployeesQuery,
 } from '@app/condo/gql'
 import { OrganizationTypeType } from '@app/condo/schema'
 import { Col, Row } from 'antd'
@@ -12,7 +11,6 @@ import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { useCachePersistor } from '@open-condo/apollo'
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useApolloClient } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
@@ -45,11 +43,11 @@ export const CreateOrganizationPageContent: React.FC = () => {
     const SendAgainMessage = intl.formatMessage({ id: 'organization.createOrganizationForm.rejectedRequest.sendAgain' })
     const CreateOtherOrganizationMessage = intl.formatMessage({ id: 'organization.createOrganizationForm.rejectedRequest.createOtherOrganization' })
     const OrganizationEmployeeRequestDescription = intl.formatMessage({ id: 'organization.createOrganizationForm.request.description' })
-    const ChatInTelegramMessage = intl.formatMessage({ id: 'organization.createOrganizationForm.supportChat' })
+    const SupportChatMessage = intl.formatMessage({ id: 'organization.createOrganizationForm.supportChat' })
     const OrganizationEmployeeRequestAlert = intl.formatMessage({ id: 'organization.createOrganizationForm.request.alert.description' }, {
         chatBotLink: (
             <SecondaryLink target='_blank' href={HelpRequisites?.support_bot ? `https://t.me/${HelpRequisites.support_bot}` : '#'}>
-                {ChatInTelegramMessage}
+                {SupportChatMessage}
             </SecondaryLink>
         ),
     })
@@ -57,16 +55,15 @@ export const CreateOrganizationPageContent: React.FC = () => {
     const OrganizationRequestsLimitDescription = intl.formatMessage({ id: 'organization.createOrganizationForm.limit.description' }, {
         chatBotLink: (
             <SecondaryLink target='_blank' href={HelpRequisites?.support_bot ? `https://t.me/${HelpRequisites.support_bot}` : '#'}>
-                {ChatInTelegramMessage}
+                {SupportChatMessage}
             </SecondaryLink>
         ),
     })
     const InviteEmployeeDescription = intl.formatMessage({ id: 'organization.createOrganizationForm.invite.description' })
 
     const client = useApolloClient()
-    const { persistor } = useCachePersistor()
     const { user, isLoading: userLoading, signOut } = useAuth()
-    const { selectEmployee } = useOrganization()
+    const { selectEmployee, employee, isLoading: organizationLoading } = useOrganization()
     const router = useRouter()
     const { query: { next }  } = router
     const isValidNextUrl = next && !Array.isArray(next) && isSafeUrl(next)
@@ -77,15 +74,8 @@ export const CreateOrganizationPageContent: React.FC = () => {
     const [acceptOrRejectInviteLoading, setAcceptOrRejectInviteLoading] = useState<boolean>(false)
 
     const onError = useMutationErrorHandler()
-    const {
-        data: actualEmployeesData,
-        loading: isActualEmployeeLoading,
-    } = useGetActualOrganizationEmployeesQuery({
-        variables: { userId: user?.id },
-        skip: !persistor || userLoading || !user,
-    })
-    const hasEmployees = useMemo(() => actualEmployeesData?.actualEmployees?.length > 0, [actualEmployeesData?.actualEmployees?.length])
-    const skipQueryStatement = !persistor || userLoading || !user || isActualEmployeeLoading || hasEmployees
+    const hasEmployees = useMemo(() => !!employee, [employee])
+    const skipQueryStatement = userLoading || !user || organizationLoading || hasEmployees
 
     const {
         data: lastInviteData,
@@ -97,6 +87,8 @@ export const CreateOrganizationPageContent: React.FC = () => {
         },
         onError,
         skip: skipQueryStatement,
+        // For a better user experience, we display information about invites and organization requests immediately
+        fetchPolicy: 'network-only',
     })
     const lastInvite = useMemo(() => lastInviteData?.employees?.filter(Boolean)?.[0], [lastInviteData?.employees])
 
@@ -110,8 +102,9 @@ export const CreateOrganizationPageContent: React.FC = () => {
         },
         onError,
         skip: skipQueryStatement || lastInviteLoading,
+        fetchPolicy: 'network-only',
     })
-    const lastOrganizationEmployeeRequest = useMemo(() => lastOrganizationEmployeeRequestData?.requests?.[0], [lastOrganizationEmployeeRequestData?.requests])
+    const lastOrganizationEmployeeRequest = useMemo(() => lastOrganizationEmployeeRequestData?.requests?.filter(Boolean)?.[0], [lastOrganizationEmployeeRequestData?.requests])
     const hasRequestsLimitError = useMemo(() => lastOrganizationEmployeeRequest?.retries >= MAX_ORGANIZATION_EMPLOYEE_REQUEST_RETRIES - 1, [lastOrganizationEmployeeRequest?.retries])
 
     const [acceptOrRejectInvite] = useAcceptOrRejectOrganizationInviteMutation({ onError })
@@ -178,16 +171,16 @@ export const CreateOrganizationPageContent: React.FC = () => {
     const pageDataLoading = lastInviteLoading || lastOrganizationEmployeeRequestLoading || acceptOrRejectInviteLoading
 
     useEffect(() => {
-        if (userLoading || isActualEmployeeLoading || pageDataLoading) return
+        if (userLoading || organizationLoading || pageDataLoading) return
         if (!user) {
             router.push(isValidNextUrl ? `/auth/signin?next=${encodeURIComponent(next)}` : '/auth/signin')
         }
         if (hasEmployees) {
             router.push(redirectUrl)
         }
-    }, [hasEmployees, isActualEmployeeLoading, isValidNextUrl, next, pageDataLoading, redirectUrl, router, user, userLoading])
+    }, [hasEmployees, organizationLoading, isValidNextUrl, next, pageDataLoading, redirectUrl, router, user, userLoading])
 
-    if (userLoading || isActualEmployeeLoading) {
+    if (userLoading || organizationLoading) {
         return <Loader fill size='large' />
     }
 

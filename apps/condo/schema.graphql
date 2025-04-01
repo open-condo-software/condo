@@ -94033,21 +94033,21 @@ type Mutation {
     "code": "BAD_USER_INPUT",
     "type": "REQUEST_TO_ORGANIZATION_LIMIT_REACHED",
     "message": "A request to the organization limit reached",
-    "messageForUser": "The number of requests to the organization has been exceeded"
+    "messageForUser": "The limit for organization requests has been exceeded"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "REQUEST_NOT_PROCESSED",
     "message": "A request not processed yet. Please wait for a decide on the request from the organization",
-    "messageForUser": "A request has not been processed yet. Please wait for a decision on the request from the organization"
+    "messageForUser": "The request has not been processed yet. Please wait for the organization's decision"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "EMPLOYEE_ALREADY_ACCEPTED",
     "message": "An accepted employee already exist in this organization",
-    "messageForUser": "You have already been invited to this organization"
+    "messageForUser": "You are already a member of this organization"
   }`
   
   `{

@@ -2455,6 +2455,7 @@ export const GetActiveOrganizationEmployeeDocument = gql`
       ticketVisibilityType
       canReadAnalytics
       canManageOrganization
+      canManageOrganizationEmployeeRequests
       canManageCallRecords
       canDownloadCallRecords
       canReadEmployees
