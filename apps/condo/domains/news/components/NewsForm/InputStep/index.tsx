@@ -226,9 +226,9 @@ export const InputStep: React.FC<InputStepProps> = ({
     }, [processedInitialValues])
 
     const handleSharingAppIFrameFormMessage = useCallback((event) => {
-        const { handler, sharingAppId: eventsharingAppId, formValues, preview, isValid } = event.data
+        const { handler, ctxId: eventCtxId, formValues, preview, isValid } = event.data
 
-        if (handler === 'handleSharingAppIFrameFormMessage' && sharingAppId === eventsharingAppId) {
+        if (handler === 'handleSharingAppIFrameFormMessage' && sharingAppId === eventCtxId) {
             setSharingAppFormValues(prev => ({ ...prev, formValues, preview, isValid }))
         }
     }, [sharingAppId])
