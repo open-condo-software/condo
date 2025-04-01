@@ -43,6 +43,7 @@ query getActiveOrganizationEmployee($userId: ID!, $employeeId: ID) {
             ticketVisibilityType
             canReadAnalytics
             canManageOrganization
+            canManageOrganizationEmployeeRequests
             canManageCallRecords
             canDownloadCallRecords
             canReadEmployees

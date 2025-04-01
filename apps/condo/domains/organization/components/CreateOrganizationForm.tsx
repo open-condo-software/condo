@@ -163,11 +163,11 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
     const InnMessage = intl.formatMessage({ id: 'pages.organizations.tin' })
     const FormTitleMessage = intl.formatMessage({ id: 'organization.createOrganizationForm.title' })
     const SearchByTinLimitMessage = intl.formatMessage({ id: 'organization.createOrganizationForm.searchByTinLimit.message' })
-    const ChatInTelegramMessage = intl.formatMessage({ id: 'organization.createOrganizationForm.supportChat' })
+    const SupportChatMessage = intl.formatMessage({ id: 'organization.createOrganizationForm.supportChat' })
     const SearchByTinLimitDescription = intl.formatMessage({ id: 'organization.createOrganizationForm.limit.description' }, {
         chatBotLink: (
             <SecondaryLink target='_blank' href={HelpRequisites?.support_bot ? `https://t.me/${HelpRequisites.support_bot}` : '#'}>
-                {ChatInTelegramMessage}
+                {SupportChatMessage}
             </SecondaryLink>
         ),
     })
@@ -247,7 +247,7 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
                         tin,
                     },
                 })
-                const duplicatedRequest = lastRequestByTinData?.data?.requests?.[0]
+                const duplicatedRequest = lastRequestByTinData?.data?.requests?.filter(Boolean)?.[0]
 
                 if (duplicatedRequest) {
                     if (onSendOrganizationRequest) {
@@ -470,6 +470,7 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
                     )}
                 >
                     <Form
+                        size='small'
                         validateTrigger='onBlur'
                         layout='vertical'
                         form={form}
@@ -492,6 +493,7 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
     return (
         <>
             <Form
+                size='small'
                 validateTrigger='onBlur'
                 layout='vertical'
                 form={form}

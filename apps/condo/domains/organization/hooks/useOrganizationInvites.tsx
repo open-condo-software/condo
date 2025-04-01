@@ -18,7 +18,7 @@ type OrganizationInvitesReturnType = {
     loading: boolean
 }
 
-export const useOrganizationInvites = (organizationTypes: Array<OrganizationTypeType>, acceptOrRejectMutation: MutationTuple<{ obj: OrganizationEmployeeType }, any>[0], skip?: boolean): OrganizationInvitesReturnType => {
+export const useOrganizationInvites = (organizationTypes: Array<OrganizationTypeType>, acceptOrRejectMutation: MutationTuple<{ obj: OrganizationEmployeeType }, any>[0]): OrganizationInvitesReturnType => {
     const intl = useIntl()
     const AcceptMessage = intl.formatMessage({ id: 'Accept' })
     const RejectMessage = intl.formatMessage({ id: 'Reject' })
@@ -39,7 +39,7 @@ export const useOrganizationInvites = (organizationTypes: Array<OrganizationType
             userId,
             organizationType: organizationTypes,
         },
-        skip: skip || !userId || !organizationTypes || organizationTypes.length < 1 || !persistor,
+        skip: !userId || !organizationTypes || organizationTypes.length < 1 || !persistor,
     })
     const userInvites = useMemo(() => userInvitationsData?.invitations?.filter(Boolean) || [], [userInvitationsData?.invitations])
 
