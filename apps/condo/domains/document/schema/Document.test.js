@@ -17,7 +17,8 @@ const { ERRORS } = require('@condo/domains/document/constants')
 const { Document, createTestDocument, updateTestDocument, createTestDocumentCategory, softDeleteTestDocument } = require('@condo/domains/document/utils/testSchema')
 const { createTestOrganization,  createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
+const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
 
 const TEST_FILE = path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/dino.png')
@@ -188,6 +189,57 @@ describe('Document', () => {
                 const readDocument = await Document.getOne(employeeUserInOtherOrganization, { id: document.id })
 
                 expect(readDocument).toBeUndefined()
+            })
+
+            describe('resident', () => {
+                let organizationWithAccess, organizationWithoutAccess
+                let residentClientWithAccess, residentClientWithoutAccess
+                beforeAll(async () => {
+                    [organizationWithAccess] = await createTestOrganization(admin);
+                    [organizationWithoutAccess] = await createTestOrganization(admin)
+
+                    const unitName1 = faker.random.alphaNumeric(8)
+                    const unitName2 = faker.random.alphaNumeric(8)
+
+                    const [propertyWithAccess] = await createTestProperty(admin, organizationWithAccess)
+                    const [propertyWithoutAccess] = await createTestProperty(admin, organizationWithoutAccess)
+
+                    residentClientWithAccess = await makeClientWithResidentUser()
+                    residentClientWithoutAccess = await makeClientWithResidentUser()
+
+                    await createTestResident(admin, residentClientWithAccess.user, propertyWithAccess, { unitName: unitName1 })
+                    await createTestResident(admin, residentClientWithoutAccess.user, propertyWithoutAccess, { unitName: unitName2 })
+                })
+
+                it('can read documents in his organization with a flag with canReadByResident document flag', async () => {
+                    const [testDocument] = await createTestDocument(admin, organizationWithAccess, documentCategory, {
+                        canReadByResident: true,
+                    })
+                    const readDocument = await Document.getOne(residentClientWithAccess, { id: testDocument.id })
+
+                    expect(readDocument.id).toMatch(testDocument.id)
+                    expect(readDocument.canReadByResident).toBeTruthy()
+                    expect(readDocument.organization.id).toEqual(testDocument.organization.id)
+                })
+
+                it('can not read documents in his organization without canReadByResident document flag', async () => {
+                    const [testDocument] = await createTestDocument(admin, organizationWithAccess, documentCategory, {
+                        canReadByResident: false,
+                    })
+                    const readDocument = await Document.getOne(residentClientWithAccess, { id: testDocument.id })
+
+                    expect(readDocument).toBeUndefined()
+                    expect(testDocument.canReadByResident).toBeFalsy()
+                })
+
+                it('can not read documents in an organization other than his own with canReadByResident document flag', async () => {
+                    const [testDocument] = await createTestDocument(admin, organizationWithAccess, documentCategory, {
+                        canReadByResident: true,
+                    })
+                    const readDocument = await Document.getOne(residentClientWithoutAccess, { id: testDocument.id })
+
+                    expect(readDocument).toBeUndefined()
+                })
             })
         })
 
