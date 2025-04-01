@@ -64,6 +64,7 @@ const UploadDocumentsModal = ({ openUploadModal, setOpenUploadModal, onComplete,
         setFormSubmitting(true)
 
         const category = get(values, 'category')
+        const canReadByResident = get(values, 'canReadByResident')
         const filesChunks = chunk(filesWithoutError, 5)
 
         for (const filesChunk of filesChunks) {
@@ -73,6 +74,7 @@ const UploadDocumentsModal = ({ openUploadModal, setOpenUploadModal, onComplete,
                         ...initialCreateDocumentValue,
                         file,
                         category: { connect: { id: category } },
+                        canReadByResident,
                     }
                 })
             )
