@@ -3,7 +3,6 @@ module.exports = function (api) {
     return {
         'presets': ['next/babel'],
         'plugins': [
-            '@emotion',
             '@babel/plugin-proposal-private-methods',
         ],
     }
