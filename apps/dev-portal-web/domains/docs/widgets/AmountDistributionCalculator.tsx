@@ -40,8 +40,8 @@ type TDistributionItemProps = {
     onUpdate: (index: number, item: TDistributionItem) => void
 }
 
-const PADDING = 8
-const GUTTER_COMPACT_ROW: RowProps['gutter'] = [PADDING, PADDING]
+const CARD_PADDING = 8
+const GUTTER_COMPACT_ROW: RowProps['gutter'] = [8, 8]
 const GUTTER_ROW: RowProps['gutter'] = [16, 16]
 
 const DistributionItem: React.FC<TDistributionItemProps> = (props) => {
@@ -141,8 +141,8 @@ const SplitResult: React.FC<TSplitResultProps> = (props) => {
                 <Col key={i} span={8}>
                     <Card
                         title={`${TinTitle}: ${split.recipient?.tin}`}
-                        titlePadding={PADDING}
-                        bodyPadding={PADDING}
+                        titlePadding={CARD_PADDING}
+                        bodyPadding={CARD_PADDING}
                     >
                         <List
                             size='large'
@@ -272,8 +272,8 @@ export const AmountDistributionCalculator: React.FC = () => {
                                                     </Col>
                                                 </Row>
                                             }
-                                            titlePadding={PADDING}
-                                            bodyPadding={PADDING}
+                                            titlePadding={CARD_PADDING}
+                                            bodyPadding={CARD_PADDING}
                                         >
                                             <DistributionItem
                                                 onUpdate={onUpdateItem}
