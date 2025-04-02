@@ -1,5 +1,4 @@
 // NOTE: same as keystone logger
-const falsey = require('falsey')
 const { toString } = require('lodash')
 const pino = require('pino')
 const serializers = require('pino-std-serializers')
@@ -16,7 +15,7 @@ function toCount (data) {
 
 function getLogger (name) {
     return pino({
-        name, enabled: falsey(process.env.DISABLE_LOGGING),
+        name, enabled: process.env.DISABLE_LOGGING !== 'true',
         serializers: {
             'data': normalizeVariables,
             'args': normalizeVariables,

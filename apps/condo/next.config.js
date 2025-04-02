@@ -3,7 +3,6 @@ const { withSentryConfig } = require('@sentry/nextjs')
 const withCSS = require('@zeit/next-css')
 const withLess = require('@zeit/next-less')
 const AntdDayjsWebpackPlugin = require('antd-dayjs-webpack-plugin')
-const falsey = require('falsey')
 const withTMModule = require('next-transpile-modules')
 
 const conf = require('@open-condo/config')
@@ -53,7 +52,7 @@ const audioConfig = JSON.parse(conf['AUDIO_CONFIG'] || '{}')
 const checkTLSClientCertConfig = JSON.parse(conf['CHECK_TLS_CLIENT_CERT_CONFIG'] || '{}')
 const condoRBDomain = conf['RB_DOMAIN']
 const sentryConfig = conf['SENTRY_CONFIG'] ? JSON.parse(conf['SENTRY_CONFIG']) : {}
-const apolloBatchingEnabled = !falsey(conf['APOLLO_BATCHING_ENABLED'])
+const apolloBatchingEnabled = conf['APOLLO_BATCHING_ENABLED'] === 'true'
 const tourVideoUrl = JSON.parse(conf['TOUR_VIDEO_URL'] || '{}')
 const residentAppLandingUrl = JSON.parse(conf['RESIDENT_APP_LANDING_URL'] || '{}')
 const createMapVideoUrl = JSON.parse(conf['CREATE_MAP_VIDEO_URL'] || '{}')
