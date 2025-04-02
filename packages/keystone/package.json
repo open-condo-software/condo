@@ -2,6 +2,7 @@
   "name": "@open-condo/keystone",
   "version": "1.0.0",
   "main": "./index.js",
+  "bin": "./bin/cli.js",
   "exports": {
     "./fields": "./fields/index.js",
     "./file": "./file/index.js",
