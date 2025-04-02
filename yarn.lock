@@ -733,6 +733,7 @@ __metadata:
     "@keystonejs/server-side-graphql-client": ^2.1.0
     "@metro-fs/analytics-plugin-posthog": ^1.14.0
     "@open-condo/apollo": "workspace:^"
+    "@open-condo/billing": "workspace:^"
     "@open-condo/bridge": "workspace:^"
     "@open-condo/cli": "workspace:^"
     "@open-condo/codegen": "workspace:^"
@@ -14023,7 +14024,6 @@ __metadata:
     big.js: ^6.2.2
     falsey: ^1.0.0
     jest: ^29.7.0
-    jest-environment-jsdom: ^29.7.0
     jest-jasmine2: ^29.7.0
     lodash: ^4.17.21
   languageName: unknown

@@ -24,7 +24,7 @@
   },
   "license": "MIT",
   "exports": {
-    "./": "./"
+    "./tools/billingCentrifuge": "./tools/billingCentrifuge.js"
   },
   "dependencies": {
     "big.js": "^6.2.2",
@@ -34,7 +34,6 @@
     "@faker-js/faker": "^9.6.0",
     "falsey": "^1.0.0",
     "jest": "^29.7.0",
-    "jest-environment-jsdom": "^29.7.0",
     "jest-jasmine2": "^29.7.0"
   }
 }
