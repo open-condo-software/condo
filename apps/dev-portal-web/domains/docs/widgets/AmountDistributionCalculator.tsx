@@ -159,7 +159,7 @@ const SplitResult: React.FC<TSplitResultProps> = (props) => {
 }
 
 function generateDecimalString (len: number): string {
-    return Math.random().toString().substring(2, len)
+    return Math.random().toString().substring(2, len) // NOSONAR
 }
 
 function generateRandomDistributionItem (): TDistributionItem {
