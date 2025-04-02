@@ -9,7 +9,7 @@ import { Alert, Button } from '@open-condo/ui'
 export interface ITopNotificationAction {
     action: () => Promise<void>
     title: string
-    removeNotificationOnClick: boolean
+    keepNotificationOnClick?: boolean
     secondary?: boolean
 }
 
@@ -65,7 +65,7 @@ export const useTopNotificationsHook = (serviceProblemsAlert?: React.ReactNode):
                                                     onClick={async () => {
                                                         await action.action()
 
-                                                        if (action.removeNotificationOnClick) {
+                                                        if (!action.keepNotificationOnClick) {
                                                             removeNotification(notification.id)
                                                         }
                                                     }}

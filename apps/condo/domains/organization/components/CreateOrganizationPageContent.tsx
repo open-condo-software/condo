@@ -65,7 +65,7 @@ export const CreateOrganizationPageContent: React.FC = () => {
     const { user, isLoading: userLoading, signOut } = useAuth()
     const { selectEmployee, employee, isLoading: organizationLoading } = useOrganization()
     const router = useRouter()
-    const { query: { next }  } = router
+    const { query: { next } } = router
     const isValidNextUrl = next && !Array.isArray(next) && isSafeUrl(next)
     const redirectUrl = isValidNextUrl ? next : '/'
 

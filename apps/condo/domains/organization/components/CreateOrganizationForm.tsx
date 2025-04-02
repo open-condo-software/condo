@@ -19,6 +19,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Radio, RadioGroup, Space, Typography, Input, Button, Alert, Modal } from '@open-condo/ui'
 
+import { FormItem } from '@condo/domains/common/components/Form/FormItem'
 import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { DEFAULT_UNAVAILABLE_TINS, MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
@@ -29,14 +30,6 @@ import { REQUEST_LIMIT_ERRORS } from '@condo/domains/user/constants/errors'
 const { publicRuntimeConfig: { defaultLocale, unavailableTinsForOrganizationsSearch, HelpRequisites } } = getConfig()
 
 const SKIP_SEARCH_TINS = [...(unavailableTinsForOrganizationsSearch || []), ...DEFAULT_UNAVAILABLE_TINS]
-
-const prepareValidators = ({ requiredValidator, tinValidator, locale }) => ({
-    name: [requiredValidator],
-    tin: [
-        requiredValidator,
-        tinValidator(locale),
-    ],
-})
 
 type FoundOrganizationsModalProps = {
     isFoundOrganizationModalOpen: boolean
@@ -97,7 +90,7 @@ const FoundOrganizationsModal: React.FC<FoundOrganizationsModalProps> = (props) 
     if (foundOrganizations.length === 1) {
         OrganizationExistModalTitle = intl.formatMessage(
             { id: 'organization.createOrganizationForm.foundOrganizationsModal.title.singleOrganization' },
-            { name: foundOrganizations[0].name }
+            { name: foundOrganizations[0].name, tin: form.getFieldValue('tin') }
         )
     } else if (foundOrganizations.length > 1) {
         OrganizationExistModalTitle = intl.formatMessage(
@@ -190,14 +183,13 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
     const [isOrganizationCreating, setIsOrganizationCreating] = useState<boolean>(false)
 
     const { requiredValidator, tinValidator } = useValidations()
-    const validators = React.useMemo(
-        () => prepareValidators({
+    const validators = useMemo(() => ({
+        name: [requiredValidator],
+        tin: [
             requiredValidator,
-            tinValidator,
-            locale,
-        }),
-        [requiredValidator, tinValidator, locale],
-    )
+            tinValidator(locale),
+        ],
+    }), [requiredValidator, tinValidator, locale])
     const onError = useMutationErrorHandler({ form })
     const [findOrganizationsByTin, { data: foundOrganizationsData }] = useFindOrganizationsByTinLazyQuery({
         onError,
@@ -251,7 +243,7 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
 
                 if (duplicatedRequest) {
                     if (onSendOrganizationRequest) {
-                        onSendOrganizationRequest(duplicatedRequest, true)
+                        await onSendOrganizationRequest(duplicatedRequest, true)
                     }
                     setIsOrganizationCreating(false)
                     return
@@ -361,27 +353,27 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
                 )
             }
             <Col span={24}>
-                <Form.Item name='type'>
+                <FormItem name='type'>
                     <RadioGroup defaultValue={MANAGING_COMPANY_TYPE}>
                         <Space direction='vertical' size={16}>
                             <Radio value={MANAGING_COMPANY_TYPE} label={ManagingCompanyMessage}/>
                             <Radio value={SERVICE_PROVIDER_TYPE} label={ServiceProviderMessage}/>
                         </Space>
                     </RadioGroup>
-                </Form.Item>
+                </FormItem>
             </Col>
             <Col span={24}>
                 <Row gutter={[0, 32]}>
                     <Col span={24}>
                         <Row gutter={[0, 24]}>
                             <Col span={24}>
-                                <Form.Item
+                                <FormItem
                                     name='name'
                                     label={NameMsg}
                                     rules={validators.name}
                                 >
                                     <Input placeholder={CreateOrganizationPlaceholder}/>
-                                </Form.Item>
+                                </FormItem>
                             </Col>
                             <Col span={24}>
                                 <Alert
@@ -392,13 +384,13 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
                         </Row>
                     </Col>
                     <Col span={24}>
-                        <Form.Item
+                        <FormItem
                             name='tin'
                             label={InnMessage}
                             rules={validators.tin}
                         >
                             <Input/>
-                        </Form.Item>
+                        </FormItem>
                     </Col>
                 </Row>
             </Col>
@@ -407,7 +399,7 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
                     <Col span={24}>
                         <Row gutter={[0, 24]}>
                             <Col span={24}>
-                                <Form.Item noStyle shouldUpdate>
+                                <FormItem noStyle shouldUpdate>
                                     <Button
                                         htmlType='submit'
                                         type='primary'
@@ -417,7 +409,7 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
                                     >
                                         {CreateMessage}
                                     </Button>
-                                </Form.Item>
+                                </FormItem>
                             </Col>
                             <Col span={24}>
                                 <Button
