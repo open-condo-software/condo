@@ -1,4 +1,5 @@
 import fs from 'fs'
+import { createRequire } from 'node:module'
 import path from 'path'
 
 import babel from '@rollup/plugin-babel'
@@ -8,7 +9,9 @@ import typescript from '@rollup/plugin-typescript'
 import peerDepsExternal from 'rollup-plugin-peer-deps-external'
 import { uglify } from 'rollup-plugin-uglify'
 
-import pkg from './package.json' assert { type: 'json' }
+const require = createRequire(import.meta.url)
+
+const pkg = require('./package.json')
 
 const AVAILABLE_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.json']
 

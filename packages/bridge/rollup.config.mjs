@@ -1,3 +1,5 @@
+import { createRequire } from 'node:module'
+
 import typescript from '@rollup/plugin-typescript'
 import babel from 'rollup-plugin-babel'
 import bundleSize from 'rollup-plugin-bundle-size'
@@ -6,7 +8,9 @@ import json from 'rollup-plugin-json'
 import nodeResolve from 'rollup-plugin-node-resolve'
 import { uglify } from 'rollup-plugin-uglify'
 
-import pkg from './package.json' assert { type: 'json' }
+const require = createRequire(import.meta.url)
+
+const pkg = require('./package.json')
 
 const IS_PRODUCTION = process.env.NODE_ENV === 'production'
 

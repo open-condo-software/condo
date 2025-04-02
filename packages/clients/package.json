@@ -9,9 +9,12 @@
         "clients"
     ],
     "dependencies": {
+        "@faker-js/faker": "^7.6.0",
         "@open-condo/config": "workspace:^",
         "@open-condo/keystone": "workspace:^",
-        "dotenv": "^16.3.1"
+        "dotenv": "^16.3.1",
+        "lodash": "^4.17.21",
+        "node-fetch": "^3.3.2"
     },
     "repository": "https://github.com/open-condo-software/condo/tree/main/packages/clients",
     "author": {

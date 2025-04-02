@@ -79,6 +79,8 @@
     "@opentelemetry/sdk-metrics": "^1.15.2",
     "@opentelemetry/sdk-node": "^0.41.2",
     "@rc-component/qrcode": "^1.0.0",
+    "@sentry/nextjs": "^6.19.7",
+    "@sentry/node": "^6.19.7",
     "@tinymce/tinymce-react": "^4.1.0",
     "@types/lodash": "4.14.186",
     "@types/wavesurfer.js": "^6.0.6",
@@ -186,6 +188,7 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@faker-js/faker": "^7.6.0",
     "@graphql-codegen/add": "^5.0.3",
     "@graphql-codegen/cli": "^5.0.2",
     "@graphql-codegen/import-types-preset": "^3.0.0",
