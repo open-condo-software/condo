@@ -1,7 +1,6 @@
-const falsey = require('falsey')
 const { get } = require('lodash')
 
-const EXTRA_LOGGING = falsey(process.env.DISABLE_LOGGING)
+const EXTRA_LOGGING = process.env.DISABLE_LOGGING !== 'true'
 
 jest.setTimeout(60000)
 

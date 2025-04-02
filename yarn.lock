@@ -813,7 +813,6 @@ __metadata:
     express: ^4.17.1
     extracted-loader: ^1.0.7
     facepaint: ^1.2.1
-    falsey: ^1.0.0
     firebase: ^10.13.1
     firebase-admin: ^12.4.0
     form-data: ^4.0.0
@@ -1291,7 +1290,6 @@ __metadata:
     express: ^4.17.1
     extracted-loader: ^1.0.7
     facepaint: ^1.2.1
-    falsey: ^1.0.0
     get-contrast: ^2.0.0
     graphql: ^15.6.1
     graphql-request: ^4.2.0
@@ -1815,7 +1813,6 @@ __metadata:
     express: ^4.17.1
     express-list-middleware: ^1.0.1
     facepaint: ^1.2.1
-    falsey: ^1.0.0
     form-data: ^4.0.0
     get-contrast: ^2.0.0
     graphql: ^15.6.1
@@ -14605,7 +14602,6 @@ __metadata:
     express: ^4.17.1
     express-graphql: ^0.12.0
     express-session: ^1.17.2
-    falsey: ^1.0.0
     form-data: ^4.0.0
     graphql: ^15.6.1
     graphql-disable-introspection: ^1.2.0
@@ -14802,12 +14798,12 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@open-condo/webhooks@workspace:packages/webhooks"
   dependencies:
+    "@faker-js/faker": ^7.6.0
     "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     ajv: ^8.11.0
     dayjs: ^1.11.6
-    falsey: ^1.0.0
     graphql: ^15.6.1
     graphql-2-json-schema: ^0.9.1
     graphql-tag: ^2.12.6
@@ -14818,6 +14814,7 @@ __metadata:
     node-fetch: ^2.6.7
     pluralize: ^8
     redlock: ^5.0.0-beta.2
+    uuid: ^8.3.0
   peerDependencies:
     "@graphql-tools/graphql-file-loader": ^7.5.5
     "@graphql-tools/load": ^7.8.12

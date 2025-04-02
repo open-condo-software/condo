@@ -111,7 +111,6 @@
     "eventemitter3": "^4.0.7",
     "express": "^4.17.1",
     "facepaint": "^1.2.1",
-    "falsey": "^1.0.0",
     "firebase": "^10.13.1",
     "firebase-admin": "^12.4.0",
     "generate-password": "^1.6.0",
