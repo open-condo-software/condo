@@ -3117,7 +3117,7 @@
   "ticket.problem.classifier.PLUMBING.name": "Сантехника",
   "ticket.problem.classifier.PLUMBING_LEAK.name": "Течь сантехнических приборов",
   "ticket.problem.classifier.PORCH.name": "Крыльцо",
-  "ticket.problem.classifier.POWER_SHEILD_SPARK.name": "Искрение в щитке",
+  "ticket.problem.classifier.POWER_SHIELD_SPARK.name": "Искрение в щитке",
   "ticket.problem.classifier.POWER_SURGES.name": "Перепады напряжения",
   "ticket.problem.classifier.PRIMARY_SEALING.name": "Первичная опломбировка",
   "ticket.problem.classifier.PROJECTS_TECHNICAL_DOCUMENTATION.name": "Проекты/Технические условия",

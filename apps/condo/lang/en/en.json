@@ -3117,7 +3117,7 @@
   "ticket.problem.classifier.PLUMBING.name": "Plumbing",
   "ticket.problem.classifier.PLUMBING_LEAK.name": "Plumbing Leak",
   "ticket.problem.classifier.PORCH.name": "Porch",
-  "ticket.problem.classifier.POWER_SHEILD_SPARK.name": "Spark in the shield",
+  "ticket.problem.classifier.POWER_SHIELD_SPARK.name": "Spark in the shield",
   "ticket.problem.classifier.POWER_SURGES.name": "Power surges",
   "ticket.problem.classifier.PRIMARY_SEALING.name": "Primary seal",
   "ticket.problem.classifier.PROJECTS_TECHNICAL_DOCUMENTATION.name": "Projects/Technical documentations",
