@@ -1,6 +1,6 @@
 const Big = require('big.js')
 const dayjs = require('dayjs')
-const { uniqBy, get, groupBy, isEmpty } = require('lodash')
+const { get, groupBy, isEmpty } = require('lodash')
 
 const conf = require('@open-condo/config')
 const { getKVClient } = require('@open-condo/keystone/kv')
@@ -178,15 +178,18 @@ async function filterReceipts (receipts) {
             const paid = await getNewPaymentsSum(receipt.id)
             const isPayable = !(newerReceipts && newerReceipts.length)
 
+            const categories = await find('BillingCategory', { id: receipt.category, deletedAt: null })
+
             return {
                 receipt,
                 isEligibleForProcessing: isPayable && Big(receipt.toPay).minus(Big(paid)).gt(Big(0)),
+                isSkipNotifications: get(categories, ['0', 'skipNotifications'], false),
             }
         })
     )
 
     return filteredReceipts
-        .filter(({ isEligibleForProcessing }) => isEligibleForProcessing)
+        .filter(({ isEligibleForProcessing, isSkipNotifications }) => isEligibleForProcessing && !isSkipNotifications)
         .map(({ receipt }) => receipt)
 }
 

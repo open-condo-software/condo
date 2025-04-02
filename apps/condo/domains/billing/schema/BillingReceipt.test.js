@@ -46,6 +46,7 @@ const {
     createTestBillingIntegration,
     createTestBillingIntegrationOrganizationContext,
 } = require('@condo/domains/billing/utils/testSchema')
+const { createTestBillingCategory } = require('@condo/domains/billing/utils/testSchema')
 const { WRONG_TEXT_FORMAT, UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
 const {
     createTestB2BApp,
@@ -1352,6 +1353,100 @@ describe('BillingReceipt', () => {
                 expect(billingReceipt.acquiringHostUrl).toEqual(acquiringIntegration.hostUrl)
                 expect(billingReceipt.canGroupReceipts).toEqual(acquiringIntegration.canGroupReceipts)
                 expect(billingReceipt.currencyCode).toEqual(context.integration.currencyCode)
+            })
+
+            describe('isPayable virtual field', () => {
+
+                test('should return true for a receipt within validity period with no newer receipts', async () => {
+                    const period = dayjs().subtract(1, 'month').format('YYYY-MM-01') // 1 month ago
+                    const [category] = await createTestBillingCategory(admin, {
+                        receiptValidityMonths: 3,
+                    })
+                    const [receipt] = await createTestBillingReceipt(admin, context, property, account, {
+                        period,
+                        category: { connect: { id: category.id } },
+                    })
+
+                    expect(receipt.isPayable).toBe(true)
+                })
+
+                test('should return false when current date exceeds validity period', async () => {
+                    const period = dayjs().subtract(4, 'month').format('YYYY-MM-01') // 4 months ago
+                    const [category] = await createTestBillingCategory(admin, {
+                        receiptValidityMonths: 3,
+                    })
+                    const [receipt] = await createTestBillingReceipt(admin, context, property, account, {
+                        period,
+                        category: { connect: { id: category.id } },
+                    })
+
+                    expect(receipt.isPayable).toBe(false)
+                })
+
+                test('should return false when newer receipt exists', async () => {
+                    const period = dayjs().subtract(1, 'month').format('YYYY-MM-01')
+                    const [category] = await createTestBillingCategory(admin, {
+                        receiptValidityMonths: 3,
+                    })
+                    const [olderReceipt] = await createTestBillingReceipt(admin, context, property, account, {
+                        period,
+                        category: { connect: { id: category.id } },
+                    })
+
+                    await createTestBillingReceipt(admin, context, property, account, {
+                        period: dayjs().format('YYYY-MM-01'),
+                        category: { connect: { id: category.id } },
+                    })
+
+                    const oldReceipt = await BillingReceipt.getOne(admin, { id: olderReceipt.id })
+                    expect(oldReceipt.isPayable).toBe(false)
+                })
+
+                test('should use custom validity months from category', async () => {
+                    const [category] = await createTestBillingCategory(admin, {
+                        receiptValidityMonths: 6,
+                    })
+
+                    const period = dayjs().subtract(4, 'month').format('YYYY-MM-01')
+
+                    const [receipt] = await createTestBillingReceipt(admin, context, property, account, {
+                        period,
+                        category: { connect: { id: category.id } },
+                        recipient: {
+                            bankAccount: faker.finance.account(12).toString(),
+                            bankName: faker.company.name(),
+                            territoryCode: faker.datatype.number().toString(),
+                            bic: faker.finance.bic().toString(),
+                            tin: faker.random.alphaNumeric(8),
+                        },
+                    })
+
+                    expect(receipt.isPayable).toBe(true)
+                })
+
+                test('should handle last day when receipt is payable correctly', async () => {
+                    const validityMonths = 3
+                    const period = dayjs().subtract(validityMonths, 'month').format('YYYY-MM-01')
+                    const [category] = await createTestBillingCategory(admin, {
+                        receiptValidityMonths: 3,
+                    })
+
+                    // Mock system time to last valid day (end of validity month)
+                    const lastValidDay = dayjs(period)
+                        .add(validityMonths, 'month')
+                        .endOf('month')
+
+                    jest.useFakeTimers().setSystemTime(lastValidDay.toDate())
+
+                    const [receipt] = await createTestBillingReceipt(admin, context, property, account, {
+                        period,
+                        category: { connect: { id: category.id } },
+                    })
+
+                    expect(receipt.isPayable).toBe(true)
+                    jest.useRealTimers()
+                })
+
             })
         })
     })
