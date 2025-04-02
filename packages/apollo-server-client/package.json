@@ -13,6 +13,6 @@
     "graphql": "^16.6.0",
     "graphql-tag": "^2.12.6",
     "lodash": "^4.17.21",
-    "node-fetch": "^3.3.2"
+    "node-fetch": "^2.6.7"
   }
 }
