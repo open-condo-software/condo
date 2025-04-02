@@ -6,7 +6,6 @@ import { SizeType } from 'antd/lib/config-provider/SizeContext'
 import Form from 'antd/lib/form'
 import get from 'lodash/get'
 import has from 'lodash/has'
-import isArray from 'lodash/isArray'
 import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
 import isFunction from 'lodash/isFunction'
@@ -780,9 +779,6 @@ const AppliedFiltersCounter = styled.div`
 const FILTERS_BUTTON_WRAPPER_STYLES: CSSProperties = { position: 'relative' }
 
 const FiltersButton = ({ setIsMultipleFiltersModalVisible }) => {
-    const intl = useIntl()
-    const FiltersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
-
     const appliedFiltersCount = useAppliedFiltersCount()
 
     const handleOpenMultipleFilter = useCallback(() => {
@@ -791,13 +787,12 @@ const FiltersButton = ({ setIsMultipleFiltersModalVisible }) => {
 
     return (
         <div style={FILTERS_BUTTON_WRAPPER_STYLES}>
-            <Button
-                type='secondary'
+            <Button.Icon
                 onClick={handleOpenMultipleFilter}
-                icon={<Filter size='medium'/>}
                 data-cy='ticket__filters-button'
-                children={FiltersButtonLabel}
-            />
+            >
+                <Filter size='medium'/>
+            </Button.Icon>
             {
                 appliedFiltersCount > 0 ? (
                     <AppliedFiltersCounter>

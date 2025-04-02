@@ -313,7 +313,6 @@ export const useTicketExportToPdfTask: UseTicketExportToPdfTaskType = (props)  =
             footer={
                 <Button
                     type='primary'
-                    icon={<Print size='medium'/>}
                     onClick={handleSaveToPdfTask}
                     children={SaveInPdfLabel}
                 />
