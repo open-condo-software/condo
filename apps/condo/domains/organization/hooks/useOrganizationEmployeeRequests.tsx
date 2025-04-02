@@ -15,6 +15,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Alert, Button, Modal, Select, Space, Typography } from '@open-condo/ui'
 
+import { FormItem } from '@condo/domains/common/components/Form/FormItem'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
 import { formatPhone } from '@condo/domains/common/utils/helpers'
@@ -118,12 +119,12 @@ const ChooseEmployeeRoleModal: FC<ChooseEmployeeRoleModalProps> = ({
                 layout='vertical'
             >
                 <Space size={40} direction='vertical'>
-                    <Form.Item name='role' noStyle initialValue={employeeRolesOptions?.[0]?.value}>
+                    <FormItem name='role' noStyle initialValue={employeeRolesOptions?.[0]?.value}>
                         <Select
                             options={employeeRolesOptions}
                         />
-                    </Form.Item>
-                    <Form.Item shouldUpdate noStyle>
+                    </FormItem>
+                    <FormItem shouldUpdate noStyle>
                         {
                             ({ getFieldValue }) => {
                                 const roleId = getFieldValue('role')
@@ -141,7 +142,7 @@ const ChooseEmployeeRoleModal: FC<ChooseEmployeeRoleModalProps> = ({
                                 )
                             }
                         }
-                    </Form.Item>
+                    </FormItem>
                 </Space>
             </Form>
         </Modal>
@@ -154,7 +155,7 @@ export const useOrganizationEmployeeRequests = () => {
     const RejectMessage = intl.formatMessage({ id: 'Reject' })
 
     const { persistor } = useCachePersistor()
-    const { user, isAuthenticated } = useAuth()
+    const { user } = useAuth()
     const userId = useMemo(() => user?.id, [user?.id])
     const { employee } = useOrganization()
     const { addNotification } = useLayoutContext()
@@ -183,7 +184,7 @@ export const useOrganizationEmployeeRequests = () => {
             userOrganizationIds,
         },
         onError,
-        skip: !isAuthenticated || !employee || isEmployeesLoading,
+        skip: !user || !employee || isEmployeesLoading,
     })
     const [acceptOrRejectRequest] = useAcceptOrRejectOrganizationEmployeeRequestMutation({
         onError,
@@ -218,12 +219,11 @@ export const useOrganizationEmployeeRequests = () => {
                         },
                         title: RejectMessage,
                         secondary: true,
-                        removeNotificationOnClick: true,
                     },
                     {
                         action: async () => {setActiveRequest(request)},
                         title: AcceptMessage,
-                        removeNotificationOnClick: false,
+                        keepNotificationOnClick: true,
                     },
                 ],
                 message: intl.formatMessage(

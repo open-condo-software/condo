@@ -1617,7 +1617,7 @@
   "organization.createOrganizationForm.foundOrganizationsModal.sendRequest": "Yes, join",
   "organization.createOrganizationForm.foundOrganizationsModal.title": "Are you an employee and want to join the organization?",
   "organization.createOrganizationForm.foundOrganizationsModal.title.multipleOrganizations": "TIN {tin} has already been added",
-  "organization.createOrganizationForm.foundOrganizationsModal.title.singleOrganization": "The organization {name} with this TIN has already been added",
+  "organization.createOrganizationForm.foundOrganizationsModal.title.singleOrganization": "The organization {name} with TIN {tin} has already been added",
   "organization.createOrganizationForm.invite.description": "Accept the invitation if you are an employee of this organization and want to join.",
   "organization.createOrganizationForm.invite.title": "You have been invited by the organization {organizationName}",
   "organization.createOrganizationForm.limit.description": "For security reasons, please contact {chatBotLink} to unlock registration.",

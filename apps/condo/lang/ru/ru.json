@@ -1617,7 +1617,7 @@
   "organization.createOrganizationForm.foundOrganizationsModal.sendRequest": "Да, присоединиться",
   "organization.createOrganizationForm.foundOrganizationsModal.title": "Вы сотрудник и хотите присоединиться к организации?",
   "organization.createOrganizationForm.foundOrganizationsModal.title.multipleOrganizations": "ИНН {tin} уже добавлен",
-  "organization.createOrganizationForm.foundOrganizationsModal.title.singleOrganization": "Организация {name} с таким ИНН уже добавлена",
+  "organization.createOrganizationForm.foundOrganizationsModal.title.singleOrganization": "Организация {name} с ИНН {tin} уже добавлена",
   "organization.createOrganizationForm.invite.description": "Примите приглашение, если вы сотрудник этой организации и хотите присоединиться",
   "organization.createOrganizationForm.invite.title": "Вас пригласила организация {organizationName}",
   "organization.createOrganizationForm.limit.description": "В целях безопасности для разблокировки регистрации обратитесь в {chatBotLink}",

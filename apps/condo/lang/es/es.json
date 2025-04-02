@@ -1617,7 +1617,7 @@
   "organization.createOrganizationForm.foundOrganizationsModal.sendRequest": "Sí, unirse",
   "organization.createOrganizationForm.foundOrganizationsModal.title": "¿Eres un empleado y quieres unirte a la organización?",
   "organization.createOrganizationForm.foundOrganizationsModal.title.multipleOrganizations": "El NIF {tin} ya ha sido agregado",
-  "organization.createOrganizationForm.foundOrganizationsModal.title.singleOrganization": "La organización {name} con este TIN ya ha sido añadida",
+  "organization.createOrganizationForm.foundOrganizationsModal.title.singleOrganization": "La organización {name} con NIF {tin} ya ha sido agregada",
   "organization.createOrganizationForm.invite.description": "Acepte la invitación si es un empleado de esta organización y desea unirse.",
   "organization.createOrganizationForm.invite.title": "Has sido invitado por la organización {organizationName}",
   "organization.createOrganizationForm.limit.description": "Por razones de seguridad, comuníquese con {chatBotLink} para desbloquear el registro.",
