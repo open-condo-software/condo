@@ -61,9 +61,9 @@ type EmployeeRolesTableProps = {
     b2BAppRoles: B2BAppRoleType[]
     b2BAppPermissions: B2BAppPermissionType[]
     loading: boolean
-    createB2BAppRoleAction: IUseCreateActionType<B2BAppRoleType, B2BAppRoleCreateInput>,
+    createB2BAppRoleAction: IUseCreateActionType<B2BAppRoleType, B2BAppRoleCreateInput>
     softDeleteB2BAppRoleAction: IUseSoftDeleteActionType<B2BAppRoleType>
-    updateB2BAppRoleAction: IUseUpdateActionType<B2BAppRoleType, B2BAppRoleUpdateInput>,
+    updateB2BAppRoleAction: IUseUpdateActionType<B2BAppRoleType, B2BAppRoleUpdateInput>
     updateOrganizationEmployeeRoleAction: IUseUpdateActionType<OrganizationEmployeeRoleType, OrganizationEmployeeRoleUpdateInput>
     refetchEmployeeRoles
     useEmployeeRolesTableData: UseEmployeeRolesPermissionsGroups
