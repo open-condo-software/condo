@@ -14022,7 +14022,6 @@ __metadata:
   dependencies:
     "@faker-js/faker": ^9.6.0
     big.js: ^6.2.2
-    falsey: ^1.0.0
     jest: ^29.7.0
     jest-jasmine2: ^29.7.0
     lodash: ^4.17.21
