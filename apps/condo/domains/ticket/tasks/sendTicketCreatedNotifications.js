@@ -31,7 +31,6 @@ const sendTicketCreatedNotifications = async (ticketId, lang, organizationId, or
         setLocaleForKeystoneContext(context, lang)
 
         const createdTicket = await getById('Ticket', ticketId)
-        const ticketOrganization = createdTicket.organization
         const ticketStatus = await getById('TicketStatus', createdTicket.status)
         const ticketUrl = `${conf.SERVER_URL}/ticket/${ticketId}`
         const classifier = await TicketClassifier.getOne(context,
