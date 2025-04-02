@@ -1,4 +1,3 @@
-import { faker } from '@faker-js/faker'
 import { Col, Row, RowProps } from 'antd'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
@@ -159,12 +158,16 @@ const SplitResult: React.FC<TSplitResultProps> = (props) => {
     )
 }
 
+function generateDecimalString (len: number): string {
+    return Math.random().toString().substring(2, len)
+}
+
 function generateRandomDistributionItem (): TDistributionItem {
     return {
         recipient: {
-            tin: faker.datatype.number().toString(),
-            bic: faker.datatype.number().toString(),
-            bankAccount: faker.datatype.number().toString(),
+            tin: generateDecimalString(8),
+            bic: generateDecimalString(10),
+            bankAccount: generateDecimalString(20),
         },
         amount: '0',
         isFeePayer: false,
