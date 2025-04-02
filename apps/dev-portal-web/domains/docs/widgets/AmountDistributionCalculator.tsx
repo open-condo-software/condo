@@ -50,12 +50,12 @@ const DistributionItem: React.FC<TDistributionItemProps> = (props) => {
 
     const intl = useIntl()
 
-    const TinTitle = intl.formatMessage({ id: 'amountDistributionCalculator.tin' })
-    const AmountTitle = intl.formatMessage({ id: 'amountDistributionCalculator.amount' })
-    const OrderTitle = intl.formatMessage({ id: 'amountDistributionCalculator.order' })
-    const FeePayerTitle = intl.formatMessage({ id: 'amountDistributionCalculator.isFeePayer' })
-    const VORTitle = intl.formatMessage({ id: 'amountDistributionCalculator.vor' })
-    const OverpaymentTitle = intl.formatMessage({ id: 'amountDistributionCalculator.overpaymentPart' })
+    const TinTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.tin' })
+    const AmountTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.amount' })
+    const OrderTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.order' })
+    const FeePayerTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.isFeePayer' })
+    const VORTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.vor' })
+    const OverpaymentTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.overpaymentPart' })
 
     const [tin, setTin] = useState<string>(item.recipient.tin)
     const [bic] = useState<string>(item.recipient.bic)
@@ -132,9 +132,9 @@ const SplitResult: React.FC<TSplitResultProps> = (props) => {
 
     const intl = useIntl()
 
-    const TinTitle = intl.formatMessage({ id: 'amountDistributionCalculator.tin' })
-    const AmountTitle = intl.formatMessage({ id: 'amountDistributionCalculator.amount' })
-    const FeeTitle = intl.formatMessage({ id: 'amountDistributionCalculator.fee' })
+    const TinTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.tin' })
+    const AmountTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.amount' })
+    const FeeTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.fee' })
 
     return (
         <Row gutter={GUTTER_ROW}>
@@ -181,14 +181,14 @@ export const AmountDistributionCalculator: React.FC = () => {
     const [splitError, setSplitError] = useState<string>()
     const [currentTab, setCurrentTab] = useState<string>()
 
-    const PaymentTitle = intl.formatMessage({ id: 'amountDistributionCalculator.paymentSettings' })
-    const PaymentAmountTitle = intl.formatMessage({ id: 'amountDistributionCalculator.paymentAmount' })
-    const PaymentFeeTitle = intl.formatMessage({ id: 'amountDistributionCalculator.paymentFee' })
-    const RecipientsTitle = intl.formatMessage({ id: 'amountDistributionCalculator.recipients' })
-    const OptionsTitle = intl.formatMessage({ id: 'amountDistributionCalculator.splitOptions' })
-    const DecimalPlacesTitle = intl.formatMessage({ id: 'amountDistributionCalculator.decimalPlaces' })
-    const AmountDistributionValueTitle = intl.formatMessage({ id: 'amountDistributionCalculator.amountDistributionFieldValue' })
-    const SplitResultTitle = intl.formatMessage({ id: 'amountDistributionCalculator.splitResultTitle' })
+    const PaymentTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.paymentSettings' })
+    const PaymentAmountTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.paymentAmount' })
+    const PaymentFeeTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.paymentFee' })
+    const RecipientsTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.recipients' })
+    const OptionsTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.splitOptions' })
+    const DecimalPlacesTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.decimalPlaces' })
+    const AmountDistributionValueTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.amountDistributionFieldValue' })
+    const SplitResultTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.splitResultTitle' })
 
     useEffect(() => {
         if (distributions.length === 0) {
