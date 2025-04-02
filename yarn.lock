@@ -1153,6 +1153,7 @@ __metadata:
     express: ^4.17.1
     extracted-loader: ^1.0.7
     facepaint: ^1.2.1
+    fast-xml-parser: ^4.4.1
     get-contrast: ^2.0.0
     graphql: ^15.6.1
     graphql-request: ^3.5.0
