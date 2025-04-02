@@ -1,0 +1,40 @@
+{
+  "name": "@open-condo/billing",
+  "description": "A set of billing and acquiring tools that shared between apps",
+  "keywords": [
+    "condo",
+    "open-condo-software",
+    "packages",
+    "billing",
+    "tools"
+  ],
+  "scripts": {
+    "test": "jest"
+  },
+  "version": "0.0.0-development",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/open-condo-software/condo.git",
+    "directory": "packages/billing"
+  },
+  "author": {
+    "name": "Alexander Naydenov",
+    "email": "nas@doma.ai",
+    "url": "https://github.com/AleX83Xpert"
+  },
+  "license": "MIT",
+  "exports": {
+    "./": "./"
+  },
+  "dependencies": {
+    "big.js": "^6.2.2",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^9.6.0",
+    "falsey": "^1.0.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "jest-jasmine2": "^29.7.0"
+  }
+}

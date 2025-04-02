@@ -2,10 +2,9 @@ import { Col, Row, RowProps } from 'antd'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
 
+import { split, createRecipientKey } from '@open-condo/billing/tools/billingCentrifuge'
 import { Plus, Trash } from '@open-condo/icons'
 import { Alert, Button, Card, Input, List, MarkdownCodeWrapper, Switch, Tabs, Typography } from '@open-condo/ui'
-
-import { split, createRecipientKey } from '@condo/domains/acquiring/utils/billingCentrifuge'
 
 type TRecipient = {
     tin: string

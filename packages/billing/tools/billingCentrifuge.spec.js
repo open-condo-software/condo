@@ -1,6 +1,5 @@
+const { faker } = require('@faker-js/faker')
 const { Big } = require('big.js')
-
-const { createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
 
 const {
     hasSingleVorItem,
@@ -10,6 +9,24 @@ const {
     areAllRecipientsUnique,
     sortByVorAndOrderComparator,
 } = require('./billingCentrifuge')
+
+function createTestRecipient (extra = {}) {
+    const range = (length) => ({ min: Math.pow(10, length - 1), max: Math.pow(10, length) - 1 })
+    const validRecipient = {
+        name: faker.company.name(),
+        tin: faker.number.int(range(10)).toString(),
+        iec: faker.number.int(range(9)).toString(),
+        bic: faker.finance.bic().toString(),
+        bankAccount: faker.finance.accountNumber(12).toString(),
+        bankName: faker.company.name(),
+        territoryCode: faker.number.int().toString(),
+        offsettingAccount: faker.finance.accountNumber(12).toString(),
+    }
+    return {
+        ...validRecipient,
+        ...extra,
+    }
+}
 
 describe('billingCentrifuge', () => {
     describe('helper functions', () => {
