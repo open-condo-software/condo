@@ -46924,6 +46924,8 @@ type Resident {
   """ Type of unit, such as parking lot or flat. Default value: "flat" """
   unitType: ResidentUnitTypeType
   isVerifiedByManagingCompany: Boolean
+  managingCompanyOwnershipPercentage: String
+  managingCompanyCommunityFee: String
   managingCompanyContactRole: ResidentContactRole
 
   """ Ref to the organization. It is filled in on the server and is read-only 
