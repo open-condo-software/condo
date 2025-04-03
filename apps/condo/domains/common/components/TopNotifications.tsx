@@ -1,9 +1,8 @@
-/** @jsx jsx */
-import { jsx } from '@emotion/react'
-import { Affix, AlertProps, Space } from 'antd'
+import { Affix, Space } from 'antd'
 import React, { useCallback, useState } from 'react'
 
-import { Alert, Button } from '@open-condo/ui'
+import { useAuth } from '@open-condo/next/auth'
+import { Alert, Button, AlertProps } from '@open-condo/ui'
 
 
 export interface ITopNotificationAction {
@@ -28,6 +27,7 @@ interface ITopNotificationHookResult {
 }
 
 export const useTopNotificationsHook = (serviceProblemsAlert?: React.ReactNode): ITopNotificationHookResult => {
+    const { user } = useAuth()
     const [topNotifications, setTopNotifications] = useState<ITopNotification[]>([])
     const addNotification = useCallback((notification: ITopNotification) => {
         setTopNotifications(topNotifications => {
@@ -49,7 +49,7 @@ export const useTopNotificationsHook = (serviceProblemsAlert?: React.ReactNode):
                 <Affix>
                     {serviceProblemsAlert}
                     {
-                        topNotifications.map(notification => (
+                        !!user && topNotifications.map(notification => (
                             <Alert
                                 banner
                                 showIcon
