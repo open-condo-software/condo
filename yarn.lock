@@ -14544,6 +14544,7 @@ __metadata:
   resolution: "@open-condo/codegen@workspace:packages/codegen"
   dependencies:
     "@apollo/client": ^3.11.8
+    "@faker-js/faker": ^7.6.0
     "@graphql-typed-document-node/core": ^3.1.1
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
@@ -14635,6 +14636,13 @@ __metadata:
   resolution: "@open-condo/keystone@workspace:packages/keystone"
   dependencies:
     "@apollo/client": ^3.11.8
+    "@arch-ui/controls": ^0.1.12
+    "@arch-ui/fields": ^3.0.8
+    "@arch-ui/input": ^0.1.14
+    "@arch-ui/lozenge": ^0.0.20
+    "@arch-ui/select": ^0.1.12
+    "@arch-ui/theme": ^0.0.14
+    "@emotion/react": ^11.9.3
     "@faker-js/faker": ^7
     "@graphql-tools/graphql-file-loader": ^7.5.17
     "@graphql-tools/links": ^8.3.6
@@ -14663,6 +14671,12 @@ __metadata:
     "@keystonejs/utils": ^6.1.0
     "@open-condo/config": "workspace:^"
     "@open-condo/locales": "workspace:^"
+    "@opentelemetry/api": ^1.4.1
+    "@opentelemetry/exporter-trace-otlp-proto": ^0.41.2
+    "@opentelemetry/instrumentation-ioredis": ^0.35.1
+    "@opentelemetry/instrumentation-pg": ^0.36.1
+    "@opentelemetry/sdk-node": ^0.41.2
+    "@primer/octicons-react": ^11.3.0
     "@sentry/node": ^6.19.7
     ajv: 8.11.0
     apollo-errors: ^1.9.0
@@ -14673,9 +14687,11 @@ __metadata:
     axios-cookiejar-support: ^1.0.1
     babel-jest: ^29.7.0
     big.js: ^6.1.1
+    body-parser: ^1.19.1
     bull: ^4.8.4
     connect-redis: ^6.0.0
     crypto: ^1.0.1
+    csv-parse: ^5.2.0
     cuid: ^2.1.8
     dayjs: ^1.10.6
     debug: ^4.3.4
@@ -14683,6 +14699,7 @@ __metadata:
     emittery: ^0.7.1
     encoding: ^0.1.0
     ensure-error: ^3.0.1
+    esdk-obs-nodejs: 3.21.6
     express: ^4.17.1
     express-graphql: ^0.12.0
     express-session: ^1.17.2
@@ -14708,6 +14725,7 @@ __metadata:
     nunjucks: ^3.2.4
     ow: ^0.19.0
     pino: ^6.13.3
+    pino-std-serializers: ^4.0.0
     pluralize: ^8
     react: ^16.13.1
     redlock: ^5.0.0-beta.2
@@ -14717,6 +14735,7 @@ __metadata:
     uuid: ^8.3.0
     validate.js: ^0.13.1
     validator: ^13.7.0
+    xlsx: "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz"
   bin:
     keystone: ./bin/cli.js
   languageName: unknown
@@ -14790,6 +14809,8 @@ __metadata:
   resolution: "@open-condo/next@workspace:packages/next"
   dependencies:
     "@apollo/client": ^3.11.8
+    "@formatjs/intl": ^2.2.1
+    "@graphql-typed-document-node/core": 3.2.0
     "@open-condo/apollo": "workspace:^"
     "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/tsconfig": "workspace:^"

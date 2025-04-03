@@ -31,7 +31,6 @@ function prepareHistoryRecordFields (listKey, listFields, historyField, ignoreFi
     if (!historyField) throw new Error('can not prepareHistoryRecordFields without historyField')
     const defaultMapping = (field) => ({ type: 'Json' })
     const typeMapping = {
-        Stars: (field) => ({ type: 'Stars', starCount: field.starCount }),
         DateTime: (field) => ({ type: 'DateTime' }),
         DateTimeUtc: (field) => ({ type: 'DateTimeUtc' }),
         CalendarDay: (field) => ({ type: 'CalendarDay' }),
