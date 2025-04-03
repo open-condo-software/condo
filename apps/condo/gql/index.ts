@@ -2187,9 +2187,9 @@ export type GetNewsSharingRecipientsLazyQueryHookResult = ReturnType<typeof useG
 export type GetNewsSharingRecipientsSuspenseQueryHookResult = ReturnType<typeof useGetNewsSharingRecipientsSuspenseQuery>;
 export type GetNewsSharingRecipientsQueryResult = Apollo.QueryResult<Types.GetNewsSharingRecipientsQuery, Types.GetNewsSharingRecipientsQueryVariables>;
 export const GetUserMessagesDocument = gql`
-    query getUserMessages($userId: ID, $organizationId: ID, $types: [MessageType!], $skip: Int = 0) {
+    query getUserMessages($userId: ID, $organizationIds: [ID], $types: [MessageType!], $skip: Int = 0) {
   messages: allMessages(
-    where: {user: {id: $userId}, organization: {id: $organizationId}, type_in: $types}
+    where: {user: {id: $userId}, organization: {id_in: $organizationIds}, type_in: $types}
     first: 10
     skip: $skip
     sortBy: [createdAt_DESC]
@@ -2218,7 +2218,7 @@ export const GetUserMessagesDocument = gql`
  * const { data, loading, error } = useGetUserMessagesQuery({
  *   variables: {
  *      userId: // value for 'userId'
- *      organizationId: // value for 'organizationId'
+ *      organizationIds: // value for 'organizationIds'
  *      types: // value for 'types'
  *      skip: // value for 'skip'
  *   },
