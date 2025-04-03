@@ -4,13 +4,16 @@ import {
     Ticket,
     TicketWhereInput,
 } from '@app/condo/schema'
-import get from 'lodash/get'
 import React, { useMemo } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
+import { QuestionCircle } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { Typography, Tooltip } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/dist/colors'
+
 
 import { getSelectFilterDropdown } from '@condo/domains/common/components/Table/Filters'
 import {
@@ -26,7 +29,6 @@ import {
     getStringContainsFilter,
 } from '@condo/domains/common/utils/tables.utils'
 import { searchOrganizationPropertyScope } from '@condo/domains/scope/utils/clientSchema/search'
-import { ExpiredTicketsFilter } from '@condo/domains/ticket/components/TicketModalFilters'
 import { FEEDBACK_VALUES_BY_KEY } from '@condo/domains/ticket/constants/feedback'
 import { QUALITY_CONTROL_VALUES_BY_KEY } from '@condo/domains/ticket/constants/qualityControl'
 import { VISIBLE_TICKET_SOURCE_TYPES } from '@condo/domains/ticket/constants/sourceTypes'
@@ -34,12 +36,14 @@ import { TicketCategoryClassifier } from '@condo/domains/ticket/utils/clientSche
 import { searchEmployeeUser, searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 import {
     getClientNameFilter,
+    getCommentByTypeFilter,
     getFilterAddressForSearch,
     getIsCompletedAfterDeadlineFilter,
     getIsResidentContactFilter,
     getPropertyScopeFilter,
     getTicketAttributesFilter,
     getTicketTypeFilter,
+    getUnansweredCommentFilter,
 } from '@condo/domains/ticket/utils/tables.utils'
 
 import {
@@ -54,6 +58,8 @@ const filterCreatedAtRange = getDayRangeFilter('createdAt')
 const filterDeadlineRange = getDayRangeFilter('deadline')
 const filterCompletedAtRange = getDayRangeFilter('completedAt')
 const filterLastResidentCommentAtRange = getDayRangeFilter('lastResidentCommentAt')
+const filterCommentsByType = getCommentByTypeFilter()
+const filterUnansweredCommentsByOrganizationEmployee = getUnansweredCommentFilter()
 const filterStatus = getFilter(['status', 'type'], 'array', 'string', 'in')
 const filterDetails = getStringContainsFilter('details')
 const filterProperty = getFilter(['property', 'id'], 'array', 'string', 'in')
@@ -109,6 +115,10 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
     const UnitMessage = intl.formatMessage({ id: 'field.FlatNumber' })
     const EnterPhoneMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.EnterPhone' })
     const ClientPhoneMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.ClientPhone' })
+    const ExpiredTickets = intl.formatMessage({ id: 'pages.condo.ticket.filters.ExpiredTickets' })
+    const HasComments = intl.formatMessage({ id: 'pages.condo.ticket.filters.HasComments' })
+    const OnlyUnansweredComments = intl.formatMessage({ id: 'pages.condo.ticket.filters.OnlyUnansweredComments' })
+    const OnlyUnansweredCommentsTooltipHelp = intl.formatMessage({ id: 'pages.condo.ticket.filters.OnlyUnansweredCommentsTooltipHelp' })
     const AssigneeMessage = intl.formatMessage({ id: 'field.Responsible' })
     const SelectMessage = intl.formatMessage({ id: 'Select' })
     const PlaceClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.PlaceLabel' })
@@ -128,6 +138,8 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
     const IsResidentContactLabel = intl.formatMessage({ id: 'pages.condo.ticket.filters.isResidentContact' })
     const IsResidentContactMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.isResidentContact.true' })
     const IsNotResidentContactMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.isResidentContact.false' })
+    const ResidnetComment = intl.formatMessage({ id: 'pages.condo.ticket.filters.residentComment' })
+    const OrganizationComment = intl.formatMessage({ id: 'pages.condo.ticket.filters.organizationComment' })
     const LastCommentAtMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.lastCommentAt' })
     const PropertyScopeMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope' })
     const TicketTypeMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.TicketType' })
@@ -176,11 +188,15 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
         { label: IsResidentContactMessage, value: 'false' },
         { label: IsNotResidentContactMessage, value: 'true' },
     ], [IsNotResidentContactMessage, IsResidentContactMessage])
+    const commentsTypeOptions = useMemo(() => [
+        { label: ResidnetComment, value: 'lastCommentWithResidentTypeAt' },
+        { label: OrganizationComment, value: 'lastCommentWithOrganizationTypeAt' },
+    ], [ResidnetComment, OrganizationComment])
     const { objs: categoryClassifiers } = TicketCategoryClassifier.useObjects({})
     const categoryClassifiersOptions = useMemo(() => convertToOptions(categoryClassifiers, 'name', 'id'), [categoryClassifiers])
 
     const userOrganization = useOrganization()
-    const userOrganizationId = get(userOrganization, ['organization', 'id'])
+    const userOrganizationId = userOrganization?.organization?.id
 
     const ticketTypeOptions = useMemo(
         () => [
@@ -449,8 +465,10 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
                 keyword: 'isCompletedAfterDeadline',
                 filters: [filterIsCompletedAfterDeadline],
                 component: {
-                    type: ComponentType.Custom,
-                    modalFilterComponent: (form) => <ExpiredTicketsFilter form={form} />,
+                    type: ComponentType.Checkbox,
+                    props: {
+                        label: ExpiredTickets,
+                    },
                     modalFilterComponentWrapper: {
                         size: FilterComponentSize.Small,
                         formItemProps: {
@@ -513,20 +531,6 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
                 },
             },
             {
-                keyword: 'lastCommentAt',
-                filters: [filterLastResidentCommentAtRange],
-                component: {
-                    type: ComponentType.DateRange,
-                    props: {
-                        placeholder: [StartDateMessage, EndDateMessage],
-                    },
-                    modalFilterComponentWrapper: {
-                        label: LastCommentAtMessage,
-                        size: FilterComponentSize.Small,
-                    },
-                },
-            },
-            {
                 keyword: 'feedbackValue',
                 filters: [filterFeedbackValue],
                 component: {
@@ -557,6 +561,71 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
                     modalFilterComponentWrapper: {
                         label: QualityControlValueMessage,
                         size: FilterComponentSize.Small,
+                        spaceSizeAfter: FilterComponentSize.Small,
+                    },
+                },
+            },
+            {
+                keyword: 'commentsByType',
+                filters: [filterCommentsByType],
+                component: {
+                    type: ComponentType.Select,
+                    options: commentsTypeOptions,
+                    props: {
+                        mode: 'multiple',
+                        showArrow: true,
+                        placeholder: SelectMessage,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: HasComments,
+                        size: FilterComponentSize.Small,
+                    },
+                },
+            },
+            {
+                keyword: 'unansweredComment',
+                filters: [filterUnansweredCommentsByOrganizationEmployee],
+                component: {
+                    type: ComponentType.Checkbox,
+                    options: commentsTypeOptions,
+                    props: {
+                        children: (
+                            <Typography.Text size='medium'>
+                                {OnlyUnansweredComments}
+                                <Tooltip title={OnlyUnansweredCommentsTooltipHelp}>
+                                    <span style={{ verticalAlign: 'middle', marginLeft: '4px' }}>
+                                        <QuestionCircle size='small' color={colors.gray[7]} />
+                                    </span>
+                                </Tooltip>
+                            </Typography.Text>
+                        ),
+                    },
+                    modalFilterComponentWrapper: {
+                        size: FilterComponentSize.Small,
+                        formItemProps: {
+                            valuePropName: 'checked',
+                            style: {
+                                height: '100%',
+                                display: 'flex',
+                                alignItems: 'flex-end',
+                                justifyContent: 'center',
+
+                            },
+                        },
+                    },
+                },
+            },
+            {
+                keyword: 'lastCommentAt',
+                filters: [filterLastResidentCommentAtRange],
+                component: {
+                    type: ComponentType.DateRange,
+                    props: {
+                        placeholder: [StartDateMessage, EndDateMessage],
+                    },
+                    modalFilterComponentWrapper: {
+                        label: LastCommentAtMessage,
+                        size: FilterComponentSize.Small,
                     },
                 },
             },
@@ -567,7 +636,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
                     type: ComponentType.GQLSelect,
                     props: {
                         search: searchEmployeeUser(userOrganizationId, ({ role }) => (
-                            get(role, 'canBeAssignedAsExecutor', false)
+                            role?.canBeAssignedAsExecutor?.false
                         )),
                         mode: 'multiple',
                         showArrow: true,
@@ -586,7 +655,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
                     type: ComponentType.GQLSelect,
                     props: {
                         search: searchEmployeeUser(userOrganizationId, ({ role }) => (
-                            get(role, 'canBeAssignedAsResponsible', false)
+                            role?.canBeAssignedAsResponsible?.false
                         )),
                         mode: 'multiple',
                         showArrow: true,
@@ -663,5 +732,5 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
                 filters: [filterTicketContact],
             },
         ]
-    }, [AddressMessage, DescriptionMessage, UserNameMessage, NumberMessage, userOrganizationId, EnterAddressMessage, SelectMessage, PropertyScopeMessage, unitTypeOptions, UnitTypeMessage, EnterUnitNameLabel, UnitMessage, filterTicketType, ticketTypeOptions, TicketTypeMessage, SectionMessage, FloorMessage, PlaceClassifierLabel, CategoryClassifierLabel, categoryClassifiersOptions, ProblemClassifierLabel, statusOptions, StatusMessage, attributeOptions, AttributeLabel, sourceOptions, SourceMessage, isResidentContactOptions, IsResidentContactLabel, EnterPhoneMessage, ClientPhoneMessage, StartDateMessage, EndDateMessage, LastCommentAtMessage, feedbackValueOptions, FeedbackValueMessage, qualityControlValueOptions, QualityControlValueMessage, EnterFullNameMessage, ExecutorMessage, AssigneeMessage, AuthorMessage, DateMessage, CompletedAtMessage, CompleteBeforeMessage])
+    }, [AddressMessage, DescriptionMessage, UserNameMessage, NumberMessage, userOrganizationId, EnterAddressMessage, SelectMessage, PropertyScopeMessage, unitTypeOptions, UnitTypeMessage, EnterUnitNameLabel, UnitMessage, filterTicketType, ticketTypeOptions, TicketTypeMessage, SectionMessage, FloorMessage, PlaceClassifierLabel, CategoryClassifierLabel, categoryClassifiersOptions, ProblemClassifierLabel, statusOptions, StatusMessage, attributeOptions, AttributeLabel, sourceOptions, SourceMessage, isResidentContactOptions, IsResidentContactLabel, EnterPhoneMessage, ClientPhoneMessage, HasComments, StartDateMessage, EndDateMessage, LastCommentAtMessage, feedbackValueOptions, FeedbackValueMessage, qualityControlValueOptions, QualityControlValueMessage, EnterFullNameMessage, ExecutorMessage, AssigneeMessage, AuthorMessage, DateMessage, CompletedAtMessage, CompleteBeforeMessage])
 }

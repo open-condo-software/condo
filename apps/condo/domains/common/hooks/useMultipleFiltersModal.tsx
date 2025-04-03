@@ -20,10 +20,10 @@ import { Options } from 'scroll-into-view-if-needed'
 import { Close, Filter } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { Checkbox } from '@open-condo/ui'
 import { Modal as DefaultModal, Button, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
-import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input from '@condo/domains/common/components/antd/Input'
 import Select from '@condo/domains/common/components/antd/Select'
 import { Button as CommonButton } from '@condo/domains/common/components/Button'
@@ -175,12 +175,14 @@ export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string
             )
         }
 
-        case ComponentType.CheckboxGroup: {
-            const options: OptionType[] = get(component, 'options')
-
+        case ComponentType.Checkbox: {
             return (
-                <Checkbox.Group
-                    options={options}
+                <Checkbox
+                    defaultChecked={filters?.[keyword] === 'true'}
+                    checked={form.getFieldValue(keyword) === 'true'}
+                    onChange={e => {
+                        form.setFieldsValue({ [keyword]: e?.target.checked ? String(e?.target.checked) : false })
+                    }}
                     {...props}
                 />
             )
@@ -386,7 +388,7 @@ type MultipleFiltersModalProps<F = unknown> = {
 }
 
 const isEqualSelectedFiltersTemplateAndFilters = (selectedFiltersTemplate, filters) => {
-    const templateFilters = get(selectedFiltersTemplate, 'fields', null)
+    const templateFilters = selectedFiltersTemplate?.fields || null
     if (!templateFilters) return false
     if (has(templateFilters, '__typename')) delete templateFilters['__typename']
     return isEqual(omitBy(templateFilters, isNil), filters)
@@ -419,7 +421,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
 
     const router = useRouter()
     const { filters } = parseQuery(router.query)
-    const searchFilter = get(filters, 'search', null)
+    const searchFilter = filters?.search || null
     const { link } = useOrganization()
     const { breakpoints } = useLayoutContext()
 

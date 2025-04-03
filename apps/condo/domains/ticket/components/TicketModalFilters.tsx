@@ -32,6 +32,7 @@ export const ExpiredTicketsFilter: ExpiredTicketsFilterType = ({ form }) => {
     return (
         <Checkbox
             label={ExpiredTickets}
+            labelProps={{ size: 'large' }}
             checked={value}
             onChange={(event) => {
                 const checked = !!get(event, 'target.checked', false)
