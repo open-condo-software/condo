@@ -65,6 +65,26 @@ export const getIsCompletedAfterDeadlineFilter = (): FilterType => {
     }
 }
 
+export const getCommentByTypeFilter = () => {
+    return function getWhereQuery (search) {
+        if (isEmpty(search)) return
+
+        return {
+            OR: search.map(commentType => ({ [`${commentType}_not`]: null })),
+        }
+    }
+}
+
+export const getUnansweredCommentFilter = () => {
+    return function getWhereQuery (search) {
+        if (search !== 'true') return
+
+        return {
+            hasUnansweredCommentsByOrganizationEmployee: true,
+        }
+    }
+}
+
 export const getIsResidentContactFilter = () => {
     return function getWhereQuery (search) {
         if (isEmpty(search)) return
