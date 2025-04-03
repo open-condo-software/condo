@@ -1,6 +1,6 @@
-import { Col, Row } from 'antd'
+import { Row } from 'antd'
 import Head from 'next/head'
-import React, { CSSProperties } from 'react'
+import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
@@ -8,10 +8,8 @@ import { PageComponentType } from '@condo/domains/common/types'
 import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 import { CreateOrganizationPageContent } from '@condo/domains/organization/components/CreateOrganizationPageContent'
 import AuthLayout from '@condo/domains/user/components/containers/AuthLayout'
-import { WelcomeHeaderTitle } from '@condo/domains/user/components/UserWelcomeTitle'
+import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 
-
-const ORGANIZATION_FORM_WRAPPER_STYLES: CSSProperties = { maxWidth: '350px' }
 
 const CreateOrganizationPage: PageComponentType = () => {
     const intl = useIntl()
@@ -21,15 +19,14 @@ const CreateOrganizationPage: PageComponentType = () => {
         <>
             <Head><title>{CreateOrganizationTitle}</title></Head>
             <Row>
-                <Col style={ORGANIZATION_FORM_WRAPPER_STYLES}>
+                <ResponsiveCol>
                     <CreateOrganizationPageContent />
-                </Col>
+                </ResponsiveCol>
             </Row>
         </>
     )
 }
 CreateOrganizationPage.container = AuthLayout
-CreateOrganizationPage.headerAction = <WelcomeHeaderTitle userType='staff'/>
 CreateOrganizationPage.getPrefetchedData = async ({ context, activeEmployee }) => {
     const next = context?.query?.next
     const redirectUrl = (next && !Array.isArray(next) && isSafeUrl(next)) ? next : '/'
