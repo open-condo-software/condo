@@ -129,7 +129,6 @@ const feeDistributionsJsonSchema = {
     items: feeDistributionJsonSchema,
     minItems: 1,
     maxItems: 5,
-    uniqueItems: true,
 }
 
 const jsonValidator = ajv.compile(feeDistributionsJsonSchema)
@@ -209,9 +208,7 @@ const AMOUNT_DISTRIBUTION_FIELD = ({ toPayFieldName = 'toPay',
             if (distributionsWithNotApprovedRecipients.length > 0) {
                 throw new GQLError({
                     ...ERRORS.NO_APPROVED_BANK_ACCOUNT,
-                    messageInterpolation: {
-                        notApprovedRecipients: distributionsWithNotApprovedRecipients.map(({ recipient: r }) => r),
-                    },
+                    notApprovedRecipients: distributionsWithNotApprovedRecipients.map(({ recipient: r }) => r),
                 }, context)
             }
 
