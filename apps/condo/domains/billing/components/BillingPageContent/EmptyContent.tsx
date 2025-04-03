@@ -33,7 +33,7 @@ export const EmptyContent: React.FC<EmptyContentProps> = ({
 
     const { billingContexts } = useBillingAndAcquiringContexts()
     const [billingContext] = billingContexts
-    const currentProblem = get(billingContext, 'currentProblem')
+    const currentProblem = get(billingContexts.find(({ currentProblem }) => !!currentProblem), 'currentProblem')
     const connectedMessage = get(billingContext, ['integration', 'connectedMessage'])
     const instructionUrl = get(billingContext, ['integration', 'instructionExtraLink'])
 
