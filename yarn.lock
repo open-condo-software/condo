@@ -1107,7 +1107,9 @@ __metadata:
   dependencies:
     "@ant-design/icons": ^4.7.0
     "@apollo/client": ^3.11.8
+    "@arch-ui/button": ^0.0.25
     "@arch-ui/color-utils": ^0.0.5
+    "@arch-ui/common": ^0.0.15
     "@arch-ui/confirm": ^0.0.26
     "@arch-ui/controls": ^0.1.12
     "@arch-ui/layout": ^0.2.17
@@ -1169,6 +1171,7 @@ __metadata:
     cross-fetch: ^3.1.4
     css-loader: 1.0.0
     dayjs: ^1.10.6
+    debounce: ^1.2.1
     emotion: ^10.0.27
     emotion-server: ^10.0.27
     express: ^4.17.1
@@ -1191,6 +1194,7 @@ __metadata:
     less-loader: ^4.0.0
     lodash: ^4.17.21
     mkdirp: ^1.0.4
+    nanoid: ^3.3.4
     next: ^9.5.2
     next-cookies: ^2.0.3
     next-transpile-modules: ^4.1.0
@@ -1207,6 +1211,7 @@ __metadata:
     react-markdown: ^4.3.1
     react-otp-input: ^2.4.0
     react-responsive: ^8.1.0
+    react-router-dom: 5.2.0
     react-test-renderer: ^16.13.1
     socks-proxy-agent: ^6.2.0
     socks5-https-client: ^1.2.1
