@@ -29,7 +29,7 @@ jobs:
             ((index++));
           done
           
-          if [[ $review_namespaces == 5 ]]; then
+          if [[ $review_namespaces == 7 ]]; then
             echo "The maximum number of simultaneous reviews has been reached.";
             exit 1;
           fi
