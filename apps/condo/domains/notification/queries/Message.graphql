@@ -1,8 +1,8 @@
-query getUserMessages ($userId: ID, $organizationId: ID, $types: [MessageType!], $skip: Int = 0) {
+query getUserMessages ($userId: ID, $organizationIds: [ID], $types: [MessageType!], $skip: Int = 0) {
     messages: allMessages (
         where: {
             user: { id: $userId }
-            organization: { id: $organizationId }
+            organization: { id_in: $organizationIds }
             type_in: $types
         },
         first: 10,
