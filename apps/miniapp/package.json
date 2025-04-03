@@ -71,6 +71,7 @@
     "express": "^4.17.1",
     "facepaint": "^1.2.1",
     "get-contrast": "^2.0.0",
+    "graphql-tag": "^2.12.6",
     "graphql-upload": "^15.0.1",
     "immer": "9.0.13",
     "less": "^3.12.2",
@@ -78,6 +79,7 @@
     "next": "^9.5.5",
     "next-transpile-modules": "^4.1.0",
     "numeral": "2.0.6",
+    "openid-client": "4.7.4",
     "qs": "^6.9.4",
     "rc-queue-anim": "^1.8.5",
     "react": "^16.13.1",
@@ -92,6 +94,7 @@
     "validator": "^13.1.1"
   },
   "devDependencies": {
+    "@open-condo/cli": "workspace:^",
     "@testing-library/react": "^11.2.5",
     "@types/jest": "^29.4.0",
     "@types/node": "^16",
