@@ -31,8 +31,8 @@ export const EmptyContent: React.FC<EmptyContentProps> = ({
     const userOrganization = useOrganization()
     const canImportBillingReceipts = get(userOrganization, ['link', 'role', 'canImportBillingReceipts'], false)
 
-    const { billingContext } = useBillingAndAcquiringContexts()
-
+    const { billingContexts } = useBillingAndAcquiringContexts()
+    const [billingContext] = billingContexts
     const currentProblem = get(billingContext, 'currentProblem')
     const connectedMessage = get(billingContext, ['integration', 'connectedMessage'])
     const instructionUrl = get(billingContext, ['integration', 'instructionExtraLink'])

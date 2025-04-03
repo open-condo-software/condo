@@ -9,8 +9,8 @@ import { useBillingAndAcquiringContexts } from './ContextProvider'
 
 export const ReportMessage: React.FC = () => {
     const intl = useIntl()
-    const { billingContext, refetchBilling } = useBillingAndAcquiringContexts()
-    const lastReport = get(billingContext, 'lastReport', {})
+    const { billingContexts, refetchBilling } = useBillingAndAcquiringContexts()
+    const lastReport = get(billingContexts.find(({ lastReport }) => !!lastReport), 'lastReport', {})
 
     useEffect(() => {
         const handleRedirect = async (event) => {
