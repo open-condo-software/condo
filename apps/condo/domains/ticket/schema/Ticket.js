@@ -370,6 +370,16 @@ const Ticket = new GQLListSchema('Ticket', {
             type: 'DateTimeUtc',
             access: writeOnlyServerSideFieldAccess,
         },
+        lastCommentWithOrganizationTypeAt: {
+            schemaDoc: 'Time of the last comment with organization type (only from staff user) in ticket',
+            type: 'DateTimeUtc',
+            access: writeOnlyServerSideFieldAccess,
+        },
+        hasUnansweredCommentsByOrganizationEmployee: {
+            schemaDoc: 'Indicates whether the ticket has unanswered comments. A value of `true` means at least one comment has not been responded to',
+            type: 'Checkbox',
+            access: writeOnlyServerSideFieldAccess,
+        },
         statusReason: {
             schemaDoc: 'Text reason for status changes. Sometimes you should describe the reason why you change the `status`',
             type: 'Text',
