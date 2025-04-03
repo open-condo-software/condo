@@ -21,7 +21,6 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
     const TransferDateTitle = intl.formatMessage({ id: 'TransferDate' })
     const DepositedDateTitle = intl.formatMessage({ id: 'DepositedDate' })
     const AccountTitle = intl.formatMessage({ id: 'field.AccountNumberShort' })
-    const UnitNameTitle = intl.formatMessage({ id: 'field.FlatNumber' })
     const TypeTitle = intl.formatMessage({ id: 'PaymentType' })
     const TransactionTitle = intl.formatMessage({ id: 'Transaction' })
     const PaymentAmountTitle = intl.formatMessage({ id: 'PaymentAmount' })
@@ -29,8 +28,7 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
     const PaymentOrderTooltipTitle = intl.formatMessage({ id: 'PaymentOrder' })
     const StatusTitle = intl.formatMessage({ id: 'Status' })
 
-    const { filters, sorters } = parseQuery(router.query)
-    const sorterMap = getSorterMap(sorters)
+    const { filters } = parseQuery(router.query)
 
     return useMemo(() => {
         let search = get(filters, 'search')
@@ -64,22 +62,11 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
             },
             address: {
                 title: AddressTitle,
-                key: 'address',
+                key: 'rawAddress',
                 sorter: true,
                 render: (obj) => stringSearch(get(
                     obj,
-                    ['receipt', 'property', 'address'],
-                    get(obj, ['frozenReceipt', 'data', 'property', 'address'], null),
-                )),
-            },
-            unitName: {
-                title: UnitNameTitle,
-                key: 'unitName',
-                width: '128px',
-                render: (obj) => stringSearch(get(
-                    obj,
-                    ['receipt', 'account', 'unitName'],
-                    get(obj, ['frozenReceipt', 'data', 'account', 'unitName'], null),
+                    ['rawAddress'],
                 )),
             },
             type: {
@@ -120,7 +107,7 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
     }, [
         filters, DepositedDateTitle, TransferDateTitle,
         intl, AccountTitle, AddressTitle,
-        UnitNameTitle, TypeTitle,
+        TypeTitle,
         TransactionTitle, StatusTitle,
         openStatusDescModal,
         PaymentOrderColumnTitle,
