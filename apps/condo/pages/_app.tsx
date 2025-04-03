@@ -603,7 +603,7 @@ if (!isDisabledSsr || !isSSR()) {
                     userId: user.id,
                 }))
 
-                if (!skipUserPrefetch && !activeEmployee) {
+                if (!activeEmployee) {
                     const { asPath } = pageContext
                     const currentPath = asPath.split('?')[0]
                     const redirectPath = '/auth/organization'
