@@ -90,7 +90,8 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
     const DoneSumTitle = intl.formatMessage({ id: 'MultiPayment.status.DONE' })
     const WithdrawnSumTitle = intl.formatMessage({ id: 'MultiPayment.status.PROCESSING' })
 
-    const { billingContext } = useBillingAndAcquiringContexts()
+    const { billingContexts } = useBillingAndAcquiringContexts()
+    const billingContext = billingContexts[0]
 
     const { breakpoints } = useLayoutContext()
     const router = useRouter()
