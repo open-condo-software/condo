@@ -1,17 +1,18 @@
-const { faker } = require('@faker-js/faker')
-const { Big } = require('big.js')
+import { faker } from '@faker-js/faker'
+import { Big } from 'big.js'
 
-const {
+import {
     hasSingleVorItem,
     hasOverpaymentReceivers,
     split,
     createRecipientKey,
     areAllRecipientsUnique,
     sortByVorAndOrderComparator,
-} = require('./billingCentrifuge')
+    TDistributionItem,
+} from './billingCentrifuge'
 
 function createTestRecipient (extra = {}) {
-    const range = (length) => ({ min: Math.pow(10, length - 1), max: Math.pow(10, length) - 1 })
+    const range = (length: number) => ({ min: Math.pow(10, length - 1), max: Math.pow(10, length) - 1 })
     const validRecipient = {
         name: faker.company.name(),
         tin: faker.number.int(range(10)).toString(),
@@ -41,19 +42,19 @@ describe('billingCentrifuge', () => {
             const recipient3 = createTestRecipient()
             const recipient4 = createTestRecipient()
 
-            const distribution = [
-                { recipient: recipient1, order: 0, vor: true },
-                { recipient: recipient2, order: 0 },
-                { recipient: recipient3, order: 2, vor: true },
-                { recipient: recipient4, order: 1 },
+            const distribution: TDistributionItem[] = [
+                { recipient: recipient1, order: 0, amount: '', vor: true },
+                { recipient: recipient2, order: 0, amount: '' },
+                { recipient: recipient3, order: 2, amount: '', vor: true },
+                { recipient: recipient4, order: 1, amount: '' },
             ]
 
             const sortedDistribution = distribution.sort(sortByVorAndOrderComparator)
             expect(sortedDistribution).toEqual([
-                { recipient: recipient2, order: 0 },
-                { recipient: recipient4, order: 1 },
-                { recipient: recipient1, order: 0, vor: true },
-                { recipient: recipient3, order: 2, vor: true },
+                { recipient: recipient2, order: 0, amount: '' },
+                { recipient: recipient4, order: 1, amount: '' },
+                { recipient: recipient1, order: 0, amount: '', vor: true },
+                { recipient: recipient3, order: 2, amount: '', vor: true },
             ])
         })
     })
@@ -170,7 +171,7 @@ describe('billingCentrifuge', () => {
                 { recipient: recipient2, amount: '200' },
             ])
 
-            const splitSum = splits.reduce((sum, split) => sum.plus(split.amount), Big(0))
+            const splitSum = splits.reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
 
             expect(Big(paymentAmount).eq(splitSum)).toBe(true)
         })
@@ -192,7 +193,7 @@ describe('billingCentrifuge', () => {
                 { recipient: recipient2, amount: '150', feeAmount: '50' },
             ])
 
-            const splitSum = splits.reduce((sum, split) => sum.plus(split.amount), Big(0))
+            const splitSum = splits.reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
             const feeSum = splits.reduce((sum, split) => sum.plus(split.feeAmount || 0), Big(0))
 
             expect(Big(feeAmount).eq(feeSum)).toBe(true)
@@ -216,7 +217,7 @@ describe('billingCentrifuge', () => {
                 { recipient: recipient2, amount: '190', feeAmount: '10' },
             ])
 
-            const splitSum = splits.reduce((sum, split) => sum.plus(split.amount), Big(0))
+            const splitSum = splits.reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
             const feeSum = splits.reduce((sum, split) => sum.plus(split.feeAmount || 0), Big(0))
 
             expect(Big(feeAmount).eq(feeSum)).toBe(true)
@@ -244,7 +245,7 @@ describe('billingCentrifuge', () => {
                 { recipient: recipient3, amount: '950', feeAmount: '50' },
             ]))
 
-            const splitSum = splits.reduce((sum, split) => sum.plus(split.amount), Big(0))
+            const splitSum = splits.reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
             const feeSum = splits.reduce((sum, split) => sum.plus(split.feeAmount || 0), Big(0))
 
             expect(Big(feeAmount).eq(feeSum)).toBe(true)
@@ -272,7 +273,7 @@ describe('billingCentrifuge', () => {
                 { recipient: recipient3, amount: '900', feeAmount: '100' },
             ]))
 
-            const splitSum = splits.reduce((sum, split) => sum.plus(split.amount), Big(0))
+            const splitSum = splits.reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
             const feeSum = splits.reduce((sum, split) => sum.plus(split.feeAmount || 0), Big(0))
 
             expect(Big(feeAmount).eq(feeSum)).toBe(true)
@@ -297,7 +298,7 @@ describe('billingCentrifuge', () => {
                 { recipient: recipient2, amount: '100' },
             ])
 
-            const splitSum = splits.reduce((sum, split) => sum.plus(split.amount), Big(0))
+            const splitSum = splits.reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
 
             expect(Big(paymentAmount).eq(splitSum)).toBe(true)
         })
@@ -321,7 +322,7 @@ describe('billingCentrifuge', () => {
                 { recipient: recipient3, amount: '33.33' },
             ]))
 
-            const splitSum = splits.reduce((sum, split) => sum.plus(split.amount), Big(0))
+            const splitSum = splits.reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
 
             expect(Big(paymentAmount).eq(splitSum)).toBe(true)
         })
@@ -345,7 +346,7 @@ describe('billingCentrifuge', () => {
                 { recipient: recipient3, amount: '66.67' },
             ]))
 
-            const splitSum = splits.reduce((sum, split) => sum.plus(split.amount), Big(0))
+            const splitSum = splits.reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
 
             expect(Big(paymentAmount).eq(splitSum)).toBe(true)
         })
@@ -379,9 +380,9 @@ describe('billingCentrifuge', () => {
                 { recipient: recipient3, amount: '66.67' },
             ]))
 
-            const splitSum1 = splits1.reduce((sum, split) => sum.plus(split.amount), Big(0))
-            const splitSum2 = splits2.reduce((sum, split) => sum.plus(split.amount), Big(0))
-            const splitSum = [...splits1, ...splits2].reduce((sum, split) => sum.plus(split.amount), Big(0))
+            const splitSum1 = splits1.reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
+            const splitSum2 = splits2.reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
+            const splitSum = [...splits1, ...splits2].reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
 
             expect(Big(paymentAmount1).eq(splitSum1)).toBe(true)
             expect(Big(paymentAmount2).eq(splitSum2)).toBe(true)
@@ -416,9 +417,9 @@ describe('billingCentrifuge', () => {
                 { recipient: recipient3, amount: '90' },
             ]))
 
-            const splitSum1 = splits1.reduce((sum, split) => sum.plus(split.amount), Big(0))
-            const splitSum2 = splits2.reduce((sum, split) => sum.plus(split.amount), Big(0))
-            const splitSum = [...splits1, ...splits2].reduce((sum, split) => sum.plus(split.amount), Big(0))
+            const splitSum1 = splits1.reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
+            const splitSum2 = splits2.reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
+            const splitSum = [...splits1, ...splits2].reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
 
             expect(Big(paymentAmount1).eq(splitSum1)).toBe(true)
             expect(Big(paymentAmount2).eq(splitSum2)).toBe(true)
@@ -500,9 +501,9 @@ describe('billingCentrifuge', () => {
                 { recipient: recipient3, amount: '110' },
             ]))
 
-            const splitSum1 = splits1.reduce((sum, split) => sum.plus(split.amount), Big(0))
-            const splitSum2 = splits2.reduce((sum, split) => sum.plus(split.amount), Big(0))
-            const splitSum = [...splits1, ...splits2].reduce((sum, split) => sum.plus(split.amount), Big(0))
+            const splitSum1 = splits1.reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
+            const splitSum2 = splits2.reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
+            const splitSum = [...splits1, ...splits2].reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
 
             expect(Big(paymentAmount1).eq(splitSum1)).toBe(true)
             expect(Big(paymentAmount2).eq(splitSum2)).toBe(true)
@@ -544,9 +545,9 @@ describe('billingCentrifuge', () => {
                 { recipient: recipient3, amount: '120' },
             ]))
 
-            const splitSum1 = splits1.reduce((sum, split) => sum.plus(split.amount), Big(0))
-            const splitSum2 = splits2.reduce((sum, split) => sum.plus(split.amount), Big(0))
-            const splitSum = [...splits1, ...splits2].reduce((sum, split) => sum.plus(split.amount), Big(0))
+            const splitSum1 = splits1.reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
+            const splitSum2 = splits2.reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
+            const splitSum = [...splits1, ...splits2].reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
 
             expect(Big(paymentAmount1).eq(splitSum1)).toBe(true)
             expect(Big(paymentAmount2).eq(splitSum2)).toBe(true)
@@ -587,9 +588,9 @@ describe('billingCentrifuge', () => {
                 { recipient: recipient3, amount: '108' },
             ]))
 
-            const splitSum1 = splits1.reduce((sum, split) => sum.plus(split.amount), Big(0))
-            const splitSum2 = splits2.reduce((sum, split) => sum.plus(split.amount), Big(0))
-            const splitSum = [...splits1, ...splits2].reduce((sum, split) => sum.plus(split.amount), Big(0))
+            const splitSum1 = splits1.reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
+            const splitSum2 = splits2.reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
+            const splitSum = [...splits1, ...splits2].reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
 
             expect(Big(paymentAmount1).eq(splitSum1)).toBe(true)
             expect(Big(paymentAmount2).eq(splitSum2)).toBe(true)
@@ -609,7 +610,7 @@ describe('billingCentrifuge', () => {
 
             const paymentAmount1 = '120.00'
             const splits1 = split(paymentAmount1, distribution1)
-            const splitSum1 = splits1.reduce((sum, split) => sum.plus(split.amount), Big(0))
+            const splitSum1 = splits1.reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
 
             expect(Big(paymentAmount1).eq(splitSum1)).toBe(true)
             expect(splits1).toEqual(expect.arrayContaining([
@@ -626,7 +627,7 @@ describe('billingCentrifuge', () => {
 
             const paymentAmount2 = '50.00'
             const splits2 = split(paymentAmount2, distribution2, { appliedSplits: splits1 })
-            const splitSum2 = splits2.reduce((sum, split) => sum.plus(split.amount), Big(0))
+            const splitSum2 = splits2.reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
 
             expect(Big(paymentAmount2).eq(splitSum2)).toBe(true)
             expect(splits2).toEqual(expect.arrayContaining([
@@ -635,7 +636,7 @@ describe('billingCentrifuge', () => {
 
             const paymentAmount3 = '130.00'
             const splits3 = split(paymentAmount3, distribution2, { appliedSplits: [...splits1, ...splits2] })
-            const splitSum3 = splits3.reduce((sum, split) => sum.plus(split.amount), Big(0))
+            const splitSum3 = splits3.reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
 
             expect(Big(paymentAmount3).eq(splitSum3)).toBe(true)
             expect(splits3).toEqual(expect.arrayContaining([
@@ -643,7 +644,7 @@ describe('billingCentrifuge', () => {
                 { recipient: recipient3, amount: '90' },
             ]))
 
-            const splitSum = [...splits1, ...splits2, ...splits3].reduce((sum, split) => sum.plus(split.amount), Big(0))
+            const splitSum = [...splits1, ...splits2, ...splits3].reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
 
             expect(Big(paymentAmount1).plus(paymentAmount2).plus(paymentAmount3).eq(splitSum)).toBe(true)
         })
@@ -666,7 +667,7 @@ describe('billingCentrifuge', () => {
                 { recipient: recipient2, amount: '500' },
             ])
 
-            const splitSum = splits.reduce((sum, split) => sum.plus(split.amount), Big(0))
+            const splitSum = splits.reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
 
             expect(Big(paymentAmount).eq(splitSum)).toBe(true)
         })
@@ -690,7 +691,7 @@ describe('billingCentrifuge', () => {
                 { recipient: recipient3, amount: '133.34' },
             ]))
 
-            const splitSum = splits.reduce((sum, split) => sum.plus(split.amount), Big(0))
+            const splitSum = splits.reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
 
             expect(Big(paymentAmount).eq(splitSum)).toBe(true)
         })
@@ -715,7 +716,7 @@ describe('billingCentrifuge', () => {
                 { recipient: recipient3, amount: '166.66' },
             ]))
 
-            const splitSum = splits.reduce((sum, split) => sum.plus(split.amount), Big(0))
+            const splitSum = splits.reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
 
             expect(Big(paymentAmount).eq(splitSum)).toBe(true)
         })
@@ -752,9 +753,9 @@ describe('billingCentrifuge', () => {
                 { recipient: recipient3, amount: '123.33' },
             ]))
 
-            const splitSum1 = splits1.reduce((sum, split) => sum.plus(split.amount), Big(0))
-            const splitSum2 = splits2.reduce((sum, split) => sum.plus(split.amount), Big(0))
-            const splitSum = [...splits1, ...splits2].reduce((sum, split) => sum.plus(split.amount), Big(0))
+            const splitSum1 = splits1.reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
+            const splitSum2 = splits2.reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
+            const splitSum = [...splits1, ...splits2].reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
 
             expect(Big(paymentAmount1).eq(splitSum1)).toBe(true)
             expect(Big(paymentAmount2).eq(splitSum2)).toBe(true)
@@ -796,9 +797,9 @@ describe('billingCentrifuge', () => {
                 { recipient: recipient3, amount: '170' },
             ]))
 
-            const splitSum1 = splits1.reduce((sum, split) => sum.plus(split.amount), Big(0))
-            const splitSum2 = splits2.reduce((sum, split) => sum.plus(split.amount), Big(0))
-            const splitSum = [...splits1, ...splits2].reduce((sum, split) => sum.plus(split.amount), Big(0))
+            const splitSum1 = splits1.reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
+            const splitSum2 = splits2.reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
+            const splitSum = [...splits1, ...splits2].reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
 
             expect(Big(paymentAmount1).eq(splitSum1)).toBe(true)
             expect(Big(paymentAmount2).eq(splitSum2)).toBe(true)
@@ -820,7 +821,7 @@ describe('billingCentrifuge', () => {
         const paymentAmount1 = '120'
         const feeAmount1 = '12'
         const splits1 = split(paymentAmount1, distribution1, { feeAmount: feeAmount1 })
-        const splitSum1 = splits1.reduce((sum, split) => sum.plus(split.amount), Big(0))
+        const splitSum1 = splits1.reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
         const feeSum1 = splits1.reduce((sum, split) => sum.plus(split.feeAmount || 0), Big(0))
 
         expect(Big(paymentAmount1).eq(splitSum1.plus(feeSum1))).toBe(true)
@@ -862,7 +863,7 @@ describe('billingCentrifuge', () => {
             appliedSplits: [...splits1, ...splits2],
             feeAmount: feeAmount3,
         })
-        const splitSum3 = splits3.reduce((sum, split) => sum.plus(split.amount), Big(0))
+        const splitSum3 = splits3.reduce((sum, split) => sum.plus(split.amount || 0), Big(0))
         const feeSum3 = splits3.reduce((sum, split) => sum.plus(split.feeAmount || 0), Big(0))
 
         expect(Big(paymentAmount3).eq(splitSum3.plus(feeSum3))).toBe(true)

@@ -9,7 +9,8 @@
     "tools"
   ],
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "build": "tsup"
   },
   "version": "0.0.0-development",
   "repository": {
@@ -17,14 +18,33 @@
     "url": "git+https://github.com/open-condo-software/condo.git",
     "directory": "packages/billing"
   },
+  "bugs": {
+    "url": "https://github.com/open-condo-software/condo/issues"
+  },
   "author": {
     "name": "Alexander Naydenov",
     "email": "nas@doma.ai",
     "url": "https://github.com/AleX83Xpert"
   },
   "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "typesVersions": {
+    "*": {
+      "tools/billingCentrifuge": [
+        "dist/tools/billingCentrifuge.d.ts"
+      ]
+    }
+  },
+  "types": "dist/index.d.ts",
+  "main": "dist/index.js",
   "exports": {
-    "./tools/billingCentrifuge": "./tools/billingCentrifuge.js"
+    "./tools/billingCentrifuge": {
+      "types": "./dist/tools/billingCentrifuge.d.ts",
+      "require": "./dist/tools/billingCentrifuge.js",
+      "import": "./dist/tools/billingCentrifuge.mjs"
+    }
   },
   "dependencies": {
     "big.js": "^6.2.2",
@@ -32,7 +52,16 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^9.6.0",
+    "@open-condo/tsconfig": "workspace:^",
+    "@types/big.js": "^6.2.2",
+    "@types/jest": "^29.5.14",
+    "@types/lodash": "^4.17.16",
+    "@types/node": "^16",
+    "execa": "^5.0.0",
     "jest": "^29.7.0",
-    "jest-jasmine2": "^29.7.0"
+    "jest-jasmine2": "^29.7.0",
+    "ts-jest": "^29.3.1",
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.2"
   }
 }

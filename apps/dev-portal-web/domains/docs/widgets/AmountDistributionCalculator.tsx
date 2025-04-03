@@ -3,45 +3,19 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
 
 import { split, createRecipientKey } from '@open-condo/billing/tools/billingCentrifuge'
+import type { TSplit, TDistributionItem, TSplitOptions } from '@open-condo/billing/tools/billingCentrifuge'
 import { Plus, Trash } from '@open-condo/icons'
 import { Alert, Button, Card, Input, List, MarkdownCodeWrapper, Switch, Tabs, Typography } from '@open-condo/ui'
 
-type TRecipient = {
-    tin: string
-    bic: string
-    bankAccount: string
-}
-
-type TSplit = {
-    recipient: TRecipient | null
-    amount?: string
-    feeAmount?: string
-}
-
-type TDistributionItem = {
-    recipient: TRecipient
-    amount: string
-    isFeePayer?: boolean
-    order?: number
-    vor?: boolean
-    overpaymentPart?: number
-}
-
-type TSplitOptions = {
-    appliedSplits?: TSplit[]
-    decimalPlaces?: number
-    feeAmount?: string
-}
+const CARD_PADDING = 8
+const GUTTER_COMPACT_ROW: RowProps['gutter'] = [8, 8]
+const GUTTER_ROW: RowProps['gutter'] = [16, 16]
 
 type TDistributionItemProps = {
     index: number
     item: TDistributionItem
     onUpdate: (index: number, item: TDistributionItem) => void
 }
-
-const CARD_PADDING = 8
-const GUTTER_COMPACT_ROW: RowProps['gutter'] = [8, 8]
-const GUTTER_ROW: RowProps['gutter'] = [16, 16]
 
 const DistributionItem: React.FC<TDistributionItemProps> = (props) => {
     const { index, item, onUpdate } = props
@@ -178,7 +152,7 @@ export const AmountDistributionCalculator: React.FC = () => {
     const intl = useIntl()
     const [paymentAmount, setPaymentAmount] = useState<string>('1000')
     const [distributions, setDistributions] = useState<TDistributionItem[]>([])
-    const [options, setOptions] = useState<TSplitOptions>({ feeAmount: '100', decimalPlaces: 3 })
+    const [options, setOptions] = useState<TSplitOptions>({ feeAmount: '100', decimalPlaces: 2 })
     const [splitResult, setSplitResult] = useState<TSplit[]>([])
     const [splitError, setSplitError] = useState<string>()
     const [currentTab, setCurrentTab] = useState<string>()

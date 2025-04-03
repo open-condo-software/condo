@@ -1,50 +1,52 @@
-const { Big } = require('big.js')
-const { get, set, omit } = require('lodash')
+import { Big } from 'big.js'
+import { get, set, omit } from 'lodash'
 
-/**
- * @typedef {Object} TRecipient
- * @property {string} bankAccount
- * @property {string} [bankName]
- * @property {string} bic
- * @property {string} [classificationCode]
- * @property {string} [iec]
- * @property {string} [name]
- * @property {string} [offsettingAccount]
- * @property {string} [territoryCode]
- * @property {string} tin
- */
+export type TRecipient = {
+    tin: string
+    bic: string
+    bankAccount: string
+    bankName?: string
+    classificationCode?: string
+    iec?: string
+    name?: string
+    offsettingAccount?: string
+    territoryCode?: string
+}
 
-/**
- * @typedef {Object} TSplit
- * @property {TRecipient|null} recipient
- * @property {string} [amount] The amount without fee
- * @property {string} [feeAmount]
- */
+export type TSplit = {
+    recipient: TRecipient | null
+    /**
+     * The amount without fee
+     */
+    amount?: string
+    feeAmount?: string
+}
 
-/**
- * @typedef {Object} TDistribution
- * @property {TRecipient} recipient
- * @property {string} amount
- * @property {boolean} [isFeePayer]
- * @property {number} [order]
- * @property {boolean} [vor] Victim of rounding
- * @property {number} [overpaymentPart]
- */
+export type TDistributionItem = {
+    recipient: TRecipient
+    amount: string
+    isFeePayer?: boolean
+    order?: number
+    /** Victim of rounding */
+    vor?: boolean
+    overpaymentPart?: number
+}
 
-/**
- * @typedef {Object} TSplitOptions
- * @property {TSplit[]} [appliedSplits] Needed for case when payments are partial
- * @property {number} [decimalPlaces] The country-specific setting - how many digits are placed after the delimiter in numbers. Default value is 2.
- * @property {string} [feeAmount]
- */
+export type TSplitOptions = {
+    /** Needed for case when payments are partial */
+    appliedSplits?: TSplit[]
+    /** The country-specific setting - how many digits are placed after the delimiter in numbers. Default value is 2. */
+    decimalPlaces?: number
+    feeAmount?: string
+}
 
 /**
  * @param {string} paymentAmount The amount paid by customer. May be less than sum of distributions in the case of partial pay.
- * @param {TDistribution[]} distribution
+ * @param {TDistributionItem[]} distribution
  * @param {TSplitOptions} [options]
  * @return {TSplit[]}
  */
-function split (paymentAmount, distribution, options = {}) {
+export function split (paymentAmount: string, distribution: TDistributionItem[], options: TSplitOptions = {}): TSplit[] {
     const {
         /** @type {TSplit[]} */
         appliedSplits = [],
@@ -68,10 +70,10 @@ function split (paymentAmount, distribution, options = {}) {
 
     let totalDistributionAmount = Big(0)
     // Group distributions by order and keep all keys (aka orders) in external variable
-    const groupKeys = new Set()
-    const groupedDistributions = distribution.reduce((res, d) => {
+    const groupKeys = new Set<number>()
+    const groupedDistributions = distribution.reduce<Record<number, TDistributionItem[]>>((res, d) => {
         const order = get(d, 'order', 0)
-        const orderGroup = get(res, order, [])
+        const orderGroup = get<TDistributionItem[], TDistributionItem[]>(res, order, [])
         orderGroup.push(d)
         set(res, order, orderGroup)
         groupKeys.add(order)
@@ -84,8 +86,8 @@ function split (paymentAmount, distribution, options = {}) {
 
     let totalAppliedAmount = Big(0) // including fees
 
-    const appliedAmounts = {}
-    const appliedFeeAmounts = {}
+    const appliedAmounts: Record<string, Big> = {}
+    const appliedFeeAmounts: Record<string, Big> = {}
     for (const split of appliedSplits) {
         // The recipient field of the applied split may not contain the value in the case there are no fee-payers in the previous distribution
         // Search "NO-FEE-PAYERS" in this file below
@@ -104,8 +106,7 @@ function split (paymentAmount, distribution, options = {}) {
 
     let restUndistributedAmount = Big(paymentAmount)
 
-    /** @type TSplit[] */
-    const splits = []
+    const splits: TSplit[] = []
 
     for (const order of sortedGroupKeys) {
         const g = groupedDistributions[order]
@@ -140,19 +141,18 @@ function split (paymentAmount, distribution, options = {}) {
         const undistributedAmountAvailableForGroup = Big(restUndistributedAmount)
 
         /**
-         * @type {TDistribution[]}
          * The victim of the rounding operation MUST be the last item within the group
          */
-        const sortedGroup = g.sort((a, b) => a.vor ? 1 : -1)
+        const sortedGroup: TDistributionItem[] = g.sort((a) => a.vor ? 1 : -1)
 
         for (const d of sortedGroup) {
             const recipientKey = createRecipientKey(d.recipient)
             // The rest needed amount for particular recipient
-            let distributionAmount = Big(d.amount)
+            const distributionAmount = Big(d.amount)
                 .minus(get(appliedAmounts, recipientKey, Big(0)))
                 .minus(get(appliedFeeAmounts, recipientKey, Big(0)))
 
-            let share = hasEnoughAmountForGroup ? distributionAmount : distributionAmount.div(needToSplitToGroupAmount).times(undistributedAmountAvailableForGroup)
+            const share = hasEnoughAmountForGroup ? distributionAmount : distributionAmount.div(needToSplitToGroupAmount).times(undistributedAmountAvailableForGroup)
 
             if (share.lte(0)) {
                 continue
@@ -161,8 +161,7 @@ function split (paymentAmount, distribution, options = {}) {
             const roundedShare = share.round(decimalPlaces, Big.roundHalfUp)
             restUndistributedAmount = restUndistributedAmount.minus(roundedShare)
 
-            /** @type {TSplit} */
-            let split
+            let split: TSplit
             if (hasEnoughAmountForGroup) {
                 split = {
                     recipient: d.recipient,
@@ -193,8 +192,7 @@ function split (paymentAmount, distribution, options = {}) {
         }
     }
 
-    /** @type {Record<string, TDistribution>} */
-    const distributionsByKey = distribution.reduce((res, d) => {
+    const distributionsByKey: Record<string, TDistributionItem> = distribution.reduce<Record<string, TDistributionItem>>((res, d) => {
         const key = createRecipientKey(d.recipient)
         res[key] = d
 
@@ -226,7 +224,7 @@ function split (paymentAmount, distribution, options = {}) {
             const recipientKey = createRecipientKey(d.recipient)
             const splitIndex = splits.findIndex((split) => recipientKey === createRecipientKey(split.recipient))
             const isLast = i + 1 >= distributionsWithOverpayment.length
-            const overpaymentShare = isLast ? restUndistributedOverpaymentAmount : Big(d.overpaymentPart).div(totalOverpaymentReceiversParts).times(totalOverpaymentAmount)
+            const overpaymentShare = isLast ? restUndistributedOverpaymentAmount : Big(d.overpaymentPart || 0).div(totalOverpaymentReceiversParts).times(totalOverpaymentAmount)
             const roundedOverpaymentShare = overpaymentShare.round(decimalPlaces, Big.roundHalfUp)
             restUndistributedOverpaymentAmount = isLast ? Big(0) : restUndistributedOverpaymentAmount.minus(roundedOverpaymentShare)
             if (splitIndex >= 0) {
@@ -247,8 +245,7 @@ function split (paymentAmount, distribution, options = {}) {
     let restUndistributedFeeAmount = Big(feeAmount)
     if (restUndistributedFeeAmount.gt(0)) {
         let feePayersTotalSharesAmount = Big(0)
-        /** @type {Number[]} */
-        const splitsWithFeePayerIndexes = []
+        const splitsWithFeePayerIndexes: number[] = []
         for (let i = 0; i < splits.length; i++) {
             const split = splits[i]
             const key = createRecipientKey(split.recipient)
@@ -274,11 +271,11 @@ function split (paymentAmount, distribution, options = {}) {
                 }
 
                 const isLast = index + 1 >= sortedSplitsWithFeePayerIndexes.length
-                const feeShare = isLast ? restUndistributedFeeAmount : Big(splits[i].amount).div(feePayersTotalSharesAmount).times(totalFeeAmount)
+                const feeShare = isLast ? restUndistributedFeeAmount : Big(splits[i].amount || 0).div(feePayersTotalSharesAmount).times(totalFeeAmount)
                 const roundedFeeShare = feeShare.round(decimalPlaces, Big.roundHalfUp)
                 restUndistributedFeeAmount = isLast ? Big(0) : restUndistributedFeeAmount.minus(roundedFeeShare)
                 splits[i].feeAmount = roundedFeeShare.toString()
-                const newAmount = Big(splits[i].amount).minus(roundedFeeShare)
+                const newAmount = Big(splits[i].amount || 0).minus(roundedFeeShare)
                 if (newAmount.lt(0)) {
                     throw new Error(`Recipient ${JSON.stringify(splits[i].recipient)} has amount=${splits[i].amount} and feeAmount=${splits[i].feeAmount}`)
                 }
@@ -302,93 +299,50 @@ function split (paymentAmount, distribution, options = {}) {
     return splits
 }
 
-/**
- * @param {TDistribution[]} g
- * @returns {TDistribution[]}
- */
-function getVorItems (g) {
+export function getVorItems (g: TDistributionItem[]): TDistributionItem[] {
     return g.filter((d) => !!d.vor)
 }
 
-/**
- * @param {TDistribution[]} g
- * @returns {boolean}
- */
-function hasSingleVorItem (g) {
+export function hasSingleVorItem (g: TDistributionItem[]): boolean {
     return getVorItems(g).length === 1
 }
 
-/**
- * @param {TDistribution[]} g
- * @returns {TDistribution[]}
- */
-function getOverpaymentItems (g) {
+function getOverpaymentItems (g: TDistributionItem[]): TDistributionItem[] {
     return g.filter((d) => !!d.overpaymentPart)
 }
 
-/**
- * @param {TDistribution[]} g
- * @returns {boolean}
- */
-function hasOverpaymentReceivers (g) {
+export function hasOverpaymentReceivers (g: TDistributionItem[]): boolean {
     return getOverpaymentItems(g).length > 0
 }
 
-/**
- * @param {TDistribution[]} g
- * @returns {TDistribution[]}
- */
-function getFeePayers (g) {
+function getFeePayers (g: TDistributionItem[]): TDistributionItem[] {
     return g.filter((d) => d.isFeePayer)
 }
 
-/**
- * @param {TDistribution[]} g
- * @returns {boolean}
- */
-function hasFeePayers (g) {
+export function hasFeePayers (g: TDistributionItem[]): boolean {
     return getFeePayers(g).length > 0
 }
 
-/**
- * @param {TRecipient} recipient
- * @returns {string}
- */
-function createRecipientKey (recipient) {
+export function createRecipientKey (recipient: TRecipient | null): string {
+    if (!recipient) {
+        return ''
+    }
     return `${recipient.tin}_${recipient.bic}_${recipient.bankAccount}`
 }
 
-/**
- * @param {TDistribution[]} distribution
- * @returns {boolean}
- */
-function areAllRecipientsUnique (distribution) {
+export function areAllRecipientsUnique (distribution: TDistributionItem[]): boolean {
     const uniqRecipientsKeys = new Set(distribution.map((d) => createRecipientKey(d.recipient)))
 
     return uniqRecipientsKeys.size === distribution.length
 }
 
-/**
- * @param {TDistribution} a
- * @param {TDistribution} b
- * @returns {number}
- */
-function sortByVorAndOrderComparator (a, b) {
+export function sortByVorAndOrderComparator (a: TDistributionItem, b: TDistributionItem): number {
     // ^ = xor
     // false ^ false = false
     // false ^ true = true
     // true ^ false = true
     // true ^ true = false
-    return (a.vor ^ b.vor) ? (a.vor ? 1 : -1) : a.order - b.order
-}
-
-module.exports = {
-    split,
-    getVorItems,
-    hasSingleVorItem,
-    hasOverpaymentReceivers,
-    createRecipientKey,
-    hasFeePayers,
-    areAllRecipientsUnique,
-    sortByVorAndOrderComparator,
+    return ((a.vor ? 1 : 0) ^ (b.vor ? 1 : 0))
+        ? (a.vor ? 1 : -1)
+        : ((a.order || 0) - (b.order || 0))
 }
