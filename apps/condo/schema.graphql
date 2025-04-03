@@ -16474,7 +16474,8 @@ type BillingCategory {
   """
   skipNotifications: Boolean
 
-  """ The number of months the receipt can be paid for """
+  """ The number of months the receipt can be paid for including the period month of the receipt 
+  """
   receiptValidityMonths: Int
 
   """ Shows whether the receipt should be paid in full """

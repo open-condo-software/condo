@@ -1371,7 +1371,7 @@ describe('BillingReceipt', () => {
                 })
 
                 test('should return false when current date exceeds validity period', async () => {
-                    const period = dayjs().subtract(4, 'month').format('YYYY-MM-01') // 4 months ago
+                    const period = dayjs().subtract(3, 'month').format('YYYY-MM-01') // 3 months ago
                     const [category] = await createTestBillingCategory(admin, {
                         receiptValidityMonths: 3,
                     })
@@ -1426,14 +1426,14 @@ describe('BillingReceipt', () => {
 
                 test('should handle last day when receipt is payable correctly', async () => {
                     const validityMonths = 3
-                    const period = dayjs().subtract(validityMonths, 'month').format('YYYY-MM-01')
+                    const period = dayjs().subtract(validityMonths - 1, 'month').format('YYYY-MM-01')
                     const [category] = await createTestBillingCategory(admin, {
                         receiptValidityMonths: 3,
                     })
 
                     // Mock system time to last valid day (end of validity month)
                     const lastValidDay = dayjs(period)
-                        .add(validityMonths, 'month')
+                        .add(validityMonths - 1, 'month')
                         .endOf('month')
 
                     jest.useFakeTimers().setSystemTime(lastValidDay.toDate())
