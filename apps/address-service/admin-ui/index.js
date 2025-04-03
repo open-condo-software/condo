@@ -1,9 +1,10 @@
-import { CloudDownloadOutlined } from '@ant-design/icons'
 import { useMutation, gql } from '@apollo/client'
 import Logo from '@app/address-service/admin-ui/logo'
 import { ItemId, AddNewItem } from '@keystonejs/app-admin-ui/components'
 import React, { useCallback } from 'react'
 import { useLocation } from 'react-router-dom'
+
+import { Download } from '@open-condo/icons'
 
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 
@@ -50,7 +51,9 @@ const UpdateAddress = (props) => {
     }, [location, actualizeAddress])
 
     return location.pathname.indexOf(`${TARGET_URL_PART}/`) !== -1 && (
-        <CloudDownloadOutlined title='update address' style={ICON_STYLE} onClick={onClick}/>
+        <span style={ICON_STYLE} onClick={onClick}>
+            <Download/>
+        </span>
     )
 }
 

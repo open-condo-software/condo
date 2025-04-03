@@ -577,10 +577,12 @@ __metadata:
   resolution: "@app/address-service@workspace:apps/address-service"
   dependencies:
     "@address-service/domains": "link:./domains"
+    "@apollo/client": ^3.11.8
     "@keystonejs/app-admin-ui": ^7.5.0
     "@open-condo/cli": "workspace:^"
     "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
+    "@open-condo/icons": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     "@types/jest": ^29.4.0
     "@types/node": ^16
@@ -592,6 +594,8 @@ __metadata:
     jest-jasmine2: ^29.7.0
     lodash: ^4.17.21
     openid-client: 4.7.4
+    react: ^16.13.1
+    react-router-dom: 5.2.0
     typescript: ^5.5.4
     uuid: ^8.3.0
   languageName: unknown
@@ -675,6 +679,7 @@ __metadata:
     antd-dayjs-webpack-plugin: ^1.0.6
     antd-mask-input: ^0.1.15
     classnames: ^2.2.6
+    cookies-next: ^4.2.1
     css-loader: 1.0.0
     dayjs: ^1.10.6
     emotion: ^10.0.27
@@ -801,6 +806,7 @@ __metadata:
     classnames: ^2.2.6
     commander: ^11.0.0
     cookie-signature: ^1.2.2
+    cookies-next: ^4.2.1
     cross-env: ^7.0.3
     css-loader: 1.0.1
     csv-parse: ^5.2.0
@@ -863,6 +869,7 @@ __metadata:
     openid-client: 4.7.4
     pdf-lib: ^1.17.1
     pdfmake: ^0.2.10
+    pg: ^8.11.3
     phone: 3.1.36
     pino: ^6.13.3
     pino-std-serializers: ^4.0.0
@@ -885,6 +892,7 @@ __metadata:
     react-intl: 5.25.1
     react-phone-input-2: ^2.14.0
     react-progressive-image: ^0.6.0
+    react-router-dom: 5.2.0
     react-test-renderer: ^16.13.1
     react-yandex-metrika: ^2.6.0
     recheck: ^4.4.5
