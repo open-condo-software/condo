@@ -1,5 +1,5 @@
 import { Col, Row, RowProps } from 'antd'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
 
 import { split, createRecipientKey } from '@open-condo/billing/tools/billingCentrifuge'
@@ -10,6 +10,7 @@ import { Alert, Button, Card, Input, List, MarkdownCodeWrapper, Switch, Tabs, Ty
 const CARD_PADDING = 8
 const GUTTER_COMPACT_ROW: RowProps['gutter'] = [8, 8]
 const GUTTER_ROW: RowProps['gutter'] = [16, 16]
+const RECIPIENT_CHECKBOX_ROW_STYLE: CSSProperties = { height: '28px' }
 
 type TDistributionItemProps = {
     index: number
@@ -48,26 +49,38 @@ const DistributionItem: React.FC<TDistributionItemProps> = (props) => {
     return (
         <Row align='middle' justify='space-between' gutter={GUTTER_COMPACT_ROW}>
             <Col span={24}>
-                <Input value={tin} onChange={(e) => {
-                    setTin(e.target.value)
-                }} prefix={`${TinTitle}:`}/>
+                <Input
+                    value={tin}
+                    onChange={(e) => {
+                        setTin(e.target.value)
+                    }}
+                    prefix={`${TinTitle}:`}
+                />
             </Col>
             <Col span={24}>
-                <Input value={amount} onChange={(e) => {
-                    setAmount(e.target.value)
-                }} prefix={`${AmountTitle}:`}/>
+                <Input
+                    value={amount}
+                    onChange={(e) => {
+                        setAmount(e.target.value)
+                    }}
+                    prefix={`${AmountTitle}:`}
+                />
             </Col>
             <Col span={24}>
-                <Input value={order} onChange={(e) => {
-                    try {
-                        setOrder(Number(e.target.value))
-                    } catch (err) {
-                        setOrder(0)
-                    }
-                }} prefix={`${OrderTitle}:`}/>
+                <Input
+                    value={order}
+                    onChange={(e) => {
+                        try {
+                            setOrder(Number(e.target.value))
+                        } catch (err) {
+                            setOrder(0)
+                        }
+                    }}
+                    prefix={`${OrderTitle}:`}
+                />
             </Col>
             <Col span={24}>
-                <Row gutter={0} align='middle' justify='space-between'>
+                <Row gutter={0} align='middle' justify='space-between' style={RECIPIENT_CHECKBOX_ROW_STYLE}>
                     <Col><Typography.Text>{FeePayerTitle}:</Typography.Text></Col>
                     <Col>
                         <Switch size='large' checked={isFeePayer} onChange={(checked) => setIsFeePayer(checked)}/>
@@ -75,7 +88,7 @@ const DistributionItem: React.FC<TDistributionItemProps> = (props) => {
                 </Row>
             </Col>
             <Col span={24}>
-                <Row gutter={0} align='middle' justify='space-between'>
+                <Row gutter={0} align='middle' justify='space-between' style={RECIPIENT_CHECKBOX_ROW_STYLE}>
                     <Col><Typography.Text>{VORTitle}:</Typography.Text></Col>
                     <Col>
                         <Switch size='large' checked={vor} onChange={(checked) => setVor(checked)}/>
@@ -83,13 +96,17 @@ const DistributionItem: React.FC<TDistributionItemProps> = (props) => {
                 </Row>
             </Col>
             <Col span={24}>
-                <Input value={overpaymentPart} onChange={(e) => {
-                    try {
-                        setOverpaymentPart(Number(e.target.value))
-                    } catch (err) {
-                        setOverpaymentPart(0)
-                    }
-                }} prefix={`${OverpaymentTitle}:`}/>
+                <Input
+                    value={overpaymentPart}
+                    onChange={(e) => {
+                        try {
+                            setOverpaymentPart(Number(e.target.value))
+                        } catch (err) {
+                            setOverpaymentPart(0)
+                        }
+                    }}
+                    prefix={`${OverpaymentTitle}:`}
+                />
             </Col>
         </Row>
     )
@@ -302,11 +319,13 @@ export const AmountDistributionCalculator: React.FC = () => {
             {
                 distributions.length > 0 && (
                     <>
-                        <Col span={24}><Typography.Title
-                            level={4}>{AmountDistributionValueTitle}</Typography.Title></Col>
                         <Col span={24}>
-                            <MarkdownCodeWrapper
-                                className='language-json'>{JSON.stringify(distributions)}</MarkdownCodeWrapper>
+                            <Typography.Title level={4}>{AmountDistributionValueTitle}</Typography.Title>
+                        </Col>
+                        <Col span={24}>
+                            <MarkdownCodeWrapper className='language-json'>
+                                {JSON.stringify(distributions)}
+                            </MarkdownCodeWrapper>
                         </Col>
                     </>
                 )
