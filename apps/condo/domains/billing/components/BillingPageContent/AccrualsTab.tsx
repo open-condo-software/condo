@@ -19,8 +19,8 @@ type AccrualsTabProps = {
 }
 
 export const AccrualsTab: React.FC<AccrualsTabProps> = ({ uploadComponent }) => {
-    const { billingContext } = useBillingAndAcquiringContexts()
-    const problem = get(billingContext, 'currentProblem')
+    const { billingContexts } = useBillingAndAcquiringContexts()
+    const problem = get(billingContexts.find(({ currentProblem }) => !!currentProblem), 'currentProblem')
 
     return (
         <Row gutter={SECTION_GUTTER}>

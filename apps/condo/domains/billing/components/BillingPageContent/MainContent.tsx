@@ -31,24 +31,19 @@ export const MainContent: React.FC<MainContentProps> = ({
     const canReadBillingReceipts = get(userOrganization, ['link', 'role', 'canReadBillingReceipts'], false)
     const canReadPayments = get(userOrganization, ['link', 'role', 'canReadPayments'], false)
 
-    const { billingContext } = useBillingAndAcquiringContexts()
-    const appUrl = get(billingContext, ['integration', 'appUrl'])
-    const extendsBillingPage = get(billingContext, ['integration', 'extendsBillingPage'], false)
-    const billingName = get(billingContext, ['integration', 'name'], '')
-    const billingPageTitle = get(billingContext, ['integration', 'billingPageTitle'])
-    const lastReport = get(billingContext, 'lastReport')
+    const { billingContexts } = useBillingAndAcquiringContexts()
 
-    const shouldIncludeAppTab = Boolean(appUrl && extendsBillingPage)
-    const [currentTab, onTabChange] = useQueryTab(shouldIncludeAppTab)
+    const extension = billingContexts.find(({ integration }) => !!integration.appUrl && !!integration.extendsBillingPage)
+    const hasLastReport = billingContexts.find(({ lastReport }) => !!lastReport)
+    const [currentTab, onTabChange] = useQueryTab(!!extension)
 
-    const extensionPageTitle = billingPageTitle || billingName
 
     const items = useMemo(() => {
         const result: Array<TabItem> = [
             canReadBillingReceipts && {
                 label: AccrualsTabTitle,
                 key: ACCRUALS_TAB_KEY,
-                children: lastReport ? <AccrualsTab uploadComponent={uploadComponent}/> : <EmptyContent uploadComponent={uploadComponent}/>,
+                children: hasLastReport ? <AccrualsTab uploadComponent={uploadComponent}/> : <EmptyContent uploadComponent={uploadComponent}/>,
             },
             canReadPayments && {
                 label: PaymentsTabTitle,
@@ -56,16 +51,16 @@ export const MainContent: React.FC<MainContentProps> = ({
                 children: <PaymentsTab/>,
             }]
 
-        if (shouldIncludeAppTab) {
+        if (extension) {
             result.push({
-                label: extensionPageTitle,
+                label: get(extension, ['integration', 'billingPageTitle']) || get(extension, ['integration', 'name'], ''),
                 key: EXTENSION_TAB_KEY,
-                children: <IFrame src={appUrl} reloadScope='organization' withPrefetch withLoader withResize />,
+                children: <IFrame src={get(extension, ['integration', 'appUrl'])} reloadScope='organization' withPrefetch withLoader withResize />,
             })
         }
 
         return result
-    }, [canReadBillingReceipts, AccrualsTabTitle, lastReport, uploadComponent, canReadPayments, PaymentsTabTitle, shouldIncludeAppTab, extensionPageTitle, appUrl])
+    }, [canReadBillingReceipts, AccrualsTabTitle, hasLastReport, uploadComponent, canReadPayments, PaymentsTabTitle, extension])
 
     return (
         <Tabs

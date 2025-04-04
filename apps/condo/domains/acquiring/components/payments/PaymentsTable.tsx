@@ -39,8 +39,6 @@ import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/
 
 import type { SortPaymentsBy } from '@app/condo/schema'
 
-
-
 const SORTABLE_PROPERTIES = ['advancedAt', 'amount']
 const PAYMENTS_DEFAULT_SORT_BY = ['advancedAt_DESC']
 const DEFAULT_CURRENCY_CODE = 'RUB'
@@ -103,7 +101,7 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
     const DoneSumTitle = intl.formatMessage({ id: 'MultiPayment.status.DONE' })
     const WithdrawnSumTitle = intl.formatMessage({ id: 'MultiPayment.status.PROCESSING' })
 
-    const { billingContext } = useBillingAndAcquiringContexts()
+    const { billingContexts } = useBillingAndAcquiringContexts()
 
     const { breakpoints } = useLayoutContext()
     const router = useRouter()
@@ -111,7 +109,8 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
 
     const { filters, sorters, offset } = parseQuery(router.query)
 
-    const currencyCode = get(billingContext, ['integration', 'currencyCode'], 'RUB')
+    // TODO(dkovyazin): DOMA-11394 find out why acquiring uses currency from billing integration
+    const currencyCode = get(billingContexts.find(({ integration }) => !!integration.currencyCode), ['integration', 'currencyCode'], 'RUB')
 
     const [isStatusDescModalVisible, setIsStatusDescModalVisible] = useState<boolean>(false)
     const [titleStatusDescModal, setTitleStatusDescModal] = useState('')
@@ -128,7 +127,7 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
     const tableColumns = usePaymentsTableColumns(currencyCode, openStatusDescModal)
 
     const organizationId = get(userOrganization, ['organization', 'id'], '')
-    const queryMetas = usePaymentsTableFilters(billingContext, organizationId)
+    const queryMetas = usePaymentsTableFilters(organizationId)
 
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(queryMetas, SORTABLE_PROPERTIES)

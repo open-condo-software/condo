@@ -1,10 +1,10 @@
-import { BillingIntegrationOrganizationContext, PaymentWhereInput } from '@app/condo/schema'
+import { PaymentWhereInput } from '@app/condo/schema'
 import { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
 import { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } from '@condo/domains/acquiring/constants/payment'
-import { searchAcquiringIntegration, searchBillingProperty } from '@condo/domains/acquiring/utils/clientSchema/search'
+import { searchAcquiringIntegration } from '@condo/domains/acquiring/utils/clientSchema/search'
 import {
     ComponentType,
     convertToOptions,
@@ -20,7 +20,7 @@ const typeFilter = getStringContainsFilter(['context', 'integration', 'name'])
 const transactionFilter = getStringContainsFilter(['multiPayment', 'transactionId'])
 const depositedDateFilter = getDayRangeFilter('depositedDate')
 const transferDateFilter = getDayRangeFilter('transferDate')
-const propertyFilter = getFilter(['receipt', 'property', 'id'], 'array', 'string', 'in')
+const propertyFilter = getStringContainsFilter(['rawAddress'])
 const acquiringContextFilter = getFilter(['context', 'id'], 'array', 'string', 'in')
 const statusFilter = getFilter('status', 'array', 'string', 'in')
 const orderFilter = getFilter('order', 'array', 'string', 'in')
@@ -28,7 +28,6 @@ const orderFilter = getFilter('order', 'array', 'string', 'in')
 const statusType = [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS]
 
 export function usePaymentsTableFilters (
-    billingContext: BillingIntegrationOrganizationContext,
     organizationId: string,
 ): FiltersMeta<PaymentWhereInput>[] {
     const intl = useIntl()
@@ -119,14 +118,7 @@ export function usePaymentsTableFilters (
                 keyword: 'address',
                 filters: [propertyFilter],
                 component: {
-                    type: ComponentType.GQLSelect,
-                    props: {
-                        search: searchBillingProperty(billingContext),
-                        mode: 'multiple',
-                        showArrow: true,
-                        placeholder: EnterAddressMessage,
-                        infinityScroll: true,
-                    },
+                    type: ComponentType.Input,
                     modalFilterComponentWrapper: {
                         label: AddressMessage,
                         size: FilterComponentSize.Large,
@@ -168,7 +160,7 @@ export function usePaymentsTableFilters (
         EnterAddressMessage, EnterStatusMessage,
         EnterTypeMessage, PaymentOrderTitle,
         StartDateMessage, StatusTitle,
-        TypeMessage, billingContext,
+        TypeMessage,
         organizationId, statusOptions,
     ])
 
