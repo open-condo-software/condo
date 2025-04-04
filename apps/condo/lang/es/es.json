@@ -443,6 +443,7 @@
   "api.property.property.SAME_ADDRESS": "Ya se ha creado una casa con esta dirección en la organización seleccionada",
   "api.propertyScope.exportPropertyScopesToExcel.NOTHING_TO_EXPORT": "No se han encontrado ámbitos para exportar",
   "api.resident.registerResident.ADDRESS_NOT_FOUND": "Dirección no encontrada",
+  "api.resident.registerResident.ALREADY_REGISTERED": "Usuario ya registrado",
   "api.resident.registerResidentInvoice.ITEM_FROM_OTHER_ORGANIZATION": "Artículo de otra organización. Compruebe la fila número {rowNumber}",
   "api.resident.registerResidentInvoice.NO_ACQUIRING_CONTEXT": "La organización no ha realizado la configuración",
   "api.resident.registerResidentInvoice.PROHIBITED_INVOICE_PAYMENT_TYPE": "This payment method is prohibited in the selected organization",
