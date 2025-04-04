@@ -20,7 +20,7 @@ const { createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = r
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 const { MULTIPAYMENT_INIT_STATUS } = require('@condo/domains/acquiring/constants/payment')
-const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, UploadingFile } = require('@open-condo/keystone/test.utils')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 
@@ -60,6 +60,10 @@ const {
     createValidRuNumber,
     createValidRuTin10
 } = require("@condo/domains/banking/utils/testSchema/bankAccount");
+const { PaymentsFile: PaymentsFileGQL } = require('@condo/domains/acquiring/gql')
+const path = require("path");
+const conf = require("@open-condo/config");
+const { PAYMENTS_FILE_NEW_STATUS} = require("@condo/domains/acquiring/constants/constants");
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateGQLTestUtils(AcquiringIntegrationGQL)
@@ -70,10 +74,13 @@ const Payment = generateGQLTestUtils(PaymentGQL)
 const PaymentsFilterTemplate = generateGQLTestUtils(PaymentsFilterTemplateGQL)
 const RecurrentPaymentContext = generateGQLTestUtils(RecurrentPaymentContextGQL)
 const RecurrentPayment = generateGQLTestUtils(RecurrentPaymentGQL)
+const PaymentsFile = generateGQLTestUtils(PaymentsFileGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 const RecurrentPaymentContextLiteGQL = generateGqlQueries('RecurrentPaymentContext', '{ id }')
 const RecurrentPaymentContextLite = generateGQLTestUtils(RecurrentPaymentContextLiteGQL)
+
+const FILE = path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/simple-text-file.txt')
 
 function getRandomHiddenCard() {
     const prefix = Math.floor(Math.random() * 9000 + 1000)
@@ -443,11 +450,11 @@ async function generatePaymentLinkByTestClient(client, receipt, receiptData, acq
     return [data.result, attrs]
 }
 
-async function sumPaymentsByTestClient(client, where = {}) {
+async function sumPaymentsByTestClient(client, args = {}) {
     if (!client) throw new Error('no client')
 
-    const { data, errors } = await client.query(SUM_PAYMENTS_QUERY, { where: where })
-    throwIfError(data, errors, { query: SUM_PAYMENTS_QUERY, variables: { where: where } })
+    const { data, errors } = await client.query(SUM_PAYMENTS_QUERY, { data: args })
+    throwIfError(data, errors, { query: SUM_PAYMENTS_QUERY, variables: { data: args } })
     return data.result
 }
 async function createTestRecurrentPaymentContext (client, extraAttrs = {}) {
@@ -540,6 +547,46 @@ async function calculateFeeForReceiptByTestClient(client, extraAttrs = {}) {
     throwIfError(data, errors, { query: CALCULATE_FEE_FOR_RECEIPT_QUERY, variables: { data: extraAttrs } })
     return [data.result, extraAttrs]
 }
+async function createTestPaymentsFile (client, context,  extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!context) throw new Error('Acquiring context is missing')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        context: { connect: { id: context.id } },
+        file: new UploadingFile(FILE),
+        bankAccount: faker.random.alphaNumeric(8),
+        paymentPeriodStartDate: dayjs(faker.date.recent()).format('YYYY-MM-DD'),
+        paymentPeriodEndDay: dayjs(faker.date.recent()).format('YYYY-MM-DD'),
+        loadedAt: new Date().toISOString(),
+        paymentsCount: Number(faker.random.numeric(4)),
+        amount: faker.random.numeric(8),
+        amountWithoutFees: faker.random.numeric(8),
+        name: faker.random.alphaNumeric(20),
+        status: PAYMENTS_FILE_NEW_STATUS,
+        ...extraAttrs,
+    }
+    const obj = await PaymentsFile.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestPaymentsFile (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await PaymentsFile.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 // Utils used to generate a bunch of entities for working with MultiPayments
@@ -746,6 +793,15 @@ async function createPaymentsAndGetSum(paymentsAmount = 1) {
     return { client: admin, organization, sum: totalSum.toFixed(8) }
 }
 
+async function createPaymentsFilesAndGetSum(client, context, paymentsFilesAmount = 1) {
+    let totalSum = Big(0)
+    for (let i = 0; i < paymentsFilesAmount; i++){
+        const [paymentsFile] = await createTestPaymentsFile(client, context)
+        totalSum = totalSum.plus(Big(paymentsFile.amount))
+    }
+    return { sum: totalSum.toFixed(8) }
+}
+
 
 async function exportPaymentsServiceByTestClient(client, where, extraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -805,7 +861,7 @@ module.exports = {
     makeAcquiringContext,
     makeAcquiringContextAndIntegrationAccount,
     makeAcquiringContextAndIntegrationManager,
-    createPaymentsAndGetSum,
+    createPaymentsAndGetSum, createPaymentsFilesAndGetSum,
     Payment, createTestPayment, updateTestPayment,
     makePayer,
     makePayerAndPayments,
@@ -829,5 +885,6 @@ module.exports = {
     generateVirtualReceipt,
     calculateFeeForReceiptByTestClient,
     generateQRCode,
+    PaymentsFile, createTestPaymentsFile, updateTestPaymentsFile,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

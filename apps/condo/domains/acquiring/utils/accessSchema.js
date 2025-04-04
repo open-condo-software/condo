@@ -1,17 +1,23 @@
-const get = require('lodash/get')
+const isArray = require('lodash/isArray')
+const isEmpty = require('lodash/isEmpty')
 
-const { getByCondition } = require('@open-condo/keystone/schema')
+const { find } = require('@open-condo/keystone/schema')
 
-async function checkAcquiringIntegrationAccessRight (userId, integrationId) {
-    if (!userId || !integrationId) return false
-    const integration = await getByCondition('AcquiringIntegrationAccessRight', {
-        integration: { id: integrationId },
+async function checkAcquiringIntegrationAccessRights (userId, integrationIds) {
+    if (!userId) return false
+    if (!isArray(integrationIds) || isEmpty(integrationIds) || !integrationIds.every(Boolean)) return false
+
+    const rights = await find('AcquiringIntegrationAccessRight', {
+        integration: { id_in: integrationIds },
         user: { id: userId },
         deletedAt: null,
     })
-    return !!get(integration, 'id')
+    const permittedIntegrations = new Set(rights.map(right => right.integration))
+    const nonPermittedIntegrations = integrationIds.filter(id => !permittedIntegrations.has(id))
+
+    return isEmpty(nonPermittedIntegrations)
 }
 
 module.exports = {
-    checkAcquiringIntegrationAccessRight,
+    checkAcquiringIntegrationAccessRights,
 }

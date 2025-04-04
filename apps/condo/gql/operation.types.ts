@@ -3,6 +3,31 @@
 
 import * as Types from '@app/condo/schema';
 
+export type GetPaymentsFilesQueryVariables = Types.Exact<{
+  where: Types.PaymentsFileWhereInput;
+  sortBy?: Types.InputMaybe<Array<Types.SortPaymentsFilesBy> | Types.SortPaymentsFilesBy>;
+  first: Types.Scalars['Int']['input'];
+  skip?: Types.InputMaybe<Types.Scalars['Int']['input']>;
+}>;
+
+
+export type GetPaymentsFilesQuery = { __typename?: 'Query', paymentsFiles?: Array<{ __typename?: 'PaymentsFile', id: string, number?: string | null, loadedAt?: string | null, bankAccount?: string | null, paymentPeriodStartDate?: string | null, paymentPeriodEndDay?: string | null, paymentsCount?: number | null, amount?: string | null, name?: string | null, status?: Types.PaymentsFileStatusType | null, paymentOrder?: string | null, file?: { __typename?: 'File', id?: string | null, originalFilename?: string | null, publicUrl?: string | null, mimetype?: string | null } | null, context?: { __typename?: 'AcquiringIntegrationContext', id: string } | null } | null> | null, meta?: { __typename?: '_QueryMeta', count?: number | null } | null };
+
+export type CheckPaymentsFilesExistenceQueryVariables = Types.Exact<{
+  where: Types.PaymentsFileWhereInput;
+}>;
+
+
+export type CheckPaymentsFilesExistenceQuery = { __typename?: 'Query', paymentsFiles?: Array<{ __typename?: 'PaymentsFile', id: string } | null> | null };
+
+export type UpdatePaymentsFileMutationVariables = Types.Exact<{
+  id: Types.Scalars['ID']['input'];
+  data: Types.PaymentsFileUpdateInput;
+}>;
+
+
+export type UpdatePaymentsFileMutation = { __typename?: 'Mutation', paymentsFile?: { __typename?: 'PaymentsFile', id: string } | null };
+
 export type GetBankAccountReportTasksQueryVariables = Types.Exact<{
   where: Types.BankAccountReportTaskWhereInput;
 }>;

@@ -59,8 +59,8 @@ const GENERATE_PAYMENT_LINK_QUERY = gql`
 
 
 const SUM_PAYMENTS_QUERY = gql`
-    query _allPaymentsSum ($where: PaymentWhereInput!) {
-        result: _allPaymentsSum(where: $where) { sum }
+    query _allPaymentsSum ($data: PaymentsSumInput!) {
+        result: _allPaymentsSum(data: $data) { sum }
     }
 `
 
@@ -88,6 +88,9 @@ const CALCULATE_FEE_FOR_RECEIPT_QUERY = gql`
     }
 `
 
+const PAYMENTS_FILE_FIELDS = `{ number file { id originalFilename publicUrl mimetype } context { id } importId bankAccount paymentPeriodStartDate paymentPeriodEndDay loadedAt paymentsCount amount amountWithoutFees name status bankComment paymentOrder ${COMMON_FIELDS} }`
+const PaymentsFile = generateGqlQueries('PaymentsFile', PAYMENTS_FILE_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 const EXPORT_PAYMENTS_TO_EXCEL =  gql`
@@ -114,5 +117,6 @@ module.exports = {
     PAYMENT_BY_LINK_MUTATION,
     REGISTER_MULTI_PAYMENT_FOR_INVOICES_MUTATION,
     CALCULATE_FEE_FOR_RECEIPT_QUERY,
+    PaymentsFile,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
