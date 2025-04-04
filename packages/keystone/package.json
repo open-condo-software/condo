@@ -111,7 +111,6 @@
     "pluralize": "^8",
     "react": "^16.13.1",
     "redlock": "^5.0.0-beta.2",
-    "serialize-error": "^8.1.0",
     "supertest": "^6.1.3",
     "tough-cookie": "^4.1.3",
     "uuid": "^8.3.0",
