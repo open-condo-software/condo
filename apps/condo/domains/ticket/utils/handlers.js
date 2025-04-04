@@ -65,12 +65,13 @@ const updateTicketLastCommentTime = async (context, updatedItem, userType, comme
     const ticketId = get(updatedItem, 'ticket')
     const dv = get(updatedItem, 'dv')
     const sender = get(updatedItem, 'sender')
-    
+    const commentType = get(updatedItem, 'type')
+
     const lastResidentCommentAt = userType === RESIDENT ? commentCreatedAt : undefined
-    const lastCommentWithResidentTypeAt = get(updatedItem, 'type') === RESIDENT_COMMENT_TYPE ? commentCreatedAt : undefined
-    const lastCommentWithOrganizationTypeAt = get(updatedItem, 'type') === ORGANIZATION_COMMENT_TYPE ? commentCreatedAt : undefined
-    const residentCommentFromResident = get(updatedItem, 'type') === RESIDENT_COMMENT_TYPE && userType === RESIDENT
-    const residentCommentFromStaff = get(updatedItem, 'type') === RESIDENT_COMMENT_TYPE && userType === STAFF
+    const lastCommentWithResidentTypeAt = commentType === RESIDENT_COMMENT_TYPE ? commentCreatedAt : undefined
+    const lastCommentWithOrganizationTypeAt = commentType === ORGANIZATION_COMMENT_TYPE ? commentCreatedAt : undefined
+    const residentCommentFromResident = commentType === RESIDENT_COMMENT_TYPE && userType === RESIDENT
+    const residentCommentFromStaff = commentType === RESIDENT_COMMENT_TYPE && userType === STAFF
     
     await Ticket.update(context, ticketId, {
         dv,
