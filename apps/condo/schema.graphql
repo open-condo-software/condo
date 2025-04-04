@@ -24224,6 +24224,8 @@ type TicketHistoryRecord {
   lastCommentAt: String
   lastResidentCommentAt: String
   lastCommentWithResidentTypeAt: String
+  lastCommentWithOrganizationTypeAt: String
+  lastOrganizationCommentAuthorType: String
   statusReason: String
   status: String
   deadline: String
@@ -24474,6 +24476,32 @@ input TicketHistoryRecordWhereInput {
   lastCommentWithResidentTypeAt_gte: String
   lastCommentWithResidentTypeAt_in: [String]
   lastCommentWithResidentTypeAt_not_in: [String]
+  lastCommentWithOrganizationTypeAt: String
+  lastCommentWithOrganizationTypeAt_not: String
+  lastCommentWithOrganizationTypeAt_lt: String
+  lastCommentWithOrganizationTypeAt_lte: String
+  lastCommentWithOrganizationTypeAt_gt: String
+  lastCommentWithOrganizationTypeAt_gte: String
+  lastCommentWithOrganizationTypeAt_in: [String]
+  lastCommentWithOrganizationTypeAt_not_in: [String]
+  lastOrganizationCommentAuthorType: String
+  lastOrganizationCommentAuthorType_not: String
+  lastOrganizationCommentAuthorType_contains: String
+  lastOrganizationCommentAuthorType_not_contains: String
+  lastOrganizationCommentAuthorType_starts_with: String
+  lastOrganizationCommentAuthorType_not_starts_with: String
+  lastOrganizationCommentAuthorType_ends_with: String
+  lastOrganizationCommentAuthorType_not_ends_with: String
+  lastOrganizationCommentAuthorType_i: String
+  lastOrganizationCommentAuthorType_not_i: String
+  lastOrganizationCommentAuthorType_contains_i: String
+  lastOrganizationCommentAuthorType_not_contains_i: String
+  lastOrganizationCommentAuthorType_starts_with_i: String
+  lastOrganizationCommentAuthorType_not_starts_with_i: String
+  lastOrganizationCommentAuthorType_ends_with_i: String
+  lastOrganizationCommentAuthorType_not_ends_with_i: String
+  lastOrganizationCommentAuthorType_in: [String]
+  lastOrganizationCommentAuthorType_not_in: [String]
   statusReason: String
   statusReason_not: String
   statusReason_contains: String
@@ -24959,6 +24987,10 @@ enum SortTicketHistoryRecordsBy {
   lastResidentCommentAt_DESC
   lastCommentWithResidentTypeAt_ASC
   lastCommentWithResidentTypeAt_DESC
+  lastCommentWithOrganizationTypeAt_ASC
+  lastCommentWithOrganizationTypeAt_DESC
+  lastOrganizationCommentAuthorType_ASC
+  lastOrganizationCommentAuthorType_DESC
   statusReason_ASC
   statusReason_DESC
   deadline_ASC
@@ -25052,6 +25084,8 @@ input TicketHistoryRecordUpdateInput {
   lastCommentAt: String
   lastResidentCommentAt: String
   lastCommentWithResidentTypeAt: String
+  lastCommentWithOrganizationTypeAt: String
+  lastOrganizationCommentAuthorType: String
   statusReason: String
   status: String
   deadline: String
@@ -25134,6 +25168,8 @@ input TicketHistoryRecordCreateInput {
   lastCommentAt: String
   lastResidentCommentAt: String
   lastCommentWithResidentTypeAt: String
+  lastCommentWithOrganizationTypeAt: String
+  lastOrganizationCommentAuthorType: String
   statusReason: String
   status: String
   deadline: String
@@ -25225,6 +25261,12 @@ enum QualityControlAdditionalOptionsType {
   highQuality
   slowly
   quickly
+}
+
+enum TicketLastOrganizationCommentAuthorTypeType {
+  staff
+  resident
+  service
 }
 
 input TicketStatusRelateToOneInput {
@@ -25362,6 +25404,14 @@ type Ticket {
   """ Time of the last comment with resident type (from staff or resident user) in ticket 
   """
   lastCommentWithResidentTypeAt: String
+
+  """ Time of the last comment with organization type (only from staff user) in ticket 
+  """
+  lastCommentWithOrganizationTypeAt: String
+
+  """ Type of the author of the last comment with organization type in ticket 
+  """
+  lastOrganizationCommentAuthorType: TicketLastOrganizationCommentAuthorTypeType
 
   """ Text reason for status changes. Sometimes you should describe the reason why you change the `status` 
   """
@@ -25689,6 +25739,18 @@ input TicketWhereInput {
   lastCommentWithResidentTypeAt_gte: String
   lastCommentWithResidentTypeAt_in: [String]
   lastCommentWithResidentTypeAt_not_in: [String]
+  lastCommentWithOrganizationTypeAt: String
+  lastCommentWithOrganizationTypeAt_not: String
+  lastCommentWithOrganizationTypeAt_lt: String
+  lastCommentWithOrganizationTypeAt_lte: String
+  lastCommentWithOrganizationTypeAt_gt: String
+  lastCommentWithOrganizationTypeAt_gte: String
+  lastCommentWithOrganizationTypeAt_in: [String]
+  lastCommentWithOrganizationTypeAt_not_in: [String]
+  lastOrganizationCommentAuthorType: TicketLastOrganizationCommentAuthorTypeType
+  lastOrganizationCommentAuthorType_not: TicketLastOrganizationCommentAuthorTypeType
+  lastOrganizationCommentAuthorType_in: [TicketLastOrganizationCommentAuthorTypeType]
+  lastOrganizationCommentAuthorType_not_in: [TicketLastOrganizationCommentAuthorTypeType]
   statusReason: String
   statusReason_not: String
   statusReason_contains: String
@@ -26110,6 +26172,10 @@ enum SortTicketsBy {
   lastResidentCommentAt_DESC
   lastCommentWithResidentTypeAt_ASC
   lastCommentWithResidentTypeAt_DESC
+  lastCommentWithOrganizationTypeAt_ASC
+  lastCommentWithOrganizationTypeAt_DESC
+  lastOrganizationCommentAuthorType_ASC
+  lastOrganizationCommentAuthorType_DESC
   statusReason_ASC
   statusReason_DESC
   status_ASC
@@ -26229,6 +26295,8 @@ input TicketUpdateInput {
   lastCommentAt: String
   lastResidentCommentAt: String
   lastCommentWithResidentTypeAt: String
+  lastCommentWithOrganizationTypeAt: String
+  lastOrganizationCommentAuthorType: TicketLastOrganizationCommentAuthorTypeType
   statusReason: String
   status: TicketStatusRelateToOneInput
   deadline: String
@@ -26308,6 +26376,8 @@ input TicketCreateInput {
   lastCommentAt: String
   lastResidentCommentAt: String
   lastCommentWithResidentTypeAt: String
+  lastCommentWithOrganizationTypeAt: String
+  lastOrganizationCommentAuthorType: TicketLastOrganizationCommentAuthorTypeType
   statusReason: String
   status: TicketStatusRelateToOneInput
   deadline: String
@@ -27656,6 +27726,18 @@ enum TicketChangeQualityControlValueToType {
   good
 }
 
+enum TicketChangeLastOrganizationCommentAuthorTypeFromType {
+  staff
+  resident
+  service
+}
+
+enum TicketChangeLastOrganizationCommentAuthorTypeToType {
+  staff
+  resident
+  service
+}
+
 enum TicketChangeSectionTypeFromType {
   parking
   section
@@ -27759,6 +27841,22 @@ type TicketChange {
   """ Quality control additional options that extend it.Duplicates are removed and empty arrays are converted to null. 
   """
   qualityControlAdditionalOptionsTo: JSON
+
+  """ Time of the last comment with organization type (only from staff user) in ticket 
+  """
+  lastCommentWithOrganizationTypeAtFrom: String
+
+  """ Time of the last comment with organization type (only from staff user) in ticket 
+  """
+  lastCommentWithOrganizationTypeAtTo: String
+
+  """ Type of the author of the last comment with organization type in ticket 
+  """
+  lastOrganizationCommentAuthorTypeFrom: TicketChangeLastOrganizationCommentAuthorTypeFromType
+
+  """ Type of the author of the last comment with organization type in ticket 
+  """
+  lastOrganizationCommentAuthorTypeTo: TicketChangeLastOrganizationCommentAuthorTypeToType
 
   """ Text reason for status changes. Sometimes you should describe the reason why you change the `status` 
   """
@@ -28325,6 +28423,30 @@ input TicketChangeWhereInput {
   qualityControlAdditionalOptionsTo_not: JSON
   qualityControlAdditionalOptionsTo_in: [JSON]
   qualityControlAdditionalOptionsTo_not_in: [JSON]
+  lastCommentWithOrganizationTypeAtFrom: String
+  lastCommentWithOrganizationTypeAtFrom_not: String
+  lastCommentWithOrganizationTypeAtFrom_lt: String
+  lastCommentWithOrganizationTypeAtFrom_lte: String
+  lastCommentWithOrganizationTypeAtFrom_gt: String
+  lastCommentWithOrganizationTypeAtFrom_gte: String
+  lastCommentWithOrganizationTypeAtFrom_in: [String]
+  lastCommentWithOrganizationTypeAtFrom_not_in: [String]
+  lastCommentWithOrganizationTypeAtTo: String
+  lastCommentWithOrganizationTypeAtTo_not: String
+  lastCommentWithOrganizationTypeAtTo_lt: String
+  lastCommentWithOrganizationTypeAtTo_lte: String
+  lastCommentWithOrganizationTypeAtTo_gt: String
+  lastCommentWithOrganizationTypeAtTo_gte: String
+  lastCommentWithOrganizationTypeAtTo_in: [String]
+  lastCommentWithOrganizationTypeAtTo_not_in: [String]
+  lastOrganizationCommentAuthorTypeFrom: TicketChangeLastOrganizationCommentAuthorTypeFromType
+  lastOrganizationCommentAuthorTypeFrom_not: TicketChangeLastOrganizationCommentAuthorTypeFromType
+  lastOrganizationCommentAuthorTypeFrom_in: [TicketChangeLastOrganizationCommentAuthorTypeFromType]
+  lastOrganizationCommentAuthorTypeFrom_not_in: [TicketChangeLastOrganizationCommentAuthorTypeFromType]
+  lastOrganizationCommentAuthorTypeTo: TicketChangeLastOrganizationCommentAuthorTypeToType
+  lastOrganizationCommentAuthorTypeTo_not: TicketChangeLastOrganizationCommentAuthorTypeToType
+  lastOrganizationCommentAuthorTypeTo_in: [TicketChangeLastOrganizationCommentAuthorTypeToType]
+  lastOrganizationCommentAuthorTypeTo_not_in: [TicketChangeLastOrganizationCommentAuthorTypeToType]
   statusReasonFrom: String
   statusReasonFrom_not: String
   statusReasonFrom_contains: String
@@ -29418,6 +29540,14 @@ enum SortTicketChangesBy {
   qualityControlCommentFrom_DESC
   qualityControlCommentTo_ASC
   qualityControlCommentTo_DESC
+  lastCommentWithOrganizationTypeAtFrom_ASC
+  lastCommentWithOrganizationTypeAtFrom_DESC
+  lastCommentWithOrganizationTypeAtTo_ASC
+  lastCommentWithOrganizationTypeAtTo_DESC
+  lastOrganizationCommentAuthorTypeFrom_ASC
+  lastOrganizationCommentAuthorTypeFrom_DESC
+  lastOrganizationCommentAuthorTypeTo_ASC
+  lastOrganizationCommentAuthorTypeTo_DESC
   statusReasonFrom_ASC
   statusReasonFrom_DESC
   statusReasonTo_ASC
@@ -29636,6 +29766,10 @@ input TicketChangeUpdateInput {
   qualityControlCommentTo: String
   qualityControlAdditionalOptionsFrom: JSON
   qualityControlAdditionalOptionsTo: JSON
+  lastCommentWithOrganizationTypeAtFrom: String
+  lastCommentWithOrganizationTypeAtTo: String
+  lastOrganizationCommentAuthorTypeFrom: TicketChangeLastOrganizationCommentAuthorTypeFromType
+  lastOrganizationCommentAuthorTypeTo: TicketChangeLastOrganizationCommentAuthorTypeToType
   statusReasonFrom: String
   statusReasonTo: String
   deadlineFrom: String
@@ -29767,6 +29901,10 @@ input TicketChangeCreateInput {
   qualityControlCommentTo: String
   qualityControlAdditionalOptionsFrom: JSON
   qualityControlAdditionalOptionsTo: JSON
+  lastCommentWithOrganizationTypeAtFrom: String
+  lastCommentWithOrganizationTypeAtTo: String
+  lastOrganizationCommentAuthorTypeFrom: TicketChangeLastOrganizationCommentAuthorTypeFromType
+  lastOrganizationCommentAuthorTypeTo: TicketChangeLastOrganizationCommentAuthorTypeToType
   statusReasonFrom: String
   statusReasonTo: String
   deadlineFrom: String

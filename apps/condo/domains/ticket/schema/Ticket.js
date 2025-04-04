@@ -68,6 +68,7 @@ const {
     relatedManyToManyResolvers,
 } = require('@condo/domains/ticket/utils/serverSchema/TicketChange')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { USER_TYPES } = require('@condo/domains/user/constants/common')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
 
@@ -375,9 +376,10 @@ const Ticket = new GQLListSchema('Ticket', {
             type: 'DateTimeUtc',
             access: writeOnlyServerSideFieldAccess,
         },
-        hasUnansweredCommentsByOrganizationEmployee: {
-            schemaDoc: 'Indicates whether the ticket has unanswered comments. A value of `true` means at least one comment has not been responded to',
-            type: 'Checkbox',
+        lastOrganizationCommentAuthorType: {
+            schemaDoc: 'Type of the author of the last comment with organization type in ticket',
+            type: 'Select',
+            options: USER_TYPES,
             access: writeOnlyServerSideFieldAccess,
         },
         statusReason: {
