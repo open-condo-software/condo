@@ -17,6 +17,7 @@ jobs:
       - name: Check review limits
         run: |
           raw_namespaces=$(kubectl --kubeconfig <(echo $KUBE_CONFIG_BASE64_DATA | base64 --decode) get ns -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}')
+          echo "raw namespaces ${raw_namespaces}"
           read -a namespaces <<< $raw_namespaces
           index=0
           review_namespaces=0
