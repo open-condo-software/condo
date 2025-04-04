@@ -112,6 +112,26 @@ const OrganizationEmployeeRequest = new GQLListSchema('OrganizationEmployeeReque
             },
         },
 
+        userName: {
+            schemaDoc: 'The name of the user who sent the request (For the organization employee because he does not have access to the user fields)',
+            type: 'Text',
+            access: {
+                read: true,
+                create: false,
+                update: false,
+            },
+        },
+
+        userPhone: {
+            schemaDoc: 'The phone of the user who sent the request (For the organization employee because he does not have access to the user fields)',
+            type: 'Text',
+            access: {
+                read: true,
+                create: false,
+                update: false,
+            },
+        },
+
         isAccepted: {
             schemaDoc: 'Means that the request has been accepted',
             type: 'Checkbox',
@@ -244,6 +264,18 @@ const OrganizationEmployeeRequest = new GQLListSchema('OrganizationEmployeeReque
                     resolvedData['organizationId'] = organization.id
                     resolvedData['organizationName'] = organization.name
                     resolvedData['organizationTin'] = organization.tin
+                }
+            }
+
+            const userId = get(resolvedData, 'user')
+            if (userId) {
+                const user = await getByCondition('User', {
+                    id: userId,
+                    deletedAt: null,
+                })
+                if (user) {
+                    resolvedData['userName'] = user.name
+                    resolvedData['userPhone'] = user.phone
                 }
             }
 

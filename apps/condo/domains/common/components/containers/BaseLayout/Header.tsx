@@ -21,6 +21,7 @@ import { InlineOrganizationSelect } from '@condo/domains/organization/components
 import { SBBOLIndicator } from '@condo/domains/organization/components/SBBOLIndicator'
 import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
 import { ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION } from '@condo/domains/organization/gql'
+import { useOrganizationEmployeeRequests } from '@condo/domains/organization/hooks/useOrganizationEmployeeRequests'
 import { useOrganizationInvites } from '@condo/domains/organization/hooks/useOrganizationInvites'
 import { UserMenu } from '@condo/domains/user/components/UserMenu'
 
@@ -61,6 +62,7 @@ export const Header: React.FC<IHeaderProps> = (props) => {
     })
 
     useOrganizationInvites(ORGANIZATION_TYPES, acceptOrReject)
+    const { ChooseEmployeeRoleModal } = useOrganizationEmployeeRequests()
 
     const handleLogoClick = useCallback(() => {
         if (isAuthenticated) {
@@ -72,6 +74,7 @@ export const Header: React.FC<IHeaderProps> = (props) => {
 
     return (
         <UserMessagesListContextProvider>
+            {ChooseEmployeeRoleModal}
             {
                 !breakpoints.TABLET_LARGE
                     ? (

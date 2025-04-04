@@ -43,6 +43,7 @@ query getActiveOrganizationEmployee($userId: ID!, $employeeId: ID) {
             ticketVisibilityType
             canReadAnalytics
             canManageOrganization
+            canManageOrganizationEmployeeRequests
             canManageCallRecords
             canDownloadCallRecords
             canReadEmployees
@@ -132,7 +133,6 @@ query getActualOrganizationEmployees($userId: ID!) {
         }
     }
 }
-
 query getEmployeeInvitesCount($userId: ID!) {
     meta: _allOrganizationEmployeesMeta(
         where: {
@@ -147,6 +147,26 @@ query getEmployeeInvitesCount($userId: ID!) {
     }
 }
 
+query getLastEmployeeInvite($userId: ID!) {
+    employees: allOrganizationEmployees(
+        where: {
+            user: { id: $userId },
+            isAccepted: false,
+            isRejected: false,
+            isBlocked: false,
+            organization: { type_in: [MANAGING_COMPANY, SERVICE_PROVIDER] },
+        }
+        first: 1
+        sortBy: [createdAt_DESC]
+    ) {
+        id
+        organization {
+            id
+            name
+        }
+    }
+}
+
 query getContactEditorOrganizationEmployees ($where: OrganizationEmployeeWhereInput) {
     employees: allOrganizationEmployees (
         where: $where,
@@ -158,7 +178,7 @@ query getContactEditorOrganizationEmployees ($where: OrganizationEmployeeWhereIn
     }
 }
 
-query getOrganizationEmployeeWithTicketOrganization ($userId: ID!, $organizationId: ID!) {
+query getOrganizationEmployeeByUserAndOrganization ($userId: ID!, $organizationId: ID!) {
     employees: allOrganizationEmployees (
         where: {
             user: { id: $userId },

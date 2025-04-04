@@ -1,41 +1,14 @@
-/** @jsx jsx */
-import { InfoCircleFilled } from '@ant-design/icons'
-import { css, jsx } from '@emotion/react'
-import { Affix, Alert, AlertProps, Space } from 'antd'
-import React, { useState } from 'react'
+import { Affix, Space } from 'antd'
+import React, { useCallback, useState } from 'react'
 
-import { Button } from '@condo/domains/common/components/Button'
-import { colors } from '@condo/domains/common/constants/style'
+import { useAuth } from '@open-condo/next/auth'
+import { Alert, Button, AlertProps } from '@open-condo/ui'
 
-import { useLayoutContext } from './LayoutContext'
-
-
-const notificationAlert = ({ isSmall }) => css`
-    border-bottom: 1px solid ${colors.white};
-    height: ${isSmall ? 'auto' : '78px'};
-    & .anticon {
-        color: ${colors.green[7]};
-    }
-    & .ant-alert-message {
-        font-size: 20px;
-        line-height: 28px;
-        color: ${colors.green[7]};
-    }
-    ${isSmall && `
-        flex-wrap: wrap;
-        & .ant-alert-action {
-            width: 100%;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-    `}
-`
 
 export interface ITopNotificationAction {
     action: () => Promise<void>
     title: string
+    keepNotificationOnClick?: boolean
     secondary?: boolean
 }
 
@@ -43,28 +16,32 @@ export interface ITopNotification {
     id: string
     actions: ITopNotificationAction[]
     message: string | JSX.Element
+    description?: string
     type: AlertProps['type']
 }
 
 interface ITopNotificationHookResult {
     TopNotificationComponent: React.FC
     addNotification: (notification: ITopNotification) => void
+    removeNotification: (notificationId: string) => void
 }
 
 export const useTopNotificationsHook = (serviceProblemsAlert?: React.ReactNode): ITopNotificationHookResult => {
+    const { user } = useAuth()
     const [topNotifications, setTopNotifications] = useState<ITopNotification[]>([])
-    const addNotification = (notification: ITopNotification) => {
-        if (!topNotifications.find(existedNotification => existedNotification.id === notification.id)) {
-            setTopNotifications([...topNotifications, notification])
-        }
-    }
-    const removeNotification = (notificationId) => {
-        setTopNotifications([...topNotifications.filter(notification => notification.id !== notificationId)])
-    }
+    const addNotification = useCallback((notification: ITopNotification) => {
+        setTopNotifications(topNotifications => {
+            if (!topNotifications.find(existedNotification => existedNotification.id === notification.id)) {
+                return [...topNotifications, notification]
+            }
+            return topNotifications
+        })
+    }, [])
+    const removeNotification = useCallback((notificationId) => {
+        setTopNotifications(topNotifications => topNotifications.filter(notification => notification.id !== notificationId))
+    }, [])
 
     const TopNotificationComponent: React.FC = () => {
-        const { breakpoints } = useLayoutContext()
-
         if (topNotifications.length === 0 && !serviceProblemsAlert) return null
 
         return (
@@ -72,38 +49,37 @@ export const useTopNotificationsHook = (serviceProblemsAlert?: React.ReactNode):
                 <Affix>
                     {serviceProblemsAlert}
                     {
-                        topNotifications.map(notification => {
-                            return (
-                                <Alert
-                                    banner
-                                    showIcon
-                                    icon={(<InfoCircleFilled />)}
-                                    message={notification.message}
-                                    type={notification.type}
-                                    key={notification.id}
-                                    css={notificationAlert({ isSmall: !breakpoints.TABLET_LARGE })}
-                                    action={<Space size={20}>
+                        !!user && topNotifications.map(notification => (
+                            <Alert
+                                banner
+                                showIcon
+                                message={notification.message}
+                                description={notification.description}
+                                type={notification.type}
+                                key={notification.id}
+                                action={
+                                    <Space size={16}>
                                         {
-                                            notification.actions.map((action, idx) => {
-                                                return (
-                                                    <Button
-                                                        onClick={async () => {
-                                                            await action.action()
+                                            notification.actions.map((action, idx) => (
+                                                <Button
+                                                    onClick={async () => {
+                                                        await action.action()
+
+                                                        if (!action.keepNotificationOnClick) {
                                                             removeNotification(notification.id)
-                                                        }}
-                                                        size={!breakpoints.TABLET_LARGE ? 'middle' : 'large'}
-                                                        type='sberPrimary'
-                                                        secondary={action.secondary}
-                                                        key={idx}
-                                                    >
-                                                        {action.title}
-                                                    </Button>
-                                                )
-                                            })}
-                                    </Space>}
-                                />
-                            )
-                        })
+                                                        }
+                                                    }}
+                                                    type={action.secondary ? 'secondary' : 'primary'}
+                                                    key={idx}
+                                                >
+                                                    {action.title}
+                                                </Button>
+                                            ))
+                                        }
+                                    </Space>
+                                }
+                            />
+                        ))
                     }
                 </Affix>
             </>
@@ -112,6 +88,7 @@ export const useTopNotificationsHook = (serviceProblemsAlert?: React.ReactNode):
 
     return {
         addNotification,
+        removeNotification,
         TopNotificationComponent,
     }
 }
