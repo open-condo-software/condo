@@ -32872,6 +32872,7 @@ type UserTicketCommentReadTimeHistoryRecord {
   ticket: String
   readCommentAt: String
   readResidentCommentAt: String
+  readOrganizationCommentAt: String
   id: ID!
   v: Int
   createdAt: String
@@ -32914,6 +32915,14 @@ input UserTicketCommentReadTimeHistoryRecordWhereInput {
   readResidentCommentAt_gte: String
   readResidentCommentAt_in: [String]
   readResidentCommentAt_not_in: [String]
+  readOrganizationCommentAt: String
+  readOrganizationCommentAt_not: String
+  readOrganizationCommentAt_lt: String
+  readOrganizationCommentAt_lte: String
+  readOrganizationCommentAt_gt: String
+  readOrganizationCommentAt_gte: String
+  readOrganizationCommentAt_in: [String]
+  readOrganizationCommentAt_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -33001,6 +33010,8 @@ enum SortUserTicketCommentReadTimeHistoryRecordsBy {
   readCommentAt_DESC
   readResidentCommentAt_ASC
   readResidentCommentAt_DESC
+  readOrganizationCommentAt_ASC
+  readOrganizationCommentAt_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -33024,6 +33035,7 @@ input UserTicketCommentReadTimeHistoryRecordUpdateInput {
   ticket: String
   readCommentAt: String
   readResidentCommentAt: String
+  readOrganizationCommentAt: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -33048,6 +33060,7 @@ input UserTicketCommentReadTimeHistoryRecordCreateInput {
   ticket: String
   readCommentAt: String
   readResidentCommentAt: String
+  readOrganizationCommentAt: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -33089,6 +33102,10 @@ type UserTicketCommentReadTime {
 
   """ Time when the last comment from a resident was last read by the user """
   readResidentCommentAt: String
+
+  """ Time when the last comment from a organization employee was last read by the user 
+  """
+  readOrganizationCommentAt: String
   id: ID!
   v: Int
   createdAt: String
@@ -33135,6 +33152,14 @@ input UserTicketCommentReadTimeWhereInput {
   readResidentCommentAt_gte: String
   readResidentCommentAt_in: [String]
   readResidentCommentAt_not_in: [String]
+  readOrganizationCommentAt: String
+  readOrganizationCommentAt_not: String
+  readOrganizationCommentAt_lt: String
+  readOrganizationCommentAt_lte: String
+  readOrganizationCommentAt_gt: String
+  readOrganizationCommentAt_gte: String
+  readOrganizationCommentAt_in: [String]
+  readOrganizationCommentAt_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -33206,6 +33231,8 @@ enum SortUserTicketCommentReadTimesBy {
   readCommentAt_DESC
   readResidentCommentAt_ASC
   readResidentCommentAt_DESC
+  readOrganizationCommentAt_ASC
+  readOrganizationCommentAt_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -33229,6 +33256,7 @@ input UserTicketCommentReadTimeUpdateInput {
   ticket: TicketRelateToOneInput
   readCommentAt: String
   readResidentCommentAt: String
+  readOrganizationCommentAt: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -33250,6 +33278,7 @@ input UserTicketCommentReadTimeCreateInput {
   ticket: TicketRelateToOneInput
   readCommentAt: String
   readResidentCommentAt: String
+  readOrganizationCommentAt: String
   v: Int
   createdAt: String
   updatedAt: String
