@@ -440,6 +440,20 @@ export function hasUnreadResidentComments (lastResidentCommentAt, readResidentCo
     return false
 }
 
+export function hasUnreadOrganizationComments (readOrganizationCommentByUserAt, lastCommentWithOrganizationTypeAt) {
+    if (lastCommentWithOrganizationTypeAt) {
+        if (!readOrganizationCommentByUserAt) {
+            return true
+        } else {
+            if (dayjs(readOrganizationCommentByUserAt).isBefore(lastCommentWithOrganizationTypeAt)) {
+                return true
+            }
+        }
+    }
+
+    return false
+}
+
 export function convertDurationToDays (duration: string): number {
     return dayjs.duration(duration).asDays()
 }

@@ -2988,6 +2988,7 @@
   "ticket.modalQualityControlChange.subtitle": "Cambie la calificación si la actual no coincide con los comentarios del vecino",
   "ticket.modalQualityControlChange.title": "¿Desea cambiar su evaluación?",
   "ticket.newResidentComment": "Nuevo comentario de vecino",
+  "ticket.newOrganizationComment": "Nouvo komèt nan men anplwaye òganizasyon an",
   "ticket.qualityControl": "Control de calidad",
   "ticket.qualityControl.bad": "Mal",
   "ticket.qualityControl.filter.label": "Evaluación del servicio de control de calidad",

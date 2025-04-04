@@ -1,4 +1,7 @@
-import { useGetTicketStatusesQuery, useGetUserTicketCommentsReadTimeQuery } from '@app/condo/gql'
+import {
+    useGetTicketStatusesQuery,
+    useGetUserTicketCommentsReadTimeQuery,
+} from '@app/condo/gql'
 import { Ticket as ITicket, Property as IProperty } from '@app/condo/schema'
 import { ColumnsType } from 'antd/lib/table'
 import { ColumnType } from 'antd/lib/table/interface'
@@ -26,7 +29,8 @@ import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.uti
 import { useAutoRefetchTickets } from '@condo/domains/ticket/contexts/AutoRefetchTicketsContext'
 import {
     FavoriteTicketIndicator,
-    getClassifierRender, getCommentsIndicatorRender,
+    getClassifierRender,
+    getCommentsIndicatorRender,
     getStatusRender,
     getTicketDetailsRender,
     getTicketNumberRender,
