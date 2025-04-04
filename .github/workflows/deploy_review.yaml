@@ -16,19 +16,8 @@ jobs:
     steps:
       - name: Check review limits
         run: |
-          raw_namespaces=$(kubectl --kubeconfig <(echo $KUBE_CONFIG_BASE64_DATA | base64 --decode) get ns -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}')
-          echo "raw namespaces ${raw_namespaces}"
-          read -a namespaces <<< $raw_namespaces
-          index=0
-          review_namespaces=0
-          
-          while [ $index -lt ${#namespaces[@]} ]; do
-            item="${namespaces[$index]}";
-            if [[ $item =~ ^review-.* ]]; then
-              ((review_namespaces++));
-            fi
-            ((index++));
-          done
+          review_namespaces=$(kubectl --kubeconfig <(echo $KUBE_CONFIG_BASE64_DATA | base64 --decode) get ns | grep "review-" -c)
+          echo "active review namespaces = ${review_namespaces}"
           
           if [[ $review_namespaces == 7 ]]; then
             echo "The maximum number of simultaneous reviews has been reached.";
