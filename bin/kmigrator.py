@@ -267,7 +267,6 @@ const entryFile = '__KEYSTONE_ENTRY_PATH__'
 const knexSchemaFile = '__KNEX_SCHEMA_PATH__'
 const knexConnectionFile = '__KNEX_CONNECTION_PATH__'
 const knexMigrationsDir = '__KNEX_MIGRATION_DIR__'
-const { asyncForEach } = require('@keystonejs/utils')
 const path = require('path')
 const fs = require('fs')
 const util = require('util')
@@ -469,7 +468,6 @@ const entryFile = '__KEYSTONE_ENTRY_PATH__'
 const knexMigrationsDir = '__KNEX_MIGRATION_DIR__'
 const knexMigrationsCode = '__KNEX_MIGRATION_CODE__'
 
-const {asyncForEach} = require('@keystonejs/utils')
 const path = require('path')
 const util = require('util')
 const {keystone} = require(path.resolve(entryFile))
