@@ -12,7 +12,10 @@ import React, {
     useMemo,
     forwardRef, CSSProperties,
 } from 'react'
+import { useIntl } from 'react-intl'
 import ReactPhoneInput, { PhoneInputProps } from 'react-phone-input-2'
+import es from 'react-phone-input-2/lang/es.json'
+import ru from 'react-phone-input-2/lang/ru.json'
 
 
 import { useOrganization } from '@open-condo/next/organization'
@@ -20,6 +23,8 @@ import { useOrganization } from '@open-condo/next/organization'
 import { colors } from '@condo/domains/common/constants/style'
 
 import 'react-phone-input-2/lib/style.css'
+import { RU_LOCALE, ES_LOCALE } from '../constants/locale'
+
 
 interface IPhoneInputProps extends Omit<PhoneInputProps, 'onChange'> {
     block?: boolean
@@ -65,6 +70,16 @@ const getPhoneInputStyles = (style, size: SizeType, block?: boolean) => {
 
 const BUTTON_INPUT_PHONE_STYLE: React.CSSProperties = { margin: 5, backgroundColor: colors.backgroundWhiteSecondary, border: 0, borderRadius: 8 }
 
+const getPhoneLocalization = (locale: string) => {
+    if (locale === ES_LOCALE) {
+        return es
+    }
+    if (locale === RU_LOCALE) {
+        return ru
+    }
+    return {}
+}
+
 /**
  * @deprecated use Input.Phone from Condo UI Kit
  */
@@ -76,6 +91,8 @@ export const PhoneInput: React.FC<IPhoneInputProps> = forwardRef((props, ref) =>
     const countryFromProps = showCountryPrefix && country
     const inputRef = useRef<PhoneInputRef>()
 
+    const intl = useIntl()
+    const locale = intl.locale
     /*
      * For custom inputs `AutoComplete` component needs that inputRef.current will be equal to event.target,
      * otherwise in the onMouseDown event (in rc-select/Selector) the preventDefault will work
@@ -112,6 +129,10 @@ export const PhoneInput: React.FC<IPhoneInputProps> = forwardRef((props, ref) =>
         return getPhoneInputStyles(style, configSize, block)
     }, [style, configSize, block])
 
+    const phoneLocalization = useMemo(() => {
+        return getPhoneLocalization(locale)
+    }, [locale])
+
     return (
         <ReactPhoneInput
             {...otherProps}
@@ -126,6 +147,7 @@ export const PhoneInput: React.FC<IPhoneInputProps> = forwardRef((props, ref) =>
             placeholder={placeholder}
             buttonStyle={BUTTON_INPUT_PHONE_STYLE}
             copyNumbersOnly={false}
+            localization={phoneLocalization}
         />
     )
 })
