@@ -6,7 +6,7 @@ import {
     FindOrganizationsByTinQueryResult,
     RegisterNewOrganizationMutationResult,
     useGetLastActiveOrganizationEmployeeRequestByTinLazyQuery,
-    SendOrganizationEmployeeRequestMutationResult,
+    SendOrganizationEmployeeRequestMutationResult, GetActualOrganizationEmployeesDocument,
 } from '@app/condo/gql'
 import { Col, Form, FormInstance, Row } from 'antd'
 import getConfig from 'next/config'
@@ -128,6 +128,7 @@ type BaseCreateOrganizationFormProps = {
         isDuplicateRequest: boolean
     ) => void | Promise<void>
     onOrganizationCreated?: (organization: RegisterNewOrganizationMutationResult['data']['organization']) => void | Promise<void>
+    onEmployeeSelected?: () => void | Promise<void>
 }
 
 type FormCreateOrganizationFormProps = {
@@ -146,7 +147,7 @@ type CreateOrganizationFormProps = BaseCreateOrganizationFormProps & (
 )
 
 export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (props) => {
-    const { type, onSendOrganizationRequest, onOrganizationCreated } = props
+    const { type, onSendOrganizationRequest, onOrganizationCreated, onEmployeeSelected } = props
 
     const intl = useIntl()
     const CreateOrganizationPlaceholder = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationPlaceholder' })
@@ -290,13 +291,17 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
         const newOrganizationEmployeeId = newOrganizationEmployeeData?.data?.employees?.[0]?.id
 
         if (newOrganizationEmployeeId) {
-            // Evict cache for get actual employee in prefetchOrganizationEmployee
-            client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allOrganizationEmployees' })
+            await client.refetchQueries({
+                include: [GetActualOrganizationEmployeesDocument],
+            })
 
             await selectEmployee(newOrganizationEmployeeId)
+            if (onEmployeeSelected) {
+                await onEmployeeSelected()
+            }
         }
         setIsOrganizationCreating(false)
-    }, [client, findOrganizationsByTin, getLastActiveOrganizationEmployeeRequest, getOrganizationEmployee, onOrganizationCreated, onSendOrganizationRequest, registerNewOrganization, selectEmployee, type, userId])
+    }, [client, findOrganizationsByTin, getLastActiveOrganizationEmployeeRequest, getOrganizationEmployee, onEmployeeSelected, onOrganizationCreated, onSendOrganizationRequest, registerNewOrganization, selectEmployee, type, userId])
 
     const foundOrganizations = useMemo(() => foundOrganizationsData?.data?.organizations || [], [foundOrganizationsData?.data?.organizations])
 
