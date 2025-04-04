@@ -211,10 +211,12 @@ export const InputStep: React.FC<InputStepProps> = ({
             required: true,
             placeholder: SelectAddressPlaceholder,
             onChange: (propIds: string[]) => {
-                setScope(prev=>({ ...prev, selectedPropertiesId: !Array.isArray(propIds) ? [propIds].filter(Boolean) : propIds }))
+                const selectedPropertiesId = !Array.isArray(propIds) ? [propIds].filter(Boolean) : propIds
+                setScope(prev=>({ ...prev, selectedPropertiesId:  selectedPropertiesId }))
 
                 form.setFieldsValue({ 'unitNames': [] })
                 form.setFieldsValue({ 'sectionIds': [] })
+                form.setFieldsValue({ 'properties': selectedPropertiesId })
                 setScope(prev=>({ ...prev, selectedUnitNameKeys: [] }))
                 setScope(prev=>({ ...prev, selectedSectionKeys: [] }))
             },
@@ -226,9 +228,9 @@ export const InputStep: React.FC<InputStepProps> = ({
     }, [processedInitialValues])
 
     const handleSharingAppIFrameFormMessage = useCallback((event) => {
-        const { handler, sharingAppId: eventsharingAppId, formValues, preview, isValid } = event.data
+        const { handler, ctxId: eventCtxId, formValues, preview, isValid } = event.data
 
-        if (handler === 'handleSharingAppIFrameFormMessage' && sharingAppId === eventsharingAppId) {
+        if (handler === 'handleSharingAppIFrameFormMessage' && sharingAppId === eventCtxId) {
             setSharingAppFormValues(prev => ({ ...prev, formValues, preview, isValid }))
         }
     }, [sharingAppId])

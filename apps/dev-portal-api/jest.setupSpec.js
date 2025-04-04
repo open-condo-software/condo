@@ -1,7 +1,6 @@
-const falsey = require('falsey')
 const { get } = require('lodash')
 
-const EXTRA_LOGGING = falsey(process.env.DISABLE_LOGGING)
+const EXTRA_LOGGING = process.env.DISABLE_LOGGING !== 'true'
 
 // Patch tests to include their own name
 jasmine.getEnv().addReporter({ // eslint-disable-line

@@ -15,6 +15,7 @@ import {
 } from './utils'
 
 
+
 const BASE_APP_URL = __ENV.BASE_URL + '/ticket'
 const DURATION = '60s'
 

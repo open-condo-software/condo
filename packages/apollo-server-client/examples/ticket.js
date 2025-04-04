@@ -4,7 +4,6 @@ const { resolve } = require('path')
 const { gql } = require('graphql-tag')
 
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
-const conf = require('@open-condo/config')
 
 const { ApolloServerClient } = require('../index')
 
@@ -15,10 +14,10 @@ const { ApolloServerClient } = require('../index')
 *   PROPERTY_ID=add0910d-10a6-4f47-b8ab-4238011fe258
 * */
 
-const { endpoint, authRequisites = {} } = conf['INTEGRATION'] ? JSON.parse(conf['INTEGRATION']) : {}
+const { endpoint, authRequisites = {} } = process.env.INTEGRATION ? JSON.parse(process.env.INTEGRATION) : {}
 
-const organizationId = conf['ORGANIZATION']
-const propertyId = conf['PROPERTY_ID']
+const organizationId = process.env.ORGANIZATION
+const propertyId = process.env.PROPERTY_ID
 
 const TICKET_OTHER_SOURCE_ID = '7da1e3be-06ba-4c9e-bba6-f97f278ac6e4'
 

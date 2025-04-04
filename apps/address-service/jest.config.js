@@ -12,20 +12,5 @@ module.exports = {
             // NOTE: need to pass uuid export syntax through babel
             transformIgnorePatterns: ['/node_modules/(?!(uuid)/)'],
         },
-        {
-            testRunner: 'jasmine2',
-            displayName: 'main',
-            testEnvironment: 'jsdom',
-            testEnvironmentOptions: {
-                url: 'http://localhost:3000/',
-            },
-            testPathIgnorePatterns: ['/node_modules/', '/.next/', '/dist/', '/.kmigrator/'],
-            transform: {
-                '\\.[jt]sx?$': 'babel-jest',
-            },
-            setupFilesAfterEnv: ['<rootDir>/jest.setupSpec.js'],
-            // NOTE: need to pass uuid export syntax through babel
-            transformIgnorePatterns: ['/node_modules/(?!(uuid)/)'],
-        },
     ],
 }

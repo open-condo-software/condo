@@ -63,7 +63,7 @@ function getQRCodePaymPeriod (qrCode, billingContext) {
     // NOTE(YEgorLu): for format MMYYYY AND YYYYMM. Since 2024 year it is okay:
     // {12}20{24} | {20}24{12} - so at least on one side we surely can tell that number is not a month
     if (paymPeriod && PERIOD_WITHOUT_DOT_REGEXP.test(paymPeriod)) {
-        const currentYear = dayjs().year() // Текущий год
+        const currentYear = dayjs().year()
         const firstTwo = parseInt(paymPeriod.substring(0, 2), 10)
         const firstFour = parseInt(paymPeriod.substring(0, 4), 10)
         const lastTwo = parseInt(paymPeriod.substring(4, 6), 10)

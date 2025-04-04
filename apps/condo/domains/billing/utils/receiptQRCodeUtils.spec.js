@@ -637,11 +637,19 @@ describe('receiptQRCodeUtils', () => {
 
             const invalidWithoutDot1 = getInvalidRandomDateWithoutDot()
             qrCodeObj.paymPeriod = invalidWithoutDot1.format('MMYYYY')
-            expect(getQRCodePaymPeriod(qrCodeObj)).toEqual(dayjs().format('MM.YYYY'))
+            if (dayjs().date() < DEFAULT_PERIODS_EDGE_DATE) {
+                expect(getQRCodePaymPeriod(qrCodeObj)).toEqual(dayjs().add(-1, 'month').format('MM.YYYY'))
+            } else {
+                expect(getQRCodePaymPeriod(qrCodeObj)).toEqual(dayjs().format('MM.YYYY'))
+            }
 
             const invalidWithoutDot2 = getInvalidRandomDateWithoutDot()
             qrCodeObj.paymPeriod = invalidWithoutDot2.format('YYYYMM')
-            expect(getQRCodePaymPeriod(qrCodeObj)).toEqual(dayjs().format('MM.YYYY'))
+            if (dayjs().date() < DEFAULT_PERIODS_EDGE_DATE) {
+                expect(getQRCodePaymPeriod(qrCodeObj)).toEqual(dayjs().add(-1, 'month').format('MM.YYYY'))
+            } else {
+                expect(getQRCodePaymPeriod(qrCodeObj)).toEqual(dayjs().format('MM.YYYY'))
+            }
         })
     })
 })

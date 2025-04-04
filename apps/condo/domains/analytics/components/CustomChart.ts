@@ -7,8 +7,8 @@ export type CustomChartViewType = 'line' | 'bar' | 'pie'
 
 export interface IGetChartConfig<T> extends IGetBaseChartConfig<CustomChartViewType, T, ChartConfigResult> {
     (viewMode: CustomChartViewType, data: T): {
-        legend, series,
-        axisData?: { xAxis: Array<AxisData> | AxisData, yAxis: Array<AxisData> | AxisData },
+        legend, series
+        axisData?: { xAxis: Array<AxisData> | AxisData, yAxis: Array<AxisData> | AxisData }
         tooltip?: { trigger, axisPointer: { type }, show?: boolean }
     }
 }

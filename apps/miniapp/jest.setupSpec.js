@@ -1,6 +1,4 @@
-const falsey = require('falsey')
-
-const EXTRA_LOGGING = falsey(process.env.DISABLE_LOGGING)
+const EXTRA_LOGGING = process.env.DISABLE_LOGGING !== 'true'
 
 if (EXTRA_LOGGING) {
     // Patch tests to include their own name

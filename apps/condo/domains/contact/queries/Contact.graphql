@@ -10,6 +10,9 @@ query getContactById ($id: ID!) {
         unitName
         unitType
         isVerified
+        ownershipPercentage
+        note
+        communityFee
         organization {
             id
         }
@@ -60,6 +63,9 @@ query getContactsForTable ($where: ContactWhereInput, $first: Int, $skip: Int, $
         unitType
         phone
         email
+        ownershipPercentage
+        note
+        communityFee
         organization {
             id
             name

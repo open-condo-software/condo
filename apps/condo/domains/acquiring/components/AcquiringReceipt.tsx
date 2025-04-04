@@ -46,7 +46,7 @@ type InvoicePrintingSection = {
     number: string
     date: string
     amount: string
-    vatAmount?: Record<string, string>,
+    vatAmount?: Record<string, string>
     taxRegime: string
     rows: Array<InvoicePrintingSectionRow>
     info: Array<PrintingOption>

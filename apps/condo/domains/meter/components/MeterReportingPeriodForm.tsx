@@ -1,5 +1,5 @@
 import { MeterReportingPeriod as MeterReportingPeriodType } from '@app/condo/schema'
-import { Col, Form, Row, Typography } from 'antd'
+import { Col, Form, Row, RowProps, Typography } from 'antd'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isNil from 'lodash/isNil'
@@ -47,7 +47,9 @@ const ADDRESS_LAYOUT_PROPS = {
 const SELECT_POSTFIX_STYLE: CSSProperties = { margin: '0 0 0 10px' }
 const ADDRESS_SEARCH_WRAPPER_COL = { span: 14 }
 const STRICT_PERIOD_WRAPPER_COL = { span: 14 }
-const DESCRIPTION_TEXT_STYLE = { alignSelf: 'start' }
+const VERTICAL_MEDIUM_GUTTER: RowProps['gutter'] = [0, 40]
+const VERTICAL_BIG_GUTTER: RowProps['gutter'] = [0, 60]
+const FULL_SPAN = 24
 
 interface IMeterReportingPeriodForm {
     mode: 'create' | 'update'
@@ -240,110 +242,112 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                 return values
             }}
         >
-            {
-                ({ handleSave, isLoading }) => {
-                    return (
-                        <>
-                            <Col span={24}>
-                                <Row gutter={[0, 40]}>
-                                    <Typography.Text style={DESCRIPTION_TEXT_STYLE} type='secondary' >
-                                        {DescriptionMessage}
-                                    </Typography.Text>
-                                    <Col span={24}>
-                                        {isCreateMode && !isPeriodsLoading && <GraphQlSearchInputWithCheckAll
-                                            checkAllFieldName='isOrganizationPeriod'
-                                            checkAllInitialValue={formInitialValues.isOrganizationPeriod}
-                                            selectFormItemProps={propertiesFormItemProps}
-                                            selectProps={propertiesSelectProps}
-                                            checkBoxOffset={breakpoints.TABLET_LARGE && 8}
-                                            CheckAllMessage={OrganizationLabel}
-                                            form={form}
-                                            checkboxDisabled={hasOrganizationPeriod}
-                                            onCheckBoxChange={handleCheckboxChange}
-                                        />}
-                                        {!isCreateMode && <Form.Item
-                                            name='property'
-                                            label={AddressLabel}
-                                            labelAlign='left'
-                                            validateFirst
-                                            rules={validations.property}
-                                            {...ADDRESS_LAYOUT_PROPS}
-                                            wrapperCol={ADDRESS_SEARCH_WRAPPER_COL}>
-                                            {
-                                                !isPeriodsLoading &&
-                                                <GraphQlSearchInput
-                                                    label={AddressPlaceholderMessage}
-                                                    showArrow={false}
-                                                    placeholder={isOrganizationPeriod ? AddressPlaceholderDefaultPeriodLabel : AddressPlaceholderLabel}
-                                                    disabled={isOrganizationPeriod}
-                                                    onChange={handelGQLInputChange}
-                                                    initialValue={isCreateMode ? undefined : selectedPropertyId}
-                                                    search={search}
-                                                    searchMoreFirst={300}
+            {({ handleSave, isLoading }) => {
+                return (
+                    <Row gutter={VERTICAL_MEDIUM_GUTTER}>
+                        <Col span={FULL_SPAN}>
+                            <Row gutter={VERTICAL_BIG_GUTTER}>
+                                <Col span={FULL_SPAN}>
+                                    <Row gutter={VERTICAL_MEDIUM_GUTTER}>
+                                        <Col span={FULL_SPAN}>
+                                            {isCreateMode && !isPeriodsLoading && 
+                                                <GraphQlSearchInputWithCheckAll
+                                                    checkAllFieldName='isOrganizationPeriod'
+                                                    checkAllInitialValue={formInitialValues.isOrganizationPeriod}
+                                                    selectFormItemProps={propertiesFormItemProps}
+                                                    selectProps={propertiesSelectProps}
+                                                    checkBoxOffset={breakpoints.TABLET_LARGE && 8}
+                                                    CheckAllMessage={OrganizationLabel}
+                                                    form={form}
+                                                    checkboxDisabled={hasOrganizationPeriod}
+                                                    onCheckBoxChange={handleCheckboxChange}
                                                 />
                                             }
-                                        </Form.Item> }
-                                    </Col>
-                                    {!isCreateMode && <Col span={24}>
-                                        <Form.Item
-                                            {...INPUT_LAYOUT_PROPS}
-                                            labelAlign='left'
-                                            name='isOrganizationPeriod'
-                                            label={<LabelWithInfo title={OrganizationTooltipMessage} message={OrganizationLabel} />}
-                                            valuePropName='checked'
-                                        >
-                                            <Checkbox
-                                                checked={isOrganizationPeriod}
-                                                disabled={hasOrganizationPeriod}
-                                                onChange={handleCheckboxChange}
-                                            />
-                                        </Form.Item>
-                                    </Col>}
-                                    <Col span={24}>
-                                        <Form.Item
-                                            name='notifyStartDay'
-                                            rules={validations.notifyStartDay}
-                                            label={StartLabel}
-                                            {...INPUT_LAYOUT_PROPS}
-                                            labelAlign='left'
-                                            required
-                                            validateFirst
-                                        >
-                                            <Select
-                                                displayMode='fit-content'
-                                                options={DAY_SELECT_OPTIONS}
-                                                value={startNumberRef.current}
-                                                onChange={handleStartChange}
-                                            />
-                                            <Typography.Text style={SELECT_POSTFIX_STYLE} type='secondary' >
-                                                {InputPostfixMessage}
-                                            </Typography.Text>
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={24}>
-                                        <Form.Item
-                                            name='notifyEndDay'
-                                            rules={validations.notifyEndDay}
-                                            label={FinishLabel}
-                                            {...INPUT_LAYOUT_PROPS}
-                                            labelAlign='left'
-                                            required
-                                            shouldUpdate
-                                            validateFirst
-                                        >
-                                            <Select
-                                                displayMode='fit-content'
-                                                options={DAY_SELECT_OPTIONS}
-                                                value={finishNumberRef.current}
-                                                onChange={handleFinishChange}
-                                            />
-                                            <Typography.Text style={SELECT_POSTFIX_STYLE} type='secondary' >
-                                                {InputPostfixMessage}
-                                            </Typography.Text>
-                                        </Form.Item>
-                                    </Col>
-                                    {isMeterReportingPeriodStrictRuleEnabled && (
-                                        <>
+                                            {!isCreateMode && <Form.Item
+                                                name='property'
+                                                label={AddressLabel}
+                                                labelAlign='left'
+                                                validateFirst
+                                                rules={validations.property}
+                                                {...ADDRESS_LAYOUT_PROPS}
+                                                wrapperCol={ADDRESS_SEARCH_WRAPPER_COL}>
+                                                {!isPeriodsLoading &&
+                                                    <GraphQlSearchInput
+                                                        label={AddressPlaceholderMessage}
+                                                        showArrow={false}
+                                                        placeholder={isOrganizationPeriod ? AddressPlaceholderDefaultPeriodLabel : AddressPlaceholderLabel}
+                                                        disabled={isOrganizationPeriod}
+                                                        onChange={handelGQLInputChange}
+                                                        initialValue={isCreateMode ? undefined : selectedPropertyId}
+                                                        search={search}
+                                                        searchMoreFirst={300}
+                                                    />
+                                                }
+                                            </Form.Item>}
+                                        </Col>
+                                        {!isCreateMode && <Col span={FULL_SPAN}>
+                                            <Form.Item
+                                                {...INPUT_LAYOUT_PROPS}
+                                                labelAlign='left'
+                                                name='isOrganizationPeriod'
+                                                label={<LabelWithInfo title={OrganizationTooltipMessage} message={OrganizationLabel} />}
+                                                valuePropName='checked'
+                                            >
+                                                <Checkbox
+                                                    checked={isOrganizationPeriod}
+                                                    disabled={hasOrganizationPeriod}
+                                                    onChange={handleCheckboxChange}
+                                                />
+                                            </Form.Item>
+                                        </Col>}
+                                        <Col span={FULL_SPAN}>
+                                            <Form.Item
+                                                name='notifyStartDay'
+                                                rules={validations.notifyStartDay}
+                                                label={StartLabel}
+                                                {...INPUT_LAYOUT_PROPS}
+                                                labelAlign='left'
+                                                required
+                                                validateFirst
+                                            >
+                                                <Select
+                                                    displayMode='fit-content'
+                                                    options={DAY_SELECT_OPTIONS}
+                                                    value={startNumberRef.current}
+                                                    onChange={handleStartChange}
+                                                />
+                                                <Typography.Text style={SELECT_POSTFIX_STYLE} type='secondary' >
+                                                    {InputPostfixMessage}
+                                                </Typography.Text>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={FULL_SPAN}>
+                                            <Form.Item
+                                                name='notifyEndDay'
+                                                rules={validations.notifyEndDay}
+                                                label={FinishLabel}
+                                                {...INPUT_LAYOUT_PROPS}
+                                                labelAlign='left'
+                                                required
+                                                shouldUpdate
+                                                validateFirst
+                                            >
+                                                <Select
+                                                    displayMode='fit-content'
+                                                    options={DAY_SELECT_OPTIONS}
+                                                    value={finishNumberRef.current}
+                                                    onChange={handleFinishChange}
+                                                />
+                                                <Typography.Text style={SELECT_POSTFIX_STYLE} type='secondary' >
+                                                    {InputPostfixMessage}
+                                                </Typography.Text>
+                                            </Form.Item>
+                                        </Col>
+                                    </Row>
+                                </Col>
+                                {isMeterReportingPeriodStrictRuleEnabled && (
+                                    <Col span={FULL_SPAN}>
+                                        <Row gutter={VERTICAL_MEDIUM_GUTTER}>
                                             <Col span={24}>
                                                 <Typography.Title level={2}>
                                                     {ResitrictionsSetupTitle}
@@ -379,67 +383,67 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                                                     </RadioGroup>
                                                 </Form.Item>
                                             </Col>
-                                            <Col span={12} offset={8}>
+                                            {restrictionEndDay !== null && <Col span={18}>
                                                 <Alert
                                                     type='info'
                                                     showIcon
                                                     description={ResitrictionsSetupAlert}
                                                 />
-                                            </Col>
-                                        </>)}
-                                    <Col span={24}>
-                                        <Form.Item
-                                            noStyle
-                                            dependencies={['property', 'notifyStartDay', 'notifyEndDay', 'isOrganizationPeriod', 'restrictionEndDay']}
-                                            shouldUpdate>
-                                            {
-                                                ({ getFieldsValue }) => {
-                                                    const { property, properties, notifyStartDay, notifyEndDay, isOrganizationPeriod } = getFieldsValue(['property', 'notifyStartDay', 'notifyEndDay', 'isOrganizationPeriod', 'properties'])
+                                            </Col>}
+                                        </Row>
+                                    </Col>)}
+                            </Row>
+                        </Col>
+                        <Col span={FULL_SPAN}>
+                            <Form.Item
+                                noStyle
+                                dependencies={['property', 'notifyStartDay', 'notifyEndDay', 'isOrganizationPeriod', 'restrictionEndDay']}
+                                shouldUpdate>
+                                {
+                                    ({ getFieldsValue }) => {
+                                        const { property, properties, notifyStartDay, notifyEndDay, isOrganizationPeriod } = getFieldsValue(['property', 'notifyStartDay', 'notifyEndDay', 'isOrganizationPeriod', 'properties'])
 
-                                                    const messageLabels = []
-                                                    if (!property && !isOrganizationPeriod) messageLabels.push(`"${AddressLabel}" ${OrMessage} "${OrganizationLabel}"`)
-                                                    if (!notifyStartDay) messageLabels.push(`"${StartLabel}"`)
-                                                    if (!notifyEndDay) messageLabels.push(`"${FinishLabel}"`)
+                                        const messageLabels = []
+                                        if (!property && !isOrganizationPeriod) messageLabels.push(`"${AddressLabel}" ${OrMessage} "${OrganizationLabel}"`)
+                                        if (!notifyStartDay) messageLabels.push(`"${StartLabel}"`)
+                                        if (!notifyEndDay) messageLabels.push(`"${FinishLabel}"`)
 
-                                                    const requiredErrorMessage = !isEmpty(messageLabels) && ErrorsContainerTitle.concat(' ', messageLabels.join(', '))
-                                                    const errors = [requiredErrorMessage].filter(Boolean).join('')
+                                        const requiredErrorMessage = !isEmpty(messageLabels) && ErrorsContainerTitle.concat(' ', messageLabels.join(', '))
+                                        const errors = [requiredErrorMessage].filter(Boolean).join('')
 
-                                                    const isDisabled = (!property && !isOrganizationPeriod && !properties) || !notifyStartDay || !notifyEndDay
+                                        const isDisabled = (!property && !isOrganizationPeriod && !properties) || !notifyStartDay || !notifyEndDay
 
-                                                    return (
-                                                        <ActionBar
-                                                            actions={[
-                                                                <ButtonWithDisabledTooltip
-                                                                    key='submit'
-                                                                    type='primary'
-                                                                    disabled={isDisabled}
-                                                                    title={errors}
-                                                                    onClick={handleSave}
-                                                                    loading={isLoading}
-                                                                >
-                                                                    {isCreateMode ? SubmitButtonCreateLabel : SubmitButtonApplyLabel}
-                                                                </ButtonWithDisabledTooltip>,
-                                                                isCreateMode ? <></> : <DeleteButtonWithConfirmModal
-                                                                    key='delete'
-                                                                    title={ConfirmDeleteTitle}
-                                                                    message={ConfirmDeleteMessage}
-                                                                    okButtonLabel={DeleteButtonLabel}
-                                                                    action={handleDeleteButtonClick}
-                                                                    buttonContent={DeleteButtonLabel}
-                                                                />,
-                                                            ]}
-                                                        />
-                                                    )
-                                                }
-                                            }
-                                        </Form.Item>
-                                    </Col>
-                                </Row>
-                            </Col>
-                        </>
-                    )
-                }
-            }
+                                        return (
+                                            <ActionBar
+                                                actions={[
+                                                    <ButtonWithDisabledTooltip
+                                                        key='submit'
+                                                        type='primary'
+                                                        disabled={isDisabled}
+                                                        title={errors}
+                                                        onClick={handleSave}
+                                                        loading={isLoading}
+                                                    >
+                                                        {isCreateMode ? SubmitButtonCreateLabel : SubmitButtonApplyLabel}
+                                                    </ButtonWithDisabledTooltip>,
+                                                    isCreateMode ? <></> : <DeleteButtonWithConfirmModal
+                                                        key='delete'
+                                                        title={ConfirmDeleteTitle}
+                                                        message={ConfirmDeleteMessage}
+                                                        okButtonLabel={DeleteButtonLabel}
+                                                        action={handleDeleteButtonClick}
+                                                        buttonContent={DeleteButtonLabel}
+                                                    />,
+                                                ]}
+                                            />
+                                        )
+                                    }
+                                }
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                )
+            }}
         </FormWithAction>
     )
 }

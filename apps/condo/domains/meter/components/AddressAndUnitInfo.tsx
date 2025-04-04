@@ -32,7 +32,7 @@ type AddressAndUnitInfoProps = {
     form?: FormInstance
     organizationId: string
     meterType: MeterPageTypes
-    getHandleSelectPropertyAddress: (form: FormInstance) => (_: unknown, option: DefaultOptionType) => void,
+    getHandleSelectPropertyAddress: (form: FormInstance) => (_: unknown, option: DefaultOptionType) => void
     handleDeselectPropertyAddress: () => void
     selectedPropertyId: string
     isMatchSelectedProperty: boolean

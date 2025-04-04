@@ -3,6 +3,7 @@
  */
 
 const { Big } = require('big.js')
+const dayjs = require('dayjs')
 const { get, isEmpty } = require('lodash')
 
 const { readOnlyFieldAccess } = require('@open-condo/keystone/access')
@@ -206,6 +207,21 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             isRequired: false,
             graphQLReturnType: 'Boolean',
             resolver: async (receipt) => {
+                const category = await getByCondition('BillingCategory', {
+                    id: get(receipt, 'category'),
+                    deletedAt: null,
+                })
+
+                if (!category) return false
+
+                const validityMonths = get(category, 'receiptValidityMonths')
+                if (validityMonths) {
+                    const periodDate = dayjs(get(receipt, 'period'))
+                    const lastValidDate = periodDate.add(validityMonths, 'month').endOf('month')
+
+                    if (dayjs().isAfter(lastValidDate)) return false
+                }
+
                 const receipts = await find('BillingReceipt', {
                     account: { id: get(receipt, 'account'), deletedAt: null },
                     OR: [

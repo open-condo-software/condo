@@ -188,7 +188,7 @@ export const getClientCardTabKey = (propertyId: string, type: ClientType, unitNa
 type RedirectToFormArgsType = {
     router: NextRouter
     formRoute: string
-    initialValues?: Record<string, unknown>,
+    initialValues?: Record<string, unknown>
     target?: '_self' | '_blank'
 }
 type RedirectToFormType = (args: RedirectToFormArgsType) => Promise<void>

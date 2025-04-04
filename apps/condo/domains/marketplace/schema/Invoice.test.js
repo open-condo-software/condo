@@ -2308,7 +2308,7 @@ describe('Invoice', () => {
                         code: 'BAD_USER_INPUT',
                         type: 'NO_APPROVED_BANK_ACCOUNT',
                         message: 'Some recipients not approved. Please connect to support.',
-                        messageInterpolation: { notApprovedRecipients: [unapprovedRecipient] },
+                        notApprovedRecipients: [unapprovedRecipient],
                     })
                 })
 
