@@ -20,6 +20,7 @@ const MeterReportingPeriodCreatePage: PageComponentType = () => {
     const intl = useIntl()
     
     const PageTitle = intl.formatMessage({ id: 'meter.reportingPeriod.AddMeterReportingPeriod' })
+    const DescriptionMessage = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.create.descriptionMessage' })
 
     const router = useRouter()
     
@@ -50,9 +51,14 @@ const MeterReportingPeriodCreatePage: PageComponentType = () => {
         </Head>
         <PageWrapper>
             <PageContent>
-                <Row gutter={CREATE_REPORTING_PERIOD_PAGE_GUTTER}>
+                <Row gutter={[0, 60]}>
                     <Col span={24}>
-                        <Typography.Title level={1}>{PageTitle}</Typography.Title>
+                        <Row gutter={CREATE_REPORTING_PERIOD_PAGE_GUTTER}>
+                            <Typography.Title level={1}>{PageTitle}</Typography.Title>
+                            <Typography.Text type='secondary'>
+                                {DescriptionMessage}
+                            </Typography.Text>
+                        </Row>
                     </Col>
                     <Col span={24}>
                         <Row gutter={CREATE_REPORTING_PERIOD_PAGE_GUTTER}>
