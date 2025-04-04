@@ -9,13 +9,13 @@ import styles from './distributionItem.module.css'
 
 const GUTTER_COMPACT_ROW: RowProps['gutter'] = [8, 8]
 
-type TDistributionItemProps = {
+type DistributionItemProps = {
     index: number
     item: TDistributionItem
     onUpdate: (index: number, item: TDistributionItem) => void
 }
 
-export const DistributionItem: React.FC<TDistributionItemProps> = (props) => {
+export const DistributionItem: React.FC<DistributionItemProps> = (props) => {
     const { index, item, onUpdate } = props
 
     const intl = useIntl()

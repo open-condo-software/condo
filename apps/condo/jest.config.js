@@ -45,7 +45,8 @@ module.exports = {
             // NOTE: need to pass uuid export syntax through babel
             transformIgnorePatterns: ['/node_modules/(?!(uuid|nanoid|msgpackr|n2words)/)'],
             moduleNameMapper: {
-                '@open-condo/(.*)': '<rootDir>/../../packages/$1',
+                '^@open-condo/billing/(.*)$': '<rootDir>/../../packages/billing/dist/$1', // ts package has transpiled modules at dist
+                '^@open-condo/(.*)$': '<rootDir>/../../packages/$1',
             },
         },
     ],

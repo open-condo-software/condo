@@ -8,11 +8,11 @@ import { Card, List } from '@open-condo/ui'
 const CARD_PADDING = 8
 const GUTTER_ROW: RowProps['gutter'] = [16, 16]
 
-type TSplitResultProps = {
+type SplitResultProps = {
     splits: TSplit[]
 }
 
-export const SplitResult: React.FC<TSplitResultProps> = (props) => {
+export const SplitResult: React.FC<SplitResultProps> = (props) => {
     const { splits } = props
 
     const intl = useIntl()
