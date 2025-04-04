@@ -1,4 +1,8 @@
-import { CallRecordFragmentWhereInput, TicketWhereInput } from '@app/condo/schema'
+import {
+    CallRecordFragmentWhereInput,
+    TicketWhereInput,
+    TicketLastOrganizationCommentAuthorTypeType,
+} from '@app/condo/schema'
 import isEmpty from 'lodash/isEmpty'
 import isString from 'lodash/isString'
 import uniq from 'lodash/uniq'
@@ -15,6 +19,7 @@ import {
     DEFERRED_STATUS_TYPE,
 } from '@condo/domains/ticket/constants'
 import { INCIDENT_STATUS_ACTUAL, INCIDENT_STATUS_NOT_ACTUAL } from '@condo/domains/ticket/constants/incident'
+import { RESIDENT } from '@condo/domains/user/constants/common'
 
 
 type MultipleDataIndexType = DataIndexType[]
@@ -75,12 +80,12 @@ export const getCommentByTypeFilter = () => {
     }
 }
 
-export const getUnansweredCommentFilter = () => {
+export const getLastCommentWithResidentAuthorTypeFilter = () => {
     return function getWhereQuery (search) {
         if (search !== 'true') return
 
         return {
-            hasUnansweredCommentsByOrganizationEmployee: true,
+            lastOrganizationCommentAuthorType:  RESIDENT as TicketLastOrganizationCommentAuthorTypeType,
         }
     }
 }

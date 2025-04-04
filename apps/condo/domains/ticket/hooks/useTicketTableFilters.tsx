@@ -43,7 +43,7 @@ import {
     getPropertyScopeFilter,
     getTicketAttributesFilter,
     getTicketTypeFilter,
-    getUnansweredCommentFilter,
+    getLastCommentWithResidentAuthorTypeFilter,
 } from '@condo/domains/ticket/utils/tables.utils'
 
 import {
@@ -59,7 +59,7 @@ const filterDeadlineRange = getDayRangeFilter('deadline')
 const filterCompletedAtRange = getDayRangeFilter('completedAt')
 const filterLastResidentCommentAtRange = getDayRangeFilter('lastResidentCommentAt')
 const filterCommentsByType = getCommentByTypeFilter()
-const filterUnansweredCommentsByOrganizationEmployee = getUnansweredCommentFilter()
+const filterUnansweredCommentsByOrganizationEmployee = getLastCommentWithResidentAuthorTypeFilter()
 const filterStatus = getFilter(['status', 'type'], 'array', 'string', 'in')
 const filterDetails = getStringContainsFilter('details')
 const filterProperty = getFilter(['property', 'id'], 'array', 'string', 'in')
