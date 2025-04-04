@@ -68,6 +68,7 @@ const {
     relatedManyToManyResolvers,
 } = require('@condo/domains/ticket/utils/serverSchema/TicketChange')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { USER_TYPES } = require('@condo/domains/user/constants/common')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
 
@@ -368,6 +369,17 @@ const Ticket = new GQLListSchema('Ticket', {
         lastCommentWithResidentTypeAt: {
             schemaDoc: 'Time of the last comment with resident type (from staff or resident user) in ticket',
             type: 'DateTimeUtc',
+            access: writeOnlyServerSideFieldAccess,
+        },
+        lastCommentWithOrganizationTypeAt: {
+            schemaDoc: 'Time of the last comment with organization type (only from staff user) in ticket',
+            type: 'DateTimeUtc',
+            access: writeOnlyServerSideFieldAccess,
+        },
+        lastOrganizationCommentAuthorType: {
+            schemaDoc: 'Type of the author of the last comment with organization type in ticket',
+            type: 'Select',
+            options: USER_TYPES,
             access: writeOnlyServerSideFieldAccess,
         },
         statusReason: {

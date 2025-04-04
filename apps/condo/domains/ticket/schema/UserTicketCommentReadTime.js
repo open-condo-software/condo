@@ -38,6 +38,11 @@ const UserTicketCommentReadTime = new GQLListSchema('UserTicketCommentReadTime',
             schemaDoc: 'Time when the last comment from a resident was last read by the user',
             type: 'DateTimeUtc',
         },
+
+        readOrganizationCommentAt: {
+            schemaDoc: 'Time when the last comment from a organization employee was last read by the user',
+            type: 'DateTimeUtc',
+        },
     },
     kmigratorOptions: {
         constraints: [
