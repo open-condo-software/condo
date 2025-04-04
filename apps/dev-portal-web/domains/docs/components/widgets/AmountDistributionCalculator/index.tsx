@@ -1,152 +1,17 @@
 import { Col, Row, RowProps } from 'antd'
-import React, { CSSProperties, useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
 
-import { split, createRecipientKey } from '@open-condo/billing/tools/billingCentrifuge'
-import type { TSplit, TDistributionItem, TSplitOptions } from '@open-condo/billing/tools/billingCentrifuge'
+import { split, createRecipientKey } from '@open-condo/billing/utils/paymentSplitter'
+import type { TSplit, TDistributionItem, TSplitOptions } from '@open-condo/billing/utils/paymentSplitter'
 import { Plus, Trash } from '@open-condo/icons'
-import { Alert, Button, Card, Input, List, MarkdownCodeWrapper, Switch, Tabs, Typography } from '@open-condo/ui'
+import { Alert, Button, Card, Input, MarkdownCodeWrapper, Tabs, Typography } from '@open-condo/ui'
+
+import { DistributionItem } from './DistributionItem'
+import { SplitResult } from './SplitResult'
 
 const CARD_PADDING = 8
-const GUTTER_COMPACT_ROW: RowProps['gutter'] = [8, 8]
 const GUTTER_ROW: RowProps['gutter'] = [16, 16]
-const RECIPIENT_CHECKBOX_ROW_STYLE: CSSProperties = { height: '28px' }
-
-type TDistributionItemProps = {
-    index: number
-    item: TDistributionItem
-    onUpdate: (index: number, item: TDistributionItem) => void
-}
-
-const DistributionItem: React.FC<TDistributionItemProps> = (props) => {
-    const { index, item, onUpdate } = props
-
-    const intl = useIntl()
-
-    const TinTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.tin' })
-    const AmountTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.amount' })
-    const OrderTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.order' })
-    const FeePayerTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.isFeePayer' })
-    const VORTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.vor' })
-    const OverpaymentTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.overpaymentPart' })
-
-    const [tin, setTin] = useState<string>(item.recipient.tin)
-    const [bic] = useState<string>(item.recipient.bic)
-    const [bankAccount] = useState<string>(item.recipient.bankAccount)
-    const [amount, setAmount] = useState<string>(item.amount)
-    const [isFeePayer, setIsFeePayer] = useState<boolean | undefined>(item.isFeePayer)
-    const [order, setOrder] = useState<number | undefined>(item.order || 0)
-    const [vor, setVor] = useState<boolean | undefined>(item.vor)
-    const [overpaymentPart, setOverpaymentPart] = useState<number | undefined>(item.overpaymentPart)
-
-    useEffect(() => {
-        onUpdate(index, {
-            recipient: { tin, bic, bankAccount },
-            amount, isFeePayer, order, vor, overpaymentPart,
-        })
-    }, [amount, bankAccount, bic, index, isFeePayer, onUpdate, order, overpaymentPart, tin, vor])
-
-    return (
-        <Row align='middle' justify='space-between' gutter={GUTTER_COMPACT_ROW}>
-            <Col span={24}>
-                <Input
-                    value={tin}
-                    onChange={(e) => {
-                        setTin(e.target.value)
-                    }}
-                    prefix={`${TinTitle}:`}
-                />
-            </Col>
-            <Col span={24}>
-                <Input
-                    value={amount}
-                    onChange={(e) => {
-                        setAmount(e.target.value)
-                    }}
-                    prefix={`${AmountTitle}:`}
-                />
-            </Col>
-            <Col span={24}>
-                <Input
-                    value={order}
-                    onChange={(e) => {
-                        try {
-                            setOrder(Number(e.target.value))
-                        } catch (err) {
-                            setOrder(0)
-                        }
-                    }}
-                    prefix={`${OrderTitle}:`}
-                />
-            </Col>
-            <Col span={24}>
-                <Row gutter={0} align='middle' justify='space-between' style={RECIPIENT_CHECKBOX_ROW_STYLE}>
-                    <Col><Typography.Text>{FeePayerTitle}:</Typography.Text></Col>
-                    <Col>
-                        <Switch size='large' checked={isFeePayer} onChange={(checked) => setIsFeePayer(checked)}/>
-                    </Col>
-                </Row>
-            </Col>
-            <Col span={24}>
-                <Row gutter={0} align='middle' justify='space-between' style={RECIPIENT_CHECKBOX_ROW_STYLE}>
-                    <Col><Typography.Text>{VORTitle}:</Typography.Text></Col>
-                    <Col>
-                        <Switch size='large' checked={vor} onChange={(checked) => setVor(checked)}/>
-                    </Col>
-                </Row>
-            </Col>
-            <Col span={24}>
-                <Input
-                    value={overpaymentPart}
-                    onChange={(e) => {
-                        try {
-                            setOverpaymentPart(Number(e.target.value))
-                        } catch (err) {
-                            setOverpaymentPart(0)
-                        }
-                    }}
-                    prefix={`${OverpaymentTitle}:`}
-                />
-            </Col>
-        </Row>
-    )
-}
-
-type TSplitResultProps = {
-    splits: TSplit[]
-}
-
-const SplitResult: React.FC<TSplitResultProps> = (props) => {
-    const { splits } = props
-
-    const intl = useIntl()
-
-    const TinTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.tin' })
-    const AmountTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.amount' })
-    const FeeTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.fee' })
-
-    return (
-        <Row gutter={GUTTER_ROW}>
-            {splits.map((split, i) => (
-                <Col key={i} span={8}>
-                    <Card
-                        title={`${TinTitle}: ${split.recipient?.tin}`}
-                        titlePadding={CARD_PADDING}
-                        bodyPadding={CARD_PADDING}
-                    >
-                        <List
-                            size='large'
-                            dataSource={[
-                                { label: AmountTitle, value: split.amount || '—' },
-                                { label: FeeTitle, value: split.feeAmount || '—' },
-                            ]}
-                        />
-                    </Card>
-                </Col>
-            ))}
-        </Row>
-    )
-}
 
 function generateDecimalString (len: number): string {
     return Math.random().toString().substring(2, len) // NOSONAR

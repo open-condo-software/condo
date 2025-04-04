@@ -7,5 +7,5 @@ export {
     hasOverpaymentReceivers,
     hasSingleVorItem,
     sortByVorAndOrderComparator,
-} from './tools/billingCentrifuge'
-export type { TDistributionItem, TSplit, TSplitOptions, TRecipient } from './tools/billingCentrifuge'
+} from './utils/paymentSplitter'
+export type { TDistributionItem, TSplit, TSplitOptions, TRecipient } from './utils/paymentSplitter'

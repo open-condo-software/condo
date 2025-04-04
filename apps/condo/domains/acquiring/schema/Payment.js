@@ -5,7 +5,7 @@
 const Big = require('big.js')
 const { get } = require('lodash')
 
-const { split } = require('@open-condo/billing/tools/billingCentrifuge')
+const { split } = require('@open-condo/billing/utils/paymentSplitter')
 const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')

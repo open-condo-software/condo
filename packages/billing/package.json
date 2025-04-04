@@ -1,12 +1,12 @@
 {
   "name": "@open-condo/billing",
-  "description": "A set of billing and acquiring tools that shared between apps",
+  "description": "A set of billing and acquiring utils that shared between apps",
   "keywords": [
     "condo",
     "open-condo-software",
     "packages",
     "billing",
-    "tools"
+    "utils"
   ],
   "scripts": {
     "test": "jest",
@@ -32,18 +32,18 @@
   ],
   "typesVersions": {
     "*": {
-      "tools/billingCentrifuge": [
-        "dist/tools/billingCentrifuge.d.ts"
+      "utils/paymentSplitter": [
+        "dist/utils/paymentSplitter.d.ts"
       ]
     }
   },
   "types": "dist/index.d.ts",
   "main": "dist/index.js",
   "exports": {
-    "./tools/billingCentrifuge": {
-      "types": "./dist/tools/billingCentrifuge.d.ts",
-      "require": "./dist/tools/billingCentrifuge.js",
-      "import": "./dist/tools/billingCentrifuge.mjs"
+    "./utils/paymentSplitter": {
+      "types": "./dist/utils/paymentSplitter.d.ts",
+      "require": "./dist/utils/paymentSplitter.js",
+      "import": "./dist/utils/paymentSplitter.mjs"
     }
   },
   "dependencies": {

@@ -8,7 +8,7 @@ const {
     getVorItems,
     hasFeePayers,
     areAllRecipientsUnique,
-} = require('@open-condo/billing/tools/billingCentrifuge')
+} = require('@open-condo/billing/utils/paymentSplitter')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { find } = require('@open-condo/keystone/schema')
 
@@ -107,11 +107,11 @@ const ajv = new Ajv()
 const feeDistributionJsonSchema = {
     type: 'object',
     /**
-     * @see {import('@open-condo/billing/tools/billingCentrifuge').TDistribution}
+     * @see {import('@open-condo/billing/utils/paymentSplitter').TDistribution}
      */
     properties: {
         /**
-         * @see {import('@open-condo/billing/tools/billingCentrifuge').TRecipient}
+         * @see {import('@open-condo/billing/utils/paymentSplitter').TRecipient}
          */
         recipient: RecipientSchema,
         amount: { type: 'string' },

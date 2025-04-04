@@ -3,7 +3,7 @@
   "extends": "@open-condo/tsconfig/base.json",
   "compilerOptions": {
     "lib": ["ESNext"],
-//    "allowSyntheticDefaultImports": true,
+    "allowSyntheticDefaultImports": true,
     "module": "ES2022",
     "moduleResolution": "Bundler",
     "rootDir": "./src",

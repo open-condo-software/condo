@@ -9,7 +9,7 @@ import {
     areAllRecipientsUnique,
     sortByVorAndOrderComparator,
     TDistributionItem,
-} from './billingCentrifuge'
+} from './paymentSplitter'
 
 function createTestRecipient (extra = {}) {
     const range = (length: number) => ({ min: Math.pow(10, length - 1), max: Math.pow(10, length) - 1 })
@@ -29,7 +29,7 @@ function createTestRecipient (extra = {}) {
     }
 }
 
-describe('billingCentrifuge', () => {
+describe('paymentSplitter', () => {
     describe('helper functions', () => {
         test('recipient key created successfully', () => {
             const recipient = createTestRecipient()
@@ -43,18 +43,18 @@ describe('billingCentrifuge', () => {
             const recipient4 = createTestRecipient()
 
             const distribution: TDistributionItem[] = [
-                { recipient: recipient1, order: 0, amount: '', vor: true },
-                { recipient: recipient2, order: 0, amount: '' },
-                { recipient: recipient3, order: 2, amount: '', vor: true },
-                { recipient: recipient4, order: 1, amount: '' },
+                { recipient: recipient1, order: 0, amount: '0', vor: true },
+                { recipient: recipient2, order: 0, amount: '0' },
+                { recipient: recipient3, order: 2, amount: '0', vor: true },
+                { recipient: recipient4, order: 1, amount: '0' },
             ]
 
             const sortedDistribution = distribution.sort(sortByVorAndOrderComparator)
             expect(sortedDistribution).toEqual([
-                { recipient: recipient2, order: 0, amount: '' },
-                { recipient: recipient4, order: 1, amount: '' },
-                { recipient: recipient1, order: 0, amount: '', vor: true },
-                { recipient: recipient3, order: 2, amount: '', vor: true },
+                { recipient: recipient2, order: 0, amount: '0' },
+                { recipient: recipient4, order: 1, amount: '0' },
+                { recipient: recipient1, order: 0, amount: '0', vor: true },
+                { recipient: recipient3, order: 2, amount: '0', vor: true },
             ])
         })
     })
