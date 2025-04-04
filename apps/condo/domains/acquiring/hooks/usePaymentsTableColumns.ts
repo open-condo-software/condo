@@ -42,7 +42,7 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
                 key: 'depositedDate',
                 dataIndex: ['depositedDate'],
                 sorter: true,
-                width: '112px',
+                width: '11em',
                 render: getDateRender(intl, String(search)),
             },
             transferDate: {
@@ -50,36 +50,25 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
                 key: 'transferDate',
                 dataIndex: ['transferDate'],
                 sorter: true,
-                width: '112px',
+                width: '11em',
                 render: getDateRender(intl, String(search)),
             },
             account: {
                 title: AccountTitle,
                 key: 'accountNumber',
                 dataIndex: 'accountNumber',
-                width: '120px',
+                width: '10em',
                 render: stringSearch,
             },
             address: {
                 title: AddressTitle,
                 key: 'rawAddress',
+                width: '25em',
                 sorter: true,
                 render: (obj) => stringSearch(get(
                     obj,
                     ['rawAddress'],
                 )),
-            },
-            type: {
-                title: TypeTitle,
-                key: 'type',
-                dataIndex: ['context', 'integration', 'name'],
-                render: stringSearch,
-            },
-            transaction: {
-                title: TransactionTitle,
-                key: 'transaction',
-                dataIndex: ['multiPayment', 'transactionId'],
-                render: stringSearch,
             },
             status: {
                 title: StatusTitle,
