@@ -44,7 +44,7 @@ const BillingCategory = new GQLListSchema('BillingCategory', {
         },
 
         receiptValidityMonths: {
-            schemaDoc: 'The number of months the receipt can be paid for',
+            schemaDoc: 'The number of months the receipt can be paid for including the period month of the receipt',
             type: 'Integer',
             defaultValue: 3,
             kmigratorOptions: { default: 3 },

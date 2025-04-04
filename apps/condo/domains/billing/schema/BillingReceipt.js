@@ -217,7 +217,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
                 const validityMonths = get(category, 'receiptValidityMonths')
                 if (validityMonths) {
                     const periodDate = dayjs(get(receipt, 'period'))
-                    const lastValidDate = periodDate.add(validityMonths, 'month').endOf('month')
+                    const lastValidDate = periodDate.add(validityMonths - 1, 'month').endOf('month')
 
                     if (dayjs().isAfter(lastValidDate)) return false
                 }
