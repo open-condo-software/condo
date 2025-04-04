@@ -3,6 +3,7 @@ import { TourStepStatusType, TourStepTypeType } from '@app/condo/schema'
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 
 import { MUTATION_RESULT_EVENT, MutationEmitter } from '@open-condo/next/_useEmitterMutation'
+import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
 
 import { IMPORT_EVENT, ImportEmitter } from '@condo/domains/common/components/Import/Index'
@@ -41,7 +42,8 @@ const getActiveTourStepFromStorage = (): ActiveTourStepType => {
 }
 
 export const TourProvider: React.FC = ({ children }) => {
-    const { organization } = useOrganization()
+    const { user, isLoading: userIsLoading } = useAuth()
+    const { organization, isLoading: organizationIsLoading } = useOrganization()
     const organizationId = organization?.id || null
     const organizationType = organization?.type || null
 
@@ -77,10 +79,10 @@ export const TourProvider: React.FC = ({ children }) => {
     })
 
     useEffect(() => {
-        if (!organizationId) return
+        if (!organizationId || !user || userIsLoading || organizationIsLoading) return
 
         syncTourStepMutation()
-    }, [organizationId])
+    }, [organizationId, organizationIsLoading, syncTourStepMutation, user, userIsLoading])
 
     const [activeStep, setActiveStep] = useState<ActiveTourStepType>(getActiveTourStepFromStorage())
 

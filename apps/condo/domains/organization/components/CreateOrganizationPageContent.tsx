@@ -1,4 +1,5 @@
 import {
+    GetActualOrganizationEmployeesDocument,
     useAcceptOrRejectOrganizationInviteMutation,
     useGetLastEmployeeInviteQuery,
     useGetLastUserOrganizationEmployeeRequestQuery,
@@ -131,8 +132,9 @@ export const CreateOrganizationPageContent: React.FC = () => {
             && [OrganizationTypeType.ManagingCompany, OrganizationTypeType.ServiceProvider].includes(invite?.organization?.type)
 
         if (isAcceptedInvite) {
-            // Evict cache for get actual employee in prefetchOrganizationEmployee
-            client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allOrganizationEmployees' })
+            await client.refetchQueries({
+                include: [GetActualOrganizationEmployeesDocument],
+            })
 
             await selectEmployee(invite.id)
             await router.push(redirectUrl)
@@ -140,7 +142,7 @@ export const CreateOrganizationPageContent: React.FC = () => {
 
         await refetchLastInvite()
         setAcceptOrRejectInviteLoading(false)
-    }, [acceptOrRejectInvite, client.cache, lastInvite?.id, redirectUrl, refetchLastInvite, router, selectEmployee])
+    }, [acceptOrRejectInvite, client, lastInvite?.id, redirectUrl, refetchLastInvite, router, selectEmployee])
 
     const handleRetryOrganizationEmployeeRequest = useCallback(async () => {
         if (!lastOrganizationEmployeeRequest?.organizationId) {
@@ -170,16 +172,6 @@ export const CreateOrganizationPageContent: React.FC = () => {
 
     const pageDataLoading = lastInviteLoading || lastOrganizationEmployeeRequestLoading || acceptOrRejectInviteLoading
 
-    useEffect(() => {
-        if (userLoading || organizationLoading || pageDataLoading) return
-        if (!user) {
-            router.push(isValidNextUrl ? `/auth/signin?next=${encodeURIComponent(next)}` : '/auth/signin')
-        }
-        if (hasEmployees) {
-            router.push(redirectUrl)
-        }
-    }, [hasEmployees, organizationLoading, isValidNextUrl, next, pageDataLoading, redirectUrl, router, user, userLoading])
-
     if (userLoading || organizationLoading) {
         return <Loader fill size='large' />
     }
@@ -192,7 +184,7 @@ export const CreateOrganizationPageContent: React.FC = () => {
                     await refetchLastOrganizationEmployeeRequest()
                     setShowOrganizationForm(false)
                 }}
-                onOrganizationCreated={async () => {
+                onEmployeeSelected={async () => {
                     setShowOrganizationForm(false)
                     await router.push(redirectUrl)
                 }}
