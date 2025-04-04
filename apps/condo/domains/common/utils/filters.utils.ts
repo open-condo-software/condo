@@ -9,6 +9,8 @@ import isEmpty from 'lodash/isEmpty'
 import pickBy from 'lodash/pickBy'
 import React, { CSSProperties } from 'react'
 
+import { CheckboxProps } from '@open-condo/ui'
+
 import { ISearchInputProps } from '@condo/domains/common/components/GraphQlSearchInput'
 import {
     getDateFilterDropdown,
@@ -32,6 +34,7 @@ export enum FilterComponentSize {
 export enum ComponentType {
     Input,
     CheckboxGroup,
+    Checkbox,
     Select,
     GQLSelect,
     TagsSelect,
@@ -65,6 +68,11 @@ type CheckboxGroupFilterType = {
     props?: CheckboxGroupProps
 }
 
+type CheckboxFilterType = {
+    type: ComponentType.Checkbox
+    props?: CheckboxProps
+}
+
 type SelectFilterType = {
     type: ComponentType.Select
     options: OptionType[]
@@ -93,7 +101,7 @@ type CustomFilterType<RecordType> = {
 }
 
 export type FilterComponentType<RecordType = unknown> = CommonFilterComponentType & (
-    GQLSelectFilterType | InputFilterType | CheckboxGroupFilterType | SelectFilterType |
+    GQLSelectFilterType | InputFilterType | CheckboxGroupFilterType | CheckboxFilterType | SelectFilterType |
     TagsSelectFilterType | DateFilterType | DateRangeFilterType | CustomFilterType<RecordType>
 )
 
