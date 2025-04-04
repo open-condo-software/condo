@@ -8,7 +8,7 @@ const sample = require('lodash/sample')
 const {
     makeLoggedInAdminClient, makeClient, UUID_RE, waitFor,
     expectToThrowAuthenticationErrorToResult, expectToThrowAccessDeniedErrorToResult,
-    expectToThrowGQLError,
+    expectToThrowGQLErrorToResult,
 } = require('@open-condo/keystone/test.utils')
 
 const { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
@@ -496,17 +496,17 @@ describe('RegisterResidentService', () => {
         const userClient = await makeClientWithResidentAccessAndProperty()
         const testUnitName = faker.random.numeric(3) + faker.random.alpha(5).toUpperCase()
 
-        const [_,attrs] = await registerResidentByTestClient(userClient, {
+        const [_, attrs] = await registerResidentByTestClient(userClient, {
             unitName: testUnitName,
         })
 
-        await expectToThrowGQLError(async () => {
+        await expectToThrowGQLErrorToResult(async () => {
             await registerResidentByTestClient(userClient, {
                 address: attrs.address,
                 unitName: testUnitName,
             })
         }, {
-            code: 'ALREADY_REGISTERED',
+            code: 'BAD_USER_INPUT',
             type: 'ALREADY_REGISTERED',
         })
     })
