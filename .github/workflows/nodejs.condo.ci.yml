@@ -166,6 +166,9 @@ jobs:
     name: Lint source code
     needs: authorize
     runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        node-version: [ 16.x ]
     steps:
       - name: Checkout code with submodules
         uses: actions/checkout@v4
@@ -195,6 +198,34 @@ jobs:
         run: |
           bash ./bin/lint-common-patterns.sh
         # TODO(DOMA-7754): Figure out how to extract schema without starting KS-app (30sec for start per app is slow) and lint all apps
+
+  dependencies:
+    name: Check dependencies integrity
+    needs: authorize
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        node-version: [ 16.x ]
+    steps:
+      - name: Checkout code with submodules
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+          ref: ${{ env.REF }}
+      - name: Prepare Node environment
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
+      - name: Install packages
+        run: |
+          npm i -g turbo
+          yarn install --immutable
+      - name: Check missing dependencies
+        run: |
+          yarn lint:deps
 
   security:
     name: Semgrep vulnerabilities check
