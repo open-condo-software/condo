@@ -19,7 +19,7 @@ const {
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
-const { PAYMENTS_FILE_NEW_STATUS } = require('@condo/domains/acquiring/constants/constants')
+const { PAYMENTS_FILE_NEW_STATUS, PAYMENTS_FILE_DOWNLOADED_STATUS } = require('@condo/domains/acquiring/constants/constants')
 const { PaymentsFile, createTestPaymentsFile, updateTestPaymentsFile, createTestAcquiringIntegration } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestAcquiringIntegrationContext, createTestAcquiringIntegrationAccessRight } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
@@ -120,13 +120,6 @@ describe('PaymentsFile', () => {
             })
 
             describe('user', () => {
-                test(`user without type ${SERVICE} can't`, async () => {
-                    const [objCreated] = await createTestPaymentsFile(admin, context)
-                    await expectToThrowAccessDeniedErrorToObj(async () => {
-                        await updateTestPaymentsFile(user, objCreated.id)
-                    })
-                })
-
                 test(`user with type ${SERVICE} but without rights can't`, async () => {
                     const [objCreated] = await createTestPaymentsFile(admin, context)
                     const serviceWithoutRights = await makeClientWithServiceUser()
@@ -144,6 +137,26 @@ describe('PaymentsFile', () => {
                     expect(obj.sender).toEqual(attrs.sender)
                     expect(obj.v).toEqual(2)
                     expect(obj.updatedBy).toEqual(expect.objectContaining({ id: service.user.id }))
+                })
+
+                test('user with \'canReadPayments\' can update files in own organization', async () => {
+                    const [organization] = await createTestOrganization(admin)
+                    const [integration] = await createTestAcquiringIntegration(admin)
+                    const [context] = await createTestAcquiringIntegrationContext(admin, organization, integration)
+                    const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                        canReadPayments: true,
+                    })
+                    const employeeClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                    await createTestOrganizationEmployee(admin, organization, employeeClient.user, role)
+
+                    const [objCreated] = await createTestPaymentsFile(admin, context)
+                    const [obj, attrs] = await updateTestPaymentsFile(employeeClient, objCreated.id, {
+                        status: PAYMENTS_FILE_DOWNLOADED_STATUS,
+                    })
+                    expect(obj.dv).toEqual(1)
+                    expect(obj.sender).toEqual(attrs.sender)
+                    expect(obj.v).toEqual(2)
+                    expect(obj.updatedBy).toEqual(expect.objectContaining({ id: employeeClient.user.id }))
                 })
             })
 

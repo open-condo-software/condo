@@ -12,38 +12,9 @@ const { checkAcquiringIntegrationAccessRights } = require('@condo/domains/acquir
 const { getEmployedOrRelatedOrganizationsByPermissions } = require('@condo/domains/organization/utils/accessSchema')
 const { SERVICE, STAFF } = require('@condo/domains/user/constants/common')
 
-async function canReadPaymentsFiles ({ authentication: { item: user }, context }) {
-    if (!user) return throwAuthenticationError()
-    if (user.deletedAt) return false
-
-    if (user.isSupport || user.isAdmin) return {}
-
-    // Acquiring integration account can see its payments files
-    if (user.type === SERVICE) {
-        return { context: { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } } }
-    }
-
-    // Employee with `canReadPayments` can see theirs organization payments files
-    const permittedOrganizations =  await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadPayments')
-
-    if (user.type === STAFF) {
-        return { context: { organization: { id_in: permittedOrganizations } } }
-
-    }
-
-    return false
-}
-
-// Only service users can manage
-async function canManagePaymentsFiles ({ authentication: { item: user }, originalInput, operation, itemIds, itemId, listKey }) {
-    if (!user) return throwAuthenticationError()
-    if (user.deletedAt) return false
-    if (user.isAdmin) return true
-    if (user.type !== SERVICE) return false
-
+async function getAndValidateContextsAmount ({ originalInput, operation, itemIds, itemId, listKey })  {
     const isBulkRequest = Array.isArray(originalInput)
 
-    // STEP 1: Obtain contextIds and match theirs amounts
     let contextIds
     if (operation === 'create') {
         if (isBulkRequest) {
@@ -67,6 +38,38 @@ async function canManagePaymentsFiles ({ authentication: { item: user }, origina
         contextIds = uniq(items.map(item => item.context))
     }
 
+    return contextIds
+}
+
+async function canReadPaymentsFiles ({ authentication: { item: user }, context }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+
+    if (user.isSupport || user.isAdmin) return {}
+
+    // Acquiring integration account can see its payments files
+    if (user.type === SERVICE) {
+        return { context: { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } } }
+    }
+
+    // Employee with `canReadPayments` can see theirs organization payments files
+    if (user.type === STAFF) {
+        const permittedOrganizations =  await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadPayments')
+
+        return { context: { organization: { id_in: permittedOrganizations } } }
+    }
+
+    return false
+}
+
+
+async function canManagePaymentsFiles ({ authentication: { item: user }, originalInput, operation, itemIds, itemId, listKey, context }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+    if (user.isAdmin) return true
+
+    // STEP 1: Obtain contextIds and match theirs amounts
+    const contextIds = await getAndValidateContextsAmount({ originalInput, operation, itemIds, itemId, listKey })
     // STEP 2: Obtain all contexts and check their deletion status
     const contexts = await find('AcquiringIntegrationContext', {
         id_in: contextIds,
@@ -74,10 +77,25 @@ async function canManagePaymentsFiles ({ authentication: { item: user }, origina
     })
 
     if (contexts.length !== contextIds.length) return false
-    const integrationIds = uniq(contexts.map(context => context.integration))
 
-    // STEP 3: Check acquiring integration access rights
-    return await checkAcquiringIntegrationAccessRights(user.id, integrationIds)
+    // STEP 3a: Check acquiring integration access rights for service users
+    if (user.type === SERVICE) {
+        const integrationIds = uniq(contexts.map(context => context.integration))
+
+        return await checkAcquiringIntegrationAccessRights(user.id, integrationIds)
+    }
+
+    // STEP 3b: Employee with `canReadPayments` can update theirs organization payments files
+    if (user.type === STAFF && operation !== 'create') {
+        if (contexts.length !== contextIds.length) return false
+        const organizationIds = uniq(contexts.map(context => context.organization))
+
+        const permittedOrganizations =  await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadPayments')
+
+        return organizationIds.every((orgId) => permittedOrganizations.includes(orgId))
+    }
+
+    return false
 }
 
 /*
