@@ -8,6 +8,7 @@ import { CardLink } from '@/domains/docs/components/CardLink'
 import { Grid } from '@/domains/docs/components/Grid'
 import { Link } from '@/domains/docs/components/Link'
 import { Tabs } from '@/domains/docs/components/Tabs'
+import { AmountDistributionCalculator } from '@/domains/docs/components/widgets/AmountDistributionCalculator'
 
 import type{ MDXComponents } from 'mdx/types'
 
@@ -26,4 +27,5 @@ export const MDXMapping: MDXComponents = {
     Tabs,
     Grid,
     CardLink,
+    AmountDistributionCalculator,
 }

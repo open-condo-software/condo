@@ -2,6 +2,13 @@ const Ajv = require('ajv')
 const Big = require('big.js')
 const { omit, get, set } = require('lodash')
 
+const {
+    hasOverpaymentReceivers,
+    hasSingleVorItem,
+    getVorItems,
+    hasFeePayers,
+    areAllRecipientsUnique,
+} = require('@open-condo/billing/utils/paymentSplitter')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { find } = require('@open-condo/keystone/schema')
 
@@ -11,13 +18,6 @@ const {
     RECIPIENT_FIELDS_DEFINITION,
     RecipientSchema,
 } = require('@condo/domains/acquiring/schema/fields/Recipient')
-const {
-    hasOverpaymentReceivers,
-    hasSingleVorItem,
-    getVorItems,
-    hasFeePayers,
-    areAllRecipientsUnique,
-} = require('@condo/domains/acquiring/utils/billingCentrifuge')
 const {
     WRONG_AMOUNT_DISTRIBUTION_ERROR_TYPE,
     AMOUNT_DISTRIBUTION_FIELD_NO_APPROVED_BANK_ACCOUNT_ERROR_TYPE,
@@ -107,11 +107,11 @@ const ajv = new Ajv()
 const feeDistributionJsonSchema = {
     type: 'object',
     /**
-     * @see {import('@app/condo/domains/acquiring/utils/billingCentrifuge').TDistribution}
+     * @see {import('@open-condo/billing/utils/paymentSplitter').TDistribution}
      */
     properties: {
         /**
-         * @see {import('@app/condo/domains/acquiring/utils/billingCentrifuge').TRecipient}
+         * @see {import('@open-condo/billing/utils/paymentSplitter').TRecipient}
          */
         recipient: RecipientSchema,
         amount: { type: 'string' },

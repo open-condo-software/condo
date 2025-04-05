@@ -182,5 +182,21 @@
   "apps.b2c.sections.publishing.publishForm.items.info.label": "Информация о приложении",
   "apps.b2c.sections.publishing.publishForm.items.build.label": "Сборка приложения",
   "apps.b2c.sections.publishing.publishForm.items.build.select.placeholder": "Выберите сборку",
-  "apps.b2c.sections.publishing.publishForm.actions.publish": "Опубликовать"
+  "apps.b2c.sections.publishing.publishForm.actions.publish": "Опубликовать",
+
+  "docs.widgets.amountDistributionCalculator.paymentSettings": "Параметры платежа",
+  "docs.widgets.amountDistributionCalculator.paymentAmount": "Сумма платежа",
+  "docs.widgets.amountDistributionCalculator.paymentFee": "Комиссия с платежа",
+  "docs.widgets.amountDistributionCalculator.recipients": "Получатели",
+  "docs.widgets.amountDistributionCalculator.tin": "ИНН",
+  "docs.widgets.amountDistributionCalculator.amount": "Сумма",
+  "docs.widgets.amountDistributionCalculator.order": "Порядок",
+  "docs.widgets.amountDistributionCalculator.isFeePayer": "Платит комиссию",
+  "docs.widgets.amountDistributionCalculator.vor": "Округление",
+  "docs.widgets.amountDistributionCalculator.overpaymentPart": "Часть переплаты",
+  "docs.widgets.amountDistributionCalculator.splitOptions": "Дополнительные настройки",
+  "docs.widgets.amountDistributionCalculator.decimalPlaces": "Знаков после запятой",
+  "docs.widgets.amountDistributionCalculator.amountDistributionFieldValue": "Значение поля amountDistribution",
+  "docs.widgets.amountDistributionCalculator.splitResultTitle": "Результат распределения",
+  "docs.widgets.amountDistributionCalculator.fee": "Комиссия"
 }
