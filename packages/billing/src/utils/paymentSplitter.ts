@@ -1,5 +1,7 @@
 import { Big } from 'big.js'
-import { get, set, omit } from 'lodash'
+import get from 'lodash/get'
+import omit from 'lodash/omit'
+import set from 'lodash/set'
 
 export type TRecipient = {
     tin: string

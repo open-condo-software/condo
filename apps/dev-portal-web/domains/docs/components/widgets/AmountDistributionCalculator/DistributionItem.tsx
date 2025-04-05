@@ -67,40 +67,26 @@ export const DistributionItem: React.FC<DistributionItemProps> = (props) => {
                 <Input
                     value={order}
                     onChange={(e) => {
-                        try {
-                            setOrder(Number(e.target.value))
-                        } catch (err) {
-                            setOrder(0)
-                        }
+                        const value = Number(e.target.value)
+                        setOrder(Number.isNaN(value) ? 0 : value)
                     }}
                     prefix={`${OrderTitle}:`}
                 />
             </Col>
-            <Col span={24}>
-                <Row gutter={0} align='middle' justify='space-between' className={styles.recipientCheckboxRow}>
-                    <Col><Typography.Text>{FeePayerTitle}:</Typography.Text></Col>
-                    <Col>
-                        <Switch size='large' checked={isFeePayer} onChange={(checked) => setIsFeePayer(checked)}/>
-                    </Col>
-                </Row>
+            <Col span={18} className={styles.recipientCheckboxRow}><Typography.Text>{FeePayerTitle}:</Typography.Text></Col>
+            <Col span={6} className={styles.recipientCheckboxRow}>
+                <Switch size='large' checked={isFeePayer} onChange={(checked) => setIsFeePayer(checked)}/>
             </Col>
-            <Col span={24}>
-                <Row gutter={0} align='middle' justify='space-between' className={styles.recipientCheckboxRow}>
-                    <Col><Typography.Text>{VORTitle}:</Typography.Text></Col>
-                    <Col>
-                        <Switch size='large' checked={vor} onChange={(checked) => setVor(checked)}/>
-                    </Col>
-                </Row>
+            <Col span={18} className={styles.recipientCheckboxRow}><Typography.Text>{VORTitle}:</Typography.Text></Col>
+            <Col span={6} className={styles.recipientCheckboxRow}>
+                <Switch size='large' checked={vor} onChange={(checked) => setVor(checked)}/>
             </Col>
             <Col span={24}>
                 <Input
                     value={overpaymentPart}
                     onChange={(e) => {
-                        try {
-                            setOverpaymentPart(Number(e.target.value))
-                        } catch (err) {
-                            setOverpaymentPart(0)
-                        }
+                        const value = Number(e.target.value)
+                        setOverpaymentPart(Number.isNaN(value) ? 0 : value)
                     }}
                     prefix={`${OverpaymentTitle}:`}
                 />
