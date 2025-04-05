@@ -8,6 +8,7 @@ const sample = require('lodash/sample')
 const {
     makeLoggedInAdminClient, makeClient, UUID_RE, waitFor,
     expectToThrowAuthenticationErrorToResult, expectToThrowAccessDeniedErrorToResult,
+    expectToThrowGQLErrorToResult,
 } = require('@open-condo/keystone/test.utils')
 
 const { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
@@ -489,6 +490,25 @@ describe('RegisterResidentService', () => {
         expect(restoredResident.id).not.toEqual(softDeletedResident.id)
         expect(softDeletedResident.deletedAt).not.toBeNull()
         expect(restoredAttrs.unitName).toEqual(attrs.unitName.toLowerCase())
+    })
+
+    it('can not register same resident twice', async () => {
+        const userClient = await makeClientWithResidentAccessAndProperty()
+        const testUnitName = faker.random.numeric(3) + faker.random.alpha(5).toUpperCase()
+
+        const [_, attrs] = await registerResidentByTestClient(userClient, {
+            unitName: testUnitName,
+        })
+
+        await expectToThrowGQLErrorToResult(async () => {
+            await registerResidentByTestClient(userClient, {
+                address: attrs.address,
+                unitName: testUnitName,
+            })
+        }, {
+            code: 'BAD_USER_INPUT',
+            type: 'ALREADY_REGISTERED',
+        })
     })
 
     it('should set unitType field if it was passed', async () => {

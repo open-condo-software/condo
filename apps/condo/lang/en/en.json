@@ -456,6 +456,7 @@
   "api.property.property.SAME_ADDRESS": "Property with the same address already exists in selected organization",
   "api.propertyScope.exportPropertyScopesToExcel.NOTHING_TO_EXPORT": "No property scopes found for export",
   "api.resident.registerResident.ADDRESS_NOT_FOUND": "Address was not found",
+  "api.resident.registerResident.ALREADY_REGISTERED": "This resident is already registered",
   "api.resident.registerResidentInvoice.ITEM_FROM_OTHER_ORGANIZATION": "Item from other organization. Check line {rowNumber}",
   "api.resident.registerResidentInvoice.NO_ACQUIRING_CONTEXT": "The organization hasn't set up the marketplace",
   "api.resident.registerResidentInvoice.PROHIBITED_INVOICE_PAYMENT_TYPE": "This payment method is prohibited in the selected organization",
