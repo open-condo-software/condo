@@ -66,6 +66,7 @@ const getLocalized = (lang, key) => {
 }
 
 
+
 /**
  * @param {string} code - the translation code written in en.json, ru.json, ...
  * @param {{locale: string?, meta: Object?}?} options
@@ -85,9 +86,10 @@ const getLocalized = (lang, key) => {
  */
 const i18n = (code, options = { locale: conf.DEFAULT_LOCALE, meta: {} }) => {
     const { locale, meta } = options
+
     maybeLoadTranslations()
-    const translation = get(translations, [locale, code].join('.'), code)
-    return template(translation, { interpolate: VARIABLE_REGEXP })(meta)
+
+    return template(get(translations, [locale, code], code), { interpolate: VARIABLE_REGEXP })(meta)
 }
 
 module.exports = {
