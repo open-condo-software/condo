@@ -65,6 +65,24 @@ const getLocalized = (lang, key) => {
     return get(translations, key, key)
 }
 
+
+/**
+ * @param {string} code - the translation code written in en.json, ru.json, ...
+ * @param {{locale: string?, meta: Object?}?} options
+ * @param {string?} options.locale - the language code
+ * @param {Object?} options.meta - variables passing to the translation string
+ * @returns {string} translated string
+ * @example
+ * // en.json:
+ * {
+ *   ...,
+ *   "greeting": "Hello, {name}!",
+ *   ...,
+ * }
+ *
+ * i18n('greeting', { meta: { name: 'World' } })
+ * // => "Hello, World!"
+ */
 const i18n = (code, options = { locale: conf.DEFAULT_LOCALE, meta: {} }) => {
     const { locale, meta } = options
     maybeLoadTranslations()
