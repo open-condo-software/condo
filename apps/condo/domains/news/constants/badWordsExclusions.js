@@ -4,6 +4,8 @@ const BAD_WORDS_EXCLUSIONS = [
     '*канал*',
     'муниципал*',
     'потребител*',
+    'чебоксар*',
+    'учеб*',
 ]
 
 const BAD_WORDS_EXCLUSIONS_CONFIG = {
