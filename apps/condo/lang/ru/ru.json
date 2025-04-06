@@ -456,6 +456,7 @@
   "api.property.property.SAME_ADDRESS": "Дом с таким адресом уже создан в выбранной организации",
   "api.propertyScope.exportPropertyScopesToExcel.NOTHING_TO_EXPORT": "Не найдено областей видимости для экспорта",
   "api.resident.registerResident.ADDRESS_NOT_FOUND": "Адрес не найден",
+  "api.resident.registerResident.ALREADY_REGISTERED": "Этот пользователь уже зарегистрирован",
   "api.resident.registerResidentInvoice.ITEM_FROM_OTHER_ORGANIZATION": "Позиция из другой организации. Проверьте строку {rowNumber}",
   "api.resident.registerResidentInvoice.NO_ACQUIRING_CONTEXT": "Не выполнена настройка со стороны организации",
   "api.resident.registerResidentInvoice.PROHIBITED_INVOICE_PAYMENT_TYPE": "Этот способ оплаты запрещен в выбранной организации",
