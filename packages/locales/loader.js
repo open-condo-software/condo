@@ -25,9 +25,6 @@ const loadTranslations = () => {
                 const customTranslationsPath = path.join(translationsDir, locale, `${locale}.custom.json`)
                 const customTranslationsContent = fs.existsSync(customTranslationsPath) ? JSON.parse(fs.readFileSync(customTranslationsPath, 'utf8')) : {}
 
-                console.log(customTranslationsPath)
-                console.log(customTranslationsContent)
-
                 return { [locale]: { ...translationsContent, ...customTranslationsContent } }
             } else if (dirent.isFile() && dirent.name.endsWith('.json')) {
                 const locale = dirent.name.split('.')[0]
