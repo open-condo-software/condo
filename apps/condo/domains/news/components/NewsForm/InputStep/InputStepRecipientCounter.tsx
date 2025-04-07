@@ -27,17 +27,19 @@ export const InputStepRecipientCounter: React.FC<InputStepRecipientCounterProps>
     const formFieldsColSpan = isMediumWindow ? 24 : 14
     const formInfoColSpan = 24 - formFieldsColSpan
 
-    const newsSharingRecipientCounter = useMemo(() => <>{newsSharingConfig?.getRecipientsCountersUrl && (
-        <MemoizedNewsSharingRecipientCounter
-            contextId={sharingAppId}
-            newsItemScopes={newsItemScopesNoInstance}
-        />
+    const newsSharingRecipientCounter = useMemo(() => <>{isCustomRecipientCounter && (
+        // TODO: (DOMA-11416) create RecipientCounter for no custom CountersUrl
+        newsSharingConfig?.getRecipientsCountersUrl ? (
+            <MemoizedNewsSharingRecipientCounter
+                contextId={sharingAppId}
+                newsItemScopes={newsItemScopesNoInstance}
+            /> ) : null
     )}</>, [newsSharingConfig, sharingAppId, newsItemScopesNoInstance])
 
     return (
         <Col span={formInfoColSpan}>
             <Row>
-                {isCustomRecipientCounter ? newsSharingRecipientCounter : (
+                {isSharingStep ? newsSharingRecipientCounter : (
                     <HiddenBlock hide={newsItemScopesNoInstance.length <= 0}>
                         <MemoizedRecipientCounter newsItemScopes={newsItemScopesNoInstance}/>
                     </HiddenBlock>
