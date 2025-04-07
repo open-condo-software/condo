@@ -117,7 +117,7 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
     const tableColumns = usePaymentsTableColumns(currencyCode, openStatusDescModal)
 
     const organizationId = get(userOrganization, ['organization', 'id'], '')
-    const queryMetas = usePaymentsTableFilters(billingContext, organizationId)
+    const queryMetas = usePaymentsTableFilters(organizationId)
 
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(queryMetas, SORTABLE_PROPERTIES)

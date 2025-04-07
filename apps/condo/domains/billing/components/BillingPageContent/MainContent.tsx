@@ -95,7 +95,7 @@ export const MainContent: React.FC<MainContentProps> = ({
     const { useFlag } = useFeatureFlags()
     const isPaymentsFilesTableEnabled = useFlag(ACQUIRING_PAYMENTS_FILES_TABLE)
 
-    const [currentTab, currentType, onTabChange] = useQueryParams(shouldIncludeAppTab)
+    const [currentTab, currentType, onTabChange] = useQueryParams(!!extensionAppTab)
 
     const items = useMemo(() => {
         const result: Array<TabItem> = [
