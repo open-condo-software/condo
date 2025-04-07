@@ -37,7 +37,7 @@ const TicketFilterFields = {
     qualityControlValue: '[String]',
     contactIsNull: '[String]',
     completedAt: '[String]',
-    lastResidentCommentCreatedByUserType: '[String]',
+    lastCommentWithResidentTypeCreatedByUserType: '[String]',
     lastCommentWithOrganizationTypeAt: '[String]',
     lastCommentWithResidentTypeAt: '[String]',
     lastCommentAt: '[String]',
