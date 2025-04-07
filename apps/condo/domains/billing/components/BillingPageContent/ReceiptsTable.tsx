@@ -40,7 +40,7 @@ export const ReceiptsTable: React.FC = () => {
     const LoadingErrorMessage = intl.formatMessage({ id: 'errors.LoadingError' })
 
     const { billingContexts } = useBillingAndAcquiringContexts()
-    const billingContext = billingContexts[0]
+    const billingContext = billingContexts.length > 0 ? billingContexts[0] : null
     const currencyCode = get(billingContext, ['integration', 'currencyCode'], 'RUB')
     const reportPeriod = get(billingContexts.find(({ lastReport }) => !!lastReport), ['lastReport', 'period'], null)
     const contextIds = billingContexts.map(({ id }) => id)
