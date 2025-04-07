@@ -39,14 +39,14 @@ export const AmountDistributionCalculator: React.FC = () => {
     const [splitError, setSplitError] = useState<string>()
     const [currentTab, setCurrentTab] = useState<string>()
 
-    const PaymentTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.paymentSettings' })
-    const PaymentAmountTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.paymentAmount' })
-    const PaymentFeeTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.paymentFee' })
-    const RecipientsTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.recipients' })
-    const OptionsTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.splitOptions' })
-    const DecimalPlacesTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.decimalPlaces' })
-    const AmountDistributionValueTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.amountDistributionFieldValue' })
-    const SplitResultTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.splitResultTitle' })
+    const PaymentTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.paymentSettings.title' })
+    const PaymentAmountTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.paymentSettings.amount.title' })
+    const PaymentFeeTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.paymentSettings.fee.title' })
+    const RecipientsTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.recipients.title' })
+    const OptionsTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.splitOptions.title' })
+    const DecimalPlacesTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.options.decimalPlaces' })
+    const AmountDistributionValueTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.amountDistributionFieldValue.title' })
+    const SplitResultTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.splitResult.title' })
 
     useEffect(() => {
         if (distributions.length === 0) {

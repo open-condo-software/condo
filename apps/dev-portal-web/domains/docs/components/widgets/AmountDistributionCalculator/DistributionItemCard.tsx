@@ -20,12 +20,12 @@ export const DistributionItemCard: React.FC<DistributionItemCardProps> = (props)
 
     const intl = useIntl()
 
-    const TinTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.tin' })
-    const AmountTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.amount' })
-    const OrderTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.order' })
-    const FeePayerTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.isFeePayer' })
-    const VORTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.vor' })
-    const OverpaymentTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.overpaymentPart' })
+    const TinTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.distribution.fields.tin.title' })
+    const AmountTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.distribution.fields.amount.title' })
+    const OrderTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.distribution.fields.order.title' })
+    const FeePayerTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.distribution.fields.isFeePayer.title' })
+    const VORTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.distribution.fields.vor.title' })
+    const OverpaymentTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.distribution.fields.overpaymentPart.title' })
 
     const [tin, setTin] = useState<string>(item.recipient.tin)
     const [bic] = useState<string>(item.recipient.bic)
