@@ -3,3 +3,7 @@
   min-height: 500px;
   margin-left: -10px;
 }
+
+.recipient-counter {
+  justify-items: end;
+}

@@ -1,5 +1,5 @@
 import { B2BAppNewsSharingConfig } from '@app/condo/schema'
-import { Col, Row } from 'antd'
+import { Col } from 'antd'
 import React, { useMemo } from 'react'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
@@ -36,14 +36,12 @@ export const InputStepRecipientCounter: React.FC<InputStepRecipientCounterProps>
     )}</>, [newsSharingConfig, sharingAppId, newsItemScopesNoInstance])
 
     return (
-        <Col span={formInfoColSpan}>
-            <Row>
-                {isSharingStep ? newsSharingRecipientCounter : (
-                    <HiddenBlock hide={newsItemScopesNoInstance.length <= 0}>
-                        <MemoizedRecipientCounter newsItemScopes={newsItemScopesNoInstance}/>
-                    </HiddenBlock>
-                )}
-            </Row>
+        <Col span={formInfoColSpan} className='recipient-counter'>
+            {isSharingStep ? newsSharingRecipientCounter : (
+                <HiddenBlock hide={newsItemScopesNoInstance.length <= 0}>
+                    <MemoizedRecipientCounter newsItemScopes={newsItemScopesNoInstance}/>
+                </HiddenBlock>
+            )}
         </Col>
     )
 }
