@@ -30,6 +30,10 @@ import { SharingAppValuesType } from '.'
 
 const SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]
 
+type Properties = {
+    properties: Array<string>
+}
+
 interface InputStepSelectorProps {
     newsSharingConfig: B2BAppNewsSharingConfig
     isSharingStep: boolean
@@ -46,7 +50,7 @@ interface InputStepSelectorProps {
     }
     newsItemForOneProperty: boolean
     initialValues?: Partial<INewsItem> & { hasAllProperties?: boolean, hasAllCustom?: boolean }
-    initialFormValues: Record<string, unknown>
+    initialFormValues: Record<string, unknown> & Properties
 }
 
 export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
