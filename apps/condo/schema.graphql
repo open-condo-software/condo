@@ -82576,6 +82576,7 @@ enum MessageType {
   RESIDENT_ADD_BILLING_ACCOUNT
   BILLING_RECEIPT_AVAILABLE
   BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT
+  BILLING_RECEIPT_INSURANCE_CATEGORY
   BILLING_RECEIPT_CATEGORY_AVAILABLE
   BILLING_RECEIPT_ADDED
   BILLING_RECEIPT_FILE_ADDED
@@ -94565,6 +94566,41 @@ type Mutation {
   				"required": true
   			},
   			"propertyId": {
+  				"required": true
+  			},
+  			"period": {
+  				"required": true
+  			}
+  		}
+  	},
+  	"BILLING_RECEIPT_INSURANCE_CATEGORY": {
+  		"dv": {
+  			"defaultValue": "",
+  			"required": true
+  		},
+  		"data": {
+  			"residentId": {
+  				"defaultValue": "",
+  				"required": true
+  			},
+  			"userId": {
+  				"defaultValue": "",
+  				"required": true
+  			},
+  			"url": {
+  				"defaultValue": "",
+  				"required": true
+  			},
+  			"billingReceiptId": {
+  				"defaultValue": "",
+  				"required": true
+  			},
+  			"billingAccountId": {
+  				"defaultValue": "",
+  				"required": true
+  			},
+  			"billingPropertyId": {
+  				"defaultValue": "",
   				"required": true
   			},
   			"period": {
