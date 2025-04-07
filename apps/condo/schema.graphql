@@ -32259,6 +32259,9 @@ type TicketFilter {
   qualityControlValue: [String]
   contactIsNull: [String]
   completedAt: [String]
+  lastResidentCommentCreatedByUserType: [String]
+  lastCommentWithOrganizationTypeAt: [String]
+  lastCommentWithResidentTypeAt: [String]
   lastCommentAt: [String]
   type: String
   isCompletedAfterDeadline: String
