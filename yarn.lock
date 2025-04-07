@@ -14030,7 +14030,6 @@ __metadata:
     execa: ^5
     jest: ^29.7.0
     jest-jasmine2: ^29.7.0
-    lodash: ^4.17.21
     ts-jest: ^29.3.1
     tsup: ^8.4.0
     typescript: ^5.5.4

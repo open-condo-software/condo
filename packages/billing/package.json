@@ -47,8 +47,7 @@
     }
   },
   "dependencies": {
-    "big.js": "^6.2.2",
-    "lodash": "^4.17.21"
+    "big.js": "^6.2.2"
   },
   "devDependencies": {
     "@faker-js/faker": "^9.6.0",

@@ -1,7 +1,4 @@
 import { Big } from 'big.js'
-import get from 'lodash/get'
-import omit from 'lodash/omit'
-import set from 'lodash/set'
 
 export type TRecipient = {
     tin: string
@@ -74,10 +71,10 @@ export function split (paymentAmount: string, distribution: TDistributionItem[],
     // Group distributions by order and keep all keys (aka orders) in external variable
     const groupKeys = new Set<number>()
     const groupedDistributions = distribution.reduce<Record<number, TDistributionItem[]>>((res, d) => {
-        const order = get(d, 'order', 0)
-        const orderGroup = get<TDistributionItem[], TDistributionItem[]>(res, order, [])
+        const order = d.order || 0
+        const orderGroup = res[order] || []
         orderGroup.push(d)
-        set(res, order, orderGroup)
+        res[order] = orderGroup
         groupKeys.add(order)
 
         totalDistributionAmount = totalDistributionAmount.plus(d.amount)
@@ -99,10 +96,10 @@ export function split (paymentAmount: string, distribution: TDistributionItem[],
 
         const key = createRecipientKey(split.recipient)
 
-        const appliedAmount = get(appliedAmounts, key, Big(0))
+        const appliedAmount = appliedAmounts[key] || Big(0)
         appliedAmounts[key] = appliedAmount.plus(split.amount || 0)
 
-        const appliedFeeAmount = get(appliedFeeAmounts, key, Big(0))
+        const appliedFeeAmount = appliedFeeAmounts[key] || Big(0)
         appliedFeeAmounts[key] = appliedFeeAmount.plus(split.feeAmount || 0)
     }
 
@@ -130,8 +127,8 @@ export function split (paymentAmount: string, distribution: TDistributionItem[],
         const alreadyAppliedForGroupAmount = g.reduce((res, d) => {
             const key = createRecipientKey(d.recipient)
             return res
-                .plus(get(appliedAmounts, key, Big(0)))
-                .plus(get(appliedFeeAmounts, key, Big(0)))
+                .plus(appliedAmounts[key] || 0)
+                .plus(appliedFeeAmounts[key] || 0)
         }, Big(0))
         let needToSplitToGroupAmount = g.reduce((res, d) => res.plus(Big(d.amount)), Big(0)).minus(alreadyAppliedForGroupAmount)
 
@@ -151,8 +148,8 @@ export function split (paymentAmount: string, distribution: TDistributionItem[],
             const recipientKey = createRecipientKey(d.recipient)
             // The rest needed amount for particular recipient
             const distributionAmount = Big(d.amount)
-                .minus(get(appliedAmounts, recipientKey, Big(0)))
-                .minus(get(appliedFeeAmounts, recipientKey, Big(0)))
+                .minus(appliedAmounts[recipientKey] || 0)
+                .minus(appliedFeeAmounts[recipientKey] || 0)
 
             const share = hasEnoughAmountForGroup ? distributionAmount : distributionAmount.div(needToSplitToGroupAmount).times(undistributedAmountAvailableForGroup)
 
@@ -288,7 +285,8 @@ export function split (paymentAmount: string, distribution: TDistributionItem[],
             // So we decrease origin sum and distribute without fee
             // Than add extracted fee to separated split without recipient
             // Search "NO-FEE-PAYERS" in this file above
-            const splitsWithoutFee = split(Big(paymentAmount).minus(feeAmount).toString(), distribution, omit(options, ['feeAmount']))
+            const { feeAmount: _, ...optionsWithoutFeeAmount } = options
+            const splitsWithoutFee = split(Big(paymentAmount).minus(feeAmount).toString(), distribution, optionsWithoutFeeAmount)
             splitsWithoutFee.push({
                 recipient: null,
                 feeAmount,
