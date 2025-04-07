@@ -818,7 +818,6 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
             }
 
             const messages = await Message.getAll(environment.clients.admin, messageWhere)
-            console.log('FIND HERE', messages)
             expect(messages).toHaveLength(1)
             const data = messages[0].meta.data
             expect(messages[0].defaultContent.content).toEqual('В приложении жителя доступна квитанция для страхования имущества')
