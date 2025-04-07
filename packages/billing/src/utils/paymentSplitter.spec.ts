@@ -12,16 +12,15 @@ import {
 } from './paymentSplitter'
 
 function createTestRecipient (extra = {}) {
-    const range = (length: number) => ({ min: Math.pow(10, length - 1), max: Math.pow(10, length) - 1 })
     const validRecipient = {
         name: faker.company.name(),
-        tin: faker.number.int(range(10)).toString(),
-        iec: faker.number.int(range(9)).toString(),
+        tin: faker.datatype.number(8).toString(),
+        iec: faker.datatype.number(10).toString(),
         bic: faker.finance.bic().toString(),
-        bankAccount: faker.finance.accountNumber(12).toString(),
+        bankAccount: faker.finance.account(12).toString(),
         bankName: faker.company.name(),
-        territoryCode: faker.number.int().toString(),
-        offsettingAccount: faker.finance.accountNumber(12).toString(),
+        territoryCode: faker.datatype.number(6).toString(),
+        offsettingAccount: faker.finance.account(12).toString(),
     }
     return {
         ...validRecipient,

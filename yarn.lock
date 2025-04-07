@@ -9418,13 +9418,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@faker-js/faker@npm:^9.6.0":
-  version: 9.6.0
-  resolution: "@faker-js/faker@npm:9.6.0"
-  checksum: 7fac049bae4efb7a5c923d7054f1407d9df63cb4bc871c322b2d5ba05d0a9fb91c71fefa8f9d1d69d1001d97e3ba833b377c31de48a049e2fcd54cf39e588574
-  languageName: node
-  linkType: hard
-
 "@fal-works/esbuild-plugin-global-externals@npm:^2.1.2":
   version: 2.1.2
   resolution: "@fal-works/esbuild-plugin-global-externals@npm:2.1.2"
@@ -14020,7 +14013,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@open-condo/billing@workspace:packages/billing"
   dependencies:
-    "@faker-js/faker": ^9.6.0
+    "@faker-js/faker": ^7.6.0
     "@open-condo/tsconfig": "workspace:^"
     "@types/big.js": ^6.2.2
     "@types/jest": ^29.5.14
