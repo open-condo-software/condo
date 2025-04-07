@@ -3,12 +3,12 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
 
 import { split, createRecipientKey } from '@open-condo/billing/utils/paymentSplitter'
-import type { TSplit, TDistributionItem, TSplitOptions } from '@open-condo/billing/utils/paymentSplitter'
+import type { Split, DistributionItem, SplitOptions } from '@open-condo/billing/utils/paymentSplitter'
 import { Plus, Trash } from '@open-condo/icons'
 import { Alert, Button, Card, Input, MarkdownCodeWrapper, Tabs, Typography } from '@open-condo/ui'
 
-import { DistributionItem } from './DistributionItem'
-import { SplitResult } from './SplitResult'
+import { DistributionItemCard } from './DistributionItemCard'
+import { SplitResultCard } from './SplitResultCard'
 
 const CARD_PADDING = 8
 const GUTTER_ROW: RowProps['gutter'] = [16, 16]
@@ -17,7 +17,7 @@ function generateDecimalString (length: number): string {
     return Array.from({ length }, () => Math.floor(Math.random() * 10)).join('') // NOSONAR
 }
 
-function generateRandomDistributionItem (): TDistributionItem {
+function generateRandomDistributionItem (): DistributionItem {
     return {
         recipient: {
             tin: generateDecimalString(8),
@@ -33,9 +33,9 @@ function generateRandomDistributionItem (): TDistributionItem {
 export const AmountDistributionCalculator: React.FC = () => {
     const intl = useIntl()
     const [paymentAmount, setPaymentAmount] = useState<string>('1000')
-    const [distributions, setDistributions] = useState<TDistributionItem[]>([])
-    const [options, setOptions] = useState<TSplitOptions>({ feeAmount: '100', decimalPlaces: 2 })
-    const [splitResult, setSplitResult] = useState<TSplit[]>([])
+    const [distributions, setDistributions] = useState<DistributionItem[]>([])
+    const [options, setOptions] = useState<SplitOptions>({ feeAmount: '100', decimalPlaces: 2 })
+    const [splitResult, setSplitResult] = useState<Split[]>([])
     const [splitError, setSplitError] = useState<string>()
     const [currentTab, setCurrentTab] = useState<string>()
 
@@ -56,7 +56,7 @@ export const AmountDistributionCalculator: React.FC = () => {
             try {
                 const result = split(paymentAmount, distributions, options)
                 setSplitError(undefined)
-                setSplitResult(result as TSplit[])
+                setSplitResult(result as Split[])
             } catch (error: any) {
                 setSplitError(error.message)
                 setSplitResult([])
@@ -64,7 +64,7 @@ export const AmountDistributionCalculator: React.FC = () => {
         }
     }, [distributions, options, paymentAmount])
 
-    const updateDistributionItem = useCallback((index: number, item: TDistributionItem) => {
+    const updateDistributionItem = useCallback((index: number, item: DistributionItem) => {
         setDistributions((prevDistributions) => {
             const newDistributions = [...prevDistributions]
             newDistributions[index] = item
@@ -73,7 +73,7 @@ export const AmountDistributionCalculator: React.FC = () => {
         })
     }, [])
 
-    const onUpdateItem = useCallback((index: number, item: TDistributionItem) => {
+    const onUpdateItem = useCallback((index: number, item: DistributionItem) => {
         updateDistributionItem(index, item)
     }, [updateDistributionItem])
 
@@ -130,7 +130,7 @@ export const AmountDistributionCalculator: React.FC = () => {
                                             titlePadding={CARD_PADDING}
                                             bodyPadding={CARD_PADDING}
                                         >
-                                            <DistributionItem
+                                            <DistributionItemCard
                                                 onUpdate={onUpdateItem}
                                                 index={i}
                                                 item={distribution}
@@ -209,7 +209,7 @@ export const AmountDistributionCalculator: React.FC = () => {
             }
             {
                 !!splitResult && splitResult.length > 0 && (
-                    <Col span={24}><SplitResult splits={splitResult}/></Col>
+                    <Col span={24}><SplitResultCard splits={splitResult}/></Col>
                 )
             }
         </Row>

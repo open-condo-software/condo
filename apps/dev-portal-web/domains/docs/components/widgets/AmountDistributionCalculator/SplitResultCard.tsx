@@ -2,17 +2,17 @@ import { Col, Row, RowProps } from 'antd'
 import React from 'react'
 import { useIntl } from 'react-intl'
 
-import type { TSplit } from '@open-condo/billing/utils/paymentSplitter'
+import type { Split } from '@open-condo/billing/utils/paymentSplitter'
 import { Card, List } from '@open-condo/ui'
 
 const CARD_PADDING = 8
 const GUTTER_ROW: RowProps['gutter'] = [16, 16]
 
-type SplitResultProps = {
-    splits: TSplit[]
+type SplitResultCardProps = {
+    splits: Split[]
 }
 
-export const SplitResult: React.FC<SplitResultProps> = (props) => {
+export const SplitResultCard: React.FC<SplitResultCardProps> = (props) => {
     const { splits } = props
 
     const intl = useIntl()

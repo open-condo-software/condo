@@ -8,4 +8,4 @@ export {
     hasSingleVorItem,
     sortByVorAndOrderComparator,
 } from './utils/paymentSplitter'
-export type { TDistributionItem, TSplit, TSplitOptions, TRecipient } from './utils/paymentSplitter'
+export type { DistributionItem, Split, SplitOptions, Recipient } from './utils/paymentSplitter'

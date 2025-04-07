@@ -8,7 +8,7 @@ import {
     createRecipientKey,
     areAllRecipientsUnique,
     sortByVorAndOrderComparator,
-    TDistributionItem,
+    DistributionItem,
 } from './paymentSplitter'
 
 function createTestRecipient (extra = {}) {
@@ -42,7 +42,7 @@ describe('paymentSplitter', () => {
             const recipient3 = createTestRecipient()
             const recipient4 = createTestRecipient()
 
-            const distribution: TDistributionItem[] = [
+            const distribution: DistributionItem[] = [
                 { recipient: recipient1, order: 0, amount: '0', vor: true },
                 { recipient: recipient2, order: 0, amount: '0' },
                 { recipient: recipient3, order: 2, amount: '0', vor: true },

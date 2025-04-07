@@ -1,6 +1,6 @@
 import { Big } from 'big.js'
 
-export type TRecipient = {
+export type Recipient = {
     tin: string
     bic: string
     bankAccount: string
@@ -12,8 +12,8 @@ export type TRecipient = {
     territoryCode?: string
 }
 
-export type TSplit = {
-    recipient: TRecipient | null
+export type Split = {
+    recipient: Recipient | null
     /**
      * The amount without fee
      */
@@ -21,8 +21,8 @@ export type TSplit = {
     feeAmount?: string
 }
 
-export type TDistributionItem = {
-    recipient: TRecipient
+export type DistributionItem = {
+    recipient: Recipient
     amount: string
     isFeePayer?: boolean
     order?: number
@@ -31,9 +31,9 @@ export type TDistributionItem = {
     overpaymentPart?: number
 }
 
-export type TSplitOptions = {
+export type SplitOptions = {
     /** Needed for case when payments are partial */
-    appliedSplits?: TSplit[]
+    appliedSplits?: Split[]
     /** The country-specific setting - how many digits are placed after the delimiter in numbers. Default value is 2. */
     decimalPlaces?: number
     feeAmount?: string
@@ -41,13 +41,13 @@ export type TSplitOptions = {
 
 /**
  * @param {string} paymentAmount The amount paid by customer. May be less than sum of distributions in the case of partial pay.
- * @param {TDistributionItem[]} distribution
- * @param {TSplitOptions} [options]
- * @return {TSplit[]}
+ * @param {DistributionItem[]} distribution
+ * @param {SplitOptions} [options]
+ * @return {Split[]}
  */
-export function split (paymentAmount: string, distribution: TDistributionItem[], options: TSplitOptions = {}): TSplit[] {
+export function split (paymentAmount: string, distribution: DistributionItem[], options: SplitOptions = {}): Split[] {
     const {
-        /** @type {TSplit[]} */
+        /** @type {Split[]} */
         appliedSplits = [],
         decimalPlaces = 2,
         feeAmount = '0',
@@ -70,7 +70,7 @@ export function split (paymentAmount: string, distribution: TDistributionItem[],
     let totalDistributionAmount = Big(0)
     // Group distributions by order and keep all keys (aka orders) in external variable
     const groupKeys = new Set<number>()
-    const groupedDistributions = distribution.reduce<Record<number, TDistributionItem[]>>((res, d) => {
+    const groupedDistributions = distribution.reduce<Record<number, DistributionItem[]>>((res, d) => {
         const order = d.order || 0
         const orderGroup = res[order] || []
         orderGroup.push(d)
@@ -105,7 +105,7 @@ export function split (paymentAmount: string, distribution: TDistributionItem[],
 
     let restUndistributedAmount = Big(paymentAmount)
 
-    const splits: TSplit[] = []
+    const splits: Split[] = []
 
     for (const order of sortedGroupKeys) {
         const g = groupedDistributions[order]
@@ -142,7 +142,7 @@ export function split (paymentAmount: string, distribution: TDistributionItem[],
         /**
          * The victim of the rounding operation MUST be the last item within the group
          */
-        const sortedGroup: TDistributionItem[] = g.sort((a) => a.vor ? 1 : -1)
+        const sortedGroup: DistributionItem[] = g.sort((a) => a.vor ? 1 : -1)
 
         for (const d of sortedGroup) {
             const recipientKey = createRecipientKey(d.recipient)
@@ -160,7 +160,7 @@ export function split (paymentAmount: string, distribution: TDistributionItem[],
             const roundedShare = share.round(decimalPlaces, Big.roundHalfUp)
             restUndistributedAmount = restUndistributedAmount.minus(roundedShare)
 
-            let split: TSplit
+            let split: Split
             if (hasEnoughAmountForGroup) {
                 split = {
                     recipient: d.recipient,
@@ -191,7 +191,7 @@ export function split (paymentAmount: string, distribution: TDistributionItem[],
         }
     }
 
-    const distributionsByKey: Record<string, TDistributionItem> = distribution.reduce<Record<string, TDistributionItem>>((res, d) => {
+    const distributionsByKey: Record<string, DistributionItem> = distribution.reduce<Record<string, DistributionItem>>((res, d) => {
         const key = createRecipientKey(d.recipient)
         res[key] = d
 
@@ -299,44 +299,44 @@ export function split (paymentAmount: string, distribution: TDistributionItem[],
     return splits
 }
 
-export function getVorItems (g: TDistributionItem[]): TDistributionItem[] {
+export function getVorItems (g: DistributionItem[]): DistributionItem[] {
     return g.filter((d) => !!d.vor)
 }
 
-export function hasSingleVorItem (g: TDistributionItem[]): boolean {
+export function hasSingleVorItem (g: DistributionItem[]): boolean {
     return getVorItems(g).length === 1
 }
 
-function getOverpaymentItems (g: TDistributionItem[]): TDistributionItem[] {
+function getOverpaymentItems (g: DistributionItem[]): DistributionItem[] {
     return g.filter((d) => !!d.overpaymentPart)
 }
 
-export function hasOverpaymentReceivers (g: TDistributionItem[]): boolean {
+export function hasOverpaymentReceivers (g: DistributionItem[]): boolean {
     return getOverpaymentItems(g).length > 0
 }
 
-function getFeePayers (g: TDistributionItem[]): TDistributionItem[] {
+function getFeePayers (g: DistributionItem[]): DistributionItem[] {
     return g.filter((d) => d.isFeePayer)
 }
 
-export function hasFeePayers (g: TDistributionItem[]): boolean {
+export function hasFeePayers (g: DistributionItem[]): boolean {
     return getFeePayers(g).length > 0
 }
 
-export function createRecipientKey (recipient: TRecipient | null): string {
+export function createRecipientKey (recipient: Recipient | null): string {
     if (!recipient) {
         return ''
     }
     return `${recipient.tin}_${recipient.bic}_${recipient.bankAccount}`
 }
 
-export function areAllRecipientsUnique (distribution: TDistributionItem[]): boolean {
+export function areAllRecipientsUnique (distribution: DistributionItem[]): boolean {
     const uniqRecipientsKeys = new Set(distribution.map((d) => createRecipientKey(d.recipient)))
 
     return uniqRecipientsKeys.size === distribution.length
 }
 
-export function sortByVorAndOrderComparator (a: TDistributionItem, b: TDistributionItem): number {
+export function sortByVorAndOrderComparator (a: DistributionItem, b: DistributionItem): number {
     // ^ = xor
     // false ^ false = false
     // false ^ true = true

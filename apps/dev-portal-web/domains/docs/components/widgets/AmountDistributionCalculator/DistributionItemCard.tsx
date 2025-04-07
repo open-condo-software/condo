@@ -2,20 +2,20 @@ import { Col, Row, RowProps } from 'antd'
 import React, { useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
 
-import type { TDistributionItem } from '@open-condo/billing/utils/paymentSplitter'
+import type { DistributionItem } from '@open-condo/billing/utils/paymentSplitter'
 import { Input, Switch, Typography } from '@open-condo/ui'
 
 import styles from './distributionItem.module.css'
 
 const GUTTER_COMPACT_ROW: RowProps['gutter'] = [8, 8]
 
-type DistributionItemProps = {
+type DistributionItemCardProps = {
     index: number
-    item: TDistributionItem
-    onUpdate: (index: number, item: TDistributionItem) => void
+    item: DistributionItem
+    onUpdate: (index: number, item: DistributionItem) => void
 }
 
-export const DistributionItem: React.FC<DistributionItemProps> = (props) => {
+export const DistributionItemCard: React.FC<DistributionItemCardProps> = (props) => {
     const { index, item, onUpdate } = props
 
     const intl = useIntl()
