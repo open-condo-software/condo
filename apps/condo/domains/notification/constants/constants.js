@@ -458,13 +458,12 @@ const MESSAGE_META = {
     [BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE]: {
         dv: { required: true },
         data: {
-            residentId: { defaultValue: '', required: true },
-            userId: { defaultValue: '', required: true },
-            url: { defaultValue: '', required: true },
-            billingReceiptId: { defaultValue: '', required: true },
-            billingAccountId: { defaultValue: '', required: true },
-            billingPropertyId: { defaultValue: '', required: true },
+            userId: { required: true },
+            url: { required: true },
+            residentId: { required: true },
+            propertyId: { required: true },
             period: { required: true },
+            categoryId: { required: true },
         },
         categoryName: { required: true },
     },
