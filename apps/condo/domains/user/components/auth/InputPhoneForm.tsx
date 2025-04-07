@@ -127,7 +127,11 @@ export const InputPhoneForm: React.FC<InputPhoneFormProps> = ({ onFinish }) => {
     return (
         <Row>
             <Col>
-                <TabsAuthAction currentActiveKey='register' />
+                <Row justify='center'>
+                    <Col>
+                        <TabsAuthAction currentActiveKey='register' />
+                    </Col>
+                </Row>
                 <Form
                     form={form}
                     name='register-input-phone'
