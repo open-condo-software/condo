@@ -70,8 +70,6 @@ const updateTicketLastCommentTime = async (context, updatedItem, userType, comme
     const lastResidentCommentAt = userType === RESIDENT ? commentCreatedAt : undefined
     const lastCommentWithResidentTypeAt = commentType === RESIDENT_COMMENT_TYPE ? commentCreatedAt : undefined
     const lastCommentWithOrganizationTypeAt = commentType === ORGANIZATION_COMMENT_TYPE ? commentCreatedAt : undefined
-    const residentCommentFromResident = commentType === RESIDENT_COMMENT_TYPE && userType === RESIDENT
-    const residentCommentFromStaff = commentType === RESIDENT_COMMENT_TYPE && userType === STAFF
     
     await Ticket.update(context, ticketId, {
         dv,
@@ -80,7 +78,7 @@ const updateTicketLastCommentTime = async (context, updatedItem, userType, comme
         lastResidentCommentAt,
         lastCommentWithResidentTypeAt,
         lastCommentWithOrganizationTypeAt,
-        hasUnansweredCommentsByOrganizationEmployee: residentCommentFromResident || !residentCommentFromStaff,
+        lastCommentWithResidentTypeCreatedByUserType: commentType === RESIDENT_COMMENT_TYPE ? userType : undefined,
     })
 }
 

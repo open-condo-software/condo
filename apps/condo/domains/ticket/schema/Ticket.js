@@ -376,8 +376,8 @@ const Ticket = new GQLListSchema('Ticket', {
             type: 'DateTimeUtc',
             access: writeOnlyServerSideFieldAccess,
         },
-        lastOrganizationCommentAuthorType: {
-            schemaDoc: 'Type of the author of the last comment with organization type in ticket',
+        lastCommentWithResidentTypeCreatedByUserType: {
+            schemaDoc: 'User type of the author who created the last comment of type `resident` in the ticket',
             type: 'Select',
             options: USER_TYPES,
             access: writeOnlyServerSideFieldAccess,
