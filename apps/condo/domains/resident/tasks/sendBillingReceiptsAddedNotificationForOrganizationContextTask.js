@@ -146,7 +146,7 @@ async function sendBillingReceiptsAddedNotificationForOrganizationContext (conte
         const receiptAccountData = await prepareReceiptsData(receipts, context)
         const consumersByAccountKey = await fetchAndGroupConsumers(context, receiptAccountData.accountNumbers)
 
-        await processReceipts(keystone, context, receiptAccountData, consumersByAccountKey, lastSendDate, stats)
+        await processReceipts(keystone, context, receiptAccountData, consumersByAccountKey, stats)
 
         skip += SEND_BILLING_RECEIPT_CHUNK_SIZE
     }
@@ -201,12 +201,12 @@ async function fetchAndGroupConsumers (context, accountNumbers) {
     return groupConsumersByAccountKey(serviceConsumers)
 }
 
-async function processReceipts (keystone, context, receiptAccountData, consumersByAccountKey, lastSendDate, stats) {
+async function processReceipts (keystone, context, receiptAccountData, consumersByAccountKey, stats) {
     for (const [key, receipt] of Object.entries(receiptAccountData.receiptAccountKeys)) {
         const consumers = consumersByAccountKey[key]
         if (isEmpty(consumers)) continue
 
-        const [success, duplicate] = await notifyConsumers(keystone, context, receipt, consumers, lastSendDate)
+        const [success, duplicate] = await notifyConsumers(keystone, context, receipt, consumers)
         stats.successSentMessages += success
         stats.duplicatedSentMessages += duplicate
     }
