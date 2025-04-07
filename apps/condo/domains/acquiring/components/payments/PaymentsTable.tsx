@@ -100,7 +100,7 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
     const { filters, sorters, offset } = parseQuery(router.query)
 
     // TODO(dkovyazin): DOMA-11394 find out why acquiring uses currency from billing integration
-    const currencyCode = get(billingContexts.find(({ integration }) => !!integration.currencyCode), ['integration', 'currencyCode'], 'RUB')
+    const currencyCode = get(billingContexts.find(({ integration }) => !!integration.currencyCode), ['integration', 'currencyCode'], DEFAULT_CURRENCY_CODE)
 
     const [isStatusDescModalVisible, setIsStatusDescModalVisible] = useState<boolean>(false)
     const [titleStatusDescModal, setTitleStatusDescModal] = useState('')

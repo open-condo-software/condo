@@ -142,8 +142,8 @@ describe('AllResidentBillingReceiptsService', () => {
             const resident = await environment.createResident()
             await environment.createServiceConsumer(resident, accountNumber)
             const residentBillingReceipts = await ResidentBillingReceipt.getAll(environment.clients.resident)
-            expect(residentBillingReceipts.some(({ id }) => id === receiptId1)).toBeDefined()
-            expect(residentBillingReceipts.some(({ id }) => id === receiptId2)).toBeDefined()
+            expect(residentBillingReceipts.some(({ id }) => id === receiptId1)).toBeTruthy()
+            expect(residentBillingReceipts.some(({ id }) => id === receiptId2)).toBeTruthy()
         })
     })
 
