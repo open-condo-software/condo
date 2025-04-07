@@ -695,6 +695,7 @@ __metadata:
     react: ^16.13.1
     react-dom: ^16.13.1
     typescript: ^5.5.4
+    webpack: ^4.46.0
   languageName: unknown
   linkType: soft
 
