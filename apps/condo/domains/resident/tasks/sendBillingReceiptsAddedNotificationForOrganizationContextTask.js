@@ -15,14 +15,17 @@ const { DEFAULT_CURRENCY_CODE, CURRENCY_SYMBOLS } = require('@condo/domains/comm
 const {
     BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE,
     BILLING_RECEIPT_ADDED_TYPE,
+    BILLING_RECEIPT_INSURANCE_CATEGORY_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { BILLING_CONTEXT_SYNCHRONIZATION_DATE, SEND_BILLING_RECEIPT_CHUNK_SIZE } = require('@condo/domains/resident/constants/constants')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 
+const INSURANCE_CATEGORY_ID = '55dd01e4-a87c-4713-8a91-951516b543f3'
 const logger = getLogger('sendNewBillingReceiptNotification')
 const makeAccountKey = (...args) => args.map(value => `${value}`.trim().toLowerCase()).join(':')
-const getMessageTypeAndDebt = (toPay, toPayCharge) => {
+const getMessageTypeAndDebt = (toPay, toPayCharge, category) => {
+    if (category.id === INSURANCE_CATEGORY_ID) return { messageType: BILLING_RECEIPT_INSURANCE_CATEGORY_TYPE, debt: null }
     if (toPay <= 0) return { messageType: BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE, debt: 0 }
     // TODO (DOMA-3581) debt value population is disabled until user will be able to manage push notifications
     // if (toPayCharge && toPayCharge > 0) return { messageType: BILLING_RECEIPT_ADDED_WITH_DEBT_TYPE, debt: toPayCharge }
@@ -51,7 +54,7 @@ const prepareAndSendNotification = async (keystone, context, receipt, resident, 
     const toPayCharge = isNaN(toPayChargeValue) ? null : toPayChargeValue
     const category = getLocalized(locale, receipt.category.name)
     const currencyCode = get(context, 'integration.currencyCode', DEFAULT_CURRENCY_CODE)
-    const { messageType, debt } = getMessageTypeAndDebt(toPay, toPayCharge)
+    const { messageType, debt } = getMessageTypeAndDebt(toPay, toPayCharge, receipt.category)
 
     const data = {
         residentId: resident.id,
@@ -296,7 +299,7 @@ function getMaxReceiptCreatedAt (receipts, prevMaxCreatedAt) {
     return maxCreatedAt
 }
 
-async function notifyConsumers (keystone, context, receipt, consumers, lastSendDate) {
+async function notifyConsumers (keystone, context, receipt, consumers) {
     let successSentMessages = 0
     let duplicatedSentMessages = 0
     for (const consumer of consumers) {
