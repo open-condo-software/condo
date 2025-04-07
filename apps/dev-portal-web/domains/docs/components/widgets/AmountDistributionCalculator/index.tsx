@@ -13,8 +13,8 @@ import { SplitResult } from './SplitResult'
 const CARD_PADDING = 8
 const GUTTER_ROW: RowProps['gutter'] = [16, 16]
 
-function generateDecimalString (len: number): string {
-    return Math.random().toString().substring(2, len) // NOSONAR
+function generateDecimalString (length: number): string {
+    return Array.from({ length }, () => Math.floor(Math.random() * 10)).join('') // NOSONAR
 }
 
 function generateRandomDistributionItem (): TDistributionItem {
