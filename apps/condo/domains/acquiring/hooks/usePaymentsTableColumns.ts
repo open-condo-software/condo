@@ -19,9 +19,6 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
     const AddressTitle = intl.formatMessage({ id: 'field.Address' })
     const DepositedDateTitle = intl.formatMessage({ id: 'Date' })
     const AccountTitle = intl.formatMessage({ id: 'field.AccountNumberShort' })
-    const UnitNameTitle = intl.formatMessage({ id: 'field.FlatNumber' })
-    const TypeTitle = intl.formatMessage({ id: 'PaymentType' })
-    const TransactionTitle = intl.formatMessage({ id: 'Transaction' })
     const PaymentAmountTitle = intl.formatMessage({ id: 'PaymentAmount' })
     const StatusTitle = intl.formatMessage({ id: 'Status' })
 
@@ -39,47 +36,25 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
                 key: 'depositedDate',
                 dataIndex: ['depositedDate'],
                 sorter: true,
-                width: '112px',
+                width: '11em',
                 render: getDateRender(intl, String(search)),
             },
             account: {
                 title: AccountTitle,
                 key: 'accountNumber',
                 dataIndex: 'accountNumber',
-                width: '120px',
+                width: '10em',
                 render: stringSearch,
             },
             address: {
                 title: AddressTitle,
-                key: 'address',
+                key: 'rawAddress',
+                width: '25em',
                 sorter: true,
                 render: (obj) => stringSearch(get(
                     obj,
-                    ['receipt', 'property', 'address'],
-                    get(obj, ['frozenReceipt', 'data', 'property', 'address'], null),
+                    ['rawAddress'],
                 )),
-            },
-            unitName: {
-                title: UnitNameTitle,
-                key: 'unitName',
-                width: '128px',
-                render: (obj) => stringSearch(get(
-                    obj,
-                    ['receipt', 'account', 'unitName'],
-                    get(obj, ['frozenReceipt', 'data', 'account', 'unitName'], null),
-                )),
-            },
-            type: {
-                title: TypeTitle,
-                key: 'type',
-                dataIndex: ['context', 'integration', 'name'],
-                render: stringSearch,
-            },
-            transaction: {
-                title: TransactionTitle,
-                key: 'transaction',
-                dataIndex: ['multiPayment', 'transactionId'],
-                render: stringSearch,
             },
             status: {
                 title: StatusTitle,
@@ -98,5 +73,5 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
         }
 
         return Object.values(columns)
-    }, [filters, DepositedDateTitle, intl, AccountTitle, AddressTitle, UnitNameTitle, TypeTitle, TransactionTitle, StatusTitle, openStatusDescModal, PaymentAmountTitle, currencyCode])
+    }, [filters, DepositedDateTitle, intl, AccountTitle, AddressTitle, StatusTitle, openStatusDescModal, PaymentAmountTitle, currencyCode])
 }
