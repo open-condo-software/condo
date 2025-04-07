@@ -30,7 +30,7 @@ import { SharingAppValuesType } from '.'
 
 const SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]
 
-type Properties = {
+export type Properties = {
     properties: Array<string>
 }
 
