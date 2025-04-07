@@ -40,6 +40,11 @@
   "types": "dist/index.d.ts",
   "main": "dist/index.js",
   "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs"
+    },
     "./utils/paymentSplitter": {
       "types": "./dist/utils/paymentSplitter.d.ts",
       "require": "./dist/utils/paymentSplitter.js",
