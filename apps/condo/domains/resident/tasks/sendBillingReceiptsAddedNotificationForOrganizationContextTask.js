@@ -9,6 +9,7 @@ const { find, getSchemaCtx, getByCondition, itemsQuery } = require('@open-condo/
 const { createTask } = require('@open-condo/keystone/tasks')
 const { getLocalized } = require('@open-condo/locales/loader')
 
+const { INSURANCE_CATEGORY_ID } = require('@condo/domains/billing/constants/constants')
 const { getNewPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { DEFAULT_CURRENCY_CODE, CURRENCY_SYMBOLS } = require('@condo/domains/common/constants/currencies')
@@ -21,7 +22,6 @@ const { sendMessage } = require('@condo/domains/notification/utils/serverSchema'
 const { BILLING_CONTEXT_SYNCHRONIZATION_DATE, SEND_BILLING_RECEIPT_CHUNK_SIZE } = require('@condo/domains/resident/constants/constants')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 
-const INSURANCE_CATEGORY_ID = '55dd01e4-a87c-4713-8a91-951516b543f3'
 const logger = getLogger('sendNewBillingReceiptNotification')
 const makeAccountKey = (...args) => args.map(value => `${value}`.trim().toLowerCase()).join(':')
 const getMessageTypeAndDebt = (toPay, toPayCharge, category) => {

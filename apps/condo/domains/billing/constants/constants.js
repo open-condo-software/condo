@@ -42,10 +42,12 @@ const BILLING_ACCOUNT_OWNER_TYPE_COMPANY = 'company'
 const BILLING_ACCOUNT_OWNER_TYPES = [BILLING_ACCOUNT_OWNER_TYPE_PERSON, BILLING_ACCOUNT_OWNER_TYPE_COMPANY]
 
 // Billing categories are constants within DB and added via migration 0121, so it's safe to use this value
+// Insurance category was added via migration 0461
 const DEFAULT_BILLING_CATEGORY_ID = '928c97ef-5289-4daa-b80e-4b9fed50c629'
 const HOUSING_CATEGORY_ID = '928c97ef-5289-4daa-b80e-4b9fed50c629'
 const REPAIR_CATEGORY_ID = 'c0b9db6a-c351-4bf4-aa35-8e5a500d0195'
 const ELECTRICITY_CATEGORY_ID = '9c29b499-6594-4479-a2a7-b6553587d6e2'
+const INSURANCE_CATEGORY_ID = '55dd01e4-a87c-4713-8a91-951516b543f3'
 
 const PERIOD_REGEX = /^\d{4}-\d{2}-01$/
 
@@ -87,6 +89,7 @@ module.exports = {
     HOUSING_CATEGORY_ID,
     REPAIR_CATEGORY_ID,
     ELECTRICITY_CATEGORY_ID,
+    INSURANCE_CATEGORY_ID,
     PERIOD_REGEX,
     CONTEXT_FINISHED_STATUS,
 }
