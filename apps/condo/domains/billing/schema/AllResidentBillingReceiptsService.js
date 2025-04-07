@@ -55,7 +55,7 @@ const getFile = (receipt, contacts) => {
         ? receipt.file.sensitiveDataFile
         : receipt.file.publicDataFile
 
-    // case when file url is omit in BillingReceiptFile
+    // case when file url is omitted in BillingReceiptFile
     if (isNil(file)) {
         return null
     }
@@ -95,7 +95,7 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
             resolver: async (parent, args, context = {}) => {
                 const { where, first, skip, sortBy } = args
 
-                const serviceConsumerWhere = get(where, 'serviceConsumer', {})
+                const serviceConsumerWhere = { ...get(where, 'serviceConsumer', {}), deletedAt: null }
                 const receiptsWhere = pick(where, ['id', 'period', 'toPay', 'printableNumber'])
 
                 const userId = get(context, ['authedItem', 'id'])
@@ -104,25 +104,18 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                 const GET_ONLY_OWN_SERVICE_CONSUMER_WHERE = { user: { id: userId } }
                 if (!serviceConsumerWhere.resident) {
                     serviceConsumerWhere.resident = GET_ONLY_OWN_SERVICE_CONSUMER_WHERE
-                    serviceConsumerWhere.deletedAt = null
                 } else {
                     serviceConsumerWhere.resident.user = GET_ONLY_OWN_SERVICE_CONSUMER_WHERE.user
-                    serviceConsumerWhere.deletedAt = null
                 }
+                const serviceConsumers = await find('ServiceConsumer', serviceConsumerWhere)
 
-                const serviceConsumers = (await find('ServiceConsumer', serviceConsumerWhere))
-
-                const serviceConsumersWithBillingAccount = serviceConsumers.filter(consumer => (
-                    get(consumer, 'billingIntegrationContext')
-                ))
-
-                if (!Array.isArray(serviceConsumersWithBillingAccount) || !serviceConsumersWithBillingAccount.length) {
+                if (!serviceConsumers.length) {
                     return []
                 }
 
                 const processedReceipts = []
                 const receiptsQuery = []
-                for (const serviceConsumer of serviceConsumersWithBillingAccount) {
+                for (const serviceConsumer of serviceConsumers) {
                     const receiptsQueryForConsumer = {
                         ...receiptsWhere,
                         account: {
@@ -178,7 +171,7 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                         toPayDetails: receipt.toPayDetails,
                         services: receipt.services,
                         printableNumber: receipt.printableNumber,
-                        serviceConsumer: serviceConsumersWithBillingAccount.find(({ accountNumber, organization }) =>
+                        serviceConsumer: serviceConsumers.find(({ accountNumber, organization }) =>
                             get(receipt, ['account', 'number']) === accountNumber &&
                             get(receipt, ['context', 'organization', 'id']) === organization ),
                         currencyCode: get(receipt, ['context', 'integration', 'currencyCode'], null),

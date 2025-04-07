@@ -3,13 +3,13 @@ import { createContext, useContext } from 'react'
 import type { BillingIntegrationOrganizationContext, AcquiringIntegrationContext } from '@app/condo/schema'
 
 type IBillingAndAcquiringContexts = {
-    billingContext: BillingIntegrationOrganizationContext
+    billingContexts: BillingIntegrationOrganizationContext[]
     acquiringContext: AcquiringIntegrationContext
     refetchBilling: () => void
 }
 
 export const BillingAndAcquiringContext = createContext<IBillingAndAcquiringContexts>({
-    billingContext: null,
+    billingContexts: [],
     acquiringContext: null,
     refetchBilling: () => ({}),
 })

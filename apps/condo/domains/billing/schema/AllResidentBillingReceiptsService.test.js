@@ -10,13 +10,24 @@ const dayjs = require('dayjs')
 
 const { DATETIME_RE } = require('@open-condo/keystone/test.utils')
 
-const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+const {
+    CONTEXT_FINISHED_STATUS: ACQUIRING_CONTEXT_FINISHED_STATUS,
+} = require('@condo/domains/acquiring/constants/context')
 const { PAYMENT_DONE_STATUS, MULTIPAYMENT_DONE_STATUS } = require('@condo/domains/acquiring/constants/payment')
 const { Payment } = require('@condo/domains/acquiring/utils/testSchema')
 const { createPaymentByLinkByTestClient, generateQRCode } = require('@condo/domains/acquiring/utils/testSchema')
 const { addAcquiringIntegrationAndContext } = require('@condo/domains/acquiring/utils/testSchema')
 const { updateTestPayment, updateTestMultiPayment } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestBankAccount } = require('@condo/domains/banking/utils/testSchema')
+const {
+    createTestBillingIntegration,
+    createTestBillingIntegrationOrganizationContext,
+    createTestBillingIntegrationAccessRight,
+} = require('@condo/domains/billing//utils/testSchema')
+const {
+    CONTEXT_IN_PROGRESS_STATUS: BILLING_CONTEXT_IN_PROGRESS_STATUS,
+    CONTEXT_FINISHED_STATUS: BILLING_CONTEXT_FINISHED_STATUS,
+} = require('@condo/domains/billing/constants/constants')
 const { ResidentBillingReceipt, PUBLIC_FILE, PRIVATE_FILE, updateTestBillingReceipt } = require('@condo/domains/billing/utils/testSchema')
 const {
     addBillingIntegrationAndContext,
@@ -105,6 +116,35 @@ describe('AllResidentBillingReceiptsService', () => {
             expect(receipts.some(({ id }) => id === anotherReceiptId)).toBeFalsy()
         })
 
+    })
+
+    describe('Several contexts for one organization', () => {
+        test('returns all receipts from different contexts with the same account number', async () => {
+
+            const accountNumber = faker.random.alphaNumeric(12)
+            const environment = new TestUtils([ResidentTestMixin])
+            await environment.init()
+            const [[{ id: receiptId1 }]] = await environment.createReceipts([
+                environment.createJSONReceipt({ accountNumber }),
+            ])
+            const [anotherBillingIntegration] = await createTestBillingIntegration(environment.clients.admin)
+            const [anotherBillingContext] = await createTestBillingIntegrationOrganizationContext(environment.clients.support, environment.organization, anotherBillingIntegration, {
+                status: BILLING_CONTEXT_IN_PROGRESS_STATUS,
+            })
+            await createTestBillingIntegrationAccessRight(environment.clients.admin, anotherBillingIntegration, environment.clients.service.user)
+            environment.billingContext = anotherBillingContext
+            environment.updateBillingContext({
+                status: BILLING_CONTEXT_FINISHED_STATUS,
+            })
+            const [[{ id: receiptId2 }]] = await environment.createReceipts([
+                environment.createJSONReceipt({ accountNumber }),
+            ])
+            const resident = await environment.createResident()
+            await environment.createServiceConsumer(resident, accountNumber)
+            const residentBillingReceipts = await ResidentBillingReceipt.getAll(environment.clients.resident)
+            expect(residentBillingReceipts.some(({ id }) => id === receiptId1)).toBeTruthy()
+            expect(residentBillingReceipts.some(({ id }) => id === receiptId2)).toBeTruthy()
+        })
     })
 
     describe('Inspect fields for resident',  () => {
@@ -395,7 +435,7 @@ describe('AllResidentBillingReceiptsService', () => {
                     generateInitialData = async function generateInitialData (payAmount = '5000.00') {
                         const [organization] = await createTestOrganization(utils.clients.admin)
                         const [property] = await createTestProperty(utils.clients.admin, organization)
-                        const { billingIntegrationContext } = await addBillingIntegrationAndContext(utils.clients.admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
+                        const { billingIntegrationContext } = await addBillingIntegrationAndContext(utils.clients.admin, organization, {}, { status: BILLING_CONTEXT_FINISHED_STATUS })
                         const [billingProperty] = await createTestBillingProperty(utils.clients.admin, billingIntegrationContext, { address: property.address })
                         const [billingAccount] = await createTestBillingAccount(utils.clients.admin, billingIntegrationContext, billingProperty)
                         const [bankAccount] = await createTestBankAccount(utils.clients.admin, organization)
@@ -406,7 +446,7 @@ describe('AllResidentBillingReceiptsService', () => {
                             bankAccount: bankAccount.number,
                         })
                         const { acquiringIntegrationContext } = await addAcquiringIntegrationAndContext(utils.clients.admin, organization, {}, {
-                            status: CONTEXT_FINISHED_STATUS,
+                            status: ACQUIRING_CONTEXT_FINISHED_STATUS,
                             recipient,
                         })
                         const [resident] = await createTestResident(utils.clients.admin, utils.clients.resident.user, property, {

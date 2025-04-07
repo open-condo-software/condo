@@ -388,9 +388,11 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 if (deletedConsumersIds.length) {
                     throw new GQLError({ ...ERRORS.DELETED_CONSUMERS, messageInterpolation: { ids: deletedConsumersIds.join(', ') } }, context)
                 }
+                // TODO(dkovyazin): DOMA-11397 service consumers do not contain actual acquiring contexts
                 const contextMissingConsumers = consumers
                     .filter(consumer => !get(consumer, 'acquiringIntegrationContext'))
                     .map(consumer => consumer.id)
+
                 if (contextMissingConsumers.length) {
                     throw new GQLError({ ...ERRORS.ACQUIRING_INTEGRATION_CONTEXT_IS_MISSING, messageInterpolation: { ids: contextMissingConsumers.join(', ') } }, context)
                 }
@@ -443,7 +445,6 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     throw new GQLError({ ...ERRORS.ACQUIRING_INTEGRATION_IS_DELETED, messageInterpolation: { id: acquiringIntegration.id } }, context)
                 }
 
-                // TODO (savelevMatthew): check that all receipts linked to right consumers?
                 // Stage 2. Check BillingReceipts
                 if (receiptsIds.length > 1 && !acquiringIntegration.canGroupReceipts) {
                     throw new GQLError({ ...ERRORS.RECEIPTS_CANNOT_BE_GROUPED_BY_ACQUIRING_INTEGRATION, messageInterpolation: { id: acquiringIntegration.id } }, context)
@@ -462,6 +463,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     throw new GQLError({ ...ERRORS.RECEIPTS_ARE_DELETED, messageInterpolation: { ids: deletedReceiptsIds.join(', ') } }, context)
                 }
 
+                // TODO(dkovyazin): DOMA-11397 will not work with advance payments
                 const negativeReceiptsIds = receipts
                     .filter(receipt => Big(receipt.toPay).lte(0))
                     .map(receipt => receipt.id)

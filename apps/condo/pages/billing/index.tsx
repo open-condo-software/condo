@@ -25,7 +25,7 @@ const AccrualsAndPaymentsPage: PageComponentType = () => {
     const userOrganization = useOrganization()
     const orgId = get(userOrganization, ['organization', 'id'], null)
     const orgType = get(userOrganization, ['organization', 'type'], MANAGING_COMPANY_TYPE)
-    const { obj: billingCtx, loading: billingLoading, error: billingError, refetch: refetchBilling } = BillingContext.useObject({
+    const { objs: billingContexts, loading: billingLoading, error: billingError, refetch: refetchBilling } = BillingContext.useObjects({
         where: {
             status: BILLING_FINISHED_STATUS,
             organization: { id: orgId },
@@ -52,9 +52,9 @@ const AccrualsAndPaymentsPage: PageComponentType = () => {
         )
     }
 
-    if (billingCtx && acquiringCtx && get(acquiringCtx, 'status') === CONTEXT_FINISHED_STATUS) {
+    if (billingContexts.length && acquiringCtx && get(acquiringCtx, 'status') === CONTEXT_FINISHED_STATUS) {
         return (
-            <BillingAndAcquiringContext.Provider value={{ billingContext: billingCtx, acquiringContext: acquiringCtx, refetchBilling }}>
+            <BillingAndAcquiringContext.Provider value={{ billingContexts: billingContexts, acquiringContext: acquiringCtx, refetchBilling }}>
                 <BillingPageContent/>
             </BillingAndAcquiringContext.Provider>
         )

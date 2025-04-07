@@ -25,8 +25,8 @@ const StyledPageWrapper = styled(PageWrapper)`
 `
 
 export const BillingPageContent: React.FC = () => {
-    const { billingContext } = useBillingAndAcquiringContexts()
-    const billingName = get(billingContext, ['integration', 'name'], '')
+    const { billingContexts } = useBillingAndAcquiringContexts()
+    const billingName = billingContexts.map(({ integration }) => get(integration, 'name')).join(', ')
 
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'global.section.accrualsAndPayments' })
@@ -37,7 +37,8 @@ export const BillingPageContent: React.FC = () => {
     const canReadBillingReceipts = get(userOrganization, ['link', 'role', 'canReadBillingReceipts'], false)
     const canReadPayments = get(userOrganization, ['link', 'role', 'canReadPayments'], false)
 
-    const currentProblem = get(billingContext, 'currentProblem')
+    const problemContext = billingContexts.find(({ currentProblem }) => !!currentProblem)
+    const currentProblem =  problemContext ? get(problemContext, 'currentProblem') : null
 
     const tagBg = currentProblem ? colors.red['5'] : colors.green['5']
     const tagMessage = currentProblem ? ErrorStatusMessage : ConnectedStatusMessage

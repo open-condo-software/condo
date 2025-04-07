@@ -39,10 +39,11 @@ export const ReceiptsTable: React.FC = () => {
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const LoadingErrorMessage = intl.formatMessage({ id: 'errors.LoadingError' })
 
-    const { billingContext } = useBillingAndAcquiringContexts()
+    const { billingContexts } = useBillingAndAcquiringContexts()
+    const billingContext = billingContexts.length > 0 ? billingContexts[0] : null
     const currencyCode = get(billingContext, ['integration', 'currencyCode'], 'RUB')
-    const reportPeriod = get(billingContext, ['lastReport', 'period'], null)
-    const contextId = get(billingContext, 'id', null)
+    const reportPeriod = get(billingContexts.find(({ lastReport }) => !!lastReport), ['lastReport', 'period'], null)
+    const contextIds = billingContexts.map(({ id }) => id)
     const hasToPayDetails = get(billingContext, ['integration', 'dataFormat', 'hasToPayDetails'], false)
     const hasServices = get(billingContext, ['integration', 'dataFormat', 'hasServices'], false)
     const hasServicesDetails = get(billingContext, ['integration', 'dataFormat', 'hasServicesDetails'], false)
@@ -69,7 +70,7 @@ export const ReceiptsTable: React.FC = () => {
         error,
         refetch,
     } = BillingReceiptForOrganization.useObjects({
-        where: { ...filtersToWhere(filters), context: { id: contextId } },
+        where: { ...filtersToWhere(filters), context: { id_in: contextIds } },
         sortBy: sortersToSortBy(sorters) as SortBillingReceiptsBy[],
         first: DEFAULT_PAGE_SIZE,
         skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
@@ -86,7 +87,7 @@ export const ReceiptsTable: React.FC = () => {
 
     const [modalIsVisible, setModalIsVisible] = useState(false)
     const [detailedReceipt, setDetailedReceipt] = useState<BillingReceiptType>(null)
-    const [period, setPeriod] = useState(dayjs(reportPeriod))
+    const [period, setPeriod] = useState(dayjs(reportPeriod, 'YYYY-MM-DD'))
     const showServiceModal = (receipt: BillingReceiptType) => {
         setModalIsVisible(true)
         setDetailedReceipt(receipt || null)

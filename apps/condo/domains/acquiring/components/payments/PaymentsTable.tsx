@@ -90,7 +90,8 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
     const DoneSumTitle = intl.formatMessage({ id: 'MultiPayment.status.DONE' })
     const WithdrawnSumTitle = intl.formatMessage({ id: 'MultiPayment.status.PROCESSING' })
 
-    const { billingContext } = useBillingAndAcquiringContexts()
+    const { billingContexts } = useBillingAndAcquiringContexts()
+    const billingContext = billingContexts[0]
 
     const { breakpoints } = useLayoutContext()
     const router = useRouter()
@@ -98,7 +99,8 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
 
     const { filters, sorters, offset } = parseQuery(router.query)
 
-    const currencyCode = get(billingContext, ['integration', 'currencyCode'], DEFAULT_CURRENCY_CODE)
+    // TODO(dkovyazin): DOMA-11394 find out why acquiring uses currency from billing integration
+    const currencyCode = get(billingContexts.find(({ integration }) => !!integration.currencyCode), ['integration', 'currencyCode'], DEFAULT_CURRENCY_CODE)
 
     const [isStatusDescModalVisible, setIsStatusDescModalVisible] = useState<boolean>(false)
     const [titleStatusDescModal, setTitleStatusDescModal] = useState('')
@@ -115,7 +117,7 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
     const tableColumns = usePaymentsTableColumns(currencyCode, openStatusDescModal)
 
     const organizationId = get(userOrganization, ['organization', 'id'], '')
-    const queryMetas = usePaymentsTableFilters(billingContext, organizationId)
+    const queryMetas = usePaymentsTableFilters(organizationId)
 
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(queryMetas, SORTABLE_PROPERTIES)
