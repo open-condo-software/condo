@@ -9,6 +9,7 @@ import {
     getMoneyRender,
     getStatusRender,
     getTextRender,
+    getColumnTooltip,
 } from '@condo/domains/common/components/Table/Renders'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 
@@ -17,10 +18,13 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
     const router = useRouter()
 
     const AddressTitle = intl.formatMessage({ id: 'field.Address' })
-    const DepositedDateTitle = intl.formatMessage({ id: 'Date' })
+    const TransferDateTitle = intl.formatMessage({ id: 'TransferDate' })
+    const DepositedDateTitle = intl.formatMessage({ id: 'DepositedDate' })
     const AccountTitle = intl.formatMessage({ id: 'field.AccountNumberShort' })
     const PaymentAmountTitle = intl.formatMessage({ id: 'PaymentAmount' })
     const StatusTitle = intl.formatMessage({ id: 'Status' })
+    const PaymentOrderColumnTitle = intl.formatMessage({ id: 'PaymentOrderShort' })
+    const PaymentOrderTooltipTitle = intl.formatMessage({ id: 'PaymentOrder' })
 
     const { filters } = parseQuery(router.query)
 
@@ -39,6 +43,14 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
                 width: '11em',
                 render: getDateRender(intl, String(search)),
             },
+            transferDate: {
+                title: TransferDateTitle,
+                key: 'transferDate',
+                dataIndex: ['transferDate'],
+                sorter: true,
+                width: '11em',
+                render: getDateRender(intl, String(search)),
+            },
             account: {
                 title: AccountTitle,
                 key: 'accountNumber',
@@ -49,12 +61,10 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
             address: {
                 title: AddressTitle,
                 key: 'rawAddress',
+                dataIndex: 'rawAddress',
                 width: '25em',
                 sorter: true,
-                render: (obj) => stringSearch(get(
-                    obj,
-                    ['rawAddress'],
-                )),
+                render: stringSearch,
             },
             status: {
                 title: StatusTitle,
@@ -62,16 +72,22 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
                 dataIndex: 'status',
                 render: getStatusRender(intl, openStatusDescModal, search),
             },
+            order: {
+                title: getColumnTooltip(PaymentOrderColumnTitle, PaymentOrderTooltipTitle),
+                key: 'order',
+                dataIndex: 'order',
+                render: stringSearch,
+            },
             amount: {
                 title: PaymentAmountTitle,
                 key: 'amount',
                 dataIndex: 'amount',
                 render: getMoneyRender(intl, currencyCode),
-                width: '144px',
+                width: '14em',
                 sorter: true,
             },
         }
 
         return Object.values(columns)
-    }, [filters, DepositedDateTitle, intl, AccountTitle, AddressTitle, StatusTitle, openStatusDescModal, PaymentAmountTitle, currencyCode])
+    }, [filters, DepositedDateTitle, intl, TransferDateTitle, AccountTitle, AddressTitle, StatusTitle, openStatusDescModal, PaymentAmountTitle, currencyCode])
 }
