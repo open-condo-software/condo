@@ -94,6 +94,7 @@ const {
 } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithStaffUser } = require('@condo/domains/user/utils/testSchema')
 
+
 let adminClient
 let dummyAcquiringIntegration
 

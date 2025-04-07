@@ -9,6 +9,7 @@ import {
     getMoneyRender,
     getStatusRender,
     getTextRender,
+    getColumnTooltip,
 } from '@condo/domains/common/components/Table/Renders'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 
@@ -17,13 +18,13 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
     const router = useRouter()
 
     const AddressTitle = intl.formatMessage({ id: 'field.Address' })
-    const DepositedDateTitle = intl.formatMessage({ id: 'Date' })
+    const TransferDateTitle = intl.formatMessage({ id: 'TransferDate' })
+    const DepositedDateTitle = intl.formatMessage({ id: 'DepositedDate' })
     const AccountTitle = intl.formatMessage({ id: 'field.AccountNumberShort' })
-    const UnitNameTitle = intl.formatMessage({ id: 'field.FlatNumber' })
-    const TypeTitle = intl.formatMessage({ id: 'PaymentType' })
-    const TransactionTitle = intl.formatMessage({ id: 'Transaction' })
     const PaymentAmountTitle = intl.formatMessage({ id: 'PaymentAmount' })
     const StatusTitle = intl.formatMessage({ id: 'Status' })
+    const PaymentOrderColumnTitle = intl.formatMessage({ id: 'PaymentOrderShort' })
+    const PaymentOrderTooltipTitle = intl.formatMessage({ id: 'PaymentOrder' })
 
     const { filters } = parseQuery(router.query)
 
@@ -39,46 +40,30 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
                 key: 'depositedDate',
                 dataIndex: ['depositedDate'],
                 sorter: true,
-                width: '112px',
+                width: '11em',
+                render: getDateRender(intl, String(search)),
+            },
+            transferDate: {
+                title: TransferDateTitle,
+                key: 'transferDate',
+                dataIndex: ['transferDate'],
+                sorter: true,
+                width: '11em',
                 render: getDateRender(intl, String(search)),
             },
             account: {
                 title: AccountTitle,
                 key: 'accountNumber',
                 dataIndex: 'accountNumber',
-                width: '120px',
+                width: '10em',
                 render: stringSearch,
             },
             address: {
                 title: AddressTitle,
-                key: 'address',
+                key: 'rawAddress',
+                dataIndex: 'rawAddress',
+                width: '25em',
                 sorter: true,
-                render: (obj) => stringSearch(get(
-                    obj,
-                    ['receipt', 'property', 'address'],
-                    get(obj, ['frozenReceipt', 'data', 'property', 'address'], null),
-                )),
-            },
-            unitName: {
-                title: UnitNameTitle,
-                key: 'unitName',
-                width: '128px',
-                render: (obj) => stringSearch(get(
-                    obj,
-                    ['receipt', 'account', 'unitName'],
-                    get(obj, ['frozenReceipt', 'data', 'account', 'unitName'], null),
-                )),
-            },
-            type: {
-                title: TypeTitle,
-                key: 'type',
-                dataIndex: ['context', 'integration', 'name'],
-                render: stringSearch,
-            },
-            transaction: {
-                title: TransactionTitle,
-                key: 'transaction',
-                dataIndex: ['multiPayment', 'transactionId'],
                 render: stringSearch,
             },
             status: {
@@ -87,16 +72,22 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
                 dataIndex: 'status',
                 render: getStatusRender(intl, openStatusDescModal, search),
             },
+            order: {
+                title: getColumnTooltip(PaymentOrderColumnTitle, PaymentOrderTooltipTitle),
+                key: 'order',
+                dataIndex: 'order',
+                render: stringSearch,
+            },
             amount: {
                 title: PaymentAmountTitle,
                 key: 'amount',
                 dataIndex: 'amount',
                 render: getMoneyRender(intl, currencyCode),
-                width: '144px',
+                width: '14em',
                 sorter: true,
             },
         }
 
         return Object.values(columns)
-    }, [filters, DepositedDateTitle, intl, AccountTitle, AddressTitle, UnitNameTitle, TypeTitle, TransactionTitle, StatusTitle, openStatusDescModal, PaymentAmountTitle, currencyCode])
+    }, [filters, DepositedDateTitle, intl, TransferDateTitle, AccountTitle, AddressTitle, StatusTitle, openStatusDescModal, PaymentAmountTitle, currencyCode])
 }

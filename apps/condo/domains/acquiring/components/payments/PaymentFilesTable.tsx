@@ -60,7 +60,7 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
     const CancelSelectedRegistryMessage = intl.formatMessage({ id: 'global.cancelSelection' })
     const DownloadRegistriesMessage = intl.formatMessage({ id: 'Download' })
 
-    const { acquiringContext, billingContext } = useBillingAndAcquiringContexts()
+    const { acquiringContext, billingContexts } = useBillingAndAcquiringContexts()
     const { persistor } = useCachePersistor()
 
     const { breakpoints } = useLayoutContext()
@@ -69,7 +69,9 @@ const PaymentFilesTableContent: React.FC = (): JSX.Element => {
     const organizationId = get(userOrganization, ['organization', 'id'], '')
 
     const { filters, sorters, offset } = parseQuery(router.query)
-    const currencyCode = get(billingContext, ['integration', 'currencyCode'], DEFAULT_CURRENCY_CODE)
+
+    // TODO(dkovyazin): DOMA-11394 find out why acquiring uses currency from billing integration
+    const currencyCode = get(billingContexts.find(({ integration }) => !!integration.currencyCode), ['integration', 'currencyCode'], DEFAULT_CURRENCY_CODE)
 
     const tableColumns = usePaymentsFilesTableColumns(currencyCode)
     const queryMetas = usePaymentsFilesTableFilters(organizationId)
