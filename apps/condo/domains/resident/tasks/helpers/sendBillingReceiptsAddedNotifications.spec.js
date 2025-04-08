@@ -15,7 +15,6 @@ const { TestUtils, ResidentTestMixin } = require('@condo/domains/billing/utils/t
 const {
     BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE,
     BILLING_RECEIPT_ADDED_TYPE,
-    BILLING_RECEIPT_INSURANCE_CATEGORY_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const { Message } = require('@condo/domains/notification/utils/testSchema')
 const { updateTestOrganization } = require('@condo/domains/organization/utils/testSchema')
@@ -247,34 +246,23 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
 
     describe('Helper functions', () => {
         it('calculates correct messageType and debt for toPay <= 0', () => {
-            const category = { id: '928c97ef-5289-4daa-b80e-4b9fed50c629' }
-            const { messageType, debt } = getMessageTypeAndDebt(0, 0, category)
+            const { messageType, debt } = getMessageTypeAndDebt(0, 0)
 
             expect(messageType).toEqual(BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE)
             expect(debt).toEqual(0)
         })
 
         it('calculates correct messageType and debt for toPay > 0 and toPayCharge > 0', () => {
-            const category = { id: '928c97ef-5289-4daa-b80e-4b9fed50c629' }
-            const { messageType, debt } = getMessageTypeAndDebt(10000, 1000, category)
+            const { messageType, debt } = getMessageTypeAndDebt(10000, 1000)
 
             expect(messageType).toEqual(BILLING_RECEIPT_ADDED_TYPE)
             expect(debt).toBeNull()
         })
 
         it('calculates correct messageType and debt for toPay > 0 and toPaycharge === null', () => {
-            const category = { id: '928c97ef-5289-4daa-b80e-4b9fed50c629' }
-            const { messageType, debt } = getMessageTypeAndDebt(10000, null, category)
+            const { messageType, debt } = getMessageTypeAndDebt(10000, null)
 
             expect(messageType).toEqual(BILLING_RECEIPT_ADDED_TYPE)
-            expect(debt).toBeNull()
-        })
-
-        it('calculates correct messageType and debt for insurance category', () => {
-            const category = { id: '55dd01e4-a87c-4713-8a91-951516b543f3' }
-            const { messageType, debt } = getMessageTypeAndDebt(10000, null, category)
-
-            expect(messageType).toEqual(BILLING_RECEIPT_INSURANCE_CATEGORY_TYPE)
             expect(debt).toBeNull()
         })
 
@@ -783,55 +771,6 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
             const messages = await Message.getAll(environment.clients.admin, messageWhere)
             expect(messages).toHaveLength(1)
             expect(messages[0].meta.data.billingReceiptId).toBe(receipts.find(r => r.period === '2024-02-01').id)
-        })
-
-        test('Should send correct message for insurance category', async () => {
-            const environment = new TestUtils([ResidentTestMixin])
-            await environment.init()
-            const accountNumber = faker.random.alphaNumeric(12)
-            updateTestBillingIntegration(environment.clients.admin, environment.billingContext.integration.id, { currencyCode: 'RUB' })
-            updateTestOrganization(environment.clients.admin, environment.billingContext.organization.id, { country: 'ru' })
-            const resident = await environment.createResident({ unitName: '1', unitType: FLAT_UNIT_TYPE })
-            const addressUnit = {
-                unitName: resident.unitName,
-                unitType: resident.unitType,
-            }
-            const INSURANCE_CATEGORY_ID = '55dd01e4-a87c-4713-8a91-951516b543f3'
-            const [[receipt]] = await environment.createReceipts([
-                environment.createJSONReceipt({
-                    accountNumber,
-                    address: resident.address,
-                    addressMeta: addressUnit,
-                    year: 2024,
-                    month: 1,
-                    toPay: '1000',
-                    category: { id: INSURANCE_CATEGORY_ID },
-                }),
-            ])
-            await environment.createServiceConsumer(resident, accountNumber)
-
-            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...environment.billingContext, organization: environment.billingContext.organization.id, integration: environment.billingContext.integration.id }, dayjs().subtract(1, 'h').toISOString())
-
-            const messageWhere = {
-                user: { id: resident.user.id },
-                type: BILLING_RECEIPT_INSURANCE_CATEGORY_TYPE,
-            }
-
-            const messages = await Message.getAll(environment.clients.admin, messageWhere)
-            expect(messages).toHaveLength(1)
-            const data = messages[0].meta.data
-            expect(messages[0].defaultContent.content).toEqual('В приложении жителя доступна квитанция для страхования имущества')
-            expect(messages[0].lang).toEqual('ru')
-            expect(data.url.slice(-36)).toEqual(receipt.id)
-            expect(data.category).toEqual('Страхование')
-            expect(data.residentId).toEqual(resident.id)
-            expect(data.userId).toEqual(resident.user.id)
-            expect(data.period).toEqual('2024-01-01')
-            expect(data.billingReceiptId).toEqual(receipt.id)
-            expect(data.billingAccountNumber).toEqual(accountNumber)
-            expect(data.billingPropertyId).toEqual(receipt.property.id)
-            // DOMA-3581 debt value population is disabled until user will be able to manage push notifications
-            expect(data.toPay).toEqual(null)
         })
 
         test('Should not send push for receipts with billing category that has skipNotifications: true', async () => {

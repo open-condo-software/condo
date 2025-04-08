@@ -9,14 +9,12 @@ const { find, getSchemaCtx, getByCondition, itemsQuery } = require('@open-condo/
 const { createTask } = require('@open-condo/keystone/tasks')
 const { getLocalized } = require('@open-condo/locales/loader')
 
-const { INSURANCE_CATEGORY_ID } = require('@condo/domains/billing/constants/constants')
 const { getNewPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { DEFAULT_CURRENCY_CODE, CURRENCY_SYMBOLS } = require('@condo/domains/common/constants/currencies')
 const {
     BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE,
     BILLING_RECEIPT_ADDED_TYPE,
-    BILLING_RECEIPT_INSURANCE_CATEGORY_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { BILLING_CONTEXT_SYNCHRONIZATION_DATE, SEND_BILLING_RECEIPT_CHUNK_SIZE } = require('@condo/domains/resident/constants/constants')
@@ -24,8 +22,7 @@ const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 
 const logger = getLogger('sendNewBillingReceiptNotification')
 const makeAccountKey = (...args) => args.map(value => `${value}`.trim().toLowerCase()).join(':')
-const getMessageTypeAndDebt = (toPay, toPayCharge, category) => {
-    if (category.id === INSURANCE_CATEGORY_ID) return { messageType: BILLING_RECEIPT_INSURANCE_CATEGORY_TYPE, debt: null }
+const getMessageTypeAndDebt = (toPay, toPayCharge) => {
     if (toPay <= 0) return { messageType: BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE, debt: 0 }
     // TODO (DOMA-3581) debt value population is disabled until user will be able to manage push notifications
     // if (toPayCharge && toPayCharge > 0) return { messageType: BILLING_RECEIPT_ADDED_WITH_DEBT_TYPE, debt: toPayCharge }
@@ -54,7 +51,7 @@ const prepareAndSendNotification = async (keystone, context, receipt, resident, 
     const toPayCharge = isNaN(toPayChargeValue) ? null : toPayChargeValue
     const category = getLocalized(locale, receipt.category.name)
     const currencyCode = get(context, 'integration.currencyCode', DEFAULT_CURRENCY_CODE)
-    const { messageType, debt } = getMessageTypeAndDebt(toPay, toPayCharge, receipt.category)
+    const { messageType, debt } = getMessageTypeAndDebt(toPay, toPayCharge)
 
     const data = {
         residentId: resident.id,
@@ -146,7 +143,7 @@ async function sendBillingReceiptsAddedNotificationForOrganizationContext (conte
         const receiptAccountData = await prepareReceiptsData(receipts, context)
         const consumersByAccountKey = await fetchAndGroupConsumers(context, receiptAccountData.accountNumbers)
 
-        await processReceipts(keystone, context, receiptAccountData, consumersByAccountKey, stats)
+        await processReceipts(keystone, context, receiptAccountData, consumersByAccountKey, lastSendDate, stats)
 
         skip += SEND_BILLING_RECEIPT_CHUNK_SIZE
     }
@@ -201,12 +198,12 @@ async function fetchAndGroupConsumers (context, accountNumbers) {
     return groupConsumersByAccountKey(serviceConsumers)
 }
 
-async function processReceipts (keystone, context, receiptAccountData, consumersByAccountKey, stats) {
+async function processReceipts (keystone, context, receiptAccountData, consumersByAccountKey, lastSendDate, stats) {
     for (const [key, receipt] of Object.entries(receiptAccountData.receiptAccountKeys)) {
         const consumers = consumersByAccountKey[key]
         if (isEmpty(consumers)) continue
 
-        const [success, duplicate] = await notifyConsumers(keystone, context, receipt, consumers)
+        const [success, duplicate] = await notifyConsumers(keystone, context, receipt, consumers, lastSendDate)
         stats.successSentMessages += success
         stats.duplicatedSentMessages += duplicate
     }
@@ -299,7 +296,7 @@ function getMaxReceiptCreatedAt (receipts, prevMaxCreatedAt) {
     return maxCreatedAt
 }
 
-async function notifyConsumers (keystone, context, receipt, consumers) {
+async function notifyConsumers (keystone, context, receipt, consumers, lastSendDate) {
     let successSentMessages = 0
     let duplicatedSentMessages = 0
     for (const consumer of consumers) {
