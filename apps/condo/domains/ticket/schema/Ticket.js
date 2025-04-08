@@ -357,27 +357,27 @@ const Ticket = new GQLListSchema('Ticket', {
             access: readOnlyFieldAccess,
         },
         lastCommentAt: {
-            schemaDoc: 'Last comment time in ticket',
+            schemaDoc: 'CreatedAt of the last TicketComment',
             type: 'DateTimeUtc',
             access: writeOnlyServerSideFieldAccess,
         },
         lastResidentCommentAt: {
-            schemaDoc: 'Time of the last comment with resident author in ticket',
+            schemaDoc: 'CreatedAt of the last TicketComment from RESIDENT user (only with type=RESIDENT)',
             type: 'DateTimeUtc',
             access: writeOnlyServerSideFieldAccess,
         },
         lastCommentWithResidentTypeAt: {
-            schemaDoc: 'Time of the last comment with resident type (from staff or resident user) in ticket',
+            schemaDoc: 'CreatedAt of the last TicketComment with type=RESIDENT from STAFF or RESIDENT user',
             type: 'DateTimeUtc',
             access: writeOnlyServerSideFieldAccess,
         },
         lastCommentWithOrganizationTypeAt: {
-            schemaDoc: 'Time of the last comment with organization type (only from staff user) in ticket',
+            schemaDoc: 'CreatedAt of the last TicketComment with type=ORGANIZATION from STAFF user',
             type: 'DateTimeUtc',
             access: writeOnlyServerSideFieldAccess,
         },
         lastCommentWithResidentTypeCreatedByUserType: {
-            schemaDoc: 'User type of the author who created the last comment of type `resident` in the ticket',
+            schemaDoc: 'Type of the User who created last comment with type=RESIDENT',
             type: 'Select',
             options: USER_TYPES,
             access: writeOnlyServerSideFieldAccess,

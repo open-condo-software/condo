@@ -246,8 +246,7 @@ describe('TicketComment', () => {
                 expect(readTicket.lastResidentCommentAt).toBeNull()
             })
 
-            it('update only lastCommentAt, lastResidentCommentAt, lastCommentWithResidentTypeAt of related ticket after create TicketComment with resident type from resident user' +
-                'update only lastCommentAt, lastCommentWithOrganizationTypeAt of related ticket after create TicketComment with organization type from staff user', async () => {
+            it('update only lastCommentAt, lastResidentCommentAt, lastCommentWithResidentTypeAt of related ticket after create TicketComment with resident type from resident user', async () => {
                 const adminClient = await makeLoggedInAdminClient()
                 const [organization] = await createTestOrganization(adminClient)
                 const [property] = await createTestProperty(adminClient, organization)
@@ -285,17 +284,33 @@ describe('TicketComment', () => {
                 expect(readTicketAfterAddingNewCommentFromResident.lastCommentAt).toEqual(residentCommentCreatedByResident.createdAt)
                 expect(readTicketAfterAddingNewCommentFromResident.lastCommentWithResidentTypeAt).toEqual(residentCommentCreatedByResident.createdAt)
                 expect(readTicketAfterAddingNewCommentFromResident.lastCommentWithOrganizationTypeAt).toBeNull()
+            })
+
+            it('update only lastCommentAt, lastCommentWithOrganizationTypeAt of related ticket after create TicketComment with organization type from staff user', async () => {
+                const adminClient = await makeLoggedInAdminClient()
+                const [organization] = await createTestOrganization(adminClient)
+                const [property] = await createTestProperty(adminClient, organization)
+
+                const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
+                    canManageTickets: true,
+                    canManageTicketComments: true,
+                })
+                await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
+
+
+                const [ticket] = await createTestTicket(userClient, organization, property)
 
                 const [organizationCommentCreatedByStaff] = await createTestTicketComment(userClient, ticket, userClient.user)
 
-                const readTicketAfterAddingNewCommentFromStaff = await Ticket.getOne(residentClient, {
+                const readTicketAfterAddingNewCommentFromStaff = await Ticket.getOne(userClient, {
                     id: ticket.id,
                 })
 
-                expect(readTicketAfterAddingNewCommentFromStaff.lastResidentCommentAt).toEqual(residentCommentCreatedByResident.createdAt)
                 expect(readTicketAfterAddingNewCommentFromStaff.lastCommentAt).toEqual(organizationCommentCreatedByStaff.createdAt)
-                expect(readTicketAfterAddingNewCommentFromStaff.lastCommentWithResidentTypeAt).toEqual(residentCommentCreatedByResident.createdAt)
                 expect(readTicketAfterAddingNewCommentFromStaff.lastCommentWithOrganizationTypeAt).toEqual(organizationCommentCreatedByStaff.createdAt)
+                expect(readTicketAfterAddingNewCommentFromStaff.lastCommentWithResidentTypeAt).toBeNull()
+                expect(readTicketAfterAddingNewCommentFromStaff.lastResidentCommentAt).toBeNull()
             })
 
             it('update lastCommentWithResidentTypeAt and lastCommentAt of related ticket after create TicketComment with resident type', async () => {
