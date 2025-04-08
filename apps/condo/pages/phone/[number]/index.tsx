@@ -76,6 +76,7 @@ type TabDataType = {
     unitName: string
     unitType: string
     organization: OrganizationType
+    contact?: Pick<ContactType, 'name'>
 }
 
 const StyledCarouselWrapper = styled(Col)`
@@ -388,6 +389,8 @@ const ClientCardTabContent = ({
         where: searchTicketsQuery,
         first: DEFAULT_PAGE_SIZE,
         skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
+    }, {
+        fetchPolicy: 'cache-first',
     })
     const lastCreatedTicket = get(tickets, 0)
     const propertyId = useMemo(() => get(property, 'id', null), [property])
@@ -507,6 +510,7 @@ const ClientCardTabContent = ({
 }
 
 const ContactClientTabContent = ({
+    contact,
     property,
     unitName,
     unitType,
@@ -517,16 +521,16 @@ const ContactClientTabContent = ({
 }) => {
     const router = useRouter()
 
-    const { objs: contacts } = Contact.useObjects({
-        where: {
-            property: { id: get(property, 'id', null) },
-            unitName,
-            unitType,
-            phone,
-        },
-        first: 1,
-    })
-    const contact = get(contacts, 0, null)
+    // const { objs: contacts } = Contact.useObjects({
+    //     where: {
+    //         property: { id: get(property, 'id', null) },
+    //         unitName,
+    //         unitType,
+    //         phone,
+    //     },
+    //     first: 1,
+    // })
+    // const contact = get(contacts, 0, null)
 
     const searchTicketsQuery = useMemo(() => ({
         property: { id: get(property, 'id', null) },
@@ -633,14 +637,16 @@ const parseCardDataFromQuery = (stringCard) => {
 }
 
 const ClientTabContent = ({ tabData, phone, canManageContacts, showOrganizationMessage = false }) => {
-    const property = get(tabData, 'property')
-    const unitName = get(tabData, 'unitName')
-    const unitType = get(tabData, 'unitType')
-    const type = get(tabData, 'type')
-    const organization = get(tabData, 'organization')
+    const property = tabData?.property
+    const unitName = tabData?.unitName
+    const unitType = tabData?.unitType
+    const type = tabData?.type
+    const organization = tabData?.organization
+    const contact = tabData?.contact
 
     return type === ClientType.Resident ? (
         <ContactClientTabContent
+            contact={contact}
             phone={phone}
             property={property}
             unitName={unitName}
@@ -903,6 +909,7 @@ export const ClientCardPageContentWrapper = ({
             unitName: contact.unitName,
             unitType: contact.unitType,
             organization: contact.organization,
+            contact: contact,
         })) || []
         const notResidentData = uniqBy(notResidentTickets?.map(ticket => ({
             type: ClientType.NotResident,
