@@ -46,7 +46,7 @@ export const AmountDistributionCalculator: React.FC = () => {
     const OptionsTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.splitOptions.title' })
     const DecimalPlacesTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.options.decimalPlaces' })
     const AmountDistributionValueTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.amountDistributionFieldValue.title' })
-    const SplitResultTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.splitResult.title' })
+    const SplitResultTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.splitResultCard.title' })
 
     useEffect(() => {
         if (distributions.length === 0) {
