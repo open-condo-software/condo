@@ -1,4 +1,5 @@
 import { Col, Row, Form } from 'antd'
+import getConfig from 'next/config'
 import React, { useCallback } from 'react'
 import { useIntl } from 'react-intl'
 
@@ -15,7 +16,7 @@ import type { Rule } from 'rc-field-form/lib/interface'
 
 import { useRegisterNewUserMutation, useSignInMutation } from '@/lib/gql'
 
-
+const { publicRuntimeConfig: { defaultLocale } } = getConfig()
 
 const FULL_SPAN_COL = 24
 const IDENTITY_FORM_ERRORS_TO_FIELDS_MAP = {
@@ -92,7 +93,7 @@ export const IdentityInputStep: React.FC<IdentityInputStepProps> = ({ phone, act
                 </Col>
                 <Col span={FULL_SPAN_COL}>
                     <Form.Item name='phone' label={PhoneFieldLabel} required>
-                        <Input.Phone disabled/>
+                        <Input.Phone country={defaultLocale} disabled/>
                     </Form.Item>
                 </Col>
                 <Col span={FULL_SPAN_COL}>
