@@ -873,23 +873,6 @@ __metadata:
     "@app/condo": "workspace:^"
     "@dev-portal-api/domains": "link:./domains"
     "@faker-js/faker": ^7.6.0
-    "@keystonejs/adapter-knex": ^13.2.0
-    "@keystonejs/adapter-mongoose": ^11.2.0
-    "@keystonejs/adapter-prisma": ^3.2.0
-    "@keystonejs/app-admin-ui": ^7.5.0
-    "@keystonejs/app-graphql": ^6.3.0
-    "@keystonejs/app-graphql-playground": ^5.2.2
-    "@keystonejs/auth-password": ^6.1.0
-    "@keystonejs/fields": ^22.1.3
-    "@keystonejs/fields-color": ^1.1.0
-    "@keystonejs/fields-content": ^9.1.0
-    "@keystonejs/fields-markdown": ^5.3.2
-    "@keystonejs/fields-wysiwyg-tinymce": ^5.4.0
-    "@keystonejs/file-adapters": ^7.1.0
-    "@keystonejs/keystone": ^19.3.1
-    "@keystonejs/list-plugins": ^8.1.0
-    "@keystonejs/server-side-graphql-client": ^2.1.0
-    "@keystonejs/utils": ^6.1.0
     "@open-condo/apollo-server-client": "workspace:^"
     "@open-condo/cli": "workspace:^"
     "@open-condo/codegen": "workspace:^"
@@ -898,22 +881,14 @@ __metadata:
     "@open-condo/locales": "workspace:^"
     "@types/jest": ^29.4.0
     "@types/node": ^16
-    ajv: 8.11.0
-    babel-jest: ^29.7.0
     cross-env: ^7.0.3
     dayjs: ^1.11.10
-    express: ^4.17.1
     got: ^11.8.6
     graphql-tag: ^2.12.6
-    identity-obj-proxy: ^3.0.0
     jest: ^29.7.0
-    jest-environment-jsdom: ^29.7.0
     jest-jasmine2: ^29.7.0
-    jest-watch-typeahead: ^0.6.1
     lodash: ^4.17.21
-    node-fetch: ^2.6.7
     phone: ^3.1.40
-    uuid: ^8.3.0
   languageName: unknown
   linkType: soft
 
@@ -928,17 +903,14 @@ __metadata:
     "@babel/preset-env": 7.20.2
     "@babel/preset-typescript": 7.18.6
     "@graphql-codegen/cli": ^5.0.2
-    "@graphql-codegen/client-preset": 4.1.0
     "@graphql-codegen/typescript": ^4.0.1
     "@graphql-codegen/typescript-operations": ^4.0.1
     "@graphql-codegen/typescript-react-apollo": ^4.0.0
-    "@graphql-typed-document-node/core": 3.2.0
     "@open-condo/billing": "workspace:^"
     "@open-condo/cli": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/icons": "workspace:^"
     "@open-condo/miniapp-utils": "workspace:^"
-    "@open-condo/next": "workspace:^"
     "@open-condo/tsconfig": "workspace:^"
     "@open-condo/ui": "workspace:^"
     "@parcel/watcher": ^2.3.0
@@ -950,7 +922,6 @@ __metadata:
     apollo-upload-client: ^17
     classnames: ^2.3.2
     cookies-next: 2.1.1
-    dayjs: ^1.11.10
     deepmerge: ^4.3.1
     glob: 8.1.0
     graphql: ^16.8.1
@@ -986,7 +957,6 @@ __metadata:
     "@babel/preset-env": ^7.22.20
     "@babel/preset-typescript": ^7.23.0
     "@open-condo/bridge": "workspace:^"
-    "@open-condo/config": "workspace:^"
     "@open-condo/icons": "workspace:^"
     "@open-condo/ui": "workspace:^"
     "@types/node": ^16
@@ -994,7 +964,6 @@ __metadata:
     "@types/react-dom": 18.0.10
     antd: ^4.24.12
     next: 13.3.0
-    next-i18n-router: ^4.1.0
     react: 18.2.0
     react-dom: 18.2.0
     react-intl: ^6.6.5
@@ -1009,23 +978,6 @@ __metadata:
     "@employee-bot/domains": "link:./domains"
     "@graphql-tools/graphql-file-loader": ^7.3.11
     "@graphql-tools/load": ^7.5.10
-    "@keystonejs/adapter-knex": ^13.2.0
-    "@keystonejs/adapter-mongoose": ^11.2.0
-    "@keystonejs/adapter-prisma": ^3.2.0
-    "@keystonejs/app-admin-ui": ^7.5.0
-    "@keystonejs/app-graphql": ^6.3.0
-    "@keystonejs/app-graphql-playground": ^5.2.2
-    "@keystonejs/auth-password": ^6.1.0
-    "@keystonejs/fields": ^22.1.3
-    "@keystonejs/fields-color": ^1.1.0
-    "@keystonejs/fields-content": ^9.1.0
-    "@keystonejs/fields-markdown": ^5.3.2
-    "@keystonejs/fields-wysiwyg-tinymce": ^5.4.0
-    "@keystonejs/file-adapters": ^7.1.0
-    "@keystonejs/keystone": ^19.3.1
-    "@keystonejs/list-plugins": ^8.1.0
-    "@keystonejs/server-side-graphql-client": ^2.1.0
-    "@keystonejs/utils": ^6.1.0
     "@open-condo/cli": "workspace:^"
     "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
@@ -1033,21 +985,16 @@ __metadata:
     "@types/jest": ^29.4.0
     "@types/node": ^16
     axios: ^1.5.1
-    babel-jest: ^29.7.0
     commander: ^11.0.0
-    dayjs: ^1.10.6
     express: ^4.17.1
     graphql: ^15.6.1
     jest: ^29.7.0
-    jest-environment-jsdom: ^29.7.0
     jest-jasmine2: ^29.7.0
-    jest-watch-typeahead: ^0.6.1
     lodash: ^4.17.21
     node-telegram-bot-api: ^0.64.0
     openid-client: 4.7.4
     pluralize: ^8.0.0
     react: ^16.13.1
-    uuid: ^8.3.0
   languageName: unknown
   linkType: soft
 
@@ -1055,7 +1002,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@app/eps@workspace:apps/eps"
   dependencies:
-    "@ant-design/icons": ^4.7.0
     "@apollo/client": ^3.11.8
     "@arch-ui/button": ^0.0.25
     "@arch-ui/color-utils": ^0.0.5
@@ -1072,47 +1018,22 @@ __metadata:
     "@emotion/react": ^11.9.3
     "@emotion/styled": ^11.10.0
     "@eps/domains": "link:./domains"
-    "@keystonejs/adapter-knex": ^13.2.0
-    "@keystonejs/adapter-mongoose": ^11.2.0
-    "@keystonejs/adapter-prisma": ^3.2.0
     "@keystonejs/app-admin-ui": ^7.5.0
     "@keystonejs/app-graphql": ^6.3.0
     "@keystonejs/app-next": ^5.2.3
-    "@keystonejs/app-static": ^5.2.0
-    "@keystonejs/auth-password": ^6.1.0
-    "@keystonejs/fields": ^22.1.3
-    "@keystonejs/fields-color": ^1.1.0
-    "@keystonejs/fields-content": ^9.1.0
-    "@keystonejs/fields-location-google": ^3.4.0
-    "@keystonejs/fields-wysiwyg-tinymce": ^5.4.0
-    "@keystonejs/file-adapters": ^7.1.0
-    "@keystonejs/keystone": ^19.3.1
-    "@keystonejs/list-plugins": ^8.1.0
-    "@keystonejs/server-side-graphql-client": ^2.1.0
-    "@keystonejs/utils": ^6.1.0
-    "@open-condo/bridge": "workspace:^"
     "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     "@open-condo/next": "workspace:^"
     "@open-condo/ui": "workspace:^"
-    "@testing-library/react": ^11.2.5
-    "@types/echarts": ^4.9.9
-    "@types/jest": ^29.4.0
     "@types/node": ^16
     "@types/react": 16.9.17
-    "@types/react-infinite-scroller": ^1.2.2
-    "@welldone-software/why-did-you-render": ^5.0.0-alpha.1
     "@zeit/next-css": ^1.0.1
     "@zeit/next-less": ^1.0.1
     ajv: 8.11.0
     antd: ^4.24.12
     apollo-boost: ^0.4.9
-    apollo-cache-inmemory: ^1.6.6
-    apollo-errors: ^1.9.0
     apollo-link-error: ^1.1.13
-    apollo-link-http: ^1.5.17
-    apollo-server-errors: ^3.1.0
     apollo-upload-client: ^14.1.3
     babel-jest: ^29.7.0
     big.js: ^6.1.1
@@ -1123,55 +1044,32 @@ __metadata:
     dayjs: ^1.10.6
     debounce: ^1.2.1
     emotion: ^10.0.27
-    emotion-server: ^10.0.27
     express: ^4.17.1
     extracted-loader: ^1.0.7
-    facepaint: ^1.2.1
     fast-xml-parser: ^4.4.1
-    get-contrast: ^2.0.0
     graphql: ^15.6.1
-    graphql-request: ^3.5.0
     graphql-tag: ^2.12.6
-    identity-obj-proxy: ^3.0.0
     ignore-loader: 0.1.2
-    immer: 9.0.13
     jest: ^29.7.0
-    jest-environment-jsdom: ^29.7.0
     jest-jasmine2: ^29.7.0
-    jest-watch-typeahead: ^0.6.1
     js-cookie: ^2.2.1
     less: ^3.12.2
     less-loader: ^4.0.0
     lodash: ^4.17.21
-    mkdirp: ^1.0.4
     nanoid: ^3.3.4
     next: ^9.5.2
     next-cookies: ^2.0.3
     next-transpile-modules: ^4.1.0
-    node-fetch: ^2.6.7
-    numeral: 2.0.6
-    pino: ^6.13.3
-    qs: ^6.9.4
     raw-loader: ^4.0.2
-    rc-queue-anim: ^1.8.5
-    rc-table: ~7.25.3
     react: ^16.13.1
     react-dom: ^16.13.1
-    react-fittext: ^1.0.0
-    react-markdown: ^4.3.1
     react-otp-input: ^2.4.0
-    react-responsive: ^8.1.0
     react-router-dom: 5.2.0
-    react-test-renderer: ^16.13.1
     socks-proxy-agent: ^6.2.0
-    socks5-https-client: ^1.2.1
     typescript: ^5.5.4
-    use-immer: ^0.4.1
     uuid: ^8.3.0
-    validator: ^13.1.1
     webpack: ^4.46.0
     xml-c14n: ^0.0.6
-    xml-crypto: ^2.1.3
     xml-js: ^1.6.11
   languageName: unknown
   linkType: soft
@@ -9818,15 +9716,6 @@ __metadata:
   dependencies:
     tslib: ^2.4.0
   checksum: a0af57874fcd163add5f7a0cb1c008e9b09feb1d24cbce1263379ae0393cddd6681197a7f2f512f351a97666fc8675ed52cc17d1834266ee8fc65e9edf3435f6
-  languageName: node
-  linkType: hard
-
-"@formatjs/intl-localematcher@npm:^0.2.32":
-  version: 0.2.32
-  resolution: "@formatjs/intl-localematcher@npm:0.2.32"
-  dependencies:
-    tslib: ^2.4.0
-  checksum: 477e18aabaf2e6e90fc12952a3cb6c0ebb40ad99414d6b9d2501c6348fbad58cacb433ec6630955cfd1491ea7630f32a9dc280bb27d0fb8a784251404a54140a
   languageName: node
   linkType: hard
 
@@ -21127,13 +21016,6 @@ __metadata:
   dependencies:
     tslib: ^2.3.0
   checksum: 92aeea34152bd8485184236fe328d3d05fc98ee3b431d82ee60cf3584dbf68155419c3d65d0ff3731b204ee79c149440a9b7672784a545afddc8d4342fbf21c9
-  languageName: node
-  linkType: hard
-
-"@xmldom/xmldom@npm:^0.7.0":
-  version: 0.7.5
-  resolution: "@xmldom/xmldom@npm:0.7.5"
-  checksum: 8d7ec35c1ef6183b4f621df08e01d7e61f244fb964a4719025e65fe6ac06fac418919be64fb40fe5908e69158ef728f2d936daa082db326fe04603012b5f2a84
   languageName: node
   linkType: hard
 
@@ -42116,16 +41998,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"next-i18n-router@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "next-i18n-router@npm:4.1.0"
-  dependencies:
-    "@formatjs/intl-localematcher": ^0.2.32
-    negotiator: ^0.6.3
-  checksum: 616ca51930de235f1897c0f5f90951f1482c313772b45342f40af995d4ce38e8d5ce7daf19063f6c60c61825ceab795e9d331459cc61d71ca592c3422eed3b6c
-  languageName: node
-  linkType: hard
-
 "next-mdx-remote@npm:4.3.0":
   version: 4.3.0
   resolution: "next-mdx-remote@npm:4.3.0"
@@ -58206,16 +58078,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"xml-crypto@npm:^2.1.3":
-  version: 2.1.4
-  resolution: "xml-crypto@npm:2.1.4"
-  dependencies:
-    "@xmldom/xmldom": ^0.7.0
-    xpath: 0.0.32
-  checksum: a4ff9803d5cbdc8af4f55660ff16fd60f7f5157cfca2043ac68897938f868b037886b7e2132b965c06ecd6dd60bad1be8e8377324b9c9a73e79f3c85cfbe734c
-  languageName: node
-  linkType: hard
-
 "xml-js@npm:^1.6.11":
   version: 1.6.11
   resolution: "xml-js@npm:1.6.11"
@@ -58312,13 +58174,6 @@ __metadata:
   version: 1.2.0
   resolution: "xorshift@npm:1.2.0"
   checksum: bb5575707d20a806e71fa3e80bc3dc083a4bcf3c82965bd27b797a355cf87583273fe7676cfc9c7ffaa4c17d5a171903462045e2154e51fe1f07b90a4dc6b9d2
-  languageName: node
-  linkType: hard
-
-"xpath@npm:0.0.32":
-  version: 0.0.32
-  resolution: "xpath@npm:0.0.32"
-  checksum: 887e9747b960ea45fb47a9464744424512de0a49205e82c2ad6be662d7a2f1a75145662a143304340864c6da68fd8d767cce4065cc198ee07a3d4897e0a3d4bb
   languageName: node
   linkType: hard
 
