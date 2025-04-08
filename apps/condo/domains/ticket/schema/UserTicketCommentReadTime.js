@@ -30,12 +30,17 @@ const UserTicketCommentReadTime = new GQLListSchema('UserTicketCommentReadTime',
         },
 
         readCommentAt: {
-            schemaDoc: 'Time when the last comment was last read by the user',
+            schemaDoc: 'Time when the user last read any comment',
             type: 'DateTimeUtc',
         },
 
         readResidentCommentAt: {
-            schemaDoc: 'Time when the last comment from a resident was last read by the user',
+            schemaDoc: 'Time when the user last read a comment of type `resident`',
+            type: 'DateTimeUtc',
+        },
+
+        readOrganizationCommentAt: {
+            schemaDoc: 'Time when the user last read a comment of type `organization`',
             type: 'DateTimeUtc',
         },
     },

@@ -4,7 +4,7 @@ const { featureToggleManager } = require('@open-condo/featureflags/featureToggle
 const { find } = require('@open-condo/keystone/schema')
 
 const { SEND_TELEGRAM_NOTIFICATIONS } = require('@condo/domains/common/constants/featureflags')
-const { RESIDENT_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
+const { RESIDENT_COMMENT_TYPE, ORGANIZATION_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
 const { sendTicketCommentCreatedNotifications } = require('@condo/domains/ticket/tasks')
 const {
     sendTicketCommentNotifications: sendTicketCommentNotificationsTask,
@@ -65,16 +65,20 @@ const updateTicketLastCommentTime = async (context, updatedItem, userType, comme
     const ticketId = get(updatedItem, 'ticket')
     const dv = get(updatedItem, 'dv')
     const sender = get(updatedItem, 'sender')
+    const commentType = get(updatedItem, 'type')
 
     const lastResidentCommentAt = userType === RESIDENT ? commentCreatedAt : undefined
-    const lastCommentWithResidentTypeAt = get(updatedItem, 'type') === RESIDENT_COMMENT_TYPE ? commentCreatedAt : undefined
-
+    const lastCommentWithResidentTypeAt = commentType === RESIDENT_COMMENT_TYPE ? commentCreatedAt : undefined
+    const lastCommentWithOrganizationTypeAt = commentType === ORGANIZATION_COMMENT_TYPE ? commentCreatedAt : undefined
+    
     await Ticket.update(context, ticketId, {
         dv,
         sender,
         lastCommentAt: commentCreatedAt,
         lastResidentCommentAt,
         lastCommentWithResidentTypeAt,
+        lastCommentWithOrganizationTypeAt,
+        lastCommentWithResidentTypeCreatedByUserType: commentType === RESIDENT_COMMENT_TYPE ? userType : undefined,
     })
 }
 

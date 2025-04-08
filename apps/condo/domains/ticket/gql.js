@@ -27,7 +27,7 @@ const REVIEW_CONTROL_FIELDS = 'reviewValue reviewComment'
  * @type {string}
  */
 const IS_PAID_FIELD = 'isPaid'
-const TICKET_FIELDS = `{ canReadByResident completedAt isCompletedAfterDeadline lastCommentAt lastResidentCommentAt lastCommentWithResidentTypeAt isResidentTicket ${REVIEW_CONTROL_FIELDS} ${FEEDBACK_CONTROL_FIELDS} ${TICKET_QUALITY_CONTROL_FIELDS} deadline deferredUntil organization { id name country phone phoneNumberPrefix } property { ${TICKET_PROPERTY_FIELDS} } propertyAddress propertyAddressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } unitType unitName sectionName sectionType floorName status { id name type organization { id } colors { primary secondary additional } } statusReopenedCounter statusUpdatedAt statusReason number client { id name } clientName clientEmail clientPhone contact { id name phone email unitName unitType } assignee { id name } executor { id name } details related { id details } isAutoClassified isEmergency ${IS_PAID_FIELD} isPayable isWarranty meta source { id name type } sourceMeta categoryClassifier { id } placeClassifier { id } problemClassifier { id } customClassifier title kanbanOrder kanbanColumn isInsurance priority ${TICKET_CLASSIFIER_ATTRIBUTES_FIELDS} ${COMMON_FIELDS} }`
+const TICKET_FIELDS = `{ canReadByResident completedAt isCompletedAfterDeadline lastCommentAt lastResidentCommentAt lastCommentWithResidentTypeAt lastCommentWithOrganizationTypeAt lastCommentWithResidentTypeCreatedByUserType isResidentTicket ${REVIEW_CONTROL_FIELDS} ${FEEDBACK_CONTROL_FIELDS} ${TICKET_QUALITY_CONTROL_FIELDS} deadline deferredUntil organization { id name country phone phoneNumberPrefix } property { ${TICKET_PROPERTY_FIELDS} } propertyAddress propertyAddressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } unitType unitName sectionName sectionType floorName status { id name type organization { id } colors { primary secondary additional } } statusReopenedCounter statusUpdatedAt statusReason number client { id name } clientName clientEmail clientPhone contact { id name phone email unitName unitType } assignee { id name } executor { id name } details related { id details } isAutoClassified isEmergency ${IS_PAID_FIELD} isPayable isWarranty meta source { id name type } sourceMeta categoryClassifier { id } placeClassifier { id } problemClassifier { id } customClassifier title kanbanOrder kanbanColumn isInsurance priority ${TICKET_CLASSIFIER_ATTRIBUTES_FIELDS} ${COMMON_FIELDS} }`
 const Ticket = generateGqlQueries('Ticket', TICKET_FIELDS)
 
 const TICKET_LAST_COMMENTS_TIME_FIELDS = '{ id lastResidentCommentAt lastCommentWithResidentTypeAt }'
@@ -174,7 +174,7 @@ const TICKET_CLASSIFIER_FIELDS = `{ place { id name } category { id name } probl
 const TicketClassifier = generateGqlQueries('TicketClassifier', TICKET_CLASSIFIER_FIELDS)
 
 // TODO(DOMA-5833): should remove 'reviewValue' from TICKET_FILTER_FIELDS soon
-const TICKET_FILTER_FIELDS = '{ type completedAt lastCommentAt organization number createdAt status details property propertyScope address clientName executor assignee executorName deadline assigneeName attributes source sectionName floorName unitType unitName placeClassifier categoryClassifier problemClassifier clientPhone createdBy contactIsNull reviewValue feedbackValue qualityControlValue isCompletedAfterDeadline }'
+const TICKET_FILTER_FIELDS = '{ type completedAt lastCommentAt lastCommentWithResidentTypeAt lastCommentWithOrganizationTypeAt lastCommentWithResidentTypeCreatedByUserType organization number createdAt status details property propertyScope address clientName executor assignee executorName deadline assigneeName attributes source sectionName floorName unitType unitName placeClassifier categoryClassifier problemClassifier clientPhone createdBy contactIsNull reviewValue feedbackValue qualityControlValue isCompletedAfterDeadline }'
 const TICKET_FILTER_TEMPLATE_FIELDS = `{ name employee { id } fields ${TICKET_FILTER_FIELDS} ${COMMON_FIELDS} }`
 const TicketFilterTemplate = generateGqlQueries('TicketFilterTemplate', TICKET_FILTER_TEMPLATE_FIELDS)
 
@@ -187,7 +187,7 @@ const PREDICT_TICKET_CLASSIFICATION_QUERY = gql`
 const TICKET_COMMENT_FILE_FIELDS = `{ id file { id originalFilename publicUrl mimetype } organization { id } ticketComment { id } ticket { id } ${COMMON_FIELDS} }`
 const TicketCommentFile = generateGqlQueries('TicketCommentFile', TICKET_COMMENT_FILE_FIELDS)
 
-const USER_TICKET_COMMENT_READ_TIME_FIELDS = `{ user { id } ticket { id } readResidentCommentAt readCommentAt ${COMMON_FIELDS} }`
+const USER_TICKET_COMMENT_READ_TIME_FIELDS = `{ user { id } ticket { id } readResidentCommentAt readOrganizationCommentAt readCommentAt ${COMMON_FIELDS} }`
 const UserTicketCommentReadTime = generateGqlQueries('UserTicketCommentReadTime', USER_TICKET_COMMENT_READ_TIME_FIELDS)
 
 const TICKET_PROPERTY_HINT_FIELDS = `{ organization { id name } name content ${COMMON_FIELDS} }`

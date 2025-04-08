@@ -68,6 +68,7 @@ const {
     relatedManyToManyResolvers,
 } = require('@condo/domains/ticket/utils/serverSchema/TicketChange')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { USER_TYPES } = require('@condo/domains/user/constants/common')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
 
@@ -356,18 +357,31 @@ const Ticket = new GQLListSchema('Ticket', {
             access: readOnlyFieldAccess,
         },
         lastCommentAt: {
-            schemaDoc: 'Last comment time in ticket',
+            schemaDoc: 'CreatedAt of the last TicketComment',
             type: 'DateTimeUtc',
             access: writeOnlyServerSideFieldAccess,
         },
         lastResidentCommentAt: {
-            schemaDoc: 'Time of the last comment with resident author in ticket',
+            schemaDoc: 'CreatedAt of the last TicketComment from RESIDENT user (only with type=RESIDENT)',
             type: 'DateTimeUtc',
             access: writeOnlyServerSideFieldAccess,
         },
         lastCommentWithResidentTypeAt: {
-            schemaDoc: 'Time of the last comment with resident type (from staff or resident user) in ticket',
+            schemaDoc: 'CreatedAt of the last TicketComment with type=RESIDENT from STAFF or RESIDENT user',
             type: 'DateTimeUtc',
+            access: writeOnlyServerSideFieldAccess,
+        },
+        lastCommentWithOrganizationTypeAt: {
+            schemaDoc: 'CreatedAt of the last TicketComment with type=ORGANIZATION from STAFF user' +
+            'Example: lastCommentWithOrganizationTypeAt will be set to 2025_01_01 if the most recent TicketComment with type=ORGANIZATION was created on 2025_01_01',
+            type: 'DateTimeUtc',
+            access: writeOnlyServerSideFieldAccess,
+        },
+        lastCommentWithResidentTypeCreatedByUserType: {
+            schemaDoc: 'Type of the User who created last comment with type=RESIDENT' +
+            'Example: `staff``, if last TicketComment with type=RESIDENT was from User.type = staff',
+            type: 'Select',
+            options: USER_TYPES,
             access: writeOnlyServerSideFieldAccess,
         },
         statusReason: {
