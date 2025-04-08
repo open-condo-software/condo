@@ -41,12 +41,10 @@ import { IGenerateHooksResult } from '@open-condo/codegen/generate.hooks'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar as UIActionBar, Alert, Button, Radio, RadioGroup, Space, Steps, Typography, Modal } from '@open-condo/ui'
 
-import Input from '@condo/domains/common/components/antd/Input'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
-import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCounter'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { NewsCardGrid } from '@condo/domains/news/components/NewsForm/NewsCardGrid'
 import SelectSharingAppControl from '@condo/domains/news/components/NewsForm/SelectSharingAppControl'
@@ -516,16 +514,6 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             }
             return newSelected
         })
-    }, [])
-
-    const Title = useInputWithCounter(Input.TextArea, 150)
-    const Body = useInputWithCounter(Input.TextArea, 800)
-
-    useEffect(() => {
-        const initialTitle = get(initialValues, 'title', '')
-        const initialBody = get(initialValues, 'body', '')
-        Title.setTextLength(initialTitle.length)
-        Body.setTextLength(initialBody.length)
     }, [])
 
     const { requiredValidator } = useValidations()

@@ -160,37 +160,38 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
                 ) : (
                     <Col span={formFieldsColSpan}>
                         <Row gutter={[0, 60]}>
-                            <Row gutter={[0, 32]}>
-
-                                <Col span={24}>
-                                    <Typography.Title level={2}>
-                                        {MakeTextLabel}
-                                    </Typography.Title>
-                                </Col>
-
-                                {templates && (
+                            <Col span={24}>
+                                <Row gutter={[0, 32]}>
                                     <Col span={24}>
-                                        <FormItem
-                                            name='template'
-                                        >
-                                            {selectedType === NEWS_TYPE_COMMON && (
-                                                <TemplatesSelect
-                                                    onChange={handleTemplateChange(form)}
-                                                    items={commonTemplatesTabsProps}
-                                                    hasCategories
-                                                />
-                                            )}
-                                            {selectedType === NEWS_TYPE_EMERGENCY && (
-                                                <TemplatesSelect
-                                                    onChange={handleTemplateChange(form)}
-                                                    items={emergencyTemplatesTabsProps}
-                                                    hasCategories
-                                                />
-                                            )}
-                                        </FormItem>
+                                        <Typography.Title level={2}>
+                                            {MakeTextLabel}
+                                        </Typography.Title>
                                     </Col>
-                                )}
-                            </Row>
+
+                                    {templates && (
+                                        <Col span={24}>
+                                            <FormItem
+                                                name='template'
+                                            >
+                                                {selectedType === NEWS_TYPE_COMMON && (
+                                                    <TemplatesSelect
+                                                        onChange={handleTemplateChange(form)}
+                                                        items={commonTemplatesTabsProps}
+                                                        hasCategories
+                                                    />
+                                                )}
+                                                {selectedType === NEWS_TYPE_EMERGENCY && (
+                                                    <TemplatesSelect
+                                                        onChange={handleTemplateChange(form)}
+                                                        items={emergencyTemplatesTabsProps}
+                                                        hasCategories
+                                                    />
+                                                )}
+                                            </FormItem>
+                                        </Col>
+                                    )}
+                                </Row>
+                            </Col>
 
                             <Col span={24}>
                                 <Row gutter={[0, 5]}>
