@@ -1,3 +1,4 @@
+import { useGetBasicContactInfoQuery, useGetTicketsQuery, useGetBasicEmployeesInfoQuery } from '@app/condo/gql'
 import {
     BuildingUnitSubType,
     Contact as ContactType,
@@ -18,6 +19,7 @@ import { useRouter } from 'next/router'
 import qs from 'qs'
 import React, { CSSProperties, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
+
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { History, Mail } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
@@ -37,7 +39,6 @@ import { renderPhone } from '@condo/domains/common/utils/Renders'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { ClientType, getClientCardTabKey, redirectToForm } from '@condo/domains/contact/utils/clientCard'
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
-import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { getPropertyAddressParts } from '@condo/domains/property/utils/helpers'
 import { IncidentHints } from '@condo/domains/ticket/components/IncidentHints'
 import { TicketReadPermissionRequired } from '@condo/domains/ticket/components/PageAccess'
@@ -852,67 +853,99 @@ export const ClientCardPageContentWrapper = ({
     const router = useRouter()
     const phoneNumber = get(router, ['query', 'number']) as string
 
-    const { objs: contacts, loading: contactsLoading } = Contact.useObjects({
-        where: {
-            ...organizationQuery,
-            phone: phoneNumber,
+    /**
+     * Contacts:
+     * property
+     * unitName
+     * unitType
+     * organization { phoneNumberPrefix }
+     *
+     * Ticket:
+     * property
+     * unitName
+     * unitType
+     * organization { phoneNumberPrefix }
+     * clientPhone
+     *
+     * OrganizationEmployee:
+     * phone
+     * organization { phoneNumberPrefix }
+     *
+     */
+
+    const { data: contactsQueryData, loading: contactsLoading } = useGetBasicContactInfoQuery({
+        variables: {
+            where: {
+                ...organizationQuery,
+                phone: phoneNumber,
+            },
+            first: 20,
         },
+        fetchPolicy: 'cache-first',
     })
 
-    const { objs: tickets, loading: ticketsLoading } = Ticket.useObjects({
-        where: {
-            ...ticketsQuery,
-            clientPhone: phoneNumber,
-            isResidentTicket: false,
-            contact_is_null: true,
+    const { data: ticketsQueryData, loading: ticketsLoading } = useGetTicketsQuery({
+        variables: {
+            where: {
+                ...ticketsQuery,
+                clientPhone: phoneNumber,
+                isResidentTicket: false,
+                contact_is_null: true,
+            },
+            first: 30,
         },
+        fetchPolicy: 'cache-first',
     })
 
-    const { objs: employees, loading: employeesLoading } = OrganizationEmployee.useObjects({
-        where: {
-            ...organizationQuery,
-            phone: phoneNumber,
+    const { data: employeesQueryData, loading: employeesLoading } = useGetBasicEmployeesInfoQuery({
+        variables: {
+            where: {
+                ...organizationQuery,
+                phone: phoneNumber,
+            },
+            first: 50,
         },
+        fetchPolicy: 'cache-first',
     })
 
     const employeeTickets = useMemo(() =>
-        tickets.filter(ticket => !!employees.find(employee => employee.phone === ticket.clientPhone)),
-    [employees, tickets])
+        ticketsQueryData?.tickets.filter(ticket => !!employeesQueryData?.employees?.find(employee => employee.phone === ticket.clientPhone)),
+    [employeesQueryData, ticketsQueryData])
     const notResidentTickets = useMemo(() =>
-        tickets.filter(ticket => !employeeTickets.find(employeeTicket => employeeTicket.id === ticket.id)),
-    [employeeTickets, tickets])
+        ticketsQueryData?.tickets.filter(ticket => !employeeTickets.find(employeeTicket => employeeTicket.id === ticket.id)),
+    [employeeTickets, ticketsQueryData])
 
     const tabsData = useMemo(() => {
-        const contactsData = contacts.map(contact => ({
+        const contactsData = contactsQueryData?.contacts?.map(contact => ({
             type: ClientType.Resident,
             property: contact.property,
             unitName: contact.unitName,
             unitType: contact.unitType,
             organization: contact.organization,
-        }))
-        const notResidentData = uniqBy(notResidentTickets.map(ticket => ({
+        })) || []
+        const notResidentData = uniqBy(notResidentTickets?.map(ticket => ({
             type: ClientType.NotResident,
             property: ticket.property,
             unitName: ticket.unitName,
             unitType: ticket.unitType,
             organization: ticket.organization,
-        })), 'property.id')
-        const employeesData = uniqBy(employeeTickets.map(ticket => ({
+        })), 'property.id') || []
+        const employeesData = uniqBy(employeeTickets?.map(ticket => ({
             type: ClientType.NotResident,
             isEmployee: true,
             property: ticket.property,
             unitName: ticket.unitName,
             unitType: ticket.unitType,
             organization: ticket.organization,
-        })), 'property.id')
+        })), 'property.id') || []
 
         return [...contactsData, ...notResidentData, ...employeesData]
             .filter(tabsData => tabsData.organization && tabsData.property)
-    }, [contacts, employeeTickets, notResidentTickets])
+    }, [contactsQueryData, employeeTickets, notResidentTickets])
 
-    const phoneNumberPrefixFromContacts = get(contacts, ['0', 'organization', 'phoneNumberPrefix'])
-    const phoneNumberPrefixFromEmployees = get(employees, ['0', 'organization', 'phoneNumberPrefix'])
-    const phoneNumberPrefixFromTickets = get(tickets, ['0', 'organization', 'phoneNumberPrefix'])
+    const phoneNumberPrefixFromContacts = get(contactsQueryData, ['contacts', '0', 'organization', 'phoneNumberPrefix'])
+    const phoneNumberPrefixFromEmployees = get(employeesQueryData, ['employees', '0', 'organization', 'phoneNumberPrefix'])
+    const phoneNumberPrefixFromTickets = get(ticketsQueryData, ['tickets', '0', 'organization', 'phoneNumberPrefix'])
 
     let phoneNumberPrefix
     if (usePhonePrefix) {

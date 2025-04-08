@@ -50,6 +50,39 @@ query getContactsExistence ($where: ContactWhereInput) {
     }
 }
 
+query getBasicContactInfo($where: ContactWhereInput, $first: Int, $skip: Int, $sortBy: [SortContactsBy!]) {
+    contacts: allContacts(
+        where: $where
+        first: $first
+        skip: $skip
+        sortBy: $sortBy
+    ) {
+        id
+        name
+        unitName
+        unitType
+
+        phone
+        email
+
+        ownershipPercentage
+        note
+        communityFee
+
+        organization {
+            id
+            name
+            phoneNumberPrefix
+        }
+
+        property {
+            id
+            address
+            addressMeta { ...AddressMetaForTableAddress }
+        }
+    }
+}
+
 query getContactsForTable ($where: ContactWhereInput, $first: Int, $skip: Int, $sortBy: [SortContactsBy!]) {
     contacts: allContacts(
         where: $where
