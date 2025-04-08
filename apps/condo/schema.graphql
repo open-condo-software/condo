@@ -25395,22 +25395,22 @@ type Ticket {
   """ When status of the ticket was changed to completed """
   completedAt: String
 
-  """ Last comment time in ticket """
+  """ CreatedAt of the last TicketComment """
   lastCommentAt: String
 
-  """ Time of the last comment with resident author in ticket """
+  """ CreatedAt of the last TicketComment from RESIDENT user (only with type=RESIDENT) 
+  """
   lastResidentCommentAt: String
 
-  """ Time of the last comment with resident type (from staff or resident user) in ticket 
+  """ CreatedAt of the last TicketComment with type=RESIDENT from STAFF or RESIDENT user 
   """
   lastCommentWithResidentTypeAt: String
 
-  """ Time of the last comment with organization type (only from staff user) in ticket 
+  """ CreatedAt of the last TicketComment with type=ORGANIZATION from STAFF user 
   """
   lastCommentWithOrganizationTypeAt: String
 
-  """ User type of the author who created the last comment of type `resident` in the ticket 
-  """
+  """ Type of the User who created last comment with type=RESIDENT """
   lastCommentWithResidentTypeCreatedByUserType: TicketLastCommentWithResidentTypeCreatedByUserTypeType
 
   """ Text reason for status changes. Sometimes you should describe the reason why you change the `status` 
@@ -27842,20 +27842,18 @@ type TicketChange {
   """
   qualityControlAdditionalOptionsTo: JSON
 
-  """ Time of the last comment with organization type (only from staff user) in ticket 
+  """ CreatedAt of the last TicketComment with type=ORGANIZATION from STAFF user 
   """
   lastCommentWithOrganizationTypeAtFrom: String
 
-  """ Time of the last comment with organization type (only from staff user) in ticket 
+  """ CreatedAt of the last TicketComment with type=ORGANIZATION from STAFF user 
   """
   lastCommentWithOrganizationTypeAtTo: String
 
-  """ User type of the author who created the last comment of type `resident` in the ticket 
-  """
+  """ Type of the User who created last comment with type=RESIDENT """
   lastCommentWithResidentTypeCreatedByUserTypeFrom: TicketChangeLastCommentWithResidentTypeCreatedByUserTypeFromType
 
-  """ User type of the author who created the last comment of type `resident` in the ticket 
-  """
+  """ Type of the User who created last comment with type=RESIDENT """
   lastCommentWithResidentTypeCreatedByUserTypeTo: TicketChangeLastCommentWithResidentTypeCreatedByUserTypeToType
 
   """ Text reason for status changes. Sometimes you should describe the reason why you change the `status` 
