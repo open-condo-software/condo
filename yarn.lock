@@ -14017,7 +14017,6 @@ __metadata:
     "@open-condo/tsconfig": "workspace:^"
     "@types/big.js": ^6.2.2
     "@types/jest": ^29.5.14
-    "@types/lodash": ^4.17.16
     "@types/node": ^16
     big.js: ^6.2.2
     execa: ^5
@@ -19629,13 +19628,6 @@ __metadata:
   version: 4.14.184
   resolution: "@types/lodash@npm:4.14.184"
   checksum: 6d9a4d67f7f9d0ec3fd21174f3dd3d00629dc1227eb469450eace53adbc1f7e2330699c28d0fe093e5f0fef0f0e763098be1f779268857213224af082b62be21
-  languageName: node
-  linkType: hard
-
-"@types/lodash@npm:^4.17.16":
-  version: 4.17.16
-  resolution: "@types/lodash@npm:4.17.16"
-  checksum: 915618c5735b10007e0ed7d06fdce6b344f88fc721d492b189a69064bfd046d2382e1ba61d683eeb61cad60ca0286cd110e6fe0fa4ab2e99066a40478376831d
   languageName: node
   linkType: hard
 
