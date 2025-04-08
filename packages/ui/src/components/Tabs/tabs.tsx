@@ -23,9 +23,9 @@ export type TabsProps = Pick<DefaultTabsProps,
 'activeKey' |
 'destroyInactiveTabPane' |
 'onChange' |
-'tabBarExtraContent' |
 'centered'> & {
     items?: Array<TabItem>
+    tabBarExtraContent?: React.ReactNode
 }
 
 export const Tabs: React.FC<TabsProps> = (props) => {
