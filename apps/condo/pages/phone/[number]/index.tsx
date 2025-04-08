@@ -524,6 +524,7 @@ const ContactClientTabContent = ({
             unitType,
             phone,
         },
+        first: 1,
     })
     const contact = get(contacts, 0, null)
 
@@ -852,26 +853,6 @@ export const ClientCardPageContentWrapper = ({
 }) => {
     const router = useRouter()
     const phoneNumber = get(router, ['query', 'number']) as string
-
-    /**
-     * Contacts:
-     * property
-     * unitName
-     * unitType
-     * organization { phoneNumberPrefix }
-     *
-     * Ticket:
-     * property
-     * unitName
-     * unitType
-     * organization { phoneNumberPrefix }
-     * clientPhone
-     *
-     * OrganizationEmployee:
-     * phone
-     * organization { phoneNumberPrefix }
-     *
-     */
 
     const { data: contactsQueryData, loading: contactsLoading } = useGetBasicContactInfoQuery({
         variables: {
