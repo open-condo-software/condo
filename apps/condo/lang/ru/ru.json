@@ -621,6 +621,8 @@
   "billing.category.trash.name.declined": "мусор",
   "billing.category.water_removal.name": "Водоотведение",
   "billing.category.insurance.name": "Страхование",
+  "billing.category.hot_water.name": "Горячая вода",
+  "billing.category.hot_water.name.declined": "Горячую воду",
   "callRecord.call": "Звонок",
   "callRecord.callType.incoming": "Входящий",
   "callRecord.callType.outgoing": "Исходящий",

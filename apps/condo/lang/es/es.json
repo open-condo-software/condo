@@ -621,6 +621,8 @@
   "billing.category.trash.name.declined": "basura",
   "billing.category.water_removal.name": "Alcantarillado",
   "billing.category.insurance.name": "Seguro",
+  "billing.category.hot_water.name": "Agua caliente",
+  "billing.category.hot_water.name.declined": "agua caliente",
   "callRecord.call": "Llamada",
   "callRecord.callType.incoming": "Llamada entrante",
   "callRecord.callType.outgoing": "Llamada saliente",
