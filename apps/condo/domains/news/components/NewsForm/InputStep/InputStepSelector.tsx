@@ -30,6 +30,10 @@ import { SharingAppValuesType } from '.'
 
 const SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]
 
+export type Properties = {
+    properties: Array<string>
+}
+
 interface InputStepSelectorProps {
     newsSharingConfig: B2BAppNewsSharingConfig
     isSharingStep: boolean
@@ -46,7 +50,7 @@ interface InputStepSelectorProps {
     }
     newsItemForOneProperty: boolean
     initialValues?: Partial<INewsItem> & { hasAllProperties?: boolean, hasAllCustom?: boolean }
-    initialFormValues: Record<string, unknown>
+    initialFormValues: Record<string, unknown> & Properties
 }
 
 export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
@@ -151,7 +155,7 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
     }
 
     const handleAllPropertiesLoading = useCallback((form: FormInstance) => (data) => {
-        if (!initialFormValues?.property || !initialFormValues?.properties || !initialFormValues?.hasAllProperties) return
+        if (initialFormValues?.property || initialFormValues?.properties?.length || initialFormValues?.hasAllProperties) return
         if (!newsItemForOneProperty) return
         if (data.length !== 1) return
         if (propertyIsAutoFilled.current) return
@@ -186,11 +190,11 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
 
     const handleChangeSectionNameInput = useCallback((property) => {
         return (sections, options) => {
-            if (!sections) {
-                const sectionKeys = options.map(option => option.key)
-                setScope(prev=>({ ...prev, selectedSectionKeys: sectionKeys }))
-            } else {
+            if (!sections || sections.length === 0) {
                 setScope(prev=>({ ...prev, selectedSectionKeys: [] }))
+            } else {
+                const sectionKeys = sections.map(section => section.key || section)
+                setScope(prev=>({ ...prev, selectedSectionKeys: sectionKeys }))
             }
         }
     }, [])
@@ -263,7 +267,7 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
                                     <Col span={11}>
                                         <Form.Item
                                             name='unitNames'
-                                            label={selectedPropertiesLoading || !scope.selectedSectionKeys
+                                            label={selectedPropertiesLoading || !!scope.selectedSectionKeys?.length || !scope.selectedSectionKeys
                                                 ? (
                                                     <LabelWithInfo
                                                         title={UnitsMessage}
@@ -276,21 +280,21 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
                                                 multiple={true}
                                                 property={selectedProperties[0]}
                                                 loading={selectedPropertiesLoading}
-                                                disabled={selectedPropertiesLoading || !scope.selectedSectionKeys}
+                                                disabled={selectedPropertiesLoading || !!scope.selectedSectionKeys?.length || !scope.selectedSectionKeys}
                                                 onChange={handleChangeUnitNameInput}/>
                                         </Form.Item>
                                     </Col>
                                     <Col span={11} offset={2}>
                                         <Form.Item
                                             name='sectionIds'
-                                            label={selectedPropertiesLoading || !scope.selectedUnitNameKeys
+                                            label={selectedPropertiesLoading || !!scope.selectedUnitNameKeys?.length || !scope.selectedSectionKeys
                                                 ? (<LabelWithInfo
                                                     title={SectionsMessage}
                                                     message={SectionsLabel}/>)
                                                 : SectionsLabel}
                                         >
                                             <SectionNameInput
-                                                disabled={selectedPropertiesLoading || !scope.selectedUnitNameKeys}
+                                                disabled={selectedPropertiesLoading || !!scope.selectedUnitNameKeys?.length || !scope.selectedSectionKeys}
                                                 property={selectedProperties[0]}
                                                 onChange={handleChangeSectionNameInput(selectedProperties[0])}
                                                 mode='multiple'
@@ -301,15 +305,17 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
                             )}
                         </>
                     ) : (
-                        <GraphQlSearchInputWithCheckAll
-                            CheckAllMessage={CheckAllLabel}
-                            checkAllFieldName='hasAllCustom'
-                            selectProps={customSelectProps}
-                            checkAllInitialValue={initialValues?.hasAllCustom}
-                            onCheckBoxChange={customCheckboxChange()}
-                            form={form}
-                            selectFormItemProps={customSelectFormItemProps}
-                        />
+                        <Col span={24}>
+                            <GraphQlSearchInputWithCheckAll
+                                CheckAllMessage={CheckAllLabel}
+                                checkAllFieldName='hasAllCustom'
+                                selectProps={customSelectProps}
+                                checkAllInitialValue={initialValues?.hasAllCustom}
+                                onCheckBoxChange={customCheckboxChange()}
+                                form={form}
+                                selectFormItemProps={customSelectFormItemProps}
+                            />
+                        </Col>
                     )}
                 </Row>
             ) : (

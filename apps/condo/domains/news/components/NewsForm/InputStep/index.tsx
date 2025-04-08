@@ -24,7 +24,7 @@ import { searchOrganizationProperty } from '@condo/domains/scope/utils/clientSch
 import { InputStepForm } from './InputStepForm'
 import { InputStepPreview } from './InputStepPreview'
 import { InputStepRecipientCounter } from './InputStepRecipientCounter'
-import { InputStepSelector } from './InputStepSelector'
+import { InputStepSelector, Properties } from './InputStepSelector'
 
 const BIG_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 60]
 const BIG_HORIZONTAL_GUTTER: [Gutter, Gutter] = [50, 0]
@@ -86,7 +86,7 @@ type InputStepProps = NewsItemSharingFormProps & BaseNewsFormProps & {
         objs: Array<IProperty>
     }
     initialPropertyIds: Array<string>
-    initialFormValues: Record<string, unknown>
+    initialFormValues: Record<string, unknown> & Properties
 }
 
 export const FormContainer: React.FC = ({ children }) => {
