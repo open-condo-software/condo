@@ -182,5 +182,23 @@
   "apps.b2c.sections.publishing.publishForm.items.info.label": "Information about the application",
   "apps.b2c.sections.publishing.publishForm.items.build.label": "Application build",
   "apps.b2c.sections.publishing.publishForm.items.build.select.placeholder": "Select build",
-  "apps.b2c.sections.publishing.publishForm.actions.publish": "Publish"
+  "apps.b2c.sections.publishing.publishForm.actions.publish": "Publish",
+
+  "docs.widgets.amountDistributionCalculator.paymentSettings.title": "Payment settings",
+  "docs.widgets.amountDistributionCalculator.paymentSettings.amount.title": "Payment amount",
+  "docs.widgets.amountDistributionCalculator.paymentSettings.fee.title": "Payment fee",
+  "docs.widgets.amountDistributionCalculator.recipients.title": "Recipients",
+  "docs.widgets.amountDistributionCalculator.distributionItemCard.form.items.tin.prefix": "TIN",
+  "docs.widgets.amountDistributionCalculator.distributionItemCard.form.items.amount.prefix": "Sum",
+  "docs.widgets.amountDistributionCalculator.distributionItemCard.form.items.order.prefix": "Order",
+  "docs.widgets.amountDistributionCalculator.distributionItemCard.form.items.isFeePayer.prefix": "Fee payer",
+  "docs.widgets.amountDistributionCalculator.distributionItemCard.form.items.vor.prefix": "Rounding",
+  "docs.widgets.amountDistributionCalculator.distributionItemCard.form.items.overpaymentPart.prefix": "Overpayment part",
+  "docs.widgets.amountDistributionCalculator.splitOptions.title": "Options",
+  "docs.widgets.amountDistributionCalculator.options.decimalPlaces": "Decimal places",
+  "docs.widgets.amountDistributionCalculator.amountDistributionFieldValue.title": "Value for amountDistribution field",
+  "docs.widgets.amountDistributionCalculator.splitResultCard.title": "Distribution result",
+  "docs.widgets.amountDistributionCalculator.splitResult.fields.tin.label": "TIN",
+  "docs.widgets.amountDistributionCalculator.splitResult.fields.amount.label": "Amount",
+  "docs.widgets.amountDistributionCalculator.splitResult.fields.fee.label": "Fee"
 }
