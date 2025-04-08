@@ -25406,11 +25406,12 @@ type Ticket {
   """
   lastCommentWithResidentTypeAt: String
 
-  """ CreatedAt of the last TicketComment with type=ORGANIZATION from STAFF user 
+  """ CreatedAt of the last TicketComment with type=ORGANIZATION from STAFF userExample: lastCommentWithOrganizationTypeAt will be set to 2025_01_01 if the most recent TicketComment with type=ORGANIZATION was created on 2025_01_01 
   """
   lastCommentWithOrganizationTypeAt: String
 
-  """ Type of the User who created last comment with type=RESIDENT """
+  """ Type of the User who created last comment with type=RESIDENTExample: `staff``, if last TicketComment with type=RESIDENT was from User.type = staff 
+  """
   lastCommentWithResidentTypeCreatedByUserType: TicketLastCommentWithResidentTypeCreatedByUserTypeType
 
   """ Text reason for status changes. Sometimes you should describe the reason why you change the `status` 
@@ -27842,18 +27843,20 @@ type TicketChange {
   """
   qualityControlAdditionalOptionsTo: JSON
 
-  """ CreatedAt of the last TicketComment with type=ORGANIZATION from STAFF user 
+  """ CreatedAt of the last TicketComment with type=ORGANIZATION from STAFF userExample: lastCommentWithOrganizationTypeAt will be set to 2025_01_01 if the most recent TicketComment with type=ORGANIZATION was created on 2025_01_01 
   """
   lastCommentWithOrganizationTypeAtFrom: String
 
-  """ CreatedAt of the last TicketComment with type=ORGANIZATION from STAFF user 
+  """ CreatedAt of the last TicketComment with type=ORGANIZATION from STAFF userExample: lastCommentWithOrganizationTypeAt will be set to 2025_01_01 if the most recent TicketComment with type=ORGANIZATION was created on 2025_01_01 
   """
   lastCommentWithOrganizationTypeAtTo: String
 
-  """ Type of the User who created last comment with type=RESIDENT """
+  """ Type of the User who created last comment with type=RESIDENTExample: `staff``, if last TicketComment with type=RESIDENT was from User.type = staff 
+  """
   lastCommentWithResidentTypeCreatedByUserTypeFrom: TicketChangeLastCommentWithResidentTypeCreatedByUserTypeFromType
 
-  """ Type of the User who created last comment with type=RESIDENT """
+  """ Type of the User who created last comment with type=RESIDENTExample: `staff``, if last TicketComment with type=RESIDENT was from User.type = staff 
+  """
   lastCommentWithResidentTypeCreatedByUserTypeTo: TicketChangeLastCommentWithResidentTypeCreatedByUserTypeToType
 
   """ Text reason for status changes. Sometimes you should describe the reason why you change the `status` 
