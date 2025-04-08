@@ -39,7 +39,7 @@ async function config () {
         }
 
         if (isKSApp(packageJsonPath) && Array.isArray(appConfig.entry)) {
-            appConfig.entry.push('index.js', 'admin-ui/index.js')
+            appConfig.entry.push('index.js', 'worker.js', 'admin-ui/index.js')
         }
 
         if (hasDependency(packageJsonPath, 'jest')) {
