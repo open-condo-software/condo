@@ -1,0 +1,70 @@
+{
+  "name": "@open-condo/billing",
+  "description": "A set of billing and acquiring utils that shared between apps",
+  "keywords": [
+    "condo",
+    "open-condo-software",
+    "packages",
+    "billing",
+    "utils"
+  ],
+  "scripts": {
+    "test": "jest",
+    "build": "tsup"
+  },
+  "version": "0.0.0-development",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/open-condo-software/condo.git",
+    "directory": "packages/billing"
+  },
+  "bugs": {
+    "url": "https://github.com/open-condo-software/condo/issues"
+  },
+  "author": {
+    "name": "Alexander Naydenov",
+    "email": "nas@doma.ai",
+    "url": "https://github.com/AleX83Xpert"
+  },
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "typesVersions": {
+    "*": {
+      "utils/paymentSplitter": [
+        "dist/utils/paymentSplitter.d.ts"
+      ]
+    }
+  },
+  "types": "dist/index.d.ts",
+  "main": "dist/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs"
+    },
+    "./utils/paymentSplitter": {
+      "types": "./dist/utils/paymentSplitter.d.ts",
+      "require": "./dist/utils/paymentSplitter.js",
+      "import": "./dist/utils/paymentSplitter.mjs"
+    }
+  },
+  "dependencies": {
+    "big.js": "^6.2.2"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^7.6.0",
+    "@open-condo/tsconfig": "workspace:^",
+    "@types/big.js": "^6.2.2",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^16",
+    "execa": "^5",
+    "jest": "^29.7.0",
+    "jest-jasmine2": "^29.7.0",
+    "ts-jest": "^29.3.1",
+    "tsup": "^8.4.0",
+    "typescript": "^5.5.4"
+  }
+}

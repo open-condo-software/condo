@@ -182,5 +182,23 @@
   "apps.b2c.sections.publishing.publishForm.items.info.label": "Информация о приложении",
   "apps.b2c.sections.publishing.publishForm.items.build.label": "Сборка приложения",
   "apps.b2c.sections.publishing.publishForm.items.build.select.placeholder": "Выберите сборку",
-  "apps.b2c.sections.publishing.publishForm.actions.publish": "Опубликовать"
+  "apps.b2c.sections.publishing.publishForm.actions.publish": "Опубликовать",
+
+  "docs.widgets.amountDistributionCalculator.paymentSettings.title": "Параметры платежа",
+  "docs.widgets.amountDistributionCalculator.paymentSettings.amount.title": "Сумма платежа",
+  "docs.widgets.amountDistributionCalculator.paymentSettings.fee.title": "Комиссия с платежа",
+  "docs.widgets.amountDistributionCalculator.recipients.title": "Получатели",
+  "docs.widgets.amountDistributionCalculator.distributionItemCard.form.items.tin.prefix": "ИНН",
+  "docs.widgets.amountDistributionCalculator.distributionItemCard.form.items.amount.prefix": "Сумма",
+  "docs.widgets.amountDistributionCalculator.distributionItemCard.form.items.order.prefix": "Порядок",
+  "docs.widgets.amountDistributionCalculator.distributionItemCard.form.items.isFeePayer.prefix": "Платит комиссию",
+  "docs.widgets.amountDistributionCalculator.distributionItemCard.form.items.vor.prefix": "Округление",
+  "docs.widgets.amountDistributionCalculator.distributionItemCard.form.items.overpaymentPart.prefix": "Часть переплаты",
+  "docs.widgets.amountDistributionCalculator.splitOptions.title": "Дополнительные настройки",
+  "docs.widgets.amountDistributionCalculator.options.decimalPlaces": "Знаков после запятой",
+  "docs.widgets.amountDistributionCalculator.amountDistributionFieldValue.title": "Значение поля amountDistribution",
+  "docs.widgets.amountDistributionCalculator.splitResultCard.title": "Результат распределения",
+  "docs.widgets.amountDistributionCalculator.splitResult.fields.tin.label": "ИНН",
+  "docs.widgets.amountDistributionCalculator.splitResult.fields.amount.label": "Сумма",
+  "docs.widgets.amountDistributionCalculator.splitResult.fields.fee.label": "Комиссия"
 }

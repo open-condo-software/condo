@@ -39,7 +39,7 @@ const PayConfirmScreen: React.FC<PayConfirmScreenProps> = ({
         .reduce((acc, cur) => acc.plus(cur.amount), Big(0))
         .toString()
 
-    const formattedTotal = intl.formatNumber(totalAmount, {
+    const formattedTotal = intl.formatNumber(parseFloat(totalAmount), {
         style: 'currency',
         currency: currencyCode,
     })
