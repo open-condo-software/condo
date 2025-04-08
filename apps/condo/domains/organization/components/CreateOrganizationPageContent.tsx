@@ -1,8 +1,7 @@
 import {
-    GetActualOrganizationEmployeesDocument,
     useAcceptOrRejectOrganizationInviteMutation,
     useGetLastEmployeeInviteQuery,
-    useGetLastUserOrganizationEmployeeRequestQuery,
+    useGetLastUserOrganizationEmployeeRequestQuery, useGetUserOrganizationEmployeeExistsQuery,
     useSendOrganizationEmployeeRequestMutation,
 } from '@app/condo/gql'
 import { OrganizationTypeType } from '@app/condo/schema'
@@ -10,7 +9,7 @@ import { Col, Row } from 'antd'
 import pickBy from 'lodash/pickBy'
 import getConfig from 'next/config'
 import { useRouter } from 'next/router'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useApolloClient } from '@open-condo/next/apollo'
@@ -64,7 +63,7 @@ export const CreateOrganizationPageContent: React.FC = () => {
 
     const client = useApolloClient()
     const { user, isLoading: userLoading, signOut } = useAuth()
-    const { selectEmployee, employee, isLoading: organizationLoading } = useOrganization()
+    const { selectEmployee } = useOrganization()
     const router = useRouter()
     const { query: { next } } = router
     const isValidNextUrl = next && !Array.isArray(next) && isSafeUrl(next)
@@ -75,7 +74,18 @@ export const CreateOrganizationPageContent: React.FC = () => {
     const [acceptOrRejectInviteLoading, setAcceptOrRejectInviteLoading] = useState<boolean>(false)
 
     const onError = useMutationErrorHandler()
-    const hasEmployees = useMemo(() => !!employee, [employee])
+    const {
+        data: actualOrganizationEmployeesData,
+        loading: organizationLoading,
+    } = useGetUserOrganizationEmployeeExistsQuery({
+        variables: {
+            userId: user?.id,
+        },
+        onError,
+        skip: userLoading || !user,
+        fetchPolicy: 'network-only',
+    })
+    const hasEmployees = useMemo(() => actualOrganizationEmployeesData?.employees?.length > 0, [actualOrganizationEmployeesData?.employees?.length])
     const skipQueryStatement = userLoading || !user || organizationLoading || hasEmployees
 
     const {
@@ -132,9 +142,8 @@ export const CreateOrganizationPageContent: React.FC = () => {
             && [OrganizationTypeType.ManagingCompany, OrganizationTypeType.ServiceProvider].includes(invite?.organization?.type)
 
         if (isAcceptedInvite) {
-            await client.refetchQueries({
-                include: [GetActualOrganizationEmployeesDocument],
-            })
+            client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allOrganizationEmployees' })
+            client.cache.gc()
 
             await selectEmployee(invite.id)
             await router.push(redirectUrl)

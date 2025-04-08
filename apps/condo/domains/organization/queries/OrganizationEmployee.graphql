@@ -163,6 +163,20 @@ query getOrganizationEmployeeExistence($userId: ID!) {
     }
 }
 
+query getUserOrganizationEmployeeExists($userId: ID!) {
+    employees: allOrganizationEmployees(
+        where: {
+            user: { id: $userId },
+            isAccepted: true,
+            isRejected: false,
+            isBlocked: false,
+            organization: { type_in: [MANAGING_COMPANY, SERVICE_PROVIDER] },
+        },
+        first: 1,
+    ) {
+        id
+    }
+}
 query getEmployeeInvitesCount($userId: ID!) {
     meta: _allOrganizationEmployeesMeta(
         where: {

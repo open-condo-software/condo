@@ -194,15 +194,18 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
     const onError = useMutationErrorHandler({ form })
     const [findOrganizationsByTin, { data: foundOrganizationsData }] = useFindOrganizationsByTinLazyQuery({
         onError,
+        fetchPolicy: 'network-only',
     })
     const [registerNewOrganization] = useRegisterNewOrganizationMutation({
         onError,
     })
     const [getOrganizationEmployee] = useGetOrganizationEmployeeByUserAndOrganizationLazyQuery({
         onError,
+        fetchPolicy: 'network-only',
     })
     const [getLastActiveOrganizationEmployeeRequest] = useGetLastActiveOrganizationEmployeeRequestByTinLazyQuery({
         onError,
+        fetchPolicy: 'network-only',
     })
 
     const createOrganizationAction = useCallback(async (values) => {
@@ -376,6 +379,7 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
                                     name='name'
                                     label={NameMsg}
                                     rules={validators.name}
+                                    validateTrigger='onChange'
                                 >
                                     <Input placeholder={CreateOrganizationPlaceholder}/>
                                 </FormItem>
@@ -393,6 +397,7 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
                             name='tin'
                             label={InnMessage}
                             rules={validators.tin}
+                            validateTrigger='onChange'
                         >
                             <Input/>
                         </FormItem>
