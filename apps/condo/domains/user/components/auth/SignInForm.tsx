@@ -1,7 +1,6 @@
 import { useAuthenticateUserWithPhoneAndPasswordMutation } from '@app/condo/gql'
 import { UserTypeType as UserType } from '@app/condo/schema'
 import { Col, Form, Row } from 'antd'
-import get from 'lodash/get'
 import getConfig from 'next/config'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
@@ -44,7 +43,7 @@ export const SignInForm = (): React.ReactElement => {
     const { executeCaptcha } = useHCaptcha()
 
     const { organization } = useOrganization()
-    const country = get(organization, 'country', defaultLocale)
+    const country = organization.country || defaultLocale
 
     const [form] = Form.useForm()
 

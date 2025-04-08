@@ -1,6 +1,5 @@
 import { useStartConfirmPhoneActionMutation } from '@app/condo/gql'
 import { Col, Form, Row } from 'antd'
-import get from 'lodash/get'
 import getConfig from 'next/config'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -51,7 +50,7 @@ function ResetPageView () {
     const { token, setToken, setPhone } = useRegisterContext()
 
     const { organization } = useOrganization()
-    const country = get(organization, 'country', defaultLocale)
+    const country = organization.country || defaultLocale
 
     const [step, setStep] = useState<StepType>('inputPhone')
     const [isLoading, setIsLoading] = useState<boolean>(false)

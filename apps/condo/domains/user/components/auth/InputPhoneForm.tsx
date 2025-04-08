@@ -1,6 +1,5 @@
 import { useStartConfirmPhoneActionMutation } from '@app/condo/gql'
 import { Col, Form, Row } from 'antd'
-import get from 'lodash/get'
 import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState } from 'react'
@@ -53,7 +52,7 @@ export const InputPhoneForm: React.FC<InputPhoneFormProps> = ({ onFinish }) => {
     const redirectUrl = (next && !Array.isArray(next) && isSafeUrl(next)) ? next : '/'
 
     const { organization } = useOrganization()
-    const country = get(organization, 'country', defaultLocale)
+    const country = organization.country || defaultLocale
 
     const [isLoading, setIsLoading] = useState(false)
 
