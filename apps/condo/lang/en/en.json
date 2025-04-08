@@ -1497,6 +1497,8 @@
   "notification.messages.BANK_ACCOUNT_CREATION_REQUEST.email.title": "New request for Sber account creation",
   "notification.messages.BILLING_RECEIPT_ADDED.email.subject": "Check out your utility bill",
   "notification.messages.BILLING_RECEIPT_ADDED.push.title": "Check out your utility bill",
+  "notification.messages.BILLING_RECEIPT_INSURANCE_CATEGORY.email.subject": "Check out your utility bill",
+  "notification.messages.BILLING_RECEIPT_INSURANCE_CATEGORY.push.title": "Check out your utility bill",
   "notification.messages.BILLING_RECEIPT_ADDED_WITH_DEBT.email.subject": "Check out your utility bill",
   "notification.messages.BILLING_RECEIPT_ADDED_WITH_DEBT.push.title": "Check out your utility bill",
   "notification.messages.BILLING_RECEIPT_ADDED_WITH_NO_DEBT.email.subject": "Check out your utility bill",

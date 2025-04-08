@@ -1497,6 +1497,8 @@
   "notification.messages.BANK_ACCOUNT_CREATION_REQUEST.email.title": "Новая заявка на открытие счета в Сбере",
   "notification.messages.BILLING_RECEIPT_ADDED.email.subject": "Вам квитанция!",
   "notification.messages.BILLING_RECEIPT_ADDED.push.title": "Вам квитанция!",
+  "notification.messages.BILLING_RECEIPT_INSURANCE_CATEGORY.email.subject": "Вам квитанция!",
+  "notification.messages.BILLING_RECEIPT_INSURANCE_CATEGORY.push.title": "Вам квитанция!",
   "notification.messages.BILLING_RECEIPT_ADDED_WITH_DEBT.email.subject": "Вам квитанция!",
   "notification.messages.BILLING_RECEIPT_ADDED_WITH_DEBT.push.title": "Вам квитанция!",
   "notification.messages.BILLING_RECEIPT_ADDED_WITH_NO_DEBT.email.subject": "Привет, это Doma! 🐈",
