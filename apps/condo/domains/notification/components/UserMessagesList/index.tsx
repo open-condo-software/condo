@@ -10,14 +10,17 @@ import { Loader } from '@condo/domains/common/components/Loader'
 import { useUserMessagesList } from '@condo/domains/notification/contexts/UserMessagesListContext'
 import { useNewMessageTitleNotification } from '@condo/domains/notification/hooks/useNewMessageTitleNotification'
 
-import { MessageCard } from './MessageCard'
+import { MessageCard as DefaultMessageCard, MessageCardProps } from './MessageCard'
 import { MessagesCounter } from './MessagesCounter'
 import { UserMessagesSettingsModal } from './UserMessagesSettingsModal'
 
 import './UserMessagesList.css'
 
+type UserMessagesListProps = {
+    MessageCard?: React.FC<MessageCardProps>
+}
 
-export const UserMessagesList = () => {
+export const UserMessagesList: React.FC<UserMessagesListProps> = ({ MessageCard = DefaultMessageCard }) => {
     const intl = useIntl()
     const UserMessagesListTitle = intl.formatMessage({ id: 'notification.UserMessagesList.title' })
     const ViewedMessage = intl.formatMessage({ id: 'notification.UserMessagesList.viewed' })

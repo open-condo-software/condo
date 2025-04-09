@@ -34,6 +34,9 @@ const SUBSCRIPTION = 'subscription'
 const CHECK_TLS_CLIENT_CERT = 'check-tls-client-cert-config'
 const ADD_SECTION_FLOOR = 'add-section-floor'
 const ACQUIRING_PAYMENTS_FILES_TABLE = 'acquiring-payments-files-table'
+const TICKET_NOTIFICATIONS_USER_CACHE = 'ticket-notifications-user-cache'
+const TICKET_NOTIFICATIONS_EXCLUDED_ORGANIZATIONS = 'ticket-notifications-excluded-organizations'
+
 
 module.exports = {
     SMS_AFTER_TICKET_CREATION,
@@ -71,4 +74,6 @@ module.exports = {
     CHECK_TLS_CLIENT_CERT,
     ADD_SECTION_FLOOR,
     ACQUIRING_PAYMENTS_FILES_TABLE,
+    TICKET_NOTIFICATIONS_USER_CACHE,
+    TICKET_NOTIFICATIONS_EXCLUDED_ORGANIZATIONS,
 }
