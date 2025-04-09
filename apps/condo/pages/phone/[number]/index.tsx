@@ -75,7 +75,7 @@ type TabDataType = {
     unitName: string
     unitType: string
     organization: OrganizationType
-    contact?: Pick<ContactType, 'name'>
+    contact?: Pick<ContactType, 'name' | 'id' | 'name'>
 }
 
 const StyledCarouselWrapper = styled(Col)`
@@ -545,6 +545,8 @@ const ContactClientTabContent = ({
         })
     }, [contact, property, router, unitName, unitType])
 
+    console.log(contact)
+
     const handleContactEditClick = useCallback(async () => {
         await redirectToForm({
             router,
@@ -735,9 +737,10 @@ const ClientCardPageContent = ({
         const tabDataWithProperty = tabsData.find(({ property }) => property.id === propertyId)
         const property = get(tabDataWithProperty, 'property')
         const organization = get(tabDataWithProperty, 'organization')
+        const contact = get(tabDataWithProperty, 'contact')
 
         if (property) {
-            setActiveTabData({ type, property, unitName, unitType, organization })
+            setActiveTabData({ type, property, unitName, unitType, organization, contact })
         }
     }, [activeTab, tabsData])
 
