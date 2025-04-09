@@ -1,0 +1,48 @@
+name: Test CI
+
+on:
+  push:
+    branches:
+      - main
+
+  # NOTE: change pull_request_target to pull_request if you want to change the CI in your branch
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOCKER_IMAGE: condo/condo-image:${{ github.event.pull_request.head.sha || github.sha }}
+  DOCKER_IMAGE_FULL: ${{ secrets.DOCKER_REGISTRY }}/condo/condo-image:${{ github.event.pull_request.head.sha || github.sha }}
+  PG_IMAGE_FULL: ${{ secrets.DOCKER_REGISTRY }}/doma/utils/postgres:16.8
+  REDIS_IMAGE_FULL: ${{ secrets.DOCKER_REGISTRY }}/doma/utils/redis:6.2
+  REF: ${{ github.event.pull_request.head.sha || github.ref }}
+
+jobs:
+  security:
+    name: Semgrep vulnerabilities check
+    runs-on: ubuntu-22.04
+    container:
+      image: "returntocorp/semgrep:1.99.0"
+    # Skip any PR created by dependabot to avoid permission issues
+    if: (github.actor != 'dependabot[bot]')
+    steps:
+      # Fetch project source with GitHub Actions Checkout.
+      - name: Checkout code with submodules
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+          ref: ${{ env.REF }}
+      - run: |
+          semgrep --version
+          ./bin/run-semgrep.sh -a
