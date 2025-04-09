@@ -13,11 +13,10 @@ import type { InputRef } from 'antd/lib/input'
 export const INPUT_CLASS_PREFIX = 'condo-input'
 
 export type BaseInputProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'style' | 'size'>
-& Pick<DefaultInputProps, 'disabled'>
+& Pick<DefaultInputProps, 'disabled' | 'suffix'>
 
 export type InputProps = BaseInputProps & {
     allowClear?: boolean
-    suffix?: string
     prefix?: string
 }
 
