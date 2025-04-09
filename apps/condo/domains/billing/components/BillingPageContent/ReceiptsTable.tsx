@@ -60,7 +60,7 @@ export const ReceiptsTable: React.FC = () => {
     const onPeriodChange = useMemo(() => async (periodString) => {
         setPeriod(periodString)
         const newParameters = getFiltersQueryData({ ...filtersFromQuery, period: periodString ? dayjs(periodString).format( 'YYYY-MM-01') : null })
-        await updateQuery(router, { newParameters }, { shallow: true })
+        await updateQuery(router, { newParameters }, { shallow: true, resetOldParameters: false })
     }, [router, filtersFromQuery])
 
     const {

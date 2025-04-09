@@ -176,7 +176,7 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
         filterMetas: queryMetas,
         filtersSchemaGql: PaymentsFilterTemplate,
         onReset: handleResetSearch,
-        extraQueryParameters: { tab: 'payments' },
+        extraQueryParameters: { tab: 'payments', type: 'list' },
     })
 
     return (
