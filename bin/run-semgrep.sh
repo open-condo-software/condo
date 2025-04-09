@@ -30,16 +30,14 @@ else
   # scan all including submodules
   export cmd="runScan ./"
 
-  ignored_modules_paths=(".helm")
-
   # since semgrep does not support running on submodules - https://github.com/returntocorp/semgrep-action/issues/177
   # we have to iterate over all submodules by ourselves
   # and run analysis in a long pipe with && - just to stop scan at the first finding
   for module_path in `git config --file .gitmodules --get-regexp path | awk '{ print $2 }'`; do
-    if [[ ! "${ignored_modules_paths[@]}" =~ "${module_path}" ]]; then
-      cmd="$cmd && runScan $module_path"
-    else
+    if [ "$module_path" = ".helm" ]; then
       echo "Skipping $module_path"
+    else
+      cmd="$cmd && runScan $module_path"
     fi
   done
 
