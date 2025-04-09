@@ -33,8 +33,12 @@ else
   # since semgrep does not support running on submodules - https://github.com/returntocorp/semgrep-action/issues/177
   # we have to iterate over all submodules by ourselves
   # and run analysis in a long pipe with && - just to stop scan at the first finding
-  for modulePath in `git config --file .gitmodules --get-regexp path | awk '{ print $2 }'`; do
-      cmd="$cmd && runScan $modulePath"
+  for module_path in `git config --file .gitmodules --get-regexp path | awk '{ print $2 }'`; do
+    if [ "$module_path" = ".helm" ]; then
+      echo "Skipping $module_path"
+    else
+      cmd="$cmd && runScan $module_path"
+    fi
   done
 
 eval "$cmd"
