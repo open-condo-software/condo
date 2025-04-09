@@ -50,7 +50,6 @@ const BILLING_RECEIPT_ADDED_TYPE = 'BILLING_RECEIPT_ADDED'
 const BILLING_RECEIPT_FILE_ADDED_TYPE = 'BILLING_RECEIPT_FILE_ADDED'
 const BILLING_RECEIPT_ADDED_WITH_DEBT_TYPE = 'BILLING_RECEIPT_ADDED_WITH_DEBT'
 const BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE = 'BILLING_RECEIPT_ADDED_WITH_NO_DEBT'
-const BILLING_RECEIPT_INSURANCE_CATEGORY_TYPE = 'BILLING_RECEIPT_INSURANCE_CATEGORY'
 const RESIDENT_UPGRADE_APP_TYPE = 'RESIDENT_UPGRADE_APP'
 const STAFF_UPGRADE_APP_TYPE = 'STAFF_UPGRADE_APP'
 const BANK_ACCOUNT_CREATION_REQUEST_TYPE = 'BANK_ACCOUNT_CREATION_REQUEST'
@@ -440,18 +439,6 @@ const MESSAGE_META = {
             residentId: { required: true },
             residentIds: { required: true },
             propertyId: { required: true },
-            period: { required: true },
-        },
-    },
-    [BILLING_RECEIPT_INSURANCE_CATEGORY_TYPE]: {
-        dv: { defaultValue: '', required: true },
-        data: {
-            residentId: { defaultValue: '', required: true },
-            userId: { defaultValue: '', required: true },
-            url: { defaultValue: '', required: true },
-            billingReceiptId: { defaultValue: '', required: true },
-            billingAccountId: { defaultValue: '', required: true },
-            billingPropertyId: { defaultValue: '', required: true },
             period: { required: true },
         },
     },
@@ -1145,7 +1132,6 @@ module.exports = {
     BILLING_RECEIPT_ADDED_WITH_DEBT_TYPE,
     BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE,
     BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE,
-    BILLING_RECEIPT_INSURANCE_CATEGORY_TYPE,
     DEVICE_PLATFORM_TYPES,
     DEVICE_PLATFORM_ANDROID,
     DEVICE_PLATFORM_IOS,
