@@ -1291,6 +1291,7 @@ __metadata:
   dependencies:
     "@apollo/client": ^3.11.8
     "@condo/domains": "link:../condo/domains"
+    "@keystonejs/app-graphql": ^6.3.0
     "@keystonejs/app-next": ^5.2.3
     "@open-condo/bridge": "workspace:^"
     "@open-condo/codegen": "workspace:^"
