@@ -545,8 +545,6 @@ const ContactClientTabContent = ({
         })
     }, [contact, property, router, unitName, unitType])
 
-    console.log(contact)
-
     const handleContactEditClick = useCallback(async () => {
         await redirectToForm({
             router,
