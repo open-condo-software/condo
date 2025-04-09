@@ -53,6 +53,7 @@ query getTickets ($where: TicketWhereInput!, $sortBy: [SortTicketsBy!], $first: 
         organization {
             id
             name
+            phoneNumberPrefix
         }
         property {
             id
