@@ -133,7 +133,7 @@ query getActualOrganizationEmployees($userId: ID!) {
     }
 }
 
-query getBasicEmployeesInfo($where: OrganizationEmployeeWhereInput, $sortBy: [SortOrganizationEmployeesBy!], $first: Int!, $skip: Int) {
+query getEmployeesForClientCard($where: OrganizationEmployeeWhereInput, $sortBy: [SortOrganizationEmployeesBy!], $first: Int!, $skip: Int) {
     employees: allOrganizationEmployees (
         where: $where,
         sortBy: $sortBy,

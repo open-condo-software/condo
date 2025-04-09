@@ -1,4 +1,4 @@
-import { useGetBasicContactInfoQuery, useGetTicketsQuery, useGetBasicEmployeesInfoQuery } from '@app/condo/gql'
+import { useGetContactForClientCardQuery, useGetTicketsQuery, useGetEmployeesForClientCardQuery } from '@app/condo/gql'
 import {
     BuildingUnitSubType,
     Contact as ContactType,
@@ -520,17 +520,6 @@ const ContactClientTabContent = ({
 }) => {
     const router = useRouter()
 
-    // const { objs: contacts } = Contact.useObjects({
-    //     where: {
-    //         property: { id: get(property, 'id', null) },
-    //         unitName,
-    //         unitType,
-    //         phone,
-    //     },
-    //     first: 1,
-    // })
-    // const contact = get(contacts, 0, null)
-
     const searchTicketsQuery = useMemo(() => ({
         property: { id: get(property, 'id', null) },
         unitName,
@@ -859,13 +848,13 @@ export const ClientCardPageContentWrapper = ({
     const router = useRouter()
     const phoneNumber = get(router, ['query', 'number']) as string
 
-    const { data: contactsQueryData, loading: contactsLoading } = useGetBasicContactInfoQuery({
+    const { data: contactsQueryData, loading: contactsLoading } = useGetContactForClientCardQuery({
         variables: {
             where: {
                 ...organizationQuery,
                 phone: phoneNumber,
             },
-            first: 20,
+            first: 100,
         },
         fetchPolicy: 'cache-first',
     })
@@ -883,7 +872,7 @@ export const ClientCardPageContentWrapper = ({
         fetchPolicy: 'cache-first',
     })
 
-    const { data: employeesQueryData, loading: employeesLoading } = useGetBasicEmployeesInfoQuery({
+    const { data: employeesQueryData, loading: employeesLoading } = useGetEmployeesForClientCardQuery({
         variables: {
             where: {
                 ...organizationQuery,

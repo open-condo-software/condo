@@ -50,7 +50,7 @@ query getContactsExistence ($where: ContactWhereInput) {
     }
 }
 
-query getBasicContactInfo($where: ContactWhereInput, $first: Int, $skip: Int, $sortBy: [SortContactsBy!]) {
+query getContactForClientCard($where: ContactWhereInput, $first: Int!, $skip: Int, $sortBy: [SortContactsBy!]) {
     contacts: allContacts(
         where: $where
         first: $first

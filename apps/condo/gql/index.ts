@@ -869,8 +869,8 @@ export type GetContactsExistenceQueryHookResult = ReturnType<typeof useGetContac
 export type GetContactsExistenceLazyQueryHookResult = ReturnType<typeof useGetContactsExistenceLazyQuery>;
 export type GetContactsExistenceSuspenseQueryHookResult = ReturnType<typeof useGetContactsExistenceSuspenseQuery>;
 export type GetContactsExistenceQueryResult = Apollo.QueryResult<Types.GetContactsExistenceQuery, Types.GetContactsExistenceQueryVariables>;
-export const GetBasicContactInfoDocument = gql`
-    query getBasicContactInfo($where: ContactWhereInput, $first: Int, $skip: Int, $sortBy: [SortContactsBy!]) {
+export const GetContactForClientCardDocument = gql`
+    query getContactForClientCard($where: ContactWhereInput, $first: Int!, $skip: Int, $sortBy: [SortContactsBy!]) {
   contacts: allContacts(
     where: $where
     first: $first
@@ -903,16 +903,16 @@ export const GetBasicContactInfoDocument = gql`
     ${AddressMetaForTableAddressFragmentDoc}`;
 
 /**
- * __useGetBasicContactInfoQuery__
+ * __useGetContactForClientCardQuery__
  *
- * To run a query within a React component, call `useGetBasicContactInfoQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetBasicContactInfoQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetContactForClientCardQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetContactForClientCardQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetBasicContactInfoQuery({
+ * const { data, loading, error } = useGetContactForClientCardQuery({
  *   variables: {
  *      where: // value for 'where'
  *      first: // value for 'first'
@@ -921,22 +921,22 @@ export const GetBasicContactInfoDocument = gql`
  *   },
  * });
  */
-export function useGetBasicContactInfoQuery(baseOptions?: Apollo.QueryHookOptions<Types.GetBasicContactInfoQuery, Types.GetBasicContactInfoQueryVariables>) {
+export function useGetContactForClientCardQuery(baseOptions: Apollo.QueryHookOptions<Types.GetContactForClientCardQuery, Types.GetContactForClientCardQueryVariables> & ({ variables: Types.GetContactForClientCardQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<Types.GetBasicContactInfoQuery, Types.GetBasicContactInfoQueryVariables>(GetBasicContactInfoDocument, options);
+        return Apollo.useQuery<Types.GetContactForClientCardQuery, Types.GetContactForClientCardQueryVariables>(GetContactForClientCardDocument, options);
       }
-export function useGetBasicContactInfoLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetBasicContactInfoQuery, Types.GetBasicContactInfoQueryVariables>) {
+export function useGetContactForClientCardLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetContactForClientCardQuery, Types.GetContactForClientCardQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<Types.GetBasicContactInfoQuery, Types.GetBasicContactInfoQueryVariables>(GetBasicContactInfoDocument, options);
+          return Apollo.useLazyQuery<Types.GetContactForClientCardQuery, Types.GetContactForClientCardQueryVariables>(GetContactForClientCardDocument, options);
         }
-export function useGetBasicContactInfoSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetBasicContactInfoQuery, Types.GetBasicContactInfoQueryVariables>) {
+export function useGetContactForClientCardSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetContactForClientCardQuery, Types.GetContactForClientCardQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<Types.GetBasicContactInfoQuery, Types.GetBasicContactInfoQueryVariables>(GetBasicContactInfoDocument, options);
+          return Apollo.useSuspenseQuery<Types.GetContactForClientCardQuery, Types.GetContactForClientCardQueryVariables>(GetContactForClientCardDocument, options);
         }
-export type GetBasicContactInfoQueryHookResult = ReturnType<typeof useGetBasicContactInfoQuery>;
-export type GetBasicContactInfoLazyQueryHookResult = ReturnType<typeof useGetBasicContactInfoLazyQuery>;
-export type GetBasicContactInfoSuspenseQueryHookResult = ReturnType<typeof useGetBasicContactInfoSuspenseQuery>;
-export type GetBasicContactInfoQueryResult = Apollo.QueryResult<Types.GetBasicContactInfoQuery, Types.GetBasicContactInfoQueryVariables>;
+export type GetContactForClientCardQueryHookResult = ReturnType<typeof useGetContactForClientCardQuery>;
+export type GetContactForClientCardLazyQueryHookResult = ReturnType<typeof useGetContactForClientCardLazyQuery>;
+export type GetContactForClientCardSuspenseQueryHookResult = ReturnType<typeof useGetContactForClientCardSuspenseQuery>;
+export type GetContactForClientCardQueryResult = Apollo.QueryResult<Types.GetContactForClientCardQuery, Types.GetContactForClientCardQueryVariables>;
 export const GetContactsForTableDocument = gql`
     query getContactsForTable($where: ContactWhereInput, $first: Int, $skip: Int, $sortBy: [SortContactsBy!]) {
   contacts: allContacts(
@@ -2489,8 +2489,8 @@ export type GetActualOrganizationEmployeesQueryHookResult = ReturnType<typeof us
 export type GetActualOrganizationEmployeesLazyQueryHookResult = ReturnType<typeof useGetActualOrganizationEmployeesLazyQuery>;
 export type GetActualOrganizationEmployeesSuspenseQueryHookResult = ReturnType<typeof useGetActualOrganizationEmployeesSuspenseQuery>;
 export type GetActualOrganizationEmployeesQueryResult = Apollo.QueryResult<Types.GetActualOrganizationEmployeesQuery, Types.GetActualOrganizationEmployeesQueryVariables>;
-export const GetBasicEmployeesInfoDocument = gql`
-    query getBasicEmployeesInfo($where: OrganizationEmployeeWhereInput, $sortBy: [SortOrganizationEmployeesBy!], $first: Int!, $skip: Int) {
+export const GetEmployeesForClientCardDocument = gql`
+    query getEmployeesForClientCard($where: OrganizationEmployeeWhereInput, $sortBy: [SortOrganizationEmployeesBy!], $first: Int!, $skip: Int) {
   employees: allOrganizationEmployees(
     where: $where
     sortBy: $sortBy
@@ -2508,16 +2508,16 @@ export const GetBasicEmployeesInfoDocument = gql`
     `;
 
 /**
- * __useGetBasicEmployeesInfoQuery__
+ * __useGetEmployeesForClientCardQuery__
  *
- * To run a query within a React component, call `useGetBasicEmployeesInfoQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetBasicEmployeesInfoQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetEmployeesForClientCardQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetEmployeesForClientCardQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetBasicEmployeesInfoQuery({
+ * const { data, loading, error } = useGetEmployeesForClientCardQuery({
  *   variables: {
  *      where: // value for 'where'
  *      sortBy: // value for 'sortBy'
@@ -2526,22 +2526,22 @@ export const GetBasicEmployeesInfoDocument = gql`
  *   },
  * });
  */
-export function useGetBasicEmployeesInfoQuery(baseOptions: Apollo.QueryHookOptions<Types.GetBasicEmployeesInfoQuery, Types.GetBasicEmployeesInfoQueryVariables> & ({ variables: Types.GetBasicEmployeesInfoQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+export function useGetEmployeesForClientCardQuery(baseOptions: Apollo.QueryHookOptions<Types.GetEmployeesForClientCardQuery, Types.GetEmployeesForClientCardQueryVariables> & ({ variables: Types.GetEmployeesForClientCardQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<Types.GetBasicEmployeesInfoQuery, Types.GetBasicEmployeesInfoQueryVariables>(GetBasicEmployeesInfoDocument, options);
+        return Apollo.useQuery<Types.GetEmployeesForClientCardQuery, Types.GetEmployeesForClientCardQueryVariables>(GetEmployeesForClientCardDocument, options);
       }
-export function useGetBasicEmployeesInfoLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetBasicEmployeesInfoQuery, Types.GetBasicEmployeesInfoQueryVariables>) {
+export function useGetEmployeesForClientCardLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetEmployeesForClientCardQuery, Types.GetEmployeesForClientCardQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<Types.GetBasicEmployeesInfoQuery, Types.GetBasicEmployeesInfoQueryVariables>(GetBasicEmployeesInfoDocument, options);
+          return Apollo.useLazyQuery<Types.GetEmployeesForClientCardQuery, Types.GetEmployeesForClientCardQueryVariables>(GetEmployeesForClientCardDocument, options);
         }
-export function useGetBasicEmployeesInfoSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetBasicEmployeesInfoQuery, Types.GetBasicEmployeesInfoQueryVariables>) {
+export function useGetEmployeesForClientCardSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetEmployeesForClientCardQuery, Types.GetEmployeesForClientCardQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<Types.GetBasicEmployeesInfoQuery, Types.GetBasicEmployeesInfoQueryVariables>(GetBasicEmployeesInfoDocument, options);
+          return Apollo.useSuspenseQuery<Types.GetEmployeesForClientCardQuery, Types.GetEmployeesForClientCardQueryVariables>(GetEmployeesForClientCardDocument, options);
         }
-export type GetBasicEmployeesInfoQueryHookResult = ReturnType<typeof useGetBasicEmployeesInfoQuery>;
-export type GetBasicEmployeesInfoLazyQueryHookResult = ReturnType<typeof useGetBasicEmployeesInfoLazyQuery>;
-export type GetBasicEmployeesInfoSuspenseQueryHookResult = ReturnType<typeof useGetBasicEmployeesInfoSuspenseQuery>;
-export type GetBasicEmployeesInfoQueryResult = Apollo.QueryResult<Types.GetBasicEmployeesInfoQuery, Types.GetBasicEmployeesInfoQueryVariables>;
+export type GetEmployeesForClientCardQueryHookResult = ReturnType<typeof useGetEmployeesForClientCardQuery>;
+export type GetEmployeesForClientCardLazyQueryHookResult = ReturnType<typeof useGetEmployeesForClientCardLazyQuery>;
+export type GetEmployeesForClientCardSuspenseQueryHookResult = ReturnType<typeof useGetEmployeesForClientCardSuspenseQuery>;
+export type GetEmployeesForClientCardQueryResult = Apollo.QueryResult<Types.GetEmployeesForClientCardQuery, Types.GetEmployeesForClientCardQueryVariables>;
 export const GetEmployeeInvitesCountDocument = gql`
     query getEmployeeInvitesCount($userId: ID!) {
   meta: _allOrganizationEmployeesMeta(

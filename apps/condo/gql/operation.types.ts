@@ -120,15 +120,15 @@ export type GetContactsExistenceQueryVariables = Types.Exact<{
 
 export type GetContactsExistenceQuery = { __typename?: 'Query', contacts?: Array<{ __typename?: 'Contact', id: string } | null> | null };
 
-export type GetBasicContactInfoQueryVariables = Types.Exact<{
+export type GetContactForClientCardQueryVariables = Types.Exact<{
   where?: Types.InputMaybe<Types.ContactWhereInput>;
-  first?: Types.InputMaybe<Types.Scalars['Int']['input']>;
+  first: Types.Scalars['Int']['input'];
   skip?: Types.InputMaybe<Types.Scalars['Int']['input']>;
   sortBy?: Types.InputMaybe<Array<Types.SortContactsBy> | Types.SortContactsBy>;
 }>;
 
 
-export type GetBasicContactInfoQuery = { __typename?: 'Query', contacts?: Array<{ __typename?: 'Contact', id: string, name?: string | null, unitName?: string | null, unitType?: Types.ContactUnitTypeType | null, phone?: string | null, email?: string | null, ownershipPercentage?: string | null, note?: string | null, communityFee?: string | null, organization?: { __typename?: 'Organization', id: string, name?: string | null, phoneNumberPrefix?: string | null } | null, property?: { __typename?: 'Property', id: string, address?: string | null, addressMeta?: { __typename?: 'AddressMetaField', data: { __typename?: 'AddressMetaDataField', street_with_type?: string | null, house_type?: string | null, house?: string | null, block_type?: string | null, block?: string | null, flat_type?: string | null, flat?: string | null, region_type_full?: string | null, region: string, region_with_type?: string | null, city_with_type?: string | null, city?: string | null, settlement_with_type?: string | null, area_with_type?: string | null } } | null } | null } | null> | null };
+export type GetContactForClientCardQuery = { __typename?: 'Query', contacts?: Array<{ __typename?: 'Contact', id: string, name?: string | null, unitName?: string | null, unitType?: Types.ContactUnitTypeType | null, phone?: string | null, email?: string | null, ownershipPercentage?: string | null, note?: string | null, communityFee?: string | null, organization?: { __typename?: 'Organization', id: string, name?: string | null, phoneNumberPrefix?: string | null } | null, property?: { __typename?: 'Property', id: string, address?: string | null, addressMeta?: { __typename?: 'AddressMetaField', data: { __typename?: 'AddressMetaDataField', street_with_type?: string | null, house_type?: string | null, house?: string | null, block_type?: string | null, block?: string | null, flat_type?: string | null, flat?: string | null, region_type_full?: string | null, region: string, region_with_type?: string | null, city_with_type?: string | null, city?: string | null, settlement_with_type?: string | null, area_with_type?: string | null } } | null } | null } | null> | null };
 
 export type GetContactsForTableQueryVariables = Types.Exact<{
   where?: Types.InputMaybe<Types.ContactWhereInput>;
@@ -368,7 +368,7 @@ export type GetActualOrganizationEmployeesQueryVariables = Types.Exact<{
 
 export type GetActualOrganizationEmployeesQuery = { __typename?: 'Query', actualEmployees?: Array<{ __typename?: 'OrganizationEmployee', id: string, organization?: { __typename?: 'Organization', id: string, name?: string | null, importId?: string | null, importRemoteSystem?: string | null } | null } | null> | null };
 
-export type GetBasicEmployeesInfoQueryVariables = Types.Exact<{
+export type GetEmployeesForClientCardQueryVariables = Types.Exact<{
   where?: Types.InputMaybe<Types.OrganizationEmployeeWhereInput>;
   sortBy?: Types.InputMaybe<Array<Types.SortOrganizationEmployeesBy> | Types.SortOrganizationEmployeesBy>;
   first: Types.Scalars['Int']['input'];
@@ -376,7 +376,7 @@ export type GetBasicEmployeesInfoQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetBasicEmployeesInfoQuery = { __typename?: 'Query', employees?: Array<{ __typename?: 'OrganizationEmployee', id: string, name?: string | null, phone?: string | null, organization?: { __typename?: 'Organization', phoneNumberPrefix?: string | null } | null } | null> | null };
+export type GetEmployeesForClientCardQuery = { __typename?: 'Query', employees?: Array<{ __typename?: 'OrganizationEmployee', id: string, name?: string | null, phone?: string | null, organization?: { __typename?: 'Organization', phoneNumberPrefix?: string | null } | null } | null> | null };
 
 export type GetEmployeeInvitesCountQueryVariables = Types.Exact<{
   userId: Types.Scalars['ID']['input'];
