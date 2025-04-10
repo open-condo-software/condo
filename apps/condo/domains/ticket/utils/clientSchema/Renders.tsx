@@ -69,13 +69,14 @@ export const getCommentsIndicatorRender = ({ intl, breakpoints, userTicketCommen
         const ticketId = ticket?.id
         const currentTicketUserTicketCommentReadTimes = ticketId ? userTicketCommentReadTimes.find(readTime => readTime?.ticket?.id === ticketId) : null
 
+        const readLastCommentByUserAt = currentTicketUserTicketCommentReadTimes?.readCommentAt
         const readResidentCommentByUserAt = currentTicketUserTicketCommentReadTimes?.readResidentCommentAt
         const readOrganizationCommentByUserAt = currentTicketUserTicketCommentReadTimes?.readOrganizationCommentAt
         const lastResidentCommentAt = ticket?.lastResidentCommentAt
         const lastCommentWithResidentTypeAt = ticket?.lastCommentWithResidentTypeAt
         const lastCommentWithOrganizationTypeAt = ticket?.lastCommentWithOrganizationTypeAt
         const newResidentComment = hasUnreadResidentComments(lastResidentCommentAt, readResidentCommentByUserAt, lastCommentWithResidentTypeAt)
-        const newOrganizationComment = hasUnreadOrganizationComments(readOrganizationCommentByUserAt, lastCommentWithOrganizationTypeAt)
+        const newOrganizationComment = hasUnreadOrganizationComments(readLastCommentByUserAt, lastCommentWithOrganizationTypeAt, readOrganizationCommentByUserAt)
 
 
         return (newResidentComment || newOrganizationComment) && (

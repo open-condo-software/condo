@@ -60,9 +60,10 @@ async function canReadTickets (args) {
 
 async function canManageTickets (args) {
     const { authentication: { item: user }, operation, itemId, itemIds, originalInput, context, listKey } = args
-
+    console.log('user', user)
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
+    console.log('user.isAdmin', user.isAdmin)
     if (user.isAdmin) return true
 
     const isBulkRequest = Array.isArray(originalInput)
@@ -137,6 +138,7 @@ async function canManageTickets (args) {
         }
 
         const changedInaccessibleFields = Object.keys(originalInput).some(field => INACCESSIBLE_TICKET_FIELDS_FOR_MANAGE_BY_STAFF.includes(field))
+        console.log('changedInaccessibleFields', changedInaccessibleFields)
         if (changedInaccessibleFields) return false
 
         let organizationId
@@ -152,6 +154,7 @@ async function canManageTickets (args) {
         if (!organizationId) return false
 
         const permission = await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageTickets')
+        console.log('permission', permission)
         if (!permission) return false
 
         const propertyId = get(originalInput, ['property', 'connect', 'id'], null)

@@ -440,15 +440,14 @@ export function hasUnreadResidentComments (lastResidentCommentAt, readResidentCo
     return false
 }
 
-export function hasUnreadOrganizationComments (readOrganizationCommentByUserAt, lastCommentWithOrganizationTypeAt) {
+export function hasUnreadOrganizationComments (readCommentAt, lastCommentWithOrganizationTypeAt, readOrganizationCommentAt) {
     if (lastCommentWithOrganizationTypeAt) {
-        if (!readOrganizationCommentByUserAt) {
+        if (!readCommentAt) {
             return true
-        } else {
-            if (dayjs(readOrganizationCommentByUserAt).isBefore(lastCommentWithOrganizationTypeAt)) {
-                return true
-            }
-        }
+        } else if (dayjs(readCommentAt).isBefore(lastCommentWithOrganizationTypeAt)) {
+            return true
+        } else if (readOrganizationCommentAt && dayjs(readOrganizationCommentAt).isBefore(lastCommentWithOrganizationTypeAt))
+            return true
     }
 
     return false

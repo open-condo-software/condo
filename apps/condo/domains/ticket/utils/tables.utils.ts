@@ -1,7 +1,7 @@
 import {
     CallRecordFragmentWhereInput,
     TicketWhereInput,
-    TicketLastOrganizationCommentAuthorTypeType,
+    TicketLastCommentWithResidentTypeCreatedByUserTypeType,
 } from '@app/condo/schema'
 import isEmpty from 'lodash/isEmpty'
 import isString from 'lodash/isString'
@@ -70,22 +70,24 @@ export const getIsCompletedAfterDeadlineFilter = (): FilterType => {
     }
 }
 
-export const getCommentByTypeFilter = () => {
+export const getCommentByTypeFilter = (): FilterType => {
     return function getWhereQuery (search) {
         if (isEmpty(search)) return
 
+        const searchArray = Array.isArray(search) ? search : [search]
+
         return {
-            OR: search.map(commentType => ({ [`${commentType}_not`]: null })),
+            OR: searchArray.map(commentType => ({ [`${commentType}_not`]: null })),
         }
     }
 }
 
-export const getLastCommentWithResidentAuthorTypeFilter = () => {
+export const getLastCommentWithResidentUserTypeFilter = (): FilterType => {
     return function getWhereQuery (search) {
         if (search !== 'true') return
 
         return {
-            lastOrganizationCommentAuthorType:  RESIDENT as TicketLastOrganizationCommentAuthorTypeType,
+            lastCommentWithResidentTypeCreatedByUserType: RESIDENT as TicketLastCommentWithResidentTypeCreatedByUserTypeType,
         }
     }
 }

@@ -1,4 +1,4 @@
-import { DatePickerProps, FormInstance, InputProps, SelectProps } from 'antd'
+import { FormInstance, SelectProps } from 'antd'
 import { FormItemProps } from 'antd/es'
 import { CheckboxGroupProps } from 'antd/es/checkbox'
 import { RangePickerProps } from 'antd/lib/date-picker/generatePicker'
@@ -9,7 +9,7 @@ import isEmpty from 'lodash/isEmpty'
 import pickBy from 'lodash/pickBy'
 import React, { CSSProperties } from 'react'
 
-import { CheckboxProps } from '@open-condo/ui'
+import { CheckboxProps, InputProps } from '@open-condo/ui'
 
 import { ISearchInputProps } from '@condo/domains/common/components/GraphQlSearchInput'
 import {
@@ -23,6 +23,8 @@ import {
 import { FILTERS_POPUP_CONTAINER_ID } from '@condo/domains/common/constants/filters'
 
 import { FiltersFromQueryType, OptionType, QueryMeta } from './tables.utils'
+
+import { DatePickerType } from '../components/Pickers/DatePicker'
 
 export enum FilterComponentSize {
     Small = 8,
@@ -47,6 +49,7 @@ type CommonFilterComponentType = {
     modalFilterComponentWrapper?: {
         label?: string
         size?: FilterComponentSize
+        spaceSizeAfter?: FilterComponentSize
         formItemProps?: FormItemProps
     }
     columnFilterComponentWrapper?: CSSProperties
@@ -75,7 +78,7 @@ type CheckboxFilterType = {
 
 type SelectFilterType = {
     type: ComponentType.Select
-    options: OptionType[]
+    options?: OptionType[]
     props?: SelectProps<string>
 }
 
@@ -86,7 +89,7 @@ type TagsSelectFilterType = {
 
 type DateFilterType = {
     type: ComponentType.Date
-    props?: DatePickerProps
+    props?: DatePickerType
 }
 
 type DateRangeFilterType = {
@@ -103,6 +106,11 @@ type CustomFilterType<RecordType> = {
 export type FilterComponentType<RecordType = unknown> = CommonFilterComponentType & (
     GQLSelectFilterType | InputFilterType | CheckboxGroupFilterType | CheckboxFilterType | SelectFilterType |
     TagsSelectFilterType | DateFilterType | DateRangeFilterType | CustomFilterType<RecordType>
+)
+
+export type nonCustomFilterComponentType = CommonFilterComponentType & (
+    GQLSelectFilterType | InputFilterType | CheckboxGroupFilterType | CheckboxFilterType | SelectFilterType |
+    TagsSelectFilterType | DateFilterType | DateRangeFilterType
 )
 
 export type FiltersMeta<FilterType, RecordType = unknown> = QueryMeta<FilterType> & {

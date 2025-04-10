@@ -4154,6 +4154,7 @@ export const GetTicketsDocument = gql`
     deadline
     lastResidentCommentAt
     lastCommentWithResidentTypeAt
+    lastCommentWithOrganizationTypeAt
     propertyAddressMeta {
       ...AddressMetaForTableAddress
     }
@@ -5797,7 +5798,9 @@ export const GetUserTicketCommentsReadTimeDocument = gql`
     where: {user: {id: $userId}, ticket: {id_in: $ticketIds}}
   ) {
     id
+    readCommentAt
     readResidentCommentAt
+    readOrganizationCommentAt
     ticket {
       id
     }

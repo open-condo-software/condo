@@ -20,7 +20,7 @@ type PickerType =
 
 type PropsWithRef<P, R = any> = P & { ref?: React.Ref<R> }
 
-type DatePickerType = React.FC<PropsWithRef<PickerProps<Dayjs>>> & {
+export type DatePickerType = React.FC<PropsWithRef<PickerProps<Dayjs>>> & {
     WeekPicker: React.FC<PropsWithRef<Omit<PickerDateProps<Dayjs>, 'picker'>>>,
     MonthPicker: React.FC<PropsWithRef<Omit<PickerDateProps<Dayjs>, 'picker'>>>,
     YearPicker: React.FC<PropsWithRef<Omit<PickerDateProps<Dayjs>, 'picker'>>>,
