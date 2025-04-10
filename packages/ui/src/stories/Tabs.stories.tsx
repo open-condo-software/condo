@@ -11,6 +11,13 @@ export default {
     component: Tabs,
     args: {
         centered: false,
+        tabBarExtraContent: false,
+    },
+    argTypes: {
+        tabBarExtraContent: {
+            control: 'boolean',
+            description: 'Toggle to show/hide tabBarExtraContent',
+        },
     },
 } as Meta<typeof Tabs>
 
@@ -43,8 +50,20 @@ const simpleItems: Array<TabItem> = [
     },
 ]
 
+const Template: StoryObj<typeof Tabs>['render'] = (args) => {
+    const { tabBarExtraContent, ...restArgs } = args
+
+    const extraContent = tabBarExtraContent ? (
+        <Typography.Text>Simple Extra Content</Typography.Text>
+    ) : null
+
+    return <Tabs {...restArgs} tabBarExtraContent={extraContent} />
+}
+
 export const Simple: StoryObj<typeof Tabs> = {
+    render: Template,
     args: {
+        tabBarExtraContent: false,
         items: simpleItems,
     },
 }
