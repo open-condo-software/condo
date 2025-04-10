@@ -1298,6 +1298,7 @@ __metadata:
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     "@open-condo/next": "workspace:^"
+    "@open-condo/ui": "workspace:^"
     "@property-importer/domains": "link:./domains"
     "@types/node": ^16
     "@types/react": 16.9.17
