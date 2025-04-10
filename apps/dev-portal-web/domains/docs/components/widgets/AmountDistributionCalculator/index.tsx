@@ -8,6 +8,7 @@ import { Plus, Trash } from '@open-condo/icons'
 import { Alert, Button, Card, Input, MarkdownCodeWrapper, Tabs, Typography } from '@open-condo/ui'
 
 import { DistributionItemCard } from './DistributionItemCard'
+import styles from './index.module.css'
 import { SplitResultCard } from './SplitResultCard'
 
 const CARD_PADDING = 8
@@ -107,7 +108,7 @@ export const AmountDistributionCalculator: React.FC = () => {
                         ),
                     }, {
                         label: RecipientsTitle, key: 'recipients', children: (
-                            <Row gutter={GUTTER_ROW} align='stretch' justify='start'>
+                            <Row gutter={GUTTER_ROW}>
                                 {distributions.map((distribution, i) => (
                                     <Col key={createRecipientKey(distribution.recipient)} span={8}>
                                         <Card
@@ -115,14 +116,14 @@ export const AmountDistributionCalculator: React.FC = () => {
                                                 <Row align='middle' justify='end' gutter={0}>
                                                     <Col>
                                                         <Button.Icon
-                                                            size='small'
+                                                            size='medium'
                                                             onClick={() => {
                                                                 setDistributions((prev) => {
                                                                     return prev.filter((_, index) => index !== i)
                                                                 })
                                                             }}
                                                         >
-                                                            <Trash/>
+                                                            <Trash size='medium'/>
                                                         </Button.Icon>
                                                     </Col>
                                                 </Row>
@@ -139,16 +140,14 @@ export const AmountDistributionCalculator: React.FC = () => {
                                     </Col>
                                 ))}
                                 <Col span={8}>
-                                    <Card width='100%'>
-                                        <Row align='bottom' justify='center' gutter={0}>
-                                            <Col>
-                                                <Button.Icon
-                                                    onClick={() => setDistributions([...distributions, generateRandomDistributionItem()])}
-                                                >
-                                                    <Plus/>
-                                                </Button.Icon>
-                                            </Col>
-                                        </Row>
+                                    <Card width='100%' bodyPadding={CARD_PADDING}>
+                                        <Button.Icon
+                                            size='medium'
+                                            className={styles.newRecipientButton}
+                                            onClick={() => setDistributions([...distributions, generateRandomDistributionItem()])}
+                                        >
+                                            <Plus size='large'/>
+                                        </Button.Icon>
                                     </Card>
                                 </Col>
                             </Row>
