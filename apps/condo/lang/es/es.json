@@ -435,6 +435,7 @@
   "api.newsItem.UNIT_NAME_WITHOUT_UNIT_TYPE": "No se ha especificado unitName sin unitType",
   "api.onboarding.syncTourSteps.TOUR_STEPS_NOT_FOUND": "No se han encontrado pasos de guía para la organización transferida",
   "api.onboarding.tourStep.UPDATE_COMPLETED_STEP_TYPE": "No se puede actualizar el estado de un paso completado",
+  "api.organization.create.NAME_IS_INVALID": "Nombre no válido",
   "api.organization.inviteNewOrganizationEmployee.ALREADY_INVITED_EMAIL": "Ya hay un empleado con este correo electrónico en la organización",
   "api.organization.inviteNewOrganizationEmployee.ALREADY_INVITED_PHONE": "Ya hay un empleado con este número de teléfono en la organización",
   "api.organization.inviteNewOrganizationEmployee.UNABLE_TO_REGISTER_USER": "Se ha producido un error durante registro de usuario",

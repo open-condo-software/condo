@@ -19,7 +19,7 @@ const CreateOrganizationPage: PageComponentType = () => {
         <>
             <Head><title>{CreateOrganizationTitle}</title></Head>
             <Row>
-                <ResponsiveCol>
+                <ResponsiveCol desktopWidth='350px'>
                     <CreateOrganizationPageContent />
                 </ResponsiveCol>
             </Row>

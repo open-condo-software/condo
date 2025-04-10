@@ -435,6 +435,7 @@
   "api.newsItem.UNIT_NAME_WITHOUT_UNIT_TYPE": "Unit name set without unit type",
   "api.onboarding.syncTourSteps.TOUR_STEPS_NOT_FOUND": "Tour steps not found for this organization",
   "api.onboarding.tourStep.UPDATE_COMPLETED_STEP_TYPE": "You can not update status of completed tour step",
+  "api.organization.create.NAME_IS_INVALID": "Name is invalid",
   "api.organization.inviteNewOrganizationEmployee.ALREADY_INVITED_EMAIL": "Employee with same email is already in the organization",
   "api.organization.inviteNewOrganizationEmployee.ALREADY_INVITED_PHONE": "Employee with same phone is already in the organization",
   "api.organization.inviteNewOrganizationEmployee.UNABLE_TO_REGISTER_USER": "Unable to register user",

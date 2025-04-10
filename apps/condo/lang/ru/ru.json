@@ -435,6 +435,7 @@
   "api.newsItem.UNIT_NAME_WITHOUT_UNIT_TYPE": "Не задан unitName без unitType",
   "api.onboarding.syncTourSteps.TOUR_STEPS_NOT_FOUND": "Для переданной организации не найдены шаги путеводителя",
   "api.onboarding.tourStep.UPDATE_COMPLETED_STEP_TYPE": "Нельзя обновить статус у выполненого шага",
+  "api.organization.create.NAME_IS_INVALID": "Некорректное название",
   "api.organization.inviteNewOrganizationEmployee.ALREADY_INVITED_EMAIL": "Сотрудник с таким Email уже есть в организации",
   "api.organization.inviteNewOrganizationEmployee.ALREADY_INVITED_PHONE": "Сотрудник с таким номером телефона уже есть в организации",
   "api.organization.inviteNewOrganizationEmployee.UNABLE_TO_REGISTER_USER": "Ошибка во время регистрации пользователя",

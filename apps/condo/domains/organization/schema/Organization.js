@@ -34,6 +34,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: 'NAME_IS_INVALID',
         message: 'Invalid name',
+        messageForUser: 'api.organization.create.NAME_IS_INVALID',
     },
 }
 
