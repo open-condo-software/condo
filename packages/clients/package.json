@@ -12,7 +12,6 @@
         "@faker-js/faker": "^7.6.0",
         "@open-condo/config": "workspace:^",
         "@open-condo/keystone": "workspace:^",
-        "dotenv": "^16.3.1",
         "lodash": "^4.17.21",
         "node-fetch": "^2.6.7"
     },
