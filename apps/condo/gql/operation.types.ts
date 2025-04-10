@@ -400,6 +400,13 @@ export type GetEmployeesForClientCardQueryVariables = Types.Exact<{
 
 export type GetEmployeesForClientCardQuery = { __typename?: 'Query', employees?: Array<{ __typename?: 'OrganizationEmployee', id: string, name?: string | null, phone?: string | null, organization?: { __typename?: 'Organization', phoneNumberPrefix?: string | null } | null } | null> | null };
 
+export type GetUserOrganizationEmployeeExistsQueryVariables = Types.Exact<{
+  userId: Types.Scalars['ID']['input'];
+}>;
+
+
+export type GetUserOrganizationEmployeeExistsQuery = { __typename?: 'Query', employees?: Array<{ __typename?: 'OrganizationEmployee', id: string } | null> | null };
+
 export type GetEmployeeInvitesCountQueryVariables = Types.Exact<{
   userId: Types.Scalars['ID']['input'];
 }>;
