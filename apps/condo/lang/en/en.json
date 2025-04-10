@@ -360,6 +360,7 @@
   "api.billing.sendNewReceiptMessagesToResidentScopes.INVALID_PERIOD_PROVIDED": "Please provide proper period not before start of previous and not later than start of current month, valid format is YYYY-MM-DD",
   "api.billing.sendNewReceiptMessagesToResidentScopes.SCOPES_IS_EMPTY": "Scopes could not be empty",
   "api.common.INVALID_PHONE_NUMBER_FORMAT": "Invalid phone number format",
+  "api.common.INVALID_EMAIL_FORMAT": "Invalid E-mail format",
   "api.common.WRONG_PERCENT_VALUE": "Invalid percent value",
   "api.common.WRONG_PHONE_FORMAT": "Wrong phone number format",
   "api.contact.contact.CONTACT_DUPLICATE_ERROR": "Contact with this phone number is already registered in this room",

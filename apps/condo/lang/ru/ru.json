@@ -360,6 +360,7 @@
   "api.billing.sendNewReceiptMessagesToResidentScopes.INVALID_PERIOD_PROVIDED": "Необходимо передать период не ранее начала прошлого месяца и не позднее начала текущего месяца, валидный формат - YYYY-MM-DD",
   "api.billing.sendNewReceiptMessagesToResidentScopes.SCOPES_IS_EMPTY": "Необходимо передать хотя бы один элемент в scopes",
   "api.common.INVALID_PHONE_NUMBER_FORMAT": "Некорректный формат номера телефона",
+  "api.common.INVALID_EMAIL_FORMAT": "Некорректный формат E-mail",
   "api.common.WRONG_PERCENT_VALUE": "Некорректное значение процента",
   "api.common.WRONG_PHONE_FORMAT": "Неверный формат номера телефона",
   "api.contact.contact.CONTACT_DUPLICATE_ERROR": "Контакт с таким номером телефона уже зарегистрирован в этом помещении",

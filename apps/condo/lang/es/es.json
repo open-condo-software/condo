@@ -360,6 +360,7 @@
   "api.billing.sendNewReceiptMessagesToResidentScopes.INVALID_PERIOD_PROVIDED": "Es necesario transmitir el periodo no antes del inicio del último mes y no después del inicio del mes en curso, el formato válido es AAAA-MM-FF",
   "api.billing.sendNewReceiptMessagesToResidentScopes.SCOPES_IS_EMPTY": "Hay que transmitir al menos un elemento a scopes",
   "api.common.INVALID_PHONE_NUMBER_FORMAT": "El formato del número de teléfono no es válido",
+  "api.common.INVALID_EMAIL_FORMAT": "El formato del E-mail no es válido",
   "api.common.WRONG_PERCENT_VALUE": "Valor porcentual incorrecto",
   "api.common.WRONG_PHONE_FORMAT": "Formato del número de teléfono incorrecto",
   "api.contact.contact.CONTACT_DUPLICATE_ERROR": "Un contacto con este número de teléfono ya está registrado en esta propiedad",
