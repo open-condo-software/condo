@@ -70,3 +70,11 @@ export const Simple: StoryObj<typeof Tabs> = {
         items: simpleItems,
     },
 }
+
+export const WithExtraContent: StoryObj<typeof Tabs> = {
+    render: Template,
+    args: {
+        tabBarExtraContent: true,
+        items: [simpleItems[0], simpleItems[1]],
+    },
+}
