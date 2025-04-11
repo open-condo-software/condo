@@ -81,7 +81,7 @@ const FindUnitsByAddressService = new GQLCustomSchema('FindUnitsByAddressService
                     unitName: value.label, unitType: value.unitType || PARKING_UNIT_TYPE,
                 }))
 
-                // This is here just to double check values and make sure we won't get graphql error
+                // This is here just to double-check values and make sure we won't get graphql error
                 // We also want to filter out the unitNames with empty strings
                 const validUnits = [...unitsFromSections, ...unitsFromParking].filter(value => !!(value.unitName) && UNIT_TYPES.includes(value.unitType))
 

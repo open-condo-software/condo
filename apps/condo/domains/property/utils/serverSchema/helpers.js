@@ -93,8 +93,12 @@ const getAddressDetails = (propertyAddressMeta) => {
  * @return {FlatArray<*[], 2>[]}
  */
 const getUnitsFromSections = (sections = []) => {
+    if (!Array.isArray(sections)) {
+        return []
+    }
+
     return sections.map(section =>
-        get(section, 'floors', []).map(floor => get(floor, 'units', []))
+        (Array.isArray(section.floors) ? section.floors : []).map(floor => Array.isArray(floor.units) ? floor.units : [])
     ).flat(2)
 }
 

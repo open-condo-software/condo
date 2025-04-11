@@ -54,6 +54,20 @@ describe('FindUnitsByAddressService', () => {
         expect(data.units).toHaveLength(0)
     })
 
+    test('returns empty array if no addressKey for support', async () => {
+        const payload = { addressKey: 'not-a-uuid' }
+        const [data] = await findUnitsByAddressByTestClient(supportClient, payload)
+
+        expect(data.units).toHaveLength(0)
+    })
+
+    test('returns empty array if no addressKey for support 2', async () => {
+        const payload = { addressKey: '' }
+        const [data] = await findUnitsByAddressByTestClient(supportClient, payload)
+
+        expect(data.units).toHaveLength(0)
+    })
+
     test('returns empty array if no property map for resident', async () => {
         const payload = { addressKey: propertyWithoutMap.addressKey }
         const [data] = await findUnitsByAddressByTestClient(residentClient, payload)
