@@ -149,7 +149,7 @@ export const useEmployeeRolesPermissionsGroups: UseEmployeeRolesPermissionsGroup
             permissions: [
                 {
                     key: 'canReadEmployees',
-                    relatedUncheckPermissions: ['canManageEmployees', 'canManageRoles', 'canInviteNewOrganizationEmployees'],
+                    relatedUncheckPermissions: ['canManageEmployees', 'canManageRoles', 'canInviteNewOrganizationEmployees', 'canManageOrganizationEmployeeRequests'],
                 },
                 {
                     key: 'canManageEmployees',
@@ -157,7 +157,8 @@ export const useEmployeeRolesPermissionsGroups: UseEmployeeRolesPermissionsGroup
                 },
                 {
                     key: 'canInviteNewOrganizationEmployees',
-                    relatedCheckPermissions: ['canReadEmployees'],
+                    relatedCheckPermissions: ['canReadEmployees', 'canManageOrganizationEmployeeRequests'],
+                    relatedUncheckPermissions: ['canManageOrganizationEmployeeRequests'],
                 },
                 {
                     key: 'canManageRoles',

@@ -2,6 +2,7 @@
 const get = require('lodash/get')
 
 const conf = require('@open-condo/config')
+const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { CUSTOMER_IMPORTANT_NOTE_TYPE } = require('@condo/domains/notification/constants/constants')
@@ -11,6 +12,8 @@ const { dvSenderFields } = require('@condo/domains/organization/integrations/sbb
 const { Organization, OrganizationEmployee, OrganizationEmployeeRole } = require('@condo/domains/organization/utils/serverSchema')
 const { createConfirmedEmployee } = require('@condo/domains/organization/utils/serverSchema/Organization')
 
+
+const logger = getLogger('sbbol/syncOrganization')
 
 const CUSTOMER_EMAIL = conf.NOTIFY_ABOUT_NEW_ORGANIZATION_EMAIL
 
@@ -96,6 +99,18 @@ const syncOrganization = async ({ context, user, userData, organizationInfo, dvS
         const existingOrganization = get(employeeWithExistingOrganization, 'organization')
 
         if (!existingOrganization) {
+            const [existingOrganizationWithoutUser] = await Organization.getAll(adminContext, {
+                tin: `${organizationInfo.meta.inn}`,
+                deletedAt: null,
+            }, 'id tin', { first: 1 })
+            if (existingOrganizationWithoutUser) {
+                logger.info({
+                    msg: 'Found existed organization with same tin without user',
+                    tin: existingOrganizationWithoutUser?.tin,
+                    organizationId: existingOrganizationWithoutUser?.id,
+                })
+            }
+            
             const organization = await createOrganization({
                 context,
                 user,

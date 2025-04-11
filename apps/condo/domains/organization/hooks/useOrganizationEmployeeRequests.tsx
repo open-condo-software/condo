@@ -132,7 +132,7 @@ const ChooseEmployeeRoleModal: FC<ChooseEmployeeRoleModalProps> = ({
 
                                 const role = employeeRoles?.find(role => role.id === roleId)
 
-                                return (
+                                return role?.description && (
                                     <Alert
                                         type='info'
                                         showIcon
