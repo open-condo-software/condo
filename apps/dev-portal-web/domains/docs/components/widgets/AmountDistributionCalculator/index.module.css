@@ -1,4 +1,6 @@
-.new-recipient-button {
-  width: 100%;
-  height: 64px;
+.new-recipient-card-body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 0
 }
