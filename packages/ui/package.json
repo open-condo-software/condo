@@ -66,6 +66,9 @@
       ],
       "events": [
         "dist/events.d.ts"
+      ],
+      "hooks": [
+        "dist/hooks.d.ts"
       ]
     }
   },
