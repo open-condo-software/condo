@@ -308,9 +308,10 @@ const TicketTable = ({
                                 <Button
                                     key='createTicket'
                                     type='primary'
-                                    children={CreateTicket}
                                     onClick={() => router.push('/ticket/create')}
-                                />,
+                                >
+                                    {CreateTicket}
+                                </Button>,
                                 selectedTicketKeys.length > 0 && (
                                     <TicketBlanksExportToPdfButton
                                         key='exportToPdf'
