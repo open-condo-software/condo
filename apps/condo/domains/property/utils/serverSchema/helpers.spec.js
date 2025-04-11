@@ -1,6 +1,6 @@
 import { catchErrorFrom } from '@open-condo/keystone/test.utils'
 
-import { FLAT_WITHOUT_FLAT_TYPE_MESSAGE, getAddressUpToBuildingFrom, normalizePropertyMap } from './helpers'
+import { FLAT_WITHOUT_FLAT_TYPE_MESSAGE, getAddressUpToBuildingFrom, normalizePropertyMap, getUnitsFromSections } from './helpers'
 
 import { buildFakeAddressMeta } from '../testSchema/factories'
 
@@ -171,6 +171,37 @@ describe('helpers', () => {
             }
             const sanitizedMap = normalizePropertyMap(map)
             expect(sanitizedMap).toStrictEqual(mapWithoutNameInUnit)
+        })
+    })
+
+    describe('getUnitsFromSections', () => {
+        it('should return empty array when no sections provided', () => {
+            expect(getUnitsFromSections()).toEqual([])
+            expect(getUnitsFromSections(null)).toEqual([])
+            expect(getUnitsFromSections(undefined)).toEqual([])
+            expect(getUnitsFromSections([])).toEqual([])
+        })
+
+        it('should return handle malformed data gracefully', () => {
+            expect(getUnitsFromSections({ 'foo': null, 'floors': null })).toEqual([])
+        })
+
+        it('should extract units from single section with single floor', () => {
+            const sections = [
+                {
+                    floors: [{
+                        units: [
+                            { id: 'unit1', label: 'A1' },
+                            { id: 'unit2', label: 'A2' },
+                        ] },
+                    ],
+                },
+            ]
+
+            expect(getUnitsFromSections(sections)).toEqual([
+                { id: 'unit1', label: 'A1' },
+                { id: 'unit2', label: 'A2' },
+            ])
         })
     })
 })
