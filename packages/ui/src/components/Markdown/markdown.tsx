@@ -29,10 +29,11 @@ export const Markdown: React.FC<MarkdownProps> = ({ children }) => {
                 h4: (props) => <Typography.Title {...omit(props, 'ref')} level={4}/>,
                 h5: (props) => <Typography.Title {...omit(props, 'ref')} level={5}/>,
                 h6: (props) => <Typography.Title {...omit(props, 'ref')} level={6}/>,
-                p: (props) => <Typography.Paragraph {...omit(props, 'ref')} type='secondary' />,
-                a: (props) => <Typography.Link {...omit(props, 'ref')} target='_blank'/>,
+                // TODO: Try more elegant solutions if deploys succeed
+                p: (props: any) => <Typography.Paragraph {...omit(props, 'ref')} type='secondary' />,
+                a: (props: any) => <Typography.Link {...omit(props, 'ref')} target='_blank'/>,
                 li: ({ children, ...restProps }) => <li {...restProps}><Typography.Text type='secondary'>{children}</Typography.Text></li>,
-                pre: (props) => <CodeWrapper {...props}/>,
+                pre: (props: any) => <CodeWrapper {...props}/>,
             }}
         >
             {children}
