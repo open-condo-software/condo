@@ -7511,12 +7511,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@condo/domains@link:../condo/domains::locator=%40app%2Feps%40workspace%3Aapps%2Feps":
-  version: 0.0.0-use.local
-  resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Feps%40workspace%3Aapps%2Feps"
-  languageName: node
-  linkType: soft
-
 "@commitlint/message@npm:^17.0.0":
   version: 17.0.0
   resolution: "@commitlint/message@npm:17.0.0"
