@@ -12,12 +12,14 @@ import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isString from 'lodash/isString'
 import React, { CSSProperties, useCallback, useEffect, useRef, useState } from 'react'
-
+import { IntlShape } from 'react-intl/src/types'
 
 import { Star, StarFilled } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { colors } from '@open-condo/ui/dist/colors'
+import { ScreenMap } from '@open-condo/ui/dist/hooks'
+
 
 import { getHighlightedContents, getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
@@ -58,8 +60,8 @@ const NEW_COMMENTS_INDICATOR_STYLES = (color: string): CSSProperties => ({
 const ADDRESS_RENDER_POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }
 
 export const getCommentsIndicatorRender = ({ intl, breakpoints, userTicketCommentReadTimes }: {
-    intl: any
-    breakpoints: any
+    intl: IntlShape
+    breakpoints: ScreenMap
     userTicketCommentReadTimes: GetUserTicketCommentsReadTimeQuery['objs']
 }) => {
     const NewResidentCommentMessage = intl.formatMessage({ id: 'ticket.newResidentComment' })
