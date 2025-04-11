@@ -543,6 +543,44 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@app/announcements@workspace:apps/announcements":
+  version: 0.0.0-use.local
+  resolution: "@app/announcements@workspace:apps/announcements"
+  dependencies:
+    "@babel/core": ^7.23.0
+    "@babel/preset-env": ^7.22.20
+    "@babel/preset-typescript": ^7.23.0
+    "@open-condo/bridge": "workspace:^"
+    "@open-condo/config": "workspace:^"
+    "@open-condo/icons": "workspace:^"
+    "@open-condo/ui": "workspace:^"
+    "@types/node": ^16
+    "@types/react": 18.0.27
+    "@types/react-dom": 18.0.10
+    antd: ^4.24.12
+    next: 13.3.0
+    pdfmake: ^0.2.10
+    react: 18.2.0
+    react-dom: 18.2.0
+    react-intl: ^6.6.5
+    typescript: ^5.5.4
+  languageName: unknown
+  linkType: soft
+
+"@app/asterisk-bot@workspace:apps/asterisk-bot":
+  version: 0.0.0-use.local
+  resolution: "@app/asterisk-bot@workspace:apps/asterisk-bot"
+  dependencies:
+    "@types/node": ^16.3.2
+    dotenv: ^10.0.0
+    node-telegram-bot-api: ^0.53.0
+    ts-node: ^10.9.2
+    ts-node-dev: ^1.0.0-pre.63
+    typescript: ^5.5.4
+    yana: ^1.2.3
+  languageName: unknown
+  linkType: soft
+
 "@app/callcenter@workspace:apps/callcenter":
   version: 0.0.0-use.local
   resolution: "@app/callcenter@workspace:apps/callcenter"
@@ -600,44 +638,6 @@ __metadata:
     react-dom: ^16.13.1
     typescript: ^5.5.4
     webpack: ^4.46.0
-  languageName: unknown
-  linkType: soft
-
-"@app/announcements@workspace:apps/announcements":
-  version: 0.0.0-use.local
-  resolution: "@app/announcements@workspace:apps/announcements"
-  dependencies:
-    "@babel/core": ^7.23.0
-    "@babel/preset-env": ^7.22.20
-    "@babel/preset-typescript": ^7.23.0
-    "@open-condo/bridge": "workspace:^"
-    "@open-condo/config": "workspace:^"
-    "@open-condo/icons": "workspace:^"
-    "@open-condo/ui": "workspace:^"
-    "@types/node": ^16
-    "@types/react": 18.0.27
-    "@types/react-dom": 18.0.10
-    antd: ^4.24.12
-    next: 13.3.0
-    pdfmake: ^0.2.10
-    react: 18.2.0
-    react-dom: 18.2.0
-    react-intl: ^6.6.5
-    typescript: ^5.5.4
-  languageName: unknown
-  linkType: soft
-
-"@app/asterisk-bot@workspace:apps/asterisk-bot":
-  version: 0.0.0-use.local
-  resolution: "@app/asterisk-bot@workspace:apps/asterisk-bot"
-  dependencies:
-    "@types/node": ^16.3.2
-    dotenv: ^10.0.0
-    node-telegram-bot-api: ^0.53.0
-    ts-node: ^10.9.2
-    ts-node-dev: ^1.0.0-pre.63
-    typescript: ^5.5.4
-    yana: ^1.2.3
   languageName: unknown
   linkType: soft
 
@@ -913,6 +913,33 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@app/employee-bot@workspace:apps/employee-bot":
+  version: 0.0.0-use.local
+  resolution: "@app/employee-bot@workspace:apps/employee-bot"
+  dependencies:
+    "@employee-bot/domains": "link:./domains"
+    "@graphql-tools/graphql-file-loader": ^7.3.11
+    "@graphql-tools/load": ^7.5.10
+    "@open-condo/cli": "workspace:^"
+    "@open-condo/codegen": "workspace:^"
+    "@open-condo/config": "workspace:^"
+    "@open-condo/keystone": "workspace:^"
+    "@types/jest": ^29.4.0
+    "@types/node": ^16
+    axios: ^1.5.1
+    commander: ^11.0.0
+    express: ^4.17.1
+    graphql: ^15.6.1
+    jest: ^29.7.0
+    jest-jasmine2: ^29.7.0
+    lodash: ^4.17.21
+    node-telegram-bot-api: ^0.64.0
+    openid-client: 4.7.4
+    pluralize: ^8.0.0
+    react: ^16.13.1
+  languageName: unknown
+  linkType: soft
+
 "@app/eps@workspace:apps/eps":
   version: 0.0.0-use.local
   resolution: "@app/eps@workspace:apps/eps"
@@ -986,33 +1013,6 @@ __metadata:
     webpack: ^4.46.0
     xml-c14n: ^0.0.6
     xml-js: ^1.6.11
-  languageName: unknown
-  linkType: soft
-
-"@app/employee-bot@workspace:apps/employee-bot":
-  version: 0.0.0-use.local
-  resolution: "@app/employee-bot@workspace:apps/employee-bot"
-  dependencies:
-    "@employee-bot/domains": "link:./domains"
-    "@graphql-tools/graphql-file-loader": ^7.3.11
-    "@graphql-tools/load": ^7.5.10
-    "@open-condo/cli": "workspace:^"
-    "@open-condo/codegen": "workspace:^"
-    "@open-condo/config": "workspace:^"
-    "@open-condo/keystone": "workspace:^"
-    "@types/jest": ^29.4.0
-    "@types/node": ^16
-    axios: ^1.5.1
-    commander: ^11.0.0
-    express: ^4.17.1
-    graphql: ^15.6.1
-    jest: ^29.7.0
-    jest-jasmine2: ^29.7.0
-    lodash: ^4.17.21
-    node-telegram-bot-api: ^0.64.0
-    openid-client: 4.7.4
-    pluralize: ^8.0.0
-    react: ^16.13.1
   languageName: unknown
   linkType: soft
 
@@ -7292,12 +7292,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@callcenter/domains@link:./domains::locator=%40app%2Fcallcenter%40workspace%3Aapps%2Fcallcenter":
-  version: 0.0.0-use.local
-  resolution: "@callcenter/domains@link:./domains::locator=%40app%2Fcallcenter%40workspace%3Aapps%2Fcallcenter"
-  languageName: node
-  linkType: soft
-
 "@babel/types@npm:^7.0.0, @babel/types@npm:^7.11.5, @babel/types@npm:^7.18.10, @babel/types@npm:^7.18.6, @babel/types@npm:^7.18.9, @babel/types@npm:^7.3.0, @babel/types@npm:^7.3.3, @babel/types@npm:^7.4.4, @babel/types@npm:^7.7.4, @babel/types@npm:^7.8.3":
   version: 7.18.10
   resolution: "@babel/types@npm:7.18.10"
@@ -7308,6 +7302,12 @@ __metadata:
   checksum: 11632c9b106e54021937a6498138014ebc9ad6c327a07b2af3ba8700773945aba4055fd136431cbe3a500d0f363cbf9c68eb4d6d38229897c5de9d06e14c85e8
   languageName: node
   linkType: hard
+
+  "@callcenter/domains@link:./domains::locator=%40app%2Fcallcenter%40workspace%3Aapps%2Fcallcenter":
+    version: 0.0.0-use.local
+    resolution: "@callcenter/domains@link:./domains::locator=%40app%2Fcallcenter%40workspace%3Aapps%2Fcallcenter"
+    languageName: node
+    linkType: soft
 
 "@babel/types@npm:^7.16.8, @babel/types@npm:^7.18.13, @babel/types@npm:^7.22.15, @babel/types@npm:^7.22.19, @babel/types@npm:^7.22.5, @babel/types@npm:^7.23.0":
   version: 7.23.0
@@ -7491,18 +7491,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@condo/domains@link:../condo/domains::locator=%40app%2Fcallcenter%40workspace%3Aapps%2Fcallcenter":
-  version: 0.0.0-use.local
-  resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Fcallcenter%40workspace%3Aapps%2Fcallcenter"
-  languageName: node
-  linkType: soft
-
-"@condo/domains@link:../condo/domains::locator=%40app%2Feps%40workspace%3Aapps%2Feps":
-  version: 0.0.0-use.local
-  resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Feps%40workspace%3Aapps%2Feps"
-  languageName: node
-  linkType: soft
-
 "@commitlint/load@npm:^17.1.2":
   version: 17.1.2
   resolution: "@commitlint/load@npm:17.1.2"
@@ -7522,6 +7510,18 @@ __metadata:
   checksum: c01e2d8a5b9b20706d91d7930f960b901450aa1e306d597eb0fca56f60d692bd1f63495914614bd59b0a6bcc51e11036a2291c79beb96ab7e8463034c5c5ecbb
   languageName: node
   linkType: hard
+
+"@condo/domains@link:../condo/domains::locator=%40app%2Fcallcenter%40workspace%3Aapps%2Fcallcenter":
+  version: 0.0.0-use.local
+  resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Fcallcenter%40workspace%3Aapps%2Fcallcenter"
+  languageName: node
+  linkType: soft
+
+"@condo/domains@link:../condo/domains::locator=%40app%2Feps%40workspace%3Aapps%2Feps":
+  version: 0.0.0-use.local
+  resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Feps%40workspace%3Aapps%2Feps"
+  languageName: node
+  linkType: soft
 
 "@commitlint/message@npm:^17.0.0":
   version: 17.0.0
@@ -8182,12 +8182,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eps/domains@link:./domains::locator=%40app%2Feps%40workspace%3Aapps%2Feps":
-  version: 0.0.0-use.local
-  resolution: "@eps/domains@link:./domains::locator=%40app%2Feps%40workspace%3Aapps%2Feps"
-  languageName: node
-  linkType: soft
-
 "@emotion/styled@npm:^10.0.27":
   version: 10.3.0
   resolution: "@emotion/styled@npm:10.3.0"
@@ -8200,6 +8194,12 @@ __metadata:
   checksum: 9d9609c008c009d8b9249fdbb2017a404b1fc6c9118c84ec9a916e86670d4c61f03fee24297ad10b460dab628ff8260066338617ee99ede3ae7969ce5995e9bc
   languageName: node
   linkType: hard
+
+"@eps/domains@link:./domains::locator=%40app%2Feps%40workspace%3Aapps%2Feps":
+  version: 0.0.0-use.local
+  resolution: "@eps/domains@link:./domains::locator=%40app%2Feps%40workspace%3Aapps%2Feps"
+  languageName: node
+  linkType: soft
 
 "@emotion/styled@npm:^11.10.0":
   version: 11.10.0
@@ -18941,13 +18941,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/lodash@npm:4.14.182":
-  version: 4.14.182
-  resolution: "@types/lodash@npm:4.14.182"
-  checksum: 7dd137aa9dbabd632408bd37009d984655164fa1ecc3f2b6eb94afe35bf0a5852cbab6183148d883e9c73a958b7fec9a9bcf7c8e45d41195add6a18c34958209
-  languageName: node
-  linkType: hard
-
 "@types/jest@npm:^29.5.14":
   version: 29.5.14
   resolution: "@types/jest@npm:29.5.14"
@@ -18955,6 +18948,13 @@ __metadata:
     expect: ^29.0.0
     pretty-format: ^29.0.0
   checksum: 18dba4623f26661641d757c63da2db45e9524c9be96a29ef713c703a9a53792df9ecee9f7365a0858ddbd6440d98fe6b65ca67895ca5884b73cbc7ffc11f3838
+  languageName: node
+  linkType: hard
+
+"@types/lodash@npm:4.14.182":
+  version: 4.14.182
+  resolution: "@types/lodash@npm:4.14.182"
+  checksum: 7dd137aa9dbabd632408bd37009d984655164fa1ecc3f2b6eb94afe35bf0a5852cbab6183148d883e9c73a958b7fec9a9bcf7c8e45d41195add6a18c34958209
   languageName: node
   linkType: hard
 
@@ -20465,13 +20465,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@xmldom/xmldom@npm:^0.8.6":
-  version: 0.8.10
-  resolution: "@xmldom/xmldom@npm:0.8.10"
-  checksum: 4c136aec31fb3b49aaa53b6fcbfe524d02a1dc0d8e17ee35bd3bf35e9ce1344560481cd1efd086ad1a4821541482528672306d5e37cdbd187f33d7fadd3e2cf0
-  languageName: node
-  linkType: hard
-
 "@whatwg-node/fetch@npm:^0.8.0":
   version: 0.8.8
   resolution: "@whatwg-node/fetch@npm:0.8.8"
@@ -20609,6 +20602,13 @@ __metadata:
   dependencies:
     tslib: ^2.3.0
   checksum: 92aeea34152bd8485184236fe328d3d05fc98ee3b431d82ee60cf3584dbf68155419c3d65d0ff3731b204ee79c149440a9b7672784a545afddc8d4342fbf21c9
+  languageName: node
+  linkType: hard
+
+"@xmldom/xmldom@npm:^0.8.6":
+  version: 0.8.10
+  resolution: "@xmldom/xmldom@npm:0.8.10"
+  checksum: 4c136aec31fb3b49aaa53b6fcbfe524d02a1dc0d8e17ee35bd3bf35e9ce1344560481cd1efd086ad1a4821541482528672306d5e37cdbd187f33d7fadd3e2cf0
   languageName: node
   linkType: hard
 
@@ -23221,17 +23221,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bicrypt@workspace:apps/eps/domains/eps/lib/bicrypt":
-  version: 0.0.0-use.local
-  resolution: "bicrypt@workspace:apps/eps/domains/eps/lib/bicrypt"
-  dependencies:
-    "@xmldom/xmldom": ^0.8.6
-    node-addon-api: ^1.1.0
-    node-gyp: ^9.1.0
-    xml-c14n: ^0.0.6
-  languageName: unknown
-  linkType: soft
-
 "balanced-match@npm:^1.0.0":
   version: 1.0.2
   resolution: "balanced-match@npm:1.0.2"
@@ -23371,6 +23360,17 @@ __metadata:
   checksum: 1471552fa7f733561e7f49e812be074b421153006ca744de985fb6d38939807959fc5fe9cb819cf09f864782e294704fd3b31711ea14c115baf3330a2f1135de
   languageName: node
   linkType: hard
+
+"bicrypt@workspace:apps/eps/domains/eps/lib/bicrypt":
+  version: 0.0.0-use.local
+  resolution: "bicrypt@workspace:apps/eps/domains/eps/lib/bicrypt"
+  dependencies:
+    "@xmldom/xmldom": ^0.8.6
+    node-addon-api: ^1.1.0
+    node-gyp: ^9.1.0
+    xml-c14n: ^0.0.6
+  languageName: unknown
+  linkType: soft
 
 "big-integer@npm:^1.6.44, big-integer@npm:^1.6.48":
   version: 1.6.52
@@ -30142,13 +30142,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"exponential-backoff@npm:^3.1.1":
-  version: 3.1.1
-  resolution: "exponential-backoff@npm:3.1.1"
-  checksum: 3d21519a4f8207c99f7457287291316306255a328770d320b401114ec8481986e4e467e854cb9914dd965e0a1ca810a23ccb559c642c88f4c7f55c55778a9b48
-  languageName: node
-  linkType: hard
-
 "events@npm:^3.0.0, events@npm:^3.2.0":
   version: 3.3.0
   resolution: "events@npm:3.3.0"
@@ -30292,6 +30285,13 @@ __metadata:
     jest-message-util: ^29.7.0
     jest-util: ^29.7.0
   checksum: 9257f10288e149b81254a0fda8ffe8d54a7061cd61d7515779998b012579d2b8c22354b0eb901daf0145f347403da582f75f359f4810c007182ad3fb318b5c0c
+  languageName: node
+  linkType: hard
+
+"exponential-backoff@npm:^3.1.1":
+  version: 3.1.1
+  resolution: "exponential-backoff@npm:3.1.1"
+  checksum: 3d21519a4f8207c99f7457287291316306255a328770d320b401114ec8481986e4e467e854cb9914dd965e0a1ca810a23ccb559c642c88f4c7f55c55778a9b48
   languageName: node
   linkType: hard
 
@@ -41331,15 +41331,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-addon-api@npm:^1.1.0":
-  version: 1.7.2
-  resolution: "node-addon-api@npm:1.7.2"
-  dependencies:
-    node-gyp: latest
-  checksum: 938922b3d7cb34ee137c5ec39df6289a3965e8cab9061c6848863324c21a778a81ae3bc955554c56b6b86962f6ccab2043dd5fa3f33deab633636bd28039333f
-  languageName: node
-  linkType: hard
-
 "next@npm:13.3.0":
   version: 13.3.0
   resolution: "next@npm:13.3.0"
@@ -41473,27 +41464,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-  "node-gyp@npm:^9.1.0":
-    version: 9.4.1
-    resolution: "node-gyp@npm:9.4.1"
-    dependencies:
-      env-paths: ^2.2.0
-      exponential-backoff: ^3.1.1
-      glob: ^7.1.4
-      graceful-fs: ^4.2.6
-      make-fetch-happen: ^10.0.3
-      nopt: ^6.0.0
-      npmlog: ^6.0.0
-      rimraf: ^3.0.2
-      semver: ^7.3.5
-      tar: ^6.1.2
-      which: ^2.0.2
-    bin:
-      node-gyp: bin/node-gyp.js
-    checksum: 8576c439e9e925ab50679f87b7dfa7aa6739e42822e2ad4e26c36341c0ba7163fdf5a946f0a67a476d2f24662bc40d6c97bd9e79ced4321506738e6b760a1577
-    languageName: node
-    linkType: hard
-
 "no-case@npm:^2.2.0":
   version: 2.3.2
   resolution: "no-case@npm:2.3.2"
@@ -41517,6 +41487,15 @@ __metadata:
   version: 3.0.1
   resolution: "node-abort-controller@npm:3.0.1"
   checksum: 2b3d75c65249fea99e8ba22da3a8bc553f034f44dd12f5f4b38b520f718b01c88718c978f0c24c2a460fc01de9a80b567028f547b94440cb47adeacfeb82c2ee
+  languageName: node
+  linkType: hard
+
+"node-addon-api@npm:^1.1.0":
+  version: 1.7.2
+  resolution: "node-addon-api@npm:1.7.2"
+  dependencies:
+    node-gyp: latest
+  checksum: 938922b3d7cb34ee137c5ec39df6289a3965e8cab9061c6848863324c21a778a81ae3bc955554c56b6b86962f6ccab2043dd5fa3f33deab633636bd28039333f
   languageName: node
   linkType: hard
 
@@ -41676,23 +41655,33 @@ __metadata:
   languageName: node
   linkType: hard
 
+"node-gyp@npm:^9.1.0":
+  version: 9.4.1
+  resolution: "node-gyp@npm:9.4.1"
+  dependencies:
+    env-paths: ^2.2.0
+    exponential-backoff: ^3.1.1
+    glob: ^7.1.4
+    graceful-fs: ^4.2.6
+    make-fetch-happen: ^10.0.3
+    nopt: ^6.0.0
+    npmlog: ^6.0.0
+    rimraf: ^3.0.2
+    semver: ^7.3.5
+    tar: ^6.1.2
+    which: ^2.0.2
+  bin:
+    node-gyp: bin/node-gyp.js
+  checksum: 8576c439e9e925ab50679f87b7dfa7aa6739e42822e2ad4e26c36341c0ba7163fdf5a946f0a67a476d2f24662bc40d6c97bd9e79ced4321506738e6b760a1577
+  languageName: node
+  linkType: hard
+
 "node-html-parser@npm:^1.2.19":
   version: 1.4.9
   resolution: "node-html-parser@npm:1.4.9"
   dependencies:
     he: 1.2.0
   checksum: fbcf5ea22f266b36a4761d448d3db7bcee6d7570e3a8ec38cbde223fe3d705cda1df8c287907520ae2d6bac8f68ef4dacdb5fd76c375c13c50bc746e980f4a91
-  languageName: node
-  linkType: hard
-
-"nopt@npm:^6.0.0":
-  version: 6.0.0
-  resolution: "nopt@npm:6.0.0"
-  dependencies:
-    abbrev: ^1.0.0
-  bin:
-    nopt: bin/nopt.js
-  checksum: 82149371f8be0c4b9ec2f863cc6509a7fd0fa729929c009f3a58e4eb0c9e4cae9920e8f1f8eb46e7d032fec8fb01bede7f0f41a67eb3553b7b8e14fa53de1dac
   languageName: node
   linkType: hard
 
@@ -41864,6 +41853,17 @@ __metadata:
   bin:
     nopt: bin/nopt.js
   checksum: 6fa729cc77ce4162cfad8abbc9ba31d4a0ff6850c3af61d59b505653bef4781ec059f8890ecfe93ee8aa0c511093369cca88bfc998101616a2904e715bbbb7c9
+  languageName: node
+  linkType: hard
+
+"nopt@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "nopt@npm:6.0.0"
+  dependencies:
+    abbrev: ^1.0.0
+  bin:
+    nopt: bin/nopt.js
+  checksum: 82149371f8be0c4b9ec2f863cc6509a7fd0fa729929c009f3a58e4eb0c9e4cae9920e8f1f8eb46e7d032fec8fb01bede7f0f41a67eb3553b7b8e14fa53de1dac
   languageName: node
   linkType: hard
 
@@ -47578,16 +47578,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-otp-input@npm:^2.4.0":
-  version: 2.4.0
-  resolution: "react-otp-input@npm:2.4.0"
-  peerDependencies:
-    react: ^16.2.0
-    react-dom: ^16.2.0
-  checksum: c73230be43fcc4d4abf8c39e9fe546a40637dae3e9633dc0af1727bc6ef14839b7e2d455216208ab718697c40513781740c95a2c300e8c5513954842e18c1dbf
-  languageName: node
-  linkType: hard
-
 "react-input-autosize@npm:^2.2.1":
   version: 2.2.2
   resolution: "react-input-autosize@npm:2.2.2"
@@ -47747,6 +47737,16 @@ __metadata:
     react: ^0.14.0 || ^15.0.0 || ^16 || ^17 || ^18
     react-dom: ^0.14.0 || ^15.0.0 || ^16 || ^17 || ^18
   checksum: ee99ca312c35bcec9ef0868babf970ce03c52801731e29be336bb6bdc867a1ecf00a73e1fb5bc3b1b1ef66ceb0c9b4a0199fadb85b1b9829f731409951b018f0
+  languageName: node
+  linkType: hard
+
+"react-otp-input@npm:^2.4.0":
+  version: 2.4.0
+  resolution: "react-otp-input@npm:2.4.0"
+  peerDependencies:
+    react: ^16.2.0
+    react-dom: ^16.2.0
+  checksum: c73230be43fcc4d4abf8c39e9fe546a40637dae3e9633dc0af1727bc6ef14839b7e2d455216208ab718697c40513781740c95a2c300e8c5513954842e18c1dbf
   languageName: node
   linkType: hard
 
@@ -51168,17 +51168,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"socks-proxy-agent@npm:^6.2.0":
-  version: 6.2.1
-  resolution: "socks-proxy-agent@npm:6.2.1"
-  dependencies:
-    agent-base: ^6.0.2
-    debug: ^4.3.3
-    socks: ^2.6.2
-  checksum: 9ca089d489e5ee84af06741135c4b0d2022977dad27ac8d649478a114cdce87849e8d82b7c22b51501a4116e231241592946fc7fae0afc93b65030ee57084f58
-  languageName: node
-  linkType: hard
-
 "snapdragon-util@npm:^3.0.1":
   version: 3.0.1
   resolution: "snapdragon-util@npm:3.0.1"
@@ -51265,6 +51254,17 @@ __metadata:
     debug: ^4.3.3
     socks: ^2.6.2
   checksum: 720554370154cbc979e2e9ce6a6ec6ced205d02757d8f5d93fe95adae454fc187a5cbfc6b022afab850a5ce9b4c7d73e0f98e381879cf45f66317a4895953846
+  languageName: node
+  linkType: hard
+
+"socks-proxy-agent@npm:^6.2.0":
+  version: 6.2.1
+  resolution: "socks-proxy-agent@npm:6.2.1"
+  dependencies:
+    agent-base: ^6.0.2
+    debug: ^4.3.3
+    socks: ^2.6.2
+  checksum: 9ca089d489e5ee84af06741135c4b0d2022977dad27ac8d649478a114cdce87849e8d82b7c22b51501a4116e231241592946fc7fae0afc93b65030ee57084f58
   languageName: node
   linkType: hard
 
@@ -56437,13 +56437,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"xml-c14n@npm:^0.0.6":
-  version: 0.0.6
-  resolution: "xml-c14n@npm:0.0.6"
-  checksum: c5a1211dce4ce9697f05d568090350a2000af2d50fd7769910babd20b1f29bdadc201619ddd7e38edd650c9f877777947e8ab15fab1b3305e08f03b900de0bee
-  languageName: node
-  linkType: hard
-
 "webpack-sources@npm:^3.2.3":
   version: 3.2.3
   resolution: "webpack-sources@npm:3.2.3"
@@ -57050,6 +57043,13 @@ __metadata:
   bin:
     xlsx: ./bin/xlsx.njs
   checksum: d6a7cce81cdf5f832311feaef08c8918cb51cdaac235efd29c7f6caf881f7aa797aa51cdbcb583a491ba82d1e7c2b97f92ed082eda754de05731a4558768e68d
+  languageName: node
+  linkType: hard
+
+"xml-c14n@npm:^0.0.6":
+  version: 0.0.6
+  resolution: "xml-c14n@npm:0.0.6"
+  checksum: c5a1211dce4ce9697f05d568090350a2000af2d50fd7769910babd20b1f29bdadc201619ddd7e38edd650c9f877777947e8ab15fab1b3305e08f03b900de0bee
   languageName: node
   linkType: hard
 
