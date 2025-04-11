@@ -4155,6 +4155,7 @@ export const GetTicketsDocument = gql`
     lastResidentCommentAt
     lastCommentWithResidentTypeAt
     lastCommentWithOrganizationTypeAt
+    lastCommentWithResidentTypeCreatedByUserType
     propertyAddressMeta {
       ...AddressMetaForTableAddress
     }

@@ -634,7 +634,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
                     type: ComponentType.GQLSelect,
                     props: {
                         search: searchEmployeeUser(userOrganizationId, ({ role }) => (
-                            role?.canBeAssignedAsExecutor || false
+                            role?.canBeAssignedAsExecutor ?? false
                         )),
                         mode: 'multiple',
                         showArrow: true,
@@ -653,7 +653,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
                     type: ComponentType.GQLSelect,
                     props: {
                         search: searchEmployeeUser(userOrganizationId, ({ role }) => (
-                            role?.canBeAssignedAsResponsible || false
+                            role?.canBeAssignedAsResponsible ?? false
                         )),
                         mode: 'multiple',
                         showArrow: true,

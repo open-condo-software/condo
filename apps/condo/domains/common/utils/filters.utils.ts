@@ -78,7 +78,7 @@ type CheckboxFilterType = {
 
 type SelectFilterType = {
     type: ComponentType.Select
-    options?: OptionType[]
+    options: OptionType[]
     props?: SelectProps<string>
 }
 

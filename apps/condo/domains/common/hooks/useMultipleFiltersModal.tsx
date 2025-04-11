@@ -20,8 +20,7 @@ import { Options } from 'scroll-into-view-if-needed'
 import { Close, Filter } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Checkbox, Tooltip, Input } from '@open-condo/ui'
-import { Modal as DefaultModal, Button, Typography } from '@open-condo/ui'
+import { Modal as DefaultModal, Button, Typography, Checkbox, Tooltip, Input } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import Select from '@condo/domains/common/components/antd/Select'
@@ -147,12 +146,6 @@ const GQL_SELECT_STYLE: CSSProperties = { width: '100%' }
 const TAGS_SELECT_DROPDOWN_STYLE = { display: 'none' }
 
 export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string, component: nonCustomFilterComponentType, form: FormInstance): React.ReactElement => {
-    const props  = {
-        // It is necessary so that dropdowns do not go along with the screen when scrolling the modal window
-        getPopupContainer: getFiltersModalPopupContainer,
-        ...(component?.props || {}),
-    }
-
     switch (component?.type) {
         case ComponentType.Input: {
             return (
@@ -168,6 +161,8 @@ export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string
                     format={DATE_PICKER_DATE_FORMAT}
                     style={DATE_PICKER_STYLE}
                     {...component.props}
+                    // It is necessary so that dropdowns do not go along with the screen when scrolling the modal window
+                    getPopupContainer={getFiltersModalPopupContainer}
                 />
             )
         }
@@ -192,6 +187,7 @@ export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string
                     style={DATE_RANGE_PICKER_STYLE}
                     separator={null}
                     {...component.props}
+                    getPopupContainer={getFiltersModalPopupContainer}
                 />
             )
         }
@@ -205,6 +201,7 @@ export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string
                     style={SELECT_STYLE}
                     optionFilterProp='title'
                     {...component?.props}
+                    getPopupContainer={getFiltersModalPopupContainer}
                 >
                     {options.map(option => (
                         <Select.Option
@@ -228,6 +225,7 @@ export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string
                     style={GQL_SELECT_STYLE}
                     allowClear={false}
                     {...component.props}
+                    getPopupContainer={getFiltersModalPopupContainer}
                 />
             )
         }
@@ -386,7 +384,7 @@ type MultipleFiltersModalProps<F = unknown> = {
 }
 
 const isEqualSelectedFiltersTemplateAndFilters = (selectedFiltersTemplate, filters) => {
-    const templateFilters = selectedFiltersTemplate?.fields || null
+    const templateFilters = selectedFiltersTemplate?.fields ?? null
     if (!templateFilters) return false
     if (has(templateFilters, '__typename')) delete templateFilters['__typename']
     return isEqual(omitBy(templateFilters, isNil), filters)
@@ -419,7 +417,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
 
     const router = useRouter()
     const { filters } = parseQuery(router.query)
-    const searchFilter = filters?.search || null
+    const searchFilter = filters?.search ?? null
     const { link } = useOrganization()
     const { breakpoints } = useLayoutContext()
 
