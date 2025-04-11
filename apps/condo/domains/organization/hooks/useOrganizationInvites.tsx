@@ -24,12 +24,12 @@ export const useOrganizationInvites = (organizationTypes: Array<OrganizationType
     const RejectMessage = intl.formatMessage({ id: 'Reject' })
     const DoneMessage = intl.formatMessage({ id: 'OperationCompleted' })
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
-    
+
     const { user, isAuthenticated } = useAuth()
     const userId = user?.id || null
     const { selectEmployee } = useOrganization()
     const { persistor } = useCachePersistor()
-    
+
     const {
         data: userInvitationsData,
         refetch,
@@ -87,11 +87,12 @@ export const useOrganizationInvites = (organizationTypes: Array<OrganizationType
                     <FormattedMessage
                         id='pages.users.InviteMessageTitle'
                         values={{
-                            name: invite.organization.name,
+                            name: invite.organization?.name,
                         }}
                     />
                 ),
-                type: 'success',
+                description: intl.formatMessage({ id: 'pages.users.InviteMessageDescription' }),
+                type: 'info',
                 id: `invite_${invite.id}`,
             })
         })

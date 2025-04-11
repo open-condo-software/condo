@@ -602,6 +602,21 @@ if (!isDisabledSsr || !isSSR()) {
                     context: pageContext,
                     userId: user.id,
                 }))
+
+                if (!activeEmployee) {
+                    const { asPath } = pageContext
+                    const currentPath = asPath.split('?')[0]
+                    const redirectPath = '/auth/organization'
+
+                    if (currentPath !== redirectPath) {
+                        const redirectFullPath = `${redirectPath}?next=${encodeURIComponent(asPath)}`
+
+                        return await nextRedirect(pageContext, {
+                            destination: redirectFullPath,
+                            permanent: false,
+                        })
+                    }
+                }
             }
 
             if (appContext.Component.getPrefetchedData) {

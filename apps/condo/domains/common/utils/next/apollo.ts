@@ -121,6 +121,11 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
                         read: listHelper.getReadFunction('paginate'),
                         merge: listHelper.mergeLists,
                     },
+                    allOrganizationEmployeeRequests: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
                     allPaymentsFiles: {
                         keyArgs: ['where', 'skip'],
                         read: listHelper.getReadFunction('paginate'),
@@ -199,6 +204,9 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
                 },
                 IncidentClassifierIncident: {
                     timeToLive: 60 * 1000, // 1 minute in milliseconds
+                },
+                OrganizationEmployeeRequest: {
+                    timeToLive: 5 * 60 * 1000,
                 },
             },
         },

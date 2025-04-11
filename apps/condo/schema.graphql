@@ -8710,6 +8710,8 @@ type OrganizationEmployeeRequestHistoryRecord {
   organizationName: String
   organizationTin: String
   user: String
+  userName: String
+  userPhone: String
   isAccepted: Boolean
   isRejected: Boolean
   processedBy: String
@@ -8782,6 +8784,42 @@ input OrganizationEmployeeRequestHistoryRecordWhereInput {
   user_not: String
   user_in: [String]
   user_not_in: [String]
+  userName: String
+  userName_not: String
+  userName_contains: String
+  userName_not_contains: String
+  userName_starts_with: String
+  userName_not_starts_with: String
+  userName_ends_with: String
+  userName_not_ends_with: String
+  userName_i: String
+  userName_not_i: String
+  userName_contains_i: String
+  userName_not_contains_i: String
+  userName_starts_with_i: String
+  userName_not_starts_with_i: String
+  userName_ends_with_i: String
+  userName_not_ends_with_i: String
+  userName_in: [String]
+  userName_not_in: [String]
+  userPhone: String
+  userPhone_not: String
+  userPhone_contains: String
+  userPhone_not_contains: String
+  userPhone_starts_with: String
+  userPhone_not_starts_with: String
+  userPhone_ends_with: String
+  userPhone_not_ends_with: String
+  userPhone_i: String
+  userPhone_not_i: String
+  userPhone_contains_i: String
+  userPhone_not_contains_i: String
+  userPhone_starts_with_i: String
+  userPhone_not_starts_with_i: String
+  userPhone_ends_with_i: String
+  userPhone_not_ends_with_i: String
+  userPhone_in: [String]
+  userPhone_not_in: [String]
   isAccepted: Boolean
   isAccepted_not: Boolean
   isRejected: Boolean
@@ -8899,6 +8937,10 @@ enum SortOrganizationEmployeeRequestHistoryRecordsBy {
   organizationName_DESC
   organizationTin_ASC
   organizationTin_DESC
+  userName_ASC
+  userName_DESC
+  userPhone_ASC
+  userPhone_DESC
   isAccepted_ASC
   isAccepted_DESC
   isRejected_ASC
@@ -8931,6 +8973,8 @@ input OrganizationEmployeeRequestHistoryRecordUpdateInput {
   organizationName: String
   organizationTin: String
   user: String
+  userName: String
+  userPhone: String
   isAccepted: Boolean
   isRejected: Boolean
   processedBy: String
@@ -8962,6 +9006,8 @@ input OrganizationEmployeeRequestHistoryRecordCreateInput {
   organizationName: String
   organizationTin: String
   user: String
+  userName: String
+  userPhone: String
   isAccepted: Boolean
   isRejected: Boolean
   processedBy: String
@@ -9015,6 +9061,14 @@ type OrganizationEmployeeRequest {
 
   """ User who sent the request """
   user: User
+
+  """ The name of the user who sent the request (For the organization employee because he does not have access to the user fields) 
+  """
+  userName: String
+
+  """ The phone of the user who sent the request (For the organization employee because he does not have access to the user fields) 
+  """
+  userPhone: String
 
   """ Means that the request has been accepted """
   isAccepted: Boolean
@@ -9104,6 +9158,42 @@ input OrganizationEmployeeRequestWhereInput {
   organizationTin_not_in: [String]
   user: UserWhereInput
   user_is_null: Boolean
+  userName: String
+  userName_not: String
+  userName_contains: String
+  userName_not_contains: String
+  userName_starts_with: String
+  userName_not_starts_with: String
+  userName_ends_with: String
+  userName_not_ends_with: String
+  userName_i: String
+  userName_not_i: String
+  userName_contains_i: String
+  userName_not_contains_i: String
+  userName_starts_with_i: String
+  userName_not_starts_with_i: String
+  userName_ends_with_i: String
+  userName_not_ends_with_i: String
+  userName_in: [String]
+  userName_not_in: [String]
+  userPhone: String
+  userPhone_not: String
+  userPhone_contains: String
+  userPhone_not_contains: String
+  userPhone_starts_with: String
+  userPhone_not_starts_with: String
+  userPhone_ends_with: String
+  userPhone_not_ends_with: String
+  userPhone_i: String
+  userPhone_not_i: String
+  userPhone_contains_i: String
+  userPhone_not_contains_i: String
+  userPhone_starts_with_i: String
+  userPhone_not_starts_with_i: String
+  userPhone_ends_with_i: String
+  userPhone_not_ends_with_i: String
+  userPhone_in: [String]
+  userPhone_not_in: [String]
   isAccepted: Boolean
   isAccepted_not: Boolean
   isRejected: Boolean
@@ -9201,6 +9291,10 @@ enum SortOrganizationEmployeeRequestsBy {
   organizationTin_DESC
   user_ASC
   user_DESC
+  userName_ASC
+  userName_DESC
+  userPhone_ASC
+  userPhone_DESC
   isAccepted_ASC
   isAccepted_DESC
   isRejected_ASC
@@ -9237,6 +9331,8 @@ input OrganizationEmployeeRequestUpdateInput {
   organizationName: String
   organizationTin: String
   user: UserRelateToOneInput
+  userName: String
+  userPhone: String
   isAccepted: Boolean
   isRejected: Boolean
   processedBy: UserRelateToOneInput
@@ -9265,6 +9361,8 @@ input OrganizationEmployeeRequestCreateInput {
   organizationName: String
   organizationTin: String
   user: UserRelateToOneInput
+  userName: String
+  userPhone: String
   isAccepted: Boolean
   isRejected: Boolean
   processedBy: UserRelateToOneInput
@@ -93934,25 +94032,29 @@ type Mutation {
   `{
     "code": "BAD_USER_INPUT",
     "type": "REQUEST_TO_ORGANIZATION_LIMIT_REACHED",
-    "message": "A request to the organization limit reached"
+    "message": "A request to the organization limit reached",
+    "messageForUser": "The limit for organization requests has been exceeded"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "REQUEST_NOT_PROCESSED",
-    "message": "A request not processed yet. Please wait for a decide on the request from the organization"
+    "message": "A request not processed yet. Please wait for a decide on the request from the organization",
+    "messageForUser": "The request has not been processed yet. Please wait for the organization's decision"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "EMPLOYEE_ALREADY_ACCEPTED",
-    "message": "An accepted employee already exist in this organization"
+    "message": "An accepted employee already exist in this organization",
+    "messageForUser": "You are already a member of this organization"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "EMPLOYEE_INVITATION_ALREADY_SENT",
-    "message": "The invitation has already been sent to the employee."
+    "message": "The invitation has already been sent to the employee.",
+    "messageForUser": "You are already invited to this organization"
   }`
   
   `{

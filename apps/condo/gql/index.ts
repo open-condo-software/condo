@@ -2300,6 +2300,122 @@ export function useUpdateTourStepMutation(baseOptions?: Apollo.MutationHookOptio
 export type UpdateTourStepMutationHookResult = ReturnType<typeof useUpdateTourStepMutation>;
 export type UpdateTourStepMutationResult = Apollo.MutationResult<Types.UpdateTourStepMutation>;
 export type UpdateTourStepMutationOptions = Apollo.BaseMutationOptions<Types.UpdateTourStepMutation, Types.UpdateTourStepMutationVariables>;
+export const AcceptOrRejectOrganizationEmployeeRequestDocument = gql`
+    mutation acceptOrRejectOrganizationEmployeeRequest($data: AcceptOrRejectOrganizationEmployeeRequestInput!) {
+  request: acceptOrRejectOrganizationEmployeeRequest(data: $data) {
+    id
+  }
+}
+    `;
+export type AcceptOrRejectOrganizationEmployeeRequestMutationFn = Apollo.MutationFunction<Types.AcceptOrRejectOrganizationEmployeeRequestMutation, Types.AcceptOrRejectOrganizationEmployeeRequestMutationVariables>;
+
+/**
+ * __useAcceptOrRejectOrganizationEmployeeRequestMutation__
+ *
+ * To run a mutation, you first call `useAcceptOrRejectOrganizationEmployeeRequestMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAcceptOrRejectOrganizationEmployeeRequestMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [acceptOrRejectOrganizationEmployeeRequestMutation, { data, loading, error }] = useAcceptOrRejectOrganizationEmployeeRequestMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useAcceptOrRejectOrganizationEmployeeRequestMutation(baseOptions?: Apollo.MutationHookOptions<Types.AcceptOrRejectOrganizationEmployeeRequestMutation, Types.AcceptOrRejectOrganizationEmployeeRequestMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.AcceptOrRejectOrganizationEmployeeRequestMutation, Types.AcceptOrRejectOrganizationEmployeeRequestMutationVariables>(AcceptOrRejectOrganizationEmployeeRequestDocument, options);
+      }
+export type AcceptOrRejectOrganizationEmployeeRequestMutationHookResult = ReturnType<typeof useAcceptOrRejectOrganizationEmployeeRequestMutation>;
+export type AcceptOrRejectOrganizationEmployeeRequestMutationResult = Apollo.MutationResult<Types.AcceptOrRejectOrganizationEmployeeRequestMutation>;
+export type AcceptOrRejectOrganizationEmployeeRequestMutationOptions = Apollo.BaseMutationOptions<Types.AcceptOrRejectOrganizationEmployeeRequestMutation, Types.AcceptOrRejectOrganizationEmployeeRequestMutationVariables>;
+export const AcceptOrRejectOrganizationInviteDocument = gql`
+    mutation acceptOrRejectOrganizationInvite($id: ID!, $data: AcceptOrRejectOrganizationInviteInput!) {
+  invite: acceptOrRejectOrganizationInviteById(id: $id, data: $data) {
+    id
+    isAccepted
+    isRejected
+    isBlocked
+    organization {
+      type
+    }
+  }
+}
+    `;
+export type AcceptOrRejectOrganizationInviteMutationFn = Apollo.MutationFunction<Types.AcceptOrRejectOrganizationInviteMutation, Types.AcceptOrRejectOrganizationInviteMutationVariables>;
+
+/**
+ * __useAcceptOrRejectOrganizationInviteMutation__
+ *
+ * To run a mutation, you first call `useAcceptOrRejectOrganizationInviteMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAcceptOrRejectOrganizationInviteMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [acceptOrRejectOrganizationInviteMutation, { data, loading, error }] = useAcceptOrRejectOrganizationInviteMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useAcceptOrRejectOrganizationInviteMutation(baseOptions?: Apollo.MutationHookOptions<Types.AcceptOrRejectOrganizationInviteMutation, Types.AcceptOrRejectOrganizationInviteMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.AcceptOrRejectOrganizationInviteMutation, Types.AcceptOrRejectOrganizationInviteMutationVariables>(AcceptOrRejectOrganizationInviteDocument, options);
+      }
+export type AcceptOrRejectOrganizationInviteMutationHookResult = ReturnType<typeof useAcceptOrRejectOrganizationInviteMutation>;
+export type AcceptOrRejectOrganizationInviteMutationResult = Apollo.MutationResult<Types.AcceptOrRejectOrganizationInviteMutation>;
+export type AcceptOrRejectOrganizationInviteMutationOptions = Apollo.BaseMutationOptions<Types.AcceptOrRejectOrganizationInviteMutation, Types.AcceptOrRejectOrganizationInviteMutationVariables>;
+export const FindOrganizationsByTinDocument = gql`
+    query findOrganizationsByTin($data: FindOrganizationsByTinInput!) {
+  data: findOrganizationsByTin(data: $data) {
+    organizations {
+      id
+      name
+    }
+  }
+}
+    `;
+
+/**
+ * __useFindOrganizationsByTinQuery__
+ *
+ * To run a query within a React component, call `useFindOrganizationsByTinQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFindOrganizationsByTinQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useFindOrganizationsByTinQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useFindOrganizationsByTinQuery(baseOptions: Apollo.QueryHookOptions<Types.FindOrganizationsByTinQuery, Types.FindOrganizationsByTinQueryVariables> & ({ variables: Types.FindOrganizationsByTinQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.FindOrganizationsByTinQuery, Types.FindOrganizationsByTinQueryVariables>(FindOrganizationsByTinDocument, options);
+      }
+export function useFindOrganizationsByTinLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.FindOrganizationsByTinQuery, Types.FindOrganizationsByTinQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.FindOrganizationsByTinQuery, Types.FindOrganizationsByTinQueryVariables>(FindOrganizationsByTinDocument, options);
+        }
+export function useFindOrganizationsByTinSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.FindOrganizationsByTinQuery, Types.FindOrganizationsByTinQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.FindOrganizationsByTinQuery, Types.FindOrganizationsByTinQueryVariables>(FindOrganizationsByTinDocument, options);
+        }
+export type FindOrganizationsByTinQueryHookResult = ReturnType<typeof useFindOrganizationsByTinQuery>;
+export type FindOrganizationsByTinLazyQueryHookResult = ReturnType<typeof useFindOrganizationsByTinLazyQuery>;
+export type FindOrganizationsByTinSuspenseQueryHookResult = ReturnType<typeof useFindOrganizationsByTinSuspenseQuery>;
+export type FindOrganizationsByTinQueryResult = Apollo.QueryResult<Types.FindOrganizationsByTinQuery, Types.FindOrganizationsByTinQueryVariables>;
 export const GetActiveOrganizationEmployeeDocument = gql`
     query getActiveOrganizationEmployee($userId: ID!, $employeeId: ID) {
   employees: allOrganizationEmployees(
@@ -2339,6 +2455,7 @@ export const GetActiveOrganizationEmployeeDocument = gql`
       ticketVisibilityType
       canReadAnalytics
       canManageOrganization
+      canManageOrganizationEmployeeRequests
       canManageCallRecords
       canDownloadCallRecords
       canReadEmployees
@@ -2542,6 +2659,49 @@ export type GetEmployeesForClientCardQueryHookResult = ReturnType<typeof useGetE
 export type GetEmployeesForClientCardLazyQueryHookResult = ReturnType<typeof useGetEmployeesForClientCardLazyQuery>;
 export type GetEmployeesForClientCardSuspenseQueryHookResult = ReturnType<typeof useGetEmployeesForClientCardSuspenseQuery>;
 export type GetEmployeesForClientCardQueryResult = Apollo.QueryResult<Types.GetEmployeesForClientCardQuery, Types.GetEmployeesForClientCardQueryVariables>;
+export const GetUserOrganizationEmployeeExistsDocument = gql`
+    query getUserOrganizationEmployeeExists($userId: ID!) {
+  employees: allOrganizationEmployees(
+    where: {user: {id: $userId}, isAccepted: true, isRejected: false, isBlocked: false, organization: {type_in: [MANAGING_COMPANY, SERVICE_PROVIDER]}}
+    first: 1
+  ) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useGetUserOrganizationEmployeeExistsQuery__
+ *
+ * To run a query within a React component, call `useGetUserOrganizationEmployeeExistsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetUserOrganizationEmployeeExistsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetUserOrganizationEmployeeExistsQuery({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *   },
+ * });
+ */
+export function useGetUserOrganizationEmployeeExistsQuery(baseOptions: Apollo.QueryHookOptions<Types.GetUserOrganizationEmployeeExistsQuery, Types.GetUserOrganizationEmployeeExistsQueryVariables> & ({ variables: Types.GetUserOrganizationEmployeeExistsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetUserOrganizationEmployeeExistsQuery, Types.GetUserOrganizationEmployeeExistsQueryVariables>(GetUserOrganizationEmployeeExistsDocument, options);
+      }
+export function useGetUserOrganizationEmployeeExistsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetUserOrganizationEmployeeExistsQuery, Types.GetUserOrganizationEmployeeExistsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetUserOrganizationEmployeeExistsQuery, Types.GetUserOrganizationEmployeeExistsQueryVariables>(GetUserOrganizationEmployeeExistsDocument, options);
+        }
+export function useGetUserOrganizationEmployeeExistsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetUserOrganizationEmployeeExistsQuery, Types.GetUserOrganizationEmployeeExistsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetUserOrganizationEmployeeExistsQuery, Types.GetUserOrganizationEmployeeExistsQueryVariables>(GetUserOrganizationEmployeeExistsDocument, options);
+        }
+export type GetUserOrganizationEmployeeExistsQueryHookResult = ReturnType<typeof useGetUserOrganizationEmployeeExistsQuery>;
+export type GetUserOrganizationEmployeeExistsLazyQueryHookResult = ReturnType<typeof useGetUserOrganizationEmployeeExistsLazyQuery>;
+export type GetUserOrganizationEmployeeExistsSuspenseQueryHookResult = ReturnType<typeof useGetUserOrganizationEmployeeExistsSuspenseQuery>;
+export type GetUserOrganizationEmployeeExistsQueryResult = Apollo.QueryResult<Types.GetUserOrganizationEmployeeExistsQuery, Types.GetUserOrganizationEmployeeExistsQueryVariables>;
 export const GetEmployeeInvitesCountDocument = gql`
     query getEmployeeInvitesCount($userId: ID!) {
   meta: _allOrganizationEmployeesMeta(
@@ -2584,6 +2744,54 @@ export type GetEmployeeInvitesCountQueryHookResult = ReturnType<typeof useGetEmp
 export type GetEmployeeInvitesCountLazyQueryHookResult = ReturnType<typeof useGetEmployeeInvitesCountLazyQuery>;
 export type GetEmployeeInvitesCountSuspenseQueryHookResult = ReturnType<typeof useGetEmployeeInvitesCountSuspenseQuery>;
 export type GetEmployeeInvitesCountQueryResult = Apollo.QueryResult<Types.GetEmployeeInvitesCountQuery, Types.GetEmployeeInvitesCountQueryVariables>;
+export const GetLastEmployeeInviteDocument = gql`
+    query getLastEmployeeInvite($userId: ID!) {
+  employees: allOrganizationEmployees(
+    where: {user: {id: $userId}, isAccepted: false, isRejected: false, isBlocked: false, organization: {type_in: [MANAGING_COMPANY, SERVICE_PROVIDER]}}
+    first: 1
+    sortBy: [createdAt_DESC]
+  ) {
+    id
+    organization {
+      id
+      name
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetLastEmployeeInviteQuery__
+ *
+ * To run a query within a React component, call `useGetLastEmployeeInviteQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetLastEmployeeInviteQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetLastEmployeeInviteQuery({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *   },
+ * });
+ */
+export function useGetLastEmployeeInviteQuery(baseOptions: Apollo.QueryHookOptions<Types.GetLastEmployeeInviteQuery, Types.GetLastEmployeeInviteQueryVariables> & ({ variables: Types.GetLastEmployeeInviteQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetLastEmployeeInviteQuery, Types.GetLastEmployeeInviteQueryVariables>(GetLastEmployeeInviteDocument, options);
+      }
+export function useGetLastEmployeeInviteLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetLastEmployeeInviteQuery, Types.GetLastEmployeeInviteQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetLastEmployeeInviteQuery, Types.GetLastEmployeeInviteQueryVariables>(GetLastEmployeeInviteDocument, options);
+        }
+export function useGetLastEmployeeInviteSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetLastEmployeeInviteQuery, Types.GetLastEmployeeInviteQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetLastEmployeeInviteQuery, Types.GetLastEmployeeInviteQueryVariables>(GetLastEmployeeInviteDocument, options);
+        }
+export type GetLastEmployeeInviteQueryHookResult = ReturnType<typeof useGetLastEmployeeInviteQuery>;
+export type GetLastEmployeeInviteLazyQueryHookResult = ReturnType<typeof useGetLastEmployeeInviteLazyQuery>;
+export type GetLastEmployeeInviteSuspenseQueryHookResult = ReturnType<typeof useGetLastEmployeeInviteSuspenseQuery>;
+export type GetLastEmployeeInviteQueryResult = Apollo.QueryResult<Types.GetLastEmployeeInviteQuery, Types.GetLastEmployeeInviteQueryVariables>;
 export const GetContactEditorOrganizationEmployeesDocument = gql`
     query getContactEditorOrganizationEmployees($where: OrganizationEmployeeWhereInput) {
   employees: allOrganizationEmployees(where: $where, first: 100) {
@@ -2626,8 +2834,8 @@ export type GetContactEditorOrganizationEmployeesQueryHookResult = ReturnType<ty
 export type GetContactEditorOrganizationEmployeesLazyQueryHookResult = ReturnType<typeof useGetContactEditorOrganizationEmployeesLazyQuery>;
 export type GetContactEditorOrganizationEmployeesSuspenseQueryHookResult = ReturnType<typeof useGetContactEditorOrganizationEmployeesSuspenseQuery>;
 export type GetContactEditorOrganizationEmployeesQueryResult = Apollo.QueryResult<Types.GetContactEditorOrganizationEmployeesQuery, Types.GetContactEditorOrganizationEmployeesQueryVariables>;
-export const GetOrganizationEmployeeWithTicketOrganizationDocument = gql`
-    query getOrganizationEmployeeWithTicketOrganization($userId: ID!, $organizationId: ID!) {
+export const GetOrganizationEmployeeByUserAndOrganizationDocument = gql`
+    query getOrganizationEmployeeByUserAndOrganization($userId: ID!, $organizationId: ID!) {
   employees: allOrganizationEmployees(
     where: {user: {id: $userId}, organization: {id: $organizationId}}
     first: 1
@@ -2638,38 +2846,38 @@ export const GetOrganizationEmployeeWithTicketOrganizationDocument = gql`
     `;
 
 /**
- * __useGetOrganizationEmployeeWithTicketOrganizationQuery__
+ * __useGetOrganizationEmployeeByUserAndOrganizationQuery__
  *
- * To run a query within a React component, call `useGetOrganizationEmployeeWithTicketOrganizationQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetOrganizationEmployeeWithTicketOrganizationQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetOrganizationEmployeeByUserAndOrganizationQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOrganizationEmployeeByUserAndOrganizationQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetOrganizationEmployeeWithTicketOrganizationQuery({
+ * const { data, loading, error } = useGetOrganizationEmployeeByUserAndOrganizationQuery({
  *   variables: {
  *      userId: // value for 'userId'
  *      organizationId: // value for 'organizationId'
  *   },
  * });
  */
-export function useGetOrganizationEmployeeWithTicketOrganizationQuery(baseOptions: Apollo.QueryHookOptions<Types.GetOrganizationEmployeeWithTicketOrganizationQuery, Types.GetOrganizationEmployeeWithTicketOrganizationQueryVariables> & ({ variables: Types.GetOrganizationEmployeeWithTicketOrganizationQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+export function useGetOrganizationEmployeeByUserAndOrganizationQuery(baseOptions: Apollo.QueryHookOptions<Types.GetOrganizationEmployeeByUserAndOrganizationQuery, Types.GetOrganizationEmployeeByUserAndOrganizationQueryVariables> & ({ variables: Types.GetOrganizationEmployeeByUserAndOrganizationQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<Types.GetOrganizationEmployeeWithTicketOrganizationQuery, Types.GetOrganizationEmployeeWithTicketOrganizationQueryVariables>(GetOrganizationEmployeeWithTicketOrganizationDocument, options);
+        return Apollo.useQuery<Types.GetOrganizationEmployeeByUserAndOrganizationQuery, Types.GetOrganizationEmployeeByUserAndOrganizationQueryVariables>(GetOrganizationEmployeeByUserAndOrganizationDocument, options);
       }
-export function useGetOrganizationEmployeeWithTicketOrganizationLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetOrganizationEmployeeWithTicketOrganizationQuery, Types.GetOrganizationEmployeeWithTicketOrganizationQueryVariables>) {
+export function useGetOrganizationEmployeeByUserAndOrganizationLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetOrganizationEmployeeByUserAndOrganizationQuery, Types.GetOrganizationEmployeeByUserAndOrganizationQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<Types.GetOrganizationEmployeeWithTicketOrganizationQuery, Types.GetOrganizationEmployeeWithTicketOrganizationQueryVariables>(GetOrganizationEmployeeWithTicketOrganizationDocument, options);
+          return Apollo.useLazyQuery<Types.GetOrganizationEmployeeByUserAndOrganizationQuery, Types.GetOrganizationEmployeeByUserAndOrganizationQueryVariables>(GetOrganizationEmployeeByUserAndOrganizationDocument, options);
         }
-export function useGetOrganizationEmployeeWithTicketOrganizationSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetOrganizationEmployeeWithTicketOrganizationQuery, Types.GetOrganizationEmployeeWithTicketOrganizationQueryVariables>) {
+export function useGetOrganizationEmployeeByUserAndOrganizationSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetOrganizationEmployeeByUserAndOrganizationQuery, Types.GetOrganizationEmployeeByUserAndOrganizationQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<Types.GetOrganizationEmployeeWithTicketOrganizationQuery, Types.GetOrganizationEmployeeWithTicketOrganizationQueryVariables>(GetOrganizationEmployeeWithTicketOrganizationDocument, options);
+          return Apollo.useSuspenseQuery<Types.GetOrganizationEmployeeByUserAndOrganizationQuery, Types.GetOrganizationEmployeeByUserAndOrganizationQueryVariables>(GetOrganizationEmployeeByUserAndOrganizationDocument, options);
         }
-export type GetOrganizationEmployeeWithTicketOrganizationQueryHookResult = ReturnType<typeof useGetOrganizationEmployeeWithTicketOrganizationQuery>;
-export type GetOrganizationEmployeeWithTicketOrganizationLazyQueryHookResult = ReturnType<typeof useGetOrganizationEmployeeWithTicketOrganizationLazyQuery>;
-export type GetOrganizationEmployeeWithTicketOrganizationSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationEmployeeWithTicketOrganizationSuspenseQuery>;
-export type GetOrganizationEmployeeWithTicketOrganizationQueryResult = Apollo.QueryResult<Types.GetOrganizationEmployeeWithTicketOrganizationQuery, Types.GetOrganizationEmployeeWithTicketOrganizationQueryVariables>;
+export type GetOrganizationEmployeeByUserAndOrganizationQueryHookResult = ReturnType<typeof useGetOrganizationEmployeeByUserAndOrganizationQuery>;
+export type GetOrganizationEmployeeByUserAndOrganizationLazyQueryHookResult = ReturnType<typeof useGetOrganizationEmployeeByUserAndOrganizationLazyQuery>;
+export type GetOrganizationEmployeeByUserAndOrganizationSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationEmployeeByUserAndOrganizationSuspenseQuery>;
+export type GetOrganizationEmployeeByUserAndOrganizationQueryResult = Apollo.QueryResult<Types.GetOrganizationEmployeeByUserAndOrganizationQuery, Types.GetOrganizationEmployeeByUserAndOrganizationQueryVariables>;
 export const GetOrganizationEmployeeByUserAndOrganizationIdDocument = gql`
     query getOrganizationEmployeeByUserAndOrganizationId($userId: ID!, $organizationId: ID!) {
   employee: allOrganizationEmployees(
@@ -2764,6 +2972,195 @@ export type GetEmployeesInvitesByUserIdAndOrganizationTypeQueryHookResult = Retu
 export type GetEmployeesInvitesByUserIdAndOrganizationTypeLazyQueryHookResult = ReturnType<typeof useGetEmployeesInvitesByUserIdAndOrganizationTypeLazyQuery>;
 export type GetEmployeesInvitesByUserIdAndOrganizationTypeSuspenseQueryHookResult = ReturnType<typeof useGetEmployeesInvitesByUserIdAndOrganizationTypeSuspenseQuery>;
 export type GetEmployeesInvitesByUserIdAndOrganizationTypeQueryResult = Apollo.QueryResult<Types.GetEmployeesInvitesByUserIdAndOrganizationTypeQuery, Types.GetEmployeesInvitesByUserIdAndOrganizationTypeQueryVariables>;
+export const GetLastUserOrganizationEmployeeRequestDocument = gql`
+    query getLastUserOrganizationEmployeeRequest($userId: ID!) {
+  requests: allOrganizationEmployeeRequests(
+    where: {user: {id: $userId}, isAccepted: false}
+    first: 1
+    sortBy: [createdAt_DESC]
+  ) {
+    id
+    organizationId
+    organizationName
+    isRejected
+    isAccepted
+    retries
+  }
+}
+    `;
+
+/**
+ * __useGetLastUserOrganizationEmployeeRequestQuery__
+ *
+ * To run a query within a React component, call `useGetLastUserOrganizationEmployeeRequestQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetLastUserOrganizationEmployeeRequestQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetLastUserOrganizationEmployeeRequestQuery({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *   },
+ * });
+ */
+export function useGetLastUserOrganizationEmployeeRequestQuery(baseOptions: Apollo.QueryHookOptions<Types.GetLastUserOrganizationEmployeeRequestQuery, Types.GetLastUserOrganizationEmployeeRequestQueryVariables> & ({ variables: Types.GetLastUserOrganizationEmployeeRequestQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetLastUserOrganizationEmployeeRequestQuery, Types.GetLastUserOrganizationEmployeeRequestQueryVariables>(GetLastUserOrganizationEmployeeRequestDocument, options);
+      }
+export function useGetLastUserOrganizationEmployeeRequestLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetLastUserOrganizationEmployeeRequestQuery, Types.GetLastUserOrganizationEmployeeRequestQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetLastUserOrganizationEmployeeRequestQuery, Types.GetLastUserOrganizationEmployeeRequestQueryVariables>(GetLastUserOrganizationEmployeeRequestDocument, options);
+        }
+export function useGetLastUserOrganizationEmployeeRequestSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetLastUserOrganizationEmployeeRequestQuery, Types.GetLastUserOrganizationEmployeeRequestQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetLastUserOrganizationEmployeeRequestQuery, Types.GetLastUserOrganizationEmployeeRequestQueryVariables>(GetLastUserOrganizationEmployeeRequestDocument, options);
+        }
+export type GetLastUserOrganizationEmployeeRequestQueryHookResult = ReturnType<typeof useGetLastUserOrganizationEmployeeRequestQuery>;
+export type GetLastUserOrganizationEmployeeRequestLazyQueryHookResult = ReturnType<typeof useGetLastUserOrganizationEmployeeRequestLazyQuery>;
+export type GetLastUserOrganizationEmployeeRequestSuspenseQueryHookResult = ReturnType<typeof useGetLastUserOrganizationEmployeeRequestSuspenseQuery>;
+export type GetLastUserOrganizationEmployeeRequestQueryResult = Apollo.QueryResult<Types.GetLastUserOrganizationEmployeeRequestQuery, Types.GetLastUserOrganizationEmployeeRequestQueryVariables>;
+export const GetLastActiveOrganizationEmployeeRequestByTinDocument = gql`
+    query getLastActiveOrganizationEmployeeRequestByTin($userId: ID!, $tin: String!) {
+  requests: allOrganizationEmployeeRequests(
+    where: {user: {id: $userId}, organizationTin: $tin, isAccepted: false, isRejected: false}
+    first: 1
+    sortBy: [createdAt_DESC]
+  ) {
+    id
+    organizationName
+  }
+}
+    `;
+
+/**
+ * __useGetLastActiveOrganizationEmployeeRequestByTinQuery__
+ *
+ * To run a query within a React component, call `useGetLastActiveOrganizationEmployeeRequestByTinQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetLastActiveOrganizationEmployeeRequestByTinQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetLastActiveOrganizationEmployeeRequestByTinQuery({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *      tin: // value for 'tin'
+ *   },
+ * });
+ */
+export function useGetLastActiveOrganizationEmployeeRequestByTinQuery(baseOptions: Apollo.QueryHookOptions<Types.GetLastActiveOrganizationEmployeeRequestByTinQuery, Types.GetLastActiveOrganizationEmployeeRequestByTinQueryVariables> & ({ variables: Types.GetLastActiveOrganizationEmployeeRequestByTinQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetLastActiveOrganizationEmployeeRequestByTinQuery, Types.GetLastActiveOrganizationEmployeeRequestByTinQueryVariables>(GetLastActiveOrganizationEmployeeRequestByTinDocument, options);
+      }
+export function useGetLastActiveOrganizationEmployeeRequestByTinLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetLastActiveOrganizationEmployeeRequestByTinQuery, Types.GetLastActiveOrganizationEmployeeRequestByTinQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetLastActiveOrganizationEmployeeRequestByTinQuery, Types.GetLastActiveOrganizationEmployeeRequestByTinQueryVariables>(GetLastActiveOrganizationEmployeeRequestByTinDocument, options);
+        }
+export function useGetLastActiveOrganizationEmployeeRequestByTinSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetLastActiveOrganizationEmployeeRequestByTinQuery, Types.GetLastActiveOrganizationEmployeeRequestByTinQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetLastActiveOrganizationEmployeeRequestByTinQuery, Types.GetLastActiveOrganizationEmployeeRequestByTinQueryVariables>(GetLastActiveOrganizationEmployeeRequestByTinDocument, options);
+        }
+export type GetLastActiveOrganizationEmployeeRequestByTinQueryHookResult = ReturnType<typeof useGetLastActiveOrganizationEmployeeRequestByTinQuery>;
+export type GetLastActiveOrganizationEmployeeRequestByTinLazyQueryHookResult = ReturnType<typeof useGetLastActiveOrganizationEmployeeRequestByTinLazyQuery>;
+export type GetLastActiveOrganizationEmployeeRequestByTinSuspenseQueryHookResult = ReturnType<typeof useGetLastActiveOrganizationEmployeeRequestByTinSuspenseQuery>;
+export type GetLastActiveOrganizationEmployeeRequestByTinQueryResult = Apollo.QueryResult<Types.GetLastActiveOrganizationEmployeeRequestByTinQuery, Types.GetLastActiveOrganizationEmployeeRequestByTinQueryVariables>;
+export const GetRequestsForUserOrganizationsDocument = gql`
+    query getRequestsForUserOrganizations($userId: ID!, $userOrganizationIds: [ID!]) {
+  requests: allOrganizationEmployeeRequests(
+    where: {user: {id_not: $userId}, organization: {id_in: $userOrganizationIds}, isAccepted: false, isRejected: false}
+    first: 100
+    sortBy: [createdAt_DESC]
+  ) {
+    id
+    userName
+    userPhone
+    organizationName
+    organizationId
+  }
+}
+    `;
+
+/**
+ * __useGetRequestsForUserOrganizationsQuery__
+ *
+ * To run a query within a React component, call `useGetRequestsForUserOrganizationsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetRequestsForUserOrganizationsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetRequestsForUserOrganizationsQuery({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *      userOrganizationIds: // value for 'userOrganizationIds'
+ *   },
+ * });
+ */
+export function useGetRequestsForUserOrganizationsQuery(baseOptions: Apollo.QueryHookOptions<Types.GetRequestsForUserOrganizationsQuery, Types.GetRequestsForUserOrganizationsQueryVariables> & ({ variables: Types.GetRequestsForUserOrganizationsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetRequestsForUserOrganizationsQuery, Types.GetRequestsForUserOrganizationsQueryVariables>(GetRequestsForUserOrganizationsDocument, options);
+      }
+export function useGetRequestsForUserOrganizationsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetRequestsForUserOrganizationsQuery, Types.GetRequestsForUserOrganizationsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetRequestsForUserOrganizationsQuery, Types.GetRequestsForUserOrganizationsQueryVariables>(GetRequestsForUserOrganizationsDocument, options);
+        }
+export function useGetRequestsForUserOrganizationsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetRequestsForUserOrganizationsQuery, Types.GetRequestsForUserOrganizationsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetRequestsForUserOrganizationsQuery, Types.GetRequestsForUserOrganizationsQueryVariables>(GetRequestsForUserOrganizationsDocument, options);
+        }
+export type GetRequestsForUserOrganizationsQueryHookResult = ReturnType<typeof useGetRequestsForUserOrganizationsQuery>;
+export type GetRequestsForUserOrganizationsLazyQueryHookResult = ReturnType<typeof useGetRequestsForUserOrganizationsLazyQuery>;
+export type GetRequestsForUserOrganizationsSuspenseQueryHookResult = ReturnType<typeof useGetRequestsForUserOrganizationsSuspenseQuery>;
+export type GetRequestsForUserOrganizationsQueryResult = Apollo.QueryResult<Types.GetRequestsForUserOrganizationsQuery, Types.GetRequestsForUserOrganizationsQueryVariables>;
+export const GetOrganizationEmployeeRolesByOrganizationDocument = gql`
+    query getOrganizationEmployeeRolesByOrganization($organizationId: ID!) {
+  roles: allOrganizationEmployeeRoles(
+    where: {organization: {id: $organizationId}}
+    first: 100
+  ) {
+    id
+    name
+    description
+  }
+}
+    `;
+
+/**
+ * __useGetOrganizationEmployeeRolesByOrganizationQuery__
+ *
+ * To run a query within a React component, call `useGetOrganizationEmployeeRolesByOrganizationQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOrganizationEmployeeRolesByOrganizationQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetOrganizationEmployeeRolesByOrganizationQuery({
+ *   variables: {
+ *      organizationId: // value for 'organizationId'
+ *   },
+ * });
+ */
+export function useGetOrganizationEmployeeRolesByOrganizationQuery(baseOptions: Apollo.QueryHookOptions<Types.GetOrganizationEmployeeRolesByOrganizationQuery, Types.GetOrganizationEmployeeRolesByOrganizationQueryVariables> & ({ variables: Types.GetOrganizationEmployeeRolesByOrganizationQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetOrganizationEmployeeRolesByOrganizationQuery, Types.GetOrganizationEmployeeRolesByOrganizationQueryVariables>(GetOrganizationEmployeeRolesByOrganizationDocument, options);
+      }
+export function useGetOrganizationEmployeeRolesByOrganizationLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetOrganizationEmployeeRolesByOrganizationQuery, Types.GetOrganizationEmployeeRolesByOrganizationQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetOrganizationEmployeeRolesByOrganizationQuery, Types.GetOrganizationEmployeeRolesByOrganizationQueryVariables>(GetOrganizationEmployeeRolesByOrganizationDocument, options);
+        }
+export function useGetOrganizationEmployeeRolesByOrganizationSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetOrganizationEmployeeRolesByOrganizationQuery, Types.GetOrganizationEmployeeRolesByOrganizationQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetOrganizationEmployeeRolesByOrganizationQuery, Types.GetOrganizationEmployeeRolesByOrganizationQueryVariables>(GetOrganizationEmployeeRolesByOrganizationDocument, options);
+        }
+export type GetOrganizationEmployeeRolesByOrganizationQueryHookResult = ReturnType<typeof useGetOrganizationEmployeeRolesByOrganizationQuery>;
+export type GetOrganizationEmployeeRolesByOrganizationLazyQueryHookResult = ReturnType<typeof useGetOrganizationEmployeeRolesByOrganizationLazyQuery>;
+export type GetOrganizationEmployeeRolesByOrganizationSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationEmployeeRolesByOrganizationSuspenseQuery>;
+export type GetOrganizationEmployeeRolesByOrganizationQueryResult = Apollo.QueryResult<Types.GetOrganizationEmployeeRolesByOrganizationQuery, Types.GetOrganizationEmployeeRolesByOrganizationQueryVariables>;
 export const GetOrganizationEmployeeSpecializationsDocument = gql`
     query getOrganizationEmployeeSpecializations($employeeId: ID!) {
   organizationEmployeeSpecializations: allOrganizationEmployeeSpecializations(
@@ -2813,6 +3210,73 @@ export type GetOrganizationEmployeeSpecializationsQueryHookResult = ReturnType<t
 export type GetOrganizationEmployeeSpecializationsLazyQueryHookResult = ReturnType<typeof useGetOrganizationEmployeeSpecializationsLazyQuery>;
 export type GetOrganizationEmployeeSpecializationsSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationEmployeeSpecializationsSuspenseQuery>;
 export type GetOrganizationEmployeeSpecializationsQueryResult = Apollo.QueryResult<Types.GetOrganizationEmployeeSpecializationsQuery, Types.GetOrganizationEmployeeSpecializationsQueryVariables>;
+export const RegisterNewOrganizationDocument = gql`
+    mutation registerNewOrganization($data: RegisterNewOrganizationInput!) {
+  organization: registerNewOrganization(data: $data) {
+    id
+  }
+}
+    `;
+export type RegisterNewOrganizationMutationFn = Apollo.MutationFunction<Types.RegisterNewOrganizationMutation, Types.RegisterNewOrganizationMutationVariables>;
+
+/**
+ * __useRegisterNewOrganizationMutation__
+ *
+ * To run a mutation, you first call `useRegisterNewOrganizationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRegisterNewOrganizationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [registerNewOrganizationMutation, { data, loading, error }] = useRegisterNewOrganizationMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useRegisterNewOrganizationMutation(baseOptions?: Apollo.MutationHookOptions<Types.RegisterNewOrganizationMutation, Types.RegisterNewOrganizationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.RegisterNewOrganizationMutation, Types.RegisterNewOrganizationMutationVariables>(RegisterNewOrganizationDocument, options);
+      }
+export type RegisterNewOrganizationMutationHookResult = ReturnType<typeof useRegisterNewOrganizationMutation>;
+export type RegisterNewOrganizationMutationResult = Apollo.MutationResult<Types.RegisterNewOrganizationMutation>;
+export type RegisterNewOrganizationMutationOptions = Apollo.BaseMutationOptions<Types.RegisterNewOrganizationMutation, Types.RegisterNewOrganizationMutationVariables>;
+export const SendOrganizationEmployeeRequestDocument = gql`
+    mutation sendOrganizationEmployeeRequest($data: SendOrganizationEmployeeRequestInput!) {
+  request: sendOrganizationEmployeeRequest(data: $data) {
+    id
+    organizationName
+  }
+}
+    `;
+export type SendOrganizationEmployeeRequestMutationFn = Apollo.MutationFunction<Types.SendOrganizationEmployeeRequestMutation, Types.SendOrganizationEmployeeRequestMutationVariables>;
+
+/**
+ * __useSendOrganizationEmployeeRequestMutation__
+ *
+ * To run a mutation, you first call `useSendOrganizationEmployeeRequestMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSendOrganizationEmployeeRequestMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [sendOrganizationEmployeeRequestMutation, { data, loading, error }] = useSendOrganizationEmployeeRequestMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useSendOrganizationEmployeeRequestMutation(baseOptions?: Apollo.MutationHookOptions<Types.SendOrganizationEmployeeRequestMutation, Types.SendOrganizationEmployeeRequestMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.SendOrganizationEmployeeRequestMutation, Types.SendOrganizationEmployeeRequestMutationVariables>(SendOrganizationEmployeeRequestDocument, options);
+      }
+export type SendOrganizationEmployeeRequestMutationHookResult = ReturnType<typeof useSendOrganizationEmployeeRequestMutation>;
+export type SendOrganizationEmployeeRequestMutationResult = Apollo.MutationResult<Types.SendOrganizationEmployeeRequestMutation>;
+export type SendOrganizationEmployeeRequestMutationOptions = Apollo.BaseMutationOptions<Types.SendOrganizationEmployeeRequestMutation, Types.SendOrganizationEmployeeRequestMutationVariables>;
 export const GetPropertyWithMapByIdDocument = gql`
     query getPropertyWithMapById($id: ID!) {
   property: allProperties(where: {id: $id}, first: 1) {

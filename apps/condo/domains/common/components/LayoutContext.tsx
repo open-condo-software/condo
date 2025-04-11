@@ -11,6 +11,7 @@ interface ILayoutContext {
     isCollapsed?: boolean
     toggleCollapsed?: () => void
     addNotification?: (notification: ITopNotification) => void
+    removeNotification?: (notificationId: string) => void
 }
 
 const isMobileUserAgent = (): boolean => {
@@ -36,6 +37,7 @@ export const LayoutContextProvider: React.FC<LayoutContextProviderProps> = (prop
     const {
         TopNotificationComponent,
         addNotification,
+        removeNotification,
     } = useTopNotificationsHook(props.serviceProblemsAlert)
 
     const toggleCollapsed = () => {
@@ -59,6 +61,7 @@ export const LayoutContextProvider: React.FC<LayoutContextProviderProps> = (prop
             isCollapsed,
             toggleCollapsed,
             addNotification,
+            removeNotification,
         }}>
             <TopNotificationComponent/>
             {props.children}

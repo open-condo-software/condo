@@ -353,13 +353,35 @@ export type UpdateTourStepMutationVariables = Types.Exact<{
 
 export type UpdateTourStepMutation = { __typename?: 'Mutation', tourStep?: { __typename?: 'TourStep', id: string } | null };
 
+export type AcceptOrRejectOrganizationEmployeeRequestMutationVariables = Types.Exact<{
+  data: Types.AcceptOrRejectOrganizationEmployeeRequestInput;
+}>;
+
+
+export type AcceptOrRejectOrganizationEmployeeRequestMutation = { __typename?: 'Mutation', request?: { __typename?: 'OrganizationEmployeeRequest', id: string } | null };
+
+export type AcceptOrRejectOrganizationInviteMutationVariables = Types.Exact<{
+  id: Types.Scalars['ID']['input'];
+  data: Types.AcceptOrRejectOrganizationInviteInput;
+}>;
+
+
+export type AcceptOrRejectOrganizationInviteMutation = { __typename?: 'Mutation', invite?: { __typename?: 'OrganizationEmployee', id: string, isAccepted?: boolean | null, isRejected?: boolean | null, isBlocked?: boolean | null, organization?: { __typename?: 'Organization', type?: Types.OrganizationTypeType | null } | null } | null };
+
+export type FindOrganizationsByTinQueryVariables = Types.Exact<{
+  data: Types.FindOrganizationsByTinInput;
+}>;
+
+
+export type FindOrganizationsByTinQuery = { __typename?: 'Query', data?: { __typename?: 'FindOrganizationsByTinOutput', organizations: Array<{ __typename?: 'FindOrganizationsByTinOrganizationType', id: string, name: string } | null> } | null };
+
 export type GetActiveOrganizationEmployeeQueryVariables = Types.Exact<{
   userId: Types.Scalars['ID']['input'];
   employeeId?: Types.InputMaybe<Types.Scalars['ID']['input']>;
 }>;
 
 
-export type GetActiveOrganizationEmployeeQuery = { __typename?: 'Query', employees?: Array<{ __typename?: 'OrganizationEmployee', id: string, name?: string | null, email?: string | null, phone?: string | null, hasAllSpecializations?: boolean | null, isRejected?: boolean | null, isAccepted?: boolean | null, isBlocked?: boolean | null, position?: string | null, organization?: { __typename?: 'Organization', id: string, country?: Types.OrganizationCountryType | null, name?: string | null, type?: Types.OrganizationTypeType | null, tin?: string | null, features: Array<Types.OrganizationFeature>, statusTransitions?: any | null, importId?: string | null, importRemoteSystem?: string | null, meta?: any | null } | null, role?: { __typename?: 'OrganizationEmployeeRole', id: string, name?: string | null, nameNonLocalized?: string | null, isEditable?: boolean | null, isDefault?: boolean | null, statusTransitions?: any | null, ticketVisibilityType?: Types.OrganizationEmployeeRoleTicketVisibilityTypeType | null, canReadAnalytics?: boolean | null, canManageOrganization?: boolean | null, canManageCallRecords?: boolean | null, canDownloadCallRecords?: boolean | null, canReadEmployees?: boolean | null, canManageEmployees?: boolean | null, canInviteNewOrganizationEmployees?: boolean | null, canManageRoles?: boolean | null, canManageTicketPropertyHints?: boolean | null, canManageIntegrations?: boolean | null, canImportBillingReceipts?: boolean | null, canReadBillingReceipts?: boolean | null, canReadPayments?: boolean | null, canManageProperties?: boolean | null, canReadProperties?: boolean | null, canReadDocuments?: boolean | null, canManageDocuments?: boolean | null, canReadTickets?: boolean | null, canManageTickets?: boolean | null, canReadContacts?: boolean | null, canManageContacts?: boolean | null, canManageContactRoles?: boolean | null, canManageTicketComments?: boolean | null, canManagePropertyScopes?: boolean | null, canShareTickets?: boolean | null, canBeAssignedAsResponsible?: boolean | null, canBeAssignedAsExecutor?: boolean | null, canManageMeters?: boolean | null, canManageMeterReadings?: boolean | null, canManageBankAccounts?: boolean | null, canManageBankContractorAccounts?: boolean | null, canManageBankIntegrationAccountContexts?: boolean | null, canManageBankIntegrationOrganizationContexts?: boolean | null, canManageBankTransactions?: boolean | null, canManageBankAccountReports?: boolean | null, canManageBankAccountReportTasks?: boolean | null, canReadIncidents?: boolean | null, canManageIncidents?: boolean | null, canReadNewsItems?: boolean | null, canManageNewsItems?: boolean | null, canManageNewsItemTemplates?: boolean | null, canManageMobileFeatureConfigs?: boolean | null, canManageB2BApps?: boolean | null, canReadMeters?: boolean | null, canReadSettings?: boolean | null, canReadExternalReports?: boolean | null, canReadServices?: boolean | null, canReadCallRecords?: boolean | null, canReadInvoices?: boolean | null, canManageInvoices?: boolean | null, canReadMarketItems?: boolean | null, canManageMarketItems?: boolean | null, canManageMarketItemPrices?: boolean | null, canReadMarketItemPrices?: boolean | null, canReadMarketPriceScopes?: boolean | null, canManageMarketPriceScopes?: boolean | null, canReadMarketplace?: boolean | null, canManageMarketplace?: boolean | null, canReadPaymentsWithInvoices?: boolean | null, canReadTour?: boolean | null, canManageTour?: boolean | null, canReadMarketSetting?: boolean | null, canManageMarketSetting?: boolean | null, canManageTicketAutoAssignments?: boolean | null } | null } | null> | null };
+export type GetActiveOrganizationEmployeeQuery = { __typename?: 'Query', employees?: Array<{ __typename?: 'OrganizationEmployee', id: string, name?: string | null, email?: string | null, phone?: string | null, hasAllSpecializations?: boolean | null, isRejected?: boolean | null, isAccepted?: boolean | null, isBlocked?: boolean | null, position?: string | null, organization?: { __typename?: 'Organization', id: string, country?: Types.OrganizationCountryType | null, name?: string | null, type?: Types.OrganizationTypeType | null, tin?: string | null, features: Array<Types.OrganizationFeature>, statusTransitions?: any | null, importId?: string | null, importRemoteSystem?: string | null, meta?: any | null } | null, role?: { __typename?: 'OrganizationEmployeeRole', id: string, name?: string | null, nameNonLocalized?: string | null, isEditable?: boolean | null, isDefault?: boolean | null, statusTransitions?: any | null, ticketVisibilityType?: Types.OrganizationEmployeeRoleTicketVisibilityTypeType | null, canReadAnalytics?: boolean | null, canManageOrganization?: boolean | null, canManageOrganizationEmployeeRequests?: boolean | null, canManageCallRecords?: boolean | null, canDownloadCallRecords?: boolean | null, canReadEmployees?: boolean | null, canManageEmployees?: boolean | null, canInviteNewOrganizationEmployees?: boolean | null, canManageRoles?: boolean | null, canManageTicketPropertyHints?: boolean | null, canManageIntegrations?: boolean | null, canImportBillingReceipts?: boolean | null, canReadBillingReceipts?: boolean | null, canReadPayments?: boolean | null, canManageProperties?: boolean | null, canReadProperties?: boolean | null, canReadDocuments?: boolean | null, canManageDocuments?: boolean | null, canReadTickets?: boolean | null, canManageTickets?: boolean | null, canReadContacts?: boolean | null, canManageContacts?: boolean | null, canManageContactRoles?: boolean | null, canManageTicketComments?: boolean | null, canManagePropertyScopes?: boolean | null, canShareTickets?: boolean | null, canBeAssignedAsResponsible?: boolean | null, canBeAssignedAsExecutor?: boolean | null, canManageMeters?: boolean | null, canManageMeterReadings?: boolean | null, canManageBankAccounts?: boolean | null, canManageBankContractorAccounts?: boolean | null, canManageBankIntegrationAccountContexts?: boolean | null, canManageBankIntegrationOrganizationContexts?: boolean | null, canManageBankTransactions?: boolean | null, canManageBankAccountReports?: boolean | null, canManageBankAccountReportTasks?: boolean | null, canReadIncidents?: boolean | null, canManageIncidents?: boolean | null, canReadNewsItems?: boolean | null, canManageNewsItems?: boolean | null, canManageNewsItemTemplates?: boolean | null, canManageMobileFeatureConfigs?: boolean | null, canManageB2BApps?: boolean | null, canReadMeters?: boolean | null, canReadSettings?: boolean | null, canReadExternalReports?: boolean | null, canReadServices?: boolean | null, canReadCallRecords?: boolean | null, canReadInvoices?: boolean | null, canManageInvoices?: boolean | null, canReadMarketItems?: boolean | null, canManageMarketItems?: boolean | null, canManageMarketItemPrices?: boolean | null, canReadMarketItemPrices?: boolean | null, canReadMarketPriceScopes?: boolean | null, canManageMarketPriceScopes?: boolean | null, canReadMarketplace?: boolean | null, canManageMarketplace?: boolean | null, canReadPaymentsWithInvoices?: boolean | null, canReadTour?: boolean | null, canManageTour?: boolean | null, canReadMarketSetting?: boolean | null, canManageMarketSetting?: boolean | null, canManageTicketAutoAssignments?: boolean | null } | null } | null> | null };
 
 export type GetActualOrganizationEmployeesQueryVariables = Types.Exact<{
   userId: Types.Scalars['ID']['input'];
@@ -378,12 +400,26 @@ export type GetEmployeesForClientCardQueryVariables = Types.Exact<{
 
 export type GetEmployeesForClientCardQuery = { __typename?: 'Query', employees?: Array<{ __typename?: 'OrganizationEmployee', id: string, name?: string | null, phone?: string | null, organization?: { __typename?: 'Organization', phoneNumberPrefix?: string | null } | null } | null> | null };
 
+export type GetUserOrganizationEmployeeExistsQueryVariables = Types.Exact<{
+  userId: Types.Scalars['ID']['input'];
+}>;
+
+
+export type GetUserOrganizationEmployeeExistsQuery = { __typename?: 'Query', employees?: Array<{ __typename?: 'OrganizationEmployee', id: string } | null> | null };
+
 export type GetEmployeeInvitesCountQueryVariables = Types.Exact<{
   userId: Types.Scalars['ID']['input'];
 }>;
 
 
 export type GetEmployeeInvitesCountQuery = { __typename?: 'Query', meta?: { __typename?: '_QueryMeta', count?: number | null } | null };
+
+export type GetLastEmployeeInviteQueryVariables = Types.Exact<{
+  userId: Types.Scalars['ID']['input'];
+}>;
+
+
+export type GetLastEmployeeInviteQuery = { __typename?: 'Query', employees?: Array<{ __typename?: 'OrganizationEmployee', id: string, organization?: { __typename?: 'Organization', id: string, name?: string | null } | null } | null> | null };
 
 export type GetContactEditorOrganizationEmployeesQueryVariables = Types.Exact<{
   where?: Types.InputMaybe<Types.OrganizationEmployeeWhereInput>;
@@ -392,13 +428,13 @@ export type GetContactEditorOrganizationEmployeesQueryVariables = Types.Exact<{
 
 export type GetContactEditorOrganizationEmployeesQuery = { __typename?: 'Query', employees?: Array<{ __typename?: 'OrganizationEmployee', id: string, name?: string | null, phone?: string | null } | null> | null };
 
-export type GetOrganizationEmployeeWithTicketOrganizationQueryVariables = Types.Exact<{
+export type GetOrganizationEmployeeByUserAndOrganizationQueryVariables = Types.Exact<{
   userId: Types.Scalars['ID']['input'];
   organizationId: Types.Scalars['ID']['input'];
 }>;
 
 
-export type GetOrganizationEmployeeWithTicketOrganizationQuery = { __typename?: 'Query', employees?: Array<{ __typename?: 'OrganizationEmployee', id: string } | null> | null };
+export type GetOrganizationEmployeeByUserAndOrganizationQuery = { __typename?: 'Query', employees?: Array<{ __typename?: 'OrganizationEmployee', id: string } | null> | null };
 
 export type GetOrganizationEmployeeByUserAndOrganizationIdQueryVariables = Types.Exact<{
   userId: Types.Scalars['ID']['input'];
@@ -416,12 +452,56 @@ export type GetEmployeesInvitesByUserIdAndOrganizationTypeQueryVariables = Types
 
 export type GetEmployeesInvitesByUserIdAndOrganizationTypeQuery = { __typename?: 'Query', invitations?: Array<{ __typename?: 'OrganizationEmployee', id: string, organization?: { __typename?: 'Organization', name?: string | null } | null } | null> | null };
 
+export type GetLastUserOrganizationEmployeeRequestQueryVariables = Types.Exact<{
+  userId: Types.Scalars['ID']['input'];
+}>;
+
+
+export type GetLastUserOrganizationEmployeeRequestQuery = { __typename?: 'Query', requests?: Array<{ __typename?: 'OrganizationEmployeeRequest', id: string, organizationId?: string | null, organizationName?: string | null, isRejected?: boolean | null, isAccepted?: boolean | null, retries?: number | null } | null> | null };
+
+export type GetLastActiveOrganizationEmployeeRequestByTinQueryVariables = Types.Exact<{
+  userId: Types.Scalars['ID']['input'];
+  tin: Types.Scalars['String']['input'];
+}>;
+
+
+export type GetLastActiveOrganizationEmployeeRequestByTinQuery = { __typename?: 'Query', requests?: Array<{ __typename?: 'OrganizationEmployeeRequest', id: string, organizationName?: string | null } | null> | null };
+
+export type GetRequestsForUserOrganizationsQueryVariables = Types.Exact<{
+  userId: Types.Scalars['ID']['input'];
+  userOrganizationIds?: Types.InputMaybe<Array<Types.Scalars['ID']['input']> | Types.Scalars['ID']['input']>;
+}>;
+
+
+export type GetRequestsForUserOrganizationsQuery = { __typename?: 'Query', requests?: Array<{ __typename?: 'OrganizationEmployeeRequest', id: string, userName?: string | null, userPhone?: string | null, organizationName?: string | null, organizationId?: string | null } | null> | null };
+
+export type GetOrganizationEmployeeRolesByOrganizationQueryVariables = Types.Exact<{
+  organizationId: Types.Scalars['ID']['input'];
+}>;
+
+
+export type GetOrganizationEmployeeRolesByOrganizationQuery = { __typename?: 'Query', roles?: Array<{ __typename?: 'OrganizationEmployeeRole', id: string, name?: string | null, description?: string | null } | null> | null };
+
 export type GetOrganizationEmployeeSpecializationsQueryVariables = Types.Exact<{
   employeeId: Types.Scalars['ID']['input'];
 }>;
 
 
 export type GetOrganizationEmployeeSpecializationsQuery = { __typename?: 'Query', organizationEmployeeSpecializations?: Array<{ __typename?: 'OrganizationEmployeeSpecialization', id: string, employee?: { __typename?: 'OrganizationEmployee', id: string } | null, specialization?: { __typename?: 'TicketCategoryClassifier', id: string } | null } | null> | null };
+
+export type RegisterNewOrganizationMutationVariables = Types.Exact<{
+  data: Types.RegisterNewOrganizationInput;
+}>;
+
+
+export type RegisterNewOrganizationMutation = { __typename?: 'Mutation', organization?: { __typename?: 'Organization', id: string } | null };
+
+export type SendOrganizationEmployeeRequestMutationVariables = Types.Exact<{
+  data: Types.SendOrganizationEmployeeRequestInput;
+}>;
+
+
+export type SendOrganizationEmployeeRequestMutation = { __typename?: 'Mutation', request?: { __typename?: 'OrganizationEmployeeRequest', id: string, organizationName?: string | null } | null };
 
 export type FloorInfoFragment = { __typename?: 'BuildingFloor', id: string, type: Types.BuildingFloorType, index: number, name: string, units: Array<{ __typename?: 'BuildingUnit', id: string, type: Types.BuildingUnitType, unitType?: Types.BuildingUnitSubType | null, name?: string | null, label: string, preview?: boolean | null } | null> };
 

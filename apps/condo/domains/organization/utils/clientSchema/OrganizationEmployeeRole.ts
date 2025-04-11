@@ -17,7 +17,7 @@ export interface IOrganizationEmployeeRoleSelectState {
     label: string
 }
 
-const convertGQLItemToFormSelectState = (item: OrganizationEmployeeRole): IOrganizationEmployeeRoleSelectState | undefined => {
+const convertGQLItemToFormSelectState = (item: Pick<OrganizationEmployeeRole, 'id' | 'name'>): IOrganizationEmployeeRoleSelectState | undefined => {
     if (!item) {
         return
     }

@@ -1,0 +1,52 @@
+query getLastUserOrganizationEmployeeRequest ($userId: ID!) {
+    requests: allOrganizationEmployeeRequests (
+        where: {
+            user: { id: $userId }
+            isAccepted: false
+        }
+        first: 1
+        sortBy: [createdAt_DESC]
+    ) {
+        id
+        organizationId
+        organizationName
+        isRejected
+        isAccepted
+        retries
+    }
+}
+
+query getLastActiveOrganizationEmployeeRequestByTin ($userId: ID!, $tin: String!) {
+    requests: allOrganizationEmployeeRequests (
+        where: {
+            user: { id: $userId }
+            organizationTin: $tin
+            isAccepted: false
+            isRejected: false
+        }
+        first: 1
+        sortBy: [createdAt_DESC]
+    ) {
+        id
+        organizationName
+    }
+}
+
+query getRequestsForUserOrganizations ($userId: ID!, $userOrganizationIds: [ID!]) {
+    requests: allOrganizationEmployeeRequests (
+        where: {
+            user: { id_not: $userId }
+            organization: { id_in: $userOrganizationIds }
+            isAccepted: false
+            isRejected: false
+        }
+        first: 100
+        sortBy: [createdAt_DESC]
+    ) {
+        id
+        userName
+        userPhone
+        organizationName
+        organizationId
+    }
+}
