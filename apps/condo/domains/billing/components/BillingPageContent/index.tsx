@@ -20,7 +20,7 @@ const StyledPageWrapper = styled(PageWrapper)`
        height: 100%;
      },
     & .condo-tabs-nav, & .condo-tabs-nav-wrap {
-        height: 48px;
+        min-height: 48px;
     },
 `
 
