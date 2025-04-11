@@ -2267,5 +2267,85 @@ describe('MeterReading', () => {
                 }
             )
         })
+
+        describe('Do not include soft-deleted periods', () => {
+            let organization
+            
+            beforeEach(async () => {
+                [organization] = await createTestOrganization(admin)
+            })
+
+            test('excludes deleted property-specific reporting period', async () => {
+                const { meter, reportingPeriod } = await setupTestContext(20, 25, 28)
+
+                await updateTestMeterReportingPeriod(admin, reportingPeriod.id, { deletedAt: new Date().toISOString() })
+                const readingDate = dayjs().subtract(2, 'month').date(26).format('YYYY-MM-DD')
+
+                const [meterReading] = await createTestMeterReading(admin, meter, source, { date: readingDate })
+
+                expect(meterReading.id).toMatch(UUID_RE)
+                expect(meterReading.date).toMatch(DATETIME_RE)
+            })
+
+            test('excludes deleted organization-specific reporting period', async () => {
+                const { meter } = await setupTestContext(20, 25, 31)
+
+                const [reportingPeriod] = await createTestMeterReportingPeriod(admin, organization, {
+                    notifyStartDay: 20,
+                    notifyEndDay: 25,
+                    restrictionEndDay: 28,
+                })
+
+                await updateTestMeterReportingPeriod(admin, reportingPeriod.id, { deletedAt: new Date().toISOString() })
+                const readingDate = dayjs().subtract(2, 'month').date(29).format('YYYY-MM-DD')
+
+                const [meterReading] = await createTestMeterReading(admin, meter, source, { date: readingDate })
+
+                expect(meterReading.id).toMatch(UUID_RE)
+                expect(meterReading.date).toMatch(DATETIME_RE)
+            })
+
+            test('only checks for non deleted reporting period', async () => {
+                // Create periods for organization and for property, soft-delete them
+                const { reportingPeriod: oldReportingPeriod } = await setupTestContext(15, 20, 23)
+
+                const [oldReportingPeriod2] = await createTestMeterReportingPeriod(admin, organization, {
+                    notifyStartDay: 15,
+                    notifyEndDay: 20,
+                    restrictionEndDay: 22,
+                })
+
+                await updateTestMeterReportingPeriod(admin, oldReportingPeriod.id, { deletedAt: new Date().toISOString() })
+                await updateTestMeterReportingPeriod(admin, oldReportingPeriod2.id, { deletedAt: new Date().toISOString() })
+
+                // Create actual periods for organization and for property
+                // Period for property should be prioritized (can pass readings starting with 26)
+                const { meter } = await setupTestContext(15, 20, 25)
+                await createTestMeterReportingPeriod(admin, organization, {
+                    notifyStartDay: 15,
+                    notifyEndDay: 20,
+                    restrictionEndDay: 27,
+                })
+
+                const readingDate = dayjs().subtract(2, 'month').date(26).format('YYYY-MM-DD')
+                const [meterReading] = await createTestMeterReading(admin, meter, source, { date: readingDate })
+
+                expect(meterReading.id).toMatch(UUID_RE)
+                expect(meterReading.date).toMatch(DATETIME_RE)
+
+                const readingDateNotAllowed = dayjs().subtract(2, 'month').date(25).format('YYYY-MM-DD')
+                await expectToThrowGQLError(
+                    async () => await createTestMeterReading(admin, meter, source, {
+                        date: readingDateNotAllowed,
+                    }),
+                    {
+                        code: 'BAD_USER_INPUT',
+                        type: 'METER_READING_DATE_AFTER_NOTIFY_END',
+                        message: 'Meter reading date cannot be after the end of the MeterReportingPeriod\'s notifyEndDay',
+                    }
+                )
+            })
+        })
+
     })
 })

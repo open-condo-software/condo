@@ -112,13 +112,15 @@ const MeterReading = new GQLListSchema('MeterReading', {
 
                             const meterReportingPeriods = await find('MeterReportingPeriod', {
                                 OR: [
-                                    { property: { AND: [{ id: get(meter, 'property') }, { deletedAt: null } ] } },
-                                    {
-                                        AND: [
-                                            { organization: { AND: [{ id: get(meter, 'organization') }, { deletedAt: null } ] } },
-                                            { property_is_null: true },
-                                        ],
-                                    },
+                                    { AND: [{
+                                        property: { AND: [{ id: meter.property }, { deletedAt: null } ] },
+                                        deletedAt: null,
+                                    }] },
+                                    { AND: [{
+                                        organization: { AND: [{ id: meter.organization }, { deletedAt: null } ] },
+                                        property_is_null: true,
+                                        deletedAt: null,
+                                    }] },
                                 ],
                             })
 
