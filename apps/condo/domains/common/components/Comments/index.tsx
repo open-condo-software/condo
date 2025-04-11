@@ -360,6 +360,7 @@ const Comments: React.FC<ICommentsListProps> = ({
         if (!loadingUserTicketCommentReadTime && !isInitialUserTicketCommentReadTimeSet) {
             const now = new Date()
             createOrUpdateUserTicketCommentReadTime({
+                readOrganizationCommentAt: now,
                 readCommentAt: now,
             })
 
@@ -380,6 +381,7 @@ const Comments: React.FC<ICommentsListProps> = ({
             })
         } else if (value === ORGANIZATION_COMMENT_TYPE) {
             await createOrUpdateUserTicketCommentReadTime({
+                readOrganizationCommentAt: now,
                 readCommentAt: now,
             })
         }

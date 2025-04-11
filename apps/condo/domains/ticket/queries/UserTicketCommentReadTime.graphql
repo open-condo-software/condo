@@ -6,7 +6,9 @@ query getUserTicketCommentsReadTime ($userId: ID!, $ticketIds: [ID!]) {
         }
     ) {
         id
+        readCommentAt
         readResidentCommentAt
+        readOrganizationCommentAt
         ticket { id }
     }
 }

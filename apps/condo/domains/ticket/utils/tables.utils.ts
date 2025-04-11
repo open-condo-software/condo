@@ -1,4 +1,8 @@
-import { CallRecordFragmentWhereInput, TicketWhereInput } from '@app/condo/schema'
+import {
+    CallRecordFragmentWhereInput,
+    TicketWhereInput,
+    TicketLastCommentWithResidentTypeCreatedByUserTypeType,
+} from '@app/condo/schema'
 import isEmpty from 'lodash/isEmpty'
 import isString from 'lodash/isString'
 import uniq from 'lodash/uniq'
@@ -15,6 +19,7 @@ import {
     DEFERRED_STATUS_TYPE,
 } from '@condo/domains/ticket/constants'
 import { INCIDENT_STATUS_ACTUAL, INCIDENT_STATUS_NOT_ACTUAL } from '@condo/domains/ticket/constants/incident'
+import { RESIDENT } from '@condo/domains/user/constants/common'
 
 
 type MultipleDataIndexType = DataIndexType[]
@@ -61,6 +66,28 @@ export const getIsCompletedAfterDeadlineFilter = (): FilterType => {
                 { AND: { status: { type_in: [COMPLETED_STATUS_TYPE, CLOSED_STATUS_TYPE, CANCELED_STATUS_TYPE] }, isCompletedAfterDeadline: true } },
                 { AND: { status: { type_in: [NEW_OR_REOPENED_STATUS_TYPE, PROCESSING_STATUS_TYPE, DEFERRED_STATUS_TYPE] }, deadline_lt: (new Date()).toISOString() } },
             ],
+        }
+    }
+}
+
+export const getCommentByTypeFilter = (): FilterType<TicketWhereInput> => {
+    return function getWhereQuery (search: string | string[]): TicketWhereInput | undefined {
+        if (isEmpty(search)) return
+
+        const searchArray = Array.isArray(search) ? search : [search]
+
+        return {
+            OR: searchArray.map(commentType => ({ [`${commentType}_not`]: null })),
+        }
+    }
+}
+
+export const getLastCommentWithResidentUserTypeFilter = (): FilterType<TicketWhereInput> => {
+    return function getWhereQuery (search: string | string[]): TicketWhereInput | undefined {
+        if (search !== 'true') return
+
+        return {
+            lastCommentWithResidentTypeCreatedByUserType: RESIDENT as TicketLastCommentWithResidentTypeCreatedByUserTypeType,
         }
     }
 }

@@ -20,14 +20,11 @@ import { Options } from 'scroll-into-view-if-needed'
 import { Close, Filter } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Modal as DefaultModal, Button, Typography } from '@open-condo/ui'
+import { Modal as DefaultModal, Button, Typography, Checkbox, Tooltip, Input } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
-import Checkbox from '@condo/domains/common/components/antd/Checkbox'
-import Input from '@condo/domains/common/components/antd/Input'
 import Select from '@condo/domains/common/components/antd/Select'
 import { Button as CommonButton } from '@condo/domains/common/components/Button'
-import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { OptionType, parseQuery, QueryArgType } from '@condo/domains/common/utils/tables.utils'
@@ -44,7 +41,7 @@ import { FILTERS_POPUP_CONTAINER_ID } from '../constants/filters'
 import {
     ComponentType,
     FilterComponentSize,
-    FilterComponentType,
+    nonCustomFilterComponentType,
     FiltersMeta,
     getFiltersModalPopupContainer,
     getFiltersQueryData,
@@ -122,7 +119,7 @@ function FilterComponent<T> ({
     filters,
     children,
 }: IFilterComponentProps<T>) {
-    const value = get(filters, name)
+    const value = filters?.[name]
     const initialValue = queryToValueProcessor && value ? queryToValueProcessor(value) : value
 
     return (
@@ -148,19 +145,12 @@ const SELECT_STYLE: CSSProperties = { width: '100%' }
 const GQL_SELECT_STYLE: CSSProperties = { width: '100%' }
 const TAGS_SELECT_DROPDOWN_STYLE = { display: 'none' }
 
-export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string, component: FilterComponentType, form: FormInstance): React.ReactElement => {
-    const type = get(component, 'type')
-    const props = {
-        // It is necessary so that dropdowns do not go along with the screen when scrolling the modal window
-        getPopupContainer: getFiltersModalPopupContainer,
-        ...get(component, 'props', {}),
-    }
-
-    switch (type) {
+export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string, component: nonCustomFilterComponentType, form: FormInstance): React.ReactElement => {
+    switch (component?.type) {
         case ComponentType.Input: {
             return (
                 <Input
-                    {...props}
+                    {...component?.props}
                 />
             )
         }
@@ -170,18 +160,22 @@ export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string
                 <DatePicker
                     format={DATE_PICKER_DATE_FORMAT}
                     style={DATE_PICKER_STYLE}
-                    {...props}
+                    {...component.props}
+                    // It is necessary so that dropdowns do not go along with the screen when scrolling the modal window
+                    getPopupContainer={getFiltersModalPopupContainer}
                 />
             )
         }
 
-        case ComponentType.CheckboxGroup: {
-            const options: OptionType[] = get(component, 'options')
-
+        case ComponentType.Checkbox: {
             return (
-                <Checkbox.Group
-                    options={options}
-                    {...props}
+                <Checkbox
+                    defaultChecked={filters?.[keyword] === 'true'}
+                    checked={form.getFieldValue(keyword) === 'true'}
+                    onChange={event => {
+                        form.setFieldsValue({ [keyword]: event?.target.checked ? String(event?.target.checked) : false })
+                    }}
+                    {...component.props}
                 />
             )
         }
@@ -192,20 +186,22 @@ export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string
                     format={DATE_PICKER_DATE_FORMAT}
                     style={DATE_RANGE_PICKER_STYLE}
                     separator={null}
-                    {...props}
+                    {...component.props}
+                    getPopupContainer={getFiltersModalPopupContainer}
                 />
             )
         }
 
         case ComponentType.Select: {
-            const options: OptionType[] = get(component, 'options')
+            const options: OptionType[] = component?.options
 
             return (
                 <Select
-                    defaultValue={get(filters, keyword)}
+                    defaultValue={filters?.[keyword]}
                     style={SELECT_STYLE}
                     optionFilterProp='title'
-                    {...props}
+                    {...component?.props}
+                    getPopupContainer={getFiltersModalPopupContainer}
                 >
                     {options.map(option => (
                         <Select.Option
@@ -228,7 +224,8 @@ export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string
                     initialValue={initialData}
                     style={GQL_SELECT_STYLE}
                     allowClear={false}
-                    {...props}
+                    {...component.props}
+                    getPopupContainer={getFiltersModalPopupContainer}
                 />
             )
         }
@@ -240,7 +237,7 @@ export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string
                     allowClear
                     style={TAGS_SELECT_STYLE}
                     dropdownStyle={TAGS_SELECT_DROPDOWN_STYLE}
-                    {...props}
+                    {...component?.props}
                 />
             )
         }
@@ -255,22 +252,23 @@ function getModalComponents <T> (filters: IFilters, filterMetas: Array<FiltersMe
     return filterMetas.map(filterMeta => {
         const { keyword, component } = filterMeta
 
-        const modalFilterComponentWrapper = get(component, 'modalFilterComponentWrapper')
+        const modalFilterComponentWrapper = component?.modalFilterComponentWrapper
         if (!modalFilterComponentWrapper) return
 
-        const size = get(modalFilterComponentWrapper, 'size')
-        const spaceSizeAfter = get(modalFilterComponentWrapper, 'spaceSizeAfter')
-        const label = get(modalFilterComponentWrapper, 'label')
-        const formItemProps = get(modalFilterComponentWrapper, 'formItemProps')
-        const type = get(component, 'type')
+        const size = modalFilterComponentWrapper?.size
+        const spaceSizeAfter = modalFilterComponentWrapper?.spaceSizeAfter
+        const label = modalFilterComponentWrapper?.label
+        const formItemProps = modalFilterComponentWrapper?.formItemProps
+        const type = component?.type
 
         let Component
-        if (type === ComponentType.Custom) {
-            const componentGetter = get(component, 'modalFilterComponent')
+        if (component?.type === ComponentType.Custom) {
+            const componentGetter = component?.modalFilterComponent
             Component = isFunction(componentGetter) ? componentGetter(form) : componentGetter
         }
-        else
+        else {
             Component = getModalFilterComponentByMeta(filters, keyword, component, form)
+        }
 
         const queryToValueProcessor = getQueryToValueProcessorByType(type)
 
@@ -386,7 +384,7 @@ type MultipleFiltersModalProps<F = unknown> = {
 }
 
 const isEqualSelectedFiltersTemplateAndFilters = (selectedFiltersTemplate, filters) => {
-    const templateFilters = get(selectedFiltersTemplate, 'fields', null)
+    const templateFilters = selectedFiltersTemplate?.fields ?? null
     if (!templateFilters) return false
     if (has(templateFilters, '__typename')) delete templateFilters['__typename']
     return isEqual(omitBy(templateFilters, isNil), filters)
@@ -419,7 +417,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
 
     const router = useRouter()
     const { filters } = parseQuery(router.query)
-    const searchFilter = get(filters, 'search', null)
+    const searchFilter = filters?.search ?? null
     const { link } = useOrganization()
     const { breakpoints } = useLayoutContext()
 

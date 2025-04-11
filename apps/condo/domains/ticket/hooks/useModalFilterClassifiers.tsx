@@ -1,4 +1,3 @@
-import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
@@ -13,7 +12,7 @@ import { FiltersFromQueryType, parseQuery } from '@condo/domains/common/utils/ta
 import { ClassifiersQueryLocal } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 
 const getInitialClassifierValues = (filters: FiltersFromQueryType, keyword: string) => {
-    const initialValueFromFilter = get(filters, keyword)
+    const initialValueFromFilter = filters?.[keyword]
 
     if (!isEmpty(initialValueFromFilter)) {
         return Array.isArray(initialValueFromFilter) ? initialValueFromFilter : [initialValueFromFilter]

@@ -1,3 +1,7 @@
+import {
+    GetTicketsQuery,
+    GetUserTicketCommentsReadTimeQuery,
+} from '@app/condo/gql'
 import { MeterReportingPeriod, Ticket } from '@app/condo/schema'
 import { Space, Typography } from 'antd'
 import { FilterValue } from 'antd/es/table/interface'
@@ -8,12 +12,14 @@ import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isString from 'lodash/isString'
 import React, { CSSProperties, useCallback, useEffect, useRef, useState } from 'react'
-
+import { IntlShape } from 'react-intl/src/types'
 
 import { Star, StarFilled } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { colors } from '@open-condo/ui/dist/colors'
+import { ScreenMap } from '@open-condo/ui/dist/hooks'
+
 
 import { getHighlightedContents, getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
@@ -27,6 +33,7 @@ import { useFavoriteTickets } from '@condo/domains/ticket/contexts/FavoriteTicke
 import {
     getDeadlineType,
     getHumanizeDeadlineDateDifference,
+    hasUnreadOrganizationComments,
     hasUnreadResidentComments,
     TicketDeadlineType,
 } from '../helpers'
@@ -44,33 +51,42 @@ const NEW_COMMENTS_INDICATOR_WRAPPER_STYLES_ON_SMALLER_THAN_XL: CSSProperties = 
     padding: '8px',
 }
 const NEW_COMMENTS_INDICATOR_WRAPPER_STYLES: CSSProperties = { padding: '24px' }
-const NEW_COMMENTS_INDICATOR_STYLES: CSSProperties = {
-    backgroundColor: 'red',
+const NEW_COMMENTS_INDICATOR_STYLES = (color: string): CSSProperties => ({
+    backgroundColor: color,
     borderRadius: '100px',
     width: '8px',
     height: '8px',
-}
+})
 const ADDRESS_RENDER_POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }
 
-export const getCommentsIndicatorRender = ({ intl, breakpoints, userTicketCommentReadTimes }) => {
+export const getCommentsIndicatorRender = ({ intl, breakpoints, userTicketCommentReadTimes }: {
+    intl: IntlShape
+    breakpoints: ScreenMap
+    userTicketCommentReadTimes: GetUserTicketCommentsReadTimeQuery['objs']
+}) => {
     const NewResidentCommentMessage = intl.formatMessage({ id: 'ticket.newResidentComment' })
+    const NewOrganizationCommentMessage = intl.formatMessage({ id: 'ticket.newOrganizationComment' })
 
-    return function render (ticket: Ticket) {
-        const ticketId = get(ticket, 'id')
-        const currentTicketUserTicketCommentReadTimes = ticketId ? userTicketCommentReadTimes.find(obj => get(obj, 'ticket.id') === ticketId) : null
+    return function render (ticket: GetTicketsQuery['tickets'][0]) {
+        const ticketId = ticket?.id
+        const currentTicketUserTicketCommentReadTimes = ticketId ? userTicketCommentReadTimes.find(readTime => readTime?.ticket?.id === ticketId) : null
 
-        const readResidentCommentByUserAt = get(currentTicketUserTicketCommentReadTimes, 'readResidentCommentAt')
-        const lastResidentCommentAt = get(ticket, 'lastResidentCommentAt')
-        const lastCommentWithResidentTypeAt = get(ticket, 'lastCommentWithResidentTypeAt')
+        const readLastCommentByUserAt = currentTicketUserTicketCommentReadTimes?.readCommentAt
+        const readResidentCommentByUserAt = currentTicketUserTicketCommentReadTimes?.readResidentCommentAt
+        const readOrganizationCommentByUserAt = currentTicketUserTicketCommentReadTimes?.readOrganizationCommentAt
+        const lastResidentCommentAt = ticket?.lastResidentCommentAt
+        const lastCommentWithResidentTypeAt = ticket?.lastCommentWithResidentTypeAt
+        const lastCommentWithOrganizationTypeAt = ticket?.lastCommentWithOrganizationTypeAt
+        const newResidentComment = hasUnreadResidentComments(lastResidentCommentAt, readResidentCommentByUserAt, lastCommentWithResidentTypeAt)
+        const newOrganizationComment = hasUnreadOrganizationComments(readLastCommentByUserAt, lastCommentWithOrganizationTypeAt, readOrganizationCommentByUserAt)
 
-        return hasUnreadResidentComments(lastResidentCommentAt, readResidentCommentByUserAt, lastCommentWithResidentTypeAt) && (
+
+        return (newResidentComment || newOrganizationComment) && (
             <div style={breakpoints.DESKTOP_LARGE ? NEW_COMMENTS_INDICATOR_TOOLTIP_WRAPPER_STYLES_ON_LARGER_THAN_XL : {}}>
-                <Tooltip title={NewResidentCommentMessage} placement='topRight'>
-                    <Typography.Text title={NewResidentCommentMessage}>
-                        <div style={breakpoints.DESKTOP_LARGE ? NEW_COMMENTS_INDICATOR_WRAPPER_STYLES : NEW_COMMENTS_INDICATOR_WRAPPER_STYLES_ON_SMALLER_THAN_XL}>
-                            <div style={NEW_COMMENTS_INDICATOR_STYLES}/>
-                        </div>
-                    </Typography.Text>
+                <Tooltip title={newResidentComment ? NewResidentCommentMessage : NewOrganizationCommentMessage} placement='topRight'>
+                    <div style={breakpoints.DESKTOP_LARGE ? NEW_COMMENTS_INDICATOR_WRAPPER_STYLES : NEW_COMMENTS_INDICATOR_WRAPPER_STYLES_ON_SMALLER_THAN_XL}>
+                        <div style={newResidentComment ? NEW_COMMENTS_INDICATOR_STYLES(colors.orange[5]) : NEW_COMMENTS_INDICATOR_STYLES(colors.blue[5])}/>
+                    </div>
                 </Tooltip>
             </div>
         )

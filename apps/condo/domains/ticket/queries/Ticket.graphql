@@ -17,6 +17,8 @@ query getTickets ($where: TicketWhereInput!, $sortBy: [SortTicketsBy!], $first: 
         deadline
         lastResidentCommentAt
         lastCommentWithResidentTypeAt
+        lastCommentWithOrganizationTypeAt
+        lastCommentWithResidentTypeCreatedByUserType
         propertyAddressMeta { ...AddressMetaForTableAddress }
         propertyAddress
         sectionType
