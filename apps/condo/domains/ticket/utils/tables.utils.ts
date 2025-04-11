@@ -70,8 +70,8 @@ export const getIsCompletedAfterDeadlineFilter = (): FilterType => {
     }
 }
 
-export const getCommentByTypeFilter = (): FilterType => {
-    return function getWhereQuery (search) {
+export const getCommentByTypeFilter = (): FilterType<TicketWhereInput> => {
+    return function getWhereQuery (search: string | string[]): TicketWhereInput | undefined {
         if (isEmpty(search)) return
 
         const searchArray = Array.isArray(search) ? search : [search]
@@ -82,8 +82,8 @@ export const getCommentByTypeFilter = (): FilterType => {
     }
 }
 
-export const getLastCommentWithResidentUserTypeFilter = (): FilterType => {
-    return function getWhereQuery (search) {
+export const getLastCommentWithResidentUserTypeFilter = (): FilterType<TicketWhereInput> => {
+    return function getWhereQuery (search: string | string[]): TicketWhereInput | undefined {
         if (search !== 'true') return
 
         return {
