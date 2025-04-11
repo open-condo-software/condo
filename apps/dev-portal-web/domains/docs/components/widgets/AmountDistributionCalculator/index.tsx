@@ -1,17 +1,21 @@
 import { Col, Row, RowProps } from 'antd'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useIntl } from 'react-intl'
 
-import { split, createRecipientKey } from '@open-condo/billing/utils/paymentSplitter'
-import type { Split, DistributionItem, SplitOptions } from '@open-condo/billing/utils/paymentSplitter'
+import type { DistributionItem, Split, SplitOptions } from '@open-condo/billing/utils/paymentSplitter'
+import { createRecipientKey, split } from '@open-condo/billing/utils/paymentSplitter'
 import { Plus, Trash } from '@open-condo/icons'
 import { Alert, Button, Card, Input, MarkdownCodeWrapper, Tabs, Typography } from '@open-condo/ui'
+import { useContainerSize } from '@open-condo/ui/hooks'
 
 import { DistributionItemCard } from './DistributionItemCard'
+import styles from './index.module.css'
 import { SplitResultCard } from './SplitResultCard'
 
 const CARD_PADDING = 8
 const GUTTER_ROW: RowProps['gutter'] = [16, 16]
+const MIN_RECIPIENT_CARD_WIDTH = 240
+const RECIPIENTS_CARDS_GAP = 16
 
 function generateDecimalString (length: number): string {
     return Array.from({ length }, () => Math.floor(Math.random() * 10)).join('') // NOSONAR
@@ -38,6 +42,7 @@ export const AmountDistributionCalculator: React.FC = () => {
     const [splitResult, setSplitResult] = useState<Split[]>([])
     const [splitError, setSplitError] = useState<string>()
     const [currentTab, setCurrentTab] = useState<string>()
+    const [{ width }, setRef] = useContainerSize()
 
     const PaymentTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.paymentSettings.title' })
     const PaymentAmountTitle = intl.formatMessage({ id: 'docs.widgets.amountDistributionCalculator.paymentSettings.amount.title' })
@@ -77,6 +82,12 @@ export const AmountDistributionCalculator: React.FC = () => {
         updateDistributionItem(index, item)
     }, [updateDistributionItem])
 
+    const recipientsCardsSpan = useMemo<number>(() => {
+        // Number of cards is between 1 and 4
+        const maxCards = Math.min(Math.max(1, Math.floor((width + RECIPIENTS_CARDS_GAP) / (MIN_RECIPIENT_CARD_WIDTH + RECIPIENTS_CARDS_GAP))), 4)
+        return Math.round(24 / maxCards)
+    }, [width])
+
     return (
         <Row gutter={GUTTER_ROW} align='stretch' justify='start'>
             <Col>
@@ -107,22 +118,22 @@ export const AmountDistributionCalculator: React.FC = () => {
                         ),
                     }, {
                         label: RecipientsTitle, key: 'recipients', children: (
-                            <Row gutter={GUTTER_ROW} align='stretch' justify='start'>
+                            <Row gutter={GUTTER_ROW} ref={setRef}>
                                 {distributions.map((distribution, i) => (
-                                    <Col key={createRecipientKey(distribution.recipient)} span={8}>
+                                    <Col key={createRecipientKey(distribution.recipient)} span={recipientsCardsSpan}>
                                         <Card
                                             title={
                                                 <Row align='middle' justify='end' gutter={0}>
                                                     <Col>
                                                         <Button.Icon
-                                                            size='small'
+                                                            size='medium'
                                                             onClick={() => {
                                                                 setDistributions((prev) => {
                                                                     return prev.filter((_, index) => index !== i)
                                                                 })
                                                             }}
                                                         >
-                                                            <Trash/>
+                                                            <Trash size='medium'/>
                                                         </Button.Icon>
                                                     </Col>
                                                 </Row>
@@ -138,17 +149,14 @@ export const AmountDistributionCalculator: React.FC = () => {
                                         </Card>
                                     </Col>
                                 ))}
-                                <Col span={8}>
-                                    <Card width='100%'>
-                                        <Row align='bottom' justify='center' gutter={0}>
-                                            <Col>
-                                                <Button.Icon
-                                                    onClick={() => setDistributions([...distributions, generateRandomDistributionItem()])}
-                                                >
-                                                    <Plus/>
-                                                </Button.Icon>
-                                            </Col>
-                                        </Row>
+                                <Col span={recipientsCardsSpan}>
+                                    <Card
+                                        hoverable
+                                        onClick={() => setDistributions([...distributions, generateRandomDistributionItem()])}
+                                    >
+                                        <div className={styles.newRecipientCardBody}>
+                                            <Plus size='large'/>
+                                        </div>
                                     </Card>
                                 </Col>
                             </Row>

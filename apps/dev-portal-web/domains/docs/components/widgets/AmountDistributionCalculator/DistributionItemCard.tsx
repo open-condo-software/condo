@@ -5,7 +5,7 @@ import { useIntl } from 'react-intl'
 import type { DistributionItem } from '@open-condo/billing/utils/paymentSplitter'
 import { Input, Switch, Typography } from '@open-condo/ui'
 
-import styles from './distributionItem.module.css'
+import styles from './distributionItemCard.module.css'
 
 const GUTTER_COMPACT_ROW: RowProps['gutter'] = [8, 8]
 
