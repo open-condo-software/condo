@@ -1,7 +1,6 @@
 import get from 'lodash/get'
 import React, { useCallback } from 'react'
 
-import { Sheet } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Button } from '@open-condo/ui'
 
@@ -64,7 +63,6 @@ export const useContactExportToExcelTask: IUseContactExportToExcelTask = (props)
             children={ExportAsExcelTitle}
             onClick={handleClick}
             loading={loading}
-            icon={<Sheet size='medium' />}
         />
     ), [loading, ExportAsExcelTitle, handleClick])
 

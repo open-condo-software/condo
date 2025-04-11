@@ -9,7 +9,6 @@ import {
 import get from 'lodash/get'
 import React, { useCallback, useMemo } from 'react'
 
-import { Sheet } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Button } from '@open-condo/ui'
 
@@ -65,7 +64,6 @@ export const useMeterReadingExportToExcelTask = (props: UseMeterReadingExportToE
         <Button
             id={id}
             type='secondary'
-            icon={<Sheet size='medium' />}
             disabled={loading || disabled}
             children={label || ExportAsExcelLabel}
             loading={loading}

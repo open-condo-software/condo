@@ -2,7 +2,6 @@ import dayjs from 'dayjs'
 import { useRouter } from 'next/router'
 import { useCallback } from 'react'
 
-import { PlusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button } from '@open-condo/ui'
 
@@ -74,7 +73,6 @@ const ActionBarForSingleMeter = ({
                     <Button
                         key='create'
                         type='primary'
-                        icon={<PlusCircle size='medium' />}
                         onClick={handleCreateMeterReadings}
                     >
                         {CreateMeterReadingsButtonLabel}

@@ -8,7 +8,7 @@ import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
-import { PlusCircle, Search } from '@open-condo/icons'
+import {  Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button, Checkbox  } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
@@ -253,7 +253,6 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
                             <Button
                                 key='create'
                                 type='primary'
-                                icon={<PlusCircle size='medium' />}
                                 onClick={handleCreateMeterReadings}
                             >
                                 {CreateMeterButtonLabel}

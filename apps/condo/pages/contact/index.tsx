@@ -8,7 +8,7 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { QuestionCircle, PlusCircle, Search } from '@open-condo/icons'
+import { QuestionCircle, Search } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -197,7 +197,6 @@ const ContactTableContent: React.FC<ContactPageContentProps> = (props) => {
                                             key='left'
                                             type='primary'
                                             onClick={() => router.push(ADD_CONTACT_ROUTE)}
-                                            icon={<PlusCircle size='medium'/>}
                                         >
                                             {CreateContact}
                                         </Button>

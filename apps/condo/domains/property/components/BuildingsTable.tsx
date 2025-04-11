@@ -12,7 +12,7 @@ import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
 import React, { useMemo, useState } from 'react'
 
-import { PlusCircle, Search, Sheet } from '@open-condo/icons'
+import { Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, ActionBarProps, Button } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
@@ -132,7 +132,6 @@ const BuildingTableContent: React.FC<BuildingTableProps> = (props) => {
                     <Button
                         type='primary'
                         onClick={async () => await router.push('/property/create')}
-                        icon={<PlusCircle size='medium'/>}
                     >
                         {CreateLabel}
                     </Button>
@@ -152,7 +151,6 @@ const BuildingTableContent: React.FC<BuildingTableProps> = (props) => {
                     ? (
                         <Button
                             type='secondary'
-                            icon={<Sheet size='medium' />}
                             loading={isXlsLoading}
                             target='_blank'
                             href={downloadLink}
@@ -163,7 +161,6 @@ const BuildingTableContent: React.FC<BuildingTableProps> = (props) => {
                     : (
                         <Button
                             type='secondary'
-                            icon={<Sheet size='medium' />}
                             loading={isXlsLoading}
                             onClick={onExportToExcelButtonClicked}>
                             {ExportAsExcel}
