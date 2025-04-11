@@ -7,7 +7,7 @@ import { CodeWrapper } from './codeWrapper'
 
 import { Typography } from '../Typography'
 
-const REMARK_PLUGINS = [
+const REMARK_PLUGINS: Array<any> = [
     remarkGfm,
 ]
 
