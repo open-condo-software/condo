@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { FileText } from '@open-condo/icons'
-import { Tabs, Typography } from '@open-condo/ui/src'
+import { Tabs, Typography, Radio, RadioGroup } from '@open-condo/ui/src'
 import type { TabItem } from '@open-condo/ui/src'
 
 import type { Meta, StoryObj } from '@storybook/react'
@@ -51,13 +51,16 @@ const simpleItems: Array<TabItem> = [
 ]
 
 const Template: StoryObj<typeof Tabs>['render'] = (args) => {
-    const { tabBarExtraContent, ...restArgs } = args
+    const { tabBarExtraContent, items } = args
 
     const extraContent = tabBarExtraContent ? (
-        <Typography.Text>Simple Extra Content</Typography.Text>
+        <RadioGroup optionType='button' defaultValue='on'>
+            <Radio key='on' value='on' label='On' />
+            <Radio key='off' value='off' label='Off' />
+        </RadioGroup>
     ) : null
 
-    return <Tabs {...restArgs} tabBarExtraContent={extraContent} />
+    return <Tabs items={items} tabBarExtraContent={extraContent} />
 }
 
 export const Simple: StoryObj<typeof Tabs> = {
