@@ -29,7 +29,7 @@ import React, { CSSProperties, Key, useCallback, useEffect, useMemo, useRef, use
 import { useCachePersistor } from '@open-condo/apollo'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
-import { Search, Close, Phone } from '@open-condo/icons'
+import { Search, Phone } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -155,6 +155,7 @@ const TicketTable = ({
 }) => {
     const intl = useIntl()
     const CancelSelectedTicketLabel = intl.formatMessage({ id: 'global.cancelSelection' })
+    const CreateTicket = intl.formatMessage({ id: 'CreateTicket' })
     const CountSelectedTicketLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.CountSelectedTicket' })
 
     const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
@@ -304,14 +305,20 @@ const TicketTable = ({
                         <ActionBar
                             message={selectedTicketKeys.length > 0 && `${CountSelectedTicketLabel}: ${selectedTicketKeys.length}`}
                             actions={[
+                                <Button
+                                    key='createTicket'
+                                    type='primary'
+                                    onClick={() => router.push('/ticket/create')}
+                                >
+                                    {CreateTicket}
+                                </Button>,
                                 selectedTicketKeys.length > 0 && (
                                     <TicketBlanksExportToPdfButton
                                         key='exportToPdf'
                                         disabled={selectedTicketKeys.length > MAX_TICKET_BLANKS_EXPORT}
                                     />
                                 ),
-                                selectedTicketKeys.length < 1 && TicketImportButton && TicketImportButton,
-                                // nosemgrep: generic.secrets.gitleaks.generic-api-key.generic-api-key
+                                selectedTicketKeys.length < 1 && TicketImportButton,
                                 <TicketsExportToXlsxButton key='exportToXlsx'/>,
                                 selectedTicketKeys.length > 0 && (
                                     <Button
@@ -319,7 +326,6 @@ const TicketTable = ({
                                         type='secondary'
                                         children={CancelSelectedTicketLabel}
                                         onClick={handleResetSelectedTickets}
-                                        icon={<Close size='medium'/>}
                                     />
                                 ),
                             ]}

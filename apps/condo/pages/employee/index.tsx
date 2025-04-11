@@ -6,7 +6,7 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 
-import { PlusCircle, Search } from '@open-condo/icons'
+import { Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button } from '@open-condo/ui'
@@ -129,7 +129,6 @@ export const EmployeesPageContent = ({
                                                     <Button
                                                         key='create'
                                                         type='primary'
-                                                        icon={<PlusCircle size='medium' />}
                                                         onClick={handleAddEmployee}
                                                     >
                                                         {AddEmployeeLabel}

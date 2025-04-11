@@ -7,14 +7,13 @@ import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
-import { PlusCircle, Search } from '@open-condo/icons'
+import { Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
-import { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
@@ -156,7 +155,6 @@ export const SettingsContent = () => {
                                 <Button
                                     key='createHint'
                                     type='primary'
-                                    icon={<PlusCircle size='medium'/>}
                                     onClick={handleAddHintButtonClick}
                                 >
                                     {CreateHintMessage}

@@ -7,7 +7,6 @@ import {
 } from '@app/condo/schema'
 import React, { useCallback, useMemo } from 'react'
 
-import { Sheet } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Button } from '@open-condo/ui'
 
@@ -62,7 +61,6 @@ export const useIncidentExportToExcelTask = (props: UseIncidentExportToExcelInpu
             onClick={handleClick}
             disabled={loading || disabled}
             children={label || ExportAsExcelLabel}
-            icon={<Sheet size='medium' />}
             id={id}
         />
     ), [ExportAsExcelLabel, handleClick, label, loading])

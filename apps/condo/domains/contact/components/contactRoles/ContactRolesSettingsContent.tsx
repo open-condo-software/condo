@@ -8,7 +8,6 @@ import orderBy from 'lodash/orderBy'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
-import { PlusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button } from '@open-condo/ui'
@@ -121,7 +120,6 @@ export const ContactRolesSettingsContent = () => {
                                 <Button
                                     key='submit'
                                     type='primary'
-                                    icon={<PlusCircle size='medium'/>}
                                     onClick={handleAddHintButtonClick}
                                 >
                                     {AddMessage}

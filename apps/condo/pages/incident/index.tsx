@@ -14,7 +14,7 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
-import { PlusCircle, Search } from '@open-condo/icons'
+import { Search } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -319,7 +319,6 @@ const TableContainer: React.FC<TableContainerProps> = (props) => {
                                         children={AddNewIncidentLabel}
                                         onClick={handleAddNewIncident}
                                         id='createIncident'
-                                        icon={<PlusCircle size='medium' />}
                                     />
                                 ),
                                 Boolean(count) && <ExportButton key='export' id='exportToExcelIncidents' />,

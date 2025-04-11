@@ -16,7 +16,6 @@ import isEmpty from 'lodash/isEmpty'
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
 import { ResolvedIntlConfig } from 'react-intl'
 
-import { Print } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Modal, Checkbox } from '@open-condo/ui'
 
@@ -313,7 +312,6 @@ export const useTicketExportToPdfTask: UseTicketExportToPdfTaskType = (props)  =
             footer={
                 <Button
                     type='primary'
-                    icon={<Print size='medium'/>}
                     onClick={handleSaveToPdfTask}
                     children={SaveInPdfLabel}
                 />

@@ -3,7 +3,6 @@ import { DocumentNode } from 'graphql'
 import { get } from 'lodash'
 import React, { useCallback } from 'react'
 
-import { Sheet } from '@open-condo/icons'
 import { useLazyQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { Button } from '@open-condo/ui'
@@ -85,7 +84,6 @@ export const useExportToExcel = (props: UseExportToExcelInputType): UseExportToE
             onClick={handleExportToExcel}
             disabled={isXlsLoading || disabled}
             children={label || ExportAsExcelLabel}
-            icon={<Sheet size='medium' />}
             id={id}
         />
     ), [ExportAsExcelLabel, handleExportToExcel, isXlsLoading, label])

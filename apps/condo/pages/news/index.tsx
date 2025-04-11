@@ -7,7 +7,7 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
-import { PlusCircle, Search } from '@open-condo/icons'
+import { Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, ActionBarProps, Button, Typography } from '@open-condo/ui'
@@ -85,7 +85,6 @@ const NewsTableContainer = ({
             key='addNews'
             type='primary'
             children={CreateNewsLabel}
-            icon={<PlusCircle size='medium'/>}
             onClick={handleAddNews}
         />,
     ], [CreateNewsLabel, canManage, handleAddNews])
