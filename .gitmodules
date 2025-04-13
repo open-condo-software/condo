@@ -55,6 +55,12 @@
 [submodule "apps/news-greenhouse"]
 	path = apps/news-greenhouse
 	url = git@github.com:open-condo-software/condo-news-greenhouse.git
+[submodule "apps/news-telegram-api"]
+	path = apps/news-telegram-api
+	url = git@github.com:open-condo-software/condo-news-telegram-api.git
 [submodule "apps/announcements"]
     path = apps/announcements
 	url = git@github.com:open-condo-software/condo-announcements.git
+[submodule "apps/news-telegram-web"]
+	path = apps/news-telegram-web
+	url = git@github.com:open-condo-software/condo-news-telegram-web.git
