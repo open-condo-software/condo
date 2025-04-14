@@ -209,6 +209,20 @@ describe('FindOrganizationsByTinService', () => {
             const logs2 = await FindOrganizationsByTinLog.getAll(adminClient, { user: { id: staffClient.user.id } })
             expect(logs2).toHaveLength(2)
         })
+
+        test('Should throw error if tin is empty', async () => {
+            const staffClient = await makeClientWithStaffUser()
+
+            await expectToThrowGQLError(async () => {
+                await findOrganizationsByTinByTestClient(staffClient, { tin: '  ' })
+            }, {
+                query: 'findOrganizationsByTin',
+                variable: ['data', 'tin'],
+                code: 'BAD_USER_INPUT',
+                type: 'EMPTY_TIN',
+                message: 'Empty tin',
+            }, 'result')
+        })
     })
 
     describe('Request limit', () => {

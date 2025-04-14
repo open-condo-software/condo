@@ -102,8 +102,8 @@ const FindOrganizationsByTinService = new GQLCustomSchema('FindOrganizationsByTi
 
                 checkDvAndSender(data, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
 
-                if (!tin) throw new GQLError(ERRORS.EMPTY_TIN, context)
                 const normalizedTin = tin.trim()
+                if (!normalizedTin) throw new GQLError(ERRORS.EMPTY_TIN, context)
 
                 // NOTE: we don't use "isFeatureEnabled" because it can skip the request limit for all users
                 const userWhiteList = await featureToggleManager.getFeatureValue(context, USER_WHITE_LIST_FOR_FIND_ORGANIZATIONS_BY_TIN, [], { user: authedItemId }) || []
