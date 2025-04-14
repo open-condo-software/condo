@@ -100,6 +100,10 @@ const Organization = new GQLListSchema('Organization', {
             kmigratorOptions: { null: true },
             access: access.canAccessTinField,
             hooks: {
+                resolveInput: async ({ resolvedData, fieldPath }) => {
+                    const value = resolvedData[fieldPath]
+                    return typeof value === 'string' ? value.trim() : value
+                },
                 validateInput: async ({ resolvedData, addFieldValidationError, existingItem })  => {
                     const item = resolvedData
 

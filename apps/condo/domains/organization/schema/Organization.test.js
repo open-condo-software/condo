@@ -281,6 +281,14 @@ describe('Organization', () => {
                 expect(org).toHaveProperty('tin', tin)
                 expect(org).toHaveProperty('country', country)
             })
+            test('Trim tin value', async () => {
+                const [org] = await registerNewOrganization(user, {
+                    tin: `   ${VALID_RU_TIN_10}  `,
+                    country: RUSSIA_COUNTRY,
+                })
+                expect(org).toHaveProperty('tin', VALID_RU_TIN_10)
+                expect(org).toHaveProperty('country', RUSSIA_COUNTRY)
+            })
         })
         describe('Invalid cases', () => {
             const INVALID_CASES = [
