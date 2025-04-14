@@ -5,11 +5,10 @@ const { find } = require('@open-condo/keystone/schema')
 const { DEFAULT_BILLING_CATEGORY_ID } = require('@condo/domains/billing/constants/constants')
 const { ERRORS } = require('@condo/domains/billing/constants/registerBillingReceiptService')
 const { Resolver } = require('@condo/domains/billing/schema/resolvers/resolver')
-const { WAREHOUSE_UNIT_TYPE, PARKING_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+const { PARKING_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 
 const UNIT_TYPE_MAPPING = {
     [PARKING_UNIT_TYPE] : 'billing.category.parking.name',
-    [WAREHOUSE_UNIT_TYPE] : 'billing.category.storage.name',
 }
 
 class CategoryResolver extends Resolver {
