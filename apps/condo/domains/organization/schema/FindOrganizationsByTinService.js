@@ -102,7 +102,8 @@ const FindOrganizationsByTinService = new GQLCustomSchema('FindOrganizationsByTi
 
                 checkDvAndSender(data, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
 
-                if (!tin) throw new GQLError(ERRORS.EMPTY_TIN, context)
+                const normalizedTin = tin.trim()
+                if (!normalizedTin) throw new GQLError(ERRORS.EMPTY_TIN, context)
 
                 // NOTE: we don't use "isFeatureEnabled" because it can skip the request limit for all users
                 const userWhiteList = await featureToggleManager.getFeatureValue(context, USER_WHITE_LIST_FOR_FIND_ORGANIZATIONS_BY_TIN, [], { user: authedItemId }) || []
@@ -125,7 +126,7 @@ const FindOrganizationsByTinService = new GQLCustomSchema('FindOrganizationsByTi
                 }
 
                 await FindOrganizationsByTinLog.create(context, {
-                    tin,
+                    tin: normalizedTin,
                     user: { connect: { id: authedItemId } },
                     userPhone: authedItemPhone,
                     userEmail: authedItemEmail,
@@ -133,10 +134,10 @@ const FindOrganizationsByTinService = new GQLCustomSchema('FindOrganizationsByTi
                     sender,
                 })
 
-                if (UNAVAILABLE_TINS.includes(tin)) throw new GQLError(ERRORS.UNAVAILABLE_TIN, context)
+                if (UNAVAILABLE_TINS.includes(normalizedTin)) throw new GQLError(ERRORS.UNAVAILABLE_TIN, context)
 
                 const organizations = await find('Organization', {
-                    tin,
+                    tin: normalizedTin,
                     employees_some: {
                         user: { deletedAt: null, type: STAFF },
                         role: { canManageEmployees: true, deletedAt: null },
