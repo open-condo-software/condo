@@ -90,7 +90,7 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
         onError: (error) => {
             console.error({ msg: 'Failed to load recipients counters', error })
             const message = error?.graphQLErrors?.[0]?.extensions?.messageForUser || ErrorLoadingMessage
-            // ts-ignore
+            // @ts-ignore
             onError(message)
         },
     })
@@ -217,6 +217,7 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
             }
             catch (error) {
                 const message = error?.graphQLErrors?.[0]?.extensions?.messageForUser || ErrorLoadingMessage
+                // @ts-ignore
                 onError(message)
                 return []
             }
