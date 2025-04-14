@@ -228,7 +228,7 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
         if (!skipSearchByTin) {
             if (foundOrganizationsErrors) {
                 const hasLimitError = foundOrganizationsErrors.graphQLErrors?.some(
-                    error => REQUEST_LIMIT_ERRORS.includes(error?.extensions?.type)
+                    error => REQUEST_LIMIT_ERRORS.includes(error?.extensions?.type as string)
                 )
                 if (hasLimitError) {
                     setIsSearchByTinLimitReached(true)
