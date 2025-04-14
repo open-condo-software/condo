@@ -87,7 +87,7 @@
     "express": "^4.17.1",
     "firebase-admin": "^12.4.0",
     "generate-password": "^1.6.0",
-    "graphql": "^15.6.1",
+    "graphql": "^16.10.0",
     "graphql-tag": "^2.12.6",
     "graphql-upload": "^15.0.2",
     "graphql-voyager": "^1.0.0-rc.31",
