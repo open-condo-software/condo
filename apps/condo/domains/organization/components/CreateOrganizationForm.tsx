@@ -208,7 +208,8 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
 
     const createOrganizationAction = useCallback(async (values) => {
         setIsOrganizationCreating(true)
-        const tin = values.tin
+        const tin = values?.tin?.trim()
+
         const foundOrganizationsByTinData = await findOrganizationsByTin({
             variables: {
                 data: {
@@ -270,7 +271,7 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
                     meta: { dv: 1 },
                     name: values.name,
                     type: values.type,
-                    tin: values.tin,
+                    tin,
                 },
             },
         })
