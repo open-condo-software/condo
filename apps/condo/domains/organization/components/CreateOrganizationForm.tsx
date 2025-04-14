@@ -22,14 +22,12 @@ import { Radio, RadioGroup, Space, Typography, Input, Button, Alert, Modal } fro
 import { FormItem } from '@condo/domains/common/components/Form/FormItem'
 import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
-import { DEFAULT_UNAVAILABLE_TINS, MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
+import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
 import { SecondaryLink } from '@condo/domains/user/components/auth/SecondaryLink'
 import { REQUEST_LIMIT_ERRORS } from '@condo/domains/user/constants/errors'
 
 
-const { publicRuntimeConfig: { defaultLocale, unavailableTinsForOrganizationsSearch, HelpRequisites } } = getConfig()
-
-const SKIP_SEARCH_TINS = [...(unavailableTinsForOrganizationsSearch || []), ...DEFAULT_UNAVAILABLE_TINS]
+const { publicRuntimeConfig: { defaultLocale, HelpRequisites } } = getConfig()
 
 type FoundOrganizationsModalProps = {
     isFoundOrganizationModalOpen: boolean
@@ -211,20 +209,22 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
     const createOrganizationAction = useCallback(async (values) => {
         setIsOrganizationCreating(true)
         const tin = values.tin
-
-        if (!SKIP_SEARCH_TINS.includes(tin)) {
-            const foundOrganizationsByTinData = await findOrganizationsByTin({
-                variables: {
-                    data: {
-                        dv: 1,
-                        sender: getClientSideSenderInfo(),
-                        tin,
-                    },
+        const foundOrganizationsByTinData = await findOrganizationsByTin({
+            variables: {
+                data: {
+                    dv: 1,
+                    sender: getClientSideSenderInfo(),
+                    tin,
                 },
-            })
-            const foundOrganizations = foundOrganizationsByTinData?.data?.data?.organizations || []
-            const foundOrganizationsErrors = foundOrganizationsByTinData?.error
+            },
+        })
+        const foundOrganizations = foundOrganizationsByTinData?.data?.data?.organizations || []
+        const foundOrganizationsErrors = foundOrganizationsByTinData?.error
+        const skipSearchByTin = foundOrganizationsErrors?.graphQLErrors?.some(
+            error => error?.extensions?.type === 'UNAVAILABLE_TIN'
+        )
 
+        if (!skipSearchByTin) {
             if (foundOrganizationsErrors) {
                 const hasLimitError = foundOrganizationsErrors.graphQLErrors?.some(
                     error => REQUEST_LIMIT_ERRORS.includes(error?.extensions?.type)
