@@ -126,6 +126,14 @@ describe('FindOrganizationsByTinService', () => {
                 { id: o10nWithAdministrator.id, name: o10nWithAdministrator.name },
                 { id: o10nWithAdministrator2.id, name: o10nWithAdministrator2.name },
             ]))
+
+            // Check right tin input with spaces
+            const [result1] = await findOrganizationsByTinByTestClient(registeredStaffClient, { tin: `  ${tin}  ` })
+            expect(result1.organizations).toHaveLength(2)
+            expect(result1.organizations).toEqual(expect.arrayContaining([
+                { id: o10nWithAdministrator.id, name: o10nWithAdministrator.name },
+                { id: o10nWithAdministrator2.id, name: o10nWithAdministrator2.name },
+            ]))
         })
 
         test('Requests should be logged in "FindOrganizationsByTinLog"', async () => {
@@ -172,7 +180,7 @@ describe('FindOrganizationsByTinService', () => {
             ])
         })
 
-        test('should throw error if find by unavailable tin', async () => {
+        test('Should throw error if find by unavailable tin', async () => {
             const staffClient = await makeClientWithStaffUser()
 
             const logs1 = await FindOrganizationsByTinLog.getAll(adminClient, { user: { id: staffClient.user.id } })
