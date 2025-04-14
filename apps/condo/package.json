@@ -154,6 +154,7 @@
     "@graphql-codegen/typescript-operations": "^4.2.3",
     "@graphql-codegen/typescript-react-apollo": "^4.3.2",
     "@parcel/watcher": "^2.4.1",
+    "@sentry/types": "^6.19.7",
     "@testing-library/react": "^11.2.5",
     "@types/echarts": "4.9.16",
     "@types/http-proxy": "^1.17.16",
