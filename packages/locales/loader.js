@@ -19,9 +19,13 @@ const loadTranslations = () => {
             if (dirent.isDirectory()) {
                 const locale = dirent.name
 
+                // translationsDir is obtained from process.cwd(), so it is not a user input
+
+                // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
                 const translationsPath = path.join(translationsDir, locale, `${locale}.json`)
                 const translationsContent = JSON.parse(fs.readFileSync(translationsPath, 'utf8'))
 
+                // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
                 const customTranslationsPath = path.join(translationsDir, locale, `${locale}.custom.json`)
                 const customTranslationsContent = fs.existsSync(customTranslationsPath) ? JSON.parse(fs.readFileSync(customTranslationsPath, 'utf8')) : {}
 
