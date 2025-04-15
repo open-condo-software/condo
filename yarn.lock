@@ -1347,7 +1347,7 @@ __metadata:
   resolution: "@app/property-importer@workspace:apps/property-importer"
   dependencies:
     "@apollo/client": ^3.11.8
-    "@condo/domains": "link:../condo/domains"
+    "@app/condo": "workspace:^"
     "@keystonejs/app-graphql": ^6.3.0
     "@keystonejs/app-next": ^5.2.3
     "@open-condo/bridge": "workspace:^"
@@ -7523,12 +7523,6 @@ __metadata:
 "@condo/domains@link:../condo/domains::locator=%40app%2Fpass%40workspace%3Aapps%2Fpass":
   version: 0.0.0-use.local
   resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Fpass%40workspace%3Aapps%2Fpass"
-  languageName: node
-  linkType: soft
-
-"@condo/domains@link:../condo/domains::locator=%40app%2Fproperty-importer%40workspace%3Aapps%2Fproperty-importer":
-  version: 0.0.0-use.local
-  resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Fproperty-importer%40workspace%3Aapps%2Fproperty-importer"
   languageName: node
   linkType: soft
 
