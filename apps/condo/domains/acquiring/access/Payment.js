@@ -28,41 +28,45 @@ async function canReadPayments (args) {
         return { multiPayment: { user: { id: user.id } } }
     }
 
-    const filters = [
-        // Acquiring integration account can see it's payments
-        { context: { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } } },
-        // Employee with `canReadPayments` can see theirs organization payments
-        {
-            AND: [
+    if (user.type === STAFF) {
+        return {
+            OR: [
+                // Employee with `canReadPayments` can see theirs organization payments
                 {
-                    invoice_is_null: true,
-                    organization: { employees_some: { user: { id: user.id }, role: { canReadPayments: true }, deletedAt: null, isBlocked: false } },
+                    AND: [
+                        {
+                            invoice_is_null: true,
+                            organization: { employees_some: { user: { id: user.id }, role: { canReadPayments: true }, deletedAt: null, isBlocked: false } },
+                        },
+                    ],
+                },
+                // Employee with `canReadPaymentsWithInvoices` can see theirs organization payments with invoices
+                {
+                    AND: [
+                        {
+                            invoice_is_null: false,
+                            organization: { employees_some: { user: { id: user.id }, role: { canReadPaymentsWithInvoices: true }, deletedAt: null, isBlocked: false } },
+                        },
+                    ],
                 },
             ],
-        },
-        // Employee with `canReadPaymentsWithInvoices` can see theirs organization payments with invoices
-        {
-            AND: [
-                {
-                    invoice_is_null: false,
-                    organization: { employees_some: { user: { id: user.id }, role: { canReadPaymentsWithInvoices: true }, deletedAt: null, isBlocked: false } },
-                },
-            ],
-        },
-    ]
-
-    if (user.type === SERVICE) {
-        const filtersByOrganization = await canReadObjectsAsB2BAppServiceUser(args)
-        if (filtersByOrganization !== false) {
-            filters.push({ AND: [{ ...filtersByOrganization }] })
         }
     }
 
-    console.error(filters)
-
-    return {
-        OR: filters,
+    if (user.type === SERVICE) {
+        const filtersByOrganization = await canReadObjectsAsB2BAppServiceUser(args)
+        const filters = [
+            // Acquiring integration account can see it's payments
+            { context: { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } } },
+        ]
+        if (filtersByOrganization !== false) {
+            // Allow payments, whose organization connected b2bApp with access rights for this user
+            filters.push({ AND: [{ ...filtersByOrganization }] })
+        }
+        return { OR: filters }
     }
+
+    return false
 }
 
 async function canManagePayments ({ authentication: { item: user }, operation, itemId }) {
