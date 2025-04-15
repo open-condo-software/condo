@@ -16,6 +16,7 @@ const withTM = withTMModule([
     '@open-condo/codegen',
     '@open-condo/next',
     '@app/condo',
+    '@miniapp/domains',
 ])
 
 const serverUrl = conf['SERVER_URL']
