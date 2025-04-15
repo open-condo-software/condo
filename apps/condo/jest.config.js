@@ -29,7 +29,7 @@ module.exports = {
         {
             testRunner: 'jasmine2',
             displayName: 'main',
-            testEnvironment: 'jsdom',
+            testEnvironment: 'node',
             testURL: 'http://localhost:3000/',
             testPathIgnorePatterns: [
                 '/node_modules/',
