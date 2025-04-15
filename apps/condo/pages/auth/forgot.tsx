@@ -50,7 +50,7 @@ function ResetPageView () {
     const { token, setToken, setPhone } = useRegisterContext()
 
     const { organization } = useOrganization()
-    const country = organization.country || defaultLocale
+    const country = organization?.country || defaultLocale
 
     const [step, setStep] = useState<StepType>('inputPhone')
     const [isLoading, setIsLoading] = useState<boolean>(false)
