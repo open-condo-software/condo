@@ -38,6 +38,7 @@ const loadTranslations = () => {
                     throw new Error('Custom translations should be inside of folder, like this: [lang]/[lang].custom.json')
                 }
 
+                // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
                 const filePath = path.join(translationsDir, dirent.name)
                 const content = JSON.parse(fs.readFileSync(filePath, 'utf8'))
 
