@@ -18,7 +18,7 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAccessDeniedToRelationFieldError,
-    catchErrorFrom,
+    catchErrorFrom, expectToThrowGraphQLRequestError,
 } = require('@open-condo/keystone/test.utils')
 
 const { _internalScheduleTaskByNameByTestClient } = require('@condo/domains/common/utils/testSchema')
@@ -47,6 +47,7 @@ const {
     makeClientWithSupportUser,
     makeClientWithResidentUser,
 } = require('@condo/domains/user/utils/testSchema')
+const {createTestPaymentsFilterTemplate} = require("../../acquiring/utils/testSchema");
 
 
 let adminClient, supportClient, anonymousClient, dummyO10n
@@ -1084,21 +1085,9 @@ describe('NewsItems', () => {
             const [newsItem] = await createTestNewsItem(adminClient, dummyO10n)
             await createTestNewsItemScope(adminClient, newsItem)
             // TODO(pahaz): DOMA-10368 use expectToThrowGraphQLRequestError
-            await catchErrorFrom(
+            await expectToThrowGraphQLRequestError(
                 async () => await updateTestNewsItem(adminClient, newsItem.id, { publishedAt: dayjs().toISOString() }),
-                (caught) => {
-                    expect(caught).toMatchObject({
-                        name: 'TestClientResponseError',
-                        message: expect.stringContaining('Test client caught GraphQL response with not empty errors body!'),
-                        errors: expect.arrayContaining([
-                            expect.objectContaining({
-                                name: 'UserInputError',
-                                message: expect.stringContaining('Field "publishedAt" is not defined by type "NewsItemUpdateInput"'),
-                                extensions: expect.objectContaining({ code: 'BAD_USER_INPUT' }),
-                            }),
-                        ]),
-                    })
-                },
+                'got invalid value',
             )
         })
     })
