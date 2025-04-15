@@ -26,7 +26,9 @@ function hasPath (packageJsonPath, relativePath) {
 }
 
 function isApp (packageJsonPath) {
-    return path.basename(path.dirname(packageJsonPath)) === 'apps'
+    const packageDir = path.dirname(packageJsonPath)
+    const parentDir = path.dirname(packageDir)
+    return path.basename(parentDir) === 'apps'
 }
 
 function isKSApp (packageJsonPath) {
@@ -102,7 +104,7 @@ async function config () {
 
         // KS app entry points
         if (isKSApp(packageJsonPath)) {
-            packageConfig.entry.push('index.js', 'admin-ui/index.js', 'bin/*.js')
+            packageConfig.entry.push('index.js', 'admin-ui/index.js', 'bin/**/*.js')
         }
 
         // Jest-specific packages

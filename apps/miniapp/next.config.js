@@ -23,7 +23,6 @@ const withTM = withTMModule([
     '@app/miniapp',
     '@condo/domains',
     '@miniapp/domains',
-    'rc-table',
 ])
 
 const serverUrl = conf['SERVER_URL']
