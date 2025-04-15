@@ -9,6 +9,7 @@ import React, { useCallback, useState } from 'react'
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { Typography, Button, Input } from '@open-condo/ui'
 
 import { FormItem } from '@condo/domains/common/components/Form/FormItem'
@@ -22,7 +23,7 @@ import { WRONG_CREDENTIALS } from '@condo/domains/user/constants/errors'
 import { AgreementText } from './AgreementText'
 
 
-const { publicRuntimeConfig: { hasSbbolAuth } } = getConfig()
+const { publicRuntimeConfig: { hasSbbolAuth, defaultLocale } } = getConfig()
 
 const INITIAL_VALUES = { password: '', phone: '' }
 const PHONE_INPUT_PROPS = { tabIndex: 1, autoFocus: true }
@@ -40,6 +41,9 @@ export const SignInForm = (): React.ReactElement => {
     const router = useRouter()
     const { refetch } = useAuth()
     const { executeCaptcha } = useHCaptcha()
+
+    const { organization } = useOrganization()
+    const country = organization?.country || defaultLocale
 
     const [form] = Form.useForm()
 
@@ -114,7 +118,7 @@ export const SignInForm = (): React.ReactElement => {
                                         rules={[{ required: true, message: FieldIsRequiredMessage }]}
                                         data-cy='signin-phone-item'
                                     >
-                                        <Input.Phone placeholder={ExamplePhoneMessage} inputProps={PHONE_INPUT_PROPS} />
+                                        <Input.Phone country={country} placeholder={ExamplePhoneMessage} inputProps={PHONE_INPUT_PROPS} />
                                     </FormItem>
                                 </Col>
                                 <Col span={24}>

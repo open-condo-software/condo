@@ -20,7 +20,7 @@ const START_CONFIRM_PHONE_ACTION_ERRORS_TO_FIELDS_MAP = {
     [INVALID_PHONE]: 'phone',
 }
 
-const { publicRuntimeConfig: { termsOfUseUrl, privacyPolicyUrl, dataProcessingConsentUrl } } = getConfig()
+const { publicRuntimeConfig: { termsOfUseUrl, privacyPolicyUrl, dataProcessingConsentUrl, defaultLocale } } = getConfig()
 
 type PhoneFormValues = {
     phone: string
@@ -85,7 +85,7 @@ export const PhoneInputStep: React.FC<PhoneInputStepProps> = ({ onComplete }) =>
             <Row>
                 <Col span={FULL_SPAN_COL}>
                     <Form.Item name='phone' label={PhoneLabel} rules={[phoneFormatValidator]} required>
-                        <Input.Phone onChange={onPhoneInputChange}/>
+                        <Input.Phone country={defaultLocale} onChange={onPhoneInputChange}/>
                     </Form.Item>
                 </Col>
                 { ( termsOfUseUrl && privacyPolicyUrl && dataProcessingConsentUrl ) && (

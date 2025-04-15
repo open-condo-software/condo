@@ -1,5 +1,6 @@
 import { useStartConfirmPhoneActionMutation } from '@app/condo/gql'
 import { Col, Form, Row } from 'antd'
+import getConfig from 'next/config'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState } from 'react'
@@ -7,6 +8,7 @@ import React, { useCallback, useMemo, useState } from 'react'
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { ArrowLeft } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { Button, Input, Space, Typography } from '@open-condo/ui'
 
 import { CountDownTimer } from '@condo/domains/common/components/CountDownTimer'
@@ -27,6 +29,8 @@ import { SMS_CODE_TTL } from '@condo/domains/user/constants/common'
 import { TOO_MANY_REQUESTS } from '@condo/domains/user/constants/errors'
 
 
+const { publicRuntimeConfig: { defaultLocale } } = getConfig()
+
 type StepType = 'inputPhone' | 'validatePhone'
 
 const INITIAL_VALUES = { email: '' }
@@ -44,6 +48,9 @@ function ResetPageView () {
     const [form] = Form.useForm()
     const { executeCaptcha } = useHCaptcha()
     const { token, setToken, setPhone } = useRegisterContext()
+
+    const { organization } = useOrganization()
+    const country = organization?.country || defaultLocale
 
     const [step, setStep] = useState<StepType>('inputPhone')
     const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -161,7 +168,7 @@ function ResetPageView () {
                                             rules={validations.phone}
                                             data-cy='forgot-phone-item'
                                         >
-                                            <Input.Phone placeholder={ExamplePhoneMessage}/>
+                                            <Input.Phone country={country} placeholder={ExamplePhoneMessage}/>
                                         </FormItem>
                                     </Col>
                                 </Row>
