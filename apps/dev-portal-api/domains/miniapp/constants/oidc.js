@@ -1,4 +1,4 @@
-const { CONDO_SUPPORTED_RESPONSE_TYPES } = require('@condo/domains/user/constants/oidc')
+const { CONDO_SUPPORTED_RESPONSE_TYPES } = require('@app/condo/domains/user/constants/oidc')
 
 const OIDC_SECRET_LENGTH = 32
 

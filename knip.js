@@ -5,24 +5,41 @@ const { glob } = require('glob')
 
 function _extractAppDeps (packageJsonPath) {
     const pkgInfo = JSON.parse(fs.readFileSync(packageJsonPath).toString())
-    const devDependencies = Object.keys(pkgInfo.devDependencies || {})
-    const dependencies = Object.keys(pkgInfo.dependencies || {})
 
-    return { devDependencies, dependencies }
+    return {
+        devDependencies: pkgInfo.devDependencies || {},
+        dependencies: pkgInfo.dependencies || {},
+    }
 }
 
 function hasDependency (packageJsonPath, dependency) {
     const { dependencies, devDependencies } = _extractAppDeps(packageJsonPath)
 
-    return dependencies.includes(dependency) || devDependencies.includes(dependency)
+    return Object.keys(dependencies).includes(dependency) || Object.keys(devDependencies).includes(dependency)
 }
 
 function hasPath (packageJsonPath, relativePath) {
-    // Controlled traverse inside repo
-    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
-    const combinedPath = path.join(path.dirname(packageJsonPath), relativePath)
+    const packageDir = path.dirname(packageJsonPath)
 
-    return fs.existsSync(combinedPath)
+    const files = glob.sync(relativePath, {
+        cwd: packageDir,
+        ignore: ['**/node_modules/**'],
+    })
+
+    return Boolean(files.length)
+}
+
+function getMajorRequirement (packageJsonPath, depName) {
+    const { dependencies, devDependencies } = _extractAppDeps(packageJsonPath)
+    if (!dependencies[depName] && !devDependencies[depName]) return null
+
+    const requirement = dependencies[depName] || devDependencies[depName]
+
+    const majorPart = requirement.split('.')[0]
+    const clearedPart = majorPart.replace(/\D+/g, '')
+    const majorVersion = parseInt(clearedPart)
+
+    return Number.isNaN(majorVersion) ? null : majorVersion
 }
 
 function isApp (packageJsonPath) {
@@ -122,6 +139,32 @@ async function config () {
         // TODO: make check more strict by reading package.json exports fields
         if (!isApp(packageJsonPath) && hasPath(packageJsonPath, 'tsconfig.json') && hasPath(packageJsonPath, 'src')) {
             packageConfig.entry.push('src/**/*.ts')
+        }
+
+        // NODE: requireTs app util to import ts constants into next.config.js
+        // TODO: move this util to package, add to specific package ignore and remove this rule
+        if (isApp(packageJsonPath) && hasPath(packageJsonPath, '**/requireTs.js')) {
+            if (hasDependency(packageJsonPath, '@babel/preset-typescript')) {
+                packageConfig.ignoreDependencies.push('@babel/preset-typescript')
+            }
+            if (hasDependency(packageJsonPath, '@babel/preset-env')) {
+                packageConfig.ignoreDependencies.push('@babel/preset-env')
+            }
+        }
+
+        // Raw-loader, currently used only for messaging
+        if (isKSApp(packageJsonPath) && hasDependency(packageJsonPath, 'raw-loader')) {
+            // TODO: clean raw-loader from unused apps
+            // if (hasPath(packageJsonPath, 'lang/**/*.njk')) {
+            packageConfig.ignoreDependencies.push('raw-loader')
+            // }
+        }
+
+        // old Next.js apps requires webpack4 not to compete with webpack5 from UI-kit
+        if (hasDependency(packageJsonPath, 'webpack') && hasDependency(packageJsonPath, 'next')) {
+            if (getMajorRequirement(packageJsonPath, 'next') <= 9) {
+                packageConfig.ignoreDependencies.push('webpack')
+            }
         }
 
         return [getPackageDir(packageJsonPath), packageConfig]

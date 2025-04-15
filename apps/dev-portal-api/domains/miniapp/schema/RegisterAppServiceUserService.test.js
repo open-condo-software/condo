@@ -12,7 +12,7 @@ const {
     expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 
-const { SERVICE } = require('@condo/domains/user/constants/common')
+const { SERVICE } = require('@app/condo/domains/user/constants/common')
 const { REMOTE_SYSTEM } = require('@dev-portal-api/domains/common/constants/common')
 const { PROD_ENVIRONMENT, DEV_ENVIRONMENT } = require('@dev-portal-api/domains/miniapp/constants/publishing')
 const {

@@ -33,7 +33,7 @@ export interface IImportWrapperProps<TExtraProps = unknown> {
     uploadButtonLabel?: string
     domainName: string
     importCardButton?: {
-        header: Pick<CardHeaderProps, 'emoji' | 'headingTitle'>,
+        header: Pick<CardHeaderProps, 'emoji' | 'headingTitle'>
         body: Pick<CardBodyProps, 'description'>
     }
     extraModalContent?: ExtraModalContentType

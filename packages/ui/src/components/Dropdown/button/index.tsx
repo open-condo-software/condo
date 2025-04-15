@@ -33,8 +33,8 @@ export type DropdownButtonProps = {
     id?: string
     disabled?: boolean
     type: ExtendedButtonProps['type']
-    buttonProps?: Omit<ExtendedButtonProps, 'type'>,
-    dropdownProps?: Omit<DropdownProps, 'children' | 'disabled' | 'menu'>,
+    buttonProps?: Omit<ExtendedButtonProps, 'type'>
+    dropdownProps?: Omit<DropdownProps, 'children' | 'disabled' | 'menu'>
 }
 
 const DropdownButton: React.FC<DropdownButtonProps> = (props) => {

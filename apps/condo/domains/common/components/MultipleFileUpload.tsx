@@ -97,7 +97,7 @@ interface IMultipleFileUploadHookArgs {
     Model: Module
     relationField: string
     initialFileList?: DBFile[]
-    initialCreateValues?: Record<string, unknown>,
+    initialCreateValues?: Record<string, unknown>
     dependenciesForRerenderUploadComponent?: Array<unknown>
 }
 

@@ -105,7 +105,7 @@ export type UploadFileType = {
     name: string
     status: 'done' | 'uploading'
     url: string
-    response: { id: string, url: string },
+    response: { id: string, url: string }
 }
 
 export type DBFile = {

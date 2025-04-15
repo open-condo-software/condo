@@ -15,7 +15,7 @@ import { withAuth } from '@open-condo/next/auth'
 import { LocaleContext, useIntl, withIntl } from '@open-condo/next/intl'
 import '@open-condo/ui/dist/styles.min.css'
 
-import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
+import GlobalStyle from '@app/condo/domains/common/components/containers/GlobalStyle'
 import { AppFrameWrapper } from '@miniapp/domains/common/components/AppFrameWrapper'
 import { BaseLayout } from '@miniapp/domains/common/components/containers/BaseLayout'
 import { useLaunchParams } from '@miniapp/domains/common/hooks/useLaunchParams'

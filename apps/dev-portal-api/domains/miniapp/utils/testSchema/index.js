@@ -7,8 +7,8 @@ const { faker } = require('@faker-js/faker')
 const conf = require('@open-condo/config')
 const path = require('path')
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
-const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
-const { registerNewServiceUserByTestClient } = require('@condo/domains/user/utils/testSchema')
+const { buildFakeAddressAndMeta } = require('@app/condo/domains/property/utils/testSchema/factories')
+const { registerNewServiceUserByTestClient } = require('@app/condo/domains/user/utils/testSchema')
 
 const {
     B2CApp: B2CAppGQL,

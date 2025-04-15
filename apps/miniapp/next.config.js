@@ -5,7 +5,7 @@ const withTMModule = require('next-transpile-modules')
 
 const conf = require('@open-condo/config')
 
-const { antGlobalVariables } = require('@condo/domains/common/constants/style')
+const { antGlobalVariables } = require('@app/condo/domains/common/constants/style')
 const { DEFAULT_LOCALE } = require('@miniapp/domains/common/constants')
 
 // Tell webpack to compile the "@open-condo/next" package, necessary
@@ -15,14 +15,7 @@ const { DEFAULT_LOCALE } = require('@miniapp/domains/common/constants')
 const withTM = withTMModule([
     '@open-condo/codegen',
     '@open-condo/next',
-    '@open-condo/bridge',
-    '@open-condo/featureflags',
-    '@open-condo/keystone',
-    '@emotion/styled',
     '@app/condo',
-    '@app/miniapp',
-    '@condo/domains',
-    '@miniapp/domains',
 ])
 
 const serverUrl = conf['SERVER_URL']
