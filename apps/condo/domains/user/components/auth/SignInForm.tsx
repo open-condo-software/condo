@@ -43,7 +43,7 @@ export const SignInForm = (): React.ReactElement => {
     const { executeCaptcha } = useHCaptcha()
 
     const { organization } = useOrganization()
-    const country = organization.country || defaultLocale
+    const country = organization?.country || defaultLocale
 
     const [form] = Form.useForm()
 
