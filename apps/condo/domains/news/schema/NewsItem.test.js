@@ -18,7 +18,8 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAccessDeniedToRelationFieldError,
-    catchErrorFrom, expectToThrowGraphQLRequestError,
+    catchErrorFrom,
+    expectToThrowGraphQLRequestError,
 } = require('@open-condo/keystone/test.utils')
 
 const { _internalScheduleTaskByNameByTestClient } = require('@condo/domains/common/utils/testSchema')
@@ -47,7 +48,6 @@ const {
     makeClientWithSupportUser,
     makeClientWithResidentUser,
 } = require('@condo/domains/user/utils/testSchema')
-const {createTestPaymentsFilterTemplate} = require("../../acquiring/utils/testSchema");
 
 
 let adminClient, supportClient, anonymousClient, dummyO10n
@@ -1084,7 +1084,6 @@ describe('NewsItems', () => {
         test('error on trying to edit publishedAt field', async () => {
             const [newsItem] = await createTestNewsItem(adminClient, dummyO10n)
             await createTestNewsItemScope(adminClient, newsItem)
-            // TODO(pahaz): DOMA-10368 use expectToThrowGraphQLRequestError
             await expectToThrowGraphQLRequestError(
                 async () => await updateTestNewsItem(adminClient, newsItem.id, { publishedAt: dayjs().toISOString() }),
                 'got invalid value',
