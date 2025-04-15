@@ -1517,7 +1517,7 @@ __metadata:
     emotion-server: ^10.0.27
     express: ^4.17.1
     form-data: ^4.0.0
-    graphql: ^15.6.1
+    graphql: ^16.10.0
     graphql-tag: ^2.12.6
     graphql-upload: ^15.0.1
     he: ^1.2.0
