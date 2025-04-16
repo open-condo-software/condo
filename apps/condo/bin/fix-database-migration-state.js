@@ -232,6 +232,17 @@ COMMIT;
 ALTER TABLE "Contact" DROP COLUMN IF EXISTS "quota";
 ALTER TABLE "ContactHistoryRecord" DROP COLUMN IF EXISTS "quota";
 COMMIT;
+
+--
+-- 20250416203322-0468_remove_ticketchange_lastcommentwithorganizationtypeatfrom_and_more.js Remove TicketChange.lastCommentWith... 
+--
+
+ALTER TABLE "TicketChange" DROP COLUMN "lastCommentWithOrganizationTypeAtFrom" CASCADE;
+ALTER TABLE "TicketChange" DROP COLUMN "lastCommentWithOrganizationTypeAtTo" CASCADE;
+ALTER TABLE "TicketChange" DROP COLUMN "lastCommentWithResidentTypeCreatedByUserTypeFrom" CASCADE;
+ALTER TABLE "TicketChange" DROP COLUMN "lastCommentWithResidentTypeCreatedByUserTypeTo" CASCADE;
+COMMIT;
+
     `))
 }
 

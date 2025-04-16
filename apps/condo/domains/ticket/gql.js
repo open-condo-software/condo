@@ -174,7 +174,7 @@ const TICKET_CLASSIFIER_FIELDS = `{ place { id name } category { id name } probl
 const TicketClassifier = generateGqlQueries('TicketClassifier', TICKET_CLASSIFIER_FIELDS)
 
 // TODO(DOMA-5833): should remove 'reviewValue' from TICKET_FILTER_FIELDS soon
-const TICKET_FILTER_FIELDS = '{ type completedAt lastCommentAt lastCommentWithResidentTypeAt lastCommentWithOrganizationTypeAt lastCommentWithResidentTypeCreatedByUserType organization number createdAt status details property propertyScope address clientName executor assignee executorName deadline assigneeName attributes source sectionName floorName unitType unitName placeClassifier categoryClassifier problemClassifier clientPhone createdBy contactIsNull reviewValue feedbackValue qualityControlValue isCompletedAfterDeadline }'
+const TICKET_FILTER_FIELDS = '{ type completedAt lastCommentAt commentsByType unansweredComment lastCommentWithResidentTypeAt lastCommentWithOrganizationTypeAt lastCommentWithResidentTypeCreatedByUserType organization number createdAt status details property propertyScope address clientName executor assignee executorName deadline assigneeName attributes source sectionName floorName unitType unitName placeClassifier categoryClassifier problemClassifier clientPhone createdBy contactIsNull reviewValue feedbackValue qualityControlValue isCompletedAfterDeadline }'
 const TICKET_FILTER_TEMPLATE_FIELDS = `{ name employee { id } fields ${TICKET_FILTER_FIELDS} ${COMMON_FIELDS} }`
 const TicketFilterTemplate = generateGqlQueries('TicketFilterTemplate', TICKET_FILTER_TEMPLATE_FIELDS)
 
