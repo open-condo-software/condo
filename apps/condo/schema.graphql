@@ -27825,18 +27825,6 @@ enum TicketChangeQualityControlValueToType {
   good
 }
 
-enum TicketChangeLastCommentWithResidentTypeCreatedByUserTypeFromType {
-  staff
-  resident
-  service
-}
-
-enum TicketChangeLastCommentWithResidentTypeCreatedByUserTypeToType {
-  staff
-  resident
-  service
-}
-
 enum TicketChangeSectionTypeFromType {
   parking
   section
@@ -27940,22 +27928,6 @@ type TicketChange {
   """ Quality control additional options that extend it.Duplicates are removed and empty arrays are converted to null. 
   """
   qualityControlAdditionalOptionsTo: JSON
-
-  """ CreatedAt of the last TicketComment with type=ORGANIZATION from STAFF userExample: lastCommentWithOrganizationTypeAt will be set to 2025_01_01 if the most recent TicketComment with type=ORGANIZATION was created on 2025_01_01 
-  """
-  lastCommentWithOrganizationTypeAtFrom: String
-
-  """ CreatedAt of the last TicketComment with type=ORGANIZATION from STAFF userExample: lastCommentWithOrganizationTypeAt will be set to 2025_01_01 if the most recent TicketComment with type=ORGANIZATION was created on 2025_01_01 
-  """
-  lastCommentWithOrganizationTypeAtTo: String
-
-  """ Type of the User who created last comment with type=RESIDENTExample: `staff``, if last TicketComment with type=RESIDENT was from User.type = staff 
-  """
-  lastCommentWithResidentTypeCreatedByUserTypeFrom: TicketChangeLastCommentWithResidentTypeCreatedByUserTypeFromType
-
-  """ Type of the User who created last comment with type=RESIDENTExample: `staff``, if last TicketComment with type=RESIDENT was from User.type = staff 
-  """
-  lastCommentWithResidentTypeCreatedByUserTypeTo: TicketChangeLastCommentWithResidentTypeCreatedByUserTypeToType
 
   """ Text reason for status changes. Sometimes you should describe the reason why you change the `status` 
   """
@@ -28522,30 +28494,6 @@ input TicketChangeWhereInput {
   qualityControlAdditionalOptionsTo_not: JSON
   qualityControlAdditionalOptionsTo_in: [JSON]
   qualityControlAdditionalOptionsTo_not_in: [JSON]
-  lastCommentWithOrganizationTypeAtFrom: String
-  lastCommentWithOrganizationTypeAtFrom_not: String
-  lastCommentWithOrganizationTypeAtFrom_lt: String
-  lastCommentWithOrganizationTypeAtFrom_lte: String
-  lastCommentWithOrganizationTypeAtFrom_gt: String
-  lastCommentWithOrganizationTypeAtFrom_gte: String
-  lastCommentWithOrganizationTypeAtFrom_in: [String]
-  lastCommentWithOrganizationTypeAtFrom_not_in: [String]
-  lastCommentWithOrganizationTypeAtTo: String
-  lastCommentWithOrganizationTypeAtTo_not: String
-  lastCommentWithOrganizationTypeAtTo_lt: String
-  lastCommentWithOrganizationTypeAtTo_lte: String
-  lastCommentWithOrganizationTypeAtTo_gt: String
-  lastCommentWithOrganizationTypeAtTo_gte: String
-  lastCommentWithOrganizationTypeAtTo_in: [String]
-  lastCommentWithOrganizationTypeAtTo_not_in: [String]
-  lastCommentWithResidentTypeCreatedByUserTypeFrom: TicketChangeLastCommentWithResidentTypeCreatedByUserTypeFromType
-  lastCommentWithResidentTypeCreatedByUserTypeFrom_not: TicketChangeLastCommentWithResidentTypeCreatedByUserTypeFromType
-  lastCommentWithResidentTypeCreatedByUserTypeFrom_in: [TicketChangeLastCommentWithResidentTypeCreatedByUserTypeFromType]
-  lastCommentWithResidentTypeCreatedByUserTypeFrom_not_in: [TicketChangeLastCommentWithResidentTypeCreatedByUserTypeFromType]
-  lastCommentWithResidentTypeCreatedByUserTypeTo: TicketChangeLastCommentWithResidentTypeCreatedByUserTypeToType
-  lastCommentWithResidentTypeCreatedByUserTypeTo_not: TicketChangeLastCommentWithResidentTypeCreatedByUserTypeToType
-  lastCommentWithResidentTypeCreatedByUserTypeTo_in: [TicketChangeLastCommentWithResidentTypeCreatedByUserTypeToType]
-  lastCommentWithResidentTypeCreatedByUserTypeTo_not_in: [TicketChangeLastCommentWithResidentTypeCreatedByUserTypeToType]
   statusReasonFrom: String
   statusReasonFrom_not: String
   statusReasonFrom_contains: String
@@ -29639,14 +29587,6 @@ enum SortTicketChangesBy {
   qualityControlCommentFrom_DESC
   qualityControlCommentTo_ASC
   qualityControlCommentTo_DESC
-  lastCommentWithOrganizationTypeAtFrom_ASC
-  lastCommentWithOrganizationTypeAtFrom_DESC
-  lastCommentWithOrganizationTypeAtTo_ASC
-  lastCommentWithOrganizationTypeAtTo_DESC
-  lastCommentWithResidentTypeCreatedByUserTypeFrom_ASC
-  lastCommentWithResidentTypeCreatedByUserTypeFrom_DESC
-  lastCommentWithResidentTypeCreatedByUserTypeTo_ASC
-  lastCommentWithResidentTypeCreatedByUserTypeTo_DESC
   statusReasonFrom_ASC
   statusReasonFrom_DESC
   statusReasonTo_ASC
@@ -29865,10 +29805,6 @@ input TicketChangeUpdateInput {
   qualityControlCommentTo: String
   qualityControlAdditionalOptionsFrom: JSON
   qualityControlAdditionalOptionsTo: JSON
-  lastCommentWithOrganizationTypeAtFrom: String
-  lastCommentWithOrganizationTypeAtTo: String
-  lastCommentWithResidentTypeCreatedByUserTypeFrom: TicketChangeLastCommentWithResidentTypeCreatedByUserTypeFromType
-  lastCommentWithResidentTypeCreatedByUserTypeTo: TicketChangeLastCommentWithResidentTypeCreatedByUserTypeToType
   statusReasonFrom: String
   statusReasonTo: String
   deadlineFrom: String
@@ -30000,10 +29936,6 @@ input TicketChangeCreateInput {
   qualityControlCommentTo: String
   qualityControlAdditionalOptionsFrom: JSON
   qualityControlAdditionalOptionsTo: JSON
-  lastCommentWithOrganizationTypeAtFrom: String
-  lastCommentWithOrganizationTypeAtTo: String
-  lastCommentWithResidentTypeCreatedByUserTypeFrom: TicketChangeLastCommentWithResidentTypeCreatedByUserTypeFromType
-  lastCommentWithResidentTypeCreatedByUserTypeTo: TicketChangeLastCommentWithResidentTypeCreatedByUserTypeToType
   statusReasonFrom: String
   statusReasonTo: String
   deadlineFrom: String
