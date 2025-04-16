@@ -41,6 +41,8 @@ const TicketFilterFields = {
     lastCommentWithOrganizationTypeAt: '[String]',
     lastCommentWithResidentTypeAt: '[String]',
     lastCommentAt: '[String]',
+    commentsByType: '[String]',
+    unansweredComment: 'String',
     type: 'String',
     isCompletedAfterDeadline: 'String',
 }

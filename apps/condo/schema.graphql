@@ -27941,14 +27941,6 @@ type TicketChange {
   """
   qualityControlAdditionalOptionsTo: JSON
 
-  """ CreatedAt of the last TicketComment with type=ORGANIZATION from STAFF userExample: lastCommentWithOrganizationTypeAt will be set to 2025_01_01 if the most recent TicketComment with type=ORGANIZATION was created on 2025_01_01 
-  """
-  lastCommentWithOrganizationTypeAtFrom: String
-
-  """ CreatedAt of the last TicketComment with type=ORGANIZATION from STAFF userExample: lastCommentWithOrganizationTypeAt will be set to 2025_01_01 if the most recent TicketComment with type=ORGANIZATION was created on 2025_01_01 
-  """
-  lastCommentWithOrganizationTypeAtTo: String
-
   """ Type of the User who created last comment with type=RESIDENTExample: `staff``, if last TicketComment with type=RESIDENT was from User.type = staff 
   """
   lastCommentWithResidentTypeCreatedByUserTypeFrom: TicketChangeLastCommentWithResidentTypeCreatedByUserTypeFromType
@@ -28522,22 +28514,6 @@ input TicketChangeWhereInput {
   qualityControlAdditionalOptionsTo_not: JSON
   qualityControlAdditionalOptionsTo_in: [JSON]
   qualityControlAdditionalOptionsTo_not_in: [JSON]
-  lastCommentWithOrganizationTypeAtFrom: String
-  lastCommentWithOrganizationTypeAtFrom_not: String
-  lastCommentWithOrganizationTypeAtFrom_lt: String
-  lastCommentWithOrganizationTypeAtFrom_lte: String
-  lastCommentWithOrganizationTypeAtFrom_gt: String
-  lastCommentWithOrganizationTypeAtFrom_gte: String
-  lastCommentWithOrganizationTypeAtFrom_in: [String]
-  lastCommentWithOrganizationTypeAtFrom_not_in: [String]
-  lastCommentWithOrganizationTypeAtTo: String
-  lastCommentWithOrganizationTypeAtTo_not: String
-  lastCommentWithOrganizationTypeAtTo_lt: String
-  lastCommentWithOrganizationTypeAtTo_lte: String
-  lastCommentWithOrganizationTypeAtTo_gt: String
-  lastCommentWithOrganizationTypeAtTo_gte: String
-  lastCommentWithOrganizationTypeAtTo_in: [String]
-  lastCommentWithOrganizationTypeAtTo_not_in: [String]
   lastCommentWithResidentTypeCreatedByUserTypeFrom: TicketChangeLastCommentWithResidentTypeCreatedByUserTypeFromType
   lastCommentWithResidentTypeCreatedByUserTypeFrom_not: TicketChangeLastCommentWithResidentTypeCreatedByUserTypeFromType
   lastCommentWithResidentTypeCreatedByUserTypeFrom_in: [TicketChangeLastCommentWithResidentTypeCreatedByUserTypeFromType]
@@ -29639,10 +29615,6 @@ enum SortTicketChangesBy {
   qualityControlCommentFrom_DESC
   qualityControlCommentTo_ASC
   qualityControlCommentTo_DESC
-  lastCommentWithOrganizationTypeAtFrom_ASC
-  lastCommentWithOrganizationTypeAtFrom_DESC
-  lastCommentWithOrganizationTypeAtTo_ASC
-  lastCommentWithOrganizationTypeAtTo_DESC
   lastCommentWithResidentTypeCreatedByUserTypeFrom_ASC
   lastCommentWithResidentTypeCreatedByUserTypeFrom_DESC
   lastCommentWithResidentTypeCreatedByUserTypeTo_ASC
@@ -29865,8 +29837,6 @@ input TicketChangeUpdateInput {
   qualityControlCommentTo: String
   qualityControlAdditionalOptionsFrom: JSON
   qualityControlAdditionalOptionsTo: JSON
-  lastCommentWithOrganizationTypeAtFrom: String
-  lastCommentWithOrganizationTypeAtTo: String
   lastCommentWithResidentTypeCreatedByUserTypeFrom: TicketChangeLastCommentWithResidentTypeCreatedByUserTypeFromType
   lastCommentWithResidentTypeCreatedByUserTypeTo: TicketChangeLastCommentWithResidentTypeCreatedByUserTypeToType
   statusReasonFrom: String
@@ -30000,8 +29970,6 @@ input TicketChangeCreateInput {
   qualityControlCommentTo: String
   qualityControlAdditionalOptionsFrom: JSON
   qualityControlAdditionalOptionsTo: JSON
-  lastCommentWithOrganizationTypeAtFrom: String
-  lastCommentWithOrganizationTypeAtTo: String
   lastCommentWithResidentTypeCreatedByUserTypeFrom: TicketChangeLastCommentWithResidentTypeCreatedByUserTypeFromType
   lastCommentWithResidentTypeCreatedByUserTypeTo: TicketChangeLastCommentWithResidentTypeCreatedByUserTypeToType
   statusReasonFrom: String
@@ -32362,6 +32330,8 @@ type TicketFilter {
   lastCommentWithOrganizationTypeAt: [String]
   lastCommentWithResidentTypeAt: [String]
   lastCommentAt: [String]
+  commentsByType: [String]
+  unansweredComment: String
   type: String
   isCompletedAfterDeadline: String
 }
