@@ -57,7 +57,6 @@
     "figma-transformer": "^2.1.0",
     "fs-extra": "^11.1.0",
     "react": "^16.13.1",
-    "react-dom": "^16.13.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4",
     "webpack": "^5.91.0",

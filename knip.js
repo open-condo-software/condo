@@ -3,17 +3,18 @@ const path = require('path')
 
 const { glob } = require('glob')
 
-function _extractAppDeps (packageJsonPath) {
+function _extractPackageInfo (packageJsonPath) {
     const pkgInfo = JSON.parse(fs.readFileSync(packageJsonPath).toString())
 
     return {
         devDependencies: pkgInfo.devDependencies || {},
         dependencies: pkgInfo.dependencies || {},
+        name: pkgInfo.name,
     }
 }
 
 function hasDependency (packageJsonPath, dependency) {
-    const { dependencies, devDependencies } = _extractAppDeps(packageJsonPath)
+    const { dependencies, devDependencies } = _extractPackageInfo(packageJsonPath)
 
     return Object.keys(dependencies).includes(dependency) || Object.keys(devDependencies).includes(dependency)
 }
@@ -30,7 +31,7 @@ function hasPath (packageJsonPath, relativePath) {
 }
 
 function getMajorRequirement (packageJsonPath, depName) {
-    const { dependencies, devDependencies } = _extractAppDeps(packageJsonPath)
+    const { dependencies, devDependencies } = _extractPackageInfo(packageJsonPath)
     if (!dependencies[depName] && !devDependencies[depName]) return null
 
     const requirement = dependencies[depName] || devDependencies[depName]
@@ -54,6 +55,23 @@ function isKSApp (packageJsonPath) {
 
 function getPackageDir (packageJsonPath) {
     return path.dirname(path.relative(__dirname, packageJsonPath))
+}
+
+function hasName (packageJsonPath, packageName) {
+    const { name } = _extractPackageInfo(packageJsonPath)
+
+    return name === packageName
+}
+
+function isFileContains (packageJsonPath, filePath, searchContent) {
+    // NOTE: controlled environment
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+    const combinedPath = path.join(path.dirname(packageJsonPath), filePath)
+    if (!fs.existsSync(combinedPath)) return false
+
+    const content = fs.readFileSync(combinedPath).toString()
+
+    return content.includes(searchContent)
 }
 
 function _arrayMerge (base, addition) {
@@ -106,6 +124,12 @@ async function config () {
         '.': {
             ignoreDependencies: [/commitlint/],
         },
+        'apps/resident-app': {
+            entry: ['domains/common/utils/sw.ts'],
+        },
+        'packages/icons': {
+            ignoreDependencies: ['@svgr/plugin-svgo', '@svgr/plugin-prettier', '@svgr/plugin-jsx'],
+        },
         'packages/keystone': {
             entry: ['**/*.{js,cjs,mjs,jsx,ts,cts,mts,tsx}'],
         },
@@ -153,7 +177,7 @@ async function config () {
         }
 
         // Raw-loader, currently used only for messaging
-        if (isKSApp(packageJsonPath) && hasDependency(packageJsonPath, 'raw-loader')) {
+        if (isApp(packageJsonPath) && hasDependency(packageJsonPath, 'raw-loader')) {
             // TODO: clean raw-loader from unused apps
             // if (hasPath(packageJsonPath, 'lang/**/*.njk')) {
             packageConfig.ignoreDependencies.push('raw-loader')
@@ -165,6 +189,33 @@ async function config () {
             if (getMajorRequirement(packageJsonPath, 'next') <= 9) {
                 packageConfig.ignoreDependencies.push('webpack')
             }
+        }
+
+        // apollo uses rollup + babel to build
+        // TODO: think about migrating to zero-config tsup
+        if (hasName(packageJsonPath, '@open-condo/apollo') && hasPath(packageJsonPath, 'rollup.config.mjs')) {
+            for (const depName of ['@babel/preset-react', 'babel-core', 'babel-loader']) {
+                if (hasDependency(packageJsonPath, depName)) {
+                    packageConfig.ignoreDependencies.push(depName)
+                }
+            }
+        }
+
+        // icons uses babel + webpack to build
+        if (hasName(packageJsonPath, '@open-condo/icons') && hasPath(packageJsonPath, '.babelrc')) {
+            if (hasDependency(packageJsonPath, 'babel')) {
+                packageConfig.ignoreDependencies.push('babel')
+            }
+        }
+
+        // webpack-cli required for libs built with webpack
+        if (hasDependency(packageJsonPath, 'webpack-cli') && hasPath(packageJsonPath, 'webpack.*.js')) {
+            packageConfig.ignoreDependencies.push('webpack-cli')
+        }
+
+        // ts-node is required for some GQL-codegen
+        if (isApp(packageJsonPath) && hasDependency(packageJsonPath, 'ts-node') && hasDependency(packageJsonPath, 'next') && isFileContains(packageJsonPath, 'codegen.ts', 'ts-node/register')) {
+            packageConfig.ignoreDependencies.push('ts-node')
         }
 
         return [getPackageDir(packageJsonPath), packageConfig]
