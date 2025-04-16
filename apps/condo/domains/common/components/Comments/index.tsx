@@ -321,6 +321,13 @@ const Comments: React.FC<ICommentsListProps> = ({
         }
 
         await refetchComments()
+        const commentTypeCapitalized = commentType.charAt(0).toUpperCase() + commentType.slice(1)
+        const now = new Date()
+
+        await createOrUpdateUserTicketCommentReadTime({
+            [`read${commentTypeCapitalized}CommentAt`]: now,
+            readCommentAt: now,
+        })
         setEditableComment(null)
     },
     [commentType, createAction, editableComment, refetchComments, ticketId, updateAction, user?.id])

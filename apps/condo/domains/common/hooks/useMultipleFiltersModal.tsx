@@ -14,7 +14,7 @@ import omit from 'lodash/omit'
 import omitBy from 'lodash/omitBy'
 import pickBy from 'lodash/pickBy'
 import { useRouter } from 'next/router'
-import React, { createContext, CSSProperties, useCallback, useContext, useMemo, useRef, useState } from 'react'
+import React, { createContext, CSSProperties, useCallback, useContext, useMemo, useState } from 'react'
 import { Options } from 'scroll-into-view-if-needed'
 
 import { Close, Filter } from '@open-condo/icons'
@@ -421,7 +421,6 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     const { link } = useOrganization()
     const { breakpoints } = useLayoutContext()
 
-    const handleSaveRef = useRef(null)
     const [form] = Form.useForm()
 
     const { selectedFiltersTemplate, setSelectedFiltersTemplate } = useMultipleFilterContext()
@@ -490,7 +489,8 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
             setSelectedFiltersTemplate(updatedFilter || null)
         }
 
-        await handleSaveRef.current()
+        if (filtersValue.hasOwnProperty(NON_FIELD_ERROR_NAME)) delete filtersValue[NON_FIELD_ERROR_NAME]
+        await handleSubmit(filtersValue)
     }, [createFiltersTemplateAction, form, openedFiltersTemplate, setSelectedFiltersTemplate, showTemplateNameError, updateFiltersTemplateAction])
 
     const handleDeleteFiltersTemplate = useCallback(async () => {
@@ -719,7 +719,6 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
                     >
                         {
                             ({ handleSave }) => {
-                                handleSaveRef.current = handleSave
 
                                 return (
                                     <Row gutter={MAIN_ROW_GUTTER}>
