@@ -14,6 +14,7 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+const { makePayer, createTestPayment, Payment } = require('@condo/domains/acquiring/utils/testSchema')
 const {
     createTestBillingIntegration, updateTestBillingIntegrationOrganizationContext,
     createTestBillingIntegrationOrganizationContext, createTestBillingProperty,
@@ -1574,5 +1575,52 @@ describe('B2BApp permissions for service user', () => {
             })
         })
 
+    })
+    
+    describe('Payment model', () => {
+        
+        test('create or update Payment', async () => {
+            const [app] = await createTestB2BApp(support)
+            // right does not exist in set
+            await expectToThrowGraphQLRequestError(async () => {
+                await createTestB2BAppAccessRightSet(support, app, { canManagePayments: true })
+            }, 'Field "canManagePayments" is not defined')
+        })
+        
+        test('read Payment', async () => {
+            const { admin, billingReceipts, acquiringContext, organization } = await makePayer()
+            const [{ id: paymentForOrganizationId }] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
+            const { billingReceipts: anotherBillingReceipts, acquiringContext: anotherAcquiringContext, organization: anotherOrganization } = await makePayer()
+            const [{ id: paymentForAnotherOrganizationId }] = await createTestPayment(admin, anotherOrganization, anotherBillingReceipts[0], anotherAcquiringContext)
+
+            const [app] = await createTestB2BApp(support)
+            const [anotherApp] = await createTestB2BApp(support)
+
+            const [accessRightSet] = await createTestB2BAppAccessRightSet(support, app, { canReadPayments: true })
+            const [anotherAccessRightSet] = await createTestB2BAppAccessRightSet(support, anotherApp, { canReadPayments: true })
+
+            const [newServiceUser] = await registerNewServiceUserByTestClient(support)
+            const serviceUserClient = await makeLoggedInClient({ email: newServiceUser.email, password: newServiceUser.password })
+            await createTestB2BAppAccessRight(support, serviceUserClient.user, app, accessRightSet)
+
+            const [newServiceUser2] = await registerNewServiceUserByTestClient(support)
+            const anotherServiceUserClient = await makeLoggedInClient({ email: newServiceUser2.email, password: newServiceUser2.password })
+            await createTestB2BAppAccessRight(support, anotherServiceUserClient.user, anotherApp, anotherAccessRightSet)
+
+            // can't without rights
+            const paymentWithoutRights = await Payment.getOne(serviceUserClient, { id: paymentForOrganizationId })
+            expect(paymentWithoutRights).not.toBeDefined()
+
+            await createTestB2BAppContext(support, app, organization, { status: 'Finished' })
+            await createTestB2BAppContext(support, anotherApp, anotherOrganization, { status: 'Finished' })
+
+            const paymentsByServiceUser = await Payment.getAll(serviceUserClient, {})
+            expect(paymentsByServiceUser).toHaveLength(1)
+            expect(paymentsByServiceUser[0].id).toBe(paymentForOrganizationId)
+
+            const paymentsByAnotherServiceUser = await Payment.getAll(anotherServiceUserClient, {})
+            expect(paymentsByAnotherServiceUser).toHaveLength(1)
+            expect(paymentsByAnotherServiceUser[0].id).toBe(paymentForAnotherOrganizationId)
+        })
     })
 })
