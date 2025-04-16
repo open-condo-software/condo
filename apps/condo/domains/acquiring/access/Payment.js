@@ -7,13 +7,15 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { find } = require('@open-condo/keystone/schema')
 
 const { checkAcquiringIntegrationAccessRights } = require('@condo/domains/acquiring/utils/accessSchema')
+const { canReadObjectsAsB2BAppServiceUser } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess/server.utils')
 const { checkPermissionsInEmployedOrganizations } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { SERVICE, STAFF } = require('@condo/domains/user/constants/common')
 const { canDirectlyReadSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
 
-async function canReadPayments ({ authentication: { item: user }, listKey }) {
+async function canReadPayments (args) {
+    const { authentication: { item: user }, listKey } = args
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -26,30 +28,45 @@ async function canReadPayments ({ authentication: { item: user }, listKey }) {
         return { multiPayment: { user: { id: user.id } } }
     }
 
-    return {
-        OR: [
+    if (user.type === STAFF) {
+        return {
+            OR: [
+                // Employee with `canReadPayments` can see theirs organization payments
+                {
+                    AND: [
+                        {
+                            invoice_is_null: true,
+                            organization: { employees_some: { user: { id: user.id }, role: { canReadPayments: true }, deletedAt: null, isBlocked: false } },
+                        },
+                    ],
+                },
+                // Employee with `canReadPaymentsWithInvoices` can see theirs organization payments with invoices
+                {
+                    AND: [
+                        {
+                            invoice_is_null: false,
+                            organization: { employees_some: { user: { id: user.id }, role: { canReadPaymentsWithInvoices: true }, deletedAt: null, isBlocked: false } },
+                        },
+                    ],
+                },
+            ],
+        }
+    }
+
+    if (user.type === SERVICE) {
+        const filtersByOrganization = await canReadObjectsAsB2BAppServiceUser(args)
+        const filters = [
             // Acquiring integration account can see it's payments
             { context: { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } } },
-            // Employee with `canReadPayments` can see theirs organization payments
-            {
-                AND: [
-                    {
-                        invoice_is_null: true,
-                        organization: { employees_some: { user: { id: user.id }, role: { canReadPayments: true }, deletedAt: null, isBlocked: false } },
-                    },
-                ],
-            },
-            // Employee with `canReadPaymentsWithInvoices` can see theirs organization payments with invoices
-            {
-                AND: [
-                    {
-                        invoice_is_null: false,
-                        organization: { employees_some: { user: { id: user.id }, role: { canReadPaymentsWithInvoices: true }, deletedAt: null, isBlocked: false } },
-                    },
-                ],
-            },
-        ],
+        ]
+        if (filtersByOrganization !== false) {
+            // Allow payments, whose organization connected b2bApp with access rights for this user
+            filters.push({ AND: [{ ...filtersByOrganization }] })
+        }
+        return { OR: filters }
     }
+
+    return false
 }
 
 async function canManagePayments ({ authentication: { item: user }, operation, itemId }) {
@@ -66,7 +83,8 @@ async function canManagePayments ({ authentication: { item: user }, operation, i
     return false
 }
 
-async function canReadPaymentsSensitiveData ({ authentication: { item: user }, existingItem, context, listKey }) {
+async function canReadPaymentsSensitiveData (args) {
+    const { authentication: { item: user }, existingItem, context, listKey } = args
     if (!user || user.deletedAt) return false
     if (user.isSupport || user.isAdmin) return true
 
@@ -83,6 +101,7 @@ async function canReadPaymentsSensitiveData ({ authentication: { item: user }, e
             const integrationId = get(acquiringContext, ['integration'])
             if (await checkAcquiringIntegrationAccessRights(user.id, [integrationId])) return true
         }
+        if (await canReadObjectsAsB2BAppServiceUser(args)) return true
     }
 
     if (user.type === STAFF) {

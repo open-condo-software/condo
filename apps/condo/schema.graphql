@@ -73621,6 +73621,8 @@ type B2BAppAccessRightSetHistoryRecord {
   canManageOrganizationEmployees: Boolean
   canReadOrganizationEmployeeRoles: Boolean
   canManageOrganizationEmployeeRoles: Boolean
+  canReadPayments: Boolean
+  canManagePayments: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
   canReadTickets: Boolean
@@ -73728,6 +73730,10 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   canReadOrganizationEmployeeRoles_not: Boolean
   canManageOrganizationEmployeeRoles: Boolean
   canManageOrganizationEmployeeRoles_not: Boolean
+  canReadPayments: Boolean
+  canReadPayments_not: Boolean
+  canManagePayments: Boolean
+  canManagePayments_not: Boolean
   canReadProperties: Boolean
   canReadProperties_not: Boolean
   canManageProperties: Boolean
@@ -73877,6 +73883,10 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
   canReadOrganizationEmployeeRoles_DESC
   canManageOrganizationEmployeeRoles_ASC
   canManageOrganizationEmployeeRoles_DESC
+  canReadPayments_ASC
+  canReadPayments_DESC
+  canManagePayments_ASC
+  canManagePayments_DESC
   canReadProperties_ASC
   canReadProperties_DESC
   canManageProperties_ASC
@@ -73943,6 +73953,8 @@ input B2BAppAccessRightSetHistoryRecordUpdateInput {
   canManageOrganizationEmployees: Boolean
   canReadOrganizationEmployeeRoles: Boolean
   canManageOrganizationEmployeeRoles: Boolean
+  canReadPayments: Boolean
+  canManagePayments: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
   canReadTickets: Boolean
@@ -73997,6 +74009,8 @@ input B2BAppAccessRightSetHistoryRecordCreateInput {
   canManageOrganizationEmployees: Boolean
   canReadOrganizationEmployeeRoles: Boolean
   canManageOrganizationEmployeeRoles: Boolean
+  canReadPayments: Boolean
+  canManagePayments: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
   canReadTickets: Boolean
@@ -74089,6 +74103,11 @@ type B2BAppAccessRightSet {
   """ Currently, this field is read-only. You cannot get manage access for the specified schema. 
   """
   canManageOrganizationEmployeeRoles: Boolean
+  canReadPayments: Boolean
+
+  """ Currently, this field is read-only. You cannot get manage access for the specified schema. 
+  """
+  canManagePayments: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
   canReadTickets: Boolean
@@ -74188,6 +74207,10 @@ input B2BAppAccessRightSetWhereInput {
   canReadOrganizationEmployeeRoles_not: Boolean
   canManageOrganizationEmployeeRoles: Boolean
   canManageOrganizationEmployeeRoles_not: Boolean
+  canReadPayments: Boolean
+  canReadPayments_not: Boolean
+  canManagePayments: Boolean
+  canManagePayments_not: Boolean
   canReadProperties: Boolean
   canReadProperties_not: Boolean
   canManageProperties: Boolean
@@ -74319,6 +74342,10 @@ enum SortB2BAppAccessRightSetsBy {
   canReadOrganizationEmployeeRoles_DESC
   canManageOrganizationEmployeeRoles_ASC
   canManageOrganizationEmployeeRoles_DESC
+  canReadPayments_ASC
+  canReadPayments_DESC
+  canManagePayments_ASC
+  canManagePayments_DESC
   canReadProperties_ASC
   canReadProperties_DESC
   canManageProperties_ASC
@@ -74385,6 +74412,8 @@ input B2BAppAccessRightSetUpdateInput {
   canManageOrganizationEmployees: Boolean
   canReadOrganizationEmployeeRoles: Boolean
   canManageOrganizationEmployeeRoles: Boolean
+  canReadPayments: Boolean
+  canManagePayments: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
   canReadTickets: Boolean
@@ -74436,6 +74465,8 @@ input B2BAppAccessRightSetCreateInput {
   canManageOrganizationEmployees: Boolean
   canReadOrganizationEmployeeRoles: Boolean
   canManageOrganizationEmployeeRoles: Boolean
+  canReadPayments: Boolean
+  canManagePayments: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
   canReadTickets: Boolean
