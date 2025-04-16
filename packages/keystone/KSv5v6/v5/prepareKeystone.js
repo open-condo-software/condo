@@ -76,12 +76,12 @@ const sendAppMetrics = () => {
     if (IS_WORKER_PROCESS && taskQueues.size > 0) {
         Array.from(taskQueues.entries()).forEach(([queueName, queue]) => {
             queue.getJobCounts().then(jobCounts => {
-                metrics.gauge({ name: `worker.${queueName}.activeTasks`, value: jobCounts.active })
-                metrics.gauge({ name: `worker.${queueName}.waitingTasks`, value: jobCounts.waiting })
-                metrics.gauge({ name: `worker.${queueName}.completedTasks`, value: jobCounts.completed })
-                metrics.gauge({ name: `worker.${queueName}.failedTasks`, value: jobCounts.failed })
-                metrics.gauge({ name: `worker.${queueName}.delayedTasks`, value: jobCounts.delayed })
-                metrics.gauge({ name: `worker.${queueName}.pausedTasks`, value: jobCounts.paused })
+                metrics.gauge({ name: 'worker.activeTasks', value: jobCounts.active, tags: { queueName } })
+                metrics.gauge({ name: 'worker.waitingTasks', value: jobCounts.waiting, tags: { queueName } })
+                metrics.gauge({ name: 'worker.completedTasks', value: jobCounts.completed, tags: { queueName } })
+                metrics.gauge({ name: 'worker.failedTasks', value: jobCounts.failed, tags: { queueName } })
+                metrics.gauge({ name: 'worker.delayedTasks', value: jobCounts.delayed, tags: { queueName } })
+                metrics.gauge({ name: 'worker.pausedTasks', value: jobCounts.paused, tags: { queueName } })
             })
         })
     }
