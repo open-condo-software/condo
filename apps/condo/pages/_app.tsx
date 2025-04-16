@@ -479,7 +479,7 @@ const MyApp = ({ Component, pageProps }) => {
     dayjs.locale(intl.locale)
     const router = useRouter()
     const { user, isAuthenticated, isLoading: isUserLoading } = useAuth()
-    const { publicRuntimeConfig: { yandexMetrikaID, popupSmartConfig, UseDeskWidgetId, isSnowfallDisabled, gtmId } } = getConfig()
+    const { publicRuntimeConfig: { yandexMetrikaID, popupSmartConfig, UseDeskWidgetId, isSnowfallDisabled, googleTagManagerId } } = getConfig()
 
     const LayoutComponent = Component.container || BaseLayout
     // TODO(Dimitreee): remove this mess later
@@ -554,7 +554,7 @@ const MyApp = ({ Component, pageProps }) => {
                         {!isSnowfallDisabled && <Snowfall />}
                     </LayoutContextProvider>
                     {yandexMetrikaID && <YandexMetrika />}
-                    {gtmId && <GoogleTagManager />}
+                    {googleTagManagerId && <GoogleTagManager />}
                     {!isEmpty(popupSmartConfig) && <PopupSmart />}
                     {UseDeskWidgetId && <UseDeskWidget/>}
                 </CacheProvider>

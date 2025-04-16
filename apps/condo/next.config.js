@@ -37,7 +37,7 @@ const docsConfig = { 'isGraphqlPlaygroundEnabled': conf['ENABLE_DANGEROUS_GRAPHQ
 const hCaptcha = conf['HCAPTCHA_CONFIG'] && JSON.parse(conf['HCAPTCHA_CONFIG'])
 const disableCaptcha = conf.DISABLE_CAPTCHA === 'true'
 const yandexMetrikaID = conf['YANDEX_METRIKA_ID']
-const gtmId = conf['GTM_ID']
+const googleTagManagerId  = conf['GOOGLE_TAG_MANAGER_ID']
 const defaultLocale = conf.DEFAULT_LOCALE
 const insuranceAppUrl = conf['INSURANCE_APP_URL']
 const JivoSiteWidgetId = conf['JIVO_SITE_WIDGET_ID']
@@ -87,7 +87,7 @@ let nextConfig = withTM(withLess(withCSS({
         behaviorRecorder,
         docsConfig,
         yandexMetrikaID,
-        gtmId,
+        googleTagManagerId,
         defaultLocale,
         insuranceAppUrl,
         JivoSiteWidgetId,
