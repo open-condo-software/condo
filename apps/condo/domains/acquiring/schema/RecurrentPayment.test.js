@@ -11,7 +11,7 @@ const {
     UUID_RE,
     DATETIME_RE,
     expectToThrowAuthenticationErrorToObj,
-    catchErrorFrom,
+    expectToThrowGraphQLRequestError,
 } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAccessDeniedErrorToObj,
@@ -261,14 +261,10 @@ describe('RecurrentPayment', () => {
                 request.billingReceipts = [{ id: 1 }]
 
                 // TODO(pahaz): DOMA-10368 use expectToThrowGQLError
-                await catchErrorFrom(async () => {
-                    await createTestRecurrentPayment(admin, request)
-                }, ({ errors }) => {
-                    expect(errors).toMatchObject([{
-                        name: 'UserInputError',
-                        extensions: { code: 'BAD_USER_INPUT' },
-                    }])
-                })
+                await expectToThrowGraphQLRequestError(
+                    async () => await createTestRecurrentPayment(admin, request),
+                    'got invalid value'
+                )
             })
 
             test('validate billingReceipts extra data', async () => {
@@ -276,14 +272,11 @@ describe('RecurrentPayment', () => {
                 const request = getPaymentRequest()
                 request.billingReceipts = [{ id: faker.datatype.uuid(), billingId: faker.datatype.uuid() }]
 
-                await catchErrorFrom(async () => {
-                    await createTestRecurrentPayment(admin, request)
-                }, ({ errors }) => {
-                    expect(errors).toMatchObject([{
-                        name: 'UserInputError',
-                        extensions: { code: 'BAD_USER_INPUT' },
-                    }])
-                })
+                // TODO(pahaz): DOMA-10368 use expectToThrowGQLError
+                await expectToThrowGraphQLRequestError(
+                    async () => await createTestRecurrentPayment(admin, request),
+                    'got invalid value'
+                )
             })
         })
     })

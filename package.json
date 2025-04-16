@@ -28,8 +28,8 @@
     "@commitlint/cli": "^17.1.2",
     "@commitlint/config-conventional": "^17.1.0",
     "@faker-js/faker": "^7.6.0",
-    "@graphql-codegen/cli": "1.21.8",
-    "@graphql-codegen/typescript": "1.23.0",
+    "@graphql-codegen/cli": "^5.0.2",
+    "@graphql-codegen/typescript": "^4.0.9",
     "@jest/reporters": "^29.7.0",
     "@mono-pub/commit-analyzer": "^1.0.5",
     "@mono-pub/git": "^1.0.5",
@@ -83,8 +83,8 @@
     "debuglog": "1.0.1",
     "debug": "4.3.4",
     "knex": "2.4.0",
+    "graphql": "^16.10.0",
     "@keystonejs/app-graphql": "patch:@keystonejs/app-graphql@npm:6.3.2#.yarn/patches/@keystonejs-app-graphql-npm-6.3.2-26fe50b988.patch",
-    "@keystonejs/keystone": "patch:@keystonejs/keystone@npm:19.3.4#.yarn/patches/@keystonejs-keystone-npm-19.3.4-2a53e53061.patch",
     "@keystonejs/access-control": "patch:@keystonejs/access-control@npm:7.1.2#.yarn/patches/@keystonejs-access-control-npm-7.1.2-bec144d41a.patch",
     "@babel/traverse": "^7.23.2",
     "protobufjs@>=6.0.0": "^6.11.4",
@@ -117,6 +117,9 @@
     "node-fetch@2.6.0": "^2.6.7",
     "node-fetch@2.6.1": "^2.6.7",
     "@keystonejs/app-admin-ui": "patch:@keystonejs/app-admin-ui@npm:7.5.2#.yarn/patches/@keystonejs-app-admin-ui-npm-7.5.2-ada8bd01c3.patch",
-    "trim@0.0.1": "^0.0.3"
+    "trim@0.0.1": "^0.0.3",
+    "@keystonejs/keystone": "patch:@keystonejs/keystone@npm:19.3.4#.yarn/patches/@keystonejs-keystone-npm-19.3.4-2a53e53061.patch",
+    "apollo-server-express": "patch:apollo-server-express@npm:2.26.0#.yarn/patches/apollo-server-express-npm-2.26.0-b1523109b5.patch",
+    "apollo-server-core": "patch:apollo-server-core@npm:2.26.0#.yarn/patches/apollo-server-core-npm-2.26.0-6396d881cb.patch"
   }
 }

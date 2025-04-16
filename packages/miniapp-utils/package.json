@@ -144,7 +144,7 @@
     "@open-condo/tsconfig": "workspace:^",
     "@types/react": "^16.14.61",
     "analytics": "^0.8.16",
-    "graphql": "^16.8.1",
+    "graphql": "^16.10.0",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "tsup": "^8.4.0",

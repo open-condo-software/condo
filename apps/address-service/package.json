@@ -28,7 +28,7 @@
     "@open-condo/icons": "workspace:^",
     "@open-condo/keystone": "workspace:^",
     "express": "^4.17.1",
-    "graphql": "^15.6.1",
+    "graphql": "^16.10.0",
     "graphql-tag": "^2.12.6",
     "lodash": "^4.17.21",
     "openid-client": "4.7.4",
