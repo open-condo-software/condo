@@ -64,6 +64,8 @@ function hasName (packageJsonPath, packageName) {
 }
 
 function isFileContains (packageJsonPath, filePath, searchContent) {
+    // NOTE: controlled environment
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
     const combinedPath = path.join(path.dirname(packageJsonPath), filePath)
     if (!fs.existsSync(combinedPath)) return false
 
