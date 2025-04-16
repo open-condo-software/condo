@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { useLaunchParams } from '@condo/domains/miniapp/hooks/useLaunchParams'
+import { useLaunchParams } from '@app/condo/domains/miniapp/hooks/useLaunchParams'
 
 
 const IndexPage = () => {

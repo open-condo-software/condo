@@ -10,7 +10,7 @@ const {
     expectToThrowAuthenticationErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
-const { normalizeEmail } = require('@condo/domains/common/utils/mail')
+const { normalizeEmail } = require('@app/condo/domains/common/utils/mail')
 const {
     createTestB2CApp,
     B2CAppAccessRight,

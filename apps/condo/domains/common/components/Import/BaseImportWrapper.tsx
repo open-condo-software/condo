@@ -62,7 +62,7 @@ export type ExtraModalContentType = Record<Extract<ActiveModalType, 'example'>, 
 
 type TBaseImportWrapperProps = {
     importCardButton?: {
-        header: Pick<CardHeaderProps, 'emoji' | 'headingTitle'>,
+        header: Pick<CardHeaderProps, 'emoji' | 'headingTitle'>
         body: Pick<CardBodyProps, 'description'>
     }
     setActiveModal: (type: ActiveModalType) => void

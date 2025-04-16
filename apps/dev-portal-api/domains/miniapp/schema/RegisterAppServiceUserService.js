@@ -9,7 +9,7 @@ const { safeFormatError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema, getByCondition } = require('@open-condo/keystone/schema')
 
-const { EMAIL_ALREADY_REGISTERED_ERROR } = require('@condo/domains/user/constants/errors')
+const { EMAIL_ALREADY_REGISTERED_ERROR } = require('@app/condo/domains/user/constants/errors')
 const { REMOTE_SYSTEM } = require('@dev-portal-api/domains/common/constants/common')
 const { REGISTER_SERVICE_USER_MUTATION } = require('@dev-portal-api/domains/common/gql')
 const { productionClient, developmentClient } = require('@dev-portal-api/domains/common/utils/serverClients')

@@ -8,7 +8,7 @@ const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, TOO_MANY_REQUESTS } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
-const { normalizeEmail } = require('@condo/domains/common/utils/mail')
+const { normalizeEmail } = require('@app/condo/domains/common/utils/mail')
 const { sendMessage } = require('@dev-portal-api/domains/common/utils/email')
 const { extractReqLocale, getLocalizedMessage } = require('@dev-portal-api/domains/common/utils/messages')
 const access = require('@dev-portal-api/domains/user/access/ConfirmEmailActionService')

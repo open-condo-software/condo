@@ -24,9 +24,7 @@
     "createservice": "node ./../../bin/createservice"
   },
   "dependencies": {
-    "@apollo/client": "^3.11.8",
     "@app/condo": "workspace:^",
-    "@condo/domains": "link:../condo/domains",
     "@emotion/babel-plugin": "^11.10.0",
     "@emotion/core": "^10.1.1",
     "@emotion/react": "^11.9.3",
@@ -49,7 +47,6 @@
     "emotion-server": "^10.0.27",
     "express": "^4.17.1",
     "graphql-tag": "^2.12.6",
-    "graphql-upload": "^15.0.1",
     "less": "^3.12.2",
     "lodash": "^4.17.21",
     "next": "^9.5.5",
