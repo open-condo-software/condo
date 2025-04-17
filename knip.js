@@ -124,6 +124,9 @@ async function config () {
         '.': {
             ignoreDependencies: [/commitlint/],
         },
+        'apps/insurance': {
+            ignoreDependencies: ['@graphql-codegen/typescript'],
+        },
         'apps/resident-app': {
             entry: ['domains/common/utils/sw.ts'],
         },
