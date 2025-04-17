@@ -518,8 +518,8 @@ const MyApp = ({ Component, pageProps }) => {
             <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize='large'>
                 <CacheProvider value={cache}>
                     <GlobalStyle/>
-                    {shouldDisplayCookieAgreement && <CookieAgreement/>}
                     <LayoutContextProvider serviceProblemsAlert={<ServiceProblemsAlert />}>
+                        {shouldDisplayCookieAgreement && <CookieAgreement/>}
                         <TasksProvider>
                             <PostMessageProvider>
                                 <TourProvider>
