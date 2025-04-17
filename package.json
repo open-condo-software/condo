@@ -18,7 +18,7 @@
     "lint:styles": "yarn run stylelint \"**/*.{less,css}\"",
     "lint:code:fix": "yarn run eslint --fix .",
     "lint:translations": "turbo run lint-translations",
-    "lint:deps": "turbo boundaries --filter=!'@app/condo' --filter=!'@open-condo/codegen'",
+    "lint:deps": "turbo boundaries --filter=!'@app/condo' --filter=!'@open-condo/codegen' && knip",
     "lint": "yarn lint:code && yarn lint:styles && yarn lint:translations && yarn lint:deps",
     "createapp": "node ./bin/createapp",
     "prepare": "husky install"
