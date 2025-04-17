@@ -121,6 +121,7 @@
     "trim@0.0.1": "^0.0.3",
     "@keystonejs/keystone": "patch:@keystonejs/keystone@npm:19.3.4#.yarn/patches/@keystonejs-keystone-npm-19.3.4-2a53e53061.patch",
     "apollo-server-express": "patch:apollo-server-express@npm:2.26.0#.yarn/patches/apollo-server-express-npm-2.26.0-b1523109b5.patch",
-    "apollo-server-core": "patch:apollo-server-core@npm:2.26.0#.yarn/patches/apollo-server-core-npm-2.26.0-6396d881cb.patch"
+    "apollo-server-core": "patch:apollo-server-core@npm:2.26.0#.yarn/patches/apollo-server-core-npm-2.26.0-6396d881cb.patch",
+    "eslint-seatbelt@0.1.2": "patch:eslint-seatbelt@npm:0.1.2#.yarn/patches/eslint-seatbelt-npm-0.1.2-310b3f19b9.patch"
   }
 }

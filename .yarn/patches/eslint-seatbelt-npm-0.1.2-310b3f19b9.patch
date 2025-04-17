@@ -1,0 +1,122 @@
+diff --git a/.idea/.gitignore b/.idea/.gitignore
+new file mode 100644
+index 0000000000000000000000000000000000000000..13566b81b018ad684f3a35fee301741b2734c8f4
+--- /dev/null
++++ b/.idea/.gitignore
+@@ -0,0 +1,8 @@
++# Default ignored files
++/shelf/
++/workspace.xml
++# Editor-based HTTP Client requests
++/httpRequests/
++# Datasource local storage ignored files
++/dataSources/
++/dataSources.local.xml
+diff --git a/.idea/inspectionProfiles/Project_Default.xml b/.idea/inspectionProfiles/Project_Default.xml
+new file mode 100644
+index 0000000000000000000000000000000000000000..03d9549ea8e4ada36fb3ecbc30fef08175b7d728
+--- /dev/null
++++ b/.idea/inspectionProfiles/Project_Default.xml
+@@ -0,0 +1,6 @@
++<component name="InspectionProjectProfileManager">
++  <profile version="1.0">
++    <option name="myName" value="Project Default" />
++    <inspection_tool class="Eslint" enabled="true" level="WARNING" enabled_by_default="true" />
++  </profile>
++</component>
+\ No newline at end of file
+diff --git a/.idea/modules.xml b/.idea/modules.xml
+new file mode 100644
+index 0000000000000000000000000000000000000000..d9fb14e4d06a030cba3cd105982c4f196e0718a0
+--- /dev/null
++++ b/.idea/modules.xml
+@@ -0,0 +1,8 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="ProjectModuleManager">
++    <modules>
++      <module fileurl="file://$PROJECT_DIR$/.idea/user.iml" filepath="$PROJECT_DIR$/.idea/user.iml" />
++    </modules>
++  </component>
++</project>
+\ No newline at end of file
+diff --git a/.idea/user.iml b/.idea/user.iml
+new file mode 100644
+index 0000000000000000000000000000000000000000..24643cc37449b4bde54411a80b8ed61258225e34
+--- /dev/null
++++ b/.idea/user.iml
+@@ -0,0 +1,12 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<module type="WEB_MODULE" version="4">
++  <component name="NewModuleRootManager">
++    <content url="file://$MODULE_DIR$">
++      <excludeFolder url="file://$MODULE_DIR$/.tmp" />
++      <excludeFolder url="file://$MODULE_DIR$/temp" />
++      <excludeFolder url="file://$MODULE_DIR$/tmp" />
++    </content>
++    <orderEntry type="inheritedJdk" />
++    <orderEntry type="sourceFolder" forTests="false" />
++  </component>
++</module>
+\ No newline at end of file
+diff --git a/.idea/vcs.xml b/.idea/vcs.xml
+new file mode 100644
+index 0000000000000000000000000000000000000000..d843f340d228380d0809b446083dfc066e5de60a
+--- /dev/null
++++ b/.idea/vcs.xml
+@@ -0,0 +1,4 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="VcsDirectoryMappings" defaultProject="true" />
++</project>
+\ No newline at end of file
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+new file mode 100644
+index 0000000000000000000000000000000000000000..1ac928b9209efa6766efa3266f9f99f6c890ee38
+--- /dev/null
++++ b/.idea/workspace.xml
+@@ -0,0 +1,4 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="PropertiesComponent">{}</component>
++</project>
+\ No newline at end of file
+diff --git a/dist/chunk-FSBX2ZEB.mjs b/dist/chunk-FSBX2ZEB.mjs
+index 97d38e86825d7a9474cb2224ea3ff9e8565512fc..e6933f8ffbbf7cd42bdf77e0e236c71d89147e7a 100644
+--- a/dist/chunk-FSBX2ZEB.mjs
++++ b/dist/chunk-FSBX2ZEB.mjs
+@@ -292,7 +292,7 @@ var SeatbeltArgs = {
+     }
+   },
+   findSeatbeltFile(cwd) {
+-    return `${cwd}/${SEATBELT_FILE_NAME}`;
++    return path.join(cwd, SEATBELT_FILE_NAME);
+   }
+ };
+ var envVarMaxLength = 0;
+diff --git a/dist/chunk-QVNO5FTU.js b/dist/chunk-QVNO5FTU.js
+index 9d981125ead0e01bc2f5f619a0ab66109a82a006..2b80e44747f68d3e4af996067aef0a3da684d3fd 100644
+--- a/dist/chunk-QVNO5FTU.js
++++ b/dist/chunk-QVNO5FTU.js
+@@ -292,7 +292,7 @@ var SeatbeltArgs = {
+     }
+   },
+   findSeatbeltFile(cwd) {
+-    return `${cwd}/${SEATBELT_FILE_NAME}`;
++    return _path2.default.join(cwd, SEATBELT_FILE_NAME);
+   }
+ };
+ var envVarMaxLength = 0;
+diff --git a/src/SeatbeltConfig.ts b/src/SeatbeltConfig.ts
+index 9ff59ded873c9a6923c60c541953c37ede5da308..f8602f1d9a08740bfbbf270bf20024fa2abce1a8 100644
+--- a/src/SeatbeltConfig.ts
++++ b/src/SeatbeltConfig.ts
+@@ -542,7 +542,7 @@ export const SeatbeltArgs = {
+   },
+   findSeatbeltFile(cwd: string): string {
+     // TODO: go up to parent dir w/ .git?
+-    return `${cwd}/${SEATBELT_FILE_NAME}`
++    return path.join(cwd, SEATBELT_FILE_NAME)
+   },
+ }
+ 
