@@ -6,7 +6,6 @@ import React, { useCallback, useMemo, useState } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { Button, Input } from '@open-condo/ui'
 
 import { FormItem } from '@condo/domains/common/components/Form/FormItem'
@@ -50,9 +49,6 @@ export const InputPhoneForm: React.FC<InputPhoneFormProps> = ({ onFinish }) => {
     const router = useRouter()
     const { query: { next } } = router
     const redirectUrl = (next && !Array.isArray(next) && isSafeUrl(next)) ? next : '/'
-
-    const { organization } = useOrganization()
-    const country = organization.country || defaultLocale
 
     const [isLoading, setIsLoading] = useState(false)
 
@@ -149,7 +145,7 @@ export const InputPhoneForm: React.FC<InputPhoneFormProps> = ({ onFinish }) => {
                                         data-cy='register-phone-item'
                                         rules={registerPhoneRules}
                                     >
-                                        <Input.Phone country={country} placeholder={ExamplePhoneMessage} inputProps={PHONE_INPUT_PROPS} />
+                                        <Input.Phone country={defaultLocale} placeholder={ExamplePhoneMessage} inputProps={PHONE_INPUT_PROPS} />
                                     </FormItem>
                                 </Col>
 
