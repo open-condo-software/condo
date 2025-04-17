@@ -52,7 +52,7 @@ function decodeLine (line, index) {
 }
 
 async function main () {
-    const text = fs.readFileSync('eslint.seatbelt.tsv', 'utf8')
+    const text = fs.readFileSync(`${process.cwd()}/eslint.seatbelt.tsv`, 'utf8')
 
     console.log('T', [text])
 
