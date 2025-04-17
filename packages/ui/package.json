@@ -81,7 +81,6 @@
     "@babel/preset-env": "^7.19.0",
     "@babel/preset-react": "^7.18.6",
     "@babel/preset-typescript": "^7.18.6",
-    "@mdx-js/react": "^1.6.22",
     "@open-condo/tsconfig": "workspace:^",
     "@storybook/addon-actions": "7.6.20",
     "@storybook/addon-docs": "7.6.20",

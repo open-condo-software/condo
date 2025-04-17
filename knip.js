@@ -133,6 +133,21 @@ async function config () {
         'packages/keystone': {
             entry: ['**/*.{js,cjs,mjs,jsx,ts,cts,mts,tsx}'],
         },
+        'packages/ui': {
+            ignoreDependencies: [
+                /storybook/,
+                'style-loader',
+                'chromatic',
+                'token-transformer',
+            ],
+            webpack: {
+                config: [
+                    'webpack.common.js',
+                    'webpack.dev.js',
+                    'webpack.prod.js',
+                ],
+            },
+        },
     }
 
     /** @type import('knip').KnipConfig['workspaces'] */
@@ -201,8 +216,11 @@ async function config () {
             }
         }
 
-        // icons uses babel + webpack to build
-        if (hasName(packageJsonPath, '@open-condo/icons') && hasPath(packageJsonPath, '.babelrc')) {
+        // icons / ui kit uses babel + webpack to build
+        if (
+            (hasName(packageJsonPath, '@open-condo/icons') || hasName(packageJsonPath, '@open-condo/ui')) &&
+            hasPath(packageJsonPath, '.babelrc')
+        ) {
             if (hasDependency(packageJsonPath, 'babel')) {
                 packageConfig.ignoreDependencies.push('babel')
             }
