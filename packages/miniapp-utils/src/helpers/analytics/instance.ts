@@ -1,6 +1,6 @@
 import { Analytics as DefaultAnalytics } from 'analytics'
 
-import { GroupingMiddlewarePlugin } from './middlewares'
+import { GroupingMiddlewarePlugin, IdentityMiddlewarePlugin } from './middlewares'
 
 import type { AnyPayload, AnalyticsConfig, AnalyticsInstanceWithGroups, PageData } from './types'
 
@@ -96,6 +96,7 @@ export class Analytics<
         this._analytics = DefaultAnalytics({
             ...config,
             plugins: [
+                IdentityMiddlewarePlugin,
                 GroupingMiddlewarePlugin,
                 ...(config.plugins || []),
             ],
