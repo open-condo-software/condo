@@ -223,7 +223,7 @@ jobs:
         run: |
           npm i -g turbo
           yarn install --immutable
-      - name: Check missing dependencies
+      - name: Check missing & redundant dependencies
         run: |
           yarn lint:deps
 
