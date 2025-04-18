@@ -1101,8 +1101,11 @@ shell:
     - "yarn install --immutable"
   setup:
     - "cd /app"
-    - "echo '# Build time .env config!' >> /app/apps/news-telegram-web/.env"
-    - "echo 'NODE_ENV=production' >> /app/apps/news-telegram-web/.env"
+    - "echo '# Build time .env config!' >> /app/.env"
+    - "echo 'COOKIE_SECRET=undefined' >> /app/.env"
+    - "echo 'DATABASE_URL=undefined' >> /app/.env"
+    - "echo 'REDIS_URL=undefined' >> /app/.env"
+    - "echo 'NODE_ENV=production' >> /app/.env"
     - "yarn workspace @app/news-telegram-web next telemetry disable"
     - "yarn workspace @app/news-telegram-web build:deps"
     - "yarn workspace @app/news-telegram-web build"
