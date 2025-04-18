@@ -74,6 +74,8 @@ jobs:
           WERF_SET_CI_ANNOUNCEMENT_GENERATOR_URL: "global.ci_announcement_url=announcement-generator.doma.ai"
           WERF_SET_CI_NEWS_GREENHOUSE_URL: "global.ci_news_greenhouse_url=news-sharing-greendom.doma.ai"
           WERF_SET_CI_METER_IMPORTER_URL: "global.ci_meter_importer_url=meters-billing-integration.doma.ai"
+          WERF_SET_CI_NEWS_TELEGRAM_WEB_URL: "global.ci_news_telegram_web_url=news-telegram.doma.ai"
+          WERF_SET_CI_NEWS_TELEGRAM_API_URL: "global.ci_news_telegram_api_url=news-telegram-api.doma.ai"
           WERF_SET_CI_NAMESPACE: "global.ci_namespace=production"
           WERF_NAMESPACE: "production"
           WERF_VIRTUAL_MERGE_FROM_COMMIT: "true"
