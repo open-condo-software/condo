@@ -29,7 +29,7 @@ const {
     ResidentTestMixin,
 } = require('@condo/domains/billing/utils/testSchema/testUtils')
 const { INVOICE_STATUS_PUBLISHED } = require('@condo/domains/marketplace/constants')
-const { createTestInvoice, updateTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
+const { createTestInvoice, updateTestInvoice, generateInvoiceRow } = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
@@ -256,14 +256,16 @@ describe('RegisterMultiPaymentForInvoicesService', () => {
             })
 
             test('Payment amount is equal to maximum payment amount required by the acquiring integration', async () => {
-                const [invoice] = await createTestInvoice(utils.clients.admin, utils.organization, { status: INVOICE_STATUS_PUBLISHED, toPay: '1000' })
+                const rows = generateInvoiceRow({ toPay: '1000' })
+                const [invoice] = await createTestInvoice(utils.clients.admin, utils.organization, { rows, status: INVOICE_STATUS_PUBLISHED })
                 await utils.updateAcquiringIntegration({ maximumPaymentAmount: Big(invoice.toPay) })
                 const [result] = await registerMultiPaymentForInvoicesByTestClient(utils.clients.admin, { invoices: [{ id: invoice.id }] })
                 expect(result).toHaveProperty('multiPaymentId')
             })
 
             test('Payment amount is greater than the maximum payment amount required by the acquiring integration', async () => {
-                const [invoice] = await createTestInvoice(utils.clients.admin, utils.organization, { status: INVOICE_STATUS_PUBLISHED, toPay: '1000' })
+                const rows = generateInvoiceRow({ toPay: '1000' })
+                const [invoice] = await createTestInvoice(utils.clients.admin, utils.organization, { rows, status: INVOICE_STATUS_PUBLISHED })
                 const maximumPaymentAmount =  Big(invoice.toPay).minus(100).toString()
                 await utils.updateAcquiringIntegration({ maximumPaymentAmount })
                 await expectToThrowGQLError(async () => {
@@ -275,7 +277,8 @@ describe('RegisterMultiPaymentForInvoicesService', () => {
             })
 
             test('Payment amount is less than the maximum payment amount required by the acquiring integration', async () => {
-                const [invoice] = await createTestInvoice(utils.clients.admin, utils.organization, { status: INVOICE_STATUS_PUBLISHED, toPay: '1000' })
+                const rows = generateInvoiceRow({ toPay: '1000' })
+                const [invoice] = await createTestInvoice(utils.clients.admin, utils.organization, { rows, status: INVOICE_STATUS_PUBLISHED })
                 const maximumPaymentAmount =  Big(invoice.toPay).add(100)
                 await utils.updateAcquiringIntegration({ maximumPaymentAmount })
                 const [result] = await registerMultiPaymentForInvoicesByTestClient(utils.clients.admin, { invoices: [{ id: invoice.id }] })
@@ -283,27 +286,30 @@ describe('RegisterMultiPaymentForInvoicesService', () => {
             })
 
             test('Payment for acquiring with no set the minimum payment amount', async () => {
-                const [invoice] = await createTestInvoice(utils.clients.admin, utils.organization, { status: INVOICE_STATUS_PUBLISHED, toPay: '1000' })
+                const [invoice] = await createTestInvoice(utils.clients.admin, utils.organization, { status: INVOICE_STATUS_PUBLISHED })
                 const [result] = await registerMultiPaymentForInvoicesByTestClient(utils.clients.admin, { invoices: [{ id: invoice.id }] })
                 expect(result).toHaveProperty('multiPaymentId')
             })
 
             test('Payment amount is equal to minimum payment amount required by the acquiring integration', async () => {
-                const [invoice] = await createTestInvoice(utils.clients.admin, utils.organization, { status: INVOICE_STATUS_PUBLISHED, toPay: '1000' })
+                const rows = generateInvoiceRow({ toPay: '1000' })
+                const [invoice] = await createTestInvoice(utils.clients.admin, utils.organization, { rows, status: INVOICE_STATUS_PUBLISHED })
                 await utils.updateAcquiringIntegration({ minimumPaymentAmount: Big(invoice.toPay) })
                 const [result] = await registerMultiPaymentForInvoicesByTestClient(utils.clients.admin, { invoices: [{ id: invoice.id }] })
                 expect(result).toHaveProperty('multiPaymentId')
             })
 
             test('Payment amount is greater than minimum payment amount required by the acquiring integration', async () => {
-                const [invoice] = await createTestInvoice(utils.clients.admin, utils.organization, { status: INVOICE_STATUS_PUBLISHED, toPay: '1000' })
+                const rows = generateInvoiceRow({ toPay: '1000' })
+                const [invoice] = await createTestInvoice(utils.clients.admin, utils.organization, { rows, status: INVOICE_STATUS_PUBLISHED })
                 await utils.updateAcquiringIntegration({ minimumPaymentAmount: Big(invoice.toPay).minus(1) })
                 const [result] = await registerMultiPaymentForInvoicesByTestClient(utils.clients.admin, { invoices: [{ id: invoice.id }] })
                 expect(result).toHaveProperty('multiPaymentId')
             })
 
             test('Payment amount is less than minimum payment amount required by the acquiring integration', async () => {
-                const [invoice] = await createTestInvoice(utils.clients.admin, utils.organization, { status: INVOICE_STATUS_PUBLISHED, toPay: '1000' })
+                const rows = generateInvoiceRow({ toPay: '1000' })
+                const [invoice] = await createTestInvoice(utils.clients.admin, utils.organization, { rows, status: INVOICE_STATUS_PUBLISHED })
                 const minimumPaymentAmount = Big(invoice.toPay).add(1).toString()
                 await utils.updateAcquiringIntegration({ minimumPaymentAmount })
                 await expectToThrowGQLError(async () => {
