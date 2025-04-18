@@ -259,6 +259,69 @@ describe('RegisterMultiPaymentService', () => {
                     .toFixed(2),
             )
         })
+
+        test('Should allow to pay partial for receipt with negative pay', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const { commonData, batches } = await makePayerWithMultipleConsumers(1, 1)
+            const hostUrl = commonData.acquiringIntegration.hostUrl
+            const [batch] = batches
+            const serviceConsumerId = batch.serviceConsumer.id
+            const toPay = '-1000'
+            await updateTestBillingReceipt(commonData.admin, batch.billingReceipts[0].id, {
+                toPay,
+            })
+
+            const payload = [{
+                serviceConsumer: { id: serviceConsumerId },
+                receipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })),
+                amountDistribution: batch.billingReceipts.map(receipt => ({
+                    receipt: { id: receipt.id },
+                    amount: '1000',
+                })),
+            }]
+
+            const [result] = await registerMultiPaymentByTestClient(commonData.client, payload)
+            expect(result).toBeDefined()
+            expect(result).toHaveProperty('dv', 1)
+            expect(result).toHaveProperty('multiPaymentId')
+            expect(result).toHaveProperty('webViewUrl', `${hostUrl}${WEB_VIEW_PATH.replace('[id]', result.multiPaymentId)}`)
+            expect(result).toHaveProperty('feeCalculationUrl', `${hostUrl}${FEE_CALCULATION_PATH.replace('[id]', result.multiPaymentId)}`)
+            expect(result).toHaveProperty('directPaymentUrl', `${hostUrl}${DIRECT_PAYMENT_PATH.replace('[id]', result.multiPaymentId)}`)
+            expect(result).toHaveProperty('getCardTokensUrl', `${hostUrl}${GET_CARD_TOKENS_PATH.replace('[id]', batches[0].resident.user.id)}`)
+
+            const { multiPaymentId } = result
+            const multiPayment = await MultiPayment.getOne(admin, { id: multiPaymentId })
+            expect(multiPayment).toBeDefined()
+            expect(Big(multiPayment.amountWithoutExplicitFee).toFixed(2)).toEqual('1000.00')
+        })
+
+        test('Should not allow to create payment with negative amount', async () => {
+            const { commonData, batches } = await makePayerWithMultipleConsumers(1, 1)
+            const [batch] = batches
+            const serviceConsumerId = batch.serviceConsumer.id
+            const toPay = '-1000'
+            await updateTestBillingReceipt(commonData.admin, batch.billingReceipts[0].id, {
+                toPay,
+            })
+
+            const payload = [{
+                serviceConsumer: { id: serviceConsumerId },
+                receipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })),
+            }]
+
+            await expectToThrowGQLErrorToResult(async () => {
+                await registerMultiPaymentByTestClient(commonData.client, payload)
+            }, {
+                mutation: 'registerMultiPayment',
+                variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
+                code: 'BAD_USER_INPUT',
+                type: 'RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE',
+                message: 'Cannot pay for BillingReceipts {ids} with negative "toPay" value',
+                messageInterpolation: {
+                    ids: batch.billingReceipts[0].id,
+                },
+            })
+        })
     })
     describe('Validations', () => {
         describe('Input checks', () => {

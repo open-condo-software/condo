@@ -463,12 +463,19 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     throw new GQLError({ ...ERRORS.RECEIPTS_ARE_DELETED, messageInterpolation: { ids: deletedReceiptsIds.join(', ') } }, context)
                 }
 
-                // TODO(dkovyazin): DOMA-11397 will not work with advance payments
-                const negativeReceiptsIds = receipts
-                    .filter(receipt => Big(receipt.toPay).lte(0))
-                    .map(receipt => receipt.id)
-                if (negativeReceiptsIds.length) {
-                    throw new GQLError({ ...ERRORS.RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE, messageInterpolation: { ids: negativeReceiptsIds.join(', ') } }, context)
+                //If we have receipt with overpayment, we still want to allow user to pay partially for it
+                //From previous checks we know that every receipt should have distribution amount otherwise we got err at previous step
+                //If distribution is set then payment amount will be taken from distribution not from receipt toPay
+                if (distributionReceipts.length === 0) {
+                    const negativeReceiptsIds = receipts
+                        .filter(receipt => Big(receipt.toPay).lte(0))
+                        .map(receipt => receipt.id)
+                    if (negativeReceiptsIds.length) {
+                        throw new GQLError({
+                            ...ERRORS.RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE,
+                            messageInterpolation: { ids: negativeReceiptsIds.join(', ') },
+                        }, context)
+                    }
                 }
 
                 const receiptsByIds = Object.assign({}, ...receipts.map(obj => ({ [obj.id]: obj })))
