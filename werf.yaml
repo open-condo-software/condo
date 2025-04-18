@@ -1106,6 +1106,7 @@ shell:
     - "echo 'DATABASE_URL=undefined' >> /app/.env"
     - "echo 'REDIS_URL=undefined' >> /app/.env"
     - "echo 'NODE_ENV=production' >> /app/.env"
+    - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
     - "echo '# Build time .env config!' >> /app/apps/dev-portal-web/.env"
     - "echo 'NODE_ENV=production' >> /app/apps/dev-portal-web/.env"
     - "yarn workspace @app/news-telegram-web next telemetry disable"
