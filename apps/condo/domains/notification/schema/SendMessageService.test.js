@@ -127,6 +127,7 @@ describe('SendMessageService', () => {
                     expect(transportMeta.status).toEqual(MESSAGE_SENT_STATUS)
                     expect(transportMeta.transport).toEqual(PUSH_TRANSPORT)
                     expect(message.processingMeta.isVoIP).toBeTruthy()
+                    expect(transportMeta.messageContext.data.messageCreatedAt).toEqual(message.createdAt)
                     expect(transportMeta.deliveryMetadata.pushContext[payload.pushTypeVoIP].token).toEqual(payload.pushTokenVoIP)
                     expect(transportMeta.deliveryMetadata.pushContext[payload.pushTypeVoIP].token).not.toEqual(payload.pushToken)
                 })
@@ -171,6 +172,7 @@ describe('SendMessageService', () => {
                     expect(transportMeta.status).toEqual(MESSAGE_SENT_STATUS)
                     expect(transportMeta.transport).toEqual(PUSH_TRANSPORT)
                     expect(message.processingMeta.isVoIP).toBeTruthy()
+                    expect(transportMeta.messageContext.data.messageCreatedAt).toEqual(message.createdAt)
                     expect(transportMeta.deliveryMetadata.pushContext.default.token).toEqual(payload.pushTokenVoIP)
                     expect(transportMeta.deliveryMetadata.pushContext.default.token).not.toEqual(payload.pushToken)
                 })
@@ -215,6 +217,7 @@ describe('SendMessageService', () => {
                     expect(transportMeta.status).toEqual(MESSAGE_SENT_STATUS)
                     expect(transportMeta.transport).toEqual(PUSH_TRANSPORT)
                     expect(message.processingMeta.isVoIP).toBeTruthy()
+                    expect(transportMeta.messageContext.data.messageCreatedAt).toEqual(message.createdAt)
                     expect(transportMeta.deliveryMetadata.pushContext.default.token).toEqual(payload.pushTokenVoIP)
                     expect(transportMeta.deliveryMetadata.pushContext.default.token).not.toEqual(payload.pushToken)
                 })
@@ -238,7 +241,7 @@ describe('SendMessageService', () => {
                             title: faker.random.alphaNumeric(8),
                             data: {
                                 B2CAppId: faker.datatype.uuid(),
-                                callId: faker.datatype.uuid(),
+                                voipIncomingCallId: faker.datatype.uuid(),
                             },
                         },
                     }
@@ -296,6 +299,54 @@ describe('SendMessageService', () => {
                     expect(transportMeta.status).toEqual(MESSAGE_SENT_STATUS)
                     expect(transportMeta.transport).toEqual(PUSH_TRANSPORT)
                     expect(transportMeta.deliveryMetadata.pushContext[payload.pushType].data.type).toEqual(B2C_APP_MESSAGE_PUSH_TYPE)
+                })
+            })
+
+            describe('Required fields in different push types', () => {
+                it('CANCELED_CALL_MESSAGE_PUSH_TYPE has required fields in message', async () => {
+                    const userClient = await makeClientWithResidentAccessAndProperty()
+
+                    await syncRemoteClientWithPushTokenByTestClient(userClient)
+                    const metaData = {
+                        B2CAppId: faker.datatype.uuid(),
+                        B2CAppContext: faker.datatype.uuid(),
+                        B2CAppName: faker.datatype.string(5),
+                        residentId: faker.datatype.uuid(),
+                        voipIncomingCallId: faker.datatype.uuid(),
+                    }
+
+                    const messageAttrs = {
+                        to: { user: { id: userClient.user.id } },
+                        type: CANCELED_CALL_MESSAGE_PUSH_TYPE,
+                        meta: {
+                            dv: 1,
+                            body: faker.random.alphaNumeric(8),
+                            title: faker.random.alphaNumeric(8),
+                            data: metaData,
+                        },
+                    }
+                    const [{ id }] = await sendMessageByTestClient(admin, messageAttrs)
+
+                    let message
+
+                    await waitFor(async () => {
+                        message = await Message.getOne(admin, { id })
+
+                        expect(message.status).toEqual(MESSAGE_SENT_STATUS)
+                        expect(message.user.id).toEqual(userClient.user.id)
+                        expect(message.meta.data.voipIncomingCallId).toEqual(metaData['voipIncomingCallId'])
+                    })
+
+                    const transportMeta = message.processingMeta.transportsMeta[0]
+
+                    expect(transportMeta.status).toEqual(MESSAGE_SENT_STATUS)
+                    expect(transportMeta.transport).toEqual(PUSH_TRANSPORT)
+                    expect(transportMeta.messageContext.data.messageCreatedAt).toEqual(message.createdAt)
+                    expect(transportMeta.messageContext.data.voipIncomingCallId).toEqual(metaData['voipIncomingCallId'])
+                    expect(transportMeta.messageContext.data.residentId).toEqual(metaData['residentId'])
+                    expect(transportMeta.messageContext.data.B2CAppName).toEqual(metaData['B2CAppName'])
+                    expect(transportMeta.messageContext.data.B2CAppContext).toEqual(metaData['B2CAppContext'])
+                    expect(transportMeta.messageContext.data.B2CAppId).toEqual(metaData['B2CAppId'])
                 })
             })
 
