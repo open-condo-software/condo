@@ -13,7 +13,7 @@ const { v4 } = require('uuid')
 const conf = require('@open-condo/config')
 const { safeApolloErrorFormatter } = require('@open-condo/keystone/apolloErrorFormatter')
 const { ApolloRateLimitingPlugin, ApolloQueryBlockingPlugin } = require('@open-condo/keystone/apolloServerPlugins')
-const { ApolloSentryPlugin } = require('@open-condo/keystone/apolloServerPlugins')
+const { ApolloSentryPlugin, ApolloCheckDeletedUserPlugin } = require('@open-condo/keystone/apolloServerPlugins')
 const { ExtendedPasswordAuthStrategy } = require('@open-condo/keystone/authStrategy/passwordAuth')
 const { parseCorsSettings } = require('@open-condo/keystone/cors.utils')
 const { _internalGetExecutionContextAsyncLocalStorage } = require('@open-condo/keystone/executionContext')
@@ -106,6 +106,8 @@ function _getApolloServerPlugins (keystone) {
     // NOTE: Must be after all req.context filling plugins
     apolloServerPlugins.push(new GraphQLLoggerPlugin())
 
+    apolloServerPlugins.push(new ApolloCheckDeletedUserPlugin())
+    
     if (IS_SENTRY_ENABLED) {
         apolloServerPlugins.unshift(new ApolloSentryPlugin())
     }
