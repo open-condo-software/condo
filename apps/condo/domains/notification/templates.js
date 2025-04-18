@@ -290,7 +290,7 @@ function emailRenderer ({ message, env }) {
  * @returns {{notification: {title: string, body}, data: {[p: string]: *}}}
  */
 function pushRenderer ({ message, env }) {
-    const { id: notificationId, lang: locale, type } = message
+    const { id: notificationId, lang: locale, type, createdAt } = message
     const messageTranslated = substituteTranslations(message, locale)
 
     const renderedTitle = i18n(translationStringKeyForPushTitle(type), { locale, meta: messageTranslated.meta })
@@ -305,7 +305,7 @@ function pushRenderer ({ message, env }) {
             title: renderedTitle,
             body: renderedBody,
         },
-        data: { ...get(message, ['meta', 'data'], {}), notificationId, type },
+        data: { ...get(message, ['meta', 'data'], {}), notificationId, type, messageCreatedAt: createdAt },
     }
 }
 
