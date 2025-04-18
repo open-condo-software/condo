@@ -3,6 +3,7 @@ import { Row, Col, Skeleton } from 'antd'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isNull from 'lodash/isNull'
+import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import React, { useEffect, useMemo, useState, useCallback, useRef } from 'react'
 
@@ -51,6 +52,8 @@ const DATA_CARD_DESCRIPTION_CONTAINER_STYLE: React.CSSProperties = {
 }
 const MODAL_TABLE_PAGE_SIZE = 5
 const DASHBOARD_WIDTH_BREAKPOINT = 1300
+
+const { publicRuntimeConfig: { defaultCurrencyCode } } = getConfig()
 
 type StatisticCardProps = { label: string, value: string | number, secondaryLabel?: string }
 
@@ -165,7 +168,7 @@ const PerformanceCard = ({ organizationId, paymentSum, propertyData, residentsDa
                             </Col>
                             <StatisticCard
                                 label={PaymentsAmount}
-                                value={intl.formatNumber(paymentSum, { style: 'currency', currency: 'Rub' })}
+                                value={intl.formatNumber(paymentSum, { style: 'currency', currency: defaultCurrencyCode })}
                             />
                             <StatisticCard
                                 label={ResidentsInApp}
