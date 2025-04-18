@@ -3,6 +3,7 @@ import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import uniq from 'lodash/uniq'
 import uniqBy from 'lodash/uniqBy'
+import getConfig from 'next/config'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { useCallback, useMemo, useState } from 'react'
@@ -36,6 +37,8 @@ const MARKET_ITEM_CONTENT_VERTICAL_GUTTER: RowProps['gutter'] = [0, 60]
 const MEDIUM_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
 const SMALL_VERTICAL_GUTTER: RowProps['gutter'] = [0, 24]
 const ELLIPSIS_CONFIG = { rows: 2 }
+
+const { publicRuntimeConfig: { defaultCurrencyCode } } = getConfig()
 
 const MarketItemHeader = ({ title, marketItem }) => {
     const intl = useIntl()
@@ -205,7 +208,7 @@ const PricesBlock = ({ marketItemId }) => {
     const addressesPrices: AddressesPriceType[] = useMemo(() => {
         const resultAddressesPrices: AddressesPriceType[] = uniquePrices.map(priceObj => {
             const firstPrice =  get(priceObj, 'price.0')
-            const price = getMoneyRender(intl, get(firstPrice, 'currency', 'RUB'))(get(firstPrice, 'price'), get(firstPrice, 'isMin'))
+            const price = getMoneyRender(intl, get(firstPrice, 'currency', defaultCurrencyCode))(get(firstPrice, 'price'), get(firstPrice, 'isMin'))
             const measure: PriceMeasuresType = get(firstPrice, 'measure')
 
             let shortMeasureMessage = null

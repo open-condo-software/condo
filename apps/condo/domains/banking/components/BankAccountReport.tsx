@@ -5,6 +5,7 @@ import ReactECharts from 'echarts-for-react'
 import find from 'lodash/find'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
+import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import React, { useState, useCallback, useRef, useMemo, useEffect } from 'react'
 
@@ -24,6 +25,7 @@ import type { BankAccount as BankAccountType } from '@app/condo/schema'
 import type { RowProps } from 'antd'
 import type { EChartsOption, EChartsReactProps } from 'echarts-for-react'
 
+const { publicRuntimeConfig: { defaultCurrencyCode } } = getConfig()
 
 const BANK_ACCOUNT_REPORT_ROW_GUTTER: RowProps['gutter'] = [40, 40]
 const LABEL_TRUNCATE_LENGTH = 17
@@ -92,7 +94,7 @@ type InfoCardProps = {
     hoverable?: CardProps['hoverable']
 }
 interface IInfoCard { (props: InfoCardProps): React.ReactElement }
-const InfoCard: IInfoCard = ({ value, currencyCode = 'RUB',  ...props }) => {
+const InfoCard: IInfoCard = ({ value, currencyCode = defaultCurrencyCode,  ...props }) => {
     const intl = useIntl()
     const CurrencyValue = intl.formatNumber(parseFloat(value), { style: 'currency', currency: currencyCode })
 
@@ -126,7 +128,7 @@ enum ReportCategories {
     'Withdrawal',
 }
 
-const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [], currencyCode = 'RUB' }) => {
+const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [], currencyCode = defaultCurrencyCode }) => {
     const intl = useIntl()
     const PropertyBalanceLabel = intl.formatMessage({ id: 'pages.condo.property.id.propertyReportBalance.title' })
     const IncomeTitle = intl.formatMessage({ id: 'global.income' }, { isSingular: false })
