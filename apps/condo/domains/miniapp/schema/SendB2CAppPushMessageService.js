@@ -101,7 +101,7 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
         },
         {
             access: true,
-            type: 'input SendB2CAppPushMessageData { body: String!, title: String, B2CAppContext: String, callId: String, voipType: String, voipAddress: String, voipLogin: String, voipPassword: String, voipDtfmCommand: String, stun: String, codec: String }',
+            type: 'input SendB2CAppPushMessageData { body: String!, title: String, B2CAppContext: String, callId: String, voipIncomingCallId: String, voipType: String, voipAddress: String, voipLogin: String, voipPassword: String, voipDtfmCommand: String, stun: String, codec: String }',
         },
         {
             access: true,
