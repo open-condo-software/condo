@@ -1,4 +1,5 @@
 import get from 'lodash/get'
+import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import { useCallback, useMemo } from 'react'
 
@@ -13,6 +14,7 @@ import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.uti
 import { INVOICE_STATUS_COLORS } from '@condo/domains/marketplace/constants'
 import { getMoneyRender } from '@condo/domains/marketplace/utils/clientSchema/Invoice'
 
+const { publicRuntimeConfig: { defaultCurrencyCode } } = getConfig()
 
 export const useMarketplaceInvoicesTableColumns = ({ filtersMeta }) => {
     const intl = useIntl()
@@ -173,7 +175,7 @@ export const useMarketplaceInvoicesTableColumns = ({ filtersMeta }) => {
                 const totalPrice = rows.filter(row => row.toPay !== '0').reduce((acc, row) => acc + Number(row.toPay) * row.count, 0)
                 const hasMinPrice = rows.some(row => row.isMin)
                 const isContractToPay = rows.every(row => row.isMin && row.toPay === '0')
-                const currencyCode = get(rows, ['0', 'currencyCode'], 'RUB')
+                const currencyCode = get(rows, ['0', 'currencyCode'], defaultCurrencyCode)
                 const moneyRender = getMoneyRender(intl, currencyCode)
 
                 return isContractToPay ? ContractPriceMessage : moneyRender(totalPrice, hasMinPrice)
