@@ -28,7 +28,11 @@ const SignInPage: PageComponentType = () => {
             <Head><title>{SignInTitleMsg}</title></Head>
             <Row>
                 <Col>
-                    <TabsAuthAction currentActiveKey='signin'/>
+                    <Row justify='center'>
+                        <Col>
+                            <TabsAuthAction currentActiveKey='signin'/>
+                        </Col>
+                    </Row>
                     <SignInForm/>
                 </Col>
             </Row>

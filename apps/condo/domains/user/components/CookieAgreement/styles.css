@@ -1,0 +1,40 @@
+.cookie-agreement {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  z-index: 11;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  background: white;
+
+  /* shadows.big from apps/condo/domains/common/constants/style.js */
+  box-shadow: 0 14px 34px rgb(208 216 225 / 40%), 0 15px 38px rgb(208 216 225 / 40%), 0 7px 17px rgb(208 216 225 / 60%);
+}
+
+.cookie-agreement-content {
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 12px 40px;
+}
+
+.cookie-agreement-more a.condo-typography {
+  display: flex;
+  align-items: center;
+}
+
+@media (max-width: 991px) {
+  .cookie-agreement-content {
+    justify-content: flex-start;
+    width: 640px;
+    padding: 16px 20px;
+  }
+}
+
+@media (min-width: 992px) {
+  .cookie-agreement-content {
+    padding-right: 96px;
+  }
+}

@@ -58,7 +58,7 @@ const AuthPage: PageComponentType = () => {
                                 <Col span={24}>
                                     <AuthButton type='secondary' block onClick={async () => {
                                         setCookie(AUTH_FLOW_USER_TYPE_COOKIE_NAME, 'staff', { maxAge: COOKIE_MAX_AGE_IN_SEC })
-                                        await router.replace(isValidNextUrl ? `/auth/register?next=${encodeURIComponent(next)}` : '/auth/register')
+                                        await router.replace(isValidNextUrl ? `/auth/signin?next=${encodeURIComponent(next)}` : '/auth/signin')
                                     }}>
                                         {IAmOrganizationRepresentativeMessage}
                                     </AuthButton>
@@ -84,11 +84,7 @@ AuthPage.getPrefetchedData = async ({ context }) => {
     const isValidNext = !Array.isArray(next) && isSafeUrl(next)
 
     let nextUrl = null
-    if (wasAuthenticated) {
-        nextUrl = isValidNext ? `/auth/signin?next=${encodeURIComponent(next)}` : '/auth/signin'
-    } else if (userType === 'staff') {
-        nextUrl = isValidNext ? `/auth/signin?next=${encodeURIComponent(next)}` : '/auth/signin'
-    } else if (!hasResidentApp) {
+    if (wasAuthenticated || userType === 'staff' || !hasResidentApp) {
         nextUrl = isValidNext ? `/auth/signin?next=${encodeURIComponent(next)}` : '/auth/signin'
     } else if (userType === 'resident') {
         nextUrl = '/auth/resident'

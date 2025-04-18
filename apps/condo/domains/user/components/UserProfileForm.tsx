@@ -76,10 +76,6 @@ export const UserProfileForm: React.FC = () => {
         },
     }
 
-    const handleResetPasswordAction = useCallback(() => {
-        return router.push(RESET_PASSWORD_URL)
-    }, [router])
-
     return (
         <FormWithAction
             action={formAction}
