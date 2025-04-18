@@ -11,8 +11,7 @@ const { getById, find } = require('@open-condo/keystone/schema')
 
 const { checkBillingIntegrationsAccessRights } = require('@condo/domains/billing/utils/accessSchema')
 const { SERVICE } = require('@condo/domains/user/constants/common')
-
-const { canDirectlyReadSchemaObjects } = require('../../user/utils/directAccess')
+const { canDirectlyReadSchemaObjects, canDirectlyManageSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
 
 /**
@@ -47,12 +46,14 @@ async function canReadBillingIntegrationOrganizationContexts ({ authentication: 
  * 2. Integration manager from user's organization
  * 3. Integration service
  */
-async function canManageBillingIntegrationOrganizationContexts ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageBillingIntegrationOrganizationContexts ({ authentication: { item: user }, originalInput, operation, itemId, listKey }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     
     if (user.isAdmin || user.isSupport) return true
 
+    const hasDirectAccess = await canDirectlyManageSchemaObjects(user, listKey, originalInput, operation)
+    if (hasDirectAccess) return true
     let organizationId, integrationId
 
     if (operation === 'create') {

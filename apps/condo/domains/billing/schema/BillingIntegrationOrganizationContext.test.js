@@ -29,6 +29,7 @@ const { createTestOrganization, updateTestOrganization } = require('@condo/domai
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
+const { createTestUserRightsSet, updateTestUser } = require('@condo/domains/user/utils/testSchema')
 
 
 
@@ -88,6 +89,41 @@ describe('BillingIntegrationOrganizationContext', () => {
 
             expect(context).toHaveProperty(['integration', 'id'], integration.id)
             expect(context).toHaveProperty(['organization', 'id'], organization.id)
+        })
+
+        test('user with direct access: can manage BillingIntegrationOrganizationContext', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const [integration] = await createTestBillingIntegration(admin)
+            const [organization] = await  registerNewOrganization(admin)
+
+            const user = await makeClientWithNewRegisteredAndLoggedInUser()
+
+            // No access by default
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await createTestBillingIntegrationOrganizationContext(user, organization, integration)
+            })
+
+            // Access provided
+            const support = await makeClientWithSupportUser()
+            const [rightsSet] = await createTestUserRightsSet(support, {
+                canManageBillingIntegrationOrganizationContexts: true,
+                canReadBillingIntegrationOrganizationContexts: true,
+                canReadOrganizations: true,
+            })
+            const [updatedUser] = await updateTestUser(support, user.user.id, {
+                rightsSet: { connect: { id: rightsSet.id } },
+            })
+            expect(updatedUser).toHaveProperty(['rightsSet', 'id'], rightsSet.id)
+            const [context] = await createTestBillingIntegrationOrganizationContext(user, organization, integration)
+
+            expect(context).toHaveProperty(['integration', 'id'], integration.id)
+            expect(context).toHaveProperty(['organization', 'id'], organization.id)
+
+            const [updatedContext] = await updateTestBillingIntegrationOrganizationContext(user, context.id, {
+                settings: { dv: 1, newSetting: true },
+            })
+            expect(updatedContext.settings).toHaveProperty(['newSetting'], true)
+            expect(updatedContext).toHaveProperty(['updatedBy', 'id'], user.user.id)
         })
 
         test('user: create BillingIntegrationOrganizationContext', async () => {
