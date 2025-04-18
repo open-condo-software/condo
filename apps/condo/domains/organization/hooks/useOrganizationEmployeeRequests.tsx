@@ -10,6 +10,7 @@ import { Dispatch, FC, SetStateAction, useCallback, useMemo, useState } from 're
 import { useCachePersistor } from '@open-condo/apollo'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -17,6 +18,7 @@ import { Alert, Button, Modal, Select, Space, Typography } from '@open-condo/ui'
 
 import { FormItem } from '@condo/domains/common/components/Form/FormItem'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { HIDE_ORGANIZATION_REQUESTS } from '@condo/domains/common/constants/featureflags'
 import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
 import { formatPhone } from '@condo/domains/common/utils/helpers'
 
@@ -159,6 +161,8 @@ export const useOrganizationEmployeeRequests = () => {
     const userId = useMemo(() => user?.id, [user?.id])
     const { employee } = useOrganization()
     const { addNotification } = useLayoutContext()
+    const { useFlag } = useFeatureFlags()
+    const isOrganizationRequestsHidden = useFlag(HIDE_ORGANIZATION_REQUESTS)
 
     const [activeRequest, setActiveRequest] = useState<ActiveOrganizationRequestType>(null)
 
@@ -168,7 +172,7 @@ export const useOrganizationEmployeeRequests = () => {
         loading: isEmployeesLoading,
     } = useGetActualOrganizationEmployeesQuery({
         variables: { userId },
-        skip: !userId || !persistor,
+        skip: !userId || !persistor || isOrganizationRequestsHidden,
     })
     const userOrganizationIds = useMemo(() => actualEmployeesData?.actualEmployees
         ?.map(employee => employee?.organization?.id)
@@ -184,7 +188,7 @@ export const useOrganizationEmployeeRequests = () => {
             userOrganizationIds,
         },
         onError,
-        skip: !user || !employee || isEmployeesLoading,
+        skip: !user || !employee || isEmployeesLoading || isOrganizationRequestsHidden,
     })
     const [acceptOrRejectRequest] = useAcceptOrRejectOrganizationEmployeeRequestMutation({
         onError,
