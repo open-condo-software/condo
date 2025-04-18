@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { FileText } from '@open-condo/icons'
-import { Tabs, Typography } from '@open-condo/ui/src'
+import { Tabs, Typography, Radio, RadioGroup } from '@open-condo/ui/src'
 import type { TabItem } from '@open-condo/ui/src'
 
 import type { Meta, StoryObj } from '@storybook/react'
@@ -11,6 +11,13 @@ export default {
     component: Tabs,
     args: {
         centered: false,
+        tabBarExtraContent: false,
+    },
+    argTypes: {
+        tabBarExtraContent: {
+            control: 'boolean',
+            description: 'Toggle to show/hide tabBarExtraContent',
+        },
     },
 } as Meta<typeof Tabs>
 
@@ -43,8 +50,31 @@ const simpleItems: Array<TabItem> = [
     },
 ]
 
+const Template: StoryObj<typeof Tabs>['render'] = (args) => {
+    const { tabBarExtraContent, items } = args
+
+    const extraContent = tabBarExtraContent ? (
+        <RadioGroup optionType='button' defaultValue='on'>
+            <Radio key='on' value='on' label='On' />
+            <Radio key='off' value='off' label='Off' />
+        </RadioGroup>
+    ) : null
+
+    return <Tabs items={items} tabBarExtraContent={extraContent} />
+}
+
 export const Simple: StoryObj<typeof Tabs> = {
+    render: Template,
     args: {
+        tabBarExtraContent: false,
         items: simpleItems,
+    },
+}
+
+export const WithExtraContent: StoryObj<typeof Tabs> = {
+    render: Template,
+    args: {
+        tabBarExtraContent: true,
+        items: [simpleItems[0], simpleItems[1]],
     },
 }
