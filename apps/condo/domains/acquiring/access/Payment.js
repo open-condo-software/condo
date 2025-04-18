@@ -8,14 +8,14 @@ const { find } = require('@open-condo/keystone/schema')
 
 const { checkAcquiringIntegrationAccessRights } = require('@condo/domains/acquiring/utils/accessSchema')
 const { canReadObjectsAsB2BAppServiceUser } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess/server.utils')
-const { checkPermissionsInEmployedOrganizations } = require('@condo/domains/organization/utils/accessSchema')
+const { checkPermissionsInEmployedOrganizations, getEmployedOrganizationsByPermissions } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { SERVICE, STAFF } = require('@condo/domains/user/constants/common')
 const { canDirectlyReadSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
 
 async function canReadPayments (args) {
-    const { authentication: { item: user }, listKey } = args
+    const { authentication: { item: user }, listKey, context } = args
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -29,23 +29,28 @@ async function canReadPayments (args) {
     }
 
     if (user.type === STAFF) {
+        const organizationIdsWithEmploymentWithRightCanReadPayments = await getEmployedOrganizationsByPermissions(context, user, 'canReadPayments')
+        const organizationIdsWithEmploymentWithRightCanReadPaymentsWithInvoices = await getEmployedOrganizationsByPermissions(context, user, 'canReadPaymentsWithInvoices')
+
         return {
             OR: [
-                // Employee with `canReadPayments` can see theirs organization payments
                 {
                     AND: [
                         {
                             invoice_is_null: true,
-                            organization: { employees_some: { user: { id: user.id }, role: { canReadPayments: true }, deletedAt: null, isBlocked: false } },
+                            organization: {
+                                id_in: organizationIdsWithEmploymentWithRightCanReadPayments,
+                            },
                         },
                     ],
                 },
-                // Employee with `canReadPaymentsWithInvoices` can see theirs organization payments with invoices
                 {
                     AND: [
                         {
                             invoice_is_null: false,
-                            organization: { employees_some: { user: { id: user.id }, role: { canReadPaymentsWithInvoices: true }, deletedAt: null, isBlocked: false } },
+                            organization: {
+                                id_in: organizationIdsWithEmploymentWithRightCanReadPaymentsWithInvoices,
+                            },
                         },
                     ],
                 },
