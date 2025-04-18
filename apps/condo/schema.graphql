@@ -83792,6 +83792,7 @@ input SendB2CAppPushMessageData {
   title: String
   B2CAppContext: String
   callId: String
+  voipIncomingCallId: String
   voipType: String
   voipAddress: String
   voipLogin: String

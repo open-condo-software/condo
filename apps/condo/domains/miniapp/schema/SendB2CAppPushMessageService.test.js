@@ -29,8 +29,7 @@ const {
     DEVICE_PLATFORM_IOS, APP_RESIDENT_ID_IOS,
     PUSH_TRANSPORT_APPLE,
 } = require('@condo/domains/notification/constants/constants')
-const { Message } = require('@condo/domains/notification/gql')
-const { syncRemoteClientByTestClient } = require('@condo/domains/notification/utils/testSchema')
+const { syncRemoteClientByTestClient, Message } = require('@condo/domains/notification/utils/testSchema')
 const { getRandomTokenData, getRandomFakeSuccessToken } = require('@condo/domains/notification/utils/testSchema/utils')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
@@ -361,20 +360,20 @@ describe('SendB2CAppPushMessageService', () => {
 
     describe('Checking insertion only the necessary fields in message meta', () => {
         test('CANCELED_CALL_MESSAGE_PUSH', async () => {
-            const voipIncomingCallIdToCancel = '1234'
+            const voipIncomingCallId = '1234'
             const [{ id }] = await sendB2CAppPushMessageByTestClient(admin, {
                 ...appAttrs,
                 type: CANCELED_CALL_MESSAGE_PUSH_TYPE,
                 data: {
-                    voipIncomingCallIdToCancel,
+                    voipIncomingCallId,
                 },
             })
 
             await waitFor(async () => {
                 const message = await Message.getOne(admin, { id })
 
-                expect(message.meta.data.voipIncomingCallId).toEqual(voipIncomingCallIdToCancel)
-                expect(message.meta.data.voipAddress).toBeNull()
+                expect(message.meta.data.voipIncomingCallId).toEqual(voipIncomingCallId)
+                expect(message.meta.data.voipAddress).toBeUndefined()
                 expect(message.type).toEqual(CANCELED_CALL_MESSAGE_PUSH_TYPE)
             })
         })
@@ -392,7 +391,7 @@ describe('SendB2CAppPushMessageService', () => {
             await waitFor(async () => {
                 const message = await Message.getOne(admin, { id })
 
-                expect(message.meta.data.voipIncomingCallId).toBeNull()
+                expect(message.meta.data.voipIncomingCallId).toBeUndefined()
                 expect(message.meta.data.voipType).toEqual(voipType)
                 expect(message.type).toEqual(VOIP_INCOMING_CALL_MESSAGE_TYPE)
             })
