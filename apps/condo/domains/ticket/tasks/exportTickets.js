@@ -274,7 +274,7 @@ async function exportTickets (taskId) {
         // which determines user requested locale from `TicketExportTask.locale` field value
         setLocaleForKeystoneContext(context, task.locale)
 
-        const statuses = await TicketStatus.getAll(context, {}, 'type name')
+        const statuses = await TicketStatus.getAll(context, { deletedAt: null }, 'type name')
         const indexedStatuses = Object.fromEntries(statuses.map(status => ([status.type, status.name])))
 
         let classifier
