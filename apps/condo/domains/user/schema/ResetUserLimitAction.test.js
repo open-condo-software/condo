@@ -17,6 +17,7 @@ const {
     RATE_LIMIT_TYPE,
     FIND_ORGANIZATION_BY_TIN_TYPE,
     AUTH_COUNTER_LIMIT_TYPE,
+    CHECK_USER_EXISTENCE_TYPE,
 } = require('@condo/domains/user/constants/limits')
 const { ERRORS } = require('@condo/domains/user/schema/ResetUserLimitAction')
 const { buildQuotaKey: buildAuthQuotaKey, buildQuotaKeyByUserType: buildAuthQuotaKeyByUserType } = require('@condo/domains/user/utils/serverSchema/auth')
@@ -548,6 +549,50 @@ describe('ResetUserLimitAction', () => {
 
                 expect(afterReset).toHaveLength(3)
                 expect(afterReset.every(counterValue => counterValue === null)).toBeTruthy()
+            })
+        })
+
+        describe(`${CHECK_USER_EXISTENCE_TYPE} type`, () => {
+            test('throws error if key is not exists', async () => {
+                await expectToThrowGQLError(async () => {
+                    await createTestResetUserLimitAction(admin, CHECK_USER_EXISTENCE_TYPE, faker.internet.ipv4())
+                }, ERRORS.KEY_NOT_FOUND)
+
+                await expectToThrowGQLError(async () => {
+                    await createTestResetUserLimitAction(admin, CHECK_USER_EXISTENCE_TYPE, createTestPhone())
+                }, ERRORS.KEY_NOT_FOUND)
+            })
+
+            describe('throws error if key is not valid phone or ip', () => {
+                const cases = [
+                    createTestEmail(),
+                    faker.random.alphaNumeric(10),
+                    faker.datatype.uuid(),
+                ]
+                test.each(cases)('%p', async (key) => {
+                    await expectToThrowGQLError(async () => {
+                        await createTestResetUserLimitAction(userWithDirectAccess, CHECK_USER_EXISTENCE_TYPE, key)
+                    }, ERRORS.INVALID_IDENTIFIER)
+                })
+            })
+
+            const cases = [
+                ['ip', 'ip', faker.internet.ipv4()],
+                ['phone', 'phone', createTestPhone()],
+            ]
+
+            test.each(cases)('resets rate-limit by %p', async (_, identifierKey, identifier) => {
+                const key = [CHECK_USER_EXISTENCE_TYPE, identifierKey, identifier].join(':')
+
+                for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
+                    await redisGuard.incrementDayCounter(key)
+                }
+                const beforeReset = await redisGuard.getCounterValue(key)
+                expect(Number(beforeReset)).toEqual(COUNTER_VALUE_TO_UPDATE)
+
+                await createTestResetUserLimitAction(userWithDirectAccess, CHECK_USER_EXISTENCE_TYPE, identifier)
+                const afterReset = await redisGuard.getCounterValue(key)
+                expect(afterReset).toBeNull()
             })
         })
     })

@@ -13,6 +13,7 @@ const {
     FIND_ORGANIZATION_BY_TIN_TYPE,
     RATE_LIMIT_TYPE,
     AUTH_COUNTER_LIMIT_TYPE,
+    CHECK_USER_EXISTENCE_TYPE,
 } = require('@condo/domains/user/constants/limits')
 const { getIdentifierType } = require('@condo/domains/user/utils/identifiers')
 const {
@@ -20,14 +21,16 @@ const {
     RateLimitResetter,
     FindOrganizationByTinGuardResetter,
     AuthGuardResetter,
-    ValidateUserCredentialsGuardResetter,
+    CheckUserExistenceResetter,
 } = require('@condo/domains/user/utils/limits/resetters')
+
 
 const resetters = {
     [SMS_COUNTER_LIMIT_TYPE]: new SmsGuardResetter(),
     [RATE_LIMIT_TYPE]: new RateLimitResetter(),
     [FIND_ORGANIZATION_BY_TIN_TYPE]: new FindOrganizationByTinGuardResetter(),
     [AUTH_COUNTER_LIMIT_TYPE]: new AuthGuardResetter(),
+    [CHECK_USER_EXISTENCE_TYPE]: new CheckUserExistenceResetter(),
 }
 
 const ERRORS = {
