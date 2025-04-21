@@ -1,4 +1,5 @@
 const { AuthGuardResetter } = require('./AuthGuardResetter')
+const { CheckUserExistenceResetter } = require('./CheckUserExistenceResetter')
 const { FindOrganizationByTinGuardResetter } = require('./FindOrganizationByTinGuardResetter')
 const { RateLimitResetter } = require('./RateLimitResetter')
 const { RedisGuardResetter } = require('./RedisGuardResetter')
@@ -10,4 +11,5 @@ module.exports = {
     RedisGuardResetter,
     FindOrganizationByTinGuardResetter,
     AuthGuardResetter,
+    CheckUserExistenceResetter,
 }
