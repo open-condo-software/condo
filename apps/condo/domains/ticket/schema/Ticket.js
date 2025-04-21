@@ -802,8 +802,12 @@ const Ticket = new GQLListSchema('Ticket', {
             if (isCreateOperation && resolvedData.details && !resolvedData.classifier) {
                 const classifierResult = await classifyTicket(context, resolvedData.details)
 
-                resolvedData.classifier = get(classifierResult, 'id')
-                resolvedData.isAutoClassified = true
+                const classifierResultId = get(classifierResult, 'id')
+                resolvedData.classifier = classifierResultId
+
+                if (classifierResultId) {
+                    resolvedData.isAutoClassified = true
+                }
             }
             overrideOldClassifier(resolvedData)
 
