@@ -83791,6 +83791,7 @@ input SendB2CAppPushMessageData {
   body: String!
   title: String
   B2CAppContext: String
+  callId: String
   voipIncomingCallId: String
   voipType: String
   voipAddress: String
@@ -95214,6 +95215,12 @@ type Mutation {
   				"required": false
   			},
   			"voipDtfmCommand": {
+  				"required": false
+  			},
+  			"stun": {
+  				"required": false
+  			},
+  			"codec": {
   				"required": false
   			}
   		}
