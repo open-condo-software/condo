@@ -66,7 +66,7 @@ export const useUserMessages: UsePollUserMessagesType = ({ isDropdownOpen, messa
         loading: newMessagesLoading,
     } = useGetUserMessagesQuery({
         variables: queryVariables,
-        skip: !persistor || skipQueryMessagesCondition,
+        skip: true,
     })
 
     const clearLoadedMessages = useCallback(() => {
