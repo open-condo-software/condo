@@ -31,7 +31,6 @@ const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 const CACHE_TTL = {
     DEFAULT: DEFAULT_NOTIFICATION_WINDOW_DURATION_IN_SECONDS,
     VOIP_INCOMING_CALL_MESSAGE: 2,
-    CANCELED_CALL_MESSAGE_PUSH: 2,
     B2C_APP_MESSAGE_PUSH: 3600,
 }
 
@@ -102,7 +101,7 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
         },
         {
             access: true,
-            type: 'input SendB2CAppPushMessageData { body: String!, title: String, B2CAppContext: String, voipIncomingCallId: String, voipType: String, voipAddress: String, voipLogin: String, voipPassword: String, voipDtfmCommand: String, stun: String, codec: String }',
+            type: 'input SendB2CAppPushMessageData { body: String!, title: String, B2CAppContext: String, callId: String, voipIncomingCallId: String, voipType: String, voipAddress: String, voipLogin: String, voipPassword: String, voipDtfmCommand: String, stun: String, codec: String }',
         },
         {
             access: true,
@@ -136,7 +135,7 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
 
                 if (!userExisted) throw new GQLError(ERRORS.USER_NOT_FOUND, context)
 
-                const B2CAppId = app.id
+                const b2cAppId = app.id
                 const residentId = resident.id
 
                 /** resident must belong to the user */
@@ -153,18 +152,18 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
                 let appSettings = {}
 
                 // App requested to send notification to is not a DEBUG one
-                if (B2CAppId !== DEBUG_APP_ID) {
-                    const appExisted = await B2CApp.getOne(context, { id: B2CAppId, deletedAt: null })
+                if (b2cAppId !== DEBUG_APP_ID) {
+                    const appExisted = await B2CApp.getOne(context, { id: b2cAppId, deletedAt: null })
 
                     if (!appExisted) throw new GQLError(ERRORS.APP_NOT_FOUND, context)
 
-                    const where = { b2cApp: { id: B2CAppId }, type, deletedAt: null }
+                    const where = { b2cApp: { id: b2cAppId }, type, deletedAt: null }
                     appSettings = await AppMessageSetting.getOne(context, where, 'notificationWindowSize numberOfNotificationInWindow')
 
                     B2CAppName = appExisted.name
                 }
 
-                const searchKey = `${type}-${B2CAppId}-${user.id}`
+                const searchKey = `${type}-${b2cAppId}-${user.id}`
                 const ttl = CACHE_TTL[type] || CACHE_TTL['DEFAULT']
 
                 await redisGuard.checkCustomLimitCounters(
@@ -178,7 +177,7 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
                 const metaData = Object.fromEntries(
                     Object.keys(requiredMetaData).map((key) => [key, argsData.data[key]])
                 )
-                Object.assign(metaData, { B2CAppName, B2CAppId, residentId })
+                Object.assign(metaData, { B2CAppName, B2CAppId: b2cAppId, residentId })
 
 
                 const messageAttrs = {

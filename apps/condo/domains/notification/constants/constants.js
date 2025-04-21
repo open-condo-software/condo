@@ -607,6 +607,8 @@ const MESSAGE_META = {
             voipLogin: { required: false },
             voipPassword: { required: false },
             voipDtfmCommand: { required: false },
+            stun: { required: false },
+            codec: { required: false },
         },
     },
     [CANCELED_CALL_MESSAGE_PUSH_TYPE]: {
