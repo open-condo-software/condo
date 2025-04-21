@@ -51,6 +51,8 @@ const B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS = {
             pathToOrganizationId: ['context', 'organization', 'id'],
         },
 
+        // Billing domain
+        BillingIntegrationOrganizationContext: {},
         BillingReceipt: {
             pathToOrganizationId: ['context', 'organization', 'id'],
             canBeManaged: false,

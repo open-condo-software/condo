@@ -73605,6 +73605,8 @@ type B2BAppAccessRightSetHistoryRecord {
   type: String
   canReadB2BAccessTokens: Boolean
   canManageB2BAccessTokens: Boolean
+  canReadBillingIntegrationOrganizationContexts: Boolean
+  canManageBillingIntegrationOrganizationContexts: Boolean
   canReadBillingReceipts: Boolean
   canManageBillingReceipts: Boolean
   canReadContacts: Boolean
@@ -73698,6 +73700,10 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   canReadB2BAccessTokens_not: Boolean
   canManageB2BAccessTokens: Boolean
   canManageB2BAccessTokens_not: Boolean
+  canReadBillingIntegrationOrganizationContexts: Boolean
+  canReadBillingIntegrationOrganizationContexts_not: Boolean
+  canManageBillingIntegrationOrganizationContexts: Boolean
+  canManageBillingIntegrationOrganizationContexts_not: Boolean
   canReadBillingReceipts: Boolean
   canReadBillingReceipts_not: Boolean
   canManageBillingReceipts: Boolean
@@ -73851,6 +73857,10 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
   canReadB2BAccessTokens_DESC
   canManageB2BAccessTokens_ASC
   canManageB2BAccessTokens_DESC
+  canReadBillingIntegrationOrganizationContexts_ASC
+  canReadBillingIntegrationOrganizationContexts_DESC
+  canManageBillingIntegrationOrganizationContexts_ASC
+  canManageBillingIntegrationOrganizationContexts_DESC
   canReadBillingReceipts_ASC
   canReadBillingReceipts_DESC
   canManageBillingReceipts_ASC
@@ -73937,6 +73947,8 @@ input B2BAppAccessRightSetHistoryRecordUpdateInput {
   type: String
   canReadB2BAccessTokens: Boolean
   canManageB2BAccessTokens: Boolean
+  canReadBillingIntegrationOrganizationContexts: Boolean
+  canManageBillingIntegrationOrganizationContexts: Boolean
   canReadBillingReceipts: Boolean
   canManageBillingReceipts: Boolean
   canReadContacts: Boolean
@@ -73993,6 +74005,8 @@ input B2BAppAccessRightSetHistoryRecordCreateInput {
   type: String
   canReadB2BAccessTokens: Boolean
   canManageB2BAccessTokens: Boolean
+  canReadBillingIntegrationOrganizationContexts: Boolean
+  canManageBillingIntegrationOrganizationContexts: Boolean
   canReadBillingReceipts: Boolean
   canManageBillingReceipts: Boolean
   canReadContacts: Boolean
@@ -74075,6 +74089,8 @@ type B2BAppAccessRightSet {
   type: B2BAppAccessRightSetTypeType
   canReadB2BAccessTokens: Boolean
   canManageB2BAccessTokens: Boolean
+  canReadBillingIntegrationOrganizationContexts: Boolean
+  canManageBillingIntegrationOrganizationContexts: Boolean
   canReadBillingReceipts: Boolean
 
   """ Currently, this field is read-only. You cannot get manage access for the specified schema. 
@@ -74175,6 +74191,10 @@ input B2BAppAccessRightSetWhereInput {
   canReadB2BAccessTokens_not: Boolean
   canManageB2BAccessTokens: Boolean
   canManageB2BAccessTokens_not: Boolean
+  canReadBillingIntegrationOrganizationContexts: Boolean
+  canReadBillingIntegrationOrganizationContexts_not: Boolean
+  canManageBillingIntegrationOrganizationContexts: Boolean
+  canManageBillingIntegrationOrganizationContexts_not: Boolean
   canReadBillingReceipts: Boolean
   canReadBillingReceipts_not: Boolean
   canManageBillingReceipts: Boolean
@@ -74310,6 +74330,10 @@ enum SortB2BAppAccessRightSetsBy {
   canReadB2BAccessTokens_DESC
   canManageB2BAccessTokens_ASC
   canManageB2BAccessTokens_DESC
+  canReadBillingIntegrationOrganizationContexts_ASC
+  canReadBillingIntegrationOrganizationContexts_DESC
+  canManageBillingIntegrationOrganizationContexts_ASC
+  canManageBillingIntegrationOrganizationContexts_DESC
   canReadBillingReceipts_ASC
   canReadBillingReceipts_DESC
   canManageBillingReceipts_ASC
@@ -74396,6 +74420,8 @@ input B2BAppAccessRightSetUpdateInput {
   type: B2BAppAccessRightSetTypeType
   canReadB2BAccessTokens: Boolean
   canManageB2BAccessTokens: Boolean
+  canReadBillingIntegrationOrganizationContexts: Boolean
+  canManageBillingIntegrationOrganizationContexts: Boolean
   canReadBillingReceipts: Boolean
   canManageBillingReceipts: Boolean
   canReadContacts: Boolean
@@ -74449,6 +74475,8 @@ input B2BAppAccessRightSetCreateInput {
   type: B2BAppAccessRightSetTypeType
   canReadB2BAccessTokens: Boolean
   canManageB2BAccessTokens: Boolean
+  canReadBillingIntegrationOrganizationContexts: Boolean
+  canManageBillingIntegrationOrganizationContexts: Boolean
   canReadBillingReceipts: Boolean
   canManageBillingReceipts: Boolean
   canReadContacts: Boolean
