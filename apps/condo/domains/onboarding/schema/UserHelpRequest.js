@@ -34,7 +34,7 @@ const UserHelpRequest = new GQLListSchema('UserHelpRequest', {
             schemaDoc: 'ID of the billing integration that is configured to receive data for the organization',
             type: 'Relationship',
             ref: 'BillingIntegration',
-            isRequired: true,
+            isRequired: false,
             knexOptions: { isNotNullable: false },
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
