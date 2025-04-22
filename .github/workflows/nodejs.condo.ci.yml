@@ -165,7 +165,7 @@ jobs:
             webhooks:
               - 'packages/webhooks/**'
             meter-importer:
-              - 'apps/meter-importer'
+              - 'apps/meter-importer/**'
               - 'packages/**'
 
   lint:
