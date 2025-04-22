@@ -173,6 +173,13 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
             isRequired: false,
         },
 
+        connectedUrl: {
+            schemaDoc: 'If specified, after billing integration is connected but there are no receipts yet, an iframe will be shown to display some empty content information. Possibly some instructions ' +
+                'if integration is not setup yet. ',
+            type: 'Url',
+            isRequired: false,
+        },
+
         uploadUrl: {
             schemaDoc: 'If specified, billing app will have a call-to-action button, which opens iframe with specified url to start receipts-uploading process. Text of a button can be overridden via "uploadMessage"',
             type: 'Url',
