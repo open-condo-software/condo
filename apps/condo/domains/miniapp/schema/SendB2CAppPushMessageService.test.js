@@ -10,7 +10,8 @@ const {
     expectToThrowGQLErrorToResult,
     expectToThrowAccessDeniedErrorToResult,
     expectToThrowAuthenticationErrorToResult,
-    expectToThrowGraphQLRequestError,
+    expectToThrowGraphQLRequestError, 
+    waitFor,
 } = require('@open-condo/keystone/test.utils')
 
 const { DEBUG_APP_ID } = require('@condo/domains/miniapp/constants')
@@ -23,12 +24,11 @@ const {
     CANCELED_CALL_MESSAGE_PUSH_TYPE,
     VOIP_INCOMING_CALL_MESSAGE_TYPE,
     B2B_APP_MESSAGE_PUSH_TYPE,
-    MESSAGE_SENDING_STATUS,
     APPLE_CONFIG_TEST_VOIP_PUSHTOKEN_ENV,
     DEVICE_PLATFORM_IOS, APP_RESIDENT_ID_IOS,
     PUSH_TRANSPORT_APPLE,
 } = require('@condo/domains/notification/constants/constants')
-const { syncRemoteClientByTestClient } = require('@condo/domains/notification/utils/testSchema')
+const { syncRemoteClientByTestClient, Message } = require('@condo/domains/notification/utils/testSchema')
 const { getRandomTokenData, getRandomFakeSuccessToken } = require('@condo/domains/notification/utils/testSchema/utils')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
@@ -40,6 +40,7 @@ const {
 } = require('@condo/domains/user/utils/testSchema')
 
 const { ERRORS } = require('./SendB2CAppPushMessageService')
+
 
 const APPLE_TEST_VOIP_PUSHTOKEN = conf[APPLE_CONFIG_TEST_VOIP_PUSHTOKEN_ENV] || null
 
@@ -332,15 +333,6 @@ describe('SendB2CAppPushMessageService', () => {
     })
 
     describe('Checking the sending of available push types in SendB2CAppPushMessageService', () => {
-        test('Push with type CANCELED_CALL_MESSAGE_PUSH_TYPE is being sent', async () => {
-            const [message] = await sendB2CAppPushMessageByTestClient(admin, {
-                ...appAttrs,
-                type: CANCELED_CALL_MESSAGE_PUSH_TYPE,
-            })
-            expect(message.id).toMatch(UUID_RE)
-            expect(message.status).toMatch(MESSAGE_SENDING_STATUS)
-        })
-
         test('Push with type B2B_APP_MESSAGE_PUSH_TYPE is not sent', async () => {
             const expectedErrorMessage = 'Variable "$data" got invalid value "B2B_APP_MESSAGE_PUSH" at "data.type"; Value "B2B_APP_MESSAGE_PUSH" does not exist in "SendB2CAppPushMessageType" enum. Did you mean the enum value "B2C_APP_MESSAGE_PUSH"?'
 
@@ -353,6 +345,46 @@ describe('SendB2CAppPushMessageService', () => {
                 },
                 expectedErrorMessage,
             )
+        })
+    })
+
+    describe('Checking insertion only the necessary fields in message meta', () => {
+        test('CANCELED_CALL_MESSAGE_PUSH', async () => {
+            const voipIncomingCallId = '1234'
+            const [{ id }] = await sendB2CAppPushMessageByTestClient(admin, {
+                ...appAttrs,
+                type: CANCELED_CALL_MESSAGE_PUSH_TYPE,
+                data: {
+                    voipIncomingCallId,
+                },
+            })
+
+            await waitFor(async () => {
+                const message = await Message.getOne(admin, { id })
+
+                expect(message.meta.data.voipIncomingCallId).toEqual(voipIncomingCallId)
+                expect(message.meta.data.voipAddress).toBeUndefined()
+                expect(message.type).toEqual(CANCELED_CALL_MESSAGE_PUSH_TYPE)
+            })
+        })
+
+        test('VOIP_INCOMING_CALL_MESSAGE_TYPE', async () => {
+            const voipType = 'incoming'
+            const [{ id }] = await sendB2CAppPushMessageByTestClient(admin, {
+                ...appAttrs,
+                type: VOIP_INCOMING_CALL_MESSAGE_TYPE,
+                data: {
+                    voipType,
+                },
+            })
+
+            await waitFor(async () => {
+                const message = await Message.getOne(admin, { id })
+
+                expect(message.meta.data.voipIncomingCallId).toBeUndefined()
+                expect(message.meta.data.voipType).toEqual(voipType)
+                expect(message.type).toEqual(VOIP_INCOMING_CALL_MESSAGE_TYPE)
+            })
         })
     })
 

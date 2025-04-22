@@ -607,6 +607,8 @@ const MESSAGE_META = {
             voipLogin: { required: false },
             voipPassword: { required: false },
             voipDtfmCommand: { required: false },
+            stun: { required: false },
+            codec: { required: false },
         },
     },
     [CANCELED_CALL_MESSAGE_PUSH_TYPE]: {
@@ -618,7 +620,7 @@ const MESSAGE_META = {
             B2CAppContext: { required: false },
             B2CAppName: { required: true },
             residentId: { required: true },
-            callId: { required: false },
+            voipIncomingCallId: { required: true },
         },
     },
     [B2C_APP_MESSAGE_PUSH_TYPE]: {
