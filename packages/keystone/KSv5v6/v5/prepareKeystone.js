@@ -51,8 +51,8 @@ const IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND = conf.ENABLE_DANGEROUS_GRAPHQL_PLA
 // NOTE(pahaz): it's a magic number tested by @arichiv at https://developer.chrome.com/blog/cookie-max-age-expires/
 const INFINITY_MAX_AGE_COOKIE = 1707195600
 const SERVICE_USER_SESSION_TTL_IN_SEC = 7 * 24 * 60 * 60 // 7 days in sec
-const PAYLOAD_LIMIT_CONFIG = JSON.parse(conf['RATE_LIMIT_CONFIG'] || '2000')
-const IS_PAYLOAD_LIMIT_DISABLED = conf['DISABLE_RATE_LIMIT'] === 'true'
+const PAYLOAD_LIMIT_CONFIG = conf['PAYLOAD_LIMIT_CONFIG']
+const IS_PAYLOAD_LIMIT_DISABLED = conf['DISABLE_PAYLOAD_LIMIT'] === 'true'
 const RATE_LIMIT_CONFIG = JSON.parse(conf['RATE_LIMIT_CONFIG'] || '{}')
 const IS_RATE_LIMIT_DISABLED = conf['DISABLE_RATE_LIMIT'] === 'true'
 const BLOCKED_OPERATIONS = JSON.parse(conf['BLOCKED_OPERATIONS'] || '{}')
@@ -103,8 +103,11 @@ function _getApolloServerPlugins (keystone) {
     /** @type {Array<import('apollo-server-plugin-base').ApolloServerPlugin>} */
     const apolloServerPlugins = [
         new ApolloQueryBlockingPlugin(BLOCKED_OPERATIONS),
-        new ApolloPayloadLimitingPlugin(2000),
     ]
+
+    if (!IS_PAYLOAD_LIMIT_DISABLED) {
+        apolloServerPlugins.push(new ApolloPayloadLimitingPlugin(PAYLOAD_LIMIT_CONFIG))
+    }
 
     if (!IS_RATE_LIMIT_DISABLED) {
         apolloServerPlugins.push(new ApolloRateLimitingPlugin(keystone, RATE_LIMIT_CONFIG))
