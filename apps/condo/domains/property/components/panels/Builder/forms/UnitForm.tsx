@@ -6,8 +6,8 @@ import { Row, Col, Space, Typography } from 'antd'
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Checkbox } from '@open-condo/ui'
 
-import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input from '@condo/domains/common/components/antd/Input'
 import Select from '@condo/domains/common/components/antd/Select'
 import { Button } from '@condo/domains/common/components/Button'
@@ -17,7 +17,6 @@ import {
     IPropertyMapModalForm,
     MODAL_FORM_ROW_GUTTER,
     MODAL_FORM_ROW_BUTTONS_GUTTER,
-    MODAL_FORM_CHECKBOX_STYLE,
     INPUT_STYLE,
     ERROR_TEXT_STYLE,
     BUTTON_SPACE_SIZE,
@@ -238,15 +237,13 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplic
                         >
                             {floorOptions}
                         </Select>
-                        <Checkbox
-                            defaultChecked
-                            onChange={toggleRenameNextUnits}
-                            style={MODAL_FORM_CHECKBOX_STYLE}
-                            data-cy='property-map__unit-form__rename-units-checkbox'
-                        >
-                            {RenameNextUnitsLabel}
-                        </Checkbox>
                     </Space>
+                    <Checkbox
+                        onChange={toggleRenameNextUnits}
+                        data-cy='property-map__unit-form__rename-units-checkbox'
+                    >
+                        {RenameNextUnitsLabel}
+                    </Checkbox>
                     <Row gutter={MODAL_FORM_ROW_BUTTONS_GUTTER}>
                         <Col span={24}>
                             <Button
