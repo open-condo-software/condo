@@ -41,11 +41,7 @@ async function canReadBillingIntegrationOrganizationContexts (args) {
         return { OR: filterConditions }
     }
 
-    if (user.type === STAFF) {
-        return { organization: { employees_some: { user: { id: user.id }, role: { OR: [{ canReadBillingReceipts: true }, { canManageIntegrations: true }] }, isBlocked: false, deletedAt: null } } }
-    }
-
-    return false
+    return { organization: { employees_some: { user: { id: user.id }, role: { OR: [{ canReadBillingReceipts: true }, { canManageIntegrations: true }] }, isBlocked: false, deletedAt: null } } }
 }
 
 /**
