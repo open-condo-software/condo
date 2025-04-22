@@ -622,7 +622,7 @@ jobs:
           GH_REF_NAME: ${{ github.event.pull_request.head.ref || github.ref_name }}
 
   run-meter-importer-tests:
-    name: Meter Importer Tests
+    name: Meter-importer Tests
     runs-on: ubuntu-22.04
     needs:
       - authorize
