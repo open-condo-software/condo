@@ -3,6 +3,7 @@ import {
     TicketWhereInput,
     TicketLastCommentWithResidentTypeCreatedByUserTypeType,
 } from '@app/condo/schema'
+import dayjs from 'dayjs'
 import isEmpty from 'lodash/isEmpty'
 import isString from 'lodash/isString'
 import uniq from 'lodash/uniq'
@@ -60,11 +61,11 @@ export const getTicketAttributesFilter: AttributesFilterGetterType = (dataIndice
 export const getIsCompletedAfterDeadlineFilter = (): FilterType => {
     return function getWhereQuery (search) {
         if (search !== 'true') return
-
+        
         return {
             OR: [
                 { AND: { status: { type_in: [COMPLETED_STATUS_TYPE, CLOSED_STATUS_TYPE, CANCELED_STATUS_TYPE] }, isCompletedAfterDeadline: true } },
-                { AND: { status: { type_in: [NEW_OR_REOPENED_STATUS_TYPE, PROCESSING_STATUS_TYPE, DEFERRED_STATUS_TYPE] }, deadline_lt: (new Date()).toISOString() } },
+                { AND: { status: { type_in: [NEW_OR_REOPENED_STATUS_TYPE, PROCESSING_STATUS_TYPE, DEFERRED_STATUS_TYPE] }, deadline_lt: dayjs().startOf('day').toISOString() } },
             ],
         }
     }
