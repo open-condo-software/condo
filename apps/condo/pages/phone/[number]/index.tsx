@@ -1,5 +1,6 @@
 import { PlusCircleOutlined } from '@ant-design/icons'
 import {
+    GetPropertyWithMapByIdQuery,
     GetTicketsQuery,
     useGetContactForClientCardQuery,
     useGetEmployeesForClientCardQuery,
@@ -12,7 +13,6 @@ import {
     Organization as OrganizationType,
     Property,
     SortTicketsBy,
-    Ticket as TicketType,
 } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Col, ColProps, Row, RowProps } from 'antd'
@@ -84,6 +84,70 @@ type ClientContactPropsType = {
     contact?: ContactType & { isEmployee?: boolean }
     showOrganizationMessage?: boolean
     type: string
+}
+
+type TableTabs = 'address' | 'entrance' | 'home'
+type tabsItems = { key: TableTabs, label: string }[]
+const tableTabs: Array<TableTabs> = ['address', 'entrance', 'home']
+
+const findSectionByUnitLabelAndType = (mapData: GetPropertyWithMapByIdQuery['property'][number]['map'], unitName: string, unitType: string) => {
+    let sectionType = `${SECTION_SECTION_TYPE}s`
+
+    if (unitName === PARKING_SECTION_TYPE){
+        sectionType = PARKING_SECTION_TYPE
+    }
+
+    for (const section of mapData[sectionType]) {
+        for (const floor of section.floors) {
+            for (const unit of floor.units) {
+                if (unit.label === unitName && unit.unitType === unitType) {
+                    return {
+                        floor: floor.name,
+                        sectionName: section.name,
+                        sectionType: section.type,
+                    }
+                }
+            }
+        }
+    }
+
+    return null
+}
+
+const getMapData = async (concatData, getPropertyWithMapById) => {
+    const propertyIds = concatData.map((el) => el.property.id)
+
+    try {
+        const res = await Promise.all(
+            propertyIds.map(async (el) => {
+                const response = await getPropertyWithMapById({
+                    variables: {
+                        id: el,
+                    },
+                    fetchPolicy: 'cache-first',
+                })
+                return response.data
+            })
+        )
+
+        return concatData.map((tab, index) => {
+            const mapData = res[index]?.property[0].map
+            if (!mapData) return tab
+
+            const section = findSectionByUnitLabelAndType(
+                mapData,
+                tab.unitName,
+                tab.unitType
+            )
+
+            return {
+                ...tab,
+                ...section,
+            }
+        })
+    } catch (error) {
+        console.error('Error fetching or processing data:', error)
+    }
 }
 
 const StyledCarouselWrapper = styled(Col)`
@@ -203,20 +267,26 @@ const ClientAddressCard = ({ onClick, active, property, organization, unitName, 
                         strong
                     >
                         {streetMessage}
-
-                        <br/>
-                        { floor || sectionName ? (
-                            <Row style={{ gap: 4 }}>
-                                {unitNamePrefix} {unitName}
-
-                                {sectionName && floor && (
-                                    <Typography.Text type='secondary'>
-                                        ({SectionMessage} {sectionName}, {FloorMessage} {floor})
-                                    </Typography.Text>
-                                )}
-                            </Row>
-                        ) : null}
                     </Typography.Text>
+
+                    { floor || sectionName || unitName ? (
+                        <Row style={{ gap: 4 }}>
+                            <Typography.Text
+                                ref={addressStreetRef}
+                                ellipsis={addressStreetEllipsis}
+                                title={streetMessage}
+                                strong
+                            >
+                                {unitNamePrefix} {unitName}
+                            </Typography.Text>
+
+                            {sectionName && floor && (
+                                <Typography.Text type='secondary'>
+                                        ({SectionMessage} {sectionName}, {FloorMessage} {floor})
+                                </Typography.Text>
+                            )}
+                        </Row>
+                    ) : null}
 
                     <Typography.Paragraph
                         size='medium'
@@ -354,10 +424,6 @@ const ClientContent: React.FC<ClientContactPropsType> = ({ lastTicket, contact, 
     )
 }
 
-type TableTabs = 'address' | 'entrance' | 'home'
-type tabsItems = { key: TableTabs, label: string }[]
-const tableTabs: Array<TableTabs> = ['address', 'entrance', 'home']
-
 const ClientCardTabContent = ({
     phone,
     property,
@@ -377,10 +443,10 @@ const ClientCardTabContent = ({
     const CreateTicketMessage = intl.formatMessage({ id: 'CreateTicket' })
     const EditContactMessage = intl.formatMessage({ id: 'pages.clientCard.editContact' })
 
-    const tabsItems: tabsItems = tableTabs.map(el => ({
+    const tabsItems: tabsItems = useMemo(()=>tableTabs.map(el => ({
         label: intl.formatMessage({ id: `pages.clientCard.table.tabs.${el}` }),
         key: el,
-    }))
+    })), [intl])
 
     const [currentTableTab, setCurrentTableTab] = useState<TableTabs>('address')
 
@@ -833,7 +899,7 @@ const ClientCardPageContent = ({
         }
     }, [activeTab, handleTabChange, tabsData])
 
-    const a = useCallback(()=>redirectToForm({
+    const redirectToCreateContact = useCallback(()=>redirectToForm({
         router,
         formRoute: '/contact/create',
         initialValues: {
@@ -856,7 +922,7 @@ const ClientCardPageContent = ({
                                 <Row align='middle' style={{ gap:8 }}>
                                     <PlusCircleOutlined/>
 
-                                    <Typography.Link onClick={a} size='large'>Добавить адрес</Typography.Link>
+                                    <Typography.Link onClick={redirectToCreateContact} size='large'>Добавить адрес</Typography.Link>
                                 </Row>
                             </Row>
                         </Col>
@@ -891,31 +957,6 @@ const ClientCardPageContent = ({
             </PageWrapper>
         </>
     )
-}
-
-
-const findSectionByUnitLabelAndType = (mapData, unitName, unitType) => {
-    let sectionType = `${SECTION_SECTION_TYPE}s`
-
-    if (unitName === PARKING_SECTION_TYPE){
-        sectionType = PARKING_SECTION_TYPE
-    }
-
-    for (const section of mapData[sectionType]) {
-        for (const floor of section.floors) {
-            for (const unit of floor.units) {
-                if (unit.label === unitName && unit.unitType === unitType) {
-                    return {
-                        floor: floor.name,
-                        sectionName: section.name,
-                        sectionType: section.type,
-                    }
-                }
-            }
-        }
-    }
-
-    return null
 }
 
 export const ClientCardPageContentWrapper = ({
@@ -1002,45 +1043,9 @@ export const ClientCardPageContentWrapper = ({
         const concatData =  [...contactsData, ...notResidentData, ...employeesData]
             .filter(tabsData => tabsData.organization && tabsData.property)
 
-        const fetchAndProcessData = async () => {
-            const propertyIds = concatData.map((el) => el.property.id)
+        const setData = async () => setTabsData(await getMapData(concatData, getPropertyWithMapById))
 
-            try {
-                const res = await Promise.all(
-                    propertyIds.map(async (el) => {
-                        const response = await getPropertyWithMapById({
-                            variables: {
-                                id: el,
-                            },
-                            fetchPolicy: 'cache-first',
-                        })
-                        return response.data
-                    })
-                )
-
-                const updatedTabsData = concatData.map((tab, index) => {
-                    const mapData = res[index]?.property[0].map
-                    if (!mapData) return tab
-
-                    const section = findSectionByUnitLabelAndType(
-                        mapData,
-                        tab.unitName,
-                        tab.unitType
-                    )
-
-                    return {
-                        ...tab,
-                        ...section,
-                    }
-                })
-
-                setTabsData(updatedTabsData)
-            } catch (error) {
-                console.error('Error fetching or processing data:', error)
-            }
-        }
-
-        fetchAndProcessData()
+        setData()
     }, [getPropertyWithMapById, findSectionByUnitLabelAndType, contactsQueryData, notResidentTickets, employeeTickets])
 
     const phoneNumberPrefixFromContacts = get(contactsQueryData, ['contacts', '0', 'organization', 'phoneNumberPrefix'])
