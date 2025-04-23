@@ -5558,6 +5558,7 @@ export const GetPollTicketCommentsDocument = gql`
   ) {
     id
     updatedAt
+    content
     ticket {
       id
     }

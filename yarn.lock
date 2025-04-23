@@ -580,9 +580,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@app/callcenter@workspace:apps/callcenter":
+"@app/callcenter@workspace:apps/condo_call_center":
   version: 0.0.0-use.local
-  resolution: "@app/callcenter@workspace:apps/callcenter"
+  resolution: "@app/callcenter@workspace:apps/condo_call_center"
   dependencies:
     "@ant-design/colors": ^6.0.0
     "@ant-design/icons": ^4.7.0
@@ -922,9 +922,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@app/eps@workspace:apps/eps":
+"@app/eps@workspace:apps/condo_eps":
   version: 0.0.0-use.local
-  resolution: "@app/eps@workspace:apps/eps"
+  resolution: "@app/eps@workspace:apps/condo_eps"
   dependencies:
     "@apollo/client": ^3.11.8
     "@arch-ui/button": ^0.0.25
@@ -1265,7 +1265,7 @@ __metadata:
     classnames: ^2.3.2
     dayjs: ^1.11.13
     deepmerge: ^4.3.1
-    graphql: ^16.8.1
+    graphql: ^16.10.0
     lodash: ^4.17.21
     next: 13.3.0
     next-transpile-modules: ^10.0.1
@@ -7281,9 +7281,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@callcenter/domains@link:./domains::locator=%40app%2Fcallcenter%40workspace%3Aapps%2Fcallcenter":
+"@callcenter/domains@link:./domains::locator=%40app%2Fcallcenter%40workspace%3Aapps%2Fcondo_call_center":
   version: 0.0.0-use.local
-  resolution: "@callcenter/domains@link:./domains::locator=%40app%2Fcallcenter%40workspace%3Aapps%2Fcallcenter"
+  resolution: "@callcenter/domains@link:./domains::locator=%40app%2Fcallcenter%40workspace%3Aapps%2Fcondo_call_center"
   languageName: node
   linkType: soft
 
@@ -7485,15 +7485,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@condo/domains@link:../condo/domains::locator=%40app%2Fcallcenter%40workspace%3Aapps%2Fcallcenter":
+"@condo/domains@link:../condo/domains::locator=%40app%2Fcallcenter%40workspace%3Aapps%2Fcondo_call_center":
   version: 0.0.0-use.local
-  resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Fcallcenter%40workspace%3Aapps%2Fcallcenter"
+  resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Fcallcenter%40workspace%3Aapps%2Fcondo_call_center"
   languageName: node
   linkType: soft
 
-"@condo/domains@link:../condo/domains::locator=%40app%2Feps%40workspace%3Aapps%2Feps":
+"@condo/domains@link:../condo/domains::locator=%40app%2Feps%40workspace%3Aapps%2Fcondo_eps":
   version: 0.0.0-use.local
-  resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Feps%40workspace%3Aapps%2Feps"
+  resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Feps%40workspace%3Aapps%2Fcondo_eps"
   languageName: node
   linkType: soft
 
@@ -8141,9 +8141,9 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@eps/domains@link:./domains::locator=%40app%2Feps%40workspace%3Aapps%2Feps":
+"@eps/domains@link:./domains::locator=%40app%2Feps%40workspace%3Aapps%2Fcondo_eps":
   version: 0.0.0-use.local
-  resolution: "@eps/domains@link:./domains::locator=%40app%2Feps%40workspace%3Aapps%2Feps"
+  resolution: "@eps/domains@link:./domains::locator=%40app%2Feps%40workspace%3Aapps%2Fcondo_eps"
   languageName: node
   linkType: soft
 
@@ -22421,9 +22421,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bicrypt@workspace:apps/eps/domains/eps/lib/bicrypt":
+"bicrypt@workspace:apps/condo_eps/domains/eps/lib/bicrypt":
   version: 0.0.0-use.local
-  resolution: "bicrypt@workspace:apps/eps/domains/eps/lib/bicrypt"
+  resolution: "bicrypt@workspace:apps/condo_eps/domains/eps/lib/bicrypt"
   dependencies:
     "@xmldom/xmldom": ^0.8.6
     node-addon-api: ^1.1.0
@@ -28822,9 +28822,9 @@ __metadata:
   linkType: hard
 
 "exponential-backoff@npm:^3.1.1":
-  version: 3.1.1
-  resolution: "exponential-backoff@npm:3.1.1"
-  checksum: 3d21519a4f8207c99f7457287291316306255a328770d320b401114ec8481986e4e467e854cb9914dd965e0a1ca810a23ccb559c642c88f4c7f55c55778a9b48
+  version: 3.1.2
+  resolution: "exponential-backoff@npm:3.1.2"
+  checksum: 7e191e3dd6edd8c56c88f2c8037c98fbb8034fe48778be53ed8cb30ccef371a061a4e999a469aab939b92f8f12698f3b426d52f4f76b7a20da5f9f98c3cbc862
   languageName: node
   linkType: hard
 

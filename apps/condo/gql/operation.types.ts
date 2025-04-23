@@ -841,7 +841,7 @@ export type GetPollTicketCommentsQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetPollTicketCommentsQuery = { __typename?: 'Query', ticketComments?: Array<{ __typename?: 'TicketComment', id: string, updatedAt?: string | null, ticket?: { __typename?: 'Ticket', id: string } | null } | null> | null };
+export type GetPollTicketCommentsQuery = { __typename?: 'Query', ticketComments?: Array<{ __typename?: 'TicketComment', id: string, updatedAt?: string | null, content?: string | null, ticket?: { __typename?: 'Ticket', id: string } | null } | null> | null };
 
 export type UpdateTicketCommentMutationVariables = Types.Exact<{
   id: Types.Scalars['ID']['input'];
