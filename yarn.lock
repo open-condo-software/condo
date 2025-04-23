@@ -1090,7 +1090,6 @@ __metadata:
     "@zeit/next-less": ^1.0.1
     antd: ^4.24.12
     antd-dayjs-webpack-plugin: ^1.0.6
-    babel-jest: ^29.7.0
     cross-env: ^7.0.3
     dayjs: ^1.10.6
     express: ^4.17.1
