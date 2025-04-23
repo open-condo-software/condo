@@ -56,7 +56,7 @@ const INVOICE_PAYMENT_TYPES = [
 ]
 
 const MARKETPLACE_RULES_LINK = 'https://help.doma.ai/article/197-article'
-const MARKETPLACE_OFFER_LINK = 'https://help.doma.ai/article/214-19'
+const MARKETPLACE_OFFER_LINK = 'https://help.doma.ai/article/320-214-22'
 const CONNECT_EMAIL = 'sales@doma.ai'
 const MARKETPLACE_SETUP_URL_PATH = '/setupMarketplace'
 
