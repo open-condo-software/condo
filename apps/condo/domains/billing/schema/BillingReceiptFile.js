@@ -29,12 +29,12 @@ const Adapter = new FileAdapter(BILLING_RECEIPT_FILE_FOLDER_NAME)
 const isResidentVerified = async ({ id, phone }, billingAccountId) => {
     const { unitName, unitType, property } = await getById('BillingAccount', billingAccountId)
     const billingProperty = await getById('BillingProperty', property)
-    const { address } = billingProperty // TODO: Use addressKey, in tests addressKey has different values for the same address
+    const { addressKey } = billingProperty
     const contacts = await find('Contact', {
         phone,
         isVerified: true,
-        unitName, unitType,
-        property: { address },
+        unitName_i: unitName, unitType,
+        property: { addressKey },
     })
     return contacts.length !== 0
 }

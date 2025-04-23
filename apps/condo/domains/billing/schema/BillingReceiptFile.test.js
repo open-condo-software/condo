@@ -45,20 +45,26 @@ async function makeClientWithResidentVerificationAndReceiptFile ({
     billingContext,
     billingProperty,
     property,
+    override = {},
 }, isVerified = true) {
     const client = await makeClientWithResidentUser()
-    const [billingAccount] = await createTestBillingAccount(admin, billingContext, billingProperty)
+    const billingAccountExtra = override.hasOwnProperty('billingAccount') ? { ...override['billingAccount'] } : {}
+    const [billingAccount] = await createTestBillingAccount(admin, billingContext, billingProperty, billingAccountExtra)
     const { unitName, unitType } = billingAccount
+    const residentExtra = override.hasOwnProperty('resident') ? { ...override['resident'] } : {}
     const [resident] = await registerResidentByTestClient(client, {
         address: property.address,
         addressMeta: property.addressMeta,
         unitName, unitType,
+        ...residentExtra,
     })
+    const contactExtra = override.hasOwnProperty('contact') ? { ...override['contact'] } : {}
     await createTestContact(admin, organization, property, {
         phone: client.userAttrs.phone,
         unitName,
         unitType,
         isVerified,
+        ...contactExtra,
     })
     const [receipt] =  await createTestBillingReceipt(admin, billingContext, billingProperty, billingAccount)
     const [receiptFile, attrs] = await createTestBillingReceiptFile(admin, receipt, billingContext)
@@ -418,6 +424,22 @@ describe('BillingReceiptFile', () => {
                     file,
                 } = await makeClientWithResidentVerificationAndReceiptFile({
                     admin, organization, billingContext: context, billingProperty: property, property: organizationProperty,
+                }, true)
+                const [residentReceiptFile] = await BillingReceiptFile.getAll(residentClient, { id: file.receiptFile.id })
+                expect(residentReceiptFile).toBeDefined()
+                expect(residentReceiptFile.file.originalFilename).toEqual(path.basename(PRIVATE_FILE))
+            })
+            it('has access for sensitive data receipt if is verified and unitName differs in case', async () => {
+                const {
+                    residentClient,
+                    file,
+                } = await makeClientWithResidentVerificationAndReceiptFile({
+                    admin, organization, billingContext: context, billingProperty: property, property: organizationProperty,
+                    override: {
+                        contact: { unitName: '3А' },
+                        billingAccount: { unitName: '3а' },
+                        resident: { unitName: '3А' },
+                    },
                 }, true)
                 const [residentReceiptFile] = await BillingReceiptFile.getAll(residentClient, { id: file.receiptFile.id })
                 expect(residentReceiptFile).toBeDefined()
