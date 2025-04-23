@@ -10416,6 +10416,7 @@ type BillingIntegrationHistoryRecord {
   billingPageTitle: String
   group: String
   connectedMessage: String
+  connectedUrl: String
   uploadUrl: String
   uploadMessage: String
   contextDefaultStatus: String
@@ -10712,6 +10713,24 @@ input BillingIntegrationHistoryRecordWhereInput {
   connectedMessage_not_ends_with_i: String
   connectedMessage_in: [String]
   connectedMessage_not_in: [String]
+  connectedUrl: String
+  connectedUrl_not: String
+  connectedUrl_contains: String
+  connectedUrl_not_contains: String
+  connectedUrl_starts_with: String
+  connectedUrl_not_starts_with: String
+  connectedUrl_ends_with: String
+  connectedUrl_not_ends_with: String
+  connectedUrl_i: String
+  connectedUrl_not_i: String
+  connectedUrl_contains_i: String
+  connectedUrl_not_contains_i: String
+  connectedUrl_starts_with_i: String
+  connectedUrl_not_starts_with_i: String
+  connectedUrl_ends_with_i: String
+  connectedUrl_not_ends_with_i: String
+  connectedUrl_in: [String]
+  connectedUrl_not_in: [String]
   uploadUrl: String
   uploadUrl_not: String
   uploadUrl_contains: String
@@ -10907,6 +10926,8 @@ enum SortBillingIntegrationHistoryRecordsBy {
   group_DESC
   connectedMessage_ASC
   connectedMessage_DESC
+  connectedUrl_ASC
+  connectedUrl_DESC
   uploadUrl_ASC
   uploadUrl_DESC
   uploadMessage_ASC
@@ -10959,6 +10980,7 @@ input BillingIntegrationHistoryRecordUpdateInput {
   billingPageTitle: String
   group: String
   connectedMessage: String
+  connectedUrl: String
   uploadUrl: String
   uploadMessage: String
   contextDefaultStatus: String
@@ -11006,6 +11028,7 @@ input BillingIntegrationHistoryRecordCreateInput {
   billingPageTitle: String
   group: String
   connectedMessage: String
+  connectedUrl: String
   uploadUrl: String
   uploadMessage: String
   contextDefaultStatus: String
@@ -11323,6 +11346,10 @@ type BillingIntegration {
   """ The message shown to the user after the integration is connected before the first receipts are downloaded. Appeared while lastReport field of context is null 
   """
   connectedMessage: String
+
+  """ If specified, after billing integration is connected but there are no receipts yet, an iframe will be shown to display some empty content information. Possibly some instructions if integration is not setup yet.  
+  """
+  connectedUrl: String
 
   """ If specified, billing app will have a call-to-action button, which opens iframe with specified url to start receipts-uploading process. Text of a button can be overridden via "uploadMessage" 
   """
@@ -11665,6 +11692,24 @@ input BillingIntegrationWhereInput {
   connectedMessage_not_ends_with_i: String
   connectedMessage_in: [String]
   connectedMessage_not_in: [String]
+  connectedUrl: String
+  connectedUrl_not: String
+  connectedUrl_contains: String
+  connectedUrl_not_contains: String
+  connectedUrl_starts_with: String
+  connectedUrl_not_starts_with: String
+  connectedUrl_ends_with: String
+  connectedUrl_not_ends_with: String
+  connectedUrl_i: String
+  connectedUrl_not_i: String
+  connectedUrl_contains_i: String
+  connectedUrl_not_contains_i: String
+  connectedUrl_starts_with_i: String
+  connectedUrl_not_starts_with_i: String
+  connectedUrl_ends_with_i: String
+  connectedUrl_not_ends_with_i: String
+  connectedUrl_in: [String]
+  connectedUrl_not_in: [String]
   uploadUrl: String
   uploadUrl_not: String
   uploadUrl_contains: String
@@ -11825,6 +11870,8 @@ enum SortBillingIntegrationsBy {
   group_DESC
   connectedMessage_ASC
   connectedMessage_DESC
+  connectedUrl_ASC
+  connectedUrl_DESC
   uploadUrl_ASC
   uploadUrl_DESC
   uploadMessage_ASC
@@ -11879,6 +11926,7 @@ input BillingIntegrationUpdateInput {
   billingPageTitle: String
   group: String
   connectedMessage: String
+  connectedUrl: String
   uploadUrl: String
   uploadMessage: String
   contextDefaultStatus: BillingIntegrationContextDefaultStatusType
@@ -11924,6 +11972,7 @@ input BillingIntegrationCreateInput {
   billingPageTitle: String
   group: String
   connectedMessage: String
+  connectedUrl: String
   uploadUrl: String
   uploadMessage: String
   contextDefaultStatus: BillingIntegrationContextDefaultStatusType
