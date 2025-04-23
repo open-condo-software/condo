@@ -1,5 +1,6 @@
 import { PlusCircleOutlined } from '@ant-design/icons'
 import {
+    GetTicketsQuery,
     useGetContactForClientCardQuery,
     useGetEmployeesForClientCardQuery,
     useGetPropertyWithMapByIdLazyQuery,
@@ -32,10 +33,8 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button, Carousel, Space, Tabs, Typography } from '@open-condo/ui'
 
-import { Button as DeprecatedButton } from '@condo/domains/common/components/Button'
 import { PageContent, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { BuildingIcon } from '@condo/domains/common/components/icons/BuildingIcon'
-import { PlusIcon } from '@condo/domains/common/components/icons/PlusIcon'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { Tag } from '@condo/domains/common/components/Tag'
@@ -77,6 +76,14 @@ type TabDataType = {
     sectionName: string
     organization: OrganizationType
     contact?: Pick<ContactType, 'name' | 'id'>
+}
+
+type ClientContactPropsType = {
+    phone: string
+    lastTicket: GetTicketsQuery['tickets'][number]
+    contact?: ContactType & { isEmployee?: boolean }
+    showOrganizationMessage?: boolean
+    type: string
 }
 
 const StyledCarouselWrapper = styled(Col)`
@@ -146,14 +153,13 @@ const StyledAddressTabContent = styled.div`
   row-gap: 12px;
 `
 
-const ClientAddressCard = ({ onClick, active, property, organization, unitName, floor, unitType, sectionType, sectionName }) => {
+const ClientAddressCard = ({ onClick, active, property, organization, unitName, floor, unitType, sectionName }) => {
     const intl = useIntl()
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
     const FlatMessage = intl.formatMessage({ id: 'field.ShortFlatNumber' })
     const ParkingMessage = intl.formatMessage({ id: 'field.UnitType.prefix.parking' })
-
-    const floorMessage = intl.formatMessage({ id: 'field.ShortFloorName' })
-    const sectionMessage = intl.formatMessage({ id: 'field.ShortSectionName' })
+    const FloorMessage = intl.formatMessage({ id: 'field.ShortFloorName' })
+    const SectionMessage = intl.formatMessage({ id: 'field.ShortSectionName' })
 
     const addressStreetRef = useRef<HTMLDivElement>()
     const addressPostfixRef = useRef<HTMLDivElement>()
@@ -199,17 +205,18 @@ const ClientAddressCard = ({ onClick, active, property, organization, unitName, 
                         {streetMessage}
 
                         <br/>
-                        <Row style={{ gap:4 }}>
-                            {unitNamePrefix} {unitName}
+                        { floor || sectionName ? (
+                            <Row style={{ gap: 4 }}>
+                                {unitNamePrefix} {unitName}
 
-                            <Typography.Text
-                                type='secondary'
-                            >
-                                ({sectionMessage}{sectionName},{floorMessage} {floor})
-                            </Typography.Text>
-                        </Row>
+                                {sectionName && floor && (
+                                    <Typography.Text type='secondary'>
+                                        ({SectionMessage} {sectionName}, {FloorMessage} {floor})
+                                    </Typography.Text>
+                                )}
+                            </Row>
+                        ) : null}
                     </Typography.Text>
-
 
                     <Typography.Paragraph
                         size='medium'
@@ -228,7 +235,7 @@ const ClientAddressCard = ({ onClick, active, property, organization, unitName, 
 //#endregion
 
 //#region Contact and Not resident client Tab content
-const ClientContent: React.FC<any> = ({ lastTicket, contact, type, showOrganizationMessage, phone }) => {
+const ClientContent: React.FC<ClientContactPropsType> = ({ lastTicket, contact, type, showOrganizationMessage, phone }) => {
     const intl = useIntl()
     const CallRecordsLogMessage = intl.formatMessage({ id: 'pages.clientCard.callRecordsLog' })
 
@@ -239,10 +246,7 @@ const ClientContent: React.FC<any> = ({ lastTicket, contact, type, showOrganizat
         [contact?.name, lastTicket?.clientName]
     )
 
-    const email = useMemo(
-        () => contact?.email ?? lastTicket?.clientEmail,
-        [contact?.email, lastTicket?.clientEmail]
-    )
+    const email = useMemo(() => contact?.email, [contact?.email])
 
     const organizationName = useMemo(
         () => contact?.organization?.name ?? lastTicket?.organization?.name,
@@ -354,7 +358,7 @@ type TableTabs = 'address' | 'entrance' | 'home'
 type tabsItems = { key: TableTabs, label: string }[]
 const tableTabs: Array<TableTabs> = ['address', 'entrance', 'home']
 
-const ClientCardTabContent: any = ({
+const ClientCardTabContent = ({
     phone,
     property,
     searchTicketsQuery,
@@ -410,7 +414,7 @@ const ClientCardTabContent: any = ({
 
     const total = tickets?.length
 
-    const lastCreatedTicket = get(tickets, 0)
+    const lastCreatedTicket = tickets?.[0]
     const propertyId = useMemo(() => get(property, 'id', null), [property])
     const organizationId = useMemo(() => get(organization, 'id'), [organization])
 
@@ -597,10 +601,12 @@ const ContactClientTabContent = ({
     )
 }
 
-const NotResidentClientTabContent: any = ({
+const NotResidentClientTabContent = ({
     property,
     unitName,
     unitType,
+    sectionName,
+    sectionType,
     phone,
     type,
     organization,
@@ -639,6 +645,8 @@ const NotResidentClientTabContent: any = ({
             phone={phone}
             property={property}
             type={type}
+            sectionName={sectionName}
+            sectionType={sectionType}
             searchTicketsQuery={searchTicketsQuery}
             handleTicketCreateClick={handleTicketCreateClick}
             canManageContacts={false}
@@ -778,7 +786,7 @@ const ClientCardPageContent = ({
         const contact = get(tabDataWithProperty, 'contact')
 
         if (property) {
-            setActiveTabData({ type, property, unitName, unitType, organization, contact, sectionType: contact.sectionType, sectionName: contact.sectionName })
+            setActiveTabData({ type, property, unitName, unitType, organization, contact, sectionType: contact?.sectionType, sectionName: contact?.sectionName })
         }
     }, [activeTab, tabsData])
 
@@ -808,7 +816,6 @@ const ClientCardPageContent = ({
                 property={property}
                 unitName={unitName}
                 unitType={unitType}
-                sectionType={sectionType}
                 sectionName={sectionName}
                 active={isActive}
             />
