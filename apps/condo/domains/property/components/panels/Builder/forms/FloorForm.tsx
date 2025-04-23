@@ -3,8 +3,8 @@ import { Row, Col, Space, Typography, InputNumber } from 'antd'
 import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Checkbox } from '@open-condo/ui'
 
-import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Select from '@condo/domains/common/components/antd/Select'
 import { Button } from '@condo/domains/common/components/Button'
 
@@ -12,7 +12,6 @@ import {
     IPropertyMapModalForm,
     MODAL_FORM_ROW_GUTTER,
     INPUT_STYLE,
-    MODAL_FORM_CHECKBOX_STYLE,
     BUTTON_SPACE_SIZE,
     MODAL_FORM_ROW_BUTTONS_GUTTER,
     FormModalCss,
@@ -138,19 +137,19 @@ const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
             </Col>
             <Col span={24}>
                 <Space direction='vertical' size={BUTTON_SPACE_SIZE}>
-                    <Space direction='vertical' size={8}>
+                    <Space direction='vertical' size={8} style={INPUT_STYLE}>
                         <Typography.Text type='secondary'>{UnitsOnFloorLabel}</Typography.Text>
                         <InputNumber
                             value={unitsOnFloor}
                             onChange={setUnitsOnFloorNumber}
-                            style={INPUT_STYLE}
                             type='number'
+                            style={INPUT_STYLE}
                             min={1}
                         />
-                        <Checkbox defaultChecked onChange={toggleRenameNextUnits} style={MODAL_FORM_CHECKBOX_STYLE}>
-                            {RenameNextUnitsLabel}
-                        </Checkbox>
                     </Space>
+                    <Checkbox onChange={toggleRenameNextUnits}>
+                        {RenameNextUnitsLabel}
+                    </Checkbox>
                     <Row gutter={MODAL_FORM_ROW_BUTTONS_GUTTER}>
                         <Col span={24}>
                             <Button
