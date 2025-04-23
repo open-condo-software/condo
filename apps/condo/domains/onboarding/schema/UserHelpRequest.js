@@ -30,7 +30,7 @@ const UserHelpRequest = new GQLListSchema('UserHelpRequest', {
             isRequired: true,
         },
         organization: ORGANIZATION_OWNED_FIELD,
-        integration: {
+        billingIntegration: {
             schemaDoc: 'ID of the billing integration that is configured to receive data for the organization',
             type: 'Relationship',
             ref: 'BillingIntegration',

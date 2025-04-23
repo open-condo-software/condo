@@ -178,6 +178,17 @@ function _checkPermissionsInOrganization (organizationPermissions, permissionsTo
 }
 
 /**
+ * Checks if user has some of specified permissions in organizations
+ * @param {Record<string, boolean>} organizationPermissions
+ * @param {Array<string>} permissionsToCheck
+ * @private
+ */
+function _checkSomePermissionsInOrganization (organizationPermissions, permissionsToCheck) {
+    return permissionsToCheck.some(permission => organizationPermissions.hasOwnProperty(permission) && organizationPermissions[permission])
+}
+
+
+/**
  * Gets the IDs of organizations where user is employed and its employee has all permissions from the list
  * @param {{ req: import('express').Request }} ctx - keystone context object
  * @param {{ id: string }} user - user object
@@ -193,6 +204,28 @@ async function getEmployedOrganizationsByPermissions (ctx, user, permissions) {
 
     for (const [id, info] of Object.entries(userOrganizationsInfo.organizations)) {
         if (_checkPermissionsInOrganization(info.permissions, permissionsToCheck)) {
+            organizationIds.push(id)
+        }
+    }
+    return organizationIds
+}
+
+/**
+ * Gets the IDs of organizations where user is employed and its employee has some permissions from the list
+ * @param {{ req: import('express').Request }} ctx - keystone context object
+ * @param {{ id: string }} user - user object
+ * @param {Array<string> | string} permissions - permissions to check,
+ * can be passed as array of strings for multiple permissions or a single string for a single permission
+ * @returns {Promise<Array<string>>}
+ */
+async function getEmployedOrganizationsBySomePermissions (ctx, user, permissions) {
+    const userOrganizationsInfo = await _getUserOrganizations(ctx, user)
+
+    const permissionsToCheck = Array.isArray(permissions) ? permissions : [permissions]
+    const organizationIds = []
+
+    for (const [id, info] of Object.entries(userOrganizationsInfo.organizations)) {
+        if (_checkSomePermissionsInOrganization(info.permissions, permissionsToCheck)) {
             organizationIds.push(id)
         }
     }
@@ -365,6 +398,7 @@ module.exports = {
     resetUserEmployeesCache,
     resetOrganizationEmployeesCache,
     getEmployedOrganizationsByPermissions,
+    getEmployedOrganizationsBySomePermissions,
     getRelatedOrganizationsByPermissions,
     getEmployedOrRelatedOrganizationsByPermissions,
     getInvitedOrganizations,

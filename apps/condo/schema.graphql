@@ -48459,7 +48459,7 @@ type UserHelpRequestHistoryRecord {
   _label_: String
   type: String
   organization: String
-  integration: String
+  billingIntegration: String
   phone: String
   email: String
   isReadyToSend: Boolean
@@ -48504,10 +48504,10 @@ input UserHelpRequestHistoryRecordWhereInput {
   organization_not: String
   organization_in: [String]
   organization_not_in: [String]
-  integration: String
-  integration_not: String
-  integration_in: [String]
-  integration_not_in: [String]
+  billingIntegration: String
+  billingIntegration_not: String
+  billingIntegration_in: [String]
+  billingIntegration_not_in: [String]
   phone: String
   phone_not: String
   phone_contains: String
@@ -48662,7 +48662,7 @@ enum SortUserHelpRequestHistoryRecordsBy {
 input UserHelpRequestHistoryRecordUpdateInput {
   type: String
   organization: String
-  integration: String
+  billingIntegration: String
   phone: String
   email: String
   isReadyToSend: Boolean
@@ -48689,7 +48689,7 @@ input UserHelpRequestHistoryRecordsUpdateInput {
 input UserHelpRequestHistoryRecordCreateInput {
   type: String
   organization: String
-  integration: String
+  billingIntegration: String
   phone: String
   email: String
   isReadyToSend: Boolean
@@ -48739,7 +48739,7 @@ type UserHelpRequest {
 
   """ ID of the billing integration that is configured to receive data for the organization 
   """
-  integration: BillingIntegration
+  billingIntegration: BillingIntegration
 
   """ Specified phone in request for callback """
   phone: String
@@ -48786,8 +48786,8 @@ input UserHelpRequestWhereInput {
   type_not_in: [UserHelpRequestTypeType]
   organization: OrganizationWhereInput
   organization_is_null: Boolean
-  integration: BillingIntegrationWhereInput
-  integration_is_null: Boolean
+  billingIntegration: BillingIntegrationWhereInput
+  billingIntegration_is_null: Boolean
   phone: String
   phone_not: String
   phone_contains: String
@@ -48897,8 +48897,8 @@ enum SortUserHelpRequestsBy {
   type_DESC
   organization_ASC
   organization_DESC
-  integration_ASC
-  integration_DESC
+  billingIntegration_ASC
+  billingIntegration_DESC
   phone_ASC
   phone_DESC
   email_ASC
@@ -48926,7 +48926,7 @@ enum SortUserHelpRequestsBy {
 input UserHelpRequestUpdateInput {
   type: UserHelpRequestTypeType
   organization: OrganizationRelateToOneInput
-  integration: BillingIntegrationRelateToOneInput
+  billingIntegration: BillingIntegrationRelateToOneInput
   phone: String
   email: String
   isReadyToSend: Boolean
@@ -48950,7 +48950,7 @@ input UserHelpRequestsUpdateInput {
 input UserHelpRequestCreateInput {
   type: UserHelpRequestTypeType
   organization: OrganizationRelateToOneInput
-  integration: BillingIntegrationRelateToOneInput
+  billingIntegration: BillingIntegrationRelateToOneInput
   phone: String
   email: String
   isReadyToSend: Boolean

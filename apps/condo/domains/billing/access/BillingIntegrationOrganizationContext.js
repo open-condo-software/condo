@@ -12,7 +12,8 @@ const { getById, find } = require('@open-condo/keystone/schema')
 const { checkBillingIntegrationsAccessRights } = require('@condo/domains/billing/utils/accessSchema')
 const { canManageObjectsAsB2BAppServiceUser } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
 const { canReadObjectsAsB2BAppServiceUser } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess/server.utils')
-const { SERVICE, STAFF } = require('@condo/domains/user/constants/common')
+const { getEmployedOrganizationsBySomePermissions } = require('@condo/domains/organization/utils/accessSchema')
+const { SERVICE } = require('@condo/domains/user/constants/common')
 const { canDirectlyReadSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
 
@@ -23,7 +24,7 @@ const { canDirectlyReadSchemaObjects } = require('@condo/domains/user/utils/dire
  * 3. Integration manager from user's organization
  */
 async function canReadBillingIntegrationOrganizationContexts (args) {
-    const { authentication: { item: user }, listKey } = args
+    const { authentication: { item: user }, listKey, context } = args
 
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
@@ -41,7 +42,9 @@ async function canReadBillingIntegrationOrganizationContexts (args) {
         return { OR: filterConditions }
     }
 
-    return { organization: { employees_some: { user: { id: user.id }, role: { OR: [{ canReadBillingReceipts: true }, { canManageIntegrations: true }] }, isBlocked: false, deletedAt: null } } }
+    const permittedOrganizations = await getEmployedOrganizationsBySomePermissions(context, user, ['canReadBillingReceipts', 'canManageIntegrations'])
+
+    return { organization: { id_in: permittedOrganizations } }
 }
 
 /**
