@@ -191,6 +191,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ant-design/colors@npm:^8.0.0":
+  version: 8.0.0
+  resolution: "@ant-design/colors@npm:8.0.0"
+  dependencies:
+    "@ant-design/fast-color": ^3.0.0
+  checksum: ce894f03d20b68cb8120a964df6f0813fa061642857eb4dd648fa4fac8740465600a294edf421db82c479399e03ca628f5388729cf63793ccdd860a06bc17680
+  languageName: node
+  linkType: hard
+
 "@ant-design/cssinjs@npm:^1.18.5":
   version: 1.20.0
   resolution: "@ant-design/cssinjs@npm:1.20.0"
@@ -206,6 +215,13 @@ __metadata:
     react: ">=16.0.0"
     react-dom: ">=16.0.0"
   checksum: 81cd6b27dc2c3fa7bfe83f53e0962685728f93a19e2ba36fa3b7da913bba46fe730e4bb28606fa6894f85435d8cf2ade26861a2094746bed2db07113fa8da9b8
+  languageName: node
+  linkType: hard
+
+"@ant-design/fast-color@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "@ant-design/fast-color@npm:3.0.0"
+  checksum: 1c227ae8f07520b636ef41b22863edd3ca69b900f01be45a43913049e8f40ca58cb8a04056877853799c65a97327378edaf1de2f862b79d4248768c1efc342be
   languageName: node
   linkType: hard
 
@@ -252,6 +268,21 @@ __metadata:
     react: ">=16.0.0"
     react-dom: ">=16.0.0"
   checksum: 96a0f7e3315926f438467812df9b23fd202172eaa01adc75e2afa052c090e2c2d5d54283e08318e54cb25ea21c63ff1857d5f0eb7051b3e09decedbac62513d7
+  languageName: node
+  linkType: hard
+
+"@ant-design/icons@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "@ant-design/icons@npm:6.0.0"
+  dependencies:
+    "@ant-design/colors": ^8.0.0
+    "@ant-design/icons-svg": ^4.4.0
+    "@rc-component/util": ^1.2.1
+    classnames: ^2.2.6
+  peerDependencies:
+    react: ">=16.0.0"
+    react-dom: ">=16.0.0"
+  checksum: fd9107e3080a2265fdf6df4c9b8c2181b51599819563e98eefd1e89f2a3bb13b2027c50ba7e7f85fd3b80af36b0bb4aafa44d9cd0de43ba0f26c306a96caf42d
   languageName: node
   linkType: hard
 
@@ -1051,7 +1082,6 @@ __metadata:
     "@meter-importer/domains": "link:./domains"
     "@open-condo/apollo-server-client": "workspace:^"
     "@open-condo/cli": "workspace:^"
-    "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/icons": "workspace:^"
     "@open-condo/keystone": "workspace:^"
@@ -1060,6 +1090,7 @@ __metadata:
     "@zeit/next-less": ^1.0.1
     antd: ^4.24.12
     antd-dayjs-webpack-plugin: ^1.0.6
+    babel-jest: ^29.7.0
     cross-env: ^7.0.3
     dayjs: ^1.10.6
     express: ^4.17.1
@@ -1182,6 +1213,67 @@ __metadata:
     typescript: ^5.5.4
     uuid: ^8.3.0
     webpack: ^4.46.0
+  languageName: unknown
+  linkType: soft
+
+"@app/news-telegram-api@workspace:apps/news-telegram-api":
+  version: 0.0.0-use.local
+  resolution: "@app/news-telegram-api@workspace:apps/news-telegram-api"
+  dependencies:
+    "@news-telegram-api/domains": "link:./domains"
+    "@open-condo/cli": "workspace:^"
+    "@open-condo/codegen": "workspace:^"
+    "@open-condo/config": "workspace:^"
+    "@open-condo/keystone": "workspace:^"
+    cross-env: ^7.0.3
+    dayjs: ^1.11.13
+    express: ^4.17.1
+    falsey: ^1.0.0
+    jest: ^29.7.0
+    jest-jasmine2: ^29.7.0
+    lodash: ^4.17.21
+    openid-client: 4.7.4
+    uuid: ^8.3.0
+  languageName: unknown
+  linkType: soft
+
+"@app/news-telegram-web@workspace:apps/news-telegram-web":
+  version: 0.0.0-use.local
+  resolution: "@app/news-telegram-web@workspace:apps/news-telegram-web"
+  dependencies:
+    "@ant-design/icons": ^6.0.0
+    "@apollo/client": ^3.11.8
+    "@babel/core": 7.20.12
+    "@babel/preset-env": 7.20.2
+    "@babel/preset-typescript": 7.18.6
+    "@graphql-codegen/cli": ^5.0.2
+    "@graphql-codegen/typescript": ^4.0.1
+    "@graphql-codegen/typescript-operations": ^4.0.1
+    "@graphql-codegen/typescript-react-apollo": ^4.0.0
+    "@open-condo/bridge": "workspace:^"
+    "@open-condo/cli": "workspace:^"
+    "@open-condo/codegen": "workspace:^"
+    "@open-condo/config": "workspace:^"
+    "@open-condo/icons": "workspace:^"
+    "@open-condo/miniapp-utils": "workspace:^"
+    "@open-condo/tsconfig": "workspace:^"
+    "@open-condo/ui": "workspace:^"
+    "@types/node": ^16
+    "@types/react": 18.0.27
+    "@types/react-dom": 18.0.10
+    antd: ^4.24.12
+    apollo-upload-client: ^17
+    classnames: ^2.3.2
+    dayjs: ^1.11.13
+    deepmerge: ^4.3.1
+    graphql: ^16.8.1
+    lodash: ^4.17.21
+    next: 13.3.0
+    next-transpile-modules: ^10.0.1
+    react: 18.2.0
+    react-dom: 18.2.0
+    react-intl: ^6.6.5
+    typescript: ^5.5.4
   languageName: unknown
   linkType: soft
 
@@ -12108,6 +12200,12 @@ __metadata:
   languageName: node
   linkType: soft
 
+"@news-telegram-api/domains@link:./domains::locator=%40app%2Fnews-telegram-api%40workspace%3Aapps%2Fnews-telegram-api":
+  version: 0.0.0-use.local
+  resolution: "@news-telegram-api/domains@link:./domains::locator=%40app%2Fnews-telegram-api%40workspace%3Aapps%2Fnews-telegram-api"
+  languageName: node
+  linkType: soft
+
 "@next/env@npm:13.3.0":
   version: 13.3.0
   resolution: "@next/env@npm:13.3.0"
@@ -14919,6 +15017,18 @@ __metadata:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
   checksum: 29ba5e9c0dca1a02f02b816288060f9a237c6278f0a639375cbc646a6a12288e37684181f69ef7ccf009e1785760f93ce8361d6453bbe07c889ce25af221da8f
+  languageName: node
+  linkType: hard
+
+"@rc-component/util@npm:^1.2.1":
+  version: 1.2.1
+  resolution: "@rc-component/util@npm:1.2.1"
+  dependencies:
+    react-is: ^18.2.0
+  peerDependencies:
+    react: ">=18.0.0"
+    react-dom: ">=18.0.0"
+  checksum: f334818748bd8f955f8120ce0d913002a5923f4392b392ce302253fba44de35499e2af43a75b28f0c6484f897c9cdedde5c72e0fe843ebf6bfc69363862aea90
   languageName: node
   linkType: hard
 
@@ -27355,6 +27465,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"enhanced-resolve@npm:^5.10.0":
+  version: 5.18.1
+  resolution: "enhanced-resolve@npm:5.18.1"
+  dependencies:
+    graceful-fs: ^4.2.4
+    tapable: ^2.2.0
+  checksum: de5bea7debe3576e78173bcc409c4aee7fcb56580c602d5c47c533b92952e55d7da3d9f53b864846ba62c8bd3efb0f9ecfe5f865e57de2f3e9b6e5cda03b4e7e
+  languageName: node
+  linkType: hard
+
 "enhanced-resolve@npm:^5.16.0":
   version: 5.16.0
   resolution: "enhanced-resolve@npm:5.16.0"
@@ -38708,6 +38828,15 @@ __metadata:
   version: 1.0.0
   resolution: "next-tick@npm:1.0.0"
   checksum: 83fcb3d4f8d9380210b1c2b8a610463602d80283f0c0c8571c1688e1ad6cbf3a16b345f5bb7212617d4898bedcfa10dff327dc09ec20a112a5bf43a0271375fb
+  languageName: node
+  linkType: hard
+
+"next-transpile-modules@npm:^10.0.1":
+  version: 10.0.1
+  resolution: "next-transpile-modules@npm:10.0.1"
+  dependencies:
+    enhanced-resolve: ^5.10.0
+  checksum: 6cfffd165769a04b153e60f49f4f3896d16aa688304616f66c7b94299e2229b04db368217e6a7300d3110fe988a6c6e68025bb2cbda3edf49e9b29109ff671bd
   languageName: node
   linkType: hard
 
