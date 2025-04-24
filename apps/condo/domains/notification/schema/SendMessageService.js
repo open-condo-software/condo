@@ -85,15 +85,18 @@ async function checkSendMessageMeta (type, meta, context) {
         if (attr === 'data' && typeof value === 'object' && schema.data) {
             const dataSchema = schema.data
             for (const dataAttr of Object.keys(dataSchema)) {
-                const { required: dataRequired } = dataSchema[dataAttr] || {}
+                if (dataAttr === 'required' || dataAttr === 'defaultValue') {
+                    continue
+                }
+                const { required: dataRequired } = dataSchema[dataAttr]
                 if (dataRequired && !value[dataAttr]) {
-                    logger.info({ msg: 'Missing value for required "meta"', dataAttr })
+                    logger.info({ msg: 'Missing value for required "meta"', dataAttr, type })
                 }
             }
 
             for (const dataAttr of Object.keys(value)) {
                 if (!dataSchema[dataAttr]) {
-                    logger.info({ msg: 'Unknown attribute provided to "meta" variable', dataAttr })
+                    logger.info({ msg: 'Unknown attribute provided to "meta" variable', dataAttr, type })
                 }
             }
         }
