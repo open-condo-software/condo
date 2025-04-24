@@ -14,19 +14,12 @@ const DISABLE_DISCOVER_SERVICE_CONSUMERS = 'disable-discover-service-consumers'
 const TICKET_SUBMITTING_FORM_RESIDENT_MOBILE_APP = 'ticket-submitting-from-resident-mobile-app'
 const BIGGER_LIMIT_FOR_IMPORT = 'bigger-limit-for-import'
 const SEND_BILLING_RECEIPTS_ON_PAYDAY_REMAINDER_TASK = 'send-billing-receipts-on-payday-remainder-task'
-const MARKETPLACE = 'marketplace'
-const SHOW_TELEGRAM_NOTIFICATIONS_BANNER = 'show-telegram-notifications-banner'
-const MAX_EMPLOYEE_SIZE_IN_ORGANIZATION_TO_TELEGRAM_NOTIFICATIONS = 'max-employee-size-in-organization-to-telegram-notifications'
-const SEND_TELEGRAM_NOTIFICATIONS = 'send-telegram-notifications'
 const CAPTCHA_CHECK_ENABLED = 'captcha-check-enabled'
-// TODO(DOMA-8667): Remove flag after links to instructions will be ready
-const IMPORT_HELP_MODAL = 'import-help-modal'
 const SEND_DAILY_STATISTICS_TASK = 'send-daily-statistics-task'
 const RETENTION_LOOPS_ENABLED = 'retention-loops-enabled'
 const SERVICE_PROBLEMS_ALERT = 'service-problems-alert'
 const TICKET_AUTO_ASSIGNMENT_MANAGEMENT = 'ticket-auto-assignment-management'
 const POLL_TICKET_COMMENTS = 'poll-ticket-comments'
-const REASSIGN_EMPLOYEE_TICKETS = 'reassign-employee-tickets'
 const SNOWFLAKES_SETTINGS = 'snowflakes-settings'
 const USER_WHITE_LIST_FOR_FIND_ORGANIZATIONS_BY_TIN = 'user-white-list-for-find-organizations-by-tin'
 const METER_REPORTING_PERIOD_STRICT_RULE = 'meter-reporting-period-strict-rule'
@@ -56,18 +49,12 @@ module.exports = {
     TICKET_SUBMITTING_FORM_RESIDENT_MOBILE_APP,
     BIGGER_LIMIT_FOR_IMPORT,
     SEND_BILLING_RECEIPTS_ON_PAYDAY_REMAINDER_TASK,
-    MARKETPLACE,
-    SHOW_TELEGRAM_NOTIFICATIONS_BANNER,
-    MAX_EMPLOYEE_SIZE_IN_ORGANIZATION_TO_TELEGRAM_NOTIFICATIONS,
-    SEND_TELEGRAM_NOTIFICATIONS,
     CAPTCHA_CHECK_ENABLED,
-    IMPORT_HELP_MODAL,
     RETENTION_LOOPS_ENABLED,
     SEND_DAILY_STATISTICS_TASK,
     SERVICE_PROBLEMS_ALERT,
     TICKET_AUTO_ASSIGNMENT_MANAGEMENT,
     POLL_TICKET_COMMENTS,
-    REASSIGN_EMPLOYEE_TICKETS,
     SNOWFLAKES_SETTINGS,
     USER_WHITE_LIST_FOR_FIND_ORGANIZATIONS_BY_TIN,
     METER_REPORTING_PERIOD_STRICT_RULE,

@@ -3,7 +3,6 @@ import { Col, Progress, Row, Space } from 'antd'
 import get from 'lodash/get'
 import React, { useMemo } from 'react'
 
-import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { Download, QuestionCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Alert, Button, Card, CardBodyProps, CardHeaderProps, Modal, Typography } from '@open-condo/ui'
@@ -11,7 +10,6 @@ import { colors } from '@open-condo/ui/dist/colors'
 
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
-import { IMPORT_HELP_MODAL } from '@condo/domains/common/constants/featureflags'
 import { useImportHelpModal } from '@condo/domains/common/hooks/useImportHelpModal'
 
 const ImageContainer = styled.div`
@@ -124,8 +122,6 @@ const BaseImportWrapper: React.FC<TBaseImportWrapperProps> = (props) => {
     const exampleImageSrc = useMemo(() => `/import/${domainName}/${intl.locale}/${domainName}-import-example.webp`, [domainName, intl.locale])
 
     const { Modal: ImportHelpModal, openImportHelpModal } = useImportHelpModal({ domainName })
-    const { useFlag } = useFeatureFlags()
-    const isImportHelpModalEnabled = useFlag(IMPORT_HELP_MODAL)
 
     return (
         <>
@@ -150,19 +146,15 @@ const BaseImportWrapper: React.FC<TBaseImportWrapperProps> = (props) => {
                 open={activeModal === 'example'}
                 footer={
                     <Space size={16} direction='horizontal'>
-                        {
-                            isImportHelpModalEnabled && (
-                                <LinkWithIcon
-                                    title={NeedHelpMessage}
-                                    size='medium'
-                                    PostfixIcon={QuestionCircle}
-                                    onClick={() => {
-                                        setActiveModal(null)
-                                        openImportHelpModal()
-                                    }}
-                                />
-                            )
-                        }
+                        <LinkWithIcon
+                            title={NeedHelpMessage}
+                            size='medium'
+                            PostfixIcon={QuestionCircle}
+                            onClick={() => {
+                                setActiveModal(null)
+                                openImportHelpModal()
+                            }}
+                        />
                         {dataImporter}
                     </Space>
                 }

@@ -8,7 +8,7 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { getById, getByCondition, getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
-const { SEND_TELEGRAM_NOTIFICATIONS, SMS_AFTER_TICKET_CREATION } = require('@condo/domains/common/constants/featureflags')
+const { SMS_AFTER_TICKET_CREATION } = require('@condo/domains/common/constants/featureflags')
 const { TWO_OR_MORE_SPACES_REGEXP } = require('@condo/domains/common/constants/regexps')
 const { md5 } = require('@condo/domains/common/utils/crypto')
 const { TICKET_ASSIGNEE_CONNECTED_TYPE, TICKET_EXECUTOR_CONNECTED_TYPE,
@@ -77,14 +77,7 @@ const sendTicketChangedNotifications = async ({ ticketId, existingItem, operatio
 
         if (eventTypes[TICKET_CREATED]) {
             try {
-                const isFeatureEnabled = await featureToggleManager.isFeatureEnabled(
-                    context,
-                    SEND_TELEGRAM_NOTIFICATIONS,
-                )
-
-                if (isFeatureEnabled) {
-                    await sendTicketCreatedNotifications.delay(updatedItem.id, lang, organization.id, organization.name)
-                }
+                await sendTicketCreatedNotifications.delay(updatedItem.id, lang, organization.id, organization.name)
             } catch (error) {
                 taskLogger.error({ msg: 'Failed to send notifications by "TICKET_CREATED" event', taskId, error, data: { ticketId, operation } })
             }

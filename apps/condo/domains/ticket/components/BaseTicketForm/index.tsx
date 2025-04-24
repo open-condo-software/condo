@@ -23,7 +23,6 @@ import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState
 
 import { useCachePersistor } from '@open-condo/apollo'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
-import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { PlusCircle, QuestionCircle } from '@open-condo/icons'
 import { useApolloClient } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
@@ -43,7 +42,6 @@ import { Loader } from '@condo/domains/common/components/Loader'
 import { useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
 import Prompt from '@condo/domains/common/components/Prompt'
 import { PROPERTY_REQUIRED_ERROR } from '@condo/domains/common/constants/errors'
-import { MARKETPLACE } from '@condo/domains/common/constants/featureflags'
 import { colors } from '@condo/domains/common/constants/style'
 import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCounter'
 import { convertToOptions } from '@condo/domains/common/utils/filters.utils'
@@ -433,8 +431,6 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
         handleChangeType()
     }, [handleChangeType])
 
-    const { useFlag } = useFeatureFlags()
-    const isMarketplaceEnabled = useFlag(MARKETPLACE)
     const isNoServiceProviderOrganization = useMemo(() => (get(organization, 'type', MANAGING_COMPANY_TYPE) !== SERVICE_PROVIDER_TYPE), [organization])
 
     const invoicesInNotCanceledStatus = Form.useWatch('invoicesInNotCanceledStatus', form)
@@ -536,7 +532,7 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
                                 </Row>
                             </Col>
                             {
-                                isMarketplaceEnabled && isNoServiceProviderOrganization && isPayable && (
+                                isNoServiceProviderOrganization && isPayable && (
                                     <>
                                         <Form.Item
                                             hidden

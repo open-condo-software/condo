@@ -49,7 +49,7 @@ import { Snowfall } from '@condo/domains/common/components/Snowfall'
 import { TasksContextProvider } from '@condo/domains/common/components/tasks/TasksContextProvider'
 import UseDeskWidget from '@condo/domains/common/components/UseDeskWidget'
 import { COOKIE_MAX_AGE_IN_SEC } from '@condo/domains/common/constants/cookies'
-import { SERVICE_PROVIDER_PROFILE, MARKETPLACE, SUBSCRIPTION } from '@condo/domains/common/constants/featureflags'
+import { SERVICE_PROVIDER_PROFILE, SUBSCRIPTION } from '@condo/domains/common/constants/featureflags'
 import {
     TOUR_CATEGORY,
     DASHBOARD_CATEGORY,
@@ -151,7 +151,6 @@ const ANT_DEFAULT_LOCALE = enUS
 const MenuItems: React.FC = () => {
     const { updateContext, useFlag } = useFeatureFlags()
     const isSPPOrg = useFlag(SERVICE_PROVIDER_PROFILE)
-    const isMarketplaceEnabled = useFlag(MARKETPLACE)
     const { persistor } = useCachePersistor()
 
     const { isAuthenticated, isLoading } = useAuth()
@@ -294,7 +293,7 @@ const MenuItems: React.FC = () => {
                     path: 'marketplace',
                     icon: AllIcons['Market'],
                     label: 'global.section.marketplace',
-                    access: isMarketplaceEnabled && hasAccessToMarketplace && isNoServiceProviderOrganization,
+                    access: hasAccessToMarketplace && isNoServiceProviderOrganization,
                 },
             ].filter(checkItemAccess),
         },
@@ -359,7 +358,7 @@ const MenuItems: React.FC = () => {
                 },
             ].filter(checkItemAccess),
         },
-    ]), [hasAccessToAnalytics, isManagingCompany, hasAccessToTickets, hasAccessToIncidents, hasAccessToNewsItems, hasAccessToProperties, hasAccessToContacts, hasAccessToEmployees, isMarketplaceEnabled, hasAccessToMarketplace, isSPPOrg, hasAccessToBilling, anyReceiptsLoaded, sppBillingId, hasAccessToMeters, hasAccessToServices, connectedAppsIds, hasAccessToSettings])
+    ]), [hasAccessToAnalytics, isManagingCompany, hasAccessToTickets, hasAccessToIncidents, hasAccessToNewsItems, hasAccessToProperties, hasAccessToContacts, hasAccessToEmployees, hasAccessToMarketplace, isSPPOrg, hasAccessToBilling, anyReceiptsLoaded, sppBillingId, hasAccessToMeters, hasAccessToServices, connectedAppsIds, hasAccessToSettings])
 
     return (
         <div>
