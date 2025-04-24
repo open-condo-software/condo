@@ -18,7 +18,6 @@ import styled from '@emotion/styled'
 import { Col, ColProps, Row, RowProps } from 'antd'
 import { CarouselRef } from 'antd/es/carousel'
 import { EllipsisConfig } from 'antd/es/typography/Base'
-import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import uniqBy from 'lodash/uniqBy'
 import Head from 'next/head'
@@ -313,8 +312,10 @@ const ClientContent: React.FC<ClientContactPropsType> = ({ lastTicket, contact, 
 
     const name = useMemo(
         () => contact?.name ?? lastTicket?.clientName,
-        [contact?.name, lastTicket?.clientName]
+        [contact, lastTicket]
     )
+
+    console.log(contact)
 
     const email = useMemo(() => contact?.email, [contact?.email])
 
@@ -481,8 +482,8 @@ const ClientCardTabContent = ({
     const total = tickets?.length
 
     const lastCreatedTicket = tickets?.[0]
-    const propertyId = useMemo(() => get(property, 'id', null), [property])
-    const organizationId = useMemo(() => get(organization, 'id'), [organization])
+    const propertyId = useMemo(() => property?.id, [property])
+    const organizationId = useMemo(() => organization?.id, [organization])
 
     const columns = useClientCardTicketTableColumns(tickets, currentTableTab)
 
@@ -618,20 +619,20 @@ const ContactClientTabContent = ({
     const router = useRouter()
 
     const searchTicketsQuery = useMemo(() => ({
-        property: { id: get(property, 'id', null) },
+        property: { id: property.id },
         unitName,
         unitType,
-        contact: { id: get(contact, 'id') },
+        contact: { id: contact.id },
     }), [contact, property, unitName, unitType])
 
     const handleTicketCreateClick = useCallback(async () => {
         const initialValues = {
-            property: get(property, 'id'),
+            property: property?.id,
             unitName,
             unitType,
-            contact: get(contact, 'id'),
-            clientName: get(contact, 'name'),
-            clientPhone: get(contact, 'phone'),
+            contact: contact?.id,
+            clientName: contact?.name,
+            clientPhone: contact?.phone,
             isResidentTicket: true,
         }
 
@@ -645,7 +646,7 @@ const ContactClientTabContent = ({
     const handleContactEditClick = useCallback(async () => {
         await redirectToForm({
             router,
-            formRoute: `/contact/${get(contact, 'id')}/update`,
+            formRoute: `/contact/${contact.id}/update`,
         })
     }, [contact, router])
 
@@ -681,7 +682,7 @@ const NotResidentClientTabContent = ({
     const router = useRouter()
 
     const searchTicketsQuery = useMemo(() => ({
-        property: { id: get(property, 'id', null) },
+        property: { id: property?.id },
         unitName,
         unitType,
         clientPhone: phone,
@@ -691,11 +692,11 @@ const NotResidentClientTabContent = ({
 
     const handleTicketCreateClick = useCallback(async (ticket) => {
         const initialValues = {
-            property: get(property, 'id'),
+            property: property.id,
             unitName,
             unitType,
-            clientName: get(ticket, 'clientName'),
-            clientPhone: get(ticket, 'clientPhone'),
+            clientName: ticket.clientName,
+            clientPhone: ticket.clientPhone,
             isResidentTicket: false,
         }
 
@@ -798,9 +799,7 @@ const ClientCardPageContent = ({
     const carouselRef = useRef<CarouselRef>()
     const activeTabIndexRef = useRef<number>()
 
-    const [activeTab, setActiveTab] = useState<string>(tab)
     const [activeTabData, setActiveTabData] = useState<TabDataType>()
-    const [initialActiveTab, setInitialActiveTab] = useState<string>()
     const [isInitialSlideScrolled, setIsInitialSlideScrolled] = useState<boolean>()
 
     const { breakpoints } = useLayoutContext()
@@ -818,17 +817,6 @@ const ClientCardPageContent = ({
         return 1
     }, [breakpoints.TABLET_SMALL, breakpoints.DESKTOP_SMALL, breakpoints.TABLET_LARGE])
 
-    useEffect(() => {
-        if (!initialActiveTab && tab) {
-            setInitialActiveTab(tab)
-        }
-    }, [initialActiveTab, tab])
-
-    useDeepCompareEffect(() => {
-        const { tab } = parseQuery(router.query)
-        setActiveTab(tab)
-    }, [router.query])
-
     useDeepCompareEffect(() => {
         if (carouselRef.current && !isInitialSlideScrolled) {
             let slideToGo = slidesToShow - (activeTabIndexRef.current + 1)
@@ -845,30 +833,27 @@ const ClientCardPageContent = ({
     }, [tabsData, slidesToShow, carouselRef.current])
 
     useEffect(() => {
-        const { type, property: propertyId, unitName, unitType } = parseCardDataFromQuery(activeTab)
+        const { type, property: propertyId, unitName, unitType } = parseCardDataFromQuery(tab)
         const tabDataWithProperty = tabsData.find(({ property }) => property.id === propertyId)
-        const property = get(tabDataWithProperty, 'property')
-        const organization = get(tabDataWithProperty, 'organization')
-        const contact = get(tabDataWithProperty, 'contact')
+        const property = tabDataWithProperty?.property
+        const organization = tabDataWithProperty?.organization
+        const contact = tabDataWithProperty?.contact
 
         if (property) {
             setActiveTabData({ type, property, unitName, unitType, organization, contact, sectionType: contact?.sectionType, sectionName: contact?.sectionName })
         }
-    }, [activeTab, tabsData])
+    }, [tab, tabsData])
 
     const handleTabChange = useCallback(async (newKey) => {
-        setActiveTab(newKey)
         const newRoute = `${router.route.replace('[number]', phoneNumber)}?tab=${newKey}`
 
         return router.push(newRoute, undefined, { shallow: true })
     }, [phoneNumber, router])
 
-    const handleAddAddressClick = useCallback(() => handleTabChange(ADD_ADDRESS_TAB_KEY), [handleTabChange])
-
     const renderedCards = useMemo(() => {
         const addressTabs = tabsData.map(({ type, property, unitName, floor, unitType, organization, sectionType, sectionName }, index) => {
-            const key = getClientCardTabKey(get(property, 'id', null), type, unitName, unitType, sectionType, sectionName)
-            const isActive = activeTab && activeTab === key
+            const key = getClientCardTabKey(property?.id, type, unitName, unitType, sectionType, sectionName)
+            const isActive = tab && tab === key
 
             if (isActive) {
                 activeTabIndexRef.current = canManageContacts ? index + 1 : index
@@ -888,16 +873,7 @@ const ClientCardPageContent = ({
         })
 
         return addressTabs.filter(Boolean)
-    }, [activeTab, canManageContacts, handleAddAddressClick, handleTabChange, initialActiveTab, tabsData])
-
-    useEffect(() => {
-        if (!activeTab && !isEmpty(tabsData)) {
-            const { type, property, unitName, unitType } = tabsData[0]
-            const key = getClientCardTabKey(get(property, 'id', null), type, unitName, unitType)
-
-            handleTabChange(key)
-        }
-    }, [activeTab, handleTabChange, tabsData])
+    }, [canManageContacts, handleTabChange, tabsData])
 
     const redirectToCreateContact = useCallback(()=>redirectToForm({
         router,
@@ -967,7 +943,7 @@ export const ClientCardPageContentWrapper = ({
     usePhonePrefix = false,
 }) => {
     const router = useRouter()
-    const phoneNumber = get(router, ['query', 'number']) as string
+    const phoneNumber = router?.query.number as string
 
     const { data: contactsQueryData, loading: contactsLoading } = useGetContactForClientCardQuery({
         variables: {
@@ -1048,9 +1024,9 @@ export const ClientCardPageContentWrapper = ({
         setData()
     }, [getPropertyWithMapById, findSectionByUnitLabelAndType, contactsQueryData, notResidentTickets, employeeTickets])
 
-    const phoneNumberPrefixFromContacts = get(contactsQueryData, ['contacts', '0', 'organization', 'phoneNumberPrefix'])
-    const phoneNumberPrefixFromEmployees = get(employeesQueryData, ['employees', '0', 'organization', 'phoneNumberPrefix'])
-    const phoneNumberPrefixFromTickets = get(ticketsQueryData, ['tickets', '0', 'organization', 'phoneNumberPrefix'])
+    const phoneNumberPrefixFromContacts = contactsQueryData?.contacts?.[0]?.organization?.phoneNumberPrefix
+    const phoneNumberPrefixFromEmployees = employeesQueryData?.employees?.[0]?.organization?.phoneNumberPrefix
+    const phoneNumberPrefixFromTickets = ticketsQueryData?.tickets?.[0]?.organization?.phoneNumberPrefix
 
     let phoneNumberPrefix
     if (usePhonePrefix) {
@@ -1070,9 +1046,9 @@ export const ClientCardPageContentWrapper = ({
 }
 
 const ClientCardPage: PageComponentType = () => {
-    const { organization, link } = useOrganization()
-    const organizationId = get(organization, 'id', null)
-    const canManageContacts = !!get(link, 'role.canManageContacts')
+    const { organization, role } = useOrganization()
+    const organizationId = organization?.id
+    const canManageContacts = role.canManageContacts
 
     const { ticketFilterQuery } = useTicketVisibility()
     const organizationQuery = { organization: { id: organizationId } }
