@@ -311,6 +311,9 @@ const ClientAddressCard = ({ onClick, active, property, organization, unitName, 
 const ClientContent: React.FC<ClientContactPropsType> = ({ lastTicket, contact, type, showOrganizationMessage, phone }) => {
     const intl = useIntl()
     const CallRecordsLogMessage = intl.formatMessage({ id: 'pages.clientCard.callRecordsLog' })
+    const ContactMessage = intl.formatMessage({ id: 'Contact' })
+    const NotResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.isResidentContact.false' })
+    const EmployeeMessage = intl.formatMessage({ id: 'Employee' })
 
     const isEmployee = contact?.isEmployee
 
@@ -357,9 +360,7 @@ const ClientContent: React.FC<ClientContactPropsType> = ({ lastTicket, contact, 
             window.open(`/callRecord${query}`, '_blank')
         }
     }, [phone, propertyId])
-    const ContactMessage = intl.formatMessage({ id: 'Contact' })
-    const NotResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.isResidentContact.false' })
-    const EmployeeMessage = intl.formatMessage({ id: 'Employee' })
+
     const typeToMessage = useMemo(() => ({
         [ClientType.Resident]: ContactMessage,
         [ClientType.NotResident]: isEmployee ? EmployeeMessage : NotResidentMessage,
@@ -1055,9 +1056,7 @@ export const ClientCardPageContentWrapper = ({
         const concatData =  [...contactsData, ...notResidentData, ...employeesData]
             .filter(tabsData => tabsData.organization && tabsData.property)
 
-        //const setData = async () => setTabsData(await getMapData(concatData, getPropertyWithMapById))
         getMapData(concatData, getPropertyWithMapById).then(res => setTabsData(res))
-        //setData()
     }, [getPropertyWithMapById, findSectionByUnitLabelAndType, contactsQueryData, notResidentTickets, employeeTickets])
 
     const phoneNumberPrefixFromContacts = contactsQueryData?.contacts?.[0]?.organization?.phoneNumberPrefix
