@@ -85,7 +85,7 @@ async function checkSendMessageMeta (type, meta, context) {
         if (attr === 'data' && typeof value === 'object' && schema.data) {
             const dataSchema = schema.data
             for (const dataAttr of Object.keys(dataSchema)) {
-                const { required: dataRequired } = dataSchema[dataAttr]
+                const { required: dataRequired } = dataSchema[dataAttr] || {}
                 if (dataRequired && !value[dataAttr]) {
                     logger.info({ msg: 'Missing value for required "meta"', dataAttr })
                 }
