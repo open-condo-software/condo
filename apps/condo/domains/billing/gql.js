@@ -19,7 +19,7 @@ const BillingIntegration = generateGqlQueries('BillingIntegration', BILLING_INTE
 const BILLING_INTEGRATION_ACCESS_RIGHT_FIELDS = `{ integration { id name } user { id name } ${COMMON_FIELDS} }`
 const BillingIntegrationAccessRight = generateGqlQueries('BillingIntegrationAccessRight', BILLING_INTEGRATION_ACCESS_RIGHT_FIELDS)
 
-const BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS = `{ integration { id name appUrl checkAccountNumberUrl billingPageTitle setupUrl instruction instructionExtraLink connectedMessage uploadUrl uploadMessage extendsBillingPage billingPageTitle currencyCode dataFormat ${BILLING_INTEGRATION_DATA_FORMAT_FIELDS} skipNoAccountNotifications } organization { id tin name country type } settings state status lastReport currentProblem { id title message } ${COMMON_FIELDS} }`
+const BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS = `{ integration { id name appUrl checkAccountNumberUrl billingPageTitle setupUrl instruction instructionExtraLink connectedMessage connectedUrl uploadUrl uploadMessage extendsBillingPage billingPageTitle currencyCode dataFormat ${BILLING_INTEGRATION_DATA_FORMAT_FIELDS} skipNoAccountNotifications } organization { id tin name country type } settings state status lastReport currentProblem { id title message } ${COMMON_FIELDS} }`
 const BillingIntegrationOrganizationContext = generateGqlQueries('BillingIntegrationOrganizationContext', BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS)
 
 const BILLING_INTEGRATION_PROBLEM_FIELDS = `{ context { id } title message meta ${COMMON_FIELDS} }`

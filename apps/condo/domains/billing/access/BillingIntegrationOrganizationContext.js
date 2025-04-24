@@ -10,9 +10,11 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { getById, find } = require('@open-condo/keystone/schema')
 
 const { checkBillingIntegrationsAccessRights } = require('@condo/domains/billing/utils/accessSchema')
+const { canManageObjectsAsB2BAppServiceUser } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
+const { canReadObjectsAsB2BAppServiceUser } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess/server.utils')
+const { getEmployedOrganizationsBySomePermissions } = require('@condo/domains/organization/utils/accessSchema')
 const { SERVICE } = require('@condo/domains/user/constants/common')
-
-const { canDirectlyReadSchemaObjects } = require('../../user/utils/directAccess')
+const { canDirectlyReadSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
 
 /**
@@ -21,7 +23,9 @@ const { canDirectlyReadSchemaObjects } = require('../../user/utils/directAccess'
  * 2. Integration service account
  * 3. Integration manager from user's organization
  */
-async function canReadBillingIntegrationOrganizationContexts ({ authentication: { item: user }, listKey }) {
+async function canReadBillingIntegrationOrganizationContexts (args) {
+    const { authentication: { item: user }, listKey, context } = args
+
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isSupport || user.isAdmin) return true
@@ -29,12 +33,18 @@ async function canReadBillingIntegrationOrganizationContexts ({ authentication: 
     const hasDirectAccess = await canDirectlyReadSchemaObjects(user, listKey)
     if (hasDirectAccess) return {}
 
-    return {
-        OR: [
-            { organization: { employees_some: { user: { id: user.id }, role: { OR: [{ canReadBillingReceipts: true }, { canManageIntegrations: true }] }, isBlocked: false, deletedAt: null } } },
-            { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } },
-        ],
+    if (user.type === SERVICE) {
+        const canReadAsB2BAppServiceUser = await canReadObjectsAsB2BAppServiceUser(args)
+        const filterConditions = [ { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } } ]
+        if (canReadAsB2BAppServiceUser) {
+            filterConditions.push({ AND: [{ ...canReadAsB2BAppServiceUser }] })
+        }
+        return { OR: filterConditions }
     }
+
+    const permittedOrganizations = await getEmployedOrganizationsBySomePermissions(context, user, ['canReadBillingReceipts', 'canManageIntegrations'])
+
+    return { organization: { id_in: permittedOrganizations } }
 }
 
 /**
@@ -47,7 +57,8 @@ async function canReadBillingIntegrationOrganizationContexts ({ authentication: 
  * 2. Integration manager from user's organization
  * 3. Integration service
  */
-async function canManageBillingIntegrationOrganizationContexts ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageBillingIntegrationOrganizationContexts (args) {
+    const { authentication: { item: user }, originalInput, operation, itemId } = args
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     
@@ -73,7 +84,10 @@ async function canManageBillingIntegrationOrganizationContexts ({ authentication
     if (!organizationId || !integrationId) return false
 
     if (user.type === SERVICE) {
-        return await checkBillingIntegrationsAccessRights(user.id, [integrationId])
+        const canReadAsB2BAppServiceUser = await canManageObjectsAsB2BAppServiceUser(args)
+        const integrationAccess = await checkBillingIntegrationsAccessRights(user.id, [integrationId])
+
+        return canReadAsB2BAppServiceUser || integrationAccess
     }
 
     const [employee] = await find('OrganizationEmployee', {

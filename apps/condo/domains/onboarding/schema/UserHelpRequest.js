@@ -10,6 +10,7 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { webHooked } = require('@open-condo/webhooks/plugins')
 
 const { COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
+const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const access = require('@condo/domains/onboarding/access/UserHelpRequest')
 const { USER_HELP_REQUEST_TYPES } = require('@condo/domains/onboarding/constants/userHelpRequest')
@@ -21,13 +22,22 @@ const UserHelpRequest = new GQLListSchema('UserHelpRequest', {
     schemaDoc: 'Request from the user to help him with some functionality',
     fields: {
         type: {
-            schemaDoc: 'Type of request. It\'s can be, for example, request for callback or request to help with import',
+            schemaDoc: 'Type of request. It\'s can be, for example, request for callback or request to help with import' +
+                'or integration setup',
             type: 'Select',
             dataType: 'string',
             options: USER_HELP_REQUEST_TYPES,
             isRequired: true,
         },
         organization: ORGANIZATION_OWNED_FIELD,
+        billingIntegration: {
+            schemaDoc: 'ID of the billing integration that is configured to receive data for the organization',
+            type: 'Relationship',
+            ref: 'BillingIntegration',
+            isRequired: false,
+            knexOptions: { isNotNullable: false },
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+        },
         phone: {
             schemaDoc: 'Specified phone in request for callback',
             type: 'Text',
@@ -45,6 +55,28 @@ const UserHelpRequest = new GQLListSchema('UserHelpRequest', {
 
                     if (newValue && newValue !== normalizePhone(newValue)) {
                         throw new GQLError(COMMON_ERRORS.WRONG_PHONE_FORMAT, context)
+                    }
+                },
+            },
+        },
+        email: {
+            schemaDoc: 'Specified email in request for assisted setup of integration',
+            type: 'Text',
+            isRequired: false,
+            hooks: {
+                resolveInput: ({ resolvedData, fieldPath }) => {
+                    const newValue = resolvedData[fieldPath]
+
+                    if (newValue) {
+                        return normalizeEmail(newValue) || newValue
+                    }
+                },
+
+                validateInput: async ({ resolvedData, fieldPath, context }) => {
+                    const newValue = resolvedData[fieldPath]
+
+                    if (newValue && newValue !== normalizeEmail(newValue)) {
+                        throw new GQLError(COMMON_ERRORS.WRONG_EMAIL_FORMAT, context)
                     }
                 },
             },

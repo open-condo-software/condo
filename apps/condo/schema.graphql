@@ -10418,6 +10418,7 @@ type BillingIntegrationHistoryRecord {
   billingPageTitle: String
   group: String
   connectedMessage: String
+  connectedUrl: String
   uploadUrl: String
   uploadMessage: String
   contextDefaultStatus: String
@@ -10714,6 +10715,24 @@ input BillingIntegrationHistoryRecordWhereInput {
   connectedMessage_not_ends_with_i: String
   connectedMessage_in: [String]
   connectedMessage_not_in: [String]
+  connectedUrl: String
+  connectedUrl_not: String
+  connectedUrl_contains: String
+  connectedUrl_not_contains: String
+  connectedUrl_starts_with: String
+  connectedUrl_not_starts_with: String
+  connectedUrl_ends_with: String
+  connectedUrl_not_ends_with: String
+  connectedUrl_i: String
+  connectedUrl_not_i: String
+  connectedUrl_contains_i: String
+  connectedUrl_not_contains_i: String
+  connectedUrl_starts_with_i: String
+  connectedUrl_not_starts_with_i: String
+  connectedUrl_ends_with_i: String
+  connectedUrl_not_ends_with_i: String
+  connectedUrl_in: [String]
+  connectedUrl_not_in: [String]
   uploadUrl: String
   uploadUrl_not: String
   uploadUrl_contains: String
@@ -10909,6 +10928,8 @@ enum SortBillingIntegrationHistoryRecordsBy {
   group_DESC
   connectedMessage_ASC
   connectedMessage_DESC
+  connectedUrl_ASC
+  connectedUrl_DESC
   uploadUrl_ASC
   uploadUrl_DESC
   uploadMessage_ASC
@@ -10961,6 +10982,7 @@ input BillingIntegrationHistoryRecordUpdateInput {
   billingPageTitle: String
   group: String
   connectedMessage: String
+  connectedUrl: String
   uploadUrl: String
   uploadMessage: String
   contextDefaultStatus: String
@@ -11008,6 +11030,7 @@ input BillingIntegrationHistoryRecordCreateInput {
   billingPageTitle: String
   group: String
   connectedMessage: String
+  connectedUrl: String
   uploadUrl: String
   uploadMessage: String
   contextDefaultStatus: String
@@ -11325,6 +11348,10 @@ type BillingIntegration {
   """ The message shown to the user after the integration is connected before the first receipts are downloaded. Appeared while lastReport field of context is null 
   """
   connectedMessage: String
+
+  """ If specified, after billing integration is connected but there are no receipts yet, an iframe will be shown to display some empty content information. Possibly some instructions if integration is not setup yet.  
+  """
+  connectedUrl: String
 
   """ If specified, billing app will have a call-to-action button, which opens iframe with specified url to start receipts-uploading process. Text of a button can be overridden via "uploadMessage" 
   """
@@ -11667,6 +11694,24 @@ input BillingIntegrationWhereInput {
   connectedMessage_not_ends_with_i: String
   connectedMessage_in: [String]
   connectedMessage_not_in: [String]
+  connectedUrl: String
+  connectedUrl_not: String
+  connectedUrl_contains: String
+  connectedUrl_not_contains: String
+  connectedUrl_starts_with: String
+  connectedUrl_not_starts_with: String
+  connectedUrl_ends_with: String
+  connectedUrl_not_ends_with: String
+  connectedUrl_i: String
+  connectedUrl_not_i: String
+  connectedUrl_contains_i: String
+  connectedUrl_not_contains_i: String
+  connectedUrl_starts_with_i: String
+  connectedUrl_not_starts_with_i: String
+  connectedUrl_ends_with_i: String
+  connectedUrl_not_ends_with_i: String
+  connectedUrl_in: [String]
+  connectedUrl_not_in: [String]
   uploadUrl: String
   uploadUrl_not: String
   uploadUrl_contains: String
@@ -11827,6 +11872,8 @@ enum SortBillingIntegrationsBy {
   group_DESC
   connectedMessage_ASC
   connectedMessage_DESC
+  connectedUrl_ASC
+  connectedUrl_DESC
   uploadUrl_ASC
   uploadUrl_DESC
   uploadMessage_ASC
@@ -11881,6 +11928,7 @@ input BillingIntegrationUpdateInput {
   billingPageTitle: String
   group: String
   connectedMessage: String
+  connectedUrl: String
   uploadUrl: String
   uploadMessage: String
   contextDefaultStatus: BillingIntegrationContextDefaultStatusType
@@ -11926,6 +11974,7 @@ input BillingIntegrationCreateInput {
   billingPageTitle: String
   group: String
   connectedMessage: String
+  connectedUrl: String
   uploadUrl: String
   uploadMessage: String
   contextDefaultStatus: BillingIntegrationContextDefaultStatusType
@@ -48412,7 +48461,9 @@ type UserHelpRequestHistoryRecord {
   _label_: String
   type: String
   organization: String
+  billingIntegration: String
   phone: String
+  email: String
   isReadyToSend: Boolean
   meta: JSON
   id: ID!
@@ -48455,6 +48506,10 @@ input UserHelpRequestHistoryRecordWhereInput {
   organization_not: String
   organization_in: [String]
   organization_not_in: [String]
+  billingIntegration: String
+  billingIntegration_not: String
+  billingIntegration_in: [String]
+  billingIntegration_not_in: [String]
   phone: String
   phone_not: String
   phone_contains: String
@@ -48473,6 +48528,24 @@ input UserHelpRequestHistoryRecordWhereInput {
   phone_not_ends_with_i: String
   phone_in: [String]
   phone_not_in: [String]
+  email: String
+  email_not: String
+  email_contains: String
+  email_not_contains: String
+  email_starts_with: String
+  email_not_starts_with: String
+  email_ends_with: String
+  email_not_ends_with: String
+  email_i: String
+  email_not_i: String
+  email_contains_i: String
+  email_not_contains_i: String
+  email_starts_with_i: String
+  email_not_starts_with_i: String
+  email_ends_with_i: String
+  email_not_ends_with_i: String
+  email_in: [String]
+  email_not_in: [String]
   isReadyToSend: Boolean
   isReadyToSend_not: Boolean
   meta: JSON
@@ -48566,6 +48639,8 @@ enum SortUserHelpRequestHistoryRecordsBy {
   type_DESC
   phone_ASC
   phone_DESC
+  email_ASC
+  email_DESC
   isReadyToSend_ASC
   isReadyToSend_DESC
   id_ASC
@@ -48589,7 +48664,9 @@ enum SortUserHelpRequestHistoryRecordsBy {
 input UserHelpRequestHistoryRecordUpdateInput {
   type: String
   organization: String
+  billingIntegration: String
   phone: String
+  email: String
   isReadyToSend: Boolean
   meta: JSON
   v: Int
@@ -48614,7 +48691,9 @@ input UserHelpRequestHistoryRecordsUpdateInput {
 input UserHelpRequestHistoryRecordCreateInput {
   type: String
   organization: String
+  billingIntegration: String
   phone: String
+  email: String
   isReadyToSend: Boolean
   meta: JSON
   v: Int
@@ -48638,6 +48717,7 @@ input UserHelpRequestHistoryRecordsCreateInput {
 enum UserHelpRequestTypeType {
   callback
   importFile
+  integrationSetup
 }
 
 """ Request from the user to help him with some functionality """
@@ -48651,7 +48731,7 @@ type UserHelpRequest {
   """
   _label_: String
 
-  """ Type of request. It's can be, for example, request for callback or request to help with import 
+  """ Type of request. It's can be, for example, request for callback or request to help with importor integration setup 
   """
   type: UserHelpRequestTypeType
 
@@ -48659,8 +48739,15 @@ type UserHelpRequest {
   """
   organization: Organization
 
+  """ ID of the billing integration that is configured to receive data for the organization 
+  """
+  billingIntegration: BillingIntegration
+
   """ Specified phone in request for callback """
   phone: String
+
+  """ Specified email in request for assisted setup of integration """
+  email: String
 
   """ Shows if the request is ready to send. False value can be, for example, if files are not synced with help request yet 
   """
@@ -48701,6 +48788,8 @@ input UserHelpRequestWhereInput {
   type_not_in: [UserHelpRequestTypeType]
   organization: OrganizationWhereInput
   organization_is_null: Boolean
+  billingIntegration: BillingIntegrationWhereInput
+  billingIntegration_is_null: Boolean
   phone: String
   phone_not: String
   phone_contains: String
@@ -48719,6 +48808,24 @@ input UserHelpRequestWhereInput {
   phone_not_ends_with_i: String
   phone_in: [String]
   phone_not_in: [String]
+  email: String
+  email_not: String
+  email_contains: String
+  email_not_contains: String
+  email_starts_with: String
+  email_not_starts_with: String
+  email_ends_with: String
+  email_not_ends_with: String
+  email_i: String
+  email_not_i: String
+  email_contains_i: String
+  email_not_contains_i: String
+  email_starts_with_i: String
+  email_not_starts_with_i: String
+  email_ends_with_i: String
+  email_not_ends_with_i: String
+  email_in: [String]
+  email_not_in: [String]
   isReadyToSend: Boolean
   isReadyToSend_not: Boolean
   meta: JSON
@@ -48792,8 +48899,12 @@ enum SortUserHelpRequestsBy {
   type_DESC
   organization_ASC
   organization_DESC
+  billingIntegration_ASC
+  billingIntegration_DESC
   phone_ASC
   phone_DESC
+  email_ASC
+  email_DESC
   isReadyToSend_ASC
   isReadyToSend_DESC
   id_ASC
@@ -48817,7 +48928,9 @@ enum SortUserHelpRequestsBy {
 input UserHelpRequestUpdateInput {
   type: UserHelpRequestTypeType
   organization: OrganizationRelateToOneInput
+  billingIntegration: BillingIntegrationRelateToOneInput
   phone: String
+  email: String
   isReadyToSend: Boolean
   meta: JSON
   v: Int
@@ -48839,7 +48952,9 @@ input UserHelpRequestsUpdateInput {
 input UserHelpRequestCreateInput {
   type: UserHelpRequestTypeType
   organization: OrganizationRelateToOneInput
+  billingIntegration: BillingIntegrationRelateToOneInput
   phone: String
+  email: String
   isReadyToSend: Boolean
   meta: JSON
   v: Int
@@ -73541,6 +73656,8 @@ type B2BAppAccessRightSetHistoryRecord {
   type: String
   canReadB2BAccessTokens: Boolean
   canManageB2BAccessTokens: Boolean
+  canReadBillingIntegrationOrganizationContexts: Boolean
+  canManageBillingIntegrationOrganizationContexts: Boolean
   canReadBillingReceipts: Boolean
   canManageBillingReceipts: Boolean
   canReadContacts: Boolean
@@ -73634,6 +73751,10 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   canReadB2BAccessTokens_not: Boolean
   canManageB2BAccessTokens: Boolean
   canManageB2BAccessTokens_not: Boolean
+  canReadBillingIntegrationOrganizationContexts: Boolean
+  canReadBillingIntegrationOrganizationContexts_not: Boolean
+  canManageBillingIntegrationOrganizationContexts: Boolean
+  canManageBillingIntegrationOrganizationContexts_not: Boolean
   canReadBillingReceipts: Boolean
   canReadBillingReceipts_not: Boolean
   canManageBillingReceipts: Boolean
@@ -73787,6 +73908,10 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
   canReadB2BAccessTokens_DESC
   canManageB2BAccessTokens_ASC
   canManageB2BAccessTokens_DESC
+  canReadBillingIntegrationOrganizationContexts_ASC
+  canReadBillingIntegrationOrganizationContexts_DESC
+  canManageBillingIntegrationOrganizationContexts_ASC
+  canManageBillingIntegrationOrganizationContexts_DESC
   canReadBillingReceipts_ASC
   canReadBillingReceipts_DESC
   canManageBillingReceipts_ASC
@@ -73873,6 +73998,8 @@ input B2BAppAccessRightSetHistoryRecordUpdateInput {
   type: String
   canReadB2BAccessTokens: Boolean
   canManageB2BAccessTokens: Boolean
+  canReadBillingIntegrationOrganizationContexts: Boolean
+  canManageBillingIntegrationOrganizationContexts: Boolean
   canReadBillingReceipts: Boolean
   canManageBillingReceipts: Boolean
   canReadContacts: Boolean
@@ -73929,6 +74056,8 @@ input B2BAppAccessRightSetHistoryRecordCreateInput {
   type: String
   canReadB2BAccessTokens: Boolean
   canManageB2BAccessTokens: Boolean
+  canReadBillingIntegrationOrganizationContexts: Boolean
+  canManageBillingIntegrationOrganizationContexts: Boolean
   canReadBillingReceipts: Boolean
   canManageBillingReceipts: Boolean
   canReadContacts: Boolean
@@ -74011,6 +74140,8 @@ type B2BAppAccessRightSet {
   type: B2BAppAccessRightSetTypeType
   canReadB2BAccessTokens: Boolean
   canManageB2BAccessTokens: Boolean
+  canReadBillingIntegrationOrganizationContexts: Boolean
+  canManageBillingIntegrationOrganizationContexts: Boolean
   canReadBillingReceipts: Boolean
 
   """ Currently, this field is read-only. You cannot get manage access for the specified schema. 
@@ -74111,6 +74242,10 @@ input B2BAppAccessRightSetWhereInput {
   canReadB2BAccessTokens_not: Boolean
   canManageB2BAccessTokens: Boolean
   canManageB2BAccessTokens_not: Boolean
+  canReadBillingIntegrationOrganizationContexts: Boolean
+  canReadBillingIntegrationOrganizationContexts_not: Boolean
+  canManageBillingIntegrationOrganizationContexts: Boolean
+  canManageBillingIntegrationOrganizationContexts_not: Boolean
   canReadBillingReceipts: Boolean
   canReadBillingReceipts_not: Boolean
   canManageBillingReceipts: Boolean
@@ -74246,6 +74381,10 @@ enum SortB2BAppAccessRightSetsBy {
   canReadB2BAccessTokens_DESC
   canManageB2BAccessTokens_ASC
   canManageB2BAccessTokens_DESC
+  canReadBillingIntegrationOrganizationContexts_ASC
+  canReadBillingIntegrationOrganizationContexts_DESC
+  canManageBillingIntegrationOrganizationContexts_ASC
+  canManageBillingIntegrationOrganizationContexts_DESC
   canReadBillingReceipts_ASC
   canReadBillingReceipts_DESC
   canManageBillingReceipts_ASC
@@ -74332,6 +74471,8 @@ input B2BAppAccessRightSetUpdateInput {
   type: B2BAppAccessRightSetTypeType
   canReadB2BAccessTokens: Boolean
   canManageB2BAccessTokens: Boolean
+  canReadBillingIntegrationOrganizationContexts: Boolean
+  canManageBillingIntegrationOrganizationContexts: Boolean
   canReadBillingReceipts: Boolean
   canManageBillingReceipts: Boolean
   canReadContacts: Boolean
@@ -74385,6 +74526,8 @@ input B2BAppAccessRightSetCreateInput {
   type: B2BAppAccessRightSetTypeType
   canReadB2BAccessTokens: Boolean
   canManageB2BAccessTokens: Boolean
+  canReadBillingIntegrationOrganizationContexts: Boolean
+  canManageBillingIntegrationOrganizationContexts: Boolean
   canReadBillingReceipts: Boolean
   canManageBillingReceipts: Boolean
   canReadContacts: Boolean

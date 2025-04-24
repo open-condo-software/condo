@@ -39,6 +39,7 @@ const VALUE_TOO_SHORT = '[value:tooShort:'
 
 const WRONG_PHONE_FORMAT = 'WRONG_PHONE_FORMAT'
 const WRONG_PERCENT_VALUE = 'WRONG_PERCENT_VALUE'
+const WRONG_EMAIL_VALUE = 'WRONG_EMAIL_VALUE'
 
 const UNKNOWN_ATTRIBUTE = 'UNKNOWN_ATTRIBUTE'
 
@@ -50,6 +51,12 @@ const COMMON_ERRORS = {
         type: WRONG_PHONE_FORMAT,
         message: 'Wrong phone number format',
         messageForUser: 'api.common.INVALID_PHONE_NUMBER_FORMAT',
+    },
+    WRONG_EMAIL_FORMAT: {
+        code: 'BAD_USER_INPUT',
+        type: WRONG_EMAIL_VALUE,
+        message: 'Wrong email format',
+        messageForUser: 'api.common.INVALID_EMAIL_FORMAT',
     },
     INVALID_PERCENT_VALUE: {
         code: 'BAD_USER_INPUT',

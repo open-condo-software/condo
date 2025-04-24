@@ -7,6 +7,7 @@ import { useOrganization } from '@open-condo/next/organization'
 import { Space, Typography, Button } from '@open-condo/ui'
 
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 
 import { useBillingAndAcquiringContexts } from './ContextProvider'
 
@@ -35,12 +36,16 @@ export const EmptyContent: React.FC<EmptyContentProps> = ({
     const [billingContext] = billingContexts
     const currentProblem = get(billingContexts.find(({ currentProblem }) => !!currentProblem), 'currentProblem')
     const connectedMessage = get(billingContext, ['integration', 'connectedMessage'])
+    const connectedUrl = get(billingContext, ['integration', 'connectedUrl'])
     const instructionUrl = get(billingContext, ['integration', 'instructionExtraLink'])
 
     const title = currentProblem ? get(currentProblem, 'title', '') : NoReceiptsTitle
     const message = currentProblem ? get(currentProblem, 'message', '') : connectedMessage
     const dinoImg = currentProblem ? ERROR_DINO_IMG : SEARCHING_DINO_IMG
 
+    if (connectedUrl && !connectedMessage) {
+        return <IFrame src={connectedUrl} reloadScope='organization' withPrefetch withLoader withResize />
+    }
 
     return (
         <BasicEmptyListView spaceSize={BLOCK_GAP} image={dinoImg} imageStyle={IMG_STYLES}>
