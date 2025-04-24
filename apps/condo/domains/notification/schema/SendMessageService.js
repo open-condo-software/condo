@@ -78,7 +78,7 @@ async function checkSendMessageMeta (type, meta, context) {
     for (const attr of Object.keys(schema)) {
         const value = meta[attr]
         const { required } = schema[attr]
-        if (required && !value) {
+        if (required && (value === undefined || value === null)) {
             throw new GQLError({ ...ERRORS.MISSING_VALUE_FOR_REQUIRED_META_ATTRIBUTE, messageInterpolation: { attr } }, context)
         }
 
@@ -89,7 +89,7 @@ async function checkSendMessageMeta (type, meta, context) {
                     continue
                 }
                 const { required: dataRequired } = dataSchema[dataAttr]
-                if (dataRequired && !value[dataAttr]) {
+                if (dataRequired && (value[dataAttr] === undefined || value[dataAttr] === null)) {
                     logger.info({ msg: 'Missing value for required "meta"', dataAttr, type })
                 }
             }
