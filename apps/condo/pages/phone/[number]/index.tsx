@@ -114,7 +114,7 @@ const findSectionByUnitLabelAndType = (mapData: GetPropertyWithMapByIdQuery['pro
 }
 
 const getMapData = async (concatData, getPropertyWithMapById) => {
-    const propertyIds = concatData.map((el) => el.property.id)
+    const propertyIds = [...new Set<string>(concatData.map(({ property }) => property.id))]
 
     try {
         const res = await Promise.all(
@@ -139,10 +139,9 @@ const getMapData = async (concatData, getPropertyWithMapById) => {
                 tab.unitType
             )
 
-            return {
-                ...tab,
-                ...section,
-            }
+            return section
+                ? { ...tab, ...section }
+                : tab
         })
     } catch (error) {
         console.error('Error fetching or processing data:', error)
@@ -314,8 +313,6 @@ const ClientContent: React.FC<ClientContactPropsType> = ({ lastTicket, contact, 
         () => contact?.name ?? lastTicket?.clientName,
         [contact, lastTicket]
     )
-
-    console.log(contact)
 
     const email = useMemo(() => contact?.email, [contact?.email])
 
@@ -834,7 +831,8 @@ const ClientCardPageContent = ({
 
     useEffect(() => {
         const { type, property: propertyId, unitName, unitType } = parseCardDataFromQuery(tab)
-        const tabDataWithProperty = tabsData.find(({ property }) => property.id === propertyId)
+        const tabDataWithProperty = tabsData.find(({ property, unitName: tabUnitName, unitType: tabUnitType }) =>
+            property.id === propertyId && tabUnitName === unitName && tabUnitType === unitType)
         const property = tabDataWithProperty?.property
         const organization = tabDataWithProperty?.organization
         const contact = tabDataWithProperty?.contact
