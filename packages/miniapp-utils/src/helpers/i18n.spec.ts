@@ -118,4 +118,28 @@ describe('TranslationsHelper', () => {
             })
         })
     })
+    describe('instance methods', () => {
+        describe('selectSupportedLocale', () => {
+            describe('Must select most suitable locale from available ones', () => {
+                const cases: Array<[Array<string>, string, string, string]> = [
+                    // Simple case
+                    [['en', 'es', 'ru'], 'ru,en;q=0.9', 'ru', 'ru'],
+                    // Fallback case
+                    [['en', 'es', 'ru'], 'zh', 'en', 'en'],
+                    // Different match case
+                    [['en', 'es', 'ru'], 'en-GB,en-US;q=0.9,en;q=0.8', 'en', 'en-GB'],
+                    // Partial match case
+                    [['en', 'zh-Hant', 'zh'], 'zh-Hant-TW', 'zh-Hant', 'zh-Hant-TW'],
+                    [['en', 'zh-Hant', 'zh'], 'zh-Hans-CN', 'zh', 'zh-Hans-CN'],
+                ]
+
+                test.each(cases)('Available: %p, requesting: %p', (locales, requestedLocales, expectedSelection, expectedMatch) => {
+                    const helper = new TranslationsHelper({ locales, defaultLocale: locales[0] })
+                    const { selectedLocale, matchingLocale } = helper.selectSupportedLocale(TranslationsHelper.parseAcceptLanguageHeader(requestedLocales))
+                    expect(selectedLocale).toEqual(expectedSelection)
+                    expect(matchingLocale).toEqual(expectedMatch)
+                })
+            })
+        })
+    })
 })
