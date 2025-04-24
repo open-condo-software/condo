@@ -18,7 +18,6 @@ import styled from '@emotion/styled'
 import { Col, ColProps, Row, RowProps } from 'antd'
 import { CarouselRef } from 'antd/es/carousel'
 import { EllipsisConfig } from 'antd/es/typography/Base'
-import isEmpty from 'lodash/isEmpty'
 import uniqBy from 'lodash/uniqBy'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -27,7 +26,7 @@ import React, { CSSProperties, useCallback, useEffect, useLayoutEffect, useMemo,
 
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
-import { History, Mail } from '@open-condo/icons'
+import { ExternalLink, History, Mail } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button, Carousel, Space, Tabs, Typography } from '@open-condo/ui'
@@ -63,7 +62,6 @@ const ROW_MEDIUM_GUTTER: RowProps['gutter'] = [0, 40]
 const ROW_MEDIUM_SMALL_GUTTER: RowProps['gutter'] = [0, 24]
 const HINT_CARD_STYLE = { maxHeight: '3em' }
 const TICKET_SORT_BY = [SortTicketsBy.CreatedAtDesc]
-const ADD_ADDRESS_TAB_KEY = 'addAddress'
 const HINTS_COL_PROPS: ColProps = { span: 24 }
 
 type TabDataType = {
@@ -85,6 +83,7 @@ type ClientContactPropsType = {
     type: string
 }
 
+const MAX_TABLE_SIZE = 20
 type TableTabs = 'address' | 'entrance' | 'home'
 type tabsItems = { key: TableTabs, label: string }[]
 const tableTabs: Array<TableTabs> = ['address', 'entrance', 'home']
@@ -186,6 +185,12 @@ const StyledSpace = styled(Space)`
             align-self: flex-end;
         }
     }
+`
+
+const StyledLink = styled(Col)`
+    display: flex;
+    align-items: center;
+    gap: 8px;
 `
 
 const StyledAddressTabWrapper = styled.div<{ active: boolean }>`
@@ -440,6 +445,8 @@ const ClientCardTabContent = ({
     const ShowAllPropertyTicketsMessage = intl.formatMessage({ id: 'pages.clientCard.showAllPropertyTickets' })
     const CreateTicketMessage = intl.formatMessage({ id: 'CreateTicket' })
     const EditContactMessage = intl.formatMessage({ id: 'pages.clientCard.editContact' })
+    const LastTicketsLoadedMessage = intl.formatMessage({ id: 'pages.clientCard.lastTicketsLoaded' }, { count: MAX_TABLE_SIZE })
+    const OpenAllTicketsMessage = intl.formatMessage({ id: 'pages.clientCard.openAllTickets' })
 
     const tabsItems: tabsItems = useMemo(()=>tableTabs.map(el => ({
         label: intl.formatMessage({ id: `pages.clientCard.table.tabs.${el}` }),
@@ -468,7 +475,7 @@ const ClientCardTabContent = ({
     const { data: ticketsQuery, loading: isTicketsFetching } = useGetTicketsQuery({
         variables: {
             where: searchQuery,
-            first: 30,
+            first: MAX_TABLE_SIZE,
             sortBy: TICKET_SORT_BY,
             skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
         },
@@ -509,6 +516,12 @@ const ClientCardTabContent = ({
     const onChangeTabs = (tab) => {
         setCurrentTableTab(tab)
     }
+
+    const redirectToTicketPage = useCallback(async () => await redirectToForm({
+        router,
+        formRoute: '/ticket',
+        initialValues: searchQuery,
+    }), [router, searchQuery])
 
     return (
         <Row gutter={ROW_BIG_GUTTER}>
@@ -557,16 +570,38 @@ const ClientCardTabContent = ({
                                     items={tabsItems}
                                 />
 
-                                <Col span={24}>
-                                    <Table
-                                        totalRows={total}
-                                        loading={isTicketsFetching}
-                                        dataSource={tickets}
-                                        columns={columns}
-                                        onRow={handleRowAction}
-                                        data-cy='ticket__table'
-                                    />
-                                </Col>
+                                <Row gutter={[0, 24]}>
+                                    <Col span={24}>
+                                        <Table
+                                            totalRows={total}
+                                            loading={isTicketsFetching}
+                                            dataSource={tickets}
+                                            columns={columns}
+                                            onRow={handleRowAction}
+                                            data-cy='ticket__table'
+                                        />
+                                    </Col>
+
+
+                                    {tickets?.length >= MAX_TABLE_SIZE && (
+                                        <Row gutter={[0, 8]}>
+                                            <Col span={24}>
+                                                <Typography.Paragraph size='large' >
+                                                    {LastTicketsLoadedMessage}
+                                                </Typography.Paragraph>
+                                            </Col>
+                                            <Col>
+                                                <Typography.Link size='large' onClick={redirectToTicketPage}>
+                                                    <StyledLink>
+                                                        <ExternalLink size='auto'/>
+
+                                                        {OpenAllTicketsMessage}
+                                                    </StyledLink>
+                                                </Typography.Link>
+                                            </Col>
+                                        </Row>
+                                    )}
+                                </Row>
                             </Row>
                         </Col>
                     </>
@@ -789,6 +824,7 @@ const ClientCardPageContent = ({
             </Typography.Link>
         ),
     })
+    const AddAddressMessage = intl.formatMessage({ id: 'pages.clientCard.addAddress' })
 
     const router = useRouter()
     const { tab } = parseQuery(router.query)
@@ -893,11 +929,13 @@ const ClientCardPageContent = ({
                             <Row justify='space-between' align='bottom' >
                                 <Typography.Title>{ClientCardHeader}</Typography.Title>
 
-                                <Row align='middle' style={{ gap:8 }}>
-                                    <PlusCircleOutlined/>
+                                <Typography.Link size='large' onClick={redirectToCreateContact}>
+                                    <StyledLink>
+                                        <PlusCircleOutlined/>
 
-                                    <Typography.Link onClick={redirectToCreateContact} size='large'>Добавить адрес</Typography.Link>
-                                </Row>
+                                        {AddAddressMessage}
+                                    </StyledLink>
+                                </Typography.Link>
                             </Row>
                         </Col>
                         <Col span={24}>
@@ -1017,9 +1055,9 @@ export const ClientCardPageContentWrapper = ({
         const concatData =  [...contactsData, ...notResidentData, ...employeesData]
             .filter(tabsData => tabsData.organization && tabsData.property)
 
-        const setData = async () => setTabsData(await getMapData(concatData, getPropertyWithMapById))
-
-        setData()
+        //const setData = async () => setTabsData(await getMapData(concatData, getPropertyWithMapById))
+        getMapData(concatData, getPropertyWithMapById).then(res => setTabsData(res))
+        //setData()
     }, [getPropertyWithMapById, findSectionByUnitLabelAndType, contactsQueryData, notResidentTickets, employeeTickets])
 
     const phoneNumberPrefixFromContacts = contactsQueryData?.contacts?.[0]?.organization?.phoneNumberPrefix
