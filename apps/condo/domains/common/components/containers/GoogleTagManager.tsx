@@ -1,10 +1,24 @@
 import getConfig from 'next/config'
+import React from 'react'
 
-const GoogleTagManager = () => {
+/**
+ * GoogleTagManager component that injects the GTM script and noscript iframe
+ * when a valid GTM ID is provided in the runtime configuration.
+ *
+ * @returns JSX.Element | null - GTM scripts or null if GTM ID is not configured
+*/
+const GoogleTagManager: React.FC = () => {
     const { publicRuntimeConfig } = getConfig()
     const { googleTagManagerId } = publicRuntimeConfig
 
-    return googleTagManagerId ?
+    // Validate GTM ID format (should be in format GTM-XXXXXXX)
+    const isValidGtmId = googleTagManagerId && /^GTM-[A-Z0-9]+$/.test(googleTagManagerId)
+        
+    if (googleTagManagerId && !isValidGtmId) {
+        console.warn(`Invalid Google Tag Manager ID format: ${googleTagManagerId}`)
+    }
+    
+    return isValidGtmId ?
         <>
             <script dangerouslySetInnerHTML={{
                 __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
