@@ -1,191 +1,211 @@
-// import { getCookie, setCookie } from 'cookies-next'
-import { getCookie } from 'cookies-next'
-// import { createContext, useState, useCallback } from 'react'
-
-
-import { nonNull } from './collections'
-import { isSSR } from './environment'
-
-import type { IncomingMessage, ServerResponse } from 'http'
-// import type { PropsWithChildren, Context, FC } from 'react'
-
-const ACCEPT_LANGUAGE_REGEXP = /((([a-zA-Z]+(-[a-zA-Z0-9]+){0,2})|\*)(;q=[0-1](\.[0-9]+)?)?)*/g
-
 type Optional<T> = T | undefined
-type TranslationsHelperOptions<AvailableLanguage extends string> = {
-    languages: Array<AvailableLanguage>
-    defaultLanguage: AvailableLanguage
-    localeCookieName?: string
+
+/**
+ * Based on RFC5646: https://datatracker.ietf.org/doc/html/rfc5646
+ */
+export type LocaleInfo = {
+    /** primary language tag, like "en", "zh", "ru", affects everything in messages */
+    primary: string
+    /** extended language tag, which specify language dialect like "gan" in Gan Chinese ("zh-gan"), affects almost nothing  */
+    extended: Optional<string>
+    /** region tag, like "US", "CN", which usually does not affect messages itself, but number / currency formatting */
+    region: Optional<string>
+    /** script tag, like "Latn", "Cyrl", which refers to used script / alphabet. Affects all messages */
+    script: Optional<string>
 }
 
-// type TranslationsContextType<
-//     AvailableLanguage extends string,
-//     MessagesShape extends Record<string, string>,
-// > = {
-//     locale: string
-//     language: AvailableLanguage
-//     messages: MessagesShape | undefined
-//     switchLanguage(newLanguage: AvailableLanguage): void
-// }
-
-// type TranslationsProviderProps<
-//     AvailableLanguage extends string,
-//     MessagesShape extends Record<string, string>,
-// > = PropsWithChildren<{
-//     initialLocale: AvailableLanguage
-//     initialMessages: MessagesShape
-// }>
-
-export type AcceptLanguageInfo = {
-    code: string
-    region: string | undefined
-    script: string | null
+export type AcceptLanguageInfo = LocaleInfo & {
+    /** number in [0.0, 1.0] range to order languages by. The larger the number, the more locale is preferred */
     quality: number
 }
 
-export type LocaleInfo<AvailableLanguage extends string> = {
-    /** Language code: en, es... */
-    code: AvailableLanguage
-    /** Optional region code: GB, US, DE... */
-    region?: string
+export type LocaleSelection<AvailableLocale extends string> = {
+    selectedLocale: AvailableLocale
+    matchingLocale: string
 }
 
+type TranslationsHelperOptions<AvailableLocale extends string> = {
+    locales: Array<AvailableLocale>
+    defaultLocale: AvailableLocale
+}
+
+type LocalePartMatcher = {
+    part: 'primary' | 'extended' | 'script' | 'region'
+    matcher: RegExp
+}
+
+const LOCALE_PARSING_OPTIONS: Array<LocalePartMatcher> = [
+    { part: 'primary', matcher: /^[a-z]+$/ },
+    { part: 'extended', matcher: /^[a-z]{3}$/ },
+    { part: 'script', matcher: /^[A-Z][a-z]{3,}$/ },
+    { part: 'region', matcher: /^[A-Z]{2,3}$/ },
+]
+
+const LOCALE_RESOLVE_ORDER: Array<Array<keyof LocaleInfo>> = [
+    // Full resolution first
+    ['primary', 'extended', 'script', 'region'],
+    // Extended usually does not affect message a lot, so it can be omitted first
+    ['primary', 'script', 'region'],
+    // Primary + script is more important, since script change alphabet
+    ['primary', 'script'],
+    ['primary', 'region'],
+    ['primary', 'extended'],
+    ['primary'],
+]
+
 export class TranslationsHelper<
-    AvailableLanguage extends string,
-    // MessagesShape extends Record<string, string>,
+    AvailableLocale extends string,
 > {
-    private readonly _languages: Set<AvailableLanguage>
-    private readonly _defaultLanguage: AvailableLanguage
-    private readonly _localeCookieName: string = 'NEXT_LOCALE'
-    // private _context: Context<TranslationsContextType<AvailableLanguage, MessagesShape>> | null
+    private readonly _locales: Set<string>
+    private readonly _defaultLocale: AvailableLocale
 
-    constructor (options: TranslationsHelperOptions<AvailableLanguage>) {
-        this._languages = new Set(options.languages)
-        this._defaultLanguage = options.defaultLanguage
-        // this._context = null
-
-        if (options.localeCookieName) {
-            this._localeCookieName = options.localeCookieName
-        }
-
-        this.isAvailableLanguage = this.isAvailableLanguage.bind(this)
-        this.getPreferredLocale = this.getPreferredLocale.bind(this)
-        this.getPreferredLanguage = this.getPreferredLanguage.bind(this)
+    constructor (options: TranslationsHelperOptions<AvailableLocale>) {
+        this._locales = new Set(options.locales)
+        this._defaultLocale = options.defaultLocale
     }
 
-    static parseLanguageString (language: string): AcceptLanguageInfo {
-        const bits = language.split(';')
-        const ietf = bits[0].split('-') // lang-region or lang-script-region
-        const hasScript = ietf.length === 3
+    /**
+     * This util parses language-defining string according to RFC5646: https://datatracker.ietf.org/doc/html/rfc5646
+     * It also automatically detect and accept-language header format by enhancing result with quality info
+     */
+    static parseLocaleString (localeString: string): AcceptLanguageInfo {
+        const stringParts = localeString.trim().split(';')
+        const localeParts = stringParts[0].split('-')
 
-        return {
-            code: ietf[0].toLowerCase(),
-            script: hasScript ? ietf[1] : null,
-            region: hasScript ? ietf[2] : ietf[1],
-            quality: bits[1] ? parseFloat(bits[1].split('=')[1]) : 1.0,
+        const quality = stringParts.length > 1
+            ? parseFloat(stringParts[1].split('=')[1])
+            : 1.0
+
+        const locale: AcceptLanguageInfo = {
+            primary: localeParts[0],
+            extended: undefined,
+            script: undefined,
+            region: undefined,
+            quality,
         }
+
+        let currentParser = 0
+        localePartsLoop: for (const localePart of localeParts) {
+            for (; currentParser < LOCALE_PARSING_OPTIONS.length; currentParser++) {
+                const { part, matcher } = LOCALE_PARSING_OPTIONS[currentParser]
+                if (matcher.test(localePart)) {
+                    locale[part] = localePart
+                    currentParser++
+                    continue localePartsLoop
+                }
+            }
+            break
+        }
+
+        return locale
     }
 
+    /**
+     * Parses "Accept-Language" header value using "parseLocaleString" util and returns array of AcceptLanguageInfo
+     * sorted by descending quality.
+     *
+     * NOTE: Empty header or non-defined header is treated as "*"
+     */
     static parseAcceptLanguageHeader (headerValue: Optional<string>): Array<AcceptLanguageInfo> {
-        const matches = (headerValue || '*').match(ACCEPT_LANGUAGE_REGEXP) || []
-
-        return matches.map(match => {
-            if (!match) {
-                return null
-            }
-
-            return TranslationsHelper.parseLanguageString(match)
-        }).filter(nonNull).sort((a, b) => b.quality - a.quality)
+        return (headerValue || '*')
+            .split(',')
+            .map(TranslationsHelper.parseLocaleString)
+            .sort((a, b) => b.quality - a.quality)
     }
 
-    isAvailableLanguage (language: string): language is AvailableLanguage {
-        // NOTE: typecast here, so set will not throw error
-        return this._languages.has(language as AvailableLanguage)
+    /**
+     * Generates locale-string from LocaleInfo or AcceptLanguageInfo
+     */
+    static toLocaleString (locale: LocaleInfo | AcceptLanguageInfo): string {
+        return [locale.primary, locale.extended, locale.script, locale.region].filter(Boolean).join('-')
     }
 
-    getPreferredLocale (req: Optional<IncomingMessage>, res: Optional<ServerResponse>): LocaleInfo<AvailableLanguage> {
-        const cookieValue = getCookie(this._localeCookieName, { req, res })
-        if (cookieValue) {
-            const [code, region] = cookieValue.split('-')
-            if (this.isAvailableLanguage(code)) {
-                return {
-                    code,
-                    region,
+
+    /**
+     * Takes list of locales and build traverse order according to LOCALE_RESOLVE_ORDER
+     * Then select first available locale from that list defaulting to defaultLocale
+     * After that enhancing it with first locale, matching selected one
+     *
+     * @example
+     * const availableLocales = ["zh", "en"] // that's what we have
+     * const locales = ["zh-Hans-CN", "en-GB", "zh"] // that's what user want
+     * // During function execution we build order
+     * const helper = new TranslationsHelper({ locales, defaultLocale: "zh" })
+     * const { selectedLocale, matchingLocale } = helper.selectSupportedLocale(locales.map(TranslationsHelper.parseLocaleString))
+     * // ["zh-Hans-CN", "zh-Hans", "en-GB", "en", "zh"] - resolved order
+     * // selectedLocale = "en" - first match, on which we can load messages
+     * // matchingLocale = "en-GB" - sub-locale, proving additiona info
+     */
+    selectSupportedLocale (locales: Array<AcceptLanguageInfo | LocaleInfo>): LocaleSelection<AvailableLocale> {
+        const reversedResolveOrder: Array<string> = []
+
+        // NOTE: For each locale passed build resolve order starting from end
+        // Order is important, since direct pass on "en-GB,fr,en-US" will produce ["en-GB", "en", "fr", "en-US"]
+        // While reverse logic will produce ["en-GB", "fr", "en-US", "en"]
+        for (let i = locales.length - 1; i >= 0; i--) {
+            const localeToProcess = locales[i]
+            for (let j = LOCALE_RESOLVE_ORDER.length - 1; j >= 0; j--) {
+                const fields = LOCALE_RESOLVE_ORDER[j]
+                const localeCandidate: LocaleInfo = {
+                    primary: localeToProcess.primary,
+                    extended: undefined,
+                    script: undefined,
+                    region: undefined,
+                }
+                let isValidCandidate = true
+                for (const fieldName of fields) {
+                    if (typeof localeToProcess[fieldName] === 'undefined') {
+                        isValidCandidate = false
+                        break
+                    }
+                    localeCandidate[fieldName] = localeToProcess[fieldName]
+                }
+                if (isValidCandidate) {
+                    const stringCandidate = TranslationsHelper.toLocaleString(localeCandidate)
+                    if (!reversedResolveOrder.includes(stringCandidate)) {
+                        reversedResolveOrder.push(stringCandidate)
+                    }
                 }
             }
         }
 
-        // NOTE: on server-side we should parse 'accept-language' header to get the locale
-        if (req) {
-            const preferredLocales = TranslationsHelper.parseAcceptLanguageHeader(req.headers['accept-language'])
-            for (const locale of preferredLocales) {
-                if (this.isAvailableLanguage(locale.code)) {
-                    return {
-                        code: locale.code,
-                        region: locale.region,
-                    }
+        // NOTE: now convert it back to direct order
+        reversedResolveOrder.reverse()
+
+        let selectedLocale: AvailableLocale = this._defaultLocale
+
+        for (const localeString of reversedResolveOrder) {
+            if (this._locales.has(localeString)) {
+                selectedLocale = localeString as AvailableLocale
+                break
+            }
+        }
+
+        // NOTE: We select the language from available ones,
+        // but we need to enrich return value with first matching locale, which might affect currency display
+        // and others non-related to message staff
+        let matchingLocale: string = selectedLocale
+        const selectedLocaleInfo = TranslationsHelper.parseLocaleString(selectedLocale)
+        for (const locale of locales) {
+            let isSubLocale = true
+            for (const [fieldName, fieldValue] of Object.entries(selectedLocaleInfo)) {
+                if (typeof fieldValue !== 'string') {
+                    continue
+                }
+                if (locale[fieldName as keyof LocaleInfo] !== fieldValue) {
+                    isSubLocale = false
+                    break
                 }
             }
-        } else if (!isSSR()) {
-            const preferredLanguages = window.navigator.languages
-            for (const languageString of preferredLanguages) {
-                const locale = TranslationsHelper.parseLanguageString(languageString)
-                if (this.isAvailableLanguage(locale.code)) {
-                    return {
-                        code: locale.code,
-                        region: locale.region,
-                    }
-                }
+            if (isSubLocale) {
+                matchingLocale = TranslationsHelper.toLocaleString(locale)
+                break
             }
         }
 
         return {
-            code: this._defaultLanguage,
+            selectedLocale,
+            matchingLocale,
         }
     }
-
-    getPreferredLanguage (req: Optional<IncomingMessage>, res: Optional<ServerResponse>): AvailableLanguage {
-        return this.getPreferredLocale(req, res).code
-    }
-
-    // getTranslationsProvider () {
-    //     if (!this._context) {
-    //         this._context = createContext<TranslationsContextType<AvailableLanguage, MessagesShape>>({
-    //             locale: this._defaultLanguage,
-    //             language: this._defaultLanguage,
-    //             messages: undefined,
-    //             switchLanguage () {
-    //                 return
-    //             },
-    //         })
-    //     }
-    //
-    //     const Context = this._context
-    //     const localeCookieName = this._localeCookieName
-    //     const getTranslations = () => ({})
-    //
-    //     const TranslationsProvider: FC<TranslationsProviderProps<AvailableLanguage, MessagesShape>> = (props) => {
-    //         const { children, initialLocale, initialMessages } = props
-    //
-    //         const [locale, setLocale] = useState(initialLocale)
-    //         const [language, setLanguage] = useState(TranslationsHelper.parseLanguageString(locale).code)
-    //         const [messages, setMessages] = useState(initialMessages)
-    //
-    //         const switchLanguage = useCallback(async (locale: AvailableLocale) => {
-    //             const newMessages = await getTranslations(locale)
-    //
-    //             setCookie(localeCookieName, locale)
-    //             setLocale(locale)
-    //             setMessages(newMessages)
-    //         }, [])
-    //
-    //         return (
-    //             <Context.Provider value={{ locale, language, messages }}>
-    //                 {children}
-    //             </Context.Provider>
-    //         )
-    //     }
-    //
-    //     return TranslationsProvider
-    // }
 }

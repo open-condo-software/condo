@@ -7,19 +7,34 @@ describe('TranslationsHelper', () => {
         describe('parseLanguageString', () => {
             describe('must correctly detect locales', () => {
                 const cases: Array<[string, AcceptLanguageInfo]> = [
-                    ['en', { code: 'en', script: null, region: undefined, quality: 1.0 }],
-                    ['ru', { code: 'ru', script: null, region: undefined, quality: 1.0 }],
-                    ['es', { code: 'es', script: null, region: undefined, quality: 1.0 }],
-                    ['en-GB', { code: 'en', script: null, region: 'GB', quality: 1.0 }],
-                    ['en-US', { code: 'en', script: null, region: 'US', quality: 1.0 }],
-                    ['ru-RU', { code: 'ru', script: null, region: 'RU', quality: 1.0 }],
-                    ['zh-Hans-CN', { code: 'zh', script: 'Hans', region: 'CN', quality: 1.0 }],
-                    ['en;q=0.8', { code: 'en', script: null, region: undefined, quality: 0.8 }],
-                    ['en-US;q=0.9', { code: 'en', script: null, region: 'US', quality: 0.9 }],
-                    ['zh-Hans-CN;q=0.55', { code: 'zh', script: 'Hans', region: 'CN', quality: 0.55 }],
+                    // Simple cases
+                    ['en', { primary: 'en', extended: undefined, script: undefined, region: undefined, quality: 1.0 }],
+                    ['ru', { primary: 'ru', extended: undefined, script: undefined, region: undefined, quality: 1.0 }],
+                    ['es', { primary: 'es', extended: undefined, script: undefined, region: undefined, quality: 1.0 }],
+                    // Region cases
+                    ['en-GB', { primary: 'en', extended: undefined, script: undefined, region: 'GB', quality: 1.0 }],
+                    ['en-US', { primary: 'en', extended: undefined, script: undefined, region: 'US', quality: 1.0 }],
+                    ['ru-RU', { primary: 'ru', extended: undefined, script: undefined, region: 'RU', quality: 1.0 }],
+                    // Script cases
+                    ['sr-Latn', { primary: 'sr', extended: undefined, script: 'Latn', region: undefined, quality: 1.0 }],
+                    ['sr-Cyrl', { primary: 'sr', extended: undefined, script: 'Cyrl', region: undefined, quality: 1.0 }],
+                    // Script + region cases
+                    ['sr-Latn-RS', { primary: 'sr', extended: undefined, script: 'Latn', region: 'RS', quality: 1.0 }],
+                    ['az-Arab-IR', { primary: 'az', extended: undefined, script: 'Arab', region: 'IR', quality: 1.0 }],
+                    ['zh-Hans-CN', { primary: 'zh', extended: undefined, script: 'Hans', region: 'CN', quality: 1.0 }],
+                    ['zh-Hant-TW', { primary: 'zh', extended: undefined, script: 'Hant', region: 'TW', quality: 1.0 }],
+                    // Primary + extended cases
+                    ['zh-gan', { primary: 'zh', extended: 'gan', script: undefined, region: undefined, quality: 1.0 }],
+                    ['zh-cmn', { primary: 'zh', extended: 'cmn', script: undefined, region: undefined, quality: 1.0 }],
+                    // All combined
+                    ['zh-cmn-Hans-CN', { primary: 'zh', extended: 'cmn', script: 'Hans', region: 'CN', quality: 1.0 }],
+                    ['zh-cmn-Hans-CN;q=0.8', { primary: 'zh', extended: 'cmn', script: 'Hans', region: 'CN', quality: 0.8 }],
+                    // Custom quantity cases
+                    ['en-GB;q=0.85', { primary: 'en', extended: undefined, script: undefined, region: 'GB', quality: 0.85 }],
+                    ['en-US;q=0.5', { primary: 'en', extended: undefined, script: undefined, region: 'US', quality: 0.5 }],
                 ]
-                test.each(cases)('%p', (languageString, expectedResult) => {
-                    const result = TranslationsHelper.parseLanguageString(languageString)
+                test.each(cases)('%p', (localeString, expectedResult) => {
+                    const result = TranslationsHelper.parseLocaleString(localeString)
                     expect(result).toEqual(expectedResult)
                 })
             })
@@ -27,13 +42,26 @@ describe('TranslationsHelper', () => {
         describe('parseAcceptLanguageHeader', () => {
             describe('must correctly parse correct accept-headers', () => {
                 const cases: Array<[string, Array<AcceptLanguageInfo>]> = [
-                    ['*', [{ code: '*', script: null, region: undefined, quality: 1.0 }]],
-                    ['en', [{ code: 'en', script: null, region: undefined, quality: 1.0 }]],
-                    ['ru-RU', [{ code: 'ru', script: null, region: 'RU', quality: 1.0 }]],
+                    ['*', [{ primary: '*', extended: undefined, script: undefined, region: undefined, quality: 1.0 }]],
+                    ['en', [{ primary: 'en', extended: undefined, script: undefined, region: undefined, quality: 1.0 }]],
+                    ['ru-RU', [{ primary: 'ru', extended: undefined, script: undefined, region: 'RU', quality: 1.0 }]],
                     ['en-GB,en-US;q=0.9,en;q=0.8', [
-                        { code: 'en', script: null, region: 'GB', quality: 1.0 },
-                        { code: 'en', script: null, region: 'US', quality: 0.9 },
-                        { code: 'en', script: null, region: undefined, quality: 0.8 },
+                        { primary: 'en', extended: undefined, script: undefined, region: 'GB', quality: 1.0 },
+                        { primary: 'en', extended: undefined, script: undefined, region: 'US', quality: 0.9 },
+                        { primary: 'en', extended: undefined, script: undefined, region: undefined, quality: 0.8 },
+                    ]],
+                    ['zh-Hans-CN,zh-Hant-TW;q=0.8,zh;q=0.7,en;q=0.5', [
+                        { primary: 'zh', extended: undefined, script: 'Hans', region: 'CN', quality: 1.0 },
+                        { primary: 'zh', extended: undefined, script: 'Hant', region: 'TW', quality: 0.8 },
+                        { primary: 'zh', extended: undefined, script: undefined, region: undefined, quality: 0.7 },
+                        { primary: 'en', extended: undefined, script: undefined, region: undefined, quality: 0.5 },
+                    ]],
+                    ['fr-CH, fr;q=0.9, en;q=0.8, de;q=0.7, *;q=0.5', [
+                        { primary: 'fr', extended: undefined, script: undefined, region: 'CH', quality: 1.0 },
+                        { primary: 'fr', extended: undefined, script: undefined, region: undefined, quality: 0.9 },
+                        { primary: 'en', extended: undefined, script: undefined, region: undefined, quality: 0.8 },
+                        { primary: 'de', extended: undefined, script: undefined, region: undefined, quality: 0.7 },
+                        { primary: '*', extended: undefined, script: undefined, region: undefined, quality: 0.5 },
                     ]],
                 ]
                 test.each(cases)('%p', (headerValue, expectedResult) => {
@@ -43,20 +71,50 @@ describe('TranslationsHelper', () => {
             })
             test('undefined header must be read as "*" (accept-all) header', () => {
                 expect(TranslationsHelper.parseAcceptLanguageHeader(undefined)).toEqual([
-                    {
-                        code: '*',
-                        script: null,
-                        region: undefined,
-                        quality: 1.0,
-                    },
+                    { primary: '*', extended: undefined, script: undefined, region: undefined, quality: 1.0 },
                 ])
             })
             test('must sort languages by quality descending', () => {
                 expect(TranslationsHelper.parseAcceptLanguageHeader('en;q=0.8,en-US;q=0.9,en-GB')).toEqual([
-                    { code: 'en', script: null, region: 'GB', quality: 1.0 },
-                    { code: 'en', script: null, region: 'US', quality: 0.9 },
-                    { code: 'en', script: null, region: undefined, quality: 0.8 },
+                    { primary: 'en', extended: undefined, script: undefined, region: 'GB', quality: 1.0 },
+                    { primary: 'en', extended: undefined, script: undefined, region: 'US', quality: 0.9 },
+                    { primary: 'en', extended: undefined, script: undefined, region: undefined, quality: 0.8 },
                 ])
+            })
+        })
+        describe('toLocaleString', () => {
+            describe('Must generate valid to RFC5646 strings', () => {
+                test('Must keep the correct order', () => {
+                    expect(TranslationsHelper.toLocaleString({
+                        region: 'CN',
+                        extended: 'cmn',
+                        script: 'Hans',
+                        primary: 'zh',
+                    })).toEqual('zh-cmn-Hans-CN')
+                })
+                test('Must omit undefined parts', () => {
+                    expect(TranslationsHelper.toLocaleString({
+                        primary: 'en',
+                        extended: undefined,
+                        script: undefined,
+                        region: undefined,
+                    })).toEqual('en')
+                    expect(TranslationsHelper.toLocaleString({
+                        primary: 'ru',
+                        extended: undefined,
+                        script: undefined,
+                        region: 'RU',
+                    })).toEqual('ru-RU')
+                })
+                test('Must ignore quality if input is AcceptLanguageInfo', () => {
+                    expect(TranslationsHelper.toLocaleString({
+                        primary: 'ru',
+                        extended: undefined,
+                        script: undefined,
+                        region: 'RU',
+                        quality: 0.5,
+                    })).toEqual('ru-RU')
+                })
             })
         })
     })
