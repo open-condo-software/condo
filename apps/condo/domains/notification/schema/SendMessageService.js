@@ -1,6 +1,7 @@
 const get = require('lodash/get')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+const { getLogger } = require('@open-condo/keystone/logging')
 const { GQLCustomSchema, getByCondition } = require('@open-condo/keystone/schema')
 
 const { REQUIRED, UNKNOWN_ATTRIBUTE, WRONG_VALUE, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
@@ -17,6 +18,8 @@ const {
 } = require('@condo/domains/notification/constants/constants')
 const { deliverMessage } = require('@condo/domains/notification/tasks')
 const { Message } = require('@condo/domains/notification/utils/serverSchema')
+
+const logger = getLogger('sendMessageService')
 
 const ERRORS = {
     EMAIL_FROM_REQUIRED: {
@@ -78,7 +81,24 @@ async function checkSendMessageMeta (type, meta, context) {
         if (required && !value) {
             throw new GQLError({ ...ERRORS.MISSING_VALUE_FOR_REQUIRED_META_ATTRIBUTE, messageInterpolation: { attr } }, context)
         }
+
+        if (attr === 'data' && typeof value === 'object' && schema.data) {
+            const dataSchema = schema.data
+            for (const dataAttr of Object.keys(dataSchema)) {
+                const { required: dataRequired } = dataSchema[dataAttr]
+                if (dataRequired && !value[dataAttr]) {
+                    logger.info({ msg: 'Missing value for required "meta', dataAttr })
+                }
+            }
+
+            for (const dataAttr of Object.keys(value)) {
+                if (!dataSchema[dataAttr]) {
+                    logger.info({ msg: 'Unknown attribute provided to "meta" variable', dataAttr })
+                }
+            }
+        }
     }
+
     for (const attr of Object.keys(meta)) {
         if (!schema[attr]) {
             throw new GQLError({ ...ERRORS.UNKNOWN_META_ATTRIBUTE, messageInterpolation: { attr } }, context)

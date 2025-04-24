@@ -31,6 +31,7 @@ const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 const CACHE_TTL = {
     DEFAULT: DEFAULT_NOTIFICATION_WINDOW_DURATION_IN_SECONDS,
     VOIP_INCOMING_CALL_MESSAGE: 2,
+    CANCELED_CALL_MESSAGE_PUSH_TYPE: 2,
     B2C_APP_MESSAGE_PUSH: 3600,
 }
 
