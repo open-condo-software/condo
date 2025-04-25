@@ -85,6 +85,8 @@ async function checkSendMessageMeta (type, meta, context) {
         if (attr === 'data' && typeof value === 'object' && schema.data) {
             const dataSchema = schema.data
             for (const dataAttr of Object.keys(dataSchema)) {
+                // In some MESSAGE_META[type] we have "date" fields of the following type - data: { defaultValue: null, required: true }
+                // We don't need to check these fields, since they are service fields and their values are not objects
                 if (dataAttr === 'required' || dataAttr === 'defaultValue') {
                     continue
                 }
