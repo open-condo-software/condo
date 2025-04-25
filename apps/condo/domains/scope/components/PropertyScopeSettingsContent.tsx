@@ -5,7 +5,6 @@ import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
-import { PlusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Button } from '@open-condo/ui'
@@ -107,7 +106,6 @@ export const PropertyScopeSettingsContent = () => {
                                         key='createPropertyScope'
                                         id='PropertyScopeVisitCreate'
                                         type='primary'
-                                        icon={<PlusCircle size='medium'/>}
                                         onClick={handleAddHintButtonClick}
                                     >
                                         {CreatePropertyScopeMessage}
