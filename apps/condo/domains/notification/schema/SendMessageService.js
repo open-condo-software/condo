@@ -84,12 +84,16 @@ async function checkSendMessageMeta (type, meta, context) {
 
         if (attr === 'data' && typeof value === 'object' && schema.data) {
             const dataSchema = schema.data
+            // In some MESSAGE_META[type] we have "date" fields of the following type - data: { defaultValue: null, required: true }
+            // We don't need to check these fields, since they are service fields and their values are not objects
+            const serviceFields = [
+                'required',
+                'defaultValue',
+            ]
+
             for (const dataAttr of Object.keys(dataSchema)) {
-                // In some MESSAGE_META[type] we have "date" fields of the following type - data: { defaultValue: null, required: true }
-                // We don't need to check these fields, since they are service fields and their values are not objects
-                if (dataAttr === 'required' || dataAttr === 'defaultValue') {
-                    continue
-                }
+                if (serviceFields.includes(dataAttr)) continue
+
                 const { required: dataRequired } = dataSchema[dataAttr]
                 if (dataRequired && (value[dataAttr] === undefined || value[dataAttr] === null)) {
                     logger.info({ msg: 'Missing value for required "meta"', dataAttr, type })
