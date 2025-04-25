@@ -18,6 +18,7 @@ import isEmpty from 'lodash/isEmpty'
 import isFunction from 'lodash/isFunction'
 import isNull from 'lodash/isNull'
 import omit from 'lodash/omit'
+import throttle from 'lodash/throttle'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
@@ -76,8 +77,8 @@ import { TicketDeadlineField } from './TicketDeadlineField'
 import { TicketDeferredDateField } from './TicketDeferredDateField'
 import { useTicketValidations } from './useTicketValidations'
 
-
 const HINTS_COL_PROPS: ColProps = { span: 24 }
+const CURRENT_FORM_VALUES_LOCAL_STORAGE_NAME = 'condoTicketCurrentFormValues'
 
 export const IncidentHintsBlock = ({ organizationId, propertyId }) => {
     const { classifier } = useTicketFormContext()
@@ -730,12 +731,10 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         },
         skip: !persistor || !selectedPropertyId,
     })
-    const property = useMemo(() => propertyByIdData?.properties?.filter(Boolean)[0],
-        [propertyByIdData?.properties])
-    
+    const property = useMemo(() => propertyByIdData?.properties?.filter(Boolean)[0], [propertyByIdData?.properties])
+
     const [isPropertyChanged, setIsPropertyChanged] = useState<boolean>(false)
-    const initialTicketValues = useMemo(() => isPropertyChanged ? omit(initialValues, ['unitName', 'unitType']) : initialValues,
-        [initialValues, isPropertyChanged])
+    const initialTicketValues = useMemo(() => isPropertyChanged ? omit(initialValues, ['unitName', 'unitType']) : initialValues, [initialValues, isPropertyChanged])
     const [selectedUnitName, setSelectedUnitName] = useState(get(initialTicketValues, 'unitName'))
     const [selectedUnitType, setSelectedUnitType] = useState<BuildingUnitSubType>(get(initialTicketValues, 'unitType'))
     const [selectedSectionType, setSelectedSectionType] = useState(get(initialTicketValues, 'sectionType'))
@@ -885,8 +884,48 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     ), [organizationId, selectedPropertyId])
 
     const [form] = Form.useForm()
+
     const invoices = Form.useWatch('invoices', form)
     const initialNotDraftInvoices = Form.useWatch('initialNotDraftInvoices', form)
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            try {
+                const localStorageValues = window.localStorage.getItem(CURRENT_FORM_VALUES_LOCAL_STORAGE_NAME)
+                if (localStorageValues) {
+                    const localStorageValuesParsed = JSON.parse(localStorageValues)
+                    form.setFieldsValue({
+                        details: localStorageValuesParsed.details,
+                    })
+                }
+            } catch (err) {
+                console.error(err)
+            } finally {
+                window.localStorage.removeItem(CURRENT_FORM_VALUES_LOCAL_STORAGE_NAME)
+            }
+        }
+    }, [form])
+
+    const saveFormValuesToLocalStorage = (event) => {
+        if (typeof window !== 'undefined') {
+            const currentValue = window.localStorage.getItem(CURRENT_FORM_VALUES_LOCAL_STORAGE_NAME) || '{}'
+            try {
+                const newValue = JSON.parse(currentValue)
+                const fieldNames = Object.keys(event)
+
+                fieldNames.forEach((fieldName) => {
+                    const value = event[fieldName]
+                    if (!fieldName) { return }
+                    newValue[fieldName] = value
+                })
+
+                window.localStorage.setItem(CURRENT_FORM_VALUES_LOCAL_STORAGE_NAME, JSON.stringify(newValue))
+            } catch (err) {
+                window.localStorage.removeItem(CURRENT_FORM_VALUES_LOCAL_STORAGE_NAME)
+                console.error(err)
+            }
+        }
+    }
 
     const formWithAction =  (
         <>
@@ -898,6 +937,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                 ErrorToFormFieldMsgMapping={ErrorToFormFieldMsgMapping}
                 OnCompletedMsg={OnCompletedMsg}
                 formInstance={form}
+                onValuesChange={throttle(saveFormValuesToLocalStorage, 100)}
             >
                 {({ handleSave, isLoading, form }) => (
                     <>
