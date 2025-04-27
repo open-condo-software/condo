@@ -1,6 +1,5 @@
 import { PlusCircleOutlined } from '@ant-design/icons'
 import {
-    GetPropertyWithMapByIdQuery,
     GetTicketsQuery,
     useGetContactForClientCardQuery,
     useGetEmployeesForClientCardQuery,
@@ -8,16 +7,16 @@ import {
     useGetTicketsQuery,
 } from '@app/condo/gql'
 import {
+    BuildingMap,
     BuildingUnitSubType,
     Contact as ContactType,
     Organization as OrganizationType,
     Property,
     SortTicketsBy,
 } from '@app/condo/schema'
-import styled from '@emotion/styled'
 import { Col, ColProps, Row, RowProps } from 'antd'
 import { CarouselRef } from 'antd/es/carousel'
-import { EllipsisConfig } from 'antd/es/typography/Base'
+import { EllipsisConfig } from 'antd/lib/typography/Base'
 import uniqBy from 'lodash/uniqBy'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -36,12 +35,10 @@ import { BuildingIcon } from '@condo/domains/common/components/icons/BuildingIco
 import { Loader } from '@condo/domains/common/components/Loader'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { Tag } from '@condo/domains/common/components/Tag'
-import { colors, gradients, shadows, transitions } from '@condo/domains/common/constants/style'
 import { PageComponentType } from '@condo/domains/common/types'
 import { renderPhone } from '@condo/domains/common/utils/Renders'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { ClientType, getClientCardTabKey, redirectToForm } from '@condo/domains/contact/utils/clientCard'
-import { PARKING_SECTION_TYPE, SECTION_SECTION_TYPE } from '@condo/domains/property/constants/common'
 import { getPropertyAddressParts } from '@condo/domains/property/utils/helpers'
 import { IncidentHints } from '@condo/domains/ticket/components/IncidentHints'
 import { TicketReadPermissionRequired } from '@condo/domains/ticket/components/PageAccess'
@@ -51,19 +48,10 @@ import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibi
 import { useClientCardTicketTableColumns } from '@condo/domains/ticket/hooks/useClientCardTicketTableColumns'
 import { CallRecordFragment } from '@condo/domains/ticket/utils/clientSchema'
 
+import './index.css'
+import { getSectionAndFloorByUnitName } from '@condo/domains/ticket/utils/unit'
 
 //#region Constants, types and styles
-const ADDRESS_STREET_ONE_ROW_HEIGHT = 25
-const ADDRESS_POSTFIX_ONE_ROW_HEIGHT = 22
-
-const TAG_STYLE: CSSProperties = { borderRadius: '100px' }
-const ROW_BIG_GUTTER: RowProps['gutter'] = [0, 60]
-const ROW_MEDIUM_GUTTER: RowProps['gutter'] = [0, 40]
-const ROW_MEDIUM_SMALL_GUTTER: RowProps['gutter'] = [0, 24]
-const HINT_CARD_STYLE = { maxHeight: '3em' }
-const TICKET_SORT_BY = [SortTicketsBy.CreatedAtDesc]
-const HINTS_COL_PROPS: ColProps = { span: 24 }
-
 type TabDataType = {
     type: ClientType
     property: Property
@@ -83,37 +71,28 @@ type ClientContactPropsType = {
     type: string
 }
 
+export type TabKey = 'contactPropertyTickets' | 'residentsEntranceTickets' | 'residentsPropertyTickets'
+type TabsItems = { key: TabKey, label: string }[]
+
 const MAX_TABLE_SIZE = 20
-type TableTabs = 'address' | 'entrance' | 'home'
-type tabsItems = { key: TableTabs, label: string }[]
-const tableTabs: Array<TableTabs> = ['address', 'entrance', 'home']
+const ADDRESS_TAB = 'contactPropertyTickets'
+const HOME_TAB = 'residentsPropertyTickets'
+const ENTRANCE_TAB = 'residentsEntranceTickets'
+const tableTabs: Array<TabKey> = [ADDRESS_TAB, HOME_TAB, ENTRANCE_TAB]
+const ADDRESS_STREET_ONE_ROW_HEIGHT = 25
+const ADDRESS_POSTFIX_ONE_ROW_HEIGHT = 22
 
-const findSectionByUnitLabelAndType = (mapData: GetPropertyWithMapByIdQuery['property'][number]['map'], unitName: string, unitType: string) => {
-    let sectionType = `${SECTION_SECTION_TYPE}s`
+const TAG_STYLE: CSSProperties = { borderRadius: '100px' }
+const ROW_BIG_GUTTER: RowProps['gutter'] = [0, 60]
+const ROW_MEDIUM_GUTTER: RowProps['gutter'] = [0, 40]
+const ROW_MEDIUM_SMALL_GUTTER: RowProps['gutter'] = [0, 24]
+const HINT_CARD_STYLE = { maxHeight: '3em' }
+const TICKET_SORT_BY = [SortTicketsBy.CreatedAtDesc]
+const HINTS_COL_PROPS: ColProps = { span: 24 }
 
-    if (unitName === PARKING_SECTION_TYPE){
-        sectionType = PARKING_SECTION_TYPE
-    }
-
-    for (const section of mapData[sectionType]) {
-        for (const floor of section.floors) {
-            for (const unit of floor.units) {
-                if (unit.label === unitName && unit.unitType === unitType) {
-                    return {
-                        floor: floor.name,
-                        sectionName: section.name,
-                        sectionType: section.type,
-                    }
-                }
-            }
-        }
-    }
-
-    return null
-}
 
 const getMapData = async (concatData, getPropertyWithMapById) => {
-    const propertyIds = [...new Set<string>(concatData.map(({ property }) => property.id))]
+    const propertyIds = concatData.map(({ property }) => property.id)
 
     try {
         const res = await Promise.all(
@@ -132,7 +111,7 @@ const getMapData = async (concatData, getPropertyWithMapById) => {
             const mapData = res[index]?.property[0].map
             if (!mapData) return tab
 
-            const section = findSectionByUnitLabelAndType(
+            const section = getSectionAndFloorByUnitName(
                 mapData,
                 tab.unitName,
                 tab.unitType
@@ -146,79 +125,6 @@ const getMapData = async (concatData, getPropertyWithMapById) => {
         console.error('Error fetching or processing data:', error)
     }
 }
-
-const StyledCarouselWrapper = styled(Col)`
-  & .condo-carousel {
-    background: none;
-    padding: 0;
-    transform: translateX(-12px);
-
-    & .slick-list {
-      width: calc(100% + 24px);
-      margin: 0;
-
-      & .slick-track {
-        & .slick-slide {
-          padding: 0 12px;
-
-          & > div {
-            margin: 0;
-            overflow: initial;
-          }
-        }
-      }
-    }
-
-    & .slick-prev {
-      left: -8px !important;
-    }
-
-    & .slick-next {
-      right: -32px !important;
-    }
-  }
-`
-const StyledSpace = styled(Space)`
-    &.condo-space {
-
-        .condo-space-item:first-child {
-            align-self: flex-end;
-        }
-    }
-`
-
-const StyledLink = styled(Col)`
-    display: flex;
-    align-items: center;
-    gap: 8px;
-`
-
-const StyledAddressTabWrapper = styled.div<{ active: boolean }>`
-  height: 165px;
-  border-radius: 12px;
-  background: ${props => props.active ? gradients.sberActionGradient : 'inherit'};
-  padding: 1px;
-  border: 1px solid ${colors.backgroundWhiteSecondary};
-  box-shadow: ${props => props.active ? shadows.main : 'inherit'};
-  transition: ${transitions.allDefault};
-
-  & > div {
-    border-radius: 11px;
-    height: 100%;
-    padding: 20px;
-    background-color: ${colors.white};
-  }
-
-  &:hover {
-    cursor: pointer;
-    box-shadow: ${shadows.main};
-  }
-`
-const StyledAddressTabContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  row-gap: 12px;
-`
 
 const ClientAddressCard = ({ onClick, active, property, organization, unitName, floor, unitType, sectionName }) => {
     const intl = useIntl()
@@ -252,12 +158,12 @@ const ClientAddressCard = ({ onClick, active, property, organization, unitName, 
     const streetMessage = unitName ? text : text.substring(0, text.length - 1)
 
     return (
-        <StyledAddressTabWrapper active={active} onClick={onClick}>
-            <StyledAddressTabContent>
+        <div data-active={active} className='address-tab-wrapper' onClick={onClick}>
+            <div className='address-tab-content'>
                 <Space size={8} direction='vertical'>
                     <Typography.Paragraph
                         size='large'
-                        ellipsis={{ rows: 1 }}
+                        ellipsis={{ rows: 2 }}
                         type='secondary'
                     >
                         {organization.name}
@@ -285,7 +191,7 @@ const ClientAddressCard = ({ onClick, active, property, organization, unitName, 
 
                             {sectionName && floor && (
                                 <Typography.Text type='secondary'>
-                                        ({SectionMessage} {sectionName}, {FloorMessage} {floor})
+                                    {SectionMessage} {sectionName}, {FloorMessage} {floor})
                                 </Typography.Text>
                             )}
                         </Row>
@@ -301,8 +207,8 @@ const ClientAddressCard = ({ onClick, active, property, organization, unitName, 
                         {postfix}
                     </Typography.Paragraph>
                 </Space>
-            </StyledAddressTabContent>
-        </StyledAddressTabWrapper>
+            </div>
+        </div>
     )
 }
 //#endregion
@@ -319,9 +225,10 @@ const ClientContent: React.FC<ClientContactPropsType> = ({ lastTicket, contact, 
 
     const name = useMemo(
         () => contact?.name ?? lastTicket?.clientName,
-        [contact, lastTicket]
+        [contact?.name, lastTicket?.clientName]
     )
 
+    // TODO clientName
     const email = useMemo(() => contact?.email, [contact?.email])
 
     const organizationName = useMemo(
@@ -370,7 +277,7 @@ const ClientContent: React.FC<ClientContactPropsType> = ({ lastTicket, contact, 
         <Row gutter={ROW_MEDIUM_SMALL_GUTTER}>
             <Col span={24}>
                 <Space size={12} direction='vertical' >
-                    <StyledSpace size={24} direction='horizontal' >
+                    <Space size={24} direction='horizontal' >
                         <Typography.Title level={2}>
                             {name}
                         </Typography.Title>
@@ -382,7 +289,7 @@ const ClientContent: React.FC<ClientContactPropsType> = ({ lastTicket, contact, 
                                 <TicketResidentFeatures ticket={lastTicket}/>
                             )
                         }
-                    </StyledSpace>
+                    </Space>
                     {
                         showOrganizationMessage && (
                             <Typography.Text strong type='secondary' size='medium'>
@@ -431,7 +338,7 @@ const ClientContent: React.FC<ClientContactPropsType> = ({ lastTicket, contact, 
 const ClientCardTabContent = ({
     phone,
     property,
-    searchTicketsQuery,
+    searchTicketsQuery = null,
     handleTicketCreateClick,
     canManageContacts,
     handleContactEditClick = null,
@@ -441,6 +348,8 @@ const ClientCardTabContent = ({
     sectionName,
     type,
     sectionType,
+    unitName,
+    unitType,
 }) => {
     const intl = useIntl()
     const ShowAllPropertyTicketsMessage = intl.formatMessage({ id: 'pages.clientCard.showAllPropertyTickets' })
@@ -449,12 +358,12 @@ const ClientCardTabContent = ({
     const LastTicketsLoadedMessage = intl.formatMessage({ id: 'pages.clientCard.lastTicketsLoaded' }, { count: MAX_TABLE_SIZE })
     const OpenAllTicketsMessage = intl.formatMessage({ id: 'pages.clientCard.openAllTickets' })
 
-    const tabsItems: tabsItems = useMemo(()=>tableTabs.map(el => ({
+    const tabsItems: TabsItems = useMemo(()=>tableTabs.map(el => ({
         label: intl.formatMessage({ id: `pages.clientCard.table.tabs.${el}` }),
         key: el,
     })), [intl])
 
-    const [currentTableTab, setCurrentTableTab] = useState<TableTabs>('address')
+    const [currentTableTab, setCurrentTableTab] = useState<TabKey>('contactPropertyTickets')
 
     const router = useRouter()
 
@@ -462,15 +371,24 @@ const ClientCardTabContent = ({
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
 
     const searchQuery = useMemo(() => {
-        if (currentTableTab === 'entrance') {
-            return { ...searchTicketsQuery, contact: undefined, unitName: undefined, unitType: undefined,  sectionName, sectionType }
+        if (currentTableTab === ENTRANCE_TAB) {
+            return {
+                property: { id: property?.id },
+                sectionName,
+                sectionType,
+            }
         }
 
-        if (currentTableTab === 'home') {
-            return { ...searchTicketsQuery, contact: undefined, unitName: undefined, unitType: undefined }
+        if (currentTableTab === HOME_TAB) {
+            return { property: { id: property?.id } }
         }
 
-        return searchTicketsQuery
+        return {
+            property: { id: property?.id },
+            unitName,
+            unitType,
+            contact: { id: contact?.id },
+        }
     }, [searchTicketsQuery, currentTableTab])
 
     const { data: ticketsQuery, loading: isTicketsFetching } = useGetTicketsQuery({
@@ -490,7 +408,7 @@ const ClientCardTabContent = ({
     const propertyId = useMemo(() => property?.id, [property])
     const organizationId = useMemo(() => organization?.id, [organization])
 
-    const columns = useClientCardTicketTableColumns(tickets, currentTableTab)
+    const columns = useClientCardTicketTableColumns(tickets, currentTableTab, MAX_TABLE_SIZE)
 
     const handleShowAllPropertyTicketsMessage = useCallback(async () => {
         if (typeof window !== 'undefined') {
@@ -513,10 +431,6 @@ const ClientCardTabContent = ({
         handleTicketCreateClick(dataForTicketForm)
     },
     [handleTicketCreateClick, lastCreatedTicket, phone, property])
-
-    const onChangeTabs = (tab) => {
-        setCurrentTableTab(tab)
-    }
 
     const redirectToTicketPage = useCallback(async () => await redirectToForm({
         router,
@@ -567,7 +481,7 @@ const ClientCardTabContent = ({
                         <Col span={24}>
                             <Row>
                                 <Tabs
-                                    onChange={onChangeTabs}
+                                    onChange={tab => setCurrentTableTab(tab as TabKey)}
                                     items={tabsItems}
                                 />
 
@@ -593,11 +507,11 @@ const ClientCardTabContent = ({
                                             </Col>
                                             <Col>
                                                 <Typography.Link size='large' onClick={redirectToTicketPage}>
-                                                    <StyledLink>
+                                                    <Col className='link-wrapper'>
                                                         <ExternalLink size='auto'/>
 
                                                         {OpenAllTicketsMessage}
-                                                    </StyledLink>
+                                                    </Col>
                                                 </Typography.Link>
                                             </Col>
                                         </Row>
@@ -651,13 +565,6 @@ const ContactClientTabContent = ({
 }) => {
     const router = useRouter()
 
-    const searchTicketsQuery = useMemo(() => ({
-        property: { id: property.id },
-        unitName,
-        unitType,
-        contact: { id: contact.id },
-    }), [contact, property, unitName, unitType])
-
     const handleTicketCreateClick = useCallback(async () => {
         const initialValues = {
             property: property?.id,
@@ -686,11 +593,12 @@ const ContactClientTabContent = ({
     return (
         <ClientCardTabContent
             phone={phone}
+            unitName={unitName}
+            unitType={unitType}
             type={type}
             sectionType={sectionType}
             sectionName={sectionName}
             property={property}
-            searchTicketsQuery={searchTicketsQuery}
             handleTicketCreateClick={handleTicketCreateClick}
             handleContactEditClick={handleContactEditClick}
             canManageContacts={canManageContacts}
@@ -716,8 +624,6 @@ const NotResidentClientTabContent = ({
 
     const searchTicketsQuery = useMemo(() => ({
         property: { id: property?.id },
-        unitName,
-        unitType,
         clientPhone: phone,
         clientName_not: null,
         isResidentTicket: false,
@@ -742,6 +648,8 @@ const NotResidentClientTabContent = ({
 
     return (
         <ClientCardTabContent
+            unitName={unitName}
+            unitType={unitType}
             phone={phone}
             property={property}
             type={type}
@@ -778,7 +686,7 @@ const ClientTabContent = ({ tabData, phone, canManageContacts, showOrganizationM
         <ContactClientTabContent
             contact={contact}
             phone={phone}
-            type={ClientType.Resident }
+            type={ClientType.Resident}
             property={property}
             unitName={unitName}
             unitType={unitType}
@@ -867,7 +775,7 @@ const ClientCardPageContent = ({
     }, [tabsData, slidesToShow, carouselRef.current])
 
     useEffect(() => {
-        const { type, property: propertyId, unitName, unitType } = parseCardDataFromQuery(tab)
+        const { type, property: propertyId, unitName, unitType, sectionType, sectionName } = parseCardDataFromQuery(tab)
         const tabDataWithProperty = tabsData.find(({ property, unitName: tabUnitName, unitType: tabUnitType }) =>
             property.id === propertyId && tabUnitName === unitName && tabUnitType === unitType)
         const property = tabDataWithProperty?.property
@@ -875,7 +783,7 @@ const ClientCardPageContent = ({
         const contact = tabDataWithProperty?.contact
 
         if (property) {
-            setActiveTabData({ type, property, unitName, unitType, organization, contact, sectionType: contact?.sectionType, sectionName: contact?.sectionName })
+            setActiveTabData({ type, property, unitName, unitType, organization, contact, sectionType, sectionName })
         }
     }, [tab, tabsData])
 
@@ -931,11 +839,11 @@ const ClientCardPageContent = ({
                                 <Typography.Title>{ClientCardHeader}</Typography.Title>
 
                                 <Typography.Link size='large' onClick={redirectToCreateContact}>
-                                    <StyledLink>
+                                    <Col className='link-wrapper'>
                                         <PlusCircleOutlined/>
 
                                         {AddAddressMessage}
-                                    </StyledLink>
+                                    </Col>
                                 </Typography.Link>
                             </Row>
                         </Col>
@@ -943,7 +851,7 @@ const ClientCardPageContent = ({
                             <Row gutter={[0, 20]}>
                                 {
                                     loading ? <Loader/> : (
-                                        <StyledCarouselWrapper span={24}>
+                                        <Col span={24}>
                                             <Carousel
                                                 infinite={false}
                                                 ref={carouselRef}
@@ -952,7 +860,7 @@ const ClientCardPageContent = ({
                                             >
                                                 {renderedCards}
                                             </Carousel>
-                                        </StyledCarouselWrapper>
+                                        </Col>
                                     )
                                 }
                                 <Col span={24}>
@@ -980,7 +888,7 @@ export const ClientCardPageContentWrapper = ({
     usePhonePrefix = false,
 }) => {
     const router = useRouter()
-    const phoneNumber = router?.query.number as string
+    const phoneNumber = router?.query.number
 
     const { data: contactsQueryData, loading: contactsLoading } = useGetContactForClientCardQuery({
         variables: {
@@ -1057,7 +965,7 @@ export const ClientCardPageContentWrapper = ({
             .filter(tabsData => tabsData.organization && tabsData.property)
 
         getMapData(concatData, getPropertyWithMapById).then(res => setTabsData(res))
-    }, [getPropertyWithMapById, findSectionByUnitLabelAndType, contactsQueryData, notResidentTickets, employeeTickets])
+    }, [getPropertyWithMapById, contactsQueryData, notResidentTickets, employeeTickets])
 
     const phoneNumberPrefixFromContacts = contactsQueryData?.contacts?.[0]?.organization?.phoneNumberPrefix
     const phoneNumberPrefixFromEmployees = employeesQueryData?.employees?.[0]?.organization?.phoneNumberPrefix

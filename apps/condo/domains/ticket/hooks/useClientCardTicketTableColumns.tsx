@@ -1,6 +1,6 @@
 import { GetTicketsQuery, useGetPollTicketCommentsQuery } from '@app/condo/gql'
+import { TabKey } from '@app/condo/pages/phone/[number]'
 import { TicketCommentWhereInput } from '@app/condo/schema'
-import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import { useCallback, useMemo } from 'react'
 
@@ -20,10 +20,10 @@ import { IFilters } from '@condo/domains/ticket/utils/helpers'
 const renderCell = getTableCellRenderer()
 const renderTicketDetails = getTicketDetailsRender()
 
-const getLastComment =  (ticket: GetTicketsQuery['tickets'][number]) =>
+const getLastCommentDate = (ticket: GetTicketsQuery['tickets'][number]) =>
     ticket.lastCommentWithOrganizationTypeAt || ticket.lastResidentCommentAt || ticket.lastCommentWithResidentTypeAt
 
-export function useClientCardTicketTableColumns (tickets: GetTicketsQuery['tickets'], currentTableTab) {
+export function useClientCardTicketTableColumns (tickets: GetTicketsQuery['tickets'], currentTableTab: TabKey, maxTableSize: number) {
     const intl = useIntl()
     const NumberMessage = intl.formatMessage({ id: 'ticketsTable.Number' })
     const DateMessage = intl.formatMessage({ id: 'Date' })
@@ -39,13 +39,13 @@ export function useClientCardTicketTableColumns (tickets: GetTicketsQuery['ticke
     const { filters, sorters } = parseQuery(router.query)
     const sorterMap = getSorterMap(sorters)
 
-    const hasComments = tickets?.map(ticket => getLastComment(ticket)).some(Boolean)
+    const hasComments = tickets?.map(ticket => getLastCommentDate(ticket)).some(Boolean)
 
     const ticketCommentsWhere: TicketCommentWhereInput[] = useMemo(() =>
         tickets?.map(ticket => ({
             AND: [
                 { ticket: { id: ticket.id } },
-                { createdAt: getLastComment(ticket) },
+                { createdAt: getLastCommentDate(ticket) },
             ],
         })),
     [tickets])
@@ -53,7 +53,7 @@ export function useClientCardTicketTableColumns (tickets: GetTicketsQuery['ticke
     const { data } = useGetPollTicketCommentsQuery({
         variables: {
             where: { OR: ticketCommentsWhere },
-            first: 20,
+            first: maxTableSize,
         },
         skip: !tickets || !hasComments,
     })
@@ -96,7 +96,7 @@ export function useClientCardTicketTableColumns (tickets: GetTicketsQuery['ticke
             },
             {
                 title: StatusMessage,
-                sortOrder: get(sorterMap, 'status'),
+                sortOrder: sorterMap?.status,
                 render: getStatusRender(intl),
                 dataIndex: 'status',
                 key: 'status',
@@ -117,7 +117,7 @@ export function useClientCardTicketTableColumns (tickets: GetTicketsQuery['ticke
             },
         ]
 
-        const additionalColumnsForOtherTabs = [
+        const columnsForHomeAndEntranceTabs = [
             {
                 title: UnitMessage,
                 dataIndex: 'unitName',
@@ -147,7 +147,7 @@ export function useClientCardTicketTableColumns (tickets: GetTicketsQuery['ticke
         ]
 
         return currentTableTab !== 'address'
-            ? [...baseColumns.slice(0, 1), ...additionalColumnsForOtherTabs, ...baseColumns.slice(1)]
+            ? [...baseColumns.slice(0, 1), ...columnsForHomeAndEntranceTabs, ...baseColumns.slice(1)]
             : [...baseColumns, ...additionalColumnsForAddressTab]
     }, [
         AddressMessage, UnitMessage, NumberMessage, DateMessage, StatusMessage,
