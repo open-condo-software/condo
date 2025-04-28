@@ -1,13 +1,11 @@
 import { PlusCircleOutlined } from '@ant-design/icons'
 import {
-    GetTicketsQuery,
+    GetTicketsForClientCardQuery,
     useGetContactForClientCardQuery,
     useGetEmployeesForClientCardQuery,
-    useGetPropertyWithMapByIdLazyQuery,
-    useGetTicketsQuery,
+    useGetTicketsForClientCardQuery,
 } from '@app/condo/gql'
 import {
-    BuildingMap,
     BuildingUnitSubType,
     Contact as ContactType,
     Organization as OrganizationType,
@@ -47,9 +45,8 @@ import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketP
 import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
 import { useClientCardTicketTableColumns } from '@condo/domains/ticket/hooks/useClientCardTicketTableColumns'
 import { CallRecordFragment } from '@condo/domains/ticket/utils/clientSchema'
-
-import './index.css'
 import { getSectionAndFloorByUnitName } from '@condo/domains/ticket/utils/unit'
+import './index.css'
 
 //#region Constants, types and styles
 type TabDataType = {
@@ -65,9 +62,8 @@ type TabDataType = {
 
 type ClientContactPropsType = {
     phone: string
-    lastTicket: GetTicketsQuery['tickets'][number]
+    lastTicket: GetTicketsForClientCardQuery['tickets'][number]
     contact?: ContactType & { isEmployee?: boolean }
-    showOrganizationMessage?: boolean
     type: string
 }
 
@@ -75,10 +71,11 @@ export type TabKey = 'contactPropertyTickets' | 'residentsEntranceTickets' | 're
 type TabsItems = { key: TabKey, label: string }[]
 
 const MAX_TABLE_SIZE = 20
-const ADDRESS_TAB = 'contactPropertyTickets'
-const HOME_TAB = 'residentsPropertyTickets'
-const ENTRANCE_TAB = 'residentsEntranceTickets'
-const tableTabs: Array<TabKey> = [ADDRESS_TAB, HOME_TAB, ENTRANCE_TAB]
+
+export const CONTACT_PROPERTY_TICKETS_TAB = 'contactPropertyTickets'
+const RESIDENTS_PROPERTY_TICKETS_TAB = 'residentsPropertyTickets'
+const RESIDENTS_ENTRANCE_TICKETS_TAB = 'residentsEntranceTickets'
+const tableTabs: Array<TabKey> =  [CONTACT_PROPERTY_TICKETS_TAB, RESIDENTS_ENTRANCE_TICKETS_TAB, RESIDENTS_PROPERTY_TICKETS_TAB]
 const ADDRESS_STREET_ONE_ROW_HEIGHT = 25
 const ADDRESS_POSTFIX_ONE_ROW_HEIGHT = 22
 
@@ -90,43 +87,17 @@ const HINT_CARD_STYLE = { maxHeight: '3em' }
 const TICKET_SORT_BY = [SortTicketsBy.CreatedAtDesc]
 const HINTS_COL_PROPS: ColProps = { span: 24 }
 
+const getMapData = async (cardsData) => {
+    return cardsData.map((tab) => {
+        if (tab.unitName && tab.unitType && tab.floorName) return tab
 
-const getMapData = async (concatData, getPropertyWithMapById) => {
-    const propertyIds = concatData.map(({ property }) => property.id)
+        const section = getSectionAndFloorByUnitName(tab.property, tab.unitName, tab.unitType)
 
-    try {
-        const res = await Promise.all(
-            propertyIds.map(async (el) => {
-                const response = await getPropertyWithMapById({
-                    variables: {
-                        id: el,
-                    },
-                    fetchPolicy: 'cache-first',
-                })
-                return response.data
-            })
-        )
-
-        return concatData.map((tab, index) => {
-            const mapData = res[index]?.property[0].map
-            if (!mapData) return tab
-
-            const section = getSectionAndFloorByUnitName(
-                mapData,
-                tab.unitName,
-                tab.unitType
-            )
-
-            return section
-                ? { ...tab, ...section }
-                : tab
-        })
-    } catch (error) {
-        console.error('Error fetching or processing data:', error)
-    }
+        return { ...tab, ...section }
+    })
 }
 
-const ClientAddressCard = ({ onClick, active, property, organization, unitName, floor, unitType, sectionName }) => {
+const ClientAddressCard = ({ onClick, active, property, organization, unitName, floorName, unitType, sectionName }) => {
     const intl = useIntl()
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
     const FlatMessage = intl.formatMessage({ id: 'field.ShortFlatNumber' })
@@ -178,7 +149,7 @@ const ClientAddressCard = ({ onClick, active, property, organization, unitName, 
                         {streetMessage}
                     </Typography.Text>
 
-                    { floor || sectionName || unitName ? (
+                    { floorName || sectionName || unitName ? (
                         <Row style={{ gap: 4 }}>
                             <Typography.Text
                                 ref={addressStreetRef}
@@ -189,9 +160,9 @@ const ClientAddressCard = ({ onClick, active, property, organization, unitName, 
                                 {unitNamePrefix} {unitName}
                             </Typography.Text>
 
-                            {sectionName && floor && (
+                            {sectionName && floorName && (
                                 <Typography.Text type='secondary'>
-                                    {SectionMessage} {sectionName}, {FloorMessage} {floor})
+                                    ({SectionMessage} {sectionName}, {FloorMessage} {floorName})
                                 </Typography.Text>
                             )}
                         </Row>
@@ -214,7 +185,7 @@ const ClientAddressCard = ({ onClick, active, property, organization, unitName, 
 //#endregion
 
 //#region Contact and Not resident client Tab content
-const ClientContent: React.FC<ClientContactPropsType> = ({ lastTicket, contact, type, showOrganizationMessage, phone }) => {
+const ClientContent: React.FC<ClientContactPropsType> = ({ lastTicket, contact, type, phone }) => {
     const intl = useIntl()
     const CallRecordsLogMessage = intl.formatMessage({ id: 'pages.clientCard.callRecordsLog' })
     const ContactMessage = intl.formatMessage({ id: 'Contact' })
@@ -223,23 +194,11 @@ const ClientContent: React.FC<ClientContactPropsType> = ({ lastTicket, contact, 
 
     const isEmployee = contact?.isEmployee
 
-    const name = useMemo(
-        () => contact?.name ?? lastTicket?.clientName,
-        [contact?.name, lastTicket?.clientName]
-    )
+    const name = useMemo(() => contact?.name, [contact?.name])
 
-    // TODO clientName
     const email = useMemo(() => contact?.email, [contact?.email])
 
-    const organizationName = useMemo(
-        () => contact?.organization?.name ?? lastTicket?.organization?.name,
-        [contact?.organization?.name, lastTicket?.organization?.name]
-    )
-
-    const propertyId = useMemo(
-        () => contact?.property?.id ?? lastTicket?.property?.id ?? null,
-        [contact?.property?.id, lastTicket?.property?.id]
-    )
+    const propertyId = useMemo(() => contact?.property?.id, [contact?.property?.id])
 
     const {
         count,
@@ -290,13 +249,6 @@ const ClientContent: React.FC<ClientContactPropsType> = ({ lastTicket, contact, 
                             )
                         }
                     </Space>
-                    {
-                        showOrganizationMessage && (
-                            <Typography.Text strong type='secondary' size='medium'>
-                                {organizationName}
-                            </Typography.Text>
-                        )
-                    }
                 </Space>
             </Col>
             {
@@ -343,7 +295,6 @@ const ClientCardTabContent = ({
     canManageContacts,
     handleContactEditClick = null,
     contact = null,
-    showOrganizationMessage = false,
     organization,
     sectionName,
     type,
@@ -371,7 +322,7 @@ const ClientCardTabContent = ({
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
 
     const searchQuery = useMemo(() => {
-        if (currentTableTab === ENTRANCE_TAB) {
+        if (currentTableTab === RESIDENTS_ENTRANCE_TICKETS_TAB) {
             return {
                 property: { id: property?.id },
                 sectionName,
@@ -379,7 +330,7 @@ const ClientCardTabContent = ({
             }
         }
 
-        if (currentTableTab === HOME_TAB) {
+        if (currentTableTab === RESIDENTS_PROPERTY_TICKETS_TAB) {
             return { property: { id: property?.id } }
         }
 
@@ -389,9 +340,9 @@ const ClientCardTabContent = ({
             unitType,
             contact: { id: contact?.id },
         }
-    }, [searchTicketsQuery, currentTableTab])
+    }, [searchTicketsQuery, currentTableTab, unitType, unitName, property?.id, sectionName, sectionType ])
 
-    const { data: ticketsQuery, loading: isTicketsFetching } = useGetTicketsQuery({
+    const { data: ticketsQuery, loading: isTicketsFetching } = useGetTicketsForClientCardQuery({
         variables: {
             where: searchQuery,
             first: MAX_TABLE_SIZE,
@@ -459,7 +410,6 @@ const ClientCardTabContent = ({
                                         type={type}
                                         lastTicket={lastCreatedTicket}
                                         contact={contact}
-                                        showOrganizationMessage={showOrganizationMessage}
                                     />
                                 </Col>
                                 <TicketPropertyHintCard
@@ -561,7 +511,6 @@ const ContactClientTabContent = ({
     sectionType,
     canManageContacts,
     organization,
-    showOrganizationMessage = false,
 }) => {
     const router = useRouter()
 
@@ -570,9 +519,12 @@ const ContactClientTabContent = ({
             property: property?.id,
             unitName,
             unitType,
+            sectionName,
+            sectionType,
             contact: contact?.id,
             clientName: contact?.name,
             clientPhone: contact?.phone,
+            clientEmail: contact?.email,
             isResidentTicket: true,
         }
 
@@ -603,7 +555,6 @@ const ContactClientTabContent = ({
             handleContactEditClick={handleContactEditClick}
             canManageContacts={canManageContacts}
             contact={contact}
-            showOrganizationMessage={showOrganizationMessage}
             organization={organization}
         />
     )
@@ -618,16 +569,14 @@ const NotResidentClientTabContent = ({
     phone,
     type,
     organization,
-    showOrganizationMessage = false,
 }) => {
     const router = useRouter()
 
     const searchTicketsQuery = useMemo(() => ({
-        property: { id: property?.id },
         clientPhone: phone,
         clientName_not: null,
         isResidentTicket: false,
-    }), [phone, property, unitName, unitType])
+    }), [phone])
 
     const handleTicketCreateClick = useCallback(async (ticket) => {
         const initialValues = {
@@ -658,7 +607,6 @@ const NotResidentClientTabContent = ({
             searchTicketsQuery={searchTicketsQuery}
             handleTicketCreateClick={handleTicketCreateClick}
             canManageContacts={false}
-            showOrganizationMessage={showOrganizationMessage}
             organization={organization}
         />
     )
@@ -672,7 +620,7 @@ const parseCardDataFromQuery = (stringCard) => {
     }
 }
 
-const ClientTabContent = ({ tabData, phone, canManageContacts, showOrganizationMessage = false }) => {
+const ClientTabContent = ({ tabData, phone, canManageContacts }) => {
     const property = tabData?.property
     const unitName = tabData?.unitName
     const unitType = tabData?.unitType
@@ -693,7 +641,6 @@ const ClientTabContent = ({ tabData, phone, canManageContacts, showOrganizationM
             sectionType={sectionType}
             sectionName={sectionName}
             canManageContacts={canManageContacts}
-            showOrganizationMessage={showOrganizationMessage}
             organization={organization}
         />
     ) : (
@@ -705,7 +652,6 @@ const ClientTabContent = ({ tabData, phone, canManageContacts, showOrganizationM
             unitType={unitType}
             sectionType={sectionType}
             sectionName={sectionName}
-            showOrganizationMessage={showOrganizationMessage}
             organization={organization}
         />
     )
@@ -719,7 +665,6 @@ const ClientCardPageContent = ({
     canManageContacts,
     loading,
     phoneNumberPrefix,
-    showOrganizationMessage = false,
 }) => {
     const intl = useIntl()
     const ClientCardTitle = intl.formatMessage({ id: 'pages.clientCard.Title' }, {
@@ -794,8 +739,8 @@ const ClientCardPageContent = ({
     }, [phoneNumber, router])
 
     const renderedCards = useMemo(() => {
-        const addressTabs = tabsData.map(({ type, property, unitName, floor, unitType, organization, sectionType, sectionName }, index) => {
-            const key = getClientCardTabKey(property?.id, type, unitName, unitType, sectionType, sectionName)
+        const addressTabs = tabsData.map(({ type, property, unitName, floorName, unitType, organization, sectionType, sectionName }, index) => {
+            const key = getClientCardTabKey(property?.id, type, unitName, unitType, sectionName, sectionType)
             const isActive = tab && tab === key
 
             if (isActive) {
@@ -806,7 +751,7 @@ const ClientCardPageContent = ({
                 onClick={() => handleTabChange(key)}
                 organization={organization}
                 key={key}
-                floor={floor}
+                floorName={floorName}
                 property={property}
                 unitName={unitName}
                 unitType={unitType}
@@ -868,7 +813,6 @@ const ClientCardPageContent = ({
                                         tabData={activeTabData}
                                         phone={phoneNumber}
                                         canManageContacts={canManageContacts}
-                                        showOrganizationMessage={showOrganizationMessage}
                                     />
                                 </Col>
                             </Row>
@@ -884,7 +828,6 @@ export const ClientCardPageContentWrapper = ({
     organizationQuery,
     ticketsQuery,
     canManageContacts,
-    showOrganizationMessage = false,
     usePhonePrefix = false,
 }) => {
     const router = useRouter()
@@ -896,12 +839,12 @@ export const ClientCardPageContentWrapper = ({
                 ...organizationQuery,
                 phone: phoneNumber,
             },
-            first: 100,
+            first: MAX_TABLE_SIZE,
         },
         fetchPolicy: 'cache-first',
     })
 
-    const { data: ticketsQueryData, loading: ticketsLoading } = useGetTicketsQuery({
+    const { data: ticketsQueryData, loading: ticketsLoading } = useGetTicketsForClientCardQuery({
         variables: {
             where: {
                 ...ticketsQuery,
@@ -909,7 +852,7 @@ export const ClientCardPageContentWrapper = ({
                 isResidentTicket: false,
                 contact_is_null: true,
             },
-            first: 30,
+            first: MAX_TABLE_SIZE,
         },
         fetchPolicy: 'cache-first',
     })
@@ -920,12 +863,10 @@ export const ClientCardPageContentWrapper = ({
                 ...organizationQuery,
                 phone: phoneNumber,
             },
-            first: 50,
+            first: MAX_TABLE_SIZE,
         },
         fetchPolicy: 'cache-first',
     })
-
-    const [getPropertyWithMapById] = useGetPropertyWithMapByIdLazyQuery()
 
     const employeeTickets = useMemo(() =>
         ticketsQueryData?.tickets.filter(ticket => !!employeesQueryData?.employees?.find(employee => employee.phone === ticket.clientPhone)),
@@ -950,6 +891,9 @@ export const ClientCardPageContentWrapper = ({
             property: ticket.property,
             unitName: ticket.unitName,
             unitType: ticket.unitType,
+            sectionName: ticket.sectionName,
+            sectionType: ticket.sectionType,
+            floorName: ticket.floorName,
             organization: ticket.organization,
         })), 'property.id') || []
         const employeesData = uniqBy(employeeTickets?.map(ticket => ({
@@ -964,8 +908,8 @@ export const ClientCardPageContentWrapper = ({
         const concatData =  [...contactsData, ...notResidentData, ...employeesData]
             .filter(tabsData => tabsData.organization && tabsData.property)
 
-        getMapData(concatData, getPropertyWithMapById).then(res => setTabsData(res))
-    }, [getPropertyWithMapById, contactsQueryData, notResidentTickets, employeeTickets])
+        getMapData(concatData).then(res => setTabsData(res))
+    }, [contactsQueryData, notResidentTickets, employeeTickets])
 
     const phoneNumberPrefixFromContacts = contactsQueryData?.contacts?.[0]?.organization?.phoneNumberPrefix
     const phoneNumberPrefixFromEmployees = employeesQueryData?.employees?.[0]?.organization?.phoneNumberPrefix
@@ -983,7 +927,6 @@ export const ClientCardPageContentWrapper = ({
             tabsData={tabsData}
             canManageContacts={canManageContacts}
             loading={ticketsLoading || contactsLoading || employeesLoading}
-            showOrganizationMessage={showOrganizationMessage}
         />
     )
 }

@@ -1,5 +1,5 @@
-import { GetTicketsQuery, useGetPollTicketCommentsQuery } from '@app/condo/gql'
-import { TabKey } from '@app/condo/pages/phone/[number]'
+import { GetTicketsForClientCardQuery, useGetTicketCommentsForClientCardQuery } from '@app/condo/gql'
+import { CONTACT_PROPERTY_TICKETS_TAB, type TabKey } from '@app/condo/pages/phone/[number]'
 import { TicketCommentWhereInput } from '@app/condo/schema'
 import { useRouter } from 'next/router'
 import { useCallback, useMemo } from 'react'
@@ -20,10 +20,10 @@ import { IFilters } from '@condo/domains/ticket/utils/helpers'
 const renderCell = getTableCellRenderer()
 const renderTicketDetails = getTicketDetailsRender()
 
-const getLastCommentDate = (ticket: GetTicketsQuery['tickets'][number]) =>
+const getLastCommentDate = (ticket: GetTicketsForClientCardQuery['tickets'][number]) =>
     ticket.lastCommentWithOrganizationTypeAt || ticket.lastResidentCommentAt || ticket.lastCommentWithResidentTypeAt
 
-export function useClientCardTicketTableColumns (tickets: GetTicketsQuery['tickets'], currentTableTab: TabKey, maxTableSize: number) {
+export function useClientCardTicketTableColumns (tickets: GetTicketsForClientCardQuery['tickets'], currentTableTab: TabKey, maxTableSize: number) {
     const intl = useIntl()
     const NumberMessage = intl.formatMessage({ id: 'ticketsTable.Number' })
     const DateMessage = intl.formatMessage({ id: 'Date' })
@@ -50,7 +50,7 @@ export function useClientCardTicketTableColumns (tickets: GetTicketsQuery['ticke
         })),
     [tickets])
 
-    const { data } = useGetPollTicketCommentsQuery({
+    const { data } = useGetTicketCommentsForClientCardQuery({
         variables: {
             where: { OR: ticketCommentsWhere },
             first: maxTableSize,
@@ -117,7 +117,7 @@ export function useClientCardTicketTableColumns (tickets: GetTicketsQuery['ticke
             },
         ]
 
-        const columnsForHomeAndEntranceTabs = [
+        const columnsForPropertyAndEntranceTabs = [
             {
                 title: UnitMessage,
                 dataIndex: 'unitName',
@@ -138,7 +138,7 @@ export function useClientCardTicketTableColumns (tickets: GetTicketsQuery['ticke
             },
         ]
 
-        const additionalColumnsForAddressTab = [
+        const columnsForAddressTab = [
             {
                 title: LastCommentMessage,
                 key: 'lastComment',
@@ -146,9 +146,9 @@ export function useClientCardTicketTableColumns (tickets: GetTicketsQuery['ticke
             },
         ]
 
-        return currentTableTab !== 'address'
-            ? [...baseColumns.slice(0, 1), ...columnsForHomeAndEntranceTabs, ...baseColumns.slice(1)]
-            : [...baseColumns, ...additionalColumnsForAddressTab]
+        return currentTableTab !== CONTACT_PROPERTY_TICKETS_TAB
+            ? [...baseColumns.slice(0, 1), ...columnsForPropertyAndEntranceTabs, ...baseColumns.slice(1)]
+            : [...baseColumns, ...columnsForAddressTab]
     }, [
         AddressMessage, UnitMessage, NumberMessage, DateMessage, StatusMessage,
         ClassifierTitle, DescriptionMessage, LastCommentMessage,
