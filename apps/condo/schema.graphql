@@ -10424,6 +10424,7 @@ type BillingIntegrationHistoryRecord {
   contextDefaultStatus: String
   dataFormat: JSON
   currencyCode: String
+  b2bApp: String
   isTrustedBankAccountSource: Boolean
   isHidden: Boolean
   skipNoAccountNotifications: Boolean
@@ -10809,6 +10810,10 @@ input BillingIntegrationHistoryRecordWhereInput {
   currencyCode_not_ends_with_i: String
   currencyCode_in: [String]
   currencyCode_not_in: [String]
+  b2bApp: String
+  b2bApp_not: String
+  b2bApp_in: [String]
+  b2bApp_not_in: [String]
   isTrustedBankAccountSource: Boolean
   isTrustedBankAccountSource_not: Boolean
   isHidden: Boolean
@@ -10988,6 +10993,7 @@ input BillingIntegrationHistoryRecordUpdateInput {
   contextDefaultStatus: String
   dataFormat: JSON
   currencyCode: String
+  b2bApp: String
   isTrustedBankAccountSource: Boolean
   isHidden: Boolean
   skipNoAccountNotifications: Boolean
@@ -11036,6 +11042,7 @@ input BillingIntegrationHistoryRecordCreateInput {
   contextDefaultStatus: String
   dataFormat: JSON
   currencyCode: String
+  b2bApp: String
   isTrustedBankAccountSource: Boolean
   isHidden: Boolean
   skipNoAccountNotifications: Boolean
@@ -11268,6 +11275,13 @@ input BillingIntegrationAccessRightRelateToManyInput {
   disconnectAll: Boolean
 }
 
+input B2BAppRelateToOneInput {
+  create: B2BAppCreateInput
+  connect: B2BAppWhereUniqueInput
+  disconnect: B2BAppWhereUniqueInput
+  disconnectAll: Boolean
+}
+
 """ Identification of the `integration component` which responsible for getting data from the `billing data source` and delivering the data to `this API`. Examples: tap-1c, ...  
 """
 type BillingIntegration {
@@ -11372,6 +11386,9 @@ type BillingIntegration {
   currencyCode: BillingIntegrationCurrencyCodeType
   accessRights(where: BillingIntegrationAccessRightWhereInput, search: String, sortBy: [SortBillingIntegrationAccessRightsBy!], orderBy: String, first: Int, skip: Int): [BillingIntegrationAccessRight!]!
   _accessRightsMeta(where: BillingIntegrationAccessRightWhereInput, search: String, sortBy: [SortBillingIntegrationAccessRightsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Link to B2BApp which can publish receipts to this integration """
+  b2bApp: B2BApp
 
   """ If checked, then bank account objects created by this billing are automatically approved. E.g government-controlled billing 
   """
@@ -11769,6 +11786,8 @@ input BillingIntegrationWhereInput {
 
   """ condition must be false for all nodes """
   accessRights_none: BillingIntegrationAccessRightWhereInput
+  b2bApp: B2BAppWhereInput
+  b2bApp_is_null: Boolean
   isTrustedBankAccountSource: Boolean
   isTrustedBankAccountSource_not: Boolean
   isHidden: Boolean
@@ -11884,6 +11903,8 @@ enum SortBillingIntegrationsBy {
   currencyCode_DESC
   accessRights_ASC
   accessRights_DESC
+  b2bApp_ASC
+  b2bApp_DESC
   isTrustedBankAccountSource_ASC
   isTrustedBankAccountSource_DESC
   isHidden_ASC
@@ -11935,6 +11956,7 @@ input BillingIntegrationUpdateInput {
   dataFormat: BillingIntegrationDataFormatFieldInput
   currencyCode: BillingIntegrationCurrencyCodeType
   accessRights: BillingIntegrationAccessRightRelateToManyInput
+  b2bApp: B2BAppRelateToOneInput
   isTrustedBankAccountSource: Boolean
   isHidden: Boolean
   skipNoAccountNotifications: Boolean
@@ -11981,6 +12003,7 @@ input BillingIntegrationCreateInput {
   dataFormat: BillingIntegrationDataFormatFieldInput
   currencyCode: BillingIntegrationCurrencyCodeType
   accessRights: BillingIntegrationAccessRightRelateToManyInput
+  b2bApp: B2BAppRelateToOneInput
   isTrustedBankAccountSource: Boolean
   isHidden: Boolean
   skipNoAccountNotifications: Boolean
@@ -51469,13 +51492,6 @@ input MeterResourceRelateToOneInput {
   disconnectAll: Boolean
 }
 
-input B2BAppRelateToOneInput {
-  create: B2BAppCreateInput
-  connect: B2BAppWhereUniqueInput
-  disconnect: B2BAppWhereUniqueInput
-  disconnectAll: Boolean
-}
-
 enum MeterUnitTypeType {
   parking
   flat
@@ -73689,6 +73705,8 @@ type B2BAppAccessRightSetHistoryRecord {
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
   canExecuteRegisterPropertyMetersReadings: Boolean
+  canExecuteRegisterBillingReceipts: Boolean
+  canExecuteRegisterBillingReceiptFile: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -73817,6 +73835,10 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   canExecuteSendB2BAppPushMessage_not: Boolean
   canExecuteRegisterPropertyMetersReadings: Boolean
   canExecuteRegisterPropertyMetersReadings_not: Boolean
+  canExecuteRegisterBillingReceipts: Boolean
+  canExecuteRegisterBillingReceipts_not: Boolean
+  canExecuteRegisterBillingReceiptFile: Boolean
+  canExecuteRegisterBillingReceiptFile_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -73974,6 +73996,10 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
   canExecuteSendB2BAppPushMessage_DESC
   canExecuteRegisterPropertyMetersReadings_ASC
   canExecuteRegisterPropertyMetersReadings_DESC
+  canExecuteRegisterBillingReceipts_ASC
+  canExecuteRegisterBillingReceipts_DESC
+  canExecuteRegisterBillingReceiptFile_ASC
+  canExecuteRegisterBillingReceiptFile_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -74031,6 +74057,8 @@ input B2BAppAccessRightSetHistoryRecordUpdateInput {
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
   canExecuteRegisterPropertyMetersReadings: Boolean
+  canExecuteRegisterBillingReceipts: Boolean
+  canExecuteRegisterBillingReceiptFile: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -74089,6 +74117,8 @@ input B2BAppAccessRightSetHistoryRecordCreateInput {
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
   canExecuteRegisterPropertyMetersReadings: Boolean
+  canExecuteRegisterBillingReceipts: Boolean
+  canExecuteRegisterBillingReceiptFile: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -74188,6 +74218,8 @@ type B2BAppAccessRightSet {
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
   canExecuteRegisterPropertyMetersReadings: Boolean
+  canExecuteRegisterBillingReceipts: Boolean
+  canExecuteRegisterBillingReceiptFile: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -74308,6 +74340,10 @@ input B2BAppAccessRightSetWhereInput {
   canExecuteSendB2BAppPushMessage_not: Boolean
   canExecuteRegisterPropertyMetersReadings: Boolean
   canExecuteRegisterPropertyMetersReadings_not: Boolean
+  canExecuteRegisterBillingReceipts: Boolean
+  canExecuteRegisterBillingReceipts_not: Boolean
+  canExecuteRegisterBillingReceiptFile: Boolean
+  canExecuteRegisterBillingReceiptFile_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -74447,6 +74483,10 @@ enum SortB2BAppAccessRightSetsBy {
   canExecuteSendB2BAppPushMessage_DESC
   canExecuteRegisterPropertyMetersReadings_ASC
   canExecuteRegisterPropertyMetersReadings_DESC
+  canExecuteRegisterBillingReceipts_ASC
+  canExecuteRegisterBillingReceipts_DESC
+  canExecuteRegisterBillingReceiptFile_ASC
+  canExecuteRegisterBillingReceiptFile_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -74504,6 +74544,8 @@ input B2BAppAccessRightSetUpdateInput {
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
   canExecuteRegisterPropertyMetersReadings: Boolean
+  canExecuteRegisterBillingReceipts: Boolean
+  canExecuteRegisterBillingReceiptFile: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -74559,6 +74601,8 @@ input B2BAppAccessRightSetCreateInput {
   canExecuteRegisterMetersReadings: Boolean
   canExecuteSendB2BAppPushMessage: Boolean
   canExecuteRegisterPropertyMetersReadings: Boolean
+  canExecuteRegisterBillingReceipts: Boolean
+  canExecuteRegisterBillingReceiptFile: Boolean
   v: Int
   createdAt: String
   updatedAt: String

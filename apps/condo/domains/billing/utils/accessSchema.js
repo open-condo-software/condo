@@ -5,6 +5,8 @@ const { getById, find } = require('@open-condo/keystone/schema')
 
 const { SERVICE } = require('@condo/domains/user/constants/common')
 
+const { canExecuteServiceAsB2BAppServiceUser } = require('../../miniapp/utils/b2bAppServiceUserAccess/server.utils')
+
 async function checkBillingIntegrationsAccessRights (userId, integrationIds) {
     if (!userId) return false
     if (!isArray(integrationIds) || isEmpty(integrationIds) || !integrationIds.every(Boolean)) return false
@@ -19,6 +21,14 @@ async function checkBillingIntegrationsAccessRights (userId, integrationIds) {
     const nonPermittedIntegrations = integrationIds.filter(id => !permittedIntegrations.has(id))
 
     return isEmpty(nonPermittedIntegrations)
+}
+
+async function checkB2BAccessRightsToBillingContext (args, context) {
+    const integration = await getById('BillingIntegration', context.integration)
+    if (integration.b2bApp) {
+        return  await canExecuteServiceAsB2BAppServiceUser(args, context.organization)
+    }
+    return false
 }
 
 /**
@@ -98,6 +108,7 @@ async function canManageBillingEntityWithContext ({ authentication, operation, i
 
 module.exports = {
     checkBillingIntegrationsAccessRights,
+    checkB2BAccessRightsToBillingContext,
     canReadBillingEntity,
     canManageBillingEntityWithContext,
 }
