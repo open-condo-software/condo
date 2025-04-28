@@ -49,7 +49,7 @@ const GUARD_DEFAULT_WINDOW_LIMIT = 10
  */
 let customQuotas
 try {
-    customQuotas = conf.AUTH_GUARD_CUSTOM_QUOTAS ? JSON.parse(conf.AUTH_GUARD_CUSTOM_QUOTAS) : {}
+    customQuotas = JSON.parse(conf.AUTH_GUARD_CUSTOM_QUOTAS)
 } catch (e) {
     console.error('AUTH_GUARD_CUSTOM_QUOTAS could not be parsed!')
     console.error(e)
