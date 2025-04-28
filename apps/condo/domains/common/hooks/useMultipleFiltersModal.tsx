@@ -423,7 +423,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     const [form] = Form.useForm()
 
     const { selectedFiltersTemplate, setSelectedFiltersTemplate } = useMultipleFilterContext()
-    const [openedFiltersTemplate, setOpenedFiltersTemplate] = useState(
+    const [openedFiltersTemplate, setOpenedFiltersTemplate] = useState<typeof filtersSchemaGql>(
         isEqualSelectedFiltersTemplateAndFilters(selectedFiltersTemplate, filters) ? selectedFiltersTemplate : null
     )
 
@@ -686,7 +686,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         </TabPane>
     )), [ExistingFiltersTemplateNameInput, TemplateMessage, filtersTemplates])
 
-    const initialFormValues = useMemo(() => openedFiltersTemplate?.fields || filters, [filters, openedFiltersTemplate])
+    const initialFormValues = useMemo(() => openedFiltersTemplate?.fields, [openedFiltersTemplate])
     const modalComponents = useMemo(() => getModalComponents(pickBy(initialFormValues), filterMetas, form, breakpoints), [breakpoints, filterMetas, form, initialFormValues])
 
     const ModalFormItems = useCallback(() => {
