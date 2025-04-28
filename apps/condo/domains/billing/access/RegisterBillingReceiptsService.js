@@ -4,10 +4,11 @@
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
-const { checkBillingIntegrationsAccessRights } = require('@condo/domains/billing/utils/accessSchema')
+const { checkBillingIntegrationsAccessRights, checkB2BAccessRightsToBillingContext } = require('@condo/domains/billing/utils/accessSchema')
 const { SERVICE } = require('@condo/domains/user/constants/common')
 
-async function canRegisterBillingReceipts ({ authentication: { item: user }, args: { data: { context: { id: contextId } } } } ) {
+async function canRegisterBillingReceipts (args) {
+    const { authentication: { item: user }, args: { data: { context: { id: contextId } } } } = args
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
@@ -17,9 +18,15 @@ async function canRegisterBillingReceipts ({ authentication: { item: user }, arg
         if (!context) {
             return false
         }
-        return await checkBillingIntegrationsAccessRights(user.id, [context.integration])
+        const hasBillingAccess = await checkBillingIntegrationsAccessRights(user.id, [context.integration])
+        if (hasBillingAccess) {
+            return true
+        }
+        const hasB2BAccess = await checkB2BAccessRightsToBillingContext(args, context)
+        if (hasB2BAccess) {
+            return true
+        }
     }
-
     return false
 }
 
