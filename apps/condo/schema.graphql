@@ -82416,8 +82416,9 @@ type ResetUserOutput {
 }
 
 input GetAccessTokenByUserIdInput {
-  userId: ID!
-  type: String!
+  user: UserWhereUniqueInput!
+  type: ExternalTokenAccessRightTypeType!
+  organization: OrganizationWhereUniqueInput
 }
 
 type GetAccessTokenByUserIdOutput {
@@ -88012,7 +88013,7 @@ type Query {
   getPhoneByConfirmPhoneActionToken(data: GetPhoneByConfirmPhoneActionTokenInput!): GetPhoneByConfirmPhoneActionTokenOutput
 
   """
-  To get a token for a specific user, you need to call this query, specifying the required integration type and userId in the parameters. To pass the rights check, you need to request on behalf of the service user, and also have an entry in the ExternalTokenAccessRight table that regulates access to tokens of different integrations
+  To get a token for a specific user, you need to call this query, specifying the required integration type and userId in the parameters. For some integrations (like SBBOL) there are different accounts for the same user and different OrganizationsWe can pass organization.id together with user.id to get correct access tokenTo pass the rights check, you need to request on behalf of the service user,and also have an entry in the ExternalTokenAccessRight table that regulates access to tokens of different integrations
   
   **Errors**
   
@@ -88021,19 +88022,22 @@ type Query {
   `{
     "code": "INTERNAL_ERROR",
     "type": "REFRESH_TOKEN_EXPIRED",
-    "message": "SBBOL user refreshToken expired"
+    "message": "SBBOL user refreshToken expired",
+    "messageForUser": "The refresh token has expired. Please log in again."
   }`
   
   `{
     "code": "BAD_USER_INPUT",
-    "type": "INVALID_USER_ID",
-    "message": "Received userId must be uuid"
+    "type": "INVALID_USER_AND_ORGANIZATION_ID",
+    "message": "User do not have a connection to the organization",
+    "messageForUser": "The user does not belong to the specified organization."
   }`
   
   `{
     "code": "INTERNAL_ERROR",
     "type": "ERROR_GETTING_ACCESS_TOKEN",
-    "message": "Unresolved error in getAccessTokenForUser"
+    "message": "Unresolved error in getAccessTokenForUser",
+    "messageForUser": "An unknown error occurred while retrieving the access token."
   }`
   """
   getAccessTokenByUserId(data: GetAccessTokenByUserIdInput!): GetAccessTokenByUserIdOutput

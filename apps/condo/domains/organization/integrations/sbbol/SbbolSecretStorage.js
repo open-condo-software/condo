@@ -12,6 +12,7 @@ const SBBOL_REDIS_KEY_PREFIX = 'SBBOL'
 // Real TTL is 180 days, but it is updated every time the accessToken expires and we get a new pair
 const REFRESH_TOKEN_TTL_DAYS = 180
 const ACCESS_TOKEN_TTL_SEC = 3550
+const ACCESS_TOKEN_SECONDS_TO_FORCE_REFRESH = 300
 
 const logger = getLogger('sbbol/SbbolSecretStorage')
 
@@ -42,49 +43,60 @@ class SbbolSecretStorage {
         await this.#setValue('clientSecret:updatedAt', dayjs().toISOString())
     }
 
-    async getAccessToken (userId) {
-        if (!userId) throw new Error('userId is required for setAccessToken')
-        const key = `user:${userId}:accessToken`
+    async getAccessToken (userInfo = {}) {
+        if (!userInfo.userId) throw new Error('userId is required for setAccessToken')
+        const key = this.#getTokenKey(userInfo, 'accessToken')
         return {
             accessToken: await this.#getValue(key),
             ttl: await this.keyStorage.ttl(this.#scopedKey(key)),
         }
     }
 
+    #getTokenKey (userInfo, type) {
+        const { userId, organizationId } = userInfo
+        return [
+            'user',
+            userId,
+            ...organizationId ? [organizationId] : [],
+            type,
+        ].join(':')
+    }
+
     async setAccessToken (
         value,
-        userId,
+        userInfo = {},
         options,
     ) {
         if (!value) throw new Error('value is required for setAccessToken')
-        if (!userId) throw new Error('userId is required for setAccessToken')
+        if (!userInfo.userId) throw new Error('userId is required for setAccessToken')
+        const key = this.#getTokenKey(userInfo, 'accessToken')
 
-        await this.#setValue(`user:${userId}:accessToken`, value, { expiresAt: dayjs().add(ACCESS_TOKEN_TTL_SEC, 's').unix(), ...options })
-        await this.#setValue(`user:${userId}:accessToken:updatedAt`, dayjs().toISOString())
+        await this.#setValue(key, value, { expiresAt: dayjs().add(ACCESS_TOKEN_TTL_SEC - ACCESS_TOKEN_SECONDS_TO_FORCE_REFRESH, 's').unix(), ...options })
+        await this.#setValue(`${key}:updatedAt`, dayjs().toISOString())
     }
 
-    async isAccessTokenExpired (userId) {
-        return await this.#isExpired(`user:${userId}:accessToken`)
+    async isAccessTokenExpired (userInfo) {
+        return await this.#isExpired(this.#getTokenKey(userInfo, 'accessToken'))
     }
 
-    async getRefreshToken (userId) {
-        return this.#getValue(`user:${userId}:refreshToken`)
+    async getRefreshToken (userInfo) {
+        return this.#getValue(this.#getTokenKey(userInfo, 'refreshToken'))
     }
 
     async setRefreshToken (
         value,
-        userId,
+        userInfo = {},
     ) {
         if (!value) throw new Error('value is required for setRefreshToken')
-        if (!userId) throw new Error('userId is required for setRefreshToken')
-
+        if (!userInfo.userId) throw new Error('userId is required for setRefreshToken')
+        const key = this.#getTokenKey(userInfo, 'refreshToken')
         const options = { expiresAt: dayjs().add(REFRESH_TOKEN_TTL_DAYS, 'days').unix() }
-        await this.#setValue(`user:${userId}:refreshToken`, value, options)
-        await this.#setValue(`user:${userId}:refreshToken:updatedAt`, dayjs().toISOString())
+        await this.#setValue(key, value, options)
+        await this.#setValue(`${key}:updatedAt`, dayjs().toISOString())
     }
 
-    async isRefreshTokenExpired (userId) {
-        return await this.#isExpired(`user:${userId}:refreshToken`)
+    async isRefreshTokenExpired (userInfo) {
+        return await this.#isExpired(this.#getTokenKey(userInfo, 'refreshToken'))
     }
 
     async setOrganization (id) {
