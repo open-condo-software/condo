@@ -357,6 +357,7 @@ const ClientCardTabContent = ({
         }
 
         return {
+            ...searchTicketsQuery,
             property: { id: property?.id },
             unitName,
             unitType,
@@ -755,15 +756,17 @@ const ClientCardPageContent = ({
         const property = tabDataWithProperty?.property
         const organization = tabDataWithProperty?.organization
         const contact = tabDataWithProperty?.contact
+        const tabSectionType = sectionType ?? tabDataWithProperty?.sectionType
+        const tabSectionName = sectionName ?? tabDataWithProperty?.sectionName
 
         if (property) {
-            const key = getClientCardTabKey(property?.id, type, unitName, unitType, sectionName, sectionType)
+            const key = getClientCardTabKey(property?.id, type, unitName, unitType, tabSectionName, tabSectionType)
             const newRoute = `${router.route.replace('[number]', phoneNumber)}?tab=${key}`
             router.push(newRoute, undefined, { shallow: true })
 
-            setActiveTabData({ type, property, unitName, unitType, organization, contact, sectionType, sectionName })
+            setActiveTabData({ type, property, unitName, unitType, organization, contact, sectionType: tabSectionType, sectionName: tabSectionName })
         }
-    }, [tab, tabsData])
+    }, [tab, tabsData, phoneNumber])
 
     const handleTabChange = useCallback(async (newKey) => {
         const newRoute = `${router.route.replace('[number]', phoneNumber)}?tab=${newKey}`
