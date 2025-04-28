@@ -7,7 +7,10 @@ const {
     updateTestB2BAppAccessRightSet,
 } = require('@condo/domains/miniapp/utils/testSchema')
 const { makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
-
+const {
+    ACCESS_RIGHT_SET_GLOBAL_TYPE,
+    ACCESS_RIGHT_SET_SCOPED_TYPE,
+} = require('@condo/domains/miniapp/constants')
 const { OrganizationTestMixin } = require('./organization')
 const { CONTEXT_FINISHED_STATUS } = require("@condo/domains/miniapp/constants")
 
@@ -28,10 +31,10 @@ const B2BAppTestMixin = {
                 canReadB2BAccessTokens: true,
                 canManageB2BAccessTokens: true,
                 ...B2B_INTEGRATION_SET,
-                type: 'GLOBAL'
+                type: ACCESS_RIGHT_SET_GLOBAL_TYPE
             })
         await createTestB2BAppAccessRight(this.clients.support, this.clients.b2bServiceUser.user, b2bApp, rightSet)
-        const [tokenRightSet] = await createTestB2BAppAccessRightSet(this.clients.support, b2bApp, { ...B2B_INTEGRATION_SET, type: 'SCOPED' })
+        const [tokenRightSet] = await createTestB2BAppAccessRightSet(this.clients.support, b2bApp, { ...B2B_INTEGRATION_SET, type: ACCESS_RIGHT_SET_SCOPED_TYPE })
         this.b2bApp = b2bApp
         this.b2bRighSet = rightSet
         this.tokenRightSet = tokenRightSet
@@ -46,7 +49,6 @@ const B2BAppTestMixin = {
     async updateTokenRightSet (updateInput) {
         return await updateTestB2BAppAccessRightSet(this.clients.support, this.tokenRightSet.id, updateInput)
     },
-
 
 }
 

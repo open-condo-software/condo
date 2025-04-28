@@ -3,9 +3,9 @@ const { get, uniq, isArray, isEmpty } = require('lodash')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById, find } = require('@open-condo/keystone/schema')
 
+const { canExecuteServiceAsB2BAppServiceUser } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess/server.utils')
 const { SERVICE } = require('@condo/domains/user/constants/common')
 
-const { canExecuteServiceAsB2BAppServiceUser } = require('../../miniapp/utils/b2bAppServiceUserAccess/server.utils')
 
 async function checkBillingIntegrationsAccessRights (userId, integrationIds) {
     if (!userId) return false
