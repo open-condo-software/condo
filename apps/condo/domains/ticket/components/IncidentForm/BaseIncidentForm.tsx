@@ -328,7 +328,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     const initialIncidentOrganization = useMemo(() => initialValues?.organization?.name || null, [initialValues])
     const initialIncidentProperties = useMemo(() => initialValues?.incidentProperties || [], [initialValues])
     const initialIncidentClassifiers = useMemo(() => initialValues?.incidentClassifiers || [], [initialValues])
-    const initialPropertyIds = useMemo(() => initialIncidentProperties.map(item => item?.id || null).filter(Boolean), [initialIncidentProperties])
+    const initialPropertyIds = useMemo(() => initialIncidentProperties.map(item => item?.property?.id || null).filter(Boolean), [initialIncidentProperties])
     const initialPropertyIdsWithDeleted = useMemo(() => initialIncidentProperties.map(item => getPropertyKey(item)), [initialIncidentProperties])
     const initialClassifierIds = useMemo(() => initialIncidentClassifiers.map(item => item?.classifier?.id || null), [initialIncidentClassifiers])
 
