@@ -28,7 +28,6 @@ query getPollTicketComments ($where: TicketCommentWhereInput!, $first: Int!) {
     ) {
         id
         updatedAt
-        content
         ticket { id }
     }
 }

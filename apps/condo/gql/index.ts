@@ -904,7 +904,6 @@ export const GetContactForClientCardDocument = gql`
         parking {
           ...SectionOrParkingInfo
         }
-        dv
       }
     }
   }
@@ -5673,7 +5672,6 @@ export const GetPollTicketCommentsDocument = gql`
   ) {
     id
     updatedAt
-    content
     ticket {
       id
     }

@@ -86,7 +86,6 @@ query getContactForClientCard($where: ContactWhereInput, $first: Int!, $skip: In
                 parking {
                     ...SectionOrParkingInfo
                 }
-                dv
             }
         }
     }
