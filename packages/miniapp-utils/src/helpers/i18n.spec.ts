@@ -129,8 +129,8 @@ describe('TranslationsHelper', () => {
                     // Different match case
                     [['en', 'es', 'ru'], 'en-GB,en-US;q=0.9,en;q=0.8', 'en', 'en-GB'],
                     // Partial match case
-                    [['en', 'zh-Hant', 'zh'], 'zh-Hant-TW', 'zh-Hant', 'zh-Hant-TW'],
-                    [['en', 'zh-Hant', 'zh'], 'zh-Hans-CN', 'zh', 'zh-Hans-CN'],
+                    [['en', 'zh-Hans', 'zh'], 'zh-Hans-CN', 'zh-Hans', 'zh-Hans-CN'],
+                    [['en', 'zh-Hans', 'zh'], 'zh-Hant-TW', 'zh', 'zh-Hant-TW'],
                 ]
 
                 test.each(cases)('Available: %p, requesting: %p', (locales, requestedLocales, expectedSelection, expectedMatch) => {
