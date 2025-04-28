@@ -179,8 +179,8 @@ export const mapSearchItemToOption = (item, phone, type) => (
     </Select.Option>
 )
 
-export const getClientCardTabKey = (propertyId: string, type: ClientType, unitName?: string, unitType?: string): string => {
-    const keyData = { property: propertyId, unitName, unitType, type }
+export const getClientCardTabKey = (propertyId: string, type: ClientType, unitName?: string, unitType?: string, sectionName?: string, sectionType?: string): string => {
+    const keyData = { property: propertyId, unitName, unitType, type, sectionName, sectionType }
 
     return JSON.stringify(keyData)
 }

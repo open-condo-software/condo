@@ -897,10 +897,19 @@ export const GetContactForClientCardDocument = gql`
       addressMeta {
         ...AddressMetaForTableAddress
       }
+      map {
+        sections {
+          ...SectionOrParkingInfo
+        }
+        parking {
+          ...SectionOrParkingInfo
+        }
+      }
     }
   }
 }
-    ${AddressMetaForTableAddressFragmentDoc}`;
+    ${AddressMetaForTableAddressFragmentDoc}
+${SectionOrParkingInfoFragmentDoc}`;
 
 /**
  * __useGetContactForClientCardQuery__
@@ -4727,6 +4736,111 @@ export type GetTicketsQueryHookResult = ReturnType<typeof useGetTicketsQuery>;
 export type GetTicketsLazyQueryHookResult = ReturnType<typeof useGetTicketsLazyQuery>;
 export type GetTicketsSuspenseQueryHookResult = ReturnType<typeof useGetTicketsSuspenseQuery>;
 export type GetTicketsQueryResult = Apollo.QueryResult<Types.GetTicketsQuery, Types.GetTicketsQueryVariables>;
+export const GetTicketsForClientCardDocument = gql`
+    query getTicketsForClientCard($where: TicketWhereInput!, $sortBy: [SortTicketsBy!], $first: Int!, $skip: Int) {
+  tickets: allTickets(where: $where, sortBy: $sortBy, first: $first, skip: $skip) {
+    id
+    number
+    createdAt
+    lastCommentAt
+    propertyAddressMeta {
+      ...AddressMetaForTableAddress
+    }
+    propertyAddress
+    sectionType
+    sectionName
+    floorName
+    unitType
+    unitName
+    details
+    clientName
+    clientPhone
+    clientEmail
+    classifier {
+      id
+      category {
+        id
+        name
+      }
+      place {
+        id
+        name
+      }
+    }
+    contact {
+      id
+      name
+    }
+    organization {
+      id
+      name
+      phoneNumberPrefix
+    }
+    property {
+      id
+      deletedAt
+      address
+      addressMeta {
+        ...AddressMetaForTableAddress
+      }
+      map {
+        sections {
+          ...SectionOrParkingInfo
+        }
+        parking {
+          ...SectionOrParkingInfo
+        }
+      }
+    }
+    status {
+      id
+      type
+      name
+      colors {
+        primary
+        secondary
+      }
+    }
+  }
+}
+    ${AddressMetaForTableAddressFragmentDoc}
+${SectionOrParkingInfoFragmentDoc}`;
+
+/**
+ * __useGetTicketsForClientCardQuery__
+ *
+ * To run a query within a React component, call `useGetTicketsForClientCardQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetTicketsForClientCardQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetTicketsForClientCardQuery({
+ *   variables: {
+ *      where: // value for 'where'
+ *      sortBy: // value for 'sortBy'
+ *      first: // value for 'first'
+ *      skip: // value for 'skip'
+ *   },
+ * });
+ */
+export function useGetTicketsForClientCardQuery(baseOptions: Apollo.QueryHookOptions<Types.GetTicketsForClientCardQuery, Types.GetTicketsForClientCardQueryVariables> & ({ variables: Types.GetTicketsForClientCardQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetTicketsForClientCardQuery, Types.GetTicketsForClientCardQueryVariables>(GetTicketsForClientCardDocument, options);
+      }
+export function useGetTicketsForClientCardLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetTicketsForClientCardQuery, Types.GetTicketsForClientCardQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetTicketsForClientCardQuery, Types.GetTicketsForClientCardQueryVariables>(GetTicketsForClientCardDocument, options);
+        }
+export function useGetTicketsForClientCardSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetTicketsForClientCardQuery, Types.GetTicketsForClientCardQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetTicketsForClientCardQuery, Types.GetTicketsForClientCardQueryVariables>(GetTicketsForClientCardDocument, options);
+        }
+export type GetTicketsForClientCardQueryHookResult = ReturnType<typeof useGetTicketsForClientCardQuery>;
+export type GetTicketsForClientCardLazyQueryHookResult = ReturnType<typeof useGetTicketsForClientCardLazyQuery>;
+export type GetTicketsForClientCardSuspenseQueryHookResult = ReturnType<typeof useGetTicketsForClientCardSuspenseQuery>;
+export type GetTicketsForClientCardQueryResult = Apollo.QueryResult<Types.GetTicketsForClientCardQuery, Types.GetTicketsForClientCardQueryVariables>;
 export const CheckTicketExistenceDocument = gql`
     query checkTicketExistence($where: TicketWhereInput!) {
   tickets: allTickets(where: $where, first: 1) {
@@ -5598,6 +5712,54 @@ export type GetPollTicketCommentsQueryHookResult = ReturnType<typeof useGetPollT
 export type GetPollTicketCommentsLazyQueryHookResult = ReturnType<typeof useGetPollTicketCommentsLazyQuery>;
 export type GetPollTicketCommentsSuspenseQueryHookResult = ReturnType<typeof useGetPollTicketCommentsSuspenseQuery>;
 export type GetPollTicketCommentsQueryResult = Apollo.QueryResult<Types.GetPollTicketCommentsQuery, Types.GetPollTicketCommentsQueryVariables>;
+export const GetTicketCommentsForClientCardDocument = gql`
+    query getTicketCommentsForClientCard($where: TicketCommentWhereInput!, $first: Int!) {
+  ticketComments: allTicketComments(
+    where: $where
+    first: $first
+    sortBy: [updatedAt_DESC]
+  ) {
+    content
+    ticket {
+      id
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetTicketCommentsForClientCardQuery__
+ *
+ * To run a query within a React component, call `useGetTicketCommentsForClientCardQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetTicketCommentsForClientCardQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetTicketCommentsForClientCardQuery({
+ *   variables: {
+ *      where: // value for 'where'
+ *      first: // value for 'first'
+ *   },
+ * });
+ */
+export function useGetTicketCommentsForClientCardQuery(baseOptions: Apollo.QueryHookOptions<Types.GetTicketCommentsForClientCardQuery, Types.GetTicketCommentsForClientCardQueryVariables> & ({ variables: Types.GetTicketCommentsForClientCardQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetTicketCommentsForClientCardQuery, Types.GetTicketCommentsForClientCardQueryVariables>(GetTicketCommentsForClientCardDocument, options);
+      }
+export function useGetTicketCommentsForClientCardLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetTicketCommentsForClientCardQuery, Types.GetTicketCommentsForClientCardQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetTicketCommentsForClientCardQuery, Types.GetTicketCommentsForClientCardQueryVariables>(GetTicketCommentsForClientCardDocument, options);
+        }
+export function useGetTicketCommentsForClientCardSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetTicketCommentsForClientCardQuery, Types.GetTicketCommentsForClientCardQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetTicketCommentsForClientCardQuery, Types.GetTicketCommentsForClientCardQueryVariables>(GetTicketCommentsForClientCardDocument, options);
+        }
+export type GetTicketCommentsForClientCardQueryHookResult = ReturnType<typeof useGetTicketCommentsForClientCardQuery>;
+export type GetTicketCommentsForClientCardLazyQueryHookResult = ReturnType<typeof useGetTicketCommentsForClientCardLazyQuery>;
+export type GetTicketCommentsForClientCardSuspenseQueryHookResult = ReturnType<typeof useGetTicketCommentsForClientCardSuspenseQuery>;
+export type GetTicketCommentsForClientCardQueryResult = Apollo.QueryResult<Types.GetTicketCommentsForClientCardQuery, Types.GetTicketCommentsForClientCardQueryVariables>;
 export const UpdateTicketCommentDocument = gql`
     mutation updateTicketComment($id: ID!, $data: TicketCommentUpdateInput!) {
   ticketComment: updateTicketComment(id: $id, data: $data) {

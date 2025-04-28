@@ -79,6 +79,14 @@ query getContactForClientCard($where: ContactWhereInput, $first: Int!, $skip: In
             id
             address
             addressMeta { ...AddressMetaForTableAddress }
+            map {
+                sections {
+                    ...SectionOrParkingInfo
+                }
+                parking {
+                    ...SectionOrParkingInfo
+                }
+            }
         }
     }
 }
