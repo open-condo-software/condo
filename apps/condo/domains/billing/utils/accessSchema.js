@@ -3,6 +3,7 @@ const { get, uniq, isArray, isEmpty } = require('lodash')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById, find } = require('@open-condo/keystone/schema')
 
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/billing/constants/constants')
 const { canExecuteServiceAsB2BAppServiceUser } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess/server.utils')
 const { SERVICE } = require('@condo/domains/user/constants/common')
 
@@ -21,6 +22,17 @@ async function checkBillingIntegrationsAccessRights (userId, integrationIds) {
     const nonPermittedIntegrations = integrationIds.filter(id => !permittedIntegrations.has(id))
 
     return isEmpty(nonPermittedIntegrations)
+}
+
+async function getValidBillingContextForReceiptsPublish (contextId) {
+    const [context] = await find('BillingIntegrationOrganizationContext', {
+        id: contextId,
+        deletedAt: null,
+        integration: {  deletedAt: null },
+        organization: { deletedAt: null },
+        status: CONTEXT_FINISHED_STATUS,
+    })
+    return context
 }
 
 async function checkB2BAccessRightsToBillingContext (args, context) {
@@ -111,6 +123,7 @@ module.exports = {
     checkB2BAccessRightsToBillingContext,
     canReadBillingEntity,
     canManageBillingEntityWithContext,
+    getValidBillingContextForReceiptsPublish,
 }
 
 
