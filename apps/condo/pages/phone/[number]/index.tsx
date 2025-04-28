@@ -1,18 +1,19 @@
-import { useGetContactForClientCardQuery, useGetTicketsQuery, useGetEmployeesForClientCardQuery } from '@app/condo/gql'
+import {
+    GetTicketsForClientCardQuery,
+    useGetContactForClientCardQuery,
+    useGetEmployeesForClientCardQuery,
+    useGetTicketsForClientCardQuery,
+} from '@app/condo/gql'
 import {
     BuildingUnitSubType,
     Contact as ContactType,
     Organization as OrganizationType,
     Property,
     SortTicketsBy,
-    Ticket as TicketType,
 } from '@app/condo/schema'
-import styled from '@emotion/styled'
 import { Col, ColProps, Row, RowProps } from 'antd'
 import { CarouselRef } from 'antd/es/carousel'
-import { EllipsisConfig } from 'antd/es/typography/Base'
-import get from 'lodash/get'
-import isEmpty from 'lodash/isEmpty'
+import { EllipsisConfig } from 'antd/lib/typography/Base'
 import uniqBy from 'lodash/uniqBy'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -21,19 +22,16 @@ import React, { CSSProperties, useCallback, useEffect, useLayoutEffect, useMemo,
 
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
-import { History, Mail } from '@open-condo/icons'
+import { ExternalLink, History, Mail, PlusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Button, Carousel, Space, Typography } from '@open-condo/ui'
+import { ActionBar, Button, Carousel, Space, Tabs, Typography } from '@open-condo/ui'
 
-import { Button as DeprecatedButton } from '@condo/domains/common/components/Button'
 import { PageContent, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { BuildingIcon } from '@condo/domains/common/components/icons/BuildingIcon'
-import { PlusIcon } from '@condo/domains/common/components/icons/PlusIcon'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { Tag } from '@condo/domains/common/components/Tag'
-import { colors, gradients, shadows, transitions } from '@condo/domains/common/constants/style'
 import { PageComponentType } from '@condo/domains/common/types'
 import { renderPhone } from '@condo/domains/common/utils/Renders'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
@@ -45,10 +43,39 @@ import { TicketResidentFeatures } from '@condo/domains/ticket/components/TicketI
 import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintCard'
 import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
 import { useClientCardTicketTableColumns } from '@condo/domains/ticket/hooks/useClientCardTicketTableColumns'
-import { CallRecordFragment, Ticket } from '@condo/domains/ticket/utils/clientSchema'
-
+import { CallRecordFragment } from '@condo/domains/ticket/utils/clientSchema'
+import { getSectionAndFloorByUnitName } from '@condo/domains/ticket/utils/unit'
+import './index.css'
 
 //#region Constants, types and styles
+type TabDataType = {
+    type: ClientType
+    property: Property
+    unitName: string
+    unitType: string
+    sectionType: string
+    sectionName: string
+    organization: OrganizationType
+    contact?: Pick<ContactType, 'name' | 'id'>
+}
+
+type ClientContactPropsType = {
+    phone: string
+    lastTicket: GetTicketsForClientCardQuery['tickets'][number]
+    contact?: ContactType & { isEmployee?: boolean }
+    type: ClientType
+    showOrganizationMessage: boolean
+}
+
+export type TabKey = 'contactPropertyTickets' | 'residentsEntranceTickets' | 'residentsPropertyTickets'
+type TabsItems = { key: TabKey, label: string }[]
+
+const MAX_TABLE_SIZE = 20
+
+export const CONTACT_PROPERTY_TICKETS_TAB = 'contactPropertyTickets'
+const RESIDENTS_PROPERTY_TICKETS_TAB = 'residentsPropertyTickets'
+const RESIDENTS_ENTRANCE_TICKETS_TAB = 'residentsEntranceTickets'
+const tableTabs: Array<TabKey> =  [CONTACT_PROPERTY_TICKETS_TAB, RESIDENTS_ENTRANCE_TICKETS_TAB, RESIDENTS_PROPERTY_TICKETS_TAB]
 const ADDRESS_STREET_ONE_ROW_HEIGHT = 25
 const ADDRESS_POSTFIX_ONE_ROW_HEIGHT = 22
 
@@ -58,149 +85,25 @@ const ROW_MEDIUM_GUTTER: RowProps['gutter'] = [0, 40]
 const ROW_MEDIUM_SMALL_GUTTER: RowProps['gutter'] = [0, 24]
 const HINT_CARD_STYLE = { maxHeight: '3em' }
 const TICKET_SORT_BY = [SortTicketsBy.CreatedAtDesc]
-const PLUS_ICON_WRAPPER_CLASS = 'plusIconWrapper'
-const ADD_ADDRESS_TAB_KEY = 'addAddress'
 const HINTS_COL_PROPS: ColProps = { span: 24 }
 
-interface IClientContactProps {
-    phone: string
-    lastTicket: TicketType
-    contact?: ContactType
-    showOrganizationMessage?: boolean
+const getMapData = async (cardsData) => {
+    return cardsData.map((tab) => {
+        if (tab.unitName && tab.unitType && tab.floorName) return tab
+
+        const section = getSectionAndFloorByUnitName(tab.property, tab.unitName, tab.unitType)
+
+        return { ...tab, ...section }
+    })
 }
 
-type TabDataType = {
-    type: ClientType
-    property: Property
-    unitName: string
-    unitType: string
-    organization: OrganizationType
-    contact?: Pick<ContactType, 'name' | 'id' | 'name'>
-}
-
-const StyledCarouselWrapper = styled(Col)`
-  & .condo-carousel {
-    background: none;
-    padding: 0;
-    transform: translateX(-12px);
-
-    & .slick-list {
-      width: calc(100% + 24px);
-      margin: 0;
-
-      & .slick-track {
-        & .slick-slide {
-          padding: 0 12px;
-
-          & > div {
-            margin: 0;
-            overflow: initial;
-          }
-        }
-      }
-    }
-
-    & .slick-prev {
-      left: -8px !important;
-    }
-
-    & .slick-next {
-      right: -32px !important;
-    }
-  }
-`
-const StyledAddressTabWrapper = styled.div<{ active: boolean }>`
-  height: 165px;
-  border-radius: 12px;
-  background: ${props => props.active ? gradients.sberActionGradient : 'inherit'};
-  padding: 1px;
-  border: 1px solid ${colors.backgroundWhiteSecondary};
-  box-shadow: ${props => props.active ? shadows.main : 'inherit'};
-  transition: ${transitions.allDefault};
-
-  & > div {
-    border-radius: 11px;
-    height: 100%;
-    padding: 20px;
-    background-color: ${colors.white};
-  }
-
-  &:hover {
-    cursor: pointer;
-    box-shadow: ${shadows.main};
-  }
-`
-const StyledAddressTabContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  row-gap: 12px;
-`
-const StyledAddAddressButton = styled(DeprecatedButton)`
-  height: 165px;
-  width: 100%;
-  border: 1px dashed ${colors.inputBorderHover};
-  border-radius: 12px;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-
-  & .anticon {
-    margin: 0;
-  }
-
-  &:hover {
-    border-color: ${colors.inputBorderHover};
-    box-shadow: ${shadows.main};
-
-    & .${PLUS_ICON_WRAPPER_CLASS} {
-      background-color: ${colors.black};
-      color: ${colors.white};
-    }
-  }
-`
-const PlusIconWrapper = styled.div`
-  width: 40px;
-  height: 40px;
-  border-radius: 100px;
-  background-color: ${colors.backgroundLightGrey};
-  color: ${colors.black};
-  transition: inherit;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`
-//#endregion
-
-//#region AddAddress and Client Address cards
-const AddAddressCard = ({ onClick }) => {
+const ClientAddressCard = ({ onClick, active, property, organization, unitName, floorName, unitType, sectionName }) => {
     const intl = useIntl()
-    const AddAddressMessage = intl.formatMessage({ id: 'pages.clientCard.addAddress' })
-
-    return (
-        <StyledAddAddressButton onClick={onClick}>
-            <Space size={12} direction='vertical' align='center'>
-                <PlusIconWrapper className={PLUS_ICON_WRAPPER_CLASS}>
-                    <PlusIcon/>
-                </PlusIconWrapper>
-                <Typography.Paragraph>
-                    {AddAddressMessage}
-                </Typography.Paragraph>
-            </Space>
-        </StyledAddAddressButton>
-    )
-}
-
-const ClientAddressCard = ({ onClick, active, type, property, unitName, unitType, isEmployee }) => {
-    const intl = useIntl()
-    const ContactMessage = intl.formatMessage({ id: 'Contact' })
-    const NotResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.isResidentContact.false' })
-    const EmployeeMessage = intl.formatMessage({ id: 'Employee' })
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
     const FlatMessage = intl.formatMessage({ id: 'field.ShortFlatNumber' })
     const ParkingMessage = intl.formatMessage({ id: 'field.UnitType.prefix.parking' })
+    const FloorMessage = intl.formatMessage({ id: 'field.ShortFloorName' })
+    const SectionMessage = intl.formatMessage({ id: 'field.ShortSectionName' })
 
     const addressStreetRef = useRef<HTMLDivElement>()
     const addressPostfixRef = useRef<HTMLDivElement>()
@@ -221,32 +124,50 @@ const ClientAddressCard = ({ onClick, active, type, property, unitName, unitType
         }
     }, [])
 
-    const typeToMessage = useMemo(() => ({
-        [ClientType.Resident]: ContactMessage,
-        [ClientType.NotResident]: isEmployee ? EmployeeMessage : NotResidentMessage,
-    }), [ContactMessage, EmployeeMessage, NotResidentMessage, isEmployee])
-
     const { text, postfix } = getPropertyAddressParts(property, DeletedMessage)
     const unitNamePrefix = unitType === BuildingUnitSubType.Parking ? ParkingMessage : FlatMessage
-    const streetAndFlatMessage = unitName ? `${text} ${unitNamePrefix} ${unitName}` : text.substring(0, text.length - 1)
+    const streetMessage = unitName ? text : text.substring(0, text.length - 1)
 
     return (
-        <StyledAddressTabWrapper active={active} onClick={onClick}>
-            <StyledAddressTabContent>
-                <div>
-                    <Tag type='gray' style={TAG_STYLE}>
-                        {typeToMessage[type]}
-                    </Tag>
-                </div>
+        <div data-active={active} className='address-tab-wrapper' onClick={onClick}>
+            <div className='address-tab-content'>
                 <Space size={8} direction='vertical'>
                     <Typography.Paragraph
+                        size='large'
+                        ellipsis={{ rows: 2 }}
+                        type='secondary'
+                    >
+                        {organization.name}
+                    </Typography.Paragraph>
+
+                    <Typography.Text
                         ref={addressStreetRef}
                         ellipsis={addressStreetEllipsis}
-                        title={streetAndFlatMessage}
+                        title={streetMessage}
                         strong
                     >
-                        {streetAndFlatMessage}
-                    </Typography.Paragraph>
+                        {streetMessage}
+                    </Typography.Text>
+
+                    { floorName || sectionName || unitName ? (
+                        <Row style={{ gap: 4 }}>
+                            <Typography.Text
+                                ref={addressStreetRef}
+                                ellipsis={addressStreetEllipsis}
+                                title={streetMessage}
+                                strong
+                            >
+                                {unitNamePrefix} {unitName}
+                            </Typography.Text>
+
+                            {sectionName && floorName && (
+                                <Typography.Text type='secondary'>
+                                    ({SectionMessage} {sectionName}, {FloorMessage} {floorName})
+                                </Typography.Text>
+                            )}
+                        </Row>
+                    ) : null}
+
                     <Typography.Paragraph
                         size='medium'
                         ref={addressPostfixRef}
@@ -257,22 +178,41 @@ const ClientAddressCard = ({ onClick, active, type, property, unitName, unitType
                         {postfix}
                     </Typography.Paragraph>
                 </Space>
-            </StyledAddressTabContent>
-        </StyledAddressTabWrapper>
+            </div>
+        </div>
     )
 }
 //#endregion
 
 //#region Contact and Not resident client Tab content
-const ClientContent: React.FC<IClientContactProps> = ({ lastTicket, contact, showOrganizationMessage, phone }) => {
+const ClientContent: React.FC<ClientContactPropsType> = ({ lastTicket, contact, type, phone, showOrganizationMessage }) => {
     const intl = useIntl()
     const CallRecordsLogMessage = intl.formatMessage({ id: 'pages.clientCard.callRecordsLog' })
+    const ContactMessage = intl.formatMessage({ id: 'Contact' })
+    const NotResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.isResidentContact.false' })
+    const EmployeeMessage = intl.formatMessage({ id: 'Employee' })
 
-    const name = get(contact, 'name', get(lastTicket, 'clientName'))
-    const email = get(contact, 'email', get(lastTicket, 'clientEmail'))
-    const organizationName = get(contact, 'organization.name', get(lastTicket, 'organization.name'))
+    const isEmployee = contact?.isEmployee
 
-    const propertyId = get(contact, 'property.id', get(lastTicket, 'property.id', null))
+    const name = useMemo(
+        () => contact?.name ?? lastTicket?.clientName,
+        [contact?.name, lastTicket?.clientName]
+    )
+
+    const email = useMemo(
+        () => contact?.email ?? lastTicket?.clientEmail,
+        [contact?.email, lastTicket?.clientEmail]
+    )
+
+    const propertyId = useMemo(
+        () => contact?.property?.id ?? lastTicket?.property?.id,
+        [contact?.property?.id, lastTicket?.property?.id]
+    )
+
+    const organizationName = useMemo(
+        () => contact?.organization?.name ?? lastTicket?.organization?.name,
+        [contact?.organization?.name, lastTicket?.organization?.name]
+    )
 
     const {
         count,
@@ -301,25 +241,35 @@ const ClientContent: React.FC<IClientContactProps> = ({ lastTicket, contact, sho
         }
     }, [phone, propertyId])
 
+    const typeToMessage = useMemo(() => ({
+        [ClientType.Resident]: ContactMessage,
+        [ClientType.NotResident]: isEmployee ? EmployeeMessage : NotResidentMessage,
+    }), [ContactMessage, EmployeeMessage, NotResidentMessage, isEmployee])
+
     return (
         <Row gutter={ROW_MEDIUM_SMALL_GUTTER}>
             <Col span={24}>
-                <Space size={12} direction='vertical'>
-                    <Space size={24} direction='horizontal'>
-                        <Typography.Title level={2}>{name}</Typography.Title>
+                <Space size={12} direction='vertical' >
+                    <Space size={24} direction='horizontal' >
+                        <Typography.Title level={2}>
+                            {name}
+                        </Typography.Title>
+                        <Tag type='gray' style={TAG_STYLE}>
+                            {typeToMessage[type]}
+                        </Tag>
                         {
                             lastTicket && (
                                 <TicketResidentFeatures ticket={lastTicket}/>
                             )
                         }
+                        {
+                            showOrganizationMessage && (
+                                <Typography.Text strong type='secondary' size='medium'>
+                                    {organizationName}
+                                </Typography.Text>
+                            )
+                        }
                     </Space>
-                    {
-                        showOrganizationMessage && (
-                            <Typography.Text strong type='secondary' size='medium'>
-                                {organizationName}
-                            </Typography.Text>
-                        )
-                    }
                 </Space>
             </Col>
             {
@@ -361,41 +311,76 @@ const ClientContent: React.FC<IClientContactProps> = ({ lastTicket, contact, sho
 const ClientCardTabContent = ({
     phone,
     property,
-    searchTicketsQuery,
+    searchTicketsQuery = null,
     handleTicketCreateClick,
     canManageContacts,
+    showOrganizationMessage = false,
     handleContactEditClick = null,
     contact = null,
-    showOrganizationMessage = false,
     organization,
+    sectionName,
+    type,
+    sectionType,
+    unitName,
+    unitType,
 }) => {
     const intl = useIntl()
     const ShowAllPropertyTicketsMessage = intl.formatMessage({ id: 'pages.clientCard.showAllPropertyTickets' })
-    const ContactTicketsMessage = intl.formatMessage({ id: 'pages.clientCard.contactTickets' })
     const CreateTicketMessage = intl.formatMessage({ id: 'CreateTicket' })
     const EditContactMessage = intl.formatMessage({ id: 'pages.clientCard.editContact' })
+    const LastTicketsLoadedMessage = intl.formatMessage({ id: 'pages.clientCard.lastTicketsLoaded' }, { count: MAX_TABLE_SIZE })
+    const OpenAllTicketsMessage = intl.formatMessage({ id: 'pages.clientCard.openAllTickets' })
+
+    const tabsItems: TabsItems = useMemo(()=>tableTabs.map(el => ({
+        label: intl.formatMessage({ id: `pages.clientCard.table.tabs.${el}` }),
+        key: el,
+    })), [intl])
+
+    const [currentTableTab, setCurrentTableTab] = useState<TabKey>('contactPropertyTickets')
 
     const router = useRouter()
 
     const { offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
-    const {
-        loading: isTicketsFetching,
-        count: total,
-        objs: tickets,
-    } = Ticket.useObjects({
-        sortBy: TICKET_SORT_BY,
-        where: searchTicketsQuery,
-        first: DEFAULT_PAGE_SIZE,
-        skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
-    }, {
-        fetchPolicy: 'cache-first',
-    })
-    const lastCreatedTicket = get(tickets, 0)
-    const propertyId = useMemo(() => get(property, 'id', null), [property])
-    const organizationId = useMemo(() => get(organization, 'id'), [organization])
 
-    const columns = useClientCardTicketTableColumns(tickets)
+    const searchQuery = useMemo(() => {
+        if (currentTableTab === RESIDENTS_ENTRANCE_TICKETS_TAB) {
+            return {
+                property: { id: property?.id },
+                sectionName,
+                sectionType,
+            }
+        }
+
+        if (currentTableTab === RESIDENTS_PROPERTY_TICKETS_TAB) {
+            return { property: { id: property?.id } }
+        }
+
+        return {
+            property: { id: property?.id },
+            unitName,
+            unitType,
+            contact: { id: contact?.id },
+        }
+    }, [searchTicketsQuery, currentTableTab, unitType, unitName, property?.id, sectionName, sectionType ])
+
+    const { data: ticketsQuery, loading: isTicketsFetching } = useGetTicketsForClientCardQuery({
+        variables: {
+            where: searchQuery,
+            first: MAX_TABLE_SIZE,
+            sortBy: TICKET_SORT_BY,
+            skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
+        },
+    })
+    const tickets = ticketsQuery?.tickets
+
+    const total = tickets?.length
+
+    const lastCreatedTicket = tickets?.filter(el=>el?.clientPhone === phone)?.[0]
+    const propertyId = useMemo(() => property?.id, [property])
+    const organizationId = useMemo(() => organization?.id, [organization])
+
+    const columns = useClientCardTicketTableColumns(tickets, currentTableTab, MAX_TABLE_SIZE)
 
     const handleShowAllPropertyTicketsMessage = useCallback(async () => {
         if (typeof window !== 'undefined') {
@@ -419,6 +404,12 @@ const ClientCardTabContent = ({
     },
     [handleTicketCreateClick, lastCreatedTicket, phone, property])
 
+    const redirectToTicketPage = useCallback(async () => await redirectToForm({
+        router,
+        formRoute: '/ticket',
+        initialValues: searchQuery,
+    }), [router, searchQuery])
+
     return (
         <Row gutter={ROW_BIG_GUTTER}>
             {
@@ -437,9 +428,10 @@ const ClientCardTabContent = ({
                                 <Col span={24}>
                                     <ClientContent
                                         phone={phone}
+                                        type={type}
                                         lastTicket={lastCreatedTicket}
-                                        contact={contact}
                                         showOrganizationMessage={showOrganizationMessage}
+                                        contact={contact}
                                     />
                                 </Col>
                                 <TicketPropertyHintCard
@@ -459,22 +451,44 @@ const ClientCardTabContent = ({
                             </Row>
                         </Col>
                         <Col span={24}>
-                            <Row gutter={ROW_MEDIUM_SMALL_GUTTER}>
-                                <Col span={24}>
-                                    <Typography.Title level={4}>
-                                        {ContactTicketsMessage}
-                                    </Typography.Title>
-                                </Col>
-                                <Col span={24}>
-                                    <Table
-                                        totalRows={total}
-                                        loading={isTicketsFetching}
-                                        dataSource={tickets}
-                                        columns={columns}
-                                        onRow={handleRowAction}
-                                        data-cy='ticket__table'
-                                    />
-                                </Col>
+                            <Row>
+                                <Tabs
+                                    onChange={(tab: TabKey) => setCurrentTableTab(tab)}
+                                    items={tabsItems}
+                                />
+
+                                <Row gutter={[0, 24]}>
+                                    <Col span={24}>
+                                        <Table
+                                            totalRows={total}
+                                            loading={isTicketsFetching}
+                                            dataSource={tickets}
+                                            columns={columns}
+                                            onRow={handleRowAction}
+                                            data-cy='ticket__table'
+                                        />
+                                    </Col>
+
+
+                                    {tickets?.length >= MAX_TABLE_SIZE && (
+                                        <Row gutter={[0, 8]}>
+                                            <Col span={24}>
+                                                <Typography.Paragraph size='large' >
+                                                    {LastTicketsLoadedMessage}
+                                                </Typography.Paragraph>
+                                            </Col>
+                                            <Col>
+                                                <Typography.Link size='large' onClick={redirectToTicketPage}>
+                                                    <Col className='link-wrapper'>
+                                                        <ExternalLink size='auto'/>
+
+                                                        {OpenAllTicketsMessage}
+                                                    </Col>
+                                                </Typography.Link>
+                                            </Col>
+                                        </Row>
+                                    )}
+                                </Row>
                             </Row>
                         </Col>
                     </>
@@ -514,27 +528,26 @@ const ContactClientTabContent = ({
     unitName,
     unitType,
     phone,
+    type,
+    showOrganizationMessage = false,
+    sectionName,
+    sectionType,
     canManageContacts,
     organization,
-    showOrganizationMessage = false,
 }) => {
     const router = useRouter()
 
-    const searchTicketsQuery = useMemo(() => ({
-        property: { id: get(property, 'id', null) },
-        unitName,
-        unitType,
-        contact: { id: get(contact, 'id') },
-    }), [contact, property, unitName, unitType])
-
     const handleTicketCreateClick = useCallback(async () => {
         const initialValues = {
-            property: get(property, 'id'),
+            property: property?.id,
             unitName,
             unitType,
-            contact: get(contact, 'id'),
-            clientName: get(contact, 'name'),
-            clientPhone: get(contact, 'phone'),
+            sectionName,
+            sectionType,
+            contact: contact?.id,
+            clientName: contact?.name,
+            clientPhone: contact?.phone,
+            clientEmail: contact?.email,
             isResidentTicket: true,
         }
 
@@ -548,20 +561,24 @@ const ContactClientTabContent = ({
     const handleContactEditClick = useCallback(async () => {
         await redirectToForm({
             router,
-            formRoute: `/contact/${get(contact, 'id')}/update`,
+            formRoute: `/contact/${contact.id}/update`,
         })
     }, [contact, router])
 
     return (
         <ClientCardTabContent
             phone={phone}
+            unitName={unitName}
+            unitType={unitType}
+            type={type}
+            showOrganizationMessage={showOrganizationMessage}
+            sectionType={sectionType}
+            sectionName={sectionName}
             property={property}
-            searchTicketsQuery={searchTicketsQuery}
             handleTicketCreateClick={handleTicketCreateClick}
             handleContactEditClick={handleContactEditClick}
             canManageContacts={canManageContacts}
             contact={contact}
-            showOrganizationMessage={showOrganizationMessage}
             organization={organization}
         />
     )
@@ -571,28 +588,28 @@ const NotResidentClientTabContent = ({
     property,
     unitName,
     unitType,
+    sectionName,
+    sectionType,
     phone,
-    organization,
+    type,
     showOrganizationMessage = false,
+    organization,
 }) => {
     const router = useRouter()
 
     const searchTicketsQuery = useMemo(() => ({
-        property: { id: get(property, 'id', null) },
-        unitName,
-        unitType,
         clientPhone: phone,
         clientName_not: null,
         isResidentTicket: false,
-    }), [phone, property, unitName, unitType])
+    }), [phone])
 
     const handleTicketCreateClick = useCallback(async (ticket) => {
         const initialValues = {
-            property: get(property, 'id'),
+            property: property.id,
             unitName,
             unitType,
-            clientName: get(ticket, 'clientName'),
-            clientPhone: get(ticket, 'clientPhone'),
+            clientName: ticket.clientName,
+            clientPhone: ticket.clientPhone,
             isResidentTicket: false,
         }
 
@@ -605,12 +622,17 @@ const NotResidentClientTabContent = ({
 
     return (
         <ClientCardTabContent
+            unitName={unitName}
+            unitType={unitType}
             phone={phone}
             property={property}
+            type={type}
+            showOrganizationMessage={showOrganizationMessage}
+            sectionName={sectionName}
+            sectionType={sectionType}
             searchTicketsQuery={searchTicketsQuery}
             handleTicketCreateClick={handleTicketCreateClick}
             canManageContacts={false}
-            showOrganizationMessage={showOrganizationMessage}
             organization={organization}
         />
     )
@@ -628,6 +650,8 @@ const ClientTabContent = ({ tabData, phone, canManageContacts, showOrganizationM
     const property = tabData?.property
     const unitName = tabData?.unitName
     const unitType = tabData?.unitType
+    const sectionType = tabData?.sectionType
+    const sectionName = tabData?.sectionName
     const type = tabData?.type
     const organization = tabData?.organization
     const contact = tabData?.contact
@@ -636,9 +660,12 @@ const ClientTabContent = ({ tabData, phone, canManageContacts, showOrganizationM
         <ContactClientTabContent
             contact={contact}
             phone={phone}
+            type={ClientType.Resident}
             property={property}
             unitName={unitName}
             unitType={unitType}
+            sectionType={sectionType}
+            sectionName={sectionName}
             canManageContacts={canManageContacts}
             showOrganizationMessage={showOrganizationMessage}
             organization={organization}
@@ -646,9 +673,12 @@ const ClientTabContent = ({ tabData, phone, canManageContacts, showOrganizationM
     ) : (
         <NotResidentClientTabContent
             phone={phone}
+            type={type}
             property={property}
             unitName={unitName}
             unitType={unitType}
+            sectionType={sectionType}
+            sectionName={sectionName}
             showOrganizationMessage={showOrganizationMessage}
             organization={organization}
         />
@@ -662,8 +692,8 @@ const ClientCardPageContent = ({
     tabsData,
     canManageContacts,
     loading,
-    phoneNumberPrefix,
     showOrganizationMessage = false,
+    phoneNumberPrefix,
 }) => {
     const intl = useIntl()
     const ClientCardTitle = intl.formatMessage({ id: 'pages.clientCard.Title' }, {
@@ -677,6 +707,7 @@ const ClientCardPageContent = ({
             </Typography.Link>
         ),
     })
+    const AddAddressMessage = intl.formatMessage({ id: 'pages.clientCard.addAddress' })
 
     const router = useRouter()
     const { tab } = parseQuery(router.query)
@@ -684,9 +715,7 @@ const ClientCardPageContent = ({
     const carouselRef = useRef<CarouselRef>()
     const activeTabIndexRef = useRef<number>()
 
-    const [activeTab, setActiveTab] = useState<string>(tab)
     const [activeTabData, setActiveTabData] = useState<TabDataType>()
-    const [initialActiveTab, setInitialActiveTab] = useState<string>()
     const [isInitialSlideScrolled, setIsInitialSlideScrolled] = useState<boolean>()
 
     const { breakpoints } = useLayoutContext()
@@ -704,17 +733,6 @@ const ClientCardPageContent = ({
         return 1
     }, [breakpoints.TABLET_SMALL, breakpoints.DESKTOP_SMALL, breakpoints.TABLET_LARGE])
 
-    useEffect(() => {
-        if (!initialActiveTab && tab) {
-            setInitialActiveTab(tab)
-        }
-    }, [initialActiveTab, tab])
-
-    useDeepCompareEffect(() => {
-        const { tab } = parseQuery(router.query)
-        setActiveTab(tab)
-    }, [router.query])
-
     useDeepCompareEffect(() => {
         if (carouselRef.current && !isInitialSlideScrolled) {
             let slideToGo = slidesToShow - (activeTabIndexRef.current + 1)
@@ -731,41 +749,33 @@ const ClientCardPageContent = ({
     }, [tabsData, slidesToShow, carouselRef.current])
 
     useEffect(() => {
-        const { type, property: propertyId, unitName, unitType } = parseCardDataFromQuery(activeTab)
-        const tabDataWithProperty = tabsData.find(({ property }) => property.id === propertyId)
-        const property = get(tabDataWithProperty, 'property')
-        const organization = get(tabDataWithProperty, 'organization')
-        const contact = get(tabDataWithProperty, 'contact')
+        const { type, property: propertyId, unitName, unitType, sectionType, sectionName } = parseCardDataFromQuery(tab)
+        const tabDataWithProperty = tabsData.find(({ property, unitName: tabUnitName, unitType: tabUnitType }) =>
+            property.id === propertyId && tabUnitName === unitName && tabUnitType === unitType)
+        const property = tabDataWithProperty?.property
+        const organization = tabDataWithProperty?.organization
+        const contact = tabDataWithProperty?.contact
 
         if (property) {
-            setActiveTabData({ type, property, unitName, unitType, organization, contact })
+            const key = getClientCardTabKey(property?.id, type, unitName, unitType, sectionName, sectionType)
+            const newRoute = `${router.route.replace('[number]', phoneNumber)}?tab=${key}`
+            router.push(newRoute, undefined, { shallow: true })
+
+            setActiveTabData({ type, property, unitName, unitType, organization, contact, sectionType, sectionName })
         }
-    }, [activeTab, tabsData])
+    }, [tab, tabsData])
 
     const handleTabChange = useCallback(async (newKey) => {
-        if (newKey === ADD_ADDRESS_TAB_KEY) {
-            return await redirectToForm({
-                router,
-                formRoute: '/contact/create',
-                initialValues: {
-                    phone: phoneNumber,
-                },
-            })
-        }
-
-        setActiveTab(newKey)
         const newRoute = `${router.route.replace('[number]', phoneNumber)}?tab=${newKey}`
 
         return router.push(newRoute, undefined, { shallow: true })
     }, [phoneNumber, router])
 
-    const handleAddAddressClick = useCallback(() => handleTabChange(ADD_ADDRESS_TAB_KEY), [handleTabChange])
-
     const renderedCards = useMemo(() => {
-        const addAddressTab = canManageContacts && <AddAddressCard key='addAddress' onClick={handleAddAddressClick}/>
-        const addressTabs = tabsData.map(({ type, property, unitName, unitType, isEmployee }, index) => {
-            const key = getClientCardTabKey(get(property, 'id', null), type, unitName, unitType)
-            const isActive = activeTab && activeTab === key
+        const addressTabs = tabsData.map(({ type, property, unitName, floorName, unitType, organization, sectionType, sectionName }, index) => {
+            const key = getClientCardTabKey(property?.id, type, unitName, unitType, sectionName, sectionType)
+            const initialKey = getClientCardTabKey(property?.id, type, unitName, unitType)
+            const isActive = tab && (tab === initialKey || tab === key)
 
             if (isActive) {
                 activeTabIndexRef.current = canManageContacts ? index + 1 : index
@@ -773,27 +783,27 @@ const ClientCardPageContent = ({
 
             return <ClientAddressCard
                 onClick={() => handleTabChange(key)}
-                isEmployee={isEmployee}
+                organization={organization}
                 key={key}
-                type={type}
+                floorName={floorName}
                 property={property}
                 unitName={unitName}
                 unitType={unitType}
+                sectionName={sectionName}
                 active={isActive}
             />
         })
 
-        return [addAddressTab, ...addressTabs].filter(Boolean)
-    }, [activeTab, canManageContacts, handleAddAddressClick, handleTabChange, initialActiveTab, tabsData])
+        return addressTabs.filter(Boolean)
+    }, [canManageContacts, handleTabChange, tabsData])
 
-    useEffect(() => {
-        if (!activeTab && !isEmpty(tabsData)) {
-            const { type, property, unitName, unitType } = tabsData[0]
-            const key = getClientCardTabKey(get(property, 'id', null), type, unitName, unitType)
-
-            handleTabChange(key)
-        }
-    }, [activeTab, handleTabChange, tabsData])
+    const redirectToCreateContact = useCallback(()=>redirectToForm({
+        router,
+        formRoute: '/contact/create',
+        initialValues: {
+            phone: phoneNumber,
+        },
+    }), [phoneNumber, router])
 
     return (
         <>
@@ -804,13 +814,23 @@ const ClientCardPageContent = ({
                 <PageContent>
                     <Row gutter={ROW_MEDIUM_GUTTER}>
                         <Col span={24}>
-                            <Typography.Title>{ClientCardHeader}</Typography.Title>
+                            <Row justify='space-between' align='bottom' >
+                                <Typography.Title>{ClientCardHeader}</Typography.Title>
+
+                                <Typography.Link size='large' onClick={redirectToCreateContact}>
+                                    <Col className='link-wrapper'>
+                                        <PlusCircle/>
+
+                                        {AddAddressMessage}
+                                    </Col>
+                                </Typography.Link>
+                            </Row>
                         </Col>
                         <Col span={24}>
                             <Row gutter={[0, 20]}>
                                 {
                                     loading ? <Loader/> : (
-                                        <StyledCarouselWrapper span={24}>
+                                        <Col span={24}>
                                             <Carousel
                                                 infinite={false}
                                                 ref={carouselRef}
@@ -819,15 +839,15 @@ const ClientCardPageContent = ({
                                             >
                                                 {renderedCards}
                                             </Carousel>
-                                        </StyledCarouselWrapper>
+                                        </Col>
                                     )
                                 }
                                 <Col span={24}>
                                     <ClientTabContent
                                         tabData={activeTabData}
                                         phone={phoneNumber}
-                                        canManageContacts={canManageContacts}
                                         showOrganizationMessage={showOrganizationMessage}
+                                        canManageContacts={canManageContacts}
                                     />
                                 </Col>
                             </Row>
@@ -847,7 +867,7 @@ export const ClientCardPageContentWrapper = ({
     usePhonePrefix = false,
 }) => {
     const router = useRouter()
-    const phoneNumber = get(router, ['query', 'number']) as string
+    const phoneNumber = router?.query.number
 
     const { data: contactsQueryData, loading: contactsLoading } = useGetContactForClientCardQuery({
         variables: {
@@ -855,12 +875,11 @@ export const ClientCardPageContentWrapper = ({
                 ...organizationQuery,
                 phone: phoneNumber,
             },
-            first: 100,
+            first: MAX_TABLE_SIZE,
         },
-        fetchPolicy: 'cache-first',
     })
 
-    const { data: ticketsQueryData, loading: ticketsLoading } = useGetTicketsQuery({
+    const { data: ticketsQueryData, loading: ticketsLoading } = useGetTicketsForClientCardQuery({
         variables: {
             where: {
                 ...ticketsQuery,
@@ -868,9 +887,8 @@ export const ClientCardPageContentWrapper = ({
                 isResidentTicket: false,
                 contact_is_null: true,
             },
-            first: 30,
+            first: MAX_TABLE_SIZE,
         },
-        fetchPolicy: 'cache-first',
     })
 
     const { data: employeesQueryData, loading: employeesLoading } = useGetEmployeesForClientCardQuery({
@@ -879,9 +897,8 @@ export const ClientCardPageContentWrapper = ({
                 ...organizationQuery,
                 phone: phoneNumber,
             },
-            first: 50,
+            first: MAX_TABLE_SIZE,
         },
-        fetchPolicy: 'cache-first',
     })
 
     const employeeTickets = useMemo(() =>
@@ -891,7 +908,9 @@ export const ClientCardPageContentWrapper = ({
         ticketsQueryData?.tickets.filter(ticket => !employeeTickets.find(employeeTicket => employeeTicket.id === ticket.id)),
     [employeeTickets, ticketsQueryData])
 
-    const tabsData = useMemo(() => {
+    const [tabsData, setTabsData] = useState([])
+
+    useEffect(() => {
         const contactsData = contactsQueryData?.contacts?.map(contact => ({
             type: ClientType.Resident,
             property: contact.property,
@@ -905,6 +924,9 @@ export const ClientCardPageContentWrapper = ({
             property: ticket.property,
             unitName: ticket.unitName,
             unitType: ticket.unitType,
+            sectionName: ticket.sectionName,
+            sectionType: ticket.sectionType,
+            floorName: ticket.floorName,
             organization: ticket.organization,
         })), 'property.id') || []
         const employeesData = uniqBy(employeeTickets?.map(ticket => ({
@@ -916,13 +938,15 @@ export const ClientCardPageContentWrapper = ({
             organization: ticket.organization,
         })), 'property.id') || []
 
-        return [...contactsData, ...notResidentData, ...employeesData]
+        const concatData =  [...contactsData, ...notResidentData, ...employeesData]
             .filter(tabsData => tabsData.organization && tabsData.property)
-    }, [contactsQueryData, employeeTickets, notResidentTickets])
 
-    const phoneNumberPrefixFromContacts = get(contactsQueryData, ['contacts', '0', 'organization', 'phoneNumberPrefix'])
-    const phoneNumberPrefixFromEmployees = get(employeesQueryData, ['employees', '0', 'organization', 'phoneNumberPrefix'])
-    const phoneNumberPrefixFromTickets = get(ticketsQueryData, ['tickets', '0', 'organization', 'phoneNumberPrefix'])
+        getMapData(concatData).then(res => setTabsData(res))
+    }, [contactsQueryData, notResidentTickets, employeeTickets])
+
+    const phoneNumberPrefixFromContacts = contactsQueryData?.contacts?.[0]?.organization?.phoneNumberPrefix
+    const phoneNumberPrefixFromEmployees = employeesQueryData?.employees?.[0]?.organization?.phoneNumberPrefix
+    const phoneNumberPrefixFromTickets = ticketsQueryData?.tickets?.[0]?.organization?.phoneNumberPrefix
 
     let phoneNumberPrefix
     if (usePhonePrefix) {
@@ -935,16 +959,16 @@ export const ClientCardPageContentWrapper = ({
             phoneNumberPrefix={phoneNumberPrefix}
             tabsData={tabsData}
             canManageContacts={canManageContacts}
-            loading={ticketsLoading || contactsLoading || employeesLoading}
             showOrganizationMessage={showOrganizationMessage}
+            loading={ticketsLoading || contactsLoading || employeesLoading}
         />
     )
 }
 
 const ClientCardPage: PageComponentType = () => {
-    const { organization, link } = useOrganization()
-    const organizationId = get(organization, 'id', null)
-    const canManageContacts = !!get(link, 'role.canManageContacts')
+    const { organization, role } = useOrganization()
+    const organizationId = organization?.id
+    const canManageContacts = role.canManageContacts
 
     const { ticketFilterQuery } = useTicketVisibility()
     const organizationQuery = { organization: { id: organizationId } }

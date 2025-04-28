@@ -87,6 +87,74 @@ query getTickets ($where: TicketWhereInput!, $sortBy: [SortTicketsBy!], $first: 
     }
 }
 
+query getTicketsForClientCard ($where: TicketWhereInput!, $sortBy: [SortTicketsBy!], $first: Int!, $skip: Int) {
+    tickets: allTickets(
+        where: $where,
+        sortBy: $sortBy,
+        first: $first,
+        skip: $skip
+    ) {
+        id
+        number
+        createdAt
+        lastCommentAt
+        propertyAddressMeta { ...AddressMetaForTableAddress }
+        propertyAddress
+        sectionType
+        sectionName
+        floorName
+        unitType
+        unitName
+        details
+        clientName
+        clientPhone
+        clientEmail
+        classifier {
+            id
+            category {
+                id
+                name
+            }
+            place {
+                id
+                name
+            }
+        }
+        contact {
+            id
+            name
+        }
+        organization {
+            id
+            name
+            phoneNumberPrefix
+        }
+        property {
+            id
+            deletedAt
+            address
+            addressMeta { ...AddressMetaForTableAddress }
+            map {
+                sections {
+                    ...SectionOrParkingInfo
+                }
+                parking {
+                    ...SectionOrParkingInfo
+                }
+            }
+        }
+        status {
+            id
+            type
+            name
+            colors {
+                primary
+                secondary
+            }
+        }
+    }
+}
+
 query checkTicketExistence ($where: TicketWhereInput!) {
     tickets: allTickets (
         where: $where,
