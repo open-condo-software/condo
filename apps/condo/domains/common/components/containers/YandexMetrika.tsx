@@ -54,10 +54,10 @@ const YandexMetrika = () => {
             accounts={[yandexMetrikaID]}
             options={{
                 defer: true,
-                clickmap:true,
-                trackLinks:true,
-                accurateTrackBounce:true,
-                webvisor:true,
+                clickmap: true,
+                trackLinks: true,
+                accurateTrackBounce: true,
+                webvisor: false,
             }}
         />
 
