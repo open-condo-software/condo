@@ -4743,10 +4743,7 @@ export const GetTicketsForClientCardDocument = gql`
     id
     number
     createdAt
-    lastResidentCommentAt
-    lastCommentWithResidentTypeAt
-    lastCommentWithOrganizationTypeAt
-    lastCommentWithResidentTypeCreatedByUserType
+    lastCommentAt
     propertyAddressMeta {
       ...AddressMetaForTableAddress
     }

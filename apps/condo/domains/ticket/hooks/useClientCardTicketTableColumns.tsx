@@ -20,9 +20,6 @@ import { IFilters } from '@condo/domains/ticket/utils/helpers'
 const renderCell = getTableCellRenderer()
 const renderTicketDetails = getTicketDetailsRender()
 
-const getLastCommentDate = (ticket: GetTicketsForClientCardQuery['tickets'][number]) =>
-    ticket.lastCommentWithOrganizationTypeAt || ticket.lastResidentCommentAt || ticket.lastCommentWithResidentTypeAt
-
 export function useClientCardTicketTableColumns (tickets: GetTicketsForClientCardQuery['tickets'], currentTableTab: TabKey, maxTableSize: number) {
     const intl = useIntl()
     const NumberMessage = intl.formatMessage({ id: 'ticketsTable.Number' })
@@ -39,13 +36,13 @@ export function useClientCardTicketTableColumns (tickets: GetTicketsForClientCar
     const { filters, sorters } = parseQuery(router.query)
     const sorterMap = getSorterMap(sorters)
 
-    const hasComments = tickets?.map(ticket => getLastCommentDate(ticket)).some(Boolean)
+    const hasComments = tickets?.map(ticket => ticket.lastCommentAt).some(Boolean)
 
     const ticketCommentsWhere: TicketCommentWhereInput[] = useMemo(() =>
         tickets?.map(ticket => ({
             AND: [
                 { ticket: { id: ticket.id } },
-                { createdAt: getLastCommentDate(ticket) },
+                { createdAt: ticket.lastCommentAt },
             ],
         })),
     [tickets])

@@ -97,10 +97,7 @@ query getTicketsForClientCard ($where: TicketWhereInput!, $sortBy: [SortTicketsB
         id
         number
         createdAt
-        lastResidentCommentAt
-        lastCommentWithResidentTypeAt
-        lastCommentWithOrganizationTypeAt
-        lastCommentWithResidentTypeCreatedByUserType
+        lastCommentAt
         propertyAddressMeta { ...AddressMetaForTableAddress }
         propertyAddress
         sectionType
