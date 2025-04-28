@@ -14,6 +14,7 @@ const {
     BILLING_ACCOUNT_OWNER_TYPE_PERSON,
 } = require('@condo/domains/billing/constants/constants')
 const { HOUSING_CATEGORY_ID, REPAIR_CATEGORY_ID, ELECTRICITY_CATEGORY_ID } = require('@condo/domains/billing/constants/constants')
+const { CONTEXT_FINISHED_STATUS, CONTEXT_IN_PROGRESS_STATUS } = require('@condo/domains/billing/constants/constants')
 const {
     ERRORS,
 } = require('@condo/domains/billing/constants/registerBillingReceiptService')
@@ -26,6 +27,7 @@ const {
 } = require('@condo/domains/billing/utils/testSchema/testUtils')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 
+
 describe('RegisterBillingReceiptsService', () => {
 
     const utils = new TestUtils([BillingTestMixin])
@@ -34,6 +36,51 @@ describe('RegisterBillingReceiptsService', () => {
         await utils.init()
     })
 
+    describe('Check that billing context is valid for publishing', () => {
+        afterEach(async () => {
+            await utils.updateOrganization({ deletedAt: null })
+            await utils.updateBillingContext({ deletedAt: null, status: CONTEXT_FINISHED_STATUS })
+            await utils.updateBillingIntegration({ deletedAt: null })
+        })
+
+        test('Do not allow publishing if organization is deleted', async () => {
+            await utils.updateOrganization({ deletedAt: new Date().toISOString() })
+            await expectToThrowAccessDeniedErrorToResult(async () => {
+                await registerBillingReceiptsByTestClient(utils.clients.support, {
+                    context: { id: utils.billingContext.id },
+                    receipts: [utils.createJSONReceipt()],
+                })
+            })
+        })
+        test('Do not allow publishing if billingContext is deleted', async () => {
+            await utils.updateBillingContext({ deletedAt: new Date().toISOString() })
+            await expectToThrowAccessDeniedErrorToResult(async () => {
+                await registerBillingReceiptsByTestClient(utils.clients.support, {
+                    context: { id: utils.billingContext.id },
+                    receipts: [utils.createJSONReceipt()],
+                })
+            })
+        })
+        test('Do not allow publishing if billingIntegration is deleted', async () => {
+            await utils.updateBillingIntegration({ deletedAt: new Date().toISOString() })
+            await expectToThrowAccessDeniedErrorToResult(async () => {
+                await registerBillingReceiptsByTestClient(utils.clients.support, {
+                    context: { id: utils.billingContext.id },
+                    receipts: [utils.createJSONReceipt()],
+                })
+            })
+        })
+        test(`Do not allow publishing if billingContext is in ${CONTEXT_IN_PROGRESS_STATUS} status`, async () => {
+            await utils.updateBillingContext({ status: CONTEXT_IN_PROGRESS_STATUS })
+            await expectToThrowAccessDeniedErrorToResult(async () => {
+                await registerBillingReceiptsByTestClient(utils.clients.support, {
+                    context: { id: utils.billingContext.id },
+                    receipts: [utils.createJSONReceipt()],
+                })
+            })
+        })
+    })
+    
     describe('Permission check', () => {
 
         test('anonymous: can not execute', async () => {
