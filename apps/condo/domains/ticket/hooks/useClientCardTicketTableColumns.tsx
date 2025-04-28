@@ -55,6 +55,7 @@ export function useClientCardTicketTableColumns (tickets: GetTicketsForClientCar
             where: { OR: ticketCommentsWhere },
             first: maxTableSize,
         },
+        fetchPolicy: 'cache-first',
         skip: !tickets || !hasComments,
     })
 
