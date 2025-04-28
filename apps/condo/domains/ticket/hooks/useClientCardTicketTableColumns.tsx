@@ -13,7 +13,9 @@ import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.uti
 import {
     getClassifierRender,
     getStatusRender,
-    getTicketDetailsRender, getTicketUserNameRender, getUnitRender,
+    getTicketDetailsRender,
+    getTicketUserNameRender,
+    getUnitRender,
 } from '@condo/domains/ticket/utils/clientSchema/Renders'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
 
@@ -47,16 +49,15 @@ export function useClientCardTicketTableColumns (tickets: GetTicketsForClientCar
         })),
     [tickets])
 
-    const { data } = useGetTicketCommentsForClientCardQuery({
+    const { data: ticketCommentsQuery } = useGetTicketCommentsForClientCardQuery({
         variables: {
             where: { OR: ticketCommentsWhere },
             first: maxTableSize,
         },
-        fetchPolicy: 'cache-first',
         skip: !tickets || !hasComments,
     })
 
-    const ticketComments = data?.ticketComments
+    const ticketComments = ticketCommentsQuery?.ticketComments
 
     const renderLastComment = useCallback((ticket) => {
         const lastComment = ticketComments?.find(comment => comment?.ticket?.id === ticket.id)

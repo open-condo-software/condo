@@ -1,4 +1,3 @@
-import { PlusCircleOutlined } from '@ant-design/icons'
 import {
     GetTicketsForClientCardQuery,
     useGetContactForClientCardQuery,
@@ -23,7 +22,7 @@ import React, { CSSProperties, useCallback, useEffect, useLayoutEffect, useMemo,
 
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
-import { ExternalLink, History, Mail } from '@open-condo/icons'
+import { ExternalLink, History, Mail, PlusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button, Carousel, Space, Tabs, Typography } from '@open-condo/ui'
@@ -64,7 +63,8 @@ type ClientContactPropsType = {
     phone: string
     lastTicket: GetTicketsForClientCardQuery['tickets'][number]
     contact?: ContactType & { isEmployee?: boolean }
-    type: string
+    type: ClientType
+    showOrganizationMessage: boolean
 }
 
 export type TabKey = 'contactPropertyTickets' | 'residentsEntranceTickets' | 'residentsPropertyTickets'
@@ -185,7 +185,7 @@ const ClientAddressCard = ({ onClick, active, property, organization, unitName, 
 //#endregion
 
 //#region Contact and Not resident client Tab content
-const ClientContent: React.FC<ClientContactPropsType> = ({ lastTicket, contact, type, phone }) => {
+const ClientContent: React.FC<ClientContactPropsType> = ({ lastTicket, contact, type, phone, showOrganizationMessage }) => {
     const intl = useIntl()
     const CallRecordsLogMessage = intl.formatMessage({ id: 'pages.clientCard.callRecordsLog' })
     const ContactMessage = intl.formatMessage({ id: 'Contact' })
@@ -207,6 +207,11 @@ const ClientContent: React.FC<ClientContactPropsType> = ({ lastTicket, contact, 
     const propertyId = useMemo(
         () => contact?.property?.id ?? lastTicket?.property?.id,
         [contact?.property?.id, lastTicket?.property?.id]
+    )
+
+    const organizationName = useMemo(
+        () => contact?.organization?.name ?? lastTicket?.organization?.name,
+        [contact?.organization?.name, lastTicket?.organization?.name]
     )
 
     const {
@@ -257,6 +262,13 @@ const ClientContent: React.FC<ClientContactPropsType> = ({ lastTicket, contact, 
                                 <TicketResidentFeatures ticket={lastTicket}/>
                             )
                         }
+                        {
+                            showOrganizationMessage && (
+                                <Typography.Text strong type='secondary' size='medium'>
+                                    {organizationName}
+                                </Typography.Text>
+                            )
+                        }
                     </Space>
                 </Space>
             </Col>
@@ -302,6 +314,7 @@ const ClientCardTabContent = ({
     searchTicketsQuery = null,
     handleTicketCreateClick,
     canManageContacts,
+    showOrganizationMessage = false,
     handleContactEditClick = null,
     contact = null,
     organization,
@@ -358,7 +371,6 @@ const ClientCardTabContent = ({
             sortBy: TICKET_SORT_BY,
             skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
         },
-        fetchPolicy: 'cache-first',
     })
     const tickets = ticketsQuery?.tickets
 
@@ -418,6 +430,7 @@ const ClientCardTabContent = ({
                                         phone={phone}
                                         type={type}
                                         lastTicket={lastCreatedTicket}
+                                        showOrganizationMessage={showOrganizationMessage}
                                         contact={contact}
                                     />
                                 </Col>
@@ -440,7 +453,7 @@ const ClientCardTabContent = ({
                         <Col span={24}>
                             <Row>
                                 <Tabs
-                                    onChange={tab => setCurrentTableTab(tab as TabKey)}
+                                    onChange={(tab: TabKey) => setCurrentTableTab(tab)}
                                     items={tabsItems}
                                 />
 
@@ -516,6 +529,7 @@ const ContactClientTabContent = ({
     unitType,
     phone,
     type,
+    showOrganizationMessage = false,
     sectionName,
     sectionType,
     canManageContacts,
@@ -557,6 +571,7 @@ const ContactClientTabContent = ({
             unitName={unitName}
             unitType={unitType}
             type={type}
+            showOrganizationMessage={showOrganizationMessage}
             sectionType={sectionType}
             sectionName={sectionName}
             property={property}
@@ -577,6 +592,7 @@ const NotResidentClientTabContent = ({
     sectionType,
     phone,
     type,
+    showOrganizationMessage = false,
     organization,
 }) => {
     const router = useRouter()
@@ -611,6 +627,7 @@ const NotResidentClientTabContent = ({
             phone={phone}
             property={property}
             type={type}
+            showOrganizationMessage={showOrganizationMessage}
             sectionName={sectionName}
             sectionType={sectionType}
             searchTicketsQuery={searchTicketsQuery}
@@ -629,7 +646,7 @@ const parseCardDataFromQuery = (stringCard) => {
     }
 }
 
-const ClientTabContent = ({ tabData, phone, canManageContacts }) => {
+const ClientTabContent = ({ tabData, phone, canManageContacts, showOrganizationMessage = false }) => {
     const property = tabData?.property
     const unitName = tabData?.unitName
     const unitType = tabData?.unitType
@@ -650,6 +667,7 @@ const ClientTabContent = ({ tabData, phone, canManageContacts }) => {
             sectionType={sectionType}
             sectionName={sectionName}
             canManageContacts={canManageContacts}
+            showOrganizationMessage={showOrganizationMessage}
             organization={organization}
         />
     ) : (
@@ -661,6 +679,7 @@ const ClientTabContent = ({ tabData, phone, canManageContacts }) => {
             unitType={unitType}
             sectionType={sectionType}
             sectionName={sectionName}
+            showOrganizationMessage={showOrganizationMessage}
             organization={organization}
         />
     )
@@ -673,6 +692,7 @@ const ClientCardPageContent = ({
     tabsData,
     canManageContacts,
     loading,
+    showOrganizationMessage = false,
     phoneNumberPrefix,
 }) => {
     const intl = useIntl()
@@ -737,6 +757,10 @@ const ClientCardPageContent = ({
         const contact = tabDataWithProperty?.contact
 
         if (property) {
+            const key = getClientCardTabKey(property?.id, type, unitName, unitType, sectionName, sectionType)
+            const newRoute = `${router.route.replace('[number]', phoneNumber)}?tab=${key}`
+            router.push(newRoute, undefined, { shallow: true })
+
             setActiveTabData({ type, property, unitName, unitType, organization, contact, sectionType, sectionName })
         }
     }, [tab, tabsData])
@@ -750,7 +774,8 @@ const ClientCardPageContent = ({
     const renderedCards = useMemo(() => {
         const addressTabs = tabsData.map(({ type, property, unitName, floorName, unitType, organization, sectionType, sectionName }, index) => {
             const key = getClientCardTabKey(property?.id, type, unitName, unitType, sectionName, sectionType)
-            const isActive = tab && tab === key
+            const initialKey = getClientCardTabKey(property?.id, type, unitName, unitType)
+            const isActive = tab && (tab === initialKey || tab === key)
 
             if (isActive) {
                 activeTabIndexRef.current = canManageContacts ? index + 1 : index
@@ -794,7 +819,7 @@ const ClientCardPageContent = ({
 
                                 <Typography.Link size='large' onClick={redirectToCreateContact}>
                                     <Col className='link-wrapper'>
-                                        <PlusCircleOutlined/>
+                                        <PlusCircle/>
 
                                         {AddAddressMessage}
                                     </Col>
@@ -821,6 +846,7 @@ const ClientCardPageContent = ({
                                     <ClientTabContent
                                         tabData={activeTabData}
                                         phone={phoneNumber}
+                                        showOrganizationMessage={showOrganizationMessage}
                                         canManageContacts={canManageContacts}
                                     />
                                 </Col>
@@ -837,6 +863,7 @@ export const ClientCardPageContentWrapper = ({
     organizationQuery,
     ticketsQuery,
     canManageContacts,
+    showOrganizationMessage = false,
     usePhonePrefix = false,
 }) => {
     const router = useRouter()
@@ -850,7 +877,6 @@ export const ClientCardPageContentWrapper = ({
             },
             first: MAX_TABLE_SIZE,
         },
-        fetchPolicy: 'cache-first',
     })
 
     const { data: ticketsQueryData, loading: ticketsLoading } = useGetTicketsForClientCardQuery({
@@ -863,7 +889,6 @@ export const ClientCardPageContentWrapper = ({
             },
             first: MAX_TABLE_SIZE,
         },
-        fetchPolicy: 'cache-first',
     })
 
     const { data: employeesQueryData, loading: employeesLoading } = useGetEmployeesForClientCardQuery({
@@ -874,7 +899,6 @@ export const ClientCardPageContentWrapper = ({
             },
             first: MAX_TABLE_SIZE,
         },
-        fetchPolicy: 'cache-first',
     })
 
     const employeeTickets = useMemo(() =>
@@ -935,6 +959,7 @@ export const ClientCardPageContentWrapper = ({
             phoneNumberPrefix={phoneNumberPrefix}
             tabsData={tabsData}
             canManageContacts={canManageContacts}
+            showOrganizationMessage={showOrganizationMessage}
             loading={ticketsLoading || contactsLoading || employeesLoading}
         />
     )
