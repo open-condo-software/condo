@@ -194,11 +194,20 @@ const ClientContent: React.FC<ClientContactPropsType> = ({ lastTicket, contact, 
 
     const isEmployee = contact?.isEmployee
 
-    const name = useMemo(() => contact?.name, [contact?.name])
+    const name = useMemo(
+        () => contact?.name ?? lastTicket?.clientName,
+        [contact?.name, lastTicket?.clientName]
+    )
 
-    const email = useMemo(() => contact?.email, [contact?.email])
+    const email = useMemo(
+        () => contact?.email ?? lastTicket?.clientEmail,
+        [contact?.email, lastTicket?.clientEmail]
+    )
 
-    const propertyId = useMemo(() => contact?.property?.id, [contact?.property?.id])
+    const propertyId = useMemo(
+        () => contact?.property?.id ?? lastTicket?.property?.id,
+        [contact?.property?.id, lastTicket?.property?.id]
+    )
 
     const {
         count,
@@ -355,7 +364,7 @@ const ClientCardTabContent = ({
 
     const total = tickets?.length
 
-    const lastCreatedTicket = tickets?.[0]
+    const lastCreatedTicket = tickets?.filter(el=>el?.clientPhone === phone)?.[0]
     const propertyId = useMemo(() => property?.id, [property])
     const organizationId = useMemo(() => organization?.id, [organization])
 
