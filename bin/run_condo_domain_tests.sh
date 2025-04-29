@@ -36,6 +36,8 @@ export NEWS_ITEMS_SENDING_DELAY_SEC=2
 export NEWS_ITEM_SENDING_TTL_SEC=2
 export NODE_OPTIONS="--max_old_space_size=4192"
 export WORKER_CONCURRENCY=100
+export AI_FLOWS_CONFIG='{"custom":{"success_flow":{"adapter":"flowise","predictionUrl":"http://localhost:57657/test/flowise/api/v1/prediction/success"}, "failed_flow":{"adapter":"flowise","predictionUrl":"http://localhost:57657/test/flowise/api/v1/prediction/fail/500"}}}'
+export FLOWISE_CONFIG='{"secret":"test-no-real-secret"}'
 
 node -e 'console.log(v8.getHeapStatistics().heap_size_limit/(1024*1024))'
 
