@@ -2795,6 +2795,8 @@
   "pages.news.create.selectSharingApp.otherApps": "Other apps",
   "pages.news.create.selectSharingApp.otherApps.actionButtonText": "Setup",
   "pages.news.create.selectSharingApp.otherApps.description": "Setup news cross posting",
+  "pages.news.create.selectSharingApp.finishSetting.actionButtonText": "Complete setting",
+  "pages.news.create.selectSharingApp.finishSetting.description": "Complete setting to send news to ",
   "pages.news.newsItemCard.author": "author {createdBy}{isOwner, plural, other {} one { (you)}}",
   "pages.news.newsItemCard.field.body": "Text",
   "pages.news.newsItemCard.field.sendAt": "Sent date",

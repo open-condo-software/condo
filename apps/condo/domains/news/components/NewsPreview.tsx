@@ -299,10 +299,11 @@ interface ISharingAppNewsPreview {
 
     title: string
     body: string
+    newsType: string
     validBefore?: string
 }
 
-const SharingNewsPreview: React.FC<ISharingAppNewsPreview> = ({ hasPush = true, appName, appIcon, iFrameUrl, iFrameRef, title, body, ctxId, validBefore }) => {
+const SharingNewsPreview: React.FC<ISharingAppNewsPreview> = ({ hasPush = true, appName, appIcon, iFrameUrl, iFrameRef, title, body, ctxId, newsType, validBefore }) => {
     const intl = useIntl()
     const PushNotificationTitle = intl.formatMessage({ id: 'pages.condo.news.preview.push' })
 
@@ -314,7 +315,7 @@ const SharingNewsPreview: React.FC<ISharingAppNewsPreview> = ({ hasPush = true, 
                     // el => iFrameRef.current = el is used here to support IFrame API
                     // @ts-ignore
                     ref={el => iFrameRef.current = el}
-                    src={`${iFrameUrl}?title=${title}&body=${body}&ctxId=${ctxId}&validBefore=${validBefore}`}
+                    src={`${iFrameUrl}?title=${title}&body=${body}&ctxId=${ctxId}&validBefore=${validBefore}&newsType=${newsType}`}
                     reloadScope='organization'
                 />
                 <SharingAppOverflowContainer/>

@@ -1,15 +1,18 @@
+import { useGetNewsSharingRecipientsLazyQuery } from '@app/condo/gql'
 import {
     B2BAppContext as IB2BAppContext,
 } from '@app/condo/schema'
 import { Row } from 'antd'
-import get from 'lodash/get'
-import React, { CSSProperties } from 'react'
+import { useRouter } from 'next/router'
+import React, { CSSProperties, useEffect, useState } from 'react'
 
+import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Card, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
 import { NewsCardGrid } from '@condo/domains/news/components/NewsForm/NewsCardGrid'
 
 const CARD_CHECKBOX_CONTAINER_STYLE = { maxWidth: '246px', height: '100%' }
@@ -48,23 +51,54 @@ interface ISelectSharingAppControl {
 const AppDescriptionLabelId = 'pages.news.create.selectSharingApp.appDescription'
 
 const SelectSharingAppControl: React.FC<ISelectSharingAppControl> = ({ sharingAppContexts, selectedSharingApps, handleSelectSharingApp }) => {
-
     const intl = useIntl()
     const CondoMobileAppDescriptionLabel = intl.formatMessage({ id: AppDescriptionLabelId }, { appName: 'Doma' })
     const OtherAppsLabel = intl.formatMessage({ id: 'pages.news.create.selectSharingApp.otherApps' })
     const OtherAppsDescriptionLabel = intl.formatMessage({ id: 'pages.news.create.selectSharingApp.otherApps.description' })
     const OtherAppsActionLabel = intl.formatMessage({ id: 'pages.news.create.selectSharingApp.otherApps.actionButtonText' })
+    const FinishSettingDescriptionLabel = intl.formatMessage({ id: 'pages.news.create.selectSharingApp.finishSetting.description' })
+    const FinishSettingActionLabel = intl.formatMessage({ id: 'pages.news.create.selectSharingApp.finishSetting.actionButtonText' })
     const CondoMobileAppLabel = intl.formatMessage({ id: 'pages.condo.news.preview.condoAppName' })
+    const [appsSettingCompleted, setAppsSettingCompleted] = useState({})
 
     const { breakpoints } = useLayoutContext()
+    const router = useRouter()
     const isMobile = !breakpoints.DESKTOP_SMALL
 
     const cardStyle = isMobile ? CARD_RESPONSIVE_CHECKBOX_CONTAINER_STYLE : CARD_CHECKBOX_CONTAINER_STYLE
 
+    const onError = useMutationErrorHandler()
+    const [getNewsSharingRecipients] = useGetNewsSharingRecipientsLazyQuery()
+
+    useEffect(() => {
+        sharingAppContexts.map(async ctx => {
+            if (ctx.app?.newsSharingConfig?.getRecipientsUrl) {
+                try {
+                    const data = await getNewsSharingRecipients({
+                        variables: {
+                            data: {
+                                b2bAppContext: { id: ctx?.id },
+                                dv: 1,
+                                sender: getClientSideSenderInfo(),
+                            },
+                        },
+                    })
+
+                    setAppsSettingCompleted(prev => ({ ...prev, [ctx.id]: !!data?.data?.recipients?.length }))
+                } catch (error) {
+                    const message = error?.graphQLErrors?.[0]?.extensions?.messageForUser
+                    // @ts-ignore
+                    onError(message)
+                    setAppsSettingCompleted(prev => ({ ...prev, [ctx.id]: false }))
+                }
+            } else {
+                setAppsSettingCompleted(prev => ({ ...prev, [ctx.id]: true }))
+            }
+        })
+    }, [sharingAppContexts, getNewsSharingRecipients, onError])
+
     return (
-        <NewsCardGrid
-            minColWidth={246}
-        >
+        <NewsCardGrid minColWidth={246}>
             <div style={cardStyle}>
                 <CardCheckbox
                     disabled
@@ -86,38 +120,64 @@ const SelectSharingAppControl: React.FC<ISelectSharingAppControl> = ({ sharingAp
                 />
             </div>
 
-            { sharingAppContexts.map( ctx => {
+            {sharingAppContexts.map(ctx => {
                 // Replace all ' ' with non-breaking space (\u00A0)
-                const sharingAppName = get(ctx, ['app', 'newsSharingConfig', 'name'], '').replaceAll(' ', '\u00A0')
+                const sharingAppName = ctx.app?.newsSharingConfig?.name?.replaceAll(' ', '\u00A0') || ''
+                const sharingAppid = ctx.app.id
 
-                const sharingAppIcon = get(ctx, ['app', 'newsSharingConfig', 'icon', 'publicUrl'], SHARING_APP_FALLBACK_ICON)
-                const sharingAppPreviewIcon = get(ctx, ['app', 'newsSharingConfig', 'previewPicture', 'publicUrl'], SHARING_APP_FALLBACK_PREVIEW_ICON)
+                const sharingAppIcon = ctx.app?.newsSharingConfig?.icon?.publicUrl || SHARING_APP_FALLBACK_ICON
+                const sharingAppPreviewIcon = ctx.app?.newsSharingConfig?.previewPicture?.publicUrl || SHARING_APP_FALLBACK_PREVIEW_ICON
+                const completeSettings = appsSettingCompleted[ctx.id]
 
                 return (
-                    <div key={ctx.id} style={cardStyle}>
-                        <CardCheckbox
-                            header={{
-                                headingTitle: sharingAppName,
-                                image: {
-                                    size: 'small',
-                                    src: sharingAppIcon,
-                                },
-                            }}
-                            body={{
-                                description: intl.formatMessage({ id: AppDescriptionLabelId }, { appName: sharingAppName }),
-                                image: {
-                                    src: sharingAppPreviewIcon,
-                                    style: CARD_ICON_STYLE,
-                                },
-                            }}
-                            checked={selectedSharingApps.has(ctx.id)}
-                            onChange={(checked) => handleSelectSharingApp({ value: ctx.id, checked })}
-                        />
-                    </div>
+                    <React.Fragment key={ctx.id}>
+                        {completeSettings ? (
+                            <div style={cardStyle}>
+                                <CardCheckbox
+                                    header={{
+                                        headingTitle: sharingAppName,
+                                        image: {
+                                            size: 'small',
+                                            src: sharingAppIcon,
+                                        },
+                                    }}
+                                    body={{
+                                        description: intl.formatMessage({ id: AppDescriptionLabelId }, { appName: sharingAppName }),
+                                        image: {
+                                            src: sharingAppPreviewIcon,
+                                            style: CARD_ICON_STYLE,
+                                        },
+                                    }}
+                                    checked={selectedSharingApps.has(ctx.id)}
+                                    onChange={(checked) => handleSelectSharingApp({ value: ctx.id, checked })}
+                                />
+                            </div>
+                        ) : (
+                            <div style={cardStyle}>
+                                <Card title={<Card.CardHeader image={{ src: sharingAppIcon, size: 'small' }} headingTitle={sharingAppName}/>}>
+                                    <Card.CardBody
+                                        description={intl.formatMessage({ id: FinishSettingDescriptionLabel }, { appName: sharingAppName })}
+                                        image={{
+                                            src: sharingAppPreviewIcon,
+                                            style: CARD_ICON_STYLE,
+                                        }}
+                                        button={{
+                                            type: 'secondary',
+                                            children: FinishSettingActionLabel,
+                                            disabled: false,
+                                            onClick: () => router.push(`/miniapps/${sharingAppid}`),
+                                        }}
+                                    />
+                                </Card>
+                            </div>
+                        )}
+                    </React.Fragment>
                 )
             })}
-
-            { sharingAppContexts.length === 0 && (
+            {
+                // TODO (DOMA-11564) Compare with B2BAppNewsSharingConfig
+            }
+            {sharingAppContexts.length === 1 && (
                 <div style={cardStyle}>
                     <Card>
                         <Row gutter={[0, 10]}>
@@ -134,7 +194,7 @@ const SelectSharingAppControl: React.FC<ISelectSharingAppControl> = ({ sharingAp
                         </Row>
                     </Card>
                 </div>
-            ) }
+            )}
         </NewsCardGrid>
     )
 }

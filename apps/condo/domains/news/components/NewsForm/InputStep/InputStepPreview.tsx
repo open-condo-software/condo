@@ -68,8 +68,8 @@ export const InputStepPreview: React.FC<InputStepPreviewProps> = ({
                             iFrameRef={iFramePreviewRef}
                             title = {sharingAppFormValues?.preview?.renderedTitle}
                             body = {sharingAppFormValues?.preview?.renderedBody}
-
-                            validBefore={newsItemData.type === NEWS_TYPE_EMERGENCY ? newsItemData.validBefore : null}
+                            newsType={newsItemData.type}
+                            validBefore={newsItemData.validBefore}
                         />
                     )}
                 </Col>) : (

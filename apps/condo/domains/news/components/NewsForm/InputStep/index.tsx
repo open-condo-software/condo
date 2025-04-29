@@ -57,7 +57,7 @@ type NewsItemSharingFormProps = {
     onSubmit: (SharingAppValues: SharingAppValuesType) => void
     onSkip: (SharingAppValues: SharingAppValuesType) => void
 
-    initialValues: SharingAppValuesType | undefined
+    initialValues?: SharingAppValuesType
 
     newsItemData: NewsItemDataType
 }
@@ -268,11 +268,13 @@ export const InputStep: React.FC<InputStepProps> = ({
         
         const title = sharingAppFormValues?.preview.renderedTitle
         const body = sharingAppFormValues?.preview.renderedBody
+        const scope = sharingAppFormValues?.scope
 
         iFramePreviewRef.current.contentWindow.postMessage({
             handler: 'handleUpdateFromCondo',
             title,
             body,
+            scope: JSON.stringify(scope),
         }, appPreviewUrl)
     }, [sharingAppFormValues, iFramePreviewRef, appPreviewUrl])
 

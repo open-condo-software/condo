@@ -2795,6 +2795,8 @@
   "pages.news.create.selectSharingApp.otherApps": "Otras aplicaciones",
   "pages.news.create.selectSharingApp.otherApps.actionButtonText": "Configurar",
   "pages.news.create.selectSharingApp.otherApps.description": "Configurar publicación de noticias",
+  "pages.news.create.selectSharingApp.finishSetting.actionButtonText": "Configuración completa",
+  "pages.news.create.selectSharingApp.finishSetting.description": "Configuración completa para enviar noticias a ",
   "pages.news.newsItemCard.author": "autor {createdBy}{isOwner, plural, other {} one { (tú)}}",
   "pages.news.newsItemCard.field.body": "Texto",
   "pages.news.newsItemCard.field.sendAt": "Fecha de envío",
