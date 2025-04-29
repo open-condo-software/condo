@@ -4,7 +4,6 @@ import { Col, FormInstance, Row, RowProps, Tabs } from 'antd'
 import { FormItemProps } from 'antd/es'
 import { SizeType } from 'antd/lib/config-provider/SizeContext'
 import Form from 'antd/lib/form'
-import get from 'lodash/get'
 import has from 'lodash/has'
 import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
@@ -418,30 +417,30 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     const router = useRouter()
     const { filters } = parseQuery(router.query)
     const searchFilter = filters?.search ?? null
-    const { link } = useOrganization()
+    const { employee } = useOrganization()
     const { breakpoints } = useLayoutContext()
 
     const [form] = Form.useForm()
 
     const { selectedFiltersTemplate, setSelectedFiltersTemplate } = useMultipleFilterContext()
-    const [openedFiltersTemplate, setOpenedFiltersTemplate] = useState(
+    const [openedFiltersTemplate, setOpenedFiltersTemplate] = useState<typeof filtersSchemaGql>(
         isEqualSelectedFiltersTemplateAndFilters(selectedFiltersTemplate, filters) ? selectedFiltersTemplate : null
     )
 
     const { objs: filtersTemplates, loading, refetch } = filtersSchemaGql.useObjects({
         sortBy: 'createdAt_ASC',
         where: {
-            employee: { id: link.id },
+            employee: { id: employee.id },
             deletedAt: null,
         },
     })
 
     const createFiltersTemplateAction = filtersSchemaGql.useCreate({
-        employee: { connect: { id: link.id } },
+        employee: { connect: { id: employee.id } },
     }, refetch)
 
     const updateFiltersTemplateAction = filtersSchemaGql.useUpdate({
-        employee: { connect: { id: link.id } },
+        employee: { connect: { id: employee.id } },
     }, refetch)
 
     const resetFilters = useCallback(() => {
@@ -532,7 +531,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
             name='existedTemplateName'
             label={TemplateLabel}
             labelCol={LABEL_COL_PROPS}
-            initialValue={get(openedFiltersTemplate, 'name')}
+            initialValue={openedFiltersTemplate?.name}
             required
             rules={ExistingFiltersTemplateNameInputRules}
         >
@@ -661,7 +660,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     const handleCancelModal = useCallback(() => setIsMultipleFiltersModalVisible(false), [setIsMultipleFiltersModalVisible])
 
     const handleTabChange = useCallback((filtersTemplateId) => {
-        const openedTemplateId = get(openedFiltersTemplate, 'id')
+        const openedTemplateId = openedFiltersTemplate?.id
 
         if (openedTemplateId === filtersTemplateId) {
             return
@@ -676,18 +675,18 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         resetFilters()
     }, [filtersTemplates, resetFilters, openedFiltersTemplate, setOpenedFiltersTemplate])
 
-    const tabsActiveKey = useMemo(() => get(openedFiltersTemplate, 'id', 'newFilter'), [openedFiltersTemplate])
+    const tabsActiveKey = useMemo(() => openedFiltersTemplate?.id || 'newFilter', [openedFiltersTemplate])
 
     const templatesTabs = useMemo(() => filtersTemplates.map((filterTemplate, index) => (
         <TabPane
-            tab={get(filterTemplate, 'name', `${TemplateMessage} ${index + 1}`)}
+            tab={filterTemplate?.name || `${TemplateMessage} ${index + 1}`}
             key={filterTemplate.id}
         >
             <ExistingFiltersTemplateNameInput />
         </TabPane>
     )), [ExistingFiltersTemplateNameInput, TemplateMessage, filtersTemplates])
 
-    const initialFormValues = useMemo(() => get(openedFiltersTemplate, 'fields', filters), [filters, openedFiltersTemplate])
+    const initialFormValues = useMemo(() => openedFiltersTemplate?.fields, [openedFiltersTemplate])
     const modalComponents = useMemo(() => getModalComponents(pickBy(initialFormValues), filterMetas, form, breakpoints), [breakpoints, filterMetas, form, initialFormValues])
 
     const ModalFormItems = useCallback(() => {

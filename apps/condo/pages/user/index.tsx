@@ -10,7 +10,7 @@ import Head from 'next/head'
 import Link from 'next/link'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { Edit, Info } from '@open-condo/icons'
+import { Info } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { LocaleContext, useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button, Select, Tooltip, Typography } from '@open-condo/ui'
@@ -244,7 +244,6 @@ export const UserInfoPageContent: React.FC<UserInfoPageContentProps> = ({ useAll
                                     <Link key='update' href='/user/update'>
                                         <Button
                                             type='primary'
-                                            icon={<Edit size='medium'/>}
                                         >
                                             {UpdateMessage}
                                         </Button>

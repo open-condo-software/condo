@@ -11,7 +11,6 @@ import React, { useCallback } from 'react'
 import { useCachePersistor } from '@open-condo/apollo'
 import { IUseSoftDeleteActionType, IUseUpdateActionType } from '@open-condo/codegen/generate.hooks'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
-import { Edit } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -268,7 +267,6 @@ export const EmployeePageContent: React.FC<EmployeePageContent> = ({
                                                         <Link key='update' href={`/employee/${get(employee, 'id')}/update`}>
                                                             <Button
                                                                 type='primary'
-                                                                icon={<Edit size='medium'/>}
                                                             >
                                                                 {UpdateMessage}
                                                             </Button>
