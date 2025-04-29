@@ -798,6 +798,11 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
 
         await syncModifiedFiles(result.id)
 
+        // NOTE: remove any current values from local storage
+        if (typeof window !== 'undefined' && !isExisted) {
+            window.localStorage.removeItem(CURRENT_FORM_VALUES_LOCAL_STORAGE_NAME)
+        }
+
         // NOTE: update queries, related to objects, which may be created in ticket form
         client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allTickets' })
         client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allTicketChanges' })
