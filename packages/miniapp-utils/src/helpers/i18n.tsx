@@ -3,6 +3,8 @@ import React, { createContext, useState, useCallback, useContext } from 'react'
 
 import { isSSR } from './environment'
 
+import { useEffectOnce } from '../hooks/useEffectOnce'
+
 import type { IncomingMessage, ServerResponse } from 'http'
 import type { Context, PropsWithChildren, FC } from 'react'
 
@@ -32,6 +34,11 @@ export type LocaleSelection<AvailableLocale extends string> = {
     selectedLocale: AvailableLocale
     matchingLocale: string
 }
+
+export type PrefetchResult<
+    AvailableLocale extends string,
+    MessagesShape extends Record<string, string>,
+> = LocaleSelection<AvailableLocale> & { messages: MessagesShape }
 
 type SSRResult<PropsType extends Record<string, unknown>> = {
     props: PropsType
@@ -69,7 +76,7 @@ type TranslationsContextType<
     switchLocale(newLocale: AvailableLocale): void
 }
 
-type TranslationsProviderProps<
+export type TranslationsProviderProps<
     AvailableLocale extends string,
     MessagesShape extends Record<string, string>,
 > = PropsWithChildren<{
@@ -78,9 +85,14 @@ type TranslationsProviderProps<
     initialMessages: MessagesShape | undefined
 }>
 
-type TranslationsHelperOptions<AvailableLocale extends string> = {
+type TranslationsHelperOptions<
+    AvailableLocale extends string,
+    MessagesShape extends Record<string, string>,
+> = {
     locales: ReadonlyArray<AvailableLocale>
     defaultLocale: AvailableLocale
+    loadDefaultMessages(): Promise<MessagesShape>
+    loadMessages(locale: AvailableLocale): Promise<Partial<MessagesShape>>
     localeCookieName?: string
 }
 
@@ -119,11 +131,18 @@ export class TranslationsHelper<
     private readonly _locales: Set<string>
     private readonly _defaultLocale: AvailableLocale
     private _context: Context<TranslationsContextType<AvailableLocale, MessagesShape>> | undefined
+    private readonly _loadMessages: (locale: AvailableLocale) => Promise<Partial<MessagesShape>>
+    private readonly _loadDefaultMessages: () => Promise<MessagesShape>
+    private readonly _translations: Partial<Record<AvailableLocale, MessagesShape>> = {}
+    private _defaultMessages: MessagesShape | undefined
     readonly localeCookieName: string = 'NEXT_LOCALE'
 
-    constructor (options: TranslationsHelperOptions<AvailableLocale>) {
+    constructor (options: TranslationsHelperOptions<AvailableLocale, MessagesShape>) {
         this._locales = new Set(options.locales)
         this._defaultLocale = options.defaultLocale
+        this._loadMessages = options.loadMessages
+        this._loadDefaultMessages = options.loadDefaultMessages
+
         if (options.localeCookieName) {
             this.localeCookieName = options.localeCookieName
         }
@@ -133,6 +152,8 @@ export class TranslationsHelper<
         this.getUseTranslationsExtractorHook = this.getUseTranslationsExtractorHook.bind(this)
         this.getPreferredLocale = this.getPreferredLocale.bind(this)
         this.selectSupportedLocale = this.selectSupportedLocale.bind(this)
+        this.getTranslations = this.getTranslations.bind(this)
+        this.prefetchTranslations = this.prefetchTranslations.bind(this)
     }
 
     /**
@@ -320,22 +341,62 @@ export class TranslationsHelper<
      * Extracts prefetched translations to pageProps, so it can be available during SSR
      */
     extractI18NInfo<PropsType extends Record<string, unknown>> (
-        localeSelection: LocaleSelection<AvailableLocale>,
-        messages: MessagesShape,
+        translationsData: PrefetchResult<AvailableLocale, MessagesShape>,
         pageParams: SSRResult<PropsType>
     ): SSRResultWithI18N<AvailableLocale, MessagesShape, PropsType> {
         return {
             ...pageParams,
             props: {
                 ...pageParams.props,
-                [I18N_SELECTED_LOCALE_PROP_NAME]: localeSelection.selectedLocale,
-                [I18N_MATCHING_LOCALE_PROP_NAME]: localeSelection.matchingLocale,
-                [I18N_MESSAGES_PROP_NAME]: messages,
+                [I18N_SELECTED_LOCALE_PROP_NAME]: translationsData.selectedLocale,
+                [I18N_MATCHING_LOCALE_PROP_NAME]: translationsData.matchingLocale,
+                [I18N_MESSAGES_PROP_NAME]: translationsData.messages,
             },
         }
     }
 
+    async getTranslations (locale: AvailableLocale): Promise<MessagesShape> {
+        // Step 1. Load default messages once to have full set of messages
+        if (!this._defaultMessages) {
+            const existingMessages = this._translations[this._defaultLocale]
+            // NOTE: translations can be prepopulated during SSR or other prefetches
+            if (existingMessages) {
+                this._defaultMessages = existingMessages
+            } else {
+                this._defaultMessages = await this._loadDefaultMessages()
+            }
 
+            this._translations[this._defaultLocale] = this._defaultMessages
+        }
+
+        // Step 2. If messages were already fetched - return existing one
+        const existingMessages = this._translations[locale]
+        if (existingMessages) {
+            return existingMessages
+        }
+
+        // Step 3. Fetch language messages, which might be partially translated
+        // and combined with default messages to build full message set
+        const partialTranslatedMessages = await this._loadMessages(locale)
+        const messages: MessagesShape = {
+            ...this._defaultMessages,
+            ...partialTranslatedMessages,
+        }
+        this._translations[locale] = messages
+
+        return messages
+    }
+
+    async prefetchTranslations (req: Optional<IncomingMessage>, res: Optional<ServerResponse>): Promise<PrefetchResult<AvailableLocale, MessagesShape>> {
+        const localeSelection = this.getPreferredLocale(req, res)
+        const messages = await this.getTranslations(localeSelection.selectedLocale)
+
+        return {
+            selectedLocale: localeSelection.selectedLocale,
+            matchingLocale: localeSelection.matchingLocale,
+            messages,
+        }
+    }
 
     getTranslationsProvider (): FC<TranslationsProviderProps<AvailableLocale, MessagesShape>> {
         if (!this._context) {
@@ -350,6 +411,8 @@ export class TranslationsHelper<
         const Context = this._context
         const getMatchingLocale = this._getMatchingLocale
         const localeCookieName = this.localeCookieName
+        const getTranslations = this.getTranslations
+        const translationsObj = this._translations
 
         return function TranslationsProvider ({
             initialSelectedLocale,
@@ -361,11 +424,18 @@ export class TranslationsHelper<
             const [matchingLocale, setMatchingLocale] = useState(initialMatchingLocale)
             const [messages, setMessages] = useState(initialMessages)
 
+            useEffectOnce(() => {
+                if (!isSSR() && initialMessages) {
+                    translationsObj[initialSelectedLocale] = initialMessages
+                }
+            })
+
             const switchLocale = useCallback(async (newLocale: AvailableLocale) => {
-                setSelectedLocale(newLocale)
                 const matchingLocale = getMatchingLocale(newLocale, window.navigator.languages.map(TranslationsHelper.parseLocaleString))
+                const messages = await getTranslations(newLocale)
+                setSelectedLocale(newLocale)
                 setMatchingLocale(matchingLocale)
-                setMessages(undefined)
+                setMessages(messages)
                 setCookie(localeCookieName, matchingLocale)
             }, [])
 
