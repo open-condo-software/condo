@@ -324,7 +324,6 @@ const ClientCardTabContent = ({
     unitType,
 }) => {
     const intl = useIntl()
-    const ShowAllPropertyTicketsMessage = intl.formatMessage({ id: 'pages.clientCard.showAllPropertyTickets' })
     const CreateTicketMessage = intl.formatMessage({ id: 'CreateTicket' })
     const EditContactMessage = intl.formatMessage({ id: 'pages.clientCard.editContact' })
     const LastTicketsLoadedMessage = intl.formatMessage({ id: 'pages.clientCard.lastTicketsLoaded' }, { count: MAX_TABLE_SIZE })
