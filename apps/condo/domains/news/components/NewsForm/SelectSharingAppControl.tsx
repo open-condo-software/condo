@@ -174,8 +174,10 @@ const SelectSharingAppControl: React.FC<ISelectSharingAppControl> = ({ sharingAp
                     </React.Fragment>
                 )
             })}
-
-            {sharingAppContexts.length === 0 && (
+            {
+                // TODO (DOMA-11564) Compare with B2BAppNewsSharingConfig
+            }
+            {sharingAppContexts.length === 1 && (
                 <div style={cardStyle}>
                     <Card>
                         <Row gutter={[0, 10]}>
