@@ -50,6 +50,7 @@ const B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS = {
         B2BAccessToken: {
             pathToOrganizationId: ['context', 'organization', 'id'],
         },
+        B2BAppContext: {},
 
         // Billing domain
         BillingIntegrationOrganizationContext: {},
