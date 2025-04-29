@@ -5,8 +5,8 @@ import { Row, Col, Space, Typography, InputNumber } from 'antd'
 import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Checkbox } from '@open-condo/ui'
 
-import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Select from '@condo/domains/common/components/antd/Select'
 import { Button } from '@condo/domains/common/components/Button'
 
@@ -18,7 +18,6 @@ import {
     MODAL_FORM_BUTTON_STYLE,
     TEXT_BUTTON_STYLE,
     MODAL_FORM_EDIT_GUTTER,
-    MODAL_FORM_CHECKBOX_STYLE,
     MODAL_FORM_BUTTON_GUTTER,
     FULL_SIZE_UNIT_STYLE,
 } from './BaseUnitForm'
@@ -222,9 +221,11 @@ const EditParkingForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                         style={INPUT_STYLE}
                     />
                 </Space>
-                <Checkbox defaultChecked onChange={toggleRenameNextUnits} style={MODAL_FORM_CHECKBOX_STYLE}>
-                    {RenameNextParkingUnitsLabel}
-                </Checkbox>
+                <Col span={24}>
+                    <Checkbox onChange={toggleRenameNextUnits}>
+                        {RenameNextParkingUnitsLabel}
+                    </Checkbox>
+                </Col>
             </Col>
             <Row gutter={MODAL_FORM_BUTTON_GUTTER}>
                 <Col span={24}>
