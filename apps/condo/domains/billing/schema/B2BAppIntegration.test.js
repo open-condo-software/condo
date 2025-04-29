@@ -2,6 +2,7 @@ const {
     expectToThrowAccessDeniedErrorToResult, makeClient,
 } = require('@open-condo/keystone/test.utils')
 
+const { CONTEXT_FINISHED_STATUS: BILLING_CONTEXT_FINISHED_STATUS } = require('@condo/domains/billing/constants/constants')
 const { registerBillingReceiptsByTestClient } = require('@condo/domains/billing/utils/testSchema')
 const { createTestBillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
 const {
@@ -23,7 +24,7 @@ describe('B2BAccess check with B2BAccessToken', () => {
     beforeAll(async () => {
         await environment1.init()
         await environment2.init()
-        const [billingContext] = await createTestBillingIntegrationOrganizationContext(environment1.clients.support, environment2.organization, environment1.billingIntegration)
+        const [billingContext] = await createTestBillingIntegrationOrganizationContext(environment1.clients.support, environment2.organization, environment1.billingIntegration, { status: BILLING_CONTEXT_FINISHED_STATUS })
         const [b2bAppContext] = await createTestB2BAppContext(environment2.clients.support, environment1.b2bApp, environment2.organization, { status: CONTEXT_FINISHED_STATUS })
         environment2.billingContext = billingContext
         environment2.b2bAppContext = b2bAppContext
