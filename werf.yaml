@@ -1114,7 +1114,7 @@ docker:
   ENV:
     LANG: C.UTF-8
 ---
-image: billing-self-service
+image: billing_self_service
 fromImage: base
 fromCacheVersion: "2"
 git:
@@ -1151,9 +1151,9 @@ shell:
     - "echo 'REDIS_URL=undefined' >> /app/.env"
     - "echo 'NODE_ENV=production' >> /app/.env"
     - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
-    - "yarn workspace @app/rb next telemetry disable"
-    - "yarn workspace @app/rb build:deps"
-    - "yarn workspace @app/rb build"
+    - "yarn workspace @app/billing-self-service next telemetry disable"
+    - "yarn workspace @app/billing-self-service build:deps"
+    - "yarn workspace @app/billing-self-service build"
     - "rm -rf /app/.env"
     - "rm -rf /app/.config"
 
