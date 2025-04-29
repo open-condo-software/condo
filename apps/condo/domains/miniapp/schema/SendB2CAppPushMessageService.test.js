@@ -347,6 +347,9 @@ describe('SendB2CAppPushMessageService', () => {
             })
 
             expect(message2.id).toMatch(UUID_RE)
+
+            // Wait before run next test
+            await new Promise((resolve) => setTimeout(resolve, CACHE_TTL[CANCELED_CALL_MESSAGE_PUSH_TYPE] * 1000))
         })
     })
 
