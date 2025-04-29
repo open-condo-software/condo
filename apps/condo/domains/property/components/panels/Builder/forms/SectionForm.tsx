@@ -7,8 +7,8 @@ import isEmpty from 'lodash/isEmpty'
 import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Checkbox } from '@open-condo/ui'
 
-import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Select from '@condo/domains/common/components/antd/Select'
 import { Button } from '@condo/domains/common/components/Button'
 import { MAX_PROPERTY_FLOORS_COUNT, MAX_PROPERTY_UNITS_COUNT_PER_FLOOR } from '@condo/domains/property/constants/property'
@@ -19,7 +19,6 @@ import {
     MODAL_FORM_BUTTON_STYLE,
     MODAL_FORM_EDIT_GUTTER,
     INPUT_STYLE,
-    MODAL_FORM_CHECKBOX_STYLE,
     TEXT_BUTTON_STYLE,
     MODAL_FORM_BUTTON_GUTTER,
     FULL_SIZE_UNIT_STYLE,
@@ -267,10 +266,12 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                         onChange={setNameValue}
                         style={INPUT_STYLE}
                     />
+                    <Col span={24}>
+                        <Checkbox onChange={toggleRenameNextUnits}>
+                            {RenameNextUnitsLabel}
+                        </Checkbox>
+                    </Col>
                 </Space>
-                <Checkbox defaultChecked onChange={toggleRenameNextUnits} style={MODAL_FORM_CHECKBOX_STYLE}>
-                    {RenameNextUnitsLabel}
-                </Checkbox>
             </Col>
             <Row gutter={MODAL_FORM_BUTTON_GUTTER}>
                 <Col span={24}>
