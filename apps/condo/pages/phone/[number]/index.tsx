@@ -69,7 +69,7 @@ type ClientContactPropsType = {
 export type TabKey = 'contactPropertyTickets' | 'residentsEntranceTickets' | 'residentsPropertyTickets'
 type TabsItems = { key: TabKey, label: string }[]
 
-const MAX_TABLE_SIZE = 2
+const MAX_TABLE_SIZE = 20
 
 export const CONTACT_PROPERTY_TICKETS_TAB = 'contactPropertyTickets'
 const RESIDENTS_PROPERTY_TICKETS_TAB = 'residentsPropertyTickets'
