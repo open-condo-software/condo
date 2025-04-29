@@ -889,11 +889,12 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const initialNotDraftInvoices = Form.useWatch('initialNotDraftInvoices', form)
 
     useEffect(() => {
-        if (typeof window !== 'undefined') {
+        if (typeof window !== 'undefined' && !isExisted) {
             try {
                 const localStorageValues = window.localStorage.getItem(CURRENT_FORM_VALUES_LOCAL_STORAGE_NAME)
                 if (localStorageValues) {
                     const localStorageValuesParsed = JSON.parse(localStorageValues)
+
                     form.setFieldsValue({
                         details: localStorageValuesParsed.details,
                     })
@@ -907,7 +908,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     }, [form])
 
     const saveFormValuesToLocalStorage = (event) => {
-        if (typeof window !== 'undefined') {
+        if (typeof window !== 'undefined' && !isExisted) {
             const currentValue = window.localStorage.getItem(CURRENT_FORM_VALUES_LOCAL_STORAGE_NAME) || '{}'
             try {
                 const newValue = JSON.parse(currentValue)
