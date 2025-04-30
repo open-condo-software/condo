@@ -1,14 +1,22 @@
-import { useGetContactsExistenceQuery, useGetContactsForTableQuery } from '@app/condo/gql'
-import { ContactWhereInput, OrganizationEmployeeRole, SortContactsBy, ContactExportTaskFormatType } from '@app/condo/schema'
-import { Col, Row, Typography } from 'antd'
+import { useGetContactsExistenceQuery, useGetContactsForTableQuery, useUpdateContactsMutation } from '@app/condo/gql'
+import {
+    ContactWhereInput,
+    OrganizationEmployeeRole,
+    SortContactsBy,
+    ContactExportTaskFormatType,
+} from '@app/condo/schema'
+import { Col, notification, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { ColumnsType } from 'antd/lib/table'
 import { get } from 'lodash'
+import chunk from 'lodash/chunk'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { QuestionCircle, Search } from '@open-condo/icons'
+import { useApolloClient } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -18,6 +26,7 @@ import { colors } from '@open-condo/ui/dist/colors'
 import Input from '@condo/domains/common/components/antd/Input'
 import { PageHeader, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
+import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
 import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { Loader } from '@condo/domains/common/components/Loader'
@@ -28,6 +37,7 @@ import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePreviousQueryParams'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
+import { useTableRowSelection } from '@condo/domains/common/hooks/useTableRowSelection'
 import { PageComponentType } from '@condo/domains/common/types'
 import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
@@ -106,10 +116,18 @@ const ContactTableContent: React.FC<ContactPageContentProps> = (props) => {
     const intl = useIntl()
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const CreateContact = intl.formatMessage({ id: 'AddContact' })
+    const CancelSelectedReadingsMessage = intl.formatMessage({ id: 'global.cancelSelection' })
+    const ConfirmDeleteManyContactsTitle = intl.formatMessage({ id: 'contact.ConfirmDeleteManyTitle' })
+    const ConfirmDeleteManyContactsMessage = intl.formatMessage({ id: 'contact.ConfirmDeleteMessage' })
+    const DeleteMessage = intl.formatMessage({ id: 'Delete' })
+    const DontDeleteMessage = intl.formatMessage({ id: 'DontDelete' })
+    const DoneMsg = intl.formatMessage({ id: 'OperationCompleted' })
+    const VerifyMessage = intl.formatMessage({ id: 'contact.Verify' })
 
     const router = useRouter()
     const { user } = useAuth() as { user: { id: string } }
     const { breakpoints } = useLayoutContext()
+    const client = useApolloClient()
 
     const { filters, sorters, offset } = parseQuery(router.query)
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMeta, SORTABLE_PROPERTIES)
@@ -160,6 +178,115 @@ const ContactTableContent: React.FC<ContactPageContentProps> = (props) => {
         }
     }, [])
 
+    const itemIds = useMemo(() => contacts?.map(contact => contact?.id), [contacts])
+    const { selectedKeys, clearSelection, rowSelection } = useTableRowSelection({ itemIds })
+    const SelectedItemsMessage = useMemo(() => intl.formatMessage({ id: 'ItemsSelectedCount' }, { count: selectedKeys.length }), [intl, selectedKeys])
+
+    const [updateContactsMutation] = useUpdateContactsMutation({
+        onCompleted: async () => {
+            clearSelection()
+            await refetch()
+        },
+    })
+
+    const updateSelectedContactsByChunks = useCallback(async (payload) => {
+        if (!selectedKeys.length) return
+
+        const itemsToDeleteByChunks = chunk(selectedKeys.map((key) => ({
+            id: key,
+            data: {
+                dv: 1,
+                sender: getClientSideSenderInfo(),
+                ...payload,
+            },
+        })), 30)
+
+        for (const itemsToDelete of itemsToDeleteByChunks) {
+            await updateContactsMutation({
+                variables: {
+                    data: itemsToDelete,
+                },
+            })
+        }
+
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allContacts' })
+        client.cache.gc()
+    }, [client.cache, selectedKeys, updateContactsMutation])
+
+    const handleDeleteButtonClick = useCallback(async () => {
+        const now = new Date().toISOString()
+        await updateSelectedContactsByChunks({ deletedAt: now })
+    }, [updateSelectedContactsByChunks])
+
+    const handleVerifyButtonClick = useCallback(async () => {
+        await updateSelectedContactsByChunks({ isVerified: true })
+        notification.success({ message: DoneMsg })
+    }, [DoneMsg, updateSelectedContactsByChunks])
+
+    const defaultActionBarButtons: [ReactElement, ...ReactElement[]] = useMemo(() => [
+        canManageContacts && (
+            <>
+                <Button
+                    block={breakpoints.TABLET_LARGE}
+                    key='left'
+                    type='primary'
+                    onClick={() => router.push(ADD_CONTACT_ROUTE)}
+                >
+                    {CreateContact}
+                </Button>
+                <ImportWrapper
+                    key='import'
+                    accessCheck={canManageContacts}
+                    onFinish={refetch}
+                    columns={columns}
+                    rowNormalizer={contactNormalizer}
+                    rowValidator={contactValidator}
+                    objectCreator={contactCreator}
+                    domainName='contact'
+                    extraModalContent={{
+                        'example': IsVerifiedCheckbox,
+                    }}
+                    handleClose={handleImportModalClose}
+                />
+            </>
+        ),
+        <ExportButton key='export' />,
+    ], [
+        CreateContact, ExportButton, IsVerifiedCheckbox, breakpoints.TABLET_LARGE, canManageContacts, columns,
+        contactCreator, contactNormalizer, contactValidator, handleImportModalClose, refetch, router,
+    ])
+
+    const selectedContactsActionBarButtons: [ReactElement, ...ReactElement[]] = useMemo(() => [
+        <DeleteButtonWithConfirmModal
+            key='deleteSelectedContacts'
+            title={ConfirmDeleteManyContactsTitle}
+            message={ConfirmDeleteManyContactsMessage}
+            okButtonLabel={DeleteMessage}
+            action={handleDeleteButtonClick}
+            buttonContent={DeleteMessage}
+            cancelMessage={DontDeleteMessage}
+            showCancelButton
+            cancelButtonType='primary'
+        />,
+        <Button
+            key='verifySelectedContacts'
+            type='secondary'
+            onClick={handleVerifyButtonClick}
+        >
+            {VerifyMessage}
+        </Button>,
+        <Button
+            key='cancelContactsSelection'
+            type='secondary'
+            onClick={clearSelection}
+        >
+            {CancelSelectedReadingsMessage}
+        </Button>,
+    ], [
+        ConfirmDeleteManyContactsTitle, ConfirmDeleteManyContactsMessage, DeleteMessage, handleDeleteButtonClick,
+        DontDeleteMessage, handleVerifyButtonClick, clearSelection, CancelSelectedReadingsMessage, VerifyMessage,
+    ])
+
     return (
         <Row gutter={ROW_VERTICAL_GUTTERS} align='middle' justify='start'>
             <Col span={24}>
@@ -183,41 +310,15 @@ const ContactTableContent: React.FC<ContactPageContentProps> = (props) => {
                     columns={tableColumns}
                     onRow={handleRowAction}
                     pageSize={CONTACT_PAGE_SIZE}
+                    rowSelection={canManageContacts && rowSelection}
                 />
             </Col>
             {
                 canManageContacts && (
                     <Col span={24}>
                         <ActionBar
-                            actions={[
-                                canManageContacts && (
-                                    <>
-                                        <Button
-                                            block={breakpoints.TABLET_LARGE}
-                                            key='left'
-                                            type='primary'
-                                            onClick={() => router.push(ADD_CONTACT_ROUTE)}
-                                        >
-                                            {CreateContact}
-                                        </Button>
-                                        <ImportWrapper
-                                            key='import'
-                                            accessCheck={canManageContacts}
-                                            onFinish={refetch}
-                                            columns={columns}
-                                            rowNormalizer={contactNormalizer}
-                                            rowValidator={contactValidator}
-                                            objectCreator={contactCreator}
-                                            domainName='contact'
-                                            extraModalContent={{
-                                                'example': IsVerifiedCheckbox,
-                                            }}
-                                            handleClose={handleImportModalClose}
-                                        />
-                                    </>
-                                ),
-                                <ExportButton key='export' />,
-                            ]}
+                            message={selectedKeys.length > 0 && SelectedItemsMessage}
+                            actions={selectedKeys.length > 0 ? selectedContactsActionBarButtons : defaultActionBarButtons}
                         />
                     </Col>
                 )
