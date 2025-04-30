@@ -44,9 +44,12 @@ describe('ExecutionAIFlowTask', () => {
     beforeAll(async () => {
         adminClient = await makeLoggedInAdminClient()
         supportClient = await makeClientWithSupportUser()
+        anonymousClient = await makeClient()
+    })
+
+    beforeEach(async () => {
         userClient = await makeClientWithNewRegisteredAndLoggedInUser()
         userClient2 = await makeClientWithNewRegisteredAndLoggedInUser()
-        anonymousClient = await makeClient()
     })
 
     describe('Accesses', () => {
@@ -391,6 +394,37 @@ describe('ExecutionAIFlowTask', () => {
             }, {
                 code: 'BAD_USER_INPUT',
                 type: 'INVALID_FLOW_CONTEXT',
+            })
+        })
+    })
+
+    describe('Rate limiter', () => {
+        test('User can run only 30 tasks per 1 hours (default limits)', async () => {
+            const MAX_REQUESTS = 30
+
+            for (let i = 0; i < MAX_REQUESTS; i++) {
+                const selfTask = await ExecutionAIFlowTaskForUser.create(userClient, {
+                    user: { connect: { id: userClient.user.id } },
+                    flowType: 'success_flow',
+                    context: { some_field: faker.lorem.words(3) },
+                    dv: 1,
+                    sender: { fingerprint: faker.random.alphaNumeric(8), dv: 1 },
+                })
+                expect(selfTask.user.id).toEqual(userClient.user.id)
+            }
+
+            await expectToThrowGQLError(async () => {
+                await ExecutionAIFlowTaskForUser.create(userClient, {
+                    user: { connect: { id: userClient.user.id } },
+                    flowType: 'success_flow',
+                    context: { some_field: faker.lorem.words(3) },
+                    dv: 1,
+                    sender: { fingerprint: faker.random.alphaNumeric(8), dv: 1 },
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'TOO_MANY_REQUESTS',
+                message: 'You have to wait {minutesRemaining} min. to be able to send request again',
             })
         })
     })

@@ -11,7 +11,7 @@ class AbstractAdapter {
      * @param {object} context
      * @return {Promise<{result: string, _fullResult: any}>}
      */
-    async predict (predictUrl, context) {
+    async execute (predictUrl, context) {
         throw new Error('Method not implemented!')
     }
 }

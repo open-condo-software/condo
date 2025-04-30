@@ -51,7 +51,7 @@ const executeAIFlow = async (taskId) => {
 
         const isCustomFlow = CUSTOM_FLOW_TYPES_LIST.includes(task.flowType)
         const adapterConfig = AI_FLOWS_CONFIG?.[isCustomFlow ? 'custom' : 'default']?.[task.flowType]
-        if (!adapterConfig) throw new Error(`Cannot AI flow adapter config for flow "${task.flowType}"!`)
+        if (!adapterConfig) throw new Error(`Cannot find AI flow adapter config for flow "${task.flowType}"!`)
 
         const adapterName = adapterConfig.adapter
         if (!adapterName) throw new Error(`Unknown AI flow adapter for flow "${task.flowType}"!`)
@@ -68,7 +68,7 @@ const executeAIFlow = async (taskId) => {
             locale: task.locale,
         }
 
-        const prediction = await adapter.predict(predictionUrl, fullContext)
+        const prediction = await adapter.execute(predictionUrl, fullContext)
 
         const schema = FLOW_META_SCHEMAS[isCustomFlow ? CUSTOM_FLOW_TYPE : task.flowType]?.output ?? { type: 'object' }
         const validatePrediction = ajv.compile(schema)
@@ -81,8 +81,9 @@ const executeAIFlow = async (taskId) => {
 
             taskLogger.error({
                 msg: 'Failed to execute AI flow',
-                data: { id: taskId, flowType: task?.flowType },
+                data: { flowType: task?.flowType },
                 err: 'The prediction format is not valid!',
+                taskId,
             })
 
             await ExecutionAIFlowTask.update(context, taskId, {
@@ -118,7 +119,8 @@ const executeAIFlow = async (taskId) => {
 
         taskLogger.error({
             msg: 'Failed to execute AI flow',
-            data: { id: taskId, flowType: task?.flowType },
+            data: { flowType: task?.flowType },
+            taskId,
             err: error,
         })
 

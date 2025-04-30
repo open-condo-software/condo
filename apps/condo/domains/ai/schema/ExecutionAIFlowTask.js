@@ -21,7 +21,22 @@ const {
 const { executeAIFlow } = require('@condo/domains/ai/tasks')
 const { WRONG_VALUE } = require('@condo/domains/common/constants/errors')
 const { LOCALES } = require('@condo/domains/user/constants/common')
+const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
+const EXECUTION_AI_FLOW_TASK_DEFAULT_RATE_LIMITER = {
+    windowSizeInSec: 60 * 60,
+    windowLimit: 30,
+}
+let EXECUTION_AI_FLOW_TASK_CUSTOM_RATE_LIMITER = {}
+try {
+    EXECUTION_AI_FLOW_TASK_CUSTOM_RATE_LIMITER = JSON.parse(conf.EXECUTION_AI_FLOW_TASK_RATE_LIMITER)
+} catch (error) {
+    console.error('EXECUTION_AI_FLOW_TASK_RATE_LIMITER could not be parsed!')
+    console.error(error)
+    EXECUTION_AI_FLOW_TASK_CUSTOM_RATE_LIMITER = {}
+}
+
+const redisGuard = new RedisGuard()
 
 const ERRORS = {
     UNKNOWN_FLOW_TYPE: {
@@ -193,12 +208,23 @@ const ExecutionAIFlowTask = new GQLListSchema('ExecutionAIFlowTask', {
         auth: true,
     },
     hooks: {
-        validateInput: (args) => {
+        validateInput: async (args) => {
             const { resolvedData, existingItem, operation, context } = args
 
             const newItem = { ...existingItem, ...resolvedData }
 
             if (operation === 'create') {
+                // rate limiter
+                const userId =  newItem?.user
+                const key = ['executionAIFlowTask', 'userId', userId].join(':')
+                await redisGuard.checkCustomLimitCounters(
+                    key,
+                    EXECUTION_AI_FLOW_TASK_CUSTOM_RATE_LIMITER.windowSizeInSec || EXECUTION_AI_FLOW_TASK_DEFAULT_RATE_LIMITER.windowSizeInSec,
+                    EXECUTION_AI_FLOW_TASK_CUSTOM_RATE_LIMITER.windowLimit || EXECUTION_AI_FLOW_TASK_DEFAULT_RATE_LIMITER.windowLimit,
+                    context
+                )
+
+                // context validation
                 const flowType = newItem.flowType
                 const flowContext = newItem.context
                 const isCustomFlow = CUSTOM_FLOW_TYPES_LIST.includes(flowType)

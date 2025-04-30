@@ -4,5 +4,5 @@ const { executeAIFlow } = require('./executeAIFlow')
 
 
 module.exports = {
-    executeAIFlow: createTask('executeAIFlow', executeAIFlow, 'low'),
+    executeAIFlow: createTask('executeAIFlow', executeAIFlow),
 }

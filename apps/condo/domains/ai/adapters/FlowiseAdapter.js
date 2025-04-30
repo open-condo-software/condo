@@ -23,7 +23,7 @@ class FlowiseAdapter extends AbstractAdapter {
         return this.#isConfigured
     }
 
-    async predict (predictUrl, context) {
+    async execute (predictUrl, context) {
         if (!this.isConfigured) {
             throw new Error('FlowiseAdapter not configured!')
         }
