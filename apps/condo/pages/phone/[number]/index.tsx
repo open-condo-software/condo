@@ -591,11 +591,11 @@ const NotResidentClientTabContent = ({
 
     const handleTicketCreateClick = useCallback(async (ticket) => {
         const initialValues = {
-            property: property.id,
+            property: property?.id,
             unitName,
             unitType,
-            clientName: ticket.clientName,
-            clientPhone: ticket.clientPhone,
+            clientName: ticket?.clientName,
+            clientPhone: ticket?.clientPhone,
             isResidentTicket: false,
         }
 
