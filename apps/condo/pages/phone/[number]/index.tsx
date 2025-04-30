@@ -83,7 +83,7 @@ const ROW_BIG_GUTTER: RowProps['gutter'] = [0, 60]
 const ROW_MEDIUM_GUTTER: RowProps['gutter'] = [0, 40]
 const ROW_MEDIUM_SMALL_GUTTER: RowProps['gutter'] = [0, 24]
 const HINT_CARD_STYLE = { maxHeight: '3em' }
-const TICKET_SORT_BY = [SortTicketsBy.CreatedAtDesc]
+const TICKET_SORT_BY = [SortTicketsBy.OrderAsc, SortTicketsBy.CreatedAtDesc]
 const HINTS_COL_PROPS: ColProps = { span: 24 }
 
 const getMapData = async (cardsData) => {
@@ -397,12 +397,33 @@ const ClientCardTabContent = ({
     },
     [handleTicketCreateClick, lastCreatedTicket, phone, property])
 
-    const redirectToTicketPage = useCallback(async () => await redirectToForm({
-        router,
-        formRoute: '/ticket',
-        initialValues: searchQuery,
-        target:'_blank',
-    }), [router, searchQuery])
+    const redirectToTicketPage = useCallback(async () => {
+        let filters = {}
+        if (currentTableTab === RESIDENTS_ENTRANCE_TICKETS_TAB) {
+            filters = {
+                property: property?.id,
+                sectionName,
+                sectionType,
+            }
+        }
+
+        if (currentTableTab === RESIDENTS_PROPERTY_TICKETS_TAB) {
+            filters = { property: property?.id }
+        }
+
+        if (currentTableTab === CONTACT_PROPERTY_TICKETS_TAB) {
+            filters = {
+                clientPhone: phone,
+                property: property?.id,
+                unitName,
+                unitType,
+            }
+        }
+
+        if (typeof window !== 'undefined') {
+            window.open(`/ticket?filters=${encodeURIComponent(JSON.stringify(filters))}`, '_blank')
+        }
+    }, [phone, unitName, unitType, property, sectionName, sectionType, currentTableTab])
 
     return (
         <Row gutter={ROW_BIG_GUTTER}>
