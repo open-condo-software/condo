@@ -1768,7 +1768,7 @@
   "pages.billing.registry.uploadPage.title": "Загрузка нового реестра",
   "pages.clientCard.lastTicketsLoaded": "Загружены последние {count} заявок.",
   "pages.clientCard.openAllTickets": "Открыть все заявки",
-  "pages.clientCard.table.tabs.contactPropertyTickets": "Заявки контакта по этому адресу",
+  "pages.clientCard.table.tabs.contactPropertyTickets": "Заявки контакта по адресу",
   "pages.clientCard.table.tabs.residentsEntranceTickets": "Заявки жителей по подъезду",
   "pages.clientCard.table.tabs.residentsPropertyTickets": "Заявки жителей по дому",
   "pages.clientCard.Title": "Контакт {phone}",

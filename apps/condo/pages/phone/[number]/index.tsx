@@ -28,7 +28,6 @@ import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button, Carousel, Space, Tabs, Typography } from '@open-condo/ui'
 
 import { PageContent, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
-import { BuildingIcon } from '@condo/domains/common/components/icons/BuildingIcon'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { Tag } from '@condo/domains/common/components/Tag'
@@ -325,7 +324,6 @@ const ClientCardTabContent = ({
     unitType,
 }) => {
     const intl = useIntl()
-    const ShowAllPropertyTicketsMessage = intl.formatMessage({ id: 'pages.clientCard.showAllPropertyTickets' })
     const CreateTicketMessage = intl.formatMessage({ id: 'CreateTicket' })
     const EditContactMessage = intl.formatMessage({ id: 'pages.clientCard.editContact' })
     const LastTicketsLoadedMessage = intl.formatMessage({ id: 'pages.clientCard.lastTicketsLoaded' }, { count: MAX_TABLE_SIZE })
@@ -383,12 +381,6 @@ const ClientCardTabContent = ({
 
     const columns = useClientCardTicketTableColumns(tickets, currentTableTab, MAX_TABLE_SIZE)
 
-    const handleShowAllPropertyTicketsMessage = useCallback(async () => {
-        if (typeof window !== 'undefined') {
-            window.open(`/ticket?filters={"property":"${property.id}"}`, '_blank')
-        }
-    }, [property])
-
     const handleRowAction = useCallback((record) => {
         return {
             onClick: async () => {
@@ -409,6 +401,7 @@ const ClientCardTabContent = ({
         router,
         formRoute: '/ticket',
         initialValues: searchQuery,
+        target:'_blank',
     }), [router, searchQuery])
 
     return (
@@ -418,14 +411,6 @@ const ClientCardTabContent = ({
                     <>
                         <Col span={24}>
                             <Row gutter={ROW_BIG_GUTTER}>
-                                <Col span={24}>
-                                    <Typography.Link size='large' onClick={handleShowAllPropertyTicketsMessage}>
-                                        <Space size={12}>
-                                            <BuildingIcon/>
-                                            {ShowAllPropertyTicketsMessage}
-                                        </Space>
-                                    </Typography.Link>
-                                </Col>
                                 <Col span={24}>
                                     <ClientContent
                                         phone={phone}
