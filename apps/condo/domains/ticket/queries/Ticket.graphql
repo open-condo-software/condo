@@ -101,6 +101,10 @@ query getTicketsForClientCard ($where: TicketWhereInput!, $sortBy: [SortTicketsB
         propertyAddressMeta { ...AddressMetaForTableAddress }
         propertyAddress
         sectionType
+        isEmergency
+        isWarranty
+        isPayable
+        statusReopenedCounter
         sectionName
         floorName
         unitType

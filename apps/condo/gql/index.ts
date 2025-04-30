@@ -4748,6 +4748,10 @@ export const GetTicketsForClientCardDocument = gql`
     }
     propertyAddress
     sectionType
+    isEmergency
+    isWarranty
+    isPayable
+    statusReopenedCounter
     sectionName
     floorName
     unitType
