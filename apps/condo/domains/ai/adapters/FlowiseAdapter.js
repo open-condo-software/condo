@@ -15,6 +15,8 @@ class FlowiseAdapter extends AbstractAdapter {
     constructor () {
         super()
 
+        // In fact, the service could be accessed without authorization.
+        // But for security reasons, we don't allow that — using an authorization token is mandatory!
         this.#isConfigured = !!FLOWISE_CONFIG?.secret
         if (!this.#isConfigured) console.warn('FlowiseAdapter not configured!')
     }

@@ -34,8 +34,13 @@ const AI_FLOWS_CONFIG = conf.AI_FLOWS_CONFIG ? JSON.parse(conf.AI_FLOWS_CONFIG) 
 
 const CUSTOM_FLOW_TYPE = 'custom_flow'
 
+/**
+ * list of hardcoded flow types
+ *
+ * @example
+ * EXAMPLE: 'example'
+ */
 const FLOW_TYPES = {
-    // CREATE_TICKET_COMMENT: 'create_ticket_comment',
 }
 const FLOW_TYPES_LIST = Object.values(FLOW_TYPES)
 
@@ -45,30 +50,32 @@ const CUSTOM_FLOW_TYPES_LIST = Object.keys(AI_FLOWS_CONFIG?.custom || {})
  * Schemes for validating input and output data.
  * Syntax Ajv. Only object type.
  * If a schema is not specified for a type, the basic check will be used: { type: 'object' }
+ *
+ * @example
+ * [FLOW_TYPES.EXAMPLE]: {
+ *         input: {
+ *             type: 'object',
+ *             properties: {
+ *                 problem: {
+ *                     type: 'string',
+ *                 },
+ *             },
+ *             additionalProperties: false,
+ *             required: ['problem'],
+ *         },
+ *         output: {
+ *             type: 'object',
+ *             properties: {
+ *                 answer: {
+ *                     type: 'string',
+ *                 },
+ *             },
+ *             additionalProperties: false,
+ *             required: ['answer'],
+ *         },
+ *     },
  */
 const FLOW_META_SCHEMAS = {
-    // [FLOW_TYPES.CREATE_TICKET_COMMENT]: {
-    //     input: {
-    //         type: 'object',
-    //         properties: {
-    //             problem: {
-    //                 type: 'string',
-    //             },
-    //         },
-    //         additionalProperties: false,
-    //         required: ['problem'],
-    //     },
-    //     output: {
-    //         type: 'object',
-    //         properties: {
-    //             comment: {
-    //                 type: 'string',
-    //             },
-    //         },
-    //         additionalProperties: false,
-    //         required: ['comment'],
-    //     },
-    // },
     [CUSTOM_FLOW_TYPE]: {
         // Data for custom flows is only checked to ensure that it is an object
         input: {
