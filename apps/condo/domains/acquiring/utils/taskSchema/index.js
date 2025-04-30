@@ -24,6 +24,7 @@ const {
     RECURRENT_PAYMENT_PROCESS_ERROR_CARD_TOKEN_NOT_VALID_CODE,
     RECURRENT_PAYMENT_PROCESS_ERROR_CAN_NOT_REGISTER_MULTI_PAYMENT_CODE,
     RECURRENT_PAYMENT_PROCESS_ERROR_NO_RECEIPTS_TO_PROCEED_CODE,
+    INSURANCE_BILLING_CATEGORY,
 } = require('@condo/domains/acquiring/constants/recurrentPayment')
 const {
     RecurrentPayment,
@@ -180,7 +181,8 @@ async function getReceiptsForServiceConsumer (context, date, serviceConsumer, bi
     }
 
     // prepare conditions
-    const billingCategoryCondition = billingCategoryId ? { category: { id: billingCategoryId } } : {}
+    // TODO DOMA-11572
+    const billingCategoryCondition = billingCategoryId ? { category: { id: billingCategoryId } } : { category: { id_not: INSURANCE_BILLING_CATEGORY } }
     const billingAccountCondition = { account: { number: billingAccountNumber } }
     const billingIntegrationContextCondition = { context: { organization: { id: organizationId } } }
     const periodCondition = { period_in: [period, monthBeforePeriod, twoMonthBeforePeriod] }
