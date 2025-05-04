@@ -95,7 +95,7 @@
     "http-proxy": "^1.18.1",
     "iconv-lite": "^0.6.3",
     "isomorphic-fetch": "^3.0.0",
-    "jose": "2.0.5",
+    "jose": "2.0.7",
     "js-cookie": "^2.2.1",
     "jschardet": "^3.0.0",
     "jsonwebtoken": "^9.0.0",
