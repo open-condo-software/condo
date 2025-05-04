@@ -83279,6 +83279,7 @@ input SuggestServiceProviderInput {
 }
 
 type SuggestServiceProviderOutput {
+  id: String!
   tin: String!
   name: String!
 }
@@ -88158,7 +88159,7 @@ type Query {
   predictTicketClassification(data: PredictTicketClassificationInput!): TicketClassifier
   getResidentExistenceByPhoneAndAddress(data: GetResidentExistenceByPhoneAndAddressInput!): GetResidentExistenceByPhoneAndAddressOutput
   findOrganizationsByAddress(data: FindOrganizationsByAddressInput!): [FindOrganizationByAddressOutput]
-  suggestServiceProvider(data: SuggestServiceProviderInput!): [SuggestServiceProviderOutput]
+  suggestServiceProvider(data: SuggestServiceProviderInput!): [SuggestServiceProviderOutput!]!
   findUnitsByAddress(data: FindUnitsByAddressInput!): FindUnitsByAddressOutput
 
   """
