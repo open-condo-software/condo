@@ -82,6 +82,8 @@ const FORBIDDEN = 'FORBIDDEN'
 const BAD_USER_INPUT = 'BAD_USER_INPUT'
 // Too Many Requests
 const TOO_MANY_REQUESTS = 'TOO_MANY_REQUESTS'
+// Too Large Requests
+const TOO_LARGE_REQUESTS = 'TOO_LARGE_REQUESTS'
 
 /**
  * First level of error classification, used in custom GraphQL queries or mutations
@@ -97,6 +99,7 @@ const GQLErrorCode = {
     FORBIDDEN,          // Don't have an access (maybe need to logIn or reLogIn user)
     BAD_USER_INPUT,     // Need to process by user form!
     TOO_MANY_REQUESTS,  // Need to process by user client to wait some time!
+    TOO_LARGE_REQUESTS,
 }
 
 // This error type is specifically used to indicate that during the execution of a GraphQL query,

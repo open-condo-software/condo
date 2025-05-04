@@ -1,0 +1,8 @@
+const DEFAULT_PAYLOAD_LIMIT = 25000
+const ERROR_TYPE = 'PAYLOAD_LIMIT_EXCEEDED'
+
+
+module.exports = {
+    DEFAULT_PAYLOAD_LIMIT,
+    ERROR_TYPE,
+}
