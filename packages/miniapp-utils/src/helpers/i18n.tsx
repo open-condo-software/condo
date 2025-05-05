@@ -76,6 +76,87 @@ type TranslationsContextType<
     switchLocale(newLocale: AvailableLocale): void
 }
 
+/**
+ * Translations helper which is used to parse / stringify locales,
+ * select most suitable locale based on user preferences, load partial translations with caching and many others
+ *
+ * @example Init helper inside your app and re-export utils
+ * import fetch from 'cross-fetch'
+ * import getConfig from 'next/config'
+ * import { IntlProvider as DefaultIntlProvider } from 'react-intl'
+ *
+ * import { TranslationsHelper } from '@open-condo/miniapp-utils/helpers/i18n'
+ * import type { TranslationsProviderProps } from '@open-condo/miniapp-utils/helpers/i18n'
+ *
+ * import { LOCALES, DEFAULT_LOCALE } from '@/domains/common/constants/locales'
+ *
+ * import type { MessagesKeysType } from '@/global'
+ * import type { FC, PropsWithChildren } from 'react'
+ *
+ * const { publicRuntimeConfig: { serviceUrl } } = getConfig()
+ *
+ * export type AvailableLocale = typeof LOCALES[number]
+ * export type MessagesShape = Record<MessagesKeysType, string>
+ *
+ * const translationsAPIEndpoint = `${serviceUrl}/api/translations`
+ *
+ * async function loadDefaultMessages (): Promise<MessagesShape> {
+ *     return (await import(`@/lang/${DEFAULT_LOCALE}.json`)).default
+ * }
+ *
+ * async function loadMessages (locale: AvailableLocale): Promise<MessagesShape> {
+ *     const response = await fetch(`${translationsAPIEndpoint}/${locale}`)
+ *     if (!response.ok) throw new Error(`Could not load translations for ${locale} locale`)
+ *     return response.json()
+ * }
+ *
+ * const translationsHelper = new TranslationsHelper({
+ *     locales: LOCALES,
+ *     defaultLocale: DEFAULT_LOCALE,
+ *     loadMessages,
+ *     loadDefaultMessages,
+ * })
+ *
+ * export type { PrefetchResult } from '@open-condo/miniapp-utils/helpers/i18n'
+ *
+ * export const prefetchTranslations = translationsHelper.prefetchTranslations
+ * export const extractI18NInfo = translationsHelper.extractI18NInfo
+ * export const useTranslationsExtractor = translationsHelper.getUseTranslationsExtractorHook()
+ * export const TranslationsProvider: FC<TranslationsProviderProps<AvailableLocale, MessagesShape>> = translationsHelper.getTranslationsProvider()
+ * export const useTranslations = translationsHelper.getUseTranslationsHook()
+ *
+ * export const IntlProvider: FC<PropsWithChildren> = ({ children }) => {
+ *     const { messages, fullLocale } = useTranslations()
+ *
+ *     return (
+ *         <DefaultIntlProvider locale={fullLocale} messages={messages}>
+ *             {children}
+ *         </DefaultIntlProvider>
+ *     )
+ * }
+ *
+ * @example use in _app.tsx SSR to prefetch translations
+ * const translationsData = await prefetchTranslations(req, res)
+ *
+ * return extractI18NInfo(translationsData, {
+ *     props: {},
+ * })
+ *
+ * @example use in _app.tsx global layout to provide translations
+ * const { initialSelectedLocale, initialFullLocale, initialMessages } = useTranslationsExtractor(pageProps)
+ *
+ * return (
+ *       <TranslationsProvider
+ *                 initialSelectedLocale={initialSelectedLocale}
+ *                 initialFullLocale={initialFullLocale}
+ *                 initialMessages={initialMessages}
+ *       >
+ *          <IntlProvider>
+ *              {children}
+ *          </IntlProvider>
+ *       </TranslationsProvider>
+ * )
+ * */
 export type TranslationsProviderProps<
     AvailableLocale extends string,
     MessagesShape extends Record<string, string>,
@@ -259,7 +340,7 @@ export class TranslationsHelper<
      * const { selectedLocale, fullLocale } = helper.selectSupportedLocale(locales.map(TranslationsHelper.parseLocaleString))
      * // ["zh-Hans-CN", "zh-Hans", "en-GB", "en", "zh"] - resolved order
      * // selectedLocale = "en" - first match, on which we can load messages
-     * // fullLocale = "en-GB" - sub-locale, proving additiona info
+     * // fullLocale = "en-GB" - sub-locale, providing additional info
      */
     selectSupportedLocale (locales: Array<AcceptLanguageInfo | LocaleInfo>): LocaleSelection<AvailableLocale> {
         const reversedResolveOrder: Array<string> = []
