@@ -1,0 +1,5 @@
+query getB2BAppNewsSharingConfig {
+    B2BAppNewsSharingConfigs: allB2BAppNewsSharingConfigs {
+        id
+    }
+}
