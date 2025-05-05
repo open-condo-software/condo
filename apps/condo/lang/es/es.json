@@ -2109,6 +2109,7 @@
   "pages.condo.meter.CommissioningDate": "Fecha de puesta en servicio",
   "pages.condo.meter.Consumption": "Consumo",
   "pages.condo.meter.ControlReadingsDate": "Fecha de verificación",
+  "pages.condo.meter.CreatedAt": "Fecha de creación",
   "pages.condo.meter.DeleteMeterAndReadings": "Eliminar contador y lecturas",
   "pages.condo.meter.EndDate": "Fecha final",
   "pages.condo.meter.EnterAccountNumber": "Introduzca la cuenta corriente",
