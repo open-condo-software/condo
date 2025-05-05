@@ -31,7 +31,9 @@ export type AcceptLanguageInfo = LocaleInfo & {
 }
 
 export type LocaleSelection<AvailableLocale extends string> = {
+    /** Locale from list of apps available locales, used for language selection and messages loading. Example: "en" */
     selectedLocale: AvailableLocale
+    /** Full locale, which must be passed to tools such react-intl. Can be equal sub-locale of selectedLocale or equal to it. Example: "en-GB" */
     fullLocale: string
 }
 
