@@ -7,7 +7,7 @@ const { AbstractAdapter } = require('./AbstractAdapter')
 /**
  * @type {{ "secret": string }|null}
  */
-const FLOWISE_CONFIG = conf.FLOWISE_CONFIG ? JSON.parse(conf.FLOWISE_CONFIG) : null
+const AI_ADAPTERS_CONFIG = conf.AI_ADAPTERS_CONFIG ? JSON.parse(conf.AI_ADAPTERS_CONFIG) : null
 
 class FlowiseAdapter extends AbstractAdapter {
     #isConfigured = false
@@ -17,7 +17,7 @@ class FlowiseAdapter extends AbstractAdapter {
 
         // In fact, the service could be accessed without authorization.
         // But for security reasons, we don't allow that — using an authorization token is mandatory!
-        this.#isConfigured = !!FLOWISE_CONFIG?.secret
+        this.#isConfigured = !!AI_ADAPTERS_CONFIG?.flowise?.secret
         if (!this.#isConfigured) console.warn('FlowiseAdapter not configured!')
     }
 
@@ -34,7 +34,7 @@ class FlowiseAdapter extends AbstractAdapter {
             predictUrl,
             {
                 headers: {
-                    Authorization: `Bearer ${FLOWISE_CONFIG?.secret}`,
+                    Authorization: `Bearer ${AI_ADAPTERS_CONFIG?.flowise?.secret}`,
                     'Content-Type': 'application/json',
                 },
                 method: 'POST',
