@@ -67,7 +67,7 @@ const BuildingTableContent: React.FC<BuildingTableProps> = (props) => {
     const {
         filtersToWhere: filtersToPropertiesWhere,
         sortersToSortBy: sortersToSortPropertiesBy,
-    } = useQueryMappers<PropertyWhereInput>(propertyFilterMeta, ['address'])
+    } = useQueryMappers<PropertyWhereInput>(propertyFilterMeta, ['address', 'createdAt'])
 
     const searchPropertiesQuery = useMemo(() => ({
         ...filtersToPropertiesWhere(filters),

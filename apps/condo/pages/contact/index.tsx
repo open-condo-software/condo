@@ -52,7 +52,7 @@ import { PROPERTY_PAGE_SIZE } from '@condo/domains/property/utils/helpers'
 
 const ADD_CONTACT_ROUTE = '/contact/create/'
 const ROW_VERTICAL_GUTTERS: [Gutter, Gutter] = [0, 40]
-const SORTABLE_PROPERTIES = ['name', 'unitName', 'phone', 'email', 'role']
+const SORTABLE_PROPERTIES = ['name', 'unitName', 'phone', 'email', 'role', 'createdAt']
 
 type ContactBaseSearchQuery = { organization: { id: string } } | { organization: { 'id_in': Array<string> } }
 
