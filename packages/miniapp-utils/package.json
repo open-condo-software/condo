@@ -29,7 +29,7 @@
     "build:code": "NODE_ENV=production rollup -c",
     "build:types": "tsc --declaration --emitDeclarationOnly",
     "build": "tsup",
-    "dev": "rimraf dist && yarn build:deps &&(rollup -c -w & tsc --declaration --emitDeclarationOnly --watch)"
+    "test": "jest"
   },
   "files": [
     "dist"
@@ -56,6 +56,9 @@
       ],
       "helpers/environment": [
         "dist/helpers/environment.d.ts"
+      ],
+      "helpers/i18n": [
+        "dist/helpers/i18n.d.ts"
       ],
       "helpers/sender": [
         "dist/helpers/sender.d.ts"
@@ -109,6 +112,11 @@
       "require": "./dist/helpers/environment.js",
       "import": "./dist/helpers/environment.mjs"
     },
+    "./helpers/i18n": {
+      "types": "./dist/helpers/i18n.d.ts",
+      "require": "./dist/helpers/i18n.js",
+      "import": "./dist/helpers/i18n.mjs"
+    },
     "./helpers/sender": {
       "types": "./dist/helpers/sender.d.ts",
       "require": "./dist/helpers/sender.js",
@@ -142,16 +150,20 @@
   "devDependencies": {
     "@apollo/client": "^3.11.8",
     "@open-condo/tsconfig": "workspace:^",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^16",
     "@types/react": "^16.14.61",
     "analytics": "^0.8.16",
     "graphql": "^16.10.0",
+    "jest": "^29.7.0",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
+    "ts-jest": "^29.2.5",
     "tsup": "^8.4.0",
     "typescript": "^5.5.4"
   },
   "dependencies": {
-    "cookie": "^0.6.0",
+    "cookie": "^0.7.0",
     "cookies-next": "^4.2.1"
   }
 }
