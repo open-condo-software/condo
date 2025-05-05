@@ -89,6 +89,7 @@ const FLOW_META_SCHEMAS = {
 
 for (const [flowName, schemaByOperation] of Object.entries(FLOW_META_SCHEMAS)) {
     for (const [operation, schema] of Object.entries(schemaByOperation)) {
+        if (operation !== 'input' && operation !== 'output') throw new Error(`Flow "${flowName}": You can only specify the properties "input" and "output"!`)
         if (typeof schema !== 'object') throw new Error(`Flow "${flowName}" (${operation}): The meta schema must be object!`)
         if (!('type' in schema)) throw new Error(`Flow "${flowName}" (${operation}): The meta schema must have a "type" field!`)
         if (schema.type !== 'object') throw new Error(`Flow "${flowName}" (${operation}): Field "type" in meta scheme must have value "object"!`)
