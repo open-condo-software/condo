@@ -163,7 +163,7 @@ export type UpdateContactMutationVariables = Types.Exact<{
 export type UpdateContactMutation = { __typename?: 'Mutation', contact?: { __typename?: 'Contact', id: string, phone?: string | null, unitName?: string | null, unitType?: Types.ContactUnitTypeType | null, property?: { __typename?: 'Property', id: string } | null } | null };
 
 export type UpdateContactsMutationVariables = Types.Exact<{
-  data?: Types.InputMaybe<Array<Types.InputMaybe<Types.ContactsUpdateInput>> | Types.InputMaybe<Types.ContactsUpdateInput>>;
+  data: Array<Types.ContactsUpdateInput> | Types.ContactsUpdateInput;
 }>;
 
 
@@ -541,6 +541,13 @@ export type GetLastCreatedPropertyByOrganizationIdQueryVariables = Types.Exact<{
 
 
 export type GetLastCreatedPropertyByOrganizationIdQuery = { __typename?: 'Query', properties?: Array<{ __typename?: 'Property', id: string } | null> | null };
+
+export type UpdatePropertiesMutationVariables = Types.Exact<{
+  data: Array<Types.PropertiesUpdateInput> | Types.PropertiesUpdateInput;
+}>;
+
+
+export type UpdatePropertiesMutation = { __typename?: 'Mutation', properties?: Array<{ __typename?: 'Property', id: string } | null> | null };
 
 export type GetPropertyScopePropertiesQueryVariables = Types.Exact<{
   propertyScopeIds?: Types.InputMaybe<Array<Types.Scalars['ID']['input']> | Types.Scalars['ID']['input']>;

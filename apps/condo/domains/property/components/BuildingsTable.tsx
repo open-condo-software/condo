@@ -1,4 +1,5 @@
 import { useLazyQuery } from '@apollo/client'
+import { useUpdatePropertiesMutation } from '@app/condo/gql'
 import {
     OrganizationEmployeeRole,
     PropertyWhereInput,
@@ -7,17 +8,21 @@ import {
 import { Col, notification, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { ColumnsType } from 'antd/lib/table'
+import chunk from 'lodash/chunk'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
-import React, { useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 
+import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { Search } from '@open-condo/icons'
+import { useApolloClient } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, ActionBarProps, Button } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
+import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
 import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { Loader } from '@condo/domains/common/components/Loader'
@@ -26,6 +31,7 @@ import { TableFiltersContainer } from '@condo/domains/common/components/TableFil
 import { EMOJI } from '@condo/domains/common/constants/emoji'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
+import { useTableRowSelection } from '@condo/domains/common/hooks/useTableRowSelection'
 import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { EXPORT_PROPERTIES_TO_EXCEL } from '@condo/domains/property/gql'
@@ -63,6 +69,7 @@ const BuildingTableContent: React.FC<BuildingTableProps> = (props) => {
 
     const router = useRouter()
     const { filters, sorters, offset } = parseQuery(router.query)
+    const client = useApolloClient()
 
     const {
         filtersToWhere: filtersToPropertiesWhere,
@@ -93,6 +100,42 @@ const BuildingTableContent: React.FC<BuildingTableProps> = (props) => {
         }
     }
 
+    const itemIds = useMemo(() => properties?.map(property => property?.id), [properties])
+    const { selectedKeys, clearSelection, rowSelection } = useTableRowSelection({ itemIds })
+    const SelectedItemsMessage = useMemo(() => intl.formatMessage({ id: 'ItemsSelectedCount' }, { count: selectedKeys.length }), [intl, selectedKeys])
+
+    const [updatePropertiesMutation] = useUpdatePropertiesMutation({
+        onCompleted: async () => {
+            clearSelection()
+            await refetch()
+        },
+    })
+
+    const softDeleteSelectedPropertiesByChunks = useCallback(async () => {
+        if (!selectedKeys.length) return
+
+        const now = new Date().toISOString()
+        const itemsToDeleteByChunks = chunk(selectedKeys.map((key) => ({
+            id: key,
+            data: {
+                dv: 1,
+                sender: getClientSideSenderInfo(),
+                deletedAt: now,
+            },
+        })), 30)
+
+        for (const itemsToDelete of itemsToDeleteByChunks) {
+            await updatePropertiesMutation({
+                variables: {
+                    data: itemsToDelete,
+                },
+            })
+        }
+
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allProperties' })
+        client.cache.gc()
+    }, [client?.cache, selectedKeys, updatePropertiesMutation])
+    
     const [downloadLink, setDownloadLink] = useState(null)
     const [exportToExcel, { loading: isXlsLoading }] = useLazyQuery(
         EXPORT_PROPERTIES_TO_EXCEL,
@@ -114,8 +157,8 @@ const BuildingTableContent: React.FC<BuildingTableProps> = (props) => {
     const canManageProperties = get(role, 'canManageProperties', false)
     const isDownloadButtonHidden = !get(role, 'canReadProperties', canDownloadProperties === true)
 
-    function onExportToExcelButtonClicked () {
-        exportToExcel({
+    const onExportToExcelButtonClicked = useCallback(async () => {
+        await exportToExcel({
             variables: {
                 data: {
                     where: { ...searchPropertiesQuery },
@@ -123,9 +166,9 @@ const BuildingTableContent: React.FC<BuildingTableProps> = (props) => {
                 },
             },
         })
-    }
+    }, [exportToExcel, searchPropertiesQuery, sortBy])
 
-    const actionBarButtons: ActionBarProps['actions'] = useMemo(() =>
+    const defaultActionBarButtons: ActionBarProps['actions'] = useMemo(() =>
         [
             canManageProperties && (
                 <>
@@ -169,6 +212,38 @@ const BuildingTableContent: React.FC<BuildingTableProps> = (props) => {
             ),
         ], [CreateLabel, DownloadExcelLabel, ExportAsExcel, canManageProperties, columns, downloadLink, isDownloadButtonHidden, isXlsLoading, onExportToExcelButtonClicked, propertyCreator, propertyNormalizer, propertyValidator, refetch, router])
 
+    const CancelSelectionMessage = intl.formatMessage({ id: 'global.cancelSelection' })
+    const ConfirmDeleteManyPropertiesTitle = intl.formatMessage({ id: 'pages.condo.property.form.ConfirmDeleteManyTitle' })
+    const ConfirmDeleteManyPropertiesMessage = intl.formatMessage({ id: 'pages.condo.property.form.ConfirmDeleteMessage' })
+    const DeleteMessage = intl.formatMessage({ id: 'Delete' })
+    const DontDeleteMessage = intl.formatMessage({ id: 'DontDelete' })
+
+    const selectedPropertiesActionBarButtons: ActionBarProps['actions'] = useMemo(() => [
+        canManageProperties && (
+            <DeleteButtonWithConfirmModal
+                key='deleteSelectedContacts'
+                title={ConfirmDeleteManyPropertiesTitle}
+                message={ConfirmDeleteManyPropertiesMessage}
+                okButtonLabel={DeleteMessage}
+                action={softDeleteSelectedPropertiesByChunks}
+                buttonContent={DeleteMessage}
+                cancelMessage={DontDeleteMessage}
+                showCancelButton
+                cancelButtonType='primary'
+            />
+        ),
+        <Button
+            key='cancelPropertiesSelection'
+            type='secondary'
+            onClick={clearSelection}
+        >
+            {CancelSelectionMessage}
+        </Button>,
+    ], [CancelSelectionMessage, ConfirmDeleteManyPropertiesMessage, ConfirmDeleteManyPropertiesTitle, DeleteMessage, DontDeleteMessage, canManageProperties, clearSelection, softDeleteSelectedPropertiesByChunks])
+
+    const showActionBarCondition = (selectedKeys?.length === 0 && !isEmpty(defaultActionBarButtons.filter(Boolean))) ||
+        (selectedKeys?.length > 0 && canManageProperties)
+
     return (
         <Row justify='space-between' gutter={ROW_VERTICAL_GUTTERS}>
             <Col span={24}>
@@ -193,12 +268,16 @@ const BuildingTableContent: React.FC<BuildingTableProps> = (props) => {
                     columns={tableColumns}
                     pageSize={PROPERTY_PAGE_SIZE}
                     data-cy='property__table'
+                    rowSelection={canManageProperties && rowSelection}
                 />
             </Col>
             {
-                !isEmpty(actionBarButtons.filter(Boolean)) && (
+                showActionBarCondition && (
                     <Col span={24}>
-                        <ActionBar actions={actionBarButtons}/>
+                        <ActionBar
+                            message={selectedKeys.length > 0 && SelectedItemsMessage}
+                            actions={selectedKeys.length > 0 ? selectedPropertiesActionBarButtons : defaultActionBarButtons}
+                        />
                     </Col>
                 )
             }

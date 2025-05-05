@@ -12,7 +12,7 @@ import { get } from 'lodash'
 import chunk from 'lodash/chunk'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import React, { ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { QuestionCircle, Search } from '@open-condo/icons'
@@ -20,7 +20,7 @@ import { useApolloClient } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Button, Checkbox, Space, Tooltip } from '@open-condo/ui'
+import { ActionBar, ActionBarProps, Button, Checkbox, Space, Tooltip } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
@@ -116,7 +116,7 @@ const ContactTableContent: React.FC<ContactPageContentProps> = (props) => {
     const intl = useIntl()
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const CreateContact = intl.formatMessage({ id: 'AddContact' })
-    const CancelSelectedReadingsMessage = intl.formatMessage({ id: 'global.cancelSelection' })
+    const CancelSelectionMessage = intl.formatMessage({ id: 'global.cancelSelection' })
     const ConfirmDeleteManyContactsTitle = intl.formatMessage({ id: 'contact.ConfirmDeleteManyTitle' })
     const ConfirmDeleteManyContactsMessage = intl.formatMessage({ id: 'contact.ConfirmDeleteMessage' })
     const DeleteMessage = intl.formatMessage({ id: 'Delete' })
@@ -223,7 +223,7 @@ const ContactTableContent: React.FC<ContactPageContentProps> = (props) => {
         notification.success({ message: DoneMsg })
     }, [DoneMsg, updateSelectedContactsByChunks])
 
-    const defaultActionBarButtons: [ReactElement, ...ReactElement[]] = useMemo(() => [
+    const defaultActionBarButtons: ActionBarProps['actions'] = useMemo(() => [
         canManageContacts && (
             <>
                 <Button
@@ -256,7 +256,7 @@ const ContactTableContent: React.FC<ContactPageContentProps> = (props) => {
         contactCreator, contactNormalizer, contactValidator, handleImportModalClose, refetch, router,
     ])
 
-    const selectedContactsActionBarButtons: [ReactElement, ...ReactElement[]] = useMemo(() => [
+    const selectedContactsActionBarButtons: ActionBarProps['actions'] = useMemo(() => [
         <DeleteButtonWithConfirmModal
             key='deleteSelectedContacts'
             title={ConfirmDeleteManyContactsTitle}
@@ -280,11 +280,11 @@ const ContactTableContent: React.FC<ContactPageContentProps> = (props) => {
             type='secondary'
             onClick={clearSelection}
         >
-            {CancelSelectedReadingsMessage}
+            {CancelSelectionMessage}
         </Button>,
     ], [
         ConfirmDeleteManyContactsTitle, ConfirmDeleteManyContactsMessage, DeleteMessage, handleDeleteButtonClick,
-        DontDeleteMessage, handleVerifyButtonClick, clearSelection, CancelSelectedReadingsMessage, VerifyMessage,
+        DontDeleteMessage, handleVerifyButtonClick, clearSelection, CancelSelectionMessage, VerifyMessage,
     ])
 
     return (
