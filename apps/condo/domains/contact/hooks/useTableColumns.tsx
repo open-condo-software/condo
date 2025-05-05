@@ -32,7 +32,7 @@ export const useTableColumns: UseTableColumns = (filterMetas) => {
     const RoleMessage = intl.formatMessage({ id: 'ContactRole' })
     const YesMessage = intl.formatMessage({ id: 'Yes' })
     const NoMessage = intl.formatMessage({ id: 'No' })
-    const CreatedAtMessage = intl.formatMessage({ id: 'contact.column.header.createdAt' })
+    const AddedDateMessage = intl.formatMessage({ id: 'AddedDate' })
     const IsVerifiedMessage = intl.formatMessage({ id: 'contact.column.header.isVerified' })
 
     const { organization } = useOrganization()
@@ -126,7 +126,7 @@ export const useTableColumns: UseTableColumns = (filterMetas) => {
                 filterIcon: getFilterIcon,
             },
             {
-                title: CreatedAtMessage,
+                title: AddedDateMessage,
                 dataIndex: 'createdAt',
                 sortOrder: get(sorterMap, 'createdAt'),
                 filteredValue: getFilteredValue(filters, 'createdAt'),
@@ -164,7 +164,7 @@ export const useTableColumns: UseTableColumns = (filterMetas) => {
         ]
     }, [
         NameMessage, sorterMap, filters, filterMetas, render, AddressMessage, renderAddress, RoleMessage,
-        renderRolesFilterDropdown, UnitMessage, renderUnitName, CreatedAtMessage, intl, search, PhoneMessage,
+        renderRolesFilterDropdown, UnitMessage, renderUnitName, AddedDateMessage, intl, search, PhoneMessage,
         renderPhone, IsVerifiedMessage, renderIsVerified,
     ])
 }

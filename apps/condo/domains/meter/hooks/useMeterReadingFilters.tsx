@@ -69,7 +69,7 @@ export function useMeterReadingFilters (meterType: MeterTypes): Array<FiltersMet
     const ArchiveDate = intl.formatMessage({ id: 'pages.condo.meter.ArchiveDate' })
     const EnterUnitNameLabel = intl.formatMessage({ id: 'pages.condo.ticket.filters.EnterUnitName' })
     const UnitMessage = intl.formatMessage({ id: 'field.FlatNumber' })
-    const CreatedAtDateMessage = intl.formatMessage({ id: 'pages.condo.meter.CreatedAt' })
+    const AddedDateMessage = intl.formatMessage({ id: 'AddedDate' })
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
@@ -205,7 +205,7 @@ export function useMeterReadingFilters (meterType: MeterTypes): Array<FiltersMet
                         placeholder: [StartDateMessage, EndDateMessage],
                     },
                     modalFilterComponentWrapper: {
-                        label: CreatedAtDateMessage,
+                        label: AddedDateMessage,
                         size: FilterComponentSize.Medium,
                     },
                 },
@@ -338,5 +338,5 @@ export function useMeterReadingFilters (meterType: MeterTypes): Array<FiltersMet
         ])
         
 
-    }, [userOrganizationId, EnterAddressMessage, AddressMessage, isPropertyMeter, EnterUnitNameLabel, UnitMessage, EnterAccountNumberMessage, AccountNumberMessage, FullNameMessage, ContactMessage, resourcesOptions, resourcesLoading, ChooseServiceMessage, ServiceMessage, sourcesOptions, SelectMessage, SourceMessage, EnterMeterNumberMessage, MeterNumberMessage, StartDateMessage, EndDateMessage, CreatedAtDateMessage, MeterReadingDateMessage, EnterPlaceMessage, PlaceMessage, VerificationDateMessage, InstallationDateMessage, CommissioningDateMessage, SealingDateMessage, ControlReadingsDate, ArchiveDate])
+    }, [userOrganizationId, EnterAddressMessage, AddressMessage, isPropertyMeter, EnterUnitNameLabel, UnitMessage, EnterAccountNumberMessage, AccountNumberMessage, FullNameMessage, ContactMessage, resourcesOptions, resourcesLoading, ChooseServiceMessage, ServiceMessage, sourcesOptions, SelectMessage, SourceMessage, EnterMeterNumberMessage, MeterNumberMessage, StartDateMessage, EndDateMessage, AddedDateMessage, MeterReadingDateMessage, EnterPlaceMessage, PlaceMessage, VerificationDateMessage, InstallationDateMessage, CommissioningDateMessage, SealingDateMessage, ControlReadingsDate, ArchiveDate])
 }
