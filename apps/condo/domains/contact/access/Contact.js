@@ -6,7 +6,7 @@ const { isArray, uniq } = require('lodash')
 const get = require('lodash/get')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { getById, find } = require('@open-condo/keystone/schema')
+const { find } = require('@open-condo/keystone/schema')
 
 const {
     canReadObjectsAsB2BAppServiceUser,
@@ -16,7 +16,7 @@ const {
     checkPermissionsInEmployedOrRelatedOrganizations,
     getEmployedOrRelatedOrganizationsByPermissions,
 } = require('@condo/domains/organization/utils/accessSchema')
-const { SERVICE } = require('@condo/domains/user/constants/common')
+const { SERVICE, RESIDENT } = require('@condo/domains/user/constants/common')
 
 
 async function canReadContacts (args) {
@@ -49,6 +49,9 @@ async function canManageContacts (args) {
 
     if (user.type === SERVICE) {
         return await canManageObjectsAsB2BAppServiceUser(args)
+    }
+    if (user.type === RESIDENT) {
+        return false
     }
 
     const isBulkRequest = isArray(originalInput)

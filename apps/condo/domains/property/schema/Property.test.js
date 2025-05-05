@@ -9,7 +9,7 @@ const {
     catchErrorFrom,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObj,
-    expectToThrowAuthenticationErrorToObjects,
+    expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObjects,
 } = require('@open-condo/keystone/test.utils')
 const { makeClient, UUID_RE, DATETIME_RE, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
@@ -21,7 +21,7 @@ const {
     registerNewOrganization,
 } = require('@condo/domains/organization/utils/testSchema')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
-const { Property, createTestProperty, updateTestProperty, makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
+const { Property, createTestProperty, createTestProperties, updateTestProperty, makeClientWithProperty, updateTestProperties } = require('@condo/domains/property/utils/testSchema')
 const { registerResidentByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const { createTestTicket, updateTestTicket, ticketStatusByType } = require('@condo/domains/ticket/utils/testSchema')
 const {
@@ -29,6 +29,10 @@ const {
     makeClientWithSupportUser,
     makeClientWithNewRegisteredAndLoggedInUser,
 } = require('@condo/domains/user/utils/testSchema')
+
+const { createTestContacts, updateTestContacts } = require('../../contact/utils/testSchema')
+const { FLAT_UNIT_TYPE } = require('../constants/common')
+const { buildFakeAddressAndMeta } = require('../utils/testSchema/factories')
 
 
 
@@ -245,6 +249,130 @@ describe('Property', () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await updateTestProperty(clientTo, propertyFrom.id, { deletedAt: dayjs().toISOString() })
                 })
+            })
+        })
+    })
+    describe('Bulk requests', () => {
+        let organization,
+            employeeUser,
+            employeeInOtherOrganizationUser
+
+        beforeAll(async () => {
+            employeeUser = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [testOrganization] = await registerNewOrganization(employeeUser)
+            organization = testOrganization
+
+            employeeInOtherOrganizationUser = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [otherTestOrganization] = await registerNewOrganization(employeeInOtherOrganizationUser)
+        })
+
+        test('Can create for organization where user is employee', async () => {
+            const fakeAddressData1 = buildFakeAddressAndMeta()
+            const fakeAddressData2 = buildFakeAddressAndMeta()
+
+            const properties = await createTestProperties(employeeUser, [
+                {
+                    organization: { connect: { id: organization.id } },
+                    ...fakeAddressData1,
+                },
+                {
+                    organization: { connect: { id: organization.id } },
+                    ...fakeAddressData2,
+                },
+            ])
+
+            expect(properties).toHaveLength(2)
+            expect(properties).toEqual(expect.arrayContaining([
+                expect.objectContaining({
+                    address: fakeAddressData1.address,
+                    organization: expect.objectContaining({ id: organization.id }),
+                }),
+                expect.objectContaining({
+                    address: fakeAddressData2.address,
+                    organization: expect.objectContaining({ id: organization.id }),
+                }),
+            ]))
+        })
+
+        test('Can not create for organization where user is not employee', async () => {
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                await createTestProperties(employeeInOtherOrganizationUser, [
+                    {
+                        organization: { connect: { id: organization.id } },
+                    },
+                ])
+            })
+        })
+
+        test('Can update for organization where user is employee', async () => {
+            const properties = await createTestProperties(employeeUser, [
+                {
+                    organization: { connect: { id: organization.id } },
+                },
+                {
+                    organization: { connect: { id: organization.id } },
+                },
+            ])
+            expect(properties).toHaveLength(2)
+
+            const fakeAddressData1 = buildFakeAddressAndMeta()
+            const fakeAddressData2 = buildFakeAddressAndMeta()
+            const updatedProperties = await updateTestProperties(employeeUser, [
+                {
+                    id: properties[0].id,
+                    data: {
+                        ...fakeAddressData1,
+                    },
+                },
+                {
+                    id: properties[1].id,
+                    data: {
+                        ...fakeAddressData2,
+                    },
+                },
+            ])
+
+            expect(updatedProperties).toHaveLength(2)
+            expect(updatedProperties).toEqual(expect.arrayContaining([
+                expect.objectContaining({
+                    organization: expect.objectContaining({ id: organization.id }),
+                    address: fakeAddressData1.address,
+                }),
+                expect.objectContaining({
+                    organization: expect.objectContaining({ id: organization.id }),
+                    address: fakeAddressData2.address,
+                }),
+            ]))
+        })
+
+        test('Can not update for organization where user is not employee', async () => {
+            const properties = await createTestProperties(employeeUser, [
+                {
+                    organization: { connect: { id: organization.id } },
+                },
+                {
+                    organization: { connect: { id: organization.id } },
+                },
+            ])
+            expect(properties).toHaveLength(2)
+
+            const fakeAddressData1 = buildFakeAddressAndMeta()
+            const fakeAddressData2 = buildFakeAddressAndMeta()
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                await updateTestProperties(employeeInOtherOrganizationUser, [
+                    {
+                        id: properties[0].id,
+                        data: {
+                            ...fakeAddressData1,
+                        },
+                    },
+                    {
+                        id: properties[1].id,
+                        data: {
+                            ...fakeAddressData2,
+                        },
+                    },
+                ])
             })
         })
     })
