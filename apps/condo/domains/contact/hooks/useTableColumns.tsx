@@ -128,7 +128,7 @@ export const useTableColumns: UseTableColumns = (filterMetas) => {
             {
                 title: AddedDateMessage,
                 dataIndex: 'createdAt',
-                sortOrder: get(sorterMap, 'createdAt'),
+                sortOrder: sorterMap?.createdAt,
                 filteredValue: getFilteredValue(filters, 'createdAt'),
                 key: 'createdAt',
                 sorter: true,
