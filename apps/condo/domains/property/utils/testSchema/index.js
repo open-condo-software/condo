@@ -12,6 +12,7 @@ const { buildFakeAddressAndMeta, buildPropertyMap } = require('./factories')
 const { Property: PropertyGQL } = require('@condo/domains/property/gql')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { EXPORT_PROPERTIES_TO_EXCEL } = require('@condo/domains/property/gql')
+const { createTestPhone } = require('../../../user/utils/testSchema')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Property = generateGQLTestUtils(PropertyGQL)
@@ -40,6 +41,30 @@ async function createTestProperty (client, organization, extraAttrs = {}, withFl
     return [obj, attrs]
 }
 
+async function createTestProperties (client, createAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const attrs = createAttrs.map(data => {
+        if (!('name' in data)) {
+            data['name'] = faker.address.streetAddress(true)
+        }
+        if (!('type' in data)) {
+            data['type'] = 'building'
+        }
+        if (!('address' in data)) {
+            const { address, addressMeta } = buildFakeAddressAndMeta()
+            data['address'] = address
+            data['addressMeta'] = addressMeta
+        }
+
+        return {
+            data: {...data, dv: 1, sender}
+        }
+    })
+
+    return await Property.createMany(client, attrs)
+}
+
 async function createTestPropertyWithMap (client, organization) {
     return createTestProperty(client, organization, {
         map: buildPropertyMap(),
@@ -57,6 +82,18 @@ async function updateTestProperty (client, id, extraAttrs = {}) {
     }
     const obj = await Property.update(client, id, attrs)
     return [obj, attrs]
+}
+
+async function updateTestProperties (client, updateAttrs = {}) {
+    if (!client) throw new Error('no client')
+
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const attrs = updateAttrs.map(updateData => {
+        const { id, data } = updateData
+        return { id, data: { ...data, dv: 1, sender } }
+    })
+
+    return await Property.updateMany(client, attrs)
 }
 
 async function makeClientWithProperty (includeFlat = false, addressMetaExtraAttrs = {}) {
@@ -95,8 +132,10 @@ async function exportPropertiesToExcelByTestClient(client, extraAttrs = {}) {
 module.exports = {
     Property,
     createTestProperty,
+    createTestProperties,
     createTestPropertyWithMap,
     updateTestProperty,
+    updateTestProperties,
     makeClientWithProperty,
     makeClientWithResidentAccessAndProperty,
     exportPropertiesToExcelByTestClient,

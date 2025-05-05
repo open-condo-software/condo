@@ -51,7 +51,7 @@ async function createTestContacts (client, createAttrs = {}) {
             data['name'] = faker.name.firstName()
         }
         if (!('phone' in data)) {
-            data['phone'] =  createTestPhone()
+            data['phone'] = createTestPhone()
         }
 
         return {

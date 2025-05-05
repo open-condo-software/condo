@@ -782,7 +782,7 @@ describe('Contact', () => {
             otherOrganizationProperty = otherTestOrganizationProperty
         })
 
-        test('can create for organization where user employee', async () => {
+        test('can create for organization where user is employee', async () => {
             const unitName1 = faker.random.alphaNumeric(3)
             const unitName2 = faker.random.alphaNumeric(3)
 
@@ -849,7 +849,7 @@ describe('Contact', () => {
             })
         })
 
-        test('can update for organization where user employee', async () => {
+        test('can update for organization where user is employee', async () => {
             const contacts = await createTestContacts(employeeUser, [
                 {
                     organization: { connect: { id: organization.id } },
