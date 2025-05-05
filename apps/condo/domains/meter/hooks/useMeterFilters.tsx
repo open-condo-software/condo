@@ -20,6 +20,23 @@ import { MeterResource, MeterTypes, METER_TYPES } from '@condo/domains/meter/uti
 import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 
 
+const addressFilter = getFilter(['property', 'id'], 'array', 'string', 'in')
+const addressStringContainsFilter = getStringContainsFilter(['property', 'address'])
+const accountNumberFilter = getStringContainsFilter('accountNumber')
+const placeFilter = getStringContainsFilter('place')
+const numberFilter = getStringContainsFilter('number')
+const unitNameFilter = getFilter('unitName', 'array', 'string', 'in')
+const unitNameStringContainsFilter = getStringContainsFilter('unitName')
+const resourceStringContainsFilter = getStringContainsFilter(['resource', 'name'])
+const createdAtDateRangeFilter = getDayRangeFilter('createdAt')
+const nextVerificationDateRangeFilter = getDayRangeFilter('nextVerificationDate')
+const installationDateRangeFilter = getDayRangeFilter('installationDate')
+const archiveDateRangeFilter = getDayRangeFilter('archiveDate')
+const commissioningDateRangeFilter = getDayRangeFilter('commissioningDate')
+const sealingDateRangeFilter = getDayRangeFilter('sealingDate')
+const controlReadingsDateRangeFilter = getDayRangeFilter('controlReadingsDate')
+const resourceFilter = getFilter(['resource', 'id'], 'array', 'string', 'in')
+
 export function useMeterFilters (meterType: MeterTypes): Array<FiltersMeta<MeterReadingWhereInput>>  {
     const intl = useIntl()
     const EnterAddressMessage = intl.formatMessage({ id: 'pages.condo.meter.EnterAddress' })
@@ -30,7 +47,7 @@ export function useMeterFilters (meterType: MeterTypes): Array<FiltersMeta<Meter
     const ServiceMessage = intl.formatMessage({ id: 'pages.condo.meter.Resource' })
     const StartDateMessage = intl.formatMessage({ id: 'pages.condo.meter.StartDate' })
     const EndDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
-    const MeterReadingDateMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterReadingDate' })
+    const CreatedAtDateMessage = intl.formatMessage({ id: 'pages.condo.meter.CreatedAt' })
     const EnterMeterNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.EnterMeterNumber' })
     const MeterNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterNumber' })
     const EnterPlaceMessage = intl.formatMessage({ id: 'pages.condo.meter.EnterPlace' })
@@ -51,23 +68,6 @@ export function useMeterFilters (meterType: MeterTypes): Array<FiltersMeta<Meter
     const resourcesOptions = convertToOptions(resources, 'name', 'id')
 
     const isPropertyMeter = meterType === METER_TYPES.property
-
-    const addressFilter = getFilter(['property', 'id'], 'array', 'string', 'in')
-    const addressStringContainsFilter = getStringContainsFilter(['property', 'address'])
-    const accountNumberFilter = getStringContainsFilter('accountNumber')
-    const placeFilter = getStringContainsFilter('place')
-    const numberFilter = getStringContainsFilter('number')
-    const unitNameFilter = getFilter('unitName', 'array', 'string', 'in')
-    const unitNameStringContainsFilter = getStringContainsFilter('unitName')
-    const resourceStringContainsFilter = getStringContainsFilter(['resource', 'name'])
-    const readingDateRangeFilter = getDayRangeFilter('date')
-    const nextVerificationDateRangeFilter = getDayRangeFilter('nextVerificationDate')
-    const installationDateRangeFilter = getDayRangeFilter('installationDate')
-    const archiveDateRangeFilter = getDayRangeFilter('archiveDate')
-    const commissioningDateRangeFilter = getDayRangeFilter('commissioningDate')
-    const sealingDateRangeFilter = getDayRangeFilter('sealingDate')
-    const controlReadingsDateRangeFilter = getDayRangeFilter('controlReadingsDate')
-    const resourceFilter = getFilter(['resource', 'id'], 'array', 'string', 'in')
 
     return useMemo(() => {
 
@@ -154,15 +154,15 @@ export function useMeterFilters (meterType: MeterTypes): Array<FiltersMeta<Meter
                 },
             },
             {
-                keyword: 'date',
-                filters: [readingDateRangeFilter],
+                keyword: 'createdAt',
+                filters: [createdAtDateRangeFilter],
                 component: {
                     type: ComponentType.DateRange,
                     props: {
                         placeholder: [StartDateMessage, EndDateMessage],
                     },
                     modalFilterComponentWrapper: {
-                        label: MeterReadingDateMessage,
+                        label: CreatedAtDateMessage,
                         size: FilterComponentSize.Medium,
                     },
                 },
@@ -280,5 +280,5 @@ export function useMeterFilters (meterType: MeterTypes): Array<FiltersMeta<Meter
         ])
         
 
-    }, [addressFilter, userOrganizationId, EnterAddressMessage, AddressMessage, isPropertyMeter, unitNameFilter, EnterUnitNameLabel, UnitMessage, accountNumberFilter, EnterAccountNumberMessage, AccountNumberMessage, resourceFilter, resourcesOptions, resourcesLoading, ChooseServiceMessage, ServiceMessage, numberFilter, EnterMeterNumberMessage, MeterNumberMessage, readingDateRangeFilter, StartDateMessage, EndDateMessage, MeterReadingDateMessage, placeFilter, EnterPlaceMessage, PlaceMessage, nextVerificationDateRangeFilter, VerificationDateMessage, installationDateRangeFilter, InstallationDateMessage, commissioningDateRangeFilter, CommissioningDateMessage, sealingDateRangeFilter, SealingDateMessage, controlReadingsDateRangeFilter, ControlReadingsDate, archiveDateRangeFilter, ArchiveDate, addressStringContainsFilter, resourceStringContainsFilter, unitNameStringContainsFilter])
+    }, [userOrganizationId, EnterAddressMessage, AddressMessage, isPropertyMeter, EnterUnitNameLabel, UnitMessage, EnterAccountNumberMessage, AccountNumberMessage, resourcesOptions, resourcesLoading, ChooseServiceMessage, ServiceMessage, EnterMeterNumberMessage, MeterNumberMessage, StartDateMessage, EndDateMessage, CreatedAtDateMessage, EnterPlaceMessage, PlaceMessage, VerificationDateMessage, InstallationDateMessage, CommissioningDateMessage, SealingDateMessage, ControlReadingsDate, ArchiveDate])
 }
