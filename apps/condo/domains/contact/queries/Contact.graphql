@@ -167,7 +167,7 @@ mutation updateContact ($id: ID!, $data: ContactUpdateInput!) {
     }
 }
 
-mutation updateContacts ($data: [ContactsUpdateInput]) {
+mutation updateContacts ($data: [ContactsUpdateInput!]!) {
     contacts: updateContacts (data: $data) {
         id
     }

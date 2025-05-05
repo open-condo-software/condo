@@ -2319,6 +2319,7 @@
   "pages.condo.property.form.AreaSuffix": "m2",
   "pages.condo.property.form.AreaTitle": "Superficie",
   "pages.condo.property.form.BuildingTabTitle": "Plano del edificio",
+  "pages.condo.property.form.ConfirmDeleteManyTitle": "¿Eliminar propiedades?",
   "pages.condo.property.form.ConfirmDeleteMessage": "Será imposible restaurarla",
   "pages.condo.property.form.ConfirmDeleteTitle": "¿Eliminar la comunidad?",
   "pages.condo.property.form.DeleteLabel": "Eliminar la comunidad",

@@ -2316,6 +2316,7 @@
   "pages.condo.property.form.AreaSuffix": "sq. m.",
   "pages.condo.property.form.AreaTitle": "Area",
   "pages.condo.property.form.BuildingTabTitle": "Map",
+  "pages.condo.property.form.ConfirmDeleteManyTitle": "Delete properties?",
   "pages.condo.property.form.ConfirmDeleteMessage": "All data, related to this property, will be lost",
   "pages.condo.property.form.ConfirmDeleteTitle": "Delete property?",
   "pages.condo.property.form.DeleteLabel": "Delete property",
