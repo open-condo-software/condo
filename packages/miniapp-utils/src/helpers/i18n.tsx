@@ -32,7 +32,7 @@ export type AcceptLanguageInfo = LocaleInfo & {
 
 export type LocaleSelection<AvailableLocale extends string> = {
     selectedLocale: AvailableLocale
-    matchingLocale: string
+    fullLocale: string
 }
 
 export type PrefetchResult<
@@ -50,7 +50,7 @@ type SSRResultWithI18N<
 > = {
     props: PropsType & {
         [I18N_SELECTED_LOCALE_PROP_NAME]?: AvailableLocale
-        [I18N_MATCHING_LOCALE_PROP_NAME]?: string
+        [I18N_FULL_LOCALE_PROP_NAME]?: string
         [I18N_MESSAGES_PROP_NAME]?: MessagesShape
     }
 }
@@ -69,7 +69,7 @@ type TranslationsContextType<
      * Should be passed to tools such as `intl`, since it can contain additional info helping with number-formating and so on
      * For example: "en-GB"
      */
-    matchingLocale: string
+    fullLocale: string
     /** Extracted messages to pass into `intl` or any similar tools  */
     messages: MessagesShape | undefined
     /** Callback to change current language */
@@ -81,7 +81,7 @@ export type TranslationsProviderProps<
     MessagesShape extends Record<string, string>,
 > = PropsWithChildren<{
     initialSelectedLocale: AvailableLocale
-    initialMatchingLocale: string
+    initialFullLocale: string
     initialMessages: MessagesShape | undefined
 }>
 
@@ -91,9 +91,10 @@ type TranslationsHelperOptions<
 > = {
     locales: ReadonlyArray<AvailableLocale>
     defaultLocale: AvailableLocale
-    loadDefaultMessages(): Promise<MessagesShape>
-    loadMessages(locale: AvailableLocale): Promise<Partial<MessagesShape>>
+    loadDefaultMessages: () => Promise<MessagesShape>
+    loadMessages: (locale: AvailableLocale) => Promise<Partial<MessagesShape>>
     localeCookieName?: string
+    localeQueryParam?: string
 }
 
 type LocalePartMatcher = {
@@ -105,7 +106,7 @@ const LOCALE_PARSING_OPTIONS: Array<LocalePartMatcher> = [
     { part: 'primary', matcher: /^[a-z]+$/ },
     { part: 'extended', matcher: /^[a-z]{3}$/ },
     { part: 'script', matcher: /^[A-Z][a-z]{3,}$/ },
-    { part: 'region', matcher: /^[A-Z]{2,3}$/ },
+    { part: 'region', matcher: /^([A-Z]{2,3}|[0-9]{3})$/ },
 ]
 
 const LOCALE_RESOLVE_ORDER: Array<Array<keyof LocaleInfo>> = [
@@ -121,7 +122,7 @@ const LOCALE_RESOLVE_ORDER: Array<Array<keyof LocaleInfo>> = [
 ]
 
 const I18N_SELECTED_LOCALE_PROP_NAME = '__I18N_SELECTED_LOCALE__'
-const I18N_MATCHING_LOCALE_PROP_NAME = '__I18N_MATCHING_LOCALE__'
+const I18N_FULL_LOCALE_PROP_NAME = '__I18N_FULL_LOCALE__'
 const I18N_MESSAGES_PROP_NAME = '__I18N_MESSAGES__'
 
 export class TranslationsHelper<
@@ -136,6 +137,7 @@ export class TranslationsHelper<
     private readonly _translations: Partial<Record<AvailableLocale, MessagesShape>> = {}
     private _defaultMessages: MessagesShape | undefined
     readonly localeCookieName: string = 'NEXT_LOCALE'
+    readonly localeQueryParam: string | undefined = undefined
 
     constructor (options: TranslationsHelperOptions<AvailableLocale, MessagesShape>) {
         this._locales = new Set(options.locales)
@@ -145,6 +147,9 @@ export class TranslationsHelper<
 
         if (options.localeCookieName) {
             this.localeCookieName = options.localeCookieName
+        }
+        if (options.localeQueryParam) {
+            this.localeQueryParam = options.localeQueryParam
         }
 
         this.getTranslationsProvider = this.getTranslationsProvider.bind(this)
@@ -215,11 +220,11 @@ export class TranslationsHelper<
     /**
      * Enrich selected locale by scanning through requested locales
      * and finding the first one, which is sub-locale of selected one.
-     * For example: selectedLocale = "en", requestedLocales: ["en-GB", "fr", "en"] -> matchingLocale = "en-GB"
+     * For example: selectedLocale = "en", requestedLocales: ["en-GB", "fr", "en"] -> fullLocale = "en-GB"
      * If none of requested locales is valid sub-locales, returns selectedLocale as fallback
      */
-    private _getMatchingLocale (selectedLocale: AvailableLocale, requestedLocales: Array<AcceptLanguageInfo | LocaleInfo>): string {
-        let matchingLocale: string = selectedLocale
+    private _getFullLocale (selectedLocale: AvailableLocale, requestedLocales: Array<AcceptLanguageInfo | LocaleInfo>): string {
+        let fullLocale: string = selectedLocale
         const selectedLocaleInfo = TranslationsHelper.parseLocaleString(selectedLocale)
         for (const locale of requestedLocales) {
             let isSubLocale = true
@@ -233,12 +238,12 @@ export class TranslationsHelper<
                 }
             }
             if (isSubLocale) {
-                matchingLocale = TranslationsHelper.toLocaleString(locale)
+                fullLocale = TranslationsHelper.toLocaleString(locale)
                 break
             }
         }
 
-        return matchingLocale
+        return fullLocale
     }
 
     /**
@@ -251,10 +256,10 @@ export class TranslationsHelper<
      * const locales = ["zh-Hans-CN", "en-GB", "zh"] // that's what user want
      * // During function execution we build order
      * const helper = new TranslationsHelper({ locales, defaultLocale: "zh" })
-     * const { selectedLocale, matchingLocale } = helper.selectSupportedLocale(locales.map(TranslationsHelper.parseLocaleString))
+     * const { selectedLocale, fullLocale } = helper.selectSupportedLocale(locales.map(TranslationsHelper.parseLocaleString))
      * // ["zh-Hans-CN", "zh-Hans", "en-GB", "en", "zh"] - resolved order
      * // selectedLocale = "en" - first match, on which we can load messages
-     * // matchingLocale = "en-GB" - sub-locale, proving additiona info
+     * // fullLocale = "en-GB" - sub-locale, proving additiona info
      */
     selectSupportedLocale (locales: Array<AcceptLanguageInfo | LocaleInfo>): LocaleSelection<AvailableLocale> {
         const reversedResolveOrder: Array<string> = []
@@ -306,21 +311,37 @@ export class TranslationsHelper<
         // and others non-related to message staff
         return {
             selectedLocale,
-            matchingLocale: this._getMatchingLocale(selectedLocale, locales),
+            fullLocale: this._getFullLocale(selectedLocale, locales),
         }
     }
 
     /**
-     * Obtains locale preference from cookie, request.headers['accept-language'] or window.navigator.languages
+     * Obtains locale preference from query parameter (if specified), cookie, request.headers['accept-language'] or window.navigator.languages
      * and then selects supported locale using selectSupportedLocale method
      */
     getPreferredLocale (req: Optional<IncomingMessage>, res: Optional<ServerResponse>): LocaleSelection<AvailableLocale> {
+        // Step 1: Query must be resolved before any cookies, since it's more explicit
+        if (this.localeQueryParam) {
+            let paramValue: string | null = null
+            if (req && req.url) {
+                paramValue = new URL(req.url).searchParams.get(this.localeQueryParam)
+            } else if (!isSSR()) {
+                paramValue = new URLSearchParams(window.location.search).get(this.localeQueryParam)
+            }
+            if (paramValue) {
+                const localeSelection = this.selectSupportedLocale([TranslationsHelper.parseLocaleString(paramValue)])
+                if (localeSelection.fullLocale === paramValue) {
+                    return localeSelection
+                }
+            }
+        }
+
+        // Step 2: Cookie must be parsed after query and before other preferences
         const cookieValue = getCookie(this.localeCookieName, { req, res })
         if (cookieValue) {
-            const selection = this.selectSupportedLocale([TranslationsHelper.parseLocaleString(cookieValue)])
-            // NOTE: this will not be equal in case of "default-locale" fallback
-            if (selection.matchingLocale === cookieValue) {
-                return selection
+            const localeSelection = this.selectSupportedLocale([TranslationsHelper.parseLocaleString(cookieValue)])
+            if (localeSelection.fullLocale === cookieValue) {
+                return localeSelection
             }
         }
 
@@ -333,7 +354,7 @@ export class TranslationsHelper<
 
         return {
             selectedLocale: this._defaultLocale,
-            matchingLocale: this._defaultLocale,
+            fullLocale: this._defaultLocale,
         }
     }
 
@@ -349,7 +370,7 @@ export class TranslationsHelper<
             props: {
                 ...pageParams.props,
                 [I18N_SELECTED_LOCALE_PROP_NAME]: translationsData.selectedLocale,
-                [I18N_MATCHING_LOCALE_PROP_NAME]: translationsData.matchingLocale,
+                [I18N_FULL_LOCALE_PROP_NAME]: translationsData.fullLocale,
                 [I18N_MESSAGES_PROP_NAME]: translationsData.messages,
             },
         }
@@ -393,7 +414,7 @@ export class TranslationsHelper<
 
         return {
             selectedLocale: localeSelection.selectedLocale,
-            matchingLocale: localeSelection.matchingLocale,
+            fullLocale: localeSelection.fullLocale,
             messages,
         }
     }
@@ -402,26 +423,26 @@ export class TranslationsHelper<
         if (!this._context) {
             this._context = createContext<TranslationsContextType<AvailableLocale, MessagesShape>>({
                 selectedLocale: this._defaultLocale,
-                matchingLocale: this._defaultLocale,
+                fullLocale: this._defaultLocale,
                 messages: undefined,
                 switchLocale: () => ({}),
             })
         }
 
         const Context = this._context
-        const getMatchingLocale = this._getMatchingLocale
+        const getFullLocale = this._getFullLocale
         const localeCookieName = this.localeCookieName
         const getTranslations = this.getTranslations
         const translationsObj = this._translations
 
         return function TranslationsProvider ({
             initialSelectedLocale,
-            initialMatchingLocale,
+            initialFullLocale,
             initialMessages,
             children,
         }) {
             const [selectedLocale, setSelectedLocale] = useState(initialSelectedLocale)
-            const [matchingLocale, setMatchingLocale] = useState(initialMatchingLocale)
+            const [fullLocale, setFullLocale] = useState(initialFullLocale)
             const [messages, setMessages] = useState(initialMessages)
 
             useEffectOnce(() => {
@@ -431,16 +452,16 @@ export class TranslationsHelper<
             })
 
             const switchLocale = useCallback(async (newLocale: AvailableLocale) => {
-                const matchingLocale = getMatchingLocale(newLocale, window.navigator.languages.map(TranslationsHelper.parseLocaleString))
+                const fullLocale = getFullLocale(newLocale, window.navigator.languages.map(TranslationsHelper.parseLocaleString))
                 const messages = await getTranslations(newLocale)
                 setSelectedLocale(newLocale)
-                setMatchingLocale(matchingLocale)
+                setFullLocale(fullLocale)
                 setMessages(messages)
-                setCookie(localeCookieName, matchingLocale)
+                setCookie(localeCookieName, fullLocale)
             }, [])
 
             return (
-                <Context.Provider value={{ selectedLocale, matchingLocale, messages, switchLocale }}>
+                <Context.Provider value={{ selectedLocale, fullLocale, messages, switchLocale }}>
                     {children}
                 </Context.Provider>
             )
@@ -455,7 +476,7 @@ export class TranslationsHelper<
         ) {
             return {
                 initialSelectedLocale: pageProps[I18N_SELECTED_LOCALE_PROP_NAME] || defaultLocale,
-                initialMatchingLocale: pageProps[I18N_MATCHING_LOCALE_PROP_NAME] || defaultLocale,
+                initialFullLocale: pageProps[I18N_FULL_LOCALE_PROP_NAME] || defaultLocale,
                 initialMessages: pageProps[I18N_MESSAGES_PROP_NAME] || undefined,
             }
         }
@@ -465,7 +486,7 @@ export class TranslationsHelper<
         if (!this._context) {
             this._context = createContext<TranslationsContextType<AvailableLocale, MessagesShape>>({
                 selectedLocale: this._defaultLocale,
-                matchingLocale: this._defaultLocale,
+                fullLocale: this._defaultLocale,
                 messages: undefined,
                 switchLocale: () => ({}),
             })

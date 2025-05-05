@@ -15,6 +15,7 @@ describe('TranslationsHelper', () => {
                     ['en-GB', { primary: 'en', extended: undefined, script: undefined, region: 'GB', quality: 1.0 }],
                     ['en-US', { primary: 'en', extended: undefined, script: undefined, region: 'US', quality: 1.0 }],
                     ['ru-RU', { primary: 'ru', extended: undefined, script: undefined, region: 'RU', quality: 1.0 }],
+                    ['es-419', { primary: 'es', extended: undefined, script: undefined, region: '419', quality: 1.0 }],
                     // Script cases
                     ['sr-Latn', { primary: 'sr', extended: undefined, script: 'Latn', region: undefined, quality: 1.0 }],
                     ['sr-Cyrl', { primary: 'sr', extended: undefined, script: 'Cyrl', region: undefined, quality: 1.0 }],
@@ -133,11 +134,17 @@ describe('TranslationsHelper', () => {
                     [['en', 'zh-Hans', 'zh'], 'zh-Hant-TW', 'zh', 'zh-Hant-TW'],
                 ]
 
-                test.each(cases)('Available: %p, requesting: %p', (locales, requestedLocales, expectedSelection, expectedMatch) => {
-                    const helper = new TranslationsHelper({ locales, defaultLocale: locales[0] })
-                    const { selectedLocale, matchingLocale } = helper.selectSupportedLocale(TranslationsHelper.parseAcceptLanguageHeader(requestedLocales))
+                test.each(cases)('Available: %p, requesting: %p', (locales, requestedLocales, expectedSelection, expectedFull) => {
+                    const fakeLoader = async () => ({})
+                    const helper = new TranslationsHelper({
+                        locales,
+                        defaultLocale: locales[0],
+                        loadDefaultMessages: fakeLoader,
+                        loadMessages: fakeLoader,
+                    })
+                    const { selectedLocale, fullLocale } = helper.selectSupportedLocale(TranslationsHelper.parseAcceptLanguageHeader(requestedLocales))
                     expect(selectedLocale).toEqual(expectedSelection)
-                    expect(matchingLocale).toEqual(expectedMatch)
+                    expect(fullLocale).toEqual(expectedFull)
                 })
             })
         })

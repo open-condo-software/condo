@@ -8,7 +8,7 @@ module.exports = {
     moduleFileExtensions: ['js', 'ts'],
     projects: [
         {
-            displayName: '@open-condo/migrator',
+            displayName: '@open-condo/miniapp-utils',
             testEnvironment: 'node',
             transform: {
                 '^.+\\.tsx?$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.json' }],
