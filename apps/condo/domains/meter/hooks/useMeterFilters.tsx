@@ -121,6 +121,20 @@ export function useMeterFilters (meterType: MeterTypes): Array<FiltersMeta<Meter
                     },
                 },
             },
+            isPropertyMeter ? undefined : {
+                keyword: 'place',
+                filters: [placeFilter],
+                component: {
+                    type: ComponentType.Input,
+                    props: {
+                        placeholder: EnterPlaceMessage,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: PlaceMessage,
+                        size: FilterComponentSize.Medium,
+                    },
+                },
+            },
             {
                 keyword: 'resource',
                 filters: [resourceFilter],
@@ -163,20 +177,6 @@ export function useMeterFilters (meterType: MeterTypes): Array<FiltersMeta<Meter
                     },
                     modalFilterComponentWrapper: {
                         label: AddedDateMessage,
-                        size: FilterComponentSize.Medium,
-                    },
-                },
-            },
-            isPropertyMeter ? undefined : {
-                keyword: 'place',
-                filters: [placeFilter],
-                component: {
-                    type: ComponentType.Input,
-                    props: {
-                        placeholder: EnterPlaceMessage,
-                    },
-                    modalFilterComponentWrapper: {
-                        label: PlaceMessage,
                         size: FilterComponentSize.Medium,
                     },
                 },

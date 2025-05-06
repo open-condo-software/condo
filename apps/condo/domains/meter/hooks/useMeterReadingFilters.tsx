@@ -147,6 +147,20 @@ export function useMeterReadingFilters (meterType: MeterTypes): Array<FiltersMet
                     },
                 },
             },
+            isPropertyMeter ? null : {
+                keyword: 'place',
+                filters: [placeFilter],
+                component: {
+                    type: ComponentType.Input,
+                    props: {
+                        placeholder: EnterPlaceMessage,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: PlaceMessage,
+                        size: FilterComponentSize.Medium,
+                    },
+                },
+            },
             {
                 keyword: 'resource',
                 filters: [resourceFilter],
@@ -223,20 +237,6 @@ export function useMeterReadingFilters (meterType: MeterTypes): Array<FiltersMet
                     getComponentFilterDropdown: getDateRangeFilterDropdown({
                         Component: MeterReadingDatePicker,
                     }),
-                },
-            },
-            isPropertyMeter ? null : {
-                keyword: 'place',
-                filters: [placeFilter],
-                component: {
-                    type: ComponentType.Input,
-                    props: {
-                        placeholder: EnterPlaceMessage,
-                    },
-                    modalFilterComponentWrapper: {
-                        label: PlaceMessage,
-                        size: FilterComponentSize.Medium,
-                    },
                 },
             },
             {
