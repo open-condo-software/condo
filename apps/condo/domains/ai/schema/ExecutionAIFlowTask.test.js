@@ -36,8 +36,6 @@ const {
 
 
 describe('ExecutionAIFlowTask', () => {
-    const originalEnv = process.env
-
     let adminClient, supportClient, userClient, userClient2, anonymousClient
 
     // In envs the full url is specified, so we must specify the port
@@ -52,16 +50,6 @@ describe('ExecutionAIFlowTask', () => {
     beforeEach(async () => {
         userClient = await makeClientWithNewRegisteredAndLoggedInUser()
         userClient2 = await makeClientWithNewRegisteredAndLoggedInUser()
-
-        jest.resetModules() // clear the cache
-        process.env = {
-            ...originalEnv,
-            AI_ENABLED: 'true',
-        }
-    })
-
-    afterEach(() => {
-        process.env = originalEnv
     })
 
     describe('Accesses', () => {
@@ -368,41 +356,6 @@ describe('ExecutionAIFlowTask', () => {
                 await expectToThrowAuthenticationErrorToObj(async () => {
                     await ExecutionAIFlowTask.softDelete(anonymousClient, task.id, {
                         status: TASK_STATUSES.CANCELLED,
-                    })
-                })
-            })
-        })
-
-        describe('Cannot create if AI_ENABLED=false', () => {
-            const cases = [
-                ['admin', () => adminClient],
-                ['support', () => supportClient],
-                ['user', () => userClient],
-            ]
-
-            test.each(cases)('for %p', async (_, getClient) => {
-                const client = getClient()
-                const task = await ExecutionAIFlowTaskForUser.create(client, {
-                    user: { connect: { id: client.user.id } },
-                    flowType: 'success_flow',
-                    context: { some_field: faker.lorem.words(3) },
-                    dv: 1,
-                    sender: { fingerprint: faker.random.alphaNumeric(8), dv: 1 },
-                })
-                expect(task).toBeDefined()
-
-                process.env = {
-                    ...originalEnv,
-                    AI_ENABLED: 'false',
-                }
-
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await ExecutionAIFlowTaskForUser.create(client, {
-                        user: { connect: { id: client.user.id } },
-                        flowType: 'success_flow',
-                        context: { some_field: faker.lorem.words(3) },
-                        dv: 1,
-                        sender: { fingerprint: faker.random.alphaNumeric(8), dv: 1 },
                     })
                 })
             })

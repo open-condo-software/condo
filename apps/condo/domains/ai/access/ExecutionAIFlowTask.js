@@ -22,7 +22,7 @@ async function canManageExecutionAIFlowTasks ({ authentication: { item: user }, 
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
-    if (conf.AI_ENABLED !== 'true') return false
+    if (conf.AI_ENABLED !== 'true' && operation === 'create') return false
 
     if (user.isAdmin) return true
 
