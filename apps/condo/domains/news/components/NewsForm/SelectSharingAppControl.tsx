@@ -1,4 +1,7 @@
-import { useGetB2BAppNewsSharingConfigQuery, useGetNewsSharingRecipientsLazyQuery } from '@app/condo/gql'
+import {
+    useGetCountB2BAppsWithNewsSharingConfigQuery,
+    useGetNewsSharingRecipientsLazyQuery,
+} from '@app/condo/gql'
 import {
     B2BAppContext as IB2BAppContext,
 } from '@app/condo/schema'
@@ -96,8 +99,8 @@ const SelectSharingAppControl: React.FC<ISelectSharingAppControl> = ({ sharingAp
         })
     }, [sharingAppContexts, getNewsSharingRecipients, onError])
 
-    const { data: GetB2BAppNewsSharingConfigQuery } =  useGetB2BAppNewsSharingConfigQuery()
-    const B2BAppNewsSharingConfigs = GetB2BAppNewsSharingConfigQuery?.B2BAppNewsSharingConfigs
+    const { data: getCountB2BAppsWithNewsSharingConfigQuery } =  useGetCountB2BAppsWithNewsSharingConfigQuery()
+    const B2BAppWithNewsSharingConfigsCount = getCountB2BAppsWithNewsSharingConfigQuery?._allB2BAppsMeta?.count
 
     return (
         <NewsCardGrid minColWidth={246}>
@@ -176,7 +179,7 @@ const SelectSharingAppControl: React.FC<ISelectSharingAppControl> = ({ sharingAp
                     </React.Fragment>
                 )
             })}
-            {sharingAppContexts.length < B2BAppNewsSharingConfigs?.length && (
+            {sharingAppContexts.length < B2BAppWithNewsSharingConfigsCount && (
                 <div style={cardStyle}>
                     <Card>
                         <Row gutter={[0, 10]}>

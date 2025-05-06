@@ -1932,45 +1932,47 @@ export type GetGlobalB2BAppsQueryHookResult = ReturnType<typeof useGetGlobalB2BA
 export type GetGlobalB2BAppsLazyQueryHookResult = ReturnType<typeof useGetGlobalB2BAppsLazyQuery>;
 export type GetGlobalB2BAppsSuspenseQueryHookResult = ReturnType<typeof useGetGlobalB2BAppsSuspenseQuery>;
 export type GetGlobalB2BAppsQueryResult = Apollo.QueryResult<Types.GetGlobalB2BAppsQuery, Types.GetGlobalB2BAppsQueryVariables>;
-export const GetB2BAppNewsSharingConfigDocument = gql`
-    query getB2BAppNewsSharingConfig {
-  B2BAppNewsSharingConfigs: allB2BAppNewsSharingConfigs {
-    id
+export const GetCountB2BAppsWithNewsSharingConfigDocument = gql`
+    query getCountB2BAppsWithNewsSharingConfig {
+  _allB2BAppsMeta(
+    where: {isHidden: false, isPublic: true, newsSharingConfig_is_null: false, deletedAt: null}
+  ) {
+    count
   }
 }
     `;
 
 /**
- * __useGetB2BAppNewsSharingConfigQuery__
+ * __useGetCountB2BAppsWithNewsSharingConfigQuery__
  *
- * To run a query within a React component, call `useGetB2BAppNewsSharingConfigQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetB2BAppNewsSharingConfigQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetCountB2BAppsWithNewsSharingConfigQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCountB2BAppsWithNewsSharingConfigQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetB2BAppNewsSharingConfigQuery({
+ * const { data, loading, error } = useGetCountB2BAppsWithNewsSharingConfigQuery({
  *   variables: {
  *   },
  * });
  */
-export function useGetB2BAppNewsSharingConfigQuery(baseOptions?: Apollo.QueryHookOptions<Types.GetB2BAppNewsSharingConfigQuery, Types.GetB2BAppNewsSharingConfigQueryVariables>) {
+export function useGetCountB2BAppsWithNewsSharingConfigQuery(baseOptions?: Apollo.QueryHookOptions<Types.GetCountB2BAppsWithNewsSharingConfigQuery, Types.GetCountB2BAppsWithNewsSharingConfigQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<Types.GetB2BAppNewsSharingConfigQuery, Types.GetB2BAppNewsSharingConfigQueryVariables>(GetB2BAppNewsSharingConfigDocument, options);
+        return Apollo.useQuery<Types.GetCountB2BAppsWithNewsSharingConfigQuery, Types.GetCountB2BAppsWithNewsSharingConfigQueryVariables>(GetCountB2BAppsWithNewsSharingConfigDocument, options);
       }
-export function useGetB2BAppNewsSharingConfigLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetB2BAppNewsSharingConfigQuery, Types.GetB2BAppNewsSharingConfigQueryVariables>) {
+export function useGetCountB2BAppsWithNewsSharingConfigLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetCountB2BAppsWithNewsSharingConfigQuery, Types.GetCountB2BAppsWithNewsSharingConfigQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<Types.GetB2BAppNewsSharingConfigQuery, Types.GetB2BAppNewsSharingConfigQueryVariables>(GetB2BAppNewsSharingConfigDocument, options);
+          return Apollo.useLazyQuery<Types.GetCountB2BAppsWithNewsSharingConfigQuery, Types.GetCountB2BAppsWithNewsSharingConfigQueryVariables>(GetCountB2BAppsWithNewsSharingConfigDocument, options);
         }
-export function useGetB2BAppNewsSharingConfigSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetB2BAppNewsSharingConfigQuery, Types.GetB2BAppNewsSharingConfigQueryVariables>) {
+export function useGetCountB2BAppsWithNewsSharingConfigSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetCountB2BAppsWithNewsSharingConfigQuery, Types.GetCountB2BAppsWithNewsSharingConfigQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<Types.GetB2BAppNewsSharingConfigQuery, Types.GetB2BAppNewsSharingConfigQueryVariables>(GetB2BAppNewsSharingConfigDocument, options);
+          return Apollo.useSuspenseQuery<Types.GetCountB2BAppsWithNewsSharingConfigQuery, Types.GetCountB2BAppsWithNewsSharingConfigQueryVariables>(GetCountB2BAppsWithNewsSharingConfigDocument, options);
         }
-export type GetB2BAppNewsSharingConfigQueryHookResult = ReturnType<typeof useGetB2BAppNewsSharingConfigQuery>;
-export type GetB2BAppNewsSharingConfigLazyQueryHookResult = ReturnType<typeof useGetB2BAppNewsSharingConfigLazyQuery>;
-export type GetB2BAppNewsSharingConfigSuspenseQueryHookResult = ReturnType<typeof useGetB2BAppNewsSharingConfigSuspenseQuery>;
-export type GetB2BAppNewsSharingConfigQueryResult = Apollo.QueryResult<Types.GetB2BAppNewsSharingConfigQuery, Types.GetB2BAppNewsSharingConfigQueryVariables>;
+export type GetCountB2BAppsWithNewsSharingConfigQueryHookResult = ReturnType<typeof useGetCountB2BAppsWithNewsSharingConfigQuery>;
+export type GetCountB2BAppsWithNewsSharingConfigLazyQueryHookResult = ReturnType<typeof useGetCountB2BAppsWithNewsSharingConfigLazyQuery>;
+export type GetCountB2BAppsWithNewsSharingConfigSuspenseQueryHookResult = ReturnType<typeof useGetCountB2BAppsWithNewsSharingConfigSuspenseQuery>;
+export type GetCountB2BAppsWithNewsSharingConfigQueryResult = Apollo.QueryResult<Types.GetCountB2BAppsWithNewsSharingConfigQuery, Types.GetCountB2BAppsWithNewsSharingConfigQueryVariables>;
 export const GetUserB2BAppRolesDocument = gql`
     query getUserB2BAppRoles($employeeRoleId: ID, $b2bAppIds: [ID]) {
   b2bRoles: allB2BAppRoles(
