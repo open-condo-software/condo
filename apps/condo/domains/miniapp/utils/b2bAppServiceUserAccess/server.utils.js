@@ -236,7 +236,7 @@ const canManageObjectsAsB2BAppServiceUser = async (args) => {
     return await canManageByServiceUser(args, schemaConfig, refSchemaName)
 }
 
-const canExecuteServiceAsB2BAppServiceUser = async (args, organizationId = '') => {
+const canExecuteServiceAsB2BAppServiceUser = async (args, organizationId) => {
     const { info: { fieldName: serviceName } } = args
     if (!isServiceUser(args)) return false
     const serviceConfig = get(B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS.services, serviceName)
