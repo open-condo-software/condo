@@ -72,21 +72,21 @@ export const useTableColumns = (filterMetas: FiltersMeta<PropertyWhereInput>[]) 
                 ellipsis: true,
                 dataIndex: 'unitsCount',
                 key: 'unitsCount',
-                width: '20%',
+                width: '15%',
             },
             {
                 title: UninhabitedUnitsCountMessage,
                 ellipsis: true,
                 dataIndex: 'uninhabitedUnitsCount',
                 key: 'uninhabitedUnitsCount',
-                width: '20%',
+                width: '15%',
             },
             {
                 title: TasksInWorkMessage,
                 ellipsis: true,
                 dataIndex: 'ticketsInWork',
                 key: 'ticketsInWork',
-                width: '20%',
+                width: '15%',
             },
         ]
     }, [AddedDateMessage, AddressMessage, TasksInWorkMessage, UninhabitedUnitsCountMessage, UnitsCountMessage, filterMetas, filters, intl, renderAddress, search, sorterMap])

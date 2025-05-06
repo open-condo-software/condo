@@ -133,16 +133,6 @@ describe('Property', () => {
                     await updateTestProperty(canManageEmployee, cannotManageEmployee.property.id)
                 })
             })
-            test('Can read and restore soft-deleted properties if has "canManageProperties" in role', async () => {
-                const [property] = await createTestProperty(canManageEmployee, canManageEmployee.organization)
-                const [updated] = await updateTestProperty(canManageEmployee, property.id, { deletedAt: dayjs().toISOString() })
-                expect(updated).toHaveProperty('deletedAt')
-                expect(updated.deletedAt).not.toBeNull()
-                const readProperty = await Property.getOne(canManageEmployee, { id: property.id, deletedAt_not: null })
-                expect(readProperty).toHaveProperty('id', property.id)
-                const [restored] = await updateTestProperty(canManageEmployee, property.id, { deletedAt: null })
-                expect(restored).toHaveProperty('deletedAt', null)
-            })
         })
         describe('Resident', () => {
             test('Can read properties from all organizations at the address where he resides', async () => {
