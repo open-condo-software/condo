@@ -12,17 +12,23 @@ const { TelegramOauthRoutes } = require('@condo/domains/user/integration/telegra
 
 const logger = getLogger('user-external-identity-middleware-setup')
 
+/** @param botToken {string} {botId}:{someSecret} */
+function parseBotId (botToken) {
+    return botToken.split(':')[0]
+}
+
 function addTelegramOauthRoutes (app) {
     try {
         const TELEGRAM_OAUTH_CONFIG = JSON.parse(conf.TELEGRAM_OAUTH_CONFIG || '[]')
-        const uniqueRouteNames = new Set(TELEGRAM_OAUTH_CONFIG.map(conf => conf.route))
-        if (uniqueRouteNames.size !== TELEGRAM_OAUTH_CONFIG.length) {
-            const duplicateNames = [...uniqueRouteNames].filter(route => TELEGRAM_OAUTH_CONFIG.filter(conf => conf.route === route).length > 1)
-            throw new Error(`Route names contains duplicates: "${duplicateNames.join('", "')}"`)
+        TELEGRAM_OAUTH_CONFIG.forEach(conf => conf.botId = parseBotId(conf.botToken))
+        const uniqueBotIds = new Set(TELEGRAM_OAUTH_CONFIG.map(conf => conf.botId))
+        if (uniqueBotIds.size !== TELEGRAM_OAUTH_CONFIG.length) {
+            const duplicateNames = [...uniqueBotIds].filter(botId => TELEGRAM_OAUTH_CONFIG.filter(conf => conf.botId === botId).length > 1)
+            throw new Error(`Duplicate bot ids: "${duplicateNames.join('", "')}"`)
         }
-        for (const { route, botToken, allowedUserTypes, redirectUrls, residentRedirectUrl } of TELEGRAM_OAUTH_CONFIG) {
-            const telegramOauthRoutes = new TelegramOauthRoutes(route, botToken, redirectUrls, allowedUserTypes, residentRedirectUrl)
-            app.post(`/api/${route}/auth/callback`, /*bodyParser.json(),*/ telegramOauthRoutes.completeAuth.bind(telegramOauthRoutes))
+        for (const { botId, botToken, allowedUserType, allowedRedirectUrls } of TELEGRAM_OAUTH_CONFIG) {
+            const telegramOauthRoutes = new TelegramOauthRoutes(botId, botToken, allowedRedirectUrls, allowedUserType)
+            app.post(`/api/tg/${botId}/auth/callback`, telegramOauthRoutes.completeAuth.bind(telegramOauthRoutes))
         }
     } catch (error) {
         logger.error({ msg: 'Register telegram oauth callback route error', error: JSON.stringify(error) })

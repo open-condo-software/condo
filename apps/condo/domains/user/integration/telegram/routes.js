@@ -18,12 +18,15 @@ const { ERROR_MESSAGES } = require('./utils/errors')
 
 class TelegramOauthRoutes {
 
-    constructor (name, botToken, redirectUrls = [], allowedUserTypes = [], residentRedirectUri = '/') {
+    constructor (name, botToken, allowedUserType, allowedRedirectUrls = []) {
         this.botToken = botToken
-        this.redirectUrls = redirectUrls
-        this.allowedUserTypes = allowedUserTypes
-        this.residentRedirectUri = residentRedirectUri
+        this.allowedRedirectUrls = allowedRedirectUrls
+        this.allowedUserType = allowedUserType
         this.logger = getLogger(`telegram-oauth/${name}/routes`)
+
+        if (!this.allowedUserType) {
+            this.logger.info({ msg: 'Did not provide "allowedUserType", authorization blocked' })
+        }
     }
 
     async completeAuth (req, res, next) {
@@ -33,12 +36,11 @@ class TelegramOauthRoutes {
             const redirectUrl = getRedirectUrl(req)
             const userType = getUserType(req)
 
-            if (redirectUrl && !this.redirectUrls.includes(redirectUrl)) {
+            if (!this.allowedRedirectUrls.includes(redirectUrl)) {
                 return this._error400(res, ERROR_MESSAGES.INVALID_REDIRECT_URL, reqId)
             }
 
-            // normally here is different bots for residents and staff with different ui
-            if (!this.allowedUserTypes.includes(userType)) {
+            if (!this.allowedUserType || this.allowedUserType !== userType) {
                 return this._error400(res, ERROR_MESSAGES.NOT_SUPPORTED_USER_TYPE, reqId)
             }
 
