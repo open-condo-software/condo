@@ -39,6 +39,8 @@ import { useImporterFunctions } from '@condo/domains/property/hooks/useImporterF
 import { PropertyTable } from '@condo/domains/property/utils/clientSchema'
 import { IFilters, PROPERTY_PAGE_SIZE } from '@condo/domains/property/utils/helpers'
 
+import { updateQuery } from '../../common/utils/helpers'
+
 
 type BuildingTableProps = {
     role: Pick<OrganizationEmployeeRole, 'canManageProperties' | 'canReadProperties'>
@@ -106,6 +108,11 @@ const BuildingTableContent: React.FC<BuildingTableProps> = (props) => {
     const [updatePropertiesMutation] = useUpdatePropertiesMutation({
         onCompleted: async () => {
             clearSelection()
+            await updateQuery(router, {
+                newParameters: {
+                    offset: 0,
+                },
+            }, { routerAction: 'replace', resetOldParameters: false })
             await refetch()
         },
     })

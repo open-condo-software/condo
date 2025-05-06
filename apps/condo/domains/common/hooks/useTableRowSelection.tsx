@@ -22,7 +22,7 @@ export const useTableRowSelection = <TableItem extends { id: string }> ({
 }: UseTableRowSelectionProps<TableItem>): UseTableRowSelectionResult<TableItem> => {
     const router = useRouter()
 
-    const itemIds = useMemo(() => items.map(item => item?.id).filter(Boolean), [items])
+    const itemIds = useMemo(() => items?.map(item => item?.id).filter(Boolean) || [], [items])
     const [selectedKeys, setSelectedKeys] = useState<string[]>(() => getObjectValueFromQuery(router, ['selectedIds'], []))
     const updateSelectedKeys = useCallback((selectedKeys: string[]) => {
         setSelectedKeys(selectedKeys)
@@ -33,8 +33,7 @@ export const useTableRowSelection = <TableItem extends { id: string }> ({
     const handleSelectAllRowsByPage: CheckboxProps['onChange'] = useCallback(e => {
         const checked = e.target.checked
         if (checked) {
-            const newSelectedReadingKeys = itemIds
-                .filter(itemId => !selectedRowKeysByPage.includes(itemId))
+            const newSelectedReadingKeys = itemIds?.filter(itemId => !selectedRowKeysByPage.includes(itemId))
 
             updateSelectedKeys([...selectedKeys, ...newSelectedReadingKeys])
         } else {
