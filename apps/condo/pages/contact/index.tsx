@@ -40,6 +40,7 @@ import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { useTableRowSelection } from '@condo/domains/common/hooks/useTableRowSelection'
 import { PageComponentType } from '@condo/domains/common/types'
 import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
+import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { ContactsReadPermissionRequired } from '@condo/domains/contact/components/PageAccess'
 import { useContactExportToExcelTask } from '@condo/domains/contact/hooks/useContactExportToExcelTask'
@@ -215,7 +216,12 @@ const ContactTableContent: React.FC<ContactPageContentProps> = (props) => {
     const handleDeleteButtonClick = useCallback(async () => {
         const now = new Date().toISOString()
         await updateSelectedContactsByChunks({ deletedAt: now })
-    }, [updateSelectedContactsByChunks])
+        await updateQuery(router, {
+            newParameters: {
+                offset: 0,
+            },
+        }, { routerAction: 'replace', resetOldParameters: false })
+    }, [router, updateSelectedContactsByChunks])
 
     const handleVerifyButtonClick = useCallback(async () => {
         await updateSelectedContactsByChunks({ isVerified: true })
