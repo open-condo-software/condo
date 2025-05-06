@@ -6,6 +6,19 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { checkBillingIntegrationsAccessRights, checkB2BAccessRightsToBillingContext, getValidBillingContextForReceiptsPublish } = require('@condo/domains/billing/utils/accessSchema')
 const { SERVICE } = require('@condo/domains/user/constants/common')
 
+/**
+ * Determines whether a user is permitted to register billing receipts for a specified billing context.
+ *
+ * Returns `true` if the user is authenticated, not deleted, and meets one of the following conditions:
+ * - Is an admin.
+ * - Is a service user with either billing integration access or B2B access rights to the billing context.
+ * Returns `false` otherwise.
+ *
+ * @param {object} args - The access control arguments containing user authentication and billing context information.
+ * @returns {Promise<boolean>} Whether the user can register billing receipts for the given context.
+ *
+ * @throws {AuthenticationError} If the user is not authenticated.
+ */
 async function canRegisterBillingReceipts (args) {
     const { authentication: { item: user }, args: { data: { context: { id: contextId } } } } = args
     if (!user) return throwAuthenticationError()

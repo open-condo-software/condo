@@ -8,6 +8,13 @@ const { canExecuteServiceAsB2BAppServiceUser } = require('@condo/domains/miniapp
 const { SERVICE } = require('@condo/domains/user/constants/common')
 
 
+/**
+ * Checks whether a user has access rights to all specified billing integrations.
+ *
+ * @param {string} userId - The ID of the user whose access rights are being checked.
+ * @param {string[]} integrationIds - An array of billing integration IDs to verify access for.
+ * @returns {Promise<boolean>} Resolves to `true` if the user has access to all given integrations; otherwise, `false`.
+ */
 async function checkBillingIntegrationsAccessRights (userId, integrationIds) {
     if (!userId) return false
     if (!isArray(integrationIds) || isEmpty(integrationIds) || !integrationIds.every(Boolean)) return false
@@ -24,6 +31,12 @@ async function checkBillingIntegrationsAccessRights (userId, integrationIds) {
     return isEmpty(nonPermittedIntegrations)
 }
 
+/**
+ * Retrieves a billing integration organization context by ID if it is finished and not deleted.
+ *
+ * @param {string} contextId - The ID of the billing integration organization context.
+ * @returns {Promise<Object|undefined>} The matching context object if found; otherwise, undefined.
+ */
 async function getValidBillingContextForReceiptsPublish (contextId) {
     const [context] = await find('BillingIntegrationOrganizationContext', {
         id: contextId,
@@ -35,6 +48,15 @@ async function getValidBillingContextForReceiptsPublish (contextId) {
     return context
 }
 
+/**
+ * Determines if a B2B app service user has access rights to perform an action on a billing integration context.
+ *
+ * If the associated billing integration is marked as a B2B app, checks access using the organization from the context; otherwise, returns {@code false}.
+ *
+ * @param {object} args - Arguments required for access validation.
+ * @param {object} context - The billing integration context, including integration and organization identifiers.
+ * @returns {Promise<boolean>} {@code true} if the user has access rights; otherwise, {@code false}.
+ */
 async function checkB2BAccessRightsToBillingContext (args, context) {
     const integration = await getById('BillingIntegration', context.integration)
     if (integration.b2bApp) {
