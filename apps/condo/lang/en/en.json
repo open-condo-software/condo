@@ -2109,7 +2109,6 @@
   "pages.condo.meter.CommissioningDate": "Date of commissioning",
   "pages.condo.meter.Consumption": "Consumption",
   "pages.condo.meter.ControlReadingsDate": "Date of control readings",
-  "pages.condo.meter.CreatedAt": "Creation date",
   "pages.condo.meter.DeleteMeterAndReadings": "Delete meter and readings",
   "pages.condo.meter.EndDate": "End date",
   "pages.condo.meter.EnterAccountNumber": "Enter account number",
