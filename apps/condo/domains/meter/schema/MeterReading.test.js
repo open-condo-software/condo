@@ -2288,16 +2288,10 @@ describe('MeterReading', () => {
             })
 
             test('excludes deleted organization-specific reporting period', async () => {
-                const { meter } = await setupTestContext(20, 25, 31)
-
-                const [reportingPeriod] = await createTestMeterReportingPeriod(admin, organization, {
-                    notifyStartDay: 20,
-                    notifyEndDay: 25,
-                    restrictionEndDay: 28,
-                })
+                const { meter, reportingPeriod } = await setupTestContext(20, 25, 31)
 
                 await updateTestMeterReportingPeriod(admin, reportingPeriod.id, { deletedAt: new Date().toISOString() })
-                const readingDate = dayjs().subtract(2, 'month').date(29).format('YYYY-MM-DD')
+                const readingDate = dayjs().subtract(2, 'month').date(26).format('YYYY-MM-DD')
 
                 const [meterReading] = await createTestMeterReading(admin, meter, source, { date: readingDate })
 
