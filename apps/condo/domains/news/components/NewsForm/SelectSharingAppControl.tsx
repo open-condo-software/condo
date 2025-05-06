@@ -99,8 +99,8 @@ const SelectSharingAppControl: React.FC<ISelectSharingAppControl> = ({ sharingAp
         })
     }, [sharingAppContexts, getNewsSharingRecipients, onError])
 
-    const { data: getCountB2BAppsWithNewsSharingConfigQuery } =  useGetCountB2BAppsWithNewsSharingConfigQuery()
-    const B2BAppWithNewsSharingConfigsCount = getCountB2BAppsWithNewsSharingConfigQuery?._allB2BAppsMeta?.count
+    const { data: countB2BAppsWithNewsSharingConfigResult } =  useGetCountB2BAppsWithNewsSharingConfigQuery()
+    const b2BAppWithNewsSharingConfigsCount = countB2BAppsWithNewsSharingConfigResult?._allB2BAppsMeta?.count
 
     return (
         <NewsCardGrid minColWidth={246}>
@@ -179,7 +179,7 @@ const SelectSharingAppControl: React.FC<ISelectSharingAppControl> = ({ sharingAp
                     </React.Fragment>
                 )
             })}
-            {sharingAppContexts.length < B2BAppWithNewsSharingConfigsCount && (
+            {sharingAppContexts.length < b2BAppWithNewsSharingConfigsCount && (
                 <div style={cardStyle}>
                     <Card>
                         <Row gutter={[0, 10]}>
