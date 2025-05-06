@@ -2109,7 +2109,6 @@
   "pages.condo.meter.CommissioningDate": "Дата ввода в эксплуатацию",
   "pages.condo.meter.Consumption": "Расход",
   "pages.condo.meter.ControlReadingsDate": "Дата контрольных показаний",
-  "pages.condo.meter.CreatedAt": "Дата добавления",
   "pages.condo.meter.DeleteMeterAndReadings": "Удалить прибор и показания",
   "pages.condo.meter.EndDate": "Конечная дата",
   "pages.condo.meter.EnterAccountNumber": "Введите лицевой счет",
