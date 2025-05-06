@@ -211,6 +211,14 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
             access: { create: false, update: false },
         },
 
+        b2bApp: {
+            schemaDoc: 'Link to B2BApp which can publish receipts to this integration',
+            type: 'Relationship',
+            ref: 'B2BApp',
+            isRequired: false,
+            kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
+        },
+
         isTrustedBankAccountSource: {
             schemaDoc: 'If checked, then bank account objects created by this billing are automatically approved. E.g government-controlled billing',
             type: 'Checkbox',

@@ -110,7 +110,7 @@ const canManageByServiceUser = async ({ authentication: { item: user }, listKey,
     }
 
     if (sessionRestrictions.allowedOrganizations !== true) {
-        organizationId = sessionRestrictions.allowedOrganizations.find(organizationId)
+        organizationId = sessionRestrictions.allowedOrganizations.find(allowedOrganization => allowedOrganization === organizationId)
     }
 
     if (!organizationId) return false
@@ -128,9 +128,8 @@ const canManageByServiceUser = async ({ authentication: { item: user }, listKey,
     return !isEmpty(B2BAppContexts)
 }
 
-const canExecuteByServiceUser = async (params, serviceConfig) => {
+const canExecuteByServiceUser = async (params, serviceConfig, organizationId) => {
     const { authentication: { item: user }, args, gqlName, context } = params
-
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -140,10 +139,10 @@ const canExecuteByServiceUser = async (params, serviceConfig) => {
     if (!isArray(pathToOrganizationId) || isEmpty(pathToOrganizationId)) return false
 
     const sessionRestrictions = parseSession(context.req.session)
-    let organizationId = get(args, pathToOrganizationId)
+    organizationId = organizationId || get(args, pathToOrganizationId)
 
     if (sessionRestrictions.allowedOrganizations !== true) {
-        organizationId = sessionRestrictions.allowedOrganizations.find(organizationId)
+        organizationId = sessionRestrictions.allowedOrganizations.find(allowedOrganization => allowedOrganization === organizationId)
     }
 
     if (!organizationId) return false
@@ -237,12 +236,12 @@ const canManageObjectsAsB2BAppServiceUser = async (args) => {
     return await canManageByServiceUser(args, schemaConfig, refSchemaName)
 }
 
-const canExecuteServiceAsB2BAppServiceUser = async (args) => {
+const canExecuteServiceAsB2BAppServiceUser = async (args, organizationId) => {
     const { info: { fieldName: serviceName } } = args
     if (!isServiceUser(args)) return false
     const serviceConfig = get(B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS.services, serviceName)
     if (!isObject(serviceConfig)) return false
-    return await canExecuteByServiceUser(args, serviceConfig)
+    return await canExecuteByServiceUser(args, serviceConfig, organizationId)
 }
 
 module.exports = {
