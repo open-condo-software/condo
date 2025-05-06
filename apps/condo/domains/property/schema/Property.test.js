@@ -22,6 +22,7 @@ const {
 } = require('@condo/domains/organization/utils/testSchema')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const { Property, createTestProperty, createTestProperties, updateTestProperty, makeClientWithProperty, updateTestProperties } = require('@condo/domains/property/utils/testSchema')
+const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
 const { registerResidentByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const { createTestTicket, updateTestTicket, ticketStatusByType } = require('@condo/domains/ticket/utils/testSchema')
 const {
@@ -29,11 +30,6 @@ const {
     makeClientWithSupportUser,
     makeClientWithNewRegisteredAndLoggedInUser,
 } = require('@condo/domains/user/utils/testSchema')
-
-const { createTestContacts, updateTestContacts } = require('../../contact/utils/testSchema')
-const { FLAT_UNIT_TYPE } = require('../constants/common')
-const { buildFakeAddressAndMeta } = require('../utils/testSchema/factories')
-
 
 
 const emptyParkingValueCases = [null, undefined]
