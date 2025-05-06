@@ -11,3 +11,14 @@ query getGlobalB2BApps {
         features
     }
 }
+
+query getCountB2BAppsWithNewsSharingConfig {
+    _allB2BAppsMeta (where: {
+        isHidden: false,
+        isPublic: true,
+        newsSharingConfig_is_null: false,
+        deletedAt: null,
+    }) {
+        count
+    }
+}

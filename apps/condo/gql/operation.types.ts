@@ -283,6 +283,11 @@ export type GetGlobalB2BAppsQueryVariables = Types.Exact<{ [key: string]: never;
 
 export type GetGlobalB2BAppsQuery = { __typename?: 'Query', b2bApps?: Array<{ __typename?: 'B2BApp', id: string, appUrl?: string | null, features?: Array<Types.B2BAppGlobalFeature> | null } | null> | null };
 
+export type GetCountB2BAppsWithNewsSharingConfigQueryVariables = Types.Exact<{ [key: string]: never; }>;
+
+
+export type GetCountB2BAppsWithNewsSharingConfigQuery = { __typename?: 'Query', _allB2BAppsMeta?: { __typename?: '_QueryMeta', count?: number | null } | null };
+
 export type GetUserB2BAppRolesQueryVariables = Types.Exact<{
   employeeRoleId?: Types.InputMaybe<Types.Scalars['ID']['input']>;
   b2bAppIds?: Types.InputMaybe<Array<Types.InputMaybe<Types.Scalars['ID']['input']>> | Types.InputMaybe<Types.Scalars['ID']['input']>>;
