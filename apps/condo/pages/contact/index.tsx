@@ -178,8 +178,7 @@ const ContactTableContent: React.FC<ContactPageContentProps> = (props) => {
         }
     }, [])
 
-    const itemIds = useMemo(() => contacts?.map(contact => contact?.id), [contacts])
-    const { selectedKeys, clearSelection, rowSelection } = useTableRowSelection({ itemIds })
+    const { selectedKeys, clearSelection, rowSelection } = useTableRowSelection<typeof contacts[number]>({ items: contacts })
     const SelectedItemsMessage = useMemo(() => intl.formatMessage({ id: 'ItemsSelectedCount' }, { count: selectedKeys.length }), [intl, selectedKeys])
 
     const [updateContactsMutation] = useUpdateContactsMutation({

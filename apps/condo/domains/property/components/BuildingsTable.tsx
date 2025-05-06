@@ -100,8 +100,7 @@ const BuildingTableContent: React.FC<BuildingTableProps> = (props) => {
         }
     }
 
-    const itemIds = useMemo(() => properties?.map(property => property?.id), [properties])
-    const { selectedKeys, clearSelection, rowSelection } = useTableRowSelection({ itemIds })
+    const { selectedKeys, clearSelection, rowSelection } = useTableRowSelection<typeof properties[number]>({ items: properties })
     const SelectedItemsMessage = useMemo(() => intl.formatMessage({ id: 'ItemsSelectedCount' }, { count: selectedKeys.length }), [intl, selectedKeys])
 
     const [updatePropertiesMutation] = useUpdatePropertiesMutation({
