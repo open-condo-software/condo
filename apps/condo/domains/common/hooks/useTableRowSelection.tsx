@@ -7,14 +7,14 @@ import { Checkbox, CheckboxProps } from '@open-condo/ui'
 import { getObjectValueFromQuery } from '@condo/domains/common/utils/query'
 
 
-type UseTableRowSelectionProps<T> = {
-    items: T[]
+type UseTableRowSelectionProps<TableItem> = {
+    items: TableItem[]
 }
 
-type UseTableRowSelectionResult<T> = {
+type UseTableRowSelectionResult<TableItem> = {
     selectedKeys: string[]
     clearSelection: () => void
-    rowSelection: TableRowSelection<T>
+    rowSelection: TableRowSelection<TableItem>
 }
 
 export const useTableRowSelection = <TableItem extends { id: string }> ({

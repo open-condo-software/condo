@@ -33,13 +33,12 @@ import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { useTableRowSelection } from '@condo/domains/common/hooks/useTableRowSelection'
 import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
+import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { EXPORT_PROPERTIES_TO_EXCEL } from '@condo/domains/property/gql'
 import { useImporterFunctions } from '@condo/domains/property/hooks/useImporterFunctions'
 import { PropertyTable } from '@condo/domains/property/utils/clientSchema'
 import { IFilters, PROPERTY_PAGE_SIZE } from '@condo/domains/property/utils/helpers'
-
-import { updateQuery } from '../../common/utils/helpers'
 
 
 type BuildingTableProps = {
