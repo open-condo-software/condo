@@ -327,7 +327,7 @@ export type GetNewsSharingRecipientsQuery = { __typename?: 'Query', recipients?:
 
 export type GetUserMessagesQueryVariables = Types.Exact<{
   userId?: Types.InputMaybe<Types.Scalars['ID']['input']>;
-  organizationId?: Types.InputMaybe<Types.Scalars['ID']['input']>;
+  organizationIds?: Types.InputMaybe<Array<Types.InputMaybe<Types.Scalars['ID']['input']>> | Types.InputMaybe<Types.Scalars['ID']['input']>>;
   types?: Types.InputMaybe<Array<Types.MessageType> | Types.MessageType>;
   skip?: Types.InputMaybe<Types.Scalars['Int']['input']>;
 }>;
