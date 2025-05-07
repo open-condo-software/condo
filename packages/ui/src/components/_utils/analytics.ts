@@ -16,6 +16,7 @@ type ComponentSpecificClickEventProps = {
     Banner: { title: string }
     Button: { value: string, type: string }
     IconButton: { value?: string }
+    TextButton: { value?: string }
     'Typography.Link': { value: string, href?: string }
     Dropdown: { optionValue: string, optionKey?: string, optionKeyPath?: Array<string>, triggerValue?: string }
     Card: { title: string, accent?: boolean }

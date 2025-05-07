@@ -1,0 +1,169 @@
+@import "antd/lib/button/style/index.less";
+@import (reference) "@open-condo/ui/src/tokens/variables.less";
+@import (reference) "@open-condo/ui/src/components/style/mixins/typography";
+@import (reference) "@open-condo/ui/src/components/style/mixins/button";
+
+@condo-button-padding-vert-4: @condo-global-spacing-4;
+@condo-button-padding-hor-2: 2px;
+@condo-button-focus-outline-width: @condo-global-border-width-default * 2;
+@condo-button-line-height: @condo-global-typography-h4-line-height;
+@condo-button-border-radius: @condo-global-border-radius-medium;
+@condo-button-gap: @condo-global-spacing-8;
+
+.condo-text-btn {
+  .condo-typography-h4();
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 64px;
+  text-shadow: none;
+  background: transparent;
+  border-radius: @condo-button-border-radius;
+  box-shadow: none;
+  transition: none;
+
+  span {
+    position: relative;
+    z-index: 1;
+  }
+
+  span + span {
+    margin-left: @condo-button-gap;
+  }
+
+  // After layer is used to show gradient outline on tab-focusing
+  &:focus-visible::after,
+  &-focus::after {
+    .condo-btn-layer(@condo-button-focus-outline-width);
+
+    box-sizing: border-box;
+    background: @condo-global-color-brand-gradient-5 border-box;
+    border: @condo-button-focus-outline-width solid transparent;
+    opacity: 1;
+    transition: opacity @condo-global-transition-duration-default ease-out;
+    mask: linear-gradient(#111 0 0) padding-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+
+  .condo-btn(@condo-button-line-height, @condo-button-padding-vert-4, @condo-button-padding-hor-2, 0);
+
+  .condo-btn-content-color(@condo-global-color-black);
+  .condo-text-btn-gradient-text-layer( @condo-global-color-black, @condo-global-color-brand-gradient-5);
+
+  & > .condo-text-btn-text {
+    background: transparent;
+  }
+
+  &:hover {
+    .condo-btn-content-color(@condo-global-color-green-5);
+
+    .condo-text-btn-text::before {
+      opacity: 1;
+    }
+  }
+
+  &:active {
+    .condo-btn-content-color(@condo-global-color-green-5);
+
+    .condo-text-btn-text::before {
+      opacity: 1;
+    }
+  }
+
+  &.condo-text-btn-stateless {
+    .condo-text-btn-text::before {
+      opacity: 0;
+    }
+
+    &:focus,
+    &:hover,
+    &:active,
+    &-focus {
+      .condo-btn-content-color(@condo-global-color-black);
+
+      &::before {
+        opacity: 0;
+      }
+    }
+  }
+
+  &:disabled,
+  &:disabled:hover,
+  &:disabled:active,
+  &:disabled:focus,
+  &.condo-btn-focus:disabled {
+    background: transparent;
+    opacity: @condo-global-opacity-disabled;
+    .condo-btn-content-color(@condo-global-color-black);
+
+    .condo-text-btn-text::before {
+      opacity: 0;
+    }
+
+    &::before {
+      opacity: 0;
+    }
+  }
+
+  &.condo-text-btn-dangerous {
+    .condo-btn-content-color(@condo-global-color-red-5);
+    .condo-text-btn-static-text-color(@condo-global-color-red-5);
+
+    &::before {
+      background: @condo-global-color-red-5 border-box;
+    }
+
+    &:hover {
+      .condo-btn-content-color(@condo-global-color-red-7);
+      .condo-text-btn-static-text-color(@condo-global-color-red-7);
+
+      .condo-text-btn-text::before {
+        opacity: 0;
+      }
+    }
+
+    &:active {
+      .condo-btn-content-color(@condo-global-color-red-5);
+      .condo-text-btn-static-text-color(@condo-global-color-red-5);
+
+      .condo-text-btn-text::before {
+        opacity: 0;
+      }
+    }
+
+    &.condo-text-btn-stateless {
+      &:hover,
+      &:active,
+      &:focus,
+      &-focus {
+        .condo-btn-content-color(@condo-global-color-red-5);
+        .condo-text-btn-static-text-color(@condo-global-color-red-5);
+      }
+    }
+  }
+
+  &.condo-text-btn-dangerous:disabled,
+  &.condo-text-btn-dangerous:disabled:hover,
+  &.condo-text-btn-dangerous:disabled:active,
+  &.condo-text-btn-dangerous:disabled:focus {
+    background: transparent;
+    opacity: @condo-global-opacity-disabled;
+    .condo-btn-content-color(@condo-global-color-red-5);
+    .condo-text-btn-static-text-color(@condo-global-color-red-5);
+
+    .condo-btn-text::before {
+      opacity: 0;
+    }
+
+    &::before {
+      opacity: 0;
+    }
+  }
+
+  & > &-icon {
+    display: inline-flex;
+  }
+}
