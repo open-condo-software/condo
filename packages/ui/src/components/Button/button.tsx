@@ -10,7 +10,7 @@ import { sendAnalyticsClickEvent, extractChildrenContent } from '../_utils/analy
 export const BUTTON_CLASS_PREFIX = 'condo-btn'
 
 type CondoButtonProps = {
-    type: 'primary' | 'secondary' | 'buttonText'
+    type: 'primary' | 'secondary'
     children?: string
     stateless?: boolean
     focus?: boolean

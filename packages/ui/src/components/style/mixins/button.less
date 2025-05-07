@@ -28,8 +28,8 @@
   content: "";
 }
 
-.condo-btn-gradient-text-layer (@text-color, @hover-text-color) {
-  & > .condo-btn-text {
+.condo-text-btn-gradient-text-layer (@text-color, @hover-text-color) {
+  & > .condo-text-btn-text {
     position: relative;
     color: @text-color;
 
@@ -48,6 +48,13 @@
 
 .condo-btn-static-text-color (@text-color) {
   & > .condo-btn-text {
+    color: @text-color;
+    transition: color @condo-global-transition-duration-default ease-out;
+  }
+}
+
+.condo-text-btn-static-text-color (@text-color) {
+  & > .condo-text-btn-text {
     color: @text-color;
     transition: color @condo-global-transition-duration-default ease-out;
   }
