@@ -764,7 +764,7 @@ const ClientCardPageContent = ({
             tabDataWithProperty = tabsData[0]
         }
         else {
-            tabDataWithProperty = tabsData.find(tab => (
+            tabDataWithProperty = tabsData?.find(tab => (
                 tab.property.id === propertyId &&
                 tab.unitName === unitName &&
                 tab.unitType === unitType
