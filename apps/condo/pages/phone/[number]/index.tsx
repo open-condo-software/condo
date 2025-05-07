@@ -757,20 +757,43 @@ const ClientCardPageContent = ({
 
     useEffect(() => {
         const { type, property: propertyId, unitName, unitType, sectionType, sectionName } = parseCardDataFromQuery(tab)
-        const tabDataWithProperty = tabsData.find(({ property, unitName: tabUnitName, unitType: tabUnitType }) =>
-            property.id === propertyId && tabUnitName === unitName && tabUnitType === unitType)
+
+        const isTabSelected = unitName || unitType
+        let tabDataWithProperty
+        if (isTabSelected) {
+            tabDataWithProperty = tabsData?.find(tab => (
+                tab.property.id === propertyId &&
+                tab.unitName === unitName &&
+                tab.unitType === unitType
+            ))
+        }
+        else {
+            tabDataWithProperty = tabsData?.[0]
+        }
         const property = tabDataWithProperty?.property
         const organization = tabDataWithProperty?.organization
         const contact = tabDataWithProperty?.contact
         const tabSectionType = sectionType ?? tabDataWithProperty?.sectionType
         const tabSectionName = sectionName ?? tabDataWithProperty?.sectionName
+        const tabUnitName = unitName ?? tabDataWithProperty?.unitName
+        const tabUnitType = unitType ?? tabDataWithProperty?.unitType
+        const tabType = type ?? tabDataWithProperty?.type
 
         if (property) {
-            const key = getClientCardTabKey(property?.id, type, unitName, unitType, tabSectionName, tabSectionType)
+            const key = getClientCardTabKey(property?.id, tabType, tabUnitName, tabUnitType, tabSectionName, tabSectionType)
             const newRoute = `${router.route.replace('[number]', phoneNumber)}?tab=${key}`
             router.push(newRoute, undefined, { shallow: true })
 
-            setActiveTabData({ type, property, unitName, unitType, organization, contact, sectionType: tabSectionType, sectionName: tabSectionName })
+            setActiveTabData({
+                type: tabType,
+                property,
+                unitName: tabUnitName,
+                unitType: tabUnitType,
+                organization,
+                contact,
+                sectionType: tabSectionType,
+                sectionName: tabSectionName,
+            })
         }
     }, [tab, tabsData, phoneNumber])
 
@@ -787,7 +810,7 @@ const ClientCardPageContent = ({
             const isActive = tab && (tab === initialKey || tab === key)
 
             if (isActive) {
-                activeTabIndexRef.current = canManageContacts ? index + 1 : index
+                activeTabIndexRef.current = index
             }
 
             return <ClientAddressCard
@@ -804,7 +827,7 @@ const ClientCardPageContent = ({
         })
 
         return addressTabs.filter(Boolean)
-    }, [canManageContacts, handleTabChange, tabsData])
+    }, [handleTabChange, tabsData, tab])
 
     const redirectToCreateContact = useCallback(()=>redirectToForm({
         router,
