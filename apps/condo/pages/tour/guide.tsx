@@ -146,18 +146,18 @@ const AboutAppBlock = () => {
                                         <Col xs={24} md={12}>
                                             <Card title={(
                                                 <img
-                                                    src={guideModalCardReviews?.[locale]?.types?.[type]?.imageUrl || {}}
+                                                    src={guideModalCardReviews?.[locale]?.types?.[type]?.imageUrl ?? ''}
                                                     style={CARD_IMAGE_STYLES}
-                                                    alt={guideModalCardReviews?.[locale]?.types?.[type]?.text || ''}
+                                                    alt={guideModalCardReviews?.[locale]?.types?.[type]?.text ?? ''}
                                                 />
                                             )}
                                             >
                                                 <Card.CardBody
-                                                    description={guideModalCardReviews?.[locale]?.types?.[type]?.text || ''}
+                                                    description={guideModalCardReviews?.[locale]?.types?.[type]?.text ?? ''}
                                                     mainLink={{
                                                         href: guideModalCardReviews?.[locale]?.types?.[type]?.blogUrl,
                                                         PreIcon: ExternalLink,
-                                                        label: guideModalCardReviews?.[locale]?.textLink || '',
+                                                        label: guideModalCardReviews?.[locale]?.textLink ?? '',
                                                         openInNewTab: true,
                                                     }}
                                                 />
@@ -184,7 +184,7 @@ const IntroduceAppBlock = () => {
 
     const locale = useMemo(() => intl?.locale, [intl])
 
-    const stepMaterials = useMemo(() => guideIntroduceAppMaterials?.[locale] || {}, [locale])
+    const stepMaterials = useMemo(() => guideIntroduceAppMaterials?.[locale] ?? {}, [locale])
     const availableSteps = useMemo(
         () => INTRODUCE_APP_STEP_TYPES.filter(type => Boolean(stepMaterials[type])
         ), [stepMaterials])
@@ -212,7 +212,7 @@ const IntroduceAppBlock = () => {
                                 }}
                                 body={{
                                     image: {
-                                        src: stepMaterials?.[type]?.imageUrl || '',
+                                        src: stepMaterials?.[type]?.imageUrl ?? '',
                                         style: APP_CARD_IMAGE_STYLES,
                                     },
                                 }}
@@ -229,7 +229,7 @@ const IntroduceAppBlock = () => {
                             onCancel={() => setOpenModal(null)}
                             title={intl.formatMessage({ id: `tour.guide.introduceApp.step.${type}.title` })}
                             footer={(
-                                <a href={stepMaterials?.[type]?.materialsUrl || ''} target='_blank' rel='noreferrer'>
+                                <a href={stepMaterials?.[type]?.materialsUrl ?? ''} target='_blank' rel='noreferrer'>
                                     <Button type='primary' icon={<Download/>}>
                                         {intl.formatMessage({ id: `tour.guide.introduceApp.step.${type}.downloadMaterials` })}
                                     </Button>
@@ -237,13 +237,13 @@ const IntroduceAppBlock = () => {
                             )}
                         >
                             <Space size={40} direction='vertical'>
-                                <img style={PANEL_IMAGE_STYLES} src={stepMaterials?.[type]?.imageUrl || ''} alt={intl.formatMessage({ id: `tour.guide.introduceApp.step.${type}.title` })}/>
+                                <img style={PANEL_IMAGE_STYLES} src={stepMaterials?.[type]?.imageUrl ?? ''} alt={intl.formatMessage({ id: `tour.guide.introduceApp.step.${type}.title` })}/>
                                 <Row>
                                     <Typography.Paragraph type='secondary'>
                                         {intl.formatMessage({ id: `tour.guide.introduceApp.step.${type}.body` })}
                                     </Typography.Paragraph>
                                     {
-                                        type === 'announcement' || type === 'layout' && (
+                                        (type === 'announcement' ?? type === 'layout') && (
                                             <Typography.Paragraph type='secondary'>
                                                 {intl.formatMessage({ id: `tour.guide.introduceApp.step.${type}.body.secondParagraph` })}
                                             </Typography.Paragraph>
