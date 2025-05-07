@@ -3,15 +3,18 @@ import { PropertyWhereInput } from '@app/condo/schema'
 import { useIntl } from '@open-condo/next/intl'
 
 import { ComponentType, FiltersMeta } from '@condo/domains/common/utils/filters.utils'
-import { getFilter } from '@condo/domains/common/utils/tables.utils'
+import { getDayRangeFilter, getFilter } from '@condo/domains/common/utils/tables.utils'
 
+const addressFilter = getFilter('address', 'single', 'string', 'contains_i')
+const unitsCountFilter = getFilter('unitsCount', 'single', 'number')
+const filterCreatedAtRange = getDayRangeFilter('createdAt')
 
 export const useTableFilters = () => {
     const intl = useIntl()
     const AddressMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Address' })
+    const StartDateMessage = intl.formatMessage({ id: 'global.filters.dateRange.start' })
+    const EndDateMessage = intl.formatMessage({ id: 'global.filters.dateRange.end' })
 
-    const addressFilter = getFilter('address', 'single', 'string', 'contains_i')
-    const unitsCountFilter = getFilter('unitsCount', 'single', 'number')
     const propertyFilterMetas: FiltersMeta<PropertyWhereInput>[] = [
         {
             keyword: 'address',
@@ -23,7 +26,17 @@ export const useTableFilters = () => {
                 },
             },
         },
-        { keyword: 'search', filters: [addressFilter, unitsCountFilter], combineType: 'OR' },
+        {
+            keyword: 'createdAt',
+            filters: [filterCreatedAtRange],
+            component: {
+                type: ComponentType.DateRange,
+                props: {
+                    placeholder: [StartDateMessage, EndDateMessage],
+                },
+            },
+        },
+        { keyword: 'search', filters: [addressFilter, filterCreatedAtRange, unitsCountFilter], combineType: 'OR' },
     ]
 
     return propertyFilterMetas

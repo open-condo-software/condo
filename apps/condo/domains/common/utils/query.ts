@@ -1,18 +1,12 @@
-import get from 'lodash/get'
-import qs from 'qs'
-
-export const getObjectValueFromQuery = (router, path = []) => {
+export const getObjectValueFromQuery = (router, path = [], defaultValue = {}) => {
     try {
-        const query = get(router, ['query', ...path])
-        if (!query) return {}
-        const initialValuesFromQuery = JSON.parse(query)
+        const query = path.reduce((acc, key) => acc?.[key], router?.query)
+        if (!query) return defaultValue
 
-        if (initialValuesFromQuery) {
-            return qs.parse(initialValuesFromQuery)
-        }
+        return JSON.parse(query)
     } catch (e) {
         console.error(e)
     }
 
-    return {}
+    return defaultValue
 }

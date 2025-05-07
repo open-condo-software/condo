@@ -49,7 +49,6 @@ const SORTABLE_PROPERTIES = ['verificationDate', 'source']
 const DEFAULT_DATE_RANGE: [Dayjs, Dayjs] = [dayjs(), dayjs().add(2, 'month')]
 
 
-
 type MetersTableContentProps = {
     filtersMeta: FiltersMeta<MeterReadingWhereInput>[]
     baseSearchQuery: MeterReadingWhereInput
@@ -145,7 +144,6 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
         extraQueryParameters: { tab, type },
     })
 
-
     const handleRowAction = useCallback((record) => {
         return {
             onClick: () => {
@@ -182,17 +180,17 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
                     <TableFiltersContainer>
                         <Row gutter={FILTERS_CONTAINER_GUTTER} align='middle' justify='space-between'>
                             <Col span={24}>
-                                <Input
-                                    placeholder={SearchPlaceholder}
-                                    onChange={handleSearch}
-                                    value={search}
-                                    allowClear
-                                    suffix={<Search size='medium' color={colors.gray[7]}/>}
-                                />
-                            </Col>
-                            <Col sm={24} md={18}>
-                                <Row justify='start' gutter={FILTERS_CONTAINER_GUTTER} >
-                                    <Col style={QUICK_FILTERS_COL_STYLE} xs={24} sm={10}>
+                                <Row gutter={FILTERS_CONTAINER_GUTTER} align='middle' justify='space-between'>
+                                    <Col style={{ flex: 1 }}>
+                                        <Input
+                                            placeholder={SearchPlaceholder}
+                                            onChange={handleSearch}
+                                            value={search}
+                                            allowClear
+                                            suffix={<Search size='medium' color={colors.gray[7]}/>}
+                                        />
+                                    </Col>
+                                    <Col xs={24} md={5}>
                                         <DateRangePicker
                                             value={dateRange}
                                             onChange={handleDateChange}
@@ -203,7 +201,25 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
                                             style={FULL_WIDTH_DATE_RANGE_STYLE}
                                         />
                                     </Col>
-                                    <Col style={QUICK_FILTERS_COL_STYLE}>
+                                    <Col>
+                                        <Row gutter={[16, 10]} align='middle' justify='end' style={{ flexWrap: 'nowrap' }}>
+                                            {
+                                                appliedFiltersCount > 0 && (
+                                                    <Col>
+                                                        <ResetFiltersModalButton style={RESET_FILTERS_BUTTON_STYLE} />
+                                                    </Col>
+                                                )
+                                            }
+                                            <Col>
+                                                <OpenFiltersButton />
+                                            </Col>
+                                        </Row>
+                                    </Col>
+                                </Row>
+                            </Col>
+                            <Col span={24}>
+                                <Row gutter={FILTERS_CONTAINER_GUTTER} align='middle'>
+                                    <Col>
                                         <Checkbox
                                             onChange={handleCheckShowActiveMeters}
                                             checked={isShowActiveMeters}
@@ -211,27 +227,13 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
                                             children={IsActiveMessage}
                                         />
                                     </Col>
-                                    <Col style={QUICK_FILTERS_COL_STYLE}>
+                                    <Col>
                                         <Checkbox
                                             onChange={handleCheckShowArchiveMeters}
                                             checked={isShowArchivedMeters}
                                             data-cy='meter__filter-hasArchiveDate'
                                             children={OutOfOrderMessage}
                                         />
-                                    </Col>
-                                </Row>
-                            </Col>
-                            <Col>
-                                <Row gutter={[16, 10]} align='middle' justify='end' style={{ flexWrap: 'nowrap' }}>
-                                    {
-                                        appliedFiltersCount > 0 && (
-                                            <Col>
-                                                <ResetFiltersModalButton style={RESET_FILTERS_BUTTON_STYLE} />
-                                            </Col>
-                                        )
-                                    }
-                                    <Col>
-                                        <OpenFiltersButton />
                                     </Col>
                                 </Row>
                             </Col>

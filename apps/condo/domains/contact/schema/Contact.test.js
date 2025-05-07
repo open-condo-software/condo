@@ -3,12 +3,12 @@
  */
 const { faker } = require('@faker-js/faker')
 
-const { catchErrorFrom, expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@open-condo/keystone/test.utils')
+const { catchErrorFrom, expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj, expectToThrowAccessDeniedErrorToObjects } = require('@open-condo/keystone/test.utils')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@open-condo/keystone/test.utils')
 
 const { PHONE_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
-const { Contact, createTestContact, updateTestContact } = require('@condo/domains/contact/utils/testSchema')
-const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
+const { Contact, createTestContact, updateTestContact, createTestContacts, updateTestContacts } = require('@condo/domains/contact/utils/testSchema')
+const { createTestOrganization, registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { FLAT_UNIT_TYPE, COMMERCIAL_UNIT_TYPE } = require('@condo/domains/property/constants/common')
@@ -46,7 +46,7 @@ describe('Contact', () => {
     })
 
     describe('unique constraint', () => {
-        it('throws error on create record with same set of fields: "property", "unitName", "phone"', async () => {
+        test('throws error on create record with same set of fields: "property", "unitName", "phone"', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
             const duplicatedFields = {
@@ -64,7 +64,7 @@ describe('Contact', () => {
             })
         })
 
-        it('throws error on update record when another record exist with same set of fields: "property", "unitName", "phone"', async () => {
+        test('throws error on update record when another record exist with same set of fields: "property", "unitName", "phone"', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
             const sameFields = {
@@ -103,7 +103,7 @@ describe('Contact', () => {
             })
         })
 
-        it('phone should have correct format', async () => {
+        test('phone should have correct format', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
             const fields = {
@@ -216,7 +216,7 @@ describe('Contact', () => {
         })
 
         describe('ownershipPercentage field', () => {
-            it('can be positive number below 100', async () => {
+            test('can be positive number below 100', async () => {
                 const userClient = await makeClientWithProperty()
                 const adminClient = await makeLoggedInAdminClient()
                 const fields = {
@@ -231,7 +231,7 @@ describe('Contact', () => {
                 expect(obj.ownershipPercentage).toEqual('42.00000000')
             })
 
-            it('can be decimal positive number below 100', async () => {
+            test('can be decimal positive number below 100', async () => {
                 const userClient = await makeClientWithProperty()
                 const adminClient = await makeLoggedInAdminClient()
                 const fields = {
@@ -246,7 +246,7 @@ describe('Contact', () => {
                 expect(obj.ownershipPercentage).toEqual('32.14000000')
             })
 
-            it('can be 0', async () => {
+            test('can be 0', async () => {
                 const userClient = await makeClientWithProperty()
                 const adminClient = await makeLoggedInAdminClient()
                 const fields = {
@@ -261,7 +261,7 @@ describe('Contact', () => {
                 expect(obj.ownershipPercentage).toEqual('0.00000000')
             })
 
-            it('can be 100', async () => {
+            test('can be 100', async () => {
                 const userClient = await makeClientWithProperty()
                 const adminClient = await makeLoggedInAdminClient()
                 const fields = {
@@ -276,7 +276,7 @@ describe('Contact', () => {
                 expect(obj.ownershipPercentage).toEqual('100.00000000')
             })
 
-            it('cannot be less then 0', async () => {
+            test('cannot be less then 0', async () => {
                 const userClient = await makeClientWithProperty()
                 const adminClient = await makeLoggedInAdminClient()
 
@@ -303,7 +303,7 @@ describe('Contact', () => {
                 })
             })
 
-            it('cannot be greater then 100', async () => {
+            test('cannot be greater then 100', async () => {
                 const userClient = await makeClientWithProperty()
                 const adminClient = await makeLoggedInAdminClient()
                 const fields = {
@@ -332,7 +332,7 @@ describe('Contact', () => {
     })
 
     describe('normalization', () => {
-        it('converts phone to E.164 format without spaces', async () => {
+        test('converts phone to E.164 format without spaces', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
             const fields = {
@@ -342,7 +342,7 @@ describe('Contact', () => {
             expect(obj.phone).toEqual('+79991112233')
         })
 
-        it('converts email to lowercase format', async () => {
+        test('converts email to lowercase format', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
             const fields = {
@@ -354,7 +354,7 @@ describe('Contact', () => {
     })
 
     describe('Create', () => {
-        it('can be created by admin', async () => {
+        test('can be created by admin', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
             const [obj, attrs] = await createTestContact(adminClient, userClient.organization, userClient.property)
@@ -377,7 +377,7 @@ describe('Contact', () => {
             expect(obj.updatedAt).toMatch(DATETIME_RE)
         })
 
-        it('can be created by user, who is employed in the same organization and has "canManageContacts" ability', async () => {
+        test('can be created by user, who is employed in the same organization and has "canManageContacts" ability', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const userClient = await makeClientWithProperty()
             const [organization] = await createTestOrganization(adminClient)
@@ -406,7 +406,7 @@ describe('Contact', () => {
             expect(obj.updatedAt).toMatch(DATETIME_RE)
         })
 
-        it('cannot be created by user, who is employed in the same organization and does not have "canManageContacts" ability', async () => {
+        test('cannot be created by user, who is employed in the same organization and does not have "canManageContacts" ability', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const userClient = await makeClientWithProperty()
             const [organization] = await createTestOrganization(adminClient)
@@ -421,7 +421,7 @@ describe('Contact', () => {
             })
         })
 
-        it('cannot be created by user, who is not employed in specified organization', async () => {
+        test('cannot be created by user, who is not employed in specified organization', async () => {
             const user = await makeClientWithProperty()
             const anotherUser = await makeClientWithProperty()
             await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -429,7 +429,7 @@ describe('Contact', () => {
             })
         })
 
-        it('cannot be created by anonymous', async () => {
+        test('cannot be created by anonymous', async () => {
             const userClient = await makeClientWithProperty()
             const anonymous = await makeClient()
             await expectToThrowAuthenticationErrorToObj(async () => {
@@ -439,7 +439,7 @@ describe('Contact', () => {
     })
 
     describe('Read', () => {
-        it('can be read by admin', async () => {
+        test('can be read by admin', async () => {
             const userClient = await makeClientWithProperty()
             const admin = await makeLoggedInAdminClient()
             const [obj, attrs] = await createTestContact(admin, userClient.organization, userClient.property)
@@ -460,7 +460,7 @@ describe('Contact', () => {
             ]))
         })
 
-        it('can be read by user, who is employed in organization, which manages associated property', async () => {
+        test('can be read by user, who is employed in organization, which manages associated property', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
             const [obj] = await createTestContact(adminClient, userClient.organization, userClient.property)
@@ -469,7 +469,7 @@ describe('Contact', () => {
             expect(objs[0].id).toMatch(obj.id)
         })
 
-        it('cannot be read by employee with canReadContacts: false', async () => {
+        test('cannot be read by employee with canReadContacts: false', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
             const [organization] = await createTestOrganization(adminClient)
@@ -483,7 +483,7 @@ describe('Contact', () => {
             expect(readContact).toBeUndefined()
         })
 
-        it('cannot be read by user, who is not employed in organization, which manages associated property', async () => {
+        test('cannot be read by user, who is not employed in organization, which manages associated property', async () => {
             const userClient = await makeClientWithProperty()
             const anotherUserClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
@@ -494,7 +494,7 @@ describe('Contact', () => {
             expect(objs[0].id).toMatch(obj.id)
         })
 
-        it('cannot be read by anonymous', async () => {
+        test('cannot be read by anonymous', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const userClient = await makeClientWithProperty()
             const anonymousClient = await makeClient()
@@ -506,7 +506,7 @@ describe('Contact', () => {
     })
 
     describe('Update', () => {
-        it('can be updated by admin', async () => {
+        test('can be updated by admin', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
             const [obj] = await createTestContact(adminClient, userClient.organization, userClient.property)
@@ -533,7 +533,7 @@ describe('Contact', () => {
             expect(objUpdated.phone).toEqual(attrs.phone)
         })
 
-        it('can be updated by user, who is employed in the same organization and does have "canManageContacts" ability', async () => {
+        test('can be updated by user, who is employed in the same organization and does have "canManageContacts" ability', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const userClient = await makeClientWithProperty()
             const [organization] = await createTestOrganization(adminClient)
@@ -566,7 +566,7 @@ describe('Contact', () => {
             expect(objUpdated.phone).toEqual(attrs.phone)
         })
 
-        it('cannot be updated by user, who is employed in organization and does not have "canManageContacts" ability', async () => {
+        test('cannot be updated by user, who is employed in organization and does not have "canManageContacts" ability', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const userClient = await makeClientWithProperty()
             const [organization] = await createTestOrganization(adminClient)
@@ -582,7 +582,7 @@ describe('Contact', () => {
             })
         })
 
-        it('cannot be updated by user, who is not employed in organization, which manages associated property', async () => {
+        test('cannot be updated by user, who is not employed in organization, which manages associated property', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const userClient = await makeClientWithProperty()
             const [organization] = await createTestOrganization(adminClient)
@@ -600,7 +600,7 @@ describe('Contact', () => {
             })
         })
 
-        it('cannot be updated by anonymous', async () => {
+        test('cannot be updated by anonymous', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const userClient = await makeClientWithProperty()
             const anonymousClient = await makeClient()
@@ -614,7 +614,7 @@ describe('Contact', () => {
     })
 
     describe('Delete', () => {
-        it('cannot be deleted by admin', async () => {
+        test('cannot be deleted by admin', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const userClient = await makeClientWithProperty()
 
@@ -625,7 +625,7 @@ describe('Contact', () => {
             })
         })
 
-        it('cannot be deleted by user', async () => {
+        test('cannot be deleted by user', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const userClient = await makeClientWithProperty()
 
@@ -636,7 +636,7 @@ describe('Contact', () => {
             })
         })
 
-        it('cannot be deleted by anonymous', async () => {
+        test('cannot be deleted by anonymous', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const userClient = await makeClientWithProperty()
             const anonymousClient = await makeClient()
@@ -650,7 +650,7 @@ describe('Contact', () => {
     })
 
     describe('SoftDelete', () => {
-        it('can be soft deleted by admin', async () => {
+        test('can be soft deleted by admin', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
             const [obj] = await createTestContact(adminClient, userClient.organization, userClient.property)
@@ -673,7 +673,7 @@ describe('Contact', () => {
             expect(softDeletedObj.phone).toEqual(obj.phone)
         })
 
-        it('can be soft deleted with canManageContact access rights', async () => {
+        test('can be soft deleted with canManageContact access rights', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const userClient = await makeClientWithProperty()
             const [organization] = await createTestOrganization(adminClient)
@@ -701,7 +701,7 @@ describe('Contact', () => {
             expect(softDeletedObj.phone).toEqual(contact.phone)
         })
 
-        it('Can create same contact after softDeletion', async () => {
+        test('Can create same contact after softDeletion', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const userClient = await makeClientWithProperty()
             const [organization] = await createTestOrganization(adminClient)
@@ -748,7 +748,7 @@ describe('Contact', () => {
             expect(newestContact.id).not.toEqual(newContact.id)
         })
 
-        it('cannot be soft deleted by user from another organization', async () => {
+        test('cannot be soft deleted by user from another organization', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
             const [obj] = await createTestContact(adminClient, userClient.organization, userClient.property)
@@ -756,6 +756,179 @@ describe('Contact', () => {
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await Contact.softDelete(anotherUserClient, obj.id)
+            })
+        })
+    })
+
+    describe('Bulk requests', () => {
+        let organization,
+            employeeUser,
+            organizationProperty,
+            otherOrganization,
+            employeeInOtherOrganizationUser,
+            otherOrganizationProperty
+
+        beforeAll(async () => {
+            employeeUser = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [testOrganization] = await registerNewOrganization(employeeUser)
+            const [organizationTestProperty] = await createTestProperty(employeeUser, testOrganization)
+            organization = testOrganization
+            organizationProperty = organizationTestProperty
+
+            employeeInOtherOrganizationUser = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [otherTestOrganization] = await registerNewOrganization(employeeInOtherOrganizationUser)
+            const [otherTestOrganizationProperty] = await createTestProperty(employeeInOtherOrganizationUser, otherTestOrganization)
+            otherOrganization = otherTestOrganization
+            otherOrganizationProperty = otherTestOrganizationProperty
+        })
+
+        test('can create for organization where user is employee', async () => {
+            const unitName1 = faker.random.alphaNumeric(3)
+            const unitName2 = faker.random.alphaNumeric(3)
+
+            const contacts = await createTestContacts(employeeUser, [
+                {
+                    organization: { connect: { id: organization.id } },
+                    property: { connect: { id: organizationProperty.id } },
+                    unitName: unitName1,
+                },
+                {
+                    organization: { connect: { id: organization.id } },
+                    property: { connect: { id: organizationProperty.id } },
+                    unitName: unitName2,
+                },
+            ])
+
+            expect(contacts).toHaveLength(2)
+            expect(contacts).toEqual(expect.arrayContaining([
+                expect.objectContaining({
+                    unitName: unitName1,
+                    unitType: FLAT_UNIT_TYPE,
+                    organization: expect.objectContaining({ id: organization.id }),
+                    property: expect.objectContaining({ id: organizationProperty.id }),
+                }),
+                expect.objectContaining({
+                    unitName: unitName2,
+                    unitType: FLAT_UNIT_TYPE,
+                    organization: expect.objectContaining({ id: organization.id }),
+                    property: expect.objectContaining({ id: organizationProperty.id }),
+                }),
+            ]))
+        })
+
+        test('cannot create for organization where user is not an employee', async () => {
+            // All input from other organization
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                await createTestContacts(employeeUser, [
+                    {
+                        organization: { connect: { id: organization.id } },
+                        property: { connect: { id: organizationProperty.id } },
+                        unitName: faker.random.alphaNumeric(3),
+                    },
+                    {
+                        organization: { connect: { id: otherOrganization.id } },
+                        property: { connect: { id: otherOrganizationProperty.id } },
+                        unitName: faker.random.alphaNumeric(3),
+                    },
+                ])
+            })
+            // Some objects from not user organization
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                await createTestContacts(employeeUser, [
+                    {
+                        organization: { connect: { id: organization.id } },
+                        property: { connect: { id: organizationProperty.id } },
+                        unitName: faker.random.alphaNumeric(3),
+                    },
+                    {
+                        organization: { connect: { id: otherOrganization.id } },
+                        property: { connect: { id: otherOrganizationProperty.id } },
+                        unitName: faker.random.alphaNumeric(3),
+                    },
+                ])
+            })
+        })
+
+        test('can update for organization where user is employee', async () => {
+            const contacts = await createTestContacts(employeeUser, [
+                {
+                    organization: { connect: { id: organization.id } },
+                    property: { connect: { id: organizationProperty.id } },
+                },
+                {
+                    organization: { connect: { id: organization.id } },
+                    property: { connect: { id: organizationProperty.id } },
+                },
+            ])
+
+            expect(contacts).toHaveLength(2)
+
+            const unitName1 = faker.random.alphaNumeric(3)
+            const unitName2 = faker.random.alphaNumeric(3)
+            const updatedContacts = await updateTestContacts(employeeUser, [
+                {
+                    id: contacts[0].id,
+                    data: {
+                        unitName: unitName1,
+                    },
+                },
+                {
+                    id: contacts[1].id,
+                    data: {
+                        unitName: unitName2,
+                    },
+                },
+            ])
+
+            expect(updatedContacts).toHaveLength(2)
+            expect(updatedContacts).toEqual(expect.arrayContaining([
+                expect.objectContaining({
+                    unitName: unitName1,
+                    unitType: FLAT_UNIT_TYPE,
+                    organization: expect.objectContaining({ id: organization.id }),
+                    property: expect.objectContaining({ id: organizationProperty.id }),
+                }),
+                expect.objectContaining({
+                    unitName: unitName2,
+                    unitType: FLAT_UNIT_TYPE,
+                    organization: expect.objectContaining({ id: organization.id }),
+                    property: expect.objectContaining({ id: organizationProperty.id }),
+                }),
+            ]))
+        })
+
+        test('cannot update for organization where user is not an employee', async () => {
+            const contacts = await createTestContacts(employeeUser, [
+                {
+                    organization: { connect: { id: organization.id } },
+                    property: { connect: { id: organizationProperty.id } },
+                },
+                {
+                    organization: { connect: { id: organization.id } },
+                    property: { connect: { id: organizationProperty.id } },
+                },
+            ])
+
+            expect(contacts).toHaveLength(2)
+
+            const unitName1 = faker.random.alphaNumeric(3)
+            const unitName2 = faker.random.alphaNumeric(3)
+
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                await updateTestContacts(employeeInOtherOrganizationUser, [
+                    {
+                        id: contacts[0].id,
+                        data: {
+                            unitName: unitName1,
+                        },
+                    },
+                    {
+                        id: contacts[1].id,
+                        data: {
+                            unitName: unitName2,
+                        },
+                    },
+                ])
             })
         })
     })

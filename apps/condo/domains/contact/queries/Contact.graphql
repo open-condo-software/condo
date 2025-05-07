@@ -107,6 +107,8 @@ query getContactsForTable ($where: ContactWhereInput, $first: Int, $skip: Int, $
         ownershipPercentage
         note
         communityFee
+        createdAt
+        isVerified
         organization {
             id
             name
@@ -162,5 +164,11 @@ mutation updateContact ($id: ID!, $data: ContactUpdateInput!) {
         property {
             id
         }
+    }
+}
+
+mutation updateContacts ($data: [ContactsUpdateInput!]!) {
+    contacts: updateContacts (data: $data) {
+        id
     }
 }

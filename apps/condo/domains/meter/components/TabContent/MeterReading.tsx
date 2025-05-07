@@ -51,7 +51,6 @@ import { getInitialSelectedReadingKeys } from '@condo/domains/meter/utils/helper
 const METERS_PAGE_CONTENT_ROW_GUTTERS: RowProps['gutter'] = [0, 40]
 const FILTERS_CONTAINER_GUTTER: RowProps['gutter'] = [16, 16]
 const RESET_FILTERS_BUTTON_STYLE: CSSProperties = { paddingLeft: 0 }
-const QUICK_FILTERS_COL_STYLE: CSSProperties = { alignSelf: 'center' }
 
 const SORTABLE_PROPERTIES = ['date', 'clientName', 'source']
 
@@ -244,7 +243,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
                     {!meter && (
                         <TableFiltersContainer>
                             <Row gutter={FILTERS_CONTAINER_GUTTER} align='middle' justify='space-between'>
-                                <Col span={24}>
+                                <Col style={{ flex: 1 }}>
                                     <Input
                                         placeholder={SearchPlaceholder}
                                         onChange={handleSearch}
@@ -253,12 +252,8 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
                                         suffix={<Search size='medium' color={colors.gray[7]}/>}
                                     />
                                 </Col>
-                                <Col xs={24} sm={24} md={16}>
-                                    <Row justify='start' gutter={FILTERS_CONTAINER_GUTTER} style={{ flexWrap: 'nowrap' }}>
-                                        <Col style={QUICK_FILTERS_COL_STYLE} xs={24} sm={11}>
-                                            <MeterReadingDatePicker/>
-                                        </Col>
-                                    </Row>
+                                <Col xs={24} md={5}>
+                                    <MeterReadingDatePicker/>
                                 </Col>
                                 <Col>
                                     <Row gutter={[16, 10]} align='middle' style={{ flexWrap: 'nowrap' }}>
