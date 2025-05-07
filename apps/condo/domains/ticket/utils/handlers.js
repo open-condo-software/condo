@@ -1,9 +1,7 @@
 const get = require('lodash/get')
 
-const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { find } = require('@open-condo/keystone/schema')
 
-const { SEND_TELEGRAM_NOTIFICATIONS } = require('@condo/domains/common/constants/featureflags')
 const { RESIDENT_COMMENT_TYPE, ORGANIZATION_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
 const { sendTicketCommentCreatedNotifications } = require('@condo/domains/ticket/tasks')
 const {
@@ -21,14 +19,7 @@ const sendTicketCommentNotifications = async (requestData) => {
 
     if (operation === 'create') {
         const ticketId = get(updatedItem, 'ticket')
-        const isFeatureEnabled = await featureToggleManager.isFeatureEnabled(
-            get(requestData, 'context'),
-            SEND_TELEGRAM_NOTIFICATIONS,
-        )
-
-        if (isFeatureEnabled) {
-            await sendTicketCommentCreatedNotifications.delay(updatedItem.id, ticketId)
-        }
+        await sendTicketCommentCreatedNotifications.delay(updatedItem.id, ticketId)
     }
 
     await sendTicketCommentNotificationsTask.delay({
