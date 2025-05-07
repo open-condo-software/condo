@@ -80948,6 +80948,593 @@ input DocumentsCreateInput {
   data: DocumentCreateInput
 }
 
+enum ExecutionAIFlowTaskHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type ExecutionAIFlowTaskHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the ExecutionAIFlowTaskHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the ExecutionAIFlowTaskHistoryRecord List config, or
+   3. As an alias to a 'name' field on the ExecutionAIFlowTaskHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the ExecutionAIFlowTaskHistoryRecord List.
+  """
+  _label_: String
+  flowType: String
+  context: JSON
+  status: String
+  result: JSON
+  errorMessage: String
+  error: JSON
+  meta: JSON
+  locale: String
+  user: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: ExecutionAIFlowTaskHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input ExecutionAIFlowTaskHistoryRecordWhereInput {
+  AND: [ExecutionAIFlowTaskHistoryRecordWhereInput]
+  OR: [ExecutionAIFlowTaskHistoryRecordWhereInput]
+  flowType: String
+  flowType_not: String
+  flowType_contains: String
+  flowType_not_contains: String
+  flowType_starts_with: String
+  flowType_not_starts_with: String
+  flowType_ends_with: String
+  flowType_not_ends_with: String
+  flowType_i: String
+  flowType_not_i: String
+  flowType_contains_i: String
+  flowType_not_contains_i: String
+  flowType_starts_with_i: String
+  flowType_not_starts_with_i: String
+  flowType_ends_with_i: String
+  flowType_not_ends_with_i: String
+  flowType_in: [String]
+  flowType_not_in: [String]
+  context: JSON
+  context_not: JSON
+  context_in: [JSON]
+  context_not_in: [JSON]
+  status: String
+  status_not: String
+  status_contains: String
+  status_not_contains: String
+  status_starts_with: String
+  status_not_starts_with: String
+  status_ends_with: String
+  status_not_ends_with: String
+  status_i: String
+  status_not_i: String
+  status_contains_i: String
+  status_not_contains_i: String
+  status_starts_with_i: String
+  status_not_starts_with_i: String
+  status_ends_with_i: String
+  status_not_ends_with_i: String
+  status_in: [String]
+  status_not_in: [String]
+  result: JSON
+  result_not: JSON
+  result_in: [JSON]
+  result_not_in: [JSON]
+  errorMessage: String
+  errorMessage_not: String
+  errorMessage_contains: String
+  errorMessage_not_contains: String
+  errorMessage_starts_with: String
+  errorMessage_not_starts_with: String
+  errorMessage_ends_with: String
+  errorMessage_not_ends_with: String
+  errorMessage_i: String
+  errorMessage_not_i: String
+  errorMessage_contains_i: String
+  errorMessage_not_contains_i: String
+  errorMessage_starts_with_i: String
+  errorMessage_not_starts_with_i: String
+  errorMessage_ends_with_i: String
+  errorMessage_not_ends_with_i: String
+  errorMessage_in: [String]
+  errorMessage_not_in: [String]
+  error: JSON
+  error_not: JSON
+  error_in: [JSON]
+  error_not_in: [JSON]
+  meta: JSON
+  meta_not: JSON
+  meta_in: [JSON]
+  meta_not_in: [JSON]
+  locale: String
+  locale_not: String
+  locale_contains: String
+  locale_not_contains: String
+  locale_starts_with: String
+  locale_not_starts_with: String
+  locale_ends_with: String
+  locale_not_ends_with: String
+  locale_i: String
+  locale_not_i: String
+  locale_contains_i: String
+  locale_not_contains_i: String
+  locale_starts_with_i: String
+  locale_not_starts_with_i: String
+  locale_ends_with_i: String
+  locale_not_ends_with_i: String
+  locale_in: [String]
+  locale_not_in: [String]
+  user: String
+  user_not: String
+  user_in: [String]
+  user_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: ExecutionAIFlowTaskHistoryRecordHistoryActionType
+  history_action_not: ExecutionAIFlowTaskHistoryRecordHistoryActionType
+  history_action_in: [ExecutionAIFlowTaskHistoryRecordHistoryActionType]
+  history_action_not_in: [ExecutionAIFlowTaskHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input ExecutionAIFlowTaskHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortExecutionAIFlowTaskHistoryRecordsBy {
+  flowType_ASC
+  flowType_DESC
+  status_ASC
+  status_DESC
+  errorMessage_ASC
+  errorMessage_DESC
+  locale_ASC
+  locale_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input ExecutionAIFlowTaskHistoryRecordUpdateInput {
+  flowType: String
+  context: JSON
+  status: String
+  result: JSON
+  errorMessage: String
+  error: JSON
+  meta: JSON
+  locale: String
+  user: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: ExecutionAIFlowTaskHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input ExecutionAIFlowTaskHistoryRecordsUpdateInput {
+  id: ID!
+  data: ExecutionAIFlowTaskHistoryRecordUpdateInput
+}
+
+input ExecutionAIFlowTaskHistoryRecordCreateInput {
+  flowType: String
+  context: JSON
+  status: String
+  result: JSON
+  errorMessage: String
+  error: JSON
+  meta: JSON
+  locale: String
+  user: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: ExecutionAIFlowTaskHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input ExecutionAIFlowTaskHistoryRecordsCreateInput {
+  data: ExecutionAIFlowTaskHistoryRecordCreateInput
+}
+
+enum ExecutionAIFlowTaskStatusType {
+  processing
+  completed
+  error
+  cancelled
+}
+
+enum ExecutionAIFlowTaskLocaleType {
+  ru
+  en
+  es
+}
+
+""" Allows you to run a deferred task to execute a request to AI. Saves information about the request, as well as about the process of executing the request itself. 
+"""
+type ExecutionAIFlowTask {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the ExecutionAIFlowTask List config, or
+   2. As an alias to the field set on 'labelField' in the ExecutionAIFlowTask List config, or
+   3. As an alias to a 'name' field on the ExecutionAIFlowTask List (if one exists), or
+   4. As an alias to the 'id' field on the ExecutionAIFlowTask List.
+  """
+  _label_: String
+
+  """
+   The type of AI flow to be called.
+               
+  The value can be one of the list (), or some allowed custom value. 
+  """
+  flowType: String
+
+  """ Context for executing a request to AI. """
+  context: JSON
+
+  """ Status of the job. Used at client side progress information component. 
+  """
+  status: ExecutionAIFlowTaskStatusType
+
+  """ Result of query execution to AI. """
+  result: JSON
+
+  """ User friendly error message. """
+  errorMessage: String
+
+  """ Full error message for developers. """
+  error: JSON
+
+  """ Additional arbitrary data about the task. """
+  meta: JSON
+
+  """ The requested locale in which the result will be displayed. """
+  locale: ExecutionAIFlowTaskLocaleType
+
+  """ User that requested this operation. """
+  user: User
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input ExecutionAIFlowTaskWhereInput {
+  AND: [ExecutionAIFlowTaskWhereInput]
+  OR: [ExecutionAIFlowTaskWhereInput]
+  flowType: String
+  flowType_not: String
+  flowType_contains: String
+  flowType_not_contains: String
+  flowType_starts_with: String
+  flowType_not_starts_with: String
+  flowType_ends_with: String
+  flowType_not_ends_with: String
+  flowType_i: String
+  flowType_not_i: String
+  flowType_contains_i: String
+  flowType_not_contains_i: String
+  flowType_starts_with_i: String
+  flowType_not_starts_with_i: String
+  flowType_ends_with_i: String
+  flowType_not_ends_with_i: String
+  flowType_in: [String]
+  flowType_not_in: [String]
+  context: JSON
+  context_not: JSON
+  context_in: [JSON]
+  context_not_in: [JSON]
+  status: ExecutionAIFlowTaskStatusType
+  status_not: ExecutionAIFlowTaskStatusType
+  status_in: [ExecutionAIFlowTaskStatusType]
+  status_not_in: [ExecutionAIFlowTaskStatusType]
+  result: JSON
+  result_not: JSON
+  result_in: [JSON]
+  result_not_in: [JSON]
+  errorMessage: String
+  errorMessage_not: String
+  errorMessage_contains: String
+  errorMessage_not_contains: String
+  errorMessage_starts_with: String
+  errorMessage_not_starts_with: String
+  errorMessage_ends_with: String
+  errorMessage_not_ends_with: String
+  errorMessage_i: String
+  errorMessage_not_i: String
+  errorMessage_contains_i: String
+  errorMessage_not_contains_i: String
+  errorMessage_starts_with_i: String
+  errorMessage_not_starts_with_i: String
+  errorMessage_ends_with_i: String
+  errorMessage_not_ends_with_i: String
+  errorMessage_in: [String]
+  errorMessage_not_in: [String]
+  error: JSON
+  error_not: JSON
+  error_in: [JSON]
+  error_not_in: [JSON]
+  meta: JSON
+  meta_not: JSON
+  meta_in: [JSON]
+  meta_not_in: [JSON]
+  locale: ExecutionAIFlowTaskLocaleType
+  locale_not: ExecutionAIFlowTaskLocaleType
+  locale_in: [ExecutionAIFlowTaskLocaleType]
+  locale_not_in: [ExecutionAIFlowTaskLocaleType]
+  user: UserWhereInput
+  user_is_null: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input ExecutionAIFlowTaskWhereUniqueInput {
+  id: ID!
+}
+
+enum SortExecutionAIFlowTasksBy {
+  flowType_ASC
+  flowType_DESC
+  status_ASC
+  status_DESC
+  errorMessage_ASC
+  errorMessage_DESC
+  locale_ASC
+  locale_DESC
+  user_ASC
+  user_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input ExecutionAIFlowTaskUpdateInput {
+  flowType: String
+  context: JSON
+  status: ExecutionAIFlowTaskStatusType
+  result: JSON
+  errorMessage: String
+  error: JSON
+  meta: JSON
+  locale: ExecutionAIFlowTaskLocaleType
+  user: UserRelateToOneInput
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input ExecutionAIFlowTasksUpdateInput {
+  id: ID!
+  data: ExecutionAIFlowTaskUpdateInput
+}
+
+input ExecutionAIFlowTaskCreateInput {
+  flowType: String
+  context: JSON
+  status: ExecutionAIFlowTaskStatusType
+  result: JSON
+  errorMessage: String
+  error: JSON
+  meta: JSON
+  locale: ExecutionAIFlowTaskLocaleType
+  user: UserRelateToOneInput
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input ExecutionAIFlowTasksCreateInput {
+  data: ExecutionAIFlowTaskCreateInput
+}
+
 enum WebhookHistoryRecordHistoryActionType {
   c
   u
@@ -87926,6 +88513,36 @@ type Query {
   """ Retrieve the meta-data for the Document list. """
   _DocumentsMeta: _ListMeta
 
+  """ Search for all ExecutionAIFlowTaskHistoryRecord items which match the where clause. 
+  """
+  allExecutionAIFlowTaskHistoryRecords(where: ExecutionAIFlowTaskHistoryRecordWhereInput, search: String, sortBy: [SortExecutionAIFlowTaskHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [ExecutionAIFlowTaskHistoryRecord]
+
+  """ Search for the ExecutionAIFlowTaskHistoryRecord item with the matching ID. 
+  """
+  ExecutionAIFlowTaskHistoryRecord(where: ExecutionAIFlowTaskHistoryRecordWhereUniqueInput!): ExecutionAIFlowTaskHistoryRecord
+
+  """ Perform a meta-query on all ExecutionAIFlowTaskHistoryRecord items which match the where clause. 
+  """
+  _allExecutionAIFlowTaskHistoryRecordsMeta(where: ExecutionAIFlowTaskHistoryRecordWhereInput, search: String, sortBy: [SortExecutionAIFlowTaskHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the ExecutionAIFlowTaskHistoryRecord list. 
+  """
+  _ExecutionAIFlowTaskHistoryRecordsMeta: _ListMeta
+
+  """ Search for all ExecutionAIFlowTask items which match the where clause. 
+  """
+  allExecutionAIFlowTasks(where: ExecutionAIFlowTaskWhereInput, search: String, sortBy: [SortExecutionAIFlowTasksBy!], orderBy: String, first: Int, skip: Int): [ExecutionAIFlowTask]
+
+  """ Search for the ExecutionAIFlowTask item with the matching ID. """
+  ExecutionAIFlowTask(where: ExecutionAIFlowTaskWhereUniqueInput!): ExecutionAIFlowTask
+
+  """ Perform a meta-query on all ExecutionAIFlowTask items which match the where clause. 
+  """
+  _allExecutionAIFlowTasksMeta(where: ExecutionAIFlowTaskWhereInput, search: String, sortBy: [SortExecutionAIFlowTasksBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the ExecutionAIFlowTask list. """
+  _ExecutionAIFlowTasksMeta: _ListMeta
+
   """ Search for all WebhookHistoryRecord items which match the where clause. 
   """
   allWebhookHistoryRecords(where: WebhookHistoryRecordWhereInput, search: String, sortBy: [SortWebhookHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [WebhookHistoryRecord]
@@ -93233,6 +93850,42 @@ type Mutation {
 
   """ Delete multiple Document items by ID. """
   deleteDocuments(ids: [ID!]): [Document]
+
+  """ Create a single ExecutionAIFlowTaskHistoryRecord item. """
+  createExecutionAIFlowTaskHistoryRecord(data: ExecutionAIFlowTaskHistoryRecordCreateInput): ExecutionAIFlowTaskHistoryRecord
+
+  """ Create multiple ExecutionAIFlowTaskHistoryRecord items. """
+  createExecutionAIFlowTaskHistoryRecords(data: [ExecutionAIFlowTaskHistoryRecordsCreateInput]): [ExecutionAIFlowTaskHistoryRecord]
+
+  """ Update a single ExecutionAIFlowTaskHistoryRecord item by ID. """
+  updateExecutionAIFlowTaskHistoryRecord(id: ID!, data: ExecutionAIFlowTaskHistoryRecordUpdateInput): ExecutionAIFlowTaskHistoryRecord
+
+  """ Update multiple ExecutionAIFlowTaskHistoryRecord items by ID. """
+  updateExecutionAIFlowTaskHistoryRecords(data: [ExecutionAIFlowTaskHistoryRecordsUpdateInput]): [ExecutionAIFlowTaskHistoryRecord]
+
+  """ Delete a single ExecutionAIFlowTaskHistoryRecord item by ID. """
+  deleteExecutionAIFlowTaskHistoryRecord(id: ID!): ExecutionAIFlowTaskHistoryRecord
+
+  """ Delete multiple ExecutionAIFlowTaskHistoryRecord items by ID. """
+  deleteExecutionAIFlowTaskHistoryRecords(ids: [ID!]): [ExecutionAIFlowTaskHistoryRecord]
+
+  """ Create a single ExecutionAIFlowTask item. """
+  createExecutionAIFlowTask(data: ExecutionAIFlowTaskCreateInput): ExecutionAIFlowTask
+
+  """ Create multiple ExecutionAIFlowTask items. """
+  createExecutionAIFlowTasks(data: [ExecutionAIFlowTasksCreateInput]): [ExecutionAIFlowTask]
+
+  """ Update a single ExecutionAIFlowTask item by ID. """
+  updateExecutionAIFlowTask(id: ID!, data: ExecutionAIFlowTaskUpdateInput): ExecutionAIFlowTask
+
+  """ Update multiple ExecutionAIFlowTask items by ID. """
+  updateExecutionAIFlowTasks(data: [ExecutionAIFlowTasksUpdateInput]): [ExecutionAIFlowTask]
+
+  """ Delete a single ExecutionAIFlowTask item by ID. """
+  deleteExecutionAIFlowTask(id: ID!): ExecutionAIFlowTask
+
+  """ Delete multiple ExecutionAIFlowTask items by ID. """
+  deleteExecutionAIFlowTasks(ids: [ID!]): [ExecutionAIFlowTask]
 
   """ Create a single WebhookHistoryRecord item. """
   createWebhookHistoryRecord(data: WebhookHistoryRecordCreateInput): WebhookHistoryRecord

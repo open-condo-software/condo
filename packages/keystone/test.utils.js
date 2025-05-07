@@ -159,7 +159,7 @@ let __expressTestServers = {}
  * @param {Express} app
  * @param {string} protocol like http, ssh, rdp, https. Used only in address
  */
-function initTestExpressApp (name, app, protocol = 'http') {
+function initTestExpressApp (name, app, protocol = 'http', port = 0) {
     if (!name) {
         throw new Error('initTestExpressApp(name, app) no name!')
     }
@@ -182,7 +182,7 @@ function initTestExpressApp (name, app, protocol = 'http') {
         }
         // This express runs only in tests
         // nosemgrep: problem-based-packs.insecure-transport.js-node.using-http-server.using-http-server
-        __expressTestServers[name].server = await http.createServer(app).listen(0)
+        __expressTestServers[name].server = await http.createServer(app).listen(port)
 
         const addressInfo = __expressTestServers[name].server.address()
         __expressTestServers[name].address = addressInfo.address === '::' ? 'localhost' : addressInfo.address
