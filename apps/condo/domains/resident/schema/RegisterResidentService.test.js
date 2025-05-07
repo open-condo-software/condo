@@ -58,6 +58,7 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
     })
     it(`Must connect resident to the oldest existing property from organization with type "${MANAGING_COMPANY_TYPE}"`, async () => {
         const residentUser = await makeClientWithResidentUser()
+        const support = await makeClientWithSupportUser()
 
         const deletedPropClient = await makeClientWithRegisteredOrganization()
         const serviceProviderClient = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -102,7 +103,7 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
         })
 
         // Restore older property
-        await updateTestProperty(deletedPropClient, deletedProperty.id, { deletedAt: null })
+        await updateTestProperty(support, deletedProperty.id, { deletedAt: null })
 
         // NOTE: Should reconnect to old one
         await waitFor(async () => {
