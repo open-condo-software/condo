@@ -758,7 +758,7 @@ const ClientCardPageContent = ({
     useEffect(() => {
         const { type, property: propertyId, unitName, unitType, sectionType, sectionName } = parseCardDataFromQuery(tab)
 
-        const shouldReturnFirstTab = tabsData.length > 0 && !unitName && !unitType
+        const shouldReturnFirstTab = tabsData?.length > 0 && !unitName && !unitType
         let tabDataWithProperty
         if (shouldReturnFirstTab) {
             tabDataWithProperty = tabsData[0]
