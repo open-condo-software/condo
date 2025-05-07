@@ -35,7 +35,7 @@ const CHECK_TLS_CLIENT_CERT = 'check-tls-client-cert-config'
 const ADD_SECTION_FLOOR = 'add-section-floor'
 const ACQUIRING_PAYMENTS_FILES_TABLE = 'acquiring-payments-files-table'
 const HIDE_ORGANIZATION_REQUESTS = 'hide-organization-requests'
-
+const SKIP_SEARCH_ORGANIZATION_BY_TIN = 'skip-search-organization-by-tin'
 
 module.exports = {
     SMS_AFTER_TICKET_CREATION,
@@ -74,4 +74,5 @@ module.exports = {
     ADD_SECTION_FLOOR,
     ACQUIRING_PAYMENTS_FILES_TABLE,
     HIDE_ORGANIZATION_REQUESTS,
+    SKIP_SEARCH_ORGANIZATION_BY_TIN,
 }

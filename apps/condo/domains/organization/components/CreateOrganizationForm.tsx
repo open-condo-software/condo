@@ -13,6 +13,7 @@ import getConfig from 'next/config'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useApolloClient } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
@@ -20,6 +21,7 @@ import { useOrganization } from '@open-condo/next/organization'
 import { Radio, RadioGroup, Space, Typography, Input, Button, Alert, Modal } from '@open-condo/ui'
 
 import { FormItem } from '@condo/domains/common/components/Form/FormItem'
+import { SKIP_SEARCH_ORGANIZATION_BY_TIN } from '@condo/domains/common/constants/featureflags'
 import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
@@ -174,6 +176,8 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
     const { user } = useAuth()
     const userId = useMemo(() => user?.id, [user?.id])
     const locale = useMemo(() => organization?.country || defaultLocale, [organization?.country])
+    const { useFlag } = useFeatureFlags()
+    const skipSearchOrganizationByTin = useFlag(SKIP_SEARCH_ORGANIZATION_BY_TIN)
 
     const [isFoundOrganizationModalOpen, setIsFoundOrganizationModalOpen] = useState<boolean>(false)
     const [isSearchByTinLimitReached, setIsSearchByTinLimitReached] = useState<boolean>(false)
@@ -210,55 +214,58 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
         setIsOrganizationCreating(true)
         const tin = values?.tin?.trim()
 
-        const foundOrganizationsByTinData = await findOrganizationsByTin({
-            variables: {
-                data: {
-                    dv: 1,
-                    sender: getClientSideSenderInfo(),
-                    tin,
-                },
-            },
-        })
-        const foundOrganizations = foundOrganizationsByTinData?.data?.data?.organizations || []
-        const foundOrganizationsErrors = foundOrganizationsByTinData?.error
-        const skipSearchByTin = foundOrganizationsErrors?.graphQLErrors?.some(
-            error => error?.extensions?.type === 'UNAVAILABLE_TIN'
-        )
-
-        if (!skipSearchByTin) {
-            if (foundOrganizationsErrors) {
-                const hasLimitError = foundOrganizationsErrors.graphQLErrors?.some(
-                    error => REQUEST_LIMIT_ERRORS.includes(typeof error?.extensions?.type === 'string' ? error?.extensions?.type : String(error?.extensions?.type))
-                )
-                if (hasLimitError) {
-                    setIsSearchByTinLimitReached(true)
-                }
-                setIsOrganizationCreating(false)
-                return
-            }
-
-            if (type === 'modal') {
-                const lastRequestByTinData = await getLastActiveOrganizationEmployeeRequest({
-                    variables: {
-                        userId,
+        if (!skipSearchOrganizationByTin) {
+            const foundOrganizationsByTinData = await findOrganizationsByTin({
+                variables: {
+                    data: {
+                        dv: 1,
+                        sender: getClientSideSenderInfo(),
                         tin,
                     },
-                })
-                const duplicatedRequest = lastRequestByTinData?.data?.requests?.filter(Boolean)?.[0]
+                },
+            })
+            const foundOrganizations = foundOrganizationsByTinData?.data?.data?.organizations || []
+            const foundOrganizationsErrors = foundOrganizationsByTinData?.error
+            // NOTE: skip organization duplicates check if it's unavailable tin
+            const isUnavailableTin = foundOrganizationsErrors?.graphQLErrors?.some(
+                error => error?.extensions?.type === 'UNAVAILABLE_TIN'
+            )
 
-                if (duplicatedRequest) {
-                    if (onSendOrganizationRequest) {
-                        await onSendOrganizationRequest(duplicatedRequest, true)
+            if (!isUnavailableTin) {
+                if (foundOrganizationsErrors) {
+                    const hasLimitError = foundOrganizationsErrors.graphQLErrors?.some(
+                        error => REQUEST_LIMIT_ERRORS.includes(typeof error?.extensions?.type === 'string' ? error?.extensions?.type : String(error?.extensions?.type))
+                    )
+                    if (hasLimitError) {
+                        setIsSearchByTinLimitReached(true)
                     }
                     setIsOrganizationCreating(false)
                     return
                 }
-            }
 
-            if (foundOrganizations.length > 0) {
-                setIsFoundOrganizationModalOpen(true)
-                setIsOrganizationCreating(false)
-                return
+                if (type === 'modal') {
+                    const lastRequestByTinData = await getLastActiveOrganizationEmployeeRequest({
+                        variables: {
+                            userId,
+                            tin,
+                        },
+                    })
+                    const duplicatedRequest = lastRequestByTinData?.data?.requests?.filter(Boolean)?.[0]
+
+                    if (duplicatedRequest) {
+                        if (onSendOrganizationRequest) {
+                            await onSendOrganizationRequest(duplicatedRequest, true)
+                        }
+                        setIsOrganizationCreating(false)
+                        return
+                    }
+                }
+
+                if (foundOrganizations.length > 0) {
+                    setIsFoundOrganizationModalOpen(true)
+                    setIsOrganizationCreating(false)
+                    return
+                }
             }
         }
 
@@ -305,7 +312,11 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
             }
         }
         setIsOrganizationCreating(false)
-    }, [client, findOrganizationsByTin, getLastActiveOrganizationEmployeeRequest, getOrganizationEmployee, onEmployeeSelected, onOrganizationCreated, onSendOrganizationRequest, registerNewOrganization, selectEmployee, type, userId])
+    }, [
+        client, findOrganizationsByTin, getLastActiveOrganizationEmployeeRequest,
+        getOrganizationEmployee, onEmployeeSelected, onOrganizationCreated, onSendOrganizationRequest,
+        registerNewOrganization, selectEmployee, skipSearchOrganizationByTin, type, userId,
+    ])
 
     const foundOrganizations = useMemo(() => foundOrganizationsData?.data?.organizations || [], [foundOrganizationsData?.data?.organizations])
 
