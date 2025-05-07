@@ -378,19 +378,37 @@
     }
 
     &.condo-btn-stateless {
+      .condo-btn-text::before {
+        opacity: 0;
+      }
+
       &:focus,
       &:hover,
       &:active,
       &-focus {
         .condo-btn-content-color(@condo-global-color-black);
 
-        .condo-btn-text::before {
-          opacity: 0;
-        }
-
         &::before {
           opacity: 0;
         }
+      }
+    }
+
+    &:disabled,
+    &:disabled:hover,
+    &:disabled:active,
+    &:disabled:focus,
+    &.condo-btn-focus:disabled {
+      background: transparent;
+      opacity: @condo-global-opacity-disabled;
+      .condo-btn-content-color(@condo-global-color-black);
+
+      .condo-btn-text::before {
+        opacity: 0;
+      }
+
+      &::before {
+        opacity: 0;
       }
     }
 
@@ -428,24 +446,6 @@
           .condo-btn-content-color(@condo-global-color-red-5);
           .condo-btn-static-text-color(@condo-global-color-red-5);
         }
-      }
-    }
-
-    &:disabled,
-    &:disabled:hover,
-    &:disabled:active,
-    &:disabled:focus,
-    &.condo-btn-focus:disabled {
-      background: transparent;
-      opacity: @condo-global-opacity-disabled;
-      .condo-btn-content-color(@condo-global-color-black);
-
-      .condo-btn-text::before {
-        opacity: 0;
-      }
-
-      &::before {
-        opacity: 0;
       }
     }
 
