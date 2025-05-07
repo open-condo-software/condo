@@ -758,10 +758,18 @@ const ClientCardPageContent = ({
     useEffect(() => {
         const { type, property: propertyId, unitName, unitType, sectionType, sectionName } = parseCardDataFromQuery(tab)
 
-        const tabDataWithProperty = tabsData?.length > 0 && !unitName && !unitType ?
-            tabsData[0] :
-            tabsData.find(({ property, unitName: tabUnitName, unitType: tabUnitType }) =>
-                property.id === propertyId && tabUnitName === unitName && tabUnitType === unitType)
+        const shouldReturnFirstTab = tabsData.length > 0 && !unitName && !unitType
+        let tabDataWithProperty
+        if (shouldReturnFirstTab) {
+            tabDataWithProperty = tabsData[0]
+        }
+        else {
+            tabDataWithProperty = tabsData.find(tab => (
+                tab.property.id === propertyId &&
+                tab.unitName === unitName &&
+                tab.unitType === unitType
+            ))
+        }
         const property = tabDataWithProperty?.property
         const organization = tabDataWithProperty?.organization
         const contact = tabDataWithProperty?.contact
