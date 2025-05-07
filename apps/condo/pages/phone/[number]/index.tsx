@@ -776,7 +776,16 @@ const ClientCardPageContent = ({
             const newRoute = `${router.route.replace('[number]', phoneNumber)}?tab=${key}`
             router.push(newRoute, undefined, { shallow: true })
 
-            setActiveTabData({ type: tabType, property, unitName: tabUnitName, unitType:tabUnitType, organization, contact, sectionType: tabSectionType, sectionName: tabSectionName })
+            setActiveTabData({
+                type: tabType,
+                property,
+                unitName: tabUnitName,
+                unitType: tabUnitType,
+                organization,
+                contact,
+                sectionType: tabSectionType,
+                sectionName: tabSectionName,
+            })
         }
     }, [tab, tabsData, phoneNumber])
 
