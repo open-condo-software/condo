@@ -136,35 +136,37 @@ const DefaultActionBar: React.FC<DefaultActionBarProps> = ({ searchContactsQuery
     })
 
     return (
-        <ActionBar
-            actions={[
-                <>
-                    <Button
-                        block={breakpoints.TABLET_LARGE}
-                        key='left'
-                        type='primary'
-                        onClick={() => router.push(ADD_CONTACT_ROUTE)}
-                    >
-                        {CreateContact}
-                    </Button>
-                    <ImportWrapper
-                        key='import'
-                        accessCheck={true}
-                        onFinish={refetch}
-                        columns={columns}
-                        rowNormalizer={contactNormalizer}
-                        rowValidator={contactValidator}
-                        objectCreator={contactCreator}
-                        domainName='contact'
-                        extraModalContent={{
-                            'example': IsVerifiedCheckbox,
-                        }}
-                        handleClose={handleImportModalClose}
-                    />
-                </>,
-                <ExportButton key='export' />,
-            ]}
-        />
+        <Col span={24}>
+            <ActionBar
+                actions={[
+                    <>
+                        <Button
+                            block={breakpoints.TABLET_LARGE}
+                            key='left'
+                            type='primary'
+                            onClick={() => router.push(ADD_CONTACT_ROUTE)}
+                        >
+                            {CreateContact}
+                        </Button>
+                        <ImportWrapper
+                            key='import'
+                            accessCheck={true}
+                            onFinish={refetch}
+                            columns={columns}
+                            rowNormalizer={contactNormalizer}
+                            rowValidator={contactValidator}
+                            objectCreator={contactCreator}
+                            domainName='contact'
+                            extraModalContent={{
+                                'example': IsVerifiedCheckbox,
+                            }}
+                            handleClose={handleImportModalClose}
+                        />
+                    </>,
+                    <ExportButton key='export' />,
+                ]}
+            />
+        </Col>
     )
 }
 
@@ -266,10 +268,12 @@ const ActionBarWithSelectedItems: React.FC<ActionBarWithSelectedItemsProps> = ({
     ])
 
     return (
-        <ActionBar
-            message={SelectedItemsMessage}
-            actions={selectedContactsActionBarButtons}
-        />
+        <Col span={24}>
+            <ActionBar
+                message={SelectedItemsMessage}
+                actions={selectedContactsActionBarButtons}
+            />
+        </Col>
     )
 }
 
