@@ -80,7 +80,7 @@ export const TicketResidentFeatures: React.FC<TicketResidentFeaturesProps> = ({ 
     const propertyAddress = ticket?.property?.address || null
 
     return (
-        <Row gutter={TICKET_RESIDENT_FEATURES_ROW_GUTTER}>
+        <Row id='ticket_resident-features' gutter={TICKET_RESIDENT_FEATURES_ROW_GUTTER}>
             <Col>
                 <MobileAppInstalledIndicator isContactHasMobileApp={isContactHasMobileApp} />
             </Col>

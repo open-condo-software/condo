@@ -33,7 +33,7 @@ export const HistoricalChange = <ChangesType extends BaseChangesType> (props: Hi
             <Col md={24 - labelSpan - 1} xs={24} offset={!breakpoints.TABLET_LARGE ? 0 : 1}>
                 <Row gutter={MESSAGES_VERTICAL_GUTTER}>
                     {changedFieldMessages.map(({ field, message }) => (
-                        <Col key={field} span={24}>
+                        <Col key={field} span={24} id={field}>
                             <Typography.Text size='medium'>
                                 {message}
                             </Typography.Text>
