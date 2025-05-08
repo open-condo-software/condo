@@ -454,7 +454,7 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
                                         title={ChangeHistoryTitle}
                                         useChangedFieldMessagesOf={useIncidentChangedFieldMessagesOf}
                                         HistoricalChange={HistoricalChange}
-                                        dataCy={'incident__change-history'}
+                                        dataCy='incident__change-history'
                                     />
                                 </Col>
                             )
