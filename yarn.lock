@@ -972,7 +972,6 @@ __metadata:
     graphql-tag: ^2.12.6
     jest: ^29.7.0
     jest-jasmine2: ^29.7.0
-    js-cookie: ^2.2.1
     less: ^3.12.2
     lodash: ^4.17.21
     nanoid: ^3.3.4
@@ -982,7 +981,6 @@ __metadata:
     raw-loader: ^4.0.2
     react: ^16.13.1
     react-dom: ^16.13.1
-    react-otp-input: ^2.4.0
     react-router-dom: 5.2.0
     socks-proxy-agent: ^6.2.0
     typescript: ^5.5.4
@@ -1534,7 +1532,6 @@ __metadata:
     "@open-condo/apollo": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/icons": "workspace:^"
-    "@open-condo/locales": "workspace:^"
     "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/tsconfig": "workspace:^"
     "@open-condo/ui": "workspace:^"
@@ -12972,13 +12969,17 @@ __metadata:
   dependencies:
     "@apollo/client": ^3.11.8
     "@open-condo/tsconfig": "workspace:^"
+    "@types/jest": ^29.5.14
+    "@types/node": ^16
     "@types/react": ^16.14.61
     analytics: ^0.8.16
-    cookie: ^0.6.0
+    cookie: ^0.7.0
     cookies-next: ^4.2.1
     graphql: ^16.10.0
+    jest: ^29.7.0
     react: ^16.14.0
     react-dom: ^16.14.0
+    ts-jest: ^29.2.5
     tsup: ^8.4.0
     typescript: ^5.5.4
   peerDependencies:
@@ -24952,6 +24953,13 @@ __metadata:
   version: 0.6.0
   resolution: "cookie@npm:0.6.0"
   checksum: f56a7d32a07db5458e79c726b77e3c2eff655c36792f2b6c58d351fb5f61531e5b1ab7f46987150136e366c65213cbe31729e02a3eaed630c3bf7334635fb410
+  languageName: node
+  linkType: hard
+
+"cookie@npm:^0.7.0":
+  version: 0.7.2
+  resolution: "cookie@npm:0.7.2"
+  checksum: 9bf8555e33530affd571ea37b615ccad9b9a34febbf2c950c86787088eb00a8973690833b0f8ebd6b69b753c62669ea60cec89178c1fb007bf0749abed74f93e
   languageName: node
   linkType: hard
 
@@ -44988,16 +44996,6 @@ __metadata:
     react: ^0.14.0 || ^15.0.0 || ^16 || ^17 || ^18
     react-dom: ^0.14.0 || ^15.0.0 || ^16 || ^17 || ^18
   checksum: ee99ca312c35bcec9ef0868babf970ce03c52801731e29be336bb6bdc867a1ecf00a73e1fb5bc3b1b1ef66ceb0c9b4a0199fadb85b1b9829f731409951b018f0
-  languageName: node
-  linkType: hard
-
-"react-otp-input@npm:^2.4.0":
-  version: 2.4.0
-  resolution: "react-otp-input@npm:2.4.0"
-  peerDependencies:
-    react: ^16.2.0
-    react-dom: ^16.2.0
-  checksum: c73230be43fcc4d4abf8c39e9fe546a40637dae3e9633dc0af1727bc6ef14839b7e2d455216208ab718697c40513781740c95a2c300e8c5513954842e18c1dbf
   languageName: node
   linkType: hard
 

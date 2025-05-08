@@ -2288,19 +2288,17 @@ describe('MeterReading', () => {
             })
 
             test('excludes deleted organization-specific reporting period', async () => {
-                const { meter } = await setupTestContext(20, 25, 31)
-
-                const [reportingPeriod] = await createTestMeterReportingPeriod(admin, organization, {
-                    notifyStartDay: 20,
-                    notifyEndDay: 25,
-                    restrictionEndDay: 28,
-                })
-
+                const { meter, reportingPeriod } = await setupTestContext(20, 25, 31)
+                const readingDate = dayjs().subtract(2, 'month').date(28).format('YYYY-MM-DD')
+                await expectToThrowGQLError(
+                    async () => await createTestMeterReading(admin, meter, source, { date: readingDate }),
+                    {
+                        code: 'BAD_USER_INPUT',
+                        type: 'METER_READING_DATE_AFTER_NOTIFY_END',
+                    }
+                )
                 await updateTestMeterReportingPeriod(admin, reportingPeriod.id, { deletedAt: new Date().toISOString() })
-                const readingDate = dayjs().subtract(2, 'month').date(29).format('YYYY-MM-DD')
-
                 const [meterReading] = await createTestMeterReading(admin, meter, source, { date: readingDate })
-
                 expect(meterReading.id).toMatch(UUID_RE)
                 expect(meterReading.date).toMatch(DATETIME_RE)
             })

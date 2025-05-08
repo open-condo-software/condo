@@ -12,13 +12,14 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const {
-    RECURRENT_PAYMENT_INIT_STATUS,
+    RECURRENT_PAYMENT_INIT_STATUS, INSURANCE_BILLING_CATEGORY,
 } = require('@condo/domains/acquiring/constants/recurrentPayment')
 const {
     makePayerWithMultipleConsumers,
     createTestRecurrentPaymentContext,
     RecurrentPayment,
 } = require('@condo/domains/acquiring/utils/testSchema')
+const { updateTestBillingReceipt } = require('@condo/domains/billing/utils/testSchema')
 const {
     RECURRENT_PAYMENT_PROCEEDING_NO_RECEIPTS_TO_PROCEED_ERROR_MESSAGE_TYPE,
 } = require('@condo/domains/notification/constants/constants')
@@ -238,5 +239,41 @@ describe('create-recurrent-payment-for-ready-to-pay-recurrent-payment-contexts',
             userId: batch.resident.user.id,
             url: `${conf.SERVER_URL}/payments/recurrent/${recurrentPaymentContext.id}`,
         })
+    })
+
+    // TODO DOMA-11572
+    it('should not create RecurrentPayment for INSURANCE category', async () => {
+        const { batches } = await makePayerWithMultipleConsumers(1, 2)
+        const [batch] = batches
+        const {
+            billingReceipts,
+        } = batch
+        const [{ period }] = billingReceipts
+        const today = dayjs(period).startOf('month').add(1, 'month')
+
+        const [recurrentPaymentContext] = await createTestRecurrentPaymentContext(admin, {
+            ...getContextRequest(batch),
+            enabled: true,
+            billingCategory: null,
+        })
+
+        await updateTestBillingReceipt(admin, billingReceipts[0].id, { category: { connect: { id: INSURANCE_BILLING_CATEGORY } } })
+
+        // create recurrent payments
+        await createRecurrentPaymentForRecurrentPaymentContext(adminContext, today, recurrentPaymentContext)
+
+        const recurrentPayments = await RecurrentPayment.getAll(admin, {
+            recurrentPaymentContext: { id: recurrentPaymentContext.id },
+        })
+
+        expect(recurrentPayments).toHaveLength(1)
+
+        const [recurrentPayment] = recurrentPayments
+
+        expect(recurrentPayment.billingReceipts).toHaveLength(1) // without updated billingReceipts[0]
+
+        const ids = recurrentPayment.billingReceipts.map(receipt => receipt.id)
+        expect(ids).toContain(billingReceipts[1].id)
+
     })
 })

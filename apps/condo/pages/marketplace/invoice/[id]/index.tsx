@@ -8,7 +8,6 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { Edit } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Alert, Button, Space, Tooltip, Typography } from '@open-condo/ui'
@@ -327,7 +326,6 @@ const InvoiceActionBar = ({
                             <Button
                                 disabled={isButtonDisabled}
                                 type='primary'
-                                icon={<Edit size='medium'/>}
                                 data-cy='invoice__update-link'
                             >
                                 {UpdateMessage}

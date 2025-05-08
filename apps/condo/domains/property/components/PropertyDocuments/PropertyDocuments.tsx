@@ -5,7 +5,7 @@ import omit from 'lodash/omit'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
-import { PlusCircle, Search } from '@open-condo/icons'
+import { Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button, Select } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
@@ -69,7 +69,6 @@ const TableContent = ({ total, documentsLoading, propertyDocuments, openUploadMo
                                     <Button
                                         key='createDocument'
                                         type='primary'
-                                        icon={<PlusCircle size='medium' />}
                                         onClick={openUploadModal}
                                     >
                                         {AddDocumentMessage}

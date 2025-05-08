@@ -833,11 +833,22 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         })
     }
 
-    const handleSharingAppFormSubmit = ({ values, ctxId }) => {
-        const newFormValues = { ...sharingAppsFormValues, [ctxId]: values }
+    const handleSharingAppFormSubmit = async ({ values, ctx, form }) => {
+        try {
+            if (!ctx.newsSharingConfig.customFormUrl) {
+                const fieldsToValidate = ['templates', 'title', 'body', 'customSelect', 'hasAllCustom']
 
-        setSharingAppsFormValues(newFormValues)
-        setCurrentStep((currentStep) => currentStep + 1)
+                await form.validateFields(fieldsToValidate)
+            }
+
+            const newFormValues = { ...sharingAppsFormValues, [ctx?.id]: values }
+
+            setSharingAppsFormValues(newFormValues)
+            setCurrentStep((currentStep) => currentStep + 1)
+        }
+        catch (error) {
+            console.error('failed to validate the form', error)
+        }
     }
 
     const handleStepClick = (value: number) => {
@@ -1053,7 +1064,8 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                         }}
                                         onSubmit={(values) => handleSharingAppFormSubmit({
                                             values: values,
-                                            ctxId: getStepDataByStep(currentStep).sharingAppData?.id,
+                                            ctx: getStepDataByStep(currentStep).sharingAppData,
+                                            form: form,
                                         })}
                                         newsItemData={{
                                             type: selectedType,

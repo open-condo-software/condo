@@ -37,6 +37,7 @@ import { useBankSyncTaskUIInterface } from '@condo/domains/banking/hooks/useBank
 import { CondoAppEventsHandler } from '@condo/domains/common/components/CondoAppEventsHandler'
 import BaseLayout, { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
+import GoogleTagManager from '@condo/domains/common/components/containers/GoogleTagManager'
 import YandexMetrika from '@condo/domains/common/components/containers/YandexMetrika'
 import { LayoutContextProvider } from '@condo/domains/common/components/LayoutContext'
 import { Loader } from '@condo/domains/common/components/Loader'
@@ -48,7 +49,7 @@ import { Snowfall } from '@condo/domains/common/components/Snowfall'
 import { TasksContextProvider } from '@condo/domains/common/components/tasks/TasksContextProvider'
 import UseDeskWidget from '@condo/domains/common/components/UseDeskWidget'
 import { COOKIE_MAX_AGE_IN_SEC } from '@condo/domains/common/constants/cookies'
-import { SERVICE_PROVIDER_PROFILE, MARKETPLACE, SUBSCRIPTION } from '@condo/domains/common/constants/featureflags'
+import { SERVICE_PROVIDER_PROFILE, SUBSCRIPTION } from '@condo/domains/common/constants/featureflags'
 import {
     TOUR_CATEGORY,
     DASHBOARD_CATEGORY,
@@ -150,7 +151,6 @@ const ANT_DEFAULT_LOCALE = enUS
 const MenuItems: React.FC = () => {
     const { updateContext, useFlag } = useFeatureFlags()
     const isSPPOrg = useFlag(SERVICE_PROVIDER_PROFILE)
-    const isMarketplaceEnabled = useFlag(MARKETPLACE)
     const { persistor } = useCachePersistor()
 
     const { isAuthenticated, isLoading } = useAuth()
@@ -293,7 +293,7 @@ const MenuItems: React.FC = () => {
                     path: 'marketplace',
                     icon: AllIcons['Market'],
                     label: 'global.section.marketplace',
-                    access: isMarketplaceEnabled && hasAccessToMarketplace && isNoServiceProviderOrganization,
+                    access: hasAccessToMarketplace && isNoServiceProviderOrganization,
                 },
             ].filter(checkItemAccess),
         },
@@ -358,7 +358,7 @@ const MenuItems: React.FC = () => {
                 },
             ].filter(checkItemAccess),
         },
-    ]), [hasAccessToAnalytics, isManagingCompany, hasAccessToTickets, hasAccessToIncidents, hasAccessToNewsItems, hasAccessToProperties, hasAccessToContacts, hasAccessToEmployees, isMarketplaceEnabled, hasAccessToMarketplace, isSPPOrg, hasAccessToBilling, anyReceiptsLoaded, sppBillingId, hasAccessToMeters, hasAccessToServices, connectedAppsIds, hasAccessToSettings])
+    ]), [hasAccessToAnalytics, isManagingCompany, hasAccessToTickets, hasAccessToIncidents, hasAccessToNewsItems, hasAccessToProperties, hasAccessToContacts, hasAccessToEmployees, hasAccessToMarketplace, isSPPOrg, hasAccessToBilling, anyReceiptsLoaded, sppBillingId, hasAccessToMeters, hasAccessToServices, connectedAppsIds, hasAccessToSettings])
 
     return (
         <div>
@@ -478,7 +478,7 @@ const MyApp = ({ Component, pageProps }) => {
     dayjs.locale(intl.locale)
     const router = useRouter()
     const { user, isAuthenticated, isLoading: isUserLoading } = useAuth()
-    const { publicRuntimeConfig: { yandexMetrikaID, popupSmartConfig, UseDeskWidgetId, isSnowfallDisabled } } = getConfig()
+    const { publicRuntimeConfig: { yandexMetrikaID, popupSmartConfig, UseDeskWidgetId, isSnowfallDisabled, googleTagManagerId } } = getConfig()
 
     const LayoutComponent = Component.container || BaseLayout
     // TODO(Dimitreee): remove this mess later
@@ -553,6 +553,7 @@ const MyApp = ({ Component, pageProps }) => {
                         {!isSnowfallDisabled && <Snowfall />}
                     </LayoutContextProvider>
                     {yandexMetrikaID && <YandexMetrika />}
+                    {googleTagManagerId && <GoogleTagManager />}
                     {!isEmpty(popupSmartConfig) && <PopupSmart />}
                     {UseDeskWidgetId && <UseDeskWidget/>}
                 </CacheProvider>

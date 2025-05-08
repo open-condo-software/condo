@@ -32,6 +32,17 @@ query getPollTicketComments ($where: TicketCommentWhereInput!, $first: Int!) {
     }
 }
 
+query getTicketCommentsForClientCard ($where: TicketCommentWhereInput!, $first: Int!) {
+    ticketComments: allTicketComments (
+        where: $where
+        first: $first
+        sortBy: [updatedAt_DESC]
+    ) {
+        content
+        ticket { id }
+    }
+}
+
 mutation updateTicketComment ($id: ID!, $data: TicketCommentUpdateInput!) {
     ticketComment: updateTicketComment (id: $id, data: $data) {
         id

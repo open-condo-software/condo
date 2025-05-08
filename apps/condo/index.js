@@ -65,6 +65,7 @@ const schemas = () => [
     require('@condo/domains/settings/schema'),
     require('@condo/domains/marketplace/schema'),
     require('@condo/domains/document/schema'),
+    require('@condo/domains/ai/schema'),
     getWebhookModels('@app/condo/schema.graphql'),
 ]
 
@@ -81,6 +82,7 @@ const tasks = () => [
     getWebhookTasks('low'),
     require('@condo/domains/marketplace/tasks'),
     require('@condo/domains/analytics/tasks'),
+    require('@condo/domains/ai/tasks'),
 ]
 
 if (!IS_BUILD_PHASE && SENTRY_CONFIG['server']) {

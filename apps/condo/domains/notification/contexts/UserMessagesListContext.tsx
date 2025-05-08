@@ -61,9 +61,10 @@ export const useUserMessagesList = () => useContext(UserMessageListContext)
 
 type UserMessagesListContextProviderProps = {
     children: ReactNode
+    organizationIdsToFilter: Array<string>
 }
 
-export const UserMessagesListContextProvider: React.FC<UserMessagesListContextProviderProps> = ({ children }) => {
+export const UserMessagesListContextProvider: React.FC<UserMessagesListContextProviderProps> = ({ children, organizationIdsToFilter }) => {
     const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false)
     const [readUserMessagesAt, setReadUserMessagesAt] = useState<string>()
     const [excludedMessageTypes, setExcludedMessageTypes] = useState<Array<MessageTypeAllowedToFilterType>>([])
@@ -90,8 +91,10 @@ export const UserMessagesListContextProvider: React.FC<UserMessagesListContextPr
     } = useUserMessages({
         isDropdownOpen,
         messageTypesToFilter,
+        organizationIdsToFilter,
         skipQueryMessagesCondition:
-            !userId || !organizationId || allowedMessageTypesLoading || !readUserMessagesAt || messageTypesToFilter.length === 0,
+            !userId || !organizationId || allowedMessageTypesLoading || !readUserMessagesAt ||
+            messageTypesToFilter.length === 0 || organizationIdsToFilter.length === 0,
     })
 
     // Set initial settings to state

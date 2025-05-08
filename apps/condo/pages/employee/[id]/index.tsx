@@ -10,8 +10,6 @@ import React, { useCallback } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
 import { IUseSoftDeleteActionType, IUseUpdateActionType } from '@open-condo/codegen/generate.hooks'
-import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
-import { Edit } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -26,7 +24,6 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { FieldPairRow as BaseFieldPairRow, FieldPairRowProps } from '@condo/domains/common/components/FieldPairRow'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
-import { REASSIGN_EMPLOYEE_TICKETS } from '@condo/domains/common/constants/featureflags'
 import { PageComponentType } from '@condo/domains/common/types'
 import { DeleteEmployeeButtonWithReassignmentModel } from '@condo/domains/organization/components/DeleteEmployeeButtonWithReassignmentModel'
 import { EmployeeInviteRetryButton } from '@condo/domains/organization/components/EmployeeInviteRetryButton'
@@ -107,9 +104,6 @@ export const EmployeePageContent: React.FC<EmployeePageContent> = ({
 
     const { user } = useAuth()
     const { breakpoints } = useLayoutContext()
-
-    const { useFlag } = useFeatureFlags()
-    const isReassignEmployeeTicketsEnabled = useFlag(REASSIGN_EMPLOYEE_TICKETS)
 
     const employeeUserId = employee?.user?.id || null
     const userId = get(user, 'id')
@@ -268,12 +262,11 @@ export const EmployeePageContent: React.FC<EmployeePageContent> = ({
                                                         <Link key='update' href={`/employee/${get(employee, 'id')}/update`}>
                                                             <Button
                                                                 type='primary'
-                                                                icon={<Edit size='medium'/>}
                                                             >
                                                                 {UpdateMessage}
                                                             </Button>
                                                         </Link>,
-                                                        !isMyEmployee && (isReassignEmployeeTicketsEnabled && activeTicketsOrganizationEmployeeCount > 0 ?
+                                                        !isMyEmployee && (activeTicketsOrganizationEmployeeCount > 0 ?
                                                             <DeleteEmployeeButtonWithReassignmentModel
                                                                 key='delete'
                                                                 softDeleteAction={() => softDeleteAction(employee)}

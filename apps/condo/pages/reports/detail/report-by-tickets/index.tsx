@@ -13,7 +13,6 @@ import qs from 'qs'
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
-import { Edit, PlusCircle, Print } from '@open-condo/icons'
 import { useApolloClient, useLazyQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -899,7 +898,7 @@ const TicketAnalyticsPage: PageComponentType = () => {
                     </Col>
                     <Col span={6} hidden={!breakpoints.TABLET_LARGE}>
                         <Tooltip title={NotImplementedYetMessage}>
-                            <Button icon={<PlusCircle size='medium' />} type='secondary'>{HeaderButtonTitle}</Button>
+                            <Button type='secondary'>{HeaderButtonTitle}</Button>
                         </Tooltip>
                     </Col>
                 </Row>
@@ -1020,7 +1019,6 @@ const TicketAnalyticsPage: PageComponentType = () => {
                                     <Button
                                         key='print'
                                         disabled={isControlsDisabled || isEmptyAnalyticsData(analyticsData)} onClick={printPdf}
-                                        icon={<Print size='medium'/>}
                                         type='secondary'
                                     >
                                         {PrintTitle}
@@ -1030,7 +1028,6 @@ const TicketAnalyticsPage: PageComponentType = () => {
                                         disabled={isControlsDisabled || isEmptyAnalyticsData(analyticsData)}
                                         onClick={downloadExcel}
                                         loading={isXSLXLoading}
-                                        icon={<Edit size='medium' />}
                                         type='secondary'
                                     >
                                         {ExcelTitle}

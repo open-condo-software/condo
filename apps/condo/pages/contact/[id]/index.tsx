@@ -12,7 +12,6 @@ import React, { CSSProperties, useCallback, useMemo } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
-import { Edit } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button, Typography } from '@open-condo/ui'
@@ -155,7 +154,6 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
                                                     <Link key='update' href={`/contact/${get(contact, 'id')}/update`}>
                                                         <Button
                                                             type='primary'
-                                                            icon={<Edit size='medium'/>}
                                                         >
                                                             {UpdateMessage}
                                                         </Button>
@@ -186,7 +184,6 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
                                             <Link key='update' href={`/contact/${get(contact, 'id')}/update`}>
                                                 <Button
                                                     type='primary'
-                                                    icon={<Edit size='medium'/>}
                                                 >
                                                     {UpdateMessage}
                                                 </Button>

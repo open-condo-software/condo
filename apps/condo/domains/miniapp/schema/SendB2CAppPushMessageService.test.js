@@ -39,7 +39,7 @@ const {
     makeClientWithResidentUser,
 } = require('@condo/domains/user/utils/testSchema')
 
-const { ERRORS } = require('./SendB2CAppPushMessageService')
+const { ERRORS, CACHE_TTL } = require('./SendB2CAppPushMessageService')
 
 
 const APPLE_TEST_VOIP_PUSHTOKEN = conf[APPLE_CONFIG_TEST_VOIP_PUSHTOKEN_ENV] || null
@@ -329,6 +329,27 @@ describe('SendB2CAppPushMessageService', () => {
                 type: 'TOO_MANY_REQUESTS',
                 message: 'You have to wait {minutesRemaining} min. to be able to send request again',
             })
+        })
+
+        test('Check working CACHE_TTL config', async () => {
+            const [message1] = await sendB2CAppPushMessageByTestClient(admin, {
+                ...appAttrs,
+                type: CANCELED_CALL_MESSAGE_PUSH_TYPE,
+            })
+
+            expect(message1.id).toMatch(UUID_RE)
+
+            await new Promise((resolve) => setTimeout(resolve, CACHE_TTL[CANCELED_CALL_MESSAGE_PUSH_TYPE] * 1000))
+
+            const [message2] = await sendB2CAppPushMessageByTestClient(admin, {
+                ...appAttrs,
+                type: CANCELED_CALL_MESSAGE_PUSH_TYPE,
+            })
+
+            expect(message2.id).toMatch(UUID_RE)
+
+            // Wait before run next test
+            await new Promise((resolve) => setTimeout(resolve, CACHE_TTL[CANCELED_CALL_MESSAGE_PUSH_TYPE] * 1000))
         })
     })
 

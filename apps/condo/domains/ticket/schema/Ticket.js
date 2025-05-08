@@ -375,12 +375,14 @@ const Ticket = new GQLListSchema('Ticket', {
             schemaDoc: 'CreatedAt of the last TicketComment with type=ORGANIZATION from STAFF user' +
             'Example: lastCommentWithOrganizationTypeAt will be set to 2025_01_01 if the most recent TicketComment with type=ORGANIZATION was created on 2025_01_01',
             type: 'DateTimeUtc',
+            access: writeOnlyServerSideFieldAccess,
         },
         lastCommentWithResidentTypeCreatedByUserType: {
             schemaDoc: 'Type of the User who created last comment with type=RESIDENT' +
             'Example: `staff``, if last TicketComment with type=RESIDENT was from User.type = staff',
             type: 'Select',
             options: USER_TYPES,
+            access: writeOnlyServerSideFieldAccess,
         },
         statusReason: {
             schemaDoc: 'Text reason for status changes. Sometimes you should describe the reason why you change the `status`',
