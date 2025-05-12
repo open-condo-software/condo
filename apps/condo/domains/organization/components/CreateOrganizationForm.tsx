@@ -476,6 +476,7 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
                                 onClick={() => {
                                     form.submit()
                                 }}
+                                loading={isOrganizationCreating}
                                 disabled={isRequiredFieldsEmpty || isFieldsHasError || isSearchByTinLimitReached}
                             >
                                 {CreateMessage}
