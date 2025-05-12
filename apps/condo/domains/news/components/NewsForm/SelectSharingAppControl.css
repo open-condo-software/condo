@@ -1,0 +1,17 @@
+.condo-card-checkbox-type {
+  display: flex;
+  flex-direction: column;
+}
+
+.condo-card-checkbox-type > .condo-card-head {
+  min-height: fit-content;
+}
+
+.condo-card-checkbox-type > .condo-card-body {
+  flex: 1;
+}
+
+.condo-card-checkbox-type > .condo-card-body > div {
+  justify-content: space-between;
+  height: 100%;
+}
