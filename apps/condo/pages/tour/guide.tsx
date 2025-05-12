@@ -23,19 +23,30 @@ const {
     publicRuntimeConfig,
 } = getConfig()
 
-const { guideModalCardReviews, guideIntroduceAppMaterials } = publicRuntimeConfig
+const { guideAboutAppBlock, guideIntroduceAppBlock, guideModalCardReviews } = publicRuntimeConfig
 
 const MEDIUM_GUTTER: RowProps['gutter'] = [0, 40]
 const LARGE_GUTTER: RowProps['gutter'] = [0, 60]
 
 const ABOUT_APP_CARD_TYPES = ['payments', 'costs', 'quality', 'extraIncome'] as const
-type AboutAppCardType = typeof ABOUT_APP_CARD_TYPES[number] | null
 
-const getNextCardType = (cardType: AboutAppCardType) => {
+const getNextCardType = (cardType: typeof ABOUT_APP_CARD_TYPES[number] | null) => {
     const currentTypeIndex = ABOUT_APP_CARD_TYPES.indexOf(cardType)
     const isLastIndex = currentTypeIndex === ABOUT_APP_CARD_TYPES.length - 1
 
     return isLastIndex ? null : ABOUT_APP_CARD_TYPES[currentTypeIndex + 1]
+}
+
+const getTextWithAccent = (text: string) => {
+    const parts = text.split(/\{accent}(.*?)\{\/accent}/)
+
+    return parts.map((part, index) => {
+        if (index % 2 === 0) {
+            return <Typography.Text type='secondary'>{part}</Typography.Text>
+        } else {
+            return <Typography.Text type='primary'>{part}</Typography.Text>
+        }
+    })
 }
 
 const CARD_IMAGE_STYLES: CSSProperties = { height: '30px' }
@@ -48,7 +59,15 @@ const AboutAppBlock = () => {
 
     const { breakpoints } = useLayoutContext()
     const locale = useMemo(() => intl?.locale, [intl])
-    const [openModal, setOpenModal] = useState<AboutAppCardType>(null)
+
+    const aboutAppBanner = useMemo(() => guideAboutAppBlock?.[locale]?.types ?? {}, [locale])
+    const availableBanners = useMemo(
+        () => ABOUT_APP_CARD_TYPES.filter(type => Boolean(aboutAppBanner[type])
+        ), [aboutAppBanner])
+
+    const cardReviews = useMemo(() => guideModalCardReviews?.[locale]?.types ?? {}, [locale])
+
+    const [openModal, setOpenModal] = useState<typeof availableBanners[number]>(null)
 
     const modalImageBgStyles: CSSProperties = useMemo(() => ({
         display: 'flex',
@@ -67,7 +86,9 @@ const AboutAppBlock = () => {
         extraIncome: colors.pink[5],
     }), [])
 
-    const CAROUSEL_AUTOPLAY_SPEED = 5000
+    if (isEmpty(aboutAppBanner)) {
+        return null
+    }
 
     return (
         <Row gutter={MEDIUM_GUTTER}>
@@ -75,19 +96,18 @@ const AboutAppBlock = () => {
                 <Carousel
                     effect='fade'
                     autoplay
-                    autoplaySpeed={CAROUSEL_AUTOPLAY_SPEED}
                 >
                     {
-                        ABOUT_APP_CARD_TYPES.map((type) => (
+                        availableBanners.map((type) => (
                             <Banner
                                 id={type}
                                 key={type}
                                 actionText={InMoreDetailMessage}
                                 size='medium'
-                                title={intl.formatMessage({ id: `tour.guide.aboutApp.${type}.title` })}
-                                subtitle={intl.formatMessage({ id: `tour.guide.aboutApp.${type}.banner.body` })}
+                                title={aboutAppBanner?.[type]?.title}
+                                subtitle={aboutAppBanner?.[type]?.bannerText}
                                 onClick={() => setOpenModal(type)}
-                                imgUrl={`/onboarding/guide/aboutApp/${locale}/${type}/modalImage.webp`}
+                                imgUrl={aboutAppBanner?.[type]?.imageUrl}
                                 backgroundColor={typeToModalBgColor[type]}
                                 invertText={true}
                             />
@@ -96,7 +116,7 @@ const AboutAppBlock = () => {
                 </Carousel>
             </Col>
             {
-                ABOUT_APP_CARD_TYPES.map(type => (
+                availableBanners.map(type => (
                     <Modal
                         key={type}
                         width='big'
@@ -117,13 +137,13 @@ const AboutAppBlock = () => {
                         <Space size={40} direction='vertical'>
                             <div style={{ ...modalImageBgStyles, backgroundColor: typeToModalBgColor[type] }}>
                                 <Typography.Title type='inherit' level={2}>
-                                    {intl.formatMessage({ id: `tour.guide.aboutApp.${type}.title` })}
+                                    {aboutAppBanner?.[type]?.title}
                                 </Typography.Title>
                                 {
                                     breakpoints.TABLET_LARGE && (
                                         <img
-                                            src={`/onboarding/guide/aboutApp/${locale}/${type}/modalImage.webp`}
-                                            alt={intl.formatMessage({ id: `tour.guide.aboutApp.${type}.modal.picText` })}
+                                            src={aboutAppBanner?.[type]?.imageUrl}
+                                            alt={aboutAppBanner?.[type]?.title}
                                         />
                                     )
                                 }
@@ -131,31 +151,31 @@ const AboutAppBlock = () => {
                             <Row gutter={[40, 40]}>
                                 <Col xs={24} md={12}>
                                     <Typography.Paragraph type='secondary'>
-                                        {intl.formatMessage({ id: `tour.guide.aboutApp.${type}.modal.body` })}
+                                        {getTextWithAccent(aboutAppBanner?.[type]?.modalText)}
                                     </Typography.Paragraph>
                                     {
                                         type === 'payments' && (
                                             <Typography.Paragraph type='secondary'>
-                                                {intl.formatMessage({ id: `tour.guide.aboutApp.${type}.modal.body.secondParagraph` })}
+                                                {getTextWithAccent(aboutAppBanner?.[type]?.['modalText.secondParagraph'])}
                                             </Typography.Paragraph>
                                         )
                                     }
                                 </Col>
                                 {
-                                    guideModalCardReviews?.[locale]?.types?.[type] && (
+                                    cardReviews?.[type] && (
                                         <Col xs={24} md={12}>
                                             <Card title={(
                                                 <img
-                                                    src={guideModalCardReviews?.[locale]?.types?.[type]?.imageUrl ?? ''}
+                                                    src={cardReviews?.[type]?.imageUrl ?? ''}
                                                     style={CARD_IMAGE_STYLES}
-                                                    alt={guideModalCardReviews?.[locale]?.types?.[type]?.text ?? ''}
+                                                    alt={cardReviews?.[type]?.text ?? ''}
                                                 />
                                             )}
                                             >
                                                 <Card.CardBody
-                                                    description={guideModalCardReviews?.[locale]?.types?.[type]?.text ?? ''}
+                                                    description={cardReviews?.[type]?.text ?? ''}
                                                     mainLink={{
-                                                        href: guideModalCardReviews?.[locale]?.types?.[type]?.blogUrl,
+                                                        href: cardReviews?.[type]?.blogUrl,
                                                         PreIcon: ExternalLink,
                                                         label: guideModalCardReviews?.[locale]?.textLink ?? '',
                                                         openInNewTab: true,
@@ -179,12 +199,9 @@ const PANEL_IMAGE_STYLES: CSSProperties = { maxWidth: '100%' }
 const INTRODUCE_APP_STEP_TYPES = ['announcement', 'chats', 'layout', 'banner', 'socialNetworks', 'leaflet', 'stickers'] as const
 
 const IntroduceAppBlock = () => {
-    const intl = useIntl()
-    const BlockTitle = intl.formatMessage({ id: 'tour.guide.introduceApp.title' })
+    const { locale } = useIntl()
 
-    const locale = useMemo(() => intl?.locale, [intl])
-
-    const stepMaterials = useMemo(() => guideIntroduceAppMaterials?.[locale] ?? {}, [locale])
+    const stepMaterials = useMemo(() => guideIntroduceAppBlock?.[locale]?.types ?? {}, [locale])
     const availableSteps = useMemo(
         () => INTRODUCE_APP_STEP_TYPES.filter(type => Boolean(stepMaterials[type])
         ), [stepMaterials])
@@ -198,9 +215,9 @@ const IntroduceAppBlock = () => {
     return (
         <Row gutter={MEDIUM_GUTTER}>
             <Col span={24}>
-                <Typography.Title level={2}>{BlockTitle}</Typography.Title>
+                <Typography.Title level={2}>{guideIntroduceAppBlock?.[locale]?.title}</Typography.Title>
             </Col>
-            <Col span={24} style={{ display: 'flex', flexWrap: 'wrap', rowGap: '40px', columnGap: '24px', justifyContent: 'center' }}>
+            <Col span={24} style={{ display: 'flex', flexWrap: 'wrap', rowGap: '40px', columnGap: '24px' }}>
                 {
                     availableSteps.map((type) => (
                         <Col key={type}>
@@ -208,7 +225,7 @@ const IntroduceAppBlock = () => {
                                 key={type}
                                 onClick={() => setOpenModal(type)}
                                 header={{
-                                    headingTitle: intl.formatMessage({ id: `tour.guide.introduceApp.step.${type}.title` }),
+                                    headingTitle: stepMaterials?.[type]?.title,
                                 }}
                                 body={{
                                     image: {
@@ -227,32 +244,32 @@ const IntroduceAppBlock = () => {
                             key={type}
                             open={openModal === type}
                             onCancel={() => setOpenModal(null)}
-                            title={intl.formatMessage({ id: `tour.guide.introduceApp.step.${type}.title` })}
+                            title={stepMaterials?.[type]?.title}
                             footer={(
                                 <a href={stepMaterials?.[type]?.materialsUrl ?? ''} target='_blank' rel='noreferrer'>
                                     <Button type='primary' icon={<Download/>}>
-                                        {intl.formatMessage({ id: `tour.guide.introduceApp.step.${type}.downloadMaterials` })}
+                                        {stepMaterials?.[type]?.downloadMaterials}
                                     </Button>
                                 </a>
                             )}
                         >
                             <Space size={40} direction='vertical'>
-                                <img style={PANEL_IMAGE_STYLES} src={stepMaterials?.[type]?.imageUrl ?? ''} alt={intl.formatMessage({ id: `tour.guide.introduceApp.step.${type}.title` })}/>
+                                <img style={PANEL_IMAGE_STYLES} src={stepMaterials?.[type]?.imageUrl ?? ''} alt={stepMaterials?.[type]?.downloadMaterials}/>
                                 <Row>
                                     <Typography.Paragraph type='secondary'>
-                                        {intl.formatMessage({ id: `tour.guide.introduceApp.step.${type}.body` })}
+                                        {getTextWithAccent(stepMaterials?.[type]?.body)}
                                     </Typography.Paragraph>
                                     {
-                                        (type === 'announcement' ?? type === 'layout') && (
+                                        (type === 'announcement' || type === 'layout') && (
                                             <Typography.Paragraph type='secondary'>
-                                                {intl.formatMessage({ id: `tour.guide.introduceApp.step.${type}.body.secondParagraph` })}
+                                                {getTextWithAccent(stepMaterials?.[type]?.['body.secondParagraph'])}
                                             </Typography.Paragraph>
                                         )
                                     }
                                     {
                                         type === 'layout' && (
                                             <Typography.Paragraph type='secondary'>
-                                                {intl.formatMessage({ id: `tour.guide.introduceApp.step.${type}.body.thirdParagraph` })}
+                                                {getTextWithAccent(stepMaterials?.[type]?.['body.thirdParagraph'])}
                                             </Typography.Paragraph>
                                         )
                                     }
