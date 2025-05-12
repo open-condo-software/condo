@@ -1,34 +1,69 @@
 const crypto = require('crypto')
 
+const Ajv = require('ajv')
+const addFormats = require('ajv-formats')
+
 const { ERROR_MESSAGES } = require('./errors')
+const { TelegramMiniAppInitParamsSchema, TelegramOauthCallbackSchema } = require('./schemas')
 
 const ALLOWED_TIME_SINCE_AUTH_IN_SECONDS = 5 * 60 // 5 min
 
-const LOGIN_DATA_FIELDS = new Set([
-    'id', // NOTE (YEgorLu): as far as I know user id can change only if user changed real phone number, changed phone number in telegram and then logged out from app.
-    'first_name', // NOTE (YEgorLu): can change if user changes language in app
-    'last_name', // NOTE (YEgorLu): can change if user changes language in app
-    'username',
-    'photo_url',
-    'auth_date', // NOTE (YEgorLu): this is a date when user successfully authorized on oauth.telegram. Unix timestamp = Date.now() / 1000
-    'hash', // NOTE (YEgorLu): this is a sign of other fields
-])
+const ajv = new Ajv()
+addFormats(ajv)
+const loginDataValidator = ajv.compile({
+    type: 'object',
+    anyOf: [TelegramMiniAppInitParamsSchema, TelegramOauthCallbackSchema],
+})
 
 /** @typedef {{
- id: string,
- first_name: string,
- last_name: string,
+ id: string, // NOTE (YEgorLu): as far as I know user id can change only if user changed real phone number, changed phone number in telegram and then logged out from app.
+ first_name: string, // NOTE (YEgorLu): can change if user changes language in app
+ last_name: string, // NOTE (YEgorLu): can change if user changes language in app
  username: string,
  photo_url: string,
- auth_date: string,
- hash: string
+ auth_date: string, // NOTE (YEgorLu): this is a date when user successfully authorized on oauth.telegram. Unix timestamp = Date.now() / 1000
+ hash: string // NOTE (YEgorLu): this is a sign of other fields
  }} TgAuthData
+ */
+
+/** @typedef {{
+ added_to_attachment_menu: boolean,
+ allows_write_to_pm: boolean,
+ is_premium: boolean,
+ first_name: string,
+ id: number,
+ is_bot: boolean,
+ last_name: string,
+ language_code: string,
+ photo_url: string,
+ username: string
+ }} TgMiniAppInitParamsUser
+  */
+
+/** @typedef {{
+ auth_date: string,
+ can_send_after: number,
+ chat: {
+ id: number,
+ type: 'group' | 'supergroup' | 'channel',
+ title: string,
+ username: string,
+ photo_url: string,
+ },
+ chat_type: 'sender' | 'private' | 'group' | 'supergroup' | 'channel',
+ chat_instance: string,
+ hash: string,
+ query_id: string,
+ receiver: TgMiniAppInitParamsUser,
+ start_param: string,
+ user: TgMiniAppInitParamsUser,
+ }} TgMiniAppInitData
  */
 
 /**
  * Validates that telegram oauth data was received by provided bot
  * @link https://core.telegram.org/widgets/login#checking-authorization
- * @param {TgAuthData} data - tgAuthData
+ * @param {TgAuthData | TgMiniAppInitData} data - tgAuthData
  * @param {string} botToken
  * @param {number} secondsSinceAuth - time limit for authorization to be valid
  * @returns {string | null} error message
@@ -36,13 +71,9 @@ const LOGIN_DATA_FIELDS = new Set([
 function validateTgAuthData (data, botToken, secondsSinceAuth = ALLOWED_TIME_SINCE_AUTH_IN_SECONDS) {
 
     // 1. Check that data contains all and only allowed fields
-    if (Object.keys(data).length !== LOGIN_DATA_FIELDS.size) {
+    const isValid = loginDataValidator(data)
+    if (!isValid) {
         return ERROR_MESSAGES.VALIDATION_AUTH_DATA_KEYS_MISMATCH
-    }
-    for (const key in data) {
-        if (!LOGIN_DATA_FIELDS.has(key)) {
-            return ERROR_MESSAGES.VALIDATION_AUTH_DATA_KEYS_MISMATCH
-        }
     }
 
     // 2. Check that data is not outdated
