@@ -64,3 +64,6 @@
 [submodule "apps/news-telegram-web"]
 	path = apps/news-telegram-web
 	url = git@github.com:open-condo-software/condo-news-telegram-web.git
+[submodule "apps/billing-connector"]
+	path = apps/billing-connector
+	url = git@github.com:open-condo-software/condo-billing-connector.git
