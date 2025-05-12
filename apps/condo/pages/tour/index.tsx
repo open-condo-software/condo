@@ -49,7 +49,7 @@ const {
     publicRuntimeConfig,
 } = getConfig()
 
-const { tourVideoUrl } = publicRuntimeConfig
+const { tourVideoUrl, guideIntroduceAppBlock, guideAboutAppBlock } = publicRuntimeConfig
 
 const TourWrapper = styled.div`
   background-color: ${colors.gray[1]};
@@ -264,23 +264,27 @@ const TourPageContent = () => {
                     </Space>
                 </TourWrapper>
             </Col>
-            <Col span={isSmallScreen ? 24 : 10} style={APP_CARDS_COL_STYLES}>
-                <CardsWrapper isSmallScreen={isSmallScreen}>
-                    {
-                        videoUrl && (
-                            <CardVideo
-                                src={videoUrl}
-                                title={CardVideoTitle}
-                                description={CardVideoDescription}
-                            />
-                        )
-                    }
-                    <div className='tour-app-cards-wrapper'>
-                        <ResidentAppCard/>
-                        <TechnicAppCard/>
-                    </div>
-                </CardsWrapper>
-            </Col>
+            {
+                (guideAboutAppBlock?.[locale] || guideIntroduceAppBlock?.[locale]) && (
+                    <Col span={isSmallScreen ? 24 : 10} style={APP_CARDS_COL_STYLES}>
+                        <CardsWrapper isSmallScreen={isSmallScreen}>
+                            {
+                                videoUrl && (
+                                    <CardVideo
+                                        src={videoUrl}
+                                        title={CardVideoTitle}
+                                        description={CardVideoDescription}
+                                    />
+                                )
+                            }
+                            <div className='tour-app-cards-wrapper'>
+                                <ResidentAppCard/>
+                                <TechnicAppCard/>
+                            </div>
+                        </CardsWrapper>
+                    </Col>
+                )
+            }
         </Row>
     )
 }
