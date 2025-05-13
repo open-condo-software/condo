@@ -16,6 +16,7 @@ import {
     PageWrapper,
     useLayoutContext,
 } from '@condo/domains/common/components/containers/BaseLayout'
+import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
 import { PageComponentType } from '@condo/domains/common/types'
 
 
@@ -71,12 +72,12 @@ const AboutAppBlock = () => {
 
     const modalImageBgStyles: CSSProperties = useMemo(() => ({
         display: 'flex',
-        flexDirection: 'row',
+        gap: '10px',
         width: '100%',
         height: '320px',
         color: colors.white,
         borderRadius: '12px',
-        padding: breakpoints.TABLET_LARGE ? '40px 70px 0 40px' : '40px',
+        padding: breakpoints.TABLET_LARGE ? '40px 40px 0 40px' : '40px',
     }), [breakpoints])
 
     const typeToModalBgColor = useMemo(() => ({
@@ -144,7 +145,9 @@ const AboutAppBlock = () => {
                                         <img
                                             src={aboutAppBanner?.[type]?.imageUrl}
                                             alt={aboutAppBanner?.[type]?.title}
+                                            style={{ width: '50%', objectFit: 'none' }}
                                         />
+
                                     )
                                 }
                             </div>
@@ -195,11 +198,21 @@ const AboutAppBlock = () => {
 }
 
 const PANEL_IMAGE_STYLES: CSSProperties = { maxWidth: '100%' }
+const APP_CARD_IMAGE_STYLES: CSSProperties = { width: '100%' }
 
 const INTRODUCE_APP_STEP_TYPES = ['announcement', 'chats', 'layout', 'banner', 'socialNetworks', 'leaflet', 'stickers'] as const
+const CARD_GAP = 40
+const CONTENT_SPACING: RowProps['gutter'] = [CARD_GAP, CARD_GAP]
+const MIN_CARD_WIDTH = 380
+const getCardsAmount = (width: number) => {
+    return Math.max(1, Math.floor(width / (MIN_CARD_WIDTH + CARD_GAP)))
+}
 
 const IntroduceAppBlock = () => {
     const { locale } = useIntl()
+
+    const [{ width }, refCallback] = useContainerSize<HTMLDivElement>()
+    const cardsPerRow = getCardsAmount(width)
 
     const stepMaterials = useMemo(() => guideIntroduceAppBlock?.[locale]?.types ?? {}, [locale])
     const availableSteps = useMemo(
@@ -211,16 +224,16 @@ const IntroduceAppBlock = () => {
     if (isEmpty(stepMaterials)) {
         return null
     }
-    const APP_CARD_IMAGE_STYLES: CSSProperties = { width: '336px' }
+
     return (
         <Row gutter={MEDIUM_GUTTER}>
             <Col span={24}>
-                <Typography.Title level={2}>{guideIntroduceAppBlock?.[locale]?.title}</Typography.Title>
+                <Typography.Title level={2}>{guideIntroduceAppBlock?.[locale]?.title ?? ''}</Typography.Title>
             </Col>
-            <Col span={24} style={{ display: 'flex', flexWrap: 'wrap', rowGap: '40px', columnGap: '24px' }}>
+            <Row gutter={CONTENT_SPACING} ref={refCallback}>
                 {
-                    availableSteps.map((type) => (
-                        <Col key={type}>
+                    availableSteps.map(type => (
+                        <Col span={Math.floor(24 / cardsPerRow)} key={type}>
                             <Card.CardButton
                                 key={type}
                                 onClick={() => setOpenModal(type)}
@@ -235,7 +248,6 @@ const IntroduceAppBlock = () => {
                                 }}
                             />
                         </Col>
-
                     ))
                 }
                 {
@@ -278,14 +290,14 @@ const IntroduceAppBlock = () => {
                         </Modal>
                     ))
                 }
-            </Col>
+            </Row>
         </Row>
     )
 }
 
 const GuidePage: PageComponentType = () => {
-    const intl = useIntl()
-    const PageTitle = intl.formatMessage({ id: 'tour.guide.title' })
+    const { locale } = useIntl()
+    const PageTitle = useMemo(() => guideAboutAppBlock?.[locale]?.title ?? '', [locale])
 
     return (
         <>
