@@ -2336,8 +2336,6 @@
   "pages.condo.property.form.ConfirmDeleteMessage": "All data, related to this property, will be lost",
   "pages.condo.property.form.ConfirmDeleteTitle": "Delete property?",
   "pages.condo.property.form.DeleteLabel": "Delete property",
-  "pages.condo.property.form.EmptyResidents.header": "Residents list is empty",
-  "pages.condo.property.form.EmptyResidents.text": "You can upload excel file to import residents",
   "pages.condo.property.form.NamePlaceholder": "For example, European",
   "pages.condo.property.form.ResidentsTabTitle": "Residents",
   "pages.condo.property.form.SuccessNotification": "Property {address} was added successfully",

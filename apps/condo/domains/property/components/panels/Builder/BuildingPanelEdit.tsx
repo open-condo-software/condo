@@ -57,6 +57,7 @@ import { MapEdit, MapEditMode, MapViewMode } from './MapConstructor'
 
 
 const DEBOUNCE_TIMEOUT = 800
+// Seems redundant
 const INSTANT_ACTIONS = ['addBasement', 'addAttic']
 
 const TopRowCss = css`
