@@ -8,6 +8,7 @@ import get from 'lodash/get'
 import isBoolean from 'lodash/isBoolean'
 import isNull from 'lodash/isNull'
 import isString from 'lodash/isString'
+import getConfig from 'next/config'
 import React from 'react'
 import { IntlShape } from 'react-intl/src/types'
 
@@ -29,7 +30,6 @@ import { ELECTRICITY_METER_RESOURCE_ID } from '@condo/domains/meter/constants/co
 
 export type RenderReturnType = string | React.ReactNode
 
-const DEFAULT_CURRENCY_CODE = 'RUB'
 const ELLIPSIS_SETTINGS: EllipsisConfig = { rows: ELLIPSIS_ROWS, expandable: false }
 const ELLIPSIS_STYLES: React.CSSProperties = { marginBottom: 0 }
 const DATE_FORMAT = 'DD.MM.YYYY'
@@ -313,11 +313,14 @@ export const getIconRender = (Icon: React.FC<IconProps>, href?: string, tooltipT
 
 export const getMoneyRender = (
     intl,
-    currencyCode = DEFAULT_CURRENCY_CODE,
+    currencyCode = '',
 ) => {
+    const { publicRuntimeConfig: { defaultCurrencyCode } } = getConfig()
+    const currency = currencyCode || defaultCurrencyCode
+
     return function render (text: string): RenderReturnType {
         if (!text) return <EmptyTableCell/>
-        const formattedParts = intl.formatNumberToParts(parseFloat(text), { style: 'currency', currency: currencyCode })
+        const formattedParts = intl.formatNumberToParts(parseFloat(text), { style: 'currency', currency })
 
         return formattedParts.map((part, index) => {
             return ['fraction', 'decimal'].includes(part.type) ? dimText(part.value, index) : part.value
