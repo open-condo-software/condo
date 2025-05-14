@@ -98,6 +98,7 @@ class Map {
 
     constructor (public map: Maybe<BuildingMap>) {
         this.map = map ? cloneDeep(map) : cloneDeep(buildingEmptyMapJson) as BuildingMap
+        console.log('this.map', map, this.map)
         this.autoincrement = 0
         this.isMapValid = this.validate()
         if (!this.isMapValid) {
@@ -134,6 +135,7 @@ class Map {
         // TODO(zuch): check if json schema can validate unique id field
         this.validationErrors = null
         const check = validator(this.map)
+        console.log('MapConstructor => validateSchema => errors', validator.errors)
         if (!check){
             this.validationErrors = validator.errors.map(err => JSON.stringify(err, null, 2))
             return false
@@ -618,6 +620,12 @@ class MapEdit extends MapView {
                 this.selectedParking = null
                 this.selectedParkingUnit = null
                 break
+            case 'addParkingUnitRoom':
+                this.removePreviewParking()
+                this.viewMode = MapViewMode.parking
+                this.selectedParking = null
+                this.selectedParkingUnit = null
+                break
             case 'editParkingUnit':
                 this.removePreviewParkingUnit()
                 this.removePreviewParking()
@@ -1069,7 +1077,7 @@ class MapEdit extends MapView {
 
     public addPreviewParkingUnit (unit: Partial<BuildingUnitArg>, renameNextUnits = true): void {
         this.removePreviewParkingUnit(renameNextUnits)
-        const { id, section, floor, label } = unit
+        const { id, section, floor, label, unitType = BuildingUnitSubType.Parking } = unit
         const sectionIndex = this.map.parking.findIndex(mapSection => mapSection.id === section)
         if (sectionIndex === -1) {
             return
@@ -1082,7 +1090,7 @@ class MapEdit extends MapView {
             id,
             label,
             type: null,
-            unitType: BuildingUnitSubType.Parking,
+            unitType,
             preview: true,
         }
         newUnit.type = BuildingMapEntityType.Unit
@@ -1094,7 +1102,7 @@ class MapEdit extends MapView {
     }
 
     public addParkingUnit (unit: Partial<BuildingUnitArg>, renameNextUnits = true): void {
-        const { id, section, floor, label } = unit
+        const { id, section, floor, label, unitType =  BuildingUnitSubType.Parking } = unit
         const sectionIndex = this.map.parking.findIndex(mapSection => mapSection.id === section)
         if (sectionIndex === -1) {
             return
@@ -1108,7 +1116,7 @@ class MapEdit extends MapView {
             name: label,
             label,
             type: BuildingUnitType.Unit,
-            unitType: BuildingUnitSubType.Parking,
+            unitType,
         }
         if (!id) {
             newUnit.id = String(++this.autoincrement)

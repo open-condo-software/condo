@@ -1,16 +1,15 @@
 /** @jsx jsx */
 import { CloseOutlined } from '@ant-design/icons'
-import { BuildingMap, BuildingSection, BuildingUnit, BuildingUnitSubType, Property as PropertyType } from '@app/condo/schema'
+import {
+    BuildingMap,
+    BuildingSection,
+    BuildingUnit,
+    BuildingUnitSubType,
+    Property as PropertyType,
+} from '@app/condo/schema'
 import { css, jsx } from '@emotion/react'
 import styled from '@emotion/styled'
-import {
-    Col,
-    notification,
-    Row,
-    RowProps,
-    Space,
-    Typography,
-} from 'antd'
+import { Col, notification, Row, RowProps, Space, Typography } from 'antd'
 import cloneDeep from 'lodash/cloneDeep'
 import debounce from 'lodash/debounce'
 import get from 'lodash/get'
@@ -32,7 +31,6 @@ import { Button as OldButton } from '@condo/domains/common/components/Button'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { colors, fontSizes, shadows } from '@condo/domains/common/constants/style'
 import { IPropertyMapFormProps } from '@condo/domains/property/components/BasePropertyMapForm'
-import { AddSectionFloor } from '@condo/domains/property/components/panels/Builder/forms/FloorForm'
 import { AddParkingForm, EditParkingForm } from '@condo/domains/property/components/panels/Builder/forms/ParkingForm'
 import { ParkingUnitForm } from '@condo/domains/property/components/panels/Builder/forms/ParkingUnitForm'
 import { AddSectionForm, EditSectionForm } from '@condo/domains/property/components/panels/Builder/forms/SectionForm'
@@ -52,6 +50,7 @@ import {
     PropertyMapFloor,
     UnitTypeLegendItem,
 } from './BuildingPanelCommon'
+import { AddSectionFloorForm } from './forms/SectionFloorForm'
 import { FullscreenHeader, FullscreenWrapper } from './Fullscreen'
 import { MapEdit, MapEditMode, MapViewMode } from './MapConstructor'
 
@@ -301,10 +300,11 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
         editSection: <EditSectionForm builder={mapEdit} refresh={refresh} />,
         editUnit: <UnitForm builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds} />,
         addParking: <AddParkingForm builder={mapEdit} refresh={refresh} />,
-        addParkingUnit: <ParkingUnitForm builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds} />,
-        editParkingUnit: <ParkingUnitForm builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds}/>,
+        addParkingUnit: <ParkingUnitForm type='parking' builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds} />,
+        addParkingUnitRoom: <ParkingUnitForm type='unit' builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds} />,
+        editParkingUnit: <ParkingUnitForm type='parking' builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds}/>,
         editParking: <EditParkingForm builder={mapEdit} refresh={refresh} />,
-        addSectionFloor: <AddSectionFloor builder={mapEdit} refresh={refresh} />,
+        addSectionFloor: <AddSectionFloorForm builder={mapEdit} refresh={refresh} />,
     }[mode] || null), [mode, mapEdit, refresh, duplicatedUnitIds])
 
     const { breakpoints } = useLayoutContext()
@@ -380,7 +380,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                 </Row>
                 <Row
                     style={UNIT_TYPE_ROW_STYLE}
-                    hidden={mapEdit.viewMode === MapViewMode.parking || !breakpoints.TABLET_LARGE}
+                    hidden={!breakpoints.TABLET_LARGE}
                 >
                     <Col flex={0} style={UNIT_TYPE_COL_STYLE}>
                         <Row gutter={UNIT_TYPE_ROW_GUTTER}>
@@ -715,7 +715,7 @@ interface IPropertyMapUnitProps {
 
 const PropertyMapUnit: React.FC<IPropertyMapUnitProps> = ({ builder, refresh, unit, duplicatedUnitIds }) => {
     const selectUnit = useCallback(() => {
-        if (unit.unitType !== BuildingUnitSubType.Parking) {
+        if (builder.viewMode === MapViewMode.section) {
             builder.removePreviewUnit()
             builder.setSelectedUnit(unit)
         } else {
@@ -723,7 +723,7 @@ const PropertyMapUnit: React.FC<IPropertyMapUnitProps> = ({ builder, refresh, un
             builder.setSelectedParkingUnit(unit)
         }
         refresh()
-    }, [refresh, unit, builder])
+    }, [refresh, builder, unit])
 
     const isUnitSelected = unit.unitType === BuildingUnitSubType.Flat
         ? builder.isUnitSelected(unit.id)

@@ -19,7 +19,7 @@ import {
 
 const { Option } = Select
 
-const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
+const AddSectionFloorForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'Add' })
     const UnitTypeAtFloorLabel = intl.formatMessage({ id: 'pages.condo.property.modal.title.unitTypeAtFloor' })
@@ -165,4 +165,4 @@ const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     )
 }
 
-export { AddSectionFloor }
+export { AddSectionFloorForm }
