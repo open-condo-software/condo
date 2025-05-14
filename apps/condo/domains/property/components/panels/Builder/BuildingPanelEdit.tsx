@@ -284,11 +284,6 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
         refresh()
     }, [mapEdit, refresh])
 
-    const onSelectParkingSection = useCallback((id) => {
-        mapEdit.setVisibleParkingSections(id)
-        refresh()
-    }, [mapEdit, refresh])
-
     const onViewModeChange = useCallback((option) => {
         mapEdit.viewMode = option.target.value
         refresh()
@@ -311,7 +306,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
 
     const showViewModeSelect = !mapEdit.isEmptySections && !mapEdit.isEmptyParking
     const showSectionFilter = mapEdit.viewMode === MapViewMode.section && sections.length >= MIN_SECTIONS_TO_SHOW_FILTER
-    const showParkingFilter = mapEdit.viewMode === MapViewMode.parking && mapEdit.parking.length >= MIN_SECTIONS_TO_SHOW_FILTER
+    const showParkingFilter = mapEdit.viewMode === MapViewMode.parking && sections.length >= MIN_SECTIONS_TO_SHOW_FILTER
 
     const isSubmitDisabled = useMemo(() => !canManageProperties || !address || mapEdit.hasPreviewComponents, [address, canManageProperties, mapEdit.hasPreviewComponents])
 
@@ -349,10 +344,10 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                                     </Select>
                                 )}
                                 {showParkingFilter && (
-                                    <Select value={mapEdit.visibleParkingSections} onSelect={onSelectParkingSection}>
+                                    <Select value={mapEdit.visibleSections} onSelect={onSelectSection}>
                                         <Select.Option value={null} >{AllParkingSectionsTitle}</Select.Option>
                                         {
-                                            mapEdit.parking.map(parkingSection => (
+                                            mapEdit.sections.map(parkingSection => (
                                                 <Select.Option key={parkingSection.id} value={parkingSection.id}>
                                                     {ParkingSectionPrefixTitle}{parkingSection.name}
                                                 </Select.Option>
@@ -497,19 +492,19 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
             const lastSectionSelected = builder.editMode === MapEditMode.EditSection
                 && get(builder.getSelectedSection(), 'index') === builder.lastSectionIndex
             const lastParkingSelected = builder.editMode === MapEditMode.EditParking
-                && get(builder.getSelectedParking(), 'index') === builder.lastParkingIndex
+                && get(builder.getSelectedSection(), 'index') === builder.lastSectionIndex
             const addUnitToLastSection = builder.editMode === MapEditMode.AddUnit
                 && last(builder.sections).floors
                     .flatMap(floor => floor.units.map(unit => unit.id))
                     .includes(String(builder.previewUnitId))
             const addParkingUnitToLastSection = builder.editMode === MapEditMode.AddParkingUnit
-                && last(builder.parking).floors
+                && last(builder.sections).floors
                     .flatMap(floor => floor.units.map(unit => unit.id))
                     .includes(String(builder.previewParkingUnitId))
             const editUnitAtLastSection = builder.editMode === MapEditMode.EditUnit
                 && get(builder.getSelectedUnit(), 'sectionIndex') === builder.lastSectionIndex
             const editParkingUnitAtLastSection = builder.editMode === MapEditMode.EditParkingUnit
-                && get(builder.getSelectedParkingUnit(), 'sectionIndex') === builder.lastParkingIndex
+                && get(builder.getSelectedUnit(), 'sectionIndex') === builder.lastSectionIndex
 
             if (lastSectionSelected
                 || lastParkingSelected
@@ -556,15 +551,7 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
                             innerRef={container}
                         >
                             <div style={CHESS_SCROLL_CONTAINER_INNER_STYLE}>
-                                {
-                                    builder.viewMode === MapViewMode.section
-                                        ? !builder.isEmptySections && (
-                                            <BuildingAxisY floors={builder.possibleChosenFloors} />
-                                        )
-                                        : !builder.isEmptyParking && (
-                                            <BuildingAxisY floors={builder.possibleChosenParkingFloors} />
-                                        )
-                                }
+                                <BuildingAxisY floors={builder.possibleChosenFloors} />
                                 {
                                     builder.viewMode === MapViewMode.section
                                         ? builder.sections.map(section => (
@@ -583,7 +570,7 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
                                             </PropertyMapSection>
 
                                         ))
-                                        : builder.parking.map(parkingSection => (
+                                        : builder.sections.map(parkingSection => (
                                             <PropertyMapSection
                                                 key={parkingSection.id}
                                                 section={parkingSection}
@@ -636,21 +623,12 @@ const PropertyMapSection: React.FC<IPropertyMapSectionProps> = (props) => {
         : `${intl.formatMessage({ id: 'pages.condo.property.section.Name' })} ${section.name}`
 
     const chooseSection = useCallback(() => {
-        if (isParkingSection) {
-            builder.setSelectedParking(section)
-        } else {
-            builder.setSelectedSection(section)
-        }
+        builder.setSelectedSection(section)
         refresh()
-    }, [builder, refresh, section, isParkingSection])
+    }, [builder, refresh, section])
 
-    const isSectionSelected = isParkingSection
-        ? builder.isParkingSelected(section.id)
-        : builder.isSectionSelected(section.id)
-
-    const isSectionVisible = isParkingSection
-        ? builder.isParkingSectionVisible(section.id)
-        : builder.isSectionVisible(section.id)
+    const isSectionSelected = builder.isSectionSelected(section.id)
+    const isSectionVisible = builder.isSectionVisible(section.id)
 
     return (
         <MapSectionContainer visible={isSectionVisible}>
@@ -669,12 +647,11 @@ const PropertyMapSection: React.FC<IPropertyMapSectionProps> = (props) => {
 }
 
 const PropertyMapFloorContainer: React.FC<IPropertyMapSectionProps> = (props) => {
-    const { isParkingSection, refresh, builder, section, duplicatedUnitIds } = props
-    const sectionFloors = isParkingSection ? builder.possibleChosenParkingFloors : builder.possibleChosenFloors
+    const { refresh, builder, section, duplicatedUnitIds } = props
     return (
         <>
             {
-                sectionFloors.map(floorIndex => {
+                builder.possibleChosenFloors.map(floorIndex => {
                     const floorInfo = section.floors.find(floor => floor.index === floorIndex)
                     if (floorInfo && floorInfo.units.length) {
                         return (
@@ -718,15 +695,13 @@ const PropertyMapUnit: React.FC<IPropertyMapUnitProps> = ({ builder, refresh, un
             builder.removePreviewUnit()
             builder.setSelectedUnit(unit)
         } else {
-            builder.removePreviewParkingUnit()
-            builder.setSelectedParkingUnit(unit)
+            builder.removePreviewUnit()
+            builder.setSelectedUnit(unit)
         }
         refresh()
     }, [refresh, builder, unit])
 
-    const isUnitSelected = unit.unitType === BuildingUnitSubType.Flat
-        ? builder.isUnitSelected(unit.id)
-        : builder.isParkingUnitSelected(unit.id)
+    const isUnitSelected = builder.isUnitSelected(unit.id)
 
     const isDuplicated = duplicatedUnitIds.includes(unit.id)
 

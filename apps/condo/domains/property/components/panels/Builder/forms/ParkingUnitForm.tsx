@@ -67,9 +67,9 @@ const ParkingUnitForm: React.FC<IParkingUnitModalForm> = ({ type, builder, refre
 
     const updateSection = useCallback((value) => {
         setSection(value)
-        setFloors(builder.getParkingSectionFloorOptions(value))
+        setFloors(builder.getSectionFloorOptions(value))
         if (mode === MapEditMode.EditParkingUnit) {
-            const mapUnit = builder.getSelectedParkingUnit()
+            const mapUnit = builder.getSelectedUnit()
             if (value === mapUnit.section) {
                 setFloor(mapUnit.floor)
             } else {
@@ -86,10 +86,10 @@ const ParkingUnitForm: React.FC<IParkingUnitModalForm> = ({ type, builder, refre
     }, [isValidationErrorVisible])
 
     useEffect(() => {
-        setSections(builder.getParkingSectionOptions())
-        const mapUnit = builder.getSelectedParkingUnit()
+        setSections(builder.getSectionOptions())
+        const mapUnit = builder.getSelectedUnit()
         if (mapUnit) {
-            setFloors(builder.getParkingSectionFloorOptions(mapUnit.section))
+            setFloors(builder.getSectionFloorOptions(mapUnit.section))
             setLabel(mapUnit.label)
             setSection(mapUnit.section)
             setFloor(mapUnit.floor)
@@ -100,10 +100,10 @@ const ParkingUnitForm: React.FC<IParkingUnitModalForm> = ({ type, builder, refre
 
     useEffect(() => {
         if (label && floor && section && mode === MapEditMode.AddParkingUnit) {
-            builder.addPreviewParkingUnit({ id: '', label, floor, section, unitType }, renameNextUnits.current)
+            builder.addPreviewUnit({ id: '', label, floor, section, unitType }, renameNextUnits.current)
             refresh()
         } else {
-            builder.removePreviewParkingUnit(renameNextUnits.current)
+            builder.removePreviewUnit(renameNextUnits.current)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [label, floor, section, mode, unitType])
@@ -118,15 +118,15 @@ const ParkingUnitForm: React.FC<IParkingUnitModalForm> = ({ type, builder, refre
 
     const isUnitUnique = useMemo(() => {
         let isUnitLabelUnique = true
-        const selectedUnit = builder.getSelectedParkingUnit()
+        const selectedUnit = builder.getSelectedUnit()
         if (mode === MapEditMode.AddParkingUnit) {
-            isUnitLabelUnique = builder.validateInputParkingUnitLabel(selectedUnit, label)
+            isUnitLabelUnique = builder.validateInputUnitLabel(selectedUnit, label)
             setDuplicatedUnitIds(builder.duplicatedUnits)
         } else if (mode === MapEditMode.EditParkingUnit) {
             if (!selectedUnit) {
                 return false
             }
-            isUnitLabelUnique = builder.validateInputParkingUnitLabel(selectedUnit, label)
+            isUnitLabelUnique = builder.validateInputUnitLabel(selectedUnit, label)
             setDuplicatedUnitIds(builder.duplicatedUnits)
         }
         const isUniqueCondition = floor && section && label.trim() && isUnitLabelUnique
@@ -136,12 +136,12 @@ const ParkingUnitForm: React.FC<IParkingUnitModalForm> = ({ type, builder, refre
 
     const applyChanges = useCallback(() => {
         if (isUnitUnique) {
-            const mapUnit = builder.getSelectedParkingUnit()
+            const mapUnit = builder.getSelectedUnit()
             if (mapUnit) {
-                builder.updateParkingUnit({ ...mapUnit, label, floor, section }, renameNextUnits.current)
+                builder.updateUnit({ ...mapUnit, label, floor, section }, renameNextUnits.current)
             } else {
-                builder.removePreviewParkingUnit()
-                builder.addParkingUnit({ id: '', label, floor, section, unitType }, renameNextUnits.current)
+                builder.removePreviewUnit()
+                builder.addUnit({ id: '', label, floor, section, unitType }, renameNextUnits.current)
                 resetForm()
             }
             refresh()
@@ -149,8 +149,8 @@ const ParkingUnitForm: React.FC<IParkingUnitModalForm> = ({ type, builder, refre
     }, [builder, refresh, resetForm, label, floor, section, unitType])
 
     const deleteUnit = useCallback(() => {
-        const mapUnit = builder.getSelectedParkingUnit()
-        builder.removeParkingUnit(mapUnit.id, renameNextUnits.current)
+        const mapUnit = builder.getSelectedUnit()
+        builder.removeUnit(mapUnit.id, renameNextUnits.current)
         refresh()
         resetForm()
     }, [resetForm, refresh, builder])
