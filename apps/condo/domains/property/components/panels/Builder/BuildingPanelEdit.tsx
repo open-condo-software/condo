@@ -4,7 +4,6 @@ import {
     BuildingMap,
     BuildingSection,
     BuildingUnit,
-    BuildingUnitSubType,
     Property as PropertyType,
 } from '@app/condo/schema'
 import { css, jsx } from '@emotion/react'
@@ -13,8 +12,6 @@ import { Col, notification, Row, RowProps, Space, Typography } from 'antd'
 import cloneDeep from 'lodash/cloneDeep'
 import debounce from 'lodash/debounce'
 import get from 'lodash/get'
-import isEmpty from 'lodash/isEmpty'
-import isFunction from 'lodash/isFunction'
 import isNull from 'lodash/isNull'
 import last from 'lodash/last'
 import { useRouter } from 'next/router'
@@ -31,8 +28,6 @@ import { Button as OldButton } from '@condo/domains/common/components/Button'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { colors, fontSizes, shadows } from '@condo/domains/common/constants/style'
 import { IPropertyMapFormProps } from '@condo/domains/property/components/BasePropertyMapForm'
-import { EditParkingForm } from '@condo/domains/property/components/panels/Builder/forms/ParkingForm'
-import { ParkingUnitForm } from '@condo/domains/property/components/panels/Builder/forms/ParkingUnitForm'
 import { AddSectionForm, EditSectionForm } from '@condo/domains/property/components/panels/Builder/forms/SectionForm'
 import { UnitForm } from '@condo/domains/property/components/panels/Builder/forms/UnitForm'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
@@ -56,8 +51,6 @@ import { MapEdit, MapEditMode, MapViewMode } from './MapConstructor'
 
 
 const DEBOUNCE_TIMEOUT = 800
-// Seems redundant
-const INSTANT_ACTIONS = ['addBasement', 'addAttic']
 
 const TopRowCss = css`
   margin-top: 12px;
@@ -267,10 +260,6 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     }, [id, push])
 
     const menuClick = useCallback((event) => {
-        if (INSTANT_ACTIONS.includes(event.key)) {
-            if (isFunction(mapEdit[event.key])) mapEdit[event.key]()
-            return
-        }
         changeMode(event.key)
     }, [changeMode])
 
@@ -292,8 +281,9 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     const menuContent = useMemo(() => ({
         addSection: <AddSectionForm builder={mapEdit} refresh={refresh} />,
         addParking: <AddSectionForm builder={mapEdit} refresh={refresh} />,
+
         editSection: <EditSectionForm builder={mapEdit} refresh={refresh} />,
-        editParking: <EditParkingForm builder={mapEdit} refresh={refresh} />,
+        editParking: <EditSectionForm builder={mapEdit} refresh={refresh} />,
 
         addSectionFloor: <AddSectionFloorForm builder={mapEdit} refresh={refresh} />,
         addParkingFloor: <AddSectionFloorForm builder={mapEdit} refresh={refresh} />,
@@ -301,11 +291,12 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
         addUnit: <UnitForm builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds} />,
         editUnit: <UnitForm builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds} />,
 
-        addParkingUnit: <ParkingUnitForm type='parking' builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds} />,
-        editParkingUnit: <ParkingUnitForm type='parking' builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds}/>,
+        addParkingUnit: <UnitForm builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds} />,
+        editParkingUnit: <UnitForm builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds}/>,
 
-        addParkingFacilityUnit: <ParkingUnitForm type='unit' builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds} />,
-    }[mode] || null), [mode, mapEdit, refresh, duplicatedUnitIds])
+        addParkingFacilityUnit: <UnitForm builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds} />,
+        editParkingFacilityUnit: <UnitForm builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds} />,
+    }[mode] || null), [mode, mapEdit, refresh])
 
     const { breakpoints } = useLayoutContext()
 
@@ -500,7 +491,7 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
             const addParkingUnitToLastSection = builder.editMode === MapEditMode.AddParkingUnit
                 && last(builder.sections).floors
                     .flatMap(floor => floor.units.map(unit => unit.id))
-                    .includes(String(builder.previewParkingUnitId))
+                    .includes(String(builder.previewUnitId))
             const editUnitAtLastSection = builder.editMode === MapEditMode.EditUnit
                 && get(builder.getSelectedUnit(), 'sectionIndex') === builder.lastSectionIndex
             const editParkingUnitAtLastSection = builder.editMode === MapEditMode.EditParkingUnit
@@ -691,13 +682,8 @@ interface IPropertyMapUnitProps {
 
 const PropertyMapUnit: React.FC<IPropertyMapUnitProps> = ({ builder, refresh, unit, duplicatedUnitIds }) => {
     const selectUnit = useCallback(() => {
-        if (builder.viewMode === MapViewMode.section) {
-            builder.removePreviewUnit()
-            builder.setSelectedUnit(unit)
-        } else {
-            builder.removePreviewUnit()
-            builder.setSelectedUnit(unit)
-        }
+        builder.removePreviewUnit()
+        builder.setSelectedUnit(unit)
         refresh()
     }, [refresh, builder, unit])
 

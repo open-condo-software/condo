@@ -24,7 +24,7 @@ import isNull from 'lodash/isNull'
 import last from 'lodash/last'
 import uniq from 'lodash/uniq'
 
-import { SECTION_UNIT_TYPES, PARKING_UNIT_TYPES } from '@condo/domains/property/constants/common'
+import { PARKING_UNIT_TYPES, SECTION_UNIT_TYPES } from '@condo/domains/property/constants/common'
 import { buildingEmptyMapJson } from '@condo/domains/property/constants/property'
 import { NUMERIC_REGEXP } from '@condo/domains/property/constants/regexps'
 import { getUniqUnits, getUnitsFromSections } from '@condo/domains/property/utils/helpers'
@@ -83,7 +83,9 @@ export enum MapEditMode {
     AddUnit = 'addUnit',
     EditUnit = 'editUnit',
     AddParkingUnit = 'addParkingUnit',
+    AddParkingFacilityUnit = 'addParkingFacilityUnit',
     EditParkingUnit = 'editParkingUnit',
+    EditParkingFacilityUnit = 'editParkingFacilityUnit',
     AddSectionFloor = 'addSectionFloor',
 }
 
@@ -132,10 +134,8 @@ class Map {
     public validateSchema (): boolean {
         // TODO(zuch): check if json schema can validate unique id field
         this.validationErrors = null
-        console.log('this.map', this.map)
         const check = validator(this.map)
         if (!check){
-            console.log('validator.errors', validator.errors)
             this.validationErrors = validator.errors.map(err => JSON.stringify(err, null, 2))
             return false
         }
@@ -143,7 +143,6 @@ class Map {
     }
 
     public validate (): boolean {
-        console.log('validate', this.validateSchema(), this.validateUniqueIds(), this.validateUniqueUnits())
         return this.validateSchema() && this.validateUniqueIds() && this.validateUniqueUnits()
     }
 
@@ -462,10 +461,8 @@ class MapView extends Map {
 
 class MapEdit extends MapView {
     private _previewSectionId: string | null = null
-    private _previewParkingId: string | null = null
     private _previewSectionFloor: number | null = null
     private _previewUnitId: string | null = null
-    private _previewParkingUnitId: string | null = null
     private _duplicatedUnits: string[] | null = []
     private mode = null
 
@@ -473,9 +470,6 @@ class MapEdit extends MapView {
         super(map)
     }
 
-    get previewParkingUnitId (): string | null {
-        return this._previewParkingUnitId
-    }
     get previewUnitId (): string | null {
         return this._previewUnitId
     }
@@ -499,70 +493,41 @@ class MapEdit extends MapView {
         return String(maxSectionNumber + 1)
     }
 
-    get editMode (): string | null {
+    get editMode (): MapEditMode | null {
         return this.mode
     }
 
     set editMode (mode: string | null) {
         switch (mode) {
             case 'addSection':
-                this.viewMode = MapViewMode.section
+            case 'addParking':
                 this.removePreviewUnit()
                 this.removePreviewSection()
                 this.selectedUnit = null
                 this.selectedSection = null
                 break
             case 'editSection':
-                this.removePreviewUnit()
-                this.removePreviewSection()
-                this.selectedUnit = null
-                break
-            case 'addParking':
-                this.viewMode = MapViewMode.parking
-                this.removePreviewUnit()
-                this.removePreviewSection()
-                this.selectedUnit = null
-                this.selectedSection = null
-                break
             case 'editParking':
                 this.removePreviewUnit()
                 this.removePreviewSection()
                 this.selectedUnit = null
                 break
             case 'addUnit':
-                this.viewMode = MapViewMode.section
+            case 'addParkingUnit':
+            case 'addParkingFacilityUnit':
                 this.removePreviewSection()
                 this.selectedSection = null
                 this.selectedUnit = null
                 break
             case 'editUnit':
-                this.removePreviewUnit()
-                this.removePreviewSection()
-                this.selectedSection = null
-                break
-            case 'addParkingUnit':
-                this.viewMode = MapViewMode.parking
-                this.removePreviewSection()
-                this.selectedSection = null
-                this.selectedUnit = null
-                break
-            case 'addParkingFacilityUnit':
-                this.viewMode = MapViewMode.parking
-                this.removePreviewSection()
-                this.selectedSection = null
-                this.selectedUnit = null
-                break
             case 'editParkingUnit':
+            case 'editParkingFacilityUnit':
                 this.removePreviewUnit()
                 this.removePreviewSection()
                 this.selectedSection = null
                 break
             case 'addSectionFloor':
-                this.viewMode = MapViewMode.section
-                this.removePreviewSectionFloor()
-                break
             case 'addParkingFloor':
-                this.viewMode = MapViewMode.parking
                 this.removePreviewSectionFloor()
                 break
             default:
@@ -579,9 +544,7 @@ class MapEdit extends MapView {
 
     get hasPreviewComponents (): boolean {
         return !isNull(this._previewSectionId)
-            || !isNull(this._previewParkingId)
             || !isNull(this._previewUnitId)
-            || !isNull(this._previewParkingUnitId)
             || !isNull(this._previewSectionFloor)
     }
 
@@ -592,7 +555,9 @@ class MapEdit extends MapView {
                     ?.map(unit => unit)
                     .filter(unit => {
                         if (unit.preview) return
-                        else if (this.mode !== 'editUnit' && this.mode !== 'editParkingUnit') return unit.label
+                        else if (
+                            this.mode !== 'editUnit' && this.mode !== 'editParkingUnit' && this.mode !== 'editParkingFacilityUnit'
+                        ) return unit.label
                         else if (unit.id !== get(selectedUnit, 'id')) return unit.label
                     }))
             ).flat(2)
@@ -634,7 +599,12 @@ class MapEdit extends MapView {
         }
         
         this.selectedUnit = unit
-        this.editMode = this.viewMode === MapViewMode.section ? 'editUnit' : 'editParkingUnit'
+
+        if (this.viewMode === MapViewMode.section) {
+            this.editMode = 'editUnit'
+        } else if (this.viewMode === MapViewMode.parking) {
+            this.editMode = unit.unitType === BuildingUnitSubType.Parking ? 'editParkingUnit' : 'editParkingFacilityUnit'
+        }
     }
 
     public getSelectedUnit (): BuildingUnitArg {
