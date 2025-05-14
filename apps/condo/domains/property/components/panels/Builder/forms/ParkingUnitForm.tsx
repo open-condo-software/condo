@@ -43,10 +43,10 @@ const ParkingUnitForm: React.FC<IParkingUnitModalForm> = ({ type, builder, refre
     const SectionTitlePrefix = intl.formatMessage({ id: 'pages.condo.property.select.option.parking' })
     const RenameNextParkingUnitsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextParkingUnits' })
     const ParkingPlaceErrorLabel = intl.formatMessage({ id: 'pages.condo.property.warning.modal.SameParkingPlaceNamesErrorMsg' })
-    const ParkingUnitRoomNameLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.name' })
+    const ParkingFacilityUnitRoomNameLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.name' })
     const UnitTypeLabel = intl.formatMessage({ id: 'pages.condo.property.modal.UnitType' })
 
-    const NameLabel = type === 'unit' ? ParkingUnitRoomNameLabel : ParkingUnitNameLabel
+    const NameLabel = type === 'unit' ? ParkingFacilityUnitRoomNameLabel : ParkingUnitNameLabel
 
     const [label, setLabel] = useState('')
     const [floor, setFloor] = useState('')
