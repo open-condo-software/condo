@@ -83,7 +83,6 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
     const PropertiesLabel = intl.formatMessage({ id: 'field.Address' })
     const ErrorLoadingMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.error.loading' })
     const CustomSelectRecipientsPlaceholder = intl.formatMessage({ id: 'global.select.recipients' })
-    const CustomSelectLabel = intl.formatMessage({ id: 'field.Recipients' })
 
     const onError = useMutationErrorHandler()
     const [getNewsSharingRecipients, { data }] = useGetNewsSharingRecipientsLazyQuery({
@@ -103,11 +102,10 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
     }), [PropertiesLabel])
 
     const customSelectFormItemProps: InputWithCheckAllProps['selectFormItemProps'] = useMemo(() => ({
-        label: CustomSelectLabel,
         required: true,
         name: 'customSelect',
         validateFirst: true,
-    }), [CustomSelectLabel])
+    }), [])
 
     const isCustomForm = !!newsSharingConfig?.customFormUrl && isSharingStep
     const isCustomSelector = newsSharingConfig?.getRecipientsUrl
@@ -307,17 +305,22 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
                             )}
                         </>
                     ) : (
-                        <Col span={24}>
-                            <GraphQlSearchInputWithCheckAll
-                                CheckAllMessage={CheckAllLabel}
-                                checkAllFieldName='hasAllCustom'
-                                selectProps={customSelectProps}
-                                checkAllInitialValue={initialValues?.hasAllCustom}
-                                onCheckBoxChange={customCheckboxChange()}
-                                form={form}
-                                selectFormItemProps={customSelectFormItemProps}
-                            />
-                        </Col>
+                        <Row gutter={SMALL_VERTICAL_GUTTER}>
+                            <Col span={24}>
+                                <Typography.Title level={2}>{SelectAddressLabel}</Typography.Title>
+                            </Col>
+                            <Col span={24}>
+                                <GraphQlSearchInputWithCheckAll
+                                    CheckAllMessage={CheckAllLabel}
+                                    checkAllFieldName='hasAllCustom'
+                                    selectProps={customSelectProps}
+                                    checkAllInitialValue={initialValues?.hasAllCustom}
+                                    onCheckBoxChange={customCheckboxChange()}
+                                    form={form}
+                                    selectFormItemProps={customSelectFormItemProps}
+                                />
+                            </Col>
+                        </Row>
                     )}
                 </Row>
             ) : (
