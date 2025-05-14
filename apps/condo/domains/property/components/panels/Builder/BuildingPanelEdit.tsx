@@ -385,7 +385,6 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                     <Col flex={0} style={UNIT_TYPE_COL_STYLE}>
                         <Row gutter={UNIT_TYPE_ROW_GUTTER}>
                             {mapEdit.getUnitTypeOptions()
-                                .filter(unitType => unitType !== BuildingUnitSubType.Flat)
                                 .map((unitType, unitTypeKey) => (
                                     <Col key={unitTypeKey} flex={0}>
                                         <UnitTypeLegendItem unitType={unitType}>
