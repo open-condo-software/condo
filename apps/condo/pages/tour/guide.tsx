@@ -72,7 +72,6 @@ const AboutAppBlock = () => {
 
     const modalImageBgStyles: CSSProperties = useMemo(() => ({
         display: 'flex',
-        gap: '10px',
         width: '100%',
         height: '320px',
         color: colors.white,
@@ -145,9 +144,8 @@ const AboutAppBlock = () => {
                                         <img
                                             src={aboutAppBanner?.[type]?.imageUrl}
                                             alt={aboutAppBanner?.[type]?.title}
-                                            style={{ width: '50%', objectFit: 'none' }}
+                                            style={{ width: '50%', height: '100%', objectFit: 'cover' }}
                                         />
-
                                     )
                                 }
                             </div>
