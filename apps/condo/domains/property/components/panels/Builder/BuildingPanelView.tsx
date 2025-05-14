@@ -346,15 +346,7 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refr
                                 hideScrollbars={false}
                                 nativeMobileScroll={true}
                             >
-                                {
-                                    builder.viewMode === MapViewMode.section
-                                        ? !builder.isEmptySections && (
-                                            <BuildingAxisY floors={builder.possibleChosenFloors} />
-                                        )
-                                        : !builder.isEmptyParking && (
-                                            <BuildingAxisY floors={builder.possibleChosenParkingFloors} />
-                                        )
-                                }
+                                <BuildingAxisY floors={builder.possibleChosenFloors} />
                                 {
                                     builder.viewMode === MapViewMode.section
                                         ? builder.sections.map(section => (
@@ -430,13 +422,13 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refr
                                                 >{SectionNamePrefixTitle} {section.name}</UnitButton>
                                             </MapSectionContainer>
                                         ))
-                                        : builder.parking.map(parkingSection => (
+                                        : builder.sections.map(parkingSection => (
                                             <MapSectionContainer
                                                 key={parkingSection.id}
-                                                visible={builder.isParkingSectionVisible(parkingSection.id)}
+                                                visible={builder.isSectionVisible(parkingSection.id)}
                                             >
                                                 {
-                                                    builder.possibleChosenParkingFloors.map(floorIndex => {
+                                                    builder.possibleChosenFloors.map(floorIndex => {
                                                         const floorInfo = parkingSection.floors.find(floor => floor.index === floorIndex)
                                                         if (floorInfo && floorInfo.units.length) {
                                                             return (

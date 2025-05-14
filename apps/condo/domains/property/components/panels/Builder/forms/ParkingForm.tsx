@@ -39,7 +39,7 @@ const AddParkingForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
     const [unitsOnFloor, setUnitsOnFloor] = useState(null)
     const [minFloorHidden, setMinFloorHidden] = useState<boolean>(true)
     const [copyId, setCopyId] = useState<string | null>(null)
-    const [parkingName, setParkingName] = useState<string>(builder.nextParkingName)
+    const [parkingName, setParkingName] = useState<string>(builder.nextSectionName)
 
     const toggleMinFloorVisible = useCallback(() => {
         setMinFloor(1)
@@ -62,7 +62,7 @@ const AddParkingForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
 
     useEffect(() => {
         if (minFloor && floorCount && unitsOnFloor && parkingName) {
-            builder.addPreviewParking({
+            builder.addPreviewSection({
                 id: '',
                 name: parkingName,
                 minFloor,
@@ -71,24 +71,24 @@ const AddParkingForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
             })
             refresh()
         } else {
-            builder.removePreviewParking()
+            builder.removePreviewSection()
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [minFloor, floorCount, unitsOnFloor, parkingName])
 
     useEffect(() => {
         if (copyId !== null) {
-            builder.addPreviewCopyParking(copyId)
+            builder.addPreviewCopySection(copyId)
         }
     }, [builder, copyId])
 
     const handleFinish = useCallback(() => {
-        builder.removePreviewParking()
+        builder.removePreviewSection()
         if (copyId === null) {
-            builder.addParking({ id: '', name: parkingName, minFloor, maxFloor: maxFloorValue, unitsOnFloor })
-            setParkingName(builder.nextParkingName)
+            builder.addSection({ id: '', name: parkingName, minFloor, maxFloor: maxFloorValue, unitsOnFloor })
+            setParkingName(builder.nextSectionName)
         } else {
-            builder.addCopyParking(copyId)
+            builder.addCopySection(copyId)
         }
 
         refresh()
@@ -190,15 +190,15 @@ const EditParkingForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     const [parkingName, setParkingName] = useState<string>('')
     const renameNextUnits = useRef(true)
 
-    const parkingSection = builder.getSelectedParking()
+    const parkingSection = builder.getSelectedSection()
 
     const deleteParking = useCallback(() => {
-        builder.removeParking(parkingSection.id, renameNextUnits.current)
+        builder.removeSection(parkingSection.id, renameNextUnits.current)
         refresh()
     }, [builder, refresh, parkingSection])
 
     const updateParkingSection = useCallback(() => {
-        builder.updateParking({ ...parkingSection, name: parkingName }, renameNextUnits.current)
+        builder.updateSection({ ...parkingSection, name: parkingName }, renameNextUnits.current)
         refresh()
     }, [builder, refresh, parkingName, parkingSection])
 
