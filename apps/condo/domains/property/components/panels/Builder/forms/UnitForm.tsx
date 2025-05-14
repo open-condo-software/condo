@@ -2,8 +2,8 @@
 import { DeleteFilled } from '@ant-design/icons'
 import { BuildingUnitSubType } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
-import { Row, Col, Space, Typography } from 'antd'
-import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
+import { Col, Row, Space, Typography } from 'antd'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Checkbox } from '@open-condo/ui'
@@ -11,24 +11,28 @@ import { Checkbox } from '@open-condo/ui'
 import Input from '@condo/domains/common/components/antd/Input'
 import Select from '@condo/domains/common/components/antd/Select'
 import { Button } from '@condo/domains/common/components/Button'
-import { MapEditMode } from '@condo/domains/property/components/panels/Builder/MapConstructor'
+import { MapEdit, MapEditMode } from '@condo/domains/property/components/panels/Builder/MapConstructor'
 
 import {
-    IPropertyMapModalForm,
-    MODAL_FORM_ROW_GUTTER,
-    MODAL_FORM_ROW_BUTTONS_GUTTER,
-    INPUT_STYLE,
-    ERROR_TEXT_STYLE,
     BUTTON_SPACE_SIZE,
+    ERROR_TEXT_STYLE,
     FormModalCss,
+    INPUT_STYLE,
+    IPropertyMapModalForm,
+    MODAL_FORM_ROW_BUTTONS_GUTTER,
+    MODAL_FORM_ROW_GUTTER,
 } from './BaseUnitForm'
 
+
 const { Option } = Select
+
+const EDIT_UNIT_MODS = [MapEditMode.EditUnit, MapEditMode.EditParkingUnit, MapEditMode.EditParkingFacilityUnit]
+const ADD_UNIT_MODS = [MapEditMode.AddUnit, MapEditMode.AddParkingUnit, MapEditMode.AddParkingFacilityUnit]
 
 const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplicatedUnitIds }) => {
     const intl = useIntl()
     const mode = builder.editMode
-    const SaveLabel = intl.formatMessage({ id: mode === MapEditMode.EditUnit ? 'Save' : 'Add' })
+    const SaveLabel = intl.formatMessage({ id: EDIT_UNIT_MODS.includes(mode) ? 'Save' : 'Add' })
     const DeleteLabel = intl.formatMessage({ id: 'Delete' })
     const NameLabel = intl.formatMessage({ id: 'pages.condo.property.unit.Name' })
     const SectionLabel = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
@@ -37,11 +41,34 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplic
     const RenameNextUnitsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextUnits' })
     const UnitErrorLabel = intl.formatMessage({ id: 'pages.condo.property.warning.modal.SameUnitNamesErrorMsg' })
 
+    // ParkingFacilityUnit it's a parking unit, but we decide to separate parking unit and facility parking unit forms.
+    // Then we have different unit types in these forms (ParkingUnitForm => [parking], ParkingFacilityUnit => [Warehouse, Commercial])
+    const defaultUnitType = useMemo(() => {
+        switch (mode) {
+            case MapEditMode.AddParkingFacilityUnit:
+            case MapEditMode.EditParkingFacilityUnit:
+                return BuildingUnitSubType.Warehouse
+            default:
+                return builder.defaultUnitType
+        }
+    }, [builder.defaultUnitType, mode])
+    const availableUnitTypes = useMemo(() => {
+        switch (mode) {
+            case MapEditMode.AddParkingFacilityUnit:
+            case MapEditMode.EditParkingFacilityUnit:
+                return [BuildingUnitSubType.Warehouse, BuildingUnitSubType.Commercial]
+            case MapEditMode.AddParkingUnit:
+            case MapEditMode.EditParkingUnit:
+                return [BuildingUnitSubType.Parking]
+            default:
+                return builder.availableUnitTypes
+        }
+    }, [builder.availableUnitTypes, mode])
+
     const [label, setLabel] = useState('')
     const [floor, setFloor] = useState('')
     const [section, setSection] = useState('')
-    const [unitType, setUnitType] = useState<BuildingUnitSubType>(BuildingUnitSubType.Flat)
-
+    const [unitType, setUnitType] = useState<BuildingUnitSubType>(defaultUnitType)
     const [sections, setSections] = useState([])
     const [floors, setFloors] = useState([])
     const [isValidationErrorVisible, setIsValidationErrorVisible] = useState(false)
@@ -78,7 +105,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplic
     }, [builder])
 
     useEffect(() => {
-        if (label && floor && section && unitType && mode === MapEditMode.AddUnit) {
+        if (label && floor && section && unitType && ADD_UNIT_MODS.includes(mode)) {
             builder.addPreviewUnit({ id: '', label, floor, section, unitType }, renameNextUnits.current)
             refresh()
         } else {
@@ -98,10 +125,10 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplic
     const isUnitUnique = useMemo(() => {
         let isUnitLabelUnique = true
         const selectedUnit = builder.getSelectedUnit()
-        if (mode === MapEditMode.AddUnit) {
+        if (ADD_UNIT_MODS.includes(mode)) {
             isUnitLabelUnique = builder.validateInputUnitLabel(selectedUnit, label, unitType)
             setDuplicatedUnitIds(builder.duplicatedUnits)
-        } else if (mode === MapEditMode.EditUnit) {
+        } else if (EDIT_UNIT_MODS.includes(mode)) {
             if (!selectedUnit) {
                 return false
             }
@@ -111,7 +138,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplic
         const isUniqueCondition = floor && section && label.trim() && isUnitLabelUnique
         !isUnitLabelUnique && setIsValidationErrorVisible(true)
         return isUniqueCondition
-    }, [floor, section, label, unitType, builder, mode])
+    }, [builder, mode, floor, section, label, unitType, setDuplicatedUnitIds])
 
     const applyChanges = useCallback(() => {
         if (isUnitUnique) {
@@ -143,9 +170,10 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplic
         setUnitType(value)
     }, [])
 
-    const unitSubtypeOptions = useMemo(() => (
-        Object.values(BuildingUnitSubType)
-            .filter(unitType => unitType !== BuildingUnitSubType.Parking)
+    const unitSubtypeOptions = useMemo(() => {
+        if (!Array.isArray(availableUnitTypes)) return []
+
+        return availableUnitTypes
             .map((unitType, unitTypeIndex) => (
                 <Option
                     key={unitTypeIndex}
@@ -155,7 +183,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplic
                     {intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` })}
                 </Option>
             ))
-    ), [BuildingUnitSubType])
+    }, [availableUnitTypes, intl])
 
     const sectionOptions = useMemo(() => (
         sections.map((sec) => {
@@ -183,19 +211,23 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplic
 
     return (
         <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
-            <Col span={24}>
-                <Space direction='vertical' size={8}>
-                    <Typography.Text>{UnitTypeLabel}</Typography.Text>
-                    <Select
-                        value={intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` })}
-                        onSelect={updateUnitType}
-                        style={INPUT_STYLE}
-                        data-cy='property-map__unit-form__unit-type-select'
-                    >
-                        {unitSubtypeOptions}
-                    </Select>
-                </Space>
-            </Col>
+            {
+                unitSubtypeOptions.length > 1 && (
+                    <Col span={24}>
+                        <Space direction='vertical' size={8}>
+                            <Typography.Text>{UnitTypeLabel}</Typography.Text>
+                            <Select
+                                value={intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` })}
+                                onSelect={updateUnitType}
+                                style={INPUT_STYLE}
+                                data-cy='property-map__unit-form__unit-type-select'
+                            >
+                                {unitSubtypeOptions}
+                            </Select>
+                        </Space>
+                    </Col>
+                )
+            }
             <Col span={24}>
                 <Space direction='vertical' size={8}>
                     <Typography.Text type='secondary'>{NameLabel}</Typography.Text>
@@ -254,7 +286,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplic
                             >{SaveLabel}</Button>
                         </Col>
                         {
-                            mode === MapEditMode.EditUnit && (
+                            EDIT_UNIT_MODS.includes(mode) && (
                                 <Col span={24}>
                                     <Button
                                         secondary

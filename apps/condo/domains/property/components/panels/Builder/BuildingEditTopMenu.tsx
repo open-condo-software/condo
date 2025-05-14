@@ -1,25 +1,25 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react'
 import { Dropdown, DropDownProps, Menu, MenuProps } from 'antd'
-import React, { useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 
-import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 
 import { Button } from '@condo/domains/common/components/Button'
 import {
     FlatIcon,
     FloorIcon,
-    InterFloorIcon, ParkingFloorIcon,
-    ParkingIcon, ParkingPlaceIcon,
+    ParkingFloorIcon,
+    ParkingIcon,
+    ParkingPlaceIcon,
     SectionIcon,
 } from '@condo/domains/common/components/icons/PropertyMapIcons'
-import { ADD_SECTION_FLOOR } from '@condo/domains/common/constants/featureflags'
 import { colors } from '@condo/domains/common/constants/style'
 
 
 
-import { MapEdit } from './MapConstructor'
+
+import { MapEdit, MapViewMode } from './MapConstructor'
 
 const DROPDOWN_TRIGGER: DropDownProps['trigger'] = ['hover', 'click']
 const DropdownCss = css`
@@ -86,6 +86,18 @@ const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ menuClick, mapE
     const AddParkingPlace = intl.formatMessage({ id: 'pages.condo.property.select.option.parkingPlace' })
     const AddParkingFacilityUnit = intl.formatMessage({ id: 'pages.condo.property.select.option.parking.unit' })
 
+    const switchToSectionTab = useCallback(() => {
+        if (mapEdit.viewMode !== MapViewMode.section) {
+            mapEdit.viewMode = MapViewMode.section
+        }
+    }, [mapEdit])
+
+    const switchToParkingTab = useCallback(() => {
+        if (mapEdit.viewMode !== MapViewMode.parking) {
+            mapEdit.viewMode = MapViewMode.parking
+        }
+    }, [mapEdit])
+
     const menuOverlay = useMemo(() => (
         <Menu css={MenuCss} onClick={menuClick} data-cy='property-map__edit-menu-container'>
             <Menu.Item key='addSection'>
@@ -93,13 +105,20 @@ const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ menuClick, mapE
                     type='sberDefaultGradient'
                     data-cy='property-map__edit-menu__add-section-button'
                     secondary
+                    onClick={switchToSectionTab}
                     icon={<SectionIcon />}
                 >
                     {AddSection}
                 </Button>
             </Menu.Item>
             <Menu.Item key='addSectionFloor' disabled={mapEdit.isEmptySections}>
-                <Button type='sberDefaultGradient' disabled={mapEdit.isEmptySections} secondary icon={<FloorIcon />}>
+                <Button
+                    type='sberDefaultGradient'
+                    disabled={mapEdit.isEmptySections}
+                    secondary
+                    onClick={switchToSectionTab}
+                    icon={<FloorIcon />}
+                >
                     {AddFloor}
                 </Button>
             </Menu.Item>
@@ -108,6 +127,7 @@ const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ menuClick, mapE
                     type='sberDefaultGradient'
                     data-cy='property-map__edit-menu__add-unit-button'
                     secondary
+                    onClick={switchToSectionTab}
                     disabled={mapEdit.isEmptySections}
                     icon={<FlatIcon />}
                 >
@@ -119,13 +139,20 @@ const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ menuClick, mapE
                     type='sberDefaultGradient'
                     data-cy='property-map__edit-menu__add-parking-button'
                     secondary
+                    onClick={switchToParkingTab}
                     icon={<ParkingIcon />}
                 >
                     {AddParkingLabel}
                 </Button>
             </Menu.Item>
             <Menu.Item key='addParkingFloor' disabled={mapEdit.isEmptyParking}>
-                <Button type='sberDefaultGradient' secondary disabled={mapEdit.isEmptyParking} icon={<ParkingFloorIcon />}>
+                <Button
+                    type='sberDefaultGradient'
+                    secondary
+                    disabled={mapEdit.isEmptyParking}
+                    onClick={switchToParkingTab}
+                    icon={<ParkingFloorIcon />}
+                >
                     {AddParkingFloor}
                 </Button>
             </Menu.Item>
@@ -134,6 +161,7 @@ const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ menuClick, mapE
                     type='sberDefaultGradient'
                     data-cy='property-map__edit-menu__add-parking-unit-button'
                     secondary
+                    onClick={switchToParkingTab}
                     disabled={mapEdit.isEmptyParking}
                     icon={<ParkingPlaceIcon />}
                 >
@@ -145,6 +173,7 @@ const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ menuClick, mapE
                     type='sberDefaultGradient'
                     data-cy='property-map__edit-menu__add-parking-facility-unit-button'
                     secondary
+                    onClick={switchToParkingTab}
                     disabled={mapEdit.isEmptyParking}
                     icon={<FlatIcon />}
                 >
@@ -152,7 +181,10 @@ const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ menuClick, mapE
                 </Button>
             </Menu.Item>
         </Menu>
-    ), [menuClick, mapEdit])
+    ), [
+        menuClick, switchToSectionTab, AddSection, mapEdit.isEmptySections, mapEdit.isEmptyParking,
+        AddFloor, AddUnit, switchToParkingTab, AddParkingLabel, AddParkingFloor, AddParkingPlace, AddParkingFacilityUnit,
+    ])
 
     return (
         <Dropdown
