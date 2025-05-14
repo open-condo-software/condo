@@ -44,7 +44,7 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
     const [copyId, setCopyId] = useState<string | null>(null)
     const [minFloorHidden, setMinFloorHidden] = useState<boolean>(true)
     const [sectionName, setSectionName] = useState<string>(builder.nextSectionName)
-    const [unitType, setUnitType] = useState<BuildingUnitSubType>(BuildingUnitSubType.Flat)
+    const [unitType, setUnitType] = useState<BuildingUnitSubType>(builder.defaultUnitType)
 
     const resetForm = useCallback(() => {
         setMinFloor(1)
@@ -108,7 +108,7 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
     const minFloorMargin = minFloorHidden ? '-28px' : 0
 
     const sectionOptions = useMemo(() => (
-        builder.map.sections.filter(section => !section.preview).map(section => (
+        builder.sections.filter(section => !section.preview).map(section => (
             <Select.Option
                 key={`copy-${section.id}`}
                 value={section.id}
@@ -117,17 +117,16 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
                 {CopyLabel}{section.name}
             </Select.Option>
         ))
-    ), [builder.map.sections, CopyLabel])
+    ), [builder.sections, CopyLabel])
 
     const unitTypeOptions = useMemo(() => (
-        Object.values(BuildingUnitSubType)
-            .filter(unitType => unitType !== BuildingUnitSubType.Parking)
+        builder.availableUnitTypes
             .map((unitType, key) => (
                 <Select.Option key={`${key}-${unitType}`} value={unitType} title={unitType}>
                     {intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` })}
                 </Select.Option>
             ))
-    ), [BuildingUnitSubType])
+    ), [builder.availableUnitTypes, intl])
 
     return (
         <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss} data-cy='property-map__add-section-form'>

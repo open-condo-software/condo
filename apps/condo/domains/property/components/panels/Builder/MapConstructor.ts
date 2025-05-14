@@ -530,8 +530,8 @@ class MapEdit extends MapView {
                 this.selectedUnit = null
                 break
             case 'addUnit':
-                this.removePreviewSection()
                 this.viewMode = MapViewMode.section
+                this.removePreviewSection()
                 this.selectedSection = null
                 this.selectedUnit = null
                 break
@@ -541,14 +541,14 @@ class MapEdit extends MapView {
                 this.selectedSection = null
                 break
             case 'addParkingUnit':
-                this.removePreviewSection()
                 this.viewMode = MapViewMode.parking
+                this.removePreviewSection()
                 this.selectedSection = null
                 this.selectedUnit = null
                 break
             case 'addParkingFacilityUnit':
-                this.removePreviewSection()
                 this.viewMode = MapViewMode.parking
+                this.removePreviewSection()
                 this.selectedSection = null
                 this.selectedUnit = null
                 break

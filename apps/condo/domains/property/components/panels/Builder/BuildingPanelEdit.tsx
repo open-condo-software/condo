@@ -31,7 +31,7 @@ import { Button as OldButton } from '@condo/domains/common/components/Button'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { colors, fontSizes, shadows } from '@condo/domains/common/constants/style'
 import { IPropertyMapFormProps } from '@condo/domains/property/components/BasePropertyMapForm'
-import { AddParkingForm, EditParkingForm } from '@condo/domains/property/components/panels/Builder/forms/ParkingForm'
+import { EditParkingForm } from '@condo/domains/property/components/panels/Builder/forms/ParkingForm'
 import { ParkingUnitForm } from '@condo/domains/property/components/panels/Builder/forms/ParkingUnitForm'
 import { AddSectionForm, EditSectionForm } from '@condo/domains/property/components/panels/Builder/forms/SectionForm'
 import { UnitForm } from '@condo/domains/property/components/panels/Builder/forms/UnitForm'
@@ -234,7 +234,6 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     }, { skip: !user })
 
     const mode = mapEdit.editMode
-    const sections = mapEdit.sections
     const address = get(property, 'address')
 
     const [duplicatedUnitIds, setDuplicatedUnitIds] = useState<string[]>([])
@@ -286,38 +285,38 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
 
     const onViewModeChange = useCallback((option) => {
         mapEdit.viewMode = option.target.value
+        mapEdit.setVisibleSections(null)
         refresh()
     }, [mapEdit, refresh])
 
     const menuContent = useMemo(() => ({
         addSection: <AddSectionForm builder={mapEdit} refresh={refresh} />,
-        addUnit: <UnitForm builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds} />,
+        addParking: <AddSectionForm builder={mapEdit} refresh={refresh} />,
         editSection: <EditSectionForm builder={mapEdit} refresh={refresh} />,
-        editUnit: <UnitForm builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds} />,
-        addParking: <AddParkingForm builder={mapEdit} refresh={refresh} />,
-        addParkingUnit: <ParkingUnitForm type='parking' builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds} />,
-        addParkingFacilityUnit: <ParkingUnitForm type='unit' builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds} />,
-        editParkingUnit: <ParkingUnitForm type='parking' builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds}/>,
         editParking: <EditParkingForm builder={mapEdit} refresh={refresh} />,
+
         addSectionFloor: <AddSectionFloorForm builder={mapEdit} refresh={refresh} />,
         addParkingFloor: <AddSectionFloorForm builder={mapEdit} refresh={refresh} />,
+
+        addUnit: <UnitForm builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds} />,
+        editUnit: <UnitForm builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds} />,
+
+        addParkingUnit: <ParkingUnitForm type='parking' builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds} />,
+        editParkingUnit: <ParkingUnitForm type='parking' builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds}/>,
+
+        addParkingFacilityUnit: <ParkingUnitForm type='unit' builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds} />,
     }[mode] || null), [mode, mapEdit, refresh, duplicatedUnitIds])
 
     const { breakpoints } = useLayoutContext()
 
     const showViewModeSelect = !mapEdit.isEmptySections && !mapEdit.isEmptyParking
-    const showSectionFilter = mapEdit.viewMode === MapViewMode.section && sections.length >= MIN_SECTIONS_TO_SHOW_FILTER
-    const showParkingFilter = mapEdit.viewMode === MapViewMode.parking && sections.length >= MIN_SECTIONS_TO_SHOW_FILTER
+    const showSectionFilter = mapEdit.viewMode === MapViewMode.section && mapEdit.sections.length >= MIN_SECTIONS_TO_SHOW_FILTER
+    const showParkingFilter = mapEdit.viewMode === MapViewMode.parking && mapEdit.sections.length >= MIN_SECTIONS_TO_SHOW_FILTER
 
     const isSubmitDisabled = useMemo(() => !canManageProperties || !address || mapEdit.hasPreviewComponents, [address, canManageProperties, mapEdit.hasPreviewComponents])
 
     useEffect(() => {
-        const map = get(mapEdit, 'map')
-        const mapSections = get(map, 'sections', [])
-        const mapParking = get(map, 'parking', [])
-        const isUnitsAdded = !isEmpty(mapSections) || !isEmpty(mapParking)
-
-        if (!isSubmitDisabled && isUnitsAdded && count === 0) {
+        if (!isSubmitDisabled && !mapEdit.isEmpty && count === 0) {
             setCurrentStep(1)
         } else {
             setCurrentStep(0)
@@ -336,7 +335,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                                     <Select value={mapEdit.visibleSections} onSelect={onSelectSection}>
                                         <Select.Option value={null} >{AllSectionsTitle}</Select.Option>
                                         {
-                                            sections.map(section => (
+                                            mapEdit.sections.map(section => (
                                                 <Select.Option key={section.id} value={section.id}>
                                                     {SectionPrefixTitle}{section.name}
                                                 </Select.Option>
