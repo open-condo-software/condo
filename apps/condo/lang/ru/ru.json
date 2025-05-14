@@ -2797,7 +2797,7 @@
   "pages.news.create.selectSharingApp.appDescription": "Новость появится в приложении {appName}",
   "pages.news.create.selectSharingApp.otherApps": "Другие каналы",
   "pages.news.create.selectSharingApp.otherApps.actionButtonText": "Настроить",
-  "pages.news.create.selectSharingApp.otherApps.description": "Настройте отправку новостей в другие приложения",
+  "pages.news.create.selectSharingApp.otherApps.description": "Отправлять новости можно не только в приложение Doma, но и по другим каналам",
   "pages.news.create.selectSharingApp.finishSetting.actionButtonText": "Завершить настройку",
   "pages.news.create.selectSharingApp.finishSetting.description": "Завершите настройку, чтобы отправлять новости в ",
   "pages.news.newsItemCard.author": "автор {createdBy}{isOwner, plural, other {} one { (вы)}}",
