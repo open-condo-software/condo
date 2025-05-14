@@ -252,10 +252,8 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refr
     const UnitTypeOptionsLegend = useMemo(() => <Row
         gutter={UNIT_TYPE_ROW_GUTTER}
         style={UNIT_TYPE_ROW_STYLE}
-        hidden={builder.viewMode === MapViewMode.parking}
     >
         {unitTypeOptions
-            .filter(unitType => unitType !== BuildingUnitSubType.Flat)
             .map((unitType, unitTypeKey) => (
                 <Col key={unitTypeKey} flex={0}>
                     <UnitTypeLegendItem unitType={unitType}>

@@ -1,12 +1,14 @@
 import {
+    BuildingFloor,
+    BuildingFloorType,
     BuildingMap,
     BuildingMapEntityType,
+    BuildingMapType,
     BuildingSection,
+    BuildingSectionType,
     BuildingUnit,
-    BuildingFloor,
-    BuildingUnitType,
     BuildingUnitSubType,
-    BuildingFloorType, BuildingSectionType, BuildingMapType,
+    BuildingUnitType,
 } from '@app/condo/schema'
 import Ajv from 'ajv'
 import cloneDeep from 'lodash/cloneDeep'
@@ -455,9 +457,19 @@ class MapView extends Map {
     }
 
     public getUnitTypeOptions (): BuildingUnitSubType[] {
+        const defaultUnitType = this.viewMode === MapViewMode.section ? BuildingUnitSubType.Flat : BuildingUnitSubType.Parking
+        const sections = this.viewMode === MapViewMode.section ? this.sections : this.parking
+
         return [
-            ...new Set(this.sections
-                .map(section => section.floors.map(floor => floor.units.map(unit => unit.unitType))).flat(2)),
+            ...new Set(sections
+                .map(
+                    section => section.floors.map(
+                        floor => floor.units
+                            .map(unit => unit.unitType)
+                            .filter(unitType => unitType !== defaultUnitType)
+                    )
+                ).flat(2)
+            ),
         ].sort((a, b) => a.localeCompare(b))
     }
 
