@@ -1,6 +1,6 @@
 import { BuildingUnitSubType } from '@app/condo/schema'
-import { Row, Col, Space, Typography, InputNumber } from 'antd'
-import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react'
+import { Col, InputNumber, Row, Space, Typography } from 'antd'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Checkbox } from '@open-condo/ui'
@@ -8,14 +8,19 @@ import { Checkbox } from '@open-condo/ui'
 import Select from '@condo/domains/common/components/antd/Select'
 import { Button } from '@condo/domains/common/components/Button'
 
+
+
 import {
-    IPropertyMapModalForm,
-    MODAL_FORM_ROW_GUTTER,
-    INPUT_STYLE,
     BUTTON_SPACE_SIZE,
-    MODAL_FORM_ROW_BUTTONS_GUTTER,
     FormModalCss,
+    INPUT_STYLE,
+    IPropertyMapModalForm,
+    MODAL_FORM_ROW_BUTTONS_GUTTER,
+    MODAL_FORM_ROW_GUTTER,
 } from './BaseUnitForm'
+
+import { MapViewMode } from '../MapConstructor'
+
 
 const { Option } = Select
 
@@ -26,12 +31,14 @@ const AddSectionFloorForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh
     const UnitsOnFloorLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.unitsOnFloor' })
     const SectionLabel = intl.formatMessage({ id: 'pages.condo.property.parkingSection.name' })
     const FloorLabel = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
-    const SectionTitlePrefix = intl.formatMessage({ id: 'pages.condo.property.select.option.section' })
+    const SectionTitlePrefix = builder.viewMode === MapViewMode.section ?
+        intl.formatMessage({ id: 'pages.condo.property.select.option.section' }) :
+        intl.formatMessage({ id: 'pages.condo.property.select.option.parking' })
     const RenameNextUnitsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextUnits' })
 
     const [sections, setSections] = useState([])
     const [section, setSection] = useState<number | null>(null)
-    const [unitType, setUnitType] = useState<BuildingUnitSubType>(BuildingUnitSubType.Flat)
+    const [unitType, setUnitType] = useState<BuildingUnitSubType>(builder.defaultUnitType)
     const [unitsOnFloor, setUnitsOnFloor] = useState<number>()
     const [floor, setFloor] = useState<string>('')
 
@@ -73,7 +80,8 @@ const AddSectionFloorForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh
 
     useEffect(() => {
         if (floor && section !== null && unitsOnFloor > 0) {
-            const sectionFloors = builder.getSectionFloorNames(section)
+            const sectionFloors = builder.sections?.[section]
+                ?.floors?.map(floor => floor.name) || []
             if (!sectionFloors.includes(floor)) {
                 builder.addPreviewSectionFloor({
                     section: Number(section),
@@ -90,14 +98,12 @@ const AddSectionFloorForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh
     }, [floor, section, unitsOnFloor, unitType])
 
     const unitSubtypeOptions = useMemo(() => (
-        Object.values(BuildingUnitSubType)
-            .filter(unitType => unitType !== BuildingUnitSubType.Parking)
-            .map((unitType, key) => (
-                <Select.Option key={`${key}-${unitType}`} value={unitType} title={unitType}>
-                    {intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` })}
-                </Select.Option>
-            ))
-    ), [BuildingUnitSubType])
+        builder.availableUnitTypes.map((unitType, key) => (
+            <Select.Option key={`${key}-${unitType}`} value={unitType} title={unitType}>
+                {intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` })}
+            </Select.Option>
+        ))
+    ), [builder.availableUnitTypes, intl])
 
     const sectionOptions = useMemo(() => (
         sections.map((sec, index) => {

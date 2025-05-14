@@ -24,6 +24,7 @@ import isNull from 'lodash/isNull'
 import last from 'lodash/last'
 import uniq from 'lodash/uniq'
 
+import { SECTION_UNIT_TYPES, PARKING_UNIT_TYPES } from '@condo/domains/property/constants/common'
 import { buildingEmptyMapJson } from '@condo/domains/property/constants/property'
 import { NUMERIC_REGEXP } from '@condo/domains/property/constants/regexps'
 import { getUniqUnits, getUnitsFromSections } from '@condo/domains/property/utils/helpers'
@@ -67,10 +68,6 @@ type IndexLocation = {
     section: number
     floor: number
     unit: number
-}
-
-type IndexParkingLocation = Omit<IndexLocation, 'section'> & {
-    parking: number
 }
 
 export enum MapViewMode {
@@ -171,11 +168,6 @@ class Map {
             return false
         }
         return true
-    }
-
-    getSectionFloorNames (section: number | null): string[] {
-        if (section === null) return []
-        return get(this.map, ['sections', section, 'floors']).map(floor => floor.name)
     }
 
     private setAutoincrement () {
@@ -372,6 +364,14 @@ class MapView extends Map {
         }
     }
 
+    get availableUnitTypes (): BuildingUnitSubType[] {
+        if (this.viewMode === MapViewMode.section) {
+            return SECTION_UNIT_TYPES as BuildingUnitSubType[]
+        } else if (this.viewMode === MapViewMode.parking) {
+            return PARKING_UNIT_TYPES as BuildingUnitSubType[]
+        }
+    }
+
     get lastSectionIndex (): number {
         return Math.max(...this.sections.map(section => section.index))
     }
@@ -506,8 +506,9 @@ class MapEdit extends MapView {
     set editMode (mode: string | null) {
         switch (mode) {
             case 'addSection':
-                this.removePreviewUnit()
                 this.viewMode = MapViewMode.section
+                this.removePreviewUnit()
+                this.removePreviewSection()
                 this.selectedUnit = null
                 this.selectedSection = null
                 break
@@ -561,8 +562,8 @@ class MapEdit extends MapView {
                 this.removePreviewSectionFloor()
                 break
             case 'addParkingFloor':
-                // this.viewMode = MapViewMode.parking
-                // this.removePreviewParkingSectionFloor()
+                this.viewMode = MapViewMode.parking
+                this.removePreviewSectionFloor()
                 break
             default:
                 this.selectedSection = null
