@@ -620,7 +620,7 @@ class MapEdit extends MapView {
                 this.selectedParking = null
                 this.selectedParkingUnit = null
                 break
-            case 'addParkingUnitRoom':
+            case 'addParkingFacilityUnit':
                 this.removePreviewParking()
                 this.viewMode = MapViewMode.parking
                 this.selectedParking = null
@@ -1349,6 +1349,7 @@ class MapEdit extends MapView {
                 units.push({
                     id: String(++this.autoincrement),
                     label,
+                    name: label,
                     type: 'unit',
                     unitType: unitType,
                 })
@@ -1383,6 +1384,7 @@ class MapEdit extends MapView {
                 units.push({
                     id: String(++this.autoincrement),
                     label: String(unitNumber),
+                    name: String(unitNumber),
                     type: BuildingUnitType.Unit,
                     unitType: BuildingUnitSubType.Parking,
                 })

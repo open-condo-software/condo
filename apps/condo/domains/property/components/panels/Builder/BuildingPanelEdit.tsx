@@ -301,7 +301,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
         editUnit: <UnitForm builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds} />,
         addParking: <AddParkingForm builder={mapEdit} refresh={refresh} />,
         addParkingUnit: <ParkingUnitForm type='parking' builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds} />,
-        addParkingUnitRoom: <ParkingUnitForm type='unit' builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds} />,
+        addParkingFacilityUnit: <ParkingUnitForm type='unit' builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds} />,
         editParkingUnit: <ParkingUnitForm type='parking' builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds}/>,
         editParking: <EditParkingForm builder={mapEdit} refresh={refresh} />,
         addSectionFloor: <AddSectionFloorForm builder={mapEdit} refresh={refresh} />,
