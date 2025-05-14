@@ -300,6 +300,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
         editParkingUnit: <ParkingUnitForm type='parking' builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds}/>,
         editParking: <EditParkingForm builder={mapEdit} refresh={refresh} />,
         addSectionFloor: <AddSectionFloorForm builder={mapEdit} refresh={refresh} />,
+        addParkingFloor: <AddSectionFloorForm builder={mapEdit} refresh={refresh} />,
     }[mode] || null), [mode, mapEdit, refresh, duplicatedUnitIds])
 
     const { breakpoints } = useLayoutContext()
