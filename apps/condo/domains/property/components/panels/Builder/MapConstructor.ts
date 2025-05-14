@@ -98,7 +98,6 @@ class Map {
 
     constructor (public map: Maybe<BuildingMap>) {
         this.map = map ? cloneDeep(map) : cloneDeep(buildingEmptyMapJson) as BuildingMap
-        console.log('this.map', map, this.map)
         this.autoincrement = 0
         this.isMapValid = this.validate()
         if (!this.isMapValid) {
@@ -135,7 +134,6 @@ class Map {
         // TODO(zuch): check if json schema can validate unique id field
         this.validationErrors = null
         const check = validator(this.map)
-        console.log('MapConstructor => validateSchema => errors', validator.errors)
         if (!check){
             this.validationErrors = validator.errors.map(err => JSON.stringify(err, null, 2))
             return false
@@ -635,6 +633,10 @@ class MapEdit extends MapView {
                 this.viewMode = MapViewMode.section
                 this.removePreviewSectionFloor()
                 break
+            case 'addParkingSectionFloor':
+                // this.viewMode = MapViewMode.parking
+                // this.removePreviewParkingSectionFloor()
+                break
             default:
                 this.selectedSection = null
                 this.selectedUnit = null
@@ -806,6 +808,7 @@ class MapEdit extends MapView {
     }
 
     public removePreviewSectionFloor (): void {
+        console.log('removePreviewSectionFloor call', this.sectionFloorIndex, this._previewSectionFloor)
         if (this.sectionFloorIndex !== null && this._previewSectionFloor !== null) {
             this.removeFloor(this.sectionFloorIndex, this._previewSectionFloor)
 
@@ -1246,7 +1249,7 @@ class MapEdit extends MapView {
             this.addUnit(unit, renameNextUnits)
         } else {
             this.map.sections[unitIndex.section].floors[unitIndex.floor].units[unitIndex.unit].unitType = unit.unitType
-            this.map.sections[unitIndex.section].floors[unitIndex.floor].units[unitIndex.unit].name = isNaN(Number(unit.label)) ? unit.label : undefined
+            this.map.sections[unitIndex.section].floors[unitIndex.floor].units[unitIndex.unit].name = unit.label
             this.map.sections[unitIndex.section].floors[unitIndex.floor].units[unitIndex.unit].label = unit.label
             if (renameNextUnits) this.updateUnitNumbers(unit)
         }
@@ -1264,16 +1267,8 @@ class MapEdit extends MapView {
         this.map.sections.forEach(section => {
             section.floors.slice().reverse().forEach(floor => {
                 floor.units.forEach(unit => {
-                    if (started) {
-                        if (unit.name) {
-                            if (!isNaN(Number(unit.name))) {
-                                next = Number(unit.name) + 1
-                            }
-                        } else {
-                            if (!isNaN(Number(unit.label))) {
-                                unit.label = String(next++)
-                            }
-                        }
+                    if (started && !isNaN(Number(unit.label))) {
+                        unit.label = String(next++)
                     }
                     if (unit.id === id) {
                         started = true
@@ -1293,16 +1288,8 @@ class MapEdit extends MapView {
         this.map.parking.forEach(section => {
             section.floors.slice().reverse().forEach(floor => {
                 floor.units.forEach(unit => {
-                    if (started) {
-                        if (unit.name) {
-                            if (!isNaN(Number(unit.name))) {
-                                next = Number(unit.name) + 1
-                            }
-                        } else {
-                            if (!isNaN(Number(unit.label))) {
-                                unit.label = String(next++)
-                            }
-                        }
+                    if (started && !isNaN(Number(unit.label))) {
+                        unit.label = String(next++)
                     }
                     if (unit.id === id) {
                         started = true
@@ -1349,7 +1336,6 @@ class MapEdit extends MapView {
                 units.push({
                     id: String(++this.autoincrement),
                     label,
-                    name: label,
                     type: 'unit',
                     unitType: unitType,
                 })
@@ -1384,7 +1370,6 @@ class MapEdit extends MapView {
                 units.push({
                     id: String(++this.autoincrement),
                     label: String(unitNumber),
-                    name: String(unitNumber),
                     type: BuildingUnitType.Unit,
                     unitType: BuildingUnitSubType.Parking,
                 })
@@ -1431,7 +1416,6 @@ class MapEdit extends MapView {
             this.sectionFloorMap[index] = dataIndex
         })
 
-
         let insertIndex = this.sectionFloorMap[floor.index] === undefined ? 0 : this.sectionFloorMap[floor.index] + 1
         if (floor.index < 0 && this.sectionFloorMap[floor.index] === undefined) {
             insertIndex = modifiedSection.floors.length
@@ -1441,7 +1425,6 @@ class MapEdit extends MapView {
         // If we need to add positive floor -> rename all positive floor indexes
         if (floor.index >= 0) {
             const positiveFloorsCount = modifiedSection.floors.map(floor => floor.index).filter(index => index >= 0).length
-
             for (let dataIndex = 0; dataIndex < positiveFloorsCount; dataIndex++) {
                 modifiedSection.floors[dataIndex].index = positiveFloorsCount - dataIndex
                 modifiedSection.floors[dataIndex].name = String(modifiedSection.floors[dataIndex].index)
