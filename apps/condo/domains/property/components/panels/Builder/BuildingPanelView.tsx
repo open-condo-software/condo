@@ -448,8 +448,11 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refr
                                                                             return (
                                                                                 <UnitButton
                                                                                     key={unit.id}
+                                                                                    unitType={unit.unitType}
                                                                                     noninteractive
-                                                                                >{unit.label}</UnitButton>
+                                                                                >
+                                                                                    {unit.label}
+                                                                                </UnitButton>
                                                                             )
                                                                         })
                                                                     }

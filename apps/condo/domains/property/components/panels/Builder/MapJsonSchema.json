@@ -178,7 +178,9 @@
                                             },
                                             "unitType": {
                                                 "enum": [
-                                                    "parking"
+                                                    "parking",
+                                                    "commercial",
+                                                    "warehouse"
                                                 ],
                                                 "title": "unitType",
                                                 "type": "string"

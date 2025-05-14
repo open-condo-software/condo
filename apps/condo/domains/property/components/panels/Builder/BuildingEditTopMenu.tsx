@@ -77,17 +77,14 @@ interface IBuildingTopModalProps {
 
 const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ menuClick, mapEdit }) => {
     const intl = useIntl()
-    const { useFlag } = useFeatureFlags()
-    const addSectionFloorDisabled = !useFlag(ADD_SECTION_FLOOR) || mapEdit.isEmptySections
-
     const AddElementTitle = intl.formatMessage({ id: 'pages.condo.property.menu.MenuPlaceholder' })
     const AddSection = intl.formatMessage({ id: 'pages.condo.property.select.option.section' })
     const AddUnit = intl.formatMessage({ id: 'pages.condo.property.select.option.unit' })
     const AddFloor = intl.formatMessage({ id: 'pages.condo.property.select.option.floor' })
     const AddParkingLabel = intl.formatMessage({ id: 'pages.condo.property.select.option.parking' })
-    const AddInterFloorRoom = intl.formatMessage({ id: 'pages.condo.property.select.option.interfloorroom' })
     const AddParkingFloor = intl.formatMessage({ id: 'pages.condo.property.select.option.parkingFloor' })
     const AddParkingPlace = intl.formatMessage({ id: 'pages.condo.property.select.option.parkingPlace' })
+    const AddParkingUnitRoom = intl.formatMessage({ id: 'pages.condo.property.select.option.parking.unit' })
 
     const menuOverlay = useMemo(() => (
         <Menu css={MenuCss} onClick={menuClick} data-cy='property-map__edit-menu-container'>
@@ -101,8 +98,8 @@ const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ menuClick, mapE
                     {AddSection}
                 </Button>
             </Menu.Item>
-            <Menu.Item key='addSectionFloor' disabled={addSectionFloorDisabled}>
-                <Button type='sberDefaultGradient' disabled={addSectionFloorDisabled} secondary icon={<FloorIcon />}>
+            <Menu.Item key='addSectionFloor' disabled={mapEdit.isEmptySections}>
+                <Button type='sberDefaultGradient' disabled={mapEdit.isEmptySections} secondary icon={<FloorIcon />}>
                     {AddFloor}
                 </Button>
             </Menu.Item>
@@ -117,11 +114,6 @@ const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ menuClick, mapE
                     {AddUnit}
                 </Button>
             </Menu.Item>
-            <Menu.Item key='addInterFloorRoom' disabled>
-                <Button type='sberDefaultGradient' secondary disabled icon={<InterFloorIcon />}>
-                    {AddInterFloorRoom}
-                </Button>
-            </Menu.Item>
             <Menu.Item key='addParking'>
                 <Button
                     type='sberDefaultGradient'
@@ -132,8 +124,8 @@ const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ menuClick, mapE
                     {AddParkingLabel}
                 </Button>
             </Menu.Item>
-            <Menu.Item key='addParkingFloor' disabled>
-                <Button type='sberDefaultGradient' secondary disabled icon={<ParkingFloorIcon />}>
+            <Menu.Item key='addParkingFloor' disabled={mapEdit.isEmptyParking}>
+                <Button type='sberDefaultGradient' secondary disabled={mapEdit.isEmptyParking} icon={<ParkingFloorIcon />}>
                     {AddParkingFloor}
                 </Button>
             </Menu.Item>
@@ -146,6 +138,17 @@ const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ menuClick, mapE
                     icon={<ParkingPlaceIcon />}
                 >
                     {AddParkingPlace}
+                </Button>
+            </Menu.Item>
+            <Menu.Item key='addParkingUnitRoom' disabled={mapEdit.isEmptyParking}>
+                <Button
+                    type='sberDefaultGradient'
+                    data-cy='property-map__edit-menu__add-parking-unit-room-button'
+                    secondary
+                    disabled={mapEdit.isEmptyParking}
+                    icon={<FlatIcon />}
+                >
+                    {AddParkingUnitRoom}
                 </Button>
             </Menu.Item>
         </Menu>

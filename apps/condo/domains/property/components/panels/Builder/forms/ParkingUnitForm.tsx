@@ -1,8 +1,9 @@
 /** @jsx jsx */
 import { DeleteFilled } from '@ant-design/icons'
+import { BuildingUnitSubType } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
-import { Row, Col, Space, Typography } from 'antd'
-import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
+import { Col, Row, Space, Typography } from 'antd'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Checkbox } from '@open-condo/ui'
@@ -13,28 +14,39 @@ import { Button } from '@condo/domains/common/components/Button'
 import { MapEditMode } from '@condo/domains/property/components/panels/Builder/MapConstructor'
 
 import {
-    IPropertyMapModalForm,
-    FormModalCss,
-    MODAL_FORM_ROW_GUTTER,
-    MODAL_FORM_ROW_BUTTONS_GUTTER,
-    INPUT_STYLE,
     BUTTON_SPACE_SIZE,
     ERROR_TEXT_STYLE,
+    FormModalCss,
+    INPUT_STYLE,
+    IPropertyMapModalForm,
+    MODAL_FORM_ROW_BUTTONS_GUTTER,
+    MODAL_FORM_ROW_GUTTER,
 } from './BaseUnitForm'
+
 
 const { Option } = Select
 
-const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplicatedUnitIds }) => {
+interface IParkingUnitModalForm extends IPropertyMapModalForm {
+    type: 'unit' | 'parking'
+}
+
+const AVAILABLE_UNIT_TYPES_IN_PARKING = [BuildingUnitSubType.Commercial, BuildingUnitSubType.Warehouse]
+
+const ParkingUnitForm: React.FC<IParkingUnitModalForm> = ({ type, builder, refresh, setDuplicatedUnitIds }) => {
     const intl = useIntl()
     const mode = builder.editMode
     const SaveLabel = intl.formatMessage({ id: mode === MapEditMode.EditParkingUnit ? 'Save' : 'Add' })
     const DeleteLabel = intl.formatMessage({ id: 'Delete' })
-    const NameLabel = intl.formatMessage({ id: 'pages.condo.property.parkingUnit.Name' })
+    const ParkingUnitNameLabel = intl.formatMessage({ id: 'pages.condo.property.parkingUnit.Name' })
     const SectionLabel = intl.formatMessage({ id: 'pages.condo.property.parkingSection.name' })
     const FloorLabel = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
     const SectionTitlePrefix = intl.formatMessage({ id: 'pages.condo.property.select.option.parking' })
     const RenameNextParkingUnitsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextParkingUnits' })
     const ParkingPlaceErrorLabel = intl.formatMessage({ id: 'pages.condo.property.warning.modal.SameParkingPlaceNamesErrorMsg' })
+    const ParkingUnitRoomNameLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.name' })
+    const UnitTypeLabel = intl.formatMessage({ id: 'pages.condo.property.modal.UnitType' })
+
+    const NameLabel = type === 'unit' ? ParkingUnitRoomNameLabel : ParkingUnitNameLabel
 
     const [label, setLabel] = useState('')
     const [floor, setFloor] = useState('')
@@ -43,8 +55,15 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, se
     const [sections, setSections] = useState([])
     const [floors, setFloors] = useState([])
     const [isValidationErrorVisible, setIsValidationErrorVisible] = useState(false)
+    const [unitType, setUnitType] = useState<BuildingUnitSubType>(
+        type === 'unit' ? BuildingUnitSubType.Warehouse : BuildingUnitSubType.Parking
+    )
 
     const renameNextUnits = useRef(true)
+
+    const updateUnitType = useCallback((value) => {
+        setUnitType(value)
+    }, [])
 
     const updateSection = useCallback((value) => {
         setSection(value)
@@ -81,13 +100,13 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, se
 
     useEffect(() => {
         if (label && floor && section && mode === MapEditMode.AddParkingUnit) {
-            builder.addPreviewParkingUnit({ id: '', label, floor, section }, renameNextUnits.current)
+            builder.addPreviewParkingUnit({ id: '', label, floor, section, unitType }, renameNextUnits.current)
             refresh()
         } else {
             builder.removePreviewParkingUnit(renameNextUnits.current)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [label, floor, section, mode])
+    }, [label, floor, section, mode, unitType])
 
     const resetForm = useCallback(() => {
         setLabel('')
@@ -122,12 +141,12 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, se
                 builder.updateParkingUnit({ ...mapUnit, label, floor, section }, renameNextUnits.current)
             } else {
                 builder.removePreviewParkingUnit()
-                builder.addParkingUnit({ id: '', label, floor, section }, renameNextUnits.current)
+                builder.addParkingUnit({ id: '', label, floor, section, unitType }, renameNextUnits.current)
                 resetForm()
             }
             refresh()
         }
-    }, [builder, refresh, resetForm, label, floor, section])
+    }, [builder, refresh, resetForm, label, floor, section, unitType])
 
     const deleteUnit = useCallback(() => {
         const mapUnit = builder.getSelectedParkingUnit()
@@ -135,6 +154,20 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, se
         refresh()
         resetForm()
     }, [resetForm, refresh, builder])
+
+    const unitSubtypeOptions = useMemo(() => (
+        Object.values(BuildingUnitSubType)
+            .filter(unitType => AVAILABLE_UNIT_TYPES_IN_PARKING.includes(unitType))
+            .map((unitType, unitTypeIndex) => (
+                <Option
+                    key={unitTypeIndex}
+                    value={unitType}
+                    data-cy='property-map__parking-unit-form__unit-room-type-select__option'
+                >
+                    {intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` })}
+                </Option>
+            ))
+    ), [intl])
 
     const sectionOptions = useMemo(() => (
         sections.map((sec) => {
@@ -150,6 +183,23 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, se
 
     return (
         <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
+            {
+                type === 'unit' && (
+                    <Col span={24}>
+                        <Space direction='vertical' size={8}>
+                            <Typography.Text>{UnitTypeLabel}</Typography.Text>
+                            <Select
+                                value={BuildingUnitSubType.Warehouse}
+                                onSelect={updateUnitType}
+                                style={INPUT_STYLE}
+                                data-cy='property-map__unit-form__unit-type-select'
+                            >
+                                {unitSubtypeOptions}
+                            </Select>
+                        </Space>
+                    </Col>
+                )
+            }
             <Col span={24}>
                 <Space direction='vertical' size={8} style={INPUT_STYLE}>
                     <Typography.Text type='secondary' >{SectionLabel}</Typography.Text>
