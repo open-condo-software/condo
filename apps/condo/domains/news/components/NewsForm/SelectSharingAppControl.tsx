@@ -17,7 +17,6 @@ import { colors } from '@open-condo/ui/dist/colors'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
 import { NewsCardGrid } from '@condo/domains/news/components/NewsForm/NewsCardGrid'
-import './SelectSharingAppControl.css'
 
 const CARD_CHECKBOX_CONTAINER_STYLE = { maxWidth: '246px', height: '100%' }
 const CARD_RESPONSIVE_CHECKBOX_CONTAINER_STYLE = { width: '100%', height: '100%' }
