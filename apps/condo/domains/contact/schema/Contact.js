@@ -6,7 +6,7 @@ const get = require('lodash/get')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
-const { GQLListSchema, find } = require('@open-condo/keystone/schema')
+const { GQLListSchema, find, getByCondition } = require('@open-condo/keystone/schema')
 const { webHooked } = require('@open-condo/webhooks/plugins')
 
 const { PHONE_WRONG_FORMAT_ERROR, EMAIL_WRONG_FORMAT_ERROR, PROPERTY_REQUIRED_ERROR } = require('@condo/domains/common/constants/errors')
@@ -137,6 +137,36 @@ const Contact = new GQLListSchema('Contact', {
             schemaDoc: 'Contact verification flag.',
             type: 'Checkbox',
             defaultValue: false,
+        },
+
+        isHasResident: {
+            schemaDoc: 'Has contact a resident or when resident for this contact was created?',
+            type: 'Virtual',
+            graphQLReturnType: 'Boolean',
+            resolver: async (item, args, context) => {
+
+                const propertyId = get(item, 'property', null)
+                const unitName = get(item, 'unitName', null)
+                const unitType = get(item, 'unitType', null)
+                const phone = get(item, 'phone', null)
+
+                if (!propertyId || !unitName || !unitType || !phone) {
+                    return false
+                }
+
+                const Resident = await getByCondition('Resident', {
+                    property: { id: propertyId },
+                    unitName,
+                    unitType,
+                    user: { phone },
+                })
+
+                console.log('Can I get a resident here')
+                console.log('item', item)
+                console.log('args', args)
+                console.log('context', context)
+                console.log('Resident', Resident)
+            },
         },
 
         ownershipPercentage: {

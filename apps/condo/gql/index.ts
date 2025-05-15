@@ -726,11 +726,13 @@ export const GetContactByIdDocument = gql`
     unitName
     unitType
     isVerified
+    isHasResident
     ownershipPercentage
     note
     communityFee
     organization {
       id
+      phoneNumberPrefix
     }
     property {
       id
