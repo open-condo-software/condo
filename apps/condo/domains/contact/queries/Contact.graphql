@@ -10,11 +10,13 @@ query getContactById ($id: ID!) {
         unitName
         unitType
         isVerified
+        isHasResident
         ownershipPercentage
         note
         communityFee
         organization {
             id
+            phoneNumberPrefix
         }
         property {
             id
