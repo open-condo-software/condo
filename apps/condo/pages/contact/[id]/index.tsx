@@ -4,26 +4,23 @@ import {
 } from '@app/condo/gql'
 import { BuildingUnitSubType } from '@app/condo/schema'
 import { Col, Row } from 'antd'
-import get from 'lodash/get'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { CSSProperties, useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
-import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils/helpers/sender'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Button, Typography } from '@open-condo/ui'
+import { ActionBar, Button, Typography, Checkbox } from '@open-condo/ui'
 
-import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import { PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { FieldPairRow as BaseFieldPairRow, FieldPairRowProps } from '@condo/domains/common/components/FieldPairRow'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 import { TicketCardList } from '@condo/domains/common/components/TicketCard/TicketCardList'
-import { fontSizes } from '@condo/domains/common/constants/style'
 import { PageComponentType } from '@condo/domains/common/types'
 import { ContactsReadPermissionRequired } from '@condo/domains/contact/components/PageAccess'
 import { prefetchContact } from '@condo/domains/contact/utils/next/Contact'
@@ -43,7 +40,6 @@ const FieldPairRow: React.FC<FieldPairRowProps> = (props) => (
     />
 )
 
-const CHECKBOX_STYLE: CSSProperties = { paddingLeft: '0px', fontSize: fontSizes.content }
 
 export const ContactPageContent = ({ contact, isContactEditable, softDeleteAction }) => {
     const intl = useIntl()
@@ -59,20 +55,20 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
     const ContactRoleTitle = intl.formatMessage({ id: 'ContactRole' })
     const VerifiedMessage = intl.formatMessage({ id: 'pages.condo.contact.Verified' })
     const DeleteMessage = intl.formatMessage({ id: 'Delete' })
-    const UnitTypeMessage = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${get(contact, 'unitType', BuildingUnitSubType.Flat)}` as FormatjsIntl.Message['ids'] })
+    const UnitTypeMessage = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${contact?.unitType || BuildingUnitSubType.Flat}` as FormatjsIntl.Message['ids'] })
 
-    const contactId = get(contact, 'id', null)
-    const contactName = get(contact, 'name')
-    const contactEmail = get(contact, 'email', '')
-    const contactPhone = get(contact, 'phone', '')
-    const contactUnitName = get(contact, 'unitName')
+    const contactId = contact?.id || null
+    const contactName = contact?.name
+    const contactEmail = contact?.email || ''
+    const contactPhone = contact?.phone || ''
+    const contactUnitName = contact?.unitName
     const unitSuffix = contactUnitName
         ? `${UnitTypeMessage.toLowerCase()} ${contactUnitName}`
         : ''
-    const contactAddress = `${get(contact, ['property', 'address'], DeletedMessage)} ${unitSuffix}`
-    const contactRole = get(contact, 'role')
-    const isVerified = get(contact, 'isVerified')
-    const phonePrefix = get(contact, ['organization', 'phoneNumberPrefix'], '')
+    const contactAddress = `${contact?.property?.address || DeletedMessage} ${unitSuffix}`
+    const contactRole = contact?.role
+    const isVerified = contact?.isVerified
+    const phonePrefix = contact?.organization?.phoneNumberPrefix || ''
 
     const { breakpoints } = useLayoutContext()
 
@@ -128,7 +124,7 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
                                                 }
                                                 <FieldPairRow
                                                     fieldTitle={ContactRoleTitle}
-                                                    fieldValue={get(contactRole, 'name', '—')}
+                                                    fieldValue={contactRole?.name || '—'}
                                                 />
                                                 <>
                                                     <Col span={8}>
@@ -140,7 +136,6 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
                                                         <Checkbox
                                                             checked={isVerified}
                                                             disabled={!isVerified}
-                                                            style={CHECKBOX_STYLE}
                                                         />
                                                     </Col>
                                                 </>
@@ -151,7 +146,7 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
                                         <Col span={24}>
                                             <ActionBar
                                                 actions={[
-                                                    <Link key='update' href={`/contact/${get(contact, 'id')}/update`}>
+                                                    <Link key='update' href={`/contact/${contact?.id}/update`}>
                                                         <Button
                                                             type='primary'
                                                         >
@@ -181,7 +176,7 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
                                 <Col span={24}>
                                     <ActionBar
                                         actions={[
-                                            <Link key='update' href={`/contact/${get(contact, 'id')}/update`}>
+                                            <Link key='update' href={`/contact/${contactId}/update`}>
                                                 <Button
                                                     type='primary'
                                                 >
