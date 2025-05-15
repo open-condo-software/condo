@@ -752,7 +752,7 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
                         title={TicketChangesMessage}
                         useChangedFieldMessagesOf={useTicketChangedFieldMessagesOf}
                         HistoricalChange={HistoricalChange}
-                        dataCy='ticket__change-history'
+                        id='ticket__change-history'
                     />
                     <Col span={24}>
                         <TicketActionBar
