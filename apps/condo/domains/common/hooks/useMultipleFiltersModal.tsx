@@ -386,6 +386,7 @@ const isEqualSelectedFiltersTemplateAndFilters = (selectedFiltersTemplate, filte
     const templateFilters = selectedFiltersTemplate?.fields ?? null
     if (!templateFilters) return false
     if (has(templateFilters, '__typename')) delete templateFilters['__typename']
+    if (has(templateFilters, 'attributes')) delete templateFilters['attributes']
     return isEqual(omitBy(templateFilters, isNil), filters)
 }
 
@@ -669,7 +670,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         if (filtersTemplateId) {
             const filtersTemplate = filtersTemplates.find(filterTemplate => filterTemplate.id === filtersTemplateId)
 
-            setOpenedFiltersTemplate(filtersTemplate)
+            setOpenedFiltersTemplate(filtersTemplate || null)
         }
 
         resetFilters()
@@ -686,7 +687,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         </TabPane>
     )), [ExistingFiltersTemplateNameInput, TemplateMessage, filtersTemplates])
 
-    const initialFormValues = useMemo(() => openedFiltersTemplate?.fields, [openedFiltersTemplate])
+    const initialFormValues = useMemo(() => openedFiltersTemplate?.fields ? openedFiltersTemplate?.fields : (selectedFiltersTemplate ? {} : filters), [filters, selectedFiltersTemplate, openedFiltersTemplate])
     const modalComponents = useMemo(() => getModalComponents(pickBy(initialFormValues), filterMetas, form, breakpoints), [breakpoints, filterMetas, form, initialFormValues])
 
     const ModalFormItems = useCallback(() => {
