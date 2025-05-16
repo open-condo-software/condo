@@ -38,11 +38,18 @@ export const InputStepRecipientCounter: React.FC<InputStepRecipientCounterProps>
     const formFieldsColSpan = isMediumWindow ? 24 : 14
     const formInfoColSpan = 24 - formFieldsColSpan
 
-    const filteredNewsSharingScope = newsSharingScope?.filter(scope=> !!scope.id) || []
-    const receiversCount = filteredNewsSharingScope.reduce((acc, el) => {
-        const count = Number(el?.receiversCount) || 0
+    const parsedNewsSharingScope = useMemo(()=>newsSharingScope?.map(scope =>
+        typeof scope === 'string' ? JSON.parse(scope)?.value : scope) || [],
+    [newsSharingScope]
+    )
+    const filteredNewsSharingScope = useMemo(()=>
+        parsedNewsSharingScope?.filter(scope=> !!scope.id),
+    [parsedNewsSharingScope]
+    )
+    const receiversCount = useMemo(()=> filteredNewsSharingScope.reduce((acc, scope) => {
+        const count = Number(scope?.receiversCount) || 0
         return acc + count
-    }, 0) || 0
+    }, 0) || 0, [filteredNewsSharingScope])
 
     const newsSharingRecipientCounter = useMemo(() => <>{isSharingStep && (
         newsSharingConfig?.getRecipientsCountersUrl ? (
@@ -65,7 +72,7 @@ export const InputStepRecipientCounter: React.FC<InputStepRecipientCounterProps>
                 </Card>
             </HiddenBlock>
     )}</>, [isSharingStep, newsSharingConfig?.getRecipientsCountersUrl, sharingAppId, newsItemScopesNoInstance,
-        filteredNewsSharingScope?.length, StatisticsTitle, ChannelsLabel, SubscribersLabel, receiversCount]
+        filteredNewsSharingScope, StatisticsTitle, ChannelsLabel, SubscribersLabel, receiversCount]
     )
 
     return (
