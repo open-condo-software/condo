@@ -166,15 +166,7 @@ const extendExpressApp = (app) => {
             const method = (req.method || 'get').toLowerCase()
 
             // According to ADR35
-            const possibleXTargetValues = [
-                'billing',
-                'resident-app',
-                'technique-app',
-                'cc-app',
-                'condo-restapi-app',
-                'condo-app',
-                'smarthome',
-            ]
+            const possibleXTargetValues = (conf['POSSIBLE_X_TARGET_VALUES'] || '').split(',')
             const xTargetHeader = req.headers['x-target']
 
             const xTarget = possibleXTargetValues.includes(xTargetHeader) ? xTargetHeader : 'other'
