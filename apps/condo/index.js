@@ -143,6 +143,53 @@ const apps = () => {
 
 /** @type {(app: import('express').Application) => void} */
 const extendExpressApp = (app) => {
+    const runtimeStats = {
+        activeRequestsIds: new Set(),
+        activeRequestsCountByType: {
+            graphql: 0,
+            oidc: 0,
+            other: 0,
+        },
+    }
+
+    app.use(function runtimeStatsMiddleware (req, res, next) {
+        const url = req.url
+        const method = (req.method || 'get').toLowerCase()
+
+        const isPost = method === 'post'
+
+        const isAdminApi = url.startsWith('/admin/api')
+        const isOidc = url.startsWith('/oidc')
+
+        /** @type {'graphql' | 'oidc' | 'other'} */
+        let requestType = 'other'
+
+        if (isPost && isAdminApi) requestType = 'graphql'
+        if (isOidc) requestType = 'oidc'
+
+        if (requestType) {
+            runtimeStats.activeRequestsIds.add(req.id)
+            runtimeStats.activeRequestsCountByType[requestType] = (runtimeStats.activeRequestsCountByType[requestType] || 0) + 1
+        }
+
+        res.on('close', () => {
+            if (requestType) {
+                runtimeStats.activeRequestsIds.delete(req.id)
+                runtimeStats.activeRequestsCountByType[requestType] = Math.max(0, runtimeStats.activeRequestsCountByType[requestType] - 1)
+            }
+        })
+
+        next()
+    })
+
+    app.get('/.well-known/runtime-stats', (req, res) => {
+        res.json({
+            activeRequestsIds: Array.from(runtimeStats.activeRequestsIds.keys()),
+            activeRequestsCount: runtimeStats.activeRequestsIds.size,
+            activeRequestsCountByType: runtimeStats.activeRequestsCountByType,
+        })
+    })
+
     app.get('/.well-known/change-password', function (req, res) {
         res.redirect('/auth/forgot')
     })
