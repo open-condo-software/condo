@@ -210,12 +210,18 @@ const extendExpressApp = (app) => {
     })
 
     app.get('/.well-known/runtime-stats', (req, res) => {
-        res.json({
-            activeRequestsCount: runtimeStats.activeRequestsIds.size,
-            activeRequestsCountByType: runtimeStats.activeRequestsCountByType,
-            totalRequestsCount: runtimeStats.totalRequestsCount,
-            totalRequestsByTarget: runtimeStats.totalRequestsByTarget,
-        })
+        const token = req.query['token']
+        const accessToken = conf['RUNTIME_STATS_ACCESS_TOKEN']
+        if (!!accessToken && accessToken === token) {
+            res.json({
+                activeRequestsCount: runtimeStats.activeRequestsIds.size,
+                activeRequestsCountByType: runtimeStats.activeRequestsCountByType,
+                totalRequestsCount: runtimeStats.totalRequestsCount,
+                totalRequestsByTarget: runtimeStats.totalRequestsByTarget,
+            })
+        } else {
+            res.status(403).send()
+        }
     })
 
     app.get('/.well-known/change-password', function (req, res) {
