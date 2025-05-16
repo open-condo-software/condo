@@ -217,7 +217,7 @@ const extendExpressApp = (app) => {
                 activeRequestsCount: runtimeStats.activeRequestsIds.size,
                 activeRequestsCountByType: runtimeStats.activeRequestsCountByType,
                 totalRequestsCount: runtimeStats.totalRequestsCount,
-                totalRequestsByTarget: runtimeStats.totalRequestsByTarget,
+                totalRequestsCountByTarget: runtimeStats.totalRequestsByTarget,
             })
         } else {
             res.status(403).send()
