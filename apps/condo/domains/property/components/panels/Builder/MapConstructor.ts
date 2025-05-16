@@ -82,6 +82,7 @@ export enum MapEditMode {
     EditParking = 'editParking',
     AddUnit = 'addUnit',
     EditUnit = 'editUnit',
+    EditUnits = 'editUnits',
     AddParkingUnit = 'addParkingUnit',
     AddParkingFacilityUnit = 'addParkingFacilityUnit',
     EditParkingUnit = 'editParkingUnit',
@@ -464,6 +465,10 @@ class MapEdit extends MapView {
     private _previewSectionFloor: number | null = null
     private _previewUnitId: string | null = null
     private _duplicatedUnits: string[] | null = []
+    private selectedSection: BuildingSection
+    private selectedFloorSectionIndex: number | null = null
+    private sectionFloorMap: Record<number, number> = {}
+    private selectedUnits: BuildingUnit[] = []
     private mode = null
 
     constructor (map: Maybe<BuildingMap>, private updateMap?: Maybe<(map: BuildingMap) => void>) {
@@ -503,23 +508,24 @@ class MapEdit extends MapView {
             case 'addParking':
                 this.removePreviewUnit()
                 this.removePreviewSection()
-                this.selectedUnit = null
+                this.selectedUnits = []
                 this.selectedSection = null
                 break
             case 'editSection':
             case 'editParking':
                 this.removePreviewUnit()
                 this.removePreviewSection()
-                this.selectedUnit = null
+                this.selectedUnits = []
                 break
             case 'addUnit':
             case 'addParkingUnit':
             case 'addParkingFacilityUnit':
                 this.removePreviewSection()
                 this.selectedSection = null
-                this.selectedUnit = null
+                this.selectedUnits = []
                 break
             case 'editUnit':
+            case 'editUnits':
             case 'editParkingUnit':
             case 'editParkingFacilityUnit':
                 this.removePreviewUnit()
@@ -532,7 +538,7 @@ class MapEdit extends MapView {
                 break
             default:
                 this.selectedSection = null
-                this.selectedUnit = null
+                this.selectedUnits = []
                 this.removePreviewUnit()
                 this.removePreviewSection()
                 this.removePreviewSectionFloor()
@@ -556,7 +562,7 @@ class MapEdit extends MapView {
                     .filter(unit => {
                         if (unit.preview) return
                         else if (
-                            this.mode !== 'editUnit' && this.mode !== 'editParkingUnit' && this.mode !== 'editParkingFacilityUnit'
+                            !['editUnit', 'editUnits', 'editParkingUnit', 'editParkingFacilityUnit'].includes(this.mode)
                         ) return unit.label
                         else if (unit.id !== get(selectedUnit, 'id')) return unit.label
                     }))
@@ -595,10 +601,24 @@ class MapEdit extends MapView {
 
     public setSelectedUnit (unit: BuildingUnit): void {
         if (this.isUnitSelected(unit.id)) {
+            this.selectedUnits = this.selectedUnits.filter(selectedUnit => selectedUnit.id !== unit.id)
+
+            if (this.selectedUnits.length === 0) {
+                return this.editMode = null
+            }
+        } else {
+            this.selectedUnits.push(unit)
+        }
+
+        if (this.selectedUnits.length > 1) {
+            if (this.viewMode === MapViewMode.section) {
+                this.editMode = 'editUnits'
+            }
+            // else if (this.viewMode === MapViewMode.parking) {
+            //     this.editMode = 'editParkingUnits'
+            // }
             return
         }
-        
-        this.selectedUnit = unit
 
         if (this.viewMode === MapViewMode.section) {
             this.editMode = 'editUnit'
@@ -607,12 +627,16 @@ class MapEdit extends MapView {
         }
     }
 
-    public getSelectedUnit (): BuildingUnitArg {
-        return this.selectedUnit ? this.getUnitInfo(this.selectedUnit.id) : null
+    public getSelectedUnits (): BuildingUnitArg[] {
+        if (!Array.isArray(this.selectedUnits)) {
+            return []
+        }
+
+        return this.selectedUnits.map(unit => this.getUnitInfo(unit.id))
     }
 
     public isUnitSelected (id: string): boolean {
-        return this.selectedUnit && this.selectedUnit.id === id
+        return Array.isArray(this.selectedUnits) && !!this.selectedUnits.find(unit => unit.id === id)
     }
 
     public removePreviewSection (): void {
@@ -658,7 +682,7 @@ class MapEdit extends MapView {
         const newSection = this.generateSection(section, unitType)
         this.sections.push(newSection)
         this.removePreviewUnit()
-        this.selectedUnit = null
+        this.selectedUnits = []
         this.selectedSection = null
         this.mode = null
         this.notifyUpdater()
@@ -822,7 +846,7 @@ class MapEdit extends MapView {
 
         this.removePreviewSection()
         this.selectedSection = null
-        this.selectedUnit = null
+        this.selectedUnits = []
         this.mode = null
         this.notifyUpdater()
     }
@@ -893,14 +917,6 @@ class MapEdit extends MapView {
             })
         })
     }
-
-    private selectedSection: BuildingSection
-
-    private selectedUnit: BuildingUnit
-
-    private selectedFloorSectionIndex: number | null = null
-
-    private sectionFloorMap: Record<number, number> = {}
 
     private generateSection (section: Partial<BuildingSectionArg>, unitType: BuildingUnitSubType): BuildingSection {
         let unitNumber = this.nextUnitNumber

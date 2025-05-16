@@ -28,6 +28,7 @@ import { Button as OldButton } from '@condo/domains/common/components/Button'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { colors, fontSizes, shadows } from '@condo/domains/common/constants/style'
 import { IPropertyMapFormProps } from '@condo/domains/property/components/BasePropertyMapForm'
+import { EditUnitsForm } from '@condo/domains/property/components/panels/Builder/forms/EditUnitsForm'
 import { AddSectionForm, EditSectionForm } from '@condo/domains/property/components/panels/Builder/forms/SectionForm'
 import { UnitForm } from '@condo/domains/property/components/panels/Builder/forms/UnitForm'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
@@ -290,6 +291,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
 
         addUnit: <UnitForm builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds} />,
         editUnit: <UnitForm builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds} />,
+        editUnits: <EditUnitsForm builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds} />,
 
         addParkingUnit: <UnitForm builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds} />,
         editParkingUnit: <UnitForm builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds}/>,
@@ -478,40 +480,6 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
         } else {
             if (container.current !== null) container.current.style.paddingRight = '0px'
         }
-
-        if (container.current && container.current.style.paddingRight !== '0px') {
-            const lastSectionSelected = builder.editMode === MapEditMode.EditSection
-                && get(builder.getSelectedSection(), 'index') === builder.lastSectionIndex
-            const lastParkingSelected = builder.editMode === MapEditMode.EditParking
-                && get(builder.getSelectedSection(), 'index') === builder.lastSectionIndex
-            const addUnitToLastSection = builder.editMode === MapEditMode.AddUnit
-                && last(builder.sections).floors
-                    .flatMap(floor => floor.units.map(unit => unit.id))
-                    .includes(String(builder.previewUnitId))
-            const addParkingUnitToLastSection = builder.editMode === MapEditMode.AddParkingUnit
-                && last(builder.sections).floors
-                    .flatMap(floor => floor.units.map(unit => unit.id))
-                    .includes(String(builder.previewUnitId))
-            const editUnitAtLastSection = builder.editMode === MapEditMode.EditUnit
-                && get(builder.getSelectedUnit(), 'sectionIndex') === builder.lastSectionIndex
-            const editParkingUnitAtLastSection = builder.editMode === MapEditMode.EditParkingUnit
-                && get(builder.getSelectedUnit(), 'sectionIndex') === builder.lastSectionIndex
-
-            if (lastSectionSelected
-                || lastParkingSelected
-                || addParkingUnitToLastSection
-                || addUnitToLastSection
-                || editUnitAtLastSection
-                || editParkingUnitAtLastSection) {
-                const { scrollWidth, clientWidth, scrollHeight, clientHeight } = container.current
-
-                if (lastSectionSelected || lastParkingSelected) {
-                    container.current.scrollTo(scrollWidth - clientWidth, scrollHeight - clientHeight)
-                    return
-                }
-                container.current.scrollLeft = scrollWidth - clientWidth
-            }
-        }
     }, [builder])
 
     return (
@@ -544,40 +512,22 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
                             <div style={CHESS_SCROLL_CONTAINER_INNER_STYLE}>
                                 <BuildingAxisY floors={builder.possibleChosenFloors} />
                                 {
-                                    builder.viewMode === MapViewMode.section
-                                        ? builder.sections.map(section => (
-                                            <PropertyMapSection
-                                                key={section.id}
+                                    builder.sections.map(section => (
+                                        <PropertyMapSection
+                                            key={section.id}
+                                            section={section}
+                                            builder={builder}
+                                            refresh={refresh}
+                                        >
+                                            <PropertyMapFloorContainer
+                                                builder={builder}
                                                 section={section}
-                                                builder={builder}
                                                 refresh={refresh}
-                                            >
-                                                <PropertyMapFloorContainer
-                                                    builder={builder}
-                                                    section={section}
-                                                    refresh={refresh}
-                                                    duplicatedUnitIds={duplicatedUnitIds}
-                                                />
-                                            </PropertyMapSection>
+                                                duplicatedUnitIds={duplicatedUnitIds}
+                                            />
+                                        </PropertyMapSection>
 
-                                        ))
-                                        : builder.sections.map(parkingSection => (
-                                            <PropertyMapSection
-                                                key={parkingSection.id}
-                                                section={parkingSection}
-                                                builder={builder}
-                                                refresh={refresh}
-                                                isParkingSection
-                                            >
-                                                <PropertyMapFloorContainer
-                                                    builder={builder}
-                                                    section={parkingSection}
-                                                    refresh={refresh}
-                                                    isParkingSection
-                                                    duplicatedUnitIds={duplicatedUnitIds}
-                                                />
-                                            </PropertyMapSection>
-                                        ))
+                                    ))
                                 }
                             </div>
                         </ScrollContainer>
