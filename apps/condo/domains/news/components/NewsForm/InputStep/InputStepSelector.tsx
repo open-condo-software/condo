@@ -212,7 +212,7 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
                 })
 
                 const filteredData = data.data.recipients.filter(el=> !!el.receiversCount )
-                return filteredData.map(el => ({ text: el.name, value: el }))
+                return filteredData.map(recipient => ({ text: recipient.name, value: recipient }))
             }
             catch (error) {
                 const message = error?.graphQLErrors?.[0]?.extensions?.messageForUser || ErrorLoadingMessage

@@ -38,7 +38,7 @@ export const InputStepRecipientCounter: React.FC<InputStepRecipientCounterProps>
     const formFieldsColSpan = isMediumWindow ? 24 : 14
     const formInfoColSpan = 24 - formFieldsColSpan
 
-    const filteredNewsSharingScope = newsSharingScope?.filter(el=> !!el.id) || []
+    const filteredNewsSharingScope = newsSharingScope?.filter(scope=> !!scope.id) || []
     const receiversCount = filteredNewsSharingScope.reduce((acc, el) => {
         const count = Number(el?.receiversCount) || 0
         return acc + count
