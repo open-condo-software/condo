@@ -384,7 +384,11 @@ const isEqualSelectedFiltersTemplateAndFilters = (selectedFiltersTemplate, filte
     const templateFilters = selectedFiltersTemplate?.fields ?? null
     if (!templateFilters) return false
     if (has(templateFilters, '__typename')) delete templateFilters['__typename']
-    return isEqual(omitBy(templateFilters, isNil), filters)
+    const cleanedTemplateFilters = omitBy(templateFilters, value =>
+        isNil(value) || (Array.isArray(value) && value.length === 0)
+    )
+
+    return isEqual(cleanedTemplateFilters, filters)
 }
 
 const Modal: React.FC<MultipleFiltersModalProps> = ({
@@ -458,7 +462,9 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
 
     const handleSaveFiltersTemplate = useCallback(async () => {
         const { newTemplateName, existedTemplateName, ...otherValues } = form.getFieldsValue()
-        const filtersValue = pickBy(otherValues)
+        const filtersValue = omitBy(otherValues, value =>
+            isNil(value) || (Array.isArray(value) && value.length === 0)
+        )
         const trimmedNewTemplateName = newTemplateName && newTemplateName.trim()
         const trimmedExistedTemplateName = existedTemplateName && existedTemplateName.trim()
         if (openedFiltersTemplate && !trimmedExistedTemplateName) {
