@@ -335,16 +335,14 @@ const ResetFiltersModalButton: React.FC<ResetFiltersModalButtonProps> = ({
     const intl = useIntl()
     const ClearAllFiltersMessage = intl.formatMessage({ id: 'ClearAllFilters' })
     const router = useRouter()
-    const { setSelectedFiltersTemplate } = useMultipleFilterContext()
 
     const handleReset = useCallback(async () => {
-        router.replace({ query: omit(router.query, ['filters', 'sort', 'offset']) }, undefined, { shallow: true })
-        setSelectedFiltersTemplate(null)
+        await router.replace({ query: omit(router.query, ['filters', 'sort', 'offset']) }, undefined, { shallow: true })
 
         if (isFunction(handleResetFromProps)) {
             await handleResetFromProps()
         }
-    }, [handleResetFromProps, router, setSelectedFiltersTemplate])
+    }, [handleResetFromProps, router])
 
     return (
         <CommonButton
@@ -386,7 +384,7 @@ const isEqualSelectedFiltersTemplateAndFilters = (selectedFiltersTemplate, filte
     const templateFilters = selectedFiltersTemplate?.fields ?? null
     if (!templateFilters) return false
     if (has(templateFilters, '__typename')) delete templateFilters['__typename']
-    return isEqual(omitBy(templateFilters, isNil), filters)
+    return isEqual(omitBy(templateFilters, isEmpty), filters)
 }
 
 const Modal: React.FC<MultipleFiltersModalProps> = ({
@@ -460,7 +458,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
 
     const handleSaveFiltersTemplate = useCallback(async () => {
         const { newTemplateName, existedTemplateName, ...otherValues } = form.getFieldsValue()
-        const filtersValue = pickBy(otherValues)
+        const filtersValue = omitBy(otherValues, isEmpty)
         const trimmedNewTemplateName = newTemplateName && newTemplateName.trim()
         const trimmedExistedTemplateName = existedTemplateName && existedTemplateName.trim()
         if (openedFiltersTemplate && !trimmedExistedTemplateName) {
@@ -669,7 +667,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         if (filtersTemplateId) {
             const filtersTemplate = filtersTemplates.find(filterTemplate => filterTemplate.id === filtersTemplateId)
 
-            setOpenedFiltersTemplate(filtersTemplate)
+            setOpenedFiltersTemplate(filtersTemplate ?? null)
         }
 
         resetFilters()
@@ -686,7 +684,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         </TabPane>
     )), [ExistingFiltersTemplateNameInput, TemplateMessage, filtersTemplates])
 
-    const initialFormValues = useMemo(() => openedFiltersTemplate?.fields, [openedFiltersTemplate])
+    const initialFormValues = useMemo(() => openedFiltersTemplate?.fields || (selectedFiltersTemplate ? {} : filters), [filters, selectedFiltersTemplate, openedFiltersTemplate])
     const modalComponents = useMemo(() => getModalComponents(pickBy(initialFormValues), filterMetas, form, breakpoints), [breakpoints, filterMetas, form, initialFormValues])
 
     const ModalFormItems = useCallback(() => {
