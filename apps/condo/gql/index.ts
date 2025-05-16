@@ -963,6 +963,8 @@ export const GetContactsForTableDocument = gql`
     ownershipPercentage
     note
     communityFee
+    createdAt
+    isVerified
     organization {
       id
       name
@@ -1142,6 +1144,39 @@ export function useUpdateContactMutation(baseOptions?: Apollo.MutationHookOption
 export type UpdateContactMutationHookResult = ReturnType<typeof useUpdateContactMutation>;
 export type UpdateContactMutationResult = Apollo.MutationResult<Types.UpdateContactMutation>;
 export type UpdateContactMutationOptions = Apollo.BaseMutationOptions<Types.UpdateContactMutation, Types.UpdateContactMutationVariables>;
+export const UpdateContactsDocument = gql`
+    mutation updateContacts($data: [ContactsUpdateInput!]!) {
+  contacts: updateContacts(data: $data) {
+    id
+  }
+}
+    `;
+export type UpdateContactsMutationFn = Apollo.MutationFunction<Types.UpdateContactsMutation, Types.UpdateContactsMutationVariables>;
+
+/**
+ * __useUpdateContactsMutation__
+ *
+ * To run a mutation, you first call `useUpdateContactsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateContactsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateContactsMutation, { data, loading, error }] = useUpdateContactsMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateContactsMutation(baseOptions?: Apollo.MutationHookOptions<Types.UpdateContactsMutation, Types.UpdateContactsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.UpdateContactsMutation, Types.UpdateContactsMutationVariables>(UpdateContactsDocument, options);
+      }
+export type UpdateContactsMutationHookResult = ReturnType<typeof useUpdateContactsMutation>;
+export type UpdateContactsMutationResult = Apollo.MutationResult<Types.UpdateContactsMutation>;
+export type UpdateContactsMutationOptions = Apollo.BaseMutationOptions<Types.UpdateContactsMutation, Types.UpdateContactsMutationVariables>;
 export const GetContactExportTasksDocument = gql`
     query getContactExportTasks($where: ContactExportTaskWhereInput!) {
   tasks: allContactExportTasks(where: $where) {
@@ -3476,6 +3511,39 @@ export type GetLastCreatedPropertyByOrganizationIdQueryHookResult = ReturnType<t
 export type GetLastCreatedPropertyByOrganizationIdLazyQueryHookResult = ReturnType<typeof useGetLastCreatedPropertyByOrganizationIdLazyQuery>;
 export type GetLastCreatedPropertyByOrganizationIdSuspenseQueryHookResult = ReturnType<typeof useGetLastCreatedPropertyByOrganizationIdSuspenseQuery>;
 export type GetLastCreatedPropertyByOrganizationIdQueryResult = Apollo.QueryResult<Types.GetLastCreatedPropertyByOrganizationIdQuery, Types.GetLastCreatedPropertyByOrganizationIdQueryVariables>;
+export const UpdatePropertiesDocument = gql`
+    mutation updateProperties($data: [PropertiesUpdateInput!]!) {
+  properties: updateProperties(data: $data) {
+    id
+  }
+}
+    `;
+export type UpdatePropertiesMutationFn = Apollo.MutationFunction<Types.UpdatePropertiesMutation, Types.UpdatePropertiesMutationVariables>;
+
+/**
+ * __useUpdatePropertiesMutation__
+ *
+ * To run a mutation, you first call `useUpdatePropertiesMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePropertiesMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updatePropertiesMutation, { data, loading, error }] = useUpdatePropertiesMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdatePropertiesMutation(baseOptions?: Apollo.MutationHookOptions<Types.UpdatePropertiesMutation, Types.UpdatePropertiesMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.UpdatePropertiesMutation, Types.UpdatePropertiesMutationVariables>(UpdatePropertiesDocument, options);
+      }
+export type UpdatePropertiesMutationHookResult = ReturnType<typeof useUpdatePropertiesMutation>;
+export type UpdatePropertiesMutationResult = Apollo.MutationResult<Types.UpdatePropertiesMutation>;
+export type UpdatePropertiesMutationOptions = Apollo.BaseMutationOptions<Types.UpdatePropertiesMutation, Types.UpdatePropertiesMutationVariables>;
 export const GetPropertyScopePropertiesDocument = gql`
     query getPropertyScopeProperties($propertyScopeIds: [ID!]) {
   propertyScopeProperty: allPropertyScopeProperties(

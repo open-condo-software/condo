@@ -43,6 +43,25 @@ async function createTestContact (client, organization, property, extraAttrs = {
     return [obj, attrs]
 }
 
+async function createTestContacts (client, createAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const attrs = createAttrs.map(data => {
+        if (!('name' in data)) {
+            data['name'] = faker.name.firstName()
+        }
+        if (!('phone' in data)) {
+            data['phone'] = createTestPhone()
+        }
+
+        return {
+            data: {...data, dv: 1, sender}
+        }
+    })
+
+    return await Contact.createMany(client, attrs)
+}
+
 async function updateTestContact (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
@@ -55,6 +74,18 @@ async function updateTestContact (client, id, extraAttrs = {}) {
     }
     const obj = await Contact.update(client, id, attrs)
     return [obj, attrs]
+}
+
+async function updateTestContacts (client, updateAttrs = {}) {
+    if (!client) throw new Error('no client')
+
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const attrs = updateAttrs.map(updateData => {
+        const { id, data } = updateData
+        return { id, data: { ...data, dv: 1, sender } }
+    })
+
+    return await Contact.updateMany(client, attrs)
 }
 
 async function createTestContactRole (client, extraAttrs = {}) {
@@ -134,7 +165,7 @@ async function _internalSyncContactsWithResidentsForOrganizationByTestClient(cli
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
-    Contact, createTestContact, updateTestContact,
+    Contact, createTestContact, createTestContacts, updateTestContact, updateTestContacts,
     ContactRole, createTestContactRole, updateTestContactRole,
     ContactExportTask, createTestContactExportTask, updateTestContactExportTask,
     _internalSyncContactsWithResidentsForOrganizationByTestClient,

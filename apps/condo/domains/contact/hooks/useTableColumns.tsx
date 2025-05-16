@@ -1,6 +1,5 @@
-import { Contact, ContactWhereInput } from '@app/condo/schema'
+import { Contact, ContactWhereInput, OrganizationEmployeeRole } from '@app/condo/schema'
 import { ColumnsType, ColumnType } from 'antd/es/table/interface'
-import get from 'lodash/get'
 import identity from 'lodash/identity'
 import { useRouter } from 'next/router'
 import { useCallback, useMemo } from 'react'
@@ -10,7 +9,7 @@ import { useOrganization } from '@open-condo/next/organization'
 
 import { getOptionFilterDropdown, getFilterIcon } from '@condo/domains/common/components/Table/Filters'
 import {
-    getAddressRender,
+    getAddressRender, getDateRender,
     getTableCellRenderer,
     getUnitNameRender,
 } from '@condo/domains/common/components/Table/Renders'
@@ -26,14 +25,17 @@ export const useTableColumns: UseTableColumns = (filterMetas) => {
     const intl = useIntl()
     const NameMessage = intl.formatMessage({ id: 'field.FullName.short' })
     const PhoneMessage =  intl.formatMessage({ id: 'Phone' })
-    const EmailMessage = intl.formatMessage({ id: 'field.EMail' })
     const AddressMessage = intl.formatMessage({ id: 'pages.condo.property.field.Address' })
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
     const UnitMessage = intl.formatMessage({ id: 'field.UnitName' })
     const RoleMessage = intl.formatMessage({ id: 'ContactRole' })
+    const YesMessage = intl.formatMessage({ id: 'Yes' })
+    const NoMessage = intl.formatMessage({ id: 'No' })
+    const AddedDateMessage = intl.formatMessage({ id: 'AddedDate' })
+    const IsVerifiedMessage = intl.formatMessage({ id: 'contact.column.header.isVerified' })
 
     const { organization } = useOrganization()
-    const organizationId = get(organization, 'id', null)
+    const organizationId = organization?.id || null
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
     const sorterMap = getSorterMap(sorters)
@@ -49,7 +51,7 @@ export const useTableColumns: UseTableColumns = (filterMetas) => {
     })
 
     const renderAddress = useCallback(
-        (_, contact) => getAddressRender(get(contact, 'property'), DeletedMessage, search),
+        (_, contact) => getAddressRender(contact?.property, DeletedMessage, search),
         [DeletedMessage, search])
 
     const renderUnitName = useCallback(
@@ -67,20 +69,19 @@ export const useTableColumns: UseTableColumns = (filterMetas) => {
         return getTableCellRenderer({ search, href: `tel:${phone}` })(phone)
     }, [search])
 
-    const renderEmail = useCallback((email) => {
-        return getTableCellRenderer({ search, href: `mailto:${email}` })(email)
-    }, [search])
+    const renderIsVerified = useCallback((isVerified) => render(isVerified ? YesMessage : NoMessage),
+        [NoMessage, YesMessage, render])
 
     return useMemo(() => {
         return [
             {
                 title: NameMessage,
-                sortOrder: get(sorterMap, 'name'),
+                sortOrder: sorterMap?.name,
                 filteredValue: getFilteredValue<IFilters>(filters, 'name'),
                 dataIndex: 'name',
                 key: 'name',
                 sorter: true,
-                width: '20%',
+                width: '15%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'name'),
                 filterIcon: getFilterIcon,
                 render,
@@ -88,12 +89,12 @@ export const useTableColumns: UseTableColumns = (filterMetas) => {
             },
             {
                 title: AddressMessage,
-                sortOrder: get(sorterMap, 'address'),
+                sortOrder: sorterMap?.address,
                 filteredValue: getFilteredValue<IFilters>(filters, 'address'),
                 dataIndex: ['property', 'address'],
                 key: 'address',
                 sorter: false,
-                width: '35%',
+                width: '20%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'address'),
                 filterIcon: getFilterIcon,
                 render: renderAddress,
@@ -101,31 +102,43 @@ export const useTableColumns: UseTableColumns = (filterMetas) => {
             {
                 title: RoleMessage,
                 ellipsis: true,
-                sortOrder: get(sorterMap, 'role'),
+                sortOrder: sorterMap?.role,
                 filteredValue: getFilteredValue<IFilters>(filters, 'role'),
                 dataIndex: 'role',
                 key: 'role',
                 sorter: true,
-                width: '20%',
+                width: '15%',
                 filterDropdown: renderRolesFilterDropdown,
                 filterIcon: getFilterIcon,
-                render: (role) => render(get(role, 'name')),
+                render: (role: OrganizationEmployeeRole) => render(role?.name ?? '—'),
             },
             {
                 title: UnitMessage,
                 dataIndex: 'unitName',
-                sortOrder: get(sorterMap, 'unitName'),
+                sortOrder: sorterMap?.unitName,
                 filteredValue: getFilteredValue(filters, 'unitName'),
                 key: 'unitName',
                 sorter: true,
-                width: '15%',
+                width: '10%',
                 render: renderUnitName,
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'unitName'),
                 filterIcon: getFilterIcon,
             },
             {
+                title: AddedDateMessage,
+                dataIndex: 'createdAt',
+                sortOrder: sorterMap?.createdAt,
+                filteredValue: getFilteredValue(filters, 'createdAt'),
+                key: 'createdAt',
+                sorter: true,
+                width: '15%',
+                render: getDateRender(intl, String(search)),
+                filterDropdown: getFilterDropdownByKey(filterMetas, 'createdAt'),
+                filterIcon: getFilterIcon,
+            },
+            {
                 title: PhoneMessage,
-                sortOrder: get(sorterMap, 'phone'),
+                sortOrder: sorterMap?.phone,
                 filteredValue: getFilteredValue<IFilters>(filters, 'phone'),
                 dataIndex: 'phone',
                 key: 'phone',
@@ -136,18 +149,21 @@ export const useTableColumns: UseTableColumns = (filterMetas) => {
                 render: renderPhone,
             },
             {
-                title: EmailMessage,
-                ellipsis: true,
-                sortOrder: get(sorterMap, 'email'),
-                filteredValue: getFilteredValue<IFilters>(filters, 'email'),
-                dataIndex: 'email',
-                key: 'email',
+                title: IsVerifiedMessage,
+                dataIndex: 'isVerified',
+                sortOrder: sorterMap?.isVerified,
+                filteredValue: getFilteredValue(filters, 'isVerified'),
+                key: 'isVerified',
                 sorter: true,
-                width: '20%',
-                filterDropdown: getFilterDropdownByKey(filterMetas, 'email'),
+                width: '15%',
+                render: renderIsVerified,
+                filterDropdown: getFilterDropdownByKey(filterMetas, 'isVerified'),
                 filterIcon: getFilterIcon,
-                render: renderEmail,
             },
         ]
-    }, [NameMessage, sorterMap, filters, filterMetas, render, AddressMessage, renderAddress, RoleMessage, renderRolesFilterDropdown, UnitMessage, renderUnitName, PhoneMessage, renderPhone, EmailMessage, renderEmail])
+    }, [
+        NameMessage, sorterMap, filters, filterMetas, render, AddressMessage, renderAddress, RoleMessage,
+        renderRolesFilterDropdown, UnitMessage, renderUnitName, AddedDateMessage, intl, search, PhoneMessage,
+        renderPhone, IsVerifiedMessage, renderIsVerified,
+    ])
 }

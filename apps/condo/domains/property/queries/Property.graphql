@@ -103,3 +103,9 @@ query getLastCreatedPropertyByOrganizationId ($organizationId: ID!) {
         id
     }
 }
+
+mutation updateProperties ($data: [PropertiesUpdateInput!]!) {
+    properties: updateProperties (data: $data) {
+        id
+    }
+}

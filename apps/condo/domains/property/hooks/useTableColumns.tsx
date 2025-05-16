@@ -5,11 +5,12 @@ import { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
-
-import { getAddressRender } from '@condo/domains/common/components/Table/Renders'
+import { getFilterIcon } from '@condo/domains/common/components/Table/Filters'
+import { getAddressRender, getDateRender } from '@condo/domains/common/components/Table/Renders'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
-import { parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
+
 
 export interface ITableColumn {
     title: string
@@ -30,9 +31,11 @@ export const useTableColumns = (filterMetas: FiltersMeta<PropertyWhereInput>[]) 
     const UnitsCountMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.UnitsCount' })
     const UninhabitedUnitsCountMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.UninhabitedUnitsCount' })
     const TasksInWorkMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.TasksInWorkCount' })
+    const AddedDateMessage = intl.formatMessage({ id: 'AddedDate' })
 
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
+    const sorterMap = useMemo(() => getSorterMap(sorters), [sorters])
 
     const search = getFilteredValue(filters, 'search')
 
@@ -50,7 +53,19 @@ export const useTableColumns = (filterMetas: FiltersMeta<PropertyWhereInput>[]) 
                 sorter: true,
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'address'),
                 render: renderAddress,
-                width: '55%',
+                width: '30%',
+            },
+            {
+                title: AddedDateMessage,
+                dataIndex: 'createdAt',
+                key: 'createdAt',
+                sorter: true,
+                sortOrder: sorterMap?.createdAt,
+                width: '20%',
+                render: getDateRender(intl, String(search)),
+                filteredValue: getFilteredValue(filters, 'createdAt'),
+                filterDropdown: getFilterDropdownByKey(filterMetas, 'createdAt'),
+                filterIcon: getFilterIcon,
             },
             {
                 title: UnitsCountMessage,
@@ -74,8 +89,5 @@ export const useTableColumns = (filterMetas: FiltersMeta<PropertyWhereInput>[]) 
                 width: '15%',
             },
         ]
-    }, [
-        filters,
-        sorters,
-    ])
+    }, [AddedDateMessage, AddressMessage, TasksInWorkMessage, UninhabitedUnitsCountMessage, UnitsCountMessage, filterMetas, filters, intl, renderAddress, search, sorterMap])
 }
