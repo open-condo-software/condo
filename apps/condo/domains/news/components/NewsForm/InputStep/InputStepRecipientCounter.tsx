@@ -32,7 +32,8 @@ export const InputStepRecipientCounter: React.FC<InputStepRecipientCounterProps>
     const formFieldsColSpan = isMediumWindow ? 24 : 14
     const formInfoColSpan = 24 - formFieldsColSpan
 
-    const receiversCount = newsSharingScope?.reduce((acc, el) => {
+    const filteredNewsSharingScope = newsSharingScope?.filter(el=> !!el.id) || []
+    const receiversCount = filteredNewsSharingScope.reduce((acc, el) => {
         const count = Number(el?.receiversCount) || 0
         return acc + count
     }, 0) || 0
@@ -43,16 +44,16 @@ export const InputStepRecipientCounter: React.FC<InputStepRecipientCounterProps>
                 contextId={sharingAppId}
                 newsItemScopes={newsItemScopesNoInstance}
             /> ) :
-            <HiddenBlock hide={!newsSharingScope?.length} className='custom-counter' >
+            <HiddenBlock hide={!filteredNewsSharingScope?.length} className='custom-counter' >
                 <Card title={<Card.CardHeader headingTitle='Статистика' />}>
                     <Space direction='horizontal' size={24}  className='custom-counter-content'>
-                        <Counter label='Каналов и чатов' value={newsSharingScope?.length}/>
+                        <Counter label='Каналов и чатов' value={filteredNewsSharingScope?.length}/>
 
                         <Counter label='Всего подписчкиов' value={receiversCount}/>
                     </Space>
                 </Card>
             </HiddenBlock>
-    )}</>, [isSharingStep, newsSharingConfig?.getRecipientsCountersUrl, sharingAppId, newsItemScopesNoInstance, newsSharingScope?.length, receiversCount])
+    )}</>, [isSharingStep, newsSharingConfig?.getRecipientsCountersUrl, sharingAppId, newsItemScopesNoInstance, filteredNewsSharingScope?.length, receiversCount])
 
     return (
         <Col span={formInfoColSpan} className='recipient-counter'>
