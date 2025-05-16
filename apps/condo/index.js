@@ -12,6 +12,7 @@ const { AdapterCache } = require('@open-condo/keystone/adapterCache')
 const { GQLError, GQLErrorCode: { FORBIDDEN } } = require('@open-condo/keystone/errors')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const {
+    DEFAULT_HEALTHCHECK_URL,
     HealthCheck,
     getRedisHealthCheck,
     getPostgresHealthCheck,
@@ -158,14 +159,26 @@ const extendExpressApp = (app) => {
 
         const isPost = method === 'post'
 
-        const isAdminApi = url.startsWith('/admin/api')
-        const isOidc = url.startsWith('/oidc')
+        const isAdminApiUrl = url === '/admin/api'
+        const isApiUrl = url.startsWith('/api')
+        const isOidcUrl = url.startsWith('/oidc')
+        const isWellKnownUrl = url.startsWith('/.well-known')
+        const isHealthCheckUrl = url.startsWith(DEFAULT_HEALTHCHECK_URL)
 
-        /** @type {'graphql' | 'oidc' | 'other'} */
+        /** @type {'api' | 'graphql' | 'oidc' | 'wellKnown' | 'healthCheck' | 'other'} */
         let requestType = 'other'
 
-        if (isPost && isAdminApi) requestType = 'graphql'
-        if (isOidc) requestType = 'oidc'
+        if (isPost && isAdminApiUrl) {
+            requestType = 'graphql'
+        } else if (isApiUrl) {
+            requestType = 'api'
+        } else if (isOidcUrl) {
+            requestType = 'oidc'
+        } else if (isWellKnownUrl) {
+            requestType = 'wellKnown'
+        } else if (isHealthCheckUrl) {
+            requestType = 'healthCheck'
+        }
 
         if (requestType) {
             runtimeStats.activeRequestsIds.add(req.id)
@@ -184,7 +197,6 @@ const extendExpressApp = (app) => {
 
     app.get('/.well-known/runtime-stats', (req, res) => {
         res.json({
-            activeRequestsIds: Array.from(runtimeStats.activeRequestsIds.keys()),
             activeRequestsCount: runtimeStats.activeRequestsIds.size,
             activeRequestsCountByType: runtimeStats.activeRequestsCountByType,
         })
