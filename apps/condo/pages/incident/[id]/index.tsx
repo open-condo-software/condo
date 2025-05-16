@@ -419,7 +419,7 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
                     <Row gutter={PAGE_CONTENT_GUTTER}>
                         <Col span={24} lg={24} xl={22}>
                             <Row gutter={HEADER_CONTENT_GUTTER}>
-                                <Col span={24}>
+                                <Col id='incident__create-info' span={24}>
                                     <Typography.Text type='secondary' size='small'>{DateMessage} {createdAt}, {AuthorMessage} </Typography.Text>
                                     <UserNameField user={createdBy}>
                                         {({ name, postfix }) => (
@@ -454,6 +454,7 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
                                         title={ChangeHistoryTitle}
                                         useChangedFieldMessagesOf={useIncidentChangedFieldMessagesOf}
                                         HistoricalChange={HistoricalChange}
+                                        id='incident__change-history'
                                     />
                                 </Col>
                             )

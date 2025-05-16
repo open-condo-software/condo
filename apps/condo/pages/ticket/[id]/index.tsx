@@ -184,7 +184,7 @@ const TicketHeader = ({ ticket, handleTicketStatusChanged, organization, employe
                                         </Col>
                                     )
                                 }
-                                <Col span={24}>
+                                <Col id='ticket__create-info' span={24}>
                                     <Row>
                                         <Col span={24}>
                                             <Typography.Text style={TICKET_CREATE_INFO_TEXT_STYLE}>
@@ -292,7 +292,7 @@ const TicketHeader = ({ ticket, handleTicketStatusChanged, organization, employe
                     <Row justify='space-between' align='middle' gutter={[0, 24]}>
                         <Col span={!breakpoints.TABLET_LARGE && 24}
                             hidden={!isEmergency && !isPayable && !isWarranty && statusReopenedCounter === 0}>
-                            <Space direction='horizontal'>
+                            <Space id='ticket__field-status' direction='horizontal'>
                                 {isEmergency && (
                                     <TicketTag
                                         style={TICKET_TYPE_TAG_STYLE.emergency}
@@ -752,6 +752,7 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
                         title={TicketChangesMessage}
                         useChangedFieldMessagesOf={useTicketChangedFieldMessagesOf}
                         HistoricalChange={HistoricalChange}
+                        id='ticket__change-history'
                     />
                     <Col span={24}>
                         <TicketActionBar
