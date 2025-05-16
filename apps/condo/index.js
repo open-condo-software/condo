@@ -19,8 +19,8 @@ const {
     getPfxCertificateHealthCheck,
 } = require('@open-condo/keystone/healthCheck')
 const { prepareKeystone } = require('@open-condo/keystone/KSv5v6/v5/prepareKeystone')
+const { getLogger } = require('@open-condo/keystone/logging')
 const { RequestCache } = require('@open-condo/keystone/requestCache')
-const { getXRemoteApp, getXRemoteClient, getXRemoteVersion, getAppName } = require('@open-condo/keystone/tracingUtils')
 const { getWebhookModels } = require('@open-condo/webhooks/schema')
 const { getWebhookTasks } = require('@open-condo/webhooks/tasks')
 
@@ -38,6 +38,8 @@ dayjs.extend(isBetween)
 
 const IS_BUILD_PHASE = conf.PHASE === 'build'
 const SENTRY_CONFIG = conf.SENTRY_CONFIG ? JSON.parse(conf.SENTRY_CONFIG) : {}
+
+const logger = getLogger('condo-index')
 
 // TODO(zuch): DOMA-2990: add FILE_FIELD_ADAPTER to env during build phase
 if (IS_BUILD_PHASE) {
@@ -148,49 +150,56 @@ const extendExpressApp = (app) => {
         activeRequestsIds: new Set(),
         activeRequestsCountByType: {
             graphql: 0,
+            api: 0,
             oidc: 0,
+            wellKnown: 0,
+            healthCheck: 0,
             other: 0,
         },
     }
 
     app.use(function runtimeStatsMiddleware (req, res, next) {
-        const url = req.url
-        const method = (req.method || 'get').toLowerCase()
+        try {
+            const url = new URL(`${conf['SERVER_URL']}${req.url}`).pathname
+            const method = (req.method || 'get').toLowerCase()
 
-        const isPost = method === 'post'
+            const isPost = method === 'post'
 
-        const isAdminApiUrl = url === '/admin/api'
-        const isApiUrl = url.startsWith('/api')
-        const isOidcUrl = url.startsWith('/oidc')
-        const isWellKnownUrl = url.startsWith('/.well-known')
-        const isHealthCheckUrl = url.startsWith(DEFAULT_HEALTHCHECK_URL)
+            const isAdminApiUrl = url === '/admin/api'
+            const isApiUrl = url.startsWith('/api')
+            const isOidcUrl = url.startsWith('/oidc')
+            const isWellKnownUrl = url.startsWith('/.well-known')
+            const isHealthCheckUrl = url.startsWith(DEFAULT_HEALTHCHECK_URL)
 
-        /** @type {'api' | 'graphql' | 'oidc' | 'wellKnown' | 'healthCheck' | 'other'} */
-        let requestType = 'other'
+            /** @type {'api' | 'graphql' | 'oidc' | 'wellKnown' | 'healthCheck' | 'other'} */
+            let requestType = 'other'
 
-        if (isPost && isAdminApiUrl) {
-            requestType = 'graphql'
-        } else if (isApiUrl) {
-            requestType = 'api'
-        } else if (isOidcUrl) {
-            requestType = 'oidc'
-        } else if (isWellKnownUrl) {
-            requestType = 'wellKnown'
-        } else if (isHealthCheckUrl) {
-            requestType = 'healthCheck'
-        }
-
-        if (requestType) {
-            runtimeStats.activeRequestsIds.add(req.id)
-            runtimeStats.activeRequestsCountByType[requestType] = (runtimeStats.activeRequestsCountByType[requestType] || 0) + 1
-        }
-
-        res.on('close', () => {
-            if (requestType) {
-                runtimeStats.activeRequestsIds.delete(req.id)
-                runtimeStats.activeRequestsCountByType[requestType] = Math.max(0, runtimeStats.activeRequestsCountByType[requestType] - 1)
+            if (isPost && isAdminApiUrl) {
+                requestType = 'graphql'
+            } else if (isApiUrl) {
+                requestType = 'api'
+            } else if (isOidcUrl) {
+                requestType = 'oidc'
+            } else if (isWellKnownUrl) {
+                requestType = 'wellKnown'
+            } else if (isHealthCheckUrl) {
+                requestType = 'healthCheck'
             }
-        })
+
+            if (requestType) {
+                runtimeStats.activeRequestsIds.add(req.id)
+                runtimeStats.activeRequestsCountByType[requestType] = (runtimeStats.activeRequestsCountByType[requestType] || 0) + 1
+            }
+
+            res.on('close', () => {
+                if (requestType) {
+                    runtimeStats.activeRequestsIds.delete(req.id)
+                    runtimeStats.activeRequestsCountByType[requestType] = Math.max(0, runtimeStats.activeRequestsCountByType[requestType] - 1)
+                }
+            })
+        } catch (error) {
+            logger.error({ msg: 'runtimeStatsMiddleware error', error, data: { url: req.url, method: req.method } })
+        }
 
         next()
     })
