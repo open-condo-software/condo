@@ -138,7 +138,7 @@ type CondoFormValues = {
 
 type SelectAppsFormValues = {
     type: INewsItemTypeType
-    validBefore: string
+    validBefore: Dayjs
 }
 
 export type ScopeType = {
@@ -493,7 +493,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         console.log('Handle valid before change', dateString, value)
 
         setSelectedValidBefore(value)
-        setSelectedValidBeforeText(dateString)
+        setSelectedValidBeforeText(dayjs(value).format('HH:mm DD MMMM'))
     }, [])
 
     const handleSendAtChange = useCallback((form, fieldName) => (value, dateString) => {
@@ -570,7 +570,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
 
         const updatedNewsItemValues = {
             sendAt: sendPeriod === 'later' ? sendAt : null,
-            validBefore,
+            validBefore: validBefore?.toString(),
             type,
             body,
             title,
@@ -584,7 +584,10 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                 const newsItemSharing = {
                     b2bAppContext: { connect: { id: ctxId } },
                     newsItem: { connect: { id: newsItemId } },
-                    sharingParams: sharingAppsFormValues[ctxId],
+                    sharingParams: {
+                        ...sharingAppsFormValues[ctxId],
+                        validBeforeWithTimeZone: validBefore?.format('YYYY-MM-DD HH:mm:ss Z'),
+                    },
                 }
 
                 await createOrUpdateNewsSharingItem(newsItemSharing)
