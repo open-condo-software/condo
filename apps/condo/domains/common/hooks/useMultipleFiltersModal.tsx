@@ -338,7 +338,7 @@ const ResetFiltersModalButton: React.FC<ResetFiltersModalButtonProps> = ({
     const { setSelectedFiltersTemplate } = useMultipleFilterContext()
 
     const handleReset = useCallback(async () => {
-        router.replace({ query: omit(router.query, ['filters', 'sort', 'offset']) }, undefined, { shallow: true })
+        await router.replace({ query: omit(router.query, ['filters', 'sort', 'offset']) }, undefined, { shallow: true })
         setSelectedFiltersTemplate(null)
 
         if (isFunction(handleResetFromProps)) {
