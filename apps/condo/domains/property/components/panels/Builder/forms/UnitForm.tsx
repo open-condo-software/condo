@@ -11,7 +11,9 @@ import { Checkbox } from '@open-condo/ui'
 import Input from '@condo/domains/common/components/antd/Input'
 import Select from '@condo/domains/common/components/antd/Select'
 import { Button } from '@condo/domains/common/components/Button'
-import { MapEdit, MapEditMode } from '@condo/domains/property/components/panels/Builder/MapConstructor'
+import { MapEditMode } from '@condo/domains/property/components/panels/Builder/MapConstructor'
+
+
 
 import {
     BUTTON_SPACE_SIZE,
@@ -26,7 +28,7 @@ import {
 
 const { Option } = Select
 
-const EDIT_UNIT_MODS = [MapEditMode.EditUnit, MapEditMode.EditParkingUnit, MapEditMode.EditParkingFacilityUnit]
+const EDIT_UNIT_MODS = [MapEditMode.EditUnit, MapEditMode.EditUnits, MapEditMode.EditParkingUnit, MapEditMode.EditParkingFacilityUnit]
 const ADD_UNIT_MODS = [MapEditMode.AddUnit, MapEditMode.AddParkingUnit, MapEditMode.AddParkingFacilityUnit]
 
 const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplicatedUnitIds }) => {
@@ -79,7 +81,8 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplic
         setSection(value)
         setFloors(builder.getSectionFloorOptions(value))
         if (mode === MapEditMode.EditUnit) {
-            const mapUnit = builder.getSelectedUnit()
+            // NOTE: [TEST] проверить редактирование и удаление юнита, что с секциями?
+            const mapUnit = builder.getSelectedUnits()[0]
             if (value === mapUnit.section) {
                 setFloor(mapUnit.floor)
             } else {
@@ -92,7 +95,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplic
 
     useEffect(() => {
         setSections(builder.getSectionOptions())
-        const mapUnit = builder.getSelectedUnit()
+        const mapUnit = builder.getSelectedUnits()[0]
         if (mapUnit) {
             setFloors(builder.getSectionFloorOptions(mapUnit.section))
             setLabel(mapUnit.label)
@@ -124,7 +127,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplic
 
     const isUnitUnique = useMemo(() => {
         let isUnitLabelUnique = true
-        const selectedUnit = builder.getSelectedUnit()
+        const selectedUnit = builder.getSelectedUnits()[0]
         if (ADD_UNIT_MODS.includes(mode)) {
             isUnitLabelUnique = builder.validateInputUnitLabel(selectedUnit, label, unitType)
             setDuplicatedUnitIds(builder.duplicatedUnits)
@@ -142,7 +145,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplic
 
     const applyChanges = useCallback(() => {
         if (isUnitUnique) {
-            const mapUnit = builder.getSelectedUnit()
+            const mapUnit = builder.getSelectedUnits()[0]
             if (mapUnit) {
                 builder.updateUnit({ ...mapUnit, label, floor, section, unitType }, renameNextUnits.current)
             } else {
@@ -160,7 +163,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplic
     }, [isValidationErrorVisible])
 
     const deleteUnit = useCallback(() => {
-        const mapUnit = builder.getSelectedUnit()
+        const mapUnit = builder.getSelectedUnits()[0]
         builder.removeUnit(mapUnit.id, renameNextUnits.current)
         refresh()
         resetForm()
