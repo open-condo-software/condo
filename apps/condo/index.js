@@ -156,12 +156,15 @@ const extendExpressApp = (app) => {
             healthCheck: 0,
             other: 0,
         },
+        totalRequestsCount: 0,
+        totalRequestsByTarget: {},
     }
 
     app.use(function runtimeStatsMiddleware (req, res, next) {
         try {
             const url = new URL(`${conf['SERVER_URL']}${req.url}`).pathname
             const method = (req.method || 'get').toLowerCase()
+            const xTargetHeader = req.headers['x-target'] || 'other'
 
             const isPost = method === 'post'
 
@@ -189,6 +192,8 @@ const extendExpressApp = (app) => {
             if (requestType) {
                 runtimeStats.activeRequestsIds.add(req.id)
                 runtimeStats.activeRequestsCountByType[requestType] = (runtimeStats.activeRequestsCountByType[requestType] || 0) + 1
+                runtimeStats.totalRequestsCount = (runtimeStats.totalRequestsCount || 0) + 1
+                runtimeStats.totalRequestsByTarget[xTargetHeader] = (runtimeStats.totalRequestsByTarget[xTargetHeader] || 0) + 1
             }
 
             res.on('close', () => {
@@ -208,6 +213,8 @@ const extendExpressApp = (app) => {
         res.json({
             activeRequestsCount: runtimeStats.activeRequestsIds.size,
             activeRequestsCountByType: runtimeStats.activeRequestsCountByType,
+            totalRequestsCount: runtimeStats.totalRequestsCount,
+            totalRequestsByTarget: runtimeStats.totalRequestsByTarget,
         })
     })
 
