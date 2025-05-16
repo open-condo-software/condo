@@ -164,7 +164,20 @@ const extendExpressApp = (app) => {
         try {
             const url = new URL(`${conf['SERVER_URL']}${req.url}`).pathname
             const method = (req.method || 'get').toLowerCase()
-            const xTargetHeader = req.headers['x-target'] || 'other'
+
+            // According to ADR35
+            const possibleXTargetValues = [
+                'billing',
+                'resident-app',
+                'technique-app',
+                'cc-app',
+                'condo-restapi-app',
+                'condo-app',
+                'smarthome',
+            ]
+            const xTargetHeader = req.headers['x-target']
+
+            const xTarget = possibleXTargetValues.includes(xTargetHeader) ? xTargetHeader : 'other'
 
             const isPost = method === 'post'
 
@@ -193,7 +206,7 @@ const extendExpressApp = (app) => {
                 runtimeStats.activeRequestsIds.add(req.id)
                 runtimeStats.activeRequestsCountByType[requestType] = (runtimeStats.activeRequestsCountByType[requestType] || 0) + 1
                 runtimeStats.totalRequestsCount = (runtimeStats.totalRequestsCount || 0) + 1
-                runtimeStats.totalRequestsByTarget[xTargetHeader] = (runtimeStats.totalRequestsByTarget[xTargetHeader] || 0) + 1
+                runtimeStats.totalRequestsByTarget[xTarget] = (runtimeStats.totalRequestsByTarget[xTarget] || 0) + 1
             }
 
             res.on('close', () => {
