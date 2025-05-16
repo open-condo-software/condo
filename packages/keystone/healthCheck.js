@@ -356,4 +356,5 @@ module.exports = {
     getCertificateHealthCheck,
     getIntegrationHealthCheck,
     STATUS_ENUM,
+    DEFAULT_HEALTHCHECK_URL,
 }
