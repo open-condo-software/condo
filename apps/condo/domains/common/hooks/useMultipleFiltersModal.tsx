@@ -335,16 +335,14 @@ const ResetFiltersModalButton: React.FC<ResetFiltersModalButtonProps> = ({
     const intl = useIntl()
     const ClearAllFiltersMessage = intl.formatMessage({ id: 'ClearAllFilters' })
     const router = useRouter()
-    const { setSelectedFiltersTemplate } = useMultipleFilterContext()
 
     const handleReset = useCallback(async () => {
         await router.replace({ query: omit(router.query, ['filters', 'sort', 'offset']) }, undefined, { shallow: true })
-        setSelectedFiltersTemplate(null)
 
         if (isFunction(handleResetFromProps)) {
             await handleResetFromProps()
         }
-    }, [handleResetFromProps, router, setSelectedFiltersTemplate])
+    }, [handleResetFromProps, router])
 
     return (
         <CommonButton
@@ -386,7 +384,6 @@ const isEqualSelectedFiltersTemplateAndFilters = (selectedFiltersTemplate, filte
     const templateFilters = selectedFiltersTemplate?.fields ?? null
     if (!templateFilters) return false
     if (has(templateFilters, '__typename')) delete templateFilters['__typename']
-    if (has(templateFilters, 'attributes')) delete templateFilters['attributes']
     return isEqual(omitBy(templateFilters, isNil), filters)
 }
 
