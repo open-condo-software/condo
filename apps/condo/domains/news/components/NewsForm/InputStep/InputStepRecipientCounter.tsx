@@ -3,6 +3,7 @@ import { B2BAppNewsSharingConfig } from '@app/condo/schema'
 import { Col } from 'antd'
 import React, { useMemo } from 'react'
 
+import { useIntl } from '@open-condo/next/intl'
 import { Card, Space } from '@open-condo/ui'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
@@ -26,6 +27,11 @@ export const InputStepRecipientCounter: React.FC<InputStepRecipientCounterProps>
     newsItemScopesNoInstance,
     newsSharingScope,
 }) => {
+    const intl = useIntl()
+    const StatisticsTitle = intl.formatMessage({ id: 'pages.condo.news.steps.statistics' })
+    const SubscribersLabel = intl.formatMessage({ id: 'pages.condo.news.steps.subscribers' })
+    const ChannelsLabel = intl.formatMessage({ id: 'pages.condo.news.steps.channels' })
+
     const { breakpoints } = useLayoutContext()
 
     const isMediumWindow = !breakpoints.DESKTOP_SMALL
@@ -45,15 +51,22 @@ export const InputStepRecipientCounter: React.FC<InputStepRecipientCounterProps>
                 newsItemScopes={newsItemScopesNoInstance}
             /> ) :
             <HiddenBlock hide={!filteredNewsSharingScope?.length} className='custom-counter' >
-                <Card title={<Card.CardHeader headingTitle='Статистика' />}>
+                <Card title={<Card.CardHeader headingTitle={StatisticsTitle} />}>
                     <Space direction='horizontal' size={24}  className='custom-counter-content'>
-                        <Counter label='Каналов и чатов' value={filteredNewsSharingScope?.length}/>
-
-                        <Counter label='Всего подписчкиов' value={receiversCount}/>
+                        <Counter
+                            label={ChannelsLabel}
+                            value={filteredNewsSharingScope?.length}
+                        />
+                        <Counter
+                            label={SubscribersLabel}
+                            value={receiversCount}
+                        />
                     </Space>
                 </Card>
             </HiddenBlock>
-    )}</>, [isSharingStep, newsSharingConfig?.getRecipientsCountersUrl, sharingAppId, newsItemScopesNoInstance, filteredNewsSharingScope?.length, receiversCount])
+    )}</>, [isSharingStep, newsSharingConfig?.getRecipientsCountersUrl, sharingAppId, newsItemScopesNoInstance,
+        filteredNewsSharingScope?.length, StatisticsTitle, ChannelsLabel, SubscribersLabel, receiversCount]
+    )
 
     return (
         <Col span={formInfoColSpan} className='recipient-counter'>
