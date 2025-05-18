@@ -119,6 +119,27 @@ function collect () {
     })
 }
 
+async function writeHeapProfileSnapshot (
+    ms = 10_000,  // 10s
+    samplingInterval = 256 * 1024,   // 256 KB
+) {
+    const session = new Session()
+    session.connect()
+    const post = promisify(session.post).bind(session)
+    try {
+        await post('HeapProfiler.enable')
+        await post('HeapProfiler.startSampling', { samplingInterval })
+        await new Promise(resolve => setTimeout(resolve, ms))
+        const { profile } = await post('HeapProfiler.stopSampling')
+
+        const tmpFile = path.join(os.tmpdir(), `heap-${Date.now()}.heapprofile`)
+        await fs.promises.writeFile(tmpFile, JSON.stringify(profile))
+        return tmpFile
+    } finally {
+        session.disconnect()
+    }
+}
+
 async function writeCpuProfileSnapshot (ms = 10_000) {
     const session = new Session()
     session.connect()
@@ -126,9 +147,7 @@ async function writeCpuProfileSnapshot (ms = 10_000) {
     try {
         await post('Profiler.enable')
         await post('Profiler.start')
-
         await new Promise(resolve => setTimeout(resolve, ms))
-
         const { profile } = await post('Profiler.stop')
 
         const tmpFile = path.join(os.tmpdir(), `cpu-${Date.now()}.cpuprofile`)
@@ -187,13 +206,36 @@ function addDebugTools (app) {
 
     // TODO(pahaz): think about standards for `diagnostics_channel` to collect some business events timing
 
-    app.get('/api/debug/heap', (req, res) => {
+    app.get('/api/debug/heap-snapshot', (req, res) => {
         if (!hasValidToken(req, res)) return
         if (!hasEnoughHeap(req, res)) return
         if (!acquireLock(req, res)) return
         try {
             const filePath = v8.writeHeapSnapshot()  // "…/heap-<pid>-<ts>.heapsnapshot"
-            const downloadName = `heap-${HOSTNAME}-${Date.now()}.heapsnapshot`
+            const downloadName = `heap-snapshot-${HOSTNAME}-${Date.now()}.heapsnapshot`
+
+            res.setHeader('Content-Type', 'application/json')
+            res.setHeader('Content-Disposition', `attachment; filename="${downloadName}"`)
+
+            res.sendFile(filePath, err => {
+                if (err) logger.error({ msg: 'DownloadError', err })
+                // eslint-disable-next-line @typescript-eslint/no-empty-function
+                fs.unlink(filePath, () => {})
+            })
+        } catch (err) {
+            res.status(500).json({ ok: false, error: err.message })
+        } finally {
+            releaseLock()
+        }
+    })
+
+    app.get('/api/debug/heap', async (req, res) => {
+        if (!hasValidToken(req, res)) return
+        if (!hasEnoughHeap(req, res)) return
+        if (!acquireLock(req, res)) return
+        try {
+            const filePath = await writeHeapProfileSnapshot()
+            const downloadName = `heap-profile-${HOSTNAME}-${Date.now()}.heapprofile`
 
             res.setHeader('Content-Type', 'application/json')
             res.setHeader('Content-Disposition', `attachment; filename="${downloadName}"`)
@@ -216,7 +258,7 @@ function addDebugTools (app) {
         if (!acquireLock(req, res)) return
         try {
             const filePath = await writeCpuProfileSnapshot(10_000)  // "…/cpu-<now>.cpuprofile"
-            const downloadName = `cpu-${HOSTNAME}-${Date.now()}.cpuprofile`
+            const downloadName = `cpu-profile-${HOSTNAME}-${Date.now()}.cpuprofile`
 
             res.setHeader('Content-Type', 'application/json')
             res.setHeader('Content-Disposition', `attachment; filename="${downloadName}"`)
