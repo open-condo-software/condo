@@ -1,5 +1,7 @@
+const fs = require('fs')
 const { Session } = require('inspector')
 const os = require('os')
+const path = require('path')
 const {
     monitorEventLoopDelay,
     performance,
@@ -9,6 +11,7 @@ const { promisify } = require('util')
 const v8 = require('v8')
 
 const conf = require('@open-condo/config')
+const { getLogger } = require('@open-condo/keystone/logging')
 
 const SAMPLE_MS = 20 // sample period
 const HISTORY = 10 // how many samples
@@ -19,6 +22,8 @@ const CPU_CORES = os.cpus().length
 
 // keeps a rolling HDR-histogram of event-loop latency (how long the loop is blocked); docs: https://nodejs.org/api/perf_hooks.html#perf_hooksmonitoreventloopdelayoptions
 const LOOP_MONITOR = monitorEventLoopDelay({ resolution: 10 })
+
+const logger = getLogger('debugging')
 
 // NOTE(pahaz): process.cpuUsage() deprecated → process.resourceUsage() since Node ≥ 20
 let prevCpu = process.cpuUsage()
@@ -43,7 +48,6 @@ function pushMetricToMemory (sample) {
     METRICS_MEMORY.push(sample)
     if (METRICS_MEMORY.length > HISTORY) METRICS_MEMORY.shift()
 }
-
 
 function collect () {
     /* CPU — diff */
@@ -113,8 +117,9 @@ function collect () {
     })
 }
 
-async function captureCpu (ms = 10_000) {
+async function writeCpuProfileSnapshot (ms = 10_000) {
     const session = new Session()
+    session.connect()
     const post = promisify(session.post).bind(session)
     try {
         await post('Profiler.enable')
@@ -123,10 +128,35 @@ async function captureCpu (ms = 10_000) {
         await new Promise(resolve => setTimeout(resolve, ms))
 
         const { profile } = await post('Profiler.stop')
-        return JSON.stringify(profile)
+
+        const tmpFile = path.join(os.tmpdir(), `cpu-${Date.now()}.cpuprofile`)
+        await fs.promises.writeFile(tmpFile, JSON.stringify(profile))
+        return tmpFile
     } finally {
         session.disconnect()
     }
+}
+
+function hasValidToken (req, res) {
+    const ok = req.query?.['token'] === TOKEN && TOKEN
+    if (!ok) res.sendStatus(403)
+    return ok
+}
+
+function hasEnoughHeap (req, res, minFreeRatio = 0.50) {  // ≥ 50 % default limit
+    const { heap_size_limit } = v8.getHeapStatistics()  // bytes
+    const { heapUsed } = process.memoryUsage()
+    const free = heap_size_limit - heapUsed
+    const freeRatio = free / heap_size_limit
+    const ok = freeRatio >= minFreeRatio
+    if (!ok) res.status(503).json({
+        ok: false,
+        error: 'Not enough V8 heap space',
+        heapLimit: heap_size_limit,
+        heapUsed: heapUsed,
+        heapFreePct: +(freeRatio * 100).toFixed(1),
+    })
+    return ok
 }
 
 function addDebugTools (app) {
@@ -137,23 +167,47 @@ function addDebugTools (app) {
     // TODO(pahaz): think about standards for `diagnostics_channel` to collect some business events timing
 
     app.get('/api/debug/heap', (req, res) => {
-        if (req.header('x-token') !== TOKEN) return res.sendStatus(401)
-        const file = v8.writeHeapSnapshot()
-        res.json({ ok: true, host: HOSTNAME, file })
+        if (!hasValidToken(req, res)) return
+        if (!hasEnoughHeap(req, res)) return
+        try {
+            const filePath = v8.writeHeapSnapshot()  // "…/heap-<pid>-<ts>.heapsnapshot"
+            const downloadName = `heap-${HOSTNAME}-${Date.now()}.heapsnapshot`
+
+            res.setHeader('Content-Type', 'application/json')
+            res.setHeader('Content-Disposition', `attachment; filename="${downloadName}"`)
+
+            res.sendFile(filePath, err => {
+                if (err) logger.error({ msg: 'DownloadError', err })
+                // eslint-disable-next-line @typescript-eslint/no-empty-function
+                fs.unlink(filePath, () => {})
+            })
+        } catch (err) {
+            res.status(500).json({ ok: false, error: err.message })
+        }
     })
 
     app.get('/api/debug/cpu', async (req, res) => {
-        if (req.header('x-token') !== TOKEN) return res.sendStatus(401)
+        if (!hasValidToken(req, res)) return
+        if (!hasEnoughHeap(req, res)) return
         try {
-            const file = await captureCpu(10_000)  // 10s ~ 50–100 MB
-            res.json({ ok: true, host: HOSTNAME, file })
+            const filePath = await writeCpuProfileSnapshot(10_000)  // "…/cpu-<now>.cpuprofile"
+            const downloadName = `cpu-${HOSTNAME}-${Date.now()}.cpuprofile`
+
+            res.setHeader('Content-Type', 'application/json')
+            res.setHeader('Content-Disposition', `attachment; filename="${downloadName}"`)
+
+            res.sendFile(filePath, err => {
+                if (err) logger.error({ msg: 'DownloadError', err })
+                // eslint-disable-next-line @typescript-eslint/no-empty-function
+                fs.unlink(filePath, () => {})
+            })
         } catch (err) {
             res.status(500).json({ ok: false, error: err.message })
         }
     })
 
     app.get('/api/debug/metrics', async (req, res) => {
-        if (req.header('x-token') !== TOKEN) return res.sendStatus(401)
+        if (!hasValidToken(req, res)) return
         const metrics = (METRICS_MEMORY.length > 0) ? METRICS_MEMORY[METRICS_MEMORY.length - 1] : undefined
         res.json({ ok: true, host: HOSTNAME, metrics })
     })
