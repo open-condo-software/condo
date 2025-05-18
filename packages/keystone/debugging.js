@@ -1,3 +1,4 @@
+const crypto = require('crypto')
 const fs = require('fs')
 const { Session } = require('inspector')
 const os = require('os')
@@ -22,6 +23,8 @@ const CPU_CORES = os.cpus().length
 
 // keeps a rolling HDR-histogram of event-loop latency (how long the loop is blocked); docs: https://nodejs.org/api/perf_hooks.html#perf_hooksmonitoreventloopdelayoptions
 const LOOP_MONITOR = monitorEventLoopDelay({ resolution: 10 })
+
+const ENDPOINT_LOCKS = new Map()
 
 const logger = getLogger('debugging')
 
@@ -54,7 +57,7 @@ function collect () {
     const cpuDiff = process.cpuUsage(prevCpu) // microseconds
     const nowNS = process.hrtime.bigint()
     const diffMS = Number(nowNS - prevNS) / 1e6
-    const cpuPct = ((cpuDiff.user + cpuDiff.system) / 1000) / (diffMS * CPU_CORES) * 100
+    const cpuPct = (diffMS >= 1) ? +(((cpuDiff.user + cpuDiff.system) / 1000) / (diffMS * CPU_CORES) * 100).toFixed(2) : -1
 
     prevCpu = process.cpuUsage()
     prevNS = nowNS
@@ -94,7 +97,7 @@ function collect () {
         date: Date.now(),
         cpu: {
             cores: CPU_CORES,
-            pct: +cpuPct.toFixed(2),
+            pct: cpuPct,
             load: os.loadavg(),
             diffs: cpuDiff,
         },
@@ -105,11 +108,10 @@ function collect () {
             heapSpaces: spaces,
             usage: usages,
         },
-        memoryHeap: v8.getHeapStatistics(),
         eventLoop: {
             utilization: +elu.utilization.toFixed(3),
-            idle: (elu.idle / 1e3).toFixed(0),
-            active: (elu.active / 1e3).toFixed(0),
+            idle: +(elu.idle / 1e3).toFixed(0),
+            active: +(elu.active / 1e3).toFixed(0),
             delay: d,
         },
         eventQueue: { handles, requests },
@@ -138,7 +140,11 @@ async function writeCpuProfileSnapshot (ms = 10_000) {
 }
 
 function hasValidToken (req, res) {
-    const ok = req.query?.['token'] === TOKEN && TOKEN
+    const requestToken = req.query?.['token']
+    const ok = requestToken && TOKEN && crypto.timingSafeEqual(
+        Buffer.from(requestToken),
+        Buffer.from(TOKEN),
+    )
     if (!ok) res.sendStatus(403)
     return ok
 }
@@ -146,7 +152,7 @@ function hasValidToken (req, res) {
 function hasEnoughHeap (req, res, minFreeRatio = 0.50) {  // ≥ 50 % default limit
     const { heap_size_limit } = v8.getHeapStatistics()  // bytes
     const { heapUsed } = process.memoryUsage()
-    const free = heap_size_limit - heapUsed
+    const free = Math.max(0, heap_size_limit - heapUsed)
     const freeRatio = free / heap_size_limit
     const ok = freeRatio >= minFreeRatio
     if (!ok) res.status(503).json({
@@ -159,6 +165,21 @@ function hasEnoughHeap (req, res, minFreeRatio = 0.50) {  // ≥ 50 % default li
     return ok
 }
 
+function acquireLock (req, res, key = 'default') {
+    const ok = !ENDPOINT_LOCKS.has(key)
+    if (ok) {
+        ENDPOINT_LOCKS.set(key, true)
+    } else {
+        res.status(429).json({
+            ok: false,
+            error: 'Previous request is still in progress',
+        })
+    }
+    return ok
+}
+
+function releaseLock (key = 'default') { ENDPOINT_LOCKS.delete(key) }
+
 function addDebugTools (app) {
 
     LOOP_MONITOR.enable()
@@ -169,6 +190,7 @@ function addDebugTools (app) {
     app.get('/api/debug/heap', (req, res) => {
         if (!hasValidToken(req, res)) return
         if (!hasEnoughHeap(req, res)) return
+        if (!acquireLock(req, res)) return
         try {
             const filePath = v8.writeHeapSnapshot()  // "…/heap-<pid>-<ts>.heapsnapshot"
             const downloadName = `heap-${HOSTNAME}-${Date.now()}.heapsnapshot`
@@ -183,12 +205,15 @@ function addDebugTools (app) {
             })
         } catch (err) {
             res.status(500).json({ ok: false, error: err.message })
+        } finally {
+            releaseLock()
         }
     })
 
     app.get('/api/debug/cpu', async (req, res) => {
         if (!hasValidToken(req, res)) return
         if (!hasEnoughHeap(req, res)) return
+        if (!acquireLock(req, res)) return
         try {
             const filePath = await writeCpuProfileSnapshot(10_000)  // "…/cpu-<now>.cpuprofile"
             const downloadName = `cpu-${HOSTNAME}-${Date.now()}.cpuprofile`
@@ -203,6 +228,8 @@ function addDebugTools (app) {
             })
         } catch (err) {
             res.status(500).json({ ok: false, error: err.message })
+        } finally {
+            releaseLock()
         }
     })
 
