@@ -1,5 +1,7 @@
+const { getHeapStatistics } = require('node:v8')
+
 const cuid = require('cuid')
-const { get } = require('lodash')
+const get = require('lodash/get')
 
 const { getLogger } = require('./getLogger')
 const { getReqLoggerContext } = require('./getReqLoggerContext')
@@ -7,12 +9,27 @@ const { normalizeQuery, normalizeVariables } = require('./normalize')
 
 const { safeFormatError } = require('../apolloErrorFormatter')
 
+const MiB = 1024 ** 2 // 1 MiB (mebibyte) = 1_048_576 B (byte)
+
 const graphqlLogger = getLogger('graphql')
 const graphqlErrorLogger = getLogger('graphqlerror')
 
-function getGraphQLReqLoggerContext (requestContext) {
+// Note: Hard limit of the V8 heap (bytes). Fixed for the lifetime of the process.
+//  Can be raised with the CLI flag `node --max-old-space-size=<MiB>` or via `NODE_OPTIONS="--max-old-space-size=<MiB>"` env
+const { heap_size_limit: heapSizeLimitBytes } = getHeapStatistics()
+
+function getHeapFree () {
+    const { heapUsed } = process.memoryUsage()
+    const freeBytes = Math.max(0, heapSizeLimitBytes - heapUsed)
+    const freePct = Number((freeBytes / heapSizeLimitBytes * 100).toFixed(1))
+    const freeMiB = Number((freeBytes / MiB).toFixed(2))
+    return { freeMiB, freePct }
+}
+
+function getGraphQLReqLoggerContext (requestContext, { memory = false } = {}) {
     const req = get(requestContext, 'context.req')
     const reqContext = getReqLoggerContext(req)  // reqId, sessionId, user, ip, fingerprint, complexity
+    const memoryContext = (memory) ? { mem: getHeapFree() } : {}
 
     const authedItemId = get(requestContext, 'context.authedItem.id')
     const operationId = get(requestContext, 'operationId')
@@ -20,10 +37,18 @@ function getGraphQLReqLoggerContext (requestContext) {
     const queryHash = get(requestContext, 'queryHash')
 
     const graphQLOperations = get(requestContext, 'document.definitions', []).map(renderExecutableDefinitionNode).filter(Boolean)
+    // TODO(pahaz): DOMA-11627 add normalization if length is more than 15_360
     const query = normalizeQuery(get(requestContext, 'request.query'))
     const variables = normalizeVariables(get(requestContext, 'request.variables'))
 
-    return { graphQLOperations, gql: { query, variables }, ...reqContext, authedItemId, operationId, operationName, queryHash, req }
+    return {
+        graphQLOperations,
+        gql: { query, variables, queryLength: query?.length, variablesLength: variables?.length },
+        ...reqContext,
+        ...memoryContext,
+        authedItemId, operationId, operationName, queryHash,
+        req,
+    }
 }
 
 /**
@@ -57,7 +82,7 @@ class GraphQLLoggerPlugin {
         const requestStartTime = process.hrtime.bigint()
         graphqlLogger.info({
             state: 'requestDidStart',
-            ...getGraphQLReqLoggerContext(requestContext),
+            ...getGraphQLReqLoggerContext(requestContext, { memory: true }),
         })
 
         return {
@@ -71,10 +96,10 @@ class GraphQLLoggerPlugin {
             },
             async willSendResponse (requestContext) {
                 graphqlLogger.info({
+                    state: 'willSendResponse',
                     ...getGraphQLReqLoggerContext(requestContext),
                     responseTime: timeFrom(requestStartTime),
                     timeUntilExecution,
-                    state: 'willSendResponse',
                 })
             },
 
