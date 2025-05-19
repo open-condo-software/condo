@@ -803,9 +803,9 @@ const Ticket = new GQLListSchema('Ticket', {
                 const classifierResult = await classifyTicket(context, resolvedData.details)
 
                 const classifierResultId = get(classifierResult, 'id')
-                resolvedData.classifier = classifierResultId
 
                 if (classifierResultId) {
+                    resolvedData.classifier = classifierResultId
                     resolvedData.isAutoClassified = true
                 }
             }
