@@ -8,7 +8,6 @@ import has from 'lodash/has'
 import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
 import isFunction from 'lodash/isFunction'
-import isNil from 'lodash/isNil'
 import omit from 'lodash/omit'
 import omitBy from 'lodash/omitBy'
 import pickBy from 'lodash/pickBy'
@@ -653,7 +652,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
                 </Col>
             </Row>
         )
-    }, [ApplyMessage, DeleteLabel, DeleteMessage, DeleteTitle, SaveTemplateMessage, breakpoints.TABLET_LARGE, handleDeleteFiltersTemplate, handleResetButtonClick, handleSaveFiltersTemplate, handleSubmitButtonClick, openedFiltersTemplate])
+    }, [ApplyMessage, DeleteLabel, DeleteMessage, DeleteTemplateMessage, DeleteTitle, SaveTemplateMessage, breakpoints.TABLET_LARGE, handleDeleteFiltersTemplate, handleResetButtonClick, handleSaveFiltersTemplate, handleSubmitButtonClick, openedFiltersTemplate])
 
     const handleCancelModal = useCallback(() => setIsMultipleFiltersModalVisible(false), [setIsMultipleFiltersModalVisible])
 
@@ -715,28 +714,25 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
                         scrollToFirstError={SCROLL_TO_FIRST_ERROR_CONFIG}
                     >
                         {
-                            ({ handleSave }) => {
-
-                                return (
-                                    <Row gutter={MAIN_ROW_GUTTER}>
-                                        <Col span={24}>
-                                            {
-                                                !isEmpty(filtersTemplates) ? (
-                                                    <Tabs onChange={handleTabChange} activeKey={tabsActiveKey}>
-                                                        <TabPane tab={NewFilterMessage} key='newFilter'>
-                                                            <NewFiltersTemplateNameInput />
-                                                        </TabPane>
-                                                        {templatesTabs}
-                                                    </Tabs>
-                                                ) : (
-                                                    <NewFiltersTemplateNameInput />
-                                                )
-                                            }
-                                        </Col>
-                                        <ModalFormItems />
-                                    </Row>
-                                )
-                            }
+                            () => (
+                                <Row gutter={MAIN_ROW_GUTTER}>
+                                    <Col span={24}>
+                                        {
+                                            !isEmpty(filtersTemplates) ? (
+                                                <Tabs onChange={handleTabChange} activeKey={tabsActiveKey}>
+                                                    <TabPane tab={NewFilterMessage} key='newFilter'>
+                                                        <NewFiltersTemplateNameInput />
+                                                    </TabPane>
+                                                    {templatesTabs}
+                                                </Tabs>
+                                            ) : (
+                                                <NewFiltersTemplateNameInput />
+                                            )
+                                        }
+                                    </Col>
+                                    <ModalFormItems />
+                                </Row>
+                            )
                         }
                     </FormWithAction>
                 ) : <Loader />
