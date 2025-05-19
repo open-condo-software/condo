@@ -43,7 +43,7 @@ function getGraphQLReqLoggerContext (requestContext, { memory = false } = {}) {
 
     return {
         graphQLOperations,
-        gql: { query, variables, queryLength: query.length, variablesLength: variables.length },
+        gql: { query, variables, queryLength: query?.length, variablesLength: variables?.length },
         ...reqContext,
         ...memoryContext,
         authedItemId, operationId, operationName, queryHash,
