@@ -4,6 +4,7 @@ const get = require('lodash/get')
 const isNull = require('lodash/isNull')
 const map = require('lodash/map')
 
+const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { createTask } = require('@open-condo/keystone/tasks')
@@ -292,9 +293,13 @@ async function exportTickets (taskId) {
             return tickets
         }
 
+        const rowsLimit = await featureToggleManager.getFeatureValue(
+            context, 'temp-rows-excel-limit', 3000
+        )
+
         switch (format) {
             case EXCEL: {
-                if (totalRecordsCount > MAX_XLSX_FILE_ROWS) {
+                if (totalRecordsCount > rowsLimit) {
                     await exportRecordsAsCsvFile({
                         context,
                         loadRecordsBatch,
