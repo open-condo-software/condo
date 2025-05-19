@@ -26,7 +26,7 @@ function getHeapFree () {
     return { freeMiB, freePct }
 }
 
-function getGraphQLReqLoggerContext (requestContext, { memory = false }) {
+function getGraphQLReqLoggerContext (requestContext, { memory = false } = {}) {
     const req = get(requestContext, 'context.req')
     const reqContext = getReqLoggerContext(req)  // reqId, sessionId, user, ip, fingerprint, complexity
     const memoryContext = (memory) ? { mem: getHeapFree() } : {}
