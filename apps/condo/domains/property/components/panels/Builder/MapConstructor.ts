@@ -86,6 +86,7 @@ export enum MapEditMode {
     AddParkingUnit = 'addParkingUnit',
     AddParkingFacilityUnit = 'addParkingFacilityUnit',
     EditParkingUnit = 'editParkingUnit',
+    EditParkingUnits = 'editParkingUnits',
     EditParkingFacilityUnit = 'editParkingFacilityUnit',
     AddSectionFloor = 'addSectionFloor',
 }
@@ -527,6 +528,7 @@ class MapEdit extends MapView {
             case 'editUnit':
             case 'editUnits':
             case 'editParkingUnit':
+            case 'editParkingUnits':
             case 'editParkingFacilityUnit':
                 this.removePreviewUnit()
                 this.removePreviewSection()
@@ -555,14 +557,15 @@ class MapEdit extends MapView {
     }
 
     public validateInputUnitLabel (selectedUnit: BuildingUnit = null, newLabel = '', unitType: BuildingUnit['unitType']): boolean {
-        const units = this.sections
+        const units = [...this.map.sections, ...this.map.parking]
             ?.map((section) => section.floors
                 ?.map(floor => floor.units
                     ?.map(unit => unit)
                     .filter(unit => {
                         if (unit.preview) return
                         else if (
-                            !['editUnit', 'editUnits', 'editParkingUnit', 'editParkingFacilityUnit'].includes(this.mode)
+                            !['editUnit', 'editUnits', 'editParkingUnit', 'editParkingUnits', 'editParkingFacilityUnit']
+                                .includes(this.mode)
                         ) return unit.label
                         else if (unit.id !== get(selectedUnit, 'id')) return unit.label
                     }))
@@ -613,10 +616,9 @@ class MapEdit extends MapView {
         if (this.selectedUnits.length > 1) {
             if (this.viewMode === MapViewMode.section) {
                 this.editMode = 'editUnits'
+            } else if (this.viewMode === MapViewMode.parking) {
+                this.editMode = 'editParkingUnits'
             }
-            // else if (this.viewMode === MapViewMode.parking) {
-            //     this.editMode = 'editParkingUnits'
-            // }
             return
         }
 
