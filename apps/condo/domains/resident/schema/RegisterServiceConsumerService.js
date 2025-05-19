@@ -217,53 +217,66 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
             access: access.canRegisterServiceConsumer,
             schema: 'registerServiceConsumer(data: RegisterServiceConsumerInput!): ServiceConsumer',
             resolver: async (parent, args, context = {}) => {
-                const { data: { dv, sender, residentId, accountNumber: accountNumberUserInput, organizationId, extra } } = args
+                const { data: { dv, sender, residentId, accountNumber: accountNumberUserInput, organizationId } } = args
                 const accountNumber = accountNumberUserInput.trim()
                 if (!accountNumber || accountNumber.length === 0) {
                     throw new GQLError(ERRORS.ACCOUNT_NUMBER_IS_NOT_SPECIFIED, context)
                 }
-
-                const resident = await Resident.getOne(context, { id: residentId, deletedAt: null }, 'id user { id }')
+                const resident = await find('Resident', { id: residentId, deletedAt: null })
                 if (!resident) {
                     throw new GQLError(ERRORS.RESIDENT_NOT_FOUND, context)
                 }
-                await resetUserResidentCache(resident.user.id)
-                const organization = await Organization.getOne(context, { id: organizationId, deletedAt: null }, 'id tin')
-                if (!organization) {
+                await resetUserResidentCache(resident.user)
+                const organization = await getById('Organization', organizationId)
+                if (!organization || organization.deletedAt) {
                     throw new GQLError(ERRORS.ORGANIZATION_NOT_FOUND, context)
                 }
-                const paymentCategory = get(extra, 'paymentCategory', null)
-                const [billingContext] = await BillingIntegrationOrganizationContext.getAll(context, {
+                const billingContexts = await find('BillingIntegrationOrganizationContext', {
                     status: CONTEXT_FINISHED_STATUS,
                     organization: { id: organization.id },
+                    integration: { deletedAt: null },
                     deletedAt: null,
-                }, 'id integration { checkAccountNumberUrl }')
+                })
                 let isBillingAccountFound = false
                 let isMetersFound = false
-                if (billingContext) {
-                    const [billingAccount] = await BillingAccount.getAll(context, {
-                        context: { id: billingContext.id },
+                if (billingContexts.length) {
+                    const billingContextIds = billingContexts.map(({ id }) => id)
+                    const [billingAccount] = await find('BillingAccount', {
+                        context: { id_in: billingContextIds },
                         number_i: accountNumber,
                         deletedAt: null,
                     })
                     if (billingAccount) {
                         isBillingAccountFound = true
                     } else {
-                        const interactionUrl = get(billingContext, 'integration.checkAccountNumberUrl')
-                        if (interactionUrl) {
-                            isBillingAccountFound = await checkAccountNumberWithOnlineInteractionUrl(interactionUrl, organization.tin, accountNumber)
+                        const billingIntegrationIds = new Set(billingContexts.map(({ integration }) => integration))
+                        const billingIntegrations = await find('BillingIntegration', {
+                            id_in: [...billingIntegrationIds],
+                            checkAccountNumberUrl_not: null,
+                        })
+                        if (billingIntegrations.length) {
+                            for (const { checkAccountNumberUrl } of billingIntegrations) {
+                                const remoteCheck = await checkAccountNumberWithOnlineInteractionUrl(checkAccountNumberUrl, organization.tin, accountNumber)
+                                if (remoteCheck) {
+                                    isBillingAccountFound = true
+                                    break
+                                }
+                            }
                         }
                     }
                 }
-                const [acquiringContext] = await AcquiringIntegrationContext.getAll(context, {
+                const [acquiringContext] = await find('AcquiringIntegrationContext', {
                     status: CONTEXT_FINISHED_STATUS,
                     organization: {
                         id: organization.id,
                     },
+                    integration: {
+                        deletedAt: null,
+                    },
                     deletedAt: null,
                 })
                 if (!isBillingAccountFound) {
-                    const meters = await Meter.getAll(context, {
+                    const meters = await find('Meter', {
                         accountNumber_i: accountNumber,
                         organization: {
                             id: organizationId,
@@ -278,32 +291,25 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                 if (!isBillingAccountFound && !isMetersFound) {
                     throw new GQLError(ERRORS.BILLING_ACCOUNT_NOT_FOUND, context)
                 }
-                const [existingServiceConsumer] = await ServiceConsumer.getAll(context, {
+                const [existingServiceConsumer] = await find('ServiceConsumer', {
                     resident: { id: residentId },
                     accountNumber_i: accountNumber,
                     organization: { id: organizationId },
                     deletedAt: null,
-                }, 'id acquiringIntegrationContext { id } billingIntegrationContext { id }')
+                })
                 let serviceConsumerId = existingServiceConsumer ? existingServiceConsumer.id : null
                 if (existingServiceConsumer) {
                     serviceConsumerId = existingServiceConsumer.id
-                    const updateInput = {
-                        ...paymentCategory ? { paymentCategory } : {},
-                    }
-                    if (acquiringContext && get(existingServiceConsumer, 'acquiringIntegrationContext.id') !== acquiringContext.id) {
+                    const updateInput = {}
+                    if (acquiringContext && existingServiceConsumer.acquiringIntegrationContext !== acquiringContext.id) {
                         updateInput.acquiringIntegrationContext = { connect: { id: acquiringContext.id } }
-                    }
-                    if (billingContext && get(existingServiceConsumer, 'billingIntegrationContext.id') !== billingContext.id) {
-                        updateInput.billingIntegrationContext = { connect: { id: billingContext.id } }
                     }
                     if (!isEmpty(updateInput)) {
                         await ServiceConsumer.update(context, existingServiceConsumer.id, { dv, sender, ...updateInput })
                     }
                 } else {
                     const deprecatedFields = {
-                        ...billingContext ? { billingIntegrationContext: { connect: { id: billingContext.id } } } : {},
                         ...acquiringContext ? { acquiringIntegrationContext: { connect: { id: acquiringContext.id } } } : {},
-                        ...paymentCategory ? { paymentCategory } : {},
                     }
                     const consumer = await ServiceConsumer.create(context, {
                         dv,
