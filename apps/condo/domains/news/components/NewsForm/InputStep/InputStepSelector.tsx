@@ -41,12 +41,12 @@ interface InputStepSelectorProps {
     ctx: IB2BAppContext
     setSharingAppFormValues: React.Dispatch<React.SetStateAction<SharingAppValuesType>>
     scope: ScopeType
-    setScope: React.Dispatch<React.SetStateAction<ScopeType>>
+    setScope:  React.Dispatch<React.SetStateAction<ScopeType>>
 
     propertySelectProps: (form: FormInstance) => ComponentProps<typeof GraphQlSearchInput>
     selectedProperty: {
         loading: boolean
-        objs: Array<IProperty>
+        objs:  Array<IProperty>
     }
     newsItemForOneProperty: boolean
     initialValues?: Partial<INewsItem> & { hasAllProperties?: boolean, hasAllCustom?: boolean }
@@ -126,30 +126,30 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
                     if (countPropertiesAvailableToSelect.current === 1 && selectedPropertiesId.length === 1)
                         return prev
                     if (countPropertiesAvailableToSelect.current === 1 && selectedPropertiesId.length === 0 && !!onlyPropertyThatCanBeSelected?.current?.value) {
-                        return { ...prev, selectedPropertiesId: [onlyPropertyThatCanBeSelected.current.value] }
+                        return { ...prev, selectedPropertiesId:  [onlyPropertyThatCanBeSelected.current.value] }
                     }
                     return { ...prev, selectedPropertiesId: [] }
                 }
             )
 
             if (countPropertiesAvailableToSelect.current === 1 && !value) {
-                setScope(prev => ({ ...prev, selectedPropertiesId: [] }))
+                setScope(prev=>({ ...prev, selectedPropertiesId: [] }))
             }
 
-            setScope(prev => ({ ...prev, isAllPropertiesChecked: value }))
+            setScope(prev=>({ ...prev, isAllPropertiesChecked: value }))
             form.setFieldsValue({ 'unitNames': [] })
             form.setFieldsValue({ 'sectionIds': [] })
-            setScope(prev => ({ ...prev, selectedUnitNameKeys: [] }))
-            setScope(prev => ({ ...prev, selectedSectionKeys: [] }))
+            setScope(prev=>({ ...prev, selectedUnitNameKeys: [] }))
+            setScope(prev=>({ ...prev, selectedSectionKeys: [] }))
         }
     }
 
     const customCheckboxChange = () => {
         return (value) => {
             if (value)
-                setSharingAppFormValues(prev => ({ ...prev, scope: data?.recipients, isAllChecked: value }))
+                setSharingAppFormValues(prev=>({ ...prev, scope: data?.recipients, isAllChecked: value }))
             else
-                setSharingAppFormValues(prev => ({ ...prev, scope: prev.isAllChecked ? [] : prev.scope }))
+                setSharingAppFormValues(prev=>({ ...prev, scope: prev.isAllChecked ? [] : prev.scope }))
         }
     }
 
@@ -162,7 +162,7 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
         propertyIsAutoFilled.current = true
         const propertyId = data?.[0]?.value
         if (propertyId) {
-            setScope(prev => ({ ...prev, selectedPropertiesId: [propertyId] }))
+            setScope(prev=>({ ...prev, selectedPropertiesId: [propertyId] }))
             form.setFieldsValue({
                 property: propertyId,
                 'properties': [propertyId],
@@ -180,26 +180,26 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
 
     const handleChangeUnitNameInput = useCallback((_, options: UnitNameInputOption[]) => {
         if (!options) {
-            setScope(prev => ({ ...prev, selectedUnitNameKeys: null }))
+            setScope(prev=>({ ...prev, selectedUnitNameKeys: null }))
         } else {
             const unitNamesKeys = options.map(option => option.key)
-            setScope(prev => ({ ...prev, selectedUnitNameKeys: unitNamesKeys }))
+            setScope(prev=>({ ...prev, selectedUnitNameKeys: unitNamesKeys }))
         }
     }, [])
 
     const handleChangeSectionNameInput = useCallback((property) => {
         return (sections, options) => {
             if (!sections || sections.length === 0) {
-                setScope(prev => ({ ...prev, selectedSectionKeys: [] }))
+                setScope(prev=>({ ...prev, selectedSectionKeys: [] }))
             } else {
                 const sectionKeys = sections.map(section => section.key || section)
-                setScope(prev => ({ ...prev, selectedSectionKeys: sectionKeys }))
+                setScope(prev=>({ ...prev, selectedSectionKeys: sectionKeys }))
             }
         }
     }, [])
 
     const customSelectProps = {
-        search: async () => {
+        search: async ()=> {
             try {
                 const data = await getNewsSharingRecipients({
                     variables: {
@@ -211,9 +211,10 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
                     },
                 })
 
-                const filteredData = data.data.recipients.filter(el => !!el.receiversCount)
+                const filteredData = data.data.recipients.filter(el=> !!el.receiversCount )
                 return filteredData.map(recipient => ({ text: recipient.name, value: recipient }))
-            } catch (error) {
+            }
+            catch (error) {
                 const message = error?.graphQLErrors?.[0]?.extensions?.messageForUser || ErrorLoadingMessage
                 // @ts-ignore
                 onError(message)
@@ -221,10 +222,10 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
             }
         },
         required: true,
-        showArrow: false,
-        infinityScroll: true,
-        placeholder: CustomSelectRecipientsPlaceholder,
-        onChange: (recipients: Array<string>) => {
+        showArrow:false,
+        infinityScroll:true,
+        placeholder:CustomSelectRecipientsPlaceholder,
+        onChange:(recipients: Array<string>) => {
             try {
                 const parsedRecipients = recipients.map(recipient => JSON.parse(recipient)?.value)
                 if (parsedRecipients.some(recipient => !recipient)) return
