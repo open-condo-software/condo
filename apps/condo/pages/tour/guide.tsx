@@ -51,6 +51,7 @@ const getTextWithAccent = (text: string) => {
 }
 
 const CARD_IMAGE_STYLES: CSSProperties = { height: '30px' }
+const BANNER_IMAGE_STYLES: CSSProperties = { width: '50%', height: '100%', objectFit: 'cover' }
 
 const AboutAppBlock = () => {
     const intl = useIntl()
@@ -144,7 +145,7 @@ const AboutAppBlock = () => {
                                         <img
                                             src={aboutAppBanner?.[type]?.imageUrl}
                                             alt={aboutAppBanner?.[type]?.title}
-                                            style={{ width: '50%', height: '100%', objectFit: 'cover' }}
+                                            style={BANNER_IMAGE_STYLES}
                                         />
                                     )
                                 }
