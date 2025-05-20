@@ -70,7 +70,7 @@ const proxyName = conf['API_PROXY_NAME'] || 'Next'
 const posthogApiHost = conf['POSTHOG_API_HOST']
 const posthogApiKey = conf['POSTHOG_API_KEY']
 const residentAppInfo = conf['RESIDENT_APP_INFO'] ? JSON.parse(conf['RESIDENT_APP_INFO']) : {}
-const displayTicketInfoOnShare = conf['SHOW_TICKET_INFO_ON_SHARE '] === 'true'
+const displayTicketInfoOnShare = conf['SHOW_TICKET_INFO_ON_SHARE'] === 'true'
 
 let nextConfig = withTM(withLess(withCSS({
     skipTrailingSlashRedirect: true,
