@@ -33,11 +33,11 @@ const logMemoryUsage = ({ logger, messageData }) => {
     const memoryUsage = process.memoryUsage()
     logger.info({
         ...messageData,
-        heapTotal: formatBytes(memoryUsage.heapTotal),
+        // heapTotal: formatBytes(memoryUsage.heapTotal),
         heapUsed: formatBytes(memoryUsage.heapUsed),
-        rss: formatBytes(memoryUsage.rss),
-        arrayBuffers: formatBytes(memoryUsage.arrayBuffers),
-        external: formatBytes(memoryUsage.external),
+        // rss: formatBytes(memoryUsage.rss),
+        // arrayBuffers: formatBytes(memoryUsage.arrayBuffers),
+        // external: formatBytes(memoryUsage.external),
     })
 }
 
@@ -198,8 +198,8 @@ const exportRecordsAsXlsxFile = async ({ context, loadRecordsBatch, convertRecor
         context,
         loadRecordsBatch,
         processRecordsBatch: async (batch) => {
-            const convertedRecords = await Promise.all(batch.map(convertRecordToFileRow))
-            rows.push(...convertedRecords)
+            // const convertedRecords = await Promise.all(batch.map(convertRecordToFileRow))
+            // rows.push(...convertedRecords)
         },
         taskServerUtils, taskId, totalRecordsCount, baseAttrs,
     })
@@ -209,7 +209,6 @@ const exportRecordsAsXlsxFile = async ({ context, loadRecordsBatch, convertRecor
         messageData: {
             msg: 'exportRecordsAsXlsxFile after process records',
             taskId,
-            rows: rows.length,
         },
     })
 
@@ -253,10 +252,10 @@ const exportRecordsAsCsvFile = async ({ context, loadRecordsBatch, convertRecord
         context,
         loadRecordsBatch,
         processRecordsBatch: async (batch) => {
-            const convertedRecords = await Promise.all(batch.map(convertRecordToFileRow))
-            convertedRecords.forEach(row => {
-                stringifier.write(columnKeys.map(key => get(row, key)))
-            })
+            // const convertedRecords = await Promise.all(batch.map(convertRecordToFileRow))
+            // convertedRecords.forEach(row => {
+            //     stringifier.write(columnKeys.map(key => get(row, key)))
+            // })
         },
         baseAttrs, taskServerUtils, totalRecordsCount, taskId,
     })

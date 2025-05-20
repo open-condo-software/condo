@@ -119,7 +119,7 @@ const ticketToRow = async ({ task, ticket, indexedStatuses, classifier }) => {
     const feedbackValuesTranslations = buildFeedbackValuesTranslationsFrom(locale)
     const qualityControlValuesTranslations = buildQualityControlValuesTranslationsFrom(locale)
 
-    const ticketClassifier = classifier.filter(rule => rule.id === ticket.classifier)
+    const ticketClassifier = classifier?.filter(rule => rule.id === ticket.classifier) || []
 
     let comments = []
     const disableLoadComments = await featureToggleManager.isFeatureEnabled(null, 'temp-disable-load-comments')
@@ -289,23 +289,19 @@ async function exportTickets (taskId) {
         const ticketsLoader = await buildTicketsLoader({ where, sortBy })
         const totalRecordsCount = await Ticket.count(context, where)
 
-        const convertRecordToFileRow = (ticket) => ticketToRow({ task, ticket, indexedStatuses, classifier })
+        const convertRecordToFileRow = (ticket) => ticketToRow({ task, ticket, indexedStatuses })
         const loadRecordsBatch = async (offset, limit) => {
             const tickets = await ticketsLoader.loadChunk(offset, limit)
             const classifierRuleIds = compact(map(tickets, 'classifier'))
-            classifier = await loadClassifiersForExcelExport({ classifierRuleIds })
+            // classifier = await loadClassifiersForExcelExport({ classifierRuleIds })
             // See how `this` gets value of a job in `executeTask` function in `packages/keystone/tasks.js` module via `fn.apply(job, args)`
-            this.progress(Math.floor(offset / totalRecordsCount * 100)) // Breaks execution after `this.progress`. Without this call it works
+            // this.progress(Math.floor(offset / totalRecordsCount * 100)) // Breaks execution after `this.progress`. Without this call it works
             return tickets
         }
 
-        const rowsLimit = await featureToggleManager.getFeatureValue(
-            null, 'temp-rows-excel-limit', 3000
-        )
-
         switch (format) {
             case EXCEL: {
-                if (totalRecordsCount > rowsLimit) {
+                if (totalRecordsCount > 3000) {
                     await exportRecordsAsCsvFile({
                         context,
                         loadRecordsBatch,
