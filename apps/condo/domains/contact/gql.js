@@ -12,7 +12,7 @@ const { ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('@condo/domains/property/s
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const CONTACT_FIELDS = `{ organization { id name phone phoneNumberPrefix } property { id address addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } } name phone unitName unitType email role { id name } ownershipPercentage isVerified ${COMMON_FIELDS} }`
+const CONTACT_FIELDS = `{ organization { id name phone phoneNumberPrefix } property { id address addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } } name phone unitName unitType email role { id name } ownershipPercentage isVerified hasResident ${COMMON_FIELDS} }`
 const Contact = generateGqlQueries('Contact', CONTACT_FIELDS)
 
 const CONTACT_ROLE_FIELDS = `{ name organization { id name } ${COMMON_FIELDS} }`
