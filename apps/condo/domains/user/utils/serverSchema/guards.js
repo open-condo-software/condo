@@ -118,7 +118,7 @@ class RedisGuard {
     async incrementDayCounter (variable) {
         const now = dayjs()
         const endOfDay = now.endOf('day')
-        const ttl = Math.ceil(endOfDay.diff(now, 'seconds', true)) // true — чтобы сохранить дробную точность, ceil округлит вверх
+        const ttl = Math.ceil(endOfDay.diff(now, 'seconds', true)) // true - to preserve fractional precision, ceil rounds up
         return this.incrementCustomCounter(variable, ttl)
     }
 
