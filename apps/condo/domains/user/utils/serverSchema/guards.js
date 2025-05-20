@@ -50,8 +50,7 @@ class RedisGuard {
      * @return {Promise<void>}
      */
     async checkCustomLimitCounters (variable, windowSizeInSec, counterLimit, context) {
-        const expiryAnchorDate = dayjs().add(windowSizeInSec, 'second')
-        const counter = await this.incrementCustomCounter(variable, expiryAnchorDate)
+        const counter = await this.incrementCustomCounter(variable, windowSizeInSec)
         if (counter > counterLimit) {
             const secondsRemaining = await this.counterTimeRemain(variable)
             const minutesRemaining = Math.ceil(secondsRemaining / 60) || 1
@@ -117,17 +116,20 @@ class RedisGuard {
     }
 
     async incrementDayCounter (variable) {
-        return this.incrementCustomCounter(variable, dayjs().endOf('day'))
+        const now = dayjs()
+        const endOfDay = now.endOf('day')
+        const ttl = Math.ceil(endOfDay.diff(now, 'seconds', true)) // true - to preserve fractional precision, ceil rounds up
+        return this.incrementCustomCounter(variable, ttl)
     }
 
     // Counter will reset at the start of a day ( or after redis restart )
     // Example usage = only 100 attempts to confirm phone from single IP
-    async incrementCustomCounter (variable, date) {
+    async incrementCustomCounter (variable, ttl) {
         // if variable not exists - it will be set to 1
         let afterIncrement = await this.redis.incr(`${this.counterPrefix}${variable}`)
         afterIncrement = Number(afterIncrement)
         if (afterIncrement === 1) {
-            await this.redis.expireat(`${this.counterPrefix}${variable}`, parseInt(`${date / 1000}`))
+            await this.redis.expire(`${this.counterPrefix}${variable}`, ttl)
         }
         return afterIncrement
     }
