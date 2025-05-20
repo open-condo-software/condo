@@ -128,11 +128,11 @@ class RedisAdapter {
     }
 
     async revokeByGrantId (grantId) { // eslint-disable-line class-methods-use-this
-        const multi = this.redis.multi()
         const tokens = await this.redis.lrange(grantKeyFor(grantId), 0, -1)
-        tokens.forEach((token) => multi.del(token))
-        multi.del(grantKeyFor(grantId))
-        await multi.exec()
+        for (const token of tokens) {
+            await this.redis.del(token)
+        }
+        await this.redis.del(grantKeyFor(grantId))
     }
 
 }
