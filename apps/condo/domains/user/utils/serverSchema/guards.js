@@ -4,10 +4,13 @@ const cloneDeep = require('lodash/cloneDeep')
 
 const { GQLError } = require('@open-condo/keystone/errors')
 const { getKVClient } = require('@open-condo/keystone/kv')
+const { getLogger } = require('@open-condo/keystone/logging')
 
 const { GQL_ERRORS } = require('@condo/domains/user/constants/errors')
 
 dayjs.extend(utc)
+
+const logger = getLogger('RedisGuard/user/utils')
 
 class RedisGuard {
     get redis () {
@@ -52,9 +55,11 @@ class RedisGuard {
     async checkCustomLimitCounters (variable, windowSizeInSec, counterLimit, context) {
         const expiryAnchorDate = dayjs().add(windowSizeInSec, 'second')
         const counter = await this.incrementCustomCounter(variable, expiryAnchorDate)
+        logger.info({ msg: 'checkCustomLimitCounters in class', data: { variable, expiryAnchorDate, windowSizeInSec, counterLimit, counter } })
         if (counter > counterLimit) {
             const secondsRemaining = await this.counterTimeRemain(variable)
             const minutesRemaining = Math.ceil(secondsRemaining / 60) || 1
+            logger.error({ msg: 'checkCustomLimitCounters err', data: { counterLimit, counter, secondsRemaining, minutesRemaining } })
             throw new GQLError({
                 ...GQL_ERRORS.TOO_MANY_REQUESTS,
                 messageInterpolation: {
@@ -126,9 +131,11 @@ class RedisGuard {
         // if variable not exists - it will be set to 1
         let afterIncrement = await this.redis.incr(`${this.counterPrefix}${variable}`)
         afterIncrement = Number(afterIncrement)
+        let expireat = 'Empty'
         if (afterIncrement === 1) {
-            await this.redis.expireat(`${this.counterPrefix}${variable}`, parseInt(`${date / 1000}`))
+            expireat = await this.redis.expireat(`${this.counterPrefix}${variable}`, parseInt(`${date / 1000}`))
         }
+        logger.info({ msg: 'incrementCustomCounter', data: { key: `${this.counterPrefix}${variable}`, afterIncrement, expireat, timeExpireat: `${date / 1000}` } })
         return afterIncrement
     }
 
@@ -164,6 +171,7 @@ class RedisGuard {
     // 3. Get counter remain time
     async counterTimeRemain (variable) {
         const time = await this.redis.ttl(`${this.counterPrefix}${variable}`)
+        logger.info({ msg: 'counterTimeRemain', data: { variable, time, key: `${this.counterPrefix}${variable}`, returnValue: Math.max(time, 0) } })
         // -1: no ttl on variable, -2: key not exists
         return Math.max(time, 0)
     }
