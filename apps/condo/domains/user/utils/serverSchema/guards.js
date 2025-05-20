@@ -118,8 +118,8 @@ class RedisGuard {
     async incrementDayCounter (variable) {
         const now = dayjs()
         const endOfDay = now.endOf('day')
-        const ttlInSeconds = Math.ceil(endOfDay.diff(now, 'seconds', true)) // true — чтобы сохранить дробную точность, ceil округлит вверх
-        return this.incrementCustomCounter(variable, ttlInSeconds)
+        const ttl = Math.ceil(endOfDay.diff(now, 'seconds', true)) // true — чтобы сохранить дробную точность, ceil округлит вверх
+        return this.incrementCustomCounter(variable, ttl)
     }
 
     // Counter will reset at the start of a day ( or after redis restart )

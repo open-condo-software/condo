@@ -51,7 +51,8 @@ const checkTotalRequestLimitCountersByPhone = async (context, prefix, phone, max
     if (maxRequests < 0) throw new Error('"maxRequests" should be greater than 0')
 
     const key = [prefix, 'total', 'phone', phone].filter(Boolean).join(':')
-    const byPhoneCounter = await REDIS_GUARD.incrementCustomCounter(key, dayjs().add(100, 'years'))
+    const ttl = Math.ceil(dayjs().add(100, 'years').diff(dayjs(), 'seconds', true))
+    const byPhoneCounter = await REDIS_GUARD.incrementCustomCounter(key, ttl)
     if (byPhoneCounter > maxRequests && !PHONE_WHITE_LIST.includes(phone)) {
         throw new GQLError(GQL_ERRORS.TOTAL_REQUEST_LIMIT_FOR_PHONE_REACHED, context)
     }
@@ -70,7 +71,8 @@ const checkTotalRequestLimitCountersByEmail = async (context, prefix, email, max
     if (maxRequests < 0) throw new Error('"maxRequests" should be greater than 0')
 
     const key = [prefix, 'total', 'email', email].filter(Boolean).join(':')
-    const byEmailCounter = await REDIS_GUARD.incrementCustomCounter(key, dayjs().add(100, 'years'))
+    const ttl = Math.ceil(dayjs().add(100, 'years').diff(dayjs(), 'seconds', true))
+    const byEmailCounter = await REDIS_GUARD.incrementCustomCounter(key, ttl)
     if (byEmailCounter > maxRequests && !EMAIL_WHITE_LIST.includes(email)) {
         throw new GQLError(GQL_ERRORS.TOTAL_REQUEST_LIMIT_FOR_EMAIL_REACHED, context)
     }
@@ -89,7 +91,8 @@ const checkTotalRequestLimitCountersByUser = async (context, prefix, userId, max
     if (maxRequests < 0) throw new Error('"maxRequests" should be greater than 0')
 
     const key = [prefix, 'total', 'userId', userId].filter(Boolean).join(':')
-    const byUserIdCounter = await REDIS_GUARD.incrementCustomCounter(key, dayjs().add(100, 'years'))
+    const ttl = Math.ceil(dayjs().add(100, 'years').diff(dayjs(), 'seconds', true))
+    const byUserIdCounter = await REDIS_GUARD.incrementCustomCounter(key, ttl)
     if (byUserIdCounter > maxRequests && !USER_ID_WHITE_LIST.includes(userId)) {
         throw new GQLError(GQL_ERRORS.TOTAL_REQUEST_LIMIT_FOR_USER_REACHED, context)
     }
