@@ -726,7 +726,7 @@ export const GetContactByIdDocument = gql`
     unitName
     unitType
     isVerified
-    isHasResident
+    hasResident
     ownershipPercentage
     note
     communityFee
@@ -5375,6 +5375,9 @@ export const GetTicketsByContactDocument = gql`
     status {
       id
       name
+      colors {
+        primary
+      }
     }
     property {
       id
