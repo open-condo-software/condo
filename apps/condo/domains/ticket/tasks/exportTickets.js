@@ -223,6 +223,7 @@ const buildExportFile = async ({ rows, task }) => {
             },
         },
     })
+
     return {
         stream,
         filename: `tickets_${dayjs().format('DD_MM')}.xlsx`,
@@ -294,7 +295,7 @@ async function exportTickets (taskId) {
         }
 
         const rowsLimit = await featureToggleManager.getFeatureValue(
-            context, 'temp-rows-excel-limit', 3000
+            null, 'temp-rows-excel-limit', 3000
         )
 
         switch (format) {

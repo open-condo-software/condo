@@ -21,6 +21,25 @@ const CSV_DELIMITER = ';'
 
 const logger = getLogger('export')
 
+const formatBytes = (bytes) => {
+    const sizes = ['Bytes', 'KB', 'MB', 'GB']
+    if (bytes === 0) return '0 Byte'
+    const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)), 10)
+    return `${(bytes / Math.pow(1024, i)).toFixed(2)} ${sizes[i]}`
+}
+
+const logMemoryUsage = ({ logger, messageData }) => {
+    const memoryUsage = process.memoryUsage()
+    logger.info({
+        ...messageData,
+        heapTotal: formatBytes(memoryUsage.heapTotal),
+        heapUsed: formatBytes(memoryUsage.heapUsed),
+        rss: formatBytes(memoryUsage.rss),
+        arrayBuffers: formatBytes(memoryUsage.arrayBuffers),
+        external: formatBytes(memoryUsage.external),
+    })
+}
+
 // Rough solution to offload server in case of exporting many thousands of records
 const SLEEP_TIMEOUT = conf.WORKER_BATCH_OPERATIONS_SLEEP_TIMEOUT || 200
 
@@ -92,7 +111,21 @@ const processRecords = async ({ context, loadRecordsBatch, processRecordsBatch, 
             return
         }
 
+        logMemoryUsage({
+            logger,
+            messageData: {
+                msg: 'processRecords before load batch',
+                taskId, offset, taskSchemaName,
+            },
+        })
         const batch = await loadRecordsBatch(offset, EXPORT_PROCESSING_BATCH_SIZE)
+        logMemoryUsage({
+            logger,
+            messageData: {
+                msg: 'processRecords after load batch',
+                taskId, offset, batchLength: batch.length, taskSchemaName,
+            },
+        })
 
         if (batch.length === 0) {
             // NOTE(pahaz): someone delete some records during the export
@@ -105,11 +138,26 @@ const processRecords = async ({ context, loadRecordsBatch, processRecordsBatch, 
             return
         }
 
+        logMemoryUsage({
+            logger,
+            messageData: {
+                msg: 'processRecords before process batch',
+                taskId, offset, batchLength: batch.length, taskSchemaName,
+            },
+        })
         await processRecordsBatch(batch)
+        logMemoryUsage({
+            logger,
+            messageData: {
+                msg: 'processRecords after process batch',
+                taskId, offset, batchLength: batch.length, taskSchemaName,
+            },
+        })
 
         offset += batch.length
 
         if (Date.now() - lastProgress > TASK_PROGRESS_UPDATE_INTERVAL || offset >= totalRecordsCount) {
+            logger.info({ msg: 'update progress', offset, batchLength: batch.length, taskSchemaName, taskId })
             lastProgress = Date.now()
             task = await taskServerUtils.update(context, taskId, {
                 ...baseAttrs,
@@ -125,6 +173,14 @@ const processRecords = async ({ context, loadRecordsBatch, processRecordsBatch, 
 const exportRecordsAsXlsxFile = async ({ context, loadRecordsBatch, convertRecordToFileRow, buildExportFile, baseAttrs, taskServerUtils, totalRecordsCount, taskId }) => {
     let rows = []
 
+    logMemoryUsage({
+        logger,
+        messageData: {
+            msg: 'exportRecordsAsXlsxFile before process records',
+            taskId,
+        },
+    })
+
     await processRecords({
         context,
         loadRecordsBatch,
@@ -135,7 +191,23 @@ const exportRecordsAsXlsxFile = async ({ context, loadRecordsBatch, convertRecor
         taskServerUtils, taskId, totalRecordsCount, baseAttrs,
     })
 
+    logMemoryUsage({
+        logger,
+        messageData: {
+            msg: 'exportRecordsAsXlsxFile after process records',
+            taskId,
+        },
+    })
+
     const file = buildUploadInputFrom(await buildExportFile(rows))
+
+    logMemoryUsage({
+        logger,
+        messageData: {
+            msg: 'exportRecordsAsXlsxFile after build file',
+            taskId,
+        },
+    })
 
     await taskServerUtils.update(context, taskId, {
         ...baseAttrs,
@@ -155,6 +227,14 @@ const exportRecordsAsCsvFile = async ({ context, loadRecordsBatch, convertRecord
     const stringifier = stringify({ header: true, columns, delimiter: CSV_DELIMITER })
     stringifier.pipe(writeStream)
 
+    logMemoryUsage({
+        logger,
+        messageData: {
+            msg: 'exportRecordsAsCsvFile before process records',
+            taskId,
+        },
+    })
+
     await processRecords({
         context,
         loadRecordsBatch,
@@ -167,12 +247,28 @@ const exportRecordsAsCsvFile = async ({ context, loadRecordsBatch, convertRecord
         baseAttrs, taskServerUtils, totalRecordsCount, taskId,
     })
 
+    logMemoryUsage({
+        logger,
+        messageData: {
+            msg: 'exportRecordsAsCsvFile after process records',
+            taskId,
+        },
+    })
+
     writeStream.close()
 
     const stream = fs.createReadStream(filename, { encoding: 'utf8' })
     const file = buildUploadInputFrom({
         stream, filename: `export_${dayjs().format('DD_MM')}.csv`, mimetype: 'text/csv', encoding: 'utf8',
         meta: { listkey: taskServerUtils.gql.SINGULAR_FORM, id: taskId },
+    })
+
+    logMemoryUsage({
+        logger,
+        messageData: {
+            msg: 'exportRecordsAsCsvFile after build file',
+            taskId,
+        },
     })
 
     return await taskServerUtils.update(context, taskId, {
