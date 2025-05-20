@@ -15,7 +15,7 @@ const { safeApolloErrorFormatter } = require('@open-condo/keystone/apolloErrorFo
 const {
     ApolloRateLimitingPlugin,
     ApolloQueryBlockingPlugin,
-    ApolloPayloadLimitingPlugin,
+    ApolloRequestLimitingPlugin,
 } = require('@open-condo/keystone/apolloServerPlugins')
 const { ApolloSentryPlugin } = require('@open-condo/keystone/apolloServerPlugins')
 const { ExtendedPasswordAuthStrategy } = require('@open-condo/keystone/authStrategy/passwordAuth')
@@ -51,10 +51,13 @@ const IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND = conf.ENABLE_DANGEROUS_GRAPHQL_PLA
 // NOTE(pahaz): it's a magic number tested by @arichiv at https://developer.chrome.com/blog/cookie-max-age-expires/
 const INFINITY_MAX_AGE_COOKIE = 1707195600
 const SERVICE_USER_SESSION_TTL_IN_SEC = 7 * 24 * 60 * 60 // 7 days in sec
-const PAYLOAD_LIMIT_CONFIG = conf['PAYLOAD_LIMIT_CONFIG']
-const IS_PAYLOAD_LIMIT_DISABLED = conf['DISABLE_PAYLOAD_LIMIT'] === 'true'
+
+const REQUEST_LIMIT_CONFIG = JSON.parse(conf['REQUEST_LIMIT_CONFIG'] || '{}')
+const IS_REQUEST_LIMIT_DISABLED = conf['DISABLE_REQUEST_LIMIT'] === 'true'
+
 const RATE_LIMIT_CONFIG = JSON.parse(conf['RATE_LIMIT_CONFIG'] || '{}')
 const IS_RATE_LIMIT_DISABLED = conf['DISABLE_RATE_LIMIT'] === 'true'
+
 const BLOCKED_OPERATIONS = JSON.parse(conf['BLOCKED_OPERATIONS'] || '{}')
 
 const logger = getLogger('uncaughtError')
@@ -105,8 +108,8 @@ function _getApolloServerPlugins (keystone) {
         new ApolloQueryBlockingPlugin(BLOCKED_OPERATIONS),
     ]
 
-    if (!IS_PAYLOAD_LIMIT_DISABLED) {
-        apolloServerPlugins.push(new ApolloPayloadLimitingPlugin(PAYLOAD_LIMIT_CONFIG))
+    if (!IS_REQUEST_LIMIT_DISABLED) {
+        apolloServerPlugins.push(new ApolloRequestLimitingPlugin(REQUEST_LIMIT_CONFIG))
     }
 
     if (!IS_RATE_LIMIT_DISABLED) {
