@@ -9,7 +9,6 @@ const { GQL_ERRORS } = require('@condo/domains/user/constants/errors')
 
 dayjs.extend(utc)
 
-
 class RedisGuard {
     get redis () {
         if (!this._redis) this._redis = getKVClient('guards')
@@ -117,7 +116,10 @@ class RedisGuard {
     }
 
     async incrementDayCounter (variable) {
-        return this.incrementCustomCounter(variable, dayjs().endOf('day'))
+        const now = dayjs()
+        const endOfDay = now.endOf('day')
+        const ttlInSeconds = Math.ceil(endOfDay.diff(now, 'seconds', true)) // true — чтобы сохранить дробную точность, ceil округлит вверх
+        return this.incrementCustomCounter(variable, ttlInSeconds)
     }
 
     // Counter will reset at the start of a day ( or after redis restart )
