@@ -4,7 +4,6 @@
 const get = require('lodash/get')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, FORBIDDEN } } = require('@open-condo/keystone/errors')
-const { getLogger } = require('@open-condo/keystone/logging')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
@@ -44,7 +43,6 @@ const ALLOWED_PUSH_TYPES = [
 
 //TODO(Kekmus) Better to use existing redisGuard if possible
 const redisGuard = new RedisGuard()
-const logger = getLogger('SendB2CAppPushMessageService')
 
 const SERVICE_NAME = 'sendB2CAppPushMessage'
 const ERRORS = {
@@ -168,7 +166,7 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
 
                 const searchKey = `${type}-${b2cAppId}-${user.id}`
                 const ttl = CACHE_TTL[type] || CACHE_TTL['DEFAULT']
-                logger.info({ msg: 'redisGuard.checkCustomLimitCounters', data: { ttl, variable: `${SERVICE_NAME}-${searchKey}`, appSettings, counterLimit: DEFAULT_NOTIFICATION_WINDOW_MAX_COUNT } })
+
                 await redisGuard.checkCustomLimitCounters(
                     `${SERVICE_NAME}-${searchKey}`,
                     get(appSettings, 'notificationWindowSize') ?? ttl,
