@@ -6,7 +6,7 @@ on:
       - main
 
   # NOTE: change pull_request_target to pull_request if you want to change the CI in your branch
-  pull_request_target:
+  pull_request:
     types:
       - opened
       - reopened
@@ -149,6 +149,11 @@ jobs:
               - 'apps/condo/domains/miniapp/**'
               - 'apps/condo/domains/user/**'
               - 'packages/**'
+            eps:
+              - 'apps/eps'
+              - 'apps/condo/domains/acquiring/**'
+              - 'apps/condo/domains/billing/**'
+              - 'packages/**'
             meter-importer:
               - 'apps/meter-importer/**'
               - 'packages/**'
@@ -165,9 +170,6 @@ jobs:
               - 'apps/rb'
               - 'apps/condo/domains/acquiring/**'
               - 'apps/condo/domains/billing/**'
-              - 'packages/**'
-            eps:
-              - 'apps/eps'
               - 'packages/**'
             registry-importer:
               - 'apps/registry-importer/**'
