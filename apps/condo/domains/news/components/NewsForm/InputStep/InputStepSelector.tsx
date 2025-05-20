@@ -1,4 +1,4 @@
-import { useGetNewsSharingRecipientsLazyQuery } from '@app/condo/gql'
+import { GetNewsSharingRecipientsQuery, useGetNewsSharingRecipientsLazyQuery } from '@app/condo/gql'
 import {
     B2BAppNewsSharingConfig,
     Property as IProperty,
@@ -7,7 +7,7 @@ import {
 } from '@app/condo/schema'
 import { Col, Form, FormInstance, notification, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
-import React, { useCallback, useMemo, useRef, ComponentProps } from 'react'
+import React, { useCallback, useMemo, useRef, ComponentProps, useState } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useIntl } from '@open-condo/next/intl'
@@ -83,7 +83,6 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
     const PropertiesLabel = intl.formatMessage({ id: 'field.Address' })
     const ErrorLoadingMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.error.loading' })
     const CustomSelectRecipientsPlaceholder = intl.formatMessage({ id: 'global.select.recipients' })
-    const CustomSelectLabel = intl.formatMessage({ id: 'field.Recipients' })
 
     const onError = useMutationErrorHandler()
     const [getNewsSharingRecipients, { data }] = useGetNewsSharingRecipientsLazyQuery({
@@ -103,11 +102,10 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
     }), [PropertiesLabel])
 
     const customSelectFormItemProps: InputWithCheckAllProps['selectFormItemProps'] = useMemo(() => ({
-        label: CustomSelectLabel,
         required: true,
         name: 'customSelect',
         validateFirst: true,
-    }), [CustomSelectLabel])
+    }), [])
 
     const isCustomForm = !!newsSharingConfig?.customFormUrl && isSharingStep
     const isCustomSelector = newsSharingConfig?.getRecipientsUrl
@@ -149,7 +147,7 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
     const customCheckboxChange = () => {
         return (value) => {
             if (value)
-                setSharingAppFormValues(prev=>({ ...prev, scope: data?.recipients.map(elem=>elem.id), isAllChecked: value }))
+                setSharingAppFormValues(prev=>({ ...prev, scope: data?.recipients, isAllChecked: value }))
             else
                 setSharingAppFormValues(prev=>({ ...prev, scope: prev.isAllChecked ? [] : prev.scope }))
         }
@@ -213,7 +211,8 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
                     },
                 })
 
-                return data.data.recipients.map(el => ({ text: el.name, value: el.id }))
+                const filteredData = data.data.recipients.filter(el=> !!el.receiversCount )
+                return filteredData.map(recipient => ({ text: recipient.name, value: recipient }))
             }
             catch (error) {
                 const message = error?.graphQLErrors?.[0]?.extensions?.messageForUser || ErrorLoadingMessage
@@ -226,8 +225,15 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
         showArrow:false,
         infinityScroll:true,
         placeholder:CustomSelectRecipientsPlaceholder,
-        onChange:(propIds: Array<string>) => {
-            setSharingAppFormValues(prev=>({ ...prev, scope: propIds, isAllChecked: false }))
+        onChange:(recipients: Array<string>) => {
+            try {
+                const parsedRecipients = recipients.map(recipient => JSON.parse(recipient)?.value)
+                if (parsedRecipients.some(recipient => !recipient)) return
+
+                setSharingAppFormValues(prev => ({ ...prev, scope: parsedRecipients, isAllChecked: false }))
+            } catch {
+                console.error('Cannot parse recipients')
+            }
         },
     }
 
@@ -307,17 +313,22 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
                             )}
                         </>
                     ) : (
-                        <Col span={24}>
-                            <GraphQlSearchInputWithCheckAll
-                                CheckAllMessage={CheckAllLabel}
-                                checkAllFieldName='hasAllCustom'
-                                selectProps={customSelectProps}
-                                checkAllInitialValue={initialValues?.hasAllCustom}
-                                onCheckBoxChange={customCheckboxChange()}
-                                form={form}
-                                selectFormItemProps={customSelectFormItemProps}
-                            />
-                        </Col>
+                        <Row gutter={SMALL_VERTICAL_GUTTER}>
+                            <Col span={24}>
+                                <Typography.Title level={2}>{SelectAddressLabel}</Typography.Title>
+                            </Col>
+                            <Col span={24}>
+                                <GraphQlSearchInputWithCheckAll
+                                    CheckAllMessage={CheckAllLabel}
+                                    checkAllFieldName='hasAllCustom'
+                                    selectProps={customSelectProps}
+                                    checkAllInitialValue={initialValues?.hasAllCustom}
+                                    onCheckBoxChange={customCheckboxChange()}
+                                    form={form}
+                                    selectFormItemProps={customSelectFormItemProps}
+                                />
+                            </Col>
+                        </Row>
                     )}
                 </Row>
             ) : (

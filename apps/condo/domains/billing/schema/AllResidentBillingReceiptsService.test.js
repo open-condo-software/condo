@@ -133,7 +133,7 @@ describe('AllResidentBillingReceiptsService', () => {
             })
             await createTestBillingIntegrationAccessRight(environment.clients.admin, anotherBillingIntegration, environment.clients.service.user)
             environment.billingContext = anotherBillingContext
-            environment.updateBillingContext({
+            await environment.updateBillingContext({
                 status: BILLING_CONTEXT_FINISHED_STATUS,
             })
             const [[{ id: receiptId2 }]] = await environment.createReceipts([

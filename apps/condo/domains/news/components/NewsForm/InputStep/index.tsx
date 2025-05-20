@@ -1,3 +1,4 @@
+import { GetNewsSharingRecipientsQuery } from '@app/condo/gql'
 import {
     B2BApp, B2BAppContext as IB2BAppContext, B2BAppNewsSharingConfig, NewsItem as INewsItem,
     NewsItemScope as INewsItemScope,
@@ -26,6 +27,7 @@ import { InputStepPreview } from './InputStepPreview'
 import { InputStepRecipientCounter } from './InputStepRecipientCounter'
 import { InputStepSelector, Properties } from './InputStepSelector'
 
+
 const BIG_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 60]
 const BIG_HORIZONTAL_GUTTER: [Gutter, Gutter] = [50, 0]
 
@@ -36,7 +38,7 @@ export type SharingAppValuesType = {
         renderedBody: string
     }
     isAllChecked?: boolean
-    scope?: Array<string>
+    scope?: GetNewsSharingRecipientsQuery['recipients']
     isValid: boolean
 }
 
@@ -372,6 +374,7 @@ export const InputStep: React.FC<InputStepProps> = ({
                     newsSharingConfig={newsSharingConfig}
                     isSharingStep={isSharingStep}
                     newsItemScopesNoInstance={newsItemScopesNoInstance}
+                    newsSharingScope={sharingAppFormValues?.scope}
                 />
             </FormContainer>
 

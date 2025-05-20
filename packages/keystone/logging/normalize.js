@@ -1,6 +1,6 @@
 const { get, set } = require('lodash')
 
-const HIDE_GRAPHQL_VARIABLES_KEYS = ['secret', 'password', 'data.password', 'data.secret']
+const HIDE_GRAPHQL_VARIABLES_KEYS = ['secret', 'password', 'receipts', 'data.password', 'data.secret', 'data.receipts']
 
 function normalizeQuery (string) {
     if (!string) return ''

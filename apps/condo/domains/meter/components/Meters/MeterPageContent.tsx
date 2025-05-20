@@ -180,6 +180,7 @@ export const MeterHeader = ({ meter, meterReportingPeriod, refetchMeter, meterTy
 export const MeterContent = ({ meter, resource, meterType }) => {
     const intl = useIntl()
     const MeterVerificationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.VerificationDate' })
+    const MeterCreationDateMessage = intl.formatMessage({ id: 'AddedDate' })
     const MeterNextVerificationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.NextVerificationDate' })
     const MeterInstallationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.InstallationDate' })
     const MeterCommissioningDateMessage = intl.formatMessage({ id: 'pages.condo.meter.CommissioningDate' })
@@ -196,15 +197,17 @@ export const MeterContent = ({ meter, resource, meterType }) => {
     const meterSealingDate = get(meter, 'sealingDate')
     const meterControlReadingsDate = get(meter, 'controlReadingsDate')
     const meterArchiveDate = get(meter, 'archiveDate')
+    const meterCreatedAtDate = get(meter, 'createdAt')
 
     return (
         <Col span={24}>
-            <Row gutter={[0, 16]}>
+            <Row gutter={[0, 24]}>
                 <TicketPropertyField ticket={meter}/>
                 {meterType === METER_TYPES.unit && (<MeterAccountField meter={meter}/>)}
                 <MeterResourceField resource={resource}/>
                 <MeterNumberField meter={meter}/>
                 <MeterPlaceField meter={meter}/>
+                <MeterCommonDateField title={MeterCreationDateMessage} date={meterCreatedAtDate}/>
                 <MeterCommonDateField title={MeterVerificationDateMessage} date={meterVerificationDate}/>
                 <MeterCommonDateField title={MeterNextVerificationDateMessage} date={meterNextVerificationDate}/>
 

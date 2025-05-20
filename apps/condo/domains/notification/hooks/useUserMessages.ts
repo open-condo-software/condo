@@ -7,7 +7,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useCachePersistor } from '@open-condo/apollo'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useAuth } from '@open-condo/next/auth'
-import { useOrganization } from '@open-condo/next/organization'
 
 import { useBroadcastChannel } from '@condo/domains/common/hooks/useBroadcastChannel'
 import { useExecuteWithLock } from '@condo/domains/common/hooks/useExecuteWithLock'
@@ -18,6 +17,7 @@ import { MessageTypeAllowedToFilterType } from '@condo/domains/notification/util
 type UserPollUserMessagesArgsType = {
     isDropdownOpen: boolean
     messageTypesToFilter: Array<MessageTypeAllowedToFilterType>
+    organizationIdsToFilter: Array<string>
     skipQueryMessagesCondition?: boolean
 }
 type UserPollUserMessagesReturnType = {
@@ -39,19 +39,22 @@ const USER_MESSAGES_LIST_POLL_CHANNEL_NAME = 'user-messages-list'
 const USER_MESSAGES_LIST_POLL_INTERVAL_IN_MS = 60 * 1000
 
 
-export const useUserMessages: UsePollUserMessagesType = ({ isDropdownOpen, messageTypesToFilter, skipQueryMessagesCondition }) => {
+export const useUserMessages: UsePollUserMessagesType = ({
+    isDropdownOpen,
+    messageTypesToFilter,
+    organizationIdsToFilter,
+    skipQueryMessagesCondition,
+}) => {
     const { user } = useAuth()
-    const { organization } = useOrganization()
     const { persistor } = useCachePersistor()
 
     const messagesListRef = useRef<HTMLDivElement>()
     const userId = useMemo(() => user?.id, [user?.id])
-    const organizationId = useMemo(() => organization?.id, [organization?.id])
     const queryVariables = useMemo(() => ({
         userId,
-        organizationId,
+        organizationIds: organizationIdsToFilter,
         types: messageTypesToFilter,
-    }), [messageTypesToFilter, organizationId, userId])
+    }), [messageTypesToFilter, organizationIdsToFilter, userId])
 
     const [isPollingTab, setIsPollingTab] = useState<boolean>(false)
     const [userMessages, setUserMessages] = useState<UserMessageType[] | undefined>()

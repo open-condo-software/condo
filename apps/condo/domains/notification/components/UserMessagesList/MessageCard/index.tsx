@@ -13,8 +13,7 @@ import './MessageCard.css'
 
 dayjs.extend(localizedFormat)
 
-
-type MessageCardProps = {
+export type MessageCardProps = {
     message: UserMessageType
     viewed?: boolean
 }

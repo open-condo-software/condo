@@ -5,7 +5,7 @@ const get = require('lodash/get')
 const uniq = require('lodash/uniq')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { getById, find } = require('@open-condo/keystone/schema')
+const { find } = require('@open-condo/keystone/schema')
 
 const {
     canManageObjectsAsB2BAppServiceUser,
@@ -50,7 +50,7 @@ async function canReadProperties (args) {
 }
 
 async function canManageProperties (args) {
-    const { authentication: { item: user }, originalInput, operation, itemId, context } = args
+    const { authentication: { item: user }, originalInput, operation, itemId, itemIds, context } = args
 
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
@@ -59,23 +59,37 @@ async function canManageProperties (args) {
     if (user.type === SERVICE) {
         return await canManageObjectsAsB2BAppServiceUser(args)
     }
-
-    if (operation === 'create') {
-        const organizationId = get(originalInput, ['organization', 'connect', 'id'])
-        if (!organizationId) return false
-
-        return await checkPermissionsInEmployedOrganizations(context, user, organizationId, 'canManageProperties')
-    } else if (operation === 'update' && itemId) {
-        const property = await getById('Property', itemId)
-        if (!property) return false
-        const { organization: organizationId } = property
-
-        if (!organizationId) return false
-
-        return await checkPermissionsInEmployedOrganizations(context, user, organizationId, 'canManageProperties')
+    if (user.type === RESIDENT) {
+        return false
     }
 
-    return false
+    const isBulkRequest = Array.isArray(originalInput)
+    let organizationIds
+
+    if (operation === 'create') {
+        if (isBulkRequest) {
+            organizationIds = originalInput.map(el => get(el, ['data', 'organization', 'connect', 'id']))
+
+            if (organizationIds.filter(Boolean).length !== originalInput.length) return false
+            organizationIds = uniq(organizationIds)
+        } else {
+            const organizationId = get(originalInput, ['organization', 'connect', 'id'])
+            if (!organizationId) return false
+            organizationIds = [organizationId]
+        }
+    } else if (operation === 'update') {
+        const ids = itemIds || [itemId]
+        if (ids.length !== uniq(ids).length) return false
+
+        const items = await find('Property', {
+            id_in: ids,
+            deletedAt: null,
+        })
+        if (items.length !== ids.length || items.some(item => !item.organization)) return false
+        organizationIds = uniq(items.map(item => item.organization))
+    }
+
+    return await checkPermissionsInEmployedOrganizations(context, user, organizationIds, 'canManageProperties')
 }
 
 async function canManageIsApprovedField ({ authentication: { item: user }, originalInput }) {

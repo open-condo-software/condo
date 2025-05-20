@@ -18,6 +18,7 @@ type ChangeHistoryInputType<ChangesType extends BaseChangesType> = {
     useChangedFieldMessagesOf: HistoricalChangeInputType<ChangesType>['useChangedFieldMessagesOf']
     labelSpan?: number
     HistoricalChange: (props: HistoricalChangeInputType<ChangesType>) => HistoricalChangeReturnType
+    id?: string
 }
 
 type ChangeHistoryReturnType = ReactElement | null
@@ -36,7 +37,7 @@ export const ChangeHistory = <ChangesType extends BaseChangesType> (props: Chang
     const intl = useIntl()
     const FetchMoreTemplate = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.fetchMore' })
 
-    const { items, total, loading, title, useChangedFieldMessagesOf, labelSpan, HistoricalChange } = props
+    const { items, total, loading, title, useChangedFieldMessagesOf, labelSpan, HistoricalChange, id } = props
 
     const [displayCount, setDisplayCount] = useState(CHANGES_PER_CHUNK)
 
@@ -53,7 +54,7 @@ export const ChangeHistory = <ChangesType extends BaseChangesType> (props: Chang
     }
 
     return items.length > 0 && (
-        <Col span={24} style={CHANGE_HISTORY_COL_STYLE} data-cy='ticket__change-history'>
+        <Col span={24} style={CHANGE_HISTORY_COL_STYLE} id={id ?? undefined}>
             <Row gutter={CHANGE_HISTORY_VERTICAL_GUTTER}>
                 <Col span={24}>
                     <Typography.Title level={3}>{title}</Typography.Title>
@@ -61,7 +62,7 @@ export const ChangeHistory = <ChangesType extends BaseChangesType> (props: Chang
                 <Col span={24}>
                     <Row gutter={CHANGE_HISTORY_VERTICAL_GUTTER}>
                         {items.slice(0, displayCount).map(change => (
-                            <Col span={24} key={change.id}>
+                            <Col span={24} key={change.id} id={change.id}>
                                 <HistoricalChange
                                     changesValue={change}
                                     useChangedFieldMessagesOf={useChangedFieldMessagesOf}

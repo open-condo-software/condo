@@ -138,7 +138,7 @@ export type GetContactsForTableQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetContactsForTableQuery = { __typename?: 'Query', contacts?: Array<{ __typename?: 'Contact', id: string, name?: string | null, unitName?: string | null, unitType?: Types.ContactUnitTypeType | null, phone?: string | null, email?: string | null, ownershipPercentage?: string | null, note?: string | null, communityFee?: string | null, organization?: { __typename?: 'Organization', id: string, name?: string | null } | null, property?: { __typename?: 'Property', id: string, deletedAt?: string | null, address?: string | null, addressMeta?: { __typename?: 'AddressMetaField', data: { __typename?: 'AddressMetaDataField', street_with_type?: string | null, house_type?: string | null, house?: string | null, block_type?: string | null, block?: string | null, flat_type?: string | null, flat?: string | null, region_type_full?: string | null, region: string, region_with_type?: string | null, city_with_type?: string | null, city?: string | null, settlement_with_type?: string | null, area_with_type?: string | null } } | null } | null, role?: { __typename?: 'ContactRole', id: string, name?: string | null } | null } | null> | null, meta?: { __typename?: '_QueryMeta', count?: number | null } | null };
+export type GetContactsForTableQuery = { __typename?: 'Query', contacts?: Array<{ __typename?: 'Contact', id: string, name?: string | null, unitName?: string | null, unitType?: Types.ContactUnitTypeType | null, phone?: string | null, email?: string | null, ownershipPercentage?: string | null, note?: string | null, communityFee?: string | null, createdAt?: string | null, isVerified?: boolean | null, organization?: { __typename?: 'Organization', id: string, name?: string | null } | null, property?: { __typename?: 'Property', id: string, deletedAt?: string | null, address?: string | null, addressMeta?: { __typename?: 'AddressMetaField', data: { __typename?: 'AddressMetaDataField', street_with_type?: string | null, house_type?: string | null, house?: string | null, block_type?: string | null, block?: string | null, flat_type?: string | null, flat?: string | null, region_type_full?: string | null, region: string, region_with_type?: string | null, city_with_type?: string | null, city?: string | null, settlement_with_type?: string | null, area_with_type?: string | null } } | null } | null, role?: { __typename?: 'ContactRole', id: string, name?: string | null } | null } | null> | null, meta?: { __typename?: '_QueryMeta', count?: number | null } | null };
 
 export type GetContactEditorContactsQueryVariables = Types.Exact<{
   where?: Types.InputMaybe<Types.ContactWhereInput>;
@@ -161,6 +161,13 @@ export type UpdateContactMutationVariables = Types.Exact<{
 
 
 export type UpdateContactMutation = { __typename?: 'Mutation', contact?: { __typename?: 'Contact', id: string, phone?: string | null, unitName?: string | null, unitType?: Types.ContactUnitTypeType | null, property?: { __typename?: 'Property', id: string } | null } | null };
+
+export type UpdateContactsMutationVariables = Types.Exact<{
+  data: Array<Types.ContactsUpdateInput> | Types.ContactsUpdateInput;
+}>;
+
+
+export type UpdateContactsMutation = { __typename?: 'Mutation', contacts?: Array<{ __typename?: 'Contact', id: string } | null> | null };
 
 export type GetContactExportTasksQueryVariables = Types.Exact<{
   where: Types.ContactExportTaskWhereInput;
@@ -283,6 +290,11 @@ export type GetGlobalB2BAppsQueryVariables = Types.Exact<{ [key: string]: never;
 
 export type GetGlobalB2BAppsQuery = { __typename?: 'Query', b2bApps?: Array<{ __typename?: 'B2BApp', id: string, appUrl?: string | null, features?: Array<Types.B2BAppGlobalFeature> | null } | null> | null };
 
+export type GetCountB2BAppsWithNewsSharingConfigQueryVariables = Types.Exact<{ [key: string]: never; }>;
+
+
+export type GetCountB2BAppsWithNewsSharingConfigQuery = { __typename?: 'Query', _allB2BAppsMeta?: { __typename?: '_QueryMeta', count?: number | null } | null };
+
 export type GetUserB2BAppRolesQueryVariables = Types.Exact<{
   employeeRoleId?: Types.InputMaybe<Types.Scalars['ID']['input']>;
   b2bAppIds?: Types.InputMaybe<Array<Types.InputMaybe<Types.Scalars['ID']['input']>> | Types.InputMaybe<Types.Scalars['ID']['input']>>;
@@ -322,7 +334,7 @@ export type GetNewsSharingRecipientsQuery = { __typename?: 'Query', recipients?:
 
 export type GetUserMessagesQueryVariables = Types.Exact<{
   userId?: Types.InputMaybe<Types.Scalars['ID']['input']>;
-  organizationId?: Types.InputMaybe<Types.Scalars['ID']['input']>;
+  organizationIds?: Types.InputMaybe<Array<Types.InputMaybe<Types.Scalars['ID']['input']>> | Types.InputMaybe<Types.Scalars['ID']['input']>>;
   types?: Types.InputMaybe<Array<Types.MessageType> | Types.MessageType>;
   skip?: Types.InputMaybe<Types.Scalars['Int']['input']>;
 }>;
@@ -529,6 +541,13 @@ export type GetLastCreatedPropertyByOrganizationIdQueryVariables = Types.Exact<{
 
 
 export type GetLastCreatedPropertyByOrganizationIdQuery = { __typename?: 'Query', properties?: Array<{ __typename?: 'Property', id: string } | null> | null };
+
+export type UpdatePropertiesMutationVariables = Types.Exact<{
+  data: Array<Types.PropertiesUpdateInput> | Types.PropertiesUpdateInput;
+}>;
+
+
+export type UpdatePropertiesMutation = { __typename?: 'Mutation', properties?: Array<{ __typename?: 'Property', id: string } | null> | null };
 
 export type GetPropertyScopePropertiesQueryVariables = Types.Exact<{
   propertyScopeIds?: Types.InputMaybe<Array<Types.Scalars['ID']['input']> | Types.Scalars['ID']['input']>;

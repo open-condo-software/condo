@@ -4,7 +4,7 @@ import { OrganizationTypeType } from '@app/condo/schema'
 import { Layout } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 
 import { Menu } from '@open-condo/icons'
 import { useMutation } from '@open-condo/next/apollo'
@@ -44,6 +44,7 @@ export const Header: React.FC<IHeaderProps> = (props) => {
     const { organization } = useOrganization()
 
     const hasAccessToAppeals = get(organization, 'type', MANAGING_COMPANY_TYPE) !== SERVICE_PROVIDER_TYPE
+    const organizationIdsToFilterMessages = useMemo(() => [organization?.id], [organization?.id])
 
     const [acceptOrReject] = useMutation(ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION, {
         onCompleted: async (result) => {
@@ -73,7 +74,7 @@ export const Header: React.FC<IHeaderProps> = (props) => {
     }, [isAuthenticated, router])
 
     return (
-        <UserMessagesListContextProvider>
+        <UserMessagesListContextProvider organizationIdsToFilter={organizationIdsToFilterMessages}>
             {ChooseEmployeeRoleModal}
             {
                 !breakpoints.TABLET_LARGE

@@ -149,15 +149,33 @@ const PropertyMetersTableContent: React.FC<PropertyMetersTableContentProps> = ({
                     <TableFiltersContainer>
                         <Row gutter={FILTERS_CONTAINER_GUTTER} align='middle' justify='space-between'>
                             <Col span={24}>
-                                <Input
-                                    placeholder={SearchPlaceholder}
-                                    onChange={handleSearch}
-                                    value={search}
-                                    allowClear
-                                    suffix={<Search size='medium' color={colors.gray[7]}/>}
-                                />
+                                <Row gutter={FILTERS_CONTAINER_GUTTER} align='middle' justify='space-between'>
+                                    <Col style={{ flex: 1 }}>
+                                        <Input
+                                            placeholder={SearchPlaceholder}
+                                            onChange={handleSearch}
+                                            value={search}
+                                            allowClear
+                                            suffix={<Search size='medium' color={colors.gray[7]}/>}
+                                        />
+                                    </Col>
+                                    <Col>
+                                        <Row gutter={[16, 10]} align='middle' style={{ flexWrap: 'nowrap' }}>
+                                            {
+                                                appliedFiltersCount > 0 && (
+                                                    <Col>
+                                                        <ResetFiltersModalButton style={RESET_FILTERS_BUTTON_STYLE} />
+                                                    </Col>
+                                                )
+                                            }
+                                            <Col>
+                                                <OpenFiltersButton />
+                                            </Col>
+                                        </Row>
+                                    </Col>
+                                </Row>
                             </Col>
-                            <Col>
+                            <Col span={24}>
                                 <Row justify='start' gutter={FILTERS_CONTAINER_GUTTER} style={{ flexWrap: 'nowrap' }}>
                                     <Col style={QUICK_FILTERS_COL_STYLE}>
                                         <Checkbox
@@ -174,20 +192,6 @@ const PropertyMetersTableContent: React.FC<PropertyMetersTableContentProps> = ({
                                             data-cy='meter__filter-hasArchiveDate'
                                             children={OutOfOrderMessage}
                                         />
-                                    </Col>
-                                </Row>
-                            </Col>
-                            <Col>
-                                <Row gutter={[16, 10]} align='middle' style={{ flexWrap: 'nowrap' }}>
-                                    {
-                                        appliedFiltersCount > 0 && (
-                                            <Col>
-                                                <ResetFiltersModalButton style={RESET_FILTERS_BUTTON_STYLE} />
-                                            </Col>
-                                        )
-                                    }
-                                    <Col>
-                                        <OpenFiltersButton />
                                     </Col>
                                 </Row>
                             </Col>

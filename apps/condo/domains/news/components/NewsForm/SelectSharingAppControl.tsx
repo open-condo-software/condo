@@ -1,4 +1,7 @@
-import { useGetNewsSharingRecipientsLazyQuery } from '@app/condo/gql'
+import {
+    useGetCountB2BAppsWithNewsSharingConfigQuery,
+    useGetNewsSharingRecipientsLazyQuery,
+} from '@app/condo/gql'
 import {
     B2BAppContext as IB2BAppContext,
 } from '@app/condo/schema'
@@ -39,7 +42,6 @@ const CONDO_APP_PREVIEW_ICON_URL = '/news/condoAppPreviewIcon.png'
 const SHARING_APP_FALLBACK_ICON = '/news/sharingAppIconPlaceholder.svg'
 const SHARING_APP_FALLBACK_PREVIEW_ICON = '/news/sharingAppPreviewIconPlaceholder.svg'
 const PROMO_APP_PREVIEW_ICON = '/news/promoAppPreviewIcon.png'
-
 const CardCheckbox = Card.CardCheckbox
 
 interface ISelectSharingAppControl {
@@ -53,9 +55,8 @@ const AppDescriptionLabelId = 'pages.news.create.selectSharingApp.appDescription
 const SelectSharingAppControl: React.FC<ISelectSharingAppControl> = ({ sharingAppContexts, selectedSharingApps, handleSelectSharingApp }) => {
     const intl = useIntl()
     const CondoMobileAppDescriptionLabel = intl.formatMessage({ id: AppDescriptionLabelId }, { appName: 'Doma' })
-    const OtherAppsLabel = intl.formatMessage({ id: 'pages.news.create.selectSharingApp.otherApps' })
     const OtherAppsDescriptionLabel = intl.formatMessage({ id: 'pages.news.create.selectSharingApp.otherApps.description' })
-    const OtherAppsActionLabel = intl.formatMessage({ id: 'pages.news.create.selectSharingApp.otherApps.actionButtonText' })
+    const OtherAppsActionLabel = intl.formatMessage({ id: 'InMoreDetail' })
     const FinishSettingDescriptionLabel = intl.formatMessage({ id: 'pages.news.create.selectSharingApp.finishSetting.description' })
     const FinishSettingActionLabel = intl.formatMessage({ id: 'pages.news.create.selectSharingApp.finishSetting.actionButtonText' })
     const CondoMobileAppLabel = intl.formatMessage({ id: 'pages.condo.news.preview.condoAppName' })
@@ -87,7 +88,6 @@ const SelectSharingAppControl: React.FC<ISelectSharingAppControl> = ({ sharingAp
                     setAppsSettingCompleted(prev => ({ ...prev, [ctx.id]: !!data?.data?.recipients?.length }))
                 } catch (error) {
                     const message = error?.graphQLErrors?.[0]?.extensions?.messageForUser
-                    // @ts-ignore
                     onError(message)
                     setAppsSettingCompleted(prev => ({ ...prev, [ctx.id]: false }))
                 }
@@ -96,6 +96,9 @@ const SelectSharingAppControl: React.FC<ISelectSharingAppControl> = ({ sharingAp
             }
         })
     }, [sharingAppContexts, getNewsSharingRecipients, onError])
+
+    const { data: countB2BAppsWithNewsSharingConfigResult } =  useGetCountB2BAppsWithNewsSharingConfigQuery()
+    const b2BAppWithNewsSharingConfigsCount = countB2BAppsWithNewsSharingConfigResult?._allB2BAppsMeta?.count
 
     return (
         <NewsCardGrid minColWidth={246}>
@@ -174,14 +177,10 @@ const SelectSharingAppControl: React.FC<ISelectSharingAppControl> = ({ sharingAp
                     </React.Fragment>
                 )
             })}
-            {
-                // TODO (DOMA-11564) Compare with B2BAppNewsSharingConfig
-            }
-            {sharingAppContexts.length === 1 && (
+            {sharingAppContexts.length < b2BAppWithNewsSharingConfigsCount && (
                 <div style={cardStyle}>
                     <Card>
                         <Row gutter={[0, 10]}>
-                            <Typography.Title level={3}>{OtherAppsLabel}</Typography.Title>
                             <Typography.Paragraph>{OtherAppsDescriptionLabel}</Typography.Paragraph>
                             <div style={CARD_ICON_CONTAINER_STYLE}>
                                 <img

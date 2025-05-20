@@ -25,7 +25,6 @@ import { useRouter } from 'next/router'
 import { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
-import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { Link as LinkIcon } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { FormattedMessage } from '@open-condo/next/intl'
@@ -42,7 +41,6 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
-import { MARKETPLACE } from '@condo/domains/common/constants/featureflags'
 import { PageComponentType } from '@condo/domains/common/types'
 import { getObjectCreatedMessage } from '@condo/domains/common/utils/date.utils'
 import { CopyButton } from '@condo/domains/marketplace/components/Invoice/CopyButton'
@@ -186,7 +184,7 @@ const TicketHeader = ({ ticket, handleTicketStatusChanged, organization, employe
                                         </Col>
                                     )
                                 }
-                                <Col span={24}>
+                                <Col id='ticket__create-info' span={24}>
                                     <Row>
                                         <Col span={24}>
                                             <Typography.Text style={TICKET_CREATE_INFO_TEXT_STYLE}>
@@ -294,7 +292,7 @@ const TicketHeader = ({ ticket, handleTicketStatusChanged, organization, employe
                     <Row justify='space-between' align='middle' gutter={[0, 24]}>
                         <Col span={!breakpoints.TABLET_LARGE && 24}
                             hidden={!isEmergency && !isPayable && !isWarranty && statusReopenedCounter === 0}>
-                            <Space direction='horizontal'>
+                            <Space id='ticket__field-status' direction='horizontal'>
                                 {isEmergency && (
                                     <TicketTag
                                         style={TICKET_TYPE_TAG_STYLE.emergency}
@@ -670,9 +668,6 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
         () => user?.isAdmin || get(employee, ['role', 'canManageTicketComments']),
         [user, employee]
     )
-
-    const { useFlag } = useFeatureFlags()
-    const isMarketplaceEnabled = useFlag(MARKETPLACE)
     const isNoServiceProviderOrganization = useMemo(() => (get(organization, 'type', MANAGING_COMPANY_TYPE) !== SERVICE_PROVIDER_TYPE), [organization])
 
     const {
@@ -683,7 +678,7 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
         variables: {
             ticketId: ticket.id,
         },
-        skip: !persistor || !ticket?.id || !isMarketplaceEnabled || !isNoServiceProviderOrganization,
+        skip: !persistor || !ticket?.id || !isNoServiceProviderOrganization,
     })
     const invoices = useMemo(() => invoicesData?.invoices?.filter(Boolean) || [],
         [invoicesData?.invoices])
@@ -720,7 +715,7 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
                     </Row>
                     <TicketContent ticket={ticket}/>
                     {
-                        isMarketplaceEnabled && isNoServiceProviderOrganization && ticket.isPayable && (
+                        isNoServiceProviderOrganization && ticket.isPayable && (
                             <Col span={24}>
                                 <TicketInvoices
                                     invoices={invoices}
@@ -757,6 +752,7 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
                         title={TicketChangesMessage}
                         useChangedFieldMessagesOf={useTicketChangedFieldMessagesOf}
                         HistoricalChange={HistoricalChange}
+                        id='ticket__change-history'
                     />
                     <Col span={24}>
                         <TicketActionBar

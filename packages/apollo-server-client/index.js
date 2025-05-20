@@ -98,11 +98,13 @@ class ApolloServerClient {
      * @param authRequisites - can be { identity: 'service-user@doma.ai', secret: 'password' } or { phone: '+7911....', password: '' }
      * @param clientName - logger name
      * @param locale - for server side translated texts
+     * @param customHeaders - can be { x-target: 'custom-x-target', ... }
      */
-    constructor (endpoint, authRequisites = {}, { clientName = 'apollo-server-client', locale = 'ru' } = {}) {
+    constructor (endpoint, authRequisites = {}, { clientName = 'apollo-server-client', locale = 'ru', customHeaders = {} } = {}) {
         this.clientName = clientName
         this.endpoint = endpoint
         this.locale = locale
+        this.customHeaders = customHeaders
 
         this.authRequisites = normalizeAuthRequisites(authRequisites)
         this.logger = getLogger(clientName)
@@ -393,6 +395,7 @@ class ApolloServerClient {
                 headers: {
                     authorization: 'Bearer ' + this.authToken,
                     'accept-language': this.locale,
+                    ...this.customHeaders,
                 },
                 credentials: 'same-origin',
             })

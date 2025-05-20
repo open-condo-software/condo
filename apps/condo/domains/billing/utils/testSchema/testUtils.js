@@ -10,6 +10,7 @@ const { MeterTestMixin } = require('@condo/domains/billing/utils/testSchema/mixi
 const { OrganizationTestMixin } = require('@condo/domains/billing/utils/testSchema/mixins/organization')
 const { PropertyTestMixin } = require('@condo/domains/billing/utils/testSchema/mixins/property')
 const { ResidentTestMixin } = require('@condo/domains/billing/utils/testSchema/mixins/resident')
+const { B2BAppTestMixin } = require('@condo/domains/billing/utils/testSchema/mixins/b2bApp')
 const {
     makeClientWithServiceUser,
     makeClientWithSupportUser,
@@ -112,6 +113,7 @@ class TestUtils {
 module.exports = {
     TestUtils,
     AcquiringTestMixin,
+    B2BAppTestMixin,
     BillingTestMixin,
     MeterTestMixin,
     OrganizationTestMixin,

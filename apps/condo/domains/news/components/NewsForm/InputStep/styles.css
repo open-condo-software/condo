@@ -7,3 +7,16 @@
 .recipient-counter {
   justify-items: end;
 }
+
+.recipient-counter > div {
+  max-width: 500px;
+}
+
+.custom-counter-content {
+  justify-content: space-around;
+  width: 100%;
+}
+
+.custom-counter {
+  width: 100%;
+}
