@@ -140,7 +140,17 @@ class OIDCMiddleware {
                 })
             }
         })
-        app.use('/oidc', provider.callback())
+        app.use('/oidc', (req, res, next) => {
+            try {
+                logger.info({ msg: 'OIDCRoute call', data: {
+                    url: req.originalUrl,
+                    query: req.query,
+                } })
+                provider.callback()(req, res, next)
+            } catch (error) {
+                logger.error({ msg: 'OIDCRoute error', error })
+            }
+        })
         return app
     }
 }
