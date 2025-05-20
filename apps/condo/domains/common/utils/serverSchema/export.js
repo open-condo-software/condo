@@ -6,6 +6,7 @@ const Upload = require('graphql-upload/Upload.js')
 const { get, isFunction } = require('lodash')
 
 const conf = require('@open-condo/config')
+const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const { EXPORT_PROCESSING_BATCH_SIZE, COMPLETED } = require('@condo/domains/common/constants/export')
@@ -102,6 +103,11 @@ const processRecords = async ({ context, loadRecordsBatch, processRecordsBatch, 
     const taskSchemaName = taskServerUtils.gql.SINGULAR_FORM
     let lastProgress = Date.now()
 
+    const batchSize = await featureToggleManager.getFeatureValue(
+        null, 'temp-batch-size', EXPORT_PROCESSING_BATCH_SIZE
+    )
+    const disableProcessRecords = await featureToggleManager.isFeatureEnabled(null, 'temp-disable-process-records')
+
     do {
         // User can cancel the task at any time, in this all operations should be stopped
         task = await taskServerUtils.getOne(context, { id: taskId }, 'id status')
@@ -118,7 +124,7 @@ const processRecords = async ({ context, loadRecordsBatch, processRecordsBatch, 
                 taskId, offset, taskSchemaName,
             },
         })
-        const batch = await loadRecordsBatch(offset, EXPORT_PROCESSING_BATCH_SIZE)
+        const batch = await loadRecordsBatch(offset, batchSize)
         logMemoryUsage({
             logger,
             messageData: {
@@ -138,21 +144,25 @@ const processRecords = async ({ context, loadRecordsBatch, processRecordsBatch, 
             return
         }
 
-        logMemoryUsage({
-            logger,
-            messageData: {
-                msg: 'processRecords before process batch',
-                taskId, offset, batchLength: batch.length, taskSchemaName,
-            },
-        })
-        await processRecordsBatch(batch)
-        logMemoryUsage({
-            logger,
-            messageData: {
-                msg: 'processRecords after process batch',
-                taskId, offset, batchLength: batch.length, taskSchemaName,
-            },
-        })
+        if (!disableProcessRecords) {
+            logMemoryUsage({
+                logger,
+                messageData: {
+                    msg: 'processRecords before process batch',
+                    taskId, offset, batchLength: batch.length, taskSchemaName,
+                },
+            })
+
+            await processRecordsBatch(batch)
+
+            logMemoryUsage({
+                logger,
+                messageData: {
+                    msg: 'processRecords after process batch',
+                    taskId, offset, batchLength: batch.length, taskSchemaName,
+                },
+            })
+        }
 
         offset += batch.length
 
@@ -196,6 +206,7 @@ const exportRecordsAsXlsxFile = async ({ context, loadRecordsBatch, convertRecor
         messageData: {
             msg: 'exportRecordsAsXlsxFile after process records',
             taskId,
+            rows: rows.length,
         },
     })
 

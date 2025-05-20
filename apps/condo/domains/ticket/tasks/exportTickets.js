@@ -121,7 +121,12 @@ const ticketToRow = async ({ task, ticket, indexedStatuses, classifier }) => {
 
     const ticketClassifier = classifier.filter(rule => rule.id === ticket.classifier)
 
-    const comments = await loadTicketCommentsForExcelExport({ ticketIds: [ticket.id] })
+    let comments = []
+    const disableLoadComments = await featureToggleManager.isFeatureEnabled(null, 'temp-disable-load-comments')
+    if (!disableLoadComments) {
+        comments = await loadTicketCommentsForExcelExport({ ticketIds: [ticket.id] })
+    }
+
     const renderedOrganizationComments = []
     const renderedResidentComments = []
     comments.forEach((comment) => {
