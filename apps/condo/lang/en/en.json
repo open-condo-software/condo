@@ -371,6 +371,8 @@
   "api.document.WRONG_PROPERTY_ORGANIZATION": "Property has different organization",
   "api.global.queryBlocking.FORBIDDEN_REQUEST": "This request is denied by the server because it contains blocked operations: {blockedOperations}",
   "api.global.rateLimit.RATE_LIMIT_EXCEEDED": "You've made too many requests recently, try again later",
+  "api.global.requestLimit.VARIABLES_SIZE_EXCEEDED": "The size of variables is too large. Consider using simpler filters or decreasing batch size",
+  "api.global.requestLimit.ROOT_QUERY_LENGTH_EXCEEDED": "GraphQL query is too large. Try using query variables or shrinking the query",
   "api.marketplace.invoice.ALREADY_CANCELED": "Changing of canceled invoice is forbidden",
   "api.marketplace.invoice.ALREADY_PAID": "Changing of paid invoice is forbidden",
   "api.marketplace.invoice.CLIENT_DATA_DOES_NOT_MATCH_TICKET": "Address and contact data must match the data from the ticket to which the invoice is linked",
