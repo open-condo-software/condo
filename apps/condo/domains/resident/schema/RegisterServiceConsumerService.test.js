@@ -250,11 +250,9 @@ describe('RegisterServiceConsumer', () => {
         test('Can register for same accountNumber in both contexts', async  () => {
             const resident = await utils.createResident()
             const accountNumber = faker.random.alphaNumeric(16)
-            await utils.createReceipts([
-                utils.createJSONReceipt({ accountNumber }),
-            ])
-            await anotherIntegrationUtils.createReceipts([
-                utils.createJSONReceipt({ accountNumber }),
+            await Promise.all([
+                utils.createReceipts([ utils.createJSONReceipt({ accountNumber }) ]),
+                anotherIntegrationUtils.createReceipts([ utils.createJSONReceipt({ accountNumber }) ]),
             ])
             const [serviceConsumer] = await registerServiceConsumerByTestClient(utils.clients.resident, {
                 residentId: resident.id,
@@ -268,11 +266,9 @@ describe('RegisterServiceConsumer', () => {
             const resident = await utils.createResident()
             const accountNumber1 = faker.random.alphaNumeric(16)
             const accountNumber2 = faker.random.alphaNumeric(16)
-            await utils.createReceipts([
-                utils.createJSONReceipt({ accountNumber: accountNumber1 }),
-            ])
-            await anotherIntegrationUtils.createReceipts([
-                utils.createJSONReceipt({ accountNumber: accountNumber2 }),
+            await Promise.all([
+                utils.createReceipts([ utils.createJSONReceipt({ accountNumber: accountNumber1 }) ]),
+                anotherIntegrationUtils.createReceipts([ utils.createJSONReceipt({ accountNumber: accountNumber2 }) ]),
             ])
             const [serviceConsumer1] = await registerServiceConsumerByTestClient(utils.clients.resident, {
                 residentId: resident.id,
