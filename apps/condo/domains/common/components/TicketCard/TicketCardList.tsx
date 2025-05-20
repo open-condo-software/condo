@@ -60,7 +60,7 @@ const TicketCard: React.FC<ITicketCardProps> = ({ contactId, tickets }) => {
                         />
                     ))
                 }
-                {hasMoreTickets && (
+                {hasMoreTickets > 0 && (
                     <Typography.Link href={`/ticket/${query}`}>
                         {AllTickets}
                     </Typography.Link>
