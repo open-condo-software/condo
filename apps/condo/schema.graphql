@@ -45465,9 +45465,9 @@ type Contact {
   """ Contact verification flag. """
   isVerified: Boolean
 
-  """ Has contact a resident or when resident for this contact was created? 
+  """ Presence/absence of a resident at this address (property, unitName, unitType) and user (phone, type = `Resident`) 
   """
-  isHasResident: String
+  hasResident: Boolean
 
   """ Percentage ownership of an apartment. Example value: 50.00000000 // 50%  
   """

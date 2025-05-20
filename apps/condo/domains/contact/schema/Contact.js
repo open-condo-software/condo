@@ -17,6 +17,7 @@ const { getUnitTypeFieldResolveInput } = require('@condo/domains/common/utils/se
 const { normalizeText } = require('@condo/domains/common/utils/text')
 const access = require('@condo/domains/contact/access/Contact')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
+const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { UNABLE_TO_CREATE_CONTACT_DUPLICATE, UNABLE_TO_UPDATE_CONTACT_DUPLICATE } = require('@condo/domains/user/constants/errors')
 
 
@@ -139,12 +140,11 @@ const Contact = new GQLListSchema('Contact', {
             defaultValue: false,
         },
 
-        isHasResident: {
-            schemaDoc: 'Has contact a resident or when resident for this contact was created?',
+        hasResident: {
+            schemaDoc: 'Presence/absence of a resident at this address (property, unitName, unitType) and user (phone, type = `Resident`)',
             type: 'Virtual',
             graphQLReturnType: 'Boolean',
-            resolver: async (item, args, context) => {
-
+            resolver: async (item) => {
                 const propertyId = get(item, 'property', null)
                 const unitName = get(item, 'unitName', null)
                 const unitType = get(item, 'unitType', null)
@@ -155,17 +155,14 @@ const Contact = new GQLListSchema('Contact', {
                 }
 
                 const Resident = await getByCondition('Resident', {
-                    property: { id: propertyId },
+                    property: { id: propertyId, deletedAt: null },
                     unitName,
                     unitType,
-                    user: { phone },
+                    user: { phone_ends_with_i: phone.slice(-4), type: RESIDENT, isPhoneVerified: true, deletedAt: null },
+                    deletedAt: null,
                 })
 
-                console.log('Can I get a resident here')
-                console.log('item', item)
-                console.log('args', args)
-                console.log('context', context)
-                console.log('Resident', Resident)
+                return Boolean(Resident)
             },
         },
 

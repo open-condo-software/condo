@@ -57,6 +57,7 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
     const ContactRoleTitle = intl.formatMessage({ id: 'ContactRole' })
     const VerifiedMessage = intl.formatMessage({ id: 'pages.condo.contact.Verified' })
     const HasResident = intl.formatMessage({ id: 'pages.condo.contact.HasResident' })
+    const DownloadApp = intl.formatMessage({ id: 'pages.condo.contact.DownloadApp' })
     const DeleteMessage = intl.formatMessage({ id: 'Delete' })
     const UnitTypeMessage = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${contact?.unitType || BuildingUnitSubType.Flat}` as FormatjsIntl.Message['ids'] })
 
@@ -69,7 +70,7 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
     const contactAddress = useMemo(() => `${contact?.property?.address || DeletedMessage} ${unitSuffix}`, [contact, DeletedMessage, unitSuffix])
     const contactRoleName = useMemo(() => contact?.role?.name, [contact])
     const isVerified = useMemo(() => contact?.isVerified, [contact])
-    const isHasResident = useMemo(() => contact?.isHasResident, [contact])
+    const hasResident = useMemo(() => contact?.hasResident, [contact])
     const phonePrefix = useMemo(() => contact?.organization?.phoneNumberPrefix || '', [contact])
 
     const { breakpoints } = useLayoutContext()
@@ -80,9 +81,9 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
                 <title>{contactName}</title>
             </Head>
             <PageWrapper>
-                <Col xs={24} lg={20} offset={!breakpoints.DESKTOP_SMALL ? 0 : 1}>
-                    <Row gutter={[0, 20]}>
-                        <Row gutter={[0, 40]}>
+                <Row gutter={[0, 20]} align='middle'>
+                    <Col lg={18}>
+                        <Row gutter={[0, 60]}>
                             <Typography.Title>
                                 {contactName}
                             </Typography.Title>
@@ -124,12 +125,12 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
                                     </>
                                     <FieldPairRow
                                         fieldTitle={HasResident}
-                                        fieldValue={isHasResident || '—'}
+                                        fieldValue={hasResident ? DownloadApp : '—'}
                                     />
                                 </Row>
                             </FrontLayerContainer>
                             {isContactEditable && breakpoints.DESKTOP_SMALL && (
-                                <Col span={24}>
+                                <Col span={16}>
                                     <ActionBar
                                         actions={[
                                             <Link key='update' href={`/contact/${contact?.id}/update`}>
@@ -152,36 +153,36 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
                                 </Col>
                             )}
                         </Row>
-                        <Col xs={24} sm={24} lg={8} offset={!breakpoints.DESKTOP_SMALL ? 0 : 1}>
-                            <TicketCardList
-                                contactId={contactId}
+                    </Col>
+                    <Col xs={24} sm={24} lg={6}>
+                        <TicketCardList
+                            contactId={contactId}
+                        />
+                    </Col>
+                    {isContactEditable && !breakpoints.DESKTOP_SMALL && (
+                        <Col span={24}>
+                            <ActionBar
+                                actions={[
+                                    <Link key='update' href={`/contact/${contactId}/update`}>
+                                        <Button
+                                            type='primary'
+                                        >
+                                            {UpdateMessage}
+                                        </Button>
+                                    </Link>,
+                                    <DeleteButtonWithConfirmModal
+                                        key='delete'
+                                        title={ConfirmDeleteTitle}
+                                        message={ConfirmDeleteMessage}
+                                        okButtonLabel={ConfirmDeleteButtonLabel}
+                                        action={softDeleteAction}
+                                        buttonContent={DeleteMessage}
+                                    />,
+                                ]}
                             />
                         </Col>
-                        {isContactEditable && !breakpoints.DESKTOP_SMALL && (
-                            <Col span={24}>
-                                <ActionBar
-                                    actions={[
-                                        <Link key='update' href={`/contact/${contactId}/update`}>
-                                            <Button
-                                                type='primary'
-                                            >
-                                                {UpdateMessage}
-                                            </Button>
-                                        </Link>,
-                                        <DeleteButtonWithConfirmModal
-                                            key='delete'
-                                            title={ConfirmDeleteTitle}
-                                            message={ConfirmDeleteMessage}
-                                            okButtonLabel={ConfirmDeleteButtonLabel}
-                                            action={softDeleteAction}
-                                            buttonContent={DeleteMessage}
-                                        />,
-                                    ]}
-                                />
-                            </Col>
-                        )}
-                    </Row>
-                </Col>
+                    )}
+                </Row>
             </PageWrapper>
         </>
     )
