@@ -106,6 +106,9 @@ const processRecords = async ({ context, loadRecordsBatch, processRecordsBatch, 
     const batchSize = await featureToggleManager.getFeatureValue(
         null, 'temp-batch-size', EXPORT_PROCESSING_BATCH_SIZE
     )
+    const sleepTimeout = await featureToggleManager.getFeatureValue(
+        null, 'temp-sleep-timeout', SLEEP_TIMEOUT
+    )
     const disableProcessRecords = await featureToggleManager.isFeatureEnabled(null, 'temp-disable-process-records')
 
     do {
@@ -176,7 +179,7 @@ const processRecords = async ({ context, loadRecordsBatch, processRecordsBatch, 
             })
         }
 
-        await sleep(SLEEP_TIMEOUT)
+        await sleep(sleepTimeout)
     } while (offset < totalRecordsCount)
 }
 
