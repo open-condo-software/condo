@@ -135,7 +135,7 @@ class RedisGuard {
         if (afterIncrement === 1) {
             expireat = await this.redis.expireat(`${this.counterPrefix}${variable}`, parseInt(`${date / 1000}`))
         }
-        logger.info({ msg: 'incrementCustomCounter', data: { key: `${this.counterPrefix}${variable}`, afterIncrement, expireat, timeExpireat: `${date / 1000}` } })
+        logger.info({ msg: 'incrementCustomCounter', data: { key: `${this.counterPrefix}${variable}`, afterIncrement, expireat, timeExpireat: parseInt(`${date / 1000}`) } })
         return afterIncrement
     }
 
