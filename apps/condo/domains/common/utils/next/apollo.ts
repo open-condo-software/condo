@@ -131,11 +131,6 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
                         read: listHelper.getReadFunction('paginate'),
                         merge: listHelper.mergeLists,
                     },
-                    GetNewsSharingRecipientsOutput: {
-                        keyArgs: ['where'],
-                        read: listHelper.getReadFunction('paginate'),
-                        merge: listHelper.mergeLists,
-                    },
                 },
             },
 
