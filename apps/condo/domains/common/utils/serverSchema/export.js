@@ -231,14 +231,11 @@ const exportRecordsAsXlsxFile = async ({ context, loadRecordsBatch, convertRecor
 
 const exportRecordsAsCsvFile = async ({ context, loadRecordsBatch, convertRecordToFileRow, baseAttrs, taskServerUtils, totalRecordsCount, taskId, registry, getHeadersTranslations: overriddenGetHeadersTranslations }) => {
     const filename = getTmpFile('csv')
-    const writeStream = createWriteStreamForExport(filename)
 
     const task = await taskServerUtils.getOne(context, { id: taskId }, 'id locale')
     const _getHeadersTranslations = isFunction(overriddenGetHeadersTranslations) ? overriddenGetHeadersTranslations : getHeadersTranslations
     const columns = _getHeadersTranslations(registry, task.locale)
     const columnKeys = Object.keys(columns)
-    const stringifier = stringify({ header: true, columns, delimiter: CSV_DELIMITER })
-    stringifier.pipe(writeStream)
 
     logMemoryUsage({
         logger,
@@ -248,17 +245,23 @@ const exportRecordsAsCsvFile = async ({ context, loadRecordsBatch, convertRecord
         },
     })
 
+    const stringifier = stringify({ header: true, columns, delimiter: CSV_DELIMITER })
+    const writeStream = createWriteStreamForExport(filename)
+    stringifier.pipe(writeStream)
+
     await processRecords({
         context,
         loadRecordsBatch,
         processRecordsBatch: async (batch) => {
-            // const convertedRecords = await Promise.all(batch.map(convertRecordToFileRow))
-            // convertedRecords.forEach(row => {
-            //     stringifier.write(columnKeys.map(key => get(row, key)))
-            // })
+            const convertedRecords = await Promise.all(batch.map(convertRecordToFileRow))
+            convertedRecords.forEach(row => {
+                stringifier.write(columnKeys.map(key => get(row, key)))
+            })
         },
         baseAttrs, taskServerUtils, totalRecordsCount, taskId,
     })
+
+    writeStream.close()
 
     logMemoryUsage({
         logger,
@@ -267,8 +270,6 @@ const exportRecordsAsCsvFile = async ({ context, loadRecordsBatch, convertRecord
             taskId,
         },
     })
-
-    writeStream.close()
 
     const stream = fs.createReadStream(filename, { encoding: 'utf8' })
     const file = buildUploadInputFrom({
