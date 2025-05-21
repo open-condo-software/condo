@@ -1,4 +1,5 @@
 const fs = require('fs')
+const v8 = require('v8')
 
 const { stringify } = require('csv-stringify')
 const dayjs = require('dayjs')
@@ -37,6 +38,22 @@ const logMemoryUsage = ({ logger, messageData }) => {
         // rss: formatBytes(memoryUsage.rss),
         // arrayBuffers: formatBytes(memoryUsage.arrayBuffers),
         // external: formatBytes(memoryUsage.external),
+    })
+}
+
+function takeHeapSnapshot (filename) {
+    if (fs.existsSync(filename)) {
+        console.log(`Heap snapshot skipped — file already exists: ${filename}`)
+        return
+    }
+
+    console.log(`Taking snapshot to ${filename}`)
+    const stream = fs.createWriteStream(filename)
+    const snapshotStream = v8.getHeapSnapshot()
+    snapshotStream.pipe(stream)
+
+    stream.on('finish', () => {
+        console.log(`Heap snapshot saved to ${filename}`)
     })
 }
 
@@ -157,7 +174,7 @@ const exportRecordsAsXlsxFile = async ({ context, loadRecordsBatch, convertRecor
         loadRecordsBatch,
         processRecordsBatch: async (batch) => {
             const convertedRecords = batch.map(convertRecordToFileRow)
-            // rows.push(...convertedRecords)
+            rows.push(...convertedRecords)
         },
         taskServerUtils, taskId, totalRecordsCount, baseAttrs,
     })
@@ -172,6 +189,7 @@ const exportRecordsAsXlsxFile = async ({ context, loadRecordsBatch, convertRecor
 }
 
 const exportRecordsAsCsvFile = async ({ context, loadRecordsBatch, convertRecordToFileRow, baseAttrs, taskServerUtils, totalRecordsCount, taskId, registry, getHeadersTranslations: overriddenGetHeadersTranslations }) => {
+    // takeHeapSnapshot('heap_before.heapsnapshot')
     const filename = getTmpFile('csv')
     const writeStream = createWriteStreamForExport(filename)
 
@@ -187,9 +205,9 @@ const exportRecordsAsCsvFile = async ({ context, loadRecordsBatch, convertRecord
         loadRecordsBatch,
         processRecordsBatch: (batch) => {
             const convertedRecords = batch.map(convertRecordToFileRow)
-            // convertedRecords.forEach(row => {
-            //     stringifier.write(columnKeys.map(key => get(row, key)))
-            // })
+            convertedRecords.forEach(row => {
+                stringifier.write(columnKeys.map(key => get(row, key)))
+            })
         },
         baseAttrs, taskServerUtils, totalRecordsCount, taskId,
     })
@@ -200,6 +218,8 @@ const exportRecordsAsCsvFile = async ({ context, loadRecordsBatch, convertRecord
         stream, filename: `export_${dayjs().format('DD_MM')}.csv`, mimetype: 'text/csv', encoding: 'utf8',
         meta: { listkey: taskServerUtils.gql.SINGULAR_FORM, id: taskId },
     })
+
+    // takeHeapSnapshot('heap_after.heapsnapshot')
 
     return await taskServerUtils.update(context, taskId, {
         ...baseAttrs,
