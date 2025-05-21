@@ -137,7 +137,6 @@ const processRecords = async ({ context, loadRecordsBatch, processRecordsBatch, 
         offset += batch.length
 
         if (Date.now() - lastProgress > TASK_PROGRESS_UPDATE_INTERVAL || offset >= totalRecordsCount) {
-            logger.info({ msg: 'update progress', offset, batchLength: batch.length, taskSchemaName, taskId })
             lastProgress = Date.now()
             task = await taskServerUtils.update(context, taskId, {
                 ...baseAttrs,
