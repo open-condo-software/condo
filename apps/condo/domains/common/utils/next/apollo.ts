@@ -208,6 +208,9 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
                 OrganizationEmployeeRequest: {
                     timeToLive: 5 * 60 * 1000,
                 },
+                GetNewsSharingRecipientsOutput: {
+                    timeToLive: 60 * 1000, // 1 minute in milliseconds
+                },
             },
         },
     }
