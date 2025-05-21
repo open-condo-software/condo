@@ -114,7 +114,7 @@ const AuthProviderLegacy = ({ children, initialUserValue }) => {
             const item = get(data, 'authenticateUserWithPassword.item')
 
             if (error) { return onError(error) }
-            if (DEBUG_RERENDERS) console.log('AuthProviderLegacy() signIn()')
+            if (DEBUG_RERENDERS) console.log({ msg: 'AuthProviderLegacy() signIn()' })
 
             if (item) {
                 await client.clearStore()
@@ -130,7 +130,7 @@ const AuthProviderLegacy = ({ children, initialUserValue }) => {
             const success = get(data, 'unauthenticateUser.success')
 
             if (error) { return onError(error) }
-            if (DEBUG_RERENDERS) console.log('AuthProviderLegacy() signOut()')
+            if (DEBUG_RERENDERS) console.log({ msg: 'AuthProviderLegacy() signOut()' })
             removeCookieEmployeeId()
             if (success) {
                 setUser(null)
@@ -142,18 +142,18 @@ const AuthProviderLegacy = ({ children, initialUserValue }) => {
     })
 
     const onError = (error) => {
-        console.warn('auth.onError(..)', error)
+        console.warn({ msg: 'auth.onError(..)', error })
         if (user) setUser(null)
     }
 
     const onData = (data) => {
         if (data && data.error) { return onError(data.error) }
         if (!data || !data.authenticatedUser) {
-            console.warn('Unexpected auth.onData(..) call', data)
+            console.warn({ msg: 'Unexpected auth.onData(..) call', data })
             return
         }
         if (JSON.stringify(data.authenticatedUser) === JSON.stringify(user)) return
-        if (DEBUG_RERENDERS) console.log('AuthProviderLegacy() newUser', data.authenticatedUser)
+        if (DEBUG_RERENDERS) console.log({ msg: 'AuthProviderLegacy() newUser', data: { authenticatedUser: data.authenticatedUser } })
         setUser(data.authenticatedUser)
     }
 
@@ -161,7 +161,7 @@ const AuthProviderLegacy = ({ children, initialUserValue }) => {
         onData(data)
     })
 
-    if (DEBUG_RERENDERS) console.log('AuthProviderLegacy()', user)
+    if (DEBUG_RERENDERS) console.log({ msg: 'AuthProviderLegacy()', data: { user } })
 
     return (
         <AuthContext.Provider
@@ -194,7 +194,7 @@ const initOnRestore = async (ctx) => {
         // Prevent Apollo Client GraphQL errors from crashing SSR.
         // Handle them in components via the data.error prop:
         // https://www.apollographql.com/docs/react/api/react-apollo.html#graphql-query-data-error
-        console.error('Error while running `withAuth`', error)
+        console.error({ msg: 'Error while running `withAuth`', error })
         user = null
     }
     return { user }
@@ -216,7 +216,7 @@ const _withAuthLegacy: WithAuthLegacyType = ({ ssr = false, ...opts } = {}) => P
     SIGNOUT_MUTATION = opts.SIGNOUT_MUTATION ? opts.SIGNOUT_MUTATION : SIGNOUT_MUTATION
 
     const WithAuth = ({ user, ...pageProps }) => {
-        if (DEBUG_RERENDERS) console.log('WithAuth()', user)
+        if (DEBUG_RERENDERS) console.log({ msg: 'WithAuth()', data: { user } })
         return (
             <AuthProviderLegacy initialUserValue={user}>
                 <PageComponent {...pageProps} />
@@ -234,7 +234,7 @@ const _withAuthLegacy: WithAuthLegacyType = ({ ssr = false, ...opts } = {}) => P
 
     if (ssr || !isSSR() || PageComponent.getInitialProps) {
         WithAuth.getInitialProps = async ctx => {
-            if (DEBUG_RERENDERS) console.log('WithAuth.getInitialProps()', ctx)
+            if (DEBUG_RERENDERS) console.log({ msg: 'WithAuth.getInitialProps()', data: { ctx } })
             const isOnServerSide = typeof window === 'undefined'
             const { user } = await initOnRestore(ctx)
             const pageProps = await getContextIndependentWrappedInitialProps(PageComponent, ctx)
@@ -268,7 +268,7 @@ const AuthProvider: React.FC = ({ children }) => {
     const { data, loading: userLoading, refetch } = useQuery(USER_QUERY, {
         onCompleted: () => setIsAuthLoading(false),
         onError: (error) => {
-            console.error(error)
+            console.error({ msg: 'Error', error })
             setIsAuthLoading(false)
         },
     })
@@ -283,7 +283,7 @@ const AuthProvider: React.FC = ({ children }) => {
         onCompleted: async (data) => {
             const item = get(data, 'authenticateUserWithPassword.item')
 
-            if (DEBUG_RERENDERS) console.log('AuthProviderLegacy() signIn()')
+            if (DEBUG_RERENDERS) console.log({ msg: 'AuthProviderLegacy() signIn()' })
 
             if (item) {
                 await apolloClient.clearStore()
@@ -291,7 +291,7 @@ const AuthProvider: React.FC = ({ children }) => {
             setIsAuthLoading(false)
         },
         onError: (error) => {
-            console.error(error)
+            console.error({ msg: 'Error', error })
             setIsAuthLoading(false)
         },
     })
@@ -310,7 +310,7 @@ const AuthProvider: React.FC = ({ children }) => {
             setIsAuthLoading(false)
         },
         onError: (error) => {
-            console.error(error)
+            console.error({ msg: 'Error', error })
             setIsAuthLoading(false)
         },
     })

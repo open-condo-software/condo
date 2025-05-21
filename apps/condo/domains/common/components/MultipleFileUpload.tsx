@@ -343,7 +343,7 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
                 analytics.track('file_upload', { fileId: dbFile.id, location: window.location.href })
             }).catch(err => {
                 const error = new Error(UploadFailedErrorMessage)
-                console.error('Upload failed', err)
+                console.error({ msg: 'Upload failed', error: err })
                 onError(error)
             })
         },

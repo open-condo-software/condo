@@ -93,7 +93,7 @@ export const AddressSuggestionsSearchInput: React.FC<AddressSearchInputProps> = 
                     }
                 })
             } catch (e) {
-                console.warn('Error while trying to fetch suggestions: ', e)
+                console.warn({ msg: 'Error while trying to fetch suggestions: ', error: e })
                 return []
             }
         },

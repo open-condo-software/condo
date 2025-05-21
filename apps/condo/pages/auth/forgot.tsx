@@ -99,8 +99,8 @@ function ResetPageView () {
                 setStep('validatePhone')
             }
         } catch (error) {
-            console.error('Start confirm phone action failed')
-            console.error(error)
+            console.error({ msg: 'Start confirm phone action failed' })
+            console.error({ msg: 'Error', error })
             form.setFields([
                 {
                     name: 'phone',

@@ -17,12 +17,12 @@ if (typeof window !== 'undefined') {
         newItemsAudio = new Audio(audioConfig.newItemsAudioPath)
         newItemsAudio.muted = true
     } else {
-        console.warn('Missing or incorrect AUDIO_CONFIG. Notification sounds will not be available')
+        console.warn({ msg: 'Missing or incorrect AUDIO_CONFIG. Notification sounds will not be available' })
     }
 }
 
 const warnOnMissingAudioConfig = () => {
-    console.warn('Could not play sound, because AUDIO_CONFIG is missing or incorrect')
+    console.warn({ msg: 'Could not play sound, because AUDIO_CONFIG is missing or incorrect' })
 }
 
 export const useAudio = (): IUseAudio => {
@@ -35,7 +35,7 @@ export const useAudio = (): IUseAudio => {
         // > NotAllowedError: The request is not allowed by the user agent or the platform in the current context, possibly because the user denied permission.
         if (isTabTouched.current) {
             newItemsAudio.play().catch(error => {
-                console.info('Unable to play audio ', error)
+                console.info({ msg: 'Unable to play audio', error })
             })
         }
     }

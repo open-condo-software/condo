@@ -237,7 +237,7 @@ export const ImagesUploadList: React.FC<ImagesUploadListProps> = ({
                         const file = options.file as UploadFile
 
                         if (!isFunction(createAction)) {
-                            console.error('Specify createActionProp to upload files')
+                            console.error({ msg: 'Specify createActionProp to upload files' })
                             return
                         }
 
@@ -251,7 +251,7 @@ export const ImagesUploadList: React.FC<ImagesUploadListProps> = ({
                             onSuccess({ id: dbFile.id, url: get(dbFile, 'file.publicUrl') }, null)
                         }).catch(err => {
                             const error = new Error(UploadFailedErrorMessage)
-                            console.error('Upload failed', err)
+                            console.error({ msg: 'Upload failed', error: err })
                             onError(error)
                         })
                     }}

@@ -93,7 +93,7 @@ const UseDeskWidget: React.FC = () => {
             ])
 
         } catch (e) {
-            console.error('Failed to load widget "UseDesk"', e)
+            console.error({ msg: 'Failed to load widget "UseDesk"', error: e })
         }
     }, [link, userIdentify, user, messenger])
 

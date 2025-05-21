@@ -64,7 +64,7 @@ const ChooseEmployeeRoleModal: FC<ChooseEmployeeRoleModalProps> = ({
         const roleId = values['role']
 
         if (!activeRequest || !roleId) {
-            console.error('Failed to accept or reject request', activeRequest, roleId)
+            console.error({ msg: 'Failed to accept or reject request', data: { activeRequest, roleId } })
             closeChooseRoleModal()
             return
         }

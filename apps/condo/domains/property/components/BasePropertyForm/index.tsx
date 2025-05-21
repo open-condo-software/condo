@@ -106,7 +106,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                     description: AddressMetaError,
                 })
 
-                console.error(e)
+                console.error({ msg: 'Error', error: e })
                 return
             }
         }
@@ -150,7 +150,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
         layout: breakpoints.TABLET_LARGE ? 'horizontal' : 'vertical',
         labelAlign: 'left',
     }), [breakpoints, isShowAlert])
-    
+
     const wrapperColumnSpan = useMemo(() => {
         return isShowAlert && breakpoints.TABLET_LARGE ? 16 : 24
     }, [breakpoints.TABLET_LARGE, isShowAlert])

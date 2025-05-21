@@ -197,7 +197,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
         })
 
         if (error) {
-            console.error(error)
+            console.error({ msg: 'Error', error })
         }
 
         if (!prediction || prediction?.ticketClassification === null) {

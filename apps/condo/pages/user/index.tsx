@@ -84,7 +84,7 @@ export const UserInfoPageContent: React.FC<UserInfoPageContentProps> = ({ useAll
             await updateUser({ showGlobalHints: checked }, { id: user.id })
             refetch()
         } catch (e) {
-            console.error('Failed to update field "showGlobalHints"')
+            console.error({ msg: 'Failed to update field "showGlobalHints"' })
         }
     }, 400), [user.id])
 

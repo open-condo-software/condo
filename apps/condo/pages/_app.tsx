@@ -657,7 +657,7 @@ if (!isDisabledSsr || !isSSR()) {
             const errors = error?.cause?.result?.errors || []
             const tooManyRequests = errors?.some((error) => error?.extensions?.code === 'TOO_MANY_REQUESTS') && error?.cause?.statusCode === 400
 
-            console.error('Error while running `MyApp.getInitialProps', { error, tooManyRequests })
+            console.error({ msg: 'Error while running MyApp.getInitialProps', data: { error, tooManyRequests } })
 
             if (tooManyRequests) {
                 const timestamp = errors.reduce((max, err) => {

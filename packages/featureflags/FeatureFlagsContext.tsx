@@ -86,7 +86,7 @@ const FeatureFlagsProviderWrapper: React.FC<FeatureFlagsProviderWrapperProps> = 
                         // NOTE: we need to update features so that growthbook is ready to work
                         next = prev
                     }
-                    console.error(e)
+                    console.error({ msg: 'Error', error: e })
                 })
                 .finally(() => {
                     if (!growthbook.ready || !isEqual(prev, next)) {
@@ -176,7 +176,7 @@ const initOnRestore = async (ctx) => {
             const response = await fetch(`${serverUrl}/api/features`)
             features = await response.json()
         } catch (error) {
-            console.error('Error while running `withFeatureFlags`', error)
+            console.error({ msg: 'Error while running `withFeatureFlags`', error })
             features = null
         }
     }
@@ -191,7 +191,7 @@ export type WithFeatureFlags = (props: WithFeatureFlagsProps) => (PageComponent:
 
 const withFeatureFlags: WithFeatureFlags = ({ ssr = false }) => PageComponent => {
     const WithFeatureFlags = ({ features, ...pageProps }) => {
-        if (DEBUG_RERENDERS) console.log('WithFeatureFlags()', features)
+        if (DEBUG_RERENDERS) console.log({ msg: 'WithFeatureFlags()', data: { features } })
 
         return (
             <FeatureFlagsProvider initFeatures={features}>
@@ -210,7 +210,7 @@ const withFeatureFlags: WithFeatureFlags = ({ ssr = false }) => PageComponent =>
 
     if (ssr || !isSSR() || PageComponent.getInitialProps) {
         WithFeatureFlags.getInitialProps = async (ctx) => {
-            if (DEBUG_RERENDERS) console.log('WithIntl.getInitialProps()', ctx)
+            if (DEBUG_RERENDERS) console.log({ msg: 'WithIntl.getInitialProps()', data: { ctx } })
             const { features } = await initOnRestore(ctx)
             const pageProps = await getContextIndependentWrappedInitialProps(PageComponent, ctx)
 

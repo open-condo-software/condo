@@ -232,7 +232,7 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
 
                 setSharingAppFormValues(prev => ({ ...prev, scope: parsedRecipients, isAllChecked: false }))
             } catch {
-                console.error('Cannot parse recipients')
+                console.error({ msg: 'Cannot parse recipients' })
             }
         },
     }

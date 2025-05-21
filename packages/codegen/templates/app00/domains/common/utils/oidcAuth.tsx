@@ -72,12 +72,12 @@ const OidcAuthProvider = ({ children }) => {
             document.hasStorageAccess().then(
                 (hasAccess) => {
                     // Boolean hasAccess says whether the document has access or not.
-                    console.debug(`document.hasStorageAccess() resolved: ${hasAccess}`)
+                    console.debug({ msg: 'document.hasStorageAccess() resolved', data: { hasAccess } })
                     setHasStorageAccess(hasAccess)
                 },
                 (reason) => {
                     // Promise was rejected for some reason.
-                    console.debug(`document.hasStorageAccess() rejected: ${reason}`)
+                    console.debug({ msg: 'document.hasStorageAccess() rejected', data: { reason } })
                     setHasStorageAccess(false)
                 },
             )
@@ -89,12 +89,12 @@ const OidcAuthProvider = ({ children }) => {
             document.requestStorageAccess().then(
                 () => {
                     // Storage access was granted.
-                    console.debug('document.requestStorageAccess(): access granted')
+                    console.debug({ msg: 'document.requestStorageAccess(): access granted' })
                     setHasStorageAccess(true)
                 },
                 () => {
                     // Storage access was denied.
-                    console.debug('document.requestStorageAccess(): access denied')
+                    console.debug({ msg: 'document.requestStorageAccess(): access denied' })
                     setHasStorageAccess(false)
                 },
             )

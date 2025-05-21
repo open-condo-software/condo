@@ -121,7 +121,7 @@ const getCookieEmployeeId = () => {
         try {
             state = cookie.get(ACTIVE_EMPLOYEE_COOKIE_NAME) || null
         } catch (e) {
-            console.error('Failed to get employee id from cookie', e)
+            console.error({ msg: 'Failed to get employee id from cookie', error: e })
             state = null
         }
     }
@@ -160,7 +160,7 @@ const OrganizationProviderLegacy = ({ children, initialEmployee }) => {
 
         const employee = data.obj
         if (JSON.stringify(employee) === JSON.stringify(activeEmployee)) return
-        if (DEBUG_RERENDERS) console.log('OrganizationProviderLegacy() newState', employee)
+        if (DEBUG_RERENDERS) console.log({ msg: 'OrganizationProviderLegacy() newState', data: { employee } })
 
         const isEmployeeActive = !employee.isRejected && !employee.isBlocked && employee.isAccepted
 
@@ -209,7 +209,7 @@ const OrganizationProviderLegacy = ({ children, initialEmployee }) => {
         return handleSelectLink({ id: employeeId })
     }, [handleSelectLink])
 
-    if (DEBUG_RERENDERS) console.log('OrganizationProviderLegacy()', activeEmployee, 'loading', employeeLoading, 'skip', (auth.isLoading || !auth.user || !employeeIdState))
+    if (DEBUG_RERENDERS) console.log({ msg: 'OrganizationProviderLegacy()', data: { activeEmployee, state: 'loading', employeeLoading, skip: 'skip', condition: (auth.isLoading || !auth.user || !employeeIdState) } })
 
     const isLoading = auth.isLoading || employeeLoading
 
@@ -253,7 +253,7 @@ const initOnRestore = async (ctx) => {
             // Prevent Apollo Client GraphQL errors from crashing SSR.
             // Handle them in components via the data.error prop:
             // https://www.apollographql.com/docs/react/api/react-apollo.html#graphql-query-data-error
-            console.error('Error while running `withOrganization`', error)
+            console.error({ msg: 'Error while running `withOrganization`', error })
             employee = null
         }
     }
@@ -273,7 +273,7 @@ const _withOrganizationLegacy: WithOrganizationLegacyType = ({ ssr = false, ...o
     GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY_LEGACY = opts.GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY ? opts.GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY : GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY_LEGACY
 
     const WithOrganization = ({ employee, ...pageProps }) => {
-        if (DEBUG_RERENDERS) console.log('WithOrganization()', employee)
+        if (DEBUG_RERENDERS) console.log({ msg: 'WithOrganization()', data: { employee } })
         return (
             <OrganizationProviderLegacy initialEmployee={employee}>
                 <PageComponent {...pageProps} />
@@ -291,7 +291,7 @@ const _withOrganizationLegacy: WithOrganizationLegacyType = ({ ssr = false, ...o
 
     if (ssr || !isSSR() || PageComponent.getInitialProps) {
         WithOrganization.getInitialProps = async ctx => {
-            if (DEBUG_RERENDERS) console.log('WithOrganization.getInitialProps()', ctx)
+            if (DEBUG_RERENDERS) console.log({ msg: 'WithOrganization.getInitialProps()', data: { ctx } })
             const isOnServerSide = typeof window === 'undefined'
             const { employee } = await initOnRestore(ctx)
             const pageProps = await getContextIndependentWrappedInitialProps(PageComponent, ctx)
@@ -368,7 +368,7 @@ const OrganizationProvider: React.FC<OrganizationProviderProps> = ({
         if (!employee) return
 
         if (JSON.stringify(employee) === JSON.stringify(activeEmployee)) return
-        if (DEBUG_RERENDERS) console.log('OrganizationProvider() newState', employee)
+        if (DEBUG_RERENDERS) console.log({ msg: 'OrganizationProvider() newState', data: { employee } })
 
         const isEmployeeActive = !employee.isRejected && !employee.isBlocked && employee.isAccepted
 
@@ -391,7 +391,7 @@ const OrganizationProvider: React.FC<OrganizationProviderProps> = ({
         }
     }, [user])
 
-    if (DEBUG_RERENDERS) console.log('OrganizationProvider()', activeEmployee, 'loading', employeeLoading, 'skip', (userLoading || !user || !activeEmployeeId))
+    if (DEBUG_RERENDERS) console.log({ msg: 'OrganizationProvider()', data: { activeEmployee, state: 'loading', employeeLoading, skip: 'skip', condition: (userLoading || !user || !activeEmployeeId) } })
 
     return (
         <OrganizationContext.Provider

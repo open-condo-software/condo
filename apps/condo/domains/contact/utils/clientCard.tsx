@@ -85,7 +85,7 @@ export function searchByPhone (organizationId, ticketsWhereInput) {
         }
         const { data, error } = await _search(client, SEARCH_BY_PHONE, { phone, organizationId, ticketsWhere })
 
-        if (error) console.warn(error)
+        if (error) console.warn({ msg: 'Error', error })
 
         const employees = []
         const contacts = data.contacts.map(({ id, phone, property, unitName, unitType }) => ({

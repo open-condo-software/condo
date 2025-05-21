@@ -39,13 +39,13 @@ const buildTrackableTasksFrom = <TTaskRecord extends BaseTaskRecord = BaseTaskRe
     const trackableTasks = records.map(record => {
         const typeName = record?.__typename
         if (!typeName) {
-            console.error('Error: Result of GraphQL query for task should contain "__typename" property', record)
+            console.error({ msg: 'Error: Result of GraphQL query for task should contain "__typename" property', data: { record } })
             return null
         }
         const uiInterface = uiInterfaces[typeName]
         if (!uiInterface) {
             // Exception is not thrown here to not disturb user in favour of monitoring errors ourselves
-            console.error('Error: No UI implementation for task record', record)
+            console.error({ msg: 'Error: No UI implementation for task record', data: { record } })
             return null
         }
         return {
@@ -139,7 +139,7 @@ const TasksContextProvider = <TTaskRecord extends BaseTaskRecord = BaseTaskRecor
             // TODO(antonal): validate newTask object shape
             const [existingTask] = findExistingTaskById(newTask.record.id)
             if (existingTask) {
-                console.error('Task record has already been added for tracking', newTask.record)
+                console.error({ msg: 'Task record has already been added for tracking', data: { record: newTask.record } })
             } else {
                 setTasks(prevTasks => ([...prevTasks, newTask]))
             }
@@ -147,7 +147,7 @@ const TasksContextProvider = <TTaskRecord extends BaseTaskRecord = BaseTaskRecor
         updateTask: (record) => {
             const [existingTask, index] = findExistingTaskById(record.id)
             if (!existingTask) {
-                console.error('Task record not found to update', record)
+                console.error({ msg: 'Task record not found to update', data: { record } })
                 return
             }
             setTasks(prevTasks => {
@@ -166,7 +166,7 @@ const TasksContextProvider = <TTaskRecord extends BaseTaskRecord = BaseTaskRecor
         deleteTask: (record) => {
             const [existingTask] = findExistingTaskById(record.id)
             if (!existingTask) {
-                console.error('Task record not found', record)
+                console.error({ msg: 'Task record not found', data: { record } })
                 return
             }
             setTasks(prevState => prevState.filter((task) => task.record.id !== record.id))

@@ -119,8 +119,8 @@ export const ValidatePhoneForm: React.FC<ValidatePhoneFormProps> = ({ onFinish, 
                 },
             })
         } catch (error) {
-            console.error('Code resending error')
-            console.error(error)
+            console.error({ msg: 'Code resending error' })
+            console.error({ msg: 'Error', error })
         }
     }, [executeCaptcha, resendSmsMutation, token])
 
@@ -162,8 +162,8 @@ export const ValidatePhoneForm: React.FC<ValidatePhoneFormProps> = ({ onFinish, 
                 return
             }
         } catch (error) {
-            console.error('Phone verification error')
-            console.error(error)
+            console.error({ msg: 'Phone verification error' })
+            console.error({ msg: 'Error', error })
         }
     }, [smsCodeMismatchError, completeConfirmPhoneMutation, form, executeCaptcha, onFinish, token])
 

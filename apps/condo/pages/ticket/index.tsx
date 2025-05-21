@@ -136,7 +136,7 @@ const getInitialSelectedTicketKeys = (router: NextRouter) => {
         try {
             return JSON.parse(router.query.selectedTicketIds as string)
         } catch (error) {
-            console.warn('Failed to parse property value "selectedTicketIds"', error)
+            console.warn({ msg: 'Failed to parse property value "selectedTicketIds"', error })
             return []
         }
     }

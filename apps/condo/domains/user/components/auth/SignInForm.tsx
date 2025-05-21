@@ -86,8 +86,8 @@ export const SignInForm = (): React.ReactElement => {
                 return
             }
         } catch (error) {
-            console.error('Authorization failed')
-            console.error(error)
+            console.error({ msg: 'Authorization failed' })
+            console.error({ msg: 'Error', error })
         } finally {
             setIsLoading(false)
         }

@@ -43,7 +43,7 @@ let getMessages: GetMessages = async (locale) => {
         const module = await messagesImporter(locale)
         return module.default || module
     } catch (error) {
-        console.error('getMessages error:', error)
+        console.error({ msg: 'getMessages error:', error })
         const module = await import(`./lang/${defaultLocale}/${defaultLocale}.json`)
         return module.default
     }
@@ -112,13 +112,13 @@ const Intl: React.FC<IntlProps> = ({ children, initialLocale, initialMessages, o
     useEffect(() => {
         getMessages(locale).then(importedMessages => {
             if (JSON.stringify(messages) === JSON.stringify(importedMessages)) return
-            if (DEBUG_RERENDERS) console.log('IntlProvider() newMessages and newLocale', locale)
+            if (DEBUG_RERENDERS) console.log({ msg: 'IntlProvider() newMessages and newLocale', data: { locale } })
             setMessages(importedMessages)
             cookie.set('locale', locale, { expires: 365 })
         })
     }, [locale, messages])
 
-    if (DEBUG_RERENDERS) console.log('IntlProvider()', locale)
+    if (DEBUG_RERENDERS) console.log({ msg: 'IntlProvider()', data: { locale } })
 
     return (
         <IntlProvider key={locale} locale={locale} messages={messages} onError={onError}>
@@ -156,7 +156,7 @@ const withIntl: WithIntlType = ({ ssr = false, ...opts }: WithIntlProps = {}) =>
         // in there is no locale and no messages => client side rerender (we should use some client side cache)
         if (!locale) locale = getLocale()
         if (!messages) messages = {}
-        if (DEBUG_RERENDERS) console.log('WithIntl()', locale)
+        if (DEBUG_RERENDERS) console.log({ msg: 'WithIntl()', data: { locale } })
         return (
             <Intl initialLocale={locale} initialMessages={messages} onError={onIntlError}>
                 <PageComponent {...pageProps} />
@@ -174,7 +174,7 @@ const withIntl: WithIntlType = ({ ssr = false, ...opts }: WithIntlProps = {}) =>
 
     if (ssr || !isSSR() || PageComponent.getInitialProps) {
         WithIntl.getInitialProps = async ctx => {
-            if (DEBUG_RERENDERS) console.log('WithIntl.getInitialProps()', ctx)
+            if (DEBUG_RERENDERS) console.log({ msg: 'WithIntl.getInitialProps()', data: { ctx } })
             const { locale, messages } = await initOnRestore(ctx)
             const pageProps = await getContextIndependentWrappedInitialProps(PageComponent, ctx)
 

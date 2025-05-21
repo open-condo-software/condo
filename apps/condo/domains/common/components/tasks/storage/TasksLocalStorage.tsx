@@ -73,7 +73,7 @@ export class TasksLocalStorage<TTaskRecord extends LocalTaskRecord = LocalTaskRe
             const existingRecords = this.getAllItemsFromStorage()
             const newRecord = { ...initialValues, ...values } as TTaskRecord
             if (existingRecords.find(record => record.id === newRecord.id)) {
-                console.error('Task record with given id already presented in localStorage', newRecord)
+                console.error({ msg: 'Task record with given id already presented in localStorage', data: { newRecord } })
                 return
             }
             const updatedRecords = [...existingRecords, newRecord]
@@ -93,7 +93,7 @@ export class TasksLocalStorage<TTaskRecord extends LocalTaskRecord = LocalTaskRe
             const recordToUpdate = existingRecords.find((record) => record.id === id)
             const recordIndexToUpdate = existingRecords.findIndex((record) => record.id === id)
             if (!recordToUpdate) {
-                console.error('Could not find task to update by id', id)
+                console.error({ msg: 'Could not find task to update by id', data: { id } })
                 return
             }
             const updatedRecord = {
@@ -122,7 +122,7 @@ export class TasksLocalStorage<TTaskRecord extends LocalTaskRecord = LocalTaskRe
             const recordToRemove = existingRecords.find(record => record.id === id)
 
             if (!recordToRemove) {
-                console.error('Could not find task to remove by id ', id)
+                console.error({ msg: 'Could not find task to remove by id ', data: { id } })
                 return
             }
 
@@ -147,7 +147,7 @@ export class TasksLocalStorage<TTaskRecord extends LocalTaskRecord = LocalTaskRe
         try {
             return JSON.parse(resultString)
         } catch (e) {
-            console.error('Incorrect syntax of stored tasks in localStorage. Wiping them out!')
+            console.error({ msg: 'Incorrect syntax of stored tasks in localStorage. Wiping them out!' })
             localStorage.removeItem(LOCAL_STORAGE_TASKS_KEY)
             return []
         }

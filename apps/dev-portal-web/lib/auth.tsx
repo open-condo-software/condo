@@ -62,10 +62,10 @@ export const AuthProvider: React.FC<{ children: React.ReactElement }> = ({ child
             await refetchAuth().then(() => router.push('/', '/', { locale: router.locale }))
         },
         onError: (error) => {
-            console.error(error)
+            console.error({ msg: 'Error', error })
         },
     })
-    
+
     useEffect(() => {
         if (!userLoading) {
             setUser(get(auth, 'authenticatedUser', null))

@@ -35,7 +35,7 @@ export const useTicketDocumentGenerationTaskUIInterface: UseTicketDocumentGenera
         if (publicUrl && filename) {
             await downloadFile({ url: publicUrl, name: filename })
         } else {
-            console.error('File is missing in TicketDocumentGenerationTask', taskRecord)
+            console.error({ msg: 'File is missing in TicketDocumentGenerationTask', data: { taskRecord } })
         }
     }, [downloadFile])
 

@@ -66,7 +66,7 @@ const PdfView = () => {
 
     const [loadTicketAnalyticsData] = useLazyQuery(TICKET_ANALYTICS_REPORT_QUERY, {
         onError: error => {
-            console.log(error)
+            console.log({ msg: 'Error', error })
             notification.error({
                 message: intl.formatMessage(({ id: 'errors.PdfGenerationError' })),
                 description: error,

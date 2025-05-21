@@ -18,7 +18,7 @@ export const CopyButton = ({ url, copyMessage, copiedMessage, textButton = false
 
             setTimeout(() => setCopied(false), REFRESH_COPY_BUTTON_INTERVAL_IN_MS)
         } catch (e) {
-            console.error('Unable to copy to clipboard', e)
+            console.error({ msg: 'Unable to copy to clipboard', error: e })
         }
     }, [copied, url])
 

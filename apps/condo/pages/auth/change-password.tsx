@@ -102,8 +102,8 @@ const ChangePasswordPage: PageComponentType = () => {
                 throw error
             }
         } catch (error) {
-            console.error('Authorization failed')
-            console.error(error)
+            console.error({ msg: 'Authorization failed' })
+            console.error({ msg: 'Error', error })
             throw error
         }
     }, [authenticateUserWithPhoneAndPasswordMutation, executeCaptcha])
@@ -138,8 +138,8 @@ const ChangePasswordPage: PageComponentType = () => {
                 await Router.push('/')
             }
         } catch (error) {
-            console.error('Change password failed')
-            console.error(error)
+            console.error({ msg: 'Change password failed' })
+            console.error({ msg: 'Error', error })
         } finally {
             setIsLoading(false)
         }

@@ -216,7 +216,7 @@ const TicketAutoAssignmentPage: PageComponentType = () => {
                 message: ErrorNotificationMessage,
                 description: error.message,
             })
-            console.error('Failed to save data:', error)
+            console.error({ msg: 'Failed to save data:', error })
         } finally {
             cancel()
             setSaving(false)
@@ -238,7 +238,7 @@ const TicketAutoAssignmentPage: PageComponentType = () => {
                 message: ErrorNotificationMessage,
                 description: error.message,
             })
-            console.error('Failed to delete data:', error)
+            console.error({ msg: 'Failed to delete data:', error })
         } finally {
             setSaving(false)
         }
@@ -260,7 +260,7 @@ const TicketAutoAssignmentPage: PageComponentType = () => {
                 message: ErrorNotificationMessage,
                 description: error.message,
             })
-            console.error('Failed to delete all data:', error)
+            console.error({ msg: 'Failed to delete all data:', error })
         } finally {
             setSaving(false)
         }
@@ -589,7 +589,7 @@ const TicketAutoAssignmentPermissionRequired: React.FC = ({ children }) => {
         if (!data && (loading || error)) return null
         const objs = get(data, 'objs')
         if (!isArray(objs) || objs.length !== 1) {
-            console.warn('Should be 1 item userWithRightSets')
+            console.warn({ msg: 'Should be 1 item userWithRightSets' })
             return null
         }
         return objs[0]

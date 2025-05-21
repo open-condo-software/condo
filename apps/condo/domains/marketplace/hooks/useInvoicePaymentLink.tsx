@@ -38,7 +38,7 @@ export const useInvoicePaymentLink = () => {
 
             return { paymentLink }
         } catch (e) {
-            console.error(e)
+            console.error({ msg: 'Error', error: e })
 
             return { paymentLink: null, error: true }
         }

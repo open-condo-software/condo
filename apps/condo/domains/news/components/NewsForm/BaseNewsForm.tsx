@@ -490,7 +490,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         const handleChangeDateEvent = handleChangeDate(form, fieldName, setIsValidBeforeAfterSendAt)
         handleChangeDateEvent(value, dateString)
 
-        console.log('Handle valid before change', dateString, value)
+        console.log({ msg: 'Handle valid before change', data: { dateString, value } })
 
         setSelectedValidBefore(value)
         setSelectedValidBeforeText(dayjs(value).format('HH:mm DD MMMM'))
@@ -540,7 +540,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
 
     const handleFormSubmit = useCallback(async (values) => {
         if (!values || !selectAppsFormValues || !condoFormValues) {
-            console.error('Cannot submit form: not all fields are filled')
+            console.error({ msg: 'Cannot submit form: not all fields are filled' })
             return
         }
 
@@ -812,7 +812,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             }
             setCurrentStep((currentStep) => currentStep + 1)
         }).catch((err) => {
-            console.error('failed to validate the form', err)
+            console.error({ msg: 'failed to validate the form', error: err })
         })
     }
 
@@ -820,7 +820,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
 
         const stepType = getStepTypeByStep(step)
         if (stepType !== 'sharingApp') {
-            console.warn('Can not skip non sharing app type steps')
+            console.warn({ msg: 'Can not skip non sharing app type steps' })
             return
         }
 
@@ -850,7 +850,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             setCurrentStep((currentStep) => currentStep + 1)
         }
         catch (error) {
-            console.error('failed to validate the form', error)
+            console.error({ msg: 'failed to validate the form', error })
         }
     }
 

@@ -401,7 +401,7 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
             const { result } = response
             setOverview(result.overview)
         },
-        onError: error => {console.log(error)},
+        onError: error => {console.error({ msg: 'Error', error })},
     })
 
     useEffect(() => {

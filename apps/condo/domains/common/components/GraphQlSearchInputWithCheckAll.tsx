@@ -115,7 +115,7 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
     const checkAllFieldNameInString = String(checkAllFieldName)
     useEffect(() => {
         if ((isArray(selectFormItemProps.name) || isArray(checkAllFieldName)) && !isFunction(mutationOfFormAfterCheckAll)) {
-            console.error('You should set "mutationOfFormAfterCheckAll" for "GraphQlSearchInputWithCheckAll". Form item name or field name is array type.')
+            console.error({ msg: 'You should set "mutationOfFormAfterCheckAll" for "GraphQlSearchInputWithCheckAll". Form item name or field name is array type.' })
         }
         if (isAllChecked) {
             if (isFunction(mutationOfFormAfterCheckAll)) {

@@ -399,7 +399,7 @@ const TicketAnalyticsPage: PageComponentType = () => {
 
     const [loadTicketAnalytics, { loading }] = useLazyQuery(TICKET_ANALYTICS_REPORT_QUERY, {
         onError: error => {
-            console.log(error)
+            console.log({ msg: 'Error', error })
             notification.error(error)
         },
         fetchPolicy: 'network-only',
@@ -411,7 +411,7 @@ const TicketAnalyticsPage: PageComponentType = () => {
     })
     const [exportTicketAnalyticsToExcel, { loading: isXSLXLoading }] = useLazyQuery(EXPORT_TICKET_ANALYTICS_TO_EXCEL, {
         onError: error => {
-            console.log(error)
+            console.log({ msg: 'Error', error })
             notification.error(error)
         },
         fetchPolicy: 'network-only',

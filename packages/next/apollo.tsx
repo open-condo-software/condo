@@ -61,7 +61,7 @@ let getApolloClientConfig: GetApolloClientConfig = () => {
 
 let createApolloClient: CreateApolloClient = (initialState, ctx, apolloCacheConfig, apolloClientConfig) => {
     const { serverUrl, apolloGraphQLUrl, apolloBatchingEnabled } = getApolloClientConfig()
-    if (DEBUG_RERENDERS) console.log('WithApollo(): getApolloClientConfig()', { serverUrl, apolloGraphQLUrl })
+    if (DEBUG_RERENDERS) console.log({ msg: 'WithApollo(): getApolloClientConfig()', data: { serverUrl, apolloGraphQLUrl } })
 
     // Note: isOnClientSide === true for browser and expo
     const isOnClientSide = typeof window !== 'undefined'
@@ -69,7 +69,7 @@ let createApolloClient: CreateApolloClient = (initialState, ctx, apolloCacheConf
         // Note: window.location === undefined on expo
         if (!window.location.href.startsWith(serverUrl)) {
             // If location is on a another domain: you can open 127.0.0.1 instead of localhost.
-            console.warn(`Your serverUrl=${serverUrl}! Your window.location have another domain! `)
+            console.warn({ msg: 'Your window.location is not matched to serverUrl (have another domain)!', data: { serverUrl } })
         }
     }
 
@@ -224,7 +224,7 @@ const _withApolloLegacy: WillApolloLegacyType = ({ ssr = false, ...opts } = {}) 
 
     const WithApollo = (props) => {
         const { apolloClient, apolloState, ...pageProps } = props
-        if (DEBUG_RERENDERS) console.log('WithApollo()', apolloState)
+        if (DEBUG_RERENDERS) console.log({ msg: 'WithApollo()', data: { apolloState } })
         let client
         if (apolloClient) {
             // Happens on: getDataFromTree && next.js ssr
@@ -252,7 +252,7 @@ const _withApolloLegacy: WillApolloLegacyType = ({ ssr = false, ...opts } = {}) 
 
     if (ssr || !isSSR() || PageComponent.getInitialProps) {
         WithApollo.getInitialProps = async ctx => {
-            if (DEBUG_RERENDERS) console.log('WithApollo.getInitialProps()', ctx)
+            if (DEBUG_RERENDERS) console.log({ msg: 'WithApollo.getInitialProps()', data: { ctx } })
             const isOnServerSide = typeof window === 'undefined'
             const { apolloClient } = await initOnRestore(ctx, apolloCacheConfig)
             const pageProps = await getContextIndependentWrappedInitialProps(PageComponent, ctx)
@@ -292,7 +292,7 @@ const _withApolloLegacy: WillApolloLegacyType = ({ ssr = false, ...opts } = {}) 
                         // Prevent Apollo Client GraphQL errors from crashing SSR.
                         // Handle them in components via the data.error prop:
                         // https://www.apollographql.com/docs/react/api/react-apollo.html#graphql-query-data-error
-                        console.error('Error while running `getDataFromTree`', error)
+                        console.error({ msg: 'Error while running `getDataFromTree`', error })
                     }
 
                     // getDataFromTree does not call componentWillUnmount

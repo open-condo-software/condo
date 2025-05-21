@@ -37,7 +37,7 @@ const getActiveTourStepFromStorage = (): ActiveTourStepType => {
     try {
         return localStorage.getItem(ACTIVE_STEPS_STORAGE_KEY)
     } catch (e) {
-        console.error('Failed to parse initial activeTourStep from LocalStorage')
+        console.error({ msg: 'Failed to parse initial activeTourStep from LocalStorage' })
     }
 }
 
@@ -101,7 +101,7 @@ export const TourProvider: React.FC = ({ children }) => {
         } catch (e) {
             localStorage && localStorage.removeItem(ACTIVE_STEPS_STORAGE_KEY)
             setActiveStep(null)
-            console.error('Failed to set activeTourStep in LocalStorage')
+            console.error({ msg: 'Failed to set activeTourStep in LocalStorage' })
         }
     }, [])
 

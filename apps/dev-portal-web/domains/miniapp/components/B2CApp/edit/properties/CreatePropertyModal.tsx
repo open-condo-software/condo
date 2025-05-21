@@ -80,7 +80,7 @@ export const CreatePropertyModal: React.FC<CreatePropertyModalProps> = ({ open, 
                 if (err instanceof Error) {
                     notification.error({ message: ServerErrorMessage, description: err.message })
                 }
-                console.error(err)
+                console.error({ msg: 'Error', error: err })
             }
         }
     }, [searchAddresses, ServerErrorMessage])

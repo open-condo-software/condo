@@ -623,7 +623,7 @@ export const TicketSourceSelect: React.FC = () => {
     const intl = useIntl()
     const TicketSourceLabel = intl.formatMessage({ id: 'pages.condo.ticket.field.Source.label' })
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
-    
+
     const {
         data: sourcesData,
         loading,
@@ -901,7 +901,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                     })
                 }
             } catch (err) {
-                console.error(err)
+                console.error({ msg: 'Error', error: err })
             } finally {
                 window.localStorage.removeItem(CURRENT_FORM_VALUES_LOCAL_STORAGE_NAME)
             }
@@ -924,7 +924,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                 window.localStorage.setItem(CURRENT_FORM_VALUES_LOCAL_STORAGE_NAME, JSON.stringify(newValue))
             } catch (err) {
                 window.localStorage.removeItem(CURRENT_FORM_VALUES_LOCAL_STORAGE_NAME)
-                console.error(err)
+                console.error({ msg: 'Error', error: err })
             }
         }
     }

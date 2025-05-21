@@ -58,7 +58,7 @@ export function searchEmployeeWithSpecializations (intl, organizationId, filter)
             employeeIds: employees.map(employee => employee.id),
         })
 
-        if (error || organizationEmployeeSpecializationsError) console.warn(error)
+        if (error || organizationEmployeeSpecializationsError) console.warn({ msg: 'Error', error })
 
         return employees
             .filter(Boolean)
@@ -84,7 +84,7 @@ export function searchEmployeeUser (intl, organizationId, filter) {
 
         const employees = data.objs
 
-        if (error) console.warn(error)
+        if (error) console.warn({ msg: 'Error', error })
 
         return employees
             .filter(Boolean)

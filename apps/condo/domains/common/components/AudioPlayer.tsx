@@ -161,7 +161,7 @@ export const AudioPlayer: React.FC<IAudioPlayerProps> = ({ trackId, src, autoPla
 
                 setUrl(redirectUrl)
             } catch (e) {
-                console.error(e)
+                console.error({ msg: 'Error', error: e })
                 setUrl(src)
             }
         })()

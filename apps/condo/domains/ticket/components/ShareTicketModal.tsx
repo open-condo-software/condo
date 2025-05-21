@@ -193,7 +193,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
         try {
             return selectedEmployees.map(JSON.parse)
         } catch (error) {
-            console.error('Invalid format for employees in multiple select', selectedEmployees)
+            console.error({ msg: 'Invalid format for employees in multiple select', data: { selectedEmployees } })
         }
     }
 

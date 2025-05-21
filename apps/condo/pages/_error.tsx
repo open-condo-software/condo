@@ -16,21 +16,21 @@ ErrorPage.container = (props) => <React.Fragment {...props} />
 ErrorPage.getInitialProps = async (props) => {
     const { req, asPath, pathname, res, err } = props
 
-    console.error('Pathname, asPath:', pathname, asPath)
+    console.error({ msg: 'Pathname, asPath:', data: { pathname, asPath } })
 
-    console.error('ErrorPage:', err)
+    console.error({ msg: 'ErrorPage:', error: err })
 
-    console.error('Request:', req)
+    console.error({ msg: 'Request:', data: { req } })
 
     captureException(err)
 
     const errorInitialProps = await NextErrorComponent.getInitialProps(props)
 
-    console.error('ErrorInitialProps:', errorInitialProps)
+    console.error({ msg: 'ErrorInitialProps:', data: { errorInitialProps } })
 
     const statusCode = get(res, 'statusCode', 0)
 
-    console.error('StatusCode:', statusCode)
+    console.error({ msg: 'StatusCode:', data: { statusCode } })
 
     return errorInitialProps
 }

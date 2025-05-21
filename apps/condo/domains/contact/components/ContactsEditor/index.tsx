@@ -443,7 +443,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     }, [AddNewContactLabel, CancelMessage, activeTab, breakpoints.TABLET_LARGE, canManageContacts, contactOptions, contactsLoading, disabled, displayEditableFieldsWithContactOptions, editableFieldsChecked, fetchedContacts, fields, form, handleChangeContact, handleClickOnMinusButton, handleClickOnPlusButton, initialContacts, initialValueWithoutContact, newContactNameFormItemProps, newContactPhoneFormItemProps, unitName])
 
     if (error) {
-        console.warn(error)
+        console.warn({ msg: 'Error', error })
         throw error
     }
 

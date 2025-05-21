@@ -13,11 +13,11 @@ const GoogleTagManager: React.FC = () => {
 
     // Validate GTM ID format (should be in format GTM-XXXXXXX)
     const isValidGtmId = googleTagManagerId && /^GTM-[A-Z0-9]+$/.test(googleTagManagerId)
-        
+
     if (googleTagManagerId && !isValidGtmId) {
-        console.warn(`Invalid Google Tag Manager ID format: ${googleTagManagerId}`)
+        console.warn({ msg: 'Invalid Google Tag Manager ID format', data: { googleTagManagerId } })
     }
-    
+
     return isValidGtmId ?
         <>
             <script dangerouslySetInnerHTML={{

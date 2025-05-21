@@ -55,8 +55,8 @@ export const DeleteButtonWithConfirmModal: React.FC<IDeleteActionButtonWithConfi
             {
                 action,
                 onError: (e) => {
-                    console.log(e)
-                    console.error(e.friendlyDescription)
+                    console.log({ msg: 'Error', error: e })
+                    console.error({ msg: 'Error', data: { friendlyDescription: e.friendlyDescription } })
                     throw e
                 },
                 intl,

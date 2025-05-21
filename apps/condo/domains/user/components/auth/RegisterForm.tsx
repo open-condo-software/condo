@@ -116,8 +116,8 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
                 }
             }
         } catch (error) {
-            console.error('Check user existence failed')
-            console.error(error)
+            console.error({ msg: 'Check user existence failed' })
+            console.error({ msg: 'Error', error })
         } finally {
             setIsLoading(false)
         }
@@ -161,8 +161,8 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
                 return
             }
         } catch (error) {
-            console.error('Register failed')
-            console.error(error)
+            console.error({ msg: 'Register failed' })
+            console.error({ msg: 'Error', error })
         } finally {
             setIsLoading(false)
         }

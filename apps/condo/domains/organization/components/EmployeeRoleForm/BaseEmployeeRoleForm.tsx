@@ -269,7 +269,7 @@ export const BaseEmployeeRoleForm: React.FC<BaseEmployeeRoleFormPropsType> = ({
         }
 
         const employeeRoleId = get(employeeRole, 'id')
-        if (!employeeRoleId) return console.warn('no employeeRoleId to create/update b2b roles')
+        if (!employeeRoleId) return console.warn({ msg: 'no employeeRoleId to create/update b2b roles' })
 
         // ----------- save b2b roles -----------
 
@@ -300,16 +300,16 @@ export const BaseEmployeeRoleForm: React.FC<BaseEmployeeRoleFormPropsType> = ({
                 if (b2bAppRoleToMutation) {
                     await softDeleteB2BAppRoleAction(b2bAppRoleToMutation)
                 } else {
-                    console.warn('no b2b app role for delete')
+                    console.warn({ msg: 'no b2b app role for delete' })
                 }
             } else if (isUpdateB2BAppRoleOperation) {
                 if (b2bAppRoleToMutation) {
                     await updateB2BAppRoleAction({ permissions: newPermissionsToMutation }, b2bAppRoleToMutation)
                 } else {
-                    console.warn('no b2b app role for update')
+                    console.warn({ msg: 'no b2b app role for update' })
                 }
             } else {
-                console.warn('unexpected operation for b2b app role')
+                console.warn({ msg: 'unexpected operation for b2b app role' })
             }
         }
 

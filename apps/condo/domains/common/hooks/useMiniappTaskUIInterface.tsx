@@ -15,10 +15,10 @@ export const useMiniappTaskUIInterface: UseMiniappTaskUIInterfaceType = () => {
             return taskRecord.progress
         },
         onComplete: (taskRecord) => {
-            console.debug('Completed third-party taskRecord', taskRecord)
+            console.debug({ msg: 'Completed third-party taskRecord', data: { taskRecord } })
         },
         onCancel: (taskRecord) => {
-            console.debug('Cancelled third-party taskRecord', taskRecord)
+            console.debug({ msg: 'Cancelled third-party taskRecord', data: { taskRecord } })
         },
     }
 
