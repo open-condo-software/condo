@@ -10,7 +10,7 @@ const fetch = require('node-fetch')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const { MAX_REQUESTS_IN_BATCH, MAX_MODIFY_OPERATIONS_IN_REQUEST, MAX_RETRIES_ON_NETWORK_ERROR, LOAD_CHUNK_SIZE } = require('./constants')
-const { SIGNIN_BY_EMAIL_MUTATION, SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } = require('./lib/gql')
+const { SIGNIN_BY_EMAIL_MUTATION, SIGNOUT_MUTATION, SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } = require('./lib/gql')
 
 if (!globalThis.fetch) {
     globalThis.fetch = fetch
@@ -39,11 +39,12 @@ class UploadingFile {
 }
 
 const normalizeAuthRequisites = (requisites = {}) => {
-    const { email, identity, password, secret, phone } = requisites
+    const { email, identity, password, secret, phone, token } = requisites
     return Object.fromEntries([
         ['email', email || identity],
         ['password', password || secret],
         ['phone', phone],
+        ['token', token],
     ].filter(([, value]) => !!value))
 }
 
@@ -83,6 +84,7 @@ class OIDCAuthClient {
 }
 
 class ApolloServerClient {
+    #isAuthorized = false
     client
     clientName
     authToken
@@ -95,7 +97,7 @@ class ApolloServerClient {
     /**
      *
      * @param endpoint - https://condo.d.doma.ai/admin/api
-     * @param authRequisites - can be { identity: 'service-user@doma.ai', secret: 'password' } or { phone: '+7911....', password: '' }
+     * @param authRequisites - can be { identity: 'service-user@doma.ai', secret: 'password' } or { phone: '+7911....', password: '' } or { token: 'token' }
      * @param clientName - logger name
      * @param locale - for server side translated texts
      * @param customHeaders - can be { x-target: 'custom-x-target', ... }
@@ -132,11 +134,31 @@ class ApolloServerClient {
     }
 
     async signIn () {
-        if (Reflect.has(this.authRequisites, 'phone')) {
-            await this.singInByPhoneAndPassword()
-        } else {
-            await this.singInByEmailAndPassword()
+        if (Reflect.has(this.authRequisites, 'token')) {
+            this.signInByToken(this.authRequisites.token)
+            return
         }
+        if (Reflect.has(this.authRequisites, 'phone')) {
+            await this.signInByPhoneAndPassword()
+        } else {
+            await this.signInByEmailAndPassword()
+        }
+    }
+
+    async signOut () {
+        if (Reflect.has(this.authRequisites, 'token')) {
+            // do not destroy token
+            return
+        }
+        const { data: { unauthenticateUser: { success } } } = await this.client.mutate({
+            mutation: SIGNOUT_MUTATION,
+        })
+        if (success) {
+            this.#isAuthorized = false
+            this.authToken = null
+            this.userId = null
+        }
+        return success
     }
 
     /**
@@ -168,7 +190,12 @@ class ApolloServerClient {
         return miniAppClient
     }
 
-    async singInByEmailAndPassword () {
+    signInByToken (token) {
+        this.authToken = token
+        this.#isAuthorized = true
+    }
+
+    async signInByEmailAndPassword () {
         const { email, password } = this.authRequisites
         const { data: { auth: { user, token } } } = await this.client.mutate({
             mutation: SIGNIN_BY_EMAIL_MUTATION,
@@ -179,9 +206,10 @@ class ApolloServerClient {
         })
         this.userId = user.id
         this.authToken = token
+        this.#isAuthorized = true
     }
 
-    async singInByPhoneAndPassword () {
+    async signInByPhoneAndPassword () {
         const { phone,  password } = this.authRequisites
         const { data: { obj: { item: user, token } } } = await this.client.mutate({
             mutation: SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION,
@@ -189,10 +217,11 @@ class ApolloServerClient {
         })
         this.userId = user.id
         this.authToken = token
+        this.#isAuthorized = true
     }
 
     async executeAuthorizedQuery (queryArgs, opts = { batchClient: false }) {
-        if (!this.authToken) {
+        if (!this.#isAuthorized) {
             await this.signIn()
         }
 
@@ -213,7 +242,7 @@ class ApolloServerClient {
     }
 
     async executeAuthorizedMutation (mutationArgs, opts = { batchClient: false }) {
-        if (!this.authToken) {
+        if (!this.#isAuthorized) {
             await this.signIn()
         }
 
