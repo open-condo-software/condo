@@ -113,19 +113,14 @@ function _getTranslatedClassifier (translationId, locale) {
  * @param classifier
  * @return {Promise<{clientName, deferredUntil: (*|string), description: string, source: (string|string), feedbackComment: string, operator: string, unitType: (string|string), number, isEmergency: string, createdAt: *, statusReopenedCounter: (*|number|string), executor: string, contact: string, property: (*|string), details, isWarranty: string, floorName, place: string, organizationComments: (string|string), closedAt: (*|string), deadline: (*|string), entranceName: (string|string), updatedAt: *, inworkAt: (*|string), completedAt: (*|string), residentComments: (string|string), feedbackAdditionalOptions: (*|string), unitName, clientPhone, feedbackValue: (*|string), isPayable: string, organization, assignee: string, category: string, status: *}>}
  */
-const ticketToRow = async ({ task, ticket, indexedStatuses, classifier }) => {
+const ticketToRow = ({ task, ticket, indexedStatuses, classifier }) => {
     const { locale, timeZone } = task
 
     const feedbackValuesTranslations = buildFeedbackValuesTranslationsFrom(locale)
     const qualityControlValuesTranslations = buildQualityControlValuesTranslationsFrom(locale)
 
     const ticketClassifier = classifier?.filter(rule => rule.id === ticket.classifier) || []
-
-    let comments = []
-    const disableLoadComments = await featureToggleManager.isFeatureEnabled(null, 'temp-disable-load-comments')
-    if (!disableLoadComments) {
-        comments = await loadTicketCommentsForExcelExport({ ticketIds: [ticket.id] })
-    }
+    const comments = ticket.comments || []
 
     const renderedOrganizationComments = []
     const renderedResidentComments = []
@@ -292,8 +287,17 @@ async function exportTickets (taskId) {
         const convertRecordToFileRow = (ticket) => ticketToRow({ task, ticket, indexedStatuses, classifier })
         const loadRecordsBatch = async (offset, limit) => {
             const tickets = await ticketsLoader.loadChunk(offset, limit)
+            const ticketIds = tickets.map(ticket => ticket.id)
+            const comments = await loadTicketCommentsForExcelExport({ ticketIds: ticketIds })
+
             const classifierRuleIds = compact(map(tickets, 'classifier'))
             classifier = await loadClassifiersForExcelExport({ classifierRuleIds })
+
+            tickets.map(ticket => {
+                ticket.comments = comments.filter(comment => comment.ticket === ticket.id)
+                return ticket
+            })
+
             // See how `this` gets value of a job in `executeTask` function in `packages/keystone/tasks.js` module via `fn.apply(job, args)`
             this.progress(Math.floor(offset / totalRecordsCount * 100)) // Breaks execution after `this.progress`. Without this call it works
             return tickets

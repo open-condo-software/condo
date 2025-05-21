@@ -6,8 +6,6 @@ const Upload = require('graphql-upload/Upload.js')
 const { get, isFunction } = require('lodash')
 
 const conf = require('@open-condo/config')
-const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
-const { getLogger } = require('@open-condo/keystone/logging')
 
 const { EXPORT_PROCESSING_BATCH_SIZE, COMPLETED } = require('@condo/domains/common/constants/export')
 const { TASK_PROCESSING_STATUS } = require('@condo/domains/common/constants/tasks')
@@ -103,14 +101,6 @@ const processRecords = async ({ context, loadRecordsBatch, processRecordsBatch, 
     const taskSchemaName = taskServerUtils.gql.SINGULAR_FORM
     let lastProgress = Date.now()
 
-    const batchSize = await featureToggleManager.getFeatureValue(
-        null, 'temp-batch-size', EXPORT_PROCESSING_BATCH_SIZE
-    )
-    const sleepTimeout = await featureToggleManager.getFeatureValue(
-        null, 'temp-sleep-timeout', SLEEP_TIMEOUT
-    )
-    const disableProcessRecords = await featureToggleManager.isFeatureEnabled(null, 'temp-disable-process-records')
-
     do {
         // User can cancel the task at any time, in this all operations should be stopped
         task = await taskServerUtils.getOne(context, { id: taskId }, 'id status')
@@ -120,21 +110,7 @@ const processRecords = async ({ context, loadRecordsBatch, processRecordsBatch, 
             return
         }
 
-        logMemoryUsage({
-            logger,
-            messageData: {
-                msg: 'processRecords before load batch',
-                taskId, offset, taskSchemaName,
-            },
-        })
-        const batch = await loadRecordsBatch(offset, batchSize)
-        logMemoryUsage({
-            logger,
-            messageData: {
-                msg: 'processRecords after load batch',
-                taskId, offset, batchLength: batch.length, taskSchemaName,
-            },
-        })
+        const batch = await loadRecordsBatch(offset, EXPORT_PROCESSING_BATCH_SIZE)
 
         if (batch.length === 0) {
             // NOTE(pahaz): someone delete some records during the export
@@ -147,25 +123,15 @@ const processRecords = async ({ context, loadRecordsBatch, processRecordsBatch, 
             return
         }
 
-        if (!disableProcessRecords) {
-            logMemoryUsage({
-                logger,
-                messageData: {
-                    msg: 'processRecords before process batch',
-                    taskId, offset, batchLength: batch.length, taskSchemaName,
-                },
-            })
+        await processRecordsBatch(batch)
 
-            await processRecordsBatch(batch)
-
-            logMemoryUsage({
-                logger,
-                messageData: {
-                    msg: 'processRecords after process batch',
-                    taskId, offset, batchLength: batch.length, taskSchemaName,
-                },
-            })
-        }
+        logMemoryUsage({
+            logger,
+            messageData: {
+                msg: 'processRecords after process batch',
+                taskId, offset, batchLength: batch.length, taskSchemaName,
+            },
+        })
 
         offset += batch.length
 
@@ -179,48 +145,24 @@ const processRecords = async ({ context, loadRecordsBatch, processRecordsBatch, 
             })
         }
 
-        await sleep(sleepTimeout)
+        await sleep(SLEEP_TIMEOUT)
     } while (offset < totalRecordsCount)
 }
 
 const exportRecordsAsXlsxFile = async ({ context, loadRecordsBatch, convertRecordToFileRow, buildExportFile, baseAttrs, taskServerUtils, totalRecordsCount, taskId }) => {
     let rows = []
 
-    logMemoryUsage({
-        logger,
-        messageData: {
-            msg: 'exportRecordsAsXlsxFile before process records',
-            taskId,
-        },
-    })
-
     await processRecords({
         context,
         loadRecordsBatch,
         processRecordsBatch: async (batch) => {
-            // const convertedRecords = await Promise.all(batch.map(convertRecordToFileRow))
-            // rows.push(...convertedRecords)
+            const convertedRecords = batch.map(convertRecordToFileRow)
+            rows.push(...convertedRecords)
         },
         taskServerUtils, taskId, totalRecordsCount, baseAttrs,
     })
 
-    logMemoryUsage({
-        logger,
-        messageData: {
-            msg: 'exportRecordsAsXlsxFile after process records',
-            taskId,
-        },
-    })
-
     const file = buildUploadInputFrom(await buildExportFile(rows))
-
-    logMemoryUsage({
-        logger,
-        messageData: {
-            msg: 'exportRecordsAsXlsxFile after build file',
-            taskId,
-        },
-    })
 
     await taskServerUtils.update(context, taskId, {
         ...baseAttrs,
@@ -237,14 +179,6 @@ const exportRecordsAsCsvFile = async ({ context, loadRecordsBatch, convertRecord
     const columns = _getHeadersTranslations(registry, task.locale)
     const columnKeys = Object.keys(columns)
 
-    logMemoryUsage({
-        logger,
-        messageData: {
-            msg: 'exportRecordsAsCsvFile before process records',
-            taskId,
-        },
-    })
-
     const stringifier = stringify({ header: true, columns, delimiter: CSV_DELIMITER })
     const writeStream = createWriteStreamForExport(filename)
     stringifier.pipe(writeStream)
@@ -252,8 +186,50 @@ const exportRecordsAsCsvFile = async ({ context, loadRecordsBatch, convertRecord
     await processRecords({
         context,
         loadRecordsBatch,
-        processRecordsBatch: async (batch) => {
-            const convertedRecords = await Promise.all(batch.map(convertRecordToFileRow))
+        processRecordsBatch: (batch) => {
+            // const convertedRecords = batch.map(ticket => ({
+            //     number: 123,
+            //     source: 'sadsdasddasda',
+            //     organization: 'sadsdasddasda',
+            //     property: 'sadsdasddasda',
+            //     unitName: 'sadsdasddasda',
+            //     unitType: 'sadsdasddasdaasd',
+            //     entranceName: 'ada12312312',
+            //     floorName: 'addasads',
+            //     clientName: '12321312312',
+            //     contact: 'daadsadasd',
+            //     clientPhone: ticket.clientPhone,
+            //     details: ticket.details,
+            //     isEmergency: ticket.isEmergency ? 'da' : 'no',
+            //     isPayable: ticket.isPayable ? 'da' : 'no',
+            //     isWarranty: ticket.isWarranty ? 'YesMessage' : 'NoMessage',
+            //     place: 'test',
+            //     category: 'dadadsdasasd',
+            //     description: 'dasdasadsdas',
+            //     createdAt: 'dadasdasads',
+            //     inworkAt: ticket.startedAt,
+            //     completedAt: ticket.completedAt,
+            //     closedAt: ticket.closedAt,
+            //     updatedAt: ticket.updatedAt,
+            //     status: ticket.status,
+            //     deferredUntil: ticket.deferredUntil,
+            //     operator: ticket.createdBy,
+            //     executor: ticket.executor,
+            //     assignee: ticket.assignee,
+            //     deadline: ticket.deadline,
+            //     feedbackValue: ticket.feedbackValue,
+            //     feedbackComment: ticket.feedbackComment,
+            //     feedbackAdditionalOptions: 'adadsdad',
+            //     feedbackUpdatedAt: ticket.feedbackUpdatedAt,
+            //     statusReopenedCounter: ticket.statusReopenedCounter,
+            //     qualityControlValue: ticket.qualityControlValue,
+            //     qualityControlComment: ticket.qualityControlComment,
+            //     qualityControlAdditionalOptions: 'adsadsdasdas',
+            //     qualityControlUpdatedAt: ticket.qualityControlUpdatedAt,
+            //     qualityControlUpdatedBy: ticket.qualityControlUpdatedBy,
+            // }))
+
+            const convertedRecords = batch.map(convertRecordToFileRow)
             convertedRecords.forEach(row => {
                 stringifier.write(columnKeys.map(key => get(row, key)))
             })
@@ -262,27 +238,10 @@ const exportRecordsAsCsvFile = async ({ context, loadRecordsBatch, convertRecord
     })
 
     writeStream.close()
-
-    logMemoryUsage({
-        logger,
-        messageData: {
-            msg: 'exportRecordsAsCsvFile after process records',
-            taskId,
-        },
-    })
-
     const stream = fs.createReadStream(filename, { encoding: 'utf8' })
     const file = buildUploadInputFrom({
         stream, filename: `export_${dayjs().format('DD_MM')}.csv`, mimetype: 'text/csv', encoding: 'utf8',
         meta: { listkey: taskServerUtils.gql.SINGULAR_FORM, id: taskId },
-    })
-
-    logMemoryUsage({
-        logger,
-        messageData: {
-            msg: 'exportRecordsAsCsvFile after build file',
-            taskId,
-        },
     })
 
     return await taskServerUtils.update(context, taskId, {
