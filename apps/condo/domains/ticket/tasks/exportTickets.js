@@ -4,7 +4,6 @@ const get = require('lodash/get')
 const isNull = require('lodash/isNull')
 const map = require('lodash/map')
 
-const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { createTask } = require('@open-condo/keystone/tasks')

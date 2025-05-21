@@ -6,6 +6,7 @@ const Upload = require('graphql-upload/Upload.js')
 const { get, isFunction } = require('lodash')
 
 const conf = require('@open-condo/config')
+const { getLogger } = require('@open-condo/keystone/logging')
 
 const { EXPORT_PROCESSING_BATCH_SIZE, COMPLETED } = require('@condo/domains/common/constants/export')
 const { TASK_PROCESSING_STATUS } = require('@condo/domains/common/constants/tasks')
@@ -173,14 +174,13 @@ const exportRecordsAsXlsxFile = async ({ context, loadRecordsBatch, convertRecor
 
 const exportRecordsAsCsvFile = async ({ context, loadRecordsBatch, convertRecordToFileRow, baseAttrs, taskServerUtils, totalRecordsCount, taskId, registry, getHeadersTranslations: overriddenGetHeadersTranslations }) => {
     const filename = getTmpFile('csv')
+    const writeStream = createWriteStreamForExport(filename)
 
     const task = await taskServerUtils.getOne(context, { id: taskId }, 'id locale')
     const _getHeadersTranslations = isFunction(overriddenGetHeadersTranslations) ? overriddenGetHeadersTranslations : getHeadersTranslations
     const columns = _getHeadersTranslations(registry, task.locale)
     const columnKeys = Object.keys(columns)
-
     const stringifier = stringify({ header: true, columns, delimiter: CSV_DELIMITER })
-    const writeStream = createWriteStreamForExport(filename)
     stringifier.pipe(writeStream)
 
     await processRecords({
