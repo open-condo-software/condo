@@ -86,7 +86,6 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
 
     const onError = useMutationErrorHandler()
     const [getNewsSharingRecipients, { data }] = useGetNewsSharingRecipientsLazyQuery({
-        fetchPolicy: 'network-only',
         onError: (error) => {
             console.error({ msg: 'Failed to load recipients counters', error })
             const message = error?.graphQLErrors?.[0]?.extensions?.messageForUser || ErrorLoadingMessage

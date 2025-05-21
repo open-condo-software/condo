@@ -69,7 +69,7 @@ const SelectSharingAppControl: React.FC<ISelectSharingAppControl> = ({ sharingAp
     const cardStyle = isMobile ? CARD_RESPONSIVE_CHECKBOX_CONTAINER_STYLE : CARD_CHECKBOX_CONTAINER_STYLE
 
     const onError = useMutationErrorHandler()
-    const [getNewsSharingRecipients] = useGetNewsSharingRecipientsLazyQuery({ fetchPolicy: 'network-only' })
+    const [getNewsSharingRecipients] = useGetNewsSharingRecipientsLazyQuery()
 
     useEffect(() => {
         sharingAppContexts.map(async ctx => {
