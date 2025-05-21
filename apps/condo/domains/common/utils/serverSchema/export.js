@@ -157,7 +157,7 @@ const exportRecordsAsXlsxFile = async ({ context, loadRecordsBatch, convertRecor
         loadRecordsBatch,
         processRecordsBatch: async (batch) => {
             const convertedRecords = batch.map(convertRecordToFileRow)
-            rows.push(...convertedRecords)
+            // rows.push(...convertedRecords)
         },
         taskServerUtils, taskId, totalRecordsCount, baseAttrs,
     })
@@ -186,52 +186,10 @@ const exportRecordsAsCsvFile = async ({ context, loadRecordsBatch, convertRecord
         context,
         loadRecordsBatch,
         processRecordsBatch: (batch) => {
-            // const convertedRecords = batch.map(ticket => ({
-            //     number: 123,
-            //     source: 'sadsdasddasda',
-            //     organization: 'sadsdasddasda',
-            //     property: 'sadsdasddasda',
-            //     unitName: 'sadsdasddasda',
-            //     unitType: 'sadsdasddasdaasd',
-            //     entranceName: 'ada12312312',
-            //     floorName: 'addasads',
-            //     clientName: '12321312312',
-            //     contact: 'daadsadasd',
-            //     clientPhone: ticket.clientPhone,
-            //     details: ticket.details,
-            //     isEmergency: ticket.isEmergency ? 'da' : 'no',
-            //     isPayable: ticket.isPayable ? 'da' : 'no',
-            //     isWarranty: ticket.isWarranty ? 'YesMessage' : 'NoMessage',
-            //     place: 'test',
-            //     category: 'dadadsdasasd',
-            //     description: 'dasdasadsdas',
-            //     createdAt: 'dadasdasads',
-            //     inworkAt: ticket.startedAt,
-            //     completedAt: ticket.completedAt,
-            //     closedAt: ticket.closedAt,
-            //     updatedAt: ticket.updatedAt,
-            //     status: ticket.status,
-            //     deferredUntil: ticket.deferredUntil,
-            //     operator: ticket.createdBy,
-            //     executor: ticket.executor,
-            //     assignee: ticket.assignee,
-            //     deadline: ticket.deadline,
-            //     feedbackValue: ticket.feedbackValue,
-            //     feedbackComment: ticket.feedbackComment,
-            //     feedbackAdditionalOptions: 'adadsdad',
-            //     feedbackUpdatedAt: ticket.feedbackUpdatedAt,
-            //     statusReopenedCounter: ticket.statusReopenedCounter,
-            //     qualityControlValue: ticket.qualityControlValue,
-            //     qualityControlComment: ticket.qualityControlComment,
-            //     qualityControlAdditionalOptions: 'adsadsdasdas',
-            //     qualityControlUpdatedAt: ticket.qualityControlUpdatedAt,
-            //     qualityControlUpdatedBy: ticket.qualityControlUpdatedBy,
-            // }))
-
             const convertedRecords = batch.map(convertRecordToFileRow)
-            convertedRecords.forEach(row => {
-                stringifier.write(columnKeys.map(key => get(row, key)))
-            })
+            // convertedRecords.forEach(row => {
+            //     stringifier.write(columnKeys.map(key => get(row, key)))
+            // })
         },
         baseAttrs, taskServerUtils, totalRecordsCount, taskId,
     })
