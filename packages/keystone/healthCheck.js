@@ -111,6 +111,49 @@ const HEALTHCHECK_OK = 200
 const HEALTHCHECK_ERROR = 500
 const HEALTHCHECK_WARNING = 417
 
+const getRateLimitHealthCheck = ({ endpoint, token, redisKey = 'rate-limit-healthcheck', clientName = 'healthcheck' }) => {
+    return {
+        name: 'rate-limit',
+        prepare: () => {
+            this.redisClient = getKVClient(clientName)
+        },
+        run: async () => {
+            try {
+                const response = await fetch(
+                    endpoint,
+                    {
+                        method: 'POST',
+                        body:
+                    }
+                )
+
+                const remaining = Number(response.headers['x-rate-limit-complexity-remaining'])
+                const reset = Number(response.headers['x-rate-limit-complexity-reset'])
+
+                if (isNaN(remaining)) {
+                    console.warn('Rate limit header missing or invalid')
+                    return FAIL
+                }
+
+                if (remaining > 1000) {
+                    return PASS
+                }
+
+                const suppressExists = await this.redisClient.get(redisKey)
+                if (suppressExists) {
+                    return PASS
+                }
+
+                await this.redisClient.set(redisKey, '1', 'EX', 100)
+                return FAIL
+            } catch (e) {
+                console.error('Rate limit healthcheck failed:', e)
+                return FAIL
+            }
+        },
+    }
+}
+
 const getRedisHealthCheck = (clientName = 'healthcheck') => {
     return {
         name: 'redis',
@@ -355,6 +398,7 @@ module.exports = {
     getPfxCertificateHealthCheck,
     getCertificateHealthCheck,
     getIntegrationHealthCheck,
+    getRateLimitHealthCheck,
     STATUS_ENUM,
     DEFAULT_HEALTHCHECK_URL,
 }
