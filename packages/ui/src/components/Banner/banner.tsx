@@ -63,7 +63,7 @@ const getTitleRows = (width: number, bannerSize: BannerProps['size']) => {
         return width < SM_BARRIER ? 2 : 1
     }
 
-    return 3
+    return 2
 }
 
 const getShowImage = (width: number, bannerSize: BannerProps['size'], imgUrl: BannerProps['imgUrl']) => {
