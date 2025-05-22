@@ -579,7 +579,14 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
         },
         skip: !persistor,
     })
-    const comments = useMemo(() => ticketCommentsData?.ticketComments?.filter(Boolean) || [],
+
+    /**
+     * Note: .reverse() is used here, because comments are fetched with sortBy_DESC (newest comment is last in array and vice versa)
+     * comments are fetched with sortBy_DESC because of first option
+     *
+     * if comments were fetched with sortBY_ASC and first param would be low enough, then newest comments would be removed from the response
+     */
+    const comments = useMemo(() => ticketCommentsData?.ticketComments?.filter(Boolean).reverse() || [],
         [ticketCommentsData?.ticketComments])
     const commentsIds = useMemo(() => map(comments, 'id'), [comments])
 
@@ -768,6 +775,7 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
                 <Affix offsetTop={40}>
                     <Comments
                         ticketId={id}
+                        ticket={ticket}
                         ticketCommentTimes={ticketCommentTimes}
                         userTicketCommentReadTime={userTicketCommentsReadTimes}
                         createUserTicketCommentReadTime={createUserTicketCommentReadTime}

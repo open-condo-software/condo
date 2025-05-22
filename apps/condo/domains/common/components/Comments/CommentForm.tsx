@@ -65,6 +65,7 @@ const CommentHelperWrapper = styled(Col)`
 `
 
 interface ICommentFormProps {
+    commentForm: FormInstance
     ticketId: string
     action: (formValues, syncModifiedFiles) => Promise<any>
     fieldName?: string
@@ -78,6 +79,7 @@ interface ICommentFormProps {
 }
 
 const CommentForm: React.FC<ICommentFormProps> = ({
+    commentForm,
     ticketId,
     initialValue,
     action,
@@ -93,7 +95,6 @@ const CommentForm: React.FC<ICommentFormProps> = ({
     const HelperMessage = intl.formatMessage({ id: 'Comments.form.helper' })
 
     const { InputWithCounter, Counter, setTextLength: setCommentLength, textLength: commentLength } = useInputWithCounter(Input.TextArea, MAX_COMMENT_LENGTH)
-    const [form, setForm] = useState<FormInstance>()
 
     const editableCommentFiles = get(editableComment, 'files')
     const { UploadComponent, syncModifiedFiles, resetModifiedFiles, filesCount } = useMultipleFileUploadHook({
@@ -105,13 +106,13 @@ const CommentForm: React.FC<ICommentFormProps> = ({
     })
 
     useEffect(() => {
-        if (editableComment && form) {
+        if (editableComment && commentForm) {
             const editableCommentContent = editableComment.content
 
-            form.setFieldsValue({ [fieldName]: editableCommentContent })
+            commentForm.setFieldsValue({ [fieldName]: editableCommentContent })
             setCommentLength(get(editableCommentContent, 'length', 0))
         }
-    }, [editableComment, fieldName, form, setCommentLength])
+    }, [editableComment, fieldName, commentForm, setCommentLength])
 
     const handleKeyUp = useCallback((form: FormInstance) => async (event) => {
         if (event.keyCode === ENTER_KEY_CODE && !event.shiftKey) {
@@ -139,13 +140,13 @@ const CommentForm: React.FC<ICommentFormProps> = ({
     }), [filesCount, requiredValidator, trimValidator])
 
     const actionWithSyncComments = useCallback(async (values) => {
-        values.content = form.getFieldValue(fieldName)
-        form.setFieldsValue({ [fieldName]: null })
+        values.content = commentForm.getFieldValue(fieldName)
+        commentForm.setFieldsValue({ [fieldName]: null })
 
         await action(values, syncModifiedFiles)
         await resetModifiedFiles()
         setSending(false)
-    }, [action, fieldName, form, resetModifiedFiles, setSending, syncModifiedFiles])
+    }, [action, fieldName, commentForm, resetModifiedFiles, setSending, syncModifiedFiles])
 
     const MemoizedUploadComponent = useCallback(() => {
         // NOTE: UploadComponent have 5px height if empty
@@ -176,15 +177,12 @@ const CommentForm: React.FC<ICommentFormProps> = ({
 
     return (
         <FormWithAction
+            formInstance={commentForm}
             initialValues={initialCommentFormValues}
             action={actionWithSyncComments}
             resetOnComplete={true}
         >
-            {({ form: formInstance }) => {
-                if (!form) {
-                    setForm(formInstance)
-                }
-
+            {() => {
                 return (
                     <Holder>
                         {
@@ -212,7 +210,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                                     className='white'
                                     autoSize={INPUT_WITH_COUNTER_AUTOSIZE_CONFIG}
                                     onKeyDown={handleKeyDown}
-                                    onKeyUp={handleKeyUp(form)}
+                                    onKeyUp={handleKeyUp(commentForm)}
                                 />
                             </Form.Item>
                             <MemoizedUploadComponent />

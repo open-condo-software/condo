@@ -84,6 +84,12 @@ const FLOW_META_SCHEMAS = {
             properties: {
                 comment: { type: 'string' },
                 answer: { type: 'string' },
+
+                ticketId: { type: 'string' },
+                ticketDetails: { type: 'string' },
+                ticketAddress: { type: 'string' },
+                ticketStatusName: { type: 'string' },
+                ticketLastComments: { type: 'string' },
             },
         },
         output: {

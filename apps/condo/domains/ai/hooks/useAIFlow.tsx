@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useAuth } from '@open-condo/next/auth'
@@ -10,34 +10,59 @@ import {
 
 type UseAIFlowPropsType = {
     flowType: string
-    defaultContext: object
+    defaultContext?: object
     timeout?: number
 }
 
-type RunFlowResultType = {
-    result: object | null
-    isError: boolean
-    errorMessage: string
-}
+type UseAIFlowResultType = [
+    (params?: { context?: object }) => Promise<{ data: object, error: object, localizedErrorText: string } | null>,
+    {
+        loading: boolean
+        data: object | null
+        error: Error | null
+        cancel: () => void
+    },
+]
 
-export function isAIEnabled () {
-    return true
-}
-
-export function useAIFlow ({ flowType, defaultContext = {}, timeout = 10000 }: UseAIFlowPropsType): [(context: object) => Promise<RunFlowResultType>] {
+export function useAIFlow ({
+    flowType,
+    defaultContext = {},
+    timeout = 10000,
+}: UseAIFlowPropsType): UseAIFlowResultType {
+    const { user } = useAuth()
     const [createExecutionAIFlowMutation] = useCreateExecutionAiFlowTaskMutation()
     const [getExecutionAiFlowTaskById] = useGetExecutionAiFlowTaskByIdLazyQuery()
 
-    const { user } = useAuth()
+    const [loading, setLoading] = useState(false)
+    const [data, setData] = useState<object | null>(null)
+    const [error, setError] = useState<Error | null>(null)
+    const [cancelled, setCancelled] = useState(false)
 
-    const runAIFlow = useCallback(async (context: object): Promise<RunFlowResultType> => {
-        let isError = false
-        let result: object | null = null
-        let errorMessage = ''
+    const cancel = useCallback(() => {
+        setCancelled(true)
+    }, [])
+
+    useEffect(() => {
+        console.log(data)
+    }, [data])
+
+    const getAIFlowResult = useCallback(async ({ context = {} }): Promise<{ data: object, error: object, localizedErrorText: string } | null> => {
+        if (!user?.id) {
+            const err = new Error('User is not authenticated')
+            setError(err)
+            return null
+        }
+
+        setLoading(true)
+        setCancelled(false)
+        setError(null)
+        setData(null)
 
         const fullContext = { ...defaultContext, ...context }
 
         try {
+            console.log('Running AI Flow: ', fullContext)
+
             const createResult = await createExecutionAIFlowMutation({
                 variables: {
                     data: {
@@ -51,17 +76,14 @@ export function useAIFlow ({ flowType, defaultContext = {}, timeout = 10000 }: U
             })
 
             const taskId = createResult.data?.task?.id
-
-            console.log(taskId)
-
             if (!taskId) throw new Error('Failed to create task')
+
+            await new Promise(resolve => setTimeout(resolve, 500))
 
             const startTime = Date.now()
 
-            const timeoutIsNotPassed = Date.now() - startTime < timeout
-
-            while (timeoutIsNotPassed) {
-                console.log(`Running Poll: ${timeoutIsNotPassed}`)
+            while (Date.now() - startTime < timeout) {
+                if (cancelled) throw new Error('AI flow was cancelled by user')
 
                 const pollResult = await getExecutionAiFlowTaskById({
                     variables: { id: taskId },
@@ -69,37 +91,44 @@ export function useAIFlow ({ flowType, defaultContext = {}, timeout = 10000 }: U
                 })
 
                 const [task] = pollResult.data.task
-
-                if (!task) {
-                    throw new Error('Task does not exist or it was deleted')
-                }
+                if (!task) throw new Error('Task not found')
 
                 if (task.status === 'completed') {
-                    result = task.result ? JSON.parse(task.result) : null
-                    break
+                    const result = task.result
+                    setData(result)
+                    return { data: result, error: null, localizedErrorText: null }
+                } else if (task.status === 'error') {
+                    throw new Error(`Task failed: ${task.errorMessage || 'Unknown error'}`)
+                } else if (task.status === 'cancelled') {
+                    throw new Error('Task was cancelled on server')
                 }
 
-                if (task.status === 'error') {
-                    throw new Error(`Task failed to complete, ${task.errorMessage}`)
-                }
-
-                if (task.status === 'cancelled') {
-                    throw new Error(`Task was cancelled`)
-                }
-
-                if (task.status === 'processing') {
-                    await new Promise(resolve => setTimeout(resolve, 1000))
-                }
-
-                throw new Error('Unknown status!')
+                await new Promise(resolve => setTimeout(resolve, 1000))
             }
-        } catch (err) {
-            isError = true
-            errorMessage = err.toString()
+
+            throw new Error('AI flow timed out')
+        } catch (err: any) {
+            const wrappedErr = err instanceof Error ? err : new Error(err.toString())
+            setError(wrappedErr)
+            return { data: null, error: wrappedErr, localizedErrorText: null }
+        } finally {
+            setLoading(false)
         }
+    }, [
+        flowType,
+        timeout,
+        defaultContext,
+        createExecutionAIFlowMutation,
+        getExecutionAiFlowTaskById,
+        user?.id,
+        cancelled,
+    ])
 
-        return { result, isError, errorMessage }
-    }, [flowType, timeout, createExecutionAIFlowMutation, getExecutionAiFlowTaskById])
+    return [getAIFlowResult, { loading, data, error, cancel }]
+}
 
-    return [runAIFlow]
+export function useAIConfig () {
+    return {
+        enabled: true,
+    }
 }
