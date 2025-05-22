@@ -131,7 +131,7 @@ export const Banner: React.FC<BannerProps> = ({
                     </Typography.Title>
                     <Typography.Paragraph
                         type={invertText ? 'inverted' : 'secondary'}
-                        ellipsis={{ rows: size === 'small' ? 2 : 3 }}
+                        ellipsis={{ rows: 2 }}
                         size={textSize}
                     >
                         {subtitle}
