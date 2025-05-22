@@ -732,7 +732,6 @@ export const GetContactByIdDocument = gql`
     communityFee
     organization {
       id
-      phoneNumberPrefix
     }
     property {
       id

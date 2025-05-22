@@ -158,7 +158,7 @@ const Contact = new GQLListSchema('Contact', {
                     property: { id: propertyId, deletedAt: null },
                     unitName,
                     unitType,
-                    user: { phone_ends_with_i: phone.slice(-4), type: RESIDENT, isPhoneVerified: true, deletedAt: null },
+                    user: { phone, type: RESIDENT, isPhoneVerified: true, deletedAt: null },
                     deletedAt: null,
                 })
 
