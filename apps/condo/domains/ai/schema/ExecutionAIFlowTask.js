@@ -14,7 +14,6 @@ const access = require('@condo/domains/ai/access/ExecutionAIFlowTask')
 const {
     TASK_STATUSES,
     FLOW_TYPES_LIST,
-    CUSTOM_FLOW_TYPES_LIST,
     FLOW_META_SCHEMAS,
     CUSTOM_FLOW_TYPE,
 } = require('@condo/domains/ai/constants')
@@ -38,7 +37,27 @@ try {
     EXECUTION_AI_FLOW_TASK_CUSTOM_RATE_LIMITER = {}
 }
 
-const redisGuard = new RedisGuard()
+/**
+ *
+ * @example
+ * {
+ *     default: {
+ *         example: {
+ *             adapter: 'flowise',
+ *             predictionUrl: 'http://localhost:3000/api/v1/prediction/ed7891c2-19bf-4651-b96a-cdf169ea3dd8',
+ *         },
+ *     },
+ *     custom: {
+ *         my_custom_flow: {
+ *             adapter: 'flowise',
+ *             predictionUrl: 'http://localhost:3000/api/v1/prediction/ed7891c2-19bf-4651-b96a-cdf169ea3dd8',
+ *         },
+ *     },
+ * }
+ */
+const AI_FLOWS_CONFIG = conf.AI_FLOWS_CONFIG ? JSON.parse(conf.AI_FLOWS_CONFIG) : {}
+
+const CUSTOM_FLOW_TYPES_LIST = Object.keys(AI_FLOWS_CONFIG?.custom || {})
 
 const ERRORS = {
     UNKNOWN_FLOW_TYPE: {
@@ -74,6 +93,8 @@ const ERRORS = {
         messageForUser: 'api.ai.executionAIFlowTask.STATUS_IS_ALREADY_ERROR',
     },
 }
+
+const redisGuard = new RedisGuard()
 
 const ajv = new Ajv()
 
@@ -261,4 +282,7 @@ const ExecutionAIFlowTask = new GQLListSchema('ExecutionAIFlowTask', {
 
 module.exports = {
     ExecutionAIFlowTask,
+    ERRORS,
+    AI_FLOWS_CONFIG,
+    CUSTOM_FLOW_TYPES_LIST,
 }
