@@ -31,13 +31,12 @@ for (const consoleMethodName of consoleMethodsNames) {
         const isSSR = typeof window === 'undefined'
 
         if (isSSR) {
-            const [msg, ...data] = args
             const f = patchedLogsMethods[_consoleMethodName]
 
-            if (typeof msg === 'string') {
-                f({ msg, data: data.length === 0 ? undefined : data })
+            if (args.every(arg => typeof arg === 'string')) {
+                f({ msg: args.join(' ') })
             } else {
-                f({ msg: 'unknown message', data: { args } })
+                f({ msg: 'SSR complex log', data: { args } })
             }
         } else {
             originalLogsMethods[_consoleMethodName](...args)

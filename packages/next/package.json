@@ -25,7 +25,7 @@
   },
   "exports": {
     "./*": "./*.jsx",
-    "./logging/patchLogMethods": "./logging/patchLogMethods.js"
+    "./logging/patchConsoleLogMethods": "./logging/patchConsoleLogMethods.js"
   },
   "repository": "https://github.com/open-condo-software/condo/tree/main/packages/next",
   "peerDependencies": {
