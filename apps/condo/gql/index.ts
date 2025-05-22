@@ -2135,6 +2135,48 @@ export type GetUserB2BAppRolesQueryHookResult = ReturnType<typeof useGetUserB2BA
 export type GetUserB2BAppRolesLazyQueryHookResult = ReturnType<typeof useGetUserB2BAppRolesLazyQuery>;
 export type GetUserB2BAppRolesSuspenseQueryHookResult = ReturnType<typeof useGetUserB2BAppRolesSuspenseQuery>;
 export type GetUserB2BAppRolesQueryResult = Apollo.QueryResult<Types.GetUserB2BAppRolesQuery, Types.GetUserB2BAppRolesQueryVariables>;
+export const GetNewsItemsRecipientsCountersDocument = gql`
+    query getNewsItemsRecipientsCounters($data: GetNewsItemsRecipientsCountersInput!) {
+  result: getNewsItemsRecipientsCounters(data: $data) {
+    propertiesCount
+    unitsCount
+    receiversCount
+  }
+}
+    `;
+
+/**
+ * __useGetNewsItemsRecipientsCountersQuery__
+ *
+ * To run a query within a React component, call `useGetNewsItemsRecipientsCountersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetNewsItemsRecipientsCountersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetNewsItemsRecipientsCountersQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useGetNewsItemsRecipientsCountersQuery(baseOptions: Apollo.QueryHookOptions<Types.GetNewsItemsRecipientsCountersQuery, Types.GetNewsItemsRecipientsCountersQueryVariables> & ({ variables: Types.GetNewsItemsRecipientsCountersQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetNewsItemsRecipientsCountersQuery, Types.GetNewsItemsRecipientsCountersQueryVariables>(GetNewsItemsRecipientsCountersDocument, options);
+      }
+export function useGetNewsItemsRecipientsCountersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetNewsItemsRecipientsCountersQuery, Types.GetNewsItemsRecipientsCountersQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetNewsItemsRecipientsCountersQuery, Types.GetNewsItemsRecipientsCountersQueryVariables>(GetNewsItemsRecipientsCountersDocument, options);
+        }
+export function useGetNewsItemsRecipientsCountersSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetNewsItemsRecipientsCountersQuery, Types.GetNewsItemsRecipientsCountersQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetNewsItemsRecipientsCountersQuery, Types.GetNewsItemsRecipientsCountersQueryVariables>(GetNewsItemsRecipientsCountersDocument, options);
+        }
+export type GetNewsItemsRecipientsCountersQueryHookResult = ReturnType<typeof useGetNewsItemsRecipientsCountersQuery>;
+export type GetNewsItemsRecipientsCountersLazyQueryHookResult = ReturnType<typeof useGetNewsItemsRecipientsCountersLazyQuery>;
+export type GetNewsItemsRecipientsCountersSuspenseQueryHookResult = ReturnType<typeof useGetNewsItemsRecipientsCountersSuspenseQuery>;
+export type GetNewsItemsRecipientsCountersQueryResult = Apollo.QueryResult<Types.GetNewsItemsRecipientsCountersQuery, Types.GetNewsItemsRecipientsCountersQueryVariables>;
 export const GetNewsItemRecipientsExportTasksDocument = gql`
     query getNewsItemRecipientsExportTasks($where: NewsItemRecipientsExportTaskWhereInput!) {
   tasks: allNewsItemRecipientsExportTasks(where: $where) {
