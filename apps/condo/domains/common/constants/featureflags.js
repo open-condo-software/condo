@@ -31,6 +31,7 @@ const TICKET_NOTIFICATIONS_USER_CACHE = 'ticket-notifications-user-cache'
 const TICKET_NOTIFICATIONS_EXCLUDED_ORGANIZATIONS = 'ticket-notifications-excluded-organizations'
 const HIDE_ORGANIZATION_REQUESTS = 'hide-organization-requests'
 const SKIP_SEARCH_ORGANIZATION_BY_TIN = 'skip-search-organization-by-tin'
+const ANALYTICS_RESIDENT_IN_CONTACT_PAGE = 'analytics-resident-in-contact-page'
 
 module.exports = {
     SMS_AFTER_TICKET_CREATION,
@@ -66,4 +67,5 @@ module.exports = {
     TICKET_NOTIFICATIONS_EXCLUDED_ORGANIZATIONS,
     HIDE_ORGANIZATION_REQUESTS,
     SKIP_SEARCH_ORGANIZATION_BY_TIN,
+    ANALYTICS_RESIDENT_IN_CONTACT_PAGE,
 }
