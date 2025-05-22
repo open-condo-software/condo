@@ -16,7 +16,6 @@ query getContactById ($id: ID!) {
         communityFee
         organization {
             id
-            phoneNumberPrefix
         }
         property {
             id

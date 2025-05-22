@@ -333,7 +333,7 @@ describe('Contact', () => {
         })
 
         describe('hasResident field', () => {
-            it('match only with end of phone', async () => {
+            it('positive test', async () => {
                 const residentClient = await makeClientWithResidentAccessAndProperty()
                 const adminClient = await makeLoggedInAdminClient()
                 const residentFields = {
@@ -341,11 +341,9 @@ describe('Contact', () => {
                     unitType: FLAT_UNIT_TYPE,
                 }
                 await createTestResident(adminClient, residentClient.user, residentClient.property, residentFields)
-
-                const lastNumberUserPhone = residentClient.userAttrs.phone.slice(-4)
                 const contactFields = {
                     ...residentFields,
-                    phone: '+1111111' + lastNumberUserPhone,
+                    phone: residentClient.userAttrs.phone,
                 }
 
                 const [contact, contactAttrs] = await createTestContact(adminClient, residentClient.organization, residentClient.property, contactFields)

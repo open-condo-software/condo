@@ -3,7 +3,7 @@ import {
     useUpdateContactMutation,
     GetContactByIdQuery,
 } from '@app/condo/gql'
-import { BuildingUnitSubType } from '@app/condo/schema'
+import { BuildingUnitSubType, Organization } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import Head from 'next/head'
 import Link from 'next/link'
@@ -40,10 +40,11 @@ const FieldPairRow: React.FC<FieldPairRowProps> = (props) => (
     />
 )
 
-export const ContactPageContent = ({ contact, isContactEditable, softDeleteAction }: {
+export const ContactPageContent = ({ contact, isContactEditable, softDeleteAction, organizationPhonePrefix = null }: {
     contact: GetContactByIdQuery['contacts'][0]
     isContactEditable: boolean
     softDeleteAction: () => Promise<void>
+    organizationPhonePrefix?: Organization['phoneNumberPrefix']
 }) => {
     const intl = useIntl()
     const PhoneLabel = intl.formatMessage({ id: 'Phone' })
@@ -61,17 +62,17 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
     const DeleteMessage = intl.formatMessage({ id: 'Delete' })
     const UnitTypeMessage = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${contact?.unitType || BuildingUnitSubType.Flat}` as FormatjsIntl.Message['ids'] })
 
-    const contactId = useMemo(() => contact?.id || null, [contact])
-    const contactName = useMemo(() => contact?.name, [contact])
-    const contactEmail = useMemo(() => contact?.email || '', [contact])
-    const contactPhone = useMemo(() => contact?.phone || '', [contact])
-    const contactUnitName = useMemo(() => contact?.unitName, [contact])
+    const contactId = useMemo(() => contact?.id ?? null, [contact])
+    const contactName = useMemo(() => contact?.name ?? '', [contact])
+    const contactEmail = useMemo(() => contact?.email ?? '', [contact])
+    const contactPhone = useMemo(() => contact?.phone ?? '', [contact])
+    const contactUnitName = useMemo(() => contact?.unitName ?? '', [contact])
     const unitSuffix = useMemo(() => contactUnitName ? `${UnitTypeMessage.toLowerCase()} ${contactUnitName}` : '', [UnitTypeMessage, contactUnitName])
-    const contactAddress = useMemo(() => `${contact?.property?.address || DeletedMessage} ${unitSuffix}`, [contact, DeletedMessage, unitSuffix])
-    const contactRoleName = useMemo(() => contact?.role?.name, [contact])
+    const contactAddress = useMemo(() => `${contact?.property?.address ?? DeletedMessage} ${unitSuffix}`, [contact, DeletedMessage, unitSuffix])
+    const contactRoleName = useMemo(() => contact?.role?.name ?? '—', [contact])
     const isVerified = useMemo(() => contact?.isVerified, [contact])
     const hasResident = useMemo(() => contact?.hasResident, [contact])
-    const phonePrefix = useMemo(() => contact?.organization?.phoneNumberPrefix || '', [contact])
+    const phonePrefix = useMemo(() => organizationPhonePrefix ?? '', [organizationPhonePrefix])
 
     const { breakpoints } = useLayoutContext()
 
@@ -108,7 +109,7 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
                                     }
                                     <FieldPairRow
                                         fieldTitle={ContactRoleTitle}
-                                        fieldValue={contactRoleName || '—'}
+                                        fieldValue={contactRoleName}
                                     />
                                     <>
                                         <Col span={8}>
