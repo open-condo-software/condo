@@ -285,21 +285,27 @@ async function exportTickets (taskId) {
 
         const convertRecordToFileRow = (ticket) => ticketToRow({ task, ticket, indexedStatuses, classifier })
         const loadRecordsBatch = async (offset, limit) => {
-            const tickets = await ticketsLoader.loadChunk(offset, limit)
+            const rows = []
+            for (let i = 0; i < 100; i++) {
+                rows.push({ test: 'test' })
+            }
+
+            return rows
+            // const tickets = await ticketsLoader.loadChunk(offset, limit)
             // const ticketIds = tickets.map(ticket => ticket.id)
             // const comments = await loadTicketCommentsForExcelExport({ ticketIds: ticketIds })
-
+            //
             // const classifierRuleIds = compact(map(tickets, 'classifier'))
             // classifier = await loadClassifiersForExcelExport({ classifierRuleIds })
-
+            //
             // tickets.map(ticket => {
             //     ticket.comments = comments.filter(comment => comment.ticket === ticket.id)
             //     return ticket
             // })
-
-            // See how `this` gets value of a job in `executeTask` function in `packages/keystone/tasks.js` module via `fn.apply(job, args)`
-            this.progress(Math.floor(offset / totalRecordsCount * 100)) // Breaks execution after `this.progress`. Without this call it works
-            return tickets
+            //
+            // // See how `this` gets value of a job in `executeTask` function in `packages/keystone/tasks.js` module via `fn.apply(job, args)`
+            // this.progress(Math.floor(offset / totalRecordsCount * 100)) // Breaks execution after `this.progress`. Without this call it works
+            // return tickets
         }
 
         switch (format) {
