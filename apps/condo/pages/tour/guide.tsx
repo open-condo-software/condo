@@ -24,6 +24,7 @@ const {
     publicRuntimeConfig,
 } = getConfig()
 
+// NOTE: Best to replace all of these variables on one
 const { guideAboutAppBlock, guideIntroduceAppBlock, guideModalCardReviews } = publicRuntimeConfig
 
 const MEDIUM_GUTTER: RowProps['gutter'] = [0, 40]
