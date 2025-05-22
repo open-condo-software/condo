@@ -113,34 +113,34 @@ function _getTranslatedClassifier (translationId, locale) {
  * @return {Promise<{clientName, deferredUntil: (*|string), description: string, source: (string|string), feedbackComment: string, operator: string, unitType: (string|string), number, isEmergency: string, createdAt: *, statusReopenedCounter: (*|number|string), executor: string, contact: string, property: (*|string), details, isWarranty: string, floorName, place: string, organizationComments: (string|string), closedAt: (*|string), deadline: (*|string), entranceName: (string|string), updatedAt: *, inworkAt: (*|string), completedAt: (*|string), residentComments: (string|string), feedbackAdditionalOptions: (*|string), unitName, clientPhone, feedbackValue: (*|string), isPayable: string, organization, assignee: string, category: string, status: *}>}
  */
 const ticketToRow = ({ task, ticket, indexedStatuses, classifier }) => {
-    const { locale, timeZone } = task
-
+    // const { locale, timeZone } = task
+    //
     // const feedbackValuesTranslations = buildFeedbackValuesTranslationsFrom(locale)
     // const qualityControlValuesTranslations = buildQualityControlValuesTranslationsFrom(locale)
-
-    const ticketClassifier = classifier?.filter(rule => rule.id === ticket.classifier) || []
-    const comments = ticket.comments || []
-
-    const renderedOrganizationComments = []
-    const renderedResidentComments = []
-    comments.forEach((comment) => {
-        switch (comment.type) {
-            case ORGANIZATION_COMMENT_TYPE:
-                renderedOrganizationComments.push(renderComment(comment, locale, timeZone))
-                break
-            case RESIDENT_COMMENT_TYPE:
-                renderedResidentComments.push(renderComment(comment, locale, timeZone))
-                break
-        }
-    })
-
-    // Assume, that ticket execution was started immediately if ticket has a responsible person (assignee)
-    if (ticket.assignee && !ticket.startedAt && ticket.status !== 'new_or_reopened') {
-        ticket.startedAt = ticket.createdAt
-    }
-
+    //
+    // const ticketClassifier = classifier?.filter(rule => rule.id === ticket.classifier) || []
+    // const comments = ticket.comments || []
+    //
+    // const renderedOrganizationComments = []
+    // const renderedResidentComments = []
+    // comments.forEach((comment) => {
+    //     switch (comment.type) {
+    //         case ORGANIZATION_COMMENT_TYPE:
+    //             renderedOrganizationComments.push(renderComment(comment, locale, timeZone))
+    //             break
+    //         case RESIDENT_COMMENT_TYPE:
+    //             renderedResidentComments.push(renderComment(comment, locale, timeZone))
+    //             break
+    //     }
+    // })
+    //
+    // // Assume, that ticket execution was started immediately if ticket has a responsible person (assignee)
+    // if (ticket.assignee && !ticket.startedAt && ticket.status !== 'new_or_reopened') {
+    //     ticket.startedAt = ticket.createdAt
+    // }
+    //
     // const formatDate = (date) => dayjs(date).tz(timeZone).format(DATE_FORMAT)
-
+    //
     // const YesMessage = i18n('Yes', { locale })
     // const NoMessage = i18n('No', { locale })
 
@@ -157,34 +157,34 @@ const ticketToRow = ({ task, ticket, indexedStatuses, classifier }) => {
     //     contact: ticket.contact ? i18n('excelExport.tickets.ticketFromResident', { locale }) : i18n('excelExport.tickets.ticketFromNonResident', { locale }),
     //     clientPhone: ticket.clientPhone,
     //     details: ticket.details,
-    //     // isEmergency: ticket.isEmergency ? YesMessage : NoMessage,
-    //     // isPayable: ticket.isPayable ? YesMessage : NoMessage,
-    //     // isWarranty: ticket.isWarranty ? YesMessage : NoMessage,
+    //     isEmergency: ticket.isEmergency ? YesMessage : NoMessage,
+    //     isPayable: ticket.isPayable ? YesMessage : NoMessage,
+    //     isWarranty: ticket.isWarranty ? YesMessage : NoMessage,
     //     place: _getTranslatedClassifier(get(ticketClassifier, [0, 'place']), locale),
     //     category: _getTranslatedClassifier(get(ticketClassifier, [0, 'category']), locale),
     //     description: _getTranslatedClassifier(get(ticketClassifier, [0, 'problem']), locale),
-    //     // createdAt: formatDate(ticket.createdAt),
-    //     // inworkAt: ticket.startedAt ? formatDate(ticket.startedAt) : EMPTY_VALUE,
-    //     // completedAt: ticket.completedAt ? formatDate(ticket.completedAt) : EMPTY_VALUE,
-    //     // closedAt: ticket.closedAt ? formatDate(ticket.closedAt) : EMPTY_VALUE,
-    //     // updatedAt: formatDate(ticket.updatedAt),
+    //     createdAt: formatDate(ticket.createdAt),
+    //     inworkAt: ticket.startedAt ? formatDate(ticket.startedAt) : EMPTY_VALUE,
+    //     completedAt: ticket.completedAt ? formatDate(ticket.completedAt) : EMPTY_VALUE,
+    //     closedAt: ticket.closedAt ? formatDate(ticket.closedAt) : EMPTY_VALUE,
+    //     updatedAt: formatDate(ticket.updatedAt),
     //     status: indexedStatuses[ticket.status],
-    //     // deferredUntil: ticket.deferredUntil ? formatDate(ticket.deferredUntil) : EMPTY_VALUE,
+    //     deferredUntil: ticket.deferredUntil ? formatDate(ticket.deferredUntil) : EMPTY_VALUE,
     //     operator: ticket.createdBy || EMPTY_VALUE,
     //     executor: ticket.executor || EMPTY_VALUE,
     //     assignee: ticket.assignee || EMPTY_VALUE,
     //     organizationComments: renderedOrganizationComments.join(TICKET_COMMENTS_SEPARATOR) || EMPTY_VALUE,
     //     residentComments: renderedResidentComments.join(TICKET_COMMENTS_SEPARATOR) || EMPTY_VALUE,
-    //     // deadline: ticket.deadline ? formatDate(ticket.deadline) : EMPTY_VALUE,
-    //     // feedbackValue: ticket.feedbackValue ? feedbackValuesTranslations[ticket.feedbackValue] : EMPTY_VALUE,
+    //     deadline: ticket.deadline ? formatDate(ticket.deadline) : EMPTY_VALUE,
+    //     feedbackValue: ticket.feedbackValue ? feedbackValuesTranslations[ticket.feedbackValue] : EMPTY_VALUE,
     //     feedbackComment: ticket.feedbackComment || EMPTY_VALUE,
     //     feedbackAdditionalOptions: renderFeedbackAdditionalOptions(ticket, locale) || EMPTY_VALUE,
-    //     // feedbackUpdatedAt: ticket.feedbackUpdatedAt ? formatDate(ticket.feedbackUpdatedAt) : EMPTY_VALUE,
+    //     feedbackUpdatedAt: ticket.feedbackUpdatedAt ? formatDate(ticket.feedbackUpdatedAt) : EMPTY_VALUE,
     //     statusReopenedCounter: ticket.statusReopenedCounter || EMPTY_VALUE,
-    //     // qualityControlValue: ticket.qualityControlValue ? qualityControlValuesTranslations[ticket.qualityControlValue] : EMPTY_VALUE,
+    //     qualityControlValue: ticket.qualityControlValue ? qualityControlValuesTranslations[ticket.qualityControlValue] : EMPTY_VALUE,
     //     qualityControlComment: ticket.qualityControlComment || EMPTY_VALUE,
     //     qualityControlAdditionalOptions: renderQualityControlAdditionalOptions(ticket, locale) || EMPTY_VALUE,
-    //     // qualityControlUpdatedAt: ticket.qualityControlUpdatedAt ? formatDate(ticket.qualityControlUpdatedAt) : EMPTY_VALUE,
+    //     qualityControlUpdatedAt: ticket.qualityControlUpdatedAt ? formatDate(ticket.qualityControlUpdatedAt) : EMPTY_VALUE,
     //     qualityControlUpdatedBy: ticket.qualityControlUpdatedBy || EMPTY_VALUE,
     // }
 
@@ -329,21 +329,26 @@ async function exportTickets (taskId) {
 
         const convertRecordToFileRow = (ticket) => ticketToRow({ task, ticket, indexedStatuses, classifier })
         const loadRecordsBatch = async (offset, limit) => {
-            const tickets = await ticketsLoader.loadChunk(offset, limit)
-            const ticketIds = tickets.map(ticket => ticket.id)
-            const comments = await loadTicketCommentsForExcelExport({ ticketIds: ticketIds })
-
-            const classifierRuleIds = compact(map(tickets, 'classifier'))
-            classifier = await loadClassifiersForExcelExport({ classifierRuleIds })
-
-            tickets.map(ticket => {
-                ticket.comments = comments.filter(comment => comment.ticket === ticket.id)
-                return ticket
-            })
-
+            const arr = []
+            for (let i = 0; i < 100; i++) {
+                arr.push({ test: 'test' })
+            }
+            return arr
+            // const tickets = await ticketsLoader.loadChunk(offset, limit)
+            // const ticketIds = tickets.map(ticket => ticket.id)
+            // const comments = await loadTicketCommentsForExcelExport({ ticketIds: ticketIds })
+            //
+            // const classifierRuleIds = compact(map(tickets, 'classifier'))
+            // classifier = await loadClassifiersForExcelExport({ classifierRuleIds })
+            //
+            // tickets.map(ticket => {
+            //     ticket.comments = comments.filter(comment => comment.ticket === ticket.id)
+            //     return ticket
+            // })
+            //
             // See how `this` gets value of a job in `executeTask` function in `packages/keystone/tasks.js` module via `fn.apply(job, args)`
-            this.progress(Math.floor(offset / totalRecordsCount * 100)) // Breaks execution after `this.progress`. Without this call it works
-            return tickets
+            // this.progress(Math.floor(offset / totalRecordsCount * 100)) // Breaks execution after `this.progress`. Without this call it works
+            // return tickets
         }
 
         switch (format) {

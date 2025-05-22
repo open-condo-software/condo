@@ -33,11 +33,7 @@ const logMemoryUsage = ({ logger, messageData }) => {
     const memoryUsage = process.memoryUsage()
     logger.info({
         ...messageData,
-        // heapTotal: formatBytes(memoryUsage.heapTotal),
         heapUsed: formatBytes(memoryUsage.heapUsed),
-        // rss: formatBytes(memoryUsage.rss),
-        // arrayBuffers: formatBytes(memoryUsage.arrayBuffers),
-        // external: formatBytes(memoryUsage.external),
     })
 }
 
