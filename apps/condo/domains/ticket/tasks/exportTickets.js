@@ -308,7 +308,7 @@ async function exportTickets (taskId) {
                     await exportRecordsAsCsvFile({
                         context,
                         loadRecordsBatch,
-                        convertRecordToFileRow: (row) => ({ test: row.test }),
+                        convertRecordToFileRow,
                         baseAttrs,
                         taskServerUtils: TicketExportTask,
                         totalRecordsCount,
