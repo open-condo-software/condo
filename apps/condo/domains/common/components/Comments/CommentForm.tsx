@@ -76,6 +76,7 @@ interface ICommentFormProps {
     FileModel: Module
     relationField: string
     setSending: React.Dispatch<React.SetStateAction<boolean>>
+    generateCommentLoading: boolean
 }
 
 const CommentForm: React.FC<ICommentFormProps> = ({
@@ -89,6 +90,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
     FileModel,
     relationField,
     setSending,
+    generateCommentLoading,
 }) => {
     const intl = useIntl()
     const PlaceholderMessage = intl.formatMessage({ id: 'Comments.form.placeholder' })
@@ -205,6 +207,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                                 rules={validations.comment}
                             >
                                 <InputWithCounter
+                                    disabled={generateCommentLoading}
                                     maxLength={MAX_COMMENT_LENGTH}
                                     placeholder={PlaceholderMessage}
                                     className='white'

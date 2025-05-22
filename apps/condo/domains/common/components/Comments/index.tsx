@@ -569,6 +569,7 @@ const Comments: React.FC<ICommentsListProps> = ({
                         setSending={setSending}
                         sending={sending}
                         commentForm={commentForm}
+                        generateCommentLoading={generateCommentLoading}
                     />
                 ) : (
                     <Typography.Text disabled>{CannotCreateCommentsMessage}</Typography.Text>

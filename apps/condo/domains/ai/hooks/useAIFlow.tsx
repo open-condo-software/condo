@@ -46,11 +46,11 @@ export function useAIFlow ({
         console.log(data)
     }, [data])
 
-    const getAIFlowResult = useCallback(async ({ context = {} }): Promise<{ data: object, error: object, localizedErrorText: string } | null> => {
+    const getAIFlowResult = useCallback(async ({ context = {} }): Promise<{ data: object, error: object, localizedErrorText: string }> => {
         if (!user?.id) {
             const err = new Error('User is not authenticated')
             setError(err)
-            return null
+            return { data: null, error: err, localizedErrorText: null }
         }
 
         setLoading(true)
@@ -100,7 +100,7 @@ export function useAIFlow ({
                 } else if (task.status === 'error') {
                     throw new Error(`Task failed: ${task.errorMessage || 'Unknown error'}`)
                 } else if (task.status === 'cancelled') {
-                    throw new Error('Task was cancelled on server')
+                    throw new Error('Task was cancelled')
                 }
 
                 await new Promise(resolve => setTimeout(resolve, 1000))

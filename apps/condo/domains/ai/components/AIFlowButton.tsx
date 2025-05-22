@@ -24,12 +24,14 @@ function Sparkles () {
     )
 }
 
-export function AIFlowButton ({ children, ...props }: AIFlowButtonProps) {
+export function AIFlowButton ({ children, loading, disabled, ...props }: AIFlowButtonProps & { loading?: boolean, disabled?: boolean }) {
     return (
         <Button
             className='ai-flow-button'
             type='secondary'
             icon={<Sparkles/>}
+            loading={loading}
+            disabled={disabled ? disabled : loading}
             {...props}
         >
             {children}
