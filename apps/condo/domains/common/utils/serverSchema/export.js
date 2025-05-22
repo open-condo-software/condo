@@ -200,10 +200,10 @@ const exportRecordsAsCsvFile = async ({ context, loadRecordsBatch, convertRecord
         context,
         loadRecordsBatch,
         processRecordsBatch: (batch) => {
-            // const convertedRecords = batch.map(convertRecordToFileRow)
-            // convertedRecords.forEach(row => {
-            //     stringifier.write(columnKeys.map(key => get(row, key)))
-            // })
+            const convertedRecords = batch.map(convertRecordToFileRow)
+            convertedRecords.forEach(row => {
+                stringifier.write(columnKeys.map(key => get(row, key)))
+            })
         },
         baseAttrs, taskServerUtils, totalRecordsCount, taskId,
     })
