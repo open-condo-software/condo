@@ -6,30 +6,26 @@ import {
 } from '@app/condo/gql'
 import { Col, Form, Row } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
-import get from 'lodash/get'
+import getConfig from 'next/config'
 import { useRouter } from 'next/router'
-import React, { CSSProperties, useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
-import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils'
 import { useIntl } from '@open-condo/next/intl'
-import { ActionBar, Button, Typography } from '@open-condo/ui'
+import { useOrganization } from '@open-condo/next/organization'
+import { ActionBar, Button, Typography, Checkbox, Input } from '@open-condo/ui'
 
-import Checkbox from '@condo/domains/common/components/antd/Checkbox'
-import Input from '@condo/domains/common/components/antd/Input'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Loader } from '@condo/domains/common/components/Loader'
-import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import Prompt from '@condo/domains/common/components/Prompt'
-import { fontSizes } from '@condo/domains/common/constants/style'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { ClientType, getClientCardTabKey } from '@condo/domains/contact/utils/clientCard'
-import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 
 import { ContactRoleSelect } from './contactRoles/ContactRoleSelect'
 
+const { publicRuntimeConfig: { defaultLocale } } = getConfig()
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -42,7 +38,6 @@ const INPUT_LAYOUT_PROPS = {
 }
 
 const GUTTER_0_40: [Gutter, Gutter] = [0, 40]
-const CHECKBOX_STYLE: CSSProperties = { paddingLeft: '0px', fontSize: fontSizes.content }
 
 export const EditContactForm: React.FC = () => {
     const intl = useIntl()
@@ -65,10 +60,11 @@ export const EditContactForm: React.FC = () => {
     const PromptTitle = intl.formatMessage({ id: 'contact.form.prompt.title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'contact.form.prompt.message' })
 
-    const { breakpoints } = useLayoutContext()
+    const { organization } = useOrganization()
+    const country = organization?.country || defaultLocale
     const client = useApolloClient()
     const router = useRouter()
-    const contactId = get(router, 'query.id', '')
+    const contactId = router?.query?.id && !Array.isArray(router?.query?.id) ? router?.query?.id : ''
 
     const onCancel = useCallback(() => {
         router.push(`/contact/${contactId}`)
@@ -92,7 +88,7 @@ export const EditContactForm: React.FC = () => {
     })
     const roles = rolesData?.roles || []
 
-    const redirectToClientCard = useMemo(() => !!get(router, ['query', 'redirectToClientCard']), [router])
+    const redirectToClientCard = useMemo(() => !!router?.query?.redirectToClientCard, [router])
 
     const [updateContactMutation] = useUpdateContactMutation()
     const handleUpdate = useCallback(async (formValues) => {
@@ -110,7 +106,7 @@ export const EditContactForm: React.FC = () => {
         if (redirectToClientCard) {
             const contact = response?.data?.contact
             const phone = contact.phone
-            const propertyId = get(contact, 'property.id')
+            const propertyId = contact?.property.id
             if (phone && propertyId) {
                 await router.push(`/phone/${phone}?tab=${getClientCardTabKey(propertyId, ClientType.Resident, contact.unitName, contact.unitType)}`)
             }
@@ -123,11 +119,11 @@ export const EditContactForm: React.FC = () => {
     }, [client.cache, contactId, redirectToClientCard, router, updateContactMutation])
 
     const formInitialValues = useMemo(() => ({
-        name: get(contact, 'name'),
-        phone: get(contact, 'phone'),
-        email: get(contact, 'email'),
-        role: get(contact, ['role', 'id']),
-        isVerified: get(contact, 'isVerified'),
+        name: contact?.name,
+        phone: contact?.phone,
+        email: contact?.email,
+        role: contact?.role?.id,
+        isVerified: contact?.isVerified,
     }), [contact])
 
     const { requiredValidator, phoneValidator, emailValidator, trimValidator, changeMessage, specCharValidator } = useValidations({ allowLandLine: true })
@@ -159,7 +155,7 @@ export const EditContactForm: React.FC = () => {
                 layout='horizontal'
                 validateTrigger={['onBlur', 'onSubmit']}
                 formValuesToMutationDataPreprocessor={(values) => {
-                    const role = get(values, 'role', null)
+                    const role = values?.role || null
                     values.role = role ? { connect: { id: String(role) } } : { disconnectAll: true }
 
                     return values
@@ -179,10 +175,7 @@ export const EditContactForm: React.FC = () => {
                                     </Typography.Paragraph>
                                 </Prompt>
                                 <Row gutter={GUTTER_0_40}>
-                                    <Col xs={10} lg={3}>
-                                        <UserAvatar borderRadius={24}/>
-                                    </Col>
-                                    <Col xs={24} lg={15} offset={!breakpoints.TABLET_LARGE ? 0 : 1}>
+                                    <Col xs={24} lg={16}>
                                         <Row gutter={GUTTER_0_40}>
                                             <Col span={24}>
                                                 <Typography.Title
@@ -214,7 +207,7 @@ export const EditContactForm: React.FC = () => {
                                                     validateFirst
                                                     rules={validations.phone}
                                                 >
-                                                    <PhoneInput placeholder={ExamplePhoneMessage} block/>
+                                                    <Input.Phone country={country} placeholder={ExamplePhoneMessage}/>
                                                 </Form.Item>
                                             </Col>
                                             <Col span={24}>
@@ -249,7 +242,6 @@ export const EditContactForm: React.FC = () => {
                                                     valuePropName='checked'
                                                 >
                                                     <Checkbox
-                                                        style={CHECKBOX_STYLE}
                                                         id='contact-is-verified'
                                                     />
                                                 </Form.Item>

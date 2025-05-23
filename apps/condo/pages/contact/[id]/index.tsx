@@ -1,33 +1,30 @@
 import {
     useGetContactByIdQuery,
     useUpdateContactMutation,
+    GetContactByIdQuery,
 } from '@app/condo/gql'
-import { BuildingUnitSubType } from '@app/condo/schema'
+import { BuildingUnitSubType, Organization } from '@app/condo/schema'
 import { Col, Row } from 'antd'
-import get from 'lodash/get'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { CSSProperties, useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
-import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Button, Typography } from '@open-condo/ui'
+import { ActionBar, Button, Typography, Checkbox } from '@open-condo/ui'
 
-import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import { PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { FieldPairRow as BaseFieldPairRow, FieldPairRowProps } from '@condo/domains/common/components/FieldPairRow'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 import { TicketCardList } from '@condo/domains/common/components/TicketCard/TicketCardList'
-import { fontSizes } from '@condo/domains/common/constants/style'
 import { PageComponentType } from '@condo/domains/common/types'
 import { ContactsReadPermissionRequired } from '@condo/domains/contact/components/PageAccess'
 import { prefetchContact } from '@condo/domains/contact/utils/next/Contact'
-import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 
 
 const VALUE_FIELD_WRAPPER_STYLE = { width: '100%' }
@@ -43,11 +40,13 @@ const FieldPairRow: React.FC<FieldPairRowProps> = (props) => (
     />
 )
 
-const CHECKBOX_STYLE: CSSProperties = { paddingLeft: '0px', fontSize: fontSizes.content }
-
-export const ContactPageContent = ({ contact, isContactEditable, softDeleteAction }) => {
+export const ContactPageContent = ({ contact, isContactEditable, softDeleteAction, organizationPhonePrefix = null }: {
+    contact: GetContactByIdQuery['contacts'][0]
+    isContactEditable: boolean
+    softDeleteAction: () => Promise<void>
+    organizationPhonePrefix?: Organization['phoneNumberPrefix']
+}) => {
     const intl = useIntl()
-    const ContactLabel = intl.formatMessage({ id: 'Contact' }).toLowerCase()
     const PhoneLabel = intl.formatMessage({ id: 'Phone' })
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
     const EmailLabel = intl.formatMessage({ id: 'field.EMail' })
@@ -58,29 +57,24 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'contact.ConfirmDeleteMessage' })
     const ContactRoleTitle = intl.formatMessage({ id: 'ContactRole' })
     const VerifiedMessage = intl.formatMessage({ id: 'pages.condo.contact.Verified' })
+    const HasResident = intl.formatMessage({ id: 'pages.condo.contact.HasResident' })
+    const DownloadApp = intl.formatMessage({ id: 'pages.condo.contact.DownloadApp' })
     const DeleteMessage = intl.formatMessage({ id: 'Delete' })
-    const UnitTypeMessage = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${get(contact, 'unitType', BuildingUnitSubType.Flat)}` as FormatjsIntl.Message['ids'] })
+    const UnitTypeMessage = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${contact?.unitType || BuildingUnitSubType.Flat}` as FormatjsIntl.Message['ids'] })
 
-    const contactId = get(contact, 'id', null)
-    const contactName = get(contact, 'name')
-    const contactEmail = get(contact, 'email', '')
-    const contactPhone = get(contact, 'phone', '')
-    const contactUnitName = get(contact, 'unitName')
-    const unitSuffix = contactUnitName
-        ? `${UnitTypeMessage.toLowerCase()} ${contactUnitName}`
-        : ''
-    const contactAddress = `${get(contact, ['property', 'address'], DeletedMessage)} ${unitSuffix}`
-    const contactRole = get(contact, 'role')
-    const isVerified = get(contact, 'isVerified')
-    const phonePrefix = get(contact, ['organization', 'phoneNumberPrefix'], '')
+    const contactId = useMemo(() => contact?.id ?? null, [contact])
+    const contactName = useMemo(() => contact?.name ?? '', [contact])
+    const contactEmail = useMemo(() => contact?.email ?? '', [contact])
+    const contactPhone = useMemo(() => contact?.phone ?? '', [contact])
+    const contactUnitName = useMemo(() => contact?.unitName ?? '', [contact])
+    const unitSuffix = useMemo(() => contactUnitName ? `${UnitTypeMessage.toLowerCase()} ${contactUnitName}` : '', [UnitTypeMessage, contactUnitName])
+    const contactAddress = useMemo(() => `${contact?.property?.address ?? DeletedMessage} ${unitSuffix}`, [contact, DeletedMessage, unitSuffix])
+    const contactRoleName = useMemo(() => contact?.role?.name ?? '—', [contact])
+    const isVerified = useMemo(() => contact?.isVerified, [contact])
+    const hasResident = useMemo(() => contact?.hasResident, [contact])
+    const phonePrefix = useMemo(() => organizationPhonePrefix ?? '', [organizationPhonePrefix])
 
     const { breakpoints } = useLayoutContext()
-
-    const deleteCallback = useCallback(() => {
-        return new Promise((resolve) => {
-            resolve(softDeleteAction(contact))
-        })
-    }, [softDeleteAction, contact])
 
     return (
         <>
@@ -88,100 +82,59 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
                 <title>{contactName}</title>
             </Head>
             <PageWrapper>
-                <Row gutter={[0, 40]}>
-                    <Col xs={10} lg={3}>
-                        <UserAvatar borderRadius={24}/>
-                    </Col>
-                    <Col xs={24} lg={20} offset={!breakpoints.DESKTOP_SMALL ? 0 : 1}>
-                        <Row gutter={[0, 20]}>
-                            <Col xs={24} lg={15}>
-                                <Row gutter={[0, 40]}>
-                                    <Col span={24}>
-                                        <Typography.Title>
-                                            {contactName}
-                                        </Typography.Title>
-                                        <Typography.Title
-                                            level={2}
-                                        >
-                                            {ContactLabel}
-                                        </Typography.Title>
-                                    </Col>
-                                    <Col span={24}>
-                                        <FrontLayerContainer>
-                                            <Row gutter={[0, 24]}>
-                                                <FieldPairRow
-                                                    fieldTitle={AddressLabel}
-                                                    fieldValue={contactAddress}
-                                                />
-                                                <FieldPairRow
-                                                    fieldTitle={PhoneLabel}
-                                                    fieldValue={contactPhone}
-                                                    href={`tel:${phonePrefix ?
-                                                        `${phonePrefix}${contactPhone}` : contactPhone}`}
-                                                />
-                                                {
-                                                    contactEmail && <FieldPairRow
-                                                        fieldTitle={EmailLabel}
-                                                        fieldValue={contactEmail}
-                                                        href={`mailto:${contactEmail}`}
-                                                    />
-                                                }
-                                                <FieldPairRow
-                                                    fieldTitle={ContactRoleTitle}
-                                                    fieldValue={get(contactRole, 'name', '—')}
-                                                />
-                                                <>
-                                                    <Col span={8}>
-                                                        <Typography.Text type='secondary'>
-                                                            {VerifiedMessage}
-                                                        </Typography.Text>
-                                                    </Col>
-                                                    <Col span={16}>
-                                                        <Checkbox
-                                                            checked={isVerified}
-                                                            disabled={!isVerified}
-                                                            style={CHECKBOX_STYLE}
-                                                        />
-                                                    </Col>
-                                                </>
-                                            </Row>
-                                        </FrontLayerContainer>
-                                    </Col>
-                                    {isContactEditable && breakpoints.DESKTOP_SMALL && (
-                                        <Col span={24}>
-                                            <ActionBar
-                                                actions={[
-                                                    <Link key='update' href={`/contact/${get(contact, 'id')}/update`}>
-                                                        <Button
-                                                            type='primary'
-                                                        >
-                                                            {UpdateMessage}
-                                                        </Button>
-                                                    </Link>,
-                                                    <DeleteButtonWithConfirmModal
-                                                        key='delete'
-                                                        title={ConfirmDeleteTitle}
-                                                        message={ConfirmDeleteMessage}
-                                                        okButtonLabel={ConfirmDeleteButtonLabel}
-                                                        action={deleteCallback}
-                                                        buttonContent={DeleteMessage}
-                                                    />,
-                                                ]}
+                <Row gutter={[0, 20]} align='middle'>
+                    <Col lg={18}>
+                        <Row gutter={[0, 60]}>
+                            <Typography.Title>
+                                {contactName}
+                            </Typography.Title>
+                            <FrontLayerContainer>
+                                <Row gutter={[0, 24]}>
+                                    <FieldPairRow
+                                        fieldTitle={AddressLabel}
+                                        fieldValue={contactAddress}
+                                    />
+                                    <FieldPairRow
+                                        fieldTitle={PhoneLabel}
+                                        fieldValue={contactPhone}
+                                        href={`tel:${phonePrefix ?
+                                            `${phonePrefix}${contactPhone}` : contactPhone}`}
+                                    />
+                                    {
+                                        contactEmail && <FieldPairRow
+                                            fieldTitle={EmailLabel}
+                                            fieldValue={contactEmail}
+                                            href={`mailto:${contactEmail}`}
+                                        />
+                                    }
+                                    <FieldPairRow
+                                        fieldTitle={ContactRoleTitle}
+                                        fieldValue={contactRoleName}
+                                    />
+                                    <>
+                                        <Col span={8}>
+                                            <Typography.Text type='secondary'>
+                                                {VerifiedMessage}
+                                            </Typography.Text>
+                                        </Col>
+                                        <Col span={16}>
+                                            <Checkbox
+                                                checked={isVerified}
+                                                disabled={!isVerified}
                                             />
                                         </Col>
-                                    )}
+                                    </>
+                                    <FieldPairRow
+                                        fieldTitle={HasResident}
+                                        fieldValue={hasResident ? DownloadApp : '—'}
+                                    />
                                 </Row>
-                            </Col>
-                            <Col xs={24} sm={24} lg={8} offset={!breakpoints.DESKTOP_SMALL ? 0 : 1}>
-                                <TicketCardList
-                                    contactId={contactId}
-                                />
-                            </Col>
-                            {isContactEditable && !breakpoints.DESKTOP_SMALL && (
-                                <Col span={24}>
+                            </FrontLayerContainer>
+                            {isContactEditable && breakpoints.DESKTOP_SMALL && (
+                                <Col span={16}>
                                     <ActionBar
                                         actions={[
-                                            <Link key='update' href={`/contact/${get(contact, 'id')}/update`}>
+                                            <Link key='update' href={`/contact/${contact?.id}/update`}>
                                                 <Button
                                                     type='primary'
                                                 >
@@ -193,7 +146,7 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
                                                 title={ConfirmDeleteTitle}
                                                 message={ConfirmDeleteMessage}
                                                 okButtonLabel={ConfirmDeleteButtonLabel}
-                                                action={deleteCallback}
+                                                action={softDeleteAction}
                                                 buttonContent={DeleteMessage}
                                             />,
                                         ]}
@@ -202,6 +155,34 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
                             )}
                         </Row>
                     </Col>
+                    <Col xs={24} sm={24} lg={6}>
+                        <TicketCardList
+                            contactId={contactId}
+                        />
+                    </Col>
+                    {isContactEditable && !breakpoints.DESKTOP_SMALL && (
+                        <Col span={24}>
+                            <ActionBar
+                                actions={[
+                                    <Link key='update' href={`/contact/${contactId}/update`}>
+                                        <Button
+                                            type='primary'
+                                        >
+                                            {UpdateMessage}
+                                        </Button>
+                                    </Link>,
+                                    <DeleteButtonWithConfirmModal
+                                        key='delete'
+                                        title={ConfirmDeleteTitle}
+                                        message={ConfirmDeleteMessage}
+                                        okButtonLabel={ConfirmDeleteButtonLabel}
+                                        action={softDeleteAction}
+                                        buttonContent={DeleteMessage}
+                                    />,
+                                ]}
+                            />
+                        </Col>
+                    )}
                 </Row>
             </PageWrapper>
         </>

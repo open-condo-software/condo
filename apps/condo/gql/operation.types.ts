@@ -102,7 +102,7 @@ export type GetContactByIdQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetContactByIdQuery = { __typename?: 'Query', contacts?: Array<{ __typename?: 'Contact', id: string, name?: string | null, email?: string | null, phone?: string | null, unitName?: string | null, unitType?: Types.ContactUnitTypeType | null, isVerified?: boolean | null, ownershipPercentage?: string | null, note?: string | null, communityFee?: string | null, organization?: { __typename?: 'Organization', id: string } | null, property?: { __typename?: 'Property', id: string, address?: string | null } | null, role?: { __typename?: 'ContactRole', id: string, name?: string | null } | null } | null> | null };
+export type GetContactByIdQuery = { __typename?: 'Query', contacts?: Array<{ __typename?: 'Contact', id: string, name?: string | null, email?: string | null, phone?: string | null, unitName?: string | null, unitType?: Types.ContactUnitTypeType | null, isVerified?: boolean | null, hasResident?: boolean | null, ownershipPercentage?: string | null, note?: string | null, communityFee?: string | null, organization?: { __typename?: 'Organization', id: string } | null, property?: { __typename?: 'Property', id: string, address?: string | null } | null, role?: { __typename?: 'ContactRole', id: string, name?: string | null } | null } | null> | null };
 
 export type GetContactByUnitQueryVariables = Types.Exact<{
   propertyId: Types.Scalars['ID']['input'];
@@ -817,7 +817,7 @@ export type GetTicketsByContactQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetTicketsByContactQuery = { __typename?: 'Query', tickets?: Array<{ __typename?: 'Ticket', id: string, details?: string | null, createdAt?: string | null, number?: number | null, status?: { __typename?: 'TicketStatus', id: string, name?: string | null } | null, property?: { __typename?: 'Property', id: string, address?: string | null } | null } | null> | null };
+export type GetTicketsByContactQuery = { __typename?: 'Query', tickets?: Array<{ __typename?: 'Ticket', id: string, details?: string | null, createdAt?: string | null, number?: number | null, status?: { __typename?: 'TicketStatus', id: string, name?: string | null, colors?: { __typename?: 'TicketStatusColorsField', primary?: string | null } | null } | null, property?: { __typename?: 'Property', id: string, address?: string | null } | null } | null> | null };
 
 export type GetOrganizationEmployeeTicketsForReassignmentQueryVariables = Types.Exact<{
   userId: Types.Scalars['ID']['input'];

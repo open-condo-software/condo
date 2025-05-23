@@ -6,7 +6,7 @@ const get = require('lodash/get')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
-const { GQLListSchema, find } = require('@open-condo/keystone/schema')
+const { GQLListSchema, find, getByCondition } = require('@open-condo/keystone/schema')
 const { webHooked } = require('@open-condo/webhooks/plugins')
 
 const { PHONE_WRONG_FORMAT_ERROR, EMAIL_WRONG_FORMAT_ERROR, PROPERTY_REQUIRED_ERROR } = require('@condo/domains/common/constants/errors')
@@ -17,6 +17,7 @@ const { getUnitTypeFieldResolveInput } = require('@condo/domains/common/utils/se
 const { normalizeText } = require('@condo/domains/common/utils/text')
 const access = require('@condo/domains/contact/access/Contact')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
+const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { UNABLE_TO_CREATE_CONTACT_DUPLICATE, UNABLE_TO_UPDATE_CONTACT_DUPLICATE } = require('@condo/domains/user/constants/errors')
 
 
@@ -137,6 +138,32 @@ const Contact = new GQLListSchema('Contact', {
             schemaDoc: 'Contact verification flag.',
             type: 'Checkbox',
             defaultValue: false,
+        },
+
+        hasResident: {
+            schemaDoc: 'Presence/absence of a resident at this address (property, unitName, unitType) and user (phone, type = `Resident`)',
+            type: 'Virtual',
+            graphQLReturnType: 'Boolean',
+            resolver: async (item) => {
+                const propertyId = get(item, 'property', null)
+                const unitName = get(item, 'unitName', null)
+                const unitType = get(item, 'unitType', null)
+                const phone = get(item, 'phone', null)
+
+                if (!propertyId || !unitName || !unitType || !phone) {
+                    return false
+                }
+
+                const Resident = await getByCondition('Resident', {
+                    property: { id: propertyId, deletedAt: null },
+                    unitName,
+                    unitType,
+                    user: { phone, type: RESIDENT, isPhoneVerified: true, deletedAt: null },
+                    deletedAt: null,
+                })
+
+                return Boolean(Resident)
+            },
         },
 
         ownershipPercentage: {

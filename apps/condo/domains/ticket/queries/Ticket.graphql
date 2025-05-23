@@ -356,6 +356,9 @@ query getTicketsByContact ($contactId: ID!) {
         status {
             id
             name
+            colors {
+                primary
+            }
         }
         property {
             id

@@ -10,6 +10,7 @@ query getContactById ($id: ID!) {
         unitName
         unitType
         isVerified
+        hasResident
         ownershipPercentage
         note
         communityFee
