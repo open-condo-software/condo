@@ -86,7 +86,7 @@ const TicketCardList: React.FC<ITicketCardListProps> = ({ contactId }) => {
         variables: { contactId },
         skip: !persistor || !contactId,
     })
-    const tickets = ticketsData?.tickets
+    const tickets = ticketsData?.tickets?.filter(Boolean) || []
 
     if (loading) {
         return <Loader size='large' spinning fill />
@@ -94,10 +94,12 @@ const TicketCardList: React.FC<ITicketCardListProps> = ({ contactId }) => {
 
     return (
         <Row gutter={TICKET_CARD_LIST_GUTTER} justify='end' align='top'>
-            <TicketCard
-                contactId={contactId}
-                tickets={tickets}
-            />
+            {
+                tickets.length > 0 && <TicketCard
+                    contactId={contactId}
+                    tickets={tickets}
+                />
+            }
         </Row>
     )
 }

@@ -1014,7 +1014,7 @@
   "excelExport.sheetNames.buildings": "Lista de comunidades",
   "excelExport.sheetNames.contacts": "Contactos",
   "excelExport.sheetNames.incidents": "Cortes",
-  "excelExport.sheetNames.newsRecipients": "Destinatarios de la noticia",
+  "excelExport.sheetNames.recipients": "Destinatarios",
   "excelExport.sheetNames.propertyScopes": "Permisos y accesos",
   "excelExport.sheetNames.tickets": "Incidencias",
   "excelExport.tickets.ticketCommentFilesCount": "archivos",
