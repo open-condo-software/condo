@@ -10,6 +10,7 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 
+
 const access = require('@condo/domains/ai/access/ExecutionAIFlowTask')
 const {
     TASK_STATUSES,
@@ -18,6 +19,7 @@ const {
     CUSTOM_FLOW_TYPE,
 } = require('@condo/domains/ai/constants')
 const { executeAIFlow } = require('@condo/domains/ai/tasks')
+const { CUSTOM_FLOW_TYPES_LIST } = require('@condo/domains/ai/utils/flowsConfig')
 const { WRONG_VALUE } = require('@condo/domains/common/constants/errors')
 const { LOCALES } = require('@condo/domains/user/constants/common')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
@@ -36,28 +38,6 @@ try {
     console.error(error)
     EXECUTION_AI_FLOW_TASK_CUSTOM_RATE_LIMITER = {}
 }
-
-/**
- *
- * @example
- * {
- *     default: {
- *         example: {
- *             adapter: 'flowise',
- *             predictionUrl: 'http://localhost:3000/api/v1/prediction/ed7891c2-19bf-4651-b96a-cdf169ea3dd8',
- *         },
- *     },
- *     custom: {
- *         my_custom_flow: {
- *             adapter: 'flowise',
- *             predictionUrl: 'http://localhost:3000/api/v1/prediction/ed7891c2-19bf-4651-b96a-cdf169ea3dd8',
- *         },
- *     },
- * }
- */
-const AI_FLOWS_CONFIG = conf.AI_FLOWS_CONFIG ? JSON.parse(conf.AI_FLOWS_CONFIG) : {}
-
-const CUSTOM_FLOW_TYPES_LIST = Object.keys(AI_FLOWS_CONFIG?.custom || {})
 
 const ERRORS = {
     UNKNOWN_FLOW_TYPE: {
@@ -283,6 +263,4 @@ const ExecutionAIFlowTask = new GQLListSchema('ExecutionAIFlowTask', {
 module.exports = {
     ExecutionAIFlowTask,
     ERRORS,
-    AI_FLOWS_CONFIG,
-    CUSTOM_FLOW_TYPES_LIST,
 }

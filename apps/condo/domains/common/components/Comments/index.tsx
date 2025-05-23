@@ -24,6 +24,7 @@ import { Radio, RadioGroup, Tooltip } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { AIFlowButton } from '@condo/domains/ai/components/AIFlowButton'
+import { FLOW_TYPES } from '@condo/domains/ai/constants.js'
 import { useAIConfig, useAIFlow } from '@condo/domains/ai/hooks/useAIFlow'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Loader } from '@condo/domains/common/components/Loader'
@@ -461,9 +462,8 @@ const Comments: React.FC<ICommentsListProps> = ({
     const [runGenerateCommentAIFlow, {
         loading: generateCommentLoading,
         data: generateCommentData,
-        cancel: cancelGenerateCommentAIFlow,
-    }] = useAIFlow({
-        flowType: 'ticket_rewrite_comment_flow',
+    }] = useAIFlow<{ answer: string }>({
+        flowType: FLOW_TYPES.TICKET_REWRITE_COMMENT_FLOW_TYPE,
         defaultContext: {
             ticketId: ticketId,
             ticketDetails: ticket.details || '-',
@@ -551,7 +551,7 @@ const Comments: React.FC<ICommentsListProps> = ({
                         bodyRef={bodyRef}
                         sending={sending}
                         generateCommentEnabled={aiFeaturesEnabled && true}
-                        generateCommentOnClickHandler={() => handleGenerateCommentClick(commentTabContentProps.comments, commentTabContentProps.comments[commentTabContentProps.comments.length - 1].content)}
+                        generateCommentOnClickHandler={() => handleGenerateCommentClick(commentTabContentProps.comments)}
                         generateCommentLoading={generateCommentLoading}
                     />
                 </>
