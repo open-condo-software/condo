@@ -63,7 +63,7 @@ const getTitleRows = (width: number, bannerSize: BannerProps['size']) => {
         return width < SM_BARRIER ? 2 : 1
     }
 
-    return 3
+    return 2
 }
 
 const getShowImage = (width: number, bannerSize: BannerProps['size'], imgUrl: BannerProps['imgUrl']) => {
@@ -131,7 +131,7 @@ export const Banner: React.FC<BannerProps> = ({
                     </Typography.Title>
                     <Typography.Paragraph
                         type={invertText ? 'inverted' : 'secondary'}
-                        ellipsis={{ rows: size === 'small' ? 2 : 3 }}
+                        ellipsis={{ rows: 2 }}
                         size={textSize}
                     >
                         {subtitle}
