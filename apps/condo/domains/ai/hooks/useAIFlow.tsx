@@ -57,8 +57,6 @@ export function useAIFlow<T = object> ({
         const fullContext = { ...defaultContext, ...context }
 
         try {
-            console.log('Running AI Flow: ', fullContext)
-
             const createResult = await createExecutionAIFlowMutation({
                 variables: {
                     data: {
