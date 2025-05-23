@@ -66,7 +66,7 @@ const SuggestServiceProviderService = new GQLCustomSchema('SuggestServiceProvide
     queries: [
         {
             access: access.canSuggestServiceProvider,
-            schema: 'suggestServiceProvider (data: SuggestServiceProviderInput!): [SuggestServiceProviderOutput!]!',
+            schema: 'suggestServiceProvider (data: SuggestServiceProviderInput!): [SuggestServiceProviderOutput!]',
             resolver: async (parent, args, context = {}) => {
                 if (context.authedItem.type === RESIDENT) {
                     await checkLimits(context.authedItem.id, context)
