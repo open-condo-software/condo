@@ -3,7 +3,7 @@ import {
     useGetContactsExistenceQuery,
     useGetContactsForTableQuery,
     useUpdateContactsMutation,
-    useGetNewsItemsRecipientsCountersLazyQuery,
+    useGetNewsItemsRecipientsCountersQuery,
 } from '@app/condo/gql'
 import {
     ContactWhereInput,
@@ -293,6 +293,12 @@ const ActionBarWithSelectedItems: React.FC<ActionBarWithSelectedItemsProps> = ({
     )
 }
 
+const allOrganizationScope = [{
+    property: null,
+    unitName: null,
+    unitType: null,
+}]
+
 const ContactTableContent: React.FC<ContactPageContentProps> = (props) => {
     const {
         baseSearchQuery,
@@ -358,12 +364,6 @@ const ContactTableContent: React.FC<ContactPageContentProps> = (props) => {
             },
         }
     }, [router])
-    
-    const allOrganizationScope = useMemo(() => ([{
-        property: null,
-        unitName: null,
-        unitType: null,
-    }]), [])
 
     const { NewsItemRecipientsExportToXlsxButton } = useNewsItemRecipientsExportToExcelTask({
         organization,
@@ -372,40 +372,31 @@ const ContactTableContent: React.FC<ContactPageContentProps> = (props) => {
         icon: <Download size='medium' />,
     })
 
-    const [loadResidentCounters, {
-        data: counts,
-        loading: isCountersLoading,
-        error: countErrors,
-    }] = useGetNewsItemsRecipientsCountersLazyQuery()
+    const { data: counts } = useGetNewsItemsRecipientsCountersQuery({
+        variables: {
+            data: {
+                dv: 1,
+                sender: getClientSideSenderInfo(),
+                organization: { id: organizationId },
+                newsItemScopes: allOrganizationScope,
+            },
+        },
+        skip: !isAnalyticsResidentInContactPageEnabled || !persistor || !organizationId || !allOrganizationScope,
+    })
     const residentCount = useMemo(() => counts?.result?.receiversCount, [counts])
-
-    useEffect(() => {
-        if (isAnalyticsResidentInContactPageEnabled && persistor && organizationId && allOrganizationScope) {
-            loadResidentCounters({
-                variables: {
-                    data: {
-                        dv: 1,
-                        sender: getClientSideSenderInfo(),
-                        organization: { id: organizationId },
-                        newsItemScopes: allOrganizationScope,
-                    },
-                },
-            })
-        }
-    }, [isAnalyticsResidentInContactPageEnabled, persistor, organizationId, loadResidentCounters, allOrganizationScope])
 
     return (
         <Row gutter={ROW_VERTICAL_GUTTERS} align='middle' justify='start'>
             {
-                isAnalyticsResidentInContactPageEnabled && counts && !isCountersLoading && !countErrors && <Col span={24}>
+                isAnalyticsResidentInContactPageEnabled && counts && <Col span={24}>
                     <Card width='100%'>
                         <Row justify='space-between'>
                             <Space align='center' size={16}>
                                 <Space align='center' size={8}>
                                     <Typography.Text size='large'>
-                                        {residentAnalyticsTexts?.countUnits},
+                                        {residentAnalyticsTexts?.countUnits},{' '}
                                         <Typography.Text size='large' type='secondary'>
-                                            {' '}{residentAnalyticsTexts?.residentHasMobileApp}{' - '}
+                                            {residentAnalyticsTexts?.residentHasMobileApp}&nbsp;-&nbsp;
                                         </Typography.Text>
                                         {residentCount}
                                     </Typography.Text>
