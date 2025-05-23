@@ -87,7 +87,9 @@ const tls = require('tls')
 const dayjs = require('dayjs')
 const express = require('express')
 const LRUCache = require('lru-cache')
+const fetch = require('node-fetch')
 
+const { ApolloServerClient } = require('@open-condo/apollo-server-client')
 const { getDatabaseAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
 
 const { getKVClient } = require('./kv')
@@ -110,6 +112,100 @@ const BAD_REQUEST = 400
 const HEALTHCHECK_OK = 200
 const HEALTHCHECK_ERROR = 500
 const HEALTHCHECK_WARNING = 417
+
+/**
+ * Creates a health check function that verifies the remaining GraphQL rate limit complexity.
+ * Intended to suppress duplicate alerts across pods by using a shared Redis key.
+ *
+ * @param {Object} options - Configuration options.
+ * @param {string} options.serviceName - Name to appear in health check results.
+ * @param {string} options.redisKey - Unique Redis key used to suppress repeated alerts within the suppression window.
+ * @param {string} options.endpoint - GraphQL endpoint to be queried.
+ * @param {Object} options.authRequisites - Credentials or data used for authorization.
+ * @param {number} [options.suppressDurationInSeconds=3600] - Duration (in seconds) to suppress repeated failures after the first one is detected.
+ * @param {number} [options.minRemainingComplexity=1000] - Minimum allowed remaining rate limit complexity before the health check fails.
+ */
+const getRateLimitHealthCheck = ({
+    serviceName,
+    endpoint,
+    authRequisites,
+    redisKey,
+    suppressDurationInSeconds = 3600,
+    minRemainingComplexity = 1000,
+}) => {
+    if (!redisKey) throw new Error('Redis key must be provided')
+    if (!endpoint) throw new Error('GraphQL endpoint must be provided')
+    if (!authRequisites) throw new Error('Authentication requisites must be provided')
+
+    const setSuppress = async (key, redisClient, ttl) => {
+        try {
+            const isSuppressed = await redisClient.get(key)
+            if (!isSuppressed) {
+                await redisClient.set(key, '1', 'EX', ttl)
+            }
+        } catch (e) {
+            console.error('[RateLimitCheck] Failed to suppress alert in Redis:', e)
+        }
+    }
+
+    return {
+        name: `${serviceName}_rate_limit`,
+        prepare: async () => {
+            this.redisClient = getKVClient()
+            this.client = new ApolloServerClient(endpoint, authRequisites, {
+                clientName: 'healthcheck-client',
+                locale: 'ru',
+            })
+        },
+        run: async () => {
+            try {
+                const isSuppressed = await this.redisClient.get(redisKey)
+                if (isSuppressed) {
+                    return PASS
+                }
+
+                if (!this.client.authToken) {
+                    try {
+                        await this.client.signIn()
+                    } catch (authError) {
+                        console.warn('[RateLimitCheck] signIn failed:', authError?.message || authError)
+                        await setSuppress(redisKey, this.redisClient, suppressDurationInSeconds)
+                        return FAIL
+                    }
+                }
+
+                const healthCheckQuery = '{"query":"{ __typename }"}'
+                const response = await fetch(this.client.endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${this.client.authToken}`,
+                    },
+                    body: healthCheckQuery,
+                })
+
+                const remainingComplexity = Number(response.headers.get('x-rate-limit-complexity-remaining'))
+                if (isNaN(remainingComplexity)) {
+                    console.warn('[RateLimitCheck] Missing or invalid "x-rate-limit-complexity-remaining" header')
+                    await setSuppress(redisKey, this.redisClient, suppressDurationInSeconds)
+                    return FAIL
+                }
+
+                if (remainingComplexity > minRemainingComplexity) {
+                    return PASS
+                }
+
+                await setSuppress(redisKey, this.redisClient, suppressDurationInSeconds)
+                return FAIL
+
+            } catch (error) {
+                console.error('[RateLimitCheck] Failed:', error)
+                await setSuppress(redisKey, this.redisClient, suppressDurationInSeconds)
+                return FAIL
+            }
+        },
+    }
+}
 
 const getRedisHealthCheck = (clientName = 'healthcheck') => {
     return {
@@ -355,6 +451,7 @@ module.exports = {
     getPfxCertificateHealthCheck,
     getCertificateHealthCheck,
     getIntegrationHealthCheck,
+    getRateLimitHealthCheck,
     STATUS_ENUM,
     DEFAULT_HEALTHCHECK_URL,
 }
