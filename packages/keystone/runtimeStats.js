@@ -25,6 +25,7 @@ class RuntimeStatsMiddleware {
     } = {}) {
         this.statsUrl = statsUrl
         this.requestTargetOptions = (conf[X_TARGET_OPTIONS_VAR_NAME] || '').split(',').filter(Boolean)
+        this.requestTypeOptions = ['api', 'graphql', 'oidc', 'wellKnown', 'healthCheck']
     }
 
     /**
@@ -91,8 +92,8 @@ class RuntimeStatsMiddleware {
             activeRequestsCountByType: {},
             activeRequestsCountByTarget: {},
             totalRequestsCount: 0,
-            totalRequestsCountByType: {},
-            totalRequestsCountByTarget: {},
+            totalRequestsCountByType: Object.fromEntries(this.requestTypeOptions.map((k) => [k, 0])),
+            totalRequestsCountByTarget: Object.fromEntries(this.requestTargetOptions.map((k) => [k, 0])),
         }
 
         if (!IS_BUILD_PHASE && !IS_WORKER_PROCESS) {
@@ -112,7 +113,7 @@ class RuntimeStatsMiddleware {
 
                 for (const type of Object.keys(runtimeStats.totalRequestsCountByType)) {
                     metrics.gauge({
-                        name: 'runtimeStats.requestsCount.byType.total',
+                        name: 'runtimeStats.requestsCount.byType',
                         value: runtimeStats.totalRequestsCountByType[type],
                         tags: { type },
                     })
@@ -120,7 +121,7 @@ class RuntimeStatsMiddleware {
 
                 for (const target of Object.keys(runtimeStats.totalRequestsCountByTarget)) {
                     metrics.gauge({
-                        name: 'runtimeStats.requestsCount.byTarget.total',
+                        name: 'runtimeStats.requestsCount.byTarget',
                         value: runtimeStats.totalRequestsCountByTarget[target],
                         tags: { target },
                     })
