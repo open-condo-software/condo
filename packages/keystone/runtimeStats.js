@@ -11,8 +11,8 @@ const { DEFAULT_HEALTHCHECK_URL } = require('./healthCheck')
 const SEND_METRICS_INTERVAL_IN_MS = 1000
 
 const X_TARGET_OPTIONS_VAR_NAME = 'X_TARGET_OPTIONS'
-const ACCESS_TOKEN_VAR_NAME = 'RUNTIME_STATS_ACCESS_TOKEN'
-const ENABLED_VAR_NAME = 'RUNTIME_STATS_ENABLE'
+const RUNTIME_STATS_ACCESS_TOKEN_VAR_NAME = 'RUNTIME_STATS_ACCESS_TOKEN'
+const RUNTIME_STATS_ENABLE_VAR_NAME = 'RUNTIME_STATS_ENABLE'
 
 const IS_BUILD_PHASE = conf.PHASE === 'build'
 const IS_WORKER_PROCESS = conf.PHASE === 'worker'
@@ -75,7 +75,7 @@ class RuntimeStatsMiddleware {
     }
 
     async prepareMiddleware ({ keystone }) {
-        if (conf[ENABLED_VAR_NAME] !== 'true') {
+        if (conf[RUNTIME_STATS_ENABLE_VAR_NAME] !== 'true') {
             logger.info({ msg: 'runtime stats disabled' })
             return
         }
@@ -167,11 +167,11 @@ class RuntimeStatsMiddleware {
             next()
         })
 
-        if (conf[ACCESS_TOKEN_VAR_NAME]) {
+        if (conf[RUNTIME_STATS_ACCESS_TOKEN_VAR_NAME]) {
             app.get(this.statsUrl, (req, res) => {
                 const token = req.query['token']
                 const reqIds = req.query['reqIds']
-                const accessToken = conf[ACCESS_TOKEN_VAR_NAME]
+                const accessToken = conf[RUNTIME_STATS_ACCESS_TOKEN_VAR_NAME]
 
                 const isTokenOk = !!token && !!accessToken
                     && token.length === accessToken.length
@@ -194,7 +194,7 @@ class RuntimeStatsMiddleware {
         } else {
             logger.warn({
                 msg: 'Runtime stats url disabled. It\'s impossible to get stats using GET query',
-                data: { howToEnable: `Add the ${ACCESS_TOKEN_VAR_NAME} variable to env` },
+                data: { howToEnable: `Add the ${RUNTIME_STATS_ACCESS_TOKEN_VAR_NAME} variable to env` },
             })
         }
 
