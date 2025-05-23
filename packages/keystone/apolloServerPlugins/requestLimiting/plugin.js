@@ -34,6 +34,9 @@ class ApolloRequestLimitingPlugin {
                         type: ROOT_QUERY_LENGTH_EXCEEDED_ERROR_TYPE,
                         message: `GraphQL query length limit exceeded. Query size can not be more than ${this.#queryLengthLimit} characters`,
                         messageForUser: `api.global.requestLimit.${ROOT_QUERY_LENGTH_EXCEEDED_ERROR_TYPE}`,
+                        messageInterpolation: {
+                            queryLength: requestContext.source.length,
+                        },
                     }, requestContext.context)
                 }
 
@@ -45,6 +48,9 @@ class ApolloRequestLimitingPlugin {
                         type: VARIABLES_SIZE_EXCEEDED_ERROR_TYPE,
                         message: 'Variables size limit exceeded. Consider using simpler filters or decreasing batch size',
                         messageForUser: `api.global.requestLimit.${VARIABLES_SIZE_EXCEEDED_ERROR_TYPE}`,
+                        messageInterpolation: {
+                            variablesSize: variablesSizeInBytesExcludingFiles,
+                        },
                     }, requestContext.context)
                 }
             },
