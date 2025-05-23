@@ -87,7 +87,9 @@ const tls = require('tls')
 const dayjs = require('dayjs')
 const express = require('express')
 const LRUCache = require('lru-cache')
+const fetch = require('node-fetch')
 
+const { ApolloServerClient } = require('@open-condo/apollo-server-client')
 const { getDatabaseAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
 
 const { getKVClient } = require('./kv')
@@ -111,43 +113,92 @@ const HEALTHCHECK_OK = 200
 const HEALTHCHECK_ERROR = 500
 const HEALTHCHECK_WARNING = 417
 
-const getRateLimitHealthCheck = ({ endpoint, token, redisKey = 'rate-limit-healthcheck', clientName = 'healthcheck' }) => {
+/**
+ * Creates a health check function that verifies the remaining GraphQL rate limit complexity.
+ * Intended to suppress duplicate alerts across pods by using a shared Redis key.
+ *
+ * @param {Object} options - Configuration options.
+ * @param {string} options.redisKey - Unique Redis key used to suppress repeated alerts within the suppression window.
+ * @param {string} options.endpoint - GraphQL endpoint to be queried.
+ * @param {Object} options.authRequisites - Credentials or data used for authorization.
+ * @param {number} [options.suppressDurationInSeconds=3600] - Duration (in seconds) to suppress repeated failures after the first one is detected.
+ * @param {number} [options.minRemainingComplexity=1000] - Minimum allowed remaining rate limit complexity before the health check fails.
+ */
+const getRateLimitHealthCheck = ({
+    endpoint,
+    authRequisites,
+    redisKey,
+    suppressDurationInSeconds = 3600,
+    minRemainingComplexity = 1000,
+}) => {
+    if (!redisKey) throw new Error('Redis key must be provided')
+    if (!endpoint) throw new Error('GraphQL endpoint must be provided')
+    if (!authRequisites) throw new Error('Authentication requisites must be provided')
+
+    const setSuppress = async (key, redisClient, ttl) => {
+        try {
+            const isSuppressed = await redisClient.get(key)
+            if (!isSuppressed) {
+                await redisClient.set(key, '1', 'EX', ttl)
+            }
+        } catch (e) {
+            console.error('[RateLimitCheck] Failed to suppress alert in Redis:', e)
+        }
+    }
+
     return {
         name: 'rate-limit',
-        prepare: () => {
-            this.redisClient = getKVClient(clientName)
+        prepare: async () => {
+            this.redisClient = getKVClient()
+            this.client = new ApolloServerClient(endpoint, authRequisites, {
+                clientName: 'healthcheck-client',
+                locale: 'ru',
+            })
         },
         run: async () => {
             try {
-                const response = await fetch(
-                    endpoint,
-                    {
-                        method: 'POST',
-                        body:
+                const isSuppressed = await this.redisClient.get(redisKey)
+                if (isSuppressed) {
+                    return PASS
+                }
+
+                if (!this.client.authToken) {
+                    try {
+                        await this.client.signIn()
+                    } catch (authError) {
+                        console.warn('[RateLimitCheck] signIn failed:', authError?.message || authError)
+                        await setSuppress(redisKey, this.redisClient, suppressDurationInSeconds)
+                        return FAIL
                     }
-                )
+                }
 
-                const remaining = Number(response.headers['x-rate-limit-complexity-remaining'])
-                const reset = Number(response.headers['x-rate-limit-complexity-reset'])
+                const healthCheckQuery = '{"query":"{ __typename }"}'
+                const response = await fetch(this.client.endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${this.client.token}`,
+                    },
+                    body: healthCheckQuery,
+                })
 
-                if (isNaN(remaining)) {
-                    console.warn('Rate limit header missing or invalid')
+                const remainingComplexity = Number(response.headers.get('x-rate-limit-complexity-remaining'))
+                if (isNaN(remainingComplexity)) {
+                    console.warn('[RateLimitCheck] Missing or invalid "x-rate-limit-complexity-remaining" header')
+                    await setSuppress(redisKey, this.redisClient, suppressDurationInSeconds)
                     return FAIL
                 }
 
-                if (remaining > 1000) {
+                if (remainingComplexity > minRemainingComplexity) {
                     return PASS
                 }
 
-                const suppressExists = await this.redisClient.get(redisKey)
-                if (suppressExists) {
-                    return PASS
-                }
-
-                await this.redisClient.set(redisKey, '1', 'EX', 100)
+                await setSuppress(redisKey, this.redisClient, suppressDurationInSeconds)
                 return FAIL
-            } catch (e) {
-                console.error('Rate limit healthcheck failed:', e)
+
+            } catch (error) {
+                console.error('[RateLimitCheck] Failed:', error)
+                await setSuppress(redisKey, this.redisClient, suppressDurationInSeconds)
                 return FAIL
             }
         },
