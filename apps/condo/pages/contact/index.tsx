@@ -403,8 +403,8 @@ const ContactTableContent: React.FC<ContactPageContentProps> = (props) => {
                                     <Tooltip title={
                                         <Space direction='vertical' size={12}>
                                             <Typography.Paragraph size='small'>
-                                                {residentAnalyticsTexts?.calculateUnitsWhereIsResident}
-                                                <Typography.Link size='small' href={residentAnalyticsLinks?.moreDetails} target='_blank'>{' '}{MoreDetails}</Typography.Link>
+                                                {residentAnalyticsTexts?.calculateUnitsWhereIsResident}{' '}
+                                                <Typography.Link size='small' href={residentAnalyticsLinks?.moreDetails} target='_blank'>{MoreDetails}</Typography.Link>
                                             </Typography.Paragraph>
                                             <Typography.Paragraph size='small'>
                                                 {residentAnalyticsTexts?.downloadListWhereIsResident}
