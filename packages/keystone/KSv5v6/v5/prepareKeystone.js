@@ -29,6 +29,7 @@ const { expressErrorHandler } = require('@open-condo/keystone/logging/expressErr
 const metrics = require('@open-condo/keystone/metrics')
 const { composeNonResolveInputHook, composeResolveInputHook } = require('@open-condo/keystone/plugins/utils')
 const { schemaDocPreprocessor, adminDocPreprocessor, escapeSearchPreprocessor, customAccessPostProcessor } = require('@open-condo/keystone/preprocessors')
+const { RuntimeStatsMiddleware } = require('@open-condo/keystone/runtimeStats')
 const { prepareDefaultKeystoneConfig } = require('@open-condo/keystone/setup.utils')
 const { registerTasks, registerTaskQueues, taskQueues } = require('@open-condo/keystone/tasks')
 const { KeystoneTracingApp } = require('@open-condo/keystone/tracing')
@@ -222,6 +223,7 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
         cors: (conf.CORS) ? parseCorsSettings(JSON.parse(conf.CORS)) : { origin: true, credentials: true },
         pinoOptions: getKeystonePinoOptions(),
         apps: [
+            new RuntimeStatsMiddleware(),
             new DataVersionChecker(),
             new IpBlackListMiddleware(),
             new KeystoneTracingApp(),
