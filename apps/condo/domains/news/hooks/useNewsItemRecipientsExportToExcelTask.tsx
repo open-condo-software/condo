@@ -25,8 +25,9 @@ type Props = {
     organization: OrganizationWhereUniqueInput
     user: UserWhereUniqueInput
     scopes: Array<{ property?: PropertyWhereUniqueInput, unitType?: string, unitName?: string }>
+    icon?: JSX.Element
 }
-export const useNewsItemRecipientsExportToExcelTask = ({ organization, user, scopes }: Props) => {
+export const useNewsItemRecipientsExportToExcelTask = ({ organization, user, scopes, icon = <Download size='small'/> }: Props) => {
     const { NewsItemRecipientsExportTask: TaskUIInterface } = useNewsItemRecipientsExportTaskUIInterface()
 
     const { loading, handleRunTask } = useTaskLauncher<NewsItemRecipientsExportTaskCreateInput>(TaskUIInterface, {
@@ -43,7 +44,7 @@ export const useNewsItemRecipientsExportToExcelTask = ({ organization, user, sco
             size='small'
             onClick={handleClick}
             disabled={loading}
-            children={<Download size='small'/>}
+            children={icon}
             style={downloaderButtonStyle}
         />
     ), [handleClick, loading])
