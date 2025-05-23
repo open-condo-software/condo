@@ -369,7 +369,7 @@ const ContactTableContent: React.FC<ContactPageContentProps> = (props) => {
         organization,
         user,
         scopes: allOrganizationScope,
-        icon: <Download size='medium' color={colors.gray[7]}/>,
+        icon: <Download size='medium' />,
     })
 
     const [loadResidentCounters, {
@@ -403,10 +403,11 @@ const ContactTableContent: React.FC<ContactPageContentProps> = (props) => {
                             <Space align='center' size={16}>
                                 <Space align='center' size={8}>
                                     <Typography.Text size='large'>
-                                        {residentCount} {residentAnalyticsTexts?.units},
+                                        {residentAnalyticsTexts?.countUnits},
                                         <Typography.Text size='large' type='secondary'>
-                                            {' '}{residentAnalyticsTexts?.residentHasMobileApp}
+                                            {' '}{residentAnalyticsTexts?.residentHasMobileApp}{' - '}
                                         </Typography.Text>
+                                        {residentCount}
                                     </Typography.Text>
                                     <Tooltip title={
                                         <Space direction='vertical' size={12}>

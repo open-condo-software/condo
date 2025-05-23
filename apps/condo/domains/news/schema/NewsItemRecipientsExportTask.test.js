@@ -318,7 +318,7 @@ describe('NewsItemRecipientsExportTask', () => {
             const data = await readXlsx(filename)
 
             expectDataFormat(data, [
-                [i18n('excelExport.sheetNames.newsRecipients', { locale }), '', '', ''],
+                [i18n('excelExport.sheetNames.recipients', { locale }), '', '', ''],
                 // TODO(pahaz): DOMA-10416 use locale = 'ru'
                 // ['Адрес', 'Помещение', 'Тип помещения', 'Установлено мобильное приложение жителя'],
                 ['Address', 'Unit name', 'Unit type', 'Resident mobile app installed'],
