@@ -118,6 +118,7 @@ const HEALTHCHECK_WARNING = 417
  * Intended to suppress duplicate alerts across pods by using a shared Redis key.
  *
  * @param {Object} options - Configuration options.
+ * @param {string} options.serviceName - Name to appear in health check results.
  * @param {string} options.redisKey - Unique Redis key used to suppress repeated alerts within the suppression window.
  * @param {string} options.endpoint - GraphQL endpoint to be queried.
  * @param {Object} options.authRequisites - Credentials or data used for authorization.
@@ -125,6 +126,7 @@ const HEALTHCHECK_WARNING = 417
  * @param {number} [options.minRemainingComplexity=1000] - Minimum allowed remaining rate limit complexity before the health check fails.
  */
 const getRateLimitHealthCheck = ({
+    serviceName,
     endpoint,
     authRequisites,
     redisKey,
@@ -147,7 +149,7 @@ const getRateLimitHealthCheck = ({
     }
 
     return {
-        name: 'rate-limit',
+        name: `${serviceName}_rate_limit`,
         prepare: async () => {
             this.redisClient = getKVClient()
             this.client = new ApolloServerClient(endpoint, authRequisites, {
