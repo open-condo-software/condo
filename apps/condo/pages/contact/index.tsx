@@ -342,6 +342,7 @@ const ContactTableContent: React.FC<ContactPageContentProps> = (props) => {
             skip: (currentPageIndex - 1) * CONTACT_PAGE_SIZE,
             first: CONTACT_PAGE_SIZE,
         },
+        // TODO (DOMA-11673): remove use network-only
         fetchPolicy: 'network-only',
     })
     const contacts = contactsData?.contacts?.filter(Boolean)
@@ -358,11 +359,11 @@ const ContactTableContent: React.FC<ContactPageContentProps> = (props) => {
         }
     }, [router])
     
-    const allOrganizationScope = [{
+    const allOrganizationScope = useMemo(() => ([{
         property: null,
         unitName: null,
         unitType: null,
-    }]
+    }]), [])
 
     const { NewsItemRecipientsExportToXlsxButton } = useNewsItemRecipientsExportToExcelTask({
         organization,
@@ -371,28 +372,32 @@ const ContactTableContent: React.FC<ContactPageContentProps> = (props) => {
         icon: <Download size='medium' color={colors.gray[7]}/>,
     })
 
-    const [loadResidentCounters, { data: counts, loading: isCountersLoading }] = useGetNewsItemsRecipientsCountersLazyQuery({
-        variables: {
-            data: {
-                dv: 1,
-                sender: getClientSideSenderInfo(),
-                organization: { id: organizationId },
-                newsItemScopes: allOrganizationScope,
-            },
-        },
-    })
+    const [loadResidentCounters, {
+        data: counts,
+        loading: isCountersLoading,
+        error: countErrors,
+    }] = useGetNewsItemsRecipientsCountersLazyQuery()
     const residentCount = useMemo(() => counts?.result?.receiversCount, [counts])
 
     useEffect(() => {
-        if (isAnalyticsResidentInContactPageEnabled && persistor && organizationId) {
-            loadResidentCounters()
+        if (isAnalyticsResidentInContactPageEnabled && persistor && organizationId && allOrganizationScope) {
+            loadResidentCounters({
+                variables: {
+                    data: {
+                        dv: 1,
+                        sender: getClientSideSenderInfo(),
+                        organization: { id: organizationId },
+                        newsItemScopes: allOrganizationScope,
+                    },
+                },
+            })
         }
-    }, [isAnalyticsResidentInContactPageEnabled, persistor, organizationId, loadResidentCounters])
+    }, [isAnalyticsResidentInContactPageEnabled, persistor, organizationId, loadResidentCounters, allOrganizationScope])
 
     return (
         <Row gutter={ROW_VERTICAL_GUTTERS} align='middle' justify='start'>
             {
-                isAnalyticsResidentInContactPageEnabled && !isCountersLoading && <Col span={24}>
+                isAnalyticsResidentInContactPageEnabled && counts && !isCountersLoading && !countErrors && <Col span={24}>
                     <Card width='100%'>
                         <Row justify='space-between'>
                             <Space align='center' size={16}>
@@ -486,7 +491,7 @@ const ContactsPageContent: React.FC<ContactPageContentProps> = (props) => {
         variables: {
             where: baseSearchQuery,
         },
-        // TODO: remove use network-only
+        // TODO (DOMA-11673): remove use network-only
         fetchPolicy: 'network-only',
     })
     const contacts = contactsExistenceData?.contacts?.filter(Boolean) || []
