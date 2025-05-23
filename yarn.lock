@@ -13010,6 +13010,7 @@ __metadata:
     lodash: ^4.17.21
     next: ^9.5.5
     next-cookies: ^2.0.3
+    pino: ^6.13.3
     react-intl: 5.25.1
   peerDependencies:
     react: ^16.13.1

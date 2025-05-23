@@ -16,6 +16,7 @@
     "lodash": "^4.17.21",
     "next": "^9.5.5",
     "next-cookies": "^2.0.3",
+    "pino": "^6.13.3",
     "react-intl": "5.25.1"
   },
   "devDependencies": {
@@ -23,7 +24,8 @@
     "@open-condo/tsconfig": "workspace:^"
   },
   "exports": {
-    "./*": "./*.jsx"
+    "./*": "./*.jsx",
+    "./logging/patchConsoleLogMethods": "./logging/patchConsoleLogMethods.js"
   },
   "repository": "https://github.com/open-condo-software/condo/tree/main/packages/next",
   "peerDependencies": {
