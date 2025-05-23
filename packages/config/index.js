@@ -74,6 +74,7 @@ function getConfig (namespace) {
         MEDIA_ROOT: process.env.MEDIA_ROOT || path.join(root, '__media'),
         MEDIA_URL: process.env.MEDIA_URL || '/media',
         DEFAULT_LOCALE: String(process.env.DEFAULT_LOCALE || 'en'),
+        DEFAULT_CURRENCY_CODE: String(process.env.DEFAULT_CURRENCY_CODE || 'RUB'),
         PROJECT_ROOT: root,
     }
     const getter = (obj, name) => {
