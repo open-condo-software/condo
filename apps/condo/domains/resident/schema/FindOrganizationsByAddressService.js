@@ -3,6 +3,7 @@
  */
 const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 
+const { SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
 const access = require('@condo/domains/resident/access/FindOrganizationsByAddressService')
 const {
     MAX_RESIDENT_FIND_ORGANIZATIONS_BY_WINDOW_SEC,
@@ -66,13 +67,26 @@ const FindOrganizationsByAddressService = new GQLCustomSchema('FindOrganizations
                     deletedAt: null,
                 })
 
-                if (!properties.length) return []
+                if (!properties.length && !tin && !accountNumber) return []
 
                 let organizations = await find('Organization', {
                     id_in: [...new Set(properties.map(({ organization }) => organization))],
                     ...(tin ? { tin } : {}),
                     deletedAt: null,
                 })
+
+                if (tin && accountNumber) {
+                    // NOTE(YEgorLu): Service providers might not have properties in system. But we should be able to
+                    //                see them by tin and account number
+                    let serviceProviders = await find('Organization', {
+                        tin,
+                        type: SERVICE_PROVIDER_TYPE,
+                        deletedAt: null,
+                    })
+                    const uniqueIds = new Set(organizations.map(({ id }) => id))
+                    serviceProviders = serviceProviders.filter(provider => !uniqueIds.has(provider.id))
+                    organizations = organizations.concat(serviceProviders)
+                }
 
                 if (!organizations.length) return []
 
