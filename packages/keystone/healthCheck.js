@@ -179,7 +179,7 @@ const getRateLimitHealthCheck = ({
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${this.client.token}`,
+                        'Authorization': `Bearer ${this.client.authToken}`,
                     },
                     body: healthCheckQuery,
                 })
