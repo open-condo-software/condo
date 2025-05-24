@@ -10,15 +10,16 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 
+
 const access = require('@condo/domains/ai/access/ExecutionAIFlowTask')
 const {
     TASK_STATUSES,
     FLOW_TYPES_LIST,
-    CUSTOM_FLOW_TYPES_LIST,
     FLOW_META_SCHEMAS,
     CUSTOM_FLOW_TYPE,
 } = require('@condo/domains/ai/constants')
 const { executeAIFlow } = require('@condo/domains/ai/tasks')
+const { CUSTOM_FLOW_TYPES_LIST } = require('@condo/domains/ai/utils/flowsConfig')
 const { WRONG_VALUE } = require('@condo/domains/common/constants/errors')
 const { LOCALES } = require('@condo/domains/user/constants/common')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
@@ -37,8 +38,6 @@ try {
     console.error(error)
     EXECUTION_AI_FLOW_TASK_CUSTOM_RATE_LIMITER = {}
 }
-
-const redisGuard = new RedisGuard()
 
 const ERRORS = {
     UNKNOWN_FLOW_TYPE: {
@@ -74,6 +73,8 @@ const ERRORS = {
         messageForUser: 'api.ai.executionAIFlowTask.STATUS_IS_ALREADY_ERROR',
     },
 }
+
+const redisGuard = new RedisGuard()
 
 const ajv = new Ajv()
 
@@ -261,4 +262,5 @@ const ExecutionAIFlowTask = new GQLListSchema('ExecutionAIFlowTask', {
 
 module.exports = {
     ExecutionAIFlowTask,
+    ERRORS,
 }

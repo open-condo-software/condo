@@ -8,20 +8,24 @@ import {
     UpdateUserTicketCommentReadTimeMutationHookResult,
 } from '@app/condo/gql'
 import {
+    Ticket,
     TicketComment,
     TicketCommentFile,
 } from '@app/condo/schema'
 import styled from '@emotion/styled'
-import { Empty, Typography } from 'antd'
+import { Empty, Form, notification, Typography } from 'antd'
 import get from 'lodash/get'
-import React, { CSSProperties, UIEventHandler, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { CSSProperties, UIEventHandler, MouseEventHandler, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
-import { Radio, RadioGroup } from '@open-condo/ui'
+import { Radio, RadioGroup, Tooltip } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
+import { AIFlowButton } from '@condo/domains/ai/components/AIFlowButton'
+import { FLOW_TYPES } from '@condo/domains/ai/constants.js'
+import { useAIConfig, useAIFlow } from '@condo/domains/ai/hooks/useAIFlow'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { Module } from '@condo/domains/common/components/MultipleFileUpload'
@@ -132,6 +136,9 @@ type CommentsTabContentProps = {
     handleBodyScroll: UIEventHandler<HTMLDivElement>
     bodyRef: React.RefObject<HTMLDivElement>
     sending: boolean
+    generateCommentEnabled: boolean
+    generateCommentOnClickHandler: MouseEventHandler<HTMLElement>
+    generateCommentLoading: boolean
 }
 
 const CommentsTabContent: React.FC<CommentsTabContentProps> =
@@ -145,7 +152,16 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> =
         PromptDescriptionMessage,
         editableComment,
         setEditableComment,
+        generateCommentEnabled,
+        generateCommentOnClickHandler,
+        generateCommentLoading,
     }) => {
+        const intl = useIntl()
+        const authedContext = useAuth()
+
+        const GenerateResponseMessage = intl.formatMessage({ id: 'ai.generateResponse' })
+        const GenerateResponseTooltipMessage = intl.formatMessage({ id: 'ai.generateResponseWithAI' })
+
         const commentsToRender = useMemo(() =>
             comments
                 .filter(comment => editableComment ? comment.id !== editableComment.id : true)
@@ -173,6 +189,14 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> =
                     )
                 }), [comments, editableComment, setEditableComment, updateAction])
 
+        const lastCommentIsFromAuthedUser = useMemo(() => {
+            if (comments.length === 0 || !authedContext.isAuthenticated) {
+                return false
+            }
+            const lastComment = comments[comments.length - 1]
+            return lastComment?.user?.id === authedContext.user.id
+        }, [comments])
+
         return (
             <>
                 {comments.length === 0 ? (
@@ -182,8 +206,20 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> =
                     />
                 ) : (
                     <Body ref={bodyRef} onScroll={handleBodyScroll}>
-                        {sending && <Loader style={LOADER_STYLES}/>}
                         {commentsToRender}
+                        {sending && <Loader style={LOADER_STYLES}/>}
+                        {( generateCommentEnabled && !lastCommentIsFromAuthedUser ) && (
+                            <Tooltip placement='left' mouseEnterDelay={1.5} title={GenerateResponseTooltipMessage}>
+                                <div style={{ width: 'fit-content', paddingTop: '4px', paddingBottom: '24px' }}>
+                                    <AIFlowButton
+                                        loading={generateCommentLoading}
+                                        onClick={generateCommentOnClickHandler}
+                                    >
+                                        {GenerateResponseMessage}
+                                    </AIFlowButton>
+                                </div>
+                            </Tooltip>
+                        )}
                     </Body>
                 )}
             </>
@@ -216,6 +252,7 @@ export type CommentWithFiles = TicketComment & {
 
 interface ICommentsListProps {
     ticketId: string
+    ticket: Ticket
     comments: CommentWithFiles[]
     createAction: CreateTicketCommentMutationHookResult[0]
     updateAction: UpdateTicketCommentMutationHookResult[0]
@@ -232,6 +269,7 @@ interface ICommentsListProps {
 
 const Comments: React.FC<ICommentsListProps> = ({
     ticketId,
+    ticket,
     comments,
     createAction,
     updateAction,
@@ -254,6 +292,7 @@ const Comments: React.FC<ICommentsListProps> = ({
     const ResidentCommentsMessage = intl.formatMessage({ id: 'Comments.tab.resident' })
     const PromptResidentCommentsTitleMessage = intl.formatMessage({ id: 'Comments.tab.resident.prompt.title' })
     const PromptResidentCommentsDescriptionMessage = intl.formatMessage({ id: 'Comments.tab.resident.prompt.description' })
+    const GenericErrorMessage = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
 
     const { user } = useAuth()
     const client = useApolloClient()
@@ -281,6 +320,8 @@ const Comments: React.FC<ICommentsListProps> = ({
             bodyRef.current.scrollTop = 0
         }
     }
+
+    const [commentForm] = Form.useForm()
 
     useEffect(() => {
         setEditableComment(null)
@@ -402,6 +443,8 @@ const Comments: React.FC<ICommentsListProps> = ({
     const showIndicator = useMemo(() => hasUnreadResidentComments(lastResidentCommentAt, readResidentCommentByUserAt, lastCommentWithResidentTypeAt),
         [lastCommentWithResidentTypeAt, lastResidentCommentAt, readResidentCommentByUserAt])
 
+    const { enabled: aiFeaturesEnabled, features: { rewriteTicketComment: rewriteTicketCommentEnabled } } = useAIConfig()
+
     const organizationCommentsTabContentProps = {
         comments: commentsWithOrganization,
         PromptTitleMessage: PromptInternalCommentsTitleMessage,
@@ -415,6 +458,49 @@ const Comments: React.FC<ICommentsListProps> = ({
 
     const commentTabContentProps = commentType === RESIDENT_COMMENT_TYPE ?
         residentCommentsTabContentProps : organizationCommentsTabContentProps
+
+    const [runGenerateCommentAIFlow, {
+        loading: generateCommentLoading,
+        data: generateCommentData,
+    }] = useAIFlow<{ answer: string }>({
+        flowType: FLOW_TYPES.TICKET_REWRITE_COMMENT_FLOW_TYPE,
+        defaultContext: {
+            ticketId: ticketId,
+            ticketDetails: ticket.details || '-',
+            ticketAddress: ticket.propertyAddress || '-',
+            ticketStatusName: ticket.status.name,
+        },
+    })
+
+    useEffect(() => {
+        const rewrittenComment = generateCommentData?.answer
+
+        if (rewrittenComment) {
+            commentForm.setFieldValue('content', rewrittenComment)
+        }
+    }, [generateCommentData])
+
+    const handleGenerateCommentClick = async (comments) => {
+        if (!comments || comments.length === 0) {
+            return
+        }
+
+        const lastComment = comments[comments.length - 1]
+        // Last 5 comments excluding the lastComment one
+        const last5Comments = comments.slice(Math.max(comments.length - 6, 0), comments.length - 1)
+
+        const context = {
+            comment: lastComment.content,
+            answer: commentForm.getFieldValue('content') || '',
+            ticketLastComments: last5Comments.map(comment => `${comment.user.name}: ${comment.content}`).join('\n'),
+        }
+
+        const result = await runGenerateCommentAIFlow({ context })
+
+        if (result.error) {
+            notification.error({ message: result.localizedErrorText || GenericErrorMessage })
+        }
+    }
 
     return (
         <Container isSmall={!breakpoints.TABLET_LARGE}>
@@ -449,19 +535,25 @@ const Comments: React.FC<ICommentsListProps> = ({
                 </RadioGroup>
             </SwitchCommentsTypeWrapper>
             <CommentsTabsContainer isTitleHidden={isTitleHidden} className='card-container'>
-                <CommentsTabContent
-                    {...commentTabContentProps}
-                    editableComment={editableComment}
-                    setEditableComment={setEditableComment}
-                    updateAction={updateAction}
-                    handleBodyScroll={handleBodyScroll}
-                    bodyRef={bodyRef}
-                    sending={sending}
-                />
+                <>
+                    <CommentsTabContent
+                        {...commentTabContentProps}
+                        editableComment={editableComment}
+                        setEditableComment={setEditableComment}
+                        updateAction={updateAction}
+                        handleBodyScroll={handleBodyScroll}
+                        bodyRef={bodyRef}
+                        sending={sending}
+                        generateCommentEnabled={aiFeaturesEnabled && rewriteTicketCommentEnabled}
+                        generateCommentOnClickHandler={() => handleGenerateCommentClick(commentTabContentProps.comments)}
+                        generateCommentLoading={generateCommentLoading}
+                    />
+                </>
             </CommentsTabsContainer>
             <Footer isSmall={!breakpoints.TABLET_LARGE}>
                 {canCreateComments ? (
                     <CommentForm
+                        fieldName='content'
                         ticketId={ticketId}
                         FileModel={FileModel}
                         relationField={fileModelRelationField}
@@ -470,6 +562,8 @@ const Comments: React.FC<ICommentsListProps> = ({
                         setEditableComment={setEditableComment}
                         setSending={setSending}
                         sending={sending}
+                        commentForm={commentForm}
+                        generateCommentLoading={generateCommentLoading}
                     />
                 ) : (
                     <Typography.Text disabled>{CannotCreateCommentsMessage}</Typography.Text>

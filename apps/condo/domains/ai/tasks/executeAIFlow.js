@@ -9,14 +9,12 @@ const { FlowiseAdapter } = require('@condo/domains/ai/adapters')
 const {
     TASK_STATUSES,
     FLOW_ADAPTERS: FLOW_ADAPTER_NAMES,
-    AI_FLOWS_CONFIG,
-    CUSTOM_FLOW_TYPES_LIST,
 } = require('@condo/domains/ai/constants')
+const { CUSTOM_FLOW_TYPES_LIST, AI_FLOWS_CONFIG } = require('@condo/domains/ai/utils/flowsConfig')
 const { ExecutionAIFlowTask } = require('@condo/domains/ai/utils/serverSchema')
 const { TASK_WORKER_FINGERPRINT } = require('@condo/domains/common/constants/tasks')
 
 const { FLOW_META_SCHEMAS, CUSTOM_FLOW_TYPE } = require('../constants')
-
 
 const BASE_ATTRIBUTES = { dv: 1, sender: { dv: 1, fingerprint: TASK_WORKER_FINGERPRINT } }
 

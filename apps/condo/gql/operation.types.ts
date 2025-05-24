@@ -28,6 +28,20 @@ export type UpdatePaymentsFileMutationVariables = Types.Exact<{
 
 export type UpdatePaymentsFileMutation = { __typename?: 'Mutation', paymentsFile?: { __typename?: 'PaymentsFile', id: string } | null };
 
+export type GetExecutionAiFlowTaskByIdQueryVariables = Types.Exact<{
+  id: Types.Scalars['ID']['input'];
+}>;
+
+
+export type GetExecutionAiFlowTaskByIdQuery = { __typename?: 'Query', task?: Array<{ __typename: 'ExecutionAIFlowTask', id: string, result?: any | null, errorMessage?: string | null, status?: Types.ExecutionAiFlowTaskStatusType | null } | null> | null };
+
+export type CreateExecutionAiFlowTaskMutationVariables = Types.Exact<{
+  data: Types.ExecutionAiFlowTaskCreateInput;
+}>;
+
+
+export type CreateExecutionAiFlowTaskMutation = { __typename?: 'Mutation', task?: { __typename?: 'ExecutionAIFlowTask', id: string, result?: any | null, errorMessage?: string | null, status?: Types.ExecutionAiFlowTaskStatusType | null } | null };
+
 export type GetBankAccountReportTasksQueryVariables = Types.Exact<{
   where: Types.BankAccountReportTaskWhereInput;
 }>;
