@@ -9,6 +9,8 @@ const FLOW_ADAPTERS = {
     FLOWISE: 'flowise',
 }
 
+const AI_FEATURE_FLAG_PREFIX = 'ui_ai_'
+
 const CUSTOM_FLOW_TYPE = 'custom_flow'
 const TICKET_REWRITE_COMMENT_FLOW_TYPE = 'ticket_rewrite_comment_flow'
 
@@ -101,4 +103,5 @@ module.exports = {
     FLOW_META_SCHEMAS,
     CUSTOM_FLOW_TYPE,
     FLOW_ADAPTERS,
+    AI_FEATURE_FLAG_PREFIX,
 }

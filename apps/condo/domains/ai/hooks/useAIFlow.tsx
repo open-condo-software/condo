@@ -6,9 +6,11 @@ import getConfig from 'next/config'
 import { useState, useCallback } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useAuth } from '@open-condo/next/auth'
 
-import { FLOW_TYPES_LIST, TASK_STATUSES } from '../constants.js'
+
+import { FLOW_TYPES_LIST, FLOW_TYPES, TASK_STATUSES, AI_FEATURE_FLAG_PREFIX } from '../constants.js'
 
 type FlowType = typeof FLOW_TYPES_LIST[number]
 
@@ -119,8 +121,14 @@ export function useAIFlow<T = object> ({
 
 export function useAIConfig () {
     const { publicRuntimeConfig: { aiEnabled } } = getConfig()
+    const { useFlag } = useFeatureFlags()
+
+    const rewriteTicketComment = useFlag(AI_FEATURE_FLAG_PREFIX + FLOW_TYPES.TICKET_REWRITE_COMMENT_FLOW_TYPE)
 
     return {
         enabled: aiEnabled,
+        features: {
+            rewriteTicketComment,
+        },
     }
 }
