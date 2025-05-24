@@ -17,7 +17,7 @@ import { Empty, Form, notification, Typography } from 'antd'
 import get from 'lodash/get'
 import React, { CSSProperties, UIEventHandler, MouseEventHandler, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { Radio, RadioGroup, Tooltip } from '@open-condo/ui'
@@ -473,10 +473,6 @@ const Comments: React.FC<ICommentsListProps> = ({
     })
 
     useEffect(() => {
-        console.log('editableComment', editableComment)
-    }, [editableComment])
-
-    useEffect(() => {
         const rewrittenComment = generateCommentData?.answer
 
         if (rewrittenComment) {
@@ -496,15 +492,13 @@ const Comments: React.FC<ICommentsListProps> = ({
         const context = {
             comment: lastComment.content,
             answer: commentForm.getFieldValue('content') || '',
-            ticketLastComments: last5Comments.map(comment => `${comment.user.name}: ${comment.content}` || '').join('/n'),
+            ticketLastComments: last5Comments.map(comment => `${comment.user.name}: ${comment.content}`).join('\n'),
         }
 
         const result = await runGenerateCommentAIFlow({ context })
 
-        if (result.error && result.localizedErrorText) {
-            notification.error({ message: result.localizedErrorText })
-        } else if (result.error && !result.localizedErrorText) {
-            notification.error({ message: GenericErrorMessage })
+        if (result.error) {
+            notification.error({ message: result.localizedErrorText || GenericErrorMessage })
         }
     }
 

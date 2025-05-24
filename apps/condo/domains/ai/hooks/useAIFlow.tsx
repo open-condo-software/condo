@@ -89,16 +89,14 @@ export function useAIFlow<T = object> ({
                     const result = task.result as T
                     setData(result)
                     return { data: result, error: null, localizedErrorText: null }
-                } else if (task.status === TASK_STATUSES.ERROR) {
-                    throw new Error(`Task failed: ${task.errorMessage || 'Unknown error'}`)
-                } else if (task.status === TASK_STATUSES.CANCELLED) {
-                    throw new Error('Task was cancelled')
+                } else if (task.status === TASK_STATUSES.ERROR || task.status === TASK_STATUSES.CANCELLED) {
+                    return { data: null, error: new Error(`Task in ${task.status} state`), localizedErrorText: task.errorMessage || null }
                 }
 
                 await new Promise(resolve => setTimeout(resolve, TASK_POLLING_INTERVAL_MS))
             }
 
-            throw new Error('AI flow timed out')
+            throw new Error('Timed out')
         } catch (err: any) {
             const wrappedErr = err instanceof Error ? err : new Error(err.toString())
             setError(wrappedErr)
