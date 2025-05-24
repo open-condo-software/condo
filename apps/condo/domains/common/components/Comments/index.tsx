@@ -443,7 +443,7 @@ const Comments: React.FC<ICommentsListProps> = ({
     const showIndicator = useMemo(() => hasUnreadResidentComments(lastResidentCommentAt, readResidentCommentByUserAt, lastCommentWithResidentTypeAt),
         [lastCommentWithResidentTypeAt, lastResidentCommentAt, readResidentCommentByUserAt])
 
-    const { enabled: aiFeaturesEnabled } = useAIConfig()
+    const { enabled: aiFeaturesEnabled, features: { rewriteTicketComment: rewriteTicketCommentEnabled } } = useAIConfig()
 
     const organizationCommentsTabContentProps = {
         comments: commentsWithOrganization,
@@ -544,7 +544,7 @@ const Comments: React.FC<ICommentsListProps> = ({
                         handleBodyScroll={handleBodyScroll}
                         bodyRef={bodyRef}
                         sending={sending}
-                        generateCommentEnabled={aiFeaturesEnabled && true}
+                        generateCommentEnabled={aiFeaturesEnabled && rewriteTicketCommentEnabled}
                         generateCommentOnClickHandler={() => handleGenerateCommentClick(commentTabContentProps.comments)}
                         generateCommentLoading={generateCommentLoading}
                     />
