@@ -122,7 +122,7 @@ let nextConfig = withTM(withLess(withCSS({
         posthogApiHost,
         posthogApiKey,
         residentAppInfo,
-        aiEnabled
+        aiEnabled,
     },
     serverRuntimeConfig: {
         proxyName,
