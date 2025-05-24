@@ -2,6 +2,7 @@ import {
     useCreateExecutionAiFlowTaskMutation,
     useGetExecutionAiFlowTaskByIdLazyQuery,
 } from '@app/condo/gql'
+import getConfig from 'next/config'
 import { useState, useCallback } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
@@ -70,7 +71,7 @@ export function useAIFlow<T = object> ({
             })
 
             const taskId = createResult.data?.task?.id
-            if (!taskId) throw new Error('Failed to create task')
+            if (!taskId) { return { data: null, error: new Error('Failed to create a task'), localizedErrorText: null } }
 
             await new Promise(resolve => setTimeout(resolve, TASK_FIRST_POLL_TIMEOUT_MS))
 
@@ -83,7 +84,7 @@ export function useAIFlow<T = object> ({
                 })
 
                 const [task] = pollResult.data.task
-                if (!task) throw new Error('Task not found')
+                if (!task) { return { data: null, error: new Error('Task not found'), localizedErrorText: null } }
 
                 if (task.status === TASK_STATUSES.COMPLETED) {
                     const result = task.result as T
@@ -96,7 +97,7 @@ export function useAIFlow<T = object> ({
                 await new Promise(resolve => setTimeout(resolve, TASK_POLLING_INTERVAL_MS))
             }
 
-            throw new Error('Timed out')
+            return { data: null, error: new Error('Flow timed out'), localizedErrorText: null }
         } catch (err: any) {
             const wrappedErr = err instanceof Error ? err : new Error(err.toString())
             setError(wrappedErr)
@@ -117,7 +118,9 @@ export function useAIFlow<T = object> ({
 }
 
 export function useAIConfig () {
+    const { publicRuntimeConfig: { aiEnabled } } = getConfig()
+
     return {
-        enabled: true,
+        enabled: aiEnabled,
     }
 }
