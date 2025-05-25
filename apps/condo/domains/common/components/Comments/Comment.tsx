@@ -66,7 +66,6 @@ const CommentStyle = css`
     margin-bottom: 6px;
     border-radius: 8px;
     padding: 0;
-    box-shadow: rgba(0,0,0,0.15) 0 1px 3px;
     font-size: ${fontSizes.label};
     line-height: 22px;
 

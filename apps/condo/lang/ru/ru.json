@@ -3517,5 +3517,7 @@
   "tour.viewGuide": "Смотреть гайд",
   "trial.startPeriod": "Начать пробный период",
   "trial.subTitle": "А после...",
-  "trial.title": "Бесплатный период 14 дней"
+  "trial.title": "Бесплатный период 14 дней",
+  "ai.generateResponse": "Сгенерировать ответ",
+  "ai.generateResponseWithAI": "Генерируйте ответы с помощью нейросети"
 }
