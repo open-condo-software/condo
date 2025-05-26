@@ -22,7 +22,16 @@ const SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION = gql`
     }
 `
 
+const SIGNOUT_MUTATION = gql`
+    mutation signOut {
+        unauthenticateUser {
+            success
+        }
+    }
+`
+
 module.exports = {
     SIGNIN_BY_EMAIL_MUTATION,
     SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION,
+    SIGNOUT_MUTATION,
 }

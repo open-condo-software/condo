@@ -147,7 +147,7 @@ class ApolloServerClient {
 
     async signOut () {
         if (Reflect.has(this.authRequisites, 'token')) {
-            // do not destroy token
+            // Don't remove the token if it was provided externally
             return
         }
         const { data: { unauthenticateUser: { success } } } = await this.client.mutate({
