@@ -3,6 +3,7 @@ import {
     useGetContactsExistenceQuery,
     useGetContactsForTableQuery,
     useUpdateContactsMutation,
+    useGetNewsItemsRecipientsCountersQuery,
 } from '@app/condo/gql'
 import {
     ContactWhereInput,
@@ -10,22 +11,33 @@ import {
     SortContactsBy,
     ContactExportTaskFormatType,
 } from '@app/condo/schema'
-import { Col, notification, Row, Typography } from 'antd'
+import { Col, notification, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { ColumnsType } from 'antd/lib/table'
-import { get } from 'lodash'
 import chunk from 'lodash/chunk'
+import getConfig from 'next/config'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
-import { QuestionCircle, Search } from '@open-condo/icons'
+import { useCachePersistor } from '@open-condo/apollo'
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
+import { QuestionCircle, Search, AlertCircle, Download } from '@open-condo/icons'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils'
 import { useApolloClient } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, ActionBarProps, Button, Checkbox, Space, Tooltip } from '@open-condo/ui'
+import {
+    ActionBar,
+    ActionBarProps,
+    Button,
+    Checkbox,
+    Space,
+    Tooltip,
+    Card,
+    Typography,
+} from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
@@ -38,6 +50,7 @@ import { Loader } from '@condo/domains/common/components/Loader'
 import { Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { EMOJI } from '@condo/domains/common/constants/emoji'
+import { ANALYTICS_RESIDENT_IN_CONTACT_PAGE } from '@condo/domains/common/constants/featureflags'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePreviousQueryParams'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
@@ -53,12 +66,15 @@ import { useImporterFunctions } from '@condo/domains/contact/hooks/useImporterFu
 import { useTableColumns } from '@condo/domains/contact/hooks/useTableColumns'
 import { useContactsTableFilters } from '@condo/domains/contact/hooks/useTableFilters'
 import { CONTACT_PAGE_SIZE, IFilters } from '@condo/domains/contact/utils/helpers'
+import { useNewsItemRecipientsExportToExcelTask } from '@condo/domains/news/hooks/useNewsItemRecipientsExportToExcelTask'
 import { PROPERTY_PAGE_SIZE } from '@condo/domains/property/utils/helpers'
 
 
 const ADD_CONTACT_ROUTE = '/contact/create/'
 const ROW_VERTICAL_GUTTERS: [Gutter, Gutter] = [0, 40]
 const SORTABLE_PROPERTIES = ['name', 'unitName', 'phone', 'email', 'role', 'createdAt']
+
+const { publicRuntimeConfig: { contactPageResidentAnalytics } } = getConfig()
 
 type ContactBaseSearchQuery = { organization: { id: string } } | { organization: { 'id_in': Array<string> } }
 
@@ -277,6 +293,12 @@ const ActionBarWithSelectedItems: React.FC<ActionBarWithSelectedItemsProps> = ({
     )
 }
 
+const allOrganizationScope = [{
+    property: null,
+    unitName: null,
+    unitType: null,
+}]
+
 const ContactTableContent: React.FC<ContactPageContentProps> = (props) => {
     const {
         baseSearchQuery,
@@ -288,13 +310,26 @@ const ContactTableContent: React.FC<ContactPageContentProps> = (props) => {
 
     const intl = useIntl()
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
+    const MoreDetails = intl.formatMessage({ id: 'InMoreDetail' })
+
+    const { organization } = useOrganization()
+    const { user } = useAuth()
+
+    const organizationId = useMemo(() => organization?.id || null, [organization])
+    
+    const { useFlag } = useFeatureFlags()
+    const isAnalyticsResidentInContactPageEnabled = useFlag(ANALYTICS_RESIDENT_IN_CONTACT_PAGE)
+
+    const residentAnalyticsLinks = useMemo(() => contactPageResidentAnalytics?.[intl?.locale]?.links ?? {}, [intl])
+    const residentAnalyticsTexts = useMemo(() => contactPageResidentAnalytics?.[intl?.locale]?.texts ?? {}, [intl])
 
     const router = useRouter()
+    const { persistor } = useCachePersistor()
 
     const { filters, sorters, offset } = parseQuery(router.query)
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMeta, SORTABLE_PROPERTIES)
     const sortBy = useMemo(() => sortersToSortBy(sorters) as SortContactsBy[], [sorters, sortersToSortBy])
-    const canManageContacts = get(role, 'canManageContacts', false)
+    const canManageContacts = role?.canManageContacts ?? false
     const currentPageIndex = getPageIndexFromOffset(offset, PROPERTY_PAGE_SIZE)
 
     const searchContactsQuery = useMemo(() => ({
@@ -313,6 +348,7 @@ const ContactTableContent: React.FC<ContactPageContentProps> = (props) => {
             skip: (currentPageIndex - 1) * CONTACT_PAGE_SIZE,
             first: CONTACT_PAGE_SIZE,
         },
+        // TODO (DOMA-11673): remove use network-only
         fetchPolicy: 'network-only',
     })
     const contacts = contactsData?.contacts?.filter(Boolean)
@@ -329,8 +365,64 @@ const ContactTableContent: React.FC<ContactPageContentProps> = (props) => {
         }
     }, [router])
 
+    const { NewsItemRecipientsExportToXlsxButton } = useNewsItemRecipientsExportToExcelTask({
+        organization,
+        user,
+        scopes: allOrganizationScope,
+        icon: <Download size='medium' />,
+    })
+
+    const { data: counts } = useGetNewsItemsRecipientsCountersQuery({
+        variables: {
+            data: {
+                dv: 1,
+                sender: getClientSideSenderInfo(),
+                organization: { id: organizationId },
+                newsItemScopes: allOrganizationScope,
+            },
+        },
+        skip: !isAnalyticsResidentInContactPageEnabled || !persistor || !organizationId || !allOrganizationScope,
+    })
+    const residentCount = useMemo(() => counts?.result?.receiversCount, [counts])
+
     return (
         <Row gutter={ROW_VERTICAL_GUTTERS} align='middle' justify='start'>
+            {
+                isAnalyticsResidentInContactPageEnabled && counts && <Col span={24}>
+                    <Card width='100%'>
+                        <Row justify='space-between'>
+                            <Space align='center' size={16}>
+                                <Space align='center' size={8}>
+                                    <Typography.Text size='large'>
+                                        {residentAnalyticsTexts?.countUnits},{' '}
+                                        <Typography.Text size='large' type='secondary'>
+                                            {residentAnalyticsTexts?.residentHasMobileApp}&nbsp;-&nbsp;
+                                        </Typography.Text>
+                                        {residentCount}
+                                    </Typography.Text>
+                                    <Tooltip title={
+                                        <Space direction='vertical' size={12}>
+                                            <Typography.Paragraph size='small'>
+                                                {residentAnalyticsTexts?.calculateUnitsWhereIsResident}{' '}
+                                                <Typography.Link size='small' href={residentAnalyticsLinks?.moreDetails} target='_blank'>{MoreDetails}</Typography.Link>
+                                            </Typography.Paragraph>
+                                            <Typography.Paragraph size='small'>
+                                                {residentAnalyticsTexts?.downloadListWhereIsResident}
+                                            </Typography.Paragraph>
+                                        </Space>
+                                    }>
+                                        <Space size={8}>
+                                            <AlertCircle size='small' color={colors.gray[7]}/>
+                                        </Space>
+                                    </Tooltip>
+                                </Space>
+                                <NewsItemRecipientsExportToXlsxButton/>
+                            </Space>
+                            <Typography.Link size='large' href={residentAnalyticsLinks?.tourGuide} target='_blank'>{residentAnalyticsTexts?.guideForIntroduceMobileApp}</Typography.Link>
+                        </Row>
+                    </Card>
+                </Col>
+            }
             <Col span={24}>
                 <TableFiltersContainer>
                     <Input
@@ -391,6 +483,7 @@ const ContactsPageContent: React.FC<ContactPageContentProps> = (props) => {
         variables: {
             where: baseSearchQuery,
         },
+        // TODO (DOMA-11673): remove use network-only
         fetchPolicy: 'network-only',
     })
     const contacts = contactsExistenceData?.contacts?.filter(Boolean) || []
@@ -444,7 +537,7 @@ export const ContactPageContentWrapper: React.FC<ContactPageContentProps> = (pro
             </Head>
             <PageWrapper>
                 {GlobalHints}
-                <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitleMessage}</Typography.Title>}/>
+                <PageHeader title={<Typography.Title>{PageTitleMessage}</Typography.Title>}/>
                 <TablePageContent>
                     <ContactsPageContent {...props}/>
                 </TablePageContent>
@@ -457,8 +550,8 @@ const ContactsPage: PageComponentType = () => {
     const filterMeta = useContactsTableFilters()
     const tableColumns = useTableColumns(filterMeta)
     const { organization, role, employee, isLoading } = useOrganization()
-    const userOrganizationId = get(organization, ['id'])
-    const employeeId = get(employee, 'id')
+    const userOrganizationId = useMemo(() => organization?.id, [organization?.id])
+    const employeeId = useMemo(() => employee?.id, [employee?.id])
 
     const baseSearchQuery: ContactBaseSearchQuery = useMemo(() => ({
         organization: { id: userOrganizationId },
