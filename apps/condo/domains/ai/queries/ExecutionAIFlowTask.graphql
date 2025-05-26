@@ -1,0 +1,23 @@
+query getExecutionAIFlowTaskById ($id: ID!) {
+    task: allExecutionAIFlowTasks(
+        where: { id: $id }
+        first: 1
+    ) {
+        id
+        result
+        errorMessage
+        status
+        __typename
+    }
+}
+
+mutation createExecutionAIFlowTask ($data: ExecutionAIFlowTaskCreateInput!) {
+    task: createExecutionAIFlowTask(
+        data: $data
+    ) {
+        id
+        result
+        errorMessage
+        status
+    }
+}

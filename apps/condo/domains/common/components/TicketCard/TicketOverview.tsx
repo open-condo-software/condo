@@ -1,14 +1,9 @@
-import { green } from '@ant-design/colors'
-import { Row, Col, Typography, Space } from 'antd'
+import { Space } from 'antd'
 import dayjs from 'dayjs'
-import get from 'lodash/get'
-import Link from 'next/link'
 import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-
-import { LOCALES } from '../../constants/locale'
-
+import { Typography } from '@open-condo/ui'
 
 type TTicket = {
     id: string
@@ -16,41 +11,34 @@ type TTicket = {
     createdAt: string
     number: number
     status: string
+    statusColor: string
 }
 
 export const TicketOverview: React.FC<TTicket> = ({
     id,
     details,
     createdAt,
-    number, status }) => {
+    number,
+    status,
+    statusColor,
+}) => {
     const intl = useIntl()
-    const locale = get(LOCALES, intl.locale)
+    const locale = intl?.locale
     const date = locale ? dayjs(createdAt).locale(locale) : dayjs(createdAt)
     const formattedCreatedAt = date.format('DD MMMM YYYY')
     const topLine = `№ ${number} ${status}`.toLowerCase()
-    const ticketRef = `/ticket/${id}`
 
     return (
-        <Row>
-            <Col span={24}>
-                <Link href={ticketRef}>
-                    <Typography.Link style={{ color: `${green[6]}`, fontSize: 14 }}>
-                        {topLine}
-                    </Typography.Link>
-                </Link>
-            </Col>
-            <Space direction='vertical' size={4} style={{ width: '100%' }}>
-                <Col span={24}>
-                    <Typography.Text type='secondary' style={{ fontSize: 12 }}>
-                        {formattedCreatedAt}
-                    </Typography.Text>
-                </Col>
-                <Col span={24}>
-                    <Typography.Paragraph style={{ fontSize: 14 }} ellipsis>
-                        {details}
-                    </Typography.Paragraph>
-                </Col>
-            </Space>
-        </Row>
+        <Space direction='vertical' size={2}>
+            <Typography.Link href={`/ticket/${id}`} style={{ color: statusColor, textDecorationColor: statusColor, fontSize: 14 }}>
+                {topLine}
+            </Typography.Link>
+            <Typography.Text size='medium' ellipsis>
+                {details}
+            </Typography.Text>
+            <Typography.Text size='small' type='secondary'>
+                {formattedCreatedAt}
+            </Typography.Text>
+        </Space>
     )
 }

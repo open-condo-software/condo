@@ -57,8 +57,9 @@ const apolloBatchingEnabled = conf['APOLLO_BATCHING_ENABLED'] === 'true'
 const tourVideoUrl = JSON.parse(conf['TOUR_VIDEO_URL'] || '{}')
 const residentAppLandingUrl = JSON.parse(conf['RESIDENT_APP_LANDING_URL'] || '{}')
 const createMapVideoUrl = JSON.parse(conf['CREATE_MAP_VIDEO_URL'] || '{}')
+const guideAboutAppBlock = JSON.parse(conf['GUIDE_ABOUT_APP_BLOCK'] || '{}')
+const guideIntroduceAppBlock = JSON.parse(conf['GUIDE_INTRODUCE_APP_BLOCK'] || '{}')
 const guideModalCardReviews = JSON.parse(conf['GUIDE_MODAL_CARD_REVIEWS'] || '{}')
-const guideIntroduceAppMaterials = JSON.parse(conf['GUIDE_INTRODUCE_APP_MATERIALS'] || '{}')
 const importInstructionUrl = JSON.parse(conf['IMPORT_INSTRUCTION_URL'] || '{}')
 const telegramEmployeeBotName = conf['TELEGRAM_EMPLOYEE_BOT_NAME']
 const isDisabledSsr = conf['DISABLE_SSR'] === 'true'
@@ -70,6 +71,7 @@ const proxyName = conf['API_PROXY_NAME'] || 'Next'
 const posthogApiHost = conf['POSTHOG_API_HOST']
 const posthogApiKey = conf['POSTHOG_API_KEY']
 const residentAppInfo = conf['RESIDENT_APP_INFO'] ? JSON.parse(conf['RESIDENT_APP_INFO']) : {}
+const aiEnabled = conf['AI_ENABLED']
 
 let nextConfig = withTM(withLess(withCSS({
     skipTrailingSlashRedirect: true,
@@ -107,8 +109,9 @@ let nextConfig = withTM(withLess(withCSS({
         tourVideoUrl,
         residentAppLandingUrl,
         createMapVideoUrl,
+        guideAboutAppBlock,
+        guideIntroduceAppBlock,
         guideModalCardReviews,
-        guideIntroduceAppMaterials,
         importInstructionUrl,
         telegramEmployeeBotName,
         isDisabledSsr,
@@ -119,6 +122,7 @@ let nextConfig = withTM(withLess(withCSS({
         posthogApiHost,
         posthogApiKey,
         residentAppInfo,
+        aiEnabled,
     },
     serverRuntimeConfig: {
         proxyName,

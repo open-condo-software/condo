@@ -80,26 +80,28 @@ async function findOrganizationByAddressKeyTinAccountNumber (organization, { add
     let receipts = []
 
     if (billingContext) {
-        const [billingIntegration] = await find('BillingIntegration', {
-            id: billingContext.integration,
-            checkAccountNumberUrl_not: null,
-            deletedAt: null,
-        })
-        const checkAccountNumberUrl = get(billingIntegration, 'checkAccountNumberUrl')
-
         receipts = await getOrganizationReceipts(billingContext, addressKey, { number: accountNumber })
 
-        if (!receipts.length && checkAccountNumberUrl) {
-            const { status, services } = await getAccountsWithOnlineInteractionUrl(checkAccountNumberUrl, tin, accountNumber)
-            if (status === ONLINE_INTERACTION_CHECK_ACCOUNT_SUCCESS_STATUS) {
-                receipts = services.map(service => ({
-                    category: service.category,
-                    accountNumber: service.account.number,
-                    routingNumber: service.bankAccount.routingNumber,
-                    bankAccount: service.bankAccount.number,
-                    balance: service.receipt.sum,
-                    address: service.receipt.address,
-                }))
+        if (!receipts.length) {
+            const [billingIntegration] = await find('BillingIntegration', {
+                id: billingContext.integration,
+                checkAccountNumberUrl_not: null,
+                deletedAt: null,
+            })
+            const checkAccountNumberUrl = get(billingIntegration, 'checkAccountNumberUrl')
+
+            if (checkAccountNumberUrl) {
+                const { status, services } = await getAccountsWithOnlineInteractionUrl(checkAccountNumberUrl, tin, accountNumber)
+                if (status === ONLINE_INTERACTION_CHECK_ACCOUNT_SUCCESS_STATUS) {
+                    receipts = services.map(service => ({
+                        category: service.category,
+                        accountNumber: service.account.number,
+                        routingNumber: service.bankAccount.routingNumber,
+                        bankAccount: service.bankAccount.number,
+                        balance: service.receipt.sum,
+                        address: service.receipt.address,
+                    }))
+                }
             }
         }
     }

@@ -59,14 +59,14 @@ const SuggestServiceProviderService = new GQLCustomSchema('SuggestServiceProvide
         },
         {
             access: true,
-            type: 'type SuggestServiceProviderOutput { tin: String!, name: String! }',
+            type: 'type SuggestServiceProviderOutput { id: String!, tin: String!, name: String!, type: String! }',
         },
     ],
     
     queries: [
         {
             access: access.canSuggestServiceProvider,
-            schema: 'suggestServiceProvider (data: SuggestServiceProviderInput!): [SuggestServiceProviderOutput]',
+            schema: 'suggestServiceProvider (data: SuggestServiceProviderInput!): [SuggestServiceProviderOutput!]',
             resolver: async (parent, args, context = {}) => {
                 if (context.authedItem.type === RESIDENT) {
                     await checkLimits(context.authedItem.id, context)
@@ -91,7 +91,7 @@ const SuggestServiceProviderService = new GQLCustomSchema('SuggestServiceProvide
 
                 const serviceProvidersForSuggest = await filterOrganizationsByAcquiringContextOrMeterResourceOwnership(context, serviceProviders)
                 return uniqBy(serviceProvidersForSuggest, 'tin')
-                    .map(serviceProvider => pick(serviceProvider, ['tin', 'name']))
+                    .map(serviceProvider => pick(serviceProvider, ['id', 'tin', 'name', 'type']))
             },
         },
     ],

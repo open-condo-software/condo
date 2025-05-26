@@ -12,14 +12,12 @@ const { AdapterCache } = require('@open-condo/keystone/adapterCache')
 const { GQLError, GQLErrorCode: { FORBIDDEN } } = require('@open-condo/keystone/errors')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const {
-    DEFAULT_HEALTHCHECK_URL,
     HealthCheck,
     getRedisHealthCheck,
     getPostgresHealthCheck,
     getPfxCertificateHealthCheck,
 } = require('@open-condo/keystone/healthCheck')
 const { prepareKeystone } = require('@open-condo/keystone/KSv5v6/v5/prepareKeystone')
-const { getLogger } = require('@open-condo/keystone/logging')
 const { RequestCache } = require('@open-condo/keystone/requestCache')
 const { getWebhookModels } = require('@open-condo/webhooks/schema')
 const { getWebhookTasks } = require('@open-condo/webhooks/tasks')
@@ -38,8 +36,6 @@ dayjs.extend(isBetween)
 
 const IS_BUILD_PHASE = conf.PHASE === 'build'
 const SENTRY_CONFIG = conf.SENTRY_CONFIG ? JSON.parse(conf.SENTRY_CONFIG) : {}
-
-const logger = getLogger('condo-index')
 
 // TODO(zuch): DOMA-2990: add FILE_FIELD_ADAPTER to env during build phase
 if (IS_BUILD_PHASE) {
@@ -146,89 +142,6 @@ const apps = () => {
 
 /** @type {(app: import('express').Application) => void} */
 const extendExpressApp = (app) => {
-    const runtimeStats = {
-        activeRequestsIds: new Set(),
-        activeRequestsCountByType: {
-            graphql: 0,
-            api: 0,
-            oidc: 0,
-            wellKnown: 0,
-            healthCheck: 0,
-            other: 0,
-        },
-        totalRequestsCount: 0,
-        totalRequestsByTarget: {},
-    }
-
-    app.use(function runtimeStatsMiddleware (req, res, next) {
-        try {
-            const url = new URL(`${conf['SERVER_URL']}${req.url}`).pathname
-            const method = (req.method || 'get').toLowerCase()
-
-            // According to ADR35
-            const possibleXTargetValues = (conf['POSSIBLE_X_TARGET_VALUES'] || '').split(',')
-            const xTargetHeader = req.headers['x-target']
-
-            const xTarget = possibleXTargetValues.includes(xTargetHeader) ? xTargetHeader : 'other'
-
-            const isPost = method === 'post'
-
-            const isAdminApiUrl = url === '/admin/api'
-            const isApiUrl = url.startsWith('/api')
-            const isOidcUrl = url.startsWith('/oidc')
-            const isWellKnownUrl = url.startsWith('/.well-known')
-            const isHealthCheckUrl = url.startsWith(DEFAULT_HEALTHCHECK_URL)
-
-            /** @type {'api' | 'graphql' | 'oidc' | 'wellKnown' | 'healthCheck' | 'other'} */
-            let requestType = 'other'
-
-            if (isPost && isAdminApiUrl) {
-                requestType = 'graphql'
-            } else if (isApiUrl) {
-                requestType = 'api'
-            } else if (isOidcUrl) {
-                requestType = 'oidc'
-            } else if (isWellKnownUrl) {
-                requestType = 'wellKnown'
-            } else if (isHealthCheckUrl) {
-                requestType = 'healthCheck'
-            }
-
-            if (requestType) {
-                runtimeStats.activeRequestsIds.add(req.id)
-                runtimeStats.activeRequestsCountByType[requestType] = (runtimeStats.activeRequestsCountByType[requestType] || 0) + 1
-                runtimeStats.totalRequestsCount = (runtimeStats.totalRequestsCount || 0) + 1
-                runtimeStats.totalRequestsByTarget[xTarget] = (runtimeStats.totalRequestsByTarget[xTarget] || 0) + 1
-            }
-
-            res.on('close', () => {
-                if (requestType) {
-                    runtimeStats.activeRequestsIds.delete(req.id)
-                    runtimeStats.activeRequestsCountByType[requestType] = Math.max(0, runtimeStats.activeRequestsCountByType[requestType] - 1)
-                }
-            })
-        } catch (error) {
-            logger.error({ msg: 'runtimeStatsMiddleware error', error, data: { url: req.url, method: req.method } })
-        }
-
-        next()
-    })
-
-    app.get('/.well-known/runtime-stats', (req, res) => {
-        const token = req.query['token']
-        const accessToken = conf['RUNTIME_STATS_ACCESS_TOKEN']
-        if (!!accessToken && accessToken === token) {
-            res.json({
-                activeRequestsCount: runtimeStats.activeRequestsIds.size,
-                activeRequestsCountByType: runtimeStats.activeRequestsCountByType,
-                totalRequestsCount: runtimeStats.totalRequestsCount,
-                totalRequestsCountByTarget: runtimeStats.totalRequestsByTarget,
-            })
-        } else {
-            res.status(403).send()
-        }
-    })
-
     app.get('/.well-known/change-password', function (req, res) {
         res.redirect('/auth/forgot')
     })

@@ -12,7 +12,9 @@ const { createTestOrganization, registerNewOrganization } = require('@condo/doma
 const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { FLAT_UNIT_TYPE, COMMERCIAL_UNIT_TYPE } = require('@condo/domains/property/constants/common')
-const { makeClientWithProperty, createTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { makeClientWithProperty, createTestProperty, updateTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
+const { createTestResident, updateTestResident } = require('@condo/domains/resident/utils/testSchema')
 const { createTestPhone, createTestEmail, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 
@@ -327,6 +329,99 @@ describe('Contact', () => {
                     expect(errors[0].data.messages[0]).toMatch('ownershipPercentage should be a positive number below 100')
                     expect(data.obj).toBeNull()
                 })
+            })
+        })
+
+        describe('hasResident field', () => {
+            it('positive test', async () => {
+                const residentClient = await makeClientWithResidentAccessAndProperty()
+                const adminClient = await makeLoggedInAdminClient()
+                const residentFields = {
+                    unitName: '1',
+                    unitType: FLAT_UNIT_TYPE,
+                }
+                await createTestResident(adminClient, residentClient.user, residentClient.property, residentFields)
+                const contactFields = {
+                    ...residentFields,
+                    phone: residentClient.userAttrs.phone,
+                }
+
+                const [contact, contactAttrs] = await createTestContact(adminClient, residentClient.organization, residentClient.property, contactFields)
+
+                expect(contact.id).toMatch(UUID_RE)
+                expect(contact.dv).toEqual(1)
+                expect(contact.sender).toEqual(contactAttrs.sender)
+                expect(contact.hasResident).toEqual(true)
+            })
+
+            it('if property is deleted', async () => {
+                const residentClient = await makeClientWithResidentAccessAndProperty()
+                const adminClient = await makeLoggedInAdminClient()
+                const residentFields = {
+                    unitName: '1',
+                    unitType: FLAT_UNIT_TYPE,
+                }
+                await createTestResident(adminClient, residentClient.user, residentClient.property, residentFields)
+                const contactFields = {
+                    ...residentFields,
+                    phone: residentClient.userAttrs.phone,
+                }
+                await createTestContact(adminClient, residentClient.organization, residentClient.property, contactFields)
+
+                await updateTestProperty(adminClient, residentClient.property.id, { deletedAt: new Date() })
+
+                const [contact] = await Contact.getAll(adminClient, {
+                    ...contactFields,
+                    organization: { id: residentClient.organization.id },
+                    property: { id: residentClient.property.id },
+                    deletedAt: null,
+                })
+
+                expect(contact.id).toMatch(UUID_RE)
+                expect(contact.dv).toEqual(1)
+                expect(contact.hasResident).toEqual(false)
+            })
+
+            it('if unitName or unitType is empty', async () => {
+                const residentClient = await makeClientWithResidentAccessAndProperty()
+                const adminClient = await makeLoggedInAdminClient()
+                const residentFields = {
+                    unitName: '1',
+                    unitType: FLAT_UNIT_TYPE,
+                }
+                await createTestResident(adminClient, residentClient.user, residentClient.property, residentFields)
+                const contactFields = {
+                    unitName: '',
+                    phone: residentClient.userAttrs.phone,
+                }
+                const [contact, contactAttrs] = await createTestContact(adminClient, residentClient.organization, residentClient.property, contactFields)
+
+                expect(contact.id).toMatch(UUID_RE)
+                expect(contact.dv).toEqual(1)
+                expect(contact.sender).toEqual(contactAttrs.sender)
+                expect(contact.hasResident).toEqual(false)
+            })
+
+            it('if resident or user was deleted', async () => {
+                const residentClient = await makeClientWithResidentAccessAndProperty()
+                const adminClient = await makeLoggedInAdminClient()
+                const residentFields = {
+                    unitName: '1',
+                    unitType: FLAT_UNIT_TYPE,
+                }
+                const [resident] = await createTestResident(adminClient, residentClient.user, residentClient.property, residentFields)
+                await updateTestResident(adminClient, resident.id, { deletedAt: new Date() })
+                const contactFields = {
+                    ...residentFields,
+                    phone: residentClient.userAttrs.phone,
+                }
+
+                const [contact, contactAttrs] = await createTestContact(adminClient, residentClient.organization, residentClient.property, contactFields)
+
+                expect(contact.id).toMatch(UUID_RE)
+                expect(contact.dv).toEqual(1)
+                expect(contact.sender).toEqual(contactAttrs.sender)
+                expect(contact.hasResident).toEqual(false)
             })
         })
     })
