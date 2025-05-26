@@ -1014,7 +1014,7 @@
   "excelExport.sheetNames.buildings": "Properties",
   "excelExport.sheetNames.contacts": "Contacts",
   "excelExport.sheetNames.incidents": "Incidents",
-  "excelExport.sheetNames.newsRecipients": "News recipients",
+  "excelExport.sheetNames.recipients": "Recipients",
   "excelExport.sheetNames.propertyScopes": "Property scopes",
   "excelExport.sheetNames.tickets": "Tickets",
   "excelExport.tickets.ticketCommentFilesCount": "files",
