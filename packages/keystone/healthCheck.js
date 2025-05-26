@@ -91,7 +91,7 @@ const get = require('lodash/get')
 const LRUCache = require('lru-cache')
 
 const { ApolloServerClient } = require('@open-condo/apollo-server-client')
-const { ERROR_TYPE } = require('@open-condo/keystone/apolloServerPlugins/rateLimiting/constants')
+const { ERROR_TYPE: RATE_LIMIT_EXCEEDED } = require('@open-condo/keystone/apolloServerPlugins/rateLimiting/constants')
 const { getDatabaseAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
 
 const { getKVClient } = require('./kv')
@@ -135,7 +135,7 @@ const getRateLimitHealthCheck = ({
     if (!endpoint) throw new Error('GraphQL endpoint must be provided')
     if (!authRequisites) throw new Error('Authentication requisites must be provided')
 
-    const redisKey = serviceName + 'rate-limit-healthcheck'
+    const redisKey = serviceName + '-rate-limit-healthcheck'
 
     return {
         name: `${serviceName}_rate_limit`,
@@ -161,12 +161,11 @@ const getRateLimitHealthCheck = ({
                 return PASS
 
             } catch (error) {
-                const gqlErrors = error?.networkError?.result?.errors || []
+                const gqlErrors = get(error, 'networkError.result.errors', [])
 
                 const rateLimitExceeded = gqlErrors.find(
                     ({ extensions }) =>
-                        extensions?.code === 'TOO_MANY_REQUESTS' &&
-                        extensions?.type === 'RATE_LIMIT_EXCEEDED'
+                        get(extensions, 'type') === RATE_LIMIT_EXCEEDED
                 )
 
                 if (rateLimitExceeded) {
