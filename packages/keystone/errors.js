@@ -63,10 +63,13 @@
 
 const cuid = require('cuid')
 const { cloneDeep, template, templateSettings, isArray, isEmpty, isObject, isError, every } = require('lodash')
+const pino = require('pino')
 
 const conf = require('@open-condo/config')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const { getTranslations } = require('@open-condo/locales/loader')
+
+const { normalizeVariables } = require('./logging/normalize')
 
 // Matches placeholder `{name}` in string, we are going to interpolate
 templateSettings.interpolate = /{([\s\S]+?)}/g
@@ -119,6 +122,22 @@ const GQLInternalErrorTypes = {
 }
 
 /**
+ * Have to create separated `getLogger()` for this file to avoid cyclic require, because common getLogger includes apolloErrorFormatter, which includes this file
+ * @param {string} [name]
+ * @returns {*}
+ */
+function getLogger (name = 'unknown logger name') {
+    return pino({
+        name,
+        serializers: {
+            'data': normalizeVariables,
+        },
+    })
+}
+
+const logger = getLogger('GQLError class')
+
+/**
  * Error object, that can be thrown in a custom GraphQL mutation or query
  *
  * @typedef GQLError
@@ -133,7 +152,6 @@ const GQLInternalErrorTypes = {
  * @property {String} [correctExample] - correct value of an argument
  * @property {Object} [data] - any kind of data, that will help to figure out a cause of the error
  */
-
 class GQLError extends Error {
     /**
      * @param {GQLError} fields
@@ -169,12 +187,12 @@ class GQLError extends Error {
         }
         if (fields.messageForUser) {
             if (!fields.messageForUser.startsWith('api.')) {
-                console.warn('WRONG `messageForUser` field argument! It should starts with `api.` prefix! messageForUser = ', fields.messageForUser)
+                logger.warn({ msg: 'WRONG `messageForUser` field argument! It should starts with `api.` prefix! messageForUser', data: { messageForUser: fields.messageForUser } })
                 // TODO(pahaz): DOMA-10345 throw error for that cases! Waiting for apps refactoring
                 // throw new Error('GQLError: wrong `messageForUser` field argument. Should starts with `api.`')
             }
             if (!context) {
-                console.warn('WRONG `messageForUser` without context argument! Important to pass GQLError({ .. }, context) argument!')
+                logger.warn({ msg: 'WRONG `messageForUser` without context argument! Important to pass GQLError({ .. }, context) argument!' })
                 // TODO(pahaz): DOMA-10345 throw error for that cases! Waiting for apps refactoring
                 // throw new Error('GQLError: no context for messageForUser. You can use `{ req }` as context')
             }
@@ -193,26 +211,26 @@ class GQLError extends Error {
             }
             if (extensions.messageForUser === extensions.messageForUserTemplateKey) {
                 // TODO(pahaz): DOMA-10345 throw error for that cases! Waiting for apps refactoring
-                console.warn(
-                    'GQLError: it loos like you already hardcode localised message inside messageForUser. ' +
-                    'Could you please use translation key here! messageForUser =',
-                    extensions.messageForUser,
-                )
+                logger.warn({
+                    msg: 'GQLError: it loos like you already hardcode localised message inside messageForUser. ' +
+                        'Could you please use translation key here!',
+                    data: { messageForUser: extensions.messageForUser },
+                })
             }
         }
         if (!isEmpty(fields.messageInterpolation)) {
             if (fields.message === extensions.message) {
                 // TODO(pahaz): DOMA-10345 throw error for that cases! Waiting for apps refactoring
-                console.warn(
-                    'GQLError: looks like you already include `messageInterpolation` values inside `message`. ' +
-                    'Please use templated string like `{name}` inside the message field. message =',
-                    fields.message,
-                )
+                logger.warn({
+                    msg: 'GQLError: looks like you already include `messageInterpolation` values inside `message`. ' +
+                        'Please use templated string like `{name}` inside the message field.',
+                    data: { message: fields.message },
+                })
             }
             for (const [key, value] of Object.entries(fields.messageInterpolation)) {
                 // TODO(pahaz): DOMA-10345 throw error
-                if (typeof key !== 'string') console.warn(`GQLError: messageInterpolation key is not a string; key = ${key}`)
-                if (typeof value !== 'string' && typeof value !== 'number') console.warn(`GQLError: messageInterpolation value is not a string|number; key = ${key}; value = ${value}; type = ${typeof value}`)
+                if (typeof key !== 'string') logger.warn({ msg: 'GQLError: messageInterpolation key is not a string', data: { key } })
+                if (typeof value !== 'string' && typeof value !== 'number') logger.warn({ msg: 'GQLError: messageInterpolation value is not a string|number', data: { key, value, type: typeof value } })
             }
         }
         super(extensions.message)
