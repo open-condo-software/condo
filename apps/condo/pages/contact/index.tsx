@@ -320,8 +320,9 @@ const ContactTableContent: React.FC<ContactPageContentProps> = (props) => {
     const { useFlag } = useFeatureFlags()
     const isAnalyticsResidentInContactPageEnabled = useFlag(ANALYTICS_RESIDENT_IN_CONTACT_PAGE)
 
-    const residentAnalyticsLinks = useMemo(() => contactPageResidentAnalytics?.[intl?.locale]?.links ?? {}, [intl])
-    const residentAnalyticsTexts = useMemo(() => contactPageResidentAnalytics?.[intl?.locale]?.texts ?? {}, [intl])
+    const residentAnalyticsData = useMemo(() => contactPageResidentAnalytics?.[intl?.locale], [intl])
+    const residentAnalyticsLinks = useMemo(() => residentAnalyticsData?.links ?? {}, [residentAnalyticsData])
+    const residentAnalyticsTexts = useMemo(() => residentAnalyticsData?.texts ?? {}, [residentAnalyticsData])
 
     const router = useRouter()
     const { persistor } = useCachePersistor()
@@ -381,7 +382,7 @@ const ContactTableContent: React.FC<ContactPageContentProps> = (props) => {
                 newsItemScopes: allOrganizationScope,
             },
         },
-        skip: !isAnalyticsResidentInContactPageEnabled || !persistor || !organizationId || !allOrganizationScope,
+        skip: !isAnalyticsResidentInContactPageEnabled || !persistor || !organizationId || !allOrganizationScope || !residentAnalyticsData,
     })
     const residentCount = useMemo(() => counts?.result?.receiversCount, [counts])
 
@@ -400,17 +401,7 @@ const ContactTableContent: React.FC<ContactPageContentProps> = (props) => {
                                         </Typography.Text>
                                         {residentCount}
                                     </Typography.Text>
-                                    <Tooltip title={
-                                        <Space direction='vertical' size={12}>
-                                            <Typography.Paragraph size='small'>
-                                                {residentAnalyticsTexts?.calculateUnitsWhereIsResident}{' '}
-                                                <Typography.Link size='small' href={residentAnalyticsLinks?.moreDetails} target='_blank'>{MoreDetails}</Typography.Link>
-                                            </Typography.Paragraph>
-                                            <Typography.Paragraph size='small'>
-                                                {residentAnalyticsTexts?.downloadListWhereIsResident}
-                                            </Typography.Paragraph>
-                                        </Space>
-                                    }>
+                                    <Tooltip title={<Typography.Text size='small'>{residentAnalyticsTexts?.calculateUnitsWhereIsResident} <Typography.Link size='small' href={residentAnalyticsLinks?.moreDetails} target='_blank'>{MoreDetails}</Typography.Link></Typography.Text>}>
                                         <Space size={8}>
                                             <AlertCircle size='small' color={colors.gray[7]}/>
                                         </Space>

@@ -1,13 +1,13 @@
 import { useGetTicketsByContactQuery } from '@app/condo/gql'
 import { SortTicketsBy, Ticket as TicketSchema } from '@app/condo/schema'
-import { Row, RowProps, Space } from 'antd'
+import { Row, RowProps } from 'antd'
 import pickBy from 'lodash/pickBy'
 import qs, { IStringifyOptions } from 'qs'
 import React from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
 import { useIntl } from '@open-condo/next/intl'
-import { Typography, Card } from '@open-condo/ui'
+import { Typography, Card, Space } from '@open-condo/ui'
 
 import { Loader } from '@condo/domains/common/components/Loader'
 
@@ -43,7 +43,7 @@ const TicketCard: React.FC<ITicketCardProps> = ({ contactId, tickets }) => {
 
     return (
         <Card width={breakpoints.DESKTOP_SMALL ? TICKET_CARD_WIDTH : '100%'}>
-            <Space direction='vertical' size={20}>
+            <Space direction='vertical' size={20} width='100%'>
                 <Typography.Title level={4}>
                     {TicketsByContactMessage}
                 </Typography.Title>
