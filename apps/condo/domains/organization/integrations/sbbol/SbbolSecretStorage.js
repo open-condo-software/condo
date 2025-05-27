@@ -38,7 +38,6 @@ class SbbolSecretStorage {
                 throw new Error(`${key} field is required for ${methodName}`)
             }
         }
-
     }
 
     async getClientSecret () {
@@ -145,6 +144,7 @@ class SbbolSecretStorage {
             logger.info({ msg: `Set ${scopedKey}`, value })
         } catch (error) {
             logger.error({ msg: `Error set ${scopedKey} value ${value}`, data: { error } })
+            throw error
         }
     }
 

@@ -21,17 +21,16 @@ const logger = getLogger('sbbol/routes')
 class SbbolRoutes {
     async startAuth (req, res, next) {
         const reqId = req.id
+        if (!SBBOL_AUTH_CONFIG.client_id) throw new Error('SBBOL_AUTH_CONFIG.client_id is not configured')
+        if (!SBBOL_AUTH_CONFIG_EXTENDED.client_id) throw new Error('SBBOL_AUTH_CONFIG_EXTENDED.client_id is not configured')
+        const query = get(req, 'query', {})
+        const redirectUrl = get(query, 'redirectUrl')
+        if (redirectUrl && !isSafeUrl(redirectUrl)) throw new Error('redirectUrl is incorrect')
         try {
-            if (!SBBOL_AUTH_CONFIG.client_id) throw new Error('SBBOL_AUTH_CONFIG.client_id is not configured')
-            if (!SBBOL_AUTH_CONFIG_EXTENDED.client_id) throw new Error('SBBOL_AUTH_CONFIG_EXTENDED.client_id is not configured')
-            const query = get(req, 'query', {})
-            const redirectUrl = get(query, 'redirectUrl')
             const queryFeatures = get(query, 'features', [])
             const useExtendedConfig = get(query, 'useExtendedConfig', false)
             const sbbolAuthApi = await initializeSbbolAuthApi(useExtendedConfig)
             const features = Array.isArray(queryFeatures) ? queryFeatures : [queryFeatures]
-
-            if (redirectUrl && !isSafeUrl(redirectUrl)) throw new Error('redirectUrl is incorrect')
             // nonce: to prevent several callbacks from same request
             // state: to validate user browser on callback
             const checks = { nonce: generators.nonce(), state: generators.state() }
@@ -46,16 +45,15 @@ class SbbolRoutes {
     }
 
     async completeAuth (req, res, next) {
+        if (!SBBOL_AUTH_CONFIG.client_id) throw new Error('SBBOL_AUTH_CONFIG.client_id is not configured')
+        if (!SBBOL_AUTH_CONFIG_EXTENDED.client_id) throw new Error('SBBOL_AUTH_CONFIG_EXTENDED.client_id is not configured')
         const reqId = req.id
         try {
-            if (!SBBOL_AUTH_CONFIG.client_id) throw new Error('SBBOL_AUTH_CONFIG.client_id is not configured')
-            if (!SBBOL_AUTH_CONFIG_EXTENDED.client_id) throw new Error('SBBOL_AUTH_CONFIG_EXTENDED.client_id is not configured')
             const checks = get(req, ['session', SBBOL_SESSION_KEY, 'checks'])
             if (!isObject(checks)) {
                 logger.info({ msg: 'SBBOL invalid nonce and state', reqId })
                 return res.status(400).send('ERROR: Invalid nonce and state')
             }
-
             const useExtendedConfig = get(req, ['session', SBBOL_SESSION_KEY, 'useExtendedConfig'], false)
             const sbbolAuthApi = await initializeSbbolAuthApi(useExtendedConfig)
 
@@ -93,7 +91,6 @@ class SbbolRoutes {
                 organizationEmployee,
             } = await sync({ keystone, userInfo, tokenSet, reqId, features, useExtendedConfig })
             await keystone._sessionManager.startAuthedSession(req, { item: { id: user.id }, list: keystone.lists['User'] })
-
             if (organizationEmployee) {
                 res.cookie('organizationLinkId', organizationEmployee.id)
             }
@@ -102,7 +99,6 @@ class SbbolRoutes {
 
             logger.info({ msg: 'SBBOL OK Authenticated', userId: user.id, organizationId: organization.id, employeeId: organizationEmployee.id })
             if (redirectUrl) return res.redirect(redirectUrl)
-
             return res.redirect('/tour')
         } catch (error) {
             logger.error({ msg: 'SBBOL auth-callback error', err: error, reqId })

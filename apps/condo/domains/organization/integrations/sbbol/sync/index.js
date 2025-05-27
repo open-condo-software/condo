@@ -1,8 +1,8 @@
-const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 const isEmpty = require('lodash/isEmpty')
 
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
+const { getLogger } = require('@open-condo/keystone/logging')
 
 const { BANK_INTEGRATION_IDS, SBBOL } = require('@condo/domains/banking/constants')
 const { BankSyncTask, BankAccount, BankIntegrationOrganizationContext } = require('@condo/domains/banking/utils/serverSchema')
@@ -20,6 +20,8 @@ const { syncUser } = require('./syncUser')
 const { dvSenderFields } = require('../constants')
 const { SBBOL_IMPORT_NAME } = require('../constants')
 const { getSbbolSecretStorage } = require('../utils')
+
+const logger = getLogger('sbbol')
 
 const SYNC_BANK_ACCOUNTS_FROM_SBBOL = 'sync-bank-accounts-from-sbbol'
 
@@ -104,16 +106,47 @@ const sync = async ({ keystone, userInfo, tokenSet, features, useExtendedConfig 
         isPhoneVerified: true,
         isEmailVerified: true,
     }
-
-    const user = await syncUser({ context, userInfo: userData, identityId: userInfo.userGuid || userInfo.sub })
-    const { organization, employee } = await syncOrganization({ context, user, userData, organizationInfo, dvSenderFields })
+    let user
+    try {
+        user = await syncUser({ context, userInfo: userData, identityId: userInfo.userGuid || userInfo.sub })
+    } catch (error) {
+        logger.error({
+            msg: 'Failed to sync user',
+            data: { error, userData, userInfo, organizationInfo },
+        })
+    }
+    let organizationSyncResult
+    try {
+        organizationSyncResult = await syncOrganization({ context, user, userData, organizationInfo, dvSenderFields })
+    } catch (error) {
+        logger.error({
+            msg: 'Failed to sync organization',
+            data: { error, userData, userInfo, organizationInfo },
+        })
+    }
+    const { organization, employee } = organizationSyncResult
     const sbbolSecretStorage = getSbbolSecretStorage(useExtendedConfig)
     await sbbolSecretStorage.setOrganization(organization.id)
     await syncTokens(tokenSet, user.id, organization.id, useExtendedConfig)
-    await syncServiceSubscriptions(userInfo.inn)
+    try {
+        await syncServiceSubscriptions(userInfo.inn)
+    } catch (error) {
+        logger.error({
+            msg: 'Failed to sync service subscriptions',
+            data: { error, userInfo },
+        })
+    }
     await syncFeatures({ context, organization, features })
 
-    if (await featureToggleManager.isFeatureEnabled(adminContext, SYNC_BANK_ACCOUNTS_FROM_SBBOL, { organization: organization.id })) {
+    const syncBankAccountFeatureEnabled = await featureToggleManager.isFeatureEnabled(adminContext, SYNC_BANK_ACCOUNTS_FROM_SBBOL, { organization: organization.id })
+    if (syncBankAccountFeatureEnabled) {
+        logger.info({
+            msg: 'Sync bank accounts',
+            data: {
+                user,
+                organization,
+            },
+        })
         await syncBankAccounts(user.id, organization)
 
         const foundOrganizationContext = await BankIntegrationOrganizationContext.getAll(adminContext, {
@@ -128,7 +161,6 @@ const sync = async ({ keystone, userInfo, tokenSet, features, useExtendedConfig 
                 integration: { connect: { id: BANK_INTEGRATION_IDS.SBBOL } },
                 ...dvSenderFields,
             })
-
         }
 
         const bankAccounts = await BankAccount.getAll(adminContext, {
