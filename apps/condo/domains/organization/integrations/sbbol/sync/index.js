@@ -114,6 +114,7 @@ const sync = async ({ keystone, userInfo, tokenSet, features, useExtendedConfig 
             msg: 'Failed to sync user',
             data: { error, userData, userInfo, organizationInfo },
         })
+        throw error
     }
     let organizationSyncResult
     try {
@@ -123,6 +124,7 @@ const sync = async ({ keystone, userInfo, tokenSet, features, useExtendedConfig 
             msg: 'Failed to sync organization',
             data: { error, userData, userInfo, organizationInfo },
         })
+        throw error
     }
     const { organization, employee } = organizationSyncResult
     const sbbolSecretStorage = getSbbolSecretStorage(useExtendedConfig)
@@ -135,6 +137,7 @@ const sync = async ({ keystone, userInfo, tokenSet, features, useExtendedConfig 
             msg: 'Failed to sync service subscriptions',
             data: { error, userInfo },
         })
+        // we do not need to throw an error here as syncServiceSubscriptions needs to be removed
     }
     await syncFeatures({ context, organization, features })
 

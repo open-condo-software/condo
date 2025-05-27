@@ -25,6 +25,7 @@ const refreshSbbolClientSecret = createCronTask('refreshSbbolClientSecret', '0 1
     const { keystone: context } = getSchemaCtx('User')
 
     const serviceUserId = get(SBBOL_AUTH_CONFIG, 'serviceUserId')
+    const serviceOrganizationId = get(SBBOL_AUTH_CONFIG, 'serviceOrganizationId')
     const serviceUserIdFromExtendedConfig = get(SBBOL_AUTH_CONFIG_EXTENDED, 'serviceUserId')
 
     if (!serviceUserId) throw new Error('changeClientSecret: no SBBOL_AUTH_CONFIG.serviceUserId')
