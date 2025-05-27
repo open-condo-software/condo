@@ -9,7 +9,6 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const SBBOL_AUTH_CONFIG = conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CONFIG) : {}
 const SBBOL_AUTH_CONFIG_EXTENDED = conf.SBBOL_AUTH_CONFIG_EXTENDED ? JSON.parse(conf.SBBOL_AUTH_CONFIG_EXTENDED) : {}
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
-const SBBOL_PFX_EXTENDED = conf.SBBOL_PFX_EXTENDED ? JSON.parse(conf.SBBOL_PFX_EXTENDED) : {}
 const SERVER_URL = conf.SERVER_URL
 const JWT_ALG = 'gost34.10-2012'
 
@@ -19,7 +18,7 @@ class SbbolOauth2Api {
     constructor ({ clientSecret, useExtendedConfig }) {
         if (!clientSecret) throw new Error('SbbolOauth2Api: unknown clientSecret')
         this.config = useExtendedConfig ? SBBOL_AUTH_CONFIG_EXTENDED : SBBOL_AUTH_CONFIG
-        this.pfx = useExtendedConfig ? SBBOL_PFX_EXTENDED : SBBOL_PFX
+        this.pfx = SBBOL_PFX
         this.createClient(clientSecret)
     }
 
