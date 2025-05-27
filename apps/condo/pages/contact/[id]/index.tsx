@@ -72,6 +72,7 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
     const contactRoleName = useMemo(() => contact?.role?.name ?? '—', [contact])
     const isVerified = useMemo(() => contact?.isVerified, [contact])
     const hasResident = useMemo(() => contact?.hasResident, [contact])
+    console.log('hasResident', hasResident)
     const phonePrefix = useMemo(() => organizationPhonePrefix ?? '', [organizationPhonePrefix])
 
     const { breakpoints } = useLayoutContext()
@@ -124,10 +125,12 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
                                             />
                                         </Col>
                                     </>
-                                    <FieldPairRow
-                                        fieldTitle={HasResident}
-                                        fieldValue={hasResident ? DownloadApp : '—'}
-                                    />
+                                    {
+                                        typeof hasResident === 'boolean' && <FieldPairRow
+                                            fieldTitle={HasResident}
+                                            fieldValue={hasResident ? DownloadApp : '—'}
+                                        />
+                                    }
                                 </Row>
                             </FrontLayerContainer>
                             {isContactEditable && breakpoints.DESKTOP_SMALL && (
