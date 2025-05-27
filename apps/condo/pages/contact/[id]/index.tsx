@@ -58,7 +58,8 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
     const ContactRoleTitle = intl.formatMessage({ id: 'ContactRole' })
     const VerifiedMessage = intl.formatMessage({ id: 'pages.condo.contact.Verified' })
     const HasResident = intl.formatMessage({ id: 'pages.condo.contact.HasResident' })
-    const DownloadApp = intl.formatMessage({ id: 'pages.condo.contact.DownloadApp' })
+    const ResidentRegistred = intl.formatMessage({ id: 'pages.condo.contact.ResidentRegistered' })
+    const ResidentUnregistred = intl.formatMessage({ id: 'pages.condo.contact.ResidentUnregistered' })
     const DeleteMessage = intl.formatMessage({ id: 'Delete' })
     const UnitTypeMessage = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${contact?.unitType || BuildingUnitSubType.Flat}` as FormatjsIntl.Message['ids'] })
 
@@ -124,10 +125,12 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
                                             />
                                         </Col>
                                     </>
-                                    <FieldPairRow
-                                        fieldTitle={HasResident}
-                                        fieldValue={hasResident ? DownloadApp : '—'}
-                                    />
+                                    {
+                                        typeof hasResident === 'boolean' && <FieldPairRow
+                                            fieldTitle={HasResident}
+                                            fieldValue={hasResident ? ResidentRegistred : ResidentUnregistred}
+                                        />
+                                    }
                                 </Row>
                             </FrontLayerContainer>
                             {isContactEditable && breakpoints.DESKTOP_SMALL && (

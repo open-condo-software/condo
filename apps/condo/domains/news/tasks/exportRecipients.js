@@ -33,7 +33,7 @@ const dvAndSender = { dv: 1, sender: { dv: 1, fingerprint: TASK_WORKER_FINGERPRI
 const buildExportFile = async ({ rows, locale }) => {
     const YesMessage = i18n('Yes', { locale })
     const NoMessage = i18n('No', { locale })
-    const HeaderMessage = i18n('excelExport.sheetNames.recipients', { locale })
+    const HeaderMessage = i18n('excelExport.sheetNames.residents', { locale })
 
     const processedRows = rows.reduce((acc, row) => {
         row.hasResident = row.hasResident ? YesMessage : NoMessage
@@ -47,14 +47,14 @@ const buildExportFile = async ({ rows, locale }) => {
             newsRecipients: processedRows,
             i18n: {
                 ...getHeadersTranslations(EXPORT_TYPE_NEWS_RECIPIENTS, locale),
-                sheetName: i18n('excelExport.sheetNames.recipients', { locale }),
+                sheetName: i18n('excelExport.sheetNames.residents', { locale }),
             },
         },
     })
 
     return {
         stream,
-        filename: `news_item_recipients_${dayjs().format('DD_MM')}.xlsx`,
+        filename: `residents_${dayjs().format('DD_MM')}.xlsx`,
         mimetype: EXCEL_FILE_META.mimetype,
         encoding: EXCEL_FILE_META.encoding,
         meta: {
