@@ -758,7 +758,7 @@ const withUncaughtExceptionHandler = () => (PageComponent: NextPage): NextPage =
         } catch (err) {
             const { type, message, stack } = err
             console.error('Uncaught exception', { type, message, stack })
-            return {}
+            return { pageProps: { statusCode: 500 } }
         }
     }
 
