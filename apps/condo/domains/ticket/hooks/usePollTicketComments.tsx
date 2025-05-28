@@ -24,11 +24,6 @@ export function usePollTicketComments ({
 }) {
     const { useFlag } = useFeatureFlags()
     const isPollTicketsEnabled = useFlag(POLL_TICKET_COMMENTS)
-
-    const firstArgRef = useRef<number>()
-    useEffect(() => {
-        firstArgRef.current = isPollTicketsEnabled ? 100 : undefined
-    }, [isPollTicketsEnabled])
     
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>()
 
@@ -45,7 +40,7 @@ export function usePollTicketComments ({
     })
 
     const pollTicketComments = useCallback(async () => {
-        if (isSSR() || !localStorage) return
+        if (isSSR() || !localStorage || !isPollTicketsEnabled) return
 
         const now = new Date().toISOString()
         const lastSyncAt = localStorage.getItem(LOCAL_STORAGE_SYNC_KEY)
@@ -56,7 +51,7 @@ export function usePollTicketComments ({
                 ...pollCommentsQuery,
                 updatedAt_gt: lastSyncAt || now,
             },
-            first: firstArgRef.current,
+            first: 100,
         })
         const ticketComments = result?.data?.ticketComments?.filter(Boolean) || []
 
@@ -67,7 +62,7 @@ export function usePollTicketComments ({
         if (!isEmpty(ticketsWithUpdatedComments)) {
             sendMessageToBroadcastChannel(ticketsWithUpdatedComments)
         }
-    }, [pollCommentsQuery, refetchSyncComments, sendMessageToBroadcastChannel])
+    }, [isPollTicketsEnabled, pollCommentsQuery, refetchSyncComments, sendMessageToBroadcastChannel])
 
     useExecuteWithLock(LOCK_NAME, () => {
         intervalRef.current = setInterval(pollTicketComments, COMMENT_RE_FETCH_INTERVAL_IN_MS)
