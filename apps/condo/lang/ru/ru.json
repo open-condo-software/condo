@@ -2975,7 +2975,7 @@
   "tasks.NewsItemRecipientsExportTask.progress.description.completed.link.label": "Скачать",
   "tasks.NewsItemRecipientsExportTask.progress.description.preparing": "Подготовка к экспорту",
   "tasks.NewsItemRecipientsExportTask.progress.description.processing": "Экспортированно записей: {exported} из {total}",
-  "tasks.NewsItemRecipientsExportTask.progress.title": "Внедрение приложение жителя",
+  "tasks.NewsItemRecipientsExportTask.progress.title": "Внедрение приложения жителя",
   "tasks.PropertyMeterReadingsImportTask.progress.description.completed": "Файл импортирован, пожалуйста, обновите страницу",
   "tasks.PropertyMeterReadingsImportTask.progress.description.completed.link.label": "Скачать",
   "tasks.PropertyMeterReadingsImportTask.progress.description.error": "Файл не импортирован. {errorMessage}",
