@@ -21,6 +21,8 @@ import { Col, Form, FormInstance, notification, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { ArgsProps } from 'antd/lib/notification'
 import dayjs, { Dayjs } from 'dayjs'
+import timezone from 'dayjs/plugin/timezone'
+import utc from 'dayjs/plugin/utc'
 import chunk from 'lodash/chunk'
 import difference from 'lodash/difference'
 import flattenDeep from 'lodash/flattenDeep'
@@ -32,6 +34,7 @@ import isFunction from 'lodash/isFunction'
 import isNull from 'lodash/isNull'
 import keyBy from 'lodash/keyBy'
 import uniq from 'lodash/uniq'
+import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import { Rule } from 'rc-field-form/lib/interface'
 import React, { ComponentProps, useCallback, useEffect, useMemo, useState, useRef } from 'react'
@@ -322,6 +325,30 @@ const getAllUnits = (property: IProperty): IBuildingUnit[] => {
     ]
 }
 
+const { publicRuntimeConfig: { defaultTimezone } } = getConfig()
+//const defaultTimezone = 'America/New_York'
+dayjs.extend(utc)
+dayjs.extend(timezone)
+
+const TIMEZONES_ABBR = {
+    'Europe/Moscow': { std: 'msk' },
+    'Europe/Madrid': { std: 'cet', dst: 'cest' },
+    'UTC': { std: 'utc' },
+    'Etc/UTC': { std: 'utc' },
+}
+
+const getBaseAbbr = (timezone: string): string => {
+    const entry = TIMEZONES_ABBR[timezone]
+    if (!entry) return 'utc'
+
+    if (!entry.dst) return entry.std
+
+    const now = dayjs().tz(timezone)
+    const janShift = dayjs().month(0).date(1).tz(timezone).utcOffset()
+    return now.utcOffset() === janShift ? entry.std : entry.dst
+}
+
+const TIMEZONE = getBaseAbbr(defaultTimezone)
 
 const INITIAL_VALUES = {}
 const CHUNK_SIZE = 50
@@ -362,7 +389,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const ToManyMessagesMessage = intl.formatMessage({ id: 'news.fields.toManyMessages.error' })
     const PastTimeErrorMessage = intl.formatMessage({ id: 'global.input.error.pastTime' })
     const NextStepMessage = intl.formatMessage({ id: 'pages.condo.news.steps.nextStep' })
-    const TimezoneMskTitle = intl.formatMessage({ id: 'timezone.msk' })
+    const TimezoneTitle = intl.formatMessage({ id: `timezone.${TIMEZONE}` })
     const ProfanityInTitle = intl.formatMessage({ id: 'news.fields.profanityInTitle.error' })
     const ProfanityInBody = intl.formatMessage({ id: 'news.fields.profanityInBody.error' })
     const SelectSharingAppLabel = intl.formatMessage({ id: 'pages.news.create.selectSharingApp' })
@@ -752,22 +779,20 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     }, [actionName, createOrUpdateNewsItem, initialHasAllProperties, initialPropertyIds, updateNewsItem, OnCompletedMsg, afterAction, initialSentAt, currentNewsItem, initialNewsItemScopes, softDeleteNewsItemScope, initialUnitKeys, createNewsItemScope, router])
 
 
-    const dayjsTz = dayjs().format('Z')
     const tzInfo = useMemo<string>(() => {
-        const matches = /([+-])(\d{1,2}):(\d{1,2})/.exec(dayjsTz)
-        const sign = matches[1]
-        const hours = Number(matches[2]) - 3 // We show tz related to Moscow tz
-        const minutes = Number(matches[3])
-        let result = `${TimezoneMskTitle}`
-        if (hours !== 0) {
-            result = `${result}${sign}${hours}`
-        }
-        if (minutes !== 0) {
-            result = `${result}${hours === 0 ? `${sign}0` : ''}:${matches[3]}`
-        }
+        const baseOffsetMin = dayjs().tz(defaultTimezone).utcOffset()
+        const userOffsetMin = dayjs().utcOffset()
+        const diffMin = userOffsetMin - baseOffsetMin
 
-        return result
-    }, [TimezoneMskTitle, dayjsTz])
+        if (diffMin === 0) return TimezoneTitle
+
+        const sign = diffMin > 0 ? '+' : '-'
+        const absMin = Math.abs(diffMin)
+        const hours = Math.floor(absMin / 60)
+        const minutes = absMin % 60
+
+        return `${TimezoneTitle}${sign}${hours}${minutes ? `:${String(minutes).padStart(2, '0')}` : ''}`
+    }, [TimezoneTitle])
 
     const ErrorToFormFieldMsgMapping = useMemo(() => ({
         [PROFANITY_TITLE_DETECTED_MOT_ERF_KER]: {
