@@ -326,7 +326,7 @@ const getAllUnits = (property: IProperty): IBuildingUnit[] => {
 }
 
 const { publicRuntimeConfig: { defaultTimezone } } = getConfig()
-//const defaultTimezone = 'America/New_York'
+
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
