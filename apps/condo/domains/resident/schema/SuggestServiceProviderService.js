@@ -59,7 +59,7 @@ const SuggestServiceProviderService = new GQLCustomSchema('SuggestServiceProvide
         },
         {
             access: true,
-            type: 'type SuggestServiceProviderOutput { id: String!, tin: String!, name: String!, type: String! }',
+            type: 'type SuggestServiceProviderOutput { id: String!, tin: String!, name: String!, type: OrganizationTypeType! }',
         },
     ],
     
