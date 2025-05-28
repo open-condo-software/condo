@@ -27,7 +27,6 @@ import { useFeatureFlags, FeaturesReady, withFeatureFlags } from '@open-condo/fe
 import * as AllIcons from '@open-condo/icons'
 import { extractReqLocale } from '@open-condo/locales/extractReqLocale'
 import { isSSR } from '@open-condo/miniapp-utils'
-import { preventInfinityLoop } from '@open-condo/next/_utils'
 import { withApollo } from '@open-condo/next/apollo'
 import { useAuth, withAuth } from '@open-condo/next/auth'
 import { useIntl, withIntl } from '@open-condo/next/intl'
@@ -742,16 +741,10 @@ const withUncaughtExceptionHandler = () => (PageComponent: NextPage): NextPage =
         WithUncaughtExceptionHandler.displayName = `withUncaughtExceptionHandler(${displayName})`
     }
     WithUncaughtExceptionHandler.getInitialProps = async (context) => {
-        const isOnServerSide = typeof window === 'undefined'
-
         try {
             let childProps = {}
             if (PageComponent.getInitialProps) {
                 childProps = await PageComponent.getInitialProps(context)
-            }
-
-            if (isOnServerSide) {
-                preventInfinityLoop(context)
             }
 
             return { ...childProps }
