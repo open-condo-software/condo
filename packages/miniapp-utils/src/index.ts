@@ -32,5 +32,5 @@ export { generateUUIDv4 } from './helpers/uuid'
  */
 
 export { useEffectOnce } from './hooks/useEffectOnce'
-
 export { usePrevious } from './hooks/usePrevious'
+export { useIntersectionObserver } from './hooks/useIntersectionObserver'
