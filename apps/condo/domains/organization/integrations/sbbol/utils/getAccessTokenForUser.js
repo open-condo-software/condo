@@ -29,8 +29,8 @@ async function getAccessTokenForUser (userId, organizationId, useExtendedConfig 
     if (await sbbolSecretStorage.isRefreshTokenExpired(userId, organizationId)) {
         return { error: 'REFRESH_TOKEN_EXPIRED' }
     }
-    const oauth2 = await initializeSbbolAuthApi(useExtendedConfig)
     if (await sbbolSecretStorage.isAccessTokenExpired(userId, organizationId)) {
+        const oauth2 = await initializeSbbolAuthApi(useExtendedConfig)
         const currentRefreshToken = await sbbolSecretStorage.getRefreshToken(userId, organizationId)
         const { access_token, expires_at: expiresAt, refresh_token } = await oauth2.refreshToken(currentRefreshToken)
         await sbbolSecretStorage.setAccessToken(access_token, userId, organizationId, { expiresAt })

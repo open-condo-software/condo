@@ -1,7 +1,7 @@
 const { validate: uuidValidate } = require('uuid')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
-const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const { getAccessTokenForUser } = require('@condo/domains/organization/integrations/sbbol/utils')
 const access = require('@condo/domains/user/access/GetAccessTokenByUserIdService')
