@@ -83917,7 +83917,7 @@ type SuggestServiceProviderOutput {
   id: String!
   tin: String!
   name: String!
-  type: String!
+  type: OrganizationTypeType!
 }
 
 input FindUnitsByAddressInput {

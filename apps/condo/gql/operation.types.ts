@@ -317,6 +317,13 @@ export type GetUserB2BAppRolesQueryVariables = Types.Exact<{
 
 export type GetUserB2BAppRolesQuery = { __typename?: 'Query', b2bRoles?: Array<{ __typename?: 'B2BAppRole', id: string, app?: { __typename?: 'B2BApp', id: string } | null } | null> | null };
 
+export type GetNewsItemsRecipientsCountersQueryVariables = Types.Exact<{
+  data: Types.GetNewsItemsRecipientsCountersInput;
+}>;
+
+
+export type GetNewsItemsRecipientsCountersQuery = { __typename?: 'Query', result?: { __typename?: 'GetNewsItemsRecipientsCountersOutput', propertiesCount: number, unitsCount: number, receiversCount: number } | null };
+
 export type GetNewsItemRecipientsExportTasksQueryVariables = Types.Exact<{
   where: Types.NewsItemRecipientsExportTaskWhereInput;
 }>;
