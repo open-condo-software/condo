@@ -23,7 +23,11 @@ export function usePollTicketComments ({
     pollCommentsQuery,
 }) {
     const { useFlag } = useFeatureFlags()
-    const isPollTicketsEnabled = useFlag(POLL_TICKET_COMMENTS)
+    const isPollTicketCommentsEnabled = useFlag(POLL_TICKET_COMMENTS)
+    const pollTicketCommentsEnabledRef = useRef<boolean>(isPollTicketCommentsEnabled)
+    useEffect(() => {
+        pollTicketCommentsEnabledRef.current = isPollTicketCommentsEnabled
+    }, [isPollTicketCommentsEnabled])
     
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>()
 
@@ -40,7 +44,7 @@ export function usePollTicketComments ({
     })
 
     const pollTicketComments = useCallback(async () => {
-        if (isSSR() || !localStorage || !isPollTicketsEnabled) return
+        if (isSSR() || !localStorage || !pollTicketCommentsEnabledRef.current) return
 
         const now = new Date().toISOString()
         const lastSyncAt = localStorage.getItem(LOCAL_STORAGE_SYNC_KEY)
@@ -62,7 +66,7 @@ export function usePollTicketComments ({
         if (!isEmpty(ticketsWithUpdatedComments)) {
             sendMessageToBroadcastChannel(ticketsWithUpdatedComments)
         }
-    }, [isPollTicketsEnabled, pollCommentsQuery, refetchSyncComments, sendMessageToBroadcastChannel])
+    }, [pollCommentsQuery, refetchSyncComments, sendMessageToBroadcastChannel])
 
     useExecuteWithLock(LOCK_NAME, () => {
         intervalRef.current = setInterval(pollTicketComments, COMMENT_RE_FETCH_INTERVAL_IN_MS)
