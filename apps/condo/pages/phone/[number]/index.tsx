@@ -313,7 +313,7 @@ const ClientCardTabContent = ({
     property,
     searchTicketsQuery = null,
     handleTicketCreateClick,
-    handleMeterReadingCreateClick,
+    getQueryForCreatingMeterReading,
     canManageContacts,
     showOrganizationMessage = false,
     handleContactEditClick = null,
@@ -400,19 +400,22 @@ const ClientCardTabContent = ({
     },
     [handleTicketCreateClick, lastCreatedTicket, phone, property])
 
-    const handleCreateMeterReading = useCallback(() => {
-        handleMeterReadingCreateClick({
-            tab: METER_TAB_TYPES.meterReading,
-            propertyId: property?.id,
-            unitName,
-            unitType,
-            sectionName,
-            sectionType,
-            contact: contact?.id,
-            clientName: contact?.name || lastCreatedTicket?.clientName,
-            clientPhone: contact?.phone || lastCreatedTicket?.clientPhone || phone,
-        })
-    }, [handleMeterReadingCreateClick, lastCreatedTicket, phone, property])
+    const handleCreateMeterReading = useCallback(async () => {
+        const dataForMeterReadingForm = property ? lastCreatedTicket : { clientPhone: phone }
+        const query = qs.stringify(
+            getQueryForCreatingMeterReading(dataForMeterReadingForm),
+            { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
+        )
+
+        const newUrl = `/meter/create${query}`
+
+        if (typeof window !== 'undefined') {
+            window.open(newUrl, '_blank')
+        } else {
+            await router.push(newUrl)
+        }
+
+    }, [lastCreatedTicket, phone, property, router, getQueryForCreatingMeterReading])
 
     const redirectToTicketPage = useCallback(async () => {
         let filters = {}
@@ -590,21 +593,17 @@ const ContactClientTabContent = ({
         })
     }, [contact, property, router, unitName, unitType])
 
-    const handleMeterReadingCreateClick = useCallback(async (initialValues) => {
-        const query = qs.stringify(
-            initialValues,
-            { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
-        )
-
-        const newUrl = `/meter/create${query}`
-
-        if (typeof window !== 'undefined') {
-            window.open(newUrl, '_blank')
-        } else {
-            await router.push(newUrl)
-        }
-
-    }, [router])
+    const getQueryForCreatingMeterReadingWithContact = useCallback(() => ({
+        tab: METER_TAB_TYPES.meterReading,
+        propertyId: property?.id,
+        unitName,
+        unitType,
+        sectionName,
+        sectionType,
+        contact: contact?.id,
+        clientName: contact?.name,
+        clientPhone: contact?.phone,
+    }), [property, unitName, unitType, sectionName, sectionType, contact])
 
     const handleContactEditClick = useCallback(async () => {
         await redirectToForm({
@@ -624,7 +623,7 @@ const ContactClientTabContent = ({
             sectionName={sectionName}
             property={property}
             handleTicketCreateClick={handleTicketCreateClick}
-            handleMeterReadingCreateClick={handleMeterReadingCreateClick}
+            getQueryForCreatingMeterReading={getQueryForCreatingMeterReadingWithContact}
             handleContactEditClick={handleContactEditClick}
             canManageContacts={canManageContacts}
             contact={contact}
@@ -669,28 +668,14 @@ const NotResidentClientTabContent = ({
         })
     }, [property, router, unitName, unitType])
 
-    const handleMeterReadingCreateClick = useCallback(async (ticket) => {
-        const query = qs.stringify(
-            {
-                tab: METER_TAB_TYPES.meterReading,
-                property: property?.id,
-                unitName,
-                unitType,
-                clientName: ticket?.clientName,
-                clientPhone: ticket?.clientPhone,
-            },
-            { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
-        )
-
-        const newUrl = `/meter/create${query}`
-
-        if (typeof window !== 'undefined') {
-            window.open(newUrl, '_blank')
-        } else {
-            await router.push(newUrl)
-        }
-
-    }, [router, unitName, unitType, property])
+    const getQueryForCreatingMeterReadingWithoutContact = useCallback((ticket) => ({
+        tab: METER_TAB_TYPES.meterReading,
+        property: property?.id,
+        unitName,
+        unitType,
+        clientName: ticket?.clientName,
+        clientPhone: ticket?.clientPhone,
+    }), [property, unitName, unitType])
 
     return (
         <ClientCardTabContent
@@ -704,7 +689,7 @@ const NotResidentClientTabContent = ({
             sectionType={sectionType}
             searchTicketsQuery={searchTicketsQuery}
             handleTicketCreateClick={handleTicketCreateClick}
-            handleMeterReadingCreateClick={handleMeterReadingCreateClick}
+            getQueryForCreatingMeterReading={getQueryForCreatingMeterReadingWithoutContact}
             canManageContacts={false}
             organization={organization}
         />
