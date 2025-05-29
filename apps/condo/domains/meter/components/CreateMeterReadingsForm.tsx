@@ -253,6 +253,9 @@ export const CreateMeterReadingsForm = ({ organization, canManageMeterReadings }
     const propertyIdFromQuery = get(router.query, 'propertyId')
     const unitNameFromQuery = get(router.query, 'unitName')
     const unitTypeFromQuery = get(router.query, 'unitType')
+    const contactFromQuery = router.query?.contact || null
+    const clientNameFromQuery = router.query?.clientName || null
+    const clientPhoneFromQuery = router.query?.clientPhone || null
 
     const [selectedPropertyId, setSelectedPropertyId] = useState<string>(propertyIdFromQuery as string || null)
     const [selectedUnitName, setSelectedUnitName] = useState<string>(unitNameFromQuery as string || null)
@@ -429,6 +432,11 @@ export const CreateMeterReadingsForm = ({ organization, canManageMeterReadings }
                                                 <ContactsInfo
                                                     ContactsEditorComponent={ContactsEditorComponent}
                                                     form={form}
+                                                    initialValues={{
+                                                        contact: contactFromQuery,
+                                                        clientName: clientNameFromQuery,
+                                                        clientPhone: clientPhoneFromQuery,
+                                                    }}
                                                     selectedPropertyId={selectedPropertyId}
                                                     hasNotResidentTab={false}
                                                     residentTitle={MeterReadingsFromResidentMessage}
