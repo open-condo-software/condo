@@ -69,6 +69,9 @@
       "hooks/useEffectOnce": [
         "dist/hooks/useEffectOnce.d.ts"
       ],
+      "hooks/useIntersectionObserver": [
+        "dist/hooks/useIntersectionObserver.d.ts"
+      ],
       "hooks/usePrevious": [
         "dist/hooks/usePrevious.d.ts"
       ]
@@ -131,6 +134,11 @@
       "types": "./dist/hooks/useEffectOnce.d.ts",
       "require": "./dist/hooks/useEffectOnce.js",
       "import": "./dist/hooks/useEffectOnce.mjs"
+    },
+    "./hooks/useIntersectionObserver": {
+      "types": "./dist/hooks/useIntersectionObserver.d.ts",
+      "require": "./dist/hooks/useIntersectionObserver.js",
+      "import": "./dist/hooks/useIntersectionObserver.mjs"
     },
     "./hooks/usePrevious": {
       "types": "./dist/hooks/usePrevious.d.ts",
