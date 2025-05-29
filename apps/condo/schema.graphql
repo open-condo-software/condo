@@ -88649,18 +88649,6 @@ type Query {
   }`
   
   `{
-    "code": "BAD_USER_INPUT",
-    "type": "INVALID_USER_ID",
-    "message": "Received userId must be uuid"
-  }`
-  
-  `{
-    "code": "BAD_USER_INPUT",
-    "type": "INVALID_ORGANIZATION_ID",
-    "message": "Received organizationId must be uuid"
-  }`
-  
-  `{
     "code": "INTERNAL_ERROR",
     "type": "ERROR_GETTING_ACCESS_TOKEN",
     "message": "Unresolved error in getAccessTokenForUser"
