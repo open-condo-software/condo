@@ -32,6 +32,14 @@ class SbbolSecretStorage {
         this.apiName = apiName
     }
 
+    checkRequiredFields (args, methodName) {
+        for (const [key, value] of Object.entries(args)) {
+            if (!value) {
+                throw new Error(`${key} field is required for ${methodName}`)
+            }
+        }
+    }
+
     async getClientSecret () {
         // When no clientSecret has been stored yet, return a seeded one
         return await this.#getValue('clientSecret') || SBBOL_AUTH_CONFIG.client_secret
@@ -42,9 +50,9 @@ class SbbolSecretStorage {
         await this.#setValue('clientSecret:updatedAt', dayjs().toISOString())
     }
 
-    async getAccessToken (userId) {
-        if (!userId) throw new Error('userId is required for setAccessToken')
-        const key = `user:${userId}:accessToken`
+    async getAccessToken (userId, organizationId) {
+        this.checkRequiredFields({ userId, organizationId }, 'getAccessToken')
+        const key = `user:${userId}:${organizationId}:accessToken`
         return {
             accessToken: await this.#getValue(key),
             ttl: await this.keyStorage.ttl(this.#scopedKey(key)),
@@ -54,37 +62,38 @@ class SbbolSecretStorage {
     async setAccessToken (
         value,
         userId,
+        organizationId,
         options,
     ) {
-        if (!value) throw new Error('value is required for setAccessToken')
-        if (!userId) throw new Error('userId is required for setAccessToken')
-
-        await this.#setValue(`user:${userId}:accessToken`, value, { expiresAt: dayjs().add(ACCESS_TOKEN_TTL_SEC, 's').unix(), ...options })
-        await this.#setValue(`user:${userId}:accessToken:updatedAt`, dayjs().toISOString())
+        this.checkRequiredFields({ userId, organizationId, value }, 'setAccessToken')
+        await this.#setValue(`user:${userId}:${organizationId}:accessToken`, value, { expiresAt: dayjs().add(ACCESS_TOKEN_TTL_SEC, 's').unix(), ...options })
+        await this.#setValue(`user:${userId}:${organizationId}:accessToken:updatedAt`, dayjs().toISOString())
     }
 
-    async isAccessTokenExpired (userId) {
-        return await this.#isExpired(`user:${userId}:accessToken`)
+    async isAccessTokenExpired (userId, organizationId) {
+        this.checkRequiredFields({ userId, organizationId }, 'isAccessTokenExpired')
+        return await this.#isExpired(`user:${userId}:${organizationId}:accessToken`)
     }
 
-    async getRefreshToken (userId) {
-        return this.#getValue(`user:${userId}:refreshToken`)
+    async getRefreshToken (userId, organizationId) {
+        this.checkRequiredFields({ userId, organizationId }, 'getRefreshToken')
+        return this.#getValue(`user:${userId}:${organizationId}:refreshToken`)
     }
 
     async setRefreshToken (
         value,
         userId,
+        organizationId,
     ) {
-        if (!value) throw new Error('value is required for setRefreshToken')
-        if (!userId) throw new Error('userId is required for setRefreshToken')
-
+        this.checkRequiredFields({ userId, organizationId, value }, 'setRefreshToken')
         const options = { expiresAt: dayjs().add(REFRESH_TOKEN_TTL_DAYS, 'days').unix() }
-        await this.#setValue(`user:${userId}:refreshToken`, value, options)
-        await this.#setValue(`user:${userId}:refreshToken:updatedAt`, dayjs().toISOString())
+        await this.#setValue(`user:${userId}:${organizationId}:refreshToken`, value, options)
+        await this.#setValue(`user:${userId}:${organizationId}:refreshToken:updatedAt`, dayjs().toISOString())
     }
 
-    async isRefreshTokenExpired (userId) {
-        return await this.#isExpired(`user:${userId}:refreshToken`)
+    async isRefreshTokenExpired (userId, organizationId) {
+        this.checkRequiredFields({ userId, organizationId }, 'isRefreshTokenExpired')
+        return await this.#isExpired(`user:${userId}:${organizationId}:refreshToken`)
     }
 
     async setOrganization (id) {
@@ -94,18 +103,17 @@ class SbbolSecretStorage {
     /**
      * Used for inspection of stored values in case when there is no direct access to Redis
      */
-    async getRawKeyValues (userId) {
-        if (!userId) throw new Error('userId is required for getRawKeyValues')
-
+    async getRawKeyValues (userId, organizationId) {
+        this.checkRequiredFields({ userId, organizationId }, 'getRawKeyValues')
         const organization = this.#scopedKey('organization')
         const clientSecretScopedKey = this.#scopedKey('clientSecret')
-        const accessTokenScopedKey = this.#scopedKey(`user:${userId}:accessToken`)
-        const refreshTokenScopedKey = this.#scopedKey(`user:${userId}:refreshToken`)
+        const accessTokenScopedKey = this.#scopedKey(`user:${userId}:${organizationId}:accessToken`)
+        const refreshTokenScopedKey = this.#scopedKey(`user:${userId}:${organizationId}:refreshToken`)
 
         const organizationValue = await this.#getValue('organization')
         const clientSecretValue = await this.#getValue('clientSecret')
-        const accessTokenValue = await this.#getValue(`user:${userId}:accessToken`)
-        const refreshTokenValue = await this.#getValue(`user:${userId}:refreshToken`)
+        const accessTokenValue = await this.#getValue(`user:${userId}:${organizationId}:accessToken`)
+        const refreshTokenValue = await this.#getValue(`user:${userId}:${organizationId}:refreshToken`)
 
         return {
             [organization]: organizationValue,
@@ -131,12 +139,13 @@ class SbbolSecretStorage {
         if (expiresAt) {
             commands.expireat(scopedKey, expiresAt)
         }
-        return commands.exec()
-            .then(() => {
-                logger.info({ msg: `Set ${scopedKey}`, value })
-            }).catch(() => {
-                logger.error({ msg: `Error set ${scopedKey}`, value })
-            })
+        try {
+            await commands.exec()
+            logger.info({ msg: `Set ${scopedKey}`, value })
+        } catch (error) {
+            logger.error({ msg: `Error set ${scopedKey} value ${value}`, data: { error } })
+            throw error
+        }
     }
 
     async #isExpired (key) {

@@ -83008,7 +83008,8 @@ type ResetUserOutput {
 
 input GetAccessTokenByUserIdInput {
   userId: ID!
-  type: String!
+  organizationId: ID!
+  type: ExternalTokenAccessRightTypeType!
 }
 
 type GetAccessTokenByUserIdOutput {
@@ -88644,13 +88645,7 @@ type Query {
   `{
     "code": "INTERNAL_ERROR",
     "type": "REFRESH_TOKEN_EXPIRED",
-    "message": "SBBOL user refreshToken expired"
-  }`
-  
-  `{
-    "code": "BAD_USER_INPUT",
-    "type": "INVALID_USER_ID",
-    "message": "Received userId must be uuid"
+    "message": "User refreshToken expired"
   }`
   
   `{
