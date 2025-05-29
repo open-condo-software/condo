@@ -40,8 +40,8 @@
 
  */
 
-const { safeFormatError, safeApolloErrorFormatter, formatError } = require('./errorsUtils/safeFormatError')
-const { throwAuthenticationError } = require('./errorsUtils/throwAuthenticationError')
+const { safeFormatError, safeApolloErrorFormatter, formatError } = require('./utils/errors/safeFormatError')
+const { throwAuthenticationError } = require('./utils/errors/throwAuthenticationError')
 
 module.exports = {
     safeFormatError,

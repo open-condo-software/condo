@@ -1,6 +1,6 @@
 const { GQLErrorCode: { UNAUTHENTICATED } } = require('./constants')
 
-const { GQLError } = require('../errors')
+const { GQLError } = require('../../errors')
 
 // NEW GraphQL Error standard
 function throwAuthenticationError (context) {

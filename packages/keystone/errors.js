@@ -68,8 +68,8 @@ const conf = require('@open-condo/config')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const { getTranslations } = require('@open-condo/locales/loader')
 
-const { GQLErrorCode, GQLInternalErrorTypes } = require('./errorsUtils/constants')
 const { getLogger } = require('./logging/getLogger')
+const { GQLErrorCode, GQLInternalErrorTypes } = require('./utils/errors/constants')
 
 // Matches placeholder `{name}` in string, we are going to interpolate
 templateSettings.interpolate = /{([\s\S]+?)}/g
