@@ -5,7 +5,7 @@ const serializers = require('pino-std-serializers')
 
 const { normalizeVariables } = require('./normalize')
 
-const { safeFormatError } = require('../apolloErrorFormatter')
+const { safeFormatError } = require('../errorsUtils/safeFormatError')
 
 function toCount (data) {
     const count = parseInt(data)
