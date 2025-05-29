@@ -18,7 +18,6 @@ class SbbolOauth2Api {
     constructor ({ clientSecret, useExtendedConfig }) {
         if (!clientSecret) throw new Error('SbbolOauth2Api: unknown clientSecret')
         this.config = useExtendedConfig ? SBBOL_AUTH_CONFIG_EXTENDED : SBBOL_AUTH_CONFIG
-        this.pfx = SBBOL_PFX
         this.createClient(clientSecret)
     }
 
@@ -37,13 +36,13 @@ class SbbolOauth2Api {
             tls_client_certificate_bound_access_tokens: true,
         })
         client[custom.http_options] = (options) => {
-            if (this.pfx.certificate) {
+            if (SBBOL_PFX.certificate) {
                 return {
                     ...options,
                     https: {
-                        pfx: Buffer.from(this.pfx.certificate, 'base64'),
-                        passphrase: this.pfx.passphrase,
-                        ...(this.pfx.https || {}),
+                        pfx: Buffer.from(SBBOL_PFX.certificate, 'base64'),
+                        passphrase: SBBOL_PFX.passphrase,
+                        ...(SBBOL_PFX.https || {}),
                     },
                 }
             }

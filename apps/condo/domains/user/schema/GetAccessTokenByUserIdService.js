@@ -18,18 +18,6 @@ const ERRORS = {
         type: 'REFRESH_TOKEN_EXPIRED',
         message: 'User refreshToken expired',
     },
-    INVALID_USER_ID: {
-        query: 'GetAccessTokenByUserIdService',
-        code: BAD_USER_INPUT,
-        type: 'INVALID_USER_ID',
-        message: 'Received userId must be uuid',
-    },
-    INVALID_ORGANIZATION_ID: {
-        query: 'GetAccessTokenByUserIdService',
-        code: BAD_USER_INPUT,
-        type: 'INVALID_ORGANIZATION_ID',
-        message: 'Received organizationId must be uuid',
-    },
     ERROR_GETTING_ACCESS_TOKEN: {
         query: 'GetAccessTokenByUserIdService',
         code: INTERNAL_ERROR,
@@ -62,12 +50,6 @@ const GetAccessTokenByUserIdService = new GQLCustomSchema('GetAccessTokenByUserI
             schema: 'getAccessTokenByUserId (data: GetAccessTokenByUserIdInput!): GetAccessTokenByUserIdOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data: { userId, organizationId } } = args
-                if (!uuidValidate(userId)) {
-                    throw new GQLError(ERRORS.INVALID_USER_ID, context)
-                }
-                if (!uuidValidate(organizationId)) {
-                    throw new GQLError(ERRORS.INVALID_ORGANIZATION_ID, context)
-                }
                 const { error, accessToken, ttl } =  await getAccessTokenForUser(userId, organizationId)
                 if (error) {
                     const errorKey = ERRORS.hasOwnProperty(error) ? error : 'ERROR_GETTING_ACCESS_TOKEN'

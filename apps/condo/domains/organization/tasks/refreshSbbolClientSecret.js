@@ -26,7 +26,7 @@ const refreshSbbolClientSecret = createCronTask('refreshSbbolClientSecret', '0 1
     const serviceOrganizationId = get(SBBOL_AUTH_CONFIG, 'serviceOrganizationId')
 
     if (!serviceUserId) throw new Error('changeClientSecret: no SBBOL_AUTH_CONFIG.serviceUserId')
-    if (!serviceOrganizationId) throw new Error('changeClientSecret: no SBBOL_AUTH_CONFIG_EXTENDED.serviceOrganizationId')
+    if (!serviceOrganizationId) throw new Error('changeClientSecret: no SBBOL_AUTH_CONFIG.serviceOrganizationId')
 
     const user = await User.getOne(context, { id: serviceUserId })
     if (!user) {

@@ -109,20 +109,22 @@ const sync = async ({ keystone, userInfo, tokenSet, features, useExtendedConfig 
     let user
     try {
         user = await syncUser({ context, userInfo: userData, identityId: userInfo.userGuid || userInfo.sub })
-    } catch (error) {
+    } catch (err) {
         logger.error({
             msg: 'Failed to sync user',
-            data: { error, userData, userInfo, organizationInfo },
+            err,
+            data: { userData, userInfo, organizationInfo },
         })
         throw error
     }
     let organizationSyncResult
     try {
         organizationSyncResult = await syncOrganization({ context, user, userData, organizationInfo, dvSenderFields })
-    } catch (error) {
+    } catch (err) {
         logger.error({
             msg: 'Failed to sync organization',
-            data: { error, userData, userInfo, organizationInfo },
+            err,
+            data: { userData, userInfo, organizationInfo },
         })
         throw error
     }
@@ -132,10 +134,11 @@ const sync = async ({ keystone, userInfo, tokenSet, features, useExtendedConfig 
     await syncTokens(tokenSet, user.id, organization.id, useExtendedConfig)
     try {
         await syncServiceSubscriptions(userInfo.inn)
-    } catch (error) {
+    } catch (err) {
         logger.error({
             msg: 'Failed to sync service subscriptions',
-            data: { error, userInfo },
+            err,
+            data: { userInfo },
         })
         // we do not need to throw an error here as syncServiceSubscriptions needs to be removed
     }
