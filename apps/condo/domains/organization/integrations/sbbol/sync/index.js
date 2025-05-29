@@ -115,7 +115,7 @@ const sync = async ({ keystone, userInfo, tokenSet, features, useExtendedConfig 
             err,
             data: { userData, userInfo, organizationInfo },
         })
-        throw error
+        throw err
     }
     let organizationSyncResult
     try {
@@ -126,7 +126,7 @@ const sync = async ({ keystone, userInfo, tokenSet, features, useExtendedConfig 
             err,
             data: { userData, userInfo, organizationInfo },
         })
-        throw error
+        throw err
     }
     const { organization, employee } = organizationSyncResult
     const sbbolSecretStorage = getSbbolSecretStorage(useExtendedConfig)
