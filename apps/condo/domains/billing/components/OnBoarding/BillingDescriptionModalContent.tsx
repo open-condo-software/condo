@@ -50,7 +50,7 @@ export const BillingDescriptionModalContent: React.FC<BillingDescriptionModalCon
     const { organization } = useOrganization()
     const orgId = get(organization, 'id', null)
 
-    const { obj: ctx } = BillingContext.useObject({
+    const { obj: ctx, loading: ctxLoading } = BillingContext.useObject({
         where: {
             organization: { id: orgId },
         },
@@ -108,7 +108,7 @@ export const BillingDescriptionModalContent: React.FC<BillingDescriptionModalCon
                         <Typography.Title level={4}>{ReceiptsAwaitingTitle}</Typography.Title>
                         <Typography.Text type='secondary'>{receiptsLoadingTime}</Typography.Text>
                     </div>
-                    <Button type='primary' onClick={handleSetupClick}>
+                    <Button type='primary' onClick={handleSetupClick} disabled={ctxLoading}>
                         {SetupButtonLabel}
                     </Button>
                 </Space>
