@@ -73,6 +73,7 @@ const posthogApiKey = conf['POSTHOG_API_KEY']
 const residentAppInfo = conf['RESIDENT_APP_INFO'] ? JSON.parse(conf['RESIDENT_APP_INFO']) : {}
 const aiEnabled = conf['AI_ENABLED']
 const contactPageResidentAnalytics = JSON.parse(conf['CONTACT_PAGE_RESIDENT_ANALYTICS'] || '{}')
+const defaultTimezone = conf['DEFAULT_TIMEZONE'] || 'Europe/Moscow'
 
 let nextConfig = withTM(withLess(withCSS({
     skipTrailingSlashRedirect: true,
@@ -125,6 +126,7 @@ let nextConfig = withTM(withLess(withCSS({
         residentAppInfo,
         aiEnabled,
         contactPageResidentAnalytics,
+        defaultTimezone,
     },
     serverRuntimeConfig: {
         proxyName,
