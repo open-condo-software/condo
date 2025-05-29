@@ -3317,7 +3317,7 @@
   "ticketBlankExport.message.workCompleted": "The work has been completed in full. I have no complaints about the quality.",
   "ticketsTable.Number": "№",
   "ticketsTable.ResidentName": "Resident Name",
-  "timezone.msk": "MSK",
+  "timezone": "Time zone",
   "tour.cardVideo.description.billing": "We tell you how to work with accruals and make sure that residents pay their receipts on time",
   "tour.cardVideo.description.default": "Learn how Doma helps management organizations",
   "tour.cardVideo.description.meter": "We tell you how management organizations and residents can work with meter readings on the Doma platform and in the mobile application",
