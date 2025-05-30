@@ -570,6 +570,20 @@ export type UpdatePropertiesMutationVariables = Types.Exact<{
 
 export type UpdatePropertiesMutation = { __typename?: 'Mutation', properties?: Array<{ __typename?: 'Property', id: string } | null> | null };
 
+export type GetAllPropertyCountByOrganizationIdQueryVariables = Types.Exact<{
+  organizationId: Types.Scalars['ID']['input'];
+}>;
+
+
+export type GetAllPropertyCountByOrganizationIdQuery = { __typename?: 'Query', _allPropertiesMeta?: { __typename?: '_QueryMeta', count?: number | null } | null };
+
+export type GetAllPropertyWithoutMapCountByOrganizationIdQueryVariables = Types.Exact<{
+  organizationId: Types.Scalars['ID']['input'];
+}>;
+
+
+export type GetAllPropertyWithoutMapCountByOrganizationIdQuery = { __typename?: 'Query', _allPropertiesMeta?: { __typename?: '_QueryMeta', count?: number | null } | null };
+
 export type GetPropertyScopePropertiesQueryVariables = Types.Exact<{
   propertyScopeIds?: Types.InputMaybe<Array<Types.Scalars['ID']['input']> | Types.Scalars['ID']['input']>;
 }>;

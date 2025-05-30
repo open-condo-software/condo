@@ -4,6 +4,8 @@ import {
     useGetContactsForTableQuery,
     useUpdateContactsMutation,
     useGetNewsItemsRecipientsCountersQuery,
+    useGetAllPropertyCountByOrganizationIdQuery,
+    useGetAllPropertyWithoutMapCountByOrganizationIdQuery,
 } from '@app/condo/gql'
 import {
     ContactWhereInput,
@@ -366,6 +368,22 @@ const ContactTableContent: React.FC<ContactPageContentProps> = (props) => {
         }
     }, [router])
 
+    const { data: propertyInOrganizationCount } = useGetAllPropertyCountByOrganizationIdQuery({
+        variables: {
+            organizationId: organizationId,
+        },
+        skip: !isAnalyticsResidentInContactPageEnabled || !persistor || !organizationId || !residentAnalyticsData,
+    })
+    const propertyCount = useMemo(() => propertyInOrganizationCount?._allPropertiesMeta?.count, [propertyInOrganizationCount])
+
+    const { data: propertyWithoutMapInOrganizationCount } = useGetAllPropertyWithoutMapCountByOrganizationIdQuery({
+        variables: {
+            organizationId: organizationId,
+        },
+        skip: !isAnalyticsResidentInContactPageEnabled || !persistor || !organizationId || !residentAnalyticsData,
+    })
+    const propertyWithoutMapCount = useMemo(() => propertyWithoutMapInOrganizationCount?._allPropertiesMeta?.count, [propertyWithoutMapInOrganizationCount])
+
     const { NewsItemRecipientsExportToXlsxButton } = useNewsItemRecipientsExportToExcelTask({
         organization,
         user,
@@ -389,26 +407,40 @@ const ContactTableContent: React.FC<ContactPageContentProps> = (props) => {
     return (
         <Row gutter={ROW_VERTICAL_GUTTERS} align='middle' justify='start'>
             {
-                isAnalyticsResidentInContactPageEnabled && counts && <Col span={24}>
+                isAnalyticsResidentInContactPageEnabled && counts && propertyWithoutMapInOrganizationCount && <Col span={24}>
                     <Card width='100%'>
                         <Row justify='space-between'>
-                            <Space align='center' size={16}>
-                                <Space align='center' size={8}>
+                            {
+                                propertyWithoutMapCount === propertyCount ?
                                     <Typography.Text size='large'>
-                                        {residentAnalyticsTexts?.countUnits},{' '}
-                                        <Typography.Text size='large' type='secondary'>
-                                            {residentAnalyticsTexts?.residentHasMobileApp}&nbsp;-&nbsp;
-                                        </Typography.Text>
-                                        {residentCount}
+                                        {residentAnalyticsTexts?.seeAnalytics}{', '}
+                                        <Typography.Link size='large' href={residentAnalyticsLinks?.properties} target='_blank'>
+                                            {residentAnalyticsTexts?.createMap}
+                                        </Typography.Link>
                                     </Typography.Text>
-                                    <Tooltip title={<Typography.Text size='small'>{residentAnalyticsTexts?.calculateUnitsWhereIsResident} <Typography.Link size='small' href={residentAnalyticsLinks?.moreDetails} target='_blank'>{MoreDetails}</Typography.Link></Typography.Text>}>
-                                        <Space size={8}>
-                                            <AlertCircle size='small' color={colors.gray[7]}/>
+                                    :
+                                    <Space align='center' size={16}>
+                                        <Space align='center' size={8}>
+                                            <Typography.Text size='large'>
+                                                {residentAnalyticsTexts?.countUnits}{', '}
+                                                <Typography.Text size='large' type='secondary'>
+                                                    {residentAnalyticsTexts?.residentHasMobileApp}&nbsp;-&nbsp;
+                                                </Typography.Text>
+                                                {residentCount}
+                                            </Typography.Text>
+                                            <Tooltip title={<Typography.Text size='small'>{residentAnalyticsTexts?.calculateUnitsWhereIsResident}{' '}
+                                                <Typography.Link size='small' href={residentAnalyticsLinks?.moreDetails} target='_blank'>
+                                                    {MoreDetails}
+                                                </Typography.Link>
+                                            </Typography.Text>}>
+                                                <Space size={8}>
+                                                    <AlertCircle size='small' color={colors.gray[7]}/>
+                                                </Space>
+                                            </Tooltip>
                                         </Space>
-                                    </Tooltip>
-                                </Space>
-                                <NewsItemRecipientsExportToXlsxButton/>
-                            </Space>
+                                        <NewsItemRecipientsExportToXlsxButton/>
+                                    </Space>
+                            }
                             <Typography.Link size='large' href={residentAnalyticsLinks?.tourGuide} target='_blank'>{residentAnalyticsTexts?.guideForIntroduceMobileApp}</Typography.Link>
                         </Row>
                     </Card>
