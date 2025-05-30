@@ -1,4 +1,4 @@
-import { B2BAppContextDefaultStatusType, B2BAppContextStatusType } from '@app/condo/schema'
+import { B2BAppContextStatusType } from '@app/condo/schema'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import has from 'lodash/has'
