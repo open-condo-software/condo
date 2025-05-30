@@ -1014,7 +1014,7 @@
   "excelExport.sheetNames.buildings": "Properties",
   "excelExport.sheetNames.contacts": "Contacts",
   "excelExport.sheetNames.incidents": "Incidents",
-  "excelExport.sheetNames.residents": "Recipients",
+  "excelExport.sheetNames.residents": "Resident app integration (Addresses with a map are shown)",
   "excelExport.sheetNames.propertyScopes": "Property scopes",
   "excelExport.sheetNames.tickets": "Tickets",
   "excelExport.tickets.ticketCommentFilesCount": "files",

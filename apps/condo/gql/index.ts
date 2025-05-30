@@ -3667,6 +3667,88 @@ export function useUpdatePropertiesMutation(baseOptions?: Apollo.MutationHookOpt
 export type UpdatePropertiesMutationHookResult = ReturnType<typeof useUpdatePropertiesMutation>;
 export type UpdatePropertiesMutationResult = Apollo.MutationResult<Types.UpdatePropertiesMutation>;
 export type UpdatePropertiesMutationOptions = Apollo.BaseMutationOptions<Types.UpdatePropertiesMutation, Types.UpdatePropertiesMutationVariables>;
+export const GetAllPropertyCountByOrganizationIdDocument = gql`
+    query getAllPropertyCountByOrganizationId($organizationId: ID!) {
+  _allPropertiesMeta(where: {organization: {id: $organizationId}}) {
+    count
+  }
+}
+    `;
+
+/**
+ * __useGetAllPropertyCountByOrganizationIdQuery__
+ *
+ * To run a query within a React component, call `useGetAllPropertyCountByOrganizationIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAllPropertyCountByOrganizationIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAllPropertyCountByOrganizationIdQuery({
+ *   variables: {
+ *      organizationId: // value for 'organizationId'
+ *   },
+ * });
+ */
+export function useGetAllPropertyCountByOrganizationIdQuery(baseOptions: Apollo.QueryHookOptions<Types.GetAllPropertyCountByOrganizationIdQuery, Types.GetAllPropertyCountByOrganizationIdQueryVariables> & ({ variables: Types.GetAllPropertyCountByOrganizationIdQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetAllPropertyCountByOrganizationIdQuery, Types.GetAllPropertyCountByOrganizationIdQueryVariables>(GetAllPropertyCountByOrganizationIdDocument, options);
+      }
+export function useGetAllPropertyCountByOrganizationIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetAllPropertyCountByOrganizationIdQuery, Types.GetAllPropertyCountByOrganizationIdQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetAllPropertyCountByOrganizationIdQuery, Types.GetAllPropertyCountByOrganizationIdQueryVariables>(GetAllPropertyCountByOrganizationIdDocument, options);
+        }
+export function useGetAllPropertyCountByOrganizationIdSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetAllPropertyCountByOrganizationIdQuery, Types.GetAllPropertyCountByOrganizationIdQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetAllPropertyCountByOrganizationIdQuery, Types.GetAllPropertyCountByOrganizationIdQueryVariables>(GetAllPropertyCountByOrganizationIdDocument, options);
+        }
+export type GetAllPropertyCountByOrganizationIdQueryHookResult = ReturnType<typeof useGetAllPropertyCountByOrganizationIdQuery>;
+export type GetAllPropertyCountByOrganizationIdLazyQueryHookResult = ReturnType<typeof useGetAllPropertyCountByOrganizationIdLazyQuery>;
+export type GetAllPropertyCountByOrganizationIdSuspenseQueryHookResult = ReturnType<typeof useGetAllPropertyCountByOrganizationIdSuspenseQuery>;
+export type GetAllPropertyCountByOrganizationIdQueryResult = Apollo.QueryResult<Types.GetAllPropertyCountByOrganizationIdQuery, Types.GetAllPropertyCountByOrganizationIdQueryVariables>;
+export const GetAllPropertyWithoutMapCountByOrganizationIdDocument = gql`
+    query getAllPropertyWithoutMapCountByOrganizationId($organizationId: ID!) {
+  _allPropertiesMeta(
+    where: {organization: {id: $organizationId}, unitsCount: 0, uninhabitedUnitsCount: 0}
+  ) {
+    count
+  }
+}
+    `;
+
+/**
+ * __useGetAllPropertyWithoutMapCountByOrganizationIdQuery__
+ *
+ * To run a query within a React component, call `useGetAllPropertyWithoutMapCountByOrganizationIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAllPropertyWithoutMapCountByOrganizationIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAllPropertyWithoutMapCountByOrganizationIdQuery({
+ *   variables: {
+ *      organizationId: // value for 'organizationId'
+ *   },
+ * });
+ */
+export function useGetAllPropertyWithoutMapCountByOrganizationIdQuery(baseOptions: Apollo.QueryHookOptions<Types.GetAllPropertyWithoutMapCountByOrganizationIdQuery, Types.GetAllPropertyWithoutMapCountByOrganizationIdQueryVariables> & ({ variables: Types.GetAllPropertyWithoutMapCountByOrganizationIdQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetAllPropertyWithoutMapCountByOrganizationIdQuery, Types.GetAllPropertyWithoutMapCountByOrganizationIdQueryVariables>(GetAllPropertyWithoutMapCountByOrganizationIdDocument, options);
+      }
+export function useGetAllPropertyWithoutMapCountByOrganizationIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetAllPropertyWithoutMapCountByOrganizationIdQuery, Types.GetAllPropertyWithoutMapCountByOrganizationIdQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetAllPropertyWithoutMapCountByOrganizationIdQuery, Types.GetAllPropertyWithoutMapCountByOrganizationIdQueryVariables>(GetAllPropertyWithoutMapCountByOrganizationIdDocument, options);
+        }
+export function useGetAllPropertyWithoutMapCountByOrganizationIdSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetAllPropertyWithoutMapCountByOrganizationIdQuery, Types.GetAllPropertyWithoutMapCountByOrganizationIdQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetAllPropertyWithoutMapCountByOrganizationIdQuery, Types.GetAllPropertyWithoutMapCountByOrganizationIdQueryVariables>(GetAllPropertyWithoutMapCountByOrganizationIdDocument, options);
+        }
+export type GetAllPropertyWithoutMapCountByOrganizationIdQueryHookResult = ReturnType<typeof useGetAllPropertyWithoutMapCountByOrganizationIdQuery>;
+export type GetAllPropertyWithoutMapCountByOrganizationIdLazyQueryHookResult = ReturnType<typeof useGetAllPropertyWithoutMapCountByOrganizationIdLazyQuery>;
+export type GetAllPropertyWithoutMapCountByOrganizationIdSuspenseQueryHookResult = ReturnType<typeof useGetAllPropertyWithoutMapCountByOrganizationIdSuspenseQuery>;
+export type GetAllPropertyWithoutMapCountByOrganizationIdQueryResult = Apollo.QueryResult<Types.GetAllPropertyWithoutMapCountByOrganizationIdQuery, Types.GetAllPropertyWithoutMapCountByOrganizationIdQueryVariables>;
 export const GetPropertyScopePropertiesDocument = gql`
     query getPropertyScopeProperties($propertyScopeIds: [ID!]) {
   propertyScopeProperty: allPropertyScopeProperties(

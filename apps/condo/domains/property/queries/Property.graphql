@@ -109,3 +109,29 @@ mutation updateProperties ($data: [PropertiesUpdateInput!]!) {
         id
     }
 }
+
+query getAllPropertyCountByOrganizationId ($organizationId: ID!) {
+    _allPropertiesMeta(
+        where: {
+            organization: {
+                id: $organizationId,
+            },
+        }
+    ) {
+        count
+    }
+}
+
+query getAllPropertyWithoutMapCountByOrganizationId ($organizationId: ID!) {
+    _allPropertiesMeta(
+        where: {
+            organization: {
+                id: $organizationId,
+            },
+            unitsCount: 0,
+            uninhabitedUnitsCount: 0,
+        }
+    ) {
+        count
+    }
+}
