@@ -89,6 +89,7 @@ export enum MapEditMode {
     EditParkingUnits = 'editParkingUnits',
     EditParkingFacilityUnit = 'editParkingFacilityUnit',
     AddSectionFloor = 'addSectionFloor',
+    AddParkingFloor = 'addParkingFloor',
 }
 
 
@@ -547,6 +548,7 @@ class MapEdit extends MapView {
                 this.restoreViewMode()
                 this.mode = null
         }
+
         this.mode = mode
     }
 
