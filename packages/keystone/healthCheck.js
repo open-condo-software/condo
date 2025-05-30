@@ -86,13 +86,13 @@ const tls = require('tls')
 
 const dayjs = require('dayjs')
 const express = require('express')
-const gql = require('graphql-tag')
 const get = require('lodash/get')
 const LRUCache = require('lru-cache')
 
 const { ApolloServerClient } = require('@open-condo/apollo-server-client')
 const { ERROR_TYPE: RATE_LIMIT_EXCEEDED } = require('@open-condo/keystone/apolloServerPlugins/rateLimiting/constants')
 const { getDatabaseAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
+const { fetch } = require('@open-condo/keystone/fetch')
 
 const { getKVClient } = require('./kv')
 
@@ -117,63 +117,63 @@ const HEALTHCHECK_WARNING = 417
 
 /**
  * Creates a health check function that verifies the remaining GraphQL rate limit complexity.
- * Intended to suppress duplicate alerts across pods by using a shared Redis key.
- *
  * @param {Object} options - Configuration options.
- * @param {string} options.serviceName - Name to appear in health check results.
  * @param {string} options.endpoint - GraphQL endpoint to be queried.
  * @param {Object} options.authRequisites - Credentials or data used for authorization.
- * @param {number} [options.suppressDurationInSeconds=3600] - Duration (in seconds) to suppress repeated failures after the first one is detected.
+ * @param {number} [options.threshold=1000] - Complexity threshold below which WARN is returned.
  */
 const getRateLimitHealthCheck = ({
-    serviceName,
     endpoint,
     authRequisites,
-    suppressDurationInSeconds = 3600,
+    threshold = 10000,
 }) => {
-    if (!serviceName) throw new Error('Service name must be provided')
     if (!endpoint) throw new Error('GraphQL endpoint must be provided')
     if (!authRequisites) throw new Error('Authentication requisites must be provided')
 
-    const redisKey = serviceName + '-rate-limit-healthcheck'
+    let client
 
     return {
-        name: `${serviceName}_rate_limit`,
+        name: 'rate_limit',
 
         prepare: async () => {
-            this.redisClient = getKVClient()
-            this.client = new ApolloServerClient(endpoint, authRequisites, {
+            client = new ApolloServerClient(endpoint, authRequisites, {
                 clientName: 'healthcheck-client',
             })
         },
 
         run: async () => {
             try {
-                const isSuppressed = await this.redisClient.get(redisKey)
-                if (isSuppressed) {
-                    return PASS
+                if (!client.authToken) {
+                    await client.signIn()
                 }
 
-                await this.client.executeAuthorizedQuery({
-                    query: gql`{ __typename }`,
+                const headers = {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${client.authToken}`,
+                }
+
+                const query = JSON.stringify({ query: '{ __typename }' })
+
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers,
+                    body: query,
                 })
 
-                return PASS
+                const remaining = Number(response.headers.get('x-rate-limit-complexity-remaining'))
 
+                if (isNaN(remaining)) return FAIL
+                if (remaining < threshold) return WARN
+
+                return PASS
             } catch (error) {
                 const gqlErrors = get(error, 'networkError.result.errors', [])
 
-                const rateLimitExceeded = gqlErrors.find(
-                    ({ extensions }) =>
-                        get(extensions, 'type') === RATE_LIMIT_EXCEEDED
+                const isRateLimitExceeded = gqlErrors.some(
+                    ({ extensions }) => get(extensions, 'type') === RATE_LIMIT_EXCEEDED
                 )
 
-                if (rateLimitExceeded) {
-                    await this.redisClient.set(redisKey, '1', 'EX', suppressDurationInSeconds)
-                    return FAIL
-                }
-
-                return PASS
+                return isRateLimitExceeded ? FAIL : PASS
             }
         },
     }
