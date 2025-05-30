@@ -658,7 +658,9 @@ if (!isDisabledSsr || !isSSR()) {
             const errors = error?.cause?.result?.errors || []
             const tooManyRequests = errors?.some((error) => error?.extensions?.code === 'TOO_MANY_REQUESTS') && error?.cause?.statusCode === 400
 
-            console.error('Error while running `MyApp.getInitialProps', { error, tooManyRequests })
+            const { type, message, stack } = error
+
+            console.error('Error while running MyApp.getInitialProps', { type, message, stack, tooManyRequests })
 
             if (tooManyRequests) {
                 const timestamp = errors.reduce((max, err) => {
@@ -729,15 +731,44 @@ const withError = () => (PageComponent: NextPage): NextPage => {
     return WithError
 }
 
+const withUncaughtExceptionHandler = () => (PageComponent: NextPage): NextPage => {
+    const WithUncaughtExceptionHandler = (props) => {
+        return <PageComponent {...props} />
+    }
+
+    if (process.env.NODE_ENV !== 'production') {
+        const displayName = PageComponent.displayName || PageComponent.name || 'Component'
+        WithUncaughtExceptionHandler.displayName = `withUncaughtExceptionHandler(${displayName})`
+    }
+    WithUncaughtExceptionHandler.getInitialProps = async (context) => {
+        try {
+            let childProps = {}
+            if (PageComponent.getInitialProps) {
+                childProps = await PageComponent.getInitialProps(context)
+            }
+
+            return { ...childProps }
+        } catch (err) {
+            const { type, message, stack } = err
+            console.error('Uncaught exception', { type, message, stack })
+            return { pageProps: { statusCode: 500 } }
+        }
+    }
+
+    return WithUncaughtExceptionHandler
+}
+
 export default (
-    withCookies()(
-        withApollo({ legacy: false, ssr: !isDisabledSsr, apolloHelperOptions })(
-            withAuth({ legacy: false, USER_QUERY: AuthenticatedUserDocument })(
-                withIntl({ ssr: !isDisabledSsr, messagesImporter, extractReqLocale, defaultLocale })(
-                    withOrganization({ legacy: false, GET_ORGANIZATION_EMPLOYEE_QUERY: GetActiveOrganizationEmployeeDocument, useInitialEmployeeId })(
-                        withFeatureFlags({ ssr: !isDisabledSsr })(
-                            withError()(
-                                MyApp
+    withUncaughtExceptionHandler()(
+        withCookies()(
+            withApollo({ legacy: false, ssr: !isDisabledSsr, apolloHelperOptions })(
+                withAuth({ legacy: false, USER_QUERY: AuthenticatedUserDocument })(
+                    withIntl({ ssr: !isDisabledSsr, messagesImporter, extractReqLocale, defaultLocale })(
+                        withOrganization({ legacy: false, GET_ORGANIZATION_EMPLOYEE_QUERY: GetActiveOrganizationEmployeeDocument, useInitialEmployeeId })(
+                            withFeatureFlags({ ssr: !isDisabledSsr })(
+                                withError()(
+                                    MyApp
+                                )
                             )
                         )
                     )

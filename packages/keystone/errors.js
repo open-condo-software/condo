@@ -68,55 +68,14 @@ const conf = require('@open-condo/config')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const { getTranslations } = require('@open-condo/locales/loader')
 
+const { getLogger } = require('./logging/getLogger')
+const { GQLErrorCode, GQLInternalErrorTypes } = require('./utils/errors/constants')
+
 // Matches placeholder `{name}` in string, we are going to interpolate
 templateSettings.interpolate = /{([\s\S]+?)}/g
 
-// Generic error, that something went wrong at server side, though user input was correct
-const INTERNAL_ERROR = 'INTERNAL_ERROR'
-// No auth token or incorrect authentication or not authenticated
-const UNAUTHENTICATED = 'UNAUTHENTICATED'
-// Access denied
-const FORBIDDEN = 'FORBIDDEN'
-// User input cannot be processed by server by following reasons:
-// wrong format, not enough data, conflicts with data storage constraints (duplicates etc)
-const BAD_USER_INPUT = 'BAD_USER_INPUT'
-// Too Many Requests
-const TOO_MANY_REQUESTS = 'TOO_MANY_REQUESTS'
-// Too Large Requests
-const PAYLOAD_TOO_LARGE = 'PAYLOAD_TOO_LARGE'
-
-/**
- * First level of error classification, used in custom GraphQL queries or mutations
- * Second level of classification will be specific to domain in question
- * Only generic error kinds are listed
- * Conceptually, it conforms to HTTP standard for error codes
- * https://datatracker.ietf.org/doc/html/rfc7231#section-6.5
- * @readonly
- * @enum {String}
- */
-const GQLErrorCode = {
-    INTERNAL_ERROR,     // ??
-    UNAUTHENTICATED,    // Need to authenticate or something wrong with token!
-    FORBIDDEN,          // Don't have an access (maybe need to logIn or reLogIn user)
-    BAD_USER_INPUT,     // Need to process by user form!
-    TOO_MANY_REQUESTS,  // Need to process by user client to wait some time!
-    PAYLOAD_TOO_LARGE,
-}
-
-// This error type is specifically used to indicate that during the execution of a GraphQL query,
-// a nested GraphQL query was executed, and an error occurred within that nested query.
-// It helps to differentiate between errors that occur at the top level and those that arise from
-// deeper, nested queries, providing better context for debugging and error handling.
-const SUB_GQL_ERROR = 'SUB_GQL_ERROR'
-
-/**
- * Some reserve types for INTERNAL_ERROR codes
- * @readonly
- * @enum {String}
- */
-const GQLInternalErrorTypes = {
-    SUB_GQL_ERROR,
-}
+const { UNAUTHENTICATED } = GQLErrorCode
+const logger = getLogger('GQLError class')
 
 /**
  * Error object, that can be thrown in a custom GraphQL mutation or query
@@ -133,7 +92,6 @@ const GQLInternalErrorTypes = {
  * @property {String} [correctExample] - correct value of an argument
  * @property {Object} [data] - any kind of data, that will help to figure out a cause of the error
  */
-
 class GQLError extends Error {
     /**
      * @param {GQLError} fields
@@ -169,12 +127,12 @@ class GQLError extends Error {
         }
         if (fields.messageForUser) {
             if (!fields.messageForUser.startsWith('api.')) {
-                console.warn('WRONG `messageForUser` field argument! It should starts with `api.` prefix! messageForUser = ', fields.messageForUser)
+                logger.warn({ msg: 'WRONG `messageForUser` field argument! It should starts with `api.` prefix! messageForUser', data: { messageForUser: fields.messageForUser } })
                 // TODO(pahaz): DOMA-10345 throw error for that cases! Waiting for apps refactoring
                 // throw new Error('GQLError: wrong `messageForUser` field argument. Should starts with `api.`')
             }
             if (!context) {
-                console.warn('WRONG `messageForUser` without context argument! Important to pass GQLError({ .. }, context) argument!')
+                logger.warn({ msg: 'WRONG `messageForUser` without context argument! Important to pass GQLError({ .. }, context) argument!' })
                 // TODO(pahaz): DOMA-10345 throw error for that cases! Waiting for apps refactoring
                 // throw new Error('GQLError: no context for messageForUser. You can use `{ req }` as context')
             }
@@ -193,26 +151,26 @@ class GQLError extends Error {
             }
             if (extensions.messageForUser === extensions.messageForUserTemplateKey) {
                 // TODO(pahaz): DOMA-10345 throw error for that cases! Waiting for apps refactoring
-                console.warn(
-                    'GQLError: it loos like you already hardcode localised message inside messageForUser. ' +
-                    'Could you please use translation key here! messageForUser =',
-                    extensions.messageForUser,
-                )
+                logger.warn({
+                    msg: 'GQLError: it loos like you already hardcode localised message inside messageForUser. ' +
+                        'Could you please use translation key here!',
+                    data: { messageForUser: extensions.messageForUser },
+                })
             }
         }
         if (!isEmpty(fields.messageInterpolation)) {
             if (fields.message === extensions.message) {
                 // TODO(pahaz): DOMA-10345 throw error for that cases! Waiting for apps refactoring
-                console.warn(
-                    'GQLError: looks like you already include `messageInterpolation` values inside `message`. ' +
-                    'Please use templated string like `{name}` inside the message field. message =',
-                    fields.message,
-                )
+                logger.warn({
+                    msg: 'GQLError: looks like you already include `messageInterpolation` values inside `message`. ' +
+                        'Please use templated string like `{name}` inside the message field.',
+                    data: { message: fields.message },
+                })
             }
             for (const [key, value] of Object.entries(fields.messageInterpolation)) {
                 // TODO(pahaz): DOMA-10345 throw error
-                if (typeof key !== 'string') console.warn(`GQLError: messageInterpolation key is not a string; key = ${key}`)
-                if (typeof value !== 'string' && typeof value !== 'number') console.warn(`GQLError: messageInterpolation value is not a string|number; key = ${key}; value = ${value}; type = ${typeof value}`)
+                if (typeof key !== 'string') logger.warn({ msg: 'GQLError: messageInterpolation key is not a string', data: { key } })
+                if (typeof value !== 'string' && typeof value !== 'number') logger.warn({ msg: 'GQLError: messageInterpolation value is not a string|number', data: { key, value, type: typeof value } })
             }
         }
         super(extensions.message)
