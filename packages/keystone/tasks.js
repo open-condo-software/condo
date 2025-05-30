@@ -1,3 +1,5 @@
+const { getHeapStatistics } = require('node:v8')
+
 const Queue = require('bull')
 const { get } = require('lodash')
 
@@ -32,6 +34,16 @@ const TASKS = new Map()
 const CRON_TASKS = new Map()
 const REMOVE_CRON_TASKS = []
 let isWorkerCreated = false
+
+const MiB = 1024 ** 2
+const { heap_size_limit: heapSizeLimitBytes } = getHeapStatistics()
+function getHeapFree () {
+    const { heapUsed } = process.memoryUsage()
+    const freeBytes = Math.max(0, heapSizeLimitBytes - heapUsed)
+    const freePct = Number((freeBytes / heapSizeLimitBytes * 100).toFixed(1))
+    const freeMiB = Number((freeBytes / MiB).toFixed(2))
+    return { freeMiB, freePct }
+}
 
 /**
  * Create bull queue. For internal use only!
@@ -161,7 +173,7 @@ async function _scheduleInProcessTask (name, preparedArgs, preparedOpts) {
     let executor = async function inProcessExecutor () {
         const startTime = Date.now()
         try {
-            logger.info({ msg: 'worker: task start', taskName: name, meta: { preparedArgs, preparedOpts } })
+            logger.info({ msg: 'worker: task start', taskName: name, mem: getHeapFree(), meta: { preparedArgs, preparedOpts } })
             result = await executeTask(name, preparedArgs, job)
             status = 'completed'
             const endTime = Date.now()
@@ -386,7 +398,7 @@ async function createWorker (keystoneModule, config) {
         queue.process('*', WORKER_CONCURRENCY, async function (job) {
             const startTime = Date.now()
             const task = getTaskLoggingContext(job)
-            logger.info({ msg: 'worker: task start', taskId: job.id, queue: queueName, task })
+            logger.info({ msg: 'worker: task start', taskId: job.id, queue: queueName, task, mem: getHeapFree() })
             try {
                 const result = await executeTask(job.name, job.data.args, job)
                 const endTime = Date.now()
