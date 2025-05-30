@@ -1014,7 +1014,7 @@
   "excelExport.sheetNames.buildings": "Lista de comunidades",
   "excelExport.sheetNames.contacts": "Contactos",
   "excelExport.sheetNames.incidents": "Cortes",
-  "excelExport.sheetNames.residents": "Destinatarios",
+  "excelExport.sheetNames.residents": "Integración de la aplicación para residentes (Se muestran las direcciones que tienen un tablero de ajedrez)",
   "excelExport.sheetNames.propertyScopes": "Permisos y accesos",
   "excelExport.sheetNames.tickets": "Incidencias",
   "excelExport.tickets.ticketCommentFilesCount": "archivos",
