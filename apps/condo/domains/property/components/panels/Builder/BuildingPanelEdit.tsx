@@ -250,7 +250,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
         setMapEdit(cloneDeep(mapEdit))
     }, [mapEdit])
 
-    const changeMode = useCallback((mode) => {
+    const changeMode = useCallback((mode: MapEditMode) => {
         setDuplicatedUnitIds([])
         mapEdit.editMode = mode
         refresh()
@@ -259,10 +259,6 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     const onCancel = useCallback(() => {
         push(`/property/${id}`)
     }, [id, push])
-
-    const menuClick = useCallback((event) => {
-        changeMode(event.key)
-    }, [changeMode])
 
     const onModalCancel = useCallback(() => {
         changeMode(null)
@@ -363,7 +359,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                                     />
                                 )
                             }
-                            <BuildingEditTopMenu menuClick={menuClick} mapEdit={mapEdit} />
+                            <BuildingEditTopMenu changeMode={changeMode} mapEdit={mapEdit} />
                         </Space>
                     </Col>
                 </Row>
