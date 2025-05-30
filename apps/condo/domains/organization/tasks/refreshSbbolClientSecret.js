@@ -1,4 +1,3 @@
-const dayjs = require('dayjs')
 const passwordGenerator = require('generate-password')
 const get = require('lodash/get')
 
@@ -12,7 +11,6 @@ const { User } = require('@condo/domains/user/utils/serverSchema')
 
 
 const SBBOL_AUTH_CONFIG = conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CONFIG) : {}
-const SBBOL_AUTH_CONFIG_EXTENDED = conf.SBBOL_AUTH_CONFIG_EXTENDED ? JSON.parse(conf.SBBOL_AUTH_CONFIG_EXTENDED) : {}
 
 /**
  * Changing of a client secret is performed daily for security reasons
@@ -25,20 +23,19 @@ const refreshSbbolClientSecret = createCronTask('refreshSbbolClientSecret', '0 1
     const { keystone: context } = getSchemaCtx('User')
 
     const serviceUserId = get(SBBOL_AUTH_CONFIG, 'serviceUserId')
-    const serviceUserIdFromExtendedConfig = get(SBBOL_AUTH_CONFIG_EXTENDED, 'serviceUserId')
+    const serviceOrganizationId = get(SBBOL_AUTH_CONFIG, 'serviceOrganizationId')
 
     if (!serviceUserId) throw new Error('changeClientSecret: no SBBOL_AUTH_CONFIG.serviceUserId')
-    if (!serviceUserIdFromExtendedConfig) throw new Error('changeClientSecret: no SBBOL_AUTH_CONFIG_EXTENDED.serviceUserId')
-    if (serviceUserId !== serviceUserIdFromExtendedConfig) throw new Error('changeClientSecret: users from SBBOL_AUTH_CONFIG and SBBOL_AUTH_CONFIG_EXTENDED must be same')
+    if (!serviceOrganizationId) throw new Error('changeClientSecret: no SBBOL_AUTH_CONFIG.serviceOrganizationId')
 
     const user = await User.getOne(context, { id: serviceUserId })
     if (!user) {
         throw new Error(`Not found service User with id=${serviceUserId} to change Client Secret for SBBOL integration`)
     }
 
-    const { accessToken } = await getAccessTokenForUser(user.id)
+    const { accessToken } = await getAccessTokenForUser(user.id, serviceOrganizationId)
 
-    const { newClientSecret, clientSecretExpiration } = await changeClientSecret({
+    await changeClientSecret({
         clientId: sbbolSecretStorage.clientId,
         currentClientSecret: await sbbolSecretStorage.getClientSecret(),
         newClientSecret: passwordGenerator.generate({
@@ -48,12 +45,6 @@ const refreshSbbolClientSecret = createCronTask('refreshSbbolClientSecret', '0 1
         accessToken,
         useExtendedConfig: false,
     })
-
-    if (sbbolSecretStorage.clientId === sbbolSecretStorageExtended.clientId) {
-        await sbbolSecretStorageExtended.setClientSecret(newClientSecret, { expiresAt: dayjs().add(clientSecretExpiration, 'days').unix() })
-        return
-    }
-
     await changeClientSecret({
         clientId: sbbolSecretStorageExtended.clientId,
         currentClientSecret: await sbbolSecretStorageExtended.getClientSecret(),

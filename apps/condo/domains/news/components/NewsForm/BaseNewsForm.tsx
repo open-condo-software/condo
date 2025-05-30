@@ -586,7 +586,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                     newsItem: { connect: { id: newsItemId } },
                     sharingParams: {
                         ...sharingAppsFormValues[ctxId],
-                        validBeforeWithTimeZone: validBefore?.format('YYYY-MM-DD HH:mm:ss'),
+                        validBeforeWithTimeZone: validBefore?.format('YYYY-MM-DD HH:mm:ss Z'),
                     },
                 }
 

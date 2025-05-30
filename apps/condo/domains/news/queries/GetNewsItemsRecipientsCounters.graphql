@@ -1,0 +1,7 @@
+query getNewsItemsRecipientsCounters($data: GetNewsItemsRecipientsCountersInput!) {
+    result: getNewsItemsRecipientsCounters(data: $data) {
+        propertiesCount
+        unitsCount
+        receiversCount
+    }
+}

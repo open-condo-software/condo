@@ -201,6 +201,86 @@ export function useUpdatePaymentsFileMutation(baseOptions?: Apollo.MutationHookO
 export type UpdatePaymentsFileMutationHookResult = ReturnType<typeof useUpdatePaymentsFileMutation>;
 export type UpdatePaymentsFileMutationResult = Apollo.MutationResult<Types.UpdatePaymentsFileMutation>;
 export type UpdatePaymentsFileMutationOptions = Apollo.BaseMutationOptions<Types.UpdatePaymentsFileMutation, Types.UpdatePaymentsFileMutationVariables>;
+export const GetExecutionAiFlowTaskByIdDocument = gql`
+    query getExecutionAIFlowTaskById($id: ID!) {
+  task: allExecutionAIFlowTasks(where: {id: $id}, first: 1) {
+    id
+    result
+    errorMessage
+    status
+    __typename
+  }
+}
+    `;
+
+/**
+ * __useGetExecutionAiFlowTaskByIdQuery__
+ *
+ * To run a query within a React component, call `useGetExecutionAiFlowTaskByIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetExecutionAiFlowTaskByIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetExecutionAiFlowTaskByIdQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetExecutionAiFlowTaskByIdQuery(baseOptions: Apollo.QueryHookOptions<Types.GetExecutionAiFlowTaskByIdQuery, Types.GetExecutionAiFlowTaskByIdQueryVariables> & ({ variables: Types.GetExecutionAiFlowTaskByIdQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetExecutionAiFlowTaskByIdQuery, Types.GetExecutionAiFlowTaskByIdQueryVariables>(GetExecutionAiFlowTaskByIdDocument, options);
+      }
+export function useGetExecutionAiFlowTaskByIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetExecutionAiFlowTaskByIdQuery, Types.GetExecutionAiFlowTaskByIdQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetExecutionAiFlowTaskByIdQuery, Types.GetExecutionAiFlowTaskByIdQueryVariables>(GetExecutionAiFlowTaskByIdDocument, options);
+        }
+export function useGetExecutionAiFlowTaskByIdSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetExecutionAiFlowTaskByIdQuery, Types.GetExecutionAiFlowTaskByIdQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetExecutionAiFlowTaskByIdQuery, Types.GetExecutionAiFlowTaskByIdQueryVariables>(GetExecutionAiFlowTaskByIdDocument, options);
+        }
+export type GetExecutionAiFlowTaskByIdQueryHookResult = ReturnType<typeof useGetExecutionAiFlowTaskByIdQuery>;
+export type GetExecutionAiFlowTaskByIdLazyQueryHookResult = ReturnType<typeof useGetExecutionAiFlowTaskByIdLazyQuery>;
+export type GetExecutionAiFlowTaskByIdSuspenseQueryHookResult = ReturnType<typeof useGetExecutionAiFlowTaskByIdSuspenseQuery>;
+export type GetExecutionAiFlowTaskByIdQueryResult = Apollo.QueryResult<Types.GetExecutionAiFlowTaskByIdQuery, Types.GetExecutionAiFlowTaskByIdQueryVariables>;
+export const CreateExecutionAiFlowTaskDocument = gql`
+    mutation createExecutionAIFlowTask($data: ExecutionAIFlowTaskCreateInput!) {
+  task: createExecutionAIFlowTask(data: $data) {
+    id
+    result
+    errorMessage
+    status
+  }
+}
+    `;
+export type CreateExecutionAiFlowTaskMutationFn = Apollo.MutationFunction<Types.CreateExecutionAiFlowTaskMutation, Types.CreateExecutionAiFlowTaskMutationVariables>;
+
+/**
+ * __useCreateExecutionAiFlowTaskMutation__
+ *
+ * To run a mutation, you first call `useCreateExecutionAiFlowTaskMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateExecutionAiFlowTaskMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createExecutionAiFlowTaskMutation, { data, loading, error }] = useCreateExecutionAiFlowTaskMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCreateExecutionAiFlowTaskMutation(baseOptions?: Apollo.MutationHookOptions<Types.CreateExecutionAiFlowTaskMutation, Types.CreateExecutionAiFlowTaskMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.CreateExecutionAiFlowTaskMutation, Types.CreateExecutionAiFlowTaskMutationVariables>(CreateExecutionAiFlowTaskDocument, options);
+      }
+export type CreateExecutionAiFlowTaskMutationHookResult = ReturnType<typeof useCreateExecutionAiFlowTaskMutation>;
+export type CreateExecutionAiFlowTaskMutationResult = Apollo.MutationResult<Types.CreateExecutionAiFlowTaskMutation>;
+export type CreateExecutionAiFlowTaskMutationOptions = Apollo.BaseMutationOptions<Types.CreateExecutionAiFlowTaskMutation, Types.CreateExecutionAiFlowTaskMutationVariables>;
 export const GetBankAccountReportTasksDocument = gql`
     query getBankAccountReportTasks($where: BankAccountReportTaskWhereInput!) {
   tasks: allBankAccountReportTasks(where: $where) {
@@ -726,6 +806,7 @@ export const GetContactByIdDocument = gql`
     unitName
     unitType
     isVerified
+    hasResident
     ownershipPercentage
     note
     communityFee
@@ -2054,6 +2135,48 @@ export type GetUserB2BAppRolesQueryHookResult = ReturnType<typeof useGetUserB2BA
 export type GetUserB2BAppRolesLazyQueryHookResult = ReturnType<typeof useGetUserB2BAppRolesLazyQuery>;
 export type GetUserB2BAppRolesSuspenseQueryHookResult = ReturnType<typeof useGetUserB2BAppRolesSuspenseQuery>;
 export type GetUserB2BAppRolesQueryResult = Apollo.QueryResult<Types.GetUserB2BAppRolesQuery, Types.GetUserB2BAppRolesQueryVariables>;
+export const GetNewsItemsRecipientsCountersDocument = gql`
+    query getNewsItemsRecipientsCounters($data: GetNewsItemsRecipientsCountersInput!) {
+  result: getNewsItemsRecipientsCounters(data: $data) {
+    propertiesCount
+    unitsCount
+    receiversCount
+  }
+}
+    `;
+
+/**
+ * __useGetNewsItemsRecipientsCountersQuery__
+ *
+ * To run a query within a React component, call `useGetNewsItemsRecipientsCountersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetNewsItemsRecipientsCountersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetNewsItemsRecipientsCountersQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useGetNewsItemsRecipientsCountersQuery(baseOptions: Apollo.QueryHookOptions<Types.GetNewsItemsRecipientsCountersQuery, Types.GetNewsItemsRecipientsCountersQueryVariables> & ({ variables: Types.GetNewsItemsRecipientsCountersQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetNewsItemsRecipientsCountersQuery, Types.GetNewsItemsRecipientsCountersQueryVariables>(GetNewsItemsRecipientsCountersDocument, options);
+      }
+export function useGetNewsItemsRecipientsCountersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetNewsItemsRecipientsCountersQuery, Types.GetNewsItemsRecipientsCountersQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetNewsItemsRecipientsCountersQuery, Types.GetNewsItemsRecipientsCountersQueryVariables>(GetNewsItemsRecipientsCountersDocument, options);
+        }
+export function useGetNewsItemsRecipientsCountersSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetNewsItemsRecipientsCountersQuery, Types.GetNewsItemsRecipientsCountersQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetNewsItemsRecipientsCountersQuery, Types.GetNewsItemsRecipientsCountersQueryVariables>(GetNewsItemsRecipientsCountersDocument, options);
+        }
+export type GetNewsItemsRecipientsCountersQueryHookResult = ReturnType<typeof useGetNewsItemsRecipientsCountersQuery>;
+export type GetNewsItemsRecipientsCountersLazyQueryHookResult = ReturnType<typeof useGetNewsItemsRecipientsCountersLazyQuery>;
+export type GetNewsItemsRecipientsCountersSuspenseQueryHookResult = ReturnType<typeof useGetNewsItemsRecipientsCountersSuspenseQuery>;
+export type GetNewsItemsRecipientsCountersQueryResult = Apollo.QueryResult<Types.GetNewsItemsRecipientsCountersQuery, Types.GetNewsItemsRecipientsCountersQueryVariables>;
 export const GetNewsItemRecipientsExportTasksDocument = gql`
     query getNewsItemRecipientsExportTasks($where: NewsItemRecipientsExportTaskWhereInput!) {
   tasks: allNewsItemRecipientsExportTasks(where: $where) {
@@ -5373,6 +5496,9 @@ export const GetTicketsByContactDocument = gql`
     status {
       id
       name
+      colors {
+        primary
+      }
     }
     property {
       id

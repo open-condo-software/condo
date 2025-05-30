@@ -41,6 +41,7 @@ const {
 const { COLD_WATER_METER_RESOURCE_ID, ELECTRICITY_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
 const { MeterReadingSource, MeterResourceOwner } = require('@condo/domains/meter/utils/testSchema')
 const { createTestMeterResourceOwner } = require('@condo/domains/meter/utils/testSchema')
+const { SERVICE_PROVIDER_TYPE, MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { updateTestProperty } = require('@condo/domains/property/utils/testSchema')
@@ -461,6 +462,58 @@ describe('FindOrganizationsByAddress', () => {
                     expect(found.name).toEqual(utils.organization.name)
                     expect(found.tin).toEqual(utils.organization.tin)
                     expect(found.type).toEqual(utils.organization.type)
+                })
+
+                test('Should return serviceProvider for tin and account number if service provider has no properties', async () => {
+                    await utils.updateOrganization({ type: SERVICE_PROVIDER_TYPE })
+                    await updateTestProperty(utils.clients.support, utils.property.id, { deletedAt: new Date().toISOString() })
+
+                    const existingAccountNumber = faker.random.alphaNumeric(16)
+                    const toPay = '1000'
+                    const address = `${faker.address.cityName()} ${faker.address.streetAddress(true)}`
+
+                    apiHandler.mockResolvedValue({ status: ONLINE_INTERACTION_CHECK_ACCOUNT_SUCCESS_STATUS, services: [{
+                        category: HOUSING_CATEGORY_ID,
+                        account: { number: existingAccountNumber },
+                        bankAccount: {
+                            number: faker.random.alphaNumeric(16),
+                            routingNumber: faker.random.alphaNumeric(16),
+                        },
+                        receipt: {
+                            sum: toPay,
+                            address: address,
+                        },
+                    }] })
+
+                    const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
+                        addressKey: utils.property.addressKey, // or any address key,
+                        accountNumber: existingAccountNumber,
+                        tin: utils.organization.tin,
+                    })
+
+                    const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
+                    expect(found.meters).toHaveLength(0)
+                    expect(found.receipts[0]).toMatchObject({
+                        category: expect.stringMatching(HOUSING_CATEGORY_ID),
+                        balance: expect.stringMatching(toPay),
+                        accountNumber: expect.stringMatching(existingAccountNumber),
+                        routingNumber: expect.any(String),
+                        bankAccount: expect.any(String),
+                        address: address,
+                    })
+                    expect(found.id).toEqual(utils.organization.id)
+                    expect(found.name).toEqual(utils.organization.name)
+                    expect(found.tin).toEqual(utils.organization.tin)
+                    expect(found.type).toEqual(utils.organization.type)
+
+                    // Does not work with other types
+                    await utils.updateOrganization({ type: MANAGING_COMPANY_TYPE })
+                    const [foundManagingCompanies] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
+                        addressKey: utils.property.addressKey, // or any address key,
+                        accountNumber: existingAccountNumber,
+                        tin: utils.organization.tin,
+                    })
+                    expect(foundManagingCompanies).toHaveLength(0)
                 })
             })
 

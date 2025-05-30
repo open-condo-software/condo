@@ -12,7 +12,11 @@ const { v4 } = require('uuid')
 
 const conf = require('@open-condo/config')
 const { safeApolloErrorFormatter } = require('@open-condo/keystone/apolloErrorFormatter')
-const { ApolloRateLimitingPlugin, ApolloQueryBlockingPlugin } = require('@open-condo/keystone/apolloServerPlugins')
+const {
+    ApolloRateLimitingPlugin,
+    ApolloQueryBlockingPlugin,
+    ApolloRequestLimitingPlugin,
+} = require('@open-condo/keystone/apolloServerPlugins')
 const { ApolloSentryPlugin } = require('@open-condo/keystone/apolloServerPlugins')
 const { ExtendedPasswordAuthStrategy } = require('@open-condo/keystone/authStrategy/passwordAuth')
 const { parseCorsSettings } = require('@open-condo/keystone/cors.utils')
@@ -25,6 +29,7 @@ const { expressErrorHandler } = require('@open-condo/keystone/logging/expressErr
 const metrics = require('@open-condo/keystone/metrics')
 const { composeNonResolveInputHook, composeResolveInputHook } = require('@open-condo/keystone/plugins/utils')
 const { schemaDocPreprocessor, adminDocPreprocessor, escapeSearchPreprocessor, customAccessPostProcessor } = require('@open-condo/keystone/preprocessors')
+const { RuntimeStatsMiddleware } = require('@open-condo/keystone/runtimeStats')
 const { prepareDefaultKeystoneConfig } = require('@open-condo/keystone/setup.utils')
 const { registerTasks, registerTaskQueues, taskQueues } = require('@open-condo/keystone/tasks')
 const { KeystoneTracingApp } = require('@open-condo/keystone/tracing')
@@ -47,8 +52,13 @@ const IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND = conf.ENABLE_DANGEROUS_GRAPHQL_PLA
 // NOTE(pahaz): it's a magic number tested by @arichiv at https://developer.chrome.com/blog/cookie-max-age-expires/
 const INFINITY_MAX_AGE_COOKIE = 1707195600
 const SERVICE_USER_SESSION_TTL_IN_SEC = 7 * 24 * 60 * 60 // 7 days in sec
+
+const REQUEST_LIMIT_CONFIG = JSON.parse(conf['REQUEST_LIMIT_CONFIG'] || '{}')
+const IS_REQUEST_LIMIT_DISABLED = conf['DISABLE_REQUEST_LIMIT'] === 'true'
+
 const RATE_LIMIT_CONFIG = JSON.parse(conf['RATE_LIMIT_CONFIG'] || '{}')
 const IS_RATE_LIMIT_DISABLED = conf['DISABLE_RATE_LIMIT'] === 'true'
+
 const BLOCKED_OPERATIONS = JSON.parse(conf['BLOCKED_OPERATIONS'] || '{}')
 
 const logger = getLogger('uncaughtError')
@@ -98,6 +108,10 @@ function _getApolloServerPlugins (keystone) {
     const apolloServerPlugins = [
         new ApolloQueryBlockingPlugin(BLOCKED_OPERATIONS),
     ]
+
+    if (!IS_REQUEST_LIMIT_DISABLED) {
+        apolloServerPlugins.push(new ApolloRequestLimitingPlugin(REQUEST_LIMIT_CONFIG))
+    }
 
     if (!IS_RATE_LIMIT_DISABLED) {
         apolloServerPlugins.push(new ApolloRateLimitingPlugin(keystone, RATE_LIMIT_CONFIG))
@@ -209,6 +223,7 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
         cors: (conf.CORS) ? parseCorsSettings(JSON.parse(conf.CORS)) : { origin: true, credentials: true },
         pinoOptions: getKeystonePinoOptions(),
         apps: [
+            new RuntimeStatsMiddleware(),
             new DataVersionChecker(),
             new IpBlackListMiddleware(),
             new KeystoneTracingApp(),
