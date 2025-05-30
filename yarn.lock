@@ -586,8 +586,6 @@ __metadata:
   dependencies:
     "@apollo/client": ^3.11.8
     "@billing-connector/domains": "link:./domains"
-    "@condo/domains": "link:../condo/domains"
-    "@emotion/core": ^10.1.1
     "@graphql-codegen/cli": ^5.0.2
     "@graphql-codegen/import-types-preset": ^3.0.0
     "@graphql-codegen/typescript": ^4.0.9
@@ -617,8 +615,6 @@ __metadata:
     body-parser-xml: ^2.0.3
     cross-env: ^7.0.3
     dayjs: ^1.10.6
-    emotion: ^10.0.27
-    emotion-server: ^10.0.27
     express: ^4.17.1
     graphql: ^16.10.0
     graphql-tag: ^2.12.6
@@ -631,6 +627,7 @@ __metadata:
     next-transpile-modules: ^4.1.0
     openid-client: 4.7.4
     pdf-lib: ^1.17.1
+    phone: 3.1.36
     pluralize: ^8.0.0
     raw-loader: ^4.0.2
     react: ^16.13.1
@@ -7549,12 +7546,6 @@ __metadata:
   checksum: 210636d3923f93f7cfc409eac04376b0fe50356a0e08f25a37b43d5cd9ca4363f7b03ca2e7736cbf95b62d67733fe8e1028269d35b4fddd1b3f2a653c90ca85c
   languageName: node
   linkType: hard
-
-"@condo/domains@link:../condo/domains::locator=%40app%2Fbilling-connector%40workspace%3Aapps%2Fbilling-connector":
-  version: 0.0.0-use.local
-  resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Fbilling-connector%40workspace%3Aapps%2Fbilling-connector"
-  languageName: node
-  linkType: soft
 
 "@condo/domains@link:../condo/domains::locator=%40app%2Fcallcenter%40workspace%3Aapps%2Fcallcenter":
   version: 0.0.0-use.local
