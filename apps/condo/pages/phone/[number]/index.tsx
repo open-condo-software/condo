@@ -35,6 +35,7 @@ import { PageComponentType } from '@condo/domains/common/types'
 import { renderPhone } from '@condo/domains/common/utils/Renders'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { ClientType, getClientCardTabKey, redirectToForm } from '@condo/domains/contact/utils/clientCard'
+import { METER_TAB_TYPES } from '@condo/domains/meter/utils/clientSchema'
 import { getPropertyAddressParts } from '@condo/domains/property/utils/helpers'
 import { IncidentHints } from '@condo/domains/ticket/components/IncidentHints'
 import { TicketReadPermissionRequired } from '@condo/domains/ticket/components/PageAccess'
@@ -312,6 +313,7 @@ const ClientCardTabContent = ({
     property,
     searchTicketsQuery = null,
     handleTicketCreateClick,
+    getQueryForCreatingMeterReading,
     canManageContacts,
     showOrganizationMessage = false,
     handleContactEditClick = null,
@@ -325,6 +327,7 @@ const ClientCardTabContent = ({
 }) => {
     const intl = useIntl()
     const CreateTicketMessage = intl.formatMessage({ id: 'CreateTicket' })
+    const CreateMeterReadingMessage = intl.formatMessage({ id: 'CreateMeterReading' })
     const EditContactMessage = intl.formatMessage({ id: 'pages.clientCard.editContact' })
     const LastTicketsLoadedMessage = intl.formatMessage({ id: 'pages.clientCard.lastTicketsLoaded' }, { count: MAX_TABLE_SIZE })
     const OpenAllTicketsMessage = intl.formatMessage({ id: 'pages.clientCard.openAllTickets' })
@@ -396,6 +399,23 @@ const ClientCardTabContent = ({
         handleTicketCreateClick(dataForTicketForm)
     },
     [handleTicketCreateClick, lastCreatedTicket, phone, property])
+
+    const handleCreateMeterReading = useCallback(async () => {
+        const dataForMeterReadingForm = property ? lastCreatedTicket : { clientPhone: phone }
+        const query = qs.stringify(
+            getQueryForCreatingMeterReading(dataForMeterReadingForm),
+            { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
+        )
+
+        const newUrl = `/meter/create${query}`
+
+        if (typeof window !== 'undefined') {
+            window.open(newUrl, '_blank')
+        } else {
+            await router.push(newUrl)
+        }
+
+    }, [lastCreatedTicket, phone, property, router, getQueryForCreatingMeterReading])
 
     const redirectToTicketPage = useCallback(async () => {
         let filters = {}
@@ -512,6 +532,14 @@ const ClientCardTabContent = ({
                         >
                             {CreateTicketMessage}
                         </Button>,
+                        <Button
+                            key='submit'
+                            onClick={handleCreateMeterReading}
+                            type='secondary'
+                            id='ClientCardCreateMeterReadingClick'
+                        >
+                            {CreateMeterReadingMessage}
+                        </Button>,
                         canManageContacts && handleContactEditClick && (
                             <Button
                                 key='edit'
@@ -565,6 +593,18 @@ const ContactClientTabContent = ({
         })
     }, [contact, property, router, unitName, unitType])
 
+    const getQueryForCreatingMeterReadingWithContact = useCallback(() => ({
+        tab: METER_TAB_TYPES.meterReading,
+        propertyId: property?.id,
+        unitName,
+        unitType,
+        sectionName,
+        sectionType,
+        contact: contact?.id,
+        clientName: contact?.name,
+        clientPhone: contact?.phone,
+    }), [property, unitName, unitType, sectionName, sectionType, contact])
+
     const handleContactEditClick = useCallback(async () => {
         await redirectToForm({
             router,
@@ -583,6 +623,7 @@ const ContactClientTabContent = ({
             sectionName={sectionName}
             property={property}
             handleTicketCreateClick={handleTicketCreateClick}
+            getQueryForCreatingMeterReading={getQueryForCreatingMeterReadingWithContact}
             handleContactEditClick={handleContactEditClick}
             canManageContacts={canManageContacts}
             contact={contact}
@@ -627,6 +668,15 @@ const NotResidentClientTabContent = ({
         })
     }, [property, router, unitName, unitType])
 
+    const getQueryForCreatingMeterReadingWithoutContact = useCallback((ticket) => ({
+        tab: METER_TAB_TYPES.meterReading,
+        property: property?.id,
+        unitName,
+        unitType,
+        clientName: ticket?.clientName,
+        clientPhone: ticket?.clientPhone,
+    }), [property, unitName, unitType])
+
     return (
         <ClientCardTabContent
             unitName={unitName}
@@ -639,6 +689,7 @@ const NotResidentClientTabContent = ({
             sectionType={sectionType}
             searchTicketsQuery={searchTicketsQuery}
             handleTicketCreateClick={handleTicketCreateClick}
+            getQueryForCreatingMeterReading={getQueryForCreatingMeterReadingWithoutContact}
             canManageContacts={false}
             organization={organization}
         />
@@ -829,7 +880,7 @@ const ClientCardPageContent = ({
         return addressTabs.filter(Boolean)
     }, [handleTabChange, tabsData, tab])
 
-    const redirectToCreateContact = useCallback(()=>redirectToForm({
+    const redirectToCreateContact = useCallback(() => redirectToForm({
         router,
         formRoute: '/contact/create',
         initialValues: {

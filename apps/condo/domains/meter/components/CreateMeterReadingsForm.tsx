@@ -250,9 +250,12 @@ export const CreateMeterReadingsForm = ({ organization, canManageMeterReadings }
 
     const router = useRouter()
 
-    const propertyIdFromQuery = get(router.query, 'propertyId')
-    const unitNameFromQuery = get(router.query, 'unitName')
-    const unitTypeFromQuery = get(router.query, 'unitType')
+    const propertyIdFromQuery = router.query?.propertyId ?? null
+    const unitNameFromQuery = router.query?.unitName ?? null
+    const unitTypeFromQuery = router.query?.unitType ?? null
+    const contactFromQuery = router.query?.contact ?? null
+    const clientNameFromQuery = router.query?.clientName ?? null
+    const clientPhoneFromQuery = router.query?.clientPhone ?? null
 
     const [selectedPropertyId, setSelectedPropertyId] = useState<string>(propertyIdFromQuery as string || null)
     const [selectedUnitName, setSelectedUnitName] = useState<string>(unitNameFromQuery as string || null)
@@ -408,7 +411,7 @@ export const CreateMeterReadingsForm = ({ organization, canManageMeterReadings }
                                         <Row gutter={FORM_ROW_LARGE_VERTICAL_GUTTER}>
                                             <Col span={24}>
                                                 <AddressAndUnitInfo
-                                                    organizationId={get(organization, 'id')}
+                                                    organizationId={organization?.id}
                                                     form={form}
                                                     getHandleSelectPropertyAddress={getHandleSelectPropertyAddress}
                                                     handleDeselectPropertyAddress={handleDeselectPropertyAddress}
@@ -429,6 +432,11 @@ export const CreateMeterReadingsForm = ({ organization, canManageMeterReadings }
                                                 <ContactsInfo
                                                     ContactsEditorComponent={ContactsEditorComponent}
                                                     form={form}
+                                                    initialValues={{
+                                                        contact: contactFromQuery,
+                                                        clientName: clientNameFromQuery,
+                                                        clientPhone: clientPhoneFromQuery,
+                                                    }}
                                                     selectedPropertyId={selectedPropertyId}
                                                     hasNotResidentTab={false}
                                                     residentTitle={MeterReadingsFromResidentMessage}
