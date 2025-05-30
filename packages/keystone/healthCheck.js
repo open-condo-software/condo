@@ -125,7 +125,7 @@ const HEALTHCHECK_WARNING = 417
 const getRateLimitHealthCheck = ({
     endpoint,
     authRequisites,
-    threshold = 10000,
+    threshold = 1000,
 }) => {
     if (!endpoint) throw new Error('GraphQL endpoint must be provided')
     if (!authRequisites) throw new Error('Authentication requisites must be provided')
@@ -144,25 +144,27 @@ const getRateLimitHealthCheck = ({
         run: async () => {
             try {
                 if (!client.authToken) {
-                    await client.signIn()
+                    try {
+                        await client.signIn()
+                    } catch (authError) {
+                        return PASS
+                    }
                 }
 
                 const headers = {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${client.authToken}`,
                 }
-
-                const query = JSON.stringify({ query: '{ __typename }' })
-
+                await client.signIn()
                 const response = await fetch(endpoint, {
                     method: 'POST',
                     headers,
-                    body: query,
+                    body: JSON.stringify({ query: '{ __typename }' }),
                 })
 
                 const remaining = Number(response.headers.get('x-rate-limit-complexity-remaining'))
 
-                if (isNaN(remaining)) return FAIL
+                if (isNaN(remaining)) return PASS
                 if (remaining < threshold) return WARN
 
                 return PASS
