@@ -250,12 +250,12 @@ export const CreateMeterReadingsForm = ({ organization, canManageMeterReadings }
 
     const router = useRouter()
 
-    const propertyIdFromQuery = router.query?.propertyId || null
-    const unitNameFromQuery = router.query?.unitName || null
-    const unitTypeFromQuery = router.query?.unitType || null
-    const contactFromQuery = router.query?.contact || null
-    const clientNameFromQuery = router.query?.clientName || null
-    const clientPhoneFromQuery = router.query?.clientPhone || null
+    const propertyIdFromQuery = router.query?.propertyId ?? null
+    const unitNameFromQuery = router.query?.unitName ?? null
+    const unitTypeFromQuery = router.query?.unitType ?? null
+    const contactFromQuery = router.query?.contact ?? null
+    const clientNameFromQuery = router.query?.clientName ?? null
+    const clientPhoneFromQuery = router.query?.clientPhone ?? null
 
     const [selectedPropertyId, setSelectedPropertyId] = useState<string>(propertyIdFromQuery as string || null)
     const [selectedUnitName, setSelectedUnitName] = useState<string>(unitNameFromQuery as string || null)
