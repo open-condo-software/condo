@@ -3,6 +3,7 @@ import { Col, Row, Space } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
 import dayjs, { Dayjs } from 'dayjs'
 import { get } from 'lodash'
+import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import React, { useCallback, useState } from 'react'
 
@@ -37,11 +38,10 @@ import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 
-
+const { publicRuntimeConfig: { defaultCurrencyCode } } = getConfig()
 
 const SORTABLE_PROPERTIES = ['advancedAt', 'amount']
 const PAYMENTS_DEFAULT_SORT_BY = ['advancedAt_DESC']
-const DEFAULT_CURRENCY_CODE = 'RUB'
 const DEFAULT_DATE_RANGE: [Dayjs, Dayjs] = [dayjs().subtract(1, 'week'), dayjs()]
 
 const ROW_GUTTER: [Gutter, Gutter] = [0, 30]
@@ -60,7 +60,7 @@ interface IPaymentsSumInfoProps {
 export const PaymentsSumInfo: React.FC<IPaymentsSumInfoProps> = ({
     title,
     message,
-    currencyCode = DEFAULT_CURRENCY_CODE,
+    currencyCode = defaultCurrencyCode,
     type,
     loading,
 }) => {
@@ -100,7 +100,7 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
     const { filters, sorters, offset } = parseQuery(router.query)
 
     // TODO(dkovyazin): DOMA-11394 find out why acquiring uses currency from billing integration
-    const currencyCode = get(billingContexts.find(({ integration }) => !!integration.currencyCode), ['integration', 'currencyCode'], DEFAULT_CURRENCY_CODE)
+    const currencyCode = get(billingContext, ['integration', 'currencyCode'], defaultCurrencyCode)
 
     const [isStatusDescModalVisible, setIsStatusDescModalVisible] = useState<boolean>(false)
     const [titleStatusDescModal, setTitleStatusDescModal] = useState('')
