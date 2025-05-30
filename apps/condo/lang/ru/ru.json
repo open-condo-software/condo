@@ -2813,7 +2813,7 @@
   "pages.news.create.selectSharingApp.otherApps.actionButtonText": "Настроить",
   "pages.news.create.selectSharingApp.otherApps.description": "Отправлять новости можно не только в приложение Doma, но и по другим каналам",
   "pages.news.create.selectSharingApp.finishSetting.actionButtonText": "Завершить настройку",
-  "pages.news.create.selectSharingApp.finishSetting.description": "Завершите настройку, чтобы отправлять новости в ",
+  "pages.news.create.selectSharingApp.finishSetting.description": "Завершите настройку, чтобы отправлять новости в {appName}",
   "pages.news.newsItemCard.author": "автор {createdBy}{isOwner, plural, other {} one { (вы)}}",
   "pages.news.newsItemCard.field.body": "Текст",
   "pages.news.newsItemCard.field.sendAt": "Дата отправки",
