@@ -3317,7 +3317,7 @@
   "ticketBlankExport.message.workCompleted": "La obra se ha realizado por completo. No tengo quejas sobre la calidad.",
   "ticketsTable.Number": "№",
   "ticketsTable.ResidentName": "Nombre del vecino",
-  "timezone.msk": "Hora de Moscú",
+  "timezone": "Huso horario",
   "tour.cardVideo.description.billing": "Te contamos cómo trabajar con los cargos y asegurarnos de que los vecinos paguen sus facturas a tiempo",
   "tour.cardVideo.description.default": "Te contamos cómo Doma ayuda a las organizaciones gestoras",
   "tour.cardVideo.description.meter": "Contamos cómo las organizaciones de gestión y vecinos pueden trabajar con las lecturas de contadores en la plataforma y en la aplicación móvil",

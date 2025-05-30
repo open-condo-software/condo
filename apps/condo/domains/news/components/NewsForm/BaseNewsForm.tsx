@@ -362,7 +362,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const ToManyMessagesMessage = intl.formatMessage({ id: 'news.fields.toManyMessages.error' })
     const PastTimeErrorMessage = intl.formatMessage({ id: 'global.input.error.pastTime' })
     const NextStepMessage = intl.formatMessage({ id: 'pages.condo.news.steps.nextStep' })
-    const TimezoneMskTitle = intl.formatMessage({ id: 'timezone.msk' })
+    const TimeZoneLabel = intl.formatMessage({ id: 'timezone' })
     const ProfanityInTitle = intl.formatMessage({ id: 'news.fields.profanityInTitle.error' })
     const ProfanityInBody = intl.formatMessage({ id: 'news.fields.profanityInBody.error' })
     const SelectSharingAppLabel = intl.formatMessage({ id: 'pages.news.create.selectSharingApp' })
@@ -372,6 +372,11 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const CancelSendMessage = intl.formatMessage({ id: 'news.CancelSendMessage' })
     const SendNewsLabel = intl.formatMessage({ id: 'news.filed.shareNews.button' })
     const ShareButtonMessage = intl.formatMessage({ id: 'global.share' })
+    const parts = intl.formatDateToParts(new Date(), {
+        timeZoneName: 'long',
+    })
+
+    const timeZone = useMemo(() => parts.find((part) => part.type === 'timeZoneName')?.value, [parts])
 
     const router = useRouter()
 
@@ -751,24 +756,6 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         }
     }, [actionName, createOrUpdateNewsItem, initialHasAllProperties, initialPropertyIds, updateNewsItem, OnCompletedMsg, afterAction, initialSentAt, currentNewsItem, initialNewsItemScopes, softDeleteNewsItemScope, initialUnitKeys, createNewsItemScope, router])
 
-
-    const dayjsTz = dayjs().format('Z')
-    const tzInfo = useMemo<string>(() => {
-        const matches = /([+-])(\d{1,2}):(\d{1,2})/.exec(dayjsTz)
-        const sign = matches[1]
-        const hours = Number(matches[2]) - 3 // We show tz related to Moscow tz
-        const minutes = Number(matches[3])
-        let result = `${TimezoneMskTitle}`
-        if (hours !== 0) {
-            result = `${result}${sign}${hours}`
-        }
-        if (minutes !== 0) {
-            result = `${result}${hours === 0 ? `${sign}0` : ''}:${matches[3]}`
-        }
-
-        return result
-    }, [TimezoneMskTitle, dayjsTz])
-
     const ErrorToFormFieldMsgMapping = useMemo(() => ({
         [PROFANITY_TITLE_DETECTED_MOT_ERF_KER]: {
             name: 'title',
@@ -1122,9 +1109,18 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                             <Col span={formFieldsColSpan} style={MARGIN_TOP_8_STYLE}>
                                                 <Row gutter={EXTRA_SMALL_VERTICAL_GUTTER}>
                                                     <Col span={24} style={MARGIN_BOTTOM_10_STYLE}>
-                                                        <Typography.Title level={3}>
-                                                            {SelectSendPeriodLabel} ({tzInfo})
-                                                        </Typography.Title>
+                                                        <Row gutter={EXTRA_SMALL_VERTICAL_GUTTER}>
+                                                            <Col span={24}>
+                                                                <Typography.Title level={3}>
+                                                                    {SelectSendPeriodLabel}
+                                                                </Typography.Title>
+                                                            </Col>
+                                                            <Col span={24}>
+                                                                <Typography.Paragraph type='secondary'>
+                                                                    {TimeZoneLabel} ({timeZone})
+                                                                </Typography.Paragraph>
+                                                            </Col>
+                                                        </Row>
                                                     </Col>
                                                     <Col span={24}>
                                                         <Row gutter={SMALL_VERTICAL_GUTTER} style={MARGIN_BOTTOM_10_STYLE}>
