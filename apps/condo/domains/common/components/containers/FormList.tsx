@@ -281,7 +281,6 @@ const FormWithAction: React.FC<IFormWithAction> = (props) => {
         layout = 'vertical',
         validateTrigger,
         style,
-        onFieldsChange,
         formInstance,
         isNonFieldErrorHidden,
         ...formProps
