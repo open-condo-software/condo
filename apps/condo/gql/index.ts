@@ -5159,46 +5159,6 @@ export type GetTicketsForClientCardQueryHookResult = ReturnType<typeof useGetTic
 export type GetTicketsForClientCardLazyQueryHookResult = ReturnType<typeof useGetTicketsForClientCardLazyQuery>;
 export type GetTicketsForClientCardSuspenseQueryHookResult = ReturnType<typeof useGetTicketsForClientCardSuspenseQuery>;
 export type GetTicketsForClientCardQueryResult = Apollo.QueryResult<Types.GetTicketsForClientCardQuery, Types.GetTicketsForClientCardQueryVariables>;
-export const CheckTicketExistenceDocument = gql`
-    query checkTicketExistence($where: TicketWhereInput!) {
-  tickets: allTickets(where: $where, first: 1) {
-    id
-  }
-}
-    `;
-
-/**
- * __useCheckTicketExistenceQuery__
- *
- * To run a query within a React component, call `useCheckTicketExistenceQuery` and pass it any options that fit your needs.
- * When your component renders, `useCheckTicketExistenceQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useCheckTicketExistenceQuery({
- *   variables: {
- *      where: // value for 'where'
- *   },
- * });
- */
-export function useCheckTicketExistenceQuery(baseOptions: Apollo.QueryHookOptions<Types.CheckTicketExistenceQuery, Types.CheckTicketExistenceQueryVariables> & ({ variables: Types.CheckTicketExistenceQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<Types.CheckTicketExistenceQuery, Types.CheckTicketExistenceQueryVariables>(CheckTicketExistenceDocument, options);
-      }
-export function useCheckTicketExistenceLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.CheckTicketExistenceQuery, Types.CheckTicketExistenceQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<Types.CheckTicketExistenceQuery, Types.CheckTicketExistenceQueryVariables>(CheckTicketExistenceDocument, options);
-        }
-export function useCheckTicketExistenceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.CheckTicketExistenceQuery, Types.CheckTicketExistenceQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<Types.CheckTicketExistenceQuery, Types.CheckTicketExistenceQueryVariables>(CheckTicketExistenceDocument, options);
-        }
-export type CheckTicketExistenceQueryHookResult = ReturnType<typeof useCheckTicketExistenceQuery>;
-export type CheckTicketExistenceLazyQueryHookResult = ReturnType<typeof useCheckTicketExistenceLazyQuery>;
-export type CheckTicketExistenceSuspenseQueryHookResult = ReturnType<typeof useCheckTicketExistenceSuspenseQuery>;
-export type CheckTicketExistenceQueryResult = Apollo.QueryResult<Types.CheckTicketExistenceQuery, Types.CheckTicketExistenceQueryVariables>;
 export const GetTicketsCountDocument = gql`
     query getTicketsCount($where: TicketWhereInput!) {
   meta: _allTicketsMeta(where: $where) {
