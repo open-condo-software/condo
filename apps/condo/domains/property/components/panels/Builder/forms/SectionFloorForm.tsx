@@ -1,30 +1,19 @@
 import { BuildingUnitSubType } from '@app/condo/schema'
-import { Col, InputNumber, Row, Space, Typography } from 'antd'
+import { Col, InputNumber, Row } from 'antd'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Checkbox } from '@open-condo/ui'
-
-import Select from '@condo/domains/common/components/antd/Select'
-import { Button } from '@condo/domains/common/components/Button'
-
-
+import { Space, Typography, Select, Button } from '@open-condo/ui'
 
 import {
-    BUTTON_SPACE_SIZE,
-    FormModalCss,
     INPUT_STYLE,
     IPropertyMapModalForm,
-    MODAL_FORM_ROW_BUTTONS_GUTTER,
     MODAL_FORM_ROW_GUTTER,
 } from './BaseUnitForm'
+import { RenameNextUnitsCheckbox } from './RenameNextUnitsCheckbox'
 
 import { MapViewMode } from '../MapConstructor'
 
-
-
-
-const { Option } = Select
 
 const AddSectionFloorForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
     const intl = useIntl()
@@ -37,7 +26,6 @@ const AddSectionFloorForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh
     const SectionTitlePrefix = builder.viewMode === MapViewMode.section ?
         intl.formatMessage({ id: 'pages.condo.property.select.option.section' }) :
         intl.formatMessage({ id: 'pages.condo.property.select.option.parking' })
-    const RenameNextUnitsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextUnits' })
 
     const [sections, setSections] = useState([])
     const [section, setSection] = useState<number | null>(null)
@@ -101,74 +89,93 @@ const AddSectionFloorForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh
     }, [floor, section, unitsOnFloor, unitType])
 
     const unitSubtypeOptions = useMemo(() => (
-        builder.availableUnitTypes.map((unitType, key) => (
-            <Select.Option key={`${key}-${unitType}`} value={unitType} title={unitType}>
-                {intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` })}
-            </Select.Option>
-        ))
+        builder.availableUnitTypes.map((unitType, key) => ({
+            key: `${key}-${unitType}`,
+            value: unitType,
+            title: unitType,
+            label: intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` }),
+        }))
     ), [builder.availableUnitTypes, intl])
 
     const sectionOptions = useMemo(() => (
-        sections.map((sec, index) => {
-            return <Option key={sec.id} value={index}>{SectionTitlePrefix} {sec.label}</Option>
-        })
+        sections.map((sec, index) => ({
+            key: sec.id,
+            label: `${SectionTitlePrefix} ${sec.label}`,
+            value: index,
+        }))
     ), [sections, SectionTitlePrefix])
 
     return (
-        <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
+        <Row gutter={[0, 40]}>
             <Col span={24}>
-                <Space direction='vertical' size={8} style={INPUT_STYLE}>
-                    <Typography.Text type='secondary'>{UnitTypeAtFloorLabel}</Typography.Text>
-                    <Select value={unitType} onSelect={setUnitType}>
-                        {unitSubtypeOptions}
-                    </Select>
-                </Space>
-            </Col>
-            <Col span={24}>
-                <Space direction='vertical' size={8} style={INPUT_STYLE}>
-                    <Typography.Text type='secondary'>{SectionLabel}</Typography.Text>
-                    <Select value={section} onSelect={setSection} style={INPUT_STYLE}>
-                        {sectionOptions}
-                    </Select>
-                </Space>
-            </Col>
-            <Col span={24}>
-                <Space direction='vertical' size={8} style={INPUT_STYLE}>
-                    <Typography.Text type='secondary'>{FloorLabel}</Typography.Text>
-                    <InputNumber
-                        value={floor}
-                        onChange={setFloorNumber}
-                        max={maxFloor.current}
-                        type='number'
-                        style={INPUT_STYLE}
-                    />
-                </Space>
-            </Col>
-            <Col span={24}>
-                <Space direction='vertical' size={BUTTON_SPACE_SIZE}>
-                    <Space direction='vertical' size={8} style={INPUT_STYLE}>
-                        <Typography.Text type='secondary'>{unitType === BuildingUnitSubType.Parking ? ParkingsOnFloorLabel : UnitsOnFloorLabel}</Typography.Text>
-                        <InputNumber
-                            value={unitsOnFloor}
-                            onChange={setUnitsOnFloorNumber}
-                            type='number'
-                            style={INPUT_STYLE}
-                            min={1}
+                <Row gutter={MODAL_FORM_ROW_GUTTER}>
+                    <Col span={24}>
+                        <Space direction='vertical' size={8} width='100%'>
+                            <Typography.Text size='medium' type='secondary'>{UnitTypeAtFloorLabel}</Typography.Text>
+                            <Select
+                                value={unitType}
+                                onChange={(unitType) => {
+                                    setUnitType(unitType as BuildingUnitSubType)
+                                }}
+                                options={unitSubtypeOptions}
+                            />
+                        </Space>
+                    </Col>
+                    <Col span={24}>
+                        <Space direction='vertical' size={8} width='100%'>
+                            <Typography.Text size='medium' type='secondary'>{SectionLabel}</Typography.Text>
+                            <Select
+                                value={section}
+                                onChange={(value) => {
+                                    setSection(Number(value))
+                                }}
+                                options={sectionOptions}
+                            />
+                        </Space>
+                    </Col>
+                    <Col span={24}>
+                        <Space direction='vertical' size={8} width='100%'>
+                            <Typography.Text size='medium' type='secondary'>{FloorLabel}</Typography.Text>
+                            <InputNumber
+                                value={floor}
+                                onChange={setFloorNumber}
+                                max={maxFloor.current}
+                                type='number'
+                                style={INPUT_STYLE}
+                            />
+                        </Space>
+                    </Col>
+                    <Col span={24}>
+                        <Space direction='vertical' size={8} width='100%'>
+                            <Typography.Text size='medium' type='secondary'>
+                                {unitType === BuildingUnitSubType.Parking ? ParkingsOnFloorLabel : UnitsOnFloorLabel}
+                            </Typography.Text>
+                            <InputNumber
+                                value={unitsOnFloor}
+                                onChange={setUnitsOnFloorNumber}
+                                type='number'
+                                min={1}
+                                style={INPUT_STYLE}
+                            />
+                        </Space>
+                    </Col>
+                    <Col span={24}>
+                        <RenameNextUnitsCheckbox
+                            onChange={toggleRenameNextUnits}
+                            mapViewMode={builder.viewMode}
                         />
-                    </Space>
-                    <Checkbox onChange={toggleRenameNextUnits}>
-                        {RenameNextUnitsLabel}
-                    </Checkbox>
-                    <Row gutter={MODAL_FORM_ROW_BUTTONS_GUTTER}>
-                        <Col span={24}>
-                            <Button
-                                onClick={applyChanges}
-                                type='sberDefaultGradient'
-                                disabled={isSubmitDisabled}
-                            > {SaveLabel} </Button>
-                        </Col>
-                    </Row>
-                </Space>
+                    </Col>
+                </Row>
+            </Col>
+            <Col span={24}>
+                <Button
+                    onClick={applyChanges}
+                    type='primary'
+                    disabled={isSubmitDisabled}
+                    block
+                >
+                    {SaveLabel}
+                </Button>
             </Col>
         </Row>
     )
