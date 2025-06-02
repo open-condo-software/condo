@@ -22,6 +22,8 @@ import {
 import { MapViewMode } from '../MapConstructor'
 
 
+
+
 const { Option } = Select
 
 const AddSectionFloorForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
@@ -29,6 +31,7 @@ const AddSectionFloorForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh
     const SaveLabel = intl.formatMessage({ id: 'Add' })
     const UnitTypeAtFloorLabel = intl.formatMessage({ id: 'pages.condo.property.modal.title.unitTypeAtFloor' })
     const UnitsOnFloorLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.unitsOnFloor' })
+    const ParkingsOnFloorLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.parkingsOnFloor' })
     const SectionLabel = intl.formatMessage({ id: 'pages.condo.property.parkingSection.name' })
     const FloorLabel = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
     const SectionTitlePrefix = builder.viewMode === MapViewMode.section ?
@@ -144,7 +147,7 @@ const AddSectionFloorForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh
             <Col span={24}>
                 <Space direction='vertical' size={BUTTON_SPACE_SIZE}>
                     <Space direction='vertical' size={8} style={INPUT_STYLE}>
-                        <Typography.Text type='secondary'>{UnitsOnFloorLabel}</Typography.Text>
+                        <Typography.Text type='secondary'>{unitType === BuildingUnitSubType.Parking ? ParkingsOnFloorLabel : UnitsOnFloorLabel}</Typography.Text>
                         <InputNumber
                             value={unitsOnFloor}
                             onChange={setUnitsOnFloorNumber}
