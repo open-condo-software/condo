@@ -1,33 +1,25 @@
-/** @jsx jsx */
-import { DeleteFilled, DownOutlined } from '@ant-design/icons'
 import { BuildingUnitSubType } from '@app/condo/schema'
-import { jsx } from '@emotion/react'
-import { Col, InputNumber, Row, Space, Typography } from 'antd'
+import { Col, InputNumber, Row } from 'antd'
 import isEmpty from 'lodash/isEmpty'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { ChevronDown, ChevronUp, Trash } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Checkbox } from '@open-condo/ui'
+import { Button, Select, Space, Typography } from '@open-condo/ui'
 
-import Select from '@condo/domains/common/components/antd/Select'
-import { Button } from '@condo/domains/common/components/Button'
 import {
     MAX_PROPERTY_FLOORS_COUNT,
     MAX_PROPERTY_UNITS_COUNT_PER_FLOOR,
 } from '@condo/domains/property/constants/property'
 
-
 import {
-    FormModalCss,
-    FULL_SIZE_UNIT_STYLE,
     INPUT_STYLE,
     IPropertyMapModalForm,
     MODAL_FORM_BUTTON_GUTTER,
-    MODAL_FORM_BUTTON_STYLE,
     MODAL_FORM_EDIT_GUTTER,
     MODAL_FORM_ROW_GUTTER,
-    TEXT_BUTTON_STYLE,
 } from './BaseUnitForm'
+import { RenameNextUnitsCheckbox } from './RenameNextUnitsCheckbox'
 
 import { MapViewMode } from '../MapConstructor'
 
@@ -113,121 +105,148 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
     const setSectionNameValue = useCallback((value) => setSectionName(value ? value.toString() : ''), [])
     const isSubmitDisabled = copyId !== null ? false : !(minFloor && floorCount && unitsOnFloor)
     const isCreateColumnsHidden = copyId !== null
-    const iconRotation = minFloorHidden ? 0 : 180
-    const minFloorMargin = minFloorHidden ? '-28px' : 0
+    const minFloorMargin = minFloorHidden ? '-20px' : 0
 
     const sectionOptions = useMemo(() => (
-        builder.sections.filter(section => !section.preview).map(section => (
-            <Select.Option
-                key={`copy-${section.id}`}
-                value={section.id}
-                data-cy='property-map__add-section-form__section-mode-select__copy-option'
-            >
-                {CopyLabel}{section.name}
-            </Select.Option>
-        ))
-    ), [builder.sections, CopyLabel])
+        [
+            {
+                key: CreateNewLabel,
+                label: CreateNewLabel,
+                value: null,
+            },
+            ...builder.sections.filter(section => !section.preview).map(section => ({
+                key: `copy-${section.id}`,
+                value: section.id,
+                label: `${CopyLabel}${section.name}`,
+                // 'data-cy': 'property-map__add-section-form__section-mode-select__copy-option',
+            })),
+        ]
+    ), [CopyLabel, CreateNewLabel, builder.sections])
 
     const unitTypeOptions = useMemo(() => (
         builder.availableUnitTypes
-            .map((unitType, key) => (
-                <Select.Option key={`${key}-${unitType}`} value={unitType} title={unitType}>
-                    {intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` })}
-                </Select.Option>
-            ))
+            .map((unitType, key) => ({
+                key: `${key}-${unitType}`,
+                value: unitType,
+                title: unitType,
+                label: intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` }),
+            }))
     ), [builder.availableUnitTypes, intl])
 
     return (
-        <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss} data-cy='property-map__add-section-form'>
+        <Row gutter={[0, 40]}>
             <Col span={24}>
-                <Select
-                    value={copyId}
-                    onSelect={setCopyId}
-                    disabled={builder.isEmptySections}
-                    data-cy='property-map__add-section-form__section-mode-select'
-                >
-                    <Select.Option key='create' value={null}>{CreateNewLabel}</Select.Option>
-                    {sectionOptions}
-                </Select>
-            </Col>
-            <Col span={24} hidden={isCreateColumnsHidden}>
-                <Space direction='vertical' size={8}>
-                    <Typography.Text type='secondary'>{SectionNameLabel}</Typography.Text>
-                    <InputNumber
-                        value={sectionName}
-                        min={1}
-                        onChange={setSectionNameValue}
-                        style={INPUT_STYLE}
-                        type='number'
-                        data-cy='property-map__add-section-form__section-name'
-                    />
-                </Space>
-            </Col>
-            <Col span={24} hidden={isCreateColumnsHidden}>
-                <Space direction='vertical' size={8}>
-                    <Typography.Text type='secondary'>{FloorCountLabel}</Typography.Text>
-                    <InputNumber
-                        value={floorCount}
-                        onChange={setFloorCountValue}
-                        min={1}
-                        max={MAX_PROPERTY_FLOORS_COUNT}
-                        style={INPUT_STYLE}
-                        type='number'
-                        data-cy='property-map__add-section-form__floor-count'
-                    />
-                </Space>
-            </Col>
-            <Col span={24} hidden={isCreateColumnsHidden}>
-                <Space direction='vertical' size={8}>
-                    <Typography.Text type='secondary'>{UnitTypeLabel}</Typography.Text>
-                    <Select value={unitType} onSelect={setUnitType} data-cy='property-map__add-section-form__unit-type'>
-                        {unitTypeOptions}
-                    </Select>
-                </Space>
-            </Col>
-            <Col span={24} hidden={isCreateColumnsHidden} style={{ marginTop: minFloorMargin }}>
-                <Space
-                    direction='vertical'
-                    size={8}
-                    hidden={minFloorHidden}
-                >
-                    <Typography.Text type='secondary'>{MinFloorLabel}</Typography.Text>
-                    <InputNumber
-                        value={minFloor}
-                        onChange={setMinFloorValue}
-                        style={INPUT_STYLE}
-                        type='number'
-                    />
-                </Space>
-                <Typography.Text onClick={toggleMinFloorVisible} style={TEXT_BUTTON_STYLE}>
-                    {minFloorHidden ? ShowMinFloor : HideMinFloor} <DownOutlined rotate={iconRotation}/>
-                </Typography.Text>
-            </Col>
-            <Col span={24} hidden={isCreateColumnsHidden}>
-                <Space direction='vertical' size={8}>
-                    <Typography.Text type='secondary'>
-                        {unitType === BuildingUnitSubType.Parking ? ParkingsOnFloorLabel : UnitsOnFloorLabel}
-                    </Typography.Text>
-                    <InputNumber
-                        min={1}
-                        max={MAX_PROPERTY_UNITS_COUNT_PER_FLOOR}
-                        value={unitsOnFloor}
-                        onChange={setUnitsOnFloor}
-                        style={INPUT_STYLE}
-                        type='number'
-                        data-cy='property-map__add-section-form__units-on-floor'
-                    />
-                </Space>
+                <Row gutter={MODAL_FORM_ROW_GUTTER} data-cy='property-map__add-section-form'>
+                    <Col span={24}>
+                        <Select
+                            value={copyId}
+                            onChange={(value) => setCopyId(value ? String(value) : null)}
+                            disabled={builder.isEmptySections}
+                            options={sectionOptions}
+                            data-cy='property-map__add-section-form__section-mode-select'
+                        />
+                    </Col>
+                    <Col span={24} hidden={isCreateColumnsHidden}>
+                        <Space direction='vertical' size={8} width='100%'>
+                            <Typography.Text type='secondary' size='medium'>{SectionNameLabel}</Typography.Text>
+                            <InputNumber
+                                value={sectionName}
+                                min={1}
+                                onChange={setSectionNameValue}
+                                style={INPUT_STYLE}
+                                type='number'
+                                data-cy='property-map__add-section-form__section-name'
+                            />
+                        </Space>
+                    </Col>
+                    <Col span={24} hidden={isCreateColumnsHidden}>
+                        <Space direction='vertical' size={8} width='100%'>
+                            <Typography.Text type='secondary' size='medium'>{FloorCountLabel}</Typography.Text>
+                            <InputNumber
+                                value={floorCount}
+                                onChange={setFloorCountValue}
+                                min={1}
+                                max={MAX_PROPERTY_FLOORS_COUNT}
+                                style={INPUT_STYLE}
+                                type='number'
+                                data-cy='property-map__add-section-form__floor-count'
+                            />
+                        </Space>
+                    </Col>
+                    <Col span={24} hidden={isCreateColumnsHidden}>
+                        <Space direction='vertical' size={8} width='100%'>
+                            <Typography.Text type='secondary' size='medium'>{UnitTypeLabel}</Typography.Text>
+                            <Select
+                                value={unitType}
+                                onChange={(value) => setUnitType(value as BuildingUnitSubType)}
+                                options={unitTypeOptions}
+                                data-cy='property-map__add-section-form__unit-type'
+                            />
+                        </Space>
+                    </Col>
+                    <Col span={24} hidden={isCreateColumnsHidden} style={{ marginTop: minFloorMargin }}>
+                        <Space direction='vertical' size={8} width='100%'>
+                            {
+                                !minFloorHidden && (
+                                    <>
+                                        <Typography.Text type='secondary' size='medium'>{MinFloorLabel}</Typography.Text>
+                                        <InputNumber
+                                            value={minFloor}
+                                            onChange={setMinFloorValue}
+                                            style={INPUT_STYLE}
+                                            type='number'
+                                        />
+                                    </>
+                                )
+                            }
+                            <Typography.Text onClick={toggleMinFloorVisible} size='medium'>
+                                <Space size={8} width='100%'>
+                                    {
+                                        minFloorHidden ? (
+                                            <>
+                                                {ShowMinFloor}
+                                                <ChevronDown size='medium' />
+                                            </>
+                                        ) : (
+                                            <>
+                                                {HideMinFloor}
+                                                <ChevronUp size='medium' />
+                                            </>
+                                        )
+                                    }
+                                </Space>
+                            </Typography.Text>
+                        </Space>
+                    </Col>
+                    <Col span={24} hidden={isCreateColumnsHidden}>
+                        <Space direction='vertical' size={8}>
+                            <Typography.Text size='medium' type='secondary'>
+                                {unitType === BuildingUnitSubType.Parking ? ParkingsOnFloorLabel : UnitsOnFloorLabel}
+                            </Typography.Text>
+                            <InputNumber
+                                min={1}
+                                max={MAX_PROPERTY_UNITS_COUNT_PER_FLOOR}
+                                value={unitsOnFloor}
+                                onChange={setUnitsOnFloor}
+                                style={INPUT_STYLE}
+                                type='number'
+                                data-cy='property-map__add-section-form__units-on-floor'
+                            />
+                        </Space>
+                    </Col>
+                </Row>
             </Col>
             <Col span={24}>
                 <Button
+                    block
                     key='submit'
                     onClick={handleFinish}
-                    type='sberDefaultGradient'
-                    style={MODAL_FORM_BUTTON_STYLE}
+                    type='primary'
                     disabled={isSubmitDisabled}
                     data-cy='property-map__section-form__submit-button'
-                > {AddLabel} </Button>
+                >
+                    {AddLabel}
+                </Button>
             </Col>
         </Row>
     )
@@ -240,7 +259,6 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     const NamePlaceholderLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.name.placeholder' })
     const SaveLabel = intl.formatMessage({ id: 'Save' })
     const DeleteLabel = intl.formatMessage({ id: 'Delete' })
-    const RenameNextUnitsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextSections' })
 
     const [name, setName] = useState<string>('')
     const renameNextUnits = useRef(true)
@@ -265,44 +283,59 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     }, [builder, refresh, section])
 
     return (
-        <Row gutter={MODAL_FORM_EDIT_GUTTER} css={FormModalCss} data-cy='property-map__edit-section-form'>
+        <Row gutter={[0, 40]}>
             <Col span={24}>
-                <Space direction='vertical' size={8}>
-                    <Typography.Text type='secondary'>{NameLabel}</Typography.Text>
-                    <InputNumber
-                        value={name}
-                        min={1}
-                        placeholder={NamePlaceholderLabel}
-                        onChange={setNameValue}
-                        style={INPUT_STYLE}
-                    />
+                <Row
+                    gutter={MODAL_FORM_EDIT_GUTTER}
+                    data-cy='property-map__edit-section-form'
+                >
                     <Col span={24}>
-                        <Checkbox onChange={toggleRenameNextUnits}>
-                            {RenameNextUnitsLabel}
-                        </Checkbox>
+                        <Space direction='vertical' size={8} width='100%'>
+                            <Typography.Text size='medium' type='secondary'>{NameLabel}</Typography.Text>
+                            <InputNumber
+                                value={name}
+                                min={1}
+                                placeholder={NamePlaceholderLabel}
+                                onChange={setNameValue}
+                                style={INPUT_STYLE}
+                            />
+                        </Space>
                     </Col>
-                </Space>
+                    <Col span={24}>
+                        <RenameNextUnitsCheckbox
+                            onChange={toggleRenameNextUnits}
+                            mapViewMode={builder.viewMode}
+                        />
+                    </Col>
+                </Row>
             </Col>
-            <Row gutter={MODAL_FORM_BUTTON_GUTTER}>
-                <Col span={24}>
-                    <Button
-                        onClick={updateSection}
-                        type='sberDefaultGradient'
-                        disabled={isEmpty(name)}
-                        data-cy='property-map__update-section-button'
-                    >{SaveLabel}</Button>
-                </Col>
-                <Col span={24}>
-                    <Button
-                        secondary
-                        onClick={deleteSection}
-                        type='sberDangerGhost'
-                        icon={<DeleteFilled />}
-                        style={FULL_SIZE_UNIT_STYLE}
-                        data-cy='property-map__remove-section-button'
-                    >{DeleteLabel}</Button>
-                </Col>
-            </Row>
+            <Col span={24}>
+                <Row gutter={MODAL_FORM_BUTTON_GUTTER}>
+                    <Col span={24}>
+                        <Button
+                            block
+                            onClick={updateSection}
+                            type='primary'
+                            disabled={isEmpty(name)}
+                            data-cy='property-map__update-section-button'
+                        >
+                            {SaveLabel}
+                        </Button>
+                    </Col>
+                    <Col span={24}>
+                        <Button
+                            danger
+                            block
+                            onClick={deleteSection}
+                            type='secondary'
+                            icon={<Trash />}
+                            data-cy='property-map__remove-section-button'
+                        >
+                            {DeleteLabel}
+                        </Button>
+                    </Col>
+                </Row>
+            </Col>
         </Row>
     )
 }
