@@ -1,18 +1,8 @@
-/** @jsx jsx */
-import { jsx } from '@emotion/react'
 import React, { useCallback } from 'react'
 
+import { Car, Doors, Flat, Floor, Parking, FloorParking } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Dropdown } from '@open-condo/ui'
-
-import {
-    FlatIcon,
-    FloorIcon,
-    ParkingFloorIcon,
-    ParkingIcon,
-    ParkingPlaceIcon,
-    SectionIcon,
-} from '@condo/domains/common/components/icons/PropertyMapIcons'
 
 import { MapEdit, MapEditMode, MapViewMode } from './MapConstructor'
 
@@ -70,21 +60,21 @@ const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ changeMode, map
                 {
                     key: 'addSection',
                     label: AddSection,
-                    icon: <SectionIcon />,
+                    icon: <Doors />,
                     onClick: changeMapMode,
                     //'data-cy': 'property-map__edit-menu__add-section-button',
                 },
                 {
                     key: 'addSectionFloor',
                     label: AddFloor,
-                    icon: <FloorIcon />,
+                    icon: <Floor />,
                     onClick: changeMapMode,
                     disabled: mapEdit.isEmptySections,
                 },
                 {
                     key: 'addUnit',
                     label: AddUnit,
-                    icon: <FlatIcon />,
+                    icon: <Flat />,
                     onClick: changeMapMode,
                     disabled: mapEdit.isEmptySections,
                     // 'data-cy': 'property-map__edit-menu__add-unit-button'
@@ -92,21 +82,21 @@ const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ changeMode, map
                 {
                     key: 'addParking',
                     label: AddParkingLabel,
-                    icon: <ParkingIcon />,
+                    icon: <Parking />,
                     onClick: changeMapMode,
                     // 'data-cy': 'property-map__edit-menu__add-parking-button'
                 },
                 {
                     key: 'addParkingFloor',
                     label: AddParkingFloor,
-                    icon: <ParkingFloorIcon />,
+                    icon: <FloorParking />,
                     onClick: changeMapMode,
                     disabled: mapEdit.isEmptyParking,
                 },
                 {
                     key: 'addParkingUnit',
                     label: AddParkingPlace,
-                    icon: <ParkingPlaceIcon />,
+                    icon: <Car />,
                     onClick: changeMapMode,
                     disabled: mapEdit.isEmptyParking,
                     //'data-cy': 'property-map__edit-menu__add-parking-unit-button'
@@ -114,7 +104,7 @@ const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ changeMode, map
                 {
                     key: 'addParkingFacilityUnit',
                     label: AddParkingFacilityUnit,
-                    icon: <FlatIcon />,
+                    icon: <Flat />,
                     onClick: changeMapMode,
                     disabled: mapEdit.isEmptyParking,
                     //'data-cy': 'property-map__edit-menu__add-parking-facility-unit-button'
