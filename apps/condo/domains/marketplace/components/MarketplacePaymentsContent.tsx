@@ -5,6 +5,7 @@ import { Col, Row, RowProps } from 'antd'
 import { TableRowSelection } from 'antd/lib/table/interface'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
+import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
@@ -37,6 +38,7 @@ import { useMarketplacePaymentsFilters } from '@condo/domains/marketplace/hooks/
 import { useMarketplacePaymentTableColumns } from '@condo/domains/marketplace/hooks/useMarketplacePaymentTableColumns'
 import { MARKETPLACE_PAGE_TYPES } from '@condo/domains/marketplace/utils/clientSchema'
 
+const { publicRuntimeConfig: { defaultCurrencyCode } } = getConfig()
 
 const ROW_GUTTERS: RowProps['gutter'] = [16, 16]
 const SUM_BAR_COL_GUTTER: RowProps['gutter'] = [40, 0]
@@ -57,7 +59,7 @@ function usePaymentsSum (whereQuery: PaymentWhereInput) {
 interface IPaymentsSumInfoProps {
     title: string
     message: string
-    currencyCode: string
+    currencyCode?: string
     type?:  'success' | 'warning'
     loading: boolean
 }
@@ -71,7 +73,7 @@ const PaymentsInfoWrapper = styled.div`
 const MarketplacePaymentsSumInfo: React.FC<IPaymentsSumInfoProps> = ({
     title,
     message,
-    currencyCode = 'RUB',
+    currencyCode = defaultCurrencyCode,
     type,
     loading,
 }) => {
@@ -275,7 +277,6 @@ const MarketplacePaymentsTableContent = () => {
                                         <MarketplacePaymentsSumInfo
                                             title={AllPaymentsSumMessage}
                                             message={get(allPaymentsSum, 'result.sum', 0)}
-                                            currencyCode='RUB'
                                             loading={allPaymentsSumLoading}
                                         />
                                     </Col>
@@ -283,7 +284,6 @@ const MarketplacePaymentsTableContent = () => {
                                         <MarketplacePaymentsSumInfo
                                             title={DonePaymentsSumMessage}
                                             message={get(donePaymentsSum, 'result.sum', 0)}
-                                            currencyCode='RUB'
                                             type='success'
                                             loading={donePaymentsSumLoading}
                                         />
@@ -292,7 +292,6 @@ const MarketplacePaymentsTableContent = () => {
                                         <MarketplacePaymentsSumInfo
                                             title={WithdrawnPaymentsSumMessage}
                                             message={get(withdrawnPaymentsSum, 'result.sum', 0)}
-                                            currencyCode='RUB'
                                             type='warning'
                                             loading={withdrawnPaymentsSumLoading}
                                         />
