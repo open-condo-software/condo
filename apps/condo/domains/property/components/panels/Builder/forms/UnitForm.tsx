@@ -1,32 +1,21 @@
-/** @jsx jsx */
-import { DeleteFilled } from '@ant-design/icons'
 import { BuildingUnitSubType } from '@app/condo/schema'
-import { jsx } from '@emotion/react'
-import { Col, Row, Space, Typography } from 'antd'
+import { Col, Form, Row } from 'antd'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { Trash } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Checkbox } from '@open-condo/ui'
+import { Button, Checkbox, Input, Select, Space, Typography } from '@open-condo/ui'
 
-import Input from '@condo/domains/common/components/antd/Input'
-import Select from '@condo/domains/common/components/antd/Select'
-import { Button } from '@condo/domains/common/components/Button'
-import { MapEditMode } from '@condo/domains/property/components/panels/Builder/MapConstructor'
-
-
+import { MapEditMode, MapViewMode } from '@condo/domains/property/components/panels/Builder/MapConstructor'
 
 import {
-    BUTTON_SPACE_SIZE,
     ERROR_TEXT_STYLE,
-    FormModalCss,
     INPUT_STYLE,
     IPropertyMapModalForm,
     MODAL_FORM_ROW_BUTTONS_GUTTER,
     MODAL_FORM_ROW_GUTTER,
 } from './BaseUnitForm'
 
-
-const { Option } = Select
 
 const EDIT_UNIT_MODS = [MapEditMode.EditUnit, MapEditMode.EditUnits, MapEditMode.EditParkingUnit, MapEditMode.EditParkingFacilityUnit]
 const ADD_UNIT_MODS = [MapEditMode.AddUnit, MapEditMode.AddParkingUnit, MapEditMode.AddParkingFacilityUnit]
@@ -37,7 +26,9 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplic
     const SaveLabel = intl.formatMessage({ id: EDIT_UNIT_MODS.includes(mode) ? 'Save' : 'Add' })
     const DeleteLabel = intl.formatMessage({ id: 'Delete' })
     const NameLabel = intl.formatMessage({ id: 'pages.condo.property.unit.Name' })
-    const SectionLabel = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
+    const SectionLabel = builder.viewMode === MapViewMode.parking ?
+        intl.formatMessage({ id: 'pages.condo.property.parkingSection.name' }) :
+        intl.formatMessage({ id: 'pages.condo.property.section.Name' })
     const FloorLabel = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
     const UnitTypeLabel = intl.formatMessage({ id: 'pages.condo.property.modal.UnitType' })
     const RenameNextUnitsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextUnits' })
@@ -177,133 +168,124 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplic
         if (!Array.isArray(availableUnitTypes)) return []
 
         return availableUnitTypes
-            .map((unitType, unitTypeIndex) => (
-                <Option
-                    key={unitTypeIndex}
-                    value={unitType}
-                    data-cy='property-map__unit-form__unit-type-select__option'
-                >
-                    {intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` })}
-                </Option>
-            ))
+            .map((unitType, unitTypeIndex) => ({
+                key: unitTypeIndex,
+                value: unitType,
+                label: intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` }),
+            }))
     }, [availableUnitTypes, intl])
 
     const sectionOptions = useMemo(() => (
-        sections.map((sec) => {
-            return <Option
-                key={sec.id}
-                value={sec.id}
-                data-cy='property-map__unit-form__section-select__option'
-            >
-                {sec.label}
-            </Option>
-        })
+        sections.map((sec) => ({
+            key: sec.id,
+            value: sec.id,
+            label: sec.label,
+        }))
     ), [sections])
 
     const floorOptions = useMemo(() => (
         floors.map(floorOption => {
-            return <Option
-                key={floorOption.id}
-                value={floorOption.id}
-                data-cy='property-map__unit-form__floor-select__option'
-            >
-                {floorOption.label}
-            </Option>
+            return {
+                key: floorOption.id,
+                value: floorOption.id,
+                label: floorOption.label,
+            }
         })
     ), [floors])
 
     return (
-        <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
+        <Row gutter={MODAL_FORM_ROW_GUTTER}>
             {
                 unitSubtypeOptions.length > 1 && (
                     <Col span={24}>
-                        <Space direction='vertical' size={8}>
-                            <Typography.Text>{UnitTypeLabel}</Typography.Text>
+                        <Space direction='vertical' size={8} width='100%'>
+                            <Typography.Text size='medium' type='secondary'>{UnitTypeLabel}</Typography.Text>
                             <Select
                                 value={intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` })}
-                                onSelect={updateUnitType}
-                                style={INPUT_STYLE}
-                                data-cy='property-map__unit-form__unit-type-select'
-                            >
-                                {unitSubtypeOptions}
-                            </Select>
+                                onChange={updateUnitType}
+                                options={unitSubtypeOptions}
+                            />
                         </Space>
                     </Col>
                 )
             }
             <Col span={24}>
-                <Space direction='vertical' size={8}>
-                    <Typography.Text type='secondary'>{NameLabel}</Typography.Text>
+                <Space direction='vertical' size={8} width='100%'>
+                    <Typography.Text size='medium' type='secondary'>{SectionLabel}</Typography.Text>
+                    <Select
+                        value={section}
+                        onChange={updateSection}
+                        options={sectionOptions}
+                    />
+                </Space>
+            </Col>
+            <Col span={24}>
+                <Space direction='vertical' size={8} width='100%'>
+                    <Typography.Text size='medium' type='secondary'>{FloorLabel}</Typography.Text>
+                    <Select
+                        value={floor}
+                        onChange={(value) => {
+                            setFloor(String(value))
+                        }}
+                        options={floorOptions}
+                    />
+                </Space>
+            </Col>
+            <Col span={24}>
+                <Space direction='vertical' size={8} width='100%'>
+                    <Typography.Text size='medium' type='secondary'>{NameLabel}</Typography.Text>
                     <Input
                         allowClear
-                        status={isValidationErrorVisible ? 'error' : ''}
                         value={label}
                         onChange={onLabelChange}
-                        style={INPUT_STYLE}
                         data-cy='property-map__unit-form__label-input'
                     />
                     {isValidationErrorVisible && (
-                        <Typography.Text style={ERROR_TEXT_STYLE}>{UnitErrorLabel}</Typography.Text>
+                        <Typography.Text>{UnitErrorLabel}</Typography.Text>
                     )}
                 </Space>
             </Col>
             <Col span={24}>
-                <Space direction='vertical' size={8} style={INPUT_STYLE}>
-                    <Typography.Text type='secondary' >{SectionLabel}</Typography.Text>
-                    <Select
-                        value={section}
-                        onSelect={updateSection}
-                        style={INPUT_STYLE}
-                        data-cy='property-map__unit-form__section-select'
-                    >
-                        {sectionOptions}
-                    </Select>
-                </Space>
-            </Col>
-            <Col span={24}>
-                <Space direction='vertical' size={BUTTON_SPACE_SIZE}>
-                    <Space direction='vertical' size={8} style={INPUT_STYLE}>
-                        <Typography.Text type='secondary' >{FloorLabel}</Typography.Text>
-                        <Select
-                            value={floor}
-                            onSelect={setFloor}
-                            style={INPUT_STYLE}
-                            data-cy='property-map__unit-form__floor-select'
-                        >
-                            {floorOptions}
-                        </Select>
-                    </Space>
+                <Form.Item tooltip='test' help='test'>
                     <Checkbox
                         onChange={toggleRenameNextUnits}
                         data-cy='property-map__unit-form__rename-units-checkbox'
                     >
                         {RenameNextUnitsLabel}
                     </Checkbox>
-                    <Row gutter={MODAL_FORM_ROW_BUTTONS_GUTTER}>
-                        <Col span={24}>
-                            <Button
-                                onClick={applyChanges}
-                                type='sberDefaultGradient'
-                                disabled={!(floor && section && label.trim() && !isValidationErrorVisible)}
-                                data-cy='property-map__unit-form__submit-button'
-                            >{SaveLabel}</Button>
-                        </Col>
-                        {
-                            EDIT_UNIT_MODS.includes(mode) && (
-                                <Col span={24}>
-                                    <Button
-                                        secondary
-                                        onClick={deleteUnit}
-                                        type='sberDangerGhost'
-                                        icon={<DeleteFilled />}
-                                        disabled={!(floor && section)}
-                                        data-cy='property-map__unit-form__delete-button'
-                                    >{DeleteLabel}</Button>
-                                </Col>
-                            )
-                        }
-                    </Row>
-                </Space>
+                </Form.Item>
+            </Col>
+            <Col span={24}>
+                <Row gutter={MODAL_FORM_ROW_BUTTONS_GUTTER}>
+                    <Col span={24}>
+                        <Button
+                            onClick={applyChanges}
+                            type='primary'
+                            disabled={!(floor && section && label.trim() && !isValidationErrorVisible)}
+                            block
+                            data-cy='property-map__unit-form__submit-button'
+                        >
+                            {SaveLabel}
+                        </Button>
+                    </Col>
+                    {
+                        EDIT_UNIT_MODS.includes(mode) && (
+                            <Col span={24}>
+                                <Button
+                                    onClick={deleteUnit}
+                                    type='secondary'
+                                    danger
+                                    icon={<Trash />}
+                                    disabled={!(floor && section)}
+                                    block
+                                    data-cy='property-map__unit-form__delete-button'
+                                >
+                                    {DeleteLabel}
+                                </Button>
+                            </Col>
+                        )
+                    }
+                </Row>
             </Col>
         </Row>
     )

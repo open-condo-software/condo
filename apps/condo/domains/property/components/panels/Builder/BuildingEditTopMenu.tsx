@@ -31,7 +31,7 @@ const TOP_MENU_MAP_PARKING_MODS = [
 ]
 
 interface IBuildingTopModalProps {
-    changeMode: (mode: keyof MapEditMode) => void
+    changeMode: (mode: MapEditMode) => void
     mapEdit: MapEdit
 }
 
@@ -54,7 +54,7 @@ const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ changeMode, map
         } else if (TOP_MENU_MAP_PARKING_MODS.includes(newMode)) {
             newMapViewMode = MapViewMode.parking
         }
-        if (newMapViewMode && mapEdit.viewMode !== newMapViewMode) {
+        if (typeof newMapViewMode !== 'undefined' && mapEdit.viewMode !== newMapViewMode) {
             mapEdit.viewMode = newMapViewMode
         }
 

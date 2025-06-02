@@ -1,36 +1,45 @@
 /** @jsx jsx */
-import { DownOutlined, DeleteFilled } from '@ant-design/icons'
+import { DeleteFilled, DownOutlined } from '@ant-design/icons'
 import { BuildingUnitSubType } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
-import { Row, Col, Space, Typography, InputNumber } from 'antd'
+import { Col, InputNumber, Row, Space, Typography } from 'antd'
 import isEmpty from 'lodash/isEmpty'
-import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Checkbox } from '@open-condo/ui'
 
 import Select from '@condo/domains/common/components/antd/Select'
 import { Button } from '@condo/domains/common/components/Button'
-import { MAX_PROPERTY_FLOORS_COUNT, MAX_PROPERTY_UNITS_COUNT_PER_FLOOR } from '@condo/domains/property/constants/property'
+import {
+    MAX_PROPERTY_FLOORS_COUNT,
+    MAX_PROPERTY_UNITS_COUNT_PER_FLOOR,
+} from '@condo/domains/property/constants/property'
+
 
 import {
+    FormModalCss,
+    FULL_SIZE_UNIT_STYLE,
+    INPUT_STYLE,
     IPropertyMapModalForm,
-    MODAL_FORM_ROW_GUTTER,
+    MODAL_FORM_BUTTON_GUTTER,
     MODAL_FORM_BUTTON_STYLE,
     MODAL_FORM_EDIT_GUTTER,
-    INPUT_STYLE,
+    MODAL_FORM_ROW_GUTTER,
     TEXT_BUTTON_STYLE,
-    MODAL_FORM_BUTTON_GUTTER,
-    FULL_SIZE_UNIT_STYLE,
-    FormModalCss,
 } from './BaseUnitForm'
+
+import { MapViewMode } from '../MapConstructor'
 
 const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
     const intl = useIntl()
-    const SectionNameLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.numberOfSection' })
+    const SectionNameLabel = builder.viewMode === MapViewMode.parking ?
+        intl.formatMessage({ id: 'pages.condo.property.parking.form.numberOfParkingSection' }) :
+        intl.formatMessage({ id: 'pages.condo.property.section.form.numberOfSection' })
     const MinFloorLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.minfloor' })
     const FloorCountLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.floorCount' })
     const UnitsOnFloorLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.unitsOnFloor' })
+    const ParkingsOnFloorLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.parkingsOnFloor' })
     const CreateNewLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.mode.create' })
     const UnitTypeLabel = intl.formatMessage({ id: 'pages.condo.property.modal.UnitType' })
     const CopyLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.mode.copy' })
@@ -196,7 +205,9 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
             </Col>
             <Col span={24} hidden={isCreateColumnsHidden}>
                 <Space direction='vertical' size={8}>
-                    <Typography.Text type='secondary'>{UnitsOnFloorLabel}</Typography.Text>
+                    <Typography.Text type='secondary'>
+                        {unitType === BuildingUnitSubType.Parking ? ParkingsOnFloorLabel : UnitsOnFloorLabel}
+                    </Typography.Text>
                     <InputNumber
                         min={1}
                         max={MAX_PROPERTY_UNITS_COUNT_PER_FLOOR}
