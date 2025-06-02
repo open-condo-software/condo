@@ -1,3 +1,4 @@
+import { FormInstance } from 'antd'
 import dayjs from 'dayjs'
 import { isUndefined } from 'lodash'
 import isEmpty from 'lodash/isEmpty'
@@ -63,12 +64,12 @@ export const getInitialArchivedOrActiveMeter = (router: NextRouter, field: 'isSh
 }
 
 
-export const handleUnitFieldsChange = (formRef) => (changedValues) => {
+export const handleUnitFieldsChange = (formRef:  React.MutableRefObject<FormInstance<any>>) => (changedValues) => {
     const relevantFieldsChanged = Object.keys(changedValues).some(
         (key) => key === 'unitName' || key === 'unitType'
     )
 
-    if (relevantFieldsChanged && formRef.current.getFieldValue('accountNumber')) {
+    if (relevantFieldsChanged && formRef.current?.getFieldValue('accountNumber')) {
         formRef.current.validateFields(['accountNumber'])
     }
 }

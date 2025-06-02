@@ -1,5 +1,5 @@
 import { Meter as MeterType, PropertyMeter as PropertyMeterType } from '@app/condo/schema'
-import { Col, Row } from 'antd'
+import { Col, FormInstance, Row } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
 import get from 'lodash/get'
 import omit from 'lodash/omit'
@@ -106,7 +106,7 @@ export const UpdateMeterForm = (props: UpdateMeterProps): JSX.Element => {
         router.push(`/meter/${meterType === METER_TAB_TYPES.propertyMeter ? 'property' : 'unit'}/${initialRecord.id}`)
     }, [initialRecord, meterType, router])
 
-    const formRef = useRef(null)
+    const formRef = useRef<FormInstance | null>(null)
 
     return (
         <PageWrapper style={WRAPPER_STYLE}>

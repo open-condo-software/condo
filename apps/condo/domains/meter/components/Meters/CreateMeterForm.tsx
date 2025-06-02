@@ -1,5 +1,5 @@
 import { MeterUnitTypeType } from '@app/condo/schema'
-import { Col, Row } from 'antd'
+import { Col, FormInstance, Row } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
 import get from 'lodash/get'
 import omit from 'lodash/omit'
@@ -105,7 +105,7 @@ export const CreateMeterForm = (props: CreateMeterProps): JSX.Element => {
         unitName: unitNameFromQuery as string,
         unitType: unitTypeFromQuery as string,
     }), [propertyIdFromQuery, unitNameFromQuery, unitTypeFromQuery])
-    const formRef = useRef(null)
+    const formRef = useRef<FormInstance | null>(null)
 
     return (
         <PageWrapper style={WRAPPER_STYLE}>
