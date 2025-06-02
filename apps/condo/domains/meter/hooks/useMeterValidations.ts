@@ -9,7 +9,7 @@ import { useIntl } from '@open-condo/next/intl'
 
 import { Meter, MeterResourceOwner, PropertyMeter } from '@condo/domains/meter/utils/clientSchema'
 
-export const useMeterValidations = (isPropertyMeter: boolean, installationDate: Dayjs, verificationDate: Dayjs, propertyId: string, unitName: string, organizationId: string, initialNumber: string | null, addressKey: string, unitType: MeterUnitTypeType) => {
+export const useMeterValidations = (isPropertyMeter: boolean, installationDate: Dayjs, verificationDate: Dayjs, propertyId: string, unitName: string | null, organizationId: string, initialNumber: string | null, addressKey: string, unitType: MeterUnitTypeType | null) => {
     const intl = useIntl()
     const MeterWithSameNumberIsExistMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterWithSameNumberIsExist' })
     const MeterWithSameAccountNumberIsExistMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterWithSameAccountNumberIsExist' })
