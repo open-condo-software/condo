@@ -26,11 +26,7 @@ const EditUnitsForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setD
             count: selectedUnitsCount,
         })
 
-    const [label, setLabel] = useState('')
-    const [floor, setFloor] = useState('')
-    const [section, setSection] = useState('')
     const [unitType, setUnitType] = useState<BuildingUnitSubType>()
-    const [isValidationErrorVisible, setIsValidationErrorVisible] = useState(false)
 
     useEffect(() => {
         const mapUnits = builder.getSelectedUnits()
@@ -39,25 +35,7 @@ const EditUnitsForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setD
         }
     }, [builder])
 
-    const isUnitUnique = useMemo(() => {
-        let isUnitLabelUnique = true
-        const selectedUnit = builder.getSelectedUnits()
-
-        if (EDIT_UNIT_MODS.includes(mode)) {
-            if (!selectedUnit) {
-                return false
-            }
-            isUnitLabelUnique = builder.validateInputUnitLabel(null, label, unitType)
-            setDuplicatedUnitIds(builder.duplicatedUnits)
-        }
-
-        const isUniqueCondition = floor && section && label.trim() && isUnitLabelUnique
-        !isUnitLabelUnique && setIsValidationErrorVisible(true)
-        return isUniqueCondition
-    }, [builder, mode, floor, section, label, unitType, setDuplicatedUnitIds])
-
     const applyChanges = useCallback(() => {
-        // if (isUnitUnique) {
         const mapUnits = builder.getSelectedUnits()
         if (Array.isArray(mapUnits)) {
             mapUnits.forEach(unit => {
@@ -66,7 +44,6 @@ const EditUnitsForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setD
 
             refresh()
         }
-        // }
     }, [builder, refresh, unitType])
 
     const updateUnitType = useCallback((value) => {
@@ -116,7 +93,6 @@ const EditUnitsForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setD
                     type='primary'
                     block
                     disabled={!unitType}
-                    // disabled={!(floor && section && label.trim() && !isValidationErrorVisible)}
                     data-cy='property-map__unit-form__submit-button'
                 >
                     {SaveLabel}

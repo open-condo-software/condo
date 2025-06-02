@@ -159,13 +159,12 @@ class Map {
         return true
     }
     public validateUniqueUnits (): boolean {
-        const sectionUnits = getUnitsFromSections(this.map.sections)
-        const parkingUnits = getUnitsFromSections(this.map.parking)
-
-        const notUniqSectionLabels = sectionUnits.length !== getUniqUnits(sectionUnits).length
-        const notUniqParkingLabels = parkingUnits.length !== getUniqUnits(parkingUnits).length
-
-        if (notUniqSectionLabels || notUniqParkingLabels) {
+        const units = [
+            ...getUnitsFromSections(this.map.sections),
+            ...getUnitsFromSections(this.map.parking),
+        ]
+        const notUniqUnitLabels = units.length !== getUniqUnits(units).length
+        if (notUniqUnitLabels) {
             this.validationErrors = ['Name of unit label must be unique']
             return false
         }
@@ -565,11 +564,7 @@ class MapEdit extends MapView {
                     ?.map(unit => unit)
                     .filter(unit => {
                         if (unit.preview) return
-                        else if (
-                            !['editUnit', 'editUnits', 'editParkingUnit', 'editParkingUnits', 'editParkingFacilityUnit']
-                                .includes(this.mode)
-                        ) return unit.label
-                        else if (unit.id !== get(selectedUnit, 'id')) return unit.label
+                        else if (unit.id !== selectedUnit?.id) return unit.label
                     }))
             ).flat(2)
 
@@ -859,6 +854,7 @@ class MapEdit extends MapView {
         const unitIndex = this.getUnitIndex(id)
         const nextUnit = this.getNextUnit(id)
         if (unitIndex.unit !== -1) {
+            this.selectedUnits = this.selectedUnits.filter(unit => unit.id !== id)
             const floorUnits = this.sections[unitIndex.section].floors[unitIndex.floor].units
             const [removedUnit] = floorUnits.splice(unitIndex.unit, 1)
             if (floorUnits.length === 0) {
