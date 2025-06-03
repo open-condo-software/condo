@@ -13,7 +13,6 @@ import cloneDeep from 'lodash/cloneDeep'
 import debounce from 'lodash/debounce'
 import get from 'lodash/get'
 import isNull from 'lodash/isNull'
-import last from 'lodash/last'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
@@ -31,7 +30,6 @@ import { IPropertyMapFormProps } from '@condo/domains/property/components/BasePr
 import { EditUnitsForm } from '@condo/domains/property/components/panels/Builder/forms/EditUnitsForm'
 import { AddSectionForm, EditSectionForm } from '@condo/domains/property/components/panels/Builder/forms/SectionForm'
 import { UnitForm } from '@condo/domains/property/components/panels/Builder/forms/UnitForm'
-import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
 import { MIN_SECTIONS_TO_SHOW_FILTER } from '@condo/domains/property/constants/property'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
@@ -49,6 +47,7 @@ import {
 import { AddSectionFloorForm } from './forms/SectionFloorForm'
 import { FullscreenHeader, FullscreenWrapper } from './Fullscreen'
 import { MapEdit, MapEditMode, MapViewMode } from './MapConstructor'
+import { UnitButton } from './UnitButton/UnitButton'
 
 
 const DEBOUNCE_TIMEOUT = 800
@@ -572,20 +571,23 @@ const PropertyMapSection: React.FC<IPropertyMapSectionProps> = (props) => {
         <MapSectionContainer visible={isSectionVisible}>
             {children}
             <UnitButton
-                secondary
-                style={SECTION_UNIT_STYLE}
+                block
+                type='section'
                 disabled={section.preview}
                 preview={section.preview}
                 onClick={chooseSection}
                 selected={isSectionSelected}
                 data-cy='property-map__section-button'
-            >{SectionTitle}</UnitButton>
+            >
+                {SectionTitle}
+            </UnitButton>
         </MapSectionContainer>
     )
 }
 
 const PropertyMapFloorContainer: React.FC<IPropertyMapSectionProps> = (props) => {
     const { refresh, builder, section, duplicatedUnitIds } = props
+    console.log('builder.possibleChosenFloors', builder.possibleChosenFloors)
     return (
         <>
             {
@@ -640,6 +642,7 @@ const PropertyMapUnit: React.FC<IPropertyMapUnitProps> = ({ builder, refresh, un
 
     return useMemo(() => (
         <UnitButton
+            type='unit'
             onClick={selectUnit}
             disabled={unit.preview}
             isDuplicated={isDuplicated}
@@ -647,6 +650,8 @@ const PropertyMapUnit: React.FC<IPropertyMapUnitProps> = ({ builder, refresh, un
             selected={isUnitSelected}
             unitType={unit.unitType}
             data-cy='property-map__unit-button'
-        >{unit.label}</UnitButton>),
-    [unit, isUnitSelected, isDuplicated])
+        >
+            {unit.label}
+        </UnitButton>),
+    [selectUnit, unit?.preview, unit?.unitType, unit?.label, isDuplicated, isUnitSelected])
 }

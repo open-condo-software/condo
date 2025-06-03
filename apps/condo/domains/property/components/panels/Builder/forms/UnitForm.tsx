@@ -11,6 +11,8 @@ import { MapEditMode, MapViewMode } from '@condo/domains/property/components/pan
 import { IPropertyMapModalForm, MODAL_FORM_ROW_BUTTONS_GUTTER, MODAL_FORM_ROW_GUTTER } from './BaseUnitForm'
 import { RenameNextUnitsCheckbox } from './RenameNextUnitsCheckbox'
 
+import './UnitForm.css'
+
 
 const EDIT_UNIT_MODS = [MapEditMode.EditUnit, MapEditMode.EditUnits, MapEditMode.EditParkingUnit, MapEditMode.EditParkingFacilityUnit]
 const ADD_UNIT_MODS = [MapEditMode.AddUnit, MapEditMode.AddParkingUnit, MapEditMode.AddParkingFacilityUnit]
@@ -223,7 +225,12 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplic
                         </Space>
                     </Col>
                     <Col span={24}>
-                        <Space direction='vertical' size={8} width='100%'>
+                        <Space
+                            direction='vertical'
+                            size={8}
+                            width='100%'
+                            className={isValidationErrorVisible ? 'unit-name-error' : null}
+                        >
                             <Typography.Text size='medium' type='secondary'>
                                 {unitType === BuildingUnitSubType.Parking ? ParkingNameLabel : NameLabel}
                             </Typography.Text>
@@ -234,7 +241,9 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplic
                                 data-cy='property-map__unit-form__label-input'
                             />
                             {isValidationErrorVisible && (
-                                <Typography.Text>{UnitErrorLabel}</Typography.Text>
+                                <Typography.Text size='medium'>
+                                    {UnitErrorLabel}
+                                </Typography.Text>
                             )}
                         </Space>
                     </Col>

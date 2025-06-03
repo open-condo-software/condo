@@ -148,6 +148,17 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
                     </Col>
                     <Col span={24} hidden={isCreateColumnsHidden}>
                         <Space direction='vertical' size={8} width='100%'>
+                            <Typography.Text type='secondary' size='medium'>{UnitTypeLabel}</Typography.Text>
+                            <Select
+                                value={unitType}
+                                onChange={(value) => setUnitType(value as BuildingUnitSubType)}
+                                options={unitTypeOptions}
+                                data-cy='property-map__add-section-form__unit-type'
+                            />
+                        </Space>
+                    </Col>
+                    <Col span={24} hidden={isCreateColumnsHidden}>
+                        <Space direction='vertical' size={8} width='100%'>
                             <Typography.Text type='secondary' size='medium'>{SectionNameLabel}</Typography.Text>
                             <InputNumber
                                 value={sectionName}
@@ -170,17 +181,6 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
                                 style={INPUT_STYLE}
                                 type='number'
                                 data-cy='property-map__add-section-form__floor-count'
-                            />
-                        </Space>
-                    </Col>
-                    <Col span={24} hidden={isCreateColumnsHidden}>
-                        <Space direction='vertical' size={8} width='100%'>
-                            <Typography.Text type='secondary' size='medium'>{UnitTypeLabel}</Typography.Text>
-                            <Select
-                                value={unitType}
-                                onChange={(value) => setUnitType(value as BuildingUnitSubType)}
-                                options={unitTypeOptions}
-                                data-cy='property-map__add-section-form__unit-type'
                             />
                         </Space>
                     </Col>
@@ -219,7 +219,7 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
                         </Space>
                     </Col>
                     <Col span={24} hidden={isCreateColumnsHidden}>
-                        <Space direction='vertical' size={8}>
+                        <Space direction='vertical' size={8} width='100%'>
                             <Typography.Text size='medium' type='secondary'>
                                 {unitType === BuildingUnitSubType.Parking ? ParkingsOnFloorLabel : UnitsOnFloorLabel}
                             </Typography.Text>
