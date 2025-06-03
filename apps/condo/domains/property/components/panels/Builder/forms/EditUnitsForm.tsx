@@ -32,6 +32,8 @@ const EditUnitsForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setD
         const mapUnits = builder.getSelectedUnits()
         if (mapUnits.every(unit => unit.unitType === mapUnits[0].unitType)) {
             setUnitType(mapUnits[0].unitType)
+        } else {
+            setUnitType(null)
         }
     }, [builder])
 
