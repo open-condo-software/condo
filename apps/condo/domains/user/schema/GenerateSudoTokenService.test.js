@@ -21,10 +21,14 @@ const {
     updateTestUser,
     User,
     ConfirmPhoneAction,
+    ConfirmEmailAction,
     UserSudoToken,
     authenticateUserWithPhoneAndPasswordByTestClient,
+    authenticateUserWithEmailAndPasswordByTestClient,
     createTestConfirmPhoneAction,
+    createTestConfirmEmailAction,
     createTestPhone,
+    createTestEmail,
 } = require('@condo/domains/user/utils/testSchema')
 const { detectTokenType, TOKEN_TYPES } = require('@condo/domains/user/utils/tokens')
 
@@ -49,7 +53,7 @@ describe('GenerateSudoTokenService', () => {
             const staffClient = await makeClientWithStaffUser()
             const [sudoToken] = await generateSudoTokenByTestClient(staffClient, {
                 captcha: getCaptcha(),
-                user: { phone: staffClient.userAttrs.phone, userType: STAFF },
+                user: { email: staffClient.userAttrs.email, phone: staffClient.userAttrs.phone, userType: STAFF },
                 authFactors: { password: staffClient.userAttrs.password },
             })
             expect(sudoToken).toBeDefined()
@@ -64,7 +68,7 @@ describe('GenerateSudoTokenService', () => {
             await expectToThrowAccessDeniedErrorToResult(async () => {
                 await generateSudoTokenByTestClient(staffClient, {
                     captcha: getCaptcha(),
-                    user: { phone: staffClient.userAttrs.phone, userType: STAFF },
+                    user: { email: staffClient.userAttrs.email, phone: staffClient.userAttrs.phone, userType: STAFF },
                     authFactors: { password: staffClient.userAttrs.password },
                 })
             })
@@ -75,7 +79,7 @@ describe('GenerateSudoTokenService', () => {
             const [, userAttrs] = await registerNewUser(await makeClient())
             const [sudoToken] = await generateSudoTokenByTestClient(anonymous, {
                 captcha: getCaptcha(),
-                user: { phone: userAttrs.phone, userType: STAFF },
+                user: { email: userAttrs.email, phone: userAttrs.phone, userType: STAFF },
                 authFactors: { password: userAttrs.password },
             })
             expect(sudoToken).toBeDefined()
@@ -90,7 +94,7 @@ describe('GenerateSudoTokenService', () => {
             await expectToThrowGQLErrorToResult(async () => {
                 await generateSudoTokenByTestClient(staffClient, {
                     captcha: getCaptcha(),
-                    user: { phone: staffClient.userAttrs.phone, userType: STAFF },
+                    user: { email: staffClient.userAttrs.email, phone: staffClient.userAttrs.phone, userType: STAFF },
                     authFactors: { password: staffClient.userAttrs.password },
                     dv: 123,
                 })
@@ -104,7 +108,7 @@ describe('GenerateSudoTokenService', () => {
             await expectToThrowGQLErrorToResult(async () => {
                 await generateSudoTokenByTestClient(staffClient, {
                     captcha: getCaptcha(),
-                    user: { phone: staffClient.userAttrs.phone, userType: STAFF },
+                    user: { email: staffClient.userAttrs.email, phone: staffClient.userAttrs.phone, userType: STAFF },
                     authFactors: { password: staffClient.userAttrs.password },
                     sender: { dv: 1, fingerprint: '-' },
                 })
@@ -140,7 +144,7 @@ describe('GenerateSudoTokenService', () => {
             await expectToThrowGQLErrorToResult(async () => {
                 await generateSudoTokenByTestClient(staffClient, {
                     captcha: getCaptcha(),
-                    user: { phone: staffClient.userAttrs.phone, userType: STAFF },
+                    user: { email: staffClient.userAttrs.email, phone: staffClient.userAttrs.phone, userType: STAFF },
                     authFactors: { password: staffClient.userAttrs.password + faker.random.alphaNumeric(4) },
                 })
             }, {
@@ -159,7 +163,7 @@ describe('GenerateSudoTokenService', () => {
             await expectToThrowGQLErrorToResult(async () => {
                 await generateSudoTokenByTestClient(staffClient, {
                     captcha: getCaptcha(),
-                    user: { phone: staffClient2.userAttrs.phone, userType: STAFF },
+                    user: { email: staffClient.userAttrs.email, phone: staffClient2.userAttrs.phone, userType: STAFF },
                     authFactors: { password: staffClient2.userAttrs.password },
                 })
             }, {
@@ -177,7 +181,7 @@ describe('GenerateSudoTokenService', () => {
                 const staffClient = await makeClientWithStaffUser()
                 const [sudoToken] = await generateSudoTokenByTestClient(staffClient, {
                     captcha: getCaptcha(),
-                    user: { phone: staffClient.userAttrs.phone, userType: STAFF },
+                    user: { email: staffClient.userAttrs.email, phone: staffClient.userAttrs.phone, userType: STAFF },
                     authFactors: { password: staffClient.userAttrs.password },
                 })
                 expect(sudoToken).toBeDefined()
@@ -202,6 +206,29 @@ describe('GenerateSudoTokenService', () => {
                     captcha: getCaptcha(),
                     user: { phone: staffClient.userAttrs.phone, userType: STAFF },
                     authFactors: { confirmPhoneToken: confirmPhoneAction.token },
+                })
+                expect(sudoToken).toBeDefined()
+                expect(sudoToken.token).toBeDefined()
+                expect(detectTokenType(sudoToken.token)).toBe(TOKEN_TYPES.SUDO)
+
+                const createdSudoToken = await UserSudoToken.getOne(adminClient, { token: sudoToken.token })
+                expect(createdSudoToken).toBeDefined()
+                expect(dayjs().diff(createdSudoToken.expiresAt) < TOKEN_LIFETIME_IN_MS).toBeTruthy()
+                expect(createdSudoToken.user.id).toBe(staffClient.user.id)
+                expect(createdSudoToken.remainingUses).toBe(MAX_NUMBER_OF_TOKEN_USES)
+            })
+
+            test('by authed user with confirmEmailAction', async () => {
+                const staffClient = await makeClientWithStaffUser()
+
+                const [confirmEmailAction] = await createTestConfirmEmailAction(adminClient, {
+                    email: staffClient.userAttrs.email, isEmailVerified: true,
+                })
+
+                const [sudoToken] = await generateSudoTokenByTestClient(staffClient, {
+                    captcha: getCaptcha(),
+                    user: { email: staffClient.userAttrs.email, userType: STAFF },
+                    authFactors: { confirmEmailToken: confirmEmailAction.token },
                 })
                 expect(sudoToken).toBeDefined()
                 expect(sudoToken.token).toBeDefined()
@@ -254,6 +281,27 @@ describe('GenerateSudoTokenService', () => {
             const completedConfirmPhoneAction = await ConfirmPhoneAction.getOne(adminClient, { token: confirmPhoneAction.token })
             expect(completedConfirmPhoneAction).toBeDefined()
             expect(completedConfirmPhoneAction.completedAt).not.toBeNull()
+        })
+
+        test('should complete confirmEmailAction if validation successful by confirmEmailAction', async () => {
+            const staffClient = await makeClientWithStaffUser()
+
+            const [confirmEmailAction] = await createTestConfirmEmailAction(adminClient, {
+                email: staffClient.userAttrs.email, isEmailVerified: true,
+            })
+
+            const [sudoToken] = await generateSudoTokenByTestClient(staffClient, {
+                captcha: getCaptcha(),
+                user: { email: staffClient.userAttrs.email, userType: STAFF },
+                authFactors: { confirmEmailToken: confirmEmailAction.token },
+            })
+            expect(sudoToken).toBeDefined()
+            expect(sudoToken.token).toBeDefined()
+            expect(detectTokenType(sudoToken.token)).toBe(TOKEN_TYPES.SUDO)
+
+            const completedConfirmEmailAction = await ConfirmEmailAction.getOne(adminClient, { token: confirmEmailAction.token })
+            expect(completedConfirmEmailAction).toBeDefined()
+            expect(completedConfirmEmailAction.completedAt).not.toBeNull()
         })
     })
 

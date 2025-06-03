@@ -7,7 +7,7 @@ const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { STAFF } = require('@condo/domains/user/constants/common')
 const { ERRORS } = require('@condo/domains/user/constants/errors')
-const { ConfirmPhoneAction, User, createUser } = require('@condo/domains/user/utils/serverSchema')
+const { ConfirmPhoneAction, User, createUser, ConfirmEmailAction } = require('@condo/domains/user/utils/serverSchema')
 
 async function ensureNotExists (context, field, value) {
     const existed = await User.getOne(context, { [field]: value, type: STAFF })
@@ -24,7 +24,7 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
     types: [
         {
             access: true,
-            type: 'input RegisterNewUserInput { dv: Int!, sender: SenderFieldInput!, name: String!, password: String!, confirmPhoneActionToken: String!, email: String, phone: String, meta: JSON }',
+            type: 'input RegisterNewUserInput { dv: Int!, sender: SenderFieldInput!, name: String!, password: String!, confirmPhoneActionToken: String, confirmEmailActionToken: String, email: String, phone: String, country: String, meta: JSON }',
         },
     ],
     mutations: [
@@ -39,13 +39,14 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
             resolver: async (parent, args, context) => {
                 const { data } = args
                 // TODO(DOMA-3209): check dv, email, phone! and make it required
-                const { dv, sender, confirmPhoneActionToken, phone, email, ...restUserData } = data
+                const { dv, sender, confirmPhoneActionToken, confirmEmailActionToken, phone, email, ...restUserData } = data
                 const userData = {
                     ...restUserData,
                     email: normalizeEmail(email),
                     phone: normalizePhone(phone),
                     type: STAFF,
                     isPhoneVerified: false,
+                    isEmailVerified: false,
                     sender,
                     dv,
                 }
@@ -65,13 +66,28 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
 
                     userData.phone = action.phone
                     userData.isPhoneVerified = action.isPhoneVerified
+                } else if (confirmEmailActionToken){
+                    action = await getByCondition('ConfirmEmailAction', {
+                        token: confirmEmailActionToken,
+                        expiresAt_gte: new Date().toISOString(),
+                        completedAt: null,
+                        isEmailVerified: true,
+                    })
+
+                    if (!action){
+                        throw new GQLError(ERRORS.UNABLE_TO_FIND_CONFIRM_EMAIL_ACTION, context)
+                    }
+
+                    userData.email = action.email
+                    userData.isEmailVerified = action.isEmailVerified
                 } else {
                     throw new GQLError(ERRORS.NO_CONFIRM_PHONE_ACTION_TOKEN, context)
                 }
-                if (!normalizePhone(userData.phone)) {
-                    throw new GQLError(ERRORS.WRONG_PHONE_FORMAT, context)
+
+                if (!isEmpty(userData.phone)) {
+                    await ensureNotExists(context, 'phone', userData.phone)
                 }
-                await ensureNotExists(context, 'phone', userData.phone)
+
                 if (!isEmpty(userData.email)) {
                     await ensureNotExists(context, 'email', userData.email)
                 }
@@ -84,7 +100,10 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
 
                 if (action) {
                     const completedAt = new Date().toISOString()
-                    await ConfirmPhoneAction.update(context, action.id, { completedAt, sender, dv: 1 })
+                    if (confirmPhoneActionToken)
+                        await ConfirmPhoneAction.update(context, action.id, { completedAt, sender, dv: 1 })
+                    if (confirmEmailActionToken)
+                        await ConfirmEmailAction.update(context, action.id, { completedAt, sender, dv: 1 })
                 }
 
                 return await getById('User', user.id)
