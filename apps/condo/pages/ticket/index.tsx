@@ -1018,7 +1018,7 @@ const TicketsPage: PageComponentType = () => {
         variables: {
             where: ticketFilterQuery,
         },
-        skip: !persistor,
+        skip: !persistor || ticketFilterQueryLoading,
     })
     const isTicketsExists = useMemo(() => ticketExistenceData?.meta?.count > 0,
         [ticketExistenceData?.meta?.count])
