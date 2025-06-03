@@ -1,7 +1,6 @@
 /** @jsx jsx */
 import {
     useGetCallRecordFragmentExistenceQuery,
-    useCheckTicketExistenceQuery,
     useGetTicketsCountersByStatusQuery,
     useGetTicketsCountLazyQuery,
     useGetTicketsCountQuery,
@@ -1015,14 +1014,14 @@ const TicketsPage: PageComponentType = () => {
         error,
         data: ticketExistenceData,
         loading: ticketExistenceLoading,
-    } = useCheckTicketExistenceQuery({
+    } = useGetTicketsCountQuery({
         variables: {
             where: ticketFilterQuery,
         },
-        skip: !persistor,
+        skip: !persistor || ticketFilterQueryLoading,
     })
-    const isTicketsExists = useMemo(() => ticketExistenceData?.tickets?.length > 0,
-        [ticketExistenceData?.tickets?.length])
+    const isTicketsExists = useMemo(() => ticketExistenceData?.meta?.count > 0,
+        [ticketExistenceData?.meta?.count])
 
     const {
         data: callRecordFragmentExistenceData,
