@@ -1,5 +1,5 @@
 import { useGetContactByUnitLazyQuery } from '@app/condo/gql'
-import { Property as PropertyType, Contact as ContactType, ContactUnitTypeType, BuildingMap, BuildingUnit, BuildingUnitSubType } from '@app/condo/schema'
+import { Property as PropertyType, Contact as ContactType, ContactUnitTypeType, BuildingMap, BuildingUnit } from '@app/condo/schema'
 import { Col, Row, RowProps } from 'antd'
 import cloneDeep from 'lodash/cloneDeep'
 import get from 'lodash/get'
@@ -12,7 +12,6 @@ import { Modal, Tooltip, List, Typography, Space, Button } from '@open-condo/ui'
 
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { IPropertyMapFormProps } from '@condo/domains/property/components/BasePropertyMapForm'
-import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
 import {
@@ -25,6 +24,7 @@ import {
 import { AddressTopTextContainer } from './BuildingPanelEdit'
 import { FullscreenWrapper, FullscreenHeader } from './Fullscreen'
 import { MapView, MapViewMode } from './MapConstructor'
+import { UnitButton } from './UnitButton/UnitButton'
 
 
 interface IBuildingPanelViewProps extends Pick<IPropertyMapFormProps, 'canManageProperties'> {
@@ -65,7 +65,7 @@ const CHESS_SCROLL_CONTAINER_STYLE: React.CSSProperties = {
     width: '100%',
     overflowY: 'hidden',
 }
-const UNIT_BUTTON_SECTION_STYLE: React.CSSProperties = { width: '100%', marginTop: '8px' }
+const UNIT_BUTTON_TOOLTIP_WRAPPER_STYLE: React.CSSProperties = { display: 'inline-block', marginRight: '8px' }
 const FLOOR_CONTAINER_STYLE: React.CSSProperties = { display: 'block' }
 const UNIT_TYPE_ROW_STYLE: React.CSSProperties = { paddingLeft: '8px' }
 const FULLSCREEN_HEADER_STYLE: React.CSSProperties = { marginBottom: '28px', alignItems: 'center' }
@@ -382,26 +382,27 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refr
                                                                                     mouseEnterDelay={0.3}
                                                                                     placement='top'
                                                                                 >
-                                                                                    <UnitButton
-                                                                                        key={unit.id}
-                                                                                        noninteractive
-                                                                                        unitType={unit.unitType}
-                                                                                        style={{ cursor: 'pointer' }}
-                                                                                        onClick={() => { 
-                                                                                            setModalOpenedUnit(unit)
-                                                                                            getContacts({
-                                                                                                variables: {
-                                                                                                    propertyId: property.id,
-                                                                                                    unitName: unit.label,
-                                                                                                    unitType: unit.unitType as unknown as ContactUnitTypeType,
-                                                                                                },
-                                                                                                fetchPolicy: 'cache-first',
-                                                                                            })
-                                                                                            toggleUnitModal() 
-                                                                                        }}
-                                                                                    >
-                                                                                        {unit.label}
-                                                                                    </UnitButton>
+                                                                                    <div style={UNIT_BUTTON_TOOLTIP_WRAPPER_STYLE}>
+                                                                                        <UnitButton
+                                                                                            type='unit'
+                                                                                            key={unit.id}
+                                                                                            unitType={unit.unitType}
+                                                                                            onClick={() => {
+                                                                                                setModalOpenedUnit(unit)
+                                                                                                getContacts({
+                                                                                                    variables: {
+                                                                                                        propertyId: property.id,
+                                                                                                        unitName: unit.label,
+                                                                                                        unitType: unit.unitType as unknown as ContactUnitTypeType,
+                                                                                                    },
+                                                                                                    fetchPolicy: 'cache-first',
+                                                                                                })
+                                                                                                toggleUnitModal()
+                                                                                            }}
+                                                                                        >
+                                                                                            {unit.label}
+                                                                                        </UnitButton>
+                                                                                    </div>
                                                                                 </Tooltip>
                                                                             )
                                                                         })
@@ -416,10 +417,12 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refr
                                                     })
                                                 }
                                                 <UnitButton
-                                                    secondary
-                                                    style={UNIT_BUTTON_SECTION_STYLE}
+                                                    type='section'
+                                                    block
                                                     disabled
-                                                >{SectionNamePrefixTitle} {section.name}</UnitButton>
+                                                >
+                                                    {`${SectionNamePrefixTitle} ${section.name}`}
+                                                </UnitButton>
                                             </MapSectionContainer>
                                         ))
                                         : builder.sections.map(parkingSection => (
@@ -437,9 +440,9 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refr
                                                                         floorInfo.units.map(unit => {
                                                                             return (
                                                                                 <UnitButton
+                                                                                    type='unit'
                                                                                     key={unit.id}
                                                                                     unitType={unit.unitType}
-                                                                                    noninteractive
                                                                                 >
                                                                                     {unit.label}
                                                                                 </UnitButton>
@@ -456,10 +459,12 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refr
                                                     })
                                                 }
                                                 <UnitButton
-                                                    secondary
-                                                    style={UNIT_BUTTON_SECTION_STYLE}
+                                                    type='section'
+                                                    block
                                                     disabled
-                                                >{ParkingTitlePrefix} {parkingSection.name}</UnitButton>
+                                                >
+                                                    {`${ParkingTitlePrefix} ${parkingSection.name}`}
+                                                </UnitButton>
                                             </MapSectionContainer>
                                         ))
                                 }
