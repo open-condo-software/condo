@@ -1,28 +1,36 @@
 import { useGetContactByUnitLazyQuery } from '@app/condo/gql'
-import { Property as PropertyType, Contact as ContactType, ContactUnitTypeType, BuildingMap, BuildingUnit } from '@app/condo/schema'
+import {
+    BuildingMap,
+    BuildingUnit,
+    Contact as ContactType,
+    ContactUnitTypeType,
+    Property as PropertyType,
+} from '@app/condo/schema'
 import { Col, Row, RowProps } from 'antd'
 import cloneDeep from 'lodash/cloneDeep'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import React, { useState, useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import ScrollContainer from 'react-indiana-drag-scroll'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Modal, Tooltip, List, Typography, Space, Button } from '@open-condo/ui'
+import { Button, List, Modal, Space, Tooltip, Typography } from '@open-condo/ui'
 
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { IPropertyMapFormProps } from '@condo/domains/property/components/BasePropertyMapForm'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
 import {
-    EmptyBuildingBlock,
-    EmptyFloor,
     BuildingAxisY,
     BuildingChooseSections,
-    MapSectionContainer, BuildingViewModeSelect, UnitTypeLegendItem,
+    BuildingViewModeSelect,
+    EmptyBuildingBlock,
+    EmptyFloor,
+    MapSectionContainer,
+    UnitTypeLegendItem,
 } from './BuildingPanelCommon'
 import { AddressTopTextContainer } from './BuildingPanelEdit'
-import { FullscreenWrapper, FullscreenHeader } from './Fullscreen'
+import { FullscreenHeader, FullscreenWrapper } from './Fullscreen'
 import { MapView, MapViewMode } from './MapConstructor'
 import { UnitButton } from './UnitButton/UnitButton'
 
@@ -348,125 +356,82 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refr
                             >
                                 <BuildingAxisY floors={builder.possibleChosenFloors} />
                                 {
-                                    builder.viewMode === MapViewMode.section
-                                        ? builder.sections.map(section => (
-                                            <MapSectionContainer
-                                                key={section.id}
-                                                visible={builder.isSectionVisible(section.id)}
+                                    builder.sections.map(section => (
+                                        <MapSectionContainer
+                                            key={section.id}
+                                            visible={builder.isSectionVisible(section.id)}
+                                        >
+                                            {
+                                                builder.possibleChosenFloors.map(floorIndex => {
+                                                    const floorInfo = section.floors.find(floor => floor.index === floorIndex)
+                                                    if (floorInfo && floorInfo.units.length) {
+                                                        return (
+                                                            <div key={floorInfo.id} style={FLOOR_CONTAINER_STYLE}>
+                                                                {
+                                                                    floorInfo.units.map(unit => {
+                                                                        return (
+                                                                            <Tooltip
+                                                                                key={unit.id}
+                                                                                title={
+                                                                                    <UnitTooltip
+                                                                                        property={property}
+                                                                                        unit={unit}
+                                                                                        contactsLoading={contactsLoading}
+                                                                                        contacts={contactsData?.contacts}
+                                                                                        contactsError={!!contactsError}
+                                                                                    />
+                                                                                }
+                                                                                // We do not want to show tooltip before data is loaded, because that would cause interface to be jaggy,
+                                                                                // because tooltip in loading state is different from tooltip with data
+                                                                                open={lastOpenTooltip === unit.id && readyTooltip === unit.id}
+                                                                                onOpenChange={(visible) => handleTooltipVisibilityChange(unit.id, visible, unit)}
+                                                                                // Custom delay is implemented here, because we do not need user to spam with HTTP requests and eat all the available complexity
+                                                                                mouseEnterDelay={0.3}
+                                                                                placement='top'
+                                                                            >
+                                                                                <div style={UNIT_BUTTON_TOOLTIP_WRAPPER_STYLE}>
+                                                                                    <UnitButton
+                                                                                        type='unit'
+                                                                                        key={unit.id}
+                                                                                        unitType={unit.unitType}
+                                                                                        onClick={() => {
+                                                                                            setModalOpenedUnit(unit)
+                                                                                            getContacts({
+                                                                                                variables: {
+                                                                                                    propertyId: property.id,
+                                                                                                    unitName: unit.label,
+                                                                                                    unitType: unit.unitType as unknown as ContactUnitTypeType,
+                                                                                                },
+                                                                                                fetchPolicy: 'cache-first',
+                                                                                            })
+                                                                                            toggleUnitModal()
+                                                                                        }}
+                                                                                    >
+                                                                                        {unit.label}
+                                                                                    </UnitButton>
+                                                                                </div>
+                                                                            </Tooltip>
+                                                                        )
+                                                                    })
+                                                                }
+                                                            </div>
+                                                        )
+                                                    } else {
+                                                        return (
+                                                            <EmptyFloor key={`empty_${section.id}_${floorIndex}`} />
+                                                        )
+                                                    }
+                                                })
+                                            }
+                                            <UnitButton
+                                                type='section'
+                                                block
+                                                disabled
                                             >
-                                                {
-                                                    builder.possibleChosenFloors.map(floorIndex => {
-                                                        const floorInfo = section.floors.find(floor => floor.index === floorIndex)
-                                                        if (floorInfo && floorInfo.units.length) {
-                                                            return (
-                                                                <div key={floorInfo.id} style={FLOOR_CONTAINER_STYLE}>
-                                                                    {
-                                                                        floorInfo.units.map(unit => {
-                                                                            return (
-                                                                                <Tooltip
-                                                                                    key={unit.id}
-                                                                                    title={
-                                                                                        <UnitTooltip
-                                                                                            property={property}
-                                                                                            unit={unit}
-                                                                                            contactsLoading={contactsLoading}
-                                                                                            contacts={contactsData?.contacts}
-                                                                                            contactsError={!!contactsError}
-                                                                                        />
-                                                                                    }
-                                                                                    // We do not want to show tooltip before data is loaded, because that would cause interface to be jaggy,
-                                                                                    // because tooltip in loading state is different from tooltip with data
-                                                                                    open={lastOpenTooltip === unit.id && readyTooltip === unit.id}
-                                                                                    onOpenChange={(visible) => handleTooltipVisibilityChange(unit.id, visible, unit)}
-                                                                                    // Custom delay is implemented here, because we do not need user to spam with HTTP requests and eat all the available complexity
-                                                                                    mouseEnterDelay={0.3}
-                                                                                    placement='top'
-                                                                                >
-                                                                                    <div style={UNIT_BUTTON_TOOLTIP_WRAPPER_STYLE}>
-                                                                                        <UnitButton
-                                                                                            type='unit'
-                                                                                            key={unit.id}
-                                                                                            unitType={unit.unitType}
-                                                                                            onClick={() => {
-                                                                                                setModalOpenedUnit(unit)
-                                                                                                getContacts({
-                                                                                                    variables: {
-                                                                                                        propertyId: property.id,
-                                                                                                        unitName: unit.label,
-                                                                                                        unitType: unit.unitType as unknown as ContactUnitTypeType,
-                                                                                                    },
-                                                                                                    fetchPolicy: 'cache-first',
-                                                                                                })
-                                                                                                toggleUnitModal()
-                                                                                            }}
-                                                                                        >
-                                                                                            {unit.label}
-                                                                                        </UnitButton>
-                                                                                    </div>
-                                                                                </Tooltip>
-                                                                            )
-                                                                        })
-                                                                    }
-                                                                </div>
-                                                            )
-                                                        } else {
-                                                            return (
-                                                                <EmptyFloor key={`empty_${section.id}_${floorIndex}`} />
-                                                            )
-                                                        }
-                                                    })
-                                                }
-                                                <UnitButton
-                                                    type='section'
-                                                    block
-                                                    disabled
-                                                >
-                                                    {`${SectionNamePrefixTitle} ${section.name}`}
-                                                </UnitButton>
-                                            </MapSectionContainer>
-                                        ))
-                                        : builder.sections.map(parkingSection => (
-                                            <MapSectionContainer
-                                                key={parkingSection.id}
-                                                visible={builder.isSectionVisible(parkingSection.id)}
-                                            >
-                                                {
-                                                    builder.possibleChosenFloors.map(floorIndex => {
-                                                        const floorInfo = parkingSection.floors.find(floor => floor.index === floorIndex)
-                                                        if (floorInfo && floorInfo.units.length) {
-                                                            return (
-                                                                <div key={floorInfo.id} style={FLOOR_CONTAINER_STYLE}>
-                                                                    {
-                                                                        floorInfo.units.map(unit => {
-                                                                            return (
-                                                                                <UnitButton
-                                                                                    type='unit'
-                                                                                    key={unit.id}
-                                                                                    unitType={unit.unitType}
-                                                                                >
-                                                                                    {unit.label}
-                                                                                </UnitButton>
-                                                                            )
-                                                                        })
-                                                                    }
-                                                                </div>
-                                                            )
-                                                        } else {
-                                                            return (
-                                                                <EmptyFloor key={`empty_${parkingSection.id}_${floorIndex}`} />
-                                                            )
-                                                        }
-                                                    })
-                                                }
-                                                <UnitButton
-                                                    type='section'
-                                                    block
-                                                    disabled
-                                                >
-                                                    {`${ParkingTitlePrefix} ${parkingSection.name}`}
-                                                </UnitButton>
-                                            </MapSectionContainer>
-                                        ))
+                                                {`${builder.viewMode === MapViewMode.parking ? ParkingTitlePrefix : SectionNamePrefixTitle} ${section.name}`}
+                                            </UnitButton>
+                                        </MapSectionContainer>
+                                    ))
                                 }
                             </ScrollContainer>
                             <BuildingChooseSections
