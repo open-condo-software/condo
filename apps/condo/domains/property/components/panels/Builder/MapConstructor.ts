@@ -876,6 +876,7 @@ class MapEdit extends MapView {
     }
 
     public updateUnit (unit: BuildingUnitArg, renameNextUnits = true): void {
+        console.log('renameNextUnits', renameNextUnits)
         const unitIndex = this.getUnitIndex(unit.id)
         if (unitIndex.unit === -1) {
             return

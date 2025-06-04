@@ -61,7 +61,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplic
     const [floors, setFloors] = useState([])
     const [isValidationErrorVisible, setIsValidationErrorVisible] = useState(false)
 
-    const renameNextUnits = useRef(true)
+    const renameNextUnits = useRef(false)
 
     const updateSection = useCallback((value) => {
         setSection(value)
@@ -105,8 +105,6 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplic
         setSection('')
     }, [])
 
-    const toggleRenameNextUnits = useCallback((event) => { renameNextUnits.current = event.target.checked }, [])
-
     const isUnitUnique = useMemo(() => {
         let isUnitLabelUnique = true
         const selectedUnit = builder.getSelectedUnits()[0]
@@ -126,6 +124,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplic
     }, [builder, mode, floor, section, label, unitType, setDuplicatedUnitIds])
 
     const applyChanges = useCallback(() => {
+        console.log('renameNextUnits.current', renameNextUnits.current)
         if (isUnitUnique) {
             const mapUnit = builder.getSelectedUnits()[0]
             if (mapUnit) {
@@ -249,7 +248,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplic
                     </Col>
                     <Col span={24}>
                         <RenameNextUnitsCheckbox
-                            onChange={toggleRenameNextUnits}
+                            renameNextUnitsRef={renameNextUnits}
                             mapViewMode={builder.viewMode}
                         />
                     </Col>

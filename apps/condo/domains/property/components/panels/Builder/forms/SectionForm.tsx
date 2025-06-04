@@ -5,12 +5,13 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { ChevronDown, ChevronUp, Trash } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Button, Select, Space, Typography } from '@open-condo/ui'
+import { Button, Checkbox, Select, Space, Typography } from '@open-condo/ui'
 
 import {
     MAX_PROPERTY_FLOORS_COUNT,
     MAX_PROPERTY_UNITS_COUNT_PER_FLOOR,
 } from '@condo/domains/property/constants/property'
+
 
 import {
     INPUT_STYLE,
@@ -19,7 +20,6 @@ import {
     MODAL_FORM_EDIT_GUTTER,
     MODAL_FORM_ROW_GUTTER,
 } from './BaseUnitForm'
-import { RenameNextUnitsCheckbox } from './RenameNextUnitsCheckbox'
 
 import { MapViewMode } from '../MapConstructor'
 
@@ -259,9 +259,12 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     const NamePlaceholderLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.name.placeholder' })
     const SaveLabel = intl.formatMessage({ id: 'Save' })
     const DeleteLabel = intl.formatMessage({ id: 'Delete' })
+    const RenameNextSectionsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextSections' })
+    const RenameNextParkingsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextParking' })
 
     const [name, setName] = useState<string>('')
-    const renameNextUnits = useRef(true)
+    const renameNextSections = useRef(false)
+    const toggleRenameNextSections = useCallback((event) => { renameNextSections.current = event.target.checked }, [])
 
     const section = builder.getSelectedSection()
 
@@ -270,15 +273,14 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     }, [section])
 
     const setNameValue = useCallback((value) => setName(value ? value.toString() : ''), [])
-    const toggleRenameNextUnits = useCallback((event) => { renameNextUnits.current = event.target.checked }, [])
 
     const updateSection = useCallback(() => {
-        builder.updateSection({ ...section, name }, renameNextUnits.current)
+        builder.updateSection({ ...section, name }, renameNextSections.current)
         refresh()
     }, [builder, refresh, name, section])
 
     const deleteSection = useCallback(() => {
-        builder.removeSection(section.id, renameNextUnits.current)
+        builder.removeSection(section.id, renameNextSections.current)
         refresh()
     }, [builder, refresh, section])
 
@@ -302,10 +304,9 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                         </Space>
                     </Col>
                     <Col span={24}>
-                        <RenameNextUnitsCheckbox
-                            onChange={toggleRenameNextUnits}
-                            mapViewMode={builder.viewMode}
-                        />
+                        <Checkbox onChange={toggleRenameNextSections}>
+                            {builder.viewMode === MapViewMode.parking ? RenameNextParkingsLabel : RenameNextSectionsLabel}
+                        </Checkbox>
                     </Col>
                 </Row>
             </Col>

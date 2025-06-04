@@ -34,11 +34,10 @@ const AddSectionFloorForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh
     const [floor, setFloor] = useState<string>('')
 
     const maxFloor = useRef<number>(0)
-    const renameNextUnits = useRef(true)
+    const renameNextUnits = useRef(false)
 
     const setFloorNumber = useCallback((value) => setFloor(value ? value.toString() : ''), [])
     const setUnitsOnFloorNumber = useCallback((value) => setUnitsOnFloor(value ? value.toString() : ''), [])
-    const toggleRenameNextUnits = useCallback((event) => { renameNextUnits.current = event.target.checked }, [])
     const applyChanges = useCallback(() => {
         if (floor !== '' && section !== null && unitsOnFloor > 0) {
             builder.addSectionFloor({
@@ -161,7 +160,7 @@ const AddSectionFloorForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh
                     </Col>
                     <Col span={24}>
                         <RenameNextUnitsCheckbox
-                            onChange={toggleRenameNextUnits}
+                            renameNextUnitsRef={renameNextUnits}
                             mapViewMode={builder.viewMode}
                         />
                     </Col>
