@@ -1,11 +1,6 @@
 /** @jsx jsx */
 import { CloseOutlined } from '@ant-design/icons'
-import {
-    BuildingMap,
-    BuildingSection,
-    BuildingUnit,
-    Property as PropertyType,
-} from '@app/condo/schema'
+import { BuildingMap, BuildingSection, BuildingUnit, Property as PropertyType } from '@app/condo/schema'
 import { css, jsx } from '@emotion/react'
 import styled from '@emotion/styled'
 import { Col, notification, Row, RowProps, Space, Typography } from 'antd'
@@ -20,9 +15,8 @@ import ScrollContainer from 'react-indiana-drag-scroll'
 
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
-import { Button, Tour } from '@open-condo/ui'
+import { Button, Select, Tour } from '@open-condo/ui'
 
-import Select from '@condo/domains/common/components/antd/Select'
 import { Button as OldButton } from '@condo/domains/common/components/Button'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { colors, fontSizes, shadows } from '@condo/domains/common/constants/style'
@@ -49,37 +43,14 @@ import { FullscreenHeader, FullscreenWrapper } from './Fullscreen'
 import { MapEdit, MapEditMode, MapViewMode } from './MapConstructor'
 import { UnitButton } from './UnitButton/UnitButton'
 
+import './BuildingPanelEdit.css'
+
 
 const DEBOUNCE_TIMEOUT = 800
 
 const TopRowCss = css`
   margin-top: 12px;
   position: relative;
-  
-  & .ant-select.ant-select-single .ant-select-selector {
-    background-color: transparent;
-    color: black;
-    font-weight: 600;
-    height: 48px;
-  }
-  & .ant-select.ant-select-single .ant-select-selection-search-input,
-  & .ant-select.ant-select-single .ant-select-selector .ant-select-selection-item {
-    height: 48px;
-    line-height: 48px;
-  }
-  & .ant-select.ant-select-single .ant-select-arrow {
-    color: black;
-  }
-  
-  & .ant-select.ant-select-single.ant-select-open .ant-select-selector {
-    background-color: black;
-    color: white;
-    border-color: transparent;
-  }
-  & .ant-select.ant-select-single.ant-select-open .ant-select-selection-item,
-  & .ant-select.ant-select-single.ant-select-open .ant-select-arrow {
-    color: white;
-  }
 `
 
 interface ITopModalProps {
@@ -299,8 +270,18 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     const { breakpoints } = useLayoutContext()
 
     const showViewModeSelect = !mapEdit.isEmptySections && !mapEdit.isEmptyParking
-    const showSectionFilter = mapEdit.viewMode === MapViewMode.section && mapEdit.sections.length >= MIN_SECTIONS_TO_SHOW_FILTER
-    const showParkingFilter = mapEdit.viewMode === MapViewMode.parking && mapEdit.sections.length >= MIN_SECTIONS_TO_SHOW_FILTER
+    const showSectionFilter = mapEdit.sections.length >= MIN_SECTIONS_TO_SHOW_FILTER
+    const sectionOptions = useMemo(() => [
+        { key: 'allSections', value: null, label: mapEdit.viewMode === MapViewMode.parking ? AllParkingSectionsTitle : AllSectionsTitle },
+        ...mapEdit.sections.map(section => ({
+            key: section.id,
+            value: section.id,
+            label: `${mapEdit.viewMode === MapViewMode.parking ? ParkingSectionPrefixTitle : SectionPrefixTitle}${section.name}`,
+        })),
+    ], [
+        AllParkingSectionsTitle, AllSectionsTitle, ParkingSectionPrefixTitle, SectionPrefixTitle,
+        mapEdit.sections, mapEdit.viewMode,
+    ])
 
     const isSubmitDisabled = useMemo(() => !canManageProperties || !address || mapEdit.hasPreviewComponents, [address, canManageProperties, mapEdit.hasPreviewComponents])
 
@@ -315,34 +296,17 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     return (
         <FullscreenWrapper className='fullscreen'>
             <FullscreenHeader edit={true}>
-                <Row css={TopRowCss} justify='space-between'>
+                <Row css={TopRowCss} justify='space-between' gutter={[0, 8]}>
                     {address && (
                         <Col flex={0}>
-                            <Space size={20}>
+                            <Space size={20} className='map-edit-address-container'>
                                 <AddressTopTextContainer>{address}</AddressTopTextContainer>
                                 {showSectionFilter && (
-                                    <Select value={mapEdit.visibleSections} onSelect={onSelectSection}>
-                                        <Select.Option value={null} >{AllSectionsTitle}</Select.Option>
-                                        {
-                                            mapEdit.sections.map(section => (
-                                                <Select.Option key={section.id} value={section.id}>
-                                                    {SectionPrefixTitle}{section.name}
-                                                </Select.Option>
-                                            ))
-                                        }
-                                    </Select>
-                                )}
-                                {showParkingFilter && (
-                                    <Select value={mapEdit.visibleSections} onSelect={onSelectSection}>
-                                        <Select.Option value={null} >{AllParkingSectionsTitle}</Select.Option>
-                                        {
-                                            mapEdit.sections.map(parkingSection => (
-                                                <Select.Option key={parkingSection.id} value={parkingSection.id}>
-                                                    {ParkingSectionPrefixTitle}{parkingSection.name}
-                                                </Select.Option>
-                                            ))
-                                        }
-                                    </Select>
+                                    <Select
+                                        value={mapEdit.visibleSections}
+                                        onChange={onSelectSection}
+                                        options={sectionOptions}
+                                    />
                                 )}
                             </Space>
                         </Col>
@@ -549,8 +513,6 @@ interface IPropertyMapSectionProps {
     isParkingSection?: boolean
     duplicatedUnitIds?: string[]
 }
-const FULL_SIZE_UNIT_STYLE: React.CSSProperties = { width: '100%', marginTop: '8px', display: 'block' }
-const SECTION_UNIT_STYLE: React.CSSProperties = { ...FULL_SIZE_UNIT_STYLE, zIndex: 2 }
 
 const PropertyMapSection: React.FC<IPropertyMapSectionProps> = (props) => {
     const { section, children, builder, refresh, isParkingSection = false } = props
