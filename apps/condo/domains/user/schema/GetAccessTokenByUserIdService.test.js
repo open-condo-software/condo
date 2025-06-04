@@ -15,15 +15,6 @@ const { makeClientWithServiceUser } = require('@condo/domains/user/utils/testSch
 
 describe('GetAccessTokenByUserIdService', () => {
     let admin, service, storage
-
-    function createPayload (override = {}) {
-        return {
-            userId: faker.datatype.uuid(),
-            organizationId: faker.datatype.uuid(),
-            ...override,
-        }
-    }
-
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
         service = await makeClientWithServiceUser()
@@ -33,16 +24,16 @@ describe('GetAccessTokenByUserIdService', () => {
 
     test('service: execute', async () => {
         const value = faker.datatype.uuid()
-        const { userId, organizationId } = createPayload()
-        await storage.setRefreshToken(value, userId, organizationId)
-        await storage.setAccessToken(value, userId, organizationId)
+        const userId = faker.datatype.uuid()
+
+        await storage.setRefreshToken(value, userId)
+        await storage.setAccessToken(value, userId)
 
         const payload = {
             userId,
-            organizationId,
             type: SBBOL_IDENTITY_TYPE,
         }
-        const [data] = await getAccessTokenByUserIdByTestClient(service, payload)
+        const [data, attrs] = await getAccessTokenByUserIdByTestClient(service, payload)
 
         expect(data.accessToken).toEqual(value)
         expect(data.ttl).toBeTruthy()
@@ -51,14 +42,13 @@ describe('GetAccessTokenByUserIdService', () => {
     test('service: execute if no ExternalTokenAccessRight instance', async () => {
         const service = await makeClientWithServiceUser()
         const value = faker.datatype.uuid()
-        const { userId, organizationId } = createPayload()
+        const userId = faker.datatype.uuid()
 
-        await storage.setRefreshToken(value, userId, organizationId)
-        await storage.setAccessToken(value, userId, organizationId)
+        await storage.setRefreshToken(value, userId)
+        await storage.setAccessToken(value, userId)
 
         const payload = {
             userId,
-            organizationId,
             type: SBBOL_IDENTITY_TYPE,
         }
         await expectToThrowAccessDeniedErrorToResult(async () => {
@@ -68,12 +58,12 @@ describe('GetAccessTokenByUserIdService', () => {
 
     test('anonymous: execute', async () => {
         const client = await makeClient()
-        const { userId, organizationId } = createPayload()
+        const userId = faker.datatype.uuid()
         const payload = {
             userId,
-            organizationId,
             type: SBBOL_IDENTITY_TYPE,
         }
+
         await expectToThrowAuthenticationErrorToResult(async () => {
             await getAccessTokenByUserIdByTestClient(client, payload)
         })
@@ -81,17 +71,17 @@ describe('GetAccessTokenByUserIdService', () => {
 
     test('admin: execute', async () => {
         const value = faker.datatype.uuid()
-        const { userId, organizationId } = createPayload()
+        const userId = faker.datatype.uuid()
 
-        await storage.setRefreshToken(value, userId, organizationId)
-        await storage.setAccessToken(value, userId, organizationId)
+        await storage.setRefreshToken(value, userId)
+        await storage.setAccessToken(value, userId)
 
         const payload = {
             userId,
-            organizationId,
             type: SBBOL_IDENTITY_TYPE,
         }
-        const [data] = await getAccessTokenByUserIdByTestClient(admin, payload)
+        const [data, attrs] = await getAccessTokenByUserIdByTestClient(admin, payload)
+
         expect(data.accessToken).toEqual(value)
         expect(data.ttl).toBeTruthy()
     })

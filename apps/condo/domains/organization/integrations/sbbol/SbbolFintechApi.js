@@ -8,6 +8,7 @@ const { getAccessTokenForUser } = require('./utils')
 
 const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
+const SBBOL_PFX_EXTENDED = conf.SBBOL_PFX_EXTENDED ? JSON.parse(conf.SBBOL_PFX_EXTENDED) : {}
 
 const logger = getLogger('sbbol/SbbolFintechApi')
 
@@ -234,12 +235,12 @@ class SbbolFintechApi extends SbbolRequestApi {
  * NOTE: Constructor of `SbbolFintechApi` cannot be used, because it must be async, which is not allowed by ES6
  * @return {null|SbbolFintechApi}
  */
-const initSbbolFintechApi = async (userId, organizationId, useExtendedConfig) => {
+const initSbbolFintechApi = async (userId, useExtendedConfig) => {
     let accessToken
     try {
         // `service_organization_hashOrgId` is a `userInfo.HashOrgId` from SBBOL, that corresponds to our organization
         // as a partner of SBBOL
-        ({ accessToken } = await getAccessTokenForUser(userId, organizationId, useExtendedConfig))
+        ({ accessToken } = await getAccessTokenForUser(userId, useExtendedConfig))
     } catch (error) {
         logger.error({
             msg: 'Failed to obtain organization access token from SBBOL',
@@ -248,22 +249,27 @@ const initSbbolFintechApi = async (userId, organizationId, useExtendedConfig) =>
         })
         return null
     }
-    return new SbbolFintechApi({
+
+    const sbbolPfx = useExtendedConfig ? SBBOL_PFX_EXTENDED : SBBOL_PFX
+    const fintechApi = new SbbolFintechApi({
         accessToken,
         host: SBBOL_FINTECH_CONFIG.host,
         port: SBBOL_FINTECH_CONFIG.port,
-        certificate: SBBOL_PFX.certificate,
-        passphrase: SBBOL_PFX.passphrase,
+        certificate: sbbolPfx.certificate,
+        passphrase: sbbolPfx.passphrase,
     })
+
+    return fintechApi
 }
 
 const initSbbolClientWithToken = (accessToken, useExtendedConfig) => {
+    const sbbolPfx = useExtendedConfig ? SBBOL_PFX_EXTENDED : SBBOL_PFX
     return new SbbolFintechApi({
         accessToken,
         host: SBBOL_FINTECH_CONFIG.host,
         port: SBBOL_FINTECH_CONFIG.port,
-        certificate: SBBOL_PFX.certificate,
-        passphrase: SBBOL_PFX.passphrase,
+        certificate: sbbolPfx.certificate,
+        passphrase: sbbolPfx.passphrase,
     })
 }
 

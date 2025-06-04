@@ -1,3 +1,5 @@
+const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
+const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { SBBOL_IDP_TYPE, STAFF } = require('@condo/domains/user/constants/common')
 const { MULTIPLE_ACCOUNTS_MATCHES } = require('@condo/domains/user/constants/errors')
 const { User, UserExternalIdentity } = require('@condo/domains/user/utils/serverSchema')
@@ -7,9 +9,9 @@ const { dvSenderFields } = require('../constants')
 
 /**
  * If another user will be found with given email, it will get email to null to avoid unique email violation constraint
- * It will be an issue of inconvenience for that user, but since we do not have
- * an email validation, it will be not critical. We assume, that found user
- * is the same person.
+ * It will be issue of inconvenience for that user, but since we does't have
+ * a email validation, it will be not critical. We assume, that found user
+ * representing the same person.
  * @param {String} email - search already existing user with this email
  * @param {String} userIdToExclude - ignore found user, that matches this id
  * @param context - Keystone context
@@ -49,6 +51,7 @@ const USER_FIELDS = 'id name phone'
  * @return {Promise<{user}|*>}
  */
 const syncUser = async ({ context: { context, keystone }, userInfo, identityId }) => {
+    // TODO(VKislov): DOMA-5239 Should not receive deleted instances with admin context
     const identityWhereStatement = {
         identityId,
         identityType: SBBOL_IDP_TYPE,
@@ -57,7 +60,6 @@ const syncUser = async ({ context: { context, keystone }, userInfo, identityId }
     const userWhereStatement = {
         type: STAFF,
         phone: userInfo.phone,
-        deletedAt: null,
     }
 
     // let's search users by UserExternalIdentity and phone
