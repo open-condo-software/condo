@@ -96,6 +96,7 @@ interface IResidentActionsProps {
     minified: boolean
 }
 
+// TODO(pahaz): move it to Layout and rename it. It's not related to Resident ...
 export const ResidentActions: React.FC<IResidentActionsProps> = (props) => {
     const intl = useIntl()
     const ResidentAppealMessage = intl.formatMessage({ id: 'ResidentAppeal' })
@@ -120,12 +121,12 @@ export const ResidentActions: React.FC<IResidentActionsProps> = (props) => {
 
     const [dropdownVisible, setDropdownVisible] = useState<boolean>()
 
-    const Overlay = useMemo(() => (
-        <ResidentAppealDropdownOverlay
+    const dropdownRender = useCallback((menu) => {
+        return <ResidentAppealDropdownOverlay
             setIsSearchByPhoneModalVisible={setIsSearchByPhoneModalVisible}
             setDropdownVisible={setDropdownVisible}
         />
-    ), [setIsSearchByPhoneModalVisible, setDropdownVisible])
+    }, [setIsSearchByPhoneModalVisible, setDropdownVisible])
 
     const trigger: DropDownProps['trigger'] = useMemo(() => isMobile ? ['click'] : ['hover'], [isMobile])
     const iconSize: IconProps['size'] = minified ? 'medium' : 'small'
@@ -142,13 +143,13 @@ export const ResidentActions: React.FC<IResidentActionsProps> = (props) => {
     return (
         <div id={DROPDOWN_POPUP_CONTAINER_ID}>
             <Dropdown
-                overlay={Overlay}
+                dropdownRender={dropdownRender}
                 placement='bottomRight'
                 getPopupContainer={getPopupContainer}
                 trigger={trigger}
-                visible={dropdownVisible}
+                open={dropdownVisible}
                 overlayClassName='appeals-dropdown-menu'
-                onVisibleChange={setDropdownVisible}
+                onOpenChange={setDropdownVisible}
             >
                 {/* NOTE: you need to use `div` wrapper because of warning: Function components cannot be given refs. Attempts to access this ref will fail. Did you mean to use React.forwardRef() */}
                 <div>

@@ -46,7 +46,10 @@ interface IPageWrapper {
     isSmall: boolean
 }
 
-export const StyledPageWrapper = styled(Layout.Content)<IPageWrapper>`
+export const StyledPageWrapper = styled(Layout.Content, {
+    // NOTE: remove `isSmall` prop on a DOM element (avoid React warning)
+    shouldForwardProp: (prop) => prop !== 'isSmall',
+})<IPageWrapper>`
   padding: ${({ isSmall }) => isSmall ? '20px 20px 0' : '20px 40px 0'};
   margin: 0;
   height: 100%;
