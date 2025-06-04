@@ -3,6 +3,9 @@ import { CloseOutlined } from '@ant-design/icons'
 import { BuildingMap, BuildingSection, BuildingUnit, Property as PropertyType } from '@app/condo/schema'
 import { css, jsx } from '@emotion/react'
 import styled from '@emotion/styled'
+
+import { useIntl } from '@open-condo/next/intl'
+import { Button, Select, Tour } from '@open-condo/ui'
 import { Col, notification, Row, RowProps, Space, Typography } from 'antd'
 import cloneDeep from 'lodash/cloneDeep'
 import debounce from 'lodash/debounce'
@@ -12,11 +15,7 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import ScrollContainer from 'react-indiana-drag-scroll'
-
 import { useAuth } from '@open-condo/next/auth'
-import { useIntl } from '@open-condo/next/intl'
-import { Button, Select, Tour } from '@open-condo/ui'
-
 import { Button as OldButton } from '@condo/domains/common/components/Button'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { colors, fontSizes, shadows } from '@condo/domains/common/constants/style'
@@ -38,12 +37,12 @@ import {
     PropertyMapFloor,
     UnitTypeLegendItem,
 } from './BuildingPanelCommon'
+
+import './BuildingPanelEdit.css'
 import { AddSectionFloorForm } from './forms/SectionFloorForm'
 import { FullscreenHeader, FullscreenWrapper } from './Fullscreen'
 import { MapEdit, MapEditMode, MapViewMode } from './MapConstructor'
 import { UnitButton } from './UnitButton/UnitButton'
-
-import './BuildingPanelEdit.css'
 
 
 const DEBOUNCE_TIMEOUT = 800
@@ -478,6 +477,7 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
                                             section={section}
                                             builder={builder}
                                             refresh={refresh}
+                                            isParkingSection={builder.viewMode === MapViewMode.parking}
                                         >
                                             <PropertyMapFloorContainer
                                                 builder={builder}
@@ -549,7 +549,6 @@ const PropertyMapSection: React.FC<IPropertyMapSectionProps> = (props) => {
 
 const PropertyMapFloorContainer: React.FC<IPropertyMapSectionProps> = (props) => {
     const { refresh, builder, section, duplicatedUnitIds } = props
-    console.log('builder.possibleChosenFloors', builder.possibleChosenFloors)
     return (
         <>
             {

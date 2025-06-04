@@ -68,7 +68,7 @@ export const UnitButton: React.FC<CustomButtonProps> = (props) => {
                 className={buttonClassName}
                 {...restProps}
             >
-                {children || ' '}
+                {children || '\u00A0'}
             </Button>
         )
     }
