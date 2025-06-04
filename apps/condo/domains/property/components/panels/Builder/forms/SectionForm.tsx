@@ -13,6 +13,7 @@ import {
 } from '@condo/domains/property/constants/property'
 
 
+
 import {
     INPUT_STYLE,
     IPropertyMapModalForm,
@@ -34,7 +35,9 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
     const ParkingsOnFloorLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.parkingsOnFloor' })
     const CreateNewLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.mode.create' })
     const UnitTypeLabel = intl.formatMessage({ id: 'pages.condo.property.modal.UnitType' })
-    const CopyLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.mode.copy' })
+    const CopyLabel = builder.viewMode === MapViewMode.parking ?
+        intl.formatMessage({ id: 'pages.condo.property.parking.form.mode.copy' }) :
+        intl.formatMessage({ id: 'pages.condo.property.section.form.mode.copy' })
     const AddLabel = intl.formatMessage({ id: 'Add' })
     const ShowMinFloor = intl.formatMessage({ id: 'pages.condo.property.parking.form.showMinFloor' })
     const HideMinFloor = intl.formatMessage({ id: 'pages.condo.property.parking.form.hideMinFloor' })
