@@ -1,4 +1,4 @@
-const { joinNameAndType, selfOrFirst, getGarLevel, getGarParam } = require('./helpers')
+const { joinNameAndType, selfOrFirst, getGarLevel, getGarParam, extractLastFiasId, extractLastGarParam } = require('./helpers')
 
 describe('helpers', () => {
     describe('joinNameAndType', () => {
@@ -83,6 +83,96 @@ describe('helpers', () => {
 
         it('should handle gar object without params', () => {
             expect(getGarParam({}, 'type')).toBeUndefined()
+        })
+    })
+
+    describe('extractLastFiasId', () => {
+        it('should return null for empty array', () => {
+            expect(extractLastFiasId([])).toBeNull()
+        })
+
+        it('should return null when no gar guids present', () => {
+            const textobj = [
+                { someField: 'value' },
+                { gar: { someField: 'value' } },
+                { gar: { guid: null } },
+            ]
+            expect(extractLastFiasId(textobj)).toBeNull()
+        })
+
+        it('should return the last valid guid from the array', () => {
+            const textobj = [
+                { gar: { guid: '123' } },
+                { gar: { guid: '456' } },
+                { gar: { guid: '789' } },
+            ]
+            expect(extractLastFiasId(textobj)).toBe('789')
+        })
+
+        it('should handle mixed valid and invalid guids', () => {
+            const textobj = [
+                { gar: { guid: '123' } },
+                { someField: 'value' },
+                { gar: { guid: '456' } },
+                { gar: { someField: 'value' } },
+            ]
+            expect(extractLastFiasId(textobj)).toBe('456')
+        })
+    })
+
+    describe('extractLastParam', () => {
+        it('should return null for empty array', () => {
+            expect(extractLastGarParam([], 'kladrcode')).toBeNull()
+        })
+
+        it('should return null when no parameters present', () => {
+            const textobj = [
+                { someField: 'value' },
+                { gar: { someField: 'value' } },
+                { gar: { param: [] } },
+            ]
+            expect(extractLastGarParam(textobj, 'kladrcode')).toBeNull()
+        })
+
+        it('should return the last valid parameter value from the array', () => {
+            const textobj = [
+                { gar: { param: [{ '@_name': 'kladrcode', '#text': '1234567890' }] } },
+                { gar: { param: [{ '@_name': 'kladrcode', '#text': '0987654321' }] } },
+                { gar: { param: [{ '@_name': 'kladrcode', '#text': '1122334455' }] } },
+            ]
+            expect(extractLastGarParam(textobj, 'kladrcode')).toBe('1122334455')
+        })
+
+        it('should return the last valid okato value', () => {
+            const textobj = [
+                { gar: { param: [{ '@_name': 'okato', '#text': '1234' }] } },
+                { gar: { param: [{ '@_name': 'okato', '#text': '5678' }] } },
+            ]
+            expect(extractLastGarParam(textobj, 'okato')).toBe('5678')
+        })
+
+        it('should return the last valid oktmo value', () => {
+            const textobj = [
+                { gar: { param: [{ '@_name': 'oktmo', '#text': '87654321' }] } },
+                { gar: { param: [{ '@_name': 'oktmo', '#text': '12345678' }] } },
+            ]
+            expect(extractLastGarParam(textobj, 'oktmo')).toBe('12345678')
+        })
+
+        it('should handle mixed parameters', () => {
+            const textobj = [
+                { gar: { param: [
+                    { '@_name': 'kladrcode', '#text': '1234567890' },
+                    { '@_name': 'okato', '#text': '1234' },
+                ] } },
+                { gar: { param: [
+                    { '@_name': 'oktmo', '#text': '87654321' },
+                    { '@_name': 'kladrcode', '#text': '0987654321' },
+                ] } },
+            ]
+            expect(extractLastGarParam(textobj, 'kladrcode')).toBe('0987654321')
+            expect(extractLastGarParam(textobj, 'okato')).toBe('1234')
+            expect(extractLastGarParam(textobj, 'oktmo')).toBe('87654321')
         })
     })
 })
