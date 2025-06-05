@@ -4,7 +4,7 @@ function resolveStreet (streetLevel) {
     if (!streetLevel) return {}
 
     const gar = getGarLevel(streetLevel.gar, 'street')
-    const street = gar.area?.name
+    const street = gar?.area?.name || null
     let street_type = 'ул'
     let street_type_full = 'улица'
 

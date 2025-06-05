@@ -4,7 +4,7 @@ function resolveSettlement (localityLevel) {
     if (!localityLevel) return {}
 
     const gar = getGarLevel(localityLevel.gar, 'adminarea')
-    const settlement = gar.area?.name
+    const settlement = gar?.area?.name || null
     let settlement_type = null
     let settlement_type_full = null
 

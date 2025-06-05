@@ -4,7 +4,7 @@ function resolveStead (plotLevel) {
     if (!plotLevel) return {}
 
     const gar = getGarLevel(plotLevel.gar)
-    const stead = gar.stead?.pnum
+    const stead = gar?.stead?.pnum || null
     let stead_type = 'уч'
     let stead_type_full = 'участок'
 
