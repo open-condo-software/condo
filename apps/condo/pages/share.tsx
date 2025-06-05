@@ -4,6 +4,7 @@ import get from 'lodash/get'
 import getConfig from 'next/config'
 import Head from 'next/head'
 import Router from 'next/router'
+import { useRouter } from 'next/router'
 import React, { useEffect, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -98,7 +99,6 @@ interface ShareProps {
     details: string
     id: string
     date: string
-    redirectToTicketPage: string
 }
 
 const Share: PageComponentType<ShareProps> = (props) => {
@@ -107,11 +107,14 @@ const Share: PageComponentType<ShareProps> = (props) => {
         number, 
         details, 
         id,
-        redirectToTicketPage,
     } = props
-
+    const { query: { redirectToTicketPage } } = useRouter()
     const { publicRuntimeConfig: { displayTicketInfoOnShare } } = getConfig()
-    
+
+    const shouldRedirect = (redirectToTicketPage === 'true' || redirectToTicketPage === 'false')
+        ? redirectToTicketPage === 'true'      
+        : !displayTicketInfoOnShare
+
     const intl = useIntl()
     const locale = get(LOCALES, intl.locale)
     const localizedDate = locale ? dayjs(date || 0).locale(locale) : dayjs(date || 0)
@@ -140,46 +143,25 @@ const Share: PageComponentType<ShareProps> = (props) => {
         image={`${origin}/logoSnippet.png`}
     />
 
-    if (redirectToTicketPage === 'true') {
-        return (
-            <>
-                <HeadWithMeta />
-                <RedirectToTicket ticketId={id} />
-            </>
-        )
-    }
-    
-    if (redirectToTicketPage === 'false') {
-        return (
-            <>
-                <HeadWithMeta />
-                <TicketPublicInfo date={date} details={details} number={number} ticketId={id}/>
-            </>
-        )
-    }
-    
     return (
         <>
             <HeadWithMeta />
             {
-                displayTicketInfoOnShare
-                    ? <TicketPublicInfo date={date} details={details} number={number} ticketId={id}/>
-                    : <RedirectToTicket ticketId={id} />
+                shouldRedirect
+                    ? <RedirectToTicket ticketId={id} />
+                    : <TicketPublicInfo date={date} details={details} number={number} ticketId={id}/>
             }
         </>
     )
 }
 
 export const getServerSideProps = ({ query }) => {
-    const { q = '', redirectToTicketPage = '' } = query
+    const { q = '' } = query
     const packedData  = q.replace(/\s/gm, '+')
     const shareParams = JSON.parse(unpackShareData(packedData))
 
     return {
-        props: {
-            ...shareParams,
-            redirectToTicketPage,
-        },
+        props: { ...shareParams },
     }
 }
 
