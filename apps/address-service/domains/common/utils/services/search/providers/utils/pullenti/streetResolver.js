@@ -10,7 +10,7 @@ function resolveStreet (streetLevel) {
 
     let isNameFirst = false
 
-    switch (streetLevel.area?.type) {
+    switch (gar.area?.type) {
         case 'просп':
         case 'проспект':
             street_type = 'просп'

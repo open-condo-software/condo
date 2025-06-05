@@ -9,7 +9,7 @@ function resolveFlat (apartmentLevel) {
     let flat_type_full = 'квартира'
 
     // Add mapping with the switch below if needed
-    switch (apartmentLevel.room?.type) {
+    switch (gar.room?.type) {
         case 'apartment':
             flat_type = 'апарт'
             flat_type_full = 'апартаменты'

@@ -14,8 +14,8 @@ function resolveHouse (houseLevel) {
     // Add mapping with the switch below if needed
     // switch (houseLevel.house?.type) {}
 
-    if (houseLevel.house?.bnum) {
-        block = houseLevel.house.bnum
+    if (gar.house?.bnum) {
+        block = gar.house.bnum
         block_type = 'корп'
         block_type_full = 'корпус'
     }
