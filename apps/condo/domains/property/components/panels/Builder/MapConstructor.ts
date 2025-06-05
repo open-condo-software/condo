@@ -398,7 +398,7 @@ class MapView extends Map {
             type,
             unitType,
         } = this.sections[unitIndex.section].floors[unitIndex.floor].units[unitIndex.unit]
-        
+
         return {
             id,
             label,
@@ -876,7 +876,6 @@ class MapEdit extends MapView {
     }
 
     public updateUnit (unit: BuildingUnitArg, renameNextUnits = true): void {
-        console.log('renameNextUnits', renameNextUnits)
         const unitIndex = this.getUnitIndex(unit.id)
         if (unitIndex.unit === -1) {
             return

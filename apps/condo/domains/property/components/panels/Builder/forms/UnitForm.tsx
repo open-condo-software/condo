@@ -31,8 +31,6 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplic
     const UnitTypeLabel = intl.formatMessage({ id: 'pages.condo.property.modal.UnitType' })
     const UnitErrorLabel = intl.formatMessage({ id: 'pages.condo.property.warning.modal.SameUnitNamesErrorMsg' })
 
-    // ParkingFacilityUnit it's a parking unit, but we decide to separate parking unit and facility parking unit forms.
-    // Then we have different unit types in these forms (ParkingUnitForm => [parking], ParkingFacilityUnit => [Warehouse, Commercial])
     const defaultUnitType = useMemo(() => {
         switch (mode) {
             case MapEditMode.AddParkingFacilityUnit:
