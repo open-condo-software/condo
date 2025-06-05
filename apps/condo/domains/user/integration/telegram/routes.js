@@ -20,7 +20,7 @@ const { validateOauthConfig, isValidMiniAppInitParams } = require('./utils/valid
 
 const logger = getLogger('telegram-oauth/routes')
 
-class ConfigProvider {
+class BotsConfigProvider {
     isValid
     validationError
     configs = {}
@@ -50,11 +50,11 @@ class ConfigProvider {
 }
 
 class TelegramOauthRoutes {
-    /** @type {ConfigProvider} */
+    /** @type {BotsConfigProvider} */
     _provider
 
     constructor () {
-        this._provider = new ConfigProvider()
+        this._provider = new BotsConfigProvider()
     }
 
     async completeAuth (req, res, next) {

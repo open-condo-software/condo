@@ -7,13 +7,15 @@ const { faker } = require('@faker-js/faker')
 
 const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
 
-const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { TELEGRAM_IDP_TYPE, RESIDENT } = require('@condo/domains/user/constants/common')
+const { ERROR_MESSAGES } = require('@condo/domains/user/integration/telegram/utils/errors')
 const {
     UserExternalIdentity: UserExternalIdentityApi,
 } = require('@condo/domains/user/utils/serverSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 const { syncUser } = require('./syncUser')
+
 
 const { keystone } = index
 
@@ -48,7 +50,7 @@ describe('syncUser from Telegram', () => {
 
     it('should create user external identity if authenticatedUser provided', async () => {
         const identityId = faker.datatype.uuid()
-        const { user: existingUser } = await makeClientWithRegisteredOrganization()
+        const { user: existingUser } = await makeClientWithNewRegisteredAndLoggedInUser()
         const userInfo = mockUserInfo(identityId)
 
         const noAuthenticatedUserResult = await syncUser({ authenticatedUser: null, context, userInfo, userType: existingUser.type })
@@ -77,7 +79,7 @@ describe('syncUser from Telegram', () => {
 
     it('should return user id', async () => {
         const identityId = faker.datatype.uuid()
-        const { user: existingUser } = await makeClientWithRegisteredOrganization()
+        const { user: existingUser } = await makeClientWithNewRegisteredAndLoggedInUser()
         const userInfo = mockUserInfo(identityId)
 
         await UserExternalIdentityApi.create(context, {
@@ -97,6 +99,40 @@ describe('syncUser from Telegram', () => {
         // assert id of user
         expect(id).toEqual(existingUser.id)
         expect(id).toEqual(idWithoutAuthenticatedUser)
+
+        // assert count of external identities
+        const identities = await UserExternalIdentityApi.getAll(context, {
+            user: { id },
+            identityType: TELEGRAM_IDP_TYPE,
+        })
+
+        expect(identities).toHaveLength(1)
+    })
+    
+    it('can\'t connect identity if it already connected to another user', async () => {
+        const identityId = faker.datatype.uuid()
+        const { user: existingUser } = await makeClientWithNewRegisteredAndLoggedInUser()
+        const userInfo = mockUserInfo(identityId)
+        const { user: anotherNotConnectedUser } = await makeClientWithNewRegisteredAndLoggedInUser()
+
+        await UserExternalIdentityApi.create(context, {
+            dv: 1,
+            sender: { dv: 1, fingerprint: faker.datatype.uuid() },
+            user: { connect: { id: existingUser.id } },
+            identityId: userInfo.id,
+            identityType: TELEGRAM_IDP_TYPE,
+            meta: userInfo,
+        })
+
+        // act
+        const { id } = await syncUser({ authenticatedUser: existingUser, context, userInfo, userType: existingUser.type })
+        const { id: idForAnotherUser, error } = await syncUser({ authenticatedUser: anotherNotConnectedUser, context, userInfo, userType: existingUser.type })
+
+        // assertions
+        // assert id of user
+        expect(id).toEqual(existingUser.id)
+        expect(idForAnotherUser).toEqual('')
+        expect(error).toEqual(ERROR_MESSAGES.ACCESS_DENIED)
 
         // assert count of external identities
         const identities = await UserExternalIdentityApi.getAll(context, {

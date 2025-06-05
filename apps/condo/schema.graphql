@@ -2144,6 +2144,7 @@ enum UserExternalIdentityIdentityTypeType {
   apple_id
   sber_id
   sbbol
+  telegram
 }
 
 enum UserExternalIdentityUserTypeType {

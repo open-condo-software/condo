@@ -13,13 +13,14 @@ describe('validations', () => {
         const mockUserId = faker.datatype.uuid()
 
         function generateValidHash (data, botToken, isMiniAppInitData = false) {
+            // There only test (no real) data and 'sha256', 'WebAppData' is publicly available by telegram
+            // nosemgrep: javascript.lang.security.audit.hardcoded-hmac-key.hardcoded-hmac-key
             const secret = (isMiniAppInitData ? crypto.createHmac('sha256', 'WebAppData') : crypto.createHash('sha256'))
                 .update(botToken.trim())
                 .digest()
 
             const checkString = Object.keys(data)
                 .sort()
-                .filter((k) => data[k])
                 .filter((k) => k !== 'hash')
                 .map(k => `${k}=${data[k]}`)
                 .join('\n')

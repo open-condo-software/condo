@@ -27,7 +27,7 @@ const miniAppInitParamsValidator = ajv.compile({
 })
 const oauthCallbackValidator = ajv.compile({
     type: 'object',
-    anyOf: [TelegramMiniAppInitParamsSchema],
+    anyOf: [TelegramOauthCallbackSchema],
 })
 const userDataValidator = ajv.compile({
     type: 'object',
@@ -111,6 +111,9 @@ function validateTgAuthData (data, botToken, secondsSinceAuth = ALLOWED_TIME_SIN
     }
 
     // 3. Build secret key using bot token
+    // No point in hiding 'sha256' and TG_WEB_APP_DATA_SECRET_PREFIX, as telegram has this information publicly available
+    // TG_WEB_APP_DATA_SECRET_PREFIX is just required prefix for secret token
+    // nosemgrep: javascript.lang.security.audit.hardcoded-hmac-key.hardcoded-hmac-key
     const secret = (isMiniAppInitData ? crypto.createHmac('sha256', TG_WEB_APP_DATA_SECRET_PREFIX) : crypto.createHash('sha256'))
         .update(botToken.trim())
         .digest()
@@ -118,7 +121,6 @@ function validateTgAuthData (data, botToken, secondsSinceAuth = ALLOWED_TIME_SIN
     // 4. Build check string from tg auth data
     const checkString = Object.keys(data)
         .sort()
-        .filter((k) => data[k])
         .filter((k) => ![ 'hash' ].includes(k))
         .map(k => (`${k}=${data[k]}`))
         .join('\n')

@@ -25,6 +25,10 @@ const registerUser = async (context, userInfo, userType) => {
 }
 
 const syncUser = async ({ authenticatedUser, context, userInfo, userType }) => {
+    if (authenticatedUser?.deletedAt) {
+        return { id: '', error: ERROR_MESSAGES.ACCESS_DENIED }
+    }
+
     // try to find linked identities
     const userIdentities = await UserExternalIdentity.getAll(context, {
         identityType: TELEGRAM_IDP_TYPE,
@@ -39,22 +43,26 @@ const syncUser = async ({ authenticatedUser, context, userInfo, userType }) => {
 
     // now we have the following cases:
     // 1. user already registered and have linked identity
-    // 2. user already registered and have no linked identity
-    // 3. user not registered
+    // 2. user already registered, but identity linked to another user
+    // 3. user already registered and have no linked identity
+    // 4. user not registered
 
     // case 1: user already registered and have linked identity
     if (userIdentities.length > 0) {
         const [identity] = userIdentities
         const { user: { id } } = identity
+        if (authenticatedUser && authenticatedUser.id !== id) {
+            return { id: '', error: ERROR_MESSAGES.ACCESS_DENIED }
+        }
         return { id }
     }
 
-    // case 2: user is not registered, and we can't register account for him with telegram
+    // case 3: user is not registered, and we can't register account for him with telegram
     if (!authenticatedUser) {
         return { id: '', error: ERROR_MESSAGES.USER_IS_NOT_REGISTERED }
     }
 
-    // case 3: user already registered and have no linked identity
+    // case 4: user already registered and have no linked identity
     if (authenticatedUser.type !== userType) {
         return { id: '', error: ERROR_MESSAGES.NOT_SUPPORTED_USER_TYPE }
     }
