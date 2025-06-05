@@ -4,15 +4,34 @@ const Ajv = require('ajv')
 const addFormats = require('ajv-formats')
 
 const { ERROR_MESSAGES } = require('./errors')
-const { TelegramMiniAppInitParamsSchema, TelegramOauthCallbackSchema } = require('./schemas')
+const { TelegramMiniAppInitParamsSchema, TelegramOauthCallbackSchema, TelegramMiniAppInitParamsUserSchema } = require('./schemas')
 
 const ALLOWED_TIME_SINCE_AUTH_IN_SECONDS = 5 * 60 // 5 min
+const CONFIG_REQUIRED_FIELDS = [
+    'botId',
+    'botToken',
+    'allowedUserType',
+    'allowedRedirectUrls',
+]
+const TG_WEB_APP_DATA_SECRET_PREFIX = 'WebAppData'
 
-const ajv = new Ajv()
+const ajv = new Ajv({ allowUnionTypes: true })
 addFormats(ajv)
 const loginDataValidator = ajv.compile({
     type: 'object',
     anyOf: [TelegramMiniAppInitParamsSchema, TelegramOauthCallbackSchema],
+})
+const miniAppInitParamsValidator = ajv.compile({
+    type: 'object',
+    anyOf: [TelegramMiniAppInitParamsSchema],
+})
+const oauthCallbackValidator = ajv.compile({
+    type: 'object',
+    anyOf: [TelegramMiniAppInitParamsSchema],
+})
+const userDataValidator = ajv.compile({
+    type: 'object',
+    anyOf: [TelegramMiniAppInitParamsUserSchema],
 })
 
 /** @typedef {{
@@ -56,7 +75,7 @@ const loginDataValidator = ajv.compile({
  query_id: string,
  receiver: TgMiniAppInitParamsUser,
  start_param: string,
- user: TgMiniAppInitParamsUser,
+ user: string,
  }} TgMiniAppInitData
  */
 
@@ -69,11 +88,21 @@ const loginDataValidator = ajv.compile({
  * @returns {string | null} error message
  */
 function validateTgAuthData (data, botToken, secondsSinceAuth = ALLOWED_TIME_SINCE_AUTH_IN_SECONDS) {
-
     // 1. Check that data contains all and only allowed fields
     const isValid = loginDataValidator(data)
     if (!isValid) {
         return ERROR_MESSAGES.VALIDATION_AUTH_DATA_KEYS_MISMATCH
+    }
+
+    const isMiniAppInitData = miniAppInitParamsValidator(data)
+    if (isMiniAppInitData) {
+        try {
+            if (!userDataValidator(JSON.parse(data.user))) {
+                return ERROR_MESSAGES.VALIDATION_AUTH_DATA_KEYS_MISMATCH
+            }
+        } catch {
+            return ERROR_MESSAGES.VALIDATION_AUTH_DATA_KEYS_MISMATCH
+        }
     }
 
     // 2. Check that data is not outdated
@@ -82,8 +111,8 @@ function validateTgAuthData (data, botToken, secondsSinceAuth = ALLOWED_TIME_SIN
     }
 
     // 3. Build secret key using bot token
-    const secret = crypto.createHash('sha256')
-        .update(botToken?.trim())
+    const secret = (isMiniAppInitData ? crypto.createHmac('sha256', TG_WEB_APP_DATA_SECRET_PREFIX) : crypto.createHash('sha256'))
+        .update(botToken.trim())
         .digest()
 
     // 4. Build check string from tg auth data
@@ -107,6 +136,30 @@ function validateTgAuthData (data, botToken, secondsSinceAuth = ALLOWED_TIME_SIN
     return null
 }
 
+function validateOauthConfig (oauthConfig) {
+    const uniqueBotIds = new Set(oauthConfig.map(conf => conf.botId))
+    if (uniqueBotIds.size !== oauthConfig.length) {
+        const duplicateNames = [...uniqueBotIds].filter(botId => oauthConfig.filter(conf => conf.botId === botId).length > 1)
+        throw new Error(`Duplicate bot ids: "${duplicateNames.join('", "')}"`)
+    }
+    oauthConfig.forEach((config, index) => {
+        for (const key of CONFIG_REQUIRED_FIELDS) {
+            if (!Object.hasOwn(config, key)) {
+                throw new Error(`Missing required field ${key} at index ${index}`)
+            }
+        }
+        if (!Array.isArray(config.allowedRedirectUrls)) {
+            throw new Error(`Field "allowedRedirectUrls" should be array at index ${index}`)
+        }
+    })
+}
+
+function isValidMiniAppInitParams (data) {
+    return miniAppInitParamsValidator(data)
+}
+
 module.exports = {
     validateTgAuthData,
+    validateOauthConfig,
+    isValidMiniAppInitParams,
 }

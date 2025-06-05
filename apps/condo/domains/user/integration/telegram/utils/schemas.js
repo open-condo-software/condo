@@ -60,7 +60,9 @@ const TelegramMiniAppInitParamsSchema = {
         query_id: { type: ['string', 'number'] },
         receiver: TelegramMiniAppInitParamsUserSchema,
         start_param: { type: 'string' },
-        user: TelegramMiniAppInitParamsUserSchema,
+        // Note: here lies encodeURIComponent(JSON.stringify(TelegramMiniAppInitParamsUserSchema))
+        // it needs to stay like that for signature validation
+        user: { type: 'string' },
     },
     additionalProperties: true,
 }
@@ -68,4 +70,5 @@ const TelegramMiniAppInitParamsSchema = {
 module.exports = {
     TelegramOauthCallbackSchema,
     TelegramMiniAppInitParamsSchema,
+    TelegramMiniAppInitParamsUserSchema,
 }

@@ -3,7 +3,27 @@ jest.mock('@condo/domains/user/utils/serverSchema')
 jest.mock('@condo/domains/user/integration/telegram/sync/syncUser')
 jest.mock('@condo/domains/user/integration/telegram/utils/validations')
 jest.mock('@condo/domains/user/integration/telegram/utils/params')
-
+jest.mock('@open-condo/config', () => {
+    const conf = jest.requireActual('@open-condo/config')
+    const mockConfig = jest.fn().mockImplementation((_, name) => {
+        if (name === 'TELEGRAM_OAUTH_CONFIG') {
+            return JSON.stringify([
+                {
+                    botToken: '123456:fake-bot-token-1',
+                    allowedRedirectUrls: ['https://example.com', 'https://app.example.com'],
+                    allowedUserType: 'resident',
+                },
+                {
+                    botToken: '234567:fake-bot-token-2',
+                    allowedRedirectUrls: ['https://example.com', 'https://app.example.com'],
+                    allowedUserType: 'staff',
+                },
+            ])
+        }
+        return conf[name]
+    })
+    return new Proxy(conf, { get: mockConfig, set: jest.fn() })
+})
 
 const { faker } = require('@faker-js/faker')
 
@@ -14,6 +34,7 @@ const { TelegramOauthRoutes } = require('@condo/domains/user/integration/telegra
 const { syncUser } = require('@condo/domains/user/integration/telegram/sync/syncUser')
 const { ERROR_MESSAGES } = require('@condo/domains/user/integration/telegram/utils/errors')
 const { getRedirectUrl, getUserType } = require('@condo/domains/user/integration/telegram/utils/params')
+const { parseBotId } = require('@condo/domains/user/integration/telegram/utils/params')
 const { validateTgAuthData } = require('@condo/domains/user/integration/telegram/utils/validations')
 const { User } = require('@condo/domains/user/utils/serverSchema')
 
@@ -22,12 +43,13 @@ function expectResultError (res, errorMessage) {
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ error: errorMessage }))
 }
 
+const RESIDENT_BOT_ID = '123456'
+const STAFF_BOT_ID = '234567'
+const ALLOWED_REDIRECT_URLS = ['https://example.com', 'https://app.example.com']
+const ALLOWED_USER_TYPES = ['resident', 'staff']
+
 describe('TelegramOauthRoutes', () => {
-    const BOT_TOKEN = faker.random.alphaNumeric(30)
-    const ALLOWED_REDIRECT_URLS = ['https://example.com', 'https://app.example.com']
-    const ALLOWED_USER_TYPES = ['resident', 'staff']
-    const RESIDENT_REDIRECT_URI = '/resident-dashboard'
-    const MOCK_TOKEN = faker.random.alphaNumeric(10)
+    const MOCK_AUTH_TOKEN = faker.random.alphaNumeric(10)
     const MOCK_USER = {
         id: faker.random.alphaNumeric(10),
         type: RESIDENT,
@@ -42,7 +64,7 @@ describe('TelegramOauthRoutes', () => {
         mockContext = {
             knex: jest.fn(),
             _sessionManager: {
-                startAuthedSession: jest.fn().mockResolvedValue(MOCK_TOKEN),
+                startAuthedSession: jest.fn().mockResolvedValue(MOCK_AUTH_TOKEN),
             },
             lists: {
                 User: {},
@@ -51,19 +73,13 @@ describe('TelegramOauthRoutes', () => {
 
         getSchemaCtx.mockReturnValue({ keystone: mockContext })
         User.getOne.mockImplementation(async () => ({ ...MOCK_USER }))
-
         syncUser.mockResolvedValue({ id: MOCK_USER.id })
         validateTgAuthData.mockReturnValue(null)
+        parseBotId.mockImplementation(jest.requireActual('@condo/domains/user/integration/telegram/utils/params').parseBotId)
         getRedirectUrl.mockReturnValue(ALLOWED_REDIRECT_URLS[0])
         getUserType.mockReturnValue(ALLOWED_USER_TYPES[0])
 
-        routes = new TelegramOauthRoutes(
-            'asd',
-            BOT_TOKEN,
-            ALLOWED_REDIRECT_URLS,
-            ALLOWED_USER_TYPES,
-            RESIDENT_REDIRECT_URI
-        )
+        routes = new TelegramOauthRoutes()
     })
 
     afterEach(() => {
@@ -78,12 +94,13 @@ describe('TelegramOauthRoutes', () => {
             hash: 'valid_hash',
         }
 
-        function createMockReqResNext (body = {}, query = {}) {
+        function createMockReqResNext (body = {}, query = {}, params = { botId: RESIDENT_BOT_ID }) {
             return {
                 req: {
                     id: 'test_req_id',
                     body,
                     query,
+                    params: { botId: params.botId },
                     user: null,
                 },
                 res: {
@@ -101,36 +118,21 @@ describe('TelegramOauthRoutes', () => {
             await routes.completeAuth(req, res, next)
 
             expect(next).not.toHaveBeenCalled()
-            expect(res.redirect.mock.calls[0][0].toString()).toEqual(expect.stringContaining(`token=${MOCK_TOKEN}`))
+            expect(res.redirect.mock.calls[0][0].toString()).toEqual(expect.stringContaining(`token=${MOCK_AUTH_TOKEN}`))
             expect(syncUser).toHaveBeenCalled()
             expect(User.getOne).toHaveBeenCalled()
             expect(next).not.toHaveBeenCalled()
         })
 
-        test('should redirect resident to default page when redirectUrl is nil', async () => {
-            const { req, res, next } = createMockReqResNext(VALID_TG_AUTH_DATA)
-            getRedirectUrl.mockReturnValueOnce(null)
-            getRedirectUrl.mockReturnValueOnce(null)
-            User.getOne.mockResolvedValueOnce({
-                ...MOCK_USER,
-                type: 'resident',
-            })
-
-            await routes.completeAuth(req, res, next)
-
-            expect(res.redirect.mock.calls[0][0].toString()).toEqual(expect.stringContaining(RESIDENT_REDIRECT_URI))
-            expect(next).not.toHaveBeenCalled()
-        })
-
         test('should redirect staff to /tour when redirectUrl is nil', async () => {
-            const { req, res, next } = createMockReqResNext(VALID_TG_AUTH_DATA)
+            const { req, res, next } = createMockReqResNext(VALID_TG_AUTH_DATA, {}, { botId: STAFF_BOT_ID })
             getRedirectUrl.mockReturnValueOnce(null)
             getRedirectUrl.mockReturnValueOnce(null)
             User.getOne.mockResolvedValueOnce({
                 ...MOCK_USER,
                 type: 'staff',
             })
-
+            getUserType.mockReturnValueOnce(ALLOWED_USER_TYPES[1])
             await routes.completeAuth(req, res, next)
 
             expect(res.redirect.mock.calls[0][0].toString()).toEqual(expect.stringContaining('/tour'))
@@ -188,10 +190,11 @@ describe('TelegramOauthRoutes', () => {
     })
 
     describe('authorizeUser', () => {
-        function createMockReqRes (query = {}) {
+        function createMockReqRes (query = {}, params = { botId: RESIDENT_BOT_ID }) {
             return {
                 req: {
                     query,
+                    params: { botId: params.botId },
                     user: null,
                 },
                 res: {
@@ -209,20 +212,7 @@ describe('TelegramOauthRoutes', () => {
 
             await routes.authorizeUser(req, res, mockContext, MOCK_USER.id)
 
-            expect(res.redirect.mock.calls[0][0].toString()).toEqual(expect.stringContaining(`token=${MOCK_TOKEN}`))
-        })
-
-        test('should redirect resident to default page when redirectUrl is nil', async () => {
-            const { req, res } = createMockReqRes()
-            User.getOne.mockResolvedValueOnce({
-                ...MOCK_USER,
-                type: 'resident',
-            })
-            getRedirectUrl.mockReturnValueOnce(null)
-
-            await routes.authorizeUser(req, res, mockContext, MOCK_USER.id)
-
-            expect(res.redirect.mock.calls[0][0].toString()).toEqual(expect.stringContaining(RESIDENT_REDIRECT_URI))
+            expect(res.redirect.mock.calls[0][0].toString()).toEqual(expect.stringContaining(`token=${MOCK_AUTH_TOKEN}`))
         })
 
         test('should redirect staff to /tour when redirectUrl is nil', async () => {

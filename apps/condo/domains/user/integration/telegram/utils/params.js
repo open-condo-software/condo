@@ -2,26 +2,35 @@ const { get, isNil } = require('lodash')
 
 const { isSafeUrl } = require('@condo/domains/common/utils/url.utils')
 const { USER_TYPES } = require('@condo/domains/user/constants/common')
-const { ERROR_MESSAGES } = require('@condo/domains/user/integration/telegram/utils/errors')
 
 function getRedirectUrl (req) {
     // get and validate redirect url
     const redirectUrl = get(req, 'query.redirectUrl')
-    if (!redirectUrl || !isSafeUrl(redirectUrl)) throw new Error(ERROR_MESSAGES.INVALID_REDIRECT_URL)
+    if (!redirectUrl || !isSafeUrl(redirectUrl)) return ''
     return redirectUrl
 }
 
 function getUserType (req) {
     // get and validate user type
     const userTypeQP = get(req, 'query.userType')
-    if (isNil(userTypeQP) || !USER_TYPES.includes(userTypeQP)) {
-        throw new Error(ERROR_MESSAGES.NOT_SUPPORTED_USER_TYPE)
-    }
-
+    if (isNil(userTypeQP) || !USER_TYPES.includes(userTypeQP)) return ''
     return userTypeQP
+}
+
+/** @param botToken {string} {botId}:{someSecret} */
+function parseBotId (botToken) {
+    if (!botToken || typeof botToken !== 'string') {
+        throw new Error('Invalid bot token: token must be a non-empty string')
+    }
+    const parts = botToken.split(':')
+    if (parts.length < 2 || !parts[0]) {
+        throw new Error('Invalid bot token format: expected format is "{botId}:{secret}"')
+    }
+    return parts[0]
 }
 
 module.exports = {
     getRedirectUrl,
     getUserType,
+    parseBotId,
 }

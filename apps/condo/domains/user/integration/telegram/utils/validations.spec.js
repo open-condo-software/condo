@@ -12,8 +12,8 @@ describe('validations', () => {
         const mockAuthDate = Date.now()
         const mockUserId = faker.datatype.uuid()
 
-        function generateValidHash (data, botToken) {
-            const secret = crypto.createHash('sha256')
+        function generateValidHash (data, botToken, isMiniAppInitData = false) {
+            const secret = (isMiniAppInitData ? crypto.createHmac('sha256', 'WebAppData') : crypto.createHash('sha256'))
                 .update(botToken.trim())
                 .digest()
 
@@ -164,22 +164,23 @@ describe('validations', () => {
         describe('Telegram Mini App initData', () => {
 
             const baseInitData = {
-                user: {
+                user: JSON.stringify({
                     id: mockUserId,
                     first_name: 'Test',
                     last_name: 'User',
                     username: 'testuser',
                     photo_url: 'https://t.me/i/userpic/123/test.jpg',
-                },
+                }),
                 auth_date: mockAuthDate.toString(),
                 query_id: faker.random.alphaNumeric(36),
+                signature: faker.random.alphaNumeric(36),
                 hash: '',
             }
 
             describe('Successful validation', () => {
                 test('should return null for valid initData', () => {
                     const validData = { ...baseInitData }
-                    validData.hash = generateValidHash(validData, mockBotToken)
+                    validData.hash = generateValidHash(validData, mockBotToken, true)
 
                     const result = validateTgAuthData(validData, mockBotToken)
                     expect(result).toBeNull()
@@ -188,16 +189,17 @@ describe('validations', () => {
                 test('should work with empty optional fields', () => {
                     const dataWithEmptyOptionalFields = {
                         ...baseInitData,
-                        user: {
-                            ...baseInitData.user,
+                        user: JSON.stringify({
+                            ...JSON.parse(baseInitData.user),
                             last_name: '',
                             username: '',
                             photo_url: '',
-                        },
+                        }),
                     }
                     dataWithEmptyOptionalFields.hash = generateValidHash(
                         dataWithEmptyOptionalFields,
-                        mockBotToken
+                        mockBotToken,
+                        true,
                     )
 
                     const result = validateTgAuthData(dataWithEmptyOptionalFields, mockBotToken)
@@ -209,7 +211,7 @@ describe('validations', () => {
                         ...baseInitData,
                         auth_date: (Math.floor(Date.now() / 1000) - 295).toString(),
                     }
-                    justValidData.hash = generateValidHash(justValidData, mockBotToken)
+                    justValidData.hash = generateValidHash(justValidData, mockBotToken, true)
 
                     const result = validateTgAuthData(justValidData, mockBotToken)
                     expect(result).toBeNull()
