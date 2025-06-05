@@ -81,10 +81,10 @@ function extractLastFiasId (textobj = []) {
  * const lastKladrId = extractLastParam(textobj, 'kladrcode')
  * console.log(lastKladrId) // Output: '0987654321'
  */
-function extractLastGarParam (textobj = [], paramName) {
+function extractLastGarParam (textobj, paramName) {
     let value = null
 
-    for (const level of textobj) {
+    for (const level of textobj || []) {
         if (level.gar) {
             value = getGarParam(level.gar, paramName) || value
         }
