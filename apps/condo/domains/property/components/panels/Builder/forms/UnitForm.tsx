@@ -162,6 +162,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplic
                 key: unitTypeIndex,
                 value: unitType,
                 label: intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` }),
+                'data-cy' :'property-map__unit-form__unit-type-select__option',
             }))
     }, [availableUnitTypes, intl])
 
@@ -170,6 +171,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplic
             key: sec.id,
             value: sec.id,
             label: sec.label,
+            'data-cy': 'property-map__unit-form__section-select__option',
         }))
     ), [sections])
 
@@ -179,6 +181,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplic
                 key: floorOption.id,
                 value: floorOption.id,
                 label: floorOption.label,
+                'data-cy': 'property-map__unit-form__floor-select__option',
             }
         })
     ), [floors])
@@ -196,6 +199,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplic
                                         value={intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` })}
                                         onChange={updateUnitType}
                                         options={unitSubtypeOptions}
+                                        data-cy='property-map__unit-form__unit-type-select'
                                     />
                                 </Space>
                             </Col>
@@ -208,6 +212,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplic
                                 value={section}
                                 onChange={updateSection}
                                 options={sectionOptions}
+                                data-cy='property-map__unit-form__section-select'
                             />
                         </Space>
                     </Col>

@@ -121,7 +121,7 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
                 key: `copy-${section.id}`,
                 value: section.id,
                 label: `${CopyLabel}${section.name}`,
-                // 'data-cy': 'property-map__add-section-form__section-mode-select__copy-option',
+                'data-cy': 'property-map__add-section-form__section-mode-select__copy-option',
             })),
         ]
     ), [CopyLabel, CreateNewLabel, builder.sections])
@@ -137,9 +137,9 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
     ), [builder.availableUnitTypes, intl])
 
     return (
-        <Row gutter={[0, 40]}>
+        <Row gutter={[0, 40]} data-cy='property-map__add-section-form'>
             <Col span={24}>
-                <Row gutter={MODAL_FORM_ROW_GUTTER} data-cy='property-map__add-section-form'>
+                <Row gutter={MODAL_FORM_ROW_GUTTER}>
                     <Col span={24}>
                         <Select
                             value={copyId}
@@ -288,12 +288,9 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     }, [builder, refresh, section])
 
     return (
-        <Row gutter={[0, 40]}>
+        <Row gutter={[0, 40]} data-cy='property-map__edit-section-form'>
             <Col span={24}>
-                <Row
-                    gutter={MODAL_FORM_EDIT_GUTTER}
-                    data-cy='property-map__edit-section-form'
-                >
+                <Row gutter={MODAL_FORM_EDIT_GUTTER}>
                     <Col span={24}>
                         <Space direction='vertical' size={8} width='100%'>
                             <Typography.Text size='medium' type='secondary'>{NameLabel}</Typography.Text>
