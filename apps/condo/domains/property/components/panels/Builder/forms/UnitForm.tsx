@@ -122,7 +122,6 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplic
     }, [builder, mode, floor, section, label, unitType, setDuplicatedUnitIds])
 
     const applyChanges = useCallback(() => {
-        console.log('renameNextUnits.current', renameNextUnits.current)
         if (isUnitUnique) {
             const mapUnit = builder.getSelectedUnits()[0]
             if (mapUnit) {
