@@ -20,7 +20,7 @@ function resolveArea (districtLevel) {
         area,
         area_type,
         area_type_full,
-        area_with_type: joinNameAndType(area, area_type, isNameFirst),
+        area_with_type: joinNameAndType(area, area_type_full, isNameFirst),
         area_fias_id: gar.guid || null,
         area_kladr_id: getGarParam(gar, 'kladrcode') || null,
     }

@@ -10,7 +10,7 @@ function resolveRegion (regionLevel) {
 
     let isNameFirst = true
 
-    switch (regionLevel.area?.type) {
+    switch (gar.area?.type) {
         case 'край':
             region_type = 'кр'
             region_type_full = 'край'
