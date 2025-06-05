@@ -4,7 +4,7 @@ function resolveCity (cityLevel) {
     if (!cityLevel) return {}
 
     const gar = getGarLevel(cityLevel.gar)
-    const city = gar.area?.name
+    const city = gar?.area?.name || null
     let city_type = 'г'
     let city_type_full = 'город'
 

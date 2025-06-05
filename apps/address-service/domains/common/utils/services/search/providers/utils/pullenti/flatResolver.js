@@ -4,7 +4,7 @@ function resolveFlat (apartmentLevel) {
     if (!apartmentLevel) return {}
 
     const gar = getGarLevel(apartmentLevel.gar, 'apartment')
-    const flat = gar.room?.num
+    const flat = gar?.room?.num || null
     let flat_type = 'кв'
     let flat_type_full = 'квартира'
 

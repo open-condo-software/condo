@@ -25,7 +25,7 @@ describe('houseResolver', () => {
                 house: '123',
                 house_type: 'д',
                 house_type_full: 'дом',
-                block: 'null',
+                block: null,
                 block_type: null,
                 block_type_full: null,
                 house_fias_id: 'test-guid',
@@ -72,7 +72,7 @@ describe('houseResolver', () => {
                 house: '123',
                 house_type: 'д',
                 house_type_full: 'дом',
-                block: 'null',
+                block: null,
                 block_type: null,
                 block_type_full: null,
                 house_fias_id: null,
@@ -91,10 +91,10 @@ describe('houseResolver', () => {
             }
 
             expect(resolveHouse(houseLevel)).toEqual({
-                house: 'undefined',
+                house: null,
                 house_type: 'д',
                 house_type_full: 'дом',
-                block: 'null',
+                block: null,
                 block_type: null,
                 block_type_full: null,
                 house_fias_id: null,

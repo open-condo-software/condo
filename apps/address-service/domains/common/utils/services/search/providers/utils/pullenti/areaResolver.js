@@ -4,7 +4,7 @@ function resolveArea (districtLevel) {
     if (!districtLevel) return {}
 
     const gar = getGarLevel(districtLevel.gar, 'adminarea')
-    const area = gar.area?.name
+    const area = gar?.area?.name || null
     let area_type = 'р-н'
     let area_type_full = 'район'
 

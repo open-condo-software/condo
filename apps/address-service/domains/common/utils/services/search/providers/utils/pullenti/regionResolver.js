@@ -4,7 +4,7 @@ function resolveRegion (regionLevel) {
     if (!regionLevel) return {}
 
     const gar = getGarLevel(regionLevel.gar, 'adminarea')
-    const region = gar.area?.name
+    const region = gar?.area?.name || null
     let region_type = 'обл'
     let region_type_full = 'область'
 
