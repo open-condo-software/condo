@@ -1,4 +1,4 @@
-const { DADATA_PROVIDER, GOOGLE_PROVIDER } = require('@address-service/domains/common/constants/providers')
+const { DADATA_PROVIDER, GOOGLE_PROVIDER, PULLENTI_PROVIDER } = require('@address-service/domains/common/constants/providers')
 const {
     getSearchProvider,
     getSuggestionsProvider,
@@ -6,10 +6,12 @@ const {
 const {
     DadataSearchProvider,
     GoogleSearchProvider,
+    PullentiSearchProvider,
 } = require('@address-service/domains/common/utils/services/search/providers')
 const {
     DadataSuggestionProvider,
     GoogleSuggestionProvider,
+    PullentiSuggestionProvider,
 } = require('@address-service/domains/common/utils/services/suggest/providers')
 
 describe('Provider detector', () => {
@@ -19,6 +21,7 @@ describe('Provider detector', () => {
     const providersEligibleConfigs = {
         [DADATA_PROVIDER]: { DADATA_SUGGESTIONS: '{"url":"where is dadata?", "token":"tooooken"}' },
         [GOOGLE_PROVIDER]: { GOOGLE_API_KEY: 'just an api key' },
+        [PULLENTI_PROVIDER]: { PULLENTI_CONFIG: '{"url":"the_url"}' }, // TODOOOOOO!!
     }
 
     beforeEach(() => {
@@ -35,6 +38,7 @@ describe('Provider detector', () => {
             // [<provider name>, <env variable name>]
             [DADATA_PROVIDER, 'DADATA_SUGGESTIONS'],
             [GOOGLE_PROVIDER, 'GOOGLE_API_KEY'],
+            [PULLENTI_PROVIDER, 'PULLENTI_CONFIG'],
         ]
 
         test.each(cases)('in the case of %p provider the %p variable must exist', (providerName, variableName) => {
@@ -49,6 +53,7 @@ describe('Provider detector', () => {
             // [<provider name>, <provider's class>, <env variable name for the provider>, <env variable value for the provider>]
             [DADATA_PROVIDER, DadataSearchProvider],
             [GOOGLE_PROVIDER, GoogleSearchProvider],
+            [PULLENTI_PROVIDER, PullentiSearchProvider],
             [undefined], // No provider set
             ['some string'], // An un-existing provider set
         ]
@@ -71,6 +76,7 @@ describe('Provider detector', () => {
         const cases = [
             [DADATA_PROVIDER, DadataSuggestionProvider],
             [GOOGLE_PROVIDER, GoogleSuggestionProvider],
+            [PULLENTI_PROVIDER, PullentiSuggestionProvider],
             [undefined], // No provider set
             ['abra-shvabra-cadabra'], // An un-existing provider set
         ]

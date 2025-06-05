@@ -2,14 +2,16 @@ const get = require('lodash/get')
 
 const conf = require('@open-condo/config')
 
-const { DADATA_PROVIDER, GOOGLE_PROVIDER } = require('@address-service/domains/common/constants/providers')
+const { DADATA_PROVIDER, GOOGLE_PROVIDER, PULLENTI_PROVIDER } = require('@address-service/domains/common/constants/providers')
 const {
     DadataSearchProvider,
     GoogleSearchProvider,
+    PullentiSearchProvider,
 } = require('@address-service/domains/common/utils/services/search/providers')
 const {
     GoogleSuggestionProvider,
     DadataSuggestionProvider,
+    PullentiSuggestionProvider,
 } = require('@address-service/domains/common/utils/services/suggest/providers')
 
 /**
@@ -34,6 +36,9 @@ function getSearchProvider (args) {
         case GOOGLE_PROVIDER:
             searchProvider = new GoogleSearchProvider(args)
             break
+        case PULLENTI_PROVIDER:
+            searchProvider = new PullentiSearchProvider(args)
+            break
     }
 
     return searchProvider
@@ -55,6 +60,9 @@ function getSuggestionsProvider (args) {
             break
         case DADATA_PROVIDER:
             suggestionProvider = new DadataSuggestionProvider(args)
+            break
+        case PULLENTI_PROVIDER:
+            suggestionProvider = new PullentiSuggestionProvider(args)
             break
     }
 
