@@ -201,6 +201,86 @@ export function useUpdatePaymentsFileMutation(baseOptions?: Apollo.MutationHookO
 export type UpdatePaymentsFileMutationHookResult = ReturnType<typeof useUpdatePaymentsFileMutation>;
 export type UpdatePaymentsFileMutationResult = Apollo.MutationResult<Types.UpdatePaymentsFileMutation>;
 export type UpdatePaymentsFileMutationOptions = Apollo.BaseMutationOptions<Types.UpdatePaymentsFileMutation, Types.UpdatePaymentsFileMutationVariables>;
+export const GetExecutionAiFlowTaskByIdDocument = gql`
+    query getExecutionAIFlowTaskById($id: ID!) {
+  task: allExecutionAIFlowTasks(where: {id: $id}, first: 1) {
+    id
+    result
+    errorMessage
+    status
+    __typename
+  }
+}
+    `;
+
+/**
+ * __useGetExecutionAiFlowTaskByIdQuery__
+ *
+ * To run a query within a React component, call `useGetExecutionAiFlowTaskByIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetExecutionAiFlowTaskByIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetExecutionAiFlowTaskByIdQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetExecutionAiFlowTaskByIdQuery(baseOptions: Apollo.QueryHookOptions<Types.GetExecutionAiFlowTaskByIdQuery, Types.GetExecutionAiFlowTaskByIdQueryVariables> & ({ variables: Types.GetExecutionAiFlowTaskByIdQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetExecutionAiFlowTaskByIdQuery, Types.GetExecutionAiFlowTaskByIdQueryVariables>(GetExecutionAiFlowTaskByIdDocument, options);
+      }
+export function useGetExecutionAiFlowTaskByIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetExecutionAiFlowTaskByIdQuery, Types.GetExecutionAiFlowTaskByIdQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetExecutionAiFlowTaskByIdQuery, Types.GetExecutionAiFlowTaskByIdQueryVariables>(GetExecutionAiFlowTaskByIdDocument, options);
+        }
+export function useGetExecutionAiFlowTaskByIdSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetExecutionAiFlowTaskByIdQuery, Types.GetExecutionAiFlowTaskByIdQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetExecutionAiFlowTaskByIdQuery, Types.GetExecutionAiFlowTaskByIdQueryVariables>(GetExecutionAiFlowTaskByIdDocument, options);
+        }
+export type GetExecutionAiFlowTaskByIdQueryHookResult = ReturnType<typeof useGetExecutionAiFlowTaskByIdQuery>;
+export type GetExecutionAiFlowTaskByIdLazyQueryHookResult = ReturnType<typeof useGetExecutionAiFlowTaskByIdLazyQuery>;
+export type GetExecutionAiFlowTaskByIdSuspenseQueryHookResult = ReturnType<typeof useGetExecutionAiFlowTaskByIdSuspenseQuery>;
+export type GetExecutionAiFlowTaskByIdQueryResult = Apollo.QueryResult<Types.GetExecutionAiFlowTaskByIdQuery, Types.GetExecutionAiFlowTaskByIdQueryVariables>;
+export const CreateExecutionAiFlowTaskDocument = gql`
+    mutation createExecutionAIFlowTask($data: ExecutionAIFlowTaskCreateInput!) {
+  task: createExecutionAIFlowTask(data: $data) {
+    id
+    result
+    errorMessage
+    status
+  }
+}
+    `;
+export type CreateExecutionAiFlowTaskMutationFn = Apollo.MutationFunction<Types.CreateExecutionAiFlowTaskMutation, Types.CreateExecutionAiFlowTaskMutationVariables>;
+
+/**
+ * __useCreateExecutionAiFlowTaskMutation__
+ *
+ * To run a mutation, you first call `useCreateExecutionAiFlowTaskMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateExecutionAiFlowTaskMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createExecutionAiFlowTaskMutation, { data, loading, error }] = useCreateExecutionAiFlowTaskMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCreateExecutionAiFlowTaskMutation(baseOptions?: Apollo.MutationHookOptions<Types.CreateExecutionAiFlowTaskMutation, Types.CreateExecutionAiFlowTaskMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.CreateExecutionAiFlowTaskMutation, Types.CreateExecutionAiFlowTaskMutationVariables>(CreateExecutionAiFlowTaskDocument, options);
+      }
+export type CreateExecutionAiFlowTaskMutationHookResult = ReturnType<typeof useCreateExecutionAiFlowTaskMutation>;
+export type CreateExecutionAiFlowTaskMutationResult = Apollo.MutationResult<Types.CreateExecutionAiFlowTaskMutation>;
+export type CreateExecutionAiFlowTaskMutationOptions = Apollo.BaseMutationOptions<Types.CreateExecutionAiFlowTaskMutation, Types.CreateExecutionAiFlowTaskMutationVariables>;
 export const GetBankAccountReportTasksDocument = gql`
     query getBankAccountReportTasks($where: BankAccountReportTaskWhereInput!) {
   tasks: allBankAccountReportTasks(where: $where) {
@@ -726,6 +806,7 @@ export const GetContactByIdDocument = gql`
     unitName
     unitType
     isVerified
+    hasResident
     ownershipPercentage
     note
     communityFee
@@ -2054,6 +2135,48 @@ export type GetUserB2BAppRolesQueryHookResult = ReturnType<typeof useGetUserB2BA
 export type GetUserB2BAppRolesLazyQueryHookResult = ReturnType<typeof useGetUserB2BAppRolesLazyQuery>;
 export type GetUserB2BAppRolesSuspenseQueryHookResult = ReturnType<typeof useGetUserB2BAppRolesSuspenseQuery>;
 export type GetUserB2BAppRolesQueryResult = Apollo.QueryResult<Types.GetUserB2BAppRolesQuery, Types.GetUserB2BAppRolesQueryVariables>;
+export const GetNewsItemsRecipientsCountersDocument = gql`
+    query getNewsItemsRecipientsCounters($data: GetNewsItemsRecipientsCountersInput!) {
+  result: getNewsItemsRecipientsCounters(data: $data) {
+    propertiesCount
+    unitsCount
+    receiversCount
+  }
+}
+    `;
+
+/**
+ * __useGetNewsItemsRecipientsCountersQuery__
+ *
+ * To run a query within a React component, call `useGetNewsItemsRecipientsCountersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetNewsItemsRecipientsCountersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetNewsItemsRecipientsCountersQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useGetNewsItemsRecipientsCountersQuery(baseOptions: Apollo.QueryHookOptions<Types.GetNewsItemsRecipientsCountersQuery, Types.GetNewsItemsRecipientsCountersQueryVariables> & ({ variables: Types.GetNewsItemsRecipientsCountersQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetNewsItemsRecipientsCountersQuery, Types.GetNewsItemsRecipientsCountersQueryVariables>(GetNewsItemsRecipientsCountersDocument, options);
+      }
+export function useGetNewsItemsRecipientsCountersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetNewsItemsRecipientsCountersQuery, Types.GetNewsItemsRecipientsCountersQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetNewsItemsRecipientsCountersQuery, Types.GetNewsItemsRecipientsCountersQueryVariables>(GetNewsItemsRecipientsCountersDocument, options);
+        }
+export function useGetNewsItemsRecipientsCountersSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetNewsItemsRecipientsCountersQuery, Types.GetNewsItemsRecipientsCountersQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetNewsItemsRecipientsCountersQuery, Types.GetNewsItemsRecipientsCountersQueryVariables>(GetNewsItemsRecipientsCountersDocument, options);
+        }
+export type GetNewsItemsRecipientsCountersQueryHookResult = ReturnType<typeof useGetNewsItemsRecipientsCountersQuery>;
+export type GetNewsItemsRecipientsCountersLazyQueryHookResult = ReturnType<typeof useGetNewsItemsRecipientsCountersLazyQuery>;
+export type GetNewsItemsRecipientsCountersSuspenseQueryHookResult = ReturnType<typeof useGetNewsItemsRecipientsCountersSuspenseQuery>;
+export type GetNewsItemsRecipientsCountersQueryResult = Apollo.QueryResult<Types.GetNewsItemsRecipientsCountersQuery, Types.GetNewsItemsRecipientsCountersQueryVariables>;
 export const GetNewsItemRecipientsExportTasksDocument = gql`
     query getNewsItemRecipientsExportTasks($where: NewsItemRecipientsExportTaskWhereInput!) {
   tasks: allNewsItemRecipientsExportTasks(where: $where) {
@@ -3544,6 +3667,88 @@ export function useUpdatePropertiesMutation(baseOptions?: Apollo.MutationHookOpt
 export type UpdatePropertiesMutationHookResult = ReturnType<typeof useUpdatePropertiesMutation>;
 export type UpdatePropertiesMutationResult = Apollo.MutationResult<Types.UpdatePropertiesMutation>;
 export type UpdatePropertiesMutationOptions = Apollo.BaseMutationOptions<Types.UpdatePropertiesMutation, Types.UpdatePropertiesMutationVariables>;
+export const GetAllPropertyCountByOrganizationIdDocument = gql`
+    query getAllPropertyCountByOrganizationId($organizationId: ID!) {
+  _allPropertiesMeta(where: {organization: {id: $organizationId}}) {
+    count
+  }
+}
+    `;
+
+/**
+ * __useGetAllPropertyCountByOrganizationIdQuery__
+ *
+ * To run a query within a React component, call `useGetAllPropertyCountByOrganizationIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAllPropertyCountByOrganizationIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAllPropertyCountByOrganizationIdQuery({
+ *   variables: {
+ *      organizationId: // value for 'organizationId'
+ *   },
+ * });
+ */
+export function useGetAllPropertyCountByOrganizationIdQuery(baseOptions: Apollo.QueryHookOptions<Types.GetAllPropertyCountByOrganizationIdQuery, Types.GetAllPropertyCountByOrganizationIdQueryVariables> & ({ variables: Types.GetAllPropertyCountByOrganizationIdQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetAllPropertyCountByOrganizationIdQuery, Types.GetAllPropertyCountByOrganizationIdQueryVariables>(GetAllPropertyCountByOrganizationIdDocument, options);
+      }
+export function useGetAllPropertyCountByOrganizationIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetAllPropertyCountByOrganizationIdQuery, Types.GetAllPropertyCountByOrganizationIdQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetAllPropertyCountByOrganizationIdQuery, Types.GetAllPropertyCountByOrganizationIdQueryVariables>(GetAllPropertyCountByOrganizationIdDocument, options);
+        }
+export function useGetAllPropertyCountByOrganizationIdSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetAllPropertyCountByOrganizationIdQuery, Types.GetAllPropertyCountByOrganizationIdQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetAllPropertyCountByOrganizationIdQuery, Types.GetAllPropertyCountByOrganizationIdQueryVariables>(GetAllPropertyCountByOrganizationIdDocument, options);
+        }
+export type GetAllPropertyCountByOrganizationIdQueryHookResult = ReturnType<typeof useGetAllPropertyCountByOrganizationIdQuery>;
+export type GetAllPropertyCountByOrganizationIdLazyQueryHookResult = ReturnType<typeof useGetAllPropertyCountByOrganizationIdLazyQuery>;
+export type GetAllPropertyCountByOrganizationIdSuspenseQueryHookResult = ReturnType<typeof useGetAllPropertyCountByOrganizationIdSuspenseQuery>;
+export type GetAllPropertyCountByOrganizationIdQueryResult = Apollo.QueryResult<Types.GetAllPropertyCountByOrganizationIdQuery, Types.GetAllPropertyCountByOrganizationIdQueryVariables>;
+export const GetAllPropertyWithoutMapCountByOrganizationIdDocument = gql`
+    query getAllPropertyWithoutMapCountByOrganizationId($organizationId: ID!) {
+  _allPropertiesMeta(
+    where: {organization: {id: $organizationId}, unitsCount: 0, uninhabitedUnitsCount: 0}
+  ) {
+    count
+  }
+}
+    `;
+
+/**
+ * __useGetAllPropertyWithoutMapCountByOrganizationIdQuery__
+ *
+ * To run a query within a React component, call `useGetAllPropertyWithoutMapCountByOrganizationIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAllPropertyWithoutMapCountByOrganizationIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAllPropertyWithoutMapCountByOrganizationIdQuery({
+ *   variables: {
+ *      organizationId: // value for 'organizationId'
+ *   },
+ * });
+ */
+export function useGetAllPropertyWithoutMapCountByOrganizationIdQuery(baseOptions: Apollo.QueryHookOptions<Types.GetAllPropertyWithoutMapCountByOrganizationIdQuery, Types.GetAllPropertyWithoutMapCountByOrganizationIdQueryVariables> & ({ variables: Types.GetAllPropertyWithoutMapCountByOrganizationIdQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetAllPropertyWithoutMapCountByOrganizationIdQuery, Types.GetAllPropertyWithoutMapCountByOrganizationIdQueryVariables>(GetAllPropertyWithoutMapCountByOrganizationIdDocument, options);
+      }
+export function useGetAllPropertyWithoutMapCountByOrganizationIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetAllPropertyWithoutMapCountByOrganizationIdQuery, Types.GetAllPropertyWithoutMapCountByOrganizationIdQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetAllPropertyWithoutMapCountByOrganizationIdQuery, Types.GetAllPropertyWithoutMapCountByOrganizationIdQueryVariables>(GetAllPropertyWithoutMapCountByOrganizationIdDocument, options);
+        }
+export function useGetAllPropertyWithoutMapCountByOrganizationIdSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetAllPropertyWithoutMapCountByOrganizationIdQuery, Types.GetAllPropertyWithoutMapCountByOrganizationIdQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetAllPropertyWithoutMapCountByOrganizationIdQuery, Types.GetAllPropertyWithoutMapCountByOrganizationIdQueryVariables>(GetAllPropertyWithoutMapCountByOrganizationIdDocument, options);
+        }
+export type GetAllPropertyWithoutMapCountByOrganizationIdQueryHookResult = ReturnType<typeof useGetAllPropertyWithoutMapCountByOrganizationIdQuery>;
+export type GetAllPropertyWithoutMapCountByOrganizationIdLazyQueryHookResult = ReturnType<typeof useGetAllPropertyWithoutMapCountByOrganizationIdLazyQuery>;
+export type GetAllPropertyWithoutMapCountByOrganizationIdSuspenseQueryHookResult = ReturnType<typeof useGetAllPropertyWithoutMapCountByOrganizationIdSuspenseQuery>;
+export type GetAllPropertyWithoutMapCountByOrganizationIdQueryResult = Apollo.QueryResult<Types.GetAllPropertyWithoutMapCountByOrganizationIdQuery, Types.GetAllPropertyWithoutMapCountByOrganizationIdQueryVariables>;
 export const GetPropertyScopePropertiesDocument = gql`
     query getPropertyScopeProperties($propertyScopeIds: [ID!]) {
   propertyScopeProperty: allPropertyScopeProperties(
@@ -4954,46 +5159,6 @@ export type GetTicketsForClientCardQueryHookResult = ReturnType<typeof useGetTic
 export type GetTicketsForClientCardLazyQueryHookResult = ReturnType<typeof useGetTicketsForClientCardLazyQuery>;
 export type GetTicketsForClientCardSuspenseQueryHookResult = ReturnType<typeof useGetTicketsForClientCardSuspenseQuery>;
 export type GetTicketsForClientCardQueryResult = Apollo.QueryResult<Types.GetTicketsForClientCardQuery, Types.GetTicketsForClientCardQueryVariables>;
-export const CheckTicketExistenceDocument = gql`
-    query checkTicketExistence($where: TicketWhereInput!) {
-  tickets: allTickets(where: $where, first: 1) {
-    id
-  }
-}
-    `;
-
-/**
- * __useCheckTicketExistenceQuery__
- *
- * To run a query within a React component, call `useCheckTicketExistenceQuery` and pass it any options that fit your needs.
- * When your component renders, `useCheckTicketExistenceQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useCheckTicketExistenceQuery({
- *   variables: {
- *      where: // value for 'where'
- *   },
- * });
- */
-export function useCheckTicketExistenceQuery(baseOptions: Apollo.QueryHookOptions<Types.CheckTicketExistenceQuery, Types.CheckTicketExistenceQueryVariables> & ({ variables: Types.CheckTicketExistenceQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<Types.CheckTicketExistenceQuery, Types.CheckTicketExistenceQueryVariables>(CheckTicketExistenceDocument, options);
-      }
-export function useCheckTicketExistenceLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.CheckTicketExistenceQuery, Types.CheckTicketExistenceQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<Types.CheckTicketExistenceQuery, Types.CheckTicketExistenceQueryVariables>(CheckTicketExistenceDocument, options);
-        }
-export function useCheckTicketExistenceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.CheckTicketExistenceQuery, Types.CheckTicketExistenceQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<Types.CheckTicketExistenceQuery, Types.CheckTicketExistenceQueryVariables>(CheckTicketExistenceDocument, options);
-        }
-export type CheckTicketExistenceQueryHookResult = ReturnType<typeof useCheckTicketExistenceQuery>;
-export type CheckTicketExistenceLazyQueryHookResult = ReturnType<typeof useCheckTicketExistenceLazyQuery>;
-export type CheckTicketExistenceSuspenseQueryHookResult = ReturnType<typeof useCheckTicketExistenceSuspenseQuery>;
-export type CheckTicketExistenceQueryResult = Apollo.QueryResult<Types.CheckTicketExistenceQuery, Types.CheckTicketExistenceQueryVariables>;
 export const GetTicketsCountDocument = gql`
     query getTicketsCount($where: TicketWhereInput!) {
   meta: _allTicketsMeta(where: $where) {
@@ -5373,6 +5538,9 @@ export const GetTicketsByContactDocument = gql`
     status {
       id
       name
+      colors {
+        primary
+      }
     }
     property {
       id

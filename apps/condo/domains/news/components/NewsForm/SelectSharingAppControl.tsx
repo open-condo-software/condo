@@ -51,13 +51,13 @@ interface ISelectSharingAppControl {
 }
 
 const AppDescriptionLabelId = 'pages.news.create.selectSharingApp.appDescription'
+const FinishSettingDescriptionLabelId = 'pages.news.create.selectSharingApp.finishSetting.description'
 
 const SelectSharingAppControl: React.FC<ISelectSharingAppControl> = ({ sharingAppContexts, selectedSharingApps, handleSelectSharingApp }) => {
     const intl = useIntl()
     const CondoMobileAppDescriptionLabel = intl.formatMessage({ id: AppDescriptionLabelId }, { appName: 'Doma' })
     const OtherAppsDescriptionLabel = intl.formatMessage({ id: 'pages.news.create.selectSharingApp.otherApps.description' })
     const OtherAppsActionLabel = intl.formatMessage({ id: 'InMoreDetail' })
-    const FinishSettingDescriptionLabel = intl.formatMessage({ id: 'pages.news.create.selectSharingApp.finishSetting.description' })
     const FinishSettingActionLabel = intl.formatMessage({ id: 'pages.news.create.selectSharingApp.finishSetting.actionButtonText' })
     const CondoMobileAppLabel = intl.formatMessage({ id: 'pages.condo.news.preview.condoAppName' })
     const [appsSettingCompleted, setAppsSettingCompleted] = useState({})
@@ -159,7 +159,7 @@ const SelectSharingAppControl: React.FC<ISelectSharingAppControl> = ({ sharingAp
                             <div style={cardStyle}>
                                 <Card title={<Card.CardHeader image={{ src: sharingAppIcon, size: 'small' }} headingTitle={sharingAppName}/>}>
                                     <Card.CardBody
-                                        description={intl.formatMessage({ id: FinishSettingDescriptionLabel }, { appName: sharingAppName })}
+                                        description={intl.formatMessage({ id: FinishSettingDescriptionLabelId }, { appName: sharingAppName })}
                                         image={{
                                             src: sharingAppPreviewIcon,
                                             style: CARD_ICON_STYLE,

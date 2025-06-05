@@ -1,3 +1,4 @@
+import { B2BAppContextStatusType } from '@app/condo/schema'
 import { Col, notification, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { ArgsProps as NotificationApiProps } from 'antd/es/notification'
@@ -156,6 +157,7 @@ export const CreateNewsForm: React.FC = () => {
         error: sharingAppContextsError,
     } = B2BAppContext.useObjects({
         where: {
+            status: B2BAppContextStatusType.Finished,
             organization: { id: organizationId },
             app: { newsSharingConfig_is_null: false, deletedAt: null },
             deletedAt: null,

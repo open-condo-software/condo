@@ -12,11 +12,15 @@ const {
     expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 
-const { CONTEXT_FINISHED_STATUS, CONTEXT_IN_PROGRESS_STATUS } = require('@condo/domains/acquiring/constants/context')
+const { CONTEXT_FINISHED_STATUS: BILLING_CONTEXT_FINISHED_STATUS, CONTEXT_IN_PROGRESS_STATUS: BILLING_CONTEXT_IN_PROGRESS_STATUS } = require('@condo/domains/billing/constants/constants')
 const {
     ONLINE_INTERACTION_CHECK_ACCOUNT_NOT_FOUND_STATUS,
     ONLINE_INTERACTION_CHECK_ACCOUNT_SUCCESS_STATUS,
 } = require('@condo/domains/billing/constants/onlineInteraction')
+const {
+    createTestBillingIntegrationOrganizationContext,
+    updateTestBillingIntegrationOrganizationContext,
+} = require('@condo/domains/billing/utils/testSchema')
 const {
     TestUtils,
     BillingTestMixin,
@@ -227,14 +231,65 @@ describe('RegisterServiceConsumer', () => {
             })
             expect(serviceConsumer).toHaveProperty('id')
         })
+    })
 
+    describe('Support for several billing contexts in one organization', () => {
+        let anotherIntegrationUtils = null
+
+        beforeAll(async () => {
+            anotherIntegrationUtils = new TestUtils([BillingTestMixin])
+            await anotherIntegrationUtils.init()
+            const [anotherBillingContext] = await createTestBillingIntegrationOrganizationContext(anotherIntegrationUtils.clients.support, utils.organization, anotherIntegrationUtils.billingIntegration, { status: BILLING_CONTEXT_FINISHED_STATUS })
+            anotherIntegrationUtils.billingContext = anotherBillingContext
+        })
+
+        afterAll(async () => {
+            await updateTestBillingIntegrationOrganizationContext(utils.clients.support, anotherIntegrationUtils.billingContext.id, { deletedAt: new Date().toISOString() })
+        })
+
+        test('Can register for same accountNumber in both contexts', async  () => {
+            const resident = await utils.createResident()
+            const accountNumber = faker.random.alphaNumeric(16)
+            await Promise.all([
+                utils.createReceipts([ utils.createJSONReceipt({ accountNumber }) ]),
+                anotherIntegrationUtils.createReceipts([ utils.createJSONReceipt({ accountNumber }) ]),
+            ])
+            const [serviceConsumer] = await registerServiceConsumerByTestClient(utils.clients.resident, {
+                residentId: resident.id,
+                accountNumber,
+                organizationId: utils.organization.id,
+            })
+            expect(serviceConsumer).toHaveProperty('id')
+        })
+
+        test('Can register if contexts have different account numbers', async  () => {
+            const resident = await utils.createResident()
+            const accountNumber1 = faker.random.alphaNumeric(16)
+            const accountNumber2 = faker.random.alphaNumeric(16)
+            await Promise.all([
+                utils.createReceipts([ utils.createJSONReceipt({ accountNumber: accountNumber1 }) ]),
+                anotherIntegrationUtils.createReceipts([ utils.createJSONReceipt({ accountNumber: accountNumber2 }) ]),
+            ])
+            const [serviceConsumer1] = await registerServiceConsumerByTestClient(utils.clients.resident, {
+                residentId: resident.id,
+                accountNumber: accountNumber1,
+                organizationId: utils.organization.id,
+            })
+            expect(serviceConsumer1).toHaveProperty('id')
+            const [serviceConsumer2] = await registerServiceConsumerByTestClient(utils.clients.resident, {
+                residentId: resident.id,
+                accountNumber: accountNumber2,
+                organizationId: utils.organization.id,
+            })
+            expect(serviceConsumer2).toHaveProperty('id')
+        })
     })
 
 
     describe('contexts statuses', () => {
 
         afterEach(async () => {
-            await utils.updateBillingContext({ status: CONTEXT_FINISHED_STATUS })
+            await utils.updateBillingContext({ status: BILLING_CONTEXT_FINISHED_STATUS })
         })
 
         test('should throw an error if billingContext is not in Finished status', async () => {
@@ -251,7 +306,7 @@ describe('RegisterServiceConsumer', () => {
                 organizationId: utils.organization.id,
             })
             expect(successConsumer).toHaveProperty('id')
-            await utils.updateBillingContext({ status: CONTEXT_IN_PROGRESS_STATUS })
+            await utils.updateBillingContext({ status: BILLING_CONTEXT_IN_PROGRESS_STATUS })
             await expectToThrowGQLError(async () => {
                 await registerServiceConsumerByTestClient(utils.clients.resident, {
                     residentId: resident.id,
@@ -263,7 +318,7 @@ describe('RegisterServiceConsumer', () => {
 
         test('should work if no billingContext in Finished status, but organization has Meter with the same accountNumber', async () => {
             const resident = await utils.createResident()
-            await utils.updateBillingContext({ status: CONTEXT_IN_PROGRESS_STATUS })
+            await utils.updateBillingContext({ status: BILLING_CONTEXT_IN_PROGRESS_STATUS })
             const accountNumber = faker.random.alphaNumeric(16)
             await utils.createMeter({ accountNumber })
             const [successConsumer] = await registerServiceConsumerByTestClient(utils.clients.resident, {

@@ -6,6 +6,7 @@ import {
 import { Typography } from 'antd'
 import get from 'lodash/get'
 import isNil from 'lodash/isNil'
+import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import React, { useMemo } from 'react'
 
@@ -20,6 +21,8 @@ import { getAddressDetails, getFilteredValue } from '@condo/domains/common/utils
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { getMoneyRender } from '@condo/domains/marketplace/utils/clientSchema/Invoice'
 import { PriceMeasuresType } from '@condo/domains/marketplace/utils/clientSchema/MarketItem'
+
+const { publicRuntimeConfig: { defaultCurrencyCode } } = getConfig()
 
 export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, marketPriceScopes: MarketPriceScopeType[], marketCategories: MarketCategoryType[], properties: Property[]) {
     const intl = useIntl()
@@ -51,7 +54,7 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
             const item = {
                 price,
                 isMin: get(prices, '0.isMin'),
-                currency: get(prices, '0.currencyCode', 'RUB'),
+                currency: get(prices, '0.currencyCode', defaultCurrencyCode),
                 measure: get(prices, '0.measure'),
                 address: streetPart,
             }
@@ -144,7 +147,7 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
                     const priceForAllProperties = get(processedScopes, [marketItem.id, 'priceForAllProperties'])
 
                     if (priceForAllProperties) {
-                        const currency = get(priceForAllProperties, 'currency', 'RUB')
+                        const currency = get(priceForAllProperties, 'currency', defaultCurrencyCode)
                         const price = get(priceForAllProperties, 'price')
                         const measure: PriceMeasuresType = get(priceForAllProperties, 'measure')
                         const isMin = get(priceForAllProperties, 'isMin')
@@ -182,7 +185,7 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
                                 {
                                     get(items[0], 'isMin') && (get(items[0], 'price') == 0) ?
                                         ContractPriceMessage :
-                                        getMoneyRender(intl, get(items[0], 'currency', 'RUB'))(price, get(items[0], 'isMin'))
+                                        getMoneyRender(intl, get(items[0], 'currency', defaultCurrencyCode))(price, get(items[0], 'isMin'))
                                         + (shouldShowMeasure ? `/${intl.formatMessage( { id: `pages.condo.marketplace.measure.${measure}.short` })}` : '')
                                 }
                                 <Typography.Text type='secondary' style={{ margin: '10px' }}>

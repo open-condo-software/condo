@@ -225,8 +225,15 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
         showArrow:false,
         infinityScroll:true,
         placeholder:CustomSelectRecipientsPlaceholder,
-        onChange:(recipients: GetNewsSharingRecipientsQuery['recipients']) => {
-            setSharingAppFormValues(prev=>({ ...prev, scope: recipients, isAllChecked: false }))
+        onChange:(recipients: Array<string>) => {
+            try {
+                const parsedRecipients = recipients.map(recipient => JSON.parse(recipient)?.value)
+                if (parsedRecipients.some(recipient => !recipient)) return
+
+                setSharingAppFormValues(prev => ({ ...prev, scope: parsedRecipients, isAllChecked: false }))
+            } catch {
+                console.error('Cannot parse recipients')
+            }
         },
     }
 

@@ -32,6 +32,7 @@ async function countUniqueUnitsFromResidentsByPropertyIds (organizationId, prope
         .select(knex.raw('count(distinct(concat("property", "unitName", "unitType")))'))
         .where('organization', organizationId)
         .whereIn('property', propertyIds)
+        .where('deletedAt', null)
 
     return get(result, [0, 'count'], null)
 }
@@ -52,6 +53,7 @@ async function countUniqueUnitsFromResidentsByProperty (organizationId, property
         .select(knex.raw('count(distinct(concat("property", "unitName", "unitType")))'))
         .where('organization', organizationId)
         .where('property', propertyId)
+        .where('deletedAt', null)
         .where(function () {
             /**
              * This will generate sql like:

@@ -159,15 +159,6 @@ query getTicketsForClientCard ($where: TicketWhereInput!, $sortBy: [SortTicketsB
     }
 }
 
-query checkTicketExistence ($where: TicketWhereInput!) {
-    tickets: allTickets (
-        where: $where,
-        first: 1,
-    ) {
-        id
-    }
-}
-
 query getTicketsCount ($where: TicketWhereInput!) {
     meta: _allTicketsMeta (where: $where) {
         count
@@ -356,6 +347,9 @@ query getTicketsByContact ($contactId: ID!) {
         status {
             id
             name
+            colors {
+                primary
+            }
         }
         property {
             id

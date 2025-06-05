@@ -1,3 +1,4 @@
+import { B2BAppContextStatusType } from '@app/condo/schema'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import has from 'lodash/has'
@@ -107,6 +108,7 @@ export const ResendNewsForm: React.FC<IResendNewsForm> = ({ id }) => {
         error: sharingAppContextsError,
     } = B2BAppContext.useObjects({
         where: {
+            status: B2BAppContextStatusType.Finished,
             organization: { id: organizationId },
             app: { newsSharingConfig_is_null: false, deletedAt: null },
             deletedAt: null,

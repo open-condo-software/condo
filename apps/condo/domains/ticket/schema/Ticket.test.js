@@ -5,6 +5,7 @@ const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 const { get, pick } = require('lodash')
 
+const conf = require('@open-condo/config')
 const {
     NUMBER_RE, UUID_RE, DATETIME_RE,
     makeClient, makeLoggedInAdminClient, waitFor,
@@ -3298,46 +3299,58 @@ describe('Ticket', () => {
         })
 
         describe('isAutoClassified', () => {
-            test('Set to true if the ticket was classified on the server side when the ticket was created', async () => {
+            let mlEnabled
+            beforeAll(() => {
+                try {
+                    const raw = conf['ML_SPACE_TICKET_CLASSIFIER']
+                    if (!raw) return (mlEnabled = false)
+
+                    const { endpoint, authKey, workspace } = JSON.parse(raw)
+                    mlEnabled = Boolean(endpoint && authKey && workspace)
+                } catch {
+                    mlEnabled = false
+                }
+            })
+            test('CREATE: flag equals ML service availability', async () => {
                 const client = await makeClientWithProperty()
                 const [ticket] = await createTestTicket(client, client.organization, client.property)
 
-                expect(ticket.isAutoClassified).toEqual(true)
+                expect(ticket.isAutoClassified).toBe(mlEnabled)
             })
-            test('Set to false if the ticket was classified manually', async () => {
+            test('CREATE: false when ticket classified manually', async () => {
                 const client = await makeClientWithProperty()
                 const [classifier] = await createTestTicketClassifier(admin)
                 const [ticket] = await createTestTicket(client, client.organization, client.property, {
                     classifier: { connect: { id: classifier.id } },
                 })
 
-                expect(ticket.isAutoClassified).toEqual(false)
+                expect(ticket.isAutoClassified).toBe(false)
             })
-            test('Set to true if the ticket was updated with classifier', async () => {
+            test('UPDATE: toggles to false after manual classifier added', async () => {
                 const client = await makeClientWithProperty()
                 const [ticket] = await createTestTicket(client, client.organization, client.property)
 
-                expect(ticket.isAutoClassified).toEqual(true)
+                expect(ticket.isAutoClassified).toBe(mlEnabled)
 
                 const [classifier] = await createTestTicketClassifier(admin)
                 const [updatedTicket] = await updateTestTicket(client, ticket.id, {
                     classifier: { connect: { id: classifier.id } },
                 })
 
-                expect(updatedTicket.isAutoClassified).toEqual(false)
+                expect(updatedTicket.isAutoClassified).toBe(false)
             })
-            test('Doesn\'t set to true if the ticket was updated without classifier', async () => {
+            test('UPDATE: flag remains unchanged when classifier not touched', async () => {
                 const client = await makeClientWithProperty()
                 const [ticket] = await createTestTicket(client, client.organization, client.property)
 
-                expect(ticket.isAutoClassified).toEqual(true)
+                expect(ticket.isAutoClassified).toBe(mlEnabled)
 
                 const details = faker.lorem.sentence()
                 const [updatedTicket] = await updateTestTicket(client, ticket.id, {
                     details,
                 })
 
-                expect(updatedTicket.isAutoClassified).toEqual(true)
+                expect(updatedTicket.isAutoClassified).toBe(mlEnabled)
             })
         })
 

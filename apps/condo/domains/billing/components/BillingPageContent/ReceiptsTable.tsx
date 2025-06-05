@@ -2,6 +2,7 @@ import { SortBillingReceiptsBy, BillingReceipt as BillingReceiptType, TourStepTy
 import { Row, Col, Typography, Space } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
+import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState, CSSProperties, useEffect } from 'react'
 
@@ -30,6 +31,7 @@ import { useTourContext } from '@condo/domains/onboarding/contexts/TourContext'
 
 import { useBillingAndAcquiringContexts } from './ContextProvider'
 
+const { publicRuntimeConfig: { defaultCurrencyCode } } = getConfig()
 
 const SORTABLE_PROPERTIES = ['toPay']
 const INPUT_STYLE: CSSProperties = { width: '18em' }
@@ -41,7 +43,7 @@ export const ReceiptsTable: React.FC = () => {
 
     const { billingContexts } = useBillingAndAcquiringContexts()
     const billingContext = billingContexts.length > 0 ? billingContexts[0] : null
-    const currencyCode = get(billingContext, ['integration', 'currencyCode'], 'RUB')
+    const currencyCode = get(billingContext, ['integration', 'currencyCode'], defaultCurrencyCode)
     const reportPeriod = get(billingContexts.find(({ lastReport }) => !!lastReport), ['lastReport', 'period'], null)
     const contextIds = billingContexts.map(({ id }) => id)
     const hasToPayDetails = get(billingContext, ['integration', 'dataFormat', 'hasToPayDetails'], false)
