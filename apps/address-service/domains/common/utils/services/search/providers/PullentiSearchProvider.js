@@ -9,7 +9,7 @@ const { VALID_DADATA_BUILDING_TYPES } = require('@address-service/domains/common
 const { PULLENTI_PROVIDER } = require('@address-service/domains/common/constants/providers')
 
 const { AbstractSearchProvider } = require('./AbstractSearchProvider')
-const { resolveArea } = require('./utils/pullenti/areaResolver')
+const { resolveCityDistrict } = require('./utils/pullenti/cityDistrictResolver')
 const { resolveCity } = require('./utils/pullenti/cityResolver')
 const { resolveFlat } = require('./utils/pullenti/flatResolver')
 const { extractLastFiasId, extractLastGarParam } = require('./utils/pullenti/helpers')
@@ -125,13 +125,13 @@ class PullentiSearchProvider extends AbstractSearchProvider {
         } = resolveCity(cityLevel || regionCityLevel || {})
 
         const {
-            area = null,
-            area_type = null,
-            area_type_full = null,
-            area_with_type = null,
-            area_fias_id = null,
-            area_kladr_id = null,
-        } = resolveArea(districtLevel)
+            city_district_fias_id = null,
+            city_district_kladr_id = null,
+            city_district_with_type = null,
+            city_district_type = null,
+            city_district_type_full = null,
+            city_district = null,
+        } = resolveCityDistrict(districtLevel)
 
         const {
             settlement = null,
@@ -203,12 +203,12 @@ class PullentiSearchProvider extends AbstractSearchProvider {
                 region_type,
                 region_type_full,
                 region,
-                area_fias_id,
-                area_kladr_id,
-                area_with_type,
-                area_type,
-                area_type_full,
-                area,
+                area_fias_id: null,
+                area_kladr_id: null,
+                area_with_type: null,
+                area_type: null,
+                area_type_full: null,
+                area: null,
                 city_fias_id,
                 city_kladr_id,
                 city_with_type,
@@ -216,12 +216,12 @@ class PullentiSearchProvider extends AbstractSearchProvider {
                 city_type_full,
                 city,
                 city_area: null,
-                city_district_fias_id: null,
-                city_district_kladr_id: null,
-                city_district_with_type: null,
-                city_district_type: null,
-                city_district_type_full: null,
-                city_district: null,
+                city_district_fias_id,
+                city_district_kladr_id,
+                city_district_with_type,
+                city_district_type,
+                city_district_type_full,
+                city_district,
                 settlement_fias_id,
                 settlement_kladr_id,
                 settlement_with_type,
