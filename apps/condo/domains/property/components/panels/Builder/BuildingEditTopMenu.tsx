@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 
 import { Car, Doors, Flat, Floor, Parking, FloorParking } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
@@ -53,65 +53,72 @@ const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ changeMode, map
         changeMode(event.key)
     }, [changeMode, mapEdit])
 
+    const items = useMemo(() => [
+        {
+            key: 'addSection',
+            label: AddSection,
+            icon: <Doors />,
+            onClick: changeMapMode,
+            'data-cy': 'property-map__edit-menu__add-section-button',
+        },
+        {
+            key: 'addSectionFloor',
+            label: AddFloor,
+            icon: <Floor />,
+            onClick: changeMapMode,
+            disabled: mapEdit.isEmptySections,
+        },
+        {
+            key: 'addUnit',
+            label: AddUnit,
+            icon: <Flat />,
+            onClick: changeMapMode,
+            disabled: mapEdit.isEmptySections,
+            'data-cy': 'property-map__edit-menu__add-unit-button',
+        },
+        {
+            key: 'addParking',
+            label: AddParkingLabel,
+            icon: <Parking />,
+            onClick: changeMapMode,
+            'data-cy': 'property-map__edit-menu__add-parking-button',
+        },
+        {
+            key: 'addParkingFloor',
+            label: AddParkingFloor,
+            icon: <FloorParking />,
+            onClick: changeMapMode,
+            disabled: mapEdit.isEmptyParking,
+        },
+        {
+            key: 'addParkingUnit',
+            label: AddParkingPlace,
+            icon: <Car />,
+            onClick: changeMapMode,
+            disabled: mapEdit.isEmptyParking,
+            'data-cy': 'property-map__edit-menu__add-parking-unit-button',
+        },
+        {
+            key: 'addParkingFacilityUnit',
+            label: AddParkingFacilityUnit,
+            icon: <Flat />,
+            onClick: changeMapMode,
+            disabled: mapEdit.isEmptyParking,
+        },
+    ], [
+        AddFloor, AddParkingFacilityUnit, AddParkingFloor, AddParkingLabel, AddParkingPlace, AddSection,
+        AddUnit, changeMapMode, mapEdit.isEmptyParking, mapEdit.isEmptySections,
+    ])
+
+    const dropdownProps = useMemo(() => ({
+        className: 'add-element-dropdown',
+        'data-cy': 'property-map__edit-menu-dropdown',
+    }), [])
+
     return (
         <Dropdown.Button
-            dropdownProps={{
-                className: 'add-element-dropdown',
-            }}
-            items={[
-                {
-                    key: 'addSection',
-                    label: AddSection,
-                    icon: <Doors />,
-                    onClick: changeMapMode,
-                    //'data-cy': 'property-map__edit-menu__add-section-button',
-                },
-                {
-                    key: 'addSectionFloor',
-                    label: AddFloor,
-                    icon: <Floor />,
-                    onClick: changeMapMode,
-                    disabled: mapEdit.isEmptySections,
-                },
-                {
-                    key: 'addUnit',
-                    label: AddUnit,
-                    icon: <Flat />,
-                    onClick: changeMapMode,
-                    disabled: mapEdit.isEmptySections,
-                    // 'data-cy': 'property-map__edit-menu__add-unit-button'
-                },
-                {
-                    key: 'addParking',
-                    label: AddParkingLabel,
-                    icon: <Parking />,
-                    onClick: changeMapMode,
-                    // 'data-cy': 'property-map__edit-menu__add-parking-button'
-                },
-                {
-                    key: 'addParkingFloor',
-                    label: AddParkingFloor,
-                    icon: <FloorParking />,
-                    onClick: changeMapMode,
-                    disabled: mapEdit.isEmptyParking,
-                },
-                {
-                    key: 'addParkingUnit',
-                    label: AddParkingPlace,
-                    icon: <Car />,
-                    onClick: changeMapMode,
-                    disabled: mapEdit.isEmptyParking,
-                    //'data-cy': 'property-map__edit-menu__add-parking-unit-button'
-                },
-                {
-                    key: 'addParkingFacilityUnit',
-                    label: AddParkingFacilityUnit,
-                    icon: <Flat />,
-                    onClick: changeMapMode,
-                    disabled: mapEdit.isEmptyParking,
-                    //'data-cy': 'property-map__edit-menu__add-parking-facility-unit-button'
-                },
-            ]}
+            dropdownProps={dropdownProps}
+            items={items}
             type='secondary'
         >
             {AddElementTitle}
