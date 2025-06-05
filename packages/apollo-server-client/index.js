@@ -91,6 +91,7 @@ class ApolloServerClient {
     endpoint
     authRequisites = {}
     logger
+    customHeaders = {}
 
     /**
      *
@@ -170,15 +171,19 @@ class ApolloServerClient {
 
     async singInByEmailAndPassword () {
         const { email, password } = this.authRequisites
-        const { data: { auth: { user, token } } } = await this.client.mutate({
-            mutation: SIGNIN_BY_EMAIL_MUTATION,
-            variables: {
-                identity: email,
-                secret: password,
-            },
-        })
-        this.userId = user.id
-        this.authToken = token
+        try {
+            const { data: { auth: { user, token } } } = await this.client.mutate({
+                mutation: SIGNIN_BY_EMAIL_MUTATION,
+                variables: {
+                    identity: email,
+                    secret: password,
+                },
+            })
+            this.userId = user.id
+            this.authToken = token
+        } catch (e) {
+            console.log('ERROR SIGNING IN: ', e)
+        }
     }
 
     async singInByPhoneAndPassword () {
@@ -193,7 +198,11 @@ class ApolloServerClient {
 
     async executeAuthorizedQuery (queryArgs, opts = { batchClient: false }) {
         if (!this.authToken) {
-            await this.signIn()
+            try {
+                await this.signIn()
+            } catch (e) {
+                console.log('executeAuthorizedQuery >> sign in ERROR: ', e)
+            }
         }
 
         const client = opts.batchClient ? this.batchClient : this.client
