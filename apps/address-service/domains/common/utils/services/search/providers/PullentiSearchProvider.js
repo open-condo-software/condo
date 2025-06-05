@@ -12,6 +12,7 @@ const { AbstractSearchProvider } = require('./AbstractSearchProvider')
 const { resolveArea } = require('./utils/pullenti/areaResolver')
 const { resolveCity } = require('./utils/pullenti/cityResolver')
 const { resolveFlat } = require('./utils/pullenti/flatResolver')
+const { extractLastFiasId, extractLastGarParam } = require('./utils/pullenti/helpers')
 const { resolveHouse } = require('./utils/pullenti/houseResolver')
 const { resolveRegion } = require('./utils/pullenti/regionResolver')
 const { resolveSettlement } = require('./utils/pullenti/settlementResolver')
@@ -179,7 +180,14 @@ class PullentiSearchProvider extends AbstractSearchProvider {
             flat_cadnum = null,
         } = resolveFlat(apartmentLevel)
 
-        return {
+        const fias_id = extractLastFiasId(jsonObj?.textaddr?.textobj || [])
+        const kladr_id = extractLastGarParam(jsonObj?.textaddr?.textobj || [], 'kladrcode')
+        const okato = extractLastGarParam(jsonObj?.textaddr?.textobj || [], 'okato')
+        const oktmo = extractLastGarParam(jsonObj?.textaddr?.textobj || [], 'oktmo')
+        const gpspoint = extractLastGarParam(jsonObj?.textaddr?.textobj || [], 'gpspoint')
+        const [geo_lat, geo_lon] = gpspoint ? gpspoint.split(' ') : [null, null]
+
+        return [{
             value: get(jsonObj, ['textaddr', 'text']),
             unrestricted_value: [postal_code, get(buildingLevel, ['gar', 'path'])].filter(Boolean).join(' '),
             rawValue: get(jsonObj, ['textaddr', 'text']),
@@ -251,20 +259,20 @@ class PullentiSearchProvider extends AbstractSearchProvider {
                 square_meter_price: null,
                 flat_price: null,
                 postal_box: null,
-                fias_id: null, // TODO detect from gar.guid of the last textobj in the array
+                fias_id,
                 fias_code: null,
-                fias_level: null, // TODO detect from gar.level
+                fias_level: null,
                 fias_actuality_state: null,
-                kladr_id: null, // TODO get from last item of textobj (house level)
+                kladr_id,
                 geoname_id: null,
                 capital_marker: null,
-                okato: null, // TODO get from last item contains gar.param.okato
-                oktmo: null, // TODO get from last item contains gar.param.okato
+                okato,
+                oktmo,
                 tax_office: null,
                 tax_office_legal: null,
                 timezone: null,
-                geo_lat: null, // TODO get from last item contains gar.param.gpspoint
-                geo_lon: null, // TODO get from last item contains gar.param.gpspoint
+                geo_lat,
+                geo_lon,
                 beltway_hit: null,
                 beltway_distance: null,
                 metro: null,
@@ -275,14 +283,14 @@ class PullentiSearchProvider extends AbstractSearchProvider {
                 history_values: null,
                 unparsed_parts: null,
                 source: null,
-                qc: get(jsonObj, ['textaddr', 'coef']),
+                qc: get(jsonObj, ['textaddr', 'coef'], null),
             },
             provider: {
                 name: PULLENTI_PROVIDER,
                 rawData: xmlString,
             },
             type: VALID_DADATA_BUILDING_TYPES.includes(house_type_full) ? BUILDING_ADDRESS_TYPE : null,
-        }
+        }]
     }
 }
 

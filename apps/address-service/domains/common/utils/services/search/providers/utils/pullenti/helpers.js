@@ -41,6 +41,59 @@ function getGarLevel (levelGar, level = null) {
 }
 
 /**
+ * Extracts the last FIAS ID from the textobj array
+ * @param {Object[]} textobj Array of textobj objects
+ * @returns {string|null} The last FIAS ID or null if not found
+ * 
+ * @example
+ * // Example usage:
+ * const textobj = [
+ *   { gar: { guid: '123' } },
+ *   { gar: { guid: '456' } },
+ *   { gar: { guid: '789' } }
+ * ]
+ * const lastFiasId = extractLastFiasIs(textobj)
+ * console.log(lastFiasId) // Output: '789'
+ */
+function extractLastFiasId (textobj = []) {
+    let fiasId = null
+
+    for (const level of textobj) {
+        if (level.gar && level.gar.guid) {
+            fiasId = level.gar.guid || fiasId
+        }
+    }
+
+    return fiasId
+}
+
+/**
+ * Extracts the last parameter value from the textobj array
+ * @param {Object[]} textobj Array of textobj objects
+ * @param {string} paramName Name of the parameter to extract (kladrcode, okato, oktmo, etc.)
+ * @return {string|null} The last parameter value or null if not found
+ * @example
+ * // Example usage:
+ * const textobj = [
+ *   { gar: { param: [{ '@_name': 'kladrcode', '#text': '1234567890' }] } },
+ *   { gar: { param: [{ '@_name': 'kladrcode', '#text': '0987654321' }] } }
+ * ]
+ * const lastKladrId = extractLastParam(textobj, 'kladrcode')
+ * console.log(lastKladrId) // Output: '0987654321'
+ */
+function extractLastGarParam (textobj = [], paramName) {
+    let value = null
+
+    for (const level of textobj) {
+        if (level.gar) {
+            value = getGarParam(level.gar, paramName) || value
+        }
+    }
+
+    return value
+}
+
+/**
  * Extracts a parameter value by name from a GAR object's param array
  * @param {Object} gar - GAR object containing param array
  * @param {string} paramName - Name of the parameter to extract
@@ -54,4 +107,4 @@ function getGarParam (gar, paramName) {
     }
 }
 
-module.exports = { joinNameAndType, selfOrFirst, getGarLevel, getGarParam }
+module.exports = { joinNameAndType, selfOrFirst, getGarLevel, getGarParam, extractLastFiasId, extractLastGarParam }
