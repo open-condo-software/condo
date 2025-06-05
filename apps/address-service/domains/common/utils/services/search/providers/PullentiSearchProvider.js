@@ -68,11 +68,17 @@ class PullentiSearchProvider extends AbstractSearchProvider {
     }
 
     getLevel (item, levelName) {
+        if (!item || !item.textaddr || !Array.isArray(item.textaddr.textobj)) {
+            return null
+        }
+
         for (const level of item.textaddr.textobj) {
-            if (level.level === levelName) {
+            if (level && level.level === levelName) {
                 return level
             }
         }
+        
+        return null
     }
 
     /**
