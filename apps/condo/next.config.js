@@ -74,6 +74,7 @@ const residentAppInfo = conf['RESIDENT_APP_INFO'] ? JSON.parse(conf['RESIDENT_AP
 const defaultCurrencyCode = conf['DEFAULT_CURRENCY_CODE'] || 'RUB'
 const aiEnabled = conf['AI_ENABLED']
 const contactPageResidentAnalytics = JSON.parse(conf['CONTACT_PAGE_RESIDENT_ANALYTICS'] || '{}')
+const displayTicketInfoOnShare = conf['SHOW_TICKET_INFO_ON_SHARE'] === 'true'
 
 let nextConfig = withTM(withLess(withCSS({
     skipTrailingSlashRedirect: true,
@@ -127,6 +128,7 @@ let nextConfig = withTM(withLess(withCSS({
         defaultCurrencyCode,
         aiEnabled,
         contactPageResidentAnalytics,
+        displayTicketInfoOnShare,
     },
     serverRuntimeConfig: {
         proxyName,
