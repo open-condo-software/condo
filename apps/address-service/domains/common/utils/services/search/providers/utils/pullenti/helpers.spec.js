@@ -57,6 +57,11 @@ describe('helpers', () => {
             const singleGar = { level: 1, value: 'single' }
             expect(getGarLevel(singleGar, 2)).toEqual(singleGar)
         })
+
+        it('should handle null/undefined levelGar input', () => {
+            expect(getGarLevel(null)).toBeNull()
+            expect(getGarLevel(undefined)).toBeUndefined()
+        })
     })
 
     describe('getGarParam', () => {
@@ -91,6 +96,10 @@ describe('helpers', () => {
             expect(extractLastFiasId([])).toBeNull()
         })
 
+        it('should return null for undefined input', () => {
+            expect(extractLastFiasId()).toBeNull()
+        })
+
         it('should return null when no gar guids present', () => {
             const textobj = [
                 { someField: 'value' },
@@ -117,6 +126,16 @@ describe('helpers', () => {
                 { gar: { someField: 'value' } },
             ]
             expect(extractLastFiasId(textobj)).toBe('456')
+        })
+
+        it('should keep previous value if current guid is empty', () => {
+            const textobj = [
+                { gar: { guid: '123' } },
+                { gar: { guid: '' } },
+                { gar: { guid: null } },
+                { gar: { guid: undefined } },
+            ]
+            expect(extractLastFiasId(textobj)).toBe('123')
         })
     })
 
