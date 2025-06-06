@@ -27,6 +27,7 @@ const { getKVClient, checkMinimalKVDataVersion } = require('@open-condo/keystone
 const { getKeystonePinoOptions, GraphQLLoggerPlugin, getLogger } = require('@open-condo/keystone/logging')
 const { expressErrorHandler } = require('@open-condo/keystone/logging/expressErrorHandler')
 const metrics = require('@open-condo/keystone/metrics')
+const { WhoAmIMiddleware } = require('@open-condo/keystone/middlewares')
 const { composeNonResolveInputHook, composeResolveInputHook } = require('@open-condo/keystone/plugins/utils')
 const { schemaDocPreprocessor, adminDocPreprocessor, escapeSearchPreprocessor, customAccessPostProcessor } = require('@open-condo/keystone/preprocessors')
 const { RuntimeStatsMiddleware } = require('@open-condo/keystone/runtimeStats')
@@ -227,6 +228,7 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
             new DataVersionChecker(),
             new IpBlackListMiddleware(),
             new KeystoneTracingApp(),
+            new WhoAmIMiddleware(),
             ...((apps) ? apps() : []),
             ...(IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND ? [
                 new GraphiqlApp({
