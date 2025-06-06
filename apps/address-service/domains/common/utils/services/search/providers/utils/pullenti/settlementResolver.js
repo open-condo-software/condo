@@ -10,7 +10,7 @@ function resolveSettlement (localityLevel) {
 
     let isNameFirst = false
 
-    switch (gar.area?.type) {
+    switch (gar?.area?.type) {
         case 'село':
             settlement_type = 'с'
             settlement_type_full = 'село'
@@ -30,7 +30,7 @@ function resolveSettlement (localityLevel) {
         settlement_type,
         settlement_type_full,
         settlement_with_type: joinNameAndType(settlement, settlement_type_full, isNameFirst),
-        settlement_fias_id: gar.guid || null,
+        settlement_fias_id: gar?.guid || null,
         settlement_kladr_id: getGarParam(gar, 'kladrcode') || null,
     }
 }
