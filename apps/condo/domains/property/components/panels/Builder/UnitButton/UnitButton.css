@@ -85,11 +85,6 @@
 
 .map-unit-button.map-apartment-unit-button,
 .map-unit-button.map-apartment-unit-button:hover {
-  background-color: var(--condo-global-color-white);
-}
-
-.map-unit-button.map-apartment-unit-button,
-.map-unit-button.map-apartment-unit-button:hover {
   background-color: #cbe2f6;
 }
 

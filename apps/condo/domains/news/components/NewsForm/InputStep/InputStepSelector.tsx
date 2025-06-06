@@ -195,7 +195,7 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
                 setScope(prev=>({ ...prev, selectedSectionKeys: [] }))
             } else {
                 const sectionKeys = sections.map(section =>
-                    `${section['data-sectionType']}-${section['data-sectionName']}` || section
+                    `${section['data-sectionType']}-${section['data-sectionName']}`
                 )
                 setScope(prev=>({ ...prev, selectedSectionKeys: sectionKeys }))
             }

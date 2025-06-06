@@ -363,6 +363,8 @@ class MapView extends Map {
         } else if (this.viewMode === MapViewMode.parking) {
             return BuildingUnitSubType.Parking
         }
+
+        return BuildingUnitSubType.Flat
     }
 
     get availableUnitTypes (): BuildingUnitSubType[] {
@@ -371,6 +373,8 @@ class MapView extends Map {
         } else if (this.viewMode === MapViewMode.parking) {
             return PARKING_UNIT_TYPES as BuildingUnitSubType[]
         }
+
+        return SECTION_UNIT_TYPES as BuildingUnitSubType[]
     }
 
     get lastSectionIndex (): number {

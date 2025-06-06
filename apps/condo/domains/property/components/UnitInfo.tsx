@@ -162,7 +162,7 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
         if (setSelectedSectionType) setSelectedSectionType(sectionType)
         return form.setFieldsValue({
             sectionName: unitFromSections.sectionName,
-            sectionType: SECTION_SECTION_TYPE,
+            sectionType,
             floorName: unitFromSections.floorName,
             unitType,
             unitName,
