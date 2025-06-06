@@ -1407,8 +1407,6 @@ __metadata:
     ajv: 8.11.0
     antd: ^4.24.12
     antd-dayjs-webpack-plugin: ^1.0.6
-    apollo-boost: ^0.4.9
-    apollo-link-error: ^1.1.13
     axios: ^0.26.0
     big.js: ^6.1.1
     body-parser: ^1.19.1
