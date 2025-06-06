@@ -1,10 +1,10 @@
 import { MeterUnitTypeType } from '@app/condo/schema'
-import { Col, Row } from 'antd'
+import { Col, FormInstance, Row } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
 import get from 'lodash/get'
 import omit from 'lodash/omit'
 import { useRouter } from 'next/router'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useRef, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button } from '@open-condo/ui'
@@ -18,6 +18,7 @@ import {
     EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION,
 } from '@condo/domains/meter/constants/errors'
 import { PropertyMeter, Meter, MeterPageTypes, METER_TAB_TYPES } from '@condo/domains/meter/utils/clientSchema'
+import { handleUnitFieldsChange } from '@condo/domains/meter/utils/helpers'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
 
@@ -64,7 +65,7 @@ export const CreateMeterForm = (props: CreateMeterProps): JSX.Element => {
         property: { connect: { id: selectedPropertyId } },
         unitName: isPropertyMeter ? undefined : selectedUnitName,
         unitType: isPropertyMeter ? undefined : selectedUnitType,
-    }), [isPropertyMeter, selectedPropertyId, selectedUnitName])
+    }), [isPropertyMeter, selectedPropertyId, selectedUnitName, selectedUnitType])
 
     
     const handleCreateMeter = useCallback(values => {
@@ -99,11 +100,12 @@ export const CreateMeterForm = (props: CreateMeterProps): JSX.Element => {
         setSelectedPropertyId(null)
     }, [])
 
-    const [propertyUnitInitialValues, setPropertyUnitInitialValues] = useState(()=> !propertyIdFromQuery ? ({}) : ({
+    const propertyUnitInitialValues = useMemo(()=> !propertyIdFromQuery ? ({}) : ({
         propertyId: propertyIdFromQuery as string,
         unitName: unitNameFromQuery as string,
         unitType: unitTypeFromQuery as string,
-    }))
+    }), [propertyIdFromQuery, unitNameFromQuery, unitTypeFromQuery])
+    const formRef = useRef<FormInstance | null>(null)
 
     return (
         <PageWrapper style={WRAPPER_STYLE}>
@@ -115,51 +117,54 @@ export const CreateMeterForm = (props: CreateMeterProps): JSX.Element => {
                     disabled: disabledFields,
                 }}
                 ErrorToFormFieldMsgMapping={ErrorToFormFieldMsgMapping}
+                onValuesChange={handleUnitFieldsChange(formRef)}
             >
                 {
-                    ({ form, handleSave }) => (
-                        <Row gutter={FORM_GUTTER}>
-                            <Col span={24}>
-                                <AddressAndUnitInfo 
-                                    form={form}
-                                    getHandleSelectPropertyAddress={getHandleSelectPropertyAddress}
-                                    handleDeselectPropertyAddress={handleDeselectPropertyAddress}
-                                    isMatchSelectedProperty
-                                    meterType={meterType}
-                                    organizationId={organizationId}
-                                    selectedPropertyId={selectedPropertyId}
-                                    property={property}
-                                    propertyLoading={propertyLoading}
-                                    setSelectedUnitName={setSelectedUnitName}
-                                    setSelectedUnitType={setSelectedUnitType}
-                                    initialValues={propertyUnitInitialValues}
-                                />
-                            </Col>
+                    ({ form, handleSave }) => {
+                        formRef.current = form
+                        return (
                             <Row gutter={FORM_GUTTER}>
                                 <Col span={24}>
-                                    <BaseMetersFormFields
+                                    <AddressAndUnitInfo
                                         form={form}
-                                        propertyId={selectedPropertyId}
-                                        addressKey={get(property, 'addressKey')}
-                                        handleSubmit={handleSave}
-                                        organizationId={organizationId}
+                                        getHandleSelectPropertyAddress={getHandleSelectPropertyAddress}
+                                        handleDeselectPropertyAddress={handleDeselectPropertyAddress}
+                                        isMatchSelectedProperty
                                         meterType={meterType}
-                                        disabledFields={disabledFields}
-                                        initialValues={{ unitName: selectedUnitName }}
+                                        organizationId={organizationId}
+                                        selectedPropertyId={selectedPropertyId}
+                                        property={property}
+                                        propertyLoading={propertyLoading}
+                                        setSelectedUnitName={setSelectedUnitName}
+                                        setSelectedUnitType={setSelectedUnitType}
+                                        initialValues={propertyUnitInitialValues}
                                     />
                                 </Col>
-                                <Col span={24}>
-                                    <ActionBar
-                                        actions={[  
-                                            <Button key='submit' type='primary' onClick={handleSave} >
-                                                {isPropertyMeter ? AddPropertyMeterMessageButton : AddMeterMessageButton}
-                                            </Button>,
-                                        ]}>
-                                    </ActionBar>
-                                </Col>
+                                <Row gutter={FORM_GUTTER}>
+                                    <Col span={24}>
+                                        <BaseMetersFormFields
+                                            form={form}
+                                            propertyId={selectedPropertyId}
+                                            addressKey={get(property, 'addressKey')}
+                                            organizationId={organizationId}
+                                            meterType={meterType}
+                                            disabledFields={disabledFields}
+                                            initialValues={{ unitName: selectedUnitName, unitType: selectedUnitType }}
+                                        />
+                                    </Col>
+                                    <Col span={24}>
+                                        <ActionBar
+                                            actions={[
+                                                <Button key='submit' type='primary' onClick={handleSave} >
+                                                    {isPropertyMeter ? AddPropertyMeterMessageButton : AddMeterMessageButton}
+                                                </Button>,
+                                            ]}>
+                                        </ActionBar>
+                                    </Col>
+                                </Row>
                             </Row>
-                        </Row>
-                    )
+                        )
+                    }
                 }
             </FormWithAction>
         </PageWrapper>

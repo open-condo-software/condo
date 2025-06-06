@@ -1,3 +1,4 @@
+import { MeterUnitTypeType } from '@app/condo/schema'
 import { Dayjs } from 'dayjs'
 import isEmpty from 'lodash/isEmpty'
 import { Rule } from 'rc-field-form/lib/interface'
@@ -8,7 +9,7 @@ import { useIntl } from '@open-condo/next/intl'
 
 import { Meter, MeterResourceOwner, PropertyMeter } from '@condo/domains/meter/utils/clientSchema'
 
-export const useMeterValidations = (isPropertyMeter: boolean, installationDate: Dayjs, verificationDate: Dayjs, propertyId: string, unitName: string, organizationId: string, initialNumber: string | null, addressKey: string ) => {
+export const useMeterValidations = (isPropertyMeter: boolean, installationDate: Dayjs, verificationDate: Dayjs, propertyId: string, unitName: string | null, organizationId: string, initialNumber: string | null, addressKey: string, unitType: MeterUnitTypeType | null) => {
     const intl = useIntl()
     const MeterWithSameNumberIsExistMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterWithSameNumberIsExist' })
     const MeterWithSameAccountNumberIsExistMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterWithSameAccountNumberIsExist' })
@@ -87,6 +88,7 @@ export const useMeterValidations = (isPropertyMeter: boolean, installationDate: 
                     deletedAt: null,
                     OR: [
                         { unitName_not: unitName },
+                        { unitType_not: unitType },
                         { property: { id_not: propertyId } },
                     ],
                 },
@@ -97,7 +99,7 @@ export const useMeterValidations = (isPropertyMeter: boolean, installationDate: 
 
             return Promise.resolve()
         },
-    }), [MeterWithSameAccountNumberIsExistMessage, organizationId, propertyId, refetch, unitName])
+    }), [MeterWithSameAccountNumberIsExistMessage, organizationId, propertyId, refetch, unitName, unitType])
 
     const meterResourceOwnerValidation: Rule = useMemo(() => ({
         validator: async (_, value) => {

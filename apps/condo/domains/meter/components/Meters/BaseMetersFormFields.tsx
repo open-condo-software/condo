@@ -1,3 +1,4 @@
+import { MeterUnitTypeType } from '@app/condo/schema'
 import { Col, FormInstance, Row } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
 import dayjs, { Dayjs } from 'dayjs'
@@ -26,6 +27,7 @@ import type { MeterResource } from '@app/condo/schema'
 type InitialMeterFormValuesType = {
     propertyId?: string
     unitName?: string
+    unitType?: MeterUnitTypeType
     accountNumber?: string
     number?: string
     resource?: MeterResource
@@ -40,7 +42,6 @@ type InitialMeterFormValuesType = {
 }
 
 type BaseMetersFormFieldsProps = {
-    handleSubmit: (values: unknown) => void
     form: FormInstance
     organizationId: string
     meterType: MeterPageTypes
@@ -116,8 +117,8 @@ export const BaseMetersFormFields: React.FC<BaseMetersFormFieldsProps> = ({
     const [verificationDate, setVerificationDate] = useState<Dayjs>(initialVerificationDate)
 
     const initialMeterNumber = get(initialValues, ['number'], null)
-    const initialAccountNumber = get(initialValues, ['accountNumber'], null)
-    const initialUnitName = get(initialValues, ['unitName'], null)
+    const unitName = form.getFieldValue('unitName') || null
+    const unitType = form.getFieldValue('unitType') || null
 
     const { requiredValidator, trimValidator, maxLengthValidator } = useValidations()
     const {
@@ -126,17 +127,17 @@ export const BaseMetersFormFields: React.FC<BaseMetersFormFieldsProps> = ({
         earlierThanFirstVerificationDateValidator,
         meterWithSameAccountNumberInOtherUnitValidation,
         meterResourceOwnerValidation,
-    } = useMeterValidations(isPropertyMeter, installationDate, verificationDate, propertyId, initialUnitName, organizationId, initialMeterNumber, addressKey)
+    } = useMeterValidations(isPropertyMeter, installationDate, verificationDate, propertyId, unitName, organizationId, initialMeterNumber, addressKey, unitType)
 
     const meterNumberValidations = useMemo(() => [
         requiredValidator,
         trimValidator,
         meterWithSameNumberValidator,
         maxLengthValidator(150),
-    ], [requiredValidator, trimValidator, meterWithSameNumberValidator])
+    ], [requiredValidator, trimValidator, meterWithSameNumberValidator, maxLengthValidator])
 
     const validations = useMemo(() => ({
-        accountNumber: isPropertyMeter ? undefined : [requiredValidator, trimValidator, !initialAccountNumber && meterWithSameAccountNumberInOtherUnitValidation, maxLengthValidator(150)],
+        accountNumber: isPropertyMeter ? undefined : [requiredValidator, trimValidator, meterWithSameAccountNumberInOtherUnitValidation, maxLengthValidator(150)],
         number: meterNumberValidations,
         resource: [requiredValidator, meterResourceOwnerValidation],
         numberOfTariffs: [requiredValidator],
@@ -146,7 +147,7 @@ export const BaseMetersFormFields: React.FC<BaseMetersFormFieldsProps> = ({
         controlReadingsDate: [earlierThanInstallationValidator],
         placeValidator: [maxLengthValidator(150)],
     }),
-    [isPropertyMeter, requiredValidator, trimValidator, initialAccountNumber, meterWithSameAccountNumberInOtherUnitValidation, meterNumberValidations, meterResourceOwnerValidation, earlierThanInstallationValidator, earlierThanFirstVerificationDateValidator, maxLengthValidator])
+    [isPropertyMeter, requiredValidator, trimValidator, meterWithSameAccountNumberInOtherUnitValidation, maxLengthValidator, meterNumberValidations, meterResourceOwnerValidation, earlierThanInstallationValidator, earlierThanFirstVerificationDateValidator])
 
     const initialResourceValue = get(initialValues, ['resource', 'id'])
     const handleInstallationDateChange = useCallback(value => setInstallationDate(value), [])
