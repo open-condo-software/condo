@@ -17,7 +17,6 @@ const {
     ApolloQueryBlockingPlugin,
     ApolloRequestLimitingPlugin,
 } = require('@open-condo/keystone/apolloServerPlugins')
-const { ApolloSentryPlugin } = require('@open-condo/keystone/apolloServerPlugins')
 const { ExtendedPasswordAuthStrategy } = require('@open-condo/keystone/authStrategy/passwordAuth')
 const { parseCorsSettings } = require('@open-condo/keystone/cors.utils')
 const { _internalGetExecutionContextAsyncLocalStorage } = require('@open-condo/keystone/executionContext')
@@ -44,7 +43,6 @@ const { GraphiqlApp } = require('../../graphiql')
 const IS_BUILD_PHASE = conf.PHASE === 'build'
 const IS_WORKER_PROCESS = conf.PHASE === 'worker'
 const IS_BUILD = conf['DATABASE_URL'] === 'undefined'
-const IS_SENTRY_ENABLED = JSON.parse(get(conf, 'SENTRY_CONFIG', '{}'))['server'] !== undefined
 const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development'
 const IS_KEEP_ALIVE_ON_ERROR = get(conf, 'KEEP_ALIVE_ON_ERROR', false) === 'true'
 // NOTE: should be disabled in production: https://www.apollographql.com/docs/apollo-server/testing/graphql-playground/
@@ -120,10 +118,6 @@ function _getApolloServerPlugins (keystone) {
 
     // NOTE: Must be after all req.context filling plugins
     apolloServerPlugins.push(new GraphQLLoggerPlugin())
-
-    if (IS_SENTRY_ENABLED) {
-        apolloServerPlugins.unshift(new ApolloSentryPlugin())
-    }
 
     return apolloServerPlugins
 }

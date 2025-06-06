@@ -1,5 +1,4 @@
 // @ts-check
-const { withSentryConfig } = require('@sentry/nextjs')
 const withCSS = require('@zeit/next-css')
 const withLess = require('@zeit/next-less')
 const AntdDayjsWebpackPlugin = require('antd-dayjs-webpack-plugin')
@@ -52,7 +51,6 @@ const newsItemsSendingDelay = Number(conf['NEWS_ITEMS_SENDING_DELAY_SEC']) || 15
 const audioConfig = JSON.parse(conf['AUDIO_CONFIG'] || '{}')
 const checkTLSClientCertConfig = JSON.parse(conf['CHECK_TLS_CLIENT_CERT_CONFIG'] || '{}')
 const condoRBDomain = conf['RB_DOMAIN']
-const sentryConfig = conf['SENTRY_CONFIG'] ? JSON.parse(conf['SENTRY_CONFIG']) : {}
 const apolloBatchingEnabled = conf['APOLLO_BATCHING_ENABLED'] === 'true'
 const tourVideoUrl = JSON.parse(conf['TOUR_VIDEO_URL'] || '{}')
 const residentAppLandingUrl = JSON.parse(conf['RESIDENT_APP_LANDING_URL'] || '{}')
@@ -107,7 +105,6 @@ let nextConfig = withTM(withLess(withCSS({
         audioConfig,
         checkTLSClientCertConfig,
         condoRBDomain,
-        sentryConfig,
         apolloBatchingEnabled,
         tourVideoUrl,
         residentAppLandingUrl,
@@ -162,25 +159,5 @@ let nextConfig = withTM(withLess(withCSS({
     },
 
 })))
-
-if (sentryConfig['client']) {
-    nextConfig = withSentryConfig(
-        nextConfig,
-        {
-            dryRun: true,
-            silent: true,
-            org: sentryConfig['client']['organization'],
-            project: sentryConfig['client']['project'],
-            validate: true,
-            widenClientFileUpload: true,
-            transpileClientSDK: false,
-            hideSourceMaps: true,
-            disableLogger: true,
-            automaticVercelMonitors: false,
-            autoInstrumentServerFunctions: false,
-            autoInstrumentMiddleware: false,
-        },
-    )
-}
 
 module.exports = nextConfig

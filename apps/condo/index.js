@@ -1,5 +1,4 @@
 const { NextApp } = require('@keystonejs/app-next')
-const Sentry = require('@sentry/node')
 const dayjs = require('dayjs')
 const duration = require('dayjs/plugin/duration')
 const isBetween = require('dayjs/plugin/isBetween')
@@ -35,7 +34,6 @@ dayjs.extend(timezone)
 dayjs.extend(isBetween)
 
 const IS_BUILD_PHASE = conf.PHASE === 'build'
-const SENTRY_CONFIG = conf.SENTRY_CONFIG ? JSON.parse(conf.SENTRY_CONFIG) : {}
 
 // TODO(zuch): DOMA-2990: add FILE_FIELD_ADAPTER to env during build phase
 if (IS_BUILD_PHASE) {
@@ -83,19 +81,6 @@ const tasks = () => [
     require('@condo/domains/analytics/tasks'),
     require('@condo/domains/ai/tasks'),
 ]
-
-if (!IS_BUILD_PHASE && SENTRY_CONFIG['server']) {
-    Sentry.init({
-        dsn: SENTRY_CONFIG['server']['dsn'],
-        debug: false,
-        tracesSampleRate: SENTRY_CONFIG['server']['sampleRate'],
-        sampleRate: SENTRY_CONFIG['server']['sampleRate'],
-        environment: SENTRY_CONFIG['server']['environment'],
-        organization: SENTRY_CONFIG['server']['organization'],
-        project: SENTRY_CONFIG['server']['project'],
-        release: `${SENTRY_CONFIG['server']['environment']}-${getCurrentVersion()}`,
-    })
-}
 
 const checks = [
     getRedisHealthCheck(),
@@ -145,7 +130,6 @@ const extendExpressApp = (app) => {
     app.get('/.well-known/change-password', function (req, res) {
         res.redirect('/auth/forgot')
     })
-    app.use(Sentry.Handlers.errorHandler())
 }
 
 const authStrategyOpts = {
