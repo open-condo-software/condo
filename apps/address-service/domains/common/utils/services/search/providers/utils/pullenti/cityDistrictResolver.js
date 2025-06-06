@@ -17,7 +17,7 @@ function resolveCityDistrict (districtLevel) {
     }
 
     return {
-        city_district_fias_id: gar.guid || null,
+        city_district_fias_id: gar?.guid || null,
         city_district_kladr_id: getGarParam(gar, 'kladrcode') || null,
         city_district_with_type: joinNameAndType(city_district, city_district_type_full, isNameFirst),
         city_district_type,
