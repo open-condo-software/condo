@@ -155,7 +155,7 @@ const getRateLimitHealthCheck = ({
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${client.authToken}`,
                 }
-                await client.signIn()
+
                 const response = await fetch(endpoint, {
                     method: 'POST',
                     headers,
