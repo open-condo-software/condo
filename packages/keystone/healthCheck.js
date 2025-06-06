@@ -86,9 +86,13 @@ const tls = require('tls')
 
 const dayjs = require('dayjs')
 const express = require('express')
+const get = require('lodash/get')
 const LRUCache = require('lru-cache')
 
+const { ApolloServerClient } = require('@open-condo/apollo-server-client')
+const { ERROR_TYPE: RATE_LIMIT_EXCEEDED } = require('@open-condo/keystone/apolloServerPlugins/rateLimiting/constants')
 const { getDatabaseAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
+const { fetch } = require('@open-condo/keystone/fetch')
 
 const { getKVClient } = require('./kv')
 
@@ -110,6 +114,72 @@ const BAD_REQUEST = 400
 const HEALTHCHECK_OK = 200
 const HEALTHCHECK_ERROR = 500
 const HEALTHCHECK_WARNING = 417
+
+/**
+ * Creates a health check function that verifies the remaining GraphQL rate limit complexity.
+ * @param {Object} options - Configuration options.
+ * @param {string} options.endpoint - GraphQL endpoint to be queried.
+ * @param {Object} options.authRequisites - Credentials or data used for authorization.
+ * @param {number} [options.threshold=1000] - Complexity threshold below which WARN is returned.
+ */
+const getRateLimitHealthCheck = ({
+    endpoint,
+    authRequisites,
+    threshold = 1000,
+}) => {
+    if (!endpoint) throw new Error('GraphQL endpoint must be provided')
+    if (!authRequisites) throw new Error('Authentication requisites must be provided')
+
+    let client
+
+    return {
+        name: 'rate_limit',
+
+        prepare: async () => {
+            client = new ApolloServerClient(endpoint, authRequisites, {
+                clientName: 'healthcheck-client',
+            })
+        },
+
+        run: async () => {
+            try {
+                if (!client.authToken) {
+                    try {
+                        await client.signIn()
+                    } catch (authError) {
+                        return PASS
+                    }
+                }
+
+                const headers = {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${client.authToken}`,
+                }
+
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify({ query: '{ __typename }' }),
+                })
+
+                const remaining = Number(response.headers.get('x-rate-limit-complexity-remaining'))
+
+                if (isNaN(remaining)) return PASS
+                if (remaining < threshold) return WARN
+
+                return PASS
+            } catch (error) {
+                const gqlErrors = get(error, 'networkError.result.errors', [])
+
+                const isRateLimitExceeded = gqlErrors.some(
+                    ({ extensions }) => get(extensions, 'type') === RATE_LIMIT_EXCEEDED
+                )
+
+                return isRateLimitExceeded ? FAIL : PASS
+            }
+        },
+    }
+}
 
 const getRedisHealthCheck = (clientName = 'healthcheck') => {
     return {
@@ -355,6 +425,7 @@ module.exports = {
     getPfxCertificateHealthCheck,
     getCertificateHealthCheck,
     getIntegrationHealthCheck,
+    getRateLimitHealthCheck,
     STATUS_ENUM,
     DEFAULT_HEALTHCHECK_URL,
 }
