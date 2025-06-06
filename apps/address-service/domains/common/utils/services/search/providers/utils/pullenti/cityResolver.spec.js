@@ -50,5 +50,58 @@ describe('cityResolver', () => {
                 city_kladr_id: null,
             })
         })
+
+        it('should handle missing area field', () => {
+            const cityLevel = {
+                gar: [{
+                    guid: 'test-guid',
+                }],
+            }
+
+            expect(resolveCity(cityLevel)).toEqual({
+                city: null,
+                city_type: 'г',
+                city_type_full: 'город',
+                city_with_type: '',
+                city_fias_id: 'test-guid',
+                city_kladr_id: null,
+            })
+        })
+
+        it('should handle null area name', () => {
+            const cityLevel = {
+                gar: [{
+                    guid: 'test-guid',
+                    area: {
+                        type: 'город',
+                        name: null,
+                    },
+                }],
+            }
+
+            expect(resolveCity(cityLevel)).toEqual({
+                city: null,
+                city_type: 'г',
+                city_type_full: 'город',
+                city_with_type: '',
+                city_fias_id: 'test-guid',
+                city_kladr_id: null,
+            })
+        })
+
+        it('should handle empty gar array', () => {
+            const cityLevel = {
+                gar: [],
+            }
+
+            expect(resolveCity(cityLevel)).toEqual({
+                city: null,
+                city_type: 'г',
+                city_type_full: 'город',
+                city_with_type: '',
+                city_fias_id: null,
+                city_kladr_id: null,
+            })
+        })
     })
 })

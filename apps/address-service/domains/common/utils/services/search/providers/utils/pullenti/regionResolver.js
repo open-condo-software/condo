@@ -10,7 +10,7 @@ function resolveRegion (regionLevel) {
 
     let isNameFirst = true
 
-    switch (gar.area?.type) {
+    switch (gar?.area?.type) {
         case 'край':
             region_type = 'кр'
             region_type_full = 'край'
@@ -21,7 +21,7 @@ function resolveRegion (regionLevel) {
         region_type,
         region_type_full,
         region_with_type: joinNameAndType(region, region_type, isNameFirst),
-        region_fias_id: gar.guid || null,
+        region_fias_id: gar?.guid || null,
         region_kladr_id: getGarParam(gar, 'kladrcode') || null,
     }
 }
