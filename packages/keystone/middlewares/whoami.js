@@ -10,6 +10,8 @@ class WhoAmIMiddleware {
     }
 
     async prepareMiddleware () {
+        // NOTE: Publicly available middleware
+        // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
 
         app.get(this.endpoint, function (req, res) {
