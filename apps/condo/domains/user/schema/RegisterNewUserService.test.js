@@ -24,10 +24,10 @@ const { errors } = require('./RegisterNewUserService')
 
 
 describe('RegisterNewUserService', () => {
-    test('register new user', async () => {
+    test.each(['phone', 'email'])( 'register new user by %p', async (loginType) => {
         const client = await makeClient()
         const name = faker.fake('{{name.suffix}} {{name.firstName}} {{name.lastName}}')
-        const [user] = await registerNewUser(client, { name })
+        const [user] = await registerNewUser(client, { name }, { loginType })
         expect(user.id).toMatch(/^[0-9a-zA-Z-_]+$/)
         expect(user.name).toMatch(name)
     })
@@ -194,14 +194,25 @@ describe('RegisterNewUserService', () => {
         )
     })
 
-    test('register with wrong token', async () => {
+    test('register with wrong phone token', async () => {
         const client = await makeClient()
         const confirmPhoneActionToken = faker.datatype.uuid()
 
         await expectToThrowGQLError(
-            async () => await registerNewUser(client, { confirmPhoneActionToken }),
+            async () => await registerNewUser(client, { confirmPhoneActionToken }, { loginType: 'phone' }),
             errors.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION,
             'user',
+        )
+    })
+
+    test('register with wrong email token', async () => {
+        const client = await makeClient()
+        const confirmEmailActionToken = faker.datatype.uuid()
+
+        await expectToThrowGQLError(
+            async () => await registerNewUser(client, { confirmEmailActionToken }, { loginType: 'email' }),
+            errors.UNABLE_TO_FIND_CONFIRM_EMAIL_ACTION,
+            'user'
         )
     })
 

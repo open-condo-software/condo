@@ -1,0 +1,5 @@
+mutation startConfirmEmailAction($data: StartConfirmEmailActionInput!) {
+    result: startConfirmEmailAction(data: $data) { 
+        token 
+    }
+} 

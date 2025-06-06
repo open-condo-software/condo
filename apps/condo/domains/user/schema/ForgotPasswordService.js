@@ -6,10 +6,11 @@ const { GQLCustomSchema, getByCondition } = require('@open-condo/keystone/schema
 
 const { COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
 const { STAFF } = require('@condo/domains/user/constants/common')
-const { GQL_ERRORS: USER_ERRORS, TOKEN_NOT_FOUND, USER_NOT_FOUND } = require('@condo/domains/user/constants/errors')
-const { ConfirmPhoneAction, User } = require('@condo/domains/user/utils/serverSchema')
+const { GQL_ERRORS: USER_ERRORS, TOKEN_NOT_FOUND, INVALID_CONFIRM_TYPE, USER_BY_PHONE_NOT_FOUND, USER_BY_EMAIL_NOT_FOUND } = require('@condo/domains/user/constants/errors')
+const { ConfirmPhoneAction, ConfirmEmailAction, User } = require('@condo/domains/user/utils/serverSchema')
+const { TOKEN_TYPES, detectTokenTypeSafely } = require('@condo/domains/user/utils/tokens')
 
-
+ 
 /**
  * List of possible errors, that this custom schema can throw
  * They will be rendered in documentation section in GraphiQL for this custom schema
@@ -24,21 +25,36 @@ const ERRORS = {
             'PASSWORD_IS_FREQUENTLY_USED',
             'PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS',
         ]),
+        INVALID_CONFIRM_TYPE: {
+            mutation: 'changePasswordWithToken',
+            variable: ['data', 'type'],
+            code: BAD_USER_INPUT,
+            type: INVALID_CONFIRM_TYPE,
+            message: 'Invalid confirm type',
+        },
         TOKEN_NOT_FOUND: {
             mutation: 'changePasswordWithToken',
             variable: ['data', 'token'],
             code: BAD_USER_INPUT,
             type: TOKEN_NOT_FOUND,
-            message: 'Unable to find non-expired ConfirmPhoneAction by specified token',
+            message: 'Unable to find non-expired ConfirmAction by specified token',
             messageForUser: 'api.user.changePasswordWithToken.TOKEN_NOT_FOUND',
         },
-        USER_NOT_FOUND: {
+        USER_BY_PHONE_NOT_FOUND: {
             mutation: 'changePasswordWithToken',
             variable: ['data', 'phone'],
             code: BAD_USER_INPUT,
-            type: USER_NOT_FOUND,
+            type: USER_BY_PHONE_NOT_FOUND,
             message: 'Unable to find user with specified phone',
-            messageForUser: 'api.user.changePasswordWithToken.USER_NOT_FOUND',
+            messageForUser: 'api.user.changePasswordWithToken.USER_BY_PHONE_NOT_FOUND',
+        },
+        USER_BY_EMAIL_NOT_FOUND: {
+            mutation: 'changePasswordWithToken',
+            variable: ['data', 'email'],
+            code: BAD_USER_INPUT,
+            type: USER_BY_EMAIL_NOT_FOUND,
+            message: 'Unable to find user with specified email',
+            messageForUser: 'api.user.changePasswordWithToken.USER_BY_EMAIL_NOT_FOUND',
         },
         DV_VERSION_MISMATCH: {
             ...COMMON_ERRORS.DV_VERSION_MISMATCH,
@@ -60,6 +76,11 @@ const USER_ERROR_MAPPING = {
     [ERRORS.changePasswordWithToken.PASSWORD_CONTAINS_PHONE.message]: ERRORS.changePasswordWithToken.PASSWORD_CONTAINS_PHONE,
 }
 
+const SUPPORTED_TOKENS = [
+    TOKEN_TYPES.CONFIRM_PHONE,
+    TOKEN_TYPES.CONFIRM_EMAIL,
+]
+
 const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
     types: [
         {
@@ -68,9 +89,8 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
         },
         {
             access: true,
-            type: 'type ChangePasswordWithTokenOutput { status: String!, phone: String! }',
+            type: 'type ChangePasswordWithTokenOutput { status: String!, phone: String, email: String }',
         },
-
     ],
     mutations: [
         {
@@ -96,33 +116,63 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                     throw new GQLError(ERRORS.changePasswordWithToken.INVALID_PASSWORD_LENGTH, context)
                 }
 
-                if (!token) throw new GQLError(ERRORS.changePasswordWithToken.TOKEN_NOT_FOUND, context)
+                if (!token) {
+                    throw new GQLError(ERRORS.changePasswordWithToken.TOKEN_NOT_FOUND, context)
+                }
 
-                const tokenAction = await getByCondition('ConfirmPhoneAction', {
-                    token,
-                    expiresAt_gte: new Date().toISOString(),
-                    completedAt: null,
-                    isPhoneVerified: true,
-                    deletedAt: null,
-                })
+                const { error: tokenError, tokenType } = detectTokenTypeSafely(token)
+                if (tokenError) {
+                    throw new GQLError({ ...ERRORS.INVALID_TOKEN, data: { error: tokenError } }, context)
+                }
 
-                if (!tokenAction) throw new GQLError(ERRORS.changePasswordWithToken.TOKEN_NOT_FOUND, context)
+                if (!SUPPORTED_TOKENS.includes(tokenType)) {
+                    throw new GQLError(ERRORS.UNSUPPORTED_TOKEN, context)
+                }
+
+                let tokenAction
+                if (tokenType === TOKEN_TYPES.CONFIRM_PHONE)
+                    tokenAction = await getByCondition('ConfirmPhoneAction', {
+                        token,
+                        expiresAt_gte: new Date().toISOString(),
+                        completedAt: null,
+                        isPhoneVerified: true,
+                        deletedAt: null,
+                    })
+                    
+                else if (tokenType === TOKEN_TYPES.CONFIRM_EMAIL)
+                    tokenAction = await getByCondition('ConfirmEmailAction', {
+                        token,
+                        expiresAt_gte: new Date().toISOString(),
+                        completedAt: null,
+                        isEmailVerified: true,
+                        deletedAt: null,
+                    })
+
+                if (!tokenAction) throw new GQLError(ERRORS.TOKEN_NOT_FOUND, context)
 
                 const user = await getByCondition('User', {
                     type: STAFF,
-                    phone: tokenAction.phone,
+                    ...(tokenType === TOKEN_TYPES.CONFIRM_EMAIL ?
+                        { email: tokenAction.email } :
+                        { phone: tokenAction.phone }),
                     deletedAt: null,
                 })
 
                 if (!user) {
-                    throw new GQLError(ERRORS.changePasswordWithToken.USER_NOT_FOUND, context)
+                    if (tokenType === TOKEN_TYPES.CONFIRM_PHONE)
+                        throw new GQLError(ERRORS.changePasswordWithToken.USER_BY_PHONE_NOT_FOUND, context)
+                    if (tokenType === TOKEN_TYPES.CONFIRM_EMAIL)
+                        throw new GQLError(ERRORS.changePasswordWithToken.USER_BY_EMAIL_NOT_FOUND, context)
                 }
 
                 await User.update(context, user.id, { dv: 1, sender, password }, 'id', { errorMapping: USER_ERROR_MAPPING })
 
-                await ConfirmPhoneAction.update(context, tokenAction.id, { dv: 1, sender, completedAt: new Date().toISOString() })
+                if (tokenType === TOKEN_TYPES.CONFIRM_PHONE)
+                    await ConfirmPhoneAction.update(context, tokenAction.id, { dv: 1, sender, completedAt: new Date().toISOString() })
+                if (tokenType === TOKEN_TYPES.CONFIRM_EMAIL)
+                    await ConfirmEmailAction.update(context, tokenAction.id, { dv: 1, sender, completedAt: new Date().toISOString() })
 
-                return { status: 'ok', phone: user.phone }
+                return { status: 'ok', phone: user.phone, email: user.email }
             },
         },
     ],

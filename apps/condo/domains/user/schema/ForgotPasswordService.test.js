@@ -11,11 +11,14 @@ const { MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH, RESIDENT, SERVICE } = require(
 const {
     makeLoggedInClient,
     createTestConfirmPhoneAction,
+    createTestConfirmEmailAction,
     ConfirmPhoneAction,
+    ConfirmEmailAction,
     User,
     createTestUser,
     changePasswordWithTokenByTestClient,
     authenticateUserWithPhoneAndPasswordByTestClient,
+    authenticateUserWithEmailAndPasswordByTestClient,
 } = require('@condo/domains/user/utils/testSchema')
 
 const { ERRORS } = require('./ForgotPasswordService')
@@ -46,24 +49,26 @@ describe('ForgotPasswordAction Service', () => {
                         phone: userClient.user.phone,
                     })
                     const [result] = await changePasswordWithTokenByTestClient(userClient, {
+                        type: 'phone',
                         token: confirmPhoneAction.token,
                         password: faker.internet.password(),
                     })
-                    expect(result).toEqual({ status: 'ok', phone: userClient.user.phone })
+                    expect(result).toEqual({ status: 'ok', phone: userClient.user.phone, email: userAttrs.email })
                 })
             })
 
             describe('Anonymous (anyone)', () => {
                 test('can execute', async () => {
-                    const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, {
-                        isPhoneVerified: true,
-                        phone: userAttrs.phone,
+                    const [confirmEmailAction] = await createTestConfirmEmailAction(adminClient, {
+                        isEmailVerified: true,
+                        email: userAttrs.email,
                     })
                     const [result] = await changePasswordWithTokenByTestClient(anonymousClient, {
-                        token: confirmPhoneAction.token,
+                        type: 'email',
+                        token: confirmEmailAction.token,
                         password: faker.internet.password(),
                     })
-                    expect(result).toEqual({ status: 'ok', phone: userAttrs.phone })
+                    expect(result).toEqual({ status: 'ok', email: userAttrs.email, phone: userAttrs.phone })
                 })
             })
         })
@@ -78,10 +83,11 @@ describe('ForgotPasswordAction Service', () => {
                 })
                 const newPassword = faker.internet.password()
                 const [result] = await changePasswordWithTokenByTestClient(anonymousClient, {
+                    type: 'phone',
                     token: confirmPhoneAction.token,
                     password: newPassword,
                 })
-                expect(result).toEqual({ status: 'ok', phone: userAttrs.phone })
+                expect(result).toEqual({ status: 'ok', phone: userAttrs.phone, email: userAttrs.email })
 
                 const [res] = await authenticateUserWithPhoneAndPasswordByTestClient(anonymousClient, {
                     phone: userAttrs.phone,
@@ -95,6 +101,26 @@ describe('ForgotPasswordAction Service', () => {
                 expect(service.updatedAt).toBe(service.createdAt)
             })
 
+            test('should change password only for staff user by email', async () => {
+                const [confirmEmailAction] = await createTestConfirmEmailAction(adminClient, {
+                    isEmailVerified: true,
+                    email: userAttrs.email,
+                })
+                const newPassword = faker.internet.password()
+                const [result] = await changePasswordWithTokenByTestClient(anonymousClient, {
+                    type: 'email',
+                    token: confirmEmailAction.token,
+                    password: newPassword,
+                })
+                expect(result).toEqual({ status: 'ok', email: userAttrs.email, phone: userAttrs.phone })
+
+                const [authResult] = await authenticateUserWithEmailAndPasswordByTestClient(anonymousClient, {
+                    email: userAttrs.email,
+                    password: newPassword,
+                })
+                expect(authResult.item.id).toBe(user.id)
+            })
+
             test('should throw error for resident user by phone', async () => {
                 const [residentUser, userAttrs] = await createTestUser(adminClient, { type: RESIDENT })
                 const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, {
@@ -103,10 +129,26 @@ describe('ForgotPasswordAction Service', () => {
                 })
                 await expectToThrowGQLError(async () => {
                     await changePasswordWithTokenByTestClient(anonymousClient, {
+                        type: 'phone',
                         token: confirmPhoneAction.token,
                         password: faker.internet.password(),
                     })
-                }, ERRORS.changePasswordWithToken.USER_NOT_FOUND, 'result')
+                }, ERRORS.changePasswordWithToken.USER_BY_PHONE_NOT_FOUND, 'result')
+            })
+
+            test('should throw error for resident user by email', async () => {
+                const [residentUser, residentAttrs] = await createTestUser(adminClient, { type: RESIDENT })
+                const [confirmEmailAction] = await createTestConfirmEmailAction(adminClient, {
+                    isEmailVerified: true,
+                    email: residentAttrs.email,
+                })
+                await expectToThrowGQLError(async () => {
+                    await changePasswordWithTokenByTestClient(anonymousClient, {
+                        type: 'email',
+                        token: confirmEmailAction.token,
+                        password: faker.internet.password(),
+                    })
+                }, ERRORS.changePasswordWithToken.USER_BY_EMAIL_NOT_FOUND, 'result')
             })
 
             test('should throw error for service user by phone', async () => {
@@ -117,10 +159,11 @@ describe('ForgotPasswordAction Service', () => {
                 })
                 await expectToThrowGQLError(async () => {
                     await changePasswordWithTokenByTestClient(anonymousClient, {
+                        type: 'phone',
                         token: confirmPhoneAction.token,
                         password: faker.internet.password(),
                     })
-                }, ERRORS.changePasswordWithToken.USER_NOT_FOUND, 'result')
+                }, ERRORS.changePasswordWithToken.USER_BY_PHONE_NOT_FOUND, 'result')
             })
 
             test('should throw error if user is not exist', async () => {
@@ -129,10 +172,11 @@ describe('ForgotPasswordAction Service', () => {
                 })
                 await expectToThrowGQLError(async () => {
                     await changePasswordWithTokenByTestClient(anonymousClient, {
+                        type: 'phone',
                         token: confirmPhoneAction.token,
                         password: faker.internet.password(),
                     })
-                }, ERRORS.changePasswordWithToken.USER_NOT_FOUND, 'result')
+                }, ERRORS.changePasswordWithToken.USER_BY_PHONE_NOT_FOUND, 'result')
             })
 
             test('should throw error if user is deleted', async () => {
@@ -143,10 +187,11 @@ describe('ForgotPasswordAction Service', () => {
                 })
                 await expectToThrowGQLError(async () => {
                     await changePasswordWithTokenByTestClient(anonymousClient, {
+                        type: 'phone',
                         token: confirmPhoneAction.token,
                         password: faker.internet.password(),
                     })
-                }, ERRORS.changePasswordWithToken.USER_NOT_FOUND, 'result')
+                }, ERRORS.changePasswordWithToken.USER_BY_PHONE_NOT_FOUND, 'result')
             })
 
             test('confirmPhoneAction should be marked as used after changePasswordWithToken has been executed', async () => {
@@ -155,33 +200,80 @@ describe('ForgotPasswordAction Service', () => {
                     phone: userAttrs.phone,
                 })
                 const [result] = await changePasswordWithTokenByTestClient(anonymousClient, {
+                    type: 'phone',
                     token: confirmPhoneAction.token,
                     password: faker.internet.password(),
                 })
-                expect(result).toEqual({ status: 'ok', phone: userAttrs.phone })
+                expect(result).toEqual({ status: 'ok', phone: userAttrs.phone, email: userAttrs.email })
                 const updatedConfirmPhoneAction = await ConfirmPhoneAction.getOne(adminClient, { token: confirmPhoneAction.token })
                 expect(updatedConfirmPhoneAction.completedAt).not.toBeNull()
             })
 
-            test('should throw error if phone token is used', async () => {
+            test('ConfirmEmailAction should be marked as used after changePasswordWithToken has been executed', async () => {
+                const [confirmEmailAction] = await createTestConfirmEmailAction(adminClient, {
+                    isEmailVerified: true,
+                    email: userAttrs.email,
+                })
+                await changePasswordWithTokenByTestClient(anonymousClient, {
+                    type: 'email',
+                    token: confirmEmailAction.token,
+                    password: faker.internet.password(),
+                })
+                const updatedAction = await ConfirmEmailAction.getOne(adminClient, { id: confirmEmailAction.id })
+                expect(updatedAction.completedAt).not.toBeNull()
+            })
+
+            test('should throw error for incorrect type of confirmation', async () => {
+                await expectToThrowGQLError(async () => {
+                    await changePasswordWithTokenByTestClient(anonymousClient, {
+                        type: 'invalid',
+                        token: faker.random.alphaNumeric(8),
+                        password: faker.internet.password(),
+                    })
+                }, ERRORS.changePasswordWithToken.INVALID_CONFIRM_TYPE, 'result')
+            })
+
+            test('should throw error if phone token is used (phone)', async () => {
                 const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, {
                     isPhoneVerified: true,
                     phone: userAttrs.phone,
                 })
                 const [result] = await changePasswordWithTokenByTestClient(anonymousClient, {
+                    type: 'phone',
                     token: confirmPhoneAction.token,
                     password: faker.internet.password(),
                 })
-                expect(result).toEqual({ status: 'ok', phone: userAttrs.phone })
+                expect(result).toEqual({ status: 'ok', phone: userAttrs.phone, email: userAttrs.email })
                 await expectToThrowGQLError(async () => {
                     await changePasswordWithTokenByTestClient(anonymousClient, {
+                        type: 'phone',
                         token: confirmPhoneAction.token,
                         password: faker.internet.password(),
                     })
                 }, ERRORS.changePasswordWithToken.TOKEN_NOT_FOUND, 'result')
             })
 
-            test('should throw error if phone token is expired', async () => {
+            test('should throw error if phone token is used (email)', async () => {
+                const [confirmEmailAction] = await createTestConfirmEmailAction(adminClient, {
+                    isEmailVerified: true,
+                    email: userAttrs.email,
+                })
+                const [result] = await changePasswordWithTokenByTestClient(anonymousClient, {
+                    type: 'email',
+                    token: confirmEmailAction.token,
+                    password: faker.internet.password(),
+                })
+                expect(result).toEqual({ status: 'ok', phone: userAttrs.phone, email: userAttrs.email })
+                await expectToThrowGQLError(async () => {
+                    await changePasswordWithTokenByTestClient(anonymousClient, {
+                        type: 'email',
+                        token: confirmEmailAction.token,
+                        password: faker.internet.password(),
+                    })
+                }, ERRORS.changePasswordWithToken.TOKEN_NOT_FOUND, 'result')
+            })
+
+            test('should throw error if phone token is expired (phone)', async () => {
                 const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, {
                     isPhoneVerified: true,
                     phone: userAttrs.phone,
@@ -189,7 +281,23 @@ describe('ForgotPasswordAction Service', () => {
                 })
                 await expectToThrowGQLError(async () => {
                     await changePasswordWithTokenByTestClient(anonymousClient, {
+                        type: 'phone',
                         token: confirmPhoneAction.token,
+                        password: faker.internet.password(),
+                    })
+                }, ERRORS.changePasswordWithToken.TOKEN_NOT_FOUND, 'result')
+            })
+
+            test('should throw error if phone token is expired (email)', async () => {
+                const [confirmEmailAction] = await createTestConfirmEmailAction(adminClient, {
+                    isEmailVerified: true,
+                    email: userAttrs.email,
+                    expiresAt: new Date().toISOString(),
+                })
+                await expectToThrowGQLError(async () => {
+                    await changePasswordWithTokenByTestClient(anonymousClient, {
+                        type: 'email',
+                        token: confirmEmailAction.token,
                         password: faker.internet.password(),
                     })
                 }, ERRORS.changePasswordWithToken.TOKEN_NOT_FOUND, 'result')
@@ -201,6 +309,7 @@ describe('ForgotPasswordAction Service', () => {
                 })
                 await expectToThrowGQLError(async () => {
                     await changePasswordWithTokenByTestClient(anonymousClient, {
+                        type: 'phone',
                         token: confirmPhoneAction.token,
                         password: faker.internet.password(),
                     })
@@ -210,6 +319,7 @@ describe('ForgotPasswordAction Service', () => {
             test('should throw error if phone token is not exist', async () => {
                 await expectToThrowGQLError(async () => {
                     await changePasswordWithTokenByTestClient(anonymousClient, {
+                        type: 'phone',
                         token: faker.random.alphaNumeric(8),
                         password: faker.internet.password(),
                     })
@@ -227,7 +337,7 @@ describe('ForgotPasswordAction Service', () => {
                     const password = ''
 
                     await expectToThrowGQLError(
-                        async () => await changePasswordWithTokenByTestClient(anonymousClient, { token, password }),
+                        async () => await changePasswordWithTokenByTestClient(anonymousClient, { type: 'phone', token, password }),
                         ERRORS.changePasswordWithToken.INVALID_PASSWORD_LENGTH,
                         'result',
                     )
@@ -241,7 +351,7 @@ describe('ForgotPasswordAction Service', () => {
                     const password = '123456789'
 
                     await expectToThrowGQLError(
-                        async () => await changePasswordWithTokenByTestClient(anonymousClient, { token, password }),
+                        async () => await changePasswordWithTokenByTestClient(anonymousClient, { type: 'phone', token, password }),
                         ERRORS.changePasswordWithToken.PASSWORD_IS_FREQUENTLY_USED,
                         'result',
                     )
@@ -255,7 +365,7 @@ describe('ForgotPasswordAction Service', () => {
                     const password = faker.internet.password(MIN_PASSWORD_LENGTH - 1)
 
                     await expectToThrowGQLError(
-                        async () => await changePasswordWithTokenByTestClient(anonymousClient, { token, password }),
+                        async () => await changePasswordWithTokenByTestClient(anonymousClient, { type: 'phone', token, password }),
                         ERRORS.changePasswordWithToken.INVALID_PASSWORD_LENGTH,
                         'result',
                     )
@@ -268,7 +378,7 @@ describe('ForgotPasswordAction Service', () => {
                     })
                     const password = '  ' + faker.internet.password() + '  '
 
-                    const [result] = await changePasswordWithTokenByTestClient(anonymousClient, { token, password })
+                    const [result] = await changePasswordWithTokenByTestClient(anonymousClient, { type: 'phone', token, password })
                     expect(result.status).toBe('ok')
                 })
 
@@ -280,7 +390,7 @@ describe('ForgotPasswordAction Service', () => {
                     const password = faker.internet.password(MAX_PASSWORD_LENGTH + 1)
 
                     await expectToThrowGQLError(
-                        async () => await changePasswordWithTokenByTestClient(anonymousClient, { token, password }),
+                        async () => await changePasswordWithTokenByTestClient(anonymousClient, { type: 'phone', token, password }),
                         ERRORS.changePasswordWithToken.INVALID_PASSWORD_LENGTH,
                         'result',
                     )
@@ -294,7 +404,7 @@ describe('ForgotPasswordAction Service', () => {
                     const password = '12331212312123'
 
                     await expectToThrowGQLError(
-                        async () => await changePasswordWithTokenByTestClient(anonymousClient, { token, password }),
+                        async () => await changePasswordWithTokenByTestClient(anonymousClient, { type: 'phone', token, password }),
                         ERRORS.changePasswordWithToken.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS,
                         'result',
                     )
@@ -308,7 +418,7 @@ describe('ForgotPasswordAction Service', () => {
                     const password = userAttrs.email + faker.internet.password()
 
                     await expectToThrowGQLError(
-                        async () => await changePasswordWithTokenByTestClient(anonymousClient, { token, password }),
+                        async () => await changePasswordWithTokenByTestClient(anonymousClient, { type: 'phone', token, password }),
                         ERRORS.changePasswordWithToken.PASSWORD_CONTAINS_EMAIL,
                         'result',
                     )
@@ -322,7 +432,7 @@ describe('ForgotPasswordAction Service', () => {
                     const password = userAttrs.phone + faker.internet.password()
 
                     await expectToThrowGQLError(
-                        async () => await changePasswordWithTokenByTestClient(anonymousClient, { token, password }),
+                        async () => await changePasswordWithTokenByTestClient(anonymousClient, { type: 'phone', token, password }),
                         ERRORS.changePasswordWithToken.PASSWORD_CONTAINS_PHONE,
                         'result',
                     )
@@ -336,7 +446,7 @@ describe('ForgotPasswordAction Service', () => {
                     const password = faker.datatype.number()
 
                     await expectToThrowGraphQLRequestError(
-                        async () => await changePasswordWithTokenByTestClient(anonymousClient, { token, password }),
+                        async () => await changePasswordWithTokenByTestClient(anonymousClient, { type: 'phone', token, password }),
                         '"data.password"; String cannot represent a non string value',
                     )
                 })

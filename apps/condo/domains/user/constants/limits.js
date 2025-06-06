@@ -1,4 +1,5 @@
 const SMS_COUNTER_LIMIT_TYPE = 'sms'
+const EMAIL_COUNTER_LIMIT_TYPE = 'email'
 const FIND_ORGANIZATION_BY_TIN_TYPE = 'findOrganizationsByTin'
 const RATE_LIMIT_TYPE = 'rateLimit'
 const AUTH_COUNTER_LIMIT_TYPE = 'auth'
@@ -6,6 +7,7 @@ const CHECK_USER_EXISTENCE_TYPE = 'checkUserExistence'
 
 module.exports = {
     SMS_COUNTER_LIMIT_TYPE,
+    EMAIL_COUNTER_LIMIT_TYPE,
     FIND_ORGANIZATION_BY_TIN_TYPE,
     RATE_LIMIT_TYPE,
     AUTH_COUNTER_LIMIT_TYPE,

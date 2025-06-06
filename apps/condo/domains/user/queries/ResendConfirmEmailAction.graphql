@@ -1,0 +1,5 @@
+mutation resendConfirmEmailAction($data: ResendConfirmEmailActionInput!) {
+    result: resendConfirmEmailAction(data: $data) { 
+        status 
+    }
+} 
