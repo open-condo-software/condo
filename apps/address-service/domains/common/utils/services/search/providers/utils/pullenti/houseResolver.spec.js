@@ -103,5 +103,70 @@ describe('houseResolver', () => {
                 postal_code: null,
             })
         })
+
+        it('should convert numeric house and block numbers to strings', () => {
+            const houseLevel = {
+                gar: [{
+                    house: {
+                        num: 123,
+                        bnum: 456,
+                    },
+                }],
+            }
+
+            expect(resolveHouse(houseLevel)).toEqual({
+                house: '123',
+                house_type: 'д',
+                house_type_full: 'дом',
+                block: '456',
+                block_type: 'корп',
+                block_type_full: 'корпус',
+                house_fias_id: null,
+                house_kladr_id: null,
+                house_cadnum: null,
+                postal_code: null,
+            })
+        })
+
+        it('should handle missing house field in gar object', () => {
+            const houseLevel = {
+                gar: [{
+                    level: 'building',
+                    guid: 'test-guid',
+                }],
+            }
+
+            expect(resolveHouse(houseLevel)).toEqual({
+                house: null,
+                house_type: 'д',
+                house_type_full: 'дом',
+                block: null,
+                block_type: null,
+                block_type_full: null,
+                house_fias_id: 'test-guid',
+                house_kladr_id: null,
+                house_cadnum: null,
+                postal_code: null,
+            })
+        })
+        
+        it('should handle empty gar array', () => {
+            const houseLevel = {
+                gar: [],
+            }
+
+            expect(resolveHouse(houseLevel)).toEqual({
+                house: null,
+                house_type: 'д',
+                house_type_full: 'дом',
+                block: null,
+                block_type: null,
+                block_type_full: null,
+                house_fias_id: null,
+                house_kladr_id: null,
+                house_cadnum: null,
+                postal_code: null,
+            })
+        })
     })
 })

@@ -52,5 +52,80 @@ describe('streetResolver', () => {
                 street_kladr_id: null,
             })
         })
+
+        it('should resolve просп type', () => {
+            const streetLevel = {
+                gar: [{
+                    level: 'street',
+                    area: {
+                        type: 'просп',
+                        name: 'Ленинский',
+                    },
+                }],
+            }
+
+            expect(resolveStreet(streetLevel)).toEqual({
+                street: 'Ленинский',
+                street_type: 'просп',
+                street_type_full: 'проспект',
+                street_with_type: 'просп Ленинский',
+                street_fias_id: null,
+                street_kladr_id: null,
+            })
+        })
+
+        it('should handle missing area field', () => {
+            const streetLevel = {
+                gar: [{
+                    level: 'street',
+                    guid: 'test-guid',
+                }],
+            }
+
+            expect(resolveStreet(streetLevel)).toEqual({
+                street: null,
+                street_type: 'ул',
+                street_type_full: 'улица',
+                street_with_type: '',
+                street_fias_id: 'test-guid',
+                street_kladr_id: null,
+            })
+        })
+
+        it('should handle null area name', () => {
+            const streetLevel = {
+                gar: [{
+                    level: 'street',
+                    area: {
+                        type: 'улица',
+                        name: null,
+                    },
+                }],
+            }
+
+            expect(resolveStreet(streetLevel)).toEqual({
+                street: null,
+                street_type: 'ул',
+                street_type_full: 'улица',
+                street_with_type: '',
+                street_fias_id: null,
+                street_kladr_id: null,
+            })
+        })
+
+        it('should handle empty gar array', () => {
+            const streetLevel = {
+                gar: [],
+            }
+
+            expect(resolveStreet(streetLevel)).toEqual({
+                street: null,
+                street_type: 'ул',
+                street_type_full: 'улица',
+                street_with_type: '',
+                street_fias_id: null,
+                street_kladr_id: null,
+            })
+        })
     })
 })

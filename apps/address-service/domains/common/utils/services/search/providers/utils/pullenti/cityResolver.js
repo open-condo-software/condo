@@ -15,7 +15,7 @@ function resolveCity (cityLevel) {
         city_type,
         city_type_full,
         city_with_type: joinNameAndType(city, city_type, isNameFirst),
-        city_fias_id: gar.guid || null,
+        city_fias_id: gar?.guid || null,
         city_kladr_id: getGarParam(gar, 'kladrcode') || null,
     }
 }

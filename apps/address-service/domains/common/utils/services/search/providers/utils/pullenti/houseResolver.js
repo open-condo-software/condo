@@ -27,7 +27,7 @@ function resolveHouse (houseLevel) {
         block: block ? String(block) : null,
         block_type,
         block_type_full,
-        house_fias_id: gar.guid || null,
+        house_fias_id: gar?.guid || null,
         house_kladr_id: getGarParam(gar, 'kladrcode') || null,
         house_cadnum: getGarParam(gar, 'kadasternumber') || null,
         postal_code: getGarParam(gar, 'postindex') || null,

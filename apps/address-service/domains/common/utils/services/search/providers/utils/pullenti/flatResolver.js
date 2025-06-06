@@ -19,7 +19,7 @@ function resolveFlat (apartmentLevel) {
         flat,
         flat_type,
         flat_type_full,
-        flat_fias_id: gar.guid || null,
+        flat_fias_id: gar?.guid || null,
         flat_cadnum: getGarParam(gar, 'kadasternumber') || null,
     }
 }

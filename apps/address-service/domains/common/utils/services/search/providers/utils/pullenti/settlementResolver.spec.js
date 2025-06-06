@@ -73,5 +73,79 @@ describe('settlementResolver', () => {
                 settlement_kladr_id: null,
             })
         })
+
+        it('should handle missing area field', () => {
+            const localityLevel = {
+                gar: [{
+                    level: 'adminarea',
+                    guid: 'test-guid',
+                }],
+            }
+
+            expect(resolveSettlement(localityLevel)).toEqual({
+                settlement: null,
+                settlement_type: 'д',
+                settlement_type_full: 'деревня',
+                settlement_with_type: '',
+                settlement_fias_id: 'test-guid',
+                settlement_kladr_id: null,
+            })
+        })
+
+        it('should handle empty gar array', () => {
+            const localityLevel = {
+                gar: [],
+            }
+
+            expect(resolveSettlement(localityLevel)).toEqual({
+                settlement: null,
+                settlement_type: 'д',
+                settlement_type_full: 'деревня',
+                settlement_with_type: '',
+                settlement_fias_id: null,
+                settlement_kladr_id: null,
+            })
+        })
+
+        it('should handle null area name', () => {
+            const localityLevel = {
+                gar: [{
+                    level: 'adminarea',
+                    area: {
+                        type: 'село',
+                        name: null,
+                    },
+                }],
+            }
+
+            expect(resolveSettlement(localityLevel)).toEqual({
+                settlement: null,
+                settlement_type: 'с',
+                settlement_type_full: 'село',
+                settlement_with_type: '',
+                settlement_fias_id: null,
+                settlement_kladr_id: null,
+            })
+        })
+
+        it('should handle деревня type explicitly', () => {
+            const localityLevel = {
+                gar: [{
+                    area: {
+                        type: 'деревня',
+                        name: 'Петрово',
+                    },
+                }],
+            }
+
+            expect(resolveSettlement(localityLevel)).toEqual({
+                settlement: 'Петрово',
+                settlement_type: 'д',
+                settlement_type_full: 'деревня',
+                settlement_with_type: 'деревня Петрово',
+                settlement_fias_id: null,
+                settlement_kladr_id: null,
+            })
+        })
     })
 })

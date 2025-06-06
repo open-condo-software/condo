@@ -49,5 +49,55 @@ describe('flatResolver', () => {
                 flat_cadnum: null,
             })
         })
+
+        it('should handle missing room field', () => {
+            const apartmentLevel = {
+                gar: [{
+                    level: 'apartment',
+                    guid: 'test-guid',
+                }],
+            }
+
+            expect(resolveFlat(apartmentLevel)).toEqual({
+                flat: null,
+                flat_type: 'кв',
+                flat_type_full: 'квартира',
+                flat_fias_id: 'test-guid',
+                flat_cadnum: null,
+            })
+        })
+
+        it('should handle null room number', () => {
+            const apartmentLevel = {
+                gar: [{
+                    level: 'apartment',
+                    room: {
+                        num: null,
+                    },
+                }],
+            }
+
+            expect(resolveFlat(apartmentLevel)).toEqual({
+                flat: null,
+                flat_type: 'кв',
+                flat_type_full: 'квартира',
+                flat_fias_id: null,
+                flat_cadnum: null,
+            })
+        })
+
+        it('should handle empty gar array', () => {
+            const apartmentLevel = {
+                gar: [],
+            }
+
+            expect(resolveFlat(apartmentLevel)).toEqual({
+                flat: null,
+                flat_type: 'кв',
+                flat_type_full: 'квартира',
+                flat_fias_id: null,
+                flat_cadnum: null,
+            })
+        })
     })
 })

@@ -10,7 +10,7 @@ function resolveStreet (streetLevel) {
 
     let isNameFirst = false
 
-    switch (gar.area?.type) {
+    switch (gar?.area?.type) {
         case 'просп':
         case 'проспект':
             street_type = 'просп'
@@ -22,7 +22,7 @@ function resolveStreet (streetLevel) {
         street_type,
         street_type_full,
         street_with_type: joinNameAndType(street, street_type, isNameFirst),
-        street_fias_id: gar.guid || null,
+        street_fias_id: gar?.guid || null,
         street_kladr_id: getGarParam(gar, 'kladrcode') || null,
     }
 }

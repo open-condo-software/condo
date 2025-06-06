@@ -62,6 +62,14 @@ describe('helpers', () => {
             expect(getGarLevel(null)).toBeNull()
             expect(getGarLevel(undefined)).toBeUndefined()
         })
+
+        it('should handle empty array', () => {
+            expect(getGarLevel([])).toBeUndefined()
+        })
+
+        it('should return undefined when levelGar is empty array and level is provided', () => {
+            expect(getGarLevel([], 'someLevel')).toBeUndefined()
+        })
     })
 
     describe('getGarParam', () => {
@@ -88,6 +96,13 @@ describe('helpers', () => {
 
         it('should handle gar object without params', () => {
             expect(getGarParam({}, 'type')).toBeUndefined()
+        })
+
+        it('should handle null param array', () => {
+            const garObjectWithNullParam = {
+                param: null,
+            }
+            expect(getGarParam(garObjectWithNullParam, 'type')).toBeUndefined()
         })
     })
 
@@ -192,6 +207,26 @@ describe('helpers', () => {
             expect(extractLastGarParam(textobj, 'kladrcode')).toBe('0987654321')
             expect(extractLastGarParam(textobj, 'okato')).toBe('1234')
             expect(extractLastGarParam(textobj, 'oktmo')).toBe('87654321')
+        })
+
+        it('should return null for undefined input', () => {
+            expect(extractLastGarParam(undefined, 'kladrcode')).toBeNull()
+        })
+
+        it('should handle array with null elements', () => {
+            const textobj = [
+                null,
+                { gar: { param: [{ '@_name': 'kladrcode', '#text': '1234567890' }] } },
+            ]
+            expect(extractLastGarParam(textobj, 'kladrcode')).toBe('1234567890')
+        })
+
+        it('should handle textobj with null gar', () => {
+            const textobj = [
+                { gar: null },
+                { gar: { param: [{ '@_name': 'kladrcode', '#text': '1234567890' }] } },
+            ]
+            expect(extractLastGarParam(textobj, 'kladrcode')).toBe('1234567890')
         })
     })
 })
