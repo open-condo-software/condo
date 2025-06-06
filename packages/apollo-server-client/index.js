@@ -171,19 +171,15 @@ class ApolloServerClient {
 
     async singInByEmailAndPassword () {
         const { email, password } = this.authRequisites
-        try {
-            const { data: { auth: { user, token } } } = await this.client.mutate({
-                mutation: SIGNIN_BY_EMAIL_MUTATION,
-                variables: {
-                    identity: email,
-                    secret: password,
-                },
-            })
-            this.userId = user.id
-            this.authToken = token
-        } catch (e) {
-            console.log('ERROR SIGNING IN: ', e)
-        }
+        const { data: { auth: { user, token } } } = await this.client.mutate({
+            mutation: SIGNIN_BY_EMAIL_MUTATION,
+            variables: {
+                identity: email,
+                secret: password,
+            },
+        })
+        this.userId = user.id
+        this.authToken = token
     }
 
     async singInByPhoneAndPassword () {
