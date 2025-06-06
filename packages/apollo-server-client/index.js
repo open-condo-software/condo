@@ -194,11 +194,7 @@ class ApolloServerClient {
 
     async executeAuthorizedQuery (queryArgs, opts = { batchClient: false }) {
         if (!this.authToken) {
-            try {
-                await this.signIn()
-            } catch (e) {
-                console.log('executeAuthorizedQuery >> sign in ERROR: ', e)
-            }
+            await this.signIn()
         }
 
         const client = opts.batchClient ? this.batchClient : this.client
