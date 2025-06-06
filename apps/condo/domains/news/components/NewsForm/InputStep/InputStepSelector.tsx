@@ -182,7 +182,9 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
         if (!options) {
             setScope(prev=>({ ...prev, selectedUnitNameKeys: null }))
         } else {
-            const unitNamesKeys = options.map(option => option.key)
+            const unitNamesKeys = options.map(option =>
+                `${option['data-unitType']}-${option['data-unitName']}`
+            )
             setScope(prev=>({ ...prev, selectedUnitNameKeys: unitNamesKeys }))
         }
     }, [])
@@ -192,7 +194,9 @@ export const InputStepSelector: React.FC<InputStepSelectorProps> = ({
             if (!sections || sections.length === 0) {
                 setScope(prev=>({ ...prev, selectedSectionKeys: [] }))
             } else {
-                const sectionKeys = sections.map(section => section.key || section)
+                const sectionKeys = sections.map(section =>
+                    `${section['data-sectionType']}-${section['data-sectionName']}`
+                )
                 setScope(prev=>({ ...prev, selectedSectionKeys: sectionKeys }))
             }
         }
