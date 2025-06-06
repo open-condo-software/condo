@@ -976,7 +976,6 @@ __metadata:
     lodash: ^4.17.21
     nanoid: ^3.3.4
     next: ^9.5.2
-    next-cookies: ^2.0.3
     next-transpile-modules: ^4.1.0
     raw-loader: ^4.0.2
     react: ^16.13.1
