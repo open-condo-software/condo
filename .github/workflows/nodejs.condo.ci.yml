@@ -526,7 +526,7 @@ jobs:
           GH_REF_NAME: ${{ github.event.pull_request.head.ref || github.ref_name }}
 
   run-external-api-tests:
-    name: External-api Tests
+    name: External API Tests
     runs-on: ubuntu-22.04
     needs:
       - authorize
@@ -566,7 +566,7 @@ jobs:
           condo-container sh -c "(\
           yarn workspace @app/condo start & \
           yarn workspace @app/external-api start & \
-          node bin/wait-apps-apis.js -f condo external-api) && \
+          node bin/wait-apps-apis.js -f condo) && \
           yarn workspace @app/external-api test"
         env:
           PROMETHEUS_RW_SERVER_URL: ${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }}
