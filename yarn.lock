@@ -994,6 +994,7 @@ __metadata:
   resolution: "@app/external-api@workspace:apps/external-api"
   dependencies:
     "@condo/domains": "link:../condo/domains"
+    "@open-condo/cli": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     apollo-boost: ^0.4.9
