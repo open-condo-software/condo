@@ -1005,6 +1005,7 @@ __metadata:
     express-pino-logger: ^6.0.0
     graphql: ^16.10.0
     graphql-tag: ^2.12.6
+    jest: ^29.7.0
     lodash: ^4.17.21
     uuid: ^9.0.1
   languageName: unknown
