@@ -56,7 +56,6 @@
     "@opentelemetry/instrumentation-pg": "^0.36.1",
     "@opentelemetry/sdk-node": "^0.41.2",
     "@primer/octicons-react": "^11.3.0",
-    "@sentry/node": "^6.19.7",
     "ajv": "8.11.0",
     "apollo-errors": "^1.9.0",
     "apollo-server-errors": "^3.1.0",

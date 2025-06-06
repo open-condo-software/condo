@@ -55,8 +55,6 @@
     "@open-condo/ui": "workspace:^",
     "@open-condo/webhooks": "workspace:^",
     "@rc-component/qrcode": "^1.0.0",
-    "@sentry/nextjs": "^6.19.7",
-    "@sentry/node": "^6.19.7",
     "@tinymce/tinymce-react": "^4.1.0",
     "@types/lodash": "4.14.186",
     "@types/wavesurfer.js": "^6.0.6",

@@ -1,5 +1,4 @@
 import Custom500 from '@app/condo/pages/500'
-import { captureException } from '@sentry/nextjs'
 import get from 'lodash/get'
 import NextErrorComponent from 'next/error'
 import React from 'react'
@@ -21,8 +20,6 @@ ErrorPage.getInitialProps = async (props) => {
     console.error('ErrorPage:', err)
 
     console.error('Request:', req)
-
-    captureException(err)
 
     const errorInitialProps = await NextErrorComponent.getInitialProps(props)
 
