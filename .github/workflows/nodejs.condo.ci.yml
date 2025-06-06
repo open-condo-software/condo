@@ -6,7 +6,7 @@ on:
       - main
 
   # NOTE: change pull_request_target to pull_request if you want to change the CI in your branch
-  pull_request_target:
+  pull_request:
     types:
       - opened
       - reopened
@@ -154,11 +154,10 @@ jobs:
               - 'packages/**'
             external-api:
               - 'apps/external-api/**'
-              - 'apps/condo/domains/organization/schema/**'
-              - 'apps/condo/domains/ticket/schema/**'
-              - 'apps/condo/domains/billing/schema/**'
-              - 'apps/condo/domains/acquiring/schema/**'
-              - 'packages/**'
+              - 'apps/condo/domains/organization/**'
+              - 'apps/condo/domains/ticket/**'
+              - 'apps/condo/domains/billing/**'
+              - 'apps/condo/domains/acquiring/**'
             migrator:
               - 'packages/migrator/**'
             miniapp-utils:
