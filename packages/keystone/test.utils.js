@@ -395,9 +395,6 @@ const makeClient = async (opts = { generateIP: true, serverUrl: undefined }) => 
         serverUrl = conf.SERVER_URL
     }
 
-    console.log('opts.serverUrl', opts.serverUrl)
-    console.log('serverUrl', serverUrl)
-
     return makeApolloClient(
         new URL(opts.serverUrl ? opts.serverUrl : serverUrl).origin,
         { logRequestResponse: TESTS_LOG_REQUEST_RESPONSE, customHeaders },
@@ -435,7 +432,6 @@ const makeLoggedInClient = async (credentials, serverUrl) => {
     }
     if (!(credentials.email || credentials.phone) && !credentials.password) throw new Error('no credentials')
     const client = await makeClient({ generateIP: true, serverUrl })
-    console.log('client', client)
     if (credentials.email) {
         const { data, errors } = await client.mutate(SIGNIN_BY_EMAIL_MUTATION, {
             identity: credentials.email,
