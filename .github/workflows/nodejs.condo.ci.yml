@@ -540,6 +540,14 @@ jobs:
           registry: ${{ secrets.DOCKER_REGISTRY }}
           username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
           password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
+      - name: Setup PG db
+        run: |
+          docker run -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_DB=$POSTGRES_DB -p="127.0.0.1:5432:5432" -d ${{ env.PG_IMAGE_FULL }}
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB:
+            main
       - name: Setup Redis db
         run: |
           docker run -p="127.0.0.1:6379:6379" -d ${{ env.REDIS_IMAGE_FULL }}
