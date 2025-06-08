@@ -38,6 +38,10 @@ async function main () {
     const apiUrls = serviceUrls.filter(url => url).map(url => `${url}/admin/api`)
     const cycles = Math.round(numericTimeout / numericSleep)
 
+    console.log('Ожидание одну минуту перед началом основного пинга...')
+    await delay(60 * 1000)
+    console.log('Прошла одна минута! Начинаем пинг API...')
+
     for (let i = 0; i < cycles; i++) {
         const results = await Promise.allSettled(apiUrls.map(pingApi))
         if (results.every(res => res.status === 'fulfilled')) {
