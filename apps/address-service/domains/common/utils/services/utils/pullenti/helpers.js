@@ -85,7 +85,7 @@ function extractLastGarParam (textobj, paramName) {
     let value = null
 
     for (const level of textobj || []) {
-        if (level.gar) {
+        if (level?.gar) {
             value = getGarParam(level.gar, paramName) || value
         }
     }
