@@ -39,7 +39,7 @@ async function main () {
     const cycles = Math.round(numericTimeout / numericSleep)
 
     console.log('Ожидание одну минуту перед началом основного пинга...')
-    await delay(60 * 1000)
+    await delay(60 * 5000)
     console.log('Прошла одна минута! Начинаем пинг API...')
 
     for (let i = 0; i < cycles; i++) {
