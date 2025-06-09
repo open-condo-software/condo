@@ -419,6 +419,7 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refr
                                                     if (floorInfo && floorInfo.units.length) {
                                                         return (
                                                             <UnitButtonWithContactInfo
+                                                                key={`${section.id}_${floorIndex}`}
                                                                 floorInfo={floorInfo}
                                                                 property={property}
                                                                 getContacts={getContacts}
