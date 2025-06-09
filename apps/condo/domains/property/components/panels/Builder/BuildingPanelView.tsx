@@ -1,5 +1,6 @@
 import { useGetContactByUnitLazyQuery } from '@app/condo/gql'
 import {
+    BuildingFloor,
     BuildingMap,
     BuildingUnit,
     Contact as ContactType,
@@ -10,7 +11,7 @@ import { Col, Row, RowProps } from 'antd'
 import cloneDeep from 'lodash/cloneDeep'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { Dispatch, SetStateAction, useCallback, useMemo, useState } from 'react'
 import ScrollContainer from 'react-indiana-drag-scroll'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -34,6 +35,7 @@ import { FullscreenHeader, FullscreenWrapper } from './Fullscreen'
 import { MapView, MapViewMode } from './MapConstructor'
 import { UnitButton } from './UnitButton/UnitButton'
 
+import './BuildingPanelView.css'
 
 interface IBuildingPanelViewProps extends Pick<IPropertyMapFormProps, 'canManageProperties'> {
     map: BuildingMap
@@ -54,29 +56,6 @@ interface IPropertyMapViewProps extends Pick<IPropertyMapFormProps, 'canManagePr
     refresh(): void
 }
 
-const CHESS_ROW_STYLE: React.CSSProperties = {
-    width: '100%',
-    height: '100%',
-    textAlign: 'center',
-}
-const CHESS_COL_STYLE: React.CSSProperties = {
-    paddingTop: '60px',
-    paddingBottom: '60px',
-}
-const CHESS_SCROLL_HOLDER_STYLE: React.CSSProperties = {
-    whiteSpace: 'nowrap',
-    position: 'static',
-    paddingBottom: '10px',
-}
-const CHESS_SCROLL_CONTAINER_STYLE: React.CSSProperties = {
-    paddingBottom: '20px',
-    width: '100%',
-    overflowY: 'hidden',
-}
-const UNIT_BUTTON_TOOLTIP_WRAPPER_STYLE: React.CSSProperties = { display: 'inline-block', marginRight: '8px' }
-const FLOOR_CONTAINER_STYLE: React.CSSProperties = { display: 'block' }
-const UNIT_TYPE_ROW_STYLE: React.CSSProperties = { paddingLeft: '8px' }
-const FULLSCREEN_HEADER_STYLE: React.CSSProperties = { marginBottom: '28px', alignItems: 'center' }
 const UNIT_TYPE_ROW_GUTTER: RowProps['gutter'] = [42, 0]
 const TOOLTIP_MAX_CONTACT_DETAILS = 5
 
@@ -88,7 +67,7 @@ interface IUnitModalProps {
     contactsError: boolean
 }
 
-export const UnitModal: React.FC<IUnitModalProps> = ({ property, unit, contactsLoading, contacts }) => {
+const UnitModal: React.FC<IUnitModalProps> = ({ property, unit, contactsLoading, contacts }) => {
     const intl = useIntl()
     const FieldUnitNameMessage = intl.formatMessage({ id: 'field.Name' })
     const FieldUnitTypeMessage = intl.formatMessage({ id: 'field.UnitType' })
@@ -108,7 +87,7 @@ export const UnitModal: React.FC<IUnitModalProps> = ({ property, unit, contactsL
     return (
         <Row gutter={[0, 36]}>
             <Col span={24}>
-                <List 
+                <List
                     dataSource={[
                         {
                             label: FieldUnitNameMessage,
@@ -166,7 +145,7 @@ export const UnitModal: React.FC<IUnitModalProps> = ({ property, unit, contactsL
     )
 }
 
-export const UnitTooltip: React.FC<IUnitModalProps> = ({ unit, contactsLoading, contacts, contactsError }) => {
+const UnitTooltip: React.FC<IUnitModalProps> = ({ unit, contactsLoading, contacts, contactsError }) => {
     const intl = useIntl()
     const FieldUnitTypeMessage = intl.formatMessage({ id: 'field.UnitType' })
     const UnitTypeMessage = intl.formatMessage({ id: `field.UnitType.${unit.unitType}` }).toLowerCase()
@@ -229,54 +208,29 @@ export const UnitTooltip: React.FC<IUnitModalProps> = ({ unit, contactsLoading, 
     )
 }
 
-export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refresh, canManageProperties = false }) => {
-    const intl = useIntl()
-    const ParkingTitlePrefix = intl.formatMessage({ id: 'pages.condo.property.select.option.parking' })
-    const SectionNamePrefixTitle = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
-    const UnitModalTitle = intl.formatMessage({ id: 'pages.condo.property.map.modal.title' })
+interface IUnitButtonWithContactInfoProps {
+    floorInfo: BuildingFloor
+    property: PropertyType
+    getContacts: ReturnType<typeof useGetContactByUnitLazyQuery>[0]
+    contactsLoading: boolean
+    contacts: ReturnType<typeof useGetContactByUnitLazyQuery>[1]['data']['contacts']
+    contactsError: ReturnType<typeof useGetContactByUnitLazyQuery>[1]['error']
+    setModalOpenedUnit: Dispatch<SetStateAction<BuildingUnit>>
+    toggleUnitModal: () => void
+}
 
-    const { query: { id } } = useRouter()
-    const { obj: property } = Property.useObject({ where: { id: id as string } })
-
-    const [isFullscreen, setFullscreen] = useState(false)
-    const toggleFullscreen = useCallback(() => {
-        setFullscreen(!isFullscreen)
-    }, [isFullscreen])
-
-    const [isUnitModalOpen, setIsUnitModalOpen] = useState(false)
-    const toggleUnitModal = useCallback(() => {
-        setIsUnitModalOpen(!isUnitModalOpen)
-    }, [isUnitModalOpen])
-
-    const [modalOpenedUnit, setModalOpenedUnit] = useState(null)
-
-    const onViewModeChange = useCallback((option) => {
-        builder.viewMode = option.target.value
-        refresh()
-    }, [builder, refresh])
-
-    const unitTypeOptions = builder.getUnitTypeOptions()
-
-    const UnitTypeOptionsLegend = useMemo(() => <Row
-        gutter={UNIT_TYPE_ROW_GUTTER}
-        style={UNIT_TYPE_ROW_STYLE}
-    >
-        {unitTypeOptions
-            .map((unitType, unitTypeKey) => (
-                <Col key={unitTypeKey} flex={0}>
-                    <UnitTypeLegendItem unitType={unitType}>
-                        {intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` })}
-                    </UnitTypeLegendItem>
-                </Col>
-            ))}
-    </Row>, [builder.viewMode, unitTypeOptions])
-
-    const showViewModeSelect = !builder.isEmptySections && !builder.isEmptyParking
-
+const UnitButtonWithContactInfo: React.FC<IUnitButtonWithContactInfoProps> = ({
+    floorInfo,
+    property,
+    getContacts,
+    contactsLoading,
+    contacts,
+    contactsError,
+    setModalOpenedUnit,
+    toggleUnitModal,
+}) => {
     const [readyTooltip, setReadyTooltip] = useState<string | null>(null)
     const [lastOpenTooltip, setLastOpenTooltip] = useState<string | null>(null)
-
-    const [getContacts, { loading: contactsLoading, data: contactsData, error: contactsError }] = useGetContactByUnitLazyQuery()
 
     const handleTooltipVisibilityChange = useCallback((unitId: string, visible: boolean, unit: BuildingUnit) => {
         if (!property) {
@@ -302,9 +256,108 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refr
     }, [property?.id, getContacts])
 
     return (
+        <div key={floorInfo.id} className='property-map-floor-container'>
+            {
+                floorInfo.units.map(unit => {
+                    return (
+                        <Tooltip
+                            key={unit.id}
+                            title={
+                                <UnitTooltip
+                                    property={property}
+                                    unit={unit}
+                                    contactsLoading={contactsLoading}
+                                    contacts={contacts}
+                                    contactsError={!!contactsError}
+                                />
+                            }
+                            // We do not want to show tooltip before data is loaded, because that would cause interface to be jaggy,
+                            // because tooltip in loading state is different from tooltip with data
+                            open={lastOpenTooltip === unit.id && readyTooltip === unit.id}
+                            onOpenChange={(visible) => handleTooltipVisibilityChange(unit.id, visible, unit)}
+                            // Custom delay is implemented here, because we do not need user to spam with HTTP requests and eat all the available complexity
+                            mouseEnterDelay={0.3}
+                            placement='top'
+                        >
+                            <div className='unit-button-tooltip-wrapper'>
+                                <UnitButton
+                                    type='unit'
+                                    key={unit.id}
+                                    unitType={unit.unitType}
+                                    onClick={() => {
+                                        setModalOpenedUnit(unit)
+                                        getContacts({
+                                            variables: {
+                                                propertyId: property.id,
+                                                unitName: unit.label,
+                                                unitType: unit.unitType as unknown as ContactUnitTypeType,
+                                            },
+                                            fetchPolicy: 'cache-first',
+                                        })
+                                        toggleUnitModal()
+                                    }}
+                                >
+                                    {unit.label}
+                                </UnitButton>
+                            </div>
+                        </Tooltip>
+                    )
+                })
+            }
+        </div>
+    )
+}
+
+export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refresh, canManageProperties = false }) => {
+    const intl = useIntl()
+    const ParkingTitlePrefix = intl.formatMessage({ id: 'pages.condo.property.select.option.parking' })
+    const SectionNamePrefixTitle = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
+    const UnitModalTitle = intl.formatMessage({ id: 'pages.condo.property.map.modal.title' })
+
+    const { query: { id } } = useRouter()
+    const { obj: property } = Property.useObject({ where: { id: id as string } })
+
+    const [isFullscreen, setFullscreen] = useState(false)
+    const toggleFullscreen = useCallback(() => {
+        setFullscreen(!isFullscreen)
+    }, [isFullscreen])
+
+    const [isUnitModalOpen, setIsUnitModalOpen] = useState(false)
+    const toggleUnitModal = useCallback(() => {
+        setIsUnitModalOpen(!isUnitModalOpen)
+    }, [isUnitModalOpen])
+
+    const [modalOpenedUnit, setModalOpenedUnit] = useState<BuildingUnit>(null)
+
+    const onViewModeChange = useCallback((option) => {
+        builder.viewMode = option.target.value
+        refresh()
+    }, [builder, refresh])
+
+    const unitTypeOptions = builder.getUnitTypeOptions()
+
+    const UnitTypeOptionsLegend = useMemo(() => <Row
+        gutter={UNIT_TYPE_ROW_GUTTER}
+        className='property-map-unit-type-row'
+    >
+        {unitTypeOptions
+            .map((unitType, unitTypeKey) => (
+                <Col key={unitTypeKey} flex={0}>
+                    <UnitTypeLegendItem unitType={unitType}>
+                        {intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` })}
+                    </UnitTypeLegendItem>
+                </Col>
+            ))}
+    </Row>, [builder.viewMode, unitTypeOptions])
+
+    const showViewModeSelect = !builder.isEmptySections && !builder.isEmptyParking
+
+    const [getContacts, { loading: contactsLoading, data: contactsData, error: contactsError }] = useGetContactByUnitLazyQuery()
+
+    return (
         <FullscreenWrapper className={isFullscreen ? 'fullscreen' : '' }>
             <FullscreenHeader edit={false}>
-                <Row justify='end' style={FULLSCREEN_HEADER_STYLE} hidden={!showViewModeSelect}>
+                <Row justify='end' className='property-map-fullscreen-header' hidden={!showViewModeSelect}>
                     {
                         isFullscreen ? (
                             <Col flex={1}>
@@ -338,17 +391,16 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refr
                     contactsError={!!contactsError}
                 />
             </Modal>
-            <Row align='middle' style={CHESS_ROW_STYLE}>
+            <Row align='middle' className='property-map-container'>
                 {
                     builder.isEmpty ?
-                        <Col span={24} style={CHESS_COL_STYLE}>
+                        <Col span={24}>
                             <EmptyBuildingBlock canManageProperties={canManageProperties} />
                         </Col>
                         :
-                        <Col span={24} style={CHESS_SCROLL_HOLDER_STYLE}>
+                        <Col span={24} className='property-map-scroll-holder'>
                             <ScrollContainer
-                                className='scroll-container'
-                                style={CHESS_SCROLL_CONTAINER_STYLE}
+                                className='property-map-scroll-container'
                                 vertical={false}
                                 horizontal={true}
                                 hideScrollbars={false}
@@ -366,55 +418,16 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refr
                                                     const floorInfo = section.floors.find(floor => floor.index === floorIndex)
                                                     if (floorInfo && floorInfo.units.length) {
                                                         return (
-                                                            <div key={floorInfo.id} style={FLOOR_CONTAINER_STYLE}>
-                                                                {
-                                                                    floorInfo.units.map(unit => {
-                                                                        return (
-                                                                            <Tooltip
-                                                                                key={unit.id}
-                                                                                title={
-                                                                                    <UnitTooltip
-                                                                                        property={property}
-                                                                                        unit={unit}
-                                                                                        contactsLoading={contactsLoading}
-                                                                                        contacts={contactsData?.contacts}
-                                                                                        contactsError={!!contactsError}
-                                                                                    />
-                                                                                }
-                                                                                // We do not want to show tooltip before data is loaded, because that would cause interface to be jaggy,
-                                                                                // because tooltip in loading state is different from tooltip with data
-                                                                                open={lastOpenTooltip === unit.id && readyTooltip === unit.id}
-                                                                                onOpenChange={(visible) => handleTooltipVisibilityChange(unit.id, visible, unit)}
-                                                                                // Custom delay is implemented here, because we do not need user to spam with HTTP requests and eat all the available complexity
-                                                                                mouseEnterDelay={0.3}
-                                                                                placement='top'
-                                                                            >
-                                                                                <div style={UNIT_BUTTON_TOOLTIP_WRAPPER_STYLE}>
-                                                                                    <UnitButton
-                                                                                        type='unit'
-                                                                                        key={unit.id}
-                                                                                        unitType={unit.unitType}
-                                                                                        onClick={() => {
-                                                                                            setModalOpenedUnit(unit)
-                                                                                            getContacts({
-                                                                                                variables: {
-                                                                                                    propertyId: property.id,
-                                                                                                    unitName: unit.label,
-                                                                                                    unitType: unit.unitType as unknown as ContactUnitTypeType,
-                                                                                                },
-                                                                                                fetchPolicy: 'cache-first',
-                                                                                            })
-                                                                                            toggleUnitModal()
-                                                                                        }}
-                                                                                    >
-                                                                                        {unit.label}
-                                                                                    </UnitButton>
-                                                                                </div>
-                                                                            </Tooltip>
-                                                                        )
-                                                                    })
-                                                                }
-                                                            </div>
+                                                            <UnitButtonWithContactInfo
+                                                                floorInfo={floorInfo}
+                                                                property={property}
+                                                                getContacts={getContacts}
+                                                                contactsLoading={contactsLoading}
+                                                                contacts={contactsData?.contacts}
+                                                                contactsError={contactsError}
+                                                                setModalOpenedUnit={setModalOpenedUnit}
+                                                                toggleUnitModal={toggleUnitModal}
+                                                            />
                                                         )
                                                     } else {
                                                         return (

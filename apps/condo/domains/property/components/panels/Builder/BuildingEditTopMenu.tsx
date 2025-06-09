@@ -22,6 +22,11 @@ const TOP_MENU_MAP_PARKING_MODS = [
     MapEditMode.AddParkingFacilityUnit,
 ]
 
+const DROPDOWN_PROPS = {
+    className: 'add-element-dropdown',
+    'data-cy': 'property-map__edit-menu-dropdown',
+}
+
 interface IBuildingTopModalProps {
     changeMode: (mode: MapEditMode) => void
     mapEdit: MapEdit
@@ -110,14 +115,9 @@ const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ changeMode, map
         AddUnit, changeMapMode, mapEdit.isEmptyParking, mapEdit.isEmptySections,
     ])
 
-    const dropdownProps = useMemo(() => ({
-        className: 'add-element-dropdown',
-        'data-cy': 'property-map__edit-menu-dropdown',
-    }), [])
-
     return (
         <Dropdown.Button
-            dropdownProps={dropdownProps}
+            dropdownProps={DROPDOWN_PROPS}
             items={items}
             type='secondary'
         >

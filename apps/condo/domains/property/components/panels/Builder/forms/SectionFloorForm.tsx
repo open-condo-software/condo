@@ -27,7 +27,7 @@ const AddSectionFloorForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh
         intl.formatMessage({ id: 'pages.condo.property.select.option.section' }) :
         intl.formatMessage({ id: 'pages.condo.property.select.option.parking' })
 
-    const [sections, setSections] = useState([])
+    const [sections, setSections] = useState(builder.getSectionOptions())
     const [section, setSection] = useState<number | null>(null)
     const [unitType, setUnitType] = useState<BuildingUnitSubType>(builder.defaultUnitType)
     const [unitsOnFloor, setUnitsOnFloor] = useState<number>()
@@ -63,10 +63,6 @@ const AddSectionFloorForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh
             maxFloor.current = builder.getSectionMaxFloor(section) + 1
         }
     }, [section])
-
-    useEffect(() => {
-        setSections(builder.getSectionOptions())
-    }, [builder])
 
     useEffect(() => {
         if (floor && section !== null && unitsOnFloor > 0) {
