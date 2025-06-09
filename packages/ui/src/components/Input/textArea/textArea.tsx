@@ -76,7 +76,7 @@ const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
     )
 
     return (
-        <div style={{ position: 'relative' }}>
+        <div className={`${TEXTAREA_CLASS_PREFIX}-textarea-wrapper`}>
             <DefaultTextArea
                 {...restProps}
                 ref={ref}
