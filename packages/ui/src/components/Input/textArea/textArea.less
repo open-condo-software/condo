@@ -1,0 +1,47 @@
+@import (reference) "@open-condo/ui/src/tokens/variables.less";
+@import (reference) "@open-condo/ui/src/components/style/mixins/typography";
+
+
+.condo-input {
+    &.condo-input-textarea {
+        padding: 12px;
+        height: auto;
+    }
+
+    &.condo-input-show-bottom-panel {
+        padding-bottom: 44px;
+    }
+}
+
+.condo-input-utils {
+    display: flex;
+    align-items: center;
+    max-height: 22px;
+    gap: @condo-global-spacing-16;
+}
+
+.condo-input-count {
+    color: @condo-global-color-gray-7;
+}
+
+.condo-input-bottom-panel {
+    position: absolute;
+    bottom: 1px;
+    padding-bottom: 11px;
+    left: 12px;
+    width: calc(100% - 24px);
+    background-color: white;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-height: 43px;
+    flex-direction: row;
+
+    &-right {
+        font-family: "Noto Sans Mono", monospace;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+    }
+}
