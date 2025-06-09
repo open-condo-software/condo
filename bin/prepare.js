@@ -109,13 +109,6 @@ async function prepare () {
     // Step 6. Create missing databases and update apps .env if needed
     for (const app of filteredApps) {
         logWithIndent(`Preparing "${app.name}" app`)
-        logWithIndent(`${app.name}`)
-        logWithIndent(`${app.type}`)
-        logWithIndent(`${app.pgName}`)
-        logWithIndent(`${app.redisIndex}`)
-        logWithIndent(`${app.port}`)
-        logWithIndent(`${app.sport}`)
-        logWithIndent(`${app.serviceUrl}`)
         if (app.type === 'KS') {
             logWithIndent('Copying app\'s .env.example values to .env if not exists', 2)
             await fillAppEnvWithDefaultValues(app.name)

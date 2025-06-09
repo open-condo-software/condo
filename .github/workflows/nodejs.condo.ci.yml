@@ -546,8 +546,7 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB:
-            main
+          POSTGRES_DB: main
       - name: Setup Redis db
         run: |
           docker run -p="127.0.0.1:6379:6379" -d ${{ env.REDIS_IMAGE_FULL }}
