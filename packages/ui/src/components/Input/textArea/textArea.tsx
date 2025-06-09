@@ -93,14 +93,12 @@ const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
 
             {showBottomPanel && (
                 <span className={`${TEXTAREA_CLASS_PREFIX}-bottom-panel`}>
-                    {hasBottomPanelUtils ? (
+                    {hasBottomPanelUtils && (
                         <span className={`${TEXTAREA_CLASS_PREFIX}-utils`}>
                             {bottomPanelUtils.map((util, index) => (
                                 <React.Fragment key={index}>{util}</React.Fragment>
                             ))}
                         </span>
-                    ) : (
-                        <span />
                     )}
 
                     {shouldShowRightPanel && (
