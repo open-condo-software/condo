@@ -559,16 +559,15 @@ jobs:
           docker exec condo-container node bin/prepare.js -f condo external-api
       - name: Run apps and tests
         run: |
+          docker exec condo-container sh -c "yarn workspace @app/condo start" &
+          docker exec condo-container sh -c "node bin/wait-apps-apis.js -f condo"
+          docker exec condo-container sh -c "yarn workspace @app/external-api start" &
           docker exec \
           -e PROMETHEUS_RW_SERVER_URL=$PROMETHEUS_RW_SERVER_URL \
           -e PROMETHEUS_USER=$PROMETHEUS_USER \
           -e PROMETHEUS_PASSWORD=$PROMETHEUS_PASSWORD \
           -e GH_REF_NAME=$GH_REF_NAME \
-          condo-container sh -c "(\
-          yarn workspace @app/condo start & \
-          yarn workspace @app/external-api start & \
-          node bin/wait-apps-apis.js -f condo) && \
-          yarn workspace @app/external-api test"
+          condo-container sh -c "yarn workspace @app/external-api test"
         env:
           PROMETHEUS_RW_SERVER_URL: ${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }}
           PROMETHEUS_USER: ${{ secrets.K6_PROMETHEUS_USER }}
