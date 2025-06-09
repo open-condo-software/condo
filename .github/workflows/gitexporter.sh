@@ -65,6 +65,7 @@ cat > ${SOURCE_FOLDER}.config.json <<EOF
     ".yarnrc.yaml",
     "commitlint.config.js",
     "defaults.json",
+    "docker-compose-postgresql-init-replication.sql",
     "docker-compose.yml",
     "Dockerfile",
     "LICENSE",
