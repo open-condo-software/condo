@@ -4,44 +4,48 @@
 
 .condo-input {
     &.condo-input-textarea {
-        padding: 12px;
+        padding: @condo-global-spacing-12;
         height: auto;
     }
 
     &.condo-input-show-bottom-panel {
-        padding-bottom: 44px;
+        padding-bottom: @condo-global-spacing-40;
     }
+}
+
+.condo-input-textarea-wrapper {
+    position: relative;
 }
 
 .condo-input-utils {
     display: flex;
     align-items: center;
-    max-height: 22px;
+    max-height: @condo-global-spacing-20;
     gap: @condo-global-spacing-16;
 }
 
 .condo-input-count {
+    font-family: "Noto Sans Mono", monospace;
     color: @condo-global-color-gray-7;
 }
 
 .condo-input-bottom-panel {
     position: absolute;
-    bottom: 1px;
-    padding-bottom: 11px;
-    left: 12px;
-    width: calc(100% - 24px);
-    background-color: white;
+    bottom: @condo-global-border-width-default;
+    padding-bottom: @condo-global-spacing-12 - @condo-global-border-width-default;
+    left: @condo-global-spacing-12;
+    width: calc(100% - @condo-global-spacing-12 * 2);
+    background-color: @condo-global-color-white;
 
     display: flex;
     align-items: center;
     justify-content: space-between;
-    max-height: 43px;
+    max-height: @condo-global-spacing-40 - @condo-global-border-width-default;
     flex-direction: row;
 
     &-right {
-        font-family: "Noto Sans Mono", monospace;
         display: flex;
         align-items: center;
-        gap: 18px;
+        gap: @condo-global-spacing-16;
     }
 }
