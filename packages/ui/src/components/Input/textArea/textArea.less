@@ -1,51 +1,49 @@
 @import (reference) "@open-condo/ui/src/tokens/variables.less";
 @import (reference) "@open-condo/ui/src/components/style/mixins/typography";
 
-
 .condo-input {
-    &.condo-input-textarea {
-        padding: @condo-global-spacing-12;
-        height: auto;
-    }
+  &.condo-input-textarea {
+    height: auto;
+    padding: @condo-global-spacing-12;
+  }
 
-    &.condo-input-show-bottom-panel {
-        padding-bottom: @condo-global-spacing-40;
-    }
+  &.condo-input-show-bottom-panel {
+    padding-bottom: @condo-global-spacing-40;
+  }
 }
 
 .condo-input-textarea-wrapper {
-    position: relative;
+  position: relative;
 }
 
 .condo-input-utils {
-    display: flex;
-    align-items: center;
-    max-height: @condo-global-spacing-20;
-    gap: @condo-global-spacing-16;
+  display: flex;
+  gap: @condo-global-spacing-16;
+  align-items: center;
+  max-height: @condo-global-spacing-20;
 }
 
 .condo-input-count {
-    font-family: "Noto Sans Mono", monospace;
-    color: @condo-global-color-gray-7;
+  color: @condo-global-color-gray-7;
+  font-family: "Noto Sans Mono", monospace;
 }
 
 .condo-input-bottom-panel {
-    position: absolute;
-    bottom: @condo-global-border-width-default;
-    padding-bottom: @condo-global-spacing-12 - @condo-global-border-width-default;
-    left: @condo-global-spacing-12;
-    width: calc(100% - @condo-global-spacing-12 * 2);
-    background-color: @condo-global-color-white;
+  position: absolute;
+  bottom: @condo-global-border-width-default;
+  left: @condo-global-spacing-12;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: calc(100% - @condo-global-spacing-12 * 2);
+  max-height: @condo-global-spacing-40 - @condo-global-border-width-default;
+  padding-bottom: @condo-global-spacing-12 - @condo-global-border-width-default;
+  background-color: @condo-global-color-white;
 
+  &-right {
     display: flex;
+    gap: @condo-global-spacing-16;
     align-items: center;
-    justify-content: space-between;
-    max-height: @condo-global-spacing-40 - @condo-global-border-width-default;
-    flex-direction: row;
-
-    &-right {
-        display: flex;
-        align-items: center;
-        gap: @condo-global-spacing-16;
-    }
+  }
 }
