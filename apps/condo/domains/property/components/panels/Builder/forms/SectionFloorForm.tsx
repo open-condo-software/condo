@@ -36,7 +36,9 @@ const AddSectionFloorForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh
     const maxFloor = useRef<number>(0)
     const renameNextUnits = useRef(false)
 
-    const setFloorNumber = useCallback((value) => setFloor(value ? value.toString() : ''), [])
+    const setFloorNumber = useCallback((value) => {
+        setFloor(value !== null ? value.toString() : '')
+    }, [])
     const setUnitsOnFloorNumber = useCallback((value) => setUnitsOnFloor(value ? value.toString() : ''), [])
     const applyChanges = useCallback(() => {
         if (floor !== '' && section !== null && unitsOnFloor > 0) {
@@ -55,7 +57,7 @@ const AddSectionFloorForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh
     }, [builder, refresh, floor, section, unitsOnFloor, unitType])
 
     const isSubmitDisabled = useMemo(() =>
-        !(floor && section !== null && unitsOnFloor)
+        !(floor !== '' && section !== null && unitsOnFloor)
     , [floor, section, unitsOnFloor])
 
     useEffect(() => {
@@ -65,7 +67,7 @@ const AddSectionFloorForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh
     }, [section])
 
     useEffect(() => {
-        if (floor && section !== null && unitsOnFloor > 0) {
+        if (floor !== '' && section !== null && unitsOnFloor > 0) {
             const sectionFloors = builder.sections?.[section]
                 ?.floors?.map(floor => floor.name) || []
             if (!sectionFloors.includes(floor)) {

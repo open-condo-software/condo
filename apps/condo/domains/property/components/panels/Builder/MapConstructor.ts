@@ -987,30 +987,85 @@ class MapEdit extends MapView {
 
     private insertFloor (floor: BuildingFloor, sectionIndex: number): number {
         const modifiedSection = this.sections[sectionIndex]
+
         modifiedSection.floors.forEach(({ index }, dataIndex) => {
             this.sectionFloorMap[index] = dataIndex
         })
 
-        let insertIndex = this.sectionFloorMap[floor.index] === undefined ? 0 : this.sectionFloorMap[floor.index] + 1
-        if (floor.index < 0 && this.sectionFloorMap[floor.index] === undefined) {
-            insertIndex = modifiedSection.floors.length
+        if (floor.index < 0) {
+            const existingFloor = modifiedSection.floors.find(f => f.index === floor.index)
+            if (existingFloor) {
+                modifiedSection.floors
+                    .filter(f => f.index <= floor.index && f.index < 0)
+                    .sort((a, b) => a.index - b.index)
+                    .forEach(f => {
+                        f.index -= 1
+                        f.name = String(f.index)
+                    })
+
+                modifiedSection.floors.forEach(({ index }, dataIndex) => {
+                    this.sectionFloorMap[index] = dataIndex
+                })
+            }
         }
+
+        if (floor.index >= 0) {
+            const existingFloor = modifiedSection.floors.find(f => f.index === floor.index)
+            if (existingFloor) {
+                modifiedSection.floors
+                    .filter(f => f.index >= floor.index && f.index >= 0)
+                    .sort((a, b) => b.index - a.index)
+                    .forEach(f => {
+                        f.index += 1
+                        f.name = String(f.index)
+                    })
+
+                modifiedSection.floors.forEach(({ index }, dataIndex) => {
+                    this.sectionFloorMap[index] = dataIndex
+                })
+            }
+        }
+
+        let insertIndex = 0
+
+        if (this.sectionFloorMap[floor.index] !== undefined) {
+            insertIndex = this.sectionFloorMap[floor.index]
+        } else {
+            if (floor.index >= 0) {
+                insertIndex = modifiedSection.floors.findIndex(f => f.index < 0)
+                if (insertIndex === -1) {
+                    insertIndex = modifiedSection.floors.length
+                }
+            } else {
+                insertIndex = modifiedSection.floors.findIndex(f => f.index < floor.index)
+                if (insertIndex === -1) {
+                    insertIndex = modifiedSection.floors.length
+                }
+            }
+        }
+
         modifiedSection.floors.splice(insertIndex, 0, floor)
 
-        // If we need to add positive floor -> rename all positive floor indexes
-        if (floor.index >= 0) {
-            const positiveFloorsCount = modifiedSection.floors.map(floor => floor.index).filter(index => index >= 0).length
-            for (let dataIndex = 0; dataIndex < positiveFloorsCount; dataIndex++) {
-                modifiedSection.floors[dataIndex].index = positiveFloorsCount - dataIndex
-                modifiedSection.floors[dataIndex].name = String(modifiedSection.floors[dataIndex].index)
-            }
-        } else {
-            const needToRenameNextFloor = Object.keys(this.sectionFloorMap).includes(String(floor.index))
-            if (needToRenameNextFloor) {
-                modifiedSection.floors[insertIndex - 1].index--
-                modifiedSection.floors[insertIndex - 1].name = String(modifiedSection.floors[insertIndex - 1].index)
-            }
+        const positiveFloors = modifiedSection.floors.filter(f => f.index > 0).sort((a, b) => b.index - a.index)
+        for (let i = 0; i < positiveFloors.length; i++) {
+            positiveFloors[i].name = String(positiveFloors[i].index)
         }
+
+        modifiedSection.floors
+            .filter(f => f.index === 0)
+            .forEach(f => {
+                f.index = 0
+                f.name = '0'
+            })
+
+        const negativeFloors = modifiedSection.floors.filter(f => f.index < 0).sort((a, b) => a.index - b.index)
+        for (let i = 0; i < negativeFloors.length; i++) {
+            negativeFloors[i].name = String(negativeFloors[i].index)
+        }
+
+        modifiedSection.floors.forEach(({ index }, dataIndex) => {
+            this.sectionFloorMap[index] = dataIndex
+        })
 
         this._previewSectionFloor = insertIndex
         return insertIndex
