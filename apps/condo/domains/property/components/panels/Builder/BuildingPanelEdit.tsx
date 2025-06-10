@@ -1,9 +1,8 @@
 /** @jsx jsx */
-import { CloseOutlined } from '@ant-design/icons'
 import { BuildingMap, BuildingSection, BuildingUnit, Property as PropertyType } from '@app/condo/schema'
 import { css, jsx } from '@emotion/react'
 import styled from '@emotion/styled'
-import { Col, notification, Row, RowProps, Space, Typography } from 'antd'
+import { Col, notification, Row, RowProps, Space } from 'antd'
 import cloneDeep from 'lodash/cloneDeep'
 import debounce from 'lodash/debounce'
 import get from 'lodash/get'
@@ -13,9 +12,10 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import ScrollContainer from 'react-indiana-drag-scroll'
 
+import { Close } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
-import { Button, Select, Tour } from '@open-condo/ui'
+import { Button, Select, Tour, Typography } from '@open-condo/ui'
 
 import { Button as OldButton } from '@condo/domains/common/components/Button'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
@@ -100,20 +100,19 @@ interface IBuildingPanelTopModalProps {
     title: string | null
     onClose: () => void
 }
-const BUILDING_TOP_MODAL_TITLE_STYLE: React.CSSProperties = { fontWeight: 700 }
 
 const BuildingPanelTopModal: React.FC<IBuildingPanelTopModalProps> = ({ visible, onClose, title, children }) => (
     <TopModal visible={visible}>
         <Row justify='space-between' align='top'>
             <Col span={22}>
                 {title !== null && (
-                    <Typography.Title level={4} style={BUILDING_TOP_MODAL_TITLE_STYLE}>{title}</Typography.Title>
+                    <Typography.Title level={4}>{title}</Typography.Title>
                 )}
             </Col>
             <Col span={2}>
                 <OldButton
                     onClick={onClose}
-                    icon={<CloseOutlined />}
+                    icon={<Close size='small' />}
                     size='small'
                     type='text'
                     data-cy='property-map__top-modal__close-button'
@@ -172,7 +171,6 @@ const useHotkeyToSaveProperty = ({ map, mapEdit, property, canManageProperties }
     useHotkeys('ctrl+s', quickSaveCallback, [map, property, canManageProperties])
 }
 
-const BUILDING_PANEL_EDIT_ERROR_STYLE: React.CSSProperties = { width: '100%', textAlign: 'center', marginBottom: 'unset' }
 
 export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     const intl = useIntl()
@@ -377,13 +375,6 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                         >
                             {CancelLabel}
                         </Button>
-                        {
-                            mapValidationError ? (
-                                <Typography.Paragraph type='danger' style={BUILDING_PANEL_EDIT_ERROR_STYLE}>
-                                    {mapValidationError}
-                                </Typography.Paragraph>
-                            ) : null
-                        }
                     </Space>
                 </ChessBoard>
             </Row>

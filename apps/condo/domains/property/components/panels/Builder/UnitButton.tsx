@@ -6,7 +6,6 @@ import { Button, ButtonProps, Tooltip } from '@open-condo/ui'
 
 
 type CustomButtonProps = Omit<ButtonProps, 'type'> & {
-    secondary?: boolean
     selected?: boolean
     preview?: boolean
     ellipsis?: boolean
