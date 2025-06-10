@@ -93,6 +93,7 @@ class ApolloServerClient {
     endpoint
     authRequisites = {}
     logger
+    customHeaders = {}
 
     /**
      *
