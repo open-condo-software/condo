@@ -1,5 +1,4 @@
 const { Keystone: DefaultKeystone } = require('@open-keystone/keystone')
-const { gql } = require('apollo-server-express')
 const { GraphQLScalarType, GraphQLError } = require('graphql')
 const { Kind } = require('graphql/language')
 const Upload = require('graphql-upload/Upload.js')
@@ -33,7 +32,7 @@ class Keystone extends DefaultKeystone {
     getTypeDefs ({ schemaName }) {
         const originalTypeDefs = super.getTypeDefs({ schemaName })
 
-        return [...originalTypeDefs, gql('scalar CustomUpload')]
+        return [...originalTypeDefs, 'scalar CustomUpload']
     }
     getResolvers ({ schemaName }) {
         const originalResolvers = super.getResolvers({ schemaName })
