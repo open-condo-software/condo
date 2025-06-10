@@ -672,7 +672,7 @@ const NotResidentClientTabContent = ({
 
     const getQueryForCreatingMeterReadingWithoutContact = useCallback((ticket) => ({
         tab: METER_TAB_TYPES.meterReading,
-        property: property?.id,
+        propertyId: property?.id,
         unitName,
         unitType,
         clientName: ticket?.clientName,
