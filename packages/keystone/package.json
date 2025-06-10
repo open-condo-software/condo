@@ -67,6 +67,7 @@
     "big.js": "^6.1.1",
     "body-parser": "^1.19.1",
     "bull": "^4.8.4",
+    "busboy": "^1.6.0",
     "connect-redis": "^6.0.0",
     "csv-parse": "^5.2.0",
     "cuid": "^2.1.8",
