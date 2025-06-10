@@ -34,6 +34,7 @@ const AddSectionFloorForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh
     const [floor, setFloor] = useState<string>('')
 
     const maxFloor = useRef<number>(0)
+    const minFloor = useRef<number>(0)
     const renameNextUnits = useRef(false)
 
     const setFloorNumber = useCallback((value) => {
@@ -63,6 +64,7 @@ const AddSectionFloorForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh
     useEffect(() => {
         if (section !== null) {
             maxFloor.current = builder.getSectionMaxFloor(section) + 1
+            minFloor.current = Math.min(builder.getSectionMinFloor(section) - 1, -1)
         }
     }, [section])
 
@@ -137,6 +139,7 @@ const AddSectionFloorForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh
                                 value={floor}
                                 onChange={setFloorNumber}
                                 max={maxFloor.current}
+                                min={minFloor.current}
                                 type='number'
                                 style={INPUT_STYLE}
                             />
