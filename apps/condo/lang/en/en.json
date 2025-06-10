@@ -2303,7 +2303,7 @@
   "pages.condo.property.EmptyBuildingBlock.view.EmptyBuildingHeader": "Map has not been created yet",
   "pages.condo.property.EmptyBuildingBlock.view.auto.EmptyBuildingDescription": "You can build a map in two ways: manually, by filling in several parameters about the house, or by generating a map automatically, based on data from {services}",
   "pages.condo.property.EmptyBuildingBlock.view.auto.EmptyBuildingDescription.services": "external services",
-  "pages.condo.property.EmptyBuildingBlock.view.manual.EmptyBuildingDescription": "Specify a few parameters to automatically generate a house map",
+  "pages.condo.property.EmptyBuildingBlock.view.manual.EmptyBuildingDescription": "To create house map, fill in the data",
   "pages.condo.property.ImportTitle": "properties",
   "pages.condo.property.ParkingSectionSelect.AllTitle": "All parking sections",
   "pages.condo.property.ParkingSectionSelect.OptionPrefix": "Parking №",
