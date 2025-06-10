@@ -20,7 +20,7 @@ const TicketCommentFile = new GQLListSchema('TicketCommentFile', {
     fields: {
         file: {
             schemaDoc: 'File object with meta information and publicUrl',
-            type: 'File',
+            type: 'CustomFile',
             adapter: Adapter,
         },
 

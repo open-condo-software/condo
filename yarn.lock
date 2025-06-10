@@ -11060,6 +11060,17 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@open-condo/files@workspace:packages/files":
+  version: 0.0.0-use.local
+  resolution: "@open-condo/files@workspace:packages/files"
+  dependencies:
+    busboy: ^1.6.0
+    fs-capacitor: ^6.2.0
+    graphql-upload: ^15.0.2
+    http-errors: ^2.0.0
+  languageName: unknown
+  linkType: soft
+
 "@open-condo/icons@workspace:^, @open-condo/icons@workspace:packages/icons":
   version: 0.0.0-use.local
   resolution: "@open-condo/icons@workspace:packages/icons"
@@ -11147,6 +11158,7 @@ __metadata:
     big.js: ^6.2.2
     body-parser: ^1.20.3
     bull: ^4.8.4
+    busboy: ^1.6.0
     connect-redis: ^6.0.0
     csv-parse: ^5.2.0
     cuid: ^2.1.8
