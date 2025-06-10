@@ -1,4 +1,4 @@
-import { File } from '@app/condo/schema'
+import { CustomFile, File } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Upload } from 'antd'
 import { UploadFile } from 'antd/lib/upload/interface'
@@ -110,7 +110,7 @@ export type UploadFileType = {
 
 export type DBFile = {
     id: string
-    file?: File
+    file?: CustomFile | File
 }
 
 type ImagesUploadListProps = {
@@ -251,7 +251,7 @@ export const ImagesUploadList: React.FC<ImagesUploadListProps> = ({
                             onError(error)
                             return
                         }
-                        
+
                         return createAction({ file }).then(dbFile  => {
                             onSuccess({ id: dbFile.id, url: get(dbFile, 'file.publicUrl') }, null)
                         }).catch(err => {
