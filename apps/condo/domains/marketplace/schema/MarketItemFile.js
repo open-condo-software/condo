@@ -44,7 +44,7 @@ const MarketItemFile = new GQLListSchema('MarketItemFile', {
 
         file: {
             schemaDoc: 'File object with meta information and publicUrl',
-            type: 'File',
+            type: 'CustomFile',
             adapter: Adapter,
             isRequired: true,
             hooks: {
