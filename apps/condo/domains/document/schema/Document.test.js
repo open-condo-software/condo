@@ -45,11 +45,11 @@ describe('Document', () => {
         await createTestOrganizationEmployee(admin, testOrganization, employeeUserWithoutDocumentPermissions.user, roleWithoutAccess)
         await createTestOrganizationEmployee(admin, testOtherOrganization, employeeUserInOtherOrganization.user, roleWithCanAccessInOtherOrganization)
         const [testDocumentCategory] = await createTestDocumentCategory(admin)
-        // const [testDocument] = await createTestDocument(admin, testOrganization, testDocumentCategory, { name: 'another name' })
-        //
+        const [testDocument] = await createTestDocument(admin, testOrganization, testDocumentCategory)
+
         organization = testOrganization
         documentCategory = testDocumentCategory
-        // document = testDocument
+        document = testDocument
     })
 
     describe('Access', () => {
@@ -84,22 +84,6 @@ describe('Document', () => {
                 expect(createdDocument.organization.id).toEqual(organization.id)
                 expect(createdDocument.category.id).toEqual(documentCategory.id)
                 expect(createdDocument.canReadByResident).toEqual(true)
-            })
-            it('can upload file via string', async () => {
-                // const [oldWayCreatedDocument] = await createTestDocument(employeeUserWithDocumentPermissions, organization, documentCategory, {
-                //     name: 'oldwayname',
-                // })
-                // expect(oldWayCreatedDocument).toBeDefined()
-                // expect(oldWayCreatedDocument.id).toMatch(UUID_RE)
-
-                const [document] = await createTestDocument(employeeUserWithDocumentPermissions, organization, documentCategory, { file: 'a394471f-ef58-4c8c-add2-dc57ece05dd7', name: 'testname' })
-                expect(document).toBeDefined()
-                expect(document.id).toMatch(UUID_RE)
-
-                const readDocument = await Document.getOne(employeeUserWithDocumentPermissions, { id: document.id })
-
-                expect(readDocument).toBeDefined()
-                expect(readDocument).toHaveProperty('file')
             })
 
             it('employee with canManageDocuments in several organizations can', async () => {
