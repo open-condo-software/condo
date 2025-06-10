@@ -684,7 +684,7 @@ export type GetTicketCallRecordsFragmentsQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetTicketCallRecordsFragmentsQuery = { __typename?: 'Query', callRecordFragments?: Array<{ __typename?: 'CallRecordFragment', id: string, callRecord?: { __typename?: 'CallRecord', id: string, isIncomingCall?: boolean | null, callerPhone?: string | null, destCallerPhone?: string | null, startedAt?: string | null, file?: { __typename?: 'File', publicUrl?: string | null, id?: string | null } | null } | null } | null> | null };
+export type GetTicketCallRecordsFragmentsQuery = { __typename?: 'Query', callRecordFragments?: Array<{ __typename?: 'CallRecordFragment', id: string, callRecord?: { __typename?: 'CallRecord', id: string, isIncomingCall?: boolean | null, callerPhone?: string | null, destCallerPhone?: string | null, startedAt?: string | null, file?: { __typename?: 'CustomFile', publicUrl?: string | null, id?: string | null } | null } | null } | null> | null };
 
 export type GetClientCallRecordsExistenceQueryVariables = Types.Exact<{
   phone: Types.Scalars['String']['input'];
@@ -995,7 +995,7 @@ export type GetTicketCommentsFilesQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetTicketCommentsFilesQuery = { __typename?: 'Query', files?: Array<{ __typename?: 'TicketCommentFile', id: string, file?: { __typename?: 'File', originalFilename?: string | null, mimetype?: string | null, publicUrl?: string | null } | null, ticketComment?: { __typename?: 'TicketComment', id: string } | null } | null> | null };
+export type GetTicketCommentsFilesQuery = { __typename?: 'Query', files?: Array<{ __typename?: 'TicketCommentFile', id: string, file?: { __typename?: 'CustomFile', originalFilename?: string | null, mimetype?: string | null, publicUrl?: string | null } | null, ticketComment?: { __typename?: 'TicketComment', id: string } | null } | null> | null };
 
 export type GetTicketDocumentGenerationTasksQueryVariables = Types.Exact<{
   where: Types.TicketDocumentGenerationTaskWhereInput;
@@ -1046,7 +1046,7 @@ export type GetTicketFilesQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetTicketFilesQuery = { __typename?: 'Query', ticketFiles?: Array<{ __typename?: 'TicketFile', id: string, ticket?: { __typename?: 'Ticket', id: string } | null, file?: { __typename?: 'File', id?: string | null, originalFilename?: string | null, publicUrl?: string | null } | null } | null> | null };
+export type GetTicketFilesQuery = { __typename?: 'Query', ticketFiles?: Array<{ __typename?: 'TicketFile', id: string, ticket?: { __typename?: 'Ticket', id: string } | null, file?: { __typename?: 'CustomFile', id?: string | null, originalFilename?: string | null, publicUrl?: string | null } | null } | null> | null };
 
 export type GetTicketPropertyHintByIdQueryVariables = Types.Exact<{
   id: Types.Scalars['ID']['input'];
