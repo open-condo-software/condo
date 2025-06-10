@@ -2303,7 +2303,7 @@
   "pages.condo.property.EmptyBuildingBlock.view.EmptyBuildingHeader": "El plano del edificio aún no creado",
   "pages.condo.property.EmptyBuildingBlock.view.auto.EmptyBuildingDescription": "Se puede dibujar el plano del edificio manualmente, especificando algunos parámetros, o automáticamente, basándose en los datos de {services}",
   "pages.condo.property.EmptyBuildingBlock.view.auto.EmptyBuildingDescription.services": "Registro de vivienda",
-  "pages.condo.property.EmptyBuildingBlock.view.manual.EmptyBuildingDescription": "Especifica varios parámetros para crear automáticamente plano del edificio",
+  "pages.condo.property.EmptyBuildingBlock.view.manual.EmptyBuildingDescription": "Para crearlo, rellene los datos",
   "pages.condo.property.ImportTitle": "Comunidades",
   "pages.condo.property.ParkingSectionSelect.AllTitle": "Todos los aparcamientos",
   "pages.condo.property.ParkingSectionSelect.OptionPrefix": "Aparcamiento №",
