@@ -7,6 +7,8 @@ const utc = require('dayjs/plugin/utc')
 
 const conf = require('@open-condo/config')
 const { FeaturesMiddleware } = require('@open-condo/featureflags/FeaturesMiddleware')
+const { FileMiddleware } = require('@open-condo/files/fileMiddleware')
+const { getFileModels } = require('@open-condo/files/schema/models')
 const { AdapterCache } = require('@open-condo/keystone/adapterCache')
 const { GQLError, GQLErrorCode: { FORBIDDEN } } = require('@open-condo/keystone/errors')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
@@ -64,6 +66,7 @@ const schemas = () => [
     require('@condo/domains/document/schema'),
     require('@condo/domains/ai/schema'),
     getWebhookModels('@app/condo/schema.graphql'),
+    getFileModels(),
 ]
 
 const tasks = () => [
@@ -121,6 +124,7 @@ const apps = () => {
         new PaymentLinkMiddleware(),
         new UnsubscribeMiddleware(),
         FileAdapter.makeFileAdapterMiddleware(),
+        new FileMiddleware({ apiUrl: '/api/rest/files/' }),
         new UserExternalIdentityMiddleware(),
     ]
 }

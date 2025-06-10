@@ -6,7 +6,7 @@ const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
 
 const TESTS_LOG_REQUEST_RESPONSE = conf.TESTS_LOG_REQUEST_RESPONSE === 'true'
 
-jest.setTimeout(60000)
+// jest.setTimeout(60000)
 
 if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(index, { excludeApps: ['NextApp'] })
 if (conf.TESTS_FAKE_WORKER_MODE) console.warn('The Tasks will be executed inside this node process with setTimeout instead of being sent to the queue!')
