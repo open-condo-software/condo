@@ -25,7 +25,7 @@ export const UnitButton: React.FC<CustomButtonProps> = (props) => {
         const classes = {
             ['map-unit-button']: true,
             ['map-unit-button-selected']: selected,
-            [`map-${unitType}-unit-button`]: true,
+            [`map-${unitType}-unit-button`]: typeof unitType !== 'undefined',
             ['map-preview-unit-button']: preview,
             ['map-duplicate-unit-button']: isDuplicated,
             [`map-unit-button-${type}`]: true,

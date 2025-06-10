@@ -358,8 +358,8 @@
   border: none;
 }
 
-.map-unit-button-section > .condo-btn-text,
-.map-unit-button-floor > .condo-btn-text {
+.condo-btn.map-unit-button.map-unit-button-section > .condo-btn-text,
+.condo-btn.map-unit-button.map-unit-button-floor > .condo-btn-text {
   font-size: 14px;
 }
 
@@ -368,8 +368,8 @@
   border-color: var(--condo-global-color-green-5);
 }
 
-.map-unit-button > .condo-btn-text:hover,
-.map-unit-button > .condo-btn-text:focus {
+.condo-btn.map-unit-button > .condo-btn-text:hover,
+.condo-btn.map-unit-button > .condo-btn-text:focus {
   background: none;
 }
 
