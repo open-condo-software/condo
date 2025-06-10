@@ -1,0 +1,16 @@
+{
+  "name": "@open-condo/files",
+  "version": "1.0.0",
+  "exports": {
+    "./schema/models": "./schema/models/index.js",
+    "./schema/utils/serverSchema": "./schema/utils/serverSchema.js",
+    "./schema/gql": "./schema/gql.js",
+    "./fileMiddleware": "./fileMiddleware.js"
+  },
+  "dependencies": {
+    "busboy": "^1.6.0",
+    "fs-capacitor": "^6.2.0",
+    "graphql-upload": "^15.0.2",
+    "http-errors": "^2.0.0"
+  }
+}
