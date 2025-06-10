@@ -11,8 +11,6 @@ import { MapEditMode, MapViewMode } from '@condo/domains/property/components/pan
 import { IPropertyMapModalForm, MODAL_FORM_ROW_BUTTONS_GUTTER, MODAL_FORM_ROW_GUTTER } from './BaseUnitForm'
 import { RenameNextUnitsCheckbox } from './RenameNextUnitsCheckbox'
 
-import './UnitForm.css'
-
 
 const EDIT_UNIT_MODS = [MapEditMode.EditUnit, MapEditMode.EditUnits, MapEditMode.EditParkingUnit, MapEditMode.EditParkingFacilityUnit]
 const ADD_UNIT_MODS = [MapEditMode.AddUnit, MapEditMode.AddParkingUnit, MapEditMode.AddParkingFacilityUnit]

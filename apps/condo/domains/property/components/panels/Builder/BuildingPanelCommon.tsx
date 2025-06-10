@@ -21,7 +21,7 @@ import { IPropertyMapFormProps } from '@condo/domains/property/components/BasePr
 
 import { FullscreenFooter } from './Fullscreen'
 import { MapEdit, MapView, MapViewMode } from './MapConstructor'
-import { UnitButton } from './UnitButton/UnitButton'
+import { UnitButton } from './UnitButton'
 
 
 const MESSAGE_DEBOUNCE_TIMEOUT = 2000

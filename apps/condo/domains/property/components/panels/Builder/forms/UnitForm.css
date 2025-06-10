@@ -1,9 +1,0 @@
-.unit-name-error .condo-input-affix-wrapper,
-.unit-name-error .condo-input-affix-wrapper:hover,
-.unit-name-error .condo-input-affix-wrapper:focus {
-  border-color: var(--condo-global-color-red-5);
-}
-
-.unit-name-error .condo-typography-primary {
-  color: var(--condo-global-color-red-5);
-}

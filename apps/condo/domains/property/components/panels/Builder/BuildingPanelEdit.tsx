@@ -41,9 +41,7 @@ import {
 import { AddSectionFloorForm } from './forms/SectionFloorForm'
 import { FullscreenHeader, FullscreenWrapper } from './Fullscreen'
 import { MapEdit, MapEditMode, MapViewMode } from './MapConstructor'
-import { UnitButton } from './UnitButton/UnitButton'
-
-import './BuildingPanelEdit.css'
+import { UnitButton } from './UnitButton'
 
 
 const DEBOUNCE_TIMEOUT = 800

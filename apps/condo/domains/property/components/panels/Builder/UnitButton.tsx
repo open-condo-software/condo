@@ -4,8 +4,6 @@ import React, { useMemo } from 'react'
 
 import { Button, ButtonProps, Tooltip } from '@open-condo/ui'
 
-import './UnitButton.css'
-
 
 type CustomButtonProps = Omit<ButtonProps, 'type'> & {
     secondary?: boolean

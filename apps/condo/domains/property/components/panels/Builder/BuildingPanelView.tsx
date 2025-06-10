@@ -33,9 +33,8 @@ import {
 import { AddressTopTextContainer } from './BuildingPanelEdit'
 import { FullscreenHeader, FullscreenWrapper } from './Fullscreen'
 import { MapView, MapViewMode } from './MapConstructor'
-import { UnitButton } from './UnitButton/UnitButton'
+import { UnitButton } from './UnitButton'
 
-import './BuildingPanelView.css'
 
 interface IBuildingPanelViewProps extends Pick<IPropertyMapFormProps, 'canManageProperties'> {
     map: BuildingMap

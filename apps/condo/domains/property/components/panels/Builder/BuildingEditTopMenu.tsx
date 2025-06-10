@@ -6,8 +6,6 @@ import { Dropdown } from '@open-condo/ui'
 
 import { MapEdit, MapEditMode, MapViewMode } from './MapConstructor'
 
-import './BuildingEditTopMenu.css'
-
 
 const TOP_MENU_MAP_SECTION_MODS = [
     MapEditMode.AddSection,
