@@ -103,7 +103,7 @@ const { createMapVideoUrl } = publicRuntimeConfig
 export const EmptyBuildingBlock: React.FC<IEmptyBuildingBlock> = ({ mode = 'view', canManageProperties = false }) => {
     const intl = useIntl()
     const EmptyPropertyBuildingHeader = intl.formatMessage({ id: `pages.condo.property.EmptyBuildingBlock.${mode}.EmptyBuildingHeader` })
-    const MapManualCreateTitle = intl.formatMessage({ id: 'pages.condo.property.EmptyBuildingBlock.view.CreateMapManuallyTitle' })
+    const MapManualCreateTitle = intl.formatMessage({ id: 'Create' })
     const MapAutoCreateTitle = intl.formatMessage({ id: 'pages.condo.property.EmptyBuildingBlock.view.CreateMapAutomaticallyTitle' })
     const MapEditEmptyBuildingDescription = intl.formatMessage({ id: 'pages.condo.property.EmptyBuildingBlock.edit.EmptyBuildingDescription' })
     const CardVideoTitle = intl.formatMessage({ id: 'pages.condo.property.EmptyBuildingBlock.edit.CardVideoTitle' })
