@@ -49,7 +49,7 @@ const PaymentsFile = new GQLListSchema('PaymentsFile', {
 
         file: {
             schemaDoc: 'Payments registry file itself',
-            type: 'File',
+            type: 'CustomFile',
             isRequired: true,
             adapter: Adapter,
         },
