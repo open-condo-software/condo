@@ -24,6 +24,8 @@ class FileMiddleware {
     }
 
     prepareMiddleware ({ keystone }) {
+        // creates middleware - no routes exposed
+        // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
         const processRequestOptions = this.processRequestOptions
         const fileAdapter = this.adapter
