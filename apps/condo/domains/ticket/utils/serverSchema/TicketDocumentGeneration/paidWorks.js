@@ -152,7 +152,7 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
 
     const documentTextData = {
         header: {
-            generalDate: dayjs().tz(timeZone).format(dayjs().format('L')),
+            generalDate: dayjs().tz(timeZone).format('L'),
         },
         company: {
             name: get(organization, 'name'),
