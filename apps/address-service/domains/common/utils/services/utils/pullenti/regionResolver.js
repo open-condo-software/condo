@@ -1,10 +1,10 @@
-const { joinNameAndType, getGarLevel, getGarParam } = require('./helpers')
+const { joinNameAndType, getGarLevel, getGarParam, selfOrFirst } = require('./helpers')
 
 function resolveRegion (regionLevel) {
     if (!regionLevel) return {}
 
     const gar = getGarLevel(regionLevel.gar, 'adminarea')
-    const region = gar?.area?.name || null
+    const region = selfOrFirst(gar?.area?.name) || null
     let region_type = 'обл'
     let region_type_full = 'область'
 

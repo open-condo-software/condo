@@ -7,7 +7,7 @@ const { PULLENTI_PROVIDER } = require('@address-service/domains/common/constants
 const { resolveCityDistrict } = require('@address-service/domains/common/utils/services/utils/pullenti/cityDistrictResolver')
 const { resolveCity } = require('@address-service/domains/common/utils/services/utils/pullenti/cityResolver')
 const { resolveFlat } = require('@address-service/domains/common/utils/services/utils/pullenti/flatResolver')
-const { extractLastFiasId, extractLastGarParam } = require('@address-service/domains/common/utils/services/utils/pullenti/helpers')
+const { extractLastFiasId, extractLastGarParam, getLevel } = require('@address-service/domains/common/utils/services/utils/pullenti/helpers')
 const { resolveHouse } = require('@address-service/domains/common/utils/services/utils/pullenti/houseResolver')
 const { resolveRegion } = require('@address-service/domains/common/utils/services/utils/pullenti/regionResolver')
 const { resolveSettlement } = require('@address-service/domains/common/utils/services/utils/pullenti/settlementResolver')
@@ -15,37 +15,29 @@ const { resolveStead } = require('@address-service/domains/common/utils/services
 const { resolveStreet } = require('@address-service/domains/common/utils/services/utils/pullenti/streetResolver')
 
 /**
- * Extracts a level from the textaddr object by its name.
- * @param {Object} item The item containing textaddr
- * @param {string} levelName The name of the level to extract
- * @returns {Object|null} The level object if found, otherwise null
+ * Creates and returns an instance of XMLParser configured for Pullenti XML responses.
+ * @returns {XMLParser}
  */
-function getLevel (item, levelName) {
-    if (!item || !item.textaddr || !Array.isArray(item.textaddr.textobj)) {
-        return null
-    }
-
-    for (const level of item.textaddr.textobj) {
-        if (level && level.level === levelName) {
-            return level
-        }
-    }
-
-    return null
-}
-
-/**
- * @param {string} rawXmlString XML string
- * @returns {NormalizedBuilding[]}
- */
-function normalize (rawXmlString) {
-    const parser = new XMLParser({
+function getXmlParser () {
+    return new XMLParser({
         ignoreAttributes: false,
         numberParseOptions: {
             eNotation: false,
         },
     })
+}
+
+/**
+ * @param {string} rawXmlString XML string
+ * @returns {NormalizedBuilding}
+ */
+function normalize (rawXmlString) {
+    const parser = getXmlParser()
     let jsonObj = parser.parse(rawXmlString)
+
+    if (jsonObj?.textaddr?.textobj.some((textobj) => !!textobj.gar?.expired)) {
+        return null
+    }
 
     const countryLevel = getLevel(jsonObj, 'country')
     const regionAreaLevel = getLevel(jsonObj, 'regionarea')
@@ -139,8 +131,19 @@ function normalize (rawXmlString) {
     const gpspoint = extractLastGarParam(jsonObj?.textaddr?.textobj || [], 'gpspoint')
     const [geo_lat, geo_lon] = gpspoint ? gpspoint.split(' ') : [null, null]
 
-    return [{
-        value: get(jsonObj, ['textaddr', 'text']),
+    const value = [
+        region_with_type,
+        city_with_type,
+        city_district_with_type,
+        settlement_with_type,
+        street_with_type,
+        house ? `${house_type_full} ${house}` : null,
+        block ? `${block_type_full} ${block}` : null,
+        stead ? `${stead_type_full} ${stead}` : null,
+    ].filter(Boolean).join(', ')
+
+    return {
+        value, //: get(jsonObj, ['textaddr', 'text']),
         unrestricted_value: [postal_code, get(buildingLevel, ['gar', 'path'])].filter(Boolean).join(' '),
         rawValue: get(jsonObj, ['textaddr', 'text']),
         data: {
@@ -242,7 +245,7 @@ function normalize (rawXmlString) {
             rawData: rawXmlString,
         },
         type: VALID_DADATA_BUILDING_TYPES.includes(house_type_full) ? BUILDING_ADDRESS_TYPE : null,
-    }]
+    }
 }
 
-module.exports = { normalize }
+module.exports = { getXmlParser, normalize }
