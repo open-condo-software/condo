@@ -82851,7 +82851,7 @@ input CondoFileHistoryRecordsCreateInput {
   data: CondoFileHistoryRecordCreateInput
 }
 
-""" TODO """
+""" File uploaded to platform and meta with ownership data """
 type CondoFile {
   """
   This virtual field will be resolved in one of the following ways (in this order):
@@ -82862,10 +82862,11 @@ type CondoFile {
   """
   _label_: String
 
-  """ TODO """
+  """ File uploaded to platform """
   file: CustomFile
 
-  """ TODO """
+  """ Untyped metadata for this object. May be used by custom integrations. 
+  """
   meta: JSON
   id: ID!
   v: Int
