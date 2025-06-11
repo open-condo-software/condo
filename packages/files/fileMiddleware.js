@@ -3,6 +3,7 @@ const cuid = require('cuid')
 const express = require('express')
 const { WriteStream } = require('fs-capacitor')
 const createError = require('http-errors')
+const { pick } = require('lodash')
 // const mongoose = require('mongoose')
 
 const { CondoFile } = require('@open-condo/files/schema/utils/serverSchema')
@@ -17,10 +18,12 @@ class FileMiddleware {
         maxFieldSize = 200 * 1024 * 1024,
         maxFileSize = 200 * 1024 * 1024,
         maxFiles = 2,
+        requiredMetaFields = ['user', 'organization'],
     }) {
         this.apiUrl = apiUrl
         this.processRequestOptions = { maxFieldSize, maxFileSize, maxFiles }
         this.adapter = new FileAdapter('files')
+        this.requiredMetaFields = requiredMetaFields
     }
 
     prepareMiddleware ({ keystone }) {
@@ -29,6 +32,8 @@ class FileMiddleware {
         const app = express()
         const processRequestOptions = this.processRequestOptions
         const fileAdapter = this.adapter
+        const requiredMetaFields = this.requiredMetaFields
+
         app.use(
             this.apiUrl,
             function (request, response, next) {
@@ -138,11 +143,17 @@ class FileMiddleware {
                         switch (fieldName) {
                             case 'meta':
                                 try {
-                                    meta = JSON.parse(value)
-
-                                } catch ( e) {
+                                    meta = pick(JSON.parse(value), requiredMetaFields)
+                                } catch (e) {
                                     return exit(
                                         createError(400, 'Invalid type for the "meta" multipart field')
+                                    )
+                                }
+
+
+                                if (!Object.values(meta).every(value => !!value)) {
+                                    return exit(
+                                        createError(400, `Invalid data for file meta. Required fields ${requiredMetaFields.join(', ')} should be not empty`),
                                     )
                                 }
                         }
