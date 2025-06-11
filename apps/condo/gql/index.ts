@@ -1639,6 +1639,39 @@ export function useCreateInvoiceMutation(baseOptions?: Apollo.MutationHookOption
 export type CreateInvoiceMutationHookResult = ReturnType<typeof useCreateInvoiceMutation>;
 export type CreateInvoiceMutationResult = Apollo.MutationResult<Types.CreateInvoiceMutation>;
 export type CreateInvoiceMutationOptions = Apollo.BaseMutationOptions<Types.CreateInvoiceMutation, Types.CreateInvoiceMutationVariables>;
+export const UpdateMarketItemsDocument = gql`
+    mutation updateMarketItems($data: [MarketItemsUpdateInput!]!) {
+  marketItems: updateMarketItems(data: $data) {
+    id
+  }
+}
+    `;
+export type UpdateMarketItemsMutationFn = Apollo.MutationFunction<Types.UpdateMarketItemsMutation, Types.UpdateMarketItemsMutationVariables>;
+
+/**
+ * __useUpdateMarketItemsMutation__
+ *
+ * To run a mutation, you first call `useUpdateMarketItemsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateMarketItemsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateMarketItemsMutation, { data, loading, error }] = useUpdateMarketItemsMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateMarketItemsMutation(baseOptions?: Apollo.MutationHookOptions<Types.UpdateMarketItemsMutation, Types.UpdateMarketItemsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.UpdateMarketItemsMutation, Types.UpdateMarketItemsMutationVariables>(UpdateMarketItemsDocument, options);
+      }
+export type UpdateMarketItemsMutationHookResult = ReturnType<typeof useUpdateMarketItemsMutation>;
+export type UpdateMarketItemsMutationResult = Apollo.MutationResult<Types.UpdateMarketItemsMutation>;
+export type UpdateMarketItemsMutationOptions = Apollo.BaseMutationOptions<Types.UpdateMarketItemsMutation, Types.UpdateMarketItemsMutationVariables>;
 export const GetMeterReadingExportTasksDocument = gql`
     query getMeterReadingExportTasks($where: MeterReadingExportTaskWhereInput!) {
   tasks: allMeterReadingExportTasks(where: $where) {
