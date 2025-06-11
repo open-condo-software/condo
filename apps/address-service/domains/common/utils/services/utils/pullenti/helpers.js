@@ -23,6 +23,26 @@ function selfOrFirst (objOrArray) {
 }
 
 /**
+ * Extracts a level from the textaddr object by its name.
+ * @param {Object} item The item containing textaddr
+ * @param {string} levelName The name of the level to extract
+ * @returns {Object|null} The level object if found, otherwise null
+ */
+function getLevel (item, levelName) {
+    if (!item || !item.textaddr || !Array.isArray(item.textaddr.textobj)) {
+        return null
+    }
+
+    for (const level of item.textaddr.textobj) {
+        if (level && level.level === levelName) {
+            return level
+        }
+    }
+
+    return null
+}
+
+/**
  * Extracts a GAR level object from either a single object or array of objects
  * @param {Object|Object[]} levelGar - GAR level data (single object or array)
  * @param {string|null} [level=null] - Specific level to search for in array
@@ -107,4 +127,4 @@ function getGarParam (gar, paramName) {
     }
 }
 
-module.exports = { joinNameAndType, selfOrFirst, getGarLevel, getGarParam, extractLastFiasId, extractLastGarParam }
+module.exports = { joinNameAndType, selfOrFirst, getLevel, getGarLevel, getGarParam, extractLastFiasId, extractLastGarParam }

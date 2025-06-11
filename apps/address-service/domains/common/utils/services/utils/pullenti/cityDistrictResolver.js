@@ -1,10 +1,10 @@
-const { joinNameAndType, getGarLevel, getGarParam } = require('./helpers')
+const { joinNameAndType, getGarLevel, getGarParam, selfOrFirst } = require('./helpers')
 
 function resolveCityDistrict (districtLevel) {
     if (!districtLevel) return {}
 
     const gar = getGarLevel(districtLevel.gar, 'adminarea')
-    const city_district = gar?.area?.name || null
+    const city_district = selfOrFirst(gar?.area?.name) || null
     let city_district_type = 'р-н'
     let city_district_type_full = 'район'
 

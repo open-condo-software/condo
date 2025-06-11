@@ -62,7 +62,7 @@ class PullentiSearchProvider extends AbstractSearchProvider {
      * @returns {NormalizedBuilding[]}
      */
     normalize (xmlString) {
-        return normalize(xmlString)
+        return [normalize(xmlString)]
     }
 }
 
