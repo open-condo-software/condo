@@ -35,7 +35,14 @@ function normalize (rawXmlString) {
     const parser = getXmlParser()
     let jsonObj = parser.parse(rawXmlString)
 
-    if (jsonObj?.textaddr?.textobj.some((textobj) => !!textobj.gar?.expired)) {
+    let textObj = jsonObj?.textaddr?.textobj || []
+    textObj = Array.isArray(textObj) ? textObj : [textObj]
+
+    if (
+        !textObj
+        || textObj.length === 0
+        || textObj.some((obj) => !!obj.gar?.expired)
+    ) {
         return null
     }
 
@@ -51,7 +58,7 @@ function normalize (rawXmlString) {
     const apartmentLevel = getLevel(jsonObj, 'apartment')
 
     const {
-        region,
+        region = null,
         region_type = null,
         region_type_full = null,
         region_with_type = null,
@@ -60,7 +67,7 @@ function normalize (rawXmlString) {
     } = resolveRegion(regionAreaLevel)
 
     const {
-        city,
+        city = null,
         city_type = null,
         city_type_full = null,
         city_with_type = null,
@@ -87,7 +94,7 @@ function normalize (rawXmlString) {
     } = resolveSettlement(localityLevel)
 
     const {
-        street,
+        street = null,
         street_type = null,
         street_type_full = null,
         street_with_type = null,
@@ -124,11 +131,11 @@ function normalize (rawXmlString) {
         flat_cadnum = null,
     } = resolveFlat(apartmentLevel)
 
-    const fias_id = extractLastFiasId(jsonObj?.textaddr?.textobj || [])
-    const kladr_id = extractLastGarParam(jsonObj?.textaddr?.textobj || [], 'kladrcode')
-    const okato = extractLastGarParam(jsonObj?.textaddr?.textobj || [], 'okato')
-    const oktmo = extractLastGarParam(jsonObj?.textaddr?.textobj || [], 'oktmo')
-    const gpspoint = extractLastGarParam(jsonObj?.textaddr?.textobj || [], 'gpspoint')
+    const fias_id = extractLastFiasId(textObj)
+    const kladr_id = extractLastGarParam(textObj, 'kladrcode')
+    const okato = extractLastGarParam(textObj, 'okato')
+    const oktmo = extractLastGarParam(textObj, 'oktmo')
+    const gpspoint = extractLastGarParam(textObj, 'gpspoint')
     const [geo_lat, geo_lon] = gpspoint ? gpspoint.split(' ') : [null, null]
 
     const value = [

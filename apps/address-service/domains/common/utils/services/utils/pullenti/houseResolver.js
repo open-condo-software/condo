@@ -24,6 +24,10 @@ function resolveHouse (houseLevel) {
         block_type_full = 'корпус'
     }
 
+    const postIndex = getGarParam(gar, 'postindex')
+    const kladrCode = getGarParam(gar, 'kladrcode')
+    const kadasterNumber = getGarParam(gar, 'kadasternumber')
+
     return {
         house: house ? String(house) : null,
         house_type,
@@ -32,9 +36,9 @@ function resolveHouse (houseLevel) {
         block_type,
         block_type_full,
         house_fias_id: gar?.guid || null,
-        house_kladr_id: getGarParam(gar, 'kladrcode') || null,
-        house_cadnum: getGarParam(gar, 'kadasternumber') || null,
-        postal_code: getGarParam(gar, 'postindex') || null,
+        house_kladr_id: kladrCode ? String(kladrCode) : null,
+        house_cadnum: kadasterNumber ? String(kadasterNumber) : null,
+        postal_code: postIndex ? String(postIndex) : null,
     }
 }
 
