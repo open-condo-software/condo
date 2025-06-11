@@ -77,7 +77,7 @@ const ContactExportTask = new GQLListSchema('ContactExportTask', {
 
         file: {
             schemaDoc: 'Meta information about file, saved outside of database somewhere. Shape of meta information JSON object is specific to file adapter, used by saving a file.',
-            type: 'File',
+            type: 'CustomFile',
             adapter: ContactExportTaskFileAdapter,
             access: {
                 create: canOnlyServerSideWithoutUserRequest,
