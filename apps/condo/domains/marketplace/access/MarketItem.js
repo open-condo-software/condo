@@ -5,14 +5,15 @@
 const { compact, get, uniq } = require('lodash')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { getById } = require('@open-condo/keystone/schema')
+const { find } = require('@open-condo/keystone/schema')
 
 const {
     getEmployedOrRelatedOrganizationsByPermissions,
-    checkPermissionsInEmployedOrRelatedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
+const { checkPermissionsInEmployedOrganizations } = require('@condo/domains/organization/utils/accessSchema')
 const { getUserResidents, getUserServiceConsumers } = require('@condo/domains/resident/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
+
 
 async function canReadMarketItems ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
@@ -44,25 +45,39 @@ async function canReadMarketItems ({ authentication: { item: user }, context }) 
     }
 }
 
-async function canManageMarketItems ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
+async function canManageMarketItems ({ authentication: { item: user }, originalInput, operation, itemId, itemIds, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
     if (user.type === RESIDENT) return false
 
-    let organizationId
+    const isBulkRequest = Array.isArray(originalInput)
+    let organizationIds
 
     if (operation === 'create') {
-        organizationId = get(originalInput, ['organization', 'connect', 'id'])
+        if (isBulkRequest) {
+            organizationIds = originalInput.map(el => get(el, ['data', 'organization', 'connect', 'id']))
+
+            if (organizationIds.filter(Boolean).length !== originalInput.length) return false
+            organizationIds = uniq(organizationIds)
+        } else {
+            const organizationId = get(originalInput, ['organization', 'connect', 'id'])
+            if (!organizationId) return false
+            organizationIds = [organizationId]
+        }
     } else if (operation === 'update') {
-        if (!itemId) return false
-        const item = await getById('MarketItem', itemId)
-        organizationId = get(item, 'organization', null)
+        const ids = itemIds || [itemId]
+        if (ids.length !== uniq(ids).length) return false
+
+        const items = await find('MarketItem', {
+            id_in: ids,
+            deletedAt: null,
+        })
+        if (items.length !== ids.length || items.some(item => !item.organization)) return false
+        organizationIds = uniq(items.map(item => item.organization))
     }
 
-    if (!organizationId) return false
-
-    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageMarketItems')
+    return await checkPermissionsInEmployedOrganizations(context, user, organizationIds, 'canManageMarketItems')
 }
 
 /*
