@@ -11067,6 +11067,7 @@ __metadata:
     busboy: ^1.6.0
     fs-capacitor: ^6.2.0
     http-errors: ^2.0.0
+    lodash: ^4.17.21
   languageName: unknown
   linkType: soft
 

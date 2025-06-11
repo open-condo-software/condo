@@ -1,5 +1,3 @@
-const { File } = require('@keystonejs/fields')
-
 const { CondoFile } = require('@open-condo/files/schema/utils/serverSchema')
 
 const FileWithUTF8Name  = require('../FileWithUTF8Name/index')
