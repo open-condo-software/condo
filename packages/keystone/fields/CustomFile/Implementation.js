@@ -2,7 +2,9 @@ const { File } = require('@keystonejs/fields')
 
 const { CondoFile } = require('@open-condo/files/schema/utils/serverSchema')
 
-class CustomFile extends File.implementation {
+const FileWithUTF8Name  = require('../FileWithUTF8Name/index')
+
+class CustomFile extends FileWithUTF8Name.implementation {
     constructor () {
         super(...arguments)
         this.graphQLOutputType = 'CustomFile'
