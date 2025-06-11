@@ -1,10 +1,10 @@
-const { joinNameAndType, getGarLevel, getGarParam } = require('./helpers')
+const { joinNameAndType, getGarLevel, getGarParam, selfOrFirst } = require('./helpers')
 
 function resolveStreet (streetLevel) {
     if (!streetLevel) return {}
 
     const gar = getGarLevel(streetLevel.gar, 'street')
-    const street = gar?.area?.name || null
+    const street = selfOrFirst(gar?.area?.name) || null
     let street_type = 'ул'
     let street_type_full = 'улица'
 

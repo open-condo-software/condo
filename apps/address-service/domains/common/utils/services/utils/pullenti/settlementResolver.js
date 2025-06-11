@@ -1,10 +1,10 @@
-const { joinNameAndType, getGarLevel, getGarParam } = require('./helpers')
+const { joinNameAndType, getGarLevel, getGarParam, selfOrFirst } = require('./helpers')
 
 function resolveSettlement (localityLevel) {
     if (!localityLevel) return {}
 
     const gar = getGarLevel(localityLevel.gar, 'adminarea')
-    const settlement = gar?.area?.name || null
+    const settlement = selfOrFirst(gar?.area?.name) || null
     let settlement_type = null
     let settlement_type_full = null
 

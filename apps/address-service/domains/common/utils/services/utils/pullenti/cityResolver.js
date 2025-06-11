@@ -1,10 +1,10 @@
-const { joinNameAndType, getGarLevel, getGarParam } = require('./helpers')
+const { joinNameAndType, getGarLevel, getGarParam, selfOrFirst } = require('./helpers')
 
 function resolveCity (cityLevel) {
     if (!cityLevel) return {}
 
     const gar = getGarLevel(cityLevel.gar)
-    const city = gar?.area?.name || null
+    const city = selfOrFirst(gar?.area?.name) || null
     let city_type = 'г'
     let city_type_full = 'город'
 

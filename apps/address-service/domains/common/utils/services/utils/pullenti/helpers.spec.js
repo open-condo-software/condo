@@ -1,4 +1,4 @@
-const { joinNameAndType, selfOrFirst, getGarLevel, getGarParam, extractLastFiasId, extractLastGarParam } = require('./helpers')
+const { joinNameAndType, selfOrFirst, getGarLevel, getGarParam, extractLastFiasId, extractLastGarParam, getLevel } = require('./helpers')
 
 describe('helpers', () => {
     describe('joinNameAndType', () => {
@@ -227,6 +227,55 @@ describe('helpers', () => {
                 { gar: { param: [{ '@_name': 'kladrcode', '#text': '1234567890' }] } },
             ]
             expect(extractLastGarParam(textobj, 'kladrcode')).toBe('1234567890')
+        })
+    })
+
+    describe('getLevel', () => {
+        const item = {
+            textaddr: {
+                textobj: [
+                    { level: 'region', value: 'Moscow' },
+                    { level: 'city', value: 'Moscow City' },
+                    { level: 'street', value: 'Tverskaya' },
+                ],
+            },
+        }
+
+        it('should return the correct level object when found', () => {
+            expect(getLevel(item, 'city')).toEqual({ level: 'city', value: 'Moscow City' })
+            expect(getLevel(item, 'region')).toEqual({ level: 'region', value: 'Moscow' })
+            expect(getLevel(item, 'street')).toEqual({ level: 'street', value: 'Tverskaya' })
+        })
+
+        it('should return null if level is not found', () => {
+            expect(getLevel(item, 'building')).toBeNull()
+        })
+
+        it('should return null if item is null or undefined', () => {
+            expect(getLevel(null, 'city')).toBeNull()
+            expect(getLevel(undefined, 'city')).toBeNull()
+        })
+
+        it('should return null if textaddr is missing', () => {
+            expect(getLevel({}, 'city')).toBeNull()
+        })
+
+        it('should return null if textobj is not an array', () => {
+            expect(getLevel({ textaddr: { textobj: null } }, 'city')).toBeNull()
+            expect(getLevel({ textaddr: { textobj: {} } }, 'city')).toBeNull()
+        })
+
+        it('should skip falsy elements in textobj', () => {
+            const itemWithNulls = {
+                textaddr: {
+                    textobj: [
+                        null,
+                        { level: 'city', value: 'Moscow City' },
+                        undefined,
+                    ],
+                },
+            }
+            expect(getLevel(itemWithNulls, 'city')).toEqual({ level: 'city', value: 'Moscow City' })
         })
     })
 })

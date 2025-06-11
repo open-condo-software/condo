@@ -168,5 +168,68 @@ describe('houseResolver', () => {
                 postal_code: null,
             })
         })
+
+        it('should use snum if num is missing', () => {
+            const houseLevel = {
+                gar: [{
+                    level: 'building',
+                    house: { snum: 'ALT-42' },
+                }],
+            }
+            expect(resolveHouse(houseLevel)).toEqual({
+                house: 'ALT-42',
+                house_type: 'д',
+                house_type_full: 'дом',
+                block: null,
+                block_type: null,
+                block_type_full: null,
+                house_fias_id: null,
+                house_kladr_id: null,
+                house_cadnum: null,
+                postal_code: null,
+            })
+        })
+
+        it('should use stype if type is missing', () => {
+            const houseLevel = {
+                gar: [{
+                    level: 'building',
+                    house: { num: '5', stype: 'construction' },
+                }],
+            }
+            expect(resolveHouse(houseLevel)).toEqual({
+                house: '5',
+                house_type: 'соор',
+                house_type_full: 'сооружение',
+                block: null,
+                block_type: null,
+                block_type_full: null,
+                house_fias_id: null,
+                house_kladr_id: null,
+                house_cadnum: null,
+                postal_code: null,
+            })
+        })
+
+        it('should use type if both type and stype are present and type is construction', () => {
+            const houseLevel = {
+                gar: [{
+                    level: 'building',
+                    house: { num: '7', type: 'construction', stype: 'somethingElse' },
+                }],
+            }
+            expect(resolveHouse(houseLevel)).toEqual({
+                house: '7',
+                house_type: 'соор',
+                house_type_full: 'сооружение',
+                block: null,
+                block_type: null,
+                block_type_full: null,
+                house_fias_id: null,
+                house_kladr_id: null,
+                house_cadnum: null,
+                postal_code: null,
+            })
+        })
     })
 })

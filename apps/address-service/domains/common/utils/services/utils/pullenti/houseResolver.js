@@ -4,15 +4,19 @@ function resolveHouse (houseLevel) {
     if (!houseLevel) return {}
 
     const gar = getGarLevel(houseLevel.gar, 'building')
-    const house = gar?.house?.num || null
+    const house = gar?.house?.num || gar?.house?.snum || null
     let house_type = 'д'
     let house_type_full = 'дом'
     let block = null
     let block_type = null
     let block_type_full = null
 
-    // Add mapping with the switch below if needed
-    // switch (houseLevel.house?.type) {}
+    switch (gar?.house?.type || gar?.house?.stype) {
+        case 'construction':
+            house_type = 'соор'
+            house_type_full = 'сооружение'
+            break
+    }
 
     if (gar?.house?.bnum) {
         block = gar.house.bnum
