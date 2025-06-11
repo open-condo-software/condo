@@ -104,7 +104,7 @@ const MeterReadingExportTask = new GQLListSchema('MeterReadingExportTask', {
 
         file: {
             schemaDoc: 'Meta information about file, saved outside of database somewhere. Shape of meta information JSON object is specific to file adapter, used by saving a file.',
-            type: 'File',
+            type: 'CustomFile',
             adapter: MeterReadingExportTaskFileAdapter,
             access: {
                 create: canOnlyServerSideWithoutUserRequest,
@@ -154,7 +154,7 @@ const MeterReadingExportTask = new GQLListSchema('MeterReadingExportTask', {
                 },
             },
         },
-        
+
         sortBy: {
             schemaDoc: 'Sorting parameters for records to export',
             type: 'Json',

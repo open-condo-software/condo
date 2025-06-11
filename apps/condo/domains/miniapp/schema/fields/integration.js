@@ -14,7 +14,7 @@ const DEVELOPER_FIELD = {
 
 const LOGO_FIELD = {
     schemaDoc: 'Logo of app\'s company or app itself',
-    type: 'File',
+    type: 'CustomFile',
     isRequired: false,
     adapter: APPS_FILE_ADAPTER,
 }
@@ -45,7 +45,7 @@ const DEVELOPER_URL_FIELD = {
 
 const APP_IMAGE_FIELD = {
     schemaDoc: 'Image',
-    type: 'File',
+    type: 'CustomFile',
     isRequired: true,
     adapter: APPS_FILE_ADAPTER,
 }
