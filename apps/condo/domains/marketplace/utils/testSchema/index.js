@@ -82,6 +82,25 @@ async function createTestMarketItem (client, marketCategory, organization, extra
     return [obj, attrs]
 }
 
+async function createTestMarketItems (client, createAttrs = []) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = createAttrs.map(data => {
+        if (!('sku' in data)) {
+            data['sku'] = faker.random.alphaNumeric(8)
+        }
+        if (!('name' in data)) {
+            data['name'] = faker.random.alphaNumeric(8)
+        }
+        return {
+            data: { ...data, dv: 1, sender }
+        }
+    })
+
+    return MarketItem.createMany(client, attrs)
+}
+
 async function updateTestMarketItem (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
@@ -94,6 +113,18 @@ async function updateTestMarketItem (client, id, extraAttrs = {}) {
     }
     const obj = await MarketItem.update(client, id, attrs)
     return [obj, attrs]
+}
+
+async function updateTestMarketItems (client, updateAttrs = []) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = updateAttrs.map(updateData => {
+        const { id, data } = updateData
+        return { id, data: { ...data, dv: 1, sender } }
+    })
+
+    return MarketItem.updateMany(client, attrs)
 }
 
 function generateInvoiceRow (attrs = {}) {
@@ -328,7 +359,7 @@ async function updateTestMarketSetting (client, id, extraAttrs = {}) {
 
 module.exports = {
     MarketCategory, createTestMarketCategory, updateTestMarketCategory,
-    MarketItem, createTestMarketItem, updateTestMarketItem,
+    MarketItem, createTestMarketItem, updateTestMarketItem, createTestMarketItems, updateTestMarketItems,
     Invoice, createTestInvoice, updateTestInvoice,
     generateInvoiceRow, generateInvoiceRows,
     generatePriceRow, generatePriceRows,

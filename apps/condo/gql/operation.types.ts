@@ -241,6 +241,13 @@ export type CreateInvoiceMutationVariables = Types.Exact<{
 
 export type CreateInvoiceMutation = { __typename?: 'Mutation', invoice?: { __typename?: 'Invoice', id: string } | null };
 
+export type UpdateMarketItemsMutationVariables = Types.Exact<{
+  data: Array<Types.MarketItemsUpdateInput> | Types.MarketItemsUpdateInput;
+}>;
+
+
+export type UpdateMarketItemsMutation = { __typename?: 'Mutation', marketItems?: Array<{ __typename?: 'MarketItem', id: string } | null> | null };
+
 export type GetMeterReadingExportTasksQueryVariables = Types.Exact<{
   where: Types.MeterReadingExportTaskWhereInput;
 }>;

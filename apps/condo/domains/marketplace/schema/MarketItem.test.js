@@ -4,14 +4,14 @@
 
 const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, expectValuesOfCommonFields, expectToThrowUniqueConstraintViolationError } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, expectValuesOfCommonFields, expectToThrowUniqueConstraintViolationError, expectToThrowAccessDeniedErrorToObjects } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
-const { MarketItem, createTestMarketItem, updateTestMarketItem, createTestMarketCategory } = require('@condo/domains/marketplace/utils/testSchema')
+const { MarketItem, createTestMarketItem, updateTestMarketItem, createTestMarketCategory, createTestMarketItems, updateTestMarketItems } = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestMarketItemPrice, createTestMarketPriceScope, MarketItemPrice, MarketPriceScope } = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
@@ -285,6 +285,146 @@ describe('MarketItem', () => {
             // TODO (DOMA-7503) test('Resident can read items according to PriceScope settings')
         })
 
+        describe('Bulk requests', () => {
+            let employeeClient,
+                otherOrganization,
+                otherEmployeeClient
+            beforeAll(async () => {
+                employeeClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                    canReadMarketItems: true,
+                    canManageMarketItems: true,
+                })
+                await createTestOrganizationEmployee(admin, organization, employeeClient.user, role)
+
+                const [testOtherOrganization] = await createTestOrganization(admin)
+                otherOrganization = testOtherOrganization
+                otherEmployeeClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [otherRole] = await createTestOrganizationEmployeeRole(admin, otherOrganization, {
+                    canReadMarketItems: true,
+                    canManageMarketItems: true,
+                })
+                await createTestOrganizationEmployee(admin, otherOrganization, otherEmployeeClient.user, otherRole)
+            })
+
+            test('Can create for organization where user is employee', async () => {
+                const name1 = faker.random.alphaNumeric(8)
+                const name2 = faker.random.alphaNumeric(8)
+
+                const marketItems = await createTestMarketItems(employeeClient, [
+                    {
+                        organization: { connect: { id: organization.id } },
+                        marketCategory: { connect: { id: marketCategory.id } },
+                        name: name1,
+                    },
+                    {
+                        organization: { connect: { id: organization.id } },
+                        marketCategory: { connect: { id: marketCategory.id } },
+                        name: name2,
+                    },
+                ])
+
+                expect(marketItems).toHaveLength(2)
+                expect(marketItems).toEqual(expect.arrayContaining([
+                    expect.objectContaining({
+                        name: name1,
+                        organization: expect.objectContaining({ id: organization.id }),
+                    }),
+                    expect.objectContaining({
+                        name: name2,
+                        organization: expect.objectContaining({ id: organization.id }),
+                    }),
+                ]))
+            })
+
+            test('Can not create for organization where user is not employee', async () => {
+                await expectToThrowAccessDeniedErrorToObjects(async () => {
+                    await createTestMarketItems(employeeClient, [
+                        {
+                            organization: { connect: { id: otherOrganization.id } },
+                            marketCategory: { connect: { id: marketCategory.id } },
+                        },
+                    ])
+                })
+            })
+
+            test('Can update for organization where user is employee', async () => {
+                const marketItems = await createTestMarketItems(employeeClient, [
+                    {
+                        organization: { connect: { id: organization.id } },
+                        marketCategory: { connect: { id: marketCategory.id } },
+                    },
+                    {
+                        organization: { connect: { id: organization.id } },
+                        marketCategory: { connect: { id: marketCategory.id } },
+                    },
+                ])
+
+                const name1 = faker.random.alphaNumeric(8)
+                const name2 = faker.random.alphaNumeric(8)
+
+                const updatedMarketItems = await updateTestMarketItems(employeeClient, [
+                    {
+                        id: marketItems[0].id,
+                        data: {
+                            name: name1,
+                        },
+                    },
+                    {
+                        id: marketItems[1].id,
+                        data: {
+                            name: name2,
+                        },
+                    },
+                ])
+
+                expect(updatedMarketItems).toHaveLength(2)
+                expect(updatedMarketItems).toEqual(expect.arrayContaining([
+                    expect.objectContaining({
+                        id: marketItems[0].id,
+                        name: name1,
+                        organization: expect.objectContaining({ id: organization.id }),
+                    }),
+                    expect.objectContaining({
+                        id: marketItems[1].id,
+                        name: name2,
+                        organization: expect.objectContaining({ id: organization.id }),
+                    }),
+                ]))
+            })
+
+            test('Can not update for organization where user is not employee', async () => {
+                const marketItems = await createTestMarketItems(employeeClient, [
+                    {
+                        organization: { connect: { id: organization.id } },
+                        marketCategory: { connect: { id: marketCategory.id } },
+                    },
+                    {
+                        organization: { connect: { id: organization.id } },
+                        marketCategory: { connect: { id: marketCategory.id } },
+                    },
+                ])
+                const name1 = faker.random.alphaNumeric(8)
+                const name2 = faker.random.alphaNumeric(8)
+
+                await expectToThrowAccessDeniedErrorToObjects(async () => {
+                    await updateTestMarketItems(otherEmployeeClient, [
+                        {
+                            id: marketItems[0].id,
+                            data: {
+                                name: name1,
+                            },
+                        },
+                        {
+                            id: marketItems[1].id,
+                            data: {
+                                name: name2,
+                            },
+                        },
+                    ])
+                })
+            })
+        })
     })
 
     describe('constraint tests', () => {

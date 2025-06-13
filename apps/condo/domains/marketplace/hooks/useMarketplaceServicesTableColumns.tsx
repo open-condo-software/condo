@@ -96,7 +96,7 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
                 key: 'sku',
                 dataIndex: 'sku',
                 sorter: true,
-                width: '8%',
+                width: '13%',
                 render: render,
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'sku'),
             },
@@ -107,7 +107,7 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
                 sorter: true,
                 key: 'name',
                 dataIndex: 'name',
-                width: '23%',
+                width: '29%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'name'),
                 render: render,
                 filterIcon: getFilterIcon,
@@ -117,7 +117,7 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
                 filteredValue: getFilteredValue(filters, 'marketCategory'),
                 key: 'marketCategory',
                 dataIndex: 'marketCategory',
-                width: '23%',
+                width: '29%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'marketCategory'),
                 render: (category) => {
                     if (!category) {
@@ -139,7 +139,7 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
             {
                 title: ScopeTitle,
                 key: 'property',
-                width: '25%',
+                width: '29%',
                 filteredValue: getFilteredValue(filters, 'property'),
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'property'),
                 render: (marketItem) => {
