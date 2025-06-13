@@ -479,10 +479,12 @@ const ClientCardTabContent = ({
                         </Col>
                         <Col span={24}>
                             <Row>
-                                <Tabs
-                                    onChange={(tab: TabKey) => setCurrentTableTab(tab)}
-                                    items={tabsItems}
-                                />
+                                <Col span={24}>
+                                    <Tabs
+                                        onChange={(tab: TabKey) => setCurrentTableTab(tab)}
+                                        items={tabsItems}
+                                    />
+                                </Col>
 
                                 <Row gutter={[0, 24]}>
                                     <Col span={24}>
