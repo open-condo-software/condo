@@ -2121,6 +2121,7 @@ enum UserExternalIdentityIdentityTypeType {
   apple_id
   sber_id
   sbbol
+  telegram
 }
 
 """ Individual user external identity link. Used primarily for authorization and linking to external identity provider purposes. Think of `User` as a technical entity, not a business actor. 
