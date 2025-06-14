@@ -21,6 +21,19 @@ const UNIT_TYPES = [
     WAREHOUSE_UNIT_TYPE,
 ]
 
+// If you change SECTION_UNIT_TYPES or PARKING_UNIT_TYPES, then you should change available unit types in MapJsonSchema.json
+const SECTION_UNIT_TYPES = [
+    FLAT_UNIT_TYPE,
+    APARTMENT_UNIT_TYPE,
+    COMMERCIAL_UNIT_TYPE,
+    WAREHOUSE_UNIT_TYPE,
+]
+const PARKING_UNIT_TYPES = [
+    PARKING_UNIT_TYPE,
+    COMMERCIAL_UNIT_TYPE,
+    WAREHOUSE_UNIT_TYPE,
+]
+
 module.exports = {
     PARKING_SECTION_TYPE,
     SECTION_SECTION_TYPE,
@@ -32,4 +45,6 @@ module.exports = {
     WAREHOUSE_UNIT_TYPE,
     UNIT_TYPES,
     VALID_HOUSE_TYPES,
+    SECTION_UNIT_TYPES,
+    PARKING_UNIT_TYPES,
 }

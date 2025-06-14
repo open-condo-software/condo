@@ -18,10 +18,10 @@ import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListVi
 import { fontSizes, colors, gradients, UNIT_TYPE_COLOR_SET } from '@condo/domains/common/constants/style'
 import { useGlobalAppsFeaturesContext } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsFeaturesContext'
 import { IPropertyMapFormProps } from '@condo/domains/property/components/BasePropertyMapForm'
-import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
 
 import { FullscreenFooter } from './Fullscreen'
 import { MapEdit, MapView, MapViewMode } from './MapConstructor'
+import { UnitButton } from './UnitButton'
 
 
 const MESSAGE_DEBOUNCE_TIMEOUT = 2000
@@ -68,7 +68,7 @@ export const PropertyMapFloor: React.FC = ({ children }) => {
 export const EmptyFloor: React.FC = () => {
     return (
         <div style={{ display: 'block' }}>
-            <UnitButton secondary disabled >&nbsp;</UnitButton>
+            <UnitButton type='floor' disabled>&nbsp;</UnitButton>
         </div>
     )
 }
@@ -206,17 +206,18 @@ const BuildingAxisContainer = styled.div`
   background-color: ${colors.backgroundLightGrey};
   z-index: 2;
 `
-const AXIS_UNIT_STYLE: React.CSSProperties = { display: 'block', color: colors.textSecondary }
 
 export const BuildingAxisY: React.FC<IBuildingAxisYProps> = ({ floors }) => {
     return (
         <BuildingAxisContainer>
             {
                 floors.map(floorNum => (
-                    <UnitButton secondary disabled key={`floor_${floorNum}`} style={AXIS_UNIT_STYLE}>{floorNum}</UnitButton>
+                    <UnitButton type='floor' disabled key={`floor_${floorNum}`}>
+                        {String(floorNum)}
+                    </UnitButton>
                 ))
             }
-            <UnitButton secondary disabled style={AXIS_UNIT_STYLE}>&nbsp;</UnitButton>
+            <UnitButton type='floor' disabled>&nbsp;</UnitButton>
         </BuildingAxisContainer>
     )
 }
@@ -272,35 +273,6 @@ export const BuildingChooseSections: React.FC<IBuildingChooseSectionsProps> = (p
 
     )
 }
-
-export function useHorizontalScroll (): React.RefObject<HTMLElement>{
-    const elementRef = useRef<HTMLElement | null>(null)
-    useEffect(() => {
-        const element = elementRef.current
-        if (element) {
-            const onWheel = (event: WheelEvent) => {
-                if (event.deltaY == 0) return
-                event.preventDefault()
-                element.scrollTo({
-                    left: element.scrollLeft + event.deltaY,
-                })
-            }
-            element.addEventListener('wheel', onWheel)
-            return () => element.removeEventListener('wheel', onWheel)
-        }
-    }, [])
-    return elementRef
-}
-
-export const HintText = styled.div`
-  color: ${colors.textSecondary};
-  cursor: pointer;
-  margin-top: 8px;
-  
-  &:hover {
-    color: ${colors.black} 
-  }  
-`
 
 const BuildingViewModeSelectCss = css`
   padding: 4px;

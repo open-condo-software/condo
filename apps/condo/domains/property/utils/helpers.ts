@@ -1,6 +1,6 @@
 import { ParsedUrlQuery } from 'querystring'
 
-import { Property, PropertyWhereInput } from '@app/condo/schema'
+import { BuildingSection, BuildingUnit, Property, PropertyWhereInput } from '@app/condo/schema'
 import { SortOrder } from 'antd/es/table/interface'
 import get from 'lodash/get'
 import uniqWith from 'lodash/uniqWith'
@@ -118,13 +118,11 @@ export const getPropertyAddressParts = (property: ObjectWithAddressInfo, Deleted
     return { postfix, extraProps, text }
 }
 
-export const getUniqUnits = (units) => uniqWith(units,
-    (firstUnit, secondUnit) => get(firstUnit, 'label', '') === get(secondUnit, 'label', '') &&
-        get(firstUnit, 'unitType', '') === get(secondUnit, 'unitType', '')
+export const getUniqUnits = (units: BuildingUnit[] = []) => uniqWith(units,
+    (firstUnit, secondUnit) => firstUnit?.label === secondUnit?.label &&
+        firstUnit?.unitType === secondUnit?.unitType
 )
 
-export const getUnitsFromSections = (sections = []) => sections.map(section =>
-    get(section, 'floors', []).map(floor =>
-        get(floor, 'units', [])
-    )
+export const getUnitsFromSections = (sections: BuildingSection[] = []) => sections.map(section =>
+    section?.floors?.map(floor => floor?.units || []) || []
 ).flat(2)
