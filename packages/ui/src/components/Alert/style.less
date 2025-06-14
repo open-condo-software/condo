@@ -16,8 +16,18 @@
 @alert-actions-space-left: @alert-icon-size + @alert-icon-space-right;
 
 .condo-alert {
+  flex-wrap: wrap;
+
   &-description {
     .condo-typography-text-medium();
+  }
+
+  &-expandable {
+    .condo-alert-action {
+      flex-basis: 100%;
+      margin-top: @condo-global-spacing-24;
+      margin-left: @alert-actions-space-left;
+    }
   }
 
   &-success:not(.condo-alert-banner),
@@ -45,6 +55,13 @@
     width: @alert-icon-size;
     height: @alert-icon-size;
     margin-right: @alert-icon-space-right;
+  }
+
+  &-toggle-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: @condo-global-spacing-8;
   }
 
   @media @from-mobile-small and @to-tablet-small {
