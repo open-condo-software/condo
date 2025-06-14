@@ -1,6 +1,6 @@
 import { UserSwitchOutlined } from '@ant-design/icons'
 import { useMutation, gql } from '@apollo/client'
-import { ItemId, AddNewItem } from '@keystonejs/app-admin-ui/components'
+// import { ItemId, AddNewItem } from '@keystonejs/app-admin-ui/components'
 import React, { useCallback } from 'react'
 import { useLocation } from 'react-router-dom'
 
@@ -47,8 +47,8 @@ export default {
     itemHeaderActions: () => {
         return (
             <div>
-                <ItemId />
-                <AddNewItem />
+                {/*<ItemId />*/}
+                {/*<AddNewItem />*/}
                 <SignInAsUser />
             </div>
         )
