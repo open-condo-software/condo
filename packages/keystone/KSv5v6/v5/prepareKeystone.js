@@ -1,7 +1,7 @@
 const process = require('node:process')
 const v8 = require('v8')
 
-const { AdminUIApp } = require('@keystonejs/app-admin-ui')
+// const { AdminUIApp } = require('@keystonejs/app-admin-ui')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const cuid = require('cuid')
 const { json, urlencoded } = require('express')
@@ -240,13 +240,13 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
                 apiPath: /^\/admin\/api\/?$/,
                 ...(graphql || {}),
             }),
-            new AdminUIApp({
-                adminPath: '/admin',
-                isAccessAllowed: ({ authentication: { item: user } }) => Boolean(user && (user.isAdmin || user.isSupport || user.rightsSet)),
-                authStrategy,
-                showDashboardCounts: false,
-                ...(ui || {}),
-            }),
+            // new AdminUIApp({
+            //     adminPath: '/admin',
+            //     isAccessAllowed: ({ authentication: { item: user } }) => Boolean(user && (user.isAdmin || user.isSupport || user.rightsSet)),
+            //     authStrategy,
+            //     showDashboardCounts: false,
+            //     ...(ui || {}),
+            // }),
             lastApp,
         ].filter(identity),
 
