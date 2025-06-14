@@ -3,7 +3,7 @@ import React, { Dispatch, SetStateAction, useCallback, useMemo } from 'react'
 import { QuestionCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Switch, Modal, Space, Typography, Tooltip } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 
 import { useUserMessagesList } from '@condo/domains/notification/contexts/UserMessagesListContext'
 import { useAllowedToFilterMessageTypes } from '@condo/domains/notification/hooks/useAllowedToFilterMessageTypes'

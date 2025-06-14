@@ -20,7 +20,7 @@
   padding: 12px 40px;
 }
 
-.cookie-agreement-more a.condo-typography {
+.cookie-agreement-more :global(a.condo-typography) {
   display: flex;
   align-items: center;
 }

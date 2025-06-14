@@ -1,4 +1,4 @@
-const { PasswordAuthStrategy: DefaultPasswordAuthStrategy } = require('@keystonejs/auth-password')
+const { PasswordAuthStrategy: DefaultPasswordAuthStrategy } = require('@open-keystone/auth-password')
 
 /**
  * @typedef AuthStrategyConfig
@@ -38,7 +38,7 @@ const { PasswordAuthStrategy: DefaultPasswordAuthStrategy } = require('@keystone
  * @description
  * This is a custom authentication strategy specific to condo applications
  *
- * Based on PasswordAuthStrategy from "@keystonejs/auth-password"
+ * Based on PasswordAuthStrategy from "@open-keystone/auth-password"
  *
  * What are the differences with the main version?
  *
@@ -46,7 +46,7 @@ const { PasswordAuthStrategy: DefaultPasswordAuthStrategy } = require('@keystone
  *
  * @example config example
  * config = {
- *     // default props from "@keystonejs/auth-password"
+ *     // default props from "@open-keystone/auth-password"
  *     identityField: 'email',
  *     secretField: 'password',
  *     protectIdentities: true,
@@ -74,7 +74,7 @@ class ExtendedPasswordAuthStrategy extends DefaultPasswordAuthStrategy {
 
 
 
-        // > > > Next comes the original logic from @keystonejs/auth-password < < <
+        // > > > Next comes the original logic from @open-keystone/auth-password < < <
         //
         //
         //

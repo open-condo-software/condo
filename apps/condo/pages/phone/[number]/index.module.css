@@ -1,16 +1,29 @@
-.condo-carousel {
+.custom-carousel-wrapper :global(.condo-carousel) {
   padding: 0;
   background: none;
   transform: translateX(-12px);
 }
 
-.condo-carousel .slick-list {
+.custom-carousel-wrapper :global(.condo-carousel .slick-list) {
   width: calc(100% + 24px);
   margin: 0;
 }
 
-.condo-carousel .slick-list .slick-track .slick-slide {
+.custom-carousel-wrapper :global(.condo-carousel .slick-list .slick-track .slick-slide) {
   padding: 0 12px;
+}
+
+.custom-carousel-wrapper :global(.condo-carousel .slick-list .slick-track .slick-slide > div) {
+  margin: 0;
+  overflow: initial;
+}
+
+.custom-carousel-wrapper :global(.condo-carousel .slick-prev) {
+  left: -8px !important;
+}
+
+.custom-carousel-wrapper :global(.condo-carousel .slick-next) {
+  right: -32px !important;
 }
 
 .address-tab-wrapper > div {
@@ -24,23 +37,6 @@
   display: flex;
   flex-direction: column;
   row-gap: 12px;
-}
-
-.condo-carousel .slick-list .slick-track .slick-slide > div {
-  margin: 0;
-  overflow: initial;
-}
-
-.condo-carousel .slick-prev {
-  left: -8px !important;
-}
-
-.condo-carousel .slick-next {
-  right: -32px !important;
-}
-
-.condo-space .condo-space-horizontal .condo-space-item:first-child {
-  align-self: flex-end;
 }
 
 .link-wrapper {

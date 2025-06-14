@@ -7,7 +7,7 @@ import React, { CSSProperties, useMemo } from 'react'
 import { useCachePersistor } from '@open-condo/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { Alert } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 
 import { TicketPropertyHintContent } from './TicketPropertyHintContent'
 

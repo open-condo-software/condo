@@ -1,6 +1,5 @@
-/** @jsx jsx */
 import { InfoCircleOutlined } from '@ant-design/icons'
-import { css, jsx } from '@emotion/react'
+import { css } from '@emotion/react'
 import styled from '@emotion/styled'
 import { Col, List, notification, Progress, Row, RowProps } from 'antd'
 import isFunction from 'lodash/isFunction'
@@ -9,7 +8,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { ChevronDown, ChevronUp, Check, Close } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography, Space } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import {

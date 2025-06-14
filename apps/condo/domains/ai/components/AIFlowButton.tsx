@@ -1,7 +1,8 @@
 import React from 'react'
 
 import { Button, ButtonProps } from '@open-condo/ui'
-import './AIFlowButton.css'
+
+import styles from './AIFlowButton.module.css'
 
 type AIFlowButtonProps = Omit<ButtonProps, 'type'>
 
@@ -27,7 +28,7 @@ function Sparkles () {
 export function AIFlowButton ({ children, loading, disabled, ...props }: AIFlowButtonProps & { loading?: boolean, disabled?: boolean }) {
     return (
         <Button
-            className='ai-flow-button'
+            className={styles.aiFlowButton}
             type='secondary'
             icon={<Sparkles/>}
             loading={loading}

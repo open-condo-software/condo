@@ -1,11 +1,12 @@
 import dayjs from 'dayjs'
 import isEmpty from 'lodash/isEmpty'
-import { Rule } from 'rc-field-form/lib/interface'
 import { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
 import { Property } from '@condo/domains/property/utils/clientSchema'
+
+import type { FormRule as Rule } from 'antd'
 
 
 const MIN_YEAR_OF_CONSTRUCTION = 1500

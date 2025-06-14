@@ -8,7 +8,7 @@ import { Typography, Button, Space } from '@open-condo/ui'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
-import './styles.css'
+import styles from './CookieAgreement.module.css'
 
 
 const { publicRuntimeConfig: { privacyPolicyUrl } } = getConfig()
@@ -42,12 +42,12 @@ export const CookieAgreement: React.FC = () => {
     }
 
     return (
-        <div className='cookie-agreement'>
-            <Space className='cookie-agreement-content' direction={desktopMode ? 'horizontal' : 'vertical'} size={desktopMode ? 20 : 16}>
+        <div className={styles.cookieAgreement}>
+            <Space className={styles.cookieAgreementContent} direction={desktopMode ? 'horizontal' : 'vertical'} size={desktopMode ? 20 : 16}>
                 <Space direction='vertical' size={8} align={desktopMode ? 'start' : 'center'}>
                     <Space direction={desktopMode ? 'horizontal' : 'vertical'} align={desktopMode ? 'start' : 'center'} size={8}>
                         <Typography.Paragraph>{CookieAgreementTitleMsg}</Typography.Paragraph>
-                        <span className='cookie-agreement-more'>
+                        <span className={styles.cookieAgreementMore}>
                             <Typography.Link
                                 onClick={toggleMoreText}
                                 size='large'

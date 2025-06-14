@@ -1,4 +1,4 @@
-const { Decimal } = require('@keystonejs/fields')
+const { Decimal } = require('@open-keystone/fields')
 const Big = require('big.js')
 const get = require('lodash/get')
 

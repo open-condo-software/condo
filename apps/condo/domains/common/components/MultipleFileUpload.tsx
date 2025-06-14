@@ -11,7 +11,7 @@ import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } 
 import { Paperclip, Trash } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Button } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 
 import { MAX_UPLOAD_FILE_SIZE } from '@condo/domains/common/constants/uploads'
 import { analytics } from '@condo/domains/common/utils/analytics'

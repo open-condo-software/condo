@@ -1,6 +1,5 @@
-import { catchErrorFrom } from '@open-condo/keystone/test.utils'
-
 const { GQLListSchema } = require('@open-condo/keystone/schema')
+const { catchErrorFrom } = require('@open-condo/keystone/test.utils')
 
 const { generateChangeTrackableFieldsFrom, ResolversValidationError } = require('./changeTrackable')
 

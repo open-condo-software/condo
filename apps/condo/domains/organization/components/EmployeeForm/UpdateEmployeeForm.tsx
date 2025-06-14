@@ -1,9 +1,6 @@
-/** @jsx jsx */
-import { jsx } from '@emotion/react'
 import { Col, Form, Row, Typography } from 'antd'
 import { difference, find, get } from 'lodash'
 import { useRouter } from 'next/router'
-import { Rule } from 'rc-field-form/lib/interface'
 import React, { useCallback, useEffect, useMemo } from 'react'
 
 import { useApolloClient } from '@open-condo/next/apollo'
@@ -27,6 +24,8 @@ import {
     TicketClassifierTypes,
 } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
+
+import type { FormRule as Rule } from 'antd'
 
 
 const INPUT_LAYOUT_PROPS = {

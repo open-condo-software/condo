@@ -1,9 +1,9 @@
-const withCSS = require('@zeit/next-css')
-const withLess = require('@zeit/next-less')
-const AntdDayjsWebpackPlugin = require('antd-dayjs-webpack-plugin')
 const withTMModule = require('next-transpile-modules')
+const withLess = require('next-with-less')
 
 const conf = require('@open-condo/config')
+const { nextCamelCaseCSSModulesTransform } = require('@open-condo/miniapp-utils/helpers/webpack')
+
 
 const { antGlobalVariables } = require('@app/condo/domains/common/constants/style')
 const { DEFAULT_LOCALE } = require('@miniapp/domains/common/constants')
@@ -25,7 +25,17 @@ const condoUrl = conf['CONDO_DOMAIN']
 const b2bAppId = conf['CONDO_B2B_APP_ID'] || null
 const defaultLocale = DEFAULT_LOCALE
 
-module.exports = withTM(withLess(withCSS({
+module.exports = withTM(withLess({
+    swcMinify: true,
+    compiler: {
+        emotion: true,
+    },
+    lessLoaderOptions: {
+        lessOptions: {
+            javascriptEnabled: true,
+            modifyVars: antGlobalVariables,
+        },
+    },
     publicRuntimeConfig: {
         // Will be available on both server and client
         serverUrl,
@@ -34,21 +44,14 @@ module.exports = withTM(withLess(withCSS({
         b2bAppId,
         defaultLocale,
     },
-    lessLoaderOptions: {
-        javascriptEnabled: true,
-        modifyVars: antGlobalVariables,
-    },
     webpack: (config) => {
-        const plugins = config.plugins
-
-        // NOTE: Replace Moment.js with Day.js in antd project
-        config.plugins = [ ...plugins, new AntdDayjsWebpackPlugin() ]
-
         config.module.rules = [
             ...(config.module.rules || []),
-            { test: /lang\/.*\.njk$/, use: 'raw-loader' },
+            {
+                test: /[\\/]lang[\\/].*\.njk$/,
+                type: 'asset/source',
+            },
         ]
-
-        return config
+        return nextCamelCaseCSSModulesTransform(config)
     },
-})))
+}))

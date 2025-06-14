@@ -1,7 +1,7 @@
 const { ApolloClient, InMemoryCache, ApolloLink } = require('@apollo/client')
 const { BatchHttpLink } = require('@apollo/client/link/batch-http')
+const { onError }  = require('@apollo/client/link/error')
 const { RetryLink } = require('@apollo/client/link/retry')
-const { onError }  = require('apollo-link-error')
 const { createUploadLink } = require('apollo-upload-client')
 const FormData = require('form-data')
 const { chunk: splitArray, isFunction } = require('lodash')

@@ -14,7 +14,7 @@ import React, { ComponentProps, CSSProperties, useCallback, useEffect, useMemo, 
 import { Trash } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Alert, Card, Button, Modal, Radio, RadioGroup, Space, Tooltip, Typography } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 
 import { Button as OldButton } from '@condo/domains/common/components/Button'
 import { BaseModalForm, FormWithAction } from '@condo/domains/common/components/containers/FormList'

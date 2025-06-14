@@ -14,7 +14,7 @@ import { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { Banner, Carousel, Typography } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 
 
 interface HintI18n {

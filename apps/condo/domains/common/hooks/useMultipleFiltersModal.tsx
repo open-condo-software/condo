@@ -19,7 +19,7 @@ import { Close, Filter } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Modal as DefaultModal, Button, Typography, Checkbox, Tooltip, Input } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 
 import Select from '@condo/domains/common/components/antd/Select'
 import { Button as CommonButton } from '@condo/domains/common/components/Button'

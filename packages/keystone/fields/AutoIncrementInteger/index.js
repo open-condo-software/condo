@@ -1,4 +1,4 @@
-const { Integer } = require('@keystonejs/fields')
+const { Integer } = require('@open-keystone/fields')
 
 const { AutoIncrementInteger, AutoIncrementIntegerKnexFieldAdapter, AutoIncrementIntegerMongooseFieldAdapter, AutoIncrementIntegerPrismaFieldAdapter } = require('./Implementation')
 

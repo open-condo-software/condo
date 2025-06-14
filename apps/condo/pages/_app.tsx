@@ -5,14 +5,14 @@ import {
     useGetBillingIntegrationOrganizationContextsQuery,
     useGetProcessingTasksQuery,
 } from '@app/condo/gql'
-import { CacheProvider } from '@emotion/core'
+import createCache from '@emotion/cache'
+import { CacheProvider } from '@emotion/react'
 import { ConfigProvider } from 'antd'
 import enUS from 'antd/lib/locale/en_US'
 import esES from 'antd/lib/locale/es_ES'
 import ruRU from 'antd/lib/locale/ru_RU'
 import { setCookie } from 'cookies-next'
 import dayjs from 'dayjs'
-import { cache } from 'emotion'
 import isEmpty from 'lodash/isEmpty'
 import { NextPage, NextPageContext } from 'next'
 import App, { AppContext } from 'next/app'
@@ -113,6 +113,8 @@ import Error404Page from './404'
 import Error429Page from './429'
 import Error500Page from './500'
 
+import 'antd/dist/antd.less'
+import 'react-phone-input-2/lib/style.css'
 import '@condo/domains/common/components/wdyr'
 import '@open-condo/ui/dist/styles.min.css'
 import '@open-condo/ui/dist/style-vars/variables.css'
@@ -122,6 +124,7 @@ import '@open-condo/next/logging/patchConsoleLogMethods'
 
 const { canEnableSubscriptions, publicRuntimeConfig: { defaultLocale, sppConfig, isDisabledSsr } } = getConfig()
 
+const emotionCache = createCache({ key: 'css', prepend: true })
 
 const ANT_LOCALES = {
     ru: ruRU,
@@ -517,7 +520,7 @@ const MyApp = ({ Component, pageProps }) => {
                 />
             </Head>
             <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize='large'>
-                <CacheProvider value={cache}>
+                <CacheProvider value={emotionCache}>
                     <GlobalStyle/>
                     <LayoutContextProvider serviceProblemsAlert={<ServiceProblemsAlert />}>
                         {shouldDisplayCookieAgreement && <CookieAgreement/>}

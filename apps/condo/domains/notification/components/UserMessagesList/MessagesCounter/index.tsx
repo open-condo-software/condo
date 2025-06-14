@@ -1,12 +1,13 @@
 import { Badge } from 'antd'
+import classnames from 'classnames'
 import React, { useEffect, useMemo, useState } from 'react'
 
 import { Bell } from '@open-condo/icons'
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
-import './MessagesCounter.css'
+import styles from './MessagesCounter.module.css'
 
 
 type MessagesCounterProps = {
@@ -42,7 +43,9 @@ export const MessagesCounter: React.FC<MessagesCounterProps> = ({ count }) => {
 
     const badgeProps = useMemo(() => ({
         count: currentCount > 9 ? '∞' : currentCount,
-        className: `messages-counter${!isSmallScreen && isAnimating ? ' animating' : ''}`,
+        className: classnames(styles.messagesCounter, {
+            [styles.animating]: !isSmallScreen && isAnimating,
+        }),
         color: colors.pink[5],
     }), [currentCount, isAnimating, isSmallScreen])
 
@@ -50,7 +53,7 @@ export const MessagesCounter: React.FC<MessagesCounterProps> = ({ count }) => {
         return (
             <div style={{ display: 'flex' }}>
                 <Bell
-                    className='messages-counter-icon'
+                    className={styles.messagesCounterIcon}
                     size='medium'
                 />
                 <Badge {...badgeProps} style={{ display: count > 0 ? 'initial' : 'none' }} />
@@ -60,7 +63,7 @@ export const MessagesCounter: React.FC<MessagesCounterProps> = ({ count }) => {
 
     return (
         <Badge {...badgeProps}>
-            <Bell className='messages-counter-icon' />
+            <Bell className={styles.messagesCounterIcon} />
         </Badge>
     )
 }

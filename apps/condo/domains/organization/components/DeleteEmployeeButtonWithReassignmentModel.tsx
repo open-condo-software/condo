@@ -13,7 +13,7 @@ import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { ArrowDownUp } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Alert, Button, Modal, Space, Typography } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'

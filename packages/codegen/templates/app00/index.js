@@ -1,4 +1,4 @@
-const { NextApp } = require('@keystonejs/app-next')
+const { NextApp } = require('@open-keystone/app-next')
 
 const conf = require('@open-condo/config')
 const { HealthCheck, getPostgresHealthCheck, getRedisHealthCheck } = require('@open-condo/keystone/healthCheck')

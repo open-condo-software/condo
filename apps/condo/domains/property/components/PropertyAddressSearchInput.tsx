@@ -1,7 +1,5 @@
-/** @jsx jsx */
 import { grey } from '@ant-design/colors'
 import { Property } from '@app/condo/schema'
-import { jsx } from '@emotion/react'
 import { Select, SelectProps } from 'antd'
 import React, { CSSProperties, useCallback, useMemo } from 'react'
 

@@ -1,5 +1,4 @@
-/** @jsx jsx */
-import { css, jsx } from '@emotion/react'
+import { css } from '@emotion/react'
 import styled from '@emotion/styled'
 import { Layout } from 'antd'
 import classnames from 'classnames'
@@ -8,8 +7,6 @@ import React, { CSSProperties, FunctionComponent } from 'react'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { MAX_CONTENT_WIDTH } from '@miniapp/domains/common/constants/style'
-
-import 'antd/dist/antd.less'
 
 
 const LAYOUT_CSS = css`

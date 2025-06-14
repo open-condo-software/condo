@@ -1,4 +1,3 @@
-import { MessageDescriptor } from '@formatjs/intl/src/types'
 import { Row, Typography, Col, Space } from 'antd'
 import Big from 'big.js'
 import Head from 'next/head'
@@ -10,6 +9,8 @@ import { Button } from '@condo/domains/common/components/Button'
 
 import { Container } from './Layout'
 import { MoneyBlock } from './MoneyBlock'
+
+import type { MessageDescriptor } from 'react-intl'
 
 
 export type BlockType = {

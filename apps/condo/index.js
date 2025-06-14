@@ -1,4 +1,4 @@
-const { NextApp } = require('@keystonejs/app-next')
+const { NextApp } = require('@open-keystone/app-next')
 const dayjs = require('dayjs')
 const duration = require('dayjs/plugin/duration')
 const isBetween = require('dayjs/plugin/isBetween')

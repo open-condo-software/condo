@@ -1,7 +1,6 @@
-/** @jsx jsx */
 import { FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons'
 import { BuildingUnitSubType, B2BAppGlobalFeature } from '@app/condo/schema'
-import { jsx, css } from '@emotion/react'
+import { css } from '@emotion/react'
 import styled from '@emotion/styled'
 import { Col, Row, Typography, RowProps, Radio, RadioProps } from 'antd'
 import debounce from 'lodash/debounce'

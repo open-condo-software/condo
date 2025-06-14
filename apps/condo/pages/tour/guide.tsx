@@ -7,7 +7,7 @@ import React, { CSSProperties, useMemo, useState } from 'react'
 import { Download, ExternalLink } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Card, Modal, Space, Typography, Carousel, Banner } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
 import {

@@ -1,16 +1,16 @@
 // @ts-check
-const withCSS = require('@zeit/next-css')
-const withLess = require('@zeit/next-less')
-const AntdDayjsWebpackPlugin = require('antd-dayjs-webpack-plugin')
 const withTMModule = require('next-transpile-modules')
+const withLess = require('next-with-less')
 
 const conf = require('@open-condo/config')
+const { nextCamelCaseCSSModulesTransform } = require('@open-condo/miniapp-utils/helpers/webpack')
 
 const { antGlobalVariables } = require('@condo/domains/common/constants/style')
 const { getCurrentVersion } = require('@condo/domains/common/utils/VersioningMiddleware')
 
 const { name } = require('./package.json')
 
+// TODO: migrate to native transpiling once next is 13.x
 // Tell webpack to compile the "@open-condo/next" package, necessary
 // https://www.npmjs.com/package/next-transpile-modules
 // NOTE: FormTable require rc-table module
@@ -74,8 +74,18 @@ const aiEnabled = conf['AI_ENABLED']
 const contactPageResidentAnalytics = JSON.parse(conf['CONTACT_PAGE_RESIDENT_ANALYTICS'] || '{}')
 const displayTicketInfoOnShare = conf['SHOW_TICKET_INFO_ON_SHARE'] === 'true'
 
-let nextConfig = withTM(withLess(withCSS({
-    skipTrailingSlashRedirect: true,
+let nextConfig = withTM(withLess({
+    swcMinify: true,
+    compiler: {
+        emotion: true,
+    },
+    lessLoaderOptions: {
+        lessOptions: {
+            javascriptEnabled: true,
+            modifyVars: antGlobalVariables,
+        },
+    },
+    // skipTrailingSlashRedirect: true,
     publicRuntimeConfig: {
         // Will be available on both server and client
         appName,
@@ -130,10 +140,6 @@ let nextConfig = withTM(withLess(withCSS({
     serverRuntimeConfig: {
         proxyName,
     },
-    lessLoaderOptions: {
-        javascriptEnabled: true,
-        modifyVars: antGlobalVariables,
-    },
     async redirects () {
         return [
             {
@@ -144,20 +150,19 @@ let nextConfig = withTM(withLess(withCSS({
         ]
     },
     webpack: (config) => {
-        const plugins = config.plugins
-
-        // NOTE: Replace Moment.js with Day.js in antd project
-        config.plugins = [...plugins, new AntdDayjsWebpackPlugin()]
-
         config.module.rules = [
             ...(config.module.rules || []),
-            { test: /lang\/.*\.njk$/, use: 'raw-loader' },
-            { test: /lang\/.*\.md$/, use: 'raw-loader' },
+            {
+                test: /[\\/]lang[\\/].*\.njk$/,
+                type: 'asset/source',
+            },
+            {
+                test: /[\\/]lang[\\/].*\.md$/,
+                type: 'asset/source',
+            },
         ]
-
-        return config
+        return nextCamelCaseCSSModulesTransform(config)
     },
-
-})))
+}))
 
 module.exports = nextConfig

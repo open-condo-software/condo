@@ -29,7 +29,7 @@ import { getClientSideSenderInfo } from '@open-condo/miniapp-utils'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { Radio, RadioGroup, Tooltip, Tour, Typography } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 
 import { AIFlowButton } from '@condo/domains/ai/components/AIFlowButton'
 import { FLOW_TYPES } from '@condo/domains/ai/constants.js'

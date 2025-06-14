@@ -1,5 +1,3 @@
-/** @jsx jsx */
-import { jsx } from '@emotion/core'
 import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { get } from 'lodash'

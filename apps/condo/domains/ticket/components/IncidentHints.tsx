@@ -21,7 +21,7 @@ import { IntlShape } from 'react-intl/src/types'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useIntl } from '@open-condo/next/intl'
 import { Alert, Typography } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 
 
 const INCIDENTS_GUTTER: RowProps['gutter'] = [0, 24]

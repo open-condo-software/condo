@@ -4,7 +4,7 @@ import React from 'react'
 import { Sber } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Button } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 
 import { useCheckTLSClientCert } from '@condo/domains/common/hooks/useCheckTLSClientCert'
 

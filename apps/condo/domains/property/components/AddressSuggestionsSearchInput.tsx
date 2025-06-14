@@ -7,7 +7,7 @@ import React, { CSSProperties, Dispatch, SetStateAction, useCallback, useEffect,
 import { ArrowLeft, Mail, Send } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Modal, Space, Typography } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
 import { BaseSearchInput } from '@condo/domains/common/components/BaseSearchInput'

@@ -4,7 +4,6 @@ import { AutoComplete, Col, Form, Row, RowProps } from 'antd'
 import { OptionProps } from 'antd/lib/mentions'
 import debounce from 'lodash/debounce'
 import get from 'lodash/get'
-import { Rule } from 'rc-field-form/lib/interface'
 import React, { useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -15,6 +14,8 @@ import { colors } from '@condo/domains/common/constants/style'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 
 import { CONTACT_TYPE, ContactValue } from './index'
+
+import type { FormRule as Rule } from 'antd'
 
 
 const DEBOUNCE_TIMEOUT_IN_MS = 800

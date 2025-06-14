@@ -6,7 +6,7 @@ import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { SNOWFLAKES_SETTINGS } from '@condo/domains/common/constants/featureflags'
 
-import './Snowfall.css'
+import styles from './Snowfall.module.css'
 
 
 type MinMaxType = {
@@ -49,11 +49,11 @@ const DefaultSnowfall: React.FC<{ snowflakesSettings: SnowflakesSettings }> = ({
     }, [snowflakesSettings])
 
     return (
-        <div className='snowfall'>
+        <div className={styles.snowfall}>
             {snowflakes.map((flake) => (
                 <div
                     key={flake.id}
-                    className='snowflake'
+                    className={styles.snowflake}
                     style={{
                         left: `${flake.left}vw`,
                         width: `${flake.sizePx}px`,

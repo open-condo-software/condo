@@ -1,4 +1,4 @@
-const { Select: KSSelect } = require('@keystonejs/fields')
+const { Select: KSSelect } = require('@open-keystone/fields')
 const inflection = require('inflection')
 
 

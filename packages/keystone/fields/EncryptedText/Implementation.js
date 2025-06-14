@@ -1,4 +1,4 @@
-const { Text } = require('@keystonejs/fields')
+const { Text } = require('@open-keystone/fields')
 const isNil = require('lodash/isNil')
 const set = require('lodash/set')
 

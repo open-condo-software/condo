@@ -3,7 +3,6 @@ import styled from '@emotion/styled'
 import { AutoComplete, Col, Form, FormInstance, FormItemProps, InputProps, Row, RowProps } from 'antd'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
-import { Rule } from 'rc-field-form/lib/interface'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { MinusCircle } from '@open-condo/icons'
@@ -19,6 +18,8 @@ import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { normalizePhone } from '@condo/domains/common/utils/phone'
 
 import { CONTACT_TYPE, ContactValue, FieldsType } from './index'
+
+import type { FormRule as Rule } from 'antd'
 
 
 interface INewContactFieldsFieldsProps {

@@ -7,7 +7,7 @@ import get from 'lodash/get'
 import React from 'react'
 
 import { Tag } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 
 import { getTableCellRenderer, renderMeterReading, RenderReturnType } from '@condo/domains/common/components/Table/Renders'
 import { LOCALES } from '@condo/domains/common/constants/locale'
