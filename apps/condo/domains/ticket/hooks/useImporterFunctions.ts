@@ -152,8 +152,8 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         const normalizedPhone = normalizePhone(trimmedPhoneNumber, true)
         const trimmedIsResidentTicket = String(isResidentTicket?.value || '').trim()
         const normalizedIsResidentTicket = normalizeIsResidentTicket(trimmedIsResidentTicket, IsResidentTicketValueYesMessage, IsResidentTicketValueNoMessage)
-        const trimmedUnitName = String(unitName?.value).trim()
-        const trimmedUnitType = String(unitType?.value).trim().toLowerCase()
+        const trimmedUnitName = String(unitName?.value || '').trim()
+        const trimmedUnitType = String(unitType?.value || '').trim().toLowerCase()
         const normalizedUnitType = UNIT_TYPE_TRANSLATION_TO_TYPE[trimmedUnitType]
 
         addons.phone = normalizedPhone || null
