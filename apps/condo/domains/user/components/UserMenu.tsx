@@ -1,5 +1,6 @@
 import { Dropdown } from 'antd'
 import get from 'lodash/get'
+import isFunction from 'lodash/isFunction'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useMemo } from 'react'
 
@@ -21,7 +22,12 @@ function formatUserName (name) {
 
 const DROPDOWN_OVERLAY_STYLES: CSSProperties = { maxWidth: 180, width: '100%' }
 
-export const UserMenu: React.FC = () => {
+type UserMenuProps = {
+    goToAfterLogout?: () => unknown | Promise<unknown>
+}
+export const UserMenu: React.FC<UserMenuProps> = ({
+    goToAfterLogout,
+}) => {
     const { breakpoints } = useLayoutContext()
 
     const intl = useIntl()
@@ -37,8 +43,12 @@ export const UserMenu: React.FC = () => {
 
     const handleSignOutClick = useCallback(async () => {
         await auth.signOut()
-        await router.push('/auth/signin')
-    }, [auth])
+        if (isFunction(goToAfterLogout)) {
+            await goToAfterLogout()
+        } else {
+            await router.push('/auth/signin')
+        }
+    }, [auth, goToAfterLogout])
 
     const menu = useMemo<DropdownProps['menu']>(() => {
         return {
