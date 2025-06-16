@@ -66,9 +66,6 @@
       "helpers/uuid": [
         "dist/helpers/uuid.d.ts"
       ],
-      "helpers/webpack": [
-        "dist/helpers/webpack.d.ts"
-      ],
       "hooks/useEffectOnce": [
         "dist/hooks/useEffectOnce.d.ts"
       ],
@@ -133,11 +130,6 @@
       "require": "./dist/helpers/uuid.js",
       "import": "./dist/helpers/uuid.mjs"
     },
-    "./helpers/webpack": {
-      "types": "./dist/helpers/webpack.d.ts",
-      "require": "./dist/helpers/webpack.js",
-      "import": "./dist/helpers/webpack.mjs"
-    },
     "./hooks/useEffectOnce": {
       "types": "./dist/hooks/useEffectOnce.d.ts",
       "require": "./dist/hooks/useEffectOnce.js",
@@ -168,13 +160,12 @@
     "@open-condo/tsconfig": "workspace:^",
     "@types/jest": "^29.5.14",
     "@types/node": "^16",
-    "@types/react": "^16.14.61",
-    "@types/webpack": "^5.28.5",
+    "@types/react": "^17.0.2",
     "analytics": "^0.8.16",
     "graphql": "^16.10.0",
     "jest": "^29.7.0",
-    "react": "^16.14.0",
-    "react-dom": "^16.14.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
     "ts-jest": "^29.2.5",
     "tsup": "^8.4.0",
     "typescript": "^5.5.4"
