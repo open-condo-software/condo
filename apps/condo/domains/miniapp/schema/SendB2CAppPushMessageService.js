@@ -3,7 +3,7 @@
  */
 const get = require('lodash/get')
 
-const conf = require("@open-condo/config");
+const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, FORBIDDEN } } = require('@open-condo/keystone/errors')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
@@ -161,8 +161,10 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
                 let B2CAppName = 'Debug app'
                 let appSettings = {}
 
+                const x = conf
+
                 // App requested to send notification to is not a DEBUG one
-                if (b2cAppId !== DEBUG_APP_ID) {
+                if (!DEBUG_APP_ENABLED || b2cAppId !== DEBUG_APP_ID) {
                     const appExisted = await B2CApp.getOne(context, { id: b2cAppId, deletedAt: null })
 
                     if (!appExisted) throw new GQLError(ERRORS.APP_NOT_FOUND, context)
