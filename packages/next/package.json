@@ -20,7 +20,6 @@
     "react-intl": "^7.1.11"
   },
   "devDependencies": {
-    "@formatjs/intl": "^2.2.1",
     "@open-condo/tsconfig": "workspace:^"
   },
   "exports": {

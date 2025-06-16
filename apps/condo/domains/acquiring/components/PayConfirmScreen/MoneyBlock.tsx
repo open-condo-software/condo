@@ -1,4 +1,3 @@
-import { MessageDescriptor } from '@formatjs/intl/src/types'
 import { Row, Col, Typography } from 'antd'
 import Big from 'big.js'
 import React, { useMemo, CSSProperties } from 'react'
@@ -7,6 +6,8 @@ import { useIntl } from '@open-condo/next/intl'
 
 
 import { getMoneyRender } from '@condo/domains/common/components/Table/Renders'
+
+import type { MessageDescriptor } from 'react-intl'
 
 interface IMoneyBlockProps {
     titleDescriptor: MessageDescriptor
