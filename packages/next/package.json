@@ -23,8 +23,8 @@
     "@open-condo/tsconfig": "workspace:^"
   },
   "exports": {
-    "./*": "./*.jsx",
-    "./logging/patchConsoleLogMethods": "./logging/patchConsoleLogMethods.js"
+    "./logging/patchConsoleLogMethods": "./logging/patchConsoleLogMethods.js",
+    "./*": "./*.tsx"
   },
   "repository": "https://github.com/open-condo-software/condo/tree/main/packages/next",
   "peerDependencies": {
