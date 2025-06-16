@@ -137,6 +137,7 @@ async function authenticateOrRegisterUserWithToken (context, data) {
     })
 }
 
+const ConfirmEmailAction = generateServerUtils('ConfirmEmailAction')
 /* AUTOGENERATE MARKER <CONST> */
 
 const whiteList = conf.SMS_WHITE_LIST ? JSON.parse(conf.SMS_WHITE_LIST) : {}
@@ -202,5 +203,6 @@ module.exports = {
     UserSudoToken,
     generateSudoToken,
     authenticateOrRegisterUserWithToken,
+    ConfirmEmailAction,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
