@@ -101,7 +101,7 @@ const MarketItemContentActionBar: React.FC<IMarketItemContentActionBarProps> = (
             })
         }
 
-        client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allProperties' })
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allMarketItems' })
         client.cache.gc()
     }, [client?.cache, selectedKeys, updateMarketItems])
 
