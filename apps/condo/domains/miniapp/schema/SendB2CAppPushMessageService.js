@@ -42,6 +42,10 @@ const ALLOWED_PUSH_TYPES = [
     B2C_APP_MESSAGE_PUSH_TYPE,
 ]
 
+/**
+ * If debug app is set and debug app settings are configured, then user can send push messages without creating B2CApp first.
+ * This is useful for testing and development, but it should be turned off on production
+ */
 const DEBUG_APP_ID = conf.MINIAPP_PUSH_MESSAGE_DEBUG_APP_ID
 const DEBUG_APP_ENABLED = !!DEBUG_APP_ID
 const DEBUG_APP_SETTINGS = DEBUG_APP_ENABLED ? Object.freeze(JSON.parse(conf.MINIAPP_PUSH_MESSAGE_DEBUG_APP_SETTINGS)) : {}
