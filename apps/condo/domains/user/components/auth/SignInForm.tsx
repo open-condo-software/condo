@@ -157,6 +157,21 @@ export const SignInForm = (): React.ReactElement => {
                                         {SignInMessage}
                                     </Button>
                                 </Col>
+                                <Col span={24}>
+                                    <a href='/api/oidc/auth'>asdasd</a>
+                                    <Button
+                                        type='primary'
+                                        htmlType='button'
+                                        loading={isLoading}
+                                        block
+                                        tabIndex={4}
+                                        onClick={() => {
+                                            window.location.href = '/api/oidc/auth'
+                                        }}
+                                    >
+                                        OIDC Auth
+                                    </Button>
+                                </Col>
 
                                 {
                                     hasSbbolAuth && (

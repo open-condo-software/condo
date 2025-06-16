@@ -128,6 +128,18 @@ module.exports = function createConfiguration (context, conf) {
 
             // https://github.com/panva/node-oidc-provider/blob/main/docs/README.md#featuresrevocation - OAuth 2.0 Token Revocation
             revocation: { enabled: true }, // defaults to false
+
+            rpInitiatedLogout: {
+                enabled: true, // defaults to true
+                logoutSource (ctx, form) {
+                    // silent logout (without confirm action)
+                    ctx.body = `
+                        <html>
+                            <body onload="document.forms[0].submit()">${form}</body>
+                        </html>
+                    `
+                },
+            },
         },
         ttl: {
             //todo(AleX83Xpert): back to one hour after DOMA-3165 finished
