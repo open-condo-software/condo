@@ -161,8 +161,6 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
                 let B2CAppName = 'Debug app'
                 let appSettings = {}
 
-                const x = conf
-
                 // App requested to send notification to is not a DEBUG one
                 if (!DEBUG_APP_ENABLED || b2cAppId !== DEBUG_APP_ID) {
                     const appExisted = await B2CApp.getOne(context, { id: b2cAppId, deletedAt: null })
@@ -175,7 +173,7 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
                     B2CAppName = appExisted.name
                 }
 
-                if (DEBUG_APP_ENABLED && b2cAppId === DEBUG_APP_ID) {
+                else {
                     appSettings = { ...DEBUG_APP_SETTINGS }
                 }
 
