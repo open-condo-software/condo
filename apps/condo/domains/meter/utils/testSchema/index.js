@@ -332,8 +332,7 @@ async function createTestPropertyMeters (client, createAttrs = []) {
         }
     })
 
-    const obj = await PropertyMeter.createMany(client, attrs)
-    return [obj, attrs]
+    return PropertyMeter.createMany(client, attrs)
 }
 
 async function updateTestPropertyMeter (client, id, extraAttrs = {}) {
@@ -346,8 +345,8 @@ async function updateTestPropertyMeter (client, id, extraAttrs = {}) {
         sender,
         ...extraAttrs,
     }
-    const obj = await PropertyMeter.update(client, id, attrs)
-    return [obj, attrs]
+
+    return PropertyMeter.update(client, id, attrs)
 }
 
 async function updateTestPropertyMeters (client, updateAttrs = []) {

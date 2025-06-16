@@ -3,9 +3,10 @@
  */
 
 const get = require('lodash/get')
+const uniq = require('lodash/uniq')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { getByCondition } = require('@open-condo/keystone/schema')
+const { find } = require('@open-condo/keystone/schema')
 
 const {
     checkPermissionsInEmployedOrRelatedOrganizations,
@@ -27,48 +28,38 @@ async function canReadPropertyMeters ({ authentication: { item: user }, context 
     }
 }
 
-async function canManagePropertyMeters ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
+async function canManagePropertyMeters ({ authentication: { item: user }, originalInput, operation, itemId, itemIds, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
 
+    const isBulkRequest = Array.isArray(originalInput)
+    let organizationIds
+
     if (operation === 'create') {
-        const organizationId = get(originalInput, ['organization', 'connect', 'id'])
-        if (!organizationId) return false
-        const propertyId = get(originalInput, ['property', 'connect', 'id'])
-        const property = await getByCondition('Property', {
-            id: propertyId,
-            deletedAt: null,
-        })
-        if (!property) return false
-        if (organizationId !== get(property, 'organization')) return false
+        if (isBulkRequest) {
+            organizationIds = originalInput.map(el => get(el, ['data', 'organization', 'connect', 'id']))
 
-        return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageMeters')
-    }
-
-    if (operation === 'update' && itemId) {
-        const meter = await getByCondition('PropertyMeter', {
-            id: itemId,
-            deletedAt: null,
-        })
-        if (!meter) return false
-        // if we pass property then we need check that this Property is in the organization in which the Meter is located
-        const meterOrganization = get(meter, 'organization')
-        const propertyId = get(originalInput, ['property', 'connect', 'id'])
-        if (propertyId) {
-            const property = await getByCondition('Property', {
-                id: propertyId,
-                deletedAt: null,
-            })
-            if (!property) return false
-            if (meterOrganization !== get(property, 'organization')) return false
+            if (organizationIds.filter(Boolean).length !== originalInput.length) return false
+            organizationIds = uniq(organizationIds)
+        } else {
+            const organizationId = get(originalInput, ['organization', 'connect', 'id'])
+            if (!organizationId) return false
+            organizationIds = [organizationId]
         }
-        if (!meterOrganization) return false
+    } else if (operation === 'update') {
+        const ids = itemIds || [itemId]
+        if (ids.length !== uniq(ids).length) return false
 
-        return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, meterOrganization, 'canManageMeters')
+        const items = await find('PropertyMeter', {
+            id_in: ids,
+            deletedAt: null,
+        })
+        if (items.length !== ids.length || items.some(item => !item.organization)) return false
+        organizationIds = uniq(items.map(item => item.organization))
     }
 
-    return false
+    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationIds, 'canManageMeters')
 }
 
 /*
