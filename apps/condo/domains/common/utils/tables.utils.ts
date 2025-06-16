@@ -1,6 +1,5 @@
 import { ParsedUrlQuery } from 'querystring'
 
-import { ResolvedIntlConfig } from '@formatjs/intl/src/types'
 import { FilterDropdownProps } from 'antd/es/table/interface'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
@@ -18,6 +17,9 @@ import {
     getOptionFilterDropdown,
     getTextFilterDropdown,
 } from '../components/Table/Filters'
+
+import type { ResolvedIntlConfig } from 'react-intl'
+
 
 export type DataIndexType = string | Array<string>
 export type QueryArgType = string | Array<string>
