@@ -406,6 +406,7 @@ __metadata:
     cookie-signature: ^1.2.2
     cookies-next: ^4.2.1
     cross-env: ^7.0.3
+    css-loader: ^7.1.2
     csv-stringify: ^6.2.0
     dayjs: ^1.10.6
     echarts: ^5.1.2
@@ -437,6 +438,7 @@ __metadata:
     jszip: ^3.10.1
     jwt-decode: 3.1.2
     less: ^3.12.2
+    less-loader: ^12.3.0
     lodash: ^4.17.21
     lru-cache: ^7.18.3
     mjml: ^4.15.3
@@ -444,7 +446,7 @@ __metadata:
     n2words: ^1.21.0
     nanoid: ^3.3.4
     next: ^12.3.7
-    next-transpile-modules: ^7.0.0
+    next-transpile-modules: ^10.0.1
     node-fetch: ^2.6.7
     nunjucks: ^3.2.4
     oidc-provider: 7.14.3
@@ -475,12 +477,12 @@ __metadata:
     recheck: ^4.4.5
     redlock: ^5.0.0-beta.2
     slugify: ^1.6.6
+    style-loader: ^4.0.0
     swr: ^1.3.0
     typescript: ^5.5.4
     uuid: ^8.3.0
     validate.js: ^0.13.1
     wavesurfer.js: ^6.6.3
-    webpack: ^4.46.0
     xlsx: "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz"
     xss: ^1.0.13
     zod: ^3.22.4
@@ -9879,7 +9881,7 @@ __metadata:
     lodash: ^4.17.21
   peerDependencies:
     next: ">=9.5.5"
-    react: ">=16.13.1"
+    react: ">=17.0.2"
   languageName: unknown
   linkType: soft
 
@@ -10137,7 +10139,7 @@ __metadata:
     "@storybook/testing-library": ^0.0.13
     "@storybook/theming": 7.6.20
     "@types/node": ^16
-    "@types/react": 16.9.17
+    "@types/react": ^17.0.2
     antd: ^4.24.12
     babel: ^6.23.0
     babel-loader: ^8.2.5
@@ -10156,8 +10158,8 @@ __metadata:
     postcss-loader: ^7.0.1
     postcss-preset-env: ^7.8.1
     quicktype-core: ^6.0.71
-    react: ^16.13.1
-    react-dom: ^16.13.1
+    react: ^17.0.2
+    react-dom: ^17.0.2
     react-markdown: ^6
     react-phone-input-2: ^2.15.1
     remark-gfm: ^1
@@ -15003,16 +15005,6 @@ __metadata:
   dependencies:
     "@types/react": "*"
   checksum: 6f30fffc221339de90bd3e999f32328618cfaedfcaa501603f5ddc5bed1c2dbaa0d51347c3a25e5f8fd3041c671aabd2b7bfbcad611a7636adcd9da4e0666fa5
-  languageName: node
-  linkType: hard
-
-"@types/react@npm:16.9.17":
-  version: 16.9.17
-  resolution: "@types/react@npm:16.9.17"
-  dependencies:
-    "@types/prop-types": "*"
-    csstype: ^2.2.0
-  checksum: 1d6598e6f070013498195a1bcce3090328f5ac6e64cd99a95ebbfa6494ac187ada03af317ba1230756b9c729d853a40fca58f39b150e2da9103a454291edf37d
   languageName: node
   linkType: hard
 
@@ -21654,7 +21646,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"csstype@npm:^2.0.0, csstype@npm:^2.2.0, csstype@npm:^2.5.2, csstype@npm:^2.5.7":
+"csstype@npm:^2.0.0, csstype@npm:^2.5.2, csstype@npm:^2.5.7":
   version: 2.6.20
   resolution: "csstype@npm:2.6.20"
   checksum: cb5d5ded49c3390909e93b20b285d4a63d0ba5b10294bdfbc4cf911f80e91d6cf367ea671f99f09570762535c14ea7074a2c7fa73f02008203f01328dea8968b
@@ -23019,7 +23011,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"enhanced-resolve@npm:^5.0.0, enhanced-resolve@npm:^5.7.0":
+"enhanced-resolve@npm:^5.0.0":
   version: 5.10.0
   resolution: "enhanced-resolve@npm:5.10.0"
   dependencies:
@@ -32937,16 +32929,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"next-transpile-modules@npm:^7.0.0":
-  version: 7.3.0
-  resolution: "next-transpile-modules@npm:7.3.0"
-  dependencies:
-    enhanced-resolve: ^5.7.0
-    escalade: ^3.1.1
-  checksum: df22281e70b419529d946c07c80229add950efe5f8569de6c1540cd66c06cf991d90c68f1f9b26b4d0244a5dc0667a43df2572c46e7183d8c415af088792b61c
-  languageName: node
-  linkType: hard
-
 "next@npm:^12.3.7":
   version: 12.3.7
   resolution: "next@npm:12.3.7"
@@ -40003,7 +39985,6 @@ __metadata:
     "@typescript-eslint/parser": ^7.18.0
     commander: ^11.0.0
     commitlint-plugin-function-rules: ^1.3.2
-    css-loader: ^7.1.2
     dd-trace: 4.46.0
     eslint: ^8.57.0
     eslint-plugin-import: ^2.29.1
@@ -40014,12 +39995,9 @@ __metadata:
     glob: ^11.0.1
     husky: 7.0.4
     knip: ^4
-    less-loader: ^12.3.0
     mono-pub: ^2.0.0
-    next-transpile-modules: ^10.0.1
     node-fetch: ^2.6.7
     prometheus-remote-write: ^0.5.0
-    style-loader: ^4.0.0
     stylelint: ^14.11.0
     stylelint-config-rational-order: ^0.1.2
     stylelint-config-standard: ^28.0.0
@@ -45122,7 +45100,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack@npm:4.46.0, webpack@npm:^4.46.0":
+"webpack@npm:4.46.0":
   version: 4.46.0
   resolution: "webpack@npm:4.46.0"
   dependencies:

@@ -104,7 +104,7 @@
     "n2words": "^1.21.0",
     "nanoid": "^3.3.4",
     "next": "^12.3.7",
-    "next-transpile-modules": "^7.0.0",
+    "next-transpile-modules": "^10.0.1",
     "node-fetch": "^2.6.7",
     "nunjucks": "^3.2.4",
     "oidc-provider": "7.14.3",
@@ -161,20 +161,19 @@
     "bad-words-next": "^1.6.7",
     "commander": "^11.0.0",
     "cross-env": "^7.0.3",
+    "css-loader": "^7.1.2",
     "form-data": "^4.0.0",
     "jest": "^29.7.0",
     "jest-jasmine2": "^29.7.0",
+    "less-loader": "^12.3.0",
     "mkdirp": "^1.0.4",
     "pg": "^8.11.3",
     "pluralize": "^8.0.0",
     "raw-loader": "^4.0.2",
-    "typescript": "^5.5.4",
-    "webpack": "^4.46.0"
+    "style-loader": "^4.0.0",
+    "typescript": "^5.5.4"
   },
   "peerDependencies": {
     "dd-trace": "^4.46.0"
-  },
-  "resolutions": {
-    "@types/react": "16.9.17"
   }
 }
