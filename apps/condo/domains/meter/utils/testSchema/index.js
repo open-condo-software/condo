@@ -345,8 +345,8 @@ async function updateTestPropertyMeter (client, id, extraAttrs = {}) {
         sender,
         ...extraAttrs,
     }
-
-    return PropertyMeter.update(client, id, attrs)
+    const obj = await PropertyMeter.update(client, id, attrs)
+    return [obj, attrs]
 }
 
 async function updateTestPropertyMeters (client, updateAttrs = []) {
