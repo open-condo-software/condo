@@ -73,7 +73,7 @@ const contactPageResidentAnalytics = JSON.parse(conf['CONTACT_PAGE_RESIDENT_ANAL
 const displayTicketInfoOnShare = conf['SHOW_TICKET_INFO_ON_SHARE'] === 'true'
 
 let nextConfig = withTM({
-    skipTrailingSlashRedirect: true,
+    // skipTrailingSlashRedirect: true,
     publicRuntimeConfig: {
         // Will be available on both server and client
         appName,
@@ -142,31 +142,32 @@ let nextConfig = withTM({
             ...(config.module.rules || []),
             { test: /lang\/.*\.njk$/, use: 'raw-loader' },
             { test: /lang\/.*\.md$/, use: 'raw-loader' },
-            {
-                test: /\.less$/,
-                use: [
-                    {
-                        loader: require.resolve('style-loader'),
-                    },
-                    {
-                        loader: require.resolve('css-loader'),
-                    },
-                    {
-                        loader: require.resolve('less-loader'),
-                        options: {
-                            lessOptions: {
-                                javascriptEnabled: true,
-                                modifyVars: antGlobalVariables,
-                            },
-                        },
-                    },
-                ],
-            },
+            // {
+            //     test: /\.less$/,
+            //     use: [
+            //         {
+            //             loader: 'style-loader',
+            //         },
+            //         {
+            //             loader: 'css-loader',
+            //         },
+            //         {
+            //             loader: 'less-loader',
+            //             options: {
+            //                 lessOptions: {
+            //                     javascriptEnabled: true,
+            //                     modifyVars: antGlobalVariables,
+            //                 },
+            //             },
+            //         },
+            //     ],
+            // },
         ]
+
+        const a = 3
 
         return config
     },
-
 })
 
 module.exports = nextConfig

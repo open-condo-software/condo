@@ -17,7 +17,6 @@ import fetch from 'isomorphic-unfetch'
 import get from 'lodash/get'
 import { NextPage, NextPageContext } from 'next'
 import getConfig from 'next/config'
-import Head from 'next/head'
 import React from 'react'
 
 import {
@@ -253,55 +252,8 @@ const _withApolloLegacy: WillApolloLegacyType = ({ ssr = false, ...opts } = {}) 
     if (ssr || !isSSR() || PageComponent.getInitialProps) {
         WithApollo.getInitialProps = async ctx => {
             if (DEBUG_RERENDERS) console.log('WithApollo.getInitialProps()', ctx)
-            const isOnServerSide = typeof window === 'undefined'
             const { apolloClient } = await initOnRestore(ctx, apolloCacheConfig)
             const pageProps = await getContextIndependentWrappedInitialProps(PageComponent, ctx)
-
-            if (isOnServerSide) {
-                const { AppTree } = ctx
-                // When redirecting, the response is finished.
-                // No point in continuing to render
-                if (ctx.res && ctx.res.finished) {
-                    return pageProps
-                }
-
-                // Only if dataFromTree is enabled
-                if (ssr && AppTree) {
-                    const inAppContext = Boolean(ctx.ctx)
-                    try {
-                        // Import `@apollo/react-ssr` dynamically.
-                        // We don't want to have this in our client bundle.
-                        const { getDataFromTree } = await import('@apollo/client/react/ssr')
-
-                        // Since AppComponents and PageComponents have different context types
-                        // we need to modify their props a little.
-                        let props
-                        if (inAppContext) {
-                            props = { ...pageProps, apolloClient }
-                        } else {
-                            props = { pageProps: { ...pageProps, apolloClient } }
-                        }
-
-                        // Take the Next.js AppTree, determine which queries are needed to render,
-                        // and fetch them. This method can be pretty slow since it renders
-                        // your entire AppTree once for every query. Check out apollo fragments
-                        // if you want to reduce the number of rerenders.
-                        // https://www.apollographql.com/docs/react/data/fragments/
-                        await getDataFromTree(<AppTree {...props} />)
-                    } catch (error) {
-                        // Prevent Apollo Client GraphQL errors from crashing SSR.
-                        // Handle them in components via the data.error prop:
-                        // https://www.apollographql.com/docs/react/api/react-apollo.html#graphql-query-data-error
-                        console.error('Error while running `getDataFromTree`', error)
-                    }
-
-                    // getDataFromTree does not call componentWillUnmount
-                    // head side effect therefore need to be cleared manually
-                    Head.rewind()
-                }
-
-                preventInfinityLoop(ctx)
-            }
 
             return {
                 ...pageProps,
