@@ -53,6 +53,7 @@ const { ResetUserLimitAction: ResetUserLimitActionGQL } = require('@condo/domain
 const { UserSudoToken: UserSudoTokenGQL } = require('@condo/domains/user/gql')
 const { GENERATE_SUDO_TOKEN_MUTATION } = require('@condo/domains/user/gql')
 const { AUTHENTICATE_OR_REGISTER_USER_WITH_TOKEN_MUTATION } = require('@condo/domains/user/gql')
+const { ConfirmEmailAction: ConfirmEmailActionGQL } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const OIDC_REDIRECT_URI = 'https://httpbin.org/anything'
@@ -252,6 +253,7 @@ const ExternalTokenAccessRight = generateGQLTestUtils(ExternalTokenAccessRightGQ
 const UserRightsSet = generateGQLTestUtils(UserRightsSetGQL)
 const ResetUserLimitAction = generateGQLTestUtils(ResetUserLimitActionGQL)
 const UserSudoToken = generateGQLTestUtils(UserSudoTokenGQL)
+const ConfirmEmailAction = generateGQLTestUtils(ConfirmEmailActionGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestConfirmPhoneAction (client, extraAttrs = {}) {
@@ -629,6 +631,33 @@ async function authenticateOrRegisterUserWithTokenByTestClient(client, extraAttr
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+async function createTestConfirmEmailAction (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await ConfirmEmailAction.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestConfirmEmailAction (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await ConfirmEmailAction.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -674,5 +703,6 @@ module.exports = {
     generateSudoTokenByTestClient,
     OIDC_REDIRECT_URI,
     authenticateOrRegisterUserWithTokenByTestClient,
+    ConfirmEmailAction, createTestConfirmEmailAction, updateTestConfirmEmailAction,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
