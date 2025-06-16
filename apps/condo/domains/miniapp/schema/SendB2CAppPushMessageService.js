@@ -3,6 +3,7 @@
  */
 const get = require('lodash/get')
 
+const conf = require("@open-condo/config");
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, FORBIDDEN } } = require('@open-condo/keystone/errors')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
@@ -11,7 +12,7 @@ const { WRONG_FORMAT, DV_VERSION_MISMATCH } = require('@condo/domains/common/con
 const access = require('@condo/domains/miniapp/access/SendB2CAppPushMessageService')
 const {
     USER_NOT_FOUND_ERROR, RESIDENT_NOT_FOUND_ERROR,
-    APP_NOT_FOUND_ERROR, APP_BLACK_LIST_ERROR, DEBUG_APP_ID,
+    APP_NOT_FOUND_ERROR, APP_BLACK_LIST_ERROR,
     DEFAULT_NOTIFICATION_WINDOW_MAX_COUNT,
     DEFAULT_NOTIFICATION_WINDOW_DURATION_IN_SECONDS,
 } = require('@condo/domains/miniapp/constants')
@@ -40,6 +41,10 @@ const ALLOWED_PUSH_TYPES = [
     CANCELED_CALL_MESSAGE_PUSH_TYPE,
     B2C_APP_MESSAGE_PUSH_TYPE,
 ]
+
+const DEBUG_APP_ID = conf.MINIAPP_PUSH_MESSAGE_DEBUG_APP_ID
+const DEBUG_APP_ENABLED = !!DEBUG_APP_ID
+const DEBUG_APP_SETTINGS = DEBUG_APP_ENABLED ? Object.freeze(JSON.parse(conf.MINIAPP_PUSH_MESSAGE_DEBUG_APP_SETTINGS)) : {}
 
 //TODO(Kekmus) Better to use existing redisGuard if possible
 const redisGuard = new RedisGuard()
@@ -162,6 +167,10 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
                     appSettings = await AppMessageSetting.getOne(context, where, 'notificationWindowSize numberOfNotificationInWindow')
 
                     B2CAppName = appExisted.name
+                }
+
+                if (DEBUG_APP_ENABLED && b2cAppId === DEBUG_APP_ID) {
+                    appSettings = { ...DEBUG_APP_SETTINGS }
                 }
 
                 const searchKey = `${type}-${b2cAppId}-${user.id}`
