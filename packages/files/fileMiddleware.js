@@ -3,7 +3,7 @@ const cuid = require('cuid')
 const express = require('express')
 const { WriteStream } = require('fs-capacitor')
 const createError = require('http-errors')
-const { pick } = require('lodash')
+const { pick, isEqual } = require('lodash')
 // const mongoose = require('mongoose')
 
 const { CondoFile } = require('@open-condo/files/schema/utils/serverSchema')
@@ -14,7 +14,7 @@ const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 
 class FileMiddleware {
     constructor ({
-        apiUrl = '/api/rest/files/',
+        apiUrl = '/api/files/upload',
         maxFieldSize = 200 * 1024 * 1024,
         maxFileSize = 200 * 1024 * 1024,
         maxFiles = 2,
@@ -151,7 +151,7 @@ class FileMiddleware {
                                 }
 
 
-                                if (!Object.values(meta).every(value => !!value)) {
+                                if (!Object.values(meta).every(value => !!value) || !isEqual(Object.keys(meta).sort(), requiredMetaFields.sort())) {
                                     return exit(
                                         createError(400, `Invalid data for file meta. Required fields ${requiredMetaFields.join(', ')} should be not empty`),
                                     )
@@ -162,7 +162,14 @@ class FileMiddleware {
                     parser.once('finish', () => {
                         request.unpipe(parser)
                         request.resume()
-
+                        if (!Array.isArray(request.files)) {
+                            return exit(
+                                createError(
+                                    400,
+                                    'Missing attached files'
+                                )
+                            )
+                        }
                         if (!meta) {
                             return exit(
                                 createError(
