@@ -26,6 +26,10 @@ export async function prefetchAuthOrRedirect (
 ): Promise<RedirectOrAuthDataType> {
     const result: RedirectOrAuthDataType = { user: null, redirectToAuth: null }
     const user = await prefetchAuth(client)
+    
+    console.log('prefetchAuthOrRedirect>>', {
+        user,
+    })
 
     if (user) {
         result.user = user
