@@ -27,6 +27,7 @@ import AuthLayout from '@condo/domains/user/components/containers/AuthLayout'
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 import { SMS_CODE_TTL } from '@condo/domains/user/constants/common'
 import { TOO_MANY_REQUESTS } from '@condo/domains/user/constants/errors'
+import { useAuthMethods } from '@condo/domains/user/hooks/useAuthMethods'
 
 
 const { publicRuntimeConfig: { defaultLocale } } = getConfig()
@@ -37,13 +38,15 @@ const INITIAL_VALUES = { email: '' }
 
 function ResetPageView () {
     const intl = useIntl()
-    const router = useRouter()
     const RestorePasswordMessage = intl.formatMessage({ id: 'pages.auth.reset.ResetPasswordTitle' })
     const ResetTitleMessage = intl.formatMessage({ id: 'pages.auth.ResetTitle' })
     const InstructionsMessage = intl.formatMessage({ id: 'pages.auth.reset.ResetHelp' })
     const PhoneMessage = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
     const ExamplePhoneMessage = intl.formatMessage({ id: 'example.Phone' })
     const SMSTooManyRequestsErrorMessage = intl.formatMessage({ id: 'pages.auth.TooManyRequests' })
+
+    const router = useRouter()
+    const { queryParams } = useAuthMethods()
 
     const [form] = Form.useForm()
     const { executeCaptcha } = useHCaptcha()
@@ -120,7 +123,7 @@ function ResetPageView () {
     if (step === 'validatePhone') {
         return (
             <ValidatePhoneForm
-                onFinish={() => router.push('/auth/change-password?token=' + token)}
+                onFinish={() => router.push(`/auth/change-password?token=${token}&${queryParams}`)}
                 onReset={() => setStep('inputPhone')}
                 title={ResetTitleMessage}
             />

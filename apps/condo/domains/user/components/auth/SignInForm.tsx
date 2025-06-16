@@ -18,6 +18,7 @@ import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutation
 import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 import { WRONG_CREDENTIALS } from '@condo/domains/user/constants/errors'
+import { useAuthMethods } from '@condo/domains/user/hooks/useAuthMethods'
 
 import { AgreementText } from './AgreementText'
 
@@ -38,6 +39,9 @@ export const SignInForm = (): React.ReactElement => {
     const ResetPasswordMessage = intl.formatMessage({ id: 'pages.auth.signin.ResetPasswordLink' })
 
     const router = useRouter()
+
+    const { authMethods } = useAuthMethods()
+
     const { refetch } = useAuth()
     const { executeCaptcha } = useHCaptcha()
 
@@ -105,61 +109,70 @@ export const SignInForm = (): React.ReactElement => {
             <Row justify='start'>
                 <ResponsiveCol span={24}>
                     <Row gutter={[0, 40]}>
-                        <Col span={24}>
-                            <Row gutter={[0, 24]}>
-                                <Col span={24}>
-                                    <FormItem
-                                        name='phone'
-                                        label={PhoneMessage}
-                                        rules={[{ required: true, message: FieldIsRequiredMessage }]}
-                                        data-cy='signin-phone-item'
-                                    >
-                                        <Input.Phone country={defaultLocale} placeholder={ExamplePhoneMessage} inputProps={PHONE_INPUT_PROPS} />
-                                    </FormItem>
-                                </Col>
+                        {
+                            authMethods.phonePassword && (
                                 <Col span={24}>
                                     <Row gutter={[0, 24]}>
                                         <Col span={24}>
                                             <FormItem
-                                                name='password'
-                                                label={PasswordMessage}
+                                                name='phone'
+                                                label={PhoneMessage}
                                                 rules={[{ required: true, message: FieldIsRequiredMessage }]}
-                                                data-cy='signin-password-item'
+                                                data-cy='signin-phone-item'
                                             >
-                                                <Input.Password tabIndex={2} />
+                                                <Input.Phone country={defaultLocale} placeholder={ExamplePhoneMessage} inputProps={PHONE_INPUT_PROPS} />
                                             </FormItem>
                                         </Col>
-
                                         <Col span={24}>
-                                            <Link href='/auth/forgot'>
-                                                <Typography.Link href='/auth/forgot' tabIndex={3}>
-                                                    {ResetPasswordMessage}
-                                                </Typography.Link>
-                                            </Link>
+                                            <Row gutter={[0, 24]}>
+                                                <Col span={24}>
+                                                    <FormItem
+                                                        name='password'
+                                                        label={PasswordMessage}
+                                                        rules={[{ required: true, message: FieldIsRequiredMessage }]}
+                                                        data-cy='signin-password-item'
+                                                    >
+                                                        <Input.Password tabIndex={2} />
+                                                    </FormItem>
+                                                </Col>
+
+                                                <Col span={24}>
+                                                    <Link href={`/auth/forgot?next=${encodeURIComponent(redirectUrl)}`}>
+                                                        <Typography.Link href={`/auth/forgot?next=${encodeURIComponent(redirectUrl)}`} tabIndex={3}>
+                                                            {ResetPasswordMessage}
+                                                        </Typography.Link>
+                                                    </Link>
+                                                </Col>
+                                            </Row>
                                         </Col>
                                     </Row>
                                 </Col>
-                            </Row>
-                        </Col>
+                            )
+                        }
 
                         <Col span={24}>
                             <Row gutter={[0, 24]}>
-                                <Col span={24}>
-                                    <Button
-                                        key='submit'
-                                        type='primary'
-                                        htmlType='submit'
-                                        loading={isLoading}
-                                        block
-                                        data-cy='signin-button'
-                                        tabIndex={4}
-                                    >
-                                        {SignInMessage}
-                                    </Button>
-                                </Col>
 
                                 {
-                                    hasSbbolAuth && (
+                                    authMethods.phonePassword && (
+                                        <Col span={24}>
+                                            <Button
+                                                key='submit'
+                                                type='primary'
+                                                htmlType='submit'
+                                                loading={isLoading}
+                                                block
+                                                data-cy='signin-button'
+                                                tabIndex={4}
+                                            >
+                                                {SignInMessage}
+                                            </Button>
+                                        </Col>
+                                    )
+                                }
+
+                                {
+                                    hasSbbolAuth && authMethods.sbbolid && (
                                         <Col span={24} id='signInSBBOL'>
                                             <LoginWithSBBOLButton
                                                 tabIndex={5}
