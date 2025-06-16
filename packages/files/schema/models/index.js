@@ -1,4 +1,5 @@
 const { CondoFile } = require('./CondoFile')
+const { FileMiddlewareTests } = require('./file.test')
 
 const getFileModels = () => {
     return { CondoFile }
@@ -6,4 +7,5 @@ const getFileModels = () => {
 
 module.exports = {
     getFileModels,
+    FileMiddlewareTests,
 }
