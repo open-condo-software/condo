@@ -2,14 +2,15 @@ const { CondoFile } = require('@open-condo/files/schema/utils/serverSchema')
 
 const FileWithUTF8Name  = require('../FileWithUTF8Name/index')
 
+
 class CustomFile extends FileWithUTF8Name.implementation {
     constructor () {
         super(...arguments)
-        this.graphQLOutputType = 'CustomFile'
+        this.graphQLOutputType = 'File'
     }
 
     getFileUploadType () {
-        return 'CustomUpload'
+        return 'Upload'
     }
 
     getGqlAuxTypes () {
@@ -23,6 +24,7 @@ class CustomFile extends FileWithUTF8Name.implementation {
               mimetype: String
               encoding: String
               publicUrl: String
+              meta: JSON
             }
           `,
         ]
@@ -50,16 +52,13 @@ class CustomFile extends FileWithUTF8Name.implementation {
 
     async resolveInput ({ resolvedData, existingItem, context }) {
         const uploadData = resolvedData[this.path]
+        // Old way to upload file
         if (uploadData instanceof Promise) {
             return await super.resolveInput({ resolvedData, existingItem })
         }
 
-        if (typeof uploadData === 'object') {
-            return uploadData
-        }
-
         if (typeof uploadData === 'string') {
-            const file = await CondoFile.getOne(context, { id: uploadData }, 'file { id filename originalFilename mimetype encoding }')
+            const file = await CondoFile.getOne(context, { id: uploadData }, 'file { id filename originalFilename mimetype encoding meta }')
             if (file) {
                 return file.file
             }
@@ -68,14 +67,14 @@ class CustomFile extends FileWithUTF8Name.implementation {
     }
 
     getBackingTypes () {
-        const type = `null | string | {
+        const type = `null | {
             id: string;
             path: string;
             filename: string;
             originalFilename: string;
             mimetype: string;
             encoding: string;
-            
+            meta: Record<string, any>
             _meta: Record<string, any>
            }
         `
