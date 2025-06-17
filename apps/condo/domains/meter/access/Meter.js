@@ -91,7 +91,6 @@ async function canManageMeters (args) {
 
             const propertyId = get(originalInput, ['property', 'connect', 'id'])
             if (propertyId) {
-                console.log('>>> propertyId, organizationId', propertyId, organizationId)
                 meterOrganizationToPropertyObjects.push({
                     propertyId,
                     organizationId,

@@ -1607,7 +1607,7 @@ describe('Meter', () => {
             const [property] = await createTestProperty(employeeClient, otherOrganization)
 
             await expectToThrowAccessDeniedErrorToObjects(async () => {
-                await createTestMeters(otherEmployeeClient, [
+                await createTestMeters(employeeClient, [
                     {
                         organization: { connect: { id: organization.id } },
                         property: { connect: { id: property1.id } },
