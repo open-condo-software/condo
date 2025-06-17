@@ -381,7 +381,7 @@ enum UserTypeType {
   service
 }
 
-type CustomFile {
+type File {
   id: ID
   path: String
   filename: String
@@ -389,6 +389,7 @@ type CustomFile {
   mimetype: String
   encoding: String
   publicUrl: String
+  meta: JSON
 }
 
 enum UserLocaleType {
@@ -501,7 +502,7 @@ type User {
   isPhoneVerified: Boolean
 
   """ User loaded avatar image """
-  avatar: CustomFile
+  avatar: File
 
   """ User metadata. Example: `city`, `country`, ... """
   meta: JSON
@@ -745,7 +746,7 @@ input UserUpdateInput {
   isEmailVerified: Boolean
   phone: String
   isPhoneVerified: Boolean
-  avatar: CustomUpload
+  avatar: Upload
   meta: JSON
   locale: UserLocaleType
   customAccess: CustomAccessInput
@@ -777,7 +778,7 @@ input UserCreateInput {
   isEmailVerified: Boolean
   phone: String
   isPhoneVerified: Boolean
-  avatar: CustomUpload
+  avatar: Upload
   meta: JSON
   locale: UserLocaleType
   customAccess: CustomAccessInput
@@ -5260,16 +5261,6 @@ enum OrganizationTypeType {
   MANAGING_COMPANY
   HOLDING
   SERVICE_PROVIDER
-}
-
-type File {
-  id: ID
-  path: String
-  filename: String
-  originalFilename: String
-  mimetype: String
-  encoding: String
-  publicUrl: String
 }
 
 input OrganizationEmployeeRelateToManyInput {
@@ -17165,10 +17156,10 @@ type BillingReceiptFile {
   file: File
 
   """ File version of the receipt with personal information """
-  sensitiveDataFile: CustomFile
+  sensitiveDataFile: File
 
   """ File version of the receipt without personal information """
-  publicDataFile: CustomFile
+  publicDataFile: File
 
   """ Link to Context """
   context: BillingIntegrationOrganizationContext
@@ -17345,8 +17336,8 @@ enum SortBillingReceiptFilesBy {
 }
 
 input BillingReceiptFileUpdateInput {
-  sensitiveDataFile: CustomUpload
-  publicDataFile: CustomUpload
+  sensitiveDataFile: Upload
+  publicDataFile: Upload
   context: BillingIntegrationOrganizationContextRelateToOneInput
   receipt: BillingReceiptRelateToOneInput
   controlSum: String
@@ -17368,8 +17359,8 @@ input BillingReceiptFilesUpdateInput {
 }
 
 input BillingReceiptFileCreateInput {
-  sensitiveDataFile: CustomUpload
-  publicDataFile: CustomUpload
+  sensitiveDataFile: Upload
+  publicDataFile: Upload
   context: BillingIntegrationOrganizationContextRelateToOneInput
   receipt: BillingReceiptRelateToOneInput
   controlSum: String
@@ -22692,7 +22683,7 @@ type BankSyncTask {
 
   """ File from which transactions should be imported. Currently only 1CClientBankExchange format is supported 
   """
-  file: CustomFile
+  file: File
 
   """ Count of transactions to import. Can be unknown in advance """
   totalCount: Int
@@ -22881,7 +22872,7 @@ input BankSyncTaskUpdateInput {
   organization: OrganizationRelateToOneInput
   property: PropertyRelateToOneInput
   status: BankSyncTaskStatusType
-  file: CustomUpload
+  file: Upload
   totalCount: Int
   processedCount: Int
   user: UserRelateToOneInput
@@ -22909,7 +22900,7 @@ input BankSyncTaskCreateInput {
   organization: OrganizationRelateToOneInput
   property: PropertyRelateToOneInput
   status: BankSyncTaskStatusType
-  file: CustomUpload
+  file: Upload
   totalCount: Int
   processedCount: Int
   user: UserRelateToOneInput
@@ -27749,7 +27740,7 @@ type TicketFile {
   _label_: String
 
   """ File object with meta information and publicUrl """
-  file: CustomFile
+  file: File
 
   """ Link to ticket """
   ticket: Ticket
@@ -27877,7 +27868,7 @@ enum SortTicketFilesBy {
 }
 
 input TicketFileUpdateInput {
-  file: CustomUpload
+  file: Upload
   ticket: TicketRelateToOneInput
   organization: OrganizationRelateToOneInput
   v: Int
@@ -27897,7 +27888,7 @@ input TicketFilesUpdateInput {
 }
 
 input TicketFileCreateInput {
-  file: CustomUpload
+  file: Upload
   ticket: TicketRelateToOneInput
   organization: OrganizationRelateToOneInput
   v: Int
@@ -32838,7 +32829,7 @@ type TicketCommentFile {
   _label_: String
 
   """ File object with meta information and publicUrl """
-  file: CustomFile
+  file: File
 
   """ Link to ticket """
   ticket: Ticket
@@ -32973,7 +32964,7 @@ enum SortTicketCommentFilesBy {
 }
 
 input TicketCommentFileUpdateInput {
-  file: CustomUpload
+  file: Upload
   ticket: TicketRelateToOneInput
   ticketComment: TicketCommentRelateToOneInput
   organization: OrganizationRelateToOneInput
@@ -32994,7 +32985,7 @@ input TicketCommentFilesUpdateInput {
 }
 
 input TicketCommentFileCreateInput {
-  file: CustomUpload
+  file: Upload
   ticket: TicketRelateToOneInput
   ticketComment: TicketCommentRelateToOneInput
   organization: OrganizationRelateToOneInput
@@ -34662,7 +34653,7 @@ type TicketExportTask {
 
   """ Meta information about file, saved outside of database somewhere. Shape of meta information JSON object is specific to file adapter, used by saving a file. 
   """
-  file: CustomFile
+  file: File
 
   """ Stores information about query and ids of exported and failed records 
   """
@@ -34894,7 +34885,7 @@ input TicketExportTaskUpdateInput {
   format: TicketExportTaskFormatType
   exportedRecordsCount: Int
   totalRecordsCount: Int
-  file: CustomUpload
+  file: Upload
   meta: JSON
   where: JSON
   sortBy: JSON
@@ -34923,7 +34914,7 @@ input TicketExportTaskCreateInput {
   format: TicketExportTaskFormatType
   exportedRecordsCount: Int
   totalRecordsCount: Int
-  file: CustomUpload
+  file: Upload
   meta: JSON
   where: JSON
   sortBy: JSON
@@ -38413,7 +38404,7 @@ type IncidentExportTask {
 
   """ Meta information about file, saved outside of database somewhere. Shape of meta information JSON object is specific to file adapter, used by saving a file. 
   """
-  file: CustomFile
+  file: File
 
   """ Stores information about query and ids of exported and failed records 
   """
@@ -38638,7 +38629,7 @@ input IncidentExportTaskUpdateInput {
   format: IncidentExportTaskFormatType
   exportedRecordsCount: Int
   totalRecordsCount: Int
-  file: CustomUpload
+  file: Upload
   meta: JSON
   where: JSON
   sortBy: JSON
@@ -38666,7 +38657,7 @@ input IncidentExportTaskCreateInput {
   format: IncidentExportTaskFormatType
   exportedRecordsCount: Int
   totalRecordsCount: Int
-  file: CustomUpload
+  file: Upload
   meta: JSON
   where: JSON
   sortBy: JSON
@@ -38993,7 +38984,7 @@ type CallRecord {
   organization: Organization
 
   """ Conversation file """
-  file: CustomFile
+  file: File
 
   """ Phone number of the person who called """
   callerPhone: String
@@ -39213,7 +39204,7 @@ enum SortCallRecordsBy {
 
 input CallRecordUpdateInput {
   organization: OrganizationRelateToOneInput
-  file: CustomUpload
+  file: Upload
   callerPhone: String
   destCallerPhone: String
   talkTime: Int
@@ -39238,7 +39229,7 @@ input CallRecordsUpdateInput {
 
 input CallRecordCreateInput {
   organization: OrganizationRelateToOneInput
-  file: CustomUpload
+  file: Upload
   callerPhone: String
   destCallerPhone: String
   talkTime: Int
@@ -40416,7 +40407,7 @@ type TicketDocumentGenerationTask {
 
   """ Meta information about file, saved outside of database somewhere. Shape of meta information JSON object is specific to file adapter, used by saving a file. 
   """
-  file: CustomFile
+  file: File
 
   """ Type of document """
   documentType: TicketDocumentGenerationTaskDocumentTypeType
@@ -40602,7 +40593,7 @@ input TicketDocumentGenerationTaskUpdateInput {
   progress: Int
   user: UserRelateToOneInput
   timeZone: String
-  file: CustomUpload
+  file: Upload
   documentType: TicketDocumentGenerationTaskDocumentTypeType
   meta: JSON
   v: Int
@@ -40628,7 +40619,7 @@ input TicketDocumentGenerationTaskCreateInput {
   progress: Int
   user: UserRelateToOneInput
   timeZone: String
-  file: CustomUpload
+  file: Upload
   documentType: TicketDocumentGenerationTaskDocumentTypeType
   meta: JSON
   v: Int
@@ -46600,7 +46591,7 @@ type ContactExportTask {
 
   """ Meta information about file, saved outside of database somewhere. Shape of meta information JSON object is specific to file adapter, used by saving a file. 
   """
-  file: CustomFile
+  file: File
 
   """ Stores information about query and ids of exported and failed records 
   """
@@ -46825,7 +46816,7 @@ input ContactExportTaskUpdateInput {
   format: ContactExportTaskFormatType
   exportedRecordsCount: Int
   totalRecordsCount: Int
-  file: CustomUpload
+  file: Upload
   meta: JSON
   where: JSON
   sortBy: JSON
@@ -46853,7 +46844,7 @@ input ContactExportTaskCreateInput {
   format: ContactExportTaskFormatType
   exportedRecordsCount: Int
   totalRecordsCount: Int
-  file: CustomUpload
+  file: Upload
   meta: JSON
   where: JSON
   sortBy: JSON
@@ -54981,11 +54972,11 @@ type MeterReadingsImportTask {
 
   """ Meta information about file, saved outside of database somewhere. Shape of meta information JSON object is specific to file adapter, used by saving a file. 
   """
-  file: CustomFile
+  file: File
 
   """ Meta information about error file. Shape of meta information JSON object is specific to file adapter, used by saving a file. 
   """
-  errorFile: CustomFile
+  errorFile: File
 
   """ Proceeding error information message """
   errorMessage: String
@@ -55227,8 +55218,8 @@ input MeterReadingsImportTaskUpdateInput {
   importedRecordsCount: Int
   processedRecordsCount: Int
   totalRecordsCount: Int
-  file: CustomUpload
-  errorFile: CustomUpload
+  file: Upload
+  errorFile: Upload
   errorMessage: String
   user: UserRelateToOneInput
   organization: OrganizationRelateToOneInput
@@ -55257,8 +55248,8 @@ input MeterReadingsImportTaskCreateInput {
   importedRecordsCount: Int
   processedRecordsCount: Int
   totalRecordsCount: Int
-  file: CustomUpload
-  errorFile: CustomUpload
+  file: Upload
+  errorFile: Upload
   errorMessage: String
   user: UserRelateToOneInput
   organization: OrganizationRelateToOneInput
@@ -55652,7 +55643,7 @@ type MeterReadingExportTask {
 
   """ Meta information about file, saved outside of database somewhere. Shape of meta information JSON object is specific to file adapter, used by saving a file. 
   """
-  file: CustomFile
+  file: File
 
   """ Stores information about query and ids of exported and failed records 
   """
@@ -55863,7 +55854,7 @@ input MeterReadingExportTaskUpdateInput {
   format: MeterReadingExportTaskFormatType
   exportedRecordsCount: Int
   totalRecordsCount: Int
-  file: CustomUpload
+  file: Upload
   meta: JSON
   where: MeterReadingWhereInput
   sortBy: [SortMeterReadingsBy]
@@ -55891,7 +55882,7 @@ input MeterReadingExportTaskCreateInput {
   format: MeterReadingExportTaskFormatType
   exportedRecordsCount: Int
   totalRecordsCount: Int
-  file: CustomUpload
+  file: Upload
   meta: JSON
   where: MeterReadingWhereInput
   sortBy: [SortMeterReadingsBy]
@@ -63223,7 +63214,7 @@ type PaymentsFile {
   paymentOrder: String
 
   """ Payments registry file itself """
-  file: CustomFile
+  file: File
 
   """ Bank account of the bank that the money is transferred to """
   bankAccount: String
@@ -63567,7 +63558,7 @@ input PaymentsFileUpdateInput {
   context: AcquiringIntegrationContextRelateToOneInput
   number: String
   paymentOrder: String
-  file: CustomUpload
+  file: Upload
   bankAccount: String
   paymentPeriodStartDate: String
   paymentPeriodEndDay: String
@@ -63599,7 +63590,7 @@ input PaymentsFileCreateInput {
   context: AcquiringIntegrationContextRelateToOneInput
   number: String
   paymentOrder: String
-  file: CustomUpload
+  file: Upload
   bankAccount: String
   paymentPeriodStartDate: String
   paymentPeriodEndDay: String
@@ -67123,7 +67114,7 @@ type NewsItemRecipientsExportTask {
 
   """ Meta information about file, saved outside of database somewhere. Shape of meta information JSON object is specific to file adapter, used by saving a file. 
   """
-  file: CustomFile
+  file: File
   id: ID!
   v: Int
   createdAt: String
@@ -67258,7 +67249,7 @@ input NewsItemRecipientsExportTaskUpdateInput {
   organization: OrganizationRelateToOneInput
   scopes: JSON
   status: NewsItemRecipientsExportTaskStatusType
-  file: CustomUpload
+  file: Upload
   v: Int
   createdAt: String
   updatedAt: String
@@ -67280,7 +67271,7 @@ input NewsItemRecipientsExportTaskCreateInput {
   organization: OrganizationRelateToOneInput
   scopes: JSON
   status: NewsItemRecipientsExportTaskStatusType
-  file: CustomUpload
+  file: Upload
   v: Int
   createdAt: String
   updatedAt: String
@@ -68467,7 +68458,7 @@ type B2BApp {
   name: String
 
   """ Logo of app's company or app itself """
-  logo: CustomFile
+  logo: File
 
   """ Short description / catch phrase providing information about integration functionality. Will be shown on App's card 
   """
@@ -68880,7 +68871,7 @@ enum SortB2BAppsBy {
 
 input B2BAppUpdateInput {
   name: String
-  logo: CustomUpload
+  logo: Upload
   shortDescription: String
   developer: String
   partnerUrl: String
@@ -68919,7 +68910,7 @@ input B2BAppsUpdateInput {
 
 input B2BAppCreateInput {
   name: String
-  logo: CustomUpload
+  logo: Upload
   shortDescription: String
   developer: String
   partnerUrl: String
@@ -70109,7 +70100,7 @@ type B2CApp {
   name: String
 
   """ Logo of app's company or app itself """
-  logo: CustomFile
+  logo: File
 
   """ [DEPRECATED] This field is not used by anyone but fetched from some clients 
   """
@@ -70375,7 +70366,7 @@ enum SortB2CAppsBy {
 
 input B2CAppUpdateInput {
   name: String
-  logo: CustomUpload
+  logo: Upload
   shortDescription: String
   developer: String
   isHidden: Boolean
@@ -70402,7 +70393,7 @@ input B2CAppsUpdateInput {
 
 input B2CAppCreateInput {
   name: String
-  logo: CustomUpload
+  logo: Upload
   shortDescription: String
   developer: String
   isHidden: Boolean
@@ -71154,7 +71145,7 @@ type B2CAppBuild {
   version: String
 
   """ B2C app cordova build compressed to single .zip file """
-  data: CustomFile
+  data: File
   id: ID!
   v: Int
   createdAt: String
@@ -71339,7 +71330,7 @@ enum SortB2CAppBuildsBy {
 input B2CAppBuildUpdateInput {
   app: B2CAppRelateToOneInput
   version: String
-  data: CustomUpload
+  data: Upload
   v: Int
   createdAt: String
   updatedAt: String
@@ -71361,7 +71352,7 @@ input B2CAppBuildsUpdateInput {
 input B2CAppBuildCreateInput {
   app: B2CAppRelateToOneInput
   version: String
-  data: CustomUpload
+  data: Upload
   v: Int
   createdAt: String
   updatedAt: String
@@ -72198,7 +72189,7 @@ type B2BAppPromoBlock {
   backgroundColor: String
 
   """ PNG image which appears next to text on large devices """
-  backgroundImage: CustomFile
+  backgroundImage: File
 
   """ Link to the resource that this B2BAppPromoBlock promotes """
   targetUrl: String
@@ -72426,7 +72417,7 @@ input B2BAppPromoBlockUpdateInput {
   subtitle: String
   textVariant: B2BAppPromoBlockTextVariantType
   backgroundColor: String
-  backgroundImage: CustomUpload
+  backgroundImage: Upload
   targetUrl: String
   external: Boolean
   priority: Int
@@ -72451,7 +72442,7 @@ input B2BAppPromoBlockCreateInput {
   subtitle: String
   textVariant: B2BAppPromoBlockTextVariantType
   backgroundColor: String
-  backgroundImage: CustomUpload
+  backgroundImage: Upload
   targetUrl: String
   external: Boolean
   priority: Int
@@ -78857,7 +78848,7 @@ type MarketItemFile {
   marketItem: MarketItem
 
   """ File object with meta information and publicUrl """
-  file: CustomFile
+  file: File
   id: ID!
   v: Int
   createdAt: String
@@ -78975,7 +78966,7 @@ enum SortMarketItemFilesBy {
 
 input MarketItemFileUpdateInput {
   marketItem: MarketItemRelateToOneInput
-  file: CustomUpload
+  file: Upload
   v: Int
   createdAt: String
   updatedAt: String
@@ -78994,7 +78985,7 @@ input MarketItemFilesUpdateInput {
 
 input MarketItemFileCreateInput {
   marketItem: MarketItemRelateToOneInput
-  file: CustomUpload
+  file: Upload
   v: Int
   createdAt: String
   updatedAt: String
@@ -80797,7 +80788,7 @@ type Document {
   name: String
 
   """ File attached to document """
-  file: CustomFile
+  file: File
 
   """ If set to true, this means document will be accessible by residents """
   canReadByResident: Boolean
@@ -80961,7 +80952,7 @@ input DocumentUpdateInput {
   property: PropertyRelateToOneInput
   category: DocumentCategoryRelateToOneInput
   name: String
-  file: CustomUpload
+  file: Upload
   canReadByResident: Boolean
   meta: JSON
   v: Int
@@ -80985,7 +80976,7 @@ input DocumentCreateInput {
   property: PropertyRelateToOneInput
   category: DocumentCategoryRelateToOneInput
   name: String
-  file: CustomUpload
+  file: Upload
   canReadByResident: Boolean
   meta: JSON
   v: Int
@@ -82905,7 +82896,7 @@ type CondoFile {
   _label_: String
 
   """ File uploaded to platform """
-  file: CustomFile
+  file: File
 
   """ Untyped metadata for this object. May be used by custom integrations. 
   """
@@ -83026,7 +83017,7 @@ enum SortCondoFilesBy {
 }
 
 input CondoFileUpdateInput {
-  file: CustomUpload
+  file: Upload
   meta: JSON
   v: Int
   createdAt: String
@@ -83045,7 +83036,7 @@ input CondoFilesUpdateInput {
 }
 
 input CondoFileCreateInput {
-  file: CustomUpload
+  file: Upload
   meta: JSON
   v: Int
   createdAt: String

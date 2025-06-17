@@ -212,7 +212,7 @@ const User = new GQLListSchema('User', {
 
         avatar: {
             schemaDoc: 'User loaded avatar image',
-            type: 'CustomFile',
+            type: 'File',
             adapter: AVATAR_FILE_ADAPTER,
         },
 
