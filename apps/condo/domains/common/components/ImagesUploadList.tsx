@@ -1,4 +1,4 @@
-import { CustomFile, File } from '@app/condo/schema'
+import { File } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Upload } from 'antd'
 import { UploadFile } from 'antd/lib/upload/interface'
@@ -110,7 +110,7 @@ export type UploadFileType = {
 
 export type DBFile = {
     id: string
-    file?: CustomFile | File
+    file?: File
 }
 
 type ImagesUploadListProps = {
