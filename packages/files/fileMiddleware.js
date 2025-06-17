@@ -2,14 +2,18 @@ const busboy = require('busboy')
 const cuid = require('cuid')
 const express = require('express')
 const { WriteStream } = require('fs-capacitor')
-const createError = require('http-errors')
-const { pick, isEqual } = require('lodash')
+// const createError = require('http-errors')
+const { get, isEqual } = require('lodash')
 // const mongoose = require('mongoose')
 
-const { CondoFile } = require('@open-condo/files/schema/utils/serverSchema')
+// const { CondoFile } = require('@open-condo/files/schema/utils/serverSchema')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 
 // mongoose.set('objectIdGetter', false)
+
+function createError (status, message, response) {
+    response.status(status).json({ error: message })
+}
 
 
 class FileMiddleware {
@@ -18,12 +22,10 @@ class FileMiddleware {
         maxFieldSize = 200 * 1024 * 1024,
         maxFileSize = 200 * 1024 * 1024,
         maxFiles = 2,
-        requiredMetaFields = ['user', 'organization'],
     }) {
         this.apiUrl = apiUrl
         this.processRequestOptions = { maxFieldSize, maxFileSize, maxFiles }
         this.adapter = new FileAdapter('files')
-        this.requiredMetaFields = requiredMetaFields
     }
 
     prepareMiddleware ({ keystone }) {
@@ -32,7 +34,6 @@ class FileMiddleware {
         const app = express()
         const processRequestOptions = this.processRequestOptions
         const fileAdapter = this.adapter
-        const requiredMetaFields = this.requiredMetaFields
 
         app.use(
             this.apiUrl,
@@ -60,21 +61,21 @@ class FileMiddleware {
                         },
                     })
 
-                    const exit = (error, isParserError = false) => {
+                    const exit = (exitWithError) => {
                         if (exitError) return
 
-                        exitError = error
-                        isParserError ? parser.destroy() : parser.destroy(exitError)
+                        exitError = exitWithError
+                        parser.destroy()
                         request.unpipe(parser)
                         setImmediate(() => {
                             request.resume()
                         })
 
-                        next(exitError)
+                        exitWithError()
                     }
 
                     parser.on('error', (/** @type {Error} */ error) => {
-                        exit(error, true)
+                        exit(() => createError(500, 'unable to parse file content'), true)
                     })
 
                     parser.on('file', (fieldName, stream, { filename, encoding, mimeType: mimetype }) => {
@@ -89,12 +90,12 @@ class FileMiddleware {
                         })
 
                         stream.on('limit', () => {
-                            fileError = createError(
-                                413,
-                                `File truncated as it exceeds the ${processRequestOptions.maxFileSize} byte size limit.`
-                            )
                             stream.unpipe()
                             capacitor.destroy(fileError)
+                            createError(
+                                413,
+                                `File truncated as it exceeds the ${processRequestOptions.maxFileSize} byte size limit.`, response
+                            )
                         })
 
                         stream.on('error', (error) => {
@@ -131,29 +132,60 @@ class FileMiddleware {
                         }
                     })
                     parser.once('filesLimit', () =>
-                        exit(createError(413, `${processRequestOptions.maxFiles} max file uploads exceeded.`))
+                        exit(() => createError(413, `${processRequestOptions.maxFiles} max file uploads exceeded.`, response))
                     )
                     parser.on('field', (fieldName, value, { valueTruncated }) => {
                         if (valueTruncated) {
-                            return exit(
-                                createError(413, `The ‘${fieldName}’ multipart field value exceeds the ${processRequestOptions.maxFieldSize} byte size limit.`)
+                            return exit(() =>
+                                createError(413, `The ‘${fieldName}’ multipart field value exceeds the ${processRequestOptions.maxFieldSize} byte size limit.`, response)
                             )
                         }
 
                         switch (fieldName) {
                             case 'meta':
-                                try {
-                                    meta = pick(JSON.parse(value), requiredMetaFields)
-                                } catch (e) {
-                                    return exit(
-                                        createError(400, 'Invalid type for the "meta" multipart field')
+                                if (typeof value === 'string') {
+                                    try {
+                                        meta = JSON.parse(value)
+                                    } catch (e) {
+                                        return exit(() =>
+                                            createError(400, 'Invalid type for the "meta" multipart field', response)
+                                        )
+                                    }
+                                } else if (typeof value !== 'object') {
+                                    return exit(() =>
+                                        createError(400, 'Invalid type for the "meta" multipart field', response)
+                                    )
+                                } else {
+                                    meta = value
+                                }
+
+                                if (typeof meta.dv !== 'number') {
+                                    return exit(() =>
+                                        createError(400, 'Missing dv field for meta object', response)
                                     )
                                 }
 
+                                if (typeof meta.sender !== 'object') {
+                                    return exit(() =>
+                                        createError(400, 'Missing sender field for meta object', response)
+                                    )
+                                }
 
-                                if (!Object.values(meta).every(value => !!value) || !isEqual(Object.keys(meta).sort(), requiredMetaFields.sort())) {
-                                    return exit(
-                                        createError(400, `Invalid data for file meta. Required fields ${requiredMetaFields.join(', ')} should be not empty`),
+                                if (typeof meta.sender.dv !== 'number' || typeof meta.sender.fingerprint !== 'string') {
+                                    return exit(() =>
+                                        createError(400, 'Wrong sender field data. Correct format is { "dv": 1, "fingerprint": "uniq-device-or-container-id" }', response)
+                                    )
+                                }
+
+                                if (meta.dv !== 1 || meta.sender.dv !== 1) {
+                                    return exit(() =>
+                                        createError(400, 'Wrong value for data version number', response)
+                                    )
+                                }
+
+                                if (!/^[a-zA-Z0-9!#$%()*+-;=,:[\]/.?@^_`{|}~]{5,42}$/.test(meta.sender.fingerprint)) {
+                                    return exit(() =>
+                                        createError(400, 'Wrong sender.fingerprint value provided', response)
                                     )
                                 }
                         }
@@ -163,18 +195,20 @@ class FileMiddleware {
                         request.unpipe(parser)
                         request.resume()
                         if (!Array.isArray(request.files)) {
-                            return exit(
+                            return exit(() =>
                                 createError(
                                     400,
-                                    'Missing attached files'
+                                    'Missing attached files',
+                                    response
                                 )
                             )
                         }
                         if (!meta) {
-                            return exit(
+                            return exit(() =>
                                 createError(
                                     400,
-                                    'Missing multipart field "meta"'
+                                    'Missing multipart field "meta"',
+                                    response
                                 )
                             )
                         }
@@ -183,10 +217,11 @@ class FileMiddleware {
                     })
                     request.once('close', () => {
                         if (!request.readableEnded)
-                            exit(
+                            exit(() =>
                                 createError(
                                     499,
-                                    'Request disconnected during file upload stream parsing.'
+                                    'Request disconnected during file upload stream parsing.',
+                                    response
                                 )
                             )
                     })
@@ -199,7 +234,7 @@ class FileMiddleware {
                 }
             },
             function (request, response) {
-                const context = keystone.createContext({ skipAccessControl: true })
+                // const context = keystone.createContext({ skipAccessControl: true })
 
                 Promise.all(request.files.map(file => fileAdapter.save({
                     stream: file.stream,
@@ -207,24 +242,27 @@ class FileMiddleware {
                     mimetype: file.mimetype,
                     encoding: file.encoding,
                     id: cuid(),
+                    meta: request.meta,
                 }))).then(savedFiles => {
-                    CondoFile.createMany(context, savedFiles.map((data, index) => ({
-                        data: {
-                            file: {
-                                ...data,
-                                originalFilename: request.files[index].filename,
-                                mimetype: request.files[index].mimetype,
-                                encoding: request.files[index].encoding,
-                            },
-                            meta: request.meta,
-                            dv: 1,
-                            sender: { dv: 1, fingerprint: 'condo-file-middleware' },
-                        },
-                    }))).then(savedFiles => {
-                        response.json({ savedFiles })
-                    }).catch(error => {
-                        response.json({ error })
-                    })
+                    response.json(savedFiles.map(adapterFile => ({ ...adapterFile, meta: request.meta })))
+                    // CondoFile.createMany(context, savedFiles.map((data, index) => ({
+                    //     data: {
+                    //         file: {
+                    //             ...data,
+                    //             originalFilename: request.files[index].filename,
+                    //             mimetype: request.files[index].mimetype,
+                    //             encoding: request.files[index].encoding,
+                    //         },
+                    //         meta: request.meta,
+                    //         dv: 1,
+                    //         sender: { dv: 1, fingerprint: 'condo-file-middleware' },
+                    //     },
+                    // }))
+                    // ).then(savedFiles => {
+                    //     response.json({ savedFiles })
+                    // }).catch(error => {
+                    //     response.json({ error })
+                    // })
                 }).catch(error => {
                     response.json({ error })
                 })
