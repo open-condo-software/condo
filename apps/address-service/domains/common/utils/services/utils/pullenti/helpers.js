@@ -122,7 +122,7 @@ function extractLastGarParam (textobj, paramName) {
 function getGarParam (gar, paramName) {
     for (const param of gar?.param || []) {
         if (param['@_name'] === paramName) {
-            return param['#text']
+            return String(param['#text'])
         }
     }
 }

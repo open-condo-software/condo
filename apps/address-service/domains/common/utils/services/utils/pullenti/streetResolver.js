@@ -13,7 +13,7 @@ function resolveStreet (streetLevel) {
     switch (gar?.area?.type) {
         case 'просп':
         case 'проспект':
-            street_type = 'просп'
+            street_type = 'пр-кт'
             street_type_full = 'проспект'
     }
 
