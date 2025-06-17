@@ -82713,7 +82713,6 @@ type CondoFileHistoryRecord {
   """
   _label_: String
   file: JSON
-  meta: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -82736,10 +82735,6 @@ input CondoFileHistoryRecordWhereInput {
   file_not: JSON
   file_in: [JSON]
   file_not_in: [JSON]
-  meta: JSON
-  meta_not: JSON
-  meta_in: [JSON]
-  meta_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -82843,7 +82838,6 @@ enum SortCondoFileHistoryRecordsBy {
 
 input CondoFileHistoryRecordUpdateInput {
   file: JSON
-  meta: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -82865,7 +82859,6 @@ input CondoFileHistoryRecordsUpdateInput {
 
 input CondoFileHistoryRecordCreateInput {
   file: JSON
-  meta: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -82896,11 +82889,7 @@ type CondoFile {
   _label_: String
 
   """ File uploaded to platform """
-  file: File
-
-  """ Untyped metadata for this object. May be used by custom integrations. 
-  """
-  meta: JSON
+  file: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -82927,14 +82916,10 @@ type CondoFile {
 input CondoFileWhereInput {
   AND: [CondoFileWhereInput]
   OR: [CondoFileWhereInput]
-  file: String
-  file_not: String
-  file_in: [String]
-  file_not_in: [String]
-  meta: JSON
-  meta_not: JSON
-  meta_in: [JSON]
-  meta_not_in: [JSON]
+  file: JSON
+  file_not: JSON
+  file_in: [JSON]
+  file_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -83017,8 +83002,7 @@ enum SortCondoFilesBy {
 }
 
 input CondoFileUpdateInput {
-  file: Upload
-  meta: JSON
+  file: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -83036,8 +83020,7 @@ input CondoFilesUpdateInput {
 }
 
 input CondoFileCreateInput {
-  file: Upload
-  meta: JSON
+  file: JSON
   v: Int
   createdAt: String
   updatedAt: String
