@@ -25,7 +25,7 @@ const CallRecord = new GQLListSchema('CallRecord', {
         },
         file: {
             schemaDoc: 'Conversation file',
-            type: 'CustomFile',
+            type: 'File',
             adapter: Adapter,
         },
         callerPhone: {

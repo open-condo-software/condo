@@ -107,7 +107,7 @@ const BankSyncTask = new GQLListSchema('BankSyncTask', {
 
         file: {
             schemaDoc: 'File from which transactions should be imported. Currently only 1CClientBankExchange format is supported',
-            type: 'CustomFile',
+            type: 'File',
             adapter: BankSyncTaskFileAdapter,
             access: {
                 read: true,

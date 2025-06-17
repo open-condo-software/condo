@@ -85,7 +85,7 @@ const MeterReadingsImportTask = new GQLListSchema('MeterReadingsImportTask', {
 
         file: {
             schemaDoc: 'Meta information about file, saved outside of database somewhere. Shape of meta information JSON object is specific to file adapter, used by saving a file.',
-            type: 'CustomFile',
+            type: 'File',
             adapter: MeterReadingsImportTaskFileAdapter,
             access: {
                 read: true,
@@ -96,7 +96,7 @@ const MeterReadingsImportTask = new GQLListSchema('MeterReadingsImportTask', {
 
         errorFile: {
             schemaDoc: 'Meta information about error file. Shape of meta information JSON object is specific to file adapter, used by saving a file.',
-            type: 'CustomFile',
+            type: 'File',
             adapter: MeterReadingsImportTaskFileAdapter,
             access: {
                 read: true,
