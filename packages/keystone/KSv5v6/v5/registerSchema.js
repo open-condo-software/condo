@@ -19,7 +19,6 @@ const {
     AddressPartWithType,
     AutoIncrementInteger,
     DateInterval,
-    FileWithUTF8Name,
     Json,
     LocalizedText,
     Select,
@@ -78,7 +77,7 @@ function convertStringToTypes (schema) {
         AddressPartWithType,
         AutoIncrementInteger,
         DateInterval,
-        File: FileWithUTF8Name,
+        File: CustomFile,
         Json,
         HiddenRelationship,
         LocalizedText,
@@ -86,7 +85,6 @@ function convertStringToTypes (schema) {
         SignedDecimal,
         Text,
         EncryptedText,
-        CustomFile,
     }
     const allTypesForPrint = Object.keys(mapping).map(item => `"${item}"`).join(', ')
 
