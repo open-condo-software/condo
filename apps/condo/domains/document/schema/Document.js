@@ -49,7 +49,7 @@ const Document = new GQLListSchema('Document', {
         },
         file: {
             schemaDoc: 'File attached to document',
-            type: 'CustomFile',
+            type: 'File',
             adapter: Adapter,
             isRequired: true,
             access: createAndReadOnlyFieldAccess,
