@@ -12,7 +12,6 @@
     "cuid": "^3.0.0",
     "express": "^4.21.2",
     "fs-capacitor": "^6.2.0",
-    "http-errors": "^2.0.0",
     "lodash": "^4.17.21"
   }
 }
