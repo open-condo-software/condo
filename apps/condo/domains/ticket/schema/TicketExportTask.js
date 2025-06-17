@@ -81,7 +81,7 @@ const TicketExportTask = new GQLListSchema('TicketExportTask', {
 
         file: {
             schemaDoc: 'Meta information about file, saved outside of database somewhere. Shape of meta information JSON object is specific to file adapter, used by saving a file.',
-            type: 'CustomFile',
+            type: 'File',
             adapter: TicketExportTaskFileAdapter,
             access: {
                 read: true,

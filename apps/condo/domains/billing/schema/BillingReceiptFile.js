@@ -84,7 +84,7 @@ const BillingReceiptFile = new GQLListSchema('BillingReceiptFile', {
 
         sensitiveDataFile: {
             schemaDoc: 'File version of the receipt with personal information',
-            type: 'CustomFile',
+            type: 'File',
             adapter: Adapter,
             isRequired: true,
             access: {
@@ -96,7 +96,7 @@ const BillingReceiptFile = new GQLListSchema('BillingReceiptFile', {
 
         publicDataFile: {
             schemaDoc: 'File version of the receipt without personal information',
-            type: 'CustomFile',
+            type: 'File',
             adapter: Adapter,
         },
 

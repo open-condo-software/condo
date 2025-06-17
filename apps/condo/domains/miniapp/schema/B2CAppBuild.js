@@ -60,7 +60,7 @@ const B2CAppBuild = new GQLListSchema('B2CAppBuild', {
         },
         data: {
             schemaDoc: 'B2C app cordova build compressed to single .zip file',
-            type: 'CustomFile',
+            type: 'File',
             isRequired: true,
             adapter: B2C_APP_BUILD_FILE_ADAPTER,
             hooks: {

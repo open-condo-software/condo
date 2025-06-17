@@ -51,7 +51,7 @@ const B2BAppPromoBlock = new GQLListSchema('B2BAppPromoBlock', {
         },
         backgroundImage: {
             schemaDoc: 'PNG image which appears next to text on large devices',
-            type: 'CustomFile',
+            type: 'File',
             isRequired: true,
             adapter: Adapter,
         },
