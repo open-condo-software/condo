@@ -147,5 +147,69 @@ describe('settlementResolver', () => {
                 settlement_kladr_id: null,
             })
         })
+
+        it('should resolve поселение type', () => {
+            const localityLevel = {
+                gar: [{
+                    level: 'adminarea',
+                    area: {
+                        type: 'поселение',
+                        name: 'Новое',
+                    },
+                }],
+            }
+            expect(resolveSettlement(localityLevel)).toEqual({
+                settlement: 'Новое',
+                settlement_type: 'поселение',
+                settlement_type_full: 'поселение',
+                settlement_with_type: 'поселение Новое',
+                settlement_fias_id: null,
+                settlement_kladr_id: null,
+            })
+        })
+
+        it('should handle gar as a single object (not array)', () => {
+            const localityLevel = {
+                gar: {
+                    level: 'adminarea',
+                    area: {
+                        type: 'село',
+                        name: 'Старое',
+                    },
+                    guid: 'guid-123',
+                    param: [
+                        { '@_name': 'kladrcode', '#text': '555' },
+                    ],
+                },
+            }
+            expect(resolveSettlement(localityLevel)).toEqual({
+                settlement: 'Старое',
+                settlement_type: 'с',
+                settlement_type_full: 'село',
+                settlement_with_type: 'село Старое',
+                settlement_fias_id: 'guid-123',
+                settlement_kladr_id: '555',
+            })
+        })
+
+        it('should handle area.name as array', () => {
+            const localityLevel = {
+                gar: [{
+                    level: 'adminarea',
+                    area: {
+                        type: 'село',
+                        name: ['Первое', 'Второе'],
+                    },
+                }],
+            }
+            expect(resolveSettlement(localityLevel)).toEqual({
+                settlement: 'Первое',
+                settlement_type: 'с',
+                settlement_type_full: 'село',
+                settlement_with_type: 'село Первое',
+                settlement_fias_id: null,
+                settlement_kladr_id: null,
+            })
+        })
     })
 })
