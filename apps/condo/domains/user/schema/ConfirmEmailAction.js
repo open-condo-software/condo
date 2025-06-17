@@ -3,7 +3,7 @@
  */
 
 const { GQLError } = require('@open-condo/keystone/errors')
-const { historical, uuided, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, uuided, softDeleted, dvAndSender, versioned } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const { COMMON_ERRORS, WRONG_VALUE } = require('@condo/domains/common/constants/errors')
@@ -63,7 +63,7 @@ const ConfirmEmailAction = new GQLListSchema('ConfirmEmailAction', {
                     const newValue = resolvedData[fieldPath]
 
                     if (typeof newValue === 'string' && newValue.length !== SECRET_CODE_LENGTH) {
-                        throw new GQLError(ERRORS.WRONG_SECRET_CODE_LENGTH, context)
+                        throw new GQLError(ERRORS.WRONG_SECRET_CODE_VALUE, context)
                     }
                 },
             },
@@ -112,7 +112,7 @@ const ConfirmEmailAction = new GQLListSchema('ConfirmEmailAction', {
         },
 
     },
-    plugins: [uuided(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), softDeleted(), dvAndSender(), historical(), versioned()],
     access: {
         read: access.canReadConfirmEmailActions,
         create: access.canManageConfirmEmailActions,

@@ -634,10 +634,25 @@ async function authenticateOrRegisterUserWithTokenByTestClient(client, extraAttr
 async function createTestConfirmEmailAction (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const email = createTestEmail()
+    const token = faker.random.alphaNumeric(16)
+    const secretCode = faker.random.numeric(4)
+    const now = dayjs()
+    const secretCodeRequestedAt = now.toISOString()
+    const secretCodeExpiresAt = now.add(1, 'min').toISOString()
+    const requestedAt = now.toISOString()
+    const expiresAt = now.add(15, 'min').toISOString()
 
     const attrs = {
         dv: 1,
         sender,
+        email,
+        token,
+        secretCode,
+        secretCodeRequestedAt,
+        secretCodeExpiresAt,
+        requestedAt,
+        expiresAt,
         ...extraAttrs,
     }
     const obj = await ConfirmEmailAction.create(client, attrs)
