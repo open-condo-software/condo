@@ -19,6 +19,10 @@ function resolveSettlement (localityLevel) {
             settlement_type = 'пос'
             settlement_type_full = 'поселок'
             break
+        case 'поселение':
+            settlement_type = 'поселение'
+            settlement_type_full = 'поселение'
+            break
         case 'деревня':
         default:
             settlement_type = 'д'

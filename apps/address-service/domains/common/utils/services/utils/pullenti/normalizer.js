@@ -151,7 +151,7 @@ function normalize (rawXmlString) {
 
     return {
         value, //: get(jsonObj, ['textaddr', 'text']),
-        unrestricted_value: [postal_code, get(buildingLevel, ['gar', 'path'])].filter(Boolean).join(' '),
+        unrestricted_value: [postal_code, get(buildingLevel, ['gar', 'path'])].filter(Boolean).join(', '),
         rawValue: get(jsonObj, ['textaddr', 'text']),
         data: {
             postal_code,
