@@ -22,7 +22,7 @@ const TicketFile = new GQLListSchema('TicketFile', {
     fields: {
         file: {
             schemaDoc: 'File object with meta information and publicUrl',
-            type: 'CustomFile',
+            type: 'File',
             adapter: Adapter,
             isRequired: false,
         },
