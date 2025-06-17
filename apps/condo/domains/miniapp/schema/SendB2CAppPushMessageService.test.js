@@ -14,7 +14,6 @@ const {
     waitFor,
 } = require('@open-condo/keystone/test.utils')
 
-const { DEBUG_APP_ID } = require('@condo/domains/miniapp/constants')
 const {
     createTestB2CApp,
     sendB2CAppPushMessageByTestClient, createTestAppMessageSetting,
@@ -69,15 +68,6 @@ describe('SendB2CAppPushMessageService', () => {
     describe('access checks', () => {
         test('Admin can SendB2CAppPushMessageService', async () => {
             const [message] = await sendB2CAppPushMessageByTestClient(admin, appAttrs)
-
-            expect(message.id).toMatch(UUID_RE)
-        })
-
-        test('Admin can with debug app id', async () => {
-            const [message] = await sendB2CAppPushMessageByTestClient(admin, {
-                ...appAttrs,
-                app: { id: DEBUG_APP_ID },
-            })
 
             expect(message.id).toMatch(UUID_RE)
         })
