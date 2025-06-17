@@ -63,9 +63,34 @@ describe('Meter', () => {
     let propertyTo
     let employeeFrom
     let employeeTo
+    let employeeClient,
+        organization,
+        resource,
+        otherEmployeeClient,
+        otherOrganization
 
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
+        const [testOrganization] = await createTestOrganization(admin)
+        organization = testOrganization
+        employeeClient = await makeClientWithNewRegisteredAndLoggedInUser()
+        const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+            canReadMeters: true,
+            canManageMeters: true,
+            canManageProperties: true,
+        })
+        await createTestOrganizationEmployee(admin, organization, employeeClient.user, role)
+        const [testResource] = await MeterResource.getAll(employeeClient, { id: COLD_WATER_METER_RESOURCE_ID })
+        resource = testResource
+        const [testOtherOrganization] = await createTestOrganization(admin)
+        otherOrganization = testOtherOrganization
+        otherEmployeeClient = await makeClientWithNewRegisteredAndLoggedInUser()
+        const [otherRole] = await createTestOrganizationEmployeeRole(admin, otherOrganization, {
+            canReadMeters: true,
+            canManageMeters: true,
+            canManageProperties: true,
+        })
+        await createTestOrganizationEmployee(admin, otherOrganization, otherEmployeeClient.user, otherRole)
 
         if (!clientTo) {
             ({
@@ -365,6 +390,29 @@ describe('Meter', () => {
 
                 expect(meter.id).toMatch(UUID_RE)
             })
+
+            test('Can not create meter with property in organization where user in not an employee', async () => {
+                const [property] = await createTestProperty(otherEmployeeClient, otherOrganization)
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestMeter(employeeClient, organization, property, resource, {})
+                })
+            })
+
+            test('Can not create meter with property from other user organization', async () => {
+                const [otherOrganization] = await createTestOrganization(admin)
+                const [role] = await createTestOrganizationEmployeeRole(admin, otherOrganization, {
+                    canReadMeters: true,
+                    canManageMeters: true,
+                    canManageProperties: true,
+                })
+                await createTestOrganizationEmployee(admin, otherOrganization, employeeClient.user, role)
+                const [otherProperty] = await createTestProperty(employeeClient, otherOrganization)
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestMeter(employeeClient, organization, otherProperty, resource, {})
+                })
+            })
         })
         describe('Update', () => {
             test('employee with "canManageMeters" role: can update Meter', async () => {
@@ -592,6 +640,51 @@ describe('Meter', () => {
                 })
 
                 expect(updatedMeter.number).toEqual(newNumber)
+            })
+
+            test('Can update property for meter', async () => {
+                const [property] = await createTestProperty(employeeClient, organization)
+                const [meter] = await createTestMeter(employeeClient, organization, property, resource, {})
+
+                const [newProperty] = await createTestProperty(employeeClient, organization)
+                const [updatedMeter] = await updateTestMeter(employeeClient, meter.id, {
+                    property: { connect: { id: newProperty.id } },
+                })
+
+                expect(updatedMeter.property.id).toEqual(newProperty.id)
+            })
+
+            test('Can not update property to property from other organization where user is not an employee', async () => {
+                const [property] = await createTestProperty(employeeClient, organization)
+                const [meter] = await createTestMeter(employeeClient, organization, property, resource, {})
+
+                const [newProperty] = await createTestProperty(otherEmployeeClient, otherOrganization)
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestMeter(employeeClient, meter.id, {
+                        property: { connect: { id: newProperty.id } },
+                    })
+                })
+            })
+
+            test('Can not update property to property from other user organization', async () => {
+                const [property] = await createTestProperty(employeeClient, organization)
+                const [meter] = await createTestMeter(employeeClient, organization, property, resource, {})
+
+                const [otherOrganization] = await createTestOrganization(admin)
+                const [role] = await createTestOrganizationEmployeeRole(admin, otherOrganization, {
+                    canReadMeters: true,
+                    canManageMeters: true,
+                    canManageProperties: true,
+                })
+                await createTestOrganizationEmployee(admin, otherOrganization, employeeClient.user, role)
+                const [otherProperty] = await createTestProperty(employeeClient, otherOrganization)
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestMeter(employeeClient, meter.id, {
+                        property: { connect: { id: otherProperty.id } },
+                    })
+                })
             })
         })
         describe('Read', () => {
@@ -1438,33 +1531,6 @@ describe('Meter', () => {
         })
     })
     describe('Bulk requests', () => {
-        let employeeClient,
-            organization,
-            resource,
-            otherEmployeeClient
-
-        beforeAll(async () => {
-            const [testOrganization] = await createTestOrganization(admin)
-            organization = testOrganization
-            employeeClient = await makeClientWithNewRegisteredAndLoggedInUser()
-            const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-                canReadMeters: true,
-                canManageMeters: true,
-                canManageProperties: true,
-            })
-            await createTestOrganizationEmployee(admin, organization, employeeClient.user, role)
-            const [testResource] = await MeterResource.getAll(employeeClient, { id: COLD_WATER_METER_RESOURCE_ID })
-            resource = testResource
-
-            const [otherOrganization] = await createTestOrganization(admin)
-            otherEmployeeClient = await makeClientWithNewRegisteredAndLoggedInUser()
-            const [otherRole] = await createTestOrganizationEmployeeRole(admin, otherOrganization, {
-                canReadMeters: true,
-                canManageMeters: true,
-            })
-            await createTestOrganizationEmployee(admin, otherOrganization, otherEmployeeClient.user, otherRole)
-        })
-
         let property1,
             property2
         beforeEach(async () => {
@@ -1530,6 +1596,32 @@ describe('Meter', () => {
             })
         })
 
+        test('Can not create with property from other organization', async () => {
+            const [otherOrganization] = await createTestOrganization(admin)
+            const [otherRole] = await createTestOrganizationEmployeeRole(admin, otherOrganization, {
+                canReadMeters: true,
+                canManageMeters: true,
+                canManageProperties: true,
+            })
+            await createTestOrganizationEmployee(admin, otherOrganization, employeeClient.user, otherRole)
+            const [property] = await createTestProperty(employeeClient, otherOrganization)
+
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                await createTestMeters(otherEmployeeClient, [
+                    {
+                        organization: { connect: { id: organization.id } },
+                        property: { connect: { id: property1.id } },
+                        resource: { connect: { id: resource.id } },
+                    },
+                    {
+                        organization: { connect: { id: organization.id } },
+                        property: { connect: { id: property.id } },
+                        resource: { connect: { id: resource.id } },
+                    },
+                ])
+            })
+        })
+
         test('Can update for organization where user is employee', async () => {
             const createdMeters = await createTestMeters(employeeClient, [
                 {
@@ -1546,6 +1638,7 @@ describe('Meter', () => {
 
             const number1 = faker.random.alphaNumeric(8)
             const number2 = faker.random.alphaNumeric(8)
+            const [testProperty3] = await createTestProperty(employeeClient, organization)
             const updatedMeters = await updateTestMeters(employeeClient, [
                 {
                     id: createdMeters[0].id,
@@ -1557,6 +1650,7 @@ describe('Meter', () => {
                     id: createdMeters[1].id,
                     data: {
                         number: number2,
+                        property: { connect: { id: testProperty3.id } },
                     },
                 },
             ])
@@ -1570,6 +1664,7 @@ describe('Meter', () => {
                 expect.objectContaining({
                     number: number2,
                     organization: expect.objectContaining({ id: organization.id }),
+                    property: expect.objectContaining({ id: testProperty3.id }),
                 }),
             ]))
         })
@@ -1602,6 +1697,47 @@ describe('Meter', () => {
                         id: createdMeters[1].id,
                         data: {
                             number: number2,
+                        },
+                    },
+                ])
+            })
+        })
+
+        test('Can not update property from other organization', async () => {
+            const createdMeters = await createTestMeters(employeeClient, [
+                {
+                    organization: { connect: { id: organization.id } },
+                    property: { connect: { id: property1.id } },
+                    resource: { connect: { id: resource.id } },
+                },
+                {
+                    organization: { connect: { id: organization.id } },
+                    property: { connect: { id: property2.id } },
+                    resource: { connect: { id: resource.id } },
+                },
+            ])
+
+            const [otherOrganization] = await createTestOrganization(admin)
+            const [otherRole] = await createTestOrganizationEmployeeRole(admin, otherOrganization, {
+                canReadMeters: true,
+                canManageMeters: true,
+                canManageProperties: true,
+            })
+            await createTestOrganizationEmployee(admin, otherOrganization, employeeClient.user, otherRole)
+            const [propertyInOtherOrganization] = await createTestProperty(employeeClient, otherOrganization)
+
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                await updateTestMeters(employeeClient, [
+                    {
+                        id: createdMeters[0].id,
+                        data: {
+                            property: { connect: { id: propertyInOtherOrganization.id } },
+                        },
+                    },
+                    {
+                        id: createdMeters[1].id,
+                        data: {
+                            property: { connect: { id: property1.id } },
                         },
                     },
                 ])
