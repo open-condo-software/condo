@@ -125,7 +125,7 @@ const ActionBarWithSelectedItems: React.FC<IActionBarWithSelectedItemsProps> = (
         },
     })
 
-    const updateSelectedContactsByChunks = useCallback(async (payload) => {
+    const updateSelectedMetersByChunks = useCallback(async (payload) => {
         if (!selectedKeys.length) return
 
         const itemsToDeleteByChunks = chunk(selectedKeys.map((key) => ({
@@ -151,13 +151,13 @@ const ActionBarWithSelectedItems: React.FC<IActionBarWithSelectedItemsProps> = (
 
     const handleDeleteButtonClick = useCallback(async () => {
         const now = new Date().toISOString()
-        await updateSelectedContactsByChunks({ deletedAt: now })
+        await updateSelectedMetersByChunks({ deletedAt: now })
         await updateQuery(router, {
             newParameters: {
                 offset: 0,
             },
         }, { routerAction: 'replace', resetOldParameters: false })
-    }, [router, updateSelectedContactsByChunks])
+    }, [router, updateSelectedMetersByChunks])
 
     const selectedContactsActionBarButtons: ActionBarProps['actions'] = useMemo(() => [
         <DeleteButtonWithConfirmModal

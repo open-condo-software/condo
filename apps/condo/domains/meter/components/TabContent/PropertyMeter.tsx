@@ -64,26 +64,26 @@ type UpdateMeterQueryParamsType = {
     isShowArchivedMeters: string
 }
 
-interface IDefaultMetersActionBarProps {
+interface IDefaultPropertyMetersActionBarProps {
     canManageMeters: boolean
     showImportButton: boolean
     onImportFinish: () => void
 }
-const DefaultActionBar: React.FC<IDefaultMetersActionBarProps> = ({ canManageMeters, showImportButton, onImportFinish }) => {
+const DefaultPropertyMetersActionBar: React.FC<IDefaultPropertyMetersActionBarProps> = ({ canManageMeters, showImportButton, onImportFinish }) => {
     const intl = useIntl()
-    const CreateMeterButtonLabel = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterButtonLabel' })
+    const CreatePropertyMeterButtonLabel = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterButtonLabel' })
 
     const router = useRouter()
-    const handleCreateMeterReadings = useCallback(() => router.push(`/meter/create?tab=${METER_TAB_TYPES.propertyMeter}`), [router])
+    const handleCreatePropertyMeterReadings = useCallback(() => router.push(`/meter/create?tab=${METER_TAB_TYPES.propertyMeter}`), [router])
 
     return (
         <ActionBar actions={[
             <Button
                 key='create'
                 type='primary'
-                onClick={handleCreateMeterReadings}
+                onClick={handleCreatePropertyMeterReadings}
             >
-                {CreateMeterButtonLabel}
+                {CreatePropertyMeterButtonLabel}
             </Button>,
             showImportButton && (
                 <MetersImportWrapper
@@ -107,8 +107,8 @@ interface IActionBarWithSelectedItemsProps {
 const ActionBarWithSelectedItems: React.FC<IActionBarWithSelectedItemsProps> = ({ selectedKeys, clearSelection, onDeleteCompleted }) => {
     const intl = useIntl()
     const CancelSelectionMessage = intl.formatMessage({ id: 'global.cancelSelection' })
-    const ConfirmDeleteManyMetersTitle = intl.formatMessage({ id: 'pages.condo.meter.ConfirmDeleteManyTitle' })
-    const ConfirmDeleteManyMetersMessage = intl.formatMessage({ id: 'global.ImpossibleToRestore' })
+    const ConfirmDeleteManyPropertyMetersTitle = intl.formatMessage({ id: 'pages.condo.meter.ConfirmDeleteManyTitle' })
+    const ConfirmDeleteManyPropertyMetersMessage = intl.formatMessage({ id: 'global.ImpossibleToRestore' })
     const DeleteMessage = intl.formatMessage({ id: 'Delete' })
     const DontDeleteMessage = intl.formatMessage({ id: 'DontDelete' })
 
@@ -117,16 +117,15 @@ const ActionBarWithSelectedItems: React.FC<IActionBarWithSelectedItemsProps> = (
 
     const SelectedItemsMessage = useMemo(() => intl.formatMessage({ id: 'ItemsSelectedCount' }, { count: selectedKeys.length }), [intl, selectedKeys])
 
-    const [updateMetersMutation] = useUpdatePropertyMetersMutation({
+    const [updatePropertyMetersMutation] = useUpdatePropertyMetersMutation({
         onCompleted: async () => {
             await onDeleteCompleted()
         },
     })
 
-    const updateSelectedContactsByChunks = useCallback(async (payload) => {
+    const updateSelectedPropertyMetersByChunks = useCallback(async (payload) => {
         if (!selectedKeys.length) return
-
-        const itemsToDeleteByChunks = chunk(selectedKeys.map((key) => ({
+        const propertyMetersToDelete = chunk(selectedKeys.map((key) => ({
             id: key,
             data: {
                 dv: 1,
@@ -135,33 +134,33 @@ const ActionBarWithSelectedItems: React.FC<IActionBarWithSelectedItemsProps> = (
             },
         })), 30)
 
-        for (const itemsToDelete of itemsToDeleteByChunks) {
-            await updateMetersMutation({
+        for (const itemsToDelete of propertyMetersToDelete) {
+            await updatePropertyMetersMutation({
                 variables: {
                     data: itemsToDelete,
                 },
             })
         }
 
-        client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allMeters' })
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allPropertyMeters' })
         client.cache.gc()
-    }, [client.cache, selectedKeys, updateMetersMutation])
+    }, [client.cache, selectedKeys, updatePropertyMetersMutation])
 
     const handleDeleteButtonClick = useCallback(async () => {
         const now = new Date().toISOString()
-        await updateSelectedContactsByChunks({ deletedAt: now })
+        await updateSelectedPropertyMetersByChunks({ deletedAt: now })
         await updateQuery(router, {
             newParameters: {
                 offset: 0,
             },
         }, { routerAction: 'replace', resetOldParameters: false })
-    }, [router, updateSelectedContactsByChunks])
+    }, [router, updateSelectedPropertyMetersByChunks])
 
     const selectedContactsActionBarButtons: ActionBarProps['actions'] = useMemo(() => [
         <DeleteButtonWithConfirmModal
-            key='deleteSelectedMeters'
-            title={ConfirmDeleteManyMetersTitle}
-            message={ConfirmDeleteManyMetersMessage}
+            key='deleteSelectedPropertyMeters'
+            title={ConfirmDeleteManyPropertyMetersTitle}
+            message={ConfirmDeleteManyPropertyMetersMessage}
             okButtonLabel={DeleteMessage}
             action={handleDeleteButtonClick}
             buttonContent={DeleteMessage}
@@ -170,14 +169,14 @@ const ActionBarWithSelectedItems: React.FC<IActionBarWithSelectedItemsProps> = (
             cancelButtonType='primary'
         />,
         <Button
-            key='cancelMetersSelection'
+            key='cancelPropertyMetersSelection'
             type='secondary'
             onClick={clearSelection}
         >
             {CancelSelectionMessage}
         </Button>,
     ], [
-        ConfirmDeleteManyMetersTitle, ConfirmDeleteManyMetersMessage, DeleteMessage, handleDeleteButtonClick,
+        ConfirmDeleteManyPropertyMetersTitle, ConfirmDeleteManyPropertyMetersMessage, DeleteMessage, handleDeleteButtonClick,
         DontDeleteMessage, clearSelection, CancelSelectionMessage,
     ])
 
@@ -354,7 +353,7 @@ const PropertyMetersTableContent: React.FC<PropertyMetersTableContentProps> = ({
                             </Col>
                         ) : (
                             <Col span={24}>
-                                <DefaultActionBar
+                                <DefaultPropertyMetersActionBar
                                     canManageMeters={canManageMeters}
                                     showImportButton={showImportButton}
                                     onImportFinish={refetch}
