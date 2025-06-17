@@ -394,57 +394,6 @@ async function checkUserEmploymentOrRelationToOrganization (ctx, user, organizat
     return await checkPermissionsInEmployedOrRelatedOrganizations(ctx, user, organizationIds, [])
 }
 
-/**
- * Checks if the user has the required permission to perform create or update operations
- * (both single and bulk) on entities associated with an organization.
- *
- * The entity must contain an `organization` field to extract the `organizationId`.
- *
- * @param {object} accessInput - The Keystone `AccessInput` object, containing context, user, operation type, etc.
- * @param {string} permission - The permission to check against the user's access rights.
- * @param {boolean} [checkRelatedOrganizations=false] - If true, checks permissions not only in user's organization,
- *                                                      but also in related organizations.
- * @returns {Promise<boolean>} - Returns true if the user has the required permission for all involved organizations.
- */
-async function canManageEntityWithOrganization (
-    accessInput,
-    permission,
-    checkRelatedOrganizations = false
-) {
-    const { authentication: { item: user }, context, originalInput, operation, itemId, itemIds, listKey } = accessInput
-    const isBulkRequest = Array.isArray(originalInput)
-    let organizationIds
-
-    if (operation === 'create') {
-        if (isBulkRequest) {
-            organizationIds = originalInput.map(el => get(el, ['data', 'organization', 'connect', 'id']))
-
-            if (organizationIds.filter(Boolean).length !== originalInput.length) return false
-            organizationIds = uniq(organizationIds)
-        } else {
-            const organizationId = get(originalInput, ['organization', 'connect', 'id'])
-            if (!organizationId) return false
-            organizationIds = [organizationId]
-        }
-    } else if (operation === 'update') {
-        const ids = itemIds || [itemId]
-        if (ids.length !== uniq(ids).length) return false
-
-        const items = await find(listKey, {
-            id_in: ids,
-            deletedAt: null,
-        })
-        if (items.length !== ids.length || items.some(item => !item.organization)) return false
-        organizationIds = uniq(items.map(item => item.organization))
-    }
-
-    if (checkRelatedOrganizations) {
-        return checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationIds, permission)
-    } else {
-        return checkPermissionsInEmployedOrganizations(context, user, organizationIds, permission)
-    }
-}
-
 module.exports = {
     resetUserEmployeesCache,
     resetOrganizationEmployeesCache,
@@ -459,5 +408,4 @@ module.exports = {
     checkPermissionsInEmployedOrRelatedOrganizations,
     checkUserEmploymentInOrganizations,
     checkUserEmploymentOrRelationToOrganization,
-    canManageEntityWithOrganization,
 }
