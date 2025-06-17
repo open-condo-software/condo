@@ -1,3 +1,5 @@
+const { validate } = require('uuid')
+
 const { CondoFile } = require('@open-condo/files/schema/utils/serverSchema')
 
 const FileWithUTF8Name  = require('../FileWithUTF8Name/index')
@@ -50,20 +52,19 @@ class CustomFile extends FileWithUTF8Name.implementation {
         }
     }
 
-    async resolveInput ({ resolvedData, existingItem, context }) {
+    async resolveInput ({ resolvedData, existingItem, context, operation }) {
         const uploadData = resolvedData[this.path]
-        // Old way to upload file
-        if (uploadData instanceof Promise) {
-            return await super.resolveInput({ resolvedData, existingItem })
-        }
-
-        if (typeof uploadData === 'string') {
+        // New way to 'upload' - connect file
+        if (typeof uploadData === 'string' && validate(uploadData)) {
             const file = await CondoFile.getOne(context, { id: uploadData }, 'file { id filename originalFilename mimetype encoding meta }')
             if (file) {
                 return file.file
             }
             return null
         }
+
+        // Legacy way to upload file
+        return await super.resolveInput({ resolvedData, existingItem })
     }
 
     getBackingTypes () {
