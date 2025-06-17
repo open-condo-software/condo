@@ -8,9 +8,11 @@
     "./fileMiddleware": "./fileMiddleware.js"
   },
   "dependencies": {
+    "@open-condo/config": "workspace:^",
     "busboy": "^1.6.0",
     "cuid": "^3.0.0",
     "express": "^4.21.2",
+    "form-data": "^4.0.0",
     "fs-capacitor": "^6.2.0"
   }
 }
