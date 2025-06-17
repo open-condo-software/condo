@@ -205,7 +205,7 @@ const AUTHENTICATE_OR_REGISTER_USER_WITH_TOKEN_MUTATION = gql`
     }
 `
 
-const CONFIRM_EMAIL_ACTION_FIELDS = `{ email token secretCode secretCodeRequestedAt secretCodeExpiresAt retries isEmailVerified requestedAt expiresAt completedAt ${COMMON_FIELDS} }`
+const CONFIRM_EMAIL_ACTION_FIELDS = '{ email token secretCode secretCodeRequestedAt secretCodeExpiresAt retries isEmailVerified requestedAt expiresAt completedAt id dv sender { dv fingerprint } v deletedAt newId }'
 const ConfirmEmailAction = generateGqlQueries('ConfirmEmailAction', CONFIRM_EMAIL_ACTION_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
