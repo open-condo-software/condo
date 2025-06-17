@@ -1,5 +1,7 @@
+import { useUpdateMarketItemsMutation } from '@app/condo/gql'
 import { SortMarketItemsBy } from '@app/condo/schema'
 import { Col, Row } from 'antd'
+import chunk from 'lodash/chunk'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import omit from 'lodash/omit'
@@ -7,18 +9,22 @@ import uniqBy from 'lodash/uniqBy'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
+import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
+import { useApolloClient } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Button, Select } from '@open-condo/ui'
+import { ActionBar, ActionBarProps, Button, Select } from '@open-condo/ui'
 
 import Input from '@condo/domains/common/components/antd/Input'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
+import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
+import { useTableRowSelection } from '@condo/domains/common/hooks/useTableRowSelection'
 import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
 import { getFiltersFromQuery, updateQuery } from '@condo/domains/common/utils/helpers'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
@@ -28,9 +34,118 @@ import { MarketItem, MarketPriceScope, MarketCategory } from '@condo/domains/mar
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
 
-const TableContent = () => {
+interface IMarketItemContentActionBarProps {
+    selectedKeys: string[]
+    clearSelection: () => void
+    onDeleteMarketItems: () => Promise<void>
+}
+
+const MarketItemContentActionBar: React.FC<IMarketItemContentActionBarProps> = ({
+    selectedKeys,
+    clearSelection,
+    onDeleteMarketItems,
+}) => {
     const intl = useIntl()
     const AddServicesButtonText = intl.formatMessage({ id: 'pages.condo.marketplace.services.actionBar.createMarketItemButton' })
+    const CancelSelectionMessage = intl.formatMessage({ id: 'global.cancelSelection' })
+    const DeleteMessage = intl.formatMessage({ id: 'Delete' })
+    const DontDeleteMessage = intl.formatMessage({ id: 'DontDelete' })
+    const SelectedItemsMessage = useMemo(() => intl.formatMessage({ id: 'ItemsSelectedCount' }, { count: selectedKeys.length }), [intl, selectedKeys])
+    const ConfirmDeleteManyPropertiesTitle = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.DeleteManyTitle' })
+    const ConfirmDeleteManyPropertiesMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.ConfirmDeleteMessage' })
+    const DeleteButtonLabel = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.DeleteManyTitle' })
+
+    const router = useRouter()
+    const client = useApolloClient()
+
+    const defaultActionBarContent: ActionBarProps['actions'] = useMemo(() => [
+        <Button
+            key='createMarketItem'
+            type='primary'
+            onClick={() => { router.push('/marketplace/marketItem/create') }}
+        >
+            {AddServicesButtonText}
+        </Button>,
+    ], [AddServicesButtonText, router])
+
+    const [updateMarketItems] = useUpdateMarketItemsMutation({
+        onCompleted: async () => {
+            clearSelection()
+            await updateQuery(router, {
+                newParameters: {
+                    offset: 0,
+                },
+            }, { routerAction: 'replace', resetOldParameters: false })
+            await onDeleteMarketItems()
+        },
+    })
+
+    const softDeleteMarketItemsByChunks = useCallback(async () => {
+        if (!selectedKeys.length) return
+
+        const now = new Date().toISOString()
+        const itemsToDeleteByChunks = chunk(selectedKeys.map((key) => ({
+            id: key,
+            data: {
+                dv: 1,
+                sender: getClientSideSenderInfo(),
+                deletedAt: now,
+            },
+        })), 30)
+
+        for (const itemsToDelete of itemsToDeleteByChunks) {
+            await updateMarketItems({
+                variables: {
+                    data: itemsToDelete,
+                },
+            })
+        }
+
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allMarketItems' })
+        client.cache.gc()
+    }, [client?.cache, selectedKeys, updateMarketItems])
+
+    const selectedItemsActionBarContent: ActionBarProps['actions'] = useMemo(() => [
+        <DeleteButtonWithConfirmModal
+            key='deleteSelectedMarketItems'
+            title={ConfirmDeleteManyPropertiesTitle}
+            message={ConfirmDeleteManyPropertiesMessage}
+            okButtonLabel={DeleteMessage}
+            action={softDeleteMarketItemsByChunks}
+            buttonContent={DeleteMessage}
+            cancelMessage={DontDeleteMessage}
+            showCancelButton
+            cancelButtonType='primary'
+        />,
+        <Button
+            key='cancelMarketItemsSelection'
+            type='secondary'
+            onClick={clearSelection}
+        >
+            {CancelSelectionMessage}
+        </Button>,
+    ], [
+        CancelSelectionMessage, ConfirmDeleteManyPropertiesMessage, ConfirmDeleteManyPropertiesTitle,
+        DeleteButtonLabel, DeleteMessage, DontDeleteMessage, clearSelection, softDeleteMarketItemsByChunks,
+    ])
+
+    const actions = useMemo(() => selectedKeys.length > 0 ?
+        selectedItemsActionBarContent : defaultActionBarContent,
+    [defaultActionBarContent, selectedItemsActionBarContent, selectedKeys.length])
+
+    const actionBarMessage = useMemo(() => selectedKeys.length > 0 && SelectedItemsMessage,
+        [SelectedItemsMessage, selectedKeys.length])
+
+    return (
+        <ActionBar
+            message={actionBarMessage}
+            actions={actions}
+        />
+    )
+}
+
+const TableContent = () => {
+    const intl = useIntl()
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const AllCategoriesMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.filter.allCategories' })
 
@@ -156,6 +271,7 @@ const TableContent = () => {
         loading: marketItemsLoading,
         count: total,
         objs: marketItems,
+        refetch,
     } = MarketItem.useObjects({
         sortBy,
         where: {
@@ -208,6 +324,16 @@ const TableContent = () => {
         }
     }, [router])
 
+    const {
+        selectedKeys,
+        clearSelection,
+        rowSelection,
+    } = useTableRowSelection<typeof marketItems[number]>({ items: marketItems })
+
+    const onDeleteMarketItems = useCallback(async () => {
+        await refetch()
+    }, [refetch])
+
     return (
         <TablePageContent>
             <Row gutter={[0, 40]}>
@@ -245,6 +371,7 @@ const TableContent = () => {
                                 dataSource={marketItems}
                                 columns={tableColumns}
                                 onRow={handleRowClick}
+                                rowSelection={canManageMarketItems && rowSelection}
                             />
                         </Col>
                     </Row>
@@ -252,16 +379,10 @@ const TableContent = () => {
                 {
                     canManageMarketItems && (
                         <Col span={24}>
-                            <ActionBar
-                                actions={[
-                                    <Button
-                                        key='createMarketItem'
-                                        type='primary'
-                                        onClick={() => { router.push('/marketplace/marketItem/create') }}
-                                    >
-                                        {AddServicesButtonText}
-                                    </Button>,
-                                ]}
+                            <MarketItemContentActionBar
+                                selectedKeys={selectedKeys}
+                                clearSelection={clearSelection}
+                                onDeleteMarketItems={onDeleteMarketItems}
                             />
                         </Col>
                     )
