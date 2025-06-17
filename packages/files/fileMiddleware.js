@@ -2,14 +2,9 @@ const busboy = require('busboy')
 const cuid = require('cuid')
 const express = require('express')
 const { WriteStream } = require('fs-capacitor')
-// const createError = require('http-errors')
-const { get, isEqual } = require('lodash')
-// const mongoose = require('mongoose')
 
-// const { CondoFile } = require('@open-condo/files/schema/utils/serverSchema')
+const { CondoFile } = require('@open-condo/files/schema/utils/serverSchema')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
-
-// mongoose.set('objectIdGetter', false)
 
 function createError (status, message, response) {
     response.status(status).json({ error: message })
@@ -234,7 +229,7 @@ class FileMiddleware {
                 }
             },
             function (request, response) {
-                // const context = keystone.createContext({ skipAccessControl: true })
+                const context = keystone.createContext({ skipAccessControl: true })
 
                 Promise.all(request.files.map(file => fileAdapter.save({
                     stream: file.stream,
@@ -244,25 +239,25 @@ class FileMiddleware {
                     id: cuid(),
                     meta: request.meta,
                 }))).then(savedFiles => {
-                    response.json(savedFiles.map(adapterFile => ({ ...adapterFile, meta: request.meta })))
-                    // CondoFile.createMany(context, savedFiles.map((data, index) => ({
-                    //     data: {
-                    //         file: {
-                    //             ...data,
-                    //             originalFilename: request.files[index].filename,
-                    //             mimetype: request.files[index].mimetype,
-                    //             encoding: request.files[index].encoding,
-                    //         },
-                    //         meta: request.meta,
-                    //         dv: 1,
-                    //         sender: { dv: 1, fingerprint: 'condo-file-middleware' },
-                    //     },
-                    // }))
-                    // ).then(savedFiles => {
-                    //     response.json({ savedFiles })
-                    // }).catch(error => {
-                    //     response.json({ error })
-                    // })
+                    // response.json(savedFiles.map(adapterFile => ({ ...adapterFile, meta: request.meta })))
+                    CondoFile.createMany(context, savedFiles.map((data, index) => ({
+                        data: {
+                            file: {
+                                ...data,
+                                originalFilename: request.files[index].filename,
+                                mimetype: request.files[index].mimetype,
+                                encoding: request.files[index].encoding,
+                                meta: request.meta,
+                            },
+                            dv: request.meta.dv,
+                            sender: request.meta.sender,
+                        },
+                    }))
+                    ).then(savedFiles => {
+                        response.json(savedFiles)
+                    }).catch(error => {
+                        response.json({ error })
+                    })
                 }).catch(error => {
                     response.json({ error })
                 })
