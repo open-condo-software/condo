@@ -1,6 +1,5 @@
 import { TicketCreateInput } from '@app/condo/schema'
 import dayjs from 'dayjs'
-import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isNull from 'lodash/isNull'
 import { useEffect, useRef } from 'react'
@@ -18,6 +17,13 @@ import {
     RowValidator,
 } from '@condo/domains/common/utils/importer'
 import { normalizePhone } from '@condo/domains/common/utils/phone'
+import {
+    APARTMENT_UNIT_TYPE,
+    COMMERCIAL_UNIT_TYPE,
+    FLAT_UNIT_TYPE,
+    PARKING_UNIT_TYPE,
+    WAREHOUSE_UNIT_TYPE,
+} from '@condo/domains/property/constants/common'
 import { STATUS_IDS } from '@condo/domains/ticket/constants/statusTransitions'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { searchProperty } from '@condo/domains/ticket/utils/clientSchema/search'
@@ -61,24 +67,30 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const IncorrectPhoneNumberFormatMessage = intl.formatMessage({ id: 'errors.import.IncorrectPhoneNumberFormat' })
     const AddressNotFoundMessage = intl.formatMessage({ id: 'errors.import.AddressNotFound' })
     const IncorrectIsResidentTicketFormatMessage = intl.formatMessage({ id: 'errors.import.IncorrectIsResidentTicketFormat' })
+    const IncorrectUnitTypeMessage = intl.formatMessage({ id: 'errors.import.EmptyUnitType' })
     const PropertyNotFoundMessage = intl.formatMessage({ id: 'errors.import.PropertyNotFound' })
     const IncorrectPhoneAndFullNameForResidentTicketMessage = intl.formatMessage({ id: 'errors.import.IncorrectPhoneAndFullNameForResidentTicket' })
     const IsEmptyDetailsMessage = intl.formatMessage({ id: 'errors.import.isEmptyDetails' })
 
     const AddressLabel = intl.formatMessage({ id: 'ticket.import.column.address' })
     const UnitNameLabel = intl.formatMessage({ id: 'ticket.import.column.unitName' })
+    const UnitTypeLabel = intl.formatMessage({ id: 'ticket.import.column.unitType' })
     const IsResidentTicketLabel = intl.formatMessage({ id: 'ticket.import.column.isResidentTicket' })
     const PhoneLabel = intl.formatMessage({ id: 'ticket.import.column.phone' })
     const FullNameLabel = intl.formatMessage({ id: 'ticket.import.column.fullName' })
     const DetailsLabel = intl.formatMessage({ id: 'ticket.import.column.details' })
     const OldTicketNumberLabel = intl.formatMessage({ id: 'ticket.import.column.oldTicketNumber' })
     const CreatedAtLabel = intl.formatMessage({ id: 'ticket.import.column.createdAt' })
+    const FlatUnitTypeValue = intl.formatMessage({ id: 'pages.condo.ticket.field.unitType.flat' })
+    const ParkingUnitTypeValue = intl.formatMessage({ id: 'pages.condo.ticket.field.unitType.parking' })
+    const ApartmentUnitTypeValue = intl.formatMessage({ id: 'pages.condo.ticket.field.unitType.apartment' })
+    const WarehouseUnitTypeValue = intl.formatMessage({ id: 'pages.condo.ticket.field.unitType.warehouse' })
+    const CommercialUnitTypeValue = intl.formatMessage({ id: 'pages.condo.ticket.field.unitType.commercial' })
 
-    const userOrganization = useOrganization()
+    const { organization: { id: userOrganizationId } } = useOrganization()
     const client = useApolloClient()
     const { addressApi } = useAddressApi()
 
-    const userOrganizationId = get(userOrganization, ['organization', 'id'])
     const userOrganizationIdRef = useRef(userOrganizationId)
     useEffect(() => {
         userOrganizationIdRef.current = userOrganizationId
@@ -89,6 +101,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const columns: Columns = [
         { name: AddressLabel, type: 'string', required: true },
         { name: UnitNameLabel, type: 'string', required: false },
+        { name: UnitTypeLabel, type: 'string', required: false },
         { name: IsResidentTicketLabel, type: 'string', required: false },
         { name: PhoneLabel, type: 'string', required: false },
         { name: FullNameLabel, type: 'string', required: false },
@@ -97,8 +110,16 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         { name: CreatedAtLabel, type: 'custom', required: false },
     ]
 
+    const UNIT_TYPE_TRANSLATION_TO_TYPE = {
+        [FlatUnitTypeValue.toLowerCase()]: FLAT_UNIT_TYPE,
+        [ParkingUnitTypeValue.toLowerCase()]: PARKING_UNIT_TYPE,
+        [ApartmentUnitTypeValue.toLowerCase()]: APARTMENT_UNIT_TYPE,
+        [WarehouseUnitTypeValue.toLowerCase()]: WAREHOUSE_UNIT_TYPE,
+        [CommercialUnitTypeValue.toLowerCase()]: COMMERCIAL_UNIT_TYPE,
+    }
+
     const ticketNormalizer: RowNormalizer = async (row) => {
-        const [address, unitName, isResidentTicket, phone, fullName, details, oldTicketNumber, createdAt] = row
+        const [address, unitName, unitType, isResidentTicket, phone, fullName, details, oldTicketNumber, createdAt] = row
         const addons = {
             address: null,
             propertyId: null,
@@ -115,7 +136,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         }
 
         const suggestionOptions = await addressApi.getSuggestions(String(address.value))
-        const suggestion = get(suggestionOptions, ['suggestions', 0])
+        const suggestion = suggestionOptions?.suggestions?.[0]
         if (suggestion) {
             addons.address = suggestion.value
 
@@ -127,20 +148,24 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             addons.propertyId = !isEmpty(properties) ? properties[0].value : null
         }
 
-        const phoneNumber = String(get(phone, 'value', '')).trim()
-        const normalizedPhone = normalizePhone(phoneNumber, true)
-        const trimmedUnitName = String(unitName.value).trim()
+        const trimmedPhoneNumber = String(phone?.value || '').trim()
+        const normalizedPhone = normalizePhone(trimmedPhoneNumber, true)
+        const trimmedIsResidentTicket = String(isResidentTicket?.value || '').trim()
+        const normalizedIsResidentTicket = normalizeIsResidentTicket(trimmedIsResidentTicket, IsResidentTicketValueYesMessage, IsResidentTicketValueNoMessage)
+        const trimmedUnitName = String(unitName?.value || '').trim()
+        const trimmedUnitType = String(unitType?.value || '').trim().toLowerCase()
+        const normalizedUnitType = UNIT_TYPE_TRANSLATION_TO_TYPE[trimmedUnitType]
 
         addons.phone = normalizedPhone || null
         addons.isValidPhone = Boolean(normalizedPhone)
-        addons.createdAt = createdAt.value ? String(createdAt.value) : ''
-        addons.fullName = String(get(fullName, 'value', '')).trim()
-        addons.details = String(get(details, 'value', '')).trim()
-        addons.oldTicketNumber = String(get(oldTicketNumber, 'value', '')).trim()
-        addons.isResidentTicket = normalizeIsResidentTicket(String(get(isResidentTicket, 'value', '')).trim(), IsResidentTicketValueYesMessage, IsResidentTicketValueNoMessage)
+        addons.createdAt = String(createdAt.value || '')
+        addons.fullName = String(fullName?.value || '').trim()
+        addons.details = String(details?.value || '').trim()
+        addons.oldTicketNumber = String(oldTicketNumber?.value || '').trim()
+        addons.isResidentTicket = normalizedIsResidentTicket
         addons.unitName = trimmedUnitName || null
-        addons.unitType = addons.unitName ? 'flat' : null
-        addons.isEmptyDetails = Boolean(String(get(details, 'value', '')).trim())
+        addons.unitType = normalizedUnitType || null
+        addons.isEmptyDetails = Boolean(String(details?.value || '').trim())
 
         return { row, addons }
     }
@@ -149,19 +174,20 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         if (!row) return false
         const errors = []
         if (!row.addons) errors.push(IncorrectRowFormatMessage)
-        if (!get(row, ['addons', 'address'])) errors.push(AddressNotFoundMessage)
-        if (!get(row, ['addons', 'propertyId'])) errors.push(PropertyNotFoundMessage)
-        if (!get(row, ['addons', 'isEmptyDetails'])) errors.push(IsEmptyDetailsMessage)
+        if (!row?.addons?.address) errors.push(AddressNotFoundMessage)
+        if (!row?.addons?.propertyId) errors.push(PropertyNotFoundMessage)
+        if (!row?.addons?.isEmptyDetails) errors.push(IsEmptyDetailsMessage)
+        if (!row?.addons?.unitType) errors.push(IncorrectUnitTypeMessage)
 
-        const phone = get(row, ['addons', 'phone'])
-        const isValidPhone = get(row, ['addons', 'isValidPhone'])
-        const fullName = get(row, ['addons', 'fullName'])
-        const isResidentTicket = get(row, ['addons', 'isResidentTicket'])
+        const phone = row?.addons?.phone
+        const isValidPhone = row?.addons?.isValidPhone
+        const fullName = row?.addons?.fullName
+        const isResidentTicket = row?.addons?.isResidentTicket
         if (isNull(isResidentTicket)) errors.push(IncorrectIsResidentTicketFormatMessage)
         if (phone && !isValidPhone) errors.push(IncorrectPhoneNumberFormatMessage)
         if (isResidentTicket && (!phone || !fullName)) errors.push(IncorrectPhoneAndFullNameForResidentTicketMessage)
 
-        const createdAt = get(row, ['addons', 'createdAt'])
+        const createdAt = row?.addons?.createdAt
         if (createdAt && !isValidDate(createdAt)) errors.push(intl.formatMessage({ id: 'errors.import.date' }, { columnName: CreatedAtLabel, format: ISO_DATE_FORMAT }))
 
         if (errors.length) {
@@ -174,15 +200,15 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
 
     const ticketCreator: ObjectCreator = async (row) => {
         if (!row) return
-        const phone = get(row, ['addons', 'phone'])
-        const fullName = get(row, ['addons', 'fullName'])
-        const details = get(row, ['addons', 'details'])
-        const propertyId = get(row, ['addons', 'propertyId'])
-        const isResidentTicket = get(row, ['addons', 'isResidentTicket'])
-        const unitName = get(row, ['addons', 'unitName'])
-        const unitType = get(row, ['addons', 'unitType'])
-        const oldTicketNumber = get(row, ['addons', 'oldTicketNumber'])
-        const createdAt = get(row, ['addons', 'createdAt'])
+        const phone = row?.addons?.phone
+        const fullName = row?.addons?.fullName
+        const details = row?.addons?.details
+        const propertyId = row?.addons?.propertyId
+        const isResidentTicket = row?.addons?.isResidentTicket
+        const unitName = row?.addons?.unitName
+        const unitType = row?.addons?.unitType
+        const oldTicketNumber = row?.addons?.oldTicketNumber
+        const createdAt = row?.addons?.createdAt
 
         const ticketPayload: Partial<TicketCreateInput> = {
             canReadByResident: true,
