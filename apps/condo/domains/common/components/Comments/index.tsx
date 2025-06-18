@@ -58,15 +58,16 @@ const Container = styled.aside<IContainerProps>`
   
   max-height: 756px;
 `
-const Head = styled.div`
+const Head = styled.div<{ isTitleHidden: boolean }>`
   padding: 24px 24px 0 24px;
+  display: ${({ isTitleHidden }) => isTitleHidden ? 'none' : 'block'};
   font-style: normal;
   font-weight: bold;
   font-size: 20px;
   line-height: 28px;
 `
 const Body = styled.div`
-  padding: 12px 24px 24px;
+  padding: 12px 24px 0;
   overflow-y: scroll;
   flex: 1 1 auto;
 `
@@ -90,7 +91,7 @@ const EmptyContainer = styled.div`
   }
 `
 
-const CommentsTabsContainer = styled.div`
+const CommentsTabsContainer = styled.div<{ isTitleHidden: boolean }>`
   padding: 0;
   display: flex;
   flex: 1 1 auto;
@@ -132,6 +133,7 @@ type CommentsTabContentProps = {
     PromptDescriptionMessage: string
     editableComment: CommentWithFiles
     setEditableComment: React.Dispatch<React.SetStateAction<CommentWithFiles>>
+    handleBodyScroll: UIEventHandler<HTMLDivElement>
     bodyRef: React.RefObject<HTMLDivElement>
     sending: boolean
     generateCommentEnabled: boolean
@@ -142,6 +144,7 @@ type CommentsTabContentProps = {
 const CommentsTabContent: React.FC<CommentsTabContentProps> =
     ({
         sending,
+        handleBodyScroll,
         bodyRef,
         comments,
         updateAction,
@@ -202,7 +205,7 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> =
                         PromptDescriptionMessage={PromptDescriptionMessage}
                     />
                 ) : (
-                    <Body ref={bodyRef}>
+                    <Body ref={bodyRef} onScroll={handleBodyScroll}>
                         {commentsToRender}
                         {sending && <Loader style={LOADER_STYLES}/>}
                         {( generateCommentEnabled && !lastCommentIsFromAuthedUser ) && (
@@ -223,6 +226,7 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> =
         )
     }
 
+const SCROLL_TOP_OFFSET_TO_HIDE_TITLE = 50
 const NewCommentIndicator = styled.span`
   display: inline-block;
   width: 4px;
@@ -297,12 +301,23 @@ const Comments: React.FC<ICommentsListProps> = ({
     const [commentType, setCommentType] = useState(ORGANIZATION_COMMENT_TYPE)
     const [editableComment, setEditableComment] = useState<CommentWithFiles>()
     const [sending, setSending] = useState(false)
+    const [isTitleHidden, setTitleHidden] = useState<boolean>(false)
     const [isInitialUserTicketCommentReadTimeSet, setIsInitialUserTicketCommentReadTimeSet] = useState<boolean>(false)
+
+    const handleBodyScroll = useCallback((e) => {
+        const scrollTop = get(e, ['currentTarget', 'scrollTop'])
+
+        if (scrollTop > SCROLL_TOP_OFFSET_TO_HIDE_TITLE && !isTitleHidden) {
+            setTitleHidden(true)
+        } else if (scrollTop === 0 && isTitleHidden) {
+            setTitleHidden(false)
+        }
+    }, [isTitleHidden, setTitleHidden])
 
     const bodyRef = useRef(null)
     const scrollToBottom = () => {
         if (bodyRef.current) {
-            bodyRef.current.scrollTop = bodyRef.current.scrollHeight
+            bodyRef.current.scrollTop = 0
         }
     }
 
@@ -401,10 +416,6 @@ const Comments: React.FC<ICommentsListProps> = ({
         }
     }, [createOrUpdateUserTicketCommentReadTime, isInitialUserTicketCommentReadTimeSet, loadingUserTicketCommentReadTime])
 
-    useEffect(() => {
-        scrollToBottom()
-    }, [comments, commentType])
-
     const handleTabChange = useCallback(async (event) => {
         const value = event.target.value
 
@@ -493,7 +504,7 @@ const Comments: React.FC<ICommentsListProps> = ({
 
     return (
         <Container isSmall={!breakpoints.TABLET_LARGE}>
-            <Head>{TitleMessage}</Head>
+            <Head isTitleHidden={isTitleHidden}>{TitleMessage}</Head>
             <SwitchCommentsTypeWrapper>
                 <RadioGroup optionType='button' value={commentType} onChange={handleTabChange}>
                     <Radio
@@ -523,13 +534,14 @@ const Comments: React.FC<ICommentsListProps> = ({
                     />
                 </RadioGroup>
             </SwitchCommentsTypeWrapper>
-            <CommentsTabsContainer className='card-container'>
+            <CommentsTabsContainer isTitleHidden={isTitleHidden} className='card-container'>
                 <>
                     <CommentsTabContent
                         {...commentTabContentProps}
                         editableComment={editableComment}
                         setEditableComment={setEditableComment}
                         updateAction={updateAction}
+                        handleBodyScroll={handleBodyScroll}
                         bodyRef={bodyRef}
                         sending={sending}
                         generateCommentEnabled={aiFeaturesEnabled && rewriteTicketCommentEnabled}
