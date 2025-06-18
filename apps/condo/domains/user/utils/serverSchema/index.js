@@ -24,6 +24,7 @@ const { GET_ACCESS_TOKEN_BY_USER_ID_QUERY } = require('@condo/domains/user/gql')
 const { CHECK_USER_EXISTENCE_MUTATION } = require('@condo/domains/user/gql')
 const { GENERATE_SUDO_TOKEN_MUTATION } = require('@condo/domains/user/gql')
 const { AUTHENTICATE_OR_REGISTER_USER_WITH_TOKEN_MUTATION } = require('@condo/domains/user/gql')
+const { CONFIRM_EMAIL_ACTION_MUTATION } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateServerUtils('User')
@@ -138,6 +139,20 @@ async function authenticateOrRegisterUserWithToken (context, data) {
 }
 
 const ConfirmEmailAction = generateServerUtils('ConfirmEmailAction')
+async function confirmEmailAction (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+    // TODO(codegen): write confirmEmailAction serverSchema guards
+
+    return await execGqlWithoutAccess(context, {
+        query: CONFIRM_EMAIL_ACTION_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to confirmEmailAction',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 const whiteList = conf.SMS_WHITE_LIST ? JSON.parse(conf.SMS_WHITE_LIST) : {}
@@ -204,5 +219,6 @@ module.exports = {
     generateSudoToken,
     authenticateOrRegisterUserWithToken,
     ConfirmEmailAction,
+    confirmEmailAction,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
