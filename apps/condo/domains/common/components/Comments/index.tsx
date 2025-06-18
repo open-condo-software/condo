@@ -493,9 +493,9 @@ const Comments: React.FC<ICommentsListProps> = ({
             return
         }
 
-        const lastComment = comments[comments.length - 1]
+        const lastComment = comments[0]
         // Last 5 comments excluding the lastComment one
-        const last5Comments = comments.slice(Math.max(comments.length - 6, 0), comments.length - 1)
+        const last5Comments = comments.slice(0, 5)
 
         const context = {
             comment: lastComment.content,
