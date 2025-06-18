@@ -14,9 +14,7 @@ type RenameNextUnitsCheckboxProps = {
 
 export const RenameNextUnitsCheckbox: React.FC<RenameNextUnitsCheckboxProps> = ({ mapViewMode, renameNextUnitsRef }) => {
     const intl = useIntl()
-    const RenameNextUnitsLabel = mapViewMode === MapViewMode.parking ?
-        intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextParkingUnits' }) :
-        intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextUnits' })
+    const RenameNextUnitsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextUnits' })
     const RenameNextUnitsTooltip = mapViewMode === MapViewMode.parking ?
         intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextParkingUnits.tooltip' }) :
         intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextUnits.tooltip' })

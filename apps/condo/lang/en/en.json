@@ -2404,7 +2404,6 @@
   "pages.condo.property.map.modal.totalContacts": "Registered residents",
   "pages.condo.property.menu.MenuPlaceholder": "Add element",
   "pages.condo.property.modal.RenameNextParking": "Rename the following parking in order",
-  "pages.condo.property.modal.RenameNextParkingUnits": "Rename the following units in order",
   "pages.condo.property.modal.RenameNextParkingUnits.tooltip": "When new spots or units are added, the numbering of all parking spots and units will change",
   "pages.condo.property.modal.RenameNextSections": "Rename the following sections in order",
   "pages.condo.property.modal.RenameNextUnits": "Rename the following unit in order",

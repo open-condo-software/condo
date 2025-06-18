@@ -2404,7 +2404,6 @@
   "pages.condo.property.map.modal.totalContacts": "Зарегистрировано жителей",
   "pages.condo.property.menu.MenuPlaceholder": "Добавить элемент",
   "pages.condo.property.modal.RenameNextParking": "Изменить номера следующих паркингов",
-  "pages.condo.property.modal.RenameNextParkingUnits": "Изменить номера следующих мест/помещений",
   "pages.condo.property.modal.RenameNextParkingUnits.tooltip": "При добавлении новых мест или помещений изменится нумерация всех мест и помещений паркинга",
   "pages.condo.property.modal.RenameNextSections": "Изменить номера следующих подъездов",
   "pages.condo.property.modal.RenameNextUnits": "Изменить номера следующих помещений",
