@@ -154,10 +154,10 @@ jobs:
               - 'packages/**'
             external-api:
               - 'apps/external-api/**'
-              - 'apps/condo/domains/organization/**'
-              - 'apps/condo/domains/ticket/**'
-              - 'apps/condo/domains/billing/**'
-              - 'apps/condo/domains/acquiring/**'
+              - 'apps/condo/domains/organization/schema/**'
+              - 'apps/condo/domains/ticket/schema/**'
+              - 'apps/condo/domains/billing/schema/**'
+              - 'apps/condo/domains/acquiring/schema/**'
             migrator:
               - 'packages/migrator/**'
             miniapp-utils:
