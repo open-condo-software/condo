@@ -208,6 +208,14 @@ const AUTHENTICATE_OR_REGISTER_USER_WITH_TOKEN_MUTATION = gql`
 const CONFIRM_EMAIL_ACTION_FIELDS = '{ email token secretCode secretCodeRequestedAt secretCodeExpiresAt retries isEmailVerified requestedAt expiresAt completedAt id dv sender { dv fingerprint } v deletedAt newId }'
 const ConfirmEmailAction = generateGqlQueries('ConfirmEmailAction', CONFIRM_EMAIL_ACTION_FIELDS)
 
+// TODO(codegen): write return type result!
+
+const CONFIRM_EMAIL_ACTION_MUTATION = gql`
+    mutation confirmEmailAction ($data: ConfirmEmailActionInput!) {
+        result: confirmEmailAction(data: $data) { id }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -244,5 +252,6 @@ module.exports = {
     GENERATE_SUDO_TOKEN_MUTATION,
     AUTHENTICATE_OR_REGISTER_USER_WITH_TOKEN_MUTATION,
     ConfirmEmailAction,
+CONFIRM_EMAIL_ACTION_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
