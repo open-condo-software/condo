@@ -7,20 +7,25 @@ import {
     UpdateTicketCommentMutationHookResult,
     UpdateUserTicketCommentReadTimeMutationHookResult,
 } from '@app/condo/gql'
-import {
-    Ticket,
-    TicketComment,
-    TicketCommentFile,
-} from '@app/condo/schema'
+import { Ticket, TicketComment, TicketCommentFile, UserTypeType } from '@app/condo/schema'
 import styled from '@emotion/styled'
-import { Empty, Form, notification, Typography } from 'antd'
+import { Empty, Form, notification } from 'antd'
 import get from 'lodash/get'
-import React, { CSSProperties, UIEventHandler, MouseEventHandler, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, {
+    CSSProperties,
+    MouseEventHandler,
+    UIEventHandler,
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
-import { Radio, RadioGroup, Tooltip } from '@open-condo/ui'
+import { Radio, RadioGroup, Tooltip, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { AIFlowButton } from '@condo/domains/ai/components/AIFlowButton'
@@ -29,7 +34,6 @@ import { useAIConfig, useAIFlow } from '@condo/domains/ai/hooks/useAIFlow'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { Module } from '@condo/domains/common/components/MultipleFileUpload'
-import { fontSizes } from '@condo/domains/common/constants/style'
 import { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE } from '@condo/domains/ticket/constants'
 import { hasUnreadResidentComments } from '@condo/domains/ticket/utils/helpers'
 
@@ -58,15 +62,16 @@ const Container = styled.aside<IContainerProps>`
   
   max-height: 756px;
 `
-const Head = styled.div`
+const Head = styled.div<{ isTitleHidden: boolean }>`
   padding: 24px 24px 0 24px;
+  display: ${({ isTitleHidden }) => isTitleHidden ? 'none' : 'block'};
   font-style: normal;
   font-weight: bold;
   font-size: 20px;
   line-height: 28px;
 `
 const Body = styled.div`
-  padding: 12px 24px 24px;
+  padding: 12px 24px 0;
   overflow-y: scroll;
   flex: 1 1 auto;
 `
@@ -90,7 +95,7 @@ const EmptyContainer = styled.div`
   }
 `
 
-const CommentsTabsContainer = styled.div`
+const CommentsTabsContainer = styled.div<{ isTitleHidden: boolean }>`
   padding: 0;
   display: flex;
   flex: 1 1 auto;
@@ -99,13 +104,14 @@ const CommentsTabsContainer = styled.div`
   overflow-y: scroll;
 `
 
-const EMPTY_CONTAINER_TEXT_STYLES: CSSProperties = { fontSize: fontSizes.content }
 const LOADER_STYLES: CSSProperties = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     margin: '8px 0 18px 0',
 }
+const COMMENT_WRAPPER_STYLES: CSSProperties = { marginBottom: '12px' }
+const GENERATE_ANSWER_BUTTON_WRAPPER_STYLES: CSSProperties = { width: 'fit-content', marginTop: '6px' }
 
 const EmptyCommentsContainer = ({ PromptTitleMessage, PromptDescriptionMessage }) => (
     <EmptyContainer>
@@ -113,10 +119,10 @@ const EmptyCommentsContainer = ({ PromptTitleMessage, PromptDescriptionMessage }
             image={null}
             description={
                 <>
-                    <Typography.Paragraph strong style={EMPTY_CONTAINER_TEXT_STYLES}>
+                    <Typography.Paragraph strong>
                         {PromptTitleMessage}
                     </Typography.Paragraph>
-                    <Typography.Paragraph type='secondary' style={EMPTY_CONTAINER_TEXT_STYLES}>
+                    <Typography.Paragraph size='medium' type='secondary'>
                         {PromptDescriptionMessage}
                     </Typography.Paragraph>
                 </>
@@ -132,6 +138,7 @@ type CommentsTabContentProps = {
     PromptDescriptionMessage: string
     editableComment: CommentWithFiles
     setEditableComment: React.Dispatch<React.SetStateAction<CommentWithFiles>>
+    handleBodyScroll: UIEventHandler<HTMLDivElement>
     bodyRef: React.RefObject<HTMLDivElement>
     sending: boolean
     generateCommentEnabled: boolean
@@ -142,6 +149,7 @@ type CommentsTabContentProps = {
 const CommentsTabContent: React.FC<CommentsTabContentProps> =
     ({
         sending,
+        handleBodyScroll,
         bodyRef,
         comments,
         updateAction,
@@ -154,10 +162,14 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> =
         generateCommentLoading,
     }) => {
         const intl = useIntl()
-        const authedContext = useAuth()
 
         const GenerateResponseMessage = intl.formatMessage({ id: 'ai.generateResponse' })
         const GenerateResponseTooltipMessage = intl.formatMessage({ id: 'ai.generateResponseWithAI' })
+
+        const lastComment = useMemo(() => comments?.[0], [comments])
+        const showGenerateAnswerButton = useMemo(() =>
+            generateCommentEnabled && lastComment?.user?.type === UserTypeType.Resident,
+        [generateCommentEnabled, lastComment?.user?.type])
 
         const commentsToRender = useMemo(() =>
             comments
@@ -177,22 +189,33 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> =
                     }
 
                     return (
-                        <Comment
-                            key={comment.id}
-                            comment={comment}
-                            deleteAction={deleteAction}
-                            setEditableComment={setEditableComment}
-                        />
+                        <div style={COMMENT_WRAPPER_STYLES} key={comment.id}>
+                            <Comment
+                                comment={comment}
+                                deleteAction={deleteAction}
+                                setEditableComment={setEditableComment}
+                            />
+                            {
+                                showGenerateAnswerButton && lastComment?.id === comment.id && (
+                                    <Tooltip placement='left' mouseEnterDelay={1.5} title={GenerateResponseTooltipMessage}>
+                                        <div style={GENERATE_ANSWER_BUTTON_WRAPPER_STYLES}>
+                                            <AIFlowButton
+                                                loading={generateCommentLoading}
+                                                onClick={generateCommentOnClickHandler}
+                                            >
+                                                {GenerateResponseMessage}
+                                            </AIFlowButton>
+                                        </div>
+                                    </Tooltip>
+                                )
+                            }
+                        </div>
                     )
-                }), [comments, editableComment, setEditableComment, updateAction])
-
-        const lastCommentIsFromAuthedUser = useMemo(() => {
-            if (comments.length === 0 || !authedContext.isAuthenticated) {
-                return false
-            }
-            const lastComment = comments[comments.length - 1]
-            return lastComment?.user?.id === authedContext.user.id
-        }, [comments])
+                }), [
+            GenerateResponseMessage, GenerateResponseTooltipMessage, comments, editableComment,
+            generateCommentLoading, generateCommentOnClickHandler, lastComment?.id, setEditableComment,
+            showGenerateAnswerButton, updateAction,
+        ])
 
         return (
             <>
@@ -202,27 +225,16 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> =
                         PromptDescriptionMessage={PromptDescriptionMessage}
                     />
                 ) : (
-                    <Body ref={bodyRef}>
-                        {commentsToRender}
+                    <Body ref={bodyRef} onScroll={handleBodyScroll}>
                         {sending && <Loader style={LOADER_STYLES}/>}
-                        {( generateCommentEnabled && !lastCommentIsFromAuthedUser ) && (
-                            <Tooltip placement='left' mouseEnterDelay={1.5} title={GenerateResponseTooltipMessage}>
-                                <div style={{ width: 'fit-content', paddingTop: '4px', paddingBottom: '24px' }}>
-                                    <AIFlowButton
-                                        loading={generateCommentLoading}
-                                        onClick={generateCommentOnClickHandler}
-                                    >
-                                        {GenerateResponseMessage}
-                                    </AIFlowButton>
-                                </div>
-                            </Tooltip>
-                        )}
+                        {commentsToRender}
                     </Body>
                 )}
             </>
         )
     }
 
+const SCROLL_TOP_OFFSET_TO_HIDE_TITLE = 50
 const NewCommentIndicator = styled.span`
   display: inline-block;
   width: 4px;
@@ -297,12 +309,23 @@ const Comments: React.FC<ICommentsListProps> = ({
     const [commentType, setCommentType] = useState(ORGANIZATION_COMMENT_TYPE)
     const [editableComment, setEditableComment] = useState<CommentWithFiles>()
     const [sending, setSending] = useState(false)
+    const [isTitleHidden, setTitleHidden] = useState<boolean>(false)
     const [isInitialUserTicketCommentReadTimeSet, setIsInitialUserTicketCommentReadTimeSet] = useState<boolean>(false)
+
+    const handleBodyScroll = useCallback((e) => {
+        const scrollTop = get(e, ['currentTarget', 'scrollTop'])
+
+        if (scrollTop > SCROLL_TOP_OFFSET_TO_HIDE_TITLE && !isTitleHidden) {
+            setTitleHidden(true)
+        } else if (scrollTop === 0 && isTitleHidden) {
+            setTitleHidden(false)
+        }
+    }, [isTitleHidden, setTitleHidden])
 
     const bodyRef = useRef(null)
     const scrollToBottom = () => {
         if (bodyRef.current) {
-            bodyRef.current.scrollTop = bodyRef.current.scrollHeight
+            bodyRef.current.scrollTop = 0
         }
     }
 
@@ -401,10 +424,6 @@ const Comments: React.FC<ICommentsListProps> = ({
         }
     }, [createOrUpdateUserTicketCommentReadTime, isInitialUserTicketCommentReadTimeSet, loadingUserTicketCommentReadTime])
 
-    useEffect(() => {
-        scrollToBottom()
-    }, [comments, commentType])
-
     const handleTabChange = useCallback(async (event) => {
         const value = event.target.value
 
@@ -474,9 +493,9 @@ const Comments: React.FC<ICommentsListProps> = ({
             return
         }
 
-        const lastComment = comments[comments.length - 1]
+        const lastComment = comments[0]
         // Last 5 comments excluding the lastComment one
-        const last5Comments = comments.slice(Math.max(comments.length - 6, 0), comments.length - 1)
+        const last5Comments = comments.slice(0, 5)
 
         const context = {
             comment: lastComment.content,
@@ -493,7 +512,7 @@ const Comments: React.FC<ICommentsListProps> = ({
 
     return (
         <Container isSmall={!breakpoints.TABLET_LARGE}>
-            <Head>{TitleMessage}</Head>
+            <Head isTitleHidden={isTitleHidden}>{TitleMessage}</Head>
             <SwitchCommentsTypeWrapper>
                 <RadioGroup optionType='button' value={commentType} onChange={handleTabChange}>
                     <Radio
@@ -523,13 +542,14 @@ const Comments: React.FC<ICommentsListProps> = ({
                     />
                 </RadioGroup>
             </SwitchCommentsTypeWrapper>
-            <CommentsTabsContainer className='card-container'>
+            <CommentsTabsContainer isTitleHidden={isTitleHidden} className='card-container'>
                 <>
                     <CommentsTabContent
                         {...commentTabContentProps}
                         editableComment={editableComment}
                         setEditableComment={setEditableComment}
                         updateAction={updateAction}
+                        handleBodyScroll={handleBodyScroll}
                         bodyRef={bodyRef}
                         sending={sending}
                         generateCommentEnabled={aiFeaturesEnabled && rewriteTicketCommentEnabled}
