@@ -54,6 +54,7 @@ const { UserSudoToken: UserSudoTokenGQL } = require('@condo/domains/user/gql')
 const { GENERATE_SUDO_TOKEN_MUTATION } = require('@condo/domains/user/gql')
 const { AUTHENTICATE_OR_REGISTER_USER_WITH_TOKEN_MUTATION } = require('@condo/domains/user/gql')
 const { ConfirmEmailAction: ConfirmEmailActionGQL } = require('@condo/domains/user/gql')
+const { CONFIRM_EMAIL_ACTION_MUTATION } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const OIDC_REDIRECT_URI = 'https://httpbin.org/anything'
@@ -673,6 +674,20 @@ async function updateTestConfirmEmailAction (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+
+async function confirmEmailActionByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(CONFIRM_EMAIL_ACTION_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -719,5 +734,6 @@ module.exports = {
     OIDC_REDIRECT_URI,
     authenticateOrRegisterUserWithTokenByTestClient,
     ConfirmEmailAction, createTestConfirmEmailAction, updateTestConfirmEmailAction,
+    confirmEmailActionByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
