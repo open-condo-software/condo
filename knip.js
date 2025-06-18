@@ -128,7 +128,7 @@ async function config () {
             ignoreDependencies: ['@graphql-codegen/typescript'],
         },
         'apps/resident-app': {
-            entry: ['domains/common/utils/sw.ts', 'domains/telegram-bot/utils/bot.js', 'domains/telegram-bot/middlewares/i18n.js'],
+            entry: ['domains/common/utils/sw.ts'],
         },
         'packages/icons': {
             ignoreDependencies: ['@svgr/plugin-svgo', '@svgr/plugin-prettier', '@svgr/plugin-jsx'],
@@ -164,6 +164,11 @@ async function config () {
         // KS app entry points
         if (isKSApp(packageJsonPath)) {
             packageConfig.entry.push('index.js', 'admin-ui/index.js', 'bin/**/*.js')
+        }
+
+        // Telegram bot packages
+        if (hasPath(packageJsonPath, './domains/**/scenes')) {
+            packageConfig.ignoreDependencies.push('telegraf', 'telegraf-i18n')
         }
 
         // Jest-specific packages
