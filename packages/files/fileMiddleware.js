@@ -70,7 +70,7 @@ class FileMiddleware {
                     }
 
                     parser.on('error', (/** @type {Error} */ error) => {
-                        exit(() => createError(500, 'unable to parse file content'), true)
+                        exit(() => createError(500, 'unable to parse file content'), response)
                     })
 
                     parser.on('file', (fieldName, stream, { filename, encoding, mimeType: mimetype }) => {
