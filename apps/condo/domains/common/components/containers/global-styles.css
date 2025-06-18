@@ -322,6 +322,10 @@
   transition: var(--condo-global-transition-duration-default);
 }
 
+.map-unit-button[ant-click-animating-without-extra-node="true"]::after {
+  display: none;
+}
+
 .map-unit-button:last-child {
   margin-right: 0;
 }
