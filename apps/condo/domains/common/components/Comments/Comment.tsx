@@ -63,7 +63,6 @@ const DeletedTextStyle = css`
 
 const CommentStyle = css`
     background: white;
-    margin-bottom: 6px;
     border-radius: 8px;
     padding: 0;
     font-size: ${fontSizes.label};

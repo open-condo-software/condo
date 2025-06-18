@@ -7,20 +7,25 @@ import {
     UpdateTicketCommentMutationHookResult,
     UpdateUserTicketCommentReadTimeMutationHookResult,
 } from '@app/condo/gql'
-import {
-    Ticket,
-    TicketComment,
-    TicketCommentFile,
-} from '@app/condo/schema'
+import { Ticket, TicketComment, TicketCommentFile, UserTypeType } from '@app/condo/schema'
 import styled from '@emotion/styled'
-import { Empty, Form, notification, Typography } from 'antd'
+import { Empty, Form, notification } from 'antd'
 import get from 'lodash/get'
-import React, { CSSProperties, UIEventHandler, MouseEventHandler, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, {
+    CSSProperties,
+    MouseEventHandler,
+    UIEventHandler,
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
-import { Radio, RadioGroup, Tooltip } from '@open-condo/ui'
+import { Radio, RadioGroup, Tooltip, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { AIFlowButton } from '@condo/domains/ai/components/AIFlowButton'
@@ -29,7 +34,6 @@ import { useAIConfig, useAIFlow } from '@condo/domains/ai/hooks/useAIFlow'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { Module } from '@condo/domains/common/components/MultipleFileUpload'
-import { fontSizes } from '@condo/domains/common/constants/style'
 import { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE } from '@condo/domains/ticket/constants'
 import { hasUnreadResidentComments } from '@condo/domains/ticket/utils/helpers'
 
@@ -100,13 +104,14 @@ const CommentsTabsContainer = styled.div<{ isTitleHidden: boolean }>`
   overflow-y: scroll;
 `
 
-const EMPTY_CONTAINER_TEXT_STYLES: CSSProperties = { fontSize: fontSizes.content }
 const LOADER_STYLES: CSSProperties = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     margin: '8px 0 18px 0',
 }
+const COMMENT_WRAPPER_STYLES: CSSProperties = { marginBottom: '12px' }
+const GENERATE_ANSWER_BUTTON_WRAPPER_STYLES: CSSProperties = { width: 'fit-content', marginTop: '6px' }
 
 const EmptyCommentsContainer = ({ PromptTitleMessage, PromptDescriptionMessage }) => (
     <EmptyContainer>
@@ -114,10 +119,10 @@ const EmptyCommentsContainer = ({ PromptTitleMessage, PromptDescriptionMessage }
             image={null}
             description={
                 <>
-                    <Typography.Paragraph strong style={EMPTY_CONTAINER_TEXT_STYLES}>
+                    <Typography.Paragraph strong>
                         {PromptTitleMessage}
                     </Typography.Paragraph>
-                    <Typography.Paragraph type='secondary' style={EMPTY_CONTAINER_TEXT_STYLES}>
+                    <Typography.Paragraph size='medium' type='secondary'>
                         {PromptDescriptionMessage}
                     </Typography.Paragraph>
                 </>
@@ -157,10 +162,14 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> =
         generateCommentLoading,
     }) => {
         const intl = useIntl()
-        const authedContext = useAuth()
 
         const GenerateResponseMessage = intl.formatMessage({ id: 'ai.generateResponse' })
         const GenerateResponseTooltipMessage = intl.formatMessage({ id: 'ai.generateResponseWithAI' })
+
+        const lastComment = useMemo(() => comments?.[0], [comments])
+        const showGenerateAnswerButton = useMemo(() =>
+            generateCommentEnabled && lastComment?.user?.type === UserTypeType.Resident,
+        [generateCommentEnabled, lastComment?.user?.type])
 
         const commentsToRender = useMemo(() =>
             comments
@@ -180,22 +189,33 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> =
                     }
 
                     return (
-                        <Comment
-                            key={comment.id}
-                            comment={comment}
-                            deleteAction={deleteAction}
-                            setEditableComment={setEditableComment}
-                        />
+                        <div style={COMMENT_WRAPPER_STYLES} key={comment.id}>
+                            <Comment
+                                comment={comment}
+                                deleteAction={deleteAction}
+                                setEditableComment={setEditableComment}
+                            />
+                            {
+                                showGenerateAnswerButton && lastComment?.id === comment.id && (
+                                    <Tooltip placement='left' mouseEnterDelay={1.5} title={GenerateResponseTooltipMessage}>
+                                        <div style={GENERATE_ANSWER_BUTTON_WRAPPER_STYLES}>
+                                            <AIFlowButton
+                                                loading={generateCommentLoading}
+                                                onClick={generateCommentOnClickHandler}
+                                            >
+                                                {GenerateResponseMessage}
+                                            </AIFlowButton>
+                                        </div>
+                                    </Tooltip>
+                                )
+                            }
+                        </div>
                     )
-                }), [comments, editableComment, setEditableComment, updateAction])
-
-        const lastCommentIsFromAuthedUser = useMemo(() => {
-            if (comments.length === 0 || !authedContext.isAuthenticated) {
-                return false
-            }
-            const lastComment = comments[comments.length - 1]
-            return lastComment?.user?.id === authedContext.user.id
-        }, [comments])
+                }), [
+            GenerateResponseMessage, GenerateResponseTooltipMessage, comments, editableComment,
+            generateCommentLoading, generateCommentOnClickHandler, lastComment?.id, setEditableComment,
+            showGenerateAnswerButton, updateAction,
+        ])
 
         return (
             <>
@@ -206,20 +226,8 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> =
                     />
                 ) : (
                     <Body ref={bodyRef} onScroll={handleBodyScroll}>
-                        {commentsToRender}
                         {sending && <Loader style={LOADER_STYLES}/>}
-                        {( generateCommentEnabled && !lastCommentIsFromAuthedUser ) && (
-                            <Tooltip placement='left' mouseEnterDelay={1.5} title={GenerateResponseTooltipMessage}>
-                                <div style={{ width: 'fit-content', paddingTop: '4px', paddingBottom: '24px' }}>
-                                    <AIFlowButton
-                                        loading={generateCommentLoading}
-                                        onClick={generateCommentOnClickHandler}
-                                    >
-                                        {GenerateResponseMessage}
-                                    </AIFlowButton>
-                                </div>
-                            </Tooltip>
-                        )}
+                        {commentsToRender}
                     </Body>
                 )}
             </>
