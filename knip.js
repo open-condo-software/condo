@@ -167,7 +167,7 @@ async function config () {
         }
 
         // Telegram bot packages
-        if (hasPath(packageJsonPath, './domains/**/scenes')) {
+        if (hasPath(packageJsonPath, './domains/*/scenes')) {
             packageConfig.ignoreDependencies.push('telegraf', 'telegraf-i18n')
         }
 
