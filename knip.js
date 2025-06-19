@@ -166,6 +166,11 @@ async function config () {
             packageConfig.entry.push('index.js', 'admin-ui/index.js', 'bin/**/*.js')
         }
 
+        // Telegram bot packages
+        if (hasPath(packageJsonPath, './domains/*/scenes')) {
+            packageConfig.ignoreDependencies.push('telegraf', 'telegraf-i18n')
+        }
+
         // Jest-specific packages
         if (hasDependency(packageJsonPath, 'jest')) {
             if (hasPath(packageJsonPath, 'jest.config.js') && hasDependency(packageJsonPath, 'jest-jasmine2')) {
