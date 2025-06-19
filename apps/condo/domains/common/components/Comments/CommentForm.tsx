@@ -1,9 +1,12 @@
 import styled from '@emotion/styled'
 import { Col, Form, FormInstance, Input, Row, Typography } from 'antd'
+import cookie from 'js-cookie'
 import get from 'lodash/get'
-import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Tour } from '@open-condo/ui'
+
 
 import { Button } from '@condo/domains/common/components/Button'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
@@ -15,6 +18,7 @@ import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { getIconByMimetype } from '@condo/domains/common/utils/clientSchema/files'
 import { MAX_COMMENT_LENGTH } from '@condo/domains/ticket/constants'
+
 
 import { CommentWithFiles } from './index'
 
@@ -51,6 +55,8 @@ const ENTER_KEY_CODE = 13
 const COMMENT_HELPERS_ROW_STYLES: CSSProperties = { padding: '0 8px 8px 8px' }
 const INPUT_WITH_COUNTER_AUTOSIZE_CONFIG = { minRows: 1, maxRows: 6 }
 const EMPTY_FILLER_STYLE: CSSProperties = { height: 5 }
+
+const GENERATE_COMMENT_TOUR_STEP_CLOSED_COOKIE = 'generateCommentTipClosed'
 
 const CommentHelperWrapper = styled(Col)`
   background-color: ${colors.textSecondary};
@@ -176,6 +182,14 @@ const CommentForm: React.FC<ICommentFormProps> = ({
     }), [fieldName, initialValue])
 
     const showHelperMessage = useMemo(() => commentLength > 0 || (editableComment && !sending), [commentLength, editableComment, sending])
+
+    const { currentStep, setCurrentStep } = Tour.useTourContext()
+    useMemo(() => {
+        if (commentLength > 0 || filesCount > 0 && currentStep === 1) {
+            cookie.set(GENERATE_COMMENT_TOUR_STEP_CLOSED_COOKIE, true)
+            setCurrentStep(0)
+        }
+    }, [commentLength, currentStep, filesCount, setCurrentStep])
 
     return (
         <FormWithAction
