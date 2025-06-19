@@ -6,9 +6,9 @@ import { OptGroup, Option, SELECT_CLASS_PREFIX } from '../select'
 
 import type { OptionsItem } from '../select'
 
-type UseItems = (items?: Array<OptionsItem>) => null | Array<null | JSX.Element>
+type UseItems = (items?: Array<OptionsItem>, selectId?: string) => null | Array<null | JSX.Element>
 
-const convertOptions = (items: Array<OptionsItem>) => {
+const convertOptions = (items: Array<OptionsItem>, selectId?: string, groupKey?: React.Key) => {
     if (items.length < 1) return null
 
     return items
@@ -16,7 +16,7 @@ const convertOptions = (items: Array<OptionsItem>) => {
             if (item === null) return null
 
             const { key } = item
-            const mergedKey = key || index
+            const mergedKey = groupKey ? `${groupKey}__${key || index}` : (key || index)
             const isOptionsGroup = item.options !== undefined
 
             if (isOptionsGroup) {
@@ -25,7 +25,7 @@ const convertOptions = (items: Array<OptionsItem>) => {
 
                 return (
                     <OptGroup key={mergedKey} label={label}>
-                        {convertOptions(options)}
+                        {convertOptions(options, selectId, mergedKey)}
                     </OptGroup>
                 )
             } else {
@@ -38,6 +38,7 @@ const convertOptions = (items: Array<OptionsItem>) => {
 
                 return (
                     <Option
+                        id={selectId && `${selectId}__${mergedKey}`}
                         key={mergedKey}
                         value={value}
                         disabled={disabled}
@@ -52,10 +53,10 @@ const convertOptions = (items: Array<OptionsItem>) => {
         .filter(Boolean)
 }
 
-export const useItems: UseItems = (items) => {
+export const useItems: UseItems = (items, selectId) => {
     return useMemo(() => {
         if (!items || items.length < 1) return null
 
-        return convertOptions(items)
-    }, [items])
+        return convertOptions(items, selectId)
+    }, [items, selectId])
 }
