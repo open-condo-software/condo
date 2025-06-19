@@ -230,7 +230,7 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> =
 
         const { currentStep, setCurrentStep } = Tour.useTourContext()
 
-        useMemo(() => {
+        useEffect(() => {
             const isTipHidden = cookie.get(GENERATE_COMMENT_TOUR_STEP_CLOSED_COOKIE) || false
             setCurrentStep(isTipHidden ? 0 : 1)
         }, [setCurrentStep])

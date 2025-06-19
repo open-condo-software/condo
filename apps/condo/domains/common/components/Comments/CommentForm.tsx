@@ -184,7 +184,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
     const showHelperMessage = useMemo(() => commentLength > 0 || (editableComment && !sending), [commentLength, editableComment, sending])
 
     const { currentStep, setCurrentStep } = Tour.useTourContext()
-    useMemo(() => {
+    useEffect(() => {
         if (commentLength > 0 || filesCount > 0 && currentStep === 1) {
             cookie.set(GENERATE_COMMENT_TOUR_STEP_CLOSED_COOKIE, true)
             setCurrentStep(0)
