@@ -65,6 +65,12 @@ const FLOW_META_SCHEMAS = {
                 ticketAddress: { type: 'string' },
                 ticketStatusName: { type: 'string' },
                 ticketLastComments: { type: 'string' },
+                ticketUnitName: { type: 'string' },
+                ticketUnitType: { type: 'string' },
+                ticketFloorName: { type: 'string' },
+                ticketSectionName: { type: 'string' },
+                currentDateTime: { type: 'string' },
+                // actualIncidents: { type: 'string' },
             },
         },
         output: {

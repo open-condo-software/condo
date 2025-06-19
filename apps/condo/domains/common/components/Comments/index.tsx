@@ -10,6 +10,7 @@ import {
 import { Ticket, TicketComment, TicketCommentFile, UserTypeType } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Empty, Form, notification } from 'antd'
+import dayjs from 'dayjs'
 import cookie from 'js-cookie'
 import get from 'lodash/get'
 import pickBy from 'lodash/pickBy'
@@ -528,6 +529,10 @@ const Comments: React.FC<ICommentsListProps> = ({
             ticketDetails: ticket.details || '-',
             ticketAddress: ticket.propertyAddress || '-',
             ticketStatusName: ticket.status.name,
+            ticketUnitName: ticket.unitName || '-',
+            ticketUnitType: ticket.unitType ? intl.formatMessage({ id: `field.UnitType.${ticket.unitType}` }) : '-',
+            ticketFloorName: ticket.floorName,
+            ticketSectionName: ticket.sectionName,
         },
     })
 
@@ -543,11 +548,13 @@ const Comments: React.FC<ICommentsListProps> = ({
         const lastComment = comments?.[0]
         // Last 5 comments excluding the lastComment one
         const last5Comments = comments?.slice(0, 5)
+        const currentDateTime = dayjs().format()
 
         const context = pickBy({
             answer: commentForm.getFieldValue('content') || '',
             comment: lastComment?.content,
             ticketLastComments: last5Comments?.map(comment => `${comment.user.name}: ${comment.content}`).join('\n'),
+            currentDateTime,
         })
 
         const result = await runGenerateCommentAIFlow({ context })
