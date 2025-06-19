@@ -4,6 +4,7 @@ const { createInstance } = require('@open-condo/clients/pullenti-client')
 
 const { PULLENTI_PROVIDER } = require('@address-service/domains/common/constants/providers')
 const { getXmlParser, normalize } = require('@address-service/domains/common/utils/services/utils/pullenti/normalizer')
+const { maybeBoostQueryWithTin } = require('@address-service/domains/common/utils/services/utils/pullenti/queryBooster')
 
 const { AbstractSuggestionProvider } = require('./AbstractSuggestionProvider')
 
@@ -17,7 +18,7 @@ class PullentiSuggestionProvider extends AbstractSuggestionProvider {
     constructor (args) {
         super(args)
 
-        this.client = createInstance()
+        this.pullentiClient = createInstance()
         this.xmlParser = getXmlParser()
     }
 
@@ -26,7 +27,13 @@ class PullentiSuggestionProvider extends AbstractSuggestionProvider {
     }
 
     async get ({ query, context = '', count = SEARCH_COEF_THRESHOLD, helpers = {} }) {
-        const xmlResult = await this.client.searchByText(query, { count: count || DEFAULT_COUNT })
+        const { tin = null } = helpers
+
+        if (tin) {
+            query = await maybeBoostQueryWithTin(query, tin, this.req)
+        }
+
+        const xmlResult = await this.pullentiClient.searchByText(query, { count: count || DEFAULT_COUNT })
         const jsonResult = this.xmlParser.parse(xmlResult)
         if (!jsonResult?.searchresult?.gar) {
             return []
@@ -36,7 +43,7 @@ class PullentiSuggestionProvider extends AbstractSuggestionProvider {
         gars = Array.isArray(gars) ? gars : [gars]
 
         const xmlResults = await Promise.all(gars.map((gar) => {
-            return gar && gar.path ? this.client.searchByAddress(gar.path) : null
+            return gar && gar.path ? this.pullentiClient.searchByAddress(gar.path) : null
         }))
 
         return xmlResults

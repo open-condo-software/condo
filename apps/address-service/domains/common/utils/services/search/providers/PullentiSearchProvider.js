@@ -1,10 +1,11 @@
 const get = require('lodash/get')
 
+const { createInstance } = require('@open-condo/clients/pullenti-client')
 const conf = require('@open-condo/config')
-const { fetch } = require('@open-condo/keystone/fetch')
 
 const { PULLENTI_PROVIDER } = require('@address-service/domains/common/constants/providers')
 const { normalize } = require('@address-service/domains/common/utils/services/utils/pullenti/normalizer')
+const { maybeBoostQueryWithTin } = require('@address-service/domains/common/utils/services/utils/pullenti/queryBooster')
 
 const { AbstractSearchProvider } = require('./AbstractSearchProvider')
 
@@ -35,6 +36,7 @@ class PullentiSearchProvider extends AbstractSearchProvider {
         }
 
         this.url = url
+        this.pullentiClient = createInstance()
     }
 
     getProviderName () {
@@ -45,16 +47,13 @@ class PullentiSearchProvider extends AbstractSearchProvider {
      * @returns {Promise<string|null>}
      */
     async get ({ query, context = '', helpers = {} }) {
-        const response = await fetch(`${this.url}`, {
-            method: 'POST',
-            body: `<ProcessSingleAddressText>${query}</ProcessSingleAddressText>`,
-        })
+        const { tin = null } = helpers
 
-        if (response.ok) {
-            return await response.text()
+        if (tin) {
+            query = await maybeBoostQueryWithTin(query, tin, this.req)
         }
 
-        return null
+        return await this.pullentiClient.searchByAddress(query)
     }
 
     /**
