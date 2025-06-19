@@ -45,9 +45,9 @@ describe('streetResolver', () => {
 
             expect(resolveStreet(streetLevel)).toEqual({
                 street: 'Невский',
-                street_type: 'просп',
+                street_type: 'пр-кт',
                 street_type_full: 'проспект',
-                street_with_type: 'просп Невский',
+                street_with_type: 'пр-кт Невский',
                 street_fias_id: null,
                 street_kladr_id: null,
             })
@@ -66,9 +66,9 @@ describe('streetResolver', () => {
 
             expect(resolveStreet(streetLevel)).toEqual({
                 street: 'Ленинский',
-                street_type: 'просп',
+                street_type: 'пр-кт',
                 street_type_full: 'проспект',
-                street_with_type: 'просп Ленинский',
+                street_with_type: 'пр-кт Ленинский',
                 street_fias_id: null,
                 street_kladr_id: null,
             })
