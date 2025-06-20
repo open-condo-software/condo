@@ -104,17 +104,18 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplic
     const isUnitUnique = useMemo(() => {
         let isUnitLabelUnique = true
         const selectedUnit = builder.getSelectedUnits()[0]
+        const trimmedLabel = label?.trim()
         if (ADD_UNIT_MODS.includes(mode)) {
-            isUnitLabelUnique = builder.validateInputUnitLabel(selectedUnit, label, unitType)
+            isUnitLabelUnique = builder.validateInputUnitLabel(selectedUnit, trimmedLabel, unitType)
             setDuplicatedUnitIds(builder.duplicatedUnits)
         } else if (EDIT_UNIT_MODS.includes(mode)) {
             if (!selectedUnit) {
                 return false
             }
-            isUnitLabelUnique = builder.validateInputUnitLabel(selectedUnit, label, unitType)
+            isUnitLabelUnique = builder.validateInputUnitLabel(selectedUnit, trimmedLabel, unitType)
             setDuplicatedUnitIds(builder.duplicatedUnits)
         }
-        const isUniqueCondition = floor && section && label.trim() && isUnitLabelUnique
+        const isUniqueCondition = floor && section && trimmedLabel && isUnitLabelUnique
         !isUnitLabelUnique && setIsValidationErrorVisible(true)
         return isUniqueCondition
     }, [builder, mode, floor, section, label, unitType, setDuplicatedUnitIds])
@@ -122,11 +123,12 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplic
     const applyChanges = useCallback(() => {
         if (isUnitUnique) {
             const mapUnit = builder.getSelectedUnits()[0]
+            const trimmedLabel = label?.trim()
             if (mapUnit) {
-                builder.updateUnit({ ...mapUnit, label, floor, section, unitType }, renameNextUnits.current)
+                builder.updateUnit({ ...mapUnit, label: trimmedLabel, floor, section, unitType }, renameNextUnits.current)
             } else {
                 builder.removePreviewUnit()
-                builder.addUnit({ id: '', label, floor, section, unitType }, renameNextUnits.current)
+                builder.addUnit({ id: '', label: trimmedLabel, floor, section, unitType }, renameNextUnits.current)
                 resetForm()
             }
             refresh()
