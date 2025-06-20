@@ -33,7 +33,7 @@ interface IGetOptionGroupBySectionType {
 }
 
 export type UnitNameInputOption = LabeledValue & { 'data-unitType': BuildingUnitSubType, 'data-unitName': string }
-const BASE_UNIT_NAME_INPUT_OPTION_STYLE: React.CSSProperties = { paddingLeft: '12px' }
+const BASE_UNIT_NAME_INPUT_OPTION_STYLE: React.CSSProperties = { paddingLeft: '24px' }
 
 const getUnitsBySectionAndFloor = (selectedSectionName, selectedFloorName, sections: BuildingSection[]) => {
     if (!isEmpty(selectedSectionName) && !isEmpty(selectedFloorName)) {
@@ -60,9 +60,12 @@ const getAllSectionsUnits = (sections) => {
     return flattenDeep(unflattenUnits)
 }
 
-const getOptionGroupBySectionType: React.FC<IGetOptionGroupBySectionType> = (props) => {
-    const { units, unitType, groupLabel } = props
-    if (!units) return
+const getOptionGroupBySectionType = (
+    groupLabel: string,
+    units: BuildingUnit[],
+    unitType: BuildingUnitSubType,
+) => {
+    if (!units) return []
 
     const filteredUnits = units.filter((unit) => {
         if (unitType === BuildingUnitSubType.Flat) {
@@ -71,40 +74,33 @@ const getOptionGroupBySectionType: React.FC<IGetOptionGroupBySectionType> = (pro
         return unit.unitType === unitType
     })
 
-    const sortedUnits = filteredUnits.sort((unitNameA, unitNameB) => String(unitNameA.label).localeCompare(String(unitNameB.label), 'en', { numeric: true, ignorePunctuation: true }))
-
-    const options = sortedUnits.map(
-        (unit) => (
-            <Select.Option
-                key={`${unitType}-${unit.label}`}
-                value={`${unitType}-${unit.label}`}
-                data-unitType={unitType}
-                data-unitName={String(unit.label)}
-                title={String(unit.label)}
-                data-cy='user__unit-name-input-option'
-                style={BASE_UNIT_NAME_INPUT_OPTION_STYLE}
-            >
-                {unit.label}
-            </Select.Option>
-        )
+    const sortedUnits = filteredUnits.sort((a, b) =>
+        String(a.label).localeCompare(String(b.label), 'en', { numeric: true, ignorePunctuation: true })
     )
 
-    return !isEmpty(options) && (
-        <Select.OptGroup label={groupLabel}>
-            {options}
-        </Select.OptGroup>
-    )
+    return sortedUnits.map((unit) => ({
+        key: `${groupLabel}-${unitType}-${unit.label}`,
+        label: unit.label,
+        value: `${unitType}-${unit.label}`,
+        title: String(unit.label),
+        style: BASE_UNIT_NAME_INPUT_OPTION_STYLE,
+        'data-unitType': unitType,
+        'data-unitName': String(unit.label),
+        'data-cy': 'user__unit-name-input-option',
+    }))
 }
 
 export const BaseUnitNameInput: React.FC<IUnitNameInputProps> = (props) => {
     const intl = useIntl()
     const FlatGroupLabel = intl.formatMessage({ id: 'pages.condo.ticket.select.group.flat' })
-    const ParkingGroupLabel = intl.formatMessage({ id: 'pages.condo.ticket.select.group.parking' })
+    const ParkingGroupLabel = intl.formatMessage({ id: 'field.UnitType.act.parking' })
     const WarehouseGroupLabel = intl.formatMessage({ id: 'pages.condo.ticket.select.group.warehouse' })
     const CommercialGroupLabel = intl.formatMessage({ id: 'pages.condo.ticket.select.group.commercial' })
     const ApartmentGroupLabel = intl.formatMessage({ id: 'pages.condo.ticket.select.group.apartment' })
     const NotFoundMessage = intl.formatMessage({ id: 'field.UnitName.notFound' })
     const NotFoundLinkMessage = intl.formatMessage({ id: 'field.UnitName.notFound.link' })
+    const SectionLabel = intl.formatMessage({ id: 'pages.condo.property.select.option.residentialBuilding' })
+    const ParkingLabel = intl.formatMessage({ id: 'pages.condo.property.select.option.parking' })
 
     const {
         placeholder,
@@ -144,6 +140,59 @@ export const BaseUnitNameInput: React.FC<IUnitNameInputProps> = (props) => {
         </Space>
     ), [NotFoundLinkMessage, NotFoundMessage, property, showUnitNotFoundLink])
 
+    const unitOptions = useMemo(() => {
+        const optionGroups = []
+
+        const sectionUnits = getUnits(sections)
+        const parkingUnits = getUnits(parking)
+
+        const sectionSubGroups = [
+            { unitType: BuildingUnitSubType.Flat, label: FlatGroupLabel },
+            { unitType: BuildingUnitSubType.Apartment, label: ApartmentGroupLabel },
+            { unitType: BuildingUnitSubType.Warehouse, label: WarehouseGroupLabel },
+            { unitType: BuildingUnitSubType.Commercial, label: CommercialGroupLabel },
+        ]
+
+        const parkingSubGroups = [
+            { unitType: BuildingUnitSubType.Parking, label: ParkingGroupLabel },
+            { unitType: BuildingUnitSubType.Warehouse, label: WarehouseGroupLabel },
+            { unitType: BuildingUnitSubType.Commercial, label: CommercialGroupLabel },
+        ]
+
+        const buildGroup = (sectionLabel: string, units: BuildingUnit[], unitTypeGroups: { unitType: BuildingUnitSubType, label: string }[]) => {
+            const options = []
+
+            for (const { unitType, label: unitTypeLabel } of unitTypeGroups) {
+                const unitOptions = getOptionGroupBySectionType(sectionLabel, units, unitType)
+
+                if (!isEmpty(unitOptions)) {
+                    options.push({
+                        label: unitTypeLabel,
+                        disabled: true,
+                        key: `label-${sectionLabel}-${unitType}-${unitTypeLabel}`,
+                        className: 'category-option',
+                    })
+                    options.push(...unitOptions)
+                }
+            }
+
+            if (!isEmpty(options)) {
+                optionGroups.push({
+                    label: sectionLabel,
+                    options,
+                })
+            }
+        }
+
+        buildGroup(SectionLabel, sectionUnits, sectionSubGroups)
+        buildGroup(ParkingLabel, parkingUnits, parkingSubGroups)
+
+        return optionGroups
+    }, [
+        getUnits, sections, parking, FlatGroupLabel, ApartmentGroupLabel, WarehouseGroupLabel,
+        CommercialGroupLabel, ParkingGroupLabel, SectionLabel, ParkingLabel,
+    ])
+
     return (
         <Select
             mode={multiple ? 'multiple' : undefined}
@@ -154,24 +203,9 @@ export const BaseUnitNameInput: React.FC<IUnitNameInputProps> = (props) => {
             loading={loading}
             disabled={disabled}
             notFoundContent={notFoundContent}
+            options={unitOptions}
             {...restInputProps}
-        >
-            {getOptionGroupBySectionType({
-                units: getUnits(sections), unitType: BuildingUnitSubType.Flat, groupLabel: FlatGroupLabel,
-            })}
-            {getOptionGroupBySectionType({
-                units: getUnits(sections), unitType: BuildingUnitSubType.Apartment, groupLabel: ApartmentGroupLabel,
-            })}
-            {getOptionGroupBySectionType({
-                units: getUnits(parking), unitType: BuildingUnitSubType.Parking, groupLabel: ParkingGroupLabel,
-            })}
-            {getOptionGroupBySectionType({
-                units: getUnits(sections), unitType: BuildingUnitSubType.Warehouse, groupLabel: WarehouseGroupLabel,
-            })}
-            {getOptionGroupBySectionType({
-                units: getUnits(sections), unitType: BuildingUnitSubType.Commercial, groupLabel: CommercialGroupLabel,
-            })}
-        </Select>
+        />
     )
 }
 

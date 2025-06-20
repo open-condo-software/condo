@@ -249,3 +249,166 @@
 .condo-btn.condo-btn-sbbol:active .condo-btn-icon svg path {
   fill: var(--condo-global-color-green-7);
 }
+
+/* Property map */
+.add-element-dropdown > .condo-dropdown-menu {
+  max-height: 100vh;
+}
+
+.add-element-dropdown > .condo-dropdown-menu .condo-dropdown-menu-title-content > .condo-space {
+  align-items: center;
+}
+
+.map-edit-address-container .condo-select > .condo-select-selector {
+  background-color: transparent;
+}
+
+.property-map-container {
+  width: 100%;
+  height: 100%;
+  text-align: center;
+}
+
+.property-map-scroll-holder {
+  position: static;
+  padding-bottom: 10px;
+  white-space: nowrap;
+}
+
+.property-map-scroll-container {
+  width: 100%;
+  padding-bottom: 20px;
+  overflow-y: hidden;
+}
+
+.unit-button-tooltip-wrapper {
+  display: inline-flex;
+  margin-right: 8px;
+}
+
+.property-map-floor-container {
+  display: block;
+}
+
+.property-map-unit-type-row {
+  padding-left: 8px;
+}
+
+.property-map-fullscreen-header {
+  align-items: center;
+  margin-bottom: 28px;
+}
+
+.unit-name-error .condo-input-affix-wrapper,
+.unit-name-error .condo-input-affix-wrapper:hover,
+.unit-name-error .condo-input-affix-wrapper:focus {
+  border-color: var(--condo-global-color-red-5);
+}
+
+.unit-name-error .condo-typography-primary {
+  color: var(--condo-global-color-red-5);
+}
+
+.map-unit-button {
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  margin-top: 8px;
+  margin-right: 8px;
+  padding: 0 8px;
+  color: var(--condo-global-color-black);
+  background-color: var(--condo-global-color-white);
+  border: 1px solid var(--condo-global-color-gray-1);
+  transition: var(--condo-global-transition-duration-default);
+}
+
+.map-unit-button[ant-click-animating-without-extra-node="true"]::after {
+  display: none;
+}
+
+.map-unit-button:last-child {
+  margin-right: 0;
+}
+
+.map-unit-button:focus,
+.map-unit-button:hover {
+  color: var(--condo-global-color-black);
+  border-color: var(--condo-global-color-gray-7);
+}
+
+.map-unit-button:disabled,
+.map-unit-button:disabled:hover {
+  color: black;
+  background-color: var(--condo-global-color-white);
+  border: transparent;
+  cursor: default;
+  pointer-events: none;
+}
+
+.condo-btn.map-unit-button-section {
+  background-color: transparent;
+  border-color: var(--condo-global-color-gray-5);
+}
+
+.map-unit-button-section:hover,
+.map-unit-button-section:focus {
+  background-color: transparent;
+  border-color: var(--condo-global-color-gray-7);
+}
+
+.map-unit-button.map-unit-button-floor {
+  display: block;
+  background-color: transparent;
+  border: none;
+}
+
+.condo-btn.map-unit-button.map-unit-button-section > .condo-btn-text,
+.condo-btn.map-unit-button.map-unit-button-floor > .condo-btn-text {
+  font-size: 14px;
+}
+
+.condo-btn.map-unit-button.map-unit-button-selected {
+  background: var(--condo-global-color-brand-gradient-1);
+  border-color: var(--condo-global-color-green-5);
+}
+
+.condo-btn.map-unit-button > .condo-btn-text:hover,
+.condo-btn.map-unit-button > .condo-btn-text:focus {
+  background: none;
+}
+
+.condo-btn.map-unit-button.map-unit-button-selected > .condo-btn-text,
+.condo-btn.map-unit-button.map-unit-button-selected:hover > .condo-btn-text,
+.condo-btn.map-unit-button.map-unit-button-selected:focus > .condo-btn-text {
+  color: var(--condo-global-color-green-7);
+}
+
+.map-preview-unit-button {
+  opacity: 0.5;
+}
+
+.condo-btn.map-unit-button.map-duplicate-unit-button {
+  background-color: var(--condo-global-color-red-5);
+}
+
+.map-unit-button.map-flat-unit-button,
+.map-unit-button.map-flat-unit-button:hover,
+.map-unit-button.map-parking-unit-button,
+.map-unit-button.map-parking-unit-button:hover {
+  background-color: var(--condo-global-color-white);
+}
+
+.map-unit-button.map-apartment-unit-button,
+.map-unit-button.map-apartment-unit-button:hover {
+  background-color: #cbe2f6;
+}
+
+.map-unit-button.map-warehouse-unit-button,
+.map-unit-button.map-warehouse-unit-button:hover {
+  background-color: #f086334d;
+}
+
+.map-unit-button.map-commercial-unit-button,
+.map-unit-button.map-commercial-unit-button:hover {
+  background-color: #eb34684d;
+}

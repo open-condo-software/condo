@@ -50,7 +50,7 @@
                                             },
                                             "name": {
                                                 "title": "name",
-                                                "type": "string"
+                                                "type": ["string", "null"]
                                             },
                                             "type": {
                                                 "enum": [
@@ -167,7 +167,7 @@
                                             },
                                             "name": {
                                                 "title": "name",
-                                                "type": "string"
+                                                "type": ["string", "null"]
                                             },
                                             "type": {
                                                 "enum": [
@@ -178,7 +178,9 @@
                                             },
                                             "unitType": {
                                                 "enum": [
-                                                    "parking"
+                                                    "parking",
+                                                    "commercial",
+                                                    "warehouse"
                                                 ],
                                                 "title": "unitType",
                                                 "type": "string"

@@ -157,21 +157,45 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
 
     const { requiredValidator } = useValidations()
 
+    const setUnitFormFields = useCallback(({ unitFromSections, unitName, unitType, sectionType }) => {
+        if (setSelectedUnitType) setSelectedUnitType(unitType)
+        if (setSelectedSectionType) setSelectedSectionType(sectionType)
+        return form.setFieldsValue({
+            sectionName: unitFromSections.sectionName,
+            sectionType,
+            floorName: unitFromSections.floorName,
+            unitType,
+            unitName,
+        })
+    }, [form, setSelectedSectionType, setSelectedUnitType])
+
     const updateSectionAndFloor = useCallback((form, unitName: string, unitType = BuildingUnitSubType.Flat) => {
         if (unitName) {
-            const unitDestination = unitType === BuildingUnitSubType.Parking ? 'parking' : 'sections'
-            const sectionType = unitType === BuildingUnitSubType.Parking ? PARKING_SECTION_TYPE : SECTION_SECTION_TYPE
-            const sections = get(property, ['map', unitDestination], [])
-            const { sectionName, floorName } = getSectionAndFloorByUnit(unitName, sections, unitType)
+            const sections = property?.map?.sections || []
+            const unitFromSections = getSectionAndFloorByUnit(unitName, sections, unitType)
+            if (unitFromSections.sectionName && unitFromSections.floorName) {
+                return setUnitFormFields({
+                    unitFromSections,
+                    unitName,
+                    unitType,
+                    sectionType: SECTION_SECTION_TYPE,
+                })
+            }
 
-            if (setSelectedUnitType) setSelectedUnitType(unitType)
-            if (setSelectedSectionType) setSelectedSectionType(sectionType)
-
-            return form.setFieldsValue({ sectionName, sectionType, floorName, unitType, unitName })
+            const parking = property?.map?.parking || []
+            const unitFromParking = getSectionAndFloorByUnit(unitName, parking, unitType)
+            if (unitFromParking.sectionName && unitFromParking.floorName) {
+                return setUnitFormFields({
+                    unitFromSections: unitFromParking,
+                    unitName,
+                    unitType,
+                    sectionType: PARKING_SECTION_TYPE,
+                })
+            }
         }
 
         form.setFieldsValue({ sectionName: null, sectionType: null, floorName: null, unitType: null })
-    }, [property, setSelectedSectionType, setSelectedUnitName, setSelectedUnitType])
+    }, [property?.map?.parking, property?.map?.sections, setUnitFormFields])
 
     useDeepCompareEffect(() => {
         const initialUnitName = get(initialValues, 'unitName')

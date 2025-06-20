@@ -1,43 +1,29 @@
 /** @jsx jsx */
-import { CloseOutlined } from '@ant-design/icons'
-import { BuildingMap, BuildingSection, BuildingUnit, BuildingUnitSubType, Property as PropertyType } from '@app/condo/schema'
+import { BuildingMap, BuildingSection, BuildingUnit, Property as PropertyType } from '@app/condo/schema'
 import { css, jsx } from '@emotion/react'
 import styled from '@emotion/styled'
-import {
-    Col,
-    notification,
-    Row,
-    RowProps,
-    Space,
-    Typography,
-} from 'antd'
+import { Col, notification, Row, RowProps, Space } from 'antd'
 import cloneDeep from 'lodash/cloneDeep'
 import debounce from 'lodash/debounce'
 import get from 'lodash/get'
-import isEmpty from 'lodash/isEmpty'
-import isFunction from 'lodash/isFunction'
 import isNull from 'lodash/isNull'
-import last from 'lodash/last'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import ScrollContainer from 'react-indiana-drag-scroll'
 
+import { Close } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
-import { Button, Tour } from '@open-condo/ui'
+import { Button, Select, Tour, Typography } from '@open-condo/ui'
 
-import Select from '@condo/domains/common/components/antd/Select'
 import { Button as OldButton } from '@condo/domains/common/components/Button'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { colors, fontSizes, shadows } from '@condo/domains/common/constants/style'
 import { IPropertyMapFormProps } from '@condo/domains/property/components/BasePropertyMapForm'
-import { AddSectionFloor } from '@condo/domains/property/components/panels/Builder/forms/FloorForm'
-import { AddParkingForm, EditParkingForm } from '@condo/domains/property/components/panels/Builder/forms/ParkingForm'
-import { ParkingUnitForm } from '@condo/domains/property/components/panels/Builder/forms/ParkingUnitForm'
+import { EditUnitsForm } from '@condo/domains/property/components/panels/Builder/forms/EditUnitsForm'
 import { AddSectionForm, EditSectionForm } from '@condo/domains/property/components/panels/Builder/forms/SectionForm'
 import { UnitForm } from '@condo/domains/property/components/panels/Builder/forms/UnitForm'
-import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
 import { MIN_SECTIONS_TO_SHOW_FILTER } from '@condo/domains/property/constants/property'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
@@ -52,41 +38,17 @@ import {
     PropertyMapFloor,
     UnitTypeLegendItem,
 } from './BuildingPanelCommon'
+import { AddSectionFloorForm } from './forms/SectionFloorForm'
 import { FullscreenHeader, FullscreenWrapper } from './Fullscreen'
 import { MapEdit, MapEditMode, MapViewMode } from './MapConstructor'
+import { UnitButton } from './UnitButton'
 
 
 const DEBOUNCE_TIMEOUT = 800
-const INSTANT_ACTIONS = ['addBasement', 'addAttic']
 
 const TopRowCss = css`
   margin-top: 12px;
   position: relative;
-  
-  & .ant-select.ant-select-single .ant-select-selector {
-    background-color: transparent;
-    color: black;
-    font-weight: 600;
-    height: 48px;
-  }
-  & .ant-select.ant-select-single .ant-select-selection-search-input,
-  & .ant-select.ant-select-single .ant-select-selector .ant-select-selection-item {
-    height: 48px;
-    line-height: 48px;
-  }
-  & .ant-select.ant-select-single .ant-select-arrow {
-    color: black;
-  }
-  
-  & .ant-select.ant-select-single.ant-select-open .ant-select-selector {
-    background-color: black;
-    color: white;
-    border-color: transparent;
-  }
-  & .ant-select.ant-select-single.ant-select-open .ant-select-selection-item,
-  & .ant-select.ant-select-single.ant-select-open .ant-select-arrow {
-    color: white;
-  }
 `
 
 interface ITopModalProps {
@@ -130,7 +92,6 @@ interface IBuildingPanelEditProps extends Pick<IPropertyMapFormProps, 'canManage
     updateMap: (map: BuildingMap) => void
     handleSave(): void
     property?: PropertyType
-    mapValidationError?: string
 }
 
 interface IBuildingPanelTopModalProps {
@@ -138,20 +99,19 @@ interface IBuildingPanelTopModalProps {
     title: string | null
     onClose: () => void
 }
-const BUILDING_TOP_MODAL_TITLE_STYLE: React.CSSProperties = { fontWeight: 700 }
 
 const BuildingPanelTopModal: React.FC<IBuildingPanelTopModalProps> = ({ visible, onClose, title, children }) => (
     <TopModal visible={visible}>
         <Row justify='space-between' align='top'>
             <Col span={22}>
                 {title !== null && (
-                    <Typography.Title level={4} style={BUILDING_TOP_MODAL_TITLE_STYLE}>{title}</Typography.Title>
+                    <Typography.Title level={4}>{title}</Typography.Title>
                 )}
             </Col>
             <Col span={2}>
                 <OldButton
                     onClick={onClose}
-                    icon={<CloseOutlined />}
+                    icon={<Close size='small' />}
                     size='small'
                     type='text'
                     data-cy='property-map__top-modal__close-button'
@@ -198,7 +158,6 @@ const useHotkeyToSaveProperty = ({ map, mapEdit, property, canManageProperties }
         if (!mapEdit.validate()) {
             notification.error({
                 message: MapValidationError,
-                placement: 'bottomRight',
             })
 
             return
@@ -210,7 +169,6 @@ const useHotkeyToSaveProperty = ({ map, mapEdit, property, canManageProperties }
     useHotkeys('ctrl+s', quickSaveCallback, [map, property, canManageProperties])
 }
 
-const BUILDING_PANEL_EDIT_ERROR_STYLE: React.CSSProperties = { width: '100%', textAlign: 'center', marginBottom: 'unset' }
 
 export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     const intl = useIntl()
@@ -222,7 +180,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     const ParkingSectionPrefixTitle = intl.formatMessage({ id: 'pages.condo.property.ParkingSectionSelect.OptionPrefix' })
     const MapValidationError = intl.formatMessage({ id: 'pages.condo.property.warning.modal.SameUnitNamesErrorMsg' })
 
-    const { mapValidationError, map, updateMap: updateFormField, handleSave, property, canManageProperties = false } = props
+    const { map, updateMap: updateFormField, handleSave, property, canManageProperties = false } = props
 
     const { push, query: { id } } = useRouter()
     const [mapEdit, setMapEdit] = useState(new MapEdit(map, updateFormField))
@@ -234,7 +192,6 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     }, { skip: !user })
 
     const mode = mapEdit.editMode
-    const sections = mapEdit.sections
     const address = get(property, 'address')
 
     const [duplicatedUnitIds, setDuplicatedUnitIds] = useState<string[]>([])
@@ -249,15 +206,14 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
 
         notification.error({
             message: MapValidationError,
-            placement: 'bottomRight',
         })
-    }, [handleSave, mapValidationError, mapEdit])
+    }, [handleSave, mapEdit])
 
     const refresh = useCallback(() => {
         setMapEdit(cloneDeep(mapEdit))
     }, [mapEdit])
 
-    const changeMode = useCallback((mode) => {
+    const changeMode = useCallback((mode: MapEditMode) => {
         setDuplicatedUnitIds([])
         mapEdit.editMode = mode
         refresh()
@@ -266,14 +222,6 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     const onCancel = useCallback(() => {
         push(`/property/${id}`)
     }, [id, push])
-
-    const menuClick = useCallback((event) => {
-        if (INSTANT_ACTIONS.includes(event.key)) {
-            if (isFunction(mapEdit[event.key])) mapEdit[event.key]()
-            return
-        }
-        changeMode(event.key)
-    }, [changeMode])
 
     const onModalCancel = useCallback(() => {
         changeMode(null)
@@ -284,43 +232,54 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
         refresh()
     }, [mapEdit, refresh])
 
-    const onSelectParkingSection = useCallback((id) => {
-        mapEdit.setVisibleParkingSections(id)
-        refresh()
-    }, [mapEdit, refresh])
-
     const onViewModeChange = useCallback((option) => {
         mapEdit.viewMode = option.target.value
+        mapEdit.setVisibleSections(null)
         refresh()
     }, [mapEdit, refresh])
 
     const menuContent = useMemo(() => ({
         addSection: <AddSectionForm builder={mapEdit} refresh={refresh} />,
-        addUnit: <UnitForm builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds} />,
+        addParking: <AddSectionForm builder={mapEdit} refresh={refresh} />,
+
         editSection: <EditSectionForm builder={mapEdit} refresh={refresh} />,
+        editParking: <EditSectionForm builder={mapEdit} refresh={refresh} />,
+
+        addSectionFloor: <AddSectionFloorForm builder={mapEdit} refresh={refresh} />,
+        addParkingFloor: <AddSectionFloorForm builder={mapEdit} refresh={refresh} />,
+
+        addUnit: <UnitForm builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds} />,
         editUnit: <UnitForm builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds} />,
-        addParking: <AddParkingForm builder={mapEdit} refresh={refresh} />,
-        addParkingUnit: <ParkingUnitForm builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds} />,
-        editParkingUnit: <ParkingUnitForm builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds}/>,
-        editParking: <EditParkingForm builder={mapEdit} refresh={refresh} />,
-        addSectionFloor: <AddSectionFloor builder={mapEdit} refresh={refresh} />,
-    }[mode] || null), [mode, mapEdit, refresh, duplicatedUnitIds])
+        editUnits: <EditUnitsForm builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds} />,
+
+        addParkingUnit: <UnitForm builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds} />,
+        editParkingUnit: <UnitForm builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds}/>,
+        editParkingUnits: <EditUnitsForm builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds} />,
+
+        addParkingFacilityUnit: <UnitForm builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds} />,
+        editParkingFacilityUnit: <UnitForm builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds} />,
+    }[mode] || null), [mode, mapEdit, refresh])
 
     const { breakpoints } = useLayoutContext()
 
     const showViewModeSelect = !mapEdit.isEmptySections && !mapEdit.isEmptyParking
-    const showSectionFilter = mapEdit.viewMode === MapViewMode.section && sections.length >= MIN_SECTIONS_TO_SHOW_FILTER
-    const showParkingFilter = mapEdit.viewMode === MapViewMode.parking && mapEdit.parking.length >= MIN_SECTIONS_TO_SHOW_FILTER
+    const showSectionFilter = mapEdit.sections.length >= MIN_SECTIONS_TO_SHOW_FILTER
+    const sectionOptions = useMemo(() => [
+        { key: 'allSections', value: null, label: mapEdit.viewMode === MapViewMode.parking ? AllParkingSectionsTitle : AllSectionsTitle },
+        ...mapEdit.sections.map(section => ({
+            key: section.id,
+            value: section.id,
+            label: `${mapEdit.viewMode === MapViewMode.parking ? ParkingSectionPrefixTitle : SectionPrefixTitle}${section.name}`,
+        })),
+    ], [
+        AllParkingSectionsTitle, AllSectionsTitle, ParkingSectionPrefixTitle, SectionPrefixTitle,
+        mapEdit.sections, mapEdit.viewMode,
+    ])
 
     const isSubmitDisabled = useMemo(() => !canManageProperties || !address || mapEdit.hasPreviewComponents, [address, canManageProperties, mapEdit.hasPreviewComponents])
 
     useEffect(() => {
-        const map = get(mapEdit, 'map')
-        const mapSections = get(map, 'sections', [])
-        const mapParking = get(map, 'parking', [])
-        const isUnitsAdded = !isEmpty(mapSections) || !isEmpty(mapParking)
-
-        if (!isSubmitDisabled && isUnitsAdded && count === 0) {
+        if (!isSubmitDisabled && !mapEdit.isEmpty && count === 0) {
             setCurrentStep(1)
         } else {
             setCurrentStep(0)
@@ -330,34 +289,17 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     return (
         <FullscreenWrapper className='fullscreen'>
             <FullscreenHeader edit={true}>
-                <Row css={TopRowCss} justify='space-between'>
+                <Row css={TopRowCss} justify='space-between' gutter={[0, 8]}>
                     {address && (
                         <Col flex={0}>
-                            <Space size={20}>
+                            <Space size={20} className='map-edit-address-container'>
                                 <AddressTopTextContainer>{address}</AddressTopTextContainer>
                                 {showSectionFilter && (
-                                    <Select value={mapEdit.visibleSections} onSelect={onSelectSection}>
-                                        <Select.Option value={null} >{AllSectionsTitle}</Select.Option>
-                                        {
-                                            sections.map(section => (
-                                                <Select.Option key={section.id} value={section.id}>
-                                                    {SectionPrefixTitle}{section.name}
-                                                </Select.Option>
-                                            ))
-                                        }
-                                    </Select>
-                                )}
-                                {showParkingFilter && (
-                                    <Select value={mapEdit.visibleParkingSections} onSelect={onSelectParkingSection}>
-                                        <Select.Option value={null} >{AllParkingSectionsTitle}</Select.Option>
-                                        {
-                                            mapEdit.parking.map(parkingSection => (
-                                                <Select.Option key={parkingSection.id} value={parkingSection.id}>
-                                                    {ParkingSectionPrefixTitle}{parkingSection.name}
-                                                </Select.Option>
-                                            ))
-                                        }
-                                    </Select>
+                                    <Select
+                                        value={mapEdit.visibleSections}
+                                        onChange={onSelectSection}
+                                        options={sectionOptions}
+                                    />
                                 )}
                             </Space>
                         </Col>
@@ -373,18 +315,17 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                                     />
                                 )
                             }
-                            <BuildingEditTopMenu menuClick={menuClick} mapEdit={mapEdit} />
+                            <BuildingEditTopMenu changeMode={changeMode} mapEdit={mapEdit} />
                         </Space>
                     </Col>
                 </Row>
                 <Row
                     style={UNIT_TYPE_ROW_STYLE}
-                    hidden={mapEdit.viewMode === MapViewMode.parking || !breakpoints.TABLET_LARGE}
+                    hidden={!breakpoints.TABLET_LARGE}
                 >
                     <Col flex={0} style={UNIT_TYPE_COL_STYLE}>
                         <Row gutter={UNIT_TYPE_ROW_GUTTER}>
                             {mapEdit.getUnitTypeOptions()
-                                .filter(unitType => unitType !== BuildingUnitSubType.Flat)
                                 .map((unitType, unitTypeKey) => (
                                     <Col key={unitTypeKey} flex={0}>
                                         <UnitTypeLegendItem unitType={unitType}>
@@ -431,13 +372,6 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                         >
                             {CancelLabel}
                         </Button>
-                        {
-                            mapValidationError ? (
-                                <Typography.Paragraph type='danger' style={BUILDING_PANEL_EDIT_ERROR_STYLE}>
-                                    {mapValidationError}
-                                </Typography.Paragraph>
-                            ) : null
-                        }
                     </Space>
                 </ChessBoard>
             </Row>
@@ -492,40 +426,6 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
         } else {
             if (container.current !== null) container.current.style.paddingRight = '0px'
         }
-
-        if (container.current && container.current.style.paddingRight !== '0px') {
-            const lastSectionSelected = builder.editMode === MapEditMode.EditSection
-                && get(builder.getSelectedSection(), 'index') === builder.lastSectionIndex
-            const lastParkingSelected = builder.editMode === MapEditMode.EditParking
-                && get(builder.getSelectedParking(), 'index') === builder.lastParkingIndex
-            const addUnitToLastSection = builder.editMode === MapEditMode.AddUnit
-                && last(builder.sections).floors
-                    .flatMap(floor => floor.units.map(unit => unit.id))
-                    .includes(String(builder.previewUnitId))
-            const addParkingUnitToLastSection = builder.editMode === MapEditMode.AddParkingUnit
-                && last(builder.parking).floors
-                    .flatMap(floor => floor.units.map(unit => unit.id))
-                    .includes(String(builder.previewParkingUnitId))
-            const editUnitAtLastSection = builder.editMode === MapEditMode.EditUnit
-                && get(builder.getSelectedUnit(), 'sectionIndex') === builder.lastSectionIndex
-            const editParkingUnitAtLastSection = builder.editMode === MapEditMode.EditParkingUnit
-                && get(builder.getSelectedParkingUnit(), 'sectionIndex') === builder.lastParkingIndex
-
-            if (lastSectionSelected
-                || lastParkingSelected
-                || addParkingUnitToLastSection
-                || addUnitToLastSection
-                || editUnitAtLastSection
-                || editParkingUnitAtLastSection) {
-                const { scrollWidth, clientWidth, scrollHeight, clientHeight } = container.current
-
-                if (lastSectionSelected || lastParkingSelected) {
-                    container.current.scrollTo(scrollWidth - clientWidth, scrollHeight - clientHeight)
-                    return
-                }
-                container.current.scrollLeft = scrollWidth - clientWidth
-            }
-        }
     }, [builder])
 
     return (
@@ -556,50 +456,25 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
                             innerRef={container}
                         >
                             <div style={CHESS_SCROLL_CONTAINER_INNER_STYLE}>
+                                <BuildingAxisY floors={builder.possibleChosenFloors} />
                                 {
-                                    builder.viewMode === MapViewMode.section
-                                        ? !builder.isEmptySections && (
-                                            <BuildingAxisY floors={builder.possibleChosenFloors} />
-                                        )
-                                        : !builder.isEmptyParking && (
-                                            <BuildingAxisY floors={builder.possibleChosenParkingFloors} />
-                                        )
-                                }
-                                {
-                                    builder.viewMode === MapViewMode.section
-                                        ? builder.sections.map(section => (
-                                            <PropertyMapSection
-                                                key={section.id}
+                                    builder.sections.map(section => (
+                                        <PropertyMapSection
+                                            key={section.id}
+                                            section={section}
+                                            builder={builder}
+                                            refresh={refresh}
+                                            isParkingSection={builder.viewMode === MapViewMode.parking}
+                                        >
+                                            <PropertyMapFloorContainer
+                                                builder={builder}
                                                 section={section}
-                                                builder={builder}
                                                 refresh={refresh}
-                                            >
-                                                <PropertyMapFloorContainer
-                                                    builder={builder}
-                                                    section={section}
-                                                    refresh={refresh}
-                                                    duplicatedUnitIds={duplicatedUnitIds}
-                                                />
-                                            </PropertyMapSection>
+                                                duplicatedUnitIds={duplicatedUnitIds}
+                                            />
+                                        </PropertyMapSection>
 
-                                        ))
-                                        : builder.parking.map(parkingSection => (
-                                            <PropertyMapSection
-                                                key={parkingSection.id}
-                                                section={parkingSection}
-                                                builder={builder}
-                                                refresh={refresh}
-                                                isParkingSection
-                                            >
-                                                <PropertyMapFloorContainer
-                                                    builder={builder}
-                                                    section={parkingSection}
-                                                    refresh={refresh}
-                                                    isParkingSection
-                                                    duplicatedUnitIds={duplicatedUnitIds}
-                                                />
-                                            </PropertyMapSection>
-                                        ))
+                                    ))
                                 }
                             </div>
                         </ScrollContainer>
@@ -625,8 +500,6 @@ interface IPropertyMapSectionProps {
     isParkingSection?: boolean
     duplicatedUnitIds?: string[]
 }
-const FULL_SIZE_UNIT_STYLE: React.CSSProperties = { width: '100%', marginTop: '8px', display: 'block' }
-const SECTION_UNIT_STYLE: React.CSSProperties = { ...FULL_SIZE_UNIT_STYLE, zIndex: 2 }
 
 const PropertyMapSection: React.FC<IPropertyMapSectionProps> = (props) => {
     const { section, children, builder, refresh, isParkingSection = false } = props
@@ -636,45 +509,37 @@ const PropertyMapSection: React.FC<IPropertyMapSectionProps> = (props) => {
         : `${intl.formatMessage({ id: 'pages.condo.property.section.Name' })} ${section.name}`
 
     const chooseSection = useCallback(() => {
-        if (isParkingSection) {
-            builder.setSelectedParking(section)
-        } else {
-            builder.setSelectedSection(section)
-        }
+        builder.setSelectedSection(section)
         refresh()
-    }, [builder, refresh, section, isParkingSection])
+    }, [builder, refresh, section])
 
-    const isSectionSelected = isParkingSection
-        ? builder.isParkingSelected(section.id)
-        : builder.isSectionSelected(section.id)
-
-    const isSectionVisible = isParkingSection
-        ? builder.isParkingSectionVisible(section.id)
-        : builder.isSectionVisible(section.id)
+    const isSectionSelected = builder.isSectionSelected(section.id)
+    const isSectionVisible = builder.isSectionVisible(section.id)
 
     return (
         <MapSectionContainer visible={isSectionVisible}>
             {children}
             <UnitButton
-                secondary
-                style={SECTION_UNIT_STYLE}
+                block
+                type='section'
                 disabled={section.preview}
                 preview={section.preview}
                 onClick={chooseSection}
                 selected={isSectionSelected}
                 data-cy='property-map__section-button'
-            >{SectionTitle}</UnitButton>
+            >
+                {SectionTitle}
+            </UnitButton>
         </MapSectionContainer>
     )
 }
 
 const PropertyMapFloorContainer: React.FC<IPropertyMapSectionProps> = (props) => {
-    const { isParkingSection, refresh, builder, section, duplicatedUnitIds } = props
-    const sectionFloors = isParkingSection ? builder.possibleChosenParkingFloors : builder.possibleChosenFloors
+    const { refresh, builder, section, duplicatedUnitIds } = props
     return (
         <>
             {
-                sectionFloors.map(floorIndex => {
+                builder.possibleChosenFloors.map(floorIndex => {
                     const floorInfo = section.floors.find(floor => floor.index === floorIndex)
                     if (floorInfo && floorInfo.units.length) {
                         return (
@@ -714,24 +579,18 @@ interface IPropertyMapUnitProps {
 
 const PropertyMapUnit: React.FC<IPropertyMapUnitProps> = ({ builder, refresh, unit, duplicatedUnitIds }) => {
     const selectUnit = useCallback(() => {
-        if (unit.unitType !== BuildingUnitSubType.Parking) {
-            builder.removePreviewUnit()
-            builder.setSelectedUnit(unit)
-        } else {
-            builder.removePreviewParkingUnit()
-            builder.setSelectedParkingUnit(unit)
-        }
+        builder.removePreviewUnit()
+        builder.setSelectedUnit(unit)
         refresh()
-    }, [refresh, unit, builder])
+    }, [refresh, builder, unit])
 
-    const isUnitSelected = unit.unitType === BuildingUnitSubType.Flat
-        ? builder.isUnitSelected(unit.id)
-        : builder.isParkingUnitSelected(unit.id)
+    const isUnitSelected = builder.isUnitSelected(unit.id)
 
     const isDuplicated = duplicatedUnitIds.includes(unit.id)
 
     return useMemo(() => (
         <UnitButton
+            type='unit'
             onClick={selectUnit}
             disabled={unit.preview}
             isDuplicated={isDuplicated}
@@ -739,6 +598,8 @@ const PropertyMapUnit: React.FC<IPropertyMapUnitProps> = ({ builder, refresh, un
             selected={isUnitSelected}
             unitType={unit.unitType}
             data-cy='property-map__unit-button'
-        >{unit.label}</UnitButton>),
-    [unit, isUnitSelected, isDuplicated])
+        >
+            {unit.label}
+        </UnitButton>),
+    [selectUnit, unit?.preview, unit?.unitType, unit?.label, isDuplicated, isUnitSelected])
 }

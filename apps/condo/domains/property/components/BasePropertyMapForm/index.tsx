@@ -1,8 +1,8 @@
 import { BuildingMap, Property } from '@app/condo/schema'
-import { Typography, Form } from 'antd'
+import { Typography, Form, notification } from 'antd'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
-import React, { useState, useCallback } from 'react'
+import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
@@ -41,12 +41,6 @@ const BasePropertyMapForm: React.FC<IPropertyMapFormProps> = (props) => {
 
     const { action, initialValues, property, children, canManageProperties = false } = props
 
-    const [mapValidationError, setMapValidationError] = useState<string | null>(null)
-
-    const onFormBlur = useCallback(() => {
-        setMapValidationError(null)
-    }, [])
-
     return (
         <FormWithAction
             action={action}
@@ -79,23 +73,28 @@ const BasePropertyMapForm: React.FC<IPropertyMapFormProps> = (props) => {
 
                                     if (sectionUnits.some(unit => !get(unit, 'label', '').length)
                                     || parkingUnits.some(unit => !get(unit, 'label', '').length)) {
-                                        setMapValidationError(UnitLabelEmptyError)
+                                        notification.error({
+                                            message: UnitLabelEmptyError,
+                                        })
                                         return Promise.reject(UnitLabelEmptyError)
                                     }
 
                                     if (sectionUnits.length !== getUniqUnits(sectionUnits).length
                                         || parkingUnits.length !== getUniqUnits(parkingUnits).length) {
-                                        setMapValidationError(UnitLabelsNotUniqueError)
+                                        notification.error({
+                                            message: UnitLabelsNotUniqueError,
+                                        })
                                         return Promise.reject(UnitLabelsNotUniqueError)
                                     }
 
                                     const hasPreview = (mapComponent) => get(mapComponent, 'preview', false)
                                     if (!isEmpty(sections.filter(hasPreview)) || !isEmpty(parking.filter(hasPreview))) {
-                                        setMapValidationError(UnsavedChangesError)
+                                        notification.error({
+                                            message: UnsavedChangesError,
+                                        })
                                         return Promise.reject(UnsavedChangesError)
                                     }
 
-                                    setMapValidationError(null)
                                     return Promise.resolve()
                                 },
                             },
@@ -105,15 +104,12 @@ const BasePropertyMapForm: React.FC<IPropertyMapFormProps> = (props) => {
                     </Form.Item>
                     <Form.Item
                         shouldUpdate={true}
-                        // @ts-ignore
-                        onBlur={onFormBlur}
                     >
                         {
                             ({ getFieldsValue, setFieldsValue }) => {
                                 const { map } = getFieldsValue(['map'])
                                 return (
                                     <BuildingPanelEdit
-                                        mapValidationError={mapValidationError}
                                         handleSave={handleSave}
                                         map={map as BuildingMap}
                                         updateMap={map => setFieldsValue({ map })}
