@@ -70,6 +70,7 @@ jobs:
           WERF_SET_CI_METER_IMPORTER_URL: "global.ci_meter_importer_url=meters-billing-integration.d.doma.ai"
           WERF_SET_CI_NEWS_TELEGRAM_WEB_URL: "global.ci_news_telegram_web_url=news-telegram.d.doma.ai"
           WERF_SET_CI_NEWS_TELEGRAM_API_URL: "global.ci_news_telegram_api_url=news-telegram-api.d.doma.ai"
+          WERF_SET_CI_BILLING_CONNECTOR_URL: "global.ci_billing_connector_url=billing-connector.d.doma.ai"
           WERF_SET_CI_NAMESPACE: "global.ci_namespace=development"
           WERF_NAMESPACE: "development"
           WERF_VIRTUAL_MERGE_FROM_COMMIT: "true"
