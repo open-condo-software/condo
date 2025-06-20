@@ -155,6 +155,33 @@ async function createTestMeter (client, organization, property, resource, extraA
     return [obj, attrs]
 }
 
+async function createTestMeters (client, createAttrs = []) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const defaultValues = {
+        number: () => faker.random.alphaNumeric(5),
+        unitName: () => faker.random.alphaNumeric(5),
+        unitType: () => FLAT_UNIT_TYPE,
+        accountNumber: () => faker.random.alphaNumeric(8),
+        numberOfTariffs: () => 1,
+    }
+
+    const attrs = createAttrs.map(original => {
+        const data = { ...original }
+        for (const key in defaultValues) {
+            if (!(key in data)) {
+                data[key] = defaultValues[key]()
+            }
+        }
+        return {
+            data: { ...data, dv: 1, sender }
+        }
+    })
+
+    return Meter.createMany(client, attrs)
+}
+
 async function updateTestMeter (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
@@ -167,6 +194,18 @@ async function updateTestMeter (client, id, extraAttrs = {}) {
     }
     const obj = await Meter.update(client, id, attrs)
     return [obj, attrs]
+}
+
+async function updateTestMeters (client, updateAttrs = []) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = updateAttrs.map(updateData => {
+        const { id, data } = updateData
+        return { id, data: { ...data, dv: 1, sender } }
+    })
+
+    return Meter.updateMany(client, attrs)
 }
 
 async function createTestMeterReading (client, meter, source, extraAttrs = {}) {
@@ -272,6 +311,30 @@ async function createTestPropertyMeter (client, organization, property, resource
     return [obj, attrs]
 }
 
+async function createTestPropertyMeters (client, createAttrs = []) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const defaultValues = {
+        number: () => faker.random.alphaNumeric(5),
+        numberOfTariffs: () => 1,
+    }
+
+    const attrs = createAttrs.map(original => {
+        const data = { ...original }
+        for (const key in defaultValues) {
+            if (!(key in data)) {
+                data[key] = defaultValues[key]()
+            }
+        }
+        return {
+            data: { ...data, dv: 1, sender }
+        }
+    })
+
+    return PropertyMeter.createMany(client, attrs)
+}
+
 async function updateTestPropertyMeter (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
@@ -284,6 +347,18 @@ async function updateTestPropertyMeter (client, id, extraAttrs = {}) {
     }
     const obj = await PropertyMeter.update(client, id, attrs)
     return [obj, attrs]
+}
+
+async function updateTestPropertyMeters (client, updateAttrs = []) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = updateAttrs.map(updateData => {
+        const { id, data } = updateData
+        return { id, data: { ...data, dv: 1, sender } }
+    })
+
+    return PropertyMeter.updateMany(client, attrs)
 }
 
 async function createTestPropertyMeterReading (client, meter, source, extraAttrs = {}) {
@@ -598,12 +673,12 @@ async function registerPropertyMetersReadingsByTestClient (client, organization,
 module.exports = {
     MeterResource, createTestMeterResource, updateTestMeterResource,
     MeterReadingSource, createTestMeterReadingSource, updateTestMeterReadingSource,
-    Meter, createTestMeter, updateTestMeter,
+    Meter, createTestMeter, updateTestMeter, createTestMeters, updateTestMeters,
     MeterReading, createTestMeterReading, updateTestMeterReading,
     MeterReadingFilterTemplate, createTestMeterReadingFilterTemplate, updateTestMeterReadingFilterTemplate,
     makeClientWithResidentAndMeter,
     _internalDeleteMeterAndMeterReadingsByTestClient,
-    PropertyMeter, createTestPropertyMeter, updateTestPropertyMeter,
+    PropertyMeter, createTestPropertyMeter, updateTestPropertyMeter, createTestPropertyMeters, updateTestPropertyMeters,
     PropertyMeterReading, createTestPropertyMeterReading, updateTestPropertyMeterReading,
     MeterReportingPeriod, createTestMeterReportingPeriod, updateTestMeterReportingPeriod,
     MeterResourceOwner, createTestMeterResourceOwner, updateTestMeterResourceOwner,

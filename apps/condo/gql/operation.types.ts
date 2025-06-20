@@ -248,6 +248,13 @@ export type UpdateMarketItemsMutationVariables = Types.Exact<{
 
 export type UpdateMarketItemsMutation = { __typename?: 'Mutation', marketItems?: Array<{ __typename?: 'MarketItem', id: string } | null> | null };
 
+export type UpdateMetersMutationVariables = Types.Exact<{
+  data: Array<Types.MetersUpdateInput> | Types.MetersUpdateInput;
+}>;
+
+
+export type UpdateMetersMutation = { __typename?: 'Mutation', meters?: Array<{ __typename?: 'Meter', id: string } | null> | null };
+
 export type GetMeterReadingExportTasksQueryVariables = Types.Exact<{
   where: Types.MeterReadingExportTaskWhereInput;
 }>;
@@ -291,6 +298,13 @@ export type UpdateMeterReadingsImportTaskMutationVariables = Types.Exact<{
 
 
 export type UpdateMeterReadingsImportTaskMutation = { __typename?: 'Mutation', task?: { __typename: 'MeterReadingsImportTask', id: string, status?: Types.MeterReadingsImportTaskStatusType | null, errorMessage?: string | null, totalRecordsCount?: number | null, processedRecordsCount?: number | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null, errorFile?: { __typename?: 'File', publicUrl?: string | null } | null } | null };
+
+export type UpdatePropertyMetersMutationVariables = Types.Exact<{
+  data: Array<Types.PropertyMetersUpdateInput> | Types.PropertyMetersUpdateInput;
+}>;
+
+
+export type UpdatePropertyMetersMutation = { __typename?: 'Mutation', propertyMeters?: Array<{ __typename?: 'PropertyMeter', id: string } | null> | null };
 
 export type GetAllMiniAppsQueryVariables = Types.Exact<{
   data: Types.AllMiniAppsInput;

@@ -1,20 +1,25 @@
+import { useUpdateMetersMutation } from '@app/condo/gql'
 import {
     MeterReadingWhereInput,
     SortMetersBy,
 } from '@app/condo/schema'
 import { Col, Row, RowProps } from 'antd'
 import dayjs, { Dayjs } from 'dayjs'
+import chunk from 'lodash/chunk'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { Search } from '@open-condo/icons'
+import { getClientSideSenderInfo } from '@open-condo/miniapp-utils'
+import { useApolloClient } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
-import { ActionBar, Button, Checkbox  } from '@open-condo/ui'
+import { ActionBar, ActionBarProps, Button, Checkbox } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
+import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
 import { Loader } from '@condo/domains/common/components/Loader'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
@@ -25,6 +30,7 @@ import { useDateRangeSearch } from '@condo/domains/common/hooks/useDateRangeSear
 import { useMultipleFiltersModal } from '@condo/domains/common/hooks/useMultipleFiltersModal'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
+import { useTableRowSelection } from '@condo/domains/common/hooks/useTableRowSelection'
 import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
@@ -37,7 +43,6 @@ import {
     METER_TYPES,
 } from '@condo/domains/meter/utils/clientSchema'
 import { getInitialArchivedOrActiveMeter } from '@condo/domains/meter/utils/helpers'
-
 
 const METERS_PAGE_CONTENT_ROW_GUTTERS: RowProps['gutter'] = [0, 40]
 const FILTERS_CONTAINER_GUTTER: RowProps['gutter'] = [16, 16]
@@ -64,6 +69,128 @@ type UpdateMeterQueryParamsType = {
     isShowArchivedMeters: string
 }
 
+interface IDefaultMetersActionBarProps {
+    canManageMeters: boolean
+    showImportButton: boolean
+    onImportFinish: () => void
+}
+const DefaultMetersActionBar: React.FC<IDefaultMetersActionBarProps> = ({ canManageMeters, showImportButton, onImportFinish }) => {
+    const intl = useIntl()
+    const CreateMeterButtonLabel = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterButtonLabel' })
+
+    const router = useRouter()
+    const handleCreateMeterReadings = useCallback(() => router.push(`/meter/create?tab=${METER_TAB_TYPES.meter}`), [router])
+
+    return (
+        <ActionBar actions={[
+            <Button
+                key='create'
+                type='primary'
+                onClick={handleCreateMeterReadings}
+            >
+                {CreateMeterButtonLabel}
+            </Button>,
+            showImportButton && (
+                <MetersImportWrapper
+                    key='import'
+                    accessCheck={canManageMeters}
+                    onFinish={onImportFinish}
+                />
+            ),
+        ]}/>
+    )
+}
+
+interface IActionBarWithSelectedItemsProps {
+    selectedKeys: string[]
+    clearSelection: () => void
+    onDeleteCompleted: () => Promise<void>
+}
+const ActionBarWithSelectedItems: React.FC<IActionBarWithSelectedItemsProps> = ({ selectedKeys, clearSelection, onDeleteCompleted }) => {
+    const intl = useIntl()
+    const CancelSelectionMessage = intl.formatMessage({ id: 'global.cancelSelection' })
+    const ConfirmDeleteManyMetersTitle = intl.formatMessage({ id: 'pages.condo.meter.ConfirmDeleteManyTitle' })
+    const ConfirmDeleteManyMetersMessage = intl.formatMessage({ id: 'global.ImpossibleToRestore' })
+    const DeleteMessage = intl.formatMessage({ id: 'Delete' })
+    const DontDeleteMessage = intl.formatMessage({ id: 'DontDelete' })
+
+    const router = useRouter()
+    const client = useApolloClient()
+
+    const SelectedItemsMessage = useMemo(() => intl.formatMessage({ id: 'ItemsSelectedCount' }, { count: selectedKeys.length }), [intl, selectedKeys])
+
+    const [updateMetersMutation] = useUpdateMetersMutation({
+        onCompleted: async () => {
+            await onDeleteCompleted()
+        },
+    })
+
+    const updateSelectedMetersByChunks = useCallback(async (payload) => {
+        if (!selectedKeys.length) return
+
+        const itemsToDeleteByChunks = chunk(selectedKeys.map((key) => ({
+            id: key,
+            data: {
+                dv: 1,
+                sender: getClientSideSenderInfo(),
+                ...payload,
+            },
+        })), 30)
+
+        for (const itemsToDelete of itemsToDeleteByChunks) {
+            await updateMetersMutation({
+                variables: {
+                    data: itemsToDelete,
+                },
+            })
+        }
+
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allMeters' })
+        client.cache.gc()
+    }, [client.cache, selectedKeys, updateMetersMutation])
+
+    const handleDeleteButtonClick = useCallback(async () => {
+        const now = new Date().toISOString()
+        await updateSelectedMetersByChunks({ deletedAt: now })
+        await updateQuery(router, {
+            newParameters: {
+                offset: 0,
+            },
+        }, { routerAction: 'replace', resetOldParameters: false })
+    }, [router, updateSelectedMetersByChunks])
+
+    const selectedContactsActionBarButtons: ActionBarProps['actions'] = useMemo(() => [
+        <DeleteButtonWithConfirmModal
+            key='deleteSelectedMeters'
+            title={ConfirmDeleteManyMetersTitle}
+            message={ConfirmDeleteManyMetersMessage}
+            okButtonLabel={DeleteMessage}
+            action={handleDeleteButtonClick}
+            buttonContent={DeleteMessage}
+            cancelMessage={DontDeleteMessage}
+            showCancelButton
+            cancelButtonType='primary'
+        />,
+        <Button
+            key='cancelMetersSelection'
+            type='secondary'
+            onClick={clearSelection}
+        >
+            {CancelSelectionMessage}
+        </Button>,
+    ], [
+        ConfirmDeleteManyMetersTitle, ConfirmDeleteManyMetersMessage, DeleteMessage, handleDeleteButtonClick,
+        DontDeleteMessage, clearSelection, CancelSelectionMessage,
+    ])
+
+    return (
+        <ActionBar
+            message={SelectedItemsMessage}
+            actions={selectedContactsActionBarButtons}
+        />
+    )
+}
+
 const MetersTableContent: React.FC<MetersTableContentProps> = ({
     filtersMeta,
     baseSearchQuery,
@@ -73,7 +200,6 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
     showImportButton = true,
 }) => {
     const intl = useIntl()
-    const CreateMeterButtonLabel = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterButtonLabel' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const IsActiveMessage = intl.formatMessage({ id: 'pages.condo.meter.Meter.isActive' })
     const OutOfOrderMessage = intl.formatMessage({ id: 'pages.condo.meter.Meter.outOfOrder' })
@@ -125,7 +251,7 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
     const {
         loading: meterReadingsLoading,
         count: total,
-        objs: meterReadings,
+        objs: meters,
         refetch,
     } = MeterForOrganization.useObjects({
         sortBy,
@@ -152,7 +278,6 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
         }
     }, [router])
 
-
     const handleSearch = useCallback((e) => {handleSearchChange(e.target.value)}, [handleSearchChange])
     const handleUpdateMeterQuery = useCallback(async (newParameters: UpdateMeterQueryParamsType) => {
         await updateQuery(router, { newParameters }, { routerAction: 'replace', resetOldParameters: false })
@@ -168,8 +293,12 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
         setIsShowArchivedMeters(prev => !prev)
     }, [handleUpdateMeterQuery, isShowActiveMeters, isShowArchivedMeters])
 
-    const handleCreateMeterReadings = useCallback(() => router.push(`/meter/create?tab=${METER_TAB_TYPES.meter}`), [router])
-    
+    const { selectedKeys, clearSelection, rowSelection } = useTableRowSelection<typeof meters[number]>({ items: meters })
+    const onDeleteCompleted = useCallback(async () => {
+        clearSelection()
+        await refetch()
+    }, [clearSelection, refetch])
+
     return (
         <>
             <Row
@@ -244,31 +373,33 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
                     <Table
                         totalRows={total}
                         loading={meterReadingsLoading || loading}
-                        dataSource={meterReadings}
+                        dataSource={meters}
                         columns={tableColumns}
                         onRow={handleRowAction}
+                        rowSelection={rowSelection}
                     />
                 </Col>
-                <Col span={24}>
-                    <ActionBar actions={[
-                        canManageMeters && (
-                            <Button
-                                key='create'
-                                type='primary'
-                                onClick={handleCreateMeterReadings}
-                            >
-                                {CreateMeterButtonLabel}
-                            </Button>
-                        ),
-                        canManageMeters && showImportButton && (
-                            <MetersImportWrapper
-                                key='import'
-                                accessCheck={canManageMeters}
-                                onFinish={refetch}
-                            />
-                        ),
-                    ]}/>
-                </Col>
+                {
+                    canManageMeters && (
+                        selectedKeys.length > 0 ? (
+                            <Col span={24}>
+                                <ActionBarWithSelectedItems
+                                    selectedKeys={selectedKeys}
+                                    clearSelection={clearSelection}
+                                    onDeleteCompleted={onDeleteCompleted}
+                                />
+                            </Col>
+                        ) : (
+                            <Col span={24}>
+                                <DefaultMetersActionBar
+                                    canManageMeters={canManageMeters}
+                                    showImportButton={showImportButton}
+                                    onImportFinish={refetch}
+                                />
+                            </Col>
+                        )
+                    )
+                }
             </Row>
             <MultipleFiltersModal />
         </>
@@ -317,7 +448,7 @@ export const MetersPageContent: React.FC<MeterReadingsPageContentProps> = ({
                     createLabel={CreateMeter}
                     accessCheck={canManageMeters}
                 />)
-                
+
             )
         }
 

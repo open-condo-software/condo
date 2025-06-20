@@ -1,0 +1,5 @@
+mutation updateMeters ($data: [MetersUpdateInput!]!) {
+    meters: updateMeters (data: $data) {
+        id
+    }
+}

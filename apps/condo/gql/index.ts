@@ -1672,6 +1672,39 @@ export function useUpdateMarketItemsMutation(baseOptions?: Apollo.MutationHookOp
 export type UpdateMarketItemsMutationHookResult = ReturnType<typeof useUpdateMarketItemsMutation>;
 export type UpdateMarketItemsMutationResult = Apollo.MutationResult<Types.UpdateMarketItemsMutation>;
 export type UpdateMarketItemsMutationOptions = Apollo.BaseMutationOptions<Types.UpdateMarketItemsMutation, Types.UpdateMarketItemsMutationVariables>;
+export const UpdateMetersDocument = gql`
+    mutation updateMeters($data: [MetersUpdateInput!]!) {
+  meters: updateMeters(data: $data) {
+    id
+  }
+}
+    `;
+export type UpdateMetersMutationFn = Apollo.MutationFunction<Types.UpdateMetersMutation, Types.UpdateMetersMutationVariables>;
+
+/**
+ * __useUpdateMetersMutation__
+ *
+ * To run a mutation, you first call `useUpdateMetersMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateMetersMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateMetersMutation, { data, loading, error }] = useUpdateMetersMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateMetersMutation(baseOptions?: Apollo.MutationHookOptions<Types.UpdateMetersMutation, Types.UpdateMetersMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.UpdateMetersMutation, Types.UpdateMetersMutationVariables>(UpdateMetersDocument, options);
+      }
+export type UpdateMetersMutationHookResult = ReturnType<typeof useUpdateMetersMutation>;
+export type UpdateMetersMutationResult = Apollo.MutationResult<Types.UpdateMetersMutation>;
+export type UpdateMetersMutationOptions = Apollo.BaseMutationOptions<Types.UpdateMetersMutation, Types.UpdateMetersMutationVariables>;
 export const GetMeterReadingExportTasksDocument = gql`
     query getMeterReadingExportTasks($where: MeterReadingExportTaskWhereInput!) {
   tasks: allMeterReadingExportTasks(where: $where) {
@@ -1946,6 +1979,39 @@ export function useUpdateMeterReadingsImportTaskMutation(baseOptions?: Apollo.Mu
 export type UpdateMeterReadingsImportTaskMutationHookResult = ReturnType<typeof useUpdateMeterReadingsImportTaskMutation>;
 export type UpdateMeterReadingsImportTaskMutationResult = Apollo.MutationResult<Types.UpdateMeterReadingsImportTaskMutation>;
 export type UpdateMeterReadingsImportTaskMutationOptions = Apollo.BaseMutationOptions<Types.UpdateMeterReadingsImportTaskMutation, Types.UpdateMeterReadingsImportTaskMutationVariables>;
+export const UpdatePropertyMetersDocument = gql`
+    mutation updatePropertyMeters($data: [PropertyMetersUpdateInput!]!) {
+  propertyMeters: updatePropertyMeters(data: $data) {
+    id
+  }
+}
+    `;
+export type UpdatePropertyMetersMutationFn = Apollo.MutationFunction<Types.UpdatePropertyMetersMutation, Types.UpdatePropertyMetersMutationVariables>;
+
+/**
+ * __useUpdatePropertyMetersMutation__
+ *
+ * To run a mutation, you first call `useUpdatePropertyMetersMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePropertyMetersMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updatePropertyMetersMutation, { data, loading, error }] = useUpdatePropertyMetersMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdatePropertyMetersMutation(baseOptions?: Apollo.MutationHookOptions<Types.UpdatePropertyMetersMutation, Types.UpdatePropertyMetersMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<Types.UpdatePropertyMetersMutation, Types.UpdatePropertyMetersMutationVariables>(UpdatePropertyMetersDocument, options);
+      }
+export type UpdatePropertyMetersMutationHookResult = ReturnType<typeof useUpdatePropertyMetersMutation>;
+export type UpdatePropertyMetersMutationResult = Apollo.MutationResult<Types.UpdatePropertyMetersMutation>;
+export type UpdatePropertyMetersMutationOptions = Apollo.BaseMutationOptions<Types.UpdatePropertyMetersMutation, Types.UpdatePropertyMetersMutationVariables>;
 export const GetAllMiniAppsDocument = gql`
     query getAllMiniApps($data: AllMiniAppsInput!) {
   allMiniApps: allMiniApps(data: $data) {
