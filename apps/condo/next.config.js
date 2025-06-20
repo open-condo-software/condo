@@ -1,5 +1,6 @@
 // @ts-check
 const withTMModule = require('next-transpile-modules')
+const withLess = require('next-with-less')
 
 const conf = require('@open-condo/config')
 
@@ -72,7 +73,13 @@ const aiEnabled = conf['AI_ENABLED']
 const contactPageResidentAnalytics = JSON.parse(conf['CONTACT_PAGE_RESIDENT_ANALYTICS'] || '{}')
 const displayTicketInfoOnShare = conf['SHOW_TICKET_INFO_ON_SHARE'] === 'true'
 
-let nextConfig = withTM({
+let nextConfig = withTM(withLess({
+    lessLoaderOptions: {
+        lessOptions: {
+            javascriptEnabled: true,
+            modifyVars: antGlobalVariables,
+        },
+    },
     // skipTrailingSlashRedirect: true,
     publicRuntimeConfig: {
         // Will be available on both server and client
@@ -142,32 +149,9 @@ let nextConfig = withTM({
             ...(config.module.rules || []),
             { test: /lang\/.*\.njk$/, use: 'raw-loader' },
             { test: /lang\/.*\.md$/, use: 'raw-loader' },
-            // {
-            //     test: /\.less$/,
-            //     use: [
-            //         {
-            //             loader: 'style-loader',
-            //         },
-            //         {
-            //             loader: 'css-loader',
-            //         },
-            //         {
-            //             loader: 'less-loader',
-            //             options: {
-            //                 lessOptions: {
-            //                     javascriptEnabled: true,
-            //                     modifyVars: antGlobalVariables,
-            //                 },
-            //             },
-            //         },
-            //     ],
-            // },
         ]
-
-        const a = 3
-
         return config
     },
-})
+}))
 
 module.exports = nextConfig
