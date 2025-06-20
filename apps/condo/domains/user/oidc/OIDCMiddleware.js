@@ -79,8 +79,15 @@ class OIDCMiddleware {
             try {
                 let interactionDetails = await provider.interactionDetails(req, res)
 
+                console.log('oidc/interaction/:uid', interactionDetails)
+
+                // console.log('oidc/interaction/:uid:2', req)
+
+                const authUIFlags = interactionDetails?.params?.auth_ui_flags || null
+
+
                 if (!req.user) {
-                    res.redirect(`/auth/signin?next=${req.url}`)
+                    res.redirect(`/auth/signin?next=${req.url}${authUIFlags ? '&auth_ui_flags=' + authUIFlags : ''}`)
                     return
                 }
 

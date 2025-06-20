@@ -91,6 +91,9 @@ module.exports = function createConfiguration (context, conf) {
         },
         interactions: {
             url (ctx, interaction) { // eslint-disable-line no-unused-vars
+                console.log('interactions:url::ctx', ctx)
+                console.log('interactions:url::interaction', interaction)
+
                 return `/oidc/interaction/${interaction.uid}`
             },
         },
@@ -162,5 +165,6 @@ module.exports = function createConfiguration (context, conf) {
          * The key set may be generated with {@link https://mkjwk.org/}
          */
         jwks: jwksStr ? JSON.parse(jwksStr) : undefined,
+        extraParams: ['auth_ui_flags'],
     }
 }
