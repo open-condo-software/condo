@@ -3,10 +3,18 @@
 @import (reference) "@open-condo/ui/src/components/style/mixins/typography";
 @import (reference) "@open-condo/ui/src/components/style/mixins/button";
 
-@condo-button-padding-vert: @condo-global-spacing-12;
-@condo-button-padding-hor: @condo-global-spacing-20;
+@condo-button-padding-vert-l: @condo-global-spacing-12;
+@condo-button-padding-hor-l: @condo-global-spacing-20;
+@condo-button-padding-vert-m: @condo-global-spacing-4 + 1px;
+@condo-button-padding-hor-m: @condo-global-spacing-12;
+
+@condo-button-padding-vert-compact: @condo-global-spacing-4;
+@condo-button-padding-hor-compact: @condo-global-spacing-4;
+
 @condo-button-border-width: @condo-global-border-width-default;
-@condo-button-line-height: @condo-global-typography-h4-line-height;
+@condo-button-line-height-l: @condo-global-typography-h4-line-height;
+@condo-button-line-height-m: @condo-global-typography-h5-line-height;
+
 @condo-button-focus-outline-width: @condo-global-border-width-default * 4;
 @condo-button-border-radius: @condo-global-border-radius-medium;
 @condo-button-gap: @condo-global-spacing-8;
@@ -18,11 +26,99 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 64px;
   text-shadow: none;
   border-radius: @condo-button-border-radius;
   box-shadow: none;
   transition: none;
+
+  &-M {
+    min-width: @condo-global-spacing-32;
+    .condo-typography-h5();
+  }
+
+  &-L {
+    min-width: @condo-global-spacing-48;
+    .condo-typography-h4();
+  }
+
+  &-M.condo-btn-primary {
+    .condo-btn(@condo-button-line-height-m, @condo-button-padding-vert-m, @condo-button-padding-hor-m, 0);
+  }
+
+  &-M.condo-btn-secondary {
+    .condo-btn(@condo-button-line-height-m, @condo-button-padding-vert-m,
+    @condo-button-padding-hor-m, @condo-button-border-width);
+  }
+
+  &-M.condo-btn-accent {
+    .condo-btn(@condo-button-line-height-m, @condo-button-padding-vert-m,
+    @condo-button-padding-hor-m, @condo-button-border-width);
+  }
+
+  &-L.condo-btn-primary {
+    .condo-btn(@condo-button-line-height-l, @condo-button-padding-vert-l, @condo-button-padding-hor-l, 0);
+  }
+
+  &-L.condo-btn-secondary {
+    .condo-btn(@condo-button-line-height-l, @condo-button-padding-vert-l,
+    @condo-button-padding-hor-l, @condo-button-border-width);
+  }
+
+  &-L.condo-btn-accent {
+    .condo-btn(@condo-button-line-height-l, @condo-button-padding-vert-l,
+    @condo-button-padding-hor-l, @condo-button-border-width);
+  }
+
+  &-M.condo-btn-compact.condo-btn-primary {
+    min-width: 0;
+    .condo-btn(@condo-button-line-height-m, @condo-button-padding-vert-compact, @condo-button-padding-hor-compact, 0);
+  }
+
+  &-M.condo-btn-compact.condo-btn-secondary {
+    min-width: 0;
+    .condo-btn(@condo-button-line-height-m, @condo-button-padding-vert-compact,
+    @condo-button-padding-hor-compact, @condo-button-border-width);
+  }
+
+  &-M.condo-btn-compact.condo-btn-accent {
+    min-width: 0;
+    .condo-btn(@condo-button-line-height-m, @condo-button-padding-vert-compact,
+    @condo-button-padding-hor-compact, @condo-button-border-width);
+  }
+
+  &-L.condo-btn-compact.condo-btn-primary {
+    min-width: 0;
+    .condo-btn(@condo-button-line-height-l, @condo-button-padding-vert-compact, @condo-button-padding-hor-compact, 0);
+  }
+
+  &-L.condo-btn-compact.condo-btn-secondary {
+    min-width: 0;
+    .condo-btn(@condo-button-line-height-l, @condo-button-padding-vert-compact,
+    @condo-button-padding-hor-compact, @condo-button-border-width);
+  }
+
+  &-L.condo-btn-compact.condo-btn-accent {
+    min-width: 0;
+    .condo-btn(@condo-button-line-height-l, @condo-button-padding-vert-compact,
+    @condo-button-padding-hor-compact, @condo-button-border-width);
+  }
+
+  &-minimal {
+    .condo-btn(@condo-button-line-height-m, @condo-button-padding-vert-compact,
+    @condo-button-padding-hor-compact, 0) !important;
+
+    background: none !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+
+    &::before {
+      display: none !important;
+    }
+  }
+
+  &-minimal.condo-btn-compact {
+    padding: 0;
+  }
 
   span {
     position: relative;
@@ -60,15 +156,13 @@
   }
 
   &-primary {
-    .condo-btn(@condo-button-line-height, @condo-button-padding-vert,
-    @condo-button-padding-hor, 0);
-
     color: @condo-global-color-white;
     background: @condo-global-color-black;
     transition-property: background-color;
 
     & > .condo-btn-text {
       color: @condo-global-color-white;
+      background: transparent;
     }
 
     &::before {
@@ -100,6 +194,15 @@
       }
     }
 
+    &.condo-btn-minimal {
+      .condo-btn-content-color(@condo-global-color-black);
+
+      &:hover {
+        .condo-btn-static-text-color(@condo-global-color-green-5);
+        .condo-btn-content-color(@condo-global-color-green-5);
+      }
+    }
+
     &.condo-btn-stateless {
       &:focus,
       &:hover,
@@ -128,6 +231,26 @@
 
       &:active {
         background: @condo-global-color-red-5;
+      }
+
+      &.condo-btn-minimal {
+        .condo-btn-content-color(@condo-global-color-red-5);
+        .condo-btn-static-text-color(@condo-global-color-red-5);
+
+        &:hover {
+          .condo-btn-content-color(@condo-global-color-red-7);
+          .condo-btn-static-text-color(@condo-global-color-red-7);
+        }
+
+        &.condo-btn-stateless {
+          &:focus,
+          &-focus,
+          &:hover,
+          &:active {
+            .condo-btn-content-color(@condo-global-color-red-5);
+            .condo-btn-static-text-color(@condo-global-color-red-5);
+          }
+        }
       }
 
       &.condo-btn-stateless {
@@ -164,13 +287,14 @@
   }
 
   &-secondary {
-    .condo-btn(@condo-button-line-height, @condo-button-padding-vert,
-    @condo-button-padding-hor, @condo-button-border-width);
-
     color: @condo-global-color-black;
     border: @condo-button-border-width solid @condo-global-color-gray-7;
     transition: background-color @condo-global-transition-duration-default ease-in-out;
     .condo-btn-content-color(@condo-global-color-black);
+
+    &.condo-btn-minimal {
+      .condo-btn-content-color(@condo-global-color-gray-7);
+    }
 
     & > .condo-btn-text {
       background: transparent;
@@ -292,6 +416,14 @@
         .condo-btn-content-color(@condo-global-color-black);
       }
 
+      &.condo-btn-minimal:not(.condo-btn-dangerous) {
+        .condo-btn-content-color(@condo-global-color-gray-7);
+      }
+
+      &.condo-btn-minimal:not(.condo-btn-dangerous):hover {
+        .condo-btn-content-color(@condo-global-color-gray-7);
+      }
+
       &:hover,
       &:active {
         background: transparent;
@@ -329,6 +461,195 @@
     }
   }
 
+  &-accent {
+    .condo-btn-static-text-color(@condo-global-color-green-5);
+    .condo-btn-content-color(@condo-global-color-green-5);
+
+    & > .condo-btn-text {
+      background: transparent;
+    }
+
+    &::before {
+      .condo-btn-layer(-@condo-button-border-width);
+
+      background: @condo-global-color-brand-gradient-5;
+      opacity: 0;
+      transition: opacity @condo-global-transition-duration-default ease-in-out;
+    }
+
+    &,
+    &:focus,
+    &-focus {
+      background: transparent;
+    }
+
+    &:hover {
+      .condo-btn-static-text-color(@condo-global-color-white);
+      .condo-btn-content-color(@condo-global-color-white);
+
+      &::before {
+        opacity: 1;
+      }
+    }
+
+    &:active {
+      .condo-btn-static-text-color(@condo-global-color-white);
+      .condo-btn-content-color(@condo-global-color-white);
+
+      &::before {
+        opacity: 0.9;
+      }
+    }
+
+    &.condo-btn-minimal {
+      .condo-btn-static-text-color(@condo-global-color-green-5);
+      .condo-btn-content-color(@condo-global-color-green-5);
+
+      &::before {
+        opacity: 0;
+      }
+
+      &::after {
+        opacity: 0;
+      }
+    }
+
+    &::after {
+      .condo-btn-layer(-@condo-button-border-width);
+
+      box-sizing: border-box;
+      background: @condo-global-color-brand-gradient-5 border-box;
+      border: @condo-button-border-width solid transparent;
+      opacity: 1;
+      transition: opacity @condo-global-transition-duration-default ease-out;
+      mask: linear-gradient(#111 0 0) padding-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+    }
+
+    &:focus-visible {
+      &::after {
+        .condo-btn-layer(-5px);
+
+        opacity: 1;
+      }
+    }
+
+    &.condo-btn-dangerous {
+      .condo-btn-content-color(@condo-global-color-red-5);
+      .condo-btn-static-text-color(@condo-global-color-red-5);
+
+      &::before {
+        display: none;
+      }
+
+      &::after {
+        opacity: 0;
+      }
+
+      &:focus-visible::after,
+      &-focus::after {
+        opacity: 1;
+      }
+
+      border: @condo-button-border-width solid @condo-global-color-red-5;
+
+      &:hover {
+        background: @condo-global-color-red-1;
+        .condo-btn-content-color(@condo-global-color-red-7);
+        .condo-btn-static-text-color(@condo-global-color-red-7);
+      }
+
+      &:active {
+        background: @condo-global-color-red-1;
+        .condo-btn-content-color(@condo-global-color-red-5);
+        .condo-btn-static-text-color(@condo-global-color-red-5);
+      }
+
+      &::before,
+      &:focus::before,
+      &-focus::before {
+        background: @condo-global-color-red-5 border-box;
+      }
+
+      &:hover::before {
+        background: @condo-global-color-red-7 border-box;
+      }
+
+      &:active::before {
+        background: @condo-global-color-red-5 border-box;
+      }
+
+      &.condo-btn-stateless {
+        &:hover,
+        &:active,
+        &:focus,
+        &-focus {
+          .condo-btn-content-color(@condo-global-color-red-5);
+          .condo-btn-static-text-color(@condo-global-color-red-5);
+        }
+
+        &::before,
+        &:focus::before,
+        &-focus::before,
+        &:hover::before,
+        &:active::before {
+          background: @condo-global-color-red-5 border-box;
+        }
+      }
+    }
+
+    &:disabled {
+      background: transparent;
+      border: @condo-button-border-width solid @condo-global-color-gray-7;
+      opacity: @condo-global-opacity-disabled;
+
+      .condo-btn-content-color(@condo-global-color-black);
+      .condo-btn-static-text-color(@condo-global-color-black);
+
+      &::after {
+        opacity: 0;
+      }
+    }
+
+    &.condo-btn-stateless {
+      &:not(.condo-btn-dangerous) {
+        .condo-btn-content-color(@condo-global-color-green-5);
+      }
+
+      &:hover,
+      &:active {
+        background: transparent;
+      }
+
+      &:hover::before,
+      &:active::before {
+        opacity: 0;
+      }
+    }
+
+    //&:disabled,
+    &:disabled:hover,
+    &:disabled:active,
+    &:disabled:focus,
+    &.condo-btn-dangerous:disabled,
+    &.condo-btn-dangerous:disabled:hover,
+    &.condo-btn-dangerous:disabled:active,
+    &.condo-btn-dangerous:disabled:focus,
+    &.condo-btn-focus:disabled {
+      background: transparent;
+      border: @condo-button-border-width solid @condo-global-color-gray-7;
+      opacity: @condo-global-opacity-disabled;
+
+      .condo-btn-content-color(@condo-global-color-black);
+      .condo-btn-static-text-color(@condo-global-color-black);
+
+      &::before {
+        opacity: 0;
+      }
+    }
+  }
+
   & > &-icon {
     display: inline-flex;
   }
@@ -336,11 +657,11 @@
 
 a.condo-btn {
   &-primary {
-    .condo-btn-href(@condo-button-line-height, @condo-button-padding-vert, @condo-button-padding-hor, 0);
+    .condo-btn-href(@condo-button-line-height-l, @condo-button-padding-vert-l, @condo-button-padding-hor-l, 0);
   }
 
   &-secondary {
-    .condo-btn-href(@condo-button-line-height, @condo-button-padding-vert, @condo-button-padding-hor,
+    .condo-btn-href(@condo-button-line-height-l, @condo-button-padding-vert-l, @condo-button-padding-hor-l,
     @condo-button-border-width);
   }
 }
