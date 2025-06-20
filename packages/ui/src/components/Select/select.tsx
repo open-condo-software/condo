@@ -92,7 +92,7 @@ const Select = <ValueType extends SelectValueTypeBase>(props: SelectProps<ValueT
         ...rest
     } = props
 
-    const children = useItems(options)
+    const children = useItems(options, id)
 
     const className = classNames({
         [`${SELECT_CLASS_PREFIX}-${displayMode}`]: displayMode,
