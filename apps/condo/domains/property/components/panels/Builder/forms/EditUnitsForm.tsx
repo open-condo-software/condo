@@ -81,7 +81,8 @@ const EditUnitsForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setD
                                         value={unitTypeLabel}
                                         onChange={updateUnitType}
                                         options={unitSubtypeOptions}
-                                        data-cy='property-map__unit-form__unit-type-select'
+                                        data-cy='property-map__units-form__unit-type-select'
+                                        id='property-map__units-form__unit-type-select'
                                     />
                                 </Space>
                             </Col>

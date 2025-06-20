@@ -147,6 +147,7 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
                             disabled={builder.isEmptySections}
                             options={sectionOptions}
                             data-cy='property-map__add-section-form__section-mode-select'
+                            id='property-map__add-section-form__section-mode-select'
                         />
                     </Col>
                     <Col span={24} hidden={isCreateColumnsHidden}>
@@ -157,6 +158,7 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
                                 onChange={(value) => setUnitType(value as BuildingUnitSubType)}
                                 options={unitTypeOptions}
                                 data-cy='property-map__add-section-form__unit-type'
+                                id='property-map__add-section-form__unit-type'
                             />
                         </Space>
                     </Col>

@@ -117,6 +117,7 @@ const AddSectionFloorForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh
                                     setUnitType(unitType as BuildingUnitSubType)
                                 }}
                                 options={unitSubtypeOptions}
+                                id='property-map__add-section-floor-form__unit-type-select'
                             />
                         </Space>
                     </Col>
@@ -129,6 +130,7 @@ const AddSectionFloorForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh
                                     setSection(Number(value))
                                 }}
                                 options={sectionOptions}
+                                id='property-map__add-section-floor-form__section-select'
                             />
                         </Space>
                     </Col>
