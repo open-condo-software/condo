@@ -196,7 +196,7 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
         }
 
         if (workFinishedInLastDays) {
-            where.workFinish_gte = dayjs().subtract(workFinishedInLastDays, 'days').toISOString()
+            where.workFinish_gte = dayjs().startOf('D').subtract(workFinishedInLastDays, 'days').toISOString()
         }
 
         const {
