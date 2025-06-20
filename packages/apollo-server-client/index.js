@@ -170,7 +170,7 @@ class ApolloServerClient {
         const decodedToken = decodeURIComponent(miniAppAuth.cookieJar.get('keystone.sid'))
 
         const miniAppClient = new ApolloServerClient(apiEndpoint, this.authRequisites)
-        miniAppClient.authToken = decodedToken.split('s:')[1]
+        miniAppClient.signInByToken(decodedToken.split('s:')[1])
 
         return miniAppClient
     }
