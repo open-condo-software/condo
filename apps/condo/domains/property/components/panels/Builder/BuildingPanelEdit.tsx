@@ -92,7 +92,6 @@ interface IBuildingPanelEditProps extends Pick<IPropertyMapFormProps, 'canManage
     updateMap: (map: BuildingMap) => void
     handleSave(): void
     property?: PropertyType
-    mapValidationError?: string
 }
 
 interface IBuildingPanelTopModalProps {
@@ -159,7 +158,6 @@ const useHotkeyToSaveProperty = ({ map, mapEdit, property, canManageProperties }
         if (!mapEdit.validate()) {
             notification.error({
                 message: MapValidationError,
-                placement: 'bottomRight',
             })
 
             return
@@ -182,7 +180,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     const ParkingSectionPrefixTitle = intl.formatMessage({ id: 'pages.condo.property.ParkingSectionSelect.OptionPrefix' })
     const MapValidationError = intl.formatMessage({ id: 'pages.condo.property.warning.modal.SameUnitNamesErrorMsg' })
 
-    const { mapValidationError, map, updateMap: updateFormField, handleSave, property, canManageProperties = false } = props
+    const { map, updateMap: updateFormField, handleSave, property, canManageProperties = false } = props
 
     const { push, query: { id } } = useRouter()
     const [mapEdit, setMapEdit] = useState(new MapEdit(map, updateFormField))
@@ -208,9 +206,8 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
 
         notification.error({
             message: MapValidationError,
-            placement: 'bottomRight',
         })
-    }, [handleSave, mapValidationError, mapEdit])
+    }, [handleSave, mapEdit])
 
     const refresh = useCallback(() => {
         setMapEdit(cloneDeep(mapEdit))
