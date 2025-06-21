@@ -52,26 +52,19 @@ const ALLOWED_TYPES = {
         valueIsValid: (value) => typeof value === 'string',
 
         toStringFilterData: (value) => value,
-        toIntFilterData: () => null,
-        toFloatFilterData: () => null,
-        toNonNegativeDecimalFilterData: () => null,
-        toBooleanFilterData: (value) => value,
+        // toIntFilterData: () => null,
+        // toFloatFilterData: () => null,
+        // toNonNegativeDecimalFilterData: () => null,
+        // toBooleanFilterData: (value) => value,
     },
     [JSON_TYPE]: {
-        valueIsValid: (value) => {
-            try {
-                JSON.parse(value)
-                return true
-            } catch (err) {
-                return false
-            }
-        },
+        valueIsValid: (value) => true, // Since customValue.data is stored in JSON it does not need to be checked
 
         toStringFilterData: (value) => JSON.stringify(value),
-        toIntFilterData: () => null,
-        toFloatFilterData: () => null,
-        toNonNegativeDecimalFilterData: () => null,
-        toBooleanFilterData: (value) => value,
+        // toIntFilterData: () => null,
+        // toFloatFilterData: () => null,
+        // toNonNegativeDecimalFilterData: () => null,
+        // toBooleanFilterData: (value) => value,
     },
     // [DATETIME_TYPE]: {
     //     valueIsValid: (value) => typeof value === 'string',
@@ -115,8 +108,6 @@ const CustomField = new GQLListSchema('CustomField', {
             schemaDoc: 'User friendly name of the field. Will be displayed in UI',
             type: 'Text',
             isRequired: true,
-            // Todo @toplenboren why localized text is not showing in Admin Panel ?
-            //template: 'miniapp.customField.*.name',
         },
 
         priority: {
