@@ -24,7 +24,6 @@ const { generateGqlQueryToOrganizationId } = require('../utils/b2bAppServiceUser
 const ajv = new Ajv()
 
 const B2B_APP_SOURCE_TYPE = 'B2BApp'
-const USER_SOURCE_TYPE = 'User'
 
 const ALLOWED_SOURCE_TYPES_CONFIG = {
     [B2B_APP_SOURCE_TYPE]: {
@@ -62,18 +61,6 @@ const ALLOWED_SOURCE_TYPES_CONFIG = {
             }
         },
     },
-    // [USER_SOURCE_TYPE]: {
-    //     validateSourceId: async (args) => {
-    //         const { context, sourceId: userSourceId } = args
-    //
-    //         const userId = context?.authedItem?.id
-    //         if (!userId || context.authedListKey !== 'User') {
-    //             return false
-    //         }
-    //
-    //         return userSourceId === userId
-    //     },
-    // },
 }
 
 const INVALID_OBJECT_ID = 'INVALID_OBJECT_ID'
@@ -337,7 +324,6 @@ const CustomValue = new GQLListSchema('CustomValue', {
                 }
             }
 
-            // todo @toplenboren, should I always check source id?
             const sourceType = resultObject.sourceType
             const sourceId = resultObject.sourceId
 
