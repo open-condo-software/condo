@@ -20,8 +20,6 @@ const ORGANIZATION_SCHEMA = 'Organization'
 
 const STRING_TYPE = 'String'
 const JSON_TYPE = 'Json'
-const DATETIME_TYPE = 'Datetime'
-const BOOLEAN_TYPE = 'Boolean' // todo: @toplenboren create infering
 
 const ALLOWED_SCHEMAS = {
     [CONTACT_SCHEMA]: {
@@ -52,38 +50,12 @@ const ALLOWED_TYPES = {
         valueIsValid: (value) => typeof value === 'string',
 
         toStringFilterData: (value) => value,
-        // toIntFilterData: () => null,
-        // toFloatFilterData: () => null,
-        // toNonNegativeDecimalFilterData: () => null,
-        // toBooleanFilterData: (value) => value,
     },
     [JSON_TYPE]: {
-        valueIsValid: (value) => true, // Since customValue.data is stored in JSON it does not need to be checked
+        valueIsValid: () => true, // Since customValue.data is stored in JSON it does not need to be checked
 
         toStringFilterData: (value) => JSON.stringify(value),
-        // toIntFilterData: () => null,
-        // toFloatFilterData: () => null,
-        // toNonNegativeDecimalFilterData: () => null,
-        // toBooleanFilterData: (value) => value,
     },
-    // [DATETIME_TYPE]: {
-    //     valueIsValid: (value) => typeof value === 'string',
-    //
-    //     toStringFilterData: (value) => value,
-    //     toIntFilterData: () => null,
-    //     toFloatFilterData: () => null,
-    //     toNonNegativeDecimalFilterData: () => null,
-    //     toBooleanFilterData: (value) => value,
-    // },
-    // [BOOLEAN_TYPE]: {
-    //     valueIsValid: (value) => typeof value === 'boolean',
-    //
-    //     toStringFilterData: () => null,
-    //     toIntFilterData: () => null,
-    //     toFloatFilterData: () => null,
-    //     toNonNegativeDecimalFilterData: () => null,
-    //     toBooleanFilterData: (value) => value,
-    // },
 }
 
 
