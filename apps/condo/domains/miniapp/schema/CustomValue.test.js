@@ -472,7 +472,7 @@ describe('CustomValue', () => {
                 const [stringWithValidationsCustomFieldObj] = await createTestCustomField(support, {
                     schemaName: 'Property',
                     type: 'String',
-                    validationRules: { minLength: 2, maxLength: 5, pattern: '^[a-zA-Z]+$' }, // todo @toplenboren ajv only format?
+                    validationRules: { type: 'string', minLength: 2, maxLength: 5, pattern: '^[a-zA-Z]+$' },
                 })
                 CUSTOM_FIELDS.stringWithValidations = stringWithValidationsCustomFieldObj
 
@@ -485,7 +485,21 @@ describe('CustomValue', () => {
                 const [jsonCustomFieldWithValidationsObj] = await createTestCustomField(support, {
                     schemaName: 'Property',
                     type: 'Json',
-                    validationRules: {},
+                    validationRules: {
+                        type: 'object',
+                        properties: {
+                            requiredProperty: {
+                                type: 'object',
+                                properties: {
+                                    innerProperty: {
+                                        type: 'string',
+                                    },
+                                },
+                            },
+                        },
+                        required: ['requiredProperty'],
+                        additionalProperties: false,
+                    },
                 })
                 CUSTOM_FIELDS.jsonWithValidations = jsonCustomFieldWithValidationsObj
 
@@ -502,33 +516,54 @@ describe('CustomValue', () => {
                 }
             })
 
-            describe('failing cases:', () => {
-                const PAYLOADS = {
-                    // type valdations
-                    'string: can\'t convert number to string': { customFieldType: 'string', data: 24 },
+            describe('failing cases', () => {
 
-                    // validationRules validations
-                    'string: too big': { customFieldType: 'stringWithValidations', data: 'abcdefg' },
-                    'string: does not follow regexp': { customFieldType: 'stringWithValidations', data: '12345' },
-                    'string: too small': { customFieldType: 'stringWithValidations', data: 'a' },
+                describe('bad type', () => {
+                    const TYPE_VALIDATION_PAYLOADS = {
+                        'string: can\'t convert number to string': { customFieldType: 'string', data: 24 },
+                    }
 
-                    'json: non existing property': { customFieldType: 'jsonWithValidations', data: {} },
-                    'json: bad inner property type': { customFieldType: 'jsonWithValidations', data: {} },
-                    'json: not all required fields are specified': { customFieldType: 'jsonWithValidations', data: {} },
-                }
+                    test.each(Object.keys(TYPE_VALIDATION_PAYLOADS))('%p', async (key) => {
+                        const customFieldType = TYPE_VALIDATION_PAYLOADS[key].customFieldType
+                        const customField = CUSTOM_FIELDS[customFieldType]
 
-                test.each(Object.keys(PAYLOADS))('bad value: %p', async (key) => {
-                    const customFieldType = PAYLOADS[key].customFieldType
-                    const customField = CUSTOM_FIELDS[customFieldType]
+                        const extraAttrs = { ...commonPayload, data: TYPE_VALIDATION_PAYLOADS[key].data }
 
-                    const extraAttrs = { ...commonPayload, data: PAYLOADS[key].data }
+                        await expectToThrowGQLError(async () => {
+                            await createTestCustomValue(support, customField, organization, extraAttrs)
+                        }, {
+                            code: 'BAD_USER_INPUT',
+                            type: 'INVALID_DATA_TYPE',
+                            message: 'Type of the provided data is invalid. Check type rules for provided customField',
+                        })
+                    })
+                })
 
-                    await expectToThrowGQLError(async () => {
-                        await createTestCustomValue(support, customField, organization, extraAttrs)
-                    }, {
-                        code: 'BAD_USER_INPUT',
-                        type: 'INVALID_DATA',
-                        message: 'Provided data is invalid. Check type and validation rules for provided customField',
+                describe('bad value', () => {
+                    const DATA_VALIDATION_PAYLOADS = {
+                        // validationRules validations
+                        'string: too big': { customFieldType: 'stringWithValidations', data: 'abcdefg' },
+                        'string: does not follow regexp': { customFieldType: 'stringWithValidations', data: '12345' },
+                        'string: too small': { customFieldType: 'stringWithValidations', data: 'a' },
+
+                        'json: additional property': { customFieldType: 'jsonWithValidations', data: { 'requiredField': { 'innerField': 'string' }, 'additional-property': 'value' } },
+                        'json: incorrect inner property type': { customFieldType: 'jsonWithValidations', data: { 'requiredField': { 'innerField': 24 } } },
+                        'json: not all required fields are specified': { customFieldType: 'jsonWithValidations', data: {} },
+                    }
+
+                    test.each(Object.keys(DATA_VALIDATION_PAYLOADS))('%p', async (key) => {
+                        const customFieldType = DATA_VALIDATION_PAYLOADS[key].customFieldType
+                        const customField = CUSTOM_FIELDS[customFieldType]
+
+                        const extraAttrs = { ...commonPayload, data: DATA_VALIDATION_PAYLOADS[key].data }
+
+                        await expectToThrowGQLError(async () => {
+                            await createTestCustomValue(support, customField, organization, extraAttrs)
+                        }, {
+                            code: 'BAD_USER_INPUT',
+                            type: 'INVALID_DATA',
+                            message: '"data" field validation error. JSON was not in the correct format',
+                        })
                     })
                 })
             })
@@ -969,9 +1004,13 @@ describe('CustomValue', () => {
 
 
             // 5. Staff users read and filter on custom values
-
             const staffUserCustomValues = await CustomValue.getAll(orgEmployeeClient, {})
             expect(staffUserCustomValues).toHaveLength(5)
+
+            const staffUserCustomValues2 = await CustomValue.getAll(orgEmployeeClient, {
+                filterDataString: '123',
+            })
+            expect(staffUserCustomValues2).toHaveLength(2)
         })
     })
 })

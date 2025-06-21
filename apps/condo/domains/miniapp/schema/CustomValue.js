@@ -8,7 +8,7 @@ const { get } = require('lodash')
 const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
-const { GQLListSchema, getById, find } = require('@open-condo/keystone/schema')
+const { GQLListSchema, getById, find, itemsQuery } = require('@open-condo/keystone/schema')
 
 const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')
 const { UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
@@ -65,18 +65,23 @@ const ALLOWED_SOURCE_TYPES_CONFIG = {
 
 const INVALID_OBJECT_ID = 'INVALID_OBJECT_ID'
 const INVALID_SOURCE = 'INVALID_SOURCE'
+const INVALID_DATA_TYPE = 'INVALID_DATA_TYPE'
 const INVALID_DATA = 'INVALID_DATA'
 const INVALID_CUSTOM_FIELD = 'INVALID_CUSTOM_FIELD'
 const INVALID_UNIT = 'INVALID_UNIT'
 const INVALID_ADDRESS_KEY = 'INVALID_ADDRESS_KEY'
 const ALREADY_EXISTS_UNIQ_KEY = 'ALREADY_EXISTS_UNIQ_KEY'
 const ALREADY_EXISTS_OBJECT_ID = 'ALREADY_EXISTS_OBJECT_ID'
+const FAILED_TO_CAST = 'FAILED_TO_CAST'
 
 const ERRORS = {
     INVALID_DATA: {
-        code: BAD_USER_INPUT,
         type: INVALID_DATA,
-        message: 'Provided data is invalid. Check type and validation rules for provided customField',
+    },
+    INVALID_DATA_TYPE: {
+        code: BAD_USER_INPUT,
+        type: INVALID_DATA_TYPE,
+        message: 'Type of the provided data is invalid. Check type rules for provided customField',
     },
     INVALID_OBJECT_ID: {
         code: BAD_USER_INPUT,
@@ -102,6 +107,11 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: INVALID_CUSTOM_FIELD,
         message: 'Custom field for this value does not exist',
+    },
+    FAILED_TO_CAST: {
+        code: BAD_USER_INPUT,
+        type: FAILED_TO_CAST,
+        message: 'Failed to cast customValue to another type',
     },
     ALREADY_EXISTS_UNIQ_KEY: {
         code: BAD_USER_INPUT,
@@ -140,7 +150,7 @@ const CustomValue = new GQLListSchema('CustomValue', {
         },
 
         filterDataString: {
-            schemaDoc: 'String representation of data. Controlled by type field in customValue. Use it for filtering',
+            schemaDoc: 'String representation of data. Actual logic is controlled by type field in customValue. Use it for filtering',
             type: 'Text',
             isRequired: false,
             access: {
@@ -148,38 +158,6 @@ const CustomValue = new GQLListSchema('CustomValue', {
                 update: false,
             },
         },
-
-        // todo: toplenboren, do we need this fields?
-        // filterDataInt: {
-        //     schemaDoc: 'Int representation of data. Controlled by type field in customValue. Use it for filtering',
-        //     type: 'Integer',
-        //     isRequired: false,
-        //     access: {
-        //         create: false,
-        //         update: false,
-        //     },
-        // },
-
-        // filterDataFloat: {
-        //     schemaDoc: 'Float representation of data. Controlled by type field in customValue. Use it for filtering',
-        //     type: 'Float',
-        //     isRequired: false,
-        //     access: {
-        //         create: false,
-        //         update: false,
-        //     },
-        // },
-
-        // filterDataNonNegativeDecimal: {
-        //     schemaDoc: 'Signed decimal representation of data. Controlled by type field in customValue. Use it for filtering',
-        //     type: 'SignedDecimal',
-        //     template: 'non-negative',
-        //     isRequired: false,
-        //     access: {
-        //         create: false,
-        //         update: false,
-        //     },
-        // },
 
         sourceType: {
             schemaDoc: 'Type of entity, responsible for the last update of this customField',
@@ -227,7 +205,7 @@ const CustomValue = new GQLListSchema('CustomValue', {
         // isUniquePerUnit, isUniquePerAddress
 
         uniqKey: {
-            schemaDoc: 'User defined custom ID. If set, guaranteed to be unique among single source (sourceType + sourceId)',
+            schemaDoc: 'User defined custom ID. If set, customValue is guaranteed to be unique among single source (sourceType + sourceId)',
             type: 'Text',
             isRequired: false,
         },
@@ -242,14 +220,14 @@ const CustomValue = new GQLListSchema('CustomValue', {
 
             const customFieldType = customField.type
             const customFieldTypeConfig = ALLOWED_TYPES[customFieldType]
-            //
-            // if (customFieldTypeConfig.toStringFilterData) {
-            //     try {
-            //         resolvedData.stringFilterData = customFieldTypeConfig.toStringFilterData(resultObject.value)
-            //     } catch (err) {
-            //         resolvedData.stringFilterData = null
-            //     }
-            // }
+
+            if (customFieldTypeConfig.toStringFilterData) {
+                try {
+                    resolvedData.filterDataString = customFieldTypeConfig.toStringFilterData(resultObject.data)
+                } catch (err) {
+                    throw new GQLError(ERRORS.FAILED_TO_CAST, context)
+                }
+            }
 
             resolvedData.isUniquePerObject = customField.isUniquePerObject
 
@@ -270,12 +248,14 @@ const CustomValue = new GQLListSchema('CustomValue', {
             const customFieldIsUniquePerObject = customField.isUniquePerObject
 
             if (customFieldIsUniquePerObject) {
-                // todo @toplenboren full table scan is bad
-                const existingCustomValues = await find('CustomValue', {
-                    objectId: resultObject.objectId,
-                    organization: { id: resultObject.organization },
-                    customField: { id: resultObject.customField },
-                    deletedAt: null,
+                const existingCustomValues = await itemsQuery('CustomValue', {
+                    where: {
+                        objectId: resultObject.objectId,
+                        organization: { id: resultObject.organization },
+                        customField: { id: resultObject.customField },
+                        deletedAt: null,
+                    },
+                    first: 1,
                 })
 
                 if (existingCustomValues.length > 0) {
@@ -283,26 +263,22 @@ const CustomValue = new GQLListSchema('CustomValue', {
                 }
             }
 
-            // Data
             if (resolvedData.data) {
-                // 1. Validate data on field rules
                 if (!customFieldTypeConfig.valueIsValid(resolvedData.data)) {
-                    throw new GQLError(ERRORS.INVALID_DATA, context)
+                    throw new GQLError(ERRORS.INVALID_DATA_TYPE, context)
                 }
 
-                // 2. Validate data on custom field rules
                 if (customFieldValidationRules) {
-                    const validator = getGQLErrorValidator(ajv.compile(customFieldValidationRules), ERRORS.INVALID_DATA)
+                    const validator = getGQLErrorValidator(ajv.compile(customFieldValidationRules), ERRORS.INVALID_DATA.type)
                     validator( { resolvedData, fieldPath: 'data', context } )
                 }
             }
 
-            // Object ID
             if (resolvedData.objectId || resolvedData.organization) {
                 const objectId = resultObject.objectId
                 const organizationId = resultObject.organization
 
-                // 1. ObjectId should belong to the same organization as this CustomValue
+                // ObjectId should belong to the same organization as this CustomValue
                 const pathToOrganizationId = get(customFieldSchemaConfig, 'pathToOrganizationId', ['organization', 'id'])
 
                 if (!UUID_REGEXP.test(objectId)) {
@@ -348,7 +324,6 @@ const CustomValue = new GQLListSchema('CustomValue', {
                 }
             }
 
-            // Source ID
             // todo @toplenboren, should I always check source id?
             const sourceType = resultObject.sourceType
             const sourceId = resultObject.sourceId
@@ -363,14 +338,16 @@ const CustomValue = new GQLListSchema('CustomValue', {
                 throw new GQLError(ERRORS.INVALID_SOURCE, context)
             }
 
-            // Uniq Key
             if (resolvedData.uniqKey) {
-                const objsWithSameUniqKey = await find('CustomValue',
+                const objsWithSameUniqKey = await itemsQuery('CustomValue',
                     {
-                        organization: { id: resultObject.organization },
-                        customField: { id: resultObject.customField },
-                        uniqKey: resolvedData.uniqKey,
-                        deletedAt: null,
+                        where: {
+                            organization: { id: resultObject.organization },
+                            customField: { id: resultObject.customField },
+                            uniqKey: resolvedData.uniqKey,
+                            deletedAt: null,
+                        },
+                        first: 1,
                     })
 
                 if (objsWithSameUniqKey.length > 0) {
