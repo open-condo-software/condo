@@ -22,7 +22,7 @@ import { useOrganization } from '@open-condo/next/organization'
 
 import { colors } from '@condo/domains/common/constants/style'
 
-import 'react-phone-input-2/lib/style.css'
+// import 'react-phone-input-2/lib/style.css'
 import { RU_LOCALE, ES_LOCALE } from '../constants/locale'
 
 

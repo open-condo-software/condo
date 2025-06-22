@@ -9,7 +9,7 @@ import { Card, Typography } from '@open-condo/ui'
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { useUserMessagesList } from '@condo/domains/notification/contexts/UserMessagesListContext'
 import { MessageTypeAllowedToFilterType, UserMessageType } from '@condo/domains/notification/utils/client/constants'
-import './MessageCard.css'
+// import './MessageCard.css'
 
 dayjs.extend(localizedFormat)
 

@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { Button, ButtonProps } from '@open-condo/ui'
-import './AIFlowButton.css'
+// import './AIFlowButton.css'
 
 type AIFlowButtonProps = Omit<ButtonProps, 'type'>
 

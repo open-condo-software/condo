@@ -1,5 +1,5 @@
 import React from 'react'
-import './InfoBlock.css'
+// import './InfoBlock.css'
 
 
 export const InfoBlock: React.FC = ({ children }) => {

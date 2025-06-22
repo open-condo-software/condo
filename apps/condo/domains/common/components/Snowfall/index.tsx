@@ -6,7 +6,7 @@ import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { SNOWFLAKES_SETTINGS } from '@condo/domains/common/constants/featureflags'
 
-import './Snowfall.css'
+// import './Snowfall.css'
 
 
 type MinMaxType = {

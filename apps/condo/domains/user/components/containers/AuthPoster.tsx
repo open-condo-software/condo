@@ -6,7 +6,7 @@ import { Typography } from '@open-condo/ui'
 
 import { PosterProps } from '@condo/domains/common/components/containers/LayoutWithPoster'
 
-import './AuthPoster.css'
+// import './AuthPoster.css'
 
 
 export const AuthPoster: React.FC<PosterProps> = ({ Header, Footer }) => {

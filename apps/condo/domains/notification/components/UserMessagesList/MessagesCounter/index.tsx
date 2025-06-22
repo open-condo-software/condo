@@ -6,7 +6,7 @@ import { colors } from '@open-condo/ui/dist/colors'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
-import './MessagesCounter.css'
+// import './MessagesCounter.css'
 
 
 type MessagesCounterProps = {

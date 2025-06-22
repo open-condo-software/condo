@@ -15,7 +15,7 @@ import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@condo/domains/news/const
 
 import { NewsItemDataType } from './index'
 
-import './styles.css'
+// import './styles.css'
 
 interface InputStepFormProps {
     newsSharingConfig: B2BAppNewsSharingConfig

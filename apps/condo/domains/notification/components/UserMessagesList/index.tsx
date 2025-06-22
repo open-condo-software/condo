@@ -14,7 +14,7 @@ import { MessageCard as DefaultMessageCard, MessageCardProps } from './MessageCa
 import { MessagesCounter } from './MessagesCounter'
 import { UserMessagesSettingsModal } from './UserMessagesSettingsModal'
 
-import './UserMessagesList.css'
+// import './UserMessagesList.css'
 
 type UserMessagesListProps = {
     MessageCard?: React.FC<MessageCardProps>

@@ -11,7 +11,7 @@ import { Logo } from '@condo/domains/common/components/Logo'
 import { formatPhone } from '@condo/domains/common/utils/helpers'
 import { Layout } from '@condo/domains/user/components/containers/styles'
 
-import './styles.css'
+// import './styles.css'
 
 
 const {
