@@ -1,5 +1,3 @@
-/** @jsx jsx */
-import { jsx } from '@emotion/react'
 import styled from '@emotion/styled'
 import { Col, Row, RowProps } from 'antd'
 import get from 'lodash/get'

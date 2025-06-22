@@ -1,9 +1,7 @@
-/** @jsx jsx */
 import {
     MeterReportingPeriod as MeterReportingPeriodType,
     MeterReportingPeriodWhereInput, QueryAllMeterReportingPeriodsArgs,
 } from '@app/condo/schema'
-import { jsx } from '@emotion/react'
 import { Col, Row, RowProps, Typography } from 'antd'
 import { TableRowSelection } from 'antd/lib/table/interface'
 import chunk from 'lodash/chunk'

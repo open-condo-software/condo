@@ -1,5 +1,3 @@
-/** @jsx jsx */
-import { jsx } from '@emotion/react'
 import styled from '@emotion/styled'
 import { Row, Col, Divider } from 'antd'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'

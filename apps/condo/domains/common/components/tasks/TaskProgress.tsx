@@ -1,6 +1,5 @@
-/** @jsx jsx */
 import { InfoCircleOutlined } from '@ant-design/icons'
-import { css, jsx } from '@emotion/react'
+import { css } from '@emotion/react'
 import styled from '@emotion/styled'
 import { Col, List, notification, Progress, Row, RowProps } from 'antd'
 import isFunction from 'lodash/isFunction'
