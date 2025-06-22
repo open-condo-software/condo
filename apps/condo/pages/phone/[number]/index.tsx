@@ -45,7 +45,7 @@ import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibi
 import { useClientCardTicketTableColumns } from '@condo/domains/ticket/hooks/useClientCardTicketTableColumns'
 import { CallRecordFragment } from '@condo/domains/ticket/utils/clientSchema'
 import { getSectionAndFloorByUnitName } from '@condo/domains/ticket/utils/unit'
-import './index.css'
+// import './index.css'
 
 //#region Constants, types and styles
 type TabDataType = {

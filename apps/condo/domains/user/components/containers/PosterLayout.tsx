@@ -4,7 +4,7 @@ import ProgressiveImage from 'react-progressive-image'
 
 import { LayoutWithPoster, PosterProps as DefaultPosterProps } from '@condo/domains/common/components/containers/LayoutWithPoster'
 
-import './PosterLayout.css'
+// import './PosterLayout.css'
 
 
 type PosterProps = DefaultPosterProps & { image: { main: string, placeholder?: string } }

@@ -2,7 +2,7 @@ import React from 'react'
 
 import { TypographyLinkProps, Typography } from '@open-condo/ui'
 
-import './SecondaryLink.css'
+// import './SecondaryLink.css'
 
 
 export const SecondaryLink: React.FC<TypographyLinkProps> = (props) => {

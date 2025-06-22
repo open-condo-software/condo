@@ -8,7 +8,7 @@ import { Typography, Button, Space } from '@open-condo/ui'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
-import './styles.css'
+// import './styles.css'
 
 
 const { publicRuntimeConfig: { privacyPolicyUrl } } = getConfig()

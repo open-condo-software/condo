@@ -24,6 +24,8 @@
   },
   "exports": {
     "./logging/patchConsoleLogMethods": "./logging/patchConsoleLogMethods.js",
+    "./_utils": "./_utils.ts",
+    "./_useEmitterMutation": "./_useEmitterMutation.ts",
     "./*": "./*.tsx"
   },
   "repository": "https://github.com/open-condo-software/condo/tree/main/packages/next",
