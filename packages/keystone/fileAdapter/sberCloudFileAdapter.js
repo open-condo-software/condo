@@ -1,6 +1,6 @@
 const path = require('path')
 
-const { getItem, getItems } = require('@keystonejs/server-side-graphql-client')
+const { getItem, getItems } = require('@open-keystone/server-side-graphql-client')
 const ObsClient = require('esdk-obs-nodejs')
 const express = require('express')
 const { get, isEmpty, isString, isNil } = require('lodash')

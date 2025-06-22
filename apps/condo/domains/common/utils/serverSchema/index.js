@@ -1,4 +1,4 @@
-const { getItems } = require('@keystonejs/server-side-graphql-client')
+const { getItems } = require('@open-keystone/server-side-graphql-client')
 const { isFunction, isNil } = require('lodash')
 const get = require('lodash/get')
 

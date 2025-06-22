@@ -1,4 +1,4 @@
-const { getType } = require('@keystonejs/utils')
+const { getType } = require('@open-keystone/utils')
 const { get } = require('lodash')
 
 const { composeResolveInputHook, evaluateKeystoneAccessResult } = require('./utils')
