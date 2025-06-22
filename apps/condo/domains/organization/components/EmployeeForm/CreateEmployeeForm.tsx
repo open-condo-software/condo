@@ -1,5 +1,3 @@
-/** @jsx jsx */
-import { jsx } from '@emotion/react'
 import { Col, Form, Row } from 'antd'
 import find from 'lodash/find'
 import get from 'lodash/get'

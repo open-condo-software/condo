@@ -1,9 +1,7 @@
-/** @jsx jsx */
 import {
     OrganizationEmployeeRole,
     PropertyWhereInput,
 } from '@app/condo/schema'
-import { jsx } from '@emotion/react'
 import { Typography } from 'antd'
 import { ColumnsType } from 'antd/lib/table'
 import get from 'lodash/get'

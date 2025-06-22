@@ -1,6 +1,5 @@
-/** @jsx jsx */
 import { ExportTicketAnalyticsToExcelTranslates, TicketGroupedCounter, TicketLabel } from '@app/condo/schema'
-import { css, jsx } from '@emotion/react'
+import { css } from '@emotion/react'
 import { Col, Divider, Form, notification, Radio, Row, Select, TableColumnsType, Tabs, Typography } from 'antd'
 import dayjs, { Dayjs } from 'dayjs'
 import quarterOfYear from 'dayjs/plugin/quarterOfYear'

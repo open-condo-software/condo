@@ -1,5 +1,3 @@
-/** @jsx jsx */
-import { jsx } from '@emotion/react'
 import { Col, Row, RowProps } from 'antd'
 import { isEmpty } from 'lodash'
 import get from 'lodash/get'

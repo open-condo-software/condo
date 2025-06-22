@@ -1,5 +1,3 @@
-/** @jsx jsx */
-import { jsx } from '@emotion/react'
 import { Layout, PageHeader as AntPageHeader, PageHeaderProps } from 'antd'
 import MenuItem from 'antd/lib/menu/MenuItem'
 import classnames from 'classnames'

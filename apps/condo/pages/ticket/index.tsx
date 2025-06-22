@@ -1,4 +1,3 @@
-/** @jsx jsx */
 import {
     useGetCallRecordFragmentExistenceQuery,
     useGetTicketsCountersByStatusQuery,
@@ -7,7 +6,6 @@ import {
     useGetTicketsQuery,
 } from '@app/condo/gql'
 import { SortTicketsBy, Ticket as ITicket, TicketStatusTypeType } from '@app/condo/schema'
-import { jsx } from '@emotion/react'
 import styled from '@emotion/styled'
 import { Col, Row, RowProps } from 'antd'
 import { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox'

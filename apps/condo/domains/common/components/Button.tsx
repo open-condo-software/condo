@@ -1,6 +1,5 @@
-/** @jsx jsx */
 import { green } from '@ant-design/colors'
-import { css, jsx } from '@emotion/react'
+import { css } from '@emotion/react'
 import { Button as DefaultButton, ButtonProps } from 'antd'
 import isString from 'lodash/isString'
 import React, { useCallback, useMemo } from 'react'

@@ -1,5 +1,4 @@
-/** @jsx jsx */
-import { css, jsx } from '@emotion/react'
+import { css } from '@emotion/react'
 import { Select } from 'antd'
 import React, { CSSProperties, useCallback, useEffect, useRef, useState } from 'react'
 

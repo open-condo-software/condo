@@ -1,5 +1,3 @@
-/** @jsx jsx */
-import { jsx } from '@emotion/react'
 import styled from '@emotion/styled'
 import { Row, Col, Form, Skeleton } from 'antd'
 import get from 'lodash/get'

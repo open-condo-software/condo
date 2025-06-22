@@ -1,6 +1,4 @@
-/** @jsx jsx */
 import { TicketStatusTypeType as TicketStatusType } from '@app/condo/schema'
-import { jsx } from '@emotion/react'
 import { Row, Col, Space, RowProps } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'

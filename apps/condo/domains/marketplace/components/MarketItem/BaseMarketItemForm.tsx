@@ -1,6 +1,4 @@
-/** @jsx jsx */
 import { MarketItem as MarketItemType, SortMarketCategoriesBy } from '@app/condo/schema'
-import { jsx } from '@emotion/react'
 import styled from '@emotion/styled'
 import { Col, Form, Input, Row, RowProps, Select, Button as AntdButton } from 'antd'
 import { Rule } from 'antd/lib/form'
