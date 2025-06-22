@@ -108,7 +108,8 @@ const checks = [
     }),
 ]
 
-const lastApp = conf.DISABLE_NEXT_APP ? undefined : new NextApp({ dir: '.' })
+// const lastApp = conf.DISABLE_NEXT_APP ? undefined : new NextApp({ dir: '.' })
+const lastApp = conf.DISABLE_NEXT_APP ? undefined : undefined
 
 const apps = () => {
     return [

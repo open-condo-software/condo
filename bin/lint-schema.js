@@ -2,7 +2,7 @@ const path = require('path')
 
 // eslint-disable-next-line no-restricted-modules
 const { File } = require('@keystonejs/fields')
-const { LocalFileAdapter } = require('@keystonejs/file-adapters')
+const { LocalFileAdapter } = require('@open-keystone/file-adapters')
 
 const { SberCloudFileAdapter } = require('@open-condo/keystone/fileAdapter/sberCloudFileAdapter')
 const { prepareKeystoneExpressApp } = require('@open-condo/keystone/prepareKeystoneApp')

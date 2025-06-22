@@ -71,7 +71,6 @@
   },
   "packageManager": "yarn@3.2.2",
   "resolutions": {
-    "npm": "latest-6",
     "graphql-upload": "^15.0.2",
     "react-intl/@types/react": "^17.0.2",
     "@types/react-transition-group@npm:2.9.2/@types/react": "^17.0.2",
@@ -88,7 +87,6 @@
     "protobufjs@>=6.0.0": "^6.11.4",
     "google-gax@npm:2.30.5/protobufjs": "^6.11.4",
     "mongoose@^5.12.11": "^5.13.20",
-    "@keystonejs/file-adapters/cloudinary@>=1.0.0": "^1.41.3",
     "shell-quote@1.7.2": "^1.7.3",
     "webpack-bundle-analyzer@^3.3.2": "^4",
     "loader-utils@1.2.3": "^1.4.1",

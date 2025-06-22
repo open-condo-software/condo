@@ -1,6 +1,6 @@
 const { existsSync, mkdirSync } = require('fs')
 
-const { LocalFileAdapter } = require('@keystonejs/file-adapters')
+const { LocalFileAdapter } = require('@open-keystone/file-adapters')
 const express = require('express')
 const { isEmpty, get } = require('lodash')
 
