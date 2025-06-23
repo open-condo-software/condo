@@ -17,7 +17,8 @@
 
 @condo-button-focus-outline-width: @condo-global-border-width-default * 4;
 @condo-button-border-radius: @condo-global-border-radius-medium;
-@condo-button-gap: @condo-global-spacing-8;
+@condo-button-gap-m: @condo-global-spacing-4;
+@condo-button-gap-l: @condo-global-spacing-8;
 
 .condo-btn {
   .condo-typography-h4();
@@ -31,14 +32,27 @@
   box-shadow: none;
   transition: none;
 
+  span {
+    position: relative;
+    z-index: 1;
+  }
+
   &-M {
     min-width: @condo-global-spacing-32;
     .condo-typography-h5();
+
+    span + span {
+      margin-left: @condo-button-gap-m;
+    }
   }
 
   &-L {
     min-width: @condo-global-spacing-48;
     .condo-typography-h4();
+
+    span + span {
+      margin-left: @condo-button-gap-l;
+    }
   }
 
   &-M.condo-btn-primary {
@@ -103,15 +117,6 @@
 
   &-minimal.condo-btn-compact {
     padding: 0;
-  }
-
-  span {
-    position: relative;
-    z-index: 1;
-  }
-
-  span + span {
-    margin-left: @condo-button-gap;
   }
 
   // After layer is used to show gradient outline on tab-focusing
