@@ -1,27 +1,41 @@
-const { getGarLevel, getGarParam } = require('./helpers')
+const { getGarParam, resolveTypes } = require('./helpers')
+/**
+ * @typedef {Object} FlatInfo
+ * @property {string|null} flat - The flat number
+ * @property {string|null} flat_type - The type of the flat (e.g., 'кв', 'ком')
+ * @property {string|null} flat_type_full - The full type name of the flat (e.g., 'квартира', 'комната')
+ * @property {string|null} flat_fias_id - The FIAS ID of the flat
+ * @property {string|null} flat_cadnum - The cadastre number of the flat
+ */
 
-function resolveFlat (apartmentLevel) {
-    if (!apartmentLevel) return {}
-
-    const gar = getGarLevel(apartmentLevel.gar, 'apartment')
-    const flat = gar?.room?.num || null
-    let flat_type = 'кв'
-    let flat_type_full = 'квартира'
-
-    // Add mapping with the switch below if needed
-    switch (gar?.room?.type) {
-        case 'apartment':
-            flat_type = 'апарт'
-            flat_type_full = 'апартаменты'
+/**
+ * Resolves the flat information from a GAR object
+ * @param {Object} gar - The GAR object containing flat information
+ * @returns {FlatInfo} An object containing the resolved flat information
+ */
+function resolveFlat (gar) {
+    const ret = {
+        flat: null,
+        flat_type: null,
+        flat_type_full: null,
+        flat_fias_id: null,
+        flat_cadnum: null,
     }
 
-    return {
-        flat,
-        flat_type,
-        flat_type_full,
-        flat_fias_id: gar?.guid || null,
-        flat_cadnum: getGarParam(gar, 'kadasternumber') || null,
+    if (gar) {
+        const flat = gar?.room?.num || null
+        const types = resolveTypes(gar?.room?.type)
+
+        if (!!flat && !!types) {
+            ret.flat = String(flat)
+            ret.flat_type = types.type
+            ret.flat_type_full = types.typeFull
+            ret.flat_fias_id = gar?.guid || null
+            ret.flat_cadnum = getGarParam(gar, 'kadasternumber') || null
+        }
     }
+
+    return ret
 }
 
 module.exports = { resolveFlat }

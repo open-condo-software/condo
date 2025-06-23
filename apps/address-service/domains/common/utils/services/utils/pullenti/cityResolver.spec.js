@@ -2,26 +2,37 @@ const { resolveCity } = require('./cityResolver')
 
 describe('cityResolver', () => {
     describe('resolveCity', () => {
-        it('should return empty object for null input', () => {
-            expect(resolveCity(null)).toEqual({})
-            expect(resolveCity(undefined)).toEqual({})
+        it('should return all null fields for null or undefined input', () => {
+            expect(resolveCity(null)).toEqual({
+                city: null,
+                city_type: null,
+                city_type_full: null,
+                city_with_type: null,
+                city_fias_id: null,
+                city_kladr_id: null,
+            })
+            expect(resolveCity(undefined)).toEqual({
+                city: null,
+                city_type: null,
+                city_type_full: null,
+                city_with_type: null,
+                city_fias_id: null,
+                city_kladr_id: null,
+            })
         })
 
-        it('should resolve city with all fields', () => {
-            const cityLevel = {
-                gar: [{
-                    guid: 'test-guid',
-                    area: {
-                        type: 'город',
-                        name: 'Москва',
-                    },
-                    param: [
-                        { '@_name': 'kladrcode', '#text': '7700000000000' },
-                    ],
-                }],
+        it('should resolve all fields when area.name and recognized type are present', () => {
+            const gar = {
+                guid: 'test-guid',
+                area: {
+                    type: 'город',
+                    name: 'Москва',
+                },
+                param: [
+                    { '@_name': 'kladrcode', '#text': '7700000000000' },
+                ],
             }
-
-            expect(resolveCity(cityLevel)).toEqual({
+            expect(resolveCity(gar)).toEqual({
                 city: 'Москва',
                 city_type: 'г',
                 city_type_full: 'город',
@@ -31,74 +42,65 @@ describe('cityResolver', () => {
             })
         })
 
-        it('should handle missing GAR parameters', () => {
-            const cityLevel = {
-                gar: [{
-                    area: {
-                        type: 'город',
-                        name: 'Казань',
-                    },
-                }],
+        it('should return all null fields if area is missing', () => {
+            const gar = {
+                guid: 'test-guid',
             }
-
-            expect(resolveCity(cityLevel)).toEqual({
-                city: 'Казань',
-                city_type: 'г',
-                city_type_full: 'город',
-                city_with_type: 'г Казань',
+            expect(resolveCity(gar)).toEqual({
+                city: null,
+                city_type: null,
+                city_type_full: null,
+                city_with_type: null,
                 city_fias_id: null,
                 city_kladr_id: null,
             })
         })
 
-        it('should handle missing area field', () => {
-            const cityLevel = {
-                gar: [{
-                    guid: 'test-guid',
-                }],
+        it('should return all null fields if area.name is missing', () => {
+            const gar = {
+                area: {
+                    type: 'город',
+                },
             }
-
-            expect(resolveCity(cityLevel)).toEqual({
+            expect(resolveCity(gar)).toEqual({
                 city: null,
-                city_type: 'г',
-                city_type_full: 'город',
-                city_with_type: '',
-                city_fias_id: 'test-guid',
+                city_type: null,
+                city_type_full: null,
+                city_with_type: null,
+                city_fias_id: null,
                 city_kladr_id: null,
             })
         })
 
-        it('should handle null area name', () => {
-            const cityLevel = {
-                gar: [{
-                    guid: 'test-guid',
-                    area: {
-                        type: 'город',
-                        name: null,
-                    },
-                }],
+        it('should return all null fields if area.type is not recognized', () => {
+            const gar = {
+                area: {
+                    type: 'unknown-type',
+                    name: 'Test',
+                },
             }
-
-            expect(resolveCity(cityLevel)).toEqual({
+            expect(resolveCity(gar)).toEqual({
                 city: null,
-                city_type: 'г',
-                city_type_full: 'город',
-                city_with_type: '',
-                city_fias_id: 'test-guid',
+                city_type: null,
+                city_type_full: null,
+                city_with_type: null,
+                city_fias_id: null,
                 city_kladr_id: null,
             })
         })
 
-        it('should handle empty gar array', () => {
-            const cityLevel = {
-                gar: [],
+        it('should return all null fields if area.name is null', () => {
+            const gar = {
+                area: {
+                    type: 'город',
+                    name: null,
+                },
             }
-
-            expect(resolveCity(cityLevel)).toEqual({
+            expect(resolveCity(gar)).toEqual({
                 city: null,
-                city_type: 'г',
-                city_type_full: 'город',
-                city_with_type: '',
+                city_type: null,
+                city_type_full: null,
+                city_with_type: null,
                 city_fias_id: null,
                 city_kladr_id: null,
             })

@@ -1,4 +1,4 @@
-const { joinNameAndType, selfOrFirst, getGarLevel, getGarParam, extractLastFiasId, extractLastGarParam, getLevel } = require('./helpers')
+const { joinNameAndType, selfOrFirst, getLevel, getGar, getGarParam, extractLastFiasId, extractLastGarParam, resolveTypes } = require('./helpers')
 
 describe('helpers', () => {
     describe('joinNameAndType', () => {
@@ -30,45 +30,84 @@ describe('helpers', () => {
         })
 
         it('should handle empty array', () => {
-            expect(selfOrFirst([])).toBe(undefined)
+            expect(selfOrFirst([])).toBeNull()
         })
     })
 
-    describe('getGarLevel', () => {
-        const garData = [
-            { level: 1, value: 'first' },
-            { level: 2, value: 'second' },
-            { level: 3, value: 'third' },
-        ]
+    describe('getLevel', () => {
+        const item = {
+            textaddr: {
+                textobj: [
+                    { level: 'region', value: 'Moscow' },
+                    { level: 'city', value: 'Moscow City' },
+                    { level: 'street', value: 'Tverskaya' },
+                ],
+            },
+        }
 
-        it('should return object with matching level', () => {
-            expect(getGarLevel(garData, 2)).toEqual({ level: 2, value: 'second' })
+        it('should return the correct level object when found', () => {
+            expect(getLevel(item, 'city')).toEqual({ level: 'city', value: 'Moscow City' })
+            expect(getLevel(item, 'region')).toEqual({ level: 'region', value: 'Moscow' })
+            expect(getLevel(item, 'street')).toEqual({ level: 'street', value: 'Tverskaya' })
         })
 
-        it('should return first element when level not found', () => {
-            expect(getGarLevel(garData, 5)).toEqual({ level: 1, value: 'first' })
+        it('should return null if level is not found', () => {
+            expect(getLevel(item, 'building')).toBeNull()
         })
 
-        it('should return first element when level is null', () => {
-            expect(getGarLevel(garData)).toEqual({ level: 1, value: 'first' })
+        it('should return null if item is null or undefined', () => {
+            expect(getLevel(null, 'city')).toBeNull()
+            expect(getLevel(undefined, 'city')).toBeNull()
         })
 
-        it('should return object itself if not array', () => {
-            const singleGar = { level: 1, value: 'single' }
-            expect(getGarLevel(singleGar, 2)).toEqual(singleGar)
+        it('should return null if textaddr is missing', () => {
+            expect(getLevel({}, 'city')).toBeNull()
         })
 
-        it('should handle null/undefined levelGar input', () => {
-            expect(getGarLevel(null)).toBeNull()
-            expect(getGarLevel(undefined)).toBeUndefined()
+        it('should return null if textobj is not an array', () => {
+            expect(getLevel({ textaddr: { textobj: null } }, 'city')).toBeNull()
+            expect(getLevel({ textaddr: { textobj: {} } }, 'city')).toBeNull()
         })
 
-        it('should handle empty array', () => {
-            expect(getGarLevel([])).toBeUndefined()
+        it('should skip falsy elements in textobj', () => {
+            const itemWithNulls = {
+                textaddr: {
+                    textobj: [
+                        null,
+                        { level: 'city', value: 'Moscow City' },
+                        undefined,
+                    ],
+                },
+            }
+            expect(getLevel(itemWithNulls, 'city')).toEqual({ level: 'city', value: 'Moscow City' })
+        })
+    })
+
+    describe('getGar', () => {
+        const item = {
+            textaddr: {
+                textobj: [
+                    { level: 'region', gar: [
+                        { level: 'region', name: 'Region Name' },
+                        { level: 'adminarea', name: 'Admin Area' },
+                    ] },
+                    { level: 'city', gar: { level: 'city', name: 'City Name' } },
+                ],
+            },
+        }
+
+        it('should return the correct gar object from array', () => {
+            expect(getGar(item, 'region', 'region')).toEqual({ level: 'region', name: 'Region Name' })
+            expect(getGar(item, 'region', 'adminarea')).toEqual({ level: 'adminarea', name: 'Admin Area' })
         })
 
-        it('should return undefined when levelGar is empty array and level is provided', () => {
-            expect(getGarLevel([], 'someLevel')).toBeUndefined()
+        it('should return the correct gar object from object', () => {
+            expect(getGar(item, 'city', 'city')).toEqual({ level: 'city', name: 'City Name' })
+        })
+
+        it('should return null if gar or level not found', () => {
+            expect(getGar(item, 'city', 'region')).toBeNull()
+            expect(getGar(item, 'missing', 'region')).toBeNull()
         })
     })
 
@@ -154,7 +193,7 @@ describe('helpers', () => {
         })
     })
 
-    describe('extractLastParam', () => {
+    describe('extractLastGarParam', () => {
         it('should return null for empty array', () => {
             expect(extractLastGarParam([], 'kladrcode')).toBeNull()
         })
@@ -230,52 +269,57 @@ describe('helpers', () => {
         })
     })
 
-    describe('getLevel', () => {
-        const item = {
-            textaddr: {
-                textobj: [
-                    { level: 'region', value: 'Moscow' },
-                    { level: 'city', value: 'Moscow City' },
-                    { level: 'street', value: 'Tverskaya' },
-                ],
-            },
-        }
-
-        it('should return the correct level object when found', () => {
-            expect(getLevel(item, 'city')).toEqual({ level: 'city', value: 'Moscow City' })
-            expect(getLevel(item, 'region')).toEqual({ level: 'region', value: 'Moscow' })
-            expect(getLevel(item, 'street')).toEqual({ level: 'street', value: 'Tverskaya' })
+    describe('resolveTypes', () => {
+        it('should resolve known types and their aliases', () => {
+            expect(resolveTypes('город')).toEqual({ type: 'г', typeFull: 'город', isNameFirst: false })
+            expect(resolveTypes('область')).toEqual({ type: 'обл', typeFull: 'область', isNameFirst: true })
+            expect(resolveTypes('край')).toEqual({ type: 'кр', typeFull: 'край', isNameFirst: true })
+            expect(resolveTypes('муниципальный округ')).toEqual({ type: 'муницип окр', typeFull: 'муниципальный округ', isNameFirst: false })
+            expect(resolveTypes('городской округ')).toEqual({ type: 'гор окр', typeFull: 'городской округ', isNameFirst: true })
+            expect(resolveTypes('пгт')).toEqual({ type: 'пгт', typeFull: 'поселок городского типа', isNameFirst: false })
+            expect(resolveTypes('поселок')).toEqual({ type: 'пос', typeFull: 'поселок', isNameFirst: false })
+            expect(resolveTypes('поселение')).toEqual({ type: 'п', typeFull: 'поселение', isNameFirst: false })
+            expect(resolveTypes('район')).toEqual({ type: 'р-н', typeFull: 'район', isNameFirst: true })
+            expect(resolveTypes('село')).toEqual({ type: 'с', typeFull: 'село', isNameFirst: false })
+            expect(resolveTypes('деревня')).toEqual({ type: 'д', typeFull: 'деревня', isNameFirst: false })
+            expect(resolveTypes('улица')).toEqual({ type: 'ул', typeFull: 'улица', isNameFirst: false })
+            expect(resolveTypes('просп')).toEqual({ type: 'пр-кт', typeFull: 'проспект', isNameFirst: false })
+            expect(resolveTypes('проспект')).toEqual({ type: 'пр-кт', typeFull: 'проспект', isNameFirst: false })
+            expect(resolveTypes('уч')).toEqual({ type: 'уч', typeFull: 'участок', isNameFirst: false })
+            expect(resolveTypes('участок')).toEqual({ type: 'уч', typeFull: 'участок', isNameFirst: false })
+            expect(resolveTypes('stead')).toEqual({ type: 'уч', typeFull: 'участок', isNameFirst: false })
+            expect(resolveTypes('дом')).toEqual({ type: 'д', typeFull: 'дом', isNameFirst: false })
+            expect(resolveTypes('house')).toEqual({ type: 'д', typeFull: 'дом', isNameFirst: false })
+            expect(resolveTypes('строение')).toEqual({ type: 'стр', typeFull: 'строение', isNameFirst: false })
+            expect(resolveTypes('соор')).toEqual({ type: 'соор', typeFull: 'сооружение', isNameFirst: false })
+            expect(resolveTypes('сооружение')).toEqual({ type: 'соор', typeFull: 'сооружение', isNameFirst: false })
+            expect(resolveTypes('construction')).toEqual({ type: 'соор', typeFull: 'сооружение', isNameFirst: false })
+            expect(resolveTypes('корпус')).toEqual({ type: 'корп', typeFull: 'корпус', isNameFirst: false })
+            expect(resolveTypes('block')).toEqual({ type: 'корп', typeFull: 'корпус', isNameFirst: false })
+            expect(resolveTypes('квартира')).toEqual({ type: 'кв', typeFull: 'квартира', isNameFirst: false })
+            expect(resolveTypes('flat')).toEqual({ type: 'кв', typeFull: 'квартира', isNameFirst: false })
+            expect(resolveTypes('апартаменты')).toEqual({ type: 'апарт', typeFull: 'апартаменты', isNameFirst: false })
+            expect(resolveTypes('apartment')).toEqual({ type: 'апарт', typeFull: 'апартаменты', isNameFirst: false })
+            expect(resolveTypes('офис')).toEqual({ type: 'оф', typeFull: 'офис', isNameFirst: false })
+            expect(resolveTypes('комната')).toEqual({ type: 'ком', typeFull: 'комната', isNameFirst: false })
+            expect(resolveTypes('машиноместо')).toEqual({ type: 'мм', typeFull: 'машиноместо', isNameFirst: false })
         })
 
-        it('should return null if level is not found', () => {
-            expect(getLevel(item, 'building')).toBeNull()
+        it('should return null for unknown or empty types', () => {
+            expect(resolveTypes('unknown')).toBeNull()
+            expect(resolveTypes('')).toBeNull()
+            expect(resolveTypes(undefined)).toBeNull()
+            expect(resolveTypes(null)).toBeNull()
         })
 
-        it('should return null if item is null or undefined', () => {
-            expect(getLevel(null, 'city')).toBeNull()
-            expect(getLevel(undefined, 'city')).toBeNull()
-        })
-
-        it('should return null if textaddr is missing', () => {
-            expect(getLevel({}, 'city')).toBeNull()
-        })
-
-        it('should return null if textobj is not an array', () => {
-            expect(getLevel({ textaddr: { textobj: null } }, 'city')).toBeNull()
-            expect(getLevel({ textaddr: { textobj: {} } }, 'city')).toBeNull()
-        })
-
-        it('should skip falsy elements in textobj', () => {
-            const itemWithNulls = {
-                textaddr: {
-                    textobj: [
-                        null,
-                        { level: 'city', value: 'Moscow City' },
-                        undefined,
-                    ],
-                },
-            }
-            expect(getLevel(itemWithNulls, 'city')).toEqual({ level: 'city', value: 'Moscow City' })
+        it('should set isNameFirst correctly for all types', () => {
+            expect(resolveTypes('область').isNameFirst).toBe(true)
+            expect(resolveTypes('край').isNameFirst).toBe(true)
+            expect(resolveTypes('городской округ').isNameFirst).toBe(true)
+            expect(resolveTypes('район').isNameFirst).toBe(true)
+            expect(resolveTypes('город').isNameFirst).toBe(false)
+            expect(resolveTypes('улица').isNameFirst).toBe(false)
+            expect(resolveTypes('дом').isNameFirst).toBe(false)
         })
     })
 })
