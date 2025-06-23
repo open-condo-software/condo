@@ -6472,7 +6472,7 @@ input OrganizationUpdateInput {
   type: OrganizationTypeType
   tin: String
   description: String
-  avatar: Upload
+  avatar: CustomUpload
   meta: JSON
   phone: String
   phoneNumberPrefix: String
@@ -6504,7 +6504,7 @@ input OrganizationCreateInput {
   type: OrganizationTypeType
   tin: String
   description: String
-  avatar: Upload
+  avatar: CustomUpload
   meta: JSON
   phone: String
   phoneNumberPrefix: String
@@ -12799,12 +12799,12 @@ enum SortBillingIntegrationsBy {
 
 input BillingIntegrationUpdateInput {
   name: String
-  logo: Upload
+  logo: CustomUpload
   shortDescription: String
   targetDescription: String
   bannerTextColor: BillingIntegrationBannerTextColorType
   bannerColor: String
-  bannerPromoImage: Upload
+  bannerPromoImage: CustomUpload
   receiptsLoadingTime: String
   detailedDescription: String
   setupUrl: String
@@ -12847,12 +12847,12 @@ input BillingIntegrationsUpdateInput {
 
 input BillingIntegrationCreateInput {
   name: String
-  logo: Upload
+  logo: CustomUpload
   shortDescription: String
   targetDescription: String
   bannerTextColor: BillingIntegrationBannerTextColorType
   bannerColor: String
-  bannerPromoImage: Upload
+  bannerPromoImage: CustomUpload
   receiptsLoadingTime: String
   detailedDescription: String
   setupUrl: String
@@ -18165,8 +18165,8 @@ enum SortBillingReceiptFilesBy {
 }
 
 input BillingReceiptFileUpdateInput {
-  sensitiveDataFile: Upload
-  publicDataFile: Upload
+  sensitiveDataFile: CustomUpload
+  publicDataFile: CustomUpload
   context: BillingIntegrationOrganizationContextRelateToOneInput
   receipt: BillingReceiptRelateToOneInput
   controlSum: String
@@ -18188,8 +18188,8 @@ input BillingReceiptFilesUpdateInput {
 }
 
 input BillingReceiptFileCreateInput {
-  sensitiveDataFile: Upload
-  publicDataFile: Upload
+  sensitiveDataFile: CustomUpload
+  publicDataFile: CustomUpload
   context: BillingIntegrationOrganizationContextRelateToOneInput
   receipt: BillingReceiptRelateToOneInput
   controlSum: String
@@ -28697,7 +28697,7 @@ enum SortTicketFilesBy {
 }
 
 input TicketFileUpdateInput {
-  file: Upload
+  file: CustomUpload
   ticket: TicketRelateToOneInput
   organization: OrganizationRelateToOneInput
   v: Int
@@ -28717,7 +28717,7 @@ input TicketFilesUpdateInput {
 }
 
 input TicketFileCreateInput {
-  file: Upload
+  file: CustomUpload
   ticket: TicketRelateToOneInput
   organization: OrganizationRelateToOneInput
   v: Int
@@ -33793,7 +33793,7 @@ enum SortTicketCommentFilesBy {
 }
 
 input TicketCommentFileUpdateInput {
-  file: Upload
+  file: CustomUpload
   ticket: TicketRelateToOneInput
   ticketComment: TicketCommentRelateToOneInput
   organization: OrganizationRelateToOneInput
@@ -33814,7 +33814,7 @@ input TicketCommentFilesUpdateInput {
 }
 
 input TicketCommentFileCreateInput {
-  file: Upload
+  file: CustomUpload
   ticket: TicketRelateToOneInput
   ticketComment: TicketCommentRelateToOneInput
   organization: OrganizationRelateToOneInput
@@ -40033,7 +40033,7 @@ enum SortCallRecordsBy {
 
 input CallRecordUpdateInput {
   organization: OrganizationRelateToOneInput
-  file: Upload
+  file: CustomUpload
   callerPhone: String
   destCallerPhone: String
   talkTime: Int
@@ -40058,7 +40058,7 @@ input CallRecordsUpdateInput {
 
 input CallRecordCreateInput {
   organization: OrganizationRelateToOneInput
-  file: Upload
+  file: CustomUpload
   callerPhone: String
   destCallerPhone: String
   talkTime: Int
@@ -50193,7 +50193,7 @@ enum SortUserHelpRequestFilesBy {
 
 input UserHelpRequestFileUpdateInput {
   userHelpRequest: UserHelpRequestRelateToOneInput
-  file: Upload
+  file: CustomUpload
   v: Int
   createdAt: String
   updatedAt: String
@@ -50212,7 +50212,7 @@ input UserHelpRequestFilesUpdateInput {
 
 input UserHelpRequestFileCreateInput {
   userHelpRequest: UserHelpRequestRelateToOneInput
-  file: Upload
+  file: CustomUpload
   v: Int
   createdAt: String
   updatedAt: String
@@ -76290,8 +76290,8 @@ enum SortB2BAppNewsSharingConfigsBy {
 
 input B2BAppNewsSharingConfigUpdateInput {
   name: String
-  icon: Upload
-  previewPicture: Upload
+  icon: CustomUpload
+  previewPicture: CustomUpload
   pushNotificationSettings: B2BAppNewsSharingConfigPushNotificationSettingType
   publishUrl: String
   previewUrl: String
@@ -76316,8 +76316,8 @@ input B2BAppNewsSharingConfigsUpdateInput {
 
 input B2BAppNewsSharingConfigCreateInput {
   name: String
-  icon: Upload
-  previewPicture: Upload
+  icon: CustomUpload
+  previewPicture: CustomUpload
   pushNotificationSettings: B2BAppNewsSharingConfigPushNotificationSettingType
   publishUrl: String
   previewUrl: String
@@ -79527,7 +79527,7 @@ enum SortMarketCategoriesBy {
 
 input MarketCategoryUpdateInput {
   name: String
-  image: Upload
+  image: CustomUpload
   mobileSettings: MarketCategoryMobileSettingsSchemaField
   parentCategory: MarketCategoryRelateToOneInput
   order: Int
@@ -79549,7 +79549,7 @@ input MarketCategoriesUpdateInput {
 
 input MarketCategoryCreateInput {
   name: String
-  image: Upload
+  image: CustomUpload
   mobileSettings: MarketCategoryMobileSettingsSchemaField
   parentCategory: MarketCategoryRelateToOneInput
   order: Int
@@ -81338,7 +81338,7 @@ enum SortMarketItemFilesBy {
 
 input MarketItemFileUpdateInput {
   marketItem: MarketItemRelateToOneInput
-  file: Upload
+  file: CustomUpload
   v: Int
   createdAt: String
   updatedAt: String
@@ -81357,7 +81357,7 @@ input MarketItemFilesUpdateInput {
 
 input MarketItemFileCreateInput {
   marketItem: MarketItemRelateToOneInput
-  file: Upload
+  file: CustomUpload
   v: Int
   createdAt: String
   updatedAt: String
@@ -83324,7 +83324,7 @@ input DocumentUpdateInput {
   property: PropertyRelateToOneInput
   category: DocumentCategoryRelateToOneInput
   name: String
-  file: Upload
+  file: CustomUpload
   canReadByResident: Boolean
   meta: JSON
   v: Int
@@ -83348,7 +83348,7 @@ input DocumentCreateInput {
   property: PropertyRelateToOneInput
   category: DocumentCategoryRelateToOneInput
   name: String
-  file: Upload
+  file: CustomUpload
   canReadByResident: Boolean
   meta: JSON
   v: Int

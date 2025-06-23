@@ -1,6 +1,7 @@
 const { validate } = require('uuid')
 
 const { CondoFile } = require('@open-condo/files/schema/utils/serverSchema')
+const { GQLError } = require('@open-condo/keystone/errors')
 
 const FileWithUTF8Name  = require('../FileWithUTF8Name/index')
 
@@ -12,7 +13,7 @@ class CustomFile extends FileWithUTF8Name.implementation {
     }
 
     getFileUploadType () {
-        return 'Upload'
+        return 'CustomUpload'
     }
 
     getGqlAuxTypes () {
@@ -52,7 +53,26 @@ class CustomFile extends FileWithUTF8Name.implementation {
         }
     }
 
-    async resolveInput ({ resolvedData, existingItem, context, operation }) {
+    async validateInput (props) {
+        const { context, resolvedData, existingItem } = props
+
+        const fileData = resolvedData[this.path]
+        if (fileData && fileData['meta']) {
+            if (fileData['meta']['authedItem'] !== context.authedItem.id) {
+                throw new GQLError({
+                    code: 'BAD_USER_INPUT',
+                    type: 'WRONG_FILE_ID',
+                    variable: [this.path],
+                    message: 'File not found or you do not have access to it',
+
+                }, context)
+            }
+        }
+
+        return await super.validateInput(props)
+    }
+
+    async resolveInput ({ resolvedData, existingItem, context }) {
         const uploadData = resolvedData[this.path]
         // New way to 'upload' - connect file
         if (typeof uploadData === 'string' && validate(uploadData)) {

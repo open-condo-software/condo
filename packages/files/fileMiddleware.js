@@ -2,14 +2,103 @@ const busboy = require('busboy')
 const cuid = require('cuid')
 const express = require('express')
 const { WriteStream } = require('fs-capacitor')
+const { validate } = require('uuid')
 
 const { CondoFile } = require('@open-condo/files/schema/utils/serverSchema')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
+const { getKVClient } = require('@open-condo/keystone/kv')
+
+
+class RedisGuard {
+    constructor () {
+        this.lockPrefix = 'guard_lock:'
+        this.counterPrefix = 'guard_counter:'
+    }
+
+    get redis () {
+        if (!this._redis) this._redis = getKVClient('guards')
+        return this._redis
+    }
+
+    async isLocked (variable, action = '') {
+        const actionFolder = action ? `${action}:` : ''
+        const value = await this.redis.exists(`${this.lockPrefix}${actionFolder}${variable}`)
+        return !!value
+    }
+
+    async lockTimeRemain (variable, action = '') {
+        const actionFolder = action ? `${action}:` : ''
+        const time = await this.redis.ttl(`${this.lockPrefix}${actionFolder}${variable}`)
+        return Math.max(time, 0)
+    }
+
+    async incrementHourCounter (variable) {
+        return this.incrementCustomCounter(variable, 3600)
+    }
+
+    async incrementCustomCounter (variable, ttl) {
+        let afterIncrement = await this.redis.incr(`${this.counterPrefix}${variable}`)
+        afterIncrement = Number(afterIncrement)
+        if (afterIncrement === 1) {
+            await this.redis.expire(`${this.counterPrefix}${variable}`, ttl)
+        }
+        return afterIncrement
+    }
+}
 
 function createError (status, message, response) {
     response.status(status).json({ error: message })
 }
 
+const fileStorageHandler = ({ keystone, fileAdapter }) => {
+    return async function (request, response) {
+        const context = keystone.createContext({ skipAccessControl: true })
+        const savedFiles = await Promise.all(request.files.map(file => fileAdapter.save({
+            stream: file.stream,
+            filename: file.filename,
+            mimetype: file.mimetype,
+            encoding: file.encoding,
+            id: cuid(),
+            meta: request.meta,
+        })))
+
+        const condoFiles = await CondoFile.createMany(context, savedFiles.map((data, index) => ({
+            data: {
+                file: {
+                    ...data,
+                    storage_id: data.id,
+                    originalFilename: request.files[index].filename,
+                    mimetype: request.files[index].mimetype,
+                    encoding: request.files[index].encoding,
+                    meta: request.meta,
+                },
+                dv: request.meta.dv,
+                sender: request.meta.sender,
+            },
+        })))
+
+        response.json(condoFiles)
+    }
+}
+
+const rateLimitHandler = ({ quotas, guard }) => {
+    return async function (request, response, next) {
+        const requestIp = request.ip.split(':').pop()
+        const userId = request.user.id
+
+        const idCounter = await guard.incrementHourCounter(`file:${userId}`)
+        if (idCounter > quotas.userQuota) {
+            return response.status(429).json({ error: 'You are reach request limit, try again later.' })
+        }
+
+        const ipCounter = await guard.incrementHourCounter(`file:${requestIp}`)
+        if (ipCounter > quotas.ipQuota) {
+            return response.status(429).json({ error: 'You are reach request limit, try again later.' })
+        }
+
+        next()
+    }
+}
 
 class FileMiddleware {
     constructor ({
@@ -17,10 +106,13 @@ class FileMiddleware {
         maxFieldSize = 200 * 1024 * 1024,
         maxFileSize = 200 * 1024 * 1024,
         maxFiles = 2,
+        userQuota = 100,
+        ipQuota = 100,
     }) {
         this.apiUrl = apiUrl
         this.processRequestOptions = { maxFieldSize, maxFileSize, maxFiles }
         this.adapter = new FileAdapter('files')
+        this.quotas = { userQuota, ipQuota }
     }
 
     prepareMiddleware ({ keystone }) {
@@ -29,9 +121,52 @@ class FileMiddleware {
         const app = express()
         const processRequestOptions = this.processRequestOptions
         const fileAdapter = this.adapter
+        const guard = new RedisGuard()
+        const quotas = this.quotas
 
         app.use(
             this.apiUrl,
+            // Authorization checks
+            function (request, response, next) {
+                // const sendUnauthorizedStatus = () => {
+                //     response.sendStatus(403)
+                //     response.end()
+                // }
+
+                if (!request.user) {
+                    return response.status(403).json({ error: 'Authorization is required' })
+                    // sendUnauthorizedStatus()
+                }
+
+                next()
+
+                // const context = keystone.createContext({ authentication: { item: request.user, listKey: 'User' } })
+
+                // const authHeader = request.headers.authorization || request.headers.Authorization
+                // if (!authHeader) {
+                //     sendUnauthorizedStatus()
+                // }
+                //
+                // const [type, token] = authHeader.split(' ')
+                // if (!type || !token) {
+                //     sendUnauthorizedStatus()
+                // }
+                //
+                // if (type !== 'Bearer') {
+                //     sendUnauthorizedStatus()
+                // }
+                //
+                // kvClient.get(`sess:${token.split('.')[0]}`).then(token => {
+                //     if (token) {
+                //         next()
+                //     } else {
+                //         sendUnauthorizedStatus()
+                //     }
+                // }).catch(() => sendUnauthorizedStatus())
+            },
+
+            rateLimitHandler({ keystone, quotas, guard }),
+            // Payload checks
             function (request, response, next) {
                 if (request.is('multipart/form-data')) {
                     let exitError, released, meta
@@ -183,6 +318,24 @@ class FileMiddleware {
                                         createError(400, 'Wrong sender.fingerprint value provided', response)
                                     )
                                 }
+
+                                if (!meta.authedItem) {
+                                    return exit(() =>
+                                        createError(400, 'Missing authedItem field for meta object', response)
+                                    )
+                                }
+
+                                if (!validate(meta.authedItem)) {
+                                    return exit(() =>
+                                        createError(400, 'Wrong authedItem value provided', response)
+                                    )
+                                }
+
+                                if (!meta.appId) {
+                                    return exit(() =>
+                                        createError(400, 'Missing appId field for meta object', response)
+                                    )
+                                }
                         }
                         request.meta = meta
                     })
@@ -225,43 +378,10 @@ class FileMiddleware {
                     })
                     request.pipe(parser)
                 } else {
-                    next()
+                    return response.status(405).json({ error: 'Wrong request type. Only "multipart/form-data" is allowed' })
                 }
             },
-            function (request, response) {
-                const context = keystone.createContext({ skipAccessControl: true })
-
-                Promise.all(request.files.map(file => fileAdapter.save({
-                    stream: file.stream,
-                    filename: file.filename,
-                    mimetype: file.mimetype,
-                    encoding: file.encoding,
-                    id: cuid(),
-                    meta: request.meta,
-                }))).then(savedFiles => {
-                    // response.json(savedFiles.map(adapterFile => ({ ...adapterFile, meta: request.meta })))
-                    CondoFile.createMany(context, savedFiles.map((data, index) => ({
-                        data: {
-                            file: {
-                                ...data,
-                                originalFilename: request.files[index].filename,
-                                mimetype: request.files[index].mimetype,
-                                encoding: request.files[index].encoding,
-                                meta: request.meta,
-                            },
-                            dv: request.meta.dv,
-                            sender: request.meta.sender,
-                        },
-                    }))
-                    ).then(savedFiles => {
-                        response.json(savedFiles)
-                    }).catch(error => {
-                        response.json({ error })
-                    })
-                }).catch(error => {
-                    response.json({ error })
-                })
-            }
+            fileStorageHandler({ keystone, fileAdapter }),
         )
         return app
     }
