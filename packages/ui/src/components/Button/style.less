@@ -20,6 +20,17 @@
 @condo-button-gap-m: @condo-global-spacing-4;
 @condo-button-gap-l: @condo-global-spacing-8;
 
+.minimal-styles() {
+  text-shadow: none;
+  background: none;
+  border-color: transparent;
+  box-shadow: none;
+
+  &::before {
+    display: none;
+  }
+}
+
 .condo-btn {
   .condo-typography-h4();
 
@@ -105,27 +116,23 @@
   &-minimal.condo-btn-primary.condo-btn-dangerous,
   &-minimal.condo-btn-secondary.condo-btn-dangerous,
   &-minimal.condo-btn-accent.condo-btn-dangerous {
-    text-shadow: none;
-    background: none;
-    border-color: transparent;
-    box-shadow: none;
+    .minimal-styles;
 
-    &::before {
-      display: none;
+    &:focus {
+      .minimal-styles;
     }
 
     &:hover {
-      text-shadow: none;
-      background: none;
-      border-color: transparent;
-      box-shadow: none;
+      .minimal-styles;
+    }
+  }
 
+  &-minimal.condo-btn-primary:not(.condo-btn-dangerous),
+  &-minimal.condo-btn-secondary:not(.condo-btn-dangerous),
+  &-minimal.condo-btn-accent:not(.condo-btn-dangerous) {
+    &:hover {
       .condo-btn-static-text-color(@condo-global-color-green-5);
       .condo-btn-content-color(@condo-global-color-green-5);
-
-      &::before {
-        display: none;
-      }
     }
 
     &:active {
