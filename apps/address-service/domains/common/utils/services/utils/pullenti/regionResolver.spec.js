@@ -2,27 +2,34 @@ const { resolveRegion } = require('./regionResolver')
 
 describe('regionResolver', () => {
     describe('resolveRegion', () => {
-        it('should return empty object for null input', () => {
-            expect(resolveRegion(null)).toEqual({})
-            expect(resolveRegion(undefined)).toEqual({})
+        it('should return all null fields for null or undefined input', () => {
+            expect(resolveRegion(null)).toEqual({
+                region: null,
+                region_type: null,
+                region_type_full: null,
+                region_with_type: null,
+                region_fias_id: null,
+                region_kladr_id: null,
+            })
+            expect(resolveRegion(undefined)).toEqual({
+                region: null,
+                region_type: null,
+                region_type_full: null,
+                region_with_type: null,
+                region_fias_id: null,
+                region_kladr_id: null,
+            })
         })
 
         it('should resolve область type', () => {
-            const regionLevel = {
-                gar: [{
-                    level: 'adminarea',
-                    guid: 'test-guid',
-                    area: {
-                        type: 'область',
-                        name: 'Московская',
-                    },
-                    param: [
-                        { '@_name': 'kladrcode', '#text': '5000000000000' },
-                    ],
-                }],
+            const gar = {
+                area: { type: 'область', name: 'Московская' },
+                guid: 'test-guid',
+                param: [
+                    { '@_name': 'kladrcode', '#text': '5000000000000' },
+                ],
             }
-
-            expect(resolveRegion(regionLevel)).toEqual({
+            expect(resolveRegion(gar)).toEqual({
                 region: 'Московская',
                 region_type: 'обл',
                 region_type_full: 'область',
@@ -33,17 +40,10 @@ describe('regionResolver', () => {
         })
 
         it('should resolve край type', () => {
-            const regionLevel = {
-                gar: [{
-                    level: 'adminarea',
-                    area: {
-                        type: 'край',
-                        name: 'Краснодарский',
-                    },
-                }],
+            const gar = {
+                area: { type: 'край', name: 'Краснодарский' },
             }
-
-            expect(resolveRegion(regionLevel)).toEqual({
+            expect(resolveRegion(gar)).toEqual({
                 region: 'Краснодарский',
                 region_type: 'кр',
                 region_type_full: 'край',
@@ -54,77 +54,47 @@ describe('regionResolver', () => {
         })
 
         it('should handle missing area field', () => {
-            const regionLevel = {
-                gar: [{
-                    level: 'adminarea',
-                    guid: 'test-guid',
-                }],
+            const gar = {
+                guid: 'test-guid',
             }
-
-            expect(resolveRegion(regionLevel)).toEqual({
+            expect(resolveRegion(gar)).toEqual({
                 region: null,
-                region_type: 'обл',
-                region_type_full: 'область',
-                region_with_type: '',
-                region_fias_id: 'test-guid',
+                region_type: null,
+                region_type_full: null,
+                region_with_type: null,
+                region_fias_id: null,
                 region_kladr_id: null,
             })
         })
 
         it('should handle null area name', () => {
-            const regionLevel = {
-                gar: [{
-                    level: 'adminarea',
-                    area: {
-                        type: 'область',
-                        name: null,
-                    },
-                }],
+            const gar = {
+                area: { type: 'область', name: null },
             }
-
-            expect(resolveRegion(regionLevel)).toEqual({
+            expect(resolveRegion(gar)).toEqual({
                 region: null,
-                region_type: 'обл',
-                region_type_full: 'область',
-                region_with_type: '',
+                region_type: null,
+                region_type_full: null,
+                region_with_type: null,
                 region_fias_id: null,
                 region_kladr_id: null,
             })
         })
 
-        it('should handle empty gar array', () => {
-            const regionLevel = {
-                gar: [],
+        it('should resolve region with numeric kladr code', () => {
+            const gar = {
+                area: { type: 'область', name: 'Тестовая' },
+                param: [
+                    { '@_name': 'kladrcode', '#text': 123456 },
+                ],
             }
-
-            expect(resolveRegion(regionLevel)).toEqual({
-                region: null,
+            expect(resolveRegion(gar)).toEqual({
+                region: 'Тестовая',
                 region_type: 'обл',
                 region_type_full: 'область',
-                region_with_type: '',
+                region_with_type: 'Тестовая обл',
                 region_fias_id: null,
-                region_kladr_id: null,
-            })
-        })
-
-        it('should use default область type for unknown area type', () => {
-            const regionLevel = {
-                gar: [{
-                    level: 'adminarea',
-                    area: {
-                        type: 'unknown-type',
-                        name: 'Test',
-                    },
-                }],
-            }
-
-            expect(resolveRegion(regionLevel)).toEqual({
-                region: 'Test',
-                region_type: 'обл',
-                region_type_full: 'область',
-                region_with_type: 'Test обл',
-                region_fias_id: null,
-                region_kladr_id: null,
+                region_kladr_id: '123456',
             })
         })
     })
