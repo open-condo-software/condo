@@ -231,6 +231,7 @@ async function addResidentAccess (user, extraAttrs = {}) {
     const dv = 1
     const sender = { dv:1, fingerprint: "user-test-schema-utils" }
     await User.update(admin, user.id, { dv, sender, type: RESIDENT, ...extraAttrs })
+    user.type = RESIDENT
 }
 
 async function addStaffAccess (user, extraAttrs = {}) {
@@ -238,6 +239,7 @@ async function addStaffAccess (user, extraAttrs = {}) {
     const dv = 1
     const sender = { dv:1, fingerprint: "user-test-schema-utils" }
     await User.update(admin, user.id, { dv, sender, type: STAFF, ...extraAttrs })
+    user.type = STAFF
 }
 
 async function addServiceAccess (user, extraAttrs = {}) {
@@ -245,6 +247,7 @@ async function addServiceAccess (user, extraAttrs = {}) {
     const dv = 1
     const sender = { dv:1, fingerprint: "user-test-schema-utils" }
     await User.update(admin, user.id, { dv, sender, type: SERVICE, ...extraAttrs })
+    user.type = SERVICE
 }
 
 const ConfirmPhoneAction = generateGQLTestUtils(ConfirmPhoneActionGQL)

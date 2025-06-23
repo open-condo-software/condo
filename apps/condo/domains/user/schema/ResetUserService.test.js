@@ -152,6 +152,7 @@ describe('ResetUserService', () => {
             user: { connect: { id: client.user.id } },
             identityId: faker.random.alphaNumeric(8),
             identityType: SBER_ID_IDP_TYPE,
+            userType: client.user.type,
             meta: {
                 dv: 1, city: faker.address.city(), county: faker.address.county(),
             },
@@ -186,6 +187,7 @@ describe('ResetUserService', () => {
             user: { connect: { id: client.user.id } },
             identityId: faker.random.alphaNumeric(8),
             identityType: SBER_ID_IDP_TYPE,
+            userType: client.user.type,
             meta: {
                 dv: 1, city: faker.address.city(), county: faker.address.county(),
             },
@@ -342,6 +344,7 @@ describe('ResetUserService', () => {
             user: { connect: { id: client.user.id } },
             identityId: faker.random.alphaNumeric(8),
             identityType: SBER_ID_IDP_TYPE,
+            userType: client.user.type,
             meta: {
                 dv: 1, city: faker.address.city(), county: faker.address.county(),
             },

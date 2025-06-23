@@ -9,13 +9,14 @@ const {
 const dv = 1
 const sender = { dv, fingerprint: 'user-external-identity-router' }
 
-const linkUser = async (context, user, userInfo) => {
+const linkUser = async (context, user, userInfo, userType) => {
     await UserExternalIdentity.create(context, {
         dv,
         sender,
         user: { connect: { id: user.id } },
         identityId: userInfo.id,
         identityType: APPLE_ID_IDP_TYPE,
+        userType,
         meta: userInfo,
     })
 
@@ -24,9 +25,10 @@ const linkUser = async (context, user, userInfo) => {
 
 const syncUser = async ({ context, userInfo, userType, authedUserId }) => {
     // try to find linked identities
-    const userIdentities = await UserExternalIdentity.getAll(context, {
+    const userIdentity = await UserExternalIdentity.getOne(context, {
         identityType: APPLE_ID_IDP_TYPE,
         identityId: userInfo.id,
+        userType,
         deletedAt: null,
     }, 'id user { id }')
 
@@ -36,17 +38,15 @@ const syncUser = async ({ context, userInfo, userType, authedUserId }) => {
     // 3. user not registered - do nothing
 
     // case 1: user already registered and have linked identity
-    if (isNil(authedUserId) && userIdentities.length > 0) {
-        const [identity] = userIdentities
-        const { user: { id } } = identity
+    if (isNil(authedUserId) && userIdentity) {
+        const { user: { id } } = userIdentity
         return { id }
     } else if (!isNil(authedUserId)
-        && userIdentities.length > 0
-        && get(userIdentities, '[0].user.id') !== authedUserId) {
+        && userIdentity
+        && get(userIdentity, 'user.id') !== authedUserId) {
         throw new Error('AppleId already linked to another user')
-    } else if (!isNil(authedUserId) && userIdentities.length > 0) {
-        const [identity] = userIdentities
-        const { user: { id } } = identity
+    } else if (!isNil(authedUserId) && userIdentity) {
+        const { user: { id } } = userIdentity
         return { id }
     }
 
@@ -57,7 +57,7 @@ const syncUser = async ({ context, userInfo, userType, authedUserId }) => {
         })
         if (!isNil(existed)) {
             // proceed link & auth
-            return await linkUser(context, existed, userInfo)
+            return await linkUser(context, existed, userInfo, userType)
         }
     }
 }

@@ -27,17 +27,18 @@ const cleanEmailForAlreadyExistingUserWithGivenEmail = async ({ email, userIdToE
     }
 }
 
-const registerIdentity = async ({ context, user, identityId }) => {
+const registerIdentity = async ({ context, user, identityId, userType }) => {
     await UserExternalIdentity.create(context, {
         ...dvSenderFields,
         user: { connect: { id: user.id } },
         identityId,
         identityType: SBBOL_IDP_TYPE,
+        userType,
         meta: {},
     })
 }
 
-const USER_FIELDS = 'id name phone'
+const USER_FIELDS = 'id name phone type'
 
 /**
  * Creates or updates user, according to data from SBBOL
@@ -91,7 +92,7 @@ const syncUser = async ({ context: { context, keystone }, userInfo, identityId }
         
         // register a UserExternalIdentity
         await registerIdentity({
-            context, user, identityId,
+            context, user, identityId, userType: userWhereStatement.type,
         })
 
         return user
@@ -127,7 +128,7 @@ const syncUser = async ({ context: { context, keystone }, userInfo, identityId }
 
         // create a UserExternalIdentity - since user wasn't imported - no identity was saved in db
         await registerIdentity({
-            context, user, identityId,
+            context, user, identityId, userType: updatedUser.type,
         })
 
         return updatedUser

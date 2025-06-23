@@ -5,14 +5,14 @@
 const { faker } = require('@faker-js/faker')
 
 const {
-    makeLoggedInAdminClient,
+    makeLoggedInAdminClient, expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowInternalError,
 } = require('@open-condo/keystone/test.utils')
 
-const { SBER_ID_IDP_TYPE } = require('@condo/domains/user/constants/common')
+const { SBER_ID_IDP_TYPE, STAFF, RESIDENT, SERVICE, USER_TYPES } = require('@condo/domains/user/constants/common')
 const {
     UserAdmin,
     UserExternalIdentity,
@@ -29,6 +29,7 @@ const getRegisterRequest = (client) => ({
     user: { connect: { id: client.user.id } },
     identityId: faker.random.alphaNumeric(8),
     identityType: SBER_ID_IDP_TYPE,
+    userType: client.user.type,
     meta: {
         dv: 1, city: faker.address.city(), county: faker.address.county(),
     },
@@ -40,12 +41,14 @@ const assertIdentity = (identity, request) => {
         identityId,
         identityType,
         meta,
+        userType,
     } = request
     expect(identity).toMatchObject({
         user: { id: userId },
         identityId,
         identityType,
         meta,
+        userType,
     })
 }
 
@@ -251,4 +254,75 @@ describe('UserExternalIdentity', () => {
             await UserExternalIdentity.softDelete(admin, identity.id)
         })
     })
+    
+    describe('UserExternalIdentity.userType and user.type matching', () => {
+        let admin, staff, service, resident, clients
+
+        beforeAll(async () => {
+            admin = await makeLoggedInAdminClient()
+            staff = await makeClientWithStaffUser()
+            service = await makeClientWithServiceUser()
+            resident = await makeClientWithResidentUser()
+            clients = {
+                [STAFF]: staff,
+                [RESIDENT]: resident,
+                [SERVICE]: service,
+            }
+        })
+
+        describe('create', () => {
+            describe('UserExternalIdentity.userType = User.type', () => {
+                test.each(USER_TYPES)('userType: %p', async (userType) => {
+                    const client = clients[userType]
+                    await createTestUserExternalIdentity(admin, getRegisterRequest(client))
+                })
+            })
+
+            test('UserExternalIdentity.userType != User.type', async () => {
+                const createRequest = getRegisterRequest(resident)
+                createRequest.userType = STAFF
+                await expectToThrowGQLError(async () => {
+                    await createTestUserExternalIdentity(admin, createRequest)
+                }, {
+                    mutation: 'createUserExternalIdentity',
+                    variable: ['data', 'userType'],
+                    code: 'BAD_USER_INPUT',
+                    type: 'USER_EXTERNAL_IDENTITY_WRONG_USER_TYPE',
+                    message: 'UserType must be same as user.type',
+                })
+            })
+        })
+
+        describe('update', () => {
+            describe('UserExternalIdentity.userType = User.type', () => {
+                test.each(USER_TYPES)('userType: %p', async (userType) => {
+                    const client = clients[userType]
+                    const [anotherUserType] = USER_TYPES.filter(userType => userType !== client.user.type)
+                    const anotherClient = clients[anotherUserType]
+                    const [identity] = await UserExternalIdentity.getAll(admin, { user: { id: client.user.id } })
+
+                    await UserExternalIdentity.update(admin, identity.id, {
+                        user: { connect: { id: anotherClient.user.id } },
+                        userType: anotherUserType,
+                    })
+                })
+            })
+
+            test('UserExternalIdentity.userType != User.type', async () => {
+                const [identity] = await UserExternalIdentity.getAll(admin, { user: { id: resident.user.id } })
+                await expectToThrowGQLError(async () => {
+                    await UserExternalIdentity.update(admin, identity.id, {
+                        user: { connect: { id: staff.user.id } },
+                    })
+                }, {
+                    mutation: 'createUserExternalIdentity',
+                    variable: ['data', 'userType'],
+                    code: 'BAD_USER_INPUT',
+                    type: 'USER_EXTERNAL_IDENTITY_WRONG_USER_TYPE',
+                    message: 'UserType must be same as user.type',
+                })
+            })
+        })
+
+    }) 
 })

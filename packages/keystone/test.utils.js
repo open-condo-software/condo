@@ -71,6 +71,7 @@ const SIGNIN_BY_EMAIL_MUTATION = gql`
         auth: authenticateUserWithPassword(email: $identity, password: $secret) {
             user: item {
                 id
+                type
             }
         }
     }
@@ -443,6 +444,7 @@ const makeLoggedInClient = async (credentials, serverUrl) => {
         client.user = {
             email: credentials.email,
             password: credentials.password,
+            type: data.auth.user.type,
             id: data.auth.user.id,
         }
     } else if (credentials.phone) {
@@ -456,6 +458,7 @@ const makeLoggedInClient = async (credentials, serverUrl) => {
         client.user = {
             phone: credentials.phone,
             password: credentials.password,
+            type: data.obj.item.type,
             id: data.obj.item.id,
         }
     } else {

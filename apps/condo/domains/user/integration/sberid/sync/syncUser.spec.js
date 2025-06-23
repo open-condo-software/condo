@@ -103,6 +103,7 @@ describe('syncUser from SberId', () => {
             user: { connect: { id: existingUser.id } },
             identityId: userInfo.id,
             identityType: SBER_ID_IDP_TYPE,
+            userType: existingUser.type,
             meta: userInfo,
         })
 
