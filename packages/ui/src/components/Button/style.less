@@ -45,11 +45,7 @@
     .condo-btn(@condo-button-line-height-m, @condo-button-padding-vert-m, @condo-button-padding-hor-m, 0);
   }
 
-  &-M.condo-btn-secondary {
-    .condo-btn(@condo-button-line-height-m, @condo-button-padding-vert-m,
-    @condo-button-padding-hor-m, @condo-button-border-width);
-  }
-
+  &-M.condo-btn-secondary,
   &-M.condo-btn-accent {
     .condo-btn(@condo-button-line-height-m, @condo-button-padding-vert-m,
     @condo-button-padding-hor-m, @condo-button-border-width);
@@ -59,11 +55,7 @@
     .condo-btn(@condo-button-line-height-l, @condo-button-padding-vert-l, @condo-button-padding-hor-l, 0);
   }
 
-  &-L.condo-btn-secondary {
-    .condo-btn(@condo-button-line-height-l, @condo-button-padding-vert-l,
-    @condo-button-padding-hor-l, @condo-button-border-width);
-  }
-
+  &-L.condo-btn-secondary,
   &-L.condo-btn-accent {
     .condo-btn(@condo-button-line-height-l, @condo-button-padding-vert-l,
     @condo-button-padding-hor-l, @condo-button-border-width);
@@ -74,12 +66,7 @@
     .condo-btn(@condo-button-line-height-m, @condo-button-padding-vert-compact, @condo-button-padding-hor-compact, 0);
   }
 
-  &-M.condo-btn-compact.condo-btn-secondary {
-    min-width: 0;
-    .condo-btn(@condo-button-line-height-m, @condo-button-padding-vert-compact,
-    @condo-button-padding-hor-compact, @condo-button-border-width);
-  }
-
+  &-M.condo-btn-compact.condo-btn-secondary,
   &-M.condo-btn-compact.condo-btn-accent {
     min-width: 0;
     .condo-btn(@condo-button-line-height-m, @condo-button-padding-vert-compact,
@@ -91,25 +78,26 @@
     .condo-btn(@condo-button-line-height-l, @condo-button-padding-vert-compact, @condo-button-padding-hor-compact, 0);
   }
 
-  &-L.condo-btn-compact.condo-btn-secondary {
-    min-width: 0;
-    .condo-btn(@condo-button-line-height-l, @condo-button-padding-vert-compact,
-    @condo-button-padding-hor-compact, @condo-button-border-width);
-  }
-
+  &-L.condo-btn-compact.condo-btn-secondary,
   &-L.condo-btn-compact.condo-btn-accent {
     min-width: 0;
     .condo-btn(@condo-button-line-height-l, @condo-button-padding-vert-compact,
     @condo-button-padding-hor-compact, @condo-button-border-width);
   }
 
-  &-minimal {
-    background: none !important;
-    border-color: transparent !important;
-    box-shadow: none !important;
+  &-minimal.condo-btn-primary,
+  &-minimal.condo-btn-secondary,
+  &-minimal.condo-btn-accent,
+  &-minimal.condo-btn-primary.condo-btn-dangerous,
+  &-minimal.condo-btn-secondary.condo-btn-dangerous,
+  &-minimal.condo-btn-accent.condo-btn-dangerous {
+    text-shadow: none;
+    background: none;
+    border-color: transparent;
+    box-shadow: none;
 
     &::before {
-      display: none !important;
+      display: none;
     }
   }
 
@@ -526,7 +514,7 @@
 
     &:focus-visible {
       &::after {
-        .condo-btn-layer(-5px);
+        .condo-btn-layer(-(@condo-button-focus-outline-width + @condo-button-border-width));
 
         opacity: 1;
       }
