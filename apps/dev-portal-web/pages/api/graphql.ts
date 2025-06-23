@@ -21,7 +21,11 @@ export const config = {
 
 export default function handler (req: NextApiRequest, res: NextApiResponse): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-        proxy.web(req, res, { target: `${serverUrl}/admin/api`, changeOrigin: true }, (err) => {
+        proxy.web(req, res, {
+            target: `${serverUrl}/admin/api`,
+            changeOrigin: true,
+            ignorePath: true,
+        }, (err) => {
             if (err) {
                 return reject(err)
             }

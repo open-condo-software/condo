@@ -237,6 +237,7 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
                     playground: false,
                     plugins: apolloServerPlugins,
                 },
+                apiPath: /^\/admin\/api\/?$/,
                 ...(graphql || {}),
             }),
             new AdminUIApp({
