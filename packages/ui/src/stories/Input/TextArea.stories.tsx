@@ -1,42 +1,41 @@
 import React from 'react'
 
 import * as condoIcons from '@open-condo/icons'
-import { Input as Component } from '@open-condo/ui/src'
-import { Button } from '@open-condo/ui/src'
+import { Button, Input as Component } from '@open-condo/ui/src'
 
 import type { Meta, StoryObj } from '@storybook/react'
 
-const singleIcons = Object.assign({}, ...Object.entries(condoIcons).map(([key, Icon]) => ({
-    [`${key}-small`]: [<Icon size='small' color='grey' key={key} />],
-    [`${key}-medium`]: [<Icon size='medium' color='grey' key={key} />],
-    ['none']: [],
-})))
+const DemoButton = ({ icon, text, disabled }: { text?: string, icon: React.ReactNode, disabled?: boolean }) => (
+    <Button
+        type='secondary'
+        minimal
+        compact
+        size='M'
+        disabled={disabled}
+        icon={icon}
+    >{text}</Button>
+)
 
 const iconCombinations = {
     'copy-search': [
-        <condoIcons.Copy size='small' color='grey' key='copy' />,
-        <condoIcons.Search size='small' color='grey' key='search' />,
+        <DemoButton icon={<condoIcons.Copy size='small'/>} key='copy' />,
+        <DemoButton icon={<condoIcons.Search />} key='search' />,
     ],
     'edit-copy': [
-        <condoIcons.Edit size='small' color='grey' key='edit' />,
-        <condoIcons.Copy size='small' color='grey' key='copy' />,
+        <DemoButton icon={<condoIcons.Edit size='small'/>} key='edit' />,
+        <DemoButton icon={<condoIcons.Copy size='small'/>} key='copy' />,
     ],
     'lock-eye': [
-        <condoIcons.Lock size='small' color='grey' key='lock' />,
-        <condoIcons.Eye size='small' color='grey' key='eye' />,
-        <condoIcons.FileUp size='small' color='grey' key='eye-invisible' />,
+        <DemoButton icon={<condoIcons.Lock size='small'/>} key='lock' />,
+        <DemoButton icon={<condoIcons.Eye size='small'/>} key='eye' />,
+        <DemoButton icon={<condoIcons.FileUp size='small'/>} key='eye-invisible' />,
     ],
     'full-set': [
-        <condoIcons.Copy size='small' color='grey' key='copy' />,
-        <condoIcons.Search size='small' color='grey' key='search' />,
-        <condoIcons.Edit size='small' color='grey' key='edit' />,
-        <condoIcons.Trash size='small' color='grey' key='trash' />,
+        <DemoButton icon={<condoIcons.Copy size='small'/>} key='copy' />,
+        <DemoButton icon={<condoIcons.Search size='small'/>} key='search' />,
+        <DemoButton icon={<condoIcons.Edit size='small'/>} key='edit' />,
+        <DemoButton icon={<condoIcons.Trash size='small'/>} key='trash' text='Delete'/>,
     ],
-}
-
-const allPanelUtilsOptions = {
-    ...singleIcons,
-    ...iconCombinations,
 }
 
 export default {
@@ -44,17 +43,23 @@ export default {
     component: Component.TextArea,
     args: {
         placeholder: 'Placeholder',
-        bottomPanelUtils: allPanelUtilsOptions['copy-search'],
-        submitButton: <Button.Icon><condoIcons.ChevronUp size='small' /></Button.Icon>,
+        bottomPanelUtils: iconCombinations['copy-search'],
         autoSize: { minRows: 1, maxRows: 4 },
         disabled: false,
         rows: 1,
         showCount: true,
     },
     argTypes: {
+        onSubmit: {
+            options: [false, () => alert('Submit')],
+            mapping: iconCombinations,
+            control: {
+                type: 'select',
+            },
+        },
         bottomPanelUtils: {
-            options: Object.keys(allPanelUtilsOptions),
-            mapping: allPanelUtilsOptions,
+            options: Object.keys(iconCombinations),
+            mapping: iconCombinations,
             control: {
                 type: 'select',
             },
