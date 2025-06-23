@@ -70,7 +70,17 @@ const FLOW_META_SCHEMAS = {
                 ticketFloorName: { type: 'string' },
                 ticketSectionName: { type: 'string' },
                 currentDateTime: { type: 'string' },
-                // actualIncidents: { type: 'string' },
+                actualIncidents: {
+                    type: 'array',
+                    items: {
+                        type: 'object',
+                        properties: {
+                            details: { type: 'string' },
+                            textForResident: { type: 'string' },
+                        },
+                        additionalProperties: false,
+                    },
+                },
             },
         },
         output: {

@@ -9,7 +9,7 @@ import {
     useGetTicketLastCommentsTimeQuery, useGetUserTicketCommentsReadTimeQuery,
     useUpdateTicketCommentMutation,
     useCreateUserTicketCommentReadTimeMutation,
-    useUpdateUserTicketCommentReadTimeMutation, useGetTicketInvoicesQuery,
+    useUpdateUserTicketCommentReadTimeMutation, useGetTicketInvoicesQuery, GetIncidentsQuery,
 } from '@app/condo/gql'
 import { B2BAppGlobalFeature } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
@@ -690,6 +690,8 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
         await refetchInvoices()
     }, [refetchInvoices, refetchTicket, refetchTicketChanges])
 
+    const [actualIncidents, setActualIncidents] = useState<GetIncidentsQuery['incidents']>([])
+
     const render = (
         <Row gutter={BIG_VERTICAL_GUTTER}>
             <Col lg={16} xs={24}>
@@ -741,6 +743,7 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
                         propertyId={ticketPropertyId}
                         classifier={ticket.classifier}
                         colProps={HINTS_COL_PROPS}
+                        onActualIncidentsChange={setActualIncidents}
                     />
                     <TicketCallRecordHistory
                         ticketId={id}
@@ -782,6 +785,7 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
                         refetchComments={refetchCommentsWithFiles}
                         comments={commentsWithFiles}
                         canCreateComments={canCreateComments}
+                        actualIncidents={actualIncidents}
                     />
                 </Affix>
             </Col>

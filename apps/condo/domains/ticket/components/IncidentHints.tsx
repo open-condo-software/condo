@@ -1,8 +1,8 @@
 import {
+    GetIncidentsQuery,
     useGetIncidentClassifierIncidentLazyQuery,
     useGetIncidentPropertiesLazyQuery,
     useGetIncidentsLazyQuery,
-    GetIncidentsQuery,
 } from '@app/condo/gql'
 import {
     IncidentClassifier as IIncidentClassifier,
@@ -18,6 +18,7 @@ import dayjs from 'dayjs'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { IntlShape } from 'react-intl/src/types'
 
+import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useIntl } from '@open-condo/next/intl'
 import { Alert, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
@@ -34,6 +35,7 @@ type IncidentHintsProps = {
     organizationId: string
     classifier?: ClassifierDataType
     colProps?: ColProps
+    onActualIncidentsChange?: (incidents: GetIncidentsQuery['incidents']) => void
 }
 
 type IncidentHintProps = {
@@ -135,7 +137,7 @@ const WORK_FINISHED_IN_LAST_DAYS = 7
  * 4 - show Incidents
  */
 export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
-    const { propertyId, classifier, organizationId, colProps } = props
+    const { propertyId, classifier, organizationId, colProps, onActualIncidentsChange } = props
 
     const [allIncidents, setAllIncidents] = useState<GetIncidentsQuery['incidents']>([])
     const [incidentsToShow, setIncidentsToShow] = useState<GetIncidentsQuery['incidents']>([])
@@ -291,6 +293,12 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
         // NOTE: if we only change categoryId or problemId then we should not refetch all incidents
         getIncidentsToShow(allIncidents, categoryId, problemId)
     }, [allIncidents, categoryId, problemId, getIncidentsToShow])
+
+    useDeepCompareEffect(() => {
+        if (onActualIncidentsChange) {
+            onActualIncidentsChange(incidentsToShow.filter(incident => incident.status === IncidentStatusType.Actual))
+        }
+    }, [incidentsToShow])
 
     const renderedIncidents = useMemo(() => (
         <Row gutter={INCIDENTS_GUTTER}>

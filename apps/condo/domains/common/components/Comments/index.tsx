@@ -1,7 +1,7 @@
 import { useApolloClient } from '@apollo/client'
 import {
     CreateTicketCommentMutationHookResult,
-    CreateUserTicketCommentReadTimeMutationHookResult,
+    CreateUserTicketCommentReadTimeMutationHookResult, GetIncidentsQuery,
     GetTicketLastCommentsTimeQueryHookResult,
     GetUserTicketCommentsReadTimeQueryHookResult,
     UpdateTicketCommentMutationHookResult,
@@ -180,7 +180,7 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> =
 
         const lastComment = useMemo(() => comments?.[0], [comments])
         const showGenerateAnswerButton = useMemo(() =>
-            generateCommentEnabled && lastComment?.user?.type === UserTypeType.Resident,
+            generateCommentEnabled && lastComment?.user?.type === UserTypeType.Staff,
         [generateCommentEnabled, lastComment?.user?.type])
 
         const commentsToRender = useMemo(() =>
@@ -325,6 +325,7 @@ interface ICommentsListProps {
     createUserTicketCommentReadTime: CreateUserTicketCommentReadTimeMutationHookResult[0]
     updateUserTicketCommentReadTime: UpdateUserTicketCommentReadTimeMutationHookResult[0]
     loadingUserTicketCommentReadTime: boolean
+    actualIncidents?: GetIncidentsQuery['incidents']
 }
 
 const Comments: React.FC<ICommentsListProps> = ({
@@ -342,6 +343,7 @@ const Comments: React.FC<ICommentsListProps> = ({
     createUserTicketCommentReadTime,
     updateUserTicketCommentReadTime,
     loadingUserTicketCommentReadTime,
+    actualIncidents,
 }) => {
     const intl = useIntl()
     const TitleMessage = intl.formatMessage({ id: 'Comments.title' })
@@ -549,12 +551,15 @@ const Comments: React.FC<ICommentsListProps> = ({
         // Last 5 comments excluding the lastComment one
         const last5Comments = comments?.slice(0, 5)
         const currentDateTime = dayjs().format()
+        const last5Incidents = actualIncidents?.slice(0, 5)
+            ?.map(({ details, textForResident }) => ({ details, textForResident }))
 
         const context = pickBy({
             answer: commentForm.getFieldValue('content') || '',
             comment: lastComment?.content,
             ticketLastComments: last5Comments?.map(comment => `${comment.user.name}: ${comment.content}`).join('\n'),
             currentDateTime,
+            actualIncidents: last5Incidents,
         })
 
         const result = await runGenerateCommentAIFlow({ context })

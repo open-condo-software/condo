@@ -9,7 +9,7 @@ query getIncidents ($where: IncidentWhereInput, $sortBy: [SortIncidentsBy!], $fi
         workStart
         workFinish
         status
-        details
+        textForResident
     }
 }
 
