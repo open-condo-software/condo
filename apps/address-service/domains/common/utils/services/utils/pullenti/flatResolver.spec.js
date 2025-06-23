@@ -2,26 +2,35 @@ const { resolveFlat } = require('./flatResolver')
 
 describe('flatResolver', () => {
     describe('resolveFlat', () => {
-        it('should return empty object for null input', () => {
-            expect(resolveFlat(null)).toEqual({})
-            expect(resolveFlat(undefined)).toEqual({})
+        it('should return all null fields for null or undefined input', () => {
+            expect(resolveFlat(null)).toEqual({
+                flat: null,
+                flat_type: null,
+                flat_type_full: null,
+                flat_fias_id: null,
+                flat_cadnum: null,
+            })
+            expect(resolveFlat(undefined)).toEqual({
+                flat: null,
+                flat_type: null,
+                flat_type_full: null,
+                flat_fias_id: null,
+                flat_cadnum: null,
+            })
         })
 
-        it('should resolve квартира type', () => {
-            const apartmentLevel = {
-                gar: [{
-                    level: 'apartment',
-                    guid: 'test-guid',
-                    room: {
-                        num: '42',
-                    },
-                    param: [
-                        { '@_name': 'kadasternumber', '#text': 'kad-123' },
-                    ],
-                }],
+        it('should resolve all fields when room.num and recognized type are present', () => {
+            const gar = {
+                guid: 'test-guid',
+                room: {
+                    num: '42',
+                    type: 'квартира',
+                },
+                param: [
+                    { '@_name': 'kadasternumber', '#text': 'kad-123' },
+                ],
             }
-
-            expect(resolveFlat(apartmentLevel)).toEqual({
+            expect(resolveFlat(gar)).toEqual({
                 flat: '42',
                 flat_type: 'кв',
                 flat_type_full: 'квартира',
@@ -30,71 +39,61 @@ describe('flatResolver', () => {
             })
         })
 
-        it('should resolve апартаменты type', () => {
-            const apartmentLevel = {
-                gar: [{
-                    level: 'apartment',
-                    room: {
-                        num: '42',
-                        type: 'apartment',
-                    },
-                }],
+        it('should return all null fields if room is missing', () => {
+            const gar = {
+                guid: 'test-guid',
             }
-
-            expect(resolveFlat(apartmentLevel)).toEqual({
-                flat: '42',
-                flat_type: 'апарт',
-                flat_type_full: 'апартаменты',
+            expect(resolveFlat(gar)).toEqual({
+                flat: null,
+                flat_type: null,
+                flat_type_full: null,
                 flat_fias_id: null,
                 flat_cadnum: null,
             })
         })
 
-        it('should handle missing room field', () => {
-            const apartmentLevel = {
-                gar: [{
-                    level: 'apartment',
-                    guid: 'test-guid',
-                }],
+        it('should return all null fields if room.num is missing', () => {
+            const gar = {
+                room: {
+                    type: 'квартира',
+                },
             }
-
-            expect(resolveFlat(apartmentLevel)).toEqual({
+            expect(resolveFlat(gar)).toEqual({
                 flat: null,
-                flat_type: 'кв',
-                flat_type_full: 'квартира',
-                flat_fias_id: 'test-guid',
-                flat_cadnum: null,
-            })
-        })
-
-        it('should handle null room number', () => {
-            const apartmentLevel = {
-                gar: [{
-                    level: 'apartment',
-                    room: {
-                        num: null,
-                    },
-                }],
-            }
-
-            expect(resolveFlat(apartmentLevel)).toEqual({
-                flat: null,
-                flat_type: 'кв',
-                flat_type_full: 'квартира',
+                flat_type: null,
+                flat_type_full: null,
                 flat_fias_id: null,
                 flat_cadnum: null,
             })
         })
 
-        it('should handle empty gar array', () => {
-            const apartmentLevel = {
-                gar: [],
+        it('should return all null fields if room.type is not recognized', () => {
+            const gar = {
+                room: {
+                    num: '42',
+                    type: 'unknown-type',
+                },
             }
-
-            expect(resolveFlat(apartmentLevel)).toEqual({
+            expect(resolveFlat(gar)).toEqual({
                 flat: null,
-                flat_type: 'кв',
-                flat_type_full: 'квартира',
+                flat_type: null,
+                flat_type_full: null,
+                flat_fias_id: null,
+                flat_cadnum: null,
+            })
+        })
+
+        it('should return all null fields if room.num is null', () => {
+            const gar = {
+                room: {
+                    num: null,
+                    type: 'квартира',
+                },
+            }
+            expect(resolveFlat(gar)).toEqual({
+                flat: null,
+                flat_type: null,
+                flat_type_full: null,
                 flat_fias_id: null,
                 flat_cadnum: null,
             })
