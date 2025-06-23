@@ -3,6 +3,9 @@ import { TextAreaProps as AntdTextAreaProps } from 'antd/es/input'
 import classNames from 'classnames'
 import React, { forwardRef, useState, useEffect, TextareaHTMLAttributes } from 'react'
 
+import { ArrowRight } from '@open-condo/icons'
+import { Button } from '@open-condo/ui/src/components/Button'
+
 import type { InputRef } from 'antd'
 
 import './textArea.less'
@@ -13,8 +16,8 @@ export const TEXTAREA_CLASS_PREFIX = 'condo-input'
 
 export type TextAreaProps = Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'style' | 'size'> &
 Pick<AntdTextAreaProps, 'autoSize'> & {
-    bottomPanelUtils?: React.ReactNode[]
-    submitButton?: React.ReactNode
+    bottomPanelUtils?: React.ReactElement[]
+    onSubmit?: (value: string) => void
     showCount?: boolean
     value?: string
     defaultValue?: string
@@ -30,7 +33,7 @@ const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
         maxLength = 1000,
         autoSize = { minRows: 1 },
         showCount = true,
-        submitButton,
+        onSubmit,
         value: propsValue,
         defaultValue = '',
         onChange: propsOnChange,
@@ -62,7 +65,7 @@ const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
     const characterCount = `${currentValue.length}/${maxLength}`
 
     const hasBottomPanelUtils = bottomPanelUtils.length > 0
-    const shouldShowRightPanel = showCount || submitButton
+    const shouldShowRightPanel = showCount || onSubmit
     const showBottomPanel = hasBottomPanelUtils || shouldShowRightPanel
 
     const textareaClassName = classNames(
@@ -76,7 +79,7 @@ const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
     )
 
     return (
-        <div className={`${TEXTAREA_CLASS_PREFIX}-textarea-wrapper`}>
+        <div className={`${TEXTAREA_CLASS_PREFIX} ${TEXTAREA_CLASS_PREFIX}-textarea-wrapper`}>
             <DefaultTextArea
                 {...restProps}
                 ref={ref}
@@ -96,7 +99,7 @@ const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
                     {hasBottomPanelUtils && (
                         <span className={`${TEXTAREA_CLASS_PREFIX}-utils`}>
                             {bottomPanelUtils.map((util, index) => (
-                                <React.Fragment key={index}>{util}</React.Fragment>
+                                <React.Fragment key={index}>{ React.cloneElement(util, { disabled: disabled }) }</React.Fragment>
                             ))}
                         </span>
                     )}
@@ -108,7 +111,17 @@ const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
                                     {characterCount}
                                 </span>
                             )}
-                            {submitButton}
+
+                            {
+                                onSubmit &&
+                                <Button
+                                    disabled={disabled}
+                                    type='accent'
+                                    size='M'
+                                    onClick={() => onSubmit(currentValue)}
+                                    icon={<ArrowRight className='arrow-icon' size='small' />}
+                                />
+                            }
                         </span>
                     )}
                 </span>
