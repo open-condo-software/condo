@@ -12801,12 +12801,14 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@open-condo/files@workspace:packages/files"
   dependencies:
+    "@faker-js/faker": ^7.6.0
     "@open-condo/config": "workspace:^"
     busboy: ^1.6.0
     cuid: ^3.0.0
     express: ^4.21.2
     form-data: ^4.0.0
     fs-capacitor: ^6.2.0
+    uuid: ^8.3.0
   languageName: unknown
   linkType: soft
 
