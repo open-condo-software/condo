@@ -38,6 +38,7 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 import { Loader } from '@condo/domains/common/components/Loader'
 import { Module } from '@condo/domains/common/components/MultipleFileUpload'
 import { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE } from '@condo/domains/ticket/constants'
+import { GENERATE_COMMENT_TOUR_STEP_CLOSED_COOKIE } from '@condo/domains/ticket/constants/common'
 import { hasUnreadResidentComments } from '@condo/domains/ticket/utils/helpers'
 
 import { Comment } from './Comment'
@@ -118,8 +119,6 @@ const GENERATE_ANSWER_BUTTON_WRAPPER_STYLES: CSSProperties = { width: 'fit-conte
 const GENERATE_COMMENT_BUTTON_WRAPPER_STYLES: CSSProperties = { width: 'fit-content' }
 const EMPTY_COMMENTS_WRAPPER_STYLES: CSSProperties = { display: 'flex', flexDirection: 'column', padding: '24px' }
 
-const GENERATE_COMMENT_TOUR_STEP_CLOSED_COOKIE = 'generateCommentTipClosed'
-
 const EmptyCommentsContainer = ({ PromptTitleMessage, PromptDescriptionMessage }) => (
     <EmptyContainer>
         <Empty
@@ -180,7 +179,7 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> =
 
         const lastComment = useMemo(() => comments?.[0], [comments])
         const showGenerateAnswerButton = useMemo(() =>
-            generateCommentEnabled && lastComment?.user?.type === UserTypeType.Staff,
+            generateCommentEnabled && lastComment?.user?.type === UserTypeType.Resident,
         [generateCommentEnabled, lastComment?.user?.type])
 
         const commentsToRender = useMemo(() =>

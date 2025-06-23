@@ -59,8 +59,6 @@ export function useAIFlow<T = object> ({
 
         const fullContext = { ...defaultContext, ...context }
 
-        console.log('fullContext', fullContext)
-
         try {
             const createResult = await createExecutionAIFlowMutation({
                 variables: {

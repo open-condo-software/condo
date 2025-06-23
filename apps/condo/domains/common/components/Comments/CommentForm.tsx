@@ -7,7 +7,6 @@ import React, { CSSProperties, useCallback, useEffect, useMemo } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { Tour } from '@open-condo/ui'
 
-
 import { Button } from '@condo/domains/common/components/Button'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { ClipIcon } from '@condo/domains/common/components/icons/ClipIcon'
@@ -18,7 +17,7 @@ import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { getIconByMimetype } from '@condo/domains/common/utils/clientSchema/files'
 import { MAX_COMMENT_LENGTH } from '@condo/domains/ticket/constants'
-
+import { GENERATE_COMMENT_TOUR_STEP_CLOSED_COOKIE } from '@condo/domains/ticket/constants/common'
 
 import { CommentWithFiles } from './index'
 
@@ -55,8 +54,6 @@ const ENTER_KEY_CODE = 13
 const COMMENT_HELPERS_ROW_STYLES: CSSProperties = { padding: '0 8px 8px 8px' }
 const INPUT_WITH_COUNTER_AUTOSIZE_CONFIG = { minRows: 1, maxRows: 6 }
 const EMPTY_FILLER_STYLE: CSSProperties = { height: 5 }
-
-const GENERATE_COMMENT_TOUR_STEP_CLOSED_COOKIE = 'generateCommentTipClosed'
 
 const CommentHelperWrapper = styled(Col)`
   background-color: ${colors.textSecondary};
