@@ -113,6 +113,25 @@
     &::before {
       display: none;
     }
+
+    &:hover {
+      text-shadow: none;
+      background: none;
+      border-color: transparent;
+      box-shadow: none;
+
+      .condo-btn-static-text-color(@condo-global-color-green-5);
+      .condo-btn-content-color(@condo-global-color-green-5);
+
+      &::before {
+        display: none;
+      }
+    }
+
+    &:active {
+      .condo-btn-static-text-color(@condo-global-color-green-7);
+      .condo-btn-content-color(@condo-global-color-green-7);
+    }
   }
 
   &-minimal.condo-btn-compact {
@@ -186,11 +205,6 @@
 
     &.condo-btn-minimal {
       .condo-btn-content-color(@condo-global-color-black);
-
-      &:hover {
-        .condo-btn-static-text-color(@condo-global-color-green-5);
-        .condo-btn-content-color(@condo-global-color-green-5);
-      }
     }
 
     &.condo-btn-stateless {
