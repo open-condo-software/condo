@@ -20,7 +20,7 @@ import { useRouter } from 'next/router'
 import qs from 'qs'
 import React, { CSSProperties, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
-
+import { useCachePersistor } from '@open-condo/apollo'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { ExternalLink, History, Mail, PlusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
@@ -45,6 +45,7 @@ import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibi
 import { useClientCardTicketTableColumns } from '@condo/domains/ticket/hooks/useClientCardTicketTableColumns'
 import { CallRecordFragment } from '@condo/domains/ticket/utils/clientSchema'
 import { getSectionAndFloorByUnitName } from '@condo/domains/ticket/utils/unit'
+
 import './index.css'
 
 //#region Constants, types and styles
@@ -332,9 +333,9 @@ const ClientCardTabContent = ({
     const LastTicketsLoadedMessage = intl.formatMessage({ id: 'pages.clientCard.lastTicketsLoaded' }, { count: MAX_TABLE_SIZE })
     const OpenAllTicketsMessage = intl.formatMessage({ id: 'pages.clientCard.openAllTickets' })
 
-    const tabsItems: TabsItems = useMemo(()=>tableTabs.map(el => ({
-        label: intl.formatMessage({ id: `pages.clientCard.table.tabs.${el}` }),
-        key: el,
+    const tabsItems: TabsItems = useMemo(() => tableTabs.map(tab => ({
+        label: intl.formatMessage({ id: `pages.clientCard.table.tabs.${tab}` }),
+        key: tab,
     })), [intl])
 
     const [currentTableTab, setCurrentTableTab] = useState<TabKey>('contactPropertyTickets')
@@ -343,6 +344,8 @@ const ClientCardTabContent = ({
 
     const { offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
+
+    const { persistor } = useCachePersistor()
 
     const searchQuery = useMemo(() => {
         if (currentTableTab === RESIDENTS_ENTRANCE_TICKETS_TAB) {
@@ -364,7 +367,7 @@ const ClientCardTabContent = ({
             unitType,
             contact: { id: contact?.id },
         }
-    }, [searchTicketsQuery, currentTableTab, unitType, unitName, property?.id, sectionName, sectionType ])
+    }, [searchTicketsQuery, currentTableTab, unitType, unitName, property?.id, sectionName, sectionType])
 
     const { data: ticketsQuery, loading: isTicketsFetching } = useGetTicketsForClientCardQuery({
         variables: {
@@ -373,6 +376,7 @@ const ClientCardTabContent = ({
             sortBy: TICKET_SORT_BY,
             skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
         },
+        skip: !persistor,
     })
     const tickets = ticketsQuery?.tickets
 
@@ -946,13 +950,17 @@ const ClientCardPageContent = ({
 
 export const ClientCardPageContentWrapper = ({
     organizationQuery,
+    organizationQueryLoading,
     ticketsQuery,
+    ticketQueryLoading,
     canManageContacts,
     showOrganizationMessage = false,
     usePhonePrefix = false,
 }) => {
     const router = useRouter()
     const phoneNumber = router?.query.number
+    
+    const { persistor } = useCachePersistor()
 
     const { data: contactsQueryData, loading: contactsLoading } = useGetContactForClientCardQuery({
         variables: {
@@ -962,6 +970,7 @@ export const ClientCardPageContentWrapper = ({
             },
             first: MAX_TABLE_SIZE,
         },
+        skip: !persistor || organizationQueryLoading || !phoneNumber,
     })
 
     const { data: ticketsQueryData, loading: ticketsLoading } = useGetTicketsForClientCardQuery({
@@ -974,6 +983,7 @@ export const ClientCardPageContentWrapper = ({
             },
             first: MAX_TABLE_SIZE,
         },
+        skip: !persistor || ticketQueryLoading || !phoneNumber || organizationQueryLoading,
     })
 
     const { data: employeesQueryData, loading: employeesLoading } = useGetEmployeesForClientCardQuery({
@@ -984,6 +994,7 @@ export const ClientCardPageContentWrapper = ({
             },
             first: MAX_TABLE_SIZE,
         },
+        skip: !persistor || organizationQueryLoading || !phoneNumber,
     })
 
     const employeeTickets = useMemo(() =>
@@ -1051,18 +1062,20 @@ export const ClientCardPageContentWrapper = ({
 }
 
 const ClientCardPage: PageComponentType = () => {
-    const { organization, role } = useOrganization()
+    const { organization, role, isLoading } = useOrganization()
     const organizationId = organization?.id
     const canManageContacts = role.canManageContacts
 
-    const { ticketFilterQuery } = useTicketVisibility()
+    const { ticketFilterQuery, ticketFilterQueryLoading } = useTicketVisibility()
     const organizationQuery = { organization: { id: organizationId } }
     const ticketsQuery = { ...organizationQuery, ...ticketFilterQuery, property: { deletedAt: null } }
 
     return (
         <ClientCardPageContentWrapper
             organizationQuery={organizationQuery}
+            organizationQueryLoading={isLoading}
             ticketsQuery={ticketsQuery}
+            ticketQueryLoading = {ticketFilterQueryLoading}
             canManageContacts={canManageContacts}
         />
     )
