@@ -950,9 +950,8 @@ const ClientCardPageContent = ({
 
 export const ClientCardPageContentWrapper = ({
     organizationQuery,
-    organizationQueryLoading,
+    allQueriesLoading,
     ticketsQuery,
-    ticketQueryLoading,
     canManageContacts,
     showOrganizationMessage = false,
     usePhonePrefix = false,
@@ -970,7 +969,7 @@ export const ClientCardPageContentWrapper = ({
             },
             first: MAX_TABLE_SIZE,
         },
-        skip: !persistor || organizationQueryLoading || !phoneNumber,
+        skip: !persistor || allQueriesLoading || !phoneNumber,
     })
 
     const { data: ticketsQueryData, loading: ticketsLoading } = useGetTicketsForClientCardQuery({
@@ -983,7 +982,7 @@ export const ClientCardPageContentWrapper = ({
             },
             first: MAX_TABLE_SIZE,
         },
-        skip: !persistor || ticketQueryLoading || !phoneNumber || organizationQueryLoading,
+        skip: !persistor || allQueriesLoading || !phoneNumber,
     })
 
     const { data: employeesQueryData, loading: employeesLoading } = useGetEmployeesForClientCardQuery({
@@ -994,7 +993,7 @@ export const ClientCardPageContentWrapper = ({
             },
             first: MAX_TABLE_SIZE,
         },
-        skip: !persistor || organizationQueryLoading || !phoneNumber,
+        skip: !persistor || allQueriesLoading || !phoneNumber,
     })
 
     const employeeTickets = useMemo(() =>
@@ -1073,9 +1072,8 @@ const ClientCardPage: PageComponentType = () => {
     return (
         <ClientCardPageContentWrapper
             organizationQuery={organizationQuery}
-            organizationQueryLoading={isLoading}
+            allQueriesLoading={ticketFilterQueryLoading || isLoading}
             ticketsQuery={ticketsQuery}
-            ticketQueryLoading = {ticketFilterQueryLoading}
             canManageContacts={canManageContacts}
         />
     )
