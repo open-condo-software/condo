@@ -6,6 +6,4 @@ const InitialPage: PageComponentType = () => {
     return <></>
 }
 
-InitialPage.skipUserPrefetch = true
-
 export default InitialPage
