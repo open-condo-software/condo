@@ -81,6 +81,8 @@ const FLOW_META_SCHEMAS = {
                         additionalProperties: false,
                     },
                 },
+                isExecutorAssigned: { type: 'string' },
+                isAssigneeAssigned: { type: 'string' },
             },
         },
         output: {

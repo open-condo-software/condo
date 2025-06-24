@@ -354,6 +354,8 @@ const Comments: React.FC<ICommentsListProps> = ({
     const PromptResidentCommentsTitleMessage = intl.formatMessage({ id: 'Comments.tab.resident.prompt.title' })
     const PromptResidentCommentsDescriptionMessage = intl.formatMessage({ id: 'Comments.tab.resident.prompt.description' })
     const GenericErrorMessage = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
+    const YesMessage = intl.formatMessage({ id: 'Yes' })
+    const NoMessage = intl.formatMessage({ id: 'No' })
 
     const { user } = useAuth()
     const client = useApolloClient()
@@ -534,6 +536,8 @@ const Comments: React.FC<ICommentsListProps> = ({
             ticketUnitType: ticket.unitType ? intl.formatMessage({ id: `field.UnitType.${ticket.unitType}` }) : '-',
             ticketFloorName: ticket.floorName,
             ticketSectionName: ticket.sectionName,
+            isExecutorAssigned: ticket.executor ? YesMessage : NoMessage,
+            isAssigneeAssigned: ticket.assignee ? YesMessage : NoMessage,
         },
     })
 
