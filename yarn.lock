@@ -8981,7 +8981,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@keystonejs/adapter-knex@npm:^13.2.0, @keystonejs/adapter-knex@npm:^13.3.2":
+"@keystonejs/adapter-knex@npm:^13.3.2":
   version: 13.3.2
   resolution: "@keystonejs/adapter-knex@npm:13.3.2"
   dependencies:
@@ -8995,7 +8995,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@keystonejs/adapter-mongoose@npm:^11.2.0, @keystonejs/adapter-mongoose@npm:^11.2.2":
+"@keystonejs/adapter-mongoose@npm:^11.2.2":
   version: 11.2.2
   resolution: "@keystonejs/adapter-mongoose@npm:11.2.2"
   dependencies:
@@ -9009,7 +9009,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@keystonejs/adapter-prisma@npm:^3.2.0, @keystonejs/adapter-prisma@npm:^3.2.2":
+"@keystonejs/adapter-prisma@npm:^3.2.2":
   version: 3.2.2
   resolution: "@keystonejs/adapter-prisma@npm:3.2.2"
   dependencies:
@@ -9164,16 +9164,6 @@ __metadata:
     "@keystonejs/access-control": ^7.1.2
     express: ^4.17.1
   checksum: bdc7163bf34b2e2354131af0e9c50373893288544a67f8f42d6ff4dc6a1056155aa3989101dc2e5670546a35c8c1a1b6faa4fc3d823931abd71bcba0b54db164
-  languageName: node
-  linkType: hard
-
-"@keystonejs/auth-password@npm:^6.1.0":
-  version: 6.1.2
-  resolution: "@keystonejs/auth-password@npm:6.1.2"
-  dependencies:
-    "@keystonejs/fields": ^22.1.3
-    "@keystonejs/session": ^8.3.2
-  checksum: cb565484f3dcd62d72c9c08ec321576ffdad0fde2e724cf7f80b401e2fa76aef4324e851bcd39d1d8cd0e451f2efdf3f75791c2c044c5d4f166019acc1faffd9
   languageName: node
   linkType: hard
 
@@ -9501,6 +9491,15 @@ __metadata:
   dependencies:
     posthog-js: ^1.116.6
   checksum: fdedb88f48e90ebb994e4a102ce37b5b5831d095a3326917f36a5caccdc39b3158097a41d153bb57c39f83e1f8532a8ffb4dfe5d39405c4918412b644142cfa0
+  languageName: node
+  linkType: hard
+
+"@mongodb-js/saslprep@npm:^1.1.9":
+  version: 1.3.0
+  resolution: "@mongodb-js/saslprep@npm:1.3.0"
+  dependencies:
+    sparse-bitfield: ^3.0.3
+  checksum: 0003ab0a943220df74f8ffcf076c4e4fc4105b20d6b1610d802231d2a6d3b74ad0fa9d26e3d828cb07daabe511ffb2760c347f7a4c0f985d8a7770f7d95190a3
   languageName: node
   linkType: hard
 
@@ -10250,19 +10249,19 @@ __metadata:
     "@graphql-tools/load": ^7.7.4
     "@graphql-tools/stitch": ^8.7.6
     "@graphql-tools/wrap": ^8.5.1
-    "@keystonejs/adapter-knex": ^13.2.0
-    "@keystonejs/adapter-mongoose": ^11.2.0
-    "@keystonejs/adapter-prisma": ^3.2.0
     "@keystonejs/app-graphql": ^6.3.0
-    "@keystonejs/auth-password": ^6.1.0
     "@keystonejs/fields": ^22.1.3
     "@keystonejs/fields-authed-relationship": ^1.1.2
     "@keystonejs/keystone": ^19.3.1
     "@open-condo/apollo-server-client": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/locales": "workspace:^"
-    "@open-keystone/fields-markdown": ^6.0.3
-    "@open-keystone/fields-wysiwyg-tinymce": ^6.0.3
+    "@open-keystone/adapter-knex": ^14.0.6
+    "@open-keystone/adapter-mongoose": ^13.0.0
+    "@open-keystone/adapter-prisma": ^4.0.6
+    "@open-keystone/auth-password": ^7.0.6
+    "@open-keystone/fields-markdown": ^6.0.6
+    "@open-keystone/fields-wysiwyg-tinymce": ^6.0.6
     "@open-keystone/file-adapters": ^7.1.4
     "@open-keystone/server-side-graphql-client": ^2.1.3
     "@open-keystone/utils": ^6.1.3
@@ -10306,7 +10305,7 @@ __metadata:
     ioredis: ^4.28.5
     jest: ^29.7.0
     jschardet: ^3.0.0
-    knex: ^0.95.6
+    knex: ^3.1.0
     lodash: ^4.17.21
     lru-cache: ^7.18.3
     minimatch: ^5.1.1
@@ -10530,46 +10529,46 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@open-keystone/adapter-knex@npm:^14.0.3":
-  version: 14.0.3
-  resolution: "@open-keystone/adapter-knex@npm:14.0.3"
+"@open-keystone/adapter-knex@npm:^14.0.6":
+  version: 14.0.6
+  resolution: "@open-keystone/adapter-knex@npm:14.0.6"
   dependencies:
-    "@open-keystone/fields-auto-increment": ^9.0.3
-    "@open-keystone/keystone": ^19.4.3
+    "@open-keystone/fields-auto-increment": ^9.0.6
+    "@open-keystone/keystone": ^19.4.6
     "@open-keystone/utils": ^6.1.3
-    knex: ^0.95.6
+    knex: ^3.1.0
     p-settle: ^4.1.1
     pg: ^8.6.0
-  checksum: 863574aa5d2bfde8dab40de9c4eb4404b92faf4d9fd823cc2d15cd9690aeb03fdcd79fa8cb14b1bfb347f06d38305ab94a37f8f258aa74c4c42991cd40e3f42f
+  checksum: 80ad63c8ca7ed4cf86c90e2e5fd277c7b585a5ade64460f8c05d9753d2f02c9b97005edff9aba37f4149a955142f788e1ebd3660f5b6b679c2274f4b2fbe8bd9
   languageName: node
   linkType: hard
 
-"@open-keystone/adapter-mongoose@npm:^12.0.3":
-  version: 12.0.3
-  resolution: "@open-keystone/adapter-mongoose@npm:12.0.3"
+"@open-keystone/adapter-mongoose@npm:^13.0.0":
+  version: 13.0.0
+  resolution: "@open-keystone/adapter-mongoose@npm:13.0.0"
   dependencies:
-    "@open-keystone/fields-mongoid": ^10.0.3
-    "@open-keystone/keystone": ^19.4.3
+    "@open-keystone/fields-mongoid": ^11.0.0
+    "@open-keystone/keystone": ^19.4.6
     "@open-keystone/utils": ^6.1.3
     cuid: ^2.1.8
-    mongoose: ^5.13.15
+    mongoose: ^8.16.0
     p-settle: ^4.1.1
-  checksum: 60dca587d9fa6e47fe67766a8c8c43eeca7b16974575ae83c2d5d07f0b078cc0d8877ccecca5d0a5d69b1005e12fc36ce960f4692d9374f340921288011e1173
+  checksum: 0cc9dfee38ff9ad5c1fd39b973dbac399e3496403103e9b14214fd1cafa48fc74d0fa80462921b446eecd1ea45b007bcbbb62f2f579ff2503ee768ada0ff13db
   languageName: node
   linkType: hard
 
-"@open-keystone/adapter-prisma@npm:^4.0.3":
-  version: 4.0.3
-  resolution: "@open-keystone/adapter-prisma@npm:4.0.3"
+"@open-keystone/adapter-prisma@npm:^4.0.6":
+  version: 4.0.6
+  resolution: "@open-keystone/adapter-prisma@npm:4.0.6"
   dependencies:
-    "@open-keystone/fields-auto-increment": ^9.0.3
-    "@open-keystone/keystone": ^19.4.3
+    "@open-keystone/fields-auto-increment": ^9.0.6
+    "@open-keystone/keystone": ^19.4.6
     "@open-keystone/utils": ^6.1.3
     "@prisma/client": 4.16.0
     "@prisma/internals": 4.16.0
     cuid: ^2.1.8
     prisma: 4.16.0
-  checksum: 1cb13a9d7372b842bd8d0a443c7d0df2dfb9fb41d1209bf5a19c11ecdac69a301b88d6d30c185c956061cb994ac2efb78e3edd94c14254d61bb026b2b3665a9d
+  checksum: 070e8b05a15aab3586d6a79e9c6c047f626985ddf9e808d8c9e77e8ce1469167854cd7f31fcbff54503a46eacb772645ed1dd638a87c07592dcf660b01f4bf07
   languageName: node
   linkType: hard
 
@@ -10663,6 +10662,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@open-keystone/auth-password@npm:^7.0.6":
+  version: 7.0.6
+  resolution: "@open-keystone/auth-password@npm:7.0.6"
+  dependencies:
+    "@open-keystone/fields": ^24.0.0
+    "@open-keystone/session": ^8.3.3
+  checksum: f21102783d1bfb92ae702a664960e4e9852c63ef70957d53bcccecdcc951abd122a8a1f46e6de58664e39c012f18f2b8634084b4cf1f1cdb6c808afb11ba4aa1
+  languageName: node
+  linkType: hard
+
 "@open-keystone/field-views-loader@npm:^7.0.0":
   version: 7.0.0
   resolution: "@open-keystone/field-views-loader@npm:7.0.0"
@@ -10672,21 +10681,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@open-keystone/fields-auto-increment@npm:^9.0.3":
-  version: 9.0.3
-  resolution: "@open-keystone/fields-auto-increment@npm:9.0.3"
+"@open-keystone/fields-auto-increment@npm:^9.0.6":
+  version: 9.0.6
+  resolution: "@open-keystone/fields-auto-increment@npm:9.0.6"
   dependencies:
     "@babel/runtime": ^7.14.6
-    "@open-keystone/adapter-knex": ^14.0.3
-    "@open-keystone/adapter-prisma": ^4.0.3
-    "@open-keystone/fields": ^23.0.3
-  checksum: 6721f31767564f3d8c566dd7fa949bd5bec60ee7d7ec82e9468121d54259bbd00a25d16acae4076b2a0215d5f058e5169b4b82774a880d2d2c3e87c4209f3174
+    "@open-keystone/adapter-knex": ^14.0.6
+    "@open-keystone/adapter-prisma": ^4.0.6
+    "@open-keystone/fields": ^24.0.0
+  checksum: 624eb46aa7c8de11e4f56be532684e317ca4b45a636ac7d58903a0e4647dd98b8e9db9eb11bbb28719b9799c88efc099019f3ecd1c171fb1fd6f2c544406bb40
   languageName: node
   linkType: hard
 
-"@open-keystone/fields-markdown@npm:^6.0.3":
-  version: 6.0.3
-  resolution: "@open-keystone/fields-markdown@npm:6.0.3"
+"@open-keystone/fields-markdown@npm:^6.0.6":
+  version: 6.0.6
+  resolution: "@open-keystone/fields-markdown@npm:6.0.6"
   dependencies:
     "@arch-ui/fields": ^3.0.8
     "@arch-ui/input": ^0.1.14
@@ -10695,41 +10704,41 @@ __metadata:
     "@arch-ui/typography": ^0.0.21
     "@babel/runtime": ^7.14.6
     "@emotion/core": ^10.1.1
-    "@open-keystone/fields": ^23.0.3
+    "@open-keystone/fields": ^24.0.0
     "@primer/octicons-react": ^11.3.0
     codemirror: ^5.62.0
     prop-types: ^15.7.2
     react: ^17.0.2
     react-codemirror2: ^7.2.1
-  checksum: 72982ba199db250764301a3b039c29fa1591d20edb86e41e226e7aa45325431a55a4e9eaf1cee9129d700e7132eb59790c943139ed35fb85381816953a0c833e
+  checksum: 2ede7630cc2fab5d248aa1d2f397d833c195f77cbd3a7cd5315b4b93db1c9f63e24bcc0d6bc583fbc350f644081b7f0bc790a247436fabbea1e91a06d6010110
   languageName: node
   linkType: hard
 
-"@open-keystone/fields-mongoid@npm:^10.0.3":
-  version: 10.0.3
-  resolution: "@open-keystone/fields-mongoid@npm:10.0.3"
+"@open-keystone/fields-mongoid@npm:^11.0.0":
+  version: 11.0.0
+  resolution: "@open-keystone/fields-mongoid@npm:11.0.0"
   dependencies:
     "@arch-ui/input": ^0.1.14
     "@babel/runtime": ^7.14.6
-    "@open-keystone/adapter-knex": ^14.0.3
-    "@open-keystone/adapter-mongoose": ^12.0.3
-    "@open-keystone/adapter-prisma": ^4.0.3
-    "@open-keystone/fields": ^23.0.3
+    "@open-keystone/adapter-knex": ^14.0.6
+    "@open-keystone/adapter-mongoose": ^13.0.0
+    "@open-keystone/adapter-prisma": ^4.0.6
+    "@open-keystone/fields": ^24.0.0
     react: ^17.0.2
-  checksum: f02373628f32e5ab583e3798c2bf2dda190e993194318c64113d110f7cf72b993233492f190eb81d62bb74fc008e3b19b22b563ec6d661b2789cbc825085e821
+  checksum: e5713a4622d69b10132bae250cee3c8a3b6a8d24641a1f6d97ce449a9580fd9d2b9f9bf23aa1a450ffff72f13cffb29f0a568386473ab002beca79e1a0dbc9cd
   languageName: node
   linkType: hard
 
-"@open-keystone/fields-wysiwyg-tinymce@npm:^6.0.3":
-  version: 6.0.3
-  resolution: "@open-keystone/fields-wysiwyg-tinymce@npm:6.0.3"
+"@open-keystone/fields-wysiwyg-tinymce@npm:^6.0.6":
+  version: 6.0.6
+  resolution: "@open-keystone/fields-wysiwyg-tinymce@npm:6.0.6"
   dependencies:
     "@arch-ui/fields": ^3.0.8
     "@arch-ui/input": ^0.1.14
     "@arch-ui/theme": ^0.0.14
     "@babel/runtime": ^7.14.6
     "@emotion/core": ^10.1.1
-    "@open-keystone/fields": ^23.0.3
+    "@open-keystone/fields": ^24.0.0
     "@primer/octicons-react": ^11.3.0
     "@tinymce/tinymce-react": ^3.12.6
     prop-types: ^15.7.2
@@ -10737,13 +10746,13 @@ __metadata:
     tinymce: ^5.8.1
   peerDependencies:
     express: ^4.17.1
-  checksum: 1d7748c1812bca951b59e5fe1171285c87b1e74f5107da5f6789d779719f4a4ad52a215d6be32621fddab21866de1b53bc821dafeb45c45d57b014d856a0e0c2
+  checksum: 993e3b12ee56b2a167bc7d8d846e74b3cdfc68493085e56511f008ad41d9158803558db56c674557609f37df780738f664143c25411da9f8310ea028895d24b3
   languageName: node
   linkType: hard
 
-"@open-keystone/fields@npm:^23.0.3":
-  version: 23.0.3
-  resolution: "@open-keystone/fields@npm:23.0.3"
+"@open-keystone/fields@npm:^24.0.0":
+  version: 24.0.0
+  resolution: "@open-keystone/fields@npm:24.0.0"
   dependencies:
     "@apollo/client": ^3.3.20
     "@arch-ui/alert": ^0.0.21
@@ -10766,9 +10775,9 @@ __metadata:
     "@babel/runtime": ^7.14.6
     "@emotion/core": ^10.1.1
     "@open-keystone/access-control": ^8.0.0
-    "@open-keystone/adapter-knex": ^14.0.3
-    "@open-keystone/adapter-mongoose": ^12.0.3
-    "@open-keystone/adapter-prisma": ^4.0.3
+    "@open-keystone/adapter-knex": ^14.0.6
+    "@open-keystone/adapter-mongoose": ^13.0.0
+    "@open-keystone/adapter-prisma": ^4.0.6
     "@open-keystone/app-admin-ui": ^8.0.1
     "@open-keystone/server-side-graphql-client": ^2.1.3
     "@open-keystone/utils": ^6.1.3
@@ -10787,7 +10796,7 @@ __metadata:
     lodash.groupby: ^4.6.0
     lodash.isequal: ^4.5.0
     luxon: ^1.27.0
-    mongoose: ^5.13.15
+    mongoose: ^8.16.0
     p-settle: ^4.1.1
     prop-types: ^15.7.2
     react: ^17.0.2
@@ -10796,7 +10805,7 @@ __metadata:
     react-image: ^4.0.3
     react-select: ^3.2.0
     react-toast-notifications: ^2.4.4
-  checksum: 9eced199fb90ac1277715e6a34e2435963246a5408f25449339bfc10778764bbc08a82ef1e54923c94c67f72bb0245abf575933d76dcd1a0642a755e5ec2ebcf
+  checksum: b007ef5e89d73e90f9605c69e90b82e5a88f90e93b1b095c9419e66dad8c4c91fd68351edfd6ed0e488a4877e25857c3c27ccd46b8a7abcc6fca9c79171957df
   languageName: node
   linkType: hard
 
@@ -10812,9 +10821,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@open-keystone/keystone@npm:^19.4.3":
-  version: 19.4.3
-  resolution: "@open-keystone/keystone@npm:19.4.3"
+"@open-keystone/keystone@npm:^19.4.6":
+  version: 19.4.6
+  resolution: "@open-keystone/keystone@npm:19.4.6"
   dependencies:
     "@open-keystone/access-control": ^8.0.0
     "@open-keystone/app-version": ^3.0.0
@@ -10848,7 +10857,7 @@ __metadata:
     terminal-link: ^2.1.1
   bin:
     keystone: bin/cli.js
-  checksum: fb5de2b4707d5a5f08c7d68072c77bf47746007db9a3861a130ecf5c4821a6bb2ce33e9a0c45579ac04eeb2591ab770749ff04ed5d462aaa93cd7b9a0efcb4e7
+  checksum: 04d09f721aa2d3ed463237052653be32c1fb7623710e66de825145b683311bd1bc07a26095e11f26e3ddedc9e6361bd142f8a0acaf8749bca04557908d75f8e9
   languageName: node
   linkType: hard
 
@@ -16116,6 +16125,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/webidl-conversions@npm:*":
+  version: 7.0.3
+  resolution: "@types/webidl-conversions@npm:7.0.3"
+  checksum: 535ead9de4d3d6c8e4f4fa14e9db780d2a31e8020debc062f337e1420a41c3265e223e4f4b628f97a11ecf3b96390962cd88a9ffe34f44e159dec583ff49aa34
+  languageName: node
+  linkType: hard
+
 "@types/webpack-env@npm:^1.16.0, @types/webpack-env@npm:^1.17.0":
   version: 1.18.0
   resolution: "@types/webpack-env@npm:1.18.0"
@@ -16145,6 +16161,15 @@ __metadata:
     anymatch: ^3.0.0
     source-map: ^0.6.0
   checksum: e594a1357cbbc2f7c6ca47785c5a11adb5591a774a69afaeab07cd6f6bff6c6aea2030bd37b32bdd19d0ec2336a346db754e8d8d236ba8effeab542716fb32b7
+  languageName: node
+  linkType: hard
+
+"@types/whatwg-url@npm:^11.0.2":
+  version: 11.0.5
+  resolution: "@types/whatwg-url@npm:11.0.5"
+  dependencies:
+    "@types/webidl-conversions": "*"
+  checksum: 23a0c45aff51817807b473a6adb181d6e3bb0d27dde54e84883d5d5bc93358e95204d2188e7ff7fdc2cdaf157e97e1188ef0a22ec79228da300fc30d4a05b56a
   languageName: node
   linkType: hard
 
@@ -20063,6 +20088,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"bson@npm:^6.10.4":
+  version: 6.10.4
+  resolution: "bson@npm:6.10.4"
+  checksum: 5b0b625ac9b3661497aa1baec58c8e8979cc501a5c490a5740001b3cc415d0d5d51f16bf9da433b28ffd1303b6f98c1427e8192cf4220b13b09a9a4184bfceb2
+  languageName: node
+  linkType: hard
+
 "btoa@npm:^1.2.1":
   version: 1.2.1
   resolution: "btoa@npm:1.2.1"
@@ -21410,6 +21442,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"colorette@npm:2.0.16":
+  version: 2.0.16
+  resolution: "colorette@npm:2.0.16"
+  checksum: cd55596a3a2d1071c1a28eee7fd8a5387593ff1bd10a3e8d0a6221499311fe34a9f2b9272d77c391e0e003dcdc8934fb2f8d106e7ef1f7516f8060c901d41a27
+  languageName: node
+  linkType: hard
+
 "colorette@npm:2.0.19, colorette@npm:^2.0.16":
   version: 2.0.19
   resolution: "colorette@npm:2.0.19"
@@ -21482,7 +21521,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"commander@npm:^7.0.0, commander@npm:^7.2.0":
+"commander@npm:^7.0.0, commander@npm:^7.1.0, commander@npm:^7.2.0":
   version: 7.2.0
   resolution: "commander@npm:7.2.0"
   checksum: 53501cbeee61d5157546c0bef0fedb6cdfc763a882136284bed9a07225f09a14b82d2a84e7637edfd1a679fb35ed9502fd58ef1d091e6287f60d790147f68ddc
@@ -21493,13 +21532,6 @@ __metadata:
   version: 8.3.0
   resolution: "commander@npm:8.3.0"
   checksum: 0f82321821fc27b83bd409510bb9deeebcfa799ff0bf5d102128b500b7af22872c0c92cb6a0ebc5a4cf19c6b550fba9cedfa7329d18c6442a625f851377bacf0
-  languageName: node
-  linkType: hard
-
-"commander@npm:^9.1.0":
-  version: 9.5.0
-  resolution: "commander@npm:9.5.0"
-  checksum: c7a3e27aa59e913b54a1bafd366b88650bc41d6651f0cbe258d4ff09d43d6a7394232a4dadd0bf518b3e696fdf595db1028a0d82c785b88bd61f8a440cecfade
   languageName: node
   linkType: hard
 
@@ -26763,6 +26795,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"getopts@npm:2.2.5":
+  version: 2.2.5
+  resolution: "getopts@npm:2.2.5"
+  checksum: f8b21793e6c548fbc4f2ecfd8a51a74aba71fa118638fbdf00200207b8a8d44e21709611366d0c3366602b7ae29ae27fbe599f6ad6a55f7a2e451ca581af923f
+  languageName: node
+  linkType: hard
+
 "getopts@npm:2.3.0":
   version: 2.3.0
   resolution: "getopts@npm:2.3.0"
@@ -30970,6 +31009,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"kareem@npm:2.6.3":
+  version: 2.6.3
+  resolution: "kareem@npm:2.6.3"
+  checksum: 4e3a4dc01747de19b345bdbb4a976a30ebeb9f8c2623ccb5bb509cbeebc28de09664355aa43e2ff641d8588c9155b7c2f177f389feb76f1b47224ff94c0fe63b
+  languageName: node
+  linkType: hard
+
 "keycode@npm:^2.1.9":
   version: 2.2.1
   resolution: "keycode@npm:2.2.1"
@@ -31049,12 +31095,48 @@ __metadata:
   languageName: node
   linkType: hard
 
-"knex@npm:2.4.0":
-  version: 2.4.0
-  resolution: "knex@npm:2.4.0"
+"knex@npm:^0.95.6":
+  version: 0.95.15
+  resolution: "knex@npm:0.95.15"
+  dependencies:
+    colorette: 2.0.16
+    commander: ^7.1.0
+    debug: 4.3.2
+    escalade: ^3.1.1
+    esm: ^3.2.25
+    getopts: 2.2.5
+    interpret: ^2.2.0
+    lodash: ^4.17.21
+    pg-connection-string: 2.5.0
+    rechoir: 0.7.0
+    resolve-from: ^5.0.0
+    tarn: ^3.0.1
+    tildify: 2.0.0
+  peerDependenciesMeta:
+    mysql:
+      optional: true
+    mysql2:
+      optional: true
+    pg:
+      optional: true
+    pg-native:
+      optional: true
+    sqlite3:
+      optional: true
+    tedious:
+      optional: true
+  bin:
+    knex: bin/cli.js
+  checksum: f70ad630c1a829b785514070a67d472511877c8fd17ef75df9dcadf9f7a244356a16dc85cd61a1c0a91a24a5a8d6355bfc29d1ff037092d0e1c7dfb3d19f9ff6
+  languageName: node
+  linkType: hard
+
+"knex@npm:^3.1.0":
+  version: 3.1.0
+  resolution: "knex@npm:3.1.0"
   dependencies:
     colorette: 2.0.19
-    commander: ^9.1.0
+    commander: ^10.0.0
     debug: 4.3.4
     escalade: ^3.1.1
     esm: ^3.2.25
@@ -31062,7 +31144,7 @@ __metadata:
     getopts: 2.3.0
     interpret: ^2.2.0
     lodash: ^4.17.21
-    pg-connection-string: 2.5.0
+    pg-connection-string: 2.6.2
     rechoir: ^0.8.0
     resolve-from: ^5.0.0
     tarn: ^3.0.2
@@ -31084,7 +31166,7 @@ __metadata:
       optional: true
   bin:
     knex: bin/cli.js
-  checksum: 66b4ae8412c61125b78512a66d924af95116628e16026efce4d03b80b2ced6b63208b37bb49fb52a499761da5e8981e136b48fcefcd48c3fe9fc72d9d17c5661
+  checksum: 3905f8d27960975f7f57f3f488d1ef3ccf47784acc8eb627e8a28cbbe1f296c6879c8ef0cbd9e17e867be80117d305cd948545f3fbd4c74b24c90d2413bbc021
   languageName: node
   linkType: hard
 
@@ -33505,6 +33587,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"mongodb-connection-string-url@npm:^3.0.0":
+  version: 3.0.2
+  resolution: "mongodb-connection-string-url@npm:3.0.2"
+  dependencies:
+    "@types/whatwg-url": ^11.0.2
+    whatwg-url: ^14.1.0 || ^13.0.0
+  checksum: 382319aa41d381ff4be9370024e3cf765ded14aa581bca7c7a171fcaae618b8d92912329b6b13898334c3b6f3cab12ae8785defad2745ca20226ceeb253ef1ae
+  languageName: node
+  linkType: hard
+
 "mongodb@npm:3.7.4":
   version: 3.7.4
   resolution: "mongodb@npm:3.7.4"
@@ -33535,6 +33627,40 @@ __metadata:
   languageName: node
   linkType: hard
 
+"mongodb@npm:~6.17.0":
+  version: 6.17.0
+  resolution: "mongodb@npm:6.17.0"
+  dependencies:
+    "@mongodb-js/saslprep": ^1.1.9
+    bson: ^6.10.4
+    mongodb-connection-string-url: ^3.0.0
+  peerDependencies:
+    "@aws-sdk/credential-providers": ^3.188.0
+    "@mongodb-js/zstd": ^1.1.0 || ^2.0.0
+    gcp-metadata: ^5.2.0
+    kerberos: ^2.0.1
+    mongodb-client-encryption: ">=6.0.0 <7"
+    snappy: ^7.2.2
+    socks: ^2.7.1
+  peerDependenciesMeta:
+    "@aws-sdk/credential-providers":
+      optional: true
+    "@mongodb-js/zstd":
+      optional: true
+    gcp-metadata:
+      optional: true
+    kerberos:
+      optional: true
+    mongodb-client-encryption:
+      optional: true
+    snappy:
+      optional: true
+    socks:
+      optional: true
+  checksum: bae38d4758e6681b07d35849de18ec8a063d5306fb3dd7d76214b1945440a33a729a1497f4b4da5b0c4f35e0a31c2e6dda632ea9d437e385315d011f93598213
+  languageName: node
+  linkType: hard
+
 "mongoose-legacy-pluralize@npm:1.0.2":
   version: 1.0.2
   resolution: "mongoose-legacy-pluralize@npm:1.0.2"
@@ -33544,7 +33670,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mongoose@npm:^5.13.15":
+"mongoose@npm:^5.12.11":
   version: 5.13.23
   resolution: "mongoose@npm:5.13.23"
   dependencies:
@@ -33566,25 +33692,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mongoose@npm:^5.13.20":
-  version: 5.13.22
-  resolution: "mongoose@npm:5.13.22"
+"mongoose@npm:^8.16.0":
+  version: 8.16.0
+  resolution: "mongoose@npm:8.16.0"
   dependencies:
-    "@types/bson": 1.x || 4.0.x
-    "@types/mongodb": ^3.5.27
-    bson: ^1.1.4
-    kareem: 2.3.2
-    mongodb: 3.7.4
-    mongoose-legacy-pluralize: 1.0.2
-    mpath: 0.8.4
-    mquery: 3.2.5
-    ms: 2.1.2
-    optional-require: 1.0.x
-    regexp-clone: 1.0.0
-    safe-buffer: 5.2.1
-    sift: 13.5.2
-    sliced: 1.0.1
-  checksum: 26e8e359bb9d290181d858c3bd00ee8506b8187c67a9f12c59a45f9df98dec2dddfe404a1a4835b2b3053ddd78f69301a77a3b28dbbae1e5708fa623714dec31
+    bson: ^6.10.4
+    kareem: 2.6.3
+    mongodb: ~6.17.0
+    mpath: 0.9.0
+    mquery: 5.0.0
+    ms: 2.1.3
+    sift: 17.1.3
+  checksum: 905bc92ceaba6592468cb9c1c9fc28af865b5bc6f5ef4d484b19ea3bb23886fbb4ba1a2e5d3e481f4e1a56e7830e18b66ec790865431b23428d3e99f25faa598
   languageName: node
   linkType: hard
 
@@ -33620,6 +33739,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"mpath@npm:0.9.0":
+  version: 0.9.0
+  resolution: "mpath@npm:0.9.0"
+  checksum: 1052f1f926db04502440f76164ae16ed53aa41f3ce34e7e64e3ed451b7d91ede295c3b600801c5f9eb862f03d9d59b7aa5aaf690c341fc521bef025d0f5cd773
+  languageName: node
+  linkType: hard
+
 "mquery@npm:3.2.5":
   version: 3.2.5
   resolution: "mquery@npm:3.2.5"
@@ -33630,6 +33756,15 @@ __metadata:
     safe-buffer: 5.1.2
     sliced: 1.0.1
   checksum: 3f8c80c36118e144148a3a41015a3a218e45bddabb33ba2630b50f50c31acf3c4e9f6c0ca11fa07e955a0fe11941d17ac8f03356d3e4eb0452034469d8dd1856
+  languageName: node
+  linkType: hard
+
+"mquery@npm:5.0.0":
+  version: 5.0.0
+  resolution: "mquery@npm:5.0.0"
+  dependencies:
+    debug: 4.x
+  checksum: 0617ead71e40e3c38ab74a1e46214d578d654bf7916abd8b3fb2ceb433bb6287adfa0960f041f16e2ac41c5ed5d7ce2268582f0a0075fff2561bcd5a3f40b417
   languageName: node
   linkType: hard
 
@@ -35781,7 +35916,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pg-connection-string@npm:^2.6.2":
+"pg-connection-string@npm:2.6.2, pg-connection-string@npm:^2.6.2":
   version: 2.6.2
   resolution: "pg-connection-string@npm:2.6.2"
   checksum: 22265882c3b6f2320785378d0760b051294a684989163d5a1cde4009e64e84448d7bf67d9a7b9e7f69440c3ee9e2212f9aa10dd17ad6773f6143c6020cebbcb5
@@ -37692,6 +37827,13 @@ __metadata:
   version: 2.1.1
   resolution: "punycode@npm:2.1.1"
   checksum: 823bf443c6dd14f669984dea25757b37993f67e8d94698996064035edd43bed8a5a17a9f12e439c2b35df1078c6bec05a6c86e336209eb1061e8025c481168e8
+  languageName: node
+  linkType: hard
+
+"punycode@npm:^2.3.1":
+  version: 2.3.1
+  resolution: "punycode@npm:2.3.1"
+  checksum: bb0a0ceedca4c3c57a9b981b90601579058903c62be23c5e8e843d2c2d4148a3ecf029d5133486fb0e1822b098ba8bba09e89d6b21742d02fa26bda6441a6fb2
   languageName: node
   linkType: hard
 
@@ -39681,6 +39823,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"rechoir@npm:0.7.0":
+  version: 0.7.0
+  resolution: "rechoir@npm:0.7.0"
+  dependencies:
+    resolve: ^1.9.0
+  checksum: 15f55f55e06c175d98df85d503b139982378e7ca34e157439125e5a6f25a5cbd9cfe2aa2d1052e2c1edf89d7d22dc020c911fc968702c84f669a16a12a1ec7ac
+  languageName: node
+  linkType: hard
+
 "rechoir@npm:^0.7.0":
   version: 0.7.1
   resolution: "rechoir@npm:0.7.1"
@@ -41662,6 +41813,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"sift@npm:17.1.3":
+  version: 17.1.3
+  resolution: "sift@npm:17.1.3"
+  checksum: 56d09c72720cd75f757dad31fc13cc84461c06c0416d23c1dc05e64276676fa1fecaddb055f0d2aa714d36a93c2acaad8cb2f2ef6d06d8c8bb1af84657de2046
+  languageName: node
+  linkType: hard
+
 "signal-exit@npm:^3.0.0, signal-exit@npm:^3.0.2, signal-exit@npm:^3.0.3, signal-exit@npm:^3.0.7":
   version: 3.0.7
   resolution: "signal-exit@npm:3.0.7"
@@ -43376,7 +43534,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tar@npm:^6.2.0, tar@npm:^6.2.1":
+"tar@npm:^6.0.1, tar@npm:^6.2.0, tar@npm:^6.2.1":
   version: 6.2.1
   resolution: "tar@npm:6.2.1"
   dependencies:
@@ -43390,7 +43548,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tarn@npm:^3.0.2":
+"tarn@npm:^3.0.1, tarn@npm:^3.0.2":
   version: 3.0.2
   resolution: "tarn@npm:3.0.2"
   checksum: 27a69658f02504979c5b02e500522e78ec12ef893b90cb00fdef794f9d847a92ed78f6c0ad12e82b8919519bded6a8d6d0000442cd0c6d6ea83cd9b7297729af
@@ -44074,6 +44232,15 @@ __metadata:
   dependencies:
     punycode: ^2.1.0
   checksum: 96d4ed46bc161db75dbf9247a236ea0bfcaf5758baae6749e92afab0bc5a09cb59af21788ede7e55080f2bf02dce3e4a8f2a484cc45164e29f4b5e68f7cbcc1a
+  languageName: node
+  linkType: hard
+
+"tr46@npm:^5.1.0":
+  version: 5.1.1
+  resolution: "tr46@npm:5.1.1"
+  dependencies:
+    punycode: ^2.3.1
+  checksum: da7a04bd3f77e641abdabe948bb84f24e6ee73e81c8c96c36fe79796c889ba97daf3dbacae778f8581ff60307a4136ee14c9540a5f85ebe44f99c6cc39a97690
   languageName: node
   linkType: hard
 
@@ -46024,6 +46191,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"webidl-conversions@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "webidl-conversions@npm:7.0.0"
+  checksum: f05588567a2a76428515333eff87200fae6c83c3948a7482ebb109562971e77ef6dc49749afa58abb993391227c5697b3ecca52018793e0cb4620a48f10bd21b
+  languageName: node
+  linkType: hard
+
 "webpack-bundle-analyzer@npm:^4":
   version: 4.10.1
   resolution: "webpack-bundle-analyzer@npm:4.10.1"
@@ -46418,6 +46592,16 @@ __metadata:
   version: 3.6.2
   resolution: "whatwg-fetch@npm:3.6.2"
   checksum: ee976b7249e7791edb0d0a62cd806b29006ad7ec3a3d89145921ad8c00a3a67e4be8f3fb3ec6bc7b58498724fd568d11aeeeea1f7827e7e1e5eae6c8a275afed
+  languageName: node
+  linkType: hard
+
+"whatwg-url@npm:^14.1.0 || ^13.0.0":
+  version: 14.2.0
+  resolution: "whatwg-url@npm:14.2.0"
+  dependencies:
+    tr46: ^5.1.0
+    webidl-conversions: ^7.0.0
+  checksum: c4f1ae1d353b9e56ab3c154cd73bf2b621cea1a2499fd2a9b2a17d448c2ed5e73a8922a0f395939de565fc3661461140111ae2aea26d4006a1ad0cfbf021c034
   languageName: node
   linkType: hard
 
