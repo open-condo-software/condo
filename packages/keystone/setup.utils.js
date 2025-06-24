@@ -1,5 +1,5 @@
-const { KnexAdapter } = require('@keystonejs/adapter-knex')
-const { MongooseAdapter } = require('@keystonejs/adapter-mongoose')
+const { KnexAdapter } = require('@open-keystone/adapter-knex')
+const { MongooseAdapter } = require('@open-keystone/adapter-mongoose')
 const connectRedis = require('connect-redis')
 const session = require('express-session')
 const { v5: uuidv5 } = require('uuid')
