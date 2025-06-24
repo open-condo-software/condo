@@ -110,6 +110,16 @@
     @condo-button-padding-hor-compact, @condo-button-border-width);
   }
 
+  &-M.condo-btn-compact.condo-btn-icon-only {
+    width: @condo-global-spacing-20;
+    height: @condo-global-spacing-20;
+  }
+
+  &-L.condo-btn-compact.condo-btn-icon-only {
+    width: @condo-global-spacing-24;
+    height: @condo-global-spacing-24;
+  }
+
   &-minimal.condo-btn-primary,
   &-minimal.condo-btn-secondary,
   &-minimal.condo-btn-accent,
@@ -118,11 +128,8 @@
   &-minimal.condo-btn-accent.condo-btn-dangerous {
     .minimal-styles;
 
+    &:hover,
     &:focus {
-      .minimal-styles;
-    }
-
-    &:hover {
       .minimal-styles;
     }
   }
@@ -130,18 +137,20 @@
   &-minimal.condo-btn-primary:not(.condo-btn-dangerous),
   &-minimal.condo-btn-secondary:not(.condo-btn-dangerous),
   &-minimal.condo-btn-accent:not(.condo-btn-dangerous) {
-    &:hover {
+    &:hover:not(:disabled) {
       .condo-btn-static-text-color(@condo-global-color-green-5);
       .condo-btn-content-color(@condo-global-color-green-5);
     }
 
-    &:active {
+    &:active:not(:disabled) {
       .condo-btn-static-text-color(@condo-global-color-green-7);
       .condo-btn-content-color(@condo-global-color-green-7);
     }
   }
 
-  &-minimal.condo-btn-compact {
+  &-minimal.condo-btn-compact.condo-btn-primary,
+  &-minimal.condo-btn-compact.condo-btn-secondary,
+  &-minimal.condo-btn-compact.condo-btn-accent {
     padding: 0;
   }
 
@@ -291,6 +300,10 @@
       background: @condo-global-color-black;
       opacity: @condo-global-opacity-disabled;
 
+      &.condo-btn-minimal {
+        .minimal-styles;
+      }
+
       &::before {
         opacity: 0;
       }
@@ -420,6 +433,10 @@
       &::before {
         opacity: 0;
       }
+
+      &.condo-btn-minimal {
+        .minimal-styles;
+      }
     }
 
     &.condo-btn-stateless {
@@ -468,6 +485,10 @@
 
       &::before {
         opacity: 0;
+      }
+
+      &.condo-btn-minimal {
+        .minimal-styles;
       }
     }
   }
@@ -621,6 +642,10 @@
       &::after {
         opacity: 0;
       }
+
+      &.condo-btn-minimal {
+        .minimal-styles;
+      }
     }
 
     &.condo-btn-stateless {
@@ -657,6 +682,10 @@
 
       &::before {
         opacity: 0;
+      }
+
+      &.condo-btn-minimal {
+        .minimal-styles;
       }
     }
   }
