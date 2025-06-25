@@ -32,7 +32,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Typography, Button, RadioGroup, Radio, Space } from '@open-condo/ui'
 // TODO(DOMA-4844): Replace with @open-condo/ui/colors
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input from '@condo/domains/common/components/antd/Input'

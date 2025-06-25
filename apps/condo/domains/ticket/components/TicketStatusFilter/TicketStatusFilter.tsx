@@ -5,7 +5,7 @@ import React, { useCallback, useMemo } from 'react'
 
 import { Close } from '@open-condo/icons'
 import { Tag } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 
 import { transitions } from '@condo/domains/common/constants/style'
 import { analytics } from '@condo/domains/common/utils/analytics'

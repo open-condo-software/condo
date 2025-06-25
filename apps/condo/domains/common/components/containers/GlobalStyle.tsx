@@ -1,7 +1,7 @@
 import { css, Global } from '@emotion/react'
 import React from 'react'
 
-import { colors as UIColors } from '@open-condo/ui/dist/colors'
+import { colors as UIColors } from '@open-condo/ui/colors'
 
 import { colors, DEFAULT_STRONG_TEXT_FONT_WEIGHT, gradients } from '@condo/domains/common/constants/style'
 

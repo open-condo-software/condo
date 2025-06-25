@@ -6,7 +6,7 @@ import React, { useMemo } from 'react'
 import { Download, QuestionCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Alert, Button, Card, CardBodyProps, CardHeaderProps, Modal, Typography } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'

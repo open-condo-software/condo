@@ -3,7 +3,7 @@ import classnames from 'classnames'
 import React, { useEffect, useMemo, useState } from 'react'
 
 import { Bell } from '@open-condo/icons'
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 

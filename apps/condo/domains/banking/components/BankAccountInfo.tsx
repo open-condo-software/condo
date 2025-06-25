@@ -5,7 +5,7 @@ import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Tag, Typography } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 import { useBreakpoints } from '@open-condo/ui/dist/hooks'
 
 import { PaymentsSumTable as RequisitesContainer } from '@condo/domains/acquiring/components/payments/PaymentsSumTable'

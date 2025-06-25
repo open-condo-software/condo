@@ -1,11 +1,11 @@
 import styled from '@emotion/styled'
 import { Row, Col } from 'antd'
 import dayjs from 'dayjs'
-import ReactECharts from 'echarts-for-react'
 import find from 'lodash/find'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import getConfig from 'next/config'
+import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
 import React, { useState, useCallback, useRef, useMemo, useEffect } from 'react'
 
@@ -58,6 +58,11 @@ const BASE_CHART_SERIES_CONFIG = {
 function truncate (str: string, n: number): string {
     return str.length > n ? str.slice(0, n - 1) + '...' : str
 }
+
+const ReactECharts = dynamic(
+    () => import('echarts-for-react').then((mod) => mod.default),
+    { ssr: false, loading: () => null }
+)
 
 const LegendContainer = styled.div`
   display: flex;

@@ -4,7 +4,7 @@ import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Typography, Card, Space, RadioGroup, Radio } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 
 import { CrossIcon } from '@condo/domains/common/components/icons/CrossIcon'
 import { DEFAULT_BORDER_RADIUS } from '@condo/domains/common/constants/style'

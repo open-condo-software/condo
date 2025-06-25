@@ -3,7 +3,7 @@ import { Input  } from 'antd'
 import { TextAreaProps } from 'antd/es/input'
 import React from 'react'
 
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 
 
 const StyledTextArea = styled(Input.TextArea)`

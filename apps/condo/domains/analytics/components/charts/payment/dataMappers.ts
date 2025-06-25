@@ -1,7 +1,7 @@
 import dayjs from 'dayjs'
 import groupBy from 'lodash/groupBy'
 
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 
 import PaymentChart from './PaymentChart'
 

@@ -8,7 +8,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { ChevronDown, ChevronUp, Check, Close } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography, Space } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import {

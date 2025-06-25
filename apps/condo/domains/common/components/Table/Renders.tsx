@@ -14,7 +14,7 @@ import { IntlShape } from 'react-intl/src/types'
 
 import { IconProps } from '@open-condo/icons'
 import { Space, Tag, TypographyLinkProps } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 
 import { PAYMENT_WITHDRAWN_STATUS } from '@condo/domains/acquiring/constants/payment'
 import { EmptyTableCell } from '@condo/domains/common/components/Table/EmptyTableCell'
