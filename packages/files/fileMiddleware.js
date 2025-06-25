@@ -4,32 +4,23 @@ const express = require('express')
 const { WriteStream } = require('fs-capacitor')
 const { validate } = require('uuid')
 
+const { conf } = require('@open-condo/config')
 const { CondoFile } = require('@open-condo/files/schema/utils/serverSchema')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { getKVClient } = require('@open-condo/keystone/kv')
 
 
+const DEFAULT_USER_QUOTA = 100
+const DEFAULT_IP_QUOTA = 100
+
 class RedisGuard {
     constructor () {
-        this.lockPrefix = 'guard_lock:'
         this.counterPrefix = 'guard_counter:'
     }
 
     get redis () {
         if (!this._redis) this._redis = getKVClient('guards')
         return this._redis
-    }
-
-    async isLocked (variable, action = '') {
-        const actionFolder = action ? `${action}:` : ''
-        const value = await this.redis.exists(`${this.lockPrefix}${actionFolder}${variable}`)
-        return !!value
-    }
-
-    async lockTimeRemain (variable, action = '') {
-        const actionFolder = action ? `${action}:` : ''
-        const time = await this.redis.ttl(`${this.lockPrefix}${actionFolder}${variable}`)
-        return Math.max(time, 0)
     }
 
     async incrementHourCounter (variable) {
@@ -81,19 +72,29 @@ const fileStorageHandler = ({ keystone, fileAdapter }) => {
     }
 }
 
-const rateLimitHandler = ({ quotas, guard }) => {
+const rateLimitHandler = ({ quota, guard }) => {
     return async function (request, response, next) {
         const requestIp = request.ip.split(':').pop()
         const userId = request.user.id
 
         const idCounter = await guard.incrementHourCounter(`file:${userId}`)
-        if (idCounter > quotas.userQuota) {
+        if (idCounter > quota.user) {
             return response.status(429).json({ error: 'You are reach request limit, try again later.' })
         }
 
         const ipCounter = await guard.incrementHourCounter(`file:${requestIp}`)
-        if (ipCounter > quotas.ipQuota) {
+        if (ipCounter > quota.ip) {
             return response.status(429).json({ error: 'You are reach request limit, try again later.' })
+        }
+
+        next()
+    }
+}
+
+const authHandler = ({ keystone }) => {
+    return async function (request, response, next) {
+        if (!request.user || request.user.deletedAt !== null) {
+            return response.status(403).json({ error: 'Authorization is required' })
         }
 
         next()
@@ -106,13 +107,20 @@ class FileMiddleware {
         maxFieldSize = 200 * 1024 * 1024,
         maxFileSize = 200 * 1024 * 1024,
         maxFiles = 2,
-        userQuota = 100,
-        ipQuota = 100,
     }) {
         this.apiUrl = apiUrl
         this.processRequestOptions = { maxFieldSize, maxFileSize, maxFiles }
         this.adapter = new FileAdapter('files')
-        this.quotas = { userQuota, ipQuota }
+        let quota
+        try {
+            const parsedConfig = JSON.parse(conf['FILE_QUOTA'])
+            if (parsedConfig.user > 0 && parsedConfig.ip > 0) {
+                quota = parsedConfig
+            }
+        } catch (e) {
+            quota = { user: DEFAULT_USER_QUOTA, ip: DEFAULT_IP_QUOTA }
+        }
+        this.quota = quota
     }
 
     prepareMiddleware ({ keystone }) {
@@ -122,50 +130,12 @@ class FileMiddleware {
         const processRequestOptions = this.processRequestOptions
         const fileAdapter = this.adapter
         const guard = new RedisGuard()
-        const quotas = this.quotas
+        const quota = this.quota
 
-        app.use(
+        app.post(
             this.apiUrl,
-            // Authorization checks
-            function (request, response, next) {
-                // const sendUnauthorizedStatus = () => {
-                //     response.sendStatus(403)
-                //     response.end()
-                // }
-
-                if (!request.user) {
-                    return response.status(403).json({ error: 'Authorization is required' })
-                    // sendUnauthorizedStatus()
-                }
-
-                next()
-
-                // const context = keystone.createContext({ authentication: { item: request.user, listKey: 'User' } })
-
-                // const authHeader = request.headers.authorization || request.headers.Authorization
-                // if (!authHeader) {
-                //     sendUnauthorizedStatus()
-                // }
-                //
-                // const [type, token] = authHeader.split(' ')
-                // if (!type || !token) {
-                //     sendUnauthorizedStatus()
-                // }
-                //
-                // if (type !== 'Bearer') {
-                //     sendUnauthorizedStatus()
-                // }
-                //
-                // kvClient.get(`sess:${token.split('.')[0]}`).then(token => {
-                //     if (token) {
-                //         next()
-                //     } else {
-                //         sendUnauthorizedStatus()
-                //     }
-                // }).catch(() => sendUnauthorizedStatus())
-            },
-
-            rateLimitHandler({ keystone, quotas, guard }),
+            authHandler({ keystone }),
+            rateLimitHandler({ keystone, quota, guard }),
             // Payload checks
             function (request, response, next) {
                 if (request.is('multipart/form-data')) {
@@ -328,6 +298,12 @@ class FileMiddleware {
                                 if (!validate(meta.authedItem)) {
                                     return exit(() =>
                                         createError(400, 'Wrong authedItem value provided', response)
+                                    )
+                                }
+
+                                if (meta.authedItem !== request.user.id) {
+                                    return exit(() =>
+                                        createError(403, 'Wrong authedItem. Unable to upload file for another user', response)
                                     )
                                 }
 

@@ -3,21 +3,28 @@ const fs = require('fs')
 const { faker } = require('@faker-js/faker')
 const FormData = require('form-data')
 
-const conf = require('@open-condo/config')
 const { fetch } = require('@open-condo/keystone/fetch')
+const { getKVClient } = require('@open-condo/keystone/kv')
 const { makeClient, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
 const DV_AND_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'test-runner' } }
 
-const FileMiddlewareTests = (testFile) => {
+const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
     let serverUrl
     let admin
     let filestream
     beforeAll(async () => {
+        // Clean rate limits
+        const kv = getKVClient('guards')
+
         const client = await makeClient()
         serverUrl = client.serverUrl + '/api/files/upload'
         admin = await makeLoggedInAdminClient()
         filestream = fs.readFileSync(testFile)
+
+        // Clear rate limits
+        await kv.del(`guard_counter:file:${admin.user.id}`)
+        await kv.del(`guard_counter:file:${admin}:127.0.0.1`)
     })
 
     describe('file middleware', () => {
@@ -33,6 +40,51 @@ const FileMiddlewareTests = (testFile) => {
 
                 expect(result.status).toEqual(403)
                 expect(json).toHaveProperty('error', 'Authorization is required')
+            })
+            test('Deleted user should not be able to upload file', async () => {
+                const deletedUser = await createTestUser()
+                const cookie = deletedUser.getCookie()
+                await UserSchema.softDelete(admin, deletedUser.user.id)
+                const form = new FormData()
+                form.append('file', filestream, 'dino.png')
+                const result = await fetch(serverUrl, {
+                    headers: { Cookie: cookie },
+                    method: 'POST',
+                    body: form,
+                })
+                const json = await result.json()
+
+                expect(result.status).toEqual(403)
+                expect(json).toHaveProperty('error', 'Authorization is required')
+            })
+            test('User should not be able to upload file for another user', async () => {
+                const form = new FormData()
+                form.append('file', filestream, 'dino.png')
+                form.append('meta', JSON.stringify({
+                    authedItem: faker.datatype.uuid(),
+                    appId: 'test-app',
+                    ...DV_AND_SENDER,
+                }))
+
+                const result = await fetch(serverUrl, {
+                    method: 'POST',
+                    body: form,
+                    headers: { Cookie: admin.getCookie() },
+                })
+                const json = await result.json()
+
+                expect(result.status).toEqual(403)
+                expect(json).toHaveProperty('error', 'Wrong authedItem. Unable to upload file for another user')
+            })
+            test('Only POST request is allowed', async () => {
+                const result = await fetch(serverUrl, { method: 'GET' })
+                expect(result.status).toEqual(404)
+            })
+            test('Strict match url pattern', async () => {
+                const result = await fetch(serverUrl + '/something/else', {
+                    method: 'POST',
+                })
+                expect(result.status).toEqual(404)
             })
         })
         describe('validation', () => {
@@ -64,7 +116,7 @@ const FileMiddlewareTests = (testFile) => {
             test('upload file without dv field should fail', async () => {
                 const form = new FormData()
                 form.append('file', filestream, 'dino.png')
-                form.append('meta', JSON.stringify({ authedItem: faker.datatype.uuid() }))
+                form.append('meta', JSON.stringify({ authedItem: admin.user.id }))
                 const result = await fetch(serverUrl, {
                     method: 'POST',
                     body: form,
@@ -79,7 +131,7 @@ const FileMiddlewareTests = (testFile) => {
             test('upload without sender meta field should fail', async () => {
                 const form = new FormData()
                 form.append('file', filestream, 'dino.png')
-                form.append('meta', JSON.stringify({ authedItem: faker.datatype.uuid(), dv: 1 }))
+                form.append('meta', JSON.stringify({ authedItem: admin.user.id, dv: 1 }))
                 const result = await fetch(serverUrl, {
                     method: 'POST',
                     body: form,
@@ -94,7 +146,7 @@ const FileMiddlewareTests = (testFile) => {
             test('upload with wrong data version number should fail', async () => {
                 let form = new FormData()
                 form.append('file', filestream, 'dino.png')
-                form.append('meta', JSON.stringify({ authedItem: faker.datatype.uuid(), dv: 2, sender: { dv: 1, fingerprint: 'test-runner' } }))
+                form.append('meta', JSON.stringify({ authedItem: admin.user.id, dv: 2, sender: { dv: 1, fingerprint: 'test-runner' } }))
                 let result = await fetch(serverUrl, {
                     method: 'POST',
                     body: form,
@@ -107,7 +159,7 @@ const FileMiddlewareTests = (testFile) => {
 
                 form = new FormData()
                 form.append('file', filestream, 'dino.png')
-                form.append('meta', JSON.stringify({ authedItem: faker.datatype.uuid(), dv: 1, sender: { dv: 2, fingerprint: 'test-runner' } }))
+                form.append('meta', JSON.stringify({ authedItem: admin.user.id, dv: 1, sender: { dv: 2, fingerprint: 'test-runner' } }))
                 result = await fetch(serverUrl, {
                     method: 'POST',
                     body: form,
@@ -122,7 +174,7 @@ const FileMiddlewareTests = (testFile) => {
             test('upload with wrong meta.sender.fingerprint should fail', async () => {
                 const form = new FormData()
                 form.append('file', filestream, 'dino.png')
-                form.append('meta', JSON.stringify({ authedItem: faker.datatype.uuid(), dv: 1, sender: { dv: 1, fingerprint: 'test' } }))
+                form.append('meta', JSON.stringify({ authedItem: admin.user.id, dv: 1, sender: { dv: 1, fingerprint: 'test' } }))
                 const result = await fetch(serverUrl, {
                     method: 'POST',
                     body: form,
@@ -136,7 +188,7 @@ const FileMiddlewareTests = (testFile) => {
 
             test('upload without file should fail', async () => {
                 const form = new FormData()
-                form.append('meta', JSON.stringify({ authedItem: faker.datatype.uuid(), appId: 'test-app', ...DV_AND_SENDER }))
+                form.append('meta', JSON.stringify({ authedItem: admin.user.id, appId: 'test-app', ...DV_AND_SENDER }))
                 const result = await fetch(serverUrl, {
                     method: 'POST',
                     body: form,
@@ -162,7 +214,7 @@ const FileMiddlewareTests = (testFile) => {
             test('upload without app id should fail', async () => {
                 const form = new FormData()
                 form.append('file', fs.readFileSync(testFile), 'dino.png')
-                form.append('meta', JSON.stringify({ authedItem: faker.datatype.uuid(), ...DV_AND_SENDER }))
+                form.append('meta', JSON.stringify({ authedItem: admin.user.id, ...DV_AND_SENDER }))
                 const result = await fetch(serverUrl, { method: 'POST', body: form, headers: { Cookie: admin.getCookie() } })
                 const json = await result.json()
 
@@ -172,9 +224,10 @@ const FileMiddlewareTests = (testFile) => {
         })
         describe('api', () => {
             test('successful upload should return file id', async () => {
+                const user = await createTestUser()
                 const form = new FormData()
                 const meta = {
-                    authedItem: faker.datatype.uuid(),
+                    authedItem: user.user.id,
                     appId: 'test-app',
                     ...DV_AND_SENDER,
                 }
@@ -184,7 +237,7 @@ const FileMiddlewareTests = (testFile) => {
                 const result = await fetch(serverUrl, {
                     method: 'POST',
                     body: form,
-                    headers: { Cookie: admin.getCookie() },
+                    headers: { Cookie: user.getCookie() },
                 })
 
                 const json = await result.json()
@@ -195,9 +248,10 @@ const FileMiddlewareTests = (testFile) => {
                 expect(json[0]).toHaveProperty('id')
             })
             test('uploading multiple files should be possible', async () => {
+                const user = await createTestUser()
                 const form = new FormData()
                 const meta = {
-                    authedItem: faker.datatype.uuid(),
+                    authedItem: user.user.id,
                     appId: 'test-app',
                     ...DV_AND_SENDER,
                 }
@@ -208,7 +262,7 @@ const FileMiddlewareTests = (testFile) => {
                 const result = await fetch(serverUrl, {
                     method: 'POST',
                     body: form,
-                    headers: { Cookie: admin.getCookie() },
+                    headers: { Cookie: user.getCookie() },
                 })
                 const json = await result.json()
 
