@@ -12,7 +12,7 @@ import { PageComponentType } from '@condo/domains/common/types'
 const ACCESS_REDIRECTS = {
     canReadAnalytics: '/reports',
     canReadProperties: '/property',
-    canReadMeters: '/meters',
+    canReadMeters: '/meter',
 }
 
 // NOTE: This empty page need for webview initial page
