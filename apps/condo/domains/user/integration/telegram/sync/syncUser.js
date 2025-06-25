@@ -24,22 +24,23 @@ const registerUser = async (context, userInfo, userType) => {
     throw new Error('YOU CAN\'T REGISTER USER USING TELEGRAM ')
 }
 
+const getIdentity = async (context, userInfo, userType) => {
+    return await UserExternalIdentity.getOne(context, {
+        identityType: TELEGRAM_IDP_TYPE,
+        identityId: userInfo.id,
+        // TODO DOMA-5239 remove this parameter. We should by default have only not deleted objects
+        deletedAt: null,
+        userType,
+    }, 'id user { id }')
+}
+
 const syncUser = async ({ authenticatedUser, context, userInfo, userType }) => {
     if (authenticatedUser?.deletedAt) {
         return { id: '', error: ERROR_MESSAGES.ACCESS_DENIED }
     }
 
     // try to find linked identities
-    const userIdentities = await UserExternalIdentity.getAll(context, {
-        identityType: TELEGRAM_IDP_TYPE,
-        identityId: userInfo.id,
-        // TODO DOMA-5239 remove this parameter. We should by default have only not deleted objects
-        deletedAt: null,
-        user: {
-            deletedAt: null,
-            type: userType,
-        },
-    }, 'id user { id }')
+    const userIdentity = await getIdentity(context, userInfo, userType)
 
     // now we have the following cases:
     // 1. user already registered and have linked identity
@@ -48,9 +49,8 @@ const syncUser = async ({ authenticatedUser, context, userInfo, userType }) => {
     // 4. user not registered
 
     // case 1: user already registered and have linked identity
-    if (userIdentities.length > 0) {
-        const [identity] = userIdentities
-        const { user: { id } } = identity
+    if (userIdentity) {
+        const { user: { id } } = userIdentity
         if (authenticatedUser && authenticatedUser.id !== id) {
             return { id: '', error: ERROR_MESSAGES.ACCESS_DENIED }
         }
@@ -75,4 +75,5 @@ const syncUser = async ({ authenticatedUser, context, userInfo, userType }) => {
 
 module.exports = {
     syncUser,
+    getIdentity,
 }

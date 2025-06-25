@@ -30,6 +30,7 @@ const MAX_TOTAL_REQUESTS_FOR_PHONE = 50
 
 const SBER_ID_SESSION_KEY = 'sberid'
 const APPLE_ID_SESSION_KEY = 'appleid'
+const TELEGRAM_ID_SESISION_KEY = 'telegramid'
 
 const LOCALE_RU = 'ru'
 const LOCALE_EN = 'en'
@@ -64,6 +65,7 @@ module.exports = {
     IDP_TYPES,
     SBER_ID_SESSION_KEY,
     APPLE_ID_SESSION_KEY,
+    TELEGRAM_ID_SESISION_KEY,
     LOCALE_EN,
     LOCALE_RU,
     LOCALES,

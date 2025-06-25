@@ -4,6 +4,7 @@ const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
+const { STAFF } = require('@condo/domains/user/constants/common')
 const { syncUser } = require('@condo/domains/user/integration/telegram/sync/syncUser')
 const {
     getRedirectUrl,
@@ -15,8 +16,11 @@ const {
 } = require('@condo/domains/user/utils/serverSchema')
 
 const { ERROR_MESSAGES } = require('./utils/errors')
-const { parseBotId } = require('./utils/params')
-const { validateOauthConfig, isValidMiniAppInitParams } = require('./utils/validations')
+const { parseBotId, getBotId } = require('./utils/params')
+const { validateOauthConfig, isValidMiniAppInitParams, validateState, validateNonce } = require('./utils/validations')
+
+const { TELEGRAM_ID_SESISION_KEY } = require('../../constants/common')
+const {getIdentity} = require("./sync/syncUser");
 
 const logger = getLogger('telegram-oauth/routes')
 
@@ -57,23 +61,46 @@ class TelegramOauthRoutes {
         this._provider = new BotsConfigProvider()
     }
 
+    async startAuth (req, res, next) {
+        const reqId = req.id
+        // clean state if anything exists in the session
+        //delete req.session[TELEGRAM_ID_SESISION_KEY]
+        try {
+            this._validateBotId(req, res, next)
+            validateState(req)
+            if (!req.query.nonce) {
+                throw new Error('No nonce')
+            }
+            const userType = getUserType(req)
+            const tgAuthData = this._getTgAuthData(req, res)
+            const { keystone: context } = await getSchemaCtx('User')
+            const identity = await getIdentity(context, tgAuthData, userType)
+            if (identity) {
+                return res.redirect(`${conf.SERVER_URL}/api/tg/${getBotId(req)}/callback`)
+            }
+            if (!req.user || req.user.type !== userType) {
+                return res.redirect('/auth')
+            }
+            const { id, error } = await syncUser({ authenticatedUser: req.user, context, userInfo: tgAuthData, userType })
+            if (error) {
+                return this._error400(res, error, reqId)
+            }
+        } catch (err) {
+            logger.error({ msg: 'Telegram oauth startAuth', err, reqId })
+        }
+    }
+
     async completeAuth (req, res, next) {
         const reqId = req.id
-        if (!this._provider.isValid) {
-            logger.error({ msg: 'Can\'t auth, config is not valid', reqId, data: { validationError: this._provider.validationError } })
-            return res.sendStatus(503)
-        }
         try {
-            const { botId } = req.params || {}
-            if (!this._provider.isValidBotId(botId)) {
-                return this._error400(res, ERROR_MESSAGES.INVALID_BOT_ID, reqId)
-            }
+            this._validateBotId(req, res, next)
+            const botId = getBotId(req)
             const config = this._provider.getConfig(botId)
             const { keystone: context } = await getSchemaCtx('User')
             const redirectUrl = getRedirectUrl(req)
             const userType = getUserType(req)
 
-            if (userType !== 'staff' && (!redirectUrl || !config.allowedRedirectUrls.includes(redirectUrl))) {
+            if (userType !== STAFF && (!redirectUrl || !config.allowedRedirectUrls.includes(redirectUrl))) {
                 return this._error400(res, ERROR_MESSAGES.INVALID_REDIRECT_URL, reqId)
             }
 
@@ -81,26 +108,9 @@ class TelegramOauthRoutes {
                 return this._error400(res, ERROR_MESSAGES.NOT_SUPPORTED_USER_TYPE, reqId)
             }
 
-            let tgAuthData = req.body
-            if (!tgAuthData) {
-                return this._error400(res, ERROR_MESSAGES.BODY_MISSING, reqId)
-            }
-
-            const validationError = validateTgAuthData(tgAuthData, config.botToken)
-            if (validationError) {
-                return this._error400(res, validationError, reqId)
-            }
-            if (isValidMiniAppInitParams(tgAuthData)) {
-                // Note: we need only "id" from tgAuthData, but better keep info for meta
-                tgAuthData = { ...JSON.parse(tgAuthData.user), ...tgAuthData }
-            }
-
-            tgAuthData.id = String(tgAuthData.id)
+            const tgAuthData = this._getTgAuthData(req, res)
             // sync user
-            const { id, error } = await syncUser({ authenticatedUser: req.user, context, userInfo: tgAuthData, userType })
-            if (error) {
-                return this._error400(res, error, reqId)
-            }
+
 
             // authorize user
             return await this.authorizeUser(req, res, context, id)
@@ -138,6 +148,41 @@ class TelegramOauthRoutes {
     _error400 (res, errorMessage, reqId, extraData) {
         logger.error({ msg: 'TelegramOauth error', reqId, data: { message: errorMessage, extra: extraData } })
         return res.status(400).json({ error: errorMessage, extra: extraData })
+    }
+    
+    _validateBotId (req, res, next) {
+        if (!this._provider.isValid) {
+            logger.error({ msg: 'Can\'t auth, config is not valid', reqId: req.id, data: { validationError: this._provider.validationError } })
+            return res.sendStatus(503)
+        }
+        try {
+            const botId = getBotId(req)
+            if (!this._provider.isValidBotId(botId)) {
+                return this._error400(res, ERROR_MESSAGES.INVALID_BOT_ID, req.id)
+            }
+        }
+        catch (error) {
+            logger.error({ msg: 'TelegramOauth auth-callback error', err: error, reqId: req.id })
+            return next(error)
+        }
+    }
+
+    _getTgAuthData (req, res) {
+        const config = this._provider.getConfig(getBotId(req))
+        let tgAuthData = req.body
+        if (!tgAuthData) {
+            return this._error400(res, ERROR_MESSAGES.BODY_MISSING, req.id)
+        }
+        const validationError = validateTgAuthData(tgAuthData, config.botToken)
+        if (validationError) {
+            return this._error400(res, validationError, req.id)
+        }
+        if (isValidMiniAppInitParams(tgAuthData)) {
+            // Note: we need only "id" from tgAuthData, but better keep info for meta
+            tgAuthData = { ...JSON.parse(tgAuthData.user), ...tgAuthData }
+        }
+        tgAuthData.id = String(tgAuthData.id)
+        return tgAuthData
     }
 }
 

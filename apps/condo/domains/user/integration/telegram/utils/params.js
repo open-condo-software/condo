@@ -1,7 +1,9 @@
-const { get, isNil } = require('lodash')
+const { get, isNil, isObject } = require('lodash')
 
 const { isSafeUrl } = require('@condo/domains/common/utils/url.utils')
 const { USER_TYPES } = require('@condo/domains/user/constants/common')
+
+const { TELEGRAM_ID_SESSION_KEY } = require('../../../constants/common')
 
 function getRedirectUrl (req) {
     // get and validate redirect url
@@ -29,8 +31,21 @@ function parseBotId (botToken) {
     return parts[0]
 }
 
+function getSessionParam (req, path) {
+    if (isObject(req.session) && isObject(req.session[TELEGRAM_ID_SESSION_KEY])) {
+        return get(req.session[TELEGRAM_ID_SESSION_KEY], path)
+    }
+}
+
+function getBotId (req) {
+    const { botId } = req.params || {}
+    return botId
+}
+
 module.exports = {
     getRedirectUrl,
     getUserType,
     parseBotId,
+    getSessionParam,
+    getBotId,
 }

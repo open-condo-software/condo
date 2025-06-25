@@ -2,9 +2,13 @@ const crypto = require('crypto')
 
 const Ajv = require('ajv')
 const addFormats = require('ajv-formats')
+const jwtDecode = require('jwt-decode')
+const { get, isNil } = require('lodash')
 
 const { ERROR_MESSAGES } = require('./errors')
 const { TelegramMiniAppInitParamsSchema, TelegramOauthCallbackSchema, TelegramMiniAppInitParamsUserSchema } = require('./schemas')
+
+const { getSessionParam } = require('../utils/params')
 
 const ALLOWED_TIME_SINCE_AUTH_IN_SECONDS = 5 * 60 // 5 min
 const CONFIG_REQUIRED_FIELDS = [
@@ -160,8 +164,28 @@ function isValidMiniAppInitParams (data) {
     return miniAppInitParamsValidator(data)
 }
 
+function validateState (req) {
+    const state = getSessionParam(req, 'checks.state')
+    const stateQP = get(req, 'query.state')
+
+    // validate that state in session are same as in the QP
+    // in case if session state is empty - the app2app flow are used - no checks possible for state parameter
+    if (!isNil(state) && state !== stateQP) throw new Error('state is incorrect')
+}
+
+function validateNonce (req, tokenSet) {
+    const { idToken } = tokenSet
+    const { nonce } = jwtDecode(idToken)
+    const nonceOriginal = getSessionParam(req, 'checks.nonce') || get(req, 'query.nonce')
+
+    if (!isNil(nonceOriginal) && nonceOriginal !== nonce) throw new Error('nonce is incorrect')
+}
+
+
 module.exports = {
     validateTgAuthData,
     validateOauthConfig,
     isValidMiniAppInitParams,
+    validateState,
+    validateNonce,
 }
