@@ -3,6 +3,7 @@ const withTMModule = require('next-transpile-modules')
 const withLess = require('next-with-less')
 
 const conf = require('@open-condo/config')
+const { nextCamelCaseCSSModulesTransform } = require('@open-condo/miniapp-utils/helpers/webpack')
 
 const { antGlobalVariables } = require('@condo/domains/common/constants/style')
 const { getCurrentVersion } = require('@condo/domains/common/utils/VersioningMiddleware')
@@ -153,7 +154,7 @@ let nextConfig = withTM(withLess({
             { test: /lang\/.*\.njk$/, use: 'raw-loader' },
             { test: /lang\/.*\.md$/, use: 'raw-loader' },
         ]
-        return config
+        return nextCamelCaseCSSModulesTransform(config)
     },
 }))
 

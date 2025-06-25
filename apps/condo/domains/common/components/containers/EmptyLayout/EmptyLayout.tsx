@@ -5,7 +5,6 @@ import {
     EMPTY_SUB_LAYOUT_CSS,
     LAYOUT_CSS,
 } from '@condo/domains/common/components/containers/BaseLayout/components/styles'
-// import 'antd/dist/antd.less'
 
 interface IBaseLayoutProps {
     style?: CSSProperties

@@ -18,8 +18,6 @@ import {
 } from './components/styles'
 import { ITopMenuItemsProps } from './components/TopMenuItems'
 import { Header } from './Header'
-// import 'antd/dist/antd.less'
-// import '@open-condo/ui/dist/styles.min.css'
 
 interface IBaseLayoutProps {
     headerAction?: ElementType<unknown>
