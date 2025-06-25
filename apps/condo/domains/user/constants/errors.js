@@ -87,6 +87,8 @@ const UNSUPPORTED_TOKEN = 'UNSUPPORTED_TOKEN'
 const CREDENTIAL_VALIDATION_FAILED = 'CREDENTIAL_VALIDATION_FAILED'
 const USER_IDENTITY_INVALID = 'USER_IDENTITY_INVALID'
 
+const USER_EXTERNAL_IDENTITY_WRONG_USER_TYPE = 'USER_EXTERNAL_IDENTITY_WRONG_USER_TYPE'
+
 const GQL_ERRORS = {
     TOO_MANY_REQUESTS: {
         // TODO(pahaz): it' looks like a wrong code. Use TOO_MANY_REQUESTS
@@ -260,6 +262,13 @@ const ERRORS = {
         type: UNABLE_TO_CREATE_USER,
         message: 'Unable to create user',
         messageForUser: 'api.user.registerNewUser.UNABLE_TO_CREATE_USER',
+    },
+    WRONG_USER_TYPE: {
+        mutation: 'createUserExternalIdentity',
+        variable: ['data', 'userType'],
+        code: 'BAD_USER_INPUT',
+        type: USER_EXTERNAL_IDENTITY_WRONG_USER_TYPE,
+        message: 'UserType must be same as user.type',
     },
 }
 

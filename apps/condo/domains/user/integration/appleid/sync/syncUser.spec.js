@@ -43,6 +43,7 @@ describe('syncUser from AppleId', () => {
             user: { connect: { id: existingUser.id } },
             identityId: userInfo.id,
             identityType: APPLE_ID_IDP_TYPE,
+            userType: existingUser.type,
             meta: userInfo,
         })
 
@@ -73,6 +74,7 @@ describe('syncUser from AppleId', () => {
             user: { connect: { id: existingUser.id } },
             identityId: userInfo.id,
             identityType: APPLE_ID_IDP_TYPE,
+            userType: existingUser.type,
             meta: userInfo,
         })
 
@@ -100,6 +102,7 @@ describe('syncUser from AppleId', () => {
             user: { connect: { id: existingUser.id } },
             identityId: userInfo.id,
             identityType: APPLE_ID_IDP_TYPE,
+            userType: existingUser.type,
             meta: userInfo,
         })
 

@@ -17,7 +17,7 @@ const USER_FIELDS = `type name avatar { publicUrl } rightsSet { id } meta isPhon
 const User = generateGqlQueries('User', `{ ${USER_FIELDS} }`)
 const UserAdmin = generateGqlQueries('User', `{ ${USER_FIELDS} email phone }`)
 
-const USER_EXTERNAL_IDENTITY_FIELDS = '{ id user { id } identityId identityType meta deletedAt }'
+const USER_EXTERNAL_IDENTITY_FIELDS = '{ id user { id } identityId identityType userType meta deletedAt }'
 const UserExternalIdentity = generateGqlQueries('UserExternalIdentity', USER_EXTERNAL_IDENTITY_FIELDS)
 const USER_ACCESS_RULE_FIELDS = 'list create read update fields { field create read update }'
 const USER_CUSTOM_ACCESS_FIELDS = `accessRules { ${USER_ACCESS_RULE_FIELDS} }`

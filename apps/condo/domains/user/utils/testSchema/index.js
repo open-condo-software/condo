@@ -170,8 +170,10 @@ async function registerNewUser (client, extraAttrs = {}, { raw = false } = {}) {
 async function makeClientWithNewRegisteredAndLoggedInUser (userExtraAttrs = {}) {
     const [user, userAttrs] = await registerNewUser(await makeClient())
     const client = await makeLoggedInClient(userAttrs)
-    if (!isEmpty(userExtraAttrs)) await addStaffAccess(user, userExtraAttrs)
     client.user = user
+    if (!isEmpty(userExtraAttrs)) {
+        client.user = await addStaffAccess(user, userExtraAttrs)
+    }
     client.userAttrs = userAttrs
     return client
 }
@@ -179,8 +181,7 @@ async function makeClientWithNewRegisteredAndLoggedInUser (userExtraAttrs = {}) 
 async function makeClientWithSupportUser (userExtraAttrs = {}) {
     const [user, userAttrs] = await registerNewUser(await makeClient())
     const client = await makeLoggedInClient(userAttrs)
-    await addSupportAccess(user, userExtraAttrs)
-    client.user = user
+    client.user = await addSupportAccess(user, userExtraAttrs)
     client.userAttrs = userAttrs
     return client
 }
@@ -188,8 +189,7 @@ async function makeClientWithSupportUser (userExtraAttrs = {}) {
 async function makeClientWithResidentUser (updateUserExtraAttrs = {}, createUserExtraAttrs = {}) {
     const [user, userAttrs] = await registerNewUser(await makeClient(), createUserExtraAttrs)
     const client = await makeLoggedInClient(userAttrs)
-    await addResidentAccess(user, updateUserExtraAttrs)
-    client.user = user
+    client.user = await addResidentAccess(user, updateUserExtraAttrs)
     client.userAttrs = userAttrs
     return client
 }
@@ -197,8 +197,7 @@ async function makeClientWithResidentUser (updateUserExtraAttrs = {}, createUser
 async function makeClientWithStaffUser (userExtraAttrs = {}) {
     const [user, userAttrs] = await registerNewUser(await makeClient())
     const client = await makeLoggedInClient(userAttrs)
-    await addStaffAccess(user, userExtraAttrs)
-    client.user = user
+    client.user = await addStaffAccess(user, userExtraAttrs)
     client.userAttrs = userAttrs
     return client
 }
@@ -206,8 +205,7 @@ async function makeClientWithStaffUser (userExtraAttrs = {}) {
 async function makeClientWithServiceUser (userExtraAttrs = {}) {
     const [user, userAttrs] = await registerNewUser(await makeClient())
     const client = await makeLoggedInClient(userAttrs)
-    await addServiceAccess(user, userExtraAttrs)
-    client.user = user
+    client.user = await addServiceAccess(user, userExtraAttrs)
     client.userAttrs = userAttrs
     return client
 }
@@ -216,35 +214,35 @@ async function addAdminAccess (user, extraAttrs = {}) {
     const admin = await makeLoggedInAdminClient()
     const dv = 1
     const sender = { dv:1, fingerprint: "user-test-schema-utils" }
-    await User.update(admin, user.id, { dv, sender, isAdmin: true, ...extraAttrs })
+    return await User.update(admin, user.id, { dv, sender, isAdmin: true, ...extraAttrs })
 }
 
 async function addSupportAccess (user, extraAttrs = {}) {
     const admin = await makeLoggedInAdminClient()
     const dv = 1
     const sender = { dv:1, fingerprint: "user-test-schema-utils" }
-    await User.update(admin, user.id, { dv, sender, isSupport: true, ...extraAttrs })
+    return await User.update(admin, user.id, { dv, sender, isSupport: true, ...extraAttrs })
 }
 
 async function addResidentAccess (user, extraAttrs = {}) {
     const admin = await makeLoggedInAdminClient()
     const dv = 1
     const sender = { dv:1, fingerprint: "user-test-schema-utils" }
-    await User.update(admin, user.id, { dv, sender, type: RESIDENT, ...extraAttrs })
+    return await User.update(admin, user.id, { dv, sender, type: RESIDENT, ...extraAttrs })
 }
 
 async function addStaffAccess (user, extraAttrs = {}) {
     const admin = await makeLoggedInAdminClient()
     const dv = 1
     const sender = { dv:1, fingerprint: "user-test-schema-utils" }
-    await User.update(admin, user.id, { dv, sender, type: STAFF, ...extraAttrs })
+    return await User.update(admin, user.id, { dv, sender, type: STAFF, ...extraAttrs })
 }
 
 async function addServiceAccess (user, extraAttrs = {}) {
     const admin = await makeLoggedInAdminClient()
     const dv = 1
     const sender = { dv:1, fingerprint: "user-test-schema-utils" }
-    await User.update(admin, user.id, { dv, sender, type: SERVICE, ...extraAttrs })
+    return await User.update(admin, user.id, { dv, sender, type: SERVICE, ...extraAttrs })
 }
 
 const ConfirmPhoneAction = generateGQLTestUtils(ConfirmPhoneActionGQL)

@@ -430,6 +430,9 @@ const makeLoggedInClient = async (credentials, serverUrl) => {
             password: DEFAULT_TEST_USER_SECRET,
         }
     }
+    // NOTE: we can't query user type, as not all apps has this field on User.
+    //       so let's put STAFF type as it is default user type
+    credentials.type = credentials.type || 'staff'
     if (!(credentials.email || credentials.phone) && !credentials.password) throw new Error('no credentials')
     const client = await makeClient({ generateIP: true, serverUrl })
     if (credentials.email) {
@@ -444,6 +447,7 @@ const makeLoggedInClient = async (credentials, serverUrl) => {
             email: credentials.email,
             password: credentials.password,
             id: data.auth.user.id,
+            type: credentials.type,
         }
     } else if (credentials.phone) {
         const { data, errors } = await client.mutate(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, {
@@ -457,6 +461,7 @@ const makeLoggedInClient = async (credentials, serverUrl) => {
             phone: credentials.phone,
             password: credentials.password,
             id: data.obj.item.id,
+            type: credentials.type,
         }
     } else {
         throw new Error('no credentials')

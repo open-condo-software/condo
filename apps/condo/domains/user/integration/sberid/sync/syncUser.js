@@ -11,13 +11,14 @@ const {
 const dv = 1
 const sender = { dv, fingerprint: 'user-external-identity-router' }
 
-const linkUser = async (context, user, userInfo) => {
+const linkUser = async (context, user, userInfo, userType) => {
     await UserExternalIdentity.create(context, {
         dv,
         sender,
         user: { connect: { id: user.id } },
         identityId: userInfo.id,
         identityType: SBER_ID_IDP_TYPE,
+        userType,
         meta: userInfo,
     })
 
@@ -54,14 +55,15 @@ const registerUser = async (context, userInfo, userType) => {
     const user = await User.create(context, userData)
 
     // proceed link
-    return await linkUser(context, user, userInfo)
+    return await linkUser(context, user, userInfo, userType)
 }
 
 const syncUser = async ({ context, userInfo, userType }) => {
     // try to find linked identities
-    const userIdentities = await UserExternalIdentity.getAll(context, {
+    const userIdentity = await UserExternalIdentity.getOne(context, {
         identityType: SBER_ID_IDP_TYPE,
         identityId: userInfo.id,
+        userType,
         // TODO DOMA-5239 remove this parameter. We should by default have only not deleted objects
         deletedAt: null,
     }, 'id user { id }')
@@ -72,9 +74,8 @@ const syncUser = async ({ context, userInfo, userType }) => {
     // 3. user not registered
 
     // case 1: user already registered and have linked identity
-    if (userIdentities.length > 0) {
-        const [identity] = userIdentities
-        const { user: { id } } = identity
+    if (userIdentity) {
+        const { user: { id } } = userIdentity
         return { id }
     }
 
@@ -84,7 +85,7 @@ const syncUser = async ({ context, userInfo, userType }) => {
     })
     if (existed) {
         // proceed link & auth
-        return await linkUser(context, existed, userInfo)
+        return await linkUser(context, existed, userInfo, userType)
     }
 
     // 3. user not registered

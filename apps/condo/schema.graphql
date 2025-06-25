@@ -1902,6 +1902,7 @@ type UserExternalIdentityHistoryRecord {
   user: String
   identityId: String
   identityType: String
+  userType: String
   meta: JSON
   id: ID!
   v: Int
@@ -1961,6 +1962,24 @@ input UserExternalIdentityHistoryRecordWhereInput {
   identityType_not_ends_with_i: String
   identityType_in: [String]
   identityType_not_in: [String]
+  userType: String
+  userType_not: String
+  userType_contains: String
+  userType_not_contains: String
+  userType_starts_with: String
+  userType_not_starts_with: String
+  userType_ends_with: String
+  userType_not_ends_with: String
+  userType_i: String
+  userType_not_i: String
+  userType_contains_i: String
+  userType_not_contains_i: String
+  userType_starts_with_i: String
+  userType_not_starts_with_i: String
+  userType_ends_with_i: String
+  userType_not_ends_with_i: String
+  userType_in: [String]
+  userType_not_in: [String]
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
@@ -2052,6 +2071,8 @@ enum SortUserExternalIdentityHistoryRecordsBy {
   identityId_DESC
   identityType_ASC
   identityType_DESC
+  userType_ASC
+  userType_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -2074,6 +2095,7 @@ input UserExternalIdentityHistoryRecordUpdateInput {
   user: String
   identityId: String
   identityType: String
+  userType: String
   meta: JSON
   v: Int
   createdAt: String
@@ -2098,6 +2120,7 @@ input UserExternalIdentityHistoryRecordCreateInput {
   user: String
   identityId: String
   identityType: String
+  userType: String
   meta: JSON
   v: Int
   createdAt: String
@@ -2123,6 +2146,12 @@ enum UserExternalIdentityIdentityTypeType {
   sbbol
 }
 
+enum UserExternalIdentityUserTypeType {
+  staff
+  resident
+  service
+}
+
 """ Individual user external identity link. Used primarily for authorization and linking to external identity provider purposes. Think of `User` as a technical entity, not a business actor. 
 """
 type UserExternalIdentity {
@@ -2144,6 +2173,9 @@ type UserExternalIdentity {
 
   """ The type of external identity that was a source for this link """
   identityType: UserExternalIdentityIdentityTypeType
+
+  """ Type of connected user """
+  userType: UserExternalIdentityUserTypeType
 
   """ External identity provider user metadata """
   meta: JSON
@@ -2197,6 +2229,10 @@ input UserExternalIdentityWhereInput {
   identityType_not: UserExternalIdentityIdentityTypeType
   identityType_in: [UserExternalIdentityIdentityTypeType]
   identityType_not_in: [UserExternalIdentityIdentityTypeType]
+  userType: UserExternalIdentityUserTypeType
+  userType_not: UserExternalIdentityUserTypeType
+  userType_in: [UserExternalIdentityUserTypeType]
+  userType_not_in: [UserExternalIdentityUserTypeType]
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
@@ -2270,6 +2306,8 @@ enum SortUserExternalIdentitiesBy {
   identityId_DESC
   identityType_ASC
   identityType_DESC
+  userType_ASC
+  userType_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -2292,6 +2330,7 @@ input UserExternalIdentityUpdateInput {
   user: UserRelateToOneInput
   identityId: String
   identityType: UserExternalIdentityIdentityTypeType
+  userType: UserExternalIdentityUserTypeType
   meta: JSON
   v: Int
   createdAt: String
@@ -2313,6 +2352,7 @@ input UserExternalIdentityCreateInput {
   user: UserRelateToOneInput
   identityId: String
   identityType: UserExternalIdentityIdentityTypeType
+  userType: UserExternalIdentityUserTypeType
   meta: JSON
   v: Int
   createdAt: String
@@ -94047,6 +94087,12 @@ type Mutation {
     "type": "UNABLE_TO_CREATE_USER",
     "message": "Unable to create user",
     "messageForUser": "Something went wrong during registration :( Try again or ask our support"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "USER_EXTERNAL_IDENTITY_WRONG_USER_TYPE",
+    "message": "UserType must be same as user.type"
   }`
   """
   registerNewUser(data: RegisterNewUserInput!): User
