@@ -483,6 +483,8 @@ __metadata:
     jspdf: ^2.3.1
     jszip: ^3.10.1
     jwt-decode: 3.1.2
+    less: ^4.3.0
+    less-loader: ^12.3.0
     lodash: ^4.17.21
     lru-cache: ^7.18.3
     mjml: ^4.15.3
@@ -29705,6 +29707,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"less-loader@npm:^12.3.0":
+  version: 12.3.0
+  resolution: "less-loader@npm:12.3.0"
+  peerDependencies:
+    "@rspack/core": 0.x || 1.x
+    less: ^3.5.0 || ^4.0.0
+    webpack: ^5.0.0
+  peerDependenciesMeta:
+    "@rspack/core":
+      optional: true
+    webpack:
+      optional: true
+  checksum: 9a291f37a4514349ce4a187ddffd77bfd7d4f97077f71aa6dbfc81393a0cd3c00ab793c13f40a4d3acdbad423db9d2e75054ede4fb1900ba0e49882c9405a4f7
+  languageName: node
+  linkType: hard
+
 "less@npm:^4.1.3":
   version: 4.1.3
   resolution: "less@npm:4.1.3"
@@ -29737,6 +29755,41 @@ __metadata:
   bin:
     lessc: bin/lessc
   checksum: 1470fbec993a375eb28d729cd906805fd62b7a7f1b4f5b4d62d04e81eaba987a9373e74aa0b9fa9191149ebc0bfb42e2ea98a038555555b7b241c10a854067cc
+  languageName: node
+  linkType: hard
+
+"less@npm:^4.3.0":
+  version: 4.3.0
+  resolution: "less@npm:4.3.0"
+  dependencies:
+    copy-anything: ^2.0.1
+    errno: ^0.1.1
+    graceful-fs: ^4.1.2
+    image-size: ~0.5.0
+    make-dir: ^2.1.0
+    mime: ^1.4.1
+    needle: ^3.1.0
+    parse-node-version: ^1.0.1
+    source-map: ~0.6.0
+    tslib: ^2.3.0
+  dependenciesMeta:
+    errno:
+      optional: true
+    graceful-fs:
+      optional: true
+    image-size:
+      optional: true
+    make-dir:
+      optional: true
+    mime:
+      optional: true
+    needle:
+      optional: true
+    source-map:
+      optional: true
+  bin:
+    lessc: bin/lessc
+  checksum: a071ec82fd6b79bc57e9d529542d205824d71a4c1914553c80b237390785938d83df2e7be774aeb07e08157afd57837d67704f917db203de5bf8411255be5bdd
   languageName: node
   linkType: hard
 

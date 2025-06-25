@@ -113,6 +113,7 @@ import Error404Page from './404'
 import Error429Page from './429'
 import Error500Page from './500'
 
+import 'antd/dist/antd.less'
 import '@condo/domains/common/components/wdyr'
 import '@open-condo/ui/dist/styles.min.css'
 import '@open-condo/ui/dist/style-vars/variables.css'
