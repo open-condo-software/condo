@@ -18,7 +18,7 @@ export default {
         children: 'Label',
         type: 'primary',
         disabled: false,
-        size: 'L',
+        size: 'large',
         compact: false,
         minimal: false,
         danger: false,
@@ -33,7 +33,7 @@ export default {
         compact: { type: 'boolean' },
         size: {
             control: 'select',
-            options: ['M', 'L'],
+            options: ['medium', 'large'],
         },
         type: { control: 'select' },
         icon: {
