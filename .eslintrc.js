@@ -166,7 +166,7 @@ module.exports = {
         'no-restricted-modules': [
             'error',
             {
-                patterns: ['@keystonejs/fields*', '@open-condo/keystone/fields'],
+                patterns: ['@open-keystone/fields*', '@open-condo/keystone/fields'],
             },
         ],
         'import/order': [

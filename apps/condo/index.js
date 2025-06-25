@@ -1,4 +1,4 @@
-// const { NextApp } = require('@keystonejs/app-next')
+const { NextApp } = require('@open-keystone/app-next')
 const dayjs = require('dayjs')
 const duration = require('dayjs/plugin/duration')
 const isBetween = require('dayjs/plugin/isBetween')
@@ -108,8 +108,7 @@ const checks = [
     }),
 ]
 
-// const lastApp = conf.DISABLE_NEXT_APP ? undefined : new NextApp({ dir: '.' })
-const lastApp = conf.DISABLE_NEXT_APP ? undefined : undefined
+const lastApp = conf.DISABLE_NEXT_APP ? undefined : new NextApp({ dir: '.' })
 
 const apps = () => {
     return [

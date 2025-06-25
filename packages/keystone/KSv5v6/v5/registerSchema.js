@@ -10,7 +10,7 @@ const {
     Url,
     Uuid,
     Virtual,
-} = require('@keystonejs/fields')
+} = require('@open-keystone/fields')
 const { Markdown } = require('@open-keystone/fields-markdown')
 const { Wysiwyg } = require('@open-keystone/fields-wysiwyg-tinymce')
 const { get, isObject, isString } = require('lodash')

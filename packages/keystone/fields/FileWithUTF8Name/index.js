@@ -1,4 +1,4 @@
-const { File } = require('@keystonejs/fields')
+const { File } = require('@open-keystone/fields')
 
 const { FileWithUTF8Name } = require('./Implementation')
 

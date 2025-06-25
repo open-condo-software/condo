@@ -23,7 +23,7 @@ const { extractQueriesAndMutationsFromRequest } = require('../utils/requests')
 
 /** @implements {import('apollo-server-plugin-base').ApolloServerPlugin} */
 class ApolloRateLimitingPlugin {
-    /** @type {import('@keystonejs/keystone').Keystone} */
+    /** @type {import('@open-keystone/keystone').Keystone} */
     #keystone = null
     /** @type {Record<string, string>} */
     #listReadQueries = {}
@@ -45,7 +45,7 @@ class ApolloRateLimitingPlugin {
     #customQuotas = {}
 
     /**
-     * @param keystone {import('@keystonejs/keystone').Keystone} keystone instance
+     * @param keystone {import('@open-keystone/keystone').Keystone} keystone instance
      * @param opts {{
      * queryWeight?: number,
      * mutationWeight?: number,

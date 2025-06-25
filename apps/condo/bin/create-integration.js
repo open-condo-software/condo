@@ -1,7 +1,7 @@
 const path = require('path')
 
 const { faker } = require('@faker-js/faker')
-const { GraphQLApp } = require('@keystonejs/app-graphql')
+const { GraphQLApp } = require('@open-keystone/app-graphql')
 
 const {
     BillingIntegration,

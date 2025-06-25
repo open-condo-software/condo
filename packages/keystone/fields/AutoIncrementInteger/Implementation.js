@@ -1,4 +1,4 @@
-const { Integer } = require('@keystonejs/fields')
+const { Integer } = require('@open-keystone/fields')
 const get = require('lodash/get')
 const { default: Redlock } = require('redlock')
 

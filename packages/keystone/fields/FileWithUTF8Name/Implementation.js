@@ -1,4 +1,4 @@
-const { File } = require('@keystonejs/fields')
+const { File } = require('@open-keystone/fields')
 const cuid = require('cuid')
 
 const { convertFileNameToUTF8 } = require('@open-condo/keystone/fields/FileWithUTF8Name/utils/convertFileNameToUTF8')

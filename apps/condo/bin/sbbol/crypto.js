@@ -29,7 +29,7 @@
  */
 const path = require('path')
 
-const { GraphQLApp } = require('@keystonejs/app-graphql')
+const { GraphQLApp } = require('@open-keystone/app-graphql')
 const { values } = require('lodash')
 
 const conf = require('@open-condo/config')

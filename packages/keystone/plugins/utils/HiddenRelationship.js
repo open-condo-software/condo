@@ -1,4 +1,4 @@
-const { Implementation, Text } = require('@keystonejs/fields')
+const { Implementation, Text } = require('@open-keystone/fields')
 
 class HiddenRelationshipImplementation extends Implementation {
     gqlQueryInputFields () {
