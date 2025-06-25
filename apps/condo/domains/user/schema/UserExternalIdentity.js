@@ -52,7 +52,6 @@ const UserExternalIdentity = new GQLListSchema('UserExternalIdentity', {
                 const newUserId = resolvedData?.user || existingItem?.user
                 const newUserType = resolvedData?.userType || existingItem?.userType
                 const user = await getById('User', newUserId)
-                console.error(existingItem?.user, resolvedData?.user, existingItem?.userType, resolvedData?.userType)
                 if (user.type !== newUserType) {
                     throw new GQLError(ERRORS.WRONG_USER_TYPE, context)
                 }
@@ -62,15 +61,9 @@ const UserExternalIdentity = new GQLListSchema('UserExternalIdentity', {
     },
     kmigratorOptions: {
         constraints: [
-            // {
-            //     type: 'models.UniqueConstraint',
-            //     fields: ['identityId', 'identityType'],
-            //     condition: 'Q(deletedAt__isnull=True)',
-            //     name: 'userExternalIdentity_unique_identityid_and_identitytype',
-            // },
             {
                 type: 'models.UniqueConstraint',
-                fields: ['identityId', 'userType', 'userType'],
+                fields: ['identityId', 'identityType', 'userType'],
                 condition: 'Q(deletedAt__isnull=True)',
                 name: 'userExternalIdentity_unique_identityid_and_identitytype_and_usertype',
             },
