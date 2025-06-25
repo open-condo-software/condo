@@ -3,22 +3,22 @@
 @import (reference) "@open-condo/ui/src/components/style/mixins/typography";
 @import (reference) "@open-condo/ui/src/components/style/mixins/button";
 
-@condo-button-padding-vert-l: @condo-global-spacing-12;
-@condo-button-padding-hor-l: @condo-global-spacing-20;
-@condo-button-padding-vert-m: @condo-global-spacing-4 + 1px;
-@condo-button-padding-hor-m: @condo-global-spacing-12;
+@condo-button-padding-vert-large: @condo-global-spacing-12;
+@condo-button-padding-hor-large: @condo-global-spacing-20;
+@condo-button-padding-vert-medium: @condo-global-spacing-4 + 1px;
+@condo-button-padding-hor-medium: @condo-global-spacing-12;
 
 @condo-button-padding-vert-compact: @condo-global-spacing-4;
 @condo-button-padding-hor-compact: @condo-global-spacing-4;
 
 @condo-button-border-width: @condo-global-border-width-default;
-@condo-button-line-height-l: @condo-global-typography-h4-line-height;
-@condo-button-line-height-m: @condo-global-typography-h5-line-height;
+@condo-button-line-height-large: @condo-global-typography-h4-line-height;
+@condo-button-line-height-medium: @condo-global-typography-h5-line-height;
 
 @condo-button-focus-outline-width: @condo-global-border-width-default * 4;
 @condo-button-border-radius: @condo-global-border-radius-medium;
-@condo-button-gap-m: @condo-global-spacing-4;
-@condo-button-gap-l: @condo-global-spacing-8;
+@condo-button-gap-medium: @condo-global-spacing-4;
+@condo-button-gap-large: @condo-global-spacing-8;
 
 .minimal-styles() {
   text-shadow: none;
@@ -53,69 +53,72 @@
     .condo-typography-h5();
 
     span + span {
-      margin-left: @condo-button-gap-m;
+      margin-left: @condo-button-gap-medium;
     }
   }
 
-  &-L {
+  &-large {
     min-width: @condo-global-spacing-48;
     .condo-typography-h4();
 
     span + span {
-      margin-left: @condo-button-gap-l;
+      margin-left: @condo-button-gap-large;
     }
   }
 
-  &-M.condo-btn-primary {
-    .condo-btn(@condo-button-line-height-m, @condo-button-padding-vert-m, @condo-button-padding-hor-m, 0);
+  &-medium.condo-btn-primary {
+    .condo-btn(@condo-button-line-height-medium, @condo-button-padding-vert-medium,
+    @condo-button-padding-hor-medium, 0);
   }
 
-  &-M.condo-btn-secondary,
-  &-M.condo-btn-accent {
-    .condo-btn(@condo-button-line-height-m, @condo-button-padding-vert-m,
-    @condo-button-padding-hor-m, @condo-button-border-width);
+  &-medium.condo-btn-secondary,
+  &-medium.condo-btn-accent {
+    .condo-btn(@condo-button-line-height-medium, @condo-button-padding-vert-medium,
+    @condo-button-padding-hor-medium, @condo-button-border-width);
   }
 
-  &-L.condo-btn-primary {
-    .condo-btn(@condo-button-line-height-l, @condo-button-padding-vert-l, @condo-button-padding-hor-l, 0);
+  &-large.condo-btn-primary {
+    .condo-btn(@condo-button-line-height-large, @condo-button-padding-vert-large, @condo-button-padding-hor-large, 0);
   }
 
-  &-L.condo-btn-secondary,
-  &-L.condo-btn-accent {
-    .condo-btn(@condo-button-line-height-l, @condo-button-padding-vert-l,
-    @condo-button-padding-hor-l, @condo-button-border-width);
+  &-large.condo-btn-secondary,
+  &-large.condo-btn-accent {
+    .condo-btn(@condo-button-line-height-large, @condo-button-padding-vert-large,
+    @condo-button-padding-hor-large, @condo-button-border-width);
   }
 
-  &-M.condo-btn-compact.condo-btn-primary {
+  &-medium.condo-btn-compact.condo-btn-primary {
     min-width: 0;
-    .condo-btn(@condo-button-line-height-m, @condo-button-padding-vert-compact, @condo-button-padding-hor-compact, 0);
+    .condo-btn(@condo-button-line-height-medium, @condo-button-padding-vert-compact,
+    @condo-button-padding-hor-compact, 0);
   }
 
-  &-M.condo-btn-compact.condo-btn-secondary,
-  &-M.condo-btn-compact.condo-btn-accent {
+  &-medium.condo-btn-compact.condo-btn-secondary,
+  &-medium.condo-btn-compact.condo-btn-accent {
     min-width: 0;
-    .condo-btn(@condo-button-line-height-m, @condo-button-padding-vert-compact,
+    .condo-btn(@condo-button-line-height-medium, @condo-button-padding-vert-compact,
     @condo-button-padding-hor-compact, @condo-button-border-width);
   }
 
-  &-L.condo-btn-compact.condo-btn-primary {
+  &-large.condo-btn-compact.condo-btn-primary {
     min-width: 0;
-    .condo-btn(@condo-button-line-height-l, @condo-button-padding-vert-compact, @condo-button-padding-hor-compact, 0);
+    .condo-btn(@condo-button-line-height-large, @condo-button-padding-vert-compact,
+    @condo-button-padding-hor-compact, 0);
   }
 
-  &-L.condo-btn-compact.condo-btn-secondary,
-  &-L.condo-btn-compact.condo-btn-accent {
+  &-large.condo-btn-compact.condo-btn-secondary,
+  &-large.condo-btn-compact.condo-btn-accent {
     min-width: 0;
-    .condo-btn(@condo-button-line-height-l, @condo-button-padding-vert-compact,
+    .condo-btn(@condo-button-line-height-large, @condo-button-padding-vert-compact,
     @condo-button-padding-hor-compact, @condo-button-border-width);
   }
 
-  &-M.condo-btn-compact.condo-btn-icon-only {
+  &-medium.condo-btn-compact.condo-btn-icon-only {
     width: @condo-global-spacing-20;
     height: @condo-global-spacing-20;
   }
 
-  &-L.condo-btn-compact.condo-btn-icon-only {
+  &-large.condo-btn-compact.condo-btn-icon-only {
     width: @condo-global-spacing-24;
     height: @condo-global-spacing-24;
   }
@@ -123,6 +126,9 @@
   &-minimal.condo-btn-primary,
   &-minimal.condo-btn-secondary,
   &-minimal.condo-btn-accent,
+  &-minimal.condo-btn-primary.condo-btn-stateless:not(:disabled),
+  &-minimal.condo-btn-secondary.condo-btn-stateless:not(:disabled),
+  &-minimal.condo-btn-accent.condo-btn-stateless:not(:disabled),
   &-minimal.condo-btn-primary.condo-btn-dangerous,
   &-minimal.condo-btn-secondary.condo-btn-dangerous,
   &-minimal.condo-btn-accent.condo-btn-dangerous {
@@ -131,12 +137,16 @@
     &:hover,
     &:focus {
       .minimal-styles;
+
+      &:not(.condo-btn-stateless) {
+        background: @condo-global-color-brand-gradient-1;
+      }
     }
   }
 
-  &-minimal.condo-btn-primary:not(.condo-btn-dangerous),
-  &-minimal.condo-btn-secondary:not(.condo-btn-dangerous),
-  &-minimal.condo-btn-accent:not(.condo-btn-dangerous) {
+  &-minimal.condo-btn-primary:not(.condo-btn-dangerous, .condo-btn-stateless),
+  &-minimal.condo-btn-secondary:not(.condo-btn-dangerous, .condo-btn-stateless),
+  &-minimal.condo-btn-accent:not(.condo-btn-dangerous, .condo-btn-stateless) {
     &:hover:not(:disabled) {
       .condo-btn-static-text-color(@condo-global-color-green-5);
       .condo-btn-content-color(@condo-global-color-green-5);
@@ -152,6 +162,7 @@
   &-minimal.condo-btn-compact.condo-btn-secondary,
   &-minimal.condo-btn-compact.condo-btn-accent {
     padding: 0;
+    background: none;
   }
 
   // After layer is used to show gradient outline on tab-focusing
@@ -270,6 +281,11 @@
             .condo-btn-content-color(@condo-global-color-red-5);
             .condo-btn-static-text-color(@condo-global-color-red-5);
           }
+        }
+
+        &:disabled {
+          .condo-btn-content-color(@condo-global-color-black);
+          .condo-btn-static-text-color(@condo-global-color-black);
         }
       }
 
@@ -439,7 +455,7 @@
       }
     }
 
-    &.condo-btn-stateless {
+    &.condo-btn-stateless:not(:disabled) {
       &:not(.condo-btn-dangerous) {
         .condo-btn-content-color(@condo-global-color-black);
       }
@@ -457,7 +473,7 @@
         background: transparent;
       }
 
-      &:not(.condo-btn-dangerous):hover {
+      &:not(.condo-btn-dangerous, .condo-btn-minimal):hover {
         border: @condo-button-border-width solid @condo-global-color-gray-7;
       }
 
@@ -560,6 +576,8 @@
     }
 
     &:focus-visible {
+      border: none;
+
       &::after {
         .condo-btn-layer(-(@condo-button-focus-outline-width + @condo-button-border-width));
 
@@ -648,7 +666,7 @@
       }
     }
 
-    &.condo-btn-stateless {
+    &.condo-btn-stateless:not(:disabled) {
       &:not(.condo-btn-dangerous) {
         .condo-btn-content-color(@condo-global-color-green-5);
       }
@@ -697,11 +715,12 @@
 
 a.condo-btn {
   &-primary {
-    .condo-btn-href(@condo-button-line-height-l, @condo-button-padding-vert-l, @condo-button-padding-hor-l, 0);
+    .condo-btn-href(@condo-button-line-height-large, @condo-button-padding-vert-large,
+    @condo-button-padding-hor-large, 0);
   }
 
   &-secondary {
-    .condo-btn-href(@condo-button-line-height-l, @condo-button-padding-vert-l, @condo-button-padding-hor-l,
+    .condo-btn-href(@condo-button-line-height-large, @condo-button-padding-vert-large, @condo-button-padding-hor-large,
     @condo-button-border-width);
   }
 }
