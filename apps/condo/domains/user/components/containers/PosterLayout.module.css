@@ -23,7 +23,7 @@
   max-height: 240px;
 }
 
-.common-layout-image .ant-image {
+.common-layout-image :global(.ant-image) {
   width: 100%;
   height: 100%;
   object-fit: contain;
