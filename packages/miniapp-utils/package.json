@@ -176,7 +176,8 @@
     "react-dom": "^17.0.2",
     "ts-jest": "^29.2.5",
     "tsup": "^8.4.0",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "webpack": "^5.99.9"
   },
   "dependencies": {
     "cookie": "^0.7.0",

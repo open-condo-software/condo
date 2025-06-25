@@ -35,6 +35,7 @@ export default class MyDocument extends Document {
                     {initialProps.styles}
                     <style
                         data-emotion={`${cacheKey} ${styles.ids.join(' ')}`}
+                        // nosemgrep: typescript.react.security.audit.react-dangerouslysetinnerhtml.react-dangerouslysetinnerhtml
                         dangerouslySetInnerHTML={{ __html: styles.css }}
                     />
                 </>
