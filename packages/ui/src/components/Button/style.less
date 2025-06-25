@@ -270,7 +270,9 @@
         &:hover {
           .condo-btn-content-color(@condo-global-color-red-7);
           .condo-btn-static-text-color(@condo-global-color-red-7);
+        }
 
+        &:hover:not(.condo-btn-compact) {
           background: @condo-global-color-red-1;
         }
 
@@ -376,7 +378,7 @@
         .condo-btn-static-text-color(@condo-global-color-red-5);
       }
 
-      &.condo-btn-minimal:hover {
+      &.condo-btn-minimal:hover:not(.condo-btn-compact) {
         background: @condo-global-color-red-1;
       }
 
@@ -620,7 +622,7 @@
         .condo-btn-static-text-color(@condo-global-color-red-5);
       }
 
-      &.condo-btn-minimal:hover {
+      &.condo-btn-minimal:hover:not(.condo-btn-compact) {
         background: @condo-global-color-red-1;
       }
 
