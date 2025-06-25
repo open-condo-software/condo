@@ -12,7 +12,7 @@ import React, { CSSProperties, useEffect, useState } from 'react'
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Card, Typography } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'

@@ -15,7 +15,7 @@ import { extractReqLocale } from '@open-condo/locales/extractReqLocale'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Card, Markdown, Space, Typography } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 
 import { ConvertToUTF8 } from '../domains/banking/utils/serverSchema/converters/convertToUTF8'
 import EmptyLayout from '@condo/domains/common/components/containers/EmptyLayout'

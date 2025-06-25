@@ -6,7 +6,6 @@ import {
 import dayjs, { Dayjs } from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { EChartsOption, EChartsReactProps } from 'echarts-for-react'
 import { isEmpty } from 'lodash'
 import get from 'lodash/get'
 import groupBy from 'lodash/groupBy'
@@ -20,6 +19,8 @@ import {
     TicketSelectTypes,
     ViewModeTypes,
 } from '../components/TicketChart'
+
+import type { EChartsOption, EChartsReactProps } from 'echarts-for-react'
 
 
 dayjs.extend(duration)

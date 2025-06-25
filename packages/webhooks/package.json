@@ -21,9 +21,6 @@
     "url": "https://github.com/SavelevMatthew"
   },
   "license": "MIT",
-  "exports": {
-    "./": "./"
-  },
   "dependencies": {
     "@open-condo/codegen": "workspace:^",
     "@open-condo/config": "workspace:^",

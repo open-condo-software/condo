@@ -3,7 +3,7 @@ import styled from '@emotion/styled'
 import { Spin, SpinProps } from 'antd'
 import React from 'react'
 
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 
 
 const DEFAULT_DELAY = 200 // milliseconds

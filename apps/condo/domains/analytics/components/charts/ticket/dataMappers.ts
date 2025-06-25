@@ -5,7 +5,7 @@ import {
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 
 import TicketChart from '@condo/domains/analytics/components/TicketChart'
 import { getAggregatedData } from '@condo/domains/analytics/utils/helpers'
