@@ -518,6 +518,8 @@
     .condo-btn-static-text-color(@condo-global-color-green-5);
     .condo-btn-content-color(@condo-global-color-green-5);
 
+    border: transparent;
+
     & > .condo-btn-text {
       background: transparent;
     }
@@ -581,8 +583,6 @@
     }
 
     &:focus-visible {
-      border: none;
-
       &::after {
         .condo-btn-layer(-(@condo-button-focus-outline-width + @condo-button-border-width));
 
