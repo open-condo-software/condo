@@ -137,10 +137,6 @@
     &:hover,
     &:focus {
       .minimal-styles;
-
-      &:not(.condo-btn-stateless) {
-        background: @condo-global-color-brand-gradient-1;
-      }
     }
   }
 
@@ -156,13 +152,16 @@
       .condo-btn-static-text-color(@condo-global-color-green-7);
       .condo-btn-content-color(@condo-global-color-green-7);
     }
+
+    &:hover:not(:disabled, .condo-btn-compact) {
+      background: @condo-global-color-brand-gradient-1;
+    }
   }
 
   &-minimal.condo-btn-compact.condo-btn-primary,
   &-minimal.condo-btn-compact.condo-btn-secondary,
   &-minimal.condo-btn-compact.condo-btn-accent {
     padding: 0;
-    background: none;
   }
 
   // After layer is used to show gradient outline on tab-focusing
@@ -271,6 +270,8 @@
         &:hover {
           .condo-btn-content-color(@condo-global-color-red-7);
           .condo-btn-static-text-color(@condo-global-color-red-7);
+
+          background: @condo-global-color-red-1;
         }
 
         &.condo-btn-stateless {
@@ -373,6 +374,10 @@
         background: @condo-global-color-red-1;
         .condo-btn-content-color(@condo-global-color-red-5);
         .condo-btn-static-text-color(@condo-global-color-red-5);
+      }
+
+      &.condo-btn-minimal:hover {
+        background: @condo-global-color-red-1;
       }
 
       &::before,
@@ -614,6 +619,10 @@
         background: @condo-global-color-red-1;
         .condo-btn-content-color(@condo-global-color-red-5);
         .condo-btn-static-text-color(@condo-global-color-red-5);
+      }
+
+      &.condo-btn-minimal:hover {
+        background: @condo-global-color-red-1;
       }
 
       &::before,
