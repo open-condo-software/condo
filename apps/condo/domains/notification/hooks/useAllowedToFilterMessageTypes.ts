@@ -1,4 +1,4 @@
-import { useGetB2BAppsWithMessageSettingsQuery, useGetUserB2BAppRolesQuery } from '@app/condo/gql'
+import { useGetB2BAppsWithMessageSettingsQuery, useGetEmployeeB2BAppRolesForSpecificAppsQuery } from '@app/condo/gql'
 import { useMemo } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
@@ -46,7 +46,7 @@ export const useAllowedToFilterMessageTypes: UseAllowedToFilterMessageTypesType 
     const {
         data: userB2bRolesData,
         loading: userB2BRolesLoading,
-    } = useGetUserB2BAppRolesQuery({
+    } = useGetEmployeeB2BAppRolesForSpecificAppsQuery({
         variables: {
             employeeRoleId: roleId,
             b2bAppIds,

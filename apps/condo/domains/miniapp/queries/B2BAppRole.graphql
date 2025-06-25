@@ -1,9 +1,26 @@
-query getUserB2BAppRoles ($employeeRoleId: ID, $b2bAppIds: [ID]) {
+query getEmployeeB2BAppRolesForSpecificApps ($employeeRoleId: ID, $b2bAppIds: [ID]) {
     b2bRoles: allB2BAppRoles (
         where: {
             role: { id: $employeeRoleId }
             app: { id_in: $b2bAppIds }
         }
+    ) {
+        id
+        app {
+            id
+        }
+    }
+}
+
+query getEmployeeB2BAppRoles ($employeeRole: OrganizationEmployeeRoleWhereInput!) {
+    b2bRoles: allB2BAppRoles (
+        where: {
+            role: $employeeRole
+            app: { isHidden: false, icon_not: null }
+        }
+        sortBy: [id_ASC]
+        first: 100
+        skip: 0
     ) {
         id
         app {

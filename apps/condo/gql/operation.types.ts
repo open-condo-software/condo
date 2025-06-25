@@ -94,6 +94,13 @@ export type GetBillingIntegrationOrganizationContextsQueryVariables = Types.Exac
 
 export type GetBillingIntegrationOrganizationContextsQuery = { __typename?: 'Query', contexts?: Array<{ __typename?: 'BillingIntegrationOrganizationContext', id: string, lastReport?: any | null } | null> | null };
 
+export type HasBillingIntegrationsQueryVariables = Types.Exact<{
+  organization: Types.OrganizationWhereInput;
+}>;
+
+
+export type HasBillingIntegrationsQuery = { __typename?: 'Query', integrations?: Array<{ __typename?: 'BillingIntegrationOrganizationContext', id: string } | null> | null, acquiring?: Array<{ __typename?: 'AcquiringIntegrationContext', id: string } | null> | null };
+
 export type GetBillingReceiptsByPropertyCountQueryVariables = Types.Exact<{
   context: Types.BillingIntegrationOrganizationContextWhereInput;
   property: Types.BillingPropertyWhereInput;
@@ -330,13 +337,20 @@ export type GetCountB2BAppsWithNewsSharingConfigQueryVariables = Types.Exact<{ [
 
 export type GetCountB2BAppsWithNewsSharingConfigQuery = { __typename?: 'Query', _allB2BAppsMeta?: { __typename?: '_QueryMeta', count?: number | null } | null };
 
-export type GetUserB2BAppRolesQueryVariables = Types.Exact<{
+export type GetEmployeeB2BAppRolesForSpecificAppsQueryVariables = Types.Exact<{
   employeeRoleId?: Types.InputMaybe<Types.Scalars['ID']['input']>;
   b2bAppIds?: Types.InputMaybe<Array<Types.InputMaybe<Types.Scalars['ID']['input']>> | Types.InputMaybe<Types.Scalars['ID']['input']>>;
 }>;
 
 
-export type GetUserB2BAppRolesQuery = { __typename?: 'Query', b2bRoles?: Array<{ __typename?: 'B2BAppRole', id: string, app?: { __typename?: 'B2BApp', id: string } | null } | null> | null };
+export type GetEmployeeB2BAppRolesForSpecificAppsQuery = { __typename?: 'Query', b2bRoles?: Array<{ __typename?: 'B2BAppRole', id: string, app?: { __typename?: 'B2BApp', id: string } | null } | null> | null };
+
+export type GetEmployeeB2BAppRolesQueryVariables = Types.Exact<{
+  employeeRole: Types.OrganizationEmployeeRoleWhereInput;
+}>;
+
+
+export type GetEmployeeB2BAppRolesQuery = { __typename?: 'Query', b2bRoles?: Array<{ __typename?: 'B2BAppRole', id: string, app?: { __typename?: 'B2BApp', id: string } | null } | null> | null };
 
 export type GetNewsItemsRecipientsCountersQueryVariables = Types.Exact<{
   data: Types.GetNewsItemsRecipientsCountersInput;
