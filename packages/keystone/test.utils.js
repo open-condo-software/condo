@@ -71,7 +71,6 @@ const SIGNIN_BY_EMAIL_MUTATION = gql`
         auth: authenticateUserWithPassword(email: $identity, password: $secret) {
             user: item {
                 id
-                type
             }
         }
     }
@@ -431,6 +430,9 @@ const makeLoggedInClient = async (credentials, serverUrl) => {
             password: DEFAULT_TEST_USER_SECRET,
         }
     }
+    // NOTE: we can't query user type, as not all apps has this field on User.
+    //       so let's put STAFF type as it is default user type
+    credentials.type = credentials.type || 'staff'
     if (!(credentials.email || credentials.phone) && !credentials.password) throw new Error('no credentials')
     const client = await makeClient({ generateIP: true, serverUrl })
     if (credentials.email) {
@@ -444,8 +446,8 @@ const makeLoggedInClient = async (credentials, serverUrl) => {
         client.user = {
             email: credentials.email,
             password: credentials.password,
-            type: data.auth.user.type,
             id: data.auth.user.id,
+            type: credentials.type,
         }
     } else if (credentials.phone) {
         const { data, errors } = await client.mutate(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, {
@@ -458,8 +460,8 @@ const makeLoggedInClient = async (credentials, serverUrl) => {
         client.user = {
             phone: credentials.phone,
             password: credentials.password,
-            type: data.obj.item.type,
             id: data.obj.item.id,
+            type: credentials.type,
         }
     } else {
         throw new Error('no credentials')
