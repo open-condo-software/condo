@@ -1,7 +1,7 @@
 import { useApolloClient } from '@apollo/client'
 import {
     CreateTicketCommentMutationHookResult,
-    CreateUserTicketCommentReadTimeMutationHookResult,
+    CreateUserTicketCommentReadTimeMutationHookResult, GetIncidentsQuery,
     GetTicketLastCommentsTimeQueryHookResult,
     GetUserTicketCommentsReadTimeQueryHookResult,
     UpdateTicketCommentMutationHookResult,
@@ -10,7 +10,10 @@ import {
 import { Ticket, TicketComment, TicketCommentFile, UserTypeType } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Empty, Form, notification } from 'antd'
+import dayjs from 'dayjs'
+import cookie from 'js-cookie'
 import get from 'lodash/get'
+import pickBy from 'lodash/pickBy'
 import React, {
     CSSProperties,
     MouseEventHandler,
@@ -25,7 +28,7 @@ import React, {
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
-import { Radio, RadioGroup, Tooltip, Typography } from '@open-condo/ui'
+import { Radio, RadioGroup, Tooltip, Tour, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { AIFlowButton } from '@condo/domains/ai/components/AIFlowButton'
@@ -35,6 +38,7 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 import { Loader } from '@condo/domains/common/components/Loader'
 import { Module } from '@condo/domains/common/components/MultipleFileUpload'
 import { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE } from '@condo/domains/ticket/constants'
+import { GENERATE_COMMENT_TOUR_STEP_CLOSED_COOKIE } from '@condo/domains/ticket/constants/common'
 import { hasUnreadResidentComments } from '@condo/domains/ticket/utils/helpers'
 
 import { Comment } from './Comment'
@@ -112,6 +116,8 @@ const LOADER_STYLES: CSSProperties = {
 }
 const COMMENT_WRAPPER_STYLES: CSSProperties = { marginBottom: '12px' }
 const GENERATE_ANSWER_BUTTON_WRAPPER_STYLES: CSSProperties = { width: 'fit-content', marginTop: '6px' }
+const GENERATE_COMMENT_BUTTON_WRAPPER_STYLES: CSSProperties = { width: 'fit-content' }
+const EMPTY_COMMENTS_WRAPPER_STYLES: CSSProperties = { display: 'flex', flexDirection: 'column', padding: '24px' }
 
 const EmptyCommentsContainer = ({ PromptTitleMessage, PromptDescriptionMessage }) => (
     <EmptyContainer>
@@ -144,6 +150,7 @@ type CommentsTabContentProps = {
     generateCommentEnabled: boolean
     generateCommentOnClickHandler: MouseEventHandler<HTMLElement>
     generateCommentLoading: boolean
+    showGenerateCommentWithoutComments: boolean
 }
 
 const CommentsTabContent: React.FC<CommentsTabContentProps> =
@@ -160,11 +167,15 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> =
         generateCommentEnabled,
         generateCommentOnClickHandler,
         generateCommentLoading,
+        showGenerateCommentWithoutComments,
     }) => {
         const intl = useIntl()
-
         const GenerateResponseMessage = intl.formatMessage({ id: 'ai.generateResponse' })
         const GenerateResponseTooltipMessage = intl.formatMessage({ id: 'ai.generateResponseWithAI' })
+        const GenerateCommentMessage = intl.formatMessage({ id: 'ai.generateComment' })
+        const GenerateCommentTooltipMessage = intl.formatMessage({ id: 'ai.generateCommentWithAI' })
+        const GenerateCommentTourStepTitle = intl.formatMessage({ id: 'ai.generateComment.tourStepTitle' })
+        const GenerateCommentTourStepDescription = intl.formatMessage({ id: 'ai.generateComment.tourStepDescription' })
 
         const lastComment = useMemo(() => comments?.[0], [comments])
         const showGenerateAnswerButton = useMemo(() =>
@@ -217,13 +228,53 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> =
             showGenerateAnswerButton, updateAction,
         ])
 
+        const { currentStep, setCurrentStep } = Tour.useTourContext()
+
+        useEffect(() => {
+            const isTipHidden = cookie.get(GENERATE_COMMENT_TOUR_STEP_CLOSED_COOKIE) || false
+            setCurrentStep(isTipHidden ? 0 : 1)
+        }, [setCurrentStep])
+
+        const closeTourStep = useCallback(() => {
+            if (currentStep === 1) {
+                cookie.set(GENERATE_COMMENT_TOUR_STEP_CLOSED_COOKIE, true)
+                setCurrentStep(0)
+            }
+        }, [currentStep, setCurrentStep])
+
+        const handleClickGenerateCommentButton = useCallback(async (event) => {
+            closeTourStep()
+            await generateCommentOnClickHandler(event)
+        }, [closeTourStep, generateCommentOnClickHandler])
+
         return (
             <>
                 {comments.length === 0 ? (
-                    <EmptyCommentsContainer
-                        PromptTitleMessage={PromptTitleMessage}
-                        PromptDescriptionMessage={PromptDescriptionMessage}
-                    />
+                    <div style={EMPTY_COMMENTS_WRAPPER_STYLES}>
+                        <EmptyCommentsContainer
+                            PromptTitleMessage={PromptTitleMessage}
+                            PromptDescriptionMessage={PromptDescriptionMessage}
+                        />
+                        {showGenerateCommentWithoutComments && (
+                            <Tour.TourStep
+                                step={1}
+                                title={GenerateCommentTourStepTitle}
+                                message={GenerateCommentTourStepDescription}
+                                onClose={closeTourStep}
+                            >
+                                <Tooltip placement='topRight' mouseEnterDelay={1.5} title={GenerateCommentTooltipMessage}>
+                                    <div style={GENERATE_COMMENT_BUTTON_WRAPPER_STYLES}>
+                                        <AIFlowButton
+                                            loading={generateCommentLoading}
+                                            onClick={handleClickGenerateCommentButton}
+                                        >
+                                            {GenerateCommentMessage}
+                                        </AIFlowButton>
+                                    </div>
+                                </Tooltip>
+                            </Tour.TourStep>
+                        )}
+                    </div>
                 ) : (
                     <Body ref={bodyRef} onScroll={handleBodyScroll}>
                         {sending && <Loader style={LOADER_STYLES}/>}
@@ -273,6 +324,7 @@ interface ICommentsListProps {
     createUserTicketCommentReadTime: CreateUserTicketCommentReadTimeMutationHookResult[0]
     updateUserTicketCommentReadTime: UpdateUserTicketCommentReadTimeMutationHookResult[0]
     loadingUserTicketCommentReadTime: boolean
+    actualIncidents?: GetIncidentsQuery['incidents']
 }
 
 const Comments: React.FC<ICommentsListProps> = ({
@@ -290,6 +342,7 @@ const Comments: React.FC<ICommentsListProps> = ({
     createUserTicketCommentReadTime,
     updateUserTicketCommentReadTime,
     loadingUserTicketCommentReadTime,
+    actualIncidents,
 }) => {
     const intl = useIntl()
     const TitleMessage = intl.formatMessage({ id: 'Comments.title' })
@@ -301,6 +354,8 @@ const Comments: React.FC<ICommentsListProps> = ({
     const PromptResidentCommentsTitleMessage = intl.formatMessage({ id: 'Comments.tab.resident.prompt.title' })
     const PromptResidentCommentsDescriptionMessage = intl.formatMessage({ id: 'Comments.tab.resident.prompt.description' })
     const GenericErrorMessage = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
+    const YesMessage = intl.formatMessage({ id: 'Yes' })
+    const NoMessage = intl.formatMessage({ id: 'No' })
 
     const { user } = useAuth()
     const client = useApolloClient()
@@ -477,6 +532,12 @@ const Comments: React.FC<ICommentsListProps> = ({
             ticketDetails: ticket.details || '-',
             ticketAddress: ticket.propertyAddress || '-',
             ticketStatusName: ticket.status.name,
+            ticketUnitName: ticket.unitName || '-',
+            ticketUnitType: ticket.unitType ? intl.formatMessage({ id: `field.UnitType.${ticket.unitType}` }) : '-',
+            ticketFloorName: ticket.floorName,
+            ticketSectionName: ticket.sectionName,
+            isExecutorAssigned: ticket.executor ? YesMessage : NoMessage,
+            isAssigneeAssigned: ticket.assignee ? YesMessage : NoMessage,
         },
     })
 
@@ -489,19 +550,20 @@ const Comments: React.FC<ICommentsListProps> = ({
     }, [generateCommentData])
 
     const handleGenerateCommentClick = async (comments) => {
-        if (!comments || comments.length === 0) {
-            return
-        }
-
-        const lastComment = comments[0]
+        const lastComment = comments?.[0]
         // Last 5 comments excluding the lastComment one
-        const last5Comments = comments.slice(0, 5)
+        const last5Comments = comments?.slice(0, 5)
+        const currentDateTime = dayjs().format()
+        const last5Incidents = actualIncidents?.slice(0, 5)
+            ?.map(({ details, textForResident }) => ({ details, textForResident }))
 
-        const context = {
-            comment: lastComment.content,
+        const context = pickBy({
             answer: commentForm.getFieldValue('content') || '',
-            ticketLastComments: last5Comments.map(comment => `${comment.user.name}: ${comment.content}`).join('\n'),
-        }
+            comment: lastComment?.content,
+            ticketLastComments: last5Comments?.map(comment => `${comment.user.name}: ${comment.content}`).join('\n'),
+            currentDateTime,
+            actualIncidents: last5Incidents,
+        })
 
         const result = await runGenerateCommentAIFlow({ context })
 
@@ -509,6 +571,12 @@ const Comments: React.FC<ICommentsListProps> = ({
             notification.error({ message: result.localizedErrorText || GenericErrorMessage })
         }
     }
+
+    const generateCommentEnabled = useMemo(() => aiFeaturesEnabled && rewriteTicketCommentEnabled,
+        [aiFeaturesEnabled, rewriteTicketCommentEnabled])
+    const showGenerateCommentWithoutComments = useMemo(() =>
+        generateCommentEnabled && commentType === RESIDENT_COMMENT_TYPE && commentsWithResident.length === 0,
+    [commentType, commentsWithResident.length, generateCommentEnabled])
 
     return (
         <Container isSmall={!breakpoints.TABLET_LARGE}>
@@ -542,8 +610,8 @@ const Comments: React.FC<ICommentsListProps> = ({
                     />
                 </RadioGroup>
             </SwitchCommentsTypeWrapper>
-            <CommentsTabsContainer isTitleHidden={isTitleHidden} className='card-container'>
-                <>
+            <Tour.Provider>
+                <CommentsTabsContainer isTitleHidden={isTitleHidden} className='card-container'>
                     <CommentsTabContent
                         {...commentTabContentProps}
                         editableComment={editableComment}
@@ -552,31 +620,32 @@ const Comments: React.FC<ICommentsListProps> = ({
                         handleBodyScroll={handleBodyScroll}
                         bodyRef={bodyRef}
                         sending={sending}
-                        generateCommentEnabled={aiFeaturesEnabled && rewriteTicketCommentEnabled}
+                        generateCommentEnabled={generateCommentEnabled}
                         generateCommentOnClickHandler={() => handleGenerateCommentClick(commentTabContentProps.comments)}
                         generateCommentLoading={generateCommentLoading}
+                        showGenerateCommentWithoutComments={showGenerateCommentWithoutComments}
                     />
-                </>
-            </CommentsTabsContainer>
-            <Footer isSmall={!breakpoints.TABLET_LARGE}>
-                {canCreateComments ? (
-                    <CommentForm
-                        fieldName='content'
-                        ticketId={ticketId}
-                        FileModel={FileModel}
-                        relationField={fileModelRelationField}
-                        action={handleCommentAction}
-                        editableComment={editableComment}
-                        setEditableComment={setEditableComment}
-                        setSending={setSending}
-                        sending={sending}
-                        commentForm={commentForm}
-                        generateCommentLoading={generateCommentLoading}
-                    />
-                ) : (
-                    <Typography.Text disabled>{CannotCreateCommentsMessage}</Typography.Text>
-                )}
-            </Footer>
+                </CommentsTabsContainer>
+                <Footer isSmall={!breakpoints.TABLET_LARGE}>
+                    {canCreateComments ? (
+                        <CommentForm
+                            fieldName='content'
+                            ticketId={ticketId}
+                            FileModel={FileModel}
+                            relationField={fileModelRelationField}
+                            action={handleCommentAction}
+                            editableComment={editableComment}
+                            setEditableComment={setEditableComment}
+                            setSending={setSending}
+                            sending={sending}
+                            commentForm={commentForm}
+                            generateCommentLoading={generateCommentLoading}
+                        />
+                    ) : (
+                        <Typography.Text disabled>{CannotCreateCommentsMessage}</Typography.Text>
+                    )}
+                </Footer>
+            </Tour.Provider>
         </Container>
     )
 }

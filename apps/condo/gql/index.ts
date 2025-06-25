@@ -4190,7 +4190,7 @@ export const GetIncidentsDocument = gql`
     workStart
     workFinish
     status
-    details
+    textForResident
   }
 }
     `;

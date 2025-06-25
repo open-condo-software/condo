@@ -65,6 +65,24 @@ const FLOW_META_SCHEMAS = {
                 ticketAddress: { type: 'string' },
                 ticketStatusName: { type: 'string' },
                 ticketLastComments: { type: 'string' },
+                ticketUnitName: { type: 'string' },
+                ticketUnitType: { type: 'string' },
+                ticketFloorName: { type: 'string' },
+                ticketSectionName: { type: 'string' },
+                currentDateTime: { type: 'string' },
+                actualIncidents: {
+                    type: 'array',
+                    items: {
+                        type: 'object',
+                        properties: {
+                            details: { type: 'string' },
+                            textForResident: { type: 'string' },
+                        },
+                        additionalProperties: false,
+                    },
+                },
+                isExecutorAssigned: { type: 'string' },
+                isAssigneeAssigned: { type: 'string' },
             },
         },
         output: {

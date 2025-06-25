@@ -36,7 +36,10 @@ const AVAILABLE_TICKET_FIELDS_FOR_UPDATE_BY_RESIDENT = [
     'feedbackValue', 'feedbackComment', 'feedbackAdditionalOptions',
 ]
 
+const GENERATE_COMMENT_TOUR_STEP_CLOSED_COOKIE = 'generateCommentTipClosed'
+
 module.exports = {
+    GENERATE_COMMENT_TOUR_STEP_CLOSED_COOKIE,
     MAX_TICKET_REPORT_COUNT,
     PDF_REPORT_WIDTH,
     DATE_DISPLAY_FORMAT,

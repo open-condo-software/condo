@@ -664,7 +664,7 @@ export type GetIncidentsQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetIncidentsQuery = { __typename?: 'Query', incidents?: Array<{ __typename?: 'Incident', id: string, details?: string | null, workStart?: string | null, workFinish?: string | null, status?: Types.IncidentStatusType | null } | null> | null };
+export type GetIncidentsQuery = { __typename?: 'Query', incidents?: Array<{ __typename?: 'Incident', id: string, details?: string | null, workStart?: string | null, workFinish?: string | null, status?: Types.IncidentStatusType | null, textForResident?: string | null } | null> | null };
 
 export type GetIncidentByIdQueryVariables = Types.Exact<{
   incidentId: Types.Scalars['ID']['input'];
