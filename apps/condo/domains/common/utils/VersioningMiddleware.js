@@ -9,7 +9,7 @@ class VersioningMiddleware {
         // this route can not be used for csrf attack (because no cookies and tokens are used in a public route)
         // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
-        app.use('/api/version', (req, res) => {
+        app.get('/api/version', (req, res) => {
             res.status(200).json({
                 build: getCurrentVersion(),
             })
