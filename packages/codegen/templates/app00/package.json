@@ -29,7 +29,7 @@
     "@emotion/core": "^10.1.1",
     "@emotion/react": "^11.9.3",
     "@emotion/styled": "^11.10.0",
-    "@open-keystone/app-next": "^8.0.1",
+    "@open-keystone/app-next": "^8.0.2",
     "@open-condo/bridge": "workspace:^",
     "@open-condo/codegen": "workspace:^",
     "@open-condo/config": "workspace:^",
