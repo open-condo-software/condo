@@ -16,14 +16,14 @@ type CondoButtonProps = {
     focus?: boolean
     minimal?: boolean
     compact?: boolean
-    size?: 'M' | 'L'
+    size?: 'medium' | 'large'
 }
 
 export type ButtonProps = Omit<DefaultButtonProps, 'shape' | 'size' | 'style' | 'ghost' | 'type' | 'prefix' | 'prefixCls'>
 & CondoButtonProps
 
 const Button: React.ForwardRefExoticComponent<ButtonProps & React.RefAttributes<HTMLButtonElement>> = React.forwardRef((props, ref) => {
-    const { type, className, icon, children, onClick, stateless, id, focus, minimal, compact, size = 'L', ...rest } = props
+    const { type, className, icon, children, onClick, stateless, id, focus, minimal, compact, size = 'large', ...rest } = props
     const classes = classNames(
         {
             [`${BUTTON_CLASS_PREFIX}-${type}`]: type,
