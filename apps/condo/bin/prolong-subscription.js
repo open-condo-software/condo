@@ -24,7 +24,7 @@ const fs = require('fs')
 const path = require('path')
 const readline = require('readline')
 
-const { GraphQLApp } = require('@keystonejs/app-graphql')
+const { GraphQLApp } = require('@open-keystone/app-graphql')
 const dayjs = require('dayjs')
 const { values, identity, filter } = require('lodash')
 

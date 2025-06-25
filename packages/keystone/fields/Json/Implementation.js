@@ -1,7 +1,7 @@
-const { Implementation } = require('@keystonejs/fields')
 const { KnexFieldAdapter } = require('@open-keystone/adapter-knex')
 const { MongooseFieldAdapter } = require('@open-keystone/adapter-mongoose')
 const { PrismaFieldAdapter } = require('@open-keystone/adapter-prisma')
+const { Implementation } = require('@open-keystone/fields')
 const stringify = JSON.stringify
 const isFunction = require('lodash/isFunction')
 

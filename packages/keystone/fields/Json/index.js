@@ -1,4 +1,4 @@
-const { Text } = require('@keystonejs/fields')
+const { Text } = require('@open-keystone/fields')
 
 const { JsonImplementation, JsonKnexFieldAdapter, JsonMongooseFieldAdapter, JsonPrismaFieldAdapter } = require('./Implementation')
 

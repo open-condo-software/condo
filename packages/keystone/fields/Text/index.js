@@ -1,4 +1,4 @@
-const { Text } = require('@keystonejs/fields')
+const { Text } = require('@open-keystone/fields')
 
 class RegexplessKnexFieldAdapter extends Text.adapters.knex {
 

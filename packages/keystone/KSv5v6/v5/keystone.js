@@ -1,4 +1,4 @@
-const { Keystone: DefaultKeystone } = require('@keystonejs/keystone')
+const { Keystone: DefaultKeystone } = require('@open-keystone/keystone')
 
 const { _patchResolverWithGQLContext } = require('../utils/resolvers')
 
