@@ -15,7 +15,7 @@ export default class MyDocument extends Document {
     static async getInitialProps (ctx) {
         const originalRenderPage = ctx.renderPage
 
-        ctx.renderPage = () => {
+        ctx.renderPage = () => (
             originalRenderPage({
                 enhanceApp: (App) => (props) => (
                     <CacheProvider value={emotionCache}>
@@ -23,7 +23,7 @@ export default class MyDocument extends Document {
                     </CacheProvider>
                 ),
             })
-        }
+        )
 
         const initialProps = await Document.getInitialProps(ctx)
         const styles = extractCritical(initialProps.html)
