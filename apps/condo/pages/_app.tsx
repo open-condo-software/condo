@@ -114,6 +114,7 @@ import Error429Page from './429'
 import Error500Page from './500'
 
 import 'antd/dist/antd.less'
+import 'react-phone-input-2/lib/style.css'
 import '@condo/domains/common/components/wdyr'
 import '@open-condo/ui/dist/styles.min.css'
 import '@open-condo/ui/dist/style-vars/variables.css'

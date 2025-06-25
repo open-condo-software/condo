@@ -1,11 +1,11 @@
-.messages-counter .ant-badge-count {
+.messages-counter :global(.ant-badge-count) {
   top: 1px;
   right: 1px;
   line-height: 18px;
   box-shadow: none;
 }
 
-.messages-counter .ant-badge-count .ant-scroll-number-only {
+.messages-counter :global(.ant-badge-count) :global(.ant-scroll-number-only) {
   transition: none;
 }
 
@@ -13,7 +13,7 @@
   animation: shake-bell 0.05s;
 }
 
-.messages-counter.animating .ant-badge-count {
+.messages-counter.animating :global(.ant-badge-count) {
   animation: scale-badge 0.05s;
 }
 

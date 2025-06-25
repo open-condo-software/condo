@@ -11,6 +11,8 @@ import { HiddenBlock } from '@condo/domains/news/components/NewsForm/BaseNewsFor
 import { Counter, MemoizedNewsSharingRecipientCounter, MemoizedRecipientCounter } from '@condo/domains/news/components/RecipientCounter'
 import { NewsItemScopeNoInstanceType } from '@condo/domains/news/components/types'
 
+import styles from './InputStepRecipientCounter.module.css'
+
 
 interface InputStepRecipientCounterProps {
     newsSharingConfig: B2BAppNewsSharingConfig
@@ -57,9 +59,9 @@ export const InputStepRecipientCounter: React.FC<InputStepRecipientCounterProps>
                 contextId={sharingAppId}
                 newsItemScopes={newsItemScopesNoInstance}
             /> ) :
-            <HiddenBlock hide={!filteredNewsSharingScope?.length} className='custom-counter' >
+            <HiddenBlock hide={!filteredNewsSharingScope?.length} className={styles.customCounter} >
                 <Card title={<Card.CardHeader headingTitle={StatisticsTitle} />}>
-                    <Space direction='horizontal' size={24}  className='custom-counter-content'>
+                    <Space direction='horizontal' size={24}  className={styles.customCounterContent}>
                         <Counter
                             label={ChannelsLabel}
                             value={filteredNewsSharingScope?.length}
@@ -76,7 +78,7 @@ export const InputStepRecipientCounter: React.FC<InputStepRecipientCounterProps>
     )
 
     return (
-        <Col span={formInfoColSpan} className='recipient-counter'>
+        <Col span={formInfoColSpan} className={styles.recipientCounter}>
             {isSharingStep ? newsSharingRecipientCounter : (
                 <HiddenBlock hide={newsItemScopesNoInstance.length <= 0}>
                     <MemoizedRecipientCounter newsItemScopes={newsItemScopesNoInstance}/>
