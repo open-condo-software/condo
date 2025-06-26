@@ -151,8 +151,14 @@ let nextConfig = withTM(withLess({
     webpack: (config) => {
         config.module.rules = [
             ...(config.module.rules || []),
-            { test: /lang\/.*\.njk$/, use: 'raw-loader' },
-            { test: /lang\/.*\.md$/, use: 'raw-loader' },
+            {
+                test: /[\\/]lang[\\/].*\.njk$/,
+                type: 'asset/source',
+            },
+            {
+                test: /[\\/]lang[\\/].*\.md$/,
+                type: 'asset/source',
+            },
         ]
         return nextCamelCaseCSSModulesTransform(config)
     },

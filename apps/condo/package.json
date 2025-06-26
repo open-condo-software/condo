@@ -166,7 +166,6 @@
     "mkdirp": "^1.0.4",
     "pg": "^8.11.3",
     "pluralize": "^8.0.0",
-    "raw-loader": "^4.0.2",
     "typescript": "^5.5.4"
   },
   "peerDependencies": {
