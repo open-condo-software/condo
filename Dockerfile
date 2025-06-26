@@ -18,7 +18,7 @@ RUN set -ex \
 	&& pip --version \
 	&& node --version \
 	&& yarn --version \
-	&& python3 -m pip install 'psycopg2-binary==2.9.4' && python3 -m pip install 'Django==4.1.2' \
+	&& python3 -m pip install 'psycopg2-binary==2.9.10' && python3 -m pip install 'Django==5.2' \
     && echo "OK"
 
 # Installer
