@@ -246,7 +246,7 @@ export const ImagesUploadList: React.FC<ImagesUploadListProps> = ({
                             onError(error)
                             return
                         }
-                        
+
                         return createAction({ file }).then(dbFile  => {
                             onSuccess({ id: dbFile.id, url: get(dbFile, 'file.publicUrl') }, null)
                         }).catch(err => {
