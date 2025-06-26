@@ -39,10 +39,6 @@
   row-gap: 12px;
 }
 
-.condo-space .condo-space-horizontal .condo-space-item:first-child {
-  align-self: flex-end;
-}
-
 .link-wrapper {
   display: flex;
   gap: 8px;
