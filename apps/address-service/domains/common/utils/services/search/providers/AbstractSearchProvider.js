@@ -71,7 +71,7 @@ class AbstractSearchProvider {
 
     /**
      * Normalizes data got from external service
-     * @param {Array} data
+     * @param data
      * @returns {NormalizedBuilding[]}
      * @abstract
      * @public
