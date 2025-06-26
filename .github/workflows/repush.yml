@@ -1,0 +1,34 @@
+name: repush.yml
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  repush:
+    name: repush
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Login to cloud registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.DOCKER_REGISTRY }}
+          username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
+          password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
+      - name: Pull & push to registry 1
+        run: |
+          docker pull python:3.13-slim-bookworm
+          docker tag python:3.13-slim-bookworm ${{ secrets.DOCKER_REGISTRY }}/doma/utils/python:3.13-slim-bookworm
+          docker push ${{ secrets.DOCKER_REGISTRY }}/doma/utils/python:3.13-slim-bookworm
+      - name: Pull & push to registry 2
+        run: |
+          docker pull buildpack-deps:bookworm
+          docker tag buildpack-deps:bookworm ${{ secrets.DOCKER_REGISTRY }}/doma/utils/buildpack-deps:bookworm
+          docker push ${{ secrets.DOCKER_REGISTRY }}/doma/utils/buildpack-deps:bookworm
+
