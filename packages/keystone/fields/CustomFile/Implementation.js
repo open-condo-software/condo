@@ -54,7 +54,7 @@ class CustomFile extends FileWithUTF8Name.implementation {
     }
 
     async validateInput (props) {
-        const { context, resolvedData, existingItem } = props
+        const { context, resolvedData } = props
 
         const fileData = resolvedData[this.path]
         if (fileData && fileData['meta']) {
@@ -76,11 +76,18 @@ class CustomFile extends FileWithUTF8Name.implementation {
         const uploadData = resolvedData[this.path]
         // New way to 'upload' - connect file
         if (typeof uploadData === 'string' && validate(uploadData)) {
-            const file = await CondoFile.getOne(context, { id: uploadData }, 'file { id filename originalFilename mimetype encoding meta }')
-            if (file) {
-                return file.file
+            const data = await CondoFile.getOne(context, { id: uploadData }, 'file { id filename originalFilename mimetype encoding meta }')
+            if (data) {
+                if (data.file.meta.authedItem === context.authedItem.id) {
+                    return data.file
+                }
             }
-            return null
+            throw new GQLError({
+                code: 'BAD_USER_INPUT',
+                type: 'WRONG_FILE_ID',
+                variable: [this.path],
+                message: 'File not found or you do not have access to it',
+            })
         }
 
         // Legacy way to upload file
