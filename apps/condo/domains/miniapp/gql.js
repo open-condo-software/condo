@@ -94,6 +94,12 @@ const SEND_B2B_APP_PUSH_MESSAGE_MUTATION = gql`
     }
 `
 
+const CUSTOM_FIELD_FIELDS = `{ locale name priority schemaName type validationRules isVisible ${COMMON_FIELDS} }`
+const CustomField = generateGqlQueries('CustomField', CUSTOM_FIELD_FIELDS)
+
+const CUSTOM_VALUE_FIELDS = `{ objectId data customField { id name priority schemaName type validationRules isVisible } filterDataString sourceType sourceId organization { id } ${COMMON_FIELDS} }`
+const CustomValue = generateGqlQueries('CustomValue', CUSTOM_VALUE_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -112,6 +118,8 @@ module.exports = {
     B2CAppProperty,
     MessageAppBlackList,
     B2BAppNewsSharingConfig,
+    CustomField,
+    CustomValue,
     B2BAccessToken,
     B2BAccessTokenAdmin,
     B2BAccessTokenReadonly,
