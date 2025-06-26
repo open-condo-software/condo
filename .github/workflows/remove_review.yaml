@@ -22,6 +22,10 @@ jobs:
           echo "REVIEW_URL_PREFIX=$(echo ${GITHUB_REF##*/} | sed 's/[^a-zA-Z0-9_-]//g; s/_/-/g' | cut -c -30)" >> $GITHUB_ENV
           echo "${{ env.REVIEW_NAMESPACE }}"
           echo "${{ env.REVIEW_URL_PREFIX }}"
+      - name: print env for namespace
+        run: |
+          echo "${{ env.REVIEW_NAMESPACE }}"
+          echo "${{ env.REVIEW_URL_PREFIX }}"
 
       - name: "Drop review namespace"
         run: |
