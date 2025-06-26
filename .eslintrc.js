@@ -11,6 +11,7 @@ module.exports = {
         'plugin:react-hooks/recommended',
         'plugin:@typescript-eslint/eslint-recommended',
         'plugin:@typescript-eslint/recommended',
+        'plugin:eslint-seatbelt/enable-legacy',
     ],
     parser: '@typescript-eslint/parser',
     parserOptions: {
@@ -25,6 +26,7 @@ module.exports = {
         'jest',
         '@typescript-eslint',
         'import',
+        'eslint-seatbelt',
     ],
     settings: {
         react: {
@@ -153,7 +155,7 @@ module.exports = {
         ],
         '@typescript-eslint/no-empty-interface': 'off',
         'no-restricted-imports': [
-            'warn',
+            'error',
             {
                 paths: [
                     {
