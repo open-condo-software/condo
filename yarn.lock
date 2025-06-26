@@ -1214,17 +1214,13 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@app/news-greenhouse@workspace:apps/news-greenhouse"
   dependencies:
-    "@apollo/client": ^3.11.8
     "@app/condo": "workspace:^"
     "@emotion/babel-plugin": ^11.10.0
     "@emotion/core": ^10.1.1
     "@emotion/react": ^11.9.3
     "@emotion/styled": ^11.10.0
     "@graphql-tools/graphql-file-loader": ^7.3.11
-    "@graphql-tools/links": ^8.2.18
     "@graphql-tools/load": ^7.5.10
-    "@graphql-tools/stitch": ^8.6.9
-    "@graphql-tools/wrap": ^8.4.16
     "@keystonejs/app-next": ^5.2.3
     "@news-greenhouse/domains": "link:./domains"
     "@open-condo/cli": "workspace:^"
@@ -1241,18 +1237,13 @@ __metadata:
     ajv: 8.11.0
     antd: ^4.24.12
     antd-dayjs-webpack-plugin: ^1.0.6
-    body-parser: ^1.19.1
     classnames: 2.2.6
     cross-env: ^7.0.3
     dayjs: ^1.10.6
     emotion: ^10.0.27
     emotion-server: ^10.0.27
     express: ^4.17.1
-    express-graphql: ^0.12.0
-    form-data: ^4.0.0
     graphql: ^16.10.0
-    graphql-disable-introspection: ^1.2.0
-    graphql-upload: ^15.0.1
     jest: ^29.4.0
     jest-jasmine2: ^29.4.0
     less: ^3.12.2
@@ -9860,20 +9851,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphql-tools/batch-delegate@npm:8.3.6":
-  version: 8.3.6
-  resolution: "@graphql-tools/batch-delegate@npm:8.3.6"
-  dependencies:
-    "@graphql-tools/delegate": 9.0.3
-    "@graphql-tools/utils": 8.10.0
-    dataloader: 2.1.0
-    tslib: ^2.4.0
-  peerDependencies:
-    graphql: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
-  checksum: 96d7910d0a5faabfa3ebd5014fc516185364d6301274215ce06f21474c488db1455ebce3ceb6aca7cc05ce3ee80efa023bde26095cfcfb421f9430f2c6962279
-  languageName: node
-  linkType: hard
-
 "@graphql-tools/batch-delegate@npm:^8.4.27":
   version: 8.4.27
   resolution: "@graphql-tools/batch-delegate@npm:8.4.27"
@@ -10277,23 +10254,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphql-tools/links@npm:^8.2.18":
-  version: 8.3.6
-  resolution: "@graphql-tools/links@npm:8.3.6"
-  dependencies:
-    "@graphql-tools/delegate": 9.0.3
-    "@graphql-tools/utils": 8.10.0
-    apollo-upload-client: 17.0.0
-    form-data: ^4.0.0
-    node-fetch: ^2.6.5
-    tslib: ^2.4.0
-  peerDependencies:
-    "@apollo/client": ~3.2.5 || ~3.3.0 || ~3.4.0 || ~3.5.0 || ~3.6.0
-    graphql: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
-  checksum: 614de74847d8284a598b7415edc0f5f725e1461ab383306ffb86d50a5973c909091fe2f13f4902d65b57ff6dbf178e441b3b4853656db821280e4c612690a4f6
-  languageName: node
-  linkType: hard
-
 "@graphql-tools/links@npm:^8.3.6":
   version: 8.3.36
   resolution: "@graphql-tools/links@npm:8.3.36"
@@ -10533,24 +10493,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphql-tools/stitch@npm:^8.6.9":
-  version: 8.7.6
-  resolution: "@graphql-tools/stitch@npm:8.7.6"
-  dependencies:
-    "@graphql-tools/batch-delegate": 8.3.6
-    "@graphql-tools/delegate": 9.0.3
-    "@graphql-tools/merge": 8.3.3
-    "@graphql-tools/schema": 9.0.1
-    "@graphql-tools/utils": 8.10.0
-    "@graphql-tools/wrap": 9.0.4
-    tslib: ^2.4.0
-    value-or-promise: ^1.0.11
-  peerDependencies:
-    graphql: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
-  checksum: e2330d1bc16ab47936f926d588a0173f84546b78fe987149113dd0ea032cb22ac80111f462ad3990bdf30c2023bb26a28db39608f93246e2121512a3e6e44321
-  languageName: node
-  linkType: hard
-
 "@graphql-tools/stitch@npm:^8.7.6":
   version: 8.7.50
   resolution: "@graphql-tools/stitch@npm:8.7.50"
@@ -10706,7 +10648,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphql-tools/wrap@npm:^8.4.16, @graphql-tools/wrap@npm:^8.5.1":
+"@graphql-tools/wrap@npm:^8.5.1":
   version: 8.5.1
   resolution: "@graphql-tools/wrap@npm:8.5.1"
   dependencies:
