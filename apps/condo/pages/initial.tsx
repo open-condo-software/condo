@@ -59,18 +59,18 @@ const InitialPage: PageComponentType = () => {
         const foundRedirect = Object.keys(ACCESS_REDIRECTS)
             .find(accessRedirect => userAccesses.includes(accessRedirect))
         if (foundRedirect) {
-            router.push(ACCESS_REDIRECTS[foundRedirect])
+            router.replace(ACCESS_REDIRECTS[foundRedirect])
             return
         }
 
         const redirectToBilling = role.canReadPayments && role.canReadBillingReceipts && hasBilling
         if (redirectToBilling) {
-            router.push('/billing')
+            router.replace('/billing')
             return
         }
 
         if (b2bAppIds.length > 0) {
-            router.push(`/miniapps/${b2bAppIds?.[0]}`)
+            router.replace(`/miniapps/${b2bAppIds?.[0]}`)
             return
         }
     }, [
