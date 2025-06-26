@@ -118,7 +118,6 @@ const FLOW_META_SCHEMAS = {
                 currentHeaderNews: { type: 'string' },
                 currentBodyNews: { type: 'string' },
 
-                newsScope: { type: 'string' },
                 newsType: { type: 'string' },
                 newsActualUntil: { type: 'string' },
                 newsAddress: { type: 'string' },
