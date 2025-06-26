@@ -57,7 +57,6 @@ const fileStorageHandler = ({ keystone, fileAdapter }) => {
             data: {
                 file: {
                     ...data,
-                    storage_id: data.id,
                     originalFilename: request.files[index].filename,
                     mimetype: request.files[index].mimetype,
                     encoding: request.files[index].encoding,
