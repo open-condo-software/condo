@@ -439,7 +439,11 @@ function createFakeTable (tableName) {
             }
         }
 
-        const cfg = JSON.stringify(s.client.config)
+        const clientCfg   = s.client.config
+        const cfg = JSON.stringify({
+            ...clientCfg,
+            connection: { ...clientCfg.connection, password: clientCfg.connection.password }
+        })
         console.log('write last knex client config', cfg)
         fs.writeFileSync(knexConnectionFile, cfg)
         hasKnexConnection = true
