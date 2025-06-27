@@ -1,3 +1,5 @@
+const { createRequire } = require('module')
+
 const Big = require('big.js')
 const dayjs = require('dayjs')
 const localizedFormat = require('dayjs/plugin/localizedFormat')
@@ -20,7 +22,7 @@ const { TICKET_DOCUMENT_GENERATION_TASK_FORMAT } = require('@condo/domains/ticke
 const logger = getLogger('generateDocumentOfPaidWorksCompletion')
 
 // N2Words provides only ESM syntax. Dynamic import is required to use this library in a CommonJS module.
-const n2wordsImport = import('n2words').then(module => module.default)
+const n2words = createRequire(__filename)('n2words').default
 
 const LONG_BLANK = '____________________________________'
 const SHORT_BLANK = '__________________'
@@ -74,7 +76,6 @@ const buildExportWordFile = async ({ task, documentData, locale, timeZone }) => 
 }
 
 const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, locale, ticket, organization }) => {
-    const n2words = await n2wordsImport
     const { iec, psrn, organizationAddress } = await getFinanceInfoDataByLocale(organization, { locale })
 
     const { format, timeZone: timeZoneFromUser } = task
