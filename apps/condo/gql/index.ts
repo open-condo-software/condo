@@ -594,6 +594,57 @@ export type GetBillingIntegrationOrganizationContextsQueryHookResult = ReturnTyp
 export type GetBillingIntegrationOrganizationContextsLazyQueryHookResult = ReturnType<typeof useGetBillingIntegrationOrganizationContextsLazyQuery>;
 export type GetBillingIntegrationOrganizationContextsSuspenseQueryHookResult = ReturnType<typeof useGetBillingIntegrationOrganizationContextsSuspenseQuery>;
 export type GetBillingIntegrationOrganizationContextsQueryResult = Apollo.QueryResult<Types.GetBillingIntegrationOrganizationContextsQuery, Types.GetBillingIntegrationOrganizationContextsQueryVariables>;
+export const HasBillingIntegrationsDocument = gql`
+    query hasBillingIntegrations($organization: OrganizationWhereInput!) {
+  integrations: allBillingIntegrationOrganizationContexts(
+    where: {organization: $organization, status: "Finished"}
+    first: 1
+    skip: 0
+  ) {
+    id
+  }
+  acquiring: allAcquiringIntegrationContexts(
+    where: {organization: $organization, status: "Finished"}
+    first: 1
+    skip: 0
+  ) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useHasBillingIntegrationsQuery__
+ *
+ * To run a query within a React component, call `useHasBillingIntegrationsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useHasBillingIntegrationsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useHasBillingIntegrationsQuery({
+ *   variables: {
+ *      organization: // value for 'organization'
+ *   },
+ * });
+ */
+export function useHasBillingIntegrationsQuery(baseOptions: Apollo.QueryHookOptions<Types.HasBillingIntegrationsQuery, Types.HasBillingIntegrationsQueryVariables> & ({ variables: Types.HasBillingIntegrationsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.HasBillingIntegrationsQuery, Types.HasBillingIntegrationsQueryVariables>(HasBillingIntegrationsDocument, options);
+      }
+export function useHasBillingIntegrationsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.HasBillingIntegrationsQuery, Types.HasBillingIntegrationsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.HasBillingIntegrationsQuery, Types.HasBillingIntegrationsQueryVariables>(HasBillingIntegrationsDocument, options);
+        }
+export function useHasBillingIntegrationsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.HasBillingIntegrationsQuery, Types.HasBillingIntegrationsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.HasBillingIntegrationsQuery, Types.HasBillingIntegrationsQueryVariables>(HasBillingIntegrationsDocument, options);
+        }
+export type HasBillingIntegrationsQueryHookResult = ReturnType<typeof useHasBillingIntegrationsQuery>;
+export type HasBillingIntegrationsLazyQueryHookResult = ReturnType<typeof useHasBillingIntegrationsLazyQuery>;
+export type HasBillingIntegrationsSuspenseQueryHookResult = ReturnType<typeof useHasBillingIntegrationsSuspenseQuery>;
+export type HasBillingIntegrationsQueryResult = Apollo.QueryResult<Types.HasBillingIntegrationsQuery, Types.HasBillingIntegrationsQueryVariables>;
 export const GetBillingReceiptsByPropertyCountDocument = gql`
     query getBillingReceiptsByPropertyCount($context: BillingIntegrationOrganizationContextWhereInput!, $property: BillingPropertyWhereInput!, $period_gte: String!) {
   count: _allBillingReceiptsMeta(
@@ -2188,8 +2239,8 @@ export type GetCountB2BAppsWithNewsSharingConfigQueryHookResult = ReturnType<typ
 export type GetCountB2BAppsWithNewsSharingConfigLazyQueryHookResult = ReturnType<typeof useGetCountB2BAppsWithNewsSharingConfigLazyQuery>;
 export type GetCountB2BAppsWithNewsSharingConfigSuspenseQueryHookResult = ReturnType<typeof useGetCountB2BAppsWithNewsSharingConfigSuspenseQuery>;
 export type GetCountB2BAppsWithNewsSharingConfigQueryResult = Apollo.QueryResult<Types.GetCountB2BAppsWithNewsSharingConfigQuery, Types.GetCountB2BAppsWithNewsSharingConfigQueryVariables>;
-export const GetUserB2BAppRolesDocument = gql`
-    query getUserB2BAppRoles($employeeRoleId: ID, $b2bAppIds: [ID]) {
+export const GetEmployeeB2BAppRolesForSpecificAppsDocument = gql`
+    query getEmployeeB2BAppRolesForSpecificApps($employeeRoleId: ID, $b2bAppIds: [ID]) {
   b2bRoles: allB2BAppRoles(
     where: {role: {id: $employeeRoleId}, app: {id_in: $b2bAppIds}}
   ) {
@@ -2202,38 +2253,86 @@ export const GetUserB2BAppRolesDocument = gql`
     `;
 
 /**
- * __useGetUserB2BAppRolesQuery__
+ * __useGetEmployeeB2BAppRolesForSpecificAppsQuery__
  *
- * To run a query within a React component, call `useGetUserB2BAppRolesQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetUserB2BAppRolesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetEmployeeB2BAppRolesForSpecificAppsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetEmployeeB2BAppRolesForSpecificAppsQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetUserB2BAppRolesQuery({
+ * const { data, loading, error } = useGetEmployeeB2BAppRolesForSpecificAppsQuery({
  *   variables: {
  *      employeeRoleId: // value for 'employeeRoleId'
  *      b2bAppIds: // value for 'b2bAppIds'
  *   },
  * });
  */
-export function useGetUserB2BAppRolesQuery(baseOptions?: Apollo.QueryHookOptions<Types.GetUserB2BAppRolesQuery, Types.GetUserB2BAppRolesQueryVariables>) {
+export function useGetEmployeeB2BAppRolesForSpecificAppsQuery(baseOptions?: Apollo.QueryHookOptions<Types.GetEmployeeB2BAppRolesForSpecificAppsQuery, Types.GetEmployeeB2BAppRolesForSpecificAppsQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<Types.GetUserB2BAppRolesQuery, Types.GetUserB2BAppRolesQueryVariables>(GetUserB2BAppRolesDocument, options);
+        return Apollo.useQuery<Types.GetEmployeeB2BAppRolesForSpecificAppsQuery, Types.GetEmployeeB2BAppRolesForSpecificAppsQueryVariables>(GetEmployeeB2BAppRolesForSpecificAppsDocument, options);
       }
-export function useGetUserB2BAppRolesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetUserB2BAppRolesQuery, Types.GetUserB2BAppRolesQueryVariables>) {
+export function useGetEmployeeB2BAppRolesForSpecificAppsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetEmployeeB2BAppRolesForSpecificAppsQuery, Types.GetEmployeeB2BAppRolesForSpecificAppsQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<Types.GetUserB2BAppRolesQuery, Types.GetUserB2BAppRolesQueryVariables>(GetUserB2BAppRolesDocument, options);
+          return Apollo.useLazyQuery<Types.GetEmployeeB2BAppRolesForSpecificAppsQuery, Types.GetEmployeeB2BAppRolesForSpecificAppsQueryVariables>(GetEmployeeB2BAppRolesForSpecificAppsDocument, options);
         }
-export function useGetUserB2BAppRolesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetUserB2BAppRolesQuery, Types.GetUserB2BAppRolesQueryVariables>) {
+export function useGetEmployeeB2BAppRolesForSpecificAppsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetEmployeeB2BAppRolesForSpecificAppsQuery, Types.GetEmployeeB2BAppRolesForSpecificAppsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<Types.GetUserB2BAppRolesQuery, Types.GetUserB2BAppRolesQueryVariables>(GetUserB2BAppRolesDocument, options);
+          return Apollo.useSuspenseQuery<Types.GetEmployeeB2BAppRolesForSpecificAppsQuery, Types.GetEmployeeB2BAppRolesForSpecificAppsQueryVariables>(GetEmployeeB2BAppRolesForSpecificAppsDocument, options);
         }
-export type GetUserB2BAppRolesQueryHookResult = ReturnType<typeof useGetUserB2BAppRolesQuery>;
-export type GetUserB2BAppRolesLazyQueryHookResult = ReturnType<typeof useGetUserB2BAppRolesLazyQuery>;
-export type GetUserB2BAppRolesSuspenseQueryHookResult = ReturnType<typeof useGetUserB2BAppRolesSuspenseQuery>;
-export type GetUserB2BAppRolesQueryResult = Apollo.QueryResult<Types.GetUserB2BAppRolesQuery, Types.GetUserB2BAppRolesQueryVariables>;
+export type GetEmployeeB2BAppRolesForSpecificAppsQueryHookResult = ReturnType<typeof useGetEmployeeB2BAppRolesForSpecificAppsQuery>;
+export type GetEmployeeB2BAppRolesForSpecificAppsLazyQueryHookResult = ReturnType<typeof useGetEmployeeB2BAppRolesForSpecificAppsLazyQuery>;
+export type GetEmployeeB2BAppRolesForSpecificAppsSuspenseQueryHookResult = ReturnType<typeof useGetEmployeeB2BAppRolesForSpecificAppsSuspenseQuery>;
+export type GetEmployeeB2BAppRolesForSpecificAppsQueryResult = Apollo.QueryResult<Types.GetEmployeeB2BAppRolesForSpecificAppsQuery, Types.GetEmployeeB2BAppRolesForSpecificAppsQueryVariables>;
+export const GetEmployeeB2BAppRolesDocument = gql`
+    query getEmployeeB2BAppRoles($employeeRole: OrganizationEmployeeRoleWhereInput!) {
+  b2bRoles: allB2BAppRoles(
+    where: {role: $employeeRole, app: {isHidden: false, icon_not: null}}
+    sortBy: [id_ASC]
+    first: 100
+    skip: 0
+  ) {
+    id
+    app {
+      id
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetEmployeeB2BAppRolesQuery__
+ *
+ * To run a query within a React component, call `useGetEmployeeB2BAppRolesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetEmployeeB2BAppRolesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetEmployeeB2BAppRolesQuery({
+ *   variables: {
+ *      employeeRole: // value for 'employeeRole'
+ *   },
+ * });
+ */
+export function useGetEmployeeB2BAppRolesQuery(baseOptions: Apollo.QueryHookOptions<Types.GetEmployeeB2BAppRolesQuery, Types.GetEmployeeB2BAppRolesQueryVariables> & ({ variables: Types.GetEmployeeB2BAppRolesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetEmployeeB2BAppRolesQuery, Types.GetEmployeeB2BAppRolesQueryVariables>(GetEmployeeB2BAppRolesDocument, options);
+      }
+export function useGetEmployeeB2BAppRolesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetEmployeeB2BAppRolesQuery, Types.GetEmployeeB2BAppRolesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetEmployeeB2BAppRolesQuery, Types.GetEmployeeB2BAppRolesQueryVariables>(GetEmployeeB2BAppRolesDocument, options);
+        }
+export function useGetEmployeeB2BAppRolesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetEmployeeB2BAppRolesQuery, Types.GetEmployeeB2BAppRolesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetEmployeeB2BAppRolesQuery, Types.GetEmployeeB2BAppRolesQueryVariables>(GetEmployeeB2BAppRolesDocument, options);
+        }
+export type GetEmployeeB2BAppRolesQueryHookResult = ReturnType<typeof useGetEmployeeB2BAppRolesQuery>;
+export type GetEmployeeB2BAppRolesLazyQueryHookResult = ReturnType<typeof useGetEmployeeB2BAppRolesLazyQuery>;
+export type GetEmployeeB2BAppRolesSuspenseQueryHookResult = ReturnType<typeof useGetEmployeeB2BAppRolesSuspenseQuery>;
+export type GetEmployeeB2BAppRolesQueryResult = Apollo.QueryResult<Types.GetEmployeeB2BAppRolesQuery, Types.GetEmployeeB2BAppRolesQueryVariables>;
 export const GetNewsItemsRecipientsCountersDocument = gql`
     query getNewsItemsRecipientsCounters($data: GetNewsItemsRecipientsCountersInput!) {
   result: getNewsItemsRecipientsCounters(data: $data) {
