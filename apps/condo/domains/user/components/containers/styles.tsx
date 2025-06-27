@@ -43,7 +43,7 @@ export const PageContent = styled.div`
 `
 
 export const Layout = styled(AntLayout)`
-  background: ${colors.white};
+  background: ${colors.white} !important;
 `
 
 interface IChildrenWrapperProps {

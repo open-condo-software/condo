@@ -1,12 +1,11 @@
-/** @jsx jsx */
-import { css, jsx } from '@emotion/react'
+import { css } from '@emotion/react'
 import { Select } from 'antd'
 import React, { CSSProperties, useCallback, useEffect, useRef, useState } from 'react'
 
 import { PauseFilled, PlayFilled } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Space, Typography } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 
 import { getRedirectUrl } from '@condo/domains/common/hooks/useDownloadFileFromServer'
 

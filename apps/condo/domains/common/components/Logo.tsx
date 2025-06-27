@@ -1,6 +1,4 @@
-/** @jsx jsx */
-
-import { jsx, css, keyframes } from '@emotion/react'
+import { css, keyframes } from '@emotion/react'
 import styled from '@emotion/styled'
 import { Image } from 'antd'
 import React from 'react'

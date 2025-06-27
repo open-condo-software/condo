@@ -1,8 +1,7 @@
-/** @jsx jsx */
 import { grey } from '@ant-design/colors'
 import { DeleteFilled, EditFilled } from '@ant-design/icons'
 import { User, TicketComment } from '@app/condo/schema'
-import { css, jsx } from '@emotion/react'
+import { css } from '@emotion/react'
 import styled from '@emotion/styled'
 import { Comment as AntComment, Image, Popconfirm, Typography } from 'antd'
 import dayjs from 'dayjs'

@@ -1,6 +1,6 @@
 const path = require('path')
 
-const { GraphQLApp } = require('@keystonejs/app-graphql')
+const { GraphQLApp } = require('@open-keystone/app-graphql')
 const chunk = require('lodash/chunk')
 const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')

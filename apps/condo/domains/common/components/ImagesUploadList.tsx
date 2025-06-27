@@ -9,7 +9,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { ChevronLeft, ChevronRight, Eye, PlusCircle, Trash } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 
 import { shadows, transitions } from '@condo/domains/common/constants/style'
 import { MAX_UPLOAD_FILE_SIZE } from '@condo/domains/common/constants/uploads'

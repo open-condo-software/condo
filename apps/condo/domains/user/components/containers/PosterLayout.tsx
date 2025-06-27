@@ -4,7 +4,7 @@ import ProgressiveImage from 'react-progressive-image'
 
 import { LayoutWithPoster, PosterProps as DefaultPosterProps } from '@condo/domains/common/components/containers/LayoutWithPoster'
 
-import './PosterLayout.css'
+import styles from './PosterLayout.module.css'
 
 
 type PosterProps = DefaultPosterProps & { image: { main: string, placeholder?: string } }
@@ -16,12 +16,12 @@ type PosterLayoutProps = {
 
 const Poster: React.FC<PosterProps> = ({ Footer, Header, image }) => {
     return (
-        <div className='common-poster'>
-            <div className='common-layout-header'>
+        <div className={styles.commonPoster}>
+            <div className={styles.commonLayoutHeader}>
                 {Header}
             </div>
 
-            <div className='common-layout-image'>
+            <div className={styles.commonLayoutImage}>
                 <ProgressiveImage src={image.main} placeholder={image?.placeholder}>
                     {(src) => (
                         <Image src={src} preview={false} />
@@ -29,7 +29,7 @@ const Poster: React.FC<PosterProps> = ({ Footer, Header, image }) => {
                 </ProgressiveImage>
             </div>
 
-            <div className='common-layout-footer'>
+            <div className={styles.commonLayoutFooter}>
                 {Footer}
             </div>
         </div>

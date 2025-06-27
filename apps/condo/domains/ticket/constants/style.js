@@ -1,4 +1,4 @@
-const { colors: uiColors } = require('@open-condo/ui/dist/colors')
+const { colors: uiColors } = require('@open-condo/ui/colors')
 
 const { colors } = require('@condo/domains/common/constants/style')
 

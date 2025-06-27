@@ -32,7 +32,7 @@ export const SUB_LAYOUT_CSS = css`
   width: 100%;
   display: flex;
   align-items: center;
-  background-color: ${colors.white};
+  background-color: ${colors.white} !important;
 `
 export const EMPTY_SUB_LAYOUT_CSS = css`
   width: 100%;

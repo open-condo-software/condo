@@ -1,3 +1,4 @@
+import classnames from 'classnames'
 import dayjs from 'dayjs'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
 import Link from 'next/link'
@@ -9,7 +10,8 @@ import { Card, Typography } from '@open-condo/ui'
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { useUserMessagesList } from '@condo/domains/notification/contexts/UserMessagesListContext'
 import { MessageTypeAllowedToFilterType, UserMessageType } from '@condo/domains/notification/utils/client/constants'
-import './MessageCard.css'
+
+import styles from './MessageCard.module.css'
 
 dayjs.extend(localizedFormat)
 
@@ -41,13 +43,17 @@ export const MessageCard: React.FC<MessageCardProps> = ({ message, viewed }) => 
         setIsDropdownOpen(false)
     }, [message?.id, messageType, setIsDropdownOpen])
 
+    const cardClassName = classnames(styles.messageCard, {
+        [styles.messageCardViewed] : viewed,
+    })
+
     return (
         <Card
             key={message.id}
             bodyPadding={12}
-            className={`message-card${viewed ? ' message-card-viewed' : ''}`}
+            className={cardClassName}
         >
-            <div className='message-card-title'>
+            <div className={styles.messageCardTitle}>
                 <Link href={titleLink}>
                     <Typography.Link onClick={handleLinkClick} href={titleLink}>
                         {MessageTitle}
@@ -62,7 +68,7 @@ export const MessageCard: React.FC<MessageCardProps> = ({ message, viewed }) => 
                         messageContent
                 }
             </Typography.Paragraph>
-            <div className='message-card-footer'>
+            <div className={styles.messageCardFooter}>
                 <Typography.Paragraph type='secondary' size='small'>
                     {createdAt}
                 </Typography.Paragraph>

@@ -1,3 +1,3 @@
 #!/usr/bin/env node
 
-require('@keystonejs/keystone/bin/cli')
+require('@open-keystone/keystone/bin/cli')

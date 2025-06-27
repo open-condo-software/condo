@@ -10,7 +10,7 @@ import { isSSR } from '@open-condo/miniapp-utils'
 import { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } from './_utils'
 import { useAuth } from './auth'
 
-import type { OnErrorFn } from '@formatjs/intl'
+import type { IntlConfig } from 'react-intl'
 
 
 interface ILocaleContext {
@@ -93,7 +93,7 @@ const initOnRestore = async (ctx) => {
 type IntlProps = {
     initialLocale?: string
     initialMessages?: Record<string, string>
-    onError?: OnErrorFn
+    onError?: IntlConfig['onError']
 }
 
 const Intl: React.FC<IntlProps> = ({ children, initialLocale, initialMessages, onError }) => {

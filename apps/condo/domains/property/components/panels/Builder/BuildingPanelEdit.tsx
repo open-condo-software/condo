@@ -1,6 +1,5 @@
-/** @jsx jsx */
 import { BuildingMap, BuildingSection, BuildingUnit, Property as PropertyType } from '@app/condo/schema'
-import { css, jsx } from '@emotion/react'
+import { css } from '@emotion/react'
 import styled from '@emotion/styled'
 import { Col, notification, Row, RowProps, Space } from 'antd'
 import cloneDeep from 'lodash/cloneDeep'

@@ -1,5 +1,3 @@
-/** @jsx jsx */
-import { jsx } from '@emotion/react'
 import { Col, Row, RowProps } from 'antd'
 import { isEmpty } from 'lodash'
 import get from 'lodash/get'
@@ -11,7 +9,7 @@ import { Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, ActionBarProps, Button, Typography } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'

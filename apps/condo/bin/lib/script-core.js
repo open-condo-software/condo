@@ -1,6 +1,6 @@
 const path = require('path')
 
-const { GraphQLApp } = require('@keystonejs/app-graphql')
+const { GraphQLApp } = require('@open-keystone/app-graphql')
 
 class ScriptCore {
     context = null

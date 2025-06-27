@@ -1,5 +1,5 @@
-const { KnexAdapter } = require('@keystonejs/adapter-knex')
-const { versionGreaterOrEqualTo } = require('@keystonejs/utils')
+const { KnexAdapter } = require('@open-keystone/adapter-knex')
+const { versionGreaterOrEqualTo } = require('@open-keystone/utils')
 const get = require('lodash/get')
 const omit = require('lodash/omit')
 

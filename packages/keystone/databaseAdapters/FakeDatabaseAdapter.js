@@ -1,4 +1,4 @@
-const { BaseKeystoneAdapter, BaseListAdapter } = require('@keystonejs/keystone')
+const { BaseKeystoneAdapter, BaseListAdapter } = require('@open-keystone/keystone')
 
 class FakeDatabaseAdapter extends BaseKeystoneAdapter {
     constructor (opts = {}) {

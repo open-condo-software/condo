@@ -1,5 +1,3 @@
-/** @jsx jsx */
-import { jsx } from '@emotion/react'
 import { Row, Col, RowProps } from 'antd'
 import Head from 'next/head'
 import { useRouter } from 'next/router'

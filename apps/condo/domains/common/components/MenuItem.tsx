@@ -7,7 +7,7 @@ import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEf
 import type { IconProps } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Space, Typography } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { transitions } from '@condo/domains/common/constants/style'

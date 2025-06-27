@@ -1,4 +1,4 @@
-const { Text } = require('@keystonejs/fields')
+const { Text } = require('@open-keystone/fields')
 const minimatch = require('minimatch')
 
 const conf = require('@open-condo/config')

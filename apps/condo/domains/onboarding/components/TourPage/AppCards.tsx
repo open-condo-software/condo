@@ -4,7 +4,7 @@ import React, { CSSProperties, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Card, Modal, Radio, RadioGroup, Space, Typography } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 
 import { EMOJI } from '@condo/domains/common/constants/emoji'
 import { GUIDE_LINK } from '@condo/domains/onboarding/utils/clientSchema/constants'

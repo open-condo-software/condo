@@ -11,7 +11,7 @@ import { Building, Guide, IconProps, LayoutList, Meters, Unlock, Wallet } from '
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Button, Modal, Space, Typography } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'

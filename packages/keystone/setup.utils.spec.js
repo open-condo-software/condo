@@ -1,5 +1,5 @@
-const { KnexAdapter } = require('@keystonejs/adapter-knex')
-const { MongooseAdapter } = require('@keystonejs/adapter-mongoose')
+const { KnexAdapter } = require('@open-keystone/adapter-knex')
+const { MongooseAdapter } = require('@open-keystone/adapter-mongoose')
 
 const { BalancingReplicaKnexAdapter } = require('@open-condo/keystone/databaseAdapters/index')
 

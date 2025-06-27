@@ -1,5 +1,3 @@
-/** @jsx jsx */
-import { jsx } from '@emotion/react'
 import { Col, Form, Row, Typography } from 'antd'
 import { difference, find, get } from 'lodash'
 import { useRouter } from 'next/router'

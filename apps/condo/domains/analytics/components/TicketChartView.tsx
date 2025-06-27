@@ -2,8 +2,8 @@ import { DownOutlined } from '@ant-design/icons'
 import { TicketGroupedCounter } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Skeleton, Typography, List } from 'antd'
-import ReactECharts from 'echarts-for-react'
 import get from 'lodash/get'
+import dynamic from 'next/dynamic'
 import React, { useRef, useEffect, useState, useCallback } from 'react'
 import InfiniteScroll from 'react-infinite-scroller'
 
@@ -21,6 +21,8 @@ import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListVi
 import { CHART_COLOR_SET } from '@condo/domains/common/constants/style'
 import { colors } from '@condo/domains/common/constants/style'
 
+import type { EChartsReactProps } from 'echarts-for-react'
+
 export interface ITicketAnalyticsPageWidgetProps {
     data: null | TicketGroupedCounter[]
     viewMode: ViewModeTypes
@@ -32,10 +34,15 @@ interface ITicketAnalyticsPageChartProps extends ITicketAnalyticsPageWidgetProps
     onChartReady?: () => void
     chartConfig: {
         animationEnabled: boolean
-        chartOptions?: ReactECharts['props']['opts']
+        chartOptions?: EChartsReactProps['opts']
     }
     mainGroup?: GroupTicketsByTypes
 }
+
+const ReactECharts = dynamic(
+    () => import('echarts-for-react').then((mod) => mod.default),
+    { ssr: false, loading: () => null }
+)
 
 const ChartViewContainer = styled.div`
   position: relative;
@@ -260,9 +267,11 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = (props) => {
                                     animationEnabled,
                                     color,
                                 })
+
                                 return (
                                     <List.Item key={`pie-${index}`} style={{ width: 620 }}>
                                         <ReactECharts
+                                            // @ts-ignore
                                             ref={element => chartRefs.current[index] = element}
                                             opts={opts}
                                             onChartReady={() => setChartReadyCounter(chartReadyCounter + 1)}

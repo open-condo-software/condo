@@ -12,9 +12,9 @@ import { useNewMessageTitleNotification } from '@condo/domains/notification/hook
 
 import { MessageCard as DefaultMessageCard, MessageCardProps } from './MessageCard'
 import { MessagesCounter } from './MessagesCounter'
+import styles from './UserMessagesList.module.css'
 import { UserMessagesSettingsModal } from './UserMessagesSettingsModal'
 
-import './UserMessagesList.css'
 
 type UserMessagesListProps = {
     MessageCard?: React.FC<MessageCardProps>
@@ -99,19 +99,19 @@ export const UserMessagesList: React.FC<UserMessagesListProps> = ({ MessageCard 
                 mouseLeaveDelay={0.5}
                 open={isDropdownOpen}
                 dropdownRender={() => (
-                    <div className='user-messages-list' ref={messagesListRef}>
-                        <div className='user-messages-list-header'>
+                    <div className={styles.userMessagesList} ref={messagesListRef}>
+                        <div className={styles.userMessagesListHeader}>
                             <Typography.Title level={5}>
                                 {UserMessagesListTitle}
                             </Typography.Title>
-                            <div className='user-messages-list-settings-icon'>
+                            <div className={styles.userMessagesListSettingsIcon}>
                                 <Settings onClick={handleModalOpen} />
                             </div>
                         </div>
                         {messagesListContent}
                     </div>
                 )}
-                overlayClassName={!breakpoints.TABLET_LARGE && 'user-messages-list-mobile-overlay'}
+                overlayClassName={!breakpoints.TABLET_LARGE && styles.userMessagesListMobileOverlay}
                 trigger={['hover']}
                 onOpenChange={setIsDropdownOpen}
                 placement='bottomCenter'

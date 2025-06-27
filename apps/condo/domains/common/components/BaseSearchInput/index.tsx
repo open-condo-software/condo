@@ -9,7 +9,7 @@ import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useSt
 
 import { Close } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 
 import Select, { CustomSelectProps } from '@condo/domains/common/components/antd/Select'
 import { Loader } from '@condo/domains/common/components/Loader'

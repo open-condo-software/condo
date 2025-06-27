@@ -1,5 +1,3 @@
-/** @jsx jsx */
-import { jsx } from '@emotion/react'
 import { Layout, PageHeader as AntPageHeader, PageHeaderProps } from 'antd'
 import MenuItem from 'antd/lib/menu/MenuItem'
 import classnames from 'classnames'
@@ -20,8 +18,6 @@ import {
 } from './components/styles'
 import { ITopMenuItemsProps } from './components/TopMenuItems'
 import { Header } from './Header'
-import 'antd/dist/antd.less'
-import '@open-condo/ui/dist/styles.min.css'
 
 interface IBaseLayoutProps {
     headerAction?: ElementType<unknown>

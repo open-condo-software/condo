@@ -6,7 +6,7 @@ import { Typography } from '@open-condo/ui'
 
 import { PosterProps } from '@condo/domains/common/components/containers/LayoutWithPoster'
 
-import './AuthPoster.css'
+import styles from './AuthPoster.module.css'
 
 
 export const AuthPoster: React.FC<PosterProps> = ({ Header, Footer }) => {
@@ -18,13 +18,13 @@ export const AuthPoster: React.FC<PosterProps> = ({ Header, Footer }) => {
     const imageSrc = `/auth/poster/image-${locale}.webp`
 
     return (
-        <div className='auth-poster'>
-            <div className='auth-poster-content'>
+        <div className={styles.authPoster}>
+            <div className={styles.authPosterContent}>
                 <Row gutter={[0, 60]}>
-                    <Col span={24} className='auth-poster-header'>
+                    <Col span={24}>
                         {Header}
                     </Col>
-                    <Col span={24} className='auth-poster-text'>
+                    <Col span={24} className={styles.authPosterText}>
                         <Row gutter={[0, 20]}>
                             <Col span={24}>
                                 <Typography.Title level={2}>
@@ -40,10 +40,10 @@ export const AuthPoster: React.FC<PosterProps> = ({ Header, Footer }) => {
                     </Col>
                 </Row>
             </div>
-            <div className='auth-poster-footer'>
+            <div className={styles.authPosterFooter}>
                 {Footer}
             </div>
-            <div className='auth-poster-image'>
+            <div className={styles.authPosterImage}>
                 <Image src={imageSrc} preview={false} />
             </div>
         </div>

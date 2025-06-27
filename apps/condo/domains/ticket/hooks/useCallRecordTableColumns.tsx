@@ -6,7 +6,7 @@ import { Download, Play } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Space, Tag, Tooltip } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 
 import { getFilterIcon } from '@condo/domains/common/components/Table/Filters'
 import { getAddressRender, getDateRender, getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'

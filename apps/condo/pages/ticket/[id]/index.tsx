@@ -1,4 +1,3 @@
-/** @jsx jsx */
 import {
     useCreateTicketCommentMutation,
     useGetOrganizationEmployeeByUserAndOrganizationQuery,
@@ -12,7 +11,6 @@ import {
     useUpdateUserTicketCommentReadTimeMutation, useGetTicketInvoicesQuery, GetIncidentsQuery,
 } from '@app/condo/gql'
 import { B2BAppGlobalFeature } from '@app/condo/schema'
-import { jsx } from '@emotion/react'
 import { Affix, Col, ColProps, notification, Row, RowProps, Space, Typography } from 'antd'
 import dayjs from 'dayjs'
 import compact from 'lodash/compact'

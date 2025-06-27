@@ -1,7 +1,5 @@
-/** @jsx jsx */
-import { jsx, css } from '@emotion/react'
+import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import { FormatDateOptions } from '@formatjs/intl/src/types'
 import { Image, notification, Space } from 'antd'
 import cookie from 'js-cookie'
 import get from 'lodash/get'
@@ -22,6 +20,7 @@ import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
 
 
 import type { Property, BankAccount as BankAccountType } from '@app/condo/schema'
+import type { FormatDateOptions } from 'react-intl'
 
 const PROPERTY_CARD_WIDTH_THRESHOLD = 400
 const INTL_DATE_FORMAT: FormatDateOptions = {

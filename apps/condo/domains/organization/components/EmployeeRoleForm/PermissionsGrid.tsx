@@ -12,7 +12,7 @@ import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEf
 import { MinusCircle, PlusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Checkbox, Tooltip } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 
 import { FormItem } from '@condo/domains/common/components/Form/FormItem'
 import { PermissionRow, PermissionsGroup } from '@condo/domains/organization/hooks/useEmployeeRolesPermissionsGroups'
