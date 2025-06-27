@@ -351,9 +351,10 @@ function getTaskLoggingContext (job) {
  *
  * @param keystoneModule
  * @param config
+ * @param processWrapper (fn) => fn -- wrapper for tracing
  * @return {Promise<void>}
  */
-async function createWorker (keystoneModule, config) {
+async function createWorker (keystoneModule, config, processWrapper = undefined) {
     await checkMinimalKVDataVersion(2)
     // NOTE: we should have only one worker per node process!
     if (isWorkerCreated) {
@@ -393,9 +394,11 @@ async function createWorker (keystoneModule, config) {
         ? Array.from(QUEUES.entries()).filter(queue => parsedConfig['include'].includes(queue[0]))
         : Array.from(QUEUES.entries())
 
+    const executionWrapper = (processWrapper) ? processWrapper : function noWrapper (fn) { return fn }
+
     // Apply callbacks to each created queue
     activeQueues.forEach(([queueName, queue]) => {
-        queue.process('*', WORKER_CONCURRENCY, async function (job) {
+        queue.process('*', WORKER_CONCURRENCY, executionWrapper(async function doSomeTask (job) {
             const startTime = Date.now()
             const task = getTaskLoggingContext(job)
             logger.info({ msg: 'worker: task start', taskId: job.id, queue: queueName, task, mem: getHeapFree() })
@@ -411,7 +414,7 @@ async function createWorker (keystoneModule, config) {
                 logger.error({ msg: 'worker: failed with error', taskId: job.id, queue: queueName, task, err, responseTime })
                 throw err
             }
-        })
+        }))
 
         queue.on('failed', function (job) {
             logger.info({ taskId: job.id, status: 'failed', queue: queueName, task: getTaskLoggingContext(job) })

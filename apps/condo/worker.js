@@ -29,7 +29,11 @@ if (IS_ENABLE_DD_TRACE) {
     })
 }
 
-createWorker(index, process.argv.slice(2))
+function traceWrapper (fn) {
+    return tracer.wrap('task.process', fn)
+}
+
+createWorker(index, process.argv.slice(2), traceWrapper)
     .catch((error) => {
         console.error(error)
         process.exit(2)
