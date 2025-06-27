@@ -7,7 +7,6 @@
   "license": "MIT",
   "dependencies": {
     "@apollo/client": "^3.11.8",
-    "apollo-link-error": "^1.1.13",
     "apollo-upload-client": "^17.0.0",
     "form-data": "^4.0.0",
     "graphql": "^16.10.0",
