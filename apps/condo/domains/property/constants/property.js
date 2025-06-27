@@ -1,9 +1,7 @@
-import { AddressMetaField } from '@app/condo/schema'
-
-import { VALID_HOUSE_TYPES } from './common'
+const { VALID_HOUSE_TYPES } = require('./common')
 
 // "д" - "дом" or "к" - "корпус"
-const validHouseTypes: AddressMetaField['data']['house_type_full'][] = VALID_HOUSE_TYPES
+const validHouseTypes = VALID_HOUSE_TYPES
 
 const buildingEmptyMapJson = {
     'dv': 1,
@@ -434,7 +432,7 @@ const MIN_SECTIONS_TO_SHOW_FILTER = 2
 const MAX_PROPERTY_FLOORS_COUNT = 100
 const MAX_PROPERTY_UNITS_COUNT_PER_FLOOR = 100
 
-export {
+module.exports = {
     buildingEmptyMapJson,
     buildingMapJson,
     buildingAddressMetaJson,
