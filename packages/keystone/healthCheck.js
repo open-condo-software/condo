@@ -368,7 +368,7 @@ class HealthCheck {
 
         await this.prepareChecks({ keystone })
 
-        app.use(this.url, async (req, res) => {
+        app.get(this.url, async (req, res) => {
 
             const customChecksConfigured = typeof req.query.checks === 'string'
 

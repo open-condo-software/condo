@@ -197,7 +197,7 @@ class StitchSchemaMiddleware {
         const app = express()
         const schema = await makeGatewaySchema(this.appTokenKey, this.condoAccessTokenKey)
 
-        app.use(
+        app.post(
             this.apiUrl,
             bodyParser.json(),
             graphqlUploadExpress({ maxFiles: MAX_FILES, maxFileSize: MAX_FILE_SIZE }),
