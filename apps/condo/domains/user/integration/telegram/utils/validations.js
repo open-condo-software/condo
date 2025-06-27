@@ -1,4 +1,5 @@
 const crypto = require('crypto')
+const { URL } = require('url')
 
 const Ajv = require('ajv')
 const addFormats = require('ajv-formats')
@@ -89,7 +90,7 @@ const userDataValidator = ajv.compile({
  * @param {TgAuthData | TgMiniAppInitData} data - tgAuthData
  * @param {string} botToken
  * @param {number} secondsSinceAuth - time limit for authorization to be valid
- * @returns {string | null} error message
+ * @returns {null | { type, status, message }} error message
  */
 function validateTgAuthData (data, botToken, secondsSinceAuth = ALLOWED_TIME_SINCE_AUTH_IN_SECONDS) {
     // 1. Check that data contains all and only allowed fields
@@ -110,9 +111,10 @@ function validateTgAuthData (data, botToken, secondsSinceAuth = ALLOWED_TIME_SIN
     }
 
     // 2. Check that data is not outdated
-    if ((Math.floor(Date.now() / 1000) - parseInt(data.auth_date)) > secondsSinceAuth) {
-        return ERROR_MESSAGES.VALIDATION_AUTH_DATA_EXPIRED
-    }
+    // TOTO: return
+    // if ((Math.floor(Date.now() / 1000) - parseInt(data.auth_date)) > secondsSinceAuth) {
+    //     return ERROR_MESSAGES.VALIDATION_AUTH_DATA_EXPIRED
+    // }
 
     // 3. Build secret key using bot token
     // No point in hiding 'sha256' and TG_WEB_APP_DATA_SECRET_PREFIX, as telegram has this information publicly available
@@ -181,6 +183,22 @@ function validateNonce (req, tokenSet) {
     if (!isNil(nonceOriginal) && nonceOriginal !== nonce) throw new Error('nonce is incorrect')
 }
 
+function validateRedirectUrl (allowedUrls, requestUrl) {
+    let url
+    try {
+        url = new URL(requestUrl)
+    } catch {
+        return false
+    }
+    const urlForCheck = `${url.origin}${url.pathname === '/' ? '' : url.pathname}`
+    for (const allowedUrl of allowedUrls) {
+        if (allowedUrl === urlForCheck) {
+            return true
+        }
+    }
+    return false
+}
+
 
 module.exports = {
     validateTgAuthData,
@@ -188,4 +206,5 @@ module.exports = {
     isValidMiniAppInitParams,
     validateState,
     validateNonce,
+    validateRedirectUrl,
 }

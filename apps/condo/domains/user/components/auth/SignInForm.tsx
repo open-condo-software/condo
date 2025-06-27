@@ -45,7 +45,7 @@ export const SignInForm = (): React.ReactElement => {
 
     const [isLoading, setIsLoading] = useState(false)
 
-    const { query: { next }  } = router
+    const { query: { next, userType = UserType.Staff }  } = router
 
     const redirectUrl = (next && !Array.isArray(next) && isSafeUrl(next)) ? next : '/'
 
@@ -73,7 +73,7 @@ export const SignInForm = (): React.ReactElement => {
                         captcha: captcha,
                         phone: values.phone,
                         password: values.password,
-                        userType: UserType.Staff,
+                        userType: (Array.isArray(userType) ? userType[0] : userType) as UserType,
                         sender,
                         dv: 1,
                     },

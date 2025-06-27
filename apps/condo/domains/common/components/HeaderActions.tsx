@@ -18,14 +18,14 @@ export const TabsAuthAction: React.FC<TabsAuthActionsProps> = (props) => {
     const signInTab = intl.formatMessage({ id: 'pages.auth.signin.title' })
 
     const router = useRouter()
-    const { query: { next }  } = router
+    const { query: { next, userType }  } = router
     const isValidNextUrl = next && !Array.isArray(next) && isSafeUrl(next)
 
     const handleChange = useCallback((activeKey: string): void => {
         if (activeKey === 'signin') {
-            router.push(isValidNextUrl ? `/auth/signin?next=${encodeURIComponent(next)}` : '/auth/signin')
+            router.push(isValidNextUrl ? `/auth/signin?next=${encodeURIComponent(next)}${userType ? '&userType=' + userType : ''}` : '/auth/signin')
         } else if (activeKey === 'register') {
-            router.push(isValidNextUrl ? `/auth/register?next=${encodeURIComponent(next)}` : '/auth/register')
+            router.push(isValidNextUrl ? `/auth/register?next=${encodeURIComponent(next)}${userType ? '&userType=' + userType : ''}` : '/auth/register')
         }
     }, [isValidNextUrl, next])
 

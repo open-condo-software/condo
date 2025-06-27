@@ -8,14 +8,14 @@ const { TELEGRAM_ID_SESSION_KEY } = require('../../../constants/common')
 function getRedirectUrl (req) {
     // get and validate redirect url
     const redirectUrl = get(req, 'query.redirectUrl')
-    if (!redirectUrl || !isSafeUrl(redirectUrl)) return ''
+    if (!redirectUrl || !isSafeUrl(redirectUrl)) return null
     return redirectUrl
 }
 
 function getUserType (req) {
     // get and validate user type
     const userTypeQP = get(req, 'query.userType')
-    if (isNil(userTypeQP) || !USER_TYPES.includes(userTypeQP)) return ''
+    if (isNil(userTypeQP) || !USER_TYPES.includes(userTypeQP)) return null
     return userTypeQP
 }
 

@@ -2,6 +2,7 @@ import { useCheckUserExistenceLazyQuery, useAuthenticateOrRegisterUserWithTokenM
 import { UserTypeType as UserType } from '@app/condo/schema'
 import { Col, Form, Row } from 'antd'
 import { ValidateStatus } from 'antd/lib/form/FormItem'
+import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useState, useMemo } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
@@ -46,7 +47,9 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
     const { executeCaptcha } = useHCaptcha()
     const { phone, token } = useRegisterContext()
     const { refetch } = useAuth()
-
+    
+    const router = useRouter()
+    const { query: { userType } } = router
     const [form] = Form.useForm()
 
     const [passwordValidateStatus, setPasswordValidateStatus] = useState<ValidateStatus>()
@@ -147,7 +150,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
                         dv:1,
                         sender,
                         captcha,
-                        userType: UserType.Staff,
+                        userType: (Array.isArray(userType) ? userType[0] : userType) as UserType,
                         token,
                         ...(Object.keys(userData).length > 0 ? { userData } : null),
                     },

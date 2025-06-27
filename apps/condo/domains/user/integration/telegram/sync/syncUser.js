@@ -7,13 +7,14 @@ const {
 const dv = 1
 const sender = { dv, fingerprint: 'user-external-identity-router' }
 
-const linkUser = async (context, user, tgAuthData) => {
+const linkUser = async (context, user, tgAuthData, userType) => {
     await UserExternalIdentity.create(context, {
         dv,
         sender,
         user: { connect: { id: user.id } },
         identityId: tgAuthData.id,
         identityType: TELEGRAM_IDP_TYPE,
+        userType,
         meta: tgAuthData,
     })
 
@@ -31,12 +32,12 @@ const getIdentity = async (context, userInfo, userType) => {
         // TODO DOMA-5239 remove this parameter. We should by default have only not deleted objects
         deletedAt: null,
         userType,
-    }, 'id user { id }')
+    }, 'id user { id } userType')
 }
 
 const syncUser = async ({ authenticatedUser, context, userInfo, userType }) => {
     if (authenticatedUser?.deletedAt) {
-        return { id: '', error: ERROR_MESSAGES.ACCESS_DENIED }
+        return { id: null, error: ERROR_MESSAGES.ACCESS_DENIED }
     }
 
     // try to find linked identities
@@ -51,26 +52,26 @@ const syncUser = async ({ authenticatedUser, context, userInfo, userType }) => {
     // case 1: user already registered and have linked identity
     if (userIdentity) {
         const { user: { id } } = userIdentity
-        if (authenticatedUser && authenticatedUser.id !== id) {
-            return { id: '', error: ERROR_MESSAGES.ACCESS_DENIED }
+        if (authenticatedUser && (authenticatedUser.id !== id || authenticatedUser.type !== userIdentity.userType)) {
+            return { id: null, error: ERROR_MESSAGES.ACCESS_DENIED }
         }
         return { id }
     }
 
     // case 3: user is not registered, and we can't register account for him with telegram
     if (!authenticatedUser) {
-        return { id: '', error: ERROR_MESSAGES.USER_IS_NOT_REGISTERED }
+        return { id: null, error: ERROR_MESSAGES.USER_IS_NOT_REGISTERED }
     }
 
     // case 4: user already registered and have no linked identity
     if (authenticatedUser.type !== userType) {
-        return { id: '', error: ERROR_MESSAGES.NOT_SUPPORTED_USER_TYPE }
+        return { id: null, error: ERROR_MESSAGES.NOT_SUPPORTED_USER_TYPE }
     }
     if (authenticatedUser.isAdmin || authenticatedUser.isSupport) {
-        return { id: '', error: ERROR_MESSAGES.SUPER_USERS_NOT_ALLOWED }
+        return { id: null, error: ERROR_MESSAGES.SUPER_USERS_NOT_ALLOWED }
     }
     // proceed link & auth
-    return await linkUser(context, authenticatedUser, userInfo)
+    return await linkUser(context, authenticatedUser, userInfo, userType)
 }
 
 module.exports = {

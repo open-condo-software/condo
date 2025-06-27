@@ -2,7 +2,7 @@ const crypto = require('crypto')
 
 const { faker } = require('@faker-js/faker')
 
-const { validateTgAuthData } = require('./validations')
+const { validateTgAuthData, validateRedirectUrl } = require('./validations')
 
 describe('validations', () => {
 
@@ -294,5 +294,26 @@ describe('validations', () => {
                 })
             })
         })
+    })
+    
+    describe('validateRedirectUrl', () => {
+        const allowedUrls = [faker.internet.url(), faker.internet.url(), faker.internet.url()]
+        const notAllowedUrl = faker.internet.url()
+        const allowedUrlWithDifferentPathname = `${allowedUrls[0]}/${faker.random.alpha(10)}`
+        const allowedUrlWithQueryParams = `${allowedUrls[0]}?${faker.random.alpha(10)}=${faker.random.alphaNumeric(10)}}`
+
+        const testCases = [
+            { name: 'Works with allowed url 1', url: allowedUrls[0], expected: true },
+            { name: 'Works with allowed url 2', url: allowedUrls[1], expected: true },
+            { name: 'Does not work with not allowed url', url: notAllowedUrl, expected: false },
+            { name: 'Does not work if allowed url has different pathname', url: allowedUrlWithDifferentPathname, expected: false },
+            { name: 'Works if allowed url has query params', url: allowedUrlWithQueryParams, expected: true },
+            { name: 'Does not work if url is invalid', url: undefined, expected: false },
+        ]
+
+        test.each(testCases)('$name', async ({ url, expected }) => {
+            expect(validateRedirectUrl(allowedUrls, url)).toBe(expected)
+        })
+        
     })
 })

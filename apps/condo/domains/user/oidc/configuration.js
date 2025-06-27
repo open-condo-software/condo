@@ -18,6 +18,11 @@ module.exports = function createConfiguration (context, conf) {
     }
 
     return {
+        logger: {
+            debug: (...args) => console.error('OIDC DEBUG', ...args),
+            error: (...args) => console.error('OIDC ERROR', ...args),
+            info: (...args) => console.error('OIDC INFO', ...args),
+        },
         adapter: createAdapterClass(context),
         async findAccount (ctx, id) {
             const user = await getById('User', id)

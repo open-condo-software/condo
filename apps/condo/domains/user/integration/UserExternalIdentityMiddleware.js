@@ -32,7 +32,8 @@ class UserExternalIdentityMiddleware {
 
         // telegram oauth routes
         const telegramOauthRoutes = new TelegramOauthRoutes()
-        app.post('/api/tg/:botId/auth/callback', telegramOauthRoutes.completeAuth.bind(telegramOauthRoutes))
+        app.get('/api/tg/:botId/auth', telegramOauthRoutes.startAuth.bind(telegramOauthRoutes))
+        app.get('/api/tg/:botId/auth/callback', telegramOauthRoutes.completeAuth.bind(telegramOauthRoutes))
 
         // error handler
         app.use(expressErrorHandler)
