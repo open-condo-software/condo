@@ -802,6 +802,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         // NOTE: update queries, related to objects, which may be created in ticket form
         client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allTickets' })
         client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allTicketChanges' })
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allTicketFiles' })
         client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allContacts' })
         client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allInvoices' })
         client.cache.gc()
