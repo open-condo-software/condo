@@ -15,7 +15,9 @@ const ACCESS_REDIRECTS = {
     canReadMeters: '/meter',
 }
 
-// NOTE: This empty page need for webview initial page
+// This is the start page for the technic app's webview.
+// It contains redirects to the first available webview section in the technic app.
+// IMPORTANT: Do not change the routing logic or queries on this page without first coordinating with the mobile app.
 const InitialPage: PageComponentType = () => {
     const { persistor } = useCachePersistor()
     const router = useRouter()
@@ -47,7 +49,7 @@ const InitialPage: PageComponentType = () => {
         skip: !roleId || !persistor,
     })
     const b2bAppIds = useMemo(() =>
-        b2bAppRolesData?.b2bRoles?.map(b2bRole => b2bRole?.app?.id),
+        b2bAppRolesData?.b2bRoles?.map(b2bRole => b2bRole?.app?.id) || [],
     [b2bAppRolesData?.b2bRoles])
 
     useEffect(() => {

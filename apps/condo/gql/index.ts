@@ -597,14 +597,14 @@ export type GetBillingIntegrationOrganizationContextsQueryResult = Apollo.QueryR
 export const HasBillingIntegrationsDocument = gql`
     query hasBillingIntegrations($organization: OrganizationWhereInput!) {
   integrations: allBillingIntegrationOrganizationContexts(
-    where: {organization: $organization, status: "Finished", deletedAt: null}
+    where: {organization: $organization, status: "Finished"}
     first: 1
     skip: 0
   ) {
     id
   }
   acquiring: allAcquiringIntegrationContexts(
-    where: {organization: $organization, status: "Finished", deletedAt: null}
+    where: {organization: $organization, status: "Finished"}
     first: 1
     skip: 0
   ) {
