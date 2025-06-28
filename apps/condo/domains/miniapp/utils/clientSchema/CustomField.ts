@@ -8,7 +8,9 @@ import {
     CustomFieldUpdateInput,
     QueryAllCustomFieldsArgs,
 } from '@app/condo/schema'
+
 import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
+
 import { CustomField as CustomFieldGQL } from '@condo/domains/miniapp/gql'
 
 const {
