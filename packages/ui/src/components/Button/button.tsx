@@ -10,22 +10,28 @@ import { sendAnalyticsClickEvent, extractChildrenContent } from '../_utils/analy
 export const BUTTON_CLASS_PREFIX = 'condo-btn'
 
 type CondoButtonProps = {
-    type: 'primary' | 'secondary'
+    type: 'primary' | 'secondary' | 'accent'
     children?: string
     stateless?: boolean
     focus?: boolean
+    minimal?: boolean
+    compact?: boolean
+    size?: 'medium' | 'large'
 }
 
 export type ButtonProps = Omit<DefaultButtonProps, 'shape' | 'size' | 'style' | 'ghost' | 'type' | 'prefix' | 'prefixCls'>
 & CondoButtonProps
 
 const Button: React.ForwardRefExoticComponent<ButtonProps & React.RefAttributes<HTMLButtonElement>> = React.forwardRef((props, ref) => {
-    const { type, className, icon, children, onClick, stateless, id, focus, ...rest } = props
+    const { type, className, icon, children, onClick, stateless, id, focus, minimal, compact, size = 'large', ...rest } = props
     const classes = classNames(
         {
             [`${BUTTON_CLASS_PREFIX}-${type}`]: type,
+            [`${BUTTON_CLASS_PREFIX}-${size}`]: size,
             [`${BUTTON_CLASS_PREFIX}-stateless`]: stateless,
             [`${BUTTON_CLASS_PREFIX}-focus`]: focus,
+            [`${BUTTON_CLASS_PREFIX}-minimal`]: minimal,
+            [`${BUTTON_CLASS_PREFIX}-compact`]: compact,
         },
         className,
     )
@@ -71,4 +77,3 @@ Button.displayName = 'Button'
 export {
     Button,
 }
-

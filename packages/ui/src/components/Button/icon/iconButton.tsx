@@ -16,7 +16,9 @@ type CondoIconButtonProps = {
 
 export type IconButtonProps = Omit<DefaultButtonProps, 'shape' | 'size' | 'style' | 'ghost' | 'type' | 'prefix' | 'prefixCls' | 'icon' | 'danger' | 'block'>
 & CondoIconButtonProps
-
+/**
+* @deprecated
+*/
 const IconButton: React.ForwardRefExoticComponent<IconButtonProps & React.RefAttributes<HTMLButtonElement>> = React.forwardRef((props, ref) => {
     const { className, children, onClick, id, size, ...rest } = props
     const mergedSize = size || 'medium'
