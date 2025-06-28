@@ -106,7 +106,7 @@ export const PropertyPageContent = ({ propertyCustomValues, property, role = nul
             label: ParkingTitle,
             value: get(property, ['map', 'parking', 'length']) ? ParkingAvailableTitle : ParkingNotAvailableTitle,
         },
-        ...propertyCustomValues?.map(x => ({ label: get(x, ['customField', 'name']), value: get(x, 'data') }))
+        ...propertyCustomValues?.map(x => ({ label: get(x, ['customField', 'name']), value: get(x, 'data') })),
     ], [AreaTitle, property, ParkingTitle, UnitsCountTitle, UninhabitedUnitsCountTitle, yearOfConstructionCardLabel,
         UnknownValueTitle, YearOfConstructionTitle, ParkingAvailableTitle, ParkingNotAvailableTitle, propertyCustomValues])
 
@@ -273,10 +273,10 @@ const PropertyIdPage: PageComponentType = () => {
         {
             variables: {
                 schemaName: CustomFieldSchemaNameType.Property,
-                objectId: get(property, 'id')
+                objectId: get(property, 'id'),
             },
             skip: !property,
-            fetchPolicy: 'cache-first'
+            fetchPolicy: 'cache-first',
         }
     )
 
