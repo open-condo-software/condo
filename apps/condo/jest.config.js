@@ -23,7 +23,7 @@ module.exports = {
                 '<rootDir>/domains/**/schema/**/*.spec.[tj]s',
             ],
             transform: {
-                '\\.[jt]sx?$': ['ts-jest', { tsconfig: { jsx: "react-jsx" } }],
+                '\\.[jt]sx?$': ['ts-jest', { tsconfig: { jsx: 'react-jsx' } }],
             },
             setupFilesAfterEnv: ['<rootDir>/jest.setupSpec.js'],
             // NOTE: need to pass uuid export syntax through babel
@@ -41,7 +41,7 @@ module.exports = {
                 '/schema/',
             ],
             transform: {
-                '\\.[jt]sx?$': ['ts-jest', { tsconfig: { jsx: "react-jsx" } }],
+                '\\.[jt]sx?$': ['ts-jest', { tsconfig: { jsx: 'react-jsx' } }],
             },
             setupFilesAfterEnv: ['<rootDir>/jest.setupSpec.js'],
             // NOTE: need to pass uuid export syntax through babel
