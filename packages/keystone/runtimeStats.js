@@ -102,19 +102,25 @@ class RuntimeStatsMiddleware {
 
                 logger.info({
                     msg: 'current values',
-                    runtimeStats: otherStats,
+                    runtimeStats: { ...otherStats, activeRequestsCount: activeRequestsIds.size },
                     data: {
                         activeRequestsIds: Array.from(activeRequestsIds.keys()).slice(0, 200),
-                        activeRequestsCount: activeRequestsIds.size,
                     },
                 })
 
                 metrics.gauge({ name: 'runtimeStats.requestsCount.total', value: runtimeStats.totalRequestsCount })
+                metrics.gauge({ name: 'runtimeStats.activeRequestsCount.total', value: runtimeStats.activeRequestsIds.size })
 
                 for (const type of Object.keys(runtimeStats.totalRequestsCountByType)) {
                     metrics.gauge({
                         name: 'runtimeStats.requestsCount.byType',
                         value: runtimeStats.totalRequestsCountByType[type],
+                        tags: { type },
+                    })
+
+                    metrics.gauge({
+                        name: 'runtimeStats.activeRequestsCount.byType',
+                        value: runtimeStats.activeRequestsCountByType[type] || 0,
                         tags: { type },
                     })
                 }
@@ -123,6 +129,12 @@ class RuntimeStatsMiddleware {
                     metrics.gauge({
                         name: 'runtimeStats.requestsCount.byTarget',
                         value: runtimeStats.totalRequestsCountByTarget[target],
+                        tags: { target },
+                    })
+
+                    metrics.gauge({
+                        name: 'runtimeStats.activeRequestsCount.byTarget',
+                        value: runtimeStats.activeRequestsCountByTarget[target] || 0,
                         tags: { target },
                     })
                 }
