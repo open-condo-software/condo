@@ -125,12 +125,14 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
 
     const emergencyTemplatesTabsProps = useMemo(() => Object.keys(emergencyTemplates).map(id => ({
         key: id,
+        value: id,
         label: emergencyTemplates[id].label || emergencyTemplates[id].title,
         category: emergencyTemplates[id].category,
     })), [emergencyTemplates])
 
     const commonTemplatesTabsProps = useMemo(() => Object.keys(commonTemplates).map(id => ({
         key: id,
+        value: id,
         label: commonTemplates[id].label || commonTemplates[id].title,
         category: commonTemplates[id].category,
     })), [commonTemplates])

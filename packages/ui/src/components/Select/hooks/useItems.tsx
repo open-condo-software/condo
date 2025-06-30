@@ -39,7 +39,7 @@ const convertOptions = (items: Array<OptionsItem>, selectId?: string, groupKey?:
                 return (
                     <Option
                         id={selectId && `${selectId}__${mergedKey}`}
-                        key={key || index}
+                        key={mergedKey}
                         value={value}
                         disabled={disabled}
                         title={title ? title : label}
