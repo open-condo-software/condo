@@ -82395,6 +82395,7 @@ enum WebhookSubscriptionModelType {
   AcquiringIntegrationContext
   B2BApp
   B2BAppContext
+  Invoice
 }
 
 """ Determines which models the WebHook will be subscribed to. When model changes subscription task will be triggered to resolve changed data and send a webhook 
