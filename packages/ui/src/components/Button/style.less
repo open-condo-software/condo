@@ -3,17 +3,18 @@
 @import (reference) "@open-condo/ui/src/components/style/mixins/typography";
 @import (reference) "@open-condo/ui/src/components/style/mixins/button";
 
-@condo-button-padding-vert-large: @condo-global-spacing-12;
+@condo-button-padding-height-large: @condo-global-spacing-48;
 @condo-button-padding-hor-large: @condo-global-spacing-20;
-@condo-button-padding-vert-medium: @condo-global-spacing-4 + 1px;
+@condo-button-padding-height-medium: @condo-global-spacing-32;
 @condo-button-padding-hor-medium: @condo-global-spacing-12;
 
-@condo-button-padding-vert-compact: @condo-global-spacing-4;
+@condo-button-padding-height-large-compact: @condo-global-spacing-24;
+@condo-button-padding-height-medium-compact: @condo-global-spacing-20;
 @condo-button-padding-hor-compact: @condo-global-spacing-4;
 
 @condo-button-border-width: @condo-global-border-width-default;
 @condo-button-line-height-large: @condo-global-typography-h4-line-height;
-@condo-button-line-height-medium: @condo-global-typography-h5-line-height;
+@condo-button-line-height-medium: @condo-global-typography-h6-line-height;
 
 @condo-button-focus-outline-width: @condo-global-border-width-default * 4;
 @condo-button-border-radius: @condo-global-border-radius-medium;
@@ -67,49 +68,49 @@
   }
 
   &-medium.condo-btn-primary {
-    .condo-btn(@condo-button-line-height-medium, @condo-button-padding-vert-medium,
+    .condo-btn(@condo-button-line-height-medium, @condo-button-padding-height-medium,
     @condo-button-padding-hor-medium, 0);
   }
 
   &-medium.condo-btn-secondary,
   &-medium.condo-btn-accent {
-    .condo-btn(@condo-button-line-height-medium, @condo-button-padding-vert-medium,
+    .condo-btn(@condo-button-line-height-medium, @condo-button-padding-height-medium,
     @condo-button-padding-hor-medium, @condo-button-border-width);
   }
 
   &-large.condo-btn-primary {
-    .condo-btn(@condo-button-line-height-large, @condo-button-padding-vert-large, @condo-button-padding-hor-large, 0);
+    .condo-btn(@condo-button-line-height-large, @condo-button-padding-height-large, @condo-button-padding-hor-large, 0);
   }
 
   &-large.condo-btn-secondary,
   &-large.condo-btn-accent {
-    .condo-btn(@condo-button-line-height-large, @condo-button-padding-vert-large,
+    .condo-btn(@condo-button-line-height-large, @condo-button-padding-height-large,
     @condo-button-padding-hor-large, @condo-button-border-width);
   }
 
   &-medium.condo-btn-compact.condo-btn-primary {
     min-width: 0;
-    .condo-btn(@condo-button-line-height-medium, @condo-button-padding-vert-compact,
+    .condo-btn(@condo-button-line-height-medium, @condo-button-padding-height-medium-compact,
     @condo-button-padding-hor-compact, 0);
   }
 
   &-medium.condo-btn-compact.condo-btn-secondary,
   &-medium.condo-btn-compact.condo-btn-accent {
     min-width: 0;
-    .condo-btn(@condo-button-line-height-medium, @condo-button-padding-vert-compact,
+    .condo-btn(@condo-button-line-height-medium, @condo-button-padding-height-medium-compact,
     @condo-button-padding-hor-compact, @condo-button-border-width);
   }
 
   &-large.condo-btn-compact.condo-btn-primary {
     min-width: 0;
-    .condo-btn(@condo-button-line-height-large, @condo-button-padding-vert-compact,
+    .condo-btn(@condo-button-line-height-large, @condo-button-padding-height-large-compact,
     @condo-button-padding-hor-compact, 0);
   }
 
   &-large.condo-btn-compact.condo-btn-secondary,
   &-large.condo-btn-compact.condo-btn-accent {
     min-width: 0;
-    .condo-btn(@condo-button-line-height-large, @condo-button-padding-vert-compact,
+    .condo-btn(@condo-button-line-height-large, @condo-button-padding-height-large-compact,
     @condo-button-padding-hor-compact, @condo-button-border-width);
   }
 
@@ -226,7 +227,7 @@
       background: @condo-global-color-black;
 
       &::before {
-        opacity: 0.9;
+        background: @condo-global-color-brand-gradient-7;
       }
     }
 
@@ -273,8 +274,9 @@
           .condo-btn-static-text-color(@condo-global-color-red-7);
         }
 
-        &:hover:not(.condo-btn-compact) {
-          background: @condo-global-color-red-1;
+        &:active {
+          .condo-btn-content-color(@condo-global-color-red-5);
+          .condo-btn-static-text-color(@condo-global-color-red-5);
         }
 
         &.condo-btn-stateless {
@@ -328,6 +330,10 @@
         opacity: 0;
       }
     }
+
+    &.condo-btn-dangerous.condo-btn-minimal:hover:not(.condo-btn-compact, :disabled) {
+      background: @condo-global-color-red-1;
+    }
   }
 
   &-secondary {
@@ -377,10 +383,6 @@
         background: @condo-global-color-red-1;
         .condo-btn-content-color(@condo-global-color-red-5);
         .condo-btn-static-text-color(@condo-global-color-red-5);
-      }
-
-      &.condo-btn-minimal:hover:not(.condo-btn-compact) {
-        background: @condo-global-color-red-1;
       }
 
       &::before,
@@ -442,8 +444,7 @@
     }
 
     &:active::before {
-      background: @condo-global-color-brand-gradient-5 border-box;
-      opacity: 0.9;
+      background: @condo-global-color-brand-gradient-7 border-box;
     }
 
     &:disabled {
@@ -515,6 +516,10 @@
         .minimal-styles;
       }
     }
+
+    &.condo-btn-dangerous.condo-btn-minimal:hover:not(.condo-btn-compact, :disabled) {
+      background: @condo-global-color-red-1;
+    }
   }
 
   &-accent {
@@ -554,7 +559,7 @@
       .condo-btn-content-color(@condo-global-color-white);
 
       &::before {
-        opacity: 0.9;
+        background: @condo-global-color-brand-gradient-7;
       }
     }
 
@@ -621,10 +626,6 @@
         background: @condo-global-color-red-1;
         .condo-btn-content-color(@condo-global-color-red-5);
         .condo-btn-static-text-color(@condo-global-color-red-5);
-      }
-
-      &.condo-btn-minimal:hover:not(.condo-btn-compact) {
-        background: @condo-global-color-red-1;
       }
 
       &::before,
@@ -717,6 +718,10 @@
         .minimal-styles;
       }
     }
+
+    &.condo-btn-dangerous.condo-btn-minimal:hover:not(.condo-btn-compact, :disabled) {
+      background: @condo-global-color-red-1;
+    }
   }
 
   & > &-icon {
@@ -725,13 +730,51 @@
 }
 
 a.condo-btn {
-  &-primary {
-    .condo-btn-href(@condo-button-line-height-large, @condo-button-padding-vert-large,
+  &-medium.condo-btn-primary {
+    .condo-btn-href(@condo-button-line-height-medium, @condo-button-padding-height-medium,
+    @condo-button-padding-hor-medium, 0);
+  }
+
+  &-medium.condo-btn-secondary,
+  &-medium.condo-btn-accent {
+    .condo-btn-href(@condo-button-line-height-medium, @condo-button-padding-height-medium,
+    @condo-button-padding-hor-medium, @condo-button-border-width);
+  }
+
+  &-large.condo-btn-primary {
+    .condo-btn-href(@condo-button-line-height-large, @condo-button-padding-height-large,
     @condo-button-padding-hor-large, 0);
   }
 
-  &-secondary {
-    .condo-btn-href(@condo-button-line-height-large, @condo-button-padding-vert-large, @condo-button-padding-hor-large,
-    @condo-button-border-width);
+  &-large.condo-btn-secondary,
+  &-large.condo-btn-accent {
+    .condo-btn-href(@condo-button-line-height-large, @condo-button-padding-height-large,
+    @condo-button-padding-hor-large, @condo-button-border-width);
+  }
+
+  &-medium.condo-btn-compact.condo-btn-primary {
+    min-width: 0;
+    .condo-btn-href(@condo-button-line-height-medium, @condo-button-padding-height-medium-compact,
+    @condo-button-padding-hor-compact, 0);
+  }
+
+  &-medium.condo-btn-compact.condo-btn-secondary,
+  &-medium.condo-btn-compact.condo-btn-accent {
+    min-width: 0;
+    .condo-btn-href(@condo-button-line-height-medium, @condo-button-padding-height-medium-compact,
+    @condo-button-padding-hor-compact, @condo-button-border-width);
+  }
+
+  &-large.condo-btn-compact.condo-btn-primary {
+    min-width: 0;
+    .condo-btn-href(@condo-button-line-height-large, @condo-button-padding-height-large-compact,
+    @condo-button-padding-hor-compact, 0);
+  }
+
+  &-large.condo-btn-compact.condo-btn-secondary,
+  &-large.condo-btn-compact.condo-btn-accent {
+    min-width: 0;
+    .condo-btn-href(@condo-button-line-height-large, @condo-button-padding-height-large-compact,
+    @condo-button-padding-hor-compact, @condo-button-border-width);
   }
 }
