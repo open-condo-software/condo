@@ -3,10 +3,9 @@ const { URL } = require('url')
 
 const Ajv = require('ajv')
 const addFormats = require('ajv-formats')
-const jwtDecode = require('jwt-decode')
 const { get, isNil } = require('lodash')
 
-const { ERROR_MESSAGES } = require('./errors')
+const { ERRORS, TelegramOauthError } = require('./errors')
 const { TelegramMiniAppInitParamsSchema, TelegramOauthCallbackSchema, TelegramMiniAppInitParamsUserSchema } = require('./schemas')
 
 const { getSessionParam } = require('../utils/params')
@@ -96,24 +95,24 @@ function validateTgAuthData (data, botToken, secondsSinceAuth = ALLOWED_TIME_SIN
     // 1. Check that data contains all and only allowed fields
     const isValid = loginDataValidator(data)
     if (!isValid) {
-        return ERROR_MESSAGES.VALIDATION_AUTH_DATA_KEYS_MISMATCH
+        throw new TelegramOauthError(ERRORS.VALIDATION_AUTH_DATA_KEYS_MISMATCH)
     }
 
     const isMiniAppInitData = miniAppInitParamsValidator(data)
     if (isMiniAppInitData) {
         try {
             if (!userDataValidator(JSON.parse(data.user))) {
-                return ERROR_MESSAGES.VALIDATION_AUTH_DATA_KEYS_MISMATCH
+                throw new TelegramOauthError(ERRORS.VALIDATION_AUTH_DATA_KEYS_MISMATCH)
             }
         } catch {
-            return ERROR_MESSAGES.VALIDATION_AUTH_DATA_KEYS_MISMATCH
+            throw new TelegramOauthError(ERRORS.VALIDATION_AUTH_DATA_KEYS_MISMATCH)
         }
     }
 
     // 2. Check that data is not outdated
     // TOTO: return
     // if ((Math.floor(Date.now() / 1000) - parseInt(data.auth_date)) > secondsSinceAuth) {
-    //     return ERROR_MESSAGES.VALIDATION_AUTH_DATA_EXPIRED
+    //     return ERRORS.VALIDATION_AUTH_DATA_EXPIRED
     // }
 
     // 3. Build secret key using bot token
@@ -138,7 +137,7 @@ function validateTgAuthData (data, botToken, secondsSinceAuth = ALLOWED_TIME_SIN
 
     // 6. Our generated sign must equal received sign
     if (hmac !== data.hash) {
-        return ERROR_MESSAGES.VALIDATION_AUTH_DATA_SIGN_INVALID
+        throw new TelegramOauthError(ERRORS.VALIDATION_AUTH_DATA_SIGN_INVALID)
     }
 
     return null
@@ -172,26 +171,24 @@ function validateState (req) {
 
     // validate that state in session are same as in the QP
     // in case if session state is empty - the app2app flow are used - no checks possible for state parameter
-    if (!isNil(state) && state !== stateQP) throw new Error('state is incorrect')
-}
-
-function validateNonce (req, tokenSet) {
-    const { idToken } = tokenSet
-    const { nonce } = jwtDecode(idToken)
-    const nonceOriginal = getSessionParam(req, 'checks.nonce') || get(req, 'query.nonce')
-
-    if (!isNil(nonceOriginal) && nonceOriginal !== nonce) throw new Error('nonce is incorrect')
+    if (!isNil(state) && state !== stateQP) throw new TelegramOauthError(ERRORS.INVALID_STATE)
 }
 
 function validateRedirectUrl (allowedUrls, requestUrl) {
+    console.error('REQUEST URL', requestUrl)
     let url
+    if (!requestUrl || !allowedUrls || allowedUrls.length === 0) {
+        return false
+    }
     try {
-        url = new URL(requestUrl)
+        url = new URL(decodeURIComponent(requestUrl))
     } catch {
         return false
     }
     const urlForCheck = `${url.origin}${url.pathname === '/' ? '' : url.pathname}`
+    console.error('URL FOR CHECK', urlForCheck, allowedUrls)
     for (const allowedUrl of allowedUrls) {
+        console.error(urlForCheck, allowedUrl, urlForCheck === allowedUrl)
         if (allowedUrl === urlForCheck) {
             return true
         }
@@ -205,6 +202,5 @@ module.exports = {
     validateOauthConfig,
     isValidMiniAppInitParams,
     validateState,
-    validateNonce,
     validateRedirectUrl,
 }

@@ -1,4 +1,4 @@
-const ERROR_MESSAGES = {
+const ERRORS = {
     VALIDATION_AUTH_DATA_KEYS_MISMATCH: {
         type: 'VALIDATION_AUTH_DATA_KEYS_MISMATCH',
         status: 400,
@@ -14,16 +14,15 @@ const ERROR_MESSAGES = {
         status: 400,
         message: 'Tg auth data sign is invalid',
     },
-
     NOT_SUPPORTED_USER_TYPE: {
         type: 'NOT_SUPPORTED_USER_TYPE',
         status: 400,
         message: 'This user type is not supported for bot',
     },
-    BODY_MISSING: {
-        type: 'BODY_MISSING',
+    TG_AUTH_DATA_MISSING: {
+        type: 'TG_AUTH_DATA_MISSING',
         status: 400,
-        message: 'Body is empty',
+        message: 'Search parameter "tgAuthData" is empty',
     },
     INVALID_REDIRECT_URL: {
         type: 'INVALID_REDIRECT_URL',
@@ -40,20 +39,46 @@ const ERROR_MESSAGES = {
         status: 400,
         message: 'Your user is invalid',
     },
-
     USER_IS_NOT_REGISTERED: {
         type: 'USER_IS_NOT_REGISTERED',
-        status: 400,
+        status: 401,
         message: 'You have to login or register user first',
     },
-
     INVALID_BOT_ID: {
         type: 'INVALID_BOT_ID',
         status: 400,
         message: 'You trying to log in via unsupported bot',
     },
+    INVALID_NONCE: {
+        type: 'INVALID_NONCE',
+        status: 400,
+        message: 'You should pass "nonce" in search parameters',
+    },
+    INVALID_STATE: {
+        type: 'INVALID_STATE',
+        status: 400,
+        message: 'You should pass "state" in search parameters',
+    },
+    INVALID_CONFIG: {
+        type: 'INVALID_CONFIG',
+        status: 500,
+        message: 'env "TELEGRAM_OAUTH_CONFIG" is invalid',
+    },
+}
+
+class TelegramOauthError extends Error {
+    constructor (error) {
+        super(error.message)
+        Object.assign(this, error)
+        Error.captureStackTrace(this, this.constructor)
+    }
+
+    toJSON () {
+        return Object.assign({ message: this.message }, this)
+    }
 }
 
 module.exports = {
-    ERROR_MESSAGES,
+    ERRORS,
+    TelegramOauthError,
 }

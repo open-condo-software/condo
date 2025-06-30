@@ -1,5 +1,5 @@
 const { TELEGRAM_IDP_TYPE } = require('@condo/domains/user/constants/common')
-const { ERROR_MESSAGES } = require('@condo/domains/user/integration/telegram/utils/errors')
+const { ERROR_MESSAGES, TelegramOauthError } = require('@condo/domains/user/integration/telegram/utils/errors')
 const {
     UserExternalIdentity,
 } = require('@condo/domains/user/utils/serverSchema')
@@ -53,22 +53,22 @@ const syncUser = async ({ authenticatedUser, context, userInfo, userType }) => {
     if (userIdentity) {
         const { user: { id } } = userIdentity
         if (authenticatedUser && (authenticatedUser.id !== id || authenticatedUser.type !== userIdentity.userType)) {
-            return { id: null, error: ERROR_MESSAGES.ACCESS_DENIED }
+            throw new TelegramOauthError(ERROR_MESSAGES.ACCESS_DENIED)
         }
         return { id }
     }
 
     // case 3: user is not registered, and we can't register account for him with telegram
     if (!authenticatedUser) {
-        return { id: null, error: ERROR_MESSAGES.USER_IS_NOT_REGISTERED }
+        throw new TelegramOauthError(ERROR_MESSAGES.USER_IS_NOT_REGISTERED)
     }
 
     // case 4: user already registered and have no linked identity
     if (authenticatedUser.type !== userType) {
-        return { id: null, error: ERROR_MESSAGES.NOT_SUPPORTED_USER_TYPE }
+        throw new TelegramOauthError(ERROR_MESSAGES.NOT_SUPPORTED_USER_TYPE)
     }
     if (authenticatedUser.isAdmin || authenticatedUser.isSupport) {
-        return { id: null, error: ERROR_MESSAGES.SUPER_USERS_NOT_ALLOWED }
+        throw new TelegramOauthError(ERROR_MESSAGES.SUPER_USERS_NOT_ALLOWED)
     }
     // proceed link & auth
     return await linkUser(context, authenticatedUser, userInfo, userType)
