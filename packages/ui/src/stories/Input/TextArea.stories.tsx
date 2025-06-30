@@ -10,7 +10,7 @@ const DemoButton = ({ icon, text, disabled }: { text?: string, icon: React.React
         type='secondary'
         minimal
         compact
-        size='M'
+        size='medium'
         disabled={disabled}
         icon={icon}
     >{text}</Button>
