@@ -117,7 +117,7 @@ const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
                                 <Button
                                     disabled={disabled}
                                     type='accent'
-                                    size='M'
+                                    size='medium'
                                     onClick={() => onSubmit(currentValue)}
                                     icon={<ArrowRight className='arrow-icon' size='small' />}
                                 />
