@@ -34,6 +34,10 @@
   &::after {
     opacity: 0;
   }
+
+  &:focus-visible::after {
+    opacity: 1;
+  }
 }
 
 .condo-btn {
@@ -363,11 +367,11 @@
       mask-composite: exclude;
     }
 
-    &:focus::after,
-    &.condo-btn-focus::after {
+    &:focus-visible::after {
       .condo-btn-layer(-(@condo-button-focus-outline-width + @condo-button-border-width));
 
       border-radius: @condo-button-border-radius + @condo-button-focus-outline-width;
+      opacity: 1;
     }
 
     &:focus::after,
@@ -476,14 +480,6 @@
         .minimal-styles;
 
         border: none;
-      }
-    }
-
-    &.condo-btn-minimal:focus-visible {
-      &::after {
-        .condo-btn-layer(-(@condo-button-focus-outline-width + @condo-button-border-width));
-
-        opacity: 1;
       }
     }
 
@@ -618,6 +614,7 @@
       &::after {
         .condo-btn-layer(-(@condo-button-focus-outline-width + @condo-button-border-width));
 
+        border-radius: @condo-button-border-radius + @condo-button-focus-outline-width;
         opacity: 1;
       }
     }
