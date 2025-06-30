@@ -89,6 +89,7 @@ class TelegramOauthRoutes {
                 redirectUrl,
                 userType,
                 tgAuthData,
+                config,
             } = this._validateParameters(req, res, next)
             // sync user
             const { keystone: context } = await getSchemaCtx('User')
@@ -97,7 +98,7 @@ class TelegramOauthRoutes {
             await this.authorizeUser(req, context, id)
             const params = {
                 ...req.query,
-                client_id: 'tg-auth',
+                client_id: config.oidcClientId,
                 response_type: 'code',
                 redirect_uri: decodeURIComponent(redirectUrl),
                 scope: 'openid',

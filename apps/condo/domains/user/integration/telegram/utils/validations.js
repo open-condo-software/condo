@@ -16,6 +16,7 @@ const CONFIG_REQUIRED_FIELDS = [
     'botToken',
     'allowedUserType',
     'allowedRedirectUrls',
+    'oidcClientId',
 ]
 const TG_WEB_APP_DATA_SECRET_PREFIX = 'WebAppData'
 
