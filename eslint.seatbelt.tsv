@@ -1,0 +1,4 @@
+# eslint-seatbelt temporarily allowed errors
+# docs: https://github.com/justjake/eslint-seatbelt#readme
+
+"apps/condo/domains/common/utils/pdf.ts"	"no-restricted-imports"	1
