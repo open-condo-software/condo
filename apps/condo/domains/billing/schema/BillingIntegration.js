@@ -148,6 +148,13 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
             isRequired: false,
         },
 
+
+        billingPageIcon: {
+            adminDoc: 'Icon is used in "Accruals and Payments" section to go with billingPageTitle in the app tab',
+            schemaDoc: 'Used in billing section to go with billingPageTitle in the app tab',
+            ...STATIC_FILE_FIELD,
+        },
+
         group: {
             adminDoc: 'Any number of billings can have the same billing group. Validations: Should be a sequence of lowercase latin characters.',
             schemaDoc: 'Billing group which this billing is part of. Used to restrict certain billings from certain acquirings"',
