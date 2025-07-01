@@ -390,19 +390,23 @@ class FileMiddleware {
         } catch (e) {
             quota = { user: DEFAULT_USER_QUOTA, ip: DEFAULT_IP_QUOTA }
         }
-        try {
-            const parsedAppClients = JSON.parse(conf['FILE_APP_CLIENTS'])
-            validateAppClientSchema(parsedAppClients)
+        if (!conf['FILE_APP_CLIENTS']) {
+            console.warn('File - app access control disabled')
+        } else {
+            try {
+                const parsedAppClients = JSON.parse(conf['FILE_APP_CLIENTS'])
+                validateAppClientSchema(parsedAppClients)
 
-            if (!ajv.errors) {
-                appClients = parsedAppClients
-            }
+                if (!ajv.errors) {
+                    appClients = parsedAppClients
+                }
 
-        } catch (e) {
-            if (ajv.errors) {
-                throw new Error(ajv.errors)
+            } catch (e) {
+                if (ajv.errors) {
+                    throw new Error(ajv.errors)
+                }
+                throw new Error('Unable to parse required FILE_APP_CLIENTS json from environment')
             }
-            throw new Error('Unable to parse required FILE_APP_CLIENTS json from environment')
         }
 
         this.quota = quota
