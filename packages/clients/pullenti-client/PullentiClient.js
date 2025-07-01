@@ -17,12 +17,14 @@ class PullentiClient {
 
     /**
      * @param {string} url The address service url (root)
-     * @param {Object} [PullentiClientOptions] Optional parameters
+     * @param {PullentiClientOptions} [options] Optional parameters
      */
-    constructor (url, { processor = null } = {}) {
+    constructor (url, options = {}) {
         if (!url) {
             throw new Error('The `url` parameter is mandatory')
         }
+        
+        const { processor = null } = options
 
         this.url = url
         this.processor = processor
