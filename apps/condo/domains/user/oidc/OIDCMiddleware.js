@@ -81,13 +81,11 @@ class OIDCMiddleware {
 
                 console.log('oidc/interaction/:uid', interactionDetails)
 
-                // console.log('oidc/interaction/:uid:2', req)
 
-                const authUIFlags = interactionDetails?.params?.auth_ui_flags || null
-
+                const methods = interactionDetails?.params?.methods || null
 
                 if (!req.user) {
-                    res.redirect(`/auth/signin?next=${req.url}${authUIFlags ? '&auth_ui_flags=' + authUIFlags : ''}`)
+                    res.redirect(`/auth/signin?next=${req.url}&flow=oidc&${methods ? '&methods=' + methods : ''}`)
                     return
                 }
 

@@ -165,6 +165,7 @@ module.exports = function createConfiguration (context, conf) {
          * The key set may be generated with {@link https://mkjwk.org/}
          */
         jwks: jwksStr ? JSON.parse(jwksStr) : undefined,
-        extraParams: ['auth_ui_flags'],
+        // NOTE: This params use for customization of auth page
+        extraParams: ['flow', 'methods'],
     }
 }

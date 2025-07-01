@@ -21,7 +21,9 @@ function formatUserName (name) {
 
 const DROPDOWN_OVERLAY_STYLES: CSSProperties = { maxWidth: 180, width: '100%' }
 
-export const UserMenu: React.FC = () => {
+export const UserMenu: React.FC<{ goToAfterLogout?: string }> = ({
+    goToAfterLogout = '/auth/signin',
+}) => {
     const { breakpoints } = useLayoutContext()
 
     const intl = useIntl()
@@ -37,8 +39,8 @@ export const UserMenu: React.FC = () => {
 
     const handleSignOutClick = useCallback(async () => {
         await auth.signOut()
-        await router.push('/api/oidc/logout')
-    }, [auth])
+        await router.push(goToAfterLogout)
+    }, [auth, goToAfterLogout])
 
     const menu = useMemo<DropdownProps['menu']>(() => {
         return {
