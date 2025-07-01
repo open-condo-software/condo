@@ -2,7 +2,9 @@ const fs = require('fs')
 
 const { faker } = require('@faker-js/faker')
 const FormData = require('form-data')
+const jwt = require('jsonwebtoken')
 
+const conf = require('@open-condo/config')
 const { fetch } = require('@open-condo/keystone/fetch')
 const { getKVClient } = require('@open-condo/keystone/kv')
 const { makeClient, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
@@ -10,6 +12,8 @@ const { makeClient, makeLoggedInAdminClient } = require('@open-condo/keystone/te
 const DV_AND_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'test-runner' } }
 
 const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
+    const appClients = JSON.parse(conf['FILE_APP_CLIENTS'])
+    const appId = Object.keys(appClients)[0]
     let serverUrl
     let admin
     let filestream
@@ -62,7 +66,7 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                 form.append('file', filestream, 'dino.png')
                 form.append('meta', JSON.stringify({
                     authedItem: faker.datatype.uuid(),
-                    appId: 'test-app',
+                    appId,
                     ...DV_AND_SENDER,
                 }))
 
@@ -97,7 +101,7 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                 const json = await result.json()
 
                 expect(result.status).toEqual(405)
-                expect(json).toHaveProperty('error', 'Wrong request type. Only "multipart/form-data" is allowed')
+                expect(json).toHaveProperty('error', 'Wrong request method type. Only "multipart/form-data" is allowed')
             })
             test('upload file without required meta field should be not possible', async () => {
                 const form = new FormData()
@@ -188,7 +192,7 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
 
             test('upload without file should fail', async () => {
                 const form = new FormData()
-                form.append('meta', JSON.stringify({ authedItem: admin.user.id, appId: 'test-app', ...DV_AND_SENDER }))
+                form.append('meta', JSON.stringify({ authedItem: admin.user.id, appId, modelNames: ['SomeModel'], ...DV_AND_SENDER }))
                 const result = await fetch(serverUrl, {
                     method: 'POST',
                     body: form,
@@ -204,7 +208,9 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                 const form = new FormData()
                 form.append('meta', JSON.stringify({ authedItem: 123, ...DV_AND_SENDER }))
                 form.append('file', fs.readFileSync(testFile), 'dino.png')
-                const result = await fetch(serverUrl, { method: 'POST', body: form, headers: { Cookie: admin.getCookie() } })
+                const result = await fetch(serverUrl, {
+                    method: 'POST', body: form, headers: { Cookie: admin.getCookie() },
+                })
                 const json = await result.json()
 
                 expect(result.status).toEqual(400)
@@ -215,11 +221,56 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                 const form = new FormData()
                 form.append('file', fs.readFileSync(testFile), 'dino.png')
                 form.append('meta', JSON.stringify({ authedItem: admin.user.id, ...DV_AND_SENDER }))
-                const result = await fetch(serverUrl, { method: 'POST', body: form, headers: { Cookie: admin.getCookie() } })
+                const result = await fetch(serverUrl, {
+                    method: 'POST', body: form, headers: { Cookie: admin.getCookie() },
+                })
                 const json = await result.json()
 
                 expect(result.status).toEqual(400)
                 expect(json).toHaveProperty('error', 'Missing appId field for meta object')
+            })
+
+            test('upload with wrong appId should fail', async () => {
+                const appId = faker.datatype.uuid()
+                const form = new FormData()
+                form.append('file', filestream, 'dino.png')
+                form.append('meta', JSON.stringify({ authedItem: admin.user.id, appId, modelNames: ['SomeModel'], ...DV_AND_SENDER }))
+                const result = await fetch(serverUrl, {
+                    method: 'POST', body: form, headers: { Cookie: admin.getCookie() },
+                })
+                const json = await result.json()
+                expect(result.status).toEqual(403)
+                expect(json).toHaveProperty('error', `${appId} does not have permission to upload files`)
+            })
+        })
+        describe('signature', () => {
+            test('signed file must be decryptable', async () => {
+                const user = await createTestUser()
+                const form = new FormData()
+                const meta = {
+                    authedItem: user.user.id,
+                    appId,
+                    modelNames: ['SomeModel'],
+                    ...DV_AND_SENDER,
+                }
+                form.append('file', filestream, 'dino.png')
+                form.append('meta', JSON.stringify(meta))
+
+                const result = await fetch(serverUrl, {
+                    method: 'POST',
+                    body: form,
+                    headers: { Cookie: user.getCookie() },
+                })
+                const json = await result.json()
+
+                expect(result.status).toEqual(200)
+                expect(json).toHaveLength(1)
+                expect(json[0]).toHaveProperty('id')
+                expect(json[0]).toHaveProperty('signature')
+                const secret = JSON.parse(conf['FILE_APP_CLIENTS'])[meta.appId]['secret']
+                const data = jwt.verify(json[0].signature, secret)
+                console.log(data)
+                expect(data).not.toBeNull()
             })
         })
         describe('api', () => {
@@ -228,7 +279,8 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
                 const form = new FormData()
                 const meta = {
                     authedItem: user.user.id,
-                    appId: 'test-app',
+                    appId,
+                    modelNames: ['SomeModel'],
                     ...DV_AND_SENDER,
                 }
                 form.append('meta', JSON.stringify(meta))
@@ -244,15 +296,16 @@ const FileMiddlewareTests = (testFile, UserSchema, createTestUser) => {
 
                 expect(result.status).toEqual(200)
                 expect(json).toHaveLength(1)
-                console.log(json[0])
                 expect(json[0]).toHaveProperty('id')
+                expect(json[0]).toHaveProperty('signature')
             })
             test('uploading multiple files should be possible', async () => {
                 const user = await createTestUser()
                 const form = new FormData()
                 const meta = {
                     authedItem: user.user.id,
-                    appId: 'test-app',
+                    appId,
+                    modelNames: ['SomeModel'],
                     ...DV_AND_SENDER,
                 }
                 form.append('meta', JSON.stringify(meta))
