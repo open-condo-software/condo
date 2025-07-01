@@ -68319,7 +68319,6 @@ enum B2BAppIconType {
   Filter
   Flat
   Floor
-  FloorParking
   Frown
   Globe
   Guide
@@ -82713,6 +82712,8 @@ type CondoFileHistoryRecord {
   """
   _label_: String
   file: JSON
+  signature: String
+  user: String
   id: ID!
   v: Int
   createdAt: String
@@ -82735,6 +82736,28 @@ input CondoFileHistoryRecordWhereInput {
   file_not: JSON
   file_in: [JSON]
   file_not_in: [JSON]
+  signature: String
+  signature_not: String
+  signature_contains: String
+  signature_not_contains: String
+  signature_starts_with: String
+  signature_not_starts_with: String
+  signature_ends_with: String
+  signature_not_ends_with: String
+  signature_i: String
+  signature_not_i: String
+  signature_contains_i: String
+  signature_not_contains_i: String
+  signature_starts_with_i: String
+  signature_not_starts_with_i: String
+  signature_ends_with_i: String
+  signature_not_ends_with_i: String
+  signature_in: [String]
+  signature_not_in: [String]
+  user: String
+  user_not: String
+  user_in: [String]
+  user_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -82818,6 +82841,8 @@ input CondoFileHistoryRecordWhereUniqueInput {
 }
 
 enum SortCondoFileHistoryRecordsBy {
+  signature_ASC
+  signature_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -82838,6 +82863,8 @@ enum SortCondoFileHistoryRecordsBy {
 
 input CondoFileHistoryRecordUpdateInput {
   file: JSON
+  signature: String
+  user: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -82859,6 +82886,8 @@ input CondoFileHistoryRecordsUpdateInput {
 
 input CondoFileHistoryRecordCreateInput {
   file: JSON
+  signature: String
+  user: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -82890,6 +82919,13 @@ type CondoFile {
 
   """ File uploaded to platform """
   file: JSON
+
+  """ File signature created from user and storage meta and application secret 
+  """
+  signature: String
+
+  """ User who uploaded the file """
+  user: User
   id: ID!
   v: Int
   createdAt: String
@@ -82920,6 +82956,26 @@ input CondoFileWhereInput {
   file_not: JSON
   file_in: [JSON]
   file_not_in: [JSON]
+  signature: String
+  signature_not: String
+  signature_contains: String
+  signature_not_contains: String
+  signature_starts_with: String
+  signature_not_starts_with: String
+  signature_ends_with: String
+  signature_not_ends_with: String
+  signature_i: String
+  signature_not_i: String
+  signature_contains_i: String
+  signature_not_contains_i: String
+  signature_starts_with_i: String
+  signature_not_starts_with_i: String
+  signature_ends_with_i: String
+  signature_not_ends_with_i: String
+  signature_in: [String]
+  signature_not_in: [String]
+  user: UserWhereInput
+  user_is_null: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -82983,6 +83039,10 @@ input CondoFileWhereUniqueInput {
 }
 
 enum SortCondoFilesBy {
+  signature_ASC
+  signature_DESC
+  user_ASC
+  user_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -83003,6 +83063,8 @@ enum SortCondoFilesBy {
 
 input CondoFileUpdateInput {
   file: JSON
+  signature: String
+  user: UserRelateToOneInput
   v: Int
   createdAt: String
   updatedAt: String
@@ -83021,6 +83083,8 @@ input CondoFilesUpdateInput {
 
 input CondoFileCreateInput {
   file: JSON
+  signature: String
+  user: UserRelateToOneInput
   v: Int
   createdAt: String
   updatedAt: String
