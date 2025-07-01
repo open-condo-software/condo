@@ -1,3 +1,5 @@
+const { v4: uuid } = require('uuid')
+
 const { getAppServerUrl, updateAppEnvFile, prepareAppEnvLocalAdminUsers } = require('@open-condo/cli')
 
 async function updateAppEnvAddressSuggestionConfig (serviceName) {
@@ -8,11 +10,18 @@ async function updateAppEnvAddressSuggestionConfig (serviceName) {
     await updateAppEnvFile(serviceName, 'FAKE_FINANCE_INFO_CLIENT', 'true')
 }
 
+async function updateAppEnvFileClients (appName) {
+    await updateAppEnvFile(appName, 'FILE_APP_CLIENTS', JSON.stringify({
+        appName: { name: `${appName}-app`, secret: uuid() },
+    }))
+}
+
 async function main () {
     // 1) add local admin users!
     const appName = 'condo'
     await prepareAppEnvLocalAdminUsers(appName)
     await updateAppEnvAddressSuggestionConfig(appName)
+    await updateAppEnvFileClients(appName)
     console.log('done')
 }
 
