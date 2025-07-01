@@ -14,10 +14,11 @@ let instance
 
 /**
  * Creates a singleton instance of PullentiClient using the configuration from environment variables.
+ * @param {import('./PullentiClient').PullentiClientOptions} options
  * @returns {PullentiClient}
  * @throws {Error} If the configuration is not set or invalid.
  */
-function createInstance () {
+function createInstance (options) {
     const configStr = get(conf, CONFIG_KEY)
     if (!configStr) {
         throw new Error(`There is no '${CONFIG_KEY}' in .env.`)
@@ -34,7 +35,7 @@ function createInstance () {
     }
     
     if (!instance) {
-        instance = new PullentiClient(url)
+        instance = new PullentiClient(url, options)
     }
 
     return instance
