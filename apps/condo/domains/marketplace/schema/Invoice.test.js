@@ -1558,10 +1558,12 @@ describe('Invoice', () => {
                     type: MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE_TYPE,
                 }, { sortBy: 'createdAt_ASC' })
                 expect(messages2).toHaveLength(2)
-                expect(messages2[1].status).toEqual(MESSAGE_THROTTLED_STATUS)
+                expect(messages2).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ status: MESSAGE_THROTTLED_STATUS }),
+                ]))
             })
 
-            expect(messages1[0].id).toEqual(messages2[0].id)
+            expect(messages1[0].id).toEqual(messages2.filter(({ status }) => status !== MESSAGE_THROTTLED_STATUS)[0].id)
         })
 
 
