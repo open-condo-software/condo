@@ -672,8 +672,6 @@ __metadata:
     antd: ^4.24.12
     antd-dayjs-webpack-plugin: ^1.0.6
     classnames: ^2.2.6
-    connect-redis: ^8.1.0
-    cookie: ^0.7.0
     cookies-next: ^4.2.1
     dayjs: ^1.10.6
     emotion: ^10.0.27
@@ -685,9 +683,7 @@ __metadata:
     less: ^3.12.2
     lodash: ^4.17.21
     next: ^9.5.2
-    next-session: ^4.0.5
     next-transpile-modules: ^7.0.0
-    node-fetch: ^2.6.7
     openid-client: 4.7.4
     raw-loader: ^4.0.2
     rc-field-form: ~1.27.0
@@ -24928,15 +24924,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"connect-redis@npm:^8.1.0":
-  version: 8.1.0
-  resolution: "connect-redis@npm:8.1.0"
-  peerDependencies:
-    express-session: ">=1"
-  checksum: eb95b29a118a18e61e4fac42e21a24a5776f45b0bf5766557fb0bb819050212c5e90a687b0c3856f832676462907c5b218012b936c7d4a90a2bc4aa18d753448
-  languageName: node
-  linkType: hard
-
 "consola@npm:^3.2.3":
   version: 3.2.3
   resolution: "consola@npm:3.2.3"
@@ -38858,15 +38845,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nanoid@npm:^3.1.25":
-  version: 3.3.11
-  resolution: "nanoid@npm:3.3.11"
-  bin:
-    nanoid: bin/nanoid.cjs
-  checksum: 3be20d8866a57a6b6d218e82549711c8352ed969f9ab3c45379da28f405363ad4c9aeb0b39e9abc101a529ca65a72ff9502b00bf74a912c4b64a9d62dfd26c29
-  languageName: node
-  linkType: hard
-
 "nanoid@npm:^3.3.4":
   version: 3.3.4
   resolution: "nanoid@npm:3.3.4"
@@ -39015,16 +38993,6 @@ __metadata:
     react: ">=16.0.0"
     react-dom: ">=16.0.0"
   checksum: 94183bf0c75359bad52d9e6463fb433bdcf94f42b33e88a60897a8957b41bc3d6ebb5ead3084a43cf287c42f7b95ba4e9f3a6cd21af532e1a8eb285f2cf8ac3b
-  languageName: node
-  linkType: hard
-
-"next-session@npm:^4.0.5":
-  version: 4.0.5
-  resolution: "next-session@npm:4.0.5"
-  dependencies:
-    cookie: ^0.4.1
-    nanoid: ^3.1.25
-  checksum: fe34fca293ad029b8552e4ca67dcc807143030e5b28985bac0df32f872693595ba00493db4ebc2ea02e51bd4bec610989b5de06597ade7068687a67a8ea59e41
   languageName: node
   linkType: hard
 
