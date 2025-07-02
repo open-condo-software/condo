@@ -41,7 +41,8 @@ export const useAuthMethods: UseAuthMethods = () => {
     }, [flowFromQuery, methodsFromQuery, nextFromQuery])
 
     const authFlow = useMemo(() => {
-        return (typeof flowFromQuery === 'string' && (ALLOWED_FLOWS as any as Array<string>).includes(flowFromQuery))
+        const isValidFlow = (flow: string): flow is AuthFlows => (ALLOWED_FLOWS as readonly string[]).includes(flow)
+        return (typeof flowFromQuery === 'string' && isValidFlow(flowFromQuery))
             ? (flowFromQuery as AuthFlows)
             : 'default'
     }, [flowFromQuery])
