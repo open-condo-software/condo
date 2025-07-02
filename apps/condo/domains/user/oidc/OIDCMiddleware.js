@@ -79,9 +79,6 @@ class OIDCMiddleware {
             try {
                 let interactionDetails = await provider.interactionDetails(req, res)
 
-                console.log('oidc/interaction/:uid', interactionDetails)
-
-
                 const methods = interactionDetails?.params?.methods || null
 
                 if (!req.user) {
