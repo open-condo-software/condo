@@ -1,0 +1,9 @@
+.delete-icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.delete-icon {
+  cursor: pointer;
+}
