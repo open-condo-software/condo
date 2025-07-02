@@ -1,3 +1,5 @@
+const { faker } = require('@faker-js/faker')
+
 const { getKVPrefix } = require('./kv')
 
 describe('Key value adapter', () => {
@@ -54,15 +56,18 @@ describe('Key value adapter', () => {
     })
 
     test('pipeline/multi operations should work as expected', async () => {
+        const key = `incrTest:${faker.datatype.string(16)}`
+        const incrStep = faker.datatype.number({ min: 1, max: 100 })
+
         const [[incrError, incrValue], [ttlError, ttlValue]] = await client
             .multi()
-            .incrby('incrTest', 1)
-            .ttl('incrTest')
+            .incrby(key, incrStep)
+            .ttl(key)
             .exec()
 
         expect(incrError).toBeNull()
         expect(ttlError).toBeNull()
-        expect(incrValue).toEqual(1)
+        expect(incrValue).toEqual(incrStep)
         expect(ttlValue).toEqual(-1)
     })
 
