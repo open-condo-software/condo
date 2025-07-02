@@ -70,11 +70,17 @@ class TelegramOauthRoutes {
                 redirectUrl: encodeURIComponent(redirectUrl),
                 tgAuthData: req.query.tgAuthData,
             })
+            console.error('CALLBACK URL', {
+                ...req.query,
+                redirectUrl: encodeURIComponent(redirectUrl),
+                tgAuthData: req.query.tgAuthData,
+            })
+            console.error(callbackUrl.toString())
             if (identity) {
                 return res.redirect(callbackUrl)
             }
             if (!req.user || req.user.type !== userType) {
-                const returnToUrl = `${conf.SERVER_URL}${req.url}?${callbackUrl.searchParams.toString()}`
+                const returnToUrl = `${conf.SERVER_URL}${req.url}`
                 return res.redirect(`/auth?next=${encodeURIComponent(returnToUrl)}&userType=${userType}`)
             }
             return res.redirect(callbackUrl)
@@ -151,7 +157,7 @@ class TelegramOauthRoutes {
             return res.status(error.status).json({ error: error.toJSON() })
         }
         logger.error({ msg: errMsg, reqId: res.req.id, err: error })
-        return next()
+        return next(error)
     }
     
     _validateBotId (req) {
