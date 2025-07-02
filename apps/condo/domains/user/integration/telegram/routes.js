@@ -19,6 +19,18 @@ const { validateOauthConfig, isValidMiniAppInitParams, validateState } = require
 
 const logger = getLogger('telegram-oauth/routes')
 
+function isAuthorized (req) {
+    return !!req.user
+}
+
+function isUserWithRightType (req, userType) {
+    return isAuthorized(req) && req.user.type === userType
+}
+
+function isSuperUser (req) {
+    return isAuthorized(req) && (req.user.isAdmin || req.user.isSupport)
+}
+
 class BotsConfigProvider {
     isValid
     validationError
@@ -76,11 +88,22 @@ class TelegramOauthRoutes {
                 tgAuthData: req.query.tgAuthData,
             })
             console.error(callbackUrl.toString())
+            console.error('REQ USER', req.user)
+            const invalidUserOrUserType = !req.user || req.user.type !== userType
+            debugger
             if (identity) {
+                console.error('FOUND IDENTITY', !invalidUserOrUserType, identity?.user?.id === req?.user?.id, !invalidUserOrUserType && identity?.user?.id === req?.user?.id)
+                if (isAuthorized(req) && (!isUserWithRightType(req, userType) || isSuperUser(req) || identity.user.id !== req.user.id)) {
+                    await context._sessionManager.endAuthedSession(req)
+                }
                 return res.redirect(callbackUrl)
             }
-            if (!req.user || req.user.type !== userType) {
-                const returnToUrl = `${conf.SERVER_URL}${req.url}`
+            if (!isAuthorized(req) || !isUserWithRightType(req, userType) || isSuperUser(req)) {
+                if (isAuthorized(req)) {
+                    await context._sessionManager.endAuthedSession(req)
+                }
+                const reqUrl = new URL(`https://www.dummy-url.com${req.url}`)
+                const returnToUrl = `${conf.SERVER_URL}${reqUrl.pathname}?${encodeURIComponent(reqUrl.searchParams.toString())}`
                 return res.redirect(`/auth?next=${encodeURIComponent(returnToUrl)}&userType=${userType}`)
             }
             return res.redirect(callbackUrl)
@@ -99,6 +122,8 @@ class TelegramOauthRoutes {
             } = this._validateParameters(req, res, next)
             // sync user
             const { keystone: context } = await getSchemaCtx('User')
+            console.error(req.user)
+            debugger
             const { id } = await syncUser({ authenticatedUser: req.user, userInfo: tgAuthData, context, userType })
             // authorize user
             await this.authorizeUser(req, context, id)
