@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "test": "mkdirp dist/admin && jest --unhandled-rejections=strict",
+    "test": "mkdirp dist/admin && cross-env NODE_OPTIONS=--experimental-vm-modules jest --unhandled-rejections=strict",
     "prepare": "node ./bin/prepare.js",
     "dev": "yarn build:deps && cross-env NODE_OPTIONS=\"--max_old_space_size=6144\" NODE_ENV=development node --trace-warnings ./../../bin/run-keystone-app.js & yarn types:watch",
     "debug": "node inspect node_modules/.bin/keystone dev",
