@@ -2,6 +2,8 @@ const Big = require('big.js')
 const dayjs = require('dayjs')
 const localizedFormat = require('dayjs/plugin/localizedFormat')
 const { get } = require('lodash')
+// TODO(Tolmachev): DOMA-11884 1.16.0+ Moved away from CJS, consider migrating to to-words or other CJS-friendly alternatives
+const n2words = require('n2words')
 dayjs.extend(localizedFormat)
 
 const { FinanceInfoClient } = require('@open-condo/clients/finance-info-client/FinanceInfoClient')
@@ -18,9 +20,6 @@ const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/c
 const { TICKET_DOCUMENT_GENERATION_TASK_FORMAT } = require('@condo/domains/ticket/constants/ticketDocument')
 
 const logger = getLogger('generateDocumentOfPaidWorksCompletion')
-
-// N2Words provides only ESM syntax. Dynamic import is required to use this library in a CommonJS module.
-const n2wordsImport = import('n2words').then(module => module.default)
 
 const LONG_BLANK = '____________________________________'
 const SHORT_BLANK = '__________________'
@@ -74,7 +73,6 @@ const buildExportWordFile = async ({ task, documentData, locale, timeZone }) => 
 }
 
 const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, locale, ticket, organization }) => {
-    const n2words = await n2wordsImport
     const { iec, psrn, organizationAddress } = await getFinanceInfoDataByLocale(organization, { locale })
 
     const { format, timeZone: timeZoneFromUser } = task

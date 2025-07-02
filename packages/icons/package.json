@@ -47,7 +47,7 @@
     "@svgr/plugin-prettier": "^6.5.1",
     "@svgr/plugin-svgo": "^6.5.1",
     "@types/fs-extra": "^9.0.13",
-    "@types/node": "^18.11.17",
+    "@types/node": "^22",
     "axios": "^1.2.1",
     "babel": "^6.23.0",
     "babel-loader": "^9.1.0",

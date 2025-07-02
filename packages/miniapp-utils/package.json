@@ -167,7 +167,7 @@
     "@apollo/client": "^3.11.8",
     "@open-condo/tsconfig": "workspace:^",
     "@types/jest": "^29.5.14",
-    "@types/node": "^16",
+    "@types/node": "^22",
     "@types/react": "^17.0.2",
     "analytics": "^0.8.16",
     "graphql": "^16.10.0",

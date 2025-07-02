@@ -17,6 +17,7 @@ on:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  # TODO: Replace to true
   cancel-in-progress: true
 
 env:
@@ -387,6 +388,8 @@ jobs:
       - authorize
       - build-image
     strategy:
+      # TODO: remove this back
+      fail-fast: false
       matrix:
         domain:
           - organization
