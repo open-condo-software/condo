@@ -44,9 +44,9 @@ const getTextWithAccent = (text: string) => {
 
     return parts.map((part, index) => {
         if (index % 2 === 0) {
-            return <Typography.Text type='secondary'>{part}</Typography.Text>
+            return <Typography.Text key={`${index}_${part}`} type='secondary'>{part}</Typography.Text>
         } else {
-            return <Typography.Text type='primary'>{part}</Typography.Text>
+            return <Typography.Text key={`${index}_${part}`} type='primary'>{part}</Typography.Text>
         }
     })
 }

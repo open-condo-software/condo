@@ -38,6 +38,7 @@ module.exports = {
         'apps/*/gql/*.ts',
     ],
     rules: {
+        'react/no-unknown-property': ['error', { ignore: ['css'] }],
         'comma-spacing': 'off',
         '@typescript-eslint/comma-spacing': 'error',
         indent: 'off',
