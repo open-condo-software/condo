@@ -47,7 +47,7 @@ export const useAuthMethods: UseAuthMethods = () => {
     }, [flowFromQuery])
     const authMethodsList = useMemo(() => {
         if (typeof methodsFromQuery === 'string') return methodsFromQuery.split(',')
-        return [...ALLOWED_FLOWS]
+        return [...ALLOWED_AUTH_METHODS]
     }, [methodsFromQuery])
 
     const authMethods = useMemo(() => {
