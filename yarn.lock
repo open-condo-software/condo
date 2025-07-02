@@ -22248,7 +22248,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"graphql@npm:^15.5.0, graphql@npm:^15.6.1":
+"graphql@npm:^15.5.0":
   version: 15.10.1
   resolution: "graphql@npm:15.10.1"
   checksum: 03e67181eaf803a6248806259a24d221333a05360e8952d155dba57c63691eec5e23969c52deea1d7314e7cdfe8bfef8857d9427e321ed615fc1400a8504ff59
@@ -35850,8 +35850,6 @@ __metadata:
     "@commitlint/cli": ^17.1.2
     "@commitlint/config-conventional": ^17.1.0
     "@faker-js/faker": ^7.6.0
-    "@graphql-codegen/cli": ^5.0.2
-    "@graphql-codegen/typescript": ^4.0.9
     "@jest/reporters": ^29.7.0
     "@mono-pub/commit-analyzer": ^1.0.5
     "@mono-pub/git": ^1.0.5
