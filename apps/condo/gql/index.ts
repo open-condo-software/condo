@@ -2333,6 +2333,56 @@ export type GetEmployeeB2BAppRolesQueryHookResult = ReturnType<typeof useGetEmpl
 export type GetEmployeeB2BAppRolesLazyQueryHookResult = ReturnType<typeof useGetEmployeeB2BAppRolesLazyQuery>;
 export type GetEmployeeB2BAppRolesSuspenseQueryHookResult = ReturnType<typeof useGetEmployeeB2BAppRolesSuspenseQuery>;
 export type GetEmployeeB2BAppRolesQueryResult = Apollo.QueryResult<Types.GetEmployeeB2BAppRolesQuery, Types.GetEmployeeB2BAppRolesQueryVariables>;
+export const GetCustomValuesForObjectDocument = gql`
+    query getCustomValuesForObject($schemaName: CustomFieldSchemaNameType!, $objectId: String!) {
+  customValues: allCustomValues(
+    where: {customField: {schemaName: $schemaName}, objectId: $objectId}
+  ) {
+    id
+    data
+    customField {
+      priority
+      name
+    }
+    sourceType
+    sourceId
+  }
+}
+    `;
+
+/**
+ * __useGetCustomValuesForObjectQuery__
+ *
+ * To run a query within a React component, call `useGetCustomValuesForObjectQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCustomValuesForObjectQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCustomValuesForObjectQuery({
+ *   variables: {
+ *      schemaName: // value for 'schemaName'
+ *      objectId: // value for 'objectId'
+ *   },
+ * });
+ */
+export function useGetCustomValuesForObjectQuery(baseOptions: Apollo.QueryHookOptions<Types.GetCustomValuesForObjectQuery, Types.GetCustomValuesForObjectQueryVariables> & ({ variables: Types.GetCustomValuesForObjectQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetCustomValuesForObjectQuery, Types.GetCustomValuesForObjectQueryVariables>(GetCustomValuesForObjectDocument, options);
+      }
+export function useGetCustomValuesForObjectLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetCustomValuesForObjectQuery, Types.GetCustomValuesForObjectQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetCustomValuesForObjectQuery, Types.GetCustomValuesForObjectQueryVariables>(GetCustomValuesForObjectDocument, options);
+        }
+export function useGetCustomValuesForObjectSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetCustomValuesForObjectQuery, Types.GetCustomValuesForObjectQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetCustomValuesForObjectQuery, Types.GetCustomValuesForObjectQueryVariables>(GetCustomValuesForObjectDocument, options);
+        }
+export type GetCustomValuesForObjectQueryHookResult = ReturnType<typeof useGetCustomValuesForObjectQuery>;
+export type GetCustomValuesForObjectLazyQueryHookResult = ReturnType<typeof useGetCustomValuesForObjectLazyQuery>;
+export type GetCustomValuesForObjectSuspenseQueryHookResult = ReturnType<typeof useGetCustomValuesForObjectSuspenseQuery>;
+export type GetCustomValuesForObjectQueryResult = Apollo.QueryResult<Types.GetCustomValuesForObjectQuery, Types.GetCustomValuesForObjectQueryVariables>;
 export const GetNewsItemsRecipientsCountersDocument = gql`
     query getNewsItemsRecipientsCounters($data: GetNewsItemsRecipientsCountersInput!) {
   result: getNewsItemsRecipientsCounters(data: $data) {
