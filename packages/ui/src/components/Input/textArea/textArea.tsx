@@ -21,9 +21,9 @@ Pick<AntdTextAreaProps, 'autoSize'> & {
     showCount?: boolean
     value?: string
     defaultValue?: string
+    isSubmitDisabled?: boolean
     onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
 }
-
 
 const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
     const {
@@ -38,6 +38,7 @@ const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
         defaultValue = '',
         onChange: propsOnChange,
         autoFocus,
+        isSubmitDisabled,
         ...restProps
     } = props
 
@@ -99,7 +100,9 @@ const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
                     {hasBottomPanelUtils && (
                         <span className={`${TEXTAREA_CLASS_PREFIX}-utils`}>
                             {bottomPanelUtils.map((util, index) => (
-                                <React.Fragment key={index}>{ React.cloneElement(util, { disabled: disabled }) }</React.Fragment>
+                                <React.Fragment key={index}>
+                                    {React.cloneElement(util, { disabled: util.props.disabled || disabled })}
+                                </React.Fragment>
                             ))}
                         </span>
                     )}
@@ -115,7 +118,7 @@ const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
                             {
                                 onSubmit &&
                                 <Button
-                                    disabled={disabled}
+                                    disabled={disabled || isSubmitDisabled}
                                     type='accent'
                                     size='medium'
                                     onClick={() => onSubmit(currentValue)}
