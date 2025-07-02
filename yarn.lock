@@ -623,7 +623,7 @@ __metadata:
     react-dom: ^17.0.2
     react-hotkeys-hook: 3.4.6
     react-indiana-drag-scroll: ^2.0.1
-    react-infinite-scroller: 1.2.6
+    react-infinite-scroll-component: ^6.1.0
     react-intl: ^7.1.11
     react-phone-input-2: ^2.14.0
     react-progressive-image: ^0.6.0
@@ -34006,14 +34006,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-infinite-scroller@npm:1.2.6":
-  version: 1.2.6
-  resolution: "react-infinite-scroller@npm:1.2.6"
+"react-infinite-scroll-component@npm:^6.1.0":
+  version: 6.1.0
+  resolution: "react-infinite-scroll-component@npm:6.1.0"
   dependencies:
-    prop-types: ^15.5.8
+    throttle-debounce: ^2.1.0
   peerDependencies:
-    react: ^0.14.9 || ^15.3.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
-  checksum: 5f5aae76c484b4039bada87070d5f8c54d2786697ae600be19a68f4e85158ff550122f15dccc5997d8b01fa487da47b9ffbc3e9d9a29f2cf71c77275f72551fd
+    react: ">=16.0.0"
+  checksum: 3708398934366df907dbad215247ebc1033221957ce7e32289ea31750cce70aa16513e2d03743e06c8b868ac7c542d12d5dbb6c830fd408433a4762f3cb5ecfb
   languageName: node
   linkType: hard
 
@@ -38360,6 +38360,13 @@ __metadata:
   bin:
     thrift2json: ./thrift2json.js
   checksum: fc03374131a713f5c5eca712a4092abf48282d985d23542f3ef7c92d222af52716e7037c446d5734708cc514d8fad42674f82dd6a9c59b8807beba0a1169b539
+  languageName: node
+  linkType: hard
+
+"throttle-debounce@npm:^2.1.0":
+  version: 2.3.0
+  resolution: "throttle-debounce@npm:2.3.0"
+  checksum: 6d90aa2ddb294f8dad13d854a1cfcd88fdb757469669a096a7da10f515ee466857ac1e750649cb9da931165c6f36feb448318e7cb92570f0a3679d20e860a925
   languageName: node
   linkType: hard
 

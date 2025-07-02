@@ -44,7 +44,6 @@ const DocsGraphPage: PageComponentType = () => {
             />
         </Head>
         <DynamicVoyager
-            workerURI='https://cdn.jsdelivr.net/npm/graphql-voyager/dist/voyager.worker.js'
             introspection={introspectionProvider}/>
     </>
 }

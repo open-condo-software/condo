@@ -327,7 +327,7 @@ export function generateReactHooks<
 
         const count = (data && data.meta) ? data.meta.count : null
         const typedRefetch: IRefetchType<GQLObject, QueryVariables> = refetch
-        const typedFetchMore: IFetchMoreType<GQLObject, QueryVariables> = fetchMore
+        const typedFetchMore: IFetchMoreType<GQLObject, QueryVariables> = fetchMore as IFetchMoreType<GQLObject, QueryVariables>
         const typedStopPolling: IStopPollingType = stopPolling
 
         let readableError
@@ -362,7 +362,7 @@ export function generateReactHooks<
         const objs: GQLObject[] = useMemo(() => (data && data.objs) ? data.objs.filter(nonNull) : [], [data])
         const count = (data && data.meta) ? data.meta.count : null
         const typedRefetch: IRefetchType<GQLObject, QueryVariables> = refetch
-        const typedFetchMore: IFetchMoreType<GQLObject, QueryVariables> = fetchMore
+        const typedFetchMore: IFetchMoreType<GQLObject, QueryVariables> = fetchMore as IFetchMoreType<GQLObject, QueryVariables>
         const typedStopPolling: IStopPollingType = stopPolling
 
         let readableError

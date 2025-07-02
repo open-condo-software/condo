@@ -5,7 +5,7 @@ import { Skeleton, Typography, List } from 'antd'
 import get from 'lodash/get'
 import dynamic from 'next/dynamic'
 import React, { useRef, useEffect, useState, useCallback } from 'react'
-import InfiniteScroll from 'react-infinite-scroller'
+import InfiniteScroll from 'react-infinite-scroll-component'
 
 import { useIntl } from '@open-condo/next/intl'
 
@@ -251,10 +251,11 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = (props) => {
                 />
                 <ScrollContainer height={infiniteScrollContainerHeight}>
                     <InfiniteScroll
-                        initialLoad={false}
-                        loadMore={loadMore}
+                        next={loadMore}
                         hasMore={hasMore}
-                        useWindow={false}>
+                        loader={null}
+                        dataLength={seriesRef.current.length}
+                    >
                         <List
                             grid={{ gutter: 24, xs: 1, sm: 1, md: 1, lg: 1, xl: 2, xxl: 2 }}
                             dataSource={seriesRef.current}
@@ -271,7 +272,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = (props) => {
                                 return (
                                     <List.Item key={`pie-${index}`} style={{ width: 620 }}>
                                         <ReactECharts
-                                            // @ts-ignore
+                                        // @ts-ignore
                                             ref={element => chartRefs.current[index] = element}
                                             opts={opts}
                                             onChartReady={() => setChartReadyCounter(chartReadyCounter + 1)}
