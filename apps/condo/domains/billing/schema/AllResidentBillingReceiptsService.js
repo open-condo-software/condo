@@ -188,10 +188,10 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                     processedReceipts
                         .map(receipt => get(receipt, ['serviceConsumer', 'acquiringIntegrationContext'], null))
                         .filter(Boolean)
-                )];
+                )]
                 const formulas = await Promise.all(uniqueContextIds.map(contextId =>
                     getAcquiringIntegrationContextFormula(context, contextId)
-                ));
+                ))
                 const formulaMap = {}
 
                 uniqueContextIds.forEach((contextId, index) => {
