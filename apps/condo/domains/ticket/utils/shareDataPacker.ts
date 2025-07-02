@@ -21,6 +21,8 @@ const BROTLI_MARKER = '3:'
 function evpBytesToKey (password: Buffer, salt: Buffer, keyLen = 32, ivLen = 16) {
     let out = Buffer.alloc(0), prev = Buffer.alloc(0)
     while (out.length < keyLen + ivLen) {
+        // NOTE: not used for real encryption, just to encode public data and only for legacy links
+        // nosemgrep: javascript.lang.security.audit.md5-used-as-password.md5-used-as-password
         prev = crypto.createHash('md5').update(prev).update(password).update(salt).digest()
         out = Buffer.concat([out, prev])
     }
