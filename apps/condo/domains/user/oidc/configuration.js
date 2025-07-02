@@ -91,9 +91,6 @@ module.exports = function createConfiguration (context, conf) {
         },
         interactions: {
             url (ctx, interaction) { // eslint-disable-line no-unused-vars
-                console.log('interactions:url::ctx', ctx)
-                console.log('interactions:url::interaction', interaction)
-
                 return `/oidc/interaction/${interaction.uid}`
             },
         },
