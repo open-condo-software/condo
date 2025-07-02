@@ -9,11 +9,11 @@ const { catchErrorFrom, getRandomString } = require('@open-condo/keystone/test.u
 const SUPPORTED_MODES = ['cbc', 'ctr', 'gcm']
 const ENCRYPTION_PREFIX = ['\u{200B}', '\u{034F}', '\u{180C}', '\u{1D175}', '\u{E003B}', '\u{2800}'].join('')
 
-function getSecretKey(len) {
+function getSecretKey (len) {
     return crypto.randomBytes(len)
 }
 
-function expectToThrowOrDecryptOrWrongResult(encryptionManager, encryptedValue, expectedValue) {
+function expectToThrowOrDecryptOrWrongResult (encryptionManager, encryptedValue, expectedValue) {
     let didThrow = false
     let didGiveWrongResult = false
     try {
@@ -32,7 +32,7 @@ function expectToThrowOrDecryptOrWrongResult(encryptionManager, encryptedValue, 
  * You can run node with NODE_OPTIONS="--openssl-legacy-provider" to be backward-compatible,
  * However, in test we'll only test ones available by current Node runtime
  */
-function _isUsableCipher(alg, keyLen, ivLen = 0) {
+function _isUsableCipher (alg, keyLen, ivLen = 0) {
     try {
         const key = crypto.randomBytes(keyLen || 16)
         const iv = ivLen ? crypto.randomBytes(ivLen) : null
@@ -45,7 +45,7 @@ function _isUsableCipher(alg, keyLen, ivLen = 0) {
     }
 }
 
-function _getUsableCyphers() {
+function _getUsableCyphers () {
     return crypto.getCiphers()
         .filter(alg => {
             const info = crypto.getCipherInfo(alg)
@@ -53,7 +53,7 @@ function _getUsableCyphers() {
         })
 }
 
-function generateVersions() {
+function generateVersions () {
     const cipherAlgorithms = _getUsableCyphers()
 
     const cipherInfos = cipherAlgorithms.map(alg => crypto.getCipherInfo(alg))
@@ -69,7 +69,7 @@ function generateVersions() {
     return { versions: groupBy(versions, 'mode'), modes: [...modes] }
 }
 
-function generateVersionsInMode(mode, count = 1) {
+function generateVersionsInMode (mode, count = 1) {
     const cipherAlgorithms = _getUsableCyphers()
     const cipherInfos = cipherAlgorithms
         .map(alg => crypto.getCipherInfo(alg))
