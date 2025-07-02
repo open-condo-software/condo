@@ -36,6 +36,7 @@ DROP INDEX IF EXISTS "message_user_type_org";
 --
 -- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
 --
+SET statement_timeout = '10s';
 COMMIT;
 
     `)
