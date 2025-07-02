@@ -9,11 +9,11 @@ const { catchErrorFrom, getRandomString } = require('@open-condo/keystone/test.u
 const SUPPORTED_MODES = ['cbc', 'ctr', 'gcm']
 const ENCRYPTION_PREFIX = ['\u{200B}', '\u{034F}', '\u{180C}', '\u{1D175}', '\u{E003B}', '\u{2800}'].join('')
 
-function getSecretKey (len) {
+function getSecretKey(len) {
     return crypto.randomBytes(len)
 }
 
-function expectToThrowOrDecryptOrWrongResult (encryptionManager, encryptedValue, expectedValue) {
+function expectToThrowOrDecryptOrWrongResult(encryptionManager, encryptedValue, expectedValue) {
     let didThrow = false
     let didGiveWrongResult = false
     try {
@@ -25,8 +25,37 @@ function expectToThrowOrDecryptOrWrongResult (encryptionManager, encryptedValue,
     expect(didThrow || didGiveWrongResult).toBe(true)
 }
 
-function generateVersions () {
-    const cipherAlgorithms = crypto.getCiphers()
+/**
+ * NOTE: generateVersions generates a lot of combinations of algorithms, which are available on the machine
+ * and provided by OpenSSL binaries
+ * However, modern Node environments does not fully support all of them, since some are deprecated
+ * You can run node with NODE_OPTIONS="--openssl-legacy-provider" to be backward-compatible,
+ * However, in test we'll only test ones available by current Node runtime
+ */
+function _isUsableCipher(alg, keyLen, ivLen = 0) {
+    try {
+        const key = crypto.randomBytes(keyLen || 16)
+        const iv = ivLen ? crypto.randomBytes(ivLen) : null
+        const c = crypto.createCipheriv(alg, key, iv)
+        c.update(Buffer.alloc(1))
+        c.final()
+        return true
+    } catch {
+        return false
+    }
+}
+
+function _getUsableCyphers() {
+    return crypto.getCiphers()
+        .filter(alg => {
+            const info = crypto.getCipherInfo(alg)
+            return _isUsableCipher(alg, info.keyLength, info.ivLength)
+        })
+}
+
+function generateVersions() {
+    const cipherAlgorithms = _getUsableCyphers()
+
     const cipherInfos = cipherAlgorithms.map(alg => crypto.getCipherInfo(alg))
     const modes = new Set(cipherInfos.map(info => info.mode))
 
@@ -40,8 +69,8 @@ function generateVersions () {
     return { versions: groupBy(versions, 'mode'), modes: [...modes] }
 }
 
-function generateVersionsInMode (mode, count = 1) {
-    const cipherAlgorithms = crypto.getCiphers()
+function generateVersionsInMode(mode, count = 1) {
+    const cipherAlgorithms = _getUsableCyphers()
     const cipherInfos = cipherAlgorithms
         .map(alg => crypto.getCipherInfo(alg))
         .filter(info => info.mode === mode)
@@ -160,7 +189,7 @@ describe('EncryptionManager', () => {
         for (let i = 0; i < differentVersionsCount; i++) {
             const versionsSingle = generateVersionsInMode('cbc', 1)
             const encryptionVersionId = Object.keys(versionsSingle)[0]
-            const manager = new EncryptionManager({ versions: versionsSingle, encryptionVersionId  })
+            const manager = new EncryptionManager({ versions: versionsSingle, encryptionVersionId })
             encryptedInDifferentVersionsStrings.push(manager.encrypt(exampleString))
             versions[encryptionVersionId] = versionsSingle[encryptionVersionId]
         }
@@ -174,15 +203,15 @@ describe('EncryptionManager', () => {
             expect(decrypted).toEqual(exampleString)
         })
     })
-    
+
     describe('Unsuccessful decryption', () => {
-        const manager = new EncryptionManager({ 
+        const manager = new EncryptionManager({
             versions: {
                 '1': { algorithm: 'aes-256-cbc', secret: getSecretKey(32) },
             },
             encryptionVersionId: '1',
         })
-        
+
         const nonStrings = [
             [],
             {},
@@ -192,7 +221,7 @@ describe('EncryptionManager', () => {
             123,
             Symbol(),
         ]
-        
+
         test.each(nonStrings)('Passed non string %p', (nonString) => {
             expect(() => manager.decrypt(nonString)).toThrow()
         })
