@@ -19,7 +19,7 @@ const DemoButton = ({ icon, text, disabled }: { text?: string, icon: React.React
 const iconCombinations = {
     'copy-search': [
         <DemoButton icon={<condoIcons.Copy size='small'/>} key='copy' />,
-        <DemoButton icon={<condoIcons.Search />} key='search' />,
+        <DemoButton icon={<condoIcons.Search size='small'/>} key='search' />,
     ],
     'edit-copy': [
         <DemoButton icon={<condoIcons.Edit size='small'/>} key='edit' />,
@@ -46,7 +46,6 @@ export default {
         bottomPanelUtils: iconCombinations['copy-search'],
         autoSize: { minRows: 1, maxRows: 4 },
         disabled: false,
-        rows: 1,
         showCount: true,
     },
     argTypes: {
