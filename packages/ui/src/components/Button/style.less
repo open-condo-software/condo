@@ -487,17 +487,23 @@
       }
     }
 
+    &.condo-btn-minimal:not(.condo-btn-dangerous) {
+      .condo-btn-static-text-color(@condo-global-color-gray-7);
+      .condo-btn-content-color(@condo-global-color-gray-7);
+    }
+
     &.condo-btn-stateless:not(:disabled) {
       &:not(.condo-btn-dangerous) {
         .condo-btn-content-color(@condo-global-color-black);
       }
 
       &.condo-btn-minimal:not(.condo-btn-dangerous) {
-        .condo-btn-content-color(@condo-global-color-gray-7);
-      }
-
-      &.condo-btn-minimal:not(.condo-btn-dangerous):hover {
-        .condo-btn-content-color(@condo-global-color-gray-7);
+        &,
+        &:active,
+        &:hover {
+          .condo-btn-static-text-color(@condo-global-color-gray-7);
+          .condo-btn-content-color(@condo-global-color-gray-7);
+        }
       }
 
       &:hover,
