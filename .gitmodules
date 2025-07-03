@@ -1,3 +1,6 @@
 [submodule "infrastructure/helm"]
 	path = .helm
 	url = ../infrastructure-condo.git
+[submodule "apps/announcements"]
+	path = apps/announcements
+	url = git@github.com:open-condo-software/condo-announcements.git
