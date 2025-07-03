@@ -19,7 +19,7 @@
         "lodash": "^4.17.21",
         "ncp": "^2.0.0",
         "nunjucks": "^3.2.4",
-        "pluralize": "^8",
+        "pluralize": "^8.0.0",
         "yargs": "^16.2.0"
     },
     "eslintConfig": {
@@ -28,8 +28,8 @@
         ]
     },
     "peerDependencies": {
-        "@graphql-tools/graphql-file-loader": "^7.5.5",
-        "@graphql-tools/load": "^8.0.0",
+        "@graphql-tools/graphql-file-loader": "^7.5.17",
+        "@graphql-tools/load": "^8.1.0",
         "react": ">=16",
         "react-dom": ">=16"
     },

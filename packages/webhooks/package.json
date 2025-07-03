@@ -31,7 +31,7 @@
     "graphql-tag": "^2.12.6",
     "lodash": "^4.17.21",
     "node-fetch": "^2.6.7",
-    "pluralize": "^8",
+    "pluralize": "^8.0.0",
     "redlock": "^5.0.0-beta.2",
     "uuid": "^8.3.0"
   },
@@ -42,8 +42,8 @@
     "jest-jasmine2": "^29.7.0"
   },
   "peerDependencies": {
-    "@graphql-tools/graphql-file-loader": "^7.5.5",
-    "@graphql-tools/load": "^7.8.12",
+    "@graphql-tools/graphql-file-loader": "^7.5.17",
+    "@graphql-tools/load": "^8.1.0",
     "@open-keystone/fields": "^24.0.0"
   }
 }

@@ -52,7 +52,7 @@
     "babel": "^6.23.0",
     "babel-loader": "^9.1.0",
     "chalk": "4.1.2",
-    "dotenv": "^16.0.3",
+    "dotenv": "^16.4.7",
     "figma-js": "^1.16.0",
     "figma-transformer": "^2.1.0",
     "fs-extra": "^11.1.0",
