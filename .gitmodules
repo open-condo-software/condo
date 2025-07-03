@@ -4,6 +4,9 @@
 [submodule "apps/announcements"]
 	path = apps/announcements
 	url = git@github.com:open-condo-software/condo-announcements.git
+[submodule "apps/asterisk-bot"]
+	path = apps/asterisk-bot
+	url = git@github.com:open-condo-software/condo-asterisk-bot.git
 [submodule "apps/documents"]
 	path = apps/documents
 	url = git@github.com:open-condo-software/condo-documents.git
