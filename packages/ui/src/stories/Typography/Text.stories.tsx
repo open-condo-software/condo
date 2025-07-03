@@ -70,7 +70,7 @@ const Template: StoryFn<typeof Typography.Text> = (args) => {
                 }
                 if (type === 'inverted') {
                     return (
-                        <InvertedBackground key={String(type)}>
+                        <InvertedBackground>
                             <Typography.Text {...props} />
                         </InvertedBackground>
                     )
