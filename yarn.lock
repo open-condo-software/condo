@@ -757,7 +757,6 @@ __metadata:
     babel-jest: ^29.7.0
     bad-words-next: ^1.6.7
     big.js: ^6.1.1
-    body-parser: ^1.19.1
     carbone: 3.2.3
     classnames: ^2.2.6
     commander: ^11.0.0
