@@ -1,5 +1,5 @@
 import { MeterUnitTypeType } from '@app/condo/schema'
-import { Col, FormInstance, Row } from 'antd'
+import { Col, Form, FormInstance, Row } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
 import dayjs, { Dayjs } from 'dayjs'
 import get from 'lodash/get'
@@ -80,7 +80,7 @@ const getInitialDateValue = (initialValues, path) => {
     return stringInitialValue && dayjsInitialValue.isValid() ? dayjsInitialValue : null
 }
 
-export const BaseMetersFormFields: React.FC<BaseMetersFormFieldsProps> = ({ 
+export const BaseMetersFormFields: React.FC<BaseMetersFormFieldsProps> = ({
     form,
     meterType,
     addressKey,
@@ -117,8 +117,8 @@ export const BaseMetersFormFields: React.FC<BaseMetersFormFieldsProps> = ({
     const [verificationDate, setVerificationDate] = useState<Dayjs>(initialVerificationDate)
 
     const initialMeterNumber = get(initialValues, ['number'], null)
-    const unitName = form.getFieldValue('unitName') || null
-    const unitType = form.getFieldValue('unitType') || null
+    const unitName = Form.useWatch('unitName', form) || null
+    const unitType = Form.useWatch('unitType', form) || null
 
     const { requiredValidator, trimValidator, maxLengthValidator } = useValidations()
     const {
@@ -201,7 +201,7 @@ export const BaseMetersFormFields: React.FC<BaseMetersFormFieldsProps> = ({
                             initialValue={get(initialValues, 'number')}
                             validateFirst
                         >
-                            <Input disabled={disabledFields}/>
+                            <Input disabled={disabledFields} />
                         </BaseMeterModalFormItem>
                     </Col>
                     {!isPropertyMeter && <Col span={METER_MODAL_FORM_ITEM_SPAN}>
@@ -211,7 +211,7 @@ export const BaseMetersFormFields: React.FC<BaseMetersFormFieldsProps> = ({
                             initialValue={get(initialValues, 'place')}
                             rules={validations.placeValidator}
                         >
-                            <Input disabled={disabledFields} placeholder={PlacePlaceholderMessage}/>
+                            <Input disabled={disabledFields} placeholder={PlacePlaceholderMessage} />
                         </BaseMeterModalFormItem>
                     </Col>}
                     {
@@ -229,7 +229,7 @@ export const BaseMetersFormFields: React.FC<BaseMetersFormFieldsProps> = ({
                                     </Select>
                                 </BaseMeterModalFormItem>
                             </Col>
-                        ) 
+                        )
                     }
                     <Col span={24}>
                         <ShowMoreFieldsButton
