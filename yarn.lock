@@ -765,6 +765,26 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@app/documents@workspace:apps/documents":
+  version: 0.0.0-use.local
+  resolution: "@app/documents@workspace:apps/documents"
+  dependencies:
+    "@open-condo/bridge": "workspace:^"
+    "@open-condo/icons": "workspace:^"
+    "@open-condo/ui": "workspace:^"
+    "@types/node": ^22
+    "@types/react": 18.0.27
+    "@types/react-dom": 18.0.10
+    antd: ^4.24.12
+    next: 13.3.0
+    react: 18.2.0
+    react-dom: 18.2.0
+    react-intl: ^7.1.11
+    ts-node: ^10.9.2
+    typescript: ^5.5.4
+  languageName: unknown
+  linkType: soft
+
 "@app/miniapp@workspace:apps/miniapp":
   version: 0.0.0-use.local
   resolution: "@app/miniapp@workspace:apps/miniapp"
