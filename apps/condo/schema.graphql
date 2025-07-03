@@ -10456,6 +10456,7 @@ type BillingIntegrationHistoryRecord {
   appUrl: String
   extendsBillingPage: Boolean
   billingPageTitle: String
+  billingPageIcon: JSON
   group: String
   connectedMessage: String
   connectedUrl: String
@@ -10720,6 +10721,10 @@ input BillingIntegrationHistoryRecordWhereInput {
   billingPageTitle_not_ends_with_i: String
   billingPageTitle_in: [String]
   billingPageTitle_not_in: [String]
+  billingPageIcon: JSON
+  billingPageIcon_not: JSON
+  billingPageIcon_in: [JSON]
+  billingPageIcon_not_in: [JSON]
   group: String
   group_not: String
   group_contains: String
@@ -11025,6 +11030,7 @@ input BillingIntegrationHistoryRecordUpdateInput {
   appUrl: String
   extendsBillingPage: Boolean
   billingPageTitle: String
+  billingPageIcon: JSON
   group: String
   connectedMessage: String
   connectedUrl: String
@@ -11074,6 +11080,7 @@ input BillingIntegrationHistoryRecordCreateInput {
   appUrl: String
   extendsBillingPage: Boolean
   billingPageTitle: String
+  billingPageIcon: JSON
   group: String
   connectedMessage: String
   connectedUrl: String
@@ -11395,6 +11402,9 @@ type BillingIntegration {
   """ Used in billing section to override name of app tab """
   billingPageTitle: String
 
+  """ Used in billing section to go with billingPageTitle in the app tab """
+  billingPageIcon: File
+
   """ Billing group which this billing is part of. Used to restrict certain billings from certain acquirings" 
   """
   group: String
@@ -11715,6 +11725,10 @@ input BillingIntegrationWhereInput {
   billingPageTitle_not_ends_with_i: String
   billingPageTitle_in: [String]
   billingPageTitle_not_in: [String]
+  billingPageIcon: String
+  billingPageIcon_not: String
+  billingPageIcon_in: [String]
+  billingPageIcon_not_in: [String]
   group: String
   group_not: String
   group_contains: String
@@ -11987,6 +12001,7 @@ input BillingIntegrationUpdateInput {
   appUrl: String
   extendsBillingPage: Boolean
   billingPageTitle: String
+  billingPageIcon: Upload
   group: String
   connectedMessage: String
   connectedUrl: String
@@ -12034,6 +12049,7 @@ input BillingIntegrationCreateInput {
   appUrl: String
   extendsBillingPage: Boolean
   billingPageTitle: String
+  billingPageIcon: Upload
   group: String
   connectedMessage: String
   connectedUrl: String
