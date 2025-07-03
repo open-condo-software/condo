@@ -12,7 +12,7 @@
         "@open-condo/next": "workspace:^",
         "boxen": "^4.2.0",
         "chalk": "4.1.2",
-        "dayjs": "^1.10.6",
+        "dayjs": "^1.11.10",
         "graphql": "^16.10.0",
         "graphql-tag": "^2.12.6",
         "js-cookie": "^2.2.1",

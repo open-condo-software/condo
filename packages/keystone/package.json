@@ -70,7 +70,7 @@
     "connect-redis": "^6.0.0",
     "csv-parse": "^5.2.0",
     "cuid": "^2.1.8",
-    "dayjs": "^1.10.6",
+    "dayjs": "^1.11.10",
     "debug": "^4.3.4",
     "dumb-passwords": "^0.2.1",
     "emittery": "^0.7.1",

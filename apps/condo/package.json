@@ -67,7 +67,7 @@
     "big.js": "^6.1.1",
     "body-parser": "^1.19.1",
     "carbone": "3.2.3",
-    "classnames": "^2.2.6",
+    "classnames": "^2.3.2",
     "cookie-signature": "^1.2.2",
     "cookies-next": "^4.2.1",
     "csv-stringify": "^6.2.0",
