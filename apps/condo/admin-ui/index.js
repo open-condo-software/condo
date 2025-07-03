@@ -47,8 +47,8 @@ export default {
     itemHeaderActions: () => {
         return (
             <div>
-                {/*<ItemId />*/}
-                {/*<AddNewItem />*/}
+                <ItemId />
+                <AddNewItem />
                 <SignInAsUser />
             </div>
         )
