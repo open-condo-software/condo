@@ -3,6 +3,8 @@ import MenuItem from 'antd/lib/menu/MenuItem'
 import classnames from 'classnames'
 import Router from 'next/router'
 import React, { CSSProperties, FunctionComponent, ElementType } from 'react'
+import { colors } from '@open-condo/ui/dist/colors'
+import { Typography } from '@open-condo/ui'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
@@ -47,6 +49,9 @@ const BaseLayout: React.FC<IBaseLayoutProps> = (props) => {
             <Layout css={SUB_LAYOUT_CSS}>
                 <Header headerAction={headerAction} TopMenuItems={TopMenuItems} />
                 {children}
+                <Layout.Footer className='footer desktop-footer'>
+                    <Typography.Link href='https://doma.ai/privacy-policy ' target='_blank' style={{ color: colors.gray[7] }}>Политика конфиденциальности</Typography.Link>
+                </Layout.Footer>
             </Layout>
         </Layout>
     )

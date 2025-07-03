@@ -23,9 +23,6 @@ export default function GlobalStyle () {
                 -moz-osx-font-smoothing: grayscale;
                 -webkit-font-smoothing: antialiased;
               }
-              #__next {
-                height: 100%;
-              }
               
              .ant-image-preview {
                 .ant-image-preview-img {
