@@ -173,7 +173,7 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                         printableNumber: receipt.printableNumber,
                         serviceConsumer: serviceConsumers.find(({ accountNumber, organization }) =>
                             get(receipt, ['account', 'number']) === accountNumber &&
-                            get(receipt, ['context', 'organization', 'id']) === organization ),
+                            get(receipt, ['context', 'organization', 'id']) === organization),
                         currencyCode: get(receipt, ['context', 'integration', 'currencyCode'], null),
                         file,
                         isPayable: receipt.isPayable,
@@ -184,26 +184,36 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                 //
                 // Set receipt.paid field and calculate fees
                 //
-                const receiptsWithPayments = []
-                for (const receipt of processedReceipts) {
+                const uniqueContextIds = [...new Set(
+                    processedReceipts
+                        .map(receipt => get(receipt, ['serviceConsumer', 'acquiringIntegrationContext'], null))
+                        .filter(Boolean)
+                )]
+                const formulas = await Promise.all(uniqueContextIds.map(contextId =>
+                    getAcquiringIntegrationContextFormula(context, contextId)
+                ))
+                const formulaMap = {}
+
+                uniqueContextIds.forEach((contextId, index) => {
+                    formulaMap[contextId] = formulas[index]
+                })
+
+                return Promise.all(processedReceipts.map(async receipt => {
                     const billingCategory = get(receipt, ['category']) || {}
                     const newPaid = await getNewPaymentsSum(receipt.id)
                     const acquiringContextId = get(receipt, ['serviceConsumer', 'acquiringIntegrationContext'], null)
                     const toPay = get(receipt, ['toPay'], 0)
                     let fee = '0'
+                    
                     if (acquiringContextId) {
-                        const formula = await getAcquiringIntegrationContextFormula(context, acquiringContextId)
+                        const formula = formulaMap[acquiringContextId]
                         const feeCalculator = new FeeDistribution(formula, billingCategory.id)
                         const { explicitFee } = feeCalculator.calculate(Big(toPay).minus(Big(newPaid)))
                         fee = String(explicitFee)
                     }
-                    receiptsWithPayments.push(({
-                        ...receipt,
-                        paid: newPaid,
-                        explicitFee: fee,
-                    }))
-                }
-                return receiptsWithPayments
+
+                    return { ...receipt, paid: newPaid, explicitFee: fee }
+                }))
             },
         },
     ],
