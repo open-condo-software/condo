@@ -66,7 +66,7 @@ function createError (status, message, response) {
     response.status(status).json({ error: message })
 }
 
-const parserHandler = ({ keystone, processRequestOptions  }) => {
+const parserHandler = ({ processRequestOptions  }) => {
     return async function (request, response, next) {
         if (request.is('multipart/form-data')) {
             let exitError, released, meta
@@ -134,7 +134,6 @@ const parserHandler = ({ keystone, processRequestOptions  }) => {
                     capacitor.destroy(fileError)
                 })
 
-                /** @type {FileUpload} */
                 const file = {
                     filename,
                     mimetype,
@@ -361,7 +360,7 @@ const rateLimitHandler = ({ quota, guard }) => {
     }
 }
 
-const authHandler = ({ keystone }) => {
+const authHandler = () => {
     return async function (request, response, next) {
         if (!request.user || request.user.deletedAt !== null) {
             return response.status(403).json({ error: 'Authorization is required' })
@@ -371,9 +370,25 @@ const authHandler = ({ keystone }) => {
     }
 }
 
+const downloadHandler = ({ keystone }) => {
+    // somehow i need to figure out what adapter I should use here
+    // sbercloud / aws / local
+
+    return async function (request, response, next) {
+        // request should be /api/file/<condo_file_id:uuid>?sign=<sign:string>
+        if (!request.user) {
+            response.status(403)
+            return response.end()
+        }
+        const context = await keystone.createContext({ skipAccessControl: true })
+        // get file from CondoFile model by provided request id
+        // FIXME: validate meta by provided signature from query params
+    }
+}
+
 class FileMiddleware {
     constructor ({
-        apiUrl = '/api/files/upload',
+        apiUrl = '/api/file',
         maxFieldSize = 200 * 1024 * 1024,
         maxFileSize = 200 * 1024 * 1024,
         maxFiles = 2,
@@ -381,6 +396,7 @@ class FileMiddleware {
         this.apiUrl = apiUrl
         this.processRequestOptions = { maxFieldSize, maxFileSize, maxFiles }
         this.adapter = new FileAdapter('files')
+
         let quota, appClients
         try {
             const parsedConfig = JSON.parse(conf['FILE_QUOTA'])
@@ -423,13 +439,35 @@ class FileMiddleware {
         const quota = this.quota
         const appClients = this.appClients
 
+        // upload
         app.post(
-            this.apiUrl,
-            authHandler({ keystone }),
+            this.apiUrl + '/upload',
+            authHandler(),
             rateLimitHandler({ keystone, quota, guard }),
-            parserHandler({ keystone, processRequestOptions }),
+            parserHandler({ processRequestOptions }),
             fileStorageHandler({ keystone, fileAdapter, appClients }),
         )
+
+        // FIXME: maybe it's unnecessary and all of the adapters may work with same url
+        let fileDownloadUrl
+        switch (this.adapter.type) {
+            case 'local':
+                fileDownloadUrl = this.apiUrl + '/:id'
+                break
+            case 'sbercloud':
+                fileDownloadUrl = this.apiUrl + '/:id'
+                break
+            case 'aws':
+                fileDownloadUrl = this.apiUrl + '/:id'
+                break
+            default:
+                fileDownloadUrl = this.apiUrl + '/:id'
+        }
+
+        // FIXME: maybe it could be done at fileAdapter.js side
+        // download
+        app.get(fileDownloadUrl, downloadHandler({ keystone, fileAdapter }))
+
         return app
     }
 }
