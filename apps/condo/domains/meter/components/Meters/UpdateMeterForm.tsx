@@ -98,11 +98,11 @@ export const UpdateMeterForm = (props: UpdateMeterProps): JSX.Element => {
         setSelectedPropertyId(String(option.key))
     }, [])
 
-    const handleDeselectPropertyAddress = useCallback(() =>  {
+    const handleDeselectPropertyAddress = useCallback(() => {
         setSelectedPropertyId(null)
     }, [])
 
-    const handleCancelEditing = useCallback(() =>  {
+    const handleCancelEditing = useCallback(() => {
         router.push(`/meter/${meterType === METER_TAB_TYPES.propertyMeter ? 'property' : 'unit'}/${initialRecord.id}`)
     }, [initialRecord, meterType, router])
 

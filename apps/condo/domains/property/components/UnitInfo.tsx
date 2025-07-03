@@ -1,6 +1,6 @@
 import { GetPropertyByIdQueryHookResult } from '@app/condo/gql'
 import { BuildingFloor, BuildingSection, BuildingUnitSubType, MeterUnitTypeType } from '@app/condo/schema'
-import { Col, FormInstance, Row } from 'antd'
+import { Col, Form, FormInstance, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { isEmpty } from 'lodash'
 import get from 'lodash/get'
@@ -135,7 +135,7 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
         setSelectedFloorName(null)
 
         if (setSelectedUnitType) {
-            setSelectedUnitName(null)
+            setSelectedUnitType(null)
         }
         if (setSelectedSectionType) {
             setSelectedSectionType(null)
@@ -275,6 +275,7 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
     return (
         <Col span={24} md={20} xl={18} xxl={16}>
             <Row gutter={UNIT_FIELDS_GUTTER}>
+                <Form.Item name='unitType' hidden />
                 <Col span={inputColSpan} data-cy='unit-name-input-item'>
                     <TicketFormItem
                         name='unitName'
