@@ -39,7 +39,7 @@ class BotsConfigProvider {
         this.isValid = true
         try {
             const TELEGRAM_OAUTH_CONFIG = JSON.parse(conf.TELEGRAM_OAUTH_CONFIG || '[]')
-            TELEGRAM_OAUTH_CONFIG.forEach(conf => conf.botId = parseBotId(conf.botToken))
+                .map(conf => ({ ...conf, botId: parseBotId(conf.botToken) }))
             validateOauthConfig(TELEGRAM_OAUTH_CONFIG)
             for (const config of TELEGRAM_OAUTH_CONFIG) {
                 this.configs[config.botId] = config
@@ -201,7 +201,7 @@ class TelegramOauthRoutes {
         validateTgAuthData(tgAuthData, config.botToken)
         if (isValidMiniAppInitParams(tgAuthData)) {
             // Note: we need only "id" from tgAuthData, but better keep info for meta
-            tgAuthData = { ...JSON.parse(tgAuthData.user), ...tgAuthData }
+            tgAuthData = { ...tgAuthData, ...JSON.parse(tgAuthData.user) }
         }
         tgAuthData.id = String(tgAuthData.id)
         return { tgAuthData }

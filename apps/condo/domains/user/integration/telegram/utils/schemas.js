@@ -2,7 +2,7 @@ const TelegramOauthCallbackSchema = {
     type: 'object',
     required: ['id', 'auth_date', 'hash'],
     properties: {
-        id: { type: ['string', 'number'] },
+        id: { type: 'number' },
         first_name: { type: 'string' },
         last_name: { type: 'string' },
         username: { type: 'string' },
@@ -21,7 +21,7 @@ const TelegramMiniAppInitParamsUserSchema = {
         allows_write_to_pm: { type: 'boolean' },
         is_premium: { type: 'boolean' },
         first_name: { type: 'string' },
-        id: { type: ['string', 'number'] },
+        id: { type: 'number' },
         is_bot: { type: 'boolean' },
         last_name: { type: 'string' },
         language_code: { type: 'string' },

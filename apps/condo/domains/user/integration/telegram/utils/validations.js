@@ -3,12 +3,9 @@ const { URL } = require('url')
 
 const Ajv = require('ajv')
 const addFormats = require('ajv-formats')
-const { get, isNil } = require('lodash')
 
 const { ERRORS, TelegramOauthError } = require('./errors')
 const { TelegramMiniAppInitParamsSchema, TelegramOauthCallbackSchema, TelegramMiniAppInitParamsUserSchema } = require('./schemas')
-
-const { getSessionParam } = require('../utils/params')
 
 const ALLOWED_TIME_SINCE_AUTH_IN_SECONDS = 5 * 60 // 5 min
 const CONFIG_REQUIRED_FIELDS = [
@@ -18,6 +15,7 @@ const CONFIG_REQUIRED_FIELDS = [
     'allowedRedirectUrls',
     'oidcClientId',
 ]
+// NOTE: if auth data received from telegram mini app, we need to add prefix to secret
 const TG_WEB_APP_DATA_SECRET_PREFIX = 'WebAppData'
 
 const ajv = new Ajv({ allowUnionTypes: true })
