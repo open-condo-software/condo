@@ -26,6 +26,7 @@ const b2bAppId = conf['CONDO_B2B_APP_ID'] || null
 const defaultLocale = DEFAULT_LOCALE
 
 module.exports = withTM(withLess({
+    swcMinify: true,
     compiler: {
         emotion: true,
     },

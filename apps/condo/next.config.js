@@ -75,6 +75,7 @@ const contactPageResidentAnalytics = JSON.parse(conf['CONTACT_PAGE_RESIDENT_ANAL
 const displayTicketInfoOnShare = conf['SHOW_TICKET_INFO_ON_SHARE'] === 'true'
 
 let nextConfig = withTM(withLess({
+    swcMinify: true,
     compiler: {
         emotion: true,
     },

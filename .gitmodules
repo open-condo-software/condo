@@ -22,6 +22,9 @@
 [submodule "apps/insurance"]
 	path = apps/insurance
 	url = git@github.com:open-condo-software/condo-insurance.git
+[submodule "apps/meter-importer"]
+	path = apps/meter-importer
+	url = git@github.com:open-condo-software/condo-meter-importer.git
 [submodule "apps/pass"]
 	path = apps/pass
 	url = git@github.com:open-condo-software/condo-pass.git
