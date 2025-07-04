@@ -1016,6 +1016,26 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@app/news-telegram-api@workspace:apps/news-telegram-api":
+  version: 0.0.0-use.local
+  resolution: "@app/news-telegram-api@workspace:apps/news-telegram-api"
+  dependencies:
+    "@news-telegram-api/domains": "link:./domains"
+    "@open-condo/cli": "workspace:^"
+    "@open-condo/codegen": "workspace:^"
+    "@open-condo/config": "workspace:^"
+    "@open-condo/keystone": "workspace:^"
+    cross-env: ^7.0.3
+    dayjs: ^1.11.10
+    express: ^4.17.1
+    jest: ^29.7.0
+    jest-jasmine2: ^29.7.0
+    lodash: ^4.17.21
+    openid-client: 4.7.4
+    uuid: ^8.3.0
+  languageName: unknown
+  linkType: soft
+
 "@app/pass@workspace:apps/pass":
   version: 0.0.0-use.local
   resolution: "@app/pass@workspace:apps/pass"
@@ -10171,6 +10191,12 @@ __metadata:
 "@news-greenhouse/domains@link:./domains::locator=%40app%2Fnews-greenhouse%40workspace%3Aapps%2Fnews-greenhouse":
   version: 0.0.0-use.local
   resolution: "@news-greenhouse/domains@link:./domains::locator=%40app%2Fnews-greenhouse%40workspace%3Aapps%2Fnews-greenhouse"
+  languageName: node
+  linkType: soft
+
+"@news-telegram-api/domains@link:./domains::locator=%40app%2Fnews-telegram-api%40workspace%3Aapps%2Fnews-telegram-api":
+  version: 0.0.0-use.local
+  resolution: "@news-telegram-api/domains@link:./domains::locator=%40app%2Fnews-telegram-api%40workspace%3Aapps%2Fnews-telegram-api"
   languageName: node
   linkType: soft
 

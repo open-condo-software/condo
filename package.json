@@ -55,7 +55,7 @@
     "typescript": "^5.5.4"
   },
   "engines": {
-    "node": ">=16.11",
+    "node": ">=22",
     "yarn": ">=3.2.0"
   },
   "dependencies": {
