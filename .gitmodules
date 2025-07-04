@@ -7,6 +7,9 @@
 [submodule "apps/asterisk-bot"]
 	path = apps/asterisk-bot
 	url = git@github.com:open-condo-software/condo-asterisk-bot.git
+[submodule "apps/billing-connector"]
+	path = apps/billing-connector
+	url = git@github.com:open-condo-software/condo-billing-connector.git
 [submodule "apps/classifiers-api"]
 	path = apps/classifiers-api
 	url = git@github.com:open-condo-software/condo-classifiers-api.git
