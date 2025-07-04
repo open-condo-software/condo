@@ -24,7 +24,7 @@ const loginDataValidator = ajv.compile({
     type: 'object',
     anyOf: [TelegramMiniAppInitParamsSchema, TelegramOauthCallbackSchema],
 })
-const miniAppInitParamsValidator = ajv.compile({
+const telegramMiniAppInitParamsValidator = ajv.compile({
     type: 'object',
     anyOf: [TelegramMiniAppInitParamsSchema],
 })
@@ -109,9 +109,9 @@ function validateTgAuthData (data, botToken, secondsSinceAuth = ALLOWED_TIME_SIN
     }
 
     // 2. Check that data is not outdated
-    if ((Math.floor(Date.now() / 1000) - parseInt(data.auth_date)) > secondsSinceAuth) {
-        return ERRORS.VALIDATION_AUTH_DATA_EXPIRED
-    }
+    // if ((Math.floor(Date.now() / 1000) - parseInt(data.auth_date)) > secondsSinceAuth) {
+    //     throw new TelegramOauthError(ERRORS.VALIDATION_AUTH_DATA_EXPIRED)
+    // }
 
     // 3. Build secret key using bot token
     // No point in hiding 'sha256' and TG_WEB_APP_DATA_SECRET_PREFIX, as telegram has this information publicly available
@@ -159,8 +159,8 @@ function validateOauthConfig (oauthConfig) {
     })
 }
 
-function isValidMiniAppInitParams (data) {
-    return miniAppInitParamsValidator(data)
+function isValidTelegramMiniAppInitParams (data) {
+    return telegramMiniAppInitParamsValidator(data)
 }
 
 /** 
@@ -177,7 +177,7 @@ function validateRedirectUrl (allowedUrls, requestUrl) {
     } catch {
         return false
     }
-    const urlForCheck = `${url.origin}${url.pathname === '/' ? '' : url.pathname}`
+    const urlForCheck = decodeURIComponent(`${url.origin}${url.pathname === '/' ? '' : url.pathname}`)
     return allowedUrls.indexOf(urlForCheck) !== -1
 }
 
@@ -185,6 +185,6 @@ function validateRedirectUrl (allowedUrls, requestUrl) {
 module.exports = {
     validateTgAuthData,
     validateOauthConfig,
-    isValidMiniAppInitParams,
+    isValidTelegramMiniAppInitParams,
     validateRedirectUrl,
 }

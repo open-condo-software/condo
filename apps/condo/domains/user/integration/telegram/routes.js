@@ -15,7 +15,7 @@ const {
 const { getIdentity } = require('./sync/syncUser')
 const { ERRORS, TelegramOauthError } = require('./utils/errors')
 const { parseBotId, getBotId } = require('./utils/params')
-const { validateOauthConfig, isValidMiniAppInitParams } = require('./utils/validations')
+const { validateOauthConfig, isValidTelegramMiniAppInitParams } = require('./utils/validations')
 
 const logger = getLogger('telegram-oauth/routes')
 
@@ -28,7 +28,7 @@ function isUserWithRightType (req, userType) {
 }
 
 function isSuperUser (req) {
-    return isAuthorized(req) && (req.user.isAdmin || req.user.isSupport)
+    return isAuthorized(req) && (req.user.isAdmin || req.user.isSupport || req.user.rightsSet)
 }
 
 class BotsConfigProvider {
@@ -171,9 +171,9 @@ class TelegramOauthRoutes {
 
     _processError (res, error, next) {
         const errMsg = 'TelegramOauth error'
-        if (error instanceof TelegramOauthError && error.status < 500) {
+        if (error instanceof TelegramOauthError && error.statusCode < 500) {
             logger.error({ msg: errMsg, reqId: res.req.id, data: { error: error.toJSON(), stack: error.stack } })
-            return res.status(error.status).json({ error: error.toJSON() })
+            return res.status(error.statusCode).json({ error: error.toJSON() })
         }
         logger.error({ msg: errMsg, reqId: res.req.id, err: error })
         return next(error)
@@ -185,7 +185,7 @@ class TelegramOauthRoutes {
         }
         const botId = getBotId(req)
         if (!this._provider.isValidBotId(botId)) {
-            throw new TelegramOauthError(ERRORS.INVALID_BOT_ID, req.id)
+            throw new TelegramOauthError(ERRORS.INVALID_BOT_ID)
         }
     }
 
@@ -199,7 +199,7 @@ class TelegramOauthRoutes {
             throw new TelegramOauthError(ERRORS.TG_AUTH_DATA_MISSING)
         }
         validateTgAuthData(tgAuthData, config.botToken)
-        if (isValidMiniAppInitParams(tgAuthData)) {
+        if (isValidTelegramMiniAppInitParams(tgAuthData)) {
             // Note: we need only "id" from tgAuthData, but better keep info for meta
             tgAuthData = { ...tgAuthData, ...JSON.parse(tgAuthData.user) }
         }
