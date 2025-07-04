@@ -37,7 +37,7 @@ const getIdentity = async (context, userInfo, userType) => {
 
 const syncUser = async ({ authenticatedUser, context, userInfo, userType }) => {
     if (authenticatedUser?.deletedAt) {
-        return { id: null, error: ERRORS.ACCESS_DENIED }
+        throw new TelegramOauthError(ERRORS.USER_IS_NOT_REGISTERED)
     }
 
     // try to find linked identities
