@@ -81,12 +81,12 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
 
     const timeZone = normalizeTimeZone(timeZoneFromUser) || DEFAULT_ORGANIZATION_TIMEZONE
 
-    const contact = ticket.contact ? await getByCondition('Contact', {
+    const contact = get(ticket, 'contact') ? await getByCondition('Contact', {
         id: ticket.contact,
         deletedAt: null,
     }) : null
 
-    const employee = organization.id && ticket.executor
+    const employee = get(organization, 'id') && get(ticket, 'executor')
         ? await getByCondition('OrganizationEmployee', {
             organization: { id: organization.id, deletedAt: null },
             user: { id: ticket.executor, deletedAt: null },
@@ -190,7 +190,7 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
 
     const documentDataInTable = {
         client: {
-            name: get(contact, ['0', 'name']),
+            name: get(contact, 'name', ''),
         },
         listOfWorks,
         totalInNumbers: {
@@ -198,7 +198,7 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
             totalVAT: !Number.isNaN(parseFloat(totalVAT)) ? numberFormatByLocale.format(totalVAT).replace(CURRENCY_CODE_REGEXP, '').trim() : null,
         },
         executor: {
-            name: get(employee, ['0', 'name']),
+            name: get(employee, 'name', ''),
         },
     }
 
