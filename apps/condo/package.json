@@ -165,7 +165,7 @@
     "pg": "^8.11.3",
     "pluralize": "^8.0.0",
     "ts-jest": "^29.4.0",
-    "typescript": "^5.5.4"
+    "typescript": "^5.8.3"
   },
   "peerDependencies": {
     "dd-trace": "^4.46.0"
