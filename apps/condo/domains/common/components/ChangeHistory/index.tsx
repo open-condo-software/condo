@@ -3,7 +3,7 @@ import React, { ReactElement, useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors/'
+import { colors } from '@open-condo/ui/colors'
 
 import { fontSizes } from '@condo/domains/common/constants/style'
 

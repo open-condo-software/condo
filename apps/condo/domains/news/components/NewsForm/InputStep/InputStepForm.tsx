@@ -13,9 +13,9 @@ import { getBodyTemplateChangedRule, getTitleTemplateChangedRule, type Templates
 import { TemplatesSelect } from '@condo/domains/news/components/TemplatesSelect'
 import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
 
-import { NewsItemDataType } from './index'
+import styles from './InputStepForm.module.css'
 
-import './styles.css'
+import { NewsItemDataType } from './index'
 
 interface InputStepFormProps {
     newsSharingConfig: B2BAppNewsSharingConfig
@@ -141,7 +141,7 @@ export const InputStepForm: React.FC<InputStepFormProps> = ({
         <>
             {
                 isCustomForm ? (
-                    <Col className='custom-form' span={formFieldsColSpan}>
+                    <Col className={styles.customForm} span={formFieldsColSpan}>
                         <IFrame
                             src={
                                 `${newsSharingConfig.customFormUrl}?${[

@@ -1,5 +1,3 @@
-/** @jsx jsx */
-import { jsx } from '@emotion/react'
 import { Typography, Row, Col } from 'antd'
 import Head from 'next/head'
 import React from 'react'

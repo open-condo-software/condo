@@ -41,7 +41,7 @@
 
 @media (max-width: 991px) {
   .layout-with-poster-wrapper {
-    flex-direction: column;
+    flex-direction: column !important;
     align-items: center;
     padding: 0;
   }

@@ -5,7 +5,6 @@ import { get, isEmpty } from 'lodash'
 import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import qs from 'qs'
-import { Rule } from 'rc-field-form/lib/interface'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -20,6 +19,8 @@ import {
     searchOrganizationProperty,
     searchOrganizationPropertyWithoutPropertyHint,
 } from '@condo/domains/ticket/utils/clientSchema/search'
+
+import type { FormRule as Rule } from 'antd'
 
 
 const INPUT_LAYOUT_PROPS = {

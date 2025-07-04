@@ -4,7 +4,7 @@
 
 `inedx.js`
 ```
-const { Keystone } = require('@keystonejs/keystone')
+const { Keystone } = require('@open-keystone/keystone')
 
 ...
 
@@ -72,7 +72,7 @@ module.exports = {
 `inedx.js`
 ```
 const express = require('express')
-const { Keystone } = require('@keystonejs/keystone')
+const { Keystone } = require('@open-keystone/keystone')
 
 ...
 

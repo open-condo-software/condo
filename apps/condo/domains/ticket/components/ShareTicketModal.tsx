@@ -1,9 +1,8 @@
-/** @jsx jsx */
 import { green } from '@ant-design/colors'
 import { CloseCircleFilled, RightOutlined } from '@ant-design/icons'
 import { useShareTicketMutation } from '@app/condo/gql'
 import { Organization as IOrganization } from '@app/condo/schema'
-import { css, jsx } from '@emotion/react'
+import { css } from '@emotion/react'
 import styled from '@emotion/styled'
 import { Col, Collapse, notification, Row } from 'antd'
 import isEmpty  from 'lodash/isEmpty'

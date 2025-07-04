@@ -4,17 +4,16 @@ import { useIntl } from 'react-intl'
 import { isValidPassword } from '@dev-portal-api/domains/user/utils/password'
 import { normalizePhone } from '@dev-portal-api/domains/user/utils/phone'
 
-import type { Rule } from 'rc-field-form/lib/interface'
-
+import type { FormRule } from 'antd'
 
 type Validators = {
-    requiredFieldValidator: Rule
-    requiredFileValidator: Rule
-    phoneFormatValidator: Rule
-    passwordValidator: Rule
-    emailValidator: Rule
-    trimValidator: Rule
-    urlValidator: Rule
+    requiredFieldValidator: FormRule
+    requiredFileValidator: FormRule
+    phoneFormatValidator: FormRule
+    passwordValidator: FormRule
+    emailValidator: FormRule
+    trimValidator: FormRule
+    urlValidator: FormRule
 }
 
 export function useValidations (): Validators {
@@ -26,17 +25,17 @@ export function useValidations (): Validators {
     const NotAnUrlMessage = intl.formatMessage({ id: 'global.forms.validations.notAnUrl.message' })
     const NotAnEmailMessage = intl.formatMessage({ id: 'global.forms.validations.notAnEmail.message' })
 
-    const requiredFieldValidator: Rule = useMemo(() => ({
+    const requiredFieldValidator: FormRule = useMemo(() => ({
         required: true,
         message: FieldIsRequiredMessage,
     }), [FieldIsRequiredMessage])
 
-    const requiredFileValidator: Rule = useMemo(() => ({
+    const requiredFileValidator: FormRule = useMemo(() => ({
         required: true,
         message: FileIsRequiredMessage,
     }), [FileIsRequiredMessage])
 
-    const trimValidator: Rule = useMemo(() => ({
+    const trimValidator: FormRule = useMemo(() => ({
         validator: (_, value) => {
             if (!value || !value.trim().length) return Promise.reject(FieldIsRequiredMessage)
             return Promise.resolve()
@@ -44,26 +43,26 @@ export function useValidations (): Validators {
         message: FieldIsRequiredMessage,
     }), [FieldIsRequiredMessage])
 
-    const phoneFormatValidator: Rule = useMemo(() => ({
+    const phoneFormatValidator: FormRule = useMemo(() => ({
         validator: (_, value) => {
             if (!value || !normalizePhone(value)) return Promise.reject(InvalidPhoneMessage)
             return Promise.resolve()
         },
     }), [InvalidPhoneMessage])
 
-    const passwordValidator: Rule = useMemo(() => ({
+    const passwordValidator: FormRule = useMemo(() => ({
         validator: (_, value) => {
             if (!value || !isValidPassword(value)) return Promise.reject(PasswordIsTooEasyMessage)
             return Promise.resolve()
         },
     }), [PasswordIsTooEasyMessage])
 
-    const urlValidator: Rule = useMemo(() => ({
+    const urlValidator: FormRule = useMemo(() => ({
         type: 'url',
         message: NotAnUrlMessage,
     }), [NotAnUrlMessage])
 
-    const emailValidator: Rule = useMemo(() => ({
+    const emailValidator: FormRule = useMemo(() => ({
         type: 'email',
         message: NotAnEmailMessage,
     }), [NotAnEmailMessage])

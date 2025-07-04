@@ -1,5 +1,3 @@
-directive @cacheControl(maxAge: Int, scope: CacheControlScope) on FIELD_DEFINITION | OBJECT | INTERFACE
-
 enum UserHistoryRecordHistoryActionType {
   c
   u
@@ -97290,8 +97288,3 @@ type Mutation {
 
 """The `Upload` scalar type represents a file upload."""
 scalar Upload
-
-enum CacheControlScope {
-  PUBLIC
-  PRIVATE
-}

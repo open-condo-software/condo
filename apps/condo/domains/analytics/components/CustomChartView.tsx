@@ -1,11 +1,11 @@
 import { Skeleton } from 'antd'
-import ReactECharts from 'echarts-for-react'
 import get from 'lodash/get'
+import dynamic from 'next/dynamic'
 import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 
 import { getChartOptions } from '@condo/domains/analytics/utils/helpers'
 
@@ -14,6 +14,7 @@ import { ChartConfigResult } from './TicketChart'
 import type { CustomChartViewType, CustomChartMapType } from './CustomChart'
 import type { BaseSimpleChart } from '@condo/domains/common/components/BaseChart'
 import type { RowProps } from 'antd'
+import type { EChartsReactProps } from 'echarts-for-react'
 
 type BaseDataType = Array<Record<string, unknown>>
 
@@ -26,8 +27,13 @@ interface ICustomChartViewProps<
     viewMode: ChartType
     mapperInstance: MapperType
     loading?: boolean
-    chartConfig: { animationEnabled: boolean, chartOptions?: ReactECharts['props']['opts'] }
+    chartConfig: { animationEnabled: boolean, chartOptions?: EChartsReactProps['opts'] }
 }
+
+const ReactECharts = dynamic(
+    () => import('echarts-for-react').then((mod) => mod.default),
+    { ssr: false, loading: () => null }
+)
 
 const COLOR_SET = [
     colors.purple['7'],

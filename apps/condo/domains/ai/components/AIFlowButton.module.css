@@ -1,0 +1,28 @@
+.ai-flow-button:global(.condo-btn.condo-btn-default.condo-btn-secondary) {
+  height: 38px;
+  padding: 8px;
+  border-color: var(--condo-global-color-green-5);
+  border-radius: 38px;
+}
+
+.ai-flow-button:global(.condo-btn.condo-btn-default.condo-btn-secondary) span {
+  color: var(--condo-global-color-green-5);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.ai-flow-button:global(.condo-btn.condo-btn-default.condo-btn-secondary):focus,
+.ai-flow-button:global(.condo-btn.condo-btn-default.condo-btn-secondary):active {
+  outline: none;
+  box-shadow: none;
+}
+
+.ai-flow-button:global(.condo-btn.condo-btn-default.condo-btn-secondary):focus-visible {
+  outline: 2px solid var(--condo-global-color-green-5);
+  outline-offset: 2px;
+}
+
+/* stylelint-disable-next-line max-line-length */
+button:global(.condo-btn.condo-btn-default.condo-btn-loading.condo-btn-secondary) .ai-flow-button :global(.condo-btn-loading-icon) {
+  width: 16px;
+}

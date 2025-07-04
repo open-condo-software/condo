@@ -1,4 +1,4 @@
-const { Text } = require('@keystonejs/fields')
+const { Text } = require('@open-keystone/fields')
 
 const { isISO8601Duration } = require('./utils/validations')
 

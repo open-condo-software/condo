@@ -4,7 +4,7 @@ const conf = require('@open-condo/config')  // Note: we need to prepare process.
 const tracer = require('dd-trace')  // Note: required for monkey patching
 
 /**
- * This file is based on @keystonejs/keystone/bin/commands/dev.js
+ * This file is based on @open-keystone/keystone/bin/commands/dev.js
  * The main reason is to add PORT environment support for `yarn dev` command!
  * You can now use command like so: `PORT=3002 yarn dev`
  * Or put PORT inside your .env file

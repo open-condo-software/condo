@@ -1,4 +1,3 @@
-import { ResolvedIntlConfig } from '@formatjs/intl/src/types'
 import get from 'lodash/get'
 import isObject from 'lodash/isObject'
 import isString from 'lodash/isString'
@@ -11,6 +10,8 @@ import {
     PARKING_UNIT_TYPE,
     WAREHOUSE_UNIT_TYPE,
 } from '@condo/domains/property/constants/common'
+
+import type { ResolvedIntlConfig } from 'react-intl'
 
 
 const UNIT_TYPES_BY_TRANSLATION_KEYS = {

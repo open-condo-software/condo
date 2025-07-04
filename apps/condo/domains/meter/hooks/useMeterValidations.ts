@@ -1,13 +1,14 @@
 import { MeterUnitTypeType } from '@app/condo/schema'
 import { Dayjs } from 'dayjs'
 import isEmpty from 'lodash/isEmpty'
-import { Rule } from 'rc-field-form/lib/interface'
 import { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
 
 import { Meter, MeterResourceOwner, PropertyMeter } from '@condo/domains/meter/utils/clientSchema'
+
+import type { FormRule } from 'antd'
 
 export const useMeterValidations = (isPropertyMeter: boolean, installationDate: Dayjs, verificationDate: Dayjs, propertyId: string, unitName: string | null, organizationId: string, initialNumber: string | null, addressKey: string, unitType: MeterUnitTypeType | null) => {
     const intl = useIntl()
@@ -28,7 +29,7 @@ export const useMeterValidations = (isPropertyMeter: boolean, installationDate: 
         where: { addressKey },
     }, { skip: true })
 
-    const earlierThanInstallationValidator: Rule = useMemo(() => ({
+    const earlierThanInstallationValidator: FormRule = useMemo(() => ({
         validator: async (_, value) => {
             if (!value || !installationDate)
                 return Promise.resolve()
@@ -41,7 +42,7 @@ export const useMeterValidations = (isPropertyMeter: boolean, installationDate: 
         },
     }), [CanNotBeEarlierThanInstallationMessage, installationDate])
 
-    const earlierThanFirstVerificationDateValidator: Rule = useMemo(() => ({
+    const earlierThanFirstVerificationDateValidator: FormRule = useMemo(() => ({
         validator: async (_, value) => {
             if (!value || !verificationDate)
                 return Promise.resolve()
@@ -54,7 +55,7 @@ export const useMeterValidations = (isPropertyMeter: boolean, installationDate: 
         },
     }), [CanNotBeEarlierThanFirstVerificationMessage, verificationDate])
 
-    const meterWithSameNumberValidator: Rule = useMemo(() => ({
+    const meterWithSameNumberValidator: FormRule = useMemo(() => ({
         validator: async (_, value) => {
             if (!value) return Promise.resolve()
 
@@ -77,7 +78,7 @@ export const useMeterValidations = (isPropertyMeter: boolean, installationDate: 
         },
     }), [MeterWithSameNumberIsExistMessage, initialNumber, organizationId, refetch])
 
-    const meterWithSameAccountNumberInOtherUnitValidation: Rule = useMemo(() => ({
+    const meterWithSameAccountNumberInOtherUnitValidation: FormRule = useMemo(() => ({
         validator: async (_, value) => {
             if (!value) return Promise.resolve()
 
@@ -101,7 +102,7 @@ export const useMeterValidations = (isPropertyMeter: boolean, installationDate: 
         },
     }), [MeterWithSameAccountNumberIsExistMessage, organizationId, propertyId, refetch, unitName, unitType])
 
-    const meterResourceOwnerValidation: Rule = useMemo(() => ({
+    const meterResourceOwnerValidation: FormRule = useMemo(() => ({
         validator: async (_, value) => {
             if (!value) return Promise.resolve()
 

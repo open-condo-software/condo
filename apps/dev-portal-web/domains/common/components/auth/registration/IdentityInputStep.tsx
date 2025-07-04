@@ -12,7 +12,7 @@ import { USER_ALREADY_EXISTS, PASSWORD_TOO_SIMPLE } from '@dev-portal-api/domain
 
 import styles from './IdentityInputStep.module.css'
 
-import type { Rule } from 'rc-field-form/lib/interface'
+import type { FormRule } from 'antd'
 
 import { useRegisterNewUserMutation, useSignInMutation } from '@/lib/gql'
 
@@ -48,7 +48,7 @@ export const IdentityInputStep: React.FC<IdentityInputStepProps> = ({ phone, act
     const [form] = Form.useForm()
     const { trimValidator, passwordValidator } = useValidations()
 
-    const matchingValidator: Rule = {
+    const matchingValidator: FormRule = {
         validator: (_, value) => {
             const originalValue = form.getFieldValue('password')
             if (originalValue && value !== originalValue) return Promise.reject(PasswordsDontMatchErrorMessage)

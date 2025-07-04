@@ -215,7 +215,7 @@ describe('RegisterNewUserService', () => {
             expect(errors).toMatchObject([{
                 name: 'UserInputError',
                 message: 'Variable "$data" got invalid value null at "data.confirmPhoneActionToken"; Expected non-nullable type "String!" not to be null.',
-                extensions: { code: 'INTERNAL_SERVER_ERROR' },
+                extensions: { code: 'BAD_USER_INPUT' },
             }])
         })
     })

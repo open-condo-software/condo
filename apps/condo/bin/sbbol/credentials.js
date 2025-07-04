@@ -24,7 +24,7 @@
  */
 const path = require('path')
 
-const { GraphQLApp } = require('@keystonejs/app-graphql')
+const { GraphQLApp } = require('@open-keystone/app-graphql')
 const Ajv = require('ajv')
 const { values } = require('lodash')
 

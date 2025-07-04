@@ -1,13 +1,13 @@
-const path = require('path')
-
-const get = require('lodash/get')
-const set = require('lodash/set')
+// NOTE: Used to load TS files (locales) into CJS
+require('ts-node').register({
+    transpileOnly: true,
+    compilerOptions: { module: 'CommonJS' },
+})
 
 const conf = require('@open-condo/config')
+const { nextCamelCaseCSSModulesTransform } = require('@open-condo/miniapp-utils/helpers/webpack')
 
-const { requireTs } = require('./domains/common/utils/requireTs')
-const localesPath = path.resolve(__dirname, 'domains/common/constants/locales.ts')
-const { LOCALES, DEFAULT_LOCALE } = requireTs(localesPath)
+const { LOCALES, DEFAULT_LOCALE } = require('./domains/common/constants/locales.ts')
 
 const DOCS_ENTRY_ENDPOINT = conf['DOCS_ENTRY_ENDPOINT'] || '/docs/index'
 // NOTE: Url of API server
@@ -68,34 +68,7 @@ const nextConfig = {
         ]
     },
     webpack: (config) => {
-        const rules = get(config, ['module', 'rules'], [])
-
-        const newRules = rules.map(rule => {
-            if (!rule.oneOf) {
-                return rule
-            }
-
-            rule.oneOf = rule.oneOf.map(option => {
-                if (option && option.test && typeof option.test.test === 'function' &&
-                    option.test.test('my.module.css') && Array.isArray(option.use)) {
-                    option.use = option.use.map(loader => {
-                        if (typeof loader.loader === 'string' && loader.loader.includes('/css-loader')) {
-                            set(loader, ['options', 'modules', 'exportLocalsConvention'], 'camelCase')
-                        }
-
-                        return loader
-                    })
-                }
-
-                return option
-            })
-
-            return rule
-        })
-
-        set(config, ['module', 'rules'], newRules)
-
-        return config
+        return nextCamelCaseCSSModulesTransform(config)
     },
 }
 

@@ -17,7 +17,7 @@ import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Card, Space, Typography, TypographyTitleProps } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'

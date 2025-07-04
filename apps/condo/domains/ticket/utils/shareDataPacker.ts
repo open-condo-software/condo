@@ -1,8 +1,8 @@
 import crypto from 'crypto'
 import zlib from 'zlib'
 
-const ALGORITHM = 'aes256'
 const MODERN_ALGORITHM = 'aes-256-ctr'
+const LEGACY_ALGORITHM = 'aes-256-cbc'
 
 // NOTE: It's a hard-coded credentials by @leonid-d from 2021.
 // Good news: This data doesn't contain any secrets ...
@@ -10,57 +10,79 @@ const MODERN_ALGORITHM = 'aes-256-ctr'
 // nosemgrep: generic.secrets.gitleaks.generic-api-key.generic-api-key
 const KEY = '900150983cd24fb0d6963f7d28e17f72'
 
-const CRYPTOENCODING = 'base64'
+const CRYPTO_ENCODING = 'base64'
 const IV_LENGTH = 16 // 16 bytes for AES-CTR
-const MODERN_MARKER = '2:'
+const INFLATE_MARKER = '2:'
+const BROTLI_MARKER = '3:'
+
+/**
+ * Re-implementation of Node.js <= 16 behaviour
+ */
+function evpBytesToKey (password: Buffer, salt: Buffer, keyLen = 32, ivLen = 16) {
+    let out = Buffer.alloc(0), prev: Buffer<ArrayBufferLike> = Buffer.alloc(0)
+    while (out.length < keyLen + ivLen) {
+        // NOTE: not used for real encryption, just to encode public data and only for legacy links
+        // nosemgrep: javascript.lang.security.audit.md5-used-as-password.md5-used-as-password
+        prev = crypto.createHash('md5').update(prev).update(password).update(salt).digest()
+        out = Buffer.concat([out, prev])
+    }
+    return {
+        key: out.subarray(0, keyLen),
+        iv: out.subarray(keyLen, keyLen + ivLen),
+    }
+}
+
+/**
+ * @deprecated this one is used only for old links, consider removing it after some time
+ */
+function legacyUnpack (base64: string): string {
+    const raw = Buffer.from(base64, CRYPTO_ENCODING)
+
+    // NOTE: Links produced with createCipher() *never* contained “Salted__”.
+    // They were MD5-derived with an *empty* salt.
+    const salt = Buffer.alloc(0)                 // 0-byte salt
+    const { key, iv } = evpBytesToKey(Buffer.from(KEY), salt)
+
+    const decipher = crypto.createDecipheriv(LEGACY_ALGORITHM, key, iv)
+    const plainBuf = Buffer.concat([decipher.update(raw), decipher.final()])
+
+    return plainBuf.toString('utf8')
+}
 
 export function unpackShareData (data: string): string {
-    if (data.startsWith(MODERN_MARKER)) {
-        // New version with marker '2:' using AES-CTR
-        const trimmedData = data.slice(MODERN_MARKER.length)
-        const encryptedText = Buffer.from(trimmedData, CRYPTOENCODING)
+    const isBrotli = data.startsWith(BROTLI_MARKER)
+    const isInflate = data.startsWith(INFLATE_MARKER)
+
+    if (isBrotli || isInflate) {
+        const markerLength = isBrotli ? BROTLI_MARKER.length : INFLATE_MARKER.length
+        // New version with marker '3:' using AES-CTR
+        const trimmedData = data.slice(markerLength)
+        const encryptedText = Buffer.from(trimmedData, CRYPTO_ENCODING)
 
         // Using KEY directly as IV
         const iv = Buffer.from(KEY).subarray(0, IV_LENGTH)
         const decipher = crypto.createDecipheriv(MODERN_ALGORITHM, Buffer.from(KEY), iv)
 
         const decryptedBuffers = [decipher.update(encryptedText), decipher.final()]
-        // NOTE: it's more efficient but its require modern node version! please use it in a future
-        // const decompressedText = zlib.brotliDecompressSync(Buffer.concat(decryptedBuffers)).toString('utf8')
-        const decompressedText = zlib.inflateSync(Buffer.concat(decryptedBuffers)).toString('utf8')
-        return decompressedText
+        // NOTE: Brotli more efficient but it requires modern node version! please use it in a future
+        return isBrotli
+            ? zlib.brotliDecompressSync(Buffer.concat(decryptedBuffers)).toString('utf8')
+            : zlib.inflateSync(Buffer.concat(decryptedBuffers)).toString('utf8')
     } else {
-        // Legacy format (backward compatibility)
-        // nosemgrep: javascript.node-crypto.security.create-de-cipher-no-iv.create-de-cipher-no-iv
-        const decipher = crypto.createDecipher(ALGORITHM, KEY)
-        const decryptedBuffers = [decipher.update(data, CRYPTOENCODING), decipher.final()]
-        const decryptedText = Buffer.concat(decryptedBuffers).toString('utf8')
-        return decryptedText
+        return legacyUnpack(data)
     }
 }
 
-// NOTE: we still use old version and will use it until Node.js v23.3.0: https://nodejs.org/api/deprecations.html#DEP0106
-// Probably we want also to use more efficient compression to reduce link size. At the moment I leave old encryption version
-export function packShareData (data: string, useModern = false): string {
-    if (useModern) {
-        // New version using AES-CTR and Deflate compression
-        // Using KEY directly as IV
-        const iv = Buffer.from(KEY).subarray(0, IV_LENGTH)
-        const cipher = crypto.createCipheriv(MODERN_ALGORITHM, Buffer.from(KEY), iv)
+export function packShareData (data: string): string {
+    // New version using AES-CTR and Deflate compression
+    // Using KEY directly as IV
+    const iv = Buffer.from(KEY).subarray(0, IV_LENGTH)
+    const cipher = crypto.createCipheriv(MODERN_ALGORITHM, Buffer.from(KEY), iv)
 
-        // NOTE: it's more efficient but its require modern node version! please use it in a future when we will use useModern = true by default!
-        // const compressedData = zlib.brotliCompressSync(Buffer.from(data), { params: { [zlib.constants.BROTLI_PARAM_QUALITY]: 11 } }) // Use maximum Brotli compression level
-        const compressedData = zlib.deflateSync(Buffer.from(data))
-        const encryptedBuffers = [cipher.update(compressedData), cipher.final()]
+    // NOTE: it's more efficient but its require modern node version! please use it in a future when we will use useModern = true by default!
+    const compressedData = zlib.brotliCompressSync(Buffer.from(data), { params: { [zlib.constants.BROTLI_PARAM_QUALITY]: 11 } }) // Use maximum Brotli compression level
+    const encryptedBuffers = [cipher.update(compressedData), cipher.final()]
 
-        const resultBuffer = Buffer.concat(encryptedBuffers)
-        return MODERN_MARKER + resultBuffer.toString(CRYPTOENCODING)
-    } else {
-        // Legacy format (backward compatibility)
-        // nosemgrep: javascript.node-crypto.security.create-de-cipher-no-iv.create-de-cipher-no-iv
-        const cipher = crypto.createCipher(ALGORITHM, KEY)
-        const encryptedBuffers = [cipher.update(data, 'utf8'), cipher.final()]
-        const encryptedText = Buffer.concat(encryptedBuffers).toString(CRYPTOENCODING)
-        return encryptedText
-    }
+    const resultBuffer = Buffer.concat(encryptedBuffers)
+    return BROTLI_MARKER + resultBuffer.toString(CRYPTO_ENCODING)
 }

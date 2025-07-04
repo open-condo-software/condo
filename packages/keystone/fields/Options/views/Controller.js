@@ -1,4 +1,4 @@
-import FieldController from '@keystonejs/fields/Controller'
+import FieldController from '@open-keystone/fields/Controller'
 
 class OptionsController extends FieldController {
     constructor (config, ...args) {

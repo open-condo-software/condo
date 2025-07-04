@@ -1,4 +1,4 @@
-const { DateTimeUtc } = require('@keystonejs/fields')
+const { DateTimeUtc } = require('@open-keystone/fields')
 const { cloneDeep } = require('lodash/lang')
 
 const { convertStringToTypes } = require('./registerSchema')

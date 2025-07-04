@@ -20,8 +20,11 @@ module.exports = {
             displayName: 'schema specs',
             testEnvironment: 'node',
             testMatch: [
-                '<rootDir>/domains/**/schema/**/*.spec.js',
+                '<rootDir>/domains/**/schema/**/*.spec.[tj]s',
             ],
+            transform: {
+                '\\.[jt]sx?$': ['ts-jest', { tsconfig: { jsx: 'react-jsx' } }],
+            },
             setupFilesAfterEnv: ['<rootDir>/jest.setupSpec.js'],
             // NOTE: need to pass uuid export syntax through babel
             transformIgnorePatterns: ['/node_modules/(?!(uuid|bull|msgpackr|n2words)/)'],
@@ -30,7 +33,6 @@ module.exports = {
             testRunner: 'jasmine2',
             displayName: 'main',
             testEnvironment: 'node',
-            testURL: 'http://localhost:3000/',
             testPathIgnorePatterns: [
                 '/node_modules/',
                 '/.next/',
@@ -39,7 +41,7 @@ module.exports = {
                 '/schema/',
             ],
             transform: {
-                '\\.[jt]sx?$': 'babel-jest',
+                '\\.[jt]sx?$': ['ts-jest', { tsconfig: { jsx: 'react-jsx' } }],
             },
             setupFilesAfterEnv: ['<rootDir>/jest.setupSpec.js'],
             // NOTE: need to pass uuid export syntax through babel

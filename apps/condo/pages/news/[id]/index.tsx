@@ -1,8 +1,6 @@
-/** @jsx jsx */
 import {
     NewsItem as INewsItem, NewsItemSharingStatusType,
 } from '@app/condo/schema'
-import { jsx } from '@emotion/react'
 import { Col, notification, Row, RowProps } from 'antd'
 import dayjs from 'dayjs'
 import every from 'lodash/every'

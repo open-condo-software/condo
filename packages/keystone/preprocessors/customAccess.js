@@ -1,4 +1,4 @@
-const { getType } = require('@keystonejs/utils')
+const { getType } = require('@open-keystone/utils')
 const find = require('lodash/find')
 const get = require('lodash/get')
 

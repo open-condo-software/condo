@@ -1,8 +1,9 @@
 import get from 'lodash/get'
-import { Rule } from 'rc-field-form/lib/interface'
 import { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+
+import type { FormRule as Rule } from 'antd'
 
 
 type ValidatorTypes = {

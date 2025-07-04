@@ -30,7 +30,7 @@
   color: var(--condo-global-color-black);
 }
 
-.user-messages-list-mobile-overlay.condo-dropdown {
+.user-messages-list-mobile-overlay:global(.condo-dropdown) {
   width: 100%;
 }
 

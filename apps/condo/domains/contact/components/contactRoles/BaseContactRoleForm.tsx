@@ -2,7 +2,6 @@ import { Col, Form, Input, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { get } from 'lodash'
 import { useRouter } from 'next/router'
-import { Rule } from 'rc-field-form/lib/interface'
 import React, { useCallback } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -12,6 +11,8 @@ import { SETTINGS_TAB_CONTACT_ROLES } from '@condo/domains/common/constants/sett
 import { useNotificationMessages } from '@condo/domains/common/hooks/useNotificationMessages'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { useExistingContactRoles } from '@condo/domains/contact/components/contactRoles/useExistingContactRoles'
+
+import type { FormRule as Rule } from 'antd'
 
 const LAYOUT = {
     layout: 'horizontal',

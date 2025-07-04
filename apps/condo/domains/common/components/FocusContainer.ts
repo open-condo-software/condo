@@ -1,6 +1,6 @@
 import styled from '@emotion/styled'
 
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 
 import { DEFAULT_BORDER_RADIUS } from '../constants/style'
 

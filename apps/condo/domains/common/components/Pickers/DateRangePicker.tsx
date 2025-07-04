@@ -1,6 +1,5 @@
-/** @jsx jsx */
 import { DownOutlined, MinusOutlined } from '@ant-design/icons'
-import { css, jsx } from '@emotion/react'
+import { css } from '@emotion/react'
 import { RangePickerProps } from 'antd/lib/date-picker/generatePicker'
 import dayjs, { Dayjs } from 'dayjs'
 import isFunction from 'lodash/isFunction'

@@ -1,9 +1,9 @@
 const {
     Relationship: RelationshipBase,
-} = require('@keystonejs/fields')
+} = require('@open-keystone/fields')
 const {
     AuthedRelationship: AuthedRelationshipBase,
-} = require('@keystonejs/fields-authed-relationship')
+} = require('@open-keystone/fields-authed-relationship')
 const { get, isEmpty } = require('lodash')
 
 async function internalResolveNestedOperations (

@@ -1,7 +1,7 @@
 const path = require('path')
 
 const { faker } = require('@faker-js/faker')
-const { GraphQLApp } = require('@keystonejs/app-graphql')
+const { GraphQLApp } = require('@open-keystone/app-graphql')
 
 const { BillingIntegration } = require('@condo/domains/billing/utils/serverSchema')
 const { CONTEXT_FINISHED_STATUS, CONTEXT_IN_PROGRESS_STATUS, CONTEXT_ERROR_STATUS } = require('@condo/domains/miniapp/constants')

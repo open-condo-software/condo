@@ -24,12 +24,9 @@
     "prepare": "husky install"
   },
   "devDependencies": {
-    "@babel/plugin-proposal-private-methods": "^7.18.6",
     "@commitlint/cli": "^17.1.2",
     "@commitlint/config-conventional": "^17.1.0",
     "@faker-js/faker": "^7.6.0",
-    "@graphql-codegen/cli": "^5.0.2",
-    "@graphql-codegen/typescript": "^4.0.9",
     "@jest/reporters": "^29.7.0",
     "@mono-pub/commit-analyzer": "^1.0.5",
     "@mono-pub/git": "^1.0.5",
@@ -55,10 +52,10 @@
     "stylelint-config-rational-order": "^0.1.2",
     "stylelint-config-standard": "^28.0.0",
     "turbo": "^2.4.4",
-    "typescript": "^5.5.4"
+    "typescript": "^5.8.3"
   },
   "engines": {
-    "node": ">=16.11",
+    "node": ">=22",
     "yarn": ">=3.2.0"
   },
   "dependencies": {
@@ -72,25 +69,17 @@
   },
   "packageManager": "yarn@3.2.2",
   "resolutions": {
-    "npm": "latest-6",
     "graphql-upload": "^15.0.2",
-    "@keystonejs/app-admin-ui/@types/react": "16.9.17",
-    "react-intl/@types/react": "16.9.17",
-    "@types/react-transition-group@npm:2.9.2/@types/react": "16.9.17",
-    "@types/react-infinite-scroller@npm:1.2.3/@types/react": "16.9.17",
-    "@types/hoist-non-react-statics@npm:3.3.1/@types/react": "16.9.17",
+    "react-intl/@types/react": "^17.0.2",
+    "@types/react-transition-group@npm:2.9.2/@types/react": "^17.0.2",
+    "@types/react-infinite-scroller@npm:1.2.3/@types/react": "^17.0.2",
+    "@types/hoist-non-react-statics@npm:3.3.1/@types/react": "^17.0.2",
     "es5-ext": "0.10.53",
     "debuglog": "1.0.1",
     "debug": "4.3.4",
-    "knex": "2.4.0",
-    "graphql": "^16.10.0",
-    "@keystonejs/app-graphql": "patch:@keystonejs/app-graphql@npm:6.3.2#.yarn/patches/@keystonejs-app-graphql-npm-6.3.2-26fe50b988.patch",
-    "@keystonejs/access-control": "patch:@keystonejs/access-control@npm:7.1.2#.yarn/patches/@keystonejs-access-control-npm-7.1.2-bec144d41a.patch",
     "@babel/traverse": "^7.23.2",
     "protobufjs@>=6.0.0": "^6.11.4",
     "google-gax@npm:2.30.5/protobufjs": "^6.11.4",
-    "mongoose@^5.12.11": "^5.13.20",
-    "@keystonejs/file-adapters/cloudinary@>=1.0.0": "^1.41.3",
     "shell-quote@1.7.2": "^1.7.3",
     "webpack-bundle-analyzer@^3.3.2": "^4",
     "loader-utils@1.2.3": "^1.4.1",
@@ -105,8 +94,6 @@
     "@storybook/manager-webpack5/webpack": "^5.91.0",
     "@storybook/builder-webpack5/webpack": "^5.91.0",
     "cacache/tar": "^6.2.1",
-    "@prisma/sdk/tar": "^6.2.1",
-    "node-gyp/tar": "^6.2.1",
     "msgpackr": "^1.10.1",
     "browserify-sign": "^4.2.3",
     "dd-trace@npm:1.5.1/import-in-the-middle": "^1.4.2",
@@ -116,10 +103,6 @@
     "decode-uri-component@^0.2.0": "^0.2.1",
     "node-fetch@2.6.0": "^2.6.7",
     "node-fetch@2.6.1": "^2.6.7",
-    "@keystonejs/app-admin-ui": "patch:@keystonejs/app-admin-ui@npm:7.5.2#.yarn/patches/@keystonejs-app-admin-ui-npm-7.5.2-ada8bd01c3.patch",
-    "trim@0.0.1": "^0.0.3",
-    "@keystonejs/keystone": "patch:@keystonejs/keystone@npm:19.3.4#.yarn/patches/@keystonejs-keystone-npm-19.3.4-2a53e53061.patch",
-    "apollo-server-express": "patch:apollo-server-express@npm:2.26.0#.yarn/patches/apollo-server-express-npm-2.26.0-b1523109b5.patch",
-    "apollo-server-core": "patch:apollo-server-core@npm:2.26.0#.yarn/patches/apollo-server-core-npm-2.26.0-6396d881cb.patch"
+    "trim@0.0.1": "^0.0.3"
   }
 }

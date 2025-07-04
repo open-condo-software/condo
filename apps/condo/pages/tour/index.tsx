@@ -18,7 +18,7 @@ import { ArrowLeft } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Button, Space, Typography } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 
 import { CardVideo } from '@condo/domains/common/components/CardVideo'
 import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'

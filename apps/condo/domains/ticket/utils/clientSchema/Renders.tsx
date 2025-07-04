@@ -17,7 +17,7 @@ import { IntlShape } from 'react-intl/src/types'
 import { Star, StarFilled } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 import { ScreenMap } from '@open-condo/ui/dist/hooks'
 
 

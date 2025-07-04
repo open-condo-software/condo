@@ -1,9 +1,9 @@
-import { CacheProvider } from '@emotion/core'
+import createCache from '@emotion/cache'
+import { CacheProvider } from '@emotion/react'
 import { ConfigProvider } from 'antd'
 import enUS from 'antd/lib/locale/en_US'
 import ruRU from 'antd/lib/locale/ru_RU'
 import dayjs from 'dayjs'
-import { cache } from 'emotion'
 import { gql } from 'graphql-tag'
 import get from 'lodash/get'
 import getConfig from 'next/config'
@@ -13,7 +13,6 @@ import React, { useContext, useEffect } from 'react'
 import { withApollo } from '@open-condo/next/apollo'
 import { withAuth } from '@open-condo/next/auth'
 import { LocaleContext, useIntl, withIntl } from '@open-condo/next/intl'
-import '@open-condo/ui/dist/styles.min.css'
 
 import GlobalStyle from '@app/condo/domains/common/components/containers/GlobalStyle'
 import { AppFrameWrapper } from '@miniapp/domains/common/components/AppFrameWrapper'
@@ -21,6 +20,11 @@ import { BaseLayout } from '@miniapp/domains/common/components/containers/BaseLa
 import { useLaunchParams } from '@miniapp/domains/common/hooks/useLaunchParams'
 import { withOidcAuth } from '@miniapp/domains/common/utils/oidcAuth'
 
+import 'antd/dist/antd.less'
+import '@open-condo/ui/dist/styles.min.css'
+
+
+const emotionCache = createCache({ key: 'css', prepend: true })
 
 const {
     publicRuntimeConfig: {
@@ -73,7 +77,7 @@ const MyApp = ({ Component, pageProps }) => {
             <GlobalStyle/>
             <AppFrameWrapper>
                 <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize='large'>
-                    <CacheProvider value={cache}>
+                    <CacheProvider value={emotionCache}>
                         <LayoutComponent>
                             <RequiredAccess>
                                 <Component {...pageProps} />

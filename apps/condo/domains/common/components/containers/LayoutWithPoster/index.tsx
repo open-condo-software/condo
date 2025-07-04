@@ -11,7 +11,7 @@ import { Logo } from '@condo/domains/common/components/Logo'
 import { formatPhone } from '@condo/domains/common/utils/helpers'
 import { Layout } from '@condo/domains/user/components/containers/styles'
 
-import './styles.css'
+import styles from './styles.module.css'
 
 
 const {
@@ -47,7 +47,7 @@ export const LayoutWithPoster: React.FC<LayoutWithPosterProps> = ({ children, he
 
     const Header = useMemo(() => (
         <Row gutter={[20, 20]} justify='space-between' align='top'>
-            <Col className='layout-with-poster-logo-wrapper' span={12}>
+            <Col className={styles.layoutWithPosterLogoWrapper} span={12}>
                 <Logo onClick={handleLogoClick} />
             </Col>
             {
@@ -96,7 +96,7 @@ export const LayoutWithPoster: React.FC<LayoutWithPosterProps> = ({ children, he
     return (
         <Layout>
             <Row
-                className='layout-with-poster-wrapper'
+                className={styles.layoutWithPosterWrapper}
                 gutter={[20, 20]}
             >
                 {/* NOTE: 0px so that the width is calculated based on the content */}
@@ -111,23 +111,23 @@ export const LayoutWithPoster: React.FC<LayoutWithPosterProps> = ({ children, he
                 </Col>
 
                 <Col
-                    className='layout-with-poster-content-col'
+                    className={styles.layoutWithPosterContentCol}
                     flex={isSmallDisplay ? 'none' : 'auto'}
                     span={isSmallDisplay ? 24 : null}
                 >
-                    <Row className='layout-with-poster-content-row'>
+                    <Row className={styles.layoutWithPosterContentRow}>
                         <Col
-                            className='layout-with-poster-content-wrapper'
+                            className={styles.layoutWithPosterContentWrapper}
                             flex='12'
                         >
-                            <div className='layout-with-poster-content'>
+                            <div className={styles.layoutWithPosterContent}>
                                 {children}
                             </div>
 
                             {
                                 !isSmallDisplay && headerAction && (
                                     <Row
-                                        className='layout-with-poster-content-footer'
+                                        className={styles.layoutWithPosterContentFooter}
                                         align='bottom'
                                     >
                                         <Col>
@@ -143,7 +143,7 @@ export const LayoutWithPoster: React.FC<LayoutWithPosterProps> = ({ children, he
                 {
                     isSmallDisplay && (
                         <Row
-                            className='layout-with-poster-content-footer'
+                            className={styles.layoutWithPosterContentFooter}
                             align='bottom'
                             gutter={[16, 0]}
                         >

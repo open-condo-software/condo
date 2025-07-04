@@ -3,7 +3,7 @@
     "main": "index.js",
     "version": "1.0.0",
     "dependencies": {
-        "dotenv": "^8.2.0"
+        "dotenv": "^16.4.7"
     },
     "repository": "https://github.com/open-condo-software/condo/tree/main/packages/config"
 }

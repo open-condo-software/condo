@@ -1,6 +1,6 @@
 import styled from '@emotion/styled'
 
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 
 import Select from '@condo/domains/common/components/antd/Select'
 import { transitions } from '@condo/domains/common/constants/style'

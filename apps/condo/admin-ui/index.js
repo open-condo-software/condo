@@ -1,6 +1,6 @@
 import { UserSwitchOutlined } from '@ant-design/icons'
 import { useMutation, gql } from '@apollo/client'
-import { ItemId, AddNewItem } from '@keystonejs/app-admin-ui/components'
+import { ItemId, AddNewItem } from '@open-keystone/app-admin-ui/components'
 import React, { useCallback } from 'react'
 import { useLocation } from 'react-router-dom'
 

@@ -1,6 +1,6 @@
 const path = require('path')
 
-const { GraphQLApp } = require('@keystonejs/app-graphql')
+const { GraphQLApp } = require('@open-keystone/app-graphql')
 
 async function connectKeystone () {
     const resolved = path.resolve('./index.js')

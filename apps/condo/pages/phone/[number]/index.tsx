@@ -46,7 +46,9 @@ import { useClientCardTicketTableColumns } from '@condo/domains/ticket/hooks/use
 import { CallRecordFragment } from '@condo/domains/ticket/utils/clientSchema'
 import { getSectionAndFloorByUnitName } from '@condo/domains/ticket/utils/unit'
 
-import './index.css'
+
+import styles from './index.module.css'
+
 
 //#region Constants, types and styles
 type TabDataType = {
@@ -130,8 +132,8 @@ const ClientAddressCard = ({ onClick, active, property, organization, unitName, 
     const streetMessage = unitName ? text : text.substring(0, text.length - 1)
 
     return (
-        <div data-active={active} className='address-tab-wrapper' onClick={onClick}>
-            <div className='address-tab-content'>
+        <div data-active={active} className={styles.addressTabWrapper} onClick={onClick}>
+            <div className={styles.addressTabContent}>
                 <Space size={8} direction='vertical'>
                     <Typography.Paragraph
                         size='large'
@@ -512,7 +514,7 @@ const ClientCardTabContent = ({
                                             </Col>
                                             <Col>
                                                 <Typography.Link size='large' onClick={redirectToTicketPage}>
-                                                    <Col className='link-wrapper'>
+                                                    <Col className={styles.linkWrapper}>
                                                         <ExternalLink size='auto'/>
 
                                                         {OpenAllTicketsMessage}
@@ -907,7 +909,7 @@ const ClientCardPageContent = ({
                                 <Typography.Title>{ClientCardHeader}</Typography.Title>
 
                                 <Typography.Link size='large' onClick={redirectToCreateContact}>
-                                    <Col className='link-wrapper'>
+                                    <Col className={styles.linkWrapper}>
                                         <PlusCircle/>
 
                                         {AddAddressMessage}
@@ -919,7 +921,7 @@ const ClientCardPageContent = ({
                             <Row gutter={[0, 20]}>
                                 {
                                     loading ? <Loader/> : (
-                                        <Col span={24}>
+                                        <Col span={24} className={styles.customCarouselWrapper}>
                                             <Carousel
                                                 infinite={false}
                                                 ref={carouselRef}
@@ -958,7 +960,7 @@ export const ClientCardPageContentWrapper = ({
 }) => {
     const router = useRouter()
     const phoneNumber = router?.query.number
-    
+
     const { persistor } = useCachePersistor()
 
     const { data: contactsQueryData, loading: contactsLoading } = useGetContactForClientCardQuery({

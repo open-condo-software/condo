@@ -6,7 +6,7 @@ import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { colors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/colors'
 
 import { BankingInfo } from '@condo/domains/banking/components/BankAccountInfo'
 import { BankAccount } from '@condo/domains/banking/utils/clientSchema'

@@ -71,7 +71,7 @@ function OIDCBearerTokenKeystonePatch (app, context) {
                     const { keystone } = await getSchemaCtx('User')
                     await keystone._sessionManager.startAuthedSession(req, { item: { id: account }, list: keystone.lists['User'] })
 
-                    // It's a copy/past from `@keystonejs/session/src/session.ts:getSessionMiddleware`
+                    // It's a copy/past from `@open-keystone/session/src/session.ts:getSessionMiddleware`
                     // Wee need to update req.user and req.authedListKey because the keystone need to use it for authentication.
                     const item = await keystone._sessionManager._getAuthedItem(req, keystone)
                     if (item) {

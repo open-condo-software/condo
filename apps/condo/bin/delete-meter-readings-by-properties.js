@@ -1,6 +1,6 @@
 const path = require('path')
 
-const { GraphQLApp } = require('@keystonejs/app-graphql')
+const { GraphQLApp } = require('@open-keystone/app-graphql')
 const dayjs = require('dayjs')
 const { isEmpty, get } = require('lodash')
 const { hideBin } = require('yargs/helpers')

@@ -1,4 +1,3 @@
-/** @jsx jsx */import { jsx } from '@emotion/react'
 import { Layout } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
