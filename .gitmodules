@@ -16,6 +16,9 @@
 [submodule "apps/employee-bot"]
 	path = apps/employee-bot
 	url = git@github.com:open-condo-software/condo-employee-bot.git
+[submodule "apps/eps"]
+	path = apps/eps
+	url = git@github.com:open-condo-software/condo-eps.git
 [submodule "apps/external-api"]
 	path = apps/external-api
 	url = git@github.com:open-condo-software/condo-external-api.git
