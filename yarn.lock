@@ -635,6 +635,53 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@app/callcenter@workspace:apps/callcenter":
+  version: 0.0.0-use.local
+  resolution: "@app/callcenter@workspace:apps/callcenter"
+  dependencies:
+    "@ant-design/colors": ^6.0.0
+    "@apollo/client": ^3.11.8
+    "@app/condo": "workspace:^"
+    "@callcenter/domains": "link:./domains"
+    "@condo/domains": "link:../condo/domains"
+    "@emotion/cache": ^11.11.0
+    "@emotion/react": ^11.11.0
+    "@emotion/server": ^11.11.0
+    "@emotion/styled": ^11.11.0
+    "@graphql-codegen/cli": ^5.0.2
+    "@graphql-codegen/import-types-preset": ^3.0.0
+    "@graphql-codegen/typescript-operations": ^4.2.3
+    "@graphql-codegen/typescript-react-apollo": ^4.3.2
+    "@open-condo/apollo": "workspace:^"
+    "@open-condo/config": "workspace:^"
+    "@open-condo/icons": "workspace:^"
+    "@open-condo/locales": "workspace:^"
+    "@open-condo/miniapp-utils": "workspace:^"
+    "@open-condo/next": "workspace:^"
+    "@open-condo/ui": "workspace:^"
+    "@types/http-proxy": ^1.17.16
+    "@types/lodash": 4.14.182
+    "@types/node": ^22
+    "@types/react": ^17.0.2
+    antd: ^4.24.12
+    classnames: ^2.3.2
+    cookies-next: ^4.2.1
+    dayjs: ^1.11.10
+    graphql: ^16.10.0
+    graphql-tag: ^2.12.6
+    http-proxy: ^1.18.1
+    less: ^4.3.0
+    less-loader: ^12.3.0
+    lodash: ^4.17.21
+    next: ^12.3.7
+    next-transpile-modules: ^10.0.1
+    next-with-less: ^2.0.5
+    react: ^17.0.2
+    react-dom: ^17.0.2
+    typescript: ^5.8.3
+  languageName: unknown
+  linkType: soft
+
 "@app/condo@workspace:^, @app/condo@workspace:apps/condo":
   version: 0.0.0-use.local
   resolution: "@app/condo@workspace:apps/condo"
@@ -6319,6 +6366,12 @@ __metadata:
   languageName: node
   linkType: soft
 
+"@callcenter/domains@link:./domains::locator=%40app%2Fcallcenter%40workspace%3Aapps%2Fcallcenter":
+  version: 0.0.0-use.local
+  resolution: "@callcenter/domains@link:./domains::locator=%40app%2Fcallcenter%40workspace%3Aapps%2Fcallcenter"
+  languageName: node
+  linkType: soft
+
 "@colors/colors@npm:1.5.0":
   version: 1.5.0
   resolution: "@colors/colors@npm:1.5.0"
@@ -6516,6 +6569,12 @@ __metadata:
   checksum: 210636d3923f93f7cfc409eac04376b0fe50356a0e08f25a37b43d5cd9ca4363f7b03ca2e7736cbf95b62d67733fe8e1028269d35b4fddd1b3f2a653c90ca85c
   languageName: node
   linkType: hard
+
+"@condo/domains@link:../condo/domains::locator=%40app%2Fcallcenter%40workspace%3Aapps%2Fcallcenter":
+  version: 0.0.0-use.local
+  resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Fcallcenter%40workspace%3Aapps%2Fcallcenter"
+  languageName: node
+  linkType: soft
 
 "@condo/domains@link:../condo/domains::locator=%40app%2Feps%40workspace%3Aapps%2Feps":
   version: 0.0.0-use.local
@@ -16582,6 +16641,13 @@ __metadata:
   dependencies:
     "@types/node": "*"
   checksum: e009a2bfb50e90ca9b7c6e8f648f8464067271fd99116f881073fa6fa76dc8d0133181dd65e6614d5fb1220d671d67b0124aef7d97dc02d7e342ab143a47779d
+  languageName: node
+  linkType: hard
+
+"@types/lodash@npm:4.14.182":
+  version: 4.14.182
+  resolution: "@types/lodash@npm:4.14.182"
+  checksum: 7dd137aa9dbabd632408bd37009d984655164fa1ecc3f2b6eb94afe35bf0a5852cbab6183148d883e9c73a958b7fec9a9bcf7c8e45d41195add6a18c34958209
   languageName: node
   linkType: hard
 
