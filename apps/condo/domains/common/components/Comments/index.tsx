@@ -1,38 +1,28 @@
 import { useApolloClient } from '@apollo/client'
 import {
     CreateTicketCommentMutationHookResult,
-    CreateUserTicketCommentReadTimeMutationHookResult, GetIncidentsQuery,
+    CreateUserTicketCommentReadTimeMutationHookResult,
+    GetIncidentsQuery,
     GetTicketLastCommentsTimeQueryHookResult,
     GetUserTicketCommentsReadTimeQueryHookResult,
     UpdateTicketCommentMutationHookResult,
     UpdateUserTicketCommentReadTimeMutationHookResult,
 } from '@app/condo/gql'
 import { Ticket, TicketComment, TicketCommentFile, UserTypeType } from '@app/condo/schema'
-import styled from '@emotion/styled'
-import { Empty, Form, notification } from 'antd'
+import { Drawer, Empty, Form, notification } from 'antd'
+import classNames from 'classnames'
 import dayjs from 'dayjs'
 import cookie from 'js-cookie'
-import get from 'lodash/get'
-import pickBy from 'lodash/pickBy'
-import React, {
-    CSSProperties,
-    MouseEventHandler,
-    UIEventHandler,
-    useCallback,
-    useEffect,
-    useMemo,
-    useRef,
-    useState,
-} from 'react'
+import { pickBy } from 'lodash'
+import React, { CSSProperties, MouseEventHandler, UIEventHandler, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
-import { Radio, RadioGroup, Tooltip, Tour, Typography } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/colors'
+import { Input, Radio, RadioGroup, Tooltip, Tour, Typography } from '@open-condo/ui'
 
 import { AIFlowButton } from '@condo/domains/ai/components/AIFlowButton'
-import { FLOW_TYPES } from '@condo/domains/ai/constants.js'
+import { FLOW_TYPES, REWRITE_TICKET_COMMENT_TYPE, GENERATE_TICKET_COMMENT_TYPE } from '@condo/domains/ai/constants.js'
 import { useAIConfig, useAIFlow } from '@condo/domains/ai/hooks/useAIFlow'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Loader } from '@condo/domains/common/components/Loader'
@@ -44,88 +34,18 @@ import { hasUnreadResidentComments } from '@condo/domains/ticket/utils/helpers'
 import { Comment } from './Comment'
 import { CommentForm } from './CommentForm'
 
+import './Comments.css'
 
-interface IContainerProps {
-    isSmall: boolean
-}
-
-const Container = styled.aside<IContainerProps>`
-  background: ${colors.gray[1]};
-  border-radius: 8px;
-
-  ${({ isSmall }) => {
-        if (!isSmall) {
-            return 'height: calc(100vh - 100px);'
-        }
-    }}
-
-  display: flex;
-  flex-flow: column nowrap;
-  align-content: space-between;
-  overflow: hidden;
-  
-  max-height: 756px;
-`
-const Head = styled.div<{ isTitleHidden: boolean }>`
-  padding: 24px 24px 0 24px;
-  display: ${({ isTitleHidden }) => isTitleHidden ? 'none' : 'block'};
-  font-style: normal;
-  font-weight: bold;
-  font-size: 20px;
-  line-height: 28px;
-`
-const Body = styled.div`
-  padding: 12px 24px 0;
-  overflow-y: scroll;
-  flex: 1 1 auto;
-`
-const Footer = styled.div<{ isSmall: boolean }>`
-  .ant-form {
-    padding-right: ${({ isSmall }) => isSmall ? '100px' : '0'};
-  }
-
-  border-top: 1px solid ${colors.gray[5]};
-  padding: 8px;
-`
-const EmptyContainer = styled.div`
-  text-align: center;
-  flex: 1 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  .ant-empty-image {
-    display: none;
-  }
-`
-
-const CommentsTabsContainer = styled.div<{ isTitleHidden: boolean }>`
-  padding: 0;
-  display: flex;
-  flex: 1 1 auto;
-
-  height: calc(100vh - 508px);
-  overflow-y: scroll;
-`
-
-const LOADER_STYLES: CSSProperties = {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    margin: '8px 0 18px 0',
-}
-const COMMENT_WRAPPER_STYLES: CSSProperties = { marginBottom: '12px' }
 const GENERATE_ANSWER_BUTTON_WRAPPER_STYLES: CSSProperties = { width: 'fit-content', marginTop: '6px' }
 const GENERATE_COMMENT_BUTTON_WRAPPER_STYLES: CSSProperties = { width: 'fit-content' }
-const EMPTY_COMMENTS_WRAPPER_STYLES: CSSProperties = { display: 'flex', flexDirection: 'column', padding: '24px' }
 
 const EmptyCommentsContainer = ({ PromptTitleMessage, PromptDescriptionMessage }) => (
-    <EmptyContainer>
+    <div className='empty-container'>
         <Empty
             image={null}
             description={
                 <>
-                    <Typography.Paragraph strong>
+                    <Typography.Paragraph strong >
                         {PromptTitleMessage}
                     </Typography.Paragraph>
                     <Typography.Paragraph size='medium' type='secondary'>
@@ -134,7 +54,7 @@ const EmptyCommentsContainer = ({ PromptTitleMessage, PromptDescriptionMessage }
                 </>
             }
         />
-    </EmptyContainer>
+    </div>
 )
 
 type CommentsTabContentProps = {
@@ -153,163 +73,144 @@ type CommentsTabContentProps = {
     showGenerateCommentWithoutComments: boolean
 }
 
-const CommentsTabContent: React.FC<CommentsTabContentProps> =
-    ({
-        sending,
-        handleBodyScroll,
-        bodyRef,
-        comments,
-        updateAction,
-        PromptTitleMessage,
-        PromptDescriptionMessage,
-        editableComment,
-        setEditableComment,
-        generateCommentEnabled,
-        generateCommentOnClickHandler,
-        generateCommentLoading,
-        showGenerateCommentWithoutComments,
-    }) => {
-        const intl = useIntl()
-        const GenerateResponseMessage = intl.formatMessage({ id: 'ai.generateResponse' })
-        const GenerateResponseTooltipMessage = intl.formatMessage({ id: 'ai.generateResponseWithAI' })
-        const GenerateCommentMessage = intl.formatMessage({ id: 'ai.generateComment' })
-        const GenerateCommentTooltipMessage = intl.formatMessage({ id: 'ai.generateCommentWithAI' })
-        const GenerateCommentTourStepTitle = intl.formatMessage({ id: 'ai.generateComment.tourStepTitle' })
-        const GenerateCommentTourStepDescription = intl.formatMessage({ id: 'ai.generateComment.tourStepDescription' })
+const CommentsTabContent: React.FC<CommentsTabContentProps> = ({
+    sending,
+    handleBodyScroll,
+    bodyRef,
+    comments,
+    updateAction,
+    PromptTitleMessage,
+    PromptDescriptionMessage,
+    editableComment,
+    setEditableComment,
+    generateCommentEnabled,
+    generateCommentOnClickHandler,
+    generateCommentLoading,
+    showGenerateCommentWithoutComments,
+}) => {
+    const intl = useIntl()
+    const GenerateResponseMessage = intl.formatMessage({ id: 'ai.generateResponse' })
+    const GenerateResponseTooltipMessage = intl.formatMessage({ id: 'ai.generateResponseWithAI' })
+    const GenerateCommentMessage = intl.formatMessage({ id: 'ai.generateComment' })
+    const GenerateCommentTooltipMessage = intl.formatMessage({ id: 'ai.generateCommentWithAI' })
+    const GenerateCommentTourStepTitle = intl.formatMessage({ id: 'ai.generateComment.tourStepTitle' })
+    const GenerateCommentTourStepDescription = intl.formatMessage({ id: 'ai.generateComment.tourStepDescription' })
 
-        const lastComment = useMemo(() => comments?.[0], [comments])
-        const showGenerateAnswerButton = useMemo(() =>
-            generateCommentEnabled && lastComment?.user?.type === UserTypeType.Resident,
-        [generateCommentEnabled, lastComment?.user?.type])
+    const lastComment = useMemo(() => comments?.[0], [comments])
+    const showGenerateAnswerButton = useMemo(() =>
+        generateCommentEnabled && lastComment?.user?.type === UserTypeType.Resident,
+    [generateCommentEnabled, lastComment?.user?.type])
 
-        const commentsToRender = useMemo(() =>
-            comments
-                .filter(comment => editableComment ? comment.id !== editableComment.id : true)
-                .map(comment => {
-                    const deleteAction = async ({ id }) => {
-                        await updateAction({
-                            variables: {
-                                id,
-                                data: {
-                                    deletedAt: new Date().toISOString(),
-                                    dv: 1,
-                                    sender: getClientSideSenderInfo(),
-                                },
+    const commentsToRender = useMemo(() =>
+        comments
+            .filter(comment => editableComment ? comment.id !== editableComment.id : true)
+            .map(comment => {
+                const deleteAction = async ({ id }) => {
+                    await updateAction({
+                        variables: {
+                            id,
+                            data: {
+                                deletedAt: new Date().toISOString(),
+                                dv: 1,
+                                sender: getClientSideSenderInfo(),
                             },
-                        })
-                    }
+                        },
+                    })
+                }
 
-                    return (
-                        <div style={COMMENT_WRAPPER_STYLES} key={comment.id}>
-                            <Comment
-                                comment={comment}
-                                deleteAction={deleteAction}
-                                setEditableComment={setEditableComment}
-                            />
-                            {
-                                showGenerateAnswerButton && lastComment?.id === comment.id && (
-                                    <Tooltip placement='left' mouseEnterDelay={1.5} title={GenerateResponseTooltipMessage}>
-                                        <div style={GENERATE_ANSWER_BUTTON_WRAPPER_STYLES}>
-                                            <AIFlowButton
-                                                loading={generateCommentLoading}
-                                                onClick={generateCommentOnClickHandler}
-                                            >
-                                                {GenerateResponseMessage}
-                                            </AIFlowButton>
-                                        </div>
-                                    </Tooltip>
-                                )
-                            }
-                        </div>
-                    )
-                }), [
-            GenerateResponseMessage, GenerateResponseTooltipMessage, comments, editableComment,
-            generateCommentLoading, generateCommentOnClickHandler, lastComment?.id, setEditableComment,
-            showGenerateAnswerButton, updateAction,
-        ])
-
-        const { currentStep, setCurrentStep } = Tour.useTourContext()
-
-        useEffect(() => {
-            const isTipHidden = cookie.get(GENERATE_COMMENT_TOUR_STEP_CLOSED_COOKIE) || false
-            setCurrentStep(isTipHidden ? 0 : 1)
-        }, [setCurrentStep])
-
-        const closeTourStep = useCallback(() => {
-            if (currentStep === 1) {
-                cookie.set(GENERATE_COMMENT_TOUR_STEP_CLOSED_COOKIE, true)
-                setCurrentStep(0)
-            }
-        }, [currentStep, setCurrentStep])
-
-        const handleClickGenerateCommentButton = useCallback(async (event) => {
-            closeTourStep()
-            await generateCommentOnClickHandler(event)
-        }, [closeTourStep, generateCommentOnClickHandler])
-
-        return (
-            <>
-                {comments.length === 0 ? (
-                    <div style={EMPTY_COMMENTS_WRAPPER_STYLES}>
-                        <EmptyCommentsContainer
-                            PromptTitleMessage={PromptTitleMessage}
-                            PromptDescriptionMessage={PromptDescriptionMessage}
+                return (
+                    <>
+                        <Comment
+                            comment={comment}
+                            deleteAction={deleteAction}
+                            setEditableComment={setEditableComment}
                         />
-                        {showGenerateCommentWithoutComments && (
-                            <Tour.TourStep
-                                step={1}
-                                title={GenerateCommentTourStepTitle}
-                                message={GenerateCommentTourStepDescription}
-                                onClose={closeTourStep}
-                            >
-                                <Tooltip placement='topRight' mouseEnterDelay={1.5} title={GenerateCommentTooltipMessage}>
-                                    <div style={GENERATE_COMMENT_BUTTON_WRAPPER_STYLES}>
+                        {
+                            showGenerateAnswerButton && lastComment?.id === comment.id && (
+                                <Tooltip placement='left' mouseEnterDelay={1.5} title={GenerateResponseTooltipMessage}>
+                                    <div style={GENERATE_ANSWER_BUTTON_WRAPPER_STYLES}>
                                         <AIFlowButton
                                             loading={generateCommentLoading}
-                                            onClick={handleClickGenerateCommentButton}
+                                            onClick={generateCommentOnClickHandler}
                                         >
-                                            {GenerateCommentMessage}
+                                            {GenerateResponseMessage}
                                         </AIFlowButton>
                                     </div>
                                 </Tooltip>
-                            </Tour.TourStep>
-                        )}
-                    </div>
-                ) : (
-                    <Body ref={bodyRef} onScroll={handleBodyScroll}>
-                        {sending && <Loader style={LOADER_STYLES}/>}
-                        {commentsToRender}
-                    </Body>
-                )}
-            </>
-        )
-    }
+                            )
+                        }
+                    </>
+                )
+            }), [
+        GenerateResponseMessage, GenerateResponseTooltipMessage, comments, editableComment,
+        generateCommentLoading, generateCommentOnClickHandler, lastComment?.id, setEditableComment,
+        showGenerateAnswerButton, updateAction,
+    ])
+
+    const { currentStep, setCurrentStep } = Tour.useTourContext()
+
+    useEffect(() => {
+        const isTipHidden = cookie.get(GENERATE_COMMENT_TOUR_STEP_CLOSED_COOKIE) || false
+        setCurrentStep(isTipHidden ? 0 : 1)
+    }, [setCurrentStep])
+
+    const closeTourStep = useCallback(() => {
+        if (currentStep === 1) {
+            cookie.set(GENERATE_COMMENT_TOUR_STEP_CLOSED_COOKIE, true)
+            setCurrentStep(0)
+        }
+    }, [currentStep, setCurrentStep])
+
+    const handleClickGenerateCommentButton = useCallback(async (event) => {
+        closeTourStep()
+        await generateCommentOnClickHandler(event)
+    }, [closeTourStep, generateCommentOnClickHandler])
+
+    return (
+        <>
+            {comments.length === 0 ? (
+                <div className='comment-body'>
+                    <EmptyCommentsContainer
+                        PromptTitleMessage={PromptTitleMessage}
+                        PromptDescriptionMessage={PromptDescriptionMessage}
+                    />
+                    {showGenerateCommentWithoutComments && (
+                        <Tour.TourStep
+                            step={1}
+                            title={GenerateCommentTourStepTitle}
+                            message={GenerateCommentTourStepDescription}
+                            onClose={closeTourStep}
+                        >
+                            <Tooltip placement='topRight' mouseEnterDelay={1.5} title={GenerateCommentTooltipMessage}>
+                                <div style={GENERATE_COMMENT_BUTTON_WRAPPER_STYLES}>
+                                    <AIFlowButton
+                                        loading={generateCommentLoading}
+                                        onClick={handleClickGenerateCommentButton}
+                                    >
+                                        {GenerateCommentMessage}
+                                    </AIFlowButton>
+                                </div>
+                            </Tooltip>
+                        </Tour.TourStep>
+                    )}
+                </div>
+            ) : (
+                <div className='comment-body' ref={bodyRef} onScroll={handleBodyScroll}>
+                    {sending && <Loader className='loader'/>}
+                    {commentsToRender}
+                </div>
+            )}
+        </>
+    )
+}
 
 const SCROLL_TOP_OFFSET_TO_HIDE_TITLE = 50
-const NewCommentIndicator = styled.span`
-  display: inline-block;
-  width: 4px;
-  height: 4px;
-  border-radius: 100px;
-  background-color: ${colors.red[5]};
-  position: relative;
-  top: -3px;
-  left: 2px;
-`
-
-const SwitchCommentsTypeWrapper = styled.div`
-  padding: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-bottom: 1px solid ${colors.gray[5]};
-`
 
 export type CommentWithFiles = TicketComment & {
     files: Array<TicketCommentFile> | null
 }
 
-interface ICommentsListProps {
+type CommentsWrapperPropsType = {
     ticketId: string
     ticket: Ticket
     comments: CommentWithFiles[]
@@ -327,15 +228,65 @@ interface ICommentsListProps {
     actualIncidents?: GetIncidentsQuery['incidents']
 }
 
-const Comments: React.FC<ICommentsListProps> = ({
+type CommentsPropsType = CommentsWrapperPropsType & {
+    CommentFormOpen: boolean
+    isComponentInModal?: boolean
+    setCommentFormOpen?: (value: boolean) => void
+    editableComment: CommentWithFiles
+    setEditableComment: (value: CommentWithFiles) => void
+}
+
+export const CommentsWrapper: React.FC<CommentsWrapperPropsType>  = (props) => {
+    const intl = useIntl()
+    const TitleMessage = intl.formatMessage({ id: 'Comments.title' })
+
+    const [CommentFormOpen, setCommentFormOpen] = useState(false)
+    const [editableComment, setEditableComment] = useState<CommentWithFiles | null>(null)
+
+    return (
+        <>
+            <Comments
+                {...props}
+                CommentFormOpen={CommentFormOpen}
+                setCommentFormOpen={setCommentFormOpen}
+                editableComment={editableComment}
+                setEditableComment={setEditableComment}
+            />
+
+            <Drawer
+                title={TitleMessage}
+                onClose={() => setCommentFormOpen(false)}
+                open={CommentFormOpen}
+                className='drawer-wrapper'
+                width={486}
+            >
+                <Comments
+                    {...props}
+                    isComponentInModal
+                    CommentFormOpen={CommentFormOpen}
+                    setCommentFormOpen={setCommentFormOpen}
+                    editableComment={editableComment}
+                    setEditableComment={setEditableComment}
+                />
+            </Drawer>
+        </>
+    )
+}
+
+const Comments: React.FC<CommentsPropsType> = ({
     ticketId,
     ticket,
+    isComponentInModal,
     comments,
     createAction,
     updateAction,
+    setEditableComment,
+    editableComment,
     refetchComments,
     canCreateComments,
     FileModel,
+    setCommentFormOpen,
+    CommentFormOpen,
     fileModelRelationField,
     ticketCommentTimes,
     userTicketCommentReadTime,
@@ -354,6 +305,7 @@ const Comments: React.FC<ICommentsListProps> = ({
     const PromptResidentCommentsTitleMessage = intl.formatMessage({ id: 'Comments.tab.resident.prompt.title' })
     const PromptResidentCommentsDescriptionMessage = intl.formatMessage({ id: 'Comments.tab.resident.prompt.description' })
     const GenericErrorMessage = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
+    const PlaceholderMessage = intl.formatMessage({ id: 'Comments.form.placeholder' })
     const YesMessage = intl.formatMessage({ id: 'Yes' })
     const NoMessage = intl.formatMessage({ id: 'No' })
 
@@ -362,13 +314,14 @@ const Comments: React.FC<ICommentsListProps> = ({
 
     const { breakpoints } = useLayoutContext()
     const [commentType, setCommentType] = useState(ORGANIZATION_COMMENT_TYPE)
-    const [editableComment, setEditableComment] = useState<CommentWithFiles>()
     const [sending, setSending] = useState(false)
     const [isTitleHidden, setTitleHidden] = useState<boolean>(false)
     const [isInitialUserTicketCommentReadTimeSet, setIsInitialUserTicketCommentReadTimeSet] = useState<boolean>(false)
+    const [errorMessage, setErrorMessage] = useState('')
+    const [generateCommentAnswer, setGenerateCommentAnswer] = useState('')
 
     const handleBodyScroll = useCallback((e) => {
-        const scrollTop = get(e, ['currentTarget', 'scrollTop'])
+        const scrollTop = e?.currentTarget?.scrollTop
 
         if (scrollTop > SCROLL_TOP_OFFSET_TO_HIDE_TITLE && !isTitleHidden) {
             setTitleHidden(true)
@@ -388,7 +341,7 @@ const Comments: React.FC<ICommentsListProps> = ({
 
     useEffect(() => {
         setEditableComment(null)
-    }, [commentType])
+    }, [commentType, setEditableComment])
 
     const commentsWithOrganization = useMemo(() => comments.filter(comment => comment.type === ORGANIZATION_COMMENT_TYPE), [comments])
     const commentsWithResident = useMemo(() => comments.filter(comment => comment.type === RESIDENT_COMMENT_TYPE), [comments])
@@ -434,7 +387,7 @@ const Comments: React.FC<ICommentsListProps> = ({
         })
         setEditableComment(null)
     },
-    [commentType, createAction, editableComment, refetchComments, ticketId, updateAction, user?.id])
+    [commentType, createAction, editableComment, refetchComments, setEditableComment, ticketId, updateAction, user?.id])
 
     const createOrUpdateUserTicketCommentReadTime = useCallback(async (payload) => {
         if (loadingUserTicketCommentReadTime) return
@@ -508,6 +461,12 @@ const Comments: React.FC<ICommentsListProps> = ({
 
     const { enabled: aiFeaturesEnabled, features: { rewriteTicketComment: rewriteTicketCommentEnabled } } = useAIConfig()
 
+    const generateCommentEnabled = useMemo(() => aiFeaturesEnabled && rewriteTicketCommentEnabled,
+        [aiFeaturesEnabled, rewriteTicketCommentEnabled])
+    const showGenerateCommentWithoutComments = useMemo(() =>
+        generateCommentEnabled && commentType === RESIDENT_COMMENT_TYPE && commentsWithResident.length === 0,
+    [commentType, commentsWithResident.length, generateCommentEnabled])
+
     const organizationCommentsTabContentProps = {
         comments: commentsWithOrganization,
         PromptTitleMessage: PromptInternalCommentsTitleMessage,
@@ -542,14 +501,17 @@ const Comments: React.FC<ICommentsListProps> = ({
     })
 
     useEffect(() => {
-        const rewrittenComment = generateCommentData?.answer
+        setGenerateCommentAnswer(generateCommentData?.answer)
+    }, [generateCommentData?.answer])
 
-        if (rewrittenComment) {
-            commentForm.setFieldValue('content', rewrittenComment)
+    useEffect(() => {
+        if (!CommentFormOpen) {
+            setGenerateCommentAnswer('')
+            setErrorMessage('')
         }
-    }, [generateCommentData])
+    }, [CommentFormOpen])
 
-    const handleGenerateCommentClick = async (comments) => {
+    const handleGenerateCommentClick = async (comments, promptType: typeof REWRITE_TICKET_COMMENT_TYPE | typeof GENERATE_TICKET_COMMENT_TYPE) => {
         const lastComment = comments?.[0]
         // Last 5 comments excluding the lastComment one
         const last5Comments = comments?.slice(0, 5)
@@ -563,25 +525,22 @@ const Comments: React.FC<ICommentsListProps> = ({
             ticketLastComments: last5Comments?.map(comment => `${comment.user.name}: ${comment.content}`).join('\n'),
             currentDateTime,
             actualIncidents: last5Incidents,
+            promptType,
         })
 
+        setCommentFormOpen(true)
         const result = await runGenerateCommentAIFlow({ context })
 
         if (result.error) {
+            setErrorMessage(result.localizedErrorText || GenericErrorMessage)
             notification.error({ message: result.localizedErrorText || GenericErrorMessage })
         }
     }
 
-    const generateCommentEnabled = useMemo(() => aiFeaturesEnabled && rewriteTicketCommentEnabled,
-        [aiFeaturesEnabled, rewriteTicketCommentEnabled])
-    const showGenerateCommentWithoutComments = useMemo(() =>
-        generateCommentEnabled && commentType === RESIDENT_COMMENT_TYPE && commentsWithResident.length === 0,
-    [commentType, commentsWithResident.length, generateCommentEnabled])
-
     return (
-        <Container isSmall={!breakpoints.TABLET_LARGE}>
-            <Head isTitleHidden={isTitleHidden}>{TitleMessage}</Head>
-            <SwitchCommentsTypeWrapper>
+        <div className={classNames('comment-container', breakpoints.TABLET_LARGE ? '' : 'is-small', isComponentInModal ? 'in-modal' : 'in-page')}>
+            {!CommentFormOpen && !isTitleHidden && <div className='comment-head'>{TitleMessage}</div> }
+            <span className='switch-comments-type-wrapper'>
                 <RadioGroup optionType='button' value={commentType} onChange={handleTabChange}>
                     <Radio
                         key={ORGANIZATION_COMMENT_TYPE}
@@ -603,50 +562,66 @@ const Comments: React.FC<ICommentsListProps> = ({
                                 {ResidentCommentsMessage}
                                 <sup>
                                     {commentsWithResident.length}
-                                    {showIndicator && <NewCommentIndicator title=''/>}
+                                    {showIndicator && <span className='new-comment-indicator' title=''/>}
                                 </sup>
                             </>
                         }
                     />
                 </RadioGroup>
-            </SwitchCommentsTypeWrapper>
+            </span>
             <Tour.Provider>
-                <CommentsTabsContainer isTitleHidden={isTitleHidden} className='card-container'>
+                <div className={classNames('card-container', 'comments-tabs-container')}>
                     <CommentsTabContent
                         {...commentTabContentProps}
                         editableComment={editableComment}
-                        setEditableComment={setEditableComment}
+                        setEditableComment={ (value)=>{
+                            if (!isComponentInModal) setCommentFormOpen(true)
+                            return setEditableComment(value)
+                        }}
                         updateAction={updateAction}
                         handleBodyScroll={handleBodyScroll}
                         bodyRef={bodyRef}
                         sending={sending}
                         generateCommentEnabled={generateCommentEnabled}
-                        generateCommentOnClickHandler={() => handleGenerateCommentClick(commentTabContentProps.comments)}
+                        generateCommentOnClickHandler={() => handleGenerateCommentClick(commentTabContentProps.comments, GENERATE_TICKET_COMMENT_TYPE )}
                         generateCommentLoading={generateCommentLoading}
                         showGenerateCommentWithoutComments={showGenerateCommentWithoutComments}
                     />
-                </CommentsTabsContainer>
-                <Footer isSmall={!breakpoints.TABLET_LARGE}>
+                </div>
+                <div className={classNames('comment-footer', breakpoints.TABLET_LARGE ? '' : 'is-small')}>
                     {canCreateComments ? (
-                        <CommentForm
-                            fieldName='content'
-                            ticketId={ticketId}
-                            FileModel={FileModel}
-                            relationField={fileModelRelationField}
-                            action={handleCommentAction}
-                            editableComment={editableComment}
-                            setEditableComment={setEditableComment}
-                            setSending={setSending}
-                            sending={sending}
-                            commentForm={commentForm}
-                            generateCommentLoading={generateCommentLoading}
-                        />
+                        <>
+                            { isComponentInModal ? (
+                                <CommentForm
+                                    fieldName='content'
+                                    ticketId={ticketId}
+                                    FileModel={FileModel}
+                                    relationField={fileModelRelationField}
+                                    action={handleCommentAction}
+                                    editableComment={editableComment}
+                                    setEditableComment={setEditableComment}
+                                    setSending={setSending}
+                                    sending={sending}
+                                    onOpen={()=>setCommentFormOpen(true)}
+                                    commentForm={commentForm}
+                                    errorMessage={errorMessage}
+                                    setErrorMessage={setErrorMessage}
+                                    generateCommentLoading={generateCommentLoading}
+                                    generateCommentAnswer={generateCommentAnswer}
+                                    setGenerateCommentAnswer={setGenerateCommentAnswer}
+                                    generateCommentOnClickHandler={() => handleGenerateCommentClick(commentTabContentProps.comments, REWRITE_TICKET_COMMENT_TYPE)}
+                                /> ) : (
+                                <div onClick={()=>setCommentFormOpen(true)}>
+                                    <Input placeholder={PlaceholderMessage} value={editableComment?.content}/>
+                                </div>
+                            )}
+                        </>
                     ) : (
                         <Typography.Text disabled>{CannotCreateCommentsMessage}</Typography.Text>
                     )}
-                </Footer>
+                </div>
             </Tour.Provider>
-        </Container>
+        </div>
     )
 }
 

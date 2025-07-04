@@ -32,7 +32,7 @@ import { ActionBar, Alert, Button } from '@open-condo/ui'
 
 import { ChangeHistory } from '@condo/domains/common/components/ChangeHistory'
 import { HistoricalChange } from '@condo/domains/common/components/ChangeHistory/HistoricalChange'
-import { Comments } from '@condo/domains/common/components/Comments'
+import { CommentsWrapper } from '@condo/domains/common/components/Comments'
 import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
@@ -768,7 +768,7 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
             </Col>
             <Col lg={7} xs={24} offset={breakpoints.DESKTOP_SMALL ? 1 : 0}>
                 <Affix offsetTop={40}>
-                    <Comments
+                    <CommentsWrapper
                         ticketId={id}
                         ticket={ticket}
                         ticketCommentTimes={ticketCommentTimes}
