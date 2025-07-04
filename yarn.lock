@@ -642,7 +642,7 @@ __metadata:
     axios: ^0.26.0
     bad-words-next: ^1.6.7
     big.js: ^6.2.2
-    body-parser: ^1.19.1
+    body-parser: ^1.20.3
     carbone: 3.2.3
     classnames: ^2.3.2
     commander: ^11.0.0
@@ -929,7 +929,7 @@ __metadata:
     "@open-condo/cli": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
-    body-parser: ^1.20.2
+    body-parser: ^1.20.3
     dayjs: ^1.11.10
     express: ^4.17.1
     express-pino-logger: ^6.0.0
@@ -1259,6 +1259,74 @@ __metadata:
     react-dom: ^17.0.2
     typescript: ^5.8.3
     uuid: ^8.3.0
+  languageName: unknown
+  linkType: soft
+
+"@app/rb@workspace:apps/rb":
+  version: 0.0.0-use.local
+  resolution: "@app/rb@workspace:apps/rb"
+  dependencies:
+    "@apollo/client": ^3.11.8
+    "@condo/domains": "link:../condo/domains"
+    "@emotion/cache": ^11.11.0
+    "@emotion/react": ^11.11.0
+    "@emotion/server": ^11.11.0
+    "@faker-js/faker": ^7.6.0
+    "@graphql-tools/graphql-file-loader": ^7.5.17
+    "@graphql-tools/load": ^8.1.0
+    "@open-condo/apollo-server-client": "workspace:^"
+    "@open-condo/billing": "workspace:^"
+    "@open-condo/bridge": "workspace:^"
+    "@open-condo/cli": "workspace:^"
+    "@open-condo/codegen": "workspace:^"
+    "@open-condo/config": "workspace:^"
+    "@open-condo/keystone": "workspace:^"
+    "@open-condo/locales": "workspace:^"
+    "@open-condo/next": "workspace:^"
+    "@open-condo/ui": "workspace:^"
+    "@open-keystone/app-graphql": ^7.0.1
+    "@open-keystone/app-next": ^8.0.2
+    "@pdf-lib/fontkit": ^1.1.1
+    "@rb/domains": "link:./domains"
+    "@types/jest": ^29.5.14
+    "@types/node": ^22
+    "@types/react": ^17.0.2
+    ajv: 8.11.0
+    antd: ^4.24.12
+    axios: ^0.26.0
+    big.js: ^6.2.2
+    body-parser: ^1.20.3
+    body-parser-xml: ^2.0.3
+    carbone: 3.2.3
+    cross-env: ^7.0.3
+    dayjs: ^1.11.10
+    express: ^4.17.1
+    form-data: ^4.0.0
+    graphql: ^16.10.0
+    graphql-tag: ^2.12.6
+    graphql-upload: ^15.0.2
+    iconv-lite: ^0.6.3
+    ignore-loader: ^0.1.2
+    imapflow: ^1.0.177
+    jest: ^29.7.0
+    jest-jasmine2: ^29.7.0
+    less: ^4.3.0
+    less-loader: ^12.3.0
+    lodash: ^4.17.21
+    next: ^12.3.7
+    next-cookies: ^2.0.3
+    next-transpile-modules: ^10.0.1
+    next-with-less: ^2.0.5
+    nunjucks: ^3.2.4
+    openid-client: 4.7.4
+    pdf-lib: ^1.17.1
+    pg: ^8.11.3
+    pluralize: ^8.0.0
+    react: ^17.0.2
+    react-dom: ^17.0.2
+    typescript: ^5.8.3
+    uuid: ^8.3.0
+    xml-js: ^1.6.11
   languageName: unknown
   linkType: soft
 
@@ -6414,6 +6482,12 @@ __metadata:
   languageName: node
   linkType: soft
 
+"@condo/domains@link:../condo/domains::locator=%40app%2Frb%40workspace%3Aapps%2Frb":
+  version: 0.0.0-use.local
+  resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Frb%40workspace%3Aapps%2Frb"
+  languageName: node
+  linkType: soft
+
 "@condo/domains@link:../condo/domains::locator=%40app%2Fregistry-importer%40workspace%3Aapps%2Fregistry-importer":
   version: 0.0.0-use.local
   resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Fregistry-importer%40workspace%3Aapps%2Fregistry-importer"
@@ -11075,7 +11149,7 @@ __metadata:
     axios-cookiejar-support: ^1.0.1
     babel-jest: ^29.7.0
     big.js: ^6.2.2
-    body-parser: ^1.19.1
+    body-parser: ^1.20.3
     bull: ^4.8.4
     connect-redis: ^6.0.0
     csv-parse: ^5.2.0
@@ -12282,6 +12356,15 @@ __metadata:
   languageName: node
   linkType: soft
 
+"@pdf-lib/fontkit@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "@pdf-lib/fontkit@npm:1.1.1"
+  dependencies:
+    pako: ^1.0.6
+  checksum: e37b818ef20b9737d27bd08a54827fd7a54f7796f16b9a39a8fc77ed8a3f0fe9156a72ffefc4bc82856b3fedc141017be75cf49fc21f6a077494cabff347f179
+  languageName: node
+  linkType: hard
+
 "@pdf-lib/standard-fonts@npm:^1.0.0":
   version: 1.0.0
   resolution: "@pdf-lib/standard-fonts@npm:1.0.0"
@@ -13487,6 +13570,12 @@ __metadata:
   checksum: aeec13b234a946052512d05239067d2d63422f9ec70bf2fe7acfd6b9196693fc33fbaf43c2667c167f777d90a095c6604eb487e0bce79e230b6df0f6cacd6a55
   languageName: node
   linkType: hard
+
+"@rb/domains@link:./domains::locator=%40app%2Frb%40workspace%3Aapps%2Frb":
+  version: 0.0.0-use.local
+  resolution: "@rb/domains@link:./domains::locator=%40app%2Frb%40workspace%3Aapps%2Frb"
+  languageName: node
+  linkType: soft
 
 "@rc-component/color-picker@npm:~1.5.3":
   version: 1.5.3
@@ -20286,7 +20375,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"body-parser@npm:1.20.0, body-parser@npm:^1.19.0, body-parser@npm:^1.19.1":
+"body-parser-xml@npm:^2.0.3":
+  version: 2.0.5
+  resolution: "body-parser-xml@npm:2.0.5"
+  dependencies:
+    xml2js: ^0.5.0
+  checksum: 57133dbe6439f74f2ffb814b54ab806596a31c51e0d93e045b3068402ae184d4fcb799b2966414d1f393f8dcc8342529d4d3ce4cdeaa219c3af140d961c56dfd
+  languageName: node
+  linkType: hard
+
+"body-parser@npm:1.20.0, body-parser@npm:^1.19.0":
   version: 1.20.0
   resolution: "body-parser@npm:1.20.0"
   dependencies:
@@ -20306,7 +20404,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"body-parser@npm:1.20.3, body-parser@npm:^1.20.2":
+"body-parser@npm:1.20.3, body-parser@npm:^1.20.3":
   version: 1.20.3
   resolution: "body-parser@npm:1.20.3"
   dependencies:
@@ -24521,6 +24619,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"encoding-japanese@npm:2.2.0":
+  version: 2.2.0
+  resolution: "encoding-japanese@npm:2.2.0"
+  checksum: 380f4cd7f470f31c299e071fc4061fbf0cc11f2357bf345bde08d1d66bb1b93e6352cb068dc5cc04e9384b78b2144de3e7906bea81c901a2859eabe06af4fa4b
+  languageName: node
+  linkType: hard
+
 "encoding@npm:^0.1.0, encoding@npm:^0.1.11, encoding@npm:^0.1.13":
   version: 0.1.13
   resolution: "encoding@npm:0.1.13"
@@ -26388,6 +26493,13 @@ __metadata:
   version: 3.1.1
   resolution: "fast-redact@npm:3.1.1"
   checksum: e486cc9990b5c9724f39bf4e392c1b250c8fd5e8c0145be80c73de3461fc390babe7b48f35746b50bf3cbcd917e093b5685ae66295162c7d9b686a761d48e989
+  languageName: node
+  linkType: hard
+
+"fast-redact@npm:^3.1.1":
+  version: 3.5.0
+  resolution: "fast-redact@npm:3.5.0"
+  checksum: ef03f0d1849da074a520a531ad299bf346417b790a643931ab4e01cb72275c8d55b60dc8512fb1f1818647b696790edefaa96704228db9f012da935faa1940af
   languageName: node
   linkType: hard
 
@@ -29204,7 +29316,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"iconv-lite@npm:^0.6.2, iconv-lite@npm:^0.6.3":
+"iconv-lite@npm:0.6.3, iconv-lite@npm:^0.6.2, iconv-lite@npm:^0.6.3":
   version: 0.6.3
   resolution: "iconv-lite@npm:0.6.3"
   dependencies:
@@ -29247,6 +29359,13 @@ __metadata:
   version: 1.2.1
   resolution: "ieee754@npm:1.2.1"
   checksum: 5144c0c9815e54ada181d80a0b810221a253562422e7c6c3a60b1901154184f49326ec239d618c416c1c5945a2e197107aee8d986a3dd836b53dffefd99b5e7e
+  languageName: node
+  linkType: hard
+
+"ignore-loader@npm:^0.1.2":
+  version: 0.1.2
+  resolution: "ignore-loader@npm:0.1.2"
+  checksum: 26b5f81b24e59c575d5314e1416c4ae21fb88e65b3c60c90581288ef925fcaa2b39e7f8f96cd449e488c217337d5240fba5a916f9aec073ec04495d7a5716ac4
   languageName: node
   linkType: hard
 
@@ -29293,6 +29412,23 @@ __metadata:
   bin:
     image-size: bin/image-size.js
   checksum: 6709d5cb73e96d5097ae5e9aa746dd36d6a9c8cf645e7eecac72ea07dbd6f312a65183752762fa92e2f3b698d4ed8d85dd55bf5207b6367245996bd16576d8fe
+  languageName: node
+  linkType: hard
+
+"imapflow@npm:^1.0.177":
+  version: 1.0.189
+  resolution: "imapflow@npm:1.0.189"
+  dependencies:
+    encoding-japanese: 2.2.0
+    iconv-lite: 0.6.3
+    libbase64: 1.3.0
+    libmime: 5.3.7
+    libqp: 2.1.1
+    mailsplit: 5.4.5
+    nodemailer: 7.0.4
+    pino: 9.7.0
+    socks: 2.8.5
+  checksum: 62f453aafefcf2d136bbde1b3f127696e9563737b6b965efb6e6d97f79bf622c903fd2ba141c680b3a395abfd5dfcc7303310c1079c2ca22bc8bdc0b66f75564
   languageName: node
   linkType: hard
 
@@ -29625,6 +29761,16 @@ __metadata:
     redis-parser: ^3.0.0
     standard-as-callback: ^2.1.0
   checksum: a8793c3324cd69fa55b4baacbda118ce6724e574260157761276b31411dd3e168c75490f7155c6ce34d79e01488efa98e0cdb162991970fd56da7cbcdafb8fb8
+  languageName: node
+  linkType: hard
+
+"ip-address@npm:^9.0.5":
+  version: 9.0.5
+  resolution: "ip-address@npm:9.0.5"
+  dependencies:
+    jsbn: 1.1.0
+    sprintf-js: ^1.1.3
+  checksum: aa15f12cfd0ef5e38349744e3654bae649a34c3b10c77a674a167e99925d1549486c5b14730eebce9fea26f6db9d5e42097b00aa4f9f612e68c79121c71652dc
   languageName: node
   linkType: hard
 
@@ -31578,6 +31724,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jsbn@npm:1.1.0":
+  version: 1.1.0
+  resolution: "jsbn@npm:1.1.0"
+  checksum: 944f924f2bd67ad533b3850eee47603eed0f6ae425fd1ee8c760f477e8c34a05f144c1bd4f5a5dd1963141dc79a2c55f89ccc5ab77d039e7077f3ad196b64965
+  languageName: node
+  linkType: hard
+
 "jsbn@npm:~0.1.0":
   version: 0.1.1
   resolution: "jsbn@npm:0.1.1"
@@ -32459,6 +32612,32 @@ __metadata:
   languageName: node
   linkType: hard
 
+"libbase64@npm:1.3.0":
+  version: 1.3.0
+  resolution: "libbase64@npm:1.3.0"
+  checksum: 14adc74fab5635f7e57b4e49b3bfb13b1e3f3abc2615e56c9c96571b994125ceed12de2c36c0a1d7a3a4d5bb34b82d18cf7fe354382c946929dc42397baf4d1e
+  languageName: node
+  linkType: hard
+
+"libmime@npm:5.3.7":
+  version: 5.3.7
+  resolution: "libmime@npm:5.3.7"
+  dependencies:
+    encoding-japanese: 2.2.0
+    iconv-lite: 0.6.3
+    libbase64: 1.3.0
+    libqp: 2.1.1
+  checksum: c7b2ec88727912e8027e420e95cd7b7efc125955b360bfb18b6ca7e21a9eba65b8fff401060e7cc9624fd483923ddbc706d1ab89579e52d5471755a4720661d4
+  languageName: node
+  linkType: hard
+
+"libqp@npm:2.1.1":
+  version: 2.1.1
+  resolution: "libqp@npm:2.1.1"
+  checksum: d373fe3dbb1bf403cfe113d28d13a8a8b2cfb93a9ec940a1ff6a8e115c8f14d99534e931eab062db85aa3f777a1d93efe445cc6cd03391606485a8462c3c61f0
+  languageName: node
+  linkType: hard
+
 "lie@npm:~3.3.0":
   version: 3.3.0
   resolution: "lie@npm:3.3.0"
@@ -33124,6 +33303,17 @@ __metadata:
   dependencies:
     "@jridgewell/sourcemap-codec": ^1.5.0
   checksum: e041649453c9a3f31d2e731fc10e38604d50e20d3585cd48bc7713a6e2e1a3ad3012105929ca15750d59d0a3f1904405e4b95a23b7e69dc256db3c277a73a3ca
+  languageName: node
+  linkType: hard
+
+"mailsplit@npm:5.4.5":
+  version: 5.4.5
+  resolution: "mailsplit@npm:5.4.5"
+  dependencies:
+    libbase64: 1.3.0
+    libmime: 5.3.7
+    libqp: 2.1.1
+  checksum: 6d55a4164efd7d1f2092b3203411ec3353a86b5725f8732e98813cbaa9d049f3c2bde1d19bd356c00867d18e990148262dbae0578f2c9588788dd8d3aead4e62
   languageName: node
   linkType: hard
 
@@ -36180,6 +36370,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"nodemailer@npm:7.0.4":
+  version: 7.0.4
+  resolution: "nodemailer@npm:7.0.4"
+  checksum: 27d5bc4f83c94cb6c0787c4c73667e85e33790ded74a5273a319892c1f7fbb1a1bbd0d8ba06bde84b96ee3342672d2988f140d903e71af2450c1f152590d0c10
+  languageName: node
+  linkType: hard
+
 "nopt@npm:^5.0.0":
   version: 5.0.0
   resolution: "nopt@npm:5.0.0"
@@ -36793,6 +36990,13 @@ __metadata:
   version: 5.0.1
   resolution: "oidc-token-hash@npm:5.0.1"
   checksum: d62aa8c665f1a0133a3694785e4cd75f471364e6a2f4fbf7997e193a49ccf8f8de15596f475c7fdf8510d021c3b72f7ff6ab8bc5b07bff4cf21d490177f164a5
+  languageName: node
+  linkType: hard
+
+"on-exit-leak-free@npm:^2.1.0":
+  version: 2.1.2
+  resolution: "on-exit-leak-free@npm:2.1.2"
+  checksum: 6ce7acdc7b9ceb51cf029b5239cbf41937ee4c8dcd9d4e475e1777b41702564d46caa1150a744e00da0ac6d923ab83471646a39a4470f97481cf6e2d8d253c3f
   languageName: node
   linkType: hard
 
@@ -37926,6 +38130,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"pino-abstract-transport@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "pino-abstract-transport@npm:2.0.0"
+  dependencies:
+    split2: ^4.0.0
+  checksum: 4db0cd8a1a7b6d13e76dbb58e6adc057c39e4591c70f601f4a427c030d57dff748ab53954e1ecd3aa6e21c1a22dd38de96432606c6d906a7b9f610543bf1d6e2
+  languageName: node
+  linkType: hard
+
 "pino-http@npm:^5.3.0":
   version: 5.8.0
   resolution: "pino-http@npm:5.8.0"
@@ -37948,6 +38161,34 @@ __metadata:
   version: 4.0.0
   resolution: "pino-std-serializers@npm:4.0.0"
   checksum: 89d487729b58c9d3273a0ee851ead068d6d2e2ccc1af8e1c1d28f1b3442423679bec7ec04d9a2aba36f94f335e82be9f4de19dc4fbc161e71c136aaa15b85ad3
+  languageName: node
+  linkType: hard
+
+"pino-std-serializers@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "pino-std-serializers@npm:7.0.0"
+  checksum: 08cd1d7b7adc4cfca39e42c2d5fd21bcf4513153734e7b8fa278b0e9e9f62df78c4c202886343fe882a462539c931cb8110b661775ad7f7217c96856795b5a86
+  languageName: node
+  linkType: hard
+
+"pino@npm:9.7.0":
+  version: 9.7.0
+  resolution: "pino@npm:9.7.0"
+  dependencies:
+    atomic-sleep: ^1.0.0
+    fast-redact: ^3.1.1
+    on-exit-leak-free: ^2.1.0
+    pino-abstract-transport: ^2.0.0
+    pino-std-serializers: ^7.0.0
+    process-warning: ^5.0.0
+    quick-format-unescaped: ^4.0.3
+    real-require: ^0.2.0
+    safe-stable-stringify: ^2.3.1
+    sonic-boom: ^4.0.1
+    thread-stream: ^3.0.0
+  bin:
+    pino: bin.js
+  checksum: 73422d6b0d37f0c08c69ae78d6e536ab4895b3ca7906ecbef233450ae51e18c03f1560b000562226af129c029e1848b8522929762a09d072ce55a4c4d7270aea
   languageName: node
   linkType: hard
 
@@ -39349,6 +39590,13 @@ __metadata:
   version: 1.0.0
   resolution: "process-warning@npm:1.0.0"
   checksum: c708a03241deec3cabaeee39c4f9ee8c4d71f1c5ef9b746c8252cdb952a6059068cfcdaf348399775244cbc441b6ae5e26a9c87ed371f88335d84f26d19180f9
+  languageName: node
+  linkType: hard
+
+"process-warning@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "process-warning@npm:5.0.0"
+  checksum: 99bce32133a67d45f3efff1202d0895548da3464501ad2acf6ad6d5f6a879b246868f2f382ff8a5872e2bb17b0d800dc1961885947ea9b3344db9cb91405cd88
   languageName: node
   linkType: hard
 
@@ -42079,6 +42327,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"real-require@npm:^0.2.0":
+  version: 0.2.0
+  resolution: "real-require@npm:0.2.0"
+  checksum: fa060f19f2f447adf678d1376928c76379dce5f72bd334da301685ca6cdcb7b11356813332cc243c88470796bc2e2b1e2917fc10df9143dd93c2ea608694971d
+  languageName: node
+  linkType: hard
+
 "recast@npm:^0.23.1, recast@npm:^0.23.3":
   version: 0.23.9
   resolution: "recast@npm:0.23.9"
@@ -43766,6 +44021,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"safe-stable-stringify@npm:^2.3.1":
+  version: 2.5.0
+  resolution: "safe-stable-stringify@npm:2.5.0"
+  checksum: d3ce103ed43c6c2f523e39607208bfb1c73aa48179fc5be53c3aa97c118390bffd4d55e012f5393b982b65eb3e0ee954dd57b547930d3f242b0053dcdb923d17
+  languageName: node
+  linkType: hard
+
 "safer-buffer@npm:>= 2.1.2 < 3, safer-buffer@npm:>= 2.1.2 < 3.0.0, safer-buffer@npm:^2.0.2, safer-buffer@npm:^2.1.0, safer-buffer@npm:~2.1.0":
   version: 2.1.2
   resolution: "safer-buffer@npm:2.1.2"
@@ -44697,6 +44959,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"socks@npm:2.8.5":
+  version: 2.8.5
+  resolution: "socks@npm:2.8.5"
+  dependencies:
+    ip-address: ^9.0.5
+    smart-buffer: ^4.2.0
+  checksum: d39a77a8c91cfacafc75c67dba45925eccfd884a8a4a68dcda6fb9ab7f37de6e250bb6db3721e8a16a066a8e1ebe872d4affc26f3eb763f4befedcc7b733b7ed
+  languageName: node
+  linkType: hard
+
 "socks@npm:^2.6.2":
   version: 2.7.0
   resolution: "socks@npm:2.7.0"
@@ -44714,6 +44986,15 @@ __metadata:
     atomic-sleep: ^1.0.0
     flatstr: ^1.0.12
   checksum: 189fa8fe5c2dc05d3513fc1a4926a2f16f132fa6fa0b511745a436010cdcd9c1d3b3cb6a9d7c05bd32a965dc77673a5ac0eb0992e920bdedd16330d95323124f
+  languageName: node
+  linkType: hard
+
+"sonic-boom@npm:^4.0.1":
+  version: 4.2.0
+  resolution: "sonic-boom@npm:4.2.0"
+  dependencies:
+    atomic-sleep: ^1.0.0
+  checksum: e5e1ffdd3bcb0dee3bf6f7b2ff50dd3ffa2df864dc9d53463f33e225021a28601e91d0ec7e932739824bafd6f4ff3b7090939ac3e34ab1022e01692b41f7e8a3
   languageName: node
   linkType: hard
 
@@ -44930,6 +45211,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"split2@npm:^4.0.0":
+  version: 4.2.0
+  resolution: "split2@npm:4.2.0"
+  checksum: 05d54102546549fe4d2455900699056580cca006c0275c334611420f854da30ac999230857a85fdd9914dc2109ae50f80fda43d2a445f2aa86eccdc1dfce779d
+  languageName: node
+  linkType: hard
+
 "split2@npm:^4.1.0":
   version: 4.1.0
   resolution: "split2@npm:4.1.0"
@@ -44943,6 +45231,13 @@ __metadata:
   dependencies:
     tslib: ^2.0.3
   checksum: 64f53d930f63c5a9e59d4cae487c1ffa87d25eab682833b01d572cc885e7e3fdbad4f03409a41f03ecb27f1f8959432253eb48332c7007c3388efddb24ba2792
+  languageName: node
+  linkType: hard
+
+"sprintf-js@npm:^1.1.3":
+  version: 1.1.3
+  resolution: "sprintf-js@npm:1.1.3"
+  checksum: a3fdac7b49643875b70864a9d9b469d87a40dfeaf5d34d9d0c5b1cda5fd7d065531fcb43c76357d62254c57184a7b151954156563a4d6a747015cfb41021cad0
   languageName: node
   linkType: hard
 
@@ -46610,6 +46905,15 @@ __metadata:
   peerDependencies:
     tslib: ^2
   checksum: 283a2785e513dc892822dd0bbadaa79e873a7fc90b84798164717bf7cf837553e0b4518d8027b2307d8f6fc6caab088fa717112cd9196c6222763cc3cc1b7e79
+  languageName: node
+  linkType: hard
+
+"thread-stream@npm:^3.0.0":
+  version: 3.1.0
+  resolution: "thread-stream@npm:3.1.0"
+  dependencies:
+    real-require: ^0.2.0
+  checksum: 3c5b494ce776f832dfd696792cc865f78c1e850db93e07979349bbc1a5845857cd447aea95808892906cc0178a2fd3233907329f3376e7fc9951e2833f5b7896
   languageName: node
   linkType: hard
 
@@ -50065,6 +50369,16 @@ __metadata:
     sax: ">=0.6.0"
     xmlbuilder: ~11.0.0
   checksum: ca0cf2dfbf6deeaae878a891c8fbc0db6fd04398087084edf143cdc83d0509ad0fe199b890f62f39c4415cf60268a27a6aed0d343f0658f8779bd7add690fa98
+  languageName: node
+  linkType: hard
+
+"xml2js@npm:^0.5.0":
+  version: 0.5.0
+  resolution: "xml2js@npm:0.5.0"
+  dependencies:
+    sax: ">=0.6.0"
+    xmlbuilder: ~11.0.0
+  checksum: 1aa71d62e5bc2d89138e3929b9ea46459157727759cbc62ef99484b778641c0cd21fb637696c052d901a22f82d092a3e740a16b4ce218e81ac59b933535124ea
   languageName: node
   linkType: hard
 

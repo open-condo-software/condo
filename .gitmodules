@@ -43,6 +43,9 @@
 [submodule "apps/property-importer"]
 	path = apps/property-importer
 	url = git@github.com:open-condo-software/condo-property-importer.git
+[submodule "apps/rb"]
+	path = apps/rb
+	url = git@github.com:open-condo-software/condo-rb.git
 [submodule "apps/registry-importer"]
 	path = apps/registry-importer
 	url = git@github.com:open-condo-software/condo-registry-importer.git
