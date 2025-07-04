@@ -11,6 +11,8 @@ const FLOW_ADAPTERS = {
 
 const CUSTOM_FLOW_TYPE = 'custom_flow'
 const TICKET_REWRITE_COMMENT_FLOW_TYPE = 'ticket_rewrite_comment_flow'
+const REWRITE_TICKET_COMMENT_TYPE = 'rewrite_ticket_comment'
+const GENERATE_TICKET_COMMENT_TYPE = 'generate_ticket_comment'
 
 /**
  * list of hardcoded flow types
@@ -59,6 +61,7 @@ const FLOW_META_SCHEMAS = {
             properties: {
                 comment: { type: 'string' },
                 answer: { type: 'string' },
+                promptType: { enum: [REWRITE_TICKET_COMMENT_TYPE, GENERATE_TICKET_COMMENT_TYPE] },
 
                 ticketId: { type: 'string' },
                 ticketDetails: { type: 'string' },
@@ -119,4 +122,6 @@ module.exports = {
     FLOW_META_SCHEMAS,
     CUSTOM_FLOW_TYPE,
     FLOW_ADAPTERS,
+    GENERATE_TICKET_COMMENT_TYPE,
+    REWRITE_TICKET_COMMENT_TYPE,
 }
