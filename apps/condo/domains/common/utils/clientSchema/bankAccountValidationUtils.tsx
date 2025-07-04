@@ -1,4 +1,3 @@
-import { Rule } from 'rc-field-form/lib/interface'
 import { useMemo, useCallback } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -6,6 +5,8 @@ import { useIntl } from '@open-condo/next/intl'
 import { getCountrySpecificValidator } from '@condo/domains/banking/utils/validate/countrySpecificValidators'
 import { RUSSIA_COUNTRY } from '@condo/domains/common/constants/countries'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
+
+import type { FormRule as Rule } from 'antd'
 
 type useBankAccountValidationOutput = {
     numberValidator: Rule[]

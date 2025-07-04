@@ -6,7 +6,6 @@ import { IncidentStatusType } from '@app/condo/schema'
 import { Col, ColProps, Form, FormInstance, Row, RowProps } from 'antd'
 import dayjs, { Dayjs } from 'dayjs'
 import isFunction from 'lodash/isFunction'
-import { Rule } from 'rc-field-form/lib/interface'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
@@ -18,6 +17,8 @@ import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { handleChangeDate } from '@condo/domains/ticket/components/IncidentForm/BaseIncidentForm'
+
+import type { FormRule as Rule } from 'antd'
 
 
 const DATE_PICKER_STYLE: React.CSSProperties = { width: '100%' }

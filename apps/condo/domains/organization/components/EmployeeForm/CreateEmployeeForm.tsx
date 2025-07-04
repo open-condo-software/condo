@@ -2,7 +2,6 @@ import { Col, Form, Row } from 'antd'
 import find from 'lodash/find'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import { Rule } from 'rc-field-form/lib/interface'
 import React, { useEffect, useMemo } from 'react'
 
 import { useApolloClient } from '@open-condo/next/apollo'
@@ -26,6 +25,8 @@ import {
     ClassifiersQueryRemote,
     TicketClassifierTypes,
 } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
+
+import type { FormRule as Rule } from 'antd'
 
 
 const INPUT_LAYOUT_PROPS = {

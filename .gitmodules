@@ -19,6 +19,9 @@
 [submodule "apps/external-api"]
 	path = apps/external-api
 	url = git@github.com:open-condo-software/condo-external-api.git
+[submodule "apps/insurance"]
+	path = apps/insurance
+	url = git@github.com:open-condo-software/condo-insurance.git
 [submodule "apps/pass"]
 	path = apps/pass
 	url = git@github.com:open-condo-software/condo-pass.git

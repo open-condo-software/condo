@@ -1,10 +1,11 @@
-import { Rule } from 'rc-field-form/lib/interface'
 import { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { MIN_DESCRIPTION_LENGTH } from '@condo/domains/ticket/constants/restrictions'
+
+import type { FormRule as Rule } from 'antd'
 
 
 type TicketFieldsKeys = 'property'

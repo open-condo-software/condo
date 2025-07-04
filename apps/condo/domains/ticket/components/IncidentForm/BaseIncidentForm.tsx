@@ -25,7 +25,6 @@ import difference from 'lodash/difference'
 import isEmpty from 'lodash/isEmpty'
 import isFunction from 'lodash/isFunction'
 import uniq from 'lodash/uniq'
-import { Rule } from 'rc-field-form/lib/interface'
 import { DefaultOptionType } from 'rc-select/lib/Select'
 import React, { ComponentProps, useCallback, useEffect, useMemo, useState } from 'react'
 import { Options as ScrollOptions } from 'scroll-into-view-if-needed'
@@ -53,6 +52,8 @@ import { INCIDENT_WORK_TYPE_SCHEDULED, INCIDENT_WORK_TYPE_EMERGENCY } from '@con
 import { MIN_DESCRIPTION_LENGTH } from '@condo/domains/ticket/constants/restrictions'
 import { IncidentClassifiersQueryLocal, Option } from '@condo/domains/ticket/utils/clientSchema/incidentClassifierSearch'
 import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
+
+import type { FormRule as Rule } from 'antd'
 
 
 type FormWithActionChildrenProps = ComponentProps<ComponentProps<typeof FormWithAction>['children']>

@@ -1,9 +1,10 @@
-import { Rule } from 'rc-field-form/lib/interface'
 import { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
 import { MIN_PASSWORD_LENGTH } from '@condo/domains/user/constants/common'
+
+import type { FormRule as Rule } from 'antd'
 
 type ValidatorsMap = {
     [key: string]: Rule[]

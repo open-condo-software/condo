@@ -33,7 +33,6 @@ import isNull from 'lodash/isNull'
 import keyBy from 'lodash/keyBy'
 import uniq from 'lodash/uniq'
 import { useRouter } from 'next/router'
-import { Rule } from 'rc-field-form/lib/interface'
 import React, { ComponentProps, useCallback, useEffect, useMemo, useState, useRef } from 'react'
 import { Options as ScrollOptions } from 'scroll-into-view-if-needed'
 
@@ -62,6 +61,8 @@ import { PARKING_SECTION_TYPE } from '@condo/domains/property/constants/common'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
 import { InputStep, SharingAppValuesType } from './InputStep'
+
+import type { FormRule as Rule } from 'antd'
 
 
 type FormWithActionChildrenProps = ComponentProps<ComponentProps<typeof FormWithAction>['children']>
