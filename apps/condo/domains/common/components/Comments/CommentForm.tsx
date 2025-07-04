@@ -1,71 +1,27 @@
-import styled from '@emotion/styled'
-import { Col, Form, FormInstance, Input, Row, Typography } from 'antd'
+import { Form, FormInstance, InputRef } from 'antd'
+import classNames from 'classnames'
 import cookie from 'js-cookie'
-import get from 'lodash/get'
-import React, { CSSProperties, useCallback, useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { Copy, Paperclip } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Tour } from '@open-condo/ui'
+import { Input, Button, Tour } from '@open-condo/ui'
 
-import { Button } from '@condo/domains/common/components/Button'
+import { Sparkles } from '@condo/domains/ai/components/AIFlowButton'
+import AIInputNotification from '@condo/domains/ai/components/AIInputNotification'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
-import { ClipIcon } from '@condo/domains/common/components/icons/ClipIcon'
 import { Module, useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
-import { colors } from '@condo/domains/common/constants/style'
-import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCounter'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { getIconByMimetype } from '@condo/domains/common/utils/clientSchema/files'
-import { MAX_COMMENT_LENGTH } from '@condo/domains/ticket/constants'
-import { GENERATE_COMMENT_TOUR_STEP_CLOSED_COOKIE } from '@condo/domains/ticket/constants/common'
+
+import { GENERATE_COMMENT_TOUR_STEP_CLOSED_COOKIE } from '../../../ticket/constants/common'
 
 import { CommentWithFiles } from './index'
 
-const Holder = styled.div`
-  .wrapper {
-    position: relative;
-
-    button.ant-btn {
-      position: absolute;
-      right: 20px;
-      top: 2px;
-      padding: 0;
-    }
-  }
-  
-  .ant-form-item-explain {
-    display: none;
-  }
-  textarea {
-    padding-right: 45px;
-  }
-  
-  .ant-upload-list.ant-upload-list-text {
-    max-height: 15vh;
-    overflow-y: scroll;
-    
-    .ant-upload-list-item-done, .ant-upload-list-item-error {
-      height: auto;
-    }
-  }
-`
+const REFRESH_COPY_BUTTON_INTERVAL_IN_MS = 3000
 
 const ENTER_KEY_CODE = 13
-const COMMENT_HELPERS_ROW_STYLES: CSSProperties = { padding: '0 8px 8px 8px' }
-const INPUT_WITH_COUNTER_AUTOSIZE_CONFIG = { minRows: 1, maxRows: 6 }
-const EMPTY_FILLER_STYLE: CSSProperties = { height: 5 }
-
-const CommentHelperWrapper = styled(Col)`
-  background-color: ${colors.textSecondary};
-  padding: 2px 10px 4px;
-  margin: 2px;
-  border-radius: 100px;
-
-  .ant-typography {
-    color: ${colors.white};
-    font-weight: 600;
-  }
-`
 
 interface ICommentFormProps {
     commentForm: FormInstance
@@ -80,6 +36,12 @@ interface ICommentFormProps {
     relationField: string
     setSending: React.Dispatch<React.SetStateAction<boolean>>
     generateCommentLoading: boolean
+    generateCommentOnClickHandler: () => void
+    generateCommentAnswer?: string
+    errorMessage?: string
+    onOpen: () => void
+    setGenerateCommentAnswer: (value: string) => void
+    setErrorMessage: (value: string) => void
 }
 
 const CommentForm: React.FC<ICommentFormProps> = ({
@@ -92,16 +54,27 @@ const CommentForm: React.FC<ICommentFormProps> = ({
     sending,
     FileModel,
     relationField,
-    setSending,
     generateCommentLoading,
+    generateCommentOnClickHandler,
+    generateCommentAnswer,
+    setSending,
+    onOpen,
+    errorMessage,
+    setGenerateCommentAnswer, setErrorMessage,
 }) => {
     const intl = useIntl()
     const PlaceholderMessage = intl.formatMessage({ id: 'Comments.form.placeholder' })
-    const HelperMessage = intl.formatMessage({ id: 'Comments.form.helper' })
+    const UpdateTextMessage = intl.formatMessage({ id: 'ai.updateText' })
 
-    const { InputWithCounter, Counter, setTextLength: setCommentLength, textLength: commentLength } = useInputWithCounter(Input.TextArea, MAX_COMMENT_LENGTH)
+    const inputRef: React.MutableRefObject<InputRef> = useRef(null)
 
-    const editableCommentFiles = get(editableComment, 'files')
+    const editableCommentFiles = editableComment?.files
+    const [commentValue, setCommentValue] = useState('')
+    const [copied, setCopied] = useState<boolean>()
+    const [aiNotificationShow, setAiNotificationShow] = useState(false)
+
+    const { currentStep, setCurrentStep } = Tour.useTourContext()
+
     const { UploadComponent, syncModifiedFiles, resetModifiedFiles, filesCount } = useMultipleFileUploadHook({
         Model: FileModel,
         relationField: relationField,
@@ -114,23 +87,21 @@ const CommentForm: React.FC<ICommentFormProps> = ({
         if (editableComment && commentForm) {
             const editableCommentContent = editableComment.content
 
+            setCommentValue(editableCommentContent)
             commentForm.setFieldsValue({ [fieldName]: editableCommentContent })
-            setCommentLength(get(editableCommentContent, 'length', 0))
         }
-    }, [editableComment, fieldName, commentForm, setCommentLength])
+    }, [editableComment, fieldName, commentForm])
 
     const handleKeyUp = useCallback((form: FormInstance) => async (event) => {
         if (event.keyCode === ENTER_KEY_CODE && !event.shiftKey) {
-            const content = form.getFieldValue(fieldName)
-            if (content && content.trim().length > 0 || filesCount > 0) {
+            if (commentValue && commentValue.trim().length > 0 || filesCount > 0) {
                 setSending(true)
                 form.submit()
 
                 analytics.track('ticket_comment_submit', {})
-                setCommentLength(0)
             }
         }
-    }, [fieldName, filesCount, setCommentLength, setSending])
+    }, [commentValue, filesCount, setSending])
 
     const handleKeyDown = useCallback((event) => {
         if (event.keyCode === ENTER_KEY_CODE) {
@@ -138,11 +109,11 @@ const CommentForm: React.FC<ICommentFormProps> = ({
         }
     }, [])
 
-    const { requiredValidator, trimValidator } = useValidations()
+    const { trimValidator } = useValidations()
 
     const validations = useMemo(() => ({
-        comment: filesCount > 0 ? [] : [requiredValidator, trimValidator],
-    }), [filesCount, requiredValidator, trimValidator])
+        [fieldName]: filesCount > 0 ? [] : [trimValidator],
+    }), [fieldName, filesCount, trimValidator])
 
     const actionWithSyncComments = useCallback(async (values) => {
         values.content = commentForm.getFieldValue(fieldName)
@@ -151,19 +122,22 @@ const CommentForm: React.FC<ICommentFormProps> = ({
         await action(values, syncModifiedFiles)
         await resetModifiedFiles()
         setSending(false)
+        setCommentValue('')
     }, [action, fieldName, commentForm, resetModifiedFiles, setSending, syncModifiedFiles])
 
     const MemoizedUploadComponent = useCallback(() => {
-        // NOTE: UploadComponent have 5px height if empty
-        if (sending) return <div style={EMPTY_FILLER_STYLE} />
-
         return (
             <UploadComponent
                 initialFileList={editableCommentFiles}
                 UploadButton={
-                    <Button type='text'>
-                        <ClipIcon/>
-                    </Button>
+                    <Button
+                        key={1}
+                        type='secondary'
+                        size='medium'
+                        minimal
+                        compact
+                        icon={<Paperclip size='small' />}
+                    />
                 }
                 uploadProps={{
                     iconRender: (file) => {
@@ -172,21 +146,61 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                 }}
             />
         )
-    }, [UploadComponent, editableCommentFiles, sending])
+    }, [UploadComponent, editableCommentFiles])
 
     const initialCommentFormValues = useMemo(() => ({
         [fieldName]: initialValue,
     }), [fieldName, initialValue])
 
-    const showHelperMessage = useMemo(() => commentLength > 0 || (editableComment && !sending), [commentLength, editableComment, sending])
-
-    const { currentStep, setCurrentStep } = Tour.useTourContext()
     useEffect(() => {
-        if (commentLength > 0 || filesCount > 0 && currentStep === 1) {
+        if (( errorMessage || generateCommentAnswer)) {
+            setAiNotificationShow(true)
+        }
+    }, [errorMessage, generateCommentAnswer, onOpen])
+
+    const handleCopyClick = useCallback(async () => {
+        if (copied) return
+
+        try {
+            await navigator.clipboard.writeText(commentValue)
+            setCopied(true)
+
+            setTimeout(() => setCopied(false), REFRESH_COPY_BUTTON_INTERVAL_IN_MS)
+        } catch (e) {
+            console.error('Unable to copy to clipboard', e)
+        }
+    }, [copied, commentValue])
+
+
+    const handelSendMessage = useCallback((form: FormInstance) => {
+        if (commentValue && commentValue.trim().length > 0 || filesCount > 0) {
+            setSending(true)
+            form.submit()
+
+            analytics.track('ticket_comment_submit', {})
+        }
+    }, [filesCount, setSending, commentValue])
+
+    useEffect(() => {
+        commentForm.setFieldsValue({ [fieldName]: commentValue })
+    }, [commentForm, commentValue, fieldName])
+
+    const hasText = useMemo(() => commentValue.length > 0, [commentValue])
+    const canSendMessage = useMemo(() => hasText || filesCount > 0, [filesCount, hasText])
+
+
+    useEffect(() => {
+        if (canSendMessage && currentStep === 1) {
             cookie.set(GENERATE_COMMENT_TOUR_STEP_CLOSED_COOKIE, true)
             setCurrentStep(0)
         }
-    }, [commentLength, currentStep, filesCount, setCurrentStep])
+    }, [canSendMessage, currentStep, filesCount, setCurrentStep])
+
+    const closeAINotification = () => {
+        setAiNotificationShow(false)
+        setGenerateCommentAnswer('')
+        setErrorMessage('')
+    }
 
     return (
         <FormWithAction
@@ -195,43 +209,68 @@ const CommentForm: React.FC<ICommentFormProps> = ({
             action={actionWithSyncComments}
             resetOnComplete={true}
         >
-            {() => {
-                return (
-                    <Holder>
-                        {
-                            showHelperMessage && (
-                                <Row justify='space-between' style={COMMENT_HELPERS_ROW_STYLES}>
-                                    <CommentHelperWrapper>
-                                        <Typography.Text>
-                                            {HelperMessage}
-                                        </Typography.Text>
-                                    </CommentHelperWrapper>
-                                    <CommentHelperWrapper>
-                                        <Counter />
-                                    </CommentHelperWrapper>
-                                </Row>
-                            )
-                        }
-                        <div className='wrapper'>
-                            <Form.Item
-                                name={fieldName}
-                                rules={validations.comment}
-                            >
-                                <InputWithCounter
-                                    disabled={generateCommentLoading}
-                                    maxLength={MAX_COMMENT_LENGTH}
-                                    placeholder={PlaceholderMessage}
-                                    className='white'
-                                    autoSize={INPUT_WITH_COUNTER_AUTOSIZE_CONFIG}
-                                    onKeyDown={handleKeyDown}
-                                    onKeyUp={handleKeyUp(commentForm)}
-                                />
-                            </Form.Item>
-                            <MemoizedUploadComponent />
-                        </div>
-                    </Holder>
-                )
-            }}
+            <div className={classNames('comment-text-area-wrapper', filesCount > 0 ? 'with-file' : '')}>
+                <Form.Item
+                    name={fieldName}
+                    rules={validations.comment}
+                >
+                    <AIInputNotification
+                        targetRef={inputRef}
+                        result={generateCommentAnswer}
+                        onApply={() => {
+                            closeAINotification()
+                            if (!errorMessage) setCommentValue(generateCommentAnswer)
+                        }}
+                        errorMessage={errorMessage}
+                        onClose={closeAINotification}
+                        onUpdate={generateCommentOnClickHandler}
+                        open={aiNotificationShow}
+                    >
+                        <Input.TextArea
+                            name={fieldName}
+                            ref={inputRef}
+                            value={commentValue}
+                            onKeyDown={handleKeyDown}
+                            className='text-area-no-resize'
+                            placeholder={PlaceholderMessage}
+                            onKeyUp={handleKeyUp(commentForm)}
+                            isSubmitDisabled={!canSendMessage}
+                            autoSize={{ minRows: 1, maxRows: 4 }}
+                            disabled={sending || generateCommentLoading}
+                            onSubmit={()=>handelSendMessage(commentForm)}
+                            onChange={(event) => setCommentValue(event.target.value)}
+                            bottomPanelUtils={[
+                                <MemoizedUploadComponent
+                                    key='uploadButton'
+                                />,
+                                <Button
+                                    minimal
+                                    compact
+                                    key='copyButton'
+                                    type='secondary'
+                                    size='medium'
+                                    disabled={!hasText}
+                                    onClick={handleCopyClick}
+                                    icon={<Copy size='small'/>}
+                                />,
+                                <Button
+                                    compact
+                                    minimal
+                                    key='aiButton'
+                                    type='secondary'
+                                    size='medium'
+                                    disabled={!hasText}
+                                    loading={generateCommentLoading}
+                                    icon={<Sparkles useCurrentColor />}
+                                    onClick={generateCommentOnClickHandler}
+                                >
+                                    {UpdateTextMessage}
+                                </Button>,
+                            ]}
+                        />
+                    </AIInputNotification>
+                </Form.Item>
+            </div>
         </FormWithAction>
     )
 }

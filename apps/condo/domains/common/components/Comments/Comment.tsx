@@ -1,5 +1,4 @@
 import { grey } from '@ant-design/colors'
-import { DeleteFilled, EditFilled } from '@ant-design/icons'
 import { User, TicketComment } from '@app/condo/schema'
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
@@ -9,13 +8,13 @@ import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
+import { Edit, Trash } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
+import { Button } from '@open-condo/ui'
 
 import { colors, shadows, fontSizes } from '@condo/domains/common/constants/style'
 import { getIconByMimetype } from '@condo/domains/common/utils/clientSchema/files'
-
-import { Button } from '../Button'
 
 import { CommentWithFiles } from './index'
 
@@ -129,8 +128,10 @@ const CommentStyle = css`
         
         .ant-comment-actions {
           position: absolute;
-          right: -5px;
-          bottom: -5px;
+          right: 0;
+          top: 0;
+            display: flex;
+            gap:8px;
           opacity: 0;
           pointer-events: none;
           transition: all 0.3s ease-in-out;
@@ -315,16 +316,20 @@ export const Comment: React.FC<ICommentProps> = ({ comment, setEditableComment, 
             onConfirm={handleDeleteComment}
         >
             <Button
+                type='secondary'
                 size='large'
-                css={DeleteButtonStyle}
-                icon={<DeleteFilled/>}
+                icon={<Trash size='small'/>}
+                minimal
+                compact
             />
         </Popconfirm>,
         <Button
+            type='secondary'
             key='update'
+            compact
             size='large'
-            css={UpdateButtonStyle}
-            icon={<EditFilled />}
+            minimal
+            icon={<Edit size='small' />}
             onClick={handleUpdateComment}
         />,
     ]), [ConfirmDeleteCancelText, ConfirmDeleteOkText, ConfirmDeleteTitle, comment.user.id, handleDeleteComment, handleUpdateComment, user.id])
