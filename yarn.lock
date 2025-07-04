@@ -843,6 +843,56 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@app/pass@workspace:apps/pass":
+  version: 0.0.0-use.local
+  resolution: "@app/pass@workspace:apps/pass"
+  dependencies:
+    "@apollo/client": ^3.11.8
+    "@app/condo": "workspace:^"
+    "@condo/domains": "link:../condo/domains"
+    "@emotion/cache": ^11.11.0
+    "@emotion/react": ^11.11.0
+    "@emotion/server": ^11.11.0
+    "@emotion/styled": ^11.11.0
+    "@graphql-tools/graphql-file-loader": ^7.5.17
+    "@graphql-tools/load": ^8.1.0
+    "@open-condo/bridge": "workspace:^"
+    "@open-condo/cli": "workspace:^"
+    "@open-condo/codegen": "workspace:^"
+    "@open-condo/config": "workspace:^"
+    "@open-condo/icons": "workspace:^"
+    "@open-condo/keystone": "workspace:^"
+    "@open-condo/miniapp-utils": "workspace:^"
+    "@open-condo/next": "workspace:^"
+    "@open-condo/ui": "workspace:^"
+    "@open-keystone/app-next": ^8.0.2
+    "@pass/domains": "link:./domains"
+    "@types/node": ^22
+    "@types/react": ^17.0.2
+    antd: ^4.24.12
+    classnames: ^2.3.2
+    cross-env: ^7.0.3
+    dayjs: ^1.11.10
+    express: ^4.17.1
+    graphql: ^16.10.0
+    graphql-tag: ^2.12.6
+    jest: ^29.7.0
+    jest-jasmine2: ^29.7.0
+    less: ^4.3.0
+    less-loader: ^12.3.0
+    lodash: ^4.17.21
+    next: ^12.3.7
+    next-transpile-modules: ^10.0.1
+    next-with-less: ^2.0.5
+    openid-client: 4.7.4
+    pluralize: ^8.0.0
+    react: ^17.0.2
+    react-dom: ^17.0.2
+    typescript: ^5.5.4
+    uuid: ^8.3.0
+  languageName: unknown
+  linkType: soft
+
 "@app/telephony-ws-api@workspace:apps/telephony-ws-api":
   version: 0.0.0-use.local
   resolution: "@app/telephony-ws-api@workspace:apps/telephony-ws-api"
@@ -5855,6 +5905,12 @@ __metadata:
   checksum: 210636d3923f93f7cfc409eac04376b0fe50356a0e08f25a37b43d5cd9ca4363f7b03ca2e7736cbf95b62d67733fe8e1028269d35b4fddd1b3f2a653c90ca85c
   languageName: node
   linkType: hard
+
+"@condo/domains@link:../condo/domains::locator=%40app%2Fpass%40workspace%3Aapps%2Fpass":
+  version: 0.0.0-use.local
+  resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Fpass%40workspace%3Aapps%2Fpass"
+  languageName: node
+  linkType: soft
 
 "@condo/domains@link:../condo/domains::locator=%40app%2Ftelephony%40workspace%3Aapps%2Ftelephony":
   version: 0.0.0-use.local
@@ -11733,6 +11789,12 @@ __metadata:
   checksum: c6444cd20212929ef2296d5620c0d41343a1719232cb0c947ced51155b8afc1e470c09d238b92f6c3a589e0320048badf5b73cb41790229521be224cbf89e0f4
   languageName: node
   linkType: hard
+
+"@pass/domains@link:./domains::locator=%40app%2Fpass%40workspace%3Aapps%2Fpass":
+  version: 0.0.0-use.local
+  resolution: "@pass/domains@link:./domains::locator=%40app%2Fpass%40workspace%3Aapps%2Fpass"
+  languageName: node
+  linkType: soft
 
 "@pdf-lib/standard-fonts@npm:^1.0.0":
   version: 1.0.0
