@@ -40,6 +40,9 @@
 [submodule "apps/property-importer"]
 	path = apps/property-importer
 	url = git@github.com:open-condo-software/condo-property-importer.git
+[submodule "apps/resident-app"]
+	path = apps/resident-app
+	url = git@github.com:open-condo-software/condo-resident-app.git
 [submodule "apps/telephony"]
 	path = apps/telephony
 	url = git@github.com:open-condo-software/condo-telephony.git

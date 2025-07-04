@@ -188,17 +188,6 @@ async function config () {
             packageConfig.entry.push('src/**/*.ts')
         }
 
-        // NODE: requireTs app util to import ts constants into next.config.js
-        // TODO: move this util to package, add to specific package ignore and remove this rule
-        if (isApp(packageJsonPath) && hasPath(packageJsonPath, '**/requireTs.js')) {
-            if (hasDependency(packageJsonPath, '@babel/preset-typescript')) {
-                packageConfig.ignoreDependencies.push('@babel/preset-typescript')
-            }
-            if (hasDependency(packageJsonPath, '@babel/preset-env')) {
-                packageConfig.ignoreDependencies.push('@babel/preset-env')
-            }
-        }
-
         // Raw-loader, currently used only for messaging
         if (isApp(packageJsonPath) && hasDependency(packageJsonPath, 'raw-loader')) {
             // TODO: clean raw-loader from unused apps
