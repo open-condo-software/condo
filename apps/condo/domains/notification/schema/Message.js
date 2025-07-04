@@ -184,6 +184,11 @@ const Message = new GQLListSchema('Message', {
                 fields: ['user', 'status', 'sentAt'],
                 name: 'message_user_status_sentat',
             },
+            {
+                type: 'BTreeIndex',
+                fields: ['user', 'type', 'organization'],
+                name: 'message_user_type_org',
+            },
         ],
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
