@@ -3542,5 +3542,10 @@
   "tour.viewGuide": "View Guide",
   "trial.startPeriod": "Start trial period",
   "trial.subTitle": "And then...",
-  "trial.title": "Free period of 14 days"
+  "trial.title": "Free period of 14 days",
+  "ai.inputNotification.ready": "Ready",
+  "ai.inputNotification.failedToGenerate": "Failed to generate response",
+  "ai.inputNotification.apply": "Apply",
+  "ai.inputNotification.anotherVariant": "Another variant",
+  "ai.updateText": "Improve answer"
 }
