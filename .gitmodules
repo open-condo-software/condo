@@ -16,6 +16,9 @@
 [submodule "apps/pass"]
 	path = apps/pass
 	url = git@github.com:open-condo-software/condo-pass.git
+[submodule "apps/property-importer"]
+	path = apps/property-importer
+	url = git@github.com:open-condo-software/condo-property-importer.git
 [submodule "apps/telephony"]
 	path = apps/telephony
 	url = git@github.com:open-condo-software/condo-telephony.git

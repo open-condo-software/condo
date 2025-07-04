@@ -893,6 +893,48 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@app/property-importer@workspace:apps/property-importer":
+  version: 0.0.0-use.local
+  resolution: "@app/property-importer@workspace:apps/property-importer"
+  dependencies:
+    "@apollo/client": ^3.11.8
+    "@app/condo": "workspace:^"
+    "@open-condo/bridge": "workspace:^"
+    "@open-condo/codegen": "workspace:^"
+    "@open-condo/config": "workspace:^"
+    "@open-condo/keystone": "workspace:^"
+    "@open-condo/miniapp-utils": "workspace:^"
+    "@open-condo/next": "workspace:^"
+    "@open-keystone/app-graphql": ^7.0.1
+    "@open-keystone/app-next": ^8.0.2
+    "@property-importer/domains": "link:./domains"
+    "@types/node": ^22
+    "@types/react": ^17.0.2
+    ajv: 8.11.0
+    antd: ^4.24.12
+    cross-env: ^7.0.3
+    dayjs: ^1.11.10
+    express: ^4.17.1
+    graphql: ^16.10.0
+    graphql-tag: ^2.12.6
+    jest: ^29.7.0
+    jest-jasmine2: ^29.7.0
+    js-cookie: ^2.2.1
+    less: ^4.3.0
+    less-loader: ^12.3.0
+    lodash: ^4.17.21
+    next: ^12.3.7
+    next-transpile-modules: ^10.0.1
+    next-with-less: ^2.0.5
+    node-fetch: ^2.6.7
+    openid-client: 4.7.4
+    react: ^17.0.2
+    react-dom: ^17.0.2
+    typescript: ^5.5.4
+    uuid: ^8.3.0
+  languageName: unknown
+  linkType: soft
+
 "@app/telephony-ws-api@workspace:apps/telephony-ws-api":
   version: 0.0.0-use.local
   resolution: "@app/telephony-ws-api@workspace:apps/telephony-ws-api"
@@ -10811,7 +10853,7 @@ __metadata:
     "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
-    ajv: ^8.11.0
+    ajv: 8.11.0
     dayjs: ^1.11.10
     graphql: ^16.10.0
     graphql-2-json-schema: ^0.9.1
@@ -12201,6 +12243,12 @@ __metadata:
   checksum: 7db5b834f49603cfaaedda897a41fc668e1aa4caf32ee9ca5deb6c6e63dfe059780f8c2324ab415c5fbc7d0f6e8ba2dd347a076d37f1df373be5279a80c6beee
   languageName: node
   linkType: hard
+
+"@property-importer/domains@link:./domains::locator=%40app%2Fproperty-importer%40workspace%3Aapps%2Fproperty-importer":
+  version: 0.0.0-use.local
+  resolution: "@property-importer/domains@link:./domains::locator=%40app%2Fproperty-importer%40workspace%3Aapps%2Fproperty-importer"
+  languageName: node
+  linkType: soft
 
 "@protobufjs/aspromise@npm:^1.1.1, @protobufjs/aspromise@npm:^1.1.2":
   version: 1.1.2
