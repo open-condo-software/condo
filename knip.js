@@ -161,9 +161,14 @@ async function config () {
             ignoreDependencies: [],
         }
 
+        // bin scripts entry point
+        if (isApp(packageJsonPath) && hasPath(packageJsonPath, './bin')) {
+            packageConfig.entry.push('bin/**/*.js')
+        }
+
         // KS app entry points
         if (isKSApp(packageJsonPath)) {
-            packageConfig.entry.push('index.js', 'admin-ui/index.js', 'bin/**/*.js')
+            packageConfig.entry.push('index.js', 'admin-ui/index.js')
         }
 
         // Telegram bot packages

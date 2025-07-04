@@ -13,11 +13,14 @@ import { SignInForm } from '@condo/domains/user/components/auth/SignInForm'
 import AuthLayout from '@condo/domains/user/components/containers/AuthLayout'
 import { WelcomeHeaderTitle } from '@condo/domains/user/components/UserWelcomeTitle'
 import { AUTH_FLOW_USER_TYPE_COOKIE_NAME } from '@condo/domains/user/constants/auth'
+import { useAuthMethods } from '@condo/domains/user/hooks/useAuthMethods'
 
 
 const SignInPage: PageComponentType = () => {
     const intl = useIntl()
     const SignInTitleMsg = intl.formatMessage({ id: 'pages.auth.signin.title' })
+
+    const { authMethods } = useAuthMethods()
 
     useEffectOnce(() => {
         setCookie(AUTH_FLOW_USER_TYPE_COOKIE_NAME, 'staff', { maxAge: COOKIE_MAX_AGE_IN_SEC })
@@ -28,19 +31,33 @@ const SignInPage: PageComponentType = () => {
             <Head><title>{SignInTitleMsg}</title></Head>
             <Row>
                 <Col>
-                    <Row justify='center'>
-                        <Col>
-                            <TabsAuthAction currentActiveKey='signin'/>
-                        </Col>
-                    </Row>
+                    {
+                        authMethods.phonePassword && (
+                            <Row justify='center'>
+                                <Col>
+                                    <TabsAuthAction currentActiveKey='signin'/>
+                                </Col>
+                            </Row>
+                        )
+                    }
                     <SignInForm/>
                 </Col>
             </Row>
         </>
     )
 }
+
+const HeaderAction: React.FC = () => {
+    const { authFlow } = useAuthMethods()
+
+    if (authFlow !== 'default') return null
+
+    return <WelcomeHeaderTitle userType='staff'/>
+
+}
+
 SignInPage.container = AuthLayout
-SignInPage.headerAction = <WelcomeHeaderTitle userType='staff'/>
+SignInPage.headerAction = <HeaderAction/>
 SignInPage.skipUserPrefetch = true
 
 export default SignInPage
