@@ -2,11 +2,12 @@ const {
     DADATA_PROVIDER,
     GOOGLE_PROVIDER,
     YANDEX_PROVIDER,
+    PULLENTI_PROVIDER,
 } = require('@address-service/domains/common/constants/providers')
 
 const suggestionContexts = {
     /**
-     * The `default` context is using for all calls to providers
+     * The `default` context is used for all calls to providers
      */
     default: {
         [DADATA_PROVIDER]: {
@@ -19,6 +20,7 @@ const suggestionContexts = {
             types: 'geocode',
         },
         [YANDEX_PROVIDER]: {},
+        [PULLENTI_PROVIDER]: {},
     },
 
     /**
@@ -63,6 +65,7 @@ const searchContexts = {
         [DADATA_PROVIDER]: {},
         [GOOGLE_PROVIDER]: {},
         [YANDEX_PROVIDER]: {},
+        [PULLENTI_PROVIDER]: {},
     },
 }
 
