@@ -1,5 +1,4 @@
 import { ContactCreateInput } from '@app/condo/schema'
-import get from 'lodash/get'
 import { useEffect, useRef } from 'react'
 
 import { useApolloClient } from '@open-condo/next/apollo'
@@ -19,7 +18,6 @@ import {
     WAREHOUSE_UNIT_TYPE,
 } from '@condo/domains/property/constants/common'
 import { searchContacts, searchProperty } from '@condo/domains/ticket/utils/clientSchema/search'
-
 
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
@@ -64,11 +62,10 @@ export const useImporterFunctions = ({ isVerifiedRef }): [Columns, RowNormalizer
     const WarehouseUnitTypeValue = intl.formatMessage({ id: 'pages.condo.ticket.field.unitType.warehouse' })
     const CommercialUnitTypeValue = intl.formatMessage({ id: 'pages.condo.ticket.field.unitType.commercial' })
 
-    const userOrganization = useOrganization()
+    const { organization: { id: userOrganizationId } } = useOrganization()
     const client = useApolloClient()
     const { addressApi } = useAddressApi()
 
-    const userOrganizationId = get(userOrganization, ['organization', 'id'])
     const userOrganizationIdRef = useRef(userOrganizationId)
     useEffect(() => {
         userOrganizationIdRef.current = userOrganizationId
@@ -126,22 +123,21 @@ export const useImporterFunctions = ({ isVerifiedRef }): [Columns, RowNormalizer
         }
         const [address, , unitType, phones, name, email, role] = row
 
-        email.value = email.value && String(email.value).trim().length ? String(email.value).trim() : undefined
+        const trimmedEmailValue = String(email?.value ?? '').trim()
+        const trimmedUnitType = String(unitType?.value ?? '').trim().toLowerCase()
 
-        const unitTypeValue = String(get(unitType, 'value', '')).trim().toLowerCase()
-        addons.unitType = UNIT_TYPE_TRANSLATION_TO_TYPE[unitTypeValue]
-
-        const roleValue = get(role, 'value')
+        const roleValue = role?.value
         if (roleValue) {
             addons.role = String(roleValue).trim().toLowerCase()
         }
 
+        addons.email = normalizeEmail(trimmedEmailValue) || null
+        addons.unitType = UNIT_TYPE_TRANSLATION_TO_TYPE[trimmedUnitType] || null
         addons.phones = parsePhones(String(phones.value))
-        addons.name = String(get(name, 'value', '')).trim()
-        addons.email = normalizeEmail(email.value)
+        addons.name = String(name?.value ?? '').trim()
 
         const suggestionOptions = await addressApi.getSuggestions(String(address.value))
-        const suggestion = get(suggestionOptions, ['suggestions', 0])
+        const suggestion = suggestionOptions?.suggestions?.[0]
 
         if (!suggestion) return { row, addons }
 
@@ -158,49 +154,54 @@ export const useImporterFunctions = ({ isVerifiedRef }): [Columns, RowNormalizer
     const contactValidator: RowValidator = async (row) => {
         if (!row) return false
         const errors = []
-        if (!row.addons) errors.push(IncorrectRowFormatMessage)
-        if (!get(row, ['addons', 'address'])) errors.push(AddressNotFoundMessage)
-        if (!get(row, ['addons', 'property'])) errors.push(PropertyNotFoundMessage)
+        if (!row?.addons) errors.push(IncorrectRowFormatMessage)
+        if (!row?.addons?.address) errors.push(AddressNotFoundMessage)
 
-        const name = get(row, ['addons', 'name'])
+        const propertyId = row?.addons?.property
+        if (!propertyId) errors.push(PropertyNotFoundMessage)
+
+        const name = row?.addons?.name
         if (!name) {
             errors.push(EmptyContactNameMessage)
         } else if (SPECIAL_CHAR_REGEXP.test(name)) {
             errors.push(ContactNameWithSpecialCharactersMessage)
         }
 
-        const rowEmail = get(row, ['row', '5', 'value'])
-        if (rowEmail && !get(row, ['addons', 'email'])) {
+        const rowEmail = row?.row?.[5]?.value ?? ''
+        if (rowEmail && !row?.addons?.email) {
             errors.push(IncorrectEmailMessage)
         }
 
-        const unitName = get(row, ['row', '1', 'value'], '')
+        const unitName = row?.row?.[1]?.value ?? ''
         if (!unitName || String(unitName).trim().length === 0) errors.push(IncorrectUnitNameMessage)
 
-        const unitType = get(row, ['addons', 'unitType'], '')
+        const unitType = row?.addons?.unitType ?? ''
         if (!unitType || String(unitType).trim().length === 0) errors.push(IncorrectUnitTypeMessage)
 
-        const phones = get(row, ['addons', 'phones'], []).filter(Boolean)
+        const phones = (row?.addons?.phones ?? []).filter(Boolean)
         if (!phones || phones.length === 0) errors.push(IncorrectPhonesMessage)
 
-        const contactRoleName = get(row, ['addons', 'role'])
+        const contactRoleName = String(row?.addons?.role ?? '').trim().toLowerCase()
         if (contactRoleName) {
-            const contactRoleId = get(rolesNameToIdMapping, String(contactRoleName).trim().toLowerCase())
+            const contactRoleId = rolesNameToIdMapping?.[contactRoleName]
             if (!contactRoleId) {
                 // The roles list loading asynchronously, so this message should build dynamically
                 errors.push(intl.formatMessage({ id: 'errors.import.IncorrectContactRole' }, { rolesList: Object.keys(rolesNameToIdMapping).join(', ') }))
             }
         }
 
-        const { data } = await searchContacts(client, {
-            organizationId: userOrganizationIdRef.current,
-            propertyId: row.addons.property,
-            unitName,
-            unitType,
-        })
-        const alreadyCreated = data.objs.some(contact => phones.includes(contact.phone))
+        if (propertyId && unitName && unitType) {
+            const { data } = await searchContacts(client, {
+                organizationId: userOrganizationIdRef.current,
+                propertyId,
+                unitName,
+                unitType,
+            })
 
-        if (alreadyCreated) errors.push(AlreadyCreatedContactMessage)
+            const alreadyCreated = data.objs.some(contact => phones.includes(contact.phone))
+
+            if (alreadyCreated) errors.push(AlreadyCreatedContactMessage)
+        }
 
         if (errors.length) {
             row.errors = errors
@@ -212,7 +213,7 @@ export const useImporterFunctions = ({ isVerifiedRef }): [Columns, RowNormalizer
 
     const contactCreator: ObjectCreator = async (row) => {
         if (!row) return
-        const unitName = String(get(row.row, ['1', 'value'])).trim()
+        const unitName = String(row?.row?.[1]?.value).trim()
         const splitPhones = String(row.row[3].value).split(SPLIT_PATTERN)
         const inValidPhones = []
         const phonesWithErrorCreations = []
@@ -236,10 +237,10 @@ export const useImporterFunctions = ({ isVerifiedRef }): [Columns, RowNormalizer
                 isVerified: isVerifiedRef.current,
             }
 
-            const role = get(row, ['addons', 'role'])
+            const role = String(row?.addons?.role || '').trim().toLowerCase()
 
             if (role) {
-                const roleId = get(rolesNameToIdMapping, String(role).trim().toLowerCase())
+                const roleId = rolesNameToIdMapping?.[role]
                 if (roleId) {
                     contactData['role'] = { connect: { id: roleId } }
                 }
