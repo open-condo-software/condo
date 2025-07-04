@@ -44,10 +44,6 @@ module.exports = withTM({
         modifyVars: antGlobalVariables,
     },
     webpack: (config) => {
-        config.module.rules = [
-            ...(config.module.rules || []),
-            { test: /lang\/.*\.njk$/, use: 'raw-loader' },
-        ]
 
         return config
     },

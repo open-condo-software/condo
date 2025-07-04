@@ -168,7 +168,7 @@ async function config () {
 
         // Telegram bot packages
         if (hasPath(packageJsonPath, './domains/*/scenes')) {
-            packageConfig.ignoreDependencies.push('telegraf', 'telegraf-i18n')
+            packageConfig.ignoreDependencies.push('telegraf', 'telegraf-i18n', 'graphql-tag')
         }
 
         // Jest-specific packages
@@ -188,11 +188,11 @@ async function config () {
             packageConfig.entry.push('src/**/*.ts')
         }
 
-        // Raw-loader, currently used only for messaging
-        if (isApp(packageJsonPath) && hasDependency(packageJsonPath, 'raw-loader')) {
+        // Ignore-loader, currently used only for billing legacy (require.resolve)
+        if (isApp(packageJsonPath) && hasDependency(packageJsonPath, 'ignore-loader')) {
             // TODO: clean raw-loader from unused apps
             // if (hasPath(packageJsonPath, 'lang/**/*.njk')) {
-            packageConfig.ignoreDependencies.push('raw-loader')
+            packageConfig.ignoreDependencies.push('ignore-loader')
             // }
         }
 

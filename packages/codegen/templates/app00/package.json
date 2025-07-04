@@ -83,7 +83,6 @@
     "jest-watch-typeahead": "0.6.5",
     "less-loader": "^4.0.0",
     "pluralize": "^8.0.0",
-    "raw-loader": "^4.0.2",
     "typescript": "^5.8.3",
     "webpack": "^4.46.0"
   },

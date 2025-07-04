@@ -30,7 +30,6 @@
     "deepmerge": "^4.3.1",
     "glob": "8.1.0",
     "graphql": "^16.10.0",
-    "graphql-tag": "^2.12.6",
     "gray-matter": "4.0.3",
     "http-proxy": "^1.18.1",
     "js-cookie": "^2.2.1",
