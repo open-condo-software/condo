@@ -8,8 +8,6 @@ import { colors } from '@open-condo/ui/colors'
 
 import { MAX_CONTENT_WIDTH } from '@{{name}}/domains/common/constants/style'
 
-import 'antd/dist/antd.less'
-
 
 const LAYOUT_CSS = css`
   height: 100%;
