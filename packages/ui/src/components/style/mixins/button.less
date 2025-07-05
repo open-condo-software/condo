@@ -1,20 +1,20 @@
-.condo-btn-base(@line-height, @vert-padding, @border-width) {
+.condo-btn-base(@line-height, @height, @border-width) {
   box-sizing: border-box;
-  height: @line-height + @vert-padding * 2;
+  height: @height;
   line-height: @line-height;
   border-width: @border-width;
 }
 
-.condo-btn(@line-height, @vert-padding, @hor-padding, @border-width) {
-  .condo-btn-base(@line-height, @vert-padding, @border-width);
+.condo-btn(@line-height, @height, @hor-padding, @border-width) {
+  .condo-btn-base(@line-height, @height, @border-width);
 
-  padding: @vert-padding - @border-width @hor-padding - @border-width;
+  padding: 0 @hor-padding - @border-width;
 }
 
-.condo-btn-href(@line-height, @vert-padding, @hor-padding, @border-width) {
-  .condo-btn-base(@line-height, @vert-padding, @border-width);
+.condo-btn-href(@line-height, @height, @hor-padding, @border-width) {
+  .condo-btn-base(@line-height, @height, @border-width);
 
-  padding: @vert-padding - @border-width @hor-padding - @border-width !important;
+  padding: 0 @hor-padding - @border-width !important;
 }
 
 .condo-btn-layer(@margin) {
