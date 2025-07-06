@@ -230,6 +230,8 @@ const ExecutionAIFlowTask = new GQLListSchema('ExecutionAIFlowTask', {
             if (operation === 'create') {
                 resolvedData.cleanContext = removeSensitiveDataFromObj(cloneDeep(resolvedData.context))
             }
+
+            return resolvedData
         },
         validateInput: async (args) => {
             const { resolvedData, existingItem, operation, context } = args

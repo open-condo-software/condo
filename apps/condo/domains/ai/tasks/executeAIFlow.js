@@ -36,7 +36,7 @@ const executeAIFlow = async (taskId) => {
 
     const { keystone: context } = getSchemaCtx('ExecutionAIFlowTask')
 
-    const task = await ExecutionAIFlowTask.getOne(context, { id: taskId }, 'id flowType context locale status')
+    const task = await ExecutionAIFlowTask.getOne(context, { id: taskId }, 'id flowType context cleanContext locale status')
 
     try {
         if (!task || task.deletedAt) {
@@ -62,7 +62,7 @@ const executeAIFlow = async (taskId) => {
         if (!predictionUrl) throw new Error(`Unknown prediction url for flow "${task.flowType}"!`)
 
         const fullContext = {
-            ...task.context,
+            ...task.cleanContext,
             locale: task.locale,
         }
 
