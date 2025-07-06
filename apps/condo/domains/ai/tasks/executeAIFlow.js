@@ -62,7 +62,7 @@ const executeAIFlow = async (executionAIFlowTaskId) => {
         if (!predictionUrl) throw new Error(`Unknown prediction url for flow "${task.flowType}"!`)
 
         const fullContext = {
-            ...task.context,
+            ...task.cleanContext,
             locale: task.locale,
         }
 
