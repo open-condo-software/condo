@@ -68316,6 +68316,7 @@ enum B2BAppIconType {
   Filter
   Flat
   Floor
+  FloorParking
   Frown
   Globe
   Guide
