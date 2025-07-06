@@ -396,6 +396,14 @@ describe('ExecutionAIFlowTask', () => {
                 type: 'INVALID_FLOW_CONTEXT',
             })
         })
+
+        test('context should be cleaned', async () => {
+            const [task] = await createTestExecutionAIFlowTask(adminClient, userClient.user, {
+                flowType: 'success_flow',
+                context: { some_field: faker.lorem.words(3) },
+            })
+            expect(task).toBeDefined()
+        })
     })
 
     describe('Rate limiter', () => {
