@@ -15,12 +15,13 @@ import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { getIconByMimetype } from '@condo/domains/common/utils/clientSchema/files'
 
+import styles from './Comments.module.css'
+
 import { GENERATE_COMMENT_TOUR_STEP_CLOSED_COOKIE } from '../../../ticket/constants/common'
 
 import { CommentWithFiles } from './index'
 
 const REFRESH_COPY_BUTTON_INTERVAL_IN_MS = 3000
-
 const ENTER_KEY_CODE = 13
 
 interface ICommentFormProps {
@@ -60,7 +61,8 @@ const CommentForm: React.FC<ICommentFormProps> = ({
     setSending,
     onOpen,
     errorMessage,
-    setGenerateCommentAnswer, setErrorMessage,
+    setGenerateCommentAnswer,
+    setErrorMessage,
 }) => {
     const intl = useIntl()
     const PlaceholderMessage = intl.formatMessage({ id: 'Comments.form.placeholder' })
@@ -171,7 +173,6 @@ const CommentForm: React.FC<ICommentFormProps> = ({
         }
     }, [copied, commentValue])
 
-
     const handelSendMessage = useCallback((form: FormInstance) => {
         if (commentValue && commentValue.trim().length > 0 || filesCount > 0) {
             setSending(true)
@@ -187,7 +188,6 @@ const CommentForm: React.FC<ICommentFormProps> = ({
 
     const hasText = useMemo(() => commentValue.length > 0, [commentValue])
     const canSendMessage = useMemo(() => hasText || filesCount > 0, [filesCount, hasText])
-
 
     useEffect(() => {
         if (canSendMessage && currentStep === 1) {
@@ -209,7 +209,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
             action={actionWithSyncComments}
             resetOnComplete={true}
         >
-            <div className={classNames('comment-text-area-wrapper', filesCount > 0 ? 'with-file' : '')}>
+            <div className={classNames(styles.commentTextAreaWrapper, filesCount > 0 ? styles.withFile : '')}>
                 <Form.Item
                     name={fieldName}
                     rules={validations.comment}
@@ -231,7 +231,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                             ref={inputRef}
                             value={commentValue}
                             onKeyDown={handleKeyDown}
-                            className='text-area-no-resize'
+                            className={styles.textAreaNoResize}
                             placeholder={PlaceholderMessage}
                             onKeyUp={handleKeyUp(commentForm)}
                             isSubmitDisabled={!canSendMessage}
@@ -280,6 +280,4 @@ CommentForm.defaultProps = {
     initialValue: '',
 }
 
-export {
-    CommentForm,
-}
+export default CommentForm
