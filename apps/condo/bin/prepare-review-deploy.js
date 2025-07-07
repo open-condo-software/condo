@@ -24,17 +24,14 @@ async function getContext () {
 // https://review-custom-name-***.*** -> "review-custom-name-"
 function getReviewPrefix ({ reviewDomain }) {
     const condoDomain = conf['CONDO_DOMAIN']
-    const findPrefixRegex = new RegExp(`https:\/\/(review-[a-zA-Z0-9-]+?-)\\w+\\.${reviewDomain.replaceAll('.', '\\.')}`)
+    const findPrefixRegex = new RegExp(`https://(review-[a-zA-Z0-9-]+?-)\\w+\\.${reviewDomain.replaceAll('.', '\\.')}`)
     const match = condoDomain.match(findPrefixRegex)
-    console.log({
-        condoDomain, reviewDomain, match, findPrefixRegex,
-    })
     return match?.[1] || ''
 }
 
 let REVIEW_PREFIX = ''
 function updateUrls (obj, { devDomain, reviewDomain }) {
-    const urlRegex = new RegExp(`https:\/\/([a-zA-Z0-9-]+)\\.${devDomain.replaceAll('.', '\\.')}(\\/[^\\s]*)?`, 'g')
+    const urlRegex = new RegExp(`https://([a-zA-Z0-9-]+)\\.${devDomain.replaceAll('.', '\\.')}(\\/[^\\s]*)?`, 'g')
 
     function traverse (current) {
         if (typeof current === 'string') {
