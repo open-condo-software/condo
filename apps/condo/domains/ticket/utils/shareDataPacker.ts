@@ -15,6 +15,8 @@ const IV_LENGTH = 16 // 16 bytes for AES-CTR
 const INFLATE_MARKER = '2:'
 const BROTLI_MARKER = '3:'
 
+type Encode = '2:' | '3:'
+
 /**
  * Re-implementation of Node.js <= 16 behaviour
  */
@@ -73,16 +75,18 @@ export function unpackShareData (data: string): string {
     }
 }
 
-export function packShareData (data: string): string {
+export function packShareData (data: string, encode: Encode = INFLATE_MARKER): string {
     // New version using AES-CTR and Deflate compression
     // Using KEY directly as IV
     const iv = Buffer.from(KEY).subarray(0, IV_LENGTH)
     const cipher = crypto.createCipheriv(MODERN_ALGORITHM, Buffer.from(KEY), iv)
-
+    console.log('zlib', zlib)
     // NOTE: it's more efficient but its require modern node version! please use it in a future when we will use useModern = true by default!
-    const compressedData = zlib.brotliCompressSync(Buffer.from(data), { params: { [zlib.constants.BROTLI_PARAM_QUALITY]: 11 } }) // Use maximum Brotli compression level
+    const compressedData = encode === BROTLI_MARKER
+        ? zlib.brotliCompressSync(Buffer.from(data)) // Use maximum Brotli compression level
+        : zlib.deflateSync(Buffer.from(data))
+    console.log('compressedData', compressedData)
     const encryptedBuffers = [cipher.update(compressedData), cipher.final()]
-
     const resultBuffer = Buffer.concat(encryptedBuffers)
     return BROTLI_MARKER + resultBuffer.toString(CRYPTO_ENCODING)
 }

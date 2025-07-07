@@ -128,7 +128,7 @@ export const useMarketplaceInvoicesTableColumns = ({ filtersMeta }) => {
 
                 const shortenRows = joinedRows.length > 450 ? `${joinedRows.substring(0, 450)}…` : joinedRows
 
-                return render(shortenRows)
+                return getTableCellRenderer()(shortenRows)
             },
         },
         {
@@ -139,7 +139,7 @@ export const useMarketplaceInvoicesTableColumns = ({ filtersMeta }) => {
             render: (paymentType) => {
                 const label = intl.formatMessage({ id: `pages.condo.marketplace.invoice.invoiceList.payment.${paymentType}` as FormatjsIntl.Message['ids'] })
 
-                return render(label)
+                return getTableCellRenderer()(label)
             },
             filteredValue: getFilteredValue(filters, 'paymentType'),
             filterDropdown: getFilterDropdownByKey(filtersMeta, 'paymentType'),
