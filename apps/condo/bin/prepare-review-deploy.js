@@ -24,6 +24,8 @@ async function getContext () {
 // https://review-custom-name-***.*** -> "review-custom-name-"
 function getReviewPrefix ({ reviewDomain }) {
     const condoDomain = conf['CONDO_DOMAIN']
+    // controlled reviewDomain
+    // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
     const findPrefixRegex = new RegExp(`https://(review-[a-zA-Z0-9-]+?-)\\w+\\.${reviewDomain.replaceAll('.', '\\.')}`)
     const match = condoDomain.match(findPrefixRegex)
     return match?.[1] || ''
@@ -31,6 +33,8 @@ function getReviewPrefix ({ reviewDomain }) {
 
 let REVIEW_PREFIX = ''
 function updateUrls (obj, { devDomain, reviewDomain }) {
+    // controlled devDomain
+    // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
     const urlRegex = new RegExp(`https://([a-zA-Z0-9-]+)\\.${devDomain.replaceAll('.', '\\.')}(\\/[^\\s]*)?`, 'g')
 
     function traverse (current) {
