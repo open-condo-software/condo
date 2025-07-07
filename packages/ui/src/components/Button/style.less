@@ -371,9 +371,11 @@
       mask-composite: exclude;
     }
 
+    &.condo-btn-focus::after,
     &:focus-visible::after {
       .condo-btn-layer(-(@condo-button-focus-outline-width + @condo-button-border-width));
 
+      border: @condo-button-focus-outline-width solid transparent;
       border-radius: @condo-button-border-radius + @condo-button-focus-outline-width;
       opacity: 1;
     }
@@ -419,6 +421,11 @@
 
       &::after {
         opacity: 0;
+      }
+
+      &:focus-visible::after,
+      &.condo-btn-focus::after {
+        opacity: 1;
       }
 
       border: @condo-button-border-width solid @condo-global-color-red-5;
@@ -628,13 +635,13 @@
       mask-composite: exclude;
     }
 
-    &:focus-visible {
-      &::after {
-        .condo-btn-layer(-(@condo-button-focus-outline-width + @condo-button-border-width));
+    &.condo-btn-focus::after,
+    &:focus-visible::after {
+      .condo-btn-layer(-(@condo-button-focus-outline-width + @condo-button-border-width));
 
-        border-radius: @condo-button-border-radius + @condo-button-focus-outline-width;
-        opacity: 1;
-      }
+      border: @condo-button-focus-outline-width solid transparent;
+      border-radius: @condo-button-border-radius + @condo-button-focus-outline-width;
+      opacity: 1;
     }
 
     &.condo-btn-dangerous {
@@ -650,7 +657,7 @@
       }
 
       &:focus-visible::after,
-      &-focus::after {
+      &.condo-btn-focus::after {
         opacity: 1;
       }
 
