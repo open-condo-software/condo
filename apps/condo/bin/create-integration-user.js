@@ -1,8 +1,9 @@
 const path = require('path')
 
-const { GraphQLApp } = require('@keystonejs/app-graphql')
+const { GraphQLApp } = require('@open-keystone/app-graphql')
 
 const { updateAppEnvFile } = require('@open-condo/cli')
+
 
 const {
     AcquiringIntegration,
