@@ -1463,6 +1463,7 @@ __metadata:
     csv-parse: ^5.2.0
     dayjs: ^1.11.10
     express: ^4.17.1
+    fast-xml-parser: ^5.2.3
     form-data: ^4.0.0
     graphql: ^16.10.0
     graphql-tag: ^2.12.6
@@ -26605,6 +26606,17 @@ __metadata:
   bin:
     fxparser: src/cli/cli.js
   checksum: 696dc98da46f0f48eb26dfe1640a53043ea64f2420056374e62abbb5e620f092f8df3c3ff3195505a2eefab2057db3bf0ebaac63557f277934f6cce4e7da027c
+  languageName: node
+  linkType: hard
+
+"fast-xml-parser@npm:^5.2.3":
+  version: 5.2.5
+  resolution: "fast-xml-parser@npm:5.2.5"
+  dependencies:
+    strnum: ^2.1.0
+  bin:
+    fxparser: src/cli/cli.js
+  checksum: b12daa933bc226bd7df1e1ecbd305e561c83fd6e4a234b5e2728901deca25a9b9522b9d3ebafde41b1f4d87ab814e3efe18c636638580795fdbe4670a556be88
   languageName: node
   linkType: hard
 
