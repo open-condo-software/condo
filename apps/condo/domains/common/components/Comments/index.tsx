@@ -14,7 +14,7 @@ import classNames from 'classnames'
 import dayjs from 'dayjs'
 import cookie from 'js-cookie'
 import { pickBy } from 'lodash'
-import React, { CSSProperties, MouseEventHandler, UIEventHandler, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { MouseEventHandler, UIEventHandler, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils'
 import { useAuth } from '@open-condo/next/auth'
@@ -32,20 +32,16 @@ import { GENERATE_COMMENT_TOUR_STEP_CLOSED_COOKIE } from '@condo/domains/ticket/
 import { hasUnreadResidentComments } from '@condo/domains/ticket/utils/helpers'
 
 import { Comment } from './Comment'
-import { CommentForm } from './CommentForm'
-
-import './Comments.css'
-
-const GENERATE_ANSWER_BUTTON_WRAPPER_STYLES: CSSProperties = { width: 'fit-content', marginTop: '6px' }
-const GENERATE_COMMENT_BUTTON_WRAPPER_STYLES: CSSProperties = { width: 'fit-content' }
+import CommentForm from './CommentForm'
+import styles from './Comments.module.css'
 
 const EmptyCommentsContainer = ({ PromptTitleMessage, PromptDescriptionMessage }) => (
-    <div className='empty-container'>
+    <div className={styles.emptyContainer}>
         <Empty
             image={null}
             description={
                 <>
-                    <Typography.Paragraph strong >
+                    <Typography.Paragraph strong>
                         {PromptTitleMessage}
                     </Typography.Paragraph>
                     <Typography.Paragraph size='medium' type='secondary'>
@@ -63,7 +59,7 @@ type CommentsTabContentProps = {
     PromptTitleMessage: string
     PromptDescriptionMessage: string
     editableComment: CommentWithFiles
-    setEditableComment: React.Dispatch<React.SetStateAction<CommentWithFiles>>
+    setEditableComment: (value: CommentWithFiles) => void
     handleBodyScroll: UIEventHandler<HTMLDivElement>
     bodyRef: React.RefObject<HTMLDivElement>
     sending: boolean
@@ -128,7 +124,7 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> = ({
                         {
                             showGenerateAnswerButton && lastComment?.id === comment.id && (
                                 <Tooltip placement='left' mouseEnterDelay={1.5} title={GenerateResponseTooltipMessage}>
-                                    <div style={GENERATE_ANSWER_BUTTON_WRAPPER_STYLES}>
+                                    <div className={styles.generateAnswerButtonWrapper}>
                                         <AIFlowButton
                                             loading={generateCommentLoading}
                                             onClick={generateCommentOnClickHandler}
@@ -169,7 +165,7 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> = ({
     return (
         <>
             {comments.length === 0 ? (
-                <div className='comment-body'>
+                <div className={styles.commentBody}>
                     <EmptyCommentsContainer
                         PromptTitleMessage={PromptTitleMessage}
                         PromptDescriptionMessage={PromptDescriptionMessage}
@@ -182,7 +178,7 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> = ({
                             onClose={closeTourStep}
                         >
                             <Tooltip placement='topRight' mouseEnterDelay={1.5} title={GenerateCommentTooltipMessage}>
-                                <div style={GENERATE_COMMENT_BUTTON_WRAPPER_STYLES}>
+                                <div className={styles.generateCommentButtonWrapper}>
                                     <AIFlowButton
                                         loading={generateCommentLoading}
                                         onClick={handleClickGenerateCommentButton}
@@ -195,8 +191,8 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> = ({
                     )}
                 </div>
             ) : (
-                <div className='comment-body' ref={bodyRef} onScroll={handleBodyScroll}>
-                    {sending && <Loader className='loader'/>}
+                <div className={styles.commentBody} ref={bodyRef} onScroll={handleBodyScroll}>
+                    {sending && <Loader className={styles.loader}/>}
                     {commentsToRender}
                 </div>
             )}
@@ -257,7 +253,7 @@ export const CommentsWrapper: React.FC<CommentsWrapperPropsType>  = (props) => {
                 title={TitleMessage}
                 onClose={() => setCommentFormOpen(false)}
                 open={CommentFormOpen}
-                className='drawer-wrapper'
+                className={styles.drawerWrapper}
                 width={486}
             >
                 <Comments
@@ -538,9 +534,13 @@ const Comments: React.FC<CommentsPropsType> = ({
     }
 
     return (
-        <div className={classNames('comment-container', breakpoints.TABLET_LARGE ? '' : 'is-small', isComponentInModal ? 'in-modal' : 'in-page')}>
-            {!CommentFormOpen && !isTitleHidden && <div className='comment-head'>{TitleMessage}</div> }
-            <span className='switch-comments-type-wrapper'>
+        <div className={classNames(
+            styles.commentContainer,
+            breakpoints.TABLET_LARGE ? '' : styles.isSmall,
+            isComponentInModal ? styles.inModal : styles.inPage
+        )}>
+            {!CommentFormOpen && !isTitleHidden && <div className={styles.commentHead}>{TitleMessage}</div> }
+            <span className={styles.switchCommentsTypeWrapper}>
                 <RadioGroup optionType='button' value={commentType} onChange={handleTabChange}>
                     <Radio
                         key={ORGANIZATION_COMMENT_TYPE}
@@ -562,7 +562,7 @@ const Comments: React.FC<CommentsPropsType> = ({
                                 {ResidentCommentsMessage}
                                 <sup>
                                     {commentsWithResident.length}
-                                    {showIndicator && <span className='new-comment-indicator' title=''/>}
+                                    {showIndicator && <span className={styles.newCommentIndicator} title=''/>}
                                 </sup>
                             </>
                         }
@@ -570,7 +570,7 @@ const Comments: React.FC<CommentsPropsType> = ({
                 </RadioGroup>
             </span>
             <Tour.Provider>
-                <div className={classNames('card-container', 'comments-tabs-container')}>
+                <div className={classNames(styles.cardContainer, styles.commentsTabsContainer)}>
                     <CommentsTabContent
                         {...commentTabContentProps}
                         editableComment={editableComment}
@@ -588,7 +588,7 @@ const Comments: React.FC<CommentsPropsType> = ({
                         showGenerateCommentWithoutComments={showGenerateCommentWithoutComments}
                     />
                 </div>
-                <div className={classNames('comment-footer', breakpoints.TABLET_LARGE ? '' : 'is-small')}>
+                <div className={classNames(styles.commentFooter, breakpoints.TABLET_LARGE ? '' : styles.isSmall)}>
                     {canCreateComments ? (
                         <>
                             { isComponentInModal ? (
