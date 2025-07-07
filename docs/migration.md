@@ -236,7 +236,7 @@ In 4.0 release we want to update our sever-side stack to
 
 #### Migration from `@keystonejs` to `@open-keystone`
 
-For a long time, the stop factor in updates for us was the `@keystonej`s packages themselves. 
+For a long time, the stop factor in updates for us was the `@keystonejs` packages themselves. 
 Unfortunately the authors of keystone-5 stopped actively supporting it and moved to keystone-6, which has less flexibility and features, 
 and breaking changes in the API, so we can't afford a move to it yet.
 
