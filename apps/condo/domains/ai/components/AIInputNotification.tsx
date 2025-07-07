@@ -36,7 +36,7 @@ const AIInputNotification: FC<Props> = ({
     const AnotherVariantLabel = intl.formatMessage({ id: 'ai.inputNotification.anotherVariant' })
 
     const targetRef = useRef(null)
-    const autoCloseTimerRef = useRef<NodeJS.Timeout>()
+    const autoCloseTimerRef = useRef<ReturnType<typeof setTimeout>>()
 
     const [tooltipWidth, setTooltipWidth] = useState(0)
 
