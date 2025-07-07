@@ -67,6 +67,8 @@ const CommentForm: React.FC<ICommentFormProps> = ({
     const intl = useIntl()
     const PlaceholderMessage = intl.formatMessage({ id: 'Comments.form.placeholder' })
     const UpdateTextMessage = intl.formatMessage({ id: 'ai.updateText' })
+    const TourUpdateTextTitle = intl.formatMessage({ id: 'ai.updateText.tour.title' })
+    const TourUpdateTextMessage = intl.formatMessage({ id: 'ai.updateText.tour.message' })
 
     const inputRef: React.MutableRefObject<InputRef> = useRef(null)
 
@@ -319,8 +321,8 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                                     step={2}
                                     key='aiButton'
                                     placement='top'
-                                    title='✨ Улучшайте ответ с помощью AI'
-                                    message='Поможет переформулировать сообщение более вежливо и понятно ✌️'
+                                    title={TourUpdateTextTitle}
+                                    message={TourUpdateTextMessage}
                                     onClose={closeTourStep}
                                 >
                                     <Button

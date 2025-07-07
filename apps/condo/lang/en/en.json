@@ -3547,5 +3547,7 @@
   "ai.inputNotification.failedToGenerate": "Failed to generate response",
   "ai.inputNotification.apply": "Apply",
   "ai.inputNotification.anotherVariant": "Another variant",
-  "ai.updateText": "Improve answer"
+  "ai.updateText": "Improve answer",
+  "ai.updateText.tour.title": "✨ Improve your response with AI",
+  "ai.updateText.tour.message": "Helps rephrase your message to be more polite and clear ✌\uFE0F"
 }
