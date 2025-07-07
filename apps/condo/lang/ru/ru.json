@@ -3546,5 +3546,7 @@
   "ai.inputNotification.failedToGenerate": "Не удалось сгенерировать ответ",
   "ai.inputNotification.apply": "Применить",
   "ai.inputNotification.anotherVariant": "Еще вариант",
-  "ai.updateText": "Улучшить ответ"
+  "ai.updateText": "Улучшить ответ",
+  "ai.updateText.tour.title": "✨Улучшайте ответ с помощью AI",
+  "ai.updateText.tour.message": "Поможет переформулировать сообщение более вежливо и понятно ✌\uFE0F"
 }
