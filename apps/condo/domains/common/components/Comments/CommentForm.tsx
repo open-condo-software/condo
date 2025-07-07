@@ -14,10 +14,10 @@ import { Module, useMultipleFileUploadHook } from '@condo/domains/common/compone
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { getIconByMimetype } from '@condo/domains/common/utils/clientSchema/files'
+import { GENERATE_COMMENT_TOUR_STEP_CLOSED_COOKIE, UPDATE_COMMENT_TOUR_STEP_CLOSED_COOKIE } from '@condo/domains/ticket/constants/common'
 
 import styles from './Comments.module.css'
 
-import { GENERATE_COMMENT_TOUR_STEP_CLOSED_COOKIE } from '../../../ticket/constants/common'
 
 import { CommentWithFiles } from './index'
 
@@ -192,14 +192,79 @@ const CommentForm: React.FC<ICommentFormProps> = ({
     useEffect(() => {
         if (canSendMessage && currentStep === 1) {
             cookie.set(GENERATE_COMMENT_TOUR_STEP_CLOSED_COOKIE, true)
+            setCurrentStep(2)
+        }
+    }, [canSendMessage, currentStep, setCurrentStep])
+
+    useEffect(() => {
+        if (canSendMessage && currentStep === 2) {
+            cookie.set(UPDATE_COMMENT_TOUR_STEP_CLOSED_COOKIE, true)
             setCurrentStep(0)
         }
-    }, [canSendMessage, currentStep, filesCount, setCurrentStep])
+    }, [canSendMessage, currentStep, setCurrentStep])
+
+    useEffect(() => {
+        const isTipHidden = cookie.get(UPDATE_COMMENT_TOUR_STEP_CLOSED_COOKIE) || false
+        setCurrentStep(isTipHidden ? 0 : 2)
+    }, [setCurrentStep])
+
+    const closeTourStep = useCallback(() => {
+        if (currentStep === 2) {
+            cookie.set(UPDATE_COMMENT_TOUR_STEP_CLOSED_COOKIE, true)
+            setCurrentStep(0)
+        }
+    }, [currentStep, setCurrentStep])
 
     const closeAINotification = () => {
         setAiNotificationShow(false)
         setGenerateCommentAnswer('')
         setErrorMessage('')
+    }
+
+    const handleCloseAINotification = () => {
+        analytics.track('click', {
+            value: `ticketId: ${ticketId}`,
+            type: 'close_ai_notification',
+            location: window.location.href,
+            component: 'Button',
+        })
+
+        closeAINotification()
+    }
+
+    const handleApplyGeneratedMessage = () => {
+        analytics.track('click', {
+            value: `ticketId: ${ticketId}`,
+            type: 'apply-generated_message',
+            location: window.location.href,
+            component: 'Button',
+        })
+
+        closeAINotification()
+        if (!errorMessage) setCommentValue(generateCommentAnswer)
+    }
+
+    const handleUpdateComment = () => {
+        analytics.track('click', {
+            value: `ticketId: ${ticketId}`,
+            type: 'apply-generated_message',
+            location: window.location.href,
+            component: 'Button',
+        })
+
+        closeTourStep()
+        generateCommentOnClickHandler()
+    }
+
+    const handleRegenerateMessage = () => {
+        analytics.track('click', {
+            value: `ticketId: ${ticketId}`,
+            type: 'regenerate_comment',
+            location: window.location.href,
+            component: 'Button',
+        })
+
+        generateCommentOnClickHandler()
     }
 
     return (
@@ -217,13 +282,10 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                     <AIInputNotification
                         targetRef={inputRef}
                         result={generateCommentAnswer}
-                        onApply={() => {
-                            closeAINotification()
-                            if (!errorMessage) setCommentValue(generateCommentAnswer)
-                        }}
+                        onApply={handleApplyGeneratedMessage}
                         errorMessage={errorMessage}
-                        onClose={closeAINotification}
-                        onUpdate={generateCommentOnClickHandler}
+                        onClose={handleCloseAINotification}
+                        onUpdate={handleRegenerateMessage}
                         open={aiNotificationShow}
                     >
                         <Input.TextArea
@@ -253,19 +315,27 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                                     onClick={handleCopyClick}
                                     icon={<Copy size='small'/>}
                                 />,
-                                <Button
-                                    compact
-                                    minimal
+                                <Tour.TourStep
+                                    step={2}
                                     key='aiButton'
-                                    type='secondary'
-                                    size='medium'
-                                    disabled={!hasText}
-                                    loading={generateCommentLoading}
-                                    icon={<Sparkles useCurrentColor />}
-                                    onClick={generateCommentOnClickHandler}
+                                    placement='top'
+                                    title='✨ Улучшайте ответ с помощью AI'
+                                    message='Поможет переформулировать сообщение более вежливо и понятно ✌️'
+                                    onClose={closeTourStep}
                                 >
-                                    {UpdateTextMessage}
-                                </Button>,
+                                    <Button
+                                        compact
+                                        minimal
+                                        type='secondary'
+                                        size='medium'
+                                        disabled={!hasText}
+                                        loading={generateCommentLoading}
+                                        icon={<Sparkles useCurrentColor />}
+                                        onClick={handleUpdateComment}
+                                    >
+                                        {UpdateTextMessage}
+                                    </Button>
+                                </Tour.TourStep>,
                             ]}
                         />
                     </AIInputNotification>

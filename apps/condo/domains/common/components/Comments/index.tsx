@@ -27,6 +27,7 @@ import { useAIConfig, useAIFlow } from '@condo/domains/ai/hooks/useAIFlow'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { Module } from '@condo/domains/common/components/MultipleFileUpload'
+import { analytics } from '@condo/domains/common/utils/analytics'
 import { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE } from '@condo/domains/ticket/constants'
 import { GENERATE_COMMENT_TOUR_STEP_CLOSED_COOKIE } from '@condo/domains/ticket/constants/common'
 import { hasUnreadResidentComments } from '@condo/domains/ticket/utils/helpers'
@@ -67,6 +68,7 @@ type CommentsTabContentProps = {
     generateCommentOnClickHandler: MouseEventHandler<HTMLElement>
     generateCommentLoading: boolean
     showGenerateCommentWithoutComments: boolean
+    commentType: string
 }
 
 const CommentsTabContent: React.FC<CommentsTabContentProps> = ({
@@ -83,6 +85,7 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> = ({
     generateCommentOnClickHandler,
     generateCommentLoading,
     showGenerateCommentWithoutComments,
+    commentType,
 }) => {
     const intl = useIntl()
     const GenerateResponseMessage = intl.formatMessage({ id: 'ai.generateResponse' })
@@ -148,7 +151,7 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> = ({
     useEffect(() => {
         const isTipHidden = cookie.get(GENERATE_COMMENT_TOUR_STEP_CLOSED_COOKIE) || false
         setCurrentStep(isTipHidden ? 0 : 1)
-    }, [setCurrentStep])
+    }, [setCurrentStep, commentType])
 
     const closeTourStep = useCallback(() => {
         if (currentStep === 1) {
@@ -507,7 +510,7 @@ const Comments: React.FC<CommentsPropsType> = ({
         }
     }, [CommentFormOpen])
 
-    const handleGenerateCommentClick = async (comments, promptType: typeof REWRITE_TICKET_COMMENT_TYPE | typeof GENERATE_TICKET_COMMENT_TYPE) => {
+    const handleGenerateCommentClick = async (comments: Array<CommentWithFiles>, promptType: typeof REWRITE_TICKET_COMMENT_TYPE | typeof GENERATE_TICKET_COMMENT_TYPE) => {
         const lastComment = comments?.[0]
         // Last 5 comments excluding the lastComment one
         const last5Comments = comments?.slice(0, 5)
@@ -522,6 +525,11 @@ const Comments: React.FC<CommentsPropsType> = ({
             currentDateTime,
             actualIncidents: last5Incidents,
             promptType,
+        })
+
+        analytics.track('generate_ticket_comment', {
+            ticketId: ticketId,
+            type: promptType,
         })
 
         setCommentFormOpen(true)
@@ -539,7 +547,7 @@ const Comments: React.FC<CommentsPropsType> = ({
             breakpoints.TABLET_LARGE ? '' : styles.isSmall,
             isComponentInModal ? styles.inModal : styles.inPage
         )}>
-            {!CommentFormOpen && !isTitleHidden && <div className={styles.commentHead}>{TitleMessage}</div> }
+            {!isComponentInModal && !isTitleHidden && <div className={styles.commentHead}>{TitleMessage}</div> }
             <span className={styles.switchCommentsTypeWrapper}>
                 <RadioGroup optionType='button' value={commentType} onChange={handleTabChange}>
                     <Radio
@@ -578,6 +586,7 @@ const Comments: React.FC<CommentsPropsType> = ({
                             if (!isComponentInModal) setCommentFormOpen(true)
                             return setEditableComment(value)
                         }}
+                        commentType={commentType}
                         updateAction={updateAction}
                         handleBodyScroll={handleBodyScroll}
                         bodyRef={bodyRef}
