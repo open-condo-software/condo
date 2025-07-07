@@ -40,12 +40,13 @@ Or you can bring up the databases directly on the host machine, using the corres
 
 ### 2. Environment setup
 
-#### Node.js 16.x
+#### Node.js 22.x
 
 All of our applications are written in [Node.js](https://nodejs.org/en), 
 so you should also install it before you run the project.
 
-> **Node version must be 16.x**. You can check node version using `node -v` command in your terminal.
+> We run our applications on the **current LTS** version of node, which is **22.x**. 
+> You can check node version using `node -v` command in your terminal.
 
 We recommend using [nvm](https://github.com/nvm-sh/nvm) for local development, 
 and for deploying the application there is [Dockerfile](https://github.com/open-condo-software/condo/blob/main/Dockerfile)
