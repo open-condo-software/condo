@@ -9,6 +9,7 @@ and painlessly upgrade a major version at your premises.
 
 ## Migration guides:
 - [From 2.x to 3.x](#from-2x-to-3x)
+- [From 3.x to 4.x](#from-3x-to-4x)
 
 
 ## From 2.x to 3.x
@@ -220,3 +221,73 @@ SET data_version 2
    **So make sure to kill old apps first and start new ones right after**.
    2. New apps (3.x) must point to new redis instance, so make sure to change `KV_URL` / `REDIS_URL` accordingly
 7) Check everything working good. After that you can down your old Redis instance 
+
+## From 3.x to 4.x
+
+### Motivation
+
+In 4.0 release we want to update our sever-side stack to 
+- Be compatible with modern Node app hosting solutions, such as [Vercel](https://vercel.com) or [Render](https://render.com), 
+- Improve applications performance,
+- Unlock new features
+- Close security issues of Node itself and our dependencies.
+
+### Breaking changes
+
+#### Migration from `@keystonejs` to `@open-keystone`
+
+For a long time, the stop factor in updates for us was the `@keystonejs` packages themselves. 
+Unfortunately the authors of keystone-5 stopped actively supporting it and moved to keystone-6, which has less flexibility and features, 
+and breaking changes in the API, so we can't afford a move to it yet.
+
+Instead, we decided to create our own fork of `@keystonejs` called `@open-keystone`.
+We will keep it as close to the original as possible, 
+only updating dependencies to address vulnerabilities and supporting new runtimes.
+
+#### Drop of Webpack@4
+
+After the move from `@keystonejs` we were given the opportunity to update the webpack 
+in the `@open-condo/app-admin-ui` package, 
+which allowed us to update it and `@open-condo/app-next` to versions that use webpack@5, 
+now our entire repository uses one version.
+
+#### Migration to css-modules, and drop of component-level css / less
+
+Up to this point, we've been using [emotion](https://emotion.sh/docs/introduction) to override styles in place. 
+However, using emotion quite often created a flick effect. 
+We are now planning to move to css modules, which are officially supported by modern Next.js. 
+To achieve this we had to abandon the deprecated `@zeit/less` and `@zeit/css` packages. 
+Along with them went the ability to import `.less` / `.css` files at the component level. 
+Now it can only be done in `_app.tsx`. 
+If you used some condo components imports in your applications (like Layout), they will lose styles after 4.0.
+
+#### Drop old versions of Node.js and some encryption methods
+
+Moving to `@open-keystone` has allowed us to close many vulnerabilities in packages, and most importantly, 
+to run applications on later versions of Node.
+
+All current applications from now on run on the current LTS version of Node.js, i.e. **Node.js 22**.
+
+
+> **Important:** [Node.js 17 and above has updated the open-ssl version for encryption](https://nodejs.org/en/blog/release/v17.0.0), thereby removing some older encryption algorithms. If you use the recommended settings in `EncryptionManager` (fields with type `EncryptedText`), there should be no problem. Otherwise, you will have to re-encrypt the data before migration.
+
+
+
+### What else updated
+- `@keystonejs` modules -> `@open-keystone` modules
+- `Node.js` from 16.x to 22.x,
+- `graphql` from 15.x to 16.x
+- `apollo-server-express` from 2.x to 3.x
+- `knex` from 0.95 to 3.1
+- `Next.js` from 9.5 to 12.3.7
+- `React` from 16.x to 17.0.2
+
+Full changes can be found here: https://github.com/open-condo-software/condo/pull/6313
+
+### Migration guide
+
+As long as you're using non-modified version of applications 
+and not using legacy encryption algorithms, just deploy newer Dockerfile with Node.js 22, 
+and you're good to go. 
+
+For forks, custom applications and others, follow the recommendations from breaking changes section.
