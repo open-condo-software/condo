@@ -1,0 +1,113 @@
+.comment-container {
+  display: flex;
+  flex-flow: column nowrap;
+  align-content: space-between;
+  overflow: hidden;
+}
+
+.comment-container.in-page {
+  max-height: 756px;
+  border: 1px solid var(--condo-global-color-gray-3);
+  border-radius: 8px;
+}
+
+.comment-container.in-modal > div,
+.comment-container.in-modal > span,
+.comment-container.in-modal > .card-container > div {
+  padding: 0;
+}
+
+.comment-body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 24px;
+  height: 100%;
+  padding: 12px 24px 24px;
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+
+.comment-container.in-modal > div > .comment-body {
+  padding: 24px 0;
+}
+
+.comment-container:not(.is-small) {
+  height: calc(100vh - 100px);
+}
+
+.comment-container.in-modal {
+  height: 100%;
+}
+
+.comment-head {
+  padding: 24px 24px 0;
+  font-weight: bold;
+  font-size: 20px;
+  font-style: normal;
+  line-height: 28px;
+}
+
+.comment-footer {
+  padding: 24px;
+}
+
+.empty-container {
+  display: flex;
+  flex: 1 1;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  padding: 24px;
+  text-align: center;
+}
+
+.empty-container .ant-empty-image {
+  display: none;
+}
+
+.comments-tabs-container {
+  display: flex;
+  flex: 1 1 auto;
+  height: calc(100vh - 508px);
+  padding: 0;
+  overflow-y: scroll;
+}
+
+.empty-container-text {
+  font-size: var(--condo-global-font-size-h4);
+}
+
+.loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 8px 0 18px;
+}
+
+.new-comment-indicator {
+  position: relative;
+  top: -3px;
+  left: 2px;
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  background-color: var(--condo-global-color-red-5);
+  border-radius: 100px;
+}
+
+.switch-comments-type-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.comment-text-area-wrapper {
+  padding-bottom: 0;
+  transition: all var(--condo-global-transition-duration-default) ease-in-out;
+}
+
+.comment-text-area-wrapper.with-file {
+  padding-bottom: 44px;
+}

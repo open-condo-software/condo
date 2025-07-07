@@ -5,7 +5,7 @@ import { useIntl } from 'react-intl'
 import { CheckCircle, Close, RefreshCw, XCircle } from '@open-condo/icons'
 import { Space, Tooltip, Typography, Button } from '@open-condo/ui'
 
-import './AIInputNotification.css'
+import styles from './AIInputNotification.module.css'
 
 type Props = {
     targetRef: React.MutableRefObject<TextAreaRef>
@@ -18,7 +18,7 @@ type Props = {
     errorMessage?: string
 }
 
-const AUTO_CLOSE_DELAY = 10000
+const AUTO_CLOSE_DELAY = 10 * 1000
 
 const AIInputNotification: FC<Props> = ({
     result,
@@ -74,7 +74,7 @@ const AIInputNotification: FC<Props> = ({
         <Tooltip
             placement='top'
             mouseEnterDelay={1.5}
-            className='ai-notification-wrapper'
+            className={styles.wrapper}
             overlayInnerStyle={{
                 width: tooltipWidth,
                 right: (tooltipWidth - 250) / 2,
@@ -90,19 +90,19 @@ const AIInputNotification: FC<Props> = ({
                         size={8}
                         align='start'
                         direction='vertical'
-                        className='ai-notification'
+                        className={styles.notification}
                     >
-                        <div className='ai-notification-header'>
+                        <div className={styles.header}>
                             {!errorMessage ? (
                                 <Typography.Text type='success'>
-                                    <span className='ai-notification-status'>
+                                    <span className={styles.status}>
                                         <CheckCircle size='medium'/>
                                         {ReadyLabel}
                                     </span>
                                 </Typography.Text>
                             ) : (
                                 <Typography.Text type='danger'>
-                                    <span className='ai-notification-status'>
+                                    <span className={styles.status}>
                                         <XCircle size='medium'/>
                                         {FailedToGenerateLabel}
                                     </span>
@@ -124,14 +124,13 @@ const AIInputNotification: FC<Props> = ({
                         </Typography.Paragraph>
 
                         {result && (
-                            <div className='ai-notification-actions'>
+                            <div className={styles.actions}>
                                 <Button
                                     onClick={onApply}
                                     type='primary'
                                     minimal
                                     compact
                                     size='medium'
-                                    className='ai-notification-apply-btn'
                                 >
                                     {ApplyLabel}
                                 </Button>
@@ -152,7 +151,7 @@ const AIInputNotification: FC<Props> = ({
                 </div>
             }
         >
-            <span ref={targetRef} className='ai-notification-trigger'>
+            <span ref={targetRef}>
                 {children}
             </span>
         </Tooltip>
