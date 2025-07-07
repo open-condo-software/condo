@@ -13,7 +13,7 @@ import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { Button } from '@open-condo/ui'
 
-import { colors, shadows, fontSizes } from '@condo/domains/common/constants/style'
+import { colors, fontSizes } from '@condo/domains/common/constants/style'
 import { getIconByMimetype } from '@condo/domains/common/utils/clientSchema/files'
 
 import { CommentWithFiles } from './index'
@@ -24,34 +24,9 @@ const { RESIDENT, STAFF, SERVICE } = require('@condo/domains/user/constants/comm
 
 interface ICommentProps {
     comment: CommentWithFiles
-    setEditableComment: React.Dispatch<React.SetStateAction<CommentWithFiles>>
+    setEditableComment: (value: CommentWithFiles) => void
     deleteAction?: (obj: CommentWithFiles) => Promise<void>
 }
-
-const DeleteButtonStyle = css`
-    border: none;
-    color: ${colors.red[5]};
-    background-color: ${colors.black};
-    box-shadow: ${shadows.small};
-  
-    &:hover {
-      background-color: ${colors.white};
-      color: ${colors.red[5]};
-    }
-`
-
-const UpdateButtonStyle = css`
-    border: none;
-    color: ${colors.white};
-    background-color: ${colors.black};
-    box-shadow: ${shadows.small};
-    margin-left: 4px;
-  
-    &:hover {
-      background-color: ${colors.white};
-      color: ${colors.black};
-    }
-`
 
 const DeletedTextStyle = css`
   margin-top: 1em;
