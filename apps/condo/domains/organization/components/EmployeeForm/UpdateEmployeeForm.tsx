@@ -1,5 +1,6 @@
 import { Col, Form, Row, Typography } from 'antd'
 import { difference, find, get } from 'lodash'
+import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo } from 'react'
 
@@ -14,6 +15,7 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { GraphQlSearchInputWithCheckAll } from '@condo/domains/common/components/GraphQlSearchInputWithCheckAll'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Loader } from '@condo/domains/common/components/Loader'
+import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import Prompt from '@condo/domains/common/components/Prompt'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { EmployeeRoleSelect } from '@condo/domains/organization/components/EmployeeRoleSelect'
@@ -24,6 +26,7 @@ import {
     TicketClassifierTypes,
 } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
+import { PHONE_TYPE, EMAIL_TYPE } from '@condo/domains/user/constants/identifiers'
 
 import type { FormRule as Rule } from 'antd'
 
@@ -37,12 +40,19 @@ const INPUT_LAYOUT_PROPS = {
     },
 }
 
+const { publicRuntimeConfig: { inviteRequiredFields } } = getConfig()
+
+const isPhoneEditable = !inviteRequiredFields.includes(PHONE_TYPE)
+const isEmailEditable = !inviteRequiredFields.includes(EMAIL_TYPE)
+
 export const UpdateEmployeeForm: React.FC = () => {
     const intl = useIntl()
     const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
     const CancelLabel = intl.formatMessage({ id: 'Cancel' })
     const RoleLabel = intl.formatMessage({ id: 'employee.Role' })
+    const PhoneLabel = intl.formatMessage({ id: 'Phone' })
     const EmailLabel = intl.formatMessage({ id: 'field.EMail' })
+    const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
     const ExampleEmailMsg = intl.formatMessage({ id: 'example.Email' })
     const SpecializationsLabel = intl.formatMessage({ id: 'employee.Specializations' })
     const PositionLabel = intl.formatMessage({ id: 'employee.Position' })
@@ -70,8 +80,9 @@ export const UpdateEmployeeForm: React.FC = () => {
     const initialSpecializations = useMemo(() => organizationEmployeeSpecializations.map(scope => scope.specialization),
         [organizationEmployeeSpecializations])
 
-    const { emailValidator } = useValidations()
+    const { emailValidator, phoneValidator } = useValidations()
     const validations: { [key: string]: Rule[] } = {
+        phone: [phoneValidator],
         email: [emailValidator],
     }
 
@@ -212,18 +223,36 @@ export const UpdateEmployeeForm: React.FC = () => {
                                                     <Input/>
                                                 </Form.Item>
                                             </Col>
-                                            <Col span={24}>
-                                                <Form.Item
-                                                    {...INPUT_LAYOUT_PROPS}
-                                                    labelAlign='left'
-                                                    name='email'
-                                                    label={EmailLabel}
-                                                    validateFirst
-                                                    rules={validations.email}
-                                                >
-                                                    <Input placeholder={ExampleEmailMsg}/>
-                                                </Form.Item>
-                                            </Col>
+                                            {
+                                                isPhoneEditable &&
+                                                <Col span={24}>
+                                                    <Form.Item
+                                                        {...INPUT_LAYOUT_PROPS}
+                                                        labelAlign='left'
+                                                        name='phone'
+                                                        label={PhoneLabel}
+                                                        validateFirst
+                                                        rules={validations.phone}
+                                                    >
+                                                        <PhoneInput placeholder={ExamplePhoneMsg} block />
+                                                    </Form.Item>
+                                                </Col>
+                                            }
+                                            {
+                                                isEmailEditable &&
+                                                <Col span={24}>
+                                                    <Form.Item
+                                                        {...INPUT_LAYOUT_PROPS}
+                                                        labelAlign='left'
+                                                        name='email'
+                                                        label={EmailLabel}
+                                                        validateFirst
+                                                        rules={validations.email}
+                                                    >
+                                                        <Input placeholder={ExampleEmailMsg}/>
+                                                    </Form.Item>
+                                                </Col>
+                                            }
                                             <Col span={24}>
                                                 <Form.Item noStyle dependencies={['role']}>
                                                     {

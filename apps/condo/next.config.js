@@ -73,6 +73,7 @@ const defaultCurrencyCode = conf['DEFAULT_CURRENCY_CODE'] || 'RUB'
 const aiEnabled = conf['AI_ENABLED']
 const contactPageResidentAnalytics = JSON.parse(conf['CONTACT_PAGE_RESIDENT_ANALYTICS'] || '{}')
 const displayTicketInfoOnShare = conf['SHOW_TICKET_INFO_ON_SHARE'] === 'true'
+const inviteRequiredFields = JSON.parse(conf['INVITE_REQUIRED_FIELDS'] || '["phone"]')
 
 let nextConfig = withTM(withLess({
     swcMinify: true,
@@ -136,6 +137,7 @@ let nextConfig = withTM(withLess({
         aiEnabled,
         contactPageResidentAnalytics,
         displayTicketInfoOnShare,
+        inviteRequiredFields,
     },
     serverRuntimeConfig: {
         proxyName,
