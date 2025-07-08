@@ -18,7 +18,6 @@ import { GENERATE_COMMENT_TOUR_STEP_CLOSED_COOKIE, UPDATE_COMMENT_TOUR_STEP_CLOS
 
 import styles from './Comments.module.css'
 
-
 import { CommentWithFiles } from './index'
 
 const REFRESH_COPY_BUTTON_INTERVAL_IN_MS = 3000
@@ -37,12 +36,16 @@ interface ICommentFormProps {
     relationField: string
     setSending: React.Dispatch<React.SetStateAction<boolean>>
     generateCommentLoading: boolean
-    generateCommentOnClickHandler: () => void
+    rewriteTextLoading: boolean
     generateCommentAnswer?: string
     errorMessage?: string
     onOpen: () => void
     setGenerateCommentAnswer: (value: string) => void
     setErrorMessage: (value: string) => void
+
+    rewriteTextAnswer?: string
+    setRewriteTextAnswer: (value: string) => void
+    rewriteTextOnClickHandler: () => void
 }
 
 const CommentForm: React.FC<ICommentFormProps> = ({
@@ -56,8 +59,11 @@ const CommentForm: React.FC<ICommentFormProps> = ({
     FileModel,
     relationField,
     generateCommentLoading,
-    generateCommentOnClickHandler,
+    rewriteTextOnClickHandler,
     generateCommentAnswer,
+    rewriteTextLoading,
+    rewriteTextAnswer,
+    setRewriteTextAnswer,
     setSending,
     onOpen,
     errorMessage,
@@ -157,10 +163,10 @@ const CommentForm: React.FC<ICommentFormProps> = ({
     }), [fieldName, initialValue])
 
     useEffect(() => {
-        if (( errorMessage || generateCommentAnswer)) {
+        if (( errorMessage || generateCommentAnswer || rewriteTextAnswer)) {
             setAiNotificationShow(true)
         }
-    }, [errorMessage, generateCommentAnswer, onOpen])
+    }, [errorMessage, generateCommentAnswer, rewriteTextAnswer, onOpen])
 
     const handleCopyClick = useCallback(async () => {
         if (copied) return
@@ -220,6 +226,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
     const closeAINotification = () => {
         setAiNotificationShow(false)
         setGenerateCommentAnswer('')
+        setRewriteTextAnswer('')
         setErrorMessage('')
     }
 
@@ -243,19 +250,12 @@ const CommentForm: React.FC<ICommentFormProps> = ({
         })
 
         closeAINotification()
-        if (!errorMessage) setCommentValue(generateCommentAnswer)
+        if (!errorMessage) setCommentValue(generateCommentAnswer || rewriteTextAnswer)
     }
 
     const handleUpdateComment = () => {
-        analytics.track('click', {
-            value: `ticketId: ${ticketId}`,
-            type: 'apply-generated_message',
-            location: window.location.href,
-            component: 'Button',
-        })
-
         closeTourStep()
-        generateCommentOnClickHandler()
+        rewriteTextOnClickHandler()
     }
 
     const handleRegenerateMessage = () => {
@@ -266,7 +266,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
             component: 'Button',
         })
 
-        generateCommentOnClickHandler()
+        rewriteTextOnClickHandler()
     }
 
     return (
@@ -283,7 +283,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                 >
                     <AIInputNotification
                         targetRef={inputRef}
-                        result={generateCommentAnswer}
+                        result={generateCommentAnswer || rewriteTextAnswer}
                         onApply={handleApplyGeneratedMessage}
                         errorMessage={errorMessage}
                         onClose={handleCloseAINotification}
@@ -300,7 +300,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                             onKeyUp={handleKeyUp(commentForm)}
                             isSubmitDisabled={!canSendMessage}
                             autoSize={{ minRows: 1, maxRows: 4 }}
-                            disabled={sending || generateCommentLoading}
+                            disabled={sending || generateCommentLoading || rewriteTextLoading}
                             onSubmit={()=>handelSendMessage(commentForm)}
                             onChange={(event) => setCommentValue(event.target.value)}
                             bottomPanelUtils={[
@@ -331,7 +331,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                                         type='secondary'
                                         size='medium'
                                         disabled={!hasText}
-                                        loading={generateCommentLoading}
+                                        loading={rewriteTextLoading}
                                         icon={<Sparkles useCurrentColor />}
                                         onClick={handleUpdateComment}
                                     >
