@@ -31,11 +31,11 @@ let REVIEW_PREFIX = ''
 function updateUrls (obj, { devBaseDomain, reviewBaseDomain }) {
     // controlled devBaseDomain
     // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
-    const urlRegex = new RegExp(`https://([a-zA-Z0-9-]+)\\.${escapeRegExp(devBaseDomain)}(\\/[^\\s]*)?`, 'g')
+    const devAppsUrlRegex = new RegExp(`https://([a-zA-Z0-9-]+)\\.${escapeRegExp(devBaseDomain)}(\\/[^\\s]*)?`, 'g')
 
     function traverse (current) {
         if (typeof current === 'string') {
-            return current.replace(urlRegex, (match, subdomain, path = '') => {
+            return current.replace(devAppsUrlRegex, (match, subdomain, path = '') => {
                 return `https://${REVIEW_PREFIX}${subdomain}.${reviewBaseDomain}${path}`
             })
         } else if (Array.isArray(current)) {
