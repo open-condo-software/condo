@@ -11,8 +11,7 @@ const FLOW_ADAPTERS = {
 
 const CUSTOM_FLOW_TYPE = 'custom_flow'
 const TICKET_REWRITE_COMMENT_FLOW_TYPE = 'ticket_rewrite_comment_flow'
-const REWRITE_TICKET_COMMENT_TYPE = 'rewrite_ticket_comment'
-const GENERATE_TICKET_COMMENT_TYPE = 'generate_ticket_comment'
+const REWRITE_TEXT_FLOW_TYPE = 'rewrite_text_flow'
 
 /**
  * list of hardcoded flow types
@@ -22,6 +21,7 @@ const GENERATE_TICKET_COMMENT_TYPE = 'generate_ticket_comment'
  */
 const FLOW_TYPES = {
     TICKET_REWRITE_COMMENT_FLOW_TYPE: TICKET_REWRITE_COMMENT_FLOW_TYPE,
+    REWRITE_TEXT_FLOW_TYPE: REWRITE_TEXT_FLOW_TYPE,
 }
 const FLOW_TYPES_LIST = Object.values(FLOW_TYPES)
 
@@ -61,7 +61,6 @@ const FLOW_META_SCHEMAS = {
             properties: {
                 comment: { type: 'string' },
                 answer: { type: 'string' },
-                promptType: { enum: [REWRITE_TICKET_COMMENT_TYPE, GENERATE_TICKET_COMMENT_TYPE] },
 
                 ticketId: { type: 'string' },
                 ticketDetails: { type: 'string' },
@@ -86,6 +85,20 @@ const FLOW_META_SCHEMAS = {
                 },
                 isExecutorAssigned: { type: 'string' },
                 isAssigneeAssigned: { type: 'string' },
+            },
+        },
+        output: {
+            type: 'object',
+            properties: {
+                answer: { type: 'string' },
+            },
+        },
+    },
+    REWRITE_TEXT_FLOW_TYPE: {
+        input: {
+            type: 'object',
+            properties: {
+                userInput: { type: 'string' },
             },
         },
         output: {
@@ -122,6 +135,4 @@ module.exports = {
     FLOW_META_SCHEMAS,
     CUSTOM_FLOW_TYPE,
     FLOW_ADAPTERS,
-    GENERATE_TICKET_COMMENT_TYPE,
-    REWRITE_TICKET_COMMENT_TYPE,
 }
