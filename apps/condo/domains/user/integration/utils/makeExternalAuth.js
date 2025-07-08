@@ -198,8 +198,16 @@ function makeExternalAuth (app, keystone, oidcProvider) {
             passport.use(config.name, new OIDCStrategy(
                 strategy,
                 async (req, accessToken, refreshToken, profile, done) => {
+                    const email = profile.emails && profile.emails.length > 0 ? profile.emails[0].value : null
+                    if (!email) {
+                        return done(new Error('OIDC email address required'))
+                    }
+
                     try {
-                        const user = await getOrCreateUser(profile, req.userType, config.name)
+                        const user = await getOrCreateUser(
+                            { id: profile.id, email },
+                            req.userType, config.name
+                        )
 
                         return done(null, user)
                     } catch (error) {
@@ -228,12 +236,16 @@ function makeExternalAuth (app, keystone, oidcProvider) {
             // This enables ability to pass request arguments from user input. We need to receive userType
             passReqToCallback: true,
         }, async (req, accessToken, refreshToken, profile, done) => {
+            const email = profile.emails && profile.emails.length > 0 ? profile.emails[0].value : null
+            if (!email) {
+                return done(new Error('OIDC email address required'))
+            }
             try {
-                const userProfile = {
-                    id: profile.id,
-                    email: profile.emails[0].value,
-                }
-                const user = await getOrCreateUser(userProfile, req.userType, 'github')
+                const user = await getOrCreateUser(
+                    { id: profile.id, email },
+                    req.userType,
+                    'github'
+                )
 
                 return done(null, user)
             } catch (error) {
