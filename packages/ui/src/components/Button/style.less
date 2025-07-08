@@ -3,13 +3,42 @@
 @import (reference) "@open-condo/ui/src/components/style/mixins/typography";
 @import (reference) "@open-condo/ui/src/components/style/mixins/button";
 
-@condo-button-padding-vert: @condo-global-spacing-12;
-@condo-button-padding-hor: @condo-global-spacing-20;
+@condo-button-padding-height-large: @condo-global-spacing-48;
+@condo-button-padding-hor-large: @condo-global-spacing-20;
+@condo-button-padding-height-medium: @condo-global-spacing-32;
+@condo-button-padding-hor-medium: @condo-global-spacing-12;
+
+@condo-button-padding-height-large-compact: @condo-global-spacing-24;
+@condo-button-padding-height-medium-compact: @condo-global-spacing-20;
+@condo-button-padding-hor-compact: @condo-global-spacing-4;
+
 @condo-button-border-width: @condo-global-border-width-default;
-@condo-button-line-height: @condo-global-typography-h4-line-height;
+@condo-button-line-height-large: @condo-global-typography-h4-line-height;
+@condo-button-line-height-medium: @condo-global-typography-h6-line-height;
+
 @condo-button-focus-outline-width: @condo-global-border-width-default * 4;
 @condo-button-border-radius: @condo-global-border-radius-medium;
-@condo-button-gap: @condo-global-spacing-8;
+@condo-button-gap-medium: @condo-global-spacing-4;
+@condo-button-gap-large: @condo-global-spacing-8;
+
+.minimal-styles() {
+  text-shadow: none;
+  background: none;
+  border-color: transparent;
+  box-shadow: none;
+
+  &::before {
+    display: none;
+  }
+
+  &::after {
+    opacity: 0;
+  }
+
+  &:focus-visible::after {
+    opacity: 1;
+  }
+}
 
 .condo-btn {
   .condo-typography-h4();
@@ -18,7 +47,6 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 64px;
   text-shadow: none;
   border-radius: @condo-button-border-radius;
   box-shadow: none;
@@ -29,8 +57,136 @@
     z-index: 1;
   }
 
-  span + span {
-    margin-left: @condo-button-gap;
+  &-medium {
+    min-width: @condo-global-spacing-32;
+    .condo-typography-h5();
+
+    span + span {
+      margin-left: @condo-button-gap-medium;
+    }
+  }
+
+  &-large {
+    min-width: @condo-global-spacing-48;
+    .condo-typography-h4();
+
+    span + span {
+      margin-left: @condo-button-gap-large;
+    }
+  }
+
+  &-medium.condo-btn-primary {
+    .condo-btn(@condo-button-line-height-medium, @condo-button-padding-height-medium,
+    @condo-button-padding-hor-medium, 0);
+  }
+
+  &-medium.condo-btn-secondary,
+  &-medium.condo-btn-accent {
+    .condo-btn(@condo-button-line-height-medium, @condo-button-padding-height-medium,
+    @condo-button-padding-hor-medium, @condo-button-border-width);
+  }
+
+  &-large.condo-btn-primary {
+    .condo-btn(@condo-button-line-height-large, @condo-button-padding-height-large, @condo-button-padding-hor-large, 0);
+  }
+
+  &-large.condo-btn-secondary,
+  &-large.condo-btn-accent {
+    .condo-btn(@condo-button-line-height-large, @condo-button-padding-height-large,
+    @condo-button-padding-hor-large, @condo-button-border-width);
+  }
+
+  &-medium.condo-btn-compact.condo-btn-primary {
+    min-width: 0;
+    .condo-btn(@condo-button-line-height-medium, @condo-button-padding-height-medium-compact,
+    @condo-button-padding-hor-compact, 0);
+  }
+
+  &-medium.condo-btn-compact.condo-btn-secondary,
+  &-medium.condo-btn-compact.condo-btn-accent {
+    min-width: 0;
+    .condo-btn(@condo-button-line-height-medium, @condo-button-padding-height-medium-compact,
+    @condo-button-padding-hor-compact, @condo-button-border-width);
+  }
+
+  &-large.condo-btn-compact.condo-btn-primary {
+    min-width: 0;
+    .condo-btn(@condo-button-line-height-large, @condo-button-padding-height-large-compact,
+    @condo-button-padding-hor-compact, 0);
+  }
+
+  &-large.condo-btn-compact.condo-btn-secondary,
+  &-large.condo-btn-compact.condo-btn-accent {
+    min-width: 0;
+    .condo-btn(@condo-button-line-height-large, @condo-button-padding-height-large-compact,
+    @condo-button-padding-hor-compact, @condo-button-border-width);
+  }
+
+  &-medium.condo-btn-compact.condo-btn-icon-only {
+    width: @condo-global-spacing-20;
+    height: @condo-global-spacing-20;
+  }
+
+  &-large.condo-btn-compact.condo-btn-icon-only {
+    width: @condo-global-spacing-24;
+    height: @condo-global-spacing-24;
+  }
+
+  &-minimal.condo-btn-primary,
+  &-minimal.condo-btn-secondary,
+  &-minimal.condo-btn-accent,
+  &-minimal.condo-btn-primary.condo-btn-stateless:not(:disabled),
+  &-minimal.condo-btn-secondary.condo-btn-stateless:not(:disabled),
+  &-minimal.condo-btn-accent.condo-btn-stateless:not(:disabled),
+  &-minimal.condo-btn-primary.condo-btn-dangerous,
+  &-minimal.condo-btn-secondary.condo-btn-dangerous,
+  &-minimal.condo-btn-accent.condo-btn-dangerous {
+    .minimal-styles;
+
+    &:hover,
+    &:focus {
+      .minimal-styles;
+    }
+  }
+
+  &-minimal.condo-btn-primary:not(.condo-btn-dangerous, .condo-btn-stateless),
+  &-minimal.condo-btn-secondary:not(.condo-btn-dangerous, .condo-btn-stateless),
+  &-minimal.condo-btn-accent:not(.condo-btn-dangerous, .condo-btn-stateless) {
+    &::before {
+      .condo-btn-layer(0);
+
+      background: @condo-global-color-brand-gradient-1;
+      opacity: 0;
+      transition: opacity @condo-global-transition-duration-default ease-in-out;
+    }
+
+    &:hover:not(:disabled) {
+      .condo-btn-static-text-color(@condo-global-color-green-5);
+      .condo-btn-content-color(@condo-global-color-green-5);
+    }
+
+    &:active:not(:disabled) {
+      .condo-btn-static-text-color(@condo-global-color-green-7);
+      .condo-btn-content-color(@condo-global-color-green-7);
+    }
+
+    &:hover:not(:disabled, .condo-btn-compact)::before {
+      opacity: 1;
+    }
+  }
+
+  &-minimal.condo-btn-compact.condo-btn-primary,
+  &-minimal.condo-btn-compact.condo-btn-secondary,
+  &-minimal.condo-btn-compact.condo-btn-accent,
+  &-minimal.condo-btn-compact.condo-btn-primary.condo-btn-dangerous,
+  &-minimal.condo-btn-compact.condo-btn-secondary.condo-btn-dangerous,
+  &-minimal.condo-btn-compact.condo-btn-accent.condo-btn-dangerous {
+    padding: 0;
+    border: none;
+
+    &:disabled {
+      border: none;
+    }
   }
 
   // After layer is used to show gradient outline on tab-focusing
@@ -52,23 +208,14 @@
     border-radius: @condo-button-border-radius + @condo-button-focus-outline-width;
   }
 
-  &-secondary:focus::after,
-  &-secondary.condo-btn-focus::after {
-    .condo-btn-layer(-(@condo-button-focus-outline-width + @condo-button-border-width));
-
-    border-radius: @condo-button-border-radius + @condo-button-focus-outline-width;
-  }
-
   &-primary {
-    .condo-btn(@condo-button-line-height, @condo-button-padding-vert,
-    @condo-button-padding-hor, 0);
-
     color: @condo-global-color-white;
     background: @condo-global-color-black;
     transition-property: background-color;
 
     & > .condo-btn-text {
       color: @condo-global-color-white;
+      background: transparent;
     }
 
     &::before {
@@ -96,8 +243,12 @@
       background: @condo-global-color-black;
 
       &::before {
-        opacity: 0.9;
+        background: @condo-global-color-brand-gradient-7;
       }
+    }
+
+    &.condo-btn-minimal {
+      .condo-btn-content-color(@condo-global-color-black);
     }
 
     &.condo-btn-stateless {
@@ -130,6 +281,36 @@
         background: @condo-global-color-red-5;
       }
 
+      &.condo-btn-minimal {
+        .condo-btn-content-color(@condo-global-color-red-5);
+        .condo-btn-static-text-color(@condo-global-color-red-5);
+
+        &:hover {
+          .condo-btn-content-color(@condo-global-color-red-7);
+          .condo-btn-static-text-color(@condo-global-color-red-7);
+        }
+
+        &:active {
+          .condo-btn-content-color(@condo-global-color-red-5);
+          .condo-btn-static-text-color(@condo-global-color-red-5);
+        }
+
+        &:not(:disabled).condo-btn-stateless {
+          &:focus,
+          &-focus,
+          &:hover,
+          &:active {
+            .condo-btn-content-color(@condo-global-color-red-5);
+            .condo-btn-static-text-color(@condo-global-color-red-5);
+          }
+        }
+
+        &:disabled {
+          .condo-btn-content-color(@condo-global-color-black);
+          .condo-btn-static-text-color(@condo-global-color-black);
+        }
+      }
+
       &.condo-btn-stateless {
         &:focus,
         &-focus,
@@ -157,20 +338,61 @@
       background: @condo-global-color-black;
       opacity: @condo-global-opacity-disabled;
 
+      &.condo-btn-minimal {
+        .minimal-styles;
+      }
+
       &::before {
         opacity: 0;
       }
     }
+
+    &.condo-btn-dangerous.condo-btn-minimal:hover:not(.condo-btn-compact, :disabled, .condo-btn-stateless) {
+      background: @condo-global-color-red-1;
+    }
   }
 
   &-secondary {
-    .condo-btn(@condo-button-line-height, @condo-button-padding-vert,
-    @condo-button-padding-hor, @condo-button-border-width);
-
     color: @condo-global-color-black;
     border: @condo-button-border-width solid @condo-global-color-gray-7;
     transition: background-color @condo-global-transition-duration-default ease-in-out;
     .condo-btn-content-color(@condo-global-color-black);
+
+    &::after {
+      .condo-btn-layer(-@condo-button-border-width);
+
+      box-sizing: border-box;
+      background: @condo-global-color-brand-gradient-5 border-box;
+      border: @condo-button-border-width solid transparent;
+      opacity: 0;
+      transition: opacity @condo-global-transition-duration-default ease-out;
+      mask: linear-gradient(#111 0 0) padding-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+    }
+
+    &.condo-btn-focus::after,
+    &:focus-visible::after {
+      .condo-btn-layer(-(@condo-button-focus-outline-width + @condo-button-border-width));
+
+      border: @condo-button-focus-outline-width solid transparent;
+      border-radius: @condo-button-border-radius + @condo-button-focus-outline-width;
+      opacity: 1;
+    }
+
+    &:focus::after,
+    &-focus::after {
+      background: @condo-global-color-brand-gradient-5 border-box;
+    }
+
+    &:hover::after {
+      background: @condo-global-color-brand-gradient-5 border-box;
+      opacity: 1;
+    }
+
+    &:active::after {
+      background: @condo-global-color-brand-gradient-7 border-box;
+    }
 
     & > .condo-btn-text {
       background: transparent;
@@ -196,6 +418,248 @@
     &.condo-btn-dangerous {
       .condo-btn-content-color(@condo-global-color-red-5);
       .condo-btn-static-text-color(@condo-global-color-red-5);
+
+      &::after {
+        opacity: 0;
+      }
+
+      &:focus-visible::after,
+      &.condo-btn-focus::after {
+        opacity: 1;
+      }
+
+      border: @condo-button-border-width solid @condo-global-color-red-5;
+
+      .condo-btn-minimal {
+        border: none;
+      }
+
+      &:hover {
+        background: @condo-global-color-red-1;
+        .condo-btn-content-color(@condo-global-color-red-7);
+        .condo-btn-static-text-color(@condo-global-color-red-7);
+      }
+
+      &:active {
+        background: @condo-global-color-red-1;
+        .condo-btn-content-color(@condo-global-color-red-5);
+        .condo-btn-static-text-color(@condo-global-color-red-5);
+      }
+
+      &::before,
+      &:focus::before,
+      &-focus::before {
+        background: @condo-global-color-red-5 border-box;
+      }
+
+      &:hover::before {
+        background: @condo-global-color-red-7 border-box;
+      }
+
+      &:active::before {
+        background: @condo-global-color-red-5 border-box;
+      }
+
+      &.condo-btn-stateless {
+        &:hover,
+        &:active,
+        &:focus,
+        &-focus {
+          .condo-btn-content-color(@condo-global-color-red-5);
+          .condo-btn-static-text-color(@condo-global-color-red-5);
+        }
+
+        &::before,
+        &:focus::before,
+        &-focus::before,
+        &:hover::before,
+        &:active::before {
+          background: @condo-global-color-red-5 border-box;
+        }
+      }
+    }
+
+    &:disabled {
+      background: transparent;
+      border: @condo-button-border-width solid @condo-global-color-gray-7;
+      opacity: @condo-global-opacity-disabled;
+
+      .condo-btn-content-color(@condo-global-color-black);
+      .condo-btn-static-text-color(@condo-global-color-black);
+
+      &::after {
+        opacity: 0;
+      }
+
+      &.condo-btn-minimal {
+        .minimal-styles;
+
+        .condo-btn-content-color(@condo-global-color-black);
+        .condo-btn-static-text-color(@condo-global-color-black);
+      }
+    }
+
+    &.condo-btn-minimal:not(.condo-btn-dangerous, :disabled) {
+      .condo-btn-static-text-color(@condo-global-color-gray-7);
+      .condo-btn-content-color(@condo-global-color-gray-7);
+    }
+
+    &.condo-btn-stateless:not(:disabled) {
+      &:not(.condo-btn-dangerous) {
+        .condo-btn-content-color(@condo-global-color-black);
+      }
+
+      &.condo-btn-minimal:not(.condo-btn-dangerous) {
+        &,
+        &:active,
+        &:hover {
+          .condo-btn-static-text-color(@condo-global-color-gray-7);
+          .condo-btn-content-color(@condo-global-color-gray-7);
+        }
+      }
+
+      &:hover,
+      &:active {
+        background: transparent;
+      }
+
+      &:not(.condo-btn-dangerous, .condo-btn-minimal):hover {
+        border: @condo-button-border-width solid @condo-global-color-gray-7;
+      }
+
+      &:hover::after,
+      &:active::after,
+      &:hover::before,
+      &:active::before {
+        opacity: 0;
+      }
+    }
+
+    //&:disabled,
+    &:disabled:hover,
+    &:disabled:active,
+    &:disabled:focus,
+    &.condo-btn-dangerous:disabled,
+    &.condo-btn-dangerous:disabled:hover,
+    &.condo-btn-dangerous:disabled:active,
+    &.condo-btn-dangerous:disabled:focus,
+    &.condo-btn-focus:disabled {
+      background: transparent;
+      border: @condo-button-border-width solid @condo-global-color-gray-7;
+      opacity: @condo-global-opacity-disabled;
+
+      .condo-btn-content-color(@condo-global-color-black);
+      .condo-btn-static-text-color(@condo-global-color-black);
+
+      &::after {
+        opacity: 0;
+      }
+
+      &.condo-btn-minimal {
+        .minimal-styles;
+
+        .condo-btn-content-color(@condo-global-color-black);
+        .condo-btn-static-text-color(@condo-global-color-black);
+      }
+    }
+
+    &.condo-btn-dangerous.condo-btn-minimal:hover:not(.condo-btn-compact, :disabled, .condo-btn-stateless) {
+      background: @condo-global-color-red-1;
+    }
+  }
+
+  &-accent {
+    .condo-btn-static-text-color(@condo-global-color-green-5);
+    .condo-btn-content-color(@condo-global-color-green-5);
+
+    & > .condo-btn-text {
+      background: transparent;
+    }
+
+    &::before {
+      .condo-btn-layer(-@condo-button-border-width);
+
+      background: @condo-global-color-brand-gradient-5;
+      opacity: 0;
+      transition: opacity @condo-global-transition-duration-default ease-in-out;
+    }
+
+    &,
+    &:focus,
+    &-focus {
+      background: transparent;
+      border-color: transparent;
+    }
+
+    &:hover {
+      .condo-btn-static-text-color(@condo-global-color-white);
+      .condo-btn-content-color(@condo-global-color-white);
+
+      &::before {
+        opacity: 1;
+      }
+    }
+
+    &:active {
+      .condo-btn-static-text-color(@condo-global-color-white);
+      .condo-btn-content-color(@condo-global-color-white);
+
+      &::before {
+        background: @condo-global-color-brand-gradient-7;
+      }
+    }
+
+    &.condo-btn-minimal {
+      .condo-btn-static-text-color(@condo-global-color-green-5);
+      .condo-btn-content-color(@condo-global-color-green-5);
+
+      &::before {
+        opacity: 0;
+      }
+
+      &::after {
+        opacity: 0;
+      }
+    }
+
+    &::after {
+      .condo-btn-layer(-@condo-button-border-width);
+
+      box-sizing: border-box;
+      background: @condo-global-color-brand-gradient-5 border-box;
+      border: @condo-button-border-width solid transparent;
+      opacity: 1;
+      transition: opacity @condo-global-transition-duration-default ease-out;
+      mask: linear-gradient(#111 0 0) padding-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+    }
+
+    &.condo-btn-focus::after,
+    &:focus-visible::after {
+      .condo-btn-layer(-(@condo-button-focus-outline-width + @condo-button-border-width));
+
+      border: @condo-button-focus-outline-width solid transparent;
+      border-radius: @condo-button-border-radius + @condo-button-focus-outline-width;
+      opacity: 1;
+    }
+
+    &.condo-btn-dangerous {
+      .condo-btn-content-color(@condo-global-color-red-5);
+      .condo-btn-static-text-color(@condo-global-color-red-5);
+
+      &::before {
+        display: none;
+      }
+
+      &::after {
+        opacity: 0;
+      }
+
+      &:focus-visible::after,
+      &.condo-btn-focus::after {
+        opacity: 1;
+      }
 
       border: @condo-button-border-width solid @condo-global-color-red-5;
 
@@ -244,36 +708,6 @@
       }
     }
 
-    // Used button before element for gradient border with radius
-    &::before {
-      .condo-btn-layer(-@condo-button-border-width);
-
-      box-sizing: border-box;
-      background: @condo-global-color-brand-gradient-5 border-box;
-      border: @condo-button-border-width solid transparent;
-      opacity: 0;
-      transition: opacity @condo-global-transition-duration-default ease-out;
-      mask: linear-gradient(#111 0 0) padding-box, linear-gradient(#fff 0 0);
-      -webkit-mask-composite: xor;
-      mask-composite: exclude;
-    }
-
-    &::before,
-    &:focus::before,
-    &-focus::before {
-      background: @condo-global-color-brand-gradient-5 border-box;
-    }
-
-    &:hover::before {
-      background: @condo-global-color-brand-gradient-5 border-box;
-      opacity: 1;
-    }
-
-    &:active::before {
-      background: @condo-global-color-brand-gradient-5 border-box;
-      opacity: 0.9;
-    }
-
     &:disabled {
       background: transparent;
       border: @condo-button-border-width solid @condo-global-color-gray-7;
@@ -282,23 +716,23 @@
       .condo-btn-content-color(@condo-global-color-black);
       .condo-btn-static-text-color(@condo-global-color-black);
 
-      &::before {
+      &::after {
         opacity: 0;
+      }
+
+      &.condo-btn-minimal {
+        .minimal-styles;
       }
     }
 
-    &.condo-btn-stateless {
+    &.condo-btn-stateless:not(:disabled) {
       &:not(.condo-btn-dangerous) {
-        .condo-btn-content-color(@condo-global-color-black);
+        .condo-btn-content-color(@condo-global-color-green-5);
       }
 
       &:hover,
       &:active {
         background: transparent;
-      }
-
-      &:not(.condo-btn-dangerous):hover {
-        border: @condo-button-border-width solid @condo-global-color-gray-7;
       }
 
       &:hover::before,
@@ -326,6 +760,14 @@
       &::before {
         opacity: 0;
       }
+
+      &.condo-btn-minimal {
+        .minimal-styles;
+      }
+    }
+
+    &.condo-btn-dangerous.condo-btn-minimal:hover:not(.condo-btn-compact, :disabled, .condo-btn-stateless) {
+      background: @condo-global-color-red-1;
     }
   }
 
@@ -335,12 +777,51 @@
 }
 
 a.condo-btn {
-  &-primary {
-    .condo-btn-href(@condo-button-line-height, @condo-button-padding-vert, @condo-button-padding-hor, 0);
+  &-medium.condo-btn-primary {
+    .condo-btn-href(@condo-button-line-height-medium, @condo-button-padding-height-medium,
+    @condo-button-padding-hor-medium, 0);
   }
 
-  &-secondary {
-    .condo-btn-href(@condo-button-line-height, @condo-button-padding-vert, @condo-button-padding-hor,
-    @condo-button-border-width);
+  &-medium.condo-btn-secondary,
+  &-medium.condo-btn-accent {
+    .condo-btn-href(@condo-button-line-height-medium, @condo-button-padding-height-medium,
+    @condo-button-padding-hor-medium, @condo-button-border-width);
+  }
+
+  &-large.condo-btn-primary {
+    .condo-btn-href(@condo-button-line-height-large, @condo-button-padding-height-large,
+    @condo-button-padding-hor-large, 0);
+  }
+
+  &-large.condo-btn-secondary,
+  &-large.condo-btn-accent {
+    .condo-btn-href(@condo-button-line-height-large, @condo-button-padding-height-large,
+    @condo-button-padding-hor-large, @condo-button-border-width);
+  }
+
+  &-medium.condo-btn-compact.condo-btn-primary {
+    min-width: 0;
+    .condo-btn-href(@condo-button-line-height-medium, @condo-button-padding-height-medium-compact,
+    @condo-button-padding-hor-compact, 0);
+  }
+
+  &-medium.condo-btn-compact.condo-btn-secondary,
+  &-medium.condo-btn-compact.condo-btn-accent {
+    min-width: 0;
+    .condo-btn-href(@condo-button-line-height-medium, @condo-button-padding-height-medium-compact,
+    @condo-button-padding-hor-compact, @condo-button-border-width);
+  }
+
+  &-large.condo-btn-compact.condo-btn-primary {
+    min-width: 0;
+    .condo-btn-href(@condo-button-line-height-large, @condo-button-padding-height-large-compact,
+    @condo-button-padding-hor-compact, 0);
+  }
+
+  &-large.condo-btn-compact.condo-btn-secondary,
+  &-large.condo-btn-compact.condo-btn-accent {
+    min-width: 0;
+    .condo-btn-href(@condo-button-line-height-large, @condo-button-padding-height-large-compact,
+    @condo-button-padding-hor-compact, @condo-button-border-width);
   }
 }

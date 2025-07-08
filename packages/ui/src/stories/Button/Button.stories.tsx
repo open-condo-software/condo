@@ -18,6 +18,9 @@ export default {
         children: 'Label',
         type: 'primary',
         disabled: false,
+        size: 'large',
+        compact: false,
+        minimal: false,
         danger: false,
         stateless: false,
         block: false,
@@ -26,6 +29,12 @@ export default {
     },
     argTypes: {
         block: { type: 'boolean' },
+        minimal: { type: 'boolean' },
+        compact: { type: 'boolean' },
+        size: {
+            control: 'select',
+            options: ['medium', 'large'],
+        },
         type: { control: 'select' },
         icon: {
             options: Object.keys(icons),
@@ -50,5 +59,12 @@ export const Primary: StoryObj<typeof Button> = {
 export const Secondary: StoryObj<typeof Button> = {
     args: {
         type: 'secondary',
+    },
+}
+
+
+export const Accent: StoryObj<typeof Button> = {
+    args: {
+        type: 'accent',
     },
 }

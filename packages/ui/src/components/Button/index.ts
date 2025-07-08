@@ -8,6 +8,9 @@ export type { ButtonProps } from './button'
 export type { IconButtonProps } from './icon/iconButton'
 
 type CombinedButtonType = typeof InternalButton & {
+    /**
+     * @deprecated
+     */
     Icon: typeof IconButton
 }
 
