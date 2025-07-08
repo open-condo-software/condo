@@ -1,8 +1,9 @@
 const path = require('path')
 
-const { GraphQLApp } = require('@open-keystone/app-graphql')
+const { escapeRegExp } = require('lodash')
 
 const conf = require('@open-condo/config')
+const { prepareKeystoneExpressApp } = require('@open-condo/keystone/prepareKeystoneApp')
 
 const { OidcClient } = require('@condo/domains/user/utils/serverSchema')
 
@@ -11,36 +12,31 @@ let context
 async function getContext () {
     if (context) return context
 
-    const resolved = path.resolve('./index.js')
-    const { distDir, keystone, apps } = require(resolved)
-    const graphqlIndex = apps.findIndex(app => app instanceof GraphQLApp)
-    await keystone.prepare({ apps: [apps[graphqlIndex]], distDir, dev: true })
-    await keystone.connect()
-    context = await keystone.createContext({ skipAccessControl: true })
-
+    const { keystone: keystoneContext } = await prepareKeystoneExpressApp(path.resolve('./index.js'), { excludeApps: ['NextApp', 'AdminUIApp'] })
+    context = keystoneContext
     return context
 }
 
 // https://review-custom-name-***.*** -> "review-custom-name-"
-function getReviewPrefix ({ reviewDomain }) {
+function getReviewPrefix ({ reviewBaseDomain }) {
     const condoDomain = conf['CONDO_DOMAIN']
-    // controlled reviewDomain
+    // controlled reviewBaseDomain
     // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
-    const findPrefixRegex = new RegExp(`https://(review-[a-zA-Z0-9-]+?-)\\w+\\.${reviewDomain.replaceAll('.', '\\.')}`)
+    const findPrefixRegex = new RegExp(`https://(review-[a-zA-Z0-9-]+?-)\\w+\\.${escapeRegExp(reviewBaseDomain)}`)
     const match = condoDomain.match(findPrefixRegex)
     return match?.[1] || ''
 }
 
 let REVIEW_PREFIX = ''
-function updateUrls (obj, { devDomain, reviewDomain }) {
-    // controlled devDomain
+function updateUrls (obj, { devBaseDomain, reviewBaseDomain }) {
+    // controlled devBaseDomain
     // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
-    const urlRegex = new RegExp(`https://([a-zA-Z0-9-]+)\\.${devDomain.replaceAll('.', '\\.')}(\\/[^\\s]*)?`, 'g')
+    const urlRegex = new RegExp(`https://([a-zA-Z0-9-]+)\\.${escapeRegExp(devBaseDomain)}(\\/[^\\s]*)?`, 'g')
 
     function traverse (current) {
         if (typeof current === 'string') {
             return current.replace(urlRegex, (match, subdomain, path = '') => {
-                return `https://${REVIEW_PREFIX}${subdomain}.${reviewDomain}${path}`
+                return `https://${REVIEW_PREFIX}${subdomain}.${reviewBaseDomain}${path}`
             })
         } else if (Array.isArray(current)) {
             return current.map(item => traverse(item))
@@ -59,10 +55,10 @@ function updateUrls (obj, { devDomain, reviewDomain }) {
 }
 
 /**
- * Changes all urls in oidcClient.payload from devDomain to reviewDomain with prefix
+ * Changes all urls in oidcClient.payload from devBaseDomain to reviewBaseDomain with prefix
  * @return {Promise<void>}
  */
-async function migrateOidcClientUrlsToReview ({ devDomain, reviewDomain }) {
+async function migrateOidcClientUrlsToReview ({ devBaseDomain, reviewBaseDomain }) {
     if (!REVIEW_PREFIX) throw new Error('Don\'t have review prefix!')
 
     const context = await getContext()
@@ -74,7 +70,7 @@ async function migrateOidcClientUrlsToReview ({ devDomain, reviewDomain }) {
     const updatedOidcClients = oidcClients.map((client) => {
         return {
             ...client,
-            payload: updateUrls(client.payload, { devDomain, reviewDomain }),
+            payload: updateUrls(client.payload, { devBaseDomain, reviewBaseDomain }),
         }
     })
 
@@ -93,11 +89,12 @@ async function migrateOidcClientUrlsToReview ({ devDomain, reviewDomain }) {
 
 
 async function main (args) {
-    const [devDomain, reviewDomain] = args
+    const [devBaseDomain, reviewBaseDomain] = args
+    if (!devBaseDomain || !reviewBaseDomain) throw new Error('No devBaseDomain or reviewBaseDomain!')
 
-    REVIEW_PREFIX = getReviewPrefix({ reviewDomain })
+    REVIEW_PREFIX = getReviewPrefix({ reviewBaseDomain })
 
-    await migrateOidcClientUrlsToReview({ devDomain, reviewDomain })
+    await migrateOidcClientUrlsToReview({ devBaseDomain, reviewBaseDomain })
 }
 
 main(process.argv.slice(2))
