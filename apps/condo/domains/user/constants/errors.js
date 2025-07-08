@@ -92,6 +92,7 @@ const CREDENTIAL_VALIDATION_FAILED = 'CREDENTIAL_VALIDATION_FAILED'
 const USER_IDENTITY_INVALID = 'USER_IDENTITY_INVALID'
 
 const USER_EXTERNAL_IDENTITY_WRONG_USER_TYPE = 'USER_EXTERNAL_IDENTITY_WRONG_USER_TYPE'
+const USER_EXTERNAL_IDENTITY_WRONG_IDENTITY_TYPE = 'USER_EXTERNAL_IDENTITY_WRONG_IDENTITY_TYPE'
 
 const GQL_ERRORS = {
     TOO_MANY_REQUESTS: {
@@ -273,6 +274,12 @@ const ERRORS = {
         code: 'BAD_USER_INPUT',
         type: USER_EXTERNAL_IDENTITY_WRONG_USER_TYPE,
         message: 'UserType must be same as user.type',
+    },
+    WRONG_USER_EXTERNAL_IDENTITY_TYPE: {
+        variable: ['data', 'identityType'],
+        code: 'BAD_USER_INPUT',
+        type: USER_EXTERNAL_IDENTITY_WRONG_IDENTITY_TYPE,
+        message: 'IdentityType has unsupported value',
     },
 }
 
