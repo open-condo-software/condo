@@ -6,6 +6,10 @@ const { SbbolRoutes } = require('@condo/domains/organization/integrations/sbbol/
 const { AppleIdRoutes } = require('@condo/domains/user/integration/appleid/routes')
 const { SberIdRoutes } = require('@condo/domains/user/integration/sberid/routes')
 const { TelegramOauthRoutes } = require('@condo/domains/user/integration/telegram/routes')
+const createOidcConfiguration = require('@condo/domains/user/oidc/configuration')
+
+const { makeExternalAuth } = require('./utils/makeExternalAuth')
+
 
 class UserExternalIdentityMiddleware {
     async prepareMiddleware ({ keystone }) {
