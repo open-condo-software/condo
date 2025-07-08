@@ -186,7 +186,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                     {PromptHelpMessage}
                                 </Typography.Paragraph>
                             </Prompt>
-                            <Row gutter={[16, 40]}>
+                            <Row gutter={[16, 80]}>
                                 <Col span={wrapperColumnSpan}>
                                     <Row gutter={[0, 16]}>
                                         <Col span={24}>
