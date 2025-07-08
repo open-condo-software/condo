@@ -1,4 +1,3 @@
-import get from 'lodash/get'
 import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import { useCallback, useMemo } from 'react'
@@ -36,13 +35,69 @@ export const useMarketplaceInvoicesTableColumns = ({ filtersMeta }) => {
     const search = getFilteredValue(filters, 'search')
     const render = useMemo(() => getTableCellRenderer({ search }), [search])
 
+    const renderNumber = useCallback((number, invoice) => {
+        const renderInvoiceNumber = getTableCellRenderer({ search, href: `/marketplace/invoice/${invoice.id}`, target: '_blank' })
+
+        return renderInvoiceNumber(`№${number}`)
+    }, [search])
+
+    const renderTicket = useCallback(() => (ticket) => {
+        if (!ticket) {
+            return '—'
+        }
+
+        const renderTicketNumber = getTableCellRenderer({ search, href: `/ticket/${ticket.id}`, target: '_blank' })
+
+        return renderTicketNumber(`№${ticket.number}`)
+    }, [search])
+
     const renderAddress = useCallback((property) => {
         return getAddressRender(property, null, search)
     }, [search])
 
     const renderUnitName = useCallback((text, invoice) => {
         return getUnitNameRender(intl, text, invoice, search)
-    }, [search])
+    }, [intl, search])
+
+    const renderRows = useCallback((rows) => {
+        const joinedRows = rows.map((row, index) => {
+            const name = row.name
+            return index > 0 ? name.toLowerCase() : name
+        }).join(', ')
+
+        const shortenRows = joinedRows.length > 450 ? `${joinedRows.substring(0, 450)}…` : joinedRows
+
+        return render(shortenRows)
+    }, [render])
+
+    const renderPaymentTypes = useCallback((paymentType) => {
+        const label = intl.formatMessage({ id: `pages.condo.marketplace.invoice.invoiceList.payment.${paymentType}` as FormatjsIntl.Message['ids'] })
+
+        return render(label)
+    }, [intl, render])
+
+    const renderStatus = useCallback((status) => {
+        const label = intl.formatMessage({ id: `pages.condo.marketplace.invoice.invoiceList.${status}` as FormatjsIntl.Message['ids'] })
+
+        return (
+            <Tag
+                bgColor={INVOICE_STATUS_COLORS[status].bgColor}
+                textColor={INVOICE_STATUS_COLORS[status].color}
+            >
+                {label}
+            </Tag>
+        )
+    }, [intl])
+
+    const renderSum = useCallback((rows) => {
+        const totalPrice = rows.filter(row => row.toPay !== '0').reduce((acc, row) => acc + Number(row.toPay) * row.count, 0)
+        const hasMinPrice = rows.some(row => row.isMin)
+        const isContractToPay = rows.every(row => row.isMin && row.toPay === '0')
+        const currencyCode = rows?.[0]?.currencyCode || defaultCurrencyCode
+        const moneyRender = getMoneyRender(intl, currencyCode)
+
+        return isContractToPay ? ContractPriceMessage : moneyRender(totalPrice, hasMinPrice)
+    }, [ContractPriceMessage, intl])
 
     return useMemo(() => [
         {
@@ -52,20 +107,16 @@ export const useMarketplaceInvoicesTableColumns = ({ filtersMeta }) => {
             width: '105px',
             render: getDateRender(intl, String(search)),
             sorter: true,
-            sortOrder: get(sorterMap, 'createdAt'),
+            sortOrder: sorterMap?.createdAt,
         },
         {
             title: InvoiceNumberTitle,
             key: 'number',
             dataIndex: 'number',
             width: '10%',
-            render: (number, invoice) => {
-                const renderInvoiceNumber = getTableCellRenderer({ search, href: `/marketplace/invoice/${invoice.id}`, target: '_blank' })
-
-                return renderInvoiceNumber(`№${number}`)
-            },
+            render: renderNumber,
             sorter: true,
-            sortOrder: get(sorterMap, 'number'),
+            sortOrder: sorterMap?.number,
             filteredValue: getFilteredValue(filters, 'number'),
             filterDropdown: getFilterDropdownByKey(filtersMeta, 'number'),
             filterIcon: getFilterIcon,
@@ -75,17 +126,9 @@ export const useMarketplaceInvoicesTableColumns = ({ filtersMeta }) => {
             key: 'ticket',
             dataIndex: 'ticket',
             width: '10%',
-            render: (ticket) => {
-                if (!ticket) {
-                    return '—'
-                }
-
-                const renderTicketNumber = getTableCellRenderer({ search, href: `/ticket/${ticket.id}`, target: '_blank' })
-
-                return renderTicketNumber(`№${ticket.number}`)
-            },
+            render: renderTicket,
             sorter: true,
-            sortOrder: get(sorterMap, 'ticket'),
+            sortOrder: sorterMap?.ticket,
             filteredValue: getFilteredValue(filters, 'ticket'),
             filterDropdown: getFilterDropdownByKey(filtersMeta, 'ticket'),
             filterIcon: getFilterIcon,
@@ -97,7 +140,7 @@ export const useMarketplaceInvoicesTableColumns = ({ filtersMeta }) => {
             width: '15%',
             render: renderAddress,
             sorter: true,
-            sortOrder: get(sorterMap, 'property'),
+            sortOrder: sorterMap?.property,
             filteredValue: getFilteredValue(filters, 'property'),
             filterDropdown: getFilterDropdownByKey(filtersMeta, 'property'),
             filterIcon: getFilterIcon,
@@ -109,7 +152,7 @@ export const useMarketplaceInvoicesTableColumns = ({ filtersMeta }) => {
             width: '9%',
             render: renderUnitName,
             sorter: true,
-            sortOrder: get(sorterMap, 'unitName'),
+            sortOrder: sorterMap?.unitName,
             filteredValue: getFilteredValue(filters, 'unitName'),
             filterDropdown: getFilterDropdownByKey(filtersMeta, 'unitName'),
             filterIcon: getFilterIcon,
@@ -120,27 +163,14 @@ export const useMarketplaceInvoicesTableColumns = ({ filtersMeta }) => {
             key: 'rows',
             dataIndex: 'rows',
             width: '13%',
-            render: (rows) => {
-                const joinedRows = rows.map((row, index) => {
-                    const name = row.name
-                    return index > 0 ? name.toLowerCase() : name
-                }).join(', ')
-
-                const shortenRows = joinedRows.length > 450 ? `${joinedRows.substring(0, 450)}…` : joinedRows
-
-                return render(shortenRows)
-            },
+            render: renderRows,
         },
         {
             title: PaymentTypeTitle,
             key: 'paymentType',
             dataIndex: 'paymentType',
             width: '10%',
-            render: (paymentType) => {
-                const label = intl.formatMessage({ id: `pages.condo.marketplace.invoice.invoiceList.payment.${paymentType}` as FormatjsIntl.Message['ids'] })
-
-                return render(label)
-            },
+            render: renderPaymentTypes,
             filteredValue: getFilteredValue(filters, 'paymentType'),
             filterDropdown: getFilterDropdownByKey(filtersMeta, 'paymentType'),
             filterIcon: getFilterIcon,
@@ -150,18 +180,7 @@ export const useMarketplaceInvoicesTableColumns = ({ filtersMeta }) => {
             key: 'status',
             dataIndex: 'status',
             width: '20%',
-            render: (status) => {
-                const label = intl.formatMessage({ id: `pages.condo.marketplace.invoice.invoiceList.${status}` as FormatjsIntl.Message['ids'] })
-
-                return (
-                    <Tag
-                        bgColor={INVOICE_STATUS_COLORS[status].bgColor}
-                        textColor={INVOICE_STATUS_COLORS[status].color}
-                    >
-                        {label}
-                    </Tag>
-                )
-            },
+            render: renderStatus,
             filteredValue: getFilteredValue(filters, 'status'),
             filterDropdown: getFilterDropdownByKey(filtersMeta, 'status'),
             filterIcon: getFilterIcon,
@@ -171,20 +190,12 @@ export const useMarketplaceInvoicesTableColumns = ({ filtersMeta }) => {
             key: 'toPay',
             dataIndex: 'rows',
             width: '13%',
-            render: (rows) => {
-                const totalPrice = rows.filter(row => row.toPay !== '0').reduce((acc, row) => acc + Number(row.toPay) * row.count, 0)
-                const hasMinPrice = rows.some(row => row.isMin)
-                const isContractToPay = rows.every(row => row.isMin && row.toPay === '0')
-                const currencyCode = get(rows, ['0', 'currencyCode'], defaultCurrencyCode)
-                const moneyRender = getMoneyRender(intl, currencyCode)
-
-                return isContractToPay ? ContractPriceMessage : moneyRender(totalPrice, hasMinPrice)
-            },
+            render: renderSum,
             sorter: true,
-            sortOrder: get(sorterMap, 'toPay'),
+            sortOrder: sorterMap?.toPay,
             filteredValue: getFilteredValue(filters, 'toPay'),
             filterDropdown: getFilterDropdownByKey(filtersMeta, 'toPay'),
             filterIcon: getFilterIcon,
         },
-    ], [ContractPriceMessage, DateTitle, InvoiceNumberTitle, PaymentTypeTitle, RowsTitle, AddressTitle, renderAddress, renderUnitName, UnitTitle, StatusTitle, SumTitle, TicketNumber, filters, filtersMeta, intl, render, search, sorterMap])
+    ], [intl, DateTitle, InvoiceNumberTitle, PaymentTypeTitle, RowsTitle, AddressTitle, renderAddress, renderUnitName, UnitTitle, StatusTitle, SumTitle, TicketNumber, filters, filtersMeta, search, sorterMap, renderSum, renderNumber, renderRows, renderStatus, renderTicket, renderPaymentTypes])
 }

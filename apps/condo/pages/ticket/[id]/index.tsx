@@ -452,11 +452,11 @@ const TicketActionBar = ({
                     <ShareTicketModal
                         key='share'
                         organization={organization}
-                        date={get(ticket, 'createdAt')}
-                        number={get(ticket, 'number')}
-                        details={get(ticket, 'details')}
+                        date={ticket?.createdAt}
+                        number={ticket?.number}
+                        details={ticket?.details}
                         id={id}
-                        locale={get(organization, 'country')}
+                        locale={organization?.country}
                     />
                 ),
                 ticket.qualityControlValue && (

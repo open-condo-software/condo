@@ -1,13 +1,12 @@
 import styled from '@emotion/styled'
-import { Typography } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import React, { useMemo } from 'react'
+import React, { CSSProperties, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { TabItem, Tabs, Tag } from '@open-condo/ui'
-import { Button } from '@open-condo/ui'
+import { Button, Typography, Space } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import { CONTEXT_FINISHED_STATUS } from '@condo/domains/acquiring/constants/context'
@@ -31,6 +30,8 @@ const StyledPageWrapper = styled(PageWrapper)`
     }
   }
 `
+
+const HEADER_STYLES: CSSProperties = { padding: 0 }
 
 export const MarketplacePageContent = () => {
     const intl = useIntl()
@@ -90,28 +91,30 @@ export const MarketplacePageContent = () => {
     return (
         <StyledPageWrapper>
             {GlobalHints}
-            <PageHeader tags={RenderNotSetupTag} title={<Typography.Title>{PageTitle}</Typography.Title>} />
-            <PageContent>
-                {!marketplaceIsSetup ? (
-                    <EmptyListContent
-                        image='dino/playing@2x.png'
-                        message={NotSetupText}
-                        label={NotSetupTitle}
-                        createLabel={NotSetupButton}
-                        button={
-                            <Button type='primary' onClick={handleGoToSetup}>{NotSetupButton}</Button>
-                        }
-                        accessCheck={canManageMarketplace}
-                    />
-                ) : (
-                    <Tabs
-                        activeKey={currentTab}
-                        onChange={onTabChange}
-                        items={items}
-                        destroyInactiveTabPane
-                    />
-                )}
-            </PageContent>
+            <Space size={20} direction='vertical'>
+                <PageHeader tags={RenderNotSetupTag} style={HEADER_STYLES} title={<Typography.Title>{PageTitle}</Typography.Title>} />
+                <PageContent>
+                    {!marketplaceIsSetup ? (
+                        <EmptyListContent
+                            image='dino/playing@2x.png'
+                            message={NotSetupText}
+                            label={NotSetupTitle}
+                            createLabel={NotSetupButton}
+                            button={
+                                <Button type='primary' onClick={handleGoToSetup}>{NotSetupButton}</Button>
+                            }
+                            accessCheck={canManageMarketplace}
+                        />
+                    ) : (
+                        <Tabs
+                            activeKey={currentTab}
+                            onChange={onTabChange}
+                            items={items}
+                            destroyInactiveTabPane
+                        />
+                    )}
+                </PageContent>
+            </Space>
         </StyledPageWrapper>
     )
 }
