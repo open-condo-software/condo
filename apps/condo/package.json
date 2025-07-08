@@ -109,6 +109,7 @@
     "passport": "^0.7.0",
     "passport-github2": "^0.1.12",
     "passport-oauth2": "^1.8.0",
+    "passport-openidconnect": "^0.1.2",
     "pdf-lib": "^1.17.1",
     "pdfmake": "^0.2.10",
     "phone": "^3.1.41",
