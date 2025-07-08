@@ -1,6 +1,7 @@
 import { Col, Form, Row } from 'antd'
 import find from 'lodash/find'
 import get from 'lodash/get'
+import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import React, { useEffect, useMemo } from 'react'
 
@@ -25,6 +26,7 @@ import {
     ClassifiersQueryRemote,
     TicketClassifierTypes,
 } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
+import { PHONE_TYPE, EMAIL_TYPE } from '@condo/domains/user/constants/identifiers'
 
 import type { FormRule as Rule } from 'antd'
 
@@ -37,6 +39,11 @@ const INPUT_LAYOUT_PROPS = {
         span: 14,
     },
 }
+
+const { publicRuntimeConfig: { inviteRequiredFields } } = getConfig()
+
+const isPhoneRequired = inviteRequiredFields.includes(PHONE_TYPE)
+const isEmailRequired = inviteRequiredFields.includes(EMAIL_TYPE)
 
 export const CreateEmployeeForm: React.FC = () => {
     const intl = useIntl()
@@ -70,8 +77,14 @@ export const CreateEmployeeForm: React.FC = () => {
     const { changeMessage, requiredValidator, emailValidator, phoneValidator, trimValidator, specCharValidator } = useValidations()
 
     const validations: { [key: string]: Rule[] } = {
-        phone: [requiredValidator, phoneValidator],
-        email: [emailValidator],
+        phone: [
+            ...(isPhoneRequired ? [requiredValidator] : []),
+            phoneValidator,
+        ],
+        email: [
+            ...(isEmailRequired ? [requiredValidator] : []),
+            emailValidator,
+        ],
         name: [
             changeMessage(trimValidator, FullNameRequiredMessage),
             changeMessage(specCharValidator, FullNameInvalidCharMessage),
@@ -198,7 +211,7 @@ export const CreateEmployeeForm: React.FC = () => {
                                                         name='phone'
                                                         label={PhoneLabel}
                                                         labelAlign='left'
-                                                        required
+                                                        required={isPhoneRequired}
                                                         validateFirst
                                                         rules={validations.phone}
                                                         {...INPUT_LAYOUT_PROPS}
@@ -211,6 +224,7 @@ export const CreateEmployeeForm: React.FC = () => {
                                                         name='email'
                                                         label={EmailLabel}
                                                         labelAlign='left'
+                                                        required={isEmailRequired}
                                                         validateFirst
                                                         rules={validations.email}
                                                         {...INPUT_LAYOUT_PROPS}
@@ -221,10 +235,12 @@ export const CreateEmployeeForm: React.FC = () => {
                                             </Row>
                                         </Col>
                                         <Col span={24}>
-                                            <Form.Item noStyle dependencies={['phone']}>
+                                            <Form.Item noStyle dependencies={['phone', 'email']}>
                                                 {
                                                     ({ getFieldsValue }) => {
-                                                        const { phone } = getFieldsValue(['phone'])
+                                                        const { phone, email } = getFieldsValue(['phone', 'email'])
+                                                        const isDisabled = (isPhoneRequired && !phone) || (isEmailRequired && !email)
+
                                                         return (
                                                             <ActionBar
                                                                 actions={[
@@ -233,7 +249,7 @@ export const CreateEmployeeForm: React.FC = () => {
                                                                         onClick={handleSave}
                                                                         type='primary'
                                                                         loading={isLoading}
-                                                                        disabled={!phone}
+                                                                        disabled={isDisabled}
                                                                     >
                                                                         {InviteEmployeeLabel}
                                                                     </Button>,
