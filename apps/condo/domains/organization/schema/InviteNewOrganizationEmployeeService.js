@@ -79,7 +79,7 @@ const ERRORS = {
             messageForUser: 'api.common.WRONG_PHONE_FORMAT',
         },
         WRONG_EMAIL_FORMAT: {
-            mutation: 'inviteNewOrganizationEmployee',
+            mutation: 'reInviteNewOrganizationEmployee',
             code: BAD_USER_INPUT,
             type: WRONG_EMAIL_VALUE,
             message: 'Wrong email value',
@@ -301,12 +301,12 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                 const hasPhone = Boolean(phone)
                 const hasEmail = Boolean(email)
 
-                if (INVITE_REQUIRE_ALLOWED_FIELDS.includes(PHONE_TYPE) && !hasPhone) {
-                    throw new GQLError(ERRORS.inviteNewOrganizationEmployee.WRONG_PHONE_FORMAT, context)
+                if (INVITE_REQUIRED_FIELDS.includes(PHONE_TYPE) && !hasPhone) {
+                    throw new GQLError(ERRORS.reInviteOrganizationEmployee.WRONG_PHONE_FORMAT, context)
                 }
 
-                if (INVITE_REQUIRE_ALLOWED_FIELDS.includes(EMAIL_TYPE) && !hasEmail) {
-                    throw new GQLError(ERRORS.inviteNewOrganizationEmployee.WRONG_EMAIL_FORMAT, context)
+                if (INVITE_REQUIRED_FIELDS.includes(EMAIL_TYPE) && !hasEmail) {
+                    throw new GQLError(ERRORS.reInviteOrganizationEmployee.WRONG_EMAIL_FORMAT, context)
                 }
 
                 const employeeOrganization = await Organization.getOne(

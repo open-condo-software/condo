@@ -68,7 +68,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
                 email: {
                     name: 'only email required',
                     envValue: '["email"]',
-                    expectTransport: EMAIL_TRANSPORT,
+                    expectedTransport: EMAIL_TRANSPORT,
                     expectedMsgType: DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE,
                     expectEmployeeAttrs: (employee, employeeUserAttrs) => {
                         expect(employee.email).toBe(employeeUserAttrs.email)
@@ -89,7 +89,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
                 phone: {
                     name: 'only phone required (default)',
                     envValue: null,
-                    expectTransport: SMS_TRANSPORT,
+                    expectedTransport: SMS_TRANSPORT,
                     expectedMsgType: DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE,
                     expectEmployeeAttrs: (employee, employeeUserAttrs) => {
                         expect(employee.phone).toBe(employeeUserAttrs.phone)
@@ -137,7 +137,9 @@ describe('InviteNewOrganizationEmployeeService', () => {
             beforeAll(() => {
                 try {
                     const raw = conf['INVITE_REQUIRED_FIELDS']
-                    if (!raw) return scenario = CASES.phone
+                    if (!raw) {
+                        return scenario = CASES.phone
+                    }
 
                     const fields = JSON.parse(raw)
 
@@ -151,7 +153,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
 
                     return scenario = CASES.phone
                 } catch (error) {
-                    scenario = CASES.phone
+                    return scenario = CASES.phone
                 }
             })
 
