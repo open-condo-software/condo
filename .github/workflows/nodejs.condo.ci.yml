@@ -180,6 +180,7 @@ jobs:
               - 'packages/**'
             registry-importer:
               - 'apps/registry-importer/**'
+              - 'apps/rb'
               - 'packages/**'
             webhooks:
               - 'packages/webhooks/**'
@@ -769,7 +770,7 @@ jobs:
           docker run --network="host" --name condo-container -dit ${{ env.DOCKER_IMAGE_FULL }} sh
       - name: Prepare apps
         run: |
-          docker exec condo-container node bin/prepare.js -f condo registry-importer
+          docker exec condo-container node bin/prepare.js -f condo registry-importer rb
       - name: Check migrations state
         run: |
           docker exec condo-container yarn workspace @app/registry-importer makemigrations --check
@@ -782,8 +783,9 @@ jobs:
           -e GH_REF_NAME=$GH_REF_NAME \
           condo-container sh -c "(\
           yarn workspace @app/condo start & \
+          yarn workspace @app/rb start & \
           yarn workspace @app/registry-importer start & \
-          node bin/wait-apps-apis.js -f condo registry-importer) && \
+          node bin/wait-apps-apis.js -f condo registry-importer rb) && \
           yarn workspace @app/registry-importer test"
         env:
           PROMETHEUS_RW_SERVER_URL: ${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }}
