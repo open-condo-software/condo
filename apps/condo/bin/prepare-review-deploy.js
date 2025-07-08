@@ -62,7 +62,7 @@ function updateUrls (obj, { devDomain, reviewDomain }) {
  * Changes all urls in oidcClient.payload from devDomain to reviewDomain with prefix
  * @return {Promise<void>}
  */
-async function replaceOidcClients ({ devDomain, reviewDomain }) {
+async function migrateOidcClientUrlsToReview ({ devDomain, reviewDomain }) {
     if (!REVIEW_PREFIX) throw new Error('Don\'t have review prefix!')
 
     const context = await getContext()
@@ -97,7 +97,7 @@ async function main (args) {
 
     REVIEW_PREFIX = getReviewPrefix({ reviewDomain })
 
-    await replaceOidcClients({ devDomain, reviewDomain })
+    await migrateOidcClientUrlsToReview({ devDomain, reviewDomain })
 }
 
 main(process.argv.slice(2))
