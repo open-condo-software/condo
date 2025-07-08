@@ -21,6 +21,7 @@ Pick<AntdTextAreaProps, 'autoSize'> & {
     value?: string
     defaultValue?: string
     isSubmitDisabled?: boolean
+    onResize?: (size: { width: number, height: number }) => void
 }
 
 const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
