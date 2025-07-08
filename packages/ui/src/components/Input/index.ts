@@ -1,7 +1,7 @@
 import { Input as InputComponent } from './input'
 import { Password } from './password'
 import { Phone } from './phone'
-import { TextArea } from './textArea/textArea'
+import { TextArea } from './textArea'
 import './style.less'
 
 export type { BaseInputProps, InputProps } from './input'
