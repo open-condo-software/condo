@@ -797,6 +797,7 @@ __metadata:
     passport: ^0.7.0
     passport-github2: ^0.1.12
     passport-oauth2: ^1.8.0
+    passport-openidconnect: ^0.1.2
     pdf-lib: ^1.17.1
     pdfmake: ^0.2.10
     pg: ^8.11.3
@@ -37750,6 +37751,16 @@ __metadata:
     uid2: 0.0.x
     utils-merge: 1.x.x
   checksum: a9a80b968343c9c1906f74ef613b346ec2d6a6acfe17af81e673fd774779b436729252485755c3ce182f2cdba2434d75067418952d722404d65b93c0360ca02b
+  languageName: node
+  linkType: hard
+
+"passport-openidconnect@npm:^0.1.2":
+  version: 0.1.2
+  resolution: "passport-openidconnect@npm:0.1.2"
+  dependencies:
+    oauth: 0.10.x
+    passport-strategy: 1.x.x
+  checksum: b9d42b120c4e9abfb823026d6f762375dec086767a305bd5c0f615c5c20c1630dcc45a07a8a39fdbf19ebd13f4fc128cf1a5eacfcb035d726fd97ce301380418
   languageName: node
   linkType: hard
 
