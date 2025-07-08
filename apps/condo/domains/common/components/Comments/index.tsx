@@ -22,7 +22,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { Input, Radio, RadioGroup, Tooltip, Tour, Typography } from '@open-condo/ui'
 
 import { AIFlowButton } from '@condo/domains/ai/components/AIFlowButton'
-import { FLOW_TYPES, REWRITE_TICKET_COMMENT_TYPE, GENERATE_TICKET_COMMENT_TYPE } from '@condo/domains/ai/constants.js'
+import { FLOW_TYPES } from '@condo/domains/ai/constants.js'
 import { useAIConfig, useAIFlow } from '@condo/domains/ai/hooks/useAIFlow'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Loader } from '@condo/domains/common/components/Loader'
@@ -318,6 +318,7 @@ const Comments: React.FC<CommentsPropsType> = ({
     const [isInitialUserTicketCommentReadTimeSet, setIsInitialUserTicketCommentReadTimeSet] = useState<boolean>(false)
     const [errorMessage, setErrorMessage] = useState('')
     const [generateCommentAnswer, setGenerateCommentAnswer] = useState('')
+    const [rewriteTextAnswer, setRewriteTextAnswer] = useState('')
 
     const handleBodyScroll = useCallback((e) => {
         const scrollTop = e?.currentTarget?.scrollTop
@@ -499,18 +500,30 @@ const Comments: React.FC<CommentsPropsType> = ({
         },
     })
 
+    const [runRewriteTextAIFlow, {
+        loading: rewriteTextLoading,
+        data: rewriteTextData,
+    }] = useAIFlow<{ answer: string }>({
+        flowType: FLOW_TYPES.REWRITE_TEXT_FLOW_TYPE,
+    })
+
     useEffect(() => {
         setGenerateCommentAnswer(generateCommentData?.answer)
     }, [generateCommentData?.answer])
 
     useEffect(() => {
+        setRewriteTextAnswer(rewriteTextData?.answer)
+    }, [rewriteTextData?.answer])
+
+    useEffect(() => {
         if (!CommentFormOpen) {
             setGenerateCommentAnswer('')
+            setRewriteTextAnswer('')
             setErrorMessage('')
         }
     }, [CommentFormOpen])
 
-    const handleGenerateCommentClick = async (comments: Array<CommentWithFiles>, promptType: typeof REWRITE_TICKET_COMMENT_TYPE | typeof GENERATE_TICKET_COMMENT_TYPE) => {
+    const handleGenerateCommentClick = async (comments: Array<CommentWithFiles>) => {
         const lastComment = comments?.[0]
         // Last 5 comments excluding the lastComment one
         const last5Comments = comments?.slice(0, 5)
@@ -524,16 +537,37 @@ const Comments: React.FC<CommentsPropsType> = ({
             ticketLastComments: last5Comments?.map(comment => `${comment.user.name}: ${comment.content}`).join('\n'),
             currentDateTime,
             actualIncidents: last5Incidents,
-            promptType,
         })
 
-        analytics.track('generate_ticket_comment', {
-            ticketId: ticketId,
-            type: promptType,
+        analytics.track('click', {
+            value: ticketId,
+            location: window.location.href,
+            component: 'Button',
+            type: 'generate_ticket_comment',
         })
 
         setCommentFormOpen(true)
         const result = await runGenerateCommentAIFlow({ context })
+
+        if (result.error) {
+            setErrorMessage(result.localizedErrorText || GenericErrorMessage)
+            notification.error({ message: result.localizedErrorText || GenericErrorMessage })
+        }
+    }
+
+    const handleRewriteTextClick = async () => {
+        const context = {
+            userInput: commentForm.getFieldValue('content') || '',
+        }
+
+        analytics.track('click', {
+            value: ticketId,
+            location: window.location.href,
+            component: 'Button',
+            type: 'rewrite_text',
+        })
+
+        const result = await runRewriteTextAIFlow({ context })
 
         if (result.error) {
             setErrorMessage(result.localizedErrorText || GenericErrorMessage)
@@ -592,7 +626,7 @@ const Comments: React.FC<CommentsPropsType> = ({
                         bodyRef={bodyRef}
                         sending={sending}
                         generateCommentEnabled={generateCommentEnabled}
-                        generateCommentOnClickHandler={() => handleGenerateCommentClick(commentTabContentProps.comments, GENERATE_TICKET_COMMENT_TYPE )}
+                        generateCommentOnClickHandler={() => handleGenerateCommentClick(commentTabContentProps.comments)}
                         generateCommentLoading={generateCommentLoading}
                         showGenerateCommentWithoutComments={showGenerateCommentWithoutComments}
                     />
@@ -618,7 +652,10 @@ const Comments: React.FC<CommentsPropsType> = ({
                                     generateCommentLoading={generateCommentLoading}
                                     generateCommentAnswer={generateCommentAnswer}
                                     setGenerateCommentAnswer={setGenerateCommentAnswer}
-                                    generateCommentOnClickHandler={() => handleGenerateCommentClick(commentTabContentProps.comments, REWRITE_TICKET_COMMENT_TYPE)}
+                                    rewriteTextLoading={rewriteTextLoading}
+                                    rewriteTextAnswer={rewriteTextAnswer}
+                                    setRewriteTextAnswer={setRewriteTextAnswer}
+                                    rewriteTextOnClickHandler={handleRewriteTextClick}
                                 /> ) : (
                                 <div onClick={()=>setCommentFormOpen(true)}>
                                     <Input placeholder={PlaceholderMessage} value={editableComment?.content}/>
