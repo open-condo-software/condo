@@ -1,3 +1,5 @@
+const Ajv = require('ajv')
+const { omit, get } = require('lodash')
 const passport = require('passport')
 const { Strategy: GithubStrategy } = require('passport-github2')
 const { Strategy: OAuth2Strategy } = require('passport-oauth2')
@@ -11,6 +13,56 @@ const { User, UserExternalIdentity } = require('@condo/domains/user/utils/server
 const VALID_USER_TYPES = [RESIDENT, STAFF]
 const DV_AND_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'user-external-identity-middleware' } }
 
+const ajv = new Ajv()
+const oidcConfigSchema = {
+    type: 'array',
+    items: {
+        type: 'object',
+        properties: {
+            authorizationURL: { type: 'string' },
+            tokenURL: { type: 'string' },
+            userInfoURL: { type: 'string' },
+            clientID: { type: 'string' },
+            clientSecret: { type: 'string' },
+            callbackURL: { type: 'string' },
+            name: { type: 'string' },
+            isPhoneTrusted: { type: 'boolean' },
+            isEmailTrusted: { type: 'boolean' },
+        },
+        required: [
+            'authorizationURL',
+            'tokenURL',
+            'userInfoURL',
+            'clientID',
+            'clientSecret',
+            'callbackURL',
+            'name',
+            'isPhoneTrusted',
+            'isEmailTrusted',
+        ],
+    },
+}
+const githubConfigSchema = {
+    'type': 'array',
+    'items': {
+        'type': 'object',
+        'properties': {
+            'clientId': { 'type': 'string' },
+            'clientSecret': { 'type': 'string' },
+            'callbackUrl': { 'type': 'string' },
+            'name': { 'type': 'string' },
+            'isEmailTrusted': { 'type': 'boolean' },
+        },
+        'required': [
+            'clientId',
+            'clientSecret',
+            'callbackUrl',
+            'name',
+            'isEmailTrusted',
+        ],
+    },
+}
+
 function makeExternalAuth (app, keystone, oidcProvider) {
     if (!oidcProvider) {
         throw new Error('Missing OIDC provider')
@@ -18,40 +70,107 @@ function makeExternalAuth (app, keystone, oidcProvider) {
 
     app.use(passport.initialize())
 
-    const getOrCreateUser = async (userProfile, userType, identityType) => {
-        let user
+    const getOrCreateUser = async (userProfile, userType, identityType, config) => {
         const context = await keystone.createContext({ skipAccessControl: true })
+        const { isPhoneTrusted, isEmailTrusted } = config
+        const { phone, email } = userProfile
+        const userMeta = {
+            phone: get(userProfile, 'phone', null),
+            email: get(userProfile, 'email', null),
+            provider: identityType,
+        }
+        let user
+        let existingUser
+
         let userExternalIdentity = await UserExternalIdentity.getOne(context, {
             identityId: userProfile.id, userType, deletedAt: null,
         }, 'user { id }')
 
         if (!userExternalIdentity) {
-            const exisingUserSearch = { deletedAt: null, userType }
-            if (userProfile.phone) {
-                exisingUserSearch.phone = userProfile.phone
-            } else {
-                exisingUserSearch.email = userProfile.email
+            const existingUserSearch = {
+                deletedAt: null,
+                userType,
+                isAdmin: false,
+                isSupport: false,
             }
 
-            const existingUser = await User.getOne(context, exisingUserSearch)
-            if (existingUser) {
-                user = existingUser
+            if (phone) {
+                if (isPhoneTrusted) {
+                    existingUser = await User.getOne(context, {
+                        ...existingUserSearch, phone, isPhoneVerified: true,
+                    })
+
+                    if (existingUser) {
+                        user = existingUser
+                    } else {
+                        user = await User.create(context, {
+                            ...omit(existingUserSearch, 'deletedAt'),
+                            phone, isPhoneVerified: true, isEmailVerified: false,
+                            meta: userMeta,
+                            ...DV_AND_SENDER,
+                        })
+                    }
+                } else {
+                    existingUser = await User.getOne(context, {
+                        ...existingUserSearch,
+                        phone,
+                    })
+                    const userCreatePayload = {
+                        ...omit(existingUserSearch, 'deletedAt'),
+                        isPhoneVerified: false, isEmailVerified: false,
+                        meta: userMeta,
+                        ...DV_AND_SENDER,
+                    }
+
+                    if (!existingUser) {
+                        userCreatePayload.phone = phone
+                    }
+
+                    user = await User.create(context, userCreatePayload)
+                }
+
+            } else if (email) {
+                if (isEmailTrusted) {
+                    existingUser = await User.getOne(context, {
+                        ...existingUserSearch, email, isEmailVerified: true,
+                    })
+
+                    if (existingUser) {
+                        user = existingUser
+                    } else {
+                        user = await User.create(context, {
+                            ...omit(existingUserSearch, 'deletedAt'),
+                            email, isPhoneVerified: false, isEmailVerified: true,
+                            meta: userMeta,
+                            ...DV_AND_SENDER,
+                        })
+                    }
+                } else {
+                    existingUser = await User.getOne(context, {
+                        ...existingUserSearch,
+                        email,
+                    })
+                    const userCreatePayload = {
+                        ...omit(existingUserSearch, 'deletedAt'),
+                        isPhoneVerified: false, isEmailVerified: false,
+                        meta: userMeta,
+                        ...DV_AND_SENDER,
+                    }
+
+                    if (!existingUser) {
+                        userCreatePayload.email = email
+                    }
+
+                    user = await User.create(context, userCreatePayload)
+                }
             } else {
-                delete exisingUserSearch.deletedAt
-
-                const userCreateData = {
+                user = await User.create(context, {
+                    ...omit(existingUserSearch, 'deletedAt'),
                     isEmailVerified: false,
-                    isAdmin: false,
-                    isSupport: false,
+                    isPhoneVerified: false,
+                    meta: userMeta,
                     ...DV_AND_SENDER,
-                    ...existingUser,
-                }
-
-                if (userProfile.name) {
-                    userCreateData.name = userProfile.name
-                }
-
-                user = await User.create(context, userCreateData)
+                })
             }
 
             await UserExternalIdentity.create(context, {
@@ -59,6 +178,7 @@ function makeExternalAuth (app, keystone, oidcProvider) {
                 user: { connect: { id: user.id } },
                 identityType,
                 userType,
+                meta: userMeta,
                 ...DV_AND_SENDER,
             })
         } else {
@@ -128,6 +248,8 @@ function makeExternalAuth (app, keystone, oidcProvider) {
         }
     }
 
+    // TODO: maybe we don't need this option of auth flow at the MVP.
+    //  So maybe we cat drop this for a moment
     if (conf['PASSPORT_OAUTH']) {
         const oauthConfig = JSON.parse(conf['PASSPORT_OAUTH'])
 
@@ -170,9 +292,9 @@ function makeExternalAuth (app, keystone, oidcProvider) {
                 }
             ))
 
-            app.get(`/auth/oauth/${config.name}`, captureUserType, passport.authenticate(config.name, { session: false }))
+            app.get(`/api/${config.name}/auth`, captureUserType, passport.authenticate(config.name, { session: false }))
             app.get(
-                `/auth/oauth/${config.name}/callback`,
+                `/api/${config.name}/auth/callback`,
                 passport.authenticate(config.name, { session: false, failureRedirect: '/?error=oauth_fail' }),
                 onAuthSuccess(config.name)
             )
@@ -181,23 +303,29 @@ function makeExternalAuth (app, keystone, oidcProvider) {
 
     if (conf['PASSPORT_OIDC']) {
         const oidcConfig = JSON.parse(conf['PASSPORT_OIDC'])
+        const validateConfig = ajv.compile(oidcConfigSchema)
+        const configValid = validateConfig(oidcConfig)
+        if (!configValid) {
+            throw new Error(`OIDC config validation failed ${validateConfig.errors}`)
+        }
 
         oidcConfig.forEach(config => {
             const strategy = {
                 issuer: config.serverURL,
-                authorizationURL: `${config.serverURL}/oidc/auth`,
-                tokenURL: `${config.serverURL}/oidc/token`,
-                userInfoURL: `${config.serverURL}/oidc/me`,
+                authorizationURL: config.authorizationURL,
+                tokenURL: config.tokenURL,
+                userInfoURL: config.userInfoURL,
                 clientID: `${config.clientID}`,
-                clientSecret: `${config.clientSecret}`,
-                callbackURL: `${conf['SERVER_URL']}/auth/${config.name}/callback`,
+                clientSecret: config.clientSecret,
+                callbackURL: config.callbackURL,
                 scope: config.scope,
                 passReqToCallback: true,
             }
 
             passport.use(config.name, new OIDCStrategy(
                 strategy,
-                async (req, accessToken, refreshToken, profile, done) => {
+                async (req, issuer, uiProfile, idProfile, context, idToken, accessToken, refreshToken, params, done) => {
+                    const profile = uiProfile._json
                     const email = profile.emails && profile.emails.length > 0 ? profile.emails[0].value : null
                     if (!email) {
                         return done(new Error('OIDC email address required'))
@@ -216,9 +344,9 @@ function makeExternalAuth (app, keystone, oidcProvider) {
                 }
             ))
 
-            app.get(`/auth/openid/${config.name}`, captureUserType, passport.authenticate(config.name, { session: false }))
+            app.get(`/api/${config.name}/auth`, captureUserType, passport.authenticate(config.name, { session: false }))
             app.get(
-                `/auth/openid/${config.name}/callback`,
+                `/api/${config.name}/auth/callback`,
                 passport.authenticate(config.name, { session: false, failureRedirect: '/?error=openid_fail' }),
                 onAuthSuccess(config.name)
             )
@@ -227,6 +355,11 @@ function makeExternalAuth (app, keystone, oidcProvider) {
 
     if (conf['PASSPORT_GITHUB']) {
         const githubConfig = JSON.parse(conf['PASSPORT_GITHUB'])
+        const validateConfig = ajv.compile(githubConfigSchema)
+        const configValid = validateConfig(githubConfig)
+        if (!configValid) {
+            throw new Error(`Github config validation failed ${validateConfig.errors}`)
+        }
 
         passport.use(new GithubStrategy({
             clientID: githubConfig.clientId,
@@ -253,8 +386,8 @@ function makeExternalAuth (app, keystone, oidcProvider) {
             }
         }))
 
-        app.get('/auth/github', captureUserType, passport.authenticate('github', { scope: [ 'user:email' ], session: false }))
-        app.get('/auth/github/callback', passport.authenticate('github', { session: false, failureRedirect: '/?error=github_fail' }), onAuthSuccess('github'))
+        app.get('/api/github/auth', captureUserType, passport.authenticate('github', { scope: [ 'user:email' ], session: false }))
+        app.get('/api/github/auth/callback', passport.authenticate('github', { session: false, failureRedirect: '/?error=github_fail' }), onAuthSuccess('github'))
     }
 
     passport.serializeUser((user, done) => {
