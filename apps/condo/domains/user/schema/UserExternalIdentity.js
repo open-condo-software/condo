@@ -30,6 +30,7 @@ const UserExternalIdentity = new GQLListSchema('UserExternalIdentity', {
         identityType: {
             schemaDoc: 'The type of external identity that was a source for this link',
             type: 'Select',
+            // TODO: change to string and get validation from env
             options: IDP_TYPES,
             isRequired: true,
         },
