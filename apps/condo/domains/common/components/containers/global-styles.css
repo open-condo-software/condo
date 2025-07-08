@@ -190,7 +190,7 @@
 .appeals-button {
   min-width: 48px;
   padding: 11px;
-  border-color: var(--condo-global-color-white);
+  border-color: var(--condo-global-color-green-5);
   cursor: initial;
   transition: background 0.3s ease;
 }

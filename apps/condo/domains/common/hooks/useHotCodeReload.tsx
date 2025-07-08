@@ -4,8 +4,7 @@ import React, { useCallback, useEffect } from 'react'
 
 import { usePrevious } from '@open-condo/codegen/utils/usePrevious'
 import { useIntl } from '@open-condo/next/intl'
-
-import { Button } from '@condo/domains/common/components/Button'
+import { Button } from '@open-condo/ui'
 
 import { useCurrentBuild } from './useCurrentBuild'
 
@@ -30,7 +29,8 @@ export function useHotCodeReload (): void {
         if (buildId && previousBuildId && previousBuildId !== buildId) {
             const btn: React.ReactNode = (
                 <Button
-                    type='sberDefaultGradient'
+                    type='primary'
+                    size='medium'
                     onClick={handleNotificationClose}
                 >
                     {ButtonLabel}

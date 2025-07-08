@@ -7,10 +7,9 @@ import React, { useCallback, useMemo, useState } from 'react'
 import { PhoneInputProps } from 'react-phone-input-2'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Modal } from '@open-condo/ui'
+import { Modal, Button } from '@open-condo/ui'
 
 import Select from '@condo/domains/common/components/antd/Select'
-import { Button } from '@condo/domains/common/components/Button'
 import { GraphQlSearchInput, SearchComponentType } from '@condo/domains/common/components/GraphQlSearchInput'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
@@ -81,7 +80,7 @@ const NotFoundSearchByPhoneContent = ({ onSelect, phone, canManageContacts }) =>
             <Row gutter={NOT_FOUND_CONTENT_ROW_GUTTERS}>
                 <Col>
                     <Button
-                        type='sberDefaultGradient'
+                        type='primary'
                         onClick={handleCreateTicketButtonClick}
                     >
                         {CreateTicketMessage}
@@ -91,8 +90,7 @@ const NotFoundSearchByPhoneContent = ({ onSelect, phone, canManageContacts }) =>
                     canManageContacts && (
                         <Col>
                             <Button
-                                type='sberDefaultGradient'
-                                secondary
+                                type='secondary'
                                 onClick={handleCreateContactButtonClick}
                             >
                                 {CreateContactMessage}
@@ -108,16 +106,6 @@ const NotFoundSearchByPhoneContent = ({ onSelect, phone, canManageContacts }) =>
 const SELECT_STYLES = { width: '100%' }
 const PHONE_INPUT_MASK = { ru: '... ... .. ..' }
 const PHONE_INPUT_PROPS: PhoneInputProps['inputProps'] = { autoFocus: true }
-
-const StyledPhoneInput = styled(PhoneInput)`
-  & .ant-input {
-    padding-left: 12px;
-  }
-
-  & .flag-dropdown {
-    display: none;
-  }
-`
 
 const DROPDOWN_POPUP_CONTAINER_ID = 'searchByPhonePopupContainer'
 function getPopupContainer (): HTMLElement {
@@ -200,7 +188,7 @@ const SearchByPhoneSelect = ({
                 autoClearSearchValue
                 getPopupContainer={getPopupContainer}
             >
-                <StyledPhoneInput
+                <PhoneInput
                     inputProps={PHONE_INPUT_PROPS}
                     compatibilityWithAntAutoComplete
                     placeholder={EnterPhoneMessage}
