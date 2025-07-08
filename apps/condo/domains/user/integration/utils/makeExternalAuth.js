@@ -238,7 +238,7 @@ function makeExternalAuth (app, keystone, oidcProvider) {
         }, async (req, accessToken, refreshToken, profile, done) => {
             const email = profile.emails && profile.emails.length > 0 ? profile.emails[0].value : null
             if (!email) {
-                return done(new Error('OIDC email address required'))
+                return done(new Error('Github email address required'))
             }
             try {
                 const user = await getOrCreateUser(
