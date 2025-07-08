@@ -83140,7 +83140,7 @@ input InviteNewOrganizationEmployeeInput {
   sender: SenderFieldInput!
   organization: OrganizationWhereUniqueInput!
   email: String
-  phone: String!
+  phone: String
   name: String
   role: OrganizationEmployeeRoleWhereUniqueInput!
   position: String
@@ -83153,7 +83153,7 @@ input ReInviteOrganizationEmployeeInput {
   sender: SenderFieldInput!
   organization: OrganizationWhereUniqueInput!
   email: String
-  phone: String!
+  phone: String
 }
 
 input AcceptOrRejectOrganizationInviteInput {
@@ -94734,6 +94734,13 @@ type Mutation {
   }`
   
   `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_EMAIL_VALUE",
+    "message": "Wrong email value",
+    "messageForUser": "Invalid E-mail format"
+  }`
+  
+  `{
     "code": "INTERNAL_ERROR",
     "type": "UNABLE_TO_REGISTER_USER",
     "message": "Unable to register user",
@@ -94762,6 +94769,13 @@ type Mutation {
     "type": "WRONG_FORMAT",
     "message": "Wrong phone format",
     "messageForUser": "Wrong phone number format"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_EMAIL_VALUE",
+    "message": "Wrong email value",
+    "messageForUser": "Invalid E-mail format"
   }`
   
   `{
