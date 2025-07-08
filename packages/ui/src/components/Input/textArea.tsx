@@ -4,11 +4,10 @@ import classNames from 'classnames'
 import React, { forwardRef, useState, useEffect, TextareaHTMLAttributes } from 'react'
 
 import { ArrowRight } from '@open-condo/icons'
-import { Button } from '@open-condo/ui/src/components/Button'
+
+import { Button } from '../Button'
 
 import type { InputRef } from 'antd'
-
-import './textArea.less'
 
 const { TextArea: DefaultTextArea } = DefaultInput
 
@@ -22,7 +21,6 @@ Pick<AntdTextAreaProps, 'autoSize'> & {
     value?: string
     defaultValue?: string
     isSubmitDisabled?: boolean
-    onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
 }
 
 const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
