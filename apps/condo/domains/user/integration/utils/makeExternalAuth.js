@@ -1,6 +1,7 @@
 const passport = require('passport')
 const { Strategy: GithubStrategy } = require('passport-github2')
 const { Strategy: OAuth2Strategy } = require('passport-oauth2')
+const { Strategy: OIDCStrategy } = require('passport-openidconnect')
 
 const conf = require('@open-condo/config')
 
@@ -148,6 +149,7 @@ function makeExternalAuth (app, keystone, oidcProvider) {
                             headers: {
                                 'Authorization': `Bearer ${accessToken}`,
                             },
+                            method: 'GET',
                         })
 
                         const userProfile = await profileResponse.json()
@@ -162,7 +164,7 @@ function makeExternalAuth (app, keystone, oidcProvider) {
                         const user = await getOrCreateUser(userProfile, userType, config.name)
 
                         return done(null, user)
-                    } catch (e) {
+                    } catch (error) {
                         done(new Error('Failed to fetch user profile'))
                     }
                 }
@@ -175,8 +177,44 @@ function makeExternalAuth (app, keystone, oidcProvider) {
                 onAuthSuccess(config.name)
             )
         })
+    }
 
+    if (conf['PASSPORT_OIDC']) {
+        const oidcConfig = JSON.parse(conf['PASSPORT_OIDC'])
 
+        oidcConfig.forEach(config => {
+            const strategy = {
+                issuer: config.serverURL,
+                authorizationURL: `${config.serverURL}/oidc/auth`,
+                tokenURL: `${config.serverURL}/oidc/token`,
+                userInfoURL: `${config.serverURL}/oidc/me`,
+                clientID: `${config.clientID}`,
+                clientSecret: `${config.clientSecret}`,
+                callbackURL: `${conf['SERVER_URL']}/auth/${config.name}/callback`,
+                scope: config.scope,
+                passReqToCallback: true,
+            }
+
+            passport.use(config.name, new OIDCStrategy(
+                strategy,
+                async (req, accessToken, refreshToken, profile, done) => {
+                    try {
+                        const user = await getOrCreateUser(profile, req.userType, config.name)
+
+                        return done(null, user)
+                    } catch (error) {
+                        done(error)
+                    }
+                }
+            ))
+
+            app.get(`/auth/openid/${config.name}`, captureUserType, passport.authenticate(config.name, { session: false }))
+            app.get(
+                `/auth/openid/${config.name}/callback`,
+                passport.authenticate(config.name, { session: false, failureRedirect: '/?error=openid_fail' }),
+                onAuthSuccess(config.name)
+            )
+        })
     }
 
     if (conf['PASSPORT_GITHUB']) {
