@@ -16,8 +16,13 @@ import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Card, Space, Typography, TypographyTitleProps } from '@open-condo/ui'
-import { Tooltip } from '@open-condo/ui'
+import {
+    Card,
+    Space,
+    Typography,
+    TypographyTitleProps,
+    Tooltip
+} from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
