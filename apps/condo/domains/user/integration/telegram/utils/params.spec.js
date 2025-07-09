@@ -19,16 +19,17 @@ describe('Telegram integration params utils', () => {
 
         expect(getRedirectUrl(getReqWithParam('redirectUrl', redirectUrl))).toEqual(redirectUrl)
         expect(getRedirectUrl({ ...getReqWithParam('', ''), query: { redirectUrl } })).toEqual(redirectUrl)
-        expect(getRedirectUrl(getReqWithParam('redirectUrl', notSafeUrl))).toEqual('')
-        expect(getRedirectUrl(getReqWithParam('redirectUrl', ''))).toEqual('')
-        expect(getRedirectUrl(getReqWithParam('redirectUrl', null))).toEqual('')
-        expect(getRedirectUrl(getReqWithParam('', ''))).toEqual('')
+        expect(getRedirectUrl(getReqWithParam('redirectUrl', notSafeUrl))).toEqual(null)
+        expect(getRedirectUrl(getReqWithParam('redirectUrl', ''))).toEqual(null)
+        expect(getRedirectUrl(getReqWithParam('redirectUrl', null))).toEqual(null)
+        expect(getRedirectUrl(getReqWithParam('', ''))).toEqual(null)
+        expect(getRedirectUrl(getReqWithParam('redirectUrl', encodeURIComponent(redirectUrl)))).toEqual(redirectUrl)
     })
 
     it('getUserType', async () => {
-        expect(getUserType(getReqWithParam('', ''))).toEqual('')
+        expect(getUserType(getReqWithParam('', ''))).toEqual(null)
         expect(getUserType(getReqWithParam('userType', STAFF))).toEqual(STAFF)
         expect(getUserType({ ...getReqWithParam('', ''), query: { userType: STAFF } })).toEqual(STAFF)
-        expect(getUserType(getReqWithParam('userType', 'wrongType'))).toEqual('')
+        expect(getUserType(getReqWithParam('userType', 'wrongType'))).toEqual(null)
     })
 })
