@@ -7,11 +7,11 @@ import debounce from 'lodash/debounce'
 import get from 'lodash/get'
 import getConfig from 'next/config'
 import { useRouter } from 'next/router'
-import React, { useRef, useEffect, useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Button } from '@open-condo/ui'
 
-import { Button } from '@condo/domains/common/components/Button'
 import { CardVideo } from '@condo/domains/common/components/CardVideo'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { fontSizes, colors, gradients, UNIT_TYPE_COLOR_SET } from '@condo/domains/common/constants/style'
@@ -86,10 +86,6 @@ const DESCRIPTION_STYLE: React.CSSProperties = {
     whiteSpace: 'pre-line',
 }
 
-const EMPTY_BUILDING_BLOCK_BUTTON_STYLE = {
-    marginTop: '20px',
-}
-
 const CARD_VIDEO_CONTAINER_STYLE = { display: 'flex', alignItems: 'center', justifyContent: 'center' }
 const CARD_VIDEO_WRAPPER_STYLE = { maxHeight: '390px', maxWidth: '500px' }
 
@@ -111,7 +107,7 @@ export const EmptyBuildingBlock: React.FC<IEmptyBuildingBlock> = ({ mode = 'view
     const { push, asPath, query: { id: propertyId } } = useRouter()
     const createMapCallback = useCallback(() => {
         push(asPath + '/map/update')
-    }, [asPath])
+    }, [asPath, push])
 
     const { features: { PropertyMapGeneration: generatorAppOrigin }, requestFeature } = useGlobalAppsFeaturesContext()
 
@@ -127,6 +123,7 @@ export const EmptyBuildingBlock: React.FC<IEmptyBuildingBlock> = ({ mode = 'view
         intl,
         mode,
         generatorAppOrigin,
+        MapEditEmptyBuildingDescription,
     ])
 
     const debouncedGenerateRequest = useMemo(() => {
@@ -163,32 +160,35 @@ export const EmptyBuildingBlock: React.FC<IEmptyBuildingBlock> = ({ mode = 'view
 
     return (
         <BasicEmptyListView image='/propertyEmpty.svg'>
-            <Typography.Title level={3} style={EMPTY_BUILDING_BLOCK_BUTTON_STYLE}>
-                {EmptyPropertyBuildingHeader}
-            </Typography.Title>
-            <Typography.Text style={DESCRIPTION_STYLE}>
-                {EmptyPropertyBuildingDescription}
-            </Typography.Text>
-            {canManageProperties && (
-                <>
-                    {mode === 'view' && generatorAppOrigin && (
-                        <Button
-                            type='sberDefaultGradient'
-                            style={EMPTY_BUILDING_BLOCK_BUTTON_STYLE}
-                            onClick={sendGenerateMapRequest}
-                        >{MapAutoCreateTitle}</Button>
-                    )}
-                    {mode === 'view' && (
-                        <Button
-                            type='sberDefaultGradient'
-                            style={EMPTY_BUILDING_BLOCK_BUTTON_STYLE}
-                            secondary
-                            onClick={createMapCallback}
-                        >{MapManualCreateTitle}</Button>
+            <Row gutter={[0, 20]}>
+                <Col xs={24}>
+                    <Typography.Title level={3}>
+                        {EmptyPropertyBuildingHeader}
+                    </Typography.Title>
+                    <Typography.Text style={DESCRIPTION_STYLE}>
+                        {EmptyPropertyBuildingDescription}
+                    </Typography.Text>
+                </Col>
+                <Col xs={24} span={20}>
+                    {canManageProperties && (
+                        <>
+                            {mode === 'view' && generatorAppOrigin && (
+                                <Button
+                                    type='secondary'
+                                    onClick={sendGenerateMapRequest}
+                                >{MapAutoCreateTitle}</Button>
+                            )}
+                            {mode === 'view' && (
+                                <Button
+                                    type='secondary'
+                                    onClick={createMapCallback}
+                                >{MapManualCreateTitle}</Button>
 
+                            )}
+                        </>
                     )}
-                </>
-            )}
+                </Col>
+            </Row>
         </BasicEmptyListView>
     )
 }
@@ -229,9 +229,6 @@ interface IBuildingChooseSectionsProps {
     mode?: 'view' | 'edit'
 }
 
-const FULLSCREEN_BUTTON_STYLE: React.CSSProperties = {
-    position: 'relative',
-}
 const FULLSCREEN_FOOTER_GUTTER: RowProps['gutter'] = [40, 40]
 
 export const BuildingChooseSections: React.FC<IBuildingChooseSectionsProps> = (props) => {
@@ -255,11 +252,8 @@ export const BuildingChooseSections: React.FC<IBuildingChooseSectionsProps> = (p
             <Col>
                 {mode === 'view' ? (
                     <Button
-                        style={FULLSCREEN_BUTTON_STYLE}
-                        type='sberDefaultGradient'
-                        secondary
+                        type='secondary'
                         icon={isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
-                        size='large'
                         onClick={toggleFullscreen}
                     >
                         {isFullscreen

@@ -4,8 +4,8 @@ import React, { useEffect } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { Button } from '@open-condo/ui'
 
-import { Button } from '@condo/domains/common/components/Button'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 import { Property } from '@condo/domains/property/utils/clientSchema'
@@ -17,9 +17,6 @@ interface IUpdatePropertyForm {
     id: string
 }
 
-const FORM_SUBMIT_BUTTON_STYLES = {
-    marginTop: '60px',
-}
 const FORM_DEPENDENCIES = ['address']
 
 export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
@@ -73,10 +70,9 @@ export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
                                         <Button
                                             key='submit'
                                             onClick={handleSave}
-                                            type='sberDefaultGradient'
+                                            type='primary'
                                             loading={isLoading}
                                             disabled={!address}
-                                            style={FORM_SUBMIT_BUTTON_STYLES}
                                         >
                                             {ApplyChangesLabel}
                                         </Button>

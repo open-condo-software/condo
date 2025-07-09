@@ -30,11 +30,18 @@ import { Search, Phone } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Typography, Button, RadioGroup, Radio, Space } from '@open-condo/ui'
+import {
+    ActionBar,
+    Typography,
+    Button,
+    RadioGroup,
+    Radio,
+    Space,
+    Checkbox,
+} from '@open-condo/ui'
 // TODO(DOMA-4844): Replace with @open-condo/ui/colors
 import { colors } from '@open-condo/ui/colors'
 
-import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input from '@condo/domains/common/components/antd/Input'
 import { PageHeader, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
@@ -48,7 +55,6 @@ import { useWindowTitleContext, WindowTitleContextProvider } from '@condo/domain
 import { EMOJI } from '@condo/domains/common/constants/emoji'
 import { EXCEL } from '@condo/domains/common/constants/export'
 import { TICKET_IMPORT } from '@condo/domains/common/constants/featureflags'
-import { fontSizes } from '@condo/domains/common/constants/style'
 import { useAudio } from '@condo/domains/common/hooks/useAudio'
 import { useCheckboxSearch } from '@condo/domains/common/hooks/useCheckboxSearch'
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
@@ -93,7 +99,6 @@ type TicketType = 'all' | 'own' | 'favorite'
 const LARGE_VERTICAL_ROW_GUTTER: RowProps['gutter'] = [0, 40]
 const MEDIUM_VERTICAL_ROW_GUTTER: RowProps['gutter'] = [0, 24]
 const HEADER_STYLES: CSSProperties = { padding: 0 }
-const CHECKBOX_STYLE: CSSProperties = { paddingLeft: '0px', fontSize: fontSizes.label }
 const DEBOUNCE_TIMEOUT = 400
 
 const StyledTable = styled(Table)`
@@ -662,7 +667,6 @@ const FiltersContainer = ({ filterMetas }) => {
                                         <Checkbox
                                             onChange={handleAttributeCheckboxChange('isRegular')}
                                             checked={regular}
-                                            style={CHECKBOX_STYLE}
                                             id='ticket-filter-regular'
                                             data-cy='ticket__filter-isRegular'
                                         >
@@ -673,7 +677,6 @@ const FiltersContainer = ({ filterMetas }) => {
                                         <Checkbox
                                             onChange={handleAttributeCheckboxChange('isEmergency')}
                                             checked={emergency}
-                                            style={CHECKBOX_STYLE}
                                             id='ticket-filter-emergency'
                                             data-cy='ticket__filter-isEmergency'
                                         >
@@ -684,7 +687,6 @@ const FiltersContainer = ({ filterMetas }) => {
                                         <Checkbox
                                             onChange={handleAttributeCheckboxChange('isPayable')}
                                             checked={payable}
-                                            style={CHECKBOX_STYLE}
                                             id='ticket-filter-payable'
                                             data-cy='ticket__filter-isPayable'
                                         >
@@ -695,7 +697,6 @@ const FiltersContainer = ({ filterMetas }) => {
                                         <Checkbox
                                             onChange={handleAttributeCheckboxChange('isWarranty')}
                                             checked={warranty}
-                                            style={CHECKBOX_STYLE}
                                             id='ticket-filter-warranty'
                                             data-cy='ticket__filter-isWarranty'
                                         >
@@ -706,7 +707,6 @@ const FiltersContainer = ({ filterMetas }) => {
                                         <Checkbox
                                             onChange={handleAttributeCheckboxChange('statusReopenedCounter')}
                                             checked={returned}
-                                            style={CHECKBOX_STYLE}
                                             id='ticket-filter-returned'
                                             data-cy='ticket__filter-isReturned'
                                         >
@@ -717,7 +717,6 @@ const FiltersContainer = ({ filterMetas }) => {
                                         <Checkbox
                                             onChange={(event) => handleChangeIsCompletedAfterDeadline(event?.target?.checked || false)}
                                             checked={isCompletedAfterDeadline}
-                                            style={CHECKBOX_STYLE}
                                             id='ticket-filter-completed-after-deadline'
                                             data-cy='ticket__filter-isCompletedAfterDeadline'
                                             children={ExpiredLabel}

@@ -54,9 +54,6 @@ export const FullscreenHeader = styled.div<{
 `
 
 export const FullscreenFooter = css`
-    margin: 0 -21px -13px -24px;
-    padding: 20px 0 12px 0;
-
     div.fullscreen & {
         left: 0;
         right: 0;

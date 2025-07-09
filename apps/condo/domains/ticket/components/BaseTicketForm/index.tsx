@@ -27,11 +27,16 @@ import { PlusCircle, QuestionCircle } from '@open-condo/icons'
 import { useApolloClient } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Typography, Alert, Space, Tooltip } from '@open-condo/ui'
+import {
+    Typography,
+    Alert,
+    Space,
+    Tooltip,
+    Checkbox,
+} from '@open-condo/ui'
 
 import { CONTEXT_FINISHED_STATUS } from '@condo/domains/acquiring/constants/context'
 import { AcquiringIntegrationContext } from '@condo/domains/acquiring/utils/clientSchema'
-import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input from '@condo/domains/common/components/antd/Input'
 import Select from '@condo/domains/common/components/antd/Select'
 import { FormWithAction, OnCompletedMsgType } from '@condo/domains/common/components/containers/FormList'
@@ -801,6 +806,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
 
         // NOTE: update queries, related to objects, which may be created in ticket form
         client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allTickets' })
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: '_allTicketsMeta' })
         client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allTicketChanges' })
         client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allTicketFiles' })
         client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allContacts' })

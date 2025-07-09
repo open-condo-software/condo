@@ -56,7 +56,7 @@ export const StyledPageWrapper = styled(Layout.Content)<IPageWrapper>`
 `
 
 export const PAGE_HEADER_CSS = css`
-  padding: 0 0 40px;
+  padding: 0 0 40px !important;
   background: ${colors.white};
 
   .ant-page-header-heading {
