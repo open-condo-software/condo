@@ -24,6 +24,7 @@ import { Meter, MeterTypes, METER_TAB_TYPES, METER_TYPES, PropertyMeter } from '
 import { getMeterTitleMessage } from '@condo/domains/meter/utils/helpers'
 import { TicketPropertyField } from '@condo/domains/ticket/components/TicketId/TicketPropertyField'
 
+import style from '@condo/domains/meter/components/Meters/MeterPageContent.module.css'
 
 const METER_STATUSES = { active: 'active', archived: 'archived' }
 
@@ -126,8 +127,9 @@ export const MeterHeader = ({ meter, meterReportingPeriod, refetchMeter, meterTy
         <>
             <Col span={24}>
                 <PageHeader
+                    className={style['page-header']}
                     title={<Typography.Title level={1}>{MeterTitleMessage}</Typography.Title>}
-                    extra={meterStatusTag} style={{ paddingBottom: 20 }}
+                    extra={meterStatusTag}
                 />
             </Col>
             <Row gutter={[30, 0]}>
@@ -142,7 +144,7 @@ export const MeterHeader = ({ meter, meterReportingPeriod, refetchMeter, meterTy
                             </Typography.Text>
                         </Col>
                     )}
-                    {!archiveDate && dayjs(nextVerificationDate).diff(dayjs(), 'month') <= 3 && (
+                    {!archiveDate && nextVerificationDate && dayjs(nextVerificationDate).diff(dayjs(), 'month') <= 3 && (
                         <Col span={24}>
                             <Typography.Text type='secondary' size='small'>
                                 {VerificationDateTipMessage} &mdash;&nbsp;

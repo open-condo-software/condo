@@ -117,8 +117,8 @@ export const BaseMetersFormFields: React.FC<BaseMetersFormFieldsProps> = ({
     const [verificationDate, setVerificationDate] = useState<Dayjs>(initialVerificationDate)
 
     const initialMeterNumber = get(initialValues, ['number'], null)
-    const unitName = Form.useWatch('unitName', form) || null
-    const unitType = Form.useWatch('unitType', form) || null
+    const unitName = Form.useWatch('unitName', form) || get(initialValues, 'unitName')
+    const unitType = Form.useWatch('unitType', form) || get(initialValues, 'unitType')
 
     const { requiredValidator, trimValidator, maxLengthValidator } = useValidations()
     const {

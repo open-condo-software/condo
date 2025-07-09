@@ -275,7 +275,7 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
     return (
         <Col span={24} md={20} xl={18} xxl={16}>
             <Row gutter={UNIT_FIELDS_GUTTER}>
-                <Form.Item name='unitType' hidden />
+                <Form.Item name='unitType' initialValue={get(initialValues, 'unitType')} hidden />
                 <Col span={inputColSpan} data-cy='unit-name-input-item'>
                     <TicketFormItem
                         name='unitName'
