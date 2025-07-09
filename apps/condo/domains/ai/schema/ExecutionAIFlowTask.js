@@ -201,6 +201,39 @@ const ExecutionAIFlowTask = new GQLListSchema('ExecutionAIFlowTask', {
             },
         },
 
+        organization: {
+            schemaDoc: 'Specific organization that requested this operation.',
+            type: 'Relationship',
+            ref: 'Organization',
+            isRequired: false,
+            access: {
+                create: true,
+                read: true,
+                update: false,
+            },
+        },
+
+        relatedObjectName: {
+            schemaDoc: 'Name of the object that this execution relates to',
+            type: 'String',
+            isRequired: false,
+            access: {
+                create: true,
+                read: true,
+                update: false,
+            },
+        },
+
+        relatedObjectId: {
+            schemaDoc: 'Id of the object, that this execution relates to.',
+            type: 'String',
+            isRequired: false,
+            access: {
+                create: true,
+                read: true,
+                update: false,
+            },
+        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
