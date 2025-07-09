@@ -21,6 +21,7 @@ import { Col, Form, FormInstance, notification, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { ArgsProps } from 'antd/lib/notification'
 import dayjs, { Dayjs } from 'dayjs'
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter'
 import chunk from 'lodash/chunk'
 import difference from 'lodash/difference'
 import flattenDeep from 'lodash/flattenDeep'
@@ -33,7 +34,7 @@ import isNull from 'lodash/isNull'
 import keyBy from 'lodash/keyBy'
 import uniq from 'lodash/uniq'
 import { useRouter } from 'next/router'
-import React, { ComponentProps, useCallback, useEffect, useMemo, useState, useRef } from 'react'
+import React, { ComponentProps, useCallback, useMemo, useState } from 'react'
 import { Options as ScrollOptions } from 'scroll-into-view-if-needed'
 
 import { IGenerateHooksResult } from '@open-condo/codegen/generate.hooks'
@@ -64,7 +65,7 @@ import { InputStep, SharingAppValuesType } from './InputStep'
 
 import type { FormRule as Rule } from 'antd'
 
-
+dayjs.extend(isSameOrAfter)
 type FormWithActionChildrenProps = ComponentProps<ComponentProps<typeof FormWithAction>['children']>
 
 type ActionBarProps = Pick<FormWithActionChildrenProps, 'handleSave' | 'isLoading' | 'form'>

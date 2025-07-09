@@ -8,21 +8,22 @@ import { Col, Form, Row } from 'antd'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
-import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar } from '@open-condo/ui'
+import {
+    ActionBar,
+    Checkbox,
+} from '@open-condo/ui'
 
-import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input from '@condo/domains/common/components/antd/Input'
 import { ButtonWithDisabledTooltip } from '@condo/domains/common/components/ButtonWithDisabledTooltip'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
-import { fontSizes } from '@condo/domains/common/constants/style'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { getObjectValueFromQuery } from '@condo/domains/common/utils/query'
 import { ContactRoleSelect } from '@condo/domains/contact/components/contactRoles/ContactRoleSelect'
@@ -49,8 +50,6 @@ const INPUT_LAYOUT_PROPS = {
 }
 const ADDRESS_SEARCH_WRAPPER_COL = { span: 14 }
 
-
-const CHECKBOX_STYLE: CSSProperties = { paddingLeft: '0px', fontSize: fontSizes.content }
 
 export const CreateContactForm: React.FC = () => {
     const intl = useIntl()
@@ -331,7 +330,6 @@ export const CreateContactForm: React.FC = () => {
                                             valuePropName='checked'
                                         >
                                             <Checkbox
-                                                style={CHECKBOX_STYLE}
                                                 id='contact-is-verified'
                                             />
                                         </Form.Item>
