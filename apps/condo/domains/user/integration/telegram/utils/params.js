@@ -8,7 +8,7 @@ function getRedirectUrl (req) {
     // get and validate redirect url
     const redirectUrl = get(req, 'query.redirectUrl')
     if (!redirectUrl || !isSafeUrl(redirectUrl)) return null
-    return redirectUrl
+    return decodeURIComponent(redirectUrl)
 }
 
 function getUserType (req) {
