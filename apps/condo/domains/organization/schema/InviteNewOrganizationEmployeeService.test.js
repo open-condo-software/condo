@@ -57,6 +57,145 @@ describe('InviteNewOrganizationEmployeeService', () => {
     })
 
     describe('inviteNewOrganizationEmployee', () => {
+        describe('invite required fields', () => {
+            /**
+             * These tests depend on the .env variable INVITE_REQUIRED_FIELDS.
+             * To check all cases, set the values one at a time: ["email"] / ["phone"] / ["email", "phone"].
+             * In ci, it will work out the default ["phone"]
+             */
+            let scenario // phone / email / both
+            const CASES = {
+                email: {
+                    name: 'only email required',
+                    envValue: '["email"]',
+                    expectedTransport: EMAIL_TRANSPORT,
+                    expectedMsgType: DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE,
+                    expectEmployeeAttrs: (employee, employeeUserAttrs) => {
+                        expect(employee.email).toBe(employeeUserAttrs.email)
+                        expect(employee.phone).toBeNull()
+                    },
+                    userAttrs: () => ({ name: faker.name.fullName(), email: createTestEmail() }),
+                    error: {
+                        message: 'Wrong email value',
+                        path: ['obj'],
+                        extensions: {
+                            mutation: 'inviteNewOrganizationEmployee',
+                            code: 'BAD_USER_INPUT',
+                            type: 'WRONG_EMAIL_VALUE',
+                            message: 'Wrong email value',
+                        },
+                    },
+                },
+                phone: {
+                    name: 'only phone required (default)',
+                    envValue: null,
+                    expectedTransport: SMS_TRANSPORT,
+                    expectedMsgType: DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE,
+                    expectEmployeeAttrs: (employee, employeeUserAttrs) => {
+                        expect(employee.phone).toBe(employeeUserAttrs.phone)
+                        expect(employee.email).toBeNull()
+                    },
+                    userAttrs: () => ({ name: faker.name.fullName(), phone: createTestPhone() }),
+                    error: {
+                        message: 'Wrong phone format',
+                        path: ['obj'],
+                        extensions: {
+                            mutation: 'inviteNewOrganizationEmployee',
+                            code: 'BAD_USER_INPUT',
+                            type: 'WRONG_PHONE_FORMAT',
+                            message: 'Wrong phone format',
+                        },
+                    },
+                },
+                both: {
+                    name: 'both required',
+                    envValue: '["email","phone"]',
+                    expectedTransport: EMAIL_TRANSPORT,
+                    expectedMsgType: DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE,
+                    expectEmployeeAttrs: (employee, employeeUserAttrs) => {
+                        expect(employee.email).toBe(employeeUserAttrs.email)
+                        expect(employee.phone).toBe(employeeUserAttrs.phone)
+                    },
+                    userAttrs: () => ({
+                        name: faker.name.fullName(),
+                        email: createTestEmail(),
+                        phone: createTestPhone(),
+                    }),
+                    error: {
+                        message: 'Wrong phone format',
+                        path: ['obj'],
+                        extensions: {
+                            mutation: 'inviteNewOrganizationEmployee',
+                            code: 'BAD_USER_INPUT',
+                            type: 'WRONG_PHONE_FORMAT',
+                            message: 'Wrong phone format',
+                        },
+                    },
+                },
+            }
+
+            beforeAll(() => {
+                try {
+                    const raw = conf['INVITE_REQUIRED_FIELDS']
+                    if (!raw) {
+                        return scenario = CASES.phone
+                    }
+
+                    const fields = JSON.parse(raw)
+
+                    if (fields.length === 2) {
+                        return scenario = CASES.both
+                    }
+
+                    if (fields.length === 1 && fields[0] === 'email') {
+                        return scenario = CASES.email
+                    }
+
+                    return scenario = CASES.phone
+                } catch (error) {
+                    return scenario = CASES.phone
+                }
+            })
+
+            it('invites employee by specific transport depending on INVITE_REQUIRED_FIELDS', async () => {
+                const client = await makeClientWithRegisteredOrganization()
+                const [role] = await createTestOrganizationEmployeeRole(client, client.organization)
+
+                const employeeUserAttrs = scenario.userAttrs()
+
+                const [employee] = await inviteNewOrganizationEmployee(
+                    client, client.organization, employeeUserAttrs, role,
+                )
+
+                scenario.expectEmployeeAttrs(employee, employeeUserAttrs)
+
+                await waitFor(async () => {
+                    const message = await Message.getOne(admin, {
+                        user: { id: employee.user.id },
+                        type: scenario.expectedMsgType,
+                    })
+
+                    expect(message.status).toBe(MESSAGE_SENT_STATUS)
+                    expect(message.processingMeta.transportsMeta[0].transport).toBe(scenario.expectedTransport)
+                })
+            })
+
+            it('throws error with  wrong format type if required values are not passed', async () => {
+                const client = await makeClientWithRegisteredOrganization()
+                const [role] = await createTestOrganizationEmployeeRole(client, client.organization)
+
+                let employeeUserAttrs = { name: faker.name.fullName() }
+
+                await catchErrorFrom(async () => {
+                    await inviteNewOrganizationEmployee(
+                        client, client.organization, employeeUserAttrs, role,
+                    )
+                }, ({ errors }) => {
+                    expect(errors).toMatchObject([scenario.error])
+                })
+            })
+        })
+
         describe('called by organization owner', () => {
             describe('for not registered User', () => {
                 it('returns new employee with specified contacts and specializations', async () => {
