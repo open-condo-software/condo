@@ -16,7 +16,6 @@ const CONFIG_REQUIRED_FIELDS = [
     'botToken',
     'allowedUserType',
     'allowedRedirectUrls',
-    'oidcClientId',
 ]
 const TG_WEB_APP_DATA_SECRET_PREFIX = 'WebAppData'
 
@@ -95,8 +94,12 @@ const userDataValidator = ajv.compile({
 function validateTgAuthData (data, botToken, secondsSinceAuth = ALLOWED_TIME_SINCE_AUTH_IN_SECONDS) {
     // 1. Check that data contains all and only allowed fields
     const isValid = loginDataValidator(data)
+    console.error('TG DATA VALIDATION', isValid, data)
     if (!isValid) {
-        throw new TelegramOauthError(ERRORS.VALIDATION_AUTH_DATA_KEYS_MISMATCH)
+        throw new TelegramOauthError({
+            ...ERRORS.VALIDATION_AUTH_DATA_KEYS_MISMATCH,
+            validation: loginDataValidator.errors,
+        })
     }
 
     const isMiniAppInitData = miniAppInitParamsValidator(data)
@@ -111,10 +114,9 @@ function validateTgAuthData (data, botToken, secondsSinceAuth = ALLOWED_TIME_SIN
     }
 
     // 2. Check that data is not outdated
-    // TOTO: return
-    // if ((Math.floor(Date.now() / 1000) - parseInt(data.auth_date)) > secondsSinceAuth) {
-    //     return ERRORS.VALIDATION_AUTH_DATA_EXPIRED
-    // }
+    if ((Math.floor(Date.now() / 1000) - parseInt(data.auth_date)) > secondsSinceAuth) {
+        throw new TelegramOauthError(ERRORS.VALIDATION_AUTH_DATA_EXPIRED)
+    }
 
     // 3. Build secret key using bot token
     // No point in hiding 'sha256' and TG_WEB_APP_DATA_SECRET_PREFIX, as telegram has this information publicly available
@@ -176,20 +178,17 @@ function validateState (req) {
 }
 
 function validateRedirectUrl (allowedUrls, requestUrl) {
-    console.error('REQUEST URL', requestUrl)
     let url
     if (!requestUrl || !allowedUrls || allowedUrls.length === 0) {
         return false
     }
     try {
-        url = new URL(decodeURIComponent(requestUrl))
+        url = new URL(decodeURIComponent(decodeURIComponent(requestUrl)))
     } catch {
         return false
     }
     const urlForCheck = `${url.origin}${url.pathname === '/' ? '' : url.pathname}`
-    console.error('URL FOR CHECK', urlForCheck, allowedUrls)
     for (const allowedUrl of allowedUrls) {
-        console.error(urlForCheck, allowedUrl, urlForCheck === allowedUrl)
         if (allowedUrl === urlForCheck) {
             return true
         }
