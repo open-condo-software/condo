@@ -43,24 +43,22 @@ const oidcConfigSchema = {
     },
 }
 const githubConfigSchema = {
-    'type': 'array',
-    'items': {
-        'type': 'object',
-        'properties': {
-            'clientId': { 'type': 'string' },
-            'clientSecret': { 'type': 'string' },
-            'callbackUrl': { 'type': 'string' },
-            'name': { 'type': 'string' },
-            'isEmailTrusted': { 'type': 'boolean' },
-        },
-        'required': [
-            'clientId',
-            'clientSecret',
-            'callbackUrl',
-            'name',
-            'isEmailTrusted',
-        ],
+    'type': 'object',
+    'properties': {
+        'clientId': { 'type': 'string' },
+        'clientSecret': { 'type': 'string' },
+        'callbackUrl': { 'type': 'string' },
+        'name': { 'type': 'string' },
+        'isEmailTrusted': { 'type': 'boolean' },
     },
+    'required': [
+        'clientId',
+        'clientSecret',
+        'callbackUrl',
+        'name',
+        'isEmailTrusted',
+    ],
+
 }
 
 function makeExternalAuth (app, keystone, oidcProvider) {
@@ -70,9 +68,10 @@ function makeExternalAuth (app, keystone, oidcProvider) {
 
     app.use(passport.initialize())
 
-    const getOrCreateUser = async (userProfile, userType, identityType, config) => {
+    async function getOrCreateUser (userProfile, userType, identityType, config) {
         const context = await keystone.createContext({ skipAccessControl: true })
-        const { isPhoneTrusted, isEmailTrusted } = config
+        const isPhoneTrusted = get(config, 'isPhoneTrusted', false)
+        const isEmailTrusted = get(config, 'isEmailTrusted', false)
         const { phone, email } = userProfile
         const userMeta = {
             phone: get(userProfile, 'phone', null),
@@ -89,7 +88,7 @@ function makeExternalAuth (app, keystone, oidcProvider) {
         if (!userExternalIdentity) {
             const existingUserSearch = {
                 deletedAt: null,
-                userType,
+                type: userType,
                 isAdmin: false,
                 isSupport: false,
             }
@@ -188,7 +187,7 @@ function makeExternalAuth (app, keystone, oidcProvider) {
         return user
     }
 
-    const captureUserType = async (req, res, next) => {
+    async function captureUserType (req, res, next) {
         const { userType } = req.query
 
         if (!userType) {
@@ -206,6 +205,7 @@ function makeExternalAuth (app, keystone, oidcProvider) {
         }
 
         req.userType = userType
+        req.session.userType = userType
         next()
     }
 
@@ -265,7 +265,7 @@ function makeExternalAuth (app, keystone, oidcProvider) {
             passport.use(config.name, new OAuth2Strategy(
                 strategy,
                 async (req, accessToken, refreshToken, profile, done) => {
-                    const userType = req.userType
+                    const userType = req.userType || req.session.userType
                     try {
                         const profileResponse = await fetch(strategy.profileURL, {
                             headers: {
@@ -283,7 +283,7 @@ function makeExternalAuth (app, keystone, oidcProvider) {
                             return done(new Error('OAuth profile url did not return a user ID and at least one of: email, phone.'))
                         }
 
-                        const user = await getOrCreateUser(userProfile, userType, config.name)
+                        const user = await getOrCreateUser(userProfile, userType, config.name, config)
 
                         return done(null, user)
                     } catch (error) {
@@ -331,10 +331,11 @@ function makeExternalAuth (app, keystone, oidcProvider) {
                         return done(new Error('OIDC email address required'))
                     }
 
+                    const userType = req.userType || req.session.userType
                     try {
                         const user = await getOrCreateUser(
                             { id: profile.id, email },
-                            req.userType, config.name
+                            userType, config.name, config
                         )
 
                         return done(null, user)
@@ -373,11 +374,14 @@ function makeExternalAuth (app, keystone, oidcProvider) {
             if (!email) {
                 return done(new Error('Github email address required'))
             }
+            const userType = req.userType || req.session.userType
+
             try {
                 const user = await getOrCreateUser(
                     { id: profile.id, email },
-                    req.userType,
-                    'github'
+                    userType,
+                    'github',
+                    githubConfig,
                 )
 
                 return done(null, user)
