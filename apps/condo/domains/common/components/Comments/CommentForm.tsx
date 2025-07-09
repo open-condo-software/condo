@@ -324,6 +324,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                                     title={TourUpdateTextTitle}
                                     message={TourUpdateTextMessage}
                                     onClose={closeTourStep}
+                                    getPopupContainer={() => document.body}
                                 >
                                     <Button
                                         compact
