@@ -21,7 +21,7 @@ import {
     Space,
     Typography,
     TypographyTitleProps,
-    Tooltip
+    Tooltip,
 } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
