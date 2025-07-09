@@ -12,7 +12,7 @@ const { safeFormatError } = require('../apolloErrorFormatter')
 const MiB = 1024 ** 2 // 1 MiB (mebibyte) = 1_048_576 B (byte)
 
 const graphqlLogger = getLogger('graphql')
-const graphqlErrorLogger = getLogger('graphqlerror')
+const graphqlErrorLogger = getLogger('graphql-error')
 
 // Note: Hard limit of the V8 heap (bytes). Fixed for the lifetime of the process.
 //  Can be raised with the CLI flag `node --max-old-space-size=<MiB>` or via `NODE_OPTIONS="--max-old-space-size=<MiB>"` env

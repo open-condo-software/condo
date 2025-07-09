@@ -75,7 +75,7 @@ const { GQLErrorCode, GQLInternalErrorTypes } = require('./utils/errors/constant
 templateSettings.interpolate = /{([\s\S]+?)}/g
 
 const { UNAUTHENTICATED } = GQLErrorCode
-const logger = getLogger('GQLError class')
+const logger = getLogger('gql-error-class')
 
 /**
  * Error object, that can be thrown in a custom GraphQL mutation or query

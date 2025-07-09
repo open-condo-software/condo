@@ -78,7 +78,7 @@ if (IS_ENABLE_DD_TRACE) {
     })
 }
 
-const logger = getLogger('run-keystone')
+const logger = getLogger('run-keystone-app')
 
 try {
     if (fs.existsSync(KEY_FILE) && fs.existsSync(CERT_FILE) && SPORT) {
@@ -121,7 +121,7 @@ async function main () {
         if (httpsServer) console.log(chalk.green.bold(`HTTPS 🚀 server started on port ${SPORT}`))
         console.log(chalk.red.bold(`🔗🔗🔗 SERVER_URL=${SERVER_URL}`))
     } else if (IS_PRODUCTION) {
-        logger.info({ msg: 'start', data: { PORT, SPORT, SERVER_URL } })
+        logger.info({ msg: 'server started', data: { PORT, SPORT, SERVER_URL } })
     }
 
     return { keystone, app, httpServer, httpsServer }
