@@ -5,7 +5,7 @@ const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('
 const { getById, find, getByCondition } = require('@open-condo/keystone/schema')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
-const { WRONG_FORMAT, NOT_FOUND, WRONG_PHONE_FORMAT, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
+const { WRONG_FORMAT, NOT_FOUND, WRONG_PHONE_FORMAT, DV_VERSION_MISMATCH, WRONG_EMAIL_VALUE } = require('@condo/domains/common/constants/errors')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE, DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
@@ -15,7 +15,13 @@ const { HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const { ALREADY_ACCEPTED_INVITATION, ALREADY_INVITED_EMAIL, ALREADY_INVITED_PHONE, UNABLE_TO_REGISTER_USER } = require('@condo/domains/organization/constants/errors')
 const { Organization, OrganizationEmployee, OrganizationEmployeeSpecialization, OrganizationEmployeeRequest } = require('@condo/domains/organization/utils/serverSchema')
 const guards = require('@condo/domains/organization/utils/serverSchema/guards')
+const { PHONE_TYPE, EMAIL_TYPE } = require('@condo/domains/user/constants/identifiers')
 const { createUser } = require('@condo/domains/user/utils/serverSchema')
+
+const INVITE_REQUIRE_ALLOWED_FIELDS = [PHONE_TYPE, EMAIL_TYPE]
+const INVITE_REQUIRED_FIELDS = conf['INVITE_REQUIRED_FIELDS'] ? JSON.parse(conf['INVITE_REQUIRED_FIELDS']) : [PHONE_TYPE]
+
+if (INVITE_REQUIRED_FIELDS.some(item => !INVITE_REQUIRE_ALLOWED_FIELDS.includes(item))) throw new Error('INVITE_REQUIRED_FIELDS must be ["phone"], ["email"] or ["phone","email"]')
 
 const ERRORS = {
     inviteNewOrganizationEmployee: {
@@ -42,6 +48,13 @@ const ERRORS = {
             message: 'Wrong phone format',
             messageForUser: 'api.common.WRONG_PHONE_FORMAT',
         },
+        WRONG_EMAIL_FORMAT: {
+            mutation: 'inviteNewOrganizationEmployee',
+            code: BAD_USER_INPUT,
+            type: WRONG_EMAIL_VALUE,
+            message: 'Wrong email value',
+            messageForUser: 'api.common.INVALID_EMAIL_FORMAT',
+        },
         UNABLE_TO_REGISTER_USER: {
             mutation: 'inviteNewOrganizationEmployee',
             code: INTERNAL_ERROR,
@@ -64,6 +77,13 @@ const ERRORS = {
             type: WRONG_FORMAT,
             message: 'Wrong phone format',
             messageForUser: 'api.common.WRONG_PHONE_FORMAT',
+        },
+        WRONG_EMAIL_FORMAT: {
+            mutation: 'reInviteNewOrganizationEmployee',
+            code: BAD_USER_INPUT,
+            type: WRONG_EMAIL_VALUE,
+            message: 'Wrong email value',
+            messageForUser: 'api.common.INVALID_EMAIL_FORMAT',
         },
         ORGANIZATION_NOT_FOUND: {
             mutation: 'reInviteOrganizationEmployee',
@@ -100,11 +120,11 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
     types: [
         {
             access: true,
-            type: 'input InviteNewOrganizationEmployeeInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, email: String, phone: String!, name: String, role: OrganizationEmployeeRoleWhereUniqueInput!, position: String, specializations: [TicketCategoryClassifierWhereUniqueInput], hasAllSpecializations: Boolean }',
+            type: 'input InviteNewOrganizationEmployeeInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, email: String, phone: String, name: String, role: OrganizationEmployeeRoleWhereUniqueInput!, position: String, specializations: [TicketCategoryClassifierWhereUniqueInput], hasAllSpecializations: Boolean }',
         },
         {
             access: true,
-            type: 'input ReInviteOrganizationEmployeeInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, email: String, phone: String! }',
+            type: 'input ReInviteOrganizationEmployeeInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, email: String, phone: String }',
         },
     ],
     mutations: [
@@ -128,7 +148,18 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                 phone = normalizePhone(phone)
                 email = normalizeEmail(email)
                 if (dvSenderData.dv !== 1) throw new GQLError(ERRORS.inviteNewOrganizationEmployee.DV_VERSION_MISMATCH, context)
-                if (!phone) throw new GQLError(ERRORS.inviteNewOrganizationEmployee.WRONG_PHONE_FORMAT, context)
+
+                const hasPhone = Boolean(phone)
+                const hasEmail = Boolean(email)
+
+                if (INVITE_REQUIRED_FIELDS.includes(PHONE_TYPE) && !hasPhone) {
+                    throw new GQLError(ERRORS.inviteNewOrganizationEmployee.WRONG_PHONE_FORMAT, context)
+                }
+
+                if (INVITE_REQUIRED_FIELDS.includes(EMAIL_TYPE) && !hasEmail) {
+                    throw new GQLError(ERRORS.inviteNewOrganizationEmployee.WRONG_EMAIL_FORMAT, context)
+                }
+
                 const userOrganization = await Organization.getOne(
                     context,
                     { id: organization.id },
@@ -141,8 +172,8 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                     deletedAt: null,
                     organization: { id: userOrganization.id },
                     OR: [
-                        { phone },
-                        { user: { phone } },
+                        phone && { phone },
+                        phone && { user: { phone } },
                         email && { email },
                         email && { user: { email } },
                     ].filter(Boolean),
@@ -266,8 +297,16 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                 let { organization, email, sender, phone } = data
                 phone = normalizePhone(phone)
                 email = normalizeEmail(email)
-                if (!phone) {
+
+                const hasPhone = Boolean(phone)
+                const hasEmail = Boolean(email)
+
+                if (INVITE_REQUIRED_FIELDS.includes(PHONE_TYPE) && !hasPhone) {
                     throw new GQLError(ERRORS.reInviteOrganizationEmployee.WRONG_PHONE_FORMAT, context)
+                }
+
+                if (INVITE_REQUIRED_FIELDS.includes(EMAIL_TYPE) && !hasEmail) {
+                    throw new GQLError(ERRORS.reInviteOrganizationEmployee.WRONG_EMAIL_FORMAT, context)
                 }
 
                 const employeeOrganization = await Organization.getOne(
