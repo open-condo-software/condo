@@ -8,14 +8,13 @@ const { faker } = require('@faker-js/faker')
 const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
 
 const { TELEGRAM_IDP_TYPE, RESIDENT } = require('@condo/domains/user/constants/common')
-const { ERROR_MESSAGES } = require('@condo/domains/user/integration/telegram/utils/errors')
+const { ERRORS, TelegramOauthError } = require('@condo/domains/user/integration/telegram/utils/errors')
 const {
     UserExternalIdentity: UserExternalIdentityApi,
 } = require('@condo/domains/user/utils/serverSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 const { syncUser } = require('./syncUser')
-
 
 const { keystone } = index
 
@@ -35,10 +34,9 @@ describe('syncUser from Telegram', () => {
         const identityId = faker.datatype.uuid()
         const userInfo = mockUserInfo(identityId)
 
-
-        const result = await syncUser({ authenticatedUser: null, context, userInfo, userType: RESIDENT })
-        expect(result.error).toEqual('USER_IS_NOT_REGISTERED')
-        expect(result.id).toEqual('')
+        await expect(async () => 
+            await syncUser({ authenticatedUser: null, context, userInfo, userType: RESIDENT })
+        ).rejects.toThrow(new TelegramOauthError(ERRORS.USER_IS_NOT_REGISTERED))
 
         const [createdIdentity] = await UserExternalIdentityApi.getAll(context, {
             identityId,
@@ -53,13 +51,12 @@ describe('syncUser from Telegram', () => {
         const { user: existingUser } = await makeClientWithNewRegisteredAndLoggedInUser()
         const userInfo = mockUserInfo(identityId)
 
-        const noAuthenticatedUserResult = await syncUser({ authenticatedUser: null, context, userInfo, userType: existingUser.type })
-        expect(noAuthenticatedUserResult.error).toEqual('USER_IS_NOT_REGISTERED')
-        expect(noAuthenticatedUserResult.id).toEqual('')
+        await expect(async () => 
+            await syncUser({ authenticatedUser: null, context, userInfo, userType: existingUser.type })
+        ).rejects.toThrow(new TelegramOauthError(ERRORS.USER_IS_NOT_REGISTERED))
 
         // act
-        const { id, error } = await syncUser({ authenticatedUser: existingUser, context, userInfo, userType: existingUser.type })
-        expect(error).not.toBeDefined()
+        const { id } = await syncUser({ authenticatedUser: existingUser, context, userInfo, userType: existingUser.type })
 
         // assertions
         // assert id of user
@@ -86,6 +83,7 @@ describe('syncUser from Telegram', () => {
             dv: 1,
             sender: { dv: 1, fingerprint: faker.datatype.uuid() },
             user: { connect: { id: existingUser.id } },
+            userType: existingUser.type,
             identityId: userInfo.id,
             identityType: TELEGRAM_IDP_TYPE,
             meta: userInfo,
@@ -119,6 +117,7 @@ describe('syncUser from Telegram', () => {
             dv: 1,
             sender: { dv: 1, fingerprint: faker.datatype.uuid() },
             user: { connect: { id: existingUser.id } },
+            userType: existingUser.type,
             identityId: userInfo.id,
             identityType: TELEGRAM_IDP_TYPE,
             meta: userInfo,
@@ -126,13 +125,13 @@ describe('syncUser from Telegram', () => {
 
         // act
         const { id } = await syncUser({ authenticatedUser: existingUser, context, userInfo, userType: existingUser.type })
-        const { id: idForAnotherUser, error } = await syncUser({ authenticatedUser: anotherNotConnectedUser, context, userInfo, userType: existingUser.type })
+        await expect(async () => 
+            await syncUser({ authenticatedUser: anotherNotConnectedUser, context, userInfo, userType: existingUser.type })
+        ).rejects.toThrow(new TelegramOauthError(ERRORS.ACCESS_DENIED))
 
         // assertions
         // assert id of user
         expect(id).toEqual(existingUser.id)
-        expect(idForAnotherUser).toEqual('')
-        expect(error).toEqual(ERROR_MESSAGES.ACCESS_DENIED)
 
         // assert count of external identities
         const identities = await UserExternalIdentityApi.getAll(context, {
