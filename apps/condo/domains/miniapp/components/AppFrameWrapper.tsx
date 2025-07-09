@@ -18,7 +18,7 @@ export const AppFrameWrapper: React.FC = ({ children }) => {
     }, [])
 
     useEffect(() => {
-        let styleElement = document.querySelector(`style#${TAG_ID}`)
+        let styleElement: HTMLStyleElement | null = document.querySelector(`style#${TAG_ID}`)
 
         if (styleElement) {
             const count = parseInt(styleElement.getAttribute(COUNTER_DATA_ATTR_NAME) || '0', 10)
@@ -32,7 +32,7 @@ export const AppFrameWrapper: React.FC = ({ children }) => {
         }
 
         return () => {
-            const styleEl = document.querySelector(`style#${TAG_ID}`) as HTMLStyleElement | null
+            const styleEl: HTMLStyleElement | null = document.querySelector(`style#${TAG_ID}`)
             if (styleEl) {
                 const count = parseInt(styleEl.getAttribute(COUNTER_DATA_ATTR_NAME) || '1', 10)
                 if (count <= 1) {
