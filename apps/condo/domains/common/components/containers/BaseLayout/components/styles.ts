@@ -69,7 +69,7 @@ export const PAGE_HEADER_CSS = css`
 `
 
 export const SPACED_PAGE_HEADER_CSS = css`
-  padding: 0 0 60px;
+  padding: 0 0 60px !important;
   background: ${colors.white};
 
   & .ant-page-header-heading-title {

@@ -62,7 +62,7 @@ export const UpdateMeterForm = (props: UpdateMeterProps): JSX.Element => {
         resource: { connect: { id: values.resource } },
         property: { connect: { id: selectedPropertyId } },
         unitName: isPropertyMeter ? undefined : selectedUnitName,
-        unitType: isPropertyMeter ? undefined : values.unitType,
+        unitType: isPropertyMeter ? undefined : values.unitType || get(initialRecord, 'unitType'),
     }), [isPropertyMeter, selectedPropertyId, selectedUnitName])
 
     

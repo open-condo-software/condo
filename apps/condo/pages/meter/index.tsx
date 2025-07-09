@@ -47,7 +47,7 @@ const StyledPageWrapper = styled(PageWrapper)`
 `
 const AVAILABLE_TABS = [METER_TAB_TYPES.meterReading, METER_TAB_TYPES.meter, METER_TAB_TYPES.reportingPeriod]
 const MEDIUM_VERTICAL_ROW_GUTTER: RowProps['gutter'] = [0, 24]
-const HEADER_STYLES: CSSProperties = { padding: 0 }
+const HEADER_STYLES: CSSProperties = { padding: '0 !important' }
 
 
 type MeterTypeSwitchProps = {

@@ -17,6 +17,7 @@ import { StatusSelect } from '@condo/domains/common/components/StatusSelect'
 import B2bAppLogo from '@condo/domains/meter/components/Meters/B2bAppLogo'
 import ChangeMeterStatusModal from '@condo/domains/meter/components/Meters/ChangeMeterStatusModal'
 import { MeterAccountField, MeterCommonDateField, MeterNumberField, MeterPlaceField, MeterResourceField } from '@condo/domains/meter/components/Meters/MeterInfoFields'
+import styles from '@condo/domains/meter/components/Meters/MeterPageContent.module.css'
 import { MeterReadingsPageContent } from '@condo/domains/meter/components/TabContent/MeterReading'
 import { PropertyMeterReadingsPageContent } from '@condo/domains/meter/components/TabContent/PropertyMeterReading'
 import { useMeterReadingFilters } from '@condo/domains/meter/hooks/useMeterReadingFilters'
@@ -126,8 +127,9 @@ export const MeterHeader = ({ meter, meterReportingPeriod, refetchMeter, meterTy
         <>
             <Col span={24}>
                 <PageHeader
+                    className={styles.pageHeader}
                     title={<Typography.Title level={1}>{MeterTitleMessage}</Typography.Title>}
-                    extra={meterStatusTag} style={{ paddingBottom: 20 }}
+                    extra={meterStatusTag}
                 />
             </Col>
             <Row gutter={[30, 0]}>
@@ -142,7 +144,7 @@ export const MeterHeader = ({ meter, meterReportingPeriod, refetchMeter, meterTy
                             </Typography.Text>
                         </Col>
                     )}
-                    {!archiveDate && dayjs(nextVerificationDate).diff(dayjs(), 'month') <= 3 && (
+                    {!archiveDate && nextVerificationDate && dayjs(nextVerificationDate).diff(dayjs(), 'month') <= 3 && (
                         <Col span={24}>
                             <Typography.Text type='secondary' size='small'>
                                 {VerificationDateTipMessage} &mdash;&nbsp;
