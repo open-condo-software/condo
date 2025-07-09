@@ -31,7 +31,6 @@ async function main (args) {
     const existingIntegration = await AcquiringIntegration.getOne(context, { name })
     integrationPayload.dv ??= dv
     integrationPayload.sender ??= sender
-    integrationPayload.deletedAt = null
 
     let integrationId
 
