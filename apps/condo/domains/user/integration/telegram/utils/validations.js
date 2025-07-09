@@ -13,7 +13,6 @@ const CONFIG_REQUIRED_FIELDS = [
     'botToken',
     'allowedUserType',
     'allowedRedirectUrls',
-    'oidcClientId',
 ]
 // NOTE: if auth data received from telegram mini app, we need to add prefix to secret
 const TG_WEB_APP_DATA_SECRET_PREFIX = 'WebAppData'
@@ -97,7 +96,7 @@ function validateTgAuthData (data, botToken, secondsSinceAuth = ALLOWED_TIME_SIN
         throw new TelegramOauthError(ERRORS.VALIDATION_AUTH_DATA_KEYS_MISMATCH)
     }
 
-    const isMiniAppInitData = miniAppInitParamsValidator(data)
+    const isMiniAppInitData = telegramMiniAppInitParamsValidator(data)
     if (isMiniAppInitData) {
         try {
             if (!userDataValidator(JSON.parse(data.user))) {
@@ -109,9 +108,9 @@ function validateTgAuthData (data, botToken, secondsSinceAuth = ALLOWED_TIME_SIN
     }
 
     // 2. Check that data is not outdated
-    // if ((Math.floor(Date.now() / 1000) - parseInt(data.auth_date)) > secondsSinceAuth) {
-    //     throw new TelegramOauthError(ERRORS.VALIDATION_AUTH_DATA_EXPIRED)
-    // }
+    if ((Math.floor(Date.now() / 1000) - parseInt(data.auth_date)) > secondsSinceAuth) {
+        throw new TelegramOauthError(ERRORS.VALIDATION_AUTH_DATA_EXPIRED)
+    }
 
     // 3. Build secret key using bot token
     // No point in hiding 'sha256' and TG_WEB_APP_DATA_SECRET_PREFIX, as telegram has this information publicly available
@@ -167,7 +166,7 @@ function isValidTelegramMiniAppInitParams (data) {
  * @param {Array<string>} allowedUrls
  * @param {string} requestUrl
  */
-function validateRedirectUrl (allowedUrls, requestUrl) {
+function isRedirectUrlValid (allowedUrls, requestUrl) {
     let url
     if (!requestUrl || !allowedUrls || allowedUrls.length === 0) {
         return false
@@ -186,5 +185,5 @@ module.exports = {
     validateTgAuthData,
     validateOauthConfig,
     isValidTelegramMiniAppInitParams,
-    validateRedirectUrl,
+    isRedirectUrlValid,
 }

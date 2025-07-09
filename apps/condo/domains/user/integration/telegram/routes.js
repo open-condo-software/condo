@@ -7,7 +7,7 @@ const {
     getRedirectUrl,
     getUserType,
 } = require('@condo/domains/user/integration/telegram/utils/params')
-const { validateTgAuthData, validateRedirectUrl } = require('@condo/domains/user/integration/telegram/utils/validations')
+const { validateTgAuthData, isRedirectUrlValid } = require('@condo/domains/user/integration/telegram/utils/validations')
 const {
     User,
 } = require('@condo/domains/user/utils/serverSchema')
@@ -103,23 +103,13 @@ class TelegramOauthRoutes {
                 redirectUrl,
                 userType,
                 tgAuthData,
-                config,
             } = this._validateParameters(req, res, next)
             // sync user
             const { keystone: context } = await getSchemaCtx('User')
             const { id } = await syncUser({ authenticatedUser: req.user, userInfo: tgAuthData, context, userType })
             // authorize user
             await this.authorizeUser(req, context, id)
-            const params = {
-                ...req.query,
-                client_id: config.oidcClientId,
-                response_type: 'code',
-                redirect_uri: decodeURIComponent(redirectUrl),
-                scope: 'openid',
-            }
-            delete params.redirectUrl
-            const oidcUrl = this._buildUrlWithParams(`${conf.SERVER_URL}/oidc/auth`, params)
-            return res.redirect(oidcUrl)
+            return res.redirect(decodeURIComponent(redirectUrl))
         } catch (error) {
             return this._processError(res, error, next)
         }
@@ -157,7 +147,7 @@ class TelegramOauthRoutes {
         const config = this._provider.getConfig(botId)
         const redirectUrl = getRedirectUrl(req)
         const userType = getUserType(req)
-        if (!validateRedirectUrl(config.allowedRedirectUrls, redirectUrl)) {
+        if (!isRedirectUrlValid(config.allowedRedirectUrls, redirectUrl)) {
             throw new TelegramOauthError(ERRORS.INVALID_REDIRECT_URL)
         }
         if (!userType || !config.allowedUserType || config.allowedUserType.toLowerCase() !== userType.toLowerCase()) {
@@ -194,7 +184,7 @@ class TelegramOauthRoutes {
         const { tgAuthData: tgAuthDataQP } = req.query
         let tgAuthData
         try {
-            tgAuthData = Object.fromEntries(new URLSearchParams(tgAuthDataQP).entries())
+            tgAuthData = Object.fromEntries(new URLSearchParams(decodeURIComponent(tgAuthDataQP)).entries())
         } catch {
             throw new TelegramOauthError(ERRORS.TG_AUTH_DATA_MISSING)
         }
