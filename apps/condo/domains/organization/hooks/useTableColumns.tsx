@@ -3,6 +3,7 @@ import { Typography } from 'antd'
 import { ColumnType } from 'antd/lib/table/interface'
 import get from 'lodash/get'
 import { identity } from 'lodash/util'
+import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
@@ -18,9 +19,14 @@ import { OrganizationEmployeeRole } from '@condo/domains/organization/utils/clie
 import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
 import { getEmployeeSpecializationsMessage } from '@condo/domains/organization/utils/clientSchema/Renders'
 import { IFilters } from '@condo/domains/organization/utils/helpers'
+import { EMAIL_TYPE } from '@condo/domains/user/constants/identifiers'
 
 
 const TEXT_STYLES = { margin: 0 }
+
+const { publicRuntimeConfig: { inviteRequiredFields } } = getConfig()
+
+const isEmailRequired = inviteRequiredFields.includes(EMAIL_TYPE)
 
 export const useTableColumns = (
     filterMetas,
@@ -32,6 +38,7 @@ export const useTableColumns = (
     const RoleMessage = intl.formatMessage({ id: 'employee.Role' })
     const PositionMessage = intl.formatMessage({ id: 'employee.Position' })
     const PhoneMessage = intl.formatMessage({ id: 'Phone' })
+    const EmailMessage = intl.formatMessage({ id: 'Email' })
     const SpecializationsMessage = intl.formatMessage({ id: 'employee.Specializations' })
     const BlockedMessage = intl.formatMessage({ id: 'employee.isBlocked' })
 
@@ -136,6 +143,29 @@ export const useTableColumns = (
                 filterIcon: getFilterIcon,
                 render: renderPhone,
             },
+            ...(isEmailRequired ? [{
+                title: EmailMessage,
+                filteredValue: getFilteredValue<IFilters>(filters, 'email'),
+                dataIndex: 'email',
+                key: 'email',
+                sorter: true,
+                width: '20%',
+                filterDropdown: getFilterDropdownByKey(filterMetas, 'email'),
+                filterIcon: getFilterIcon,
+            }] : []),
         ]
-    }, [NameMessage, PhoneMessage, PositionMessage, RoleMessage, SpecializationsMessage, filterMetas, filters, render, renderCheckboxFilterDropdown, renderSpecializations, employees.isBlocked])
+    }, [
+        NameMessage, 
+        EmailMessage, 
+        PhoneMessage, 
+        PositionMessage, 
+        RoleMessage, 
+        SpecializationsMessage, 
+        filterMetas, 
+        filters, 
+        render, 
+        renderCheckboxFilterDropdown, 
+        renderSpecializations, 
+        employees.isBlocked,
+    ])
 }
