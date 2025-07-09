@@ -13,7 +13,7 @@ export default function GlobalStyle () {
               body {
                 max-width: 100%;
                 overflow-x: hidden;
-                font-family: 'Wix Madefor Display', -apple-system, BlinkMacSystemFont, Helvetica, sans-serif;
+                font-family: 'Wix Madefor Display', -apple-system, BlinkMacSystemFont, Helvetica, sans-serif !important;
                 line-height: 1.5;
 
                 text-decoration-skip: ink;
