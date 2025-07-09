@@ -79,8 +79,10 @@ class OIDCMiddleware {
             try {
                 let interactionDetails = await provider.interactionDetails(req, res)
 
+                const methods = interactionDetails?.params?.methods || null
+
                 if (!req.user) {
-                    res.redirect(`/auth/signin?next=${req.url}`)
+                    res.redirect(`/auth/signin?next=${req.url}&flow=oidc${methods ? '&methods=' + methods : ''}`)
                     return
                 }
 

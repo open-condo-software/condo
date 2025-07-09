@@ -17,6 +17,7 @@ import { normalizePhone } from '@condo/domains/common/utils/phone'
 import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 import { TOO_MANY_REQUESTS } from '@condo/domains/user/constants/errors'
+import { useAuthMethods } from '@condo/domains/user/hooks/useAuthMethods'
 
 import { AgreementText } from './AgreementText'
 import { useRegisterContext } from './RegisterContextProvider'
@@ -49,6 +50,7 @@ export const InputPhoneForm: React.FC<InputPhoneFormProps> = ({ onFinish }) => {
     const router = useRouter()
     const { query: { next } } = router
     const redirectUrl = (next && !Array.isArray(next) && isSafeUrl(next)) ? next : '/'
+    const { queryParams } = useAuthMethods()
 
     const [isLoading, setIsLoading] = useState(false)
 
@@ -101,7 +103,7 @@ export const InputPhoneForm: React.FC<InputPhoneFormProps> = ({ onFinish }) => {
             const token = res?.data?.result?.token
             if (!res.errors && token) {
                 setToken(token)
-                await router.push(`/auth/register?token=${token}`)
+                await router.push(`/auth/register?token=${token}&${queryParams}`)
                 onFinish()
                 return
             }
@@ -118,7 +120,7 @@ export const InputPhoneForm: React.FC<InputPhoneFormProps> = ({ onFinish }) => {
         } finally {
             setIsLoading(false)
         }
-    }, [isLoading, form, setPhone, WrongPhoneFormatErrorMessage, executeCaptcha, startConfirmPhoneAction, setToken, onFinish, SMSTooManyRequestsErrorMessage])
+    }, [queryParams, isLoading, form, setPhone, WrongPhoneFormatErrorMessage, executeCaptcha, startConfirmPhoneAction, setToken, onFinish, SMSTooManyRequestsErrorMessage])
 
     return (
         <Row>

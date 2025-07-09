@@ -1,8 +1,8 @@
 import { GetActiveOrganizationEmployeeQuery, AuthenticatedUserQuery } from '@app/condo/gql'
 import enCustom from '@app/condo/lang/en/en.custom.json'
 import en from '@app/condo/lang/en/en.json'
+import esCustom from '@app/condo/lang/es/es.custom.json'
 import es from '@app/condo/lang/es/es.json'
-import esCustom from '@app/condo/lang/ru/es.custom.json'
 import ruCustom from '@app/condo/lang/ru/ru.custom.json'
 import ru from '@app/condo/lang/ru/ru.json'
 
@@ -13,7 +13,7 @@ const customTranslations = [enCustom, ruCustom, esCustom] as const
 
 type TranslationsKeysType = keyof typeof translations[number]
 type CustomTranslationsKeysType = keyof typeof customTranslations[number]
-type MessagesKeysType = TranslationsKeys | CustomTranslationsKeys
+type MessagesKeysType = TranslationsKeysType | CustomTranslationsKeysType
 
 type LinkExtendsType = GetActiveOrganizationEmployeeQuery['employees'][number]
 type OrganizationExtendsType = GetActiveOrganizationEmployeeQuery['employees'][number]['organization']
