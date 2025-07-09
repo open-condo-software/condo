@@ -17,6 +17,7 @@ import { StatusSelect } from '@condo/domains/common/components/StatusSelect'
 import B2bAppLogo from '@condo/domains/meter/components/Meters/B2bAppLogo'
 import ChangeMeterStatusModal from '@condo/domains/meter/components/Meters/ChangeMeterStatusModal'
 import { MeterAccountField, MeterCommonDateField, MeterNumberField, MeterPlaceField, MeterResourceField } from '@condo/domains/meter/components/Meters/MeterInfoFields'
+import style from '@condo/domains/meter/components/Meters/MeterPageContent.module.css'
 import { MeterReadingsPageContent } from '@condo/domains/meter/components/TabContent/MeterReading'
 import { PropertyMeterReadingsPageContent } from '@condo/domains/meter/components/TabContent/PropertyMeterReading'
 import { useMeterReadingFilters } from '@condo/domains/meter/hooks/useMeterReadingFilters'
@@ -24,7 +25,6 @@ import { Meter, MeterTypes, METER_TAB_TYPES, METER_TYPES, PropertyMeter } from '
 import { getMeterTitleMessage } from '@condo/domains/meter/utils/helpers'
 import { TicketPropertyField } from '@condo/domains/ticket/components/TicketId/TicketPropertyField'
 
-import style from '@condo/domains/meter/components/Meters/MeterPageContent.module.css'
 
 const METER_STATUSES = { active: 'active', archived: 'archived' }
 
