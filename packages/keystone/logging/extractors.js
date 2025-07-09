@@ -3,25 +3,41 @@ const path = require('path')
 const { getExecutionContext } = require('@open-condo/keystone/executionContext')
 const { graphqlCtx } = require('@open-condo/keystone/KSv5v6/utils/graphqlCtx')
 
+/**
+ * @private
+ */
 function _isApp (pathParts) {
     return Array.isArray(pathParts) && pathParts.length > 1 && pathParts[0] === 'apps'
 }
 
+/**
+ * @private
+ */
 function _isPackage (pathParts) {
     return Array.isArray(pathParts) && pathParts.length > 1 && pathParts[0] === 'packages'
 }
 
+/**
+ * @private
+ */
 function _isInDomain (pathParts) {
     return _isApp(pathParts) && pathParts.length > 3 && pathParts[2] === 'domains'
 }
 
+/**
+ * @private
+ */
 function _findTasksIndex (pathParts) {
     if (!_isPackage(pathParts) && !_isApp(pathParts)) return -1
 
     return pathParts.indexOf('tasks')
 }
 
-function extractPropertiesFromPath (loggerUnixPath) {
+/**
+ * @deprecated Internal logging util. You should not use it directly
+ * @private
+ */
+function _extractPropertiesFromPath (loggerUnixPath) {
     const pathParts = loggerUnixPath.split('/')
     const properties = {}
 
@@ -50,7 +66,11 @@ function extractPropertiesFromPath (loggerUnixPath) {
     return properties
 }
 
-function enhanceLogWithAsyncContext (dataObj) {
+/**
+ * @deprecated Internal logging util. You should not use it directly
+ * @private
+ */
+function _enhanceLogWithAsyncContext (dataObj) {
     const enhancedObj = { ...dataObj }
 
     // Execution context
@@ -71,7 +91,31 @@ function enhanceLogWithAsyncContext (dataObj) {
     return enhancedObj
 }
 
+/**
+ * @deprecated Internal logging util. You should not use it directly
+ * SRC: https://github.com/sindresorhus/callsites/blob/main/index.js
+ * @private
+ */
+function _callsites () {
+    const _prepareStackTrace = Error.prepareStackTrace
+    try {
+        let result = []
+        Error.prepareStackTrace = (_, callSites) => {
+            const callSitesWithoutCurrent = callSites.slice(1)
+            result = callSitesWithoutCurrent
+            return callSitesWithoutCurrent
+        }
+
+        new Error().stack
+
+        return result
+    } finally {
+        Error.prepareStackTrace = _prepareStackTrace
+    }
+}
+
 module.exports = {
-    extractPropertiesFromPath,
-    enhanceLogWithAsyncContext,
+    _extractPropertiesFromPath,
+    _enhanceLogWithAsyncContext,
+    _callsites,
 }

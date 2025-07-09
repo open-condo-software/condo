@@ -11174,7 +11174,6 @@ __metadata:
     big.js: ^6.2.2
     body-parser: ^1.20.3
     bull: ^4.8.4
-    callsites: ^3.1.0
     connect-redis: ^6.0.0
     csv-parse: ^5.2.0
     cuid: ^2.1.8
@@ -21152,7 +21151,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"callsites@npm:^3.0.0, callsites@npm:^3.1.0":
+"callsites@npm:^3.0.0":
   version: 3.1.0
   resolution: "callsites@npm:3.1.0"
   checksum: 072d17b6abb459c2ba96598918b55868af677154bec7e73d222ef95a8fdb9bbf7dae96a8421085cdad8cd190d86653b5b6dc55a4484f2e5b2e27d5e0c3fc15b3

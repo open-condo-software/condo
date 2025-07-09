@@ -1,14 +1,13 @@
 // NOTE: same as keystone logger
 const path = require('path')
 
-const callsites = require('callsites')
 const { toString } = require('lodash')
 const pino = require('pino')
 const serializers = require('pino-std-serializers')
 
 const conf = require('@open-condo/config')
 
-const { extractPropertiesFromPath, enhanceLogWithAsyncContext } = require('./extractors')
+const { _extractPropertiesFromPath, _enhanceLogWithAsyncContext, _callsites } = require('./extractors')
 const { normalizeVariables } = require('./normalize')
 
 const { safeFormatError } = require('../utils/errors/safeFormatError')
@@ -27,7 +26,7 @@ function getLogger (name) {
     let isNameResolved = false
     // NOTE: resolve filename by default
     if (!name) {
-        const callStack = callsites()
+        const callStack = _callsites()
         if (callStack.length > 1) {
             // NOTE: On top of stack current file, so we need one before last
             const callerFilename = callStack[1].getFileName()
@@ -42,7 +41,7 @@ function getLogger (name) {
         name,
         enabled: process.env.DISABLE_LOGGING !== 'true',
         formatters: {
-            log: enhanceLogWithAsyncContext,
+            log: _enhanceLogWithAsyncContext,
         },
         serializers: {
             'data': normalizeVariables,
@@ -72,7 +71,7 @@ function getLogger (name) {
     }
 
     // For file-based loggers try to resolve task name, domain to simplify search
-    return logger.child(extractPropertiesFromPath(name))
+    return logger.child(_extractPropertiesFromPath(name))
 }
 
 module.exports = {
