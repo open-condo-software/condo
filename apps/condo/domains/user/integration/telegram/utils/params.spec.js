@@ -1,8 +1,11 @@
+const { faker } = require('@faker-js/faker')
+
 const { STAFF } = require('@condo/domains/user/constants/common')
 
 const {
     getRedirectUrl,
     getUserType,
+    getBotId,
 } = require('./params')
 
 const getReqWithParam = (path, value) => {
@@ -31,5 +34,13 @@ describe('Telegram integration params utils', () => {
         expect(getUserType(getReqWithParam('userType', STAFF))).toEqual(STAFF)
         expect(getUserType({ ...getReqWithParam('', ''), query: { userType: STAFF } })).toEqual(STAFF)
         expect(getUserType(getReqWithParam('userType', 'wrongType'))).toEqual(null)
+    })
+
+    it('getBotId', async () => {
+        const botId = faker.random.alphaNumeric(10)
+        expect(getBotId({ params: { botId } })).toBe(botId)
+        expect(getBotId({ query: { botId } })).toBe(botId)
+        expect(getBotId({})).toBe(null)
+        expect(getBotId({ params: { botId: 'botIdFromParams' }, query: { botId: 'botIdFromQuery' } })).toBe('botIdFromQuery')
     })
 })

@@ -31,8 +31,11 @@ function parseBotId (botToken) {
 }
 
 function getBotId (req) {
-    const { botId } = req.params || {}
-    return botId
+    let { botId } = req.query || {}
+    if (!botId) {
+        botId = (req.params || {}).botId
+    }
+    return botId || null
 }
 
 module.exports = {
