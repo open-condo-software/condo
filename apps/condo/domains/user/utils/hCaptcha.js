@@ -29,7 +29,7 @@ const ERROR_MESSAGES = {
 }
 
 
-const logger = getLogger('hCaptcha')
+const logger = getLogger()
 
 if (isEmpty(CAPTHCA_CONFIG) || !SITE_KEY || !IOS_KEY || !ANDROID_KEY || !API_KEY) {
     console.error('hCaptcha not configured')
@@ -89,7 +89,7 @@ const captchaCheck = async (context = {}, token) => {
         })
 
         const result = await serverAnswer.json()
-        logger.info({ msg: 'Captcha result', result, API_KEY, token, siteKey: getCaptchaKey(source) })
+        logger.info({ msg: 'captcha result', data: { result, API_KEY, token, siteKey: getCaptchaKey(source) } })
 
         if (serverAnswer.ok) {
             if (!get(result, 'success', false)) {
@@ -101,8 +101,8 @@ const captchaCheck = async (context = {}, token) => {
         } else {
             return { error: 'Captcha check failed' }
         }
-    } catch (error) {
-        logger.error({ msg: 'hCaptcha internal error', error })
+    } catch (err) {
+        logger.error({ msg: 'hCaptcha internal error', err })
         return { error: 'hCaptcha internal error' }
     }
 }

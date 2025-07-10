@@ -40,7 +40,7 @@ const MESSAGE_TYPES_BY_TRANSPORTS = {
     },
 }
 
-const logger = getLogger('sendMessageBatch')
+const logger = getLogger()
 
 /**
  * Detects transport type based on target (contact), using corresponding RegExps
@@ -167,7 +167,7 @@ const prepareAndSendMessage = async (context, target, batch, today) => {
 
         return 1 - result.isDuplicateMessage
     } catch (error) {
-        logger.info({ msg: 'sendMessage error', error, data: messageData })
+        logger.info({ msg: 'sendMessage error', err: error, data: messageData })
 
         return 0
     }

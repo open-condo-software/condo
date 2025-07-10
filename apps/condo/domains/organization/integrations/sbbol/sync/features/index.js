@@ -10,7 +10,7 @@ const { Organization } = require('@condo/domains/organization/utils/serverSchema
 
 const { syncServiceProviderProfileState } = require('./serviceProviderProfile')
 
-const logger = getLogger('sbbol/syncFeatures')
+const logger = getLogger('sbbol-sync-features')
 
 
 /**
@@ -25,7 +25,14 @@ async function syncFeatures ({ context, organization, features }) {
     const orgId = organization.id
     // Get current feature-list
     const existingFeatures = get(organization, 'features', [])
-    logger.info({ msg: `Staring feature-sync process for organization: ${orgId}`, orgId, existingFeatures })
+    logger.info({
+        msg: 'staring feature-sync process for organization',
+        entityId: orgId,
+        entity: 'Organization',
+        data: {
+            existingFeatures,
+        },
+    })
     // Remove out-dated features from existing feature list
     const actualExistingFeatures = existingFeatures.filter(feat => ALL_FEATURES.includes(feat))
     // Remove out-dated features from incoming feature list
@@ -36,7 +43,14 @@ async function syncFeatures ({ context, organization, features }) {
     if (actualFeaturesToConnect.includes(SERVICE_PROVIDER_PROFILE_FEATURE)) {
         const success = await syncServiceProviderProfileState({ context, organization })
         if (success) {
-            logger.info({ msg: `${SERVICE_PROVIDER_PROFILE_FEATURE} feature is successfully connected` })
+            logger.info({
+                msg: 'feature is successfully connected',
+                entityId: orgId,
+                entity: 'Organization',
+                data: {
+                    feature: SERVICE_PROVIDER_PROFILE_FEATURE,
+                },
+            })
             connectedFeatures.push(SERVICE_PROVIDER_PROFILE_FEATURE)
         }
     }

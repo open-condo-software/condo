@@ -15,7 +15,7 @@ const { DATE_FIELD_PATHS } = require('@condo/domains/meter/constants/registerMet
 
 const READINGS_CHUNK_SIZE = 100
 const READING_SOURCE = { id: IMPORT_CONDO_METER_READING_SOURCE_ID }
-const logger = getLogger('AbstractMetersImporter')
+const logger = getLogger()
 
 class AbstractMetersImporter {
     constructor (
@@ -258,7 +258,7 @@ class AbstractMetersImporter {
                             // for sbbol import file we can have several transformed lines per one source line
                             // in such cases we would like to proceed exactly one failed line
                             if (!indexesOfFailedSourceRows.has(sourceRowIndex)) {
-                                logger.error({ msg: 'Failed to import rows', errors: rowErrors })
+                                logger.error({ msg: 'failed to import rows', data: { errors: rowErrors } })
                                 await this.failProcessingHandler({
                                     originalRow: sourceChunk[sourceRowIndex],
                                     errors: rowErrors,
@@ -281,7 +281,7 @@ class AbstractMetersImporter {
             // set 100% percent of proceeded lines
             await this.setProcessedRows(this.progress.absTotal)
         } catch (err) {
-            logger.error({ msg: 'Failed to proceed import file', err })
+            logger.error({ msg: 'failed to proceed import file', err })
             await this.errorHandler(
                 get(err, 'errors[0].extensions.messageForUser', get(err, 'message')) || 'not recognized error'
             )

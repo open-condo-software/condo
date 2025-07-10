@@ -6,7 +6,7 @@ const { SEND_SUBMIT_METER_READINGS_PUSH_NOTIFICATIONS_TASK } = require('@condo/d
 
 const { sendSubmitMeterReadingsPushNotifications } = require('./sendSubmitMeterReadingsPushNotifications')
 
-const logger = getLogger('meter/sendSubmitMeterReadingsPushNotifications')
+const logger = getLogger()
 
 const sendSubmitMeterReadingsPushNotificationsTaskFn = async (context = null) => {
     const isFeatureEnabled = await featureToggleManager.isFeatureEnabled(context, SEND_SUBMIT_METER_READINGS_PUSH_NOTIFICATIONS_TASK)

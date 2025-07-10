@@ -23,7 +23,7 @@ async function updateStatusOfBankSyncTask (context, taskId, status) {
     })
 }
 
-const logger = getLogger('sbbol/CronTaskSyncTransactions')
+const logger = getLogger()
 
 /**
  * Synchronizes SBBOL transaction data with data in the system

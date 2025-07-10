@@ -11,8 +11,7 @@ const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
 
 const CHUNK_SIZE = 50
 
-const appLogger = getLogger('condo')
-const taskLogger = appLogger.child({ module: 'reopenDeferredTickets' })
+const taskLogger = getLogger()
 
 const hasEmployee = (id, employees) => id && !employees.some(employee => get(employee, 'user', null) === id)
 
@@ -78,10 +77,12 @@ const reopenDeferredTickets = async () => {
                 }
 
                 await Ticket.update(context, ticket.id, updatedData)
-            } catch (error) {
+            } catch (err) {
                 taskLogger.error({
-                    msg: 'Failed to update Ticket',
-                    data: { id: ticket.id },
+                    msg: 'failed to update Ticket',
+                    entityId: ticket.id,
+                    entity: 'Ticket',
+                    err,
                 })
             }
         }

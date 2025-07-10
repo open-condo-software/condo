@@ -1,5 +1,4 @@
 const { isArray, isEmpty, compact, get, omit, uniq } = require('lodash')
-const { v4: uuid } = require('uuid')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -16,7 +15,7 @@ const {
 const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
 
 const CHUNK_SIZE = 20
-const logger = getLogger('sendMessageToResidentScopes.task')
+const logger = getLogger()
 
 /**
  * Please have a look at SendResidentMessageService for json structure
@@ -24,15 +23,14 @@ const logger = getLogger('sendMessageToResidentScopes.task')
  * @returns {Promise<{attemptsCount: (*), successCount: number}|{attemptsCount: number, successCount: number, json, error: Error}>}
  */
 const sendMessageToResidentScopes = async (json) => {
-    const taskId = this.id || uuid()
     let data
 
     try {
         data = JSON.parse(json)
-    } catch (error) {
-        logger.error({ msg: 'Error parsing JSON.', err: error.message, taskId })
+    } catch (err) {
+        logger.error({ msg: 'Error parsing JSON.', err })
 
-        return { attemptsCount: 0, successCount: 0, error, json }
+        return { attemptsCount: 0, successCount: 0, error: err, json }
     }
 
     // TODO(DOMA-5910): Validate json structure
@@ -49,7 +47,7 @@ const sendMessageToResidentScopes = async (json) => {
 
     // no properties found, can not continue
     if (isEmpty(residentsWhere.property.id_in)) {
-        logger.error({ msg: 'no properties found for', scopes, taskId })
+        logger.error({ msg: 'no properties found for', data: { scopes } })
 
         return { successCount: 0, attemptsCount: 0, error: new Error('No properties found'), json }
     }
@@ -157,7 +155,7 @@ const sendMessageToResidentScopes = async (json) => {
         }
     }
 
-    logger.info({ msg: 'notifications sent', successCount, attemptsCount: residentsCount, skippedDuplicates, taskId })
+    logger.info({ msg: 'notifications sent', count: successCount, data: { successCount, attemptsCount: residentsCount, skippedDuplicates } })
 
     return { successCount, attemptsCount: residentsCount, skippedDuplicates }
 }

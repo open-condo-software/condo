@@ -24,7 +24,7 @@ const MAX_XLSX_FILE_ROWS = 10000
 const DATE_FORMAT = 'DD.MM.YYYY'
 const EMPTY_VALUE = '—'
 
-const taskLogger = getLogger('exportContacts')
+const taskLogger = getLogger()
 
 const contactToRow = ({ task, contact, translatedRolesMap }) => {
     const { locale } = task
@@ -90,8 +90,9 @@ async function exportContacts (taskId) {
 
     if (!task.locale) {
         taskLogger.error({
-            msg: `ContactExportTask with id = ${taskId} doesn't have value for "locale" field`,
-            data: { id: taskId },
+            msg: 'ContactExportTask doesn\'t have value for "locale" field',
+            entityId: taskId,
+            entity: 'ContactExportTask',
         })
         await ContactExportTask.update(context, taskId, {
             ...baseAttrs,
@@ -158,8 +159,9 @@ async function exportContacts (taskId) {
         }
     } catch (err) {
         taskLogger.error({
-            msg: 'Failed to export contacts',
-            data: { id: taskId },
+            msg: 'failed to export contacts',
+            entityId: taskId,
+            entity: 'ContactExportTask',
             err,
         })
         throw err

@@ -28,8 +28,8 @@ const {
 } = require('@condo/domains/user/utils/serverSchema/requestLimitHelpers')
 
 
-const appLogger = getLogger('condo')
-const logger = appLogger.child({ module: 'organization/findOrganizationsByTin' })
+
+const logger = getLogger()
 
 const MAX_TOTAL_REQUESTS = 50
 
@@ -121,8 +121,11 @@ const FindOrganizationsByTinService = new GQLCustomSchema('FindOrganizationsByTi
                     if (authedItemEmail) await checkTotalRequestLimitCountersByEmail(context, FIND_ORGANIZATION_BY_TIN_TYPE, authedItemEmail, MAX_TOTAL_REQUESTS)
                     if (authedItemPhone) await checkTotalRequestLimitCountersByPhone(context, FIND_ORGANIZATION_BY_TIN_TYPE, authedItemPhone, MAX_TOTAL_REQUESTS)
                 } else {
-                    const reqId = get(context, ['req', 'id'])
-                    logger.info({ msg: 'Request limit was skip for user', reqId, authedItemId })
+                    logger.info({
+                        msg: 'request limit was skip for user',
+                        entityId: authedItemId,
+                        entity: 'User',
+                    })
                 }
 
                 await FindOrganizationsByTinLog.create(context, {

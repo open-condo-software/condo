@@ -9,7 +9,7 @@ const { SEND_METER_VERIFICATION_DATE_REMINDER_TASK } = require('@condo/domains/c
 
 const { sendVerificationDateReminder } = require('./sendVerificationDateReminder')
 
-const logger = getLogger('meter/sendVerificationDateReminder')
+const logger = getLogger()
 
 const sendVerificationDateReminderTaskFn = async (context = null) => {
     const isFeatureEnabled = await featureToggleManager.isFeatureEnabled(context, SEND_METER_VERIFICATION_DATE_REMINDER_TASK)

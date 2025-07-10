@@ -14,7 +14,7 @@ const CTX_INIT_STATE = {
     state: { dv: 1 },
 }
 
-const logger = getLogger('sbbol/syncFeatures/SPP')
+const logger = getLogger('sbbol-sync-features-spp')
 
 /**
  * Connects billing and acquiring miniapps for SPP clients
@@ -28,7 +28,11 @@ async function syncServiceProviderProfileState ({ context, organization }) {
     const orgId = organization.id
 
     if (!('BillingIntegrationId' in config && 'AcquiringIntegrationId' in config)) {
-        logger.warn({ msg: 'Non-valid .env config, skipping SPP integration', orgId })
+        logger.warn({
+            msg: 'Non-valid .env config, skipping SPP integration',
+            entityId: orgId,
+            entity: 'Organization',
+        })
         return false
     }
 
@@ -55,15 +59,33 @@ async function syncServiceProviderProfileState ({ context, organization }) {
 
     if (!canConnectBilling || !canConnectAcquiring) {
         if (!canConnectBilling) {
-            logger.error({ msg: 'SPP cannot be connected because another billing integration is already connected', orgId, activeBillingIntegrationId })
+            logger.error({
+                msg: 'SPP cannot be connected because another billing integration is already connected',
+                entityId: orgId,
+                entity: 'Organization',
+                data: {
+                    activeBillingIntegrationId,
+                },
+            })
         }
 
         if (!canConnectAcquiring) {
-            logger.error({ msg: 'SPP cannot be connected because another acquiring integration is already connected', orgId, activeAcquiringIntegrationId })
+            logger.error({
+                msg: 'SPP cannot be connected because another acquiring integration is already connected',
+                entityId: orgId,
+                entity: 'Organization',
+                data: {
+                    activeAcquiringIntegrationId,
+                },
+            })
         }
 
         if (!existingBillingContext) {
-            logger.info({ msg: `Not found existing context for specified billing integration. Creating new one with "${CONTEXT_IN_PROGRESS_STATUS}" status to notify sales CRM`, orgId })
+            logger.info({
+                msg: `not found existing context for specified billing integration. Creating new one with "${CONTEXT_IN_PROGRESS_STATUS}" status to notify sales CRM`,
+                entityId: orgId,
+                entity: 'Organization',
+            })
             await BillingContext.create(adminContext, {
                 ...dvSenderFields,
                 ...CTX_INIT_STATE,
@@ -74,7 +96,12 @@ async function syncServiceProviderProfileState ({ context, organization }) {
         }
 
         if (!existingAcquiringContext) {
-            logger.info({ msg: `Not found existing context for specified acquiring integration. Creating new one with "${CONTEXT_IN_PROGRESS_STATUS}" status to notify sales CRM`, orgId })
+            logger.info({
+                msg: `not found existing context for specified acquiring integration. Creating new one with "${CONTEXT_IN_PROGRESS_STATUS}" status to notify sales CRM`,
+                entityId: orgId,
+                entity: 'Organization',
+            })
+
             await AcquiringContext.create(adminContext, {
                 ...dvSenderFields,
                 ...CTX_INIT_STATE,
@@ -89,16 +116,28 @@ async function syncServiceProviderProfileState ({ context, organization }) {
 
     if (existingBillingContext) {
         if (existingBillingContext.status !== CONTEXT_FINISHED_STATUS) {
-            logger.info({ msg: `Updating existing billing integration context to "${CONTEXT_FINISHED_STATUS}" status`, orgId })
+            logger.info({
+                msg: `updating existing billing integration context to "${CONTEXT_FINISHED_STATUS}" status`,
+                entityId: orgId,
+                entity: 'Organization',
+            })
             await BillingContext.update(adminContext, existingBillingContext.id, {
                 ...dvSenderFields,
                 status: CONTEXT_FINISHED_STATUS,
             })
         } else {
-            logger.info({ msg: 'Billing integration is already connected for organization, moving on to acquiring', orgId })
+            logger.info({
+                msg: 'billing integration is already connected for organization, moving on to acquiring',
+                entityId: orgId,
+                entity: 'Organization',
+            })
         }
     } else {
-        logger.info({ msg: `Creating new billing integration context with "${CONTEXT_FINISHED_STATUS}" status`, orgId })
+        logger.info({
+            msg: `creating new billing integration context with "${CONTEXT_FINISHED_STATUS}" status`,
+            entityId: orgId,
+            entity: 'Organization',
+        })
         await BillingContext.create(adminContext, {
             ...dvSenderFields,
             ...CTX_INIT_STATE,
@@ -110,16 +149,28 @@ async function syncServiceProviderProfileState ({ context, organization }) {
 
     if (existingAcquiringContext) {
         if (existingAcquiringContext.status !== CONTEXT_FINISHED_STATUS) {
-            logger.info({ msg: `Updating existing acquiring integration context to "${CONTEXT_FINISHED_STATUS}" status`, orgId })
+            logger.info({
+                msg: `updating existing acquiring integration context to "${CONTEXT_FINISHED_STATUS}" status`,
+                entityId: orgId,
+                entity: 'Organization',
+            })
             await AcquiringContext.update(adminContext, existingAcquiringContext.id, {
                 ...dvSenderFields,
                 status: CONTEXT_FINISHED_STATUS,
             })
         } else {
-            logger.info({ msg: 'Acquiring integration is already connected for organization', orgId })
+            logger.info({
+                msg: 'acquiring integration is already connected for organization',
+                entityId: orgId,
+                entity: 'Organization',
+            })
         }
     } else {
-        logger.info({ msg: `Creating new acquiring integration context with "${CONTEXT_FINISHED_STATUS}" status`, orgId })
+        logger.info({
+            msg: `creating new acquiring integration context with "${CONTEXT_FINISHED_STATUS}" status`,
+            entityId: orgId,
+            entity: 'Organization',
+        })
         await AcquiringContext.create(adminContext, {
             ...dvSenderFields,
             ...CTX_INIT_STATE,

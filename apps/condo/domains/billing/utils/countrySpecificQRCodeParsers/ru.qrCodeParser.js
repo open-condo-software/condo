@@ -4,7 +4,7 @@ const { convertEncoding, detectEncoding } = require('@open-condo/keystone/file/u
 const { getLogger } = require('@open-condo/keystone/logging')
 
 
-const logger = getLogger('parseRUReceiptQRCode')
+const logger = getLogger()
 
 // NOTE(YEgorLu): billings send qrCodes with fields in any casing. So let's map all variants to one casing
 const FIELDS_OVERRIDES = {
@@ -45,10 +45,10 @@ function parseRUReceiptQRCode (qrBase64Str) {
     const matches = /^ST(?<version>\d{4})(?<encodingTag>\d)\|(?<requisitesStr>.*)$/g.exec(decodedQrStr)
 
     if (!matches) {
-        logger.error({ msg:'Error qr-code parsing', data: { qrStr: qrBase64Str, decodedQrStr, detectedEncoding } })
+        logger.error({ msg:'error qr-code parsing', data: { qrStr: qrBase64Str, decodedQrStr, detectedEncoding } })
         throw new Error('Invalid QR code')
     }
-    logger.info({ msg:'Parsed qr-code', data: { qrStr: qrBase64Str, decodedQrStr, detectedEncoding } })
+    logger.info({ msg:'parsed qr-code', data: { qrStr: qrBase64Str, decodedQrStr, detectedEncoding } })
 
     const requisitesStr = get(matches, ['groups', 'requisitesStr'], '')
     return Object.fromEntries(

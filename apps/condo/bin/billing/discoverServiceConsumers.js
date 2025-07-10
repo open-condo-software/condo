@@ -17,7 +17,7 @@ const { find } = require('@open-condo/keystone/schema')
 const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')
 const { discoverServiceConsumers } = require('@condo/domains/resident/utils/serverSchema')
 
-const logger = getLogger('discoverServiceConsumersScript')
+const logger = getLogger()
 
 const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'discoverServiceConsumersScript' } }
 
@@ -52,9 +52,9 @@ async function main () {
         const billingAccountsIds = map(chunkData, 'id')
         try {
             const result = await discoverServiceConsumers(context, { ...DV_SENDER, billingAccountsIds })
-            logger.info({ msg: `chunk[${chunkData.length}]`, billingAccountsIds, result })
+            logger.info({ msg: 'chunk processed', data: { billingAccountsIds, result }, count: chunkData.length })
         } catch (err) {
-            logger.error({ msg: `chunk[${chunkData.length}] error`, billingAccountsIds, err })
+            logger.error({ msg: 'chunk error', data: { billingAccountsIds }, err, count: chunkData.length })
         }
     }
 

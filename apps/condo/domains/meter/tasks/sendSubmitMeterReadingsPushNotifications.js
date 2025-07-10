@@ -20,7 +20,7 @@ const { Organization } = require('@condo/domains/organization/utils/serverSchema
 
 
 dayjs.extend(isBetween)
-const logger = getLogger('meter/sendSubmitMeterReadingsPushNotifications')
+const logger = getLogger()
 
 const readMetersPage = async ({ context, offset, pageSize }) => {
     return await Meter.getAll(context, {
@@ -147,12 +147,12 @@ const sendSubmitMeterReadingsPushNotifications = async () => {
         metersWithExpiredVerificationDate: 0,
         startTime: dayjs(),
     }
-    logger.info({ msg: 'Start proceeding', state })
+    logger.info({ msg: 'start proceeding', data: { state } })
 
     do {
         // log each 10 pages
         if (state.processedPages % 10 === 0) {
-            logger.info({ msg: 'Processing', state })
+            logger.info({ msg: 'processing', data: { state } })
         }
 
         // read all required data
@@ -252,18 +252,20 @@ const sendSubmitMeterReadingsPushNotifications = async () => {
     // some stat
     const endTime = dayjs()
     logger.info({
-        msg: 'End proceeding',
-        endTime,
+        msg: 'end proceeding',
         processingTime: endTime.unix() - state.startTime.unix(),
-        state,
+        data: {
+            endTime,
+            state,
+        },
     })
 }
 
 const sendMessageSafely = async ({ context, message }) => {
     try {
         await sendMessage(context, message)
-    } catch (error) {
-        logger.error({ msg: 'sendMessage error', error })
+    } catch (err) {
+        logger.error({ msg: 'sendMessage error', err })
     }
 }
 

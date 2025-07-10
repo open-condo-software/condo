@@ -14,7 +14,7 @@ const { NotificationAnonymousSetting } = require('@condo/domains/notification/ut
 const { getAnonymousSettings } = require('@condo/domains/notification/utils/serverSchema/helpers')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
-const logger = getLogger('unsubscribe/linkHandler')
+const logger = getLogger()
 
 const UNSUBSCRIBE_LINK_WINDOW_SIZE = 60 // seconds
 const MAX_UNSUBSCRIBE_LINK_REQUEST_BY_WINDOW = 5
@@ -78,8 +78,8 @@ class UnsubscribeLinkRouter {
             // print error log
             logger.error({
                 msg: error.message,
-                params: req.query,
-                error,
+                req,
+                err: error,
             })
 
             return res.redirect('/500')

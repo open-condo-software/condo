@@ -29,7 +29,7 @@ const checkValidationAgainstIncorrectValue = async (field, invalidValue, errorFi
         expect(e.message).toBe('Wrong format of arguments, passed to `buildBicryptId` function')
         expect(mockLoggerError).toBeCalledTimes(1)
         expect(mockLoggerError).toHaveBeenCalledWith({
-            msg: 'Wrong format of arguments',
+            msg: 'wrong format of arguments',
             data: {
                 cryptoInfo,
                 errors: [errorFields],

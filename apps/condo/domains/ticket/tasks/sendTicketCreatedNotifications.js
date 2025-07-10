@@ -1,5 +1,4 @@
 const dayjs = require('dayjs')
-const { v4: uuid } = require('uuid')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -15,9 +14,7 @@ const { buildFullClassifierName } = require('@condo/domains/ticket/utils')
 const { TicketClassifier } = require('@condo/domains/ticket/utils/serverSchema')
 const { getUsersToSendTicketRelatedNotifications } = require('@condo/domains/ticket/utils/serverSchema/notification')
 
-
-const appLogger = getLogger('condo')
-const taskLogger = appLogger.child({ module: 'tasks/sendTicketCreatedNotifications' })
+const taskLogger = getLogger()
 
 const EMPTY_CONTENT = '—'
 
@@ -25,7 +22,6 @@ const EMPTY_CONTENT = '—'
  * Sends notifications after ticket created
  */
 const sendTicketCreatedNotifications = async (ticketId, lang, organizationId, organizationName) => {
-    const taskId = uuid()
     try {
         const { keystone: context } = getSchemaCtx('Ticket')
         setLocaleForKeystoneContext(context, lang)
@@ -83,11 +79,12 @@ const sendTicketCreatedNotifications = async (ticketId, lang, organizationId, or
                 organization: { id: organizationId },
             })
         }
-    } catch (error) {
+    } catch (err) {
         taskLogger.error({
-            msg: 'Failed to send notifications about created ticket',
-            data: { taskId, ticketId },
-            error,
+            msg: 'failed to send notifications about created ticket',
+            entityId: ticketId,
+            entity: 'Ticket',
+            err,
         })
     }
 }

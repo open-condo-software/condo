@@ -17,8 +17,7 @@ const { INVALID_START_DATE_TIME, INVALID_END_DATE_TIME, INVALID_PERIOD } = requi
 const { MeterReading } = require('@condo/domains/meter/utils/serverSchema')
 
 
-const appLogger = getLogger('condo')
-const logger = appLogger.child({ module: '_internalDeleteMeterReadingsService' })
+const logger = getLogger()
 
 const DATE_FORMAT = 'DD.MM.YYYY HH:mm:ss'
 const CHUNK_SIZE = 100
@@ -131,13 +130,16 @@ const _internalDeleteMeterReadingsService = new GQLCustomSchema('_internalDelete
                 }, { meta: true })
 
                 logger.info({
-                    msg: `${meterReadingsCount} readings found to delete`,
-                    meterReadingsWhere: JSON.stringify(meterReadingsWhere),
-                    sender: JSON.stringify(sender),
+                    msg: 'readings found to delete',
+                    count: meterReadingsCount,
+                    data: {
+                        meterReadingsWhere,
+                        sender,
+                    },
                 })
 
                 if (!meterReadingsCount) {
-                    logger.info({ msg: 'Readings not found', sender: JSON.stringify(sender) })
+                    logger.info({ msg: 'readings not found', data: { sender } })
                     return { status: 'success', toDelete: 0, deleted: 0 }
                 }
 
@@ -163,10 +165,15 @@ const _internalDeleteMeterReadingsService = new GQLCustomSchema('_internalDelete
                 let processing = 0
 
                 for (const meterReadingIdsToDelete of meterReadingIdsToDeleteByChunk) {
+                    processing += meterReadingIdsToDelete.length
                     logger.info({
-                        msg: `Process of deleting readings (${processing}-${processing += meterReadingIdsToDelete.length}/${meterReadingsCount})`,
-                        meterReadingIdsToDelete,
-                        sender: JSON.stringify(sender),
+                        msg: 'process of deleting readings',
+                        count: processing,
+                        data: {
+                            total: meterReadingsCount,
+                            meterReadingIdsToDelete,
+                            sender,
+                        },
                     })
 
                     try {
@@ -176,8 +183,10 @@ const _internalDeleteMeterReadingsService = new GQLCustomSchema('_internalDelete
                         logger.error({
                             msg: 'Failed to delete a meter readings',
                             error,
-                            meterReadingIds: meterReadingIdsToDelete,
-                            sender: JSON.stringify(sender),
+                            data: {
+                                meterReadingIds: meterReadingIdsToDelete,
+                                sender,
+                            },
                         })
                     }
                 }
@@ -185,11 +194,13 @@ const _internalDeleteMeterReadingsService = new GQLCustomSchema('_internalDelete
                 const status = meterReadingsCount === numberOfDeleted ? 'success' : 'error'
 
                 logger.info({
-                    msg: 'Deleting readings completed',
+                    msg: 'deleting readings completed',
                     status,
-                    toDelete: meterReadingsCount,
-                    deleted: numberOfDeleted,
-                    sender: JSON.stringify(sender),
+                    data: {
+                        toDelete: meterReadingsCount,
+                        deleted: numberOfDeleted,
+                        sender,
+                    },
                 })
 
                 return { status, toDelete: meterReadingsCount, deleted: numberOfDeleted }

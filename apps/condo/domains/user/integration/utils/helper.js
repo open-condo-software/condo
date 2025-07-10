@@ -2,10 +2,10 @@ const { get, isNil } = require('lodash')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 
-const logger = getLogger('auth/routes')
+const logger = getLogger()
 
 function handleAuthRouteError ({ redirectUrl, error, req, res, next }) {
-    logger.error({ msg: `Auth error ${req.path}`, err: error, reqId: req.id })
+    logger.error({ msg: 'auth error', path: req.path, err: error })
 
     // no redirectUrl set up
     if (isNil(redirectUrl)) {

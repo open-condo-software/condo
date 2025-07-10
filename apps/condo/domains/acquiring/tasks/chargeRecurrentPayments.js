@@ -1,5 +1,4 @@
 const { get } = require('lodash')
-const { v4: uuid } = require('uuid')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
@@ -27,7 +26,7 @@ const {
 } = require('@condo/domains/acquiring/utils/taskSchema')
 const { processArrayOf } = require('@condo/domains/common/utils/parallel')
 
-const logger = getLogger('recurrent-payment-context-processing')
+const logger = getLogger()
 
 async function chargeByRecurrentPaymentAndPaymentAdapter (context, recurrentPayment, paymentAdapter) {
     // prepare vars
@@ -59,8 +58,7 @@ async function chargeByRecurrentPaymentAndPaymentAdapter (context, recurrentPaym
 }
 
 async function chargeRecurrentPayments () {
-    const taskId = this.id || uuid()
-    logger.info({ msg: 'Start processing recurrent payment tasks', taskId })
+    logger.info({ msg: 'start processing recurrent payment tasks' })
 
     // prepare context
     const { keystone } = getSchemaCtx('RecurrentPaymentContext')
@@ -73,7 +71,7 @@ async function chargeRecurrentPayments () {
 
     // retrieve RecurrentPaymentContext page by page
     while (hasMorePages) {
-        logger.info({ msg: `Processing recurrent payment page #${Math.floor(offset / pageSize)}`, taskId })
+        logger.info({ msg: 'processing recurrent payments page', data: { page: Math.floor(offset / pageSize) } })
         // get page (can be empty)
         const page = await getReadyForProcessingPaymentsPage(context, pageSize, offset)
         const itemsWithPayableStatus = await filterNotPayablePayment(page)
@@ -118,7 +116,7 @@ async function chargeRecurrentPayments () {
                 }
             } catch (err) {
                 const message = get(err, 'errors[0].message') || get(err, 'message') || JSON.stringify(err)
-                logger.error({ msg: 'Process recurrent payment error', err, taskId })
+                logger.error({ msg: 'process recurrent payment error', err })
                 await setRecurrentPaymentAsFailed(
                     context,
                     recurrentPayment,
@@ -131,7 +129,7 @@ async function chargeRecurrentPayments () {
         hasMorePages = page.length > 0
         offset += pageSize
     }
-    logger.info({ msg: 'End processing recurrent payment', taskId })
+    logger.info({ msg: 'processing recurrent payment end' })
 }
 
 module.exports = {

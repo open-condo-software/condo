@@ -3,7 +3,6 @@ const cloneDeep = require('lodash/cloneDeep')
 const get = require('lodash/get')
 const isEqual = require('lodash/isEqual')
 
-const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { createTask } = require('@open-condo/keystone/tasks')
@@ -21,12 +20,9 @@ const { EXPENSES_GROUPED_BY_CATEGORY_AND_COST_ITEM } = require('../constants')
 // Practically, we need to
 const TASK_PROGRESS_UPDATE_INTERVAL = 10 * 1000 // 10sec
 
-// Rough solution to offload server in case of processing many thousands of records
-const SLEEP_TIMEOUT = conf.WORKER_BATCH_OPERATIONS_SLEEP_TIMEOUT || 200
-
 const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'generateReports' } }
 
-const logger = getLogger('generateReports')
+const logger = getLogger()
 
 function sortTransactionsByMonthAndYear (allTransactions) {
     const YearMonthSet = new Set()
@@ -112,13 +108,21 @@ async function categoryGroupsBuilder (costItemsDataSortedByDate, { task, lastPro
 }
 
 async function updateTaskProgress ({ task, lastProgress, context, progress }) {
-    const taskId = get(task, 'id')
+    const taskId = task.id
     if (Date.now() - lastProgress > TASK_PROGRESS_UPDATE_INTERVAL) {
         // User can cancel the task at any time, in this all operations should be stopped
         task = await BankAccountReportTask.getOne(context, { id: taskId }, 'id status')
         const taskStatus = get(task, 'status')
         if (!task || taskStatus !== TASK_PROCESSING_STATUS) {
-            logger.info({ msg: 'status != processing. Aborting processing reports loop', taskStatus, taskSchemaName: BankAccountReportTask.gql.SINGULAR_FORM, taskId })
+            logger.info({
+                msg: 'status != processing. Aborting processing reports loop',
+                data: {
+                    taskStatus,
+                    taskSchemaName: BankAccountReportTask.gql.SINGULAR_FORM,
+                },
+                entityId: taskId,
+                entity: 'BankAccountReportTask',
+            })
             return
         }
 
@@ -314,17 +318,26 @@ const generateReports = async (taskId) => {
 
 module.exports = {
     generateReportsTask: createTask('generateReportsTask', async (taskId) => {
-        logger.info({ msg: 'Start the task of generating a bank report', taskId })
+        logger.info({
+            msg: 'start the task of generating a bank report',
+            entityId: taskId,
+            entity: 'BankAccountReportTask',
+        })
         try {
             await generateReports(taskId)
-        } catch (error) {
-            logger.info({ msg: 'Bank report generation task failed', taskId, error })
+        } catch (err) {
+            logger.info({
+                msg: 'Bank report generation task failed',
+                entityId: taskId,
+                entity: 'BankAccountReportTask',
+                err,
+            })
             const { keystone: context } = getSchemaCtx('BankAccountReportTask')
             await BankAccountReportTask.update(context, taskId, {
                 ...DV_SENDER,
                 status: TASK_ERROR_STATUS,
             })
-            throw error
+            throw err
         }
     }, 'low'),
 }

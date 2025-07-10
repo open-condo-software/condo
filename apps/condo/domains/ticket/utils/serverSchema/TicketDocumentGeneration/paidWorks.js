@@ -19,7 +19,7 @@ const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { TICKET_DOCUMENT_GENERATION_TASK_FORMAT } = require('@condo/domains/ticket/constants/ticketDocument')
 
-const logger = getLogger('generateDocumentOfPaidWorksCompletion')
+const logger = getLogger()
 
 const LONG_BLANK = '____________________________________'
 const SHORT_BLANK = '__________________'
@@ -33,8 +33,14 @@ async function getFinanceInfoDataByLocale (organization, { locale }) {
     if (locale === RU_LOCALE) {
         try {
             ({ iec, psrn, organizationAddress } = await financeInfoClient.getOrganization(organization.tin))
-        } catch (error) {
-            logger.info({ msg: 'fall financeInfoClient when get organization by tin', organizationId: organization.id, tin: organization.tin, error: error })
+        } catch (err) {
+            logger.info({
+                msg: 'fall financeInfoClient when get organization by tin',
+                entityId: organization.id,
+                entity: 'Organization',
+                data: { tin: organization.tin },
+                err,
+            })
         }
     }
 
@@ -134,8 +140,11 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
                 logger.info({
                     msg: 'listOfWorks generation error in document of paid completion works',
                     err: err,
-                    taskId: task.id,
-                    ticketId: ticket.id,
+                    data: {
+                        taskId: task.id,
+                    },
+                    entityId: ticket.id,
+                    entity: 'Ticket',
                 })
                 return {}
             }
@@ -225,8 +234,11 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
 
     logger.info({
         msg: 'finished genereating a document of paid completion works ',
-        taskId: task.id,
-        ticketId: ticket.id,
+        data: {
+            taskId: task.id,
+        },
+        entityId: ticket.id,
+        entity: 'Ticket',
     })
 
     return fileUploadInput

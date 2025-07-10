@@ -22,7 +22,7 @@ const BUILD_BICRYPT_ID_CRYPTO_INFO_SCHEMA = {
 
 const formatValidator = ajv.compile(BUILD_BICRYPT_ID_CRYPTO_INFO_SCHEMA)
 
-const logger = getLogger('buildBicryptId')
+const logger = getLogger()
 
 /**
  * Builds bicryptId string in format, required by SBBOL API
@@ -41,7 +41,7 @@ function buildBicryptId (cryptoInfo) {
             instancePath,
             message,
         }))
-        logger.error({ msg: 'Wrong format of arguments', data: { cryptoInfo, errors } })
+        logger.error({ msg: 'wrong format of arguments', data: { cryptoInfo, errors } })
         throw new Error('Wrong format of arguments, passed to `buildBicryptId` function')
     }
     const paddedCertCenterNum = certCenterCode.length === 4

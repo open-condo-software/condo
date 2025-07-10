@@ -8,7 +8,7 @@ const {
     RECURRENT_PAYMENT_PROCESS_ERROR_CARD_TOKEN_NOT_VALID_CODE,
 } = require('@condo/domains/acquiring/constants/recurrentPayment')
 
-const logger = getLogger('PaymentAdapter')
+const logger = getLogger()
 
 class PaymentAdapter {
     constructor ({ multiPaymentId, directPaymentUrl, getCardTokensUrl }) {
@@ -26,10 +26,10 @@ class PaymentAdapter {
             }
 
             return !isNil(cardTokens.find(token => token.id === cardId))
-        } catch (error) {
+        } catch (err) {
             logger.error({
-                msg: 'Failed to obtain user\'s cards',
-                error,
+                msg: 'failed to obtain user cards',
+                err,
             })
         }
     }

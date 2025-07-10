@@ -11,7 +11,7 @@ const { ISO_CODES_FOR_SBBOL, dvSenderFields } = require('@condo/domains/organiza
 const { initSbbolFintechApi } = require('@condo/domains/organization/integrations/sbbol/SbbolFintechApi')
 
 
-const logger = getLogger('sbbol/syncBankAccounts')
+const logger = getLogger('sbbol-sync-bank-accounts')
 
 /**
  * Connects new BankAccount records for user according to accounts data from SBBOL.
@@ -65,10 +65,19 @@ const _syncBankAccounts = async (accounts, organization) => {
                     isApproved: true,
                 }
             )
-            logger.info({ msg: 'Created BankAccount', bankAccount: { id: account.number, organization: { id: organization.id, name: organization.name } } })
+            logger.info({
+                msg: 'created BankAccount',
+                entityId: organization.id,
+                entity: 'Organization',
+                data: { bankAccount: { id: account.number, organization: { id: organization.id, name: organization.name } } },
+            })
         } else {
             if (!foundAccount.integrationContext) {
-                logger.info({ msg: 'Found BankAccount does not have integrationContext' })
+                logger.info({
+                    msg: 'found BankAccount does not have integrationContext',
+                    entityId: organization.id,
+                    entity: 'Organization',
+                })
 
                 const createdBankIntegrationAccountContext = await BankIntegrationAccountContext.create(context, {
                     ...dvSenderFields,
@@ -81,7 +90,15 @@ const _syncBankAccounts = async (accounts, organization) => {
                     ...dvSenderFields,
                 })
 
-                logger.info({ msg: `Connected BankIntegrationAccountContext { id: ${createdBankIntegrationAccountContext.id}, integration: { name: 'SBBOL' } } to BankAccount { id: ${foundAccount.id} }` })
+                logger.info({
+                    msg: 'connected BankIntegrationAccountContext to BankAccount',
+                    entityId: organization.id,
+                    entity: 'Organization',
+                    data: {
+                        contextId: createdBankIntegrationAccountContext.id,
+                        bankAccountId: foundAccount.id,
+                    },
+                })
             }
         }
     }
@@ -105,7 +122,11 @@ const syncBankAccounts = async (userId, organization) => {
     const accounts = get(data, 'accounts', [])
 
     if (isEmpty(accounts)) {
-        logger.info({ msg: 'SBBOL did not return any ClientAccount, do nothing' })
+        logger.info({
+            msg: 'SBBOL did not return any ClientAccount, do nothing',
+            entityId: organization.id,
+            entity: 'Organization',
+        })
     } else {
         await _syncBankAccounts(accounts, organization)
     }

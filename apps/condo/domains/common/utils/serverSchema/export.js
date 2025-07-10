@@ -19,7 +19,7 @@ const { getHeadersTranslations } = require('../exportToExcel')
 const TASK_PROGRESS_UPDATE_INTERVAL = 10 * 1000 // 10sec
 const CSV_DELIMITER = ';'
 
-const logger = getLogger('export')
+const logger = getLogger()
 
 // Rough solution to offload server in case of exporting many thousands of records
 const SLEEP_TIMEOUT = conf.WORKER_BATCH_OPERATIONS_SLEEP_TIMEOUT || 200
@@ -88,7 +88,12 @@ const processRecords = async ({ context, loadRecordsBatch, processRecordsBatch, 
         task = await taskServerUtils.getOne(context, { id: taskId }, 'id status')
         const taskStatus = get(task, 'status')
         if (!task || taskStatus !== TASK_PROCESSING_STATUS) {
-            logger.info({ msg: 'status != processing', taskStatus, taskSchemaName, taskId })
+            logger.info({
+                msg: 'status != processing',
+                data: { taskStatus },
+                entityId: taskId,
+                entity: taskSchemaName,
+            })
             return
         }
 
@@ -96,7 +101,12 @@ const processRecords = async ({ context, loadRecordsBatch, processRecordsBatch, 
 
         if (batch.length === 0) {
             // NOTE(pahaz): someone delete some records during the export
-            logger.info({ msg: 'empty batch', offset, batchLength: batch.length, taskSchemaName, taskId })
+            logger.info({
+                msg: 'empty batch',
+                data: { offset, batchLength: batch.length },
+                entityId: taskId,
+                entity: taskSchemaName,
+            })
             task = await taskServerUtils.update(context, taskId, {
                 ...baseAttrs,
                 totalRecordsCount: offset,

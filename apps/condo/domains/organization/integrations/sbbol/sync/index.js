@@ -111,7 +111,7 @@ const sync = async ({ keystone, userInfo, tokenSet, features, useExtendedConfig 
         user = await syncUser({ context, userInfo: userData, identityId: userInfo.userGuid || userInfo.sub })
     } catch (err) {
         logger.error({
-            msg: 'Failed to sync user',
+            msg: 'failed to sync user',
             err,
             data: { userData, userInfo, organizationInfo },
         })
@@ -122,7 +122,7 @@ const sync = async ({ keystone, userInfo, tokenSet, features, useExtendedConfig 
         organizationSyncResult = await syncOrganization({ context, user, userData, organizationInfo, dvSenderFields })
     } catch (err) {
         logger.error({
-            msg: 'Failed to sync organization',
+            msg: 'failed to sync organization',
             err,
             data: { userData, userInfo, organizationInfo },
         })
@@ -136,7 +136,7 @@ const sync = async ({ keystone, userInfo, tokenSet, features, useExtendedConfig 
         await syncServiceSubscriptions(userInfo.inn)
     } catch (err) {
         logger.error({
-            msg: 'Failed to sync service subscriptions',
+            msg: 'failed to sync service subscriptions',
             err,
             data: { userInfo },
         })
@@ -147,7 +147,7 @@ const sync = async ({ keystone, userInfo, tokenSet, features, useExtendedConfig 
     const syncBankAccountFeatureEnabled = await featureToggleManager.isFeatureEnabled(adminContext, SYNC_BANK_ACCOUNTS_FROM_SBBOL, { organization: organization.id })
     if (syncBankAccountFeatureEnabled) {
         logger.info({
-            msg: 'Sync bank accounts',
+            msg: 'sync bank accounts',
             data: {
                 user,
                 organization,

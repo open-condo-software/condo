@@ -5,10 +5,10 @@ const { allItemsQueryByChunks } = require('@open-condo/keystone/schema')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { sendBillingReceiptsAddedNotificationForOrganizationContextTask } = require('@condo/domains/resident/tasks/sendBillingReceiptsAddedNotificationForOrganizationContextTask')
-const logger = getLogger('sendBillingReceiptsAddedNotifications')
+const logger = getLogger()
 
 const sendBillingReceiptsAddedNotifications = async (lastSendDate) => {
-    logger.info({ msg: 'Starting billing receipts notification process' })
+    logger.info({ msg: 'starting billing receipts notification process' })
 
     const BillingContexts = await allItemsQueryByChunks({
         schemaName: 'BillingIntegrationOrganizationContext',
@@ -18,7 +18,7 @@ const sendBillingReceiptsAddedNotifications = async (lastSendDate) => {
             deletedAt: null,
         } })
 
-    logger.info({ msg: 'Billing contexts for pushes', data: { BillingContexts } })
+    logger.info({ msg: 'billing contexts for pushes', data: { BillingContexts } })
 
     for (const context of BillingContexts) {
         const lastReport = get(context, 'lastReport.finishTime')

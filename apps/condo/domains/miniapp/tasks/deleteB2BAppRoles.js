@@ -13,14 +13,19 @@ const { B2BAppRole } = require('@condo/domains/miniapp/utils/serverSchema')
 const CHUNK_SIZE = 100
 const SENDER = { dv: 1, fingerprint: 'delete-b2b-app-roles-task' }
 
-const logger = getLogger('miniapp/tasks/deleteB2BAppRoles')
+const logger = getLogger()
 
 async function deleteB2BAppRoles (appId, organizationId) {
     if (!appId || !organizationId) {
         return
     }
 
-    logger.info({ msg: 'Deleting B2BAppRoles for organization', organizationId, appId })
+    logger.info({
+        entityId: appId,
+        entity: 'B2BApp',
+        msg: 'deleting B2BAppRoles for organization',
+        data: { organizationId, appId },
+    })
 
     const { keystone: context } = getSchemaCtx('B2BAppRole')
 
@@ -31,7 +36,15 @@ async function deleteB2BAppRoles (appId, organizationId) {
     })
 
     const totalRoles = existingRoles.length
-    logger.info({ msg: `Found ${totalRoles} roles to delete`, organizationId, appId })
+    logger.info({
+        msg: 'found some roles to delete',
+        count: totalRoles,
+        entityId: appId,
+        entity: 'B2BApp',
+        data: {
+            organizationId, appId,
+        },
+    })
 
     const deletedAt = dayjs().toISOString()
     const deletePayload = existingRoles.map(role => ({
@@ -49,7 +62,13 @@ async function deleteB2BAppRoles (appId, organizationId) {
     for (const chunkData of chunks) {
         const deleted = await B2BAppRole.updateMany(context, chunkData)
         totalDeleted += deleted.length
-        logger.info({ msg: `${totalDeleted}/${totalRoles} successfully deleted`, organizationId, appId })
+        logger.info({
+            msg: 'roles successfully deleted',
+            count: totalDeleted,
+            data: { organizationId, appId },
+            entityId: appId,
+            entity: 'B2BApp',
+        })
     }
 }
 

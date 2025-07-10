@@ -10,10 +10,17 @@ const { ServiceSubscription } = require('@condo/domains/subscription/utils/serve
 
 const { dvSenderFields } = require('../constants')
 
-const logger = getLogger('sbbol/syncSubscriptions')
+const logger = getLogger('sbbol-sync-subscriptions')
 
-async function stop (subscription, context) {
-    logger.info({ msg: 'Stopping subscription', subscription })
+async function stop (subscription, context, organization) {
+    logger.info({
+        msg: 'stopping subscription',
+        entityId: organization.id,
+        entity: 'Organization',
+        data: {
+            serviceSubscriptionId: subscription.id,
+        },
+    })
     return await ServiceSubscription.update(context, subscription.id, {
         ...dvSenderFields,
         finishAt: dayjs().toISOString(),
@@ -35,7 +42,10 @@ const syncServiceSubscriptions = async (tin) => {
     )
 
     if (!organization) {
-        logger.warn({ msg: 'Not found organization to sync ServiceSubscription for', tin })
+        logger.warn({
+            msg: 'not found organization to sync ServiceSubscription for',
+            data: { tin },
+        })
         return
     }
 
@@ -53,7 +63,14 @@ const syncServiceSubscriptions = async (tin) => {
     const activeDefaultSubscriptions = filter(activeSubscriptions, { type: SUBSCRIPTION_TYPE.DEFAULT })
 
     if (activeDefaultSubscriptions.length > 1) {
-        logger.warn({ msg: 'More than one active ServiceSubscription(type="default") found for Organization', organizationId: organization.id, serviceSubscriptionIds: map(activeDefaultSubscriptions, 'id') })
+        logger.warn({
+            msg: 'more than one active ServiceSubscription(type="default") found for Organization',
+            entityId: organization.id,
+            entity: 'Organization',
+            data: {
+                serviceSubscriptionIds: map(activeDefaultSubscriptions, 'id'),
+            },
+        })
     }
 
     for (let activeSubscription of activeDefaultSubscriptions) {
@@ -62,13 +79,20 @@ const syncServiceSubscriptions = async (tin) => {
         // It covers following cases:
         // - When new organization was created and trial default subscription was created
         // - When user has default subscription (trial or not)
-        await stop(activeSubscription, context)
+        await stop(activeSubscription, context, organization)
     }
 
     const existingSbbolSubscriptions = filter(activeSubscriptions, { type: SUBSCRIPTION_TYPE.SBBOL })
 
     if (existingSbbolSubscriptions.length > 1) {
-        logger.warn({ msg: 'More than one ServiceSubscription(type="sbbol") found for Organization', organizationId: organization.id, serviceSubscriptionIds: map(existingSbbolSubscriptions, 'id') })
+        logger.warn({
+            msg: 'More than one ServiceSubscription(type="sbbol") found for Organization',
+            entityId: organization.id,
+            entity: 'Organization',
+            data: {
+                serviceSubscriptionIds: map(existingSbbolSubscriptions, 'id'),
+            },
+        })
     }
 
     if (existingSbbolSubscriptions.length === 0) {
@@ -81,7 +105,14 @@ const syncServiceSubscriptions = async (tin) => {
             startAt: now.toISOString(),
             finishAt: now.add(SUBSCRIPTION_SBBOL_PERIOD_DAYS, 'days').toISOString(),
         })
-        logger.info({ msg: 'Created SBBOL subscription', serviceSubscriptionId: newSbbolSubscription.id })
+        logger.info({
+            msg: 'created SBBOL subscription',
+            entityId: organization.id,
+            entity: 'Organization',
+            data: {
+                serviceSubscriptionId: newSbbolSubscription.id,
+            },
+        })
     }
 }
 

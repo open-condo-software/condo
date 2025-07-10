@@ -11,10 +11,9 @@ const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransition
 const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
 
 const CHUNK_SIZE = 50
-const ERROR_START_TICKET_CLOSING = 'Failed to start ticket closing because the limit was less than one or was not a number'
+const ERROR_START_TICKET_CLOSING = 'failed to start ticket closing because the limit was less than one or was not a number'
 
-const appLogger = getLogger('condo')
-const taskLogger = appLogger.child({ module: 'closeCompletedTickets' })
+const taskLogger = getLogger()
 
 /**
  * Closes tickets that are in the "completed" status for 7 days
@@ -89,12 +88,12 @@ const closeCompletedTickets = async (defaultLimit = 100) => {
                 } else {
                     countChangedTicketByOrganization[organizationId] = 1
                 }
-            } catch (error) {
+            } catch (err) {
                 skippedTicket += 1
                 taskLogger.error({
-                    msg: 'Failed to close Ticket',
+                    msg: 'failed to close Ticket',
                     data: { id: ticket.id },
-                    error,
+                    err,
                 })
             }
         }

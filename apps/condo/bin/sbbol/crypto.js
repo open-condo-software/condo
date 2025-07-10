@@ -38,7 +38,7 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { SbbolCryptoApi } = require('@condo/domains/organization/integrations/sbbol/SbbolCryptoApi')
 const { getAccessTokenForUser } = require('@condo/domains/organization/integrations/sbbol/utils')
 
-const logger = getLogger('sbbol/crypto')
+const logger = getLogger()
 
 const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
@@ -67,10 +67,10 @@ const getAccessTokenFor = async (hashOrgId, userId) => {
         // `service_organization_hashOrgId` is a `userInfo.HashOrgId` from SBBOL, that used to obtain accessToken
         // for organization, that will be queried in SBBOL using `SbbolFintechApi`.
         ({ accessToken } = await getAccessTokenForUser(userId))
-    } catch (error) {
+    } catch (err) {
         logger.error({
-            msg: 'Failed to obtain organization access token from SBBOL',
-            error,
+            msg: 'failed to obtain organization access token from SBBOL',
+            err,
         })
         return null
     }

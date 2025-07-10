@@ -25,7 +25,7 @@ const { _INTERNAL_SEND_NOTIFICATION_NEW_MOBILE_APP_VERSION_MUTATION } = require(
 const { _INTERNAL_SEND_HASHED_RESIDENT_PHONES_MUTATION } = require('@condo/domains/notification/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
-const logger = getLogger('notification/serverSchema')
+const logger = getLogger()
 
 const Message = generateServerUtils('Message')
 
@@ -41,9 +41,7 @@ async function sendMessage (context, data) {
     if (!LOCALES[data.lang]) throw new Error('unknown data.lang')
     if (!data.dv) data.dv = 1
 
-    const reqId = get(context, ['req', 'id'])
-
-    logger.info({ msg: 'sendMessage', type: data.type, reqId })
+    logger.info({ msg: 'sendMessage', type: data.type })
 
     return await execGqlWithoutAccess(context, {
         query: SEND_MESSAGE,

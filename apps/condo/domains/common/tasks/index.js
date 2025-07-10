@@ -1,7 +1,7 @@
 const { getLogger } = require('@open-condo/keystone/logging')
 const { createCronTask } = require('@open-condo/keystone/tasks')
 
-const logger = getLogger('common-sample-task')
+const logger = getLogger('simple-cron-task')
 
 // Runs yearly
 module.exportts = {

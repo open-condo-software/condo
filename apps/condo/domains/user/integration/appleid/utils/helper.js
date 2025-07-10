@@ -31,11 +31,10 @@ const APPLE_ID_CONFIG = conf.APPLE_ID_CONFIG ? JSON.parse(conf.APPLE_ID_CONFIG) 
 
 // init constants
 const integration = new AppleIdIdentityIntegration()
-const logger = getLogger('appleid/routes')
+const logger = getLogger()
 
 
 async function getIdTokenByCode (req) {
-    const reqId = req.id
     const code = getCode(req)
 
     // complete auth with code + state
@@ -50,7 +49,7 @@ async function getIdTokenByCode (req) {
 
         return tokenSet.idToken
     } catch (err) {
-        logger.error({ msg: 'AppleId completeAuth error', err, reqId })
+        logger.error({ msg: 'AppleId completeAuth error', err })
         throw err
     }
 }

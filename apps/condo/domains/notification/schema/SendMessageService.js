@@ -19,7 +19,7 @@ const {
 const { deliverMessage } = require('@condo/domains/notification/tasks')
 const { Message } = require('@condo/domains/notification/utils/serverSchema')
 
-const logger = getLogger('sendMessageService')
+const logger = getLogger()
 
 const ERRORS = {
     EMAIL_FROM_REQUIRED: {
@@ -96,13 +96,13 @@ async function checkSendMessageMeta (type, meta, context) {
 
                 const { required: dataRequired } = dataSchema[dataAttr]
                 if (dataRequired && (value[dataAttr] === undefined || value[dataAttr] === null)) {
-                    logger.info({ msg: 'Missing value for required "meta"', dataAttr, type })
+                    logger.info({ msg: 'missing value for required "meta"', data: { dataAttr, type } })
                 }
             }
 
             for (const dataAttr of Object.keys(value)) {
                 if (!dataSchema[dataAttr]) {
-                    logger.info({ msg: 'Unknown attribute provided to "meta" variable', dataAttr, type })
+                    logger.info({ msg: 'unknown attribute provided to "meta" variable', data: { dataAttr, type } })
                 }
             }
         }

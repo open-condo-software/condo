@@ -1,6 +1,5 @@
 const dayjs = require('dayjs')
 const { get } = require('lodash')
-const { v4: uuid } = require('uuid')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -19,8 +18,7 @@ const { getUsersToSendTicketRelatedNotifications } = require('@condo/domains/tic
 const { STAFF, RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 
 
-const appLogger = getLogger('condo')
-const taskLogger = appLogger.child({ module: 'tasks/sendTicketCommentCreatedNotifications' })
+const taskLogger = getLogger()
 
 const getCommentTypeMessage = (commentType, commentAuthorType, lang) => {
     const CommentToResidentMessage = i18n(`notification.messages.${TICKET_COMMENT_CREATED_TYPE}.telegram.ticketType.toResident`, { locale: lang })
@@ -67,7 +65,6 @@ const EMPTY_CONTENT = '—'
  * Sends notifications after ticket comment created
  */
 const sendTicketCommentCreatedNotifications = async (commentId, ticketId) => {
-    const taskId = uuid()
     try {
         const { keystone: context } = getSchemaCtx('Ticket')
 
@@ -146,11 +143,13 @@ const sendTicketCommentCreatedNotifications = async (commentId, ticketId) => {
                 organization: { id: organization.id },
             })
         }
-    } catch (error) {
+    } catch (err) {
         taskLogger.error({
-            msg: 'Failed to send notifications about created comment on ticket',
-            data: { taskId, commentId, ticketId },
-            error,
+            msg: 'failed to send notifications about created comment on ticket',
+            entityId: commentId,
+            entity: 'TicketComment',
+            data: { ticketId },
+            err,
         })
     }
 }

@@ -9,7 +9,7 @@ const { BillingAccount } = require('@condo/domains/billing/utils/serverSchema')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { discoverServiceConsumers } = require('@condo/domains/resident/utils/serverSchema')
 
-const logger = getLogger('discoverServiceConsumersCronTask')
+const logger = getLogger()
 const redisClient = getKVClient('discoverServiceConsumersCronTask')
 
 const REDIS_KEY = 'discoverServiceConsumersLastDate'
@@ -24,8 +24,9 @@ const RETRIES_PER_CHUNK = 3
 async function discoverServiceConsumersCronTask () {
     const lastDate = await redisClient.get(REDIS_KEY)
     if (!lastDate) {
-        const message = `No last date in redis. Please set the ${REDIS_KEY} key with date (for example, "set ${REDIS_KEY} ${dayjs().toISOString()}")`
-        logger.warn({ message })
+        // NOTE: keep message static
+        const message = `No last date in redis. Please set the ${REDIS_KEY} key with date (for example, "set ${REDIS_KEY} 2025-07-10T13:10:49.799Z")`
+        logger.warn(message)
         throw new Error(message)
     }
 
@@ -64,9 +65,11 @@ async function discoverServiceConsumersCronTask () {
                     const result = await discoverServiceConsumers(context, { ...DV_SENDER, billingAccountsIds })
                     logger.info({
                         msg: 'discoverServiceConsumersCronTask chunk done',
-                        billingAccountsIds,
-                        result,
-                        retryNumber,
+                        data: {
+                            billingAccountsIds,
+                            result,
+                            retryNumber,
+                        },
                     })
                     // Save date to cache to prevent double processing
                     await redisClient.set(REDIS_KEY, dayjs(maxDate).toISOString())
@@ -76,10 +79,13 @@ async function discoverServiceConsumersCronTask () {
                     break
                 } catch (err) {
                     logger.error({
-                        msg: `discoverServiceConsumersCronTask chunk fail: ${err.message}`,
-                        billingAccountsIds,
+                        msg: 'discoverServiceConsumersCronTask chunk fail',
+                        data: {
+                            billingAccountsIds,
+                            retryNumber,
+                        },
                         err,
-                        retryNumber,
+
                     })
                 }
                 // Try to process every chunk a number of times

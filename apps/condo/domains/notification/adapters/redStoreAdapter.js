@@ -16,7 +16,7 @@ const REDSTORE_CONFIG = conf[REDSTORE_CONFIG_ENV] ? JSON.parse(conf[REDSTORE_CON
 const APPS_WITH_DISABLED_NOTIFICATIONS = conf[APPS_WITH_DISABLED_NOTIFICATIONS_ENV] ? JSON.parse(conf[APPS_WITH_DISABLED_NOTIFICATIONS_ENV]) : []
 const DEFAULT_PUSH_SETTINGS = {}
 
-const logger = getLogger('redStoreAdapter')
+const logger = getLogger()
 
 /**
  * Send push notification to pushToken via app, configured by REDSTORE_CONFIG in .helm (.env)
@@ -27,7 +27,10 @@ class RedStoreAdapter {
     _config = null
 
     constructor (config = REDSTORE_CONFIG) {
-        if (isEmpty(config)) logger.error({ msg: 'redStore adapter error', errorMessage: `Valid ${REDSTORE_CONFIG_ENV} should be provided within .helm (.env)` })
+        if (isEmpty(config)) logger.error({
+            msg: 'redStore adapter error',
+            err: new Error(`Valid ${REDSTORE_CONFIG_ENV} should be provided within .helm (.env)`),
+        })
 
         this._config = config
     }
@@ -158,7 +161,7 @@ class RedStoreAdapter {
             for (const [appId, notificationsBatchForApp] of Object.entries(notificationsByAppId)) {
                 const configForApp = this._config[appId]
                 if (!configForApp) {
-                    logger.error({ msg: 'Unknown appId. Config was not found', appId })
+                    logger.error({ msg: 'unknown appId. Config was not found', data: { appId } })
                     continue
                 }
 

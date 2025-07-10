@@ -11,7 +11,7 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { prepareKeystoneExpressApp } = require('@open-condo/keystone/prepareKeystoneApp')
 const { getAppName } = require('@open-condo/keystone/tracingUtils')
 
-const logger = getLogger('re-encrypt-in-current-version')
+const logger = getLogger()
 
 const STATE = {
     errorCount: 0,

@@ -26,8 +26,7 @@ const {
     BillingIntegrationOrganizationContext: BillingContextApi,
 } = require('@condo/domains/billing/utils/serverSchema')
 
-const appLogger = getLogger('condo')
-const registerReceiptLogger = appLogger.child({ module: 'register-billing-receipts' })
+const logger = getLogger()
 
 const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingReceiptsService', {
     types: [
@@ -126,15 +125,17 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                         debug.push(...worker.debugMessages)
                         errorsIndex = { ...errorsIndex, ...errorReceipts }
                         receiptIndex = receipts
-                    } catch (error) {
-                        registerReceiptLogger.error({ msg: 'Resolver fail', payload: { error } })
+                    } catch (err) {
+                        logger.error({ msg: 'Resolver fail', err })
                     }
                 }
-                registerReceiptLogger.info({
+                logger.info({
                     msg: 'register-receipts-profiler',
-                    debug,
-                    context: billingContextInput,
-                    receiptsCount: receiptsInput.length,
+                    data: {
+                        debug,
+                        context: billingContextInput,
+                        receiptsCount: receiptsInput.length,
+                    },
                 })
                 const receiptIds = Object.values(receiptIndex).map(({ id }) => id)
                 const receipts = receiptIds.length ? await find('BillingReceipt', { id_in: receiptIds }) : []

@@ -7,7 +7,7 @@ const { getCurrTimeStamp } = require('@condo/domains/common/utils/date')
 
 const ENDPOINT = 'https://oauth-login.cloud.huawei.com/oauth2/v3/token'
 
-const logger = getLogger('HCMAuth')
+const logger = getLogger()
 
 /**
  * HCM - Huawei Cloud Messaging
@@ -49,14 +49,14 @@ class HСMAuth {
             response = await fetch(url, { method: 'POST', body, headers })
             json = await response.json()
         } catch (error) {
-            logger.info({ msg: 'access token request error', error })
+            logger.info({ msg: 'access token request error', err: error })
         }
 
         if (get(response, 'status') === 200) {
             this.#token = json.access_token
             this.#expires = getCurrTimeStamp() + json.expires_in - 5
         } else {
-            logger.info({ msg: 'access token request error', json })
+            logger.info({ msg: 'access token request error', data: { response: json } })
         }
 
         return this.#token

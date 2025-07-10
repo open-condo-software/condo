@@ -10,7 +10,7 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const REQUEST_TIMEOUT = 10 * 1000
 const REQUEST_TIMEOUT_ERROR = '[request:timeout:expires'
 
-const logger = getLogger('sbbol/SbbolRequestApi')
+const logger = getLogger('sbbol-request-api')
 
 dayjs.extend(utc)
 
@@ -75,7 +75,7 @@ class SbbolRequestApi {
                     data += chunk
                 })
                 response.on('end', () => {
-                    logger.info({ msg: 'response', method, path, statusCode, data: { headers, body: data } })
+                    logger.info({ msg: 'response', method, path, status: statusCode, data: { headers, body: data } })
                     return resolve({ data, statusCode })
                 })
             })
@@ -84,9 +84,9 @@ class SbbolRequestApi {
                 logger.warn({ msg: 'timeout', method, path })
                 return reject(`${REQUEST_TIMEOUT_ERROR}] sbbol request failed`)
             })
-            request.on('error', error => {
-                logger.error({ msg: 'error', method, path, error })
-                return reject(error)
+            request.on('error', err => {
+                logger.error({ msg: 'error', method, path, err })
+                return reject(err)
             })
             if (body && method === 'POST') {
                 const stringifiedBody = JSON.stringify(body)

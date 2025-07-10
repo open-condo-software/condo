@@ -15,7 +15,7 @@ const { UserExternalIdentity } = require('@condo/domains/user/utils/serverSchema
 
 
 
-const logger = getLogger('sbbol/syncBankAccounts')
+const logger = getLogger()
 
 /**
  * Syncs bank accounts with SBBOL accounts
@@ -27,7 +27,7 @@ async function syncSbbolBankAccounts () {
         identityType: SBBOL_IDP_TYPE,
         deletedAt: null,
     }, 'id user { id }')
-    if (isEmpty(usersWithSBBOLExternalIdentity)) return logger.info('No users imported from SBBOL found. Cancel sync bank accounts')
+    if (isEmpty(usersWithSBBOLExternalIdentity)) return logger.info('no users imported from SBBOL found. Cancel sync bank accounts')
 
     const integration = await BankIntegration.getOne(context, { id: BANK_INTEGRATION_IDS.SBBOL })
     if (!integration) throw new Error(`Cannot find SBBOL integration by id=" ${BANK_INTEGRATION_IDS.SBBOL}"`)

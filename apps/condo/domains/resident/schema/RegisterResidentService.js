@@ -26,7 +26,7 @@ const { discoverServiceConsumers } = require('@condo/domains/resident/utils/serv
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 const redisGuard = new RedisGuard()
 
-const logger = getLogger('registerResident')
+const logger = getLogger()
 
 const checkLimits = async (uniqueField, context) => {
     await redisGuard.checkCustomLimitCounters(
@@ -67,7 +67,6 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
             schema: 'registerResident(data: RegisterResidentInput!): Resident',
             resolver: async (parent, args, context) => {
                 const { data: { dv, sender, address, unitName, unitType } } = args
-                const reqId = get(context, ['req', 'id'])
 
                 const attrs = {
                     dv,
@@ -146,15 +145,35 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                             })
                             logger.info({
                                 msg: 'discoverServiceConsumers done',
-                                result: discoveringResult,
-                                user: { id: context.authedItem.id }, resident: { id }, reqId,
+                                data: {
+                                    result: discoveringResult,
+                                    residentId: id,
+                                },
+                                entityId: context.authedItem.id,
+                                entity: 'User',
                             })
                         }
                     } catch (err) {
-                        logger.error({ msg: 'discoverServiceConsumers fail', user: { id: context.authedItem.id }, resident: { id }, err, reqId })
+                        logger.error({
+                            msg: 'discoverServiceConsumers fail',
+                            entityId: context.authedItem.id,
+                            entity: 'User',
+                            data: {
+                                residentId: id,
+                            },
+                            err,
+                        })
                     }
                 } catch (err) {
-                    logger.warn({ msg: 'discoverServiceConsumers limit error', user: { id: context.authedItem.id }, resident: { id }, err, reqId })
+                    logger.warn({
+                        msg: 'discoverServiceConsumers limit error',
+                        entityId: context.authedItem.id,
+                        entity: 'User',
+                        data: {
+                            residentId: id,
+                        },
+                        err,
+                    })
                 }
 
                 // Hack that helps to resolve all subfields in result of this mutation
