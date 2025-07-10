@@ -92,7 +92,7 @@ class GoogleSuggestionProvider extends AbstractSuggestionProvider {
                  * @type {{status: string, predictions: GooglePredictionObject[]}}
                  */
                 const result = await autocompleteResults.json()
-                this.logger.info({ msg: 'response autocomplete googleapis', url, result, status: result.status, statusCode: status })
+                this.logger.info({ msg: 'response autocomplete googleapis', url, data: result, status })
 
                 /**
                  * @see https://developers.google.com/maps/documentation/places/web-service/autocomplete#PlacesAutocompleteStatus
@@ -106,7 +106,7 @@ class GoogleSuggestionProvider extends AbstractSuggestionProvider {
                 }
             } else {
                 const result = await autocompleteResults.text()
-                this.logger.info({ msg: 'response autocomplete googleapis', url, result, status: result.status, statusCode: status })
+                this.logger.info({ msg: 'response autocomplete googleapis', url, data: result, status })
             }
         } catch (err) {
             this.logger.error({ msg: 'googleapis autocomplete error', url, err })
