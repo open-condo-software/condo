@@ -1,16 +1,14 @@
-import { Col, Row, Typography } from 'antd'
+import { Col, Row } from 'antd'
 import Head from 'next/head'
-import React, { CSSProperties } from 'react'
+import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Typography } from '@open-condo/ui'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { PageComponentType } from '@condo/domains/common/types'
 import { UpdateEmployeeForm } from '@condo/domains/organization/components/EmployeeForm/UpdateEmployeeForm'
 import { EmployeesReadAndManagePermissionRequired } from '@condo/domains/organization/components/PageAccess'
-
-
-const TITLE_STYLES: CSSProperties = { margin: 0, fontWeight: 'bold' }
 
 export const EmployeeUpdatePage: PageComponentType = () => {
     const intl = useIntl()
@@ -27,7 +25,6 @@ export const EmployeeUpdatePage: PageComponentType = () => {
                         <Col span={24}>
                             <Typography.Title
                                 level={1}
-                                style={TITLE_STYLES}
                             >
                                 {UpdateEmployeeMessage}
                             </Typography.Title>
