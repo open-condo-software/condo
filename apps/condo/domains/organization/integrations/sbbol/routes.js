@@ -64,40 +64,44 @@ class SbbolRoutes {
                 tokenSet = await sbbolAuthApi.completeAuth(req, checks)
             } catch (err) {
                 logger.error({ msg: 'SBBOL completeAuth error', err, reqId })
-                throw err
+                return next(`ERROR: SBBOL completeAuth error ${reqId}`)
             }
 
             try {
                 const { access_token } = tokenSet
                 userInfo = await sbbolAuthApi.fetchUserInfo(access_token)
             } catch (err) {
-                logger.error({ msg: 'SBBOL completeAuth error', err, reqId })
-                throw err
+                return next.send(`ERROR: SBBOL fetchUserInfo error ${reqId}`)
             }
 
             const errors = getSbbolUserInfoErrors(userInfo)
             if (errors.length) {
                 logger.info({ msg: 'SBBOL invalid userinfo', data: { userInfo, errors }, reqId })
-                return res.status(400).send(`ERROR: Invalid SBBOL userInfo: ${errors.join(';')}`)
+                return next(`ERROR: Invalid SBBOL userInfo: ${errors.join(';')}`)
             }
 
             const redirectUrl = get(req.session[SBBOL_SESSION_KEY], 'redirectUrl')
             const features = get(req.session[SBBOL_SESSION_KEY], 'features', [])
 
-            const { keystone } = getSchemaCtx('User')
-            const {
-                user,
-                organization,
-                organizationEmployee,
-            } = await sync({ keystone, userInfo, tokenSet, reqId, features, useExtendedConfig })
-            await keystone._sessionManager.startAuthedSession(req, { item: { id: user.id }, list: keystone.lists['User'] })
-            if (organizationEmployee) {
-                res.cookie('organizationLinkId', organizationEmployee.id)
-            }
-            delete req.session[SBBOL_SESSION_KEY]
-            await req.session.save()
+            try {
+                const { keystone } = getSchemaCtx('User')
+                const {
+                    user,
+                    organization,
+                    organizationEmployee,
+                } = await sync({ keystone, userInfo, tokenSet, reqId, features, useExtendedConfig })
+                await keystone._sessionManager.startAuthedSession(req, { item: { id: user.id }, list: keystone.lists['User'] })
+                if (organizationEmployee) {
+                    res.cookie('organizationLinkId', organizationEmployee.id)
+                }
+                delete req.session[SBBOL_SESSION_KEY]
+                await req.session.save()
 
-            logger.info({ msg: 'SBBOL OK Authenticated', userId: user.id, organizationId: organization.id, employeeId: organizationEmployee.id })
+                logger.info({ msg: 'SBBOL OK Authenticated', userId: user.id, organizationId: organization.id, employeeId: organizationEmployee.id })
+            } catch (err) {
+                logger.error({ msg: 'SBBOL FAILED to authenticate', err, userInfo, reqId })
+                return next(`ERROR: Failed to sync organization ${reqId}`)
+            }
             if (redirectUrl) return res.redirect(redirectUrl)
             return res.redirect('/tour')
         } catch (error) {
