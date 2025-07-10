@@ -110,7 +110,7 @@ class ApolloServerClient {
         this.customHeaders = customHeaders
 
         this.authRequisites = normalizeAuthRequisites(authRequisites)
-        this.logger = getLogger(clientName)
+        this.logger = getLogger('apollo-server-client').child({ clientName })
         this.batchClient = this.createClient([this.errorLink(), this.authLink(), this.retryLink(), this.batchTerminateLink()])
         this.client = this.createClient([this.errorLink(), this.authLink(), this.retryLink(), this.uploadTerminateLink()])
     }
@@ -395,10 +395,10 @@ class ApolloServerClient {
         return onError(({ graphQLErrors, networkError, operation }) => {
             if (graphQLErrors)
                 graphQLErrors.map(({ message, path }) =>
-                    this.error('GraphQL error', { operation: operation.operationName, message, path }),
+                    this.error('graphql error', { operation: operation.operationName, message, path }),
                 )
             if (networkError) {
-                this.error('Network error', { networkError })
+                this.error('network error', { networkError })
             }
         })
     }
@@ -464,14 +464,18 @@ class ApolloServerClient {
     error (message, payload = {}) {
         this.logger.error({
             msg: message,
-            payload,
+            data: {
+                payload,
+            },
         })
     }
 
     info (message, payload = {}) {
         this.logger.info({
             msg: message,
-            payload,
+            data: {
+                payload,
+            },
         })
     }
 }

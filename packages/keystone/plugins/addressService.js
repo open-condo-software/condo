@@ -8,7 +8,7 @@ const { composeResolveInputHook } = require('@open-condo/keystone/plugins/utils'
 const { ADDRESS_META_FIELD } = require('@open-condo/keystone/plugins/utils/addressMetaDefinition')
 const { plugin } = require('@open-condo/keystone/plugins/utils/typing')
 
-const logger = getLogger('addressServicePlugin')
+const logger = getLogger('address-service-plugin')
 
 const readOnlyAccess = {
     read: true,
@@ -116,12 +116,14 @@ const addressService = ({
                 if (addressToSearch !== resultAddress) {
                     logger.warn({
                         msg: 'searched address does not match to the found address',
-                        addressToSearch,
-                        resultAddress,
-                        operation,
-                        listKey,
-                        itemId: get(existingItem, 'id'),
-                        addressKey: get(existingItem, 'addressKey'),
+                        data: {
+                            addressToSearch,
+                            resultAddress,
+                            operation,
+                            listKey,
+                            itemId: get(existingItem, 'id'),
+                            addressKey: get(existingItem, 'addressKey'),
+                        },
                     })
                 }
                 /**
@@ -143,11 +145,13 @@ const addressService = ({
             } else {
                 logger.error({
                     msg: 'No address found by string',
-                    addressToSearch,
-                    operation,
-                    listKey,
-                    itemId: get(existingItem, 'id'),
-                    addressKey: get(existingItem, 'addressKey'),
+                    data: {
+                        addressToSearch,
+                        operation,
+                        listKey,
+                        itemId: get(existingItem, 'id'),
+                        addressKey: get(existingItem, 'addressKey'),
+                    },
                 })
 
                 throw new Error(`No address found by string "${addressToSearch}"`)

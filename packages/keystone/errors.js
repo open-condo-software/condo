@@ -68,14 +68,14 @@ const conf = require('@open-condo/config')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const { getTranslations } = require('@open-condo/locales/loader')
 
-const { getLogger } = require('./logging/getLogger')
+const { getLogger } = require('./logging')
 const { GQLErrorCode, GQLInternalErrorTypes } = require('./utils/errors/constants')
 
 // Matches placeholder `{name}` in string, we are going to interpolate
 templateSettings.interpolate = /{([\s\S]+?)}/g
 
 const { UNAUTHENTICATED } = GQLErrorCode
-const logger = getLogger('GQLError class')
+const logger = getLogger('gql-error-class')
 
 /**
  * Error object, that can be thrown in a custom GraphQL mutation or query

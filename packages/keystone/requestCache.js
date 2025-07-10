@@ -89,15 +89,16 @@ class RequestCache {
     logEvent ({ type, functionName, listName, key, result }) {
         if (!this.logging) return
 
-        const cacheEvent = {
+        logger.info({
+            msg: 'request cache event',
             type,
+            listKey: listName,
             functionName,
-            listName,
-            key,
-            result,
-        }
-
-        logger.info(cacheEvent)
+            data: {
+                key,
+                result,
+            },
+        })
     }
 
     _getHitrate = () => {
@@ -116,10 +117,13 @@ class RequestCache {
 
     _logStats = () => {
         logger.info({
-            stats: {
-                hits: this.cacheHits,
-                total: this.totalRequests,
-                hitrate: floor(this._getHitrate(), 2),
+            msg: 'request cache stats',
+            data: {
+                stats: {
+                    hits: this.cacheHits,
+                    total: this.totalRequests,
+                    hitrate: floor(this._getHitrate(), 2),
+                },
             },
         })
     }

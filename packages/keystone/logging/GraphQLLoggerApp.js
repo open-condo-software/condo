@@ -7,12 +7,10 @@ const { getLogger } = require('./getLogger')
 const { getReqLoggerContext } = require('./getReqLoggerContext')
 const { normalizeQuery, normalizeVariables } = require('./normalize')
 
-const { safeFormatError } = require('../apolloErrorFormatter')
-
 const MiB = 1024 ** 2 // 1 MiB (mebibyte) = 1_048_576 B (byte)
 
 const graphqlLogger = getLogger('graphql')
-const graphqlErrorLogger = getLogger('graphqlerror')
+const graphqlErrorLogger = getLogger('graphql-error')
 
 // Note: Hard limit of the V8 heap (bytes). Fixed for the lifetime of the process.
 //  Can be raised with the CLI flag `node --max-old-space-size=<MiB>` or via `NODE_OPTIONS="--max-old-space-size=<MiB>"` env
@@ -111,14 +109,9 @@ class GraphQLLoggerPlugin {
                 const logData = getGraphQLReqLoggerContext(requestContext)
                 const errors = get(requestContext, 'errors', [])
 
-                try {
-                    for (const error of errors) {
-                        error.uid = get(error, 'uid') || get(error, 'originalError.uid') || cuid()
-                        graphqlErrorLogger.info({ apolloFormatError: safeFormatError(error), ...logData })
-                    }
-                } catch (err) {
-                    // NOTE(pahaz): Something went wrong with formatting above, so we log the errors
-                    graphqlErrorLogger.error({ msg: 'safeFormatError error', err, ...logData })
+                for (const error of errors) {
+                    error.uid = get(error, 'uid') || get(error, 'originalError.uid') || cuid()
+                    graphqlErrorLogger.info({ error, ...logData })
                 }
             },
         }
