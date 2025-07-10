@@ -200,7 +200,7 @@ export default function GlobalStyle () {
               }
                 
               .ant-layout {
-                background-color: #fff !important;
+                background-color: ${colors.white} !important;
               }
 
               .ant-tag {
