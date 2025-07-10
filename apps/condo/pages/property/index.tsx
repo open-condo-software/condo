@@ -2,7 +2,6 @@ import {
     OrganizationEmployeeRole,
     PropertyWhereInput,
 } from '@app/condo/schema'
-import { Typography } from 'antd'
 import { ColumnsType } from 'antd/lib/table'
 import get from 'lodash/get'
 import Head from 'next/head'
@@ -10,6 +9,7 @@ import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { Typography } from '@open-condo/ui'
 
 import {
     PageHeader,

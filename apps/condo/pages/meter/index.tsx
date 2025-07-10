@@ -233,7 +233,10 @@ const MetersPage: PageComponentType = () => {
                 <div style={{ ...PAGE_DIV_STYLE, gap: breakpoints.TABLET_LARGE ? '40px' : '24px' }}>
                     <Row justify='space-between' align='middle' gutter={MEDIUM_VERTICAL_ROW_GUTTER}>
                         <Col>
-                            <PageHeader title={<Typography.Title>{PageTitleMessage}</Typography.Title>} style={HEADER_STYLES}/>
+                            <PageHeader
+                                style={HEADER_STYLES}
+                                title={<Typography.Title>{PageTitleMessage}</Typography.Title>}
+                            />
                         </Col>
                         <Col>
                             <MeterTypeSwitch defaultValue={METER_TYPES.unit} activeTab={activeTab}/>
