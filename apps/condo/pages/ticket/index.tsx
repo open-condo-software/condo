@@ -93,12 +93,13 @@ import { useTicketTableFilters } from '@condo/domains/ticket/hooks/useTicketTabl
 import { TicketFilterTemplate } from '@condo/domains/ticket/utils/clientSchema'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
 
+import styles from './index.module.css'
+
 
 type TicketType = 'all' | 'own' | 'favorite'
 
 const LARGE_VERTICAL_ROW_GUTTER: RowProps['gutter'] = [0, 40]
 const MEDIUM_VERTICAL_ROW_GUTTER: RowProps['gutter'] = [0, 24]
-const HEADER_STYLES: CSSProperties = { padding: '0 !important' }
 const DEBOUNCE_TIMEOUT = 400
 
 const StyledTable = styled(Table)`
@@ -1045,16 +1046,14 @@ const TicketsPage: PageComponentType = () => {
                         <WindowTitleContextProvider title={PageTitleMessage}>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: breakpoints.TABLET_LARGE ? '40px' : '24px', height: '100%' }}>
                                 <Row justify='space-between' align='middle' gutter={MEDIUM_VERTICAL_ROW_GUTTER}>
-                                    <Col>
-                                        <PageHeader
-                                            style={HEADER_STYLES}
-                                            title={
-                                                <Typography.Title>
-                                                    {PageTitleMessage}
-                                                </Typography.Title>
-                                            }
-                                        />
-                                    </Col>
+                                    <PageHeader
+                                        className={styles.customPageHeader}
+                                        title={
+                                            <Typography.Title>
+                                                {PageTitleMessage}
+                                            </Typography.Title>
+                                        }
+                                    />
                                     <Col>
                                         <Space size={20} direction={breakpoints.TABLET_SMALL ? 'horizontal' : 'vertical'}>
                                             {
