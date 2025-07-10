@@ -69,23 +69,23 @@ export default function GlobalStyle () {
                 
                 .ant-checkbox {
                   .ant-checkbox-inner {
-                    background-color: ${colors.white};
-                    border: 1px solid ${colors.inputBorderGrey};
-                    border-radius: 4px;
+                    background-color: ${colors.white} !important;
+                    border: 1px solid ${colors.inputBorderGrey} !important;
+                    border-radius: 4px !important;
                     
-                    width: 24px;
-                    height: 24px;
+                    width: 24px !important;
+                    height: 24px !important;
                       
                     &:focus {
-                      background-color: inherit;
+                      background-color: inherit !important;
                     }                      
                   }
                   
                   &:not(.ant-checkbox-indeterminate) {
                     .ant-checkbox-inner::after {
-                      left: 36%;
-                      width: 7px;
-                      height: 12px;
+                      left: 36% !important;
+                      width: 7px !important;
+                      height: 12px !important;
                     }
                   }                  
                 }
@@ -93,13 +93,13 @@ export default function GlobalStyle () {
               
               .ant-checkbox-wrapper:hover .ant-checkbox-inner, .ant-checkbox:hover .ant-checkbox-inner,
               .ant-checkbox-input:focus + .ant-checkbox-inner {
-                border-color: ${colors.inputBorderHover};
+                border-color: ${colors.inputBorderHover} !important;
               }
               
               .ant-checkbox {
-                width: 24px;
-                height: 24px;
-                border-color: ${colors.inputBorderGrey};
+                width: 24px !important;
+                height: 24px !important;
+                border-color: ${colors.inputBorderGrey} !important;
               }
 
               .ant-form-item input[type="checkbox"] {
@@ -109,15 +109,15 @@ export default function GlobalStyle () {
               
               .ant-checkbox-checked {
                 .ant-checkbox-inner {
-                  background: ${gradients.sberActionGradient};
-                  border: none;
+                  background: ${gradients.sberActionGradient} !important;
+                  border: none !important;
                 }
               
                 .ant-checkbox-inner::after {
-                  border: 3px solid #fff;
-                  border-top: 0;
-                  border-left: 0;
-                  transform: rotate(45deg) scale(1) translate(-75%, -50%);
+                  border: 3px solid #fff !important;
+                  border-top: 0 !important;
+                  border-left: 0 !important;
+                  transform: rotate(45deg) scale(1) translate(-75%, -50%) !important;
                 }
               }
 
