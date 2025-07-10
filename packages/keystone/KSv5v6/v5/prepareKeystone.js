@@ -60,7 +60,8 @@ const IS_RATE_LIMIT_DISABLED = conf['DISABLE_RATE_LIMIT'] === 'true'
 
 const BLOCKED_OPERATIONS = JSON.parse(conf['BLOCKED_OPERATIONS'] || '{}')
 
-const logger = getLogger('uncaughtError')
+const uncaughtErrorLogger = getLogger('uncaught-error')
+const invalidHeadersLogger = getLogger('invalid-headers')
 
 const sendAppMetrics = () => {
     const v8Stats = v8.getHeapStatistics()
@@ -262,7 +263,7 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
                 try {
                     validateHeaders(req.headers)
                 } catch (err) {
-                    logger.error({ msg: 'InvalidHeader', err })
+                    invalidHeadersLogger.error({ msg: 'invalid headers', err })
                     res.status(423).send({ error: err.message })
                 }
                 next()
@@ -311,14 +312,14 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
 }
 
 process.on('uncaughtException', (err, origin) => {
-    logger.error({ msg: 'uncaughtException', err, origin })
+    uncaughtErrorLogger.error({ msg: 'uncaughtException', err, data: { origin } })
     if (IS_WORKER_PROCESS || !IS_KEEP_ALIVE_ON_ERROR) {
         throw err
     }
 })
 
 process.on('unhandledRejection', (err, promise) => {
-    logger.error({ msg: 'unhandledRejection', err, promise })
+    uncaughtErrorLogger.error({ msg: 'unhandledRejection', err, data: { promise } })
     if (IS_WORKER_PROCESS || !IS_KEEP_ALIVE_ON_ERROR) {
         throw err
     }

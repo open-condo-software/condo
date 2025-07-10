@@ -120,12 +120,12 @@ function removeCronTask (name, cron, opts = {}) {
 async function _scheduleRemoteTask (name, preparedArgs, preparedOpts, queueName = DEFAULT_QUEUE_NAME) {
     const queue = TASK_QUEUE_REMAPPING.hasOwnProperty(queueName) ? TASK_QUEUE_REMAPPING[queueName] : queueName
 
-    logger.info({ msg: 'Scheduling task', taskName: name, queue, meta: { preparedArgs, preparedOpts } })
+    logger.info({ msg: 'Scheduling task', taskName: name, queue, data: { preparedArgs, preparedOpts } })
 
     if (!QUEUES.has(queue)) {
         logger.error({
             msg: `No active queues with name = ${queue} was found. This task never been picked by this worker due to queue filters policy`,
-            taskName: name, queue, meta: { preparedOpts, preparedArgs },
+            taskName: name, queue, data: { preparedOpts, preparedArgs },
         })
 
         throw new Error(`Task ${name} register error. No active queues with name = ${queue} was found. You should register at prepareKeystone`)
@@ -157,14 +157,14 @@ class InProcessFakeJob {
         this.id = getRandomString()
     }
     progress (percent) {
-        logger.info({ msg: 'Progress for task', id: this.id, name: this.name, progress: percent })
+        logger.info({ msg: 'progress for task', taskId: this.id, taskName: this.name, progress: percent })
     }
 }
 
 async function _scheduleInProcessTask (name, preparedArgs, preparedOpts) {
     // NOTE: it's just for test purposes
     // similar to https://docs.celeryproject.org/en/3.1/configuration.html#celery-always-eager
-    logger.info({ msg: 'Scheduling task', taskName: name, meta: { preparedArgs, preparedOpts } })
+    logger.info({ msg: 'scheduling task', taskName: name, data: { preparedArgs, preparedOpts } })
 
     const job = new InProcessFakeJob(name)
     let error = undefined
@@ -173,16 +173,16 @@ async function _scheduleInProcessTask (name, preparedArgs, preparedOpts) {
     let executor = async function inProcessExecutor () {
         const startTime = Date.now()
         try {
-            logger.info({ msg: 'worker: task start', taskName: name, mem: getHeapFree(), meta: { preparedArgs, preparedOpts } })
+            logger.info({ msg: 'task start', taskName: name, mem: getHeapFree(), data: { preparedArgs, preparedOpts } })
             result = await executeTask(name, preparedArgs, job)
             status = 'completed'
             const endTime = Date.now()
             const responseTime = endTime - startTime
-            logger.info({ msg: 'worker: task successful', taskName: name, status, meta: { result, preparedArgs, preparedOpts }, responseTime })
+            logger.info({ msg: 'task successful', taskName: name, status, data: { result, preparedArgs, preparedOpts }, responseTime })
         } catch (e) {
             const endTime = Date.now()
             const responseTime = endTime - startTime
-            logger.error({ msg: 'worker: failed with error', taskName: name, err: e, meta: { preparedArgs, preparedOpts }, responseTime })
+            logger.error({ msg: 'failed with error', taskName: name, err: e, data: { preparedArgs, preparedOpts }, responseTime })
             if (typeof jasmine !== 'undefined') {
                 // eslint-disable-next-line
                 const testName = `[${get(jasmine, ['currentTest', 'fullName'], jasmine['testPath'].split('/').pop().split('.')[0])}]`
@@ -362,7 +362,7 @@ async function createWorker (keystoneModule, config, processWrapper = undefined)
         return
     } else {
         isWorkerCreated = true
-        logger.info({ msg: 'Creating worker process' })
+        logger.info('Creating worker process')
     }
 
     // we needed to prepare keystone to use it inside tasks logic!
@@ -401,17 +401,17 @@ async function createWorker (keystoneModule, config, processWrapper = undefined)
         queue.process('*', WORKER_CONCURRENCY, executionWrapper(async function doSomeTask (job) {
             const startTime = Date.now()
             const task = getTaskLoggingContext(job)
-            logger.info({ msg: 'worker: task start', taskId: job.id, queue: queueName, task, mem: getHeapFree() })
+            logger.info({ msg: 'task start', taskId: job.id, queue: queueName, task, mem: getHeapFree() })
             try {
                 const result = await executeTask(job.name, job.data.args, job)
                 const endTime = Date.now()
                 const responseTime = endTime - startTime
-                logger.info({ msg: 'worker: task successful', taskId: job.id, queue: queueName, task, responseTime })
+                logger.info({ msg: 'task successful', taskId: job.id, queue: queueName, task, responseTime })
                 return result
             } catch (err) {
                 const endTime = Date.now()
                 const responseTime = endTime - startTime
-                logger.error({ msg: 'worker: failed with error', taskId: job.id, queue: queueName, task, err, responseTime })
+                logger.error({ msg: 'failed with error', taskId: job.id, queue: queueName, task, err, responseTime })
                 throw err
             }
         }))
@@ -467,7 +467,7 @@ async function createWorker (keystoneModule, config, processWrapper = undefined)
 
     const activeQueueNames = activeQueues.map(([name]) => name)
 
-    logger.info({ msg: 'Worker: ready to work!', activeQueues: activeQueueNames.join(',') })
+    logger.info({ msg: 'worker ready', data: { activeQueues: activeQueueNames.join(',') } })
 
     const cronTasks = Array.from(CRON_TASKS.entries())
     if (cronTasks.length > 0) {
@@ -479,17 +479,17 @@ async function createWorker (keystoneModule, config, processWrapper = undefined)
                 addedCronTasks.push(name)
             }
         })
-        logger.info({ msg: 'Worker: add repeatable tasks!', names: addedCronTasks })
+        logger.info({ msg: 'add cron tasks', data: { names: addedCronTasks } })
     }
 
     const removeTasksNames = REMOVE_CRON_TASKS.map(x => x[0])
     if (removeTasksNames.length > 0) {
-        logger.info({ msg: 'Worker: remove tasks!', names: removeTasksNames })
+        logger.info({ msg: 'remove cron tasks', data: { names: removeTasksNames } })
 
         REMOVE_CRON_TASKS.forEach(([name, opts]) => {
             Array.from(QUEUES.entries()).forEach(([queueName, queue]) => {
                 queue.removeRepeatable(name, opts.repeat)
-                logger.info({ taskName: name, msg: 'Worker: removed cron task from queue', queue: queueName })
+                logger.info({ taskName: name, msg: 'removed cron task from queue', queue: queueName })
             })
         })
     }

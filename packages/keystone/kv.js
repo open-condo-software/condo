@@ -55,7 +55,7 @@ const PREFIX = getKVPrefix()
 function getKVClient (name = 'default', purpose = 'regular', opts = { kvOptions: {}, ignorePrefix: false }) {
     const clientKey = name + ':' + purpose
 
-    logger.info({ msg: 'getKVClient', clientKey, opts })
+    logger.info({ msg: 'getKVClient', entity: 'IORedis', entityId: clientKey, data: { opts } })
 
     if (!name) throw new Error('getKVClient() without client name')
     if (typeof name !== 'string') throw new Error('getKVClient() name is not a string')
@@ -81,11 +81,11 @@ function getKVClient (name = 'default', purpose = 'regular', opts = { kvOptions:
 
         const client = typeof kvUrl === 'string' ? new IORedis(kvUrl, clientOptions) : new IORedis.Cluster(kvUrl, clientOptions)
 
-        client.on('connect', () => logger.info({ msg: 'connect', clientKey }))
-        client.on('close', () => logger.info({ msg: 'close', clientKey }))
-        client.on('reconnecting', (waitTime) => logger.info({ msg: 'reconnecting', clientKey, waitTime }))
-        client.on('error', (error) => logger.error({ msg: 'error', clientKey, error }))
-        client.on('end', () => logger.error({ msg: 'end', clientKey }))
+        client.on('connect', () => logger.info({ msg: 'connect', entity: 'IORedis', entityId: clientKey }))
+        client.on('close', () => logger.info({ msg: 'close', entity: 'IORedis', entityId: clientKey }))
+        client.on('reconnecting', (waitTime) => logger.info({ msg: 'reconnecting', entity: 'IORedis', entityId: clientKey, data: { waitTime } }))
+        client.on('error', (err) => logger.error({ msg: 'error', entity: 'IORedis', entityId: clientKey, err }))
+        client.on('end', () => logger.error({ msg: 'end', entity: 'IORedis', entityId: clientKey }))
 
         KV_CLIENTS[clientKey] = client
     }

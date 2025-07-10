@@ -7,7 +7,7 @@ const { getKVClient } = require('@open-condo/keystone/kv')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getFeatureFlag } = require('@open-condo/keystone/test.utils')
 
-const logger = getLogger('featureToggleManager')
+const logger = getLogger('feature-toggle-manager')
 
 const FEATURE_TOGGLE_CONFIG = (conf.FEATURE_TOGGLE_CONFIG) ? JSON.parse(conf.FEATURE_TOGGLE_CONFIG) : {}
 

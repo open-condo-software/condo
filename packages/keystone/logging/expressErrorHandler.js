@@ -3,7 +3,7 @@ const { get } = require('lodash')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 
-const logger = getLogger('expressErrorHandler')
+const logger = getLogger('express-error-handler')
 
 const expressErrorHandler = (err, req, res, next) => {
     if (!err) next()
