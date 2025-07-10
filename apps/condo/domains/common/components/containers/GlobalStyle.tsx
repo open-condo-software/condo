@@ -270,7 +270,7 @@ export default function GlobalStyle () {
               }
               
               .ant-table.ant-table-bordered > .ant-table-container > .ant-table-content > table, .ant-table.ant-table-bordered > .ant-table-container > .ant-table-header > table {
-                border: none;
+                border: none !important;
               }
               
               .ant-table.ant-table-bordered div::-webkit-scrollbar-track {
