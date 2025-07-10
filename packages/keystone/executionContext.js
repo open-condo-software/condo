@@ -8,10 +8,7 @@ const { AsyncLocalStorage: ExecutionContext } = require('node:async_hooks')
 
 const { v4 } = require('uuid')
 
-const { getLogger } = require('./logging')
-
 const ASYNC_LOCAL_STORAGES = {}
-const logger = getLogger('asyncLocalStorage')
 
 _internalGetExecutionContextAsyncLocalStorage().enterWith( { execId: v4(), execProcessArgv: process.argv })
 
@@ -47,7 +44,6 @@ function _internalGetAsyncLocalStorage (name = 'default') {
     if (!name) throw new Error('getAsyncLocalStorage() without client name')
     if (typeof name !== 'string') throw new Error('getAsyncLocalStorage() name is not a string')
     if (!ASYNC_LOCAL_STORAGES[name]) {
-        logger.info({ msg: 'getAsyncLocalStorage new storage to be created', args: [name] })
         ASYNC_LOCAL_STORAGES[name] = new ExecutionContext()
     }
 
