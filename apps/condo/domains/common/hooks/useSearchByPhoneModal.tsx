@@ -25,7 +25,7 @@ const StyledModal = styled(Modal)<{ isSmall }>`
   width: 1150px !important;
   
   &.condo-modal {
-    ${props => !props.isSmall && 'top: -20vh; margin: 0 auto;'}
+    ${props => !props.isSmall && 'top: -20vh !important; margin: 0 auto;'}
 
     & .condo-modal-header {
       border-radius: 12px;
@@ -106,6 +106,16 @@ const NotFoundSearchByPhoneContent = ({ onSelect, phone, canManageContacts }) =>
 const SELECT_STYLES = { width: '100%' }
 const PHONE_INPUT_MASK = { ru: '... ... .. ..' }
 const PHONE_INPUT_PROPS: PhoneInputProps['inputProps'] = { autoFocus: true }
+
+const StyledPhoneInput = styled(PhoneInput)`
+  & .ant-input {
+    padding-left: 12px !important;
+  }
+
+  & .flag-dropdown {
+    display: none;
+  }
+`
 
 const DROPDOWN_POPUP_CONTAINER_ID = 'searchByPhonePopupContainer'
 function getPopupContainer (): HTMLElement {
@@ -188,7 +198,8 @@ const SearchByPhoneSelect = ({
                 autoClearSearchValue
                 getPopupContainer={getPopupContainer}
             >
-                <PhoneInput
+                <StyledPhoneInput
+                    style={SELECT_STYLES}
                     inputProps={PHONE_INPUT_PROPS}
                     compatibilityWithAntAutoComplete
                     placeholder={EnterPhoneMessage}
