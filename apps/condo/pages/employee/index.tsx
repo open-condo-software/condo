@@ -1,6 +1,6 @@
 import { SortOrganizationEmployeesBy } from '@app/condo/schema'
 import styled from '@emotion/styled'
-import { Col, Row, Typography } from 'antd'
+import { Col, Row } from 'antd'
 import { get } from 'lodash'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -9,7 +9,11 @@ import React, { useCallback } from 'react'
 import { Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Button } from '@open-condo/ui'
+import {
+    ActionBar,
+    Button,
+    Typography,
+} from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
@@ -86,7 +90,7 @@ export const EmployeesPageContent = ({
             </Head>
             <PageWrapper>
                 {GlobalHints}
-                <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitleMessage}</Typography.Title>} />
+                <PageHeader title={<Typography.Title>{PageTitleMessage}</Typography.Title>} />
                 <TablePageContent>
                     {
                         !employees.length && !filtersFromQuery

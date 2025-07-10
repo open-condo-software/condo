@@ -1,9 +1,10 @@
-import { Typography, Row, Col } from 'antd'
+import { Row, Col } from 'antd'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Typography } from '@open-condo/ui'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { PageComponentType } from '@condo/domains/common/types'
@@ -29,7 +30,7 @@ const TicketUpdatePage: PageComponentType = () => {
                 <PageContent>
                     <Row gutter={[0, 20]} style={{ height: '100%' }}>
                         <Col span={24}>
-                            <Typography.Title level={1} style={{ margin: 0 }}>{PageTitleMsg}</Typography.Title>
+                            <Typography.Title level={1}>{PageTitleMsg}</Typography.Title>
                         </Col>
                         <TicketForm id={id}/>
                     </Row>

@@ -8,7 +8,6 @@ import {
 } from '@app/condo/gql'
 import {
     IncidentStatusType,
-    SortIncidentChangesBy,
 } from '@app/condo/schema'
 import { Col, Row, RowProps } from 'antd'
 import dayjs  from 'dayjs'
@@ -359,7 +358,7 @@ const IncidentContent: React.FC<IncidentContentProps> = (props) => {
 
 const HEADER_CONTENT_GUTTER: RowProps['gutter'] = [0, 24]
 const PAGE_CONTENT_GUTTER: RowProps['gutter'] = [0, 60]
-const PAGE_HEADER_STYLE: React.CSSProperties = { paddingBottom: 20 }
+const PAGE_HEADER_STYLE: React.CSSProperties = { padding: '0 0 20px 0 !important' }
 
 export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (props) => {
     const intl = useIntl()
