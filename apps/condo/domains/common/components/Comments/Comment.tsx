@@ -1,4 +1,3 @@
-import { grey } from '@ant-design/colors'
 import { DeleteFilled, EditFilled } from '@ant-design/icons'
 import { User, TicketComment } from '@app/condo/schema'
 import { css } from '@emotion/react'
@@ -11,11 +10,10 @@ import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
+import { Button, Space } from '@open-condo/ui'
 
-import { colors, shadows, fontSizes } from '@condo/domains/common/constants/style'
+import { colors, fontSizes } from '@condo/domains/common/constants/style'
 import { getIconByMimetype } from '@condo/domains/common/utils/clientSchema/files'
-
-import { Button } from '../Button'
 
 import { CommentWithFiles } from './index'
 
@@ -29,119 +27,95 @@ interface ICommentProps {
     deleteAction?: (obj: CommentWithFiles) => Promise<void>
 }
 
-const DeleteButtonStyle = css`
-    border: none;
-    color: ${colors.red[5]};
-    background-color: ${colors.black};
-    box-shadow: ${shadows.small};
-  
-    &:hover {
-      background-color: ${colors.white};
-      color: ${colors.red[5]};
-    }
-`
-
-const UpdateButtonStyle = css`
-    border: none;
-    color: ${colors.white};
-    background-color: ${colors.black};
-    box-shadow: ${shadows.small};
-    margin-left: 4px;
-  
-    &:hover {
-      background-color: ${colors.white};
-      color: ${colors.black};
-    }
-`
 
 const DeletedTextStyle = css`
-  margin-top: 1em;
-  padding-left: 12px;
-  color: ${grey[2]};
+    margin-top: 1em;
+    padding-left: 12px;
+    color: ${colors.lightGrey};
 `
 
 const CommentStyle = css`
-    background: white;
+    background: ${colors.white} !important;
     border-radius: 8px;
     padding: 0;
     font-size: ${fontSizes.label};
     line-height: 22px;
 
     &:hover {
-      .ant-comment-inner {
-        .ant-comment-content {
-          .ant-comment-actions {
-            opacity: 1;
-            pointer-events: all;
-          }
+        .ant-comment-inner {
+            .ant-comment-content {
+                .ant-comment-actions {
+                    opacity: 1;
+                    pointer-events: all;
+                }
+            }
         }
-      }
     }
 
     .ant-comment-inner {
-      padding: 12px;
+        padding: 12px;
 
-      .ant-comment-content {
-        display: flex;
-        flex-flow: column nowrap;
-        
-        .ant-image {
-          border-radius: 8px;
-          overflow: hidden;
-          
-          .ant-image-mask-info {
-            display: none;
-          }
-        }
-        
-        .ant-comment-content-author {
-          display: block;
-          margin-top: 0.6em;
-          margin-bottom: 8px;
-          font-size: ${fontSizes.small};
-          
-          .ant-comment-content-author-name {
-            display: block;
-            color: ${colors.textSecondary};
-          }
+        .ant-comment-content {
+            display: flex;
+            flex-flow: column nowrap;
 
-          .ant-comment-content-author-time {
-            padding: 0;
-            
-            & > div > span {
-              color: ${colors.textSecondary};
+            .ant-image {
+                border-radius: 8px;
+                overflow: hidden;
+
+                .ant-image-mask-info {
+                    display: none;
+                }
             }
-          }
-        }
-        
-        .ant-comment-content-detail > div {
-          margin-top: 20px;
-          
-          & > .ant-typography {
-            margin-bottom: 4px;
-            cursor: pointer;
 
-            & > .ant-typography {
-              margin-left: 8px;
+            .ant-comment-content-author {
+                display: block;
+                margin-top: 0.6em;
+                margin-bottom: 8px;
+                font-size: ${fontSizes.small};
+
+                .ant-comment-content-author-name {
+                    display: block;
+                    color: ${colors.textSecondary};
+                }
+
+                .ant-comment-content-author-time {
+                    padding: 0;
+
+                    & > div > span {
+                        color: ${colors.textSecondary};
+                    }
+                }
             }
-          }
+
+            .ant-comment-content-detail > div {
+                margin-top: 20px;
+
+                & > .ant-typography {
+                    margin-bottom: 4px;
+                    cursor: pointer;
+
+                    & > .ant-typography {
+                        margin-left: 8px;
+                    }
+                }
+            }
+
+            .ant-comment-actions {
+                position: absolute;
+                right: -5px;
+                bottom: -5px;
+                opacity: 0;
+                pointer-events: none;
+                transition: all 0.3s ease-in-out;
+            }
         }
-        
-        .ant-comment-actions {
-          position: absolute;
-          right: -5px;
-          bottom: -5px;
-          opacity: 0;
-          pointer-events: none;
-          transition: all 0.3s ease-in-out;
-        }
-      }
     }
 `
 
 const CommentPreviewStyle = css`
     width: 100%;
-    background: white;
+    background: ${colors.white};
     margin-bottom: 6px;
     border: 1px solid ${colors.sberGrey};
     border-radius: 8px;
@@ -150,45 +124,45 @@ const CommentPreviewStyle = css`
     line-height: 22px;
 
     .ant-comment-inner {
-      padding: 12px;
+        padding: 12px;
 
-      .ant-comment-content {
-        display: flex;
-        flex-flow: column nowrap;
-        
-        .ant-comment-content-author {
-          display: block;
-          margin-top: 0;
-          margin-bottom: 8px;
-          font-size: ${fontSizes.small};
-          
-          .ant-comment-content-author-name {
-            padding-right: 4px;
-            color: ${colors.textSecondary};
-          }
+        .ant-comment-content {
+            display: flex;
+            flex-flow: column nowrap;
 
-          .ant-comment-content-author-time {
-            padding: 0;
-            
-            & > div > span {
-              color: ${colors.textSecondary};
+            .ant-comment-content-author {
+                display: block;
+                margin-top: 0;
+                margin-bottom: 8px;
+                font-size: ${fontSizes.small};
+
+                .ant-comment-content-author-name {
+                    padding-right: 4px;
+                    color: ${colors.textSecondary};
+                }
+
+                .ant-comment-content-author-time {
+                    padding: 0;
+
+                    & > div > span {
+                        color: ${colors.textSecondary};
+                    }
+                }
             }
-          }
-        }
-        
-        .ant-comment-content-detail > div {
-          margin-top: 20px;
-          
-          & > .ant-typography {
-            margin-bottom: 4px;
-            cursor: pointer;
 
-            & > .ant-typography {
-              margin-left: 8px;
+            .ant-comment-content-detail > div {
+                margin-top: 20px;
+
+                & > .ant-typography {
+                    margin-bottom: 4px;
+                    cursor: pointer;
+
+                    & > .ant-typography {
+                        margin-left: 8px;
+                    }
+                }
             }
-          }
         }
-      }
     }
 `
 
@@ -199,20 +173,20 @@ const getFilePreviewByMimetype = (mimetype, url) => {
 }
 
 const CommentFileListWrapper = styled.div`
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
 `
 
 const CommentFileCard = styled.div`
-  border-radius: 8px;
-  overflow: hidden; 
-  background-color: ${colors.backgroundLightGrey};
-  width: 64px; 
-  height: 64px; 
-  display: flex; 
-  align-items: center; 
-  justify-content: center;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: ${colors.backgroundLightGrey};
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 `
 
 const COMMENT_DATE_FORMAT = 'DD.MM.YYYY, HH:mm'
@@ -307,26 +281,29 @@ export const Comment: React.FC<ICommentProps> = ({ comment, setEditableComment, 
     const authorRole = getCommentAuthorRoleMessage(get(comment, 'user'), intl)
 
     const actions = useMemo(() => user.id === comment.user.id && ([
-        <Popconfirm
-            key='delete'
-            title={ConfirmDeleteTitle}
-            okText={ConfirmDeleteOkText}
-            cancelText={ConfirmDeleteCancelText}
-            onConfirm={handleDeleteComment}
-        >
+        <Space key='space' size={0}>
+            <Popconfirm
+                key='delete'
+                title={ConfirmDeleteTitle}
+                okText={ConfirmDeleteOkText}
+                cancelText={ConfirmDeleteCancelText}
+                onConfirm={handleDeleteComment}
+            >
+                <Button
+                    type='primary'
+                    danger
+                    size='large'
+                    icon={<DeleteFilled />}
+                />
+            </Popconfirm>,
             <Button
+                type='primary'
+                key='update'
                 size='large'
-                css={DeleteButtonStyle}
-                icon={<DeleteFilled/>}
+                icon={<EditFilled />}
+                onClick={handleUpdateComment}
             />
-        </Popconfirm>,
-        <Button
-            key='update'
-            size='large'
-            css={UpdateButtonStyle}
-            icon={<EditFilled />}
-            onClick={handleUpdateComment}
-        />,
+        </Space>,
     ]), [ConfirmDeleteCancelText, ConfirmDeleteOkText, ConfirmDeleteTitle, comment.user.id, handleDeleteComment, handleUpdateComment, user.id])
 
     if (comment.deletedAt) {
