@@ -22,7 +22,13 @@ const { fetch } = require('@open-condo/keystone/fetch')
 const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
 
-const { UserExternalIdentity, UserAdmin } = require('@condo/domains/user/utils/testSchema')
+const {
+    UserExternalIdentity,
+    UserAdmin,
+    OidcClient,
+    createTestOidcClient,
+    updateTestOidcClient,
+} = require('@condo/domains/user/utils/testSchema')
 
 
 const mockGithubUrls = (userId, userEmail) => {
@@ -69,9 +75,33 @@ describe('external authentication', () => {
         serverUrl = admin.serverUrl
         agent = request.agent(serverUrl)
         jest.resetModules()
+
+        const existingGithubClient = await OidcClient.getOne(admin, { clientId: 'github', deletedAt: null })
+        if (existingGithubClient) {
+            await updateTestOidcClient(admin, existingGithubClient.id, { deletedAt: existingGithubClient.createdAt })
+        }
+
+        await createTestOidcClient(admin, {
+            clientId: 'github',
+            payload: {
+                client_id: 'github',
+                grant_types: ['implicit', 'authorization_code', 'refresh_token'],
+                client_secret: faker.random.alphaNumeric(12),
+                redirect_uris: ['https://httpbin.org/anything'],
+                response_types: ['code id_token', 'code', 'id_token'],
+                token_endpoint_auth_method: 'client_secret_basic',
+            },
+        })
+
     })
-    afterAll(() => {
+
+    afterAll(async () => {
         nock.cleanAll()
+        const oidcClients = await OidcClient.getAll(admin, { clientId: 'github', deletedAt: null })
+
+        for (const client of oidcClients) {
+            await updateTestOidcClient(admin, client.id, { deletedAt: client.createdAt })
+        }
     })
 
     describe('Validation', () => {
@@ -92,6 +122,40 @@ describe('external authentication', () => {
             expect(result.status).toEqual(400)
             expect(json).toHaveProperty('error', 'Bad Request')
             expect(json).toHaveProperty('message', 'Valid user types are resident, staff')
+        })
+
+        test('Should not create token if oidc client disabled or deleted', async () => {
+            const fakedUserId = faker.datatype.uuid()
+            const fakedUserEmail = faker.datatype.uuid() + '@gmail.com'
+            mockGithubUrls(fakedUserId, fakedUserEmail)
+
+            // Temporary disable github oidc client
+            const githubClient = await OidcClient.getOne(admin, { clientId: 'github', deletedAt: null })
+            await updateTestOidcClient(admin, githubClient.id, { isEnabled: false })
+
+            const response = await agent.get('/api/github/auth?userType=staff')
+            expect(response.statusCode).toEqual(302)
+
+            const tokenResponse = await agent.get('/api/github/auth/callback?code=some_gh_code')
+            expect(tokenResponse.statusCode).toEqual(403)
+            expect(tokenResponse.body).toHaveProperty('error', 'Authentication failed')
+            expect(tokenResponse.body).toHaveProperty('message', 'Oidc client not found')
+
+            // Check deletedAt also restrict token creation
+            await updateTestOidcClient(admin, githubClient.id, { isEnabled: true, deletedAt: new Date().toISOString() })
+
+            mockGithubUrls(fakedUserId, fakedUserEmail)
+
+            const response1 = await agent.get('/api/github/auth?userType=staff')
+            expect(response1.statusCode).toEqual(302)
+
+            const tokenResponse1 = await agent.get('/api/github/auth/callback?code=some_gh_code')
+            expect(tokenResponse1.statusCode).toEqual(403)
+            expect(tokenResponse1.body).toHaveProperty('error', 'Authentication failed')
+            expect(tokenResponse1.body).toHaveProperty('message', 'Oidc client not found')
+
+            // Rollback client settings
+            await updateTestOidcClient(admin, githubClient.id, { isEnabled: true, deletedAt: null })
         })
     })
 
@@ -228,6 +292,37 @@ describe('external authentication', () => {
             expect(residentUser.id).toEqual(residentUserExternalIdentity.user.id)
             expect(staffUser.id).toEqual(staffUserExternalIdentity.user.id)
             expect(residentTokenResponse.body.accessToken).not.toEqual(staffTokenResponse.body.accessToken)
+        })
+
+        test('should be able to make authorized request with oidc token', async () => {
+            const fakedUserId = faker.datatype.uuid()
+            const fakedUserEmail = faker.datatype.uuid() + '@gmail.com'
+            mockGithubUrls(fakedUserId, fakedUserEmail)
+
+            const response = await agent.get('/api/github/auth?userType=staff')
+            expect(response.statusCode).toEqual(302)
+
+            const tokenResponse = await agent.get('/api/github/auth/callback?code=some_gh_code')
+
+            expect(tokenResponse.statusCode).toEqual(200)
+            expect(tokenResponse.body).toHaveProperty('accessToken')
+            expect(tokenResponse.body).toHaveProperty('scope', 'openid')
+            expect(tokenResponse.body).toHaveProperty('tokenType', 'Bearer')
+
+            const userToken = tokenResponse.body.accessToken
+
+            const oidcResponse = await agent.get('/oidc/me').set({
+                'Authorization': 'Bearer ' + userToken,
+            })
+
+            const userExternalIdentity = await UserExternalIdentity.getOne(admin, { identityId: fakedUserId, userType: 'staff' })
+
+            expect(oidcResponse.statusCode).toEqual(200)
+            expect(oidcResponse.body).toHaveProperty('type', 'staff')
+            expect(oidcResponse.body).toHaveProperty('isAdmin', false)
+            expect(oidcResponse.body).toHaveProperty('isSupport', false)
+            expect(oidcResponse.body).toHaveProperty('name', null)
+            expect(oidcResponse.body).toHaveProperty('sub', userExternalIdentity.user.id)
         })
     })
 })
