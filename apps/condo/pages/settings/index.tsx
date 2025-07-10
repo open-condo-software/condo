@@ -1,13 +1,12 @@
-import { Typography } from 'antd'
 import get from 'lodash/get'
 import getConfig from 'next/config'
 import Head from 'next/head'
-import React, { CSSProperties, useMemo } from 'react'
+import React, { useMemo } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { TabItem } from '@open-condo/ui'
+import { TabItem, Typography } from '@open-condo/ui'
 
 import { AcquiringIntegrationContext } from '@condo/domains/acquiring/utils/clientSchema'
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
@@ -42,8 +41,6 @@ import MarketplaceSettingsPage from './marketplace'
 
 
 const { canEnableSubscriptions } = getConfig()
-
-const TITLE_STYLES: CSSProperties = { margin: 0 }
 
 const ALWAYS_AVAILABLE_TABS = []
 
@@ -133,7 +130,7 @@ const SettingsPage: PageComponentType = () => {
     )
 
     const titleContent = useMemo(() => (
-        <Typography.Title style={TITLE_STYLES}>{PageTitle}</Typography.Title>
+        <Typography.Title>{PageTitle}</Typography.Title>
     ), [PageTitle])
 
     return (

@@ -1,9 +1,9 @@
-import { Typography, Row, Col, RowProps } from 'antd'
+import { Row, Col, RowProps } from 'antd'
 import Head from 'next/head'
 import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Tour } from '@open-condo/ui'
+import { Tour, Typography } from '@open-condo/ui'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { PageComponentType } from '@condo/domains/common/types'
@@ -12,7 +12,6 @@ import { PropertyForm } from '@condo/domains/property/components/PropertyForm'
 
 
 const PROPERTY_CREATE_PAGE_GUTTER: RowProps['gutter'] = [0, 40]
-const PROPERTY_CREATE_PAGE_TITLE_STYLE: React.CSSProperties = { margin: 0 }
 
 const CreatePropertyPage: PageComponentType = () => {
     const intl = useIntl()
@@ -27,7 +26,7 @@ const CreatePropertyPage: PageComponentType = () => {
                 <PageContent>
                     <Row gutter={PROPERTY_CREATE_PAGE_GUTTER}>
                         <Col span={24}>
-                            <Typography.Title level={1} style={PROPERTY_CREATE_PAGE_TITLE_STYLE}>
+                            <Typography.Title level={1}>
                                 {PageTitleMsg}
                             </Typography.Title>
                         </Col>

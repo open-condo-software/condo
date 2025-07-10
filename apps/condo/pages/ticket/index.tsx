@@ -98,7 +98,7 @@ type TicketType = 'all' | 'own' | 'favorite'
 
 const LARGE_VERTICAL_ROW_GUTTER: RowProps['gutter'] = [0, 40]
 const MEDIUM_VERTICAL_ROW_GUTTER: RowProps['gutter'] = [0, 24]
-const HEADER_STYLES: CSSProperties = { padding: 0 }
+const HEADER_STYLES: CSSProperties = { padding: '0 !important' }
 const DEBOUNCE_TIMEOUT = 400
 
 const StyledTable = styled(Table)`

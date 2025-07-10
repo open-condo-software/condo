@@ -46,7 +46,7 @@ const { publicRuntimeConfig: { newsItemsSendingDelay } } = getConfig()
 
 const PAGE_ROW_GUTTER: RowProps['gutter'] = [0, 40]
 const HORIZONTAL_ROW_GUTTER: RowProps['gutter'] = [0, 24]
-const HEADER_STYLES: React.CSSProperties = { paddingBottom: '20px' }
+const HEADER_STYLES: React.CSSProperties = { padding: '0 0 20px 0 !important' }
 
 interface IFieldPairRowProps {
     fieldTitle: string
@@ -286,7 +286,9 @@ const NewsItemCard: React.FC = () => {
                         gutter={PAGE_ROW_GUTTER}
                     >
                         <Col span={24}>
-                            <PageHeader title={<Typography.Title>{PageTitleMsg}</Typography.Title>} style={HEADER_STYLES}/>
+                            <PageHeader
+                                style={HEADER_STYLES}
+                                title={<Typography.Title>{PageTitleMsg}</Typography.Title>} />
                             <Typography.Text type='secondary'>
                                 {CreatedByLabel}
                             </Typography.Text>
