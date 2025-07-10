@@ -374,6 +374,7 @@ export default function GlobalStyle () {
                 .ant-table-cell {
                     border: none !important;
                     border-top: 1px solid #D0D3E5 !important;
+                    border-radius: 0 0 12px 12px !important;
                   }
               }
 
