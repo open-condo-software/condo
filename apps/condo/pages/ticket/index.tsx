@@ -1058,7 +1058,7 @@ const TicketsPage: PageComponentType = () => {
                                     <Col>
                                         <Space size={20} direction={breakpoints.TABLET_SMALL ? 'horizontal' : 'vertical'}>
                                             {
-                                                true && (
+                                                isCallRecordsExists && (
                                                     <Link href='/callRecord'>
                                                         <Typography.Link size='large'>
                                                             <Space size={8}>
