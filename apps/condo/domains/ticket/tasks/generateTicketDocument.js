@@ -113,7 +113,7 @@ const generateTicketDocument = async (taskId) => {
             })
         }
 
-        throw error
+        throw err
     }
 }
 

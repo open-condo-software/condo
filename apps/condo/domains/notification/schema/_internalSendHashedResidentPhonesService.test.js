@@ -4,10 +4,11 @@
 
 const { makeClient, expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult } = require('@open-condo/keystone/test.utils')
 
-const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')
 const { _internalSendHashedResidentPhonesByTestClient } = require('@condo/domains/notification/utils/testSchema')
 const { createTestUserRightsSet, updateTestUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
+
+const TASK_NUMBER_REGEXP = /^\d+$/
 
  
 describe('_internalSendHashedResidentPhonesService', () => {
@@ -41,6 +42,6 @@ describe('_internalSendHashedResidentPhonesService', () => {
 
         const [data] = await _internalSendHashedResidentPhonesByTestClient(userClient)
 
-        expect(data.taskId).toMatch(UUID_REGEXP)
+        expect(data.taskId).toMatch(TASK_NUMBER_REGEXP)
     })
 })

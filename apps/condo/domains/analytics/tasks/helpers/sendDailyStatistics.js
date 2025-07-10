@@ -37,20 +37,17 @@ class UserDailyStatistics {
     #statistics = null
     /** @type {string|null} */
     #userId = null
-    #taskId = null
 
     /**
      * @param userId
      * @param currentDate
      * @param taskId
      */
-    constructor (userId, currentDate, taskId) {
+    constructor (userId, currentDate) {
         if (!userId) throw new Error('No userId!')
 
         this.#userId = userId
         this.#currentDate = currentDate || dayjs().toISOString()
-
-        this.#taskId = taskId
     }
 
     /**
@@ -507,10 +504,10 @@ const formatMessageData = (userStatisticsData, currentDate, locale = conf.DEFAUL
     }
 }
 
-const sendDailyMessageToUserSafely = async (context, user, currentDate, taskId, organizationWhere = {}) => {
+const sendDailyMessageToUserSafely = async (context, user, currentDate, organizationWhere = {}) => {
     try {
         logger.info({ msg: 'start sendDailyMessageToUser.', data: { currentDate, userId: user.id } })
-        const userStatistics = new UserDailyStatistics(user.id, currentDate, taskId)
+        const userStatistics = new UserDailyStatistics(user.id, currentDate)
         const statisticsData = await userStatistics.loadStatistics(organizationWhere)
         const organizationIds = userStatistics.getOrganizationIds()
 

@@ -61,6 +61,8 @@
 const Big = require('big.js')
 const { get } = require('lodash')
 
+const { getLogger } = require('@open-condo/keystone/logging')
+
 const {
     FEE_DISTRIBUTION_UNSUPPORTED_FORMULA,
     FEE_DISTRIBUTION_INCOMPLETE_FORMULA,
@@ -70,10 +72,9 @@ const {
 const {
     AcquiringIntegrationContext: AcquiringIntegrationContextApi,
 } = require('@condo/domains/acquiring/utils/serverSchema')
-const { Logger } = require('@condo/domains/common/utils/logger.js')
 
 
-class FeeDistribution extends Logger {
+class FeeDistribution {
 
     formula = {}
     type = 'unknown' // can be service or commission
@@ -81,8 +82,9 @@ class FeeDistribution extends Logger {
     minCommission = Big(0)
     maxCommission = Big(0)
 
+    logger = getLogger()
+
     constructor (formula, categoryId = '') {
-        super('acquiring-commission')
         const initialFormula = categoryId && (categoryId in formula) ? formula[categoryId] : formula
         const { service, commission, acquiring, organization = 0 } = initialFormula
         const resultFormula = { organization: get(organization, 'percent', 0) || organization }
@@ -112,7 +114,10 @@ class FeeDistribution extends Logger {
             const difference = this.formula.organization.minus(this.formula.fromTotalAmountFee).minus(this.formula.fromReceiptAmountFee)
             if (Number(difference) < 0 ) {
                 const explain = `${difference} = ${this.formula.organization.toString()} - ${this.formula.fromTotalAmountFee.toString()} - ${this.formula.fromReceiptAmountFee.toString()}`
-                this.error(`${FEE_DISTRIBUTION_UNSUPPORTED_FORMULA}]`, { explain })
+                this.logger.error({
+                    msg: `${FEE_DISTRIBUTION_UNSUPPORTED_FORMULA}]`,
+                    data: { explain },
+                })
                 throw new Error(`${FEE_DISTRIBUTION_UNSUPPORTED_FORMULA}] ${explain}`)
             }
         }
@@ -122,11 +127,11 @@ class FeeDistribution extends Logger {
         const { summa, recipientSum, explicitFee, implicitFee, fromTotalAmountFee, fromReceiptAmountFee } = toPay
         const payDifference = Number(summa.minus(recipientSum).minus(explicitFee).minus(implicitFee).toFixed(2))
         if (payDifference !== 0) {
-            this.error(`${FEE_TOTAL_SUM_CHECK_FAILED}]`, toPay)
+            this.logger.error({ msg: `${FEE_TOTAL_SUM_CHECK_FAILED}]`, data: { toPay } })
         }
         const commissionDifference = Math.abs(Number(explicitFee.plus(implicitFee).minus(fromReceiptAmountFee).minus(fromTotalAmountFee)))
         if (commissionDifference !== 0) {
-            this.error(`${FEE_TOTAL_COMMISSION_CHECK_FAILED}]`, toPay)
+            this.logger.error({ msg: `${FEE_TOTAL_COMMISSION_CHECK_FAILED}]`, data: { toPay } })
         }
         return {
             payDifference,
