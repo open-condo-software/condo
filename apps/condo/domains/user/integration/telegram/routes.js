@@ -7,17 +7,17 @@ const {
     getRedirectUrl,
     getUserType,
 } = require('@condo/domains/user/integration/telegram/utils/params')
-const { validateTgAuthData, isRedirectUrlValid } = require('@condo/domains/user/integration/telegram/utils/validations')
+const { getTgAuthDataValidationError, isRedirectUrlValid } = require('@condo/domains/user/integration/telegram/utils/validations')
 const {
     User,
 } = require('@condo/domains/user/utils/serverSchema')
 
 const { getIdentity } = require('./sync/syncUser')
-const { ERRORS, TelegramOauthError } = require('./utils/errors')
+const { ERRORS, HttpError } = require('./utils/errors')
 const { parseBotId, getBotId } = require('./utils/params')
-const { validateOauthConfig, isValidTelegramMiniAppInitParams } = require('./utils/validations')
+const { getOauthConfigValidationError, isValidTelegramMiniAppInitParams } = require('./utils/validations')
 
-const logger = getLogger('telegram-oauth/routes')
+const logger = getLogger()
 
 function isAuthorized (req) {
     return !!req.user
@@ -37,17 +37,17 @@ class BotsConfigProvider {
     configs = {}
     constructor () {
         this.isValid = true
-        try {
-            const TELEGRAM_OAUTH_CONFIG = JSON.parse(conf.TELEGRAM_OAUTH_CONFIG || '[]')
-                .map(conf => ({ ...conf, botId: parseBotId(conf.botToken) }))
-            validateOauthConfig(TELEGRAM_OAUTH_CONFIG)
-            for (const config of TELEGRAM_OAUTH_CONFIG) {
-                this.configs[config.botId] = config
-            }
-        } catch (err) {
-            logger.error({ msg: 'Telegram oauth config error', err })
+        const TELEGRAM_OAUTH_CONFIG = JSON.parse(conf.TELEGRAM_OAUTH_CONFIG || '[]')
+            .map(conf => ({ ...conf, botId: parseBotId(conf.botToken) }))
+        const validationError = getOauthConfigValidationError(TELEGRAM_OAUTH_CONFIG)
+        if (validationError) {
+            const err = new Error(validationError)
+            logger.error({ msg: 'telegram oauth config error', err })
             this.isValid = false
             this.validationError = err
+        }
+        for (const config of TELEGRAM_OAUTH_CONFIG) {
+            this.configs[config.botId] = config
         }
     }
 
@@ -117,9 +117,9 @@ class TelegramOauthRoutes {
 
     async authorizeUser (req, context, userId) {
         // auth session
-        const user = await User.getOne(context, { id: userId }, 'id type isSupport isAdmin')
-        if (user.isSupport || user.isAdmin) {
-            throw new TelegramOauthError(ERRORS.SUPER_USERS_NOT_ALLOWED)
+        const user = await User.getOne(context, { id: userId }, 'id type isSupport isAdmin rightsSet')
+        if (isSuperUser({ user })) {
+            throw new HttpError(ERRORS.SUPER_USERS_NOT_ALLOWED)
         }
         const { keystone } = await getSchemaCtx('User')
         await keystone._sessionManager.startAuthedSession(req, { item: { id: user.id }, list: keystone.lists['User'] })
@@ -130,28 +130,22 @@ class TelegramOauthRoutes {
         if (isAuthorized(req)) {
             await context._sessionManager.endAuthedSession(req)
         }
-        const reqUrl = new URL(`https://www.dummy-url.com${req.url}`)
+        const reqUrl = new URL(req.url, 'https://_')
         const returnToUrl = `${conf.SERVER_URL}${reqUrl.pathname}?${encodeURIComponent(reqUrl.searchParams.toString())}`
         return res.redirect(`/auth?next=${encodeURIComponent(returnToUrl)}&userType=${userType}`)
     }
 
     _validateParameters (req, res, next) {
         this._validateBotId(req)
-        if (!req.query.state) {
-            throw new TelegramOauthError(ERRORS.INVALID_STATE)
-        }
-        if (!req.query.nonce) {
-            throw new TelegramOauthError(ERRORS.INVALID_NONCE)
-        }
         const botId = getBotId(req)
         const config = this._provider.getConfig(botId)
         const redirectUrl = getRedirectUrl(req)
         const userType = getUserType(req)
         if (!isRedirectUrlValid(config.allowedRedirectUrls, redirectUrl)) {
-            throw new TelegramOauthError(ERRORS.INVALID_REDIRECT_URL)
+            throw new HttpError(ERRORS.INVALID_REDIRECT_URL)
         }
         if (!userType || !config.allowedUserType || config.allowedUserType.toLowerCase() !== userType.toLowerCase()) {
-            throw new TelegramOauthError(ERRORS.NOT_SUPPORTED_USER_TYPE)
+            throw new HttpError(ERRORS.NOT_SUPPORTED_USER_TYPE)
         }
         const { tgAuthData } = this._getTgAuthData(req)
         return {
@@ -160,8 +154,8 @@ class TelegramOauthRoutes {
     }
 
     _processError (res, error, next) {
-        const errMsg = 'TelegramOauth error'
-        if (error instanceof TelegramOauthError && error.statusCode < 500) {
+        const errMsg = 'telegramOauth error'
+        if (error instanceof HttpError && error.statusCode < 500) {
             logger.error({ msg: errMsg, reqId: res.req.id, data: { error: error.toJSON(), stack: error.stack } })
             return res.status(error.statusCode).json({ error: error.toJSON() })
         }
@@ -171,11 +165,11 @@ class TelegramOauthRoutes {
     
     _validateBotId (req) {
         if (!this._provider.isValid) {
-            throw new TelegramOauthError(ERRORS.INVALID_CONFIG)
+            throw new HttpError(ERRORS.INVALID_CONFIG)
         }
         const botId = getBotId(req)
         if (!this._provider.isValidBotId(botId)) {
-            throw new TelegramOauthError(ERRORS.INVALID_BOT_ID)
+            throw new HttpError(ERRORS.INVALID_BOT_ID)
         }
     }
 
@@ -186,9 +180,13 @@ class TelegramOauthRoutes {
         try {
             tgAuthData = Object.fromEntries(new URLSearchParams(decodeURIComponent(tgAuthDataQP)).entries())
         } catch {
-            throw new TelegramOauthError(ERRORS.TG_AUTH_DATA_MISSING)
+            throw new HttpError(ERRORS.TG_AUTH_DATA_MISSING)
         }
-        validateTgAuthData(tgAuthData, config.botToken)
+        const tgAuthDataValidationError = getTgAuthDataValidationError(tgAuthData, config.botToken)
+        if (tgAuthDataValidationError) {
+            throw new HttpError(tgAuthDataValidationError)
+        }
+        // Note: there is 2 types of tg auth data: oauth ({ id: userId }) and tma ({ id: undefined, user: '{"id": userId}' }).
         if (isValidTelegramMiniAppInitParams(tgAuthData)) {
             // Note: we need only "id" from tgAuthData, but better keep info for meta
             tgAuthData = { ...tgAuthData, ...JSON.parse(tgAuthData.user) }

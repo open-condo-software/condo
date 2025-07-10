@@ -2,12 +2,12 @@ const crypto = require('crypto')
 
 const { faker } = require('@faker-js/faker')
 
-const { ERRORS, TelegramOauthError } = require('./errors')
-const { validateTgAuthData, isRedirectUrlValid } = require('./validations')
+const { ERRORS } = require('./errors')
+const { getTgAuthDataValidationError, isRedirectUrlValid } = require('./validations')
 
 describe('validations', () => {
 
-    describe('validateTgAuthData', () => {
+    describe('getTgAuthDataValidationError', () => {
 
         const mockBotToken = faker.random.alphaNumeric(30)
         const mockAuthDate = Date.now()
@@ -46,11 +46,11 @@ describe('validations', () => {
             describe('Successful validation', () => {
                 const testCases = [
                     {
-                        name: 'should not throw for valid auth data',
+                        name: 'should not return error for valid auth data',
                         getData: (baseData) => baseData,
                     },
                     {
-                        name: 'should not throw with empty optional fields',
+                        name: 'should not return error with empty optional fields',
                         getData: (baseData) => ({
                             ...baseData,
                             last_name: '',
@@ -59,7 +59,7 @@ describe('validations', () => {
                         }),
                     },
                     {
-                        name: 'should not throw when auth data is just within time limit',
+                        name: 'should not return error when auth data is just within time limit',
                         getData: (baseData) => ({
                             ...baseData,
                             auth_date: (Date.now() - 4.9 * 60 * 1000).toString(), // 4.9 min ago
@@ -70,7 +70,8 @@ describe('validations', () => {
                 test.each(testCases)('$name', ({ getData }) => {
                     const data = getData({ ...baseAuthData })
                     data.hash = generateValidHash(data, mockBotToken)
-                    expect(() => validateTgAuthData(data, mockBotToken)).not.toThrow()
+                    const validationError = getTgAuthDataValidationError(data, mockBotToken)
+                    expect(validationError).toBeNull()
                 })
 
             })
@@ -80,7 +81,8 @@ describe('validations', () => {
                     const invalidData = { ...baseAuthData, extra_field: 'value' }
                     invalidData.hash = generateValidHash(invalidData, mockBotToken)
 
-                    expect(() => validateTgAuthData(invalidData, mockBotToken)).toThrow(new TelegramOauthError(ERRORS.VALIDATION_AUTH_DATA_KEYS_MISMATCH))
+                    const validationError = getTgAuthDataValidationError(invalidData, mockBotToken)
+                    expect(validationError).toBe(ERRORS.VALIDATION_AUTH_DATA_KEYS_MISMATCH)
                 })
 
                 describe('should return error when required field is missing', () => {
@@ -97,7 +99,8 @@ describe('validations', () => {
                             incompleteData.hash = generateValidHash(incompleteData, mockBotToken)
                         }
 
-                        expect(() => validateTgAuthData(incompleteData, mockBotToken)).toThrow(new TelegramOauthError(ERRORS.VALIDATION_AUTH_DATA_KEYS_MISMATCH))
+                        const validationError = getTgAuthDataValidationError(incompleteData, mockBotToken)
+                        expect(validationError).toBe(ERRORS.VALIDATION_AUTH_DATA_KEYS_MISMATCH)
                     })
                 })
             })
@@ -110,7 +113,8 @@ describe('validations', () => {
                     }
                     expiredData.hash = generateValidHash(expiredData, mockBotToken)
 
-                    expect(() => validateTgAuthData(expiredData, mockBotToken)).toThrow(new TelegramOauthError(ERRORS.VALIDATION_AUTH_DATA_EXPIRED))
+                    const validationError = getTgAuthDataValidationError(expiredData, mockBotToken)
+                    expect(validationError).toBe(ERRORS.VALIDATION_AUTH_DATA_EXPIRED)
                 })
 
                 test('should use custom time limit when provided', () => {
@@ -121,7 +125,8 @@ describe('validations', () => {
                     }
                     expiredData.hash = generateValidHash(expiredData, mockBotToken)
 
-                    expect(() => validateTgAuthData(expiredData, mockBotToken, customTimeLimit)).toThrow(new TelegramOauthError(ERRORS.VALIDATION_AUTH_DATA_EXPIRED))
+                    const validationError = getTgAuthDataValidationError(expiredData, mockBotToken, customTimeLimit)
+                    expect(validationError).toBe(ERRORS.VALIDATION_AUTH_DATA_EXPIRED)
                 })
             })
 
@@ -131,7 +136,8 @@ describe('validations', () => {
                     tamperedData.hash = generateValidHash(tamperedData, mockBotToken)
                     tamperedData.hash = tamperedData.hash.slice(0, -1) + 'x'
 
-                    expect(() => validateTgAuthData(tamperedData, mockBotToken)).toThrow(new TelegramOauthError(ERRORS.VALIDATION_AUTH_DATA_SIGN_INVALID))
+                    const validationError = getTgAuthDataValidationError(tamperedData, mockBotToken)
+                    expect(validationError).toBe(ERRORS.VALIDATION_AUTH_DATA_SIGN_INVALID)
                 })
 
                 test('should return error when bot token is wrong', () => {
@@ -139,14 +145,16 @@ describe('validations', () => {
                     const validData = { ...baseAuthData }
                     validData.hash = generateValidHash(validData, mockBotToken)
 
-                    expect(() => validateTgAuthData(validData, wrongBotToken)).toThrow(new TelegramOauthError(ERRORS.VALIDATION_AUTH_DATA_SIGN_INVALID))
+                    const validationError = getTgAuthDataValidationError(validData, wrongBotToken)
+                    expect(validationError).toBe(ERRORS.VALIDATION_AUTH_DATA_SIGN_INVALID)
                 })
 
                 test('should return error when bot token is empty', () => {
                     const validData = { ...baseAuthData }
                     validData.hash = generateValidHash(validData, mockBotToken)
 
-                    expect(() => validateTgAuthData(validData, '')).toThrow(new TelegramOauthError(ERRORS.VALIDATION_AUTH_DATA_SIGN_INVALID))
+                    const validationError = getTgAuthDataValidationError(validData, '')
+                    expect(validationError).toBe(ERRORS.VALIDATION_AUTH_DATA_SIGN_INVALID)
                 })
             })
         })
@@ -172,7 +180,8 @@ describe('validations', () => {
                     const validData = { ...baseInitData }
                     validData.hash = generateValidHash(validData, mockBotToken, true)
 
-                    expect(() => validateTgAuthData(validData, mockBotToken)).not.toThrow()
+                    const validationError = getTgAuthDataValidationError(validData, mockBotToken)
+                    expect(validationError).toBeNull()
                 })
 
                 test('should work with empty optional fields', () => {
@@ -191,7 +200,8 @@ describe('validations', () => {
                         true,
                     )
 
-                    expect(() => validateTgAuthData(dataWithEmptyOptionalFields, mockBotToken)).not.toThrow()
+                    const validationError = getTgAuthDataValidationError(dataWithEmptyOptionalFields, mockBotToken)
+                    expect(validationError).toBeNull()
                 })
 
                 test('should not return error when auth data is just within time limit', () => {
@@ -201,7 +211,8 @@ describe('validations', () => {
                     }
                     justValidData.hash = generateValidHash(justValidData, mockBotToken, true)
 
-                    expect(() => validateTgAuthData(justValidData, mockBotToken)).not.toThrow()
+                    const validationError = getTgAuthDataValidationError(justValidData, mockBotToken)
+                    expect(validationError).toBeNull()
                 })
             })
 
@@ -221,7 +232,8 @@ describe('validations', () => {
                             incompleteData.hash = generateValidHash(incompleteData, mockBotToken)
                         }
 
-                        expect(() => validateTgAuthData(incompleteData, mockBotToken)).toThrow(new TelegramOauthError(ERRORS.VALIDATION_AUTH_DATA_KEYS_MISMATCH))
+                        const validationError = getTgAuthDataValidationError(incompleteData, mockBotToken)
+                        expect(validationError).toBe(ERRORS.VALIDATION_AUTH_DATA_KEYS_MISMATCH)
                     })
                 })
             })
@@ -234,7 +246,8 @@ describe('validations', () => {
                     }
                     expiredData.hash = generateValidHash(expiredData, mockBotToken)
 
-                    expect(() => validateTgAuthData(expiredData, mockBotToken)).toThrow(new TelegramOauthError(ERRORS.VALIDATION_AUTH_DATA_EXPIRED))
+                    const validationError = getTgAuthDataValidationError(expiredData, mockBotToken)
+                    expect(validationError).toBe(ERRORS.VALIDATION_AUTH_DATA_EXPIRED)
                 })
 
                 test('should use custom time limit when provided', () => {
@@ -245,7 +258,8 @@ describe('validations', () => {
                     }
                     expiredData.hash = generateValidHash(expiredData, mockBotToken)
 
-                    expect(() => validateTgAuthData(expiredData, mockBotToken, customTimeLimit)).toThrow(new TelegramOauthError(ERRORS.VALIDATION_AUTH_DATA_EXPIRED))
+                    const validationError = getTgAuthDataValidationError(expiredData, mockBotToken, customTimeLimit)
+                    expect(validationError).toBe(ERRORS.VALIDATION_AUTH_DATA_EXPIRED)
                 })
             })
 
@@ -255,7 +269,8 @@ describe('validations', () => {
                     tamperedData.hash = generateValidHash(tamperedData, mockBotToken)
                     tamperedData.hash = tamperedData.hash.slice(0, -1) + 'x'
 
-                    expect(() => validateTgAuthData(tamperedData, mockBotToken)).toThrow(new TelegramOauthError(ERRORS.VALIDATION_AUTH_DATA_SIGN_INVALID))
+                    const validationError = getTgAuthDataValidationError(tamperedData, mockBotToken)
+                    expect(validationError).toBe(ERRORS.VALIDATION_AUTH_DATA_SIGN_INVALID)
                 })
 
                 test('should return error when bot token is wrong', () => {
@@ -263,14 +278,16 @@ describe('validations', () => {
                     const validData = { ...baseInitData }
                     validData.hash = generateValidHash(validData, mockBotToken)
 
-                    expect(() => validateTgAuthData(validData, wrongBotToken)).toThrow(new TelegramOauthError(ERRORS.VALIDATION_AUTH_DATA_SIGN_INVALID))
+                    const validationError = getTgAuthDataValidationError(validData, wrongBotToken)
+                    expect(validationError).toBe(ERRORS.VALIDATION_AUTH_DATA_SIGN_INVALID)
                 })
 
                 test('should return error when bot token is empty', () => {
                     const validData = { ...baseInitData }
                     validData.hash = generateValidHash(validData, mockBotToken)
 
-                    expect(() => validateTgAuthData(validData, '')).toThrow(new TelegramOauthError(ERRORS.VALIDATION_AUTH_DATA_SIGN_INVALID))
+                    const validationError = getTgAuthDataValidationError(validData, '')
+                    expect(validationError).toBe(ERRORS.VALIDATION_AUTH_DATA_SIGN_INVALID)
                 })
             })
         })

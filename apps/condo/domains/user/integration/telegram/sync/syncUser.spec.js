@@ -5,14 +5,14 @@
 const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
 
-const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
+const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
-const { TELEGRAM_IDP_TYPE, RESIDENT } = require('@condo/domains/user/constants/common')
-const { ERRORS, TelegramOauthError } = require('@condo/domains/user/integration/telegram/utils/errors')
+const { TELEGRAM_IDP_TYPE, RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
+const { ERRORS, HttpError } = require('@condo/domains/user/integration/telegram/utils/errors')
 const {
     UserExternalIdentity: UserExternalIdentityApi,
 } = require('@condo/domains/user/utils/serverSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser, updateTestUser, createTestUserRightsSet } = require('@condo/domains/user/utils/testSchema')
 
 const { syncUser } = require('./syncUser')
 
@@ -36,7 +36,7 @@ describe('syncUser from Telegram', () => {
 
         await expect(async () => 
             await syncUser({ authenticatedUser: null, context, userInfo, userType: RESIDENT })
-        ).rejects.toThrow(new TelegramOauthError(ERRORS.USER_IS_NOT_REGISTERED))
+        ).rejects.toThrow(new HttpError(ERRORS.USER_IS_NOT_REGISTERED))
 
         const [createdIdentity] = await UserExternalIdentityApi.getAll(context, {
             identityId,
@@ -53,7 +53,7 @@ describe('syncUser from Telegram', () => {
 
         await expect(async () => 
             await syncUser({ authenticatedUser: null, context, userInfo, userType: existingUser.type })
-        ).rejects.toThrow(new TelegramOauthError(ERRORS.USER_IS_NOT_REGISTERED))
+        ).rejects.toThrow(new HttpError(ERRORS.USER_IS_NOT_REGISTERED))
 
         // act
         const { id } = await syncUser({ authenticatedUser: existingUser, context, userInfo, userType: existingUser.type })
@@ -127,7 +127,7 @@ describe('syncUser from Telegram', () => {
         const { id } = await syncUser({ authenticatedUser: existingUser, context, userInfo, userType: existingUser.type })
         await expect(async () => 
             await syncUser({ authenticatedUser: anotherNotConnectedUser, context, userInfo, userType: existingUser.type })
-        ).rejects.toThrow(new TelegramOauthError(ERRORS.ACCESS_DENIED))
+        ).rejects.toThrow(new HttpError(ERRORS.ACCESS_DENIED))
 
         // assertions
         // assert id of user
@@ -140,5 +140,100 @@ describe('syncUser from Telegram', () => {
         })
 
         expect(identities).toHaveLength(1)
+    })
+
+    describe('super users are not allowed', () => {
+        const clients = {}
+        beforeAll(async () => {
+            clients.admin = await makeLoggedInAdminClient()
+            clients.admin.user.isAdmin = true
+            clients.support = await makeClientWithSupportUser()
+            clients.userWithRightsSet = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [rightsSet] = await createTestUserRightsSet(clients.support)
+            const [updatedUserWithReightsSet] = await updateTestUser(clients.support, clients.userWithRightsSet.user.id, {
+                rightsSet: { connect: { id: rightsSet.id } },
+            })
+            clients.userWithRightsSet.user = updatedUserWithReightsSet
+        })
+
+        const testCases = [
+            { 
+                name: 'admin',
+                getClient: () => clients.admin,
+            }, {
+                name: 'support',
+                getClient: () => clients.support,
+            }, {
+                name: 'user with rights set',
+                getClient: () => clients.userWithRightsSet,
+            },
+        ]
+
+        test.each(testCases)('throws if $name is used', async ({ getClient }) => {
+            const identityId = faker.datatype.uuid()
+            const userInfo = mockUserInfo(identityId)
+            const client = getClient()
+
+            await expect(async () => 
+                await syncUser({ authenticatedUser: client.user, context, userInfo, userType: client.user.type })
+            ).rejects.toThrow(new HttpError(ERRORS.SUPER_USERS_NOT_ALLOWED))
+
+        })
+    })
+
+    test('deleted authenticatedUser is not allowed', async () => {
+        const support = await makeClientWithSupportUser()
+        const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+        const [updatedUser] = await updateTestUser(support, userClient.user.id, { deletedAt: new Date().toISOString() })
+        userClient.user = updatedUser
+        const identityId = faker.datatype.uuid()
+        const userInfo = mockUserInfo(identityId)
+
+        await expect(async () => 
+            await syncUser({ authenticatedUser: userClient.user, context, userInfo, userType: userClient.user.type })
+        ).rejects.toThrow(new HttpError(ERRORS.USER_IS_NOT_REGISTERED))
+    })
+
+    test('can\'t connect identity if authenticatedUser of different user type', async () => {
+        const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+        const identityId = faker.datatype.uuid()
+        const userInfo = mockUserInfo(identityId)
+        const differentUserType = userClient.user.type === STAFF ? RESIDENT : STAFF
+
+        await expect(async () => 
+            await syncUser({ authenticatedUser: userClient.user, context, userInfo, userType: differentUserType })
+        ).rejects.toThrow(new HttpError(ERRORS.NOT_SUPPORTED_USER_TYPE))
+    })
+
+    test('can\'t auth with identity if authenticated user is another or have different userType', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const existingUserClient = await makeClientWithNewRegisteredAndLoggedInUser()
+        const anotherUserClient = await makeClientWithNewRegisteredAndLoggedInUser()
+        const identityId = faker.datatype.uuid()
+        const userInfo = mockUserInfo(identityId)
+        const userType = existingUserClient.user.type
+        
+
+        await UserExternalIdentityApi.create(context, {
+            dv: 1,
+            sender: { dv: 1, fingerprint: faker.datatype.uuid() },
+            user: { connect: { id: existingUserClient.user.id } },
+            userType: userType,
+            identityId: userInfo.id,
+            identityType: TELEGRAM_IDP_TYPE,
+            meta: userInfo,
+        })
+
+        await expect(async () => 
+            await syncUser({ authenticatedUser: anotherUserClient.user, context, userInfo, userType: userType })
+        ).rejects.toThrow(new HttpError(ERRORS.ACCESS_DENIED))
+
+        const differentUserType = existingUserClient.user.type === STAFF ? RESIDENT : STAFF
+        const [updatedDifferentUserTypeUser] = await updateTestUser(admin, existingUserClient.user.id, { type: differentUserType })
+        existingUserClient.user = updatedDifferentUserTypeUser
+
+        await expect(async () => 
+            await syncUser({ authenticatedUser: existingUserClient.user, context, userInfo, userType: userType })
+        ).rejects.toThrow(new HttpError(ERRORS.ACCESS_DENIED))
     })
 })

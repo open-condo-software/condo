@@ -4,7 +4,7 @@ const { URL } = require('url')
 const Ajv = require('ajv')
 const addFormats = require('ajv-formats')
 
-const { ERRORS, TelegramOauthError } = require('./errors')
+const { ERRORS } = require('./errors')
 const { TelegramMiniAppInitParamsSchema, TelegramOauthCallbackSchema, TelegramMiniAppInitParamsUserSchema } = require('./schemas')
 
 const ALLOWED_TIME_SINCE_AUTH_IN_SECONDS = 5 * 60 // 5 min
@@ -87,29 +87,29 @@ const userDataValidator = ajv.compile({
  * @param {TgAuthData | TgMiniAppInitData} data - tgAuthData
  * @param {string} botToken
  * @param {number} secondsSinceAuth - time limit for authorization to be valid
- * @returns {null | { type, status, message }} error message
+ * @returns {null | { type, code, message }} error message
  */
-function validateTgAuthData (data, botToken, secondsSinceAuth = ALLOWED_TIME_SINCE_AUTH_IN_SECONDS) {
+function getTgAuthDataValidationError (data, botToken, secondsSinceAuth = ALLOWED_TIME_SINCE_AUTH_IN_SECONDS) {
     // 1. Check that data contains all and only allowed fields
     const isValid = loginDataValidator(data)
     if (!isValid) {
-        throw new TelegramOauthError(ERRORS.VALIDATION_AUTH_DATA_KEYS_MISMATCH)
+        return ERRORS.VALIDATION_AUTH_DATA_KEYS_MISMATCH
     }
 
     const isMiniAppInitData = telegramMiniAppInitParamsValidator(data)
     if (isMiniAppInitData) {
         try {
             if (!userDataValidator(JSON.parse(data.user))) {
-                throw new TelegramOauthError(ERRORS.VALIDATION_AUTH_DATA_KEYS_MISMATCH)
+                return ERRORS.VALIDATION_AUTH_DATA_KEYS_MISMATCH
             }
         } catch {
-            throw new TelegramOauthError(ERRORS.VALIDATION_AUTH_DATA_KEYS_MISMATCH)
+            return ERRORS.VALIDATION_AUTH_DATA_KEYS_MISMATCH
         }
     }
 
     // 2. Check that data is not outdated
     if ((Math.floor(Date.now() / 1000) - parseInt(data.auth_date)) > secondsSinceAuth) {
-        throw new TelegramOauthError(ERRORS.VALIDATION_AUTH_DATA_EXPIRED)
+        return ERRORS.VALIDATION_AUTH_DATA_EXPIRED
     }
 
     // 3. Build secret key using bot token
@@ -134,26 +134,26 @@ function validateTgAuthData (data, botToken, secondsSinceAuth = ALLOWED_TIME_SIN
 
     // 6. Our generated sign must equal received sign
     if (hmac !== data.hash) {
-        throw new TelegramOauthError(ERRORS.VALIDATION_AUTH_DATA_SIGN_INVALID)
+        return ERRORS.VALIDATION_AUTH_DATA_SIGN_INVALID
     }
 
     return null
 }
 
-function validateOauthConfig (oauthConfig) {
+function getOauthConfigValidationError (oauthConfig) {
     const uniqueBotIds = new Set(oauthConfig.map(conf => conf.botId))
     if (uniqueBotIds.size !== oauthConfig.length) {
         const duplicateNames = [...uniqueBotIds].filter(botId => oauthConfig.filter(conf => conf.botId === botId).length > 1)
-        throw new Error(`Duplicate bot ids: "${duplicateNames.join('", "')}"`)
+        return `Duplicate bot ids: "${duplicateNames.join('", "')}"`
     }
     oauthConfig.forEach((config, index) => {
         for (const key of CONFIG_REQUIRED_FIELDS) {
             if (!Object.hasOwn(config, key)) {
-                throw new Error(`Missing required field ${key} at index ${index}`)
+                return `Missing required field ${key} at index ${index}`
             }
         }
         if (!Array.isArray(config.allowedRedirectUrls)) {
-            throw new Error(`Field "allowedRedirectUrls" should be array at index ${index}`)
+            return `Field "allowedRedirectUrls" should be array at index ${index}`
         }
     })
 }
@@ -182,8 +182,8 @@ function isRedirectUrlValid (allowedUrls, requestUrl) {
 
 
 module.exports = {
-    validateTgAuthData,
-    validateOauthConfig,
+    getTgAuthDataValidationError,
+    getOauthConfigValidationError,
     isValidTelegramMiniAppInitParams,
     isRedirectUrlValid,
 }

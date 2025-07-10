@@ -1,5 +1,5 @@
 const { TELEGRAM_IDP_TYPE } = require('@condo/domains/user/constants/common')
-const { ERRORS, TelegramOauthError } = require('@condo/domains/user/integration/telegram/utils/errors')
+const { ERRORS, HttpError } = require('@condo/domains/user/integration/telegram/utils/errors')
 const {
     UserExternalIdentity,
 } = require('@condo/domains/user/utils/serverSchema')
@@ -37,7 +37,7 @@ const getIdentity = async (context, userInfo, userType) => {
 
 const syncUser = async ({ authenticatedUser, context, userInfo, userType }) => {
     if (authenticatedUser?.deletedAt) {
-        throw new TelegramOauthError(ERRORS.USER_IS_NOT_REGISTERED)
+        throw new HttpError(ERRORS.USER_IS_NOT_REGISTERED)
     }
 
     // try to find linked identities
@@ -53,22 +53,22 @@ const syncUser = async ({ authenticatedUser, context, userInfo, userType }) => {
     if (userIdentity) {
         const { user: { id } } = userIdentity
         if (authenticatedUser && (authenticatedUser.id !== id || authenticatedUser.type !== userIdentity.userType)) {
-            throw new TelegramOauthError(ERRORS.ACCESS_DENIED)
+            throw new HttpError(ERRORS.ACCESS_DENIED)
         }
         return { id }
     }
 
     // case 3: user is not registered, and we can't register account for him with telegram
     if (!authenticatedUser) {
-        throw new TelegramOauthError(ERRORS.USER_IS_NOT_REGISTERED)
+        throw new HttpError(ERRORS.USER_IS_NOT_REGISTERED)
     }
 
     // case 4: user already registered and have no linked identity
     if (authenticatedUser.type !== userType) {
-        throw new TelegramOauthError(ERRORS.NOT_SUPPORTED_USER_TYPE)
+        throw new HttpError(ERRORS.NOT_SUPPORTED_USER_TYPE)
     }
-    if (authenticatedUser.isAdmin || authenticatedUser.isSupport) {
-        throw new TelegramOauthError(ERRORS.SUPER_USERS_NOT_ALLOWED)
+    if (authenticatedUser.isAdmin || authenticatedUser.isSupport || authenticatedUser.rightsSet) {
+        throw new HttpError(ERRORS.SUPER_USERS_NOT_ALLOWED)
     }
     // proceed link & auth
     return await linkUser(context, authenticatedUser, userInfo, userType)
