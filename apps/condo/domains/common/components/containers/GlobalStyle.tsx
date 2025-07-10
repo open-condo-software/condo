@@ -230,7 +230,7 @@ export default function GlobalStyle () {
               .ant-table.ant-table-bordered > .ant-table-container > .ant-table-header > table > tfoot > tr > td,
               .ant-table.ant-table-bordered > .ant-table-container > .ant-table-body > table > tfoot > tr > td {
                 &:not(:last-of-type) {
-                  border-right: none;
+                  border-right: none !important;
                 }
               }
               
@@ -270,11 +270,11 @@ export default function GlobalStyle () {
               .ant-table.ant-table-bordered > .ant-table-container > .ant-table-body > table > tbody > tr > td,
               .ant-table.ant-table-bordered > .ant-table-container > .ant-table-content > table > tbody > tr > td,
               .ant-table.ant-table-bordered > .ant-table-container > .ant-table-content > table > thead > tr > th {
-                border-right: none;
+                border-right: none !important;
               }
               
               .ant-table.ant-table-bordered > .ant-table-container > .ant-table-content > table, .ant-table.ant-table-bordered > .ant-table-container > .ant-table-header > table {
-                border: none;
+                border: none !important;
               }
               
               .ant-table.ant-table-bordered div::-webkit-scrollbar-track {
