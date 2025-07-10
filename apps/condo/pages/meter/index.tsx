@@ -26,6 +26,8 @@ import { useMeterFilters } from '@condo/domains/meter/hooks/useMeterFilters'
 import { useMeterReadingFilters } from '@condo/domains/meter/hooks/useMeterReadingFilters'
 import { METER_TAB_TYPES, METER_TYPES, MeterPageTypes, MeterTypes } from '@condo/domains/meter/utils/clientSchema'
 
+import styles from './index.module.css'
+
 
 export function MeterPageTypeFromQuery (tabFromQuery) {
     switch (tabFromQuery) {
@@ -47,7 +49,6 @@ const StyledPageWrapper = styled(PageWrapper)`
 `
 const AVAILABLE_TABS = [METER_TAB_TYPES.meterReading, METER_TAB_TYPES.meter, METER_TAB_TYPES.reportingPeriod]
 const MEDIUM_VERTICAL_ROW_GUTTER: RowProps['gutter'] = [0, 24]
-const HEADER_STYLES: CSSProperties = { padding: '0 !important' }
 
 
 type MeterTypeSwitchProps = {
@@ -234,7 +235,7 @@ const MetersPage: PageComponentType = () => {
                     <Row justify='space-between' align='middle' gutter={MEDIUM_VERTICAL_ROW_GUTTER}>
                         <Col>
                             <PageHeader
-                                style={HEADER_STYLES}
+                                className={styles.customPageHeader}
                                 title={<Typography.Title>{PageTitleMessage}</Typography.Title>}
                             />
                         </Col>
