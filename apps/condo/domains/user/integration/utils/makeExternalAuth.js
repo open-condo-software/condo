@@ -8,10 +8,17 @@ const { Strategy: OIDCStrategy } = require('passport-openidconnect')
 const conf = require('@open-condo/config')
 
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
-const { User, UserExternalIdentity } = require('@condo/domains/user/utils/serverSchema')
+const {
+    User,
+    UserExternalIdentity,
+    OidcClient,
+} = require('@condo/domains/user/utils/serverSchema')
 
 const VALID_USER_TYPES = [RESIDENT, STAFF]
-const DV_AND_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'user-external-identity-middleware' } }
+const DV_AND_SENDER = {
+    dv: 1,
+    sender: { dv: 1, fingerprint: 'user-external-identity-middleware' },
+}
 
 const ajv = new Ajv()
 const oidcConfigSchema = {
@@ -211,11 +218,23 @@ function makeExternalAuth (app, keystone, oidcProvider) {
 
     const onAuthSuccess = (oidcClientId) => async (req, res) => {
         const user = req.user
+        const clientId = oidcClientId
+
         if (!user) {
             return res.status(401).json({ error: 'Authentication failed', message: 'User not found after authentication' })
         }
 
-        const clientId = oidcClientId
+        const context = await keystone.createContext({ skipAccessControl: true })
+        // check for oidc client with that id really exists
+        const oidcClient = await OidcClient.getOne(context, {
+            clientId,
+            deletedAt: null,
+            isEnabled: true,
+        })
+
+        if (!oidcClient) {
+            return res.status(403).json({ error: 'Authentication failed', message: 'Oidc client not found' })
+        }
 
         try {
             const grant = new oidcProvider.Grant({
