@@ -69,7 +69,7 @@ const ADAPTER_CACHE_LIST_UPD_DROPS_METRIC_NAME = METRIC_PREFIX + '.drops.listupd
 const ADAPTER_CACHE_HITS_METRIC_NAME = METRIC_PREFIX + '.hits'
 const ADAPTER_CACHE_KEYS_METRIC_NAME = METRIC_PREFIX + '.keys'
 
-const logger = getLogger('adapterCache')
+const logger = getLogger('adapter-cache')
 
 class AdapterCache {
 
@@ -196,12 +196,16 @@ class AdapterCache {
         if (!this.logging) return
 
         logger.info({
+            msg: 'adapter cache event',
+            listKey: listName,
             type,
-            functionName,
-            listName,
-            key,
-            result,
-            context: getExecutionContext(),
+            data: {
+                functionName,
+                listName,
+                key,
+                result,
+                context: getExecutionContext(),
+            },
         })
     }
 
@@ -224,14 +228,17 @@ class AdapterCache {
 
     _logStats = () => {
         logger.info({
-            stats: {
-                hits: this.cacheHits,
-                total: this.totalRequests,
-                hitrate: floor(this._getHitrate(), 2),
-                totalKeys: this.cache.size,
-                totalDrops: this.totalDropsOnLRU + this.totalDropsOnListChange,
-                totalDropsOnLRU: this.totalDropsOnLRU,
-                totalDropsOnListChange: this.totalDropsOnListChange,
+            msg: 'adapter cache stats',
+            data: {
+                stats: {
+                    hits: this.cacheHits,
+                    total: this.totalRequests,
+                    hitrate: floor(this._getHitrate(), 2),
+                    totalKeys: this.cache.size,
+                    totalDrops: this.totalDropsOnLRU + this.totalDropsOnListChange,
+                    totalDropsOnLRU: this.totalDropsOnLRU,
+                    totalDropsOnListChange: this.totalDropsOnListChange,
+                },
             },
         })
     }
@@ -286,7 +293,7 @@ async function patchKeystoneWithAdapterCache (keystone, cacheAPI) {
 
     const listsWithMany = new Set([...manyLists, ...manyRefs])
 
-    logger.info({ msg: 'Adapter cache preprocessing finished:', relations, listsWithMany })
+    logger.info({ msg: 'Adapter cache preprocessing finished:', data: { relations, listsWithMany } })
 
     // Step 2: Iterate over lists, patch mutations and queries inside list.
 
@@ -366,8 +373,11 @@ async function patchKeystoneWithAdapterCache (keystone, cacheAPI) {
     // Step 3: Log results
 
     logger.info({
-        enabledLists,
-        disabledLists,
+        msg: 'adapter cache setup complete',
+        data: {
+            enabledLists,
+            disabledLists,
+        },
     })
 }
 

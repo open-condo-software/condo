@@ -15,10 +15,6 @@ const StatsD = require('hot-shots')
 
 const conf = require('@open-condo/config')
 
-const { getLogger } = require('./logging')
-
-const logger = getLogger('metrics')
-
 const STATSD_METRIC_PREFIX = conf['STATSD_METRIC_PREFIX'] || 'condo.'
 const STATSD_PORT = conf['STATSD_PORT'] || 8125
 const HOSTNAME = os.hostname()

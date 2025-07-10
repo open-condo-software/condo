@@ -10,7 +10,7 @@ const { getLogger } = require('@open-condo/keystone/logging')
 
 const { UUID_REGEXP } = require('./constants')
 
-const logger = getLogger('awsS3FileAdapter')
+const logger = getLogger('aws-s3-file-adapter')
 const PUBLIC_URL_TTL = 60 * 60 * 24 * 7 // 1 WEEK IN SECONDS FOR ANY PUBLIC URL
 const NO_SET_CONTENT_DISPOSITION_FOLDERS = ['marketitemfile'] // files to be opened in a new window by clicking on a link
 
@@ -220,7 +220,7 @@ const awsRouterHandler = ({ keystone }) => {
 
             return res.redirect(url)
         } catch (err) {
-            logger.error({ msg: 's3RouterHandlerError', err })
+            logger.error({ msg: 's3 route handler error', err })
             res.status(500)
             return res.end()
         }

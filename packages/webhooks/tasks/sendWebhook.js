@@ -20,7 +20,7 @@ const NO_RESPONSE_STATUS = 'NO_RESPONSE'
 const NO_SUBSCRIPTION_STATUS = 'NO_SUBSCRIPTION'
 
 const rLock = (IS_BUILD) ? undefined : new RedLock([getKVClient('worker')])
-const logger = getLogger('sendWebhook')
+const logger = getLogger()
 
 /**
  *
@@ -28,7 +28,6 @@ const logger = getLogger('sendWebhook')
  * @return {Promise<{status: string}>}
  */
 async function sendWebhook (subscriptionId) {
-    const taskId = this.id || uuid()
     const { keystone } = getSchemaCtx('WebhookSubscription')
 
     const lockKey = `sendWebhook:${subscriptionId}`
@@ -75,20 +74,20 @@ async function sendWebhook (subscriptionId) {
             ...filters,
             updatedAt_gt: syncedAt,
         }
-        logger.info({ msg: 'prepare', url, lastLoaded, packSize, subscriptionId, taskId })
+        logger.info({ msg: 'prepare', url, entityId: subscriptionId, entity: 'WebhookSubscription', data: { lastLoaded, packSize } })
 
         while (lastLoaded === packSize) {
             // Step 1: Receive another batch
             const variables = { first: maxPackSize || DEFAULT_MAX_PACK_SIZE, skip: totalLoaded, where }
             const userId = get(user, 'id')
-            logger.info({ msg: 'tryGetData', url, variables, model, fields, subscriptionId, taskId, userId })
+            logger.info({ msg: 'tryGetData', url, entityId: subscriptionId, entity: 'WebhookSubscription', data: { variables, model, fields, userId } })
             const objs = await execGqlAsUser(keystone, user, {
                 query,
                 variables,
                 dataPath: 'objs',
                 deleted: true,
             })
-            logger.info({ msg: 'tryGetResult', url, data: objs, variables, model, fields, subscriptionId, taskId, userId })
+            logger.info({ msg: 'tryGetResult', url, entityId: subscriptionId, entity: 'WebhookSubscription', data: { data: objs, variables, model, fields, userId } })
 
             lastLoaded = objs.length
             // time is measured by the time of the last response from our server received
@@ -101,9 +100,9 @@ async function sendWebhook (subscriptionId) {
 
             // Step 2: Send batch to specified url
             const opts = { model, fields, variables, lastLoaded, totalLoaded, user }
-            logger.info({ msg: 'trySendData', url, data: objs, opts, subscriptionId, taskId })
+            logger.info({ msg: 'trySendData', url, entityId: subscriptionId, entity: 'WebhookSubscription', data: { data: objs, opts }  })
             const response = await trySendData(url, objs)
-            logger.info({ msg: 'trySendResult', url, status: response.status, subscriptionId, taskId })
+            logger.info({ msg: 'trySendResult', url, entityId: subscriptionId, entity: 'WebhookSubscription', status: response.status })
 
             lastSendSuccess = response.ok
 
@@ -150,10 +149,10 @@ async function sendWebhook (subscriptionId) {
 
         return { status: OK_STATUS }
 
-    } catch (error) {
-        logger.error({ msg: 'Send webhook error', error, subscriptionId, taskId })
+    } catch (err) {
+        logger.error({ msg: 'Send webhook error', err, entityId: subscriptionId, entity: 'WebhookSubscription' })
     } finally {
-        logger.info({ msg: 'Lock released', subscriptionId, taskId })
+        logger.info({ msg: 'Lock released', entityId: subscriptionId, entity: 'WebhookSubscription' })
         await lock.release()
     }
 }

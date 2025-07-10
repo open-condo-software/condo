@@ -83,11 +83,13 @@ async function fetchWithLogger (url, options, extraAttrs) {
         taskId: parentTaskId,
         execId: parentExecId,
         headers: options.headers,
-        url, path, hostname,
+        url,
+        path,
+        hostname,
     })
 
     try {
-        logger.info({ msg: 'fetch: request start', ...requestLogCommonData })
+        logger.info({ msg: 'request start', ...requestLogCommonData })
 
         const response = await nodeFetch(url, options)
 
@@ -97,7 +99,7 @@ async function fetchWithLogger (url, options, extraAttrs) {
         const responseTime = endTime - startTime
         const childReqId = response.headers && response.headers.get('X-Request-ID')
 
-        logger.info({ msg: 'fetch: request successful', childReqId, responseHeaders: { headers }, status: response.status, responseTime, ...requestLogCommonData })
+        logger.info({ msg: 'request successful', childReqId, status: response.status, responseTime, ...requestLogCommonData, data: { responseHeaders: { headers } } })
 
         Metrics.increment({ name: FETCH_COUNT_METRIC_NAME, value: 1, tags: { status: response.status, hostname, path } })
         Metrics.gauge({ name: FETCH_TIME_METRIC_NAME, value: responseTime, tags: { status: response.status, hostname, path } })
@@ -107,7 +109,7 @@ async function fetchWithLogger (url, options, extraAttrs) {
         const endTime = Date.now()
         const responseTime = endTime - startTime
 
-        logger.error({ msg: 'fetch: failed with error', err, responseTime, status: 0, ...requestLogCommonData })
+        logger.error({ msg: 'failed with error', err, responseTime, status: 0, ...requestLogCommonData })
 
         Metrics.increment({ name: FETCH_COUNT_METRIC_NAME, value: 1, tags: { status: 'failed', hostname, path } })
         Metrics.gauge({ name: FETCH_TIME_METRIC_NAME, value: responseTime, tags: { status: 'failed', hostname, path } })

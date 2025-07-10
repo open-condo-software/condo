@@ -6,7 +6,6 @@ const get = require('lodash/get')
 const ow = require('ow')
 
 const conf = require('@open-condo/config')
-const { getExecutionContext } = require('@open-condo/keystone/executionContext')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const { GQL_SCHEMA_PLUGIN } = require('./plugins/utils/typing')
@@ -23,7 +22,7 @@ const TOO_MANY_RETURNED_ITEMS_LIMIT = 200
 const TOO_MANY_RETURNED_ALL_ITEMS_WARN_LIMIT = 1000
 const TOO_MANY_RETURNED_ALL_ITEMS_ERROR_LIMIT = 2000
 
-const logger = getLogger('packages/schema.js')
+const limitsLogger = getLogger('sub-request-limits')
 
 function logTooManyReturnedIfRequired (tooManyReturnedLimitCounters, allObjects, { functionName, schemaName, data }) {
     if (!Array.isArray(tooManyReturnedLimitCounters)) throw new Error('logTooManyReturned: wrong argument type')
@@ -31,18 +30,15 @@ function logTooManyReturnedIfRequired (tooManyReturnedLimitCounters, allObjects,
     const realLimit = tooManyReturnedLimitCounters[0]
 
     if (allObjects && Array.isArray(allObjects) && allObjects.length > realLimit) {
-        const executionContext = getExecutionContext()
-        const reqId = executionContext?.reqId
-        const taskId = executionContext?.taskId
-        logger.warn({
-            msg: 'tooManyReturned',
-            tooManyLimit: realLimit,
+        limitsLogger.warn({
+            msg: 'returned too much entities',
+            listKey: schemaName,
             count: allObjects.length,
             functionName,
-            schemaName,
-            data,
-            reqId,
-            taskId,
+            data: {
+                tooManyLimit: realLimit,
+                data,
+            },
         })
         tooManyReturnedLimitCounters.shift()  // remove counter and mark as already notified
     }
@@ -234,10 +230,10 @@ async function allItemsQueryByChunks ({
         const now = Date.now()
 
         if (conf.DISABLE_CHUNKS_TIMEOUT !== 'true' && now - startTime >= TIMEOUT_DURATION) {
-            logger.info({
-                msg: 'Operation timed out',
+            limitsLogger.info({
+                msg: 'operation timed out',
                 functionName: 'allItemsQueryByChunks',
-                schemaName: schemaName,
+                listKey: schemaName,
                 data: { where, first: chunkSize, skip, sortBy },
                 count: all.length,
             })
