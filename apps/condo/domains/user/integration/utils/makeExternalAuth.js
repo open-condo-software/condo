@@ -294,7 +294,7 @@ function makeExternalAuth (app, keystone, oidcProvider) {
         const validateConfig = ajv.compile(oidcConfigSchema)
         const configValid = validateConfig(oidcConfig)
         if (!configValid) {
-            throw new Error(`OIDC config validation failed ${validateConfig.errors}`)
+            throw new Error(`OIDC config validation failed ${ajv.errorsText(validateConfig.errors)}`)
         }
 
         oidcConfig.forEach(config => {
@@ -345,7 +345,7 @@ function makeExternalAuth (app, keystone, oidcProvider) {
         const validateConfig = ajv.compile(githubConfigSchema)
         const configValid = validateConfig(githubConfig)
         if (!configValid) {
-            throw new Error(`Github config validation failed ${validateConfig.errors}`)
+            throw new Error(`Github config validation failed ${ajv.errorsText(validateConfig.errors)}`)
         }
 
         passport.use(new GithubStrategy({
