@@ -1,13 +1,18 @@
 // NOTE: Used to load TS files (locales) into CJS
-require('ts-node').register({
+// TODO: Node@24 supports importing ts-modules and omitting types, Next@15.1 support next.config.ts, so choose 1 option and migrate safely
+const tsNode = require('ts-node')
+const service = tsNode.register({
     transpileOnly: true,
     compilerOptions: { module: 'CommonJS' },
 })
 
+// eslint-disable-next-line import/order
+const { LOCALES, DEFAULT_LOCALE } = require('./domains/common/constants/locales.ts')
+// NOTE: Don't move this line of code, disable ts-node behaviour as soon as ts-file loaded
+service.enabled(false)
+
 const conf = require('@open-condo/config')
 const { nextCamelCaseCSSModulesTransform } = require('@open-condo/miniapp-utils/helpers/webpack')
-
-const { LOCALES, DEFAULT_LOCALE } = require('./domains/common/constants/locales.ts')
 
 const DOCS_ENTRY_ENDPOINT = conf['DOCS_ENTRY_ENDPOINT'] || '/docs/index'
 // NOTE: Url of API server
