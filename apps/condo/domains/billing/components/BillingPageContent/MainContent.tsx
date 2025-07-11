@@ -1,6 +1,7 @@
+import { Image } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState, CSSProperties } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
@@ -25,13 +26,17 @@ type PaymentTypeSwitchProps = {
     activeTab: string
 }
 
+const IMAGE_STYLES: CSSProperties = { objectFit: 'contain', height: 20, width: 20 }
+const FALLBACK_IMAGE_URL = '/logoHouse.svg'
+const IMAGE_WRAPPER_STYLES: CSSProperties = { height: 28 }
+
 export const PaymentTypeSwitch = ({ defaultValue, activeTab }: PaymentTypeSwitchProps): JSX.Element => {
     const intl = useIntl()
     const PaymentsTypeListTitle = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.list' })
     const PaymentsTypeRegistryTitle = intl.formatMessage({ id: 'accrualsAndPayments.payments.type.registry' })
 
     const router = useRouter()
-    const type  = get(router.query, 'type', PAYMENT_TYPES.list) as string
+    const type = get(router.query, 'type', PAYMENT_TYPES.list) as string
 
     const isListSelected = type === PAYMENT_TYPES.list
     const isRegistrySelected = type === PAYMENT_TYPES.registry
@@ -96,13 +101,27 @@ export const MainContent: React.FC<MainContentProps> = ({
     const isPaymentsFilesTableEnabled = useFlag(ACQUIRING_PAYMENTS_FILES_TABLE)
 
     const [currentTab, currentType, onTabChange] = useQueryParams(!!extensionAppTab)
+    const customIconUrl = get(extensionAppTab, ['integration', 'billingPageIcon', 'publicUrl'], null)
+
+    const CustomIconImage = useMemo(() => {
+        return (
+            <Image
+                src={customIconUrl || FALLBACK_IMAGE_URL}
+                fallback={FALLBACK_IMAGE_URL}
+                preview={false}
+                style={IMAGE_STYLES}
+                draggable={false}
+                wrapperStyle={IMAGE_WRAPPER_STYLES}
+            />
+        )
+    }, [customIconUrl])
 
     const items = useMemo(() => {
         const result: Array<TabItem> = [
             canReadBillingReceipts && {
                 label: AccrualsTabTitle,
                 key: ACCRUALS_TAB_KEY,
-                children: hasLastReport ? <AccrualsTab uploadComponent={uploadComponent}/> : <EmptyContent uploadComponent={uploadComponent}/>,
+                children: hasLastReport ? <AccrualsTab uploadComponent={uploadComponent} /> : <EmptyContent uploadComponent={uploadComponent} />,
             },
             canReadPayments && {
                 label: PaymentsTabTitle,
@@ -117,12 +136,13 @@ export const MainContent: React.FC<MainContentProps> = ({
                     label: get(extensionAppTab, ['integration', 'billingPageTitle']) || get(extensionAppTab, ['integration', 'name'], ''),
                     key: EXTENSION_TAB_KEY,
                     children: <IFrame src={appUrl} reloadScope='organization' withPrefetch withLoader withResize />,
+                    icon: customIconUrl ? CustomIconImage : null,
                 })
             }
         }
 
         return result
-    }, [canReadBillingReceipts, AccrualsTabTitle, hasLastReport, uploadComponent, canReadPayments, PaymentsTabTitle, currentType, extensionAppTab])
+    }, [canReadBillingReceipts, AccrualsTabTitle, hasLastReport, uploadComponent, canReadPayments, PaymentsTabTitle, currentType, extensionAppTab, customIconUrl, CustomIconImage])
 
     return (
         <Tabs
@@ -130,7 +150,7 @@ export const MainContent: React.FC<MainContentProps> = ({
             onChange={onTabChange}
             items={items}
             destroyInactiveTabPane
-            tabBarExtraContent={isPaymentsFilesTableEnabled && currentTab === PAYMENTS_TAB_KEY && <PaymentTypeSwitch defaultValue={PAYMENT_TYPES.list} activeTab={currentTab}/>}
+            tabBarExtraContent={isPaymentsFilesTableEnabled && currentTab === PAYMENTS_TAB_KEY && <PaymentTypeSwitch defaultValue={PAYMENT_TYPES.list} activeTab={currentTab} />}
         />
     )
 }

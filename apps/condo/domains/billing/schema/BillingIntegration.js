@@ -31,6 +31,7 @@ const { STATIC_FILE_FIELD, BILLING_FILE_ADAPTER } = require('./fields/common')
 
 const logoMetaAfterChange = getFileMetaAfterChange(BILLING_FILE_ADAPTER, 'logo')
 const bannerPromoMetaAfterChange = getFileMetaAfterChange(BILLING_FILE_ADAPTER, 'bannerPromoImage')
+const billingPageIconMetaAfterChange = getFileMetaAfterChange(BILLING_FILE_ADAPTER, 'billingPageIcon')
 
 const BillingIntegration = new GQLListSchema('BillingIntegration', {
     schemaDoc: 'Identification of the `integration component` which responsible for getting data from the `billing data source` and delivering the data to `this API`. Examples: tap-1c, ... ',
@@ -148,6 +149,13 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
             isRequired: false,
         },
 
+
+        billingPageIcon: {
+            adminDoc: 'Icon is used in "Accruals and Payments" section to go with billingPageTitle in the app tab',
+            schemaDoc: 'Used in billing section to go with billingPageTitle in the app tab',
+            ...STATIC_FILE_FIELD,
+        },
+
         group: {
             adminDoc: 'Any number of billings can have the same billing group. Validations: Should be a sequence of lowercase latin characters.',
             schemaDoc: 'Billing group which this billing is part of. Used to restrict certain billings from certain acquirings"',
@@ -240,6 +248,7 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
         afterChange: async (args) => {
             await logoMetaAfterChange(args)
             await bannerPromoMetaAfterChange(args)
+            await billingPageIconMetaAfterChange(args)
         },
         validateInput: ({ resolvedData, addValidationError, existingItem }) => {
             const newItem = { ...existingItem, ...resolvedData }
