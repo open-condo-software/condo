@@ -166,24 +166,6 @@
   background: var(--condo-global-color-gray-1);
 }
 
-/*  Footer */
-
-.footer {
-  background: var(--condo-global-color-white);
-}
-
-.mobile-footer {
-
-}
-
-.desktop-footer {
-  display: flex;
-  justify-content: flex-end;
-  width: 100%;
-  max-width: 1600px;
-  padding: 0 40px 20px;
-}
-
 /* Appeals special button */
 
 .mobile-header .organization-user-block .organization-selector .condo-typography {

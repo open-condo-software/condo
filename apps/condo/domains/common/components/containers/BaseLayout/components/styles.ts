@@ -22,7 +22,7 @@ export const MobileMenuItemsContainer = styled.div`
 `
 
 export const LAYOUT_CSS = css`
-  height: 100%;
+  min-height: 100vh !important;
   display: flex;
   align-items: stretch;
   flex-direction: row;
