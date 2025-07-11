@@ -1,4 +1,4 @@
-import { DeleteFilled, EditFilled } from '@ant-design/icons'
+import { grey } from '@ant-design/colors'
 import { User, TicketComment } from '@app/condo/schema'
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
@@ -8,9 +8,10 @@ import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
+import { Edit, Trash } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
-import { Button, Space } from '@open-condo/ui'
+import { Button } from '@open-condo/ui'
 
 import { colors, fontSizes } from '@condo/domains/common/constants/style'
 import { getIconByMimetype } from '@condo/domains/common/utils/clientSchema/files'
@@ -23,10 +24,9 @@ const { RESIDENT, STAFF, SERVICE } = require('@condo/domains/user/constants/comm
 
 interface ICommentProps {
     comment: CommentWithFiles
-    setEditableComment: React.Dispatch<React.SetStateAction<CommentWithFiles>>
+    setEditableComment: (value: CommentWithFiles) => void
     deleteAction?: (obj: CommentWithFiles) => Promise<void>
 }
-
 
 const DeletedTextStyle = css`
     margin-top: 1em;
@@ -94,28 +94,30 @@ const CommentStyle = css`
                 & > .ant-typography {
                     margin-bottom: 4px;
                     cursor: pointer;
-
-                    & > .ant-typography {
-                        margin-left: 8px;
-                    }
-                }
+                    
+            & > .ant-typography {
+              margin-left: 8px;
             }
-
-            .ant-comment-actions {
-                position: absolute;
-                right: -5px;
-                bottom: -5px;
-                opacity: 0;
-                pointer-events: none;
-                transition: all 0.3s ease-in-out;
-            }
+          }
         }
+        
+        .ant-comment-actions {
+          position: absolute;
+          right: 0;
+          top: 0;
+            display: flex;
+            gap:8px;
+          opacity: 0;
+          pointer-events: none;
+          transition: all 0.3s ease-in-out;
+        }
+      }
     }
 `
 
 const CommentPreviewStyle = css`
     width: 100%;
-    background: ${colors.white};
+    background: white;
     margin-bottom: 6px;
     border: 1px solid ${colors.sberGrey};
     border-radius: 8px;
@@ -281,29 +283,30 @@ export const Comment: React.FC<ICommentProps> = ({ comment, setEditableComment, 
     const authorRole = getCommentAuthorRoleMessage(get(comment, 'user'), intl)
 
     const actions = useMemo(() => user.id === comment.user.id && ([
-        <Space key='space' size={0}>
-            <Popconfirm
-                key='delete'
-                title={ConfirmDeleteTitle}
-                okText={ConfirmDeleteOkText}
-                cancelText={ConfirmDeleteCancelText}
-                onConfirm={handleDeleteComment}
-            >
-                <Button
-                    type='primary'
-                    danger
-                    size='large'
-                    icon={<DeleteFilled />}
-                />
-            </Popconfirm>,
+        <Popconfirm
+            key='delete'
+            title={ConfirmDeleteTitle}
+            okText={ConfirmDeleteOkText}
+            cancelText={ConfirmDeleteCancelText}
+            onConfirm={handleDeleteComment}
+        >
             <Button
-                type='primary'
-                key='update'
+                type='secondary'
                 size='large'
-                icon={<EditFilled />}
-                onClick={handleUpdateComment}
+                icon={<Trash size='small'/>}
+                minimal
+                compact
             />
-        </Space>,
+        </Popconfirm>,
+        <Button
+            type='secondary'
+            key='update'
+            compact
+            size='large'
+            minimal
+            icon={<Edit size='small' />}
+            onClick={handleUpdateComment}
+        />,
     ]), [ConfirmDeleteCancelText, ConfirmDeleteOkText, ConfirmDeleteTitle, comment.user.id, handleDeleteComment, handleUpdateComment, user.id])
 
     if (comment.deletedAt) {
