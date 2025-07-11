@@ -797,7 +797,6 @@ __metadata:
     openid-client: 4.7.4
     passport: ^0.7.0
     passport-github2: ^0.1.12
-    passport-oauth2: ^1.8.0
     passport-openidconnect: ^0.1.2
     pdf-lib: ^1.17.1
     pdfmake: ^0.2.10
@@ -37857,7 +37856,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"passport-oauth2@npm:1.x.x, passport-oauth2@npm:^1.8.0":
+"passport-oauth2@npm:1.x.x":
   version: 1.8.0
   resolution: "passport-oauth2@npm:1.8.0"
   dependencies:
