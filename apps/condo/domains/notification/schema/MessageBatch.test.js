@@ -400,6 +400,7 @@ describe('MessageBatch', () => {
             await waitFor(async () => {
                 const customMessage1 = await MessageBatch.getOne(admin, { id: customMessage.id })
 
+                expect(customMessage1.processingMeta).toBeTruthy()
                 expect(customMessage1.processingMeta.successCnt).toEqual(1)
                 expect(customMessage1.status).toEqual(MESSAGE_BATCH_DONE_STATUS)
             })
