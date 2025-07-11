@@ -1,11 +1,16 @@
 const bodyParser = require('body-parser')
 const express = require('express')
 
+const conf = require('@open-condo/config')
 const { expressErrorHandler } = require('@open-condo/keystone/logging/expressErrorHandler')
 
 const { SbbolRoutes } = require('@condo/domains/organization/integrations/sbbol/routes')
 const { AppleIdRoutes } = require('@condo/domains/user/integration/appleid/routes')
 const { SberIdRoutes } = require('@condo/domains/user/integration/sberid/routes')
+const createOidcConfiguration = require('@condo/domains/user/oidc/configuration')
+
+const { makeExternalAuth } = require('./utils/makeExternalAuth')
+
 
 class UserExternalIdentityMiddleware {
     async prepareMiddleware ({ keystone }) {
@@ -29,6 +34,11 @@ class UserExternalIdentityMiddleware {
         const sberIdRoutes = new SberIdRoutes()
         app.get('/api/sber_id/auth', sberIdRoutes.startAuth.bind(sberIdRoutes))
         app.get('/api/sber_id/auth/callback', sberIdRoutes.completeAuth.bind(sberIdRoutes))
+
+        const Provider = require('oidc-provider')
+        const oidcProvider = new Provider(conf.SERVER_URL, createOidcConfiguration(keystone, conf))
+
+        makeExternalAuth(app, keystone, oidcProvider)
 
         // error handler
         app.use(expressErrorHandler)
