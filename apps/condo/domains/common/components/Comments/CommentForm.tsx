@@ -1,13 +1,12 @@
 import { Form, FormInstance, InputRef } from 'antd'
 import classNames from 'classnames'
 import cookie from 'js-cookie'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { Copy, Paperclip } from '@open-condo/icons'
+import { CheckCircle, Copy, Paperclip, Sparkles } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Input, Button, Tour } from '@open-condo/ui'
+import { Input, Button, Tour, Tooltip } from '@open-condo/ui'
 
-import { Sparkles } from '@condo/domains/ai/components/AIFlowButton'
 import AIInputNotification from '@condo/domains/ai/components/AIInputNotification'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { Module, useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
@@ -45,11 +44,14 @@ interface ICommentFormProps {
 
     rewriteTextAnswer?: string
     setRewriteTextAnswer: (value: string) => void
+    generateCommentClickHandler: () => void
     rewriteTextOnClickHandler: () => void
+    commentTextAreaRef: null | React.MutableRefObject<InputRef>
 }
 
 const CommentForm: React.FC<ICommentFormProps> = ({
     commentForm,
+    commentTextAreaRef,
     ticketId,
     initialValue,
     action,
@@ -69,14 +71,16 @@ const CommentForm: React.FC<ICommentFormProps> = ({
     errorMessage,
     setGenerateCommentAnswer,
     setErrorMessage,
+    generateCommentClickHandler,
 }) => {
     const intl = useIntl()
     const PlaceholderMessage = intl.formatMessage({ id: 'Comments.form.placeholder' })
     const UpdateTextMessage = intl.formatMessage({ id: 'ai.updateText' })
     const TourUpdateTextTitle = intl.formatMessage({ id: 'ai.updateText.tour.title' })
     const TourUpdateTextMessage = intl.formatMessage({ id: 'ai.updateText.tour.message' })
-
-    const inputRef: React.MutableRefObject<InputRef> = useRef(null)
+    const UploadTooltipText = intl.formatMessage({ id: 'component.uploadlist.AddFileLabel' })
+    const CopyTooltipText = intl.formatMessage({ id: 'Copy' })
+    const CopiedTooltipText = intl.formatMessage({ id: 'Copied' })
 
     const editableCommentFiles = editableComment?.files
     const [commentValue, setCommentValue] = useState('')
@@ -140,14 +144,16 @@ const CommentForm: React.FC<ICommentFormProps> = ({
             <UploadComponent
                 initialFileList={editableCommentFiles}
                 UploadButton={
-                    <Button
-                        key={1}
-                        type='secondary'
-                        size='medium'
-                        minimal
-                        compact
-                        icon={<Paperclip size='small' />}
-                    />
+                    <Tooltip title={UploadTooltipText} placement='top' key='copyButton'>
+                        <Button
+                            key={1}
+                            type='secondary'
+                            size='medium'
+                            minimal
+                            compact
+                            icon={<Paperclip size='small' />}
+                        />
+                    </Tooltip>
                 }
                 uploadProps={{
                     iconRender: (file) => {
@@ -225,9 +231,11 @@ const CommentForm: React.FC<ICommentFormProps> = ({
 
     const closeAINotification = () => {
         setAiNotificationShow(false)
-        setGenerateCommentAnswer('')
-        setRewriteTextAnswer('')
-        setErrorMessage('')
+        setTimeout(()=> {
+            setGenerateCommentAnswer('')
+            setRewriteTextAnswer('')
+            setErrorMessage('')
+        }, 100)
     }
 
     const handleCloseAINotification = () => {
@@ -249,6 +257,8 @@ const CommentForm: React.FC<ICommentFormProps> = ({
             component: 'Button',
         })
 
+        commentTextAreaRef.current.focus()
+
         closeAINotification()
         if (!errorMessage) setCommentValue(generateCommentAnswer || rewriteTextAnswer)
     }
@@ -265,8 +275,10 @@ const CommentForm: React.FC<ICommentFormProps> = ({
             location: window.location.href,
             component: 'Button',
         })
+        closeAINotification()
 
-        rewriteTextOnClickHandler()
+        if (rewriteTextAnswer) rewriteTextOnClickHandler()
+        if (generateCommentAnswer) generateCommentClickHandler()
     }
 
     return (
@@ -282,7 +294,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                     rules={validations.comment}
                 >
                     <AIInputNotification
-                        targetRef={inputRef}
+                        targetRef={commentTextAreaRef}
                         result={generateCommentAnswer || rewriteTextAnswer}
                         onApply={handleApplyGeneratedMessage}
                         errorMessage={errorMessage}
@@ -292,7 +304,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                     >
                         <Input.TextArea
                             name={fieldName}
-                            ref={inputRef}
+                            ref={commentTextAreaRef}
                             value={commentValue}
                             onKeyDown={handleKeyDown}
                             className={styles.textAreaNoResize}
@@ -307,16 +319,17 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                                 <MemoizedUploadComponent
                                     key='uploadButton'
                                 />,
-                                <Button
-                                    minimal
-                                    compact
-                                    key='copyButton'
-                                    type='secondary'
-                                    size='medium'
-                                    disabled={!hasText}
-                                    onClick={handleCopyClick}
-                                    icon={<Copy size='small'/>}
-                                />,
+                                <Tooltip title={copied ? CopiedTooltipText : CopyTooltipText } placement='top' key='copyButton'>
+                                    <Button
+                                        minimal
+                                        compact
+                                        type='secondary'
+                                        size='medium'
+                                        disabled={!hasText}
+                                        onClick={handleCopyClick}
+                                        icon={copied ? (<CheckCircle size='small' />) : (<Copy size='small'/>) }
+                                    />
+                                </Tooltip>,
                                 <Tour.TourStep
                                     step={2}
                                     key='aiButton'
@@ -333,8 +346,9 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                                         size='medium'
                                         disabled={!hasText}
                                         loading={rewriteTextLoading}
-                                        icon={<Sparkles useCurrentColor />}
+                                        icon={<Sparkles size='small' />}
                                         onClick={handleUpdateComment}
+                                        className={styles.rewriteTextButton}
                                     >
                                         {UpdateTextMessage}
                                     </Button>
