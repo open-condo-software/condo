@@ -376,15 +376,15 @@
   top: 20px;
   right: 20px;
   height: calc(100% - 40px);
+  box-shadow: none;
 }
 
 .ant-drawer-content {
-  border-radius: 8px;
+  border-radius: 24px;
 }
 
-.ant-drawer-header > .ant-drawer-header-title {
-  display: flex;
-  flex-direction: row-reverse;
+.ant-drawer-header {
+  padding: 24px;
 }
 
 .ant-drawer-wrapper-body > .ant-drawer-header {
@@ -393,12 +393,7 @@
 }
 
 .ant-drawer-header-title > .ant-drawer-close {
-  margin: 0;
-}
-
-.ant-drawer-header > .ant-drawer-header-title > .ant-drawer-title {
-  font-weight: bold;
-  font-size: var(--condo-global-font-size-h3);
+  display: none;
 }
 
 .condo-input-utils > span > .ant-upload-list.ant-upload-list-text {
