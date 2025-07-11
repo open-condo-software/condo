@@ -28,6 +28,7 @@
     "@open-condo/keystone": "workspace:^",
     "@open-keystone/app-admin-ui": "^8.0.3",
     "express": "^4.17.1",
+    "fast-xml-parser": "^5.2.3",
     "graphql": "^16.10.0",
     "graphql-tag": "^2.12.6",
     "lodash": "^4.17.21",
