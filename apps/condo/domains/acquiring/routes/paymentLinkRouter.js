@@ -32,7 +32,7 @@ const {
 const { PAYMENT_LINK } = require('@condo/domains/common/constants/featureflags')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
-const logger = getLogger('payment/linkHandler')
+const logger = getLogger()
 
 const PAYMENT_LINK_WINDOW_SIZE = 60 // seconds
 const MAX_PAYMENT_LINK_REQUEST_BY_WINDOW = 5
@@ -206,7 +206,8 @@ class PaymentLinkRouter {
                 } catch (err) {
                     logger.error({
                         msg: 'handleRequest invoice error', 
-                        err, req,
+                        err,
+                        req,
                     })
 
                     const { failureUrl } = params
@@ -218,7 +219,7 @@ class PaymentLinkRouter {
                     return res.redirect(redirectUrl.toString())
                 }
             } else {
-                logger.warn({ msg: 'No handler for payment link', reqId: get(req, 'id'), url: get(req, 'url') })
+                logger.warn({ msg: 'no handler for payment link', reqId: get(req, 'id'), url: get(req, 'url') })
                 return res.redirect('/404-paymentLinkNoHandler.html')
             }
         } catch (err) {

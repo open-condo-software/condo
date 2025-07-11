@@ -8,7 +8,7 @@ const { SbbolRequestApi } = require('./SbbolRequestApi')
 const { buildBicryptId } = require('./utils/buildBicryptId')
 
 const ajv = new Ajv()
-const logger = getLogger('sbbol/SbbolCryptoApi')
+const logger = getLogger('sbbol-crypto-api')
 
 /**
  * Schema for Certificate Signing Request (SCR)
@@ -108,7 +108,7 @@ class SbbolCryptoApi extends SbbolRequestApi {
                 instancePath,
                 message,
             }))
-            logger.error({ msg: 'Wrong Certificate Signing Request (CSR)', data: errors })
+            logger.error({ msg: 'wrong Certificate Signing Request (CSR)', data: errors })
             throw new Error('Wrong data for Certificate Signing Request (CSR)')
         }
 

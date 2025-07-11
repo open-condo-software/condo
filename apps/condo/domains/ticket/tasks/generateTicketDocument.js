@@ -17,8 +17,7 @@ const { TicketDocumentGenerationTask } = require('@condo/domains/ticket/utils/se
 const { generateTicketDocumentOfCompletionWorks, generateTicketDocumentOfPaidWorks } = require('@condo/domains/ticket/utils/serverSchema/TicketDocumentGeneration')
 
 
-const appLogger = getLogger('condo')
-const taskLogger = appLogger.child({ module: 'tasks/generateTicketDocument' })
+const taskLogger = getLogger()
 
 const BASE_ATTRS = {
     dv: 1,
@@ -31,7 +30,11 @@ const BASE_ATTRS = {
 const generateTicketDocument = async (taskId) => {
     let task, context
     try {
-        taskLogger.info({ msg: 'Start of generating ticket document', taskId })
+        taskLogger.info({
+            msg: 'start of generating ticket document',
+            entityId: taskId,
+            entity: 'TicketDocumentGenerationTask',
+        })
 
         if (!taskId) throw new Error('no taskId!')
 
@@ -89,19 +92,28 @@ const generateTicketDocument = async (taskId) => {
             file: fileUploadInput,
         })
 
-        taskLogger.info({ msg: 'Successful generation of ticket document', taskId })
-    } catch (error) {
-        taskLogger.error({ msg: 'Fail of generating ticket document', taskId, error })
+        taskLogger.info({
+            msg: 'successful generation of ticket document',
+            entityId: taskId,
+            entity: 'TicketDocumentGenerationTask',
+        })
+    } catch (err) {
+        taskLogger.error({
+            msg: 'fail of generating ticket document',
+            entityId: taskId,
+            entity: 'TicketDocumentGenerationTask',
+            err,
+        })
 
         if (task && context) {
             await TicketDocumentGenerationTask.update(context, task.id, {
                 ...BASE_ATTRS,
                 status: TICKET_DOCUMENT_GENERATION_TASK_STATUS.ERROR,
-                meta: { ...task.meta, error: error.message },
+                meta: { ...task.meta, error: err.message },
             })
         }
 
-        throw error
+        throw err
     }
 }
 

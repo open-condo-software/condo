@@ -1,5 +1,4 @@
 const dayjs = require('dayjs')
-const { v4: uuid } = require('uuid')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
@@ -18,7 +17,7 @@ const {
 const { processArrayOf } = require('@condo/domains/common/utils/parallel')
 
 const dvAndSender = { dv: 1, sender: { dv: 1, fingerprint: 'recurrent-payment-context-processing' } }
-const logger = getLogger('recurrent-payment-context-processing')
+const logger = getLogger()
 
 async function createRecurrentPaymentForRecurrentPaymentContext (context, date, recurrentPaymentContext) {
     // prepare vars
@@ -49,8 +48,7 @@ async function createRecurrentPaymentForRecurrentPaymentContext (context, date, 
 }
 
 async function createRecurrentPaymentForReadyToPayRecurrentPaymentContexts () {
-    const taskId = this.id || uuid()
-    logger.info({ msg: 'Start processing recurrent payment context', taskId })
+    logger.info({ msg: 'start processing recurrent payment context' })
 
     // prepare context
     const { keystone } = getSchemaCtx('RecurrentPaymentContext')
@@ -64,7 +62,7 @@ async function createRecurrentPaymentForReadyToPayRecurrentPaymentContexts () {
 
     // retrieve RecurrentPaymentContext page by page
     while (hasMorePages) {
-        logger.info({ msg: `Processing recurrent payment context page #${Math.floor(offset / pageSize)}`, taskId })
+        logger.info({ msg: 'processing recurrent payment context page', data: { page: Math.floor(offset / pageSize) } })
 
         // get page (can be empty)
         const page = await getAllReadyToPayRecurrentPaymentContexts(context, date, pageSize, offset)
@@ -74,14 +72,14 @@ async function createRecurrentPaymentForReadyToPayRecurrentPaymentContexts () {
             try {
                 await createRecurrentPaymentForRecurrentPaymentContext(context, date, recurrentPaymentContext)
             } catch (err) {
-                logger.error({ msg: 'Process recurrent payment context error', err, taskId })
+                logger.error({ msg: 'process recurrent payment context error', err })
             }
         })
 
         hasMorePages = page.length > 0
         offset += pageSize
     }
-    logger.info({ msg: 'End processing recurrent payment context', taskId })
+    logger.info({ msg: 'end processing recurrent payment context' })
 }
 
 module.exports = {

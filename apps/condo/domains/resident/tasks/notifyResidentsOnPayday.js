@@ -1,5 +1,4 @@
 const dayjs = require('dayjs')
-const locale_ru = require('dayjs/locale/ru')
 const { get } = require('lodash')
 
 const conf = require('@open-condo/config')
@@ -16,7 +15,7 @@ const { sendMessage, Message } = require('@condo/domains/notification/utils/serv
 const { ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
 
 
-const logger = getLogger('notifyResidentsOnPayday')
+const logger = getLogger()
 
 const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'notifyResidentsOnPayday' } }
 const conflictingMessageTypes = [BILLING_RECEIPT_ADDED_TYPE, BILLING_RECEIPT_ADDED_WITH_DEBT_TYPE, BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE, BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_TYPE, BILLING_RECEIPT_AVAILABLE_TYPE, BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE, SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_MESSAGE_TYPE]
@@ -43,7 +42,11 @@ async function sendNotification (context, receipt, consumer) {
     const monthName = lang === RU_LOCALE ? dayjs(receipt.period).locale('ru').format('MMMM') : dayjs(receipt.period).format('MMMM')
 
     if (await hasConflictingPushes(context, userId)) {
-        logger.info({ msg: 'Today the User received push notifications with a conflicting type', userId })
+        logger.info({
+            msg: 'today the User received push notifications with a conflicting type',
+            entityId: userId,
+            entity: 'User',
+        })
         return
     }
 
@@ -81,7 +84,7 @@ async function notifyResidentsOnPayday () {
         failedConsumers: 0,
         recipients: [],
     }
-    logger.info({ msg: 'Start processing', startAt: state.startTime })
+    logger.info({ msg: 'start processing', data: { startAt: state.startTime } })
     while (state.hasMoreConsumers) {
         const consumers = await ServiceConsumer.getAll(context, {
             acquiringIntegrationContext: {
@@ -167,14 +170,14 @@ async function notifyResidentsOnPayday () {
                 }
 
                 if (!isAllPaid) await sendNotification(context, payableReceipts[0], consumer)
-            } catch (error) {
-                logger.error({ error })
+            } catch (err) {
+                logger.error({ err })
                 state.failedConsumers++
             }
         }
     }
     state.completeTime = dayjs().toISOString()
-    logger.info({ msg: 'Processing completed', state, startAt: state.startTime, completeAt: state.completeTime, failedConsumers: state.failedConsumers })
+    logger.info({ msg: 'processing completed', data: { state, startAt: state.startTime, completeAt: state.completeTime, failedConsumers: state.failedConsumers } })
 }
 
 module.exports = {

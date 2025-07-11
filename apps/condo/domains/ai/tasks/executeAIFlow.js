@@ -24,27 +24,27 @@ const FLOW_ADAPTERS = {
 
 const ajv = new Ajv()
 
-const taskLogger = getLogger('executeAIFlow')
+const taskLogger = getLogger()
 
-const executeAIFlow = async (taskId) => {
-    if (!taskId) {
+const executeAIFlow = async (executionAIFlowTaskId) => {
+    if (!executionAIFlowTaskId) {
         taskLogger.error({
-            msg: 'Unknown taskId!',
+            msg: 'unknown executionAIFlowTaskId!',
         })
-        throw new Error('Unknown taskId!')
+        throw new Error('Unknown executionAIFlowTaskId!')
     }
 
     const { keystone: context } = getSchemaCtx('ExecutionAIFlowTask')
 
-    const task = await ExecutionAIFlowTask.getOne(context, { id: taskId }, 'id flowType context locale status')
+    const task = await ExecutionAIFlowTask.getOne(context, { id: executionAIFlowTaskId }, 'id flowType context locale status')
 
     try {
         if (!task || task.deletedAt) {
-            throw new Error(`No task with id "${taskId}"`)
+            throw new Error(`No task with id "${executionAIFlowTaskId}"`)
         }
 
         if (task.status !== TASK_STATUSES.PROCESSING) {
-            throw new Error(`Task with id "${taskId}" has status "${task.status}" already!`)
+            throw new Error(`Task with id "${executionAIFlowTaskId}" has status "${task.status}" already!`)
         }
 
         const isCustomFlow = CUSTOM_FLOW_TYPES_LIST.includes(task.flowType)
@@ -81,10 +81,11 @@ const executeAIFlow = async (taskId) => {
                 msg: 'Failed to execute AI flow',
                 data: { flowType: task?.flowType },
                 err: 'The prediction format is not valid!',
-                taskId,
+                entityId: executionAIFlowTaskId,
+                entity: 'ExecutionAIFlowTask',
             })
 
-            await ExecutionAIFlowTask.update(context, taskId, {
+            await ExecutionAIFlowTask.update(context, executionAIFlowTaskId, {
                 ...BASE_ATTRIBUTES,
                 error: JSON.stringify({ message: 'The prediction format is not valid!', validationErrors }),
                 errorMessage: i18n('api.ai.executionAIFlowTask.FAILED_TO_COMPLETE_REQUEST', { locale: task?.locale || conf.DEFAULT_LOCALE }),
@@ -96,7 +97,7 @@ const executeAIFlow = async (taskId) => {
             return
         }
 
-        await ExecutionAIFlowTask.update(context, taskId, {
+        await ExecutionAIFlowTask.update(context, executionAIFlowTaskId, {
             ...BASE_ATTRIBUTES,
             result: prediction.result,
             meta: {
@@ -105,7 +106,7 @@ const executeAIFlow = async (taskId) => {
             status: TASK_STATUSES.COMPLETED,
         })
     } catch (error) {
-        await ExecutionAIFlowTask.update(context, taskId, {
+        await ExecutionAIFlowTask.update(context, executionAIFlowTaskId, {
             ...BASE_ATTRIBUTES,
             status: TASK_STATUSES.ERROR,
             error: { ...error },
@@ -118,7 +119,8 @@ const executeAIFlow = async (taskId) => {
         taskLogger.error({
             msg: 'Failed to execute AI flow',
             data: { flowType: task?.flowType },
-            taskId,
+            entityId: executionAIFlowTaskId,
+            entity: 'ExecutionAIFlowTask',
             err: error,
         })
 

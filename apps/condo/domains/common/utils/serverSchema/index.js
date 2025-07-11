@@ -4,14 +4,13 @@ const get = require('lodash/get')
 
 const conf = require('@open-condo/config')
 const { getDatabaseAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
-const { getExecutionContext } = require('@open-condo/keystone/executionContext')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const GLOBAL_QUERY_LIMIT = 1000
 const TOO_MANY_RETURNED_LOG_LIMITS = Object.freeze([1100, 9000, 14900, 49000, 149000])
 const TOO_MANY_RETURNED_RESULT_LOG_LIMIT = 4900
-const logger = getLogger('common/utils/serverSchema.js')
+const logger = getLogger()
 const TIMEOUT_DURATION = Number(conf.TIMEOUT_CHUNKS_DURATION) ||  60 * 1000
 
 // When we load models with Apollo graphql - every relation on a field for every object makes sql request
@@ -33,18 +32,16 @@ function logTooManyReturnedIfRequired (tooManyReturnedLimitCounters, allObjects,
     const realLimit = tooManyReturnedLimitCounters[0]
 
     if (allObjects && Array.isArray(allObjects) && allObjects.length > realLimit) {
-        const executionContext = getExecutionContext()
-        const reqId = executionContext?.reqId
-        const taskId = executionContext?.taskId
+
         logger.warn({
-            msg: 'tooManyReturned',
-            tooManyLimit: realLimit,
+            msg: 'returned too much entities',
+            data: {
+                tooManyLimit: realLimit,
+                data,
+            },
             count: allObjects.length,
             functionName,
-            schemaName,
-            data,
-            reqId,
-            taskId,
+            listKey: schemaName,
         })
         tooManyReturnedLimitCounters.shift()  // remove counter and mark as already notified
     }
@@ -83,9 +80,9 @@ class GqlWithKnexLoadList {
 
             if (conf.DISABLE_CHUNKS_TIMEOUT !== 'true' && now - startTime >= TIMEOUT_DURATION) {
                 logger.info({
-                    msg: 'Operation timed out',
+                    msg: 'operation timed out',
                     functionName: 'GqlWithKnexLoadList.load',
-                    schemaName: this.listKey,
+                    listKey: this.listKey,
                     data: {
                         singleRelations: this.singleRelations, multipleRelations: this.multipleRelations, where: this.where, fields: this.fields,
                     },
@@ -222,9 +219,9 @@ const loadListByChunks = async ({
 
         if (conf.DISABLE_CHUNKS_TIMEOUT !== 'true' && now - startTime >= TIMEOUT_DURATION) {
             logger.info({
-                msg: 'Operation timed out',
+                msg: 'operation timed out',
                 functionName: 'loadListByChunks',
-                schemaName: get(list, 'gql.SINGULAR_FORM', ''),
+                listKey: get(list, 'gql.SINGULAR_FORM', ''),
                 data: {
                     chunkSize,
                     limit,

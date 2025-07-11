@@ -6,7 +6,7 @@ dayjs.extend(customParseFormat)
 
 const DATE_FORMAT = 'DD.MM.YYYY'
 
-const logger = getLogger('convertFrom1CExchangeToSchema')
+const logger = getLogger()
 
 /**
  * Represents entity, that starts at "begin" marker-line, has key-value body and ends with "end" marker
@@ -71,7 +71,7 @@ class StreamNode {
                     this.#isFinished = true
                 }
             } else {
-                logger.warn({ msg: `Unexpected key "${key}" in node "${this.name}"` })
+                logger.warn({ msg: 'unexpected key in node', data: { node: this.name, key } })
             }
         }
     }
@@ -261,7 +261,7 @@ function convertFrom1CExchangeToSchema (stringContent) {
         if (!currentNode) {
             const newNode = initNode(line)
             if (!newNode) {
-                logger.warn({ msg: `Unexpected node name "${line}" at line ${i}` })
+                logger.warn({ msg: 'unexpected node name', data: { line: i, node: line } })
             }
             currentNode = newNode
             continue

@@ -79,7 +79,7 @@ class GoogleSearchProvider extends AbstractSearchProvider {
                  * @type {{html_attributions: string[], results: GooglePlace[], status: string, [error_message]: string, [info_messages]: string[], [next_page_token]: string}}
                  */
                 const result = await answer.json()
-                this.logger.info({ msg: 'response textsearch googleapis', url, result, status: answer.status })
+                this.logger.info({ msg: 'response textsearch googleapis', url, status: answer.status, data: result })
 
                 /**
                  * @see https://developers.google.com/maps/documentation/places/web-service/search-text#PlacesSearchStatus
@@ -99,7 +99,7 @@ class GoogleSearchProvider extends AbstractSearchProvider {
                 }
             } else {
                 const result = await answer.text()
-                this.logger.info({ msg: 'response textsearch googleapis', url, result, status: answer.status })
+                this.logger.info({ msg: 'response textsearch googleapis', url, status: answer.status, data: result })
             }
         } catch (err) {
             this.logger.error({ msg: 'googleapis textsearch error', url, err })

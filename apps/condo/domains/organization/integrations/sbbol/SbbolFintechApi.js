@@ -9,7 +9,7 @@ const { getAccessTokenForUser } = require('./utils')
 const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
 
-const logger = getLogger('sbbol/SbbolFintechApi')
+const logger = getLogger('sbbol-fintech-api')
 
 /**
  * Error reponse from SBBOL Fintech API
@@ -144,8 +144,8 @@ function parseSbbolResponse (response, statusCode) {
         } else {
             return { error: jsonData, statusCode: response.statusCode }
         }
-    } catch (error) {
-        return logger.error({ msg: 'Error parsing response from SBBOL', error, response })
+    } catch (err) {
+        return logger.error({ msg: 'error parsing response from SBBOL', err, data: { response } })
     }
 }
 
@@ -240,11 +240,11 @@ const initSbbolFintechApi = async (userId, organizationId, useExtendedConfig) =>
         // `service_organization_hashOrgId` is a `userInfo.HashOrgId` from SBBOL, that corresponds to our organization
         // as a partner of SBBOL
         ({ accessToken } = await getAccessTokenForUser(userId, organizationId, useExtendedConfig))
-    } catch (error) {
+    } catch (err) {
         logger.error({
             msg: 'Failed to obtain organization access token from SBBOL',
-            error,
-            hashOrgId: SBBOL_FINTECH_CONFIG.service_organization_hashOrgId,
+            err,
+            data: { hashOrgId: SBBOL_FINTECH_CONFIG.service_organization_hashOrgId },
         })
         return null
     }

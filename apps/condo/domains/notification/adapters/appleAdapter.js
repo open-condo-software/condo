@@ -25,7 +25,7 @@ const DEFAULT_PUSH_SETTINGS = {
     },
 }
 
-const logger = getLogger('appleAdapter')
+const logger = getLogger()
 
 /**
  * Send push notification to pushToken via app, configured by APPLE_CONFIG in .helm (.env)
@@ -44,7 +44,7 @@ class AppleAdapter {
             this.#config = config
         } catch (error) {
             // For CI/local tests config is useless because of emulation via FAKE tokens
-            logger.error({ msg: 'AppleAdapter error', error })
+            logger.error({ msg: 'AppleAdapter error', err: error })
         }
     }
 
@@ -226,7 +226,7 @@ class AppleAdapter {
             for (const [appId, notificationsBatchForApp] of Object.entries(notificationsByAppId)) {
                 const configForApp = this.#config[appId]
                 if (!configForApp) {
-                    logger.error({ msg: 'Unknown appId. Config was not found', appId })
+                    logger.error({ msg: 'unknown appId. Config was not found', data: { appId } })
                     continue
                 }
 

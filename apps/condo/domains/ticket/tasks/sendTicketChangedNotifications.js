@@ -1,6 +1,5 @@
 const dayjs = require('dayjs')
 const get = require('lodash/get')
-const { v4: uuid } = require('uuid')
 
 const conf = require('@open-condo/config')
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
@@ -29,14 +28,17 @@ const { detectTicketEventTypes, TICKET_CREATED, ASSIGNEE_CONNECTED_EVENT_TYPE, E
 const { sendTicketCreatedNotifications } = require('./sendTicketCreatedNotifications')
 
 
-const taskLogger = getLogger('tasks/sendTicketChangedNotifications')
+const taskLogger = getLogger()
 
 
 const sendTicketChangedNotifications = async ({ ticketId, existingItem, operation }) => {
-    const taskId = this.id || uuid()
-
     try {
-        taskLogger.info({ msg: 'Start of sending ticket changed notifications', taskId, data: { ticketId, operation } })
+        taskLogger.info({
+            msg: 'start of sending ticket changed notifications',
+            entityId: ticketId,
+            entity: 'Ticket',
+            data: { operation },
+        })
 
         if (!ticketId) throw new Error('no ticketId!')
         if (!operation) throw new Error('no operation!')
@@ -78,8 +80,14 @@ const sendTicketChangedNotifications = async ({ ticketId, existingItem, operatio
         if (eventTypes[TICKET_CREATED]) {
             try {
                 await sendTicketCreatedNotifications.delay(updatedItem.id, lang, organization.id, organization.name)
-            } catch (error) {
-                taskLogger.error({ msg: 'Failed to send notifications by "TICKET_CREATED" event', taskId, error, data: { ticketId, operation } })
+            } catch (err) {
+                taskLogger.error({
+                    msg: 'failed to send notifications by "TICKET_CREATED" event',
+                    err,
+                    entityId: ticketId,
+                    entity: 'Ticket',
+                    data: { operation },
+                })
             }
         }
 
@@ -104,8 +112,14 @@ const sendTicketChangedNotifications = async ({ ticketId, existingItem, operatio
                     sender: updatedItem.sender,
                     organization: { id: organization.id },
                 })
-            } catch (error) {
-                taskLogger.error({ msg: 'Failed to send notifications by "ASSIGNEE_CONNECTED" event', taskId, error, data: { ticketId, operation, userId } })
+            } catch (err) {
+                taskLogger.error({
+                    msg: 'failed to send notifications by "ASSIGNEE_CONNECTED" event',
+                    err,
+                    entityId: ticketId,
+                    entity: 'Ticket',
+                    data: { operation, userId },
+                })
             }
         }
 
@@ -130,8 +144,14 @@ const sendTicketChangedNotifications = async ({ ticketId, existingItem, operatio
                     sender: updatedItem.sender,
                     organization: { id: organization.id },
                 })
-            } catch (error) {
-                taskLogger.error({ msg: 'Failed to send notifications by "EXECUTOR_CONNECTED" event', taskId, error, data: { ticketId, operation, userId } })
+            } catch (err) {
+                taskLogger.error({
+                    msg: 'failed to send notifications by "EXECUTOR_CONNECTED" event',
+                    err,
+                    entityId: ticketId,
+                    entity: 'Ticket',
+                    data: { operation, userId },
+                })
             }
         }
 
@@ -193,8 +213,14 @@ const sendTicketChangedNotifications = async ({ ticketId, existingItem, operatio
                         organization: { id: organization.id },
                     })
                 }
-            } catch (error) {
-                taskLogger.error({ msg: 'Failed to send notifications by "STATUS_CHANGED" event', taskId, error, data: { ticketId, operation } })
+            } catch (err) {
+                taskLogger.error({
+                    msg: 'failed to send notifications by "STATUS_CHANGED" event',
+                    err,
+                    entityId: ticketId,
+                    entity: 'Ticket',
+                    data: { operation },
+                })
             }
         }
 
@@ -229,15 +255,32 @@ const sendTicketChangedNotifications = async ({ ticketId, existingItem, operatio
                         organization: { id: organization.id },
                     })
                 }
-            } catch (error) {
-                taskLogger.error({ msg: 'Failed to send notifications by "TICKET_WITHOUT_RESIDENT_CREATED" event', taskId, error, data: { ticketId, operation } })
+            } catch (err) {
+                taskLogger.error({
+                    msg: 'failed to send notifications by "TICKET_WITHOUT_RESIDENT_CREATED" event',
+                    err,
+                    entityId: ticketId,
+                    entity: 'Ticket',
+                    data: { operation },
+                })
             }
         }
 
-        taskLogger.info({ msg: 'Successful sending ticket changed notifications', taskId, data: { ticketId, operation } })
-    } catch (error) {
-        taskLogger.error({ msg: 'sendTicketChangedNotifications internal error', taskId, error, data: { ticketId, operation } })
-        throw error
+        taskLogger.info({
+            msg: 'successful sending ticket changed notifications',
+            entityId: ticketId,
+            entity: 'Ticket',
+            data: { operation },
+        })
+    } catch (err) {
+        taskLogger.error({
+            msg: 'sendTicketChangedNotifications internal error',
+            err,
+            entityId: ticketId,
+            entity: 'Ticket',
+            data: { operation },
+        })
+        throw err
     }
 }
 

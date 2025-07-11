@@ -28,8 +28,7 @@ const { exportTicketBlanksToPdf } = require('@condo/domains/ticket/utils/serverS
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 
-const appLogger = getLogger('condo')
-const taskLogger = appLogger.child({ module: 'exportTickets' })
+const taskLogger = getLogger()
 
 const TICKET_COMMENTS_SEPARATOR = '\n' + '—'.repeat(20) + '\n'
 
@@ -330,17 +329,18 @@ async function exportTickets (taskId) {
             }
         }
 
-    } catch (error) {
+    } catch (err) {
         await TicketExportTask.update(context, task.id, {
             ...baseAttrs,
             status: ERROR,
         })
         taskLogger.error({
-            msg: 'Failed to export tickets',
-            data: { id: task.id },
-            error,
+            msg: 'failed to export tickets',
+            entityId: task.id,
+            entity: 'TicketExportTask',
+            err,
         })
-        throw error
+        throw err
     }
 }
 

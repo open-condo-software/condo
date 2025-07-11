@@ -69,9 +69,10 @@ class DadataHealthChecker {
             const originalResponse = await result.json()
 
             return { intermediateResult: true, originalResponse }
-        } catch (error) {
+        } catch (err) {
             this.logger.warn({
-                msg: 'Got error while execute healthcheck request', error,
+                msg: 'got error while execute healthcheck request',
+                err,
             })
             return { intermediateResult: false, originalResponse: null }
         }

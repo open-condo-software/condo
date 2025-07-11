@@ -1,5 +1,4 @@
 const dayjs = require('dayjs')
-const { v4: uuid } = require('uuid')
 
 const { getKVClient } = require('@open-condo/keystone/kv')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -22,7 +21,7 @@ const { getStartDates } = require('@condo/domains/common/utils/date')
 const { processArrayOf } = require('@condo/domains/common/utils/parallel')
 
 const dvAndSender = { dv: 1, sender: { dv: 1, fingerprint: 'recurrent-payments-seeking-for-new-receipt' } }
-const logger = getLogger('recurrent-payments-seeking-for-new-receipt')
+const logger = getLogger()
 const REDIS_LAST_DATE_KEY = 'LAST_RECURRENT_PAYMENT_SEEKING_RECEIPTS_CREATED_AT'
 const redisClient = getKVClient()
 
@@ -76,8 +75,7 @@ async function scanBillingReceiptsForRecurrentPaymentContext (context, recurrent
 }
 
 async function createRecurrentPaymentForNewBillingReceipt () {
-    const taskId = this.id || uuid()
-    logger.info({ msg: 'Start processing new billing receipts for recurrentPaymentContext tasks', taskId })
+    logger.info({ msg: 'start processing new billing receipts for recurrentPaymentContext tasks' })
 
     // prepare context
     const { keystone } = getSchemaCtx('RecurrentPaymentContext')
@@ -92,11 +90,11 @@ async function createRecurrentPaymentForNewBillingReceipt () {
 
     // prepare filter values
     const lastDt = await redisClient.get(REDIS_LAST_DATE_KEY) || thisMonthStart
-    logger.info({ msg: `Seeking for new billing receipts at ${lastDt}`, taskId })
+    logger.info({ msg: 'seeking for new billing receipts', data: { lastDt } })
 
     // retrieve BillingReceipts page by page
     while (hasMorePages) {
-        logger.info({ msg: `Processing recurrentPaymentContext page #${Math.floor(offset / pageSize)}`, taskId })
+        logger.info({ msg: 'processing recurrentPaymentContext page', data: { page: Math.floor(offset / pageSize) } })
 
         // get page (can be empty)
         const extraArgs = {
@@ -110,7 +108,7 @@ async function createRecurrentPaymentForNewBillingReceipt () {
             try {
                 await scanBillingReceiptsForRecurrentPaymentContext(context, recurrentPaymentContext, periods, lastDt)
             } catch (err) {
-                logger.error({ msg: 'Process recurrentPaymentContext error', err, taskId })
+                logger.error({ msg: 'Process recurrentPaymentContext error', err })
             }
         })
 
@@ -121,7 +119,7 @@ async function createRecurrentPaymentForNewBillingReceipt () {
     // update watermark value
     await redisClient.set(REDIS_LAST_DATE_KEY, dayjs().toISOString())
 
-    logger.info({ msg: 'End processing new billing receipts for recurrentPaymentContext tasks', taskId })
+    logger.info({ msg: 'end processing new billing receipts for recurrentPaymentContext tasks' })
 }
 
 module.exports = {

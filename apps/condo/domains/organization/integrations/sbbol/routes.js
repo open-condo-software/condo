@@ -16,11 +16,10 @@ const { getSbbolUserInfoErrors } = require('./utils/getSbbolUserInfoErrors')
 const SBBOL_AUTH_CONFIG = conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CONFIG) : {}
 const SBBOL_AUTH_CONFIG_EXTENDED = conf.SBBOL_AUTH_CONFIG_EXTENDED ? JSON.parse(conf.SBBOL_AUTH_CONFIG_EXTENDED) : {}
 
-const logger = getLogger('sbbol/routes')
+const logger = getLogger('sbbol-routes')
 
 class SbbolRoutes {
     async startAuth (req, res, next) {
-        const reqId = req.id
         if (!SBBOL_AUTH_CONFIG.client_id) throw new Error('SBBOL_AUTH_CONFIG.client_id is not configured')
         if (!SBBOL_AUTH_CONFIG_EXTENDED.client_id) throw new Error('SBBOL_AUTH_CONFIG_EXTENDED.client_id is not configured')
         const query = get(req, 'query', {})
@@ -38,9 +37,9 @@ class SbbolRoutes {
             await req.session.save()
             const authUrl = sbbolAuthApi.authorizationUrlWithParams(checks)
             return res.redirect(authUrl)
-        } catch (error) {
-            logger.error({ msg: 'SBBOL start-auth error', err: error, reqId })
-            return next(error)
+        } catch (err) {
+            logger.error({ msg: 'SBBOL start-auth error', err })
+            return next(err)
         }
     }
 
@@ -51,7 +50,7 @@ class SbbolRoutes {
         try {
             const checks = get(req, ['session', SBBOL_SESSION_KEY, 'checks'])
             if (!isObject(checks)) {
-                logger.info({ msg: 'SBBOL invalid nonce and state', reqId })
+                logger.info({ msg: 'SBBOL invalid nonce and state' })
                 return res.status(400).send('ERROR: Invalid nonce and state')
             }
             const useExtendedConfig = get(req, ['session', SBBOL_SESSION_KEY, 'useExtendedConfig'], false)
@@ -63,7 +62,7 @@ class SbbolRoutes {
             try {
                 tokenSet = await sbbolAuthApi.completeAuth(req, checks)
             } catch (err) {
-                logger.error({ msg: 'SBBOL completeAuth error', err, reqId })
+                logger.error({ msg: 'SBBOL completeAuth error', err })
                 throw err
             }
 
@@ -71,13 +70,13 @@ class SbbolRoutes {
                 const { access_token } = tokenSet
                 userInfo = await sbbolAuthApi.fetchUserInfo(access_token)
             } catch (err) {
-                logger.error({ msg: 'SBBOL completeAuth error', err, reqId })
+                logger.error({ msg: 'SBBOL completeAuth error', err })
                 throw err
             }
 
             const errors = getSbbolUserInfoErrors(userInfo)
             if (errors.length) {
-                logger.info({ msg: 'SBBOL invalid userinfo', data: { userInfo, errors }, reqId })
+                logger.info({ msg: 'SBBOL invalid userinfo', data: { userInfo, errors } })
                 return res.status(400).send(`ERROR: Invalid SBBOL userInfo: ${errors.join(';')}`)
             }
 
@@ -97,11 +96,14 @@ class SbbolRoutes {
             delete req.session[SBBOL_SESSION_KEY]
             await req.session.save()
 
-            logger.info({ msg: 'SBBOL OK Authenticated', userId: user.id, organizationId: organization.id, employeeId: organizationEmployee.id })
+            logger.info({
+                msg: 'SBBOL OK Authenticated',
+                data: { userId: user.id, organizationId: organization.id, employeeId: organizationEmployee.id },
+            })
             if (redirectUrl) return res.redirect(redirectUrl)
             return res.redirect('/tour')
         } catch (error) {
-            logger.error({ msg: 'SBBOL auth-callback error', err: error, reqId })
+            logger.error({ msg: 'SBBOL auth-callback error', err: error })
             return next(error)
         }
     }

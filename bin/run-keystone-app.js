@@ -78,7 +78,7 @@ if (IS_ENABLE_DD_TRACE) {
     })
 }
 
-const logger = getLogger('run-keystone')
+const logger = getLogger()
 
 try {
     if (fs.existsSync(KEY_FILE) && fs.existsSync(CERT_FILE) && SPORT) {

@@ -16,7 +16,7 @@ const _getUsersFromRelatedOrganizationsToSendNotificationCacheKey = (organizatio
     `cache:ticket:usersToSendNotification:relatedOrganizations:${organization}`
 const _getUsersFromOrganizationToSendTicketNotificationCacheKey = (organization, property, categoryClassifier) =>
     `cache:ticket:usersToSendNotification:ticketOrganization:${[organization, property, categoryClassifier].filter(Boolean).join(':')}`
-const logger = getLogger('ticket/getUsersToSendTicketRelatedNotifications')
+const logger = getLogger()
 
 const _getPropertyAndSpecializationsEmployeesAccessedToTicket = async (propertyAndSpecDependsEmployeeInScope, ticketCategoryClassifier) => {
     const availableToReadTicketUsers = []
@@ -217,8 +217,8 @@ const getUsersToSendTicketRelatedNotifications = async ({
             ...usersIdFromOrganization,
             ...usersIdFromRelatedOrganizations,
         ]).filter(Boolean)
-    } catch (error) {
-        logger.error({ msg: 'getUsersToSendTicketRelatedNotifications error', error, ticketOrganizationId, ticketPropertyId, ticketCategoryClassifierId })
+    } catch (err) {
+        logger.error({ msg: 'getUsersToSendTicketRelatedNotifications error', err, data: { ticketOrganizationId, ticketPropertyId, ticketCategoryClassifierId } })
 
         return []
     }

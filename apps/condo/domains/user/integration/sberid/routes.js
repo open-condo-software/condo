@@ -24,7 +24,7 @@ const SBER_ID_CONFIG = conf.SBER_ID_CONFIG ? JSON.parse(conf.SBER_ID_CONFIG) : {
 
 // init constants
 const integration = new SberIdIdentityIntegration()
-const logger = getLogger('sberid/routes')
+const logger = getLogger()
 
 class SberIdRoutes {
     async startAuth (req, res, next) {
@@ -51,7 +51,6 @@ class SberIdRoutes {
     }
 
     async completeAuth (req, res, next) {
-        const reqId = req.id
         try {
             if (!SBER_ID_CONFIG.clientId) throw new Error('SBER_ID_CONFIG.clientId is not configured')
             const { keystone: context } = await getSchemaCtx('User')
@@ -66,7 +65,7 @@ class SberIdRoutes {
             try {
                 tokenSet = await integration.issueExternalIdentityToken(req.query.code, redirectUrl)
             } catch (err) {
-                logger.error({ msg: 'SberId completeAuth error', err, reqId })
+                logger.error({ msg: 'SberId completeAuth error', err })
                 throw err
             }
 
@@ -77,7 +76,7 @@ class SberIdRoutes {
             try {
                 userInfo = await integration.getUserInfo(tokenSet)
             } catch (err) {
-                logger.error({ msg: 'SberId completeAuth error', err, reqId })
+                logger.error({ msg: 'SberId completeAuth error', err })
                 throw err
             }
 
@@ -95,7 +94,7 @@ class SberIdRoutes {
             // authorize user
             return await this.authorizeUser(req, res, context, id)
         } catch (error) {
-            logger.error({ msg: 'SberId auth-callback error', err: error, reqId })
+            logger.error({ msg: 'SberId auth-callback error', err: error })
             return next(error)
         }
     }

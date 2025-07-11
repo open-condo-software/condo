@@ -2,7 +2,6 @@ const { isNil, get } = require('lodash')
 const { generators } = require('openid-client')
 
 const conf = require('@open-condo/config')
-const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { APPLE_ID_SESSION_KEY } = require('@condo/domains/user/constants/common')
@@ -26,7 +25,6 @@ const APPLE_ID_CONFIG = conf.APPLE_ID_CONFIG ? JSON.parse(conf.APPLE_ID_CONFIG) 
 
 // init constants
 const integration = new AppleIdIdentityIntegration()
-const logger = getLogger('appleid/routes')
 
 class AppleIdRoutes {
     async startAuth (req, res, next) {

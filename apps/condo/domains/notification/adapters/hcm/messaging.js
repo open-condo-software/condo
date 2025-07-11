@@ -1,6 +1,5 @@
 const { get, isArray, isString, isEmpty, cloneDeep } = require('lodash')
 
-const { getExecutionContext } = require('@open-condo/keystone/executionContext')
 const { fetch } = require('@open-condo/keystone/fetch')
 const { getLogger } = require('@open-condo/keystone/logging')
 
@@ -17,7 +16,7 @@ const DEFAULT_ANDROID_PAYLOAD = Object.freeze({
     },
 })
 
-const logger = getLogger('HCMMessaging')
+const logger = getLogger()
 
 /**
  * HCM - Huawei Cloud Messaging
@@ -34,12 +33,9 @@ class HCMMessaging {
     }
 
     async send (rawMessage, validationOnly = false) {
-        const executionContext = getExecutionContext()
-        const reqId = executionContext?.reqId
-        const taskId = executionContext?.taskId
 
         // TODO (@toplenboren) DOMA-10611 remove excessive logging
-        logger.info({ msg: 'HCMMessaging send', args: { rawMessage, validationOnly }, reqId, taskId })
+        logger.info({ msg: 'HCMMessaging send', data: { args: { rawMessage, validationOnly } } })
 
         if (!this.authClient) throw new Error('can\'t refresh token because getting auth client fail')
         if (!this.authClient.token || this.authClient.isExpired) await this.authClient.refreshToken()
@@ -73,12 +69,8 @@ class HCMMessaging {
     }
 
     async #sendRequest (body) {
-        const executionContext = getExecutionContext()
-        const reqId = executionContext?.reqId
-        const taskId = executionContext?.taskId
-
         // TODO (@toplenboren) DOMA-10611 remove excessive logging
-        logger.info({ msg: 'HCMMessaging sendRequest', args: { body }, reqId, taskId })
+        logger.info({ msg: 'HCMMessaging sendRequest', data: { args: { body } } })
 
         validateMessage(body.message)
 
@@ -93,20 +85,20 @@ class HCMMessaging {
         const requestBody = JSON.stringify(body)
 
         // TODO (@toplenboren) DOMA-10611 remove excessive logging
-        logger.info({ msg: 'HCMMessaging sendRequest, data is ready:', args: { requestBody }, reqId, taskId })
+        logger.info({ msg: 'HCMMessaging sendRequest, data is ready:', data: { args: { requestBody } } })
 
         try {
             response = await fetch(url, { method: 'POST', body: requestBody, headers })
             json = await response.json()
         } catch (error) {
-            logger.error({ msg: 'send push notification request error', error })
+            logger.error({ msg: 'send push notification request error', err: error })
         }
 
         const responseCode = get(json, 'code')
 
         // https://developer.huawei.com/consumer/en/doc/development/HMSCore-References/https-send-api-0000001050986197#section13968115715131
         if (!(get(response, 'status') === 200 && responseCode && SUCCESS_CODES.includes(responseCode))) {
-            logger.error({ msg: 'HCMMessaging sendRequest error', url, data: { body, headers }, result: json })
+            logger.error({ msg: 'HCMMessaging sendRequest error', url, data: { body, headers, response: json } })
         }
 
         return json

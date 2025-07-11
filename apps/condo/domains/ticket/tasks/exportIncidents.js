@@ -28,7 +28,7 @@ const MAX_XLSX_FILE_ROWS = 10000
 const DATE_FORMAT = 'DD.MM.YYYY'
 const EMPTY_VALUE = '—'
 
-const taskLogger = getLogger('exportIncidents')
+const taskLogger = getLogger()
 
 
 const buildTranslations = (locale) => ({
@@ -157,7 +157,9 @@ async function exportIncidents (taskId) {
     const task = await IncidentExportTask.getOne(context, { id: taskId }, 'id timeZone format where sortBy locale')
     if (!task) {
         taskLogger.error({
-            msg: `No task with id "${taskId}"`,
+            msg: 'No task with specified id',
+            entityId: taskId,
+            entity: 'IncidentExportTask',
         })
         throw new Error(`No task with id "${taskId}"`)
     }
@@ -225,8 +227,9 @@ async function exportIncidents (taskId) {
         })
 
         taskLogger.error({
-            msg: 'Failed to export incidents',
-            data: { id: taskId },
+            msg: 'failed to export incidents',
+            entityId: taskId,
+            entity: 'IncidentExportTask',
             err,
         })
 

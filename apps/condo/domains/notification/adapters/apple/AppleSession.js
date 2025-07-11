@@ -11,7 +11,7 @@ const SESSION_PING_INTERVAL = 60
 // const APPLE_API_ENDPOINT = 'https://api.sandbox.push.apple.com'
 const APPLE_API_ENDPOINT = 'https://api.push.apple.com'
 
-const logger = getLogger('APNs Session')
+const logger = getLogger()
 
 /**
  * http2 session handler, connects to url or APPLE_API_ENDPOINT and keeps connection open for SESSION_LIFE_TIME seconds,
@@ -66,10 +66,10 @@ class AppleSession {
      * Handles session errors, closes session, logs errors
      * @param error
      */
-    errorHandler (error) {
+    errorHandler (err) {
         this.disconnect()
 
-        logger.error({ msg: 'sessionErrorHandler', error })
+        logger.error({ msg: 'sessionErrorHandler', err })
     }
 
     /**

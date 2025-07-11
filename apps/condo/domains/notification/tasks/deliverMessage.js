@@ -43,7 +43,7 @@ const {
 
 const SEND_TO_CONSOLE = `${conf.NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE}`.toLowerCase() === 'true' || false
 const DISABLE_LOGGING = `${conf.NOTIFICATION__DISABLE_LOGGING}`.toLowerCase() === 'true' || false
-const logger = getLogger('notifications/deliverMessage')
+const logger = getLogger()
 
 const TRANSPORT_ADAPTERS = {
     [SMS_TRANSPORT]: smsAdapter,
@@ -143,7 +143,12 @@ async function deliverMessage (messageId) {
             }
             await Message.update(context, message.id, messageErrorData)
 
-            logger.info({ msg: 'throttled', messageId, data: { throttlePeriodForUser, lastMessageTypeSentDate } })
+            logger.info({
+                msg: 'throttled',
+                entityId: messageId,
+                entity: 'Message',
+                data: { throttlePeriodForUser, lastMessageTypeSentDate },
+            })
 
             return MESSAGE_THROTTLED_STATUS
         }
@@ -192,12 +197,25 @@ async function deliverMessage (messageId) {
             const isAllowedByUser = get(userTransportSettings, transport)
             if (isAllowedByUser === false) {
                 transportMeta.status = MESSAGE_DISABLED_BY_USER_STATUS
-                logger.info({ msg: 'disabled by user', messageId, data: { transport, userTransportSettings } })
+                logger.info({
+                    msg: 'disabled by user',
+                    entityId: messageId,
+                    entity: 'Message',
+                    data: { transport, userTransportSettings },
+                })
                 disabledByUserCount++
             } else {
-                const [isOk, deliveryMetadata] = await _sendMessageByAdapter(transport, adapter, messageContext, isVoIP)
-                logger.info({ msg: 'sendMessageByAdapter', isOk, messageId, deliveryMetadata })
-                transportMeta.deliveryMetadata = deliveryMetadata
+                const [isOk, deliveryMeta] = await _sendMessageByAdapter(transport, adapter, messageContext, isVoIP)
+                logger.info({
+                    msg: 'sendMessageByAdapter',
+                    entityId: messageId,
+                    entity: 'Message',
+                    status: isOk ? 'ok' : 'error',
+                    data: {
+                        deliveryMeta,
+                    },
+                })
+                transportMeta.deliveryMetadata = deliveryMeta
                 transportMeta.status = isOk ? MESSAGE_SENT_STATUS : MESSAGE_ERROR_STATUS
                 processingMeta.step = isOk ? MESSAGE_SENT_STATUS : MESSAGE_ERROR_STATUS
                 sentCount += isOk ? 1 : 0
@@ -206,7 +224,16 @@ async function deliverMessage (messageId) {
             transportMeta.status = MESSAGE_ERROR_STATUS
             transportMeta.exception = safeFormatError(error, false)
 
-            logger.error({ msg: 'deliverMessage error', error, messageId, transportMeta, processingMeta })
+            logger.error({
+                msg: 'deliverMessage error',
+                error,
+                entityId: messageId,
+                entity: 'Message',
+                data: {
+                    transportMeta,
+                    processingMeta,
+                },
+            })
         }
 
         processingMeta.transportsMeta.push(transportMeta)

@@ -13,7 +13,7 @@ const SBBOL_REDIS_KEY_PREFIX = 'SBBOL'
 const REFRESH_TOKEN_TTL_DAYS = 180
 const ACCESS_TOKEN_TTL_SEC = 3550
 
-const logger = getLogger('sbbol/SbbolSecretStorage')
+const logger = getLogger('sbbol-secret-storage')
 
 /**
  * Replaces `TokenSet` schema for storage of secrets for SBBOL API
@@ -141,10 +141,17 @@ class SbbolSecretStorage {
         }
         try {
             await commands.exec()
-            logger.info({ msg: `Set ${scopedKey}`, value })
-        } catch (error) {
-            logger.error({ msg: `Error set ${scopedKey} value ${value}`, data: { error } })
-            throw error
+            logger.info({
+                msg: 'setting scopedKey',
+                data: { key: scopedKey, value },
+            })
+        } catch (err) {
+            logger.error({
+                msg: 'error setting scopedKey',
+                err,
+                data: { key: scopedKey, value },
+            })
+            throw err
         }
     }
 

@@ -15,8 +15,7 @@ const { PROCESSING_STATUS_TYPE, NEW_OR_REOPENED_STATUS_TYPE, DEFERRED_STATUS_TYP
 const { INCIDENT_STATUS_ACTUAL, INCIDENT_CATEGORY_IDS, INCIDENT_PROBLEM_IDS } = require('@condo/domains/ticket/constants/incident')
 
 
-const appLogger = getLogger('condo')
-const logger = appLogger.child({ module: 'task/sendDailyStatistics' })
+const logger = getLogger()
 
 const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'sendDailyStatisticsTask' } }
 const COMPACT_SCOPES_SIZE = 2
@@ -38,20 +37,17 @@ class UserDailyStatistics {
     #statistics = null
     /** @type {string|null} */
     #userId = null
-    #taskId = null
 
     /**
      * @param userId
      * @param currentDate
      * @param taskId
      */
-    constructor (userId, currentDate, taskId) {
+    constructor (userId, currentDate) {
         if (!userId) throw new Error('No userId!')
 
         this.#userId = userId
         this.#currentDate = currentDate || dayjs().toISOString()
-
-        this.#taskId = taskId
     }
 
     /**
@@ -85,14 +81,12 @@ class UserDailyStatistics {
         const organizationIds = employees.map((employee) => employee.organization)
 
         logger.info({
-            taskId: this.#taskId,
             data: { organizationIds, userId: this.#userId, currentDate: this.#currentDate },
             msg: 'load statistics for organizations',
         })
 
         for (const organizationId of organizationIds) {
             const loggerInfo = {
-                taskId: this.#taskId,
                 data: { organizationId, userId: this.#userId, currentDate: this.#currentDate },
             }
 
@@ -100,7 +94,9 @@ class UserDailyStatistics {
             if (!isFeatureEnabled) {
                 logger.info({
                     ...loggerInfo,
-                    msg: `sendDailyStatistics disabled for organization ${organizationId}`,
+                    msg: 'sendDailyStatistics disabled for organization',
+                    entityId: organizationId,
+                    entity: 'Organization',
                 })
                 continue
             }
@@ -114,7 +110,9 @@ class UserDailyStatistics {
             if (!organization) {
                 logger.info({
                     ...loggerInfo,
-                    msg: `cannot find organization by id: "${organizationId}"`,
+                    msg: 'cannot find organization by id"',
+                    entityId: organizationId,
+                    entity: 'Organization',
                 })
                 continue
             }
@@ -159,9 +157,10 @@ class UserDailyStatistics {
     async #getOrganizationStatisticsData (organizationId) {
         if (CACHE.has(organizationId)) {
             logger.info({
-                msg: `Data for organization "${organizationId}" was taken from the cache`,
-                taskId: this.#taskId,
+                msg: 'data for organization was taken from the cache',
                 data: { organizationId, userId: this.#userId, currentDate: this.#currentDate },
+                entityId: organizationId,
+                entity: 'Organization',
             })
             return CACHE.peek(organizationId)
         }
@@ -505,10 +504,10 @@ const formatMessageData = (userStatisticsData, currentDate, locale = conf.DEFAUL
     }
 }
 
-const sendDailyMessageToUserSafely = async (context, user, currentDate, taskId, organizationWhere = {}) => {
+const sendDailyMessageToUserSafely = async (context, user, currentDate, organizationWhere = {}) => {
     try {
-        logger.info({ msg: 'start sendDailyMessageToUser.', taskId, data: { currentDate, userId: user.id } })
-        const userStatistics = new UserDailyStatistics(user.id, currentDate, taskId)
+        logger.info({ msg: 'start sendDailyMessageToUser.', data: { currentDate, userId: user.id } })
+        const userStatistics = new UserDailyStatistics(user.id, currentDate)
         const statisticsData = await userStatistics.loadStatistics(organizationWhere)
         const organizationIds = userStatistics.getOrganizationIds()
 
@@ -519,7 +518,7 @@ const sendDailyMessageToUserSafely = async (context, user, currentDate, taskId, 
             && statisticsData.tickets.withoutEmployee.total < 1
 
         if (isEmptyStatistics) {
-            logger.info({ msg: 'The email was not sent because the statistics are empty.', taskId, data: { currentDate, userId: user.id } })
+            logger.info({ msg: 'the email was not sent because the statistics are empty.', data: { currentDate, userId: user.id } })
             return 'statistics-is-empty'
         }
 
@@ -555,9 +554,9 @@ const sendDailyMessageToUserSafely = async (context, user, currentDate, taskId, 
             },
         })
 
-        logger.info({ msg: 'The email has been sent.', taskId, data: { currentDate, userId: user.id, sendingResult } })
-    } catch (error) {
-        logger.error({ msg: 'Failed to send email', error, taskId, data: { currentDate, userId: user.id } })
+        logger.info({ msg: 'the email has been sent.', data: { currentDate, userId: user.id, sendingResult } })
+    } catch (err) {
+        logger.error({ msg: 'failed to send email', err, data: { currentDate, userId: user.id } })
     }
 }
 

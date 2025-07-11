@@ -12,7 +12,7 @@ const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
 const SERVER_URL = conf.SERVER_URL
 const JWT_ALG = 'gost34.10-2012'
 
-const logger = getLogger('sbbol/oauth2')
+const logger = getLogger('sbbol-oauth2')
 
 class SbbolOauth2Api {
     constructor ({ clientSecret, useExtendedConfig }) {
@@ -53,8 +53,8 @@ class SbbolOauth2Api {
         client.validateJWT = async (jwt, expectedAlg, required) => {
             try {
                 await _validateJWT.call(client, jwt, expectedAlg, required)
-            } catch (error) {
-                logger.error({ msg: 'JWT validation error', jwt, error })
+            } catch (err) {
+                logger.error({ msg: 'JWT validation error', err, data: { jwt } })
             }
             return { protected: jwtDecode(jwt, { header: true }), payload: jwtDecode(jwt) }
         }

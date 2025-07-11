@@ -13,7 +13,7 @@ const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
 
 const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'cancelOldInvoicesCronTask' } }
 
-const logger = getLogger('cancelOldInvoices')
+const logger = getLogger()
 
 async function cancelOldInvoices () {
     const someTimeAgo = dayjs().subtract(DAYS_TO_CANCEL_PUBLISHED_INVOICES, 'day').toISOString()

@@ -16,7 +16,7 @@ const { sendMessage, RemoteClient } = require('@condo/domains/notification/utils
 const TODAY = dayjs().format(DATE_FORMAT)
 const CHUNK_SIZE = 50
 
-const logger = getLogger('sendRemoteClientsUpgradeAppNotifications')
+const logger = getLogger()
 
 const makeMessageKey = (entityId, date) => `${date}:${entityId}`
 
@@ -54,7 +54,11 @@ const sendRemoteClientsUpgradeAppNotifications = async (where = {}) => {
     const remoteClientsCount = await RemoteClient.count(context, remoteClientWhere)
     let skip = 0, successCnt = 0
 
-    logger.info({ msg: 'Available obsolete remote clients:', remoteClientsCount, data: remoteClientWhere })
+    logger.info({
+        msg: 'available obsolete remote clients',
+        count: remoteClientsCount,
+        data: remoteClientWhere,
+    })
 
     if (!remoteClientsCount) return
 
@@ -75,7 +79,7 @@ const sendRemoteClientsUpgradeAppNotifications = async (where = {}) => {
         }
     }
 
-    logger.info({ msg: 'Notifications sent', successCnt, attempts: remoteClientsCount })
+    logger.info({ msg: 'notifications sent', data: { successCnt, attempts: remoteClientsCount } })
 }
 
 module.exports = {

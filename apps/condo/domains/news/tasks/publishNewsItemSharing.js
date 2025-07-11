@@ -1,5 +1,4 @@
 const get = require('lodash/get')
-const { v4 } = require('uuid')
 
 const { fetch } = require('@open-condo/keystone/fetch')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -11,14 +10,14 @@ const { STATUSES } = require('@condo/domains/news/constants/newsItemSharingStatu
 const { NewsItemSharing } = require('@condo/domains/news/utils/serverSchema')
 
 
-const logger = getLogger('publishNewsItemSharing')
+const logger = getLogger()
 
 const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'publishNewsItemSharing' } }
 
 const DEFAULT_TIMEOUT = 20 * 1000
 
 
-async function _publishNewsItemSharing (newsItem, newsItemSharing, taskId){
+async function _publishNewsItemSharing (newsItem, newsItemSharing){
     const { keystone: contextNewsItemSharing } = getSchemaCtx('NewsItemSharing')
 
     if (!newsItem || !newsItemSharing) {
@@ -80,7 +79,14 @@ async function _publishNewsItemSharing (newsItem, newsItemSharing, taskId){
             throw new Error('No publish url is provided')
         }
 
-        logger.info({ msg: 'newsSharing sending shared news item', taskId, newsItemId: newsItem.id, newsItemSharingId: newsItemSharing.id, publishUrl })
+        logger.info({
+            msg: 'newsSharing sending shared news item',
+            entityId: newsItem.id,
+            entity: 'NewsItem',
+            data: {
+                newsItemId: newsItem.id, newsItemSharingId: newsItemSharing.id, publishUrl,
+            },
+        })
 
         const properties = await find('Property', { organization: { id: organizationId }, deletedAt: null })
 
@@ -126,7 +132,7 @@ async function _publishNewsItemSharing (newsItem, newsItemSharing, taskId){
         if (response.status !== 200) {
             const parsedResponse = await response.json()
 
-            logger.error({ msg: 'newsSharing error: tried to publish, but failed', taskId, parsedResponse })
+            logger.error({ msg: 'newsSharing error: tried to publish, but failed', data: { parsedResponse } })
             await NewsItemSharing.update(contextNewsItemSharing, newsItemSharing.id, {
                 ...DV_SENDER,
                 status: STATUSES.ERROR,
@@ -141,7 +147,7 @@ async function _publishNewsItemSharing (newsItem, newsItemSharing, taskId){
             })
         }
     } catch (err) {
-        logger.error({ msg: 'newsSharing error: could not publish shared news item', taskId, err  })
+        logger.error({ msg: 'newsSharing error: could not publish shared news item', err  })
         await NewsItemSharing.update(contextNewsItemSharing, newsItemSharing.id, {
             ...DV_SENDER,
             status: STATUSES.ERROR,
@@ -156,12 +162,11 @@ async function _publishNewsItemSharing (newsItem, newsItemSharing, taskId){
  * @returns {Promise<void>}
  */
 async function publishNewsItemSharing (newsItemSharingId) {
-    const taskId = v4()
 
     const newsItemSharing = await getById('NewsItemSharing', newsItemSharingId)
     const newsItem = await getById('NewsItem', newsItemSharing.newsItem)
 
-    return await _publishNewsItemSharing(newsItem, newsItemSharing, taskId)
+    return await _publishNewsItemSharing(newsItem, newsItemSharing)
 }
 
 module.exports = createTask('publishNewsItemSharing', publishNewsItemSharing, 'low')

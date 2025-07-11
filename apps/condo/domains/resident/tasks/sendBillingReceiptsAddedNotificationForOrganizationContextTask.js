@@ -20,7 +20,7 @@ const { sendMessage } = require('@condo/domains/notification/utils/serverSchema'
 const { BILLING_CONTEXT_SYNCHRONIZATION_DATE, SEND_BILLING_RECEIPT_CHUNK_SIZE } = require('@condo/domains/resident/constants/constants')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 
-const logger = getLogger('sendNewBillingReceiptNotification')
+const logger = getLogger()
 const makeAccountKey = (...args) => args.map(value => `${value}`.trim().toLowerCase()).join(':')
 const getMessageTypeAndDebt = (toPay, toPayCharge) => {
     if (toPay <= 0) return { messageType: BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE, debt: 0 }
@@ -75,7 +75,7 @@ const prepareAndSendNotification = async (keystone, context, receipt, resident, 
         uniqKey: notificationKey,
         organization: organizationId && { id: organizationId },
     }
-    logger.info({ msg: 'New receipt push data', data: { messageData } })
+    logger.info({ msg: 'new receipt push data', data: { messageData } })
 
     const { isDuplicateMessage } = await sendMessage(keystone, messageData)
 
@@ -119,7 +119,7 @@ async function sendBillingReceiptsAddedNotificationForOrganizationContext (conte
         stats.rawReceiptsCount += rawReceipts.length
 
         if (!rawReceipts.length && !skip) {
-            logger.info({ msg: 'No new receipts were found for context', data: { contextId } })
+            logger.info({ msg: 'no new receipts were found for context', data: { contextId } })
             break
         }
 
@@ -211,7 +211,7 @@ async function processReceipts (keystone, context, receiptAccountData, consumers
 
 function logSummary (stats) {
     logger.info({ msg: 'sendBillingReceiptsAddedNotificationForOrganizationContext ends' })
-    logger.info({ msg: 'Sent billing receipts', data: stats })
+    logger.info({ msg: 'sent billing receipts', data: stats })
 }
 
 async function prepareReceiptsData (receipts, context) {
@@ -307,9 +307,9 @@ async function notifyConsumers (keystone, context, receipt, consumers, lastSendD
 
         if (isDuplicated) {
             duplicatedSentMessages++
-            logger.info({ msg: 'User did not get notification', data: { user: resident.user } })
+            logger.info({ msg: 'user did not get notification', data: { user: resident.user } })
         } else {
-            logger.info({ msg: 'User got notification', data: { user: resident.user } })
+            logger.info({ msg: 'user got notification', data: { user: resident.user } })
             successSentMessages++
         }
 

@@ -13,7 +13,7 @@ const { SBBOL_FINGERPRINT_NAME } = require('../../integrations/sbbol/constants')
 const { OrganizationEmployeeRole } = require('./index')
 
 
-const logger = getLogger('sales_crm')
+const logger = getLogger('sales-crm')
 const SALES_CRM_WEBHOOKS_URL = (conf.SALES_CRM_WEBHOOKS_URL) ? JSON.parse(conf.SALES_CRM_WEBHOOKS_URL) : null
 if (SALES_CRM_WEBHOOKS_URL && !SALES_CRM_WEBHOOKS_URL.organizations) {
     throw new Error('Wrong SALES_CRM_WEBHOOKS_URL value')
@@ -89,8 +89,8 @@ async function pushOrganizationToSalesCRM (organization) {
         }
         await axios.post(SALES_CRM_WEBHOOKS_URL.organizations, data)
         logger.info({ msg: 'Posted data to sales CRM', url: SALES_CRM_WEBHOOKS_URL.organizations, data })
-    } catch (error) {
-        logger.warn({ msg: 'Request to sales crm failed', error })
+    } catch (err) {
+        logger.warn({ msg: 'Request to sales crm failed', err })
     }
 }
 

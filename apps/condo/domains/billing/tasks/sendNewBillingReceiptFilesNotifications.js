@@ -14,7 +14,7 @@ const { sendMessage } = require('@condo/domains/notification/utils/serverSchema'
 const BILLING_RECEIPT_FIELDS = 'id account { unitName unitType } property { id addressKey } file { id controlSum '
     + 'sensitiveDataFile { id filename originalFilename publicUrl mimetype } '
     + 'publicDataFile { id filename originalFilename publicUrl mimetype } }'
-const logger = getLogger('sendNewBillingReceiptFilesNotifications')
+const logger = getLogger()
 const fileAdapter = new FileAdapter(BILLING_RECEIPT_FILE_FOLDER_NAME)
 
 async function prepareAttachments (files) {
@@ -155,10 +155,10 @@ async function sendNewBillingReceiptFilesNotifications ({ organizationId, organi
                 },
                 sender,
             })
-        } catch (error) {
+        } catch (err) {
             logger.error({
-                msg: `Failed to send message to ${email}`,
-                error,
+                msg: 'failed to send message',
+                err,
             })
         }
         notificationsSent++

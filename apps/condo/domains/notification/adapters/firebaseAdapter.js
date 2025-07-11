@@ -21,7 +21,7 @@ const DEFAULT_PUSH_SETTINGS = {
 }
 const HIGH_PRIORITY_SETTINGS = { android: { priority: 'high' } }
 
-const logger = getLogger('firebaseAdapter')
+const logger = getLogger()
 
 /**
  * Send push notification to pushToken via app, configured by FIREBASE_CONFIG in .helm (.env)
@@ -39,7 +39,7 @@ class FirebaseAdapter {
             this.app = admin.initializeApp({ credential: admin.credential.cert(config) })
         } catch (error) {
             // For CI/local tests config is useless because of emulation via FAKE tokens
-            logger.error({ msg: 'FirebaseAdapter error', error })
+            logger.error({ msg: 'FirebaseAdapter error', err: error })
         }
 
         this.projectId = get(config, 'project_id', null)
@@ -229,7 +229,7 @@ class FirebaseAdapter {
 
                 result = FirebaseAdapter.injectFakeResults(fbResult, fakeNotifications)
             } catch (error) {
-                logger.error({ msg: 'sendNotification error', error })
+                logger.error({ msg: 'sendNotification error', err: error })
 
                 result = { state: 'error', error }
             }

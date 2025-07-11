@@ -13,7 +13,7 @@ const { B2BAppRole } = require('@condo/domains/miniapp/utils/serverSchema')
 const CHUNK_SIZE = 100
 const SENDER = { dv: 1, fingerprint: 'update-b2b-app-roles-permissions-task' }
 
-const logger = getLogger('miniapp/tasks/updateB2BAppRolesPermissions')
+const logger = getLogger()
 
 async function updateB2BAppRolesPermissions (appId, oldKey, newKey) {
     if (!appId || (!oldKey && !newKey)) {
@@ -37,7 +37,14 @@ async function updateB2BAppRolesPermissions (appId, oldKey, newKey) {
 
     // Soft-deletion case
     if (!newKey) {
-        logger.info({ msg: 'Deleting permission from existing B2BAppRoles', appId, key: oldKey })
+        logger.info({
+            msg: 'deleting permission from existing B2BAppRoles',
+            entityId: appId,
+            entity: 'B2BApp',
+            data: {
+                key: oldKey,
+            },
+        })
         payload = existingManagingRoles
             .concat(existingNonManagingRoles)
             .map(role => ({
@@ -50,7 +57,14 @@ async function updateB2BAppRolesPermissions (appId, oldKey, newKey) {
             }))
     // Adding new permission
     } else if (!oldKey) {
-        logger.info({ msg: 'Adding new permission to existing B2BAppRoles', appId, key: newKey })
+        logger.info({
+            msg: 'adding new permission to existing B2BAppRoles',
+            entityId: appId,
+            entity: 'B2BApp',
+            data: {
+                key: newKey,
+            },
+        })
         const managingPayload = existingManagingRoles.map(role => ({
             id: role.id,
             data: {
@@ -70,7 +84,15 @@ async function updateB2BAppRolesPermissions (appId, oldKey, newKey) {
         payload = managingPayload.concat(nonManagingPayload)
     // Key rename
     } else {
-        logger.info({ msg: 'Rename permission key in existing B2BAppRoles', appId, oldKey, newKey })
+        logger.info({
+            msg: 'rename permission key in existing B2BAppRoles',
+            entityId: appId,
+            entity: 'B2BApp',
+            data: {
+                oldKey,
+                newKey,
+            },
+        })
         payload = existingManagingRoles
             .concat(existingNonManagingRoles)
             .map(role => ({
@@ -90,7 +112,15 @@ async function updateB2BAppRolesPermissions (appId, oldKey, newKey) {
     for (const chunkData of chunks) {
         const modified = await B2BAppRole.updateMany(context, chunkData)
         modifiedItems += modified.length
-        logger.info({ msg: `${modifiedItems}/${totalItems} roles updated`, appId })
+        logger.info({
+            msg: 'roles updated',
+            count: modifiedItems,
+            entityId: appId,
+            entity: 'B2BApp',
+            data: {
+                total: totalItems,
+            },
+        })
     }
 }
 

@@ -29,9 +29,8 @@ const _internalSendHashedResidentPhonesService = new GQLCustomSchema('_internalS
             schema: '_internalSendHashedResidentPhones(data: _internalSendHashedResidentPhonesInput!): _internalSendHashedResidentPhonesOutput',
             resolver: async (parent, args, context) => {
                 const userId = get(context, ['authedItem', 'id'])
-                const taskId = uuid()
 
-                await sendHashedResidentPhonesTask.delay(userId, taskId)
+                const { id: taskId } = await sendHashedResidentPhonesTask.delay(userId)
 
                 return {
                     taskId,

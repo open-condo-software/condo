@@ -40,7 +40,7 @@ const SLEEP_TIMEOUT = conf.WORKER_BATCH_OPERATIONS_SLEEP_TIMEOUT || 200
 
 const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'importBankTransactions' } }
 
-const logger = getLogger('importBankTransactions')
+const logger = getLogger()
 
 async function throwErrorAndSetErrorStatusToTask (context, task, errorMessage) {
     const { meta } = task
@@ -62,14 +62,14 @@ const BANK_ACCOUNT_FIELDS = 'id property { id } integrationContext { id enabled 
  * @param taskId
  * @returns {Promise<{integrationContext, transactions: *[], account: *}>}
  */
-const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
-    if (!taskId) throw new Error('taskId is undefined')
+const importBankTransactionsFrom1CClientBankExchange = async (bankSyncTaskId) => {
+    if (!bankSyncTaskId) throw new Error('taskId is undefined')
     const { keystone: context } = getSchemaCtx('BankSyncTask')
-    let task = await BankSyncTask.getOne(context, { id: taskId },
+    let task = await BankSyncTask.getOne(context, { id: bankSyncTaskId },
         'id meta status account { id } integrationContext { id } organization { id } property { id } file { id originalFilename publicUrl mimetype }'
     )
     if (!task) {
-        throw new Error(`Cannot find BankSyncTask by id="${taskId}"`)
+        throw new Error(`Cannot find BankSyncTask by id="${bankSyncTaskId}"`)
     }
     const integration = await BankIntegration.getOne(context, { id: BANK_INTEGRATION_IDS['1CClientBankExchange'] })
     if (!integration) {
@@ -229,7 +229,7 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
     if (!task.integrationContext) {
         taskUpdatePayload.integrationContext = { connect: { id: integrationContext.id } }
     }
-    await BankSyncTask.update(context, taskId, taskUpdatePayload)
+    await BankSyncTask.update(context, bankSyncTaskId, taskUpdatePayload)
 
     let lastProgress = Date.now()
     const transactions = []
@@ -238,10 +238,15 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
     for (let i = 0; i < bankTransactionsData.length; i++) {
 
         // User can cancel the task at any time, in this all operations should be stopped
-        task = await BankSyncTask.getOne(context, { id: taskId }, 'id status')
+        task = await BankSyncTask.getOne(context, { id: bankSyncTaskId }, 'id status')
         const taskStatus = get(task, 'status')
         if (!task || taskStatus !== TASK_PROCESSING_STATUS) {
-            logger.info({ msg: 'status != processing. Aborting processing bank transactions loop', taskStatus, taskSchemaName: BankSyncTask.gql.SINGULAR_FORM, taskId })
+            logger.info({
+                msg: 'status != processing. Aborting processing bank transactions loop',
+                data: { taskStatus, taskSchemaName: BankSyncTask.gql.SINGULAR_FORM },
+                entityId: bankSyncTaskId,
+                entity: 'BankSyncTask',
+            })
             return
         }
 
@@ -310,7 +315,7 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
 
         if (Date.now() - lastProgress > TASK_PROGRESS_UPDATE_INTERVAL) {
             lastProgress = Date.now()
-            task = await BankSyncTask.update(context, taskId, {
+            task = await BankSyncTask.update(context, bankSyncTaskId, {
                 ...DV_SENDER,
                 processedCount: i,
             })
@@ -321,7 +326,7 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
 
     if (isEmpty(transactions) && !isEmpty(duplicatedTransactions)) {
         logger.error({ msg: TRANSACTIONS_NOT_ADDED.message })
-        await BankSyncTask.update(context, taskId, {
+        await BankSyncTask.update(context, bankSyncTaskId, {
             ...DV_SENDER,
             status: TASK_ERROR_STATUS,
             meta: {
@@ -333,7 +338,7 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
         throw new Error(TRANSACTIONS_NOT_ADDED.message)
     }
 
-    await BankSyncTask.update(context, taskId, {
+    await BankSyncTask.update(context, bankSyncTaskId, {
         ...DV_SENDER,
         processedCount: transactions.length,
         status: TASK_COMPLETED_STATUS,

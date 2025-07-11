@@ -1,7 +1,6 @@
 const dayjs = require('dayjs')
 const get = require('lodash/get')
 const truncate = require('lodash/truncate')
-const { v4: uuid } = require('uuid')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -18,7 +17,7 @@ const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
 const { generateUniqueMessageKey } = require('./notifyResidentsAboutNewsItem.helpers')
 
-const logger = getLogger('notifyResidentsAboutNewsItem')
+const logger = getLogger()
 
 const REDIS_GUARD = new RedisGuard()
 const action = 'notifyResidentsAboutNewsItem'
@@ -52,8 +51,8 @@ function checkSendingPossibility (newsItem) {
  * @param {string} taskId
  * @returns {Promise<void>}
  */
-async function sendNotifications (newsItem, taskId) {
-    logger.info({ msg: 'Data of news item for sending', taskId, data: { newsItem } })
+async function sendNotifications (newsItem) {
+    logger.info({ msg: 'data of news item for sending', data: { newsItem } })
 
     checkSendingPossibility(newsItem)
 
@@ -115,11 +114,10 @@ async function sendNotifications (newsItem, taskId) {
                 },
                 uniqKey: generateUniqueMessageKey(resident.user.id, newsItem.id),
             })
-        } catch (error) {
+        } catch (err) {
             logger.error({
                 msg: 'failed to send message to a resident',
-                error,
-                taskId,
+                err,
                 data: { newsItemId: get(newsItem, 'id'), residentId: get(resident, 'id') },
             })
         }
@@ -156,8 +154,6 @@ async function sendNotifications (newsItem, taskId) {
  * @returns {Promise<void|string>}
  */
 async function notifyResidentsAboutNewsItem (newsItemId) {
-    const taskId = this?.taskId || uuid()
-
     try {
         // TODO(pahaz): isLocked doesn't work well ...
         const isLocked = await REDIS_GUARD.isLocked(newsItemId, action)
@@ -177,17 +173,16 @@ async function notifyResidentsAboutNewsItem (newsItemId) {
             'validBefore publishedAt updatedAt createdAt deletedAt sentAt isPublished sendAt'
         )
 
-        await sendNotifications(newsItem, taskId)
+        await sendNotifications(newsItem)
 
         await REDIS_GUARD.unlock(newsItemId, action)
-    } catch (error) {
+    } catch (err) {
         logger.error({
             msg: 'failed to send news to residents',
-            error,
-            taskId,
+            err,
             data: { newsItemId },
         })
-        throw error
+        throw err
     }
 }
 

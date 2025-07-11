@@ -6,7 +6,7 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const createConfiguration = require('./configuration')
 const { OIDCBearerTokenKeystonePatch } = require('./OIDCBearerTokenKeystonePatch')
 
-const logger = getLogger('OIDCMiddleware')
+const logger = getLogger()
 
 class OIDCMiddleware {
     prepareMiddleware ({ keystone }) {
@@ -106,15 +106,19 @@ class OIDCMiddleware {
                 const { prompt: { details } } = interactionDetails
                 if (details.missingOIDCScope) {
                     logger.warn({
-                        msg: 'OIDCInteraction addOIDCScope',
-                        missingOIDCScope: details.missingOIDCScope,
+                        msg: 'add OIDC scope',
+                        data: {
+                            missingOIDCScope: details.missingOIDCScope,
+                        },
                     })
                     grant.addOIDCScope(details.missingOIDCScope.join(' '))
                 }
                 if (details.missingOIDCClaims) {
                     logger.warn({
-                        msg: 'OIDCInteraction addOIDCClaims',
-                        missingOIDCClaims: details.missingOIDCClaims,
+                        msg: 'add OIDC claims',
+                        data: {
+                            missingOIDCClaims: details.missingOIDCClaims,
+                        },
                     })
                     grant.addOIDCClaims(details.missingOIDCClaims)
                 }
@@ -122,21 +126,21 @@ class OIDCMiddleware {
                     // eslint-disable-next-line no-restricted-syntax
                     for (const [indicator, scopes] of Object.entries(details.missingResourceScopes)) {
                         logger.warn({
-                            msg: 'OIDCInteraction addResourceScope ',
-                            indicator, scopes,
+                            msg: 'add resource scope ',
+                            data: { indicator, scopes },
                         })
 
                         grant.addResourceScope(indicator, scopes.join(' '))
                     }
                 }
 
-                logger.info({ msg: 'OIDCInteraction interactionFinished', data: interactionDetails, result })
+                logger.info({ msg: 'interaction finished', data: { data: interactionDetails, result } })
                 await provider.interactionFinished(req, res, result, { mergeWithLastSubmission: false })
-            } catch (error) {
-                logger.error({ msg: 'OIDCInteraction error', error })
+            } catch (err) {
+                logger.error({ msg: 'error', err })
                 return res.status(400).json({
                     error: 'invalid_request',
-                    error_description: error.toString(),
+                    error_description: err.toString(),
                 })
             }
         })

@@ -27,7 +27,7 @@ const { PROPERTY_MAP_JSON_FIELDS } = require('@condo/domains/property/gql')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 
-const logger = getLogger('exportNewsItemRecipients')
+const logger = getLogger()
 const dvAndSender = { dv: 1, sender: { dv: 1, fingerprint: TASK_WORKER_FINGERPRINT } }
 
 const buildExportFile = async ({ rows, locale }) => {
@@ -83,7 +83,11 @@ async function exportRecipients (taskId) {
         'scopes organization { id } user { id locale }'
     )
     if (!task) {
-        logger.error({ msg: `No task with id "${taskId}"` })
+        logger.error({
+            msg: 'No task with specified id',
+            entityId: taskId,
+            entity: 'NewsItemRecipientsExportTask',
+        })
         throw new Error(`No task with id "${taskId}"`)
     }
 
@@ -196,7 +200,12 @@ async function exportRecipients (taskId) {
 
     } catch (err) {
         await NewsItemRecipientsExportTask.update(context, taskId, { ...dvAndSender, status: ERROR })
-        logger.error({ message: 'Failed to export incidents', data: { id: taskId }, err })
+        logger.error({
+            message: 'failed to export incidents',
+            entityId: taskId,
+            entity: 'NewsItemRecipientsExportTask',
+            err,
+        })
         throw err
     }
 }

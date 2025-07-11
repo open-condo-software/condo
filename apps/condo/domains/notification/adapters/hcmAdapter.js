@@ -3,7 +3,6 @@ const { isEmpty, isObject, isNull, get, cloneDeep } = require('lodash')
 const conf = require('@open-condo/config')
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { safeFormatError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { getExecutionContext } = require('@open-condo/keystone/executionContext')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 
@@ -35,7 +34,7 @@ const DEFAULT_PUSH_SETTINGS = {}
 const CONFIG_VALIDATED_FIELDS = [APP_MASTER_KEY, APP_RESIDENT_KEY, `${APP_MASTER_KEY}.clientId`, `${APP_MASTER_KEY}.secret`, `${APP_RESIDENT_KEY}.clientId`, `${APP_RESIDENT_KEY}.secret`]
 const IS_LOCAL_ENV = conf.SERVER_URL.includes('localhost')
 
-const logger = getLogger('HCMAdapter')
+const logger = getLogger()
 
 /**
  * HCM is Huawei Cloud Messaging
@@ -61,7 +60,7 @@ class HCMAdapter {
 
             this.#configErrors.push(error)
             // For CI/local tests config is useless because of emulation via FAKE tokens
-            logger.error({ msg: 'HCMAdapter error', error })
+            logger.error({ msg: 'HCMAdapter error', err: error })
         }
     }
 
@@ -248,15 +247,18 @@ class HCMAdapter {
      * @returns {Promise<[boolean, {error: string}]|[boolean, (*&{pushContext: (*[]|{})})]>}
      */
     async sendNotification ({ notification, data, tokens, pushTypes, appIds } = {}) {
-        const executionContext = getExecutionContext()
-        const reqId = executionContext?.reqId
-        const taskId = executionContext?.taskId
 
         if (!tokens || isEmpty(tokens)) return [false, { error: 'No pushTokens available.' }]
 
         const [notifications, fakeNotifications, pushContext] = await HCMAdapter.prepareBatchData(notification, data, tokens, pushTypes)
         // TODO (@toplenboren) DOMA-10611 remove excessive logging
-        logger.info({ msg: 'sendNotification prepareBatchData done', args: { notification, data, tokens, pushTypes }, result: { notifications, fakeNotifications, pushContext }, reqId, taskId })
+        logger.info({
+            msg: 'sendNotification prepareBatchData done',
+            data: {
+                args: { notification, data, tokens, pushTypes },
+                result: { notifications, fakeNotifications, pushContext },
+            },
+        })
 
         let result
 
@@ -283,7 +285,7 @@ class HCMAdapter {
                 const notification = cloneDeep(notifications[idx])
 
                 // TODO (@toplenboren) DOMA-10611 remove excessive logging
-                logger.info({ msg: 'sendNotification processing notification', args: { notification }, reqId, taskId })
+                logger.info({ msg: 'sendNotification processing notification', data: { args: { notification } } })
 
                 const appType = HCMAdapter.getAppType(appIds, notification.token)
 
@@ -323,7 +325,13 @@ class HCMAdapter {
             }
 
             // TODO (@toplenboren) DOMA-10611 remove excessive logging
-            logger.info({ msg: 'sendNotification end', result: hcmResult, args: { notification, notifications, fakeNotifications, appIds }, reqId, taskId })
+            logger.info({
+                msg: 'sendNotification end',
+                data: {
+                    result: hcmResult,
+                    args: { notification, notifications, fakeNotifications, appIds },
+                },
+            })
 
             result = HCMAdapter.injectFakeResults(hcmResult, fakeNotifications, appIds)
         }

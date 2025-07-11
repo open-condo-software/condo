@@ -21,7 +21,7 @@ const { initSbbolFintechApi, initSbbolClientWithToken } = require('@condo/domain
 const { getAllAccessTokensByOrganization } = require('@condo/domains/organization/integrations/sbbol/utils/getAccessTokenForUser')
 
 
-const logger = getLogger('sbbol/SbbolSyncTransactions')
+const logger = getLogger('sbbol-sync-transactions')
 const isResponseProcessing = (response) => (get(response, 'error.cause', '') === SBBOL_ERRORS.STATEMENT_RESPONSE_PROCESSING)
 const dvSenderFieldsBankSyncTask = {
     dv: 1,
@@ -110,15 +110,22 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
             const receivedTransactions = get(response, 'data.transactions')
             const receivedSummary = get(summary, 'data.closingBalance.amount')
             if (!receivedTransactions || !receivedSummary) {
-                logger.error({ msg: 'Unsuccessful response to transaction request by state:', state: {
-                    bankAccount: bankAccount.number,
-                    statementDate,
-                    page,
-                },
-                responses: {
-                    transactions: response,
-                    summary,
-                } })
+                logger.error({
+                    msg: 'Unsuccessful response to transaction request by state:',
+                    entityId: organizationId,
+                    entity: 'Organization',
+                    data: {
+                        state: {
+                            bankAccount: bankAccount.number,
+                            statementDate,
+                            page,
+                        },
+                        responses: {
+                            transactions: response,
+                            summary,
+                        },
+                    },
+                })
             } else {
                 transactions.push(...receivedTransactions)
             }
@@ -281,7 +288,14 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                             currencyCode,
                             ...dvSenderFields,
                         })
-                        logger.info({ msg: `BankContractorAccount instance created with id: ${bankContractorAccount.id}` })
+                        logger.info({
+                            msg: `BankContractorAccount instance created ${bankContractorAccount.id}`,
+                            entityId: organizationId,
+                            entity: 'Organization',
+                            data: {
+                                bankContractorAccountId: bankContractorAccount.id,
+                            },
+                        })
                     }
                 }
 
@@ -294,7 +308,12 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                             isOutcome: transactionAttrs.isOutcome,
                         })
                     } catch (err) {
-                        logger.error({ msg: 'Can\'t get costItem from classification service', err })
+                        logger.error({
+                            msg: 'cannot get costItem from classification service',
+                            entityId: organizationId,
+                            entity: 'Organization',
+                            err,
+                        })
                     }
                     const createdTransaction = await BankTransaction.create(context, {
                         organization: { connect: { id: organizationId } },
@@ -306,11 +325,25 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                         ...transactionAttrs,
                         ...dvSenderFields,
                     })
-                    logger.info({ msg: `BankTransaction instance created with id: ${createdTransaction.id}` })
+                    logger.info({
+                        msg: 'BankTransaction instance created',
+                        entityId: organizationId,
+                        entity: 'Organization',
+                        data: {
+                            bankTransactionId: createdTransaction.id,
+                        },
+                    })
                 }
 
             } else {
-                logger.warn({ msg: 'Not supported currency of BankTransaction from SBBOL. It will not be saved.', transaction })
+                logger.warn({
+                    msg: 'not supported currency of BankTransaction from SBBOL. It will not be saved.',
+                    entityId: organizationId,
+                    entity: 'Organization',
+                    data: {
+                        transaction,
+                    },
+                })
             }
         }
     }
@@ -326,9 +359,21 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
  * @returns {Promise<Transaction[]>}
  */
 async function requestTransactions ({ dateInterval, userId, organization, bankSyncTaskId }) {
-    if (!uuidValidate(userId)) return logger.error(`passed userId is not a valid uuid. userId: ${userId}`)
+    if (!uuidValidate(userId)) return logger.error({
+        msg:'passed userId is not a valid uuid',
+        entityId: organization.id,
+        entity: 'Organization',
+        data: {
+            userId,
+        },
+    })
     if (!dateInterval) return logger.error('dateInterval is required')
-    if (bankSyncTaskId && !uuidValidate(bankSyncTaskId)) return logger.error(`passed bankSyncTaskId is not a valid uuid. bankSyncTaskId: ${bankSyncTaskId}`)
+    if (bankSyncTaskId && !uuidValidate(bankSyncTaskId)) return logger.error({
+        msg: 'passed bankSyncTaskId is not a valid uuid',
+        data: {
+            bankSyncTaskId,
+        },
+    })
 
     const { keystone: context } = getSchemaCtx('Organization')
     const today = dayjs().format('YYYY-MM-DD')

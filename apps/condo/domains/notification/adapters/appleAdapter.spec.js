@@ -29,7 +29,9 @@ const APPLE_TEST_VOIP_PUSHTOKEN = conf[APPLE_CONFIG_TEST_VOIP_PUSHTOKEN_ENV] || 
 
 
 jest.mock('@open-condo/config',  () => {
+    const actual = jest.requireActual('@open-condo/config')
     return {
+        ...actual,
         APPS_WITH_DISABLED_NOTIFICATIONS: '["condo.app.clients"]',
     }
 })

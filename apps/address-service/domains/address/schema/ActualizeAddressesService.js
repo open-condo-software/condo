@@ -13,7 +13,7 @@ const { DADATA_PROVIDER, GOOGLE_PROVIDER } = require('@address-service/domains/c
 const { generateAddressKey } = require('@address-service/domains/common/utils/addressKeyUtils')
 const { DadataSuggestionProvider } = require('@address-service/domains/common/utils/services/suggest/providers')
 
-const logger = getLogger('ActualizeAddressesService')
+const logger = getLogger()
 
 const ActualizeAddressesService = new GQLCustomSchema('ActualizeAddressesService', {
     types: [
@@ -133,10 +133,10 @@ const ActualizeAddressesService = new GQLCustomSchema('ActualizeAddressesService
                         continue
                     }
 
-                    logger.info({ msg: 'Actualize address', data: dataForLog })
+                    logger.info({ msg: 'actualize address', data: dataForLog })
                 }
 
-                logger.info({ msg: 'Actualize address result', data: { successIds, failures } })
+                logger.info({ msg: 'actualize address result', data: { successIds, failures } })
                 return { successIds, failures }
             },
         },

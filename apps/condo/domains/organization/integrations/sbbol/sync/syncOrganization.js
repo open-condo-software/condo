@@ -13,7 +13,7 @@ const { Organization, OrganizationEmployee, OrganizationEmployeeRole } = require
 const { createConfirmedEmployee } = require('@condo/domains/organization/utils/serverSchema/Organization')
 
 
-const logger = getLogger('sbbol/syncOrganization')
+const logger = getLogger('sbbol-sync-organization')
 
 const CUSTOMER_EMAIL = conf.NOTIFY_ABOUT_NEW_ORGANIZATION_EMAIL
 
@@ -105,9 +105,11 @@ const syncOrganization = async ({ context, user, userData, organizationInfo, dvS
             }, 'id tin', { first: 1 })
             if (existingOrganizationWithoutUser) {
                 logger.info({
-                    msg: 'Found existed organization with same tin without user',
-                    tin: existingOrganizationWithoutUser?.tin,
-                    organizationId: existingOrganizationWithoutUser?.id,
+                    msg: 'found existed organization with same tin without user',
+                    data: {
+                        tin: existingOrganizationWithoutUser?.tin,
+                        organizationId: existingOrganizationWithoutUser?.id,
+                    },
                 })
             }
             

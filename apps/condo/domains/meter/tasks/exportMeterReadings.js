@@ -22,7 +22,7 @@ const { loadMeterReadingsForExcelExport, MeterResource, MeterReadingSource } = r
 const BASE_ATTRIBUTES = { dv: 1, sender: { dv: 1, fingerprint: TASK_WORKER_FINGERPRINT } }
 const DATE_FORMAT = 'DD.MM.YYYY'
 
-const taskLogger = getLogger('exportMeterReadings')
+const taskLogger = getLogger()
 
 const formatDate = (date, timeZone, format = DATE_FORMAT) => {
     return dayjs(date).tz(timeZone).format(format)
@@ -101,7 +101,9 @@ async function exportMeterReadings (taskId) {
     const task = await MeterReadingExportTask.getOne(context, { id: taskId }, 'id timeZone format where sortBy locale')
     if (!task) {
         taskLogger.error({
-            msg: `No task with id "${taskId}"`,
+            msg: 'No task with specified id',
+            entityId: taskId,
+            entity: 'MeterReadingExportTask',
         })
         throw new Error(`No task with id "${taskId}"`)
     }
@@ -179,7 +181,8 @@ async function exportMeterReadings (taskId) {
 
         taskLogger.error({
             msg: 'Failed to export meter readings',
-            data: { id: taskId },
+            entityId: taskId,
+            entity: 'MeterReadingExportTask',
             err,
         })
 

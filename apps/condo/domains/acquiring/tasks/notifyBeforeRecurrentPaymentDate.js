@@ -1,5 +1,4 @@
 const dayjs = require('dayjs')
-const { v4: uuid } = require('uuid')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
@@ -18,7 +17,7 @@ const {
 } = require('@condo/domains/acquiring/utils/taskSchema')
 const { processArrayOf } = require('@condo/domains/common/utils/parallel')
 
-const logger = getLogger('recurrent-payment-context-notification')
+const logger = getLogger()
 
 async function notifyRecurrentPaymentContext (context, date, recurrentPaymentContext) {
     // prepare vars
@@ -56,8 +55,7 @@ async function notifyRecurrentPaymentContext (context, date, recurrentPaymentCon
 }
 
 async function notifyBeforeRecurrentPaymentDate () {
-    const taskId = this.id || uuid()
-    logger.info({ msg: 'Start processing recurrent payment notifications tasks', taskId })
+    logger.info({ msg: 'start processing recurrent payment notifications tasks' })
 
     // prepare context
     const { keystone } = await getSchemaCtx('RecurrentPaymentContext')
@@ -71,7 +69,7 @@ async function notifyBeforeRecurrentPaymentDate () {
 
     // retrieve RecurrentPaymentContext page by page
     while (hasMorePages) {
-        logger.info({ msg: `Processing recurrent payment notification page #${Math.floor(offset / pageSize)}`, taskId })
+        logger.info({ msg: 'processing recurrent payment notification page', data: { page: Math.floor(offset / pageSize) } })
 
         // get page (can be empty)
         const page = await getAllReadyToPayRecurrentPaymentContexts(context, tomorrowDate, pageSize, offset)
@@ -81,14 +79,14 @@ async function notifyBeforeRecurrentPaymentDate () {
             try {
                 await notifyRecurrentPaymentContext(context, tomorrowDate, recurrentPaymentContext)
             } catch (err) {
-                logger.error({ msg: 'Process recurrent payment notification error', err, taskId })
+                logger.error({ msg: 'process recurrent payment notification error', err })
             }
         })
 
         hasMorePages = page.length > 0
         offset += pageSize
     }
-    logger.info({ msg: 'End processing recurrent payment notifications', taskId })
+    logger.info({ msg: 'end processing recurrent payment notifications' })
 }
 
 module.exports = {

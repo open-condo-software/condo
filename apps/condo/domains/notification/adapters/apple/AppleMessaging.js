@@ -16,7 +16,7 @@ const {
     RETRY_RESTRICTION,
 } = require('./constants')
 
-const logger = getLogger('AppleMessaging')
+const logger = getLogger()
 
 class AppleMessaging {
     #token = null
@@ -49,7 +49,7 @@ class AppleMessaging {
                     try {
                         data = JSON.parse(json)
                     } catch (error) {
-                        logger.error({ msg: 'response JSON parse error', err: error, headers, json })
+                        logger.error({ msg: 'response JSON parse error', err: error, data: { headers, json } })
                         data = { error }
                     }
                 }
@@ -72,7 +72,7 @@ class AppleMessaging {
                     const errorContents = {
                         msg: `Remote server responded with error code ${status}`,
                         err: error,
-                        payload: JSON.stringify( payload, null, 2),
+                        data: payload,
                     }
 
                     logger.error(errorContents)
@@ -126,13 +126,13 @@ class AppleMessaging {
                 if (options.type === APS_PUSH_TYPE_VOIP) headers['apns-topic'] = `${options.appId}.voip`
             }
 
-            logger.info({ msg: 'sendPush before request', headers, options, payload })
+            logger.info({ msg: 'sendPush before request', data: { headers, options, payload } })
 
             const stream = this.#session.request(headers)
 
             stream.on('response', this.getResponseHandler(stream, resolve, reject))
             stream.on('error', (err) => {
-                logger.error({ msg: 'sendPush errored', headers, options, payload, err })
+                logger.error({ msg: 'sendPush errored', err, data: { headers, options, payload } })
                 return resolve(err)
             })
             stream.write(buffer)
@@ -166,7 +166,11 @@ class AppleMessaging {
             for (let retryCounter = 0; retryCounter < RETRY_RESTRICTION; retryCounter++) {
                 response = await this.sendPush(token, payload, options)
                 if (response instanceof Error) {
-                    logger.warn({ msg: `sendPush not successful on ${retryCounter + 1} try`, err: response })
+                    logger.warn({
+                        msg: 'sendPush was not successful',
+                        count: retryCounter + 1,
+                        err: response,
+                    })
                     continue
                 }
                 break

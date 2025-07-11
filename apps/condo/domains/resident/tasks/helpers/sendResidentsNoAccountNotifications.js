@@ -20,7 +20,7 @@ const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/ser
 const CATEGORY_ID = '928c97ef-5289-4daa-b80e-4b9fed50c629' // billing.category.housing.name
 const INVALID_CONTEXT_PROVIDED_ERROR = 'Provided context is not in finished status, invalid or skipped.'
 
-const logger = getLogger('sendResidentsNoAccountNotifications')
+const logger = getLogger()
 
 const makeMessageKey = (period, propertyId, residentId) => `${period}:${propertyId}:${residentId}`
 
@@ -141,14 +141,18 @@ const sendResidentsNoAccountNotificationsForContext = async (billingContext, rec
         const residentsCount = await Resident.count(context, residentsWhere )
 
         logger.info({
-            msg: 'Found data for property',
-            address: billingProperty.address,
-            receiptsCount,
-            propertyId: billingProperty.id,
-            accountsCount: accounts.length,
-            serviceConsumersCount: serviceConsumers.length,
-            residentsWithServiceConsumerCount: scResidentIds.length,
-            residentsCount,
+            msg: 'found data for property',
+            entityId: billingProperty.id,
+            entity: 'BillingProperty',
+            data: {
+                address: billingProperty.address,
+                receiptsCount,
+                accountsCount: accounts.length,
+                serviceConsumersCount: serviceConsumers.length,
+                residentsWithServiceConsumerCount: scResidentIds.length,
+                residentsCount,
+            },
+
         })
 
         if (residentsCount < 1) continue
@@ -181,7 +185,7 @@ const sendResidentsNoAccountNotificationsForContext = async (billingContext, rec
         }
     }
 
-    logger.info({ msg: 'Notifications sent', successCount, attemptsCount, processedCount })
+    logger.info({ msg: 'notifications sent', count: successCount, data: { successCount, attemptsCount, processedCount } })
 
     return { successCount, attemptsCount, processedCount }
 }
@@ -212,16 +216,27 @@ const sendResidentsNoAccountNotificationsForPeriod = async (period, billingConte
 
     if (isEmpty(billingContexts) || isEmpty(billingContexts[0])) throw new Error(INVALID_CONTEXT_PROVIDED_ERROR)
 
-    logger.info({ msg: 'Billing context proceed', billingContextsCount: billingContexts.length, requestPeriod, billingContextId })
+    logger.info({
+        msg: 'billing context proceed',
+        count: billingContexts.length,
+        entityId: billingContextId,
+        entity: 'BillingIntegrationOrganizationContext',
+        data: {
+            requestPeriod,
+        },
+    })
 
     let totalSuccessCount = 0, totalAttemptsCount = 0, totalProcessedCount = 0
 
     for (const billingContext of billingContexts) {
         if (billingContext.integration.skipNoAccountNotifications) {
             logger.info({
-                msg: 'Skipping billing context due to enabled integration skipNoAccountNotifications flag',
-                integrationId: billingContext.integration.id,
-                contextId: billingContext.id,
+                msg: 'skipping billing context due to enabled integration skipNoAccountNotifications flag',
+                entityId: billingContext.id,
+                entity: 'BillingIntegrationOrganizationContext',
+                data: {
+                    integrationId: billingContext.integration.id,
+                },
             })
 
             continue
@@ -237,7 +252,7 @@ const sendResidentsNoAccountNotificationsForPeriod = async (period, billingConte
          */
         const storedLastDt = await redisClient.get(redisVarName)
 
-        logger.info({ msg: 'storedLastDt:', redisVarName, storedLastDt })
+        logger.info({ msg: 'storedLastDt', data: { key: redisVarName, value: storedLastDt } })
 
         const lastDt = resendFromDt ? resendFromDt.replace(' ', 'T') : storedLastDt || thisMonthStart
 
@@ -248,7 +263,16 @@ const sendResidentsNoAccountNotificationsForPeriod = async (period, billingConte
             deletedAt: null,
         }
 
-        logger.info({ msg: 'processing', organizationId: billingContext.organization.id, billingContextId, receiptsWhere })
+        logger.info({
+            msg: 'processing',
+            data: {
+                organizationId: billingContext.organization.id,
+                receiptsWhere,
+            },
+            entityId: billingContextId,
+            entity: 'BillingIntegrationOrganizationContext',
+
+        })
 
         const { successCount, attemptsCount, processedCount } = await sendResidentsNoAccountNotificationsForContext(billingContext, receiptsWhere)
 
@@ -262,7 +286,7 @@ const sendResidentsNoAccountNotificationsForPeriod = async (period, billingConte
         await redisClient.set(redisVarName, today)
     }
 
-    logger.info({ msg: 'Total', totalSuccessCount, totalAttemptsCount, totalProcessedCount })
+    logger.info({ msg: 'total', count: totalSuccessCount, data: { totalSuccessCount, totalAttemptsCount, totalProcessedCount } })
 }
 
 /**

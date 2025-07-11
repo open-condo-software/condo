@@ -5,7 +5,7 @@ const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { createAdapterClass } = require('./adapter')
 
-const logger = getLogger('OIDCBearerTokenKeystonePatch')
+const logger = getLogger()
 
 function getOidcToken (req) {
     try {
@@ -24,8 +24,8 @@ function getOidcToken (req) {
         if (type !== 'Bearer' || token.length !== 43 || token.includes('.')) return
 
         return token
-    } catch (error) {
-        logger.error({ msg: 'getOidcToken error', error })
+    } catch (err) {
+        logger.error({ msg: 'getOidcToken error', err })
     }
 }
 
@@ -91,9 +91,9 @@ function OIDCBearerTokenKeystonePatch (app, context) {
                         req.sessionID = reqSessionID
                         return _end.call(res, chunk, encoding)
                     }
-                } catch (error) {
-                    logger.error({ msg: 'oidcBearerTokenPatchMiddleware error', error })
-                    throw error
+                } catch (err) {
+                    logger.error({ msg: 'oidcBearerTokenPatchMiddleware error', err })
+                    throw err
                 }
             }
         }

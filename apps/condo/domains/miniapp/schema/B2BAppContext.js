@@ -16,10 +16,15 @@ const { STATUS_FIELD, getStatusResolver, getStatusDescription } = require('@cond
 const { deleteB2BAppRoles } = require('@condo/domains/miniapp/tasks')
 const { B2BAppRole, B2BAccessToken } = require('@condo/domains/miniapp/utils/serverSchema')
 
-const logger = getLogger('miniapp/createDefaultB2BAppRoles')
+const logger = getLogger()
 
 async function createDefaultB2BAppRoles (appId, organizationId, sender, context) {
-    logger.info({ msg: 'Creating default B2BAppRoles for organization', organizationId, appId })
+    logger.info({
+        msg: 'creating default B2BAppRoles for organization',
+        data: { organizationId, appId },
+        entityId: organizationId,
+        entity: 'Organization',
+    })
     const permissions = await find('B2BAppPermission', {
         app: { id: appId },
         deletedAt: null,
@@ -34,7 +39,15 @@ async function createDefaultB2BAppRoles (appId, organizationId, sender, context)
         canManageB2BApps: true,
     })
     const organizationRolesIds = employeeRoles.map(role => role.id)
-    logger.info({ msg: `Found ${organizationRolesIds.length} organization roles with "canManageB2BApps" flag`, organizationId, appId, organizationRolesIds })
+    logger.info({
+        msg: 'found some organization roles with "canManageB2BApps" flag',
+        count: organizationRolesIds.length,
+        entityId: organizationId,
+        entity: 'Organization',
+        data: {
+            organizationId, appId, organizationRolesIds,
+        },
+    })
 
     const existingAppRoles = await find('B2BAppRole', {
         role: { id_in: organizationRolesIds },
@@ -47,7 +60,12 @@ async function createDefaultB2BAppRoles (appId, organizationId, sender, context)
         if (rolesToSkip.has(roleId)) {
             continue
         }
-        logger.info({ msg: `Creating default B2BAppRole for role ${roleId}`, organizationId, roleId, appId })
+        logger.info({
+            msg: 'creating default B2BAppRole for role',
+            entityId: organizationId,
+            entity: 'Organization',
+            data: { organizationId, roleId, appId },
+        })
         await B2BAppRole.create(context, {
             dv: 1,
             sender,

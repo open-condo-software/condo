@@ -21,7 +21,7 @@ const { sendMessage } = require('@condo/domains/notification/utils/serverSchema'
 const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
 const access = require('@condo/domains/user/access/SendMessageToSupportService')
 
-const logger = getLogger('SendMessageToSupportService')
+const logger = getLogger()
 
 const SUPPORT_EMAIL_MOBILE = conf['HELP_REQUISITES'] && get(JSON.parse(conf['HELP_REQUISITES']), 'support_email_mobile', null)
 if (!SUPPORT_EMAIL_MOBILE) logger.warn('No HELP_REQUISITES.support_email_mobile!')

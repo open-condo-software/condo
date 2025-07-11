@@ -170,7 +170,7 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
      * @returns {Promise<*|null>}
      */
     async callToDadata (url, body) {
-        this.logger.info({ msg: 'CallToDaData', url, data: body, reqId: this.req.id })
+        this.logger.info({ msg: 'api call', url, data: body, reqId: this.req.id })
 
         try {
             const result = await fetch(
@@ -202,9 +202,9 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
                  */
             }
 
-            this.logger.warn({ msg: 'CallToDaData error', status, url, data: body, reqId: this.req.id })
+            this.logger.warn({ msg: 'api call request error', status, url, data: body, reqId: this.req.id })
         } catch (err) {
-            this.logger.warn({ msg: 'CallToDaData failed to fetch', err, url, data: body, reqId: this.req.id })
+            this.logger.warn({ msg: 'api call network error', err, url, data: body, reqId: this.req.id })
         }
 
         return null

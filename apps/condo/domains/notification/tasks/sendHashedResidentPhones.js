@@ -23,29 +23,46 @@ const MARKETING_EMAIL = conf.MARKETING_EMAIL || null
 
 const REDIS_KEY = 'sendHashedResidentPhonesLastDate'
 
-const taskLogger = getLogger('sendHashedResidentPhones')
+const taskLogger = getLogger()
 const redisClient = getKVClient('sendHashedResidentPhones')
 
 
 // TODO(DOMA-9341): extract staff users phones
-async function sendHashedResidentPhones (userId, taskId) {
-    taskLogger.info({ msg: 'Start of sendHashedResidentPhones task execution', taskId, userId })
+async function sendHashedResidentPhones (userId) {
+    taskLogger.info({
+        msg: 'start of sendHashedResidentPhones task execution',
+        entityId: userId,
+        entity: 'User',
+    })
 
     if (!EMAIL_API_CONFIG) {
         const msg = 'no EMAIL_API_CONFIG'
-        taskLogger.error({ msg: 'no EMAIL_API_CONFIG', taskId, userId })
+        taskLogger.error({
+            msg: 'no EMAIL_API_CONFIG',
+            entityId: userId,
+            entity: 'User',
+        })
         throw new Error(msg)
     }
     if (!MARKETING_EMAIL) {
         const msg = 'no MARKETING_EMAIL'
-        taskLogger.error({ msg, taskId, userId })
+        taskLogger.error({
+            msg,
+            entityId: userId,
+            entity: 'User',
+        })
         throw new Error(msg)
     }
 
     const lastSyncDate = await redisClient.get(REDIS_KEY)
     if (!lastSyncDate) {
-        const msg = `No last date in redis. Please set the ${REDIS_KEY} key with date (for example, "set ${REDIS_KEY} ${dayjs().toISOString()}")`
-        taskLogger.error({ msg, taskId, userId })
+        // NOTE: keep message static
+        const msg = `No last date in redis. Please set the ${REDIS_KEY} key with date (for example, "set ${REDIS_KEY} 2025-07-10T13:10:49.799Z}")`
+        taskLogger.error({
+            msg,
+            entityId: userId,
+            entity: 'User',
+        })
         throw new Error(msg)
     }
 
@@ -74,16 +91,33 @@ async function sendHashedResidentPhones (userId, taskId) {
 
         stringifier.end()
 
-        taskLogger.info({ msg: 'Success load residents data', taskId, userId })
+        taskLogger.info({
+            msg: 'success load residents data',
+            entityId: userId,
+            entity: 'User',
+        })
 
         const stream = fs.createReadStream(filename, { encoding: 'utf8' })
         const status = await sendFileByEmail({ stream, filename, config: EMAIL_API_CONFIG, toEmail: MARKETING_EMAIL })
 
         await redisClient.set(REDIS_KEY, dayjs().toISOString())
 
-        taskLogger.info({ msg: 'File sent to email', taskId, status, toEmail: MARKETING_EMAIL, userId })
+        taskLogger.info({
+            msg: 'file sent to email',
+            status,
+            data: {
+                email: MARKETING_EMAIL,
+            },
+            entityId: userId,
+            entity: 'User',
+        })
     } catch (error) {
-        taskLogger.error({ msg: 'Error in sendHashedResidentPhones', error, taskId, userId })
+        taskLogger.error({
+            msg: 'error in sendHashedResidentPhones',
+            err: error,
+            entityId: userId,
+            entity: 'User',
+        })
     } finally {
         await rmfile(filename)
     }

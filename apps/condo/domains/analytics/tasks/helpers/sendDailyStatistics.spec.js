@@ -580,8 +580,8 @@ describe('sendDailyStatistics helpers', () => {
             setFeatureFlag(SEND_DAILY_STATISTICS_TASK, true)
             const currentDate = dayjs().toISOString()
             const { keystone: context } = getSchemaCtx('User')
-            await sendDailyMessageToUserSafely(context, { ...administratorClient.user, email: administratorClient.userAttrs.email }, currentDate, null)
-            await sendDailyMessageToUserSafely(context, { ...administratorClient.user, email: administratorClient.userAttrs.email }, currentDate, null)
+            await sendDailyMessageToUserSafely(context, { ...administratorClient.user, email: administratorClient.userAttrs.email }, currentDate)
+            await sendDailyMessageToUserSafely(context, { ...administratorClient.user, email: administratorClient.userAttrs.email }, currentDate)
 
             const uniqKey = `send_daily_statistics_${administratorClient.user.id}_${dayjs(currentDate).format('DD-MM-YYYY')}`
             let message = await Message.getOne(admin, { uniqKey })
@@ -647,7 +647,7 @@ describe('sendDailyStatistics helpers', () => {
             setFeatureFlag(SEND_DAILY_STATISTICS_TASK, true)
             const currentDate = dayjs().toISOString()
             const { keystone: context } = getSchemaCtx('User')
-            const res = await sendDailyMessageToUserSafely(context, { ...administratorClient.user, email: administratorClient.userAttrs.email }, currentDate, null)
+            const res = await sendDailyMessageToUserSafely(context, { ...administratorClient.user, email: administratorClient.userAttrs.email }, currentDate)
             expect(res).toBe('statistics-is-empty')
 
             const message = await Message.getOne(admin, {

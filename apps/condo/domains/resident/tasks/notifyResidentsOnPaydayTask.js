@@ -9,7 +9,7 @@ const { SEND_BILLING_RECEIPTS_ON_PAYDAY_REMAINDER_TASK } = require('@condo/domai
 const { notifyResidentsOnPayday } = require('./notifyResidentsOnPayday')
 
 
-const logger = getLogger('resident/notifyResidentsOnPaydayTask')
+const logger = getLogger()
 
 const notifyResidentsOnPaydayCronTask = createCronTask('notifyResidentsOnPaydayTask', '0 9 * * *', async (context = null) => {
     const isFeatureEnabled = await featureToggleManager.isFeatureEnabled(context, SEND_BILLING_RECEIPTS_ON_PAYDAY_REMAINDER_TASK)
@@ -34,7 +34,7 @@ const notifyResidentsOnPaydayCronTask = createCronTask('notifyResidentsOnPaydayT
     if (isTargetDayWeekendAndTodayIsFriday || isTargetDayWeekday) {
         return await notifyResidentsOnPayday()
     } else {
-        logger.info({ msg: 'Push should be sent only on weekdays.' })
+        logger.info({ msg: 'push should be sent only on weekdays.' })
     }
 })
 module.exports = {

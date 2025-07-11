@@ -19,13 +19,11 @@ const { Property } = require('@condo/domains/property/utils/serverSchema')
 const access = require('@condo/domains/resident/access/DiscoverServiceConsumersService')
 const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
 
-const { RESIDENT_FIELDS } = require('../gql')
-
 
 const MAX_RESIDENTS_COUNT_FOR_USER_PROPERTY = 6
 const BILLING_ACCOUNT_FIELDS = 'id unitName unitType number '
     + 'context { id organization { id type } } property { id address addressKey }'
-const logger = getLogger('DiscoverServiceConsumersMutation')
+const logger = getLogger()
 
 /**
  * @typedef {Object} BillingAccountData
@@ -112,8 +110,6 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                         },
                     }
                 }
-
-                const reqId = get(context, ['req', 'id'])
 
                 /**
                  * @type {BillingAccountData[]}
@@ -303,7 +299,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                             billingReceiptsIdsWithoutDuplicates.push(lastReceipt.account.id)
                         } else {
                             // It's impossible but must be logged :)
-                            logger.warn({ msg: 'Duplicated billing accounts without receipts', billingAccountsIds })
+                            logger.warn({ msg: 'duplicated billing accounts without receipts', data: { billingAccountsIds } })
                         }
                     }
                 }
@@ -572,10 +568,11 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
 
                 logger.info({
                     msg: 'DiscoverServiceConsumersService created ServiceConsumers',
-                    billingAccountsIds,
-                    statistics,
-                    data: discoveringSteps,
-                    reqId,
+                    data: {
+                        billingAccountsIds,
+                        statistics,
+                        data: discoveringSteps,
+                    },
                 })
 
                 return { status: 'success', statistics }

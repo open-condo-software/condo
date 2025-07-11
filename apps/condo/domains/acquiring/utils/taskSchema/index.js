@@ -61,7 +61,7 @@ const {
 const RETRY_COUNT = 5
 
 const dvAndSender = { dv: 1, sender: { dv: 1, fingerprint: 'recurrent-payment-queries' } }
-const logger = getLogger('recurrent-payment-processing-queries')
+const logger = getLogger()
 
 function getNotificationMetaByErrorCode (errorCode, recurrentPaymentContextId) {
     const errorCodeNotificationTypes = {
@@ -475,8 +475,8 @@ async function sendResultMessageSafely (context, recurrentPayment, success, erro
                 },
             },
         })
-    } catch (error) {
-        logger.error({ msg: 'sendMessage error', error })
+    } catch (err) {
+        logger.error({ msg: 'sendMessage error', err })
     }
 }
 
@@ -517,8 +517,8 @@ async function sendTomorrowPaymentNotificationSafely (context, recurrentPaymentC
                 },
             },
         })
-    } catch (error) {
-        logger.error({ msg: 'sendMessage error', error })
+    } catch (err) {
+        logger.error({ msg: 'sendMessage error', err })
     }
 }
 
@@ -554,8 +554,8 @@ async function sendTomorrowPaymentNoReceiptsNotificationSafely (context, recurre
                 },
             },
         })
-    } catch (error) {
-        logger.error({ msg: 'sendMessage error', error })
+    } catch (err) {
+        logger.error({ msg: 'sendMessage error', err })
     }
 }
 
@@ -593,8 +593,8 @@ async function sendTomorrowPaymentLimitExceedNotificationSafely (context, recurr
                 },
             },
         })
-    } catch (error) {
-        logger.error({ msg: 'sendMessage error', error })
+    } catch (err) {
+        logger.error({ msg: 'sendMessage error', err })
     }
 }
 
@@ -630,8 +630,8 @@ async function sendNoReceiptsToProceedNotificationSafely (context, recurrentPaym
                 },
             },
         })
-    } catch (error) {
-        logger.error({ msg: 'sendMessage error', error })
+    } catch (err) {
+        logger.error({ msg: 'sendMessage error', err })
     }
 }
 

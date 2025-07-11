@@ -1,5 +1,4 @@
 const dayjs = require('dayjs')
-const { v4: uuid } = require('uuid')
 
 const conf = require('@open-condo/config')
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
@@ -15,8 +14,7 @@ const { User } = require('@condo/domains/user/utils/serverSchema')
 const { sendDailyMessageToUserSafely } = require('./helpers/sendDailyStatistics')
 
 
-const appLogger = getLogger('condo')
-const logger = appLogger.child({ module: 'task/sendDailyStatistics' })
+const logger = getLogger()
 
 
 const IGNORED_EMAIL_MASKS_FOR_DAILY_STATISTICS = conf.IGNORED_EMAIL_MASKS_FOR_DAILY_STATISTICS
@@ -35,15 +33,14 @@ const IGNORED_EMAIL_MASKS_FOR_DAILY_STATISTICS = conf.IGNORED_EMAIL_MASKS_FOR_DA
  *  3) After that we form a letter (data for all user organizations at once) and send it to user email
  */
 const sendDailyStatistics = async () => {
-    const taskId = this.id || uuid()
     const currentDate = dayjs().toISOString()
 
     try {
-        logger.info({ msg: 'Start sendDailyStatistics', taskId, data: { currentDate } })
+        logger.info({ msg: 'start sendDailyStatistics', data: { currentDate } })
 
         const isFeatureEnabled = await featureToggleManager.isFeatureEnabled(null, RETENTION_LOOPS_ENABLED)
         if (!isFeatureEnabled) {
-            logger.info({ msg: 'sendDailyStatistics is disabled', taskId, data: { currentDate } })
+            logger.info({ msg: 'sendDailyStatistics is disabled', data: { currentDate } })
             return 'disabled'
         }
 
@@ -72,7 +69,7 @@ const sendDailyStatistics = async () => {
              */
             chunkProcessor: async (chunk) => {
                 for (const user of chunk) {
-                    await sendDailyMessageToUserSafely(context, user, currentDate, taskId, {
+                    await sendDailyMessageToUserSafely(context, user, currentDate, {
                         // We collect statistics only for organizations that were created more than a month ago.
                         createdAt_lte: dayjs(currentDate).subtract(1, 'month').toISOString(),
                     })
@@ -80,10 +77,10 @@ const sendDailyStatistics = async () => {
                 return []
             },
         })
-        logger.info({ msg: 'Successfully finished sendDailyStatistics', taskId, data: { currentDate } })
-    } catch (error) {
-        logger.error({ msg: 'Sending emails ended with an error', taskId, data: { currentDate } })
-        throw error
+        logger.info({ msg: 'successfully finished sendDailyStatistics', data: { currentDate } })
+    } catch (err) {
+        logger.error({ msg: 'sending emails ended with an error', data: { currentDate }, err })
+        throw err
     }
 }
 

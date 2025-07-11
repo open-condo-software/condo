@@ -5,8 +5,6 @@ const { getLogger } = require('@open-condo/keystone/logging')
 
 const isArrayEqual = (x, y) => isEmpty(xorWith(x, y, isEqual))
 
-const appLogger = getLogger('condo')
-
 class Resolver {
 
     constructor (billingContext, context, params = {}) {
@@ -23,12 +21,12 @@ class Resolver {
         this.unTouched = 0
         this.created = 0
         this.updated = 0
-        this.logger = appLogger.child({ module: 'register-billing-receipts' })
+        this.logger = getLogger()
     }
 
     error (error, index, errorDescription) {
         if (errorDescription) {
-            this.logger.error({ msg: `${this.name} internal error`, payload: { errorDescription } })
+            this.logger.error({ msg: `${this.name} internal error`, data: { errorDescription } })
         }
         return new GQLError({ ...error, inputIndex: index }, this.context)
     }
@@ -53,7 +51,7 @@ class Resolver {
             }
         }
         this.created++
-        this.logger.debug({ msg: `Create new ${this.name}`, payload: createInput })
+        this.logger.debug({ msg: `Create new ${this.name}`, data: createInput })
         return createInput
     }
 
@@ -77,7 +75,7 @@ class Resolver {
         }
         if (!isEmpty(updateInput)) {
             updateInput = { ...this.dvSender, ...updateInput }
-            this.logger.debug({ msg: `Update ${this.name}`, payload: { updateInput } })
+            this.logger.debug({ msg: `Update ${this.name}`, data: { updateInput } })
             this.updated++
         } else {
             this.unTouched++

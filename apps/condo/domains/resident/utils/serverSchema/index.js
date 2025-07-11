@@ -20,7 +20,7 @@ const { FIND_ORGANIZATIONS_BY_ADDRESS_QUERY } = require('@condo/domains/resident
 const { FIND_UNITS_BY_ADDRESS_MUTATION } = require('@condo/domains/resident/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
-const logger = getLogger('resident/serverSchema')
+const logger = getLogger()
 
 const Resident = generateServerUtils('Resident')
 
@@ -57,9 +57,7 @@ async function sendMessageToResidentScopes (context, data) {
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
 
-    const reqId = get(context, ['req', 'id'])
-
-    logger.info({ msg: 'sendMessageToResidentScopes', type: data.type, reqId })
+    logger.info({ msg: 'sendMessageToResidentScopes', type: data.type })
 
     const result = await execGqlWithoutAccess(context, {
         query: SEND_MESSAGE_TO_RESIDENT_SCOPES_MUTATION,

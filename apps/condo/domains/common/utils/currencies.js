@@ -1,6 +1,8 @@
 const { getLogger } = require('@open-condo/keystone/logging')
 const DEFAULT_NUMBER_OF_DECIMAL_PLACES = 2
 
+const logger = getLogger()
+
 /**
  * @param {string} locale
  * @param {string} currencyCode
@@ -16,8 +18,7 @@ function getCurrencyDecimalPlaces (locale, currencyCode) {
 
         return formattedCurrencyParts.formatToParts(1).find(part => part.type === 'fraction')?.value.length || 0
     } catch (err) {
-        const logger = getLogger('currencies')
-        logger.error({ msg: 'Cant get decimal places for currency', err, data: { locale, currencyCode } })
+        logger.error({ msg: 'cannot get decimal places for currency', err, data: { locale, currencyCode } })
 
         return DEFAULT_NUMBER_OF_DECIMAL_PLACES
     }

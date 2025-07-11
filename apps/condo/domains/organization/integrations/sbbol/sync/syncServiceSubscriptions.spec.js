@@ -121,7 +121,10 @@ describe('syncSubscriptions', () => {
             await syncServiceSubscriptions(tin)
 
             expect(mockWarn).lastCalledWith(
-                expect.objectContaining({ msg: 'Not found organization to sync ServiceSubscription for', tin } ),
+                expect.objectContaining({
+                    msg: 'not found organization to sync ServiceSubscription for',
+                    data: { tin },
+                }),
             )
 
             const updatedSubscriptions = await ServiceSubscription.getAll(adminClient, {
