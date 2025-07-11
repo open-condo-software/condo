@@ -2,7 +2,6 @@ const Ajv = require('ajv')
 const { omit, get } = require('lodash')
 const passport = require('passport')
 const { Strategy: GithubStrategy } = require('passport-github2')
-const { Strategy: OAuth2Strategy } = require('passport-oauth2')
 const { Strategy: OIDCStrategy } = require('passport-openidconnect')
 
 const conf = require('@open-condo/config')
@@ -37,6 +36,7 @@ const oidcConfigSchema = {
             isEmailTrusted: { type: 'boolean' },
             issuer: { type: 'string' },
         },
+        additionalProperties: false,
         required: [
             'authorizationURL',
             'tokenURL',
@@ -49,6 +49,7 @@ const oidcConfigSchema = {
             'isEmailTrusted',
             'issuer',
         ],
+
     },
 }
 const githubConfigSchema = {
@@ -60,6 +61,7 @@ const githubConfigSchema = {
         'name': { 'type': 'string' },
         'isEmailTrusted': { 'type': 'boolean' },
     },
+    additionalProperties: false,
     'required': [
         'clientId',
         'clientSecret',
@@ -70,131 +72,149 @@ const githubConfigSchema = {
 
 }
 
+
+/**
+ * Retrieves configuration flags for trusted contact methods.
+ * @param {object} config - The configuration object.
+ * @returns {{isPhoneTrusted: boolean, isEmailTrusted: boolean}}
+ */
+const getTrustedConfig = (config) => ({
+    isPhoneTrusted: get(config, 'isPhoneTrusted', false),
+    isEmailTrusted: get(config, 'isEmailTrusted', false),
+})
+
+/**
+ * Finds an existing user based on a verified contact method (phone or email).
+ * @param {object} context - The Keystone context.
+ * @param {object} searchCriteria - The base criteria for the user search.
+ * @param {string} contactInfo - The phone number or email address.
+ * @param {string} contactType - 'phone' or 'email'.
+ * @returns {Promise<object|null>} The existing user or null.
+ */
+const findExistingUserByVerifiedContact = async (context, searchCriteria, contactInfo, contactType) => {
+    const query = {
+        ...searchCriteria,
+        [contactType]: contactInfo,
+        [`is${contactType.charAt(0).toUpperCase() + contactType.slice(1)}Verified`]: true,
+    }
+    return User.getOne(context, query)
+}
+
+/**
+ * Creates a new user with the specified details.
+ * @param {object} context - The Keystone context.
+ * @param {object} baseUserData - The base data for creating a new user.
+ * @param {string} contactInfo - The phone number or email address.
+ * @param {string} contactType - 'phone' or 'email'.
+ * @param {boolean} isVerified - Whether the contact method is verified.
+ * @returns {Promise<object>} The newly created user.
+ */
+const createNewUser = async (context, baseUserData, contactInfo, contactType, isVerified) => {
+    const userData = {
+        ...baseUserData,
+        [contactType]: contactInfo,
+        [`is${contactType.charAt(0).toUpperCase() + contactType.slice(1)}Verified`]: isVerified,
+    }
+    return User.create(context, userData)
+}
+
+/**
+ * Handles the logic for finding or creating a user based on contact information.
+ * @param {object} context - The Keystone context.
+ * @param {object} userProfile - The user's profile data.
+ * @param {object} searchCriteria - The base criteria for user searches.
+ * @param {object} baseUserData - The base data for creating a new user.
+ * @param {boolean} isTrusted - Whether the contact method is trusted.
+ * @param {string} contactType - 'phone' or 'email'.
+ * @returns {Promise<object>} The found or created user.
+ */
+const findOrCreateUserByContact = async (context, userProfile, searchCriteria, baseUserData, isTrusted, contactType) => {
+    const contactInfo = userProfile[contactType]
+    if (!contactInfo) return null
+
+    if (isTrusted) {
+        const existingUser = await findExistingUserByVerifiedContact(context, searchCriteria, contactInfo, contactType)
+        if (existingUser) return existingUser
+        return createNewUser(context, baseUserData, contactInfo, contactType, true)
+    }
+
+    // For untrusted contacts, we don't search for an existing user and always create a new one.
+    return createNewUser(context, baseUserData, contactInfo, contactType, false)
+}
+
+/**
+ * Gets or creates a user and their external identity.
+ *
+ * This function first attempts to find a user's external identity.
+ * If found, it returns the associated user.
+ * If not found, it proceeds to find an existing user by their verified and trusted
+ * phone number or email. If no existing user is found, a new user is created.
+ * Finally, it creates the external identity and links it to the user.
+ * @param {object} keystone - keystone instance object
+ * @param {object} userProfile - The profile of the user from the external provider.
+ * @param {string} userType - The type of the user (e.g., 'customer', 'driver').
+ * @param {string} identityType - The identity provider (e.g., 'github', 'custom-oidc').
+ * @param {object} config - Configuration options.
+ * @returns {Promise<object>} The resolved user object.
+ */
+async function getOrCreateUser (keystone, userProfile, userType, identityType, config) {
+    const context = await keystone.createContext({ skipAccessControl: true })
+
+    // 1. Check for an existing external identity
+    const userExternalIdentity = await UserExternalIdentity.getOne(context, {
+        identityId: userProfile.id,
+        userType,
+        identityType,
+        deletedAt: null,
+    }, 'user { id }')
+
+    if (userExternalIdentity) {
+        return userExternalIdentity.user
+    }
+
+    // 2. If no external identity, find or create the user
+    const { phone, email } = userProfile
+    const { isPhoneTrusted, isEmailTrusted } = getTrustedConfig(config)
+
+    const userMeta = { phone: phone || null, email: email || null, provider: identityType }
+    const existingUserSearch = { deletedAt: null, type: userType, isAdmin: false, isSupport: false }
+    const baseUserData = {
+        ...omit(existingUserSearch, 'deletedAt'),
+        isPhoneVerified: false,
+        isEmailVerified: false,
+        meta: userMeta,
+        ...DV_AND_SENDER,
+    }
+
+    let user = await findOrCreateUserByContact(context, userProfile, existingUserSearch, baseUserData, isPhoneTrusted, 'phone')
+
+    if (!user) {
+        user = await findOrCreateUserByContact(context, userProfile, existingUserSearch, baseUserData, isEmailTrusted, 'email')
+    }
+
+    if (!user) {
+        user = await User.create(context, baseUserData)
+    }
+
+    // 3. Create the external identity and link it to the user
+    await UserExternalIdentity.create(context, {
+        identityId: userProfile.id,
+        user: { connect: { id: user.id } },
+        identityType,
+        userType,
+        meta: userMeta,
+        ...DV_AND_SENDER,
+    })
+
+    return user
+}
+
 function makeExternalAuth (app, keystone, oidcProvider) {
     if (!oidcProvider) {
         throw new Error('Missing OIDC provider')
     }
 
     app.use(passport.initialize())
-
-    async function getOrCreateUser (userProfile, userType, identityType, config) {
-        const context = await keystone.createContext({ skipAccessControl: true })
-        const isPhoneTrusted = get(config, 'isPhoneTrusted', false)
-        const isEmailTrusted = get(config, 'isEmailTrusted', false)
-        const { phone, email } = userProfile
-        const userMeta = {
-            phone: get(userProfile, 'phone', null),
-            email: get(userProfile, 'email', null),
-            provider: identityType,
-        }
-        let user
-        let existingUser
-
-        let userExternalIdentity = await UserExternalIdentity.getOne(context, {
-            identityId: userProfile.id, userType, deletedAt: null,
-        }, 'user { id }')
-
-        if (!userExternalIdentity) {
-            const existingUserSearch = {
-                deletedAt: null,
-                type: userType,
-                isAdmin: false,
-                isSupport: false,
-            }
-
-            if (phone) {
-                if (isPhoneTrusted) {
-                    existingUser = await User.getOne(context, {
-                        ...existingUserSearch, phone, isPhoneVerified: true,
-                    })
-
-                    if (existingUser) {
-                        user = existingUser
-                    } else {
-                        user = await User.create(context, {
-                            ...omit(existingUserSearch, 'deletedAt'),
-                            phone, isPhoneVerified: true, isEmailVerified: false,
-                            meta: userMeta,
-                            ...DV_AND_SENDER,
-                        })
-                    }
-                } else {
-                    existingUser = await User.getOne(context, {
-                        ...existingUserSearch,
-                        phone,
-                    })
-                    const userCreatePayload = {
-                        ...omit(existingUserSearch, 'deletedAt'),
-                        isPhoneVerified: false, isEmailVerified: false,
-                        meta: userMeta,
-                        ...DV_AND_SENDER,
-                    }
-
-                    if (!existingUser) {
-                        userCreatePayload.phone = phone
-                    }
-
-                    user = await User.create(context, userCreatePayload)
-                }
-
-            } else if (email) {
-                if (isEmailTrusted) {
-                    existingUser = await User.getOne(context, {
-                        ...existingUserSearch, email, isEmailVerified: true,
-                    })
-
-                    if (existingUser) {
-                        user = existingUser
-                    } else {
-                        user = await User.create(context, {
-                            ...omit(existingUserSearch, 'deletedAt'),
-                            email, isPhoneVerified: false, isEmailVerified: true,
-                            meta: userMeta,
-                            ...DV_AND_SENDER,
-                        })
-                    }
-                } else {
-                    existingUser = await User.getOne(context, {
-                        ...existingUserSearch,
-                        email,
-                    })
-                    const userCreatePayload = {
-                        ...omit(existingUserSearch, 'deletedAt'),
-                        isPhoneVerified: false, isEmailVerified: false,
-                        meta: userMeta,
-                        ...DV_AND_SENDER,
-                    }
-
-                    if (!existingUser) {
-                        userCreatePayload.email = email
-                    }
-
-                    user = await User.create(context, userCreatePayload)
-                }
-            } else {
-                user = await User.create(context, {
-                    ...omit(existingUserSearch, 'deletedAt'),
-                    isEmailVerified: false,
-                    isPhoneVerified: false,
-                    meta: userMeta,
-                    ...DV_AND_SENDER,
-                })
-            }
-
-            await UserExternalIdentity.create(context, {
-                identityId: userProfile.id,
-                user: { connect: { id: user.id } },
-                identityType,
-                userType,
-                meta: userMeta,
-                ...DV_AND_SENDER,
-            })
-        } else {
-            user = userExternalIdentity.user
-        }
-
-        return user
-    }
 
     async function captureUserType (req, res, next) {
         const { userType } = req.query
@@ -269,59 +289,6 @@ function makeExternalAuth (app, keystone, oidcProvider) {
         }
     }
 
-    // TODO: maybe we don't need this option of auth flow at the MVP.
-    //  So maybe we cat drop this for a moment
-    if (conf['PASSPORT_OAUTH']) {
-        const oauthConfig = JSON.parse(conf['PASSPORT_OAUTH'])
-
-        oauthConfig.forEach(config => {
-            const strategy = {
-                authorizationURL: config.authorizationURL,
-                tokenURL: config.tokenURL,
-                clientID: config.clientID,
-                clientSecret: config.clientSecret,
-                callbackURL: config.callbackURL,
-                passReqToCallback: true,
-            }
-            passport.use(config.name, new OAuth2Strategy(
-                strategy,
-                async (req, accessToken, refreshToken, profile, done) => {
-                    const userType = req.userType || req.session.userType
-                    try {
-                        const profileResponse = await fetch(strategy.profileURL, {
-                            headers: {
-                                'Authorization': `Bearer ${accessToken}`,
-                            },
-                            method: 'GET',
-                        })
-
-                        const userProfile = await profileResponse.json()
-
-                        const { id, email, phone } = userProfile
-
-                        // required at least to fields - id and phone/email to fully indentify user
-                        if (!id || (!email && !phone)) {
-                            return done(new Error('OAuth profile url did not return a user ID and at least one of: email, phone.'))
-                        }
-
-                        const user = await getOrCreateUser(userProfile, userType, config.name, config)
-
-                        return done(null, user)
-                    } catch (error) {
-                        done(new Error('Failed to fetch user profile'))
-                    }
-                }
-            ))
-
-            app.get(`/api/${config.name}/auth`, captureUserType, passport.authenticate(config.name, { session: false }))
-            app.get(
-                `/api/${config.name}/auth/callback`,
-                passport.authenticate(config.name, { session: false, failureRedirect: '/?error=oauth_fail' }),
-                onAuthSuccess(config.name)
-            )
-        })
-    }
-
     if (conf['PASSPORT_OIDC']) {
         const oidcConfig = JSON.parse(conf['PASSPORT_OIDC'])
         const validateConfig = ajv.compile(oidcConfigSchema)
@@ -346,16 +313,14 @@ function makeExternalAuth (app, keystone, oidcProvider) {
             passport.use(config.name, new OIDCStrategy(
                 strategy,
                 async (req, issuer, uiProfile, idProfile, context, idToken, accessToken, refreshToken, params, done) => {
+                    // FIXME: need to really check how to receive full json payload from /profile of oidc
                     const profile = uiProfile._json
-                    const email = profile.emails && profile.emails.length > 0 ? profile.emails[0].value : null
-                    if (!email) {
-                        return done(new Error('OIDC email address required'))
-                    }
-
                     const userType = req.userType || req.session.userType
+
                     try {
                         const user = await getOrCreateUser(
-                            { id: profile.id, email },
+                            keystone,
+                            profile,
                             userType, config.name, config
                         )
 
@@ -366,9 +331,9 @@ function makeExternalAuth (app, keystone, oidcProvider) {
                 }
             ))
 
-            app.get(`/api/${config.name}/auth`, captureUserType, passport.authenticate(config.name, { session: false }))
+            app.get(`/api/auth${config.name}`, captureUserType, passport.authenticate(config.name, { session: false }))
             app.get(
-                `/api/${config.name}/auth/callback`,
+                `/api/auth/${config.name}/callback`,
                 passport.authenticate(config.name, { session: false, failureRedirect: '/?error=openid_fail' }),
                 onAuthSuccess(config.name)
             )
@@ -399,6 +364,7 @@ function makeExternalAuth (app, keystone, oidcProvider) {
 
             try {
                 const user = await getOrCreateUser(
+                    keystone,
                     { id: profile.id, email },
                     userType,
                     'github',
@@ -411,8 +377,8 @@ function makeExternalAuth (app, keystone, oidcProvider) {
             }
         }))
 
-        app.get('/api/github/auth', captureUserType, passport.authenticate('github', { scope: [ 'user:email' ], session: false }))
-        app.get('/api/github/auth/callback', passport.authenticate('github', { session: false, failureRedirect: '/?error=github_fail' }), onAuthSuccess('github'))
+        app.get('/api/auth/github', captureUserType, passport.authenticate('github', { scope: [ 'user:email' ], session: false }))
+        app.get('/api/auth/github/callback', passport.authenticate('github', { session: false, failureRedirect: '/?error=github_fail' }), onAuthSuccess('github'))
     }
 
     passport.serializeUser((user, done) => {

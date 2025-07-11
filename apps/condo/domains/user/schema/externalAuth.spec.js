@@ -1,8 +1,16 @@
 jest.mock('@open-condo/config', () => {
     const conf = jest.requireActual('@open-condo/config')
     const get = (_, name) => {
+        const passportGithubConfig = {
+            'clientId': '123',
+            'clientSecret': '321',
+            'callbackUrl': '/api/auth/github/callback',
+            'name': 'github',
+            'isEmailTrusted': true,
+        }
+
         if (name === 'PASSPORT_GITHUB') {
-            return '{"clientId": "123", "clientSecret": "321", "callbackUrl": "/api/github/auth/callback", "name": "github", "isEmailTrusted": true, "isPhoneTrusted": false}'
+            return JSON.stringify(passportGithubConfig)
         }
 
         if (name === 'USER_EXTERNAL_IDENTITY_TYPES') {
@@ -64,6 +72,7 @@ const mockGithubUrls = (userId, userEmail) => {
             ])
 }
 
+
 describe('external authentication', () => {
     setFakeClientMode(index)
     let admin
@@ -107,7 +116,7 @@ describe('external authentication', () => {
     describe('Validation', () => {
         test('Auth url without userType query argument should fail', async () => {
 
-            const result = await fetch(serverUrl + '/api/github/auth')
+            const result = await fetch(serverUrl + '/api/auth/github')
             const json = await result.json()
 
             expect(result.status).toEqual(400)
@@ -116,7 +125,7 @@ describe('external authentication', () => {
         })
 
         test('Auth url with wrong userType should fail', async () => {
-            const result = await fetch(serverUrl + '/api/github/auth?userType=service')
+            const result = await fetch(serverUrl + '/api/auth/github?userType=service')
             const json = await result.json()
 
             expect(result.status).toEqual(400)
@@ -133,10 +142,10 @@ describe('external authentication', () => {
             const githubClient = await OidcClient.getOne(admin, { clientId: 'github', deletedAt: null })
             await updateTestOidcClient(admin, githubClient.id, { isEnabled: false })
 
-            const response = await agent.get('/api/github/auth?userType=staff')
+            const response = await agent.get('/api/auth/github?userType=staff')
             expect(response.statusCode).toEqual(302)
 
-            const tokenResponse = await agent.get('/api/github/auth/callback?code=some_gh_code')
+            const tokenResponse = await agent.get('/api/auth/github/callback?code=some_gh_code')
             expect(tokenResponse.statusCode).toEqual(403)
             expect(tokenResponse.body).toHaveProperty('error', 'Authentication failed')
             expect(tokenResponse.body).toHaveProperty('message', 'Oidc client not found')
@@ -146,10 +155,10 @@ describe('external authentication', () => {
 
             mockGithubUrls(fakedUserId, fakedUserEmail)
 
-            const response1 = await agent.get('/api/github/auth?userType=staff')
+            const response1 = await agent.get('/api/auth/github?userType=staff')
             expect(response1.statusCode).toEqual(302)
 
-            const tokenResponse1 = await agent.get('/api/github/auth/callback?code=some_gh_code')
+            const tokenResponse1 = await agent.get('/api/auth/github/callback?code=some_gh_code')
             expect(tokenResponse1.statusCode).toEqual(403)
             expect(tokenResponse1.body).toHaveProperty('error', 'Authentication failed')
             expect(tokenResponse1.body).toHaveProperty('message', 'Oidc client not found')
@@ -165,10 +174,10 @@ describe('external authentication', () => {
             const fakedUserEmail = faker.datatype.uuid() + '@gmail.com'
             mockGithubUrls(fakedUserId, fakedUserEmail)
 
-            const response = await agent.get('/api/github/auth?userType=staff')
+            const response = await agent.get('/api/auth/github?userType=staff')
             expect(response.statusCode).toEqual(302)
 
-            const tokenResponse = await agent.get('/api/github/auth/callback?code=some_gh_code')
+            const tokenResponse = await agent.get('/api/auth/github/callback?code=some_gh_code')
 
             expect(tokenResponse.statusCode).toEqual(200)
             expect(tokenResponse.body).toHaveProperty('accessToken')
@@ -208,9 +217,9 @@ describe('external authentication', () => {
             mockGithubUrls(fakedUserId, fakedUserEmail)
 
             // Register new user and external identity
-            const loginResponse = await agent.get('/api/github/auth?userType=staff')
+            const loginResponse = await agent.get('/api/auth/github?userType=staff')
             expect(loginResponse.statusCode).toEqual(302)
-            const response = await agent.get('/api/github/auth/callback?code=some_gh_code')
+            const response = await agent.get('/api/auth/github/callback?code=some_gh_code')
             expect(response.statusCode).toEqual(200)
             expect(response.body).toHaveProperty('accessToken')
 
@@ -224,8 +233,8 @@ describe('external authentication', () => {
 
             // Call authorization flow second time to make sure it's not creating another user
             mockGithubUrls(fakedUserId, fakedUserEmail)
-            await agent.get('/api/github/auth?userType=staff')
-            const reauthResponse = await agent.get('/api/github/auth/callback?code=some_gh_code')
+            await agent.get('/api/auth/github?userType=staff')
+            const reauthResponse = await agent.get('/api/auth/github/callback?code=some_gh_code')
             expect(reauthResponse.statusCode).toEqual(200)
             expect(reauthResponse.body).toHaveProperty('accessToken')
             expect(reauthResponse.body.accessToken).not.toEqual(response.body.accessToken)
@@ -240,10 +249,10 @@ describe('external authentication', () => {
             mockGithubUrls(fakedUserId, fakedUserEmail)
 
             // Register staff user via first request
-            const staffResponse = await agent.get('/api/github/auth?userType=staff')
+            const staffResponse = await agent.get('/api/auth/github?userType=staff')
             expect(staffResponse.statusCode).toEqual(302)
 
-            const staffTokenResponse = await agent.get('/api/github/auth/callback?code=some_gh_code')
+            const staffTokenResponse = await agent.get('/api/auth/github/callback?code=some_gh_code')
 
             expect(staffTokenResponse.statusCode).toEqual(200)
             expect(staffTokenResponse.body).toHaveProperty('accessToken')
@@ -264,10 +273,10 @@ describe('external authentication', () => {
 
             // Register resident user with same credentials (email)
             mockGithubUrls(fakedUserId, fakedUserEmail)
-            const residentResponse = await agent.get('/api/github/auth?userType=resident')
+            const residentResponse = await agent.get('/api/auth/github?userType=resident')
             expect(residentResponse.statusCode).toEqual(302)
 
-            const residentTokenResponse = await agent.get('/api/github/auth/callback?code=some_gh_code')
+            const residentTokenResponse = await agent.get('/api/auth/github/callback?code=some_gh_code')
 
             expect(residentTokenResponse.statusCode).toEqual(200)
             expect(residentTokenResponse.body).toHaveProperty('accessToken')
@@ -299,10 +308,10 @@ describe('external authentication', () => {
             const fakedUserEmail = faker.datatype.uuid() + '@gmail.com'
             mockGithubUrls(fakedUserId, fakedUserEmail)
 
-            const response = await agent.get('/api/github/auth?userType=staff')
+            const response = await agent.get('/api/auth/github?userType=staff')
             expect(response.statusCode).toEqual(302)
 
-            const tokenResponse = await agent.get('/api/github/auth/callback?code=some_gh_code')
+            const tokenResponse = await agent.get('/api/auth/github/callback?code=some_gh_code')
 
             expect(tokenResponse.statusCode).toEqual(200)
             expect(tokenResponse.body).toHaveProperty('accessToken')
