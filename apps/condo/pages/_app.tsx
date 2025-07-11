@@ -488,7 +488,7 @@ const MyApp = ({ Component, pageProps }) => {
     // TODO(Dimitreee): remove this mess later
     const HeaderAction = Component.headerAction
     let RequiredAccess: React.FC = React.Fragment
-    console.log('Component', Component)
+
     if (Component.requiredAccess) {
         RequiredAccess = Component.requiredAccess
     }

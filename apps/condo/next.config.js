@@ -74,6 +74,7 @@ const aiEnabled = conf['AI_ENABLED']
 const contactPageResidentAnalytics = JSON.parse(conf['CONTACT_PAGE_RESIDENT_ANALYTICS'] || '{}')
 const displayTicketInfoOnShare = conf['SHOW_TICKET_INFO_ON_SHARE'] === 'true'
 const inviteRequiredFields = JSON.parse(conf['INVITE_REQUIRED_FIELDS'] || '["phone"]')
+const footerConfig = JSON.parse(conf['FOOTER_CONFIG'] || '{}')
 
 let nextConfig = withTM(withLess({
     swcMinify: true,
@@ -138,6 +139,7 @@ let nextConfig = withTM(withLess({
         contactPageResidentAnalytics,
         displayTicketInfoOnShare,
         inviteRequiredFields,
+        footerConfig,
     },
     serverRuntimeConfig: {
         proxyName,
