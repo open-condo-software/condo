@@ -35,6 +35,7 @@ const oidcConfigSchema = {
             name: { type: 'string' },
             isPhoneTrusted: { type: 'boolean' },
             isEmailTrusted: { type: 'boolean' },
+            issuer: { type: 'string' },
         },
         required: [
             'authorizationURL',
@@ -46,6 +47,7 @@ const oidcConfigSchema = {
             'name',
             'isPhoneTrusted',
             'isEmailTrusted',
+            'issuer',
         ],
     },
 }
@@ -330,7 +332,7 @@ function makeExternalAuth (app, keystone, oidcProvider) {
 
         oidcConfig.forEach(config => {
             const strategy = {
-                issuer: config.serverURL,
+                issuer: config.issuer,
                 authorizationURL: config.authorizationURL,
                 tokenURL: config.tokenURL,
                 userInfoURL: config.userInfoURL,
