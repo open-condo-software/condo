@@ -29,72 +29,72 @@ interface ICommentProps {
 }
 
 const DeletedTextStyle = css`
-  margin-top: 1em;
-  padding-left: 12px;
-  color: ${grey[2]};
+    margin-top: 1em;
+    padding-left: 12px;
+    color: ${colors.lightGrey};
 `
 
 const CommentStyle = css`
-    background: white;
+    background: ${colors.white} !important;
     border-radius: 8px;
     padding: 0;
     font-size: ${fontSizes.label};
     line-height: 22px;
 
     &:hover {
-      .ant-comment-inner {
-        .ant-comment-content {
-          .ant-comment-actions {
-            opacity: 1;
-            pointer-events: all;
-          }
+        .ant-comment-inner {
+            .ant-comment-content {
+                .ant-comment-actions {
+                    opacity: 1;
+                    pointer-events: all;
+                }
+            }
         }
-      }
     }
 
     .ant-comment-inner {
-      padding: 12px;
+        padding: 12px;
 
-      .ant-comment-content {
-        display: flex;
-        flex-flow: column nowrap;
-        
-        .ant-image {
-          border-radius: 8px;
-          overflow: hidden;
-          
-          .ant-image-mask-info {
-            display: none;
-          }
-        }
-        
-        .ant-comment-content-author {
-          display: block;
-          margin-top: 0.6em;
-          margin-bottom: 8px;
-          font-size: ${fontSizes.small};
-          
-          .ant-comment-content-author-name {
-            display: block;
-            color: ${colors.textSecondary};
-          }
+        .ant-comment-content {
+            display: flex;
+            flex-flow: column nowrap;
 
-          .ant-comment-content-author-time {
-            padding: 0;
-            
-            & > div > span {
-              color: ${colors.textSecondary};
+            .ant-image {
+                border-radius: 8px;
+                overflow: hidden;
+
+                .ant-image-mask-info {
+                    display: none;
+                }
             }
-          }
-        }
-        
-        .ant-comment-content-detail > div {
-          margin-top: 20px;
-          
-          & > .ant-typography {
-            margin-bottom: 4px;
-            cursor: pointer;
 
+            .ant-comment-content-author {
+                display: block;
+                margin-top: 0.6em;
+                margin-bottom: 8px;
+                font-size: ${fontSizes.small};
+
+                .ant-comment-content-author-name {
+                    display: block;
+                    color: ${colors.textSecondary};
+                }
+
+                .ant-comment-content-author-time {
+                    padding: 0;
+
+                    & > div > span {
+                        color: ${colors.textSecondary};
+                    }
+                }
+            }
+
+            .ant-comment-content-detail > div {
+                margin-top: 20px;
+
+                & > .ant-typography {
+                    margin-bottom: 4px;
+                    cursor: pointer;
+                    
             & > .ant-typography {
               margin-left: 8px;
             }
@@ -126,45 +126,45 @@ const CommentPreviewStyle = css`
     line-height: 22px;
 
     .ant-comment-inner {
-      padding: 12px;
+        padding: 12px;
 
-      .ant-comment-content {
-        display: flex;
-        flex-flow: column nowrap;
-        
-        .ant-comment-content-author {
-          display: block;
-          margin-top: 0;
-          margin-bottom: 8px;
-          font-size: ${fontSizes.small};
-          
-          .ant-comment-content-author-name {
-            padding-right: 4px;
-            color: ${colors.textSecondary};
-          }
+        .ant-comment-content {
+            display: flex;
+            flex-flow: column nowrap;
 
-          .ant-comment-content-author-time {
-            padding: 0;
-            
-            & > div > span {
-              color: ${colors.textSecondary};
+            .ant-comment-content-author {
+                display: block;
+                margin-top: 0;
+                margin-bottom: 8px;
+                font-size: ${fontSizes.small};
+
+                .ant-comment-content-author-name {
+                    padding-right: 4px;
+                    color: ${colors.textSecondary};
+                }
+
+                .ant-comment-content-author-time {
+                    padding: 0;
+
+                    & > div > span {
+                        color: ${colors.textSecondary};
+                    }
+                }
             }
-          }
-        }
-        
-        .ant-comment-content-detail > div {
-          margin-top: 20px;
-          
-          & > .ant-typography {
-            margin-bottom: 4px;
-            cursor: pointer;
 
-            & > .ant-typography {
-              margin-left: 8px;
+            .ant-comment-content-detail > div {
+                margin-top: 20px;
+
+                & > .ant-typography {
+                    margin-bottom: 4px;
+                    cursor: pointer;
+
+                    & > .ant-typography {
+                        margin-left: 8px;
+                    }
+                }
             }
-          }
         }
-      }
     }
 `
 
@@ -175,20 +175,20 @@ const getFilePreviewByMimetype = (mimetype, url) => {
 }
 
 const CommentFileListWrapper = styled.div`
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
 `
 
 const CommentFileCard = styled.div`
-  border-radius: 8px;
-  overflow: hidden; 
-  background-color: ${colors.backgroundLightGrey};
-  width: 64px; 
-  height: 64px; 
-  display: flex; 
-  align-items: center; 
-  justify-content: center;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: ${colors.backgroundLightGrey};
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 `
 
 const COMMENT_DATE_FORMAT = 'DD.MM.YYYY, HH:mm'
