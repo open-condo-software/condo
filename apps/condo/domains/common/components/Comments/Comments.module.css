@@ -111,3 +111,15 @@
 .comment-text-area-wrapper.with-file {
   padding-bottom: 44px;
 }
+
+.rewrite-text-button :global(.condo-btn-loading-icon) {
+  width: 16px;
+  padding: 0;
+}
+
+.drawer-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}

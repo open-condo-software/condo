@@ -87,7 +87,7 @@ const AIInputNotification: FC<Props> = ({
                     onMouseLeave={handleMouseLeave}
                 >
                     <Space
-                        size={8}
+                        size={12}
                         align='start'
                         direction='vertical'
                         className={styles.notification}
@@ -119,7 +119,7 @@ const AIInputNotification: FC<Props> = ({
                             />
                         </div>
 
-                        <Typography.Paragraph>
+                        <Typography.Paragraph size='medium'>
                             {result || errorMessage}
                         </Typography.Paragraph>
 
