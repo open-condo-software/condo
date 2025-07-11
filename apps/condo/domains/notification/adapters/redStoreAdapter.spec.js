@@ -19,7 +19,9 @@ const adapter = new RedStoreAdapter()
 const REDSTORE_TEST_PUSHTOKEN = conf[REDSTORE_CONFIG_TEST_PUSHTOKEN_ENV] || null
 
 jest.mock('@open-condo/config', () => {
+    const actual = jest.requireActual('@open-condo/config')
     return {
+        ...actual,
         APPS_WITH_DISABLED_NOTIFICATIONS: '["condo.app.clients"]',
         REDSTORE_CONFIG_JSON: '{ "condo": { "url": "http://localhost:4006", "project_id": "someProjectId", "service_token": "someServiceToken" } }',
     }

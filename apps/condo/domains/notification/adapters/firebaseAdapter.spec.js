@@ -23,7 +23,9 @@ const FAKE_SUCCESS_MESSAGE_PREFIX_REGEXP = new RegExp(`^${FAKE_SUCCESS_MESSAGE_P
 const FIREBASE_TEST_PUSHTOKEN = conf[FIREBASE_CONFIG_TEST_PUSHTOKEN_ENV] || null
 
 jest.mock('@open-condo/config',  () => {
+    const actual = jest.requireActual('@open-condo/config')
     return {
+        ...actual,
         APPS_WITH_DISABLED_NOTIFICATIONS: '["condo.app.clients"]',
     }
 })
