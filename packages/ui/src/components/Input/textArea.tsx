@@ -3,7 +3,7 @@ import { TextAreaProps as AntdTextAreaProps } from 'antd/es/input'
 import classNames from 'classnames'
 import React, { forwardRef, useState, useEffect, TextareaHTMLAttributes } from 'react'
 
-import { ArrowRight } from '@open-condo/icons'
+import { ArrowUp } from '@open-condo/icons'
 
 import { Button } from '../Button'
 
@@ -42,6 +42,7 @@ const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
     } = props
 
     const [internalValue, setInternalValue] = useState(defaultValue)
+    const [isFocused, setIsFocused] = useState(false)
 
     useEffect(() => {
         if (propsValue !== undefined) {
@@ -61,6 +62,16 @@ const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
         }
     }
 
+    const handleFocus = (e: React.FocusEvent<HTMLTextAreaElement>) => {
+        setIsFocused(true)
+        if (restProps.onFocus) restProps.onFocus(e)
+    }
+
+    const handleBlur = (e: React.FocusEvent<HTMLTextAreaElement>) => {
+        setIsFocused(false)
+        if (restProps.onBlur) restProps.onBlur(e)
+    }
+
     const currentValue = propsValue !== undefined ? propsValue : internalValue
     const characterCount = `${currentValue.length}/${maxLength}`
 
@@ -78,14 +89,22 @@ const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
         className,
     )
 
+    const textAreaWrapperClassName = classNames(
+        `${TEXTAREA_CLASS_PREFIX} ${TEXTAREA_CLASS_PREFIX}-textarea-wrapper`,
+        { [`${TEXTAREA_CLASS_PREFIX}-wrapper-focused`]: isFocused }
+    )
+
+
     return (
-        <div className={`${TEXTAREA_CLASS_PREFIX} ${TEXTAREA_CLASS_PREFIX}-textarea-wrapper`}>
+        <div className={textAreaWrapperClassName}>
             <DefaultTextArea
                 {...restProps}
                 ref={ref}
                 prefixCls={TEXTAREA_CLASS_PREFIX}
                 className={textareaClassName}
                 disabled={disabled}
+                onFocus={handleFocus}
+                onBlur={handleBlur}
                 autoSize={autoSize}
                 maxLength={maxLength}
                 showCount={false}
@@ -121,7 +140,7 @@ const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
                                     type='accent'
                                     size='medium'
                                     onClick={() => onSubmit(currentValue)}
-                                    icon={<ArrowRight className='arrow-icon' size='small' />}
+                                    icon={<ArrowUp size='small' />}
                                 />
                             }
                         </span>
