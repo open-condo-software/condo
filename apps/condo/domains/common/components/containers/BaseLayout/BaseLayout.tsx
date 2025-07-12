@@ -17,6 +17,7 @@ import {
     TABLE_PAGE_CONTENT_CSS,
 } from './components/styles'
 import { ITopMenuItemsProps } from './components/TopMenuItems'
+import { Footer } from './Footer'
 import { Header } from './Header'
 
 interface IBaseLayoutProps {
@@ -47,6 +48,7 @@ const BaseLayout: React.FC<IBaseLayoutProps> = (props) => {
             <Layout css={SUB_LAYOUT_CSS}>
                 <Header headerAction={headerAction} TopMenuItems={TopMenuItems} />
                 {children}
+                <Footer />
             </Layout>
         </Layout>
     )
