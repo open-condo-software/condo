@@ -178,43 +178,8 @@
 
 /* Appeals special button */
 
-.appeals-dropdown-menu .condo-typography,
-.menu .menu-item .condo-typography {
-  color: inherit;
-}
-
 .mobile-header .organization-user-block .organization-selector .condo-typography {
   max-width: 100px;
-}
-
-.appeals-button {
-  min-width: 48px;
-  padding: 11px;
-  border-color: var(--condo-global-color-green-5);
-  cursor: initial;
-  transition: background 0.3s ease;
-}
-
-.appeals-button:hover {
-  background: var(--condo-global-color-brand-gradient-5);
-}
-
-.appeals-button:active {
-  background: var(--condo-global-color-brand-gradient-7);
-}
-
-.appeals-button > span {
-  color: var(--condo-global-color-green-5);
-}
-
-.appeals-button:hover > span,
-.appeals-button:active > span {
-  color: var(--condo-global-color-white);
-}
-
-.appeals-button::before {
-  background: var(--condo-global-color-brand-gradient-5) border-box;
-  opacity: 1;
 }
 
 /* Notifications */

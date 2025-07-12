@@ -1,0 +1,26 @@
+.menu-wrapper > ul {
+  width: max-content;
+  padding: 0;
+}
+
+.menu-wrapper > ul > li {
+  position: relative;
+  padding: 4px 16px !important;
+  border-bottom: 1px solid var(--condo-global-color-gray-3);
+}
+
+.menu-wrapper > ul > li:last-child {
+  border-bottom: none;
+}
+
+.menu-wrapper > ul > li:hover {
+  background: transparent;
+}
+
+.menu-wrapper > ul > li:hover > span > a > div {
+  color: var(--condo-global-color-black);
+}
+
+.accent-button {
+  cursor: default !important;
+}
