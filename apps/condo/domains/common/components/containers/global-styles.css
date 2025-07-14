@@ -43,16 +43,6 @@
   padding: 0 20px;
 }
 
-.desktop-menu .actions-container::after {
-  position: absolute;
-  right: 0;
-  bottom: -32px;
-  left: 0;
-  height: 24px;
-  background: linear-gradient(180deg, #fff 21.92%, rgb(255 255 255 / 0%) 106.02%);
-  content: "";
-}
-
 .desktop-menu .menu-items-container {
   /* 28px offset to logo + 36px logo + 40px offset = 104px */
   height: calc(100vh - 104px);

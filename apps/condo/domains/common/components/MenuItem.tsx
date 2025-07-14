@@ -1,8 +1,8 @@
+import classnames from 'classnames'
 import { useRouter } from 'next/router'
 import React, { useCallback, useState } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
-import type { IconProps } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Space, Typography } from '@open-condo/ui'
 
@@ -46,11 +46,6 @@ const addToolTipForCollapsedMenu = (content: JSX.Element, Message: string) => (
         </div>
     </Tooltip>
 )
-
-const MenuItemIconProps: IconProps = {
-    size: 'medium',
-    className: 'icon',
-}
 
 export const MenuItem: React.FC<IMenuItemProps> = (props) => {
     const {
@@ -97,27 +92,27 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
         ? label
         : intl.formatMessage({ id: label as FormatjsIntl.Message['ids'] })
 
-    const linkContent = isCollapsed
-        ? (
-            <Icon {...MenuItemIconProps} />
-        ) : (
-            <Space size={12} align='center' direction='horizontal' className='menu-item'>
-                <Icon {...MenuItemIconProps} />
-                <Typography.Title ellipsis={{ rows: 2 }} level={5}>
-                    {Message}
-                </Typography.Title>
-            </Space>
-        )
+    const linkContent = (
+        <Space size={12} align='center' direction='horizontal' className={styles.menuItem}>
+            <Icon size='medium' />
+            { !isCollapsed && <Typography.Title ellipsis={{ rows: 2 }} level={5}>
+                {Message}
+            </Typography.Title> }
+        </Space>
+    )
 
     const menuItemIdProp = id ? { id: id } : {}
 
-    const baseClass = styles.menuItemWrapper
-    const justifyClass = isCollapsed ? styles.justifyCenter : ''
-    const activeClass = isActive ? styles.active : ''
-    const disabledClass = disabled ? styles.disabled : ''
-    const externalClass = wrapperClassName || ''
-
-    const menuItemClassName = [baseClass, justifyClass, activeClass, disabledClass, externalClass, 'side'].filter(Boolean).join(' ')
+    const menuItemClassName = classnames(
+        styles.menuItemWrapper,
+        {
+            [styles.justifyCenter]: isCollapsed,
+            [styles.active]: isActive,
+            [styles.disabled]: disabled,
+        },
+        wrapperClassName,
+        'side'
+    )
 
     const menuItem = (
         <div
@@ -136,5 +131,3 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
 
     return toolTipDecorator ? toolTipDecorator({ element: nextjsLink, placement: 'right' }) : nextjsLink
 }
-
-

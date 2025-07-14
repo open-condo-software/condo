@@ -17,7 +17,6 @@ import styles from './ResidentActions.module.css'
 
 export const ResidentAppealDropDownMenuItemWrapperProps = {
     labelFontSize: fontSizes.label,
-    //padding: '16px 24px 16px 16px',
     className: 'width-full',
 }
 
