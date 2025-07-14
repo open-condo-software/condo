@@ -6656,7 +6656,7 @@ export const AllAppsDocument = gql`
  *   },
  * });
  */
-export function useAllAppsQuery (baseOptions: Apollo.QueryHookOptions<AllAppsQuery, AllAppsQueryVariables>) {
+export function useAllAppsQuery (baseOptions: Apollo.QueryHookOptions<AllAppsQuery, AllAppsQueryVariables> & ({ variables: AllAppsQueryVariables, skip?: boolean } | { skip: boolean }) ) {
     const options = { ...defaultOptions, ...baseOptions }
     return Apollo.useQuery<AllAppsQuery, AllAppsQueryVariables>(AllAppsDocument, options)
 }
@@ -6664,8 +6664,13 @@ export function useAllAppsLazyQuery (baseOptions?: Apollo.LazyQueryHookOptions<A
     const options = { ...defaultOptions, ...baseOptions }
     return Apollo.useLazyQuery<AllAppsQuery, AllAppsQueryVariables>(AllAppsDocument, options)
 }
+export function useAllAppsSuspenseQuery (baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AllAppsQuery, AllAppsQueryVariables>) {
+    const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
+    return Apollo.useSuspenseQuery<AllAppsQuery, AllAppsQueryVariables>(AllAppsDocument, options)
+}
 export type AllAppsQueryHookResult = ReturnType<typeof useAllAppsQuery>
 export type AllAppsLazyQueryHookResult = ReturnType<typeof useAllAppsLazyQuery>
+export type AllAppsSuspenseQueryHookResult = ReturnType<typeof useAllAppsSuspenseQuery>
 export type AllAppsQueryResult = Apollo.QueryResult<AllAppsQuery, AllAppsQueryVariables>
 export const GetB2CAppDocument = gql`
     query getB2CApp($id: ID!) {
@@ -6698,7 +6703,7 @@ export const GetB2CAppDocument = gql`
  *   },
  * });
  */
-export function useGetB2CAppQuery (baseOptions: Apollo.QueryHookOptions<GetB2CAppQuery, GetB2CAppQueryVariables>) {
+export function useGetB2CAppQuery (baseOptions: Apollo.QueryHookOptions<GetB2CAppQuery, GetB2CAppQueryVariables> & ({ variables: GetB2CAppQueryVariables, skip?: boolean } | { skip: boolean }) ) {
     const options = { ...defaultOptions, ...baseOptions }
     return Apollo.useQuery<GetB2CAppQuery, GetB2CAppQueryVariables>(GetB2CAppDocument, options)
 }
@@ -6706,8 +6711,13 @@ export function useGetB2CAppLazyQuery (baseOptions?: Apollo.LazyQueryHookOptions
     const options = { ...defaultOptions, ...baseOptions }
     return Apollo.useLazyQuery<GetB2CAppQuery, GetB2CAppQueryVariables>(GetB2CAppDocument, options)
 }
+export function useGetB2CAppSuspenseQuery (baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetB2CAppQuery, GetB2CAppQueryVariables>) {
+    const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
+    return Apollo.useSuspenseQuery<GetB2CAppQuery, GetB2CAppQueryVariables>(GetB2CAppDocument, options)
+}
 export type GetB2CAppQueryHookResult = ReturnType<typeof useGetB2CAppQuery>
 export type GetB2CAppLazyQueryHookResult = ReturnType<typeof useGetB2CAppLazyQuery>
+export type GetB2CAppSuspenseQueryHookResult = ReturnType<typeof useGetB2CAppSuspenseQuery>
 export type GetB2CAppQueryResult = Apollo.QueryResult<GetB2CAppQuery, GetB2CAppQueryVariables>
 export const AllB2CAppBuildsDocument = gql`
     query allB2CAppBuilds($where: B2CAppBuildWhereInput!, $first: Int!, $skip: Int!) {
@@ -6745,7 +6755,7 @@ export const AllB2CAppBuildsDocument = gql`
  *   },
  * });
  */
-export function useAllB2CAppBuildsQuery (baseOptions: Apollo.QueryHookOptions<AllB2CAppBuildsQuery, AllB2CAppBuildsQueryVariables>) {
+export function useAllB2CAppBuildsQuery (baseOptions: Apollo.QueryHookOptions<AllB2CAppBuildsQuery, AllB2CAppBuildsQueryVariables> & ({ variables: AllB2CAppBuildsQueryVariables, skip?: boolean } | { skip: boolean }) ) {
     const options = { ...defaultOptions, ...baseOptions }
     return Apollo.useQuery<AllB2CAppBuildsQuery, AllB2CAppBuildsQueryVariables>(AllB2CAppBuildsDocument, options)
 }
@@ -6753,8 +6763,13 @@ export function useAllB2CAppBuildsLazyQuery (baseOptions?: Apollo.LazyQueryHookO
     const options = { ...defaultOptions, ...baseOptions }
     return Apollo.useLazyQuery<AllB2CAppBuildsQuery, AllB2CAppBuildsQueryVariables>(AllB2CAppBuildsDocument, options)
 }
+export function useAllB2CAppBuildsSuspenseQuery (baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AllB2CAppBuildsQuery, AllB2CAppBuildsQueryVariables>) {
+    const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
+    return Apollo.useSuspenseQuery<AllB2CAppBuildsQuery, AllB2CAppBuildsQueryVariables>(AllB2CAppBuildsDocument, options)
+}
 export type AllB2CAppBuildsQueryHookResult = ReturnType<typeof useAllB2CAppBuildsQuery>
 export type AllB2CAppBuildsLazyQueryHookResult = ReturnType<typeof useAllB2CAppBuildsLazyQuery>
+export type AllB2CAppBuildsSuspenseQueryHookResult = ReturnType<typeof useAllB2CAppBuildsSuspenseQuery>
 export type AllB2CAppBuildsQueryResult = Apollo.QueryResult<AllB2CAppBuildsQuery, AllB2CAppBuildsQueryVariables>
 export const AllB2CAppPublishRequestsDocument = gql`
     query allB2CAppPublishRequests($appId: ID!) {
@@ -6783,7 +6798,7 @@ export const AllB2CAppPublishRequestsDocument = gql`
  *   },
  * });
  */
-export function useAllB2CAppPublishRequestsQuery (baseOptions: Apollo.QueryHookOptions<AllB2CAppPublishRequestsQuery, AllB2CAppPublishRequestsQueryVariables>) {
+export function useAllB2CAppPublishRequestsQuery (baseOptions: Apollo.QueryHookOptions<AllB2CAppPublishRequestsQuery, AllB2CAppPublishRequestsQueryVariables> & ({ variables: AllB2CAppPublishRequestsQueryVariables, skip?: boolean } | { skip: boolean }) ) {
     const options = { ...defaultOptions, ...baseOptions }
     return Apollo.useQuery<AllB2CAppPublishRequestsQuery, AllB2CAppPublishRequestsQueryVariables>(AllB2CAppPublishRequestsDocument, options)
 }
@@ -6791,8 +6806,13 @@ export function useAllB2CAppPublishRequestsLazyQuery (baseOptions?: Apollo.LazyQ
     const options = { ...defaultOptions, ...baseOptions }
     return Apollo.useLazyQuery<AllB2CAppPublishRequestsQuery, AllB2CAppPublishRequestsQueryVariables>(AllB2CAppPublishRequestsDocument, options)
 }
+export function useAllB2CAppPublishRequestsSuspenseQuery (baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AllB2CAppPublishRequestsQuery, AllB2CAppPublishRequestsQueryVariables>) {
+    const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
+    return Apollo.useSuspenseQuery<AllB2CAppPublishRequestsQuery, AllB2CAppPublishRequestsQueryVariables>(AllB2CAppPublishRequestsDocument, options)
+}
 export type AllB2CAppPublishRequestsQueryHookResult = ReturnType<typeof useAllB2CAppPublishRequestsQuery>
 export type AllB2CAppPublishRequestsLazyQueryHookResult = ReturnType<typeof useAllB2CAppPublishRequestsLazyQuery>
+export type AllB2CAppPublishRequestsSuspenseQueryHookResult = ReturnType<typeof useAllB2CAppPublishRequestsSuspenseQuery>
 export type AllB2CAppPublishRequestsQueryResult = Apollo.QueryResult<AllB2CAppPublishRequestsQuery, AllB2CAppPublishRequestsQueryVariables>
 export const CreateB2CAppDocument = gql`
     mutation createB2CApp($data: B2CAppCreateInput!) {
@@ -6992,7 +7012,7 @@ export const AllB2CAppPropertiesDocument = gql`
  *   },
  * });
  */
-export function useAllB2CAppPropertiesQuery (baseOptions: Apollo.QueryHookOptions<AllB2CAppPropertiesQuery, AllB2CAppPropertiesQueryVariables>) {
+export function useAllB2CAppPropertiesQuery (baseOptions: Apollo.QueryHookOptions<AllB2CAppPropertiesQuery, AllB2CAppPropertiesQueryVariables> & ({ variables: AllB2CAppPropertiesQueryVariables, skip?: boolean } | { skip: boolean }) ) {
     const options = { ...defaultOptions, ...baseOptions }
     return Apollo.useQuery<AllB2CAppPropertiesQuery, AllB2CAppPropertiesQueryVariables>(AllB2CAppPropertiesDocument, options)
 }
@@ -7000,8 +7020,13 @@ export function useAllB2CAppPropertiesLazyQuery (baseOptions?: Apollo.LazyQueryH
     const options = { ...defaultOptions, ...baseOptions }
     return Apollo.useLazyQuery<AllB2CAppPropertiesQuery, AllB2CAppPropertiesQueryVariables>(AllB2CAppPropertiesDocument, options)
 }
+export function useAllB2CAppPropertiesSuspenseQuery (baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AllB2CAppPropertiesQuery, AllB2CAppPropertiesQueryVariables>) {
+    const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
+    return Apollo.useSuspenseQuery<AllB2CAppPropertiesQuery, AllB2CAppPropertiesQueryVariables>(AllB2CAppPropertiesDocument, options)
+}
 export type AllB2CAppPropertiesQueryHookResult = ReturnType<typeof useAllB2CAppPropertiesQuery>
 export type AllB2CAppPropertiesLazyQueryHookResult = ReturnType<typeof useAllB2CAppPropertiesLazyQuery>
+export type AllB2CAppPropertiesSuspenseQueryHookResult = ReturnType<typeof useAllB2CAppPropertiesSuspenseQuery>
 export type AllB2CAppPropertiesQueryResult = Apollo.QueryResult<AllB2CAppPropertiesQuery, AllB2CAppPropertiesQueryVariables>
 export const CreateB2CAppPropertyDocument = gql`
     mutation createB2CAppProperty($data: CreateB2CAppPropertyInput!) {
@@ -7098,7 +7123,7 @@ export const AllB2CAppAccessRightsDocument = gql`
  *   },
  * });
  */
-export function useAllB2CAppAccessRightsQuery (baseOptions: Apollo.QueryHookOptions<AllB2CAppAccessRightsQuery, AllB2CAppAccessRightsQueryVariables>) {
+export function useAllB2CAppAccessRightsQuery (baseOptions: Apollo.QueryHookOptions<AllB2CAppAccessRightsQuery, AllB2CAppAccessRightsQueryVariables> & ({ variables: AllB2CAppAccessRightsQueryVariables, skip?: boolean } | { skip: boolean }) ) {
     const options = { ...defaultOptions, ...baseOptions }
     return Apollo.useQuery<AllB2CAppAccessRightsQuery, AllB2CAppAccessRightsQueryVariables>(AllB2CAppAccessRightsDocument, options)
 }
@@ -7106,8 +7131,13 @@ export function useAllB2CAppAccessRightsLazyQuery (baseOptions?: Apollo.LazyQuer
     const options = { ...defaultOptions, ...baseOptions }
     return Apollo.useLazyQuery<AllB2CAppAccessRightsQuery, AllB2CAppAccessRightsQueryVariables>(AllB2CAppAccessRightsDocument, options)
 }
+export function useAllB2CAppAccessRightsSuspenseQuery (baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AllB2CAppAccessRightsQuery, AllB2CAppAccessRightsQueryVariables>) {
+    const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
+    return Apollo.useSuspenseQuery<AllB2CAppAccessRightsQuery, AllB2CAppAccessRightsQueryVariables>(AllB2CAppAccessRightsDocument, options)
+}
 export type AllB2CAppAccessRightsQueryHookResult = ReturnType<typeof useAllB2CAppAccessRightsQuery>
 export type AllB2CAppAccessRightsLazyQueryHookResult = ReturnType<typeof useAllB2CAppAccessRightsLazyQuery>
+export type AllB2CAppAccessRightsSuspenseQueryHookResult = ReturnType<typeof useAllB2CAppAccessRightsSuspenseQuery>
 export type AllB2CAppAccessRightsQueryResult = Apollo.QueryResult<AllB2CAppAccessRightsQuery, AllB2CAppAccessRightsQueryVariables>
 export const GetOidcClientDocument = gql`
     query getOIDCClient($data: GetOIDCClientInput!) {
@@ -7135,7 +7165,7 @@ export const GetOidcClientDocument = gql`
  *   },
  * });
  */
-export function useGetOidcClientQuery (baseOptions: Apollo.QueryHookOptions<GetOidcClientQuery, GetOidcClientQueryVariables>) {
+export function useGetOidcClientQuery (baseOptions: Apollo.QueryHookOptions<GetOidcClientQuery, GetOidcClientQueryVariables> & ({ variables: GetOidcClientQueryVariables, skip?: boolean } | { skip: boolean }) ) {
     const options = { ...defaultOptions, ...baseOptions }
     return Apollo.useQuery<GetOidcClientQuery, GetOidcClientQueryVariables>(GetOidcClientDocument, options)
 }
@@ -7143,8 +7173,13 @@ export function useGetOidcClientLazyQuery (baseOptions?: Apollo.LazyQueryHookOpt
     const options = { ...defaultOptions, ...baseOptions }
     return Apollo.useLazyQuery<GetOidcClientQuery, GetOidcClientQueryVariables>(GetOidcClientDocument, options)
 }
+export function useGetOidcClientSuspenseQuery (baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOidcClientQuery, GetOidcClientQueryVariables>) {
+    const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
+    return Apollo.useSuspenseQuery<GetOidcClientQuery, GetOidcClientQueryVariables>(GetOidcClientDocument, options)
+}
 export type GetOidcClientQueryHookResult = ReturnType<typeof useGetOidcClientQuery>
 export type GetOidcClientLazyQueryHookResult = ReturnType<typeof useGetOidcClientLazyQuery>
+export type GetOidcClientSuspenseQueryHookResult = ReturnType<typeof useGetOidcClientSuspenseQuery>
 export type GetOidcClientQueryResult = Apollo.QueryResult<GetOidcClientQuery, GetOidcClientQueryVariables>
 export const CreateOidcClientDocument = gql`
     mutation createOIDCClient($data: CreateOIDCClientInput!) {
@@ -7380,8 +7415,13 @@ export function useAuthenticatedUserLazyQuery (baseOptions?: Apollo.LazyQueryHoo
     const options = { ...defaultOptions, ...baseOptions }
     return Apollo.useLazyQuery<AuthenticatedUserQuery, AuthenticatedUserQueryVariables>(AuthenticatedUserDocument, options)
 }
+export function useAuthenticatedUserSuspenseQuery (baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AuthenticatedUserQuery, AuthenticatedUserQueryVariables>) {
+    const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
+    return Apollo.useSuspenseQuery<AuthenticatedUserQuery, AuthenticatedUserQueryVariables>(AuthenticatedUserDocument, options)
+}
 export type AuthenticatedUserQueryHookResult = ReturnType<typeof useAuthenticatedUserQuery>
 export type AuthenticatedUserLazyQueryHookResult = ReturnType<typeof useAuthenticatedUserLazyQuery>
+export type AuthenticatedUserSuspenseQueryHookResult = ReturnType<typeof useAuthenticatedUserSuspenseQuery>
 export type AuthenticatedUserQueryResult = Apollo.QueryResult<AuthenticatedUserQuery, AuthenticatedUserQueryVariables>
 export const SignInDocument = gql`
     mutation signIn($phone: String!, $password: String!) {
