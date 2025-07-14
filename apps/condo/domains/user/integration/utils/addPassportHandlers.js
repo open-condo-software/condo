@@ -1,5 +1,5 @@
 const Ajv = require('ajv')
-const { omit, get } = require('lodash')
+const { omit, get, capitalize } = require('lodash')
 const passport = require('passport')
 const { Strategy: GithubStrategy } = require('passport-github2')
 const { Strategy: OIDCStrategy } = require('passport-openidconnect')
@@ -18,7 +18,13 @@ const DV_AND_SENDER = {
     dv: 1,
     sender: { dv: 1, fingerprint: 'user-external-identity-middleware' },
 }
-
+const USER_PROFILE_MAPPING = {
+    id: 'id',
+    phone: 'phone',
+    email: 'email',
+    isPhoneVerified: 'isPhoneVerified',
+    isEmailVerified: 'isEmailVerified',
+}
 const ajv = new Ajv()
 const oidcConfigSchema = {
     type: 'array',
@@ -36,6 +42,7 @@ const oidcConfigSchema = {
             isEmailTrusted: { type: 'boolean' },
             issuer: { type: 'string' },
             scope: { type: 'string' },
+            fieldMapping: { type: 'object' },
         },
         additionalProperties: false,
         required: [
@@ -106,7 +113,7 @@ const findExistingUserByVerifiedContact = async (context, searchCriteria, contac
  * Creates a new user with the specified details.
  * @param {object} context - The Keystone context.
  * @param {object} baseUserData - The base data for creating a new user.
- * @param {string} contactInfo - The phone number or email address.
+ * @param {string|null} contactInfo - The phone number or email address. Could be null in case of user will be created from untrusted source
  * @param {string} contactType - 'phone' or 'email'.
  * @param {boolean} isVerified - Whether the contact method is verified.
  * @returns {Promise<object>} The newly created user.
@@ -137,11 +144,17 @@ const findOrCreateUserByContact = async (context, userProfile, searchCriteria, b
     if (isTrusted) {
         const existingUser = await findExistingUserByVerifiedContact(context, searchCriteria, contactInfo, contactType)
         if (existingUser) return existingUser
-        return createNewUser(context, baseUserData, contactInfo, contactType, true)
+
+        /** Partner server can provide isEmailVerified or isPhoneVerified as well
+         *  We can set isEmailVerified or isPhoneVerified based on these values only
+         *  if current provider marked as trusted */
+
+        const partnerVerification = get(userProfile, `is${capitalize(contactType)}Verified`, true)
+        return createNewUser(context, baseUserData, contactInfo, contactType, partnerVerification)
     }
 
     // For untrusted contacts, we don't search for an existing user and always create a new one.
-    return createNewUser(context, baseUserData, contactInfo, contactType, false)
+    return createNewUser(context, baseUserData, null, contactType, false)
 }
 
 /**
@@ -157,14 +170,24 @@ const findOrCreateUserByContact = async (context, userProfile, searchCriteria, b
  * @param {string} userType - The type of the user (e.g., 'customer', 'driver').
  * @param {string} identityType - The identity provider (e.g., 'github', 'custom-oidc').
  * @param {object} config - Configuration options.
+ * @param {object} fieldMapping - userInfo json remap options. For example { id: 'sub' } converts oidc default "sub" field "id"
  * @returns {Promise<object>} The resolved user object.
  */
-async function getOrCreateUser (keystone, userProfile, userType, identityType, config) {
+async function getOrCreateUser (keystone, userProfile, userType, identityType, config, fieldMapping = {}) {
     const context = await keystone.createContext({ skipAccessControl: true })
-    const identityId = userProfile.id || userProfile.sub
+    // Remap fields of user profile
+    const finalMapping = { ...USER_PROFILE_MAPPING, ...fieldMapping }
+    const mappedProfile = {
+        id: String(get(userProfile, finalMapping.id)),
+        phone: get(userProfile, finalMapping.phone, null),
+        email: get(userProfile, finalMapping.email, null),
+        isPhoneVerified: get(userProfile, finalMapping.isPhoneVerified, true),
+        isEmailVerified: get(userProfile, finalMapping.isEmailVerified, true),
+    }
+
     // 1. Check for an existing external identity
     const userExternalIdentity = await UserExternalIdentity.getOne(context, {
-        identityId: identityId,
+        identityId: mappedProfile.id,
         userType,
         identityType,
         deletedAt: null,
@@ -175,10 +198,9 @@ async function getOrCreateUser (keystone, userProfile, userType, identityType, c
     }
 
     // 2. If no external identity, find or create the user
-    const { phone, email } = userProfile
     const { isPhoneTrusted, isEmailTrusted } = getTrustedConfig(config)
 
-    const userMeta = { phone: phone || null, email: email || null, provider: identityType }
+    const userMeta = { ...mappedProfile, provider: identityType }
     const existingUserSearch = { deletedAt: null, type: userType, isAdmin: false, isSupport: false }
     const baseUserData = {
         ...omit(existingUserSearch, 'deletedAt'),
@@ -188,10 +210,10 @@ async function getOrCreateUser (keystone, userProfile, userType, identityType, c
         ...DV_AND_SENDER,
     }
 
-    let user = await findOrCreateUserByContact(context, userProfile, existingUserSearch, baseUserData, isPhoneTrusted, 'phone')
+    let user = await findOrCreateUserByContact(context, mappedProfile, existingUserSearch, baseUserData, isPhoneTrusted, 'phone')
 
     if (!user) {
-        user = await findOrCreateUserByContact(context, userProfile, existingUserSearch, baseUserData, isEmailTrusted, 'email')
+        user = await findOrCreateUserByContact(context, mappedProfile, existingUserSearch, baseUserData, isEmailTrusted, 'email')
     }
 
     if (!user) {
@@ -200,7 +222,7 @@ async function getOrCreateUser (keystone, userProfile, userType, identityType, c
 
     // 3. Create the external identity and link it to the user
     await UserExternalIdentity.create(context, {
-        identityId: identityId,
+        identityId: mappedProfile.id,
         user: { connect: { id: user.id } },
         identityType,
         userType,
@@ -300,6 +322,7 @@ function addPassportHandlers (app, keystone, oidcProvider) {
         }
 
         oidcConfig.forEach(config => {
+            const fieldMapping = config.fieldMapping || {}
             const strategy = {
                 issuer: config.issuer,
                 authorizationURL: config.authorizationURL,
@@ -315,15 +338,14 @@ function addPassportHandlers (app, keystone, oidcProvider) {
             passport.use(config.name, new OIDCStrategy(
                 strategy,
                 async (req, issuer, uiProfile, idProfile, context, idToken, accessToken, refreshToken, params, done) => {
-                    // FIXME: need to really check how to receive full json payload from /profile of oidc
                     const profile = uiProfile._json
                     const userType = req.userType || req.session.userType
 
                     try {
                         const user = await getOrCreateUser(
-                            keystone,
-                            profile,
-                            userType, config.name, config
+                            keystone, profile,
+                            userType, config.name,
+                            config, fieldMapping
                         )
 
                         return done(null, user)
