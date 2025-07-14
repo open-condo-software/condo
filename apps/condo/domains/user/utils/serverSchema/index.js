@@ -3,6 +3,8 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
+const crypto = require('crypto')
+
 const { faker } = require('@faker-js/faker')
 const has = require('lodash/has')
 
@@ -168,6 +170,16 @@ const generateSmsCode = (phone) => {
     })
 }
 
+function generateSecureCode (length = 4) {
+    if (length < 4) throw new Error('Secure code cannot be shorter then 4 characters')
+
+    const max = 10 ** length
+    const min = 10 ** (length - 1)
+
+    const code = crypto.randomInt(min, max)
+    return code.toString().padStart(length, '0')
+}
+
 const updateEmployeesRelatedToUser = async (context, user) => {
     if (!user || !user.id) throw new Error('updateEmployeesRelatedToUser(): without user.id')
     const acceptedInviteEmployees = await find('OrganizationEmployee', { user: { id: user.id }, isAccepted: true })
@@ -204,6 +216,7 @@ module.exports = {
     UserExternalIdentity,
     ConfirmPhoneAction,
     generateSmsCode,
+    generateSecureCode,
     updateEmployeesRelatedToUser,
     signinAsUser,
     registerNewServiceUser,

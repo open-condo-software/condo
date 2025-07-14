@@ -3,19 +3,19 @@ const { v4: uuid } = require('uuid')
 
 const TOKEN_TYPES = {
     CONFIRM_PHONE: 'CONFIRM_PHONE',
-    // CONFIRM_EMAIL: 'CONFIRM_EMAIL',
+    CONFIRM_EMAIL: 'CONFIRM_EMAIL',
     SUDO: 'SUDO',
 }
 
 const TOKEN_TYPE_BY_ABBREVIATION = {
     'cp': TOKEN_TYPES.CONFIRM_PHONE,
-    // 'ce': TOKEN_TYPES.CONFIRM_EMAIL,
+    'ce': TOKEN_TYPES.CONFIRM_EMAIL,
     's': TOKEN_TYPES.SUDO,
 }
 
 const ABBREVIATION_BY_TOKEN_TYPE = {
     'CONFIRM_PHONE': 'cp',
-    // 'CONFIRM_EMAIL': 'ce',
+    'CONFIRM_EMAIL': 'ce',
     'SUDO': 's',
 }
 
