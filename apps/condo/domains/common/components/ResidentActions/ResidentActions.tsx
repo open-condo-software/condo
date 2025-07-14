@@ -114,14 +114,13 @@ export const ResidentActions: React.FC<IResidentActionsProps> = (props) => {
                 trigger={trigger}
                 open={dropdownVisible}
                 onOpenChange={setDropdownVisible}
-                children={(
-                    <div>
-                        <Button type='accent' className={styles.accentButton} block icon={<Plus size={iconSize}/>}>
-                            {!minified && ResidentAppealMessage}
-                        </Button>
-                    </div>
-                )}
-            ></Dropdown>
+            >
+                <div>
+                    <Button type='accent' className={styles.accentButton} block icon={<Plus size={iconSize}/>}>
+                        {!minified && ResidentAppealMessage}
+                    </Button>
+                </div>
+            </Dropdown>
             {SearchByPhoneModal}
         </div>
     )
