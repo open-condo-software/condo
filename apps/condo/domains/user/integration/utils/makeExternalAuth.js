@@ -35,6 +35,7 @@ const oidcConfigSchema = {
             isPhoneTrusted: { type: 'boolean' },
             isEmailTrusted: { type: 'boolean' },
             issuer: { type: 'string' },
+            scope: { type: 'string' },
         },
         additionalProperties: false,
         required: [
@@ -48,6 +49,7 @@ const oidcConfigSchema = {
             'isPhoneTrusted',
             'isEmailTrusted',
             'issuer',
+            'scope',
         ],
 
     },
@@ -159,10 +161,10 @@ const findOrCreateUserByContact = async (context, userProfile, searchCriteria, b
  */
 async function getOrCreateUser (keystone, userProfile, userType, identityType, config) {
     const context = await keystone.createContext({ skipAccessControl: true })
-
+    const identityId = userProfile.id || userProfile.sub
     // 1. Check for an existing external identity
     const userExternalIdentity = await UserExternalIdentity.getOne(context, {
-        identityId: userProfile.id,
+        identityId: identityId,
         userType,
         identityType,
         deletedAt: null,
@@ -198,7 +200,7 @@ async function getOrCreateUser (keystone, userProfile, userType, identityType, c
 
     // 3. Create the external identity and link it to the user
     await UserExternalIdentity.create(context, {
-        identityId: userProfile.id,
+        identityId: identityId,
         user: { connect: { id: user.id } },
         identityType,
         userType,
@@ -331,7 +333,7 @@ function makeExternalAuth (app, keystone, oidcProvider) {
                 }
             ))
 
-            app.get(`/api/auth${config.name}`, captureUserType, passport.authenticate(config.name, { session: false }))
+            app.get(`/api/auth/${config.name}`, captureUserType, passport.authenticate(config.name, { session: false }))
             app.get(
                 `/api/auth/${config.name}/callback`,
                 passport.authenticate(config.name, { session: false, failureRedirect: '/?error=openid_fail' }),
