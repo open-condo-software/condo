@@ -22,6 +22,25 @@ jest.mock('@open-condo/config', () => {
                 userInfoURL: 'https://some-external-oidc.com/userinfo',
                 issuer: 'https://some-external-oidc.com',
                 scope: 'openid profile',
+                fieldMapping: {
+                    id: 'sub',
+                },
+            },
+            {
+                name: 'oidc-untrusted',
+                isEmailTrusted: false,
+                isPhoneTrusted: false,
+                clientID: '123',
+                clientSecret: '321',
+                callbackURL: '/api/auth/oidc-untrusted/callback',
+                authorizationURL: 'https://some-external-oidc.com/authorize',
+                tokenURL: 'https://some-external-oidc.com/token',
+                userInfoURL: 'https://some-external-oidc.com/userinfo',
+                issuer: 'https://some-external-oidc.com',
+                scope: 'openid profile',
+                fieldMapping: {
+                    id: 'sub',
+                },
             },
         ]
 
@@ -34,7 +53,7 @@ jest.mock('@open-condo/config', () => {
         }
 
         if (name === 'USER_EXTERNAL_IDENTITY_TYPES') {
-            return '["github", "oidc-default"]'
+            return '["github", "oidc-default", "oidc-untrusted"]'
         }
         return conf[name]
     }
@@ -109,12 +128,18 @@ function createMockJwt (payload) {
     ].join('.')
 }
 
-const mockOidcProvider = (baseUrl, clientId) => {
+const mockOidcProvider = (
+    baseUrl,
+    clientId,
+    userProfileData = {
+        email: `${faker.datatype.uuid()}@gmail.com`,
+        isEmailVerified: true,
+    }
+) => {
     const userProfile = {
         sub: faker.datatype.uuid(),
-        name: 'John Doe',
-        email: `${faker.datatype.uuid()}@gmail.com`,
-        email_verified: true,
+        name: faker.datatype.uuid(),
+        ...userProfileData,
     }
 
     const idTokenPayload = {
@@ -233,11 +258,29 @@ describe('external authentication', () => {
             },
         })
 
+        const existingOidcUntrustedClient = await OidcClient.getOne(admin, {
+            clientId: 'oidc-untrusted', deletedAt: null, isEnabled: true,
+        })
+        if (existingOidcUntrustedClient) {
+            await updateTestOidcClient(admin, existingOidcUntrustedClient.id, { deletedAt: existingOidcUntrustedClient.createdAt })
+        }
+        await createTestOidcClient(admin, {
+            clientId: 'oidc-untrusted',
+            payload: {
+                client_id: 'oidc-untrusted',
+                grant_types: ['implicit', 'authorization_code', 'refresh_token'],
+                client_secret: faker.random.alphaNumeric(12),
+                redirect_uris: ['https://httpbin.org/anything'],
+                response_types: ['code id_token', 'code', 'id_token'],
+                token_endpoint_auth_method: 'client_secret_basic',
+            },
+        })
+
     })
 
     afterAll(async () => {
         nock.cleanAll()
-        const oidcClients = await OidcClient.getAll(admin, { clientId_in: ['github', 'oidc-default'], deletedAt: null })
+        const oidcClients = await OidcClient.getAll(admin, { clientId_in: ['github', 'oidc-default', 'oidc-untrusted'], deletedAt: null })
 
         for (const client of oidcClients) {
             await updateTestOidcClient(admin, client.id, { deletedAt: client.createdAt })
@@ -467,48 +510,126 @@ describe('external authentication', () => {
     })
 
     describe('OIDC authentication flow', () => {
-        test('should create user and return internal oidc token', async () => {
-            const mockProvider = mockOidcProvider(oidcProviderUrl, '123')
-            const { mockData: { userProfile } } = mockProvider
+        describe('trusted provider', () => {
+            test('should create user and return internal oidc token', async () => {
+                const mockProvider = mockOidcProvider(oidcProviderUrl, '123')
+                const { mockData: { userProfile } } = mockProvider
 
-            const response = await agent.get('/api/auth/oidc-default?userType=resident')
+                const response = await agent.get('/api/auth/oidc-default?userType=resident')
 
-            expect(response.statusCode).toEqual(302)
+                expect(response.statusCode).toEqual(302)
 
-            const oidcAuthResponse = await axios.get(response.headers.location, { maxRedirects: 0 }).catch(e => e.response)
+                const oidcAuthResponse = await axios.get(response.headers.location, { maxRedirects: 0 }).catch(e => e.response)
 
-            expect(oidcAuthResponse.status).toBe(302)
+                expect(oidcAuthResponse.status).toBe(302)
 
-            const callbackUrl = new URL(oidcAuthResponse.headers.location)
+                const callbackUrl = new URL(oidcAuthResponse.headers.location)
 
 
-            const oidcCallbackUrl = callbackUrl.pathname + callbackUrl.search
-            const callbackResponse = await agent.get(oidcCallbackUrl)
+                const oidcCallbackUrl = callbackUrl.pathname + callbackUrl.search
+                const callbackResponse = await agent.get(oidcCallbackUrl)
 
-            expect(callbackResponse.statusCode).toEqual(200)
-            expect(callbackResponse.body).toHaveProperty('accessToken')
-            expect(callbackResponse.body).toHaveProperty('scope', 'openid')
-            expect(callbackResponse.body).toHaveProperty('tokenType', 'Bearer')
+                expect(callbackResponse.statusCode).toEqual(200)
+                expect(callbackResponse.body).toHaveProperty('accessToken')
+                expect(callbackResponse.body).toHaveProperty('scope', 'openid')
+                expect(callbackResponse.body).toHaveProperty('tokenType', 'Bearer')
 
-            const userExternalIdentity = await UserExternalIdentity.getOne(admin, {
-                identityId: userProfile.sub,
-                identityType: 'oidc-default',
+                const userExternalIdentity = await UserExternalIdentity.getOne(admin, {
+                    identityId: userProfile.sub,
+                    identityType: 'oidc-default',
+                })
+
+                expect(userExternalIdentity.userType).toEqual('resident')
+                expect(userExternalIdentity.meta).toMatchObject({
+                    phone: null, email: userProfile.email, provider: 'oidc-default',
+                })
+
+                const createdUser = await UserAdmin.getOne(admin, {
+                    id: userExternalIdentity.user.id,
+                })
+
+                expect(createdUser.meta).toMatchObject(userExternalIdentity.meta)
+                expect(createdUser).toHaveProperty('isEmailVerified', true)
+                expect(createdUser).toHaveProperty('email', userProfile.email)
+                expect(createdUser).toHaveProperty('isAdmin', false)
+                expect(createdUser).toHaveProperty('isSupport', false)
             })
 
-            expect(userExternalIdentity.userType).toEqual('resident')
-            expect(userExternalIdentity.meta).toMatchObject({
-                phone: null, email: userProfile.email, provider: 'oidc-default',
-            })
+            test('should set isEmailVerified:false if trusted provider sends this info', async () => {
+                const mockProvider = mockOidcProvider(oidcProviderUrl, '123', {
+                    email: faker.datatype.uuid() + '@gmail.com',
+                    isEmailVerified: false,
+                })
+                const { mockData: { userProfile } } = mockProvider
 
-            const createdUser = await UserAdmin.getOne(admin, {
-                id: userExternalIdentity.user.id,
-            })
+                const response = await agent.get('/api/auth/oidc-default?userType=resident')
+                expect(response.statusCode).toEqual(302)
+                const oidcAuthResponse = await axios.get(response.headers.location, { maxRedirects: 0 }).catch(e => e.response)
+                expect(oidcAuthResponse.status).toBe(302)
 
-            expect(createdUser.meta).toMatchObject(userExternalIdentity.meta)
-            expect(createdUser).toHaveProperty('isEmailVerified', true)
-            expect(createdUser).toHaveProperty('email', userProfile.email)
-            expect(createdUser).toHaveProperty('isAdmin', false)
-            expect(createdUser).toHaveProperty('isSupport', false)
+                const callbackUrl = new URL(oidcAuthResponse.headers.location)
+                const callbackResponse = await agent.get(callbackUrl.pathname + callbackUrl.search)
+
+                expect(callbackResponse.statusCode).toEqual(200)
+                const userExternalIdentity = await UserExternalIdentity.getOne(admin, {
+                    identityId: userProfile.sub,
+                    identityType: 'oidc-default',
+                })
+
+                const createdUser = await UserAdmin.getOne(admin, { id: userExternalIdentity.user.id })
+
+                expect(createdUser).toHaveProperty('email', userProfile.email)
+                expect(createdUser).toHaveProperty('isEmailVerified', false)
+                expect(createdUser.meta).toMatchObject({
+                    id: userProfile.sub,
+                    isPhoneVerified: true, isEmailVerified: false,
+                    email: userProfile.email,
+                    phone: null,
+                    provider: 'oidc-default',
+                })
+            })
+        })
+
+        describe('untrusted provider', () => {
+            test('should create user without email', async () => {
+                const mockProvider = mockOidcProvider(oidcProviderUrl, '123', {
+                    email: faker.datatype.uuid() + '@gmail.com',
+                    isEmailVerified: true,
+                })
+
+                const { mockData: { userProfile } } = mockProvider
+
+                const response = await agent.get('/api/auth/oidc-untrusted?userType=staff')
+                expect(response.statusCode).toEqual(302)
+
+                const oidcAuthResponse = await axios.get(response.headers.location, { maxRedirects: 0 }).catch(e => e.response)
+
+                expect(oidcAuthResponse.status).toBe(302)
+
+                const callbackUrl = new URL(oidcAuthResponse.headers.location)
+
+                const oidcCallbackUrl = callbackUrl.pathname + callbackUrl.search
+                const callbackResponse = await agent.get(oidcCallbackUrl)
+
+                expect(callbackResponse.statusCode).toEqual(200)
+
+                const userExternalIdentity = await UserExternalIdentity.getOne(admin, {
+                    identityId: userProfile.sub,
+                    identityType: 'oidc-untrusted',
+                })
+
+                expect(userExternalIdentity.userType).toEqual('staff')
+                expect(userExternalIdentity.meta).toMatchObject({
+                    phone: null, email: userProfile.email, provider: 'oidc-untrusted',
+                })
+
+                const createdUser = await UserAdmin.getOne(admin, { id: userExternalIdentity.user.id })
+
+                expect(createdUser.meta).toMatchObject(userExternalIdentity.meta)
+                expect(createdUser).toHaveProperty('isEmailVerified', false)
+                expect(createdUser).toHaveProperty('email', null)
+                expect(createdUser).toHaveProperty('phone', null)
+            })
         })
     })
 })
