@@ -1,22 +1,18 @@
-import styled from '@emotion/styled'
 import classnames from 'classnames'
 import { useRouter } from 'next/router'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
-import type { IconProps } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Space, Typography } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/colors'
 
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
-import { transitions } from '@condo/domains/common/constants/style'
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { renderLink } from '@condo/domains/common/utils/Renders'
 import { getEscaped } from '@condo/domains/common/utils/string.utils'
 import { INoOrganizationToolTipWrapper } from '@condo/domains/onboarding/hooks/useNoOrganizationToolTip'
 
-import { useLayoutContext } from './LayoutContext'
+import styles from './MenuItem.module.css'
 
 
 interface IMenuItemWrapperProps {
@@ -25,43 +21,6 @@ interface IMenuItemWrapperProps {
     labelFontSize?: string
     className?: string
 }
-
-const MenuItemWrapper = styled.div<IMenuItemWrapperProps>`
-  cursor: pointer;
-  padding: ${props => props.padding ? props.padding : '12px 0'};
-  display: flex;
-  border-radius: 8px;
-  flex-direction: row;
-  align-items: center;
-  justify-content: ${({ isCollapsed }) => isCollapsed ? 'center' : 'flex-start'};
-  vertical-align: center;
-  color: ${colors.gray['7']};
-  
-  &:hover,
-  &.active {
-    color: ${colors.black};
-  }
-
-  .condo-typography, 
-  .icon {
-    transition: ${transitions.allDefault};
-  }
-  
-  .condo-typography {
-    width: max-content;
-  }
-
-  // NOTE: Fix width to reduce flick effect on collapse / expand
-  &.side:not(.width-full) {
-    .condo-typography {
-      width: 155px;
-    }
-  }
-
-  &.disabled {
-    opacity: 0.4;
-  }
-`
 
 interface IMenuItemProps {
     id: string
@@ -88,11 +47,6 @@ const addToolTipForCollapsedMenu = (content: JSX.Element, Message: string) => (
     </Tooltip>
 )
 
-const MenuItemIconProps: IconProps = {
-    size: 'medium',
-    className: 'icon',
-}
-
 export const MenuItem: React.FC<IMenuItemProps> = (props) => {
     const {
         id,
@@ -108,7 +62,6 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
         excludePaths = [],
         labelRaw,
     } = props
-    const { breakpoints } = useLayoutContext()
     const router = useRouter()
     const asPath = router.asPath
     const intl = useIntl()
@@ -139,30 +92,39 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
         ? label
         : intl.formatMessage({ id: label as FormatjsIntl.Message['ids'] })
 
-    const menuItemClassNames = classnames(wrapperClassName, {
-        'side': breakpoints.TABLET_LARGE,
-        'active': isActive,
-        'disabled': disabled,
-    })
-
-    const linkContent = isCollapsed
-        ? (
-            <Icon {...MenuItemIconProps} />
-        ) : (
-            <Space size={12} align='center' direction='horizontal' className='menu-item'>
-                <Icon {...MenuItemIconProps} />
-                <Typography.Title ellipsis={{ rows: 2 }} level={5}>
-                    {Message}
-                </Typography.Title>
-            </Space>
-        )
+    const linkContent = (
+        <Space size={12} align='center' direction='horizontal' className={styles.menuItem}>
+            <Icon size='medium' />
+            { !isCollapsed && <Typography.Title ellipsis={{ rows: 2 }} level={5}>
+                {Message}
+            </Typography.Title> }
+        </Space>
+    )
 
     const menuItemIdProp = id ? { id: id } : {}
 
+    const menuItemClassName = classnames(
+        styles.menuItemWrapper,
+        {
+            [styles.justifyCenter]: isCollapsed,
+            [styles.active]: isActive,
+            [styles.disabled]: disabled,
+        },
+        wrapperClassName,
+        'side'
+    )
+
     const menuItem = (
-        <MenuItemWrapper onClick={handleClick} className={menuItemClassNames} isCollapsed={isCollapsed} {...menuItemIdProp} {...restWrapperProps}>
-            {(isCollapsed && !disabled) ? addToolTipForCollapsedMenu(linkContent, Message) : linkContent}
-        </MenuItemWrapper>
+        <div
+            onClick={handleClick}
+            className={menuItemClassName}
+            {...menuItemIdProp}
+            {...restWrapperProps}
+        >
+            {(isCollapsed && !disabled)
+                ? addToolTipForCollapsedMenu(linkContent, Message)
+                : linkContent}
+        </div>
     )
 
     const nextjsLink = !path || disabled ? menuItem : renderLink(menuItem, path, false)

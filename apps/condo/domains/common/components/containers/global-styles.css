@@ -43,16 +43,6 @@
   padding: 0 20px;
 }
 
-.desktop-menu .actions-container::after {
-  position: absolute;
-  right: 0;
-  bottom: -32px;
-  left: 0;
-  height: 24px;
-  background: linear-gradient(180deg, #fff 21.92%, rgb(255 255 255 / 0%) 106.02%);
-  content: "";
-}
-
 .desktop-menu .menu-items-container {
   /* 28px offset to logo + 36px logo + 40px offset = 104px */
   height: calc(100vh - 104px);
@@ -178,43 +168,8 @@
 
 /* Appeals special button */
 
-.appeals-dropdown-menu .condo-typography,
-.menu .menu-item .condo-typography {
-  color: inherit;
-}
-
 .mobile-header .organization-user-block .organization-selector .condo-typography {
   max-width: 100px;
-}
-
-.appeals-button {
-  min-width: 48px;
-  padding: 11px;
-  border-color: var(--condo-global-color-green-5);
-  cursor: initial;
-  transition: background 0.3s ease;
-}
-
-.appeals-button:hover {
-  background: var(--condo-global-color-brand-gradient-5);
-}
-
-.appeals-button:active {
-  background: var(--condo-global-color-brand-gradient-7);
-}
-
-.appeals-button > span {
-  color: var(--condo-global-color-green-5);
-}
-
-.appeals-button:hover > span,
-.appeals-button:active > span {
-  color: var(--condo-global-color-white);
-}
-
-.appeals-button::before {
-  background: var(--condo-global-color-brand-gradient-5) border-box;
-  opacity: 1;
 }
 
 /* Notifications */
