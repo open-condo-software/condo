@@ -211,7 +211,7 @@ async function getOrCreateUser (keystone, userProfile, userType, identityType, c
     return user
 }
 
-function makeExternalAuth (app, keystone, oidcProvider) {
+function addPassportHandlers (app, keystone, oidcProvider) {
     if (!oidcProvider) {
         throw new Error('Missing OIDC provider')
     }
@@ -394,4 +394,4 @@ function makeExternalAuth (app, keystone, oidcProvider) {
     })
 }
 
-module.exports = { makeExternalAuth }
+module.exports = { addPassportHandlers }
