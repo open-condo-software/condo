@@ -9,12 +9,32 @@ jest.mock('@open-condo/config', () => {
             'isEmailTrusted': true,
         }
 
+        const passportOidcConfig = [
+            {
+                name: 'oidc-default',
+                isEmailTrusted: true,
+                isPhoneTrusted: true,
+                clientID: '123',
+                clientSecret: '321',
+                callbackURL: '/api/auth/oidc-default/callback',
+                authorizationURL: 'https://some-external-oidc.com/authorize',
+                tokenURL: 'https://some-external-oidc.com/token',
+                userInfoURL: 'https://some-external-oidc.com/userinfo',
+                issuer: 'https://some-external-oidc.com',
+                scope: 'openid profile',
+            },
+        ]
+
         if (name === 'PASSPORT_GITHUB') {
             return JSON.stringify(passportGithubConfig)
         }
 
+        if (name === 'PASSPORT_OIDC') {
+            return JSON.stringify(passportOidcConfig)
+        }
+
         if (name === 'USER_EXTERNAL_IDENTITY_TYPES') {
-            return '["github"]'
+            return '["github", "oidc-default"]'
         }
         return conf[name]
     }
@@ -23,6 +43,7 @@ jest.mock('@open-condo/config', () => {
 
 const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
+const axios = require('axios')
 const nock = require('nock')
 const request = require('supertest')
 
@@ -72,12 +93,102 @@ const mockGithubUrls = (userId, userEmail) => {
             ])
 }
 
+function createMockJwt (payload) {
+    function toBase64Url (data) {
+        const base64 = Buffer.from(JSON.stringify(data)).toString('base64')
+        return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
+    }
+
+    const header = { alg: 'RS256', typ: 'JWT' }
+    const signature = 'mock_signature' // A fake signature
+
+    return [
+        toBase64Url(header),
+        toBase64Url(payload),
+        toBase64Url(signature),
+    ].join('.')
+}
+
+const mockOidcProvider = (baseUrl, clientId) => {
+    const userProfile = {
+        sub: faker.datatype.uuid(),
+        name: 'John Doe',
+        email: `${faker.datatype.uuid()}@gmail.com`,
+        email_verified: true,
+    }
+
+    const idTokenPayload = {
+        ...userProfile,
+        iss: baseUrl,
+        aud: clientId,
+        exp: Math.floor(Date.now() / 1000) + 3600,
+        iat: Math.floor(Date.now() / 1000),
+        nonce: 'mock-nonce-value',
+    }
+
+    const mockData = {
+        authCode: 'mock_authorization_code_12345',
+        accessToken: 'mock_access_token_abcdefg',
+        idToken: createMockJwt(idTokenPayload),
+        userProfile,
+    }
+
+    const authScope = nock(baseUrl)
+        .get('/authorize')
+        .query(true) // Match any query parameters
+        .reply(function (uri, requestBody) {
+            // Dynamically build the redirect URL based on the incoming request.
+            const requestUrl = new URL(uri, baseUrl)
+            const redirectUri = requestUrl.searchParams.get('redirect_uri')
+
+            const state = requestUrl.searchParams.get('state')
+
+            if (!redirectUri || !state) {
+                return [400, 'Missing redirect_uri or state parameter']
+            }
+
+            const finalRedirectUrl = new URL(redirectUri)
+            finalRedirectUrl.searchParams.append('code', mockData.authCode)
+            finalRedirectUrl.searchParams.append('state', state)
+
+            return [302, '', { Location: finalRedirectUrl.toString() }]
+        })
+
+    const tokenScope = nock(baseUrl)
+        .post('/token', (body) => {
+            // Ensure the request is for an authorization code grant and uses our mock code.
+            return body.grant_type === 'authorization_code' && body.code === mockData.authCode
+        })
+        .reply(200, {
+            access_token: mockData.accessToken,
+            id_token: mockData.idToken,
+            token_type: 'Bearer',
+            expires_in: 3600,
+        })
+
+
+    const userInfoScope = nock(baseUrl)
+        .get('/userinfo')
+        .matchHeader('Authorization', `Bearer ${mockData.accessToken}`)
+        .reply(200, mockData.userProfile)
+
+    return {
+        mockData,
+        scopes: {
+            authScope,
+            tokenScope,
+            userInfoScope,
+        },
+    }
+}
+
 
 describe('external authentication', () => {
     setFakeClientMode(index)
     let admin
     let serverUrl
     let agent
+    const oidcProviderUrl = 'https://some-external-oidc.com'
 
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
@@ -85,7 +196,9 @@ describe('external authentication', () => {
         agent = request.agent(serverUrl)
         jest.resetModules()
 
-        const existingGithubClient = await OidcClient.getOne(admin, { clientId: 'github', deletedAt: null })
+        const existingGithubClient = await OidcClient.getOne(admin, {
+            clientId: 'github', deletedAt: null, isEnabled: true,
+        })
         if (existingGithubClient) {
             await updateTestOidcClient(admin, existingGithubClient.id, { deletedAt: existingGithubClient.createdAt })
         }
@@ -102,11 +215,29 @@ describe('external authentication', () => {
             },
         })
 
+        const existingOidcClient = await OidcClient.getOne(admin, {
+            clientId: 'oidc-default', deletedAt: null, isEnabled: true,
+        })
+        if (existingOidcClient) {
+            await updateTestOidcClient(admin, existingOidcClient.id, { deletedAt: existingOidcClient.createdAt })
+        }
+        await createTestOidcClient(admin, {
+            clientId: 'oidc-default',
+            payload: {
+                client_id: 'oidc-default',
+                grant_types: ['implicit', 'authorization_code', 'refresh_token'],
+                client_secret: faker.random.alphaNumeric(12),
+                redirect_uris: ['https://httpbin.org/anything'],
+                response_types: ['code id_token', 'code', 'id_token'],
+                token_endpoint_auth_method: 'client_secret_basic',
+            },
+        })
+
     })
 
     afterAll(async () => {
         nock.cleanAll()
-        const oidcClients = await OidcClient.getAll(admin, { clientId: 'github', deletedAt: null })
+        const oidcClients = await OidcClient.getAll(admin, { clientId_in: ['github', 'oidc-default'], deletedAt: null })
 
         for (const client of oidcClients) {
             await updateTestOidcClient(admin, client.id, { deletedAt: client.createdAt })
@@ -332,6 +463,52 @@ describe('external authentication', () => {
             expect(oidcResponse.body).toHaveProperty('isSupport', false)
             expect(oidcResponse.body).toHaveProperty('name', null)
             expect(oidcResponse.body).toHaveProperty('sub', userExternalIdentity.user.id)
+        })
+    })
+
+    describe('OIDC authentication flow', () => {
+        test('should create user and return internal oidc token', async () => {
+            const mockProvider = mockOidcProvider(oidcProviderUrl, '123')
+            const { mockData: { userProfile } } = mockProvider
+
+            const response = await agent.get('/api/auth/oidc-default?userType=resident')
+
+            expect(response.statusCode).toEqual(302)
+
+            const oidcAuthResponse = await axios.get(response.headers.location, { maxRedirects: 0 }).catch(e => e.response)
+
+            expect(oidcAuthResponse.status).toBe(302)
+
+            const callbackUrl = new URL(oidcAuthResponse.headers.location)
+
+
+            const oidcCallbackUrl = callbackUrl.pathname + callbackUrl.search
+            const callbackResponse = await agent.get(oidcCallbackUrl)
+
+            expect(callbackResponse.statusCode).toEqual(200)
+            expect(callbackResponse.body).toHaveProperty('accessToken')
+            expect(callbackResponse.body).toHaveProperty('scope', 'openid')
+            expect(callbackResponse.body).toHaveProperty('tokenType', 'Bearer')
+
+            const userExternalIdentity = await UserExternalIdentity.getOne(admin, {
+                identityId: userProfile.sub,
+                identityType: 'oidc-default',
+            })
+
+            expect(userExternalIdentity.userType).toEqual('resident')
+            expect(userExternalIdentity.meta).toMatchObject({
+                phone: null, email: userProfile.email, provider: 'oidc-default',
+            })
+
+            const createdUser = await UserAdmin.getOne(admin, {
+                id: userExternalIdentity.user.id,
+            })
+
+            expect(createdUser.meta).toMatchObject(userExternalIdentity.meta)
+            expect(createdUser).toHaveProperty('isEmailVerified', true)
+            expect(createdUser).toHaveProperty('email', userProfile.email)
+            expect(createdUser).toHaveProperty('isAdmin', false)
+            expect(createdUser).toHaveProperty('isSupport', false)
         })
     })
 })
