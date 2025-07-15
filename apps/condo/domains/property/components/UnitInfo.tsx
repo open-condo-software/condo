@@ -50,7 +50,7 @@ const getSectionAndFloorByUnit: IGetSectionAndFloorByUnit = (unitName, sections,
     return sectionAndFloor
 }
 
-export function getFloorsBySection (selectedSectionName, sections: BuildingSection[]): BuildingFloor[] {
+export function getFloorsBySection(selectedSectionName, sections: BuildingSection[]): BuildingFloor[] {
     if (!isEmpty(selectedSectionName)) {
         const section = sections.find(section => section.name === selectedSectionName)
 
@@ -82,6 +82,7 @@ interface IUnitInfo {
     mode?: UnitInfoMode
     initialValues?: InitialUnitInfoType
     selectedSectionType?: string
+    setSelectedSectionName?: React.Dispatch<React.SetStateAction<string>>
     setSelectedSectionType?: React.Dispatch<React.SetStateAction<string>>
     disabled?: boolean
     required?: boolean
@@ -108,6 +109,7 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
         selectedUnitName,
         mode = UnitInfoMode.Unit,
         selectedSectionType,
+        setSelectedSectionName: setSelectedSectionNameFromProps,
         setSelectedSectionType,
         disabled,
         required,
@@ -116,6 +118,12 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
 
     const [selectedSectionName, setSelectedSectionName] = useState<string>(get(initialValues, 'sectionName'))
     const [selectedFloorName, setSelectedFloorName] = useState<string>(get(initialValues, 'floorName'))
+
+    useEffect(() => {
+        if (setSelectedSectionNameFromProps) {
+            setSelectedSectionNameFromProps(selectedSectionName)
+        }
+    }, [])
 
     const propertyId = useMemo(() => property?.id, [property?.id])
     const isInitialPropertySet = useRef<boolean>(false)
@@ -153,7 +161,7 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
     }, [parking, sections, selectedSectionName, selectedSectionType])
     const floors = useMemo(() =>
         getFloorsBySection(selectedSectionName, selectedSections)
-    , [selectedSectionName, selectedSections])
+        , [selectedSectionName, selectedSections])
 
     const { requiredValidator } = useValidations()
 
