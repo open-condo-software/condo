@@ -9,7 +9,7 @@ const { GQLCustomSchema, getById, find, getByCondition } = require('@open-condo/
 
 const access = require('@address-service/domains/address/access/ActualizeAddressesService')
 const { Address, AddressSource } = require('@address-service/domains/address/utils/serverSchema')
-const { DADATA_PROVIDER, GOOGLE_PROVIDER } = require('@address-service/domains/common/constants/providers')
+const { DADATA_PROVIDER, GOOGLE_PROVIDER, PULLENTI_PROVIDER } = require('@address-service/domains/common/constants/providers')
 const { generateAddressKey } = require('@address-service/domains/common/utils/addressKeyUtils')
 const { DadataSuggestionProvider } = require('@address-service/domains/common/utils/services/suggest/providers')
 
@@ -127,6 +127,9 @@ const ActualizeAddressesService = new GQLCustomSchema('ActualizeAddressesService
                         successIds.push(updatedAddress.id)
                     } else if (providerName === GOOGLE_PROVIDER) {
                         failures.push({ addressId, errorMessage: 'Google not supported yet. Be free to contribute :)' })
+                        continue
+                    } else if (providerName === PULLENTI_PROVIDER) {
+                        failures.push({ addressId, errorMessage: 'Pullenti not supported yet. Be free to contribute :)' })
                         continue
                     } else {
                         failures.push({ addressId, errorMessage: `No provider detected (name=${providerName})` })
