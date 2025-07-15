@@ -58,7 +58,7 @@
   flex-direction: column;
   justify-content: center;
   height: 100%;
-  padding: 24px;
+  padding: 24px 0;
   text-align: center;
 }
 

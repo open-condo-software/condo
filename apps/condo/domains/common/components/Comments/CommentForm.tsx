@@ -141,6 +141,8 @@ const CommentForm: React.FC<ICommentFormProps> = ({
         setCommentValue('')
     }, [action, fieldName, commentForm, resetModifiedFiles, setSending, syncModifiedFiles])
 
+    const isInputDisable = sending || generateCommentLoading || rewriteTextLoading
+
     const MemoizedUploadComponent = useCallback(() => {
         return (
             <UploadComponent
@@ -153,6 +155,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                             size='medium'
                             minimal
                             compact
+                            disabled={isInputDisable}
                             icon={<Paperclip size='small' />}
                         />
                     </Tooltip>
@@ -315,7 +318,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                             onKeyUp={handleKeyUp(commentForm)}
                             isSubmitDisabled={!canSendMessage}
                             autoSize={{ minRows: 1, maxRows: 4 }}
-                            disabled={sending || generateCommentLoading || rewriteTextLoading}
+                            disabled={isInputDisable}
                             onSubmit={()=>handelSendMessage(commentForm)}
                             onChange={(event) => {
                                 if (editableComment) setEditableComment(prev=> ({ ...prev, content: event.target.value }))
@@ -325,13 +328,17 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                                 <MemoizedUploadComponent
                                     key='uploadButton'
                                 />,
-                                <Tooltip title={copied ? CopiedTooltipText : CopyTooltipText } placement='top' key='copyButton'>
+                                <Tooltip
+                                    title={copied ? CopiedTooltipText : CopyTooltipText }
+                                    placement='top'
+                                    key='copyButton'
+                                >
                                     <Button
                                         minimal
                                         compact
                                         type='secondary'
                                         size='medium'
-                                        disabled={!hasText}
+                                        disabled={!hasText || isInputDisable}
                                         onClick={handleCopyClick}
                                         icon={copied ? (<CheckCircle size='small' />) : (<Copy size='small'/>) }
                                     />
@@ -340,6 +347,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                                     step={2}
                                     key='aiButton'
                                     placement='top'
+                                    zIndex={1071}
                                     title={TourUpdateTextTitle}
                                     message={TourUpdateTextMessage}
                                     onClose={closeTourStep}
@@ -350,7 +358,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                                         minimal
                                         type='secondary'
                                         size='medium'
-                                        disabled={!hasText}
+                                        disabled={!hasText || isInputDisable}
                                         loading={rewriteTextLoading}
                                         icon={<Sparkles size='small' />}
                                         onClick={handleUpdateComment}

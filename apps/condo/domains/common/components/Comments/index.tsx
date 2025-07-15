@@ -313,7 +313,7 @@ export const CommentsWrapper: React.FC<CommentsWrapperPropsType>  = (props) => {
     }
 
     return (
-        <>
+        <Tour.Provider>
             <Comments
                 {...props}
                 CommentFormOpen={CommentFormOpen}
@@ -366,7 +366,7 @@ export const CommentsWrapper: React.FC<CommentsWrapperPropsType>  = (props) => {
                     setCommentType={setCommentType}
                 />
             </Drawer>
-        </>
+        </Tour.Provider>
     )
 }
 
@@ -677,68 +677,66 @@ const Comments: React.FC<CommentsPropsType> = ({
                     />
                 </RadioGroup>
             </span>
-            <Tour.Provider>
-                <div className={classNames(styles.cardContainer, styles.commentsTabsContainer)}>
-                    <CommentsTabContent
-                        {...commentTabContentProps}
-                        editableComment={editableComment}
-                        setEditableComment={ (value)=>{
-                            if (!isComponentInModal) setCommentFormOpen(true)
-                            return setEditableComment(value)
-                        }}
-                        commentType={commentType}
-                        updateAction={updateAction}
-                        handleBodyScroll={handleBodyScroll}
-                        bodyRef={bodyRef}
-                        sending={sending}
-                        generateCommentEnabled={generateCommentEnabled}
-                        generateCommentOnClickHandler={async () => setErrorMessage(await handleGenerateCommentClick(commentTabContentProps.comments, commentForm))}
-                        generateCommentLoading={generateCommentLoading}
-                        showGenerateCommentWithoutComments={showGenerateCommentWithoutComments}
-                    />
-                </div>
-                <div className={classNames(styles.commentFooter, breakpoints.TABLET_LARGE ? '' : styles.isSmall)}>
-                    {canCreateComments ? (
-                        <>
-                            { isComponentInModal ? (
-                                <CommentForm
-                                    commentTextAreaRef={commentTextAreaRef}
-                                    fieldName='content'
-                                    ticketId={ticketId}
-                                    FileModel={FileModel}
-                                    relationField={fileModelRelationField}
-                                    action={handleCommentAction}
-                                    editableComment={editableComment}
-                                    setEditableComment={setEditableComment}
-                                    setSending={setSending}
-                                    sending={sending}
-                                    onOpen={()=>setCommentFormOpen(true)}
-                                    commentForm={commentForm}
-                                    errorMessage={errorMessage}
-                                    setErrorMessage={setErrorMessage}
-                                    generateCommentLoading={generateCommentLoading}
-                                    generateCommentAnswer={generateCommentAnswer}
-                                    setGenerateCommentAnswer={setGenerateCommentAnswer}
-                                    rewriteTextLoading={rewriteTextLoading}
-                                    rewriteTextAnswer={rewriteTextAnswer}
-                                    setRewriteTextAnswer={setRewriteTextAnswer}
-                                    generateCommentClickHandler={async () => setErrorMessage(await handleGenerateCommentClick(commentTabContentProps.comments, commentForm))}
-                                    rewriteTextOnClickHandler={handleRewriteTextClick}
-                                /> ) : (
-                                <div onClick={()=> {
-                                    setCommentFormOpen(true)
-                                    setTimeout(()=> commentTextAreaRef?.current?.focus(), 100)
-                                }}
-                                >
-                                    <Input placeholder={PlaceholderMessage} value={editableComment?.content}/>
-                                </div>
-                            )}
-                        </>
-                    ) : (
-                        <Typography.Text disabled>{CannotCreateCommentsMessage}</Typography.Text>
-                    )}
-                </div>
-            </Tour.Provider>
+            <div className={classNames(styles.cardContainer, styles.commentsTabsContainer)}>
+                <CommentsTabContent
+                    {...commentTabContentProps}
+                    editableComment={editableComment}
+                    setEditableComment={ (value)=>{
+                        if (!isComponentInModal) setCommentFormOpen(true)
+                        return setEditableComment(value)
+                    }}
+                    commentType={commentType}
+                    updateAction={updateAction}
+                    handleBodyScroll={handleBodyScroll}
+                    bodyRef={bodyRef}
+                    sending={sending}
+                    generateCommentEnabled={generateCommentEnabled}
+                    generateCommentOnClickHandler={async () => setErrorMessage(await handleGenerateCommentClick(commentTabContentProps.comments, commentForm))}
+                    generateCommentLoading={generateCommentLoading}
+                    showGenerateCommentWithoutComments={showGenerateCommentWithoutComments}
+                />
+            </div>
+            <div className={classNames(styles.commentFooter, breakpoints.TABLET_LARGE ? '' : styles.isSmall)}>
+                {canCreateComments ? (
+                    <>
+                        { isComponentInModal ? (
+                            <CommentForm
+                                commentTextAreaRef={commentTextAreaRef}
+                                fieldName='content'
+                                ticketId={ticketId}
+                                FileModel={FileModel}
+                                relationField={fileModelRelationField}
+                                action={handleCommentAction}
+                                editableComment={editableComment}
+                                setEditableComment={setEditableComment}
+                                setSending={setSending}
+                                sending={sending}
+                                onOpen={()=>setCommentFormOpen(true)}
+                                commentForm={commentForm}
+                                errorMessage={errorMessage}
+                                setErrorMessage={setErrorMessage}
+                                generateCommentLoading={generateCommentLoading}
+                                generateCommentAnswer={generateCommentAnswer}
+                                setGenerateCommentAnswer={setGenerateCommentAnswer}
+                                rewriteTextLoading={rewriteTextLoading}
+                                rewriteTextAnswer={rewriteTextAnswer}
+                                setRewriteTextAnswer={setRewriteTextAnswer}
+                                generateCommentClickHandler={async () => setErrorMessage(await handleGenerateCommentClick(commentTabContentProps.comments, commentForm))}
+                                rewriteTextOnClickHandler={handleRewriteTextClick}
+                            /> ) : (
+                            <div onClick={()=> {
+                                setCommentFormOpen(true)
+                                setTimeout(()=> commentTextAreaRef?.current?.focus(), 100)
+                            }}
+                            >
+                                <Input placeholder={PlaceholderMessage} value={editableComment?.content}/>
+                            </div>
+                        )}
+                    </>
+                ) : (
+                    <Typography.Text disabled>{CannotCreateCommentsMessage}</Typography.Text>
+                )}
+            </div>
         </div>
     )
 }
