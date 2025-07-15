@@ -74,6 +74,7 @@ const {
     UserExternalIdentity,
     UserAdmin,
     OidcClient,
+    createTestUser,
     createTestOidcClient,
     updateTestOidcClient,
 } = require('@condo/domains/user/utils/testSchema')
@@ -588,6 +589,40 @@ describe('external authentication', () => {
                     provider: 'oidc-default',
                 })
             })
+
+            test('should connect externalIdentity to existing user', async () => {
+                const mockProvider = mockOidcProvider(oidcProviderUrl, '123', {
+                    email: faker.datatype.uuid() + '@gmail.com',
+                })
+                const { mockData: { userProfile } } = mockProvider
+                await createTestUser(admin, { email: userProfile.email, isEmailVerified: true, type: 'resident' })
+
+                const existingUser = await UserAdmin.getOne(admin, { email: userProfile.email, isEmailVerified: true, type: 'resident' })
+
+                const response = await agent.get('/api/auth/oidc-default?userType=resident')
+                const oidcAuthResponse = await axios.get(response.headers.location, { maxRedirects: 0 }).catch(e => e.response)
+                const callbackUrl = new URL(oidcAuthResponse.headers.location)
+                const callbackResponse = await agent.get(callbackUrl.pathname + callbackUrl.search)
+
+                expect(callbackResponse.statusCode).toEqual(200)
+
+                const userExternalIdentity = await UserExternalIdentity.getOne(admin, {
+                    identityId: userProfile.sub,
+                    identityType: 'oidc-default',
+                })
+
+                // Connected to already created user with same email and type
+                expect(userExternalIdentity.user.id).toEqual(existingUser.id)
+                expect(userExternalIdentity.userType).toEqual('resident')
+                expect(userExternalIdentity.meta).toMatchObject({
+                    email: userProfile.email,
+                    id: userProfile.sub,
+                    provider: 'oidc-default',
+                })
+
+                // Also check if user is not updated on auth flow
+                expect(existingUser).toHaveProperty('v', 1)
+            })
         })
 
         describe('untrusted provider', () => {
@@ -629,6 +664,35 @@ describe('external authentication', () => {
                 expect(createdUser).toHaveProperty('isEmailVerified', false)
                 expect(createdUser).toHaveProperty('email', null)
                 expect(createdUser).toHaveProperty('phone', null)
+            })
+
+            test('should not be connected to existing user with same email', async () => {
+                const mockProvider = mockOidcProvider(oidcProviderUrl, '123', {
+                    email: faker.datatype.uuid() + '@gmail.com',
+                })
+                const { mockData: { userProfile } } = mockProvider
+                const [existingUser] = await createTestUser(admin, { email: userProfile.email, isEmailVerified: true, type: 'staff' })
+
+                const response = await agent.get('/api/auth/oidc-untrusted?userType=staff')
+                const oidcAuthResponse = await axios.get(response.headers.location, { maxRedirects: 0 }).catch(e => e.response)
+                const callbackUrl = new URL(oidcAuthResponse.headers.location)
+                const callbackResponse = await agent.get(callbackUrl.pathname + callbackUrl.search)
+                expect(callbackResponse.statusCode).toEqual(200)
+
+                const userExternalIdentity = await UserExternalIdentity.getOne(admin, { identityId: userProfile.sub, identityType: 'oidc-untrusted' })
+                expect(userExternalIdentity.userType).toEqual('staff')
+
+                const createdUser = await UserAdmin.getOne(admin, { id: userExternalIdentity.user.id })
+
+                expect(createdUser.id).not.toEqual(existingUser.id)
+                expect(createdUser).toHaveProperty('email', null)
+                expect(createdUser).toHaveProperty('isEmailVerified', false)
+                expect(createdUser.meta).toMatchObject({
+                    id: userProfile.sub,
+                    phone: null,
+                    email: userProfile.email,
+                    provider: 'oidc-untrusted',
+                })
             })
         })
     })
