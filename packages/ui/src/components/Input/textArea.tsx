@@ -16,12 +16,10 @@ export const TEXTAREA_CLASS_PREFIX = 'condo-input'
 export type TextAreaProps = Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'style' | 'size'> &
 Pick<AntdTextAreaProps, 'autoSize'> & {
     value?: string
-    defaultValue?: string
     isSubmitDisabled?: boolean
     showCount?: boolean
     onSubmit?: (value: string) => void
     bottomPanelUtils?: React.ReactElement[]
-    onResize?: (size: { width: number, height: number }) => void
 }
 
 const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
@@ -30,7 +28,6 @@ const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
         disabled,
         onSubmit,
         autoFocus,
-        defaultValue = '',
         maxLength = 1000,
         showCount = true,
         isSubmitDisabled,
@@ -41,7 +38,7 @@ const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
         ...restProps
     } = props
 
-    const [internalValue, setInternalValue] = useState(defaultValue)
+    const [internalValue, setInternalValue] = useState('')
     const [isFocused, setIsFocused] = useState(false)
 
     useEffect(() => {
