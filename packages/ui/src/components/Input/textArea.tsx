@@ -91,7 +91,10 @@ const TextArea = forwardRef<InputRef, TextAreaProps>((props, ref) => {
 
     const textAreaWrapperClassName = classNames(
         `${TEXTAREA_CLASS_PREFIX} ${TEXTAREA_CLASS_PREFIX}-textarea-wrapper`,
-        { [`${TEXTAREA_CLASS_PREFIX}-wrapper-focused`]: isFocused }
+        {
+            [`${TEXTAREA_CLASS_PREFIX}-wrapper-focused`]: isFocused,
+            [`${TEXTAREA_CLASS_PREFIX}-disabled`]: disabled,
+        },
     )
 
 
