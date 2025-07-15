@@ -14,13 +14,13 @@ import { GraphQlSearchInput, SearchComponentType } from '@condo/domains/common/c
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import {
-    ClientType,
+    ClientCardTab,
     mapSearchItemToOption,
     redirectToForm,
 } from '@condo/domains/contact/utils/clientCard'
 
 
-const StyledModal = styled(Modal)<{ isSmall }>`
+const StyledModal = styled(Modal) <{ isSmall }>`
   animation-duration: 0s !important;
   width: 1150px !important;
   
@@ -111,7 +111,7 @@ const StyledPhoneInput = styled(PhoneInput)`
 `
 
 const DROPDOWN_POPUP_CONTAINER_ID = 'searchByPhonePopupContainer'
-function getPopupContainer (): HTMLElement {
+function getPopupContainer(): HTMLElement {
     return document.getElementById(DROPDOWN_POPUP_CONTAINER_ID)
 }
 
@@ -131,14 +131,14 @@ const SearchByPhoneSelect = ({
     const renderOptions = useCallback((searchData, _) => {
         const resultOptions = []
         const contactOptions = searchData
-            .filter(item => item.type === ClientType.Resident)
-            .map(item => mapSearchItemToOption(item, phone, ClientType.Resident))
+            .filter(item => item.type === ClientCardTab.Resident)
+            .map(item => mapSearchItemToOption(item, phone, ClientCardTab.Resident))
         const notResidentOptions = searchData
-            .filter(item => item.type === ClientType.NotResident && !item.isEmployee)
-            .map(item => mapSearchItemToOption(item, phone, ClientType.NotResident))
+            .filter(item => item.type === ClientCardTab.NotResident && !item.isEmployee)
+            .map(item => mapSearchItemToOption(item, phone, ClientCardTab.NotResident))
         const employeeOptions = searchData
-            .filter(item => item.type === ClientType.NotResident && item.isEmployee)
-            .map(item => mapSearchItemToOption(item, phone, ClientType.NotResident))
+            .filter(item => item.type === ClientCardTab.NotResident && item.isEmployee)
+            .map(item => mapSearchItemToOption(item, phone, ClientCardTab.NotResident))
 
         if (!isEmpty(contactOptions)) {
             resultOptions.push(

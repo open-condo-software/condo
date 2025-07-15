@@ -27,7 +27,7 @@ import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { getObjectValueFromQuery } from '@condo/domains/common/utils/query'
 import { ContactRoleSelect } from '@condo/domains/contact/components/contactRoles/ContactRoleSelect'
-import { ClientType, getClientCardTabKey } from '@condo/domains/contact/utils/clientCard'
+import { ClientCardTab, getClientCardTabKey } from '@condo/domains/contact/utils/clientCard'
 import { usePropertyValidations } from '@condo/domains/property/components/BasePropertyForm/usePropertyValidations'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/components/UnitNameInput'
@@ -54,8 +54,8 @@ const ADDRESS_SEARCH_WRAPPER_COL = { span: 14 }
 export const CreateContactForm: React.FC = () => {
     const intl = useIntl()
     const FullNameLabel = intl.formatMessage({ id: 'field.FullName.short' })
-    const FullNamePlaceholderMessage = intl.formatMessage({ id:'field.FullName' })
-    const FullNameInvalidCharMessage = intl.formatMessage({ id:'field.FullName.invalidChar' })
+    const FullNamePlaceholderMessage = intl.formatMessage({ id: 'field.FullName' })
+    const FullNameInvalidCharMessage = intl.formatMessage({ id: 'field.FullName.invalidChar' })
     const FullNameRequiredMessage = intl.formatMessage({ id: 'field.FullName.requiredError' })
     const PhoneLabel = intl.formatMessage({ id: 'Phone' })
     const ExamplePhoneMessage = intl.formatMessage({ id: 'example.Phone' })
@@ -75,7 +75,7 @@ export const CreateContactForm: React.FC = () => {
     const NameLabel = intl.formatMessage({ id: 'field.FullName.short' })
     const ErrorsContainerTitle = intl.formatMessage({ id: 'errorsContainer.requiredErrors' })
     const ContactDuplicateMessage = intl.formatMessage({ id: 'contact.ContactDuplicateError' })
-    
+
     const { organization, role } = useOrganization()
     const router = useRouter()
     const initialValuesFromQuery = useMemo(() => getObjectValueFromQuery(router, ['initialValues']), [router])
@@ -176,7 +176,7 @@ export const CreateContactForm: React.FC = () => {
             const phone = contact.phone
             const propertyId = get(contact, 'property.id')
             if (phone && propertyId) {
-                await router.push(`/phone/${phone}?tab=${getClientCardTabKey(propertyId, ClientType.Resident, contact.unitName, contact.unitType)}`)
+                await router.push(`/phone/${phone}?tab=${getClientCardTabKey(propertyId, ClientCardTab.Resident, contact.unitName, contact.unitType)}`)
             }
         } else {
             await router.push('/contact/')
@@ -192,7 +192,7 @@ export const CreateContactForm: React.FC = () => {
             layout='horizontal'
             validateTrigger={['onBlur', 'onSubmit']}
             colon={false}
-            onChange={()=> setIsFieldsChanged(true) }
+            onChange={() => setIsFieldsChanged(true)}
             ErrorToFormFieldMsgMapping={ErrorToFormFieldMsgMapping}
             isNonFieldErrorHidden
             formValuesToMutationDataPreprocessor={(values) => {
@@ -277,7 +277,7 @@ export const CreateContactForm: React.FC = () => {
                                             required
                                             validateFirst
                                             rules={validations.name}>
-                                            <Input placeholder={FullNamePlaceholderMessage}/>
+                                            <Input placeholder={FullNamePlaceholderMessage} />
                                         </Form.Item>
                                     </Col>
                                     <Col lg={18} xs={24}>
@@ -290,7 +290,7 @@ export const CreateContactForm: React.FC = () => {
                                             rules={validations.phone}
                                             {...INPUT_LAYOUT_PROPS}
                                         >
-                                            <PhoneInput placeholder={ExamplePhoneMessage} block/>
+                                            <PhoneInput placeholder={ExamplePhoneMessage} block />
                                         </Form.Item>
                                     </Col>
                                     <Col lg={18} xs={24}>
@@ -302,7 +302,7 @@ export const CreateContactForm: React.FC = () => {
                                             rules={validations.email}
                                             {...INPUT_LAYOUT_PROPS}
                                         >
-                                            <Input placeholder={ExampleEmailMessage}/>
+                                            <Input placeholder={ExampleEmailMessage} />
                                         </Form.Item>
                                     </Col>
                                     <Col lg={18} xs={24}>
@@ -314,9 +314,9 @@ export const CreateContactForm: React.FC = () => {
                                         >
                                             {
                                                 isRolesLoading ? (
-                                                    <Loader fill size='small'/>
+                                                    <Loader fill size='small' />
                                                 ) : (
-                                                    <ContactRoleSelect roles={roles}/>
+                                                    <ContactRoleSelect roles={roles} />
                                                 )
                                             }
                                         </Form.Item>
@@ -341,7 +341,7 @@ export const CreateContactForm: React.FC = () => {
                                     {
                                         ({ getFieldsValue, getFieldError }) => {
                                             const { phone, property, unitName } = getFieldsValue(['phone', 'property', 'unitName'])
-                                            const propertyMismatchError = getFieldError('property').find((error)=>error.includes(AddressNotSelected))
+                                            const propertyMismatchError = getFieldError('property').find((error) => error.includes(AddressNotSelected))
                                             const hasDuplicateError = Boolean(getFieldError('_NON_FIELD_ERROR_').find((error => error.includes(ContactDuplicateError))))
                                             const hasNameSpecCharError = Boolean(getFieldError('name').find((error => error.includes(FullNameInvalidCharMessage))))
                                             const hasNameTrimValidateError = Boolean(getFieldError('name').find((error => error.includes(FullNameRequiredMessage))))
