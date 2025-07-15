@@ -66,6 +66,16 @@
   display: none;
 }
 
+.generate-comment-button-wrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.generate-comment-inner-button-wrapper {
+  width: fit-content;
+}
+
 .comments-tabs-container {
   display: flex;
   flex: 1 1 auto;
