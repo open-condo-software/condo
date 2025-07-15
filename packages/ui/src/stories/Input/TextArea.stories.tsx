@@ -1,6 +1,6 @@
 import React from 'react'
 
-import * as condoIcons from '@open-condo/icons'
+import { Copy, Search, Edit, Eye, FileUp, Trash, Lock } from '@open-condo/icons'
 import { Button, Input as Component } from '@open-condo/ui/src'
 
 import type { Meta, StoryObj } from '@storybook/react'
@@ -18,23 +18,23 @@ const DemoButton = ({ icon, text, disabled }: { text?: string, icon: React.React
 
 const iconCombinations = {
     'copy-search': [
-        <DemoButton icon={<condoIcons.Copy size='small'/>} key='copy' />,
-        <DemoButton icon={<condoIcons.Search size='small'/>} key='search' />,
+        <DemoButton icon={<Copy size='small'/>} key='copy' />,
+        <DemoButton icon={<Search size='small'/>} key='search' />,
     ],
     'edit-copy': [
-        <DemoButton icon={<condoIcons.Edit size='small'/>} key='edit' />,
-        <DemoButton icon={<condoIcons.Copy size='small'/>} key='copy' />,
+        <DemoButton icon={<Edit size='small'/>} key='edit' />,
+        <DemoButton icon={<Copy size='small'/>} key='copy' />,
     ],
     'lock-eye': [
-        <DemoButton icon={<condoIcons.Lock size='small'/>} key='lock' />,
-        <DemoButton icon={<condoIcons.Eye size='small'/>} key='eye' />,
-        <DemoButton icon={<condoIcons.FileUp size='small'/>} key='eye-invisible' />,
+        <DemoButton icon={<Lock size='small'/>} key='lock' />,
+        <DemoButton icon={<Eye size='small'/>} key='eye' />,
+        <DemoButton icon={<FileUp size='small'/>} key='eye-invisible' />,
     ],
     'full-set': [
-        <DemoButton icon={<condoIcons.Copy size='small'/>} key='copy' />,
-        <DemoButton icon={<condoIcons.Search size='small'/>} key='search' />,
-        <DemoButton icon={<condoIcons.Edit size='small'/>} key='edit' />,
-        <DemoButton icon={<condoIcons.Trash size='small'/>} key='trash' text='Delete'/>,
+        <DemoButton icon={<Copy size='small'/>} key='copy' />,
+        <DemoButton icon={<Search size='small'/>} key='search' />,
+        <DemoButton icon={<Edit size='small'/>} key='edit' />,
+        <DemoButton icon={<Trash size='small'/>} key='trash' text='Delete'/>,
     ],
 }
 
