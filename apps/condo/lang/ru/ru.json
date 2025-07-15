@@ -343,7 +343,6 @@
   "ai.generateComment": "Сгенерировать комментарий",
   "ai.generateComment.tourStepDescription": "Попробуйте сгенерировать первое сообщение для жителя на основе данных из заявки",
   "ai.generateComment.tourStepTitle": "✨ Начните общение с помощью AI",
-  "ai.generateCommentWithAI": "Сгенерируйте первое сообщение для жителя",
   "ai.generateResponse": "Сгенерировать ответ",
   "ai.generateResponseWithAI": "Генерируйте ответы с помощью нейросети",
   "api.acquiring.exportPaymentsToExcel.NOTHING_TO_EXPORT": "Не найдены платежи для экспорта",

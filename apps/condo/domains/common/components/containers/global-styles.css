@@ -379,6 +379,14 @@
   box-shadow: none;
 }
 
+@media (max-width: 490px) {
+  .ant-drawer.ant-drawer-right > .ant-drawer-content-wrapper {
+    top: 0;
+    right: 0;
+    height: 100%;
+  }
+}
+
 .ant-drawer-content {
   border-radius: 24px;
 }

@@ -21,6 +21,7 @@ import { getClientSideSenderInfo } from '@open-condo/miniapp-utils'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Input, Radio, RadioGroup, Tooltip, Tour, Typography } from '@open-condo/ui'
+import { useBreakpoints } from '@open-condo/ui/hooks'
 
 import { AIFlowButton } from '@condo/domains/ai/components/AIFlowButton'
 import { FLOW_TYPES } from '@condo/domains/ai/constants.js'
@@ -93,7 +94,6 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> = ({
     const GenerateResponseMessage = intl.formatMessage({ id: 'ai.generateResponse' })
     const GenerateResponseTooltipMessage = intl.formatMessage({ id: 'ai.generateResponseWithAI' })
     const GenerateCommentMessage = intl.formatMessage({ id: 'ai.generateComment' })
-    const GenerateCommentTooltipMessage = intl.formatMessage({ id: 'ai.generateCommentWithAI' })
     const GenerateCommentTourStepTitle = intl.formatMessage({ id: 'ai.generateComment.tourStepTitle' })
     const GenerateCommentTourStepDescription = intl.formatMessage({ id: 'ai.generateComment.tourStepDescription' })
 
@@ -181,16 +181,14 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> = ({
                                     message={GenerateCommentTourStepDescription}
                                     onClose={closeTourStep}
                                 >
-                                    <Tooltip placement='topRight' mouseEnterDelay={1.5} title={GenerateCommentTooltipMessage}>
-                                        <div className={styles.generateCommentButtonWrapper}>
-                                            <AIFlowButton
-                                                loading={generateCommentLoading}
-                                                onClick={handleClickGenerateCommentButton}
-                                            >
-                                                {GenerateCommentMessage}
-                                            </AIFlowButton>
-                                        </div>
-                                    </Tooltip>
+                                    <div className={styles.generateCommentButtonWrapper}>
+                                        <AIFlowButton
+                                            loading={generateCommentLoading}
+                                            onClick={handleClickGenerateCommentButton}
+                                        >
+                                            {GenerateCommentMessage}
+                                        </AIFlowButton>
+                                    </div>
                                 </Tour.TourStep>
                             )}
                         </> }
@@ -257,7 +255,7 @@ export const CommentsWrapper: React.FC<CommentsWrapperPropsType>  = (props) => {
     const [commentType, setCommentType] = useState(ORGANIZATION_COMMENT_TYPE)
     const commentTextAreaRef = useRef(null)
 
-
+    const breakpoint = useBreakpoints()
     const [CommentFormOpen, setCommentFormOpen] = useState(false)
     const [editableComment, setEditableComment] = useState<CommentWithFiles | null>(null)
 
@@ -350,7 +348,7 @@ export const CommentsWrapper: React.FC<CommentsWrapperPropsType>  = (props) => {
                 onClose={() => setCommentFormOpen(false)}
                 open={CommentFormOpen}
                 className={styles.drawerWrapper}
-                width={486}
+                width={breakpoint.TABLET_SMALL ? 486 : 'auto'}
             >
                 <Comments
                     {...props}
