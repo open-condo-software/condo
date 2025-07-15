@@ -21,10 +21,6 @@
   cursor: default !important;
 }
 
-.accent-button .condo-btn-text {
-  color: red !important;
-}
-
 .condo-dropdown-menu-title-content > a::after {
   display: none !important;
 }
