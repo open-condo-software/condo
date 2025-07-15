@@ -41,7 +41,7 @@ export const useMarketplaceInvoicesTableColumns = ({ filtersMeta }) => {
         return renderInvoiceNumber(`№${number}`)
     }, [search])
 
-    const renderTicket = useCallback(() => (ticket) => {
+    const renderTicket = useCallback((ticket) => {
         if (!ticket) {
             return '—'
         }
