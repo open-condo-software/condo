@@ -173,7 +173,7 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> = ({
                     <EmptyCommentsContainer
                         PromptTitleMessage={PromptTitleMessage}
                         PromptDescriptionMessage={PromptDescriptionMessage}
-                        AiButton={<>
+                        AiButton={<div className={styles.generateCommentButtonWrapper}>
                             {showGenerateCommentWithoutComments && (
                                 <Tour.TourStep
                                     step={1}
@@ -181,7 +181,7 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> = ({
                                     message={GenerateCommentTourStepDescription}
                                     onClose={closeTourStep}
                                 >
-                                    <div className={styles.generateCommentButtonWrapper}>
+                                    <div className={styles.generateCommentInnerButtonWrapper}>
                                         <AIFlowButton
                                             loading={generateCommentLoading}
                                             onClick={handleClickGenerateCommentButton}
@@ -191,7 +191,7 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> = ({
                                     </div>
                                 </Tour.TourStep>
                             )}
-                        </> }
+                        </div> }
                     />
                 </div>
             ) : (
@@ -229,7 +229,7 @@ type CommentsWrapperPropsType = {
 }
 
 type CommentsPropsType = CommentsWrapperPropsType & {
-    CommentFormOpen: boolean
+    commentFormOpen: boolean
     isComponentInModal?: boolean
     setCommentFormOpen?: (value: boolean) => void
     editableComment: CommentWithFiles
@@ -256,7 +256,7 @@ export const CommentsWrapper: React.FC<CommentsWrapperPropsType>  = (props) => {
     const commentTextAreaRef = useRef(null)
 
     const breakpoint = useBreakpoints()
-    const [CommentFormOpen, setCommentFormOpen] = useState(false)
+    const [commentFormOpen, setCommentFormOpen] = useState(false)
     const [editableComment, setEditableComment] = useState<CommentWithFiles | null>(null)
 
     const [runGenerateCommentAIFlow, {
@@ -314,9 +314,9 @@ export const CommentsWrapper: React.FC<CommentsWrapperPropsType>  = (props) => {
 
     return (
         <Tour.Provider>
-            <Comments
+            {!commentFormOpen && <Comments
                 {...props}
-                CommentFormOpen={CommentFormOpen}
+                commentFormOpen={commentFormOpen}
                 setCommentFormOpen={setCommentFormOpen}
                 editableComment={editableComment}
                 setEditableComment={setEditableComment}
@@ -327,7 +327,7 @@ export const CommentsWrapper: React.FC<CommentsWrapperPropsType>  = (props) => {
                 generateCommentData={generateCommentData}
                 commentType={commentType}
                 setCommentType={setCommentType}
-            />
+            /> }
 
             <Drawer
                 title={
@@ -346,14 +346,14 @@ export const CommentsWrapper: React.FC<CommentsWrapperPropsType>  = (props) => {
                     </span>
                 }
                 onClose={() => setCommentFormOpen(false)}
-                open={CommentFormOpen}
+                open={commentFormOpen}
                 className={styles.drawerWrapper}
                 width={breakpoint.TABLET_SMALL ? 486 : 'auto'}
             >
                 <Comments
                     {...props}
                     isComponentInModal
-                    CommentFormOpen={CommentFormOpen}
+                    commentFormOpen={commentFormOpen}
                     setCommentFormOpen={setCommentFormOpen}
                     editableComment={editableComment}
                     setEditableComment={setEditableComment}
@@ -382,7 +382,7 @@ const Comments: React.FC<CommentsPropsType> = ({
     canCreateComments,
     FileModel,
     setCommentFormOpen,
-    CommentFormOpen,
+    commentFormOpen,
     fileModelRelationField,
     ticketCommentTimes,
     userTicketCommentReadTime,
@@ -598,12 +598,12 @@ const Comments: React.FC<CommentsPropsType> = ({
     }, [rewriteTextData?.answer])
 
     useEffect(() => {
-        if (!CommentFormOpen) {
+        if (!commentFormOpen) {
             setGenerateCommentAnswer('')
             setRewriteTextAnswer('')
             setErrorMessage('')
         }
-    }, [CommentFormOpen])
+    }, [commentFormOpen])
 
     useEffect(() => {
         setGenerateCommentAnswer(generateCommentData?.answer)
@@ -614,12 +614,12 @@ const Comments: React.FC<CommentsPropsType> = ({
     }, [rewriteTextData?.answer])
 
     useEffect(() => {
-        if (!CommentFormOpen) {
+        if (!commentFormOpen) {
             setGenerateCommentAnswer('')
             setRewriteTextAnswer('')
             setErrorMessage('')
         }
-    }, [CommentFormOpen])
+    }, [commentFormOpen])
 
     const handleRewriteTextClick = async () => {
         const context = {
