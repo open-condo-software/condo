@@ -86,6 +86,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
     const editableCommentFiles = editableComment?.files
     const [commentValue, setCommentValue] = useState('')
     const [copied, setCopied] = useState<boolean>()
+    const [isUpdateLoading, setIsUpdateLoading] = useState(false)
     const [aiNotificationShow, setAiNotificationShow] = useState(false)
 
     const { currentStep, setCurrentStep } = Tour.useTourContext()
