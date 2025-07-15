@@ -44,8 +44,8 @@ interface ICommentFormProps {
 
     rewriteTextAnswer?: string
     setRewriteTextAnswer: (value: string) => void
-    generateCommentClickHandler: () => void
-    rewriteTextOnClickHandler: () => void
+    generateCommentClickHandler: () => Promise<void>
+    rewriteTextOnClickHandler: () => Promise<void>
     commentTextAreaRef: null | React.MutableRefObject<InputRef>
 }
 
@@ -67,6 +67,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
     rewriteTextAnswer,
     setRewriteTextAnswer,
     setSending,
+    setEditableComment,
     onOpen,
     errorMessage,
     setGenerateCommentAnswer,
@@ -275,10 +276,10 @@ const CommentForm: React.FC<ICommentFormProps> = ({
             location: window.location.href,
             component: 'Button',
         })
-        closeAINotification()
+        setIsUpdateLoading(true)
 
-        if (rewriteTextAnswer) rewriteTextOnClickHandler()
-        if (generateCommentAnswer) generateCommentClickHandler()
+        if (rewriteTextAnswer) rewriteTextOnClickHandler().then(()=>setIsUpdateLoading(false))
+        if (generateCommentAnswer) generateCommentClickHandler().then(()=>setIsUpdateLoading(false))
     }
 
     return (
@@ -295,6 +296,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                 >
                     <AIInputNotification
                         targetRef={commentTextAreaRef}
+                        updateLoading={isUpdateLoading}
                         result={generateCommentAnswer || rewriteTextAnswer}
                         onApply={handleApplyGeneratedMessage}
                         errorMessage={errorMessage}
@@ -314,7 +316,10 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                             autoSize={{ minRows: 1, maxRows: 4 }}
                             disabled={sending || generateCommentLoading || rewriteTextLoading}
                             onSubmit={()=>handelSendMessage(commentForm)}
-                            onChange={(event) => setCommentValue(event.target.value)}
+                            onChange={(event) => {
+                                if (editableComment) setEditableComment(prev=> ({ ...prev, content: event.target.value }))
+                                else setCommentValue(event.target.value)
+                            }}
                             bottomPanelUtils={[
                                 <MemoizedUploadComponent
                                     key='uploadButton'

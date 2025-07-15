@@ -31,3 +31,12 @@
   justify-content: space-between;
   width: 100%;
 }
+
+.smooth-blinking-text {
+  animation: smooth-blink 2s ease-in-out infinite;
+}
+
+@keyframes smooth-blink {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}

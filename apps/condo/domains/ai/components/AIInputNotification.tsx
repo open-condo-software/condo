@@ -7,7 +7,7 @@ import { Space, Tooltip, Typography, Button } from '@open-condo/ui'
 
 import styles from './AIInputNotification.module.css'
 
-type Props = {
+type AIInputNotificationPropsType = {
     targetRef: React.MutableRefObject<TextAreaRef>
     result: string
     onApply: () => void
@@ -16,11 +16,44 @@ type Props = {
     open: boolean
     children: React.ReactNode
     errorMessage?: string
+    updateLoading?: boolean
 }
 
 const AUTO_CLOSE_DELAY = 10 * 1000
 
-const AIInputNotification: FC<Props> = ({
+type StatusPropsType = {
+    result?: string
+    updateLoading?: boolean
+}
+
+const Status: FC<StatusPropsType> = ({ result, updateLoading }) => {
+    const intl = useIntl()
+
+    const ReadyLabel = intl.formatMessage({ id: 'ai.inputNotification.ready' })
+    const FailedToGenerateLabel = intl.formatMessage({ id: 'ai.inputNotification.failedToGenerate' })
+
+    if (result) return (
+        <Typography.Text type='success'>
+            <span className={styles.status}>
+                <CheckCircle size='medium'/>
+                {ReadyLabel}
+            </span>
+        </Typography.Text>
+    )
+    else if (updateLoading) return (
+        <>лоадинг</>
+    )
+    else return (
+        <Typography.Text type='danger'>
+            <span className={styles.status}>
+                <XCircle size='medium'/>
+                {FailedToGenerateLabel}
+            </span>
+        </Typography.Text>
+    )
+}
+
+const AIInputNotification: FC<AIInputNotificationPropsType> = ({
     result,
     onApply,
     onUpdate,
@@ -28,12 +61,17 @@ const AIInputNotification: FC<Props> = ({
     open,
     children,
     errorMessage,
+    updateLoading,
 }) => {
     const intl = useIntl()
-    const ReadyLabel = intl.formatMessage({ id: 'ai.inputNotification.ready' })
-    const FailedToGenerateLabel = intl.formatMessage({ id: 'ai.inputNotification.failedToGenerate' })
     const ApplyLabel = intl.formatMessage({ id: 'ai.inputNotification.apply' })
     const AnotherVariantLabel = intl.formatMessage({ id: 'ai.inputNotification.anotherVariant' })
+    const [tempMessage, setTempMessage] = useState('')
+
+    useEffect(() => {
+        if (updateLoading && result) setTempMessage(result)
+        if (!updateLoading && !result) setTempMessage('')
+    }, [updateLoading, result])
 
     const targetRef = useRef(null)
     const autoCloseTimerRef = useRef<ReturnType<typeof setTimeout>>()
@@ -80,7 +118,7 @@ const AIInputNotification: FC<Props> = ({
                 right: (tooltipWidth - 250) / 2,
                 position: 'relative',
             }}
-            open={open && (!!result || !!errorMessage)}
+            open={open && (!!result || !!errorMessage || updateLoading)}
             title={
                 <div
                     onMouseEnter={handleMouseEnter}
@@ -93,21 +131,10 @@ const AIInputNotification: FC<Props> = ({
                         className={styles.notification}
                     >
                         <div className={styles.header}>
-                            {!errorMessage ? (
-                                <Typography.Text type='success'>
-                                    <span className={styles.status}>
-                                        <CheckCircle size='medium'/>
-                                        {ReadyLabel}
-                                    </span>
-                                </Typography.Text>
-                            ) : (
-                                <Typography.Text type='danger'>
-                                    <span className={styles.status}>
-                                        <XCircle size='medium'/>
-                                        {FailedToGenerateLabel}
-                                    </span>
-                                </Typography.Text>
-                            )}
+                            <Status
+                                result={result}
+                                updateLoading={updateLoading}
+                            />
 
                             <Button
                                 type='secondary'
@@ -120,22 +147,26 @@ const AIInputNotification: FC<Props> = ({
                         </div>
 
                         <Typography.Paragraph size='medium'>
-                            {result || errorMessage}
+                            <span className={updateLoading ? styles.smoothBlinkingText : ''}>
+                                {result || errorMessage || tempMessage}
+                            </span>
                         </Typography.Paragraph>
 
-                        {result && (
+                        {(updateLoading || result) && (
                             <div className={styles.actions}>
                                 <Button
                                     onClick={onApply}
                                     type='primary'
                                     minimal
                                     compact
+                                    disabled={updateLoading}
                                     size='medium'
                                 >
                                     {ApplyLabel}
                                 </Button>
 
                                 <Button
+                                    disabled={updateLoading}
                                     onClick={onUpdate}
                                     type='secondary'
                                     minimal

@@ -343,7 +343,6 @@
   "ai.generateComment": "Generate comment",
   "ai.generateComment.tourStepDescription": "Try generating your first message for a resident based on the ticket data",
   "ai.generateComment.tourStepTitle": "✨ Start chatting with AI",
-  "ai.generateCommentWithAI": "Generate first message for resident",
   "ai.generateResponse": "Generate response",
   "ai.generateResponseWithAI": "Generate responses with AI",
   "api.acquiring.exportPaymentsToExcel.NOTHING_TO_EXPORT": "No payments to export",
