@@ -1,18 +1,23 @@
-import { Layout, Row } from 'antd'
+import { Layout, Row, Col } from 'antd'
 import classnames from 'classnames'
 import getConfig from 'next/config'
 import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Typography } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { SecondaryLink } from '@condo/domains/user/components/auth/SecondaryLink'
 
 import styles from './Footer.module.css'
 
 
-const { publicRuntimeConfig: { footerConfig } } = getConfig()
+interface FooterConfig {
+    [locale: string]: {
+        privacyPolicyLink?: string
+    }
+}
+
+const { publicRuntimeConfig: { footerConfig } } = getConfig() as { publicRuntimeConfig: { footerConfig: FooterConfig } }
 
 export const Footer: React.FC = () => {
     const intl = useIntl()
@@ -28,19 +33,20 @@ export const Footer: React.FC = () => {
         <Layout.Footer
             className={footerClassName}
         >
-            {
-                localizedFooterConfig?.privacyPolicyLink &&
-                <Row justify='end'>
-                    <Typography.Link
-                        size='small'
-                        href={localizedFooterConfig?.privacyPolicyLink}
-                        target='_blank'
-                        style={{ color: colors.gray[7] }}
-                    >
-                        {privacyPolicyText}
-                    </Typography.Link>
-                </Row>
-            }
+            <Row justify='end'>
+                {
+                    localizedFooterConfig?.privacyPolicyLink &&
+                    <Col>
+                        <SecondaryLink
+                            size='small'
+                            href={localizedFooterConfig?.privacyPolicyLink}
+                            target='_blank'
+                        >
+                            {privacyPolicyText}
+                        </SecondaryLink>
+                    </Col>
+                }
+            </Row>
         </Layout.Footer>
     )
 }
