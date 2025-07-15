@@ -5,6 +5,8 @@ import { useIntl } from 'react-intl'
 import { CheckCircle, Close, RefreshCw, XCircle } from '@open-condo/icons'
 import { Space, Tooltip, Typography, Button } from '@open-condo/ui'
 
+import { ProgressLoader } from '@condo/domains/common/components/Loader'
+
 import styles from './AIInputNotification.module.css'
 
 type AIInputNotificationPropsType = {
@@ -41,7 +43,7 @@ const Status: FC<StatusPropsType> = ({ result, updateLoading }) => {
         </Typography.Text>
     )
     else if (updateLoading) return (
-        <>лоадинг</>
+        <ProgressLoader/>
     )
     else return (
         <Typography.Text type='danger'>
