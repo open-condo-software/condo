@@ -1,6 +1,5 @@
 import { User, TicketComment } from '@app/condo/schema'
 import { css } from '@emotion/react'
-import { DeleteFilled, EditFilled } from '@ant-design/icons'
 import styled from '@emotion/styled'
 import { Comment as AntComment, Image, Typography } from 'antd'
 import dayjs from 'dayjs'
@@ -17,8 +16,6 @@ import { Button, Tooltip } from '@open-condo/ui'
 import { colors, fontSizes } from '@condo/domains/common/constants/style'
 import { getIconByMimetype } from '@condo/domains/common/utils/clientSchema/files'
 
-import { Button } from '../Button'
-
 import { CommentWithFiles } from './index'
 
 
@@ -30,31 +27,6 @@ interface ICommentProps {
     setEditableComment: (value: CommentWithFiles) => void
     deleteAction?: (obj: CommentWithFiles) => Promise<void>
 }
-
-const DeleteButtonStyle = css`
-    border: none;
-    color: ${colors.red[5]};
-    background-color: ${colors.black};
-    box-shadow: ${shadows.small};
-  
-    &:hover {
-      background-color: ${colors.white};
-      color: ${colors.red[5]};
-    }
-`
-
-const UpdateButtonStyle = css`
-    border: none;
-    color: ${colors.white};
-    background-color: ${colors.black};
-    box-shadow: ${shadows.small};
-    margin-left: 4px;
-  
-    &:hover {
-      background-color: ${colors.white};
-      color: ${colors.black};
-    }
-`
 
 const DeletedTextStyle = css`
     margin-top: 1em;
