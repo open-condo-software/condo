@@ -15,7 +15,7 @@ const {
     WRONG_EMAIL_VALUE,
 } = require('@condo/domains/common/constants/errors')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
-const { SMS_VERIFY_CODE_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
+const { EMAIL_VERIFY_CODE_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const {
     CONFIRM_EMAIL_ACTION_EXPIRY,
@@ -110,7 +110,7 @@ const ERRORS = {
         variable: ['data', 'secretCode'],
         code: BAD_USER_INPUT,
         type: EMAIL_CODE_VERIFICATION_FAILED,
-        message: 'SMS code verification mismatch',
+        message: 'Code verification mismatch',
         messageForUser: 'api.user.completeConfirmEmailAction.EMAIL_CODE_VERIFICATION_FAILED',
     },
 }
@@ -279,7 +279,7 @@ const ConfirmEmailActionService = new GQLCustomSchema('ConfirmEmailActionService
 
                 await sendMessage(context,  {
                     to: { email: normalizedEmail },
-                    type: SMS_VERIFY_CODE_MESSAGE_TYPE,
+                    type: EMAIL_VERIFY_CODE_MESSAGE_TYPE,
                     meta: {
                         dv: 1,
                         secretCode,
@@ -365,7 +365,7 @@ const ConfirmEmailActionService = new GQLCustomSchema('ConfirmEmailActionService
 
                 await sendMessage(context,  {
                     to: { email },
-                    type: SMS_VERIFY_CODE_MESSAGE_TYPE,
+                    type: EMAIL_VERIFY_CODE_MESSAGE_TYPE,
                     meta: {
                         dv: 1,
                         secretCode: newSecretCode,

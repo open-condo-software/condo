@@ -38,6 +38,10 @@ const {
     RESET_USER_MUTATION,
     SEND_MESSAGE_TO_SUPPORT_MUTATION,
     SIGNIN_AS_USER_MUTATION,
+    COMPLETE_CONFIRM_EMAIL_ACTION_MUTATION,
+    RESEND_CONFIRM_EMAIL_ACTION_MUTATION,
+    GET_EMAIL_BY_CONFIRM_EMAIL_ACTION_TOKEN_QUERY,
+    START_CONFIRM_EMAIL_ACTION_MUTATION,
 } = require('@condo/domains/user/gql')
 const { generateSmsCode } = require('@condo/domains/user/utils/serverSchema')
 
@@ -54,7 +58,6 @@ const { UserSudoToken: UserSudoTokenGQL } = require('@condo/domains/user/gql')
 const { GENERATE_SUDO_TOKEN_MUTATION } = require('@condo/domains/user/gql')
 const { AUTHENTICATE_OR_REGISTER_USER_WITH_TOKEN_MUTATION } = require('@condo/domains/user/gql')
 const { ConfirmEmailAction: ConfirmEmailActionGQL } = require('@condo/domains/user/gql')
-const { CONFIRM_EMAIL_ACTION_MUTATION } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const OIDC_REDIRECT_URI = 'https://httpbin.org/anything'
@@ -640,9 +643,9 @@ async function createTestConfirmEmailAction (client, extraAttrs = {}) {
     const secretCode = faker.random.numeric(4)
     const now = dayjs()
     const secretCodeRequestedAt = now.toISOString()
-    const secretCodeExpiresAt = now.add(1, 'min').toISOString()
+    const secretCodeExpiresAt = now.add(1, 'minute').toISOString()
     const requestedAt = now.toISOString()
-    const expiresAt = now.add(15, 'min').toISOString()
+    const expiresAt = now.add(15, 'minutes').toISOString()
 
     const attrs = {
         dv: 1,
@@ -674,17 +677,66 @@ async function updateTestConfirmEmailAction (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-
-async function confirmEmailActionByTestClient(client, extraAttrs = {}) {
+async function completeConfirmEmailActionByTestClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const captcha = faker.lorem.sentence()
 
     const attrs = {
         dv: 1,
         sender,
+        captcha,
         ...extraAttrs,
     }
-    const { data, errors } = await client.mutate(CONFIRM_EMAIL_ACTION_MUTATION, { data: attrs })
+    const { data, errors } = await client.mutate(COMPLETE_CONFIRM_EMAIL_ACTION_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
+async function startConfirmEmailActionByTestClient (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const captcha = faker.lorem.sentence()
+
+    const attrs = {
+        dv: 1,
+        sender,
+        captcha,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(START_CONFIRM_EMAIL_ACTION_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
+async function resendConfirmEmailActionByTestClient (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const captcha = faker.lorem.sentence()
+
+    const attrs = {
+        dv: 1,
+        sender,
+        captcha,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(RESEND_CONFIRM_EMAIL_ACTION_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
+async function getEmailByConfirmEmailActionTokenByTestClient (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const captcha = faker.lorem.sentence()
+
+    const attrs = {
+        dv: 1,
+        sender,
+        captcha,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(GET_EMAIL_BY_CONFIRM_EMAIL_ACTION_TOKEN_QUERY, { data: attrs })
     throwIfError(data, errors)
     return [data.result, attrs]
 }
@@ -734,6 +786,9 @@ module.exports = {
     OIDC_REDIRECT_URI,
     authenticateOrRegisterUserWithTokenByTestClient,
     ConfirmEmailAction, createTestConfirmEmailAction, updateTestConfirmEmailAction,
-    confirmEmailActionByTestClient,
+    completeConfirmEmailActionByTestClient,
+    startConfirmEmailActionByTestClient,
+    resendConfirmEmailActionByTestClient,
+    getEmailByConfirmEmailActionTokenByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
