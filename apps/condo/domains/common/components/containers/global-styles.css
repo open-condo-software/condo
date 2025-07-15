@@ -367,3 +367,265 @@
 .map-unit-button.map-commercial-unit-button:hover {
   background-color: #eb34684d;
 }
+
+/* Legacy styles for components that do not use @open-condo/ui yet */
+
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+  font-family: "Wix Madefor Display", -apple-system, BlinkMacSystemFont, Helvetica, sans-serif !important;
+  line-height: 1.5;
+  text-rendering: optimizelegibility;
+  -ms-overflow-style: -ms-autohiding-scrollbar;
+  font-feature-settings: "liga on";
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Page */
+
+.top-menu-only-layout .page-wrapper {
+  flex: auto;
+  align-self: center;
+  min-width: initial;
+  max-width: 600px;
+  margin: 0 auto;
+  padding-top: 64px;
+  padding-bottom: 64px;
+}
+
+@media (max-width: 768px) {
+  .top-menu-only-layout .page-wrapper {
+    min-width: initial;
+  }
+}
+
+@media (max-width: 480px) {
+  .top-menu-only-layout .page-wrapper {
+    min-width: 100%;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+}
+
+.transparent-page-content .page-content {
+  padding: 0;
+  background: inherit;
+}
+
+.centered-page-content .page-wrapper {
+  flex: auto;
+  align-self: center;
+  min-width: initial;
+  max-width: 600px;
+}
+
+/* Tables */
+
+.ant-table.ant-table-bordered > .ant-table-container > .ant-table-content > table > thead > tr > th:not(:last-of-type),
+.ant-table.ant-table-bordered > .ant-table-container > .ant-table-header > table > thead > tr > th:not(:last-of-type),
+.ant-table.ant-table-bordered > .ant-table-container > .ant-table-body > table > thead > tr > th:not(:last-of-type),
+.ant-table.ant-table-bordered > .ant-table-container > .ant-table-content > table > tbody > tr > td:not(:last-of-type),
+.ant-table.ant-table-bordered > .ant-table-container > .ant-table-header > table > tbody > tr > td:not(:last-of-type),
+.ant-table.ant-table-bordered > .ant-table-container > .ant-table-body > table > tbody > tr > td:not(:last-of-type),
+.ant-table.ant-table-bordered > .ant-table-container > .ant-table-content > table > tfoot > tr > th:not(:last-of-type),
+.ant-table.ant-table-bordered > .ant-table-container > .ant-table-header > table > tfoot > tr > th:not(:last-of-type),
+.ant-table.ant-table-bordered > .ant-table-container > .ant-table-body > table > tfoot > tr > th:not(:last-of-type),
+.ant-table.ant-table-bordered > .ant-table-container > .ant-table-content > table > tfoot > tr > td:not(:last-of-type),
+.ant-table.ant-table-bordered > .ant-table-container > .ant-table-header > table > tfoot > tr > td:not(:last-of-type),
+.ant-table.ant-table-bordered > .ant-table-container > .ant-table-body > table > tfoot > tr > td:not(:last-of-type) {
+  border-right: none !important;
+}
+
+.ant-table.ant-table-bordered .ant-table-thead > tr > th:not(.ant-table-selection-column, .ant-table-column-sort, .ant-table-column-has-sorters, :hover) {
+  background: var(--condo-global-color-white);
+}
+
+.ant-table.ant-table-bordered .ant-table-thead th.ant-table-column-sort,
+.ant-table.ant-table-bordered .ant-table-thead th:hover {
+  background: var(--condo-global-color-gray-1);
+}
+
+.ant-table.ant-table-bordered .ant-table-tbody > tr > td.ant-table-column-sort {
+  background: inherit;
+}
+
+.ant-table.ant-table-bordered > .ant-table-container {
+  border: 1px solid #e1e5ed;
+  border-radius: var(--condo-global-border-radius-large);
+}
+
+.ant-table.ant-table-bordered .ant-table-thead > tr > th,
+.ant-table.ant-table-bordered .ant-table-tbody > tr > td {
+  border-color: #e1e5ed;
+}
+
+.ant-table.ant-table-bordered .ant-table-sticky-holder {
+  background-color: transparent;
+  border-radius: unset;
+}
+
+.ant-table .ant-table-container::before,
+.ant-table .ant-table-container::after {
+  display: none;
+}
+
+.ant-table.ant-table-bordered .ant-table-tbody tr:last-of-type > td {
+  border-bottom: none;
+}
+
+.ant-table.ant-table-bordered > .ant-table-container > .ant-table-header > table > thead > tr > th,
+.ant-table.ant-table-bordered > .ant-table-container > .ant-table-body > table > tbody > tr > td,
+.ant-table.ant-table-bordered > .ant-table-container > .ant-table-content > table > tbody > tr > td,
+.ant-table.ant-table-bordered > .ant-table-container > .ant-table-content > table > thead > tr > th {
+  border-right: none !important;
+}
+
+.ant-table.ant-table-bordered > .ant-table-container > .ant-table-content > table,
+.ant-table.ant-table-bordered > .ant-table-container > .ant-table-header > table {
+  border: none !important;
+}
+
+.ant-table.ant-table-bordered div::-webkit-scrollbar-track {
+  border: none;
+  border-radius: var(--condo-global-border-radius-large);
+}
+
+.ant-table.ant-table-bordered div::-webkit-scrollbar {
+  width: 14px;
+  border-right: 5px solid transparent;
+}
+
+.ant-table.ant-table-bordered div::-webkit-scrollbar-thumb {
+  width: 5px;
+  background-color: var(--condo-global-color-gray-5);
+  background-clip: padding-box;
+  border: 4px solid transparent;
+  border-radius: var(--condo-global-border-radius-large);
+}
+
+.ant-table.ant-table-bordered div::-webkit-scrollbar-thumb:hover {
+  border: 2px solid transparent;
+}
+
+.ant-table.ant-table-bordered div::-webkit-scrollbar-track {
+  border-radius: 12px;
+}
+
+.ant-table.ant-table-bordered div::-webkit-scrollbar-track,
+.ant-table.ant-table-bordered div::-webkit-scrollbar-corner {
+  background-color: transparent;
+}
+
+.ant-table-pagination.ant-pagination {
+  margin: 40px 0 16px;
+}
+
+.ant-table-column-sorter,
+.ant-table-filter-trigger {
+  visibility: hidden;
+}
+
+.ant-table-filter-trigger.active {
+  visibility: visible;
+}
+
+.ant-table-cell .icon {
+  color: #707695 !important;
+}
+
+.ant-table-cell .icon:hover {
+  color: #222 !important;
+}
+
+.ant-table-cell:hover .ant-table-column-sorter,
+.ant-table-cell:hover .ant-table-filter-trigger {
+  visibility: visible;
+}
+
+.ant-table-thead > tr > th {
+  color: var(--condo-global-color-gray-7); /* colors.textSecondary */
+  font-weight: var(--condo-global-font-weight-regular); /* DEFAULT_STRONG_TEXT_FONT_WEIGHT */
+  font-size: 12px;
+  line-height: 20px;
+  letter-spacing: -0.01em;
+}
+
+.ant-table-row:hover {
+  cursor: pointer;
+}
+
+.ant-table-row-expand-icon-spaced {
+  display: none;
+}
+
+.ant-table-container {
+  border-bottom-right-radius: var(--condo-global-border-radius-large);
+  border-bottom-left-radius: var(--condo-global-border-radius-large);
+}
+
+.ant-table-tbody > tr > td {
+  line-height: 22px;
+  letter-spacing: -0.01em;
+  vertical-align: top;
+}
+
+.ant-table-tbody > tr > td * {
+  word-break: initial;
+}
+
+.ant-table-tbody > tr:last-child > td:first-child {
+  border-bottom-left-radius: 12px;
+}
+
+.ant-table-tbody > tr:last-child > td:last-child {
+  border-bottom-right-radius: 12px;
+}
+
+.ant-table-summary {
+  background-color: transparent;
+}
+
+.ant-table-summary .ant-table-cell {
+  border: none !important;
+  border-top: 1px solid var(--condo-global-color-gray-3) !important;
+  border-radius: 0 0 12px 12px !important;
+}
+
+.ant-table-tbody > tr.condo-table-expandable-row {
+  font-weight: var(--condo-global-font-weight-bold);
+}
+
+.ant-table-tbody > tr.condo-table-expandable-row.condo-table-expandable-row-last-row:not(.condo-table-expandable-row-expanded) > td:first-child {
+  border-bottom-left-radius: 8px;
+}
+
+.ant-table-tbody > tr.condo-table-expandable-row.condo-table-expandable-row-last-row:not(.condo-table-expandable-row-expanded) > td:last-child {
+  border-bottom-right-radius: 8px;
+}
+
+.ant-table-tbody > tr.condo-table-expandable-row:hover > td {
+  background-color: var(--condo-global-color-gray-1);
+}
+
+.ant-table-tbody > tr.condo-table-expandable-row-expanded {
+  background-color: var(--condo-global-color-gray-1);
+}
+
+.ant-table-tbody > .condo-table-expandable-row-inner-row > td > .ant-table-wrapper .ant-table {
+  margin-left: 0 !important;
+}
+
+.ant-table-tbody > .condo-table-expandable-row-inner-row > td > .ant-table-wrapper .ant-table > .ant-table-container {
+  border-top: 0;
+  border-right: 0;
+  border-bottom: 0;
+  border-left: 0;
+  border-radius: 0;
+}
+
+.ant-table-tbody > .condo-table-expandable-row-inner-row > td {
+  padding-left: 0;
+}
+
+/* Input styles */
