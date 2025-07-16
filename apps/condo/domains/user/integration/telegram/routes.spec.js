@@ -45,11 +45,10 @@ function expectResultError (res, error) {
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ error }))
 }
 
-function createMockReqResNext (query = {}, params = {}, user = null) {
+function createMockReqResNext (query = {}, user = null) {
     const req = {
         id: 'test_req_id',
-        query,
-        params: { botId: RESIDENT_BOT_ID, ...params },
+        query: { botId: RESIDENT_BOT_ID, ...query },
         session: { save: jest.fn(), regenerate: jest.fn(() => null) },
         user,
     }
@@ -110,70 +109,68 @@ describe('TelegramOauthRoutes', () => {
 
     describe('startAuth', () => {
         const mockUserId = faker.random.alphaNumeric(10)
+        const expectRedirectToCallback = expect.stringContaining(`tg/auth/callback?botId=${RESIDENT_BOT_ID}`)
+        const expectRedirectToAuthPage = expect.stringMatching(/^\/auth/)
 
         const testCases = [
             {
                 name: 'identity exists, user is authorized, user id and type matches — redirect',
                 identity: { user: { id: mockUserId, userType: RESIDENT } },
-                query: { userType: RESIDENT, redirectUrl: ALLOWED_REDIRECT_URLS[0] },
                 user: { id: mockUserId, type: RESIDENT },
-                expectedRedirect: expect.stringContaining(`tg/${RESIDENT_BOT_ID}/auth/callback`),
+                expectedRedirect: expectRedirectToCallback,
             },
             {
                 name: 'identity exists, user is authorized, id does not match — logout and redirect to /auth',
                 identity: { user: { id: mockUserId, userType: RESIDENT } },
-                query: { userType: RESIDENT, redirectUrl: ALLOWED_REDIRECT_URLS[0] },
                 user: { id: faker.random.alphaNumeric(10), type: RESIDENT },
-                expectedRedirect: expect.stringContaining('/auth'),
+                expectedRedirect: expectRedirectToAuthPage,
                 expectedToEndSession: true,
             },
             {
                 name: 'identity exists, user is authorized, is superuser — logout and redirect to /auth',
                 identity: { user: { id: mockUserId, userType: RESIDENT } },
-                query: { userType: RESIDENT, redirectUrl: ALLOWED_REDIRECT_URLS[0] },
                 user: { id: mockUserId, type: RESIDENT, isAdmin: true },
-                expectedRedirect: expect.stringContaining('/auth'),
+                expectedRedirect: expectRedirectToAuthPage,
                 expectedToEndSession: true,
             },
             {
                 name: 'identity exists, user is authorized, wrong userType — logout and redirect to /auth',
                 identity: { user: { id: mockUserId, userType: RESIDENT } },
-                query: { userType: RESIDENT, redirectUrl: ALLOWED_REDIRECT_URLS[0] },
                 user: { id: mockUserId, type: STAFF },
-                expectedRedirect: expect.stringContaining('/auth'),
+                expectedRedirect: expectRedirectToAuthPage,
                 expectedToEndSession: true,
             },
             {
                 name: 'identity does not exist, user is not authorized — redirect to /auth',
-                query: { userType: RESIDENT, redirectUrl: ALLOWED_REDIRECT_URLS[0] },
-                expectedRedirect: expect.stringContaining('/auth'),
+                expectedRedirect: expectRedirectToAuthPage,
             },
             {
                 name: 'identity does not exist, wrong userType — logout and redirect to /auth',
-                query: { userType: RESIDENT, redirectUrl: ALLOWED_REDIRECT_URLS[0] },
                 user: { id: mockUserId, type: STAFF },
-                expectedRedirect: expect.stringContaining('/auth'),
+                expectedRedirect: expectRedirectToAuthPage,
                 expectedToEndSession: true,
             },
             {
                 name: 'identity does not exist, user is superuser — logout and redirect to /auth',
-                query: { userType: RESIDENT, redirectUrl: ALLOWED_REDIRECT_URLS[0] },
                 user: { id: mockUserId, type: RESIDENT, isAdmin: true },
-                expectedRedirect: expect.stringContaining('/auth'),
+                expectedRedirect: expectRedirectToAuthPage,
                 expectedToEndSession: true,
             },
             {
                 name: 'identity does not exist, user is authorized and valid — redirect',
-                query: { userType: RESIDENT, redirectUrl: ALLOWED_REDIRECT_URLS[0] },
                 user: { id: mockUserId, type: RESIDENT },
-                expectedRedirect: expect.stringContaining(`tg/${RESIDENT_BOT_ID}/auth/callback`),
+                expectedRedirect: expectRedirectToCallback,
             },
         ]
 
 
 
         test.each(testCases)('$name', async ({ identity, query, user, expectedRedirect, expectedToEndSession }) => {
-            const { req, res, next } = createMockReqResNext({ ...query }, {}, user)
+            const { req, res, next } = createMockReqResNext({ 
+                userType: RESIDENT, 
+                redirectUrl: ALLOWED_REDIRECT_URLS[0],
+                ...query,
+            }, user)
             getIdentity.mockResolvedValueOnce(identity)
             await routes.startAuth(req, res, next)
             expect(res.redirect.mock.calls[0][0].toString()).toEqual(expectedRedirect)

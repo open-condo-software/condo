@@ -38,7 +38,7 @@ describe('Telegram integration params utils', () => {
 
     it('getBotId', async () => {
         const botId = faker.random.alphaNumeric(10)
-        expect(getBotId({ params: { botId } })).toBe(botId)
+        expect(getBotId({ params: { botId } })).toBe(null)
         expect(getBotId({ query: { botId } })).toBe(botId)
         expect(getBotId({})).toBe(null)
         expect(getBotId({ params: { botId: 'botIdFromParams' }, query: { botId: 'botIdFromQuery' } })).toBe('botIdFromQuery')

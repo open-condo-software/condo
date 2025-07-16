@@ -1,7 +1,3 @@
-/**
- * @jest-environment node
- */
-
 const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
 
@@ -30,7 +26,7 @@ describe('syncUser from Telegram', () => {
         context = await keystone.createContext({ skipAccessControl: true })
     })
 
-    it('can\'t create user', async () => {
+    it('must not create user if identity is new', async () => {
         const identityId = faker.datatype.uuid()
         const userInfo = mockUserInfo(identityId)
 

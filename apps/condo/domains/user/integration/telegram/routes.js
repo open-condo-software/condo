@@ -36,18 +36,25 @@ class BotsConfigProvider {
     validationError
     configs = {}
     constructor () {
-        this.isValid = true
-        const TELEGRAM_OAUTH_CONFIG = JSON.parse(conf.TELEGRAM_OAUTH_CONFIG || '[]')
-            .map(conf => ({ ...conf, botId: parseBotId(conf.botToken) }))
-        const validationError = getOauthConfigValidationError(TELEGRAM_OAUTH_CONFIG)
-        if (validationError) {
-            const err = new Error(validationError)
-            logger.error({ msg: 'telegram oauth config error', err })
+        try {
+            this.isValid = true
+            let telegramOauthConfig
+            telegramOauthConfig = JSON.parse(conf.TELEGRAM_OAUTH_CONFIG || '[]')
+                .map(conf => ({ ...conf, botId: parseBotId(conf.botToken) }))
+            const validationError = getOauthConfigValidationError(telegramOauthConfig)
+            if (validationError) {
+                const err = new HttpError(validationError)
+                logger.error({ msg: 'telegram oauth config error', err })
+                this.isValid = false
+                this.validationError = err
+            }
+            for (const config of telegramOauthConfig) {
+                this.configs[config.botId] = config
+            }
+        } catch (err) {
+            logger.error({ msg: 'telegram oauth config error', err } )
             this.isValid = false
             this.validationError = err
-        }
-        for (const config of TELEGRAM_OAUTH_CONFIG) {
-            this.configs[config.botId] = config
         }
     }
 
@@ -77,10 +84,11 @@ class TelegramOauthRoutes {
             } = this._validateParameters(req, res, next)
             const { keystone: context } = await getSchemaCtx('User')
             const identity = await getIdentity(context, tgAuthData, userType)
-            const callbackUrl = this._buildUrlWithParams(`${conf.SERVER_URL}/api/tg/${getBotId(req)}/auth/callback`, {
+            const callbackUrl = this._buildUrlWithParams(`${conf.SERVER_URL}/api/tg/auth/callback`, {
                 ...req.query,
                 redirectUrl: encodeURIComponent(redirectUrl),
                 tgAuthData: req.query.tgAuthData,
+                botId: getBotId(req),
             })
             if (identity) {
                 if (isAuthorized(req) && (!isUserWithRightType(req, userType) || isSuperUser(req) || identity.user.id !== req.user.id)) {
@@ -165,7 +173,7 @@ class TelegramOauthRoutes {
     
     _validateBotId (req) {
         if (!this._provider.isValid) {
-            throw new HttpError(ERRORS.INVALID_CONFIG)
+            throw this._provider.validationError ? this._provider.validationError : new HttpError(ERRORS.INVALID_CONFIG)
         }
         const botId = getBotId(req)
         if (!this._provider.isValidBotId(botId)) {

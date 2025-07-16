@@ -31,10 +31,7 @@ function parseBotId (botToken) {
 }
 
 function getBotId (req) {
-    let { botId } = req.query || {}
-    if (!botId) {
-        botId = (req.params || {}).botId
-    }
+    const { botId } = req.query || {}
     return botId || null
 }
 

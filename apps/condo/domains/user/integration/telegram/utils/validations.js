@@ -144,16 +144,16 @@ function getOauthConfigValidationError (oauthConfig) {
     const uniqueBotIds = new Set(oauthConfig.map(conf => conf.botId))
     if (uniqueBotIds.size !== oauthConfig.length) {
         const duplicateNames = [...uniqueBotIds].filter(botId => oauthConfig.filter(conf => conf.botId === botId).length > 1)
-        return `Duplicate bot ids: "${duplicateNames.join('", "')}"`
+        return { ...ERRORS.INVALID_CONFIG, data: { reason: `Duplicate bot ids: "${duplicateNames.join('", "')}"` } }
     }
     oauthConfig.forEach((config, index) => {
         for (const key of CONFIG_REQUIRED_FIELDS) {
             if (!Object.hasOwn(config, key)) {
-                return `Missing required field ${key} at index ${index}`
+                return { ...ERRORS.INVALID_CONFIG, data: { reason: `Missing required field ${key} at index ${index}` } }
             }
         }
         if (!Array.isArray(config.allowedRedirectUrls)) {
-            return `Field "allowedRedirectUrls" should be array at index ${index}`
+            return { ...ERRORS.INVALID_CONFIG, data: { reason: `Field "allowedRedirectUrls" should be array at index ${index}` } }
         }
     })
 }
