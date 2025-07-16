@@ -1,7 +1,11 @@
 const path = require('path')
 
+const toString = require('lodash/toString')
+
 const { getExecutionContext } = require('@open-condo/keystone/executionContext')
 const { graphqlCtx } = require('@open-condo/keystone/KSv5v6/utils/graphqlCtx')
+
+const { KNOWN_FIELDS } = require('./serializers')
 
 /**
  * @private
@@ -81,6 +85,9 @@ function _enhanceLogWithAsyncContext (dataObj) {
     if (executionContext?.taskId) {
         enhancedObj['taskId'] = executionContext.taskId
     }
+    if (executionContext?.execId) {
+        enhancedObj['execId'] = executionContext.execId
+    }
 
     // Graphql context
     const gqlContext = graphqlCtx.getStore()
@@ -114,8 +121,33 @@ function _callsites () {
     }
 }
 
+/**
+ * @deprecated Internal logging util. You should not use it directly
+ * @private
+ */
+function _enhanceLogWithUnknownProperties (dataObj) {
+    const unknownFields = []
+    const result = {}
+
+    for (const [key, value] of Object.entries(dataObj)) {
+        if (KNOWN_FIELDS.has(key)) {
+            result[key] = value
+        } else {
+            result[key] = JSON.stringify(value)
+            unknownFields.push(key)
+        }
+    }
+
+    if (unknownFields.length) {
+        result['unknownFields'] = unknownFields
+    }
+
+    return result
+}
+
 module.exports = {
     _extractPropertiesFromPath,
     _enhanceLogWithAsyncContext,
+    _enhanceLogWithUnknownProperties,
     _callsites,
 }

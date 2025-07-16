@@ -1,22 +1,35 @@
 // NOTE: same as keystone logger
 const path = require('path')
 
-const { toString } = require('lodash')
 const pino = require('pino')
-const serializers = require('pino-std-serializers')
 
 const conf = require('@open-condo/config')
 
-const { _extractPropertiesFromPath, _enhanceLogWithAsyncContext, _callsites } = require('./extractors')
-const { normalizeVariables } = require('./normalize')
+const {
+    _extractPropertiesFromPath,
+    _enhanceLogWithAsyncContext,
+    _enhanceLogWithUnknownProperties,
+    _callsites,
+} = require('./extractors')
+const { SERIALIZERS } = require('./serializers')
 
-const { safeFormatError } = require('../utils/errors/safeFormatError')
+function _composeFormatters (formatters) {
+    return function composedFormatter (dataObj) {
+        let result = dataObj
+        for (const formatter of formatters) {
+            result = formatter(result)
+        }
 
-function toCount (data) {
-    const count = parseInt(data)
-    if (isNaN(count)) return 0
-    return count
+        return result
+    }
 }
+
+const logFormatter = _composeFormatters([
+    _enhanceLogWithAsyncContext,
+    _enhanceLogWithUnknownProperties,
+])
+
+
 
 /**
  * Gets logger instance
@@ -41,28 +54,9 @@ function getLogger (name) {
         name,
         enabled: process.env.DISABLE_LOGGING !== 'true',
         formatters: {
-            log: _enhanceLogWithAsyncContext,
+            log: logFormatter,
         },
-        serializers: {
-            'data': normalizeVariables,
-            'args': normalizeVariables,
-            'opts': normalizeVariables,
-            'result': normalizeVariables,
-            'statusCode': toString,
-            'status': toString,
-            'path': toString,
-            'method': toString,
-            'ip': toString,
-            'reqId': toString,
-            'errId': toString,
-            'taskId': toString,
-            'message': toString,
-            'error': safeFormatError,
-            'req': serializers.req,
-            'res': serializers.res,
-            'err': serializers.err,
-            'count': toCount,
-        },
+        serializers: SERIALIZERS,
     })
 
     // For common named loggers does not resolve anything additional
