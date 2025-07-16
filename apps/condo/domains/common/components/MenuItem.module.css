@@ -31,17 +31,9 @@
   justify-content: center;
 }
 
-@keyframes fade-in {
-  to {
-    opacity: 1;
-  }
-}
-
 .menu-item > div h5 {
   height: 20px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: clip;
-  opacity: 0;
-  animation: fade-in var(--condo-global-transition-duration-default) ease forwards;
 }
