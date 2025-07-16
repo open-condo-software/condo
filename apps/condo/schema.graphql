@@ -4183,6 +4183,7 @@ input ResetUserLimitActionHistoryRecordsCreateInput {
 }
 
 enum ResetUserLimitActionTypeType {
+  email
   sms
   rateLimit
   findOrganizationsByTin
@@ -4202,12 +4203,13 @@ type ResetUserLimitAction {
   """
   _label_: String
 
-  """ Type of limit to reset. Possible values: ["sms", "rateLimit", "findOrganizationsByTin", "auth", "checkUserExistence"] 
+  """ Type of limit to reset. Possible values: ["email", "sms", "rateLimit", "findOrganizationsByTin", "auth", "checkUserExistence"] 
   """
   type: ResetUserLimitActionTypeType
 
   """
    The identifier of user, to which reset will apply. Possible values are based on reset type: 
+  email: ["email", "ip"], 
   sms: ["phone", "ip"], 
   rateLimit: ["uuid", "ip"], 
   findOrganizationsByTin: ["email", "phone", "uuid"], 
