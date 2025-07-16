@@ -90,7 +90,6 @@ export type EventsData = {
     'filter_changed': { location: string }
     'incident_status_update': { newStatus: string }
     'ticket_set_favourite_click': Record<string, never>
-    'generate_ticket_comment': { ticketId: string, type: string }
 }
 
 type UserData = {

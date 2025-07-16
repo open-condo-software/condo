@@ -16,8 +16,9 @@ import { Button, Tooltip } from '@open-condo/ui'
 import { colors, fontSizes } from '@condo/domains/common/constants/style'
 import { getIconByMimetype } from '@condo/domains/common/utils/clientSchema/files'
 
-import { CommentWithFiles } from './index'
+import styles from './Comments.module.css'
 
+import { CommentWithFiles } from './index'
 
 const { RESIDENT, STAFF, SERVICE } = require('@condo/domains/user/constants/common')
 
@@ -292,7 +293,7 @@ export const Comment: React.FC<ICommentProps> = ({ comment, setEditableComment, 
                 <div>
                     <UiTypography.Paragraph size='medium' strong>{ConfirmDeleteTitle}</UiTypography.Paragraph>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div className={styles.tooltipButtonContainer}>
                         <Button
                             onClick={()=>setIsDeleteTooltipOpen(false)}
                             type='secondary'

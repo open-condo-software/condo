@@ -133,3 +133,9 @@
   justify-content: space-between;
   width: 100%;
 }
+
+.tooltip-button-container {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
