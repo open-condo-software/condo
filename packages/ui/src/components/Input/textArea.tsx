@@ -13,7 +13,7 @@ const { TextArea: DefaultTextArea } = DefaultInput
 
 export const TEXTAREA_CLASS_PREFIX = 'condo-input'
 
-export type TextAreaProps = Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'style' | 'size'> &
+export type TextAreaProps = Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'style' | 'size' | 'onResize'> &
 Pick<AntdTextAreaProps, 'autoSize'> & {
     value?: string
     isSubmitDisabled?: boolean
