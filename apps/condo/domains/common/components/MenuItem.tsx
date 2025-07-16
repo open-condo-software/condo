@@ -96,14 +96,16 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
     )
 
     const linkContent = (
-        <Space size={12} align='center' direction='horizontal' className={linkContentClassName}>
-            <Icon size='medium' />
-            {!isCollapsed && (<div>
-                <Typography.Title ellipsis={{ rows: 2 }} level={5}>
-                    {Message}
-                </Typography.Title>
-            </div>)}
-        </Space>
+        <>
+            <Space size={12} align='center' direction='horizontal' className={linkContentClassName}>
+                <Icon size='medium' />
+                {!isCollapsed && (<div>
+                    <Typography.Title ellipsis={{ rows: 2 }} level={5}>
+                        {Message}
+                    </Typography.Title>
+                </div>)}
+            </Space>
+        </>
     )
 
     const menuItemIdProp = id ? { id: id } : {}
@@ -111,7 +113,6 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
     const menuItemClassName = classnames(
         styles.menuItemWrapper,
         {
-            [styles.justifyCenter]: isCollapsed,
             [styles.active]: isActive,
             [styles.disabled]: disabled,
         },
