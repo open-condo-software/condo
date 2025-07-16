@@ -9,6 +9,7 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { NOT_FOUND, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/user/access/ResetUserLimitAction')
 const {
+    EMAIL_COUNTER_LIMIT_TYPE,
     SMS_COUNTER_LIMIT_TYPE,
     FIND_ORGANIZATION_BY_TIN_TYPE,
     RATE_LIMIT_TYPE,
@@ -17,6 +18,7 @@ const {
 } = require('@condo/domains/user/constants/limits')
 const { getIdentifierType } = require('@condo/domains/user/utils/identifiers')
 const {
+    EmailGuardResetter,
     SmsGuardResetter,
     RateLimitResetter,
     FindOrganizationByTinGuardResetter,
@@ -26,6 +28,7 @@ const {
 
 
 const resetters = {
+    [EMAIL_COUNTER_LIMIT_TYPE]: new EmailGuardResetter(),
     [SMS_COUNTER_LIMIT_TYPE]: new SmsGuardResetter(),
     [RATE_LIMIT_TYPE]: new RateLimitResetter(),
     [FIND_ORGANIZATION_BY_TIN_TYPE]: new FindOrganizationByTinGuardResetter(),

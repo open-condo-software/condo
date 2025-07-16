@@ -13,6 +13,7 @@ const {
 
 const { USER_TYPES } = require('@condo/domains/user/constants/common')
 const {
+    EMAIL_COUNTER_LIMIT_TYPE,
     SMS_COUNTER_LIMIT_TYPE,
     RATE_LIMIT_TYPE,
     FIND_ORGANIZATION_BY_TIN_TYPE,
@@ -21,6 +22,7 @@ const {
 } = require('@condo/domains/user/constants/limits')
 const { ERRORS } = require('@condo/domains/user/schema/ResetUserLimitAction')
 const { buildQuotaKey: buildAuthQuotaKey, buildQuotaKeyByUserType: buildAuthQuotaKeyByUserType } = require('@condo/domains/user/utils/serverSchema/auth')
+const { getGuardKey } = require('@condo/domains/user/utils/serverSchema/confirmEmailAction')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 const {
     ResetUserLimitAction,
@@ -274,6 +276,64 @@ describe('ResetUserLimitAction', () => {
                 expect(Number(beforeReset)).toEqual(COUNTER_VALUE_TO_UPDATE)
 
                 await createTestResetUserLimitAction(userWithDirectAccess, SMS_COUNTER_LIMIT_TYPE, ip)
+                const afterReset = await redisGuard.getCounterValue(key)
+
+                expect(afterReset).toBeNull()
+            })
+        })
+
+        describe(`${EMAIL_COUNTER_LIMIT_TYPE} type`, () => {
+            test('throws error if key is not exists', async () => {
+                const email = createTestEmail()
+
+                await expectToThrowGQLError(async () => {
+                    await createTestResetUserLimitAction(admin, EMAIL_COUNTER_LIMIT_TYPE, email)
+                }, ERRORS.KEY_NOT_FOUND)
+            })
+
+            test('throws error if key is not valid ip or email', async () => {
+                const key = faker.random.alphaNumeric(8)
+                for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
+                    await redisGuard.incrementDayCounter(key)
+                }
+                const beforeReset = await redisGuard.getCounterValue(key)
+
+                expect(Number(beforeReset)).toEqual(COUNTER_VALUE_TO_UPDATE)
+
+                await expectToThrowGQLError(async () => {
+                    await createTestResetUserLimitAction(userWithDirectAccess, EMAIL_COUNTER_LIMIT_TYPE, key)
+                }, ERRORS.INVALID_IDENTIFIER)
+            })
+
+            test('resets counter by email', async () => {
+                const email = createTestEmail()
+                const key = getGuardKey('email', email)
+
+                for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
+                    await redisGuard.incrementDayCounter(key)
+                }
+                const valueBefore = await redisGuard.getCounterValue(key)
+
+                expect(Number(valueBefore)).toEqual(COUNTER_VALUE_TO_UPDATE)
+
+                await createTestResetUserLimitAction(userWithDirectAccess, EMAIL_COUNTER_LIMIT_TYPE, email)
+                const valueAfter = await redisGuard.getCounterValue(key)
+
+                expect(valueAfter).toBeNull()
+            })
+
+            test('resets counter by ip', async () => {
+                const ip = faker.internet.ipv4()
+                const key = getGuardKey('email', ip)
+
+                for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
+                    await redisGuard.incrementDayCounter(key)
+                }
+                const beforeReset = await redisGuard.getCounterValue(key)
+
+                expect(Number(beforeReset)).toEqual(COUNTER_VALUE_TO_UPDATE)
+
+                await createTestResetUserLimitAction(userWithDirectAccess, EMAIL_COUNTER_LIMIT_TYPE, ip)
                 const afterReset = await redisGuard.getCounterValue(key)
 
                 expect(afterReset).toBeNull()
