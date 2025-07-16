@@ -3,57 +3,31 @@
  */
 const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInAdminClient, makeClient, expectToThrowGQLErrorToResult } = require('@open-condo/keystone/test.utils')
-const { expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObjects } = require('@open-condo/keystone/test.utils')
+const {
+    makeLoggedInAdminClient,
+    makeClient,
+    expectToThrowGQLErrorToResult,
+} = require('@open-condo/keystone/test.utils')
 
-const {
-    TOO_MANY_REQUESTS,
-} = require('@condo/domains/user/constants/errors')
-const {
-    START_CONFIRM_EMAIL_ACTION_MUTATION,
-    COMPLETE_CONFIRM_EMAIL_ACTION_MUTATION,
-    RESEND_CONFIRM_EMAIL_ACTION_MUTATION,
-    GET_EMAIL_BY_CONFIRM_EMAIL_ACTION_TOKEN_QUERY,
-} = require('@condo/domains/user/gql')
 const {
     createTestEmail,
     createTestConfirmEmailAction,
     ConfirmEmailAction,
-} = require('@condo/domains/user/utils/testSchema')
-const {
     completeConfirmEmailActionByTestClient,
     startConfirmEmailActionByTestClient,
     resendConfirmEmailActionByTestClient,
     getEmailByConfirmEmailActionTokenByTestClient,
+    updateTestConfirmEmailAction,
 } = require('@condo/domains/user/utils/testSchema')
-
-const { EMAIL_CODE_VERIFICATION_FAILED, EMAIL_CODE_MAX_RETRIES_REACHED, EMAIL_CODE_EXPIRED,
-    UNABLE_TO_FIND_CONFIRM_EMAIL_ACTION,
-} = require('../constants/errors')
-const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser } = require('../utils/testSchema')
 
 
 const CONFIRM_EMAIL_MAX_RETRIES = 10
 
-const getCaptcha = () => {
-    return faker.lorem.sentence()
-}
-const getDvAndSender = () => {
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    return {
-        dv: 1,
-        sender,
-    }
-}
-
 describe('ConfirmEmailActionService', () => {
-    let admin, support, user, anonymous
+    let admin
 
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
-        support = await makeClientWithSupportUser()
-        user = await makeClientWithNewRegisteredAndLoggedInUser()
-        anonymous = await makeClient()
     })
 
     describe('Query getEmailByConfirmEmailActionToken', () => {
@@ -107,14 +81,15 @@ describe('ConfirmEmailActionService', () => {
                 await resendConfirmEmailActionByTestClient(client, {
                     token,
                 })
-                const secondResponse = await client.mutate(RESEND_CONFIRM_EMAIL_ACTION_MUTATION, {
-                    data: {
-                        ...getDvAndSender(),
-                        captcha: getCaptcha(),
+
+                await expectToThrowGQLErrorToResult(async () => {
+                    await resendConfirmEmailActionByTestClient(client, {
                         token,
-                    },
+                    })
+                }, {
+                    code: 'BAD_USER_INPUT',
+                    type: 'TOO_MANY_REQUESTS',
                 })
-                expect(JSON.stringify(secondResponse.errors)).toContain(TOO_MANY_REQUESTS)
             })
         })
     })
@@ -162,8 +137,7 @@ describe('ConfirmEmailActionService', () => {
             test('Should marks itself failed when maximum retries number excided', async () => {
                 const client = await makeClient()
                 const [actionBefore] = await createTestConfirmEmailAction(admin)
-                await ConfirmEmailAction.update(admin, actionBefore.id, {
-                    ...getDvAndSender(),
+                await updateTestConfirmEmailAction(admin, actionBefore.id, {
                     retries: CONFIRM_EMAIL_MAX_RETRIES + 1,
                 })
                 await expectToThrowGQLErrorToResult(async () => {
@@ -183,7 +157,7 @@ describe('ConfirmEmailActionService', () => {
             test('Should throws error when secret code ttl expires', async () => {
                 const client = await makeClient()
                 const [actionBefore] = await createTestConfirmEmailAction(admin)
-                await ConfirmEmailAction.update(admin, actionBefore.id, {
+                await updateTestConfirmEmailAction(admin, actionBefore.id, {
                     secretCodeExpiresAt: actionBefore.secretCodeRequestedAt,
                 })
                 await expectToThrowGQLErrorToResult(async () => {
@@ -203,7 +177,7 @@ describe('ConfirmEmailActionService', () => {
             test('Should throws error when confirm email action expires', async () => {
                 const client = await makeClient()
                 const [actionBefore] = await createTestConfirmEmailAction(admin)
-                await ConfirmEmailAction.update(admin, actionBefore.id, {
+                await updateTestConfirmEmailAction(admin, actionBefore.id, {
                     expiresAt: actionBefore.requestedAt,
                 })
                 await expectToThrowGQLErrorToResult(async () => {
