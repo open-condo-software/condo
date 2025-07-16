@@ -128,12 +128,14 @@ function getTgAuthDataValidationError (data, botToken, secondsSinceAuth = ALLOWE
         .join('\n')
 
     // 5. Calculate sign for auth data
-    const hmac = crypto.createHmac('sha256', secret)
+    const hmacBuf = crypto.createHmac('sha256', secret)
         .update(checkString)
-        .digest('hex')
+        .digest()
 
     // 6. Our generated sign must equal received sign
-    if (hmac !== data.hash) {
+    const hashBuf = Buffer.from(data.hash, 'hex')
+    const isSignEqual = hashBuf.byteLength === hmacBuf.byteLength && crypto.timingSafeEqual(hmacBuf, Buffer.from(data.hash, 'hex'))
+    if (!isSignEqual) {
         return ERRORS.VALIDATION_AUTH_DATA_SIGN_INVALID
     }
 
