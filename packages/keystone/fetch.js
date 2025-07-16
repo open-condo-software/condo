@@ -82,7 +82,7 @@ async function fetchWithLogger (url, options, extraAttrs) {
         startReqId,
         taskId: parentTaskId,
         execId: parentExecId,
-        headers: JSON.stringify(options.headers),
+        headers: options.headers,
         url,
         path,
         hostname,
