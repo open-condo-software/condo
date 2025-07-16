@@ -7,7 +7,7 @@ import {
 } from '@app/condo/gql'
 import { SortTicketsBy, Ticket as ITicket, TicketStatusTypeType } from '@app/condo/schema'
 import styled from '@emotion/styled'
-import { Col, Row, RowProps } from 'antd'
+import { Col, Row, RowProps, Skeleton } from 'antd'
 import { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox'
 import { TableRowSelection } from 'antd/lib/table/interface'
 import debounce from 'lodash/debounce'
@@ -48,7 +48,6 @@ import { TablePageContent } from '@condo/domains/common/components/containers/Ba
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
 import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
-import { Loader } from '@condo/domains/common/components/Loader'
 import { DEFAULT_PAGE_SIZE, Table, TableRecord } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useWindowTitleContext, WindowTitleContextProvider } from '@condo/domains/common/components/WindowTitleContext'
@@ -473,7 +472,6 @@ const ALL_TICKETS_COUNT_CONTAINER_STYLES: CSSProperties = {
     whiteSpace: 'nowrap',
     alignItems: 'center',
 }
-const LOADER_STYLES = { display: 'flex', alignItems: 'center', justifyContent: 'center', paddingBottom: '20px' }
 
 const TicketStatusFilterContainer = ({ searchTicketsQuery, searchTicketsWithoutStatusQuery }) => {
     const intl = useIntl()
@@ -485,6 +483,7 @@ const TicketStatusFilterContainer = ({ searchTicketsQuery, searchTicketsWithoutS
     const ClosedTicketsMessage = intl.formatMessage({ id: 'ticket.status.CLOSED.many' })
 
     const { persistor } = useCachePersistor()
+    const { breakpoints } = useLayoutContext()
 
     const {
         data: allTicketsCountData,
@@ -509,7 +508,24 @@ const TicketStatusFilterContainer = ({ searchTicketsQuery, searchTicketsWithoutS
 
     const loading = allTicketsCountLoading || ticketsCountByStatusesLoading
 
-    return loading ? <Loader style={LOADER_STYLES}/> : (
+    return loading ? (
+        <Row 
+            gutter={SMALL_HORIZONTAL_GUTTER} 
+            style={{ paddingBottom: '20px' }}
+        >
+            {[...Array(breakpoints.TABLET_LARGE ? 3 : 1)].map((_, index) => (
+                <Col key={index}>
+                    <Skeleton.Button 
+                        active 
+                        style={{ 
+                            width: '150px',
+                            height: '35px',
+                        }} 
+                    />
+                </Col>
+            ))}
+        </Row>
+    ) : (
         <Row gutter={SMALL_HORIZONTAL_GUTTER} style={TICKET_STATUS_FILTER_CONTAINER_ROW_STYLES}>
             <Col style={ALL_TICKETS_COUNT_CONTAINER_STYLES}>
                 <Typography.Text size='large' strong>
