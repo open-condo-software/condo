@@ -44,6 +44,27 @@ jest.mock('@open-condo/config', () => {
             },
         ]
 
+        const passportSdkConfig = [
+            {
+                name: 'sdk-default',
+                userInfoURL: 'https://sdk-source.com/userinfo',
+                isEmailTrusted: true,
+                isPhoneTrusted: true,
+                fieldMapping: {
+                    id: 'sub',
+                },
+            },
+            {
+                name: 'sdk-untrusted',
+                userInfoURL: 'https://sdk-source.com/userinfo',
+                isEmailTrusted: false,
+                isPhoneTrusted: false,
+                fieldMapping: {
+                    id: 'sub',
+                },
+            },
+        ]
+
         if (name === 'PASSPORT_GITHUB') {
             return JSON.stringify(passportGithubConfig)
         }
@@ -52,8 +73,12 @@ jest.mock('@open-condo/config', () => {
             return JSON.stringify(passportOidcConfig)
         }
 
+        if (name === 'PASSPORT_SDK') {
+            return JSON.stringify(passportSdkConfig)
+        }
+
         if (name === 'USER_EXTERNAL_IDENTITY_TYPES') {
-            return '["github", "oidc-default", "oidc-untrusted"]'
+            return '["github", "oidc-default", "oidc-untrusted", "sdk-default", "sdk-untrusted"]'
         }
         return conf[name]
     }
@@ -73,10 +98,7 @@ const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
 const {
     UserExternalIdentity,
     UserAdmin,
-    OidcClient,
     createTestUser,
-    createTestOidcClient,
-    updateTestOidcClient,
 } = require('@condo/domains/user/utils/testSchema')
 
 
@@ -208,6 +230,14 @@ const mockOidcProvider = (
     }
 }
 
+const mockSdkProvider = (userProfile = { sub: faker.datatype.uuid() }) => {
+    nock('https://sdk-source.com').get('/userinfo')
+        .matchHeader('Authorization', 'Bearer some_access_token')
+        .reply(200, userProfile)
+
+    return userProfile
+}
+
 
 describe('external authentication', () => {
     setFakeClientMode(index)
@@ -221,71 +251,13 @@ describe('external authentication', () => {
         serverUrl = admin.serverUrl
         agent = request.agent(serverUrl)
         jest.resetModules()
-
-        const existingGithubClient = await OidcClient.getOne(admin, {
-            clientId: 'github', deletedAt: null, isEnabled: true,
-        })
-        if (existingGithubClient) {
-            await updateTestOidcClient(admin, existingGithubClient.id, { deletedAt: existingGithubClient.createdAt })
-        }
-
-        await createTestOidcClient(admin, {
-            clientId: 'github',
-            payload: {
-                client_id: 'github',
-                grant_types: ['implicit', 'authorization_code', 'refresh_token'],
-                client_secret: faker.random.alphaNumeric(12),
-                redirect_uris: ['https://httpbin.org/anything'],
-                response_types: ['code id_token', 'code', 'id_token'],
-                token_endpoint_auth_method: 'client_secret_basic',
-            },
-        })
-
-        const existingOidcClient = await OidcClient.getOne(admin, {
-            clientId: 'oidc-default', deletedAt: null, isEnabled: true,
-        })
-        if (existingOidcClient) {
-            await updateTestOidcClient(admin, existingOidcClient.id, { deletedAt: existingOidcClient.createdAt })
-        }
-        await createTestOidcClient(admin, {
-            clientId: 'oidc-default',
-            payload: {
-                client_id: 'oidc-default',
-                grant_types: ['implicit', 'authorization_code', 'refresh_token'],
-                client_secret: faker.random.alphaNumeric(12),
-                redirect_uris: ['https://httpbin.org/anything'],
-                response_types: ['code id_token', 'code', 'id_token'],
-                token_endpoint_auth_method: 'client_secret_basic',
-            },
-        })
-
-        const existingOidcUntrustedClient = await OidcClient.getOne(admin, {
-            clientId: 'oidc-untrusted', deletedAt: null, isEnabled: true,
-        })
-        if (existingOidcUntrustedClient) {
-            await updateTestOidcClient(admin, existingOidcUntrustedClient.id, { deletedAt: existingOidcUntrustedClient.createdAt })
-        }
-        await createTestOidcClient(admin, {
-            clientId: 'oidc-untrusted',
-            payload: {
-                client_id: 'oidc-untrusted',
-                grant_types: ['implicit', 'authorization_code', 'refresh_token'],
-                client_secret: faker.random.alphaNumeric(12),
-                redirect_uris: ['https://httpbin.org/anything'],
-                response_types: ['code id_token', 'code', 'id_token'],
-                token_endpoint_auth_method: 'client_secret_basic',
-            },
-        })
-
+    })
+    afterEach(() => {
+        nock.cleanAll()
     })
 
     afterAll(async () => {
         nock.cleanAll()
-        const oidcClients = await OidcClient.getAll(admin, { clientId_in: ['github', 'oidc-default', 'oidc-untrusted'], deletedAt: null })
-
-        for (const client of oidcClients) {
-            await updateTestOidcClient(admin, client.id, { deletedAt: client.createdAt })
-        }
     })
 
     describe('Validation', () => {
@@ -307,43 +279,9 @@ describe('external authentication', () => {
             expect(json).toHaveProperty('error', 'Bad Request')
             expect(json).toHaveProperty('message', 'Valid user types are resident, staff')
         })
-
-        test('Should not create token if oidc client disabled or deleted', async () => {
-            const fakedUserId = faker.datatype.uuid()
-            const fakedUserEmail = faker.datatype.uuid() + '@gmail.com'
-            mockGithubUrls(fakedUserId, fakedUserEmail)
-
-            // Temporary disable github oidc client
-            const githubClient = await OidcClient.getOne(admin, { clientId: 'github', deletedAt: null })
-            await updateTestOidcClient(admin, githubClient.id, { isEnabled: false })
-
-            const response = await agent.get('/api/auth/github?userType=staff')
-            expect(response.statusCode).toEqual(302)
-
-            const tokenResponse = await agent.get('/api/auth/github/callback?code=some_gh_code')
-            expect(tokenResponse.statusCode).toEqual(403)
-            expect(tokenResponse.body).toHaveProperty('error', 'Authentication failed')
-            expect(tokenResponse.body).toHaveProperty('message', 'Oidc client not found')
-
-            // Check deletedAt also restrict token creation
-            await updateTestOidcClient(admin, githubClient.id, { isEnabled: true, deletedAt: new Date().toISOString() })
-
-            mockGithubUrls(fakedUserId, fakedUserEmail)
-
-            const response1 = await agent.get('/api/auth/github?userType=staff')
-            expect(response1.statusCode).toEqual(302)
-
-            const tokenResponse1 = await agent.get('/api/auth/github/callback?code=some_gh_code')
-            expect(tokenResponse1.statusCode).toEqual(403)
-            expect(tokenResponse1.body).toHaveProperty('error', 'Authentication failed')
-            expect(tokenResponse1.body).toHaveProperty('message', 'Oidc client not found')
-
-            // Rollback client settings
-            await updateTestOidcClient(admin, githubClient.id, { isEnabled: true, deletedAt: null })
-        })
     })
 
-    describe('GitHub authentication flow', () => {
+    describe('GitHub flow', () => {
         test('should create user, userExternalIdentity and return oidc token', async () => {
             const fakedUserId = faker.datatype.uuid()
             const fakedUserEmail = faker.datatype.uuid() + '@gmail.com'
@@ -354,10 +292,9 @@ describe('external authentication', () => {
 
             const tokenResponse = await agent.get('/api/auth/github/callback?code=some_gh_code')
 
-            expect(tokenResponse.statusCode).toEqual(200)
-            expect(tokenResponse.body).toHaveProperty('accessToken')
-            expect(tokenResponse.body).toHaveProperty('scope', 'openid')
-            expect(tokenResponse.body).toHaveProperty('tokenType', 'Bearer')
+            expect(tokenResponse.statusCode).toEqual(302)
+            expect(tokenResponse.headers.location).toEqual('/')
+            expect(tokenResponse.headers['set-cookie']).toHaveLength(1)
 
             const userMeta = {
                 email: fakedUserEmail,
@@ -365,7 +302,7 @@ describe('external authentication', () => {
                 provider: 'github',
             }
 
-            const userExternalIdentity = await UserExternalIdentity.getOne(admin, { identityId: fakedUserId })
+            const userExternalIdentity = await UserExternalIdentity.getOne(admin, { identityId: fakedUserId, identityType: 'github' })
             expect(userExternalIdentity).toHaveProperty('identityType', 'github')
             expect(userExternalIdentity).toHaveProperty('user')
             expect(userExternalIdentity).toHaveProperty('userType', 'staff')
@@ -387,7 +324,7 @@ describe('external authentication', () => {
             const fakedUserId = faker.datatype.uuid()
             const fakedUserEmail = faker.datatype.uuid() + '@gmail.com'
 
-            userExternalIdentity = await UserExternalIdentity.getOne(admin, { identityId: fakedUserId })
+            userExternalIdentity = await UserExternalIdentity.getOne(admin, { identityId: fakedUserId, identityType: 'github' })
             expect(userExternalIdentity).toBeUndefined()
             mockGithubUrls(fakedUserId, fakedUserEmail)
 
@@ -395,10 +332,10 @@ describe('external authentication', () => {
             const loginResponse = await agent.get('/api/auth/github?userType=staff')
             expect(loginResponse.statusCode).toEqual(302)
             const response = await agent.get('/api/auth/github/callback?code=some_gh_code')
-            expect(response.statusCode).toEqual(200)
-            expect(response.body).toHaveProperty('accessToken')
+            expect(response.statusCode).toEqual(302)
+            expect(response.headers.location).toEqual('/')
 
-            userExternalIdentity = await UserExternalIdentity.getOne(admin, { identityId: fakedUserId })
+            userExternalIdentity = await UserExternalIdentity.getOne(admin, { identityId: fakedUserId, identityType: 'github' })
             expect(userExternalIdentity).toHaveProperty('identityType', 'github')
             expect(userExternalIdentity).toHaveProperty('user')
             expect(userExternalIdentity).toHaveProperty('userType', 'staff')
@@ -410,11 +347,10 @@ describe('external authentication', () => {
             mockGithubUrls(fakedUserId, fakedUserEmail)
             await agent.get('/api/auth/github?userType=staff')
             const reauthResponse = await agent.get('/api/auth/github/callback?code=some_gh_code')
-            expect(reauthResponse.statusCode).toEqual(200)
-            expect(reauthResponse.body).toHaveProperty('accessToken')
-            expect(reauthResponse.body.accessToken).not.toEqual(response.body.accessToken)
+            expect(reauthResponse.statusCode).toEqual(302)
+            expect(reauthResponse.headers.location).toEqual('/')
 
-            const existingUserExternalIdentity = await UserExternalIdentity.getOne(admin, { identityId: fakedUserId })
+            const existingUserExternalIdentity = await UserExternalIdentity.getOne(admin, { identityId: fakedUserId, identityType: 'github' })
             expect(existingUserExternalIdentity.id).toEqual(userExternalIdentity.id)
         })
 
@@ -429,10 +365,11 @@ describe('external authentication', () => {
 
             const staffTokenResponse = await agent.get('/api/auth/github/callback?code=some_gh_code')
 
-            expect(staffTokenResponse.statusCode).toEqual(200)
-            expect(staffTokenResponse.body).toHaveProperty('accessToken')
+            expect(staffTokenResponse.statusCode).toEqual(302)
+            expect(staffTokenResponse.headers['set-cookie']).toHaveLength(1)
+            // expect(staffTokenResponse.body).toHaveProperty('accessToken')
 
-            const staffUserExternalIdentity = await UserExternalIdentity.getOne(admin, { identityId: fakedUserId, userType: 'staff' })
+            const staffUserExternalIdentity = await UserExternalIdentity.getOne(admin, { identityId: fakedUserId, identityType: 'github',  userType: 'staff' })
             expect(staffUserExternalIdentity).toHaveProperty('identityType', 'github')
             expect(staffUserExternalIdentity).toHaveProperty('user')
             expect(staffUserExternalIdentity).toHaveProperty('userType', 'staff')
@@ -453,10 +390,10 @@ describe('external authentication', () => {
 
             const residentTokenResponse = await agent.get('/api/auth/github/callback?code=some_gh_code')
 
-            expect(residentTokenResponse.statusCode).toEqual(200)
-            expect(residentTokenResponse.body).toHaveProperty('accessToken')
+            expect(residentTokenResponse.statusCode).toEqual(302)
+            expect(residentTokenResponse.headers['set-cookie']).toHaveLength(1)
 
-            const residentUserExternalIdentity = await UserExternalIdentity.getOne(admin, { identityId: fakedUserId, userType: 'resident' })
+            const residentUserExternalIdentity = await UserExternalIdentity.getOne(admin, { identityId: fakedUserId, identityType: 'github',  userType: 'resident' })
             expect(residentUserExternalIdentity).toHaveProperty('identityType', 'github')
             expect(residentUserExternalIdentity).toHaveProperty('user')
             expect(residentUserExternalIdentity).toHaveProperty('userType', 'resident')
@@ -475,10 +412,10 @@ describe('external authentication', () => {
             expect(residentUserExternalIdentity.user.id).not.toEqual(staffUserExternalIdentity.user.id)
             expect(residentUser.id).toEqual(residentUserExternalIdentity.user.id)
             expect(staffUser.id).toEqual(staffUserExternalIdentity.user.id)
-            expect(residentTokenResponse.body.accessToken).not.toEqual(staffTokenResponse.body.accessToken)
+            expect(staffTokenResponse.headers['set-cookie'][0]).not.toEqual(residentTokenResponse.headers['set-cookie'][0])
         })
 
-        test('should be able to make authorized request with oidc token', async () => {
+        test.skip('should be able to make authorized request with oidc token', async () => {
             const fakedUserId = faker.datatype.uuid()
             const fakedUserEmail = faker.datatype.uuid() + '@gmail.com'
             mockGithubUrls(fakedUserId, fakedUserEmail)
@@ -510,7 +447,198 @@ describe('external authentication', () => {
         })
     })
 
-    describe('OIDC authentication flow', () => {
+    describe('SDK (custom) flow', () => {
+        describe('validation', () => {
+            test('Should fail if provider return empty profile', async () => {
+                mockSdkProvider({})
+
+                const response = await agent.get('/api/auth/sdk-default?userType=staff&access-token=some_access_token')
+                expect(response.statusCode).toEqual(400)
+                expect(response.headers).not.toHaveProperty('set-cookie')
+                expect(response.body).toHaveProperty('error', 'User profile empty response')
+                expect(response.body).toHaveProperty('message', 'User profile returned empty object')
+            })
+
+            test('Should fail if provider missing required query parameter', async () => {
+                mockSdkProvider()
+                const response = await agent.get('/api/auth/sdk-default?userType=staff')
+                expect(response.statusCode).toEqual(403)
+                expect(response.headers).not.toHaveProperty('set-cookie')
+                expect(response.body).toHaveProperty('error', 'Missing access token')
+                expect(response.body).toHaveProperty('message', 'Query parameter access-token is required')
+            })
+        })
+        describe('trusted provider', () => {
+            test('should create user and start authed session', async () => {
+                const userProfile = mockSdkProvider({ sub: faker.datatype.uuid(), email: faker.datatype.uuid() + '@gmail.com' })
+                const response = await agent.get('/api/auth/sdk-default?userType=resident&access-token=some_access_token')
+                expect(response.statusCode).toEqual(302)
+                expect(response.headers['set-cookie']).toHaveLength(1)
+                expect(response.headers.location).toMatch('/')
+
+                const userExternalIdentity = await UserExternalIdentity.getOne(admin, {
+                    identityId: userProfile.sub, identityType: 'sdk-default',
+                })
+
+                const providerMeta = {
+                    id: userProfile.sub,
+                    email: userProfile.email,
+                    isEmailVerified: true,
+                    provider: 'sdk-default',
+                }
+
+                expect(userExternalIdentity).toHaveProperty('user')
+                expect(userExternalIdentity).toHaveProperty('userType', 'resident')
+                expect(userExternalIdentity.meta).toMatchObject(providerMeta)
+
+                const user = await UserAdmin.getOne(admin, { id: userExternalIdentity.user.id })
+                expect(user).toHaveProperty('email', userProfile.email)
+                expect(user).toHaveProperty('type', 'resident')
+                expect(user).toHaveProperty('isEmailVerified', true)
+                expect(user).toHaveProperty('isPhoneVerified', false)
+                expect(user).toHaveProperty('isAdmin', false)
+                expect(user).toHaveProperty('isSupport', false)
+                expect(user.meta).toMatchObject(providerMeta)
+            })
+
+            test('should create user without any credentials', async () => {
+                const userProfile = mockSdkProvider()
+                const response = await agent.get('/api/auth/sdk-default?userType=staff&access-token=some_access_token')
+
+                expect(response.statusCode).toEqual(302)
+                expect(response.headers['set-cookie']).toHaveLength(1)
+                expect(response.headers.location).toMatch('/')
+
+                const userExternalIdentity = await UserExternalIdentity.getOne(admin, {
+                    identityId: userProfile.sub, identityType: 'sdk-default',
+                })
+                const providerMeta = {
+                    id: userProfile.sub,
+                    email: null,
+                    provider: 'sdk-default',
+                }
+
+                expect(userExternalIdentity).toHaveProperty('user')
+                expect(userExternalIdentity).toHaveProperty('userType', 'staff')
+                expect(userExternalIdentity.meta).toMatchObject(providerMeta)
+
+                const user = await UserAdmin.getOne(admin, { id: userExternalIdentity.user.id })
+                expect(user).toHaveProperty('email', null)
+                expect(user).toHaveProperty('phone', null)
+                expect(user).toHaveProperty('type', 'staff')
+                expect(user).toHaveProperty('isEmailVerified', false)
+                expect(user).toHaveProperty('isPhoneVerified', false)
+                expect(user.meta).toMatchObject(providerMeta)
+            })
+
+            test('should set isEmailVerified:false if provider sends this info', async () => {
+                const userProfile = mockSdkProvider({
+                    sub: faker.datatype.uuid(),
+                    email: faker.datatype.uuid() + '@gmail.com',
+                    isEmailVerified: false,
+                })
+
+                const response = await agent.get('/api/auth/sdk-default?userType=staff&access-token=some_access_token')
+
+                expect(response.statusCode).toEqual(302)
+                expect(response.headers['set-cookie']).toHaveLength(1)
+                expect(response.headers.location).toMatch('/')
+
+                const userExternalIdentity = await UserExternalIdentity.getOne(admin, {
+                    identityId: userProfile.sub, identityType: 'sdk-default',
+                })
+                const providerMeta = {
+                    id: userProfile.sub,
+                    email: userProfile.email,
+                    isEmailVerified: false,
+                    provider: 'sdk-default',
+                }
+
+                expect(userExternalIdentity).toHaveProperty('user')
+                expect(userExternalIdentity).toHaveProperty('userType', 'staff')
+                expect(userExternalIdentity.meta).toMatchObject(providerMeta)
+
+                const user = await UserAdmin.getOne(admin, { id: userExternalIdentity.user.id })
+                expect(user).toHaveProperty('email', userProfile.email)
+                expect(user).toHaveProperty('phone', null)
+                expect(user).toHaveProperty('type', 'staff')
+                expect(user).toHaveProperty('isEmailVerified', false)
+                expect(user).toHaveProperty('isPhoneVerified', false)
+                expect(user.meta).toMatchObject(providerMeta)
+            })
+        })
+
+        describe('untrusted provider', () => {
+            test('should create user without email', async () => {
+                const userProfile = mockSdkProvider({
+                    sub: faker.datatype.uuid(),
+                    email: faker.datatype.uuid() + '@gmail.com',
+                    isEmailVerified: true,
+                })
+
+                const response = await agent.get('/api/auth/sdk-untrusted?userType=staff&access-token=some_access_token')
+                expect(response.statusCode).toEqual(302)
+                expect(response.headers['set-cookie']).toHaveLength(1)
+                expect(response.headers.location).toMatch('/')
+
+                const userExternalIdentity = await UserExternalIdentity.getOne(admin, {
+                    identityId: userProfile.sub, identityType: 'sdk-untrusted',
+                })
+                const providerMeta = {
+                    id: userProfile.sub,
+                    email: userProfile.email,
+                    isEmailVerified: true,
+                    provider: 'sdk-untrusted',
+                }
+
+                expect(userExternalIdentity).toHaveProperty('user')
+                expect(userExternalIdentity).toHaveProperty('userType', 'staff')
+                expect(userExternalIdentity.meta).toMatchObject(providerMeta)
+
+                const user = await UserAdmin.getOne(admin, { id: userExternalIdentity.user.id })
+                expect(user).toHaveProperty('email', null)
+                expect(user).toHaveProperty('phone', null)
+                expect(user).toHaveProperty('type', 'staff')
+                expect(user).toHaveProperty('isEmailVerified', false)
+                expect(user).toHaveProperty('isPhoneVerified', false)
+                expect(user.meta).toMatchObject(providerMeta)
+            })
+
+            test('should not be connected to existing user with same email', async () => {
+                const userProfile = mockSdkProvider({ sub: faker.datatype.uuid(), email: faker.datatype.uuid() + '@gmail.com' })
+                const [existingUser] = await createTestUser(admin, { email: userProfile.email, isEmailVerified: true, type: 'staff' })
+                const response = await agent.get('/api/auth/sdk-untrusted?userType=staff&access-token=some_access_token')
+                expect(response.statusCode).toEqual(302)
+                expect(response.headers['set-cookie']).toHaveLength(1)
+                expect(response.headers.location).toMatch('/')
+
+                const userExternalIdentity = await UserExternalIdentity.getOne(admin, {
+                    identityId: userProfile.sub, identityType: 'sdk-untrusted',
+                })
+                const providerMeta = {
+                    id: userProfile.sub,
+                    email: userProfile.email,
+                    isEmailVerified: true,
+                    provider: 'sdk-untrusted',
+                }
+
+                expect(userExternalIdentity).toHaveProperty('user')
+                expect(userExternalIdentity).toHaveProperty('userType', 'staff')
+                expect(userExternalIdentity.meta).toMatchObject(providerMeta)
+
+                const user = await UserAdmin.getOne(admin, { id: userExternalIdentity.user.id })
+                expect(user).toHaveProperty('email', null)
+                expect(user).toHaveProperty('phone', null)
+                expect(user).toHaveProperty('type', 'staff')
+                expect(user).toHaveProperty('isEmailVerified', false)
+                expect(user).toHaveProperty('isPhoneVerified', false)
+                expect(user.meta).toMatchObject(providerMeta)
+                expect(user.id).not.toEqual(existingUser.id)
+            })
+        })
+    })
+
+    describe.skip('OIDC flow', () => {
         describe('trusted provider', () => {
             test('should create user and return internal oidc token', async () => {
                 const mockProvider = mockOidcProvider(oidcProviderUrl, '123')

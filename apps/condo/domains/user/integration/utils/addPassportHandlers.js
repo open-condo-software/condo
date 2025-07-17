@@ -1,6 +1,7 @@
 const Ajv = require('ajv')
 const { omit, get, capitalize } = require('lodash')
 const passport = require('passport')
+const { Strategy: CustomStrategy } = require('passport-custom')
 const { Strategy: GithubStrategy } = require('passport-github2')
 const { Strategy: OIDCStrategy } = require('passport-openidconnect')
 
@@ -10,7 +11,6 @@ const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 const {
     User,
     UserExternalIdentity,
-    OidcClient,
 } = require('@condo/domains/user/utils/serverSchema')
 
 const VALID_USER_TYPES = [RESIDENT, STAFF]
@@ -79,6 +79,26 @@ const githubConfigSchema = {
         'isEmailTrusted',
     ],
 
+}
+const sdkConfigSchema = {
+    type: 'array',
+    items: {
+        type: 'object',
+        properties: {
+            name: { type: 'string' },
+            isPhoneTrusted: { type: 'boolean' },
+            isEmailTrusted: { type: 'boolean' },
+            userInfoURL: { type: 'string' },
+            fieldMapping: { type: 'object' },
+        },
+        additionalProperties: false,
+        required: [
+            'name',
+            'isPhoneTrusted',
+            'isEmailTrusted',
+            'userInfoURL',
+        ],
+    },
 }
 
 
@@ -233,14 +253,11 @@ async function getOrCreateUser (keystone, userProfile, userType, identityType, c
     return user
 }
 
-function addPassportHandlers (app, keystone, oidcProvider) {
-    if (!oidcProvider) {
-        throw new Error('Missing OIDC provider')
-    }
+function addPassportHandlers (app, keystone) {
 
     app.use(passport.initialize())
 
-    async function captureUserType (req, res, next) {
+    const captureUserType = (useSession) => async (req, res, next) => {
         const { userType } = req.query
 
         if (!userType) {
@@ -257,8 +274,12 @@ function addPassportHandlers (app, keystone, oidcProvider) {
             })
         }
 
-        req.userType = userType
-        req.session.userType = userType
+        // We don't want to use session store when it's not a oath/oidc like authorization because it's single request and context will not be lost during redirects
+        if (useSession) {
+            req.session.userType = userType
+        } else {
+            req.userType = userType
+        }
         next()
     }
 
@@ -270,46 +291,17 @@ function addPassportHandlers (app, keystone, oidcProvider) {
             return res.status(401).json({ error: 'Authentication failed', message: 'User not found after authentication' })
         }
 
-        const context = await keystone.createContext({ skipAccessControl: true })
-        // check for oidc client with that id really exists
-        const oidcClient = await OidcClient.getOne(context, {
-            clientId,
-            deletedAt: null,
-            isEnabled: true,
-        })
-
-        if (!oidcClient) {
-            return res.status(403).json({ error: 'Authentication failed', message: 'Oidc client not found' })
-        }
-
         try {
-            const grant = new oidcProvider.Grant({
-                accountId: user.id,
+            // set authorization cookie
+            await keystone._sessionManager.startAuthedSession(req, {
+                item: { id: user.id },
+                list: keystone.lists['User'],
                 clientId,
             })
 
-            grant.addOIDCScope('openid')
-
-            const grantId = await grant.save()
-
-            const accessToken = new oidcProvider.AccessToken({
-                accountId: user.id,
-                clientId,
-                grantId,
-                scope: 'openid',
-            })
-
-            const token = await accessToken.save()
-
-            return res.status(200).json({
-                accessToken: token,
-                tokenType: 'Bearer',
-                expiresIn: accessToken.expiration,
-                scope: 'openid',
-            })
-
+            return res.redirect('/')
         } catch (e) {
-            return res.status(500).json({ error: 'Token issue failure', message: 'Could not issue OIDC access token' })
+            return res.status(500).json({ error: 'Session creation failure', message: 'Could not start authed session for provided user' })
         }
     }
 
@@ -355,7 +347,7 @@ function addPassportHandlers (app, keystone, oidcProvider) {
                 }
             ))
 
-            app.get(`/api/auth/${config.name}`, captureUserType, passport.authenticate(config.name, { session: false }))
+            app.get(`/api/auth/${config.name}`, captureUserType(true), passport.authenticate(config.name, { session: false }))
             app.get(
                 `/api/auth/${config.name}/callback`,
                 passport.authenticate(config.name, { session: false, failureRedirect: '/?error=openid_fail' }),
@@ -401,8 +393,78 @@ function addPassportHandlers (app, keystone, oidcProvider) {
             }
         }))
 
-        app.get('/api/auth/github', captureUserType, passport.authenticate('github', { scope: [ 'user:email' ], session: false }))
+        app.get('/api/auth/github', captureUserType(true), passport.authenticate('github', { scope: [ 'user:email' ], session: false }))
         app.get('/api/auth/github/callback', passport.authenticate('github', { session: false, failureRedirect: '/?error=github_fail' }), onAuthSuccess('github'))
+    }
+
+    if (conf['PASSPORT_SDK']) {
+        const sdkConfig = JSON.parse(conf['PASSPORT_SDK'])
+        const validateConfig = ajv.compile(sdkConfigSchema)
+        const configValid = validateConfig(sdkConfig)
+        if (!configValid) {
+            throw new Error(`SDK config validation failed ${ajv.errorsText(validateConfig.errors)}`)
+        }
+
+        sdkConfig.forEach(config => {
+            passport.use(config.name, new CustomStrategy(async (req, done) => {
+                const fieldMapping = config.fieldMapping || {}
+                try {
+                    const userType = req.userType || req.session.userType
+                    const { 'access-token': accessToken } = req.query
+                    if (!accessToken) {
+                        const error = new Error('Query parameter access-token is required')
+                        error.statusCode = 403
+                        error.errorCode = 'Missing access token'
+                        return done(error)
+                    }
+
+                    const profileResponse = await fetch(config.userInfoURL, {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    })
+
+                    if (!profileResponse.ok) {
+                        const error = new Error(`Failed to fetch user profile: ${profileResponse.statusText}`)
+                        error.statusCode = 400
+                        error.errorCode = 'User profile response not ok'
+                        return done(error)
+                    }
+
+                    const userProfile = await profileResponse.json()
+                    if (!Object.keys(userProfile).length) {
+                        const error = new Error('User profile returned empty object')
+                        error.statusCode = 400
+                        error.errorCode = 'User profile empty response'
+                        return done(error)
+                    }
+
+                    const user = await getOrCreateUser(
+                        keystone, userProfile, userType, config.name,
+                        config, fieldMapping
+                    )
+
+                    return done(null, user)
+                } catch (error) {
+                    done(error)
+                }
+            }))
+
+            app.get(
+                `/api/auth/${config.name}`,
+                captureUserType(false),
+                passport.authenticate(config.name),
+                onAuthSuccess(config.name),
+                (err, req, res, next) => {
+                    const statusCode = err.statusCode || 500
+                    const errorCode = err.errorCode || 'Internal server error'
+                    return res.status(statusCode).json({
+                        error: errorCode,
+                        message: err.message,
+                    })
+                }
+            )
+        })
     }
 
     passport.serializeUser((user, done) => {
