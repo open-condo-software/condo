@@ -1509,6 +1509,7 @@ __metadata:
     "@open-condo/ui": "workspace:^"
     "@parcel/watcher": ^2.5.1
     "@serwist/next": ^9.0.1
+    "@telegram-apps/bridge": ^2.10.3
     "@types/big.js": ^6.2.2
     "@types/http-proxy": ^1.17.16
     "@types/node": ^22
@@ -1521,11 +1522,16 @@ __metadata:
     cookies-next: ^4.2.1
     cross-fetch: 4.0.0
     dayjs: ^1.11.13
+    express: ^4.17.3
+    express-pino-logger: ^6.0.0
+    express-session: ^1.17.2
     graphql: ^16.10.0
     graphql-tag: ^2.12.6
     http-proxy: ^1.18.1
     lodash: ^4.17.21
     next: 13.3.0
+    openid-client: 4.7.4
+    path-to-regexp: ^8.2.0
     phone: ^3.1.41
     react: 18.2.0
     react-dom: 18.2.0
@@ -1536,6 +1542,7 @@ __metadata:
     ts-node: ^10.9.2
     typescript: ^5.8.3
     usehooks-ts: ^3.1.0
+    uuid: ^8.0.3
     zod: ^3.22.4
   languageName: unknown
   linkType: soft
@@ -15760,6 +15767,54 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@telegram-apps/bridge@npm:^2.10.3":
+  version: 2.10.3
+  resolution: "@telegram-apps/bridge@npm:2.10.3"
+  dependencies:
+    "@telegram-apps/signals": ^1.1.2
+    "@telegram-apps/toolkit": ^2.1.3
+    "@telegram-apps/transformers": ^2.2.6
+    "@telegram-apps/types": ^2.0.3
+    better-promises: ^0.4.1
+    error-kid: ^0.0.7
+    mitt: ^3.0.1
+    valibot: 1.0.0
+  checksum: 2f443d843114eb09423f153d5cdf5e0388a05ce2938bd4f9b052e2a9884fbad76ecb539a270d972520965cb6bcfb349e6a469269b0fccc56d2fa0ef9f4a7a837
+  languageName: node
+  linkType: hard
+
+"@telegram-apps/signals@npm:^1.1.2":
+  version: 1.1.2
+  resolution: "@telegram-apps/signals@npm:1.1.2"
+  checksum: 0317b87704b2d954593804daf3e5913fd3fd1d5482709f2abff414c5ce9ccb2c645fa3a32c13cdfef5fc67d8661c0ba247722f1deee9436b7aacc6df1a9ff2bf
+  languageName: node
+  linkType: hard
+
+"@telegram-apps/toolkit@npm:^2.1.3":
+  version: 2.1.3
+  resolution: "@telegram-apps/toolkit@npm:2.1.3"
+  checksum: 3018b6e75bcefed8b5957054cd2940faec9b85617a09fbe5bb706f7a63c2042926e7c2c7d08774dfdf0b2ac3e78935de79d2a63463b17cb48148376baba39e65
+  languageName: node
+  linkType: hard
+
+"@telegram-apps/transformers@npm:^2.2.6":
+  version: 2.2.6
+  resolution: "@telegram-apps/transformers@npm:2.2.6"
+  dependencies:
+    "@telegram-apps/toolkit": ^2.1.3
+    "@telegram-apps/types": ^2.0.3
+    valibot: 1.0.0-beta.14
+  checksum: 344e3cbfd1d3512ba8288e019ab1daedde4f615d80197b71ab54e4ac272871e92ec15b92fc53bb3e22fcd54445e5266dd81841cf83cb0b0ade98db8e2ec1140a
+  languageName: node
+  linkType: hard
+
+"@telegram-apps/types@npm:^2.0.3":
+  version: 2.0.3
+  resolution: "@telegram-apps/types@npm:2.0.3"
+  checksum: dc96fa41d853c64f693929e000b01631e4b956bd7876ae956ffcc807f7644f149d1d47924039b1b986ef93f2dafb0c8817fc6fbdb877f9958aac582a9dadfccb
+  languageName: node
+  linkType: hard
+
 "@telephony/domains@link:./domains::locator=%40app%2Ftelephony%40workspace%3Aapps%2Ftelephony":
   version: 0.0.0-use.local
   resolution: "@telephony/domains@link:./domains::locator=%40app%2Ftelephony%40workspace%3Aapps%2Ftelephony"
@@ -20319,6 +20374,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"better-promises@npm:^0.4.1":
+  version: 0.4.1
+  resolution: "better-promises@npm:0.4.1"
+  dependencies:
+    error-kid: ^0.0.7
+  checksum: a67aace37b9955b86eeb13bc69f0d302cb58610b4b5c62601eca24e82438d01fcc8ec5ab0e09e4ed6f621b62637fca8385a02e0ad549aa0dcd6706d41d0e2ac9
+  languageName: node
+  linkType: hard
+
 "bicrypt@workspace:apps/eps/domains/eps/lib/bicrypt":
   version: 0.0.0-use.local
   resolution: "bicrypt@workspace:apps/eps/domains/eps/lib/bicrypt"
@@ -24820,6 +24884,13 @@ __metadata:
   dependencies:
     is-arrayish: ^0.2.1
   checksum: c1c2b8b65f9c91b0f9d75f0debaa7ec5b35c266c2cac5de412c1a6de86d4cbae04ae44e510378cb14d032d0645a36925d0186f8bb7367bcc629db256b743a001
+  languageName: node
+  linkType: hard
+
+"error-kid@npm:^0.0.7":
+  version: 0.0.7
+  resolution: "error-kid@npm:0.0.7"
+  checksum: 908b67e7e991a1dc6b7a8d5eebf8f98d20cf79bc5a4199342e30c94c9ce31fc16cc7c69d1ac1061494ad6c19f9a0e88a931dc1621a7d95d8a04a3b42e2f18fc7
   languageName: node
   linkType: hard
 
@@ -34971,6 +35042,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"mitt@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "mitt@npm:3.0.1"
+  checksum: b55a489ac9c2949ab166b7f060601d3b6d893a852515ae9eca4e11df01c013876df777ea109317622b5c1c60e8aae252558e33c8c94e14124db38f64a39614b1
+  languageName: node
+  linkType: hard
+
 "mixin-deep@npm:^1.2.0":
   version: 1.3.2
   resolution: "mixin-deep@npm:1.3.2"
@@ -37757,6 +37835,13 @@ __metadata:
   dependencies:
     isarray: 0.0.1
   checksum: 709f6f083c0552514ef4780cb2e7e4cf49b0cc89a97439f2b7cc69a608982b7690fb5d1720a7473a59806508fc2dae0be751ba49f495ecf89fd8fbc62abccbcd
+  languageName: node
+  linkType: hard
+
+"path-to-regexp@npm:^8.2.0":
+  version: 8.2.0
+  resolution: "path-to-regexp@npm:8.2.0"
+  checksum: 56e13e45962e776e9e7cd72e87a441cfe41f33fd539d097237ceb16adc922281136ca12f5a742962e33d8dda9569f630ba594de56d8b7b6e49adf31803c5e771
   languageName: node
   linkType: hard
 
@@ -49139,6 +49224,30 @@ __metadata:
     "@types/istanbul-lib-coverage": ^2.0.1
     convert-source-map: ^1.6.0
   checksum: 2069d59ee46cf8d83b4adfd8a5c1a90834caffa9f675e4360f1157ffc8578ef0f763c8f32d128334424159bb6b01f3876acd39cd13297b2769405a9da241f8d1
+  languageName: node
+  linkType: hard
+
+"valibot@npm:1.0.0":
+  version: 1.0.0
+  resolution: "valibot@npm:1.0.0"
+  peerDependencies:
+    typescript: ">=5"
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: 61e6b4ce1cb161d5373a4f693539534c21be0cc3a84cbe800d39b51541bd3baf62939c931645f89ecfe1b8367afa531a1d813197fe4871d0d5b5f5f78fb206a4
+  languageName: node
+  linkType: hard
+
+"valibot@npm:1.0.0-beta.14":
+  version: 1.0.0-beta.14
+  resolution: "valibot@npm:1.0.0-beta.14"
+  peerDependencies:
+    typescript: ">=5"
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: 2acbf06b549d724e983af7391132c00ae52a6c82e74edaffcd8b00a7de0af37eddd3519f445e8d4c031aa76e6f990d54ed022a86d97e3cb780dc3df680288c9a
   languageName: node
   linkType: hard
 
