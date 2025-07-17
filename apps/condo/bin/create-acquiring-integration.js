@@ -10,6 +10,7 @@ function getJson (data) {
     try {
         return JSON.parse(data)
     } catch (e) {
+        console.log(`Error: ${e}`)
         return undefined
     }
 }
@@ -35,7 +36,7 @@ async function main (args) {
     let integrationId
 
     if (existingIntegration) {
-        AcquiringIntegration.update(context, existingIntegration.id, integrationPayload, 'id')
+        await AcquiringIntegration.update(context, existingIntegration.id, integrationPayload, 'id')
         console.info('AcquiringIntegration updated!')
         integrationId = existingIntegration.id
     } else {
@@ -47,9 +48,14 @@ async function main (args) {
 
     if (accessRightServiceUserEmail) {
         const integrationUser = await User.getOne(context, { type: SERVICE, email: accessRightServiceUserEmail, deletedAt: null })
+
+        if (!integrationUser) {
+            throw new Error(`Service user with email '${accessRightServiceUserEmail}' not found`)
+        }
+
         const [integrationAccessRight] = await AcquiringIntegrationAccessRight.getAll(context, { integration: { id: integrationId }, user: { id: integrationUser.id } })
 
-        if (!integrationAccessRight && !!integrationUser) {
+        if (!integrationAccessRight) {
             await AcquiringIntegrationAccessRight.create(context, {
                 dv,
                 sender,
