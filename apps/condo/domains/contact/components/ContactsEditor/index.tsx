@@ -237,6 +237,10 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     }, [activeTab, fields.id, fields.name, fields.phone, form])
 
     useEffect(() => {
+        setActiveTab(initialTab)
+    }, [initialTab])
+
+    useEffect(() => {
         if (!canReadContacts && !canManageContacts) return
 
         if (hasNotResidentTab) {
@@ -253,10 +257,6 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
             setActiveTab(CONTACT_TYPE.RESIDENT)
         }
     }, [canManageContacts, canReadContacts, hasNotResidentTab, isEmptyInitialNotResidentValue, redirectToClientCard, unitName])
-
-    useEffect(() => {
-        setActiveTab(initialTab)
-    }, [initialTab])
 
     const handleClickOnPlusButton = useCallback(() => {
         form.setFieldsValue({
