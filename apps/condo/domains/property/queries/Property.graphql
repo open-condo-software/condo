@@ -78,6 +78,7 @@ query getPropertyById ($id: ID!) {
         address
         organization {
             id
+            name
         }
         map {
             sections {

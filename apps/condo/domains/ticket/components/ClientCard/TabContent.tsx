@@ -13,15 +13,13 @@ import qs from 'qs'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
-import { ExternalLink, History, Mail, Search } from '@open-condo/icons'
+import { ExternalLink, History, Mail } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button, Space, Tabs, Typography, Tag } from '@open-condo/ui'
 
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { METER_TAB_TYPES } from '@condo/domains/meter/utils/clientSchema'
-import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { UnitInfo, UnitInfoMode } from '@condo/domains/property/components/UnitInfo'
 import { IncidentHints } from '@condo/domains/ticket/components/IncidentHints'
 import { TicketResidentFeatures } from '@condo/domains/ticket/components/TicketId/TicketResidentFeatures'
@@ -44,7 +42,6 @@ const MAX_TABLE_SIZE = 20
 
 const TAG_STYLE: CSSProperties = { borderRadius: '100px' }
 const ROW_BIG_GUTTER: RowProps['gutter'] = [0, 60]
-const ROW_MEDIUM_GUTTER: RowProps['gutter'] = [0, 40]
 const ROW_MEDIUM_SMALL_GUTTER: RowProps['gutter'] = [0, 24]
 const HINT_CARD_STYLE = { maxHeight: '3em' }
 const TICKET_SORT_BY = [SortTicketsBy.OrderAsc, SortTicketsBy.CreatedAtDesc]
@@ -327,7 +324,7 @@ const ClientCardTabContent = ({
                 property && (
                     <>
                         <Col span={24}>
-                            <Row gutter={ROW_MEDIUM_GUTTER}>
+                            <Row gutter={ROW_MEDIUM_SMALL_GUTTER}>
                                 {
                                     type !== ClientCardTab.SearchByAddress && (
                                         <Col span={24}>
@@ -343,24 +340,20 @@ const ClientCardTabContent = ({
                                         </Col>
                                     )
                                 }
-                                <Col span={24}>
-                                    <Row gutter={ROW_MEDIUM_SMALL_GUTTER}>
-                                        <TicketPropertyHintCard
+                                <TicketPropertyHintCard
+                                    propertyId={propertyId}
+                                    hintContentStyle={HINT_CARD_STYLE}
+                                    colProps={HINTS_COL_PROPS}
+                                />
+                                {
+                                    propertyId && organizationId && (
+                                        <IncidentHints
+                                            organizationId={organizationId}
                                             propertyId={propertyId}
-                                            hintContentStyle={HINT_CARD_STYLE}
                                             colProps={HINTS_COL_PROPS}
                                         />
-                                        {
-                                            propertyId && organizationId && (
-                                                <IncidentHints
-                                                    organizationId={organizationId}
-                                                    propertyId={propertyId}
-                                                    colProps={HINTS_COL_PROPS}
-                                                />
-                                            )
-                                        }
-                                    </Row>
-                                </Col>   
+                                    )
+                                } 
                             </Row>
                         </Col>
                         <Col span={24}>
@@ -574,16 +567,13 @@ export const NotResidentClientTabContent = ({
     )
 }
 
-export const SearchByAddressTabContent = ({ firstClientData, canManageContacts, showOrganizationMessage }) => {
+export const SearchByAddressTabContent = ({ firstClientData, canManageContacts, showOrganizationMessage, AddressSearchInput }) => {
     const intl = useIntl()
     const EmptyClientContentDescription = intl.formatMessage({ id: 'pages.clientCard.emptyClientContent.description' })
     const PropertySelectPlaceholder = intl.formatMessage({ id: 'pages.clientCard.emptyClientContent.propertySelect.placeholder' })
 
     const router = useRouter()
     const phoneNumber = router?.query?.number as string
-
-    const { organization } = useOrganization()
-    const organizationId = useMemo(() => organization?.id, [organization])
 
     const [propertyId, setPropertyId] = useState<string>()
     const [unitName, setUnitName] = useState<string>()
@@ -600,6 +590,7 @@ export const SearchByAddressTabContent = ({ firstClientData, canManageContacts, 
         skip: !propertyId,
     })
     const property = useMemo(() => propertyData?.properties?.[0], [propertyData])
+    const organizationName = useMemo(() => property?.organization?.name, [property?.organization?.name])
 
     const handleTicketCreateClick = useCallback(async () => {
         const initialValues = {
@@ -625,8 +616,8 @@ export const SearchByAddressTabContent = ({ firstClientData, canManageContacts, 
         sectionName,
         property,
         type: ClientCardTab.SearchByAddress,
-        organization,
-    }), [unitName, unitType, sectionType, sectionName, property, organization])
+        organization: property?.organization,
+    }), [unitName, unitType, sectionType, sectionName, property])
 
     const getQueryForCreatingMeterReading = useCallback(() => ({
         tab: METER_TAB_TYPES.meterReading,
@@ -653,7 +644,7 @@ export const SearchByAddressTabContent = ({ firstClientData, canManageContacts, 
                             email={firstClientData?.email}
                             phone={phoneNumber}
                             type={firstClientData?.type}
-                            showOrganizationMessage={showOrganizationMessage}
+                            showOrganizationMessage={false}
                             contact={firstClientData}
                         />
                     </Col>
@@ -670,22 +661,20 @@ export const SearchByAddressTabContent = ({ firstClientData, canManageContacts, 
                             </Col>
                         )
                     }
-                    <Col span={18}>
+                    <Col md={18} xs={24}>
                         <Form
                             form={form}
                             layout='vertical'
                             colon
                         >
-                            <PropertyAddressSearchInput
+                            <AddressSearchInput
                                 style={{ width: '100%' }}
-                                organizationId={organizationId}
+                                // organizationId={organizationId}
                                 onChange={(_, option) => {
                                     if (Array.isArray(option)) return
                                     setPropertyId(option?.key)
                                 }}
                                 placeholder={PropertySelectPlaceholder}
-                                showSearch
-                                suffixIcon={<Search />}
                             />
                             {
                                 propertyId && (
@@ -710,15 +699,26 @@ export const SearchByAddressTabContent = ({ firstClientData, canManageContacts, 
                 </Row >
             </Col>
             <Col span={24}>
-                <ClientCardTabContent
-                    tabData={tabData}
-                    handleTicketCreateClick={handleTicketCreateClick}
-                    getQueryForCreatingMeterReading={getQueryForCreatingMeterReading}
-                    showOrganizationMessage={showOrganizationMessage}
-                    canManageContacts={canManageContacts}
-                    hideMeterReadingButton={!firstClientData}
-                    tableTabs={[RESIDENTS_ENTRANCE_TICKETS_TAB, RESIDENTS_PROPERTY_TICKETS_TAB]}
-                />
+                <Row gutter={[0, 24]}>
+                    {
+                        showOrganizationMessage && (
+                            <Col span={24}>
+                                <Typography.Text>{organizationName}</Typography.Text>
+                            </Col>
+                        )
+                    }
+                    <Col span={24}>
+                        <ClientCardTabContent
+                            tabData={tabData}
+                            handleTicketCreateClick={handleTicketCreateClick}
+                            getQueryForCreatingMeterReading={getQueryForCreatingMeterReading}
+                            showOrganizationMessage={showOrganizationMessage}
+                            canManageContacts={canManageContacts}
+                            hideMeterReadingButton={!firstClientData}
+                            tableTabs={[RESIDENTS_ENTRANCE_TICKETS_TAB, RESIDENTS_PROPERTY_TICKETS_TAB]}
+                        />
+                    </Col>
+                </Row>
             </Col>
         </Row>
     )

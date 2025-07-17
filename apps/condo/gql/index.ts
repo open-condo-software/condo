@@ -3743,6 +3743,7 @@ export const GetPropertyByIdDocument = gql`
     address
     organization {
       id
+      name
     }
     map {
       sections {
