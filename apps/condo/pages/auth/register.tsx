@@ -20,6 +20,7 @@ import { ValidatePhoneForm } from '@condo/domains/user/components/auth/ValidateP
 import AuthLayout, { AuthLayoutProps } from '@condo/domains/user/components/containers/AuthLayout'
 import { WelcomeHeaderTitle } from '@condo/domains/user/components/UserWelcomeTitle'
 import { AUTH_FLOW_USER_TYPE_COOKIE_NAME } from '@condo/domains/user/constants/auth'
+import { useAuthMethods } from '@condo/domains/user/hooks/useAuthMethods'
 
 
 const RegisterPage: PageComponentType = () => {
@@ -31,8 +32,9 @@ const RegisterPage: PageComponentType = () => {
     const PhoneConfirmTokenErrorMessage = intl.formatMessage({ id: 'pages.auth.register.PhoneConfirmTokenErrorMessage' })
     const RestartPhoneConfirmLabel = intl.formatMessage({ id: 'pages.auth.register.RestartPhoneConfirmLabel' })
     const router = useRouter()
-    const { query: { next }  } = router
+    const { query: { next } } = router
     const isValidNextUrl = next && !Array.isArray(next) && isSafeUrl(next)
+    const { queryParams } = useAuthMethods()
 
     const { token, isConfirmed, tokenError, setToken, setTokenError } = useRegisterContext()
     const [step, setStep] = useState<'inputPhone' | 'validatePhone' | 'register'>('inputPhone')
@@ -60,7 +62,7 @@ const RegisterPage: PageComponentType = () => {
             onFinish={() => setStep('register')}
             onReset={() => {
                 setStep('inputPhone')
-                Router.push('/auth/register')
+                Router.push(`/auth/register?${queryParams}`)
             }}
             title={ValidatePhoneTitle}
         />,
@@ -68,10 +70,10 @@ const RegisterPage: PageComponentType = () => {
             onFinish={handleFinish}
             onReset={() => {
                 setStep('inputPhone')
-                Router.push('/auth/register')
+                Router.push(`/auth/register?${queryParams}`)
             }}
         />,
-    }), [ValidatePhoneTitle, handleFinish])
+    }), [ValidatePhoneTitle, handleFinish, queryParams])
 
     useEffect(() => {
         if (token && isConfirmed) {
@@ -139,6 +141,10 @@ const RegisterPage: PageComponentType = () => {
 
 const HeaderAction: React.FC = () => {
     const router = useRouter()
+    const { authFlow } = useAuthMethods()
+
+    if (authFlow !== 'default') return null
+
     return router.query.step == 'inputPhone' && (
         <WelcomeHeaderTitle userType='staff'/>
     )

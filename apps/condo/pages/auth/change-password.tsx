@@ -1,7 +1,7 @@
 import { useAuthenticateUserWithPhoneAndPasswordMutation, useChangePasswordWithTokenMutation } from '@app/condo/gql'
 import { UserTypeType as UserType } from '@app/condo/schema'
 import { Col, Form, Row } from 'antd'
-import Router from 'next/router'
+import Router, { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
@@ -14,6 +14,7 @@ import { useHCaptcha } from '@condo/domains/common/components/HCaptcha'
 import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { PageComponentType } from '@condo/domains/common/types'
+import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 import {
     RegisterContextProvider,
     useRegisterContext,
@@ -21,6 +22,7 @@ import {
 import AuthLayout, { AuthLayoutProps } from '@condo/domains/user/components/containers/AuthLayout'
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 import { MIN_PASSWORD_LENGTH } from '@condo/domains/user/constants/common'
+import { useAuthMethods } from '@condo/domains/user/hooks/useAuthMethods'
 
 
 const INITIAL_VALUES = {
@@ -41,6 +43,11 @@ const ChangePasswordPage: PageComponentType = () => {
     const ChangePasswordTokenErrorLabel = intl.formatMessage({ id: 'pages.auth.ChangePasswordTokenErrorLabel' })
     const ChangePasswordTokenErrorMessage = intl.formatMessage({ id: 'pages.auth.ChangePasswordTokenErrorMessage' })
     const ChangePasswordTokenErrorConfirmLabel = intl.formatMessage({ id: 'pages.auth.ChangePasswordTokenErrorConfirmLabel' })
+
+    const router = useRouter()
+    const { query: { next } } = router
+    const redirectUrl = (next && !Array.isArray(next) && isSafeUrl(next)) ? next : '/'
+    const { queryParams } = useAuthMethods()
 
     const { executeCaptcha } = useHCaptcha()
     const { token, tokenError } = useRegisterContext()
@@ -135,7 +142,7 @@ const ChangePasswordPage: PageComponentType = () => {
             if (!res.errors && status === 'ok' && phone) {
                 await authWithPhoneAndPassword(phone, password)
                 await refetch()
-                await Router.push('/')
+                await Router.push(redirectUrl)
             }
         } catch (error) {
             console.error('Change password failed')
@@ -145,7 +152,7 @@ const ChangePasswordPage: PageComponentType = () => {
         }
     }, [authWithPhoneAndPassword, changePasswordWithTokenMutation, isLoading, refetch, token])
 
-    const onResetPasswordClick = useCallback(() => Router.push('/auth/forgot'), [])
+    const onResetPasswordClick = useCallback(() => Router.push(`/auth/forgot?${queryParams}`), [])
 
     if (tokenError) {
         return (
