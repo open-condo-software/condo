@@ -13,7 +13,7 @@ import qs from 'qs'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
-import { ExternalLink, History, Mail } from '@open-condo/icons'
+import { ExternalLink, History, Mail, Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button, Space, Tabs, Typography, Tag } from '@open-condo/ui'
@@ -44,6 +44,7 @@ const MAX_TABLE_SIZE = 20
 
 const TAG_STYLE: CSSProperties = { borderRadius: '100px' }
 const ROW_BIG_GUTTER: RowProps['gutter'] = [0, 60]
+const ROW_MEDIUM_GUTTER: RowProps['gutter'] = [0, 40]
 const ROW_MEDIUM_SMALL_GUTTER: RowProps['gutter'] = [0, 24]
 const HINT_CARD_STYLE = { maxHeight: '3em' }
 const TICKET_SORT_BY = [SortTicketsBy.OrderAsc, SortTicketsBy.CreatedAtDesc]
@@ -112,27 +113,25 @@ const ClientInfo: React.FC<ClientInfoPropsType> = ({ lastTicket, name, email, co
     return (
         <Row gutter={ROW_MEDIUM_SMALL_GUTTER}>
             <Col span={24}>
-                <Space size={12} direction='vertical' >
-                    <Space size={24} direction='horizontal' >
-                        <Typography.Title level={2}>
-                            {name}
-                        </Typography.Title>
-                        <Tag style={TAG_STYLE}>
-                            {typeToMessage[type]}
-                        </Tag>
-                        {
-                            lastTicket && (
-                                <TicketResidentFeatures ticket={lastTicket} />
-                            )
-                        }
-                        {
-                            showOrganizationMessage && organizationName && (
-                                <Typography.Text strong type='secondary' size='medium'>
-                                    {organizationName}
-                                </Typography.Text>
-                            )
-                        }
-                    </Space>
+                <Space size={24} direction='horizontal' >
+                    <Typography.Title level={2}>
+                        {name}
+                    </Typography.Title>
+                    <Tag style={TAG_STYLE}>
+                        {typeToMessage[type]}
+                    </Tag>
+                    {
+                        lastTicket && (
+                            <TicketResidentFeatures ticket={lastTicket} />
+                        )
+                    }
+                    {
+                        showOrganizationMessage && organizationName && (
+                            <Typography.Text strong type='secondary' size='medium'>
+                                {organizationName}
+                            </Typography.Text>
+                        )
+                    }
                 </Space>
             </Col>
             {
@@ -328,7 +327,7 @@ const ClientCardTabContent = ({
                 property && (
                     <>
                         <Col span={24}>
-                            <Row gutter={ROW_MEDIUM_SMALL_GUTTER}>
+                            <Row gutter={ROW_MEDIUM_GUTTER}>
                                 {
                                     type !== ClientCardTab.SearchByAddress && (
                                         <Col span={24}>
@@ -344,20 +343,24 @@ const ClientCardTabContent = ({
                                         </Col>
                                     )
                                 }
-                                <TicketPropertyHintCard
-                                    propertyId={propertyId}
-                                    hintContentStyle={HINT_CARD_STYLE}
-                                    colProps={HINTS_COL_PROPS}
-                                />
-                                {
-                                    propertyId && organizationId && (
-                                        <IncidentHints
-                                            organizationId={organizationId}
+                                <Col span={24}>
+                                    <Row gutter={ROW_MEDIUM_SMALL_GUTTER}>
+                                        <TicketPropertyHintCard
                                             propertyId={propertyId}
+                                            hintContentStyle={HINT_CARD_STYLE}
                                             colProps={HINTS_COL_PROPS}
                                         />
-                                    )
-                                }
+                                        {
+                                            propertyId && organizationId && (
+                                                <IncidentHints
+                                                    organizationId={organizationId}
+                                                    propertyId={propertyId}
+                                                    colProps={HINTS_COL_PROPS}
+                                                />
+                                            )
+                                        }
+                                    </Row>
+                                </Col>   
                             </Row>
                         </Col>
                         <Col span={24}>
@@ -642,16 +645,20 @@ export const SearchByAddressTabContent = ({ firstClientData, canManageContacts, 
 
     return (
         <Row gutter={[0, 40]}>
-            <Col span={24}>
-                <ClientInfo
-                    name={firstClientData?.name}
-                    email={firstClientData?.email}
-                    phone={phoneNumber}
-                    type={firstClientData?.type}
-                    showOrganizationMessage={showOrganizationMessage}
-                    contact={firstClientData}
-                />
-            </Col>
+            {
+                firstClientData && (
+                    <Col span={24}>
+                        <ClientInfo
+                            name={firstClientData?.name}
+                            email={firstClientData?.email}
+                            phone={phoneNumber}
+                            type={firstClientData?.type}
+                            showOrganizationMessage={showOrganizationMessage}
+                            contact={firstClientData}
+                        />
+                    </Col>
+                )
+            } 
             <Col span={24}>
                 <Row gutter={ROW_MEDIUM_SMALL_GUTTER}>
                     {
@@ -678,6 +685,7 @@ export const SearchByAddressTabContent = ({ firstClientData, canManageContacts, 
                                 }}
                                 placeholder={PropertySelectPlaceholder}
                                 showSearch
+                                suffixIcon={<Search />}
                             />
                             {
                                 propertyId && (
