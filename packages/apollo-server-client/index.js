@@ -10,7 +10,7 @@ const fetch = require('node-fetch')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const { MAX_REQUESTS_IN_BATCH, MAX_MODIFY_OPERATIONS_IN_REQUEST, MAX_RETRIES_ON_NETWORK_ERROR, LOAD_CHUNK_SIZE } = require('./constants')
-const { SIGNIN_BY_EMAIL_MUTATION, SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } = require('./lib/gql')
+const { SIGNIN_BY_EMAIL_MUTATION, SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, GET_MY_USERINFO } = require('./lib/gql')
 
 if (!globalThis.fetch) {
     globalThis.fetch = fetch
@@ -135,14 +135,16 @@ class ApolloServerClient {
     }
 
     async signIn () {
-        if (Reflect.has(this.authRequisites, 'token')) {
-            this.signInByToken(this.authRequisites.token)
-            return
-        }
-        if (Reflect.has(this.authRequisites, 'phone')) {
-            await this.signInByPhoneAndPassword()
-        } else {
-            await this.signInByEmailAndPassword()
+        try {
+            if (Reflect.has(this.authRequisites, 'token')) {
+                await this.signInByToken(this.authRequisites.token)
+            }
+        } catch (error) {
+            if (Reflect.has(this.authRequisites, 'phone')) {
+                await this.signInByPhoneAndPassword()
+            } else {
+                await this.signInByEmailAndPassword()
+            }
         }
     }
 
@@ -175,7 +177,9 @@ class ApolloServerClient {
         return miniAppClient
     }
 
-    signInByToken (token) {
+    async signInByToken (token) {
+        const { data: { user } } = await this.client.query({ query: GET_MY_USERINFO })
+        this.userId = user.id
         this.authToken = token
         this.#isAuthorized = true
     }
