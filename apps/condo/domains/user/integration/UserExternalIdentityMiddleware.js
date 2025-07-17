@@ -6,7 +6,6 @@ const { SbbolRoutes } = require('@condo/domains/organization/integrations/sbbol/
 const { AppleIdRoutes } = require('@condo/domains/user/integration/appleid/routes')
 const { SberIdRoutes } = require('@condo/domains/user/integration/sberid/routes')
 const { TelegramOauthRoutes } = require('@condo/domains/user/integration/telegram/routes')
-const createOidcConfiguration = require('@condo/domains/user/oidc/configuration')
 
 const { addPassportHandlers } = require('./utils/addPassportHandlers')
 
@@ -38,10 +37,7 @@ class UserExternalIdentityMiddleware {
         const telegramOauthRoutes = new TelegramOauthRoutes()
         app.get('/api/tg/auth', telegramOauthRoutes.startAuth.bind(telegramOauthRoutes))
         app.get('/api/tg/auth/callback', telegramOauthRoutes.completeAuth.bind(telegramOauthRoutes))
-        const Provider = require('oidc-provider')
-        const oidcProvider = new Provider(conf.SERVER_URL, createOidcConfiguration(keystone, conf))
-
-        addPassportHandlers(app, keystone, oidcProvider)
+        addPassportHandlers(app, keystone)
 
         // error handler
         app.use(expressErrorHandler)
