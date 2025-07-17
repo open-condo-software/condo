@@ -1518,11 +1518,15 @@ __metadata:
     cookies-next: ^4.2.1
     cross-fetch: 4.0.0
     dayjs: ^1.11.13
+    express: ^4.17.3
+    express-pino-logger: ^6.0.0
+    express-session: ^1.17.2
     graphql: ^16.10.0
     graphql-tag: ^2.12.6
     http-proxy: ^1.18.1
     lodash: ^4.17.21
     next: 13.3.0
+    openid-client: 4.7.4
     path-to-regexp: ^8.2.0
     phone: ^3.1.41
     react: 18.2.0
@@ -1534,6 +1538,7 @@ __metadata:
     ts-node: ^10.9.2
     typescript: ^5.8.3
     usehooks-ts: ^3.1.0
+    uuid: ^8.0.3
     zod: ^3.22.4
   languageName: unknown
   linkType: soft
@@ -18277,9 +18282,9 @@ __metadata:
   linkType: hard
 
 "agent-base@npm:^7.1.2":
-  version: 7.1.4
-  resolution: "agent-base@npm:7.1.4"
-  checksum: 86a7f542af277cfbd77dd61e7df8422f90bac512953709003a1c530171a9d019d072e2400eab2b59f84b49ab9dd237be44315ca663ac73e82b3922d10ea5eafa
+  version: 7.1.3
+  resolution: "agent-base@npm:7.1.3"
+  checksum: 87bb7ee54f5ecf0ccbfcba0b07473885c43ecd76cb29a8db17d6137a19d9f9cd443a2a7c5fd8a3f24d58ad8145f9eb49116344a66b107e1aeab82cf2383f4753
   languageName: node
   linkType: hard
 
@@ -44930,7 +44935,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"socks@npm:2.8.5":
+"socks@npm:2.8.5, socks@npm:^2.8.3":
   version: 2.8.5
   resolution: "socks@npm:2.8.5"
   dependencies:
@@ -44947,16 +44952,6 @@ __metadata:
     ip: ^2.0.0
     smart-buffer: ^4.2.0
   checksum: 0b5d94e2b3c11e7937b40fc5dac1e80d8b92a330e68c51f1d271ce6980c70adca42a3f8cd47c4a5769956bada074823b53374f2dc5f2ea5c2121b222dec6eadf
-  languageName: node
-  linkType: hard
-
-"socks@npm:^2.8.3":
-  version: 2.8.6
-  resolution: "socks@npm:2.8.6"
-  dependencies:
-    ip-address: ^9.0.5
-    smart-buffer: ^4.2.0
-  checksum: 3d2a696d42d94b05b2a7e797b9291483d6768b23300b015353f34f8046cce35f23fe59300a38a77a9f0dee4274dd6c333afbdef628cf48f3df171bfb86c2d21c
   languageName: node
   linkType: hard
 
