@@ -88,24 +88,15 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
         ? label
         : intl.formatMessage({ id: label as FormatjsIntl.Message['ids'] })
 
-    const linkContentClassName = classnames(
-        styles.menuItem,
-        {
-            [styles.menuItemCollapsedContent]: isCollapsed,
-        }
-    )
-
     const linkContent = (
-        <>
-            <Space size={12} align='center' direction='horizontal' className={linkContentClassName}>
-                <Icon size='medium' />
-                {!isCollapsed && (<div>
-                    <Typography.Title ellipsis={{ rows: 2 }} level={5}>
-                        {Message}
-                    </Typography.Title>
-                </div>)}
-            </Space>
-        </>
+        <Space size={12} align='center' direction='horizontal' className={styles.menuItem}>
+            <Icon size='medium' />
+            {!isCollapsed && (<div>
+                <Typography.Title ellipsis={{ rows: 2 }} level={5}>
+                    {Message}
+                </Typography.Title>
+            </div>)}
+        </Space>
     )
 
     const menuItemIdProp = id ? { id: id } : {}
