@@ -764,7 +764,7 @@ jobs:
           POSTGRES_DB: main
       - name: Setup Redis db
         run: |
-          docker run -p="127.0.0.1:6379:6379" -d ${{ env.REDIS_IMAGE_FULL }}
+          docker run -p="127.0.0.1:6379:6379" -d ${{ env.REDIS_IMAGE_FULL }} --databases 64
       - name: Run condo container with daemon
         run: |
           docker run --network="host" --name condo-container -dit ${{ env.DOCKER_IMAGE_FULL }} sh
