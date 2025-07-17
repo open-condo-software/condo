@@ -25,6 +25,7 @@ env:
   PG_IMAGE_FULL: ${{ secrets.DOCKER_REGISTRY }}/doma/utils/postgres:16.8
   REDIS_IMAGE_FULL: ${{ secrets.DOCKER_REGISTRY }}/doma/utils/redis:6.2
   REF: ${{ github.event.pull_request.head.sha || github.ref }}
+  REDIS_RUN_COMMAND: docker run -p="127.0.0.1:6379:6379" -d ${{ secrets.DOCKER_REGISTRY }}/doma/utils/redis:6.2 --databases 64
 
 jobs:
   authorize:
@@ -763,8 +764,7 @@ jobs:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: main
       - name: Setup Redis db
-        run: |
-          docker run -p="127.0.0.1:6379:6379" -d ${{ env.REDIS_IMAGE_FULL }} --databases 64
+        run: ${{ env.REDIS_RUN_COMMAND }}
       - name: Run condo container with daemon
         run: |
           docker run --network="host" --name condo-container -dit ${{ env.DOCKER_IMAGE_FULL }} sh
