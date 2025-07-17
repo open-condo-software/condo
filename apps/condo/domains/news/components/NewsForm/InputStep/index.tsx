@@ -208,7 +208,7 @@ export const InputStep: React.FC<InputStepProps> = ({
             showArrow: false,
             infinityScroll: true,
             initialValue: initialPropertyIds,
-            search: searchOrganizationProperty(organizationId),
+            search: searchOrganizationProperty(organizationId, selectedProperties),
             disabled: !organizationId,
             required: true,
             placeholder: SelectAddressPlaceholder,
@@ -223,7 +223,7 @@ export const InputStep: React.FC<InputStepProps> = ({
                 setScope(prev=>({ ...prev, selectedSectionKeys: [] }))
             },
         }
-    }, [initialPropertyIds, organizationId, SelectAddressPlaceholder])
+    }, [initialPropertyIds, organizationId, SelectAddressPlaceholder, setScope, selectedProperties])
 
     useEffect(() => {
         setSharingAppFormValues(processedInitialValues)

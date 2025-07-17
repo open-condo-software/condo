@@ -1,3 +1,4 @@
+import { Property } from '@app/condo/schema'
 import { gql } from 'graphql-tag'
 import { isEmpty } from 'lodash'
 
@@ -84,7 +85,7 @@ export function searchOrganizationPropertyScope (organizationId: string) {
     }
 }
 
-export function searchOrganizationProperty (organizationId) {
+export function searchOrganizationProperty (organizationId: string, selectedProperties?: Array<Property>) {
     if (!organizationId) return
 
     return async function (client, searchText, query = {}, first = 10, skip = 0) {
@@ -104,6 +105,8 @@ export function searchOrganizationProperty (organizationId) {
         })
         if (error) console.warn(error)
 
-        return data.objs.map(({ address, id }) => ({ text: address, value: id }))
+        const resultWithSelectedProperties = data.objs.concat(selectedProperties ?? [])
+
+        return resultWithSelectedProperties.map(({ address, id }) => ({ text: address, value: id }))
     }
 }
