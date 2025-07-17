@@ -17,14 +17,30 @@
   background: transparent;
 }
 
-.accent-button {
-  cursor: default !important;
-}
-
 .condo-dropdown-menu-title-content > a::after {
   display: none !important;
 }
 
 .menu-wrapper a::after {
   display: none;
+}
+
+.accent-button {
+  cursor: default !important;
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+.accent-button > span:last-child {
+  opacity: 0;
+  animation: fade-in var(--condo-global-transition-duration-default) ease-in forwards;
+  animation-delay: var(--condo-global-transition-duration-default);
 }

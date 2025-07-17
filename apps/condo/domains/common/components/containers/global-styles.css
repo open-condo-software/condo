@@ -48,7 +48,7 @@
   height: calc(100vh - 104px);
 
   /* 32px - 8px of margin - 12px padding of first menu item */
-  padding: 12px 28px 40px;
+  padding: 12px 35.5px 40px;
   overflow-x: hidden;
 }
 

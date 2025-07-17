@@ -1,11 +1,5 @@
 .menu-item-wrapper {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 12px 0;
-  vertical-align: center;
-  border-radius: 8px;
+  padding: 9px 0;
   cursor: pointer;
 }
 
@@ -27,6 +21,9 @@
   opacity: 0.4;
 }
 
-.justify-center {
-  justify-content: center;
+.menu-item > div h5 {
+  height: 20px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: clip;
 }

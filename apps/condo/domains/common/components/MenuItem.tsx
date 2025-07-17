@@ -4,9 +4,8 @@ import React, { useCallback, useState } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useIntl } from '@open-condo/next/intl'
-import { Space, Typography } from '@open-condo/ui'
+import { Space, Typography, Tooltip } from '@open-condo/ui'
 
-import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { renderLink } from '@condo/domains/common/utils/Renders'
 import { getEscaped } from '@condo/domains/common/utils/string.utils'
@@ -39,11 +38,8 @@ interface IMenuItemProps {
 }
 
 const addToolTipForCollapsedMenu = (content: JSX.Element, Message: string) => (
-    <Tooltip title={Message} placement='right' overlayStyle={{ position: 'fixed' }}>
-        {/* NOTE: Antd tooltip doesn't work with spans, so icons must have a div wrapper */}
-        <div>
-            {content}
-        </div>
+    <Tooltip title={<Typography.Paragraph size='medium'>{Message}</Typography.Paragraph>} placement='right'>
+        {content}
     </Tooltip>
 )
 
@@ -95,9 +91,11 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
     const linkContent = (
         <Space size={12} align='center' direction='horizontal' className={styles.menuItem}>
             <Icon size='medium' />
-            { !isCollapsed && <Typography.Title ellipsis={{ rows: 2 }} level={5}>
-                {Message}
-            </Typography.Title> }
+            {!isCollapsed && (<div>
+                <Typography.Title ellipsis={{ rows: 2 }} level={5}>
+                    {Message}
+                </Typography.Title>
+            </div>)}
         </Space>
     )
 
@@ -106,12 +104,10 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
     const menuItemClassName = classnames(
         styles.menuItemWrapper,
         {
-            [styles.justifyCenter]: isCollapsed,
             [styles.active]: isActive,
             [styles.disabled]: disabled,
         },
         wrapperClassName,
-        'side'
     )
 
     const menuItem = (
@@ -121,9 +117,11 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
             {...menuItemIdProp}
             {...restWrapperProps}
         >
-            {(isCollapsed && !disabled)
-                ? addToolTipForCollapsedMenu(linkContent, Message)
-                : linkContent}
+            {
+                (isCollapsed && !disabled)
+                    ? addToolTipForCollapsedMenu(linkContent, Message)
+                    : linkContent
+            }
         </div>
     )
 
