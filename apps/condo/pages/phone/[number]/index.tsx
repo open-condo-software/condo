@@ -5,6 +5,7 @@ import {
 } from '@app/condo/gql'
 import { Col, Row, RowProps } from 'antd'
 import { CarouselRef } from 'antd/es/carousel'
+import isEqual from 'lodash/isEqual'
 import uniqBy from 'lodash/uniqBy'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -98,51 +99,52 @@ const ClientCardPageContent = ({
     }, [tabsData, slidesToShow, carouselRef.current])
 
     useEffect(() => {
+        // Set initial tab if it is not set
+        if (tabsData.length > 0 && !tab) {
+            const initialTabKey = getClientCardTabKey(
+                tabsData[0].property?.id,
+                tabsData[0].type,
+                tabsData[0].unitName,
+                tabsData[0].unitType,
+                tabsData[0].sectionName,
+                tabsData[0].sectionType,
+            )
+            const newRoute = `${router.route.replace('[number]', phoneNumber)}?tab=${initialTabKey}`
+            router.push(newRoute, undefined, { shallow: true })
+        }
+    }, [phoneNumber, router, tab, tabsData])
+
+    useDeepCompareEffect(() => {
         const { type, property: propertyId, unitName, unitType, sectionType, sectionName } = parseCardDataFromQuery(tab)
         if (type === ClientCardTab.SearchByAddress) {
             setActiveTabData({ type } as TabDataType)
             return
         }
-
-        const isClientTabSelected = unitName || unitType
-        let initialTabData
-        if (isClientTabSelected) {
-            initialTabData = tabsData?.find(tab => (
-                tab.property.id === propertyId &&
-                tab.unitName === unitName &&
-                tab.unitType === unitType
-            ))
-        } else {
-            initialTabData = tabsData?.[0]
+        if (!propertyId) {
+            return
         }
-        const property = initialTabData?.property
-        const organization = initialTabData?.organization
-        const contact = initialTabData?.contact
-        const tabSectionType = sectionType ?? initialTabData?.sectionType
-        const tabSectionName = sectionName ?? initialTabData?.sectionName
-        const tabUnitName = unitName ?? initialTabData?.unitName
-        const tabUnitType = unitType ?? initialTabData?.unitType
-        const tabType = type ?? initialTabData?.type
-        const name = initialTabData?.name
-        const email = initialTabData?.email
+
+        const selectedTabData = tabsData?.find(tab => (
+            tab.property?.id === propertyId &&
+                tab?.unitName === unitName &&
+                tab?.unitType === unitType
+        ))
+        if (isEqual(selectedTabData, activeTabData)) {
+            return 
+        }
+        const property = selectedTabData?.property
+        const tabSectionType = sectionType ?? selectedTabData?.sectionType
+        const tabSectionName = sectionName ?? selectedTabData?.sectionName
+        const tabUnitName = unitName ?? selectedTabData?.unitName
+        const tabUnitType = unitType ?? selectedTabData?.unitType
+        const tabType = type ?? selectedTabData?.type
 
         if (property) {
             const key = getClientCardTabKey(property?.id, tabType, tabUnitName, tabUnitType, tabSectionName, tabSectionType)
             const newRoute = `${router.route.replace('[number]', phoneNumber)}?tab=${key}`
             router.push(newRoute, undefined, { shallow: true })
 
-            setActiveTabData({
-                type: tabType,
-                property,
-                unitName: tabUnitName,
-                unitType: tabUnitType,
-                organization,
-                contact,
-                sectionType: tabSectionType,
-                sectionName: tabSectionName,
-                name,
-                email,
-            })
+            setActiveTabData(selectedTabData)
         }
     }, [tab, tabsData, phoneNumber, router])
 
@@ -248,21 +250,17 @@ const ClientCardPageContent = ({
                         <Col span={24}>
                             <Row justify='space-between' align='bottom' >
                                 <Typography.Title>{ClientCardHeader}</Typography.Title>
-                                {
-                                    tabsData.length === 0 && (
-                                        <Button 
-                                            onClick={redirectToCreateContact}
-                                            type='primary'
-                                            size='large'
-                                            id='ClientCardCreateContactButton'
-                                            minimal
-                                            compact
-                                            icon={<PlusCircle />}
-                                        >
-                                            {AddAddressMessage}
-                                        </Button>
-                                    )
-                                }
+                                <Button 
+                                    onClick={redirectToCreateContact}
+                                    type='primary'
+                                    size='large'
+                                    id='ClientCardCreateContactButton'
+                                    minimal
+                                    compact
+                                    icon={<PlusCircle />}
+                                >
+                                    {AddAddressMessage}
+                                </Button>
                             </Row>
                         </Col>
                         <Col span={24}>
@@ -350,7 +348,7 @@ export const ClientCardPageContentWrapper = ({
 
     const [tabsData, setTabsData] = useState<TabDataType[]>([])
 
-    useEffect(() => {
+    useDeepCompareEffect(() => {
         const contactsData = contactsQueryData?.contacts?.map(contact => ({
             type: ClientCardTab.Resident,
             property: contact.property,

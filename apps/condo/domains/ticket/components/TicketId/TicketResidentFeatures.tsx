@@ -6,10 +6,10 @@ import React, { useMemo } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
 import { useIntl } from '@open-condo/next/intl'
+import { Tooltip } from '@open-condo/ui'
 
 import { BankCardIcon } from '@condo/domains/common/components/icons/BankCardIcon'
 import { MobileIcon } from '@condo/domains/common/components/icons/MobileIcon'
-import { Tooltip } from '@condo/domains/common/components/Tooltip'
 
 
 interface MobileAppInstalledIndicatorProps {
@@ -73,6 +73,7 @@ type TicketResidentFeaturesProps = {
 }
 
 const TICKET_RESIDENT_FEATURES_ROW_GUTTER: [Gutter, Gutter] = [8, 0]
+const ROW_STYLE = { height: '32px', alignContent: 'center' }
 
 export const TicketResidentFeatures: React.FC<TicketResidentFeaturesProps> = ({ ticket }) => {
     const isContactHasMobileApp = !!ticket?.client
@@ -80,7 +81,7 @@ export const TicketResidentFeatures: React.FC<TicketResidentFeaturesProps> = ({ 
     const propertyAddress = ticket?.property?.address || null
 
     return (
-        <Row id='ticket_resident-features' gutter={TICKET_RESIDENT_FEATURES_ROW_GUTTER}>
+        <Row id='ticket_resident-features' gutter={TICKET_RESIDENT_FEATURES_ROW_GUTTER} style={ROW_STYLE}>
             <Col>
                 <MobileAppInstalledIndicator isContactHasMobileApp={isContactHasMobileApp} />
             </Col>
