@@ -17,6 +17,7 @@ const DemoButton = ({ icon, text, disabled }: { text?: string, icon: React.React
 )
 
 const iconCombinations = {
+    'empty': [],
     'copy-search': [
         <DemoButton icon={<Copy size='small'/>} key='copy' />,
         <DemoButton icon={<Search size='small'/>} key='search' />,
