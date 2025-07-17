@@ -1,8 +1,0 @@
-query findOrganizationsByTin ($data: FindOrganizationsByTinInput!) {
-    data: findOrganizationsByTin(data: $data) {
-        organizations {
-            id
-            name
-        }
-    }
-}

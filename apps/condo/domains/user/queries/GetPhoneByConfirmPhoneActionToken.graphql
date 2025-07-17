@@ -1,3 +1,0 @@
-query getPhoneByConfirmPhoneActionToken($data: GetPhoneByConfirmPhoneActionTokenInput!) {
-    result: getPhoneByConfirmPhoneActionToken(data: $data) { phone, isPhoneVerified }
-}

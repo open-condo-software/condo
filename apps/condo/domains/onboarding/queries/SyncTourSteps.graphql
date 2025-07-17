@@ -1,5 +1,0 @@
-mutation syncTourSteps ($data: SyncTourStepsInput!) {
-    result: syncTourSteps(data: $data) {
-        ok
-    }
-}

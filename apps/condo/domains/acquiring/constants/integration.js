@@ -1,5 +1,0 @@
-const DEFAULT_ACQUIRING_INTEGRATION_NAME = 'default'
-
-module.exports = {
-    DEFAULT_ACQUIRING_INTEGRATION_NAME,
-}

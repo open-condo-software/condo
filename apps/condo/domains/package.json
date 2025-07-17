@@ -1,7 +1,0 @@
-{
-  "name": "@condo/domains",
-  "private": true,
-  "main": "./index.js",
-  "version": "1.0.0",
-  "dependencies": {}
-}

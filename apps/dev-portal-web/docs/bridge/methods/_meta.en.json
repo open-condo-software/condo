@@ -1,7 +1,0 @@
-{
-  "get-launch-params": "CondoWebAppGetLaunchParams",
-  "resize-window": "CondoWebAppResizeWindow",
-  "redirect": "CondoWebAppRedirect",
-  "notifications": "Notifications",
-  "modals": "Modals"
-}

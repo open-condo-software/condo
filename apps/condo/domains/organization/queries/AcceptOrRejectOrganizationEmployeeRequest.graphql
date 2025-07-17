@@ -1,5 +1,0 @@
-mutation acceptOrRejectOrganizationEmployeeRequest ($data: AcceptOrRejectOrganizationEmployeeRequestInput!) {
-    request: acceptOrRejectOrganizationEmployeeRequest (data: $data) {
-        id
-    }
-}

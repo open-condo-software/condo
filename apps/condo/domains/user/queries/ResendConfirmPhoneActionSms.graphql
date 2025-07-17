@@ -1,3 +1,0 @@
-mutation resendConfirmPhoneActionSms($data: ResendConfirmPhoneActionSmsInput!) {
-    result: resendConfirmPhoneActionSms(data: $data) { status }
-}

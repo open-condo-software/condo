@@ -1,3 +1,0 @@
-mutation startConfirmPhoneAction($data: StartConfirmPhoneActionInput!) {
-    result: startConfirmPhoneAction(data: $data) { token }
-}

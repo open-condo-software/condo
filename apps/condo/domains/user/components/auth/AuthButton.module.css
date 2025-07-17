@@ -1,9 +1,0 @@
-.auth-button {
-  justify-content: start;
-  height: auto;
-}
-
-.auth-button > span {
-  white-space: initial;
-  text-align: start;
-}

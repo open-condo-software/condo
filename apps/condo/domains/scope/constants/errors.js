@@ -1,5 +1,0 @@
-const MAX_NAME_LENGTH_ERROR = 'MAX_NAME_LENGTH'
-
-module.exports = {
-    MAX_NAME_LENGTH_ERROR,
-}
