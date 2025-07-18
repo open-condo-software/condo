@@ -38,7 +38,7 @@ const Status: FC<StatusPropsType> = ({ result, updateLoading }) => {
         <Typography.Text type='success'>
             <span className={styles.status}>
                 <CheckCircle size='medium'/>
-                {ReadyLabel}
+                {ReadyLabel}!
             </span>
         </Typography.Text>
     )
