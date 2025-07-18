@@ -2138,13 +2138,6 @@ input UserExternalIdentityHistoryRecordsCreateInput {
   data: UserExternalIdentityHistoryRecordCreateInput
 }
 
-enum UserExternalIdentityIdentityTypeType {
-  apple_id
-  sber_id
-  sbbol
-  telegram
-}
-
 enum UserExternalIdentityUserTypeType {
   staff
   resident
@@ -2171,7 +2164,7 @@ type UserExternalIdentity {
   identityId: String
 
   """ The type of external identity that was a source for this link """
-  identityType: UserExternalIdentityIdentityTypeType
+  identityType: String
 
   """ Type of connected user """
   userType: UserExternalIdentityUserTypeType
@@ -2224,10 +2217,24 @@ input UserExternalIdentityWhereInput {
   identityId_not_ends_with_i: String
   identityId_in: [String]
   identityId_not_in: [String]
-  identityType: UserExternalIdentityIdentityTypeType
-  identityType_not: UserExternalIdentityIdentityTypeType
-  identityType_in: [UserExternalIdentityIdentityTypeType]
-  identityType_not_in: [UserExternalIdentityIdentityTypeType]
+  identityType: String
+  identityType_not: String
+  identityType_contains: String
+  identityType_not_contains: String
+  identityType_starts_with: String
+  identityType_not_starts_with: String
+  identityType_ends_with: String
+  identityType_not_ends_with: String
+  identityType_i: String
+  identityType_not_i: String
+  identityType_contains_i: String
+  identityType_not_contains_i: String
+  identityType_starts_with_i: String
+  identityType_not_starts_with_i: String
+  identityType_ends_with_i: String
+  identityType_not_ends_with_i: String
+  identityType_in: [String]
+  identityType_not_in: [String]
   userType: UserExternalIdentityUserTypeType
   userType_not: UserExternalIdentityUserTypeType
   userType_in: [UserExternalIdentityUserTypeType]
@@ -2328,7 +2335,7 @@ enum SortUserExternalIdentitiesBy {
 input UserExternalIdentityUpdateInput {
   user: UserRelateToOneInput
   identityId: String
-  identityType: UserExternalIdentityIdentityTypeType
+  identityType: String
   userType: UserExternalIdentityUserTypeType
   meta: JSON
   v: Int
@@ -2350,7 +2357,7 @@ input UserExternalIdentitiesUpdateInput {
 input UserExternalIdentityCreateInput {
   user: UserRelateToOneInput
   identityId: String
-  identityType: UserExternalIdentityIdentityTypeType
+  identityType: String
   userType: UserExternalIdentityUserTypeType
   meta: JSON
   v: Int
@@ -68852,7 +68859,6 @@ enum B2BAppIconType {
   ArrowDownUp
   ArrowLeft
   ArrowRight
-  ArrowUp
   BarChartHorizontal
   BarChartVertical
   Bell
@@ -68948,7 +68954,6 @@ enum B2BAppIconType {
   Smile
   SortAsc
   SortDesc
-  Sparkles
   Star
   StarFilled
   Subtitles
@@ -94848,6 +94853,12 @@ type Mutation {
     "code": "BAD_USER_INPUT",
     "type": "USER_EXTERNAL_IDENTITY_WRONG_USER_TYPE",
     "message": "UserType must be same as user.type"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "USER_EXTERNAL_IDENTITY_WRONG_IDENTITY_TYPE",
+    "message": "IdentityType has unsupported value"
   }`
   """
   registerNewUser(data: RegisterNewUserInput!): User
