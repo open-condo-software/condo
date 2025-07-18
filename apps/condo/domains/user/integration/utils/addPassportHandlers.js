@@ -283,9 +283,8 @@ function addPassportHandlers (app, keystone) {
         next()
     }
 
-    const onAuthSuccess = (oidcClientId) => async (req, res) => {
+    const onAuthSuccess = ({ provider, authMethod }) => async (req, res) => {
         const user = req.user
-        const clientId = oidcClientId
 
         if (!user) {
             return res.status(401).json({ error: 'Authentication failed', message: 'User not found after authentication' })
@@ -296,7 +295,7 @@ function addPassportHandlers (app, keystone) {
             await keystone._sessionManager.startAuthedSession(req, {
                 item: { id: user.id },
                 list: keystone.lists['User'],
-                clientId,
+                sessionInfo: { provider, authMethod },
             })
 
             return res.redirect('/')
@@ -351,7 +350,7 @@ function addPassportHandlers (app, keystone) {
             app.get(
                 `/api/auth/${config.name}/callback`,
                 passport.authenticate(config.name, { session: false, failureRedirect: '/?error=openid_fail' }),
-                onAuthSuccess(config.name)
+                onAuthSuccess({ provider: config.name, authMethod: `/api/auth/${config.name}` })
             )
         })
     }
@@ -394,7 +393,7 @@ function addPassportHandlers (app, keystone) {
         }))
 
         app.get('/api/auth/github', captureUserType(true), passport.authenticate('github', { scope: [ 'user:email' ], session: false }))
-        app.get('/api/auth/github/callback', passport.authenticate('github', { session: false, failureRedirect: '/?error=github_fail' }), onAuthSuccess('github'))
+        app.get('/api/auth/github/callback', passport.authenticate('github', { session: false, failureRedirect: '/?error=github_fail' }), onAuthSuccess({ provider: 'github', authMethod: '/api/auth/github' }))
     }
 
     if (conf['PASSPORT_SDK']) {
@@ -405,66 +404,80 @@ function addPassportHandlers (app, keystone) {
             throw new Error(`SDK config validation failed ${ajv.errorsText(validateConfig.errors)}`)
         }
 
-        sdkConfig.forEach(config => {
-            passport.use(config.name, new CustomStrategy(async (req, done) => {
-                const fieldMapping = config.fieldMapping || {}
-                try {
-                    const userType = req.userType || req.session.userType
-                    const { 'access-token': accessToken } = req.query
-                    if (!accessToken) {
-                        const error = new Error('Query parameter access-token is required')
-                        error.statusCode = 403
-                        error.errorCode = 'Missing access token'
-                        return done(error)
-                    }
+        passport.use('sdk', new CustomStrategy(async (req, done) => {
+            const { provider } = req.query
+            if (!provider) {
+                const error = new Error('Provider parameter is required')
+                error.statusCode = 400
+                error.errorCode = 'Missing provider query parameter'
+                return done(error)
+            }
 
-                    const profileResponse = await fetch(config.userInfoURL, {
-                        headers: {
-                            Authorization: `Bearer ${accessToken}`,
-                        },
-                    })
+            const config = sdkConfig.find(c => c.name === provider)
+            if (!config) {
+                const error = new Error('Wrong provider value')
+                error.statusCode = 400
+                error.errorCode = `${provider} is not registered as auth method`
+                return done(error)
+            }
 
-                    if (!profileResponse.ok) {
-                        const error = new Error(`Failed to fetch user profile: ${profileResponse.statusText}`)
-                        error.statusCode = 400
-                        error.errorCode = 'User profile response not ok'
-                        return done(error)
-                    }
-
-                    const userProfile = await profileResponse.json()
-                    if (!Object.keys(userProfile).length) {
-                        const error = new Error('User profile returned empty object')
-                        error.statusCode = 400
-                        error.errorCode = 'User profile empty response'
-                        return done(error)
-                    }
-
-                    const user = await getOrCreateUser(
-                        keystone, userProfile, userType, config.name,
-                        config, fieldMapping
-                    )
-
-                    return done(null, user)
-                } catch (error) {
-                    done(error)
+            const fieldMapping = config.fieldMapping || {}
+            try {
+                const userType = req.userType || req.session.userType
+                const { 'access-token': accessToken } = req.query
+                if (!accessToken) {
+                    const error = new Error('Query parameter access-token is required')
+                    error.statusCode = 403
+                    error.errorCode = 'Missing access token'
+                    return done(error)
                 }
-            }))
 
-            app.get(
-                `/api/auth/${config.name}`,
-                captureUserType(false),
-                passport.authenticate(config.name),
-                onAuthSuccess(config.name),
-                (err, req, res, next) => {
-                    const statusCode = err.statusCode || 500
-                    const errorCode = err.errorCode || 'Internal server error'
-                    return res.status(statusCode).json({
-                        error: errorCode,
-                        message: err.message,
-                    })
+                const profileResponse = await fetch(config.userInfoURL, {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                })
+
+                if (!profileResponse.ok) {
+                    const error = new Error(`Failed to fetch user profile: ${profileResponse.statusText}`)
+                    error.statusCode = 400
+                    error.errorCode = 'User profile response not ok'
+                    return done(error)
                 }
-            )
-        })
+
+                const userProfile = await profileResponse.json()
+                if (!Object.keys(userProfile).length) {
+                    const error = new Error('User profile returned empty object')
+                    error.statusCode = 400
+                    error.errorCode = 'User profile empty response'
+                    return done(error)
+                }
+
+                const user = await getOrCreateUser(
+                    keystone, userProfile, userType, config.name,
+                    config, fieldMapping
+                )
+
+                return done(null, user)
+            } catch (error) {
+                done(error)
+            }
+        }))
+
+        app.get(
+            '/api/auth/sdk',
+            captureUserType(false),
+            passport.authenticate('sdk'),
+            onAuthSuccess({ provider: 'sdk', authMethod: '/api/auth/sdk' }),
+            (err, req, res, next) => {
+                const statusCode = err.statusCode || 500
+                const errorCode = err.errorCode || 'Internal server error'
+                return res.status(statusCode).json({
+                    error: errorCode,
+                    message: err.message,
+                })
+            }
+        )
     }
 
     passport.serializeUser((user, done) => {

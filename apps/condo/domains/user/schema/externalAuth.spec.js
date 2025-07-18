@@ -449,10 +449,29 @@ describe('external authentication', () => {
 
     describe('SDK (custom) flow', () => {
         describe('validation', () => {
+            test('Should fail if provider query parameter is missing', async () => {
+                mockSdkProvider()
+
+                const response = await agent.get('/api/auth/sdk?userType=staff&access-token=some_access_token')
+                expect(response.statusCode).toEqual(400)
+                expect(response.headers).not.toHaveProperty('set-cookie')
+                expect(response.body).toHaveProperty('error', 'Missing provider query parameter')
+                expect(response.body).toHaveProperty('message', 'Provider parameter is required')
+            })
+
+            test('Should fail if provider not registered as auth method', async () => {
+                mockSdkProvider()
+
+                const response = await agent.get('/api/auth/sdk?provider=abc-provider&userType=staff&access-token=some_access_token')
+                expect(response.statusCode).toEqual(400)
+                expect(response.headers).not.toHaveProperty('set-cookie')
+                expect(response.body).toHaveProperty('error', 'abc-provider is not registered as auth method')
+                expect(response.body).toHaveProperty('message', 'Wrong provider value')
+            })
             test('Should fail if provider return empty profile', async () => {
                 mockSdkProvider({})
 
-                const response = await agent.get('/api/auth/sdk-default?userType=staff&access-token=some_access_token')
+                const response = await agent.get('/api/auth/sdk?provider=sdk-default&userType=staff&access-token=some_access_token')
                 expect(response.statusCode).toEqual(400)
                 expect(response.headers).not.toHaveProperty('set-cookie')
                 expect(response.body).toHaveProperty('error', 'User profile empty response')
@@ -461,7 +480,7 @@ describe('external authentication', () => {
 
             test('Should fail if provider missing required query parameter', async () => {
                 mockSdkProvider()
-                const response = await agent.get('/api/auth/sdk-default?userType=staff')
+                const response = await agent.get('/api/auth/sdk?provider=sdk-default&userType=staff')
                 expect(response.statusCode).toEqual(403)
                 expect(response.headers).not.toHaveProperty('set-cookie')
                 expect(response.body).toHaveProperty('error', 'Missing access token')
@@ -471,7 +490,7 @@ describe('external authentication', () => {
         describe('trusted provider', () => {
             test('should create user and start authed session', async () => {
                 const userProfile = mockSdkProvider({ sub: faker.datatype.uuid(), email: faker.datatype.uuid() + '@gmail.com' })
-                const response = await agent.get('/api/auth/sdk-default?userType=resident&access-token=some_access_token')
+                const response = await agent.get('/api/auth/sdk?provider=sdk-default&userType=resident&access-token=some_access_token')
                 expect(response.statusCode).toEqual(302)
                 expect(response.headers['set-cookie']).toHaveLength(1)
                 expect(response.headers.location).toMatch('/')
@@ -503,7 +522,7 @@ describe('external authentication', () => {
 
             test('should create user without any credentials', async () => {
                 const userProfile = mockSdkProvider()
-                const response = await agent.get('/api/auth/sdk-default?userType=staff&access-token=some_access_token')
+                const response = await agent.get('/api/auth/sdk?provider=sdk-default&userType=staff&access-token=some_access_token')
 
                 expect(response.statusCode).toEqual(302)
                 expect(response.headers['set-cookie']).toHaveLength(1)
@@ -538,7 +557,7 @@ describe('external authentication', () => {
                     isEmailVerified: false,
                 })
 
-                const response = await agent.get('/api/auth/sdk-default?userType=staff&access-token=some_access_token')
+                const response = await agent.get('/api/auth/sdk?provider=sdk-default&userType=staff&access-token=some_access_token')
 
                 expect(response.statusCode).toEqual(302)
                 expect(response.headers['set-cookie']).toHaveLength(1)
@@ -576,7 +595,7 @@ describe('external authentication', () => {
                     isEmailVerified: true,
                 })
 
-                const response = await agent.get('/api/auth/sdk-untrusted?userType=staff&access-token=some_access_token')
+                const response = await agent.get('/api/auth/sdk?provider=sdk-untrusted&userType=staff&access-token=some_access_token')
                 expect(response.statusCode).toEqual(302)
                 expect(response.headers['set-cookie']).toHaveLength(1)
                 expect(response.headers.location).toMatch('/')
@@ -607,7 +626,7 @@ describe('external authentication', () => {
             test('should not be connected to existing user with same email', async () => {
                 const userProfile = mockSdkProvider({ sub: faker.datatype.uuid(), email: faker.datatype.uuid() + '@gmail.com' })
                 const [existingUser] = await createTestUser(admin, { email: userProfile.email, isEmailVerified: true, type: 'staff' })
-                const response = await agent.get('/api/auth/sdk-untrusted?userType=staff&access-token=some_access_token')
+                const response = await agent.get('/api/auth/sdk?provider=sdk-untrusted&userType=staff&access-token=some_access_token')
                 expect(response.statusCode).toEqual(302)
                 expect(response.headers['set-cookie']).toHaveLength(1)
                 expect(response.headers.location).toMatch('/')
