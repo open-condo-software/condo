@@ -724,13 +724,11 @@ const Comments: React.FC<CommentsPropsType> = ({
                                 generateCommentClickHandler={async () => setErrorMessage(await handleGenerateCommentClick(commentTabContentProps.comments, commentForm))}
                                 rewriteTextOnClickHandler={handleRewriteTextClick}
                             /> ) : (
-                            <div onClick={()=> {
+                            <Input onFocus={()=> {
                                 setCommentFormOpen(true)
                                 setTimeout(()=> commentTextAreaRef?.current?.focus(), 100)
                             }}
-                            >
-                                <Input placeholder={PlaceholderMessage} value={editableComment?.content}/>
-                            </div>
+                            placeholder={PlaceholderMessage} value={editableComment?.content}/>
                         )}
                     </>
                 ) : (
