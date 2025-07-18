@@ -25,6 +25,7 @@ env:
   PG_IMAGE_FULL: ${{ secrets.DOCKER_REGISTRY }}/doma/utils/postgres:16.8
   REDIS_IMAGE_FULL: ${{ secrets.DOCKER_REGISTRY }}/doma/utils/redis:6.2
   REF: ${{ github.event.pull_request.head.sha || github.ref }}
+  REDIS_RUN_COMMAND: docker run -p="127.0.0.1:6379:6379" -d ${{ secrets.DOCKER_REGISTRY }}/doma/utils/redis:6.2 --databases 64
 
 jobs:
   authorize:
@@ -180,6 +181,7 @@ jobs:
               - 'packages/**'
             registry-importer:
               - 'apps/registry-importer/**'
+              - 'apps/rb'
               - 'packages/**'
             webhooks:
               - 'packages/webhooks/**'
@@ -354,7 +356,7 @@ jobs:
           POSTGRES_DB: main
       - name: Setup Redis db
         run: |
-          docker run -p="127.0.0.1:6379:6379" -d ${{ env.REDIS_IMAGE_FULL }}
+          ${{ env.REDIS_RUN_COMMAND }}
       - name: Run condo container with daemon
         run: |
           docker run --network="host" --name condo-container -dit ${{ env.DOCKER_IMAGE_FULL }} sh
@@ -437,7 +439,7 @@ jobs:
           POSTGRES_DB: main
       - name: Setup Redis db
         run: |
-          docker run -p="127.0.0.1:6379:6379" -d ${{ env.REDIS_IMAGE_FULL }}
+          ${{ env.REDIS_RUN_COMMAND }}
       - name: Run condo container with daemon
         run: |
           mkdir test_logs
@@ -505,7 +507,7 @@ jobs:
           POSTGRES_DB: main
       - name: Setup Redis db
         run: |
-          docker run -p="127.0.0.1:6379:6379" -d ${{ env.REDIS_IMAGE_FULL }}
+          ${{ env.REDIS_RUN_COMMAND }}
       - name: Run condo container with daemon
         run: |
           docker run --network="host" --name condo-container -dit ${{ env.DOCKER_IMAGE_FULL }} sh
@@ -557,7 +559,7 @@ jobs:
           POSTGRES_DB: main
       - name: Setup Redis db
         run: |
-          docker run -p="127.0.0.1:6379:6379" -d ${{ env.REDIS_IMAGE_FULL }}
+          ${{ env.REDIS_RUN_COMMAND }}
       - name: Run condo container with daemon
         run: |
           docker run --network="host" --name condo-container -dit ${{ env.DOCKER_IMAGE_FULL }} sh
@@ -609,7 +611,7 @@ jobs:
           POSTGRES_DB: main
       - name: Setup Redis db
         run: |
-          docker run -p="127.0.0.1:6379:6379" -d ${{ env.REDIS_IMAGE_FULL }}
+          ${{ env.REDIS_RUN_COMMAND }}
       - name: Run condo container with daemon
         run: |
           docker run --network="host" --name condo-container -dit ${{ env.DOCKER_IMAGE_FULL }} sh
@@ -711,7 +713,7 @@ jobs:
           POSTGRES_DB: main
       - name: Setup Redis db
         run: |
-          docker run -p="127.0.0.1:6379:6379" -d ${{ env.REDIS_IMAGE_FULL }}
+          ${{ env.REDIS_RUN_COMMAND }}
       - name: Run condo container with daemon
         run: |
           docker run --network="host" --name condo-container -dit ${{ env.DOCKER_IMAGE_FULL }} sh
@@ -763,13 +765,13 @@ jobs:
           POSTGRES_DB: main
       - name: Setup Redis db
         run: |
-          docker run -p="127.0.0.1:6379:6379" -d ${{ env.REDIS_IMAGE_FULL }}
+          ${{ env.REDIS_RUN_COMMAND }}
       - name: Run condo container with daemon
         run: |
           docker run --network="host" --name condo-container -dit ${{ env.DOCKER_IMAGE_FULL }} sh
       - name: Prepare apps
         run: |
-          docker exec condo-container node bin/prepare.js -f condo registry-importer
+          docker exec condo-container node bin/prepare.js -f condo registry-importer rb
       - name: Check migrations state
         run: |
           docker exec condo-container yarn workspace @app/registry-importer makemigrations --check
@@ -782,8 +784,9 @@ jobs:
           -e GH_REF_NAME=$GH_REF_NAME \
           condo-container sh -c "(\
           yarn workspace @app/condo start & \
+          yarn workspace @app/rb start & \
           yarn workspace @app/registry-importer start & \
-          node bin/wait-apps-apis.js -f condo registry-importer) && \
+          node bin/wait-apps-apis.js -f condo registry-importer rb) && \
           yarn workspace @app/registry-importer test"
         env:
           PROMETHEUS_RW_SERVER_URL: ${{ secrets.K6_PROMETHEUS_RW_SERVER_URL }}
