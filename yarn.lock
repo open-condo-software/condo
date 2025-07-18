@@ -1068,6 +1068,7 @@ __metadata:
     "@open-condo/keystone": "workspace:^"
     "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/next": "workspace:^"
+    "@open-condo/ui": "workspace:^"
     "@open-keystone/app-next": ^8.0.2
     "@types/jest": ^29.5.14
     "@types/node": ^22
@@ -1406,7 +1407,6 @@ __metadata:
     form-data: ^4.0.0
     graphql: ^16.10.0
     graphql-tag: ^2.12.6
-    graphql-upload: ^15.0.2
     iconv-lite: ^0.6.3
     ignore-loader: ^0.1.2
     imapflow: ^1.0.177
@@ -1638,7 +1638,6 @@ __metadata:
     openid-client: 4.7.4
     pluralize: ^8.0.0
     react: 17.0.2
-    uuid: ^8.3.0
   languageName: unknown
   linkType: soft
 
