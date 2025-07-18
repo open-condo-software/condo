@@ -17,7 +17,6 @@ import { MAX_UPLOAD_FILE_SIZE } from '@condo/domains/common/constants/uploads'
 import { analytics } from '@condo/domains/common/utils/analytics'
 
 
-
 type DBFile = {
     id: string
     file?: File
@@ -190,7 +189,11 @@ export const StyledUpload = styled(Upload)<{ reverseFileList?: boolean }>`
       }
     }
   }
-
+    
+    .ant-upload-list-item-card-actions-btn:hover {
+        background-color: inherit;
+    }
+    
   .ant-upload-list-text-container {
     & .ant-upload-list-item-name {
       font-size: 16px;
@@ -301,29 +304,33 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
         showUploadList: {
             showRemoveIcon: true,
             removeIcon: (file) => {
-                const removeIcon = (
-                    <Trash
-                        color={colors.red[5]}
-                        size='small'
-                        onClick={() => {
-                            const { id, uid } = file
-                            const fileError = get(file, 'error')
-                            if (!fileError) {
-                                setFilesCount(filesCount => filesCount - 1)
-                            }
+                const deleteFile = () => {
+                    const { id, uid } = file
+                    const fileError = get(file, 'error')
+                    if (!fileError) {
+                        setFilesCount(filesCount => filesCount - 1)
+                    }
 
-                            if (!id) {
-                                // remove file that failed to upload from list
-                                setListFiles([...listFiles].filter(file => file.uid !== uid))
-                                updateFileList({ type: 'delete', payload: file })
-                                return
-                            }
-                            setListFiles([...listFiles].filter(file => file.id !== id))
-                            updateFileList({ type: 'delete', payload: file })
-                        }}
+                    if (!id) {
+                        // remove file that failed to upload from list
+                        setListFiles([...listFiles].filter(file => file.uid !== uid))
+                        updateFileList({ type: 'delete', payload: file })
+                        return
+                    }
+                    setListFiles([...listFiles].filter(file => file.id !== id))
+                    updateFileList({ type: 'delete', payload: file })
+                }
+
+                return (
+                    <Button
+                        type='secondary'
+                        minimal
+                        compact
+                        size='medium'
+                        icon={<Trash size='small'/>}
+                        onClick={deleteFile}
                     />
                 )
-                return removeIcon
             },
         },
         customRequest: (options: UploadRequestOption) => {

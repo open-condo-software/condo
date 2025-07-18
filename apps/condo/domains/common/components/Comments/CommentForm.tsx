@@ -12,7 +12,6 @@ import { FormWithAction } from '@condo/domains/common/components/containers/Form
 import { Module, useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { analytics } from '@condo/domains/common/utils/analytics'
-import { getIconByMimetype } from '@condo/domains/common/utils/clientSchema/files'
 import { GENERATE_COMMENT_TOUR_STEP_CLOSED_COOKIE, UPDATE_COMMENT_TOUR_STEP_CLOSED_COOKIE } from '@condo/domains/ticket/constants/common'
 
 import styles from './Comments.module.css'
@@ -160,14 +159,10 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                         />
                     </Tooltip>
                 }
-                uploadProps={{
-                    iconRender: (file) => {
-                        return getIconByMimetype(file.type)
-                    },
-                }}
+                uploadProps={ <Paperclip size='large' /> }
             />
         )
-    }, [UploadComponent, editableCommentFiles])
+    }, [UploadComponent, UploadTooltipText, editableCommentFiles, isInputDisable])
 
     const initialCommentFormValues = useMemo(() => ({
         [fieldName]: initialValue,
@@ -317,7 +312,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                             placeholder={PlaceholderMessage}
                             onKeyUp={handleKeyUp(commentForm)}
                             isSubmitDisabled={!canSendMessage}
-                            autoSize={{ minRows: 1, maxRows: 4 }}
+                            autoSize={{ minRows: 1, maxRows: 5 }}
                             disabled={isInputDisable}
                             onSubmit={()=>handelSendMessage(commentForm)}
                             onChange={(event) => {
