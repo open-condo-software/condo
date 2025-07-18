@@ -68859,6 +68859,7 @@ enum B2BAppIconType {
   ArrowDownUp
   ArrowLeft
   ArrowRight
+  ArrowUp
   BarChartHorizontal
   BarChartVertical
   Bell
@@ -68954,6 +68955,7 @@ enum B2BAppIconType {
   Smile
   SortAsc
   SortDesc
+  Sparkles
   Star
   StarFilled
   Subtitles
