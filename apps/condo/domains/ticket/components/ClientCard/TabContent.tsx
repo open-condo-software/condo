@@ -284,18 +284,14 @@ const ClientCardTabContent: React.FC<IClientCardTabContent> = ({
         if (!getQueryForCreatingMeterReading) return
 
         const query = qs.stringify(
-            getQueryForCreatingMeterReading(),
+            { 
+                ...getQueryForCreatingMeterReading(), 
+                redirectToClientCard: true,
+            },
             { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
         )
-
-        const newUrl = `/meter/create${query}`
-
-        if (typeof window !== 'undefined') {
-            window.open(newUrl, '_blank')
-        } else {
-            await router.push(newUrl)
-        }
-
+        
+        await router.push(`/meter/create${query}`)
     }, [router, getQueryForCreatingMeterReading])
 
     const redirectToTicketPage = useCallback(async () => {
