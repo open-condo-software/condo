@@ -11,8 +11,25 @@
   border-radius: 8px;
 }
 
+.empty-container {
+  display: flex;
+  flex: 1 1;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  padding: 24px 0;
+  text-align: center;
+}
+
 .comment-container.in-modal > div,
-.comment-container.in-modal > span,
+.comment-container.in-modal > span {
+  padding: 0;
+}
+
+.empty-container > div > div:first-child {
+  display: none;
+}
+
 .comment-container.in-modal > .card-container > div {
   padding: 0;
 }
@@ -54,20 +71,6 @@
 
 .comment-footer {
   padding: 24px;
-}
-
-.empty-container {
-  display: flex;
-  flex: 1 1;
-  flex-direction: column;
-  justify-content: center;
-  height: 100%;
-  padding: 24px 0;
-  text-align: center;
-}
-
-.empty-container > div > div:first-child {
-  display: none;
 }
 
 .generate-comment-button-wrapper {
