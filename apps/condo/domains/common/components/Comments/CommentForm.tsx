@@ -107,16 +107,24 @@ const CommentForm: React.FC<ICommentFormProps> = ({
         }
     }, [editableComment, fieldName, commentForm])
 
-    const handleKeyUp = useCallback((form: FormInstance) => async (event) => {
-        if (event.keyCode === ENTER_KEY_CODE && !event.shiftKey) {
-            if (commentValue && commentValue.trim().length > 0 || filesCount > 0) {
-                setSending(true)
-                form.submit()
+    const submitComment = useCallback((form: FormInstance) => {
+        if (commentValue && commentValue.trim().length > 0 || filesCount > 0) {
+            setSending(true)
+            form.submit()
 
-                analytics.track('ticket_comment_submit', {})
-            }
+            analytics.track('ticket_comment_submit', {})
         }
     }, [commentValue, filesCount, setSending])
+
+    const handelSendMessage = useCallback((form: FormInstance) => {
+        submitComment(form)
+    }, [submitComment])
+
+    const handleKeyUp = useCallback((form: FormInstance) => async (event) => {
+        if (event.keyCode === ENTER_KEY_CODE && !event.shiftKey) {
+            submitComment(form)
+        }
+    }, [submitComment])
 
     const handleKeyDown = useCallback((event) => {
         if (event.keyCode === ENTER_KEY_CODE) {
@@ -186,15 +194,6 @@ const CommentForm: React.FC<ICommentFormProps> = ({
             console.error('Unable to copy to clipboard', e)
         }
     }, [copied, commentValue])
-
-    const handelSendMessage = useCallback((form: FormInstance) => {
-        if (commentValue && commentValue.trim().length > 0 || filesCount > 0) {
-            setSending(true)
-            form.submit()
-
-            analytics.track('ticket_comment_submit', {})
-        }
-    }, [filesCount, setSending, commentValue])
 
     useEffect(() => {
         commentForm.setFieldsValue({ [fieldName]: commentValue })

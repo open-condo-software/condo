@@ -119,7 +119,7 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> = ({
                 }
 
                 return (
-                    <>
+                    <React.Fragment key={comment.id}>
                         <Comment
                             comment={comment}
                             deleteAction={deleteAction}
@@ -139,7 +139,7 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> = ({
                                 </Tooltip>
                             )
                         }
-                    </>
+                    </React.Fragment>
                 )
             }), [
         GenerateResponseMessage, GenerateResponseTooltipMessage, comments, editableComment,
@@ -588,22 +588,6 @@ const Comments: React.FC<CommentsPropsType> = ({
     }] = useAIFlow<{ answer: string }>({
         flowType: FLOW_TYPES.REWRITE_TEXT_FLOW_TYPE,
     })
-
-    useEffect(() => {
-        setGenerateCommentAnswer(generateCommentData?.answer)
-    }, [generateCommentData?.answer])
-
-    useEffect(() => {
-        setRewriteTextAnswer(rewriteTextData?.answer)
-    }, [rewriteTextData?.answer])
-
-    useEffect(() => {
-        if (!commentFormOpen) {
-            setGenerateCommentAnswer('')
-            setRewriteTextAnswer('')
-            setErrorMessage('')
-        }
-    }, [commentFormOpen])
 
     useEffect(() => {
         setGenerateCommentAnswer(generateCommentData?.answer)
