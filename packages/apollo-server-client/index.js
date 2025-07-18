@@ -139,7 +139,7 @@ class ApolloServerClient {
             try {
                 await this.signInByToken(this.authRequisites.token)
                 return
-            } catch (err) {
+            } catch {
                 this.authToken = null
             }
         }
