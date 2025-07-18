@@ -6,6 +6,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { CheckCircle, Copy, Paperclip, Sparkles } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Input, Button, Tour, Tooltip } from '@open-condo/ui'
+import { useBreakpoints } from '@open-condo/ui/hooks'
 
 import AIInputNotification from '@condo/domains/ai/components/AIInputNotification'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
@@ -89,6 +90,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
     const [aiNotificationShow, setAiNotificationShow] = useState(false)
 
     const { currentStep, setCurrentStep } = Tour.useTourContext()
+    const breakpoint = useBreakpoints()
 
     const { UploadComponent, syncModifiedFiles, resetModifiedFiles, filesCount } = useMultipleFileUploadHook({
         Model: FileModel,
@@ -358,7 +360,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                                         onClick={handleUpdateComment}
                                         className={styles.rewriteTextButton}
                                     >
-                                        {UpdateTextMessage}
+                                        {breakpoint.MOBILE_LARGE && UpdateTextMessage}
                                     </Button>
                                 </Tour.TourStep>,
                             ]}
