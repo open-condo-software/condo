@@ -230,7 +230,10 @@ const mockOidcProvider = (
     }
 }
 
-const mockSdkProvider = (userProfile = { sub: faker.datatype.uuid() }) => {
+const mockSdkProvider = (userProfile = {
+    sub: faker.datatype.uuid(),
+    name: faker.internet.userName(),
+}) => {
     nock('https://sdk-source.com').get('/userinfo')
         .matchHeader('Authorization', 'Bearer some_access_token')
         .reply(200, userProfile)
@@ -542,6 +545,7 @@ describe('external authentication', () => {
                 expect(userExternalIdentity.meta).toMatchObject(providerMeta)
 
                 const user = await UserAdmin.getOne(admin, { id: userExternalIdentity.user.id })
+                expect(user).toHaveProperty('name', userProfile.name)
                 expect(user).toHaveProperty('email', null)
                 expect(user).toHaveProperty('phone', null)
                 expect(user).toHaveProperty('type', 'staff')

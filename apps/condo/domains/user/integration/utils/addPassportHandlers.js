@@ -7,6 +7,8 @@ const { Strategy: OIDCStrategy } = require('passport-openidconnect')
 
 const conf = require('@open-condo/config')
 
+const { normalizeEmail } = require('@condo/domains/common/utils/mail')
+const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 const {
     User,
@@ -20,6 +22,7 @@ const DV_AND_SENDER = {
 }
 const USER_PROFILE_MAPPING = {
     id: 'id',
+    name: 'name',
     phone: 'phone',
     email: 'email',
     isPhoneVerified: 'isPhoneVerified',
@@ -158,8 +161,12 @@ const createNewUser = async (context, baseUserData, contactInfo, contactType, is
  * @returns {Promise<object>} The found or created user.
  */
 const findOrCreateUserByContact = async (context, userProfile, searchCriteria, baseUserData, isTrusted, contactType) => {
-    const contactInfo = userProfile[contactType]
+    let contactInfo = userProfile[contactType]
     if (!contactInfo) return null
+
+    contactInfo = contactType === 'phone'
+        ? normalizePhone(contactInfo)
+        : normalizeEmail(contactInfo)
 
     if (isTrusted) {
         const existingUser = await findExistingUserByVerifiedContact(context, searchCriteria, contactInfo, contactType)
@@ -199,6 +206,7 @@ async function getOrCreateUser (keystone, userProfile, userType, identityType, c
     const finalMapping = { ...USER_PROFILE_MAPPING, ...fieldMapping }
     const mappedProfile = {
         id: String(get(userProfile, finalMapping.id)),
+        name: get(userProfile, finalMapping.name, null),
         phone: get(userProfile, finalMapping.phone, null),
         email: get(userProfile, finalMapping.email, null),
         isPhoneVerified: get(userProfile, finalMapping.isPhoneVerified, true),
@@ -227,6 +235,7 @@ async function getOrCreateUser (keystone, userProfile, userType, identityType, c
         isPhoneVerified: false,
         isEmailVerified: false,
         meta: userMeta,
+        name: mappedProfile.name,
         ...DV_AND_SENDER,
     }
 
