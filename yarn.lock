@@ -1478,6 +1478,7 @@ __metadata:
     less: ^4.3.0
     less-loader: ^12.3.0
     lodash: ^4.17.21
+    mkdirp: ^3.0.1
     multer: ^1.4.5-lts.1
     next: ^12.3.7
     next-transpile-modules: ^10.0.1
