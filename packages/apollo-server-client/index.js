@@ -135,16 +135,16 @@ class ApolloServerClient {
     }
 
     async signIn () {
-        try {
-            if (Reflect.has(this.authRequisites, 'token')) {
+        if (Reflect.has(this.authRequisites, 'token')) {
+            try {
                 await this.signInByToken(this.authRequisites.token)
-            }
-        } catch (error) {
-            if (Reflect.has(this.authRequisites, 'phone')) {
-                await this.signInByPhoneAndPassword()
-            } else {
-                await this.signInByEmailAndPassword()
-            }
+                return
+            } catch (error) { /* empty */ }
+        }
+        if (Reflect.has(this.authRequisites, 'phone')) {
+            await this.signInByPhoneAndPassword()
+        } else {
+            await this.signInByEmailAndPassword()
         }
     }
 
@@ -178,9 +178,15 @@ class ApolloServerClient {
     }
 
     async signInByToken (token) {
-        const { data: { user } } = await this.client.query({ query: GET_MY_USERINFO })
-        this.userId = user.id
         this.authToken = token
+        const { data: { user } } = await this.client.query({ query: GET_MY_USERINFO })
+
+        if (user){
+            this.userId = user.id
+        } else {
+            throw new Error('Invalid token')
+        }
+
         this.#isAuthorized = true
     }
 
