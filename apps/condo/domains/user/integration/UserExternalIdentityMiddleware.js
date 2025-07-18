@@ -7,6 +7,9 @@ const { AppleIdRoutes } = require('@condo/domains/user/integration/appleid/route
 const { SberIdRoutes } = require('@condo/domains/user/integration/sberid/routes')
 const { TelegramOauthRoutes } = require('@condo/domains/user/integration/telegram/routes')
 
+const { addPassportHandlers } = require('./utils/addPassportHandlers')
+
+
 class UserExternalIdentityMiddleware {
     async prepareMiddleware ({ keystone }) {
         // all bellow routes are handling csrf properly
@@ -34,6 +37,7 @@ class UserExternalIdentityMiddleware {
         const telegramOauthRoutes = new TelegramOauthRoutes()
         app.get('/api/tg/auth', telegramOauthRoutes.startAuth.bind(telegramOauthRoutes))
         app.get('/api/tg/auth/callback', telegramOauthRoutes.completeAuth.bind(telegramOauthRoutes))
+        addPassportHandlers(app, keystone)
 
         // error handler
         app.use(expressErrorHandler)
