@@ -40,6 +40,10 @@
   height: 100%;
 }
 
+.comment-container.in-modal .empty-container-description {
+  padding: 0 24px;
+}
+
 .comment-head {
   padding: 24px 24px 0;
   font-weight: bold;
@@ -62,7 +66,7 @@
   text-align: center;
 }
 
-.empty-container .ant-empty-image {
+.empty-container > div > div:first-child {
   display: none;
 }
 

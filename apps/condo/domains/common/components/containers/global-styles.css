@@ -408,7 +408,7 @@
   position: absolute;
   top: 52px;
   left: -12px;
-  width: 100%;
+  width: calc(100% + 24px);
   margin-bottom: 10px;
   overflow-y: scroll;
 }

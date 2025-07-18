@@ -8,31 +8,201 @@ import {
     UpdateTicketCommentMutationHookResult,
     UpdateUserTicketCommentReadTimeMutationHookResult,
 } from '@app/condo/gql'
-import { Ticket, TicketComment, TicketCommentFile } from '@app/condo/schema'
-import { Drawer, Form, FormInstance, notification, InputRef } from 'antd'
+import { Ticket, TicketComment, TicketCommentFile, UserTypeType } from '@app/condo/schema'
+import { Drawer, Empty, Form, FormInstance, notification, InputRef } from 'antd'
 import classNames from 'classnames'
 import dayjs from 'dayjs'
+import cookie from 'js-cookie'
 import { pickBy } from 'lodash'
-import React, {  useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { MouseEventHandler, UIEventHandler, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { Close } from '@open-condo/icons'
 import { getClientSideSenderInfo } from '@open-condo/miniapp-utils'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
-import { Button, Input, Radio, RadioGroup, Tour, Typography } from '@open-condo/ui'
+import { Button, Input, Radio, RadioGroup, Tooltip, Tour, Typography } from '@open-condo/ui'
 import { useBreakpoints } from '@open-condo/ui/hooks'
 
+import { AIFlowButton } from '@condo/domains/ai/components/AIFlowButton'
 import { FLOW_TYPES } from '@condo/domains/ai/constants.js'
 import { useAIConfig, useAIFlow } from '@condo/domains/ai/hooks/useAIFlow'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { Loader } from '@condo/domains/common/components/Loader'
 import { Module } from '@condo/domains/common/components/MultipleFileUpload'
 import { analytics } from '@condo/domains/common/utils/analytics'
 import { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE } from '@condo/domains/ticket/constants'
+import { GENERATE_COMMENT_TOUR_STEP_CLOSED_COOKIE } from '@condo/domains/ticket/constants/common'
 import { hasUnreadResidentComments } from '@condo/domains/ticket/utils/helpers'
 
+import { Comment } from './Comment'
 import CommentForm from './CommentForm'
 import styles from './Comments.module.css'
-import { CommentsTabContent } from './CommentsTabContent'
+
+const EmptyCommentsContainer = ({ PromptTitleMessage, PromptDescriptionMessage, AiButton }) => (
+    <div className={styles.emptyContainer}>
+        <Empty
+            image={null}
+            description={
+                <div className={styles.emptyContainerDescription}>
+                    <Typography.Paragraph strong>
+                        {PromptTitleMessage}
+                    </Typography.Paragraph>
+                    <Typography.Paragraph size='medium' type='secondary'>
+                        {PromptDescriptionMessage}
+                    </Typography.Paragraph>
+                    {AiButton}
+                </div>
+            }
+        />
+    </div>
+)
+
+type CommentsTabContentProps = {
+    comments: CommentWithFiles[]
+    updateAction: UpdateTicketCommentMutationHookResult[0]
+    PromptTitleMessage: string
+    PromptDescriptionMessage: string
+    editableComment: CommentWithFiles
+    setEditableComment: (value: CommentWithFiles) => void
+    handleBodyScroll: UIEventHandler<HTMLDivElement>
+    bodyRef: React.RefObject<HTMLDivElement>
+    sending: boolean
+    generateCommentEnabled: boolean
+    generateCommentOnClickHandler: MouseEventHandler<HTMLElement>
+    generateCommentLoading: boolean
+    showGenerateCommentWithoutComments: boolean
+    commentType: string
+}
+
+const CommentsTabContent: React.FC<CommentsTabContentProps> = ({
+    sending,
+    handleBodyScroll,
+    bodyRef,
+    comments,
+    updateAction,
+    PromptTitleMessage,
+    PromptDescriptionMessage,
+    editableComment,
+    setEditableComment,
+    generateCommentEnabled,
+    generateCommentOnClickHandler,
+    generateCommentLoading,
+    showGenerateCommentWithoutComments,
+    commentType,
+}) => {
+    const intl = useIntl()
+    const GenerateResponseMessage = intl.formatMessage({ id: 'ai.generateResponse' })
+    const GenerateResponseTooltipMessage = intl.formatMessage({ id: 'ai.generateResponseWithAI' })
+    const GenerateCommentMessage = intl.formatMessage({ id: 'ai.generateComment' })
+    const GenerateCommentTourStepTitle = intl.formatMessage({ id: 'ai.generateComment.tourStepTitle' })
+    const GenerateCommentTourStepDescription = intl.formatMessage({ id: 'ai.generateComment.tourStepDescription' })
+
+    const lastComment = useMemo(() => comments?.[0], [comments])
+    const showGenerateAnswerButton = useMemo(() =>
+        generateCommentEnabled && lastComment?.user?.type === UserTypeType.Resident,
+    [generateCommentEnabled, lastComment?.user?.type])
+
+    const commentsToRender = useMemo(() =>
+        comments
+            .map(comment => {
+                const deleteAction = async ({ id }) => {
+                    await updateAction({
+                        variables: {
+                            id,
+                            data: {
+                                deletedAt: new Date().toISOString(),
+                                dv: 1,
+                                sender: getClientSideSenderInfo(),
+                            },
+                        },
+                    })
+                }
+
+                return (
+                    <>
+                        <Comment
+                            comment={comment}
+                            deleteAction={deleteAction}
+                            setEditableComment={setEditableComment}
+                        />
+                        {
+                            showGenerateAnswerButton && lastComment?.id === comment.id && (
+                                <Tooltip placement='left' mouseEnterDelay={1.5} title={GenerateResponseTooltipMessage}>
+                                    <div className={styles.generateAnswerButtonWrapper}>
+                                        <AIFlowButton
+                                            loading={generateCommentLoading}
+                                            onClick={generateCommentOnClickHandler}
+                                        >
+                                            {GenerateResponseMessage}
+                                        </AIFlowButton>
+                                    </div>
+                                </Tooltip>
+                            )
+                        }
+                    </>
+                )
+            }), [
+        GenerateResponseMessage, GenerateResponseTooltipMessage, comments, editableComment,
+        generateCommentLoading, generateCommentOnClickHandler, lastComment?.id, setEditableComment,
+        showGenerateAnswerButton, updateAction,
+    ])
+
+    const { currentStep, setCurrentStep } = Tour.useTourContext()
+
+    useEffect(() => {
+        const isTipHidden = cookie.get(GENERATE_COMMENT_TOUR_STEP_CLOSED_COOKIE) || false
+        setCurrentStep(isTipHidden ? 0 : 1)
+    }, [setCurrentStep, commentType])
+
+    const closeTourStep = useCallback(() => {
+        if (currentStep === 1) {
+            cookie.set(GENERATE_COMMENT_TOUR_STEP_CLOSED_COOKIE, true)
+            setCurrentStep(0)
+        }
+    }, [currentStep, setCurrentStep])
+
+    const handleClickGenerateCommentButton = useCallback(async (event) => {
+        closeTourStep()
+        await generateCommentOnClickHandler(event)
+    }, [closeTourStep, generateCommentOnClickHandler])
+
+    return (
+        <>
+            {comments.length === 0 ? (
+                <div className={styles.commentBody}>
+                    <EmptyCommentsContainer
+                        PromptTitleMessage={PromptTitleMessage}
+                        PromptDescriptionMessage={PromptDescriptionMessage}
+                        AiButton={<div className={styles.generateCommentButtonWrapper}>
+                            {showGenerateCommentWithoutComments && (
+                                <Tour.TourStep
+                                    step={1}
+                                    title={GenerateCommentTourStepTitle}
+                                    message={GenerateCommentTourStepDescription}
+                                    onClose={closeTourStep}
+                                >
+                                    <div className={styles.generateCommentInnerButtonWrapper}>
+                                        <AIFlowButton
+                                            loading={generateCommentLoading}
+                                            onClick={handleClickGenerateCommentButton}
+                                        >
+                                            {GenerateCommentMessage}
+                                        </AIFlowButton>
+                                    </div>
+                                </Tour.TourStep>
+                            )}
+                        </div> }
+                    />
+                </div>
+            ) : (
+                <div className={styles.commentBody} ref={bodyRef} onScroll={handleBodyScroll}>
+                    {sending && <Loader className={styles.loader}/>}
+                    {commentsToRender}
+                </div>
+            )}
+        </>
+    )
+}
 
 const SCROLL_TOP_OFFSET_TO_HIDE_TITLE = 50
 
@@ -487,7 +657,7 @@ const Comments: React.FC<CommentsPropsType> = ({
                             <>
                                 {InternalCommentsMessage}
                                 <sup>
-                                    {commentsWithOrganization.length}
+                                    {!!commentsWithOrganization.length && commentsWithOrganization.length}
                                 </sup>
                             </>
                         }
@@ -499,7 +669,7 @@ const Comments: React.FC<CommentsPropsType> = ({
                             <>
                                 {ResidentCommentsMessage}
                                 <sup>
-                                    {commentsWithResident.length}
+                                    {!!commentsWithResident.length && commentsWithResident.length}
                                     {showIndicator && <span className={styles.newCommentIndicator} title=''/>}
                                 </sup>
                             </>
