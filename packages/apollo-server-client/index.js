@@ -10,7 +10,7 @@ const fetch = require('node-fetch')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const { MAX_REQUESTS_IN_BATCH, MAX_MODIFY_OPERATIONS_IN_REQUEST, MAX_RETRIES_ON_NETWORK_ERROR, LOAD_CHUNK_SIZE } = require('./constants')
-const { SIGNIN_BY_EMAIL_MUTATION, SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } = require('./lib/gql')
+const { SIGNIN_BY_EMAIL_MUTATION, SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, GET_MY_USERINFO } = require('./lib/gql')
 
 if (!globalThis.fetch) {
     globalThis.fetch = fetch
@@ -136,8 +136,12 @@ class ApolloServerClient {
 
     async signIn () {
         if (Reflect.has(this.authRequisites, 'token')) {
-            this.signInByToken(this.authRequisites.token)
-            return
+            try {
+                await this.signInByToken(this.authRequisites.token)
+                return
+            } catch {
+                this.authToken = null
+            }
         }
         if (Reflect.has(this.authRequisites, 'phone')) {
             await this.signInByPhoneAndPassword()
@@ -175,8 +179,13 @@ class ApolloServerClient {
         return miniAppClient
     }
 
-    signInByToken (token) {
+    async signInByToken (token) {
         this.authToken = token
+        const { data: { user } } = await this.client.query({ query: GET_MY_USERINFO })
+
+        if (!user) throw new Error('Invalid token')
+
+        this.userId = user.id
         this.#isAuthorized = true
     }
 
