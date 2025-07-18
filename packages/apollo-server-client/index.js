@@ -139,7 +139,9 @@ class ApolloServerClient {
             try {
                 await this.signInByToken(this.authRequisites.token)
                 return
-            } catch (err) { /* empty */ }
+            } catch (err) {
+                this.authToken = null
+            }
         }
         if (Reflect.has(this.authRequisites, 'phone')) {
             await this.signInByPhoneAndPassword()
@@ -181,12 +183,9 @@ class ApolloServerClient {
         this.authToken = token
         const { data: { user } } = await this.client.query({ query: GET_MY_USERINFO })
 
-        if (user) {
-            this.userId = user.id
-        } else {
-            throw new Error('Invalid token')
-        }
+        if (!user) throw new Error('Invalid token')
 
+        this.userId = user.id
         this.#isAuthorized = true
     }
 
