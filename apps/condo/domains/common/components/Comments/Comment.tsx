@@ -1,32 +1,33 @@
-import { DeleteFilled, EditFilled } from '@ant-design/icons'
 import { User, TicketComment } from '@app/condo/schema'
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import { Comment as AntComment, Image, Popconfirm, Typography } from 'antd'
+import { Comment as AntComment, Image, Typography } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
+import { Edit, Trash } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
-import { Button, Space } from '@open-condo/ui'
+import { Typography as UiTypography } from '@open-condo/ui'
+import { Button, Tooltip } from '@open-condo/ui'
 
 import { colors, fontSizes } from '@condo/domains/common/constants/style'
 import { getIconByMimetype } from '@condo/domains/common/utils/clientSchema/files'
 
-import { CommentWithFiles } from './index'
+import styles from './Comments.module.css'
 
+import { CommentWithFiles } from './index'
 
 const { RESIDENT, STAFF, SERVICE } = require('@condo/domains/user/constants/common')
 
 
 interface ICommentProps {
     comment: CommentWithFiles
-    setEditableComment: React.Dispatch<React.SetStateAction<CommentWithFiles>>
+    setEditableComment: (value: CommentWithFiles) => void
     deleteAction?: (obj: CommentWithFiles) => Promise<void>
 }
-
 
 const DeletedTextStyle = css`
     margin-top: 1em;
@@ -53,8 +54,6 @@ const CommentStyle = css`
     }
 
     .ant-comment-inner {
-        padding: 12px;
-
         .ant-comment-content {
             display: flex;
             flex-flow: column nowrap;
@@ -94,28 +93,30 @@ const CommentStyle = css`
                 & > .ant-typography {
                     margin-bottom: 4px;
                     cursor: pointer;
-
-                    & > .ant-typography {
-                        margin-left: 8px;
-                    }
-                }
+                    
+            & > .ant-typography {
+              margin-left: 8px;
             }
-
-            .ant-comment-actions {
-                position: absolute;
-                right: -5px;
-                bottom: -5px;
-                opacity: 0;
-                pointer-events: none;
-                transition: all 0.3s ease-in-out;
-            }
+          }
         }
+        
+        .ant-comment-actions {
+          position: absolute;
+          right: 0;
+          top: 0;
+            display: flex;
+            gap:8px;
+          opacity: 0;
+          pointer-events: none;
+          transition: all 0.3s ease-in-out;
+        }
+      }
     }
 `
 
 const CommentPreviewStyle = css`
     width: 100%;
-    background: ${colors.white};
+    background: white;
     margin-bottom: 6px;
     border: 1px solid ${colors.sberGrey};
     border-radius: 8px;
@@ -124,8 +125,6 @@ const CommentPreviewStyle = css`
     line-height: 22px;
 
     .ant-comment-inner {
-        padding: 12px;
-
         .ant-comment-content {
             display: flex;
             flex-flow: column nowrap;
@@ -264,13 +263,18 @@ export const Comment: React.FC<ICommentProps> = ({ comment, setEditableComment, 
     const CommentDeletedText = intl.formatMessage({ id: 'Comments.deleted' })
     const MetaUpdatedText = intl.formatMessage({ id: 'Comments.meta.updated' })
     const DeletedUserText = intl.formatMessage({ id: 'Comments.user.deleted' })
+    const DeletedTooltipText = intl.formatMessage({ id: 'Delete' })
+    const EditTooltipText = intl.formatMessage({ id: 'Edit' })
 
     const { user } = useAuth()
+
+    const [isDeleteTooltipOpen, setIsDeleteTooltipOpen] = useState(false)
 
     const [dateShowMode, setDateShowMode] = useState<'created' | 'updated'>('created')
 
     const handleDeleteComment = useCallback(() => {
         deleteAction(comment)
+        setIsDeleteTooltipOpen(false)
     }, [comment, deleteAction])
     const handleUpdateComment = useCallback(() => setEditableComment(comment), [comment, setEditableComment])
     const datetimeText = useMemo(() => dayjs(dateShowMode === 'created' ? comment.createdAt : comment.updatedAt).format(COMMENT_DATE_FORMAT),
@@ -281,30 +285,56 @@ export const Comment: React.FC<ICommentProps> = ({ comment, setEditableComment, 
     const authorRole = getCommentAuthorRoleMessage(get(comment, 'user'), intl)
 
     const actions = useMemo(() => user.id === comment.user.id && ([
-        <Space key='space' size={0}>
-            <Popconfirm
-                key='delete'
-                title={ConfirmDeleteTitle}
-                okText={ConfirmDeleteOkText}
-                cancelText={ConfirmDeleteCancelText}
-                onConfirm={handleDeleteComment}
-            >
+        <Tooltip
+            key='delete'
+            open={isDeleteTooltipOpen}
+            zIndex={1001}
+            title={
+                <div>
+                    <UiTypography.Paragraph size='medium' strong>{ConfirmDeleteTitle}</UiTypography.Paragraph>
+
+                    <div className={styles.tooltipButtonContainer}>
+                        <Button
+                            onClick={()=>setIsDeleteTooltipOpen(false)}
+                            type='secondary'
+                            size='medium'
+                        >
+                            {ConfirmDeleteCancelText}
+                        </Button>
+                        <Button
+                            type='primary'
+                            size='medium'
+                            onClick={handleDeleteComment}
+                        >
+                            {ConfirmDeleteOkText}
+                        </Button>
+                    </div>
+                </div>
+            }
+        >
+            <Tooltip title={DeletedTooltipText} zIndex={1000}>
                 <Button
-                    type='primary'
-                    danger
+                    onClick={() => setIsDeleteTooltipOpen(true)}
+                    type='secondary'
                     size='large'
-                    icon={<DeleteFilled />}
+                    icon={<Trash size='small'/>}
+                    minimal
+                    compact
                 />
-            </Popconfirm>,
+            </Tooltip>
+        </Tooltip>,
+        <Tooltip title={EditTooltipText} placement='top' key='copyButton'>
             <Button
-                type='primary'
+                type='secondary'
                 key='update'
+                compact
                 size='large'
-                icon={<EditFilled />}
+                minimal
+                icon={<Edit size='small' />}
                 onClick={handleUpdateComment}
             />
-        </Space>,
-    ]), [ConfirmDeleteCancelText, ConfirmDeleteOkText, ConfirmDeleteTitle, comment.user.id, handleDeleteComment, handleUpdateComment, user.id])
+        </Tooltip>,
+    ]), [isDeleteTooltipOpen, ConfirmDeleteCancelText, ConfirmDeleteOkText, ConfirmDeleteTitle, comment.user.id, handleDeleteComment, handleUpdateComment, user.id])
 
     if (comment.deletedAt) {
         return (
