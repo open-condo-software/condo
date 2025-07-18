@@ -9,8 +9,7 @@ const { User } = require('@condo/domains/user/utils/serverSchema')
 function getJson (data) {
     try {
         return JSON.parse(data)
-    } catch (e) {
-        console.log(`Error: ${e}`)
+    } catch {
         return undefined
     }
 }
