@@ -83,48 +83,49 @@ export const CommentsTabContent: React.FC<CommentsTabContentProps> = ({
         generateCommentEnabled && lastComment?.user?.type === UserTypeType.Resident,
     [generateCommentEnabled, lastComment?.user?.type])
 
-    const deleteAction = useCallback(async ({ id }) => {
-        await updateAction({
-            variables: {
-                id,
-                data: {
-                    deletedAt: new Date().toISOString(),
-                    dv: 1,
-                    sender: getClientSideSenderInfo(),
-                },
-            },
-        })
-    }, [updateAction])
-
     const commentsToRender = useMemo(() =>
         comments
-            .map(comment =>
-                <React.Fragment key={comment.id}>
-                    <Comment
-                        comment={comment}
-                        deleteAction={deleteAction}
-                        setEditableComment={setEditableComment}
-                    />
-                    {
-                        showGenerateAnswerButton && lastComment?.id === comment.id && (
-                            <Tooltip placement='left' mouseEnterDelay={1.5} title={GenerateResponseTooltipMessage}>
-                                <div className={styles.generateAnswerButtonWrapper}>
-                                    <AIFlowButton
-                                        loading={generateCommentLoading}
-                                        onClick={generateCommentOnClickHandler}
-                                    >
-                                        {GenerateResponseMessage}
-                                    </AIFlowButton>
-                                </div>
-                            </Tooltip>
-                        )
-                    }
-                </React.Fragment>
-            )
-    , [
+            .map(comment => {
+                const deleteAction = async ({ id }) => {
+                    await updateAction({
+                        variables: {
+                            id,
+                            data: {
+                                deletedAt: new Date().toISOString(),
+                                dv: 1,
+                                sender: getClientSideSenderInfo(),
+                            },
+                        },
+                    })
+                }
+
+                return (
+                    <React.Fragment key={comment.id}>
+                        <Comment
+                            comment={comment}
+                            deleteAction={deleteAction}
+                            setEditableComment={setEditableComment}
+                        />
+                        {
+                            showGenerateAnswerButton && lastComment?.id === comment.id && (
+                                <Tooltip placement='left' mouseEnterDelay={1.5} title={GenerateResponseTooltipMessage}>
+                                    <div className={styles.generateAnswerButtonWrapper}>
+                                        <AIFlowButton
+                                            loading={generateCommentLoading}
+                                            onClick={generateCommentOnClickHandler}
+                                        >
+                                            {GenerateResponseMessage}
+                                        </AIFlowButton>
+                                    </div>
+                                </Tooltip>
+                            )
+                        }
+                    </React.Fragment>
+                )
+            }), [
         GenerateResponseMessage, GenerateResponseTooltipMessage, comments, editableComment,
         generateCommentLoading, generateCommentOnClickHandler, lastComment?.id, setEditableComment,
-        showGenerateAnswerButton, updateAction, deleteAction,
+        showGenerateAnswerButton, updateAction,
     ])
 
     const { currentStep, setCurrentStep } = Tour.useTourContext()
