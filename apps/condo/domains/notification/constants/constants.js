@@ -25,6 +25,7 @@ const SHARE_TICKET_MESSAGE_TYPE = 'SHARE_TICKET'
 const DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE = 'DIRTY_INVITE_NEW_EMPLOYEE_SMS'
 const DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE = 'DIRTY_INVITE_NEW_EMPLOYEE_EMAIL'
 const SMS_VERIFY_CODE_MESSAGE_TYPE = 'SMS_VERIFY'
+const EMAIL_VERIFY_CODE_MESSAGE_TYPE = 'EMAIL_VERIFY'
 const DEVELOPER_IMPORTANT_NOTE_TYPE = 'DEVELOPER_IMPORTANT_NOTE_TYPE'
 const CUSTOMER_IMPORTANT_NOTE_TYPE = 'CUSTOMER_IMPORTANT_NOTE_TYPE'
 const MESSAGE_FORWARDED_TO_SUPPORT_TYPE = 'MESSAGE_FORWARDED_TO_SUPPORT'
@@ -293,6 +294,10 @@ const MESSAGE_META = {
         dv: { defaultValue: '', required: true },
         smsCode: { defaultValue: '', required: true },
         appId: { required: false },
+    },
+    [EMAIL_VERIFY_CODE_MESSAGE_TYPE]: {
+        dv: { defaultValue: '', required: true },
+        secretCode: { defaultValue: '', required: true },
     },
     [DEVELOPER_IMPORTANT_NOTE_TYPE]: {
         dv: { defaultValue: '', required: true },
@@ -906,6 +911,12 @@ const MESSAGE_DELIVERY_OPTIONS = {
         defaultTransports: [SMS_TRANSPORT],
         isAllowedToChangeDefaultTransport: false,
     },
+    [EMAIL_VERIFY_CODE_MESSAGE_TYPE]: {
+        priority: MESSAGE_DELIVERY_FAST_PRIORITY,
+        allowedTransports: [EMAIL_TRANSPORT],
+        defaultTransports: [EMAIL_TRANSPORT],
+        isAllowedToChangeDefaultTransport: false,
+    },
     [BANK_ACCOUNT_CREATION_REQUEST_TYPE]: {
         allowedTransports: [EMAIL_TRANSPORT],
         defaultTransports: [EMAIL_TRANSPORT],
@@ -1068,6 +1079,7 @@ module.exports = {
     TICKET_CREATED_TYPE,
     TICKET_COMMENT_CREATED_TYPE,
     SMS_VERIFY_CODE_MESSAGE_TYPE,
+    EMAIL_VERIFY_CODE_MESSAGE_TYPE,
     INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
     DEVELOPER_IMPORTANT_NOTE_TYPE,
     MESSAGE_TYPES,

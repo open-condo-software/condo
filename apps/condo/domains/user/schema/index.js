@@ -7,6 +7,8 @@ const { AuthenticateOrRegisterUserWithTokenService } = require('./AuthenticateOr
 const { AuthenticateUserWithPhoneAndPasswordService } = require('./AuthenticateUserWithPhoneAndPasswordService')
 const { ChangePhoneNumberResidentUserService } = require('./ChangePhoneNumberResidentUserService')
 const { CheckUserExistenceService } = require('./CheckUserExistenceService')
+const { ConfirmEmailAction } = require('./ConfirmEmailAction')
+const { ConfirmEmailActionService } = require('./ConfirmEmailActionService')
 const { ConfirmPhoneAction } = require('./ConfirmPhoneAction')
 const { ConfirmPhoneActionService } = require('./ConfirmPhoneActionService')
 const { ExternalTokenAccessRight } = require('./ExternalTokenAccessRight')
@@ -50,5 +52,7 @@ module.exports = {
     UserSudoToken,
     GenerateSudoTokenService,
     AuthenticateOrRegisterUserWithTokenService,
+    ConfirmEmailAction,
+    ConfirmEmailActionService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

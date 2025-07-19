@@ -205,6 +205,34 @@ const AUTHENTICATE_OR_REGISTER_USER_WITH_TOKEN_MUTATION = gql`
     }
 `
 
+const CONFIRM_EMAIL_ACTION_FIELDS = '{ email token secretCode secretCodeRequestedAt secretCodeExpiresAt retries isEmailVerified requestedAt expiresAt completedAt id dv sender { dv fingerprint } v deletedAt newId }'
+const ConfirmEmailAction = generateGqlQueries('ConfirmEmailAction', CONFIRM_EMAIL_ACTION_FIELDS)
+
+
+const GET_EMAIL_BY_CONFIRM_EMAIL_ACTION_TOKEN_QUERY = gql`
+    query getEmailByConfirmEmailActionToken ($data: GetEmailByConfirmEmailActionTokenInput!) {
+        result: getEmailByConfirmEmailActionToken(data: $data) { email, isEmailVerified }
+    }
+`
+
+const START_CONFIRM_EMAIL_ACTION_MUTATION = gql`
+    mutation startConfirmEmailAction ($data: StartConfirmEmailActionInput!) {
+        result: startConfirmEmailAction(data: $data) { token }
+    }
+`
+
+const RESEND_CONFIRM_EMAIL_ACTION_MUTATION = gql`
+    mutation resendConfirmEmailAction ($data: ResendConfirmEmailActionInput!) {
+        result: resendConfirmEmailAction(data: $data) { status }
+    }
+`
+
+const COMPLETE_CONFIRM_EMAIL_ACTION_MUTATION = gql`
+    mutation completeConfirmEmailAction ($data: CompleteConfirmEmailActionInput!) {
+        result: completeConfirmEmailAction(data: $data) { status }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -240,5 +268,10 @@ module.exports = {
     UserSudoToken,
     GENERATE_SUDO_TOKEN_MUTATION,
     AUTHENTICATE_OR_REGISTER_USER_WITH_TOKEN_MUTATION,
+    ConfirmEmailAction,
+    GET_EMAIL_BY_CONFIRM_EMAIL_ACTION_TOKEN_QUERY,
+    START_CONFIRM_EMAIL_ACTION_MUTATION,
+    RESEND_CONFIRM_EMAIL_ACTION_MUTATION,
+    COMPLETE_CONFIRM_EMAIL_ACTION_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
