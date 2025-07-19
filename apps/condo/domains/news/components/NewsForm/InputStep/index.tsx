@@ -91,7 +91,7 @@ type InputStepProps = NewsItemSharingFormProps & BaseNewsFormProps & {
     initialFormValues: Record<string, unknown> & Properties
 }
 
-export const FormContainer: React.FC = ({ children }) => {
+export const FormContainer: React.FC<React.PropsWithChildren> = ({ children }) => {
     return (
         <Col span={24}>
             <Row gutter={BIG_HORIZONTAL_GUTTER}>

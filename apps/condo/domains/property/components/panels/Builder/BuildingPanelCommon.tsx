@@ -56,7 +56,7 @@ export const MapSectionContainer = styled.div<{ visible: boolean }>`
   text-align: center;
 `
 
-export const PropertyMapFloor: React.FC = ({ children }) => {
+export const PropertyMapFloor: React.FC<React.PropsWithChildren> = ({ children }) => {
     return (
         <div style={{ display: 'block' }}>
             {children}
@@ -231,7 +231,7 @@ interface IBuildingChooseSectionsProps {
 
 const FULLSCREEN_FOOTER_GUTTER: RowProps['gutter'] = [40, 40]
 
-export const BuildingChooseSections: React.FC<IBuildingChooseSectionsProps> = (props) => {
+export const BuildingChooseSections: React.FC<React.PropsWithChildren<IBuildingChooseSectionsProps>> = (props) => {
     const intl = useIntl()
     const RequestFullscreenMessage = intl.formatMessage({ id: 'FullscreenRequest' })
     const ExitFullscreenMessage = intl.formatMessage({ id: 'FullscreenExit' })

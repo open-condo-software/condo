@@ -487,7 +487,7 @@ const MyApp = ({ Component, pageProps }) => {
     const LayoutComponent = Component.container || BaseLayout
     // TODO(Dimitreee): remove this mess later
     const HeaderAction = Component.headerAction
-    let RequiredAccess: React.FC = React.Fragment
+    let RequiredAccess: React.FC<React.PropsWithChildren> = React.Fragment
 
     if (Component.requiredAccess) {
         RequiredAccess = Component.requiredAccess

@@ -342,6 +342,8 @@ export const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = (pr
 
                         setIsRequiredFieldsEmpty(isRequiredFieldsEmpty)
                         setIsFieldsHasError(isFieldsHasError)
+
+                        return null
                     }
                 }
             </Form.Item>

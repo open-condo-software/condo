@@ -39,7 +39,11 @@ import { CONTEXT_FINISHED_STATUS } from '@condo/domains/acquiring/constants/cont
 import { AcquiringIntegrationContext } from '@condo/domains/acquiring/utils/clientSchema'
 import Input from '@condo/domains/common/components/antd/Input'
 import Select from '@condo/domains/common/components/antd/Select'
-import { FormWithAction, OnCompletedMsgType } from '@condo/domains/common/components/containers/FormList'
+import {
+    FormWithAction,
+    IFormWithActionChildren,
+    OnCompletedMsgType,
+} from '@condo/domains/common/components/containers/FormList'
 import { FadeCol } from '@condo/domains/common/components/FadeCol/FadeCol'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
@@ -688,6 +692,7 @@ export interface ITicketFormProps {
     OnCompletedMsg?: OnCompletedMsgType<Ticket>
     autoAssign?: boolean
     isExisted?: boolean
+    children: React.ReactNode | IFormWithActionChildren
 }
 
 export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {

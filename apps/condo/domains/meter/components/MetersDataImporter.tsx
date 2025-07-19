@@ -39,7 +39,7 @@ const FILE_EXTENSIONS = TABLE_UPLOAD_ACCEPT_FILES.map(function (x) {
     return '.' + x
 }).join(',')
 
-export const MetersDataImporter: React.FC<IMeterDataImporterProps> = (props) => {
+export const MetersDataImporter: React.FC<React.PropsWithChildren<IMeterDataImporterProps>> = (props) => {
     const uploadConfig = useUploadConfig(props.onUpload)
 
     return (

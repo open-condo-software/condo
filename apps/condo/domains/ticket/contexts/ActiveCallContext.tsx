@@ -7,6 +7,8 @@ import { Typography } from '@open-condo/ui'
 
 import { usePostMessageContext } from '@condo/domains/common/components/PostMessageProvider'
 
+import type { FC, PropsWithChildren } from 'react'
+
 interface IActiveCallContext {
     isCallActive: boolean
     connectedTickets: Array<string>
@@ -19,7 +21,7 @@ const ActiveCallContext = createContext<IActiveCallContext>({
 
 const useActiveCall = (): IActiveCallContext => useContext(ActiveCallContext)
 
-const ActiveCallContextProvider = ({ children = {} }) => {
+const ActiveCallContextProvider: FC<PropsWithChildren> = ({ children }) => {
     const inlt = useIntl()
     const SavedNotificationMessage = inlt.formatMessage({ id: 'callRecord.savedNotification.message' })
     const SavedNotificationDescription = inlt.formatMessage({ id: 'callRecord.savedNotification.description' })

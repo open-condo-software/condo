@@ -78,7 +78,7 @@ type FiltersTooltipProps<T> = {
     tickets: Ticket[]
 }
 
-export const FiltersTooltip: React.FC<FiltersTooltipProps<unknown>> = ({ total, filters, tooltipData, tickets,  ...otherProps }) => {
+export const FiltersTooltip: React.FC<React.PropsWithChildren<FiltersTooltipProps<unknown>>> = ({ total, filters, tooltipData, tickets,  ...otherProps }) => {
     const rowindex = otherProps.children[0]?.props?.index
     const ticket = tickets[rowindex]
 
@@ -300,7 +300,7 @@ const FilterContext = createContext<IFilterContext>(null)
 
 export const useMultipleFilterContext = (): IFilterContext => useContext<IFilterContext>(FilterContext)
 
-export const MultipleFilterContextProvider: React.FC = ({ children }) => {
+export const MultipleFilterContextProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     const [selectedFiltersTemplate, setSelectedFiltersTemplate] = useState()
 
     const filterContextValue: IFilterContext = useMemo(() => ({

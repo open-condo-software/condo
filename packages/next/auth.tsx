@@ -260,7 +260,7 @@ const _withAuthLegacy: WithAuthLegacyType = ({ ssr = false, ...opts } = {}) => P
  * AuthProvider is a component which keeps track of the user's
  * authenticated state and provides methods for managing the auth state.
  */
-const AuthProvider: React.FC = ({ children }) => {
+const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     const apolloClient = useApolloClient()
 
     const [isAuthLoading, setIsAuthLoading] = useState<boolean>(false)

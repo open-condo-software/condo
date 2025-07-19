@@ -69,7 +69,7 @@ const PdfView = () => {
             console.log(error)
             notification.error({
                 message: intl.formatMessage(({ id: 'errors.PdfGenerationError' })),
-                description: error,
+                description: error.message,
             })
             setLoading(false)
         },

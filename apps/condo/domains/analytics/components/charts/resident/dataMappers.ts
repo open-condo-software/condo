@@ -57,7 +57,7 @@ const ResidentByPropertyDataMapper = (residentsTitle: string): ResidentChart => 
 
             return {
                 dataSource,
-                tableColumns: Object.entries(restTableOptions.translations).map(([key, title]) => ({
+                tableColumns: Object.entries(restTableOptions.translations as Record<string, string>).map(([key, title]) => ({
                     key,
                     title,
                     dataIndex: key,

@@ -313,7 +313,7 @@ const _withOrganizationLegacy: WithOrganizationLegacyType = ({ ssr = false, ...o
 type OrganizationProviderProps = {
     useInitialEmployeeId: () => { employeeId?: string | null }
 }
-const OrganizationProvider: React.FC<OrganizationProviderProps> = ({
+const OrganizationProvider: React.FC<React.PropsWithChildren<OrganizationProviderProps>> = ({
     children,
     useInitialEmployeeId,
 }) => {

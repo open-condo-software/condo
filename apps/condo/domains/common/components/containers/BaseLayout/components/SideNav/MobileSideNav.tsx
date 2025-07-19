@@ -15,7 +15,7 @@ import {
 
 
 interface ISideNavProps {
-    menuData?: React.ElementType
+    menuData?: React.ReactNode
 }
 
 export const MobileSideNav: React.FC<ISideNavProps> = (props) => {

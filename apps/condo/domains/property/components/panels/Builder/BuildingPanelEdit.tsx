@@ -99,7 +99,7 @@ interface IBuildingPanelTopModalProps {
     onClose: () => void
 }
 
-const BuildingPanelTopModal: React.FC<IBuildingPanelTopModalProps> = ({ visible, onClose, title, children }) => (
+const BuildingPanelTopModal: React.FC<React.PropsWithChildren<IBuildingPanelTopModalProps>> = ({ visible, onClose, title, children }) => (
     <TopModal visible={visible}>
         <Row justify='space-between' align='top'>
             <Col span={22}>
@@ -410,7 +410,7 @@ const CHESS_SCROLL_CONTAINER_INNER_STYLE: React.CSSProperties = {
 const SCROLL_CONTAINER_EDIT_PADDING = '315px'
 const MENU_COVER_MAP_WIDTH = 800
 
-const ChessBoard: React.FC<IChessBoardProps> = (props) => {
+const ChessBoard: React.FC<React.PropsWithChildren<IChessBoardProps>> = (props) => {
     const { builder, refresh, toggleFullscreen, isFullscreen, duplicatedUnitIds, children } = props
     const container = useRef<HTMLElement | null>(null)
 
@@ -500,7 +500,7 @@ interface IPropertyMapSectionProps {
     duplicatedUnitIds?: string[]
 }
 
-const PropertyMapSection: React.FC<IPropertyMapSectionProps> = (props) => {
+const PropertyMapSection: React.FC<React.PropsWithChildren<IPropertyMapSectionProps>> = (props) => {
     const { section, children, builder, refresh, isParkingSection = false } = props
     const intl = useIntl()
     const SectionTitle = isParkingSection

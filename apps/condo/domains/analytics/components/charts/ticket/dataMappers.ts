@@ -228,7 +228,7 @@ const TicketHorizontalBarDataMapper = (groupBy: [TicketGroupBy, TicketGroupBy]):
             const dataSourceAggregation = getAggregatedData(data, [groupBy[1], groupBy[0]])
             const aggregatedData = getAggregatedData(data, groupBy)
             const tableColumns = [
-                ...Object.entries(restTableOptions.translations).map(([dataIndex, key]) => ({
+                ...Object.entries(restTableOptions.translations as Record<string, string>).map(([dataIndex, key]) => ({
                     key: key as string,
                     title: key,
                     dataIndex,

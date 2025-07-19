@@ -5,7 +5,7 @@ import bridge from '@open-condo/bridge'
 const TAG_ID = 'condo-app-frame-wrapper-styles'
 const COUNTER_DATA_ATTR_NAME = 'data-same-style-requests-counter'
 
-export const AppFrameWrapper: React.FC = ({ children }) => {
+export const AppFrameWrapper: React.FC<React.PropsWithChildren> = ({ children }) => {
     useEffect(() => {
         const observer = new ResizeObserver((entries) => {
             if (entries && entries.length) {
