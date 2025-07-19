@@ -27,7 +27,7 @@
     "@apollo/client": "^3.11.8",
     "@emotion/react": "^11.9.3",
     "@emotion/styled": "^11.10.0",
-    "@open-keystone/app-next": "^8.0.2",
+    "@open-keystone/app-next": "^9.0.0",
     "@open-condo/bridge": "workspace:^",
     "@open-condo/codegen": "workspace:^",
     "@open-condo/config": "workspace:^",

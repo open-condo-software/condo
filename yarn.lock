@@ -413,460 +413,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@arch-ui/alert@npm:^0.0.21":
-  version: 0.0.21
-  resolution: "@arch-ui/alert@npm:0.0.21"
-  dependencies:
-    "@arch-ui/theme": ^0.0.14
-    "@emotion/core": ^10.1.1
-    "@emotion/styled": ^10.0.27
-  peerDependencies:
-    react: ^17.0.2
-  checksum: 99d74e80f190765899a7de8f14b54ec05af5f7d762b641f4ce9178c96e191b7c5456dd1afb5ff9f06da52f537706705956523e9b186837ccc003e86b95bc54b3
-  languageName: node
-  linkType: hard
-
-"@arch-ui/badge@npm:^0.0.20":
-  version: 0.0.20
-  resolution: "@arch-ui/badge@npm:0.0.20"
-  dependencies:
-    "@arch-ui/theme": 0.0.14
-    "@babel/runtime": ^7.14.0
-    "@emotion/core": ^10.1.1
-    "@emotion/styled": ^10.0.27
-  peerDependencies:
-    react: ^17.0.2
-  checksum: 4ff0582e8158070b8ddd1f687e70e441eb42657b87934edabd74abaaa247f9625c0682b0146830235455b7d143cc53c19b4edb1b302bb61f122b7c95ac8c7011
-  languageName: node
-  linkType: hard
-
-"@arch-ui/button@npm:^0.0.25":
-  version: 0.0.25
-  resolution: "@arch-ui/button@npm:0.0.25"
-  dependencies:
-    "@arch-ui/color-utils": ^0.0.5
-    "@arch-ui/common": ^0.0.15
-    "@arch-ui/loading": ^0.0.21
-    "@arch-ui/theme": ^0.0.14
-    "@babel/runtime": ^7.14.0
-    "@emotion/core": ^10.1.1
-    "@emotion/styled": ^10.0.27
-    react-pseudo-state: ^2.2.2
-    react-router-dom: 5.2.0
-  peerDependencies:
-    react: ^17.0.2
-  checksum: 46902c3e38b69872f9bab42e86060e89f50077cb0139a59b5bd12792138e11d5249bafca86151caba9dad8c97952dcb3a84235c2f003fa24e484bfa3c48a48ae
-  languageName: node
-  linkType: hard
-
-"@arch-ui/card@npm:^0.0.18":
-  version: 0.0.18
-  resolution: "@arch-ui/card@npm:0.0.18"
-  dependencies:
-    "@arch-ui/theme": 0.0.14
-    "@babel/runtime": ^7.14.0
-    "@emotion/core": ^10.1.1
-  peerDependencies:
-    react: ^17.0.2
-  checksum: 3b2c08d81470b4d19e85a448f11c367e63e771f8f155c7f3ca3b70948d610d2984e5d5d843ee805ec448b75ad856a62c2c3cdb6b47ff9942d22126b8385e0699
-  languageName: node
-  linkType: hard
-
-"@arch-ui/color-utils@npm:0.0.5, @arch-ui/color-utils@npm:^0.0.5":
-  version: 0.0.5
-  resolution: "@arch-ui/color-utils@npm:0.0.5"
-  checksum: cc5922c47ac2f0d6595b78adda17fd946c23bd24bdd01cb631881ea26111ae0bb3d48c0b1bd78d668c5d769f6948be3333476f532fb5a915a0690dfcd2c66753
-  languageName: node
-  linkType: hard
-
-"@arch-ui/common@npm:0.0.15, @arch-ui/common@npm:^0.0.15":
-  version: 0.0.15
-  resolution: "@arch-ui/common@npm:0.0.15"
-  dependencies:
-    "@arch-ui/theme": ^0.0.14
-  checksum: 123c79e28c48ec55ea6e5ff1942cfab32251e54c14e220d8533ea96cbb06c91e0035aab6c3317be6715fd2a5d7116d5389b58ef9fab4d6ab1794be26d55de3f5
-  languageName: node
-  linkType: hard
-
-"@arch-ui/confirm@npm:^0.0.26":
-  version: 0.0.26
-  resolution: "@arch-ui/confirm@npm:0.0.26"
-  dependencies:
-    "@arch-ui/modal-utils": ^1.0.16
-    "@arch-ui/theme": ^0.0.14
-    "@babel/runtime": ^7.14.0
-    "@emotion/core": ^10.1.1
-    "@emotion/styled": ^10.0.27
-    focus-trap-react: ^8.5.0
-    react-scrolllock: ^5.0.1
-  peerDependencies:
-    react: ^17.0.2
-    react-dom: ^17.0.2
-  checksum: 3815cade16f68e60ac75e4bf4a4e0a2873ab92a6d16385558af859fa97b6c6f3f29a74255d976de179bca9c2d9b47e07a8f6a1e8fd94d86f95593ecf5c3b39fa
-  languageName: node
-  linkType: hard
-
-"@arch-ui/controls@npm:^0.1.12":
-  version: 0.1.12
-  resolution: "@arch-ui/controls@npm:0.1.12"
-  dependencies:
-    "@arch-ui/input": ^0.1.14
-    "@arch-ui/theme": ^0.0.14
-    "@babel/runtime": ^7.14.0
-    "@emotion/core": ^10.1.1
-    "@emotion/styled": ^10.0.27
-    react-pseudo-state: ^2.2.2
-    react-radios: ^1.1.0
-  peerDependencies:
-    react: ^17.0.2
-  checksum: 1b2f1fe4365425ad6935f12688698ee6b678eab740ea99d7c80847d089be4b3151f717d0b625cfc8aa832f0610bd13e491d92eb52d1ae54a1e849f19dc47bb8d
-  languageName: node
-  linkType: hard
-
-"@arch-ui/day-picker@npm:^1.0.8":
-  version: 1.0.8
-  resolution: "@arch-ui/day-picker@npm:1.0.8"
-  dependencies:
-    "@arch-ui/input": ^0.1.14
-    "@arch-ui/select": ^0.1.12
-    "@arch-ui/theme": ^0.0.14
-    "@arch-ui/typography": ^0.0.21
-    "@babel/runtime": ^7.14.0
-    "@emotion/core": ^10.1.1
-    "@emotion/styled": ^10.0.27
-    "@primer/octicons-react": ^11.3.0
-    chrono-node: ^1.4.8
-    date-fns: ^2.21.3
-    intersection-observer: ^0.12.0
-    moment: ^2.29.1
-    react-window: ^1.8.6
-  peerDependencies:
-    react: ^17.0.2
-  checksum: 12526f24898bfda6afcceb43945289f7d995e60ee6df0b12777023d7c8784026bd060ae6989f31b20f0203fffa3f9eb2faf83a6dc7dffb4e07af83dd1100a9c6
-  languageName: node
-  linkType: hard
-
-"@arch-ui/dialog@npm:^0.0.28":
-  version: 0.0.28
-  resolution: "@arch-ui/dialog@npm:0.0.28"
-  dependencies:
-    "@arch-ui/color-utils": ^0.0.5
-    "@arch-ui/modal-utils": ^1.0.16
-    "@arch-ui/theme": ^0.0.14
-    "@arch-ui/typography": ^0.0.21
-    "@babel/runtime": ^7.14.0
-    "@emotion/core": ^10.1.1
-    "@emotion/styled": ^10.0.27
-    focus-trap-react: ^8.5.0
-    react-scrolllock: ^5.0.1
-  peerDependencies:
-    react: ^17.0.2
-    react-dom: ^17.0.2
-  checksum: 2aedbfbd7d9e8edd5ef34e557597a1e5516207b084eeed4bb20e0f51b8e3beb757e79cda253f72d655ebefe1711655514d0debfd1fe6a4491ff15ab88795a612
-  languageName: node
-  linkType: hard
-
-"@arch-ui/drawer@npm:^0.0.28":
-  version: 0.0.28
-  resolution: "@arch-ui/drawer@npm:0.0.28"
-  dependencies:
-    "@arch-ui/color-utils": ^0.0.5
-    "@arch-ui/modal-utils": ^1.0.16
-    "@arch-ui/theme": ^0.0.14
-    "@arch-ui/typography": ^0.0.21
-    "@babel/runtime": ^7.14.0
-    "@emotion/core": ^10.1.1
-    "@emotion/styled": ^10.0.27
-    focus-trap-react: ^8.5.0
-    react-scrolllock: ^5.0.1
-  peerDependencies:
-    react: ^17.0.2
-    react-dom: ^17.0.2
-  checksum: 05ddcf4d3c04022eb31d53a89a8e56056e8ab1cc8764847cdf837d25fbab1953c9472f9844b902019d2fde2ddb53d89b4882e6952be152ea898b3ec1344ad938
-  languageName: node
-  linkType: hard
-
-"@arch-ui/dropdown@npm:^0.0.25":
-  version: 0.0.25
-  resolution: "@arch-ui/dropdown@npm:0.0.25"
-  dependencies:
-    "@arch-ui/modal-utils": ^1.0.16
-    "@arch-ui/theme": ^0.0.14
-    "@babel/runtime": ^7.14.0
-    "@emotion/core": ^10.1.1
-    "@emotion/styled": ^10.0.27
-    focus-trap-react: ^8.5.0
-    react-router-dom: 5.2.0
-  peerDependencies:
-    react: ^17.0.2
-    react-dom: ^17.0.2
-  checksum: 1d7d9fb69cabee65f1c4d040c5cf7386f2e3a90c801b29cfa3286ada597def0d1c31e8d8e131c807b26e6f044b8b4739e609d99ab03b692454e51ded9a885c45
-  languageName: node
-  linkType: hard
-
-"@arch-ui/fields@npm:^3.0.8":
-  version: 3.0.8
-  resolution: "@arch-ui/fields@npm:3.0.8"
-  dependencies:
-    "@arch-ui/lozenge": ^0.0.20
-    "@arch-ui/theme": ^0.0.14
-    "@babel/runtime": ^7.14.0
-    "@emotion/core": ^10.1.1
-    "@emotion/styled": ^10.0.27
-    "@primer/octicons-react": ^11.3.0
-  peerDependencies:
-    react: ^17.0.2
-  checksum: 571c528ad961b1fbbb7a43aa85760168245f13c385cea258a0bd9e9624f5dbd77da1449dc48ea053813cf13f3e105f9cd0ff6bef2c90d417912e5f336f6c2133
-  languageName: node
-  linkType: hard
-
-"@arch-ui/filters@npm:^0.0.23":
-  version: 0.0.23
-  resolution: "@arch-ui/filters@npm:0.0.23"
-  dependencies:
-    "@arch-ui/controls": ^0.1.12
-    "@arch-ui/layout": ^0.2.17
-    "@arch-ui/theme": ^0.0.14
-    "@babel/runtime": ^7.14.0
-    "@emotion/core": ^10.1.1
-    react-radios: ^1.1.0
-  peerDependencies:
-    react: ^17.0.2
-  checksum: 5b79fe2adec6180f949b2ee54eaf6c68cadb741c8c5f5078ff794b7bf048fed0ae885571a7dbbce0b6062350601e266d581c9713a500cecc560ba40bc50487a9
-  languageName: node
-  linkType: hard
-
-"@arch-ui/hooks@npm:^0.0.14":
-  version: 0.0.14
-  resolution: "@arch-ui/hooks@npm:0.0.14"
-  dependencies:
-    "@babel/runtime": ^7.14.0
-    resize-observer-polyfill: ^1.5.1
-  peerDependencies:
-    react: ^17.0.2
-  checksum: 411984032d0b137253521d52552dee3ad0e394580a5474efd36377a287a515f99726cd9b7da034cd345851154679cbfb1b877cd8e8695f885cbff213236b5112
-  languageName: node
-  linkType: hard
-
-"@arch-ui/input@npm:^0.1.14":
-  version: 0.1.14
-  resolution: "@arch-ui/input@npm:0.1.14"
-  dependencies:
-    "@arch-ui/color-utils": 0.0.5
-    "@arch-ui/common": 0.0.15
-    "@arch-ui/theme": 0.0.14
-    "@babel/runtime": ^7.14.0
-    "@emotion/core": ^10.1.1
-  peerDependencies:
-    react: ^17.0.2
-  checksum: 30bb06fa3c7e83bdbf9d81cafc455d8a09a33c5b555f7feaeb63084480bdbdbfb274dfa0c5579e7505f3fb209b34cb114bd435dde7f35b4b2514b5b635ad8581
-  languageName: node
-  linkType: hard
-
-"@arch-ui/layout@npm:^0.2.17":
-  version: 0.2.17
-  resolution: "@arch-ui/layout@npm:0.2.17"
-  dependencies:
-    "@arch-ui/common": 0.0.15
-    "@arch-ui/theme": 0.0.14
-    "@babel/runtime": ^7.14.0
-    "@emotion/core": ^10.1.1
-    "@emotion/styled": ^10.0.27
-  peerDependencies:
-    react: ^17.0.2
-  checksum: e0a5598ea0c7017a169150b6148669c7819ace966c4a16818c05c9cf9eab7975b30b51aac88b023d75592e73db4429e7dabf1f507846f0b9353ee05704b8c610
-  languageName: node
-  linkType: hard
-
-"@arch-ui/loading@npm:^0.0.21":
-  version: 0.0.21
-  resolution: "@arch-ui/loading@npm:0.0.21"
-  dependencies:
-    "@arch-ui/theme": 0.0.14
-    "@arch-ui/typography": 0.0.21
-    "@babel/runtime": ^7.14.0
-    "@emotion/core": ^10.1.1
-    "@emotion/styled": ^10.0.27
-  peerDependencies:
-    react: ^17.0.2
-  checksum: 97b80ee7ae3a4aced2be8ad114c53e44aa89d84d4685ab501114b0f4f97e8477886b1917ee7727dd46c36bedff4de6461120b88e2a7277ebf7a5963c1e4eff04
-  languageName: node
-  linkType: hard
-
-"@arch-ui/lozenge@npm:^0.0.20":
-  version: 0.0.20
-  resolution: "@arch-ui/lozenge@npm:0.0.20"
-  dependencies:
-    "@arch-ui/theme": 0.0.14
-    "@babel/runtime": ^7.14.0
-    "@emotion/core": ^10.1.1
-    "@emotion/styled": ^10.0.27
-  peerDependencies:
-    react: ^17.0.2
-  checksum: b6fab8a631b48f3e81e9558689f7111765375da774293cd57aeb713799041fcf0915f4d2ac058f5d20613e8c649594317af96270cf7f3b9425b0336934fddad2
-  languageName: node
-  linkType: hard
-
-"@arch-ui/modal-utils@npm:^1.0.16":
-  version: 1.0.16
-  resolution: "@arch-ui/modal-utils@npm:1.0.16"
-  dependencies:
-    "@arch-ui/color-utils": ^0.0.5
-    "@arch-ui/theme": ^0.0.14
-    "@babel/runtime": ^7.14.0
-    "@emotion/core": ^10.1.1
-    "@emotion/styled": ^10.0.27
-    react-scrolllock: ^5.0.1
-    react-transition-group: ^4.4.1
-  peerDependencies:
-    react: ^17.0.2
-  checksum: d192598c0d6fffe4624e6a9d180da9a821e1bd0c81e2aa4c955cc73e0f48d50fa8ff603716a9bf9076aa30f7d8f3fc85ac532aec1882811d192673c715657da5
-  languageName: node
-  linkType: hard
-
-"@arch-ui/navbar@npm:^0.1.15":
-  version: 0.1.15
-  resolution: "@arch-ui/navbar@npm:0.1.15"
-  dependencies:
-    "@arch-ui/color-utils": ^0.0.5
-    "@arch-ui/theme": ^0.0.14
-    "@babel/runtime": ^7.14.0
-    "@emotion/core": ^10.1.1
-    "@emotion/styled": ^10.0.27
-    react-router-dom: 5.2.0
-  peerDependencies:
-    react: ^17.0.2
-  checksum: 93b2dfecfc946f77a0cc71019f2879d6ac95634056ed4c2765bb769e68817e8557d8cdd285e08e9b385285caa00af5834115f3e24e344c836fde8b44da70d4a5
-  languageName: node
-  linkType: hard
-
-"@arch-ui/options@npm:^0.0.27":
-  version: 0.0.27
-  resolution: "@arch-ui/options@npm:0.0.27"
-  dependencies:
-    "@arch-ui/common": ^0.0.15
-    "@arch-ui/theme": ^0.0.14
-    "@babel/runtime": ^7.14.0
-    "@emotion/core": ^10.1.1
-    "@primer/octicons-react": ^11.3.0
-    react-select: ^3.2.0
-  peerDependencies:
-    react: ^17.0.2
-  checksum: fdbb2e75ffc98403ae7669d1d6d04ec68233f1aded3e44f9695c551ec97959af834058fff73be060a6c14bfc38cae540701ca2d04bf2f4a28b688547dfdbdf07
-  languageName: node
-  linkType: hard
-
-"@arch-ui/pagination@npm:^0.0.29":
-  version: 0.0.29
-  resolution: "@arch-ui/pagination@npm:0.0.29"
-  dependencies:
-    "@arch-ui/button": ^0.0.25
-    "@arch-ui/layout": ^0.2.17
-    "@arch-ui/loading": ^0.0.21
-    "@arch-ui/theme": ^0.0.14
-    "@babel/runtime": ^7.14.0
-    "@emotion/core": ^10.1.1
-    "@emotion/styled": ^10.0.27
-    "@primer/octicons-react": ^11.3.0
-    react-router-dom: 5.2.0
-  peerDependencies:
-    react: ^17.0.2
-  checksum: 491bbe1b55677d84a79d88224295172cb99c78be6fd4808ab7f8e86366aca3b04f03f6f6bbfc398023b758af485aaec8e9951a2417f42210f106c13d031d576d
-  languageName: node
-  linkType: hard
-
-"@arch-ui/pill@npm:^0.1.21":
-  version: 0.1.21
-  resolution: "@arch-ui/pill@npm:0.1.21"
-  dependencies:
-    "@arch-ui/common": ^0.0.15
-    "@arch-ui/theme": 0.0.14
-    "@babel/runtime": ^7.14.0
-    "@emotion/core": ^10.1.1
-    "@emotion/styled": ^10.0.27
-    "@primer/octicons-react": ^11.3.0
-  peerDependencies:
-    react: ^17.0.2
-  checksum: 8cfd77d8f019b1bf2e4c70e8ade6adf456dd94241c987b0aca4bbf8b241ab4e86f521f192e8462fd60786ca37b3180f27c929b238aa3dd7058d06e939b267cb4
-  languageName: node
-  linkType: hard
-
-"@arch-ui/popout@npm:^0.0.26":
-  version: 0.0.26
-  resolution: "@arch-ui/popout@npm:0.0.26"
-  dependencies:
-    "@arch-ui/color-utils": ^0.0.5
-    "@arch-ui/modal-utils": ^1.0.16
-    "@arch-ui/theme": ^0.0.14
-    "@babel/runtime": ^7.14.0
-    "@emotion/core": ^10.1.1
-    "@emotion/styled": ^10.0.27
-    "@popperjs/core": ^2.9.2
-    focus-trap-react: ^8.5.0
-    react-popper: ^2.2.5
-  peerDependencies:
-    react: ^17.0.2
-    react-dom: ^17.0.2
-  checksum: af26419eb5eb059e5970a42bb52ea7a748a8b352c03d1b3122644fd49349b9286aa30181a6782a216c35f40ab4bad647c262a22cb5b7fa4f0b7c7edd04a084fe
-  languageName: node
-  linkType: hard
-
-"@arch-ui/select@npm:^0.1.12":
-  version: 0.1.12
-  resolution: "@arch-ui/select@npm:0.1.12"
-  dependencies:
-    "@arch-ui/theme": ^0.0.14
-    "@babel/runtime": ^7.14.0
-    react-select: ^3.2.0
-  peerDependencies:
-    react: ^17.0.2
-  checksum: 8b37839e4197dc3abc4651530b84487ef9c55ef77b2678153f8a5ebd3a11765b349da0d800a729ae693fa67644d01364f4bec06db482c3774eed2f40548c6e14
-  languageName: node
-  linkType: hard
-
-"@arch-ui/theme@npm:0.0.14, @arch-ui/theme@npm:^0.0.14":
-  version: 0.0.14
-  resolution: "@arch-ui/theme@npm:0.0.14"
-  dependencies:
-    "@arch-ui/color-utils": 0.0.5
-    "@babel/runtime": ^7.14.0
-  checksum: a498d9718b88499cbed875159f865f42a320a2a295075de3ae1ee8b9fc7e1263d9c2e853f69cbeab6137a4f7204acc91adefa656feb37ee29046b293ff3f0654
-  languageName: node
-  linkType: hard
-
-"@arch-ui/tooltip@npm:^0.1.17":
-  version: 0.1.17
-  resolution: "@arch-ui/tooltip@npm:0.1.17"
-  dependencies:
-    "@arch-ui/modal-utils": ^1.0.16
-    "@arch-ui/theme": ^0.0.14
-    "@babel/runtime": ^7.14.0
-    "@emotion/core": ^10.1.1
-    "@emotion/styled": ^10.0.27
-    "@popperjs/core": ^2.9.2
-    flushable: ^1.0.0
-    react-popper: ^2.2.5
-  peerDependencies:
-    react: ^17.0.2
-    react-dom: ^17.0.2
-  checksum: 125389825288b73b2259cdc2200ee035db57baf5a6706afb2b086a85a060d1b5f8990e751e10b49a901dcfdf2c9886f9f0a3e0ba810251d67e0cde976e63a89f
-  languageName: node
-  linkType: hard
-
-"@arch-ui/typography@npm:0.0.21, @arch-ui/typography@npm:^0.0.21":
-  version: 0.0.21
-  resolution: "@arch-ui/typography@npm:0.0.21"
-  dependencies:
-    "@arch-ui/theme": 0.0.14
-    "@babel/runtime": ^7.14.0
-    "@emotion/core": ^10.1.1
-    "@emotion/styled": ^10.0.27
-  peerDependencies:
-    react: ^17.0.2
-  checksum: f0f87bcbc80e8e133426d48966e773b7ccf48b389786bd38f272b62908f4594589f7a80015aa5a4d379043744b3653577f94056cfc638dd1c269b2f94bbf4f7c
-  languageName: node
-  linkType: hard
-
 "@ardatan/sync-fetch@npm:0.0.1":
   version: 0.0.1
   resolution: "@ardatan/sync-fetch@npm:0.0.1"
@@ -3993,7 +3539,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime@npm:^7.0.0, @babel/runtime@npm:^7.1.2, @babel/runtime@npm:^7.10.1, @babel/runtime@npm:^7.10.4, @babel/runtime@npm:^7.11.1, @babel/runtime@npm:^7.11.2, @babel/runtime@npm:^7.12.1, @babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.14.0, @babel/runtime@npm:^7.16.3, @babel/runtime@npm:^7.18.0, @babel/runtime@npm:^7.18.3, @babel/runtime@npm:^7.4.4, @babel/runtime@npm:^7.5.5, @babel/runtime@npm:^7.7.2, @babel/runtime@npm:^7.8.4, @babel/runtime@npm:^7.8.7":
+"@babel/runtime@npm:^7.0.0, @babel/runtime@npm:^7.1.2, @babel/runtime@npm:^7.10.1, @babel/runtime@npm:^7.10.4, @babel/runtime@npm:^7.11.1, @babel/runtime@npm:^7.11.2, @babel/runtime@npm:^7.12.1, @babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.16.3, @babel/runtime@npm:^7.18.0, @babel/runtime@npm:^7.18.3, @babel/runtime@npm:^7.4.4, @babel/runtime@npm:^7.5.5, @babel/runtime@npm:^7.7.2, @babel/runtime@npm:^7.8.4, @babel/runtime@npm:^7.8.7":
   version: 7.18.9
   resolution: "@babel/runtime@npm:7.18.9"
   dependencies:
@@ -7423,6 +6969,460 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@open-arch-ui/alert@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@open-arch-ui/alert@npm:1.0.0"
+  dependencies:
+    "@emotion/core": ^10.1.1
+    "@emotion/styled": ^10.0.27
+    "@open-arch-ui/theme": ^1.0.0
+  peerDependencies:
+    react: ^18.3.1
+  checksum: 7d4aea63da717b4efaba5199476755fe587011828d94ac7dd4e8a1b9c1646e268015895ece44a22ad2c54181a279d2e8700b54f324f5df4dc669bfe01b51d4c2
+  languageName: node
+  linkType: hard
+
+"@open-arch-ui/badge@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@open-arch-ui/badge@npm:1.0.0"
+  dependencies:
+    "@babel/runtime": ^7.14.6
+    "@emotion/core": ^10.1.1
+    "@emotion/styled": ^10.0.27
+    "@open-arch-ui/theme": ^1.0.0
+  peerDependencies:
+    react: ^18.3.1
+  checksum: d6d335b2e2ae63720246816cf2759b0bf1569039779ee9de6f8034e7ba7b151cbfe28e18c807b7e3ed2404bb32b6bc18defcce58aeef8c7bb6a489817b563fa9
+  languageName: node
+  linkType: hard
+
+"@open-arch-ui/button@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@open-arch-ui/button@npm:1.0.0"
+  dependencies:
+    "@babel/runtime": ^7.14.6
+    "@emotion/core": ^10.1.1
+    "@emotion/styled": ^10.0.27
+    "@open-arch-ui/color-utils": ^1.0.0
+    "@open-arch-ui/common": ^1.0.0
+    "@open-arch-ui/loading": ^1.0.0
+    "@open-arch-ui/theme": ^1.0.0
+    react-pseudo-state: ^2.2.2
+    react-router-dom: 5.2.0
+  peerDependencies:
+    react: ^18.3.1
+  checksum: ef00fed7d5fcce779aca54c452ed2a4915635e89f04dd69ca0e6b5b7beceb538eb774f6ddeb90d509f180c858c3e26537b7f1f2df15d0461c027134c33908013
+  languageName: node
+  linkType: hard
+
+"@open-arch-ui/card@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@open-arch-ui/card@npm:1.0.0"
+  dependencies:
+    "@babel/runtime": ^7.14.6
+    "@emotion/core": ^10.1.1
+    "@open-arch-ui/theme": ^1.0.0
+  peerDependencies:
+    react: ^18.3.1
+  checksum: 0b5ea5aa35fac0df014962473ec54d68c1ab14a7665fb9bb277e0b392732f38839db24fc4b0ff208322c144a6ef796f1c7e07259274bf69f34df433c2461fa59
+  languageName: node
+  linkType: hard
+
+"@open-arch-ui/color-utils@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@open-arch-ui/color-utils@npm:1.0.0"
+  checksum: eb2ef60ee53f90976f273c569c932b5561e29d88310bdbb8deb5d5a20ad657d4c08739ba7c829ec56b3d9631d38c3a7d56c857ca55d2899ea0695d8dcbafb151
+  languageName: node
+  linkType: hard
+
+"@open-arch-ui/common@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@open-arch-ui/common@npm:1.0.0"
+  dependencies:
+    "@open-arch-ui/theme": ^1.0.0
+  checksum: f4a8743f9e11c2a87595ff0af05293c54093edbced39b65c1378f29322ed9747ebe12217bf036990d31097a57a9f13ab49acdfac7d30fd8acf5d818ff73eaada
+  languageName: node
+  linkType: hard
+
+"@open-arch-ui/confirm@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@open-arch-ui/confirm@npm:1.0.0"
+  dependencies:
+    "@babel/runtime": ^7.14.6
+    "@emotion/core": ^10.1.1
+    "@emotion/styled": ^10.0.27
+    "@open-arch-ui/modal-utils": ^2.0.0
+    "@open-arch-ui/theme": ^1.0.0
+    focus-trap-react: ^8.5.1
+    react-scrolllock: ^5.0.1
+  peerDependencies:
+    react: ^18.3.1
+    react-dom: ^18.3.1
+  checksum: 42f46e9ae8ad03c204c7fd53febd65683ece34798e21420784660299823ada9991d44bca16941b7c6c457bbb16fa2b778a33b633eaf411120cbf7df645e1cfe7
+  languageName: node
+  linkType: hard
+
+"@open-arch-ui/controls@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@open-arch-ui/controls@npm:1.0.0"
+  dependencies:
+    "@babel/runtime": ^7.14.6
+    "@emotion/core": ^10.1.1
+    "@emotion/styled": ^10.0.27
+    "@open-arch-ui/input": ^1.0.0
+    "@open-arch-ui/theme": ^1.0.0
+    react-pseudo-state: ^2.2.2
+    react-radios: ^1.1.0
+  peerDependencies:
+    react: ^18.3.1
+  checksum: ad8ab2d26a32eebb52441a97d92a24339c984ecbb6188b44afdd5efe26aff465c6ae756fb9bd143c7392e7bb86c2a2c8e7ccaf9a5f51ce0aab07cd0aea5222c8
+  languageName: node
+  linkType: hard
+
+"@open-arch-ui/day-picker@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@open-arch-ui/day-picker@npm:2.0.0"
+  dependencies:
+    "@babel/runtime": ^7.14.6
+    "@emotion/core": ^10.1.1
+    "@emotion/styled": ^10.0.27
+    "@open-arch-ui/input": ^1.0.0
+    "@open-arch-ui/select": ^1.0.0
+    "@open-arch-ui/theme": ^1.0.0
+    "@open-arch-ui/typography": ^1.0.0
+    "@primer/octicons-react": ^11.3.0
+    chrono-node: ^1.4.8
+    date-fns: ^2.22.1
+    intersection-observer: ^0.12.0
+    moment: ^2.29.1
+    react-window: ^1.8.6
+  peerDependencies:
+    react: ^18.3.1
+  checksum: 61216fd71287f2e19a1e8798bd49c42b9625f73fda6ae7e54d0be16bb4833dd4bc322d0b20ea82d782df4ba8cdf6fee136a9cdeee2110754b5857fb95983ebf9
+  languageName: node
+  linkType: hard
+
+"@open-arch-ui/dialog@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@open-arch-ui/dialog@npm:1.0.0"
+  dependencies:
+    "@babel/runtime": ^7.14.6
+    "@emotion/core": ^10.1.1
+    "@emotion/styled": ^10.0.27
+    "@open-arch-ui/color-utils": ^1.0.0
+    "@open-arch-ui/modal-utils": ^2.0.0
+    "@open-arch-ui/theme": ^1.0.0
+    "@open-arch-ui/typography": ^1.0.0
+    focus-trap-react: ^8.5.1
+    react-scrolllock: ^5.0.1
+  peerDependencies:
+    react: ^18.3.1
+    react-dom: ^18.3.1
+  checksum: 12bf0a70bb5eaee08e51ddb668319e7e36cf352c209f63674ed8d0a279527d61bd3e5032bad255ff8520082d5d4a8bc20346516869e6bcb8819ce1a3362f47d8
+  languageName: node
+  linkType: hard
+
+"@open-arch-ui/drawer@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@open-arch-ui/drawer@npm:1.0.0"
+  dependencies:
+    "@babel/runtime": ^7.14.6
+    "@emotion/core": ^10.1.1
+    "@emotion/styled": ^10.0.27
+    "@open-arch-ui/color-utils": ^1.0.0
+    "@open-arch-ui/modal-utils": ^2.0.0
+    "@open-arch-ui/theme": ^1.0.0
+    "@open-arch-ui/typography": ^1.0.0
+    focus-trap-react: ^8.5.1
+    react-scrolllock: ^5.0.1
+  peerDependencies:
+    react: ^18.3.1
+    react-dom: ^18.3.1
+  checksum: c135fb763c5533c3454a0a3a72ba3c4879e29f40ab094124abab8f3f120f539c42a9f6292844a748f8006b2f0fd0ab5dc54e4936d1b3793b3d9cb030cbf0031b
+  languageName: node
+  linkType: hard
+
+"@open-arch-ui/dropdown@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@open-arch-ui/dropdown@npm:1.0.0"
+  dependencies:
+    "@babel/runtime": ^7.14.6
+    "@emotion/core": ^10.1.1
+    "@emotion/styled": ^10.0.27
+    "@open-arch-ui/modal-utils": ^2.0.0
+    "@open-arch-ui/theme": ^1.0.0
+    focus-trap-react: ^8.5.1
+    react-router-dom: 5.2.0
+  peerDependencies:
+    react: ^18.3.1
+    react-dom: ^18.3.1
+  checksum: 19f7922260ca10e20b14dc18a10c10c7eaa5dec0cc93c9a1cac632d721778a814fdca6c965825397c9983561c70862bb271a8f79540851d50e7c6276c0d3fb0c
+  languageName: node
+  linkType: hard
+
+"@open-arch-ui/fields@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "@open-arch-ui/fields@npm:4.0.0"
+  dependencies:
+    "@babel/runtime": ^7.14.6
+    "@emotion/core": ^10.1.1
+    "@emotion/styled": ^10.0.27
+    "@open-arch-ui/lozenge": ^1.0.0
+    "@open-arch-ui/theme": ^1.0.0
+    "@primer/octicons-react": ^11.3.0
+  peerDependencies:
+    react: ^18.3.1
+  checksum: c0d20b96042ef316dc052e681f1cefce95bea1bade2ea02e0fa9f31a75c52bfaeb9b6e3ac08a731cbb39916238570d776752e1368760fdac3c7fad9edc2408ff
+  languageName: node
+  linkType: hard
+
+"@open-arch-ui/filters@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@open-arch-ui/filters@npm:1.0.0"
+  dependencies:
+    "@babel/runtime": ^7.14.6
+    "@emotion/core": ^10.1.1
+    "@open-arch-ui/controls": ^1.0.0
+    "@open-arch-ui/layout": ^1.0.0
+    "@open-arch-ui/theme": ^1.0.0
+    react-radios: ^1.1.0
+  peerDependencies:
+    react: ^18.3.1
+  checksum: 5b7fa3b9232e85d673fc5986ce487ae03bfa6248d413f58fc25239f3602de4c0a5b50fc446ad17ade78418bc9816708bae7b755e1f3980de032b92c83b4e5232
+  languageName: node
+  linkType: hard
+
+"@open-arch-ui/hooks@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@open-arch-ui/hooks@npm:1.0.0"
+  dependencies:
+    "@babel/runtime": ^7.14.6
+    resize-observer-polyfill: ^1.5.1
+  peerDependencies:
+    react: ^18.3.1
+  checksum: fd11d0b0add4a4a9e7ad5509e584ab7a532d6ef24a9955fecee2c9e052d3aa51b405947548468479768efb4904be2ddd766bed40ea8c68fb038e59f8c8f1232b
+  languageName: node
+  linkType: hard
+
+"@open-arch-ui/input@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@open-arch-ui/input@npm:1.0.0"
+  dependencies:
+    "@babel/runtime": ^7.14.6
+    "@emotion/core": ^10.1.1
+    "@open-arch-ui/color-utils": ^1.0.0
+    "@open-arch-ui/common": ^1.0.0
+    "@open-arch-ui/theme": ^1.0.0
+  peerDependencies:
+    react: ^18.3.1
+  checksum: 76f49fedded6995c8bb57ac178fe4bdc2c65d4c247258502ec2e6a80dfa2fbf2783a4e99094b4c486b0324b75bd8f88d64d9f5b8ec1077d024f577b274bf7019
+  languageName: node
+  linkType: hard
+
+"@open-arch-ui/layout@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@open-arch-ui/layout@npm:1.0.0"
+  dependencies:
+    "@babel/runtime": ^7.14.6
+    "@emotion/core": ^10.1.1
+    "@emotion/styled": ^10.0.27
+    "@open-arch-ui/common": ^1.0.0
+    "@open-arch-ui/theme": ^1.0.0
+  peerDependencies:
+    react: ^18.3.1
+  checksum: f309a5cb849101f47e975d0770100605783f1dbc47d0c1e677719b2b8c4fa772ca063db93913ea0984875905d444138f43754e452287a3b008dae336a3cf684f
+  languageName: node
+  linkType: hard
+
+"@open-arch-ui/loading@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@open-arch-ui/loading@npm:1.0.0"
+  dependencies:
+    "@babel/runtime": ^7.14.6
+    "@emotion/core": ^10.1.1
+    "@emotion/styled": ^10.0.27
+    "@open-arch-ui/theme": ^1.0.0
+    "@open-arch-ui/typography": ^1.0.0
+  peerDependencies:
+    react: ^18.3.1
+  checksum: e79398c306b98a26a88741b07399c7c0e9c44df68ee15c481fdcac7905da93909b0682b86eaa56b0f0a5ad56e02ebbf5b5795cdb8d6acb2faf506c5e14c83a39
+  languageName: node
+  linkType: hard
+
+"@open-arch-ui/lozenge@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@open-arch-ui/lozenge@npm:1.0.0"
+  dependencies:
+    "@babel/runtime": ^7.14.6
+    "@emotion/core": ^10.1.1
+    "@emotion/styled": ^10.0.27
+    "@open-arch-ui/theme": ^1.0.0
+  peerDependencies:
+    react: ^18.3.1
+  checksum: 1f6a4033538f0a1c8076c722e72dc8fad7e97020510e95b418902221165e3573f1ab23b87584781b62eebd2d8fe835365ca75ddd03134fc72d222aac67fcf97a
+  languageName: node
+  linkType: hard
+
+"@open-arch-ui/modal-utils@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@open-arch-ui/modal-utils@npm:2.0.0"
+  dependencies:
+    "@babel/runtime": ^7.14.6
+    "@emotion/core": ^10.1.1
+    "@emotion/styled": ^10.0.27
+    "@open-arch-ui/color-utils": ^1.0.0
+    "@open-arch-ui/theme": ^1.0.0
+    react-scrolllock: ^5.0.1
+    react-transition-group: ^4.4.2
+  peerDependencies:
+    react: ^18.3.1
+  checksum: 90638788d04be7811b62ad4698b9021ec7b0214f1c1446ae9040569fe114ca7eb838b4f1dbd4fdd5bc85f9e8d7f01a91fc8b8c561648ee6fa3c30b3575382167
+  languageName: node
+  linkType: hard
+
+"@open-arch-ui/navbar@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@open-arch-ui/navbar@npm:1.0.0"
+  dependencies:
+    "@babel/runtime": ^7.14.6
+    "@emotion/core": ^10.1.1
+    "@emotion/styled": ^10.0.27
+    "@open-arch-ui/color-utils": ^1.0.0
+    "@open-arch-ui/theme": ^1.0.0
+    react-router-dom: 5.2.0
+  peerDependencies:
+    react: ^18.3.1
+  checksum: 5e6b549d58dd48d259e66a6768be79dd7398d6827eda1cc56e55bd7353343af70313cd832520cb0ecbff9e52fc79eed9a5d9c9633a2a0604fe7ec824e0be3b7d
+  languageName: node
+  linkType: hard
+
+"@open-arch-ui/options@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@open-arch-ui/options@npm:1.0.0"
+  dependencies:
+    "@babel/runtime": ^7.14.6
+    "@emotion/core": ^10.1.1
+    "@open-arch-ui/common": ^1.0.0
+    "@open-arch-ui/theme": ^1.0.0
+    "@primer/octicons-react": ^11.3.0
+    react-select: ^3.2.0
+  peerDependencies:
+    react: ^18.3.1
+  checksum: 2ef979e5653e6160f6942ba0b794d5ac063933ad32f0f7e10d19c7cb2a564888e73a6b7872578f9d80f2ec977f140b91a5c388439dedc6651418315ac36dad44
+  languageName: node
+  linkType: hard
+
+"@open-arch-ui/pagination@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@open-arch-ui/pagination@npm:1.0.0"
+  dependencies:
+    "@babel/runtime": ^7.14.6
+    "@emotion/core": ^10.1.1
+    "@emotion/styled": ^10.0.27
+    "@open-arch-ui/button": ^1.0.0
+    "@open-arch-ui/layout": ^1.0.0
+    "@open-arch-ui/loading": ^1.0.0
+    "@open-arch-ui/theme": ^1.0.0
+    "@primer/octicons-react": ^11.3.0
+    react-router-dom: 5.2.0
+  peerDependencies:
+    react: ^18.3.1
+  checksum: 46858c43d279dea1039aaf46eb5a364415e857664896b0754a51ee82c99463b98f07a87c961701b98cf64af9e1ed8a12836d127c328c4587b4da16fe279415c3
+  languageName: node
+  linkType: hard
+
+"@open-arch-ui/pill@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@open-arch-ui/pill@npm:1.0.0"
+  dependencies:
+    "@babel/runtime": ^7.14.6
+    "@emotion/core": ^10.1.1
+    "@emotion/styled": ^10.0.27
+    "@open-arch-ui/common": ^1.0.0
+    "@open-arch-ui/theme": ^1.0.0
+    "@primer/octicons-react": ^11.3.0
+  peerDependencies:
+    react: ^18.3.1
+  checksum: 4078392086295442f4cdee92662a110a976bd45877af2c5cb9598c8813de0350d83f6850bdfd5c2ee4db952d453294aa5abbd12aa580c8a514d157eb136672d1
+  languageName: node
+  linkType: hard
+
+"@open-arch-ui/popout@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@open-arch-ui/popout@npm:1.0.0"
+  dependencies:
+    "@babel/runtime": ^7.14.6
+    "@emotion/core": ^10.1.1
+    "@emotion/styled": ^10.0.27
+    "@open-arch-ui/color-utils": ^1.0.0
+    "@open-arch-ui/modal-utils": ^2.0.0
+    "@open-arch-ui/theme": ^1.0.0
+    "@popperjs/core": ^2.9.2
+    focus-trap-react: ^8.5.1
+    react-popper: ^2.2.5
+  peerDependencies:
+    react: ^18.3.1
+    react-dom: ^18.3.1
+  checksum: cd24839bdbc462f5e31d41fe9bbd6b73b82f4b96decaaa6b5e625f8d74df744062a64542d047dc2c41a386b2797559e0361a073fc706f261b9c906b077933ffa
+  languageName: node
+  linkType: hard
+
+"@open-arch-ui/select@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@open-arch-ui/select@npm:1.0.0"
+  dependencies:
+    "@babel/runtime": ^7.14.6
+    "@open-arch-ui/theme": ^1.0.0
+    react-select: ^3.2.0
+  peerDependencies:
+    react: ^18.3.1
+  checksum: e5768b7c49b75721323cdfdd37d399cd5798ef6826f431bd92ed19c734a1d31019fe5709e1ef26f32a93e062c59ff4eadfb8e9a19aa31996a90efe31d355e059
+  languageName: node
+  linkType: hard
+
+"@open-arch-ui/theme@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@open-arch-ui/theme@npm:1.0.0"
+  dependencies:
+    "@babel/runtime": ^7.14.6
+    "@open-arch-ui/color-utils": ^1.0.0
+  checksum: 70e3c43daca25cb404ca972bf752f2008c87b23692068817caf3fbc55784572d479af91883fb589d8a650b80428666047cb87290881895de217c801099c71083
+  languageName: node
+  linkType: hard
+
+"@open-arch-ui/tooltip@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@open-arch-ui/tooltip@npm:1.0.0"
+  dependencies:
+    "@babel/runtime": ^7.14.6
+    "@emotion/core": ^10.1.1
+    "@emotion/styled": ^10.0.27
+    "@open-arch-ui/modal-utils": ^2.0.0
+    "@open-arch-ui/theme": ^1.0.0
+    "@popperjs/core": ^2.9.2
+    flushable: ^1.0.0
+    react-popper: ^2.2.5
+  peerDependencies:
+    react: ^18.3.1
+    react-dom: ^18.3.1
+  checksum: bc95f92a7c9078c6feafa2c3bf949510fabd1baf6354261a196dcebad06279102c820069c406242309285fb78673ee3e7a979dd99d7cd20264bdf4511030fcce
+  languageName: node
+  linkType: hard
+
+"@open-arch-ui/typography@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@open-arch-ui/typography@npm:1.0.0"
+  dependencies:
+    "@babel/runtime": ^7.14.6
+    "@emotion/core": ^10.1.1
+    "@emotion/styled": ^10.0.27
+    "@open-arch-ui/theme": ^1.0.0
+  peerDependencies:
+    react: ^18.3.1
+  checksum: 02dfd4816e27b5523ad81c1f9eed2bec2f21ef3abe31b6372d027fd07e8cc30959125fc06a508baf2977eaab779b48eeedf70cd640875c14e64741ce202dfd9f
+  languageName: node
+  linkType: hard
+
 "@open-condo/apollo-server-client@workspace:^, @open-condo/apollo-server-client@workspace:packages/apollo-server-client":
   version: 0.0.0-use.local
   resolution: "@open-condo/apollo-server-client@workspace:packages/apollo-server-client"
@@ -7628,12 +7628,6 @@ __metadata:
   resolution: "@open-condo/keystone@workspace:packages/keystone"
   dependencies:
     "@apollo/client": ^3.11.8
-    "@arch-ui/controls": ^0.1.12
-    "@arch-ui/fields": ^3.0.8
-    "@arch-ui/input": ^0.1.14
-    "@arch-ui/lozenge": ^0.0.20
-    "@arch-ui/select": ^0.1.12
-    "@arch-ui/theme": ^0.0.14
     "@emotion/react": ^11.9.3
     "@faker-js/faker": ^7.6.0
     "@graphql-tools/graphql-file-loader": ^7.5.17
@@ -7641,21 +7635,27 @@ __metadata:
     "@graphql-tools/load": ^8.1.0
     "@graphql-tools/stitch": ^8.7.6
     "@graphql-tools/wrap": ^8.5.1
+    "@open-arch-ui/controls": ^1.0.0
+    "@open-arch-ui/fields": ^4.0.0
+    "@open-arch-ui/input": ^1.0.0
+    "@open-arch-ui/lozenge": ^1.0.0
+    "@open-arch-ui/select": ^1.0.0
+    "@open-arch-ui/theme": ^1.0.0
     "@open-condo/apollo-server-client": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/locales": "workspace:^"
-    "@open-keystone/adapter-knex": ^14.0.10
-    "@open-keystone/adapter-mongoose": ^13.0.4
-    "@open-keystone/adapter-prisma": ^4.0.10
-    "@open-keystone/app-admin-ui": ^8.0.3
+    "@open-keystone/adapter-knex": ^14.0.11
+    "@open-keystone/adapter-mongoose": ^13.0.5
+    "@open-keystone/adapter-prisma": ^4.0.11
+    "@open-keystone/app-admin-ui": ^9.0.0
     "@open-keystone/app-graphql": ^7.0.1
-    "@open-keystone/auth-password": ^7.0.10
-    "@open-keystone/fields": ^24.0.4
-    "@open-keystone/fields-authed-relationship": ^2.0.10
-    "@open-keystone/fields-markdown": ^6.0.10
-    "@open-keystone/fields-wysiwyg-tinymce": ^6.0.10
+    "@open-keystone/auth-password": ^7.0.11
+    "@open-keystone/fields": ^25.0.0
+    "@open-keystone/fields-authed-relationship": ^2.0.11
+    "@open-keystone/fields-markdown": ^7.0.0
+    "@open-keystone/fields-wysiwyg-tinymce": ^7.0.0
     "@open-keystone/file-adapters": ^7.1.4
-    "@open-keystone/keystone": ^19.4.10
+    "@open-keystone/keystone": ^19.4.11
     "@open-keystone/server-side-graphql-client": ^2.1.3
     "@open-keystone/utils": ^6.1.3
     "@opentelemetry/api": ^1.4.1
@@ -7918,88 +7918,88 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@open-keystone/adapter-knex@npm:^14.0.10":
-  version: 14.0.10
-  resolution: "@open-keystone/adapter-knex@npm:14.0.10"
+"@open-keystone/adapter-knex@npm:^14.0.11":
+  version: 14.0.11
+  resolution: "@open-keystone/adapter-knex@npm:14.0.11"
   dependencies:
-    "@open-keystone/fields-auto-increment": ^9.0.10
-    "@open-keystone/keystone": ^19.4.10
+    "@open-keystone/fields-auto-increment": ^9.0.11
+    "@open-keystone/keystone": ^19.4.11
     "@open-keystone/utils": ^6.1.3
     knex: ^3.1.0
     p-settle: ^4.1.1
     pg: ^8.6.0
-  checksum: 43421b4802d51bb1b66585db2b420fdde159b2959443d25fe1fd6310bf8f1d6c0df1e9b1b185cf6dd40159c5de2677a0f2d841fbd08f5d26b304118036c717d5
+  checksum: 4fcfbb30c1adc8dffc7f2fddda6fb4aab96309c288ce0273b9a068611265a54e612971af325ab206fd781e6e391077af9ac6f7051f55d83e360381eec7b93c64
   languageName: node
   linkType: hard
 
-"@open-keystone/adapter-mongoose@npm:^13.0.4":
-  version: 13.0.4
-  resolution: "@open-keystone/adapter-mongoose@npm:13.0.4"
+"@open-keystone/adapter-mongoose@npm:^13.0.5":
+  version: 13.0.5
+  resolution: "@open-keystone/adapter-mongoose@npm:13.0.5"
   dependencies:
-    "@open-keystone/fields-mongoid": ^11.0.4
-    "@open-keystone/keystone": ^19.4.10
+    "@open-keystone/fields-mongoid": ^12.0.0
+    "@open-keystone/keystone": ^19.4.11
     "@open-keystone/utils": ^6.1.3
     cuid: ^2.1.8
     mongoose: ^8.16.0
     p-settle: ^4.1.1
-  checksum: 998b878dc680e5184367fcca01beefe1396e82037eb2afef11f6ae87b1e8ced3c4c07f8fdce317f1c7891a85d619fcb262ead1d0563d7d79d9a7b87c13f1b0a5
+  checksum: afbe02c89ce19c68d3be5ff2e89359ed48883838edad0894d2993ef7467dfe7ffac9c8e7d12d4974130e7f00f2f6c543b70ab09860d6dba1655b98c38cc319b2
   languageName: node
   linkType: hard
 
-"@open-keystone/adapter-prisma@npm:^4.0.10":
-  version: 4.0.10
-  resolution: "@open-keystone/adapter-prisma@npm:4.0.10"
+"@open-keystone/adapter-prisma@npm:^4.0.11":
+  version: 4.0.11
+  resolution: "@open-keystone/adapter-prisma@npm:4.0.11"
   dependencies:
-    "@open-keystone/fields-auto-increment": ^9.0.10
-    "@open-keystone/keystone": ^19.4.10
+    "@open-keystone/fields-auto-increment": ^9.0.11
+    "@open-keystone/keystone": ^19.4.11
     "@open-keystone/utils": ^6.1.3
     "@prisma/client": 4.16.0
     "@prisma/internals": 4.16.0
     cuid: ^2.1.8
     prisma: 4.16.0
-  checksum: 3491dbf49446f156d6e6ca4740d9eb8fca55a33af44df3e1e5179ec7f6d5fa1474caaf5303e0288b23ec89ec8a0fdecbc965f9c4c0387d6e043961cdb3cd5d11
+  checksum: 10bdd6fe874d03e90c2e9805a6a9275eb8bc4f3c14283da7f92258355e24b88e24fd03578733f1deb0d598a765d462b1e57cf96befaf6e194a33935cfa7b8320
   languageName: node
   linkType: hard
 
-"@open-keystone/app-admin-ui@npm:^8.0.3":
-  version: 8.0.3
-  resolution: "@open-keystone/app-admin-ui@npm:8.0.3"
+"@open-keystone/app-admin-ui@npm:^9.0.0":
+  version: 9.0.0
+  resolution: "@open-keystone/app-admin-ui@npm:9.0.0"
   dependencies:
     "@apollo/client": ^3.11.8
-    "@arch-ui/alert": ^0.0.21
-    "@arch-ui/badge": ^0.0.20
-    "@arch-ui/button": ^0.0.25
-    "@arch-ui/card": ^0.0.18
-    "@arch-ui/color-utils": ^0.0.5
-    "@arch-ui/common": ^0.0.15
-    "@arch-ui/confirm": ^0.0.26
-    "@arch-ui/controls": ^0.1.12
-    "@arch-ui/dialog": ^0.0.28
-    "@arch-ui/drawer": ^0.0.28
-    "@arch-ui/dropdown": ^0.0.25
-    "@arch-ui/fields": ^3.0.8
-    "@arch-ui/hooks": ^0.0.14
-    "@arch-ui/input": ^0.1.14
-    "@arch-ui/layout": ^0.2.17
-    "@arch-ui/loading": ^0.0.21
-    "@arch-ui/lozenge": ^0.0.20
-    "@arch-ui/navbar": ^0.1.15
-    "@arch-ui/options": ^0.0.27
-    "@arch-ui/pagination": ^0.0.29
-    "@arch-ui/pill": ^0.1.21
-    "@arch-ui/popout": ^0.0.26
-    "@arch-ui/select": ^0.1.12
-    "@arch-ui/theme": ^0.0.14
-    "@arch-ui/tooltip": ^0.1.17
-    "@arch-ui/typography": ^0.0.21
     "@babel/core": ^7.14.6
     "@babel/runtime": ^7.14.6
     "@emotion/core": ^10.1.1
+    "@open-arch-ui/alert": ^1.0.0
+    "@open-arch-ui/badge": ^1.0.0
+    "@open-arch-ui/button": ^1.0.0
+    "@open-arch-ui/card": ^1.0.0
+    "@open-arch-ui/color-utils": ^1.0.0
+    "@open-arch-ui/common": ^1.0.0
+    "@open-arch-ui/confirm": ^1.0.0
+    "@open-arch-ui/controls": ^1.0.0
+    "@open-arch-ui/dialog": ^1.0.0
+    "@open-arch-ui/drawer": ^1.0.0
+    "@open-arch-ui/dropdown": ^1.0.0
+    "@open-arch-ui/fields": ^4.0.0
+    "@open-arch-ui/hooks": ^1.0.0
+    "@open-arch-ui/input": ^1.0.0
+    "@open-arch-ui/layout": ^1.0.0
+    "@open-arch-ui/loading": ^1.0.0
+    "@open-arch-ui/lozenge": ^1.0.0
+    "@open-arch-ui/navbar": ^1.0.0
+    "@open-arch-ui/options": ^1.0.0
+    "@open-arch-ui/pagination": ^1.0.0
+    "@open-arch-ui/pill": ^1.0.0
+    "@open-arch-ui/popout": ^1.0.0
+    "@open-arch-ui/select": ^1.0.0
+    "@open-arch-ui/theme": ^1.0.0
+    "@open-arch-ui/tooltip": ^1.0.0
+    "@open-arch-ui/typography": ^1.0.0
     "@open-keystone/field-views-loader": ^7.0.0
     "@open-keystone/session": ^8.3.4
     "@open-keystone/utils": ^6.1.3
     "@primer/octicons-react": ^11.3.0
-    "@types/react": ^17.0.11
+    "@types/react": ^18.3.1
     apollo-upload-client: ^17.0.0
     apply-ref: ^1.0.0
     babel-loader: ^10.0.0
@@ -8021,8 +8021,8 @@ __metadata:
     memoize-one: ^5.2.1
     prop-types: ^15.7.2
     raf-schd: ^4.0.3
-    react: ^17.0.2
-    react-dom: ^17.0.2
+    react: ^18.3.1
+    react-dom: ^18.3.1
     react-prop-toggle: ^1.0.2
     react-pseudo-state: ^2.2.2
     react-router-dom: 5.2.0
@@ -8036,7 +8036,7 @@ __metadata:
     webpack: ^5.99.9
     webpack-dev-middleware: ^7.4.2
     webpack-hot-middleware: ^2.26.1
-  checksum: b7b42f769995828a6784eeac36a3879a853831dcdbc922799fbd3d6d164826c5717c1b65571196f8dcbda6dd00928e6e0178f0d57ca1a2e5b364bbdddfa9fe5e
+  checksum: c9bea9df87596fec9aba4a719f9af08889dc6d9ea08a493d453322432109b08de1ac49479c44407e2b630fcdd7fb9cd3beb06a8178c104613eb0d18570e2efa7
   languageName: node
   linkType: hard
 
@@ -8087,13 +8087,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@open-keystone/auth-password@npm:^7.0.10":
-  version: 7.0.10
-  resolution: "@open-keystone/auth-password@npm:7.0.10"
+"@open-keystone/auth-password@npm:^7.0.11":
+  version: 7.0.11
+  resolution: "@open-keystone/auth-password@npm:7.0.11"
   dependencies:
-    "@open-keystone/fields": ^24.0.4
+    "@open-keystone/fields": ^25.0.0
     "@open-keystone/session": ^8.3.4
-  checksum: 0bddf0c319a1aed6279aceeb53ee0bfd6b0fe42a49a0ce4508b626676468adc653aaae5060c4145567b5902cc5b4861928c48299862bb2bba6805092eed2051a
+  checksum: 2686855229e89f71633a92c99ea6103a26bc0bc033bd4b96937d9f106da6c52b6a01849b6d2a0cc16a8eee0e8c6007acf22aa26d37f1bbe03ba09102f050b286
   languageName: node
   linkType: hard
 
@@ -8106,114 +8106,114 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@open-keystone/fields-authed-relationship@npm:^2.0.10":
-  version: 2.0.10
-  resolution: "@open-keystone/fields-authed-relationship@npm:2.0.10"
+"@open-keystone/fields-authed-relationship@npm:^2.0.11":
+  version: 2.0.11
+  resolution: "@open-keystone/fields-authed-relationship@npm:2.0.11"
   dependencies:
     "@babel/runtime": ^7.14.6
-    "@open-keystone/fields": ^24.0.4
-  checksum: 6e5beb0adc36a236bf04680bce11e7c5692ed69666a7be29abd1b2d5a099a37d27045826a5de32d686007d4e078bf14757027525fad97bf6ecfddb7f11752e3e
+    "@open-keystone/fields": ^25.0.0
+  checksum: 7bb93e7b72f293cf2e0b44b3e5aeb05ed6c1118fa60ad840083a78a6770b5cce152ea59b3fd9244a54e3e8b2f8192e33f34ce15d5f869eaf9edf7b09a0adc822
   languageName: node
   linkType: hard
 
-"@open-keystone/fields-auto-increment@npm:^9.0.10":
-  version: 9.0.10
-  resolution: "@open-keystone/fields-auto-increment@npm:9.0.10"
+"@open-keystone/fields-auto-increment@npm:^9.0.11":
+  version: 9.0.11
+  resolution: "@open-keystone/fields-auto-increment@npm:9.0.11"
   dependencies:
     "@babel/runtime": ^7.14.6
-    "@open-keystone/adapter-knex": ^14.0.10
-    "@open-keystone/adapter-prisma": ^4.0.10
-    "@open-keystone/fields": ^24.0.4
-  checksum: a788b5fdce77f4555e797511e84bff72bdb5d22eb1154474a6140f1f2667af91e89bb2de4f2a12fbf238af233500269e06f0c16d2fff542a8cc2136999137a87
+    "@open-keystone/adapter-knex": ^14.0.11
+    "@open-keystone/adapter-prisma": ^4.0.11
+    "@open-keystone/fields": ^25.0.0
+  checksum: f3abf4b2c1aee7728c7ca20eb3da30d2238e69047300d41193a264aa815393f9fcb37095ec996b8306afb5b6bb6159d2cbf0f050848d0e1955f0f685bba57c16
   languageName: node
   linkType: hard
 
-"@open-keystone/fields-markdown@npm:^6.0.10":
-  version: 6.0.10
-  resolution: "@open-keystone/fields-markdown@npm:6.0.10"
+"@open-keystone/fields-markdown@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "@open-keystone/fields-markdown@npm:7.0.0"
   dependencies:
-    "@arch-ui/fields": ^3.0.8
-    "@arch-ui/input": ^0.1.14
-    "@arch-ui/theme": ^0.0.14
-    "@arch-ui/tooltip": ^0.1.17
-    "@arch-ui/typography": ^0.0.21
     "@babel/runtime": ^7.14.6
     "@emotion/core": ^10.1.1
-    "@open-keystone/fields": ^24.0.4
+    "@open-arch-ui/fields": ^4.0.0
+    "@open-arch-ui/input": ^1.0.0
+    "@open-arch-ui/theme": ^1.0.0
+    "@open-arch-ui/tooltip": ^1.0.0
+    "@open-arch-ui/typography": ^1.0.0
+    "@open-keystone/fields": ^25.0.0
     "@primer/octicons-react": ^11.3.0
     codemirror: ^5.62.0
     prop-types: ^15.7.2
-    react: ^17.0.2
+    react: ^18.3.1
     react-codemirror2: ^7.2.1
-  checksum: 5e2ae7892d37c1441aa4543ad81eb3e16a43fb1e6c3b853c192ef1819530fe59bb570475707324716d1466c9842ccb8860536c7f330caf818f5f7bbcc817f32e
+  checksum: f34720284d7d19f430cbf823d181f5301070bd7033e404eda31ffad1cae224e344cec694636d9ee5c7b42ed8733c7ea0f7144ecc5ee5fb860b80b116067d2722
   languageName: node
   linkType: hard
 
-"@open-keystone/fields-mongoid@npm:^11.0.4":
-  version: 11.0.4
-  resolution: "@open-keystone/fields-mongoid@npm:11.0.4"
+"@open-keystone/fields-mongoid@npm:^12.0.0":
+  version: 12.0.0
+  resolution: "@open-keystone/fields-mongoid@npm:12.0.0"
   dependencies:
-    "@arch-ui/input": ^0.1.14
     "@babel/runtime": ^7.14.6
-    "@open-keystone/adapter-knex": ^14.0.10
-    "@open-keystone/adapter-mongoose": ^13.0.4
-    "@open-keystone/adapter-prisma": ^4.0.10
-    "@open-keystone/fields": ^24.0.4
-    react: ^17.0.2
-  checksum: c0d1f72e4d1af9302a253fb9235f2cfb4cffcdd31cd9aa151754bc312a8c7ea4c23a1d5cf24a7a2337a63246a214dec40dab13a2e30a0b21cf44ae8806b8f984
+    "@open-arch-ui/input": ^1.0.0
+    "@open-keystone/adapter-knex": ^14.0.11
+    "@open-keystone/adapter-mongoose": ^13.0.5
+    "@open-keystone/adapter-prisma": ^4.0.11
+    "@open-keystone/fields": ^25.0.0
+    react: ^18.3.1
+  checksum: 6b17cfe1be85ec2be6bd3ec59c606ab9b1a4ebb95a6f06ad1732467e5f7c3799316da5dd4961e9f52ca95c5a26b629ebb1f4bac33d1a5aac35b33a4d3cecb514
   languageName: node
   linkType: hard
 
-"@open-keystone/fields-wysiwyg-tinymce@npm:^6.0.10":
-  version: 6.0.10
-  resolution: "@open-keystone/fields-wysiwyg-tinymce@npm:6.0.10"
+"@open-keystone/fields-wysiwyg-tinymce@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "@open-keystone/fields-wysiwyg-tinymce@npm:7.0.0"
   dependencies:
-    "@arch-ui/fields": ^3.0.8
-    "@arch-ui/input": ^0.1.14
-    "@arch-ui/theme": ^0.0.14
     "@babel/runtime": ^7.14.6
     "@emotion/core": ^10.1.1
-    "@open-keystone/fields": ^24.0.4
+    "@open-arch-ui/fields": ^4.0.0
+    "@open-arch-ui/input": ^1.0.0
+    "@open-arch-ui/theme": ^1.0.0
+    "@open-keystone/fields": ^25.0.0
     "@primer/octicons-react": ^11.3.0
     "@tinymce/tinymce-react": ^3.12.6
     prop-types: ^15.7.2
-    react: ^17.0.2
+    react: ^18.3.1
     tinymce: ^5.8.1
   peerDependencies:
     express: ^4.17.1
-  checksum: a98731b0ed161572380be55f753f634b5372cb7b98a8ba60dbc2e10c75079699fb44cd77a81995ac55203b29a58146dac8a36c7cb2ceebe65a23df6896b22c85
+  checksum: 62a4aaf6dd96ef23b66a08447ba089509311a7c2073b70c6ca85b4be281cfbaf592cb0c98ec75d314cdb8515a67ece04ade04faa55ec0e019127f52afd18187f
   languageName: node
   linkType: hard
 
-"@open-keystone/fields@npm:^24.0.4":
-  version: 24.0.4
-  resolution: "@open-keystone/fields@npm:24.0.4"
+"@open-keystone/fields@npm:^25.0.0":
+  version: 25.0.0
+  resolution: "@open-keystone/fields@npm:25.0.0"
   dependencies:
     "@apollo/client": ^3.11.8
-    "@arch-ui/alert": ^0.0.21
-    "@arch-ui/button": ^0.0.25
-    "@arch-ui/controls": ^0.1.12
-    "@arch-ui/day-picker": ^1.0.8
-    "@arch-ui/drawer": ^0.0.28
-    "@arch-ui/fields": ^3.0.8
-    "@arch-ui/filters": ^0.0.23
-    "@arch-ui/input": ^0.1.14
-    "@arch-ui/layout": ^0.2.17
-    "@arch-ui/loading": ^0.0.21
-    "@arch-ui/lozenge": ^0.0.20
-    "@arch-ui/options": ^0.0.27
-    "@arch-ui/popout": ^0.0.26
-    "@arch-ui/select": ^0.1.12
-    "@arch-ui/theme": ^0.0.14
-    "@arch-ui/tooltip": ^0.1.17
-    "@arch-ui/typography": ^0.0.21
     "@babel/runtime": ^7.14.6
     "@emotion/core": ^10.1.1
+    "@open-arch-ui/alert": ^1.0.0
+    "@open-arch-ui/button": ^1.0.0
+    "@open-arch-ui/controls": ^1.0.0
+    "@open-arch-ui/day-picker": ^2.0.0
+    "@open-arch-ui/drawer": ^1.0.0
+    "@open-arch-ui/fields": ^4.0.0
+    "@open-arch-ui/filters": ^1.0.0
+    "@open-arch-ui/input": ^1.0.0
+    "@open-arch-ui/layout": ^1.0.0
+    "@open-arch-ui/loading": ^1.0.0
+    "@open-arch-ui/lozenge": ^1.0.0
+    "@open-arch-ui/options": ^1.0.0
+    "@open-arch-ui/popout": ^1.0.0
+    "@open-arch-ui/select": ^1.0.0
+    "@open-arch-ui/theme": ^1.0.0
+    "@open-arch-ui/tooltip": ^1.0.0
+    "@open-arch-ui/typography": ^1.0.0
     "@open-keystone/access-control": ^8.0.0
-    "@open-keystone/adapter-knex": ^14.0.10
-    "@open-keystone/adapter-mongoose": ^13.0.4
-    "@open-keystone/adapter-prisma": ^4.0.10
-    "@open-keystone/app-admin-ui": ^8.0.3
+    "@open-keystone/adapter-knex": ^14.0.11
+    "@open-keystone/adapter-mongoose": ^13.0.5
+    "@open-keystone/adapter-prisma": ^4.0.11
+    "@open-keystone/app-admin-ui": ^9.0.0
     "@open-keystone/server-side-graphql-client": ^2.1.3
     "@open-keystone/utils": ^6.1.3
     "@primer/octicons-react": ^11.3.0
@@ -8234,13 +8234,13 @@ __metadata:
     mongoose: ^8.16.0
     p-settle: ^4.1.1
     prop-types: ^15.7.2
-    react: ^17.0.2
+    react: ^18.3.1
     react-day-picker: 8.0.0-beta.3
-    react-dom: ^17.0.2
+    react-dom: ^18.3.1
     react-image: ^4.0.3
     react-select: ^3.2.0
     react-toast-notifications: ^2.4.4
-  checksum: f43864b9cac70212da0e6cfa2d338abb4422dfab6e4874bc68cfeeb30f43d0bde3e35b047ceceb4f5076e35cd0b60a63f216a66fba51707328e7027a403daec7
+  checksum: e052a034101ddb31033e9c1991288639ade4524f269c854a425d334b58b8ff13e33274fdbd1ee896da9a090d73d9fa7d009c16dddca0630b1fb887c09e81925d
   languageName: node
   linkType: hard
 
@@ -8256,9 +8256,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@open-keystone/keystone@npm:^19.4.10":
-  version: 19.4.10
-  resolution: "@open-keystone/keystone@npm:19.4.10"
+"@open-keystone/keystone@npm:^19.4.11":
+  version: 19.4.11
+  resolution: "@open-keystone/keystone@npm:19.4.11"
   dependencies:
     "@graphql-tools/schema": ^8.0.0
     "@open-keystone/access-control": ^8.0.0
@@ -8294,7 +8294,7 @@ __metadata:
     terminal-link: ^2.1.1
   bin:
     keystone: bin/cli.js
-  checksum: ed02eb202dcd1812a91184366fb1e2da7a9c1557ad93998c3f0112e81863a1ea3222a49a6172d12584f7986608d35373862b49ff29ca7d36fbca19a4c7246bb1
+  checksum: 4c49f84f4dda04b54e1e82a13dfe9191f88f5b7c7cbc8df950dea48d0e2a85863d794bfc745fa49e731b425467a22b464b876bdd743c67771d07de15500ab97e
   languageName: node
   linkType: hard
 
@@ -10901,17 +10901,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:^17.0.11":
-  version: 17.0.87
-  resolution: "@types/react@npm:17.0.87"
-  dependencies:
-    "@types/prop-types": "*"
-    "@types/scheduler": ^0.16
-    csstype: ^3.0.2
-  checksum: b6ed7e37940a3c8732cef85a79c59d5739912aefa8add3342c3843d5104e81bdb618b674a811e62330c173ebf9cdcaf455570a2f4721cd7ac742b1ab95340d35
-  languageName: node
-  linkType: hard
-
 "@types/react@npm:^18.3.1":
   version: 18.3.23
   resolution: "@types/react@npm:18.3.23"
@@ -10949,13 +10938,6 @@ __metadata:
   version: 0.12.0
   resolution: "@types/retry@npm:0.12.0"
   checksum: 61a072c7639f6e8126588bf1eb1ce8835f2cb9c2aba795c4491cf6310e013267b0c8488039857c261c387e9728c1b43205099223f160bb6a76b4374f741b5603
-  languageName: node
-  linkType: hard
-
-"@types/scheduler@npm:^0.16":
-  version: 0.16.8
-  resolution: "@types/scheduler@npm:0.16.8"
-  checksum: 6c091b096daa490093bf30dd7947cd28e5b2cd612ec93448432b33f724b162587fed9309a0acc104d97b69b1d49a0f3fc755a62282054d62975d53d7fd13472d
   languageName: node
   linkType: hard
 
@@ -16200,7 +16182,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"date-fns@npm:2.x, date-fns@npm:^2.21.3":
+"date-fns@npm:2.x":
   version: 2.29.2
   resolution: "date-fns@npm:2.29.2"
   checksum: 08bebcceb0a5dbadae4c55e6592b9d5c07dbd7833433c7e9a1d4a424300db32589b8b48e5979b32863c9b00a48d9bab6663e580c2a4f9f203d46cbf9113b5664
@@ -18782,7 +18764,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"focus-trap-react@npm:^8.5.0":
+"focus-trap-react@npm:^8.5.1":
   version: 8.11.3
   resolution: "focus-trap-react@npm:8.11.3"
   dependencies:
@@ -28662,19 +28644,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-dom@npm:^17.0.2":
-  version: 17.0.2
-  resolution: "react-dom@npm:17.0.2"
-  dependencies:
-    loose-envify: ^1.1.0
-    object-assign: ^4.1.1
-    scheduler: ^0.20.2
-  peerDependencies:
-    react: 17.0.2
-  checksum: 1c1eaa3bca7c7228d24b70932e3d7c99e70d1d04e13bb0843bbf321582bc25d7961d6b8a6978a58a598af2af496d1cedcfb1bf65f6b0960a0a8161cb8dab743c
-  languageName: node
-  linkType: hard
-
 "react-dom@npm:^18.3.1":
   version: 18.3.1
   resolution: "react-dom@npm:18.3.1"
@@ -29157,16 +29126,6 @@ __metadata:
   version: 19.1.0
   resolution: "react@npm:19.1.0"
   checksum: c0905f8cfb878b0543a5522727e5ed79c67c8111dc16ceee135b7fe19dce77b2c1c19293513061a8934e721292bfc1517e0487e262d1906f306bdf95fa54d02f
-  languageName: node
-  linkType: hard
-
-"react@npm:^17.0.2":
-  version: 17.0.2
-  resolution: "react@npm:17.0.2"
-  dependencies:
-    loose-envify: ^1.1.0
-    object-assign: ^4.1.1
-  checksum: b254cc17ce3011788330f7bbf383ab653c6848902d7936a87b09d835d091e3f295f7e9dd1597c6daac5dc80f90e778c8230218ba8ad599f74adcc11e33b9d61b
   languageName: node
   linkType: hard
 
@@ -30570,16 +30529,6 @@ __metadata:
     loose-envify: ^1.1.0
     object-assign: ^4.1.1
   checksum: 73e185a59e2ff5aa3609f5b9cb97ddd376f89e1610579d29939d952411ca6eb7a24907a4ea4556569dacb931467a1a4a56d94fe809ef713aa76748642cd96a6c
-  languageName: node
-  linkType: hard
-
-"scheduler@npm:^0.20.2":
-  version: 0.20.2
-  resolution: "scheduler@npm:0.20.2"
-  dependencies:
-    loose-envify: ^1.1.0
-    object-assign: ^4.1.1
-  checksum: c4b35cf967c8f0d3e65753252d0f260271f81a81e427241295c5a7b783abf4ea9e905f22f815ab66676f5313be0a25f47be582254db8f9241b259213e999b8fc
   languageName: node
   linkType: hard
 

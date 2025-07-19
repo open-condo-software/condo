@@ -1,8 +1,8 @@
 /** @jsx jsx */
-import { FieldContainer, FieldInput, FieldLabel } from '@arch-ui/fields'
-import { Input } from '@arch-ui/input'
-import Select from '@arch-ui/select'
 import { jsx } from '@emotion/react'
+import { FieldContainer, FieldInput, FieldLabel } from '@open-arch-ui/fields'
+import { Input } from '@open-arch-ui/input'
+import Select from '@open-arch-ui/select'
 import get from 'lodash/get'
 
 const AddressPartWithTypeField = ({ onChange, autoFocus, field, errors, value = '{}', isDisabled }) => {
