@@ -26,7 +26,6 @@ const SUB_LAYOUT_CSS = css`
 const PAGE_CONTENT_CSS = css`
   flex-grow: 1;
   max-width: 1600px;
-  padding-bottom: 56px;
   background: ${colors.white};
 `
 
@@ -37,7 +36,6 @@ const PAGE_HEADER_CSS = css`
 
 export const TABLE_PAGE_CONTENT_CSS = css`
   flex-grow: 1;
-  padding-bottom: 60px;
   max-width: ${MAX_CONTENT_WIDTH}px;
   background: ${colors.white};
 `
