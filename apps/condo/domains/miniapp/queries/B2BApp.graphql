@@ -1,0 +1,24 @@
+query getGlobalB2BApps {
+    b2bApps: allB2BApps (
+        where: {
+            isGlobal: true,
+            isHidden: false,
+        },
+        first: 100,
+    ) {
+        id
+        appUrl
+        features
+    }
+}
+
+query getCountB2BAppsWithNewsSharingConfig {
+    _allB2BAppsMeta (where: {
+        isHidden: false,
+        isPublic: true,
+        newsSharingConfig_is_null: false,
+        deletedAt: null,
+    }) {
+        count
+    }
+}

@@ -1,0 +1,5 @@
+mutation updateMarketItems ($data: [MarketItemsUpdateInput!]!) {
+    marketItems: updateMarketItems (data: $data) {
+        id
+    }
+}

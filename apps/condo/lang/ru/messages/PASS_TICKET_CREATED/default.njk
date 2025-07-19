@@ -1,0 +1,9 @@
+{%- if message.meta.data.guestName -%}
+{{ message.meta.data.guestName }} придет {{ message.meta.data.openAt }}
+{%- else -%}
+    {%- if message.meta.data.vehicleBrand -%}
+    {{ message.meta.data.vehicleBrand }}, {{ message.meta.data.stateVehicleNumber }} приедет {{ message.meta.data.openAt }}
+    {%- else -%}
+    {{ message.meta.data.stateVehicleNumber }} приедет {{ message.meta.data.openAt }}
+    {% endif %}
+{% endif %}

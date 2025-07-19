@@ -1,0 +1,10 @@
+.secondary-link :global(a.condo-typography) {
+  color: #707695;
+  text-decoration-color: #707695;
+}
+
+.secondary-link :global(a.condo-typography:hover),
+.secondary-link :global(a.condo-typography:focus) {
+  color: #2bc359;
+  text-decoration-color: #2bc359;
+}

@@ -1,0 +1,48 @@
+query getMeterReadingExportTasks ($where: MeterReadingExportTaskWhereInput!) {
+    tasks: allMeterReadingExportTasks(
+        where: $where
+    ) {
+        id
+        status
+        file {
+            publicUrl
+            originalFilename
+        }
+        totalRecordsCount
+        exportedRecordsCount
+        __typename
+    }
+}
+
+mutation createMeterReadingExportTask ($data: MeterReadingExportTaskCreateInput!) {
+    task: createMeterReadingExportTask(
+        data: $data
+    ) {
+        id
+        status
+        file {
+            publicUrl
+            originalFilename
+        }
+        totalRecordsCount
+        exportedRecordsCount
+        __typename
+    }
+}
+
+mutation updateMeterReadingExportTask ($id: ID!, $data: MeterReadingExportTaskUpdateInput!) {
+    task: updateMeterReadingExportTask(
+        data: $data,
+        id: $id
+    ) {
+        id
+        status
+        file {
+            publicUrl
+            originalFilename
+        }
+        totalRecordsCount
+        exportedRecordsCount
+        __typename
+    }
+}

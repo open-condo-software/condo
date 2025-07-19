@@ -1,0 +1,42 @@
+query getNewsItemRecipientsExportTasks ($where: NewsItemRecipientsExportTaskWhereInput!) {
+    tasks: allNewsItemRecipientsExportTasks(
+        where: $where
+    ) {
+        id
+        status
+        file {
+            publicUrl
+            originalFilename
+        }
+        __typename
+    }
+}
+
+mutation createNewsItemRecipientsExportTask ($data: NewsItemRecipientsExportTaskCreateInput!) {
+    task: createNewsItemRecipientsExportTask(
+        data: $data
+    ) {
+        id
+        status
+        file {
+            publicUrl
+            originalFilename
+        }
+        __typename
+    }
+}
+
+mutation updateNewsItemRecipientsExportTask ($id: ID!, $data: NewsItemRecipientsExportTaskUpdateInput!) {
+    task: updateNewsItemRecipientsExportTask(
+        data: $data,
+        id: $id
+    ) {
+        id
+        status
+        file {
+            publicUrl
+            originalFilename
+        }
+        __typename
+    }
+}

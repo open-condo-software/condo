@@ -1,0 +1,33 @@
+query getBankAccountReportTasks ($where: BankAccountReportTaskWhereInput!) {
+    tasks: allBankAccountReportTasks(
+        where: $where
+    ) {
+        id
+        progress
+        status
+        __typename
+    }
+}
+
+mutation createBankAccountReportTask ($data: BankAccountReportTaskCreateInput!) {
+    task: createBankAccountReportTask(
+        data: $data
+    ) {
+        id
+        progress
+        status
+        __typename
+    }
+}
+
+mutation updateBankAccountReportTask ($id: ID!, $data: BankAccountReportTaskUpdateInput!) {
+    task: updateBankAccountReportTask(
+        data: $data,
+        id: $id
+    ) {
+        id
+        progress
+        status
+        __typename
+    }
+}

@@ -1,0 +1,19 @@
+@startuml
+collections WEB
+boundary GQL
+database postgres
+database redis
+collections WORKER
+boundary API
+
+WEB -> GQL: sendMessage (type, meta, to)
+
+GQL -> postgres: 1) create Message record
+GQL -> WEB: OK (answer)
+GQL -> redis: 2) schedule send task
+
+redis //-- WORKER: wait task
+WORKER -> API: 3) choose message transport
+WORKER -> API: 4) render message template with meta data
+WORKER -> API: 5) call remote transport API to send it
+@enduml

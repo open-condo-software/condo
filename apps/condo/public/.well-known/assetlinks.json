@@ -1,0 +1,18 @@
+[
+    {
+        "relation": ["delegate_permission/common.handle_all_urls", "delegate_permission/common.get_login_creds"],
+        "target": {
+          "namespace": "web",
+          "site": "https://v1.doma.ai"
+        }
+    },
+    {
+        "relation": ["delegate_permission/common.handle_all_urls", "delegate_permission/common.get_login_creds"],
+        "target": {
+            "namespace": "android_app",
+            "package_name": "ai.doma.master",
+            "sha256_cert_fingerprints":
+            ["C2:32:6E:AF:04:93:00:F2:D1:73:14:00:3E:48:1B:A6:B9:8D:13:86:1C:9E:BF:8E:D9:3A:1D:90:80:68:6F:A8"]
+        }
+    }
+]

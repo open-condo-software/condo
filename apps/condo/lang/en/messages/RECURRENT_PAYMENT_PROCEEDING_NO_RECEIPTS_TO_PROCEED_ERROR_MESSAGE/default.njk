@@ -1,0 +1,5 @@
+{%- if message.meta.data.lastTry -%}
+There are no new receipts for payment. You can change the auto payment settings in the app
+{%- else -%}
+There are no new receipts to pay today. We will try to debit again tomorrow
+{% endif %}

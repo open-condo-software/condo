@@ -1,0 +1,9 @@
+query getNewsSharingRecipients ($data: GetNewsSharingRecipientsInput!) {
+    recipients: getNewsSharingRecipients(
+        data: $data
+    ) {
+        id
+        name
+        receiversCount
+    }
+}

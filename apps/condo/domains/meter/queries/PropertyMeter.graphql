@@ -1,0 +1,5 @@
+mutation updatePropertyMeters ($data: [PropertyMetersUpdateInput!]!) {
+    propertyMeters: updatePropertyMeters (data: $data) {
+        id
+    }
+}

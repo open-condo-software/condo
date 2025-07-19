@@ -1,0 +1,7 @@
+const TOKEN_LIFETIME_IN_MIN = 15
+const MAX_NUMBER_OF_TOKEN_USES = 1
+
+module.exports = {
+    TOKEN_LIFETIME_IN_MIN,
+    MAX_NUMBER_OF_TOKEN_USES,
+}

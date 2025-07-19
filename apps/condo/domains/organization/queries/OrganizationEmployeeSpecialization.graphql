@@ -1,0 +1,16 @@
+query getOrganizationEmployeeSpecializations ($employeeId: ID!) {
+    organizationEmployeeSpecializations: allOrganizationEmployeeSpecializations (
+        where: {
+            employee: { id: $employeeId }
+        },
+        first: 100,
+    ) {
+        id
+        employee {
+            id
+        }
+        specialization {
+            id
+        }
+    }
+}

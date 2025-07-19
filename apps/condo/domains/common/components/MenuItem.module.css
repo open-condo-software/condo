@@ -1,0 +1,32 @@
+.menu-item-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 12px 0;
+  vertical-align: center;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.menu-item-wrapper .menu-item * {
+  color: var(--condo-global-color-gray-7);
+  transition: var(--condo-global-transition-duration-default);
+}
+
+.menu-item-wrapper:hover .menu-item *,
+.menu-item-wrapper.active .menu-item * {
+  color: var(--condo-global-color-black) !important;
+}
+
+.menu-item-wrapper .condo-typography {
+  width: max-content;
+}
+
+.disabled {
+  opacity: 0.4;
+}
+
+.justify-center {
+  justify-content: center;
+}
