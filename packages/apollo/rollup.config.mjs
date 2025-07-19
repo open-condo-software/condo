@@ -5,9 +5,9 @@ import path from 'path'
 import babel from '@rollup/plugin-babel'
 import commonjs from '@rollup/plugin-commonjs'
 import resolve from '@rollup/plugin-node-resolve'
+import terser from '@rollup/plugin-terser'
 import typescript from '@rollup/plugin-typescript'
 import peerDepsExternal from 'rollup-plugin-peer-deps-external'
-import { uglify } from 'rollup-plugin-uglify'
 
 const require = createRequire(import.meta.url)
 
@@ -63,7 +63,7 @@ const options =  Object.entries(pkg.exports).map(([relativeImport, relativeMap])
                 extensions: AVAILABLE_EXTENSIONS,
             }),
             typescript({ tsconfig: './tsconfig.json', compilerOptions: { declaration: false } }),
-            uglify(),
+            terser(),
         ],
         external: ['react', 'react-dom'],
     }

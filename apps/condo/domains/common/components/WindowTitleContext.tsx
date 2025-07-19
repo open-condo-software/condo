@@ -21,7 +21,7 @@ const getFaviconHref = () => document.getElementById('favicon').getAttribute('hr
 
 const changeFavicon = (href: string) => document.getElementById('favicon').setAttribute('href', href)
 
-export const WindowTitleContextProvider: React.FC<{ title: string }> = ({ children, title }) => {
+export const WindowTitleContextProvider: React.FC<React.PropsWithChildren<{ title: string }>> = ({ children, title }) => {
     const [titleConfig, setTitleConfig] = useState<WindowTitleChange>(null)
     const intervalRef = useRef(null)
     const originalIconHref = useRef(null)

@@ -1,7 +1,7 @@
 import { QuestionCircleOutlined } from '@ant-design/icons'
 import { useLazyQuery } from '@apollo/client'
 import { BuildingSection, NewsItemScope, Property as PropertyType } from '@app/condo/schema'
-import { ButtonProps, Col, notification, Row, Skeleton } from 'antd'
+import { Col, notification, Row, Skeleton } from 'antd'
 import every from 'lodash/every'
 import filter from 'lodash/filter'
 import get from 'lodash/get'
@@ -40,13 +40,13 @@ interface CounterProps {
     value: number
     type?: TypographyTitleProps['type']
     hint?: string
-    downloadButton?: ButtonProps
+    downloadButton?: React.ReactNode
     isLoading?: boolean
 }
 
 const styleQuestionCircle: CSSProperties = { color: colors.gray['5'], cursor: 'help' }
 
-export const RecipientCounterContainer: React.FC<{ title: React.ReactNode }> = ({ children, title }) => {
+export const RecipientCounterContainer: React.FC<React.PropsWithChildren<{ title: React.ReactNode }>> = ({ children, title }) => {
     return (
         <Card>
             <Typography.Text>
@@ -237,7 +237,7 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
             },
             onError: (error) => {
                 console.error({ msg: 'Failed to load recipients counters', error })
-                const message = get(error, ['graphQLErrors', 0, 'extensions', 'messageForUser'], ErrorLoadingMessage)
+                const message = get(error, ['graphQLErrors', 0, 'extensions', 'messageForUser'], ErrorLoadingMessage) as string
                 notification.error({ message })
             },
             fetchPolicy: 'cache-first',
@@ -326,7 +326,7 @@ const NewsSharingRecipientCounter: React.FC<{ contextId: string, newsItemScopes:
             },
             onError: (error) => {
                 console.error({ msg: 'Failed to load recipients counters', error })
-                const message = get(error, ['graphQLErrors', 0, 'extensions', 'messageForUser'], ErrorLoadingMessage)
+                const message = get(error, ['graphQLErrors', 0, 'extensions', 'messageForUser'], ErrorLoadingMessage) as string
                 notification.error({ message })
             },
             fetchPolicy: 'cache-first',

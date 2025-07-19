@@ -41,7 +41,7 @@ const getActiveTourStepFromStorage = (): ActiveTourStepType => {
     }
 }
 
-export const TourProvider: React.FC = ({ children }) => {
+export const TourProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     const { user, isLoading: userIsLoading } = useAuth()
     const { organization, isLoading: organizationIsLoading } = useOrganization()
     const organizationId = organization?.id || null

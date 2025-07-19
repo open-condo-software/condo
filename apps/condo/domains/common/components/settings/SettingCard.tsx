@@ -16,7 +16,7 @@ const TITLE_ELLIPSIS: boolean | EllipsisConfig = { rows: 2 }
 const PARAGRAPH_ELLIPSIS: boolean | EllipsisConfig = { rows: 5 }
 const CARD_GUTTER: Gutter | [Gutter, Gutter] = [0, 12]
 
-export const SettingCard: React.FC<SettingCardProps> = ({ title, children, onClick, disabled }) => {
+export const SettingCard: React.FC<React.PropsWithChildren<SettingCardProps>> = ({ title, children, onClick, disabled }) => {
     return (
         <Card style={CARD_STYLE} onClick={onClick} disabled={disabled}>
             <Row gutter={CARD_GUTTER}>

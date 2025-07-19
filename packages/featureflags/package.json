@@ -12,14 +12,8 @@
     "lodash": "^4.17.21"
   },
   "peerDependencies": {
-    "next": ">=9.5.5",
-    "react": ">=17.0.2"
-  },
-  "exports": {
-    "./*": [
-      "./*.js",
-      "./*.tsx"
-    ]
+    "next": ">=15",
+    "react": ">=18.3.1"
   },
   "repository": "https://github.com/open-condo-software/condo/tree/main/packages/featureflags"
 }

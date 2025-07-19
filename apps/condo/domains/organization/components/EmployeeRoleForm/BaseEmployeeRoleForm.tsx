@@ -61,7 +61,7 @@ type FormSectionProps = {
     wrapperCol?: ColProps
 }
 
-const FormSection: React.FC<FormSectionProps> = ({ title, subtitle, children, wrapperCol }) => {
+const FormSection: React.FC<React.PropsWithChildren<FormSectionProps>> = ({ title, subtitle, children, wrapperCol }) => {
     const content = (
         <Row gutter={[0, 40]}>
             {

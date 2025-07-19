@@ -78,7 +78,7 @@ const DefaultActionBar: React.FC<DefaultActionBarProps> = ({
         EXPORT_PROPERTIES_TO_EXCEL,
         {
             onError: error => {
-                const message = error?.graphQLErrors?.[0]?.extensions?.messageForUser || error?.message
+                const message = error?.graphQLErrors?.[0]?.extensions?.messageForUser  as string || error?.message
                 notification.error({ message })
             },
             onCompleted: data => {

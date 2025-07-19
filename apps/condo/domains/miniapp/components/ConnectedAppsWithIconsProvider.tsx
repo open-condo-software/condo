@@ -26,7 +26,7 @@ export const ConnectedWithIconsContext = createContext<IConnectedAppsWithIconsCo
     refetch: () => ({}),
 })
 
-export const ConnectedAppsWithIconsContextProvider: React.FC = ({ children }) => {
+export const ConnectedAppsWithIconsContextProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     const { isAuthenticated, isLoading: isUserLoading } = useAuth()
     const { organization } = useOrganization()
     const orgId = organization?.id || null

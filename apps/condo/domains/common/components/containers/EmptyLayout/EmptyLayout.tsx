@@ -11,7 +11,7 @@ interface IBaseLayoutProps {
     className?: string
 }
 
-const EmptyLayout: React.FC<IBaseLayoutProps> = (props) => {
+const EmptyLayout: React.FC<React.PropsWithChildren<IBaseLayoutProps>> = (props) => {
     const {
         style,
         children,

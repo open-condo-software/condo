@@ -93,7 +93,7 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
         )
     }), [statuses, ticket])
 
-    const handleChange = useCallback(({ value }) => {
+    const handleChange = useCallback(({ value }: any) => {
         const selectedStatus = statuses.find((status) => status.id === value)
         if (selectedStatus.type === TicketStatusTypeType.Canceled) {
             openCancelModal(value)

@@ -35,7 +35,7 @@ const TAG_THEMES: { [key in TagType]: TagTheme } = {
     },
 }
 
-export const Tag: React.FC<ITagProps> = ({ children, type, style }) => {
+export const Tag: React.FC<React.PropsWithChildren<ITagProps>> = ({ children, type, style }) => {
     const theme = get(TAG_THEMES, type)
     const textColor = get(theme, 'textColor', undefined)
     const backgroundColor = get(theme, 'backgroundColor', undefined)

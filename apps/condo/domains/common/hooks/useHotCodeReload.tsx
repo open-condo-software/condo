@@ -42,7 +42,7 @@ export function useHotCodeReload (): void {
                 message: NotificationTitle,
                 description: NotificationMessage,
                 duration: null,
-                closeIcon: React.Fragment,
+                closeIcon: null,
             })
         }
     }, [buildId, previousBuildId, NotificationTitle, NotificationMessage, ButtonLabel, handleNotificationClose])

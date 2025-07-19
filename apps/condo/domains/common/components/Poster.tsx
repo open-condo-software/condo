@@ -28,6 +28,8 @@ export const Poster: React.FC<IPoster> = (props) => {
     } = props
 
     return (
+        // TODO: migrate to something more up to date
+        // @ts-expect-error children is not defined in package type defs
         <ProgressiveImage src={src} placeholder={placeholderSrc} delay={delay}>
             {(src) => (
                 <div style={posterContentStyle}>

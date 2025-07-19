@@ -34,7 +34,7 @@ const BankCostItemContext = createContext<IBankCostItemContext>({
 
 export const useBankCostItemContext = (): IBankCostItemContext => useContext<IBankCostItemContext>(BankCostItemContext)
 
-export const BankCostItemProvider: React.FC = ({ children }) => {
+export const BankCostItemProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     const intl = useIntl()
     const { objs: bankCostItems, loading } = BankCostItem.useObjects({}, { fetchPolicy: 'cache-first' })
 

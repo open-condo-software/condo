@@ -119,7 +119,7 @@ const initialHandlers: Record<HandlerId, OriginHandlers> = {
  * 2. Making sure message can be handled and passing parameters are valid
  * 3. Handling errors thrown by individual handlers and converting it to corresponding postMessage response
  */
-export const PostMessageProvider: React.FC = ({ children }) => {
+export const PostMessageProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     const [registeredFrames, setRegisteredFrames] = useState<Record<FrameId, React.Ref<HTMLIFrameElement>>>({})
     const [registeredHandlers, setRegisteredHandlers] = useState<Record<HandlerId, OriginHandlers>>(initialHandlers)
     const isOnClient = typeof window !== 'undefined'

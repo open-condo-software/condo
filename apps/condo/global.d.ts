@@ -5,6 +5,7 @@ import es from '@app/condo/lang/es/es.json'
 import esCustom from '@app/condo/lang/ru/es.custom.json'
 import ruCustom from '@app/condo/lang/ru/ru.custom.json'
 import ru from '@app/condo/lang/ru/ru.json'
+import React from 'react'
 
 
 // NOTE: Combine all keys together
@@ -37,5 +38,12 @@ declare global {
         interface EmployeeType extends EmployeeExtendsType {}
         interface RoleType extends RoleExtendsType {}
         interface UserType extends UserExtendsType {}
+    }
+}
+
+declare module '@ant-design/icons/lib/components/Icon' {
+    interface IconBaseProps extends React.HTMLProps<HTMLSpanElement> {
+        spin?: boolean
+        rotate?: number
     }
 }
