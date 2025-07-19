@@ -1,5 +1,4 @@
 // @ts-check
-const withTMModule = require('next-transpile-modules')
 const withLess = require('next-with-less')
 
 const conf = require('@open-condo/config')
@@ -9,20 +8,6 @@ const { antGlobalVariables } = require('@condo/domains/common/constants/style')
 const { getCurrentVersion } = require('@condo/domains/common/utils/VersioningMiddleware')
 
 const { name } = require('./package.json')
-
-// TODO: migrate to native transpiling once next is 13.x
-// Tell webpack to compile the "@open-condo/next" package, necessary
-// https://www.npmjs.com/package/next-transpile-modules
-// NOTE: FormTable require rc-table module
-const withTM = withTMModule([
-    '@open-condo/codegen',
-    '@open-condo/next',
-    '@open-condo/featureflags',
-    '@open-condo/keystone',
-    'rc-table',
-    '@condo/domains',
-    '@emotion/styled',
-])
 
 const appName = name
 const serverUrl = process.env.SERVER_URL || 'http://localhost:3000'
@@ -80,10 +65,15 @@ const hCaptchaSiteKey = conf['HCAPTCHA_CONFIG'] ? { SITE_KEY: hCaptcha['SITE_KEY
 
 /** @type {import('next').NextConfig} */
 let nextConfig = {
-    // NOTE: SWC has an issue: https://github.com/swc-project/swc/issues/8271
-    // It means some code may not work as expected, for example zod@4
-    // It was fixed in more modern next versions, we'll update it later
-    swcMinify: false,
+    transpilePackages: [
+        '@open-condo/codegen',
+        '@open-condo/next',
+        '@open-condo/featureflags',
+        '@open-condo/keystone',
+        'rc-table',
+        '@condo/domains',
+        '@emotion/styled',
+    ],
     compiler: {
         emotion: true,
     },
@@ -175,4 +165,4 @@ let nextConfig = {
     },
 }
 
-module.exports = withTM(withLess(nextConfig))
+module.exports = withLess(nextConfig)
