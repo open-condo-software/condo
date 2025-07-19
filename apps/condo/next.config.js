@@ -1,5 +1,4 @@
 // @ts-check
-const withTMModule = require('next-transpile-modules')
 const withLess = require('next-with-less')
 
 const conf = require('@open-condo/config')
@@ -9,20 +8,6 @@ const { antGlobalVariables } = require('@condo/domains/common/constants/style')
 const { getCurrentVersion } = require('@condo/domains/common/utils/VersioningMiddleware')
 
 const { name } = require('./package.json')
-
-// TODO: migrate to native transpiling once next is 13.x
-// Tell webpack to compile the "@open-condo/next" package, necessary
-// https://www.npmjs.com/package/next-transpile-modules
-// NOTE: FormTable require rc-table module
-const withTM = withTMModule([
-    '@open-condo/codegen',
-    '@open-condo/next',
-    '@open-condo/featureflags',
-    '@open-condo/keystone',
-    'rc-table',
-    '@condo/domains',
-    '@emotion/styled',
-])
 
 const appName = name
 const serverUrl = process.env.SERVER_URL || 'http://localhost:3000'
@@ -76,8 +61,16 @@ const displayTicketInfoOnShare = conf['SHOW_TICKET_INFO_ON_SHARE'] === 'true'
 const inviteRequiredFields = JSON.parse(conf['INVITE_REQUIRED_FIELDS'] || '["phone"]')
 const footerConfig = JSON.parse(conf['FOOTER_CONFIG'] || '{}')
 
-let nextConfig = withTM(withLess({
-    swcMinify: true,
+let nextConfig = withLess({
+    transpilePackages: [
+        '@open-condo/codegen',
+        '@open-condo/next',
+        '@open-condo/featureflags',
+        '@open-condo/keystone',
+        'rc-table',
+        '@condo/domains',
+        '@emotion/styled',
+    ],
     compiler: {
         emotion: true,
     },
@@ -167,6 +160,6 @@ let nextConfig = withTM(withLess({
         ]
         return nextCamelCaseCSSModulesTransform(config)
     },
-}))
+})
 
 module.exports = nextConfig
