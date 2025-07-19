@@ -108,10 +108,33 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ant-design/colors@npm:^8.0.0":
+  version: 8.0.0
+  resolution: "@ant-design/colors@npm:8.0.0"
+  dependencies:
+    "@ant-design/fast-color": ^3.0.0
+  checksum: ce894f03d20b68cb8120a964df6f0813fa061642857eb4dd648fa4fac8740465600a294edf421db82c479399e03ca628f5388729cf63793ccdd860a06bc17680
+  languageName: node
+  linkType: hard
+
+"@ant-design/fast-color@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "@ant-design/fast-color@npm:3.0.0"
+  checksum: 1c227ae8f07520b636ef41b22863edd3ca69b900f01be45a43913049e8f40ca58cb8a04056877853799c65a97327378edaf1de2f862b79d4248768c1efc342be
+  languageName: node
+  linkType: hard
+
 "@ant-design/icons-svg@npm:^4.2.1":
   version: 4.2.1
   resolution: "@ant-design/icons-svg@npm:4.2.1"
   checksum: c1fa1bbeb0c58209e2c5d49ce001543823ae2d8326e1c7aafb992deac7aaa901a44f9a16151ad919d2628dbe3d783b325ed2b9440436002225801332323296d4
+  languageName: node
+  linkType: hard
+
+"@ant-design/icons-svg@npm:^4.4.0":
+  version: 4.4.2
+  resolution: "@ant-design/icons-svg@npm:4.4.2"
+  checksum: c66cda4533ec2f86162a9adda04be2aba5674d5c758ba886bd9d8de89dc45473ef3124eb755b4cfbd09121d3bdc34e075ee931e47dd0f8a7fdc01be0cb3d6c40
   languageName: node
   linkType: hard
 
@@ -128,6 +151,21 @@ __metadata:
     react: ">=16.0.0"
     react-dom: ">=16.0.0"
   checksum: 4264d38e6b3cc6d640e1e7f9821e5f428369c31754df03b4712706dba4e89c7bc3e6370ba8dc52b9eb278ccb986ddf215bfac0b0c01e5b7e8ed6f50179be1a69
+  languageName: node
+  linkType: hard
+
+"@ant-design/icons@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "@ant-design/icons@npm:6.0.0"
+  dependencies:
+    "@ant-design/colors": ^8.0.0
+    "@ant-design/icons-svg": ^4.4.0
+    "@rc-component/util": ^1.2.1
+    classnames: ^2.2.6
+  peerDependencies:
+    react: ">=16.0.0"
+    react-dom: ">=16.0.0"
+  checksum: fd9107e3080a2265fdf6df4c9b8c2181b51599819563e98eefd1e89f2a3bb13b2027c50ba7e7f85fd3b80af36b0bb4aafa44d9cd0de43ba0f26c306a96caf42d
   languageName: node
   linkType: hard
 
@@ -418,7 +456,7 @@ __metadata:
   resolution: "@app/condo@workspace:apps/condo"
   dependencies:
     "@ant-design/colors": ^6.0.0
-    "@ant-design/icons": ^4.7.0
+    "@ant-design/icons": ^6.0.0
     "@apollo/client": ^3.11.8
     "@condo/domains": "link:./domains"
     "@emotion/cache": ^11.11.0
@@ -462,7 +500,6 @@ __metadata:
     "@types/mjml": ^4.7.4
     "@types/node": ^22
     "@types/react": ^18.3.1
-    "@types/react-infinite-scroller": ^1.2.3
     "@types/wavesurfer.js": ^6.0.6
     "@welldone-software/why-did-you-render": ^5.0.0-alpha.1
     ajv: 8.11.0
@@ -534,7 +571,7 @@ __metadata:
     react-dom: ^18.3.1
     react-hotkeys-hook: 3.4.6
     react-indiana-drag-scroll: ^2.0.1
-    react-infinite-scroller: 1.2.6
+    react-infinite-scroll-component: ^6.1.0
     react-intl: ^7.1.11
     react-phone-input-2: ^2.15.1
     react-progressive-image: ^0.6.0
@@ -9161,6 +9198,7 @@ __metadata:
     "@rollup/plugin-babel": ^6.0.4
     "@rollup/plugin-commonjs": ^26.0.1
     "@rollup/plugin-node-resolve": ^15.2.3
+    "@rollup/plugin-terser": ^0.4.4
     "@rollup/plugin-typescript": ^11.1.6
     "@types/apollo-upload-client": ^17.0.0
     "@types/lodash": ^4.17.7
@@ -9176,7 +9214,6 @@ __metadata:
     rimraf: ^6.0.1
     rollup: ^4.28.0
     rollup-plugin-peer-deps-external: ^2.2.4
-    rollup-plugin-uglify: ^6.0.4
     typescript: ^5.8.3
   peerDependencies:
     "@apollo/client": "*"
@@ -9209,6 +9246,7 @@ __metadata:
   resolution: "@open-condo/bridge@workspace:packages/bridge"
   dependencies:
     "@open-condo/tsconfig": "workspace:^"
+    "@rollup/plugin-terser": ^0.4.4
     "@rollup/plugin-typescript": ^11.0.0
     rollup: ^4.28.0
     rollup-plugin-babel: ^4.3.3
@@ -9216,7 +9254,6 @@ __metadata:
     rollup-plugin-commonjs: ^10.1.0
     rollup-plugin-json: ^4.0.0
     rollup-plugin-node-resolve: ^5.2.0
-    rollup-plugin-uglify: ^6.0.4
     tslib: ^2.4.1
     typescript: ^5.8.3
   languageName: unknown
@@ -9296,8 +9333,8 @@ __metadata:
     express: ^4.17.1
     lodash: ^4.17.21
   peerDependencies:
-    next: ">=9.5.5"
-    react: ">=17.0.2"
+    next: ">=15"
+    react: ">=18.3.1"
   languageName: unknown
   linkType: soft
 
@@ -11109,6 +11146,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@rc-component/util@npm:^1.2.1":
+  version: 1.2.1
+  resolution: "@rc-component/util@npm:1.2.1"
+  dependencies:
+    react-is: ^18.2.0
+  peerDependencies:
+    react: ">=18.0.0"
+    react-dom: ">=18.0.0"
+  checksum: f334818748bd8f955f8120ce0d913002a5923f4392b392ce302253fba44de35499e2af43a75b28f0c6484f897c9cdedde5c72e0fe843ebf6bfc69363862aea90
+  languageName: node
+  linkType: hard
+
 "@repeaterjs/repeater@npm:^3.0.4":
   version: 3.0.4
   resolution: "@repeaterjs/repeater@npm:3.0.4"
@@ -11177,6 +11226,22 @@ __metadata:
     rollup:
       optional: true
   checksum: 730f32c2f8fdddff07cf0fca86a5dac7c475605fb96930197a868c066e62eb6388c557545e4f7d99b7a283411754c9fbf98944ab086b6074e04fc1292e234aa8
+  languageName: node
+  linkType: hard
+
+"@rollup/plugin-terser@npm:^0.4.4":
+  version: 0.4.4
+  resolution: "@rollup/plugin-terser@npm:0.4.4"
+  dependencies:
+    serialize-javascript: ^6.0.1
+    smob: ^1.0.0
+    terser: ^5.17.4
+  peerDependencies:
+    rollup: ^2.0.0||^3.0.0||^4.0.0
+  peerDependenciesMeta:
+    rollup:
+      optional: true
+  checksum: 5472f659fbb7034488df91eb01ecd2ddf6d2cf203d049aa486139225ad5566254c6ec24aad1f5d1167e35f480212ede5160df9cc80e149a28874f78ed6a7fd9a
   languageName: node
   linkType: hard
 
@@ -13053,24 +13118,6 @@ __metadata:
   version: 1.2.4
   resolution: "@types/range-parser@npm:1.2.4"
   checksum: b7c0dfd5080a989d6c8bb0b6750fc0933d9acabeb476da6fe71d8bdf1ab65e37c136169d84148034802f48378ab94e3c37bb4ef7656b2bec2cb9c0f8d4146a95
-  languageName: node
-  linkType: hard
-
-"@types/react-infinite-scroller@npm:^1.2.3":
-  version: 1.2.5
-  resolution: "@types/react-infinite-scroller@npm:1.2.5"
-  dependencies:
-    "@types/react": "*"
-  checksum: 8b56f63c35802d2593cc25b3ab03bfbeceb2a5379997364fb5cea414cc8690341fbf3902d8fc7a6db43f87c144276009cb4a7f3388f1a52091ac3a4fd7de7d33
-  languageName: node
-  linkType: hard
-
-"@types/react@npm:*":
-  version: 19.1.8
-  resolution: "@types/react@npm:19.1.8"
-  dependencies:
-    csstype: ^3.0.2
-  checksum: 17e0c74d9c01214938fa805aaa8b97925bf3c5514e88fdf94bec42c0a6d4abbc63d4e30255db176f46fd7f0aa89f8085b9b2b2fa5abaffbbf7e5009386ada892
   languageName: node
   linkType: hard
 
@@ -25764,16 +25811,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest-worker@npm:^24.0.0":
-  version: 24.9.0
-  resolution: "jest-worker@npm:24.9.0"
-  dependencies:
-    merge-stream: ^2.0.0
-    supports-color: ^6.1.0
-  checksum: bd23b6c8728dcf3bad0d84543ea1bc4a95ccd3b5a40f9e2796d527ab0e87dc6afa6c30cc7b67845dce1cfe7894753812d19793de605db1976b7ac08930671bff
-  languageName: node
-  linkType: hard
-
 "jest-worker@npm:^27.4.5, jest-worker@npm:^27.5.1":
   version: 27.5.1
   resolution: "jest-worker@npm:27.5.1"
@@ -33888,14 +33925,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-infinite-scroller@npm:1.2.6":
-  version: 1.2.6
-  resolution: "react-infinite-scroller@npm:1.2.6"
+"react-infinite-scroll-component@npm:^6.1.0":
+  version: 6.1.0
+  resolution: "react-infinite-scroll-component@npm:6.1.0"
   dependencies:
-    prop-types: ^15.5.8
+    throttle-debounce: ^2.1.0
   peerDependencies:
-    react: ^0.14.9 || ^15.3.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
-  checksum: 5f5aae76c484b4039bada87070d5f8c54d2786697ae600be19a68f4e85158ff550122f15dccc5997d8b01fa487da47b9ffbc3e9d9a29f2cf71c77275f72551fd
+    react: ">=16.0.0"
+  checksum: 3708398934366df907dbad215247ebc1033221957ce7e32289ea31750cce70aa16513e2d03743e06c8b868ac7c542d12d5dbb6c830fd408433a4762f3cb5ecfb
   languageName: node
   linkType: hard
 
@@ -35569,20 +35606,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rollup-plugin-uglify@npm:^6.0.4":
-  version: 6.0.4
-  resolution: "rollup-plugin-uglify@npm:6.0.4"
-  dependencies:
-    "@babel/code-frame": ^7.0.0
-    jest-worker: ^24.0.0
-    serialize-javascript: ^2.1.2
-    uglify-js: ^3.4.9
-  peerDependencies:
-    rollup: ">=0.66.0 <2"
-  checksum: 0cc46b7346906aa2af80d1729a292c547a9014a934daae07d54d6f4c858c822b71222e3f62cc12498880efaf1ddad26b9c0aca17e788b467aea61fde135e2ed3
-  languageName: node
-  linkType: hard
-
 "rollup-pluginutils@npm:^2.5.0, rollup-pluginutils@npm:^2.8.1":
   version: 2.8.2
   resolution: "rollup-pluginutils@npm:2.8.2"
@@ -36169,13 +36192,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"serialize-javascript@npm:^2.1.2":
-  version: 2.1.2
-  resolution: "serialize-javascript@npm:2.1.2"
-  checksum: 16ce4e4886aff10d5cbbc46149cae3a63f31ea1578f218ef3a363ae413fa245dde61ab039f6733cc86db7b3ff940bfcba9b5a4bfc7b5dd1b3967737c0bbc017e
-  languageName: node
-  linkType: hard
-
 "serialize-javascript@npm:^6.0.0":
   version: 6.0.0
   resolution: "serialize-javascript@npm:6.0.0"
@@ -36611,6 +36627,13 @@ __metadata:
   version: 4.2.0
   resolution: "smart-buffer@npm:4.2.0"
   checksum: b5167a7142c1da704c0e3af85c402002b597081dd9575031a90b4f229ca5678e9a36e8a374f1814c8156a725d17008ae3bde63b92f9cfd132526379e580bec8b
+  languageName: node
+  linkType: hard
+
+"smob@npm:^1.0.0":
+  version: 1.5.0
+  resolution: "smob@npm:1.5.0"
+  checksum: 436b99477ace208e44bd7cd7933532958acca507320724a8e57c730accc47c5d77e538fbc554ded145f1e3411ac0c4b55f6782bceaa5839671104fd68d4bdc7f
   languageName: node
   linkType: hard
 
@@ -37806,15 +37829,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"supports-color@npm:^6.1.0":
-  version: 6.1.0
-  resolution: "supports-color@npm:6.1.0"
-  dependencies:
-    has-flag: ^3.0.0
-  checksum: 74358f9535c83ee113fbaac354b11e808060f6e7d8722082ee43af3578469134e89d00026dce2a6b93ce4e5b89d0e9a10f638b2b9f64c7838c2fb2883a47b3d5
-  languageName: node
-  linkType: hard
-
 "supports-color@npm:^7.0.0, supports-color@npm:^7.1.0":
   version: 7.2.0
   resolution: "supports-color@npm:7.2.0"
@@ -38211,6 +38225,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"terser@npm:^5.17.4, terser@npm:^5.31.1":
+  version: 5.43.1
+  resolution: "terser@npm:5.43.1"
+  dependencies:
+    "@jridgewell/source-map": ^0.3.3
+    acorn: ^8.14.0
+    commander: ^2.20.0
+    source-map-support: ~0.5.20
+  bin:
+    terser: bin/terser
+  checksum: 1d51747f4540a0842139c2f2617e88d68a26da42d7571cda8955e1bd8febac6e60bc514c258781334e1724aeeccfbd511473eb9d8d831435e4e5fad1ce7f6e8b
+  languageName: node
+  linkType: hard
+
 "terser@npm:^5.26.0":
   version: 5.30.2
   resolution: "terser@npm:5.30.2"
@@ -38222,20 +38250,6 @@ __metadata:
   bin:
     terser: bin/terser
   checksum: 80f494aef5566bf44c82aeb8d0576bd4d63b29fa004edacd61f6ae899236103fbaaaf4b9cca3353e04a6581cca99b91d691edcf3fb34cda59b25c5689c347314
-  languageName: node
-  linkType: hard
-
-"terser@npm:^5.31.1":
-  version: 5.43.1
-  resolution: "terser@npm:5.43.1"
-  dependencies:
-    "@jridgewell/source-map": ^0.3.3
-    acorn: ^8.14.0
-    commander: ^2.20.0
-    source-map-support: ~0.5.20
-  bin:
-    terser: bin/terser
-  checksum: 1d51747f4540a0842139c2f2617e88d68a26da42d7571cda8955e1bd8febac6e60bc514c258781334e1724aeeccfbd511473eb9d8d831435e4e5fad1ce7f6e8b
   languageName: node
   linkType: hard
 
@@ -38342,6 +38356,13 @@ __metadata:
   bin:
     thrift2json: ./thrift2json.js
   checksum: fc03374131a713f5c5eca712a4092abf48282d985d23542f3ef7c92d222af52716e7037c446d5734708cc514d8fad42674f82dd6a9c59b8807beba0a1169b539
+  languageName: node
+  linkType: hard
+
+"throttle-debounce@npm:^2.1.0":
+  version: 2.3.0
+  resolution: "throttle-debounce@npm:2.3.0"
+  checksum: 6d90aa2ddb294f8dad13d854a1cfcd88fdb757469669a096a7da10f515ee466857ac1e750649cb9da931165c6f36feb448318e7cb92570f0a3679d20e860a925
   languageName: node
   linkType: hard
 
@@ -39365,15 +39386,6 @@ __metadata:
   version: 1.5.4
   resolution: "ufo@npm:1.5.4"
   checksum: f244703b7d4f9f0df4f9af23921241ab73410b591f4e5b39c23e3147f3159b139a4b1fb5903189c306129f7a16b55995dac0008e0fbae88a37c3e58cbc34d833
-  languageName: node
-  linkType: hard
-
-"uglify-js@npm:^3.4.9":
-  version: 3.17.4
-  resolution: "uglify-js@npm:3.17.4"
-  bin:
-    uglifyjs: bin/uglifyjs
-  checksum: 7b3897df38b6fc7d7d9f4dcd658599d81aa2b1fb0d074829dd4e5290f7318dbca1f4af2f45acb833b95b1fe0ed4698662ab61b87e94328eb4c0a0d3435baf924
   languageName: node
   linkType: hard
 

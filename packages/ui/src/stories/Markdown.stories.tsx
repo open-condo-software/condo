@@ -1,6 +1,6 @@
-import { Markdown as Component } from "@open-condo/ui/src";
+import { Markdown as Component } from '@open-condo/ui/src'
 
-import type { Meta, StoryObj } from "@storybook/react-webpack5";
+import type { Meta, StoryObj } from '@storybook/react-webpack5'
 
 const TS_CODE_EXAMPLE = `
 \`\`\`typescript
@@ -40,7 +40,7 @@ export {
     Card,
 }
 \`\`\`
-`;
+`
 
 const MD_EXAMPLE = `
 # H1 Heading
@@ -143,14 +143,14 @@ Right aligned columns
 | data   | path to data files to supply the data that will be passed into templates. |
 | engine | engine to be used for processing templates. Handlebars is the default. |
 | ext    | extension to be used for dest files. |
-`;
+`
 
 export default {
-  title: "Components/Markdown",
-  component: Component,
-  args: {
-    children: MD_EXAMPLE,
-  },
-} as Meta<typeof Component>;
+    title: 'Components/Markdown',
+    component: Component,
+    args: {
+        children: MD_EXAMPLE,
+    },
+} as Meta<typeof Component>
 
-export const Markdown: StoryObj<typeof Component> = {};
+export const Markdown: StoryObj<typeof Component> = {}

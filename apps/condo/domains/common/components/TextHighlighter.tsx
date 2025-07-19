@@ -23,7 +23,7 @@ export type TTextHighlighterProps = {
     title?: string
 }
 
-export const TextHighlighter: React.FC<TTextHighlighterProps> = (props) => {
+export const TextHighlighter: React.FC<React.PropsWithChildren<TTextHighlighterProps>> = (props) => {
     const { text, search, renderPart, type, style, title: titleFromProps, children } = props
     const title = titleFromProps || isNull(titleFromProps) ? titleFromProps : text
 

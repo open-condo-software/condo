@@ -124,7 +124,7 @@ export const GlobalAppsContainer: React.FC = () => {
                     key={url || index}
                     src={url || ''}
                     reloadScope='user'
-                    ref={el => iframeRefs.current[index] = el as HTMLIFrameElement}
+                    ref={el => void (iframeRefs.current[index] = el as HTMLIFrameElement)}
                     hidden={!isDebug}
                 />
             ))}

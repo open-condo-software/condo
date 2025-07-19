@@ -9,7 +9,7 @@ import { Typography, Tag } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
-import { PageWrapper, PageHeader, TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
+import { PageWrapper, PageHeader } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 
 import { useBillingAndAcquiringContexts } from './ContextProvider'
 import { MainContent } from './MainContent'

@@ -39,7 +39,7 @@ const PaymentsFiles = (): JSX.Element => {
     }
 
     if (anyPaymentsFilesError) {
-        return <Typography.Title>{anyPaymentsFilesError}</Typography.Title>
+        return <Typography.Title>{anyPaymentsFilesError.message}</Typography.Title>
     }
 
     if (!anyPaymentsFiles?.paymentsFiles?.length) {

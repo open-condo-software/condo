@@ -202,7 +202,7 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
         const initialUnitType = get(initialValues, 'unitType')
 
         if (initialUnitName) {
-            updateSectionAndFloor(form, initialUnitName, initialUnitType)
+            updateSectionAndFloor(form, initialUnitName, initialUnitType as BuildingUnitSubType)
         }
     }, [form, initialValues, updateSectionAndFloor])
 

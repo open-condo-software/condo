@@ -9,7 +9,7 @@ import type { RowProps } from 'antd'
 const MODAL_ROW_GUTTER: RowProps['gutter'] = [24, 40]
 
 type UseDetailChartViewType = ({ title }: { title: string }) => ({
-    PopupChartView: React.FC
+    PopupChartView: React.FC<React.PropsWithChildren>
     open: () => void
     isOpen: boolean
     errorFallback: () => void
@@ -26,7 +26,7 @@ const useDetailChartView: UseDetailChartViewType = ({ title }) => {
         notification.error({ message: ErrorTitle })
     }, [ErrorTitle])
 
-    const PopupChartView = useMemo<React.FC>(() => ({ children }) => (
+    const PopupChartView = useMemo<React.FC<React.PropsWithChildren>>(() => ({ children }) => (
         <Modal
             open={isOpen}
             onCancel={() => setIsOpen(false)}

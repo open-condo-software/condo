@@ -73,7 +73,6 @@
     "graphql-upload": "^15.0.2",
     "react-intl/@types/react": "^18.3.1",
     "@types/react-transition-group@npm:2.9.2/@types/react": "^18.3.1",
-    "@types/react-infinite-scroller@npm:1.2.3/@types/react": "^18.3.1",
     "@types/hoist-non-react-statics@npm:3.3.1/@types/react": "^18.3.1",
     "es5-ext": "0.10.53",
     "debuglog": "1.0.1",

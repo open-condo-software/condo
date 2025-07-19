@@ -61,6 +61,7 @@
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-commonjs": "^26.0.1",
     "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^11.1.6",
     "@types/apollo-upload-client": "^17.0.0",
     "@types/lodash": "^4.17.7",
@@ -72,7 +73,6 @@
     "rimraf": "^6.0.1",
     "rollup": "^4.28.0",
     "rollup-plugin-peer-deps-external": "^2.2.4",
-    "rollup-plugin-uglify": "^6.0.4",
     "typescript": "^5.8.3"
   },
   "dependencies": {

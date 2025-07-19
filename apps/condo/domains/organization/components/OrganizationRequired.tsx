@@ -13,7 +13,7 @@ import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListVi
 import { Loader } from '@condo/domains/common/components/Loader'
 
 
-const OrganizationRequiredAfterAuthRequired: React.FC<{ withEmployeeRestrictions?: boolean }> = ({ children, withEmployeeRestrictions }) => {
+const OrganizationRequiredAfterAuthRequired: React.FC<React.PropsWithChildren<{ withEmployeeRestrictions?: boolean }>> = ({ children, withEmployeeRestrictions }) => {
     const intl = useIntl()
     const EmployeeRestrictedTitle = intl.formatMessage({ id: 'employee.emptyList.title' })
     const EmployeeRestrictedDescription = intl.formatMessage({ id: 'employee.emptyList.description' })
@@ -63,7 +63,7 @@ const OrganizationRequiredAfterAuthRequired: React.FC<{ withEmployeeRestrictions
     )
 }
 
-export const OrganizationRequired: React.FC<{ withEmployeeRestrictions?: boolean }> = ({ children, withEmployeeRestrictions = true }) => {
+export const OrganizationRequired: React.FC<React.PropsWithChildren<{ withEmployeeRestrictions?: boolean }>> = ({ children, withEmployeeRestrictions = true }) => {
     return (
         <AuthRequired>
             <OrganizationRequiredAfterAuthRequired withEmployeeRestrictions={withEmployeeRestrictions}>
@@ -77,7 +77,7 @@ type PermissionRequiredPageProps = {
     permissionKeys: PermissionKeys[]
 }
 
-const PermissionsRequiredWrapper: React.FC<PermissionRequiredPageProps> = ({ children, permissionKeys }) => {
+const PermissionsRequiredWrapper: React.FC<React.PropsWithChildren<PermissionRequiredPageProps>> = ({ children, permissionKeys }) => {
     const { link } = useOrganization()
 
     const role = useMemo(() => get(link, 'role'), [link])
@@ -101,7 +101,7 @@ const PermissionsRequiredWrapper: React.FC<PermissionRequiredPageProps> = ({ chi
     return <>{children}</>
 }
 
-export const PermissionsRequired: React.FC<PermissionRequiredPageProps> = ({ children, permissionKeys }) => {
+export const PermissionsRequired: React.FC<React.PropsWithChildren<PermissionRequiredPageProps>> = ({ children, permissionKeys }) => {
     return (
         <OrganizationRequired>
             <PermissionsRequiredWrapper permissionKeys={permissionKeys}>

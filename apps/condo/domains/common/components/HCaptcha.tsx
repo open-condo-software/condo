@@ -2,7 +2,7 @@ import HCaptcha from '@hcaptcha/react-hcaptcha'
 import { notification } from 'antd'
 import get from 'lodash/get'
 import getConfig from 'next/config'
-import React, { createContext, FC, useCallback, useContext, useMemo, useRef } from 'react'
+import React, { createContext, useCallback, useContext, useMemo, useRef } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Button } from '@open-condo/ui'
@@ -20,7 +20,7 @@ const HCaptchaContext = createContext<IHCaptchaContext>({
 
 const useHCaptcha = (): IHCaptchaContext => useContext(HCaptchaContext)
 
-const HCaptchaProvider: FC = ({ children }) => {
+const HCaptchaProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     const intl = useIntl()
     const requestFailedMessage = intl.formatMessage({ id: 'global.errors.requestFailed.title' })
     const OkMessage = intl.formatMessage({ id: 'OK' })

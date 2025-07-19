@@ -1,32 +1,32 @@
-import React from "react";
+import React from 'react'
 
-import { FileText } from "@open-condo/icons";
-import { Tabs, Typography, Radio, RadioGroup } from "@open-condo/ui/src";
-import type { TabItem } from "@open-condo/ui/src";
+import { FileText } from '@open-condo/icons'
+import { Tabs, Typography, Radio, RadioGroup } from '@open-condo/ui/src'
+import type { TabItem } from '@open-condo/ui/src'
 
-import type { Meta, StoryObj } from "@storybook/react-webpack5";
+import type { Meta, StoryObj } from '@storybook/react-webpack5'
 
 export default {
-  title: "Components/Tabs",
-  component: Tabs,
-  args: {
-    centered: false,
-    tabBarExtraContent: false,
-  },
-  argTypes: {
-    tabBarExtraContent: {
-      control: "boolean",
-      description: "Toggle to show/hide tabBarExtraContent",
+    title: 'Components/Tabs',
+    component: Tabs,
+    args: {
+        centered: false,
+        tabBarExtraContent: false,
     },
-  },
-} as Meta<typeof Tabs>;
+    argTypes: {
+        tabBarExtraContent: {
+            control: 'boolean',
+            description: 'Toggle to show/hide tabBarExtraContent',
+        },
+    },
+} as Meta<typeof Tabs>
 
 const simpleItems: Array<TabItem> = [
-  {
-    key: "tab",
-    label: "Some tab",
-    children: (
-      <Typography.Paragraph>
+    {
+        key: 'tab',
+        label: 'Some tab',
+        children: (
+            <Typography.Paragraph>
         Modern web design involves creating websites that are responsive,
         visually appealing, user-friendly, and have great functionality. It
         includes the use of advanced technologies to deliver an immersive user
@@ -38,14 +38,14 @@ const simpleItems: Array<TabItem> = [
         modern web design focuses on creating an engaging website that
         effectively communicates a brand&apos;s message while meeting the
         requirements of the user.
-      </Typography.Paragraph>
-    ),
-  },
-  {
-    key: "another",
-    label: "Another tab",
-    children: (
-      <Typography.Paragraph>
+            </Typography.Paragraph>
+        ),
+    },
+    {
+        key: 'another',
+        label: 'Another tab',
+        children: (
+            <Typography.Paragraph>
         Probability theory is a fascinating subject that helps you make sense of
         the world around you! It allows you to evaluate and quantify risk, make
         informed decisions, and understand the likelihood of different events
@@ -54,19 +54,19 @@ const simpleItems: Array<TabItem> = [
         gambling. Whether you&apos;re a student, a professional, or simply
         looking to expand your knowledge, learning probability theory is an
         incredibly valuable skill that can benefit you in countless ways.
-      </Typography.Paragraph>
-    ),
-  },
-  {
-    key: "disabled",
-    label: "Disabled tab",
-    disabled: true,
-  },
-  {
-    key: "with-icon",
-    label: "Tab with icon",
-    children: (
-      <Typography.Paragraph>
+            </Typography.Paragraph>
+        ),
+    },
+    {
+        key: 'disabled',
+        label: 'Disabled tab',
+        disabled: true,
+    },
+    {
+        key: 'with-icon',
+        label: 'Tab with icon',
+        children: (
+            <Typography.Paragraph>
         Introducing the new UI components of the Open-Condo system - designed to
         meet the needs of modern web development. Our team has put a lot of
         effort into developing a comprehensive library of UI components, aimed
@@ -80,15 +80,15 @@ const simpleItems: Array<TabItem> = [
         sizes and resolutions, ensuring that your web application is accessible
         on multiple devices. Be sure to check out the new UI components in
         Open-Condo to make your web development work easier and more efficient.
-      </Typography.Paragraph>
-    ),
-    icon: <FileText size="auto" />,
-  },
-  {
-    key: "long",
-    label: "Extra long tab name",
-    children: (
-      <Typography.Paragraph>
+            </Typography.Paragraph>
+        ),
+        icon: <FileText size='auto' />,
+    },
+    {
+        key: 'long',
+        label: 'Extra long tab name',
+        children: (
+            <Typography.Paragraph>
         Once upon a time there was a dinosaur called Archie. Archie was not like
         all the other dinosaurs, he was extraordinarily beautiful! His green
         scales were brighter than the leaves in the forest in springtime. His
@@ -110,36 +110,36 @@ const simpleItems: Array<TabItem> = [
         what a wonderful friend and protector he was. Archie continued to live
         in his beloved forest, enjoying life and his beauty, and was always
         ready to help anyone who needed him.
-      </Typography.Paragraph>
-    ),
-  },
-];
+            </Typography.Paragraph>
+        ),
+    },
+]
 
-const Template: StoryObj<typeof Tabs>["render"] = (args) => {
-  const { tabBarExtraContent, items } = args;
+const Template: StoryObj<typeof Tabs>['render'] = (args) => {
+    const { tabBarExtraContent, items } = args
 
-  const extraContent = tabBarExtraContent ? (
-    <RadioGroup optionType="button" defaultValue="on">
-      <Radio key="on" value="on" label="On" />
-      <Radio key="off" value="off" label="Off" />
-    </RadioGroup>
-  ) : null;
+    const extraContent = tabBarExtraContent ? (
+        <RadioGroup optionType='button' defaultValue='on'>
+            <Radio key='on' value='on' label='On' />
+            <Radio key='off' value='off' label='Off' />
+        </RadioGroup>
+    ) : null
 
-  return <Tabs items={items} tabBarExtraContent={extraContent} />;
-};
+    return <Tabs items={items} tabBarExtraContent={extraContent} />
+}
 
 export const Simple: StoryObj<typeof Tabs> = {
-  render: Template,
-  args: {
-    tabBarExtraContent: false,
-    items: simpleItems,
-  },
-};
+    render: Template,
+    args: {
+        tabBarExtraContent: false,
+        items: simpleItems,
+    },
+}
 
 export const WithExtraContent: StoryObj<typeof Tabs> = {
-  render: Template,
-  args: {
-    tabBarExtraContent: true,
-    items: [simpleItems[0], simpleItems[1]],
-  },
-};
+    render: Template,
+    args: {
+        tabBarExtraContent: true,
+        items: [simpleItems[0], simpleItems[1]],
+    },
+}

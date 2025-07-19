@@ -16,7 +16,7 @@ interface IPromptProps {
     ignoreFormFields?: string[]
 }
 
-const Prompt: React.FC<IPromptProps> = ({ children, title, form, handleSave: formSubmit, ignoreFormFields = [] }) => {
+const Prompt: React.FC<React.PropsWithChildren<IPromptProps>> = ({ children, title, form, handleSave: formSubmit, ignoreFormFields = [] }) => {
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'pages.condo.warning.modal.SaveLabel' })
     const LeaveLabel = intl.formatMessage({ id: 'pages.condo.warning.modal.LeaveLabel' })

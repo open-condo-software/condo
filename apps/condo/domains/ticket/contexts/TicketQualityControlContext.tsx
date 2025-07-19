@@ -17,7 +17,7 @@ const Context = createContext<TicketQualityControlContextType>(null)
 
 export const useTicketQualityControl: UseTicketQualityControlType = () => useContext(Context)
 
-export const TicketQualityControlProvider: React.FC<ITicketQualityControlProviderProps> = ({ children, ticketId, afterUpdate }) => {
+export const TicketQualityControlProvider: React.FC<React.PropsWithChildren<ITicketQualityControlProviderProps>> = ({ children, ticketId, afterUpdate }) => {
     const qualityControl = useTicketQualityControlModal({ ticketId, afterUpdate })
 
     return (
