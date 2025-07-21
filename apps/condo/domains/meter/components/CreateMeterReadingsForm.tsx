@@ -10,7 +10,6 @@ import {
 import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { ColumnsType } from 'antd/lib/table'
-import dayjs from 'dayjs'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isNull from 'lodash/isNull'
@@ -46,8 +45,7 @@ import {
 } from '@condo/domains/meter/utils/clientSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { ContactsInfo } from '@condo/domains/ticket/components/BaseTicketForm'
-
-import { ClientCardTab, getClientCardTabKey } from '../../ticket/utils/clientSchema/clientCard'
+import { ClientCardTab, getClientCardTabKey } from '@condo/domains/ticket/utils/clientSchema/clientCard'
 
 
 export const LAYOUT = {
@@ -595,7 +593,6 @@ export const CreatePropertyMeterReadingsForm = ({ organization, canManageMeterRe
         setNewMeterReadings,
         tableColumns,
     } = useMeterTableColumns(METER_TAB_TYPES.propertyMeter)
-
 
     const createMeterReadingAction = PropertyMeterReading.useCreate({
         source: { connect: { id: CRM_METER_READING_SOURCE_ID } },
