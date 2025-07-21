@@ -105,7 +105,7 @@ const NotFoundSearchByPhoneContent = ({ onSelect, phone, canManageContacts }) =>
 
 const SELECT_STYLES = { width: '100%' }
 const PHONE_INPUT_MASK = { ru: '... ... .. ..' }
-const PHONE_INPUT_PROPS: PhoneInputProps['inputProps'] = { autoFocus: true }
+
 
 const StyledPhoneInput = styled(PhoneInput)`
   & .ant-input {
@@ -197,14 +197,13 @@ const SearchByPhoneSelect = ({
                 showLoadingMessage={false}
                 autoClearSearchValue
                 getPopupContainer={getPopupContainer}
+                autoFocus
             >
                 <StyledPhoneInput
                     style={SELECT_STYLES}
-                    inputProps={PHONE_INPUT_PROPS}
                     compatibilityWithAntAutoComplete
                     placeholder={EnterPhoneMessage}
                     masks={PHONE_INPUT_MASK}
-                    showCountryPrefix={false}
                 />
             </GraphQlSearchInput>
         </div>
