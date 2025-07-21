@@ -175,6 +175,7 @@ const ClientCardPageContent = ({
                     unitType={unitType}
                     sectionName={sectionName}
                     active={isActive}
+                    showOrganizationMessage={showOrganizationMessage}
                 />
             )
         }).filter(Boolean)
@@ -247,22 +248,26 @@ const ClientCardPageContent = ({
             <PageWrapper>
                 <PageContent>
                     <Row gutter={ROW_MEDIUM_GUTTER}>
-                        <Col span={24}>
-                            <Row justify='space-between' align='bottom' >
-                                <Typography.Title>{ClientCardHeader}</Typography.Title>
-                                <Button 
-                                    onClick={redirectToCreateContact}
-                                    type='primary'
-                                    size='large'
-                                    id='ClientCardCreateContactButton'
-                                    minimal
-                                    compact
-                                    icon={<PlusCircle />}
-                                >
-                                    {AddAddressMessage}
-                                </Button>
-                            </Row>
-                        </Col>
+                        {
+                            tabsData.length === 0 && (
+                                <Col span={24}>
+                                    <Row justify='space-between' align='bottom'>
+                                        <Typography.Title>{ClientCardHeader}</Typography.Title>
+                                        <Button 
+                                            onClick={redirectToCreateContact}
+                                            type='primary'
+                                            size='large'
+                                            id='ClientCardCreateContactButton'
+                                            minimal
+                                            compact
+                                            icon={<PlusCircle />}
+                                        >
+                                            {AddAddressMessage}
+                                        </Button>
+                                    </Row>
+                                </Col>
+                            )
+                        } 
                         <Col span={24}>
                             <Row gutter={ROW_MEDIUM_GUTTER}>
                                 {

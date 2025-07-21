@@ -17,7 +17,7 @@ const ADDRESS_STREET_ONE_ROW_HEIGHT = 25
 const ADDRESS_POSTFIX_ONE_ROW_HEIGHT = 22
 
 
-export const ClientAddressCard = ({ onClick, active, property, organization, unitName, floorName, unitType, sectionName }) => {
+export const ClientAddressCard = ({ onClick, active, property, organization, unitName, floorName, unitType, sectionName, showOrganizationMessage }) => {
     const intl = useIntl()
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
     const FlatMessage = intl.formatMessage({ id: 'field.ShortFlatNumber' })
@@ -52,14 +52,18 @@ export const ClientAddressCard = ({ onClick, active, property, organization, uni
         <div data-active={active} className={styles.addressTabWrapper} onClick={onClick}>
             <div className={styles.addressTabContent}>
                 <Space size={8} direction='vertical'>
-                    <Typography.Paragraph
-                        size='large'
-                        ellipsis={{ rows: 2 }}
-                        type='secondary'
-                    >
-                        {organization.name}
-                    </Typography.Paragraph>
-
+                    {
+                        showOrganizationMessage && (
+                            <Typography.Paragraph
+                                size='large'
+                                ellipsis={{ rows: 2 }}
+                                type='secondary'
+                            >
+                                {organization.name}
+                            </Typography.Paragraph>
+                        )
+                    }
+                    
                     <Typography.Text
                         ref={addressStreetRef}
                         ellipsis={addressStreetEllipsis}
