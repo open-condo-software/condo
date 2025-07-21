@@ -24,7 +24,7 @@ const {
  * @returns {AbstractSearchProvider}
  */
 function getSearchProvider (args) {
-    const provider = get(conf, 'PROVIDER')
+    const provider = get(args, ['req', 'query', 'provider'], get(conf, 'PROVIDER'))
 
     /** @type {AbstractSearchProvider} */
     let searchProvider
@@ -49,7 +49,7 @@ function getSearchProvider (args) {
  * @returns {AbstractSuggestionProvider}
  */
 function getSuggestionsProvider (args) {
-    const provider = get(conf, 'PROVIDER')
+    const provider = get(args, ['req', 'query', 'provider'], get(conf, 'PROVIDER'))
 
     /** @type {AbstractSuggestionProvider} */
     let suggestionProvider
