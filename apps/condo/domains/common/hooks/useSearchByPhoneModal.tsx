@@ -44,7 +44,7 @@ const NotFoundSearchByPhoneContent = ({ onSelect, phone, canManageContacts }) =>
     const intl = useIntl()
     const NotFoundContentMessage = intl.formatMessage({ id: 'SearchByPhoneNumber.modal.select.notFoundContent' })
     const CreateTicketMessage = intl.formatMessage({ id: 'SearchByPhoneNumber.modal.select.notFoundContent.createTicket' })
-    const CreateContactMessage = intl.formatMessage({ id: 'SearchByPhoneNumber.modal.select.notFoundContent.createContact' })
+    const OpenClientCardMessage = intl.formatMessage({ id: 'SearchByPhoneNumber.modal.select.notFoundContent.openClientCard' })
 
     const router = useRouter()
 
@@ -60,15 +60,8 @@ const NotFoundSearchByPhoneContent = ({ onSelect, phone, canManageContacts }) =>
         onSelect()
     }, [onSelect, phone, router])
 
-    const handleCreateContactButtonClick = useCallback(async () => {
-        await redirectToForm({
-            router,
-            formRoute: '/contact/create',
-            initialValues: {
-                phone,
-            },
-            target: '_blank',
-        })
+    const handleOpenClientCard = useCallback(async () => {
+        await router.push(`/phone/${phone}`)
         onSelect()
     }, [onSelect, phone, router])
 
@@ -91,9 +84,9 @@ const NotFoundSearchByPhoneContent = ({ onSelect, phone, canManageContacts }) =>
                         <Col>
                             <Button
                                 type='secondary'
-                                onClick={handleCreateContactButtonClick}
+                                onClick={handleOpenClientCard}
                             >
-                                {CreateContactMessage}
+                                {OpenClientCardMessage}
                             </Button>
                         </Col>
                     )
