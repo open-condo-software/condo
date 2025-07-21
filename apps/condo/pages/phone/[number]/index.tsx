@@ -23,6 +23,7 @@ import { Loader } from '@condo/domains/common/components/Loader'
 import { PageComponentType } from '@condo/domains/common/types'
 import { renderPhone } from '@condo/domains/common/utils/Renders'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { ClientAddressCard, SearchByAddressCard } from '@condo/domains/ticket/components/ClientCard/ClientAddressCard'
 import { ResidentClientTabContent, NotResidentClientTabContent, SearchByAddressTabContent } from '@condo/domains/ticket/components/ClientCard/TabContent'
 import { TicketReadPermissionRequired } from '@condo/domains/ticket/components/PageAccess'
@@ -36,8 +37,8 @@ import styles from './index.module.css'
 const MAX_TABLE_SIZE = 20
 const ROW_MEDIUM_GUTTER: RowProps['gutter'] = [0, 40]
 
-
 const ClientCardPageContent = ({
+    AddressSearchInput,
     tabsData,
     canManageContacts,
     loading,
@@ -194,7 +195,7 @@ const ClientCardPageContent = ({
         }
 
         return []
-    }, [handleTabChange, tabsData, tab])
+    }, [tabsData, tab, showOrganizationMessage, handleTabChange])
 
     const redirectToCreateContact = useCallback(() => redirectToForm({
         router,
@@ -229,6 +230,7 @@ const ClientCardPageContent = ({
 
         return (
             <SearchByAddressTabContent
+                AddressSearchInput={AddressSearchInput}
                 canManageContacts={canManageContacts}
                 firstClientData={firstClientData}
                 showOrganizationMessage={showOrganizationMessage}
@@ -297,6 +299,7 @@ const ClientCardPageContent = ({
 }
 
 export const ClientCardPageContentWrapper = ({
+    AddressSearchInput,
     organizationQuery,
     allQueriesLoading,
     ticketsQuery,
@@ -410,11 +413,25 @@ export const ClientCardPageContentWrapper = ({
 
     return (
         <ClientCardPageContent
+            AddressSearchInput={AddressSearchInput}
             phoneNumberPrefix={phoneNumberPrefix}
             tabsData={tabsData}
             canManageContacts={canManageContacts}
             showOrganizationMessage={showOrganizationMessage}
             loading={ticketsLoading || contactsLoading || employeesLoading}
+        />
+    )
+}
+
+const AddressSearchInput = (props) => {
+    const { organization } = useOrganization()
+    const organizationId = useMemo(() => organization?.id, [organization?.id])
+    
+    return (
+        <PropertyAddressSearchInput
+            style={{ width: '100%' }}
+            organizationId={organizationId}
+            {...props}
         />
     )
 }
@@ -430,6 +447,7 @@ const ClientCardPage: PageComponentType = () => {
 
     return (
         <ClientCardPageContentWrapper
+            AddressSearchInput={AddressSearchInput}
             organizationQuery={organizationQuery}
             allQueriesLoading={ticketFilterQueryLoading || isLoading}
             ticketsQuery={ticketsQuery}
