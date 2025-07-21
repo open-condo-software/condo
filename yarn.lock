@@ -11191,7 +11191,7 @@ __metadata:
     "@open-keystone/fields-markdown": ^6.0.10
     "@open-keystone/fields-wysiwyg-tinymce": ^6.0.10
     "@open-keystone/file-adapters": ^7.1.4
-    "@open-keystone/keystone": ^19.4.10
+    "@open-keystone/keystone": ^19.4.12
     "@open-keystone/server-side-graphql-client": ^2.1.3
     "@open-keystone/utils": ^6.1.3
     "@opentelemetry/api": ^1.4.1
@@ -11875,6 +11875,48 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@open-keystone/keystone@npm:^19.4.12":
+  version: 19.4.12
+  resolution: "@open-keystone/keystone@npm:19.4.12"
+  dependencies:
+    "@graphql-tools/schema": ^8.0.0
+    "@open-keystone/access-control": ^8.0.0
+    "@open-keystone/app-version": ^3.0.0
+    "@open-keystone/session": ^8.4.0
+    "@open-keystone/utils": ^6.1.3
+    apollo-errors: ^1.9.0
+    apollo-server-core: 3.13.0
+    apollo-server-express: 3.13.0
+    arg: ^5.0.0
+    chalk: ^4.1.1
+    ci-info: ^3.2.0
+    cors: ^2.8.5
+    cuid: ^2.1.8
+    endent: ^2.1.0
+    ensure-error: ^3.0.1
+    express: ^4.17.1
+    express-pino-logger: ^6.0.0
+    falsey: ^1.0.0
+    fs-extra: ^9.1.0
+    globby: ^11.0.3
+    graphql: ^16.10.0
+    graphql-type-json: ^0.3.2
+    graphql-upload: ^15.0.2
+    lodash.flattendeep: ^4.4.0
+    micro-memoize: ^4.0.9
+    ora: ^5.4.1
+    p-waterfall: ^2.1.1
+    pino: ^6.13.3
+    pluralize: ^8.0.0
+    serialize-error: ^8.1.0
+    stack-utils: ^2.0.3
+    terminal-link: ^2.1.1
+  bin:
+    keystone: bin/cli.js
+  checksum: 7b6bf5c519e5d809948b9c87173eb73cad6d87fd57fa798995f03fb8ae30d4c67c2a32a151730179768c7fd7591a74d1304e056d31fcb66a35a358786297f9f0
+  languageName: node
+  linkType: hard
+
 "@open-keystone/server-side-graphql-client@npm:^2.1.3":
   version: 2.1.3
   resolution: "@open-keystone/server-side-graphql-client@npm:2.1.3"
@@ -11894,6 +11936,21 @@ __metadata:
     express: ^4.17.1
     express-session: ^1.17.2
   checksum: 95954a05cacc8a45fbfc8634cca7b076eb191a3f004718d62647ebab9f13ce73e590a06c6ea0dccbe8f06f163d5fc4b51b77f21b09b3fdf515aa02900d161389
+  languageName: node
+  linkType: hard
+
+"@open-keystone/session@npm:^8.4.0":
+  version: 8.4.0
+  resolution: "@open-keystone/session@npm:8.4.0"
+  dependencies:
+    "@babel/runtime": ^7.14.6
+    "@types/cookie": ^0.4.0
+    "@types/express-session": ^1.17.3
+    cookie: ^0.4.1
+    cookie-signature: ^1.1.0
+    express: ^4.17.1
+    express-session: ^1.17.2
+  checksum: 88d6a35aec5ba187f68947a272cfb603b0bc0d463865b32623d898e501624c9caaec8b0d52d4a0d9b0ecc10de70dce6aef5486a2efc8cae2402ea65f7a8d0370
   languageName: node
   linkType: hard
 
