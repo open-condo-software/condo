@@ -220,7 +220,7 @@ export const CommentPreview: React.FC<{ comment: TicketComment }> = ({ comment }
         <AntComment
             className={styles.commentPreview}
             content={
-                <Typography.Text size='melium'>
+                <Typography.Text size='medium'>
                     {comment.content}
                 </Typography.Text>
             }
