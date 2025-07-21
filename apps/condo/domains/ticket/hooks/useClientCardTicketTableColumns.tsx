@@ -1,5 +1,4 @@
 import { GetTicketsForClientCardQuery, useGetTicketCommentsForClientCardQuery } from '@app/condo/gql'
-import { CONTACT_PROPERTY_TICKETS_TAB, type TabKey } from '@app/condo/pages/phone/[number]'
 import { TicketCommentWhereInput } from '@app/condo/schema'
 import { useRouter } from 'next/router'
 import { useCallback, useMemo } from 'react'
@@ -10,6 +9,7 @@ import { getFilterIcon } from '@condo/domains/common/components/Table/Filters'
 import { getDateRender, getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { CONTACT_PROPERTY_TICKETS_TAB, TabKey } from '@condo/domains/ticket/utils/clientSchema/clientCard'
 import {
     getClassifierRender,
     getStatusRender,
@@ -18,6 +18,7 @@ import {
     getUnitRender,
 } from '@condo/domains/ticket/utils/clientSchema/Renders'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
+
 
 const renderCell = getTableCellRenderer()
 const renderTicketDetails = getTicketDetailsRender()

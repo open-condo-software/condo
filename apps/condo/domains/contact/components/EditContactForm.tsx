@@ -21,7 +21,7 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { Loader } from '@condo/domains/common/components/Loader'
 import Prompt from '@condo/domains/common/components/Prompt'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
-import { ClientCardTab, getClientCardTabKey } from '@condo/domains/contact/utils/clientCard'
+import { ClientCardTab, getClientCardTabKey } from '@condo/domains/ticket/utils/clientSchema/clientCard'
 
 import { ContactRoleSelect } from './contactRoles/ContactRoleSelect'
 

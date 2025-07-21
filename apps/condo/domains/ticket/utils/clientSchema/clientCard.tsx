@@ -1,27 +1,59 @@
-import { BuildingUnitSubType } from '@app/condo/schema'
-import { Col, Row, Typography } from 'antd'
+import {
+    BuildingUnitSubType,
+    Contact as ContactType,
+    Organization as OrganizationType,
+    Property,
+} from '@app/condo/schema'
+import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { gql } from 'graphql-tag'
 import { get } from 'lodash'
 import { NextRouter } from 'next/router'
 import qs from 'qs'
-import React, { useCallback } from 'react'
+import { useCallback } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Typography } from '@open-condo/ui'
 
 import Select from '@condo/domains/common/components/antd/Select'
+import { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { renderPhone } from '@condo/domains/common/utils/Renders'
 import { TICKET_PROPERTY_FIELDS } from '@condo/domains/ticket/gql'
 import { getAddressRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
 
 export enum ClientCardTab {
     Resident,
     NotResident,
     Employee,
-    SearchByAddress
+    SearchByAddress,
 }
+
+export type TabDataType = {
+    type: ClientCardTab
+    name: string
+    property?: Pick<Property, 'id' | 'address'>
+    unitName?: string
+    unitType?: string
+    sectionType?: string
+    sectionName?: string
+    floorName?: string
+    organization?: Pick<OrganizationType, 'id' | 'name' | 'phoneNumberPrefix'>
+    contact?: Pick<ContactType, 'name' | 'id'>
+    email?: string
+}
+
+export type TabsItems = { key: TabKey, label: string }[]
+
+export const CONTACT_PROPERTY_TICKETS_TAB = 'contactPropertyTickets'
+export const RESIDENTS_PROPERTY_TICKETS_TAB = 'residentsPropertyTickets'
+export const RESIDENTS_ENTRANCE_TICKETS_TAB = 'residentsEntranceTickets'
+export type TabKey = 
+  | typeof CONTACT_PROPERTY_TICKETS_TAB 
+  | typeof RESIDENTS_PROPERTY_TICKETS_TAB 
+  | typeof RESIDENTS_ENTRANCE_TICKETS_TAB
+
+export const DEFAULT_TABLE_TABS: Array<TabKey> = [CONTACT_PROPERTY_TICKETS_TAB, RESIDENTS_ENTRANCE_TICKETS_TAB, RESIDENTS_PROPERTY_TICKETS_TAB]
 
 const SEARCH_BY_PHONE = gql`
     query searchByPhone ($organizationId: ID, $phone: String, $ticketsWhere: TicketWhereInput) {
@@ -63,7 +95,7 @@ const SEARCH_BY_PHONE = gql`
     }
 `
 
-async function _search(client, query, variables) {
+async function _search (client, query, variables) {
     return await client.query({
         query: query,
         variables: variables,
@@ -71,7 +103,7 @@ async function _search(client, query, variables) {
     })
 }
 
-export function searchByPhone(organizationId, ticketsWhereInput) {
+export function searchByPhone (organizationId, ticketsWhereInput) {
     if (!organizationId || !ticketsWhereInput) return
 
     return async function (client, phone) {
@@ -215,5 +247,13 @@ export const redirectToForm: RedirectToFormType = async ({
         }
     } else {
         await router.push(newUrl)
+    }
+}
+
+export const parseCardDataFromQuery = (stringCard) => {
+    try {
+        return JSON.parse(stringCard)
+    } catch (e) {
+        return {}
     }
 }
