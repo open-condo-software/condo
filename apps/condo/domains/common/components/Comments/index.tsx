@@ -390,10 +390,15 @@ const Comments: React.FC<CommentsPropsType> = ({
     const showIndicator = useMemo(() => hasUnreadResidentComments(lastResidentCommentAt, readResidentCommentByUserAt, lastCommentWithResidentTypeAt),
         [lastCommentWithResidentTypeAt, lastResidentCommentAt, readResidentCommentByUserAt])
 
-    const { enabled: aiFeaturesEnabled, features: { rewriteTicketComment: rewriteTicketCommentEnabled } } = useAIConfig()
+    const { enabled: aiFeaturesEnabled, features: {
+        rewriteTicketComment: rewriteTicketCommentEnabled,
+        rewriteText: rewriteTextEnabled,
+    } } = useAIConfig()
 
     const generateCommentEnabled = useMemo(() => aiFeaturesEnabled && rewriteTicketCommentEnabled,
         [aiFeaturesEnabled, rewriteTicketCommentEnabled])
+    const rewriteCommentEnabled = useMemo(() => aiFeaturesEnabled && rewriteTextEnabled,
+        [aiFeaturesEnabled, rewriteTextEnabled])
     const showGenerateCommentWithoutComments = useMemo(() =>
         generateCommentEnabled && commentType === RESIDENT_COMMENT_TYPE && commentsWithResident.length === 0,
     [commentType, commentsWithResident.length, generateCommentEnabled])
@@ -516,6 +521,7 @@ const Comments: React.FC<CommentsPropsType> = ({
                         { isComponentInModal ? (
                             <CommentForm
                                 commentTextAreaRef={commentTextAreaRef}
+                                rewriteCommentEnabled={rewriteCommentEnabled}
                                 fieldName='content'
                                 ticketId={ticketId}
                                 FileModel={FileModel}

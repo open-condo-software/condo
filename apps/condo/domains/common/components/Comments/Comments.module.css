@@ -8,7 +8,7 @@
 .comment-container.in-page {
   max-height: 756px;
   border: 1px solid var(--condo-global-color-gray-3);
-  border-radius: 8px;
+  border-radius: var(--condo-global-border-radius-medium);
 }
 
 .empty-container {
@@ -145,4 +145,69 @@
   display: flex;
   gap: 8px;
   align-items: center;
+}
+
+.comment {
+  padding: 0;
+  line-height: 22px;
+  background: white;
+  border-radius: 8px;
+}
+
+.comment :global(.ant-comment-content-author) {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+}
+
+.comment :global(.comment-content-detail > div) {
+  margin-top: 20px;
+}
+
+.comment :global(.comment-content-detail > div > p) {
+  margin-bottom: 4px;
+  cursor: pointer;
+}
+
+.comment :global(.comment-content-detail > div > p > p) {
+  margin-left: 8px;
+}
+
+.comment :global(.ant-comment-actions) {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  gap: 8px;
+  opacity: 0;
+  transition: all var(--condo-global-transition-duration-default) ease-in-out;
+  pointer-events: none;
+}
+
+.comment:hover :global(.ant-comment-actions) {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.comment-file-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  overflow: hidden;
+  background-color: var(--condo-global-color-gray-1);
+  border-radius: 8px;
+}
+
+.tooltip-button-container {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.comment-file-list-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
 }

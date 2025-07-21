@@ -1,8 +1,8 @@
 import { TextAreaRef } from 'antd/lib/input/TextArea'
 import { FC, useEffect, useRef, useState } from 'react'
-import { useIntl } from 'react-intl'
 
 import { CheckCircle, Close, RefreshCw, XCircle } from '@open-condo/icons'
+import { useIntl } from '@open-condo/next/intl'
 import { Space, Tooltip, Typography, Button } from '@open-condo/ui'
 
 import { ProgressLoader } from '@condo/domains/common/components/Loader'
@@ -21,7 +21,7 @@ type AIInputNotificationPropsType = {
     updateLoading?: boolean
 }
 
-const AUTO_CLOSE_DELAY = 10 * 1000
+const AUTO_CLOSE_DELAY = 15 * 1000
 
 type StatusPropsType = {
     result?: string
@@ -38,7 +38,7 @@ const Status: FC<StatusPropsType> = ({ result, updateLoading }) => {
         <Typography.Text type='success'>
             <span className={styles.status}>
                 <CheckCircle size='medium'/>
-                {ReadyLabel}!
+                {ReadyLabel}
             </span>
         </Typography.Text>
     )

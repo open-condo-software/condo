@@ -47,10 +47,12 @@ interface ICommentFormProps {
     generateCommentClickHandler: () => Promise<void>
     rewriteTextOnClickHandler: () => Promise<void>
     commentTextAreaRef: null | React.MutableRefObject<InputRef>
+    rewriteCommentEnabled: boolean
 }
 
 const CommentForm: React.FC<ICommentFormProps> = ({
     commentForm,
+    rewriteCommentEnabled,
     commentTextAreaRef,
     ticketId,
     initialValue,
@@ -159,7 +161,6 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                 UploadButton={
                     <Tooltip title={UploadTooltipText} placement='top' key='copyButton'>
                         <Button
-                            key={1}
                             type='secondary'
                             size='medium'
                             minimal
@@ -278,8 +279,8 @@ const CommentForm: React.FC<ICommentFormProps> = ({
         })
         setIsUpdateLoading(true)
 
-        if (rewriteTextAnswer) rewriteTextOnClickHandler().then(()=>setIsUpdateLoading(false))
-        if (generateCommentAnswer) generateCommentClickHandler().then(()=>setIsUpdateLoading(false))
+        if (rewriteTextAnswer) rewriteTextOnClickHandler().then(() => setIsUpdateLoading(false))
+        if (generateCommentAnswer) generateCommentClickHandler().then(() => setIsUpdateLoading(false))
     }
 
     return (
@@ -339,7 +340,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                                         icon={copied ? (<CheckCircle size='small' />) : (<Copy size='small'/>) }
                                     />
                                 </Tooltip>,
-                                <Tour.TourStep
+                                ...(rewriteCommentEnabled ? [<Tour.TourStep
                                     step={2}
                                     key='aiButton'
                                     placement='top'
@@ -362,7 +363,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                                     >
                                         {breakpoint.MOBILE_LARGE && UpdateTextMessage}
                                     </Button>
-                                </Tour.TourStep>,
+                                </Tour.TourStep>] : []),
                             ]}
                         />
                     </AIInputNotification>
