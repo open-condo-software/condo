@@ -200,7 +200,7 @@
   border-radius: 8px;
 }
 
-.tooltip-button-container {
+.delete-tooltip-button-container {
   display: flex;
   gap: 8px;
   margin-top: 12px;

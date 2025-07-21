@@ -133,7 +133,7 @@ export const Comment: React.FC<ICommentProps> = ({ comment, setEditableComment, 
             title={
                 <div>
                     <Typography.Paragraph size='medium' strong>{ConfirmDeleteTitle}</Typography.Paragraph>
-                    <div className={styles.tooltipButtonContainer}>
+                    <div className={styles.deleteTooltipButtonContainer}>
                         <Button
                             onClick={()=>setIsDeleteTooltipOpen(false)}
                             type='secondary'
