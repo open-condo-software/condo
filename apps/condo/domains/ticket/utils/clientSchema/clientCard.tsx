@@ -1,10 +1,8 @@
 import {
-    BuildingSectionType,
     BuildingUnitSubType,
     Contact as ContactType,
     Organization as OrganizationType,
     Property,
-    TicketUnitTypeType,
 } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'

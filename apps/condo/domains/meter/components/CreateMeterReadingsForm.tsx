@@ -15,7 +15,7 @@ import isEmpty from 'lodash/isEmpty'
 import isNull from 'lodash/isNull'
 import uniqWith from 'lodash/uniqWith'
 import { useRouter } from 'next/router'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { Meters } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'

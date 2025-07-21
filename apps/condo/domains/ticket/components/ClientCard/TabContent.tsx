@@ -6,8 +6,6 @@ import {
 import {
     BuildingSectionType,
     BuildingUnitSubType,
-    Contact as ContactType,
-    MeterReadingWhereInput,
     SortTicketsBy,
     TicketWhereInput,
 } from '@app/condo/schema'
