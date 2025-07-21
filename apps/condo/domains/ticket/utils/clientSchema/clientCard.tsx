@@ -39,8 +39,9 @@ export type TabDataType = {
     sectionName?: string
     floorName?: string
     organization?: Pick<OrganizationType, 'id' | 'name' | 'phoneNumberPrefix'>
-    contact?: Pick<ContactType, 'name' | 'phone' | 'email' | 'id' | 'organization' | 'property'> & { isEmployee?: boolean }
+    contact?: Pick<ContactType, 'name' | 'phone' | 'email' | 'id' | 'organization' | 'property'>
     email?: string
+    isEmployee?: boolean
 }
 
 export type TabsItems = { key: TabKey, label: string }[]

@@ -671,6 +671,14 @@ export type GetTicketCallRecordsFragmentsQueryVariables = Types.Exact<{
 
 export type GetTicketCallRecordsFragmentsQuery = { __typename?: 'Query', callRecordFragments?: Array<{ __typename?: 'CallRecordFragment', id: string, callRecord?: { __typename?: 'CallRecord', id: string, isIncomingCall?: boolean | null, callerPhone?: string | null, destCallerPhone?: string | null, startedAt?: string | null, file?: { __typename?: 'File', publicUrl?: string | null, id?: string | null } | null } | null } | null> | null };
 
+export type GetClientCallRecordsExistenceQueryVariables = Types.Exact<{
+  phone: Types.Scalars['String']['input'];
+  propertyId: Types.Scalars['ID']['input'];
+}>;
+
+
+export type GetClientCallRecordsExistenceQuery = { __typename?: 'Query', callRecordFragments?: Array<{ __typename?: 'CallRecordFragment', id: string } | null> | null };
+
 export type GetIncidentsQueryVariables = Types.Exact<{
   where?: Types.InputMaybe<Types.IncidentWhereInput>;
   sortBy?: Types.InputMaybe<Array<Types.SortIncidentsBy> | Types.SortIncidentsBy>;

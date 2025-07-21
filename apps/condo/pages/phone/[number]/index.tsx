@@ -36,6 +36,7 @@ import styles from './index.module.css'
 
 
 const MAX_TABLE_SIZE = 20
+const SMALL_GUTTER: RowProps['gutter'] = [0, 12]
 const ROW_MEDIUM_GUTTER: RowProps['gutter'] = [0, 40]
 
 
@@ -264,19 +265,23 @@ const ClientCardPageContent: React.FC<IClientCardPageContentProps> = ({
                         {
                             tabsData.length === 0 && (
                                 <Col span={24}>
-                                    <Row justify='space-between' align='bottom'>
-                                        <Typography.Title>{ClientCardHeader}</Typography.Title>
-                                        <Button 
-                                            onClick={redirectToCreateContact}
-                                            type='primary'
-                                            size='large'
-                                            id='ClientCardCreateContactButton'
-                                            minimal
-                                            compact
-                                            icon={<PlusCircle />}
-                                        >
-                                            {AddAddressMessage}
-                                        </Button>
+                                    <Row justify='space-between' align='middle' gutter={SMALL_GUTTER}>
+                                        <Col>
+                                            <Typography.Title>{ClientCardHeader}</Typography.Title>
+                                        </Col>
+                                        <Col>
+                                            <Button 
+                                                onClick={redirectToCreateContact}
+                                                type='primary'
+                                                size='large'
+                                                id='ClientCardCreateContactButton'
+                                                minimal
+                                                compact
+                                                icon={<PlusCircle />}
+                                            >
+                                                {AddAddressMessage}
+                                            </Button>
+                                        </Col>
                                     </Row>
                                 </Col>
                             )

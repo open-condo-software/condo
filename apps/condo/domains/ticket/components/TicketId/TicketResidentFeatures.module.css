@@ -1,0 +1,4 @@
+.ticket-resident-features-row {
+    height: var(--condo-global-spacing-32);
+    align-content: center;
+}

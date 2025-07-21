@@ -33,3 +33,7 @@
 .address-search-tab-wrapper {
   justify-content: center;
 }
+
+.unit-rows {
+  gap: var(--condo-global-spacing-4);
+}

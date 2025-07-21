@@ -20,7 +20,6 @@ const ADDRESS_STREET_ONE_ROW_HEIGHT = 25
 const ADDRESS_POSTFIX_ONE_ROW_HEIGHT = 22
 const ONE_ROW_ELLIPSIS: EllipsisConfig = { rows: 1 }
 const TWO_ROWS_ELLIPSIS: EllipsisConfig = { rows: 2 }
-const UNIT_ROWS_STYLE: React.CSSProperties = { gap: 4 }
 
 interface IClientAddressCardProps {
     onClick: () => void
@@ -91,7 +90,7 @@ export const ClientAddressCard: React.FC<IClientAddressCardProps> = ({ onClick, 
                     </Typography.Text>
 
                     {floorName || sectionName || unitName ? (
-                        <Row style={UNIT_ROWS_STYLE}>
+                        <Row className={styles.unitRows}>
                             <Typography.Text
                                 ref={addressStreetRef}
                                 ellipsis={addressStreetEllipsis}
