@@ -49,8 +49,8 @@ export const ClientAddressCard: React.FC<IClientAddressCardProps> = ({ onClick, 
     const [addressPostfixEllipsis, setAddressPostfixEllipsis] = useState<EllipsisConfig>(TWO_ROWS_ELLIPSIS)
 
     useLayoutEffect(() => {
-        const addressStreetTextHeight = addressStreetRef.current.clientHeight
-        const addressPostfixTextHeight = addressPostfixRef.current.clientHeight
+        const addressStreetTextHeight = addressStreetRef.current?.clientHeight
+        const addressPostfixTextHeight = addressPostfixRef.current?.clientHeight
 
         if (addressStreetTextHeight > ADDRESS_STREET_ONE_ROW_HEIGHT) {
             setAddressStreetEllipsis(TWO_ROWS_ELLIPSIS)
