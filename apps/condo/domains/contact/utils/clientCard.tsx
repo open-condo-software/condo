@@ -13,13 +13,14 @@ import Select from '@condo/domains/common/components/antd/Select'
 import { renderPhone } from '@condo/domains/common/utils/Renders'
 import { TICKET_PROPERTY_FIELDS } from '@condo/domains/ticket/gql'
 import { getAddressRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
-import { useLayoutContext } from '../../common/components/LayoutContext'
 
-export enum ClientType {
+export enum ClientCardTab {
     Resident,
     NotResident,
     Employee,
+    SearchByAddress
 }
 
 const SEARCH_BY_PHONE = gql`
@@ -62,7 +63,7 @@ const SEARCH_BY_PHONE = gql`
     }
 `
 
-async function _search (client, query, variables) {
+async function _search(client, query, variables) {
     return await client.query({
         query: query,
         variables: variables,
@@ -70,7 +71,7 @@ async function _search (client, query, variables) {
     })
 }
 
-export function searchByPhone (organizationId, ticketsWhereInput) {
+export function searchByPhone(organizationId, ticketsWhereInput) {
     if (!organizationId || !ticketsWhereInput) return
 
     return async function (client, phone) {
@@ -89,7 +90,7 @@ export function searchByPhone (organizationId, ticketsWhereInput) {
 
         const employees = []
         const contacts = data.contacts.map(({ id, phone, property, unitName, unitType }) => ({
-            value: id, phone, property, unitName, unitType, type: ClientType.Resident,
+            value: id, phone, property, unitName, unitType, type: ClientCardTab.Resident,
         }))
         const tickets = data.tickets.filter(ticket => {
             const employee = data.employees.find(employee => employee.phone === ticket.clientPhone)
@@ -100,7 +101,7 @@ export function searchByPhone (organizationId, ticketsWhereInput) {
                     property: ticket.property,
                     unitName: ticket.unitName,
                     unitType: ticket.unitType,
-                    type: ClientType.NotResident,
+                    type: ClientCardTab.NotResident,
                     number: ticket.number,
                     isEmployee: true,
                 })
@@ -113,7 +114,7 @@ export function searchByPhone (organizationId, ticketsWhereInput) {
             property: ticket.property,
             unitName: ticket.unitName,
             unitType: ticket.unitType,
-            type: ClientType.NotResident,
+            type: ClientCardTab.NotResident,
             number: ticket.number,
         }))
 
@@ -163,7 +164,7 @@ const SearchByPhoneSelectOption = ({ phone, property, unitName, unitType, type, 
                 </Row>
             </Col>
             {
-                type !== ClientType.Resident && (
+                type !== ClientCardTab.Resident && (
                     <Col span={!breakpoints.TABLET_LARGE ? 24 : 3}>
                         {TicketMessage} №{number}
                     </Col>
@@ -179,7 +180,7 @@ export const mapSearchItemToOption = (item, phone, type) => (
     </Select.Option>
 )
 
-export const getClientCardTabKey = (propertyId: string, type: ClientType, unitName?: string, unitType?: string, sectionName?: string, sectionType?: string): string => {
+export const getClientCardTabKey = (propertyId: string, type: ClientCardTab, unitName?: string, unitType?: string, sectionName?: string, sectionType?: string): string => {
     const keyData = { property: propertyId, unitName, unitType, type, sectionName, sectionType }
 
     return JSON.stringify(keyData)

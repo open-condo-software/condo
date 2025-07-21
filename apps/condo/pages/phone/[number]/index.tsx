@@ -35,7 +35,7 @@ import { Tag } from '@condo/domains/common/components/Tag'
 import { PageComponentType } from '@condo/domains/common/types'
 import { renderPhone } from '@condo/domains/common/utils/Renders'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { ClientType, getClientCardTabKey, redirectToForm } from '@condo/domains/contact/utils/clientCard'
+import { ClientCardTab, getClientCardTabKey, redirectToForm } from '@condo/domains/contact/utils/clientCard'
 import { METER_TAB_TYPES } from '@condo/domains/meter/utils/clientSchema'
 import { getPropertyAddressParts } from '@condo/domains/property/utils/helpers'
 import { IncidentHints } from '@condo/domains/ticket/components/IncidentHints'
@@ -55,13 +55,13 @@ import { UnitInfo, UnitInfoMode } from '@condo/domains/property/components/UnitI
 
 //#region Constants, types and styles
 type TabDataType = {
-    type: ClientType
-    property: Property
-    unitName: string
-    unitType: string
-    sectionType: string
-    sectionName: string
-    organization: OrganizationType
+    type: ClientCardTab
+    property?: Property
+    unitName?: string
+    unitType?: string
+    sectionType?: string
+    sectionName?: string
+    organization?: OrganizationType
     contact?: Pick<ContactType, 'name' | 'id'>
 }
 
@@ -69,7 +69,7 @@ type ClientContactPropsType = {
     phone: string
     lastTicket: GetTicketsForClientCardQuery['tickets'][number]
     contact?: ContactType & { isEmployee?: boolean }
-    type: ClientType
+    type: ClientCardTab
     showOrganizationMessage: boolean
 }
 
@@ -188,6 +188,17 @@ const ClientAddressCard = ({ onClick, active, property, organization, unitName, 
         </div>
     )
 }
+
+const SearchByAddressCard = ({ onClick, active }) => {
+
+    return (
+        <div data-active={active} className={styles.addressTabWrapper} onClick={onClick}>
+            <div className={styles.addressTabContent}>
+                Поиск по адресу
+            </div>
+        </div>
+    )
+}
 //#endregion
 
 //#region Contact and Not resident client Tab content
@@ -248,8 +259,8 @@ const ClientContent: React.FC<ClientContactPropsType> = ({ lastTicket, contact, 
     }, [phone, propertyId])
 
     const typeToMessage = useMemo(() => ({
-        [ClientType.Resident]: ContactMessage,
-        [ClientType.NotResident]: isEmployee ? EmployeeMessage : NotResidentMessage,
+        [ClientCardTab.Resident]: ContactMessage,
+        [ClientCardTab.NotResident]: isEmployee ? EmployeeMessage : NotResidentMessage,
     }), [ContactMessage, EmployeeMessage, NotResidentMessage, isEmployee])
 
     return (
@@ -466,7 +477,7 @@ const ClientCardTabContent = ({
                         <Col span={24}>
                             <Row gutter={ROW_MEDIUM_SMALL_GUTTER}>
                                 {
-                                    type !== null && (
+                                    type !== ClientCardTab.SearchByAddress && (
                                         <Col span={24}>
                                             <ClientContent
                                                 phone={phone}
@@ -717,12 +728,10 @@ const NotResidentClientTabContent = ({
     )
 }
 
-const EmptyClientContent = () => {
+const SearchByAddressTabContent = () => {
     const intl = useIntl()
     const EmptyClientContentDescription = intl.formatMessage({ id: 'pages.clientCard.emptyClientContent.description' })
     const PropertySelectPlaceholder = intl.formatMessage({ id: 'pages.clientCard.emptyClientContent.propertySelect.placeholder' })
-
-    const [form] = Form.useForm()
 
     const router = useRouter()
     const phoneNumber = router?.query?.number
@@ -732,9 +741,11 @@ const EmptyClientContent = () => {
 
     const [propertyId, setPropertyId] = useState<string>()
     const [unitName, setUnitName] = useState<string>()
-    const [unitType, setSelectedUnitType] = useState<string>()
-    const [sectionName, setSectionName] = useState<string>()
     const [sectionType, setSectionType] = useState<string>()
+
+    const [form] = Form.useForm()
+    const sectionName = Form.useWatch('sectionName', form)
+    const unitType = Form.useWatch('unitType', form)
 
     const { loading: propertyLoading, data: propertyData } = useGetPropertyByIdQuery({
         variables: {
@@ -759,7 +770,7 @@ const EmptyClientContent = () => {
             formRoute: '/ticket/create',
             initialValues,
         })
-    }, [propertyId, unitName, unitType, sectionName, sectionType, phoneNumber])
+    }, [propertyId, unitName, unitType, sectionType, phoneNumber])
 
     return (
         <Row gutter={[0, 40]}>
@@ -795,8 +806,6 @@ const EmptyClientContent = () => {
                                                 loading={propertyLoading}
                                                 selectedUnitName={unitName}
                                                 setSelectedUnitName={setUnitName}
-                                                setSelectedUnitType={setSelectedUnitType}
-                                                setSelectedSectionName={setSectionName}
                                                 selectedSectionType={sectionType}
                                                 setSelectedSectionType={setSectionType}
                                                 form={form}
@@ -817,6 +826,7 @@ const EmptyClientContent = () => {
                     phone={phoneNumber}
                     property={property}
                     showOrganizationMessage={false}
+                    type={ClientCardTab.SearchByAddress}
                     sectionName={sectionName}
                     sectionType={sectionType}
                     handleTicketCreateClick={handleTicketCreateClick}
@@ -848,12 +858,12 @@ const ClientTabContent = ({ tabData, phone, canManageContacts, showOrganizationM
     const organization = tabData?.organization
     const contact = tabData?.contact
 
-    if (type === ClientType.Resident) {
+    if (type === ClientCardTab.Resident) {
         return (
             <ContactClientTabContent
                 contact={contact}
                 phone={phone}
-                type={ClientType.Resident}
+                type={ClientCardTab.Resident}
                 property={property}
                 unitName={unitName}
                 unitType={unitType}
@@ -866,7 +876,7 @@ const ClientTabContent = ({ tabData, phone, canManageContacts, showOrganizationM
         )
     }
 
-    if (type === ClientType.NotResident || type === ClientType.Employee) {
+    if (type === ClientCardTab.NotResident || type === ClientCardTab.Employee) {
         return (
             <NotResidentClientTabContent
                 phone={phone}
@@ -882,7 +892,7 @@ const ClientTabContent = ({ tabData, phone, canManageContacts, showOrganizationM
         )
     }
 
-    return <EmptyClientContent />
+    return <SearchByAddressTabContent />
 }
 //#endregion
 
@@ -950,17 +960,20 @@ const ClientCardPageContent = ({
 
     useEffect(() => {
         const { type, property: propertyId, unitName, unitType, sectionType, sectionName } = parseCardDataFromQuery(tab)
+        if (type === ClientCardTab.SearchByAddress) {
+            setActiveTabData({ type })
+            return
+        }
 
-        const isTabSelected = unitName || unitType
+        const isClientTabSelected = unitName || unitType
         let tabDataWithProperty
-        if (isTabSelected) {
+        if (isClientTabSelected) {
             tabDataWithProperty = tabsData?.find(tab => (
                 tab.property.id === propertyId &&
                 tab.unitName === unitName &&
                 tab.unitType === unitType
             ))
-        }
-        else {
+        } else {
             tabDataWithProperty = tabsData?.[0]
         }
         const property = tabDataWithProperty?.property
@@ -1017,9 +1030,21 @@ const ClientCardPageContent = ({
                 sectionName={sectionName}
                 active={isActive}
             />
-        })
+        }).filter(Boolean)
 
-        return addressTabs.filter(Boolean)
+        if (addressTabs.length > 0) {
+            const key = getClientCardTabKey(undefined, ClientCardTab.SearchByAddress)
+
+            return [
+                ...addressTabs,
+                <SearchByAddressCard
+                    active={tab === key}
+                    onClick={() => handleTabChange(key)}
+                />
+            ]
+        }
+
+        return []
     }, [handleTabChange, tabsData, tab])
 
     const redirectToCreateContact = useCallback(() => redirectToForm({
@@ -1041,14 +1066,16 @@ const ClientCardPageContent = ({
                         <Col span={24}>
                             <Row justify='space-between' align='bottom' >
                                 <Typography.Title>{ClientCardHeader}</Typography.Title>
-
-                                <Typography.Link size='large' onClick={redirectToCreateContact}>
-                                    <Col className={styles.linkWrapper}>
-                                        <PlusCircle />
-
-                                        {AddAddressMessage}
-                                    </Col>
-                                </Typography.Link>
+                                {
+                                    tabsData.length === 0 && (
+                                        <Typography.Link size='large' onClick={redirectToCreateContact}>
+                                            <Col className={styles.linkWrapper}>
+                                                <PlusCircle />
+                                                {AddAddressMessage}
+                                            </Col>
+                                        </Typography.Link>
+                                    )
+                                }
                             </Row>
                         </Col>
                         <Col span={24}>
@@ -1143,7 +1170,7 @@ export const ClientCardPageContentWrapper = ({
 
     useEffect(() => {
         const contactsData = contactsQueryData?.contacts?.map(contact => ({
-            type: ClientType.Resident,
+            type: ClientCardTab.Resident,
             property: contact.property,
             unitName: contact.unitName,
             unitType: contact.unitType,
@@ -1151,7 +1178,7 @@ export const ClientCardPageContentWrapper = ({
             contact: contact,
         })) || []
         const notResidentData = uniqBy(notResidentTickets?.map(ticket => ({
-            type: ClientType.NotResident,
+            type: ClientCardTab.NotResident,
             property: ticket.property,
             unitName: ticket.unitName,
             unitType: ticket.unitType,
@@ -1161,7 +1188,7 @@ export const ClientCardPageContentWrapper = ({
             organization: ticket.organization,
         })), 'property.id') || []
         const employeesData = uniqBy(employeeTickets?.map(ticket => ({
-            type: ClientType.NotResident,
+            type: ClientCardTab.NotResident,
             isEmployee: true,
             property: ticket.property,
             unitName: ticket.unitName,
