@@ -43,7 +43,7 @@ class PullentiSuggestionProvider extends AbstractSuggestionProvider {
         gars = Array.isArray(gars) ? gars : [gars]
 
         const xmlResults = await Promise.all(gars.map((gar) => {
-            return gar && gar.path ? this.pullentiClient.searchByAddress(gar.path) : null
+            return gar && gar.path ? this.pullentiClient.processAddress(gar.path) : null
         }))
 
         return xmlResults

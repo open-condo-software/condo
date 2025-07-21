@@ -53,7 +53,7 @@ class PullentiSearchProvider extends AbstractSearchProvider {
             query = await maybeBoostQueryWithTin(query, tin, this.req)
         }
 
-        return await this.pullentiClient.searchByAddress(query)
+        return await this.pullentiClient.processAddress(query)
     }
 
     /**
