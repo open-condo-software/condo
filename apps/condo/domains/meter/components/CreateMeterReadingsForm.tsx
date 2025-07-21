@@ -47,6 +47,8 @@ import {
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { ContactsInfo } from '@condo/domains/ticket/components/BaseTicketForm'
 
+import { ClientCardTab, getClientCardTabKey } from '../../ticket/utils/clientSchema/clientCard'
+
 
 export const LAYOUT = {
     labelCol: { span: 8 },
@@ -256,6 +258,7 @@ export const CreateMeterReadingsForm = ({ organization, canManageMeterReadings }
     const contactFromQuery = router.query?.contact ?? null
     const clientNameFromQuery = router.query?.clientName ?? null
     const clientPhoneFromQuery = router.query?.clientPhone ?? null
+    const redirectToClientCard = router.query?.redirectToClientCard ?? null
 
     const [selectedPropertyId, setSelectedPropertyId] = useState<string>(propertyIdFromQuery as string || null)
     const [selectedUnitName, setSelectedUnitName] = useState<string>(unitNameFromQuery as string || null)
@@ -307,7 +310,9 @@ export const CreateMeterReadingsForm = ({ organization, canManageMeterReadings }
     const createMeterReadingAction = MeterReading.useCreate({
         source: { connect: { id: CALL_METER_READING_SOURCE_ID } },
     }, async () => {
-        await router.push(`/meter?tab=${METER_TAB_TYPES.meterReading}&type=${METER_TYPES.unit}`)
+        if (!redirectToClientCard) {
+            await router.push(`/meter?tab=${METER_TAB_TYPES.meterReading}&type=${METER_TYPES.unit}`)
+        }
     })
 
     const handleSubmit = useCallback(async (values) => {
@@ -319,7 +324,7 @@ export const CreateMeterReadingsForm = ({ organization, canManageMeterReadings }
             const date = get(newMeterReading, 'date')
             const { property, unitName, unitType, sectionName, floorName, ...clientInfo } = values
 
-            createMeterReadingAction({
+            await createMeterReadingAction({
                 ...clientInfo,
                 meter: { connect: { id: meterId } },
                 contact: values.contact ? { connect: { id: values.contact } } : undefined,
@@ -329,8 +334,16 @@ export const CreateMeterReadingsForm = ({ organization, canManageMeterReadings }
                 value4,
                 date,
             })
+
+            if (redirectToClientCard) {
+                const { clientPhone } = clientInfo
+
+                await router.push(
+                    `/phone/${clientPhone}?tab=${getClientCardTabKey(property, ClientCardTab.Resident, unitName, unitType, sectionName)}`
+                )
+            }
         }
-    }, [createMeterReadingAction, newMeterReadings])
+    }, [createMeterReadingAction, newMeterReadings, redirectToClientCard, router])
 
     const getHandleSelectPropertyAddress = useCallback((form) => (_, option) => {
         form.setFieldsValue({
