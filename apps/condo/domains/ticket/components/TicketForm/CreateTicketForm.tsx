@@ -159,9 +159,17 @@ export const CreateTicketForm: React.FC = () => {
 
                 if (clientPhone && ticketPropertyId) {
                     const clientCardTabType = isResidentTicket ? ClientCardTab.Resident : ClientCardTab.NotResident
-                    await router.push(
-                        `/phone/${clientPhone}?tab=${getClientCardTabKey(ticketPropertyId, clientCardTabType, ticket?.unitName, ticket?.unitType)}`
-                    )
+                    await router.push({
+                        pathname: `/phone/${clientPhone}`,
+                        query: {
+                            tab: getClientCardTabKey(
+                                ticketPropertyId,
+                                clientCardTabType,
+                                ticket?.unitName,
+                                ticket?.unitType,
+                            ),
+                        },
+                    })
                 }
             } else {
                 await router.push('/ticket')

@@ -253,6 +253,7 @@ export const parseCardDataFromQuery = (stringCard) => {
     try {
         return JSON.parse(stringCard)
     } catch (e) {
+        console.error('Failed to parse card data from query:', e)
         return {}
     }
 }
