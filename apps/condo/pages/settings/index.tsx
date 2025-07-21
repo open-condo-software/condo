@@ -1,4 +1,3 @@
-import get from 'lodash/get'
 import getConfig from 'next/config'
 import Head from 'next/head'
 import React, { useMemo } from 'react'
@@ -60,12 +59,12 @@ const SettingsPage: PageComponentType = () => {
     const hasSubscriptionFeature = useFlag(SUBSCRIPTION) && canEnableSubscriptions
 
     const userOrganization = useOrganization()
-    const userOrganizationId = get(userOrganization, ['organization', 'id'], null)
-    const isManagingCompany = get(userOrganization, 'organization.type', MANAGING_COMPANY_TYPE) === MANAGING_COMPANY_TYPE
-    const canManageContactRoles = useMemo(() => get(userOrganization, ['link', 'role', 'canManageContactRoles']), [userOrganization])
-    const canManageEmployeeRoles = useMemo(() => get(userOrganization, ['link', 'role', 'canManageRoles'], false), [userOrganization])
-    const canManageMobileFeatureConfigsRoles = useMemo(() => get(userOrganization, ['link', 'role', 'canManageMobileFeatureConfigs']), [userOrganization])
-    const canManageMarketSettingRoles = useMemo(() => get(userOrganization, ['link', 'role', 'canManageMarketSetting']), [userOrganization])
+    const userOrganizationId = useMemo(() => userOrganization?.organization?.id || null, [userOrganization])
+    const isManagingCompany = useMemo(() => (userOrganization?.organization?.type || MANAGING_COMPANY_TYPE) === MANAGING_COMPANY_TYPE, [userOrganization])
+    const canManageContactRoles = useMemo(() => userOrganization?.role?.canManageContactRoles || false, [userOrganization])
+    const canManageEmployeeRoles = useMemo(() => userOrganization?.role?.canManageRoles || false, [userOrganization])
+    const canManageMobileFeatureConfigsRoles = useMemo(() => userOrganization?.role?.canManageMobileFeatureConfigs || false, [userOrganization])
+    const canManageMarketSettingRoles = useMemo(() => userOrganization?.role?.canManageMarketSetting || false, [userOrganization])
 
     const { objs: [acquiringIntegrationContext], loading } = AcquiringIntegrationContext.useObjects({
         where: {
@@ -88,6 +87,7 @@ const SettingsPage: PageComponentType = () => {
 
         return availableTabs
     }, [hasSubscriptionFeature, isManagingCompany, canManageEmployeeRoles, canManageContactRoles, canManageMobileFeatureConfigsRoles, canManageMarketSettingRoles, acquiringIntegrationContext, loading])
+
     const settingsTabs: TabItem[] = useMemo(
         () => [
             hasSubscriptionFeature && isManagingCompany && {
