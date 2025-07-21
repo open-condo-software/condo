@@ -3,13 +3,14 @@ import {
     useGetEmployeesForClientCardQuery,
     useGetTicketsForClientCardQuery,
 } from '@app/condo/gql'
+import { ContactWhereInput, TicketWhereInput } from '@app/condo/schema'
 import { Col, Row, RowProps } from 'antd'
 import { CarouselRef } from 'antd/es/carousel'
 import isEqual from 'lodash/isEqual'
 import uniqBy from 'lodash/uniqBy'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
@@ -37,7 +38,17 @@ import styles from './index.module.css'
 const MAX_TABLE_SIZE = 20
 const ROW_MEDIUM_GUTTER: RowProps['gutter'] = [0, 40]
 
-const ClientCardPageContent = ({
+
+interface IClientCardPageContentProps {
+    AddressSearchInput: React.FC
+    tabsData: TabDataType[]
+    canManageContacts?: boolean
+    loading?: boolean
+    showOrganizationMessage?: boolean   
+    phoneNumberPrefix?: string
+}
+
+const ClientCardPageContent: React.FC<IClientCardPageContentProps> = ({
     AddressSearchInput,
     tabsData,
     canManageContacts,
@@ -236,7 +247,7 @@ const ClientCardPageContent = ({
                 showOrganizationMessage={showOrganizationMessage}
             />
         )
-    }, [activeTabData, canManageContacts, showOrganizationMessage, tabsData])
+    }, [AddressSearchInput, activeTabData, canManageContacts, showOrganizationMessage, tabsData])
 
     if (loading) {
         return <Loader />
@@ -298,7 +309,17 @@ const ClientCardPageContent = ({
     )
 }
 
-export const ClientCardPageContentWrapper = ({
+interface IClientCardPageContentWrapperProps {
+    AddressSearchInput: React.FC
+    organizationQuery?: ContactWhereInput
+    allQueriesLoading?: boolean
+    ticketsQuery?: TicketWhereInput
+    canManageContacts?: boolean
+    showOrganizationMessage?: boolean
+    usePhonePrefix?: boolean
+}
+
+export const ClientCardPageContentWrapper: React.FC<IClientCardPageContentWrapperProps> = ({
     AddressSearchInput,
     organizationQuery,
     allQueriesLoading,
@@ -308,7 +329,7 @@ export const ClientCardPageContentWrapper = ({
     usePhonePrefix = false,
 }) => {
     const router = useRouter()
-    const phoneNumber = router?.query.number
+    const phoneNumber = router?.query.number as string
 
     const { persistor } = useCachePersistor()
 
@@ -379,7 +400,7 @@ export const ClientCardPageContentWrapper = ({
             name: ticket?.clientName,
             email: ticket?.clientEmail,
         })), 'property.id') || []
-        const employeesData = uniqBy(employeeTickets?.map(ticket => ({
+        const employeesData: TabDataType[] = uniqBy(employeeTickets?.map(ticket => ({
             type: ClientCardTab.NotResident,
             isEmployee: true,
             property: ticket.property,
@@ -390,10 +411,10 @@ export const ClientCardPageContentWrapper = ({
             email: ticket?.clientEmail,
         })), 'property.id') || []
 
-        const clientData: TabDataType[] = [...contactsData, ...notResidentData, ...employeesData]
-            .filter(tabsData => tabsData.organization && tabsData.property)
+        const clientData = [...contactsData, ...notResidentData, ...employeesData]
+            .filter(tabsData => tabsData.organization && tabsData.property) as TabDataType[]
         const clientDataWithSectionAndFloorData = clientData.map((tab) => {
-            if (tab.unitName && tab.unitType && tab.floorName) return tab
+            if (tab.unitName && tab.unitType && tab?.floorName) return tab
             const section = getSectionAndFloorByUnitName(tab.property, tab.unitName, tab.unitType)
 
             return { ...tab, ...section }
@@ -429,7 +450,6 @@ const AddressSearchInput = (props) => {
     
     return (
         <PropertyAddressSearchInput
-            style={{ width: '100%' }}
             organizationId={organizationId}
             {...props}
         />

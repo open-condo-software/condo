@@ -1,8 +1,10 @@
 import {
+    BuildingSectionType,
     BuildingUnitSubType,
     Contact as ContactType,
     Organization as OrganizationType,
     Property,
+    TicketUnitTypeType,
 } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
@@ -31,7 +33,7 @@ export enum ClientCardTab {
 
 export type TabDataType = {
     type: ClientCardTab
-    name: string
+    name?: string
     property?: Pick<Property, 'id' | 'address'>
     unitName?: string
     unitType?: string
@@ -39,7 +41,7 @@ export type TabDataType = {
     sectionName?: string
     floorName?: string
     organization?: Pick<OrganizationType, 'id' | 'name' | 'phoneNumberPrefix'>
-    contact?: Pick<ContactType, 'name' | 'id'>
+    contact?: Pick<ContactType, 'name' | 'phone' | 'email' | 'id' | 'organization' | 'property'> & { isEmployee?: boolean }
     email?: string
 }
 
@@ -185,10 +187,9 @@ const SearchByPhoneSelectOption = ({ phone, property, unitName, unitType, type, 
             <Col span={!breakpoints.TABLET_LARGE ? 24 : 21}>
                 <Row gutter={SELECT_OPTION_ROW_GUTTER}>
                     <Col>
-                        <Typography.Text strong>
+                        <Typography.Text strong size='medium'>
                             {renderPhone(phone)}
                         </Typography.Text>
-
                     </Col>
                     <Col span={16}>
                         {property ? getAddressRender(property, unitNameMessage, DeletedMessage, breakpoints.TABLET_LARGE) : DeletedMessage}

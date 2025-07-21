@@ -4,8 +4,12 @@ import {
     useGetTicketsForClientCardQuery,
 } from '@app/condo/gql'
 import {
+    BuildingSectionType,
+    BuildingUnitSubType,
     Contact as ContactType,
+    MeterReadingWhereInput,
     SortTicketsBy,
+    TicketWhereInput,
 } from '@app/condo/schema'
 import { Col, ColProps, Form, Row, RowProps } from 'antd'
 import { useRouter } from 'next/router'
@@ -33,6 +37,7 @@ import {
     redirectToForm,
     RESIDENTS_ENTRANCE_TICKETS_TAB,
     RESIDENTS_PROPERTY_TICKETS_TAB,
+    TabDataType,
     TabKey,
     TabsItems,
 } from '@condo/domains/ticket/utils/clientSchema/clientCard'
@@ -42,23 +47,24 @@ const MAX_TABLE_SIZE = 20
 
 const TAG_STYLE: CSSProperties = { borderRadius: '100px' }
 const ROW_BIG_GUTTER: RowProps['gutter'] = [0, 60]
+const ROW_BIG_MEDIUM_GUTTER: RowProps['gutter'] = [0, 40]
 const ROW_MEDIUM_SMALL_GUTTER: RowProps['gutter'] = [0, 24]
 const HINT_CARD_STYLE = { maxHeight: '3em' }
 const TICKET_SORT_BY = [SortTicketsBy.OrderAsc, SortTicketsBy.CreatedAtDesc]
 const HINTS_COL_PROPS: ColProps = { span: 24 }
+const ADDRESS_SEARCH_INPUT_STYLE: CSSProperties = { width: '100%' }
 
-
-type ClientInfoPropsType = {
+interface IClientInfoProps {
     phone: string
     lastTicket?: GetTicketsForClientCardQuery['tickets'][number]
     name: string
     email?: string
-    contact?: ContactType & { isEmployee?: boolean }
+    contact?: { name?: string, email?: string, isEmployee?: boolean, id?: string, organization?: { name?: string }, property?: { id?: string } }
     type: ClientCardTab
     showOrganizationMessage: boolean
 }
 
-const ClientInfo: React.FC<ClientInfoPropsType> = ({ lastTicket, name, email, contact, type, phone, showOrganizationMessage }) => {
+const ClientInfo: React.FC<IClientInfoProps> = ({ lastTicket, name, email, contact, type, phone, showOrganizationMessage }) => {
     const intl = useIntl()
     const CallRecordsLogMessage = intl.formatMessage({ id: 'pages.clientCard.callRecordsLog' })
     const ContactMessage = intl.formatMessage({ id: 'Contact' })
@@ -167,10 +173,22 @@ const ClientInfo: React.FC<ClientInfoPropsType> = ({ lastTicket, name, email, co
     )
 }
 
-const ClientCardTabContent = ({
+interface IClientCardTabContent {
+    tabData?: TabDataType
+    searchTicketsQuery?: TicketWhereInput
+    handleTicketCreate?: () => void
+    getQueryForCreatingMeterReading?: () => Record<string, unknown>
+    canManageContacts?: boolean
+    showOrganizationMessage?: boolean
+    handleContactEditClick?: () => void
+    hideMeterReadingButton?: boolean
+    tableTabs?: TabKey[]
+}
+
+const ClientCardTabContent: React.FC<IClientCardTabContent> = ({
     tabData,
     searchTicketsQuery = null,
-    handleTicketCreateClick,
+    handleTicketCreate,
     getQueryForCreatingMeterReading = null,
     canManageContacts,
     showOrganizationMessage = false,
@@ -236,16 +254,15 @@ const ClientCardTabContent = ({
 
     const { data: ticketsData, loading: isTicketsFetching } = useGetTicketsForClientCardQuery({
         variables: {
-            where: searchQuery,
+            where: searchQuery as TicketWhereInput,
             first: MAX_TABLE_SIZE,
             sortBy: TICKET_SORT_BY,
             skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
         },
         skip: !persistor,
     })
-    const tickets = ticketsData?.tickets
-
-    const total = tickets?.length
+    const tickets = useMemo(() => ticketsData?.tickets, [ticketsData?.tickets])
+    const total = useMemo(() => tickets?.length, [tickets?.length])
 
     const lastCreatedTicket = tickets?.filter(el => el?.clientPhone === phone)?.[0]
     const propertyId = useMemo(() => property?.id, [property])
@@ -263,20 +280,11 @@ const ClientCardTabContent = ({
         }
     }, [])
 
-    const handleCreateTicket = useCallback(() => {
-        // Это работает неправильно! У нас есть табы, где показываются заявки по подъезду и дому.
-        // А в initialData формы должны подставляться данные по клиенту, а не по последней заявке.
-        // Аналогично в handleCreateMeterReading
-        const dataForTicketForm = property ? lastCreatedTicket : { clientPhone: phone }
-        handleTicketCreateClick(dataForTicketForm)
-    }, [handleTicketCreateClick, lastCreatedTicket, phone, property])
-
     const handleCreateMeterReading = useCallback(async () => {
         if (!getQueryForCreatingMeterReading) return
 
-        const dataForMeterReadingForm = property ? lastCreatedTicket : { clientPhone: phone }
         const query = qs.stringify(
-            getQueryForCreatingMeterReading(dataForMeterReadingForm),
+            getQueryForCreatingMeterReading(),
             { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
         )
 
@@ -288,7 +296,7 @@ const ClientCardTabContent = ({
             await router.push(newUrl)
         }
 
-    }, [lastCreatedTicket, phone, property, router, getQueryForCreatingMeterReading])
+    }, [router, getQueryForCreatingMeterReading])
 
     const redirectToTicketPage = useCallback(async () => {
         let filters = {}
@@ -376,8 +384,6 @@ const ClientCardTabContent = ({
                                             data-cy='ticket__table'
                                         />
                                     </Col>
-
-
                                     {tickets?.length >= MAX_TABLE_SIZE && (
                                         <Row gutter={[0, 8]}>
                                             <Col span={24}>
@@ -410,7 +416,7 @@ const ClientCardTabContent = ({
                     actions={[
                         <Button
                             key='submit'
-                            onClick={handleCreateTicket}
+                            onClick={handleTicketCreate}
                             type='primary'
                             id='ClientCardCreateTicketClick'
                         >
@@ -443,7 +449,13 @@ const ClientCardTabContent = ({
     )
 }
 
-export const ResidentClientTabContent = ({
+interface IResidentClientTabContentProps {
+    showOrganizationMessage?: boolean
+    canManageContacts?: boolean
+    tabData: TabDataType
+}
+
+export const ResidentClientTabContent: React.FC<IResidentClientTabContentProps> = ({
     showOrganizationMessage = false,
     canManageContacts,
     tabData,
@@ -458,7 +470,7 @@ export const ResidentClientTabContent = ({
         contact,
     } = tabData
 
-    const handleTicketCreateClick = useCallback(async () => {
+    const handleTicketCreate = useCallback(async () => {
         const initialValues = {
             property: property?.id,
             unitName,
@@ -502,7 +514,7 @@ export const ResidentClientTabContent = ({
         <ClientCardTabContent
             tabData={tabData}
             showOrganizationMessage={showOrganizationMessage}
-            handleTicketCreateClick={handleTicketCreateClick}
+            handleTicketCreate={handleTicketCreate}
             getQueryForCreatingMeterReading={getQueryForCreatingMeterReadingWithContact}
             handleContactEditClick={handleContactEditClick}
             canManageContacts={canManageContacts}
@@ -510,7 +522,12 @@ export const ResidentClientTabContent = ({
     )
 }
 
-export const NotResidentClientTabContent = ({
+interface NotResidentClientTabContent {
+    showOrganizationMessage?: boolean
+    tabData: TabDataType
+}
+
+export const NotResidentClientTabContent: React.FC<NotResidentClientTabContent> = ({
     showOrganizationMessage = false,
     tabData,
 }) => {
@@ -521,6 +538,7 @@ export const NotResidentClientTabContent = ({
         property,
         unitName,
         unitType,
+        name,
     } = tabData
 
     const searchTicketsQuery = useMemo(() => ({
@@ -529,13 +547,13 @@ export const NotResidentClientTabContent = ({
         isResidentTicket: false,
     }), [phone])
 
-    const handleTicketCreateClick = useCallback(async (ticket) => {
+    const handleTicketCreate = useCallback(async () => {
         const initialValues = {
             property: property?.id,
             unitName,
             unitType,
-            clientName: ticket?.clientName,
-            clientPhone: ticket?.clientPhone,
+            clientName: name,
+            clientPhone: phone,
             isResidentTicket: false,
         }
 
@@ -544,30 +562,37 @@ export const NotResidentClientTabContent = ({
             formRoute: '/ticket/create',
             initialValues,
         })
-    }, [property, router, unitName, unitType])
+    }, [name, phone, property?.id, router, unitName, unitType])
 
-    const getQueryForCreatingMeterReadingWithoutContact = useCallback((ticket) => ({
+    const getQueryForCreatingMeterReadingWithoutContact = useCallback(() => ({
         tab: METER_TAB_TYPES.meterReading,
         propertyId: property?.id,
         unitName,
         unitType,
-        clientName: ticket?.clientName,
-        clientPhone: ticket?.clientPhone,
-    }), [property, unitName, unitType])
+        clientName: name,
+        clientPhone: phone,
+    }), [name, phone, property?.id, unitName, unitType])
 
     return (
         <ClientCardTabContent
             tabData={tabData}
             showOrganizationMessage={showOrganizationMessage}
             searchTicketsQuery={searchTicketsQuery}
-            handleTicketCreateClick={handleTicketCreateClick}
+            handleTicketCreate={handleTicketCreate}
             getQueryForCreatingMeterReading={getQueryForCreatingMeterReadingWithoutContact}
             canManageContacts={false}
         />
     )
 }
 
-export const SearchByAddressTabContent = ({ firstClientData, canManageContacts, showOrganizationMessage, AddressSearchInput }) => {
+interface SearchByAddressTabContentProps {
+    firstClientData: TabDataType
+    canManageContacts?: boolean
+    showOrganizationMessage?: boolean
+    AddressSearchInput: React.FC<any>
+}
+
+export const SearchByAddressTabContent: React.FC<SearchByAddressTabContentProps> = ({ firstClientData, canManageContacts, showOrganizationMessage, AddressSearchInput }) => {
     const intl = useIntl()
     const EmptyClientContentDescription = intl.formatMessage({ id: 'pages.clientCard.emptyClientContent.description' })
     const PropertySelectPlaceholder = intl.formatMessage({ id: 'pages.clientCard.emptyClientContent.propertySelect.placeholder' })
@@ -577,11 +602,11 @@ export const SearchByAddressTabContent = ({ firstClientData, canManageContacts, 
 
     const [propertyId, setPropertyId] = useState<string>()
     const [unitName, setUnitName] = useState<string>()
-    const [sectionType, setSectionType] = useState<string>()
+    const [sectionType, setSectionType] = useState<BuildingSectionType>()
 
     const [form] = Form.useForm()
-    const sectionName = Form.useWatch('sectionName', form)
-    const unitType = Form.useWatch('unitType', form)
+    const sectionName = Form.useWatch('sectionName', form) as BuildingSectionType
+    const unitType = Form.useWatch('unitType', form) as BuildingUnitSubType
 
     const { loading: propertyLoading, data: propertyData } = useGetPropertyByIdQuery({
         variables: {
@@ -592,7 +617,7 @@ export const SearchByAddressTabContent = ({ firstClientData, canManageContacts, 
     const property = useMemo(() => propertyData?.properties?.[0], [propertyData])
     const organizationName = useMemo(() => property?.organization?.name, [property?.organization?.name])
 
-    const handleTicketCreateClick = useCallback(async () => {
+    const handleTicketCreate = useCallback(async () => {
         const initialValues = {
             property: propertyId,
             unitName,
@@ -600,6 +625,11 @@ export const SearchByAddressTabContent = ({ firstClientData, canManageContacts, 
             sectionName,
             sectionType,
             clientPhone: phoneNumber,
+            clientName: firstClientData?.name,
+            isResidentTicket: firstClientData?.type === ClientCardTab.Resident,
+            // Hack for NewContactFields component because AutoComplete wiht client name has such name in contact form.
+            // TODO(INFRA-584): ContactEditor component should be refactored
+            IGNORE_FIELD_NEW_CONTACT_NAME: firstClientData?.name,
         }
 
         await redirectToForm({
@@ -607,7 +637,7 @@ export const SearchByAddressTabContent = ({ firstClientData, canManageContacts, 
             formRoute: '/ticket/create',
             initialValues,
         })
-    }, [propertyId, unitName, unitType, sectionName, sectionType, phoneNumber, router])
+    }, [propertyId, unitName, unitType, sectionName, sectionType, phoneNumber, firstClientData?.name, firstClientData?.type, router])
 
     const tabData = useMemo(() => ({
         unitName,
@@ -626,16 +656,18 @@ export const SearchByAddressTabContent = ({ firstClientData, canManageContacts, 
         unitType,
         sectionName,
         sectionType,
-        contact: firstClientData?.contact?.id,
         clientName: firstClientData?.name,
         clientPhone: phoneNumber,
-    }), [
-        property?.id, unitName, unitType, sectionName, 
-        sectionType, firstClientData?.contact?.id, firstClientData?.name, phoneNumber,
-    ])
+        IGNORE_FIELD_NEW_CONTACT_NAME: firstClientData?.name,
+    }), [property?.id, unitName, unitType, sectionName, sectionType, firstClientData?.name, phoneNumber])
+
+    const handleAddressSearchInputChange = useCallback((_, option) => {
+        if (Array.isArray(option)) return
+        setPropertyId(option?.key)
+    }, [setPropertyId])
 
     return (
-        <Row gutter={[0, 40]}>
+        <Row gutter={ROW_BIG_MEDIUM_GUTTER}>
             {
                 firstClientData && (
                     <Col span={24}>
@@ -668,12 +700,8 @@ export const SearchByAddressTabContent = ({ firstClientData, canManageContacts, 
                             colon
                         >
                             <AddressSearchInput
-                                style={{ width: '100%' }}
-                                // organizationId={organizationId}
-                                onChange={(_, option) => {
-                                    if (Array.isArray(option)) return
-                                    setPropertyId(option?.key)
-                                }}
+                                style={ADDRESS_SEARCH_INPUT_STYLE}
+                                onChange={handleAddressSearchInputChange}
                                 placeholder={PropertySelectPlaceholder}
                             />
                             {
@@ -699,7 +727,7 @@ export const SearchByAddressTabContent = ({ firstClientData, canManageContacts, 
                 </Row >
             </Col>
             <Col span={24}>
-                <Row gutter={[0, 24]}>
+                <Row gutter={ROW_MEDIUM_SMALL_GUTTER}>
                     {
                         showOrganizationMessage && (
                             <Col span={24}>
@@ -710,7 +738,7 @@ export const SearchByAddressTabContent = ({ firstClientData, canManageContacts, 
                     <Col span={24}>
                         <ClientCardTabContent
                             tabData={tabData}
-                            handleTicketCreateClick={handleTicketCreateClick}
+                            handleTicketCreate={handleTicketCreate}
                             getQueryForCreatingMeterReading={getQueryForCreatingMeterReading}
                             showOrganizationMessage={showOrganizationMessage}
                             canManageContacts={canManageContacts}

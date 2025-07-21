@@ -1,10 +1,13 @@
 import {
     BuildingUnitSubType,
+    Property as PropertyType,
+    Organization as OrganizationType,
 } from '@app/condo/schema'
 import { Row } from 'antd'
 import { EllipsisConfig } from 'antd/lib/typography/Base'
 import { useLayoutEffect, useRef, useState } from 'react'
 
+import { Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Space, Typography } from '@open-condo/ui'
 
@@ -15,9 +18,23 @@ import styles from './ClientAddressCard.module.css'
 
 const ADDRESS_STREET_ONE_ROW_HEIGHT = 25
 const ADDRESS_POSTFIX_ONE_ROW_HEIGHT = 22
+const ONE_ROW_ELLIPSIS: EllipsisConfig = { rows: 1 }
+const TWO_ROWS_ELLIPSIS: EllipsisConfig = { rows: 2 }
+const UNIT_ROWS_STYLE: React.CSSProperties = { gap: 4 }
 
+interface IClientAddressCardProps {
+    onClick: () => void
+    active?: boolean
+    property: Pick<PropertyType, 'id' | 'address'>
+    organization: Pick<OrganizationType, 'id' | 'name' | 'phoneNumberPrefix'>
+    unitName?: string
+    floorName?: string
+    unitType?: string
+    sectionName?: string
+    showOrganizationMessage?: boolean
+}
 
-export const ClientAddressCard = ({ onClick, active, property, organization, unitName, floorName, unitType, sectionName, showOrganizationMessage }) => {
+export const ClientAddressCard: React.FC<IClientAddressCardProps> = ({ onClick, active, property, organization, unitName, floorName, unitType, sectionName, showOrganizationMessage }) => {
     const intl = useIntl()
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
     const FlatMessage = intl.formatMessage({ id: 'field.ShortFlatNumber' })
@@ -28,19 +45,19 @@ export const ClientAddressCard = ({ onClick, active, property, organization, uni
     const addressStreetRef = useRef<HTMLDivElement>()
     const addressPostfixRef = useRef<HTMLDivElement>()
 
-    const [addressStreetEllipsis, setAddressStreetEllipsis] = useState<EllipsisConfig>({ rows: 2 })
-    const [addressPostfixEllipsis, setAddressPostfixEllipsis] = useState<EllipsisConfig>({ rows: 2 })
+    const [addressStreetEllipsis, setAddressStreetEllipsis] = useState<EllipsisConfig>(TWO_ROWS_ELLIPSIS)
+    const [addressPostfixEllipsis, setAddressPostfixEllipsis] = useState<EllipsisConfig>(TWO_ROWS_ELLIPSIS)
 
     useLayoutEffect(() => {
         const addressStreetTextHeight = addressStreetRef.current.clientHeight
         const addressPostfixTextHeight = addressPostfixRef.current.clientHeight
 
         if (addressStreetTextHeight > ADDRESS_STREET_ONE_ROW_HEIGHT) {
-            setAddressStreetEllipsis({ rows: 2 })
-            setAddressPostfixEllipsis({ rows: 1 })
+            setAddressStreetEllipsis(TWO_ROWS_ELLIPSIS)
+            setAddressPostfixEllipsis(ONE_ROW_ELLIPSIS)
         } else if (addressPostfixTextHeight > ADDRESS_POSTFIX_ONE_ROW_HEIGHT) {
-            setAddressStreetEllipsis({ rows: 1 })
-            setAddressPostfixEllipsis({ rows: 2 })
+            setAddressStreetEllipsis(ONE_ROW_ELLIPSIS)
+            setAddressPostfixEllipsis(TWO_ROWS_ELLIPSIS)
         }
     }, [])
 
@@ -56,7 +73,7 @@ export const ClientAddressCard = ({ onClick, active, property, organization, uni
                         showOrganizationMessage && (
                             <Typography.Paragraph
                                 size='large'
-                                ellipsis={{ rows: 2 }}
+                                ellipsis={TWO_ROWS_ELLIPSIS}
                                 type='secondary'
                             >
                                 {organization.name}
@@ -74,7 +91,7 @@ export const ClientAddressCard = ({ onClick, active, property, organization, uni
                     </Typography.Text>
 
                     {floorName || sectionName || unitName ? (
-                        <Row style={{ gap: 4 }}>
+                        <Row style={UNIT_ROWS_STYLE}>
                             <Typography.Text
                                 ref={addressStreetRef}
                                 ellipsis={addressStreetEllipsis}
@@ -107,12 +124,28 @@ export const ClientAddressCard = ({ onClick, active, property, organization, uni
     )
 }
 
-export const SearchByAddressCard = ({ onClick, active }) => {
+interface ISearchByAddressCardProps {
+    onClick: () => void
+    active?: boolean
+}
 
+export const SearchByAddressCard: React.FC<ISearchByAddressCardProps> = ({ onClick, active }) => {
+    const intl = useIntl()
+    const SearchByAddressMessage = intl.formatMessage({ id: 'pages.clientCard.searchByAddress' })
+    
     return (
         <div data-active={active} className={styles.addressTabWrapper} onClick={onClick}>
             <div className={styles.addressTabContent}>
-                Поиск по адресу
+                <Space 
+                    size={20}
+                    direction='horizontal'
+                    align='center'
+                    height='100%'
+                    className={styles.addressSearchTabWrapper}
+                >
+                    <Search />
+                    <Typography.Title level={4}>{SearchByAddressMessage}</Typography.Title>
+                </Space>
             </div>
         </div>
     )

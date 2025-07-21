@@ -100,7 +100,6 @@ const NotFoundSearchByPhoneContent = ({ onSelect, phone, canManageContacts }) =>
 const SELECT_STYLES = { width: '100%' }
 const PHONE_INPUT_MASK = { ru: '... ... .. ..' }
 
-
 const StyledPhoneInput = styled(PhoneInput)`
   & .ant-input {
     padding-left: 12px !important;
