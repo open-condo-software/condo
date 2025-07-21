@@ -81339,7 +81339,7 @@ type ExecutionAIFlowTask {
   """
    The type of AI flow to be called.
                
-  The value can be one of the list ("ticket_rewrite_comment_flow"), or some allowed custom value. 
+  The value can be one of the list ("ticket_rewrite_comment_flow"."rewrite_text_flow"), or some allowed custom value. 
   """
   flowType: String
 
