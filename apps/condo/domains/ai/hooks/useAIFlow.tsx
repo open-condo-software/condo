@@ -124,11 +124,13 @@ export function useAIConfig () {
     const { useFlag } = useFeatureFlags()
 
     const rewriteTicketComment = useFlag('ui-ai-ticket-rewrite-comment')
+    const rewriteText = useFlag('ui-ai-rewrite-text')
 
     return {
         enabled: aiEnabled,
         features: {
             rewriteTicketComment,
+            rewriteText,
         },
     }
 }
