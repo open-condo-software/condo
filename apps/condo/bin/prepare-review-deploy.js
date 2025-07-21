@@ -110,6 +110,7 @@ async function migrateB2BAppUrlsToReview ({ devBaseDomain, reviewBaseDomain }) {
 
     const b2bApps = await B2BApp.getAll(context, {
         deletedAt: null,
+        appUrl_contains: devBaseDomain,
     }, 'id appUrl dv sender { dv fingerprint }')
 
     const updatedB2BApps = b2bApps.map((b2bApp) => {
