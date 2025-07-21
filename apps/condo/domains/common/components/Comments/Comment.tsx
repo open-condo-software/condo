@@ -3,7 +3,7 @@ import { Comment as AntComment, Image } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
-import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 
 import { Edit, Trash } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
@@ -31,10 +31,7 @@ const getFilePreviewByMimetype = (mimetype, url) => {
 }
 
 const COMMENT_DATE_FORMAT = 'DD.MM.YYYY, HH:mm'
-const TEXT_WRAP_COMPONENT_STYLES: CSSProperties = { display: 'flex', flexFlow: 'column', justifyContent: 'center', width: '70px', marginTop: 16 }
 const ELLIPSIS_CONFIG = { rows: 1 }
-const FILENAME_TEXT_STYLES: CSSProperties = { margin: 0 }
-const AUTHOR_TEXT_STYLES: CSSProperties = { paddingRight: '2px' }
 
 type CommentFileListProps = {
     comment: CommentWithFiles
@@ -54,16 +51,17 @@ const CommentFileList: React.FC<CommentFileListProps> = ({ comment }) => {
         return (
             <TextWrapComponent
                 key={index}
-                style={TEXT_WRAP_COMPONENT_STYLES}
                 {...extraProps}
             >
-                {getFilePreviewByMimetype(mimetype, url)}
-                <Typography.Paragraph ellipsis={ELLIPSIS_CONFIG} style={FILENAME_TEXT_STYLES} size='medium'>
-                    {fileName}
-                    <Typography.Text type='secondary' size='medium'>
+                <div className={styles.textWrapComponent}>
+                    {getFilePreviewByMimetype(mimetype, url)}
+                    <Typography.Paragraph ellipsis={ELLIPSIS_CONFIG} size='medium'>
+                        {fileName}
+                        <Typography.Text type='secondary' size='medium'>
                         .{fileExt}
-                    </Typography.Text>
-                </Typography.Paragraph>
+                        </Typography.Text>
+                    </Typography.Paragraph>
+                </div>
             </TextWrapComponent>
         )
     }), [files])
@@ -189,8 +187,10 @@ export const Comment: React.FC<ICommentProps> = ({ comment, setEditableComment, 
             }
             author={
                 <Typography.Text type='secondary' size='small'>
-                    <Typography.Text type='secondary' underline style={AUTHOR_TEXT_STYLES} size='small'>
-                        {get(comment, 'user.name', DeletedUserText)}
+                    <Typography.Text type='secondary' underline size='small'>
+                        <span className={styles.authorText}>
+                            {get(comment, 'user.name', DeletedUserText)}
+                        </span>
                     </Typography.Text>
                     {authorRole && `(${authorRole})`},
                 </Typography.Text>
@@ -226,8 +226,10 @@ export const CommentPreview: React.FC<{ comment: TicketComment }> = ({ comment }
             }
             author={
                 <Typography.Text type='secondary' size='small'>
-                    <Typography.Text type='secondary' style={AUTHOR_TEXT_STYLES} size='small'>
-                        {get(comment, 'user.name', DeletedUserText)}
+                    <Typography.Text type='secondary' size='small'>
+                        <span className={styles.authorText}>
+                            {get(comment, 'user.name', DeletedUserText)}
+                        </span>
                     </Typography.Text>
                     {authorRole && `(${authorRole})`},
                 </Typography.Text>

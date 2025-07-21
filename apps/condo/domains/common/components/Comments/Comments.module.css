@@ -211,3 +211,19 @@
   flex-wrap: wrap;
   gap: 20px;
 }
+
+.text-wrap-component {
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  width: 70px;
+  margin-top: 16px;
+}
+
+.filename-text {
+  margin: 0;
+}
+
+.author-text {
+  padding-right: 2px;
+}
