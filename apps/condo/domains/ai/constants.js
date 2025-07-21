@@ -11,6 +11,7 @@ const FLOW_ADAPTERS = {
 
 const CUSTOM_FLOW_TYPE = 'custom_flow'
 const TICKET_REWRITE_COMMENT_FLOW_TYPE = 'ticket_rewrite_comment_flow'
+const REWRITE_TEXT_FLOW_TYPE = 'rewrite_text_flow'
 
 /**
  * list of hardcoded flow types
@@ -20,6 +21,7 @@ const TICKET_REWRITE_COMMENT_FLOW_TYPE = 'ticket_rewrite_comment_flow'
  */
 const FLOW_TYPES = {
     TICKET_REWRITE_COMMENT_FLOW_TYPE: TICKET_REWRITE_COMMENT_FLOW_TYPE,
+    REWRITE_TEXT_FLOW_TYPE: REWRITE_TEXT_FLOW_TYPE,
 }
 const FLOW_TYPES_LIST = Object.values(FLOW_TYPES)
 
@@ -83,6 +85,20 @@ const FLOW_META_SCHEMAS = {
                 },
                 isExecutorAssigned: { type: 'string' },
                 isAssigneeAssigned: { type: 'string' },
+            },
+        },
+        output: {
+            type: 'object',
+            properties: {
+                answer: { type: 'string' },
+            },
+        },
+    },
+    REWRITE_TEXT_FLOW_TYPE: {
+        input: {
+            type: 'object',
+            properties: {
+                userInput: { type: 'string' },
             },
         },
         output: {

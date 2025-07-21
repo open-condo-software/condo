@@ -1,199 +1,37 @@
-import { DeleteFilled, EditFilled } from '@ant-design/icons'
 import { User, TicketComment } from '@app/condo/schema'
-import { css } from '@emotion/react'
-import styled from '@emotion/styled'
-import { Comment as AntComment, Image, Popconfirm, Typography } from 'antd'
+import { Comment as AntComment, Image } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
-import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 
+import { Edit, Trash } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
-import { Button, Space } from '@open-condo/ui'
+import { Button, Tooltip, Typography } from '@open-condo/ui'
 
-import { colors, fontSizes } from '@condo/domains/common/constants/style'
 import { getIconByMimetype } from '@condo/domains/common/utils/clientSchema/files'
+
+import styles from './Comments.module.css'
 
 import { CommentWithFiles } from './index'
 
-
 const { RESIDENT, STAFF, SERVICE } = require('@condo/domains/user/constants/common')
-
 
 interface ICommentProps {
     comment: CommentWithFiles
-    setEditableComment: React.Dispatch<React.SetStateAction<CommentWithFiles>>
+    setEditableComment: (value: CommentWithFiles) => void
     deleteAction?: (obj: CommentWithFiles) => Promise<void>
 }
-
-
-const DeletedTextStyle = css`
-    margin-top: 1em;
-    padding-left: 12px;
-    color: ${colors.lightGrey};
-`
-
-const CommentStyle = css`
-    background: ${colors.white} !important;
-    border-radius: 8px;
-    padding: 0;
-    font-size: ${fontSizes.label};
-    line-height: 22px;
-
-    &:hover {
-        .ant-comment-inner {
-            .ant-comment-content {
-                .ant-comment-actions {
-                    opacity: 1;
-                    pointer-events: all;
-                }
-            }
-        }
-    }
-
-    .ant-comment-inner {
-        padding: 12px;
-
-        .ant-comment-content {
-            display: flex;
-            flex-flow: column nowrap;
-
-            .ant-image {
-                border-radius: 8px;
-                overflow: hidden;
-
-                .ant-image-mask-info {
-                    display: none;
-                }
-            }
-
-            .ant-comment-content-author {
-                display: block;
-                margin-top: 0.6em;
-                margin-bottom: 8px;
-                font-size: ${fontSizes.small};
-
-                .ant-comment-content-author-name {
-                    display: block;
-                    color: ${colors.textSecondary};
-                }
-
-                .ant-comment-content-author-time {
-                    padding: 0;
-
-                    & > div > span {
-                        color: ${colors.textSecondary};
-                    }
-                }
-            }
-
-            .ant-comment-content-detail > div {
-                margin-top: 20px;
-
-                & > .ant-typography {
-                    margin-bottom: 4px;
-                    cursor: pointer;
-
-                    & > .ant-typography {
-                        margin-left: 8px;
-                    }
-                }
-            }
-
-            .ant-comment-actions {
-                position: absolute;
-                right: -5px;
-                bottom: -5px;
-                opacity: 0;
-                pointer-events: none;
-                transition: all 0.3s ease-in-out;
-            }
-        }
-    }
-`
-
-const CommentPreviewStyle = css`
-    width: 100%;
-    background: ${colors.white};
-    margin-bottom: 6px;
-    border: 1px solid ${colors.sberGrey};
-    border-radius: 8px;
-    padding: 0;
-    font-size: ${fontSizes.label};
-    line-height: 22px;
-
-    .ant-comment-inner {
-        padding: 12px;
-
-        .ant-comment-content {
-            display: flex;
-            flex-flow: column nowrap;
-
-            .ant-comment-content-author {
-                display: block;
-                margin-top: 0;
-                margin-bottom: 8px;
-                font-size: ${fontSizes.small};
-
-                .ant-comment-content-author-name {
-                    padding-right: 4px;
-                    color: ${colors.textSecondary};
-                }
-
-                .ant-comment-content-author-time {
-                    padding: 0;
-
-                    & > div > span {
-                        color: ${colors.textSecondary};
-                    }
-                }
-            }
-
-            .ant-comment-content-detail > div {
-                margin-top: 20px;
-
-                & > .ant-typography {
-                    margin-bottom: 4px;
-                    cursor: pointer;
-
-                    & > .ant-typography {
-                        margin-left: 8px;
-                    }
-                }
-            }
-        }
-    }
-`
 
 const getFilePreviewByMimetype = (mimetype, url) => {
     if (mimetype.startsWith('image')) return <Image src={url} width={64} height={64} />
 
-    return <CommentFileCard>{getIconByMimetype(mimetype)}</CommentFileCard>
+    return <div className={styles.commentFileCard}>{getIconByMimetype(mimetype)}</div>
 }
 
-const CommentFileListWrapper = styled.div`
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-`
-
-const CommentFileCard = styled.div`
-    border-radius: 8px;
-    overflow: hidden;
-    background-color: ${colors.backgroundLightGrey};
-    width: 64px;
-    height: 64px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-`
-
 const COMMENT_DATE_FORMAT = 'DD.MM.YYYY, HH:mm'
-const TEXT_WRAP_COMPONENT_STYLES: CSSProperties = { display: 'flex', flexFlow: 'column', justifyContent: 'center', width: '70px' }
 const ELLIPSIS_CONFIG = { rows: 1 }
-const FILENAME_TEXT_STYLES: CSSProperties = { margin: 0 }
-const AUTHOR_TEXT_STYLES: CSSProperties = { paddingRight: '2px' }
 
 type CommentFileListProps = {
     comment: CommentWithFiles
@@ -213,16 +51,17 @@ const CommentFileList: React.FC<CommentFileListProps> = ({ comment }) => {
         return (
             <TextWrapComponent
                 key={index}
-                style={TEXT_WRAP_COMPONENT_STYLES}
                 {...extraProps}
             >
-                {getFilePreviewByMimetype(mimetype, url)}
-                <Typography.Paragraph ellipsis={ELLIPSIS_CONFIG} style={FILENAME_TEXT_STYLES}>
-                    {fileName}
-                    <Typography.Text type='secondary'>
+                <div className={styles.textWrapComponent}>
+                    {getFilePreviewByMimetype(mimetype, url)}
+                    <Typography.Paragraph ellipsis={ELLIPSIS_CONFIG} size='medium'>
+                        {fileName}
+                        <Typography.Text type='secondary' size='medium'>
                         .{fileExt}
-                    </Typography.Text>
-                </Typography.Paragraph>
+                        </Typography.Text>
+                    </Typography.Paragraph>
+                </div>
             </TextWrapComponent>
         )
     }), [files])
@@ -231,9 +70,9 @@ const CommentFileList: React.FC<CommentFileListProps> = ({ comment }) => {
 
     return (
         <Image.PreviewGroup>
-            <CommentFileListWrapper>
+            <div className={styles.commentFileListWrapper}>
                 {fileList}
-            </CommentFileListWrapper>
+            </div>
         </Image.PreviewGroup>
     )
 }
@@ -261,17 +100,21 @@ export const Comment: React.FC<ICommentProps> = ({ comment, setEditableComment, 
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'Comments.actions.delete.confirm.title' })
     const ConfirmDeleteOkText = intl.formatMessage({ id: 'Comments.actions.delete.confirm.okText' })
     const ConfirmDeleteCancelText = intl.formatMessage({ id: 'Comments.actions.delete.confirm.cancelText' })
-    const CommentDeletedText = intl.formatMessage({ id: 'Comments.deleted' })
     const MetaUpdatedText = intl.formatMessage({ id: 'Comments.meta.updated' })
     const DeletedUserText = intl.formatMessage({ id: 'Comments.user.deleted' })
+    const DeletedTooltipText = intl.formatMessage({ id: 'Delete' })
+    const EditTooltipText = intl.formatMessage({ id: 'Edit' })
 
     const { user } = useAuth()
 
+    const [isDeleteTooltipOpen, setIsDeleteTooltipOpen] = useState(false)
     const [dateShowMode, setDateShowMode] = useState<'created' | 'updated'>('created')
 
     const handleDeleteComment = useCallback(() => {
         deleteAction(comment)
-    }, [comment, deleteAction])
+        setEditableComment(null)
+        setIsDeleteTooltipOpen(false)
+    }, [comment, deleteAction, setEditableComment])
     const handleUpdateComment = useCallback(() => setEditableComment(comment), [comment, setEditableComment])
     const datetimeText = useMemo(() => dayjs(dateShowMode === 'created' ? comment.createdAt : comment.updatedAt).format(COMMENT_DATE_FORMAT),
         [comment.createdAt, comment.updatedAt, dateShowMode])
@@ -281,56 +124,73 @@ export const Comment: React.FC<ICommentProps> = ({ comment, setEditableComment, 
     const authorRole = getCommentAuthorRoleMessage(get(comment, 'user'), intl)
 
     const actions = useMemo(() => user.id === comment.user.id && ([
-        <Space key='space' size={0}>
-            <Popconfirm
-                key='delete'
-                title={ConfirmDeleteTitle}
-                okText={ConfirmDeleteOkText}
-                cancelText={ConfirmDeleteCancelText}
-                onConfirm={handleDeleteComment}
-            >
+        <Tooltip
+            key='delete'
+            open={isDeleteTooltipOpen}
+            zIndex={1001}
+            title={
+                <div>
+                    <Typography.Paragraph size='medium' strong>{ConfirmDeleteTitle}</Typography.Paragraph>
+                    <div className={styles.deleteTooltipButtonContainer}>
+                        <Button
+                            onClick={()=>setIsDeleteTooltipOpen(false)}
+                            type='secondary'
+                            size='medium'
+                        >
+                            {ConfirmDeleteCancelText}
+                        </Button>
+                        <Button
+                            type='primary'
+                            size='medium'
+                            onClick={handleDeleteComment}
+                        >
+                            {ConfirmDeleteOkText}
+                        </Button>
+                    </div>
+                </div>
+            }
+        >
+            <Tooltip title={DeletedTooltipText} zIndex={1000}>
                 <Button
-                    type='primary'
-                    danger
+                    onClick={() => setIsDeleteTooltipOpen(true)}
+                    type='secondary'
                     size='large'
-                    icon={<DeleteFilled />}
+                    icon={<Trash size='small'/>}
+                    minimal
+                    compact
                 />
-            </Popconfirm>,
+            </Tooltip>
+        </Tooltip>,
+        <Tooltip title={EditTooltipText} placement='top' key='copyButton'>
             <Button
-                type='primary'
+                type='secondary'
                 key='update'
+                compact
                 size='large'
-                icon={<EditFilled />}
+                minimal
+                icon={<Edit size='small' />}
                 onClick={handleUpdateComment}
             />
-        </Space>,
-    ]), [ConfirmDeleteCancelText, ConfirmDeleteOkText, ConfirmDeleteTitle, comment.user.id, handleDeleteComment, handleUpdateComment, user.id])
-
-    if (comment.deletedAt) {
-        return (
-            <Typography.Paragraph
-                italic
-                css={DeletedTextStyle}
-            >
-                {CommentDeletedText}
-            </Typography.Paragraph>
-        )
-    }
+        </Tooltip>,
+    ]), [isDeleteTooltipOpen, ConfirmDeleteCancelText, ConfirmDeleteOkText, ConfirmDeleteTitle, comment.user.id, handleDeleteComment, handleUpdateComment, user.id])
 
     return (
         <AntComment
+            className={styles.comment}
             content={
                 <>
-                    <Typography.Text>
+                    <Typography.Text size='medium'>
                         {comment.content}
                     </Typography.Text>
                     <CommentFileList comment={comment} />
                 </>
             }
             author={
-                <Typography.Text type='secondary'>
-                    <Typography.Text type='secondary' underline style={AUTHOR_TEXT_STYLES}>
-                        {get(comment, 'user.name', DeletedUserText)}
+                <Typography.Text type='secondary' size='small'>
+                    <Typography.Text type='secondary' underline size='small'>
+                        <span className={styles.authorText}>
+                            {get(comment, 'user.name', DeletedUserText)}
+                        </span>
                     </Typography.Text>
                     {authorRole && `(${authorRole})`},
                 </Typography.Text>
@@ -340,13 +200,12 @@ export const Comment: React.FC<ICommentProps> = ({ comment, setEditableComment, 
                     onMouseOut={() => setDateShowMode('created')}
                     onMouseOver={() => setDateShowMode('updated')}
                 >
-                    <Typography.Text title={datetimeTitle}>
+                    <Typography.Text title={datetimeTitle} size='small' type='secondary'>
                         {datetimeText}
                     </Typography.Text>
                 </div>
             }
             actions={actions}
-            css={CommentStyle}
         />
     )
 }
@@ -359,25 +218,27 @@ export const CommentPreview: React.FC<{ comment: TicketComment }> = ({ comment }
 
     return (
         <AntComment
+            className={styles.commentPreview}
             content={
-                <Typography.Text>
+                <Typography.Text size='medium'>
                     {comment.content}
                 </Typography.Text>
             }
             author={
-                <Typography.Text type='secondary'>
-                    <Typography.Text type='secondary' style={AUTHOR_TEXT_STYLES}>
-                        {get(comment, 'user.name', DeletedUserText)}
+                <Typography.Text type='secondary' size='small'>
+                    <Typography.Text type='secondary' size='small'>
+                        <span className={styles.authorText}>
+                            {get(comment, 'user.name', DeletedUserText)}
+                        </span>
                     </Typography.Text>
                     {authorRole && `(${authorRole})`},
                 </Typography.Text>
             }
             datetime={
-                <Typography.Text type='secondary'>
+                <Typography.Text type='secondary' size='small'>
                     {dayjs(comment.createdAt).format('DD.MM.YYYY, HH:mm')}
                 </Typography.Text>
             }
-            css={CommentPreviewStyle}
         />
     )
 }

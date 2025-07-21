@@ -367,3 +367,48 @@
 .map-unit-button.map-commercial-unit-button:hover {
   background-color: #eb34684d;
 }
+
+.ant-comment > .ant-comment-inner {
+  padding: 0;
+}
+
+.ant-drawer.ant-drawer-right > .ant-drawer-content-wrapper {
+  top: 20px;
+  right: 20px;
+  height: calc(100% - 40px);
+  box-shadow: none;
+}
+
+@media (max-width: 480px) {
+  .ant-drawer.ant-drawer-right > .ant-drawer-content-wrapper {
+    top: 0;
+    right: 0;
+    height: 100%;
+  }
+}
+
+.ant-drawer-content {
+  border-radius: 24px;
+}
+
+.ant-drawer-header {
+  padding: 24px;
+}
+
+.ant-drawer-wrapper-body > .ant-drawer-header {
+  padding-bottom: 0;
+  border: none;
+}
+
+.ant-drawer-header-title > .ant-drawer-close {
+  display: none;
+}
+
+.condo-input-utils > span > .ant-upload-list.ant-upload-list-text {
+  position: absolute;
+  top: 52px;
+  left: -12px;
+  width: calc(100% + 24px);
+  margin-bottom: 10px;
+  overflow-y: scroll;
+}

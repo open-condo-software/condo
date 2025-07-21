@@ -1,0 +1,229 @@
+.comment-container {
+  display: flex;
+  flex-flow: column nowrap;
+  align-content: space-between;
+  overflow: hidden;
+}
+
+.comment-container.in-page {
+  max-height: 756px;
+  border: 1px solid var(--condo-global-color-gray-3);
+  border-radius: var(--condo-global-border-radius-medium);
+}
+
+.empty-container {
+  display: flex;
+  flex: 1 1;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  padding: 24px 0;
+  text-align: center;
+}
+
+.comment-container.in-modal > div,
+.comment-container.in-modal > span {
+  padding: 0;
+}
+
+.empty-container > div > div:first-child {
+  display: none;
+}
+
+.comment-container.in-modal > .card-container > div {
+  padding: 0;
+}
+
+.comment-body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 24px;
+  height: 100%;
+  padding: 12px 24px 24px;
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+
+.comment-container.in-modal > div > .comment-body {
+  padding: 24px 0;
+}
+
+.comment-container:not(.is-small) {
+  height: calc(100vh - 100px);
+}
+
+.comment-container.in-modal {
+  height: 100%;
+}
+
+.comment-container.in-modal .empty-container-description {
+  padding: 0 24px;
+}
+
+.comment-head {
+  padding: 24px 24px 0;
+  font-weight: bold;
+  font-size: 20px;
+  font-style: normal;
+  line-height: 28px;
+}
+
+.comment-footer {
+  padding: 24px;
+}
+
+.generate-comment-button-wrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.generate-comment-inner-button-wrapper {
+  width: fit-content;
+}
+
+.comments-tabs-container {
+  display: flex;
+  flex: 1 1 auto;
+  height: calc(100vh - 508px);
+  padding: 0;
+  overflow-y: scroll;
+}
+
+.empty-container-text {
+  font-size: var(--condo-global-font-size-h4);
+}
+
+.loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 8px 0 18px;
+}
+
+.new-comment-indicator {
+  position: relative;
+  top: -3px;
+  left: 2px;
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  background-color: var(--condo-global-color-red-5);
+  border-radius: 100px;
+}
+
+.switch-comments-type-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.comment-text-area-wrapper {
+  padding-bottom: 0;
+  transition: all var(--condo-global-transition-duration-default) ease-in-out;
+}
+
+.comment-text-area-wrapper.with-file {
+  padding-bottom: 44px;
+}
+
+.rewrite-text-button :global(.condo-btn-loading-icon) {
+  width: 16px;
+  padding: 0;
+}
+
+.drawer-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.tooltip-button-container {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.comment {
+  padding: 0;
+  line-height: 22px;
+  background: white;
+  border-radius: 8px;
+}
+
+.comment :global(.ant-comment-content-author) {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+}
+
+.comment :global(.comment-content-detail > div) {
+  margin-top: 20px;
+}
+
+.comment :global(.comment-content-detail > div > p) {
+  margin-bottom: 4px;
+  cursor: pointer;
+}
+
+.comment :global(.comment-content-detail > div > p > p) {
+  margin-left: 8px;
+}
+
+.comment :global(.ant-comment-actions) {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  gap: 8px;
+  opacity: 0;
+  transition: all var(--condo-global-transition-duration-default) ease-in-out;
+  pointer-events: none;
+}
+
+.comment:hover :global(.ant-comment-actions) {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.comment-file-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  overflow: hidden;
+  background-color: var(--condo-global-color-gray-1);
+  border-radius: 8px;
+}
+
+.delete-tooltip-button-container {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.comment-file-list-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.text-wrap-component {
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  width: 70px;
+  margin-top: 16px;
+}
+
+.filename-text {
+  margin: 0;
+}
+
+.author-text {
+  padding-right: 2px;
+}
