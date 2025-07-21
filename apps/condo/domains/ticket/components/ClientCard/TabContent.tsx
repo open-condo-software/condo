@@ -1,5 +1,7 @@
 import {
     GetTicketsForClientCardQuery,
+    useGetCallRecordFragmentExistenceQuery,
+    useGetClientCallRecordsExistenceQuery,
     useGetPropertyByIdQuery,
     useGetTicketsForClientCardQuery,
 } from '@app/condo/gql'
@@ -12,7 +14,7 @@ import {
 import { Col, ColProps, Form, Row, RowProps } from 'antd'
 import { useRouter } from 'next/router'
 import qs from 'qs'
-import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
 import { ExternalLink, History, Mail } from '@open-condo/icons'
@@ -27,7 +29,6 @@ import { IncidentHints } from '@condo/domains/ticket/components/IncidentHints'
 import { TicketResidentFeatures } from '@condo/domains/ticket/components/TicketId/TicketResidentFeatures'
 import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintCard'
 import { useClientCardTicketTableColumns } from '@condo/domains/ticket/hooks/useClientCardTicketTableColumns'
-import { CallRecordFragment } from '@condo/domains/ticket/utils/clientSchema'
 import {
     ClientCardTab,
     CONTACT_PROPERTY_TICKETS_TAB,
@@ -40,70 +41,64 @@ import {
     TabsItems,
 } from '@condo/domains/ticket/utils/clientSchema/clientCard'
 
+import styles from './TabContent.module.css'
+
 
 const MAX_TABLE_SIZE = 20
 
-const TAG_STYLE: CSSProperties = { borderRadius: '100px' }
 const ROW_BIG_GUTTER: RowProps['gutter'] = [0, 60]
 const ROW_BIG_MEDIUM_GUTTER: RowProps['gutter'] = [0, 40]
 const ROW_MEDIUM_SMALL_GUTTER: RowProps['gutter'] = [0, 24]
-const HINT_CARD_STYLE = { maxHeight: '3em' }
 const TICKET_SORT_BY = [SortTicketsBy.OrderAsc, SortTicketsBy.CreatedAtDesc]
 const HINTS_COL_PROPS: ColProps = { span: 24 }
-const ADDRESS_SEARCH_INPUT_STYLE: CSSProperties = { width: '100%' }
 
 interface IClientInfoProps {
     phone: string
     lastTicket?: GetTicketsForClientCardQuery['tickets'][number]
     name: string
     email?: string
-    contact?: { name?: string, email?: string, isEmployee?: boolean, id?: string, organization?: { name?: string }, property?: { id?: string } }
     type: ClientCardTab
-    showOrganizationMessage: boolean
+    propertyId?: string
+    organizationName?: string
+    isEmployee?: boolean
 }
 
-const ClientInfo: React.FC<IClientInfoProps> = ({ lastTicket, name, email, contact, type, phone, showOrganizationMessage }) => {
+const ClientInfo: React.FC<IClientInfoProps> = ({ 
+    lastTicket,
+    name,
+    email,
+    propertyId,
+    organizationName,
+    isEmployee,
+    type,
+    phone,
+}) => {
     const intl = useIntl()
     const CallRecordsLogMessage = intl.formatMessage({ id: 'pages.clientCard.callRecordsLog' })
     const ContactMessage = intl.formatMessage({ id: 'Contact' })
     const NotResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.isResidentContact.false' })
     const EmployeeMessage = intl.formatMessage({ id: 'Employee' })
 
-    const isEmployee = useMemo(() => contact?.isEmployee, [contact?.isEmployee])
-    const propertyId = useMemo(
-        () => contact?.property?.id ?? lastTicket?.property?.id,
-        [contact?.property?.id, lastTicket?.property?.id]
-    )
-    const organizationName = useMemo(
-        () => contact?.organization?.name ?? lastTicket?.organization?.name,
-        [contact?.organization?.name, lastTicket?.organization?.name]
-    )
-
-    const {
-        count,
-    } = CallRecordFragment.useCount({
-        where: {
-            callRecord: {
-                OR: [{ callerPhone: phone, destCallerPhone: phone }],
-            },
-            OR: [
-                { ticket_is_null: true },
-                { ticket: { property: { id: propertyId } } },
-            ],
+    const { data: callRecordFragmentExistenceData } = useGetClientCallRecordsExistenceQuery({
+        variables: {
+            phone,
+            propertyId,
         },
-    }, { skip: !propertyId })
+        skip: !propertyId,
+    })
+    const isCallRecordsExists = useMemo(() => 
+        callRecordFragmentExistenceData?.callRecordFragments?.length > 0,
+    [callRecordFragmentExistenceData])
 
-    const handleCallRecordLinkClick = useCallback(() => {
-        if (typeof window !== 'undefined') {
-            const query = qs.stringify({
-                filters: JSON.stringify({
-                    phone,
-                    property: [propertyId],
-                }),
-            }, { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true })
-
-            window.open(`/callRecord${query}`, '_blank')
-        }
+    const callRecordsLink = useMemo(() => {
+        const query = qs.stringify({
+            filters: JSON.stringify({
+                phone,
+                property: [propertyId],
+            }),
+        }, { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true })
+        
+        return `/callRecord${query}`
     }, [phone, propertyId])
 
     const typeToMessage = useMemo(() => ({
@@ -118,7 +113,7 @@ const ClientInfo: React.FC<IClientInfoProps> = ({ lastTicket, name, email, conta
                     <Typography.Title level={2}>
                         {name}
                     </Typography.Title>
-                    <Tag style={TAG_STYLE}>
+                    <Tag className={styles.clientTypeTag}>
                         {typeToMessage[type]}
                     </Tag>
                     {
@@ -127,7 +122,7 @@ const ClientInfo: React.FC<IClientInfoProps> = ({ lastTicket, name, email, conta
                         )
                     }
                     {
-                        showOrganizationMessage && organizationName && (
+                        organizationName && (
                             <Typography.Text strong type='secondary' size='medium'>
                                 {organizationName}
                             </Typography.Text>
@@ -136,7 +131,7 @@ const ClientInfo: React.FC<IClientInfoProps> = ({ lastTicket, name, email, conta
                 </Space>
             </Col>
             {
-                (email || count > 0) && (
+                (email || isCallRecordsExists) && (
                     <Col span={24}>
                         <Space size={60}>
                             {
@@ -150,10 +145,10 @@ const ClientInfo: React.FC<IClientInfoProps> = ({ lastTicket, name, email, conta
                                 )
                             }
                             {
-                                count > 0 && (
+                                isCallRecordsExists && (
                                     <Typography.Link
                                         size='large'
-                                        onClick={handleCallRecordLinkClick}
+                                        href={callRecordsLink}
                                         target='_blank'
                                     >
                                         <Space size={8} align='center'>
@@ -212,6 +207,7 @@ const ClientCardTabContent: React.FC<IClientCardTabContent> = ({
         contact,
         name,
         email,
+        isEmployee,
     } = tabData
 
     const tabsItems: TabsItems = useMemo(() => tableTabs.map(tab => ({
@@ -336,15 +332,16 @@ const ClientCardTabContent: React.FC<IClientCardTabContent> = ({
                                                 email={email}
                                                 type={type}
                                                 lastTicket={lastCreatedTicket}
-                                                showOrganizationMessage={showOrganizationMessage}
-                                                contact={contact}
+                                                propertyId={propertyId}
+                                                organizationName={showOrganizationMessage && organization?.name}
+                                                isEmployee={isEmployee}
                                             />
                                         </Col>
                                     )
                                 }
                                 <TicketPropertyHintCard
                                     propertyId={propertyId}
-                                    hintContentStyle={HINT_CARD_STYLE}
+                                    className={styles.ticketPropertyHintCard}
                                     colProps={HINTS_COL_PROPS}
                                 />
                                 {
@@ -670,8 +667,8 @@ export const SearchByAddressTabContent: React.FC<SearchByAddressTabContentProps>
                             email={firstClientData?.email}
                             phone={phoneNumber}
                             type={firstClientData?.type}
-                            showOrganizationMessage={false}
-                            contact={firstClientData}
+                            propertyId={property?.id}
+                            isEmployee={firstClientData?.isEmployee}
                         />
                     </Col>
                 )
@@ -694,7 +691,7 @@ export const SearchByAddressTabContent: React.FC<SearchByAddressTabContentProps>
                             colon
                         >
                             <AddressSearchInput
-                                style={ADDRESS_SEARCH_INPUT_STYLE}
+                                className={styles.addressSearchInput}
                                 onChange={handleAddressSearchInputChange}
                                 placeholder={PropertySelectPlaceholder}
                             />

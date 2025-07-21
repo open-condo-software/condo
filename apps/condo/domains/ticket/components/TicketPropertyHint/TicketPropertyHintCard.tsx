@@ -29,9 +29,10 @@ type TicketPropertyHintCardProps = {
     propertyId: string
     hintContentStyle?: CSSProperties
     colProps?: ColProps
+    className?: string
 }
 
-export const TicketPropertyHintCard: React.FC<TicketPropertyHintCardProps> = ({ propertyId, hintContentStyle, colProps }) => {
+export const TicketPropertyHintCard: React.FC<TicketPropertyHintCardProps> = ({ propertyId, hintContentStyle, colProps, className }) => {
     const intl = useIntl()
     const PropertyHintMessage = intl.formatMessage({ id: 'pages.condo.settings.hint.ticketPropertyHint' })
 
@@ -69,13 +70,14 @@ export const TicketPropertyHintCard: React.FC<TicketPropertyHintCardProps> = ({ 
                 <TicketPropertyHintContent
                     html={htmlContent}
                     style={hintContentStyle}
+                    className={className}
                     linkToHint={`/property/${propertyId}/hint`}
                 />
             }
             showIcon
             type='info'
         />
-    ), [PropertyHintMessage, hintContentStyle, htmlContent, propertyId])
+    ), [PropertyHintMessage, className, hintContentStyle, htmlContent, propertyId])
 
     if (!ticketPropertyHintProperty || !ticketPropertyHint) {
         return null

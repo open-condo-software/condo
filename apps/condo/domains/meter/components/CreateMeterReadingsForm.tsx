@@ -309,7 +309,13 @@ export const CreateMeterReadingsForm = ({ organization, canManageMeterReadings }
         source: { connect: { id: CALL_METER_READING_SOURCE_ID } },
     }, async () => {
         if (!redirectToClientCard) {
-            await router.push(`/meter?tab=${METER_TAB_TYPES.meterReading}&type=${METER_TYPES.unit}`)
+            await router.push({
+                pathname: '/meter',
+                query: {
+                    tab: METER_TAB_TYPES.meterReading,
+                    type: METER_TYPES.unit,
+                },
+            })
         }
     })
 
@@ -336,9 +342,12 @@ export const CreateMeterReadingsForm = ({ organization, canManageMeterReadings }
             if (redirectToClientCard) {
                 const { clientPhone } = clientInfo
 
-                await router.push(
-                    `/phone/${clientPhone}?tab=${getClientCardTabKey(property, ClientCardTab.Resident, unitName, unitType, sectionName)}`
-                )
+                await router.push({
+                    pathname: `/phone/${clientPhone}`,
+                    query: {
+                        tab: getClientCardTabKey(property, ClientCardTab.Resident, unitName, unitType, sectionName),
+                    },
+                })
             }
         }
     }, [createMeterReadingAction, newMeterReadings, redirectToClientCard, router])
