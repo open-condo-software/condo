@@ -21,7 +21,6 @@ import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Space, Typography, Tour } from '@open-condo/ui'
 
 import { getObjectValueFromQuery } from '@condo/domains/common/utils/query'
-import { ClientCardTab, getClientCardTabKey } from '@condo/domains/contact/utils/clientCard'
 import { CopyButton } from '@condo/domains/marketplace/components/Invoice/CopyButton'
 import { useInvoicePaymentLink } from '@condo/domains/marketplace/hooks/useInvoicePaymentLink'
 import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
@@ -32,6 +31,7 @@ import { useTicketFormContext } from '@condo/domains/ticket/components/TicketFor
 import { REQUIRED_TICKET_FIELDS } from '@condo/domains/ticket/constants/common'
 import { useCacheUtils } from '@condo/domains/ticket/hooks/useCacheUtils'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
+import { ClientCardTab, getClientCardTabKey } from '@condo/domains/ticket/utils/clientSchema/clientCard'
 import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
 
 dayjs.extend(isToday)

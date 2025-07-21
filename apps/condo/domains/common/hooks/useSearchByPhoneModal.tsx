@@ -3,8 +3,7 @@ import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
-import React, { useCallback, useMemo, useState } from 'react'
-import { PhoneInputProps } from 'react-phone-input-2'
+import { useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Modal, Button } from '@open-condo/ui'
@@ -17,7 +16,7 @@ import {
     ClientCardTab,
     mapSearchItemToOption,
     redirectToForm,
-} from '@condo/domains/contact/utils/clientCard'
+} from '@condo/domains/ticket/utils/clientSchema/clientCard'
 
 
 const StyledModal = styled(Modal) <{ isSmall }>`
@@ -61,7 +60,9 @@ const NotFoundSearchByPhoneContent = ({ onSelect, phone, canManageContacts }) =>
     }, [onSelect, phone, router])
 
     const handleOpenClientCard = useCallback(async () => {
-        await router.push(`/phone/${phone}`)
+        if (typeof window !== 'undefined') {
+            window.open(`/phone/${phone}`, '_blank')
+        }
         onSelect()
     }, [onSelect, phone, router])
 
@@ -111,7 +112,7 @@ const StyledPhoneInput = styled(PhoneInput)`
 `
 
 const DROPDOWN_POPUP_CONTAINER_ID = 'searchByPhonePopupContainer'
-function getPopupContainer(): HTMLElement {
+function getPopupContainer (): HTMLElement {
     return document.getElementById(DROPDOWN_POPUP_CONTAINER_ID)
 }
 
