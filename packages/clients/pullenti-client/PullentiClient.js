@@ -180,7 +180,8 @@ class PullentiClient {
      * @returns {Promise<PullentiClientResultType>} The response from the Pullenti service
      */
     async searchByPullentiId (pullentiId) {
-        return await this.callToPullenti(`<GetObject>${pullentiId}</GetObject>`)
+        const escapedId = this.escapeXml(pullentiId)
+        return await this.callToPullenti(`<GetObject>${escapedId}</GetObject>`)
     }
 }
 

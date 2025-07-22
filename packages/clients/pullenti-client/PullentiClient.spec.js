@@ -80,11 +80,11 @@ describe('PullentiClient', () => {
         ]
 
         const testMethods = [
-            { method: 'searchByText', testFn: (client, input) => client.searchByText(input, { count: 10 }) },
-            { method: 'searchByArea', testFn: (client, input) => client.searchByArea(input, { count: 10 }) },
-            { method: 'searchByCity', testFn: (client, input) => client.searchByCity(input, { count: 10 }) },
-            { method: 'searchByStreet', testFn: (client, input) => client.searchByStreet(input, { count: 10 }) },
-            { method: 'processAddress', testFn: (client, input) => client.processAddress(input) },
+            { method: 'searchByText', testFn: (client, input) => client.searchByText(input, { count: 10 }), description: 'with malicious text' },
+            { method: 'searchByArea', testFn: (client, input) => client.searchByArea(input, { count: 10 }), description: 'with malicious area' },
+            { method: 'searchByCity', testFn: (client, input) => client.searchByCity(input, { count: 10 }), description: 'with malicious city' },
+            { method: 'searchByStreet', testFn: (client, input) => client.searchByStreet(input, { count: 10 }), description: 'with malicious street' },
+            { method: 'processAddress', testFn: (client, input) => client.processAddress(input), description: 'with malicious address' },
             {
                 method: 'searchByParam',
                 testFn: (client, input) => client.searchByParam(input, input, { count: 10 }),
@@ -99,6 +99,11 @@ describe('PullentiClient', () => {
                 method: 'searchByParam',
                 testFn: (client, input) => client.searchByParam(input, 'test', { count: 10 }),
                 description: 'with malicious param name only',
+            },
+            {
+                method: 'searchByPullentiId',
+                testFn: (client, input) => client.searchByPullentiId(input),
+                description: 'with malicious pullenti id',
             },
         ]
 
