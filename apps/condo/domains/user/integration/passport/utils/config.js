@@ -3,7 +3,6 @@ const { z } = require('zod')
 const GITHUB_STRATEGY_CONFIG_SCHEMA = z.object({
     clientId: z.string(),
     clientSecret: z.string(),
-    callbackUrl: z.string().url(),
 }).strict()
 
 const USER_INFO_FIELDS = [
