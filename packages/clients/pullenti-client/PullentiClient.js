@@ -73,12 +73,32 @@ class PullentiClient {
     }
 
     /**
+     * Escapes XML special characters to prevent XML injection
+     * @param {string} str The string to escape
+     * @returns {string} The escaped string
+     * @private
+     */
+    escapeXml (str) {
+        if (typeof str !== 'string') {
+            return String(str)
+        }
+        return str
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;')
+    }
+
+    /**
      * @param {string} param
      * @param {string} value
      * @returns {Promise<PullentiClientResultType>} The response from the Pullenti service
      */
     async searchByParam (param, value) {
-        const body = `<SearchObjects><searchparams><paramtype>${param}</paramtype><paramvalue>${value}</paramvalue></searchparams></SearchObjects>`
+        const escapedParam = this.escapeXml(param)
+        const escapedValue = this.escapeXml(value)
+        const body = `<SearchObjects><searchparams><paramtype>${escapedParam}</paramtype><paramvalue>${escapedValue}</paramvalue></searchparams></SearchObjects>`
         return await this.callToPullenti(body)
     }
 
@@ -88,7 +108,8 @@ class PullentiClient {
      * @returns {Promise<PullentiClientResultType>} The response from the Pullenti service
      */
     async processAddress (address) {
-        return await this.callToPullenti(`<ProcessSingleAddressText>${address}</ProcessSingleAddressText>`)
+        const escapedAddress = this.escapeXml(address)
+        return await this.callToPullenti(`<ProcessSingleAddressText>${escapedAddress}</ProcessSingleAddressText>`)
     }
 
     /**
@@ -98,7 +119,8 @@ class PullentiClient {
      * @returns {Promise<PullentiClientResultType>} The response from the Pullenti service
      */
     async searchByText (text, { count }) {
-        return await this.callToPullenti(`<SearchObjects><searchparams><text>${text}</text>${this.buildMaxCountXmlPart(count)}</searchparams></SearchObjects>`)
+        const escapedText = this.escapeXml(text)
+        return await this.callToPullenti(`<SearchObjects><searchparams><text>${escapedText}</text>${this.buildMaxCountXmlPart(count)}</searchparams></SearchObjects>`)
     }
 
     /**
@@ -108,7 +130,8 @@ class PullentiClient {
      * @returns {Promise<PullentiClientResultType>} The response from the Pullenti service
      */
     async searchByArea (area, { count }) {
-        return await this.callToPullenti(`<SearchObjects><searchparams><area>${area}</area>${this.buildMaxCountXmlPart(count)}</searchparams></SearchObjects>`)
+        const escapedArea = this.escapeXml(area)
+        return await this.callToPullenti(`<SearchObjects><searchparams><area>${escapedArea}</area>${this.buildMaxCountXmlPart(count)}</searchparams></SearchObjects>`)
     }
 
     /**
@@ -118,7 +141,8 @@ class PullentiClient {
      * @returns {Promise<PullentiClientResultType>} The response from the Pullenti service
      */
     async searchByCity (city, { count }) {
-        return await this.callToPullenti(`<SearchObjects><searchparams><city>${city}</city>${this.buildMaxCountXmlPart(count)}</searchparams></SearchObjects>`)
+        const escapedCity = this.escapeXml(city)
+        return await this.callToPullenti(`<SearchObjects><searchparams><city>${escapedCity}</city>${this.buildMaxCountXmlPart(count)}</searchparams></SearchObjects>`)
     }
 
     /**
@@ -128,7 +152,8 @@ class PullentiClient {
      * @returns {Promise<PullentiClientResultType>} The response from the Pullenti service
      */
     async searchByStreet (street, { count }) {
-        return await this.callToPullenti(`<SearchObjects><searchparams><street>${street}</street>${this.buildMaxCountXmlPart(count)}</searchparams></SearchObjects>`)
+        const escapedStreet = this.escapeXml(street)
+        return await this.callToPullenti(`<SearchObjects><searchparams><street>${escapedStreet}</street>${this.buildMaxCountXmlPart(count)}</searchparams></SearchObjects>`)
     }
 
     /**
