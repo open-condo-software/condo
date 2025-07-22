@@ -1463,7 +1463,6 @@ __metadata:
     csv-parse: ^5.2.0
     dayjs: ^1.11.10
     express: ^4.17.1
-    fast-xml-parser: ^5.2.3
     form-data: ^4.0.0
     graphql: ^16.10.0
     graphql-tag: ^2.12.6
