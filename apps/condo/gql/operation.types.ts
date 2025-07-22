@@ -891,6 +891,15 @@ export type GetOrganizationEmployeeTicketsForReassignmentQueryVariables = Types.
 
 export type GetOrganizationEmployeeTicketsForReassignmentQuery = { __typename?: 'Query', tickets?: Array<{ __typename?: 'Ticket', id: string, assignee?: { __typename?: 'User', id: string } | null, executor?: { __typename?: 'User', id: string } | null } | null> | null };
 
+export type GetTicketsWithSamePropertyAndClassifierExistenceQueryVariables = Types.Exact<{
+  propertyId: Types.Scalars['ID']['input'];
+  placeId: Types.Scalars['ID']['input'];
+  categoryId: Types.Scalars['ID']['input'];
+}>;
+
+
+export type GetTicketsWithSamePropertyAndClassifierExistenceQuery = { __typename?: 'Query', tickets?: Array<{ __typename?: 'Ticket', id: string } | null> | null };
+
 export type CreateTicketMutationVariables = Types.Exact<{
   data: Types.TicketCreateInput;
 }>;

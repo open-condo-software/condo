@@ -5832,6 +5832,51 @@ export type GetOrganizationEmployeeTicketsForReassignmentQueryHookResult = Retur
 export type GetOrganizationEmployeeTicketsForReassignmentLazyQueryHookResult = ReturnType<typeof useGetOrganizationEmployeeTicketsForReassignmentLazyQuery>;
 export type GetOrganizationEmployeeTicketsForReassignmentSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationEmployeeTicketsForReassignmentSuspenseQuery>;
 export type GetOrganizationEmployeeTicketsForReassignmentQueryResult = Apollo.QueryResult<Types.GetOrganizationEmployeeTicketsForReassignmentQuery, Types.GetOrganizationEmployeeTicketsForReassignmentQueryVariables>;
+export const GetTicketsWithSamePropertyAndClassifierExistenceDocument = gql`
+    query getTicketsWithSamePropertyAndClassifierExistence($propertyId: ID!, $placeId: ID!, $categoryId: ID!) {
+  tickets: allTickets(
+    where: {property: {id: $propertyId}, classifier: {place: {id: $placeId}, category: {id: $categoryId}}, status: {type_in: [new_or_reopened, processing, deferred]}}
+    first: 1
+  ) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useGetTicketsWithSamePropertyAndClassifierExistenceQuery__
+ *
+ * To run a query within a React component, call `useGetTicketsWithSamePropertyAndClassifierExistenceQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetTicketsWithSamePropertyAndClassifierExistenceQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetTicketsWithSamePropertyAndClassifierExistenceQuery({
+ *   variables: {
+ *      propertyId: // value for 'propertyId'
+ *      placeId: // value for 'placeId'
+ *      categoryId: // value for 'categoryId'
+ *   },
+ * });
+ */
+export function useGetTicketsWithSamePropertyAndClassifierExistenceQuery(baseOptions: Apollo.QueryHookOptions<Types.GetTicketsWithSamePropertyAndClassifierExistenceQuery, Types.GetTicketsWithSamePropertyAndClassifierExistenceQueryVariables> & ({ variables: Types.GetTicketsWithSamePropertyAndClassifierExistenceQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetTicketsWithSamePropertyAndClassifierExistenceQuery, Types.GetTicketsWithSamePropertyAndClassifierExistenceQueryVariables>(GetTicketsWithSamePropertyAndClassifierExistenceDocument, options);
+      }
+export function useGetTicketsWithSamePropertyAndClassifierExistenceLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetTicketsWithSamePropertyAndClassifierExistenceQuery, Types.GetTicketsWithSamePropertyAndClassifierExistenceQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetTicketsWithSamePropertyAndClassifierExistenceQuery, Types.GetTicketsWithSamePropertyAndClassifierExistenceQueryVariables>(GetTicketsWithSamePropertyAndClassifierExistenceDocument, options);
+        }
+export function useGetTicketsWithSamePropertyAndClassifierExistenceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetTicketsWithSamePropertyAndClassifierExistenceQuery, Types.GetTicketsWithSamePropertyAndClassifierExistenceQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetTicketsWithSamePropertyAndClassifierExistenceQuery, Types.GetTicketsWithSamePropertyAndClassifierExistenceQueryVariables>(GetTicketsWithSamePropertyAndClassifierExistenceDocument, options);
+        }
+export type GetTicketsWithSamePropertyAndClassifierExistenceQueryHookResult = ReturnType<typeof useGetTicketsWithSamePropertyAndClassifierExistenceQuery>;
+export type GetTicketsWithSamePropertyAndClassifierExistenceLazyQueryHookResult = ReturnType<typeof useGetTicketsWithSamePropertyAndClassifierExistenceLazyQuery>;
+export type GetTicketsWithSamePropertyAndClassifierExistenceSuspenseQueryHookResult = ReturnType<typeof useGetTicketsWithSamePropertyAndClassifierExistenceSuspenseQuery>;
+export type GetTicketsWithSamePropertyAndClassifierExistenceQueryResult = Apollo.QueryResult<Types.GetTicketsWithSamePropertyAndClassifierExistenceQuery, Types.GetTicketsWithSamePropertyAndClassifierExistenceQueryVariables>;
 export const CreateTicketDocument = gql`
     mutation createTicket($data: TicketCreateInput!) {
   ticket: createTicket(data: $data) {
