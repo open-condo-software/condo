@@ -145,7 +145,6 @@ async function confirmEmailAction (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
-    // TODO(codegen): write confirmEmailAction serverSchema guards
 
     return await execGqlWithoutAccess(context, {
         query: CONFIRM_EMAIL_ACTION_MUTATION,
