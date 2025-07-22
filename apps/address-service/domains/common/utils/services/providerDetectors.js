@@ -40,7 +40,7 @@ function getSearchProvider (args) {
             searchProvider = new GoogleSearchProvider(args)
             break
         case PULLENTI_PROVIDER:
-            logger.warn('⚠️ Pullenti provider still in beta. Normalized result may differ from dadata. Use only for GUID searching.')
+            logger.warn({ msg: '⚠️ Pullenti provider still in beta. Normalized result may differ from dadata. Use only for GUID searching.' })
             searchProvider = new PullentiSearchProvider(args)
             break
     }
@@ -66,7 +66,7 @@ function getSuggestionsProvider (args) {
             suggestionProvider = new DadataSuggestionProvider(args)
             break
         case PULLENTI_PROVIDER:
-            logger.warn('⚠️ Pullenti provider still in beta. Normalized result may differ from dadata. Use only for GUID searching.')
+            logger.warn({ msg: '⚠️ Pullenti provider still in beta. Normalized result may differ from dadata. Use only for GUID searching.' })
             suggestionProvider = new PullentiSuggestionProvider(args)
             break
     }
