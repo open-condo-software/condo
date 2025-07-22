@@ -2,15 +2,16 @@ const { resolveCityDistrict } = require('./cityDistrictResolver')
 
 describe('cityDistrictResolver', () => {
     describe('resolveCityDistrict', () => {
+        const nullishCityDistrict = {
+            city_district: null,
+            city_district_type: null,
+            city_district_type_full: null,
+            city_district_with_type: null,
+            city_district_fias_id: null,
+            city_district_kladr_id: null,
+        }
+
         it('should return all null fields for null or undefined input', () => {
-            const nullishCityDistrict = {
-                city_district: null,
-                city_district_type: null,
-                city_district_type_full: null,
-                city_district_with_type: null,
-                city_district_fias_id: null,
-                city_district_kladr_id: null,
-            }
             expect(resolveCityDistrict(null)).toEqual(nullishCityDistrict)
             expect(resolveCityDistrict(undefined)).toEqual(nullishCityDistrict)
         })
@@ -40,14 +41,7 @@ describe('cityDistrictResolver', () => {
             const gar = {
                 guid: 'test-guid',
             }
-            expect(resolveCityDistrict(gar)).toEqual({
-                city_district: null,
-                city_district_type: null,
-                city_district_type_full: null,
-                city_district_with_type: null,
-                city_district_fias_id: null,
-                city_district_kladr_id: null,
-            })
+            expect(resolveCityDistrict(gar)).toEqual(nullishCityDistrict)
         })
 
         it('should return all null fields if area.name is missing', () => {
@@ -56,14 +50,7 @@ describe('cityDistrictResolver', () => {
                     type: 'район',
                 },
             }
-            expect(resolveCityDistrict(gar)).toEqual({
-                city_district: null,
-                city_district_type: null,
-                city_district_type_full: null,
-                city_district_with_type: null,
-                city_district_fias_id: null,
-                city_district_kladr_id: null,
-            })
+            expect(resolveCityDistrict(gar)).toEqual(nullishCityDistrict)
         })
 
         it('should return all null fields if area.type is not recognized', () => {
@@ -73,14 +60,7 @@ describe('cityDistrictResolver', () => {
                     name: 'Test',
                 },
             }
-            expect(resolveCityDistrict(gar)).toEqual({
-                city_district: null,
-                city_district_type: null,
-                city_district_type_full: null,
-                city_district_with_type: null,
-                city_district_fias_id: null,
-                city_district_kladr_id: null,
-            })
+            expect(resolveCityDistrict(gar)).toEqual(nullishCityDistrict)
         })
 
         it('should return all null fields if area.name is null', () => {
@@ -90,14 +70,7 @@ describe('cityDistrictResolver', () => {
                     name: null,
                 },
             }
-            expect(resolveCityDistrict(gar)).toEqual({
-                city_district: null,
-                city_district_type: null,
-                city_district_type_full: null,
-                city_district_with_type: null,
-                city_district_fias_id: null,
-                city_district_kladr_id: null,
-            })
+            expect(resolveCityDistrict(gar)).toEqual(nullishCityDistrict)
         })
     })
 })
