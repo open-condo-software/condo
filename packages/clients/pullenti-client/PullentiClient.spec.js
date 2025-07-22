@@ -216,4 +216,15 @@ describe('PullentiClient', () => {
             }
         )
     })
+
+    describe('processor', () => {
+        it('should process response when processor is provided', async () => {
+            const processor = jest.fn().mockReturnValue({ processed: true })
+            const processorClient = new PullentiClient(mockUrl, { processor })
+
+            await processorClient.searchByGuid('test-guid')
+
+            expect(processor).toHaveBeenCalledWith(JSON.stringify(mockResponse))
+        })
+    })
 })
