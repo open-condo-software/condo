@@ -3,22 +3,16 @@ const { resolveCityDistrict } = require('./cityDistrictResolver')
 describe('cityDistrictResolver', () => {
     describe('resolveCityDistrict', () => {
         it('should return all null fields for null or undefined input', () => {
-            expect(resolveCityDistrict(null)).toEqual({
+            const nullishCityDistrict = {
                 city_district: null,
                 city_district_type: null,
                 city_district_type_full: null,
                 city_district_with_type: null,
                 city_district_fias_id: null,
                 city_district_kladr_id: null,
-            })
-            expect(resolveCityDistrict(undefined)).toEqual({
-                city_district: null,
-                city_district_type: null,
-                city_district_type_full: null,
-                city_district_with_type: null,
-                city_district_fias_id: null,
-                city_district_kladr_id: null,
-            })
+            }
+            expect(resolveCityDistrict(null)).toEqual(nullishCityDistrict)
+            expect(resolveCityDistrict(undefined)).toEqual(nullishCityDistrict)
         })
 
         it('should resolve all fields when area.name and recognized type are present', () => {
