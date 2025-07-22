@@ -1,10 +1,11 @@
-import { Alert, Col } from 'antd'
+import { Col } from 'antd'
 import get from 'lodash/get'
-import React, { useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
+import { Alert } from '@open-condo/ui'
 
 import {
     getEmployeesSortedByTicketVisibilityType,

@@ -257,7 +257,7 @@ const TicketFormInvoicesEmptyContent = ({
         }
 
         return (
-            <Col span={24} md={18}>
+            <Col span={24}>
                 <Alert
                     type='warning'
                     showIcon
@@ -413,9 +413,6 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
     const { InputWithCounter, Counter } = useInputWithCounter(Input.TextArea, MAX_DETAILS_LENGTH)
     const handleInputBlur = useCallback(e => predictTicketClassifier(e.target.value), [predictTicketClassifier])
 
-    const classifierColSpan = !breakpoints.TABLET_LARGE ? 24 : 18
-    const deadlineColSpan = !breakpoints.TABLET_LARGE ? 24 : 18
-
     const createdAt = get(initialValues, 'createdAt', null)
 
     const handleChangeType = useCallback(() => {
@@ -487,7 +484,7 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
                                             <Col span={24}>
                                                 <Typography.Title level={3}>{ClassifierLabel}</Typography.Title>
                                             </Col>
-                                            <Col span={classifierColSpan}>
+                                            <Col span={24}>
                                                 <ClassifiersEditorComponent form={form} disabled={disableUserInteraction}/>
                                             </Col>
                                         </Row>
@@ -587,7 +584,7 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
                                     </>
                                 )
                             }
-                            <Col span={deadlineColSpan}>
+                            <Col span={24}>
                                 <Row gutter={SMALL_VERTICAL_GUTTER}>
                                     <Col span={24}>
                                         <Typography.Title level={3}>{TicketDeadlineLabel}</Typography.Title>
@@ -602,7 +599,7 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
                             </Col>
                             {
                                 initialValues.statusType === TicketStatusTypeType.Deferred &&
-                                <Col span={deadlineColSpan}>
+                                <Col span={24}>
                                     <Row gutter={SMALL_VERTICAL_GUTTER}>
                                         <Col span={24}>
                                             <Typography.Title level={3}>{TicketDeferredDeadlineLabel}</Typography.Title>

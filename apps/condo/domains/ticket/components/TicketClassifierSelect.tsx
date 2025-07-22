@@ -17,7 +17,10 @@ import { useTicketValidations } from '@condo/domains/ticket/components/BaseTicke
 import { MIN_DESCRIPTION_LENGTH } from '@condo/domains/ticket/constants/restrictions'
 import { ClassifiersQueryLocal, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 
+import styles from './TicketClassifierSelect.module.css'
+
 import { TicketFormItem } from './BaseTicketForm'
+
 
 
 const { Option } = Select
