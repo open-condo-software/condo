@@ -1,6 +1,5 @@
 import {
     GetTicketsForClientCardQuery,
-    useGetCallRecordFragmentExistenceQuery,
     useGetClientCallRecordsExistenceQuery,
     useGetPropertyByIdQuery,
     useGetTicketsForClientCardQuery,
@@ -19,7 +18,7 @@ import React, { useCallback, useMemo, useState } from 'react'
 import { useCachePersistor } from '@open-condo/apollo'
 import { ExternalLink, History, Mail } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { ActionBar, Button, Space, Tabs, Typography, Tag } from '@open-condo/ui'
+import { ActionBar, Button, Space, Tabs, Typography, Tag, SelectProps } from '@open-condo/ui'
 
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
@@ -30,6 +29,7 @@ import { TicketResidentFeatures } from '@condo/domains/ticket/components/TicketI
 import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintCard'
 import { useClientCardTicketTableColumns } from '@condo/domains/ticket/hooks/useClientCardTicketTableColumns'
 import {
+    ClientCardAddressSearchInputType,
     ClientCardTab,
     CONTACT_PROPERTY_TICKETS_TAB,
     DEFAULT_TABLE_TABS,
@@ -580,7 +580,7 @@ interface SearchByAddressTabContentProps {
     firstClientData: TabDataType
     canManageContacts?: boolean
     showOrganizationMessage?: boolean
-    AddressSearchInput: React.FC<any>
+    AddressSearchInput: ClientCardAddressSearchInputType
 }
 
 export const SearchByAddressTabContent: React.FC<SearchByAddressTabContentProps> = ({ firstClientData, canManageContacts, showOrganizationMessage, AddressSearchInput }) => {

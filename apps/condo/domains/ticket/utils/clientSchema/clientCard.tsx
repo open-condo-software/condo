@@ -13,7 +13,7 @@ import qs from 'qs'
 import { useCallback } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Typography } from '@open-condo/ui'
+import { SelectProps, Typography } from '@open-condo/ui'
 
 import Select from '@condo/domains/common/components/antd/Select'
 import { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
@@ -43,6 +43,8 @@ export type TabDataType = {
     email?: string
     isEmployee?: boolean
 }
+
+export type ClientCardAddressSearchInputType = React.FC<Pick<SelectProps, 'onChange' | 'placeholder'> & { className?: string }>
 
 export type TabsItems = { key: TabKey, label: string }[]
 
