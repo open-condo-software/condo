@@ -89420,6 +89420,33 @@ type Query {
   **Errors**
   
   Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "CAPTCHA_CHECK_FAILED",
+    "message": "Failed to check CAPTCHA",
+    "messageForUser": "The operation could not be completed. Please update the application"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "UNABLE_TO_FIND_CONFIRM_EMAIL_ACTION",
+    "message": "Confirm email action was expired or it could not be found. Try to initiate email confirmation again",
+    "messageForUser": "Unable to verify your email. Try again or ask our support"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "DV_VERSION_MISMATCH",
+    "message": "Wrong value for data version number"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_FORMAT",
+    "message": "Invalid format of \"sender\" field value. Please, check the example for details",
+    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
+  }`
   """
   getEmailByConfirmEmailActionToken(data: GetEmailByConfirmEmailActionTokenInput!): GetEmailByConfirmEmailActionTokenOutput
 
@@ -95400,6 +95427,47 @@ type Mutation {
   **Errors**
   
   Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "DV_VERSION_MISMATCH",
+    "message": "Wrong value for data version number"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_FORMAT",
+    "message": "Invalid format of \"sender\" field value. Please, check the example for details",
+    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "CAPTCHA_CHECK_FAILED",
+    "message": "Failed to check CAPTCHA",
+    "messageForUser": "The operation could not be completed. Please update the application"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "UNABLE_TO_FIND_CONFIRM_EMAIL_ACTION",
+    "message": "Confirm email action was expired or it could not be found. Try to initiate email confirmation again",
+    "messageForUser": "Unable to verify your email. Try again or ask our support"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_EMAIL_VALUE",
+    "message": "Wrong format of provided email",
+    "messageForUser": "Invalid E-mail format",
+    "correctExample": "example@example.com"
+  }`
+  
+  `{
+    "code": "INTERNAL_ERROR",
+    "type": "GENERATE_TOKEN_FAILED",
+    "message": "Generate token failed"
+  }`
   """
   startConfirmEmailAction(data: StartConfirmEmailActionInput!): StartConfirmEmailActionOutput
 
@@ -95411,17 +95479,92 @@ type Mutation {
   **Errors**
   
   Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "DV_VERSION_MISMATCH",
+    "message": "Wrong value for data version number"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_FORMAT",
+    "message": "Invalid format of \"sender\" field value. Please, check the example for details",
+    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "CAPTCHA_CHECK_FAILED",
+    "message": "Failed to check CAPTCHA",
+    "messageForUser": "The operation could not be completed. Please update the application"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "UNABLE_TO_FIND_CONFIRM_EMAIL_ACTION",
+    "message": "Confirm email action was expired or it could not be found. Try to initiate email confirmation again",
+    "messageForUser": "Unable to verify your email. Try again or ask our support"
+  }`
   """
   resendConfirmEmailAction(data: ResendConfirmEmailActionInput!): ResendConfirmEmailActionOutput
 
   """
-  Resend the confirm phone SMS message for existing token
+  The final step of a email confirmation. You should use the token from startConfirmEmailAction and a secret code from the confirm email message. After success call, you can use the token in other mutations to prove that you have access to the email address
   
   
   
   **Errors**
   
   Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "DV_VERSION_MISMATCH",
+    "message": "Wrong value for data version number"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_FORMAT",
+    "message": "Invalid format of \"sender\" field value. Please, check the example for details",
+    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "CAPTCHA_CHECK_FAILED",
+    "message": "Failed to check CAPTCHA",
+    "messageForUser": "The operation could not be completed. Please update the application"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "UNABLE_TO_FIND_CONFIRM_EMAIL_ACTION",
+    "message": "Confirm email action was expired or it could not be found. Try to initiate email confirmation again",
+    "messageForUser": "Unable to verify your email. Try again or ask our support"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "EMAIL_CODE_EXPIRED",
+    "message": "Email code expired. Try to initiate email confirmation again",
+    "messageForUser": "Confirmation code expired, try to verify email again"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "EMAIL_CODE_MAX_RETRIES_REACHED",
+    "message": "Max retries reached for email confirmation. Try to initiate email confirmation again",
+    "messageForUser": "Max retries reached for email code confirmation. Try to initiate email confirmation again"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "EMAIL_CODE_VERIFICATION_FAILED",
+    "message": "Code verification mismatch",
+    "messageForUser": "Email code verification mismatch"
+  }`
   """
   completeConfirmEmailAction(data: CompleteConfirmEmailActionInput!): CompleteConfirmEmailActionOutput
 
