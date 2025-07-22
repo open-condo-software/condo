@@ -32,7 +32,7 @@ query getClientCallRecordsExistence ($phone: String!, $propertyId: ID!) {
     callRecordFragments: allCallRecordFragments (
         where: {
             callRecord: {
-                OR: [{ callerPhone: $phone, destCallerPhone: $phone }],
+                OR: [{ callerPhone: $phone }, { destCallerPhone: $phone }],
             },
             OR: [
                 { ticket_is_null: true },

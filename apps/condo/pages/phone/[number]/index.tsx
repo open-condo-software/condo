@@ -29,7 +29,7 @@ import { ClientAddressCard, SearchByAddressCard } from '@condo/domains/ticket/co
 import { ResidentClientTabContent, NotResidentClientTabContent, SearchByAddressTabContent } from '@condo/domains/ticket/components/ClientCard/TabContent'
 import { TicketReadPermissionRequired } from '@condo/domains/ticket/components/PageAccess'
 import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
-import { ClientCardTab, getClientCardTabKey, parseCardDataFromQuery, redirectToForm, TabDataType } from '@condo/domains/ticket/utils/clientSchema/clientCard'
+import { ClientCardAddressSearchInputType, ClientCardTab, getClientCardTabKey, parseCardDataFromQuery, redirectToForm, TabDataType } from '@condo/domains/ticket/utils/clientSchema/clientCard'
 import { getSectionAndFloorByUnitName } from '@condo/domains/ticket/utils/unit'
 
 import styles from './index.module.css'
@@ -41,7 +41,7 @@ const ROW_MEDIUM_GUTTER: RowProps['gutter'] = [0, 40]
 
 
 interface IClientCardPageContentProps {
-    AddressSearchInput: React.FC
+    AddressSearchInput: ClientCardAddressSearchInputType
     tabsData: TabDataType[]
     canManageContacts?: boolean
     loading?: boolean
@@ -315,7 +315,7 @@ const ClientCardPageContent: React.FC<IClientCardPageContentProps> = ({
 }
 
 interface IClientCardPageContentWrapperProps {
-    AddressSearchInput: React.FC
+    AddressSearchInput: ClientCardAddressSearchInputType
     organizationQuery?: ContactWhereInput
     allQueriesLoading?: boolean
     ticketsQuery?: TicketWhereInput

@@ -4285,7 +4285,7 @@ export type GetTicketCallRecordsFragmentsQueryResult = Apollo.QueryResult<Types.
 export const GetClientCallRecordsExistenceDocument = gql`
     query getClientCallRecordsExistence($phone: String!, $propertyId: ID!) {
   callRecordFragments: allCallRecordFragments(
-    where: {callRecord: {OR: [{callerPhone: $phone, destCallerPhone: $phone}]}, OR: [{ticket_is_null: true}, {ticket: {property: {id: $propertyId}}}]}
+    where: {callRecord: {OR: [{callerPhone: $phone}, {destCallerPhone: $phone}]}, OR: [{ticket_is_null: true}, {ticket: {property: {id: $propertyId}}}]}
     first: 1
   ) {
     id
