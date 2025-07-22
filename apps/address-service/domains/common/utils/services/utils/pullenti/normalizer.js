@@ -28,6 +28,8 @@ function getXmlParser () {
     })
 }
 
+// TODO (AleX83Xpert): Improve normalizer. It must return same data as dadata normalizer.
+
 /**
  * @param {string} rawXmlString XML string
  * @returns {NormalizedBuilding}
@@ -39,6 +41,7 @@ function normalize (rawXmlString) {
     let textObj = jsonObj?.textaddr?.textobj || []
     textObj = Array.isArray(textObj) ? textObj : [textObj]
 
+    // TODO (AleX83Xpert): Maybe we should check expired status?
     // if (
     //     !textObj
     //     || textObj.length === 0

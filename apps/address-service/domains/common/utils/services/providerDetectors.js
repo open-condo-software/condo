@@ -1,6 +1,7 @@
 const get = require('lodash/get')
 
 const conf = require('@open-condo/config')
+const { getLogger } = require('@open-condo/keystone/logging')
 
 const { DADATA_PROVIDER, GOOGLE_PROVIDER, PULLENTI_PROVIDER } = require('@address-service/domains/common/constants/providers')
 const {
@@ -13,6 +14,8 @@ const {
     DadataSuggestionProvider,
     PullentiSuggestionProvider,
 } = require('@address-service/domains/common/utils/services/suggest/providers')
+
+const logger = getLogger()
 
 /**
  * @typedef {Object} ProviderDetectorArgs
@@ -37,6 +40,7 @@ function getSearchProvider (args) {
             searchProvider = new GoogleSearchProvider(args)
             break
         case PULLENTI_PROVIDER:
+            logger.warn('⚠️ Pullenti provider still in beta. Normalized result may differ from dadata. Use only for GUID searching.')
             searchProvider = new PullentiSearchProvider(args)
             break
     }
@@ -62,6 +66,7 @@ function getSuggestionsProvider (args) {
             suggestionProvider = new DadataSuggestionProvider(args)
             break
         case PULLENTI_PROVIDER:
+            logger.warn('⚠️ Pullenti provider still in beta. Normalized result may differ from dadata. Use only for GUID searching.')
             suggestionProvider = new PullentiSuggestionProvider(args)
             break
     }
