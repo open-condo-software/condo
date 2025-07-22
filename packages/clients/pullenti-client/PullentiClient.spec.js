@@ -87,17 +87,17 @@ describe('PullentiClient', () => {
             { method: 'processAddress', testFn: (client, input) => client.processAddress(input), description: 'with malicious address' },
             {
                 method: 'searchByParam',
-                testFn: (client, input) => client.searchByParam(input, input, { count: 10 }),
+                testFn: (client, input) => client.searchByParam(input, input),
                 description: 'with malicious param name and value',
             },
             {
                 method: 'searchByParam',
-                testFn: (client, input) => client.searchByParam('test', input, { count: 10 }),
+                testFn: (client, input) => client.searchByParam('test', input),
                 description: 'with malicious value only',
             },
             {
                 method: 'searchByParam',
-                testFn: (client, input) => client.searchByParam(input, 'test', { count: 10 }),
+                testFn: (client, input) => client.searchByParam(input, 'test'),
                 description: 'with malicious param name only',
             },
             {

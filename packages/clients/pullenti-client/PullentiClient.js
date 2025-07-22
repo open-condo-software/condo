@@ -118,7 +118,7 @@ class PullentiClient {
      * @param {number} options.count The maximum number of results to return
      * @returns {Promise<PullentiClientResultType>} The response from the Pullenti service
      */
-    async searchByText (text, { count }) {
+    async searchByText (text, { count } = {}) {
         const escapedText = this.escapeXml(text)
         return await this.callToPullenti(`<SearchObjects><searchparams><text>${escapedText}</text>${this.buildMaxCountXmlPart(count)}</searchparams></SearchObjects>`)
     }
@@ -129,7 +129,7 @@ class PullentiClient {
      * @param {number} options.count The maximum number of results to return
      * @returns {Promise<PullentiClientResultType>} The response from the Pullenti service
      */
-    async searchByArea (area, { count }) {
+    async searchByArea (area, { count } = {}) {
         const escapedArea = this.escapeXml(area)
         return await this.callToPullenti(`<SearchObjects><searchparams><area>${escapedArea}</area>${this.buildMaxCountXmlPart(count)}</searchparams></SearchObjects>`)
     }
@@ -140,7 +140,7 @@ class PullentiClient {
      * @param {number} options.count The maximum number of results to return
      * @returns {Promise<PullentiClientResultType>} The response from the Pullenti service
      */
-    async searchByCity (city, { count }) {
+    async searchByCity (city, { count } = {}) {
         const escapedCity = this.escapeXml(city)
         return await this.callToPullenti(`<SearchObjects><searchparams><city>${escapedCity}</city>${this.buildMaxCountXmlPart(count)}</searchparams></SearchObjects>`)
     }
@@ -151,7 +151,7 @@ class PullentiClient {
      * @param {number} options.count The maximum number of results to return
      * @returns {Promise<PullentiClientResultType>} The response from the Pullenti service
      */
-    async searchByStreet (street, { count }) {
+    async searchByStreet (street, { count } = {}) {
         const escapedStreet = this.escapeXml(street)
         return await this.callToPullenti(`<SearchObjects><searchparams><street>${escapedStreet}</street>${this.buildMaxCountXmlPart(count)}</searchparams></SearchObjects>`)
     }
