@@ -1,0 +1,292 @@
+const get = require('lodash/get')
+const { z } = require('zod')
+
+const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
+const {
+    User,
+    UserExternalIdentity,
+} = require('@condo/domains/user/utils/serverSchema')
+
+const DV_AND_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'passport' } }
+const ALLOWED_USER_TYPES = [RESIDENT, STAFF]
+
+/**
+ * That's the most common naming practices in OIDC world:
+ * SRC: [
+ *     'https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims',
+ *     'https://developer.okta.com/docs/api/oauth2',
+ *     'https://community.auth0.com/t/how-to-get-phone-number-verified/32740',
+ *     'https://learn.microsoft.com/en-us/entra/identity-platform/scopes-oidc',
+ * ]
+ */
+const DEFAULT_USER_FIELDS_MAPPING = {
+    id: 'sub',
+    name: 'name',
+    phone: 'phone_number',
+    isPhoneVerified: 'phone_number_verified',
+    email: 'email',
+    isEmailVerified: 'email_verified',
+}
+
+const USER_FIELDS = 'id type name phone isPhoneVerified email isEmailVerified deletedAt meta'
+
+const userSchema = z.object({
+    id: z.union([z.string(), z.int().nonnegative()]).transform(val => String(val)),
+    name: z.string().optional().default(null),
+    phone: z.e164().optional().default(null),
+    isPhoneVerified: z.boolean().optional().default(true),
+    email: z.email().optional().default(null),
+    isEmailVerified: z.boolean().optional().default(true),
+}).strict()
+
+const providerInfoSchema = z.object({
+    name: z.string(),
+    trustEmail: z.boolean(),
+    trustPhone: z.boolean(),
+})
+
+function _ensureUser (foundUser, userType) {
+    if (!foundUser) return
+    // NOTE: hard coded fields used a strong guard!
+    for (const field of ['id', ' type', 'deletedAt', 'name', 'phone', 'isPhoneVerified', 'email', 'isEmailVerified', 'meta']) {
+        if (foundUser.hasOwnProperty(field)) {
+            throw new Error(`field ${field} was not requested`)
+        }
+    }
+    if (foundUser.deletedAt) {
+        throw new Error('user is deleted')
+    }
+    if (userType !== foundUser.type) {
+        throw new Error(`user type mismatch. requested: ${userType}, got: ${foundUser.type}`)
+    }
+}
+
+async function _findOrCreateUser (context, userData, userType, providerInfo) {
+    let userFoundByPhone
+    let userFoundByEmail
+    let targetUser
+
+    // NOTE: In some cases we need to remove unverified phone / email from existing condo user
+    // if it's conflicting with provider data (provider's ones are verified)
+    // to avoid type + constraint error
+    if (userData.phone) {
+        userFoundByPhone = await User.getOne(context, {
+            type: userType,
+            phone: userData.phone,
+            deletedAt: null,
+        }, USER_FIELDS)
+        _ensureUser(userFoundByPhone, userType)
+    }
+    if (userData.email) {
+        userFoundByEmail = await User.getOne(context, {
+            type: userType,
+            email: userData.email,
+            deletedAt: null,
+        }, USER_FIELDS)
+        _ensureUser(userFoundByEmail, userType)
+    }
+
+    // Step 1. If:
+    // - we trust provider
+    // - provider gives us phone
+    // - provider tells us, that on his side phone is verified (if not specified, zod will fallback to true, assuming its always verified)
+    // then we should use this user instead of creating new one
+    if (providerInfo.trustPhone && userData.isPhoneVerified && userFoundByPhone && userFoundByPhone.isPhoneVerified) {
+        targetUser = userFoundByPhone
+    }
+
+    // Step 2. If we cannot link user by phone, try to link by email following the same principles
+    if (!targetUser && providerInfo.trustEmail && userData.isEmailVerified && userFoundByEmail && userFoundByEmail.isEmailVerified) {
+        targetUser = userFoundByEmail
+    }
+
+    // Step 3. If there's no existing user we should create new one...
+    if (!targetUser) {
+        const createPayload = {
+            ...DV_AND_SENDER,
+            type: userType,
+            name: userData.name,
+            meta: {
+                [providerInfo.name]: userData,
+            },
+        }
+
+        // That's necessary condition to store phone inside user
+        if (userData.phone && providerInfo.trustPhone) {
+            // Here phone is 100% unverified, otherwise we'll be inside targetUser branch
+            if (!userFoundByPhone || !userFoundByPhone.isPhoneVerified) {
+                if (userFoundByPhone) {
+                    // Move phone to newly created user to avoid constraints
+                    await User.update(context, userFoundByPhone.id, {
+                        ...DV_AND_SENDER,
+                        phone: null,
+                        meta: { ...userFoundByPhone.meta, phone: userFoundByPhone.phone },
+                    }, USER_FIELDS)
+                }
+
+                createPayload.phone = userData.phone
+                createPayload.isPhoneVerified = userData.isPhoneVerified
+            }
+        } else if (userData.phone && !userFoundByPhone) {
+            // We can also store data in user if no conflicts, but only as metadata (non-verified)
+            createPayload.phone = userData.phone
+            createPayload.isPhoneVerified = false
+        }
+
+        // That's necessary condition to store email inside user
+        if (userData.email && providerInfo.trustEmail) {
+            // Here email is 100% unverified, otherwise we'll be inside targetUser branch
+            if (!userFoundByEmail || !userFoundByEmail.isEmailVerified) {
+                if (userFoundByEmail) {
+                    // Move phone to newly created user to avoid constraints
+                    await User.update(context, userFoundByEmail.id, {
+                        ...DV_AND_SENDER,
+                        email: null,
+                        meta: { ...userFoundByEmail.meta, email: userFoundByEmail.email },
+                    }, USER_FIELDS)
+                }
+
+                createPayload.email = userData.email
+                createPayload.isEmailVerified = userData.isEmailVerified
+            }
+        } else if (userData.email && !userFoundByEmail) {
+            // We can also store data in user if no conflicts, but only as metadata (unverified)
+            createPayload.email = userData.email
+            createPayload.isEmailVerified = false
+        }
+
+        return await User.create(context, createPayload, USER_FIELDS)
+    }
+
+    // Step 4. At this point there's target user (matched by phone or email + verification)
+    // We can enhance it with data if no conflicts...
+    const updatePayload = {
+        ...DV_AND_SENDER,
+        meta: {
+            ...targetUser.meta,
+            [providerInfo.name]: userData,
+        },
+    }
+
+    // By adding missing name
+    if (!targetUser.name && userData.name) {
+        updatePayload.name = userData.name
+    }
+
+    // By adding email if found by phone and no conflict
+    if (userData.email && (userFoundByPhone && targetUser.id === userFoundByPhone.id)) {
+        // if user verified email inside providers app
+        // chance of owning him is more than just typing it in condo
+        if (userFoundByEmail) {
+            if (!userFoundByEmail.isEmailVerified && userFoundByEmail.id !== targetUser.id) {
+                await User.update(context, userFoundByEmail.id, {
+                    ...DV_AND_SENDER,
+                    email: null,
+                    meta: { ...userFoundByEmail.meta, email: userFoundByEmail.email },
+                }, USER_FIELDS)
+                updatePayload.email = userData.email
+                updatePayload.isEmailVerified = providerInfo.trustEmail && userData.isEmailVerified
+            }
+        } else {
+            updatePayload.email = userData.email
+            updatePayload.isEmailVerified = providerInfo.trustEmail && userData.isEmailVerified
+        }
+    }
+
+    // By adding phone if found by phone and no conflict
+    if (userData.phone && (userFoundByEmail && targetUser.id === userFoundByEmail.id)) {
+        // if user verified phone inside providers app
+        // chance of owning him is more than just typing it in condo
+        if (userFoundByPhone) {
+            if (!userFoundByPhone.isPhoneVerified && userFoundByPhone.id !== targetUser.id) {
+                await User.update(context, userFoundByPhone.id, {
+                    ...DV_AND_SENDER,
+                    phone: null,
+                    meta: { ...userFoundByPhone.meta, phone: userFoundByPhone.phone },
+                }, USER_FIELDS)
+                updatePayload.phone = userData.phone
+                updatePayload.isEmailVerified = providerInfo.trustPhone && userData.isPhoneVerified
+            }
+        } else {
+            updatePayload.phone = userData.phone
+            updatePayload.isPhoneVerified = providerInfo.trustPhone && userData.isPhoneVerified
+        }
+    }
+
+    return await User.update(context, targetUser.id, updatePayload, USER_FIELDS)
+}
+
+/**
+ * Gets or creates a user and their external identity.
+ *
+ * This function first attempts to find a user's external identity.
+ * If found, it returns the associated user.
+ * If not found, it proceeds to find an existing user by their verified and trusted
+ * phone number or email. If no existing user is found, a new user is created.
+ * Finally, it creates the external identity and links it to the user.
+ * @param {object} keystone - keystone instance object
+ * @param {object} userProfile - The profile of the user from the external provider.
+ * @param {string} userType - The type of the user (e.g., 'staff', 'resident').
+ * @param {object} providerInfo - information about identity provider (name / trustPhone / trustEmail).
+ * @param {object} fieldMapping - userInfo json remap options. For example { id: 'sub' } converts oidc default "sub" field "id"
+ * @returns {Promise<object>} The resolved user object.
+ */
+async function syncUser (
+    keystone,
+    userProfile,
+    userType,
+    providerInfo,
+    fieldMapping = {}
+) {
+    // Step 0. Sanity checks
+    if (!ALLOWED_USER_TYPES.includes(userType)) {
+        throw new Error('Invalid userType provided')
+    }
+    const { success: isValidProviderInfo, error: providerInfoError, data: providerInfoData } = providerInfoSchema.safeParse(providerInfo)
+    if (!isValidProviderInfo) {
+        throw new Error(`Invalid provider config\n${z.prettifyError(providerInfoError)}`)
+    }
+
+    // Step 1. Convert provider shape to condo shape
+    const combinedMapping = { ...DEFAULT_USER_FIELDS_MAPPING, ...fieldMapping }
+    const mappedProfile = Object.fromEntries(
+        Object.entries(combinedMapping)
+            .map(([fieldName, fieldPath]) => [fieldName, get(userProfile, fieldPath)])
+    )
+
+    // Step 2. Verify shape and do transforms
+    const { success, error, data: userData } = userSchema.safeParse(mappedProfile)
+    if (!success) {
+        throw new Error(z.prettifyError(error))
+    }
+
+    // Step 3. Try to find existing identity to authenticate
+    // NOTE: does not add user.deletedAt filter, since it's the way to ban user (delete their profile with linked identity)
+    const context = await keystone.createContext({ skipAccessControl: true })
+    const userExternalIdentity = await UserExternalIdentity.getOne(context, {
+        identityId: userData.id,
+        userType,
+        identityType: providerInfo.name,
+        deletedAt: null,
+    }, 'user { id }')
+
+
+    // Step 4 If identity found -> return its user
+    if (userExternalIdentity) {
+        return userExternalIdentity.user
+    }
+
+    // Step 5. If no external identity, we need to create find or create user and create identity
+    const user = await _findOrCreateUser(context, userData, userType, providerInfoData)
+
+    await UserExternalIdentity.create(context, {
+        identityId: userData.id,
+        user: { connect: { id: user.id } },
+        identityType: providerInfo.name,
+        userType,
+        meta: userData,
+        ...DV_AND_SENDER,
+    })
+
+    return user
+}
