@@ -38,6 +38,10 @@ const {
     RESET_USER_MUTATION,
     SEND_MESSAGE_TO_SUPPORT_MUTATION,
     SIGNIN_AS_USER_MUTATION,
+    COMPLETE_CONFIRM_EMAIL_ACTION_MUTATION,
+    RESEND_CONFIRM_EMAIL_ACTION_MUTATION,
+    GET_EMAIL_BY_CONFIRM_EMAIL_ACTION_TOKEN_QUERY,
+    START_CONFIRM_EMAIL_ACTION_MUTATION,
 } = require('@condo/domains/user/gql')
 const { generateSmsCode } = require('@condo/domains/user/utils/serverSchema')
 
@@ -53,6 +57,7 @@ const { ResetUserLimitAction: ResetUserLimitActionGQL } = require('@condo/domain
 const { UserSudoToken: UserSudoTokenGQL } = require('@condo/domains/user/gql')
 const { GENERATE_SUDO_TOKEN_MUTATION } = require('@condo/domains/user/gql')
 const { AUTHENTICATE_OR_REGISTER_USER_WITH_TOKEN_MUTATION } = require('@condo/domains/user/gql')
+const { ConfirmEmailAction: ConfirmEmailActionGQL } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const OIDC_REDIRECT_URI = 'https://httpbin.org/anything'
@@ -252,6 +257,7 @@ const ExternalTokenAccessRight = generateGQLTestUtils(ExternalTokenAccessRightGQ
 const UserRightsSet = generateGQLTestUtils(UserRightsSetGQL)
 const ResetUserLimitAction = generateGQLTestUtils(ResetUserLimitActionGQL)
 const UserSudoToken = generateGQLTestUtils(UserSudoTokenGQL)
+const ConfirmEmailAction = generateGQLTestUtils(ConfirmEmailActionGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestConfirmPhoneAction (client, extraAttrs = {}) {
@@ -629,6 +635,111 @@ async function authenticateOrRegisterUserWithTokenByTestClient(client, extraAttr
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+async function createTestConfirmEmailAction (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const email = createTestEmail()
+    const token = faker.random.alphaNumeric(16)
+    const secretCode = faker.random.numeric(4)
+    const now = dayjs()
+    const secretCodeRequestedAt = now.toISOString()
+    const secretCodeExpiresAt = now.add(1, 'minute').toISOString()
+    const requestedAt = now.toISOString()
+    const expiresAt = now.add(15, 'minutes').toISOString()
+
+    const attrs = {
+        dv: 1,
+        sender,
+        email,
+        token,
+        secretCode,
+        secretCodeRequestedAt,
+        secretCodeExpiresAt,
+        requestedAt,
+        expiresAt,
+        ...extraAttrs,
+    }
+    const obj = await ConfirmEmailAction.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestConfirmEmailAction (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await ConfirmEmailAction.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function completeConfirmEmailActionByTestClient (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const captcha = faker.lorem.sentence()
+
+    const attrs = {
+        dv: 1,
+        sender,
+        captcha,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(COMPLETE_CONFIRM_EMAIL_ACTION_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
+async function startConfirmEmailActionByTestClient (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const captcha = faker.lorem.sentence()
+
+    const attrs = {
+        dv: 1,
+        sender,
+        captcha,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(START_CONFIRM_EMAIL_ACTION_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
+async function resendConfirmEmailActionByTestClient (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const captcha = faker.lorem.sentence()
+
+    const attrs = {
+        dv: 1,
+        sender,
+        captcha,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(RESEND_CONFIRM_EMAIL_ACTION_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
+async function getEmailByConfirmEmailActionTokenByTestClient (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const captcha = faker.lorem.sentence()
+
+    const attrs = {
+        dv: 1,
+        sender,
+        captcha,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(GET_EMAIL_BY_CONFIRM_EMAIL_ACTION_TOKEN_QUERY, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -674,5 +785,10 @@ module.exports = {
     generateSudoTokenByTestClient,
     OIDC_REDIRECT_URI,
     authenticateOrRegisterUserWithTokenByTestClient,
+    ConfirmEmailAction, createTestConfirmEmailAction, updateTestConfirmEmailAction,
+    completeConfirmEmailActionByTestClient,
+    startConfirmEmailActionByTestClient,
+    resendConfirmEmailActionByTestClient,
+    getEmailByConfirmEmailActionTokenByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

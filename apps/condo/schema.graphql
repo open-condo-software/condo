@@ -4183,6 +4183,7 @@ input ResetUserLimitActionHistoryRecordsCreateInput {
 }
 
 enum ResetUserLimitActionTypeType {
+  email
   sms
   rateLimit
   findOrganizationsByTin
@@ -4202,12 +4203,13 @@ type ResetUserLimitAction {
   """
   _label_: String
 
-  """ Type of limit to reset. Possible values: ["sms", "rateLimit", "findOrganizationsByTin", "auth", "checkUserExistence"] 
+  """ Type of limit to reset. Possible values: ["email", "sms", "rateLimit", "findOrganizationsByTin", "auth", "checkUserExistence"] 
   """
   type: ResetUserLimitActionTypeType
 
   """
    The identifier of user, to which reset will apply. Possible values are based on reset type: 
+  email: ["email", "ip"], 
   sms: ["phone", "ip"], 
   rateLimit: ["uuid", "ip"], 
   findOrganizationsByTin: ["email", "phone", "uuid"], 
@@ -4854,6 +4856,560 @@ input UserSudoTokenCreateInput {
 
 input UserSudoTokensCreateInput {
   data: UserSudoTokenCreateInput
+}
+
+enum ConfirmEmailActionHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type ConfirmEmailActionHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the ConfirmEmailActionHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the ConfirmEmailActionHistoryRecord List config, or
+   3. As an alias to a 'name' field on the ConfirmEmailActionHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the ConfirmEmailActionHistoryRecord List.
+  """
+  _label_: String
+  email: String
+  token: String
+  secretCode: String
+  secretCodeRequestedAt: String
+  secretCodeExpiresAt: String
+  retries: Int
+  isEmailVerified: Boolean
+  requestedAt: String
+  expiresAt: String
+  completedAt: String
+  id: ID!
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: ConfirmEmailActionHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input ConfirmEmailActionHistoryRecordWhereInput {
+  AND: [ConfirmEmailActionHistoryRecordWhereInput]
+  OR: [ConfirmEmailActionHistoryRecordWhereInput]
+  email: String
+  email_not: String
+  email_contains: String
+  email_not_contains: String
+  email_starts_with: String
+  email_not_starts_with: String
+  email_ends_with: String
+  email_not_ends_with: String
+  email_i: String
+  email_not_i: String
+  email_contains_i: String
+  email_not_contains_i: String
+  email_starts_with_i: String
+  email_not_starts_with_i: String
+  email_ends_with_i: String
+  email_not_ends_with_i: String
+  email_in: [String]
+  email_not_in: [String]
+  token: String
+  token_not: String
+  token_contains: String
+  token_not_contains: String
+  token_starts_with: String
+  token_not_starts_with: String
+  token_ends_with: String
+  token_not_ends_with: String
+  token_i: String
+  token_not_i: String
+  token_contains_i: String
+  token_not_contains_i: String
+  token_starts_with_i: String
+  token_not_starts_with_i: String
+  token_ends_with_i: String
+  token_not_ends_with_i: String
+  token_in: [String]
+  token_not_in: [String]
+  secretCode: String
+  secretCode_not: String
+  secretCode_contains: String
+  secretCode_not_contains: String
+  secretCode_starts_with: String
+  secretCode_not_starts_with: String
+  secretCode_ends_with: String
+  secretCode_not_ends_with: String
+  secretCode_i: String
+  secretCode_not_i: String
+  secretCode_contains_i: String
+  secretCode_not_contains_i: String
+  secretCode_starts_with_i: String
+  secretCode_not_starts_with_i: String
+  secretCode_ends_with_i: String
+  secretCode_not_ends_with_i: String
+  secretCode_in: [String]
+  secretCode_not_in: [String]
+  secretCodeRequestedAt: String
+  secretCodeRequestedAt_not: String
+  secretCodeRequestedAt_lt: String
+  secretCodeRequestedAt_lte: String
+  secretCodeRequestedAt_gt: String
+  secretCodeRequestedAt_gte: String
+  secretCodeRequestedAt_in: [String]
+  secretCodeRequestedAt_not_in: [String]
+  secretCodeExpiresAt: String
+  secretCodeExpiresAt_not: String
+  secretCodeExpiresAt_lt: String
+  secretCodeExpiresAt_lte: String
+  secretCodeExpiresAt_gt: String
+  secretCodeExpiresAt_gte: String
+  secretCodeExpiresAt_in: [String]
+  secretCodeExpiresAt_not_in: [String]
+  retries: Int
+  retries_not: Int
+  retries_lt: Int
+  retries_lte: Int
+  retries_gt: Int
+  retries_gte: Int
+  retries_in: [Int]
+  retries_not_in: [Int]
+  isEmailVerified: Boolean
+  isEmailVerified_not: Boolean
+  requestedAt: String
+  requestedAt_not: String
+  requestedAt_lt: String
+  requestedAt_lte: String
+  requestedAt_gt: String
+  requestedAt_gte: String
+  requestedAt_in: [String]
+  requestedAt_not_in: [String]
+  expiresAt: String
+  expiresAt_not: String
+  expiresAt_lt: String
+  expiresAt_lte: String
+  expiresAt_gt: String
+  expiresAt_gte: String
+  expiresAt_in: [String]
+  expiresAt_not_in: [String]
+  completedAt: String
+  completedAt_not: String
+  completedAt_lt: String
+  completedAt_lte: String
+  completedAt_gt: String
+  completedAt_gte: String
+  completedAt_in: [String]
+  completedAt_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: ConfirmEmailActionHistoryRecordHistoryActionType
+  history_action_not: ConfirmEmailActionHistoryRecordHistoryActionType
+  history_action_in: [ConfirmEmailActionHistoryRecordHistoryActionType]
+  history_action_not_in: [ConfirmEmailActionHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input ConfirmEmailActionHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortConfirmEmailActionHistoryRecordsBy {
+  email_ASC
+  email_DESC
+  token_ASC
+  token_DESC
+  secretCode_ASC
+  secretCode_DESC
+  secretCodeRequestedAt_ASC
+  secretCodeRequestedAt_DESC
+  secretCodeExpiresAt_ASC
+  secretCodeExpiresAt_DESC
+  retries_ASC
+  retries_DESC
+  isEmailVerified_ASC
+  isEmailVerified_DESC
+  requestedAt_ASC
+  requestedAt_DESC
+  expiresAt_ASC
+  expiresAt_DESC
+  completedAt_ASC
+  completedAt_DESC
+  id_ASC
+  id_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input ConfirmEmailActionHistoryRecordUpdateInput {
+  email: String
+  token: String
+  secretCode: String
+  secretCodeRequestedAt: String
+  secretCodeExpiresAt: String
+  retries: Int
+  isEmailVerified: Boolean
+  requestedAt: String
+  expiresAt: String
+  completedAt: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: ConfirmEmailActionHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input ConfirmEmailActionHistoryRecordsUpdateInput {
+  id: ID!
+  data: ConfirmEmailActionHistoryRecordUpdateInput
+}
+
+input ConfirmEmailActionHistoryRecordCreateInput {
+  email: String
+  token: String
+  secretCode: String
+  secretCodeRequestedAt: String
+  secretCodeExpiresAt: String
+  retries: Int
+  isEmailVerified: Boolean
+  requestedAt: String
+  expiresAt: String
+  completedAt: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: ConfirmEmailActionHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input ConfirmEmailActionHistoryRecordsCreateInput {
+  data: ConfirmEmailActionHistoryRecordCreateInput
+}
+
+""" User confirm email actions """
+type ConfirmEmailAction {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the ConfirmEmailAction List config, or
+   2. As an alias to the field set on 'labelField' in the ConfirmEmailAction List config, or
+   3. As an alias to a 'name' field on the ConfirmEmailAction List (if one exists), or
+   4. As an alias to the 'id' field on the ConfirmEmailAction List.
+  """
+  _label_: String
+
+  """ Normalized email for confirm action """
+  email: String
+
+  """ Unique token to complete confirmation """
+  token: String
+
+  """ Last secret code sent to user """
+  secretCode: String
+
+  """ Time when secret code was requested """
+  secretCodeRequestedAt: String
+
+  """ Time when secret code becomes not valid """
+  secretCodeExpiresAt: String
+
+  """ Number of times secret code input from user failed """
+  retries: Int
+
+  """ Email verification flag. User verify email by access to email message 
+  """
+  isEmailVerified: Boolean
+
+  """ DateTime when confirm email action was started """
+  requestedAt: String
+
+  """ When confirm email action becomes invalid """
+  expiresAt: String
+
+  """ When confirm email action was completed """
+  completedAt: String
+  id: ID!
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+  v: Int
+}
+
+input ConfirmEmailActionWhereInput {
+  AND: [ConfirmEmailActionWhereInput]
+  OR: [ConfirmEmailActionWhereInput]
+  email: String
+  email_not: String
+  email_contains: String
+  email_not_contains: String
+  email_starts_with: String
+  email_not_starts_with: String
+  email_ends_with: String
+  email_not_ends_with: String
+  email_i: String
+  email_not_i: String
+  email_contains_i: String
+  email_not_contains_i: String
+  email_starts_with_i: String
+  email_not_starts_with_i: String
+  email_ends_with_i: String
+  email_not_ends_with_i: String
+  email_in: [String]
+  email_not_in: [String]
+  token: String
+  token_not: String
+  token_contains: String
+  token_not_contains: String
+  token_starts_with: String
+  token_not_starts_with: String
+  token_ends_with: String
+  token_not_ends_with: String
+  token_i: String
+  token_not_i: String
+  token_contains_i: String
+  token_not_contains_i: String
+  token_starts_with_i: String
+  token_not_starts_with_i: String
+  token_ends_with_i: String
+  token_not_ends_with_i: String
+  token_in: [String]
+  token_not_in: [String]
+  secretCode: String
+  secretCode_not: String
+  secretCode_contains: String
+  secretCode_not_contains: String
+  secretCode_starts_with: String
+  secretCode_not_starts_with: String
+  secretCode_ends_with: String
+  secretCode_not_ends_with: String
+  secretCode_i: String
+  secretCode_not_i: String
+  secretCode_contains_i: String
+  secretCode_not_contains_i: String
+  secretCode_starts_with_i: String
+  secretCode_not_starts_with_i: String
+  secretCode_ends_with_i: String
+  secretCode_not_ends_with_i: String
+  secretCode_in: [String]
+  secretCode_not_in: [String]
+  secretCodeRequestedAt: String
+  secretCodeRequestedAt_not: String
+  secretCodeRequestedAt_lt: String
+  secretCodeRequestedAt_lte: String
+  secretCodeRequestedAt_gt: String
+  secretCodeRequestedAt_gte: String
+  secretCodeRequestedAt_in: [String]
+  secretCodeRequestedAt_not_in: [String]
+  secretCodeExpiresAt: String
+  secretCodeExpiresAt_not: String
+  secretCodeExpiresAt_lt: String
+  secretCodeExpiresAt_lte: String
+  secretCodeExpiresAt_gt: String
+  secretCodeExpiresAt_gte: String
+  secretCodeExpiresAt_in: [String]
+  secretCodeExpiresAt_not_in: [String]
+  retries: Int
+  retries_not: Int
+  retries_lt: Int
+  retries_lte: Int
+  retries_gt: Int
+  retries_gte: Int
+  retries_in: [Int]
+  retries_not_in: [Int]
+  isEmailVerified: Boolean
+  isEmailVerified_not: Boolean
+  requestedAt: String
+  requestedAt_not: String
+  requestedAt_lt: String
+  requestedAt_lte: String
+  requestedAt_gt: String
+  requestedAt_gte: String
+  requestedAt_in: [String]
+  requestedAt_not_in: [String]
+  expiresAt: String
+  expiresAt_not: String
+  expiresAt_lt: String
+  expiresAt_lte: String
+  expiresAt_gt: String
+  expiresAt_gte: String
+  expiresAt_in: [String]
+  expiresAt_not_in: [String]
+  completedAt: String
+  completedAt_not: String
+  completedAt_lt: String
+  completedAt_lte: String
+  completedAt_gt: String
+  completedAt_gte: String
+  completedAt_in: [String]
+  completedAt_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+}
+
+input ConfirmEmailActionWhereUniqueInput {
+  id: ID!
+}
+
+enum SortConfirmEmailActionsBy {
+  email_ASC
+  email_DESC
+  token_ASC
+  token_DESC
+  secretCode_ASC
+  secretCode_DESC
+  secretCodeRequestedAt_ASC
+  secretCodeRequestedAt_DESC
+  secretCodeExpiresAt_ASC
+  secretCodeExpiresAt_DESC
+  retries_ASC
+  retries_DESC
+  isEmailVerified_ASC
+  isEmailVerified_DESC
+  requestedAt_ASC
+  requestedAt_DESC
+  expiresAt_ASC
+  expiresAt_DESC
+  completedAt_ASC
+  completedAt_DESC
+  id_ASC
+  id_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  v_ASC
+  v_DESC
+}
+
+input ConfirmEmailActionUpdateInput {
+  email: String
+  token: String
+  secretCode: String
+  secretCodeRequestedAt: String
+  secretCodeExpiresAt: String
+  retries: Int
+  isEmailVerified: Boolean
+  requestedAt: String
+  expiresAt: String
+  completedAt: String
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+  v: Int
+}
+
+input ConfirmEmailActionsUpdateInput {
+  id: ID!
+  data: ConfirmEmailActionUpdateInput
+}
+
+input ConfirmEmailActionCreateInput {
+  email: String
+  token: String
+  secretCode: String
+  secretCodeRequestedAt: String
+  secretCodeExpiresAt: String
+  retries: Int
+  isEmailVerified: Boolean
+  requestedAt: String
+  expiresAt: String
+  completedAt: String
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+  v: Int
+}
+
+input ConfirmEmailActionsCreateInput {
+  data: ConfirmEmailActionCreateInput
 }
 
 enum OrganizationHistoryRecordHistoryActionType {
@@ -83136,6 +83692,52 @@ type AuthenticateOrRegisterUserWithTokenOutput {
   token: String!
 }
 
+input GetEmailByConfirmEmailActionTokenInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  token: String!
+  captcha: String!
+}
+
+type GetEmailByConfirmEmailActionTokenOutput {
+  email: String!
+  isEmailVerified: Boolean!
+}
+
+input StartConfirmEmailActionInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  captcha: String!
+  email: String!
+}
+
+type StartConfirmEmailActionOutput {
+  token: String!
+}
+
+input ResendConfirmEmailActionInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  captcha: String!
+  token: String!
+}
+
+type ResendConfirmEmailActionOutput {
+  status: String!
+}
+
+input CompleteConfirmEmailActionInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  captcha: String!
+  token: String!
+  secretCode: String!
+}
+
+type CompleteConfirmEmailActionOutput {
+  status: String!
+}
+
 enum OrganizationType {
   MANAGING_COMPANY
   HOLDING
@@ -83633,6 +84235,7 @@ enum MessageType {
   DIRTY_INVITE_NEW_EMPLOYEE_SMS
   DIRTY_INVITE_NEW_EMPLOYEE_EMAIL
   SMS_VERIFY
+  EMAIL_VERIFY
   DEVELOPER_IMPORTANT_NOTE_TYPE
   CUSTOMER_IMPORTANT_NOTE_TYPE
   MESSAGE_FORWARDED_TO_SUPPORT
@@ -84921,6 +85524,35 @@ type Query {
 
   """ Retrieve the meta-data for the UserSudoToken list. """
   _UserSudoTokensMeta: _ListMeta
+
+  """ Search for all ConfirmEmailActionHistoryRecord items which match the where clause. 
+  """
+  allConfirmEmailActionHistoryRecords(where: ConfirmEmailActionHistoryRecordWhereInput, search: String, sortBy: [SortConfirmEmailActionHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [ConfirmEmailActionHistoryRecord]
+
+  """ Search for the ConfirmEmailActionHistoryRecord item with the matching ID. 
+  """
+  ConfirmEmailActionHistoryRecord(where: ConfirmEmailActionHistoryRecordWhereUniqueInput!): ConfirmEmailActionHistoryRecord
+
+  """ Perform a meta-query on all ConfirmEmailActionHistoryRecord items which match the where clause. 
+  """
+  _allConfirmEmailActionHistoryRecordsMeta(where: ConfirmEmailActionHistoryRecordWhereInput, search: String, sortBy: [SortConfirmEmailActionHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the ConfirmEmailActionHistoryRecord list. """
+  _ConfirmEmailActionHistoryRecordsMeta: _ListMeta
+
+  """ Search for all ConfirmEmailAction items which match the where clause. 
+  """
+  allConfirmEmailActions(where: ConfirmEmailActionWhereInput, search: String, sortBy: [SortConfirmEmailActionsBy!], orderBy: String, first: Int, skip: Int): [ConfirmEmailAction]
+
+  """ Search for the ConfirmEmailAction item with the matching ID. """
+  ConfirmEmailAction(where: ConfirmEmailActionWhereUniqueInput!): ConfirmEmailAction
+
+  """ Perform a meta-query on all ConfirmEmailAction items which match the where clause. 
+  """
+  _allConfirmEmailActionsMeta(where: ConfirmEmailActionWhereInput, search: String, sortBy: [SortConfirmEmailActionsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the ConfirmEmailAction list. """
+  _ConfirmEmailActionsMeta: _ListMeta
 
   """ Search for all OrganizationHistoryRecord items which match the where clause. 
   """
@@ -88781,6 +89413,44 @@ type Query {
   checkUserExistence(data: CheckUserExistenceInput!): CheckUserExistenceOutput
 
   """
+  Returns email information from ConfirmEmailAction, that matches provided search conditions
+  
+  
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "CAPTCHA_CHECK_FAILED",
+    "message": "Failed to check CAPTCHA",
+    "messageForUser": "The operation could not be completed. Please update the application"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "UNABLE_TO_FIND_CONFIRM_EMAIL_ACTION",
+    "message": "Confirm email action was expired or it could not be found. Try to initiate email confirmation again",
+    "messageForUser": "Unable to verify your email. Try again or ask our support"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "DV_VERSION_MISMATCH",
+    "message": "Wrong value for data version number"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_FORMAT",
+    "message": "Invalid format of \"sender\" field value. Please, check the example for details",
+    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
+  }`
+  """
+  getEmailByConfirmEmailActionToken(data: GetEmailByConfirmEmailActionTokenInput!): GetEmailByConfirmEmailActionTokenOutput
+
+  """
   Returns all organizations by TIN. Used to get organizations that the user can apply to join
   
   
@@ -89247,6 +89917,42 @@ type Mutation {
 
   """ Delete multiple UserSudoToken items by ID. """
   deleteUserSudoTokens(ids: [ID!]): [UserSudoToken]
+
+  """ Create a single ConfirmEmailActionHistoryRecord item. """
+  createConfirmEmailActionHistoryRecord(data: ConfirmEmailActionHistoryRecordCreateInput): ConfirmEmailActionHistoryRecord
+
+  """ Create multiple ConfirmEmailActionHistoryRecord items. """
+  createConfirmEmailActionHistoryRecords(data: [ConfirmEmailActionHistoryRecordsCreateInput]): [ConfirmEmailActionHistoryRecord]
+
+  """ Update a single ConfirmEmailActionHistoryRecord item by ID. """
+  updateConfirmEmailActionHistoryRecord(id: ID!, data: ConfirmEmailActionHistoryRecordUpdateInput): ConfirmEmailActionHistoryRecord
+
+  """ Update multiple ConfirmEmailActionHistoryRecord items by ID. """
+  updateConfirmEmailActionHistoryRecords(data: [ConfirmEmailActionHistoryRecordsUpdateInput]): [ConfirmEmailActionHistoryRecord]
+
+  """ Delete a single ConfirmEmailActionHistoryRecord item by ID. """
+  deleteConfirmEmailActionHistoryRecord(id: ID!): ConfirmEmailActionHistoryRecord
+
+  """ Delete multiple ConfirmEmailActionHistoryRecord items by ID. """
+  deleteConfirmEmailActionHistoryRecords(ids: [ID!]): [ConfirmEmailActionHistoryRecord]
+
+  """ Create a single ConfirmEmailAction item. """
+  createConfirmEmailAction(data: ConfirmEmailActionCreateInput): ConfirmEmailAction
+
+  """ Create multiple ConfirmEmailAction items. """
+  createConfirmEmailActions(data: [ConfirmEmailActionsCreateInput]): [ConfirmEmailAction]
+
+  """ Update a single ConfirmEmailAction item by ID. """
+  updateConfirmEmailAction(id: ID!, data: ConfirmEmailActionUpdateInput): ConfirmEmailAction
+
+  """ Update multiple ConfirmEmailAction items by ID. """
+  updateConfirmEmailActions(data: [ConfirmEmailActionsUpdateInput]): [ConfirmEmailAction]
+
+  """ Delete a single ConfirmEmailAction item by ID. """
+  deleteConfirmEmailAction(id: ID!): ConfirmEmailAction
+
+  """ Delete multiple ConfirmEmailAction items by ID. """
+  deleteConfirmEmailActions(ids: [ID!]): [ConfirmEmailAction]
 
   """ Create a single OrganizationHistoryRecord item. """
   createOrganizationHistoryRecord(data: OrganizationHistoryRecordCreateInput): OrganizationHistoryRecord
@@ -94714,6 +95420,155 @@ type Mutation {
   authenticateOrRegisterUserWithToken(data: AuthenticateOrRegisterUserWithTokenInput!): AuthenticateOrRegisterUserWithTokenOutput
 
   """
+  Send confirmation email and return confirmation token. You can use the token for completeConfirmEmailAction mutation. And then use the token in other mutations to prove that the email is verified
+  
+  
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "DV_VERSION_MISMATCH",
+    "message": "Wrong value for data version number"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_FORMAT",
+    "message": "Invalid format of \"sender\" field value. Please, check the example for details",
+    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "CAPTCHA_CHECK_FAILED",
+    "message": "Failed to check CAPTCHA",
+    "messageForUser": "The operation could not be completed. Please update the application"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "UNABLE_TO_FIND_CONFIRM_EMAIL_ACTION",
+    "message": "Confirm email action was expired or it could not be found. Try to initiate email confirmation again",
+    "messageForUser": "Unable to verify your email. Try again or ask our support"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_EMAIL_VALUE",
+    "message": "Wrong format of provided email",
+    "messageForUser": "Invalid E-mail format",
+    "correctExample": "example@example.com"
+  }`
+  
+  `{
+    "code": "INTERNAL_ERROR",
+    "type": "GENERATE_TOKEN_FAILED",
+    "message": "Generate token failed"
+  }`
+  """
+  startConfirmEmailAction(data: StartConfirmEmailActionInput!): StartConfirmEmailActionOutput
+
+  """
+  Resend the confirm email for existing token
+  
+  
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "DV_VERSION_MISMATCH",
+    "message": "Wrong value for data version number"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_FORMAT",
+    "message": "Invalid format of \"sender\" field value. Please, check the example for details",
+    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "CAPTCHA_CHECK_FAILED",
+    "message": "Failed to check CAPTCHA",
+    "messageForUser": "The operation could not be completed. Please update the application"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "UNABLE_TO_FIND_CONFIRM_EMAIL_ACTION",
+    "message": "Confirm email action was expired or it could not be found. Try to initiate email confirmation again",
+    "messageForUser": "Unable to verify your email. Try again or ask our support"
+  }`
+  """
+  resendConfirmEmailAction(data: ResendConfirmEmailActionInput!): ResendConfirmEmailActionOutput
+
+  """
+  The final step of a email confirmation. You should use the token from startConfirmEmailAction and a secret code from the confirm email message. After success call, you can use the token in other mutations to prove that you have access to the email address
+  
+  
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "DV_VERSION_MISMATCH",
+    "message": "Wrong value for data version number"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_FORMAT",
+    "message": "Invalid format of \"sender\" field value. Please, check the example for details",
+    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "CAPTCHA_CHECK_FAILED",
+    "message": "Failed to check CAPTCHA",
+    "messageForUser": "The operation could not be completed. Please update the application"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "UNABLE_TO_FIND_CONFIRM_EMAIL_ACTION",
+    "message": "Confirm email action was expired or it could not be found. Try to initiate email confirmation again",
+    "messageForUser": "Unable to verify your email. Try again or ask our support"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "EMAIL_CODE_EXPIRED",
+    "message": "Email code expired. Try to initiate email confirmation again",
+    "messageForUser": "Confirmation code expired, try to verify email again"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "EMAIL_CODE_MAX_RETRIES_REACHED",
+    "message": "Max retries reached for email confirmation. Try to initiate email confirmation again",
+    "messageForUser": "Max retries reached for email code confirmation. Try to initiate email confirmation again"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "EMAIL_CODE_VERIFICATION_FAILED",
+    "message": "Code verification mismatch",
+    "messageForUser": "Email code verification mismatch"
+  }`
+  """
+  completeConfirmEmailAction(data: CompleteConfirmEmailActionInput!): CompleteConfirmEmailActionOutput
+
+  """
   Registers new Organization for current user
   
   Creates new Organization, new OrganizationEmployee for current user, creates a set of default OrganizationEmployeeRole for organization and connects created OrganizationEmployee to "Admin" OrganizationEmployeeRole, creates trial ServiceSubscription for organization
@@ -95337,6 +96192,16 @@ type Mutation {
   		},
   		"appId": {
   			"required": false
+  		}
+  	},
+  	"EMAIL_VERIFY": {
+  		"dv": {
+  			"defaultValue": "",
+  			"required": true
+  		},
+  		"secretCode": {
+  			"defaultValue": "",
+  			"required": true
   		}
   	},
   	"DEVELOPER_IMPORTANT_NOTE_TYPE": {

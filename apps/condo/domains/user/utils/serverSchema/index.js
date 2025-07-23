@@ -3,6 +3,8 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
+const crypto = require('crypto')
+
 const { faker } = require('@faker-js/faker')
 const has = require('lodash/has')
 
@@ -24,6 +26,7 @@ const { GET_ACCESS_TOKEN_BY_USER_ID_QUERY } = require('@condo/domains/user/gql')
 const { CHECK_USER_EXISTENCE_MUTATION } = require('@condo/domains/user/gql')
 const { GENERATE_SUDO_TOKEN_MUTATION } = require('@condo/domains/user/gql')
 const { AUTHENTICATE_OR_REGISTER_USER_WITH_TOKEN_MUTATION } = require('@condo/domains/user/gql')
+const { CONFIRM_EMAIL_ACTION_MUTATION } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateServerUtils('User')
@@ -137,6 +140,20 @@ async function authenticateOrRegisterUserWithToken (context, data) {
     })
 }
 
+const ConfirmEmailAction = generateServerUtils('ConfirmEmailAction')
+async function confirmEmailAction (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: CONFIRM_EMAIL_ACTION_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to confirmEmailAction',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 const whiteList = conf.SMS_WHITE_LIST ? JSON.parse(conf.SMS_WHITE_LIST) : {}
@@ -150,6 +167,16 @@ const generateSmsCode = (phone) => {
         min: Math.pow(10, SMS_CODE_LENGTH - 1), // example 6 symbols:  min = 10^(6-1) = 100000
         max: Math.pow(10, SMS_CODE_LENGTH) - 1, // max = 10^6-1 = 999999
     })
+}
+
+function generateSecureCode (length = 4) {
+    if (length < 4) throw new Error('Secure code cannot be shorter then 4 characters')
+
+    const max = 10 ** length
+    const min = 10 ** (length - 1)
+
+    const code = crypto.randomInt(min, max)
+    return code.toString().padStart(length, '0')
 }
 
 const updateEmployeesRelatedToUser = async (context, user) => {
@@ -188,6 +215,7 @@ module.exports = {
     UserExternalIdentity,
     ConfirmPhoneAction,
     generateSmsCode,
+    generateSecureCode,
     updateEmployeesRelatedToUser,
     signinAsUser,
     registerNewServiceUser,
@@ -202,5 +230,7 @@ module.exports = {
     UserSudoToken,
     generateSudoToken,
     authenticateOrRegisterUserWithToken,
+    ConfirmEmailAction,
+    confirmEmailAction,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
