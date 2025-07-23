@@ -1609,6 +1609,8 @@
   "notification.messages.SHARE_TICKET.email.subject": "Incidencia №{ticketNumber}",
   "notification.messages.SMS_VERIFY.email.subject": "Código",
   "notification.messages.SMS_VERIFY.push.title": "Código",
+  "notification.messages.EMAIL_VERIFY.email.subject": "Código",
+  "notification.messages.EMAIL_VERIFY.push.title": "Código",
   "notification.messages.STAFF_UPGRADE_APP.email.subject": "Actualización importante",
   "notification.messages.STAFF_UPGRADE_APP.push.title": "Actualización importante",
   "notification.messages.TICKET_ASSIGNEE_CONNECTED.email.subject": "Ha asignado como responsable de incidencia №{data.ticketNumber}",

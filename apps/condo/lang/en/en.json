@@ -1609,6 +1609,8 @@
   "notification.messages.SHARE_TICKET.email.subject": "Ticket №{ticketNumber}",
   "notification.messages.SMS_VERIFY.email.subject": "Verify code",
   "notification.messages.SMS_VERIFY.push.title": "Verify code",
+  "notification.messages.EMAIL_VERIFY.email.subject": "Verify code",
+  "notification.messages.EMAIL_VERIFY.push.title": "Verify code",
   "notification.messages.STAFF_UPGRADE_APP.email.subject": "Critical update",
   "notification.messages.STAFF_UPGRADE_APP.push.title": "Critical update",
   "notification.messages.TICKET_ASSIGNEE_CONNECTED.email.subject": "You were assigned as responsible of ticket #{data.ticketNumber}",

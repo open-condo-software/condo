@@ -1609,6 +1609,8 @@
   "notification.messages.SHARE_TICKET.email.subject": "Заявка №{ticketNumber}",
   "notification.messages.SMS_VERIFY.email.subject": "Код",
   "notification.messages.SMS_VERIFY.push.title": "Код",
+  "notification.messages.EMAIL_VERIFY.email.subject": "Код",
+  "notification.messages.EMAIL_VERIFY.push.title": "Код",
   "notification.messages.STAFF_UPGRADE_APP.email.subject": "Важное обновление",
   "notification.messages.STAFF_UPGRADE_APP.push.title": "Важное обновление",
   "notification.messages.TICKET_ASSIGNEE_CONNECTED.email.subject": "Вы назначены ответственным(-ой) по заявке №{data.ticketNumber}",
