@@ -35,7 +35,7 @@ async function main (args) {
     let integrationId
 
     if (existingIntegration) {
-        AcquiringIntegration.update(context, existingIntegration.id, integrationPayload, 'id')
+        await AcquiringIntegration.update(context, existingIntegration.id, integrationPayload, 'id')
         console.info('AcquiringIntegration updated!')
         integrationId = existingIntegration.id
     } else {
