@@ -381,7 +381,7 @@ describe('ExecutionAIFlowTask', () => {
             const { cleaned } = removeSensitiveDataFromObj(task.context)
 
             expect(task.cleanContext).toBeDefined()
-            expect(task.cleanContext).toDeepEqual(cleaned)
+            expect(task.cleanContext).toEqual(cleaned)
             expect(task.context).toEqual(sensitiveContext)
         })      
     })  
