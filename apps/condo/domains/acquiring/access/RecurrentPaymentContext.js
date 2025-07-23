@@ -44,7 +44,6 @@ async function canManageRecurrentPaymentContexts ({ authentication: { item: user
     }
 
     if (user.type === SERVICE && operation === 'update') {
-        if (access.isSoftDelete(originalInput)) return false
 
         return serviceUserFilter(user.id)
     }

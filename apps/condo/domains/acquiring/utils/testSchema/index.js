@@ -902,7 +902,7 @@ module.exports = {
     registerMultiPaymentForVirtualReceiptByTestClient,
     generatePaymentLinkByTestClient,
     sumPaymentsByTestClient,
-    RecurrentPaymentContext, RecurrentPaymentContextLite, createTestRecurrentPaymentContext, updateTestRecurrentPaymentContext, updateTestRecurrentPaymentContextService,
+    RecurrentPaymentContext, RecurrentPaymentContextLite, RecurrentPaymentContextService, createTestRecurrentPaymentContext, updateTestRecurrentPaymentContext, updateTestRecurrentPaymentContextService,
     RecurrentPayment, createTestRecurrentPayment, updateTestRecurrentPayment,
     createPaymentByLinkByTestClient,
     registerMultiPaymentForInvoicesByTestClient,

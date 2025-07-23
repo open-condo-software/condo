@@ -29,6 +29,7 @@ const {
     createTestAcquiringIntegration,
     createTestAcquiringIntegrationContext,
     updateTestRecurrentPaymentContextService,
+    RecurrentPaymentContextService,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestBillingCategory } = require('@condo/domains/billing/utils/testSchema')
 const { makeClientWithServiceConsumer, updateTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
@@ -266,18 +267,17 @@ describe('RecurrentPaymentContext', () => {
                 const serviceClient = await makeServiceUserForIntegration(acquiringIntegration)
 
                 const serviceConsumerClient = await makeClientWithServiceConsumer()
+                const request =  await getContextRequest({ serviceConsumer: { connect: { id: serviceConsumerClient.serviceConsumer.id } } })
                 const [acquiringIntegrationContext] = await createTestAcquiringIntegrationContext(admin, serviceConsumerClient.organization, acquiringIntegration)
                 await updateTestServiceConsumer(admin, serviceConsumerClient.serviceConsumer.id, { acquiringIntegrationContext: { connect: { id: acquiringIntegrationContext.id } } })
-                const [obj] = await createTestRecurrentPaymentContext(admin, await getContextRequest({
-                    serviceConsumer: { connect: { id: serviceConsumerClient.serviceConsumer.id } } }))
-                const objs = await RecurrentPaymentContextLite.getAll(serviceClient, {})
+                await createTestRecurrentPaymentContext(admin, request)
+                const obj = await RecurrentPaymentContextService.getOne(serviceClient, {
+                    serviceConsumer: { resident: { user: { id: serviceConsumerClient.user.id } } },
+                    settings: { cardId: request.settings.cardId },
+                })
 
-                expect(objs.length).toBeGreaterThanOrEqual(1)
-                expect(objs).toEqual(expect.arrayContaining([
-                    expect.objectContaining({
-                        id: obj.id,
-                    }),
-                ]))
+                expect(obj).toBeDefined()
+                expect(obj.settings).toEqual(request.settings)
             })
 
             test('service user can\'t for others integrations', async () => {
@@ -341,7 +341,7 @@ describe('RecurrentPaymentContext', () => {
         })
 
         describe('soft delete', () => {
-            test('service user can\'t', async () => {
+            test('service user can for own integration', async () => {
                 const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
                 const serviceClient = await makeServiceUserForIntegration(acquiringIntegration)
 
@@ -350,8 +350,24 @@ describe('RecurrentPaymentContext', () => {
                 await updateTestServiceConsumer(admin, serviceConsumerClient.serviceConsumer.id, { acquiringIntegrationContext: { connect: { id: acquiringIntegrationContext.id } } })
                 const [objCreated] = await createTestRecurrentPaymentContext(admin, await getContextRequest({ serviceConsumer: { connect: { id: serviceConsumerClient.serviceConsumer.id } } }))
 
+                await RecurrentPaymentContextService.softDelete(serviceClient, objCreated.id)
+
+                const recurrentPaymentContext = await RecurrentPaymentContextService.getOne(serviceClient, { id: objCreated.id })
+                expect(recurrentPaymentContext).toBeUndefined()
+            })
+
+            test('service user can\'t for others integrations', async () => {
+                const [acquiringIntegration1] = await createTestAcquiringIntegration(admin)
+                const [acquiringIntegration2] = await createTestAcquiringIntegration(admin)
+                const serviceClient = await makeServiceUserForIntegration(acquiringIntegration1)
+
+                const serviceConsumerClient = await makeClientWithServiceConsumer()
+                const [acquiringIntegrationContext] = await createTestAcquiringIntegrationContext(admin, serviceConsumerClient.organization, acquiringIntegration2)
+                await updateTestServiceConsumer(admin, serviceConsumerClient.serviceConsumer.id, { acquiringIntegrationContext: { connect: { id: acquiringIntegrationContext.id } } })
+                const [objCreated] = await createTestRecurrentPaymentContext(admin, await getContextRequest({ serviceConsumer: { connect: { id: serviceConsumerClient.serviceConsumer.id } } }))
+
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await RecurrentPaymentContext.softDelete(serviceClient, objCreated.id)
+                    await RecurrentPaymentContextService.softDelete(serviceClient, objCreated.id)
                 })
             })
 
