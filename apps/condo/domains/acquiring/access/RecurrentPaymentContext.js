@@ -44,7 +44,6 @@ async function canManageRecurrentPaymentContexts ({ authentication: { item: user
     }
 
     if (user.type === SERVICE && operation === 'update') {
-
         return serviceUserFilter(user.id)
     }
 
