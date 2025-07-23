@@ -1,4 +1,4 @@
-const { DADATA_PROVIDER, GOOGLE_PROVIDER } = require('@address-service/domains/common/constants/providers')
+const { DADATA_PROVIDER, GOOGLE_PROVIDER, PULLENTI_PROVIDER } = require('@address-service/domains/common/constants/providers')
 const {
     getSearchProvider,
     getSuggestionsProvider,
@@ -6,10 +6,12 @@ const {
 const {
     DadataSearchProvider,
     GoogleSearchProvider,
+    PullentiSearchProvider,
 } = require('@address-service/domains/common/utils/services/search/providers')
 const {
     DadataSuggestionProvider,
     GoogleSuggestionProvider,
+    PullentiSuggestionProvider,
 } = require('@address-service/domains/common/utils/services/suggest/providers')
 
 describe('Provider detector', () => {
@@ -19,6 +21,7 @@ describe('Provider detector', () => {
     const providersEligibleConfigs = {
         [DADATA_PROVIDER]: { DADATA_SUGGESTIONS: '{"url":"where is dadata?", "token":"tooooken"}' },
         [GOOGLE_PROVIDER]: { GOOGLE_API_KEY: 'just an api key' },
+        [PULLENTI_PROVIDER]: { PULLENTI_CONFIG: '{"url":"the_url"}' },
     }
 
     beforeEach(() => {
@@ -35,6 +38,7 @@ describe('Provider detector', () => {
             // [<provider name>, <env variable name>]
             [DADATA_PROVIDER, 'DADATA_SUGGESTIONS'],
             [GOOGLE_PROVIDER, 'GOOGLE_API_KEY'],
+            [PULLENTI_PROVIDER, 'PULLENTI_CONFIG'],
         ]
 
         test.each(cases)('in the case of %p provider the %p variable must exist', (providerName, variableName) => {
@@ -46,45 +50,64 @@ describe('Provider detector', () => {
 
     describe('detects correct search provider', () => {
         const cases = [
-            // [<provider name>, <provider's class>, <env variable name for the provider>, <env variable value for the provider>]
-            [DADATA_PROVIDER, DadataSearchProvider],
-            [GOOGLE_PROVIDER, GoogleSearchProvider],
-            [undefined], // No provider set
-            ['some string'], // An un-existing provider set
+            // [<provider name in .env>, <provider name in query>, <provider's class>]
+            [DADATA_PROVIDER, undefined, DadataSearchProvider],
+            [GOOGLE_PROVIDER, undefined, GoogleSearchProvider],
+            [PULLENTI_PROVIDER, undefined, PullentiSearchProvider],
+            [undefined, undefined], // No provider set
+            ['some string', undefined], // An un-existing provider set
+            [DADATA_PROVIDER, PULLENTI_PROVIDER, PullentiSearchProvider],
+            [GOOGLE_PROVIDER, PULLENTI_PROVIDER, PullentiSearchProvider],
         ]
 
-        test.each(cases)('for %p', (providerName, expected = undefined) => {
+        test.each(cases)('for %p', (providerNameInEnv, providerNameInQuery, expected = undefined) => {
             process.env = {
                 ...process.env,
-                PROVIDER: providerName,
-                ...(providersEligibleConfigs[providerName] || {}),
+                PROVIDER: providerNameInEnv,
+                ...(providersEligibleConfigs[providerNameInEnv] || {}),
             }
+
+            const req = {
+                id: 'some-uuid',
+                query: providerNameInQuery ? { provider: providerNameInQuery } : {},
+            }
+
             if (expected) {
-                expect(getSearchProvider({ req: { id: 'some-uuid' } })).toBeInstanceOf(expected)
+                expect(getSearchProvider({ req })).toBeInstanceOf(expected)
             } else {
-                expect(getSearchProvider({ req: { id: 'some-uuid' } })).toBeUndefined()
+                expect(getSearchProvider({ req })).toBeUndefined()
             }
         })
     })
 
     describe('detects correct suggest provider', () => {
         const cases = [
-            [DADATA_PROVIDER, DadataSuggestionProvider],
-            [GOOGLE_PROVIDER, GoogleSuggestionProvider],
-            [undefined], // No provider set
-            ['abra-shvabra-cadabra'], // An un-existing provider set
+            // [<provider name in .env>, <provider name in query>, <provider's class>]
+            [DADATA_PROVIDER, undefined, DadataSuggestionProvider],
+            [GOOGLE_PROVIDER, undefined, GoogleSuggestionProvider],
+            [PULLENTI_PROVIDER, undefined, PullentiSuggestionProvider],
+            [undefined, undefined], // No provider set
+            ['abra-shvabra-cadabra', undefined], // An un-existing provider set
+            [DADATA_PROVIDER, PULLENTI_PROVIDER, PullentiSuggestionProvider],
+            [GOOGLE_PROVIDER, PULLENTI_PROVIDER, PullentiSuggestionProvider],
         ]
 
-        test.each(cases)('for %p', (providerName, expected = undefined) => {
+        test.each(cases)('for %p', (providerNameInEnv, providerNameInQuery, expected = undefined) => {
             process.env = {
                 ...process.env,
-                PROVIDER: providerName,
-                ...(providersEligibleConfigs[providerName] || {}),
+                PROVIDER: providerNameInEnv,
+                ...(providersEligibleConfigs[providerNameInEnv] || {}),
             }
+
+            const req = {
+                id: 'some-uuid',
+                query: providerNameInQuery ? { provider: providerNameInQuery } : {},
+            }
+
             if (expected) {
-                expect(getSuggestionsProvider()).toBeInstanceOf(expected)
+                expect(getSuggestionsProvider({ req })).toBeInstanceOf(expected)
             } else {
-                expect(getSuggestionsProvider()).toBeUndefined()
+                expect(getSuggestionsProvider({ req })).toBeUndefined()
             }
         })
     })
