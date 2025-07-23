@@ -4,7 +4,7 @@ const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { i18n } = require('@open-condo/locales/loader')
-const { restoreSensitiveData, removeSensitiveDataFromObj } = require('@condo/domains/ai/utils/serverSchema/removeSensitiveDataFromObj')
+
 
 const { FlowiseAdapter } = require('@condo/domains/ai/adapters')
 const {
@@ -13,6 +13,7 @@ const {
 } = require('@condo/domains/ai/constants')
 const { CUSTOM_FLOW_TYPES_LIST, AI_FLOWS_CONFIG } = require('@condo/domains/ai/utils/flowsConfig')
 const { ExecutionAIFlowTask } = require('@condo/domains/ai/utils/serverSchema')
+const { restoreSensitiveData, removeSensitiveDataFromObj } = require('@condo/domains/ai/utils/serverSchema/removeSensitiveDataFromObj')
 const { TASK_WORKER_FINGERPRINT } = require('@condo/domains/common/constants/tasks')
 
 const { FLOW_META_SCHEMAS, CUSTOM_FLOW_TYPE } = require('../constants')
