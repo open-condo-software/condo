@@ -73,16 +73,16 @@ export const useUserMessages: UsePollUserMessagesType = ({
     })
 
     const clearLoadedMessages = useCallback(() => {
-        const messages = newMessagesData?.messages?.filter(Boolean) as Array<UserMessageType>
+        const messages = userMessages?.filter(Boolean)?.slice(0, 10) as Array<UserMessageType>
 
         setUserMessages(messages)
         setIsAllMessagesLoaded(false)
         setMoreMessagesLoading(false)
-    }, [newMessagesData?.messages])
+    }, [userMessages])
 
     useEffect(() => {
         clearLoadedMessages()
-    }, [clearLoadedMessages])
+    }, [])
 
     // New messages polling in one tab logic
     useExecuteWithLock(USER_MESSAGES_LIST_POLL_LOCK_NAME, () => setIsPollingTab(true))
