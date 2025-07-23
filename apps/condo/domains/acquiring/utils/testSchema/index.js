@@ -21,7 +21,7 @@ const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 const { MULTIPAYMENT_INIT_STATUS } = require('@condo/domains/acquiring/constants/payment')
 const { makeLoggedInAdminClient, UploadingFile } = require('@open-condo/keystone/test.utils')
-const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithResidentUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 
 const { AcquiringIntegration: AcquiringIntegrationGQL } = require('@condo/domains/acquiring/gql')
@@ -64,7 +64,6 @@ const { PaymentsFile: PaymentsFileGQL } = require('@condo/domains/acquiring/gql'
 const path = require("path");
 const conf = require("@open-condo/config");
 const { PAYMENTS_FILE_NEW_STATUS} = require("@condo/domains/acquiring/constants/constants");
-const {makeClientWithServiceUser} = require("../../../user/utils/testSchema");
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateGQLTestUtils(AcquiringIntegrationGQL)
