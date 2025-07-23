@@ -228,7 +228,8 @@ const ExecutionAIFlowTask = new GQLListSchema('ExecutionAIFlowTask', {
             const { resolvedData, operation } = args
 
             if (operation === 'create') {
-                resolvedData.cleanContext = removeSensitiveDataFromObj(cloneDeep(resolvedData.context))
+                const { cleaned: cleanContext } = removeSensitiveDataFromObj(cloneDeep(resolvedData.context))
+                resolvedData.cleanContext = cleanContext
             }
 
             return resolvedData

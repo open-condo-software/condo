@@ -4,6 +4,7 @@ const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { i18n } = require('@open-condo/locales/loader')
+const { restoreSensitiveData, removeSensitiveDataFromObj } = require('@condo/domains/ai/utils/serverSchema/removeSensitiveDataFromObj')
 
 const { FlowiseAdapter } = require('@condo/domains/ai/adapters')
 const {
@@ -97,10 +98,14 @@ const executeAIFlow = async (executionAIFlowTaskId) => {
             return
         }
 
+        const { replacements } = removeSensitiveDataFromObj(task.context)
+        const resultWithRestoredPII = restoreSensitiveData(prediction.result, replacements)
+
         await ExecutionAIFlowTask.update(context, executionAIFlowTaskId, {
             ...BASE_ATTRIBUTES,
-            result: prediction.result,
+            result: resultWithRestoredPII,
             meta: {
+                ...prediction.result,
                 response: prediction._response,
             },
             status: TASK_STATUSES.COMPLETED,
