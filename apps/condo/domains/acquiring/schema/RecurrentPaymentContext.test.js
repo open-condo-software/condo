@@ -25,9 +25,13 @@ const {
     updateTestRecurrentPaymentContext,
     RecurrentPayment,
     createTestRecurrentPayment,
+    makeServiceUserForIntegration,
+    createTestAcquiringIntegration,
+    createTestAcquiringIntegrationContext,
+    updateTestRecurrentPaymentContextService,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestBillingCategory } = require('@condo/domains/billing/utils/testSchema')
-const { makeClientWithServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
+const { makeClientWithServiceConsumer, updateTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithSupportUser,
@@ -44,7 +48,7 @@ describe('RecurrentPaymentContext', () => {
         admin = await makeLoggedInAdminClient()
         billingCategory = (await createTestBillingCategory(admin, { name: `Category ${new Date()}` }))[0]
 
-        getContextRequest = async () => ({
+        getContextRequest = async (extraAttrs) => ({
             enabled: false,
             limit: '10000',
             autoPayReceipts: false,
@@ -52,11 +56,24 @@ describe('RecurrentPaymentContext', () => {
             settings: { cardId: faker.datatype.uuid() },
             serviceConsumer: { connect: { id: serviceConsumerClient.serviceConsumer.id } },
             billingCategory: { connect: { id: billingCategory.id } },
+            ...extraAttrs,
         })
     })
 
     describe('CRUD tests', () => {
         describe('create', () => {
+            test('service user can\'t', async () => {
+                const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
+                const serviceClient = await makeServiceUserForIntegration(acquiringIntegration)
+
+                const serviceConsumerClient = await makeClientWithServiceConsumer()
+                const [acquiringIntegrationContext] = await createTestAcquiringIntegrationContext(admin, serviceConsumerClient.organization, acquiringIntegration)
+                await updateTestServiceConsumer(admin, serviceConsumerClient.serviceConsumer.id, { acquiringIntegrationContext: { connect: { id: acquiringIntegrationContext.id } } })
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestRecurrentPaymentContext(serviceClient, await getContextRequest({ serviceConsumer: { connect: { id: serviceConsumerClient.serviceConsumer.id } } }))
+                })
+            })
+
             test('admin can', async () => {
                 const admin = await makeLoggedInAdminClient()
 
@@ -101,6 +118,42 @@ describe('RecurrentPaymentContext', () => {
         })
 
         describe('update', () => {
+            test('service user can for own integration', async () => {
+                const updateInput = {
+                    settings: { cardId: faker.datatype.uuid() },
+                }
+                const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
+                const serviceClient = await makeServiceUserForIntegration(acquiringIntegration)
+
+                const serviceConsumerClient = await makeClientWithServiceConsumer()
+                const [acquiringIntegrationContext] = await createTestAcquiringIntegrationContext(admin, serviceConsumerClient.organization, acquiringIntegration)
+                await updateTestServiceConsumer(admin, serviceConsumerClient.serviceConsumer.id, { acquiringIntegrationContext: { connect: { id: acquiringIntegrationContext.id } } })
+                const [objCreated] = await createTestRecurrentPaymentContext(admin, await getContextRequest({
+                    serviceConsumer: { connect: { id: serviceConsumerClient.serviceConsumer.id } } }))
+
+                const [obj] = await updateTestRecurrentPaymentContextService(serviceClient, objCreated.id, updateInput)
+
+                expect(obj.settings).toEqual(updateInput.settings)
+            })
+
+            test('service user can\'t for others integrations', async () => {
+                const updateInput = {
+                    settings: { cardId: faker.datatype.uuid() },
+                }
+                const [acquiringIntegration1] = await createTestAcquiringIntegration(admin)
+                const [acquiringIntegration2] = await createTestAcquiringIntegration(admin)
+                const serviceClient = await makeServiceUserForIntegration(acquiringIntegration1)
+
+                const serviceConsumerClient = await makeClientWithServiceConsumer()
+                const [acquiringIntegrationContext] = await createTestAcquiringIntegrationContext(admin, serviceConsumerClient.organization, acquiringIntegration2)
+                await updateTestServiceConsumer(admin, serviceConsumerClient.serviceConsumer.id, { acquiringIntegrationContext: { connect: { id: acquiringIntegrationContext.id } } })
+                const [objCreated] = await createTestRecurrentPaymentContext(admin, await getContextRequest({ serviceConsumer: { connect: { id: serviceConsumerClient.serviceConsumer.id } } }))
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestRecurrentPaymentContextService(serviceClient, objCreated.id, updateInput)
+                })
+            })
+
             test('admin can', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const request = await getContextRequest()
@@ -163,6 +216,20 @@ describe('RecurrentPaymentContext', () => {
         })
 
         describe('hard delete', () => {
+            test('service user can\'t', async () => {
+                const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
+                const serviceClient = await makeServiceUserForIntegration(acquiringIntegration)
+
+                const serviceConsumerClient = await makeClientWithServiceConsumer()
+                const [acquiringIntegrationContext] = await createTestAcquiringIntegrationContext(admin, serviceConsumerClient.organization, acquiringIntegration)
+                await updateTestServiceConsumer(admin, serviceConsumerClient.serviceConsumer.id, { acquiringIntegrationContext: { connect: { id: acquiringIntegrationContext.id } } })
+                const [objCreated] = await createTestRecurrentPaymentContext(admin, await getContextRequest({ serviceConsumer: { connect: { id: serviceConsumerClient.serviceConsumer.id } } }))
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await RecurrentPaymentContext.delete(serviceClient, objCreated.id)
+                })
+            })
+
             test('admin can\'t', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [objCreated] = await createTestRecurrentPaymentContext(admin, await getContextRequest())
@@ -194,6 +261,38 @@ describe('RecurrentPaymentContext', () => {
         })
 
         describe('read', () => {
+            test('service user can for own integration', async () => {
+                const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
+                const serviceClient = await makeServiceUserForIntegration(acquiringIntegration)
+
+                const serviceConsumerClient = await makeClientWithServiceConsumer()
+                const [acquiringIntegrationContext] = await createTestAcquiringIntegrationContext(admin, serviceConsumerClient.organization, acquiringIntegration)
+                await updateTestServiceConsumer(admin, serviceConsumerClient.serviceConsumer.id, { acquiringIntegrationContext: { connect: { id: acquiringIntegrationContext.id } } })
+                const [obj] = await createTestRecurrentPaymentContext(admin, await getContextRequest({
+                    serviceConsumer: { connect: { id: serviceConsumerClient.serviceConsumer.id } } }))
+                const objs = await RecurrentPaymentContextLite.getAll(serviceClient, {})
+
+                expect(objs.length).toBeGreaterThanOrEqual(1)
+                expect(objs).toEqual(expect.arrayContaining([
+                    expect.objectContaining({
+                        id: obj.id,
+                    }),
+                ]))
+            })
+
+            test('service user can\'t for others integrations', async () => {
+                const [acquiringIntegration1] = await createTestAcquiringIntegration(admin)
+                const [acquiringIntegration2] = await createTestAcquiringIntegration(admin)
+                const serviceClient = await makeServiceUserForIntegration(acquiringIntegration1)
+
+                const serviceConsumerClient = await makeClientWithServiceConsumer()
+                const [acquiringIntegrationContext] = await createTestAcquiringIntegrationContext(admin, serviceConsumerClient.organization, acquiringIntegration2)
+                await updateTestServiceConsumer(admin, serviceConsumerClient.serviceConsumer.id, { acquiringIntegrationContext: { connect: { id: acquiringIntegrationContext.id } } })
+                await createTestRecurrentPaymentContext(admin, await getContextRequest({ serviceConsumer: { connect: { id: serviceConsumerClient.serviceConsumer.id } } }))
+                const objs = await RecurrentPaymentContextLite.getAll(serviceClient, {})
+                expect(objs).toHaveLength(0)
+            })
+
             test('admin can', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [obj] = await createTestRecurrentPaymentContext(admin, await getContextRequest())
@@ -242,6 +341,20 @@ describe('RecurrentPaymentContext', () => {
         })
 
         describe('soft delete', () => {
+            test('service user can\'t', async () => {
+                const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
+                const serviceClient = await makeServiceUserForIntegration(acquiringIntegration)
+
+                const serviceConsumerClient = await makeClientWithServiceConsumer()
+                const [acquiringIntegrationContext] = await createTestAcquiringIntegrationContext(admin, serviceConsumerClient.organization, acquiringIntegration)
+                await updateTestServiceConsumer(admin, serviceConsumerClient.serviceConsumer.id, { acquiringIntegrationContext: { connect: { id: acquiringIntegrationContext.id } } })
+                const [objCreated] = await createTestRecurrentPaymentContext(admin, await getContextRequest({ serviceConsumer: { connect: { id: serviceConsumerClient.serviceConsumer.id } } }))
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await RecurrentPaymentContext.softDelete(serviceClient, objCreated.id)
+                })
+            })
+
             test('admin can', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [objCreated] = await createTestRecurrentPaymentContext(admin, await getContextRequest())

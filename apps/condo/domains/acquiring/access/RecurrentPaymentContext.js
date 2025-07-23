@@ -5,9 +5,10 @@
 const access = require('@open-condo/keystone/access')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
-const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 
 const userFilter = (id) => ({ serviceConsumer: { resident: { user: { id } } } })
+const serviceUserFilter = (id) => ({ serviceConsumer: { acquiringIntegrationContext: { integration: { accessRights_some: { user: { id }, deletedAt: null } } } } })
 
 async function canReadRecurrentPaymentContexts ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
@@ -17,6 +18,10 @@ async function canReadRecurrentPaymentContexts ({ authentication: { item: user }
 
     if (user.type === RESIDENT) {
         return userFilter(user.id)
+    }
+
+    if (user.type === SERVICE) {
+        return serviceUserFilter(user.id)
     }
 
     return false
@@ -36,6 +41,12 @@ async function canManageRecurrentPaymentContexts ({ authentication: { item: user
         } else if (operation === 'update') {
             return userFilter(user.id)
         }
+    }
+
+    if (user.type === SERVICE && operation === 'update') {
+        if (access.isSoftDelete(originalInput)) return false
+
+        return serviceUserFilter(user.id)
     }
 
     return false
