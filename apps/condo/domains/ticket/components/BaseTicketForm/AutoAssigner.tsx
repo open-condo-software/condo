@@ -7,6 +7,7 @@ import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { Alert } from '@open-condo/ui'
 
+import { FadeCol } from '@condo/domains/common/components/FadeCol/FadeCol'
 import {
     getEmployeesSortedByTicketVisibilityType,
     getPropertyScopeNameByEmployee, isEmployeeSpecializationAndPropertyMatchesToScope,
@@ -139,13 +140,13 @@ export const AutoAssigner = ({
     ])
 
     return autoAssigneePropertyScopeName ? (
-        <Col span={24}>
+        <FadeCol span={24}>
             <Alert
                 showIcon
                 type='info'
                 message={AutoAssignAlertTitle}
                 description={AutoAssignAlertMessage.replace('{name}', autoAssigneePropertyScopeName)}
             />
-        </Col>
+        </FadeCol>
     ) : null
 }

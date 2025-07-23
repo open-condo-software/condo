@@ -13,14 +13,12 @@ import { Alert, Typography } from '@open-condo/ui'
 
 import Input from '@condo/domains/common/components/antd/Input'
 import Select from '@condo/domains/common/components/antd/Select'
+import { FadeCol } from '@condo/domains/common/components/FadeCol/FadeCol'
 import { useTicketValidations } from '@condo/domains/ticket/components/BaseTicketForm/useTicketValidations'
 import { MIN_DESCRIPTION_LENGTH } from '@condo/domains/ticket/constants/restrictions'
 import { ClassifiersQueryLocal, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 
-import styles from './TicketClassifierSelect.module.css'
-
 import { TicketFormItem } from './BaseTicketForm'
-
 
 
 const { Option } = Select
@@ -485,7 +483,7 @@ const SameTicketsAlert: React.FC<ISameTicketsAlertProps> = ({ form }) => {
     }
 
     return (
-        <Col span={24}>
+        <FadeCol span={24}>
             <Alert
                 message={AlertMessage}
                 type='info'
@@ -499,6 +497,6 @@ const SameTicketsAlert: React.FC<ISameTicketsAlertProps> = ({ form }) => {
                     </Typography.Link>
                 }
             />
-        </Col>
+        </FadeCol>
     )
 }

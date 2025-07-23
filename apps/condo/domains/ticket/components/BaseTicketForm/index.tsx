@@ -40,6 +40,7 @@ import { AcquiringIntegrationContext } from '@condo/domains/acquiring/utils/clie
 import Input from '@condo/domains/common/components/antd/Input'
 import Select from '@condo/domains/common/components/antd/Select'
 import { FormWithAction, OnCompletedMsgType } from '@condo/domains/common/components/containers/FormList'
+import { FadeCol } from '@condo/domains/common/components/FadeCol/FadeCol'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
@@ -257,7 +258,7 @@ const TicketFormInvoicesEmptyContent = ({
         }
 
         return (
-            <Col span={24}>
+            <FadeCol span={24}>
                 <Alert
                     type='warning'
                     showIcon
@@ -273,7 +274,7 @@ const TicketFormInvoicesEmptyContent = ({
                         </Space>
                     }
                 />
-            </Col>
+            </FadeCol>
         )
     }
 
