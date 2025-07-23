@@ -18,6 +18,7 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { TASK_STATUSES } = require('@condo/domains/ai/constants')
+const { removeSensitiveDataFromObj } = require('@condo/domains/ai/utils/serverSchema/removeSensitiveDataFromObj')
 const {
     ExecutionAIFlowTask,
     ExecutionAIFlowTaskForUser,
@@ -361,6 +362,29 @@ describe('ExecutionAIFlowTask', () => {
             })
         })
     })
+
+    describe('PII Masking', () => {
+        test('should mask PII in context when creating task', async () => {
+            const sensitiveContext = {
+                name: 'John Doe',
+                email: 'john.doe@example.com',
+                phone: '+1 (555) 123-4567',
+                notes: 'Contact me at john.doe@example.com or +1 (555) 123-4567',
+                address: '123 Main St',
+            }
+
+            const [task] = await createTestExecutionAIFlowTask(adminClient, userClient.user, {
+                flowType: 'success_flow',
+                context: sensitiveContext,
+            })
+
+            const { cleaned } = removeSensitiveDataFromObj(sensitiveContext)
+
+            expect(task.cleanContext).toBeDefined()
+            expect(task.cleanContext).toEqual(cleaned)
+            expect(task.context).toEqual(sensitiveContext)
+        })      
+    })  
 
     describe('Validations', () => {
         test('flowType should be from allowed list only', async () => {

@@ -5,6 +5,7 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { i18n } = require('@open-condo/locales/loader')
 
+
 const { FlowiseAdapter } = require('@condo/domains/ai/adapters')
 const {
     TASK_STATUSES,
@@ -12,6 +13,7 @@ const {
 } = require('@condo/domains/ai/constants')
 const { CUSTOM_FLOW_TYPES_LIST, AI_FLOWS_CONFIG } = require('@condo/domains/ai/utils/flowsConfig')
 const { ExecutionAIFlowTask } = require('@condo/domains/ai/utils/serverSchema')
+const { restoreSensitiveData, removeSensitiveDataFromObj } = require('@condo/domains/ai/utils/serverSchema/removeSensitiveDataFromObj')
 const { TASK_WORKER_FINGERPRINT } = require('@condo/domains/common/constants/tasks')
 
 const { FLOW_META_SCHEMAS, CUSTOM_FLOW_TYPE } = require('../constants')
@@ -62,7 +64,7 @@ const executeAIFlow = async (executionAIFlowTaskId) => {
         if (!predictionUrl) throw new Error(`Unknown prediction url for flow "${task.flowType}"!`)
 
         const fullContext = {
-            ...task.context,
+            ...task.cleanContext,
             locale: task.locale,
         }
 
@@ -97,10 +99,14 @@ const executeAIFlow = async (executionAIFlowTaskId) => {
             return
         }
 
+        const { replacements } = removeSensitiveDataFromObj(task.context)
+        const resultWithRestoredPII = restoreSensitiveData(prediction.result, replacements)
+
         await ExecutionAIFlowTask.update(context, executionAIFlowTaskId, {
             ...BASE_ATTRIBUTES,
-            result: prediction.result,
+            result: resultWithRestoredPII,
             meta: {
+                ...prediction.result,
                 response: prediction._response,
             },
             status: TASK_STATUSES.COMPLETED,

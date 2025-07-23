@@ -81584,6 +81584,7 @@ type ExecutionAIFlowTaskHistoryRecord {
   _label_: String
   flowType: String
   context: JSON
+  cleanContext: JSON
   status: String
   result: JSON
   errorMessage: String
@@ -81631,6 +81632,10 @@ input ExecutionAIFlowTaskHistoryRecordWhereInput {
   context_not: JSON
   context_in: [JSON]
   context_not_in: [JSON]
+  cleanContext: JSON
+  cleanContext_not: JSON
+  cleanContext_in: [JSON]
+  cleanContext_not_in: [JSON]
   status: String
   status_not: String
   status_contains: String
@@ -81813,6 +81818,7 @@ enum SortExecutionAIFlowTaskHistoryRecordsBy {
 input ExecutionAIFlowTaskHistoryRecordUpdateInput {
   flowType: String
   context: JSON
+  cleanContext: JSON
   status: String
   result: JSON
   errorMessage: String
@@ -81842,6 +81848,7 @@ input ExecutionAIFlowTaskHistoryRecordsUpdateInput {
 input ExecutionAIFlowTaskHistoryRecordCreateInput {
   flowType: String
   context: JSON
+  cleanContext: JSON
   status: String
   result: JSON
   errorMessage: String
@@ -81901,6 +81908,10 @@ type ExecutionAIFlowTask {
 
   """ Context for executing a request to AI. """
   context: JSON
+
+  """ Cleaned context for executing a request to AI. This field is managed by the system 
+  """
+  cleanContext: JSON
 
   """ Status of the job. Used at client side progress information component. 
   """
@@ -81971,6 +81982,10 @@ input ExecutionAIFlowTaskWhereInput {
   context_not: JSON
   context_in: [JSON]
   context_not_in: [JSON]
+  cleanContext: JSON
+  cleanContext_not: JSON
+  cleanContext_in: [JSON]
+  cleanContext_not_in: [JSON]
   status: ExecutionAIFlowTaskStatusType
   status_not: ExecutionAIFlowTaskStatusType
   status_in: [ExecutionAIFlowTaskStatusType]
@@ -82105,6 +82120,7 @@ enum SortExecutionAIFlowTasksBy {
 input ExecutionAIFlowTaskUpdateInput {
   flowType: String
   context: JSON
+  cleanContext: JSON
   status: ExecutionAIFlowTaskStatusType
   result: JSON
   errorMessage: String
@@ -82131,6 +82147,7 @@ input ExecutionAIFlowTasksUpdateInput {
 input ExecutionAIFlowTaskCreateInput {
   flowType: String
   context: JSON
+  cleanContext: JSON
   status: ExecutionAIFlowTaskStatusType
   result: JSON
   errorMessage: String
