@@ -127,8 +127,8 @@ const getRateLimitHealthCheck = ({
     authRequisites,
     threshold = 1000,
 }) => {
-    if (!endpoint) throw new Error('GraphQL endpoint must be provided')
-    if (!authRequisites) throw new Error('Authentication requisites must be provided')
+    // if (!endpoint) throw new Error('GraphQL endpoint must be provided')
+    // if (!authRequisites) throw new Error('Authentication requisites must be provided')
 
     let client
 
@@ -163,7 +163,7 @@ const getRateLimitHealthCheck = ({
                 })
 
                 const remaining = Number(response.headers.get('x-rate-limit-complexity-remaining'))
-
+                console.log('find here', remaining)
                 if (isNaN(remaining)) return PASS
                 if (remaining < threshold) return WARN
 
