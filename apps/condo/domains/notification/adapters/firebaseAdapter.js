@@ -19,6 +19,21 @@ const APPS_WITH_DISABLED_NOTIFICATIONS = conf[APPS_WITH_DISABLED_NOTIFICATIONS_E
 const DEFAULT_PUSH_SETTINGS = {
     apns: { payload: { aps: { 'mutable-content': 1, sound: 'default' } } },
 }
+
+const DEFAULT_SILENT_PUSH_SETTINGS = {
+    apns: {
+        headers: {
+            'apns-push-type': 'background',
+        },
+        payload: {
+            aps: {
+                'mutable-content': 1,
+                contentAvailable: true,
+            },
+        },
+    },
+}
+
 const HIGH_PRIORITY_SETTINGS = { android: { priority: 'high' } }
 
 const logger = getLogger()
@@ -168,7 +183,7 @@ class FirebaseAdapter {
                         '_title': notification.title,
                         '_body': notification.body,
                     },
-                    ...DEFAULT_PUSH_SETTINGS,
+                    ...DEFAULT_SILENT_PUSH_SETTINGS,
                     ...extraPayload,
                 }
                 : {
