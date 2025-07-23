@@ -10,7 +10,7 @@ function getJson (data) {
     try {
         return JSON.parse(data)
     } catch (e) {
-        return undefined
+        return null
     }
 }
 
