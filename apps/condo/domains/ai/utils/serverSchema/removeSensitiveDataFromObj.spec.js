@@ -4,7 +4,6 @@ describe('removeSensitiveDataFromObj', () => {
     it('should mask PII while preserving other data', () => {
         const now = new Date()
         const input = {
-            // Sample PII data
             emails: [
                 'user@example.com',
                 'user.name+tag@sub.domain.com',
@@ -45,8 +44,7 @@ describe('removeSensitiveDataFromObj', () => {
         }
 
         const { cleaned, replacements } = removeSensitiveDataFromObj(input)
-        
-        // Verify PII was masked
+
         input.emails.forEach(email => {
             expect(JSON.stringify(cleaned)).toContain('<email')
             expect(Object.values(replacements)).toContain(email)
@@ -56,18 +54,15 @@ describe('removeSensitiveDataFromObj', () => {
             expect(JSON.stringify(cleaned)).toContain('<phone')
             expect(Object.values(replacements)).toContain(phone)
         })
-        
-        // Verify mixed content was processed
+
         expect(cleaned.mixedContent).toMatch(/<email\d+>.*<phone\d+/)
-        
-        // Verify non-PII data is unchanged
+
         expect(cleaned.dates).toEqual(input.dates)
         expect(cleaned.numbers).toEqual(input.numbers)
         expect(cleaned.urls).toEqual(input.urls)
         expect(cleaned.booleans).toEqual(input.booleans)
         expect(cleaned.nullish).toEqual(input.nullish)
-        
-        // Verify special strings remain unchanged
+
         cleaned.special.forEach((str, i) => {
             expect(str).toBe(input.special[i])
             expect(str).not.toMatch(/<[a-z]+\d+>/)
