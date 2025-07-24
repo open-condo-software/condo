@@ -76,8 +76,12 @@ const displayTicketInfoOnShare = conf['SHOW_TICKET_INFO_ON_SHARE'] === 'true'
 const inviteRequiredFields = JSON.parse(conf['INVITE_REQUIRED_FIELDS'] || '["phone"]')
 const footerConfig = JSON.parse(conf['FOOTER_CONFIG'] || '{}')
 
-let nextConfig = withTM(withLess({
-    swcMinify: true,
+/** @type {import('next').NextConfig} */
+let nextConfig = {
+    // NOTE: SWC has an issue: https://github.com/swc-project/swc/issues/8271
+    // It means some code may not work as expected, for example zod@4
+    // It was fixed in more modern next versions, we'll update it later
+    swcMinify: false,
     compiler: {
         emotion: true,
     },
@@ -167,6 +171,6 @@ let nextConfig = withTM(withLess({
         ]
         return nextCamelCaseCSSModulesTransform(config)
     },
-}))
+}
 
-module.exports = nextConfig
+module.exports = withTM(withLess(nextConfig))
