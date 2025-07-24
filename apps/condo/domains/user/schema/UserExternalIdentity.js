@@ -7,8 +7,9 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/user/access/UserExternalIdentity')
-const { USER_TYPES, RUNTIME_IDP_TYPES } = require('@condo/domains/user/constants/common')
+const { USER_TYPES } = require('@condo/domains/user/constants/common')
 const { ERRORS } = require('@condo/domains/user/constants/errors')
+const { RUNTIME_IDP_TYPES } = require('@condo/domains/user/constants/identityProviders')
 
 const UserExternalIdentity = new GQLListSchema('UserExternalIdentity', {
     schemaDoc: 'Individual user external identity link. Used primarily for authorization and linking to external identity provider purposes. Think of `User` as a technical entity, not a business actor.',

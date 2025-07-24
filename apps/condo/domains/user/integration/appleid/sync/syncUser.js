@@ -1,6 +1,6 @@
 const { get, isNil } = require('lodash')
 
-const { APPLE_ID_IDP_TYPE } = require('@condo/domains/user/constants/common')
+const { APPLE_ID_IDP_TYPE } = require('@condo/domains/user/constants/identityProviders')
 const {
     User,
     UserExternalIdentity,

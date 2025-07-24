@@ -3,7 +3,8 @@ const { faker } = require('@faker-js/faker')
 
 const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
-const { TELEGRAM_IDP_TYPE, RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
+const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
+const { TELEGRAM_IDP_TYPE } = require('@condo/domains/user/constants/identityProviders')
 const { ERRORS, HttpError } = require('@condo/domains/user/integration/telegram/utils/errors')
 const {
     UserExternalIdentity: UserExternalIdentityApi,

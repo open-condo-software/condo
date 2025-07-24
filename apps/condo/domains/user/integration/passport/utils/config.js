@@ -1,7 +1,7 @@
 const { z } = require('zod')
 
 const GITHUB_STRATEGY_CONFIG_SCHEMA = z.object({
-    clientId: z.string(),
+    clientID: z.string(),
     clientSecret: z.string(),
 }).strict()
 

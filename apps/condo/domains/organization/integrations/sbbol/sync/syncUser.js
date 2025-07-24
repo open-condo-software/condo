@@ -1,5 +1,6 @@
-const { SBBOL_IDP_TYPE, STAFF } = require('@condo/domains/user/constants/common')
+const { STAFF } = require('@condo/domains/user/constants/common')
 const { MULTIPLE_ACCOUNTS_MATCHES } = require('@condo/domains/user/constants/errors')
+const { SBBOL_IDP_TYPE } = require('@condo/domains/user/constants/identityProviders')
 const { User, UserExternalIdentity } = require('@condo/domains/user/utils/serverSchema')
 
 const { dvSenderFields } = require('../constants')
