@@ -26,7 +26,10 @@ const b2bAppId = conf['CONDO_B2B_APP_ID'] || null
 const defaultLocale = DEFAULT_LOCALE
 
 module.exports = withTM(withLess({
-    swcMinify: true,
+    // NOTE: SWC has an issue: https://github.com/swc-project/swc/issues/8271
+    // It means some code may not work as expected, for example zod@4
+    // It was fixed in more modern next versions, we'll update it later
+    swcMinify: false,
     compiler: {
         emotion: true,
     },

@@ -30,7 +30,10 @@ const dataProcessingConsentUrl = conf['LEGAL_DATA_PROCESSING_CONSENT_URL']
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     reactStrictMode: true,
-    swcMinify: true,
+    // NOTE: SWC has an issue: https://github.com/swc-project/swc/issues/8271
+    // It means some code may not work as expected, for example zod@4
+    // It was fixed in more modern next versions, we'll update it later
+    swcMinify: false,
     i18n: {
         locales: LOCALES,
         defaultLocale: DEFAULT_LOCALE,
