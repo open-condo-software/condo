@@ -5,8 +5,10 @@ const conf = require('@open-condo/config')
 
 const { User } = require('@condo/domains/user/utils/serverSchema')
 
+
 const { KNOWN_STRATEGIES } = require('./strategies')
 const { passportConfigSchema } = require('./utils/config')
+const { captureUserType, ensureUserType } = require('./utils/user')
 
 /** @type PassportAuthRouter */
 let _globalRouter = null
@@ -57,12 +59,48 @@ class PassportAuthRouter {
             passport.use(name, strategy.build())
         }
 
-        app.get(`${this.apiPrefix}/:provider`, (req, res, next) => {
+        const strategies = this.#strategiesByNames
+        function authenticate (req, res, next) {
             const { provider } = req.params
-            if (!this.#strategiesByNames.hasOwnProperty(provider)) return res.status(404).json({ error: 'unknown provider' })
+            if (!provider || !strategies.hasOwnProperty(provider)) return res.status(404).json({ error: 'unknown provider' })
 
             passport.authenticate(provider)(req, res, next)
-        })
+        }
+
+        async function onAuthSuccess (err, req, res, next) {
+            if (err) {
+                return next(err)
+            }
+
+            const user = req.user
+
+            if (!user) {
+                return res.status(401).json({ error: 'authentication failed' })
+            }
+
+            try {
+                await keystone._sessionManager.startAuthedSession(req, {
+                    item: { id: user.id },
+                    list: keystone.lists['User'],
+                })
+
+                return res.redirect('/')
+            } catch (err) {
+                next(err)
+            }
+        }
+
+        app.get(
+            `${this.apiPrefix}/:provider`,
+            captureUserType,
+            authenticate,
+        )
+        app.get(
+            `${this.apiPrefix}/:provider/callback`,
+            ensureUserType,
+            authenticate,
+            onAuthSuccess,
+        )
     }
 
     getIdentityProviders () {
