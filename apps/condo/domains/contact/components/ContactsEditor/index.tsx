@@ -78,6 +78,7 @@ export interface IContactEditorProps {
     newContactPhoneFormItemProps?: FormItemProps
     newContactNameFormItemProps?: FormItemProps
     disabled?: boolean
+    initialIsResident?: boolean
 }
 
 const ContactsInfoFocusContainer = styled(FocusContainer)`
@@ -132,6 +133,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         newContactPhoneFormItemProps,
         newContactNameFormItemProps,
         disabled,
+        initialIsResident,
     } = props
 
     const [selectedContact, setSelectedContact] = useState(null)
@@ -159,22 +161,20 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         ...initialQuery,
     }), [initialQuery, organization])
 
-    const isEmptyInitialValue = useMemo(() => isEmpty(Object.values(initialValue).filter(Boolean)), [initialValue])
     const initialValueWithoutContact = !initialValue.id && initialValue
     const isEmptyInitialNotResidentValue = useMemo(() => isEmpty(Object.values(initialValueWithoutContact).filter(Boolean)), [initialValueWithoutContact])
     
     const initialTab = useMemo(() => {
         if (!hasNotResidentTab) return CONTACT_TYPE.RESIDENT
+        if (isNil(unitName)) return CONTACT_TYPE.NOT_RESIDENT
 
-        const isResidentTicket = form.getFieldValue('isResidentTicket')
-        if (isResidentTicket) return CONTACT_TYPE.RESIDENT
-        if (isResidentTicket === false) return CONTACT_TYPE.NOT_RESIDENT
+        if (initialIsResident) return CONTACT_TYPE.RESIDENT
+        if (initialIsResident === false) return CONTACT_TYPE.NOT_RESIDENT
 
         if (!canReadContacts && !canManageContacts) return CONTACT_TYPE.NOT_RESIDENT
-        if (isEmptyInitialValue) return CONTACT_TYPE.NOT_RESIDENT
 
         return CONTACT_TYPE.RESIDENT
-    }, [hasNotResidentTab, form, canReadContacts, canManageContacts, isEmptyInitialValue])
+    }, [hasNotResidentTab, canReadContacts, canManageContacts, unitName, initialIsResident])
 
     const {
         data: contactsData,
@@ -212,6 +212,10 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     }, [fields.id, fields.name, fields.phone, form, onChange])
 
     useEffect(() => {
+        setActiveTab(initialTab)
+    }, [initialTab])
+
+    useEffect(() => {
         if (!contactsLoading) {
             form.validateFields([NEW_CONTACT_PHONE_FORM_ITEM_NAME])
         }
@@ -232,10 +236,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         triggerOnChange(value, true)
         setIsInitialContactsLoaded(false)
         setSelectedContact(null)
-
-        const notResidentTabCondition = hasNotResidentTab && isNil(unitName)
-        setActiveTab(notResidentTabCondition ? CONTACT_TYPE.NOT_RESIDENT : CONTACT_TYPE.RESIDENT)
-    }, [unitName, unitType, property, hasNotResidentTab])
+    }, [unitName, unitType, property])
 
     // It's not enough to have `value` props of `Input` set.
     useDeepCompareEffect(() => {
@@ -251,10 +252,6 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     useEffect(() => {
         form.setFieldValue('isResidentTicket', activeTab === CONTACT_TYPE.RESIDENT)
     }, [activeTab, fields.id, fields.name, fields.phone, form])
-
-    useEffect(() => {
-        setActiveTab(initialTab)
-    }, [initialTab])
 
     const handleClickOnPlusButton = useCallback(() => {
         form.setFieldsValue({
