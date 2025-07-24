@@ -31,7 +31,7 @@ class StrategyAllItemsToEachPlugin extends AbstractBulkSearchStrategy {
             const chunkedItems = chunk(restItems, BULK_SEARCH_CHUNK_SIZE)
             plugin.prepare(pluginParams)
             for (const itemsChunk of chunkedItems) {
-                const itemsToSearchWithPlugin = itemsChunk.filter((item) => plugin.isEnabled(item))
+                const itemsToSearchWithPlugin = itemsChunk.filter((item) => plugin.isEnabled(item, pluginParams))
                 const searchedAddressesData = await Promise.all(itemsToSearchWithPlugin.map((item) => new Promise((resolve) => {
                     // Extract unitType and unitName
                     let searchString = item, unitType, unitName

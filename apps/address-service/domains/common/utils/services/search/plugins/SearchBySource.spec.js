@@ -73,11 +73,13 @@ describe('SearchBySource plugin', () => {
 
         const plugin = new SearchBySource()
 
-        expect(plugin.isEnabled(source)).toEqual(true)
+        const params = { req: { id: faker.datatype.uuid() } }
+
+        expect(plugin.isEnabled(source, params)).toEqual(true)
 
         plugin.prepare({
             keystoneContext: context,
-            req: { id: faker.random.numeric(10) },
+            req: params.req,
             helpers: { tin },
         })
         const result = await plugin.search(source)
