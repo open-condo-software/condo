@@ -618,9 +618,6 @@ export const SearchByAddressTabContent: React.FC<SearchByAddressTabContentProps>
             clientPhone: phoneNumber,
             clientName: firstClientData?.name,
             isResidentTicket: firstClientData?.type === ClientCardTab.Resident,
-            // Hack for NewContactFields component because AutoComplete wiht client name has such name in contact form.
-            // TODO(INFRA-584): ContactEditor component should be refactored
-            IGNORE_FIELD_NEW_CONTACT_NAME: firstClientData?.name,
         }
 
         await redirectToForm({
@@ -649,7 +646,6 @@ export const SearchByAddressTabContent: React.FC<SearchByAddressTabContentProps>
         sectionType,
         clientName: firstClientData?.name,
         clientPhone: phoneNumber,
-        IGNORE_FIELD_NEW_CONTACT_NAME: firstClientData?.name,
     }), [property?.id, unitName, unitType, sectionName, sectionType, firstClientData?.name, phoneNumber])
 
     const handleAddressSearchInputChange = useCallback((_, option) => {
