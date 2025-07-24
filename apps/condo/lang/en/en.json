@@ -702,6 +702,8 @@
   "component.ticketclassifier.CategoryLabel": "Category",
   "component.ticketclassifier.PlaceLabel": "Location",
   "component.ticketclassifier.ProblemLabel": "What happened",
+  "component.ticketclassifier.SameTicketsAlert.message": "There are tickets with the same address and type of work",
+  "component.ticketclassifier.SameTicketsAlert.linkText": "View all",
   "component.ticketswidget.Title": "Tickets for the",
   "component.ticketswidget.Title.Short": "During",
   "component.uploadlist.AddFileLabel": "Add file",

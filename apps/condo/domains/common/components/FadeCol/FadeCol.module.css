@@ -1,0 +1,13 @@
+.fade-col {
+  animation: slide-down 0.3s linear;
+}
+
+@keyframes slide-down {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}

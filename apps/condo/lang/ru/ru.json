@@ -702,6 +702,8 @@
   "component.ticketclassifier.CategoryLabel": "Тип работ",
   "component.ticketclassifier.PlaceLabel": "Место инцидента",
   "component.ticketclassifier.ProblemLabel": "В чём проблема (не обязательно)",
+  "component.ticketclassifier.SameTicketsAlert.message": "Есть заявки по этому адресу с похожим типом работ",
+  "component.ticketclassifier.SameTicketsAlert.linkText": "Посмотреть все",
   "component.ticketswidget.Title": "Заявки за",
   "component.ticketswidget.Title.Short": "За",
   "component.uploadlist.AddFileLabel": "Добавить файл",

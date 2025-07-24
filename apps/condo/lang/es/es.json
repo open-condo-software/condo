@@ -702,6 +702,8 @@
   "component.ticketclassifier.CategoryLabel": "Tipo de trabajos",
   "component.ticketclassifier.PlaceLabel": "Lugar de incidencia",
   "component.ticketclassifier.ProblemLabel": "¿Cuál es el problema (opcional)",
+  "component.ticketclassifier.SameTicketsAlert.message": "Hay incidencias con la misma dirección y tipo de trabajo",
+  "component.ticketclassifier.SameTicketsAlert.linkText": "Ver todas",
   "component.ticketswidget.Title": "Incidencias para",
   "component.ticketswidget.Title.Short": "Para",
   "component.uploadlist.AddFileLabel": "Añadir archivo",

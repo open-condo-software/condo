@@ -384,6 +384,22 @@ query getOrganizationEmployeeTicketsForReassignment ($userId: ID!, $organization
     }
 }
 
+query getTicketsWithSamePropertyAndClassifierExistence ($propertyId: ID!, $placeId: ID!, $categoryId: ID!) {
+    tickets: allTickets(
+        where: {
+            property: { id: $propertyId },
+            classifier: {
+                place: { id: $placeId },
+                category: { id: $categoryId },
+            },
+            status: { type_in: [new_or_reopened, processing, deferred] },
+        },
+        first: 1,
+    ) {
+        id
+    }
+}
+
 mutation createTicket ($data: TicketCreateInput!) {
     ticket: createTicket(data: $data) {
         id
