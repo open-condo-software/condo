@@ -44,6 +44,13 @@ function _isValidEmail (input) {
     return _emailSchema.safeParse(input).success
 }
 
+const SERVER_CREATE_ONLY_ACCESS = {
+    read: false,
+    create: () => false, // function to populate it to CreateInput schema
+    update: false,
+    delete: false,
+}
+
 const User = new GQLListSchema('User', {
     labelResolver: (item, _, { authedItem: user }) => {
         if (user && (user.isSupport || user.isAdmin)) {
@@ -229,7 +236,7 @@ const User = new GQLListSchema('User', {
             type: 'Text',
             // NOTE: The only 2 places where it's needed are residents creating ticket and resident's contact fields,
             // so there's no need to read it directly
-            access: false,
+            access: SERVER_CREATE_ONLY_ACCESS,
             isRequired: false,
             hooks: {
                 validateInput ({ context, resolvedData, fieldPath }) {
@@ -247,7 +254,7 @@ const User = new GQLListSchema('User', {
             defaultValue: false,
             // NOTE: The only 2 places where it's needed are residents creating ticket and resident's contact fields,
             // so there's no need to read it directly
-            access: false,
+            access: SERVER_CREATE_ONLY_ACCESS,
         },
 
         externalEmail: {
@@ -258,7 +265,7 @@ const User = new GQLListSchema('User', {
             type: 'Text',
             // NOTE: The only 2 places where it's needed are residents creating ticket and resident's contact fields,
             // so there's no need to read it directly
-            access: false,
+            access: SERVER_CREATE_ONLY_ACCESS,
             isRequired: false,
             hooks: {
                 validateInput ({ context, resolvedData, fieldPath }) {
@@ -276,7 +283,7 @@ const User = new GQLListSchema('User', {
             defaultValue: false,
             // NOTE: The only 2 places where it's needed are residents creating ticket and resident's contact fields,
             // so there's no need to read it directly
-            access: false,
+            access: SERVER_CREATE_ONLY_ACCESS,
         },
 
         externalSystemName: {

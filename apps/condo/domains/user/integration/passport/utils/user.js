@@ -142,10 +142,10 @@ async function _findOrCreateUser (context, userData, userType, providerInfo) {
             name: userData.name,
             externalPhone: userData.phone,
             // NOTE: providerInfo.trustPhone should not affect this property
-            isExternalPhoneVerified: userData.isPhoneVerified,
+            isExternalPhoneVerified: Boolean(userData.phone && userData.isPhoneVerified),
             externalEmail: userData.email,
             // NOTE: providerInfo.trustEmail should not affect this property
-            isExternalEmailVerified: userData.isEmailVerified,
+            isExternalEmailVerified: Boolean(userData.email && userData.isEmailVerified),
             externalSystemName: providerInfo.name,
             meta: {
                 [providerInfo.name]: userData,

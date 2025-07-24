@@ -1,11 +1,19 @@
 // @ts-check
 const { Strategy: GithubStrategy } = require('passport-github2')
 
+const { syncUser } = require('@condo/domains/user/integration/passport/utils/user')
+
 const { AuthStrategy } = require('./types')
 
 /** @implements AuthStrategy */
 class GithubAuthStrategy {
     static identityType = 'github'
+    static fieldMapping = {
+        id: 'id',
+        email: 'email.value',
+        isEmailVerified: 'email.verified',
+        name: 'username',
+    }
     #options = {}
     #callbackUrl = '/'
     #trustInfo = { trustEmail: false, trustPhone: false }
@@ -24,24 +32,27 @@ class GithubAuthStrategy {
     }
 
     static findValidEmail (emails) {
-        let email = null
-        for (const properties of GithubAuthStrategy) {
-            email = emails.find(email => {
+        let foundEmail = null
+        for (const properties of GithubAuthStrategy.#emailsResolutionOrder) {
+            foundEmail = emails.find(email => {
                 for (const [k, v] of Object.entries(properties)) {
-                    if (!email[k] !== v) return false
+                    if (email[k] !== v) return false
                 }
 
                 return true
             })
-            if (email) {
+            if (foundEmail) {
                 break
             }
         }
-        return email
+        return foundEmail
     }
 
     build (keystone) {
-        // const emailResolutionOrder = this.#emailsResolutionOrder
+        const providerInfo = {
+            name: GithubAuthStrategy.identityType,
+            ...this.#trustInfo,
+        }
 
 
         return new GithubStrategy(
@@ -55,10 +66,15 @@ class GithubAuthStrategy {
                 allRawEmails: true,
             },
             async function githubAuthCallback (req, accessToken, refreshToken, profile, done) {
-                // Tries
+                // Tries to find best of linked emails
                 profile.email = GithubAuthStrategy.findValidEmail(profile.emails)
 
-                done(new Error('not implemented'), null)
+                try {
+                    const user = await syncUser(keystone, profile, req.session.userType, providerInfo, GithubAuthStrategy.fieldMapping)
+                    done(null, user)
+                } catch (err) {
+                    done(err)
+                }
             }
         )
     }
