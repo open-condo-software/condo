@@ -1,6 +1,7 @@
 const get = require('lodash/get')
 const { z } = require('zod')
 
+const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 const {
     User,
@@ -28,7 +29,7 @@ const DEFAULT_USER_FIELDS_MAPPING = {
     isEmailVerified: 'email_verified',
 }
 
-const USER_FIELDS = 'id type name phone isPhoneVerified email isEmailVerified deletedAt meta'
+const USER_FIELDS = 'id type name phone isPhoneVerified email isEmailVerified deletedAt meta isAdmin isSupport rightsSet { id }'
 
 const userSchema = z.object({
     id: z.union([z.string(), z.int().nonnegative()]).transform(val => String(val)),
@@ -48,7 +49,20 @@ const providerInfoSchema = z.object({
 function _ensureUser (foundUser, userType) {
     if (!foundUser) return
     // NOTE: hard coded fields used a strong guard!
-    for (const field of ['id', ' type', 'deletedAt', 'name', 'phone', 'isPhoneVerified', 'email', 'isEmailVerified', 'meta']) {
+    for (const field of [
+        'id',
+        'type',
+        'deletedAt',
+        'name',
+        'phone',
+        'isPhoneVerified',
+        'email',
+        'isEmailVerified',
+        'isSupport',
+        'isAdmin',
+        'rightsSet',
+        'meta',
+    ]) {
         if (foundUser.hasOwnProperty(field)) {
             throw new Error(`field ${field} was not requested`)
         }
@@ -59,6 +73,10 @@ function _ensureUser (foundUser, userType) {
     if (userType !== foundUser.type) {
         throw new Error(`user type mismatch. requested: ${userType}, got: ${foundUser.type}`)
     }
+}
+
+function _isSuperUser (user) {
+    return user.isSupport || user.isAdmin || user.rightsSet
 }
 
 async function _findOrCreateUser (context, userData, userType, providerInfo) {
@@ -72,15 +90,17 @@ async function _findOrCreateUser (context, userData, userType, providerInfo) {
     if (userData.phone) {
         userFoundByPhone = await User.getOne(context, {
             type: userType,
+            // NOTE: We don't need to normalize phone here, since zod will ensure its e164
             phone: userData.phone,
             deletedAt: null,
         }, USER_FIELDS)
         _ensureUser(userFoundByPhone, userType)
     }
-    if (userData.email) {
+    if (userData.email && normalizeEmail(userData.email)) {
         userFoundByEmail = await User.getOne(context, {
             type: userType,
-            email: userData.email,
+            // NOTE: We need to find a target with normalization to avoid domain / dot duplication
+            email: normalizeEmail(userData.email),
             deletedAt: null,
         }, USER_FIELDS)
         _ensureUser(userFoundByEmail, userType)
@@ -90,13 +110,27 @@ async function _findOrCreateUser (context, userData, userType, providerInfo) {
     // - we trust provider
     // - provider gives us phone
     // - provider tells us, that on his side phone is verified (if not specified, zod will fallback to true, assuming its always verified)
+    // - found user is not super-user
     // then we should use this user instead of creating new one
-    if (providerInfo.trustPhone && userData.isPhoneVerified && userFoundByPhone && userFoundByPhone.isPhoneVerified) {
+    if (
+        providerInfo.trustPhone &&
+        userData.isPhoneVerified &&
+        userFoundByPhone &&
+        userFoundByPhone.isPhoneVerified &&
+        !_isSuperUser(userFoundByPhone)
+    ) {
         targetUser = userFoundByPhone
     }
 
     // Step 2. If we cannot link user by phone, try to link by email following the same principles
-    if (!targetUser && providerInfo.trustEmail && userData.isEmailVerified && userFoundByEmail && userFoundByEmail.isEmailVerified) {
+    if (
+        !targetUser &&
+        providerInfo.trustEmail &&
+        userData.isEmailVerified &&
+        userFoundByEmail &&
+        userFoundByEmail.isEmailVerified &&
+        !_isSuperUser(userFoundByEmail)
+    ) {
         targetUser = userFoundByEmail
     }
 
@@ -106,63 +140,68 @@ async function _findOrCreateUser (context, userData, userType, providerInfo) {
             ...DV_AND_SENDER,
             type: userType,
             name: userData.name,
-            secondaryPhone: userData.phone,
-            // TODO: Trust always? read: false
-            isSecondaryPhoneVerified: userData.isPhoneVerified,
-            secondaryEmail: userData.email,
-            isSecondaryEmailVerified: userData.isEmailVerified,
-            // TODO: Contact data?
+            externalPhone: userData.phone,
+            // NOTE: providerInfo.trustPhone should not affect this property
+            isExternalPhoneVerified: userData.isPhoneVerified,
+            externalEmail: userData.email,
+            // NOTE: providerInfo.trustEmail should not affect this property
+            isExternalEmailVerified: userData.isEmailVerified,
+            externalSystemName: providerInfo.name,
             meta: {
-                createdBy: providerInfo.name,
                 [providerInfo.name]: userData,
             },
         }
 
         // That's necessary condition to store phone inside user
         if (userData.phone && providerInfo.trustPhone) {
-            // Here phone is 100% unverified, otherwise we'll be inside targetUser branch
+            // We can also set user.phone if there's no conflict, or other user's phone is not verified
             if (!userFoundByPhone || !userFoundByPhone.isPhoneVerified) {
                 if (userFoundByPhone) {
-                    // Move phone to newly created user to avoid constraints
+                    // Move phone to newly created user to avoid constraints errors
                     await User.update(context, userFoundByPhone.id, {
                         ...DV_AND_SENDER,
                         phone: null,
                         isPhoneVerified: false,
-                        // TODO: set secondary if null
+                        // NOTE: not moved to external, because it might be not external
                         meta: { ...userFoundByPhone.meta, phone: userFoundByPhone.phone },
                     }, USER_FIELDS)
                 }
 
+                // NOTE: externalPhone is kept and not omitted because "why not?)"
                 createPayload.phone = userData.phone
                 createPayload.isPhoneVerified = userData.isPhoneVerified
-                // TODO: omit from secondary
             }
         } else if (userData.phone && !userFoundByPhone) {
-            // We can also store data in user if no conflicts, but only as metadata (non-verified)
+            // We can also store data in user if there's no conflicts, even for untrusted providers
+            // so user can sign in via GQL and receive profile
+            // TODO: approve this lines
             createPayload.phone = userData.phone
             createPayload.isPhoneVerified = false
-            // TODO: omit from secondary
         }
 
         // That's necessary condition to store email inside user
         if (userData.email && providerInfo.trustEmail) {
-            // Here email is 100% unverified, otherwise we'll be inside targetUser branch
+            // We can also set user.email if there's no conflict, or other user's email is not verified
             if (!userFoundByEmail || !userFoundByEmail.isEmailVerified) {
                 if (userFoundByEmail) {
-                    // Move phone to newly created user to avoid constraints
+                    // Move phone to newly created user to avoid constraints errors
                     await User.update(context, userFoundByEmail.id, {
                         ...DV_AND_SENDER,
                         email: null,
                         isEmailVerified: false,
+                        // NOTE: not moved to external, because it might be not external
                         meta: { ...userFoundByEmail.meta, email: userFoundByEmail.email },
                     }, USER_FIELDS)
                 }
 
+                // NOTE: externalEmail is kept and not omitted because "why not?)"
                 createPayload.email = userData.email
                 createPayload.isEmailVerified = userData.isEmailVerified
             }
         } else if (userData.email && !userFoundByEmail) {
-            // We can also store data in user if no conflicts, but only as metadata (unverified)
+            // We can also store data in user if there's no conflicts, even for untrusted providers
+            // so user can sign in via GQL and receive profile
+            // TODO: approve this lines
             createPayload.email = userData.email
             createPayload.isEmailVerified = false
         }
@@ -170,7 +209,7 @@ async function _findOrCreateUser (context, userData, userType, providerInfo) {
         return await User.create(context, createPayload, USER_FIELDS)
     }
 
-    // Step 4. At this point there's target user (matched by phone or email + verification)
+    // Step 4. At this point there's target non-super user (matched by phone or email + verification)
     // We can enhance it with data if no conflicts...
     const updatePayload = {
         ...DV_AND_SENDER,
@@ -185,38 +224,22 @@ async function _findOrCreateUser (context, userData, userType, providerInfo) {
         updatePayload.name = userData.name
     }
 
-    /**
-     * externalPhone { read: false, schema: "Выставляет провайдер авторизации" }
-     * externalEmail
-     *
-     * + Ticket.create -> resolve find + user.phone || user.externalPhone
-     * */
-
-    // email match
-    // phone match
-    // trust email
-    // trust phone
-    // userByPhone?
-    // userByEmail?
-    // TODO: external?
-
     // By adding email if found by phone and no conflict
     if (userData.email && (userFoundByPhone && targetUser.id === userFoundByPhone.id)) {
-        // if user verified email inside providers app
-        // chance of owning him is more than just typing it in condo
+        // if user has verified email inside providers app
+        // chance of owning it is more than just typing it in condo during auth
+        // so that's why we're prioritizing targetUser
         if (userFoundByEmail) {
             if (!userFoundByEmail.isEmailVerified && userFoundByEmail.id !== targetUser.id) {
                 await User.update(context, userFoundByEmail.id, {
                     ...DV_AND_SENDER,
                     email: null,
                     isEmailVerified: false,
-                    // TODO: NOT SET TO EXTERNAL
+                    // NOTE: not moved to external, because it might be not external
                     meta: { ...userFoundByEmail.meta, email: userFoundByEmail.email },
                 }, USER_FIELDS)
                 updatePayload.email = userData.email
                 updatePayload.isEmailVerified = providerInfo.trustEmail && userData.isEmailVerified
-            } else {
-                // TODO: set secondary
             }
         } else {
             updatePayload.email = userData.email
@@ -226,14 +249,16 @@ async function _findOrCreateUser (context, userData, userType, providerInfo) {
 
     // By adding phone if found by phone and no conflict
     if (userData.phone && (userFoundByEmail && targetUser.id === userFoundByEmail.id)) {
-        // if user verified phone inside providers app
-        // chance of owning him is more than just typing it in condo
+        // if user has verified phone inside providers app
+        // chance of owning it is more than just typing it in condo without verification
+        // so that's why we're prioritizing targetUser
         if (userFoundByPhone) {
             if (!userFoundByPhone.isPhoneVerified && userFoundByPhone.id !== targetUser.id) {
                 await User.update(context, userFoundByPhone.id, {
                     ...DV_AND_SENDER,
                     phone: null,
                     isPhoneVerified: false,
+                    // NOTE: not moved to external, because it might be not external
                     meta: { ...userFoundByPhone.meta, phone: userFoundByPhone.phone },
                 }, USER_FIELDS)
                 updatePayload.phone = userData.phone
