@@ -174,12 +174,13 @@ const NotResidentFields: React.FC<INotResidentFieldsFieldsProps> = ({
                         wrapperCol={FIELD_WRAPPER_COL}
                         label={FullNameLabel}
                         name={NOT_RESIDENT_NAME_FORM_ITEM_NAME}
+                        initialValue={initialValue?.name}
                         rules={validations.name}
                     >
                         <StyledAutoComplete
                             allowClear
                             placeholder={NamePlaceholder}
-                            value={get(value, 'name')}
+                            value={value?.name}
                             options={nameOptions}
                             onSelect={handleSelectContact}
                             onSearch={searchEmployeeByName}

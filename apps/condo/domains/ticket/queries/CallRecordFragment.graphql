@@ -27,3 +27,20 @@ query getTicketCallRecordsFragments ($ticketId: ID!) {
         }
     }
 }
+
+query getClientCallRecordsExistence ($phone: String!, $propertyId: ID!) {
+    callRecordFragments: allCallRecordFragments (
+        where: {
+            callRecord: {
+                OR: [{ callerPhone: $phone }, { destCallerPhone: $phone }],
+            },
+            OR: [
+                { ticket_is_null: true },
+                { ticket: { property: { id: $propertyId } } },
+            ],
+        },
+        first: 1
+    ) {
+        id
+    }
+}

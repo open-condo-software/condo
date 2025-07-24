@@ -3,8 +3,7 @@ import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
-import React, { useCallback, useMemo, useState } from 'react'
-import { PhoneInputProps } from 'react-phone-input-2'
+import { useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Modal, Button } from '@open-condo/ui'
@@ -14,13 +13,13 @@ import { GraphQlSearchInput, SearchComponentType } from '@condo/domains/common/c
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import {
-    ClientType,
+    ClientCardTab,
     mapSearchItemToOption,
     redirectToForm,
-} from '@condo/domains/contact/utils/clientCard'
+} from '@condo/domains/ticket/utils/clientSchema/clientCard'
 
 
-const StyledModal = styled(Modal)<{ isSmall }>`
+const StyledModal = styled(Modal) <{ isSmall }>`
   animation-duration: 0s !important;
   width: 1150px !important;
   
@@ -44,7 +43,7 @@ const NotFoundSearchByPhoneContent = ({ onSelect, phone, canManageContacts }) =>
     const intl = useIntl()
     const NotFoundContentMessage = intl.formatMessage({ id: 'SearchByPhoneNumber.modal.select.notFoundContent' })
     const CreateTicketMessage = intl.formatMessage({ id: 'SearchByPhoneNumber.modal.select.notFoundContent.createTicket' })
-    const CreateContactMessage = intl.formatMessage({ id: 'SearchByPhoneNumber.modal.select.notFoundContent.createContact' })
+    const OpenClientCardMessage = intl.formatMessage({ id: 'SearchByPhoneNumber.modal.select.notFoundContent.openClientCard' })
 
     const router = useRouter()
 
@@ -60,15 +59,10 @@ const NotFoundSearchByPhoneContent = ({ onSelect, phone, canManageContacts }) =>
         onSelect()
     }, [onSelect, phone, router])
 
-    const handleCreateContactButtonClick = useCallback(async () => {
-        await redirectToForm({
-            router,
-            formRoute: '/contact/create',
-            initialValues: {
-                phone,
-            },
-            target: '_blank',
-        })
+    const handleOpenClientCard = useCallback(async () => {
+        if (typeof window !== 'undefined') {
+            window.open(`/phone/${phone}`, '_blank')
+        }
         onSelect()
     }, [onSelect, phone, router])
 
@@ -91,9 +85,9 @@ const NotFoundSearchByPhoneContent = ({ onSelect, phone, canManageContacts }) =>
                         <Col>
                             <Button
                                 type='secondary'
-                                onClick={handleCreateContactButtonClick}
+                                onClick={handleOpenClientCard}
                             >
-                                {CreateContactMessage}
+                                {OpenClientCardMessage}
                             </Button>
                         </Col>
                     )
@@ -105,7 +99,6 @@ const NotFoundSearchByPhoneContent = ({ onSelect, phone, canManageContacts }) =>
 
 const SELECT_STYLES = { width: '100%' }
 const PHONE_INPUT_MASK = { ru: '... ... .. ..' }
-const PHONE_INPUT_PROPS: PhoneInputProps['inputProps'] = { autoFocus: true }
 
 const StyledPhoneInput = styled(PhoneInput)`
   & .ant-input {
@@ -138,14 +131,14 @@ const SearchByPhoneSelect = ({
     const renderOptions = useCallback((searchData, _) => {
         const resultOptions = []
         const contactOptions = searchData
-            .filter(item => item.type === ClientType.Resident)
-            .map(item => mapSearchItemToOption(item, phone, ClientType.Resident))
+            .filter(item => item.type === ClientCardTab.Resident)
+            .map(item => mapSearchItemToOption(item, phone, ClientCardTab.Resident))
         const notResidentOptions = searchData
-            .filter(item => item.type === ClientType.NotResident && !item.isEmployee)
-            .map(item => mapSearchItemToOption(item, phone, ClientType.NotResident))
+            .filter(item => item.type === ClientCardTab.NotResident && !item.isEmployee)
+            .map(item => mapSearchItemToOption(item, phone, ClientCardTab.NotResident))
         const employeeOptions = searchData
-            .filter(item => item.type === ClientType.NotResident && item.isEmployee)
-            .map(item => mapSearchItemToOption(item, phone, ClientType.NotResident))
+            .filter(item => item.type === ClientCardTab.NotResident && item.isEmployee)
+            .map(item => mapSearchItemToOption(item, phone, ClientCardTab.NotResident))
 
         if (!isEmpty(contactOptions)) {
             resultOptions.push(
@@ -197,14 +190,13 @@ const SearchByPhoneSelect = ({
                 showLoadingMessage={false}
                 autoClearSearchValue
                 getPopupContainer={getPopupContainer}
+                autoFocus
             >
                 <StyledPhoneInput
                     style={SELECT_STYLES}
-                    inputProps={PHONE_INPUT_PROPS}
                     compatibilityWithAntAutoComplete
                     placeholder={EnterPhoneMessage}
                     masks={PHONE_INPUT_MASK}
-                    showCountryPrefix={false}
                 />
             </GraphQlSearchInput>
         </div>

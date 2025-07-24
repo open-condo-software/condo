@@ -3743,6 +3743,7 @@ export const GetPropertyByIdDocument = gql`
     address
     organization {
       id
+      name
     }
     map {
       sections {
@@ -4281,6 +4282,50 @@ export type GetTicketCallRecordsFragmentsQueryHookResult = ReturnType<typeof use
 export type GetTicketCallRecordsFragmentsLazyQueryHookResult = ReturnType<typeof useGetTicketCallRecordsFragmentsLazyQuery>;
 export type GetTicketCallRecordsFragmentsSuspenseQueryHookResult = ReturnType<typeof useGetTicketCallRecordsFragmentsSuspenseQuery>;
 export type GetTicketCallRecordsFragmentsQueryResult = Apollo.QueryResult<Types.GetTicketCallRecordsFragmentsQuery, Types.GetTicketCallRecordsFragmentsQueryVariables>;
+export const GetClientCallRecordsExistenceDocument = gql`
+    query getClientCallRecordsExistence($phone: String!, $propertyId: ID!) {
+  callRecordFragments: allCallRecordFragments(
+    where: {callRecord: {OR: [{callerPhone: $phone}, {destCallerPhone: $phone}]}, OR: [{ticket_is_null: true}, {ticket: {property: {id: $propertyId}}}]}
+    first: 1
+  ) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useGetClientCallRecordsExistenceQuery__
+ *
+ * To run a query within a React component, call `useGetClientCallRecordsExistenceQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetClientCallRecordsExistenceQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetClientCallRecordsExistenceQuery({
+ *   variables: {
+ *      phone: // value for 'phone'
+ *      propertyId: // value for 'propertyId'
+ *   },
+ * });
+ */
+export function useGetClientCallRecordsExistenceQuery(baseOptions: Apollo.QueryHookOptions<Types.GetClientCallRecordsExistenceQuery, Types.GetClientCallRecordsExistenceQueryVariables> & ({ variables: Types.GetClientCallRecordsExistenceQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetClientCallRecordsExistenceQuery, Types.GetClientCallRecordsExistenceQueryVariables>(GetClientCallRecordsExistenceDocument, options);
+      }
+export function useGetClientCallRecordsExistenceLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetClientCallRecordsExistenceQuery, Types.GetClientCallRecordsExistenceQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetClientCallRecordsExistenceQuery, Types.GetClientCallRecordsExistenceQueryVariables>(GetClientCallRecordsExistenceDocument, options);
+        }
+export function useGetClientCallRecordsExistenceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetClientCallRecordsExistenceQuery, Types.GetClientCallRecordsExistenceQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetClientCallRecordsExistenceQuery, Types.GetClientCallRecordsExistenceQueryVariables>(GetClientCallRecordsExistenceDocument, options);
+        }
+export type GetClientCallRecordsExistenceQueryHookResult = ReturnType<typeof useGetClientCallRecordsExistenceQuery>;
+export type GetClientCallRecordsExistenceLazyQueryHookResult = ReturnType<typeof useGetClientCallRecordsExistenceLazyQuery>;
+export type GetClientCallRecordsExistenceSuspenseQueryHookResult = ReturnType<typeof useGetClientCallRecordsExistenceSuspenseQuery>;
+export type GetClientCallRecordsExistenceQueryResult = Apollo.QueryResult<Types.GetClientCallRecordsExistenceQuery, Types.GetClientCallRecordsExistenceQueryVariables>;
 export const GetIncidentsDocument = gql`
     query getIncidents($where: IncidentWhereInput, $sortBy: [SortIncidentsBy!], $first: Int!) {
   incidents: allIncidents(where: $where, sortBy: $sortBy, first: $first) {

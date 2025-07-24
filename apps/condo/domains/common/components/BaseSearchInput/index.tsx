@@ -224,6 +224,7 @@ export const BaseSearchInput = <S extends string> (props: ISearchInput<S>) => {
 
     return (
         <StyledSelect
+            className={props?.className}
             showSearch
             autoFocus={autoFocus}
             allowClear

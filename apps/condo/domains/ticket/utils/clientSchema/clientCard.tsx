@@ -1,26 +1,62 @@
-import { BuildingUnitSubType } from '@app/condo/schema'
-import { Col, Row, Typography } from 'antd'
+import {
+    BuildingUnitSubType,
+    Contact as ContactType,
+    Organization as OrganizationType,
+    Property,
+} from '@app/condo/schema'
+import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { gql } from 'graphql-tag'
 import { get } from 'lodash'
 import { NextRouter } from 'next/router'
 import qs from 'qs'
-import React, { useCallback } from 'react'
+import { useCallback } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { SelectProps, Typography } from '@open-condo/ui'
 
 import Select from '@condo/domains/common/components/antd/Select'
+import { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { renderPhone } from '@condo/domains/common/utils/Renders'
 import { TICKET_PROPERTY_FIELDS } from '@condo/domains/ticket/gql'
 import { getAddressRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
 
-import { useLayoutContext } from '../../common/components/LayoutContext'
 
-export enum ClientType {
+export enum ClientCardTab {
     Resident,
     NotResident,
     Employee,
+    SearchByAddress,
 }
+
+export type TabDataType = {
+    type: ClientCardTab
+    name?: string
+    property?: Pick<Property, 'id' | 'address'>
+    unitName?: string
+    unitType?: string
+    sectionType?: string
+    sectionName?: string
+    floorName?: string
+    organization?: Pick<OrganizationType, 'id' | 'name' | 'phoneNumberPrefix'>
+    contact?: Pick<ContactType, 'name' | 'phone' | 'email' | 'id' | 'organization' | 'property'>
+    email?: string
+    isEmployee?: boolean
+}
+
+export type ClientCardAddressSearchInputType = React.FC<Pick<SelectProps, 'onChange' | 'placeholder'> & { className?: string }>
+
+export type TabsItems = { key: TabKey, label: string }[]
+
+export const CONTACT_PROPERTY_TICKETS_TAB = 'contactPropertyTickets'
+export const RESIDENTS_PROPERTY_TICKETS_TAB = 'residentsPropertyTickets'
+export const RESIDENTS_ENTRANCE_TICKETS_TAB = 'residentsEntranceTickets'
+export type TabKey = 
+  | typeof CONTACT_PROPERTY_TICKETS_TAB 
+  | typeof RESIDENTS_PROPERTY_TICKETS_TAB 
+  | typeof RESIDENTS_ENTRANCE_TICKETS_TAB
+
+export const DEFAULT_TABLE_TABS: Array<TabKey> = [CONTACT_PROPERTY_TICKETS_TAB, RESIDENTS_ENTRANCE_TICKETS_TAB, RESIDENTS_PROPERTY_TICKETS_TAB]
 
 const SEARCH_BY_PHONE = gql`
     query searchByPhone ($organizationId: ID, $phone: String, $ticketsWhere: TicketWhereInput) {
@@ -89,7 +125,7 @@ export function searchByPhone (organizationId, ticketsWhereInput) {
 
         const employees = []
         const contacts = data.contacts.map(({ id, phone, property, unitName, unitType }) => ({
-            value: id, phone, property, unitName, unitType, type: ClientType.Resident,
+            value: id, phone, property, unitName, unitType, type: ClientCardTab.Resident,
         }))
         const tickets = data.tickets.filter(ticket => {
             const employee = data.employees.find(employee => employee.phone === ticket.clientPhone)
@@ -100,7 +136,7 @@ export function searchByPhone (organizationId, ticketsWhereInput) {
                     property: ticket.property,
                     unitName: ticket.unitName,
                     unitType: ticket.unitType,
-                    type: ClientType.NotResident,
+                    type: ClientCardTab.NotResident,
                     number: ticket.number,
                     isEmployee: true,
                 })
@@ -113,7 +149,7 @@ export function searchByPhone (organizationId, ticketsWhereInput) {
             property: ticket.property,
             unitName: ticket.unitName,
             unitType: ticket.unitType,
-            type: ClientType.NotResident,
+            type: ClientCardTab.NotResident,
             number: ticket.number,
         }))
 
@@ -152,10 +188,9 @@ const SearchByPhoneSelectOption = ({ phone, property, unitName, unitType, type, 
             <Col span={!breakpoints.TABLET_LARGE ? 24 : 21}>
                 <Row gutter={SELECT_OPTION_ROW_GUTTER}>
                     <Col>
-                        <Typography.Text strong>
+                        <Typography.Text strong size='medium'>
                             {renderPhone(phone)}
                         </Typography.Text>
-
                     </Col>
                     <Col span={16}>
                         {property ? getAddressRender(property, unitNameMessage, DeletedMessage, breakpoints.TABLET_LARGE) : DeletedMessage}
@@ -163,7 +198,7 @@ const SearchByPhoneSelectOption = ({ phone, property, unitName, unitType, type, 
                 </Row>
             </Col>
             {
-                type !== ClientType.Resident && (
+                type !== ClientCardTab.Resident && (
                     <Col span={!breakpoints.TABLET_LARGE ? 24 : 3}>
                         {TicketMessage} №{number}
                     </Col>
@@ -179,7 +214,7 @@ export const mapSearchItemToOption = (item, phone, type) => (
     </Select.Option>
 )
 
-export const getClientCardTabKey = (propertyId: string, type: ClientType, unitName?: string, unitType?: string, sectionName?: string, sectionType?: string): string => {
+export const getClientCardTabKey = (propertyId: string, type: ClientCardTab, unitName?: string, unitType?: string, sectionName?: string, sectionType?: string): string => {
     const keyData = { property: propertyId, unitName, unitType, type, sectionName, sectionType }
 
     return JSON.stringify(keyData)
@@ -214,5 +249,14 @@ export const redirectToForm: RedirectToFormType = async ({
         }
     } else {
         await router.push(newUrl)
+    }
+}
+
+export const parseCardDataFromQuery = (stringCard) => {
+    try {
+        return JSON.parse(stringCard)
+    } catch (e) {
+        console.error('Failed to parse card data from query:', e)
+        return {}
     }
 }

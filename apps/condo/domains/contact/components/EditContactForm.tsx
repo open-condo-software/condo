@@ -21,7 +21,7 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { Loader } from '@condo/domains/common/components/Loader'
 import Prompt from '@condo/domains/common/components/Prompt'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
-import { ClientType, getClientCardTabKey } from '@condo/domains/contact/utils/clientCard'
+import { ClientCardTab, getClientCardTabKey } from '@condo/domains/ticket/utils/clientSchema/clientCard'
 
 import { ContactRoleSelect } from './contactRoles/ContactRoleSelect'
 
@@ -48,7 +48,7 @@ export const EditContactForm: React.FC = () => {
     const ProfileUpdateTitle = intl.formatMessage({ id: 'EditingContact' })
     const NameLabel = intl.formatMessage({ id: 'field.FullName.short' })
     const FullNamePlaceholderMessage = intl.formatMessage({ id: 'field.FullName' })
-    const FullNameInvalidCharMessage = intl.formatMessage({ id:'field.FullName.invalidChar' })
+    const FullNameInvalidCharMessage = intl.formatMessage({ id: 'field.FullName.invalidChar' })
     const PhoneLabel = intl.formatMessage({ id: 'Phone' })
     const ExamplePhoneMessage = intl.formatMessage({ id: 'example.Phone' })
     const ExampleEmailMessage = intl.formatMessage({ id: 'example.Email' })
@@ -108,7 +108,17 @@ export const EditContactForm: React.FC = () => {
             const phone = contact.phone
             const propertyId = contact?.property.id
             if (phone && propertyId) {
-                await router.push(`/phone/${phone}?tab=${getClientCardTabKey(propertyId, ClientType.Resident, contact.unitName, contact.unitType)}`)
+                await router.push({
+                    pathname: `/phone/${phone}`,
+                    query: {
+                        tab: getClientCardTabKey(
+                            propertyId,
+                            ClientCardTab.Resident,
+                            contact.unitName,
+                            contact.unitType,
+                        ),
+                    },
+                })
             }
         } else {
             await router.push('/contact')
@@ -138,13 +148,13 @@ export const EditContactForm: React.FC = () => {
     }
 
     if (error) {
-        return <LoadingOrErrorPage title={LoadingMessage} loading={loading} error={error ? ErrorMessage : null}/>
+        return <LoadingOrErrorPage title={LoadingMessage} loading={loading} error={error ? ErrorMessage : null} />
     }
     if (loading) {
-        return <Loader/>
+        return <Loader />
     }
     if (!contact) {
-        return <LoadingOrErrorPage title={ContactNotFoundTitle} loading={false} error={ContactNotFoundMessage}/>
+        return <LoadingOrErrorPage title={ContactNotFoundTitle} loading={false} error={ContactNotFoundMessage} />
     }
 
     return (
@@ -194,7 +204,7 @@ export const EditContactForm: React.FC = () => {
                                                     validateFirst
                                                     rules={validations.name}
                                                 >
-                                                    <Input placeholder={FullNamePlaceholderMessage}/>
+                                                    <Input placeholder={FullNamePlaceholderMessage} />
                                                 </Form.Item>
                                             </Col>
                                             <Col span={24}>
@@ -207,7 +217,7 @@ export const EditContactForm: React.FC = () => {
                                                     validateFirst
                                                     rules={validations.phone}
                                                 >
-                                                    <Input.Phone country={country} placeholder={ExamplePhoneMessage}/>
+                                                    <Input.Phone country={country} placeholder={ExamplePhoneMessage} />
                                                 </Form.Item>
                                             </Col>
                                             <Col span={24}>
@@ -220,7 +230,7 @@ export const EditContactForm: React.FC = () => {
                                                     validateFirst
                                                     rules={validations.email}
                                                 >
-                                                    <Input placeholder={ExampleEmailMessage}/>
+                                                    <Input placeholder={ExampleEmailMessage} />
                                                 </Form.Item>
                                             </Col>
                                             <Col span={24}>
@@ -230,7 +240,7 @@ export const EditContactForm: React.FC = () => {
                                                     name='role'
                                                     label={RoleLabel}
                                                 >
-                                                    {roles && <ContactRoleSelect roles={roles}/>}
+                                                    {roles && <ContactRoleSelect roles={roles} />}
                                                 </Form.Item>
                                             </Col>
                                             <Col span={24}>

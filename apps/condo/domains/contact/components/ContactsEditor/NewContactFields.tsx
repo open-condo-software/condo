@@ -193,13 +193,14 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
                             <Form.Item
                                 wrapperCol={FIELD_WRAPPER_COL}
                                 label={FullNameLabel}
+                                initialValue={value?.name}
                                 name={NEW_CONTACT_NAME_FORM_ITEM_NAME}
                                 rules={validations.name}
                                 {...newContactNameFormItemProps}
                             >
                                 <AutoComplete
                                     style={AUTO_COMPLETE_STYLE}
-                                    value={get(value, 'name')}
+                                    value={value?.name}
                                     allowClear
                                     placeholder={NamePlaceholder}
                                     onChange={handleNameInput}
