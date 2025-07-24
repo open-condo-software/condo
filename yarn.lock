@@ -826,7 +826,7 @@ __metadata:
     wavesurfer.js: ^6.6.3
     xlsx: "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz"
     xss: ^1.0.13
-    zod: ^3.22.4
+    zod: ^4.0.8
   peerDependencies:
     dd-trace: ^4.46.0
   languageName: unknown
@@ -906,7 +906,7 @@ __metadata:
     ts-node: ^10.9.2
     typescript: ^5.8.3
     usehooks-ts: ^2.9.1
-    zod: ^3.22.4
+    zod: ^4.0.8
   languageName: unknown
   linkType: soft
 
@@ -1544,7 +1544,7 @@ __metadata:
     typescript: ^5.8.3
     usehooks-ts: ^3.1.0
     uuid: ^8.0.3
-    zod: ^3.22.4
+    zod: ^4.0.8
   languageName: unknown
   linkType: soft
 
@@ -11266,7 +11266,7 @@ __metadata:
     ts-jest: ^29.4.0
     tsup: ^8.3.6
     typescript: ^5.8.3
-    zod: ^3.24.4
+    zod: ^4.0.8
   bin:
     migrator: dist/cli.js
   languageName: unknown
@@ -11389,7 +11389,7 @@ __metadata:
     webpack: ^5.91.0
     webpack-cli: ^4.10.0
     webpack-merge: ^5.8.0
-    zod: ^3.24.4
+    zod: ^4.0.8
   peerDependencies:
     react: ">=16"
     react-dom: ">=16"
@@ -50738,7 +50738,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zod@npm:3.22.4, zod@npm:^3.22.4":
+"zod@npm:3.22.4":
   version: 3.22.4
   resolution: "zod@npm:3.22.4"
   checksum: 80bfd7f8039b24fddeb0718a2ec7c02aa9856e4838d6aa4864335a047b6b37a3273b191ef335bf0b2002e5c514ef261ffcda5a589fb084a48c336ffc4cdbab7f
@@ -50752,10 +50752,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zod@npm:^3.24.4":
-  version: 3.25.73
-  resolution: "zod@npm:3.25.73"
-  checksum: e3a688df6389c18c4329985e26f937a692476f95bcb796444f09b7898eeb81e7ff1ba1c3b5ce187fa82f5970fac355f965d087dcfcc86ddae6da1e46c2670d8f
+"zod@npm:^4.0.8":
+  version: 4.0.8
+  resolution: "zod@npm:4.0.8"
+  checksum: 537fc8548dcac8ed90e1bbcc794db19c82e90e8fd0e05caf4a51f39f1bb222245517f1e850facfa8c2cee1a8ad9d63d999b9cebb281e9b35bde99c8f5168b3fe
   languageName: node
   linkType: hard
 
