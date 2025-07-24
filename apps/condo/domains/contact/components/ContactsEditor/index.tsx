@@ -4,13 +4,13 @@ import { BuildingUnitSubType, Contact as ContactType } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Col, Form, FormInstance, FormItemProps, Row, Tabs } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
+import { isNil } from 'lodash'
 import debounce from 'lodash/debounce'
 import find from 'lodash/find'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isFunction from 'lodash/isFunction'
 import pickBy from 'lodash/pickBy'
-import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
@@ -26,7 +26,7 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 import { colors } from '@condo/domains/common/constants/style'
 
 import { ContactOption } from './ContactOption'
-import { NEW_CONTACT_PHONE_FORM_ITEM_NAME, NewContactFields } from './NewContactFields'
+import { NEW_CONTACT_PHONE_FORM_ITEM_NAME, NEW_CONTACT_NAME_FORM_ITEM_NAME, NewContactFields } from './NewContactFields'
 import { NotResidentFields } from './NotResidentFields'
 
 
@@ -147,7 +147,6 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const { link } = useOrganization()
     const canReadContacts = get(link, ['role', 'canReadContacts'], false)
     const canManageContacts = get(link, ['role', 'canManageContacts'], false)
-    const router = useRouter()
 
     const initialContactsQuery = useMemo(() => ({
         ...initialQuery,
@@ -163,9 +162,19 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const isEmptyInitialValue = useMemo(() => isEmpty(Object.values(initialValue).filter(Boolean)), [initialValue])
     const initialValueWithoutContact = !initialValue.id && initialValue
     const isEmptyInitialNotResidentValue = useMemo(() => isEmpty(Object.values(initialValueWithoutContact).filter(Boolean)), [initialValueWithoutContact])
-    const redirectToClientCard = useMemo(() => !!get(router, ['query', 'redirectToClientCard']), [router])
-    const initialTab = hasNotResidentTab && (isEmptyInitialValue || !isEmptyInitialNotResidentValue || (!canReadContacts && !canManageContacts))
-        ? CONTACT_TYPE.NOT_RESIDENT : CONTACT_TYPE.RESIDENT
+    
+    const initialTab = useMemo(() => {
+        if (!hasNotResidentTab) return CONTACT_TYPE.RESIDENT
+
+        const isResidentTicket = form.getFieldValue('isResidentTicket')
+        if (isResidentTicket) return CONTACT_TYPE.RESIDENT
+        if (isResidentTicket === false) return CONTACT_TYPE.NOT_RESIDENT
+
+        if (!canReadContacts && !canManageContacts) return CONTACT_TYPE.NOT_RESIDENT
+        if (isEmptyInitialValue) return CONTACT_TYPE.NOT_RESIDENT
+
+        return CONTACT_TYPE.RESIDENT
+    }, [hasNotResidentTab, form, canReadContacts, canManageContacts, isEmptyInitialValue])
 
     const {
         data: contactsData,
@@ -223,7 +232,10 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         triggerOnChange(value, true)
         setIsInitialContactsLoaded(false)
         setSelectedContact(null)
-    }, [unitName, unitType, property])
+
+        const notResidentTabCondition = hasNotResidentTab && isNil(unitName)
+        setActiveTab(notResidentTabCondition ? CONTACT_TYPE.NOT_RESIDENT : CONTACT_TYPE.RESIDENT)
+    }, [unitName, unitType, property, hasNotResidentTab])
 
     // It's not enough to have `value` props of `Input` set.
     useDeepCompareEffect(() => {
@@ -240,27 +252,10 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         setActiveTab(initialTab)
     }, [initialTab])
 
-    useEffect(() => {
-        if (!canReadContacts && !canManageContacts) return
-
-        if (hasNotResidentTab) {
-            if (unitName && (redirectToClientCard || isEmptyInitialNotResidentValue)) {
-                setActiveTab(CONTACT_TYPE.RESIDENT)
-
-                if (redirectToClientCard && !isEmptyInitialNotResidentValue) {
-                    setEditableFieldsChecked(true)
-                }
-            } else {
-                setActiveTab(CONTACT_TYPE.NOT_RESIDENT)
-            }
-        } else {
-            setActiveTab(CONTACT_TYPE.RESIDENT)
-        }
-    }, [canManageContacts, canReadContacts, hasNotResidentTab, isEmptyInitialNotResidentValue, redirectToClientCard, unitName])
-
     const handleClickOnPlusButton = useCallback(() => {
         form.setFieldsValue({
             [NEW_CONTACT_PHONE_FORM_ITEM_NAME]: null,
+            [NEW_CONTACT_NAME_FORM_ITEM_NAME]: null,
             [fields.id]: null,
             [fields.name]: null,
             [fields.phone]: null,
