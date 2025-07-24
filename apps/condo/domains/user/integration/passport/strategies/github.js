@@ -8,14 +8,18 @@ class GithubAuthStrategy {
     identityType = 'github'
     #options = {}
     #callbackUrl = '/'
+    #trustInfo = { trustEmail: false, trustPhone: false }
 
-    constructor (routes, options) {
+    constructor (routes, trustInfo, options) {
         const { callbackUrl } = routes
         this.#options = options
         this.#callbackUrl = callbackUrl
+        this.#trustInfo = trustInfo
     }
 
     build (keystone) {
+        const identityType = this.identityType
+
         return new GithubStrategy(
             {
                 ...this.#options,
@@ -25,7 +29,7 @@ class GithubAuthStrategy {
                 passReqToCallback: true,
             },
             async function githubAuthCallback (req, accessToken, refreshToken, profile, done) {
-
+                throw new Error('IMPLEMENT ME')
             }
         )
     }
@@ -33,4 +37,8 @@ class GithubAuthStrategy {
     getProviders () {
         return [this.identityType]
     }
+}
+
+module.exports = {
+    GithubAuthStrategy,
 }

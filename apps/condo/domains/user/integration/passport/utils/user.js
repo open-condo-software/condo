@@ -106,7 +106,14 @@ async function _findOrCreateUser (context, userData, userType, providerInfo) {
             ...DV_AND_SENDER,
             type: userType,
             name: userData.name,
+            secondaryPhone: userData.phone,
+            // TODO: Trust always? read: false
+            isSecondaryPhoneVerified: userData.isPhoneVerified,
+            secondaryEmail: userData.email,
+            isSecondaryEmailVerified: userData.isEmailVerified,
+            // TODO: Contact data?
             meta: {
+                createdBy: providerInfo.name,
                 [providerInfo.name]: userData,
             },
         }
@@ -120,17 +127,21 @@ async function _findOrCreateUser (context, userData, userType, providerInfo) {
                     await User.update(context, userFoundByPhone.id, {
                         ...DV_AND_SENDER,
                         phone: null,
+                        isPhoneVerified: false,
+                        // TODO: set secondary if null
                         meta: { ...userFoundByPhone.meta, phone: userFoundByPhone.phone },
                     }, USER_FIELDS)
                 }
 
                 createPayload.phone = userData.phone
                 createPayload.isPhoneVerified = userData.isPhoneVerified
+                // TODO: omit from secondary
             }
         } else if (userData.phone && !userFoundByPhone) {
             // We can also store data in user if no conflicts, but only as metadata (non-verified)
             createPayload.phone = userData.phone
             createPayload.isPhoneVerified = false
+            // TODO: omit from secondary
         }
 
         // That's necessary condition to store email inside user
@@ -142,6 +153,7 @@ async function _findOrCreateUser (context, userData, userType, providerInfo) {
                     await User.update(context, userFoundByEmail.id, {
                         ...DV_AND_SENDER,
                         email: null,
+                        isEmailVerified: false,
                         meta: { ...userFoundByEmail.meta, email: userFoundByEmail.email },
                     }, USER_FIELDS)
                 }
@@ -173,6 +185,21 @@ async function _findOrCreateUser (context, userData, userType, providerInfo) {
         updatePayload.name = userData.name
     }
 
+    /**
+     * externalPhone { read: false, schema: "Выставляет провайдер авторизации" }
+     * externalEmail
+     *
+     * + Ticket.create -> resolve find + user.phone || user.externalPhone
+     * */
+
+    // email match
+    // phone match
+    // trust email
+    // trust phone
+    // userByPhone?
+    // userByEmail?
+    // TODO: external?
+
     // By adding email if found by phone and no conflict
     if (userData.email && (userFoundByPhone && targetUser.id === userFoundByPhone.id)) {
         // if user verified email inside providers app
@@ -182,10 +209,14 @@ async function _findOrCreateUser (context, userData, userType, providerInfo) {
                 await User.update(context, userFoundByEmail.id, {
                     ...DV_AND_SENDER,
                     email: null,
+                    isEmailVerified: false,
+                    // TODO: NOT SET TO EXTERNAL
                     meta: { ...userFoundByEmail.meta, email: userFoundByEmail.email },
                 }, USER_FIELDS)
                 updatePayload.email = userData.email
                 updatePayload.isEmailVerified = providerInfo.trustEmail && userData.isEmailVerified
+            } else {
+                // TODO: set secondary
             }
         } else {
             updatePayload.email = userData.email
@@ -202,10 +233,11 @@ async function _findOrCreateUser (context, userData, userType, providerInfo) {
                 await User.update(context, userFoundByPhone.id, {
                     ...DV_AND_SENDER,
                     phone: null,
+                    isPhoneVerified: false,
                     meta: { ...userFoundByPhone.meta, phone: userFoundByPhone.phone },
                 }, USER_FIELDS)
                 updatePayload.phone = userData.phone
-                updatePayload.isEmailVerified = providerInfo.trustPhone && userData.isPhoneVerified
+                updatePayload.isPhoneVerified = providerInfo.trustPhone && userData.isPhoneVerified
             }
         } else {
             updatePayload.phone = userData.phone
@@ -289,4 +321,8 @@ async function syncUser (
     })
 
     return user
+}
+
+module.exports = {
+    syncUser,
 }
