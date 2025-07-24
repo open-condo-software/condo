@@ -233,6 +233,16 @@ const COMPLETE_CONFIRM_EMAIL_ACTION_MUTATION = gql`
     }
 `
 
+const AUTHENTICATE_USER_WITH_EMAIL_AND_PASSWORD_MUTATION = gql`
+    mutation authenticateUserWithEmailAndPassword ($data: AuthenticateUserWithEmailAndPasswordInput!) {
+        result: authenticateUserWithEmailAndPassword(data: $data) { 
+            item {
+                id
+            }
+        }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -273,5 +283,6 @@ module.exports = {
     START_CONFIRM_EMAIL_ACTION_MUTATION,
     RESEND_CONFIRM_EMAIL_ACTION_MUTATION,
     COMPLETE_CONFIRM_EMAIL_ACTION_MUTATION,
+    AUTHENTICATE_USER_WITH_EMAIL_AND_PASSWORD_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
