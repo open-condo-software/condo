@@ -9,49 +9,50 @@ const { B2BApp } = require('@condo/domains/miniapp/utils/serverSchema')
 const { OidcClient } = require('@condo/domains/user/utils/serverSchema')
 
 
-let context
+let REVIEW_PREFIX = ''
+let CONTEXT
+
 async function getContext () {
-    if (context) return context
+    if (CONTEXT) return CONTEXT
 
     const { keystone: keystoneContext } = await prepareKeystoneExpressApp(path.resolve('./index.js'), { excludeApps: ['NextApp', 'AdminUIApp'] })
-    context = keystoneContext
-    return context
+    CONTEXT = keystoneContext
+    return CONTEXT
 }
 
 // https://review-custom-name-***.*** -> "review-custom-name-"
-function getReviewPrefix ({ reviewBaseDomain }) {
+function getReviewPrefix ({ baseDomainTo }) {
     const condoDomain = conf['CONDO_DOMAIN']
-    // controlled reviewBaseDomain
+    // controlled baseDomainTo
     // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
-    const findPrefixRegex = new RegExp(`https://(review-[a-zA-Z0-9-]+?-)\\w+\\.${escapeRegExp(reviewBaseDomain)}`)
+    const findPrefixRegex = new RegExp(`https://(review-[a-zA-Z0-9-]+?-)\\w+\\.${escapeRegExp(baseDomainTo)}`)
     const match = condoDomain.match(findPrefixRegex)
     return match?.[1] || ''
 }
 
 /**
- * Tries to change the url from the dev stand to the review stand.
- * If this is not the url of the dev stand, it will return the original string
+ * Tries to change base domain in the url.
+ * If this is not the url of the expected stand, it will return the original string
  *
  * @param {string} value
- * @param {string} devBaseDomain
- * @param {string} reviewBaseDomain
+ * @param {string} baseDomainFrom
+ * @param {string} baseDomainTo
  * @return {string}
  */
-function tryChangeDevUrlToReviewUrl (value, { devBaseDomain, reviewBaseDomain }) {
-    // controlled devBaseDomain
+function tryChangeUrl (value, { baseDomainFrom, baseDomainTo }) {
+    // controlled baseDomainFrom
     // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
-    const devAppsUrlRegex = new RegExp(`https://([a-zA-Z0-9-]+)\\.${escapeRegExp(devBaseDomain)}(\\/[^\\s]*)?`, 'g')
+    const expectedAppsUrlRegex = new RegExp(`https://([a-zA-Z0-9-]+)\\.${escapeRegExp(baseDomainFrom)}(\\/[^\\s]*)?`, 'g')
 
-    return value.replace(devAppsUrlRegex, (match, subdomain, path = '') => {
-        return `https://${REVIEW_PREFIX}${subdomain}.${reviewBaseDomain}${path}`
+    return value.replace(expectedAppsUrlRegex, (match, subdomain, path = '') => {
+        return `https://${REVIEW_PREFIX}${subdomain}.${baseDomainTo}${path}`
     })
 }
 
-let REVIEW_PREFIX = ''
-function updateOidcConfigUrls (obj, { devBaseDomain, reviewBaseDomain }) {
+function updateOidcConfigUrls (obj, { baseDomainFrom, baseDomainTo }) {
     function traverse (current) {
         if (typeof current === 'string') {
-            return tryChangeDevUrlToReviewUrl(current, { devBaseDomain, reviewBaseDomain })
+            return tryChangeUrl(current, { baseDomainFrom, baseDomainTo })
         } else if (Array.isArray(current)) {
             return current.map(item => traverse(item))
         } else if (typeof current === 'object' && current !== null) {
@@ -69,10 +70,10 @@ function updateOidcConfigUrls (obj, { devBaseDomain, reviewBaseDomain }) {
 }
 
 /**
- * Changes all urls in oidcClient.payload from devBaseDomain to reviewBaseDomain with prefix
+ * Changes all urls in oidcClient.payload from baseDomainFrom to baseDomainTo with prefix
  * @return {Promise<void>}
  */
-async function migrateOidcClientUrlsToReview ({ devBaseDomain, reviewBaseDomain }) {
+async function migrateOidcClientUrls ({ baseDomainFrom, baseDomainTo }) {
     if (!REVIEW_PREFIX) throw new Error('Don\'t have review prefix!')
 
     const context = await getContext()
@@ -84,7 +85,7 @@ async function migrateOidcClientUrlsToReview ({ devBaseDomain, reviewBaseDomain 
     const updatedOidcClients = oidcClients.map((client) => {
         return {
             ...client,
-            payload: updateOidcConfigUrls(client.payload, { devBaseDomain, reviewBaseDomain }),
+            payload: updateOidcConfigUrls(client.payload, { baseDomainFrom, baseDomainTo }),
         }
     })
 
@@ -102,21 +103,21 @@ async function migrateOidcClientUrlsToReview ({ devBaseDomain, reviewBaseDomain 
 }
 
 /**
- * Changes all urls in B2BApp.appUrl from devBaseDomain to reviewBaseDomain with prefix
+ * Changes all urls in B2BApp.appUrl from baseDomainFrom to baseDomainTo with prefix
  * @return {Promise<void>}
  */
-async function migrateB2BAppUrlsToReview ({ devBaseDomain, reviewBaseDomain }) {
+async function migrateB2BAppUrls ({ baseDomainFrom, baseDomainTo }) {
     const context = await getContext()
 
     const b2bApps = await B2BApp.getAll(context, {
         deletedAt: null,
-        appUrl_contains: devBaseDomain,
+        appUrl_contains: baseDomainFrom,
     }, 'id appUrl dv sender { dv fingerprint }')
 
     const updatedB2BApps = b2bApps.map((b2bApp) => {
         return {
             ...b2bApp,
-            appUrl: tryChangeDevUrlToReviewUrl(b2bApp.appUrl, { devBaseDomain, reviewBaseDomain }),
+            appUrl: tryChangeUrl(b2bApp.appUrl, { baseDomainFrom, baseDomainTo }),
         }
     })
 
@@ -134,14 +135,14 @@ async function migrateB2BAppUrlsToReview ({ devBaseDomain, reviewBaseDomain }) {
 }
 
 async function main (args) {
-    const [devBaseDomain, reviewBaseDomain] = args
-    if (!devBaseDomain || !reviewBaseDomain) throw new Error('No devBaseDomain or reviewBaseDomain!')
+    const [baseDomainFrom, baseDomainTo] = args
+    if (!baseDomainFrom || !baseDomainTo) throw new Error('No baseDomainFrom or baseDomainTo!')
 
-    REVIEW_PREFIX = getReviewPrefix({ reviewBaseDomain })
+    REVIEW_PREFIX = getReviewPrefix({ baseDomainTo })
 
-    await migrateOidcClientUrlsToReview({ devBaseDomain, reviewBaseDomain })
+    await migrateOidcClientUrls({ baseDomainFrom, baseDomainTo })
 
-    await migrateB2BAppUrlsToReview({ devBaseDomain, reviewBaseDomain })
+    await migrateB2BAppUrls({ baseDomainFrom, baseDomainTo })
 }
 
 main(process.argv.slice(2))
