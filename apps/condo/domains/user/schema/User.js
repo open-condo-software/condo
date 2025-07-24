@@ -20,7 +20,6 @@ const {
     USER_TYPES,
     MIN_PASSWORD_LENGTH,
     LOCALES,
-    RUNTIME_IDP_TYPES,
 } = require('@condo/domains/user/constants/common')
 const {
     EMAIL_ALREADY_REGISTERED_ERROR,
@@ -30,7 +29,9 @@ const {
     PHONE_IS_REQUIRED_ERROR,
     GQL_ERRORS,
 } = require('@condo/domains/user/constants/errors')
+const { RUNTIME_IDP_TYPES } = require('@condo/domains/user/constants/identityProviders')
 const { USER_CUSTOM_ACCESS_GRAPHQL_TYPES, USER_CUSTOM_ACCESS_FIELDS } = require('@condo/domains/user/gql')
+const { PassportAuthRouter } = require('@condo/domains/user/integration/passport')
 const { updateEmployeesRelatedToUser, User: UserAPI } = require('@condo/domains/user/utils/serverSchema')
 const { passwordValidations } = require('@condo/domains/user/utils/serverSchema/validateHelpers')
 

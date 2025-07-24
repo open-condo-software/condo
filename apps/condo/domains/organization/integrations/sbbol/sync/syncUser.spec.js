@@ -9,7 +9,7 @@ const { getItem, getItems } = require('@open-keystone/server-side-graphql-client
 const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
 
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
-const { SBBOL_IDP_TYPE } = require('@condo/domains/user/constants/common')
+const { SBBOL_IDP_TYPE } = require('@condo/domains/user/constants/identityProviders')
 const {
     User: UserApi,
     UserExternalIdentity: UserExternalIdentityApi,

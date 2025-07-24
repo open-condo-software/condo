@@ -12,7 +12,8 @@ const {
     expectToThrowInternalError,
 } = require('@open-condo/keystone/test.utils')
 
-const { SBER_ID_IDP_TYPE, STAFF, RESIDENT, SERVICE, USER_TYPES } = require('@condo/domains/user/constants/common')
+const { STAFF, RESIDENT, SERVICE, USER_TYPES } = require('@condo/domains/user/constants/common')
+const { SBER_ID_IDP_TYPE } = require('@condo/domains/user/constants/identityProviders')
 const {
     UserAdmin,
     UserExternalIdentity,

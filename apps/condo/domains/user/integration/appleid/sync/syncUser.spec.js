@@ -8,7 +8,7 @@ const { faker } = require('@faker-js/faker')
 const { setFakeClientMode, catchErrorFrom } = require('@open-condo/keystone/test.utils')
 
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
-const { APPLE_ID_IDP_TYPE } = require('@condo/domains/user/constants/common')
+const { APPLE_ID_IDP_TYPE } = require('@condo/domains/user/constants/identityProviders')
 const {
     User,
     UserExternalIdentity: UserExternalIdentityApi,
