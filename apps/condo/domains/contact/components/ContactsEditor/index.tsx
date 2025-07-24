@@ -241,6 +241,10 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     useDeepCompareEffect(() => {
         if (initialValue) {
             triggerOnChange(initialValue, !initialValue.id)
+
+            if (initialValue?.phone && !initialValue?.id) {
+                setEditableFieldsChecked(true)
+            }
         }
     }, [initialValue])
 
