@@ -4,9 +4,8 @@ const { passportConfigSchema } = require('./config')
 
 const validConfigs = {
     github: {
-        clientId: faker.random.alphaNumeric(12),
+        clientID: faker.random.alphaNumeric(12),
         clientSecret: faker.random.alphaNumeric(32),
-        callbackUrl: faker.internet.url(),
     },
     oidcToken: {
         clients: {

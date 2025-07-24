@@ -1,24 +1,8 @@
-const { PassportAuthRouter } = require('@condo/domains/user/integration/passport')
-
 // Value of `User.type`, that indicates, that this user is a resident (from mobile client).
 const RESIDENT = 'resident'
 const STAFF = 'staff'
 const SERVICE = 'service'
 const USER_TYPES = [STAFF, RESIDENT, SERVICE]
-
-const APPLE_ID_IDP_TYPE = 'apple_id'
-const SBER_ID_IDP_TYPE = 'sber_id'
-const SBBOL_IDP_TYPE = 'sbbol'
-const TELEGRAM_IDP_TYPE = 'telegram'
-const PASSPORT_IDPs = PassportAuthRouter.init().getIdentityProviders()
-// TODO: INFRA-1115 Migrate static integrations to Passport to unify flow
-const RUNTIME_IDP_TYPES = [
-    APPLE_ID_IDP_TYPE,
-    SBER_ID_IDP_TYPE,
-    SBBOL_IDP_TYPE,
-    TELEGRAM_IDP_TYPE,
-    ...PASSPORT_IDPs,
-]
 
 const MIN_PASSWORD_LENGTH = 8
 const MAX_PASSWORD_LENGTH = 128
@@ -76,11 +60,6 @@ module.exports = {
     STAFF,
     SERVICE,
     USER_TYPES,
-    APPLE_ID_IDP_TYPE,
-    SBER_ID_IDP_TYPE,
-    SBBOL_IDP_TYPE,
-    TELEGRAM_IDP_TYPE,
-    RUNTIME_IDP_TYPES,
     SBER_ID_SESSION_KEY,
     APPLE_ID_SESSION_KEY,
     LOCALE_EN,

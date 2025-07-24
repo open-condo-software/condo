@@ -5,10 +5,16 @@ const { AuthStrategy } = require('./types')
 
 /** @implements AuthStrategy */
 class GithubAuthStrategy {
-    identityType = 'github'
+    static identityType = 'github'
     #options = {}
     #callbackUrl = '/'
     #trustInfo = { trustEmail: false, trustPhone: false }
+    static #emailsResolutionOrder = [
+        { primary: true, verified: true },
+        { verified: true },
+        { primary: true },
+        {},
+    ]
 
     constructor (routes, trustInfo, options) {
         const { callbackUrl } = routes
@@ -17,8 +23,26 @@ class GithubAuthStrategy {
         this.#trustInfo = trustInfo
     }
 
+    static findValidEmail (emails) {
+        let email = null
+        for (const properties of GithubAuthStrategy) {
+            email = emails.find(email => {
+                for (const [k, v] of Object.entries(properties)) {
+                    if (!email[k] !== v) return false
+                }
+
+                return true
+            })
+            if (email) {
+                break
+            }
+        }
+        return email
+    }
+
     build (keystone) {
-        const identityType = this.identityType
+        // const emailResolutionOrder = this.#emailsResolutionOrder
+
 
         return new GithubStrategy(
             {
@@ -27,15 +51,20 @@ class GithubAuthStrategy {
                 scope: ['user:email'],
                 // NOTE: This enables ability to pass request arguments from user input. We need to receive userType
                 passReqToCallback: true,
+                // NOTE: Without that flag application will assume
+                allRawEmails: true,
             },
             async function githubAuthCallback (req, accessToken, refreshToken, profile, done) {
-                throw new Error('IMPLEMENT ME')
+                // Tries
+                profile.email = GithubAuthStrategy.findValidEmail(profile.emails)
+
+                done(new Error('not implemented'), null)
             }
         )
     }
 
     getProviders () {
-        return [this.identityType]
+        return [GithubAuthStrategy.identityType]
     }
 }
 

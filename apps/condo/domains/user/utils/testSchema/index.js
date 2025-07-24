@@ -17,11 +17,11 @@ const { TOKEN_TYPES, generateToken } = require('@condo/domains/user/utils/tokens
 const {
     SMS_CODE_TTL,
     CONFIRM_PHONE_ACTION_EXPIRY,
-    SBER_ID_IDP_TYPE,
     RESIDENT,
     STAFF,
     SERVICE,
 } = require('@condo/domains/user/constants/common')
+const { SBER_ID_IDP_TYPE } = require('@condo/domains/user/constants/identityProviders')
 const { IDENTITY_TYPES } = require('@condo/domains/user/constants')
 const {
     ConfirmPhoneAction: ConfirmPhoneActionGQL,

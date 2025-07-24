@@ -10,7 +10,7 @@ const { BankIntegration } = require('@condo/domains/banking/utils/serverSchema')
 const { SBBOL_IMPORT_NAME } = require('@condo/domains/organization/integrations/sbbol/constants')
 const { syncBankAccounts } = require('@condo/domains/organization/integrations/sbbol/sync/syncBankAccounts')
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
-const { SBBOL_IDP_TYPE } = require('@condo/domains/user/constants/common')
+const { SBBOL_IDP_TYPE } = require('@condo/domains/user/constants/identityProviders')
 const { UserExternalIdentity } = require('@condo/domains/user/utils/serverSchema')
 
 
