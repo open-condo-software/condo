@@ -111,6 +111,7 @@ export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId
         name: get(initialValues, 'clientName'),
         phone: get(initialValues, 'clientPhone'),
     }), [contactId, initialValues])
+    const isResidentTicket = useMemo(() => get(initialValues, 'isResidentTicket'), [initialValues])
 
     const contactEditorComponentFields = useMemo(() => ({
         id: 'contact',
@@ -131,13 +132,14 @@ export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId
                 property={selectedPropertyId}
                 unitName={unitName}
                 unitType={unitType}
+                initialIsResident={isResidentTicket}
                 hasNotResidentTab={hasNotResidentTab}
                 residentTitle={residentTitle}
                 notResidentTitle={notResidentTitle}
                 disabled={disabled}
             />
         )
-    }, [ContactsEditorComponent, contactEditorComponentFields, disabled, form, hasNotResidentTab, notResidentTitle, residentTitle, selectedPropertyId, value])
+    }, [ContactsEditorComponent, isResidentTicket, contactEditorComponentFields, disabled, form, hasNotResidentTab, notResidentTitle, residentTitle, selectedPropertyId, value])
 
     return (
         <Col span={24}>
