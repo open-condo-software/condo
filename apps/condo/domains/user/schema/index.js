@@ -27,6 +27,7 @@ const { User } = require('./User')
 const { UserExternalIdentity } = require('./UserExternalIdentity')
 const { UserRightsSet } = require('./UserRightsSet')
 const { UserSudoToken } = require('./UserSudoToken')
+const { AuthenticateUserWithEmailAndPasswordService } = require('./AuthenticateUserWithEmailAndPasswordService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -54,5 +55,6 @@ module.exports = {
     AuthenticateOrRegisterUserWithTokenService,
     ConfirmEmailAction,
     ConfirmEmailActionService,
+    AuthenticateUserWithEmailAndPasswordService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
