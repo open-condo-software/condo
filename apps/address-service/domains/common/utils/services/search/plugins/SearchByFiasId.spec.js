@@ -1,6 +1,7 @@
 /**
  * @jest-environment node
  */
+const { faker } = require('@faker-js/faker')
 
 const { DADATA_PROVIDER, PULLENTI_PROVIDER } = require('@address-service/domains/common/constants/providers')
 const { generateAddressKey } = require('@address-service/domains/common/utils/addressKeyUtils')
@@ -272,7 +273,7 @@ describe('SearchByFiasId', () => {
                 },
             }
 
-            const mockAddressKey = 'spb-nevsky-10'
+            const mockAddressKey = faker.datatype.uuid()
             const mockCreatedAddress = {
                 id: 'address-456',
                 address: 'г Санкт-Петербург, ул Невский проспект, д 10',
