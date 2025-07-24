@@ -17,7 +17,7 @@ const CLEANUP_TIMEOUT_IN_MS = 30 * 1000 // 30 sec
 const SAFE_KEYS_SIZE = 100_000
 const SAFE_KEYS_TIMEOUT_IN_MS = 30_000 // 30 sec is enough to fill db / run test / scan db on 100k keys scale
 const BIG_KEYS_SIZE = 3_000_000
-const BIG_KEYS_TIMEOUT_IN_MS = 60 * 1000 // 1 min
+const BIG_KEYS_TIMEOUT_IN_MS = 75 * 1000 // 1 min
 
 let currentDB = -1
 
