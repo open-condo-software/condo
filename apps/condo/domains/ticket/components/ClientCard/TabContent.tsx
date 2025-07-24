@@ -609,6 +609,11 @@ export const SearchByAddressTabContent: React.FC<SearchByAddressTabContentProps>
     const organizationName = useMemo(() => property?.organization?.name, [property?.organization?.name])
 
     const handleTicketCreate = useCallback(async () => {
+        let isResidentTicket = true
+        if (firstClientData && firstClientData?.type !== ClientCardTab.Resident) {
+            isResidentTicket = false
+        }
+
         const initialValues = {
             property: propertyId,
             unitName,
@@ -617,7 +622,7 @@ export const SearchByAddressTabContent: React.FC<SearchByAddressTabContentProps>
             sectionType,
             clientPhone: phoneNumber,
             clientName: firstClientData?.name,
-            isResidentTicket: firstClientData?.type === ClientCardTab.Resident,
+            isResidentTicket,
         }
 
         await redirectToForm({
