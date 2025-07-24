@@ -1,0 +1,14 @@
+query getCustomValuesForObject ($schemaName: CustomFieldSchemaNameType! $objectId: String!) {
+    customValues: allCustomValues(
+        where: { customField: { schemaName: $schemaName }, objectId: $objectId }
+    ) {
+        id
+        data
+        customField {
+          priority
+          name
+        }
+        sourceType
+        sourceId
+    }
+}
