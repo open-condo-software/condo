@@ -22,14 +22,7 @@ const SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION = gql`
     }
 `
 
-const GET_MY_USERINFO = gql`
-    query getUser {
-        user: authenticatedUser { id }
-    }
-`
-
 module.exports = {
     SIGNIN_BY_EMAIL_MUTATION,
     SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION,
-    GET_MY_USERINFO,
 }
