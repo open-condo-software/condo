@@ -56,7 +56,7 @@ class PassportAuthRouter {
         })
 
         for (const [name, strategy] of Object.entries(this.#strategiesByNames)) {
-            passport.use(name, strategy.build())
+            passport.use(name, strategy.build(keystone))
         }
 
         const strategies = this.#strategiesByNames
@@ -67,11 +67,7 @@ class PassportAuthRouter {
             passport.authenticate(provider)(req, res, next)
         }
 
-        async function onAuthSuccess (err, req, res, next) {
-            if (err) {
-                return next(err)
-            }
-
+        async function onAuthSuccess (req, res, next) {
             const user = req.user
 
             if (!user) {
