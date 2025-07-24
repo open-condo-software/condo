@@ -37,6 +37,14 @@ class DadataSearchProvider extends AbstractSearchProvider {
     normalize (data) {
         return this.suggestionProvider.normalize(data)
     }
+
+    /**
+     * @param {string} fiasId
+     * @returns {Promise<DadataObject|null>}
+     */
+    async getAddressByFiasId (fiasId) {
+        return await this.suggestionProvider.getAddressByFiasId(fiasId)
+    }
 }
 
 module.exports = { DadataSearchProvider }
