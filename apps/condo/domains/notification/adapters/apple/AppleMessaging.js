@@ -163,17 +163,25 @@ class AppleMessaging {
             }
 
             let response
-            for (let retryCounter = 0; retryCounter < RETRY_RESTRICTION; retryCounter++) {
-                response = await this.sendPush(token, payload, options)
-                if (response instanceof Error) {
-                    logger.warn({
-                        msg: 'sendPush was not successful',
-                        count: retryCounter + 1,
-                        err: response,
-                    })
-                    continue
+            try {
+                for (let retryCounter = 0; retryCounter < RETRY_RESTRICTION; retryCounter++) {
+                    response = await this.sendPush(token, payload, options)
+                    if (response instanceof Error) {
+                        logger.warn({
+                            msg: 'sendPush was not successful',
+                            count: retryCounter + 1,
+                            err: response,
+                        })
+                        continue
+                    }
+                    break
                 }
-                break
+            } catch (error) {
+                logger.error({
+                    msg: 'sendPush fail',
+                    err: error,
+                })
+                response = { error }
             }
 
             responses.push(response)
