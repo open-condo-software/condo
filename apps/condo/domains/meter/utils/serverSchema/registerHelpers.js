@@ -180,7 +180,7 @@ async function getMeterReadingByDate (readings, meters, properties, readingModel
         meter: metersWithPropertyByIdMap[reading.meter],
     }))
     return meterReadings.reduce((acc, reading) => {
-        const key = `${reading.meter.id}-${reading.date.toISOString()}`
+        const key = `${reading.meter.id}-${dayjs(reading.date).startOf('day').toISOString()}`
         acc[key] = reading
         
         return acc
