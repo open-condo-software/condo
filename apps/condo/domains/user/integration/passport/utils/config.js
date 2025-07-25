@@ -20,10 +20,13 @@ const OIDC_MAPPING_SCHEMA = z.object(
 
 const OIDC_TOKEN_VERIFICATION_CONFIG_SCHEMA = z.object({
     clients: z.record(z.string(), z.object({
+        // Condo-related part
+        fieldMapping: OIDC_MAPPING_SCHEMA.optional(),
+        identityType: z.string(),
         trustEmail: z.boolean().optional().default(false),
         trustPhone: z.boolean().optional().default(false),
+        // Strategy-related part
         userInfoURL: z.string(),
-        fieldMapping: OIDC_MAPPING_SCHEMA.optional(),
     })),
 }).strict()
 
@@ -43,7 +46,7 @@ const OIDC_STRATEGY_CONFIG_SCHEMA = z.object({
 
 const AUTH_STRATEGIES_CONFIG = {
     github: { optionsSchema: GITHUB_STRATEGY_CONFIG_SCHEMA, trustEmail: true },
-    oidcToken: { optionsSchema: OIDC_TOKEN_VERIFICATION_CONFIG_SCHEMA },
+    oidcTokenUserInfo: { optionsSchema: OIDC_TOKEN_VERIFICATION_CONFIG_SCHEMA },
     oidc: { optionsSchema: OIDC_STRATEGY_CONFIG_SCHEMA },
 }
 
