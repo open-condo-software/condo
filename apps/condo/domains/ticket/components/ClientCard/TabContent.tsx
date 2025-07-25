@@ -11,6 +11,7 @@ import {
     TicketWhereInput,
 } from '@app/condo/schema'
 import { Col, ColProps, Form, Row, RowProps } from 'antd'
+import { isNil } from 'lodash'
 import { useRouter } from 'next/router'
 import qs from 'qs'
 import React, { useCallback, useMemo, useState } from 'react'
@@ -226,6 +227,10 @@ const ClientCardTabContent: React.FC<IClientCardTabContent> = ({
 
     const searchQuery = useMemo(() => {
         if (currentTableTab === RESIDENTS_ENTRANCE_TICKETS_TAB) {
+            if (isNil(sectionName)) {
+                return { property: { id: property?.id } }
+            }
+            
             return {
                 property: { id: property?.id },
                 sectionName,
