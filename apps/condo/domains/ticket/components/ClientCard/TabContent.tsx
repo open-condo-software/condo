@@ -18,7 +18,7 @@ import React, { useCallback, useMemo, useState } from 'react'
 import { useCachePersistor } from '@open-condo/apollo'
 import { ExternalLink, History, Mail } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { ActionBar, Button, Space, Tabs, Typography, Tag, SelectProps } from '@open-condo/ui'
+import { ActionBar, Button, Space, Tabs, Typography, Tag } from '@open-condo/ui'
 
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
@@ -658,6 +658,13 @@ export const SearchByAddressTabContent: React.FC<SearchByAddressTabContentProps>
         setPropertyId(option?.key)
     }, [setPropertyId])
 
+    const handleContactEditClick = useCallback(async () => {
+        await redirectToForm({
+            router,
+            formRoute: `/contact/${firstClientData?.contact?.id}/update`,
+        })
+    }, [firstClientData?.contact?.id, router])
+
     return (
         <Row gutter={ROW_BIG_MEDIUM_GUTTER}>
             {
@@ -734,6 +741,7 @@ export const SearchByAddressTabContent: React.FC<SearchByAddressTabContentProps>
                             getQueryForCreatingMeterReading={getQueryForCreatingMeterReading}
                             showOrganizationMessage={showOrganizationMessage}
                             canManageContacts={canManageContacts}
+                            handleContactEditClick={firstClientData?.contact?.id ? handleContactEditClick : undefined}
                             hideMeterReadingButton={!firstClientData}
                             tableTabs={[RESIDENTS_ENTRANCE_TICKETS_TAB, RESIDENTS_PROPERTY_TICKETS_TAB]}
                         />

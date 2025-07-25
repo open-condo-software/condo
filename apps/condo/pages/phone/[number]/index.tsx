@@ -261,14 +261,14 @@ const ClientCardPageContent: React.FC<IClientCardPageContentProps> = ({
             </Head>
             <PageWrapper>
                 <PageContent>
-                    <Row gutter={ROW_MEDIUM_GUTTER}>
-                        {
-                            tabsData.length === 0 && (
-                                <Col span={24}>
-                                    <Row justify='space-between' align='middle' gutter={SMALL_GUTTER}>
-                                        <Col>
-                                            <Typography.Title>{ClientCardHeader}</Typography.Title>
-                                        </Col>
+                    <Row gutter={ROW_MEDIUM_GUTTER}> 
+                        <Col span={24}>
+                            <Row justify='space-between' align='middle' gutter={SMALL_GUTTER}>
+                                <Col>
+                                    <Typography.Title>{ClientCardHeader}</Typography.Title>
+                                </Col>
+                                {
+                                    tabsData.length === 0 && (
                                         <Col>
                                             <Button 
                                                 onClick={redirectToCreateContact}
@@ -282,10 +282,10 @@ const ClientCardPageContent: React.FC<IClientCardPageContentProps> = ({
                                                 {AddAddressMessage}
                                             </Button>
                                         </Col>
-                                    </Row>
-                                </Col>
-                            )
-                        } 
+                                    )
+                                }    
+                            </Row>
+                        </Col> 
                         <Col span={24}>
                             <Row gutter={ROW_MEDIUM_GUTTER}>
                                 {
