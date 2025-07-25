@@ -27,7 +27,7 @@ const {
     UserAdmin, UserExternalIdentity,
 } = require('@condo/domains/user/utils/testSchema')
 
-const { SBER_ID_IDP_TYPE } = require('../constants/common')
+const { SBER_ID_IDP_TYPE } = require('../constants/identityProviders')
 const { createTestUserExternalIdentity } = require('../utils/testSchema')
 
 describe('ResetUserService', () => {
