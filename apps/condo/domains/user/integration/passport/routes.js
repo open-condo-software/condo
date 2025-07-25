@@ -18,12 +18,13 @@ class PassportAuthRouter {
     apiPrefix = '/api/auth'
 
     constructor (config) {
-        const result = passportConfigSchema.safeParse(config)
-        if (!result.success) {
-            throw new Error(`invalid passport config\n ${z.prettifyError(result.error)}`)
+        const { success, data: parsedConfig, parseError } = passportConfigSchema.safeParse(config)
+        if (!success) {
+            throw new Error(`invalid passport config\n ${z.prettifyError(parseError)}`)
         }
 
-        for (const { strategy, options, name, trustEmail, trustPhone } of result.data) {
+        for (const strategyConfig of parsedConfig) {
+            const { name, strategy } = strategyConfig
             if (Object.hasOwn(this.#strategiesByNames, name)) {
                 throw new Error(`passport handler with "${name}" name was already registered`)
             }
@@ -31,16 +32,16 @@ class PassportAuthRouter {
                 throw new Error(`unknown passport strategy: "${strategy}"`)
             }
             const Strategy = KNOWN_STRATEGIES[strategy]
-            const trustInfo = { trustPhone, trustEmail }
             const routes = this.generateRoutesByName(name)
-            this.#strategiesByNames[name] = new Strategy(routes, trustInfo, options)
+            this.#strategiesByNames[name] = new Strategy(strategyConfig, routes)
         }
     }
 
     generateRoutesByName (name) {
+
         return {
-            authUrl: `${this.apiPrefix}/${name}`,
-            callbackUrl: `${this.apiPrefix}/${name}/callback`,
+            authURL: new URL(`${this.apiPrefix}/${name}`, conf['SERVER_URL']).toString(),
+            callbackURL: new URL(`${this.apiPrefix}/${name}/callback`, conf['SERVER_URL']).toString(),
         }
     }
 

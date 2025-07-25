@@ -28,13 +28,17 @@ const OIDC_TOKEN_VERIFICATION_CONFIG_SCHEMA = z.object({
 }).strict()
 
 const OIDC_STRATEGY_CONFIG_SCHEMA = z.object({
+    // Condo-related part
+    identityType: z.string().optional(),
+    fieldMapping: OIDC_MAPPING_SCHEMA.optional(),
+    // Strategy-related part
     issuer: z.string(),
-    authorizationURL: z.string().url(),
-    tokenURL: z.string().url(),
-    userInfoURL: z.string().url(),
-    clientId: z.string(),
+    scope: z.string().optional().default('openid'),
+    authorizationURL: z.url(),
+    tokenURL: z.url(),
+    userInfoURL: z.url(),
+    clientID: z.string(),
     clientSecret: z.string(),
-    callbackURL: z.string().url(),
 }).strict()
 
 const AUTH_STRATEGIES_CONFIG = {

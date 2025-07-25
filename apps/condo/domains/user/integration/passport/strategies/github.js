@@ -15,7 +15,7 @@ class GithubAuthStrategy {
         name: 'username',
     }
     #options = {}
-    #callbackUrl = '/'
+    #callbackURL = '/'
     #trustInfo = { trustEmail: false, trustPhone: false }
     static #emailsResolutionOrder = [
         { primary: true, verified: true },
@@ -24,11 +24,12 @@ class GithubAuthStrategy {
         {},
     ]
 
-    constructor (routes, trustInfo, options) {
-        const { callbackUrl } = routes
+    constructor (strategyConfig, routes) {
+        const { options, trustEmail, trustPhone } = strategyConfig
+        const { callbackURL } = routes
         this.#options = options
-        this.#callbackUrl = callbackUrl
-        this.#trustInfo = trustInfo
+        this.#callbackURL = callbackURL
+        this.#trustInfo = { trustEmail, trustPhone }
     }
 
     static findValidEmail (emails) {
@@ -58,7 +59,7 @@ class GithubAuthStrategy {
         return new GithubStrategy(
             {
                 ...this.#options,
-                callbackURL: this.#callbackUrl,
+                callbackURL: this.#callbackURL,
                 scope: ['user:email'],
                 // NOTE: This enables ability to pass request arguments from user input. We need to receive userType
                 passReqToCallback: true,
