@@ -83755,6 +83755,20 @@ type CompleteConfirmEmailActionOutput {
   status: String!
 }
 
+input AuthenticateUserWithEmailAndPasswordInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  captcha: String
+  userType: UserTypeType!
+  email: String!
+  password: String!
+}
+
+type AuthenticateUserWithEmailAndPasswordOutput {
+  item: User
+  token: String!
+}
+
 enum OrganizationType {
   MANAGING_COMPANY
   HOLDING
@@ -95584,6 +95598,52 @@ type Mutation {
   }`
   """
   completeConfirmEmailAction(data: CompleteConfirmEmailActionInput!): CompleteConfirmEmailActionOutput
+
+  """
+  This mutation authorizes the user by email and password
+  
+  
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_EMAIL_VALUE",
+    "message": "Wrong format of provided email",
+    "messageForUser": "Invalid E-mail format",
+    "correctExample": "example@example.com"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_CREDENTIALS",
+    "message": "Wrong email or password",
+    "messageForUser": "Wrong email or password"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "CAPTCHA_CHECK_FAILED",
+    "message": "Failed to check CAPTCHA",
+    "messageForUser": "The operation could not be completed. Please update the application"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "DV_VERSION_MISMATCH",
+    "message": "Wrong value for data version number"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_FORMAT",
+    "message": "Invalid format of \"sender\" field value. Please, check the example for details",
+    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
+  }`
+  """
+  authenticateUserWithEmailAndPassword(data: AuthenticateUserWithEmailAndPasswordInput!): AuthenticateUserWithEmailAndPasswordOutput
 
   """
   Registers new Organization for current user
