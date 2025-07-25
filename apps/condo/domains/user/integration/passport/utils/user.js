@@ -353,6 +353,7 @@ function captureUserType (req, res, next) {
     if (!userType) {
         return res.status(400).json({ error: 'userType query parameter is required' })
     }
+
     if (!ALLOWED_USER_TYPES.includes(userType)) {
         return res.status(400).json({ error: 'invalid user type provided' })
     }
@@ -362,9 +363,20 @@ function captureUserType (req, res, next) {
 }
 
 function ensureUserType (req, res, next) {
-    if (!req.session.userType) {
-        return res.status(400).json({ error: 'userType is not found in session' })
+    const { userType } = req.query
+    if (userType) {
+        if (!ALLOWED_USER_TYPES.includes(userType)) {
+            return res.status(400).json({ error: 'invalid user type provided' })
+        }
+        req.session.userType = userType
     }
+
+    if (!req.session.userType) {
+        return res.status(400).json({ error: 'userType was not found' })
+    } else if (!ALLOWED_USER_TYPES.includes(req.session.userType)) {
+        return res.status(400).json({ error: 'invalid user type' })
+    }
+
     next()
 }
 

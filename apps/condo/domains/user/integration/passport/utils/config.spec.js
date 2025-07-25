@@ -7,13 +7,6 @@ const validConfigs = {
         clientID: faker.random.alphaNumeric(12),
         clientSecret: faker.random.alphaNumeric(32),
     },
-    oidcToken: {
-        clients: {
-            [faker.random.alphaNumeric(12)]: {
-                userInfoURL: faker.internet.url(),
-            },
-        },
-    },
     oidc: {
         issuer: faker.internet.url(),
         authorizationURL: faker.internet.url(),
@@ -21,6 +14,14 @@ const validConfigs = {
         userInfoURL: faker.internet.url(),
         clientID: faker.random.alphaNumeric(12),
         clientSecret: faker.random.alphaNumeric(32),
+    },
+    oidcTokenUserInfo: {
+        clients: {
+            [faker.random.alphaNumeric(12)]: {
+                identityType: faker.random.alphaNumeric(12),
+                userInfoURL: faker.internet.url(),
+            },
+        },
     },
 }
 
@@ -92,6 +93,7 @@ function generateValidOIDCTokenOptions () {
             trustPhone,
             userInfoURL: faker.internet.url(),
             fieldMapping,
+            identityType: faker.random.alphaNumeric(12),
         })
 
         const testKey = Object.entries(combination).map(([k, v]) => `${k}:${v}`).join(' ')
@@ -108,15 +110,16 @@ function generateValidOIDCTokenOptions () {
 
 function generateInvalidOIDCTokenOptions () {
     return [
-        ['unknown mapping', { clients: { [faker.random.alphaNumeric(12)]: {  userInfoURL: faker.internet.url(), fieldMapping: { unknownField: 'id' } } } }],
-        ['invalid mapping', { clients: { [faker.random.alphaNumeric(12)]: {  userInfoURL: faker.internet.url(), fieldMapping: { sub: 2 } } } }],
-        ['invalid trustEmail', { clients: { [faker.random.alphaNumeric(12)]: {  userInfoURL: faker.internet.url(), trustEmail: 1 } } }],
-        ['invalid trustPhone', { clients: { [faker.random.alphaNumeric(12)]: {  userInfoURL: faker.internet.url(), trustPhone: 1 } } }],
+        ['no identityType', { clients: { [faker.random.alphaNumeric(12)]: {  userInfoURL: faker.internet.url(), fieldMapping: { unknownField: 'id' } } } }],
+        ['unknown mapping', { clients: { [faker.random.alphaNumeric(12)]: {  identityType: faker.random.alphaNumeric(12), userInfoURL: faker.internet.url(), fieldMapping: { unknownField: 'id' } } } }],
+        ['invalid mapping', { clients: { [faker.random.alphaNumeric(12)]: {  identityType: faker.random.alphaNumeric(12), userInfoURL: faker.internet.url(), fieldMapping: { sub: 2 } } } }],
+        ['invalid trustEmail', { clients: { [faker.random.alphaNumeric(12)]: {  identityType: faker.random.alphaNumeric(12), userInfoURL: faker.internet.url(), trustEmail: 1 } } }],
+        ['invalid trustPhone', { clients: { [faker.random.alphaNumeric(12)]: {  identityType: faker.random.alphaNumeric(12), userInfoURL: faker.internet.url(), trustPhone: 1 } } }],
     ]
 }
 
 const examplesGenerator = {
-    oidcToken: { valid: generateValidOIDCTokenOptions, invalid: generateInvalidOIDCTokenOptions },
+    oidcTokenUserInfo: { valid: generateValidOIDCTokenOptions, invalid: generateInvalidOIDCTokenOptions },
 }
 
 describe('passport config utils', () => {
