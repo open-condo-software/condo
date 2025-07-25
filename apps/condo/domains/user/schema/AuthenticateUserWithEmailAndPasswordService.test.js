@@ -3,39 +3,33 @@
  */
 
 const { faker } = require('@faker-js/faker')
-const { gql } = require('graphql-tag')
 
-const { expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObjects } = require('@open-condo/keystone/test.utils')
-const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
 const {
-    expectToThrowGQLErrorToResult, expectToThrowGraphQLRequestError,
+    expectToThrowGQLErrorToResult,
+    expectToThrowGraphQLRequestError,
+    makeLoggedInAdminClient,
+    makeClient,
 } = require('@open-condo/keystone/test.utils')
 
-const { STAFF, SERVICE, RESIDENT, USER_TYPES } = require('@condo/domains/user/constants/common')
+const {
+    STAFF,
+    SERVICE,
+    RESIDENT,
+    USER_TYPES,
+} = require('@condo/domains/user/constants/common')
 const { AUTH_COUNTER_LIMIT_TYPE } = require('@condo/domains/user/constants/limits')
 const { AUTHENTICATE_USER_WITH_EMAIL_AND_PASSWORD_MUTATION } = require('@condo/domains/user/gql')
-const { authenticateUserWithEmailAndPasswordByTestClient } = require('@condo/domains/user/utils/testSchema')
 const {
     createTestUser,
     User,
     createTestEmail,
     createTestResetUserLimitAction,
     resetUserByTestClient,
+    authenticateUserWithEmailAndPasswordByTestClient,
 } = require('@condo/domains/user/utils/testSchema')
 
 
 describe('Auth by email and password', () => {
-    // We need to check that token is also returned. It's the same as AUTHENTICATE_USER_WITH_EMAIL_AND_PASSWORD_MUTATION
-    const AUTHENTICATE_WITH_EMAIL_AND_PASSWORD_MUTATION_WITH_TOKEN = gql`
-        mutation authenticateUserWithEmailAndPassword ($data: AuthenticateUserWithEmailAndPasswordInput!) {
-            result: authenticateUserWithEmailAndPassword(data: $data) {
-                item {
-                    id
-                }
-            }
-        }
-    `
-
     let admin
 
     beforeAll(async () => {
@@ -61,8 +55,30 @@ describe('Auth by email and password', () => {
     describe('Basic logic', () => {
 
         describe.each(USER_TYPES)('For user type %p', (userType) => {
+            test('should throw error if user email is not verified', async () => {
+                const [, userAttrs] = await createTestUser(admin, {
+                    type: userType,
+                    isEmailVerified: false,
+                })
+
+                await expectToThrowGQLErrorToResult(async () => {
+                    await authenticateUserWithEmailAndPasswordByTestClient(await makeClient(), {
+                        email: userAttrs.email,
+                        password: userAttrs.password,
+                        userType: userAttrs.type,
+                    })
+                }, {
+                    mutation: 'authenticateUserWithEmailAndPassword',
+                    code: 'BAD_USER_INPUT',
+                    type: 'WRONG_CREDENTIALS',
+                })
+            })
+
             test('should throw error if user was soft deleted', async () => {
-                const [user, userAttrs] = await createTestUser(admin, { type: userType })
+                const [user, userAttrs] = await createTestUser(admin, {
+                    type: userType,
+                    isEmailVerified: true,
+                })
                 const [deletedUser] = await User.softDelete(admin, user.id)
                 expect(deletedUser.deletedAt).not.toBeNull()
                 await expectToThrowGQLErrorToResult(async () => {
@@ -79,7 +95,10 @@ describe('Auth by email and password', () => {
             })
 
             test('should throw error if user was reset (or user not registered with same email)', async () => {
-                const [user, userAttrs] = await createTestUser(admin, { type: userType })
+                const [user, userAttrs] = await createTestUser(admin, {
+                    type: userType,
+                    isEmailVerified: true,
+                })
                 await resetUserByTestClient(admin, { user: { id: user.id } })
                 const users = await User.getAll(admin, { email: userAttrs.email })
                 expect(users).toHaveLength(0)
@@ -98,7 +117,11 @@ describe('Auth by email and password', () => {
             })
 
             test('should throw error if user has not password', async () => {
-                const [, userAttrs] = await createTestUser(admin, { password: undefined, type: userType })
+                const [, userAttrs] = await createTestUser(admin, {
+                    password: undefined,
+                    type: userType,
+                    isEmailVerified: true,
+                })
 
                 await expectToThrowGQLErrorToResult(async () => {
                     await authenticateUserWithEmailAndPasswordByTestClient(await makeClient(), {
@@ -114,7 +137,10 @@ describe('Auth by email and password', () => {
             })
 
             test('should throw error if password is incorrect', async () => {
-                const [, userAttrs] = await createTestUser(admin, { type: userType })
+                const [, userAttrs] = await createTestUser(admin, {
+                    type: userType,
+                    isEmailVerified: true,
+                })
 
                 await expectToThrowGQLErrorToResult(async () => {
                     await authenticateUserWithEmailAndPasswordByTestClient(await makeClient(), {
@@ -130,11 +156,14 @@ describe('Auth by email and password', () => {
             })
 
             test('should throw error if email is not valid', async () => {
-                const [, userAttrs] = await createTestUser(admin, { type: userType })
+                const [, userAttrs] = await createTestUser(admin, {
+                    type: userType,
+                    isEmailVerified: true,
+                })
 
                 await expectToThrowGQLErrorToResult(async () => {
                     await authenticateUserWithEmailAndPasswordByTestClient(await makeClient(), {
-                        email: userAttrs.email + 'not-email' + faker.random.alphaNumeric(8),
+                        email: 'not-email' + faker.random.alphaNumeric(8),
                         password: userAttrs.password,
                         userType: userAttrs.type,
                     })
@@ -146,37 +175,28 @@ describe('Auth by email and password', () => {
             })
 
             test('should authorize user and return token if password and email number are correct', async () => {
-                const [user, userAttrs] = await createTestUser(admin, { type: userType })
+                const [user, userAttrs] = await createTestUser(admin, {
+                    type: userType,
+                    isEmailVerified: true,
+                })
                 const anonymousClient = await makeClient()
 
-                const result = await authenticateUserWithEmailAndPasswordByTestClient(anonymousClient, {
+                const [result] = await authenticateUserWithEmailAndPasswordByTestClient(anonymousClient, {
                     email: userAttrs.email,
                     password: userAttrs.password,
                     userType: userAttrs.type,
                 })
 
-                expect(result.data.result.item.id).toBe(user.id)
-                expect(result.data.result.token).not.toBeNull()
+                expect(result.item.id).toBe(user.id)
+                expect(result.token).not.toBeNull()
             })
-        })
-
-        // todo(doma-9891) should not!
-        test('should authorize user if dv or sender not passed', async () => {
-            const [user, userAttrs] = await createTestUser(admin, { type: STAFF })
-
-            const [result] = await authenticateUserWithEmailAndPasswordByTestClient(await makeClient(), {
-                email: userAttrs.email,
-                password: userAttrs.password,
-                userType: userAttrs.type,
-                dv: undefined,
-                sender: undefined,
-            })
-
-            expect(result.item.id).toBe(user.id)
         })
 
         test('should throw error if dv or sender not valid', async () => {
-            const [, userAttrs] = await createTestUser(admin, { type: STAFF })
+            const [, userAttrs] = await createTestUser(admin, {
+                type: STAFF,
+                isEmailVerified: true,
+            })
 
             await expectToThrowGQLErrorToResult(async () => {
                 await authenticateUserWithEmailAndPasswordByTestClient(await makeClient(), {
@@ -207,23 +227,11 @@ describe('Auth by email and password', () => {
             })
         })
 
-        // todo( doma-9891) should not!
-        test('should authorize user with type "staff" if userType is not passed', async () => {
-            const [staff, userAttrs] = await createTestUser(admin, { type: STAFF })
-            await createTestUser(admin, { type: RESIDENT, email: userAttrs.email })
-            await createTestUser(admin, { type: SERVICE, email: userAttrs.email })
-
-            const [result] = await authenticateUserWithEmailAndPasswordByTestClient(await makeClient(), {
-                email: userAttrs.email,
-                password: userAttrs.password,
-                userType: undefined,
-            })
-
-            expect(result.item.id).toBe(staff.id)
-        })
-
         test('should throw error if userType is not valid', async () => {
-            const [, userAttrs] = await createTestUser(admin, { type: STAFF })
+            const [, userAttrs] = await createTestUser(admin, {
+                type: STAFF,
+                isEmailVerified: true,
+            })
 
             await expectToThrowGraphQLRequestError(async () => {
                 await authenticateUserWithEmailAndPasswordByTestClient(await makeClient(), {
@@ -235,9 +243,9 @@ describe('Auth by email and password', () => {
         })
 
         test('should authorize user with with the specified type', async () => {
-            const [staff, userAttrs] = await createTestUser(admin, { type: STAFF })
-            const [resident] = await createTestUser(admin, { type: RESIDENT, email: userAttrs.email, password: userAttrs.password })
-            const [service] = await createTestUser(admin, { type: SERVICE, email: userAttrs.email, password: userAttrs.password })
+            const [staff, userAttrs] = await createTestUser(admin, { type: STAFF, isEmailVerified: true })
+            const [resident] = await createTestUser(admin, { type: RESIDENT, email: userAttrs.email, password: userAttrs.password, isEmailVerified: true })
+            const [service] = await createTestUser(admin, { type: SERVICE, email: userAttrs.email, password: userAttrs.password, isEmailVerified: true })
 
             const [authedStaff] = await authenticateUserWithEmailAndPasswordByTestClient(await makeClient(), {
                 email: userAttrs.email,
@@ -272,8 +280,17 @@ describe('Auth by email and password', () => {
                 for await (const i of Array.from(Array(GUARD_WINDOW_LIMIT).keys())) {
                     const email = createTestEmail()
                     const password = faker.datatype.string(42)
+                    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-                    const { errors } = await client.mutate(AUTHENTICATE_USER_WITH_EMAIL_AND_PASSWORD_MUTATION, { data: { email, password } })
+                    const { errors } = await client.mutate(AUTHENTICATE_USER_WITH_EMAIL_AND_PASSWORD_MUTATION, {
+                        data: {
+                            email,
+                            password,
+                            dv: 1,
+                            sender,
+                            userType: STAFF,
+                        },
+                    })
 
                     if (i === GUARD_WINDOW_LIMIT) {
                         expect(errors).toHaveLength(1)
@@ -308,8 +325,17 @@ describe('Auth by email and password', () => {
                 for (let i = 0; i <= GUARD_WINDOW_LIMIT; i++) {
                     const email = createTestEmail()
                     const password = faker.datatype.string(42)
+                    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-                    const { errors } = await client.mutate(AUTHENTICATE_USER_WITH_EMAIL_AND_PASSWORD_MUTATION, { data: { email, password } })
+                    const { errors } = await client.mutate(AUTHENTICATE_USER_WITH_EMAIL_AND_PASSWORD_MUTATION, {
+                        data: {
+                            email,
+                            password,
+                            dv: 1,
+                            sender,
+                            userType: STAFF,
+                        },
+                    })
                     lockErrors = errors
                 }
 
@@ -329,7 +355,16 @@ describe('Auth by email and password', () => {
                 // Ensure that no more lock
                 const email = createTestEmail()
                 const password = faker.datatype.string(42)
-                const { errors } = await client.mutate(AUTHENTICATE_USER_WITH_EMAIL_AND_PASSWORD_MUTATION, { data: { email, password } })
+                const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+                const { errors } = await client.mutate(AUTHENTICATE_USER_WITH_EMAIL_AND_PASSWORD_MUTATION, {
+                    data: {
+                        email,
+                        password,
+                        dv: 1,
+                        sender,
+                        userType: STAFF,
+                    },
+                })
                 expect(errors).toHaveLength(1)
                 expect(errors[0]).toMatchObject(expect.objectContaining({
                     message: 'Wrong email or password',
@@ -348,8 +383,17 @@ describe('Auth by email and password', () => {
                 for await (const i of Array.from(Array(GUARD_WINDOW_LIMIT).keys())) {
                     const client = await makeClient()
                     const password = faker.datatype.string(42)
+                    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-                    const { errors } = await client.mutate(AUTHENTICATE_USER_WITH_EMAIL_AND_PASSWORD_MUTATION, { data: { email, password } })
+                    const { errors } = await client.mutate(AUTHENTICATE_USER_WITH_EMAIL_AND_PASSWORD_MUTATION, {
+                        data: {
+                            email,
+                            password,
+                            dv: 1,
+                            sender,
+                            userType: STAFF,
+                        },
+                    })
 
                     if (i === GUARD_WINDOW_LIMIT) {
                         expect(errors).toHaveLength(1)
@@ -382,8 +426,17 @@ describe('Auth by email and password', () => {
                 for (let i = 0; i <= GUARD_WINDOW_LIMIT; i++) {
                     const client = await makeClient()
                     const password = faker.datatype.string(42)
+                    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-                    const { errors } = await client.mutate(AUTHENTICATE_USER_WITH_EMAIL_AND_PASSWORD_MUTATION, { data: { email, password } })
+                    const { errors } = await client.mutate(AUTHENTICATE_USER_WITH_EMAIL_AND_PASSWORD_MUTATION, {
+                        data: {
+                            email,
+                            password,
+                            dv: 1,
+                            sender,
+                            userType: STAFF,
+                        },
+                    })
                     lockErrors = errors
                 }
 
@@ -403,7 +456,16 @@ describe('Auth by email and password', () => {
                 // Ensure that no more lock
                 const client = await makeClient()
                 const password = faker.datatype.string(42)
-                const { errors } = await client.mutate(AUTHENTICATE_USER_WITH_EMAIL_AND_PASSWORD_MUTATION, { data: { email, password } })
+                const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+                const { errors } = await client.mutate(AUTHENTICATE_USER_WITH_EMAIL_AND_PASSWORD_MUTATION, {
+                    data: {
+                        email,
+                        password,
+                        dv: 1,
+                        sender,
+                        userType: STAFF,
+                    },
+                })
                 expect(errors).toHaveLength(1)
                 expect(errors[0]).toMatchObject(expect.objectContaining({
                     message: 'Wrong email or password',
