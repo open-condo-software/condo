@@ -231,8 +231,7 @@ async function _getUser (userIdentity, authFactors) {
     }
     if (email) {
         where.email = email
-        // TODO(DOMA-9890): uncomment when add ConfirmEmailToken and all integrations will be have verified emails
-        // where.isEmailVerified = true
+        where.isEmailVerified = true
     }
 
     const users = await itemsQuery('User', {

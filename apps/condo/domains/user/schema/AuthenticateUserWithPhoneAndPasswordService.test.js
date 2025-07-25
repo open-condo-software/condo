@@ -181,7 +181,7 @@ describe('Auth by phone and password', () => {
                     dv: 123,
                 })
             }, {
-                query: 'authenticateOrRegisterUserWithToken',
+                mutation: 'authenticateUserWithPhoneAndPassword',
                 variable: ['data', 'dv'],
                 code: 'BAD_USER_INPUT',
                 type: 'DV_VERSION_MISMATCH',
@@ -195,7 +195,7 @@ describe('Auth by phone and password', () => {
                     sender: { dv: 1, fingerprint: '-' },
                 })
             }, {
-                query: 'authenticateOrRegisterUserWithToken',
+                mutation: 'authenticateUserWithPhoneAndPassword',
                 variable: ['data', 'sender'],
                 code: 'BAD_USER_INPUT',
                 type: 'WRONG_FORMAT',
