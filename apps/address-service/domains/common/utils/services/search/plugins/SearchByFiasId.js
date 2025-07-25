@@ -41,11 +41,13 @@ class SearchByFiasId extends AbstractSearchPlugin {
         const dvSender = this.getDvAndSender(this.constructor.name)
 
         const denormalizedResult = await searchProvider.getAddressByFiasId(fiasId)
-        const [searchResult] = searchProvider.normalize([denormalizedResult])
+        const searchResults = searchProvider ? searchProvider.normalize([denormalizedResult]) : []
 
-        if (!searchResult) {
+        if (searchResults.length === 0) {
             return null
         }
+
+        const searchResult = searchResults[0]
 
         if (get(searchResult, ['data', 'house_fias_id']) !== fiasId) {
             // For now, we want only houses
@@ -60,7 +62,7 @@ class SearchByFiasId extends AbstractSearchPlugin {
             meta: {
                 provider: {
                     name: searchProvider.getProviderName(),
-                    rawData: denormalizedResult,
+                    rawData: searchResult?.provider?.rawData || null,
                 },
                 value: searchResult.value,
                 unrestricted_value: searchResult.unrestricted_value,

@@ -45,7 +45,7 @@ class PullentiSearchProvider extends AbstractSearchProvider {
     }
 
     /**
-     * @returns {Promise<string[]>}
+     * @returns {Promise<string>}
      */
     async get ({ query, context = '', helpers = {} }) {
         const { tin = null } = helpers
@@ -54,15 +54,16 @@ class PullentiSearchProvider extends AbstractSearchProvider {
             query = await maybeBoostQueryWithTin(query, tin, this.req)
         }
 
+        // processAddress returns a string, not an array
         return [await this.pullentiClient.processAddress(query)]
     }
 
     /**
-     * @param {string} xmlString XML string
+     * @param {string[]} xmlStrings XML strings
      * @returns {NormalizedBuilding[]}
      */
-    normalize ([xmlString]) {
-        return [normalize(xmlString)]
+    normalize (xmlStrings) {
+        return xmlStrings.map(normalize)
     }
 
     /**
