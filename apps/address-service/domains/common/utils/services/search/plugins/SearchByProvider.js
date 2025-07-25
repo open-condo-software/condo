@@ -53,7 +53,7 @@ class SearchByProvider extends AbstractSearchPlugin {
             meta: {
                 provider: {
                     name: searchProvider.getProviderName(),
-                    rawData: searchResult?.provider?.rawData || null,
+                    rawData: denormalizedResult[0] || null,
                 },
                 value: searchResult.value,
                 unrestricted_value: searchResult.unrestricted_value,
