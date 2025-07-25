@@ -273,13 +273,8 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     const sections = builder.getSelectedSections()
     const section = sections?.[0]
     const canChangeName = sections.length < 2
-
-    const a = section.floors.map(floor => floor.units.length).findIndex(unitsCount => !!unitsCount)
-    console.log(section.floors.map(floor => floor.units.length))
-    console.log(a)
-    console.log(section)
     const sectionMinFloor = builder.getSectionMinFloor(section.index)
-    const sectionMaxFloor = builder.getSectionMaxFloor(section.index) - a
+    const sectionMaxFloor = builder.getSectionMaxFloor(section.index)
     const sectionUnitOnFloor = section.floors[0].units.length
 
     const [name, setName] = useState<string>('')
