@@ -45,7 +45,7 @@ class PullentiSearchProvider extends AbstractSearchProvider {
     }
 
     /**
-     * @returns {Promise<string>}
+     * @returns {Promise<string[]>}
      */
     async get ({ query, context = '', helpers = {} }) {
         const { tin = null } = helpers
