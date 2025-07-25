@@ -36,11 +36,9 @@ const MarketplaceSettingsPage: PageComponentType = () => {
             <Head>
                 <title>{PageTitle}</title>
             </Head>
-            <PageWrapper>
-                <PageContent>
-                    <MarketplaceSettingsContent />
-                </PageContent>
-            </PageWrapper>
+            <PageContent>
+                <MarketplaceSettingsContent />
+            </PageContent>
         </>
     )
 }
