@@ -19,9 +19,8 @@ const validConfigs = {
         authorizationURL: faker.internet.url(),
         tokenURL: faker.internet.url(),
         userInfoURL: faker.internet.url(),
-        clientId: faker.random.alphaNumeric(12),
+        clientID: faker.random.alphaNumeric(12),
         clientSecret: faker.random.alphaNumeric(32),
-        callbackURL: faker.internet.url(),
     },
 }
 
