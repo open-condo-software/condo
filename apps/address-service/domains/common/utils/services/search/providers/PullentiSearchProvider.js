@@ -67,7 +67,7 @@ class PullentiSearchProvider extends AbstractSearchProvider {
 
     /**
      * @param {string} fiasId
-     * @returns {Promise<DadataObject|null>}
+     * @returns {Promise<string|null>}
      */
     async getAddressByFiasId (fiasId) {
         const xmlResult = await this.pullentiClient.searchByGuid(fiasId) || null
