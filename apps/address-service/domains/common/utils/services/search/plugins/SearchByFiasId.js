@@ -62,7 +62,7 @@ class SearchByFiasId extends AbstractSearchPlugin {
             meta: {
                 provider: {
                     name: searchProvider.getProviderName(),
-                    rawData: searchResult?.provider?.rawData || null,
+                    rawData: denormalizedResult || null,
                 },
                 value: searchResult.value,
                 unrestricted_value: searchResult.unrestricted_value,
