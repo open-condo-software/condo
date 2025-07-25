@@ -179,7 +179,7 @@ class AppleMessaging {
             } catch (error) {
                 logger.error({
                     msg: 'sendPush fail',
-                    err: response,
+                    err: error,
                 })
                 response = { error }
             }
