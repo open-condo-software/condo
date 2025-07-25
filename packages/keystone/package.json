@@ -62,7 +62,7 @@
     "apollo-server-errors": "^3.1.0",
     "apollo-upload-client": "^17.0.0",
     "aws-sdk": "^2.1692.0",
-    "axios": "^0.21.2",
+    "axios": "^0.30.0",
     "axios-cookiejar-support": "^1.0.1",
     "big.js": "^6.2.2",
     "body-parser": "^1.20.3",
