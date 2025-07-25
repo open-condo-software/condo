@@ -27,12 +27,12 @@ class SearchByProvider extends AbstractSearchPlugin {
         const godContext = this.keystoneContext.sudo()
         const dvSender = this.getDvAndSender(this.constructor.name)
 
-        const denormalizedRows = await searchProvider.get({
+        const denormalizedResult = await searchProvider.get({
             query: s,
             context: this.searchContext,
             helpers: this.helpers,
         })
-        const searchResults = searchProvider ? searchProvider.normalize(denormalizedRows) : []
+        const searchResults = searchProvider ? searchProvider.normalize(denormalizedResult) : []
 
         if (searchResults.length === 0) {
             return null
@@ -53,7 +53,7 @@ class SearchByProvider extends AbstractSearchPlugin {
             meta: {
                 provider: {
                     name: searchProvider.getProviderName(),
-                    rawData: denormalizedRows[0],
+                    rawData: denormalizedResult[0] || null,
                 },
                 value: searchResult.value,
                 unrestricted_value: searchResult.unrestricted_value,

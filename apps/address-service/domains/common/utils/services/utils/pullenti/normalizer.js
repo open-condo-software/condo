@@ -41,6 +41,8 @@ function normalize (rawXmlString) {
     let textObj = jsonObj?.textaddr?.textobj || []
     textObj = Array.isArray(textObj) ? textObj : [textObj]
 
+    // TODO (DOMA-11991): Finish normalizer
+    
     // TODO (AleX83Xpert): Maybe we should check expired status?
     // if (
     //     !textObj

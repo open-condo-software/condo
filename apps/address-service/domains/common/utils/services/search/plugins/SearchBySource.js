@@ -1,11 +1,26 @@
 const { getByCondition } = require('@open-condo/keystone/schema')
 
 const { Address } = require('@address-service/domains/address/utils/serverSchema')
+const { PULLENTI_PROVIDER } = require('@address-service/domains/common/constants/providers')
+const { getSearchProvider } = require('@address-service/domains/common/utils/services/providerDetectors')
 const { mergeAddressAndHelpers } = require('@address-service/domains/common/utils/services/search/searchServiceUtils')
 
 const { AbstractSearchPlugin } = require('./AbstractSearchPlugin')
 
 class SearchBySource extends AbstractSearchPlugin {
+
+    /**
+     * @inheritDoc
+     * @param {String} s
+     * @param {SearchPluginParams} params
+     * @returns {boolean}
+     */
+    isEnabled (s, params) {
+        const provider = getSearchProvider({ req: params.req })
+
+        // TODO (DOMA-11991): Maybe create some settings for providers, because it's possible has no sources for Pullenti (this is local database)
+        return !!provider && provider.getProviderName() !== PULLENTI_PROVIDER
+    }
 
     /**
      * @param {String} s

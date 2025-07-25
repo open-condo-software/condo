@@ -4,7 +4,7 @@ const { createInstance } = require('@open-condo/clients/pullenti-client')
 const conf = require('@open-condo/config')
 
 const { PULLENTI_PROVIDER } = require('@address-service/domains/common/constants/providers')
-const { normalize } = require('@address-service/domains/common/utils/services/utils/pullenti/normalizer')
+const { getXmlParser, normalize } = require('@address-service/domains/common/utils/services/utils/pullenti/normalizer')
 const { maybeBoostQueryWithTin } = require('@address-service/domains/common/utils/services/utils/pullenti/queryBooster')
 
 const { AbstractSearchProvider } = require('./AbstractSearchProvider')
@@ -37,6 +37,7 @@ class PullentiSearchProvider extends AbstractSearchProvider {
 
         this.url = url
         this.pullentiClient = createInstance()
+        this.xmlParser = getXmlParser()
     }
 
     getProviderName () {
@@ -44,7 +45,7 @@ class PullentiSearchProvider extends AbstractSearchProvider {
     }
 
     /**
-     * @returns {Promise<string|null>}
+     * @returns {Promise<string[]>}
      */
     async get ({ query, context = '', helpers = {} }) {
         const { tin = null } = helpers
@@ -53,15 +54,32 @@ class PullentiSearchProvider extends AbstractSearchProvider {
             query = await maybeBoostQueryWithTin(query, tin, this.req)
         }
 
-        return await this.pullentiClient.processAddress(query)
+        // processAddress returns a string, not an array
+        return [await this.pullentiClient.processAddress(query)]
     }
 
     /**
-     * @param {string} xmlString XML string
+     * @param {string[]} xmlStrings XML strings
      * @returns {NormalizedBuilding[]}
      */
-    normalize (xmlString) {
-        return [normalize(xmlString)]
+    normalize (xmlStrings) {
+        return xmlStrings.map(normalize)
+    }
+
+    /**
+     * @param {string} fiasId
+     * @returns {Promise<string|null>}
+     */
+    async getAddressByFiasId (fiasId) {
+        const xmlResult = await this.pullentiClient.searchByGuid(fiasId) || null
+        const jsonResult = this.xmlParser.parse(xmlResult)
+        if (!jsonResult?.searchresult?.gar) {
+            return null
+        }
+
+        const gar = jsonResult?.searchresult?.gar || null
+
+        return gar && gar.path ? this.pullentiClient.processAddress(gar.path) : null
     }
 }
 

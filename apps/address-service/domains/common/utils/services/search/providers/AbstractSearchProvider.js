@@ -79,6 +79,14 @@ class AbstractSearchProvider {
     normalize (data) {
         throw new Error('Method still not implemented.')
     }
+
+    /**
+     * @param {string} fiasId
+     * @returns {Promise<DadataObject|null>}
+     */
+    async getAddressByFiasId (fiasId) {
+        throw new Error('Method still not implemented.')
+    }
 }
 
 module.exports = { AbstractSearchProvider }

@@ -1,6 +1,7 @@
 const { isEmpty, isObject } = require('lodash')
 
 const { AddressSource } = require('@address-service/domains/address/utils/serverSchema')
+const { PULLENTI_PROVIDER } = require('@address-service/domains/common/constants/providers')
 const { md5 } = require('@condo/domains/common/utils/crypto')
 
 const ADDRESS_ITEM_FIELDS = 'id address key meta overrides'
@@ -15,7 +16,18 @@ const ADDRESS_ITEM_FIELDS = 'id address key meta overrides'
  */
 async function createOrUpdateAddressWithSource (context, addressServerUtils, addressSourceServerUtils, addressData, addressSource, dvSender) {
     const { key, meta } = addressData
-    const { helpers = null } = meta
+    const { helpers = null, provider: { name: providerName } = {}, data: { fias_id } = {} } = meta
+
+    // TODO (DOMA-11991): Remove this condition
+    // Do not save addresses from pullenti provider, because this provider is local and have no costs. Also, the normalizer is not finished yet.
+    // Maybe, normalizer is not needed at all 🤔 and we need to add some settings for providers (free/paid)
+    if (providerName === PULLENTI_PROVIDER) {
+        return {
+            id: `${providerName}:${fias_id || key}`,
+            overrides: null,
+            ...addressData,
+        }
+    }
 
     //
     // Address
@@ -74,11 +86,19 @@ async function createReturnObject ({
     overridden = {},
     AddressSourceServerUtils = AddressSource,
 }) {
-    const addressSources = await AddressSourceServerUtils.getAll(
-        context,
-        { address: { id: addressModel.id } },
-        'source'
-    ) || []
+    // TODO (DOMA-11991): Remove checking for provider
+    const { meta: { provider: { name: providerName } = {} } = {} } = addressModel
+
+    const addressSources = providerName === PULLENTI_PROVIDER
+        ? []
+        : (
+            await AddressSourceServerUtils.getAll(
+                context,
+                { address: { id: addressModel.id } },
+                'source'
+            ) || []
+        )
+
     const ret = {
         address: addressModel.address,
         addressKey: addressModel.id,
