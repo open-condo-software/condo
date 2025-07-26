@@ -313,7 +313,7 @@ function getSchemaCtx (schemaObjOrName) {
  */
 function getSchemaContexts () {
     if (SCHEMAS.size === 0) throw new Error('Schemas are not registered yet')
-    const result = new Map()
+    const result = {}
     for (const [name] of SCHEMAS) {
         result[name] = getSchemaCtx(name)
     }
