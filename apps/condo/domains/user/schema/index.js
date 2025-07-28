@@ -4,6 +4,7 @@
  */
 
 const { AuthenticateOrRegisterUserWithTokenService } = require('./AuthenticateOrRegisterUserWithTokenService')
+const { AuthenticateUserWithEmailAndPasswordService } = require('./AuthenticateUserWithEmailAndPasswordService')
 const { AuthenticateUserWithPhoneAndPasswordService } = require('./AuthenticateUserWithPhoneAndPasswordService')
 const { ChangePhoneNumberResidentUserService } = require('./ChangePhoneNumberResidentUserService')
 const { CheckUserExistenceService } = require('./CheckUserExistenceService')
@@ -27,7 +28,6 @@ const { User } = require('./User')
 const { UserExternalIdentity } = require('./UserExternalIdentity')
 const { UserRightsSet } = require('./UserRightsSet')
 const { UserSudoToken } = require('./UserSudoToken')
-const { AuthenticateUserWithEmailAndPasswordService } = require('./AuthenticateUserWithEmailAndPasswordService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
