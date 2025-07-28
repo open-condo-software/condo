@@ -2,7 +2,7 @@ project: condo
 configVersion: 1
 ---
 image: base
-from: ubuntu:20.04
+from: ubuntu:22.04
 shell:
   beforeInstall:
   - "export DEBIAN_FRONTEND=noninteractive"
@@ -10,7 +10,7 @@ shell:
   - "useradd --system --create-home --home /app --gid 999 --uid=999 --shell /bin/bash app"
   - "apt update -qq"
   - "apt install -qq -y curl"
-  - "curl -fsL https://deb.nodesource.com/setup_16.x | bash"
+  - "curl -fsSL https://deb.nodesource.com/setup_22.x | bash"
   - "apt install -qq -y --no-install-recommends
       g++
       automake
@@ -18,7 +18,7 @@ shell:
       make
       nodejs
       python3-pip"
-  - "pip3 install django>=3.0.6 psycopg2-binary>=2.8.5"
+  - "pip3 install Django==5.2 psycopg2-binary==2.9.10"
   - "npm install --global yarn"
 
 docker:
