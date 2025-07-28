@@ -173,7 +173,7 @@ async function config () {
 
         // Telegram bot packages
         if (hasPath(packageJsonPath, './domains/*/scenes')) {
-            packageConfig.ignoreDependencies.push('telegraf', 'telegraf-i18n', 'graphql-tag', 'express', 'express-session', 'express-pino-logger', 'openid-client', 'uuid')
+            packageConfig.ignoreDependencies.push('telegraf', 'telegraf-i18n', 'graphql-tag', 'express', 'express-session', 'express-pino-logger', 'openid-client', 'uuid', 'jsonwebtoken')
         }
 
         // Jest-specific packages
