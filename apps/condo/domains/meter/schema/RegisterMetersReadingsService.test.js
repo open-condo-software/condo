@@ -1088,6 +1088,28 @@ describe('RegisterMetersReadingsService', () => {
 
         // be sure that keep same value from creation
         expect(meters[0].controlReadingsDate).toBe(updatedMeters2[0].controlReadingsDate)
+
+        // Try to change the account number
+        const fourReadings = [{
+            ...thirdReadings[0],
+            accountNumber: faker.random.alphaNumeric(12),
+        }]
+        const [fourAttempt] = await registerMetersReadingsByTestClient(adminClient, organization, fourReadings)
+        expect(firstAttempt[0].meter.id).toBe(fourAttempt[0].meter.id)
+
+        const updatedMeters3 = await Meter.getAll(adminClient, {
+            organization: { id: organization.id },
+            property: { id: property.id },
+        })
+        expect(updatedMeters3).toHaveLength(1)
+        expect(updatedMeters3[0].id).toBe(meters[0].id)
+        expect(updatedMeters3[0].number).toBe(readings[0].meterNumber)
+        expect(updatedMeters3[0].place).toBe('place2') // not changed
+        expect(updatedMeters3[0].numberOfTariffs).toBe(2)
+        expect(updatedMeters3[0].nextVerificationDate).toBeTruthy()
+        expect(updatedMeters3[0].archiveDate).toBeTruthy()
+        expect(updatedMeters3[0].isAutomatic).toBe(false)
+        expect(updatedMeters3[0].accountNumber).toBe(fourReadings[0].accountNumber)
     })
 
     test('meter not updated if no fields changed', async () => {
