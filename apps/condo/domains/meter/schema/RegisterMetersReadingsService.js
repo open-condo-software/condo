@@ -184,14 +184,13 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                     }
 
                     let meterId
-                    const foundMeters = meters.filter(meter => {
-                        return meter.property === property.id &&
-                            meter.unitType === unitType &&
-                            meter.unitName === unitName &&
-                            meter.accountNumber === accountNumber &&
-                            meter.number === meterNumber &&
-                            meter.resource === reading.meterResource.id
-                    })
+                    const foundMeters = meters.filter((meter) =>
+                        meter.property === property.id
+                        && meter.unitType === unitType
+                        && meter.unitName === unitName
+                        && meter.number === meterNumber
+                        && meter.resource === reading.meterResource.id
+                    )
 
                     if (foundMeters.length > 1) {
                         resultRows.push(new GQLError({
