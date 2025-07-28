@@ -1530,6 +1530,7 @@ __metadata:
     graphql: ^16.10.0
     graphql-tag: ^2.12.6
     http-proxy: ^1.18.1
+    jsonwebtoken: ^9.0.0
     lodash: ^4.17.21
     next: 13.3.0
     openid-client: 4.7.4
@@ -50753,10 +50754,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zod@npm:^4.0.8":
-  version: 4.0.8
-  resolution: "zod@npm:4.0.8"
-  checksum: 537fc8548dcac8ed90e1bbcc794db19c82e90e8fd0e05caf4a51f39f1bb222245517f1e850facfa8c2cee1a8ad9d63d999b9cebb281e9b35bde99c8f5168b3fe
+"zod@npm:^3.24.4":
+  version: 3.25.73
+  resolution: "zod@npm:3.25.73"
+  checksum: e3a688df6389c18c4329985e26f937a692476f95bcb796444f09b7898eeb81e7ff1ba1c3b5ce187fa82f5970fac355f965d087dcfcc86ddae6da1e46c2670d8f
   languageName: node
   linkType: hard
 
