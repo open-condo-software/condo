@@ -40,12 +40,14 @@ const {
     createTestOrganization,
     makeEmployeeUserClientWithAbilities,
 } = require('@condo/domains/organization/utils/testSchema')
+const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { PARKING_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { createTestPropertyWithMap } = require('@condo/domains/property/utils/testSchema')
 const {
     makeClientWithSupportUser,
     makeClientWithResidentUser,
     makeClientWithServiceUser,
+    makeClientWithStaffUser,
 } = require('@condo/domains/user/utils/testSchema')
 
 describe('RegisterMetersReadingsService', () => {
@@ -1002,18 +1004,19 @@ describe('RegisterMetersReadingsService', () => {
     })
 
     test('can update existing meter via this mutation', async () => {
-        const [organization] = await createTestOrganization(adminClient)
-        const [property] = await createTestPropertyWithMap(adminClient, organization)
+        const staffClient = await makeClientWithStaffUser()
+        const [organization] = await registerNewOrganization(staffClient)
+        const [property] = await createTestPropertyWithMap(staffClient, organization)
         const readings = [createTestReadingData(property, {
             meterMeta: {
                 numberOfTariffs: 2,
                 place: 'place1',
             },
         })]
-        const [firstAttempt] = await registerMetersReadingsByTestClient(adminClient, organization, readings)
+        const [firstAttempt] = await registerMetersReadingsByTestClient(staffClient, organization, readings)
 
         // be sure that meter and meter reading was created successfully
-        const meters = await Meter.getAll(adminClient, {
+        const meters = await Meter.getAll(staffClient, {
             organization: { id: organization.id },
             property: { id: property.id },
         })
@@ -1023,7 +1026,7 @@ describe('RegisterMetersReadingsService', () => {
         expect(meters[0].nextVerificationDate).toBeFalsy()
         expect(meters[0].isAutomatic).toBe(false)
 
-        const metersReadings = await MeterReading.getAll(adminClient, { meter: { id_in: map(meters, 'id') } })
+        const metersReadings = await MeterReading.getAll(staffClient, { meter: { id_in: map(meters, 'id') } })
         expect(metersReadings).toHaveLength(1)
         expect(metersReadings[0].meter.id).toBe(meters[0].id)
 
@@ -1042,11 +1045,11 @@ describe('RegisterMetersReadingsService', () => {
                 archiveDate,
             },
         }]
-        const [secondAttempt] = await registerMetersReadingsByTestClient(adminClient, organization, anotherReadings)
+        const [secondAttempt] = await registerMetersReadingsByTestClient(staffClient, organization, anotherReadings)
         expect(firstAttempt[0].meter.id).toBe(secondAttempt[0].meter.id)
 
         // be sure that meter has changed place and nextVerificationDate
-        const updatedMeters = await Meter.getAll(adminClient, {
+        const updatedMeters = await Meter.getAll(staffClient, {
             organization: { id: organization.id },
             property: { id: property.id },
         })
@@ -1070,10 +1073,10 @@ describe('RegisterMetersReadingsService', () => {
                 place: '',
             },
         }]
-        const [thirdAttempt] = await registerMetersReadingsByTestClient(adminClient, organization, thirdReadings)
+        const [thirdAttempt] = await registerMetersReadingsByTestClient(staffClient, organization, thirdReadings)
         expect(firstAttempt[0].meter.id).toBe(thirdAttempt[0].meter.id)
 
-        const updatedMeters2 = await Meter.getAll(adminClient, {
+        const updatedMeters2 = await Meter.getAll(staffClient, {
             organization: { id: organization.id },
             property: { id: property.id },
         })
@@ -1094,10 +1097,10 @@ describe('RegisterMetersReadingsService', () => {
             ...thirdReadings[0],
             accountNumber: faker.random.alphaNumeric(12),
         }]
-        const [fourAttempt] = await registerMetersReadingsByTestClient(adminClient, organization, fourReadings)
+        const [fourAttempt] = await registerMetersReadingsByTestClient(staffClient, organization, fourReadings)
         expect(firstAttempt[0].meter.id).toBe(fourAttempt[0].meter.id)
 
-        const updatedMeters3 = await Meter.getAll(adminClient, {
+        const updatedMeters3 = await Meter.getAll(staffClient, {
             organization: { id: organization.id },
             property: { id: property.id },
         })
