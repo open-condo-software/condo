@@ -1115,6 +1115,45 @@ describe('RegisterMetersReadingsService', () => {
         expect(updatedMeters3[0].accountNumber).toBe(fourReadings[0].accountNumber)
     })
 
+    test('User from other organization can not change meter account number', async () => {
+        const staffClient1 = await makeClientWithStaffUser()
+        const staffClient2 = await makeClientWithStaffUser()
+        const [organization] = await registerNewOrganization(staffClient1)
+        const [property] = await createTestPropertyWithMap(staffClient1, organization)
+        const readings = [createTestReadingData(property, {
+            meterMeta: {
+                numberOfTariffs: 2,
+                place: 'place1',
+            },
+        })]
+        await registerMetersReadingsByTestClient(staffClient1, organization, readings)
+
+        // be sure that meter and meter reading was created successfully
+        const meters = await Meter.getAll(staffClient1, {
+            organization: { id: organization.id },
+            property: { id: property.id },
+        })
+        expect(meters).toHaveLength(1)
+        expect(meters[0].number).toBe(readings[0].meterNumber)
+        expect(meters[0].place).toBe('place1')
+        expect(meters[0].nextVerificationDate).toBeFalsy()
+        expect(meters[0].isAutomatic).toBe(false)
+
+        const metersReadings = await MeterReading.getAll(staffClient1, { meter: { id_in: map(meters, 'id') } })
+        expect(metersReadings).toHaveLength(1)
+        expect(metersReadings[0].meter.id).toBe(meters[0].id)
+
+        // Try to change the account number
+        const fourReadings = [{
+            ...readings[0],
+            accountNumber: faker.random.alphaNumeric(12),
+        }]
+
+        await expectToThrowAccessDeniedErrorToResult(async () => {
+            await registerMetersReadingsByTestClient(staffClient2, organization, fourReadings)
+        })
+    })
+
     test('meter not updated if no fields changed', async () => {
         const [organization] = await createTestOrganization(adminClient)
         const [property] = await createTestPropertyWithMap(adminClient, organization)
