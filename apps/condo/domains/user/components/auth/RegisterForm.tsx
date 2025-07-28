@@ -14,6 +14,7 @@ import { FormItem } from '@condo/domains/common/components/Form/FormItem'
 import { useHCaptcha } from '@condo/domains/common/components/HCaptcha'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
+import { analytics } from '@condo/domains/common/utils/analytics'
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 import { RequiredFlagWrapper } from '@condo/domains/user/components/containers/styles'
 import { MIN_PASSWORD_LENGTH } from '@condo/domains/user/constants/common'
@@ -21,6 +22,7 @@ import { EMAIL_ALREADY_REGISTERED_ERROR } from '@condo/domains/user/constants/er
 
 import { useRegisterFormValidators } from './hooks'
 import { useRegisterContext } from './RegisterContextProvider'
+
 
 
 type RegisterFormProps = {
@@ -77,6 +79,9 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
     })
     const [authOrRegisterUserWithTokenMutation, authOrRegisterUserWithTokenResult] = useAuthenticateOrRegisterUserWithTokenMutation({
         onError: authOrRegisterErrorHandler,
+        onCompleted: () => {
+
+        },
     })
 
     const visibleFields = useMemo(() => ({
@@ -113,6 +118,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
                     setStep('authenticate')
                 } else {
                     setStep('register')
+                    analytics.track('confirm_phone', {})
                 }
             }
         } catch (error) {
@@ -156,6 +162,9 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
 
             const userId = res?.data?.result?.user?.id
             if (!res.errors && userId) {
+                if (step === 'register') {
+                    analytics.track('register_user', { userId })
+                }
                 await refetch()
                 await onFinish()
                 return
