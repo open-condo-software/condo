@@ -6,7 +6,6 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { CheckCircle, Copy, Paperclip, Sparkles } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Input, Button, Tour, Tooltip } from '@open-condo/ui'
-import { useBreakpoints } from '@open-condo/ui/hooks'
 
 import AIInputNotification from '@condo/domains/ai/components/AIInputNotification'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
@@ -21,6 +20,75 @@ import { CommentWithFiles } from './index'
 
 const REFRESH_COPY_BUTTON_INTERVAL_IN_MS = 3000
 const ENTER_KEY_CODE = 13
+const TourStepZIndex = 1071
+
+interface IRewriteTextButtonProps {
+    hasText: boolean
+    isInputDisable: boolean
+    rewriteTextLoading: boolean
+    onClick: () => void
+}
+
+const RewriteTextButton: React.FC<IRewriteTextButtonProps> = ({
+    hasText,
+    isInputDisable,
+    rewriteTextLoading,
+    onClick,
+}) => {
+    const intl = useIntl()
+    const UpdateTextMessage = intl.formatMessage({ id: 'ai.updateText' })
+    const TourUpdateTextTitle = intl.formatMessage({ id: 'ai.updateText.tour.title' })
+    const TourUpdateTextMessage = intl.formatMessage({ id: 'ai.updateText.tour.message' })
+
+    const { currentStep, setCurrentStep } = Tour.useTourContext()
+
+    const closeTourStep = useCallback(() => {
+        if (currentStep === 2) {
+            cookie.set(UPDATE_COMMENT_TOUR_STEP_CLOSED_COOKIE, true)
+            setCurrentStep(0)
+        }
+    }, [currentStep, setCurrentStep])
+
+    return (
+        <Tour.TourStep
+            step={2}
+            key='aiButton'
+            placement='top'
+            zIndex={TourStepZIndex}
+            title={TourUpdateTextTitle}
+            message={TourUpdateTextMessage}
+            onClose={closeTourStep}
+        >
+            <Button
+                compact
+                minimal
+                type='secondary'
+                size='medium'
+                disabled={!hasText || isInputDisable}
+                loading={rewriteTextLoading}
+                icon={<Sparkles size='small' />}
+                onClick={onClick}
+                className={classNames(styles.rewriteTextButton, styles.rewriteButtonWithText)}
+            >
+                {UpdateTextMessage}
+            </Button>
+
+            <Tooltip title={UpdateTextMessage} placement='top' className={styles.rewriteButtonTextWithTooltip}>
+                <Button
+                    compact
+                    minimal
+                    type='secondary'
+                    size='medium'
+                    disabled={!hasText || isInputDisable}
+                    loading={rewriteTextLoading}
+                    icon={<Sparkles size='small' />}
+                    onClick={onClick}
+                    className={styles.rewriteTextButton}
+                />
+            </Tooltip>
+        </Tour.TourStep>
+    )
+}
 
 interface ICommentFormProps {
     commentForm: FormInstance
@@ -38,16 +106,16 @@ interface ICommentFormProps {
     rewriteTextLoading: boolean
     generateCommentAnswer?: string
     errorMessage?: string
-    onOpen: () => void
     setGenerateCommentAnswer: (value: string) => void
     setErrorMessage: (value: string) => void
-
     rewriteTextAnswer?: string
     setRewriteTextAnswer: (value: string) => void
     generateCommentClickHandler: () => Promise<void>
     rewriteTextOnClickHandler: () => Promise<void>
     commentTextAreaRef: null | React.MutableRefObject<InputRef>
     rewriteCommentEnabled: boolean
+    aiNotificationShow: boolean
+    setAiNotificationShow: (value: boolean) => void
 }
 
 const CommentForm: React.FC<ICommentFormProps> = ({
@@ -70,17 +138,15 @@ const CommentForm: React.FC<ICommentFormProps> = ({
     setRewriteTextAnswer,
     setSending,
     setEditableComment,
-    onOpen,
     errorMessage,
     setGenerateCommentAnswer,
     setErrorMessage,
     generateCommentClickHandler,
+    aiNotificationShow,
+    setAiNotificationShow,
 }) => {
     const intl = useIntl()
     const PlaceholderMessage = intl.formatMessage({ id: 'Comments.form.placeholder' })
-    const UpdateTextMessage = intl.formatMessage({ id: 'ai.updateText' })
-    const TourUpdateTextTitle = intl.formatMessage({ id: 'ai.updateText.tour.title' })
-    const TourUpdateTextMessage = intl.formatMessage({ id: 'ai.updateText.tour.message' })
     const UploadTooltipText = intl.formatMessage({ id: 'component.uploadlist.AddFileLabel' })
     const CopyTooltipText = intl.formatMessage({ id: 'Copy' })
     const CopiedTooltipText = intl.formatMessage({ id: 'Copied' })
@@ -89,10 +155,8 @@ const CommentForm: React.FC<ICommentFormProps> = ({
     const [commentValue, setCommentValue] = useState('')
     const [copied, setCopied] = useState<boolean>()
     const [isUpdateLoading, setIsUpdateLoading] = useState(false)
-    const [aiNotificationShow, setAiNotificationShow] = useState(false)
 
     const { currentStep, setCurrentStep } = Tour.useTourContext()
-    const breakpoint = useBreakpoints()
 
     const { UploadComponent, syncModifiedFiles, resetModifiedFiles, filesCount } = useMultipleFileUploadHook({
         Model: FileModel,
@@ -183,7 +247,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
         if (( errorMessage || generateCommentAnswer || rewriteTextAnswer)) {
             setAiNotificationShow(true)
         }
-    }, [errorMessage, generateCommentAnswer, rewriteTextAnswer, onOpen])
+    }, [errorMessage, generateCommentAnswer, rewriteTextAnswer, setAiNotificationShow])
 
     const handleCopyClick = useCallback(async () => {
         if (copied) return
@@ -224,20 +288,11 @@ const CommentForm: React.FC<ICommentFormProps> = ({
         setCurrentStep(isTipHidden ? 0 : 2)
     }, [setCurrentStep])
 
-    const closeTourStep = useCallback(() => {
-        if (currentStep === 2) {
-            cookie.set(UPDATE_COMMENT_TOUR_STEP_CLOSED_COOKIE, true)
-            setCurrentStep(0)
-        }
-    }, [currentStep, setCurrentStep])
-
     const closeAINotification = () => {
         setAiNotificationShow(false)
-        setTimeout(()=> {
-            setGenerateCommentAnswer('')
-            setRewriteTextAnswer('')
-            setErrorMessage('')
-        }, 100)
+        setGenerateCommentAnswer('')
+        setRewriteTextAnswer('')
+        setErrorMessage('')
     }
 
     const handleCloseAINotification = () => {
@@ -266,7 +321,6 @@ const CommentForm: React.FC<ICommentFormProps> = ({
     }
 
     const handleUpdateComment = () => {
-        closeTourStep()
         rewriteTextOnClickHandler()
     }
 
@@ -317,10 +371,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                             autoSize={{ minRows: 1, maxRows: 5 }}
                             disabled={isInputDisable}
                             onSubmit={()=>handelSendMessage(commentForm)}
-                            onChange={(event) => {
-                                if (editableComment) setEditableComment(prev=> ({ ...prev, content: event.target.value }))
-                                else setCommentValue(event.target.value)
-                            }}
+                            onChange={(event) => setCommentValue(event.target.value)}
                             bottomPanelUtils={[
                                 <MemoizedUploadComponent
                                     key='uploadButton'
@@ -340,30 +391,15 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                                         icon={copied ? (<CheckCircle size='small' />) : (<Copy size='small'/>) }
                                     />
                                 </Tooltip>,
-                                ...(rewriteCommentEnabled ? [<Tour.TourStep
-                                    step={2}
-                                    key='aiButton'
-                                    placement='top'
-                                    zIndex={1071}
-                                    title={TourUpdateTextTitle}
-                                    message={TourUpdateTextMessage}
-                                    onClose={closeTourStep}
-                                    getPopupContainer={() => document.body}
-                                >
-                                    <Button
-                                        compact
-                                        minimal
-                                        type='secondary'
-                                        size='medium'
-                                        disabled={!hasText || isInputDisable}
-                                        loading={rewriteTextLoading}
-                                        icon={<Sparkles size='small' />}
+                                ...(rewriteCommentEnabled ? [
+                                    <RewriteTextButton
+                                        key='rewriteButton'
+                                        hasText={hasText}
+                                        isInputDisable={isInputDisable}
+                                        rewriteTextLoading={rewriteTextLoading}
                                         onClick={handleUpdateComment}
-                                        className={styles.rewriteTextButton}
-                                    >
-                                        {breakpoint.MOBILE_LARGE && UpdateTextMessage}
-                                    </Button>
-                                </Tour.TourStep>] : []),
+                                    />,
+                                ] : []),
                             ]}
                         />
                     </AIInputNotification>
