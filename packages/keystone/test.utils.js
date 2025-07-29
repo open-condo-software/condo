@@ -155,9 +155,11 @@ let __expressTestServers = {}
 /**
  * Initializes provided express server on a free port. Returns an address of the server. Removes server after finishing tests
  * Use ONLY inside jest test files!
- * @param {string} name
- * @param {Express} app
- * @param {string} protocol like http, ssh, rdp, https. Used only in address
+ * @param {string} name - Unique identifier for the test server
+ * @param {Express} app - Express application instance
+ * @param {string} [protocol='http'] - Protocol like http, https, ssh, rdp. Used only in address
+ * @param {number} [port=0] - Port number (0 for random available port)
+ * @throws {Error} If name or app is missing, server already exists, or port is in use
  */
 function initTestExpressApp (name, app, protocol = 'http', port = 0) {
     if (!name) {
@@ -169,30 +171,47 @@ function initTestExpressApp (name, app, protocol = 'http', port = 0) {
     }
 
     if (getTestExpressApp(name)) {
-        throw new Error('initTestExpressApp(name, app) express app with this name is already initialized')
+        throw new Error(`initTestExpressApp(name, app) express app with name "${name}" is already initialized`)
     }
 
     beforeAll(async () => {
-
         __expressTestServers[name] = {
             server: null,
             address: null,
             port: null,
             baseUrl: null,
         }
-        // This express runs only in tests
-        // nosemgrep: problem-based-packs.insecure-transport.js-node.using-http-server.using-http-server
-        __expressTestServers[name].server = await http.createServer(app).listen(port)
 
-        const addressInfo = __expressTestServers[name].server.address()
-        __expressTestServers[name].address = addressInfo.address === '::' ? 'localhost' : addressInfo.address
-        __expressTestServers[name].port = addressInfo.port
-        __expressTestServers[name].baseUrl = `${protocol}://${__expressTestServers[name].address}:${__expressTestServers[name].port}`
+        try {
+            __expressTestServers[name].server = http.createServer(app)
+
+            __expressTestServers[name].server.on('error', (err) => {
+                if (err.code === 'EADDRINUSE') {
+                    throw new Error(`Port ${port} is already in use`)
+                }
+                throw err
+            })
+
+            await new Promise((resolve, reject) => {
+                __expressTestServers[name].server.listen(port, () => {
+                    const addressInfo = __expressTestServers[name].server.address()
+                    __expressTestServers[name].address = addressInfo.address === '::' ? 'localhost' : addressInfo.address
+                    __expressTestServers[name].port = addressInfo.port
+                    __expressTestServers[name].baseUrl = `${protocol}://${__expressTestServers[name].address}:${__expressTestServers[name].port}`
+                    resolve()
+                }).on('error', reject)
+            })
+        } catch (err) {
+            delete __expressTestServers[name]
+            throw err
+        }
     })
 
     afterAll(async () => {
         if (__expressTestServers[name]) {
-            __expressTestServers[name].server.close()
+            await new Promise((resolve) => {
+                __expressTestServers[name].server.close(resolve)
+            })
             delete __expressTestServers[name]
         }
     })
