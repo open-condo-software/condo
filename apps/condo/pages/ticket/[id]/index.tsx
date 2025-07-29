@@ -99,7 +99,7 @@ const TICKET_CONTENT_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
 const BIG_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
 const MEDIUM_VERTICAL_GUTTER: RowProps['gutter'] = [0, 24]
 const SMALL_VERTICAL_GUTTER: RowProps['gutter'] = [0, 20]
-const BIG_HORIZONTAL_GUTTER: RowProps['gutter'] = [40, 0]
+const BIG_HORIZONTAL_GUTTER: RowProps['gutter'] = [20, 0]
 
 const TicketHeader = ({ ticket, handleTicketStatusChanged, organization, employee }) => {
     const intl = useIntl()
@@ -692,7 +692,7 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
 
     const render = (
         <Row gutter={BIG_VERTICAL_GUTTER}>
-            <Col lg={16} xs={24}>
+            <Col lg={15} xs={24}>
                 <Row gutter={TICKET_CONTENT_VERTICAL_GUTTER}>
                     <Row gutter={MEDIUM_VERTICAL_GUTTER}>
                         <TicketHeader
@@ -766,7 +766,7 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
                     </Col>
                 </Row>
             </Col>
-            <Col lg={7} xs={24} offset={breakpoints.DESKTOP_SMALL ? 1 : 0}>
+            <Col lg={8} xs={24} offset={breakpoints.DESKTOP_SMALL ? 1 : 0}>
                 <Affix offsetTop={40}>
                     <CommentsWrapper
                         ticketId={id}
