@@ -374,10 +374,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                             autoSize={{ minRows: 1, maxRows: 5 }}
                             disabled={isInputDisable}
                             onSubmit={()=>handelSendMessage(commentForm)}
-                            onChange={(event) => {
-                                if (editableComment) setEditableComment(prev=> ({ ...prev, content: event.target.value }))
-                                else setCommentValue(event.target.value)
-                            }}
+                            onChange={(event) => setCommentValue(event.target.value)}
                             bottomPanelUtils={[
                                 <MemoizedUploadComponent
                                     key='uploadButton'
