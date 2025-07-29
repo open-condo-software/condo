@@ -1,3 +1,4 @@
+import { useApolloClient } from '@apollo/client'
 import {
     useGetCommonOrOrganizationContactRolesQuery,
     useGetPropertyWithMapByIdQuery,
@@ -76,6 +77,7 @@ export const CreateContactForm: React.FC = () => {
     const ErrorsContainerTitle = intl.formatMessage({ id: 'errorsContainer.requiredErrors' })
     const ContactDuplicateMessage = intl.formatMessage({ id: 'contact.ContactDuplicateError' })
 
+    const client = useApolloClient()
     const { organization, role } = useOrganization()
     const router = useRouter()
     const initialValuesFromQuery = useMemo(() => getObjectValueFromQuery(router, ['initialValues']), [router])
@@ -171,6 +173,9 @@ export const CreateContactForm: React.FC = () => {
             },
         })
 
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allContacts' })
+        client.cache.gc()
+
         if (redirectToClientCard) {
             const contact = response?.data?.contact
             const phone = contact.phone
@@ -181,7 +186,7 @@ export const CreateContactForm: React.FC = () => {
         } else {
             await router.push('/contact/')
         }
-    }, [createContactMutation, organization?.id, redirectToClientCard, router])
+    }, [client.cache, createContactMutation, organization.id, redirectToClientCard, router])
 
     const canManageContacts = role?.canManageContacts
 
