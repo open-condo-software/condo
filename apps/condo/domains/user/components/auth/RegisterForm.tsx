@@ -24,7 +24,6 @@ import { useRegisterFormValidators } from './hooks'
 import { useRegisterContext } from './RegisterContextProvider'
 
 
-
 type RegisterFormProps = {
     onFinish: () => Promise<void>
     onReset: () => void
@@ -79,9 +78,6 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
     })
     const [authOrRegisterUserWithTokenMutation, authOrRegisterUserWithTokenResult] = useAuthenticateOrRegisterUserWithTokenMutation({
         onError: authOrRegisterErrorHandler,
-        onCompleted: () => {
-
-        },
     })
 
     const visibleFields = useMemo(() => ({
@@ -118,6 +114,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
                     setStep('authenticate')
                 } else {
                     setStep('register')
+                    if (!captcha || !token || !result.isUserExists) return
                     analytics.track('confirm_phone', {})
                 }
             }
@@ -162,7 +159,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
 
             const userId = res?.data?.result?.user?.id
             if (!res.errors && userId) {
-                if (step === 'register') {
+                if (step === 'register' && !userExistenceResult?.data?.result?.isUserExists) {
                     analytics.track('register_user', { userId })
                 }
                 await refetch()
