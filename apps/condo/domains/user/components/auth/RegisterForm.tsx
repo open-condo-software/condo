@@ -114,8 +114,9 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
                     setStep('authenticate')
                 } else {
                     setStep('register')
-                    if (!captcha || !token || !result.isUserExists) return
-                    analytics.track('confirm_phone', {})
+                    if (!result.isUserExists) {
+                        analytics.track('confirm_phone_registration', {})
+                    }
                 }
             }
         } catch (error) {
@@ -172,7 +173,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
         } finally {
             setIsLoading(false)
         }
-    }, [authOrRegisterUserWithTokenMutation, form, executeCaptcha, isLoading, onFinish, refetch, token, visibleFields])
+    }, [authOrRegisterUserWithTokenMutation, form, executeCaptcha, isLoading, onFinish, refetch, token, visibleFields, userExistenceResult])
 
     useEffect(() => {
         if (step !== 'checkUser') return
