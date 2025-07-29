@@ -154,6 +154,10 @@
   border-radius: 8px;
 }
 
+.comment :global(.ant-comment-content-detail) > span {
+  white-space: pre-line;
+}
+
 .comment :global(.ant-comment-content-author) {
   display: flex;
   flex-direction: column;
