@@ -14,6 +14,7 @@ import { FormItem } from '@condo/domains/common/components/Form/FormItem'
 import { useHCaptcha } from '@condo/domains/common/components/HCaptcha'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
+import { analytics } from '@condo/domains/common/utils/analytics'
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 import { RequiredFlagWrapper } from '@condo/domains/user/components/containers/styles'
 import { MIN_PASSWORD_LENGTH } from '@condo/domains/user/constants/common'
@@ -113,6 +114,9 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
                     setStep('authenticate')
                 } else {
                     setStep('register')
+                    if (!result.isUserExists) {
+                        analytics.track('confirm_phone_registration', {})
+                    }
                 }
             }
         } catch (error) {
@@ -156,6 +160,9 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
 
             const userId = res?.data?.result?.user?.id
             if (!res.errors && userId) {
+                if (step === 'register' && !userExistenceResult?.data?.result?.isUserExists) {
+                    analytics.track('register_user', { userId })
+                }
                 await refetch()
                 await onFinish()
                 return
@@ -166,7 +173,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onReset, onFinish })
         } finally {
             setIsLoading(false)
         }
-    }, [authOrRegisterUserWithTokenMutation, form, executeCaptcha, isLoading, onFinish, refetch, token, visibleFields])
+    }, [authOrRegisterUserWithTokenMutation, form, executeCaptcha, isLoading, onFinish, refetch, token, visibleFields, userExistenceResult])
 
     useEffect(() => {
         if (step !== 'checkUser') return
