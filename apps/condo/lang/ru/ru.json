@@ -1053,6 +1053,7 @@
   "field.Category": "Категория",
   "field.Classifier.requiredError": "Выберите классификатор проблемы",
   "field.ClientName.minLengthError": "Укажите ФИО",
+  "field.ClientName.maxLengthError": "ФИО слишком большое",
   "field.Description.lengthError": "Пожалуйста, опишите проблему подробнее",
   "field.EMail": "E-mail",
   "field.Executor": "Исполнитель",

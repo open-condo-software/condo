@@ -1053,6 +1053,7 @@
   "field.Category": "Categoría",
   "field.Classifier.requiredError": "Selecciona clasificador del problema",
   "field.ClientName.minLengthError": "Indica el nombre completo",
+  "field.ClientName.maxLengthError": "Nombre demasiado largo",
   "field.Description.lengthError": "Por favor, describe el problema en detalle",
   "field.EMail": "E-mail",
   "field.Executor": "Técnico asignado",
