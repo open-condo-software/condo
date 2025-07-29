@@ -6,7 +6,6 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { CheckCircle, Copy, Paperclip, Sparkles } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Input, Button, Tour, Tooltip } from '@open-condo/ui'
-import { useBreakpoints } from '@open-condo/ui/hooks'
 
 import AIInputNotification from '@condo/domains/ai/components/AIInputNotification'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
@@ -21,6 +20,7 @@ import { CommentWithFiles } from './index'
 
 const REFRESH_COPY_BUTTON_INTERVAL_IN_MS = 3000
 const ENTER_KEY_CODE = 13
+const TourStepZIndex = 1071
 
 interface IRewriteTextButtonProps {
     hasText: boolean
@@ -54,11 +54,10 @@ const RewriteTextButton: React.FC<IRewriteTextButtonProps> = ({
             step={2}
             key='aiButton'
             placement='top'
-            zIndex={1071}
+            zIndex={TourStepZIndex}
             title={TourUpdateTextTitle}
             message={TourUpdateTextMessage}
             onClose={closeTourStep}
-            getPopupContainer={() => document.body}
         >
             <Button
                 compact
